@@ -20,7 +20,7 @@ from datetime import datetime
 import time
 
 # Target URL from review request
-BASE_URL = "https://e28fa8d0-2f83-434a-a10f-6b9f6b5c3a63.preview.emergentagent.com/api"
+BASE_URL = "https://dynopay-staging-1.preview.emergentagent.com/api"
 
 # SMS counter to enforce limit
 sms_sent_count = 0
