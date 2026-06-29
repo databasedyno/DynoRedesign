@@ -36,11 +36,19 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "api.dynopay.com",
+        hostname: "dynopay.com",
+      },
+      {
+        protocol: "https",
+        hostname: "**.dynopay.com",
       },
       {
         protocol: "https",
         hostname: "**.preview.emergentagent.com",
+      },
+      {
+        protocol: "https",
+        hostname: "**.googleusercontent.com",
       },
     ],
   },
