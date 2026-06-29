@@ -22,7 +22,12 @@ const EmailVerificationBanner: React.FC = () => {
   const [otpError, setOtpError] = useState("");
   const [sending, setSending] = useState(false);
 
-  // If user is not logged in or email is already verified, don't show banner
+  // If user is not logged in or email is already verified, don't show banner.
+  // Also hide for phone-only accounts that have NO email on file — there is
+  // nothing to verify, and prompting would send a verification email to a
+  // non-existent address (confusing for SMS/phone users).
+  const userEmail = userState.email || userState.profile?.email || "";
+  const hasEmail = !!userEmail;
   const isVerified = userState.email_verified || userState.profile?.email_verified;
   const isLoggedIn = !!userState.name;
 
@@ -70,7 +75,7 @@ const EmailVerificationBanner: React.FC = () => {
     }
   }, [userState.error]);
 
-  if (!isLoggedIn || isVerified) {
+  if (!isLoggedIn || isVerified || !hasEmail) {
     return null;
   }
 
