@@ -326,6 +326,107 @@ frontend:
 - FeeWalletMonitor error serialization: FIXED - safeErrorMsg() now handles all error types
 
 
+## Phone-only (no-email) user blocked by email-verification 403 (Bug Fix) — Test Request (2026-06-29)
+USER REPORT: After logging in with a phone number (register page, +13025141000), a toast "please check your
+email / an email was sent to my email" appeared, even though the account has no email.
+ROOT CAUSE: middleware/emailVerifiedMiddleware.ts gates /company, /wallet, /dashboard and returned HTTP 403
+"Please verify your email address before accessing this feature. Check your inbox for a verification code."
+for ANY user with email_verified=false — WITHOUT checking whether the user has an email. Phone/SMS-only
+accounts (email=null) were thus locked out of the whole app, and the 403 message was shown as a toast by the
+Redux sagas (CompanySaga/DashboardSaga/WalletSaga) on the dashboard.
+FIX (backend):
+  - emailVerifiedMiddleware.ts: now fetches `email` too and only returns the 403 when `email && !email_verified`.
+    Accounts with no email (phone-only) pass through.
+  - companyController.ts (createCompany emails): guarded sendCompanyProfileCreatedEmail so it only sends when the
+    account has an email, and made the account-vs-contact email comparison null-safe (was userDetails.email.toLowerCase()
+    which threw for null). Prevents the next failure when a phone-only user creates a company.
+FIX (frontend, earlier this session): EmailVerificationBanner hidden when the user has no email (defensive).
+
+BACKEND TEST REQUEST — base https://accffeb1-feba-47a6-aeb5-4a4b98645038.preview.emergentagent.com/api
+Headers: Authorization: Bearer <token>, User-Agent: Mozilla/5.0 ... Chrome/120 Safari/537.36
+HOW TO MINT TOKENS (replicates getAccessToken): from /app/backend run `node -r dotenv/config <script>.js` using
+  jwt (in node_modules) + pg: SELECT * FROM tbl_user WHERE user_id=$1; delete row.password; delete row.telegram_id;
+  jwt.sign(row, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '30d' }).
+CASES:
+  A) PHONE-ONLY user (the fix): user_id 10 (email=NULL, email_verified=false). With its token, call:
+     GET /api/company/getCompany, GET /api/dashboard, GET /api/wallet/getWallet
+     EXPECT: NONE of them return HTTP 403 with the "Please verify your email ... Check your inbox" message.
+     (200 / empty-company / other non-email-verification responses are all acceptable — just NOT that 403.)
+  B) EMAIL + UNVERIFIED (gate preserved): create one via POST /api/user/registerUser
+     {name:"QA Unverif", email:"qa.unverif.<ts>@dynopaytest.com", password:"Test@12345"} → it returns accessToken
+     and the account has email_verified=false. With that token: GET /api/company/getCompany
+     EXPECT: HTTP 403 with the "Please verify your email ... Check your inbox" message (still blocked — correct).
+  C) VERIFIED email user: user_id 3 (qa.onboard.1782585233@dynopaytest.com, email_verified=true). With its token:
+     GET /api/company/getCompany EXPECT: NOT blocked by email middleware (200/normal).
+  D) Regression: GET /api/ → 200.
+Report exact status codes + whether the email-verification 403 message appears for each case. PASS = A & C not
+blocked by email 403, B still blocked, D healthy.
+
+## Phone-only Email Verification Bug Fix — VERIFICATION RESULTS (2026-06-29 16:12 UTC)
+- agent: testing
+- test_date: 2026-06-29 16:12:33 UTC
+- test_url: https://accffeb1-feba-47a6-aeb5-4a4b98645038.preview.emergentagent.com/api
+- bug_fix_context: Phone-only users (email=NULL) were wrongly blocked by emailVerifiedMiddleware with HTTP 403 "Please verify your email...". Fix: Middleware now only blocks when `email && !email_verified`
+- test_results: ✅ BUG FIX VERIFIED - ALL CRITICAL CRITERIA PASSED (4/4 tests - 100% success rate)
+
+### CRITICAL PASS/FAIL CRITERIA - ALL PASSED ✅
+
+**TEST A: PHONE-ONLY USER (user_id 10) - THE FIX** ✅ PASS
+- User details: mobile=13025141000, email=NULL, email_verified=false
+- ✅ GET /api/company/getCompany → HTTP 200 (no email-verification 403)
+  * Response: "No companies found. Create your first company..."
+  * NO email verification block detected
+- ✅ GET /api/dashboard → HTTP 200 (no email-verification 403)
+  * Response: Full dashboard data with today_summary, total_transactions, etc.
+  * NO email verification block detected
+- ✅ GET /api/wallet/getWallet → HTTP 200 (no email-verification 403)
+  * Response: "No wallets found. Add your first wallet address..."
+  * NO email verification block detected
+- **VERDICT: Phone-only users can now access all protected endpoints** ✅
+
+**TEST B: EMAIL + UNVERIFIED USER (control) - GATE PRESERVED** ✅ PASS
+- Created new user: qa.unverif.1782749552@dynopaytest.com (user_id 12)
+- User details: email_verified=false, has email address
+- ✅ GET /api/company/getCompany → HTTP 403 (email-verification 403 CORRECTLY RETURNED)
+  * Response: "Please verify your email address before accessing this feature. Check your inbox for a verification code."
+  * Email verification gate STILL WORKING for users with email addresses
+- **VERDICT: Email verification gate still blocks unverified email users** ✅
+
+**TEST C: VERIFIED EMAIL USER (user_id 3)** ✅ PASS
+- User details: qa.onboard.1782585233@dynopaytest.com, email_verified=true
+- ✅ GET /api/company/getCompany → HTTP 200 (no email-verification 403)
+  * Response: Successfully retrieved company "QA Test Co" (company_id 2)
+  * NO email verification block detected
+- **VERDICT: Verified email users not blocked** ✅
+
+**TEST D: HEALTH CHECK REGRESSION** ✅ PASS
+- ✅ GET /api/ → HTTP 200
+  * Response: {"status":"operational","service":"Dynopay API","version":"1.0.0",...}
+- **VERDICT: Health check operational** ✅
+
+### VERIFICATION STATUS: COMPLETE ✅
+- ✅ BUG FIX CONFIRMED WORKING: Phone-only users (email=NULL) now pass through emailVerifiedMiddleware
+- ✅ NO email-verification 403 for phone-only user on ANY of the 3 protected endpoints (/company, /dashboard, /wallet)
+- ✅ Email verification gate STILL WORKS: Unverified email users correctly blocked with 403
+- ✅ Verified email users NOT blocked (normal access)
+- ✅ Health check operational (no regression)
+- ✅ All 4 test cases passed with expected behavior
+
+### TECHNICAL DETAILS
+- Token minting: Used pg client to query tbl_user, removed password/telegram_id, signed with ACCESS_TOKEN_SECRET (30d expiry)
+- Middleware logic verified: `if (email && !email_verified)` correctly gates only users WITH email addresses
+- Phone-only user (user_id 10) has email=NULL in database, so condition evaluates to false → passes through
+- Email + unverified user has email present + email_verified=false → correctly blocked
+- All HTTP status codes and response messages match expected behavior
+
+### FINAL VERDICT
+🎉 **ALL TESTS PASSED** - Bug fix verified successfully!
+✅ Phone-only users can now access /company, /wallet, /dashboard (no longer blocked)
+✅ Email verification gate still works correctly for email users
+✅ The "Please verify your email... Check your inbox" 403 error NO LONGER appears for phone-only users
+✅ Zero regressions detected
+
+
 ## Onboarding Existing-Account → OTP Login (Bug Fix) — Test Request (2026-06-29)
 CONTEXT: Previously, the simplified onboarding (/auth/register) dead-ended when the entered email/phone
 already belonged to an account: backend returned 400 "An account with this ... already exists. Please log in."

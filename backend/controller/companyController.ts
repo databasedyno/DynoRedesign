@@ -279,23 +279,27 @@ const addCompany = async (req: express.Request, res: express.Response) => {
         });
 
         if (user) {
-          const userDetails = user.dataValues as { name: string; email: string };
+          const userDetails = user.dataValues as { name: string; email: string | null };
           const companyName = data.company_name || 'Your Company';
           const companyContactEmail = data.email; // Company contact email from form
+          const accountEmail = userDetails.email; // may be null for phone/SMS-only accounts
 
-          // Email 1: Send to account holder (operational confirmation)
-          await sendCompanyProfileCreatedEmail(
-            userDetails.email,
-            userDetails.name || 'User',
-            companyName
-          );
-          companyLogger.info(
-            `Company profile created email sent to account: ${userDetails.email}`,
-            { user_id: userData.user_id, company_name: companyName }
-          );
+          // Email 1: Send to account holder (operational confirmation) — only if
+          // the account actually has an email. Phone/SMS-only users have none.
+          if (accountEmail) {
+            await sendCompanyProfileCreatedEmail(
+              accountEmail,
+              userDetails.name || 'User',
+              companyName
+            );
+            companyLogger.info(
+              `Company profile created email sent to account: ${accountEmail}`,
+              { user_id: userData.user_id, company_name: companyName }
+            );
+          }
 
           // Email 2: Send to company contact (if provided and different from account email)
-          if (companyContactEmail && companyContactEmail.toLowerCase() !== userDetails.email.toLowerCase()) {
+          if (companyContactEmail && companyContactEmail.toLowerCase() !== (accountEmail || '').toLowerCase()) {
             await sendCompanyContactWelcomeEmail(
               companyContactEmail,
               companyName,

@@ -28,14 +28,24 @@ const emailVerifiedMiddleware = async (
 
     const user = await userModel.findOne({
       where: { user_id: decoded.user_id },
-      attributes: ["email_verified"],
+      attributes: ["email", "email_verified"],
     });
 
     if (!user) {
       return errorResponseHelper(res, 404, "User not found.");
     }
 
-    if (!user.dataValues.email_verified) {
+    // Phone/SMS-only accounts have no email on file — there is nothing to
+    // verify, so they must NOT be gated by this middleware (otherwise they get
+    // locked out of /company, /wallet and /dashboard with a confusing
+    // "check your inbox" message). Only enforce verification for accounts that
+    // actually registered with an email address.
+    const { email, email_verified } = user.dataValues as {
+      email: string | null;
+      email_verified: boolean;
+    };
+
+    if (email && !email_verified) {
       return errorResponseHelper(
         res,
         403,
