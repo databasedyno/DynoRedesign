@@ -361,6 +361,14 @@ BACKEND TEST REQUEST (EMAIL flow only — fully verifiable; AVOID phone OTP to p
   PHONE flow: do NOT complete (sends real SMS + needs real handset code). Optionally note in report that
   phone code mirrors email path. Do NOT send SMS to real/unknown numbers.
 
+VERIFIED (2026-06-29, deep_testing_backend_v2): 5/5 PASS (100%).
+  - POST /api/user/registerEmail (existing email qa.onboard.1782585233@dynopaytest.com) → 200, account_exists=true
+    (msg "You already have an account — we've sent a code to log you in."). NOT 400 anymore.
+  - POST /api/user/registerEmail/verify-otp (existing, OTP from Redis otp:<email>:json) → 200, accessToken (JWT)
+    present, account_exists=true, email_verified=true (user_id 3 logged in).
+  - New email path: registerEmail → 200 account_exists=false; verify-otp → 200, accessToken, new user_id 11 created.
+  - GET /api/ → 200. Phone flow not tested (mirrors email; avoids real SMS cost). Frontend not yet tested (awaiting user).
+
 ## Onboarding Existing-Account → OTP Login Bug Fix Verification (2026-06-29 14:59 UTC)
 - agent: testing
 - test_date: 2026-06-29 14:59:25 UTC
