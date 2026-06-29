@@ -243,10 +243,16 @@ const registerEmailStep1 = async (req: express.Request, res: express.Response) =
 
     const emailLower = email.toLowerCase().trim();
 
-    // Check if email already exists
+    // Check if email already exists — if so, switch to a passwordless LOGIN via OTP
+    // instead of dead-ending. We still send a code; verify-otp will sign the user in.
     const existing = await userModel.findOne({ where: { email: emailLower } });
     if (existing) {
-      return errorResponseHelper(res, 400, "An account with this email already exists. Please log in.");
+      const sentLogin = await sendEmailOTP(emailLower, existing.dataValues.name || "there");
+      if (!sentLogin) {
+        return errorResponseHelper(res, 503, "Unable to send verification code. Please try again.");
+      }
+      userLogger.info(`[RegisterEmail] Existing account — login OTP sent: ${emailLower}`);
+      return successResponseHelper(res, 200, "You already have an account — we've sent a code to log you in.", { account_exists: true });
     }
 
     // Store referral code in Redis for later use during verification
@@ -261,7 +267,7 @@ const registerEmailStep1 = async (req: express.Request, res: express.Response) =
     }
 
     userLogger.info(`[RegisterEmail] OTP sent for registration: ${emailLower}`);
-    return successResponseHelper(res, 200, "Verification code sent to your email", {});
+    return successResponseHelper(res, 200, "Verification code sent to your email", { account_exists: false });
 
   } catch (e) {
     handleControllerError(res, e, userLogger);
@@ -304,10 +310,17 @@ const registerEmailVerifyOtp = async (req: express.Request, res: express.Respons
     // OTP verified — delete it
     await deleteRedisItem(otpKey);
 
-    // Double check email not taken (race condition guard)
+    // If the account already exists, this OTP was a passwordless LOGIN —
+    // issue tokens and sign the user in (proceed as usual).
     const existing = await userModel.findOne({ where: { email: emailLower } });
     if (existing) {
-      return errorResponseHelper(res, 400, "An account with this email already exists.");
+      const loginData = await getAccessToken(existing.dataValues.user_id);
+      userLogger.info(`[RegisterEmail] Existing account logged in via OTP: ${emailLower}`);
+      return successResponseHelper(res, 200, "Logged in successfully!", {
+        ...loginData,
+        account_exists: true,
+        email_verified: true,
+      });
     }
 
     // Retrieve referral code if stored
@@ -464,13 +477,19 @@ const registerPhoneStep1 = async (req: express.Request, res: express.Response) =
       return errorResponseHelper(res, 400, "Invalid mobile number format. Use 10-15 digits with country code (e.g. 13025141000)");
     }
     
-    // Check if mobile already registered
+    // Check if mobile already registered — if so, switch to a passwordless LOGIN
+    // via OTP instead of dead-ending. verify step will sign the user in.
     const mobileExists = await userModel.findOne({
       where: { mobile }
     });
     
     if (mobileExists) {
-      return errorResponseHelper(res, 400, "This phone number is already registered. Please log in.");
+      const smsLoginSent = await sendTelnyxSMS(mobile);
+      if (!smsLoginSent) {
+        return errorResponseHelper(res, 503, "Failed to send verification code. Please try again.");
+      }
+      userLogger.info(`[RegisterPhone] Existing account — login OTP sent: ${mobile}`);
+      return successResponseHelper(res, 200, "You already have an account — we've sent a code to log you in.", { account_exists: true });
     }
 
     // Store referral code in Redis for later use
@@ -481,7 +500,7 @@ const registerPhoneStep1 = async (req: express.Request, res: express.Response) =
     // Send OTP via Telnyx
     const smsSent = await sendTelnyxSMS(mobile);
     if (smsSent) {
-      return successResponseHelper(res, 200, "Verification code sent to your phone number.");
+      return successResponseHelper(res, 200, "Verification code sent to your phone number.", { account_exists: false });
     }
     return errorResponseHelper(res, 503, "Failed to send verification code. Please try again.");
     
@@ -531,10 +550,16 @@ const registerPhoneStep2 = async (req: express.Request, res: express.Response) =
       return errorResponseHelper(res, 400, "Invalid or expired verification code");
     }
     
-    // Double-check mobile doesn't exist
+    // If the account already exists, this OTP was a passwordless LOGIN —
+    // issue tokens and sign the user in (proceed as usual).
     const mobileExists = await userModel.findOne({ where: { mobile } });
     if (mobileExists) {
-      return errorResponseHelper(res, 400, "This phone number is already registered.");
+      const loginData = await getAccessToken(mobileExists.dataValues.user_id);
+      userLogger.info(`[RegisterPhone] Existing account logged in via OTP: ${mobile}`);
+      return successResponseHelper(res, 200, "Logged in successfully!", {
+        ...loginData,
+        account_exists: true,
+      });
     }
 
     // Retrieve referral code if stored

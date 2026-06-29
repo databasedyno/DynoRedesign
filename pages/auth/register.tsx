@@ -68,6 +68,9 @@ const Register = () => {
   const [showReferralInput, setShowReferralInput] = useState(false);
   const [referralCode, setReferralCode] = useState("");
   const [phoneTypeChecking, setPhoneTypeChecking] = useState(false);
+  // When the entered email/phone already belongs to an account, the backend
+  // sends a login OTP and we switch the UI into "log in" mode instead of "create account".
+  const [accountExists, setAccountExists] = useState(false);
 
   const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
 
@@ -128,16 +131,18 @@ const Register = () => {
     setLoading(true);
 
     try {
+      let exists = false;
       if (method === "email") {
         if (!email || !email.includes("@")) {
           setEmailError("Please enter a valid email address");
           setLoading(false);
           return;
         }
-        await axiosBaseApi.post("/user/registerEmail", {
+        const res = await axiosBaseApi.post("/user/registerEmail", {
           email: email.toLowerCase().trim(),
           referral_code: referralCode || undefined,
         });
+        exists = res?.data?.data?.account_exists === true;
       } else {
         const digits = phone.replace(/[^\d]/g, "");
         if (digits.length < 10) {
@@ -153,12 +158,14 @@ const Register = () => {
           return;
         }
 
-        await axiosBaseApi.post("/user/registerPhone", {
+        const res = await axiosBaseApi.post("/user/registerPhone", {
           mobile: digits,
           referral_code: referralCode || undefined,
         });
+        exists = res?.data?.data?.account_exists === true;
       }
 
+      setAccountExists(exists);
       setStep("otp");
       setOtp(["", "", "", "", "", ""]);
       setCountdown(60);
@@ -199,6 +206,7 @@ const Register = () => {
 
       const data = response?.data?.data;
       if (data?.accessToken) {
+        const isLogin = accountExists || data?.account_exists === true;
         // Store token and redirect
         dispatch({
           type: USER_LOGIN,
@@ -206,7 +214,10 @@ const Register = () => {
         });
         dispatch({
           type: TOAST_SHOW,
-          payload: { message: "Account created successfully!", severity: "success" },
+          payload: {
+            message: isLogin ? "Welcome back! Logged in successfully." : "Account created successfully!",
+            severity: "success",
+          },
         });
         setStep("success");
         // Auto redirect after brief success display
@@ -522,7 +533,7 @@ const Register = () => {
                       <Typography sx={{ fontSize: "28px" }}>✉️</Typography>
                     </Box>
                     <Typography sx={{ fontWeight: 700, fontSize: "22px", color: "text.primary", fontFamily: "UrbanistBold" }}>
-                      Verify Your {method === "email" ? "Email" : "Phone"}
+                      {accountExists ? "Welcome Back!" : `Verify Your ${method === "email" ? "Email" : "Phone"}`}
                     </Typography>
                     <Typography sx={{ fontSize: "14px", color: "text.secondary", fontFamily: "UrbanistMedium", mt: 0.5, lineHeight: 1.5 }}>
                       Enter the 6-digit code sent to{" "}
@@ -532,6 +543,25 @@ const Register = () => {
                           : phone.replace(/(\d{3})\d+(\d{2})/, "$1****$2")}
                       </Typography>
                     </Typography>
+                    {accountExists && (
+                      <Box
+                        data-testid="account-exists-banner"
+                        sx={{
+                          mt: 1.5,
+                          mx: "auto",
+                          maxWidth: "360px",
+                          px: 1.5,
+                          py: 1,
+                          borderRadius: "10px",
+                          background: theme.palette.mode === "dark" ? "rgba(79,70,229,0.18)" : "rgba(79,70,229,0.08)",
+                          border: `1px solid ${theme.palette.mode === "dark" ? "rgba(124,58,237,0.4)" : "rgba(79,70,229,0.2)"}`,
+                        }}
+                      >
+                        <Typography sx={{ fontSize: "13px", color: "text.primary", fontFamily: "UrbanistSemiBold", lineHeight: 1.5 }}>
+                          This {method === "email" ? "email" : "phone number"} already has an account — enter the code to log in.
+                        </Typography>
+                      </Box>
+                    )}
                   </Box>
 
                   {/* OTP Inputs */}
@@ -582,7 +612,7 @@ const Register = () => {
                   <CustomButton
                     variant="primary"
                     size="medium"
-                    label="Verify & Create Account"
+                    label={accountExists ? "Verify & Log In" : "Verify & Create Account"}
                     onClick={handleVerifyOtp}
                     disabled={loading || otp.join("").length !== 6}
                     fullWidth
@@ -619,7 +649,7 @@ const Register = () => {
                   <Box sx={{ display: "flex", justifyContent: "center", mt: 1.5 }}>
                     <Link
                       component="button"
-                      onClick={() => { setStep("input"); setOtpError(""); setOtp(["", "", "", "", "", ""]); }}
+                      onClick={() => { setStep("input"); setOtpError(""); setOtp(["", "", "", "", "", ""]); setAccountExists(false); }}
                       sx={{
                         fontSize: "13px", color: "text.secondary", fontFamily: "UrbanistMedium",
                         textDecoration: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: "6px",
@@ -649,10 +679,12 @@ const Register = () => {
                     <CheckCircleOutline sx={{ fontSize: 40, color: "#fff" }} />
                   </Box>
                   <Typography sx={{ fontWeight: 700, fontSize: "24px", color: "text.primary", fontFamily: "UrbanistBold", mb: 1 }}>
-                    Welcome to DynoPay!
+                    {accountExists ? "Welcome back to DynoPay!" : "Welcome to DynoPay!"}
                   </Typography>
                   <Typography sx={{ fontSize: "15px", color: "text.secondary", fontFamily: "UrbanistMedium", lineHeight: 1.6, mb: 1 }}>
-                    Your account has been created. Redirecting to your dashboard...
+                    {accountExists
+                      ? "You're logged in. Redirecting to your dashboard..."
+                      : "Your account has been created. Redirecting to your dashboard..."}
                   </Typography>
                   <LoadingSpinner size={24} />
                 </Box>
