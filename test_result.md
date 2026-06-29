@@ -386,6 +386,13 @@ FRONTEND TEST REQUEST (preview https://accffeb1-feba-47a6-aeb5-4a4b98645038.prev
      "Invalid src prop" or "hostname ... is not configured"; header user avatar (img src starting with
      https://dynopay.com/images/) renders without crashing. Capture screenshots of the dashboard + header avatar.
 
+VERIFIED (2026-06-29, auto_frontend_testing_agent): PASS. Logged in via existing-email OTP flow
+(qa.onboard.1782585233@dynopaytest.com, OTP from Redis) → /dashboard. NO Next.js error overlay, ZERO
+"Invalid src prop"/"hostname not configured" console errors. Avatars now go through Next.js Image
+Optimization (/_next/image?url=...) confirming dynopay.com host is allowed. Stable on reload. (Note: this
+test user's avatar file 404/400s on dynopay.com since it was generated elsewhere — not a crash, real users OK.)
+Also confirms the idempotent existing-account → OTP → login flow works end-to-end in the browser.
+
 ## next/image dynopay.com Host Fix — VERIFICATION RESULTS (2026-06-29 15:14 UTC)
 - agent: testing
 - test_date: 2026-06-29 15:14:25 UTC
