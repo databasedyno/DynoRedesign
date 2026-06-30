@@ -9,7 +9,7 @@ import requests
 import json
 from datetime import datetime
 
-BASE_URL = "https://merchant-integration-2.preview.emergentagent.com/api"
+BASE_URL = "https://multi-chain-checkout.preview.emergentagent.com/api"
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
     "Content-Type": "application/json"
