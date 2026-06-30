@@ -26,6 +26,7 @@ import { formatAmountForDisplay, getCurrencyInfo } from "../../utils/currencyUti
 import sequelize from "../../utils/dbInstance";
 import { Op, QueryTypes } from "sequelize";
 import jwt from "jsonwebtoken";
+import { normalizeLang } from "../../utils/emailI18n";
 import {
   companyModel,
   customerTransactionModel,
@@ -119,9 +120,25 @@ const getData = async (req: express.Request, res: express.Response) => {
       available_currencies?: string[] | string;  // Can be array or comma-separated string
       accepted_currencies?: string;
       customer_name?: string;  // Optional customer name
+      language?: string;  // Customer's preferred language captured at checkout
     }
 
     const item = await getRedisItem("customer-" + data) as RedisPaymentItem | null;
+
+    // Capture the customer's preferred language (sent by the checkout page) for localized emails.
+    // Persisted on the customer session so it survives through to settlement.
+    const rawLanguage = (req.body as { language?: string })?.language;
+    if (item && rawLanguage) {
+      const reqLanguage = normalizeLang(rawLanguage);
+      if (item.language !== reqLanguage) {
+        try {
+          item.language = reqLanguage;
+          await setRedisItem("customer-" + data, { ...item });
+        } catch (e) {
+          cronLogger.warn('[getData] Failed to persist customer language:', e);
+        }
+      }
+    }
 
     // Only log for debugging when item exists or in development
     if (process.env.NODE_ENV === 'development' || (item && Object.keys(item).length > 0)) {
@@ -1682,6 +1699,7 @@ const confirmPayment = async (req: express.Request, res: express.Response) => {
             transaction_type: tempData?.pathType?.includes("addFund")
               ? "CREDIT"
               : "PAYMENT",
+            language: normalizeLang(tempData?.language),
             ...(!tempData?.pathType?.includes("addFund") && {
               transaction_details: product_name
                 ? "Made payment for " +
@@ -1859,6 +1877,7 @@ const confirmPayment = async (req: express.Request, res: express.Response) => {
             transaction_reference: tempData.id,
             unique_tx_id: tempData.payment_id || tempData.unique_tx_id || tempData.id,
             transaction_type: "DEBIT",
+            language: normalizeLang(tempData?.language),
             transaction_details: product_name
               ? "Made payment for " +
               product_name +

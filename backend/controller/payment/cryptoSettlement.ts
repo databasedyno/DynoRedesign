@@ -28,6 +28,7 @@ import {
 import sequelize from "../../utils/dbInstance";
 import { Op } from "sequelize";
 import jwt from "jsonwebtoken";
+import { normalizeLang } from "../../utils/emailI18n";
 import {
   adminFeeModel,
   companyModel,
@@ -1617,6 +1618,7 @@ const cryptoVerification = async (address, webhook = true, overrideRedisKey?: st
             : "Made payment for " + (company_data?.company_name || "Company") + " product",
         }),
         status: tempData.status,
+        language: normalizeLang(tempData?.language || customerData?.language),
       };
 
       await customerTransactionModel.create(

@@ -70,6 +70,13 @@ const customerTransactionModel = sequelize.define(
       allowNull: true,
       comment: "Payment ID linking this transaction to the payment tracker (crypto-{address} or payment link ID)",
     },
+    // Customer language captured at checkout (ISO 639-1: en, pt, es, fr, de, nl)
+    language: {
+      type: DataTypes.STRING(5),
+      allowNull: true,
+      defaultValue: "en",
+      comment: "Customer's language captured at checkout, used for localized customer emails",
+    },
   },
   {
     tableName: "tbl_customer_transaction",

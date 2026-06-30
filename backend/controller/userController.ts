@@ -29,6 +29,7 @@ import { getRedisItem, setRedisItem, setRedisTTL, deleteRedisItem, setRedisItemW
 import { isAccountLocked, recordFailedAttempt, clearFailedAttempts } from "../services/accountLockoutService";
 import { createSession } from "../services/sessionService";
 import { is2FARequired } from "../services/twoFactorService";
+import { normalizeLang } from "../utils/emailI18n";
 
 // Cache TTL for profile data (60 seconds)
 const PROFILE_CACHE_TTL = 60;
@@ -115,6 +116,7 @@ const registerUser = async (req: express.Request, res: express.Response) => {
         password: newPassword,
         referral_code: userReferralCode,
         referred_by_code: referral_code || null,
+        language: normalizeLang(req.body?.language),
       });
 
       const walletData = await adminWalletModel.findAll();
@@ -342,6 +344,7 @@ const registerEmailVerifyOtp = async (req: express.Request, res: express.Respons
       referral_code: userReferralCode,
       referred_by_code: referral_code,
       login_type: "EMAIL",
+      language: normalizeLang(req.body?.language),
     });
 
     // Create wallets
@@ -581,6 +584,7 @@ const registerPhoneStep2 = async (req: express.Request, res: express.Response) =
       login_type: "SMS",
       referral_code: userReferralCode,
       referred_by_code: referral_code,
+      language: normalizeLang(req.body?.language),
     });
     
     // Create wallets
@@ -1984,6 +1988,7 @@ const googleSignIn = async (req: express.Request, res: express.Response) => {
       photo: photoUrl,
       login_type: "GOOGLE",
       google_id: googleId,
+      language: normalizeLang(req.body?.language),
     });
 
     // Create default wallets for new user
@@ -2112,16 +2117,17 @@ const getProfile = async (req: express.Request, res: express.Response) => {
 const updateProfile = async (req: express.Request, res: express.Response) => {
   const userData = jwt.decode(res.locals.token) as IUserType;
   try {
-    const { name, mobile, username } = req.body;
+    const { name, mobile, username, language } = req.body;
     
     // Fetch current DB data for accurate comparison (JWT may be stale)
     const currentUser = await userModel.findOne({
       where: { user_id: userData.user_id },
-      attributes: ['name', 'mobile', 'username']
+      attributes: ['name', 'mobile', 'username', 'language']
     });
     const currentName = currentUser?.dataValues?.name || userData.name;
     const currentMobile = currentUser?.dataValues?.mobile || userData.mobile;
     const currentUsername = currentUser?.dataValues?.username || userData.username;
+    const currentLanguage = currentUser?.dataValues?.language || 'en';
     
     // Build update object with only provided fields
     const updateData: Record<string, unknown> = {};
@@ -2138,6 +2144,13 @@ const updateProfile = async (req: express.Request, res: express.Response) => {
     if (username !== undefined && username !== currentUsername) {
       updateData.username = username;
       updatedFields.push(`Username: ${currentUsername} → ${username}`);
+    }
+    // Language preference — updated silently (no notification email for a UI preference)
+    if (language !== undefined) {
+      const normalized = normalizeLang(language);
+      if (normalized !== currentLanguage) {
+        updateData.language = normalized;
+      }
     }
     
     // Check if there's anything to update

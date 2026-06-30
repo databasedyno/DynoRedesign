@@ -166,7 +166,7 @@ const Payment = () => {
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'))
   const router = useRouter()
   const dispatch = useDispatch()
-  const { t } = useTranslation('common')
+  const { t, i18n } = useTranslation('common')
   
   const [paymentType, setPaymentType] = useState(paymentTypes.CARD)
   const [payLoading, setPayloading] = useState(false)
@@ -360,7 +360,8 @@ const Payment = () => {
         data: { data }
       }: { data: any } = await axiosBaseApi.post('pay/getData', {
         data: query_data,
-        timezone: customerTimezone
+        timezone: customerTimezone,
+        language: i18n.language
       })
 
       // Check if payment is already completed (Direct Pay edge case)

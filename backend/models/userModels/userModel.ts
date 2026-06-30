@@ -159,6 +159,13 @@ const userModel = sequelize.define(
       defaultValue: "trial",
       comment: "Fee tier: trial (fee-free period), standard (normal fees), premium (volume discount)",
     },
+    // Preferred language for emails / UI (ISO 639-1: en, pt, es, fr, de, nl)
+    language: {
+      type: DataTypes.STRING(5),
+      allowNull: true,
+      defaultValue: "en",
+      comment: "Merchant's preferred language for localized emails",
+    },
   },
   {
     tableName: "tbl_user",

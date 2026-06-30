@@ -49,7 +49,7 @@ const LoadingSpinner = ({ size = 20 }: { size?: number }) => (
 );
 
 const Register = () => {
-  const { t } = useTranslation("auth");
+  const { t, i18n } = useTranslation("auth");
   const theme = useTheme();
   const isMobile = useIsMobile("sm");
   const router = useRouter();
@@ -188,12 +188,14 @@ const Register = () => {
         response = await axiosBaseApi.post("/user/registerEmail/verify-otp", {
           email: email.toLowerCase().trim(),
           otp: otpCode,
+          language: i18n.language,
         });
       } else {
         const digits = phone.replace(/[^\d]/g, "");
         response = await axiosBaseApi.post("/user/registerPhone/verify", {
           mobile: digits,
           otp: otpCode,
+          language: i18n.language,
         });
       }
 

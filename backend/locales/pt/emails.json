@@ -1,0 +1,10 @@
+{
+  "common": {
+    "greeting": "Olá {{name}},",
+    "greetingDefault": "Olá,",
+    "regards": "Obrigado,",
+    "team": "A equipa DynoPay",
+    "securedBy": "Este pagamento foi processado de forma segura através da DynoPay, um gateway de pagamentos em cripto de confiança.",
+    "questions": "Se tiver alguma dúvida, a nossa equipa de apoio está aqui para ajudar."
+  }
+}

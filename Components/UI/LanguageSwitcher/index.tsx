@@ -107,6 +107,13 @@ function LanguageSwitcher({ showBig = false }: Props) {
         localStorage.setItem("lang", lng);
         localStorage.setItem("lang_manual", "true"); // Mark as manual choice — prevents IP auto-override
       } catch {}
+      // If a merchant is signed in, persist the choice so their emails match their UI language.
+      try {
+        if (typeof window !== "undefined" && localStorage.getItem("token")) {
+          const { default: axiosBaseApi } = await import("@/axiosConfig");
+          axiosBaseApi.put("user/profile", { language: lng }).catch(() => {});
+        }
+      } catch {}
       close();
     },
     [close, current],

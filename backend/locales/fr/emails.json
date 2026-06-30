@@ -1,0 +1,10 @@
+{
+  "common": {
+    "greeting": "Bonjour {{name}},",
+    "greetingDefault": "Bonjour,",
+    "regards": "Merci,",
+    "team": "L'équipe DynoPay",
+    "securedBy": "Ce paiement a été traité en toute sécurité via DynoPay, une passerelle de paiement crypto de confiance.",
+    "questions": "Si vous avez des questions, notre équipe d'assistance est là pour vous aider."
+  }
+}
