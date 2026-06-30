@@ -91,7 +91,7 @@ export const generateInvoicePDF = (invoiceData: InvoiceData): PDFKit.PDFDocument
       // Use `fit` so pdfkit preserves the source aspect ratio inside the box
       // (avoids any subtle stretching that would re-introduce a fuzzy look).
       // The bbox is 120×42 — gives a crisp 3:1 logo on print and screen.
-      doc.image(logoPath, 50, 50, { fit: [120, 42], align: "left", valign: "top" });
+      doc.image(logoPath, 50, 50, { fit: [120, 42] });
       logoY = 95; // Adjust starting position after logo
     } catch (err) {
       console.error("Error adding logo to PDF:", err);
