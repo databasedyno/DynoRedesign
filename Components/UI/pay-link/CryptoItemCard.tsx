@@ -1,7 +1,7 @@
 import CheckIcon from "@/assets/Icons/Check-icon.svg";
 import { theme } from "@/styles/theme";
 import { CryptoItemCardProps } from "@/utils/types/create-pay-link";
-import { Box, Grid, useMediaQuery } from "@mui/material";
+import {Box, Grid, useMediaQuery, useTheme} from "@mui/material";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import React from "react";
@@ -158,7 +158,7 @@ const CryptoItemCard: React.FC<CryptoItemCardProps> = React.memo(
           </Box>
 
           {STABLECOIN_LABELS.includes(item.label) && (
-            <Text sx={{ fontSize: "12px", color: "#676B7E" }}>
+            <Text sx={{ fontSize: "12px", color: theme.palette.text.secondary }}>
               {tPaymentLink("stable")}
             </Text>
           )}

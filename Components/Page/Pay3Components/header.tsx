@@ -41,8 +41,8 @@ const Header = ({
         elevation={0}
         sx={{
           background: darkMode
-            ? 'linear-gradient(90deg, #0d0d1a 0%, #1a1a2e 100%)'
-            : 'linear-gradient(90deg, #0004FF 0%, #3D40FF 50%, #6C6FFF 100%)',
+            ? `linear-gradient(90deg, ${theme.palette.background.default} 0%, ${theme.palette.background.paper} 100%)`
+            : `linear-gradient(90deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark || theme.palette.primary.main} 50%, ${theme.palette.primary.light || theme.palette.primary.main} 100%)`,
           height: '60px',
           justifyContent: 'center',
         }}
@@ -123,7 +123,7 @@ const Header = ({
                     transition: 'all 0.3s ease',
                   }}
                 >
-                  <WbSunnyIcon sx={{ fontSize: 14, color: !darkMode ? '#0004FF' : 'rgba(255,255,255,0.5)' }} />
+                  <WbSunnyIcon sx={{ fontSize: 14, color: !darkMode ? theme.palette.primary.main : 'rgba(255,255,255,0.5)' }} />
                 </Box>
                 <Box
                   sx={{
@@ -137,7 +137,7 @@ const Header = ({
                     transition: 'all 0.3s ease',
                   }}
                 >
-                  <BedtimeIcon sx={{ fontSize: 14, color: darkMode ? '#0004FF' : 'rgba(255,255,255,0.5)' }} />
+                  <BedtimeIcon sx={{ fontSize: 14, color: darkMode ? theme.palette.primary.main : 'rgba(255,255,255,0.5)' }} />
                 </Box>
               </Box>
             </Stack>
@@ -154,7 +154,7 @@ const Header = ({
           '& .MuiDrawer-paper': {
             width: 240,
             p: 2,
-            backgroundColor: darkMode ? '#1a1a2e' : '#fff',
+            backgroundColor: theme.palette.background.paper,
           },
         }}
       >
@@ -164,8 +164,8 @@ const Header = ({
             variant='outlined'
             size='small'
             sx={{
-              borderColor: '#0004FF',
-              color: '#0004FF',
+              borderColor: theme.palette.primary.main,
+              color: theme.palette.primary.main,
               borderRadius: 20,
               textTransform: 'none',
               fontSize: '13px',
@@ -183,7 +183,7 @@ const Header = ({
             sx={{
               width: 52,
               height: 28,
-              backgroundColor: darkMode ? '#2a2a4a' : '#E9ECF2',
+              backgroundColor: darkMode ? 'rgba(255,255,255,0.1)' : theme.palette.border.main,
               borderRadius: 999,
               display: 'flex',
               alignItems: 'center',
@@ -197,7 +197,7 @@ const Header = ({
               sx={{
                 width: 22,
                 height: 22,
-                backgroundColor: '#0004FF',
+                backgroundColor: theme.palette.primary.main,
                 borderRadius: '50%',
                 display: 'flex',
                 alignItems: 'center',

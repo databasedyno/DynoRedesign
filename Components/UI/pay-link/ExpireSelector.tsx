@@ -100,7 +100,7 @@ const ExpireSelector: React.FC<ExpireSelectorProps> = ({
             fontFamily: "UrbanistMedium",
             fontSize: isMobile ? "13px" : "15px",
             fontWeight: 500,
-            color: "#242428",
+            color: theme.palette.text.primary,
             lineHeight: 1.2,
           }}
         >

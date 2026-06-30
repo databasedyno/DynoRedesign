@@ -1,14 +1,12 @@
 import React, { useState, useCallback, useEffect } from "react";
-import {
-  Dialog,
+import {Dialog,
   DialogContent,
   DialogActions,
   Typography,
   Box,
   Button,
   CircularProgress,
-  Alert,
-} from "@mui/material";
+  Alert, useTheme} from "@mui/material";
 import { WarningAmberRounded, DeleteOutlineRounded } from "@mui/icons-material";
 import OtpInputPanel from "@/Components/UI/OtpInputPanel";
 import axiosBaseApi from "@/axiosConfig";
@@ -32,6 +30,7 @@ const DeleteWalletModal: React.FC<DeleteWalletModalProps> = ({
   companyId,
   onDeleted,
 }) => {
+  const theme = useTheme();
   const [step, setStep] = useState<"confirm" | "otp">("confirm");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -157,7 +156,7 @@ const DeleteWalletModal: React.FC<DeleteWalletModalProps> = ({
                 fontWeight: 500,
                 fontSize: "14px",
                 lineHeight: "150%",
-                color: "#676768",
+                color: theme.palette.text.secondary,
                 mb: 1.5,
               }}
             >
@@ -214,7 +213,7 @@ const DeleteWalletModal: React.FC<DeleteWalletModalProps> = ({
                 fontWeight: 500,
                 fontSize: "14px",
                 lineHeight: "150%",
-                color: "#676768",
+                color: theme.palette.text.secondary,
                 mb: 2,
               }}
             >
@@ -252,8 +251,8 @@ const DeleteWalletModal: React.FC<DeleteWalletModalProps> = ({
               fontFamily: "UrbanistMedium",
               fontWeight: 500,
               fontSize: "14px",
-              color: "#676768",
-              border: "1px solid #E9ECF2",
+              color: theme.palette.text.secondary,
+              border: `1px solid ${theme.palette.border.main}`,
               py: "10px",
               borderRadius: "8px",
               textTransform: "none",
@@ -292,7 +291,7 @@ const DeleteWalletModal: React.FC<DeleteWalletModalProps> = ({
               fontFamily: "UrbanistMedium",
               fontWeight: 500,
               fontSize: "13px",
-              color: "#676768",
+              color: theme.palette.text.secondary,
               textTransform: "none",
             }}
           >

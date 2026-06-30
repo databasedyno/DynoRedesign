@@ -305,7 +305,7 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
               startIcon={<Image src={TrashIcon.src} alt="trash-icon" width={12} height={12} draggable={false} />}
               iconSize={18}
               onClick={handleRemovePhoto}
-              sx={{ color: "#676768", padding: { xs: "0px 16px", sm: "0px 49px" }, fontSize: { xs: "13px", sm: "15px" } }}
+              sx={{ color: theme.palette.text.secondary, padding: { xs: "0px 16px", sm: "0px 49px" }, fontSize: { xs: "13px", sm: "15px" } }}
             />
           </Box>
           {hasPhotoChanges && (

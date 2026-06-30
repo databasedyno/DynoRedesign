@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Box, Typography, Button, CircularProgress } from "@mui/material";
+import {Box, Typography, Button, CircularProgress, useTheme} from "@mui/material";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { useDispatch, useSelector } from "react-redux";
@@ -13,6 +13,7 @@ import OtpDialog from "@/Components/UI/OtpDialog";
 import useIsMobile from "@/hooks/useIsMobile";
 
 const EmailVerificationBanner: React.FC = () => {
+  const theme = useTheme();
   const dispatch = useDispatch();
   const isMobile = useIsMobile("sm");
   const userState = useSelector((state: rootReducer) => state.userReducer);
@@ -100,7 +101,7 @@ const EmailVerificationBanner: React.FC = () => {
             sx={{
               fontSize: isMobile ? "12px" : "14px",
               fontFamily: "UrbanistMedium",
-              color: "#242428",
+              color: theme.palette.text.primary,
             }}
           >
             Please verify your email address to access all features.

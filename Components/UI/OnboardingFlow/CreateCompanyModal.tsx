@@ -36,6 +36,13 @@ interface CreateCompanyModalProps {
   onSuccess: () => void;
   onClose?: () => void;
   closeLabel?: string;
+  /** When false, the "Step 1 of 2" indicator is hidden (use for "Add another
+   *  company" outside the onboarding flow). Default: true. */
+  showStepIndicator?: boolean;
+  /** Override the modal heading. Default: "Create Your Company". */
+  title?: string;
+  /** Override the modal sub-heading. Default copy matches onboarding. */
+  subtitle?: string;
 }
 
 const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
@@ -43,6 +50,9 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
   onSuccess,
   onClose,
   closeLabel = "I'll do this later",
+  showStepIndicator = true,
+  title,
+  subtitle,
 }) => {
   const theme = useTheme();
   const dispatch = useDispatch();
@@ -200,15 +210,17 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
         </IconButton>
       )}
       {/* Step Indicator */}
-      <Box
-        sx={{
-          px: isMobile ? 2.5 : 3.5,
-          pt: isMobile ? 2 : 2.5,
-          pb: 0,
-        }}
-      >
-        <StepIndicator currentStep={1} totalSteps={2} />
-      </Box>
+      {showStepIndicator && (
+        <Box
+          sx={{
+            px: isMobile ? 2.5 : 3.5,
+            pt: isMobile ? 2 : 2.5,
+            pb: 0,
+          }}
+        >
+          <StepIndicator currentStep={1} totalSteps={2} />
+        </Box>
+      )}
 
       {/* Header */}
       <Box
@@ -245,7 +257,7 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
                 lineHeight: 1.3,
               }}
             >
-              Create Your Company
+              {title || "Create Your Company"}
             </Typography>
             <Typography
               sx={{
@@ -256,7 +268,7 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
                 lineHeight: 1.4,
               }}
             >
-              Set up your business profile to start accepting payments
+              {subtitle || "Set up your business profile to start accepting payments"}
             </Typography>
           </Box>
         </Box>

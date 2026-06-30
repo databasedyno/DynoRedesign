@@ -402,7 +402,7 @@ export default function CompanyDetailsSection({
                     borderRadius: "6px",
                     width: triggerRef.current?.offsetWidth,
                     maxHeight: 220,
-                    border: "1px solid #E9ECF2",
+                    border: `1px solid ${theme.palette.border.main}`,
                     borderTop: "none",
                     boxShadow: "0px 4px 16px 0px rgba(47, 47, 101, 0.15)",
                   },
@@ -568,7 +568,7 @@ export default function CompanyDetailsSection({
                     borderRadius: "6px",
                     width: "fit-content",
                     maxHeight: 220,
-                    border: "1px solid #E9ECF2",
+                    border: `1px solid ${theme.palette.border.main}`,
                     borderTop: "none",
                     boxShadow: "0px 4px 16px 0px rgba(47, 47, 101, 0.15)",
                   },
@@ -724,7 +724,7 @@ export default function CompanyDetailsSection({
                     borderRadius: "6px",
                     width: "fit-content",
                     maxHeight: 220,
-                    border: "1px solid #E9ECF2",
+                    border: `1px solid ${theme.palette.border.main}`,
                     borderTop: "none",
                     boxShadow: "0px 4px 16px 0px rgba(47, 47, 101, 0.15)",
                   },
@@ -865,7 +865,7 @@ export default function CompanyDetailsSection({
                     }
                     sx={{
                       cursor: "pointer",
-                      border: "1px solid #E9ECF2",
+                      border: `1px solid ${theme.palette.border.main}`,
                       borderRadius: "6px",
                       width: "100%",
                       height: isMobile ? "32px" : "40px",
@@ -902,11 +902,11 @@ export default function CompanyDetailsSection({
                     />
                     {vatAnchorEl ? (
                       <ExpandLessIcon
-                        sx={{ width: "20px", color: "#676768" }}
+                        sx={{ width: "20px", color: theme.palette.text.secondary }}
                       />
                     ) : (
                       <ExpandMoreIcon
-                        sx={{ width: "20px", color: "#676768" }}
+                        sx={{ width: "20px", color: theme.palette.text.secondary }}
                       />
                     )}
                   </Box>

@@ -102,14 +102,14 @@ const GettingStartedWithDynopay = ({ data }: { data: HelpArticle }) => {
                     display: "flex",
                     flexDirection: "column",
                     gap: "20px",
-                    border: "1px solid #E9ECF2",
+                    border: `1px solid ${theme.palette.border.main}`,
                     backgroundColor: theme.palette.background.paper,
                     borderRadius: "14px",
                     flexShrink: 0,
                 }}
             >
-                <Image src={BackArrow} alt="Back Arrow" style={{ width: "16px", height: "16px", color: "#242428", cursor: "pointer" }} onClick={() => router.push("/help-support")} />
-                <TextDecoration style={{ fontSize: isMobile ? "16px" : "24px", color: "#242428" }}>
+                <Image src={BackArrow} alt="Back Arrow" style={{ width: "16px", height: "16px", color: theme.palette.text.primary, cursor: "pointer" }} onClick={() => router.push("/help-support")} />
+                <TextDecoration style={{ fontSize: isMobile ? "16px" : "24px", color: theme.palette.text.primary }}>
                     Getting Started with Dynopay
                 </TextDecoration>
                 <Box sx={{ width: "100%", height: { xs: "200px", sm: "303px" }, position: "relative", flexShrink: 0 }}>
@@ -121,33 +121,33 @@ const GettingStartedWithDynopay = ({ data }: { data: HelpArticle }) => {
                     />
                 </Box>
                 <Box sx={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-                    <TextDecoration style={{ fontSize: isMobile ? "13px" : "16px", color: "#242428" }}>
+                    <TextDecoration style={{ fontSize: isMobile ? "13px" : "16px", color: theme.palette.text.primary }}>
                         Dynopay helps businesses accept crypto payments without dealing with complex blockchain mechanics. This guide walks you through the basic steps to get up and running.
                     </TextDecoration>
                     {helpData.map((item) => (
                         <Box key={item.title} sx={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-                            <TextDecoration style={{ fontSize: isMobile ? "15px" : "20px", fontWeight: 600, fontFamily: "UrbanistSemibold", color: "#242428" }}>{item.title}</TextDecoration>
+                            <TextDecoration style={{ fontSize: isMobile ? "15px" : "20px", fontWeight: 600, fontFamily: "UrbanistSemibold", color: theme.palette.text.primary }}>{item.title}</TextDecoration>
                             {item.description && (
-                                <TextDecoration style={{ fontSize: isMobile ? "13px" : "15px", color: "#242428" }}>{item.description}</TextDecoration>
+                                <TextDecoration style={{ fontSize: isMobile ? "13px" : "15px", color: theme.palette.text.primary }}>{item.description}</TextDecoration>
                             )}
 
                             <Box>
                                 {item.bulletPoints && (
                                     <>
                                         {item.bulletPoints.heading && (
-                                            <TextDecoration style={{ fontSize: isMobile ? "13px" : "15px", color: "#242428" }}>{item.bulletPoints.heading}</TextDecoration>
+                                            <TextDecoration style={{ fontSize: isMobile ? "13px" : "15px", color: theme.palette.text.primary }}>{item.bulletPoints.heading}</TextDecoration>
                                         )}
 
                                         <ul style={{ paddingLeft: "25px", }}>
                                             {item.bulletPoints.points.map((point, index) => (
-                                                <li key={index} style={{ fontSize: isMobile ? "13px" : "15px", fontWeight: 500, lineHeight: "100%", letterSpacing: 0, fontFamily: "UrbanistMedium", color: "#242428" }}>{point}</li>
+                                                <li key={index} style={{ fontSize: isMobile ? "13px" : "15px", fontWeight: 500, lineHeight: "100%", letterSpacing: 0, fontFamily: "UrbanistMedium", color: theme.palette.text.primary }}>{point}</li>
                                             ))}
                                         </ul>
                                     </>
                                 )}
                             </Box>
                             {item.footer && (
-                                <TextDecoration style={{ fontSize: isMobile ? "13px" : "15px", color: "#242428" }}>{item.footer}</TextDecoration>
+                                <TextDecoration style={{ fontSize: isMobile ? "13px" : "15px", color: theme.palette.text.primary }}>{item.footer}</TextDecoration>
                             )}
                         </Box>
                     ))}
@@ -162,7 +162,7 @@ const GettingStartedWithDynopay = ({ data }: { data: HelpArticle }) => {
                     gap: "20px",
                 }}
             >
-                <TextDecoration style={{ fontSize: isMobile ? "16px" : "24px", color: "#242428" }}>
+                <TextDecoration style={{ fontSize: isMobile ? "16px" : "24px", color: theme.palette.text.primary }}>
                     Related articles
                 </TextDecoration>
 
@@ -181,7 +181,7 @@ const GettingStartedWithDynopay = ({ data }: { data: HelpArticle }) => {
                             key={item.title}
                             sx={{
                                 width: "355px",
-                                border: "1px solid #E9ECF2",
+                                border: `1px solid ${theme.palette.border.main}`,
                                 backgroundColor: theme.palette.background.paper,
                                 borderRadius: "14px",
                                 padding: "20px",
@@ -190,11 +190,11 @@ const GettingStartedWithDynopay = ({ data }: { data: HelpArticle }) => {
                                 gap: "10px",
                             }}
                         >
-                            <TextDecoration style={{ fontSize: isMobile ? "15px" : "20px", color: "#242428" }}>
+                            <TextDecoration style={{ fontSize: isMobile ? "15px" : "20px", color: theme.palette.text.primary }}>
                                 {item.title}
                             </TextDecoration>
 
-                            <TextDecoration style={{ fontSize: isMobile ? "13px" : "15px", color: "#676768" }}>
+                            <TextDecoration style={{ fontSize: isMobile ? "13px" : "15px", color: theme.palette.text.secondary }}>
                                 {item.description}
                             </TextDecoration>
 

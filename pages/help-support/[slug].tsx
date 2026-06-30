@@ -1,5 +1,5 @@
 import { pageProps } from "@/utils/types";
-import { Box, CircularProgress, Typography, Button } from "@mui/material";
+import {Box, CircularProgress, Typography, Button, useTheme} from "@mui/material";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useRouter } from "next/router";
@@ -94,7 +94,7 @@ const HelpDetail = ({
   if (!article) {
     return (
       <Box sx={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 2, minHeight: 300 }}>
-        <Typography sx={{ fontSize: "18px", fontFamily: "UrbanistMedium", color: "#676768" }}>
+        <Typography sx={{ fontSize: "18px", fontFamily: "UrbanistMedium", color: theme.palette.text.secondary }}>
           Article not found
         </Typography>
         <Button
@@ -137,8 +137,8 @@ const HelpDetail = ({
                   letterSpacing: 0,
                   fontWeight: 500,
                   padding: "12px 13.5px",
-                  border: "1px solid #E9ECF2",
-                  backgroundColor: "#FFFFFF",
+                  border: `1px solid ${theme.palette.border.main}`,
+                  backgroundColor: theme.palette.background.paper,
                   borderRadius: "6px",
                   outline: "none",
                   transition: "0.2s",
@@ -159,13 +159,13 @@ const HelpDetail = ({
             onClick={() => router.push("/help-support")}
           >
             <Image src={BackArrow} alt="Back" width={16} height={16} />
-            <Typography sx={{ fontSize: "14px", fontFamily: "UrbanistMedium", color: "#676768" }}>
+            <Typography sx={{ fontSize: "14px", fontFamily: "UrbanistMedium", color: theme.palette.text.secondary }}>
               Back to Help & Support
             </Typography>
           </Box>
 
           {/* Article Title */}
-          <TextDecoration style={{ fontSize: isMobile ? "20px" : "28px", color: "#242428", lineHeight: 1.3 }}>
+          <TextDecoration style={{ fontSize: isMobile ? "20px" : "28px", color: theme.palette.text.primary, lineHeight: 1.3 }}>
             {article.title}
           </TextDecoration>
 
@@ -185,7 +185,7 @@ const HelpDetail = ({
               </Typography>
             )}
             {article.reading_time_minutes && (
-              <Typography sx={{ fontSize: "13px", fontFamily: "UrbanistMedium", color: "#676768" }}>
+              <Typography sx={{ fontSize: "13px", fontFamily: "UrbanistMedium", color: theme.palette.text.secondary }}>
                 {article.reading_time_minutes} min read
               </Typography>
             )}
@@ -194,13 +194,13 @@ const HelpDetail = ({
           {/* Article Content */}
           <Box
             sx={{
-              backgroundColor: "#FFFFFF",
-              border: "1px solid #E9ECF2",
+              backgroundColor: theme.palette.background.paper,
+              border: `1px solid ${theme.palette.border.main}`,
               borderRadius: "14px",
               padding: isMobile ? "16px" : "32px",
               "& h1, & h2, & h3": {
                 fontFamily: "UrbanistMedium",
-                color: "#242428",
+                color: theme.palette.text.primary,
                 marginTop: "24px",
                 marginBottom: "12px",
               },
@@ -209,7 +209,7 @@ const HelpDetail = ({
               "& p": {
                 fontFamily: "UrbanistMedium",
                 fontSize: isMobile ? "13px" : "15px",
-                color: "#676768",
+                color: theme.palette.text.secondary,
                 lineHeight: 1.7,
                 marginBottom: "12px",
               },
@@ -220,7 +220,7 @@ const HelpDetail = ({
               "& li": {
                 fontFamily: "UrbanistMedium",
                 fontSize: isMobile ? "13px" : "15px",
-                color: "#676768",
+                color: theme.palette.text.secondary,
                 lineHeight: 1.7,
                 marginBottom: "6px",
               },
@@ -248,8 +248,8 @@ const HelpDetail = ({
           {/* Feedback Section */}
           <Box
             sx={{
-              backgroundColor: "#FFFFFF",
-              border: "1px solid #E9ECF2",
+              backgroundColor: theme.palette.background.paper,
+              border: `1px solid ${theme.palette.border.main}`,
               borderRadius: "14px",
               padding: "20px",
               display: "flex",
@@ -259,12 +259,12 @@ const HelpDetail = ({
             }}
           >
             {feedbackSubmitted ? (
-              <Typography sx={{ fontSize: "15px", fontFamily: "UrbanistMedium", color: "#242428" }}>
+              <Typography sx={{ fontSize: "15px", fontFamily: "UrbanistMedium", color: theme.palette.text.primary }}>
                 Thank you for your feedback!
               </Typography>
             ) : (
               <>
-                <Typography sx={{ fontSize: "15px", fontFamily: "UrbanistMedium", color: "#242428" }}>
+                <Typography sx={{ fontSize: "15px", fontFamily: "UrbanistMedium", color: theme.palette.text.primary }}>
                   Was this article helpful?
                 </Typography>
                 <Box sx={{ display: "flex", gap: 2 }}>
@@ -272,9 +272,9 @@ const HelpDetail = ({
                     onClick={() => handleFeedback(true)}
                     startIcon={<ThumbUpIcon />}
                     sx={{
-                      border: "1px solid #E9ECF2",
+                      border: `1px solid ${theme.palette.border.main}`,
                       borderRadius: "8px",
-                      color: "#242428",
+                      color: theme.palette.text.primary,
                       textTransform: "none",
                       fontFamily: "UrbanistMedium",
                       px: 3,
@@ -287,9 +287,9 @@ const HelpDetail = ({
                     onClick={() => handleFeedback(false)}
                     startIcon={<ThumbDownIcon />}
                     sx={{
-                      border: "1px solid #E9ECF2",
+                      border: `1px solid ${theme.palette.border.main}`,
                       borderRadius: "8px",
-                      color: "#242428",
+                      color: theme.palette.text.primary,
                       textTransform: "none",
                       fontFamily: "UrbanistMedium",
                       px: 3,

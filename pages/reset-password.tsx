@@ -13,7 +13,7 @@ import { theme } from "@/styles/theme";
 import { rootReducer } from "@/utils/types";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
-import { Box } from "@mui/material";
+import {Box, useTheme} from "@mui/material";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
@@ -204,7 +204,7 @@ const ResetPasswordPage = () => {
               newPasswordShowPassword ? (
                 <VisibilityOffIcon
                   sx={{
-                    color: "#676768",
+                    color: theme.palette.text.secondary,
                     height: "18px",
                     width: "16px",
                   }}
@@ -212,7 +212,7 @@ const ResetPasswordPage = () => {
               ) : (
                 <VisibilityIcon
                   sx={{
-                    color: "#676768",
+                    color: theme.palette.text.secondary,
                     height: "18px",
                     width: "16px",
                   }}
@@ -283,7 +283,7 @@ const ResetPasswordPage = () => {
               newPasswordConfirmShowPassword ? (
                 <VisibilityOffIcon
                   sx={{
-                    color: "#676768",
+                    color: theme.palette.text.secondary,
                     height: "18px",
                     width: "16px",
                   }}
@@ -291,7 +291,7 @@ const ResetPasswordPage = () => {
               ) : (
                 <VisibilityIcon
                   sx={{
-                    color: "#676768",
+                    color: theme.palette.text.secondary,
                     height: "18px",
                     width: "16px",
                   }}

@@ -1,7 +1,10 @@
 import HomeButton from "@/Components/Layout/HomeButton";
 import HomeSectionTitle from "@/Components/UI/SectionTitle";
 import useIsMobile from "@/hooks/useIsMobile";
+import BTC from "@/assets/Icons/coins/BTC";
+import USDT from "@/assets/Icons/coins/USDT";
 import { Box, Typography, useTheme } from "@mui/material";
+import { Bolt } from "@mui/icons-material";
 import { memo } from "react";
 import { useTranslation } from "react-i18next";
 import { ButtonsRow, Root, TopSection } from "./styled";
@@ -12,21 +15,22 @@ const HeroSection = () => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
 
+  // Step icons — real coin SVGs / chain-native icons (not generic emoji)
   const steps = [
     {
-      icon: "₿",
+      iconNode: <BTC width={28} height={28} />,
       gradient: "linear-gradient(135deg, #F7931A 0%, #FF9500 100%)",
       title: t("heroStep1"),
       sub: t("heroStep1Sub"),
     },
     {
-      icon: "⚡",
+      iconNode: <Bolt sx={{ fontSize: 30, color: "#fff" }} />,
       gradient: "linear-gradient(135deg, #7C3AED 0%, #A855F7 100%)",
       title: t("heroStep2"),
       sub: t("heroStep2Sub"),
     },
     {
-      icon: "$",
+      iconNode: <USDT width={28} height={28} />,
       gradient: "linear-gradient(135deg, #10B981 0%, #34D399 100%)",
       title: t("heroStep3"),
       sub: t("heroStep3Sub"),
@@ -175,7 +179,7 @@ const HeroSection = () => {
               </Box>
             )}
 
-            {/* Icon circle */}
+            {/* Icon circle — chain-native SVG instead of plain emoji */}
             <Box
               sx={{
                 width: 56,
@@ -186,18 +190,19 @@ const HeroSection = () => {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                fontSize: "24px",
                 color: "#fff",
-                fontWeight: 700,
                 boxShadow: `0 8px 24px ${isDark ? "rgba(0,0,0,0.3)" : "rgba(0,0,0,0.1)"}`,
                 transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                "& > *": {
+                  filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.2))",
+                },
                 "&:hover": {
                   transform: "scale(1.08) translateY(-2px)",
                   boxShadow: `0 12px 32px ${isDark ? "rgba(0,0,0,0.4)" : "rgba(0,0,0,0.15)"}`,
                 },
               }}
             >
-              {step.icon}
+              {step.iconNode}
             </Box>
 
             {/* Text */}

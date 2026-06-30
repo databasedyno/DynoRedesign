@@ -2,14 +2,12 @@ import InfoIcon from "@/assets/Icons/info-icon.svg";
 import useIsMobile from "@/hooks/useIsMobile";
 import { theme } from "@/styles/theme";
 import { SaveChangeModelProps } from "@/utils/types/create-pay-link";
-import {
-  Box,
+import {Box,
   Button,
   Dialog,
   DialogActions,
   DialogContent,
-  Typography,
-} from "@mui/material";
+  Typography, useTheme} from "@mui/material";
 import Image from "next/image";
 
 const SaveChangeModel = ({ open, onClose, onSave }: SaveChangeModelProps) => {
@@ -56,7 +54,7 @@ const SaveChangeModel = ({ open, onClose, onSave }: SaveChangeModelProps) => {
             fontSize: isMobile ? "13px" : "15px",
             lineHeight: "140%",
             mt: isMobile ? "12px" : "24px",
-            color: "#676768",
+            color: theme.palette.text.secondary,
           }}
         >
           This payment link is active and may have been shared with customers.
@@ -79,8 +77,8 @@ const SaveChangeModel = ({ open, onClose, onSave }: SaveChangeModelProps) => {
             fontFamily: "UrbanistMedium",
             fontWeight: 500,
             fontSize: isMobile ? "13px" : "15px",
-            color: "#676768",
-            border: "1px solid #E9ECF2",
+            color: theme.palette.text.secondary,
+            border: `1px solid ${theme.palette.border.main}`,
             py: "11px",
             borderRadius: "6px",
           }}

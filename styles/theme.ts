@@ -580,6 +580,10 @@ export const lightTheme = createTheme({
     text: { primary: "#242428", secondary: "#676768" },
     background: { default: "#F4F6FA", paper: "#FFFFFF" },
     surface: { main: "#F4F6FA", paper: "#FFFFFF", border: "#E9ECF2" },
+    // Mirror of `surface.border` so that components that use `palette.border.main`
+    // (the convention used in the rest of the app's theme tokens) keep working
+    // when rendered inside the /pay route's lightTheme.
+    border: { main: "#E9ECF2", focus: "#0004FF", success: "#10B981", error: "#E8484A" },
   },
   typography: {
     fontFamily: "'Urbanist', sans-serif",
@@ -595,11 +599,12 @@ export const darkTheme = createTheme({
   palette: {
     mode: "dark",
     common: { black: "#242428", white: "#fff" },
-    primary: { main: "#FFFFFF", dark: "#E0E0E0", light: "#FFFFFF", contrastText: "#242428" },
+    primary: { main: "#6C7BFF", dark: "#4A5AE8", light: "#8E9AFF", contrastText: "#fff" },
     secondary: { main: "#6C7BFF", dark: "#4A5AE8", light: "#8E9AFF" },
     text: { primary: "#FFFFFF", secondary: "#B0B8FF" },
     background: { default: "#0d0d1a", paper: "#1a1a2e" },
     surface: { main: "#0d0d1a", paper: "#1a1a2e", border: "#2a2a4a" },
+    border: { main: "#2a2a4a", focus: "#6C7BFF", success: "#10B981", error: "#E8484A" },
   },
   typography: {
     fontFamily: "'Urbanist', sans-serif",

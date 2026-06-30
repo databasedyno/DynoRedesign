@@ -699,7 +699,7 @@ const Payment = () => {
                   width: '100%',
                   maxWidth: 440,
                   textAlign: 'center',
-                  border: `1px solid ${isDark ? theme.palette.surface.border : '#E9ECF2'}`,
+                  border: `1px solid ${theme.palette.border.main}`,
                   boxShadow: isDark 
                     ? '0 12px 40px rgba(0,0,0,0.35)' 
                     : '0 8px 32px rgba(0,4,255,0.06), 0 2px 8px rgba(0,0,0,0.04)',
@@ -714,7 +714,7 @@ const Payment = () => {
                 }}
               >
                 {/* Gradient accent bar */}
-                <Box sx={{ height: '3px', background: 'linear-gradient(90deg, #0004FF 0%, #3D40FF 40%, #6C6FFF 100%)' }} />
+                <Box sx={{ height: '3px', background: `linear-gradient(90deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark || theme.palette.primary.main} 40%, ${theme.palette.primary.light || theme.palette.primary.main} 100%)` }} />
                 <Box px={{ xs: 2, sm: 2.5 }} py={{ xs: 2, sm: 2.5 }}>
                 {/* Logo Section - Merchant logo or Dynopay */}
                 <Box display='flex' justifyContent='center' mb={1}>
@@ -817,12 +817,12 @@ const Payment = () => {
                 {(description || orderReference || customerName) && (
                   <Box
                     sx={{
-                      border: `1px solid ${isDark ? theme.palette.surface.border : '#EEF0F6'}`,
+                      border: `1px solid ${theme.palette.border.main}`,
                       borderRadius: '12px',
                       p: 1.5,
                       mb: 1.5,
                       textAlign: 'left',
-                      backgroundColor: isDark ? 'rgba(255,255,255,0.02)' : '#F8F9FC',
+                      backgroundColor: isDark ? 'rgba(255,255,255,0.02)' : theme.palette.action.hover,
                       transition: 'background-color 0.3s ease',
                     }}
                     data-testid="order-details-section"
@@ -830,7 +830,7 @@ const Payment = () => {
                     <Typography
                       fontWeight={600}
                       fontSize={11}
-                      color={isDark ? theme.palette.text.secondary : '#666'}
+                      color={theme.palette.text.secondary}
                       
                       letterSpacing={0.5}
                       mb={1}
@@ -852,7 +852,7 @@ const Payment = () => {
                     
                     {customerName && (
                       <Box display='flex' alignItems='center' gap={1} mb={(orderReference || tokenData?.email) ? 1.5 : 0}>
-                        <Icon icon="mdi:account-outline" width={16} color={isDark ? theme.palette.text.secondary : '#666'} />
+                        <Icon icon="mdi:account-outline" width={16} color={theme.palette.text.secondary} />
                         <Typography
                           fontWeight={500}
                           fontSize={13}
@@ -867,7 +867,7 @@ const Payment = () => {
                     
                     {tokenData?.email && (
                       <Box display='flex' alignItems='center' gap={1} mb={orderReference ? 1.5 : 0}>
-                        <Icon icon="mdi:email-outline" width={16} color={isDark ? theme.palette.text.secondary : '#666'} />
+                        <Icon icon="mdi:email-outline" width={16} color={theme.palette.text.secondary} />
                         <Typography
                           fontWeight={500}
                           fontSize={13}
@@ -908,10 +908,10 @@ const Payment = () => {
                             onClick={handleCopyInvoice}
                             data-testid="copy-invoice-btn"
                             sx={{
-                              bgcolor: isDark ? '#2a2a4a' : '#E9ECF2',
+                              bgcolor: isDark ? 'rgba(106,123,255,0.18)' : theme.palette.action.hover,
                               p: 0.75,
                               borderRadius: '6px',
-                              '&:hover': { bgcolor: isDark ? '#3a3a5a' : '#E0E7FF' }
+                              '&:hover': { bgcolor: isDark ? 'rgba(106,123,255,0.28)' : theme.palette.action.selected }
                             }}
                           >
                             <CopyIcon />
@@ -925,7 +925,7 @@ const Payment = () => {
                 {/* Fee Breakdown Section */}
                 <Box
                   alignItems='center'
-                  border={`1px solid ${isDark ? theme.palette.surface.border : '#EEF0F6'}`}
+                  border={`1px solid ${theme.palette.border.main}`}
                   borderRadius='12px'
                   px={1.5}
                   py={1.5}
@@ -939,7 +939,7 @@ const Payment = () => {
                         <Typography
                           fontSize={13}
                           
-                          color={isDark ? theme.palette.text.secondary : '#666'}
+                          color={theme.palette.text.secondary}
                         >
                           {t('checkout.subtotal')}
                         </Typography>
@@ -964,12 +964,12 @@ const Payment = () => {
                             <Typography
                               fontSize={13}
                               
-                              color={isDark ? theme.palette.text.secondary : '#666'}
+                              color={theme.palette.text.secondary}
                             >
                               {t('checkout.processingFee')}
                             </Typography>
                             {feeInfo.fee_payer === 'merchant' && (
-                              <Icon icon="mdi:check-circle" color="#12B76A" width={14} />
+                              <Icon icon="mdi:check-circle" color={theme.palette.success.main || "#12B76A"} width={14} />
                             )}
                           </Box>
                           <Box display='flex' alignItems='center' gap={0.5}>
@@ -991,7 +991,7 @@ const Payment = () => {
                           <Typography
                             fontSize={12}
                             
-                            color={feeInfo.fee_payer === 'merchant' ? '#12B76A' : (isDark ? theme.palette.text.secondary : '#666')}
+                            color={feeInfo.fee_payer === 'merchant' ? '#12B76A' : theme.palette.text.secondary}
                           >
                             {feeInfo.fee_payer === 'merchant' 
                               ? t('checkout.processingFeesIncluded')
@@ -1007,7 +1007,7 @@ const Payment = () => {
                           <Typography
                             fontSize={13}
                             
-                            color={isDark ? theme.palette.text.secondary : '#666'}
+                            color={theme.palette.text.secondary}
                           >
                             {taxInfo.country 
                               ? t('checkout.vatRate', { rate: taxInfo.rate, country: taxInfo.country })
@@ -1064,12 +1064,12 @@ const Payment = () => {
                       gap={1}
                       sx={{
                         cursor: 'pointer',
-                        borderColor: isOpen ? (isDark ? '#6C7BFF' : '#737373') : 'transparent',
+                        borderColor: isOpen ? theme.palette.primary.main : 'transparent',
                         '&:hover': {
-                          border: `1px solid ${isDark ? '#4a4a6a' : '#D9D9D9'}`
+                          border: `1px solid ${theme.palette.border.main}`
                         },
                         '&:active': {
-                          border: `1px solid ${isDark ? '#6C7BFF' : '#737373'}`
+                          border: `1px solid ${theme.palette.primary.main}`
                         }
                       }}
                       onClick={handleClick}
@@ -1106,7 +1106,7 @@ const Payment = () => {
                           {feePayer === 'customer' && feeInfo?.fees_pending_crypto_selection && feeInfo?.estimated_processing_fee && (
                             <Typography
                               variant="caption"
-                              color={isDark ? theme.palette.text.secondary : '#666'}
+                              color={theme.palette.text.secondary}
                               
                               fontSize={11}
                               sx={{ 
@@ -1137,7 +1137,7 @@ const Payment = () => {
                           animation='wave'
                           sx={{ 
                             borderRadius: '6px', 
-                            background: isDark ? '#2a2a4a' : '#F5F8FF' 
+                            background: theme.palette.action.hover
                           }}
                         />
                       )}
@@ -1148,7 +1148,7 @@ const Payment = () => {
                         onClose={handleClose}
                         PaperProps={{
                           sx: {
-                            border: `1px solid ${isDark ? '#4a4a6a' : '#737373'}`,
+                            border: `1px solid ${theme.palette.border.main}`,
                             borderRadius: '10px',
                             marginTop: '10px',
                             py: '4px',
@@ -1194,7 +1194,7 @@ const Payment = () => {
                                   py: { xs: 1, sm: 1.2, md: 1.5 },
                                   borderRadius: '6px',
                                   '&:hover': {
-                                    backgroundColor: isDark ? '#2a2a4a' : '#F5F8FF'
+                                    backgroundColor: theme.palette.action.hover
                                   }
                                 }}
                               >
@@ -1277,8 +1277,8 @@ const Payment = () => {
                     </Box>
                   )}
                   <Box display='flex' alignItems='center' gap={0.5} data-testid="security-badge">
-                    <Icon icon="mdi:shield-check" width={13} color={isDark ? '#6C7BFF' : '#0004FF'} />
-                    <Typography fontSize={10.5} color={isDark ? '#6C7BFF' : '#0004FF'} fontWeight={700} letterSpacing='0.2px'>
+                    <Icon icon="mdi:shield-check" width={13} color={theme.palette.primary.main} />
+                    <Typography fontSize={10.5} color={theme.palette.primary.main} fontWeight={700} letterSpacing='0.2px'>
                       {t('checkout.securePayment')}
                     </Typography>
                   </Box>

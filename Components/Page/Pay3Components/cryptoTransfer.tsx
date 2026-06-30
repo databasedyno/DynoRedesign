@@ -1385,7 +1385,7 @@ const CryptoTransfer = ({
           {merchantInfo?.name && (
             <Box
               sx={{
-                backgroundColor: isDark ? 'rgba(249, 250, 251, 0.05)' : "#F9FAFB",
+                backgroundColor: theme.palette.action.hover,
                 borderRadius: 2,
                 p: 2,
                 mb: 3,
@@ -1421,7 +1421,7 @@ const CryptoTransfer = ({
               setIsStart(false);
             }}
             sx={{
-              backgroundColor: isDark ? '#6C7BFF' : "#0004FF",
+              backgroundColor: theme.palette.primary.main,
               color: "#FFFFFF",
               borderRadius: "30px",
               py: 1.5,
@@ -1429,7 +1429,7 @@ const CryptoTransfer = ({
               textTransform: "none",
               mb: 2,
               "&:hover": {
-                backgroundColor: isDark ? '#5a6ae6' : "#3730A3",
+                backgroundColor: theme.palette.primary.dark || theme.palette.primary.main,
               },
             }}
           >
@@ -1441,15 +1441,15 @@ const CryptoTransfer = ({
             fullWidth
             onClick={() => setActiveStep(0)}
             sx={{
-              borderColor: isDark ? theme.palette.divider : "#D0D5DD",
+              borderColor: theme.palette.border.main,
               color: theme.palette.text.primary,
               borderRadius: "30px",
               py: 1.5,
               fontWeight: 500,
               textTransform: "none",
               "&:hover": {
-                borderColor: isDark ? '#6C7BFF' : "#98A2B3",
-                backgroundColor: isDark ? 'rgba(108, 123, 255, 0.1)' : "#F9FAFB",
+                borderColor: theme.palette.border.main,
+                backgroundColor: theme.palette.action.hover,
               },
             }}
           >
@@ -1487,7 +1487,7 @@ const CryptoTransfer = ({
               width: 80,
               height: 80,
               borderRadius: "50%",
-              backgroundColor: "#FEF3F2",
+              backgroundColor: isDark ? 'rgba(240, 68, 56, 0.15)' : "#FEF3F2",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -1501,7 +1501,7 @@ const CryptoTransfer = ({
             variant="h5"
             fontWeight={600}
             fontFamily="Space Grotesk"
-            color="#101828"
+            color={theme.palette.text.primary}
             mb={2}
           >
             {t('expired.title')}
@@ -1510,7 +1510,7 @@ const CryptoTransfer = ({
           <Typography
             variant="body1"
             fontFamily="Space Grotesk"
-            color="#667085"
+            color={theme.palette.text.secondary}
             mb={3}
             lineHeight={1.6}
           >
@@ -1520,7 +1520,7 @@ const CryptoTransfer = ({
           {merchantInfo?.name && (
             <Box
               sx={{
-                backgroundColor: "#F9FAFB",
+                backgroundColor: theme.palette.action.hover,
                 borderRadius: 2,
                 p: 2,
                 mb: 3,
@@ -1529,7 +1529,7 @@ const CryptoTransfer = ({
               <Typography
                 variant="body2"
                 fontFamily="Space Grotesk"
-                color="#667085"
+                color={theme.palette.text.secondary}
               >
                 {t('expired.merchant')}
               </Typography>
@@ -1537,7 +1537,7 @@ const CryptoTransfer = ({
                 variant="body1"
                 fontWeight={600}
                 fontFamily="Space Grotesk"
-                color="#101828"
+                color={theme.palette.text.primary}
               >
                 {merchantInfo.name}
               </Typography>
@@ -1549,15 +1549,15 @@ const CryptoTransfer = ({
             fullWidth
             onClick={() => setActiveStep(0)}
             sx={{
-              borderColor: "#D0D5DD",
-              color: "#344054",
+              borderColor: theme.palette.border.main,
+              color: theme.palette.text.primary,
               borderRadius: "30px",
               py: 1.5,
               fontWeight: 500,
               textTransform: "none",
               "&:hover": {
-                borderColor: "#98A2B3",
-                backgroundColor: "#F9FAFB",
+                borderColor: theme.palette.border.main,
+                backgroundColor: theme.palette.action.hover,
               },
             }}
           >
@@ -1584,7 +1584,7 @@ const CryptoTransfer = ({
           width: "100%",
           maxWidth: 450,
           marginTop: 0,
-          border: `1px solid ${isDark ? theme.palette.divider : '#E9ECF2'}`,
+          border: `1px solid ${theme.palette.border.main}`,
           boxShadow: isDark ? "0px 45px 64px 0px rgba(0,0,0,0.3)" : "0px 45px 64px 0px #0D03230F",
           bgcolor: theme.palette.background.paper,
         }}
@@ -1592,14 +1592,14 @@ const CryptoTransfer = ({
         <IconButton
           onClick={() => setActiveStep(activeStep - 1)}
           sx={{
-            backgroundColor: isDark ? 'rgba(108, 123, 255, 0.15)' : "#F5F8FF",
-            color: isDark ? '#6C7BFF' : "#0004FF",
+            backgroundColor: theme.palette.action.hover,
+            color: theme.palette.primary.main,
             borderRadius: "50%",
             padding: "10px",
-            "&:hover": { backgroundColor: isDark ? 'rgba(108, 123, 255, 0.25)' : "#ebefff" },
+            "&:hover": { backgroundColor: theme.palette.action.selected },
           }}
         >
-          <ArrowBack sx={{ color: isDark ? '#6C7BFF' : "#0004FF" }} />
+          <ArrowBack sx={{ color: theme.palette.primary.main }} />
         </IconButton>
 
         <Typography
@@ -1635,10 +1635,10 @@ const CryptoTransfer = ({
               alignItems="center" 
               justifyContent="center" 
               py={2}
-              border={`1px solid ${isDark ? theme.palette.divider : '#737373'}`}
+              border={`1px solid ${theme.palette.border.main}`}
               borderRadius="10px"
             >
-              <CircularProgress size={24} sx={{ color: isDark ? '#6C7BFF' : "#0004FF" }} />
+              <CircularProgress size={24} sx={{ color: theme.palette.primary.main }} />
               <Typography ml={2} fontFamily="Space Grotesk" color={theme.palette.text.secondary}>
                 {t('crypto.loadingCurrencies')}
               </Typography>
@@ -1683,7 +1683,7 @@ const CryptoTransfer = ({
             sx={{
               "& .MuiOutlinedInput-input": {
                 borderRadius: "10px !important",
-                borderColor: isDark ? theme.palette.divider : "#737373",
+                borderColor: theme.palette.border.main,
                 "& :focus-visible": {
                   outline: "none !important",
                 },
@@ -1694,7 +1694,7 @@ const CryptoTransfer = ({
               },
               "& fieldset": {
                 borderRadius: "10px !important",
-                borderColor: `${isDark ? theme.palette.divider : "#737373"} !important`,
+                borderColor: `${theme.palette.border.main} !important`,
                 "& :focus-visible": {
                   outline: "none !important",
                 },
@@ -1724,7 +1724,7 @@ const CryptoTransfer = ({
                   px: "20px",
                   mt: "4px",
                   backgroundColor: theme.palette.background.paper,
-                  border: `1px solid ${isDark ? theme.palette.divider : "#737373"}`,
+                  border: `1px solid ${theme.palette.border.main}`,
                   boxShadow: 3,
                   borderRadius: "10px",
                 },
@@ -1767,10 +1767,10 @@ const CryptoTransfer = ({
                 sx={{
                   borderRadius: "8px",
                   color: theme.palette.text.primary,
-                  "&:hover": { backgroundColor: isDark ? 'rgba(68, 76, 231, 0.1)' : "#F5F8FF" },
+                  "&:hover": { backgroundColor: theme.palette.action.hover },
                   "&.Mui-selected": {
-                    backgroundColor: isDark ? 'rgba(68, 76, 231, 0.15)' : "#F5F8FF",
-                    "&:hover": { backgroundColor: isDark ? 'rgba(68, 76, 231, 0.2)' : "#F5F8FF" },
+                    backgroundColor: theme.palette.action.selected,
+                    "&:hover": { backgroundColor: theme.palette.action.selected },
                   },
                   padding: "10px",
                 }}
@@ -1811,14 +1811,14 @@ const CryptoTransfer = ({
                   key={net}
                   border={`1px solid ${
                     selectedNetwork === net 
-                      ? (isDark ? '#6C7BFF' : "#86A4F9") 
-                      : (isDark ? theme.palette.divider : "#E9ECF2")
+                      ? (theme.palette.primary.main) 
+                      : (theme.palette.border.main)
                   }`}
                   padding="5px 10px"
                   fontSize="small"
                   bgcolor={selectedNetwork === net 
-                    ? (isDark ? 'rgba(108, 123, 255, 0.2)' : "#E9ECF2") 
-                    : (isDark ? 'rgba(255, 255, 255, 0.05)' : "#F5F8FF")}
+                    ? (theme.palette.action.hover) 
+                    : (theme.palette.action.hover)}
                   color={theme.palette.text.primary}
                   borderRadius="5px"
                   sx={{ cursor: "pointer" }}
@@ -1869,14 +1869,14 @@ const CryptoTransfer = ({
                   key={net}
                   border={`1px solid ${
                     selectedNetwork === net 
-                      ? (isDark ? '#6C7BFF' : "#86A4F9") 
-                      : (isDark ? theme.palette.divider : "#E9ECF2")
+                      ? (theme.palette.primary.main) 
+                      : (theme.palette.border.main)
                   }`}
                   padding="5px 10px"
                   fontSize="small"
                   bgcolor={selectedNetwork === net 
-                    ? (isDark ? 'rgba(108, 123, 255, 0.2)' : "#E9ECF2") 
-                    : (isDark ? 'rgba(255, 255, 255, 0.05)' : "#F5F8FF")}
+                    ? (theme.palette.action.hover) 
+                    : (theme.palette.action.hover)}
                   color={theme.palette.text.primary}
                   borderRadius="5px"
                   sx={{ cursor: "pointer" }}
@@ -1928,22 +1928,22 @@ const CryptoTransfer = ({
               </Typography>
               <Box
                 textAlign="center"
-                border={`1px solid ${isDark ? theme.palette.divider : '#A4BCFD'}`}
+                border={`1px solid ${theme.palette.border.main}`}
                 padding="20px"
                 borderRadius="20px"
-                bgcolor={isDark ? 'rgba(68, 76, 231, 0.05)' : "#F5F8FF"}
+                bgcolor={theme.palette.action.hover}
               >
                 <Box
                   sx={{
                     bgcolor: theme.palette.background.paper,
                     borderRadius: "10px",
-                    border: `1px solid ${isDark ? theme.palette.divider : '#E9ECF2'}`,
+                    border: `1px solid ${theme.palette.border.main}`,
                     mb: 2,
                   }}
                 >
                   {loading ? (
                     <Box sx={{ padding: 2, textAlign: 'center' }}>
-                      <CircularProgress sx={{ color: isDark ? '#6C7BFF' : undefined }} />
+                      <CircularProgress sx={{ color: theme.palette.primary.main }} />
                       <Typography 
                         variant="body2" 
                         sx={{ mt: 1, color: theme.palette.text.secondary }}
@@ -1970,14 +1970,14 @@ const CryptoTransfer = ({
                   display="flex"
                   alignItems="center"
                   justifyContent="space-between"
-                  border={`1px solid ${isDark ? theme.palette.divider : '#E9ECF2'}`}
+                  border={`1px solid ${theme.palette.border.main}`}
                   padding="10px"
                   borderRadius="8px"
                   bgcolor={theme.palette.background.paper}
                 >
                   <Typography
                     variant="body2"
-                    sx={{ color: isDark ? '#6C7BFF' : "#0004FF" }}
+                    sx={{ color: theme.palette.primary.main }}
                     fontWeight="400"
                     fontSize="11px"
                     maxWidth="88%"
@@ -1991,12 +1991,12 @@ const CryptoTransfer = ({
                     <IconButton
                       size="small"
                       sx={{
-                        bgcolor: isDark ? 'rgba(108, 123, 255, 0.2)' : "#E9ECF2",
+                        bgcolor: theme.palette.action.hover,
                         p: 0.5,
                         height: "24px",
                         width: "24px",
                         borderRadius: "5px",
-                        "&:hover": { bgcolor: isDark ? 'rgba(108, 123, 255, 0.3)' : "#E0E7FF" },
+                        "&:hover": { bgcolor: theme.palette.action.selected },
                       }}
                       onClick={handleCopyAddress}
                     >
@@ -2125,7 +2125,7 @@ const CryptoTransfer = ({
               {!isRecived && (
                 <Box
                   mt={3}
-                  border={`1px solid ${isDark ? theme.palette.divider : '#DFDFDF'}`}
+                  border={`1px solid ${theme.palette.border.main}`}
                   padding="18px 21px"
                   borderRadius="10px"
                   bgcolor={theme.palette.background.paper}
@@ -2284,12 +2284,12 @@ const CryptoTransfer = ({
                         <IconButton
                           size="small"
                           sx={{
-                            bgcolor: isDark ? 'rgba(108, 123, 255, 0.2)' : "#E9ECF2",
+                            bgcolor: theme.palette.action.hover,
                             p: 0.5,
                             height: "24px",
                             width: "24px",
                             borderRadius: "5px",
-                            "&:hover": { bgcolor: isDark ? 'rgba(108, 123, 255, 0.3)' : "#E0E7FF" },
+                            "&:hover": { bgcolor: theme.palette.action.selected },
                             mt: 1,
                           }}
                           onClick={handleCopyAmount}

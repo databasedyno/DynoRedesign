@@ -1,7 +1,9 @@
 import { FC, memo, useEffect } from "react";
 import FeeSection from "./FeeSection";
 import HeroSection from "./Hero";
+import LivePriceStrip from "./LivePriceStrip";
 import SocialProofSection from "./SocialProof";
+import SupportedChainsRail from "./SupportedChainsRail";
 import CoreValueProps from "./CoreValueProps";
 import FinalCTA from "./FinalCTA";
 import Testimonials from "./Testimonials";
@@ -30,9 +32,19 @@ const HomePage: FC = () => {
 
   return (
     <HomeWrapper>
+      {/* Live crypto price strip — signals "this is a real-time crypto product" */}
+      <HomeFullWidthContainer>
+        <LivePriceStrip />
+      </HomeFullWidthContainer>
+
       <HomeContainer>
         <HeroSection />
       </HomeContainer>
+
+      {/* "Powered by" chain logo rail — replaces the generic SaaS "trusted by" line */}
+      <HomeFullWidthContainer>
+        <SupportedChainsRail />
+      </HomeFullWidthContainer>
 
       <HomeFullWidthContainer>
         <SocialProofSection />

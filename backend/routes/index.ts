@@ -164,6 +164,29 @@ router.get("/", (_req: express.Request, res: express.Response) => {
 
 router.use("/user", userRouter);
 
+/**
+ * Public tickers endpoint — read-only price snapshot for the landing page price strip.
+ * No auth required. Returns the in-memory ticker cache populated by
+ * binanceWebSocketService (with CoinGecko/Kraken fallbacks).
+ */
+router.get("/public/tickers", async (_req: express.Request, res: express.Response) => {
+  try {
+    // Lazy-load to avoid pulling the service into the request critical path
+    const { getAllTickerData } = await import("../services/binanceWebSocketService");
+    const all = getAllTickerData();
+    const out = Object.entries(all || {}).map(([asset, t]: [string, any]) => ({
+      symbol: asset,
+      price: t?.price ?? 0,
+      change24h: t?.priceChangePercent ?? 0,
+      updatedAt: t?.updatedAt ?? 0,
+    }));
+    res.status(200).json({ status: "success", data: out });
+  } catch (err: any) {
+    apiLogger.warn("/api/public/tickers failed:", err?.message);
+    res.status(200).json({ status: "success", data: [] });
+  }
+});
+
 // Geo-detection endpoint — called by frontend for IP-based language auto-detection
 // This proxies the request server-side to avoid HTTPS→HTTP mixed-content browser blocks
 router.get("/geo-detect", async (req: express.Request, res: express.Response) => {

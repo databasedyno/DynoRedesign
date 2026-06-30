@@ -216,7 +216,7 @@ const HelpAndSupport = () => {
                                 letterSpacing: 0,
                                 fontWeight: 500,
                                 padding: "12px 13.5px",
-                                border: "1px solid #E9ECF2",
+                                border: `1px solid ${theme.palette.border.main}`,
                                 backgroundColor: theme.palette.background.paper,
                                 color: theme.palette.text.primary,
                                 borderRadius: "6px",
@@ -247,7 +247,7 @@ const HelpAndSupport = () => {
                         }}
                     >
                         {articles.length === 0 ? (
-                            <TextDecoration style={{ fontSize: "15px", color: "#676768" }}>
+                            <TextDecoration style={{ fontSize: "15px", color: theme.palette.text.secondary }}>
                                 {t("noResults") || "No articles found. Try a different search term."}
                             </TextDecoration>
                         ) : (

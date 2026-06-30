@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Box, Typography, IconButton } from "@mui/material";
+import {Box, Typography, IconButton, useTheme} from "@mui/material";
 import { useDispatch } from "react-redux";
 import { TOAST_HIDE, ToastAction } from "../../../Redux/Actions/ToastAction";
 import LoadingIcon from "@/assets/Icons/LoadingIcon";
@@ -160,7 +160,7 @@ const Toast = (props: IToastProps) => {
           onClick={handleClose}
           sx={{
             padding: "4px",
-            color: "#676768",
+            color: theme.palette.text.secondary,
             flexShrink: 0,
             "&:hover": {
               backgroundColor: "rgba(0, 0, 0, 0.04)",

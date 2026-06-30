@@ -1827,7 +1827,7 @@ export default function Login() {
               variant="body2"
               sx={{
                 fontFamily: "UrbanistMedium",
-                color: "#676768",
+                color: theme.palette.text.secondary,
                 padding: "0 24px",
                 fontSize: isMobile ? "10px" : "15px",
                 fontWeight: 500,
@@ -1855,7 +1855,7 @@ export default function Login() {
             sx={{
               fontSize: isMobile ? "13px" : "15px",
               fontFamily: "UrbanistMedium",
-              color: "#676768",
+              color: theme.palette.text.secondary,
               fontWeight: 500,
               lineHeight: "1.2",
               letterSpacing: 0,

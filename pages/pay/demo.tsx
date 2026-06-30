@@ -100,7 +100,7 @@ const PaymentDemo = () => {
               width: '100%',
               maxWidth: 440,
               textAlign: 'center',
-              border: `1px solid ${isDark ? '#2a2a4a' : '#E9ECF2'}`,
+              border: `1px solid ${theme.palette.border.main}`,
               boxShadow: isDark
                 ? '0 12px 40px rgba(0,0,0,0.35)'
                 : '0 8px 32px rgba(0,4,255,0.06), 0 2px 8px rgba(0,0,0,0.04)',
@@ -168,12 +168,12 @@ const PaymentDemo = () => {
               {/* Order Details */}
               <Box
                 sx={{
-                  border: `1px solid ${isDark ? '#2a2a4a' : '#EEF0F6'}`,
+                  border: `1px solid ${theme.palette.border.main}`,
                   borderRadius: '12px',
                   p: 1.5,
                   mb: 1.5,
                   textAlign: 'left',
-                  backgroundColor: isDark ? 'rgba(255,255,255,0.02)' : '#F8F9FC',
+                  backgroundColor: theme.palette.action.hover,
                   transition: 'background-color 0.3s ease',
                 }}
                 data-testid="order-details-section"
@@ -181,7 +181,7 @@ const PaymentDemo = () => {
                 <Typography
                   fontWeight={700}
                   fontSize={9.5}
-                  color={isDark ? '#888' : '#9CA3AF'}
+                  color={theme.palette.text.secondary}
                   letterSpacing={1}
                   textTransform='uppercase'
                   mb={0.5}
@@ -202,7 +202,7 @@ const PaymentDemo = () => {
 
                 <Box display='flex' alignItems='center' justifyContent='space-between'>
                   <Box>
-                    <Typography fontWeight={700} fontSize={9} color={isDark ? '#888' : '#9CA3AF'} letterSpacing={0.8} textTransform='uppercase'>
+                    <Typography fontWeight={700} fontSize={9} color={theme.palette.text.secondary} letterSpacing={0.8} textTransform='uppercase'>
                       {t('checkout.invoice')}
                     </Typography>
                     <Typography fontWeight={500} fontSize={12} color={theme.palette.text.primary} sx={{ fontFamily: "'Urbanist', monospace" }} data-testid="invoice-number">
@@ -215,12 +215,12 @@ const PaymentDemo = () => {
                       onClick={handleCopyInvoice}
                       data-testid="copy-invoice-btn"
                       sx={{
-                        bgcolor: isDark ? '#2a2a4a' : '#E9ECF2',
+                        bgcolor: theme.palette.border.main,
                         p: 0.5,
                         borderRadius: '8px',
                         transition: 'all 0.2s ease',
                         '&:hover': {
-                          bgcolor: isDark ? '#3a3a5a' : '#dde1e8',
+                          bgcolor: theme.palette.action.selected,
                           transform: 'scale(1.05)',
                         }
                       }}
@@ -233,7 +233,7 @@ const PaymentDemo = () => {
 
               {/* Fee Breakdown */}
               <Box
-                border={`1px solid ${isDark ? '#2a2a4a' : '#EEF0F6'}`}
+                border={`1px solid ${theme.palette.border.main}`}
                 borderRadius='12px'
                 px={1.5}
                 py={1.5}
@@ -279,7 +279,7 @@ const PaymentDemo = () => {
                   {t('checkout.processingFeesIncluded')}
                 </Typography>
 
-                <Divider sx={{ my: 1, borderColor: isDark ? '#2a2a4a' : '#EEF0F6' }} />
+                <Divider sx={{ my: 1, borderColor: theme.palette.border.main }} />
 
                 {/* Total — highlighted */}
                 <Box
@@ -309,7 +309,7 @@ const PaymentDemo = () => {
                   </Box>
                 </Box>
 
-                <Divider sx={{ mb: 1.5, borderColor: isDark ? '#2a2a4a' : '#EEF0F6' }} />
+                <Divider sx={{ mb: 1.5, borderColor: theme.palette.border.main }} />
 
                 {/* CTA — Filled gradient green button */}
                 <Button
@@ -356,14 +356,14 @@ const PaymentDemo = () => {
                   <Icon icon="mdi:clock-outline" width={13} color={theme.palette.text.secondary} />
                   <Typography fontSize={10.5} color={theme.palette.text.secondary} fontWeight={500}>
                     {t('checkout.expiresIn')}{' '}
-                    <Box component="span" sx={{ fontWeight: 700, color: isDark ? '#fff' : '#242428' }}>
+                    <Box component="span" sx={{ fontWeight: 700, color: theme.palette.text.primary }}>
                       {countdown}
                     </Box>
                   </Typography>
                 </Box>
                 <Box display='flex' alignItems='center' gap={0.5} data-testid="security-badge">
-                  <Icon icon="mdi:shield-check" width={13} color={isDark ? '#6C7BFF' : '#0004FF'} />
-                  <Typography fontSize={10.5} color={isDark ? '#6C7BFF' : '#0004FF'} fontWeight={700} letterSpacing='0.2px'>
+                  <Icon icon="mdi:shield-check" width={13} color={theme.palette.primary.main} />
+                  <Typography fontSize={10.5} color={theme.palette.primary.main} fontWeight={700} letterSpacing='0.2px'>
                     {t('checkout.securePayment')}
                   </Typography>
                 </Box>

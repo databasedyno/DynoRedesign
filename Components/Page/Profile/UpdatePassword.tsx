@@ -315,7 +315,7 @@ const UpdatePassword = () => {
                     sideButton={true}
                     sideButtonType="primary"
                     iconBoxSize={isMobile ? "32px" : "38px"}
-                    sideButtonIcon={showNewPassword ? <VisibilityOffIcon sx={{ color: "#676768", height: "18px", width: "16px" }} /> : <VisibilityIcon sx={{ color: "#676768", height: "18px", width: "16px" }} />}
+                    sideButtonIcon={showNewPassword ? <VisibilityOffIcon sx={{ color: theme.palette.text.secondary, height: "18px", width: "16px" }} /> : <VisibilityIcon sx={{ color: theme.palette.text.secondary, height: "18px", width: "16px" }} />}
                     sideButtonIconWidth={isMobile ? "14px" : "19px"}
                     sideButtonIconHeight={isMobile ? "14px" : "19px"}
                     onSideButtonClick={() => setShowNewPassword(!showNewPassword)}
@@ -350,7 +350,7 @@ const UpdatePassword = () => {
                     sideButton={true}
                     sideButtonType="primary"
                     iconBoxSize={isMobile ? "32px" : "38px"}
-                    sideButtonIcon={showConfirmPassword ? <VisibilityOffIcon sx={{ color: "#676768", height: "18px", width: "16px" }} /> : <VisibilityIcon sx={{ color: "#676768", height: "18px", width: "16px" }} />}
+                    sideButtonIcon={showConfirmPassword ? <VisibilityOffIcon sx={{ color: theme.palette.text.secondary, height: "18px", width: "16px" }} /> : <VisibilityIcon sx={{ color: theme.palette.text.secondary, height: "18px", width: "16px" }} />}
                     sideButtonIconWidth={isMobile ? "14px" : "19px"}
                     sideButtonIconHeight={isMobile ? "14px" : "19px"}
                     onSideButtonClick={() => setShowConfirmPassword(!showConfirmPassword)}

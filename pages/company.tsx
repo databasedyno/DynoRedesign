@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import Head from "next/head";
@@ -18,71 +18,29 @@ import {
   LanguageRounded,
   PhoneRounded,
 } from "@mui/icons-material";
-import * as yup from "yup";
 
-import FormManager from "@/Components/Page/Common/FormManager";
 import PanelCard from "@/Components/UI/PanelCard";
-import PopupModal from "@/Components/UI/PopupModal";
-import InputField from "@/Components/UI/AuthLayout/InputFields";
-import CountryPhoneInput from "@/Components/UI/CountryPhoneInput";
-import { Text } from "@/Components/Page/CreatePaymentLink/styled";
+import CreateCompanyModal from "@/Components/UI/OnboardingFlow/CreateCompanyModal";
 import CompanySettingsDialog from "@/Components/UI/CompanySettingsDialog";
 import useIsMobile from "@/hooks/useIsMobile";
 import { CompanyAction } from "@/Redux/Actions";
-import {
-  COMPANY_FETCH,
-  COMPANY_INSERT,
-} from "@/Redux/Actions/CompanyAction";
+import { COMPANY_FETCH } from "@/Redux/Actions/CompanyAction";
 import { ICompany, pageProps, rootReducer } from "@/utils/types";
-import Dummy from "@/assets/Images/dummy.jpg";
-import Image from "next/image";
-import DownloadIcon from "@/assets/Icons/download-icon.svg";
-
-const companyInitial = {
-  company_name: "",
-  email: "",
-  mobile: "",
-  website: "",
-};
 
 const Company = ({ setPageName, setPageDescription, setPageAction }: pageProps) => {
   const dispatch = useDispatch();
   const theme = useTheme();
   const router = useRouter();
   const isMobile = useIsMobile("md");
-  const fileRef = useRef<any>();
   const companyState = useSelector(
     (state: rootReducer) => state.companyReducer
   );
-  const userState = useSelector((state: rootReducer) => state.userReducer);
 
   const [addOpen, setAddOpen] = useState(false);
-  const [mediaFile, setMediaFile] = useState<any>();
-  const [fileName, setFileName] = useState<any>();
-  const [image, setImage] = useState(Dummy.src);
-  const [initialValue, setInitialValue] = useState(
-    structuredClone(companyInitial)
-  );
 
   // Manage dialog state
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState<ICompany | null>(null);
-
-  const companySchema = yup.object().shape({
-    company_name: yup.string().required("Company Name is required!"),
-    email: yup
-      .string()
-      .email("Please enter a valid email")
-      .required("Email is required!"),
-    mobile: yup
-      .string()
-      .notRequired()
-      .test(
-        "mobile-len",
-        "Minimum 10 digits are required!",
-        (v) => !v || v.replace(/\D/g, "").length >= 10
-      ),
-  });
 
   useEffect(() => {
     setPageName("Companies");
@@ -101,27 +59,12 @@ const Company = ({ setPageName, setPageDescription, setPageAction }: pageProps) 
   }, [router.query.section, companyState?.companyList]);
 
   const handleAddClose = () => {
-    setInitialValue(structuredClone(companyInitial));
-    setFileName(undefined);
-    setMediaFile(undefined);
-    setImage(Dummy.src);
     setAddOpen(false);
   };
 
-  const handleAddSubmit = (values: any) => {
-    const formData = new FormData();
-    formData.append("data", JSON.stringify(values));
-    if (mediaFile) formData.append("image", mediaFile);
-    dispatch(CompanyAction(COMPANY_INSERT, formData));
-    handleAddClose();
-  };
-
-  const handleFileChange = (file: File) => {
-    if (file) {
-      setImage(URL.createObjectURL(file));
-      setFileName(file.name);
-      setMediaFile(file);
-    }
+  const handleAddSuccess = () => {
+    // Modal already dispatched COMPANY_INSERT (and the companies list refreshed).
+    setAddOpen(false);
   };
 
   const handleManage = (company: ICompany) => {
@@ -168,14 +111,7 @@ const Company = ({ setPageName, setPageDescription, setPageAction }: pageProps) 
           data-testid="add-company-btn"
           variant="rounded"
           sx={{ display: "flex", alignItems: "center" }}
-          onClick={() => {
-            setInitialValue({
-              ...structuredClone(companyInitial),
-              email: userState.email || "",
-              mobile: userState.mobile || "",
-            });
-            setAddOpen(true);
-          }}
+          onClick={() => setAddOpen(true)}
         >
           <AddCircleOutlineRounded fontSize="small" sx={{ mr: 0.5 }} />
           Add Company
@@ -478,265 +414,16 @@ const Company = ({ setPageName, setPageDescription, setPageAction }: pageProps) 
         </Box>
       )}
 
-      {/* Add Company Modal */}
-      <PopupModal
+      {/* Add Company Modal — unified with onboarding */}
+      <CreateCompanyModal
         open={addOpen}
-        showClose
-        headerText="Add Company"
-        handleClose={handleAddClose}
-      >
-        <Box sx={{ minWidth: isMobile ? "auto" : "700px", maxWidth: "100%" }}>
-          <FormManager
-            initialValues={initialValue}
-            yupSchema={companySchema}
-            onSubmit={handleAddSubmit}
-          >
-            {({
-              errors,
-              handleBlur,
-              handleChange,
-              submitDisable,
-              touched,
-              values,
-            }) => (
-              <>
-                <Grid container columnSpacing={3} rowSpacing={2.5}>
-                  <Grid item xs={12} md={6}>
-                    <InputField
-                      fullWidth
-                      inputHeight={isMobile ? "44px" : "40px"}
-                      label="Company Name"
-                      placeholder="Enter your Company Name"
-                      name="company_name"
-                      value={values.company_name}
-                      error={Boolean(touched.company_name && errors.company_name)}
-                      helperText={
-                        touched.company_name && errors.company_name
-                          ? String(errors.company_name)
-                          : undefined
-                      }
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                    />
-                  </Grid>
-                  <Grid item xs={12} md={6}>
-                    <InputField
-                      fullWidth
-                      inputHeight={isMobile ? "44px" : "40px"}
-                      label="Email"
-                      placeholder="Enter your email"
-                      name="email"
-                      type="email"
-                      value={values.email}
-                      error={Boolean(touched.email && errors.email)}
-                      helperText={
-                        touched.email && errors.email
-                          ? String(errors.email)
-                          : undefined
-                      }
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                    />
-                  </Grid>
-                  <Grid item xs={12} md={6}>
-                    <CountryPhoneInput
-                      fullWidth
-                      inputHeight={isMobile ? "44px" : "40px"}
-                      label="Mobile (optional)"
-                      placeholder="Enter your mobile number"
-                      name="mobile"
-                      defaultCountry="US"
-                      value={values.mobile}
-                      error={Boolean(touched.mobile && errors.mobile)}
-                      helperText={
-                        touched.mobile && errors.mobile
-                          ? String(errors.mobile)
-                          : undefined
-                      }
-                      onChange={(newValue) => {
-                        const e: any = {
-                          target: { name: "mobile", value: newValue },
-                        };
-                        handleChange(e);
-                      }}
-                      onBlur={handleBlur}
-                    />
-                  </Grid>
-                  <Grid item xs={12} md={6}>
-                    <InputField
-                      fullWidth
-                      inputHeight={isMobile ? "44px" : "40px"}
-                      label="Website (optional)"
-                      placeholder="Enter your website"
-                      name="website"
-                      value={values.website}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                    />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Text
-                      sx={{
-                        fontSize: isMobile ? "14px" : "15px",
-                        mb: "8px",
-                      }}
-                    >
-                      Brand Logo (optional)
-                    </Text>
-                    <Box
-                      sx={{
-                        border: `1px dashed ${theme.palette.divider}`,
-                        borderRadius: "8px",
-                        px: 2,
-                        py: 2,
-                        textAlign: "center",
-                        cursor: "pointer",
-                        userSelect: "none",
-                        backgroundColor: theme.palette.background.paper,
-                        transition: "all 0.2s ease",
-                        "&:hover": {
-                          borderColor: theme.palette.primary.light,
-                          backgroundColor:
-                            theme.palette.mode === "dark"
-                              ? "rgba(255,255,255,0.03)"
-                              : "#FAFBFF",
-                        },
-                      }}
-                      onClick={() => fileRef.current?.click()}
-                    >
-                      <input
-                        type="file"
-                        ref={fileRef}
-                        hidden
-                        accept="image/*"
-                        onChange={(e: any) =>
-                          handleFileChange(e.target.files[0])
-                        }
-                      />
-                      {image && image !== Dummy.src ? (
-                        <Box
-                          sx={{
-                            display: "flex",
-                            flexDirection: "column",
-                            alignItems: "center",
-                            gap: 1,
-                          }}
-                        >
-                          <Box
-                            sx={{
-                              width: 64,
-                              height: 64,
-                              borderRadius: "12px",
-                              overflow: "hidden",
-                              border: `1px solid ${theme.palette.divider}`,
-                            }}
-                          >
-                            <img
-                              src={image}
-                              alt="logo preview"
-                              crossOrigin="anonymous"
-                              style={{
-                                width: "100%",
-                                height: "100%",
-                                objectFit: "cover",
-                              }}
-                            />
-                          </Box>
-                          <Typography
-                            sx={{
-                              fontSize: "13px",
-                              fontFamily: "UrbanistMedium",
-                              color: theme.palette.primary.main,
-                            }}
-                          >
-                            {fileName || "Change file"}
-                          </Typography>
-                        </Box>
-                      ) : (
-                        <>
-                          <Box
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              width: "fit-content",
-                              height: "fit-content",
-                              gap: 1,
-                              backgroundColor: theme.palette.text.secondary,
-                              borderRadius: "6px",
-                              padding: "4px",
-                              mx: "auto",
-                              mb: 1,
-                            }}
-                          >
-                            <Image
-                              src={DownloadIcon.src}
-                              alt="upload"
-                              width={12}
-                              height={12}
-                              draggable={false}
-                            />
-                          </Box>
-                          <Typography
-                            sx={{
-                              fontSize: isMobile ? 11 : 13,
-                              fontFamily: "UrbanistMedium",
-                              color: theme.palette.text.secondary,
-                              mb: 0.5,
-                            }}
-                          >
-                            Click to upload your brand logo
-                          </Typography>
-                          <Typography
-                            sx={{
-                              fontSize: isMobile ? 9 : 12,
-                              fontFamily: "UrbanistMedium",
-                              color: theme.palette.text.secondary,
-                            }}
-                          >
-                            PNG or JPG (max 5MB)
-                          </Typography>
-                        </>
-                      )}
-                    </Box>
-                  </Grid>
-                </Grid>
-
-                <Box
-                  sx={{
-                    mt: 3,
-                    width: "100%",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "flex-end",
-                    gap: 1.5,
-                  }}
-                >
-                  <Button
-                    variant="outlined"
-                    onClick={handleAddClose}
-                    sx={{
-                      borderRadius: "10px",
-                      textTransform: "none",
-                      fontFamily: "UrbanistMedium",
-                    }}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    variant="rounded"
-                    type="submit"
-                    disabled={submitDisable}
-                    sx={{ py: 1.5 }}
-                  >
-                    Add Company
-                  </Button>
-                </Box>
-              </>
-            )}
-          </FormManager>
-        </Box>
-      </PopupModal>
+        onClose={handleAddClose}
+        onSuccess={handleAddSuccess}
+        showStepIndicator={false}
+        title="Add a New Company"
+        subtitle="Set up another business profile under your account"
+        closeLabel="Cancel"
+      />
 
       {/* Company Settings Dialog (Manage) */}
       <CompanySettingsDialog
