@@ -6,23 +6,24 @@ import {
   BusinessRounded,
   AccountBalanceWalletRounded,
   ArrowForwardRounded,
+  CheckCircleRounded,
 } from "@mui/icons-material";
 import Head from "next/head";
-import { useRouter } from "next/router";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import { CompanyAction } from "@/Redux/Actions";
 import { COMPANY_FETCH } from "@/Redux/Actions/CompanyAction";
 import { WalletAction } from "@/Redux/Actions";
 import { WALLET_FETCH } from "@/Redux/Actions/WalletAction";
+import AddWalletModal from "@/Components/UI/AddWalletModal";
+import CreateCompanyModal from "@/Components/UI/OnboardingFlow/CreateCompanyModal";
 
 const CreatePaymentLink = ({ setPageName, setPageDescription }: pageProps) => {
   const namespaces = ["createPaymentLinkScreen", "common"];
   const { t } = useTranslation(namespaces);
   const isMobile = useIsMobile("md");
   const theme = useTheme();
-  const router = useRouter();
   const dispatch = useDispatch();
 
   const companyState = useSelector(
@@ -33,6 +34,10 @@ const CreatePaymentLink = ({ setPageName, setPageDescription }: pageProps) => {
   const hasCompany = companyState.companyList?.length > 0;
   const hasWallet = walletState.walletList?.length > 0;
   const setupComplete = hasCompany && hasWallet;
+
+  // Inline modal state — keep the user on /create-pay-link
+  const [companyModalOpen, setCompanyModalOpen] = useState(false);
+  const [walletModalOpen, setWalletModalOpen] = useState(false);
 
   useEffect(() => {
     dispatch(CompanyAction(COMPANY_FETCH));
@@ -55,9 +60,46 @@ const CreatePaymentLink = ({ setPageName, setPageDescription }: pageProps) => {
     }
   }, [setPageName, setPageDescription, tCreatePaymentLink]);
 
-  const missingSteps = [];
-  if (!hasCompany) missingSteps.push({ label: "Create a Company", icon: BusinessRounded, path: "/company" });
-  if (!hasWallet) missingSteps.push({ label: "Add a Wallet", icon: AccountBalanceWalletRounded, path: "/wallet" });
+  // Build step list — show all 2 steps, mark each done/active so user sees progress.
+  type Step = {
+    key: "company" | "wallet";
+    label: string;
+    helper: string;
+    icon: typeof BusinessRounded;
+    done: boolean;
+    onClick: () => void;
+  };
+  const steps: Step[] = [
+    {
+      key: "company",
+      label: "Create a Company",
+      helper: "Used on invoices and receipts. Takes ~30 seconds.",
+      icon: BusinessRounded,
+      done: hasCompany,
+      onClick: () => setCompanyModalOpen(true),
+    },
+    {
+      key: "wallet",
+      label: "Add a Payout Wallet",
+      helper: "Where customer payments are sent. Required to receive crypto.",
+      icon: AccountBalanceWalletRounded,
+      done: hasWallet,
+      onClick: () => setWalletModalOpen(true),
+    },
+  ];
+
+  const handleCompanySuccess = () => {
+    setCompanyModalOpen(false);
+    // re-fetch — onSuccess from modal already commits the new company to Redux,
+    // but trigger a fetch anyway to be safe.
+    dispatch(CompanyAction(COMPANY_FETCH));
+  };
+
+  const handleWalletAdded = () => {
+    setWalletModalOpen(false);
+    const payload = selectedCompanyId ? { company_id: selectedCompanyId } : undefined;
+    dispatch(WalletAction(WALLET_FETCH, payload));
+  };
 
   return (
     <>
@@ -106,7 +148,7 @@ const CreatePaymentLink = ({ setPageName, setPageDescription }: pageProps) => {
               mb: 1,
             }}
           >
-            Complete setup to create payment links
+            A couple of quick steps first
           </Typography>
           <Typography
             sx={{
@@ -118,32 +160,35 @@ const CreatePaymentLink = ({ setPageName, setPageDescription }: pageProps) => {
               lineHeight: 1.5,
             }}
           >
-            Before you can create a payment link, you need to complete the
-            following steps:
+            Finish these to start accepting crypto payments — no need to leave this page.
           </Typography>
 
           <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
-            {missingSteps.map((step) => {
-              const Icon = step.icon;
+            {steps.map((step) => {
+              const Icon = step.done ? CheckCircleRounded : step.icon;
               return (
                 <Box
-                  key={step.path}
-                  data-testid={`setup-guard-step-${step.path.replace("/", "")}`}
-                  onClick={() => router.push(step.path)}
+                  key={step.key}
+                  data-testid={`setup-guard-step-${step.key}`}
+                  onClick={step.done ? undefined : step.onClick}
                   sx={{
                     display: "flex",
                     alignItems: "center",
                     gap: 2,
                     p: isMobile ? "12px 16px" : "14px 20px",
                     borderRadius: "12px",
-                    border: `1px solid ${theme.palette.border.main}`,
-                    backgroundColor: "#fff",
-                    cursor: "pointer",
+                    border: `1px solid ${step.done ? theme.palette.success.main : theme.palette.border.main}`,
+                    backgroundColor: step.done
+                      ? (theme.palette.success as any).light || theme.palette.background.paper
+                      : theme.palette.background.paper,
+                    cursor: step.done ? "default" : "pointer",
                     transition: "all 0.15s ease",
-                    "&:hover": {
-                      borderColor: theme.palette.primary.main,
-                      backgroundColor: theme.palette.primary.light,
-                    },
+                    "&:hover": step.done
+                      ? {}
+                      : {
+                          borderColor: theme.palette.primary.main,
+                          backgroundColor: theme.palette.primary.light,
+                        },
                   }}
                 >
                   <Box
@@ -151,35 +196,72 @@ const CreatePaymentLink = ({ setPageName, setPageDescription }: pageProps) => {
                       width: 40,
                       height: 40,
                       borderRadius: "10px",
-                      backgroundColor: theme.palette.primary.light,
+                      backgroundColor: step.done
+                        ? (theme.palette.success as any).light || theme.palette.primary.light
+                        : theme.palette.primary.light,
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
                       flexShrink: 0,
                     }}
                   >
-                    <Icon sx={{ fontSize: 20, color: theme.palette.primary.main }} />
+                    <Icon
+                      sx={{
+                        fontSize: 20,
+                        color: step.done ? theme.palette.success.main : theme.palette.primary.main,
+                      }}
+                    />
                   </Box>
-                  <Typography
-                    sx={{
-                      flex: 1,
-                      fontSize: isMobile ? "14px" : "15px",
-                      fontFamily: "UrbanistSemibold",
-                      fontWeight: 600,
-                      color: theme.palette.text.primary,
-                      textAlign: "left",
-                    }}
-                  >
-                    {step.label}
-                  </Typography>
-                  <ArrowForwardRounded
-                    sx={{ fontSize: 20, color: theme.palette.primary.main }}
-                  />
+                  <Box sx={{ flex: 1, textAlign: "left", minWidth: 0 }}>
+                    <Typography
+                      sx={{
+                        fontSize: isMobile ? "14px" : "15px",
+                        fontFamily: "UrbanistSemibold",
+                        fontWeight: 600,
+                        color: theme.palette.text.primary,
+                      }}
+                    >
+                      {step.label}
+                    </Typography>
+                    <Typography
+                      sx={{
+                        fontSize: isMobile ? "11px" : "12px",
+                        fontFamily: "UrbanistMedium",
+                        color: theme.palette.text.secondary,
+                        mt: 0.25,
+                      }}
+                    >
+                      {step.done ? "Done" : step.helper}
+                    </Typography>
+                  </Box>
+                  {!step.done && (
+                    <ArrowForwardRounded
+                      sx={{ fontSize: 20, color: theme.palette.primary.main, flexShrink: 0 }}
+                    />
+                  )}
                 </Box>
               );
             })}
           </Box>
         </Box>
+      )}
+
+      {/* Inline modals — keep the user on /create-pay-link instead of forcing navigation */}
+      <CreateCompanyModal
+        open={companyModalOpen}
+        onSuccess={handleCompanySuccess}
+        onClose={() => setCompanyModalOpen(false)}
+        showStepIndicator={false}
+        title="Create Your Company"
+        subtitle="Used on invoices and receipts. Takes about 30 seconds."
+        closeLabel="Cancel"
+      />
+      {walletModalOpen && (
+        <AddWalletModal
+          open
+          onClose={() => setWalletModalOpen(false)}
+          onWalletAdded={handleWalletAdded}
+        />
       )}
     </>
   );

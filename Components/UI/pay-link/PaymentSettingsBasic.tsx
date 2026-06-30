@@ -28,8 +28,10 @@ const PaymentSettingsBasic: React.FC<PaymentSettingsBasicProps> = ({
   handleBlockchainFeesChange,
 }) => {
   const theme = useTheme();
+  // Default expiry to 7 days from now (security best practice — most payment
+  // links should not be perpetual). User can still pick "Never" via the toggle.
   const [expirationDate, setExpirationDate] = useState<Date>(
-    new Date(Date.now()),
+    new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
   );
 
   return (
@@ -159,6 +161,11 @@ const PaymentSettingsBasic: React.FC<PaymentSettingsBasicProps> = ({
             value={paymentSettings.expire}
             onChange={(val) => handleExpireSelect(val)}
             required
+            helperText={
+              paymentSettings.expire === "no"
+                ? "For security, we recommend setting an expiry date so the link can't be used indefinitely."
+                : undefined
+            }
           />
         </Box>
 

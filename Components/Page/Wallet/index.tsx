@@ -195,20 +195,59 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: () => void }) => {
             >
               <WalletCardBody>
                 <WalletCardBodyRow>
-                  <InputField
-                    value={wallet.walletAddress}
-                    readOnly
-                    label={
+                  {isMobile ? (
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 0.5,
+                        flex: 1,
+                        minWidth: 0,
+                      }}
+                    >
                       <WalletLabel>
                         <Image src={LinkIcon} alt="Address" draggable={false} className="themed-icon" />
                         <span>{tWallet("address")}</span>
                       </WalletLabel>
-                    }
-                    sx={{
-                      gap: isMobile ? 1 : 1.25,
-                      width: "100%",
-                    }}
-                  />
+                      <Typography
+                        title={wallet.walletAddress}
+                        sx={{
+                          fontFamily: "UrbanistMedium",
+                          fontSize: "13px",
+                          color: theme.palette.text.primary,
+                          letterSpacing: "0.2px",
+                          padding: "10px 12px",
+                          borderRadius: "10px",
+                          border: `1px solid ${theme.palette.border.main}`,
+                          backgroundColor: theme.palette.background.paper,
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          // Show first 8 + last 6 chars via a CSS unicode-bidi trick: keep it simple here,
+                          // we just truncate from the middle by combining two spans.
+                        }}
+                      >
+                        {wallet.walletAddress && wallet.walletAddress.length > 18
+                          ? `${wallet.walletAddress.slice(0, 8)}…${wallet.walletAddress.slice(-6)}`
+                          : wallet.walletAddress}
+                      </Typography>
+                    </Box>
+                  ) : (
+                    <InputField
+                      value={wallet.walletAddress}
+                      readOnly
+                      label={
+                        <WalletLabel>
+                          <Image src={LinkIcon} alt="Address" draggable={false} className="themed-icon" />
+                          <span>{tWallet("address")}</span>
+                        </WalletLabel>
+                      }
+                      sx={{
+                        gap: isMobile ? 1 : 1.25,
+                        width: "100%",
+                      }}
+                    />
+                  )}
                   <CopyButton
                     onClick={() => copyAddressToClipboard(wallet.walletAddress)}
                   >

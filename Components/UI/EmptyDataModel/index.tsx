@@ -1,4 +1,4 @@
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, Link as MuiLink } from "@mui/material";
 import Image from "next/image";
 import CustomButton from "../Buttons";
 import Transactions from "@/assets/Icons/Transactions.svg";
@@ -8,7 +8,7 @@ import paymentLinks from "@/assets/Icons/paymnt-link.svg";
 import useIsMobile from "@/hooks/useIsMobile";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
-import { AddRounded } from "@mui/icons-material";
+import { AddRounded, HelpOutlineRounded } from "@mui/icons-material";
 import { useRouter } from "next/router";
 import { useTheme } from "@mui/material/styles";
 import AddWalletModal from "../AddWalletModal";
@@ -152,6 +152,27 @@ const EmptyDataModel = ({ pageName, onAddWallet }: EmptyDataModelProps) => {
                         color: "#FFFFFF",
                     }}
                 />
+
+                {pageName === "wallet" && (
+                    <MuiLink
+                        href="https://www.dynopay.com/help-support/what-is-a-payout-wallet"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        underline="hover"
+                        sx={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: 0.5,
+                            mt: -1.25,
+                            fontFamily: "UrbanistMedium",
+                            fontSize: isMobile ? "12px" : "13px",
+                            color: theme.palette.primary.main,
+                        }}
+                    >
+                        <HelpOutlineRounded sx={{ fontSize: isMobile ? 14 : 16 }} />
+                        What is a payout wallet?
+                    </MuiLink>
+                )}
             </Box>
 
             {pageName === "wallet" && openCreate && (

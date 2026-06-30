@@ -153,7 +153,7 @@ const NewHeader = () => {
                 <Link href="/create-pay-link">
                   <RequiredKYC>
                     <InfoIcon
-                      sx={{ fontSize: 20, color: muiTheme.palette.error.main }}
+                      sx={{ fontSize: 20, color: muiTheme.palette.primary.main }}
                     />
                     <RequiredKYCText
                       sx={{ display: { lg: "none", xl: "block" } }}
@@ -175,7 +175,7 @@ const NewHeader = () => {
                 <Link href="/wallet">
                   <RequiredKYC>
                     <InfoIcon
-                      sx={{ fontSize: 20, color: muiTheme.palette.error.main }}
+                      sx={{ fontSize: 20, color: muiTheme.palette.primary.main }}
                     />
                     <RequiredKYCText
                       sx={{ display: { lg: "none", xl: "block" } }}
