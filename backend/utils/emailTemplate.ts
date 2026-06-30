@@ -63,7 +63,7 @@ export const baseEmailTemplate = (
   <meta content="telephone=no" name="format-detection" />
   <meta name="color-scheme" content="light dark" />
   <meta name="supported-color-schemes" content="light dark" />
-  <title>Dynopay</title>
+  <title>DynoPay</title>
   <!--[if mso]>
   <style type="text/css">
     body, table, td { font-family: Arial, Helvetica, sans-serif !important; }
@@ -159,7 +159,7 @@ export const baseEmailTemplate = (
           <tr>
             <td class="hdr hdr-bar" style="background-color: #0d1f5c; padding: 24px 32px; text-align: center;">
               <a href="https://dynopay.com" style="text-decoration: none;">
-                <img src="${LOGO_URL}" alt="Dynopay" width="120" height="40" style="display: inline-block; max-width: 120px; height: auto;" />
+                <img src="${LOGO_URL}" alt="DynoPay" width="120" height="40" style="display: inline-block; max-width: 120px; height: auto;" />
               </a>
             </td>
           </tr>
@@ -173,7 +173,7 @@ export const baseEmailTemplate = (
               <table role="presentation" class="sep" width="100%" cellpadding="0" cellspacing="0" style="margin-top: 32px; border-top: 1px solid #e5e7eb;">
                 <tr>
                   <td class="sign" style="padding-top: 20px; font-size: 14px; color: #6b7280; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; line-height: 1.5;">
-                    Best regards,<br /><strong style="color: #374151;">The Dynopay Team</strong>
+                    Best regards,<br /><strong style="color: #374151;">The DynoPay Team</strong>
                   </td>
                 </tr>
               </table>
@@ -185,7 +185,7 @@ export const baseEmailTemplate = (
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td align="center" style="padding-bottom: 16px;">
-                    <img src="${LOGO_URL}" alt="Dynopay" width="90" height="30" style="display: inline-block; max-width: 90px; height: auto; opacity: 0.8;" />
+                    <img src="${LOGO_URL}" alt="DynoPay" width="90" height="30" style="display: inline-block; max-width: 90px; height: auto; opacity: 0.8;" />
                   </td>
                 </tr>
                 <tr>

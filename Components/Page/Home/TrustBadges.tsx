@@ -11,7 +11,7 @@ const badges = [
   {
     icon: "⚡",
     title: "Instant Settlement",
-    description: "Funds forwarded to your wallet in real-time",
+    description: "Funds reach your wallet in real time",
   },
   {
     icon: "🚫",
@@ -21,17 +21,17 @@ const badges = [
   {
     icon: "🔗",
     title: "Multi-Chain Support",
-    description: "BTC, ETH, USDT, SOL, XRP and 15+ cryptocurrencies",
+    description: "BTC, ETH, USDT, SOL, XRP and 15+ coins",
   },
   {
     icon: "🌍",
     title: "Global Reach",
-    description: "Accept payments from anywhere, no borders",
+    description: "Take payments from anywhere — no borders",
   },
   {
     icon: "💱",
     title: "Auto Stablecoin Conversion",
-    description: "Protect revenue from volatility automatically",
+    description: "We protect your revenue from volatility, automatically",
   },
 ];
 
@@ -88,7 +88,7 @@ const TrustBadgesSection: FC = () => {
             mb: 1.5,
           }}
         >
-          Built for Security{isMobile ? <br /> : " & "}and Peace of Mind
+          Built for security{isMobile ? <br /> : " "}and peace of mind
         </Typography>
         <Typography
           sx={{
@@ -100,7 +100,7 @@ const TrustBadgesSection: FC = () => {
             lineHeight: 1.5,
           }}
         >
-          Every feature designed to protect your business and simplify crypto payments
+          Every feature is designed to protect your business and make crypto payments simple.
         </Typography>
       </Box>
 
