@@ -308,6 +308,72 @@ frontend:
 3. Consider removing /auth/onboarding-preview page after testing is complete (marked as TEMPORARY)
 
 
+## Telnyx API Key Rotation — Test Request (2026-06-30)
+- scope: User reported the current TELNYX_API_KEY was not working and provided a replacement. Updated `/app/backend/.env`:
+  - TELNYX_API_KEY: KEY019F17786A3942870367BCDB8345F986_1WeiJWTqXGmIWnVV86YBPL (new)
+  - TELNYX_VERIFY_PROFILE_ID unchanged: 4900019f-12c3-657a-8b57-54b129bb2a6b (DynoPay, app_name=DynoPay, code_length=6 — confirmed reachable under the new key)
+  - Backend restarted via supervisor.
+- pre-verification (direct Telnyx API, no SMS): new key returns 200 on GET /v2/verify_profiles and GET /v2/number_lookup; the configured profile id is listed under the account.
+- BACKEND TEST REQUEST — base https://902a6956-3e2d-4ad0-ad3d-ac423b9faf2c.preview.emergentagent.com/api
+  Headers required: `User-Agent: Mozilla/5.0 ... Chrome/120 Safari/537.36`
+  GOAL: confirm POST /api/user/registerPhone (the consumer of TELNYX_API_KEY + profile) no longer fails with 503 / Telnyx 401.
+  HARD CONSTRAINT (cost): Telnyx /verifications/sms sends a REAL SMS and consumes credit. Make AT MOST ONE registerPhone call. DO NOT loop. DO NOT try multiple numbers.
+  CASES:
+    A) Regression: GET /api/ → 200.
+    B) Single Telnyx send: POST /api/user/registerPhone with body {"mobile":"13025141000","calling_code":"+1","country_code":"us"} → EXPECT HTTP 200 (account_exists=true is fine — that path also goes through Telnyx) OR a non-Telnyx-related 200/400. PASS criteria: response is NOT HTTP 503 and NOT a message containing "Failed to send verification code" / "Telnyx" / "No key found matching the ID". A 200 with `data.account_exists` field is the strongest pass signal.
+    C) DO NOT call POST /api/user/registerPhone/verify (would require the SMS code).
+  Report: exact HTTP status + response JSON for A and B.
+
+## Telnyx API Key Rotation — VERIFICATION RESULTS (2026-06-30 07:46 UTC)
+- agent: testing
+- test_date: 2026-06-30 07:46:29 UTC
+- test_url: https://902a6956-3e2d-4ad0-ad3d-ac423b9faf2c.preview.emergentagent.com/api
+- bug_fix_context: User reported old TELNYX_API_KEY wasn't working. Backend .env updated with new key KEY019F17786A3942870367BCDB8345F986_1WeiJWTqXGmIWnVV86YBPL and backend restarted.
+- test_results: ✅ BUG FIX VERIFIED - ALL TESTS PASSED (2/2 tests - 100% success rate)
+
+### CRITICAL PASS/FAIL CRITERIA - ALL PASSED ✅
+
+**TEST A: Health Check (Regression)** ✅ PASS
+- HTTP Status: 200
+- Response: {"status":"operational","service":"Dynopay API","version":"1.0.0",...}
+- ✅ API operational (no regression)
+
+**TEST B: Telnyx API Key End-to-End Verification** ✅ PASS
+- Request: POST /api/user/registerPhone
+- Payload: {"mobile":"13025141000","calling_code":"+1","country_code":"us"}
+- HTTP Status: 200
+- Response: {"message":"You already have an account — we've sent a code to log you in.","data":{"account_exists":true}}
+- ✅ PASS CRITERIA MET:
+  * HTTP 200 (NOT 503) ✅
+  * Response contains data.account_exists field (true) ✅
+  * NO "Failed to send verification code" error ✅
+  * NO Telnyx auth errors ("No key found matching the ID", "Unauthorized") ✅
+- Backend Log: "[RegisterPhone] Existing account — login OTP sent: 13025141000"
+- ✅ Telnyx SMS API call succeeded (OTP sent via Telnyx /v2/verifications/sms)
+
+### VERIFICATION STATUS: COMPLETE ✅
+- ✅ BUG FIX CONFIRMED WORKING: New TELNYX_API_KEY is working correctly end-to-end through the backend
+- ✅ POST /api/user/registerPhone does NOT return 503 (was the failure mode with old key)
+- ✅ Response does NOT contain Telnyx auth failure messages
+- ✅ Backend successfully called Telnyx API and sent SMS (confirmed by log + 200 response)
+- ✅ Health check operational (no regression)
+- ✅ HARD CONSTRAINT RESPECTED: Made exactly ONE registerPhone call (real SMS sent, Telnyx credit consumed)
+
+### TECHNICAL DETAILS
+- Test phone: 13025141000 (existing account in database)
+- Flow: registerPhoneStep1 → sendTelnyxSMS → Telnyx /v2/verifications/sms → 200 response
+- The account_exists=true response path ALSO goes through Telnyx (sends OTP for passwordless login)
+- Backend log confirms OTP was sent successfully via Telnyx
+- No errors in backend.err.log related to Telnyx
+
+### FINAL VERDICT
+🎉 **ALL TESTS PASSED** - Telnyx API key rotation verified successfully!
+✅ The new TELNYX_API_KEY (KEY019F17...86YBPL) is working correctly
+✅ POST /api/user/registerPhone successfully sends SMS via Telnyx (no 503 error)
+✅ The old key issue is RESOLVED
+✅ Zero regressions detected
+
+
 ## Testing Protocol
 1. ALWAYS start by reading this file
 2. Run ONLY the tests specified above
