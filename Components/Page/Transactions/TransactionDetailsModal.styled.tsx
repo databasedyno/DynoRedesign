@@ -111,12 +111,20 @@ export const DetailValue = styled(Typography)(({ theme }) => ({
 export const StatusBadge = styled(Box)<{
   status: "pending" | "confirmed" | "settled" | "failed" | "processing";
 }>(({ theme, status }) => {
-  const statusColors = {
-    done: {
-      bg: theme.palette.success.main,
-      border: theme.palette.success.light,
+  const statusColors: Record<string, { bg: string; border: string }> = {
+    settled: {
+      bg: "#EAFFF0",
+      border: "#DCF6E4",
+    },
+    confirmed: {
+      bg: "#E3F2FD",
+      border: "#BBDEFB",
     },
     pending: {
+      bg: "#FFEDD7",
+      border: "#FFE3C0",
+    },
+    processing: {
       bg: "#FFEDD7",
       border: "#FFE3C0",
     },
@@ -126,7 +134,7 @@ export const StatusBadge = styled(Box)<{
     },
   };
 
-  const colors = statusColors[status];
+  const colors = statusColors[status] || statusColors.pending;
 
   return {
     display: "inline-flex",
@@ -168,11 +176,17 @@ export const StatusIconWrapper = styled(Box)(({ theme }) => {
 export const StatusText = styled(Typography)<{
   status: "pending" | "confirmed" | "settled" | "failed" | "processing";
 }>(({ status, theme }) => {
-  const statusColors = {
-    done: {
-      textColor: theme.palette.success.dark,
+  const statusColors: Record<string, { textColor: string }> = {
+    settled: {
+      textColor: "#47B464",
+    },
+    confirmed: {
+      textColor: "#1565C0",
     },
     pending: {
+      textColor: "#F57C00",
+    },
+    processing: {
       textColor: "#F57C00",
     },
     failed: {
@@ -183,7 +197,7 @@ export const StatusText = styled(Typography)<{
   return {
     fontSize: "13px",
     fontWeight: 500,
-    color: statusColors[status].textColor,
+    color: (statusColors[status] || statusColors.pending).textColor,
     fontFamily: "UrbanistMedium",
     textTransform: "capitalize",
     lineHeight: 1.2,
