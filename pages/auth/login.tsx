@@ -1450,7 +1450,7 @@ export default function Login() {
                         }}
                       >
                         {t("codeWillBeSentTo")}
-                        {userState.mobile.substring(7)}
+                        {userState.mobile ? `••••${userState.mobile.slice(-4)}` : ""}
                       </Typography>
                     </Box>
                   )}

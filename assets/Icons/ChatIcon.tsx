@@ -27,9 +27,9 @@ const ChatIcon = () => {
           width='188'
           height='173'
           filterUnits='userSpaceOnUse'
-          color-interpolation-filters='sRGB'
+          colorInterpolationFilters='sRGB'
         >
-          <feFlood flood-opacity='0' result='BackgroundImageFix' />
+          <feFlood floodOpacity='0' result='BackgroundImageFix' />
           <feColorMatrix
             in='SourceAlpha'
             type='matrix'
@@ -62,9 +62,9 @@ const ChatIcon = () => {
           width='226'
           height='226'
           filterUnits='userSpaceOnUse'
-          color-interpolation-filters='sRGB'
+          colorInterpolationFilters='sRGB'
         >
-          <feFlood flood-opacity='0' result='BackgroundImageFix' />
+          <feFlood floodOpacity='0' result='BackgroundImageFix' />
           <feColorMatrix
             in='SourceAlpha'
             type='matrix'
@@ -98,8 +98,8 @@ const ChatIcon = () => {
           y2='117'
           gradientUnits='userSpaceOnUse'
         >
-          <stop stop-color='#00A1FF' />
-          <stop offset='1' stop-color='#444CE7' />
+          <stop stopColor='#00A1FF' />
+          <stop offset='1' stopColor='#444CE7' />
         </linearGradient>
       </defs>
     </svg>
