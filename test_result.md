@@ -68,6 +68,24 @@ frontend:
     4. `/app/Components/UI/pay-link/PaymentSettingsBasic.tsx` — (a) default `expirationDate` changed from "now" to "+7 days" (security best practice). (b) added helperText under the ExpireSelector when value is "no": "For security, we recommend setting an expiry date so the link can't be used indefinitely."
     5. `/app/Components/Layout/NewHeader/index.tsx` — changed the "Company setup" / wallet-warning header banner color from `error.main` (red, anxiety) to `primary.main` (blue, informational). Banner still links to /create-pay-link.
     6. `/app/Components/UI/EmptyDataModel/index.tsx` — added a "What is a payout wallet?" help link (only on `pageName==="wallet"`) opening dynopay.com help in a new tab.
+    - VERIFIED (2026-06-30 12:16 UTC): UX Fix #5 - Banner Color Follow-up ✅ PASS
+      * Test account: qa.empty.1782626169@dynopaytest.com (user_id 8, no company - banner visible)
+      * Test URL: https://1ea7499b-4442-40f7-ac7a-0550ad4e127c.preview.emergentagent.com/dashboard
+      * Banner text: "Company setup" (located in top header at position top=35px)
+      * Banner color: rgb(0, 4, 255) - BLUE ✅
+      * Color analysis:
+        - R=0, G=4, B=255 (blue dominant: B > R)
+        - Distance to target blue rgb(106, 123, 255): 159.36
+        - Distance to error red rgb(229, 30, 99): 278.30
+        - Verdict: Color is clearly BLUE, NOT red/coral/salmon ✅
+      * Regression check: GET /dashboard → HTTP 200 ✅
+      * PASS CRITERIA MET:
+        ✓ Banner text color is BLUE (b=255 > r=0)
+        ✓ NOT red/coral (rgb(229, 30, 99) or similar error tints)
+        ✓ Dashboard endpoint returns 200
+      * FIX CONFIRMED: The sx prop color override on RequiredKYCText instances (company-setup and wallet-warning blocks) is working correctly. The banner now displays in blue (informational) instead of red (anxiety-inducing error color).
+      * Screenshot: ux_fix_5_final.png shows the blue "Company setup" banner in the top header
+
   - test_pages_to_verify:
     - FIX (2026-06-29): Dark mode readability + registration phone input. (1) CountryPhoneInput (used on /auth/register Mobile Number tab and elsewhere) hardcoded light colors (#333 calling code/flag/text, white autofill inset, #E9ECF2 border) and a small height (32px mobile) + tiny 10px font, and never rendered its label or error helperText. Now theme-aware (background.paper, text.primary, dark border in dark mode), height matched to email field (44px mobile/40px desktop), font 14px mobile, and renders label + helperText. (2) MobileNavigationBar IconButton circle was always white (theme.palette.common.white) so light dark-mode icons were invisible — now uses a dark chip (#2A2D42 / active rgba(106,123,255,.22)) in dark mode. (3) globals.css dark-mode safety net: readable fallback text/placeholder colors + forced themed surface/text on -webkit-autofill (root cause of the white phone box in dark mode).
     - VERIFIED (2026-06-29 09:20 UTC): Dark mode readability fixes WORKING CORRECTLY ✅

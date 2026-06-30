@@ -156,12 +156,18 @@ const NewHeader = () => {
                       sx={{ fontSize: 20, color: muiTheme.palette.primary.main }}
                     />
                     <RequiredKYCText
-                      sx={{ display: { lg: "none", xl: "block" } }}
+                      sx={{
+                        display: { lg: "none", xl: "block" },
+                        color: muiTheme.palette.primary.main,
+                      }}
                     >
                       Complete company setup
                     </RequiredKYCText>
                     <RequiredKYCText
-                      sx={{ display: { lg: "block", xl: "none" } }}
+                      sx={{
+                        display: { lg: "block", xl: "none" },
+                        color: muiTheme.palette.primary.main,
+                      }}
                     >
                       Company setup
                     </RequiredKYCText>
@@ -178,12 +184,18 @@ const NewHeader = () => {
                       sx={{ fontSize: 20, color: muiTheme.palette.primary.main }}
                     />
                     <RequiredKYCText
-                      sx={{ display: { lg: "none", xl: "block" } }}
+                      sx={{
+                        display: { lg: "none", xl: "block" },
+                        color: muiTheme.palette.primary.main,
+                      }}
                     >
                       {tWallet("walletSetUpWarnnigTitle")}
                     </RequiredKYCText>
                     <RequiredKYCText
-                      sx={{ display: { lg: "block", xl: "none" } }}
+                      sx={{
+                        display: { lg: "block", xl: "none" },
+                        color: muiTheme.palette.primary.main,
+                      }}
                     >
                       {tWallet("walletWarnnigTitle")}
                     </RequiredKYCText>
