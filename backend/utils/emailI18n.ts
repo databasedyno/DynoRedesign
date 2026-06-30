@@ -1,5 +1,7 @@
 import fs from "fs";
 import path from "path";
+import sequelize from "./dbInstance";
+import { QueryTypes } from "sequelize";
 
 /**
  * Email internationalization layer (Phase 1 foundation).
@@ -99,6 +101,44 @@ export const resolveCustomerLanguage = (opts: {
   }
   return DEFAULT_EMAIL_LANGUAGE;
 };
+
+// ── Merchant language resolution by recipient email (cached) ────────────────
+// Merchant lifecycle emails (auth, wallet, KYC, payouts, etc.) are sent to a
+// known DynoPay user. We resolve the recipient's stored language directly from
+// their email so call sites don't each have to thread `lang` through. Customer
+// emails still pass an explicit language (from the transaction/checkout).
+const langByEmailCache = new Map<string, { lang: EmailLanguage; ts: number }>();
+const LANG_CACHE_TTL_MS = 5 * 60 * 1000;
+
+/** Look up a merchant user's stored language by email. Falls back to "en". Cached for 5 min. */
+export const resolveLangByEmail = async (email?: string | null): Promise<EmailLanguage> => {
+  if (!email) return DEFAULT_EMAIL_LANGUAGE;
+  const key = String(email).trim().toLowerCase();
+  if (!key) return DEFAULT_EMAIL_LANGUAGE;
+  const cached = langByEmailCache.get(key);
+  if (cached && Date.now() - cached.ts < LANG_CACHE_TTL_MS) return cached.lang;
+  try {
+    const rows = (await sequelize.query(
+      "SELECT language FROM tbl_user WHERE LOWER(email) = :email LIMIT 1",
+      { type: QueryTypes.SELECT, replacements: { email: key } }
+    )) as Array<{ language?: string | null }>;
+    const lang = normalizeLang(rows?.[0]?.language);
+    langByEmailCache.set(key, { lang, ts: Date.now() });
+    return lang;
+  } catch {
+    return DEFAULT_EMAIL_LANGUAGE;
+  }
+};
+
+/**
+ * Resolve the language for a merchant email: use the explicit `lang` if provided,
+ * otherwise look it up from the recipient's stored language. Always returns a
+ * supported code (defaults to "en").
+ */
+export const resolveEmailLang = async (
+  lang?: string | null,
+  email?: string | null
+): Promise<EmailLanguage> => (asValidLang(lang) ? normalizeLang(lang) : resolveLangByEmail(email));
 
 /** Read a language hint from a request body, falling back to the Accept-Language header. */
 export const getRequestLanguage = (req: {

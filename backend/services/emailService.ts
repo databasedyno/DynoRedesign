@@ -2,7 +2,7 @@ import mailTransporter from "../utils/mailTransporter";
 import { apiLogger } from "../utils/loggers";
 import { captureError } from "./errorMonitoringService";
 import { generatePaymentReceipt, getReceiptFilename } from "./pdfReceiptService";
-import { t, normalizeLang } from "../utils/emailI18n";
+import { t, normalizeLang, resolveEmailLang } from "../utils/emailI18n";
 import { baseEmailTemplate, getCurrencySymbol, infoBox, dataRow, statusBadge, p, otpBlock, warnText, alertBox, errorBox, successBox, neutralBox, statCard, twoColumnStats, feeRow, feeTotalRow, feeTable, mono } from "../utils/emailTemplate";
 
 /** Dynamic base URL for all email CTA links — uses FRONTEND_URL env var */
@@ -91,24 +91,26 @@ export const sendEmail = async (
  */
 export const sendWelcomeEmail = async (
   email: string,
-  name: string
+  name: string,
+  lang?: string
 ) => {
   try {
-    const subject = "Welcome to DynoPay - Let's get you paid";
-    const content = `${p(`Hey ${name},`)}
-    ${p(`Welcome to DynoPay! We're excited to have you on board.`)}
-    ${p(`DynoPay makes accepting crypto payments simple, secure, and fast. Whether you're a freelancer, business owner, or developer, we've got you covered.`)}
+    const L = await resolveEmailLang(lang, email);
+    const subject = t('merchant.welcome.subject', L);
+    const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
+    ${p(t('merchant.welcome.intro1', L))}
+    ${p(t('merchant.welcome.intro2', L))}
     ${infoBox(`
-      <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #0d1f5c; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;"><strong>Here's what you can do next:</strong></p>
+      <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #0d1f5c; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;"><strong>${t('merchant.welcome.nextTitle', L)}</strong></p>
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        <tr><td style="padding: 4px 0; font-size: 14px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">1. Complete your company profile</td></tr>
-        <tr><td style="padding: 4px 0; font-size: 14px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">2. Add your payout wallet</td></tr>
-        <tr><td style="padding: 4px 0; font-size: 14px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">3. Start accepting payments</td></tr>
+        <tr><td style="padding: 4px 0; font-size: 14px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.welcome.next1', L)}</td></tr>
+        <tr><td style="padding: 4px 0; font-size: 14px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.welcome.next2', L)}</td></tr>
+        <tr><td style="padding: 4px 0; font-size: 14px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.welcome.next3', L)}</td></tr>
       </table>
     `)}
-    ${p(`If you have any questions, our support team is here to help.`)}`;
+    ${p(t('merchant.welcome.questions', L))}`;
 
-    const html = dynoPayEmailTemplate("Welcome to DynoPay", content, true, "Get Started", `${FRONTEND_BASE_URL}/dashboard`);
+    const html = dynoPayEmailTemplate(t('merchant.welcome.heading', L), content, true, t('merchant.welcome.cta', L), `${FRONTEND_BASE_URL}/dashboard`);
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`Welcome email sent to ${email}`);
   } catch (e) {
@@ -122,16 +124,18 @@ export const sendWelcomeEmail = async (
 export const sendEmailVerificationOTPEmail = async (
   email: string,
   name: string,
-  otpCode: string
+  otpCode: string,
+  lang?: string
 ) => {
   try {
-    const subject = "Verify your email";
-    const content = `${p(`Hey ${name},`)}
-    ${p(`Please verify your email address to complete your DynoPay registration. Enter this code in the verification page:`)}
+    const L = await resolveEmailLang(lang, email);
+    const subject = t('merchant.emailVerifyOtp.subject', L);
+    const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
+    ${p(t('merchant.emailVerifyOtp.intro', L))}
     ${otpBlock(otpCode)}
-    ${p(`This code expires in 10 minutes. If you didn't create a DynoPay account, please ignore this email.`)}`;
+    ${p(t('merchant.emailVerifyOtp.expiry', L))}`;
 
-    const html = dynoPayEmailTemplate("Verify Your Email", content);
+    const html = dynoPayEmailTemplate(t('merchant.emailVerifyOtp.heading', L), content);
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`Email verification OTP sent to ${email}`);
   } catch (e) {
@@ -145,16 +149,18 @@ export const sendEmailVerificationOTPEmail = async (
 export const sendLoginOTPEmail = async (
   email: string,
   name: string,
-  otpCode: string
+  otpCode: string,
+  lang?: string
 ) => {
   try {
-    const subject = "Your login code";
-    const content = `${p(`Hey ${name},`)}
-    ${p(`Here's your one-time login code for DynoPay:`)}
+    const L = await resolveEmailLang(lang, email);
+    const subject = t('merchant.loginOtp.subject', L);
+    const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
+    ${p(t('merchant.loginOtp.intro', L))}
     ${otpBlock(otpCode)}
-    ${p(`This code expires in 5 minutes. If you didn't request this code, please secure your account immediately.`)}`;
+    ${p(t('merchant.loginOtp.expiry', L))}`;
 
-    const html = dynoPayEmailTemplate("Your Login Code", content);
+    const html = dynoPayEmailTemplate(t('merchant.loginOtp.heading', L), content);
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`Login OTP email sent to ${email}`);
   } catch (e) {
@@ -168,16 +174,18 @@ export const sendLoginOTPEmail = async (
 export const sendForgotPasswordOTPEmail = async (
   email: string,
   name: string,
-  otpCode: string
+  otpCode: string,
+  lang?: string
 ) => {
   try {
-    const subject = "Password reset code";
-    const content = `${p(`Hey ${name},`)}
-    ${p(`You requested to reset your DynoPay password. Use this code to continue:`)}
+    const L = await resolveEmailLang(lang, email);
+    const subject = t('merchant.forgotPasswordOtp.subject', L);
+    const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
+    ${p(t('merchant.forgotPasswordOtp.intro', L))}
     ${otpBlock(otpCode)}
-    ${p(`This code expires in 10 minutes. If you didn't request a password reset, please ignore this email and your password will remain unchanged.`)}`;
+    ${p(t('merchant.forgotPasswordOtp.expiry', L))}`;
 
-    const html = dynoPayEmailTemplate("Reset Your Password", content);
+    const html = dynoPayEmailTemplate(t('merchant.forgotPasswordOtp.heading', L), content);
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`Forgot password OTP email sent to ${email}`);
   } catch (e) {
@@ -192,20 +200,22 @@ export const sendPasswordChangedEmail = async (
   email: string,
   name: string,
   date: string,
-  time: string
+  time: string,
+  lang?: string
 ) => {
   try {
-    const subject = "Password updated successfully";
-    const content = `${p(`Hey ${name},`)}
-    ${p(`Your DynoPay password has been successfully updated.`)}
+    const L = await resolveEmailLang(lang, email);
+    const subject = t('merchant.passwordChanged.subject', L);
+    const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
+    ${p(t('merchant.passwordChanged.intro', L))}
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        ${dataRow('Date', `${date} at ${time}`, true)}
+        ${dataRow(t('labels.date', L), `${date} at ${time}`, true)}
       </table>
     `, '#22c55e')}
-    ${warnText(`<strong>Security Notice:</strong> If you didn't make this change, please contact our support team immediately to secure your account.`)}`;
+    ${warnText(t('merchant.passwordChanged.securityNotice', L))}`;
 
-    const html = dynoPayEmailTemplate("Password Updated", content, true, "View Account Settings", `${FRONTEND_BASE_URL}/dashboard/settings`);
+    const html = dynoPayEmailTemplate(t('merchant.passwordChanged.heading', L), content, true, t('merchant.passwordChanged.cta', L), `${FRONTEND_BASE_URL}/dashboard/settings`);
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`Password changed email sent to ${email}`);
   } catch (e) {
@@ -220,44 +230,46 @@ export const sendUserProfileUpdatedEmail = async (
   email: string,
   name: string,
   updatedFields: string[],
-  oldEmail?: string
+  oldEmail?: string,
+  lang?: string
 ) => {
   try {
-    const subject = "Account Profile Updated";
+    const L = await resolveEmailLang(lang, email);
+    const subject = t('merchant.profileUpdated.subject', L);
     const now = new Date();
     const date = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
     const time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
 
     const fieldsList = updatedFields.length > 0
-      ? updatedFields.map(field => dataRow(field, statusBadge('Updated', 'info'))).join('')
-      : dataRow('General', statusBadge('Updated', 'info'), true);
+      ? updatedFields.map(field => dataRow(field, statusBadge(t('merchant.badges.updated', L), 'info'))).join('')
+      : dataRow(t('merchant.general', L), statusBadge(t('merchant.badges.updated', L), 'info'), true);
 
-    const content = `${p(`Hey ${name},`)}
-    ${p(`Your account profile has been updated successfully.`)}
+    const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
+    ${p(t('merchant.profileUpdated.intro', L))}
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         ${fieldsList}
-        ${dataRow('Date', `${date} at ${time}`, true)}
+        ${dataRow(t('labels.date', L), `${date} at ${time}`, true)}
       </table>
     `, '#22c55e')}
-    ${warnText(`<strong>Security Notice:</strong> If you didn't make these changes, please reset your password immediately and contact our support team.`)}`;
+    ${warnText(t('merchant.profileUpdated.securityNotice', L))}`;
 
-    const html = dynoPayEmailTemplate("Profile Updated", content, true, "View Profile", `${FRONTEND_BASE_URL}/dashboard/profile`);
+    const html = dynoPayEmailTemplate(t('merchant.profileUpdated.heading', L), content, true, t('merchant.profileUpdated.cta', L), `${FRONTEND_BASE_URL}/dashboard/profile`);
     await mailTransporter({ to: email, name, subject, body: html });
 
     if (oldEmail && oldEmail !== email) {
-      const oldEmailContent = `${p(`Hey ${name},`)}
-      ${p(`Your account email has been changed from <strong>${oldEmail}</strong> to <strong>${email}</strong>.`)}
+      const content2 = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
+      ${p(t('merchant.profileUpdated.emailChangedIntro', L, { oldEmail, email }))}
       ${infoBox(`
-        <p style="margin: 0 0 6px 0; font-size: 14px; font-weight: 600; color: #991b1b; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">Important</p>
-        <p style="margin: 0; font-size: 14px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">If you did not make this change, your account may be compromised. Please contact our support team immediately.</p>
+        <p style="margin: 0 0 6px 0; font-size: 14px; font-weight: 600; color: #991b1b; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.profileUpdated.emailChangedImportantTitle', L)}</p>
+        <p style="margin: 0; font-size: 14px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.profileUpdated.emailChangedImportantText', L)}</p>
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top: 12px;">
-          ${dataRow('Date', `${date} at ${time}`, true)}
+          ${dataRow(t('labels.date', L), `${date} at ${time}`, true)}
         </table>
       `, '#ef4444')}`;
 
-      const oldEmailHtml = dynoPayEmailTemplate("Email Address Changed", oldEmailContent, true, "Contact Support", `${FRONTEND_BASE_URL}/support`);
-      await mailTransporter({ to: oldEmail, name, subject: "Your DynoPay Email Address Has Been Changed", body: oldEmailHtml });
+      const oldEmailHtml = dynoPayEmailTemplate(t('merchant.profileUpdated.emailChangedHeading', L), content2, true, t('merchant.profileUpdated.emailChangedCta', L), `${FRONTEND_BASE_URL}/support`);
+      await mailTransporter({ to: oldEmail, name, subject: t('merchant.profileUpdated.emailChangedSubject', L), body: oldEmailHtml });
       apiLogger.info(`[ProfileUpdate] Email change notification sent to old email: ${oldEmail}`);
     }
 
@@ -276,28 +288,30 @@ export const sendSecurityAlertEmail = async (
   alertType: string,
   details: string,
   date?: string,
-  time?: string
+  time?: string,
+  lang?: string
 ) => {
   try {
-    const subject = "Security alert on your account";
+    const L = await resolveEmailLang(lang, email);
+    const subject = t('merchant.securityAlert.subject', L);
     const now = new Date();
     const dateStr = date || now.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
     const timeStr = time || now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
 
-    const content = `${p(`Hey ${name},`)}
-    ${p(`We detected unusual activity on your DynoPay account.`)}
+    const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
+    ${p(t('merchant.securityAlert.intro', L))}
     ${infoBox(`
-      <p style="margin: 0 0 6px 0; font-size: 14px; font-weight: 600; color: #991b1b; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">Alert Details</p>
+      <p style="margin: 0 0 6px 0; font-size: 14px; font-weight: 600; color: #991b1b; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.securityAlert.detailsTitle', L)}</p>
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        ${dataRow('Type', alertType)}
-        ${dataRow('Date', `${dateStr} at ${timeStr}`)}
-        ${dataRow('Details', details, true)}
+        ${dataRow(t('merchant.labels.type', L), alertType)}
+        ${dataRow(t('labels.date', L), `${dateStr} at ${timeStr}`)}
+        ${dataRow(t('merchant.labels.details', L), details, true)}
       </table>
     `, '#ef4444')}
-    ${p(`<strong>Was this you?</strong><br />If you recognize this activity, you can ignore this message.`)}
-    ${p(`<strong>Didn't perform this action?</strong><br />Please secure your account immediately by:<br />1. Changing your password<br />2. Reviewing your recent activity<br />3. Contacting our support team`)}`;
+    ${p(t('merchant.securityAlert.wasThisYou', L))}
+    ${p(t('merchant.securityAlert.didntPerform', L))}`;
 
-    const html = dynoPayEmailTemplate("Security Alert", content, true, "Secure My Account", `${FRONTEND_BASE_URL}/dashboard/security`);
+    const html = dynoPayEmailTemplate(t('merchant.securityAlert.heading', L), content, true, t('merchant.securityAlert.cta', L), `${FRONTEND_BASE_URL}/dashboard/security`);
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`Security alert email sent to ${email}`);
   } catch (e) {
@@ -315,12 +329,14 @@ export const sendNewDeviceLoginEmail = async (
   userAgent: string,
   location: string | null,
   date: string,
-  time: string
+  time: string,
+  lang?: string
 ) => {
   try {
-    const subject = "New login to your DynoPay account";
+    const L = await resolveEmailLang(lang, email);
+    const subject = t('merchant.newDeviceLogin.subject', L);
 
-    let deviceInfo = 'Unknown Device';
+    let deviceInfo = t('merchant.newDeviceLogin.unknownDevice', L);
     if (userAgent.includes('iPhone') || userAgent.includes('iPad')) {
       deviceInfo = userAgent.includes('iPad') ? 'iPad' : 'iPhone';
     } else if (userAgent.includes('Android')) {
@@ -349,22 +365,22 @@ export const sendNewDeviceLoginEmail = async (
       deviceInfo += ` (${browser})`;
     }
 
-    const locationDisplay = location || 'Unknown location';
+    const locationDisplay = location || t('merchant.newDeviceLogin.unknownLocation', L);
 
-    const content = `${p(`Hey ${name},`)}
-    ${p(`We noticed a new login to your DynoPay account from a different location.`)}
+    const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
+    ${p(t('merchant.newDeviceLogin.intro', L))}
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        ${dataRow('Location', locationDisplay)}
-        ${dataRow('Device', deviceInfo)}
-        ${dataRow('IP Address', `<span style="font-family: monospace; font-size: 13px;">${ipAddress}</span>`)}
-        ${dataRow('Date', `${date} at ${time}`, true)}
+        ${dataRow(t('merchant.labels.location', L), locationDisplay)}
+        ${dataRow(t('merchant.labels.device', L), deviceInfo)}
+        ${dataRow(t('merchant.labels.ipAddress', L), `<span style="font-family: monospace; font-size: 13px;">${ipAddress}</span>`)}
+        ${dataRow(t('labels.date', L), `${date} at ${time}`, true)}
       </table>
     `)}
-    ${p(`<strong>Was this you?</strong><br />If you recognize this login, you can safely ignore this message.`)}
-    ${p(`<strong>Didn't log in?</strong><br />Please change your password immediately and review your recent account activity.`)}`;
+    ${p(t('merchant.newDeviceLogin.wasThisYou', L))}
+    ${p(t('merchant.newDeviceLogin.didntLogin', L))}`;
 
-    const html = dynoPayEmailTemplate("New Login Detected", content, true, "Secure My Account", `${FRONTEND_BASE_URL}/dashboard/settings`);
+    const html = dynoPayEmailTemplate(t('merchant.newDeviceLogin.heading', L), content, true, t('merchant.newDeviceLogin.cta', L), `${FRONTEND_BASE_URL}/dashboard/settings`);
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`[Email] New device login alert sent to ${email} from ${locationDisplay} (${ipAddress})`);
   } catch (e) {
@@ -386,28 +402,30 @@ export const sendLoginNotificationEmail = async (
   location: string | null,
   date: string,
   time: string,
-  securityToken: string
+  securityToken: string,
+  lang?: string
 ) => {
   try {
-    const subject = "New sign-in to your DynoPay account";
-    const locationDisplay = location || 'Unknown location';
+    const L = await resolveEmailLang(lang, email);
+    const subject = t('merchant.loginNotification.subject', L);
+    const locationDisplay = location || t('merchant.loginNotification.unknownLocation', L);
     const deviceDisplay = `${device}${browser ? ` · ${browser}` : ''}${os ? ` · ${os}` : ''}`;
     const secureAccountUrl = `${FRONTEND_BASE_URL}/auth/secure-account?token=${securityToken}`;
 
-    const content = `${p(`Hi ${name},`)}
-    ${p(`We detected a new sign-in to your DynoPay account.`)}
+    const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
+    ${p(t('merchant.loginNotification.intro', L))}
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        ${dataRow('Device', deviceDisplay)}
-        ${dataRow('Location', locationDisplay)}
-        ${dataRow('IP Address', `<span style="font-family: monospace; font-size: 13px;">${ipAddress}</span>`)}
-        ${dataRow('Time', `${date} at ${time}`, true)}
+        ${dataRow(t('merchant.labels.device', L), deviceDisplay)}
+        ${dataRow(t('merchant.labels.location', L), locationDisplay)}
+        ${dataRow(t('merchant.labels.ipAddress', L), `<span style="font-family: monospace; font-size: 13px;">${ipAddress}</span>`)}
+        ${dataRow(t('merchant.labels.time', L), `${date} at ${time}`, true)}
       </table>
     `)}
-    ${p(`<strong>Was this you?</strong><br />If you recognize this activity, no further action is needed.`)}
-    ${p(`<strong>Not you?</strong><br />If you don't recognize this login, click the button below to secure your account immediately. We'll lock your account and require identity verification to regain access.`)}`;
+    ${p(t('merchant.loginNotification.wasThisYou', L))}
+    ${p(t('merchant.loginNotification.notYou', L))}`;
 
-    const html = dynoPayEmailTemplate("Sign-in Activity", content, true, "This wasn't me — Secure my account", secureAccountUrl);
+    const html = dynoPayEmailTemplate(t('merchant.loginNotification.heading', L), content, true, t('merchant.loginNotification.cta', L), secureAccountUrl);
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`[Email] Login notification sent to ${email} (${deviceDisplay}, ${locationDisplay})`);
   } catch (e) {
@@ -424,24 +442,26 @@ export const sendFailedLoginAttemptsEmail = async (
   attemptCount: number,
   ipAddress: string,
   date: string,
-  time: string
+  time: string,
+  lang?: string
 ) => {
   try {
-    const subject = "Multiple failed login attempts on your account";
+    const L = await resolveEmailLang(lang, email);
+    const subject = t('merchant.failedLogins.subject', L);
 
-    const content = `${p(`Hey ${name},`)}
-    ${p(`We detected <strong>${attemptCount} failed login attempts</strong> on your DynoPay account.`)}
+    const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
+    ${p(t('merchant.failedLogins.intro', L, { count: attemptCount }))}
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        ${dataRow('Failed Attempts', `<strong>${attemptCount}</strong>`)}
-        ${dataRow('Date', `${date} at ${time}`)}
-        ${dataRow('IP Address', `<span style="font-family: monospace; font-size: 13px;">${ipAddress}</span>`, true)}
+        ${dataRow(t('merchant.labels.failedAttempts', L), `<strong>${attemptCount}</strong>`)}
+        ${dataRow(t('labels.date', L), `${date} at ${time}`)}
+        ${dataRow(t('merchant.labels.ipAddress', L), `<span style="font-family: monospace; font-size: 13px;">${ipAddress}</span>`, true)}
       </table>
     `, '#ef4444')}
-    ${p(`<strong>Was this you?</strong><br />If you forgot your password, you can reset it using the button below.`)}
-    ${p(`<strong>Wasn't you?</strong><br />Someone may be trying to access your account. We recommend changing your password immediately. Your account is still secure - we blocked these login attempts.`)}`;
+    ${p(t('merchant.failedLogins.wasThisYou', L))}
+    ${p(t('merchant.failedLogins.wasntYou', L))}`;
 
-    const html = dynoPayEmailTemplate("Security Alert", content, true, "Reset Password", `${FRONTEND_BASE_URL}/forgot-password`);
+    const html = dynoPayEmailTemplate(t('merchant.failedLogins.heading', L), content, true, t('merchant.failedLogins.cta', L), `${FRONTEND_BASE_URL}/forgot-password`);
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`[Email] Failed login attempts alert sent to ${email} - ${attemptCount} attempts from ${ipAddress}`);
   } catch (e) {
@@ -459,19 +479,21 @@ export const sendFailedLoginAttemptsEmail = async (
 export const sendCompanyProfileCreatedEmail = async (
   email: string,
   name: string,
-  companyName: string
+  companyName: string,
+  lang?: string
 ) => {
   try {
-    const subject = "Profile complete - One step left";
-    const content = `${p(`Hey ${name},`)}
-    ${p(`Great job! Your company profile for <strong>${companyName}</strong> is now complete.`)}
-    ${p(`You're almost ready to start accepting payments. The last step is to add your payout wallet address.`)}
+    const L = await resolveEmailLang(lang, email);
+    const subject = t('merchant.companyCreated.subject', L);
+    const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
+    ${p(t('merchant.companyCreated.intro1', L, { companyName }))}
+    ${p(t('merchant.companyCreated.intro2', L))}
     ${infoBox(`
-      <p style="margin: 0 0 6px 0; font-size: 14px; font-weight: 600; color: #0d1f5c; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">Why add a wallet?</p>
-      <p style="margin: 0; font-size: 14px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">Your wallet is where we'll send the crypto payments you receive. It's quick and secure.</p>
+      <p style="margin: 0 0 6px 0; font-size: 14px; font-weight: 600; color: #0d1f5c; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.companyCreated.whyTitle', L)}</p>
+      <p style="margin: 0; font-size: 14px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.companyCreated.whyText', L)}</p>
     `)}`;
 
-    const html = dynoPayEmailTemplate("Profile Complete", content, true, "Add Wallet", `${FRONTEND_BASE_URL}/dashboard/wallets`);
+    const html = dynoPayEmailTemplate(t('merchant.companyCreated.heading', L), content, true, t('merchant.companyCreated.cta', L), `${FRONTEND_BASE_URL}/dashboard/wallets`);
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`Company profile created email sent to ${email}`);
   } catch (e) {
@@ -485,24 +507,26 @@ export const sendCompanyProfileCreatedEmail = async (
 export const sendCompanyContactWelcomeEmail = async (
   companyContactEmail: string,
   companyName: string,
-  accountHolderName: string
+  accountHolderName: string,
+  lang?: string
 ) => {
   try {
-    const subject = `Welcome to DynoPay - ${companyName} is now registered`;
-    const content = `${p(`Hello,`)}
-    ${p(`<strong>${companyName}</strong> has been registered on DynoPay by ${accountHolderName}.`)}
-    ${p(`DynoPay is a secure crypto payment gateway that enables businesses to accept cryptocurrency payments easily and safely.`)}
+    const L = await resolveEmailLang(lang, companyContactEmail);
+    const subject = t('merchant.companyContactWelcome.subject', L, { companyName });
+    const content = `${p(t('merchant.companyContactWelcome.hello', L))}
+    ${p(t('merchant.companyContactWelcome.intro1', L, { companyName, accountHolderName }))}
+    ${p(t('merchant.companyContactWelcome.intro2', L))}
     ${infoBox(`
-      <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #0d1f5c; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">What this means for you:</p>
+      <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #0d1f5c; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.companyContactWelcome.meansTitle', L)}</p>
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        <tr><td style="padding: 4px 0; font-size: 14px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">1. Your company can now accept crypto payments</td></tr>
-        <tr><td style="padding: 4px 0; font-size: 14px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">2. Fast and secure transactions</td></tr>
-        <tr><td style="padding: 4px 0; font-size: 14px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">3. Real-time payment notifications</td></tr>
+        <tr><td style="padding: 4px 0; font-size: 14px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.companyContactWelcome.means1', L)}</td></tr>
+        <tr><td style="padding: 4px 0; font-size: 14px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.companyContactWelcome.means2', L)}</td></tr>
+        <tr><td style="padding: 4px 0; font-size: 14px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.companyContactWelcome.means3', L)}</td></tr>
       </table>
     `)}
-    ${p(`If you have any questions about this registration, please contact our support team or reach out to ${accountHolderName}.`)}`;
+    ${p(t('merchant.companyContactWelcome.outro', L, { accountHolderName }))}`;
 
-    const html = dynoPayEmailTemplate("Welcome to DynoPay", content, true, "Learn More", `${FRONTEND_BASE_URL}`);
+    const html = dynoPayEmailTemplate(t('merchant.companyContactWelcome.heading', L), content, true, t('merchant.companyContactWelcome.cta', L), `${FRONTEND_BASE_URL}`);
     await mailTransporter({ to: companyContactEmail, name: companyName, subject, body: html });
     apiLogger.info(`Company contact welcome email sent to ${companyContactEmail}`);
   } catch (e) {
@@ -517,24 +541,26 @@ export const sendCompanyProfileUpdatedEmail = async (
   email: string,
   name: string,
   companyName: string,
-  updatedFields: string[]
+  updatedFields: string[],
+  lang?: string
 ) => {
   try {
-    const subject = "Your company profile was updated";
+    const L = await resolveEmailLang(lang, email);
+    const subject = t('merchant.companyUpdated.subject', L);
     const fieldsList = updatedFields.length > 0
-      ? updatedFields.map(field => dataRow(field, statusBadge('Updated', 'info'))).join('')
-      : dataRow('General', statusBadge('Updated', 'info'), true);
+      ? updatedFields.map(field => dataRow(field, statusBadge(t('merchant.badges.updated', L), 'info'))).join('')
+      : dataRow(t('merchant.general', L), statusBadge(t('merchant.badges.updated', L), 'info'), true);
 
-    const content = `${p(`Hey ${name},`)}
-    ${p(`Your company profile for <strong>${companyName}</strong> has been updated successfully.`)}
+    const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
+    ${p(t('merchant.companyUpdated.intro', L, { companyName }))}
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         ${fieldsList}
       </table>
     `, '#22c55e')}
-    ${p(`If you didn't make these changes, please contact our support team immediately.`)}`;
+    ${p(t('merchant.companyUpdated.outro', L))}`;
 
-    const html = dynoPayEmailTemplate("Profile Updated", content, true, "View Profile", `${FRONTEND_BASE_URL}/dashboard/company`);
+    const html = dynoPayEmailTemplate(t('merchant.companyUpdated.heading', L), content, true, t('merchant.companyUpdated.cta', L), `${FRONTEND_BASE_URL}/dashboard/company`);
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`Company profile updated email sent to ${email}`);
   } catch (e) {
@@ -554,22 +580,24 @@ export const sendWalletOTPEmail = async (
   name: string,
   otpCode: string,
   walletAddressMasked: string,
-  network: string
+  network: string,
+  lang?: string
 ) => {
   try {
-    const subject = "Confirm your payout wallet";
-    const content = `${p(`Hey ${name},`)}
-    ${p(`You're adding a new payout wallet to your DynoPay account. Please verify this action with the code below:`)}
+    const L = await resolveEmailLang(lang, email);
+    const subject = t('merchant.walletOtp.subject', L);
+    const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
+    ${p(t('merchant.walletOtp.intro', L))}
     ${otpBlock(otpCode)}
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        ${dataRow('Address', walletAddressMasked)}
-        ${dataRow('Network', network, true)}
+        ${dataRow(t('merchant.labels.address', L), walletAddressMasked)}
+        ${dataRow(t('merchant.labels.network', L), network, true)}
       </table>
     `)}
-    ${p(`This code expires in 10 minutes. If you didn't request this, please ignore this email.`)}`;
+    ${p(t('merchant.walletOtp.expiry', L))}`;
 
-    const html = dynoPayEmailTemplate("Confirm Your Wallet", content);
+    const html = dynoPayEmailTemplate(t('merchant.walletOtp.heading', L), content);
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`Wallet OTP email sent to ${email}`);
   } catch (e) {
@@ -584,22 +612,24 @@ export const sendWalletVerifiedEmail = async (
   email: string,
   name: string,
   walletAddressMasked: string,
-  network: string
+  network: string,
+  lang?: string
 ) => {
   try {
-    const subject = "Payout wallet active";
-    const content = `${p(`Hey ${name},`)}
-    ${p(`Your payout wallet has been verified and is now active.`)}
+    const L = await resolveEmailLang(lang, email);
+    const subject = t('merchant.walletVerified.subject', L);
+    const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
+    ${p(t('merchant.walletVerified.intro', L))}
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        ${dataRow('Address', walletAddressMasked)}
-        ${dataRow('Network', network)}
-        ${dataRow('Status', statusBadge('Active', 'success'), true)}
+        ${dataRow(t('merchant.labels.address', L), walletAddressMasked)}
+        ${dataRow(t('merchant.labels.network', L), network)}
+        ${dataRow(t('labels.status', L), statusBadge(t('merchant.badges.active', L), 'success'), true)}
       </table>
     `, '#22c55e')}
-    ${p(`All payments you receive will be automatically forwarded to this wallet. You're all set to start accepting crypto payments.`)}`;
+    ${p(t('merchant.walletVerified.outro', L))}`;
 
-    const html = dynoPayEmailTemplate("Wallet Active", content, true, "View Dashboard", `${FRONTEND_BASE_URL}/dashboard`);
+    const html = dynoPayEmailTemplate(t('merchant.walletVerified.heading', L), content, true, t('merchant.walletVerified.cta', L), `${FRONTEND_BASE_URL}/dashboard`);
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`Wallet verified email sent to ${email}`);
   } catch (e) {
@@ -616,23 +646,25 @@ export const sendWalletUpdateOTPEmail = async (
   otpCode: string,
   oldWalletMasked: string,
   newWalletMasked: string,
-  network: string
+  network: string,
+  lang?: string
 ) => {
   try {
-    const subject = "Confirm wallet update";
-    const content = `${p(`Hey ${name},`)}
-    ${p(`You're updating your payout wallet. Please verify this change with the code below:`)}
+    const L = await resolveEmailLang(lang, email);
+    const subject = t('merchant.walletUpdateOtp.subject', L);
+    const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
+    ${p(t('merchant.walletUpdateOtp.intro', L))}
     ${otpBlock(otpCode)}
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        ${dataRow('Current', oldWalletMasked)}
-        ${dataRow('New', newWalletMasked)}
-        ${dataRow('Network', network, true)}
+        ${dataRow(t('merchant.labels.current', L), oldWalletMasked)}
+        ${dataRow(t('merchant.labels.new', L), newWalletMasked)}
+        ${dataRow(t('merchant.labels.network', L), network, true)}
       </table>
     `)}
-    ${warnText(`This code expires in 10 minutes. If you didn't request this change, please secure your account immediately.`)}`;
+    ${warnText(t('merchant.walletUpdateOtp.expiry', L))}`;
 
-    const html = dynoPayEmailTemplate("Confirm Wallet Update", content);
+    const html = dynoPayEmailTemplate(t('merchant.walletUpdateOtp.heading', L), content);
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`Wallet update OTP email sent to ${email}`);
   } catch (e) {
@@ -649,24 +681,26 @@ export const sendWalletDeletedEmail = async (
   walletAddressMasked: string,
   network: string,
   date: string,
-  time: string
+  time: string,
+  lang?: string
 ) => {
   try {
-    const subject = "Wallet removed from your account";
+    const L = await resolveEmailLang(lang, email);
+    const subject = t('merchant.walletDeleted.subject', L);
 
-    const content = `${p(`Hey ${name},`)}
-    ${p(`A wallet has been removed from your DynoPay account.`)}
+    const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
+    ${p(t('merchant.walletDeleted.intro', L))}
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        ${dataRow('Address', walletAddressMasked)}
-        ${dataRow('Network', network)}
-        ${dataRow('Removed', `${date} at ${time}`, true)}
+        ${dataRow(t('merchant.labels.address', L), walletAddressMasked)}
+        ${dataRow(t('merchant.labels.network', L), network)}
+        ${dataRow(t('merchant.labels.removed', L), `${date} at ${time}`, true)}
       </table>
     `, '#ef4444')}
-    ${p(`Payments will no longer be forwarded to this wallet.`)}
-    ${p(`<strong>Didn't do this?</strong><br />If you didn't remove this wallet, please secure your account immediately and contact support.`)}`;
+    ${p(t('merchant.walletDeleted.outro', L))}
+    ${p(t('merchant.walletDeleted.didntDoThis', L))}`;
 
-    const html = dynoPayEmailTemplate("Wallet Removed", content, true, "Manage Wallets", `${FRONTEND_BASE_URL}/dashboard/wallets`);
+    const html = dynoPayEmailTemplate(t('merchant.walletDeleted.heading', L), content, true, t('merchant.walletAdded.cta', L), `${FRONTEND_BASE_URL}/dashboard/wallets`);
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`[Email] Wallet deleted notification sent to ${email} for ${network}`);
   } catch (e) {
@@ -680,19 +714,21 @@ export const sendWalletDeletedEmail = async (
 export const sendAddWalletReminderEmail = async (
   email: string,
   name: string,
-  companyName: string
+  companyName: string,
+  lang?: string
 ) => {
   try {
-    const subject = "You're almost ready to accept payments";
-    const content = `${p(`Hey ${name},`)}
-    ${p(`You're so close! Your <strong>${companyName}</strong> profile is set up, but you haven't added a payout wallet yet.`)}
+    const L = await resolveEmailLang(lang, email);
+    const subject = t('merchant.addWalletReminder.subject', L);
+    const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
+    ${p(t('merchant.addWalletReminder.intro', L, { companyName }))}
     ${infoBox(`
-      <p style="margin: 0 0 6px 0; font-size: 14px; font-weight: 600; color: #0d1f5c; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">Why add a wallet?</p>
-      <p style="margin: 0; font-size: 14px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">Without a wallet, you can't receive payments. It takes less than 2 minutes to set up.</p>
+      <p style="margin: 0 0 6px 0; font-size: 14px; font-weight: 600; color: #0d1f5c; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.addWalletReminder.whyTitle', L)}</p>
+      <p style="margin: 0; font-size: 14px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.addWalletReminder.whyText', L)}</p>
     `)}
-    ${p(`Add your wallet now and start accepting crypto payments today.`)}`;
+    ${p(t('merchant.addWalletReminder.outro', L))}`;
 
-    const html = dynoPayEmailTemplate("Add Your Wallet", content, true, "Add Wallet Now", `${FRONTEND_BASE_URL}/dashboard/wallets`);
+    const html = dynoPayEmailTemplate(t('merchant.addWalletReminder.heading', L), content, true, t('merchant.addWalletReminder.cta', L), `${FRONTEND_BASE_URL}/dashboard/wallets`);
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`Add wallet reminder email sent to ${email}`);
   } catch (e) {
@@ -710,24 +746,26 @@ export const sendWalletAddedEmail = async (
   walletAddressMasked: string,
   network: string,
   companyName: string,
-  walletName?: string
+  walletName?: string,
+  lang?: string
 ) => {
   try {
-    const subject = `Wallet added - ${network}`;
-    const content = `${p(`Hey ${name},`)}
-    ${p(`A new payout wallet has been successfully added to your company <strong>${companyName}</strong>.`)}
+    const L = await resolveEmailLang(lang, email);
+    const subject = t('merchant.walletAdded.subject', L, { network });
+    const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
+    ${p(t('merchant.walletAdded.intro', L, { companyName }))}
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        ${dataRow('Address', `<span style="font-family: monospace; font-size: 13px;">${walletAddressMasked}</span>`)}
-        ${dataRow('Blockchain', network)}
-        ${walletName ? dataRow('Wallet Name', walletName) : ''}
-        ${dataRow('Status', statusBadge('Active', 'success'), true)}
+        ${dataRow(t('merchant.labels.address', L), `<span style="font-family: monospace; font-size: 13px;">${walletAddressMasked}</span>`)}
+        ${dataRow(t('merchant.labels.blockchain', L), network)}
+        ${walletName ? dataRow(t('merchant.labels.walletName', L), walletName) : ''}
+        ${dataRow(t('labels.status', L), statusBadge(t('merchant.badges.active', L), 'success'), true)}
       </table>
     `, '#22c55e')}
-    ${p(`All payments in ${network} will be forwarded to this wallet. You can manage your wallets in the dashboard.`)}
-    ${warnText(`<strong>Didn't do this?</strong><br />If you didn't add this wallet, please secure your account immediately.`)}`;
+    ${p(t('merchant.walletAdded.outro', L, { network }))}
+    ${warnText(t('merchant.walletAdded.didntDoThis', L))}`;
 
-    const html = dynoPayEmailTemplate("Wallet Added", content, true, "View Wallets", `${FRONTEND_BASE_URL}/dashboard/wallets`);
+    const html = dynoPayEmailTemplate(t('merchant.walletAdded.heading', L), content, true, t('merchant.walletAdded.cta', L), `${FRONTEND_BASE_URL}/dashboard/wallets`);
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`Wallet added email sent to ${email} for ${network}`);
   } catch (e) {
@@ -745,28 +783,30 @@ export const sendWalletUpdatedEmail = async (
   walletAddressMasked: string,
   network: string,
   companyName: string,
-  walletName?: string
+  walletName?: string,
+  lang?: string
 ) => {
   try {
-    const subject = `Wallet updated - ${network}`;
+    const L = await resolveEmailLang(lang, email);
+    const subject = t('merchant.walletUpdated.subject', L, { network });
     const now = new Date();
     const dateStr = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
     const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
 
-    const content = `${p(`Hey ${name},`)}
-    ${p(`Your payout wallet for <strong>${companyName}</strong> has been updated.`)}
+    const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
+    ${p(t('merchant.walletUpdated.intro', L, { companyName }))}
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        ${dataRow('New Address', `<span style="font-family: monospace; font-size: 13px;">${walletAddressMasked}</span>`)}
-        ${dataRow('Blockchain', network)}
-        ${walletName ? dataRow('Wallet Name', walletName) : ''}
-        ${dataRow('Updated', `${dateStr} at ${timeStr}`, true)}
+        ${dataRow(t('merchant.labels.newAddress', L), `<span style="font-family: monospace; font-size: 13px;">${walletAddressMasked}</span>`)}
+        ${dataRow(t('merchant.labels.blockchain', L), network)}
+        ${walletName ? dataRow(t('merchant.labels.walletName', L), walletName) : ''}
+        ${dataRow(t('merchant.labels.updated', L), `${dateStr} at ${timeStr}`, true)}
       </table>
     `, '#f59e0b')}
-    ${p(`Future payments in ${network} will be forwarded to the new address.`)}
-    ${warnText(`<strong>Didn't do this?</strong><br />If you didn't update this wallet, please secure your account immediately and contact support.`)}`;
+    ${p(t('merchant.walletUpdated.outro', L, { network }))}
+    ${warnText(t('merchant.walletUpdated.didntDoThis', L))}`;
 
-    const html = dynoPayEmailTemplate("Wallet Updated", content, true, "View Wallets", `${FRONTEND_BASE_URL}/dashboard/wallets`);
+    const html = dynoPayEmailTemplate(t('merchant.walletUpdated.heading', L), content, true, t('merchant.walletUpdated.cta', L), `${FRONTEND_BASE_URL}/dashboard/wallets`);
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`Wallet updated email sent to ${email} for ${network}`);
   } catch (e) {
@@ -784,22 +824,24 @@ export const sendWithdrawalOTPEmail = async (
   otpCode: string,
   amount: string,
   currency: string,
-  destinationAddress: string
+  destinationAddress: string,
+  lang?: string
 ) => {
   try {
-    const subject = "Confirm your withdrawal";
-    const content = `${p(`Hey ${name},`)}
-    ${p(`You're about to withdraw <strong>${amount} ${currency}</strong>. Please verify this action with the code below:`)}
+    const L = await resolveEmailLang(lang, email);
+    const subject = t('merchant.withdrawalOtp.subject', L);
+    const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
+    ${p(t('merchant.withdrawalOtp.intro', L, { amount, currency }))}
     ${otpBlock(otpCode)}
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        ${dataRow('Amount', `<strong>${amount} ${currency}</strong>`)}
-        ${dataRow('To Address', `<span style="font-family: monospace; font-size: 13px;">${destinationAddress}</span>`, true)}
+        ${dataRow(t('labels.amount', L), `<strong>${amount} ${currency}</strong>`)}
+        ${dataRow(t('merchant.labels.toAddress', L), `<span style="font-family: monospace; font-size: 13px;">${destinationAddress}</span>`, true)}
       </table>
     `, '#f59e0b')}
-    ${warnText(`This code expires in <strong>5 minutes</strong>. If you didn't request this withdrawal, please ignore this email and secure your account.`)}`;
+    ${warnText(t('merchant.withdrawalOtp.expiry', L))}`;
 
-    const html = dynoPayEmailTemplate("Confirm Withdrawal", content);
+    const html = dynoPayEmailTemplate(t('merchant.withdrawalOtp.heading', L), content);
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`Withdrawal OTP email sent to ${email}`);
   } catch (e) {
@@ -817,29 +859,31 @@ export const sendWithdrawalSuccessEmail = async (
   amount: string,
   currency: string,
   destinationAddress: string,
-  transactionReference: string
+  transactionReference: string,
+  lang?: string
 ) => {
   try {
-    const subject = `Withdrawal submitted - ${amount} ${currency}`;
+    const L = await resolveEmailLang(lang, email);
+    const subject = t('merchant.withdrawalSuccess.subject', L, { amount, currency });
     const now = new Date();
     const dateStr = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
     const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
 
-    const content = `${p(`Hey ${name},`)}
-    ${p(`Your withdrawal of <strong>${amount} ${currency}</strong> has been submitted and is being processed.`)}
+    const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
+    ${p(t('merchant.withdrawalSuccess.intro', L, { amount, currency }))}
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        ${dataRow('Amount', `<strong>${amount} ${currency}</strong>`)}
-        ${dataRow('Status', statusBadge('In Progress', 'pending'))}
-        ${dataRow('To Address', `<span style="font-family: monospace; font-size: 13px;">${destinationAddress}</span>`)}
-        ${dataRow('Reference', `<span style="font-family: monospace; font-size: 13px;">${transactionReference}</span>`)}
-        ${dataRow('Date', `${dateStr} at ${timeStr}`, true)}
+        ${dataRow(t('labels.amount', L), `<strong>${amount} ${currency}</strong>`)}
+        ${dataRow(t('labels.status', L), statusBadge(t('merchant.badges.inProgress', L), 'pending'))}
+        ${dataRow(t('merchant.labels.toAddress', L), `<span style="font-family: monospace; font-size: 13px;">${destinationAddress}</span>`)}
+        ${dataRow(t('labels.reference', L), `<span style="font-family: monospace; font-size: 13px;">${transactionReference}</span>`)}
+        ${dataRow(t('labels.date', L), `${dateStr} at ${timeStr}`, true)}
       </table>
     `, '#3b82f6')}
-    ${p(`The transfer is being broadcast to the blockchain. It may take a few minutes to confirm depending on network conditions.`)}
-    ${p(`You can track the transaction status in your dashboard.`)}`;
+    ${p(t('merchant.withdrawalSuccess.outro1', L))}
+    ${p(t('merchant.withdrawalSuccess.outro2', L))}`;
 
-    const html = dynoPayEmailTemplate("Withdrawal Submitted", content, true, "View Transactions", `${FRONTEND_BASE_URL}/dashboard/transactions`);
+    const html = dynoPayEmailTemplate(t('merchant.withdrawalSuccess.heading', L), content, true, t('merchant.withdrawalSuccess.cta', L), `${FRONTEND_BASE_URL}/dashboard/transactions`);
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`Withdrawal success email sent to ${email}`);
   } catch (e) {
@@ -858,24 +902,26 @@ export const sendExchangeOTPEmail = async (
   amountUsd: string,
   fromCurrency: string,
   toCurrency: string,
-  otherPartyName: string
+  otherPartyName: string,
+  lang?: string
 ) => {
   try {
-    const subject = "Confirm your exchange";
-    const content = `${p(`Hey ${name},`)}
-    ${p(`You're about to exchange currencies with <strong>${otherPartyName}</strong>. Please verify this action with the code below:`)}
+    const L = await resolveEmailLang(lang, email);
+    const subject = t('merchant.exchangeOtp.subject', L);
+    const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
+    ${p(t('merchant.exchangeOtp.intro', L, { otherParty: otherPartyName }))}
     ${otpBlock(otpCode)}
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        ${dataRow('Amount', `<strong>$${amountUsd}</strong>`)}
-        ${dataRow('From', fromCurrency)}
-        ${dataRow('To', toCurrency)}
-        ${dataRow('With', otherPartyName, true)}
+        ${dataRow(t('labels.amount', L), `<strong>$${amountUsd}</strong>`)}
+        ${dataRow(t('merchant.labels.from', L), fromCurrency)}
+        ${dataRow(t('merchant.labels.to', L), toCurrency)}
+        ${dataRow(t('merchant.labels.with', L), otherPartyName, true)}
       </table>
     `, '#3b82f6')}
-    ${p(`This code expires in <strong>5 minutes</strong>. If you didn't request this exchange, please ignore this email.`)}`;
+    ${p(t('merchant.exchangeOtp.expiry', L))}`;
 
-    const html = dynoPayEmailTemplate("Confirm Exchange", content);
+    const html = dynoPayEmailTemplate(t('merchant.exchangeOtp.heading', L), content);
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`Exchange OTP email sent to ${email}`);
   } catch (e) {
@@ -892,22 +938,24 @@ export const sendWalletEditOTPEmail = async (
   name: string,
   otpCode: string,
   walletAddressMasked: string,
-  network: string
+  network: string,
+  lang?: string
 ) => {
   try {
-    const subject = "Confirm wallet edit";
-    const content = `${p(`Hey ${name},`)}
-    ${p(`You're about to edit a wallet address. Please verify this action with the code below:`)}
+    const L = await resolveEmailLang(lang, email);
+    const subject = t('merchant.walletEditOtp.subject', L);
+    const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
+    ${p(t('merchant.walletEditOtp.intro', L))}
     ${otpBlock(otpCode)}
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        ${dataRow('Wallet', `<span style="font-family: monospace; font-size: 13px;">${walletAddressMasked}</span>`)}
-        ${dataRow('Network', network, true)}
+        ${dataRow(t('merchant.labels.wallet', L), `<span style="font-family: monospace; font-size: 13px;">${walletAddressMasked}</span>`)}
+        ${dataRow(t('merchant.labels.network', L), network, true)}
       </table>
     `)}
-    ${p(`This code expires in <strong>10 minutes</strong>. If you didn't request this, please ignore this email or contact support.`)}`;
+    ${p(t('merchant.walletEditOtp.expiry', L))}`;
 
-    const html = dynoPayEmailTemplate("Confirm Wallet Edit", content);
+    const html = dynoPayEmailTemplate(t('merchant.walletEditOtp.heading', L), content);
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`Wallet edit OTP email sent to ${email}`);
   } catch (e) {
@@ -924,23 +972,25 @@ export const sendWalletDeleteOTPEmail = async (
   name: string,
   otpCode: string,
   walletAddressMasked: string,
-  network: string
+  network: string,
+  lang?: string
 ) => {
   try {
-    const subject = "Confirm wallet deletion";
-    const content = `${p(`Hey ${name},`)}
-    ${p(`You're about to <strong>permanently delete</strong> a wallet address. This action cannot be undone.`)}
+    const L = await resolveEmailLang(lang, email);
+    const subject = t('merchant.walletDeleteOtp.subject', L);
+    const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
+    ${p(t('merchant.walletDeleteOtp.intro', L))}
     ${otpBlock(otpCode)}
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        ${dataRow('Wallet', `<span style="font-family: monospace; font-size: 13px;">${walletAddressMasked}</span>`)}
-        ${dataRow('Network', network)}
-        ${dataRow('Action', statusBadge('Permanent Deletion', 'error'), true)}
+        ${dataRow(t('merchant.labels.wallet', L), `<span style="font-family: monospace; font-size: 13px;">${walletAddressMasked}</span>`)}
+        ${dataRow(t('merchant.labels.network', L), network)}
+        ${dataRow(t('merchant.labels.action', L), statusBadge(t('merchant.badges.permanentDeletion', L), 'error'), true)}
       </table>
     `, '#ef4444')}
-    ${warnText(`This code expires in <strong>10 minutes</strong>. If you didn't request this, please ignore this email or contact support immediately.`)}`;
+    ${warnText(t('merchant.walletDeleteOtp.expiry', L))}`;
 
-    const html = dynoPayEmailTemplate("Confirm Wallet Deletion", content);
+    const html = dynoPayEmailTemplate(t('merchant.walletDeleteOtp.heading', L), content);
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`Wallet delete OTP email sent to ${email}`);
   } catch (e) {
@@ -1395,25 +1445,27 @@ export const sendLargeTransactionAlertEmail = async (
   cryptoCurrency: string,
   customerEmail: string | null,
   transactionId: string,
-  companyName: string
+  companyName: string,
+  lang?: string
 ) => {
   try {
-    const subject = `Large payment received - ${amount} ${currency}`;
+    const L = await resolveEmailLang(lang, email);
+    const subject = t('merchant.largeTransaction.subject', L, { amount, currency });
 
-    const content = `${p(`Hey ${name},`)}
-    ${p(`<strong>${companyName}</strong> received a large payment that may require your attention.`)}
+    const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
+    ${p(t('merchant.largeTransaction.intro', L, { companyName }))}
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        ${dataRow('Amount', `<strong>${amount} ${currency}</strong>`)}
-        ${dataRow('Crypto', `${cryptoAmount} ${cryptoCurrency}`)}
-        ${customerEmail ? dataRow('Customer', customerEmail) : ''}
-        ${dataRow('Transaction ID', `<span style="font-family: monospace; font-size: 13px;">${transactionId}</span>`, true)}
+        ${dataRow(t('labels.amount', L), `<strong>${amount} ${currency}</strong>`)}
+        ${dataRow(t('merchant.labels.crypto', L), `${cryptoAmount} ${cryptoCurrency}`)}
+        ${customerEmail ? dataRow(t('labels.customer', L), customerEmail) : ''}
+        ${dataRow(t('labels.transactionId', L), `<span style="font-family: monospace; font-size: 13px;">${transactionId}</span>`, true)}
       </table>
     `, '#22c55e')}
-    ${p(`This payment has been automatically processed and forwarded to your wallet.`)}
-    ${p(`For large transactions, we recommend:<br />1. Verify the transaction in your dashboard<br />2. Confirm product/service delivery to customer<br />3. Keep records for accounting purposes`)}`;
+    ${p(t('merchant.largeTransaction.outro1', L))}
+    ${p(t('merchant.largeTransaction.outro2', L))}`;
 
-    const html = dynoPayEmailTemplate("Large Payment Received", content, true, "View Transaction", `${FRONTEND_BASE_URL}/dashboard/transactions`);
+    const html = dynoPayEmailTemplate(t('merchant.largeTransaction.heading', L), content, true, t('merchant.largeTransaction.cta', L), `${FRONTEND_BASE_URL}/dashboard/transactions`);
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`[Email] Large transaction alert sent to ${email} - ${amount} ${currency}`);
   } catch (e) {
@@ -1575,9 +1627,11 @@ export const sendAutoConversionPayoutEmail = async (
     binanceWithdrawalFeeUsd?: number;
     grossSaleUsd?: number;
     totalReceivedUsd?: number;
-  }
+  },
+  lang?: string
 ) => {
   try {
+    const L = await resolveEmailLang(lang, recipientEmail);
     const {
       sourceCurrency, sourceAmount, sourceAmountUsd,
       targetCurrency, payoutAmount, conversionRate,
@@ -1598,7 +1652,7 @@ export const sendAutoConversionPayoutEmail = async (
       ? Math.abs(priceDiffSinceConversion / 100) * parseFloat(payoutAmount)
       : 0;
 
-    const subject = `Payout Complete — ${payoutAmount} ${targetCurrency} from ${sourceAmount} ${sourceCurrency}`;
+    const subject = t('merchant.autoConversion.subject', L, { payoutAmount, targetCurrency, sourceAmount, sourceCurrency });
 
     const now = new Date();
     const dateStr = now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -1646,7 +1700,7 @@ export const sendAutoConversionPayoutEmail = async (
     ].filter(Boolean).join('');
 
     const htmlContent = `
-      ${p(`Your crypto payment has been auto-converted and the payout has been sent to your wallet.`)}
+      ${p(t('merchant.autoConversion.intro', L))}
       ${twoColumnStats(
         statCard('Received', `${sourceAmount} ${sourceCurrency}`, `~$${parseFloat(sourceAmountUsd).toFixed(2)} USD`),
         statCard('Payout', `${payoutAmount} ${targetCurrency}`, 'Sent to your wallet', 'green')
@@ -1664,9 +1718,9 @@ export const sendAutoConversionPayoutEmail = async (
           ${dataRow('Conversion ID', mono(`#${conversionId}`), true)}
         </table>
       `)}
-      ${p(`Auto-conversion ensures you receive stablecoins, protecting your revenue from crypto price swings. View your full transaction history in your DynoPay dashboard.`)}`;
+      ${p(t('merchant.autoConversion.outro', L))}`;
 
-    const htmlBody = dynoPayEmailTemplate("Payout Complete", `${p(`Hey ${name},`)}\n${htmlContent}`);
+    const htmlBody = dynoPayEmailTemplate(t('merchant.autoConversion.heading', L), `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}\n${htmlContent}`);
     const info = await mailTransporter({
       to: recipientEmail,
       name,
@@ -1709,9 +1763,11 @@ export const sendWeeklyConversionSummaryEmail = async (
       label: string;
       payoutUsd: number;
     }>;
-  }
+  },
+  lang?: string
 ) => {
   try {
+    const L = await resolveEmailLang(lang, recipientEmail);
     const {
       periodStart, periodEnd, totalConversions,
       totalSourceUsd, totalPayoutUsd, totalSavedUsd,
@@ -1766,7 +1822,7 @@ export const sendWeeklyConversionSummaryEmail = async (
     `) : '';
 
     const htmlContent = `
-      ${p(`Here's your weekly auto-conversion report for <strong>${companyName}</strong>.`)}
+      ${p(t('merchant.weeklyConversion.intro', L, { companyName }))}
 
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin: 24px 0;">
         <tr>
@@ -1806,7 +1862,7 @@ export const sendWeeklyConversionSummaryEmail = async (
 
       ${p(`<span style="font-size: 13px; color: #9ca3af;">Report period: ${periodStart} to ${periodEnd}. Auto-conversion protects your revenue from crypto price volatility by instantly converting to stablecoins.</span>`)}`;
 
-    const htmlBody = dynoPayEmailTemplate("Weekly Conversion Report", `${p(`Hey ${name},`)}\n${htmlContent}`);
+    const htmlBody = dynoPayEmailTemplate(t('merchant.weeklyConversion.heading', L), `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}\n${htmlContent}`);
     const info = await mailTransporter({
       to: recipientEmail,
       name,
@@ -1835,10 +1891,12 @@ export const sendPaymentLinkCreatedEmail = async (
   currency: string,
   paymentLink: string,
   description: string,
-  expiresAt: string | null
+  expiresAt: string | null,
+  lang?: string
 ) => {
   try {
-    const subject = `Payment link ready — ${amount} ${currency}`;
+    const L = await resolveEmailLang(lang, email);
+    const subject = t('merchant.paymentLinkCreated.subject', L, { amount, currency });
 
     let shortDisplayUrl = paymentLink;
     try {
@@ -1852,19 +1910,19 @@ export const sendPaymentLinkCreatedEmail = async (
       // Keep original if URL parsing fails
     }
 
-    const content = `${p(`Hey ${name},`)}
-    ${p(`Your payment link has been created successfully.`)}
+    const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
+    ${p(t('merchant.paymentLinkCreated.intro', L))}
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        ${dataRow('Amount', `<strong>${amount} ${currency}</strong>`)}
-        ${dataRow('Description', description)}
-        ${dataRow('Expires', expiresAt || 'Never')}
-        ${dataRow('Link', `<a href="${paymentLink}" style="color: #0d1f5c; text-decoration: none;">${shortDisplayUrl}</a>`, true)}
+        ${dataRow(t('labels.amount', L), `<strong>${amount} ${currency}</strong>`)}
+        ${dataRow(t('labels.description', L), description)}
+        ${dataRow(t('merchant.labels.expires', L), expiresAt || t('merchant.never', L))}
+        ${dataRow(t('merchant.labels.link', L), `<a href="${paymentLink}" style="color: #0d1f5c; text-decoration: none;">${shortDisplayUrl}</a>`, true)}
       </table>
     `)}
-    ${p(`Share this link with your customer to receive payment.`)}`;
+    ${p(t('merchant.paymentLinkCreated.outro', L))}`;
 
-    const html = dynoPayEmailTemplate("Payment Link Created", content, true, "Open Payment Link", paymentLink);
+    const html = dynoPayEmailTemplate(t('merchant.paymentLinkCreated.heading', L), content, true, t('merchant.paymentLinkCreated.cta', L), paymentLink);
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`Payment link created email sent to ${email}`);
   } catch (e) {
@@ -2122,26 +2180,28 @@ export const sendKYCRequiredEmail = async (
   email: string,
   name: string,
   totalVolume: string,
-  currency: string = 'USD'
+  currency: string = 'USD',
+  lang?: string
 ) => {
   try {
+    const L = await resolveEmailLang(lang, email);
     const currencySymbol = getCurrencySymbol(currency);
     const thresholdAmount = currency === 'USD' ? '5,000' : '5,000 USD equivalent';
-    const subject = `Verification required - ${currencySymbol}${thresholdAmount} volume reached`;
-    const content = `${p(`Hey ${name},`)}
-    ${p(`Congratulations on reaching <strong>${currencySymbol}${totalVolume} ${currency}</strong> in transaction volume!`)}
-    ${p(`To continue accepting payments above ${currencySymbol}${thresholdAmount}, we need to verify your identity. This is a regulatory requirement and helps us keep DynoPay secure.`)}
+    const subject = t('merchant.kycRequired.subject', L, { symbol: currencySymbol, threshold: thresholdAmount });
+    const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
+    ${p(t('merchant.kycRequired.intro', L, { symbol: currencySymbol, volume: totalVolume, currency }))}
+    ${p(t('merchant.kycRequired.intro2', L, { symbol: currencySymbol, threshold: thresholdAmount }))}
     ${infoBox(`
-      <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #0d1f5c; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">What you need:</p>
+      <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #0d1f5c; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.kycRequired.needTitle', L)}</p>
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        <tr><td style="padding: 4px 0; font-size: 14px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">1. Government-issued ID</td></tr>
-        <tr><td style="padding: 4px 0; font-size: 14px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">2. Proof of address (utility bill, bank statement)</td></tr>
-        <tr><td style="padding: 4px 0; font-size: 14px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">3. About 5 minutes of your time</td></tr>
+        <tr><td style="padding: 4px 0; font-size: 14px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.kycRequired.need1', L)}</td></tr>
+        <tr><td style="padding: 4px 0; font-size: 14px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.kycRequired.need2', L)}</td></tr>
+        <tr><td style="padding: 4px 0; font-size: 14px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.kycRequired.need3', L)}</td></tr>
       </table>
     `)}
-    ${p(`Complete your verification now to keep accepting payments without interruption.`)}`;
+    ${p(t('merchant.kycRequired.outro', L))}`;
 
-    const html = dynoPayEmailTemplate("Verification Required", content, true, "Start Verification", `${FRONTEND_BASE_URL}/dashboard/kyc`);
+    const html = dynoPayEmailTemplate(t('merchant.kycRequired.heading', L), content, true, t('merchant.kycRequired.cta', L), `${FRONTEND_BASE_URL}/dashboard/kyc`);
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`KYC required email sent to ${email}`);
   } catch (e) {
@@ -2149,19 +2209,20 @@ export const sendKYCRequiredEmail = async (
   }
 };
 
-export const sendKYCApprovedEmail = async (email: string, name: string) => {
+export const sendKYCApprovedEmail = async (email: string, name: string, lang?: string) => {
   try {
-    const subject = "Verification approved - You're all set";
-    const content = `${p(`Hey ${name},`)}
-    ${p(`Your identity verification has been approved.`)}
+    const L = await resolveEmailLang(lang, email);
+    const subject = t('merchant.kycApproved.subject', L);
+    const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
+    ${p(t('merchant.kycApproved.intro', L))}
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        ${dataRow('Status', statusBadge('Approved', 'success'), true)}
+        ${dataRow(t('labels.status', L), statusBadge(t('merchant.badges.approved', L), 'success'), true)}
       </table>
     `, '#22c55e')}
-    ${p(`You can now accept payments without limits and access all DynoPay features. Keep growing your business with DynoPay!`)}`;
+    ${p(t('merchant.kycApproved.outro', L))}`;
 
-    const html = dynoPayEmailTemplate("Verification Approved", content, true, "View Dashboard", `${FRONTEND_BASE_URL}/dashboard`);
+    const html = dynoPayEmailTemplate(t('merchant.kycApproved.heading', L), content, true, t('merchant.kycApproved.cta', L), `${FRONTEND_BASE_URL}/dashboard`);
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`KYC approved email sent to ${email}`);
   } catch (e) {
@@ -2169,20 +2230,21 @@ export const sendKYCApprovedEmail = async (email: string, name: string) => {
   }
 };
 
-export const sendKYCRejectedEmail = async (email: string, name: string, rejectionReason: string) => {
+export const sendKYCRejectedEmail = async (email: string, name: string, rejectionReason: string, lang?: string) => {
   try {
-    const subject = "Verification unsuccessful";
-    const content = `${p(`Hey ${name},`)}
-    ${p(`We were unable to verify your identity at this time.`)}
+    const L = await resolveEmailLang(lang, email);
+    const subject = t('merchant.kycRejected.subject', L);
+    const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
+    ${p(t('merchant.kycRejected.intro', L))}
     ${infoBox(`
-      <p style="margin: 0 0 6px 0; font-size: 14px; font-weight: 600; color: #991b1b; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">Reason</p>
+      <p style="margin: 0 0 6px 0; font-size: 14px; font-weight: 600; color: #991b1b; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.kycRejected.reasonTitle', L)}</p>
       <p style="margin: 0; font-size: 14px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${rejectionReason}</p>
     `, '#ef4444')}
-    ${p(`You can resubmit your verification documents. Please ensure:`)}
-    ${p(`1. Use clear, high-quality images<br />2. All information is visible<br />3. Name matches your DynoPay account`)}
-    ${p(`If you need help, our support team is here for you.`)}`;
+    ${p(t('merchant.kycRejected.outro1', L))}
+    ${p(t('merchant.kycRejected.outro2', L))}
+    ${p(t('merchant.kycRejected.outro3', L))}`;
 
-    const html = dynoPayEmailTemplate("Verification Unsuccessful", content, true, "Resubmit Documents", `${FRONTEND_BASE_URL}/dashboard/kyc`);
+    const html = dynoPayEmailTemplate(t('merchant.kycRejected.heading', L), content, true, t('merchant.kycRejected.cta', L), `${FRONTEND_BASE_URL}/dashboard/kyc`);
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`KYC rejected email sent to ${email}`);
   } catch (e) {
@@ -2190,22 +2252,23 @@ export const sendKYCRejectedEmail = async (email: string, name: string, rejectio
   }
 };
 
-export const sendKYCStartedEmail = async (email: string, name: string, verificationUrl: string) => {
+export const sendKYCStartedEmail = async (email: string, name: string, verificationUrl: string, lang?: string) => {
   try {
-    const subject = "Complete your identity verification";
-    const content = `${p(`Hey ${name},`)}
-    ${p(`Your identity verification session has been created. Please complete the verification to continue using DynoPay without restrictions.`)}
+    const L = await resolveEmailLang(lang, email);
+    const subject = t('merchant.kycStarted.subject', L);
+    const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
+    ${p(t('merchant.kycStarted.intro', L))}
     ${infoBox(`
-      <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #0d1f5c; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">What you'll need:</p>
+      <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #0d1f5c; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.kycStarted.needTitle', L)}</p>
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        <tr><td style="padding: 4px 0; font-size: 14px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">1. Government-issued ID</td></tr>
-        <tr><td style="padding: 4px 0; font-size: 14px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">2. Proof of address (last 3 months)</td></tr>
-        <tr><td style="padding: 4px 0; font-size: 14px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">3. A few minutes for selfie verification</td></tr>
+        <tr><td style="padding: 4px 0; font-size: 14px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.kycStarted.need1', L)}</td></tr>
+        <tr><td style="padding: 4px 0; font-size: 14px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.kycStarted.need2', L)}</td></tr>
+        <tr><td style="padding: 4px 0; font-size: 14px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.kycStarted.need3', L)}</td></tr>
       </table>
     `)}
-    ${p(`The verification typically takes 5-10 minutes to complete and is reviewed within 24-48 hours.`)}`;
+    ${p(t('merchant.kycStarted.outro', L))}`;
 
-    const html = dynoPayEmailTemplate("Identity Verification", content, true, "Complete Verification", verificationUrl);
+    const html = dynoPayEmailTemplate(t('merchant.kycStarted.heading', L), content, true, t('merchant.kycStarted.cta', L), verificationUrl);
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`KYC started email sent to ${email}`);
   } catch (e) {
@@ -2213,19 +2276,20 @@ export const sendKYCStartedEmail = async (email: string, name: string, verificat
   }
 };
 
-export const sendKYCResubmissionRequiredEmail = async (email: string, name: string, reason: string) => {
+export const sendKYCResubmissionRequiredEmail = async (email: string, name: string, reason: string, lang?: string) => {
   try {
-    const subject = "Additional information needed for verification";
-    const content = `${p(`Hey ${name},`)}
-    ${p(`We need a bit more information to complete your identity verification.`)}
+    const L = await resolveEmailLang(lang, email);
+    const subject = t('merchant.kycResubmission.subject', L);
+    const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
+    ${p(t('merchant.kycResubmission.intro', L))}
     ${infoBox(`
-      <p style="margin: 0 0 6px 0; font-size: 14px; font-weight: 600; color: #92400e; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">Reason</p>
+      <p style="margin: 0 0 6px 0; font-size: 14px; font-weight: 600; color: #92400e; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.kycResubmission.reasonTitle', L)}</p>
       <p style="margin: 0; font-size: 14px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${reason}</p>
     `, '#f59e0b')}
-    ${p(`This is a common request. To continue, please:`)}
-    ${p(`1. Ensure your documents are clear and all text is readable<br />2. Make sure the name matches your DynoPay account<br />3. Use documents that are not expired`)}`;
+    ${p(t('merchant.kycResubmission.outro1', L))}
+    ${p(t('merchant.kycResubmission.outro2', L))}`;
 
-    const html = dynoPayEmailTemplate("Resubmission Required", content, true, "Resubmit Documents", `${FRONTEND_BASE_URL}/dashboard/kyc`);
+    const html = dynoPayEmailTemplate(t('merchant.kycResubmission.heading', L), content, true, t('merchant.kycResubmission.cta', L), `${FRONTEND_BASE_URL}/dashboard/kyc`);
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`KYC resubmission required email sent to ${email}`);
   } catch (e) {
@@ -2250,41 +2314,42 @@ export const sendWeeklySummaryEmail = async (
   completedCount: number,
   pendingCount: number,
   topCurrency: string,
-  baseCurrency: string = 'USD'
+  baseCurrency: string = 'USD',
+  lang?: string
 ) => {
   try {
+    const L = await resolveEmailLang(lang, email);
     const currencySymbol = getCurrencySymbol(baseCurrency);
-    const subject = "Your weekly DynoPay summary";
+    const subject = t('merchant.weeklySummary.subject', L);
     const totalVolumeNum = parseFloat(totalVolume);
     const hasActivity = transactionCount > 0;
     const hasCompleted = completedCount > 0;
 
-    // Smart contextual message based on actual activity
     let contextMessage = '';
     if (!hasActivity) {
-      contextMessage = p(`No transactions were recorded this week. When you're ready, create a payment link or share your checkout page to start receiving payments.`);
+      contextMessage = p(t('merchant.weeklySummary.noActivity', L));
     } else if (hasCompleted && totalVolumeNum > 0) {
-      contextMessage = p(`Great week! You processed <strong>${currencySymbol}${totalVolume} ${baseCurrency}</strong> across ${completedCount} completed transaction${completedCount > 1 ? 's' : ''}. Keep up the momentum!`);
+      contextMessage = p(t('merchant.weeklySummary.greatWeek', L, { symbol: currencySymbol, volume: totalVolume, currency: baseCurrency, completed: completedCount }));
     } else if (pendingCount > 0 && !hasCompleted) {
-      contextMessage = p(`You have <strong>${pendingCount} pending</strong> transaction${pendingCount > 1 ? 's' : ''} awaiting confirmation. Check your dashboard for details.`);
+      contextMessage = p(t('merchant.weeklySummary.pendingMsg', L, { pending: pendingCount }));
     } else {
-      contextMessage = p(`You had ${transactionCount} transaction${transactionCount > 1 ? 's' : ''} this week. Log in to your dashboard for the full breakdown.`);
+      contextMessage = p(t('merchant.weeklySummary.genericMsg', L, { count: transactionCount }));
     }
 
-    const content = `${p(`Hey ${name},`)}
-    ${p(`Here's your weekly activity summary for <strong>${periodStart}</strong> to <strong>${periodEnd}</strong>:`)}
+    const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
+    ${p(t('merchant.weeklySummary.intro', L, { periodStart, periodEnd }))}
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        ${dataRow('Total Transactions', `<strong>${transactionCount}</strong>`)}
-        ${dataRow('Total Volume', `<strong>${currencySymbol}${totalVolume} ${baseCurrency}</strong>`)}
-        ${dataRow('Completed', statusBadge(String(completedCount), 'success'))}
-        ${dataRow('Pending', statusBadge(String(pendingCount), 'pending'))}
-        ${dataRow('Top Currency', topCurrency === 'None' ? 'No completed transactions' : topCurrency, true)}
+        ${dataRow(t('merchant.labels.totalTransactions', L), `<strong>${transactionCount}</strong>`)}
+        ${dataRow(t('merchant.labels.totalVolume', L), `<strong>${currencySymbol}${totalVolume} ${baseCurrency}</strong>`)}
+        ${dataRow(t('merchant.labels.completed', L), statusBadge(String(completedCount), 'success'))}
+        ${dataRow(t('merchant.labels.pending', L), statusBadge(String(pendingCount), 'pending'))}
+        ${dataRow(t('merchant.labels.topCurrency', L), topCurrency === 'None' ? t('merchant.noCompletedTx', L) : topCurrency, true)}
       </table>
     `)}
     ${contextMessage}`;
 
-    const html = dynoPayEmailTemplate("Your Weekly Summary", content, true, "View Full Analytics", `${FRONTEND_BASE_URL}/dashboard/analytics`);
+    const html = dynoPayEmailTemplate(t('merchant.weeklySummary.heading', L), content, true, t('merchant.weeklySummary.cta', L), `${FRONTEND_BASE_URL}/dashboard/analytics`);
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`Weekly summary email sent to ${email}`);
   } catch (e) {
@@ -2306,27 +2371,29 @@ export const sendInvoiceGeneratedEmail = async (
     currency?: string;
     invoice_date: Date;
     invoice_url: string;
-  }
+  },
+  lang?: string
 ) => {
   try {
+    const L = await resolveEmailLang(lang, email);
     const currency = invoiceData.currency || 'USD';
     const amount = invoiceData.total_amount || invoiceData.total_usd;
     const currencySymbol = getCurrencySymbol(currency);
 
-    const subject = `Invoice ${invoiceData.invoice_number} - DynoPay`;
-    const content = `${p(`Hello ${name},`)}
-    ${p(`Your invoice has been successfully generated for transaction #${invoiceData.transaction_id}.`)}
+    const subject = t('merchant.invoice.subject', L, { number: invoiceData.invoice_number });
+    const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
+    ${p(t('merchant.invoice.intro', L, { transactionId: invoiceData.transaction_id }))}
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        ${dataRow('Invoice Number', invoiceData.invoice_number)}
-        ${dataRow('Transaction ID', `<span style="font-family: monospace; font-size: 13px;">${invoiceData.transaction_id}</span>`)}
-        ${dataRow('Total Amount', `<strong>${currencySymbol}${amount.toFixed(2)} ${currency}</strong>`)}
-        ${dataRow('Invoice Date', new Date(invoiceData.invoice_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }), true)}
+        ${dataRow(t('merchant.labels.invoiceNumber', L), invoiceData.invoice_number)}
+        ${dataRow(t('labels.transactionId', L), `<span style="font-family: monospace; font-size: 13px;">${invoiceData.transaction_id}</span>`)}
+        ${dataRow(t('merchant.labels.totalAmount', L), `<strong>${currencySymbol}${amount.toFixed(2)} ${currency}</strong>`)}
+        ${dataRow(t('merchant.labels.invoiceDate', L), new Date(invoiceData.invoice_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }), true)}
       </table>
     `)}
-    ${p(`You can view and download your invoice using the button below.`)}`;
+    ${p(t('merchant.invoice.outro', L))}`;
 
-    const html = dynoPayEmailTemplate("Invoice Generated", content, true, "View Invoice", invoiceData.invoice_url);
+    const html = dynoPayEmailTemplate(t('merchant.invoice.heading', L), content, true, t('merchant.invoice.cta', L), invoiceData.invoice_url);
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`Invoice email sent to ${email} for invoice ${invoiceData.invoice_number}`);
   } catch (error) {
@@ -2341,26 +2408,30 @@ export const sendInvoiceGeneratedEmail = async (
 
 export const sendApiKeyCreatedEmail = async (
   email: string, name: string, keyType: 'development' | 'production',
-  action: 'created' | 'regenerated', keyPreview: string, date: string, time: string
+  action: 'created' | 'regenerated', keyPreview: string, date: string, time: string,
+  lang?: string
 ) => {
   try {
-    const subject = `API key ${action} - ${keyType} environment`;
-    const actionText = action === 'created' ? 'created' : 'regenerated';
+    const L = await resolveEmailLang(lang, email);
+    const keyTypeWord = keyType === 'production' ? t('merchant.typeProduction', L) : t('merchant.typeDevelopment', L);
+    const subject = action === 'created'
+      ? t('merchant.apiKey.subjectCreated', L, { keyType: keyTypeWord })
+      : t('merchant.apiKey.subjectRegenerated', L, { keyType: keyTypeWord });
 
-    const content = `${p(`Hey ${name},`)}
-    ${p(`Your <strong>${keyType}</strong> API key has been ${actionText}.`)}
+    const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
+    ${p(action === 'created' ? t('merchant.apiKey.introCreated', L, { keyType: keyTypeWord }) : t('merchant.apiKey.introRegenerated', L, { keyType: keyTypeWord }))}
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        ${dataRow('Environment', keyType === 'production' ? statusBadge('Production', 'error') : statusBadge('Development', 'pending'))}
-        ${dataRow('Key Preview', `<span style="font-family: monospace; font-size: 13px;">${keyPreview}...</span>`)}
-        ${action === 'regenerated' ? dataRow('Note', 'Your old key is now invalid') : ''}
-        ${dataRow('Date', `${date} at ${time}`, true)}
+        ${dataRow(t('merchant.labels.environment', L), keyType === 'production' ? statusBadge(t('merchant.badges.production', L), 'error') : statusBadge(t('merchant.badges.development', L), 'pending'))}
+        ${dataRow(t('merchant.labels.keyPreview', L), `<span style="font-family: monospace; font-size: 13px;">${keyPreview}...</span>`)}
+        ${action === 'regenerated' ? dataRow(t('merchant.labels.note', L), t('merchant.apiKey.oldInvalid', L)) : ''}
+        ${dataRow(t('labels.date', L), `${date} at ${time}`, true)}
       </table>
     `)}
-    ${keyType === 'production' ? warnText(`<strong>Important:</strong> This is a production key. Keep it secure and never share it publicly.`) : ''}
-    ${p(`<strong>Didn't do this?</strong><br />If you didn't ${action === 'created' ? 'create' : 'regenerate'} this API key, please secure your account immediately.`)}`;
+    ${keyType === 'production' ? warnText(t('merchant.apiKey.productionWarn', L)) : ''}
+    ${p(action === 'created' ? t('merchant.apiKey.didntCreate', L) : t('merchant.apiKey.didntRegenerate', L))}`;
 
-    const html = dynoPayEmailTemplate("API Key Update", content, true, "View API Keys", `${FRONTEND_BASE_URL}/dashboard/api-keys`);
+    const html = dynoPayEmailTemplate(t('merchant.apiKey.heading', L), content, true, t('merchant.apiKey.cta', L), `${FRONTEND_BASE_URL}/dashboard/api-keys`);
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`[Email] API key ${action} notification sent to ${email} for ${keyType} environment`);
   } catch (e) {
@@ -2374,35 +2445,37 @@ export const sendSubscriptionCreatedEmail = async (
 ) => {
   try {
     const displayName = customerName || customerEmail.split('@')[0];
+    const CL = await resolveEmailLang(null, customerEmail);
+    const ML = await resolveEmailLang(null, merchantEmail);
 
-    const customerSubject = `Subscription confirmed - ${planName}`;
-    const customerContent = `${p(`Hey ${displayName},`)}
-    ${p(`Your subscription to <strong>${planName}</strong> from <strong>${companyName}</strong> is now active.`)}
+    const customerSubject = t('merchant.subscriptionCreated.custSubject', CL, { planName });
+    const customerContent = `${p(displayName ? t('common.greeting', CL, { name: displayName }) : t('common.greetingDefault', CL))}
+    ${p(t('merchant.subscriptionCreated.custIntro', CL, { planName, companyName }))}
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        ${dataRow('Plan', planName)}
-        ${dataRow('Amount', `<strong>${amount} ${currency} / ${interval}</strong>`)}
-        ${dataRow('Next Billing', nextBillingDate, true)}
+        ${dataRow(t('merchant.labels.plan', CL), planName)}
+        ${dataRow(t('labels.amount', CL), `<strong>${amount} ${currency} / ${interval}</strong>`)}
+        ${dataRow(t('merchant.labels.nextBilling', CL), nextBillingDate, true)}
       </table>
     `, '#22c55e')}
-    ${p(`You'll be charged automatically on each billing date. You can manage or cancel your subscription anytime.`)}`;
+    ${p(t('merchant.subscriptionCreated.custOutro', CL))}`;
 
-    const customerHtml = dynoPayEmailTemplate("Subscription Active", customerContent);
+    const customerHtml = dynoPayEmailTemplate(t('merchant.subscriptionCreated.custHeading', CL), customerContent);
     await mailTransporter({ to: customerEmail, name: displayName, subject: customerSubject, body: customerHtml });
 
-    const merchantSubject = `New subscriber - ${planName}`;
-    const merchantContent = `${p(`Hey ${merchantName},`)}
-    ${p(`You have a new subscriber for <strong>${planName}</strong>.`)}
+    const merchantSubject = t('merchant.subscriptionCreated.merchSubject', ML, { planName });
+    const merchantContent = `${p(merchantName ? t('common.greeting', ML, { name: merchantName }) : t('common.greetingDefault', ML))}
+    ${p(t('merchant.subscriptionCreated.merchIntro', ML, { planName }))}
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        ${dataRow('Customer', customerEmail)}
-        ${dataRow('Plan', planName)}
-        ${dataRow('Revenue', `<strong>${amount} ${currency} / ${interval}</strong>`)}
-        ${dataRow('Next Billing', nextBillingDate, true)}
+        ${dataRow(t('labels.customer', ML), customerEmail)}
+        ${dataRow(t('merchant.labels.plan', ML), planName)}
+        ${dataRow(t('merchant.labels.revenue', ML), `<strong>${amount} ${currency} / ${interval}</strong>`)}
+        ${dataRow(t('merchant.labels.nextBilling', ML), nextBillingDate, true)}
       </table>
     `, '#22c55e')}`;
 
-    const merchantHtml = dynoPayEmailTemplate("New Subscription", merchantContent, true, "View Subscriptions", `${FRONTEND_BASE_URL}/dashboard/subscriptions`);
+    const merchantHtml = dynoPayEmailTemplate(t('merchant.subscriptionCreated.merchHeading', ML), merchantContent, true, t('merchant.subscriptionCreated.cta', ML), `${FRONTEND_BASE_URL}/dashboard/subscriptions`);
     await mailTransporter({ to: merchantEmail, name: merchantName, subject: merchantSubject, body: merchantHtml });
     apiLogger.info(`[Email] Subscription created notifications sent for ${planName}`);
   } catch (e) {
@@ -2416,36 +2489,38 @@ export const sendSubscriptionCancelledEmail = async (
 ) => {
   try {
     const displayName = customerName || customerEmail.split('@')[0];
+    const CL = await resolveEmailLang(null, customerEmail);
+    const ML = await resolveEmailLang(null, merchantEmail);
 
-    const customerSubject = `Subscription cancelled - ${planName}`;
-    const customerContent = `${p(`Hey ${displayName},`)}
-    ${p(`Your subscription to <strong>${planName}</strong> from <strong>${companyName}</strong> has been cancelled.`)}
+    const customerSubject = t('merchant.subscriptionCancelled.custSubject', CL, { planName });
+    const customerContent = `${p(displayName ? t('common.greeting', CL, { name: displayName }) : t('common.greetingDefault', CL))}
+    ${p(t('merchant.subscriptionCancelled.custIntro', CL, { planName, companyName }))}
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        ${dataRow('Plan', planName)}
-        ${dataRow('Effective', effectiveDate)}
-        ${dataRow('Cancelled by', cancelledBy === 'customer' ? 'You' : companyName, true)}
+        ${dataRow(t('merchant.labels.plan', CL), planName)}
+        ${dataRow(t('merchant.labels.effective', CL), effectiveDate)}
+        ${dataRow(t('merchant.labels.cancelledBy', CL), cancelledBy === 'customer' ? t('merchant.you', CL) : companyName, true)}
       </table>
     `, '#f59e0b')}
-    ${p(`You will continue to have access until ${effectiveDate}. After that, no further charges will be made.`)}
-    ${p(`If you change your mind, you can always resubscribe.`)}`;
+    ${p(t('merchant.subscriptionCancelled.custOutro1', CL, { effectiveDate }))}
+    ${p(t('merchant.subscriptionCancelled.custOutro2', CL))}`;
 
-    const customerHtml = dynoPayEmailTemplate("Subscription Cancelled", customerContent);
+    const customerHtml = dynoPayEmailTemplate(t('merchant.subscriptionCancelled.heading', CL), customerContent);
     await mailTransporter({ to: customerEmail, name: displayName, subject: customerSubject, body: customerHtml });
 
-    const merchantSubject = `Subscription cancelled - ${displayName}`;
-    const merchantContent = `${p(`Hey ${merchantName},`)}
-    ${p(`A subscription to <strong>${planName}</strong> has been cancelled.`)}
+    const merchantSubject = t('merchant.subscriptionCancelled.merchSubject', ML, { name: displayName });
+    const merchantContent = `${p(merchantName ? t('common.greeting', ML, { name: merchantName }) : t('common.greetingDefault', ML))}
+    ${p(t('merchant.subscriptionCancelled.merchIntro', ML, { planName }))}
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        ${dataRow('Customer', customerEmail)}
-        ${dataRow('Plan', planName)}
-        ${dataRow('Effective', effectiveDate)}
-        ${dataRow('Cancelled by', cancelledBy === 'customer' ? 'Customer' : 'You', true)}
+        ${dataRow(t('labels.customer', ML), customerEmail)}
+        ${dataRow(t('merchant.labels.plan', ML), planName)}
+        ${dataRow(t('merchant.labels.effective', ML), effectiveDate)}
+        ${dataRow(t('merchant.labels.cancelledBy', ML), cancelledBy === 'customer' ? t('merchant.customerWord', ML) : t('merchant.you', ML), true)}
       </table>
     `, '#f59e0b')}`;
 
-    const merchantHtml = dynoPayEmailTemplate("Subscription Cancelled", merchantContent, true, "View Subscriptions", `${FRONTEND_BASE_URL}/dashboard/subscriptions`);
+    const merchantHtml = dynoPayEmailTemplate(t('merchant.subscriptionCancelled.heading', ML), merchantContent, true, t('merchant.subscriptionCancelled.cta', ML), `${FRONTEND_BASE_URL}/dashboard/subscriptions`);
     await mailTransporter({ to: merchantEmail, name: merchantName, subject: merchantSubject, body: merchantHtml });
     apiLogger.info(`[Email] Subscription cancelled notifications sent for ${planName}`);
   } catch (e) {
@@ -2459,38 +2534,40 @@ export const sendSubscriptionPaymentFailedEmail = async (
 ) => {
   try {
     const displayName = customerName || customerEmail.split('@')[0];
+    const CL = await resolveEmailLang(null, customerEmail);
+    const ML = await resolveEmailLang(null, merchantEmail);
 
-    const customerSubject = `Payment failed for ${planName}`;
-    const customerContent = `${p(`Hey ${displayName},`)}
-    ${p(`We were unable to process your subscription payment for <strong>${planName}</strong> from <strong>${companyName}</strong>.`)}
+    const customerSubject = t('merchant.subscriptionPaymentFailed.custSubject', CL, { planName });
+    const customerContent = `${p(displayName ? t('common.greeting', CL, { name: displayName }) : t('common.greetingDefault', CL))}
+    ${p(t('merchant.subscriptionPaymentFailed.custIntro', CL, { planName, companyName }))}
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        ${dataRow('Amount', `${amount} ${currency}`)}
-        ${dataRow('Reason', failureReason)}
-        ${retryDate ? dataRow('Next Retry', retryDate, true) : ''}
+        ${dataRow(t('labels.amount', CL), `${amount} ${currency}`)}
+        ${dataRow(t('merchant.labels.reason', CL), failureReason)}
+        ${retryDate ? dataRow(t('merchant.labels.nextRetry', CL), retryDate, true) : ''}
       </table>
     `, '#ef4444')}
-    ${p(`To keep your subscription active, please:<br />1. Update your payment method<br />2. Ensure sufficient funds are available<br />3. Contact your bank if the issue persists`)}
-    ${warnText(`Your subscription may be cancelled if payment is not received.`)}`;
+    ${p(t('merchant.subscriptionPaymentFailed.custSteps', CL))}
+    ${warnText(t('merchant.subscriptionPaymentFailed.custWarn', CL))}`;
 
-    const customerHtml = dynoPayEmailTemplate("Payment Failed", customerContent, true, "Update Payment", `${FRONTEND_BASE_URL}/dashboard/subscriptions`);
+    const customerHtml = dynoPayEmailTemplate(t('merchant.subscriptionPaymentFailed.custHeading', CL), customerContent, true, t('merchant.subscriptionPaymentFailed.custCta', CL), `${FRONTEND_BASE_URL}/dashboard/subscriptions`);
     await mailTransporter({ to: customerEmail, name: displayName, subject: customerSubject, body: customerHtml });
 
-    const merchantSubject = `Subscription payment failed - ${displayName}`;
-    const merchantContent = `${p(`Hey ${merchantName},`)}
-    ${p(`A subscription payment has failed for <strong>${planName}</strong>.`)}
+    const merchantSubject = t('merchant.subscriptionPaymentFailed.merchSubject', ML, { name: displayName });
+    const merchantContent = `${p(merchantName ? t('common.greeting', ML, { name: merchantName }) : t('common.greetingDefault', ML))}
+    ${p(t('merchant.subscriptionPaymentFailed.merchIntro', ML, { planName }))}
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        ${dataRow('Customer', customerEmail)}
-        ${dataRow('Plan', planName)}
-        ${dataRow('Amount', `${amount} ${currency}`)}
-        ${dataRow('Reason', failureReason)}
-        ${retryDate ? dataRow('Retry Scheduled', retryDate, true) : ''}
+        ${dataRow(t('labels.customer', ML), customerEmail)}
+        ${dataRow(t('merchant.labels.plan', ML), planName)}
+        ${dataRow(t('labels.amount', ML), `${amount} ${currency}`)}
+        ${dataRow(t('merchant.labels.reason', ML), failureReason)}
+        ${retryDate ? dataRow(t('merchant.labels.retryScheduled', ML), retryDate, true) : ''}
       </table>
     `, '#f59e0b')}
-    ${p(`The customer has been notified to update their payment method.`)}`;
+    ${p(t('merchant.subscriptionPaymentFailed.merchOutro', ML))}`;
 
-    const merchantHtml = dynoPayEmailTemplate("Subscription Payment Failed", merchantContent, true, "View Subscription", `${FRONTEND_BASE_URL}/dashboard/subscriptions`);
+    const merchantHtml = dynoPayEmailTemplate(t('merchant.subscriptionPaymentFailed.merchHeading', ML), merchantContent, true, t('merchant.subscriptionPaymentFailed.merchCta', ML), `${FRONTEND_BASE_URL}/dashboard/subscriptions`);
     await mailTransporter({ to: merchantEmail, name: merchantName, subject: merchantSubject, body: merchantHtml });
     apiLogger.info(`[Email] Subscription payment failed notifications sent for ${planName}`);
   } catch (e) {
