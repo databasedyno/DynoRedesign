@@ -5,7 +5,7 @@
 
 import PDFDocument from "pdfkit";
 import path from "path";
-// fs import removed - not used
+import { t, normalizeLang } from "../utils/emailI18n";
 
 // Logo configuration - using local asset
 // LOGO_PATH and LOGO_URL removed - not used
@@ -46,6 +46,8 @@ interface ReceiptData {
   description?: string;
   paymentMethod?: string;
   status?: string;
+  // Locale for receipt labels/date formatting (ISO 639-1)
+  lang?: string;
 }
 
 /**
@@ -55,6 +57,8 @@ interface ReceiptData {
 export const generatePaymentReceipt = async (data: ReceiptData): Promise<Buffer> => {
   return new Promise((resolve, reject) => {
     try {
+      const L = normalizeLang(data.lang);
+      const dateLocale = L === "en" ? "en-US" : L;
       const doc = new PDFDocument({
         size: "A4",
         margin: 50,
@@ -90,15 +94,15 @@ export const generatePaymentReceipt = async (data: ReceiptData): Promise<Buffer>
       // Receipt label
       doc.fontSize(12)
         .fillColor("#ffffff")
-        .text("PAYMENT RECEIPT", 50, 80);
+        .text(t("receipt.title", L), 50, 80);
 
       // Receipt number on right
       doc.fontSize(10)
         .fillColor("#ffffff")
-        .text(`Receipt #${data.transactionId.substring(0, 8).toUpperCase()}`, 400, 50, { align: "right", width: 150 });
+        .text(t("receipt.receiptNo", L, { number: data.transactionId.substring(0, 8).toUpperCase() }), 400, 50, { align: "right", width: 150 });
 
       // Date on right
-      const formattedDate = data.paymentDate.toLocaleDateString("en-US", {
+      const formattedDate = data.paymentDate.toLocaleDateString(dateLocale, {
         year: "numeric",
         month: "long",
         day: "numeric",
@@ -111,7 +115,7 @@ export const generatePaymentReceipt = async (data: ReceiptData): Promise<Buffer>
       doc.rect(0, 120, doc.page.width, 40).fill("#10b981"); // Green for success
       doc.fontSize(14)
         .fillColor("#ffffff")
-        .text("✓ PAYMENT SUCCESSFUL", 50, 132, { align: "center", width: pageWidth });
+        .text(`\u2713 ${t("receipt.successful", L)}`, 50, 132, { align: "center", width: pageWidth });
 
       // ============================================
       // MAIN CONTENT
@@ -124,7 +128,7 @@ export const generatePaymentReceipt = async (data: ReceiptData): Promise<Buffer>
 
       doc.fontSize(12)
         .fillColor(BRAND_COLORS.text)
-        .text("AMOUNT PAID", 70, yPos + 15);
+        .text(t("receipt.amountPaid", L), 70, yPos + 15);
 
       doc.fontSize(36)
         .fillColor(BRAND_COLORS.primary)
@@ -133,7 +137,7 @@ export const generatePaymentReceipt = async (data: ReceiptData): Promise<Buffer>
       if (data.cryptoAmount && data.cryptoCurrency) {
         doc.fontSize(14)
           .fillColor(BRAND_COLORS.text)
-          .text(`Crypto: ${data.cryptoAmount} ${data.cryptoCurrency}`, 70, yPos + 75);
+          .text(t("receipt.crypto", L, { amount: data.cryptoAmount, currency: data.cryptoCurrency }), 70, yPos + 75);
       }
 
       yPos += 120;
@@ -143,17 +147,17 @@ export const generatePaymentReceipt = async (data: ReceiptData): Promise<Buffer>
       // ============================================
       doc.fontSize(14)
         .fillColor(BRAND_COLORS.primary)
-        .text("Transaction Details", 50, yPos);
+        .text(t("receipt.transactionDetails", L), 50, yPos);
 
       yPos += 25;
 
       // Details table
       const details = [
-        { label: "Transaction ID", value: data.transactionId },
-        ...(data.transactionReference ? [{ label: "Reference", value: data.transactionReference }] : []),
-        { label: "Payment Method", value: data.paymentMethod || "Cryptocurrency" },
-        { label: "Status", value: data.status || "Completed" },
-        { label: "Date & Time", value: data.paymentDate.toLocaleString("en-US", {
+        { label: t("receipt.transactionId", L), value: data.transactionId },
+        ...(data.transactionReference ? [{ label: t("receipt.reference", L), value: data.transactionReference }] : []),
+        { label: t("receipt.paymentMethod", L), value: data.paymentMethod || t("receipt.cryptocurrency", L) },
+        { label: t("receipt.status", L), value: data.status || t("receipt.completed", L) },
+        { label: t("receipt.dateTime", L), value: data.paymentDate.toLocaleString(dateLocale, {
           year: "numeric",
           month: "long",
           day: "numeric",
@@ -194,7 +198,7 @@ export const generatePaymentReceipt = async (data: ReceiptData): Promise<Buffer>
       // Merchant column
       doc.fontSize(12)
         .fillColor(BRAND_COLORS.primary)
-        .text("Paid To", 50, yPos);
+        .text(t("receipt.paidTo", L), 50, yPos);
       
       doc.fontSize(14)
         .fillColor(BRAND_COLORS.dark)
@@ -203,7 +207,7 @@ export const generatePaymentReceipt = async (data: ReceiptData): Promise<Buffer>
       // Customer column
       doc.fontSize(12)
         .fillColor(BRAND_COLORS.primary)
-        .text("Customer", 50 + colWidth + 30, yPos);
+        .text(t("receipt.customer", L), 50 + colWidth + 30, yPos);
       
       doc.fontSize(14)
         .fillColor(BRAND_COLORS.dark)
@@ -226,7 +230,7 @@ export const generatePaymentReceipt = async (data: ReceiptData): Promise<Buffer>
 
         doc.fontSize(12)
           .fillColor(BRAND_COLORS.primary)
-          .text("Description", 50, yPos);
+          .text(t("receipt.description", L), 50, yPos);
         
         doc.fontSize(11)
           .fillColor(BRAND_COLORS.text)
@@ -250,13 +254,13 @@ export const generatePaymentReceipt = async (data: ReceiptData): Promise<Buffer>
 
       doc.fontSize(10)
         .fillColor("#9ca3af")
-        .text("Secure Crypto Payment Gateway", 50, footerY + 50);
+        .text(t("receipt.tagline", L), 50, footerY + 50);
 
       doc.fontSize(9)
         .fillColor("#9ca3af")
-        .text(`© ${new Date().getFullYear()} Dynopay. All rights reserved.`, 50, footerY + 70);
+        .text(t("receipt.rights", L, { year: new Date().getFullYear() }), 50, footerY + 70);
 
-      doc.text("This receipt was generated automatically.", 50, footerY + 85);
+      doc.text(t("receipt.autoGenerated", L), 50, footerY + 85);
 
       // Links on right
       doc.fontSize(9)

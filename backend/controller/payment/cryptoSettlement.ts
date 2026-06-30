@@ -28,7 +28,7 @@ import {
 import sequelize from "../../utils/dbInstance";
 import { Op } from "sequelize";
 import jwt from "jsonwebtoken";
-import { normalizeLang } from "../../utils/emailI18n";
+import { normalizeLang, resolveCustomerLanguage } from "../../utils/emailI18n";
 import {
   adminFeeModel,
   companyModel,
@@ -2764,7 +2764,8 @@ const cryptoVerification = async (address, webhook = true, overrideRedisKey?: st
             companyName,             // companyName
             transactionId,           // transactionId
             paymentDateStr,          // date
-            paymentTimeStr           // time
+            paymentTimeStr,          // time
+            normalizeLang((userData as { language?: string })?.language) // merchant language
           );
         }
 
@@ -2844,7 +2845,12 @@ const cryptoVerification = async (address, webhook = true, overrideRedisKey?: st
                 paymentDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
                 totalAmountReceived.toString(), // Crypto amount
                 tempCurrency, // Crypto currency
-                transactionId // Blockchain transaction reference
+                transactionId, // Blockchain transaction reference
+                resolveCustomerLanguage({
+                  transactionLang: (customerPayload as { language?: string })?.language,
+                  checkoutLang: customerData?.language || tempData?.language,
+                  merchantLang: (userData as { language?: string })?.language,
+                }) // customer language
               );
               cronLogger.info(`[cryptoVerification] Customer payment confirmation email sent to ${customerEmail} with PDF receipt`);
             }

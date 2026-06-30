@@ -6,6 +6,7 @@
 import { QueryTypes } from "sequelize";
 import { cronLogger } from "../utils/loggers";
 import sequelize from "../utils/dbInstance";
+import { normalizeLang } from "../utils/emailI18n";
 import { createNotification, NOTIFICATION_TYPES } from "../controller/notificationController";
 import { 
   sendPaymentPendingEmail, 
@@ -77,7 +78,7 @@ export const sendPendingPaymentNotification = async (
       ? `AND c.company_id = :companyId`
       : '';
     const userResult = await sequelize.query(
-      `SELECT u.user_id, u.name, u.email, c.company_name, c.company_id
+      `SELECT u.user_id, u.name, u.email, u.language, c.company_name, c.company_id
        FROM tbl_user u
        JOIN tbl_company c ON c.user_id = u.user_id
        WHERE u.user_id = :userId ${companyFilter}
@@ -93,7 +94,7 @@ export const sendPendingPaymentNotification = async (
       return false;
     }
 
-    const user = userResult[0] as { user_id: number; name: string; email: string; company_name: string; company_id: number };
+    const user = userResult[0] as { user_id: number; name: string; email: string; language: string; company_name: string; company_id: number };
     const confirmationsRequired = CONFIRMATION_REQUIREMENTS[currency] || 1;
 
     // Create in-app notification
@@ -122,7 +123,8 @@ export const sendPendingPaymentNotification = async (
       amount.toString(),
       currency,
       txId,
-      confirmationsRequired
+      confirmationsRequired,
+      normalizeLang(user.language)
     );
 
     // Mark notification as completed in Redis (expires in 24 hours)
@@ -177,7 +179,7 @@ export const sendConfirmationProgressNotification = async (
       ? `AND c.company_id = :companyId`
       : '';
     const userResult = await sequelize.query(
-      `SELECT u.user_id, u.name, u.email, c.company_name
+      `SELECT u.user_id, u.name, u.email, u.language, c.company_name
        FROM tbl_user u
        JOIN tbl_company c ON c.user_id = u.user_id
        WHERE u.user_id = :userId ${confirmCompanyFilter}
@@ -192,7 +194,7 @@ export const sendConfirmationProgressNotification = async (
       return false;
     }
 
-    const user = userResult[0] as { user_id: number; name: string; email: string; company_name: string; company_id: number };
+    const user = userResult[0] as { user_id: number; name: string; email: string; language: string; company_name: string; company_id: number };
 
     // Create in-app notification for progress
     await createNotification(
@@ -221,7 +223,8 @@ export const sendConfirmationProgressNotification = async (
         currency,
         txId,
         currentConfirmations,
-        requiredConfirmations
+        requiredConfirmations,
+        normalizeLang(user.language)
       );
     }
 
@@ -319,7 +322,7 @@ export const sendPartialPaymentNotification = async (
       ? `AND c.company_id = :companyId`
       : '';
     const userResult = await sequelize.query(
-      `SELECT u.user_id, u.name, u.email, c.company_name, c.company_id
+      `SELECT u.user_id, u.name, u.email, u.language, c.company_name, c.company_id
        FROM tbl_user u
        JOIN tbl_company c ON c.user_id = u.user_id
        WHERE u.user_id = :userId ${partialCompanyFilter}
@@ -335,7 +338,7 @@ export const sendPartialPaymentNotification = async (
       return false;
     }
 
-    const user = userResult[0] as { user_id: number; name: string; email: string; company_name: string; company_id: number };
+    const user = userResult[0] as { user_id: number; name: string; email: string; language: string; company_name: string; company_id: number };
     const remainingAmount = (expectedAmount - receivedAmount).toFixed(8);
 
     // Create in-app notification
@@ -369,7 +372,8 @@ export const sendPartialPaymentNotification = async (
       currency,
       txId,
       address,
-      gracePeriodMinutes
+      gracePeriodMinutes,
+      normalizeLang(user.language)
     );
 
     // Mark notification as sent in Redis (expires in 2 hours)
@@ -412,7 +416,7 @@ export const sendPartialPaymentExpiredNotification = async (
       ? `AND c.company_id = :companyId`
       : '';
     const userResult = await sequelize.query(
-      `SELECT u.user_id, u.name, u.email, c.company_name
+      `SELECT u.user_id, u.name, u.email, u.language, c.company_name
        FROM tbl_user u
        JOIN tbl_company c ON c.user_id = u.user_id
        WHERE u.user_id = :userId ${expiredCompanyFilter}
@@ -428,7 +432,7 @@ export const sendPartialPaymentExpiredNotification = async (
       return false;
     }
 
-    const user = userResult[0] as { user_id: number; name: string; email: string; company_name: string; company_id: number };
+    const user = userResult[0] as { user_id: number; name: string; email: string; language: string; company_name: string; company_id: number };
     const isCompleted = status === "completed_partial";
 
     // Create in-app notification
@@ -460,7 +464,8 @@ export const sendPartialPaymentExpiredNotification = async (
       expectedAmount.toString(),
       currency,
       txId,
-      status
+      status,
+      normalizeLang(user.language)
     );
 
     cronLogger.info(`Partial payment expired notification sent for address: ${address}, status: ${status}`);

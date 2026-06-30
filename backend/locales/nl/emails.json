@@ -6,5 +6,128 @@
     "team": "Het DynoPay-team",
     "securedBy": "Deze betaling is veilig verwerkt via DynoPay, een vertrouwde crypto-betaalgateway.",
     "questions": "Als u vragen heeft, staat ons supportteam voor u klaar."
+  },
+  "labels": {
+    "amount": "Bedrag",
+    "status": "Status",
+    "date": "Datum",
+    "transactionId": "Transactie-ID",
+    "reference": "Referentie",
+    "description": "Omschrijving",
+    "amountPaid": "Betaald bedrag",
+    "cryptoAmount": "Cryptobedrag",
+    "expectedAmount": "Verwacht bedrag",
+    "received": "Ontvangen",
+    "receivedAmount": "Ontvangen bedrag",
+    "remaining": "Resterend",
+    "amountReceived": "Ontvangen bedrag",
+    "customer": "Klant",
+    "confirmations": "Bevestigingen"
+  },
+  "statusLabels": {
+    "received": "Ontvangen",
+    "awaitingConfirmation": "Wacht op bevestiging",
+    "complete": "Voltooid",
+    "processed": "Verwerkt",
+    "expired": "Verlopen"
+  },
+  "paymentReceived": {
+    "subject": "Betaling ontvangen - {{amount}} {{currency}}",
+    "heading": "Betaling ontvangen",
+    "intro": "Goed nieuws! Uw bedrijf <strong>{{companyName}}</strong> heeft een betaling ontvangen.",
+    "outro": "De middelen zijn doorgestuurd naar uw uitbetaalwallet. U kunt alle transactiedetails bekijken in uw dashboard.",
+    "cta": "Transactie bekijken"
+  },
+  "paymentPending": {
+    "subject": "Uw betaling wacht op bevestiging",
+    "heading": "Betaling in behandeling",
+    "intro": "Er is een nieuwe betaling gedetecteerd voor uw bedrijf <strong>{{companyName}}</strong>!",
+    "estimatedTimes": "Geschatte bevestigingstijden",
+    "btcTime": "BTC: 10-60 min ({{confirmations}} bevestigingen)",
+    "ethTime": "ETH/ERC20: 1-5 min",
+    "trxTime": "TRX/TRC20: 1-3 min",
+    "ltcTime": "LTC: 2-30 min &bull; DOGE: 1-10 min",
+    "outro": "We laten het u weten zodra de betaling volledig is bevestigd en op uw wallet is bijgeschreven. U kunt de status van de transactie volgen in uw DynoPay-dashboard."
+  },
+  "paymentConfirming": {
+    "subject": "Betaling wordt bevestigd ({{current}}/{{required}}) - DynoPay",
+    "heading": "Betaling wordt bevestigd",
+    "intro": "Goed nieuws! Uw betaling voor <strong>{{companyName}}</strong> wordt bevestigd.",
+    "confirmationsOf": "{{current}} van {{required}}",
+    "completeMsg": "De betaling heeft het vereiste aantal bevestigingen bereikt en wordt binnenkort bijgeschreven!",
+    "pendingMsg": "Nog {{remaining}} bevestigingen nodig voordat de betaling wordt bijgeschreven. U kunt de volledige status volgen in uw DynoPay-dashboard."
+  },
+  "transactionConfirmed": {
+    "subject": "Transactie {{status}} - DynoPay",
+    "heading": "Transactie {{status}}",
+    "intro": "Uw transactie is <strong>{{statusLower}}</strong>.",
+    "outro": "U kunt meer details bekijken in uw DynoPay-dashboard."
+  },
+  "paymentPartial": {
+    "subject": "Gedeeltelijke betaling ontvangen — actie vereist",
+    "heading": "Gedeeltelijke betaling ontvangen",
+    "intro": "Er is een gedeeltelijke betaling ontvangen voor uw bedrijf <strong>{{companyName}}</strong>.",
+    "actionRequired": "Actie vereist",
+    "actionText": "U heeft <strong>{{minutes}} minuten</strong> om de resterende <strong>{{remaining}} {{currency}}</strong> te sturen om deze betaling te voltooien.",
+    "sendTo": "Stuur naar:",
+    "graceNote": "Als het resterende bedrag binnen {{minutes}} minuten wordt ontvangen, wordt de volledige betaling verwerkt. Als de respijtperiode verloopt, wordt het gedeeltelijke bedrag verwerkt met aangepaste kosten."
+  },
+  "paymentPartialExpired": {
+    "subjectCompleted": "Gedeeltelijke betaling verwerkt - DynoPay",
+    "subjectExpired": "Gedeeltelijke betaling verlopen - DynoPay",
+    "headingCompleted": "Gedeeltelijke betaling verwerkt",
+    "headingExpired": "Respijtperiode van de betaling verlopen",
+    "introCompleted": "De gedeeltelijke betaling voor uw bedrijf <strong>{{companyName}}</strong> is verwerkt.",
+    "introExpired": "De respijtperiode voor de gedeeltelijke betaling aan uw bedrijf <strong>{{companyName}}</strong> is verlopen.",
+    "outroCompleted": "Het ontvangen bedrag is verwerkt met aangepaste kosten en doorgestuurd naar uw wallet.",
+    "outroExpired": "Omdat de volledige betaling niet binnen de respijtperiode is ontvangen, is het gedeeltelijke bedrag verwerkt. Houd er rekening mee dat de kosten voor onvolledige betalingen hoger kunnen zijn.",
+    "viewDetails": "U kunt de transactiedetails bekijken in uw DynoPay-dashboard."
+  },
+  "paymentFailed": {
+    "reasonExpired": "De betaallink is verlopen",
+    "reasonUnderpaid": "We hebben {{paidAmount}} {{currency}} ontvangen, maar het vereiste bedrag was {{amount}} {{currency}}",
+    "reasonCancelled": "De betaling is geannuleerd",
+    "reasonTimeout": "De betaalsessie is verlopen",
+    "subjectUnderpaid": "Onderbetaling gedetecteerd - {{paidAmount}} van {{amount}} {{currency}} ontvangen",
+    "subject": "Betaling mislukt - {{companyName}}",
+    "heading": "Betaling mislukt",
+    "customerIntro": "Helaas is uw betaling aan <strong>{{companyName}}</strong> niet voltooid.",
+    "issue": "Probleem",
+    "underpaidNote": "Neem contact op met <strong>{{companyName}}</strong> om deze onderbetaling op te lossen of een terugbetaling aan te vragen.",
+    "expiredNote": "Neem contact op met <strong>{{companyName}}</strong> als u deze betaling toch wilt voltooien.",
+    "merchantSubjectUnderpaid": "Onderbetaling ontvangen - {{paidAmount}} van {{amount}} {{currency}}",
+    "merchantSubject": "Betaling mislukt - {{transactionId}}",
+    "merchantHeading": "Betalingsmelding",
+    "merchantIntro": "Een betaling van <strong>{{customerName}}</strong> is niet voltooid.",
+    "merchantUnderpaidNote": "De klant is op de hoogte gebracht. Mogelijk moet u een gedeeltelijke terugbetaling doen of het resterende bedrag opvragen.",
+    "cta": "Transactie bekijken"
+  },
+  "customerPaymentConfirmation": {
+    "subject": "Betaling geslaagd - Bon van {{companyName}}",
+    "heading": "Betaling geslaagd",
+    "intro": "Uw betaling aan <strong>{{companyName}}</strong> is succesvol verwerkt.",
+    "pdfAttached": "<strong>PDF-bon bijgevoegd</strong> - Een gedetailleerde bon is bij deze e-mail gevoegd voor uw administratie.",
+    "contact": "Als u vragen heeft over deze betaling, neem dan rechtstreeks contact op met <strong>{{companyName}}</strong>."
+  },
+  "receipt": {
+    "title": "BETALINGSBON",
+    "successful": "BETALING GESLAAGD",
+    "amountPaid": "BETAALD BEDRAG",
+    "crypto": "Crypto: {{amount}} {{currency}}",
+    "transactionDetails": "Transactiedetails",
+    "transactionId": "Transactie-ID",
+    "reference": "Referentie",
+    "paymentMethod": "Betaalmethode",
+    "status": "Status",
+    "dateTime": "Datum en tijd",
+    "paidTo": "Betaald aan",
+    "customer": "Klant",
+    "description": "Omschrijving",
+    "completed": "Voltooid",
+    "cryptocurrency": "Cryptovaluta",
+    "tagline": "Veilige crypto-betaalgateway",
+    "rights": "© {{year}} DynoPay. Alle rechten voorbehouden.",
+    "autoGenerated": "Deze bon is automatisch gegenereerd.",
+    "receiptNo": "Bon nr. {{number}}"
   }
 }

@@ -2,6 +2,7 @@ import mailTransporter from "../utils/mailTransporter";
 import { apiLogger } from "../utils/loggers";
 import { captureError } from "./errorMonitoringService";
 import { generatePaymentReceipt, getReceiptFilename } from "./pdfReceiptService";
+import { t, normalizeLang } from "../utils/emailI18n";
 import { baseEmailTemplate, getCurrencySymbol, infoBox, dataRow, statusBadge, p, otpBlock, warnText, alertBox, errorBox, successBox, neutralBox, statCard, twoColumnStats, feeRow, feeTotalRow, feeTable, mono } from "../utils/emailTemplate";
 
 /** Dynamic base URL for all email CTA links — uses FRONTEND_URL env var */
@@ -963,25 +964,27 @@ export const sendPaymentReceivedEmail = async (
   companyName: string,
   transactionId: string,
   date?: string,
-  time?: string
+  time?: string,
+  lang: string = 'en'
 ) => {
   try {
-    const subject = `Payment received - ${amount} ${currency}`;
-    const dateTimeStr = date && time ? `${date} at ${time}` : new Date().toLocaleString('en-GB');
+    const L = normalizeLang(lang);
+    const subject = t('paymentReceived.subject', L, { amount, currency });
+    const dateTimeStr = date && time ? `${date} at ${time}` : new Date().toLocaleString(L === 'en' ? 'en-GB' : L);
 
-    const content = `${p(`Hey ${name},`)}
-    ${p(`Great news! Your company <strong>${companyName}</strong> has received a payment.`)}
+    const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
+    ${p(t('paymentReceived.intro', L, { companyName }))}
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        ${dataRow('Amount', `<strong>${amount} ${currency}</strong>`)}
-        ${dataRow('Status', statusBadge('Received', 'success'))}
-        ${dataRow('Date', dateTimeStr)}
-        ${dataRow('Transaction ID', `<span style="font-size: 12px; font-family: monospace;">${transactionId}</span>`, true)}
+        ${dataRow(t('labels.amount', L), `<strong>${amount} ${currency}</strong>`)}
+        ${dataRow(t('labels.status', L), statusBadge(t('statusLabels.received', L), 'success'))}
+        ${dataRow(t('labels.date', L), dateTimeStr)}
+        ${dataRow(t('labels.transactionId', L), `<span style="font-size: 12px; font-family: monospace;">${transactionId}</span>`, true)}
       </table>
     `, '#22c55e')}
-    ${p(`The funds have been forwarded to your payout wallet. You can view the full transaction details in your dashboard.`)}`;
+    ${p(t('paymentReceived.outro', L))}`;
 
-    const html = dynoPayEmailTemplate("Payment Received", content, true, "View Transaction", `${FRONTEND_BASE_URL}/dashboard/transactions`);
+    const html = dynoPayEmailTemplate(t('paymentReceived.heading', L), content, true, t('paymentReceived.cta', L), `${FRONTEND_BASE_URL}/dashboard/transactions`);
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`Payment received email sent to ${email}`);
   } catch (e) {
@@ -999,32 +1002,34 @@ export const sendPaymentPendingEmail = async (
   amount: string,
   currency: string,
   transactionId: string,
-  confirmationsRequired: number = 1
+  confirmationsRequired: number = 1,
+  lang: string = 'en'
 ) => {
   try {
-    const subject = "Your payment is pending confirmation";
+    const L = normalizeLang(lang);
+    const subject = t('paymentPending.subject', L);
 
-    const content = `${p(`Hey ${name || 'there'},`)}
-    ${p(`A new payment has been detected for your company <strong>${companyName}</strong>!`)}
+    const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
+    ${p(t('paymentPending.intro', L, { companyName }))}
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        ${dataRow('Amount', `<strong>${amount} ${currency}</strong>`)}
-        ${dataRow('Status', statusBadge('Awaiting Confirmation', 'pending'))}
-        ${dataRow('Transaction ID', `<span style="font-family: monospace; font-size: 13px;">${transactionId}</span>`, true)}
+        ${dataRow(t('labels.amount', L), `<strong>${amount} ${currency}</strong>`)}
+        ${dataRow(t('labels.status', L), statusBadge(t('statusLabels.awaitingConfirmation', L), 'pending'))}
+        ${dataRow(t('labels.transactionId', L), `<span style="font-family: monospace; font-size: 13px;">${transactionId}</span>`, true)}
       </table>
     `, '#f59e0b')}
     ${infoBox(`
-      <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #92400e; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">Estimated Confirmation Times</p>
+      <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #92400e; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('paymentPending.estimatedTimes', L)}</p>
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        <tr><td style="padding: 4px 0; font-size: 13px; color: #78350f; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">BTC: 10-60 min (${confirmationsRequired} confirmation${confirmationsRequired > 1 ? 's' : ''})</td></tr>
-        <tr><td style="padding: 4px 0; font-size: 13px; color: #78350f; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">ETH/ERC20: 1-5 min</td></tr>
-        <tr><td style="padding: 4px 0; font-size: 13px; color: #78350f; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">TRX/TRC20: 1-3 min</td></tr>
-        <tr><td style="padding: 4px 0; font-size: 13px; color: #78350f; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">LTC: 2-30 min &bull; DOGE: 1-10 min</td></tr>
+        <tr><td style="padding: 4px 0; font-size: 13px; color: #78350f; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('paymentPending.btcTime', L, { confirmations: confirmationsRequired })}</td></tr>
+        <tr><td style="padding: 4px 0; font-size: 13px; color: #78350f; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('paymentPending.ethTime', L)}</td></tr>
+        <tr><td style="padding: 4px 0; font-size: 13px; color: #78350f; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('paymentPending.trxTime', L)}</td></tr>
+        <tr><td style="padding: 4px 0; font-size: 13px; color: #78350f; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('paymentPending.ltcTime', L)}</td></tr>
       </table>
     `, '#f59e0b')}
-    ${p(`We'll notify you once the payment is fully confirmed and credited to your wallet. You can track the transaction status in your DynoPay dashboard.`)}`;
+    ${p(t('paymentPending.outro', L))}`;
 
-    const html = dynoPayEmailTemplate("Payment Pending", content);
+    const html = dynoPayEmailTemplate(t('paymentPending.heading', L), content);
     const info = await mailTransporter({ to: recipientEmail, name, subject, body: html });
     return info;
   } catch (e) {
@@ -1043,35 +1048,38 @@ export const sendPaymentConfirmingEmail = async (
   currency: string,
   transactionId: string,
   currentConfirmations: number,
-  requiredConfirmations: number
+  requiredConfirmations: number,
+  lang: string = 'en'
 ) => {
   try {
-    const subject = `Payment Confirming (${currentConfirmations}/${requiredConfirmations}) - DynoPay`;
+    const L = normalizeLang(lang);
+    const subject = t('paymentConfirming.subject', L, { current: currentConfirmations, required: requiredConfirmations });
     const progressPct = Math.min(100, Math.round((currentConfirmations / requiredConfirmations) * 100));
     const isComplete = currentConfirmations >= requiredConfirmations;
+    const remaining = requiredConfirmations - currentConfirmations;
 
     const htmlContent = `
-      ${p(`Hey ${name || 'there'},`)}
-      ${p(`Good news! Your payment for <strong>${companyName}</strong> is being confirmed.`)}
+      ${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
+      ${p(t('paymentConfirming.intro', L, { companyName }))}
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background: #f8f9ff; border-radius: 8px; border-left: 4px solid #3b82f6; margin: 24px 0;">
         <tr><td style="padding: 20px;">
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-            <tr><td style="padding: 8px 0; color: #6b7280; font-size: 14px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; border-bottom: 1px solid #f3f4f6;">Amount</td><td style="padding: 8px 0; color: #1a1a2e; font-size: 16px; font-weight: 600; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; text-align: right; border-bottom: 1px solid #f3f4f6;">${amount} ${currency}</td></tr>
-            <tr><td style="padding: 8px 0; color: #6b7280; font-size: 14px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; border-bottom: 1px solid #f3f4f6;">Confirmations</td><td style="padding: 8px 0; color: #1a1a2e; font-size: 14px; font-weight: 600; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; text-align: right; border-bottom: 1px solid #f3f4f6;">${currentConfirmations} of ${requiredConfirmations}</td></tr>
+            <tr><td style="padding: 8px 0; color: #6b7280; font-size: 14px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; border-bottom: 1px solid #f3f4f6;">${t('labels.amount', L)}</td><td style="padding: 8px 0; color: #1a1a2e; font-size: 16px; font-weight: 600; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; text-align: right; border-bottom: 1px solid #f3f4f6;">${amount} ${currency}</td></tr>
+            <tr><td style="padding: 8px 0; color: #6b7280; font-size: 14px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; border-bottom: 1px solid #f3f4f6;">${t('labels.confirmations', L)}</td><td style="padding: 8px 0; color: #1a1a2e; font-size: 14px; font-weight: 600; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; text-align: right; border-bottom: 1px solid #f3f4f6;">${t('paymentConfirming.confirmationsOf', L, { current: currentConfirmations, required: requiredConfirmations })}</td></tr>
             <tr><td colspan="2" style="padding: 12px 0 4px 0;">
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background: #e5e7eb; border-radius: 4px; height: 8px;">
                 <tr><td style="width: ${progressPct}%; background: ${isComplete ? '#22c55e' : '#3b82f6'}; border-radius: 4px; height: 8px;">&nbsp;</td><td style="height: 8px;">&nbsp;</td></tr>
               </table>
             </td></tr>
-            <tr><td style="padding: 8px 0; color: #6b7280; font-size: 14px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">Transaction ID</td><td style="padding: 8px 0; color: #1a1a2e; font-size: 13px; font-family: 'SF Mono', 'Fira Code', monospace, Arial, sans-serif; text-align: right; word-break: break-all;">${transactionId}</td></tr>
+            <tr><td style="padding: 8px 0; color: #6b7280; font-size: 14px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('labels.transactionId', L)}</td><td style="padding: 8px 0; color: #1a1a2e; font-size: 13px; font-family: 'SF Mono', 'Fira Code', monospace, Arial, sans-serif; text-align: right; word-break: break-all;">${transactionId}</td></tr>
           </table>
         </td></tr>
       </table>
       ${p(isComplete
-        ? "The payment has reached the required confirmations and will be credited shortly!"
-        : `${requiredConfirmations - currentConfirmations} more confirmation${requiredConfirmations - currentConfirmations > 1 ? 's' : ''} needed before the payment is credited.` + ` You can track the full status in your DynoPay dashboard.`)}`;
+        ? t('paymentConfirming.completeMsg', L)
+        : t('paymentConfirming.pendingMsg', L, { remaining }))}`;
 
-    const html = dynoPayEmailTemplate("Payment Confirming", htmlContent);
+    const html = dynoPayEmailTemplate(t('paymentConfirming.heading', L), htmlContent);
     const info = await mailTransporter({ to: recipientEmail, name, subject, body: html });
     return info;
   } catch (e) {
@@ -1088,24 +1096,26 @@ export const sendTransactionConfirmedEmail = async (
   transactionId: string,
   amount: string,
   currency: string,
-  status: string
+  status: string,
+  lang: string = 'en'
 ) => {
   try {
-    const subject = `Transaction ${status} - DynoPay`;
+    const L = normalizeLang(lang);
+    const subject = t('transactionConfirmed.subject', L, { status });
     const statusType: 'success' | 'info' = status.toLowerCase() === 'confirmed' ? 'success' : 'info';
 
-    const content = `${p(`Hey ${name || 'there'},`)}
-    ${p(`Your transaction has been <strong>${status.toLowerCase()}</strong>.`)}
+    const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
+    ${p(t('transactionConfirmed.intro', L, { statusLower: status.toLowerCase() }))}
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        ${dataRow('Transaction ID', `<span style="font-family: monospace; font-size: 13px;">${transactionId}</span>`)}
-        ${dataRow('Amount', `<strong>${amount} ${currency}</strong>`)}
-        ${dataRow('Status', statusBadge(status, statusType), true)}
+        ${dataRow(t('labels.transactionId', L), `<span style="font-family: monospace; font-size: 13px;">${transactionId}</span>`)}
+        ${dataRow(t('labels.amount', L), `<strong>${amount} ${currency}</strong>`)}
+        ${dataRow(t('labels.status', L), statusBadge(status, statusType), true)}
       </table>
     `)}
-    ${p(`You can view more details in your DynoPay dashboard.`)}`;
+    ${p(t('transactionConfirmed.outro', L))}`;
 
-    const html = dynoPayEmailTemplate(`Transaction ${status}`, content);
+    const html = dynoPayEmailTemplate(t('transactionConfirmed.heading', L, { status }), content);
     const info = await mailTransporter({ to: recipientEmail, name, subject, body: html });
     return info;
   } catch (e) {
@@ -1126,32 +1136,34 @@ export const sendPaymentPartialEmail = async (
   currency: string,
   transactionId: string,
   walletAddress: string,
-  gracePeriodMinutes: number = 30
+  gracePeriodMinutes: number = 30,
+  lang: string = 'en'
 ) => {
   try {
-    const subject = "Partial payment received — action needed";
+    const L = normalizeLang(lang);
+    const subject = t('paymentPartial.subject', L);
 
-    const content = `${p(`Hey ${name || 'there'},`)}
-    ${p(`A partial payment has been received for your company <strong>${companyName}</strong>.`)}
+    const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
+    ${p(t('paymentPartial.intro', L, { companyName }))}
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        ${dataRow('Expected Amount', `${expectedAmount} ${currency}`)}
-        ${dataRow('Received', `<strong style="color: #166534;">${receivedAmount} ${currency}</strong>`)}
-        ${dataRow('Remaining', `<strong style="color: #dc2626;">${remainingAmount} ${currency}</strong>`)}
-        ${dataRow('Transaction ID', `<span style="font-family: monospace; font-size: 13px;">${transactionId}</span>`, true)}
+        ${dataRow(t('labels.expectedAmount', L), `${expectedAmount} ${currency}`)}
+        ${dataRow(t('labels.received', L), `<strong style="color: #166534;">${receivedAmount} ${currency}</strong>`)}
+        ${dataRow(t('labels.remaining', L), `<strong style="color: #dc2626;">${remainingAmount} ${currency}</strong>`)}
+        ${dataRow(t('labels.transactionId', L), `<span style="font-family: monospace; font-size: 13px;">${transactionId}</span>`, true)}
       </table>
     `, '#f59e0b')}
     ${infoBox(`
-      <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #991b1b; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">Action Required</p>
-      <p style="margin: 0; font-size: 14px; color: #7f1d1d; line-height: 1.5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">You have <strong>${gracePeriodMinutes} minutes</strong> to send the remaining <strong>${remainingAmount} ${currency}</strong> to complete this payment.</p>
+      <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #991b1b; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('paymentPartial.actionRequired', L)}</p>
+      <p style="margin: 0; font-size: 14px; color: #7f1d1d; line-height: 1.5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('paymentPartial.actionText', L, { minutes: gracePeriodMinutes, remaining: remainingAmount, currency })}</p>
     `, '#dc2626')}
-    ${p(`<strong>Send to:</strong>`)}
+    ${p(`<strong>${t('paymentPartial.sendTo', L)}</strong>`)}
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background: #f3f4f6; border-radius: 6px; margin: 0 0 24px 0;">
       <tr><td style="padding: 12px 16px; font-size: 13px; color: #1a1a2e; font-family: 'SF Mono', 'Fira Code', monospace, Arial, sans-serif; word-break: break-all;">${walletAddress}</td></tr>
     </table>
-    ${p(`If the remaining amount is received within ${gracePeriodMinutes} minutes, the full payment will be processed. If the grace period expires, the partial amount will be processed with adjusted fees.`, `font-size: 14px; color: #6b7280;`)}`;
+    ${p(t('paymentPartial.graceNote', L, { minutes: gracePeriodMinutes }), `font-size: 14px; color: #6b7280;`)}`;
 
-    const html = dynoPayEmailTemplate("Partial Payment Received", content);
+    const html = dynoPayEmailTemplate(t('paymentPartial.heading', L), content);
     const info = await mailTransporter({ to: recipientEmail, name, subject, body: html });
     return info;
   } catch (e) {
@@ -1170,34 +1182,36 @@ export const sendPaymentPartialExpiredEmail = async (
   expectedAmount: string,
   currency: string,
   transactionId: string,
-  status: "completed_partial" | "incomplete_expired"
+  status: "completed_partial" | "incomplete_expired",
+  lang: string = 'en'
 ) => {
   try {
+    const L = normalizeLang(lang);
     const isCompleted = status === "completed_partial";
     const subject = isCompleted
-      ? "Partial Payment Processed - DynoPay"
-      : "Partial Payment Expired - DynoPay";
-    const heading = isCompleted ? "Partial Payment Processed" : "Payment Grace Period Expired";
+      ? t('paymentPartialExpired.subjectCompleted', L)
+      : t('paymentPartialExpired.subjectExpired', L);
+    const heading = isCompleted ? t('paymentPartialExpired.headingCompleted', L) : t('paymentPartialExpired.headingExpired', L);
     const borderColor = isCompleted ? '#22c55e' : '#f59e0b';
     const badgeType: 'success' | 'pending' = isCompleted ? 'success' : 'pending';
-    const statusLabel = isCompleted ? 'Processed' : 'Expired';
+    const statusLabel = isCompleted ? t('statusLabels.processed', L) : t('statusLabels.expired', L);
 
-    const content = `${p(`Hey ${name || 'there'},`)}
+    const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
     ${p(isCompleted
-      ? `The partial payment for your company <strong>${companyName}</strong> has been processed.`
-      : `The grace period for the partial payment to your company <strong>${companyName}</strong> has expired.`)}
+      ? t('paymentPartialExpired.introCompleted', L, { companyName })
+      : t('paymentPartialExpired.introExpired', L, { companyName }))}
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        ${dataRow('Expected Amount', `${expectedAmount} ${currency}`)}
-        ${dataRow('Received Amount', `<strong>${receivedAmount} ${currency}</strong>`)}
-        ${dataRow('Status', statusBadge(statusLabel, badgeType))}
-        ${dataRow('Transaction ID', `<span style="font-family: monospace; font-size: 13px;">${transactionId}</span>`, true)}
+        ${dataRow(t('labels.expectedAmount', L), `${expectedAmount} ${currency}`)}
+        ${dataRow(t('labels.receivedAmount', L), `<strong>${receivedAmount} ${currency}</strong>`)}
+        ${dataRow(t('labels.status', L), statusBadge(statusLabel, badgeType))}
+        ${dataRow(t('labels.transactionId', L), `<span style="font-family: monospace; font-size: 13px;">${transactionId}</span>`, true)}
       </table>
     `, borderColor)}
     ${p(isCompleted
-      ? "The received amount has been processed with adjusted fees and forwarded to your wallet."
-      : "Since the full payment was not received within the grace period, the partial amount has been processed. Please note that fees may be higher for incomplete payments."
-    )} ${p(`You can view the transaction details in your DynoPay dashboard.`)}`;
+      ? t('paymentPartialExpired.outroCompleted', L)
+      : t('paymentPartialExpired.outroExpired', L)
+    )} ${p(t('paymentPartialExpired.viewDetails', L))}`;
 
     const html = dynoPayEmailTemplate(heading, content);
     const info = await mailTransporter({ to: recipientEmail, name, subject, body: html });
@@ -1220,66 +1234,67 @@ export const sendPaymentFailedEmail = async (
   amount: string,
   currency: string,
   paidAmount: string | null,
-  transactionId: string
+  transactionId: string,
+  customerLang: string = 'en',
+  merchantLang: string = 'en'
 ) => {
   try {
     const displayName = customerName || customerEmail.split('@')[0];
+    const CL = normalizeLang(customerLang);
 
-    const reasonMessages = {
-      expired: 'The payment link has expired',
-      underpaid: `We received ${paidAmount} ${currency} but the required amount was ${amount} ${currency}`,
-      cancelled: 'The payment was cancelled',
-      timeout: 'The payment session timed out'
-    };
+    const reasonKey = `paymentFailed.reason${reason.charAt(0).toUpperCase() + reason.slice(1)}`;
+    const reasonVars = { paidAmount, currency, amount };
+    const reasonMessage = t(reasonKey, CL, reasonVars);
 
-    const reasonMessage = reasonMessages[reason];
     const subject = reason === 'underpaid'
-      ? `Underpayment detected - ${paidAmount} of ${amount} ${currency} received`
-      : `Payment unsuccessful - ${companyName}`;
+      ? t('paymentFailed.subjectUnderpaid', CL, { paidAmount, amount, currency })
+      : t('paymentFailed.subject', CL, { companyName });
 
-    const customerContent = `${p(`Hey ${displayName},`)}
-    ${p(`Unfortunately, your payment to <strong>${companyName}</strong> was not completed.`)}
+    const customerContent = `${p(t('common.greeting', CL, { name: displayName }))}
+    ${p(t('paymentFailed.customerIntro', CL, { companyName }))}
     ${infoBox(`
-      <p style="margin: 0 0 6px 0; font-size: 14px; font-weight: 600; color: #991b1b; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">Issue</p>
+      <p style="margin: 0 0 6px 0; font-size: 14px; font-weight: 600; color: #991b1b; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('paymentFailed.issue', CL)}</p>
       <p style="margin: 0; font-size: 14px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${reasonMessage}</p>
     `, '#ef4444')}
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        ${dataRow('Amount', `${amount} ${currency}`)}
-        ${paidAmount ? dataRow('Amount Received', `${paidAmount} ${currency}`) : ''}
-        ${dataRow('Transaction ID', `<span style="font-family: monospace; font-size: 13px;">${transactionId}</span>`, true)}
+        ${dataRow(t('labels.amount', CL), `${amount} ${currency}`)}
+        ${paidAmount ? dataRow(t('labels.amountReceived', CL), `${paidAmount} ${currency}`) : ''}
+        ${dataRow(t('labels.transactionId', CL), `<span style="font-family: monospace; font-size: 13px;">${transactionId}</span>`, true)}
       </table>
     `)}
-    ${reason === 'underpaid' ? p(`Please contact <strong>${companyName}</strong> to resolve this underpayment or request a refund.`) : ''}
-    ${reason === 'expired' || reason === 'timeout' ? p(`Please contact <strong>${companyName}</strong> if you still wish to complete this payment.`) : ''}`;
+    ${reason === 'underpaid' ? p(t('paymentFailed.underpaidNote', CL, { companyName })) : ''}
+    ${reason === 'expired' || reason === 'timeout' ? p(t('paymentFailed.expiredNote', CL, { companyName })) : ''}`;
 
-    const customerHtml = dynoPayEmailTemplate("Payment Unsuccessful", customerContent);
+    const customerHtml = dynoPayEmailTemplate(t('paymentFailed.heading', CL), customerContent);
     await mailTransporter({ to: customerEmail, name: displayName, subject, body: customerHtml });
     apiLogger.info(`[Email] Payment failed notification sent to customer ${customerEmail} - reason: ${reason}`);
 
     if (merchantEmail) {
+      const ML = normalizeLang(merchantLang);
       const merchantDisplayName = merchantName || 'Merchant';
+      const merchantReasonMessage = t(reasonKey, ML, reasonVars);
       const merchantSubject = reason === 'underpaid'
-        ? `Underpayment received - ${paidAmount} of ${amount} ${currency}`
-        : `Payment failed - ${transactionId}`;
+        ? t('paymentFailed.merchantSubjectUnderpaid', ML, { paidAmount, amount, currency })
+        : t('paymentFailed.merchantSubject', ML, { transactionId });
 
-      const merchantContent = `${p(`Hey ${merchantDisplayName},`)}
-      ${p(`A payment from <strong>${displayName}</strong> was not completed.`)}
+      const merchantContent = `${p(t('common.greeting', ML, { name: merchantDisplayName }))}
+      ${p(t('paymentFailed.merchantIntro', ML, { customerName: displayName }))}
       ${infoBox(`
-        <p style="margin: 0 0 6px 0; font-size: 14px; font-weight: 600; color: #92400e; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">Issue</p>
-        <p style="margin: 0; font-size: 14px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${reasonMessage}</p>
+        <p style="margin: 0 0 6px 0; font-size: 14px; font-weight: 600; color: #92400e; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('paymentFailed.issue', ML)}</p>
+        <p style="margin: 0; font-size: 14px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${merchantReasonMessage}</p>
       `, '#f59e0b')}
       ${infoBox(`
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-          ${dataRow('Customer', customerEmail)}
-          ${dataRow('Amount', `${amount} ${currency}`)}
-          ${paidAmount ? dataRow('Amount Received', `${paidAmount} ${currency}`) : ''}
-          ${dataRow('Transaction ID', `<span style="font-family: monospace; font-size: 13px;">${transactionId}</span>`, true)}
+          ${dataRow(t('labels.customer', ML), customerEmail)}
+          ${dataRow(t('labels.amount', ML), `${amount} ${currency}`)}
+          ${paidAmount ? dataRow(t('labels.amountReceived', ML), `${paidAmount} ${currency}`) : ''}
+          ${dataRow(t('labels.transactionId', ML), `<span style="font-family: monospace; font-size: 13px;">${transactionId}</span>`, true)}
         </table>
       `)}
-      ${reason === 'underpaid' ? p(`The customer has been notified. You may need to issue a partial refund or request the remaining amount.`) : ''}`;
+      ${reason === 'underpaid' ? p(t('paymentFailed.merchantUnderpaidNote', ML)) : ''}`;
 
-      const merchantHtml = dynoPayEmailTemplate("Payment Alert", merchantContent, true, "View Transaction", `${FRONTEND_BASE_URL}/dashboard/transactions`);
+      const merchantHtml = dynoPayEmailTemplate(t('paymentFailed.merchantHeading', ML), merchantContent, true, t('paymentFailed.cta', ML), `${FRONTEND_BASE_URL}/dashboard/transactions`);
       await mailTransporter({ to: merchantEmail, name: merchantDisplayName, subject: merchantSubject, body: merchantHtml });
       apiLogger.info(`[Email] Payment failed notification sent to merchant ${merchantEmail} - reason: ${reason}`);
     }
@@ -1303,11 +1318,13 @@ export const sendCustomerPaymentConfirmationEmail = async (
   time: string,
   cryptoAmount?: string,
   cryptoCurrency?: string,
-  transactionReference?: string
+  transactionReference?: string,
+  lang: string = 'en'
 ) => {
   try {
+    const L = normalizeLang(lang);
     const displayName = customerName || customerEmail.split('@')[0];
-    const subject = `Payment Successful - Receipt from ${companyName}`;
+    const subject = t('customerPaymentConfirmation.subject', L, { companyName });
 
     let pdfAttachment: { name: string; content: string; contentType: string } | undefined;
     try {
@@ -1323,8 +1340,9 @@ export const sendCustomerPaymentConfirmationEmail = async (
         customerName: displayName,
         paymentDate: new Date(`${date} ${time}`),
         description: description || undefined,
-        paymentMethod: cryptoCurrency ? `Cryptocurrency (${cryptoCurrency})` : "Cryptocurrency",
-        status: "Completed",
+        paymentMethod: cryptoCurrency ? `${t('receipt.cryptocurrency', L)} (${cryptoCurrency})` : t('receipt.cryptocurrency', L),
+        status: t('receipt.completed', L),
+        lang: L,
       };
 
       const pdfBuffer = await generatePaymentReceipt(receiptData);
@@ -1340,24 +1358,24 @@ export const sendCustomerPaymentConfirmationEmail = async (
       apiLogger.error("[Email] Failed to generate PDF receipt:", pdfError);
     }
 
-    const content = `${p(`Hey ${displayName},`)}
-    ${p(`Your payment to <strong>${companyName}</strong> has been successfully processed.`)}
+    const content = `${p(t('common.greeting', L, { name: displayName }))}
+    ${p(t('customerPaymentConfirmation.intro', L, { companyName }))}
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        ${dataRow('Status', statusBadge('Complete', 'success'))}
-        ${dataRow('Amount Paid', `<strong>${amount} ${currency}</strong>`)}
-        ${cryptoAmount && cryptoCurrency ? dataRow('Crypto Amount', `${cryptoAmount} ${cryptoCurrency}`) : ''}
-        ${description ? dataRow('Description', description) : ''}
-        ${dataRow('Transaction ID', `<span style="font-family: monospace; font-size: 13px;">${transactionId}</span>`)}
-        ${transactionReference ? dataRow('Reference', transactionReference) : ''}
-        ${dataRow('Date', `${date} at ${time}`, true)}
+        ${dataRow(t('labels.status', L), statusBadge(t('statusLabels.complete', L), 'success'))}
+        ${dataRow(t('labels.amountPaid', L), `<strong>${amount} ${currency}</strong>`)}
+        ${cryptoAmount && cryptoCurrency ? dataRow(t('labels.cryptoAmount', L), `${cryptoAmount} ${cryptoCurrency}`) : ''}
+        ${description ? dataRow(t('labels.description', L), description) : ''}
+        ${dataRow(t('labels.transactionId', L), `<span style="font-family: monospace; font-size: 13px;">${transactionId}</span>`)}
+        ${transactionReference ? dataRow(t('labels.reference', L), transactionReference) : ''}
+        ${dataRow(t('labels.date', L), `${date} at ${time}`, true)}
       </table>
     `, '#22c55e')}
-    ${pdfAttachment ? p(`<strong>PDF Receipt Attached</strong> - A detailed receipt is attached to this email for your records.`) : ''}
-    ${p(`If you have any questions about this payment, please contact <strong>${companyName}</strong> directly.`)}
-    ${p(`<span style="font-size: 13px; color: #6b7280;">This payment was processed securely through DynoPay, a trusted crypto payment gateway.</span>`)}`;
+    ${pdfAttachment ? p(t('customerPaymentConfirmation.pdfAttached', L)) : ''}
+    ${p(t('customerPaymentConfirmation.contact', L, { companyName }))}
+    ${p(`<span style="font-size: 13px; color: #6b7280;">${t('common.securedBy', L)}</span>`)}`;
 
-    const html = dynoPayEmailTemplate("Payment Successful", content);
+    const html = dynoPayEmailTemplate(t('customerPaymentConfirmation.heading', L), content);
     await mailTransporter({ to: customerEmail, name: displayName, subject, body: html, attachments: pdfAttachment ? [pdfAttachment] : undefined });
     apiLogger.info(`[Email] Customer payment confirmation sent to ${customerEmail} for ${amount} ${currency}${pdfAttachment ? ' with PDF receipt' : ''}`);
   } catch (e) {

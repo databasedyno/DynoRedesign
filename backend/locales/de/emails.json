@@ -6,5 +6,128 @@
     "team": "Das DynoPay-Team",
     "securedBy": "Diese Zahlung wurde sicher über DynoPay abgewickelt, einen vertrauenswürdigen Krypto-Zahlungsdienstleister.",
     "questions": "Bei Fragen ist unser Support-Team gerne für Sie da."
+  },
+  "labels": {
+    "amount": "Betrag",
+    "status": "Status",
+    "date": "Datum",
+    "transactionId": "Transaktions-ID",
+    "reference": "Referenz",
+    "description": "Beschreibung",
+    "amountPaid": "Gezahlter Betrag",
+    "cryptoAmount": "Krypto-Betrag",
+    "expectedAmount": "Erwarteter Betrag",
+    "received": "Erhalten",
+    "receivedAmount": "Erhaltener Betrag",
+    "remaining": "Ausstehend",
+    "amountReceived": "Erhaltener Betrag",
+    "customer": "Kunde",
+    "confirmations": "Bestätigungen"
+  },
+  "statusLabels": {
+    "received": "Erhalten",
+    "awaitingConfirmation": "Warten auf Bestätigung",
+    "complete": "Abgeschlossen",
+    "processed": "Verarbeitet",
+    "expired": "Abgelaufen"
+  },
+  "paymentReceived": {
+    "subject": "Zahlung erhalten - {{amount}} {{currency}}",
+    "heading": "Zahlung erhalten",
+    "intro": "Gute Nachrichten! Ihr Unternehmen <strong>{{companyName}}</strong> hat eine Zahlung erhalten.",
+    "outro": "Die Mittel wurden an Ihr Auszahlungs-Wallet weitergeleitet. Alle Transaktionsdetails finden Sie in Ihrem Dashboard.",
+    "cta": "Transaktion ansehen"
+  },
+  "paymentPending": {
+    "subject": "Ihre Zahlung wartet auf Bestätigung",
+    "heading": "Zahlung ausstehend",
+    "intro": "Für Ihr Unternehmen <strong>{{companyName}}</strong> wurde eine neue Zahlung erkannt!",
+    "estimatedTimes": "Geschätzte Bestätigungszeiten",
+    "btcTime": "BTC: 10-60 Min. ({{confirmations}} Bestätigungen)",
+    "ethTime": "ETH/ERC20: 1-5 Min.",
+    "trxTime": "TRX/TRC20: 1-3 Min.",
+    "ltcTime": "LTC: 2-30 Min. &bull; DOGE: 1-10 Min.",
+    "outro": "Wir benachrichtigen Sie, sobald die Zahlung vollständig bestätigt und Ihrem Wallet gutgeschrieben wurde. Den Status der Transaktion können Sie in Ihrem DynoPay-Dashboard verfolgen."
+  },
+  "paymentConfirming": {
+    "subject": "Zahlung wird bestätigt ({{current}}/{{required}}) - DynoPay",
+    "heading": "Zahlung wird bestätigt",
+    "intro": "Gute Nachrichten! Ihre Zahlung für <strong>{{companyName}}</strong> wird gerade bestätigt.",
+    "confirmationsOf": "{{current}} von {{required}}",
+    "completeMsg": "Die Zahlung hat die erforderlichen Bestätigungen erreicht und wird in Kürze gutgeschrieben!",
+    "pendingMsg": "Noch {{remaining}} Bestätigungen erforderlich, bevor die Zahlung gutgeschrieben wird. Den vollständigen Status können Sie in Ihrem DynoPay-Dashboard verfolgen."
+  },
+  "transactionConfirmed": {
+    "subject": "Transaktion {{status}} - DynoPay",
+    "heading": "Transaktion {{status}}",
+    "intro": "Ihre Transaktion wurde <strong>{{statusLower}}</strong>.",
+    "outro": "Weitere Details finden Sie in Ihrem DynoPay-Dashboard."
+  },
+  "paymentPartial": {
+    "subject": "Teilzahlung erhalten — Aktion erforderlich",
+    "heading": "Teilzahlung erhalten",
+    "intro": "Für Ihr Unternehmen <strong>{{companyName}}</strong> wurde eine Teilzahlung erhalten.",
+    "actionRequired": "Aktion erforderlich",
+    "actionText": "Sie haben <strong>{{minutes}} Minuten</strong>, um die restlichen <strong>{{remaining}} {{currency}}</strong> zu senden und diese Zahlung abzuschließen.",
+    "sendTo": "Senden an:",
+    "graceNote": "Wenn der ausstehende Betrag innerhalb von {{minutes}} Minuten eingeht, wird die vollständige Zahlung verarbeitet. Läuft die Kulanzfrist ab, wird der Teilbetrag mit angepassten Gebühren verarbeitet."
+  },
+  "paymentPartialExpired": {
+    "subjectCompleted": "Teilzahlung verarbeitet - DynoPay",
+    "subjectExpired": "Teilzahlung abgelaufen - DynoPay",
+    "headingCompleted": "Teilzahlung verarbeitet",
+    "headingExpired": "Kulanzfrist der Zahlung abgelaufen",
+    "introCompleted": "Die Teilzahlung für Ihr Unternehmen <strong>{{companyName}}</strong> wurde verarbeitet.",
+    "introExpired": "Die Kulanzfrist für die Teilzahlung an Ihr Unternehmen <strong>{{companyName}}</strong> ist abgelaufen.",
+    "outroCompleted": "Der erhaltene Betrag wurde mit angepassten Gebühren verarbeitet und an Ihr Wallet weitergeleitet.",
+    "outroExpired": "Da die vollständige Zahlung nicht innerhalb der Kulanzfrist einging, wurde der Teilbetrag verarbeitet. Bitte beachten Sie, dass die Gebühren für unvollständige Zahlungen höher sein können.",
+    "viewDetails": "Die Transaktionsdetails finden Sie in Ihrem DynoPay-Dashboard."
+  },
+  "paymentFailed": {
+    "reasonExpired": "Der Zahlungslink ist abgelaufen",
+    "reasonUnderpaid": "Wir haben {{paidAmount}} {{currency}} erhalten, der erforderliche Betrag war jedoch {{amount}} {{currency}}",
+    "reasonCancelled": "Die Zahlung wurde storniert",
+    "reasonTimeout": "Die Zahlungssitzung ist abgelaufen",
+    "subjectUnderpaid": "Unterzahlung erkannt - {{paidAmount}} von {{amount}} {{currency}} erhalten",
+    "subject": "Zahlung fehlgeschlagen - {{companyName}}",
+    "heading": "Zahlung fehlgeschlagen",
+    "customerIntro": "Leider wurde Ihre Zahlung an <strong>{{companyName}}</strong> nicht abgeschlossen.",
+    "issue": "Problem",
+    "underpaidNote": "Bitte kontaktieren Sie <strong>{{companyName}}</strong>, um diese Unterzahlung zu klären oder eine Rückerstattung anzufordern.",
+    "expiredNote": "Bitte kontaktieren Sie <strong>{{companyName}}</strong>, wenn Sie diese Zahlung noch abschließen möchten.",
+    "merchantSubjectUnderpaid": "Unterzahlung erhalten - {{paidAmount}} von {{amount}} {{currency}}",
+    "merchantSubject": "Zahlung fehlgeschlagen - {{transactionId}}",
+    "merchantHeading": "Zahlungshinweis",
+    "merchantIntro": "Eine Zahlung von <strong>{{customerName}}</strong> wurde nicht abgeschlossen.",
+    "merchantUnderpaidNote": "Der Kunde wurde benachrichtigt. Möglicherweise müssen Sie eine Teilrückerstattung vornehmen oder den ausstehenden Betrag anfordern.",
+    "cta": "Transaktion ansehen"
+  },
+  "customerPaymentConfirmation": {
+    "subject": "Zahlung erfolgreich - Beleg von {{companyName}}",
+    "heading": "Zahlung erfolgreich",
+    "intro": "Ihre Zahlung an <strong>{{companyName}}</strong> wurde erfolgreich verarbeitet.",
+    "pdfAttached": "<strong>PDF-Beleg angehängt</strong> - Ein detaillierter Beleg ist dieser E-Mail für Ihre Unterlagen beigefügt.",
+    "contact": "Bei Fragen zu dieser Zahlung wenden Sie sich bitte direkt an <strong>{{companyName}}</strong>."
+  },
+  "receipt": {
+    "title": "ZAHLUNGSBELEG",
+    "successful": "ZAHLUNG ERFOLGREICH",
+    "amountPaid": "GEZAHLTER BETRAG",
+    "crypto": "Krypto: {{amount}} {{currency}}",
+    "transactionDetails": "Transaktionsdetails",
+    "transactionId": "Transaktions-ID",
+    "reference": "Referenz",
+    "paymentMethod": "Zahlungsmethode",
+    "status": "Status",
+    "dateTime": "Datum und Uhrzeit",
+    "paidTo": "Gezahlt an",
+    "customer": "Kunde",
+    "description": "Beschreibung",
+    "completed": "Abgeschlossen",
+    "cryptocurrency": "Kryptowährung",
+    "tagline": "Sicherer Krypto-Zahlungsdienst",
+    "rights": "© {{year}} DynoPay. Alle Rechte vorbehalten.",
+    "autoGenerated": "Dieser Beleg wurde automatisch erstellt.",
+    "receiptNo": "Beleg-Nr. {{number}}"
   }
 }

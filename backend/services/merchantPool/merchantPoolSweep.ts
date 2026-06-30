@@ -16,6 +16,7 @@ import { cronLogger } from "../../utils/loggers";
 import tatumApi from "../../apis/tatumApi";
 import { getErrorMessage, sendAdminFeeSweepEmail } from "../../helper";
 import { sendPaymentReceivedEmail } from "../../helper/sendEmail";
+import { normalizeLang } from "../../utils/emailI18n";
 import { convertToUSD, convertToFiat } from "../../utils/currencyUtils";
 import { getRedisItem, setRedisItem, setRedisTTL, setRedisItemWithTTL } from "../../utils/redisInstance";
 import {
@@ -992,7 +993,8 @@ export const sweepPoolAddress = async (tempAddressId: number): Promise<unknown> 
                   companyData?.company_name || '',
                   incomingTxId,
                   dateStr,
-                  timeStr
+                  timeStr,
+                  normalizeLang((userData as { language?: string })?.language)
                 );
 
                 // Set dedup key so it won't be sent again

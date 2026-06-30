@@ -6,5 +6,128 @@
     "team": "A equipa DynoPay",
     "securedBy": "Este pagamento foi processado de forma segura através da DynoPay, um gateway de pagamentos em cripto de confiança.",
     "questions": "Se tiver alguma dúvida, a nossa equipa de apoio está aqui para ajudar."
+  },
+  "labels": {
+    "amount": "Montante",
+    "status": "Estado",
+    "date": "Data",
+    "transactionId": "ID da transação",
+    "reference": "Referência",
+    "description": "Descrição",
+    "amountPaid": "Montante pago",
+    "cryptoAmount": "Montante em cripto",
+    "expectedAmount": "Montante esperado",
+    "received": "Recebido",
+    "receivedAmount": "Montante recebido",
+    "remaining": "Em falta",
+    "amountReceived": "Montante recebido",
+    "customer": "Cliente",
+    "confirmations": "Confirmações"
+  },
+  "statusLabels": {
+    "received": "Recebido",
+    "awaitingConfirmation": "A aguardar confirmação",
+    "complete": "Concluído",
+    "processed": "Processado",
+    "expired": "Expirado"
+  },
+  "paymentReceived": {
+    "subject": "Pagamento recebido - {{amount}} {{currency}}",
+    "heading": "Pagamento recebido",
+    "intro": "Ótimas notícias! A sua empresa <strong>{{companyName}}</strong> recebeu um pagamento.",
+    "outro": "Os fundos foram encaminhados para a sua carteira de recebimentos. Pode ver todos os detalhes da transação no seu painel.",
+    "cta": "Ver transação"
+  },
+  "paymentPending": {
+    "subject": "O seu pagamento está pendente de confirmação",
+    "heading": "Pagamento pendente",
+    "intro": "Foi detetado um novo pagamento para a sua empresa <strong>{{companyName}}</strong>!",
+    "estimatedTimes": "Tempos estimados de confirmação",
+    "btcTime": "BTC: 10-60 min ({{confirmations}} confirmações)",
+    "ethTime": "ETH/ERC20: 1-5 min",
+    "trxTime": "TRX/TRC20: 1-3 min",
+    "ltcTime": "LTC: 2-30 min &bull; DOGE: 1-10 min",
+    "outro": "Iremos notificá-lo assim que o pagamento estiver totalmente confirmado e creditado na sua carteira. Pode acompanhar o estado da transação no seu painel DynoPay."
+  },
+  "paymentConfirming": {
+    "subject": "Pagamento em confirmação ({{current}}/{{required}}) - DynoPay",
+    "heading": "Pagamento em confirmação",
+    "intro": "Boas notícias! O seu pagamento para <strong>{{companyName}}</strong> está a ser confirmado.",
+    "confirmationsOf": "{{current}} de {{required}}",
+    "completeMsg": "O pagamento atingiu as confirmações necessárias e será creditado em breve!",
+    "pendingMsg": "Faltam {{remaining}} confirmações para que o pagamento seja creditado. Pode acompanhar o estado completo no seu painel DynoPay."
+  },
+  "transactionConfirmed": {
+    "subject": "Transação {{status}} - DynoPay",
+    "heading": "Transação {{status}}",
+    "intro": "A sua transação foi <strong>{{statusLower}}</strong>.",
+    "outro": "Pode ver mais detalhes no seu painel DynoPay."
+  },
+  "paymentPartial": {
+    "subject": "Pagamento parcial recebido — ação necessária",
+    "heading": "Pagamento parcial recebido",
+    "intro": "Foi recebido um pagamento parcial para a sua empresa <strong>{{companyName}}</strong>.",
+    "actionRequired": "Ação necessária",
+    "actionText": "Tem <strong>{{minutes}} minutos</strong> para enviar os restantes <strong>{{remaining}} {{currency}}</strong> e concluir este pagamento.",
+    "sendTo": "Enviar para:",
+    "graceNote": "Se o montante em falta for recebido dentro de {{minutes}} minutos, o pagamento completo será processado. Se o período de tolerância expirar, o montante parcial será processado com taxas ajustadas."
+  },
+  "paymentPartialExpired": {
+    "subjectCompleted": "Pagamento parcial processado - DynoPay",
+    "subjectExpired": "Pagamento parcial expirado - DynoPay",
+    "headingCompleted": "Pagamento parcial processado",
+    "headingExpired": "Período de tolerância do pagamento expirou",
+    "introCompleted": "O pagamento parcial para a sua empresa <strong>{{companyName}}</strong> foi processado.",
+    "introExpired": "O período de tolerância para o pagamento parcial à sua empresa <strong>{{companyName}}</strong> expirou.",
+    "outroCompleted": "O montante recebido foi processado com taxas ajustadas e encaminhado para a sua carteira.",
+    "outroExpired": "Como o pagamento total não foi recebido dentro do período de tolerância, o montante parcial foi processado. Tenha em atenção que as taxas podem ser mais elevadas para pagamentos incompletos.",
+    "viewDetails": "Pode ver os detalhes da transação no seu painel DynoPay."
+  },
+  "paymentFailed": {
+    "reasonExpired": "O link de pagamento expirou",
+    "reasonUnderpaid": "Recebemos {{paidAmount}} {{currency}} mas o montante exigido era {{amount}} {{currency}}",
+    "reasonCancelled": "O pagamento foi cancelado",
+    "reasonTimeout": "A sessão de pagamento expirou",
+    "subjectUnderpaid": "Pagamento insuficiente detetado - {{paidAmount}} de {{amount}} {{currency}} recebidos",
+    "subject": "Pagamento sem sucesso - {{companyName}}",
+    "heading": "Pagamento sem sucesso",
+    "customerIntro": "Infelizmente, o seu pagamento para <strong>{{companyName}}</strong> não foi concluído.",
+    "issue": "Problema",
+    "underpaidNote": "Contacte <strong>{{companyName}}</strong> para resolver este pagamento insuficiente ou solicitar um reembolso.",
+    "expiredNote": "Contacte <strong>{{companyName}}</strong> se ainda pretender concluir este pagamento.",
+    "merchantSubjectUnderpaid": "Pagamento insuficiente recebido - {{paidAmount}} de {{amount}} {{currency}}",
+    "merchantSubject": "Pagamento falhou - {{transactionId}}",
+    "merchantHeading": "Alerta de pagamento",
+    "merchantIntro": "Um pagamento de <strong>{{customerName}}</strong> não foi concluído.",
+    "merchantUnderpaidNote": "O cliente foi notificado. Poderá ter de emitir um reembolso parcial ou solicitar o montante em falta.",
+    "cta": "Ver transação"
+  },
+  "customerPaymentConfirmation": {
+    "subject": "Pagamento bem-sucedido - Recibo de {{companyName}}",
+    "heading": "Pagamento bem-sucedido",
+    "intro": "O seu pagamento para <strong>{{companyName}}</strong> foi processado com sucesso.",
+    "pdfAttached": "<strong>Recibo em PDF anexado</strong> - Um recibo detalhado está anexado a este e-mail para os seus registos.",
+    "contact": "Se tiver alguma dúvida sobre este pagamento, contacte diretamente <strong>{{companyName}}</strong>."
+  },
+  "receipt": {
+    "title": "RECIBO DE PAGAMENTO",
+    "successful": "PAGAMENTO BEM-SUCEDIDO",
+    "amountPaid": "MONTANTE PAGO",
+    "crypto": "Cripto: {{amount}} {{currency}}",
+    "transactionDetails": "Detalhes da transação",
+    "transactionId": "ID da transação",
+    "reference": "Referência",
+    "paymentMethod": "Método de pagamento",
+    "status": "Estado",
+    "dateTime": "Data e hora",
+    "paidTo": "Pago a",
+    "customer": "Cliente",
+    "description": "Descrição",
+    "completed": "Concluído",
+    "cryptocurrency": "Criptomoeda",
+    "tagline": "Gateway de pagamentos em cripto seguro",
+    "rights": "© {{year}} DynoPay. Todos os direitos reservados.",
+    "autoGenerated": "Este recibo foi gerado automaticamente.",
+    "receiptNo": "Recibo n.º {{number}}"
   }
 }
