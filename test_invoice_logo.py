@@ -10,7 +10,7 @@ import redis
 import sys
 import time
 
-BASE_URL = "https://902a6956-3e2d-4ad0-ad3d-ac423b9faf2c.preview.emergentagent.com/api"
+BASE_URL = "https://merchant-integration-2.preview.emergentagent.com/api"
 REDIS_URL = "redis://default:HAEMJseUAdqAjpiICURxlefSoSYXKEUg@nozomi.proxy.rlwy.net:15794"
 
 HEADERS = {

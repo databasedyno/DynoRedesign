@@ -8,7 +8,7 @@ import requests
 import json
 import sys
 
-BACKEND_URL = "https://dynopay-preview-2.preview.emergentagent.com"
+BACKEND_URL = "https://merchant-integration-2.preview.emergentagent.com"
 
 def final_validation_tests():
     """Final validation of all review request requirements"""
