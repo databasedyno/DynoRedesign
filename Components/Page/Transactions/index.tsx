@@ -199,9 +199,17 @@ const TransactionPage = () => {
               return Math.round(fee * rate * 100) / 100;
             })(),
           },
-          confirmations: (item as any).confirmations
-            ? `${(item as any).confirmations}/${(item as any).required_confirmations || 0}`
-            : "0/0",
+          confirmations: (() => {
+            const s = (item.status || "").toLowerCase().trim();
+            const complete = ["success", "successful", "completed", "payout_complete", "converted", "recovered", "done", "settled", "confirmed"].includes(s);
+            const conf = Number((item as any).confirmations) || 0;
+            const req = Number((item as any).required_confirmations) || 0;
+            // Completed payments are fully confirmed on-chain (the counter isn't persisted post-settlement)
+            if (complete) return req > 0 ? `${req}/${req}` : "Confirmed";
+            if (conf > 0) return `${conf}/${req || 0}`;
+            return req > 0 ? `0/${req}` : "0/0";
+          })(),
+          settlementAddress: (item as any).settlement_address || (item as any).wallet_address || "",
           incomingTransactionId: (item as any).incoming_tx_hash || (item as any).incoming_txid || (item as any).incomingTransactionId || (item as any).transaction_reference || "",
           outgoingTransactionId: (item as any).outgoing_tx_hash || (item as any).outgoing_txid || (item as any).outgoingTransactionId || "",
           callbackUrl: (item as any).callback_url || (item as any).callbackUrl || "",

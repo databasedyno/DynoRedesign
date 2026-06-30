@@ -18,13 +18,14 @@ import {
   LanguageRounded,
   PhoneRounded,
 } from "@mui/icons-material";
-import { MuiTelInput } from "mui-tel-input";
 import * as yup from "yup";
 
 import FormManager from "@/Components/Page/Common/FormManager";
 import PanelCard from "@/Components/UI/PanelCard";
 import PopupModal from "@/Components/UI/PopupModal";
-import TextBox from "@/Components/UI/TextBox";
+import InputField from "@/Components/UI/AuthLayout/InputFields";
+import CountryPhoneInput from "@/Components/UI/CountryPhoneInput";
+import { Text } from "@/Components/Page/CreatePaymentLink/styled";
 import CompanySettingsDialog from "@/Components/UI/CompanySettingsDialog";
 import useIsMobile from "@/hooks/useIsMobile";
 import { CompanyAction } from "@/Redux/Actions";
@@ -34,7 +35,8 @@ import {
 } from "@/Redux/Actions/CompanyAction";
 import { ICompany, pageProps, rootReducer } from "@/utils/types";
 import Dummy from "@/assets/Images/dummy.jpg";
-import { CloudUploadRounded } from "@mui/icons-material";
+import Image from "next/image";
+import DownloadIcon from "@/assets/Icons/download-icon.svg";
 
 const companyInitial = {
   company_name: "",
@@ -500,159 +502,138 @@ const Company = ({ setPageName, setPageDescription, setPageAction }: pageProps) 
               <>
                 <Grid container columnSpacing={3} rowSpacing={2.5}>
                   <Grid item xs={12} md={6}>
-                    <TextBox
+                    <InputField
                       fullWidth
+                      inputHeight={isMobile ? "44px" : "40px"}
                       label="Company Name"
                       placeholder="Enter your Company Name"
                       name="company_name"
                       value={values.company_name}
-                      error={touched.company_name && errors.company_name}
+                      error={Boolean(touched.company_name && errors.company_name)}
                       helperText={
                         touched.company_name && errors.company_name
+                          ? String(errors.company_name)
+                          : undefined
                       }
                       onChange={handleChange}
                       onBlur={handleBlur}
                     />
                   </Grid>
                   <Grid item xs={12} md={6}>
-                    <TextBox
+                    <InputField
                       fullWidth
+                      inputHeight={isMobile ? "44px" : "40px"}
+                      label="Email"
                       placeholder="Enter your email"
                       name="email"
-                      label="Email"
+                      type="email"
                       value={values.email}
-                      error={touched.email && errors.email}
-                      helperText={touched.email && errors.email}
+                      error={Boolean(touched.email && errors.email)}
+                      helperText={
+                        touched.email && errors.email
+                          ? String(errors.email)
+                          : undefined
+                      }
                       onChange={handleChange}
                       onBlur={handleBlur}
                     />
                   </Grid>
                   <Grid item xs={12} md={6}>
-                    <Box sx={{ width: "100%" }}>
-                      <Typography
-                        sx={{
-                          ml: 1,
-                          fontSize: "11px",
-                          fontWeight: 500,
-                          textTransform: "capitalize",
-                        }}
-                      >
-                        Mobile (optional)
-                      </Typography>
-                      <MuiTelInput
-                        fullWidth
-                        placeholder="Enter your mobile number"
-                        name="mobile"
-                        forceCallingCode
-                        disableFormatting
-                        defaultCountry="US"
-                        value={values.mobile}
-                        error={touched.mobile && !!errors.mobile}
-                        helperText={touched.mobile && errors.mobile}
-                        onChange={(newValue) => {
-                          const e: any = {
-                            target: { name: "mobile", value: newValue },
-                          };
-                          handleChange(e);
-                        }}
-                        onBlur={handleBlur}
-                      />
-                    </Box>
+                    <CountryPhoneInput
+                      fullWidth
+                      inputHeight={isMobile ? "44px" : "40px"}
+                      label="Mobile (optional)"
+                      placeholder="Enter your mobile number"
+                      name="mobile"
+                      defaultCountry="US"
+                      value={values.mobile}
+                      error={Boolean(touched.mobile && errors.mobile)}
+                      helperText={
+                        touched.mobile && errors.mobile
+                          ? String(errors.mobile)
+                          : undefined
+                      }
+                      onChange={(newValue) => {
+                        const e: any = {
+                          target: { name: "mobile", value: newValue },
+                        };
+                        handleChange(e);
+                      }}
+                      onBlur={handleBlur}
+                    />
                   </Grid>
                   <Grid item xs={12} md={6}>
-                    <TextBox
+                    <InputField
                       fullWidth
+                      inputHeight={isMobile ? "44px" : "40px"}
+                      label="Website (optional)"
                       placeholder="Enter your website"
                       name="website"
-                      label="Website (optional)"
                       value={values.website}
                       onChange={handleChange}
                       onBlur={handleBlur}
                     />
                   </Grid>
                   <Grid item xs={12}>
-                    <Box sx={{ width: "100%" }}>
-                      <Typography
-                        sx={{
-                          ml: 1,
-                          fontSize: "11px",
-                          fontWeight: 600,
-                          textTransform: "capitalize",
-                          mb: 0.5,
-                        }}
-                      >
-                        Brand Logo (Optional)
-                      </Typography>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 2,
-                        }}
-                      >
+                    <Text
+                      sx={{
+                        fontSize: isMobile ? "14px" : "15px",
+                        mb: "8px",
+                      }}
+                    >
+                      Brand Logo (optional)
+                    </Text>
+                    <Box
+                      sx={{
+                        border: `1px dashed ${theme.palette.divider}`,
+                        borderRadius: "8px",
+                        px: 2,
+                        py: 2,
+                        textAlign: "center",
+                        cursor: "pointer",
+                        userSelect: "none",
+                        backgroundColor: theme.palette.background.paper,
+                        transition: "all 0.2s ease",
+                        "&:hover": {
+                          borderColor: theme.palette.primary.light,
+                          backgroundColor:
+                            theme.palette.mode === "dark"
+                              ? "rgba(255,255,255,0.03)"
+                              : "#FAFBFF",
+                        },
+                      }}
+                      onClick={() => fileRef.current?.click()}
+                    >
+                      <input
+                        type="file"
+                        ref={fileRef}
+                        hidden
+                        accept="image/*"
+                        onChange={(e: any) =>
+                          handleFileChange(e.target.files[0])
+                        }
+                      />
+                      {image && image !== Dummy.src ? (
                         <Box
                           sx={{
                             display: "flex",
+                            flexDirection: "column",
                             alignItems: "center",
                             gap: 1,
-                            bgcolor:
-                              theme.palette.mode === "dark"
-                                ? "rgba(255,255,255,0.04)"
-                                : "#F8F8F8",
-                            borderRadius: "12px",
-                            px: 1,
-                            flex: 1,
                           }}
                         >
-                          <Button
-                            variant="rounded"
-                            size="small"
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 0.5,
-                              whiteSpace: "nowrap",
-                            }}
-                            onClick={() => fileRef.current?.click()}
-                          >
-                            <CloudUploadRounded fontSize="small" />
-                            {fileName ? "Change" : "Upload"} File
-                          </Button>
-                          <Typography
-                            sx={{
-                              fontSize: "13px",
-                              color: theme.palette.text.secondary,
-                              overflow: "hidden",
-                              textOverflow: "ellipsis",
-                              whiteSpace: "nowrap",
-                            }}
-                          >
-                            {fileName ?? "No file chosen"}
-                          </Typography>
-                          <input
-                            type="file"
-                            ref={fileRef}
-                            hidden
-                            accept="image/*"
-                            onChange={(e: any) =>
-                              handleFileChange(e.target.files[0])
-                            }
-                          />
-                        </Box>
-                        {image && image !== Dummy.src && (
                           <Box
                             sx={{
-                              width: 48,
-                              height: 48,
-                              borderRadius: "50%",
+                              width: 64,
+                              height: 64,
+                              borderRadius: "12px",
                               overflow: "hidden",
                               border: `1px solid ${theme.palette.divider}`,
-                              flexShrink: 0,
                             }}
                           >
                             <img
                               src={image}
-                              alt="preview"
+                              alt="logo preview"
                               crossOrigin="anonymous"
                               style={{
                                 width: "100%",
@@ -661,8 +642,62 @@ const Company = ({ setPageName, setPageDescription, setPageAction }: pageProps) 
                               }}
                             />
                           </Box>
-                        )}
-                      </Box>
+                          <Typography
+                            sx={{
+                              fontSize: "13px",
+                              fontFamily: "UrbanistMedium",
+                              color: theme.palette.primary.main,
+                            }}
+                          >
+                            {fileName || "Change file"}
+                          </Typography>
+                        </Box>
+                      ) : (
+                        <>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              width: "fit-content",
+                              height: "fit-content",
+                              gap: 1,
+                              backgroundColor: theme.palette.text.secondary,
+                              borderRadius: "6px",
+                              padding: "4px",
+                              mx: "auto",
+                              mb: 1,
+                            }}
+                          >
+                            <Image
+                              src={DownloadIcon.src}
+                              alt="upload"
+                              width={12}
+                              height={12}
+                              draggable={false}
+                            />
+                          </Box>
+                          <Typography
+                            sx={{
+                              fontSize: isMobile ? 11 : 13,
+                              fontFamily: "UrbanistMedium",
+                              color: theme.palette.text.secondary,
+                              mb: 0.5,
+                            }}
+                          >
+                            Click to upload your brand logo
+                          </Typography>
+                          <Typography
+                            sx={{
+                              fontSize: isMobile ? 9 : 12,
+                              fontFamily: "UrbanistMedium",
+                              color: theme.palette.text.secondary,
+                            }}
+                          >
+                            PNG or JPG (max 5MB)
+                          </Typography>
+                        </>
+                      )}
                     </Box>
                   </Grid>
                 </Grid>

@@ -29,7 +29,10 @@ export const TitleLabel = styled(Typography)(({ theme }) => ({
   fontSize: "15px",
   fontWeight: 500,
   fontFamily: "UrbanistMedium",
-  color: theme.palette.text.secondary,
+  color:
+    theme.palette.mode === "dark"
+      ? "rgba(232, 232, 236, 0.82)"
+      : theme.palette.text.secondary,
   lineHeight: "1.2",
   [theme.breakpoints.down("md")]: {
     fontSize: "13px",

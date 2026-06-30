@@ -7,7 +7,7 @@ export interface ExtendedTransaction {
   amount: string;
   usdValue: string;
   dateTime: string;
-  status: "done" | "pending" | "failed";
+  status: "pending" | "confirmed" | "settled" | "failed" | "processing";
   fees?: number | string;
   feesBreakdown?: {
     platform: number;
@@ -18,6 +18,7 @@ export interface ExtendedTransaction {
   incomingTransactionId?: string;
   outgoingTransactionId?: string;
   callbackUrl?: string;
+  settlementAddress?: string;
   webhookResponse?: {
     status: string;
     txid: string;

@@ -43,5 +43,6 @@
   "copy": "Copy",
   "copiedToClipboard": "Copied to Clipboard",
   "totalFees": "Fee",
-  "amountReceived": "Amount Received"
+  "amountReceived": "Amount Received",
+  "settledTo": "Settled To"
 }

@@ -542,6 +542,7 @@ const getAllTransactions = async (
         cm.company_name,
         cm.company_id,
         uw.wallet_type as crypto_currency,
+        uw.wallet_address as settlement_address,
         sc.conversion_id as auto_convert_id,
         sc.status as auto_convert_status,
         sc.source_currency as auto_convert_source_currency,

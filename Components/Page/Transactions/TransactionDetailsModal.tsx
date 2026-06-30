@@ -334,6 +334,28 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
                   <TitleValue>{transaction.confirmations}</TitleValue>
                 </DetailRow>
               )}
+              {transaction.settlementAddress && (
+                <DetailRow>
+                  <TitleLabel>{tTransactions("settledTo")}</TitleLabel>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                    <TitleValue sx={{ fontSize: isMobile ? "13px" : "15px" }}>
+                      {`${transaction.settlementAddress.slice(0, 6)}...${transaction.settlementAddress.slice(-4)}`}
+                    </TitleValue>
+                    <CopyButton
+                      onClick={() => handleCopy(transaction.settlementAddress!)}
+                      title={tTransactions("copy")}
+                    >
+                      <Image
+                        src={CopyIcon}
+                        alt="Copy"
+                        width={isMobile ? 12 : 16}
+                        height={isMobile ? 12 : 16}
+                        draggable={false}
+                      />
+                    </CopyButton>
+                  </Box>
+                </DetailRow>
+              )}
             </Box>
           </Box>
           <SectionDivider />
