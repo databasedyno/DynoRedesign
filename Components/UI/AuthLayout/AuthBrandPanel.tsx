@@ -2,6 +2,7 @@ import React from "react";
 import { Box, Typography } from "@mui/material";
 import Image from "next/image";
 import Link from "next/link";
+import { useTranslation } from "react-i18next";
 import WhiteLogo from "@/assets/Images/auth/dynopay-white-logo.png";
 
 /* ── Floating crypto coin – pure CSS ─────────────────── */
@@ -91,13 +92,14 @@ const TrustPill = ({
 );
 
 /* ── Main Export ─────────────────────────────────────── */
-const AuthBrandPanel = () => (
+const AuthBrandPanel = () => {
+  const { t } = useTranslation("auth");
+  return (
   <Box
     sx={{
       flex: "0 0 46%",
       maxWidth: "46%",
       position: "relative",
-      display: "flex",
       flexDirection: "column",
       justifyContent: "space-between",
       overflow: "hidden",
@@ -166,9 +168,9 @@ const AuthBrandPanel = () => (
           mb: 1.5,
         }}
       >
-        Accept Crypto.
+        {t("brandHeadlineLine1")}
         <br />
-        Get Paid in Stablecoins.
+        {t("brandHeadlineLine2")}
       </Typography>
       <Typography
         sx={{
@@ -179,8 +181,7 @@ const AuthBrandPanel = () => (
           maxWidth: 340,
         }}
       >
-        Protect your revenue from market swings with instant conversion to USDT.
-        Settle in stablecoins, always.
+        {t("brandSubtitle")}
       </Typography>
     </Box>
 
@@ -196,11 +197,12 @@ const AuthBrandPanel = () => (
         borderTop: "1px solid rgba(255,255,255,0.12)",
       }}
     >
-      <TrustPill value="1,000+" label="Businesses" />
-      <TrustPill value="15+" label="Cryptos" />
-      <TrustPill value="<1min" label="Settlements" />
+      <TrustPill value="1,000+" label={t("brandStatBusinessesLabel")} />
+      <TrustPill value="15+" label={t("brandStatCoinsLabel")} />
+      <TrustPill value="<1min" label={t("brandStatSettlementsLabel")} />
     </Box>
   </Box>
-);
+  );
+};
 
 export default AuthBrandPanel;

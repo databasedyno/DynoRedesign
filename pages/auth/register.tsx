@@ -309,8 +309,8 @@ const Register = () => {
               {step === "input" && (
                 <>
                   <TitleDescription
-                    title="Registration"
-                    description="Create your DynoPay account in seconds"
+                    title={t("register")}
+                    description={t("registerDescription")}
                     descriptionFontSize="14px"
                     descriptionColor={theme.palette.text.secondary}
                   />
