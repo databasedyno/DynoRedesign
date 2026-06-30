@@ -9,7 +9,7 @@ atomic settlement idempotency (SETNX-based locking in paymentReliability.ts):
 3. GET /api/geo-detect — Should return 200
 
 Verify no 500 errors on any endpoint.
-Target URL: https://dynopay-staging-1.preview.emergentagent.com
+Target URL: https://blockchain-gateway-9.preview.emergentagent.com
 """
 
 import requests
@@ -17,7 +17,7 @@ import json
 from datetime import datetime
 
 # Target API base URL
-BASE_URL = "https://dynopay-staging-1.preview.emergentagent.com/api"
+BASE_URL = "https://blockchain-gateway-9.preview.emergentagent.com/api"
 
 def test_atomic_settlement_endpoints():
     """Test the 3 specific endpoints after atomic settlement idempotency fix"""

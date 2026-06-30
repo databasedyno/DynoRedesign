@@ -34,7 +34,7 @@ import time
 import redis
 
 # Target URL from review request
-BASE_URL = "https://accffeb1-feba-47a6-aeb5-4a4b98645038.preview.emergentagent.com/api"
+BASE_URL = "https://blockchain-gateway-9.preview.emergentagent.com/api"
 
 # Redis connection for reading OTPs
 REDIS_URL = "redis://default:HAEMJseUAdqAjpiICURxlefSoSYXKEUg@nozomi.proxy.rlwy.net:15794"
