@@ -8,8 +8,7 @@ backend:
     - GET /api/diagnostics/volatility: Should return 401/403 (requires admin auth)
     - POST /api/test/send-payment-link-email: Should return 401/403 (now requires auth)
   - test_results: ALL TESTS PASSED ✅ - Bug fix batch applied (security + reliability)
-  - latest_test_results: ALL TESTS PASSED ✅ - Bot protection enhancement: .php catch-all + MCP/SSE probes (2026-04-12 13:29:21 UTC)
-  - latest_bug_fix_for_test: Railway TypeScript build failure (yarn build → tsc) in `services/pdfService.ts` line 94. PDFKit's `image()` type definition restricts `align` to `"right" | "center"` and `valign` to `"center" | "bottom"` when `fit` is used (left/top are pdfkit's defaults and aren't valid explicit literal values, even though they work at runtime). The line was `doc.image(logoPath, 50, 50, { fit: [120, 42], align: "left", valign: "top" })`, producing two TS2322 errors that broke the Railway `yarn build` step (used by the production image). FIX: removed the redundant `align`/`valign` keys — `{ fit: [120, 42] }` keeps the existing visual behavior (top-left of the bbox, preserved aspect ratio). Local `yarn build` now exits 0. Need backend testing to confirm (1) the running backend (ts-node, --transpile-only, ignores TS errors) is healthy after the change, (2) the invoice PDF endpoint still returns a valid PDF with the DynoPay logo correctly placed in the top-left corner of the page.
+  - latest_test_results: ALL TESTS PASSED ✅ - Railway TS build fix (pdfService.ts line 94) verified 2026-06-30: `yarn build` exit 0, health endpoints 200, /api/invoices/1/pdf returns valid PDF (Content-Type application/pdf, %PDF-1.3 magic, 60KB).
   - expected_behaviors:
     - Health check returns 200 ✅
     - Core payment and fee functionality unaffected ✅
