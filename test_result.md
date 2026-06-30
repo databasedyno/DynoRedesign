@@ -308,6 +308,40 @@ frontend:
 3. Consider removing /auth/onboarding-preview page after testing is complete (marked as TEMPORARY)
 
 
+## OTP UX Unification — Frontend Test Request (2026-06-30)
+- scope: Unified all OTP screens to share a single component `Components/UI/OtpInputPanel`. Auto-submits on full code entry (no need to click Verify). Consistent button labels, resend countdown, and 6-box layout everywhere.
+- changes:
+  - NEW `Components/UI/OtpInputPanel/index.tsx`: headless shared OTP block (6 boxes, auto-submit, paste, countdown, resend). Two layouts: `actionsLayout="row"` (modal) and `actionsLayout="stacked"` (inline full-width Verify on top + "Didn't receive the code? Resend in 60s" underneath).
+  - `Components/UI/OtpDialog/index.tsx`: refactored to wrap `<OtpInputPanel/>` inside its existing PopupModal + PanelCard. All callers (login, AddWalletModal, EmailVerificationBanner, Profile/AddContactInfo, Profile/UpdatePassword, Profile/AccountSetting) work unchanged.
+  - `pages/auth/register.tsx`: removed inline 6-box implementation + custom handleOtpChange/Paste/KeyDown + setOtp array. Now uses `<OtpInputPanel actionsLayout="stacked" primaryButtonLabel={accountExists ? "Verify & log in" : "Verify & create account"}/>`. Verify handler now takes the OTP string from the panel.
+  - `Components/UI/ForgotPasswordDialog/index.tsx`: same — replaced the inline OTP step with `<OtpInputPanel actionsLayout="stacked" primaryButtonLabel="Verify"/>` (kept the "🔐 Enter Verification Code" header + masked recipient line + "Change email" back link). Auto-submits.
+  - `Components/UI/DeleteWalletModal/index.tsx`: replaced single TextField with `<OtpInputPanel actionsLayout="stacked" primaryButtonLabel="Verify"/>`. Added 60s resend countdown + handleResendOtp that re-calls send-otp. DialogActions now only shows Cancel on the OTP step (Verify lives inside the panel).
+  - `pages/auth/login.tsx`: standardized all four `OtpDialog` `primaryButtonLabel` to `t("verifyAndLogin")` ("Verify & log in"). Was inconsistent: 2 said "Verify", 2 said "Verify & Login".
+  - `langs/locales/en/auth.json`: `verifyAndLogin` → "Verify & log in" (sentence-case). Added `didntReceiveCode`.
+- FRONTEND TEST REQUEST (preview https://902a6956-3e2d-4ad0-ad3d-ac423b9faf2c.preview.emergentagent.com):
+  GOAL: confirm the OTP UX is now visually + behaviorally uniform across 4 screens AND auto-submits the moment the 6th digit is entered (no need to click Verify).
+  HARD CONSTRAINTS for tester: DO NOT submit a real verification (no real account creation, no real password reset, no real wallet delete) — this preview hits LIVE production DB. Stop AT the auto-submit fire moment by checking that the verify endpoint was CALLED (e.g. via network panel) and/or the loading state engaged. DO NOT call POST /api/user/registerPhone or anything that consumes SMS credit.
+  HOW TO TEST:
+    1) Registration OTP (existing email path — no new user is created):
+       - Go to /auth/register (E-mail tab). Enter `qa.onboard.1782585233@dynopaytest.com` and click Continue.
+       - The "Welcome Back!" banner should appear. The OTP block should show 6 boxes (matching the modal style: small rounded boxes, 44–48px wide). Below them: full-width primary button labeled "Verify & log in", then "Didn't receive the code? Resend in 60s" underneath.
+       - Type any 6 digits (e.g. `123456`). PASS CRITERIA:
+         (a) The 6th digit triggers a verify request automatically — visible as a network call to `/api/user/registerEmail/verify-otp` AND/OR the button entering a loading state AND/OR an "Invalid verification code" error appearing — without you clicking "Verify & log in".
+         (b) The Resend button shows the running countdown (e.g. "Resend in 57s") right after the OTP was sent.
+       - Do NOT enter the real OTP. Wrong code is fine; we only need proof of the auto-submit + visual uniformity.
+    2) Forgot Password OTP (existing email — token is throwaway):
+       - Open /auth/login and click "Forgot Password?".
+       - Choose Email, enter `qa.onboard.1782585233@dynopaytest.com`, click Send Code.
+       - The OTP step should now show the SAME 6 boxes as on /auth/register (same size/border/spacing), full-width primary "Verify" button, and "Didn't receive the code? Resend in 60s" underneath. PASS: visual match to step (1).
+       - Type any 6 digits. PASS: auto-submit fires (network call to `/api/user/forgot-password/verify-otp`, "Invalid OTP" error appears) without clicking Verify.
+    3) Login OTP — modal style (just visually confirm, do not complete):
+       - On /auth/login, switch to "Use Email" mode and type `qa.onboard.1782585233@dynopaytest.com`, password `QaOnboard#2026`, click Login.
+       - When the modal appears, confirm: primary button reads "Verify & log in" (NOT "Verify"), and the 6-box layout matches the inline ones from steps (1) and (2). Do NOT complete.
+    4) Delete Wallet OTP modal — visual only (do not actually send the OTP unless you can use a throwaway account):
+       - This requires login + an existing wallet, so it's optional. If you can log in via Redis OTP per /app/memory/test_credentials.md (account qa.onboard.1782585233@dynopaytest.com, fetch login_otp from Redis), navigate to /wallet and click the delete icon on any wallet. The modal should show the unified 6-box OTP block in step 2 with a "Verify" button and a "Resend in 60s" countdown. Press Cancel to abort. SKIP this step entirely if it requires destructive action.
+  REPORT: screenshots of the OTP step on /auth/register and on the Forgot Password dialog (side-by-side ideally). For each: PASS/FAIL on auto-submit + button label + countdown visible.
+
+
 ## Telnyx API Key Rotation — Test Request (2026-06-30)
 - scope: User reported the current TELNYX_API_KEY was not working and provided a replacement. Updated `/app/backend/.env`:
   - TELNYX_API_KEY: KEY019F17786A3942870367BCDB8345F986_1WeiJWTqXGmIWnVV86YBPL (new)

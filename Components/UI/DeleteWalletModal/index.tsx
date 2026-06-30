@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -6,11 +6,11 @@ import {
   Typography,
   Box,
   Button,
-  TextField,
   CircularProgress,
   Alert,
 } from "@mui/material";
 import { WarningAmberRounded, DeleteOutlineRounded } from "@mui/icons-material";
+import OtpInputPanel from "@/Components/UI/OtpInputPanel";
 import axiosBaseApi from "@/axiosConfig";
 
 interface DeleteWalletModalProps {
@@ -33,17 +33,26 @@ const DeleteWalletModal: React.FC<DeleteWalletModalProps> = ({
   onDeleted,
 }) => {
   const [step, setStep] = useState<"confirm" | "otp">("confirm");
-  const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [maskedEmail, setMaskedEmail] = useState("");
+  const [countdown, setCountdown] = useState(0);
+  const [otpResetKey, setOtpResetKey] = useState(0);
+
+  // Countdown ticker
+  useEffect(() => {
+    if (countdown <= 0) return;
+    const t = setInterval(() => setCountdown((c) => c - 1), 1000);
+    return () => clearInterval(t);
+  }, [countdown]);
 
   const handleClose = useCallback(() => {
     setStep("confirm");
-    setOtp("");
     setError("");
     setLoading(false);
     setMaskedEmail("");
+    setCountdown(0);
+    setOtpResetKey((k) => k + 1);
     onClose();
   }, [onClose]);
 
@@ -58,6 +67,8 @@ const DeleteWalletModal: React.FC<DeleteWalletModalProps> = ({
       const data = response?.data?.data;
       if (data?.email) setMaskedEmail(data.email);
       setStep("otp");
+      setCountdown(60);
+      setOtpResetKey((k) => k + 1);
     } catch (e: any) {
       setError(e?.response?.data?.message || e?.message || "Failed to send OTP");
     } finally {
@@ -65,12 +76,29 @@ const DeleteWalletModal: React.FC<DeleteWalletModalProps> = ({
     }
   }, [walletId, companyId]);
 
-  const handleDelete = useCallback(async () => {
-    if (!walletId || !otp) return;
+  const handleResendOtp = useCallback(async () => {
+    if (!walletId || countdown > 0) return;
     setLoading(true);
     setError("");
     try {
-      const body: Record<string, unknown> = { wallet_id: walletId, otp };
+      const body: Record<string, unknown> = { wallet_id: walletId };
+      if (companyId) body.company_id = companyId;
+      await axiosBaseApi.post("wallet/wallet/delete/send-otp", body);
+      setCountdown(60);
+      setOtpResetKey((k) => k + 1);
+    } catch (e: any) {
+      setError(e?.response?.data?.message || e?.message || "Failed to resend code");
+    } finally {
+      setLoading(false);
+    }
+  }, [walletId, companyId, countdown]);
+
+  const handleDelete = useCallback(async (otpCode: string) => {
+    if (!walletId || !otpCode || otpCode.length !== 6) return;
+    setLoading(true);
+    setError("");
+    try {
+      const body: Record<string, unknown> = { wallet_id: walletId, otp: otpCode };
       if (companyId) body.company_id = companyId;
       await axiosBaseApi.post("wallet/wallet/delete/verify", body);
       onDeleted();
@@ -80,7 +108,7 @@ const DeleteWalletModal: React.FC<DeleteWalletModalProps> = ({
     } finally {
       setLoading(false);
     }
-  }, [walletId, otp, companyId, onDeleted, handleClose]);
+  }, [walletId, companyId, onDeleted, handleClose]);
 
   const truncatedAddress = walletAddress
     ? `${walletAddress.slice(0, 8)}...${walletAddress.slice(-6)}`
@@ -119,7 +147,7 @@ const DeleteWalletModal: React.FC<DeleteWalletModalProps> = ({
                   lineHeight: "100%",
                 }}
               >
-                Delete {walletType} Wallet
+                Delete Wallet?
               </Typography>
             </Box>
 
@@ -130,49 +158,24 @@ const DeleteWalletModal: React.FC<DeleteWalletModalProps> = ({
                 fontSize: "14px",
                 lineHeight: "150%",
                 color: "#676768",
-                mb: 1,
+                mb: 1.5,
               }}
             >
-              Are you sure you want to delete this wallet address?
+              You&apos;re about to remove the {walletType} wallet
+              {truncatedAddress && (
+                <Typography
+                  component="span"
+                  sx={{ fontFamily: "UrbanistSemibold", color: "text.primary" }}
+                >
+                  {" "}
+                  ({truncatedAddress})
+                </Typography>
+              )}
+              . This action is permanent and cannot be undone. An OTP will be sent to your email for verification.
             </Typography>
 
-            <Box
-              sx={{
-                p: "12px",
-                borderRadius: "8px",
-                backgroundColor: "#F9FAFB",
-                border: "1px solid #E9ECF2",
-                mb: 2,
-              }}
-            >
-              <Typography
-                sx={{
-                  fontFamily: "UrbanistMedium",
-                  fontSize: "13px",
-                  color: "#9CA3AF",
-                  mb: 0.5,
-                }}
-              >
-                Address
-              </Typography>
-              <Typography
-                sx={{
-                  fontFamily: "UrbanistMedium",
-                  fontSize: "14px",
-                  color: "#111827",
-                  wordBreak: "break-all",
-                }}
-              >
-                {truncatedAddress}
-              </Typography>
-            </Box>
-
-            <Alert severity="warning" sx={{ mb: 1, fontFamily: "UrbanistMedium", fontSize: "13px" }}>
-              This action is permanent and cannot be undone. An OTP will be sent to your email for verification.
-            </Alert>
-
             {error && (
-              <Alert severity="error" sx={{ mt: 1, fontFamily: "UrbanistMedium", fontSize: "13px" }}>
+              <Alert severity="error" sx={{ mb: 1, fontFamily: "UrbanistMedium", fontSize: "13px" }}>
                 {error}
               </Alert>
             )}
@@ -218,57 +221,46 @@ const DeleteWalletModal: React.FC<DeleteWalletModalProps> = ({
               We sent a 6-digit code to {maskedEmail || "your email"}. Enter it below to confirm deletion.
             </Typography>
 
-            <TextField
-              fullWidth
-              placeholder="Enter 6-digit OTP"
-              value={otp}
-              onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
-              inputProps={{
-                maxLength: 6,
-                style: {
-                  fontFamily: "UrbanistMedium",
-                  fontSize: "16px",
-                  letterSpacing: "4px",
-                  textAlign: "center",
-                },
-              }}
-              sx={{
-                mb: 2,
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: "8px",
-                },
-              }}
+            {/* Shared OTP block — auto-submits and triggers delete the moment 6 digits are entered */}
+            <OtpInputPanel
+              contactType="email"
+              otpLength={6}
+              onVerify={handleDelete}
+              onResendCode={handleResendOtp}
+              onClearError={() => setError("")}
+              countdown={countdown}
+              loading={loading}
+              error={error}
+              primaryButtonLabel="Verify"
+              showInfoChip={false}
+              showLabel={false}
+              actionsLayout="stacked"
+              resetKey={otpResetKey}
             />
-
-            {error && (
-              <Alert severity="error" sx={{ mb: 1, fontFamily: "UrbanistMedium", fontSize: "13px" }}>
-                {error}
-              </Alert>
-            )}
           </>
         )}
       </DialogContent>
 
-      <DialogActions sx={{ px: "28px", pb: "24px", display: "flex", gap: "12px" }}>
-        <Button
-          fullWidth
-          onClick={handleClose}
-          disabled={loading}
-          sx={{
-            fontFamily: "UrbanistMedium",
-            fontWeight: 500,
-            fontSize: "14px",
-            color: "#676768",
-            border: "1px solid #E9ECF2",
-            py: "10px",
-            borderRadius: "8px",
-            textTransform: "none",
-          }}
-        >
-          Cancel
-        </Button>
-
-        {step === "confirm" ? (
+      {/* Action bar only shown on the confirm step — the OTP step has its own action row inside <OtpInputPanel/>. */}
+      {step === "confirm" && (
+        <DialogActions sx={{ px: "28px", pb: "24px", display: "flex", gap: "12px" }}>
+          <Button
+            fullWidth
+            onClick={handleClose}
+            disabled={loading}
+            sx={{
+              fontFamily: "UrbanistMedium",
+              fontWeight: 500,
+              fontSize: "14px",
+              color: "#676768",
+              border: "1px solid #E9ECF2",
+              py: "10px",
+              borderRadius: "8px",
+              textTransform: "none",
+            }}
+          >
+            Cancel
+          </Button>
           <Button
             fullWidth
             onClick={handleSendOtp}
@@ -288,28 +280,26 @@ const DeleteWalletModal: React.FC<DeleteWalletModalProps> = ({
           >
             {loading ? <CircularProgress size={20} sx={{ color: "#FFF" }} /> : "Delete Wallet"}
           </Button>
-        ) : (
+        </DialogActions>
+      )}
+
+      {step === "otp" && (
+        <DialogActions sx={{ px: "28px", pb: "24px", justifyContent: "center" }}>
           <Button
-            fullWidth
-            onClick={handleDelete}
-            disabled={loading || otp.length !== 6}
+            onClick={handleClose}
+            disabled={loading}
             sx={{
               fontFamily: "UrbanistMedium",
               fontWeight: 500,
-              fontSize: "14px",
-              color: "#FFFFFF",
-              backgroundColor: "#DC2626",
-              py: "10px",
-              borderRadius: "8px",
+              fontSize: "13px",
+              color: "#676768",
               textTransform: "none",
-              "&:hover": { backgroundColor: "#B91C1C" },
-              "&:disabled": { backgroundColor: "#FCA5A5", color: "#FFF" },
             }}
           >
-            {loading ? <CircularProgress size={20} sx={{ color: "#FFF" }} /> : "Confirm Delete"}
+            Cancel
           </Button>
-        )}
-      </DialogActions>
+        </DialogActions>
+      )}
     </Dialog>
   );
 };

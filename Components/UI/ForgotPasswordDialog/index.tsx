@@ -6,6 +6,7 @@ import CustomButton from "@/Components/UI/Buttons";
 import PanelCard from "@/Components/UI/PanelCard";
 import PopupModal from "@/Components/UI/PopupModal";
 import CountryPhoneInput from "@/Components/UI/CountryPhoneInput";
+import OtpInputPanel from "@/Components/UI/OtpInputPanel";
 import useIsMobile from "@/hooks/useIsMobile";
 import { ArrowBack, CheckCircleOutline } from "@mui/icons-material";
 import VisibilityIcon from "@mui/icons-material/Visibility";
@@ -55,7 +56,6 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
   const [method, setMethod] = useState<ResetMethod>("email");
   const [email, setEmail] = useState(currentEmail || "");
   const [phone, setPhone] = useState("");
-  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -66,9 +66,11 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [countdown, setCountdown] = useState(0);
+  // Bumped each time a new OTP is sent — tells <OtpInputPanel/> to clear its
+  // boxes and re-focus the first input.
+  const [otpResetKey, setOtpResetKey] = useState(0);
 
   const passwordFieldRef = useRef<HTMLDivElement | null>(null);
-  const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   // Reset on close
   useEffect(() => {
@@ -78,7 +80,6 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
         setMethod("email");
         setEmail(currentEmail || "");
         setPhone("");
-        setOtp(["", "", "", "", "", ""]);
         setNewPassword("");
         setConfirmPassword("");
         setShowNewPassword(false);
@@ -88,6 +89,7 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
         setLoading(false);
         setError("");
         setCountdown(0);
+        setOtpResetKey((k) => k + 1);
       }, 300);
     }
   }, [open, currentEmail]);
@@ -98,13 +100,6 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
     const timer = setInterval(() => setCountdown((c) => c - 1), 1000);
     return () => clearInterval(timer);
   }, [countdown]);
-
-  // Auto-focus first OTP input
-  useEffect(() => {
-    if (step === "otp") {
-      setTimeout(() => otpRefs.current[0]?.focus(), 200);
-    }
-  }, [step]);
 
   const handleClose = () => {
     onClose();
@@ -134,7 +129,7 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
       }
 
       setStep("otp");
-      setOtp(["", "", "", "", "", ""]);
+      setOtpResetKey((k) => k + 1);
       setCountdown(60);
     } catch (err: any) {
       const msg = err?.response?.data?.message || "Failed to send OTP. Please try again.";
@@ -145,8 +140,7 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
   }, [method, email, phone]);
 
   // ─── Step 2: Verify OTP ───
-  const handleVerifyOtp = useCallback(async () => {
-    const otpCode = otp.join("");
+  const handleVerifyOtp = useCallback(async (otpCode: string) => {
     if (otpCode.length !== 6) {
       setError("Please enter the complete 6-digit code");
       return;
@@ -183,7 +177,7 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
     } finally {
       setLoading(false);
     }
-  }, [otp, method, email, phone]);
+  }, [method, email, phone]);
 
   // ─── Step 3: Reset Password ───
   const handleResetPassword = useCallback(async () => {
@@ -228,50 +222,13 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
         await axiosBaseApi.post("/user/forgot-password-phone", { mobile: digits });
       }
       setCountdown(60);
-      setOtp(["", "", "", "", "", ""]);
-      otpRefs.current[0]?.focus();
+      setOtpResetKey((k) => k + 1);
     } catch (err: any) {
       setError("Failed to resend code. Please try again.");
     } finally {
       setLoading(false);
     }
   }, [countdown, method, email, phone]);
-
-  // ─── OTP Input Handlers ───
-  const handleOtpChange = (index: number, value: string) => {
-    if (!/^\d*$/.test(value)) return;
-    const newOtp = [...otp];
-    newOtp[index] = value.slice(-1);
-    setOtp(newOtp);
-    setError("");
-
-    if (value && index < 5) {
-      otpRefs.current[index + 1]?.focus();
-    }
-  };
-
-  const handleOtpKeyDown = (index: number, e: React.KeyboardEvent) => {
-    if (e.key === "Backspace" && !otp[index] && index > 0) {
-      otpRefs.current[index - 1]?.focus();
-    }
-    if (e.key === "Enter" && otp.join("").length === 6) {
-      handleVerifyOtp();
-    }
-  };
-
-  const handleOtpPaste = (e: React.ClipboardEvent) => {
-    e.preventDefault();
-    const pastedData = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
-    if (pastedData.length > 0) {
-      const newOtp = [...otp];
-      pastedData.split("").forEach((char, i) => {
-        if (i < 6) newOtp[i] = char;
-      });
-      setOtp(newOtp);
-      const focusIdx = Math.min(pastedData.length, 5);
-      otpRefs.current[focusIdx]?.focus();
-    }
-  };
 
   // ─── Shared Modal Wrapper ───
   const modalSx = {
@@ -506,93 +463,28 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
             </Typography>
           </Box>
 
-          {/* OTP Inputs */}
-          <Box sx={{ display: "flex", gap: isMobile ? "8px" : "10px", justifyContent: "center", mb: 2.5 }}>
-            {otp.map((digit, index) => (
-              <Box
-                key={index}
-                component="input"
-                ref={(el: HTMLInputElement | null) => { otpRefs.current[index] = el; }}
-                type="text"
-                inputMode="numeric"
-                maxLength={1}
-                value={digit}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleOtpChange(index, e.target.value)}
-                onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => handleOtpKeyDown(index, e)}
-                onPaste={index === 0 ? handleOtpPaste : undefined}
-                sx={{
-                  width: isMobile ? "44px" : "52px",
-                  height: isMobile ? "52px" : "60px",
-                  textAlign: "center",
-                  fontSize: "22px",
-                  fontWeight: 700,
-                  fontFamily: "UrbanistBold",
-                  color: "text.primary",
-                  background: theme.palette.mode === "dark" ? "#1a1d2e" : "#f9fafb",
-                  border: `2px solid ${digit ? (theme.palette.mode === "dark" ? "#4F46E5" : "#4F46E5") : (theme.palette.mode === "dark" ? "#2a2d45" : "#e5e7eb")}`,
-                  borderRadius: "14px",
-                  outline: "none",
-                  transition: "all 0.2s",
-                  caretColor: "#4F46E5",
-                  "&:focus": {
-                    borderColor: "#4F46E5",
-                    boxShadow: "0 0 0 3px rgba(79, 70, 229, 0.15)",
-                  },
-                }}
-              />
-            ))}
-          </Box>
-
-          {/* Error */}
-          {error && (
-            <Typography sx={{ fontSize: "13px", color: theme.palette.error.main, fontFamily: "UrbanistMedium", mb: 1.5, textAlign: "center" }}>
-              {error}
-            </Typography>
-          )}
-
-          {/* Verify Button */}
-          <CustomButton
-            variant="primary"
-            size="medium"
-            label="Verify Code"
-            onClick={handleVerifyOtp}
-            disabled={loading || otp.join("").length !== 6}
-            fullWidth
-            sx={{ fontWeight: 700, padding: "14px 24px", borderRadius: "12px", fontSize: "15px" }}
-            endIcon={loading ? <LoadingIcon size={18} /> : undefined}
-            hideLabelWhenLoading={true}
+          {/* Shared OTP block — auto-submits the moment 6 digits are entered */}
+          <OtpInputPanel
+            contactType={method === "email" ? "email" : "phone"}
+            otpLength={6}
+            onVerify={handleVerifyOtp}
+            onResendCode={handleResendOtp}
+            onClearError={() => setError("")}
+            countdown={countdown}
+            loading={loading}
+            error={error}
+            primaryButtonLabel="Verify"
+            showInfoChip={false}
+            showLabel={false}
+            actionsLayout="stacked"
+            resetKey={otpResetKey}
           />
-
-          {/* Resend */}
-          <Box sx={{ display: "flex", justifyContent: "center", mt: 2, gap: 0.5 }}>
-            <Typography sx={{ fontSize: "13px", color: "text.secondary", fontFamily: "UrbanistMedium" }}>
-              Didn't receive the code?
-            </Typography>
-            {countdown > 0 ? (
-              <Typography sx={{ fontSize: "13px", color: "text.secondary", fontFamily: "UrbanistSemiBold" }}>
-                Resend in {countdown}s
-              </Typography>
-            ) : (
-              <Typography
-                component="button"
-                onClick={handleResendOtp}
-                sx={{
-                  fontSize: "13px", color: theme.palette.primary.main, fontFamily: "UrbanistSemiBold",
-                  cursor: "pointer", background: "none", border: "none", padding: 0,
-                  textDecoration: "underline", textUnderlineOffset: "2px",
-                  "&:hover": { opacity: 0.8 },
-                }}
-              >
-                Resend
-              </Typography>
-            )}
-          </Box>
 
           {/* Back */}
           <Box sx={{ display: "flex", justifyContent: "center", mt: 1.5 }}>
             <Link
               component="button"
-              onClick={() => { setStep("method"); setError(""); setOtp(["", "", "", "", "", ""]); }}
+              onClick={() => { setStep("method"); setError(""); setOtpResetKey((k) => k + 1); }}
               sx={{
                 fontSize: "13px", color: "text.secondary", fontFamily: "UrbanistMedium",
                 textDecoration: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: "6px",

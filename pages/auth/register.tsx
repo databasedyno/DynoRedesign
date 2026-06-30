@@ -10,13 +10,14 @@ import { AuthPageBackground, SplitLayoutWrapper, FormPanel } from "@/Containers/
 import useIsMobile from "@/hooks/useIsMobile";
 import CountryPhoneInput from "@/Components/UI/CountryPhoneInput";
 import GoogleIcon from "@/assets/Images/googleIcon.svg";
+import OtpInputPanel from "@/Components/UI/OtpInputPanel";
 import { signIn } from "next-auth/react";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { USER_LOGIN } from "@/Redux/Actions/UserAction";
 import axiosBaseApi from "@/axiosConfig";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useDispatch } from "react-redux";
 import {
@@ -61,7 +62,6 @@ const Register = () => {
   const [phone, setPhone] = useState("");
   const [emailError, setEmailError] = useState("");
   const [phoneError, setPhoneError] = useState("");
-  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [otpError, setOtpError] = useState("");
   const [loading, setLoading] = useState(false);
   const [countdown, setCountdown] = useState(0);
@@ -71,8 +71,9 @@ const Register = () => {
   // When the entered email/phone already belongs to an account, the backend
   // sends a login OTP and we switch the UI into "log in" mode instead of "create account".
   const [accountExists, setAccountExists] = useState(false);
-
-  const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
+  // Bumped each time we send a new OTP — tells OtpInputPanel to clear its boxes
+  // and re-focus the first input.
+  const [otpResetKey, setOtpResetKey] = useState(0);
 
   // Check for referral code in URL
   useEffect(() => {
@@ -88,13 +89,6 @@ const Register = () => {
     const timer = setInterval(() => setCountdown((c) => c - 1), 1000);
     return () => clearInterval(timer);
   }, [countdown]);
-
-  // Auto-focus first OTP input
-  useEffect(() => {
-    if (step === "otp") {
-      setTimeout(() => otpRefs.current[0]?.focus(), 200);
-    }
-  }, [step]);
 
   // ─── Google Sign Up ───
   const handleGoogleLogin = useCallback(async () => {
@@ -167,7 +161,7 @@ const Register = () => {
 
       setAccountExists(exists);
       setStep("otp");
-      setOtp(["", "", "", "", "", ""]);
+      setOtpResetKey((k) => k + 1);
       setCountdown(60);
     } catch (err: any) {
       const msg = err?.response?.data?.message || "Something went wrong. Please try again.";
@@ -179,8 +173,7 @@ const Register = () => {
   }, [method, email, phone, referralCode, checkPhoneType]);
 
   // ─── Step 2: Verify OTP & Create Account ───
-  const handleVerifyOtp = useCallback(async () => {
-    const otpCode = otp.join("");
+  const handleVerifyOtp = useCallback(async (otpCode: string) => {
     if (otpCode.length !== 6) {
       setOtpError("Please enter the complete 6-digit code");
       return;
@@ -233,7 +226,7 @@ const Register = () => {
     } finally {
       setLoading(false);
     }
-  }, [otp, method, email, phone, dispatch, router]);
+  }, [method, email, phone, accountExists, dispatch, router]);
 
   // ─── Resend OTP ───
   const handleResendOtp = useCallback(async () => {
@@ -252,40 +245,13 @@ const Register = () => {
         await axiosBaseApi.post("/user/registerPhone", { mobile: digits });
       }
       setCountdown(60);
-      setOtp(["", "", "", "", "", ""]);
-      otpRefs.current[0]?.focus();
+      setOtpResetKey((k) => k + 1);
     } catch {
       setOtpError("Failed to resend code. Please try again.");
     } finally {
       setLoading(false);
     }
   }, [countdown, method, email, phone, referralCode]);
-
-  // ─── OTP Input Handlers ───
-  const handleOtpChange = (index: number, value: string) => {
-    if (!/^\d*$/.test(value)) return;
-    const newOtp = [...otp];
-    newOtp[index] = value.slice(-1);
-    setOtp(newOtp);
-    setOtpError("");
-    if (value && index < 5) otpRefs.current[index + 1]?.focus();
-  };
-
-  const handleOtpKeyDown = (index: number, e: React.KeyboardEvent) => {
-    if (e.key === "Backspace" && !otp[index] && index > 0) otpRefs.current[index - 1]?.focus();
-    if (e.key === "Enter" && otp.join("").length === 6) handleVerifyOtp();
-  };
-
-  const handleOtpPaste = (e: React.ClipboardEvent) => {
-    e.preventDefault();
-    const pastedData = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
-    if (pastedData.length > 0) {
-      const newOtp = [...otp];
-      pastedData.split("").forEach((char, i) => { if (i < 6) newOtp[i] = char; });
-      setOtp(newOtp);
-      otpRefs.current[Math.min(pastedData.length, 5)]?.focus();
-    }
-  };
 
   // ════════════════════════════════════════════════════════
   // RENDER
@@ -564,92 +530,28 @@ const Register = () => {
                     )}
                   </Box>
 
-                  {/* OTP Inputs */}
-                  <Box sx={{ display: "flex", gap: isMobile ? "8px" : "10px", justifyContent: "center", mb: 2 }}>
-                    {otp.map((digit, index) => (
-                      <Box
-                        key={index}
-                        component="input"
-                        ref={(el: HTMLInputElement | null) => { otpRefs.current[index] = el; }}
-                        type="text"
-                        inputMode="numeric"
-                        maxLength={1}
-                        value={digit}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleOtpChange(index, e.target.value)}
-                        onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => handleOtpKeyDown(index, e)}
-                        onPaste={index === 0 ? handleOtpPaste : undefined}
-                        sx={{
-                          width: isMobile ? "44px" : "52px",
-                          height: isMobile ? "52px" : "60px",
-                          textAlign: "center",
-                          fontSize: "22px",
-                          fontWeight: 700,
-                          fontFamily: "UrbanistBold",
-                          color: "text.primary",
-                          background: theme.palette.mode === "dark" ? "#1a1d2e" : "#f9fafb",
-                          border: `2px solid ${digit ? "#4F46E5" : (theme.palette.mode === "dark" ? "#2a2d45" : "#e5e7eb")}`,
-                          borderRadius: "14px",
-                          outline: "none",
-                          transition: "all 0.2s",
-                          caretColor: "#4F46E5",
-                          "&:focus": {
-                            borderColor: "#4F46E5",
-                            boxShadow: "0 0 0 3px rgba(79, 70, 229, 0.15)",
-                          },
-                        }}
-                      />
-                    ))}
-                  </Box>
-
-                  {/* Error */}
-                  {otpError && (
-                    <Typography sx={{ fontSize: "13px", color: theme.palette.error.main, fontFamily: "UrbanistMedium", mb: 1.5, textAlign: "center" }}>
-                      {otpError}
-                    </Typography>
-                  )}
-
-                  {/* Verify Button */}
-                  <CustomButton
-                    variant="primary"
-                    size="medium"
-                    label={accountExists ? "Verify & Log In" : "Verify & Create Account"}
-                    onClick={handleVerifyOtp}
-                    disabled={loading || otp.join("").length !== 6}
-                    fullWidth
-                    sx={{ fontWeight: 700, padding: "13px 24px", borderRadius: "12px", fontSize: "15px" }}
-                    endIcon={loading ? <LoadingSpinner size={18} /> : undefined}
-                    hideLabelWhenLoading={true}
+                  {/* Shared OTP block — auto-submits the moment 6 digits are entered */}
+                  <OtpInputPanel
+                    contactType={method === "email" ? "email" : "phone"}
+                    otpLength={6}
+                    onVerify={handleVerifyOtp}
+                    onResendCode={handleResendOtp}
+                    onClearError={() => setOtpError("")}
+                    countdown={countdown}
+                    loading={loading}
+                    error={otpError}
+                    primaryButtonLabel={accountExists ? "Verify & log in" : "Verify & create account"}
+                    showInfoChip={false}
+                    showLabel={false}
+                    actionsLayout="stacked"
+                    resetKey={otpResetKey}
                   />
-
-                  {/* Resend */}
-                  <Box sx={{ display: "flex", justifyContent: "center", mt: 2, gap: 0.5 }}>
-                    <Typography sx={{ fontSize: "13px", color: "text.secondary", fontFamily: "UrbanistMedium" }}>
-                      Didn't receive the code?
-                    </Typography>
-                    {countdown > 0 ? (
-                      <Typography sx={{ fontSize: "13px", color: "text.secondary", fontFamily: "UrbanistSemiBold" }}>
-                        Resend in {countdown}s
-                      </Typography>
-                    ) : (
-                      <Typography
-                        component="button"
-                        onClick={handleResendOtp}
-                        sx={{
-                          fontSize: "13px", color: theme.palette.primary.main, fontFamily: "UrbanistSemiBold",
-                          cursor: "pointer", background: "none", border: "none", padding: 0,
-                          textDecoration: "underline", textUnderlineOffset: "2px",
-                        }}
-                      >
-                        Resend
-                      </Typography>
-                    )}
-                  </Box>
 
                   {/* Back */}
                   <Box sx={{ display: "flex", justifyContent: "center", mt: 1.5 }}>
                     <Link
                       component="button"
-                      onClick={() => { setStep("input"); setOtpError(""); setOtp(["", "", "", "", "", ""]); setAccountExists(false); }}
+                      onClick={() => { setStep("input"); setOtpError(""); setAccountExists(false); setOtpResetKey((k) => k + 1); }}
                       sx={{
                         fontSize: "13px", color: "text.secondary", fontFamily: "UrbanistMedium",
                         textDecoration: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: "6px",

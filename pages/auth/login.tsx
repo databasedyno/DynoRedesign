@@ -1792,7 +1792,7 @@ export default function Login() {
             contactType="phone"
             resendCodeLabel={t("resendCode") || "Resend Code"}
             resendCodeCountdownLabel={(seconds) => `${t("codeIn") || "Code in"} ${seconds}s`}
-            primaryButtonLabel={t("verifyAndLogin") || "Verify & Login"}
+            primaryButtonLabel={t("verifyAndLogin") || "Verify & log in"}
             onResendCode={() => handleSendPhoneLoginOtp()}
             onVerify={handlePhoneLoginOtpVerify}
             onClearError={() => {
@@ -1913,7 +1913,7 @@ export default function Login() {
           contactType="email"
           resendCodeLabel={t("resendCode")}
           resendCodeCountdownLabel={(seconds) => `${t("codeIn")} ${seconds}s`}
-          primaryButtonLabel={t("verify") || "Verify"}
+          primaryButtonLabel={t("verifyAndLogin") || "Verify & log in"}
           onResendCode={handleSendEmailOtp}
           onVerify={handleEmailOtpVerify}
           onClearError={() => {
@@ -1949,7 +1949,7 @@ export default function Login() {
           contactType="phone"
           resendCodeLabel={t("resendCode")}
           resendCodeCountdownLabel={(seconds) => `${t("codeIn")} ${seconds}s`}
-          primaryButtonLabel={t("verify") || "Verify"}
+          primaryButtonLabel={t("verifyAndLogin") || "Verify & log in"}
           onResendCode={handleSendSmsOtp}
           onVerify={handleSmsOtpVerify}
           onClearError={() => {
@@ -1979,7 +1979,7 @@ export default function Login() {
         contactType="email"
         resendCodeLabel={t("resendCode") || "Resend Code"}
         resendCodeCountdownLabel={(seconds) => `${t("codeIn") || "Code in"} ${seconds}s`}
-        primaryButtonLabel={t("verifyAndLogin") || "Verify & Login"}
+        primaryButtonLabel={t("verifyAndLogin") || "Verify & log in"}
         onResendCode={handleLoginOtpResend}
         onVerify={handleLoginOtpVerify}
         onClearError={() => {}}
