@@ -14,7 +14,7 @@ import { TokenData } from "@/utils/types";
 import { AccountBox } from "@mui/icons-material";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
-import { Box, Grid, IconButton, Tooltip, Typography } from "@mui/material";
+import { Box, Grid, IconButton, MenuItem, Select, Tooltip, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import Image from "next/image";
 import React, { useEffect, useRef, useState } from "react";
@@ -22,10 +22,19 @@ import { useTranslation } from "react-i18next";
 import { useDispatch } from "react-redux";
 import axiosBaseApi from "@/axiosConfig";
 
+const LANGUAGE_OPTIONS = [
+  { code: "en", label: "English" },
+  { code: "pt", label: "Português" },
+  { code: "fr", label: "Français" },
+  { code: "es", label: "Español" },
+  { code: "de", label: "Deutsch" },
+  { code: "nl", label: "Nederlands" },
+];
+
 const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
   const dispatch = useDispatch();
   const theme = useTheme();
-  const { t } = useTranslation(["profile", "auth"]);
+  const { t, i18n } = useTranslation(["profile", "auth"]);
 
   const fileRef = useRef<any>();
   const isMobile = useIsMobile("md");
@@ -216,6 +225,27 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
     } finally {
       setPhoneOtpLoading(false);
     }
+  };
+
+  // --- Communication Language ---
+  const [selectedLanguage, setSelectedLanguage] = useState<string>(i18n.language || "en");
+  useEffect(() => {
+    setSelectedLanguage(i18n.language || "en");
+  }, [i18n.language]);
+
+  const handleLanguageChange = async (lng: string) => {
+    setSelectedLanguage(lng);
+    try {
+      const { loadLanguageAsync } = await import("@/i18n");
+      await loadLanguageAsync(lng);
+    } catch {}
+    i18n.changeLanguage(lng);
+    try {
+      localStorage.setItem("lang", lng);
+      localStorage.setItem("lang_manual", "true");
+    } catch {}
+    axiosBaseApi.put("user/profile", { language: lng }).catch(() => {});
+    dispatch({ type: TOAST_SHOW, payload: { message: t("communicationLanguageSaved", { ns: "profile" }) } });
   };
 
   const inputSx = { gap: isMobile ? "6px" : "8px" };
@@ -515,6 +545,43 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
                 </Box>
               </Box>
             )}
+          </Grid>
+        </Grid>
+
+        {/* Communication Language */}
+        <Grid container columnSpacing={2} rowSpacing={0}>
+          <Grid item xs={12}>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+              <Typography variant="body2" sx={labelSx}>
+                {t("communicationLanguage", { ns: "profile" })}
+              </Typography>
+              <Select
+                data-testid="communication-language-select"
+                value={selectedLanguage}
+                onChange={(e) => handleLanguageChange(e.target.value as string)}
+                size="small"
+                sx={{
+                  height: isMobile ? "32px" : "38px",
+                  fontFamily: "UrbanistMedium",
+                  fontSize: isMobile ? "13px" : "15px",
+                }}
+              >
+                {LANGUAGE_OPTIONS.map((l) => (
+                  <MenuItem key={l.code} value={l.code} data-testid={`language-option-${l.code}`}>
+                    {l.label}
+                  </MenuItem>
+                ))}
+              </Select>
+              <Typography
+                sx={{
+                  fontSize: "12px",
+                  color: theme.palette.text.secondary,
+                  fontFamily: "UrbanistMedium",
+                }}
+              >
+                {t("communicationLanguageHelp", { ns: "profile" })}
+              </Typography>
+            </Box>
           </Grid>
         </Grid>
       </Box>

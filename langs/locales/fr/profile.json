@@ -28,5 +28,8 @@
   "newPasswordRequired": "Le nouveau mot de passe est obligatoire",
   "passwordValidationError": "Veuillez entrer un mot de passe valide (nécessite 1 majuscule, 1 minuscule, 1 chiffre, 1 caractère spécial et minimum 8 caractères)",
   "confirmPasswordRequired": "La confirmation du mot de passe est obligatoire",
-  "passwordMismatch": "Les mots de passe ne correspondent pas"
+  "passwordMismatch": "Les mots de passe ne correspondent pas",
+  "communicationLanguage": "Langue de communication",
+  "communicationLanguageHelp": "Nous utiliserons cette langue pour vos e-mails et le tableau de bord.",
+  "communicationLanguageSaved": "Langue de communication mise à jour"
 }

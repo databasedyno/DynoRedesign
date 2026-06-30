@@ -28,5 +28,8 @@
   "newPasswordRequired": "Neues Passwort ist erforderlich",
   "passwordValidationError": "Bitte geben Sie ein gültiges Passwort ein (erfordert 1 Großbuchstaben, 1 Kleinbuchstaben, 1 Zahl, 1 Sonderzeichen und mindestens 8 Zeichen)",
   "confirmPasswordRequired": "Passwortbestätigung ist erforderlich",
-  "passwordMismatch": "Passwörter stimmen nicht überein"
+  "passwordMismatch": "Passwörter stimmen nicht überein",
+  "communicationLanguage": "Kommunikationssprache",
+  "communicationLanguageHelp": "Wir verwenden diese Sprache für Ihre E-Mails und das Dashboard.",
+  "communicationLanguageSaved": "Kommunikationssprache aktualisiert"
 }

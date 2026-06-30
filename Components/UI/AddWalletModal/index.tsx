@@ -8,6 +8,8 @@ import OtpDialog from "@/Components/UI/OtpDialog";
 import PopupModal from "@/Components/UI/PopupModal";
 import useIsMobile from "@/hooks/useIsMobile";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
+import { UserAction } from "@/Redux/Actions";
+import { USER_LOGIN, USER_PROFILE_FETCH } from "@/Redux/Actions/UserAction";
 import { verifyOtp } from "@/Redux/Sagas/WalletSaga";
 import { rootReducer } from "@/utils/types";
 import { Address, AddWalletModalProps } from "@/utils/types/wallet";
@@ -70,6 +72,91 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
   const [closeCryptoDropdown, setCloseCryptoDropdown] = useState(false);
   const [walletsAdded, setWalletsAdded] = useState(0); // Track how many wallets added in this session
   const [showSuccessChoice, setShowSuccessChoice] = useState(false); // Show add-more/done choice
+
+  // Email-required gate — wallet security OTPs are delivered by email, so a verified email is required.
+  const [needsEmail, setNeedsEmail] = useState(false);
+  const [gateEmail, setGateEmail] = useState("");
+  const [gateEmailError, setGateEmailError] = useState("");
+  const [gateEmailLoading, setGateEmailLoading] = useState(false);
+  const [gateOtpOpen, setGateOtpOpen] = useState(false);
+  const [gateOtpError, setGateOtpError] = useState("");
+  const [gateOtpLoading, setGateOtpLoading] = useState(false);
+  const [gateOtpCountdown, setGateOtpCountdown] = useState(0);
+
+  useEffect(() => {
+    if (!open) return;
+    // Determine the email gate from the freshest source (Redux state can be stale on a direct page load).
+    let cancelled = false;
+    (async () => {
+      try {
+        const res: any = await axiosBaseApi.get("user/profile");
+        const d = res?.data?.data || {};
+        if (!cancelled) setNeedsEmail(!(d.email && d.email_verified));
+      } catch {
+        if (!cancelled) setNeedsEmail(!(userState?.email && userState?.email_verified));
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [open]);
+
+  useEffect(() => {
+    if (gateOtpCountdown > 0) {
+      const tmr = setTimeout(() => setGateOtpCountdown((c) => c - 1), 1000);
+      return () => clearTimeout(tmr);
+    }
+  }, [gateOtpCountdown]);
+
+  const handleSendGateEmailOtp = async () => {
+    const email = gateEmail.trim();
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setGateEmailError(tWallet("emailInvalid"));
+      return;
+    }
+    setGateEmailError("");
+    setGateEmailLoading(true);
+    try {
+      await axiosBaseApi.post("user/addEmail", { email });
+      setGateOtpOpen(true);
+      setGateOtpCountdown(30);
+      dispatch({ type: TOAST_SHOW, payload: { message: "Verification code sent to your email" } });
+    } catch (e: any) {
+      const msg = e?.response?.data?.message || "Failed to send verification code";
+      setGateEmailError(msg);
+      dispatch({ type: TOAST_SHOW, payload: { message: msg, severity: "error" } });
+    } finally {
+      setGateEmailLoading(false);
+    }
+  };
+
+  const handleVerifyGateEmailOtp = async (otp: string) => {
+    if (!otp || otp.length !== 6) {
+      setGateOtpError("Please enter a valid 6-digit code");
+      return;
+    }
+    setGateOtpError("");
+    setGateOtpLoading(true);
+    try {
+      const res: any = await axiosBaseApi.post("user/verifyAddEmail", {
+        email: gateEmail.trim(),
+        otp,
+      });
+      const { data } = res.data || {};
+      if (data?.userData && data?.accessToken) {
+        dispatch({ type: USER_LOGIN, payload: { ...data.userData, accessToken: data.accessToken } });
+      }
+      dispatch(UserAction(USER_PROFILE_FETCH));
+      setGateOtpOpen(false);
+      setNeedsEmail(false);
+      setGateEmail("");
+      dispatch({ type: TOAST_SHOW, payload: { message: "Email verified! You can now add your wallet." } });
+    } catch (e: any) {
+      setGateOtpError(e?.response?.data?.message || "Verification failed");
+    } finally {
+      setGateOtpLoading(false);
+    }
+  };
 
   // Chains that use destination tags (XRP Ledger)
   const TAG_BASED_CHAINS = ["XRP", "RLUSD"];
@@ -224,6 +311,12 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
       setOtpModalOpen(true);
     } catch (error: any) {
       console.error("Error adding wallet address:", error);
+      if (error?.response?.data?.code === "EMAIL_VERIFICATION_REQUIRED") {
+        setNeedsEmail(true);
+        setPopupLoading(false);
+        setIsSubmitting(false);
+        return;
+      }
       dispatch({
         type: TOAST_SHOW,
         payload: {
@@ -372,7 +465,7 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
   return (
     <>
     <PopupModal
-      open={open && !otpModalOpen}
+      open={open && !otpModalOpen && !gateOtpOpen}
       handleClose={handleClose}
       showHeader={false}
       hasFooter={false}
@@ -487,6 +580,59 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
         }
         headerActionLayout="inline"
       >
+        {needsEmail ? (
+          <Box sx={{ display: "flex", flexDirection: "column", gap: "12px" }} data-testid="wallet-email-gate">
+            <Typography
+              sx={{
+                fontSize: isMobile ? "14px" : "16px",
+                fontWeight: 600,
+                fontFamily: "UrbanistSemiBold",
+              }}
+            >
+              {tWallet("emailRequiredTitle")}
+            </Typography>
+            <Typography
+              sx={{
+                fontSize: isMobile ? "13px" : "14px",
+                color: muiTheme.palette.text.secondary,
+                fontFamily: "UrbanistMedium",
+                lineHeight: 1.4,
+              }}
+            >
+              {tWallet("emailRequiredDesc")}
+            </Typography>
+            <InputField
+              data-testid="wallet-gate-email-input"
+              label={tWallet("emailAddressLabel")}
+              placeholder={tWallet("emailAddressPlaceholder")}
+              value={gateEmail}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                setGateEmail(e.target.value);
+                if (gateEmailError) setGateEmailError("");
+              }}
+              error={!!gateEmailError}
+              helperText={gateEmailError}
+            />
+            <Box sx={{ display: "flex", gap: "20px", mt: isMobile ? "8px" : "12px" }}>
+              <CustomButton
+                label={tWallet("cancel")}
+                variant="outlined"
+                onClick={handleClose}
+                sx={{ flex: 1 }}
+              />
+              <CustomButton
+                data-testid="wallet-gate-send-otp-btn"
+                label={tWallet("sendCode")}
+                variant="primary"
+                onClick={handleSendGateEmailOtp}
+                disabled={gateEmailLoading || !gateEmail.trim()}
+                startIcon={gateEmailLoading ? <CircularProgress size={16} sx={{ color: "#fff" }} /> : undefined}
+                sx={{ flex: 1 }}
+              />
+            </Box>
+          </Box>
+        ) : (
+        <>
         <Typography
           sx={{
             fontSize: isMobile ? "13px" : "15px",
@@ -624,6 +770,8 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
             }}
           />
         </Box>
+        </>
+        )}
       </PanelCard>
       )}
     </PopupModal>
@@ -645,6 +793,25 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
       error={otpError}
       onClearError={() => setOtpError("")}
       countdown={0}
+    />
+
+    <OtpDialog
+      open={gateOtpOpen}
+      onClose={() => {
+        setGateOtpOpen(false);
+        setGateOtpError("");
+      }}
+      title={tWallet("emailVerification")}
+      subtitle={tWallet("emailVerificationSubtitle")}
+      contactInfo={gateEmail}
+      contactType="email"
+      otpLength={6}
+      onVerify={handleVerifyGateEmailOtp}
+      onResendCode={handleSendGateEmailOtp}
+      loading={gateOtpLoading}
+      error={gateOtpError}
+      onClearError={() => setGateOtpError("")}
+      countdown={gateOtpCountdown}
     />
     </>
   );

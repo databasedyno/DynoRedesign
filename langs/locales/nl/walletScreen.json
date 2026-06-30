@@ -36,5 +36,11 @@
   "walletSetUpWarnnigSubtitleBold": "alle acht crypto-walletadressen",
   "XRPTag": "XRP-tag (optioneel)",
   "XRPTagPlaceholder": "Voer de XRP-tag in",
-  "XRPTagWarning": "Memo-tag is vereist als uw exchange of wallet er een heeft, anders verliest u uw geld"
+  "XRPTagWarning": "Memo-tag is vereist als uw exchange of wallet er een heeft, anders verliest u uw geld",
+  "emailRequiredTitle": "Verifieer eerst uw e-mail",
+  "emailRequiredDesc": "Om een wallet toe te voegen, hebben we een geverifieerd e-mailadres nodig om u beveiligingscodes voor walletwijzigingen te sturen.",
+  "emailAddressLabel": "E-mailadres",
+  "emailAddressPlaceholder": "Voer uw e-mailadres in",
+  "sendCode": "Verificatiecode versturen",
+  "emailInvalid": "Voer een geldig e-mailadres in"
 }

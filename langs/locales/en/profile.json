@@ -40,5 +40,8 @@
   "emailAdded": "Email added successfully!",
   "phoneAdded": "Phone number added successfully!",
   "noEmailSet": "No email address on your account",
-  "noPhoneSet": "No phone number on your account"
+  "noPhoneSet": "No phone number on your account",
+  "communicationLanguage": "Communication language",
+  "communicationLanguageHelp": "We will use this language for your emails and dashboard.",
+  "communicationLanguageSaved": "Communication language updated"
 }

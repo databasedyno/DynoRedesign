@@ -36,5 +36,11 @@
   "walletSetUpWarnnigSubtitleBold": "at least one crypto wallet address",
   "XRPTag": "XRP Tag (optional)",
   "XRPTagPlaceholder": "Enter the XRP Tag",
-  "XRPTagWarning": "Memo tag is required if your exchange or wallet has one or you will lose your funds"
+  "XRPTagWarning": "Memo tag is required if your exchange or wallet has one or you will lose your funds",
+  "emailRequiredTitle": "Verify your email first",
+  "emailRequiredDesc": "To add a wallet, we need a verified email so we can send you security codes for any wallet changes.",
+  "emailAddressLabel": "Email address",
+  "emailAddressPlaceholder": "Enter your email address",
+  "sendCode": "Send verification code",
+  "emailInvalid": "Please enter a valid email address"
 }

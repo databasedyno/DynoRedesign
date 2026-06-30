@@ -36,5 +36,11 @@
   "walletSetUpWarnnigSubtitleBold": "os oito endereços de carteira de criptomoedas",
   "XRPTag": "Etiqueta XRP (opcional)",
   "XRPTagPlaceholder": "Insira a tag XRP",
-  "XRPTagWarning": "É necessário usar a tag Memo se sua corretora ou carteira a possuir, caso contrário, você perderá seus fundos."
+  "XRPTagWarning": "É necessário usar a tag Memo se sua corretora ou carteira a possuir, caso contrário, você perderá seus fundos.",
+  "emailRequiredTitle": "Verifique primeiro o seu e-mail",
+  "emailRequiredDesc": "Para adicionar uma carteira, precisamos de um e-mail verificado para lhe enviar códigos de segurança de quaisquer alterações na carteira.",
+  "emailAddressLabel": "Endereço de e-mail",
+  "emailAddressPlaceholder": "Introduza o seu e-mail",
+  "sendCode": "Enviar código de verificação",
+  "emailInvalid": "Introduza um e-mail válido"
 }

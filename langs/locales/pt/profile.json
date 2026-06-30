@@ -28,5 +28,8 @@
   "newPasswordRequired": "Nova senha é obrigatória",
   "passwordValidationError": "Por favor, insira uma senha válida (requer 1 letra maiúscula, 1 letra minúscula, 1 número, 1 caractere especial e mínimo de 8 caracteres)",
   "confirmPasswordRequired": "Confirmação de senha é obrigatória",
-  "passwordMismatch": "As senhas não coincidem"
+  "passwordMismatch": "As senhas não coincidem",
+  "communicationLanguage": "Idioma de comunicação",
+  "communicationLanguageHelp": "Usaremos este idioma nos seus e-mails e no painel.",
+  "communicationLanguageSaved": "Idioma de comunicação atualizado"
 }

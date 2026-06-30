@@ -2002,6 +2002,20 @@ const addWalletAddress = async (
     try {
       const user_id = userData.user_id;
 
+      // Wallet operations require a verified email — security OTPs are delivered by email.
+      const accountUser = await userModel.findOne({
+        where: { user_id },
+        attributes: ['email', 'email_verified'],
+      });
+      if (!accountUser?.dataValues?.email || !accountUser.dataValues.email_verified) {
+        return res.status(403).json({
+          success: false,
+          statusCode: 403,
+          code: "EMAIL_VERIFICATION_REQUIRED",
+          message: "Please add and verify an email address before adding a wallet.",
+        });
+      }
+
       // Local address validation - no external API calls needed
       let isValidAddress = false;
       
@@ -2849,6 +2863,20 @@ const validateWallet = async (
     try {
       const user_id = userData.user_id;
       
+      // Wallet operations require a verified email — security OTPs are delivered by email.
+      const accountUser = await userModel.findOne({
+        where: { user_id },
+        attributes: ['email', 'email_verified'],
+      });
+      if (!accountUser?.dataValues?.email || !accountUser.dataValues.email_verified) {
+        return res.status(403).json({
+          success: false,
+          statusCode: 403,
+          code: "EMAIL_VERIFICATION_REQUIRED",
+          message: "Please add and verify an email address before adding a wallet.",
+        });
+      }
+      
       // Verify user has access to this company
       const company = await companyModel.findOne({
         where: {
@@ -2901,7 +2929,7 @@ const validateWallet = async (
           company_id,
           wallet_name: wallet_name || null,
           destination_tag: destination_tag || null,
-          email: userData.email.replace(/(.{2})(.*)(@.*)/, "$1***$3"),
+          email: accountUser.dataValues.email.replace(/(.{2})(.*)(@.*)/, "$1***$3"),
         }
       );
     } catch (e) {

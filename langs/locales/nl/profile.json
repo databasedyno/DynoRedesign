@@ -28,5 +28,8 @@
   "newPasswordRequired": "Nieuw wachtwoord is verplicht",
   "passwordValidationError": "Voer een geldig wachtwoord in (vereist 1 hoofdletter, 1 kleine letter, 1 cijfer, 1 speciaal teken en minimaal 8 tekens)",
   "confirmPasswordRequired": "Wachtwoordbevestiging is verplicht",
-  "passwordMismatch": "Wachtwoorden komen niet overeen"
+  "passwordMismatch": "Wachtwoorden komen niet overeen",
+  "communicationLanguage": "Communicatietaal",
+  "communicationLanguageHelp": "We gebruiken deze taal voor uw e-mails en het dashboard.",
+  "communicationLanguageSaved": "Communicatietaal bijgewerkt"
 }

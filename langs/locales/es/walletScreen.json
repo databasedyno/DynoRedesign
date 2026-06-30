@@ -36,5 +36,11 @@
   "walletSetUpWarnnigSubtitleBold": "las ocho direcciones de billeteras crypto",
   "XRPTag": "Etiqueta XRP (opcional)",
   "XRPTagPlaceholder": "Ingresa la Etiqueta XRP",
-  "XRPTagWarning": "La etiqueta memo es obligatoria si tu exchange o billetera tiene una, de lo contrario perderás tus fondos"
+  "XRPTagWarning": "La etiqueta memo es obligatoria si tu exchange o billetera tiene una, de lo contrario perderás tus fondos",
+  "emailRequiredTitle": "Verifica primero tu correo",
+  "emailRequiredDesc": "Para añadir una cartera, necesitamos un correo verificado para enviarte códigos de seguridad de cualquier cambio en la cartera.",
+  "emailAddressLabel": "Correo electrónico",
+  "emailAddressPlaceholder": "Introduce tu correo electrónico",
+  "sendCode": "Enviar código de verificación",
+  "emailInvalid": "Introduce un correo válido"
 }

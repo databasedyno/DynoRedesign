@@ -36,5 +36,11 @@
   "walletSetUpWarnnigSubtitleBold": "alle acht Krypto-Wallet-Adressen",
   "XRPTag": "XRP-Tag (optional)",
   "XRPTagPlaceholder": "XRP-Tag eingeben",
-  "XRPTagWarning": "Memo-Tag ist erforderlich, wenn Ihre Börse oder Ihr Wallet eines hat, sonst gehen Ihre Gelder verloren"
+  "XRPTagWarning": "Memo-Tag ist erforderlich, wenn Ihre Börse oder Ihr Wallet eines hat, sonst gehen Ihre Gelder verloren",
+  "emailRequiredTitle": "Bestätigen Sie zuerst Ihre E-Mail",
+  "emailRequiredDesc": "Um eine Wallet hinzuzufügen, benötigen wir eine bestätigte E-Mail, damit wir Ihnen Sicherheitscodes für alle Wallet-Änderungen senden können.",
+  "emailAddressLabel": "E-Mail-Adresse",
+  "emailAddressPlaceholder": "Geben Sie Ihre E-Mail-Adresse ein",
+  "sendCode": "Bestätigungscode senden",
+  "emailInvalid": "Bitte geben Sie eine gültige E-Mail-Adresse ein"
 }

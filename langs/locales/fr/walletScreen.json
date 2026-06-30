@@ -36,5 +36,11 @@
   "walletSetUpWarnnigSubtitleBold": "les huit adresses de portefeuilles crypto",
   "XRPTag": "Tag XRP (optionnel)",
   "XRPTagPlaceholder": "Entrez le Tag XRP",
-  "XRPTagWarning": "Le tag mémo est obligatoire si votre exchange ou portefeuille en possède un, sinon vous perdrez vos fonds"
+  "XRPTagWarning": "Le tag mémo est obligatoire si votre exchange ou portefeuille en possède un, sinon vous perdrez vos fonds",
+  "emailRequiredTitle": "Vérifiez d’abord votre e-mail",
+  "emailRequiredDesc": "Pour ajouter un portefeuille, nous avons besoin d’un e-mail vérifié afin de vous envoyer des codes de sécurité pour toute modification du portefeuille.",
+  "emailAddressLabel": "Adresse e-mail",
+  "emailAddressPlaceholder": "Saisissez votre adresse e-mail",
+  "sendCode": "Envoyer le code de vérification",
+  "emailInvalid": "Veuillez saisir une adresse e-mail valide"
 }
