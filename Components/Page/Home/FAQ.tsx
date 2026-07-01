@@ -14,7 +14,7 @@ const faqs = [
   {
     question: "How does auto-conversion to stablecoins work?",
     answer:
-      "When a customer pays in a volatile cryptocurrency like BTC or ETH, DynoPay automatically converts it to USDT or USDC within seconds. This protects your revenue from market swings — you always receive a stable dollar-pegged value regardless of what the customer pays with.",
+      "Auto-conversion is optional — you decide. If you switch it on for a wallet, then when a customer pays in a volatile cryptocurrency like BTC or ETH, DynoPay converts it to USDT or USDC within seconds, protecting that payment from market swings. Prefer to keep the original coin? Just leave auto-conversion off and you'll receive exactly what the customer sent.",
   },
   {
     question: "What are the fees?",
@@ -24,7 +24,7 @@ const faqs = [
   {
     question: "How long does settlement take?",
     answer:
-      "Settlement happens in near real-time. Once a blockchain payment is confirmed (typically 1-3 minutes depending on the network), your stablecoin settlement is processed automatically. Most merchants see funds in their wallet within 5 minutes.",
+      "Settlement happens in near real-time. Once a blockchain payment is confirmed (typically 1-3 minutes depending on the network), your settlement is processed automatically — in the original crypto, or in stablecoins if you've enabled auto-conversion. Most merchants see funds in their wallet within 5 minutes.",
   },
   {
     question: "Do I need technical knowledge to get started?",

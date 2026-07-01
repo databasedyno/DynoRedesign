@@ -1015,7 +1015,9 @@ export const sendPaymentReceivedEmail = async (
   transactionId: string,
   date?: string,
   time?: string,
-  lang: string = 'en'
+  lang: string = 'en',
+  cryptoAmount?: string,
+  cryptoCurrency?: string
 ) => {
   try {
     const L = normalizeLang(lang);
@@ -1027,6 +1029,7 @@ export const sendPaymentReceivedEmail = async (
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         ${dataRow(t('labels.amount', L), `<strong>${amount} ${currency}</strong>`)}
+        ${cryptoAmount && cryptoCurrency ? dataRow(t('labels.cryptoAmount', L), `${cryptoAmount} ${cryptoCurrency}`) : ''}
         ${dataRow(t('labels.status', L), statusBadge(t('statusLabels.received', L), 'success'))}
         ${dataRow(t('labels.date', L), dateTimeStr)}
         ${dataRow(t('labels.transactionId', L), `<span style="font-size: 12px; font-family: monospace;">${transactionId}</span>`, true)}
@@ -1053,7 +1056,9 @@ export const sendPaymentPendingEmail = async (
   currency: string,
   transactionId: string,
   confirmationsRequired: number = 1,
-  lang: string = 'en'
+  lang: string = 'en',
+  cryptoAmount?: string,
+  cryptoCurrency?: string
 ) => {
   try {
     const L = normalizeLang(lang);
@@ -1064,6 +1069,7 @@ export const sendPaymentPendingEmail = async (
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         ${dataRow(t('labels.amount', L), `<strong>${amount} ${currency}</strong>`)}
+        ${cryptoAmount && cryptoCurrency ? dataRow(t('labels.cryptoAmount', L), `${cryptoAmount} ${cryptoCurrency}`) : ''}
         ${dataRow(t('labels.status', L), statusBadge(t('statusLabels.awaitingConfirmation', L), 'pending'))}
         ${dataRow(t('labels.transactionId', L), `<span style="font-family: monospace; font-size: 13px;">${transactionId}</span>`, true)}
       </table>
@@ -1099,7 +1105,9 @@ export const sendPaymentConfirmingEmail = async (
   transactionId: string,
   currentConfirmations: number,
   requiredConfirmations: number,
-  lang: string = 'en'
+  lang: string = 'en',
+  cryptoAmount?: string,
+  cryptoCurrency?: string
 ) => {
   try {
     const L = normalizeLang(lang);
@@ -1115,6 +1123,7 @@ export const sendPaymentConfirmingEmail = async (
         <tr><td style="padding: 20px;">
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
             <tr><td style="padding: 8px 0; color: #6b7280; font-size: 14px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; border-bottom: 1px solid #f3f4f6;">${t('labels.amount', L)}</td><td style="padding: 8px 0; color: #1a1a2e; font-size: 16px; font-weight: 600; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; text-align: right; border-bottom: 1px solid #f3f4f6;">${amount} ${currency}</td></tr>
+            ${cryptoAmount && cryptoCurrency ? `<tr><td style="padding: 8px 0; color: #6b7280; font-size: 14px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; border-bottom: 1px solid #f3f4f6;">${t('labels.cryptoAmount', L)}</td><td style="padding: 8px 0; color: #1a1a2e; font-size: 14px; font-weight: 600; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; text-align: right; border-bottom: 1px solid #f3f4f6;">${cryptoAmount} ${cryptoCurrency}</td></tr>` : ''}
             <tr><td style="padding: 8px 0; color: #6b7280; font-size: 14px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; border-bottom: 1px solid #f3f4f6;">${t('labels.confirmations', L)}</td><td style="padding: 8px 0; color: #1a1a2e; font-size: 14px; font-weight: 600; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; text-align: right; border-bottom: 1px solid #f3f4f6;">${t('paymentConfirming.confirmationsOf', L, { current: currentConfirmations, required: requiredConfirmations })}</td></tr>
             <tr><td colspan="2" style="padding: 12px 0 4px 0;">
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background: #e5e7eb; border-radius: 4px; height: 8px;">
@@ -1915,7 +1924,7 @@ export const sendPaymentLinkCreatedEmail = async (
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         ${dataRow(t('labels.amount', L), `<strong>${amount} ${currency}</strong>`)}
-        ${dataRow(t('labels.description', L), description)}
+        ${description ? dataRow(t('labels.description', L), description) : ''}
         ${dataRow(t('merchant.labels.expires', L), expiresAt || t('merchant.never', L))}
         ${dataRow(t('merchant.labels.link', L), `<a href="${paymentLink}" style="color: #0d1f5c; text-decoration: none;">${shortDisplayUrl}</a>`, true)}
       </table>

@@ -6,6 +6,7 @@
   "homeHeading": "Hi there!",
   "homeTagline": "Manage your crypto payments securely with DynoPay.",
   "copiedToClipboard": "Copied to Clipboard",
+  "copyFailed": "Couldn't copy — please copy it manually",
   "yourReferralCode": "Your referral code",
   "helpSupport": "Help & Support",
   "transactionsNotAvailable": "Transactions Not Available",

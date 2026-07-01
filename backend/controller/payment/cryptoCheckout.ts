@@ -162,20 +162,40 @@ const getData = async (req: express.Request, res: express.Response) => {
           `SELECT status, paid_amount, paid_currency FROM tbl_payment_link WHERE link_id = :linkId`,
           { replacements: { linkId: item.link_id }, type: QueryTypes.SELECT }
         ) as any[];
-        if (dbLink && dbLink.status === 'successful') {
-          return res.status(200).json({
-            success: true,
-            data: {
-              payment_completed: true,
-              status: 'successful',
-              amount: Number(item.base_amount || item.amount || 0),
-              base_currency: item.base_currency,
-              paid_amount: dbLink.paid_amount,
-              paid_currency: dbLink.paid_currency,
-              description: item.description || null,
-              redirect_url: item.redirect_url || null,
-            },
-          });
+
+        // Treat the link as "completed" for the checkout page once the customer's
+        // payment has been confirmed on-chain — regardless of the exact status
+        // string persisted. Legacy flows store "successful"/"completed" while the
+        // formal state machine stores confirmed/processing/converted/payout_complete.
+        // Previously ONLY the literal "successful" matched, so links settled under a
+        // different status kept showing the "awaiting payment" form after payment.
+        if (dbLink) {
+          const parsedState = parseState(dbLink.status);
+          const COMPLETED_STATES = new Set<PaymentState>([
+            PaymentState.CONFIRMED,
+            PaymentState.PROCESSING,
+            PaymentState.CONVERTED,
+            PaymentState.PAYOUT_COMPLETE,
+          ]);
+          const isPaid =
+            dbLink.status === 'successful' ||
+            (parsedState !== undefined && COMPLETED_STATES.has(parsedState));
+
+          if (isPaid) {
+            return res.status(200).json({
+              success: true,
+              data: {
+                payment_completed: true,
+                status: 'successful',
+                amount: Number(item.base_amount || item.amount || 0),
+                base_currency: item.base_currency,
+                paid_amount: dbLink.paid_amount,
+                paid_currency: dbLink.paid_currency,
+                description: item.description || null,
+                redirect_url: item.redirect_url || null,
+              },
+            });
+          }
         }
       } catch (dbErr) {
         cronLogger.warn('[getData] DB status check failed:', dbErr);

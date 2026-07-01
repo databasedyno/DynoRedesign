@@ -17,7 +17,7 @@ import tatumApi from "../../apis/tatumApi";
 import { getErrorMessage, sendAdminFeeSweepEmail } from "../../helper";
 import { sendPaymentReceivedEmail } from "../../helper/sendEmail";
 import { normalizeLang } from "../../utils/emailI18n";
-import { convertToUSD, convertToFiat } from "../../utils/currencyUtils";
+import { convertToUSD, convertToFiat, getCompanyBaseCurrency } from "../../utils/currencyUtils";
 import { getRedisItem, setRedisItem, setRedisTTL, setRedisItemWithTTL } from "../../utils/redisInstance";
 import {
   getAccountResources,
@@ -985,16 +985,37 @@ export const sweepPoolAddress = async (tempAddressId: number): Promise<unknown> 
                 const dateStr = txCreatedAt.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
                 const timeStr = txCreatedAt.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 
+                // Issue #6: show fiat (merchant base currency) as primary, crypto as secondary
+                let mrpAmount = merchantAmount.toString();
+                let mrpCurrency = walletType;
+                let mrpCryptoAmount: string | undefined;
+                let mrpCryptoCurrency: string | undefined;
+                try {
+                  const baseCurrency = await getCompanyBaseCurrency(companyData?.company_id);
+                  const usd = await convertToUSD(walletType, Number(merchantAmount));
+                  if (usd && usd > 0 && !Number.isNaN(usd)) {
+                    const fiat = baseCurrency === 'USD' ? usd : (await convertToFiat('USD', baseCurrency, usd)).amount;
+                    if (fiat && fiat > 0 && !Number.isNaN(fiat)) {
+                      mrpAmount = fiat.toFixed(2);
+                      mrpCurrency = baseCurrency;
+                      mrpCryptoAmount = Number(merchantAmount).toString();
+                      mrpCryptoCurrency = walletType;
+                    }
+                  }
+                } catch { /* fall back to crypto-primary */ }
+
                 await sendPaymentReceivedEmail(
                   userData.email,
                   userData.name,
-                  merchantAmount.toString(),
-                  walletType,
+                  mrpAmount,
+                  mrpCurrency,
                   companyData?.company_name || '',
                   incomingTxId,
                   dateStr,
                   timeStr,
-                  normalizeLang((userData as { language?: string })?.language)
+                  normalizeLang((userData as { language?: string })?.language),
+                  mrpCryptoAmount,
+                  mrpCryptoCurrency
                 );
 
                 // Set dedup key so it won't be sent again

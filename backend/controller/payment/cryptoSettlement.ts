@@ -2754,18 +2754,45 @@ const cryptoVerification = async (address, webhook = true, overrideRedisKey?: st
           // When auto-convert is ON, show the original merchant amount (before redirect to admin)
           // Merchant will receive USDT equivalent, not 0 ETH
           const emailAmount = autoConvertEnabled ? originalUserAmount.toFixed(8) : Number(userAmountToSend).toFixed(8);
-          const emailCurrency = autoConvertEnabled ? `${tempCurrency} (converting to ${autoConvertTargetCurrency})` : tempCurrency;
-          
+
+          // Issue #6: show the amount in the merchant's fiat currency (primary) with
+          // the crypto amount received as a secondary line. Fall back to crypto-primary
+          // if the invoice base amount isn't available.
+          const receivedBaseAmount = customerData?.base_amount ?? tempData?.base_amount ?? null;
+          const receivedBaseCurrency = customerData?.base_currency ?? tempData?.base_currency ?? "USD";
+          const cryptoReceivedStr = parseFloat(emailAmount).toString();
+          const cryptoCurrencyLabel = autoConvertEnabled
+            ? `${tempCurrency} → ${autoConvertTargetCurrency}`
+            : tempCurrency;
+
+          let mrPrimaryAmount: string;
+          let mrPrimaryCurrency: string;
+          let mrCryptoAmount: string | undefined;
+          let mrCryptoCurrency: string | undefined;
+          if (receivedBaseAmount != null && Number(receivedBaseAmount) > 0) {
+            mrPrimaryAmount = Number(receivedBaseAmount).toFixed(2);
+            mrPrimaryCurrency = receivedBaseCurrency;
+            mrCryptoAmount = cryptoReceivedStr;
+            mrCryptoCurrency = cryptoCurrencyLabel;
+          } else {
+            mrPrimaryAmount = emailAmount;
+            mrPrimaryCurrency = autoConvertEnabled
+              ? `${tempCurrency} (converting to ${autoConvertTargetCurrency})`
+              : tempCurrency;
+          }
+
           await sendPaymentReceivedEmail(
             userData?.email,
             userData?.name,
-            emailAmount,             // original merchant amount (not 0)
-            emailCurrency,           // e.g., "ETH (converting to USDT)"
+            mrPrimaryAmount,         // fiat amount (merchant currency)
+            mrPrimaryCurrency,       // fiat currency (e.g. USD)
             companyName,             // companyName
             transactionId,           // transactionId
             paymentDateStr,          // date
             paymentTimeStr,          // time
-            normalizeLang((userData as { language?: string })?.language) // merchant language
+            normalizeLang((userData as { language?: string })?.language), // merchant language
+            mrCryptoAmount,          // crypto amount received (secondary)
+            mrCryptoCurrency         // crypto currency (secondary, e.g. "ETH → USDT")
           );
         }
 

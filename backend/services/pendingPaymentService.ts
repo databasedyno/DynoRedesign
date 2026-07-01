@@ -15,6 +15,38 @@ import {
   sendPaymentPartialExpiredEmail
 } from "../helper";
 import { getRedisItem, setRedisItem } from "../utils/redisInstance";
+import { getCompanyBaseCurrency, convertToUSD, convertToFiat } from "../utils/currencyUtils";
+
+/**
+ * Convert a received crypto amount into the merchant's fiat display currency
+ * (company base currency, defaulting to USD) so payment emails show the amount
+ * the merchant actually understands. Returns the fiat amount as the primary
+ * amount/currency and the crypto as a secondary line. Falls back to showing the
+ * crypto amount as primary if conversion is unavailable.
+ */
+const computeFiatForEmail = async (
+  companyId: number | undefined,
+  cryptoCurrency: string,
+  cryptoAmount: number,
+): Promise<{ fiatAmount: string; fiatCurrency: string; cryptoAmount?: string; cryptoCurrency?: string }> => {
+  const fallback = { fiatAmount: cryptoAmount.toString(), fiatCurrency: cryptoCurrency };
+  try {
+    if (!cryptoAmount || cryptoAmount <= 0) return fallback;
+    const baseCurrency = await getCompanyBaseCurrency(companyId);
+    const usd = await convertToUSD(cryptoCurrency, cryptoAmount);
+    if (!usd || usd <= 0 || Number.isNaN(usd)) return fallback;
+    const fiat = baseCurrency === "USD" ? usd : (await convertToFiat("USD", baseCurrency, usd)).amount;
+    if (!fiat || fiat <= 0 || Number.isNaN(fiat)) return fallback;
+    return {
+      fiatAmount: fiat.toFixed(2),
+      fiatCurrency: baseCurrency,
+      cryptoAmount: Number(cryptoAmount).toString(),
+      cryptoCurrency,
+    };
+  } catch {
+    return fallback;
+  }
+};
 
 // Confirmation requirements by blockchain
 export const CONFIRMATION_REQUIREMENTS: Record<string, number> = {
@@ -115,16 +147,24 @@ export const sendPendingPaymentNotification = async (
       customerData.company_id
     );
 
-    // Send email notification
+    // Send email notification — show the amount in the merchant's fiat currency
+    // (primary) with the crypto amount as a secondary line (Issue #6).
+    const pendingFiat = await computeFiatForEmail(
+      customerData.company_id ?? user.company_id,
+      currency,
+      Number(amount),
+    );
     await sendPaymentPendingEmail(
       user.email,
       user.name,
       user.company_name,
-      amount.toString(),
-      currency,
+      pendingFiat.fiatAmount,
+      pendingFiat.fiatCurrency,
       txId,
       confirmationsRequired,
-      normalizeLang(user.language)
+      normalizeLang(user.language),
+      pendingFiat.cryptoAmount,
+      pendingFiat.cryptoCurrency
     );
 
     // Mark notification as completed in Redis (expires in 24 hours)
@@ -215,16 +255,23 @@ export const sendConfirmationProgressNotification = async (
 
     // Send email for significant milestones (50% and 100%)
     if (nearestMilestone >= 50) {
+      const confirmingFiat = await computeFiatForEmail(
+        customerData.company_id ?? user.company_id,
+        currency,
+        Number(customerData.amount || 0),
+      );
       await sendPaymentConfirmingEmail(
         user.email,
         user.name,
         user.company_name,
-        customerData.amount?.toString() || "0",
-        currency,
+        confirmingFiat.fiatAmount,
+        confirmingFiat.fiatCurrency,
         txId,
         currentConfirmations,
         requiredConfirmations,
-        normalizeLang(user.language)
+        normalizeLang(user.language),
+        confirmingFiat.cryptoAmount,
+        confirmingFiat.cryptoCurrency
       );
     }
 

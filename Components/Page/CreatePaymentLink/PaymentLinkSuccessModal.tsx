@@ -26,6 +26,7 @@ import ShareIcon from "@/assets/Icons/ShareIcon.svg";
 import TransactionIcon from "@/assets/Icons/transaction-icon.svg";
 import PanelCard from "@/Components/UI/PanelCard";
 import Toast from "@/Components/UI/Toast";
+import { copyToClipboard } from "@/helpers/copyToClipboard";
 import {
   PaymentDetailRowProps,
   PaymentLinkSuccessModalProps,
@@ -82,6 +83,7 @@ const PaymentLinkSuccessModal: React.FC<PaymentLinkSuccessModalProps> = ({
   const tCommon = useCallback((key: string) => t(key, { ns: "common" }), [t]);
   const [openToast, setOpenToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
+  const [toastSeverity, setToastSeverity] = useState<"success" | "error">("success");
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Determine if single crypto is selected and find its wallet address
@@ -116,26 +118,58 @@ const PaymentLinkSuccessModal: React.FC<PaymentLinkSuccessModalProps> = ({
       : tPaymentLink("paidByClient");
   };
 
-  const showToast = (message: string) => {
+  const showToast = (message: string, severity: "success" | "error" = "success") => {
     setOpenToast(false);
     setToastMessage(message);
+    setToastSeverity(severity);
     setTimeout(() => setOpenToast(true), 0);
     if (toastTimer.current) clearTimeout(toastTimer.current);
     toastTimer.current = setTimeout(() => setOpenToast(false), 2000);
   };
 
-  const handleCopyPaymentLink = () => {
-    if (paymentLink) {
-      navigator.clipboard.writeText(paymentLink);
+  const handleCopyPaymentLink = async () => {
+    if (!paymentLink) {
+      showToast(String(tCommon("copyFailed")), "error");
+      return;
     }
-    showToast(tCommon("copiedToClipboard"));
+    const ok = await copyToClipboard(paymentLink);
+    showToast(
+      ok ? String(tCommon("copiedToClipboard")) : String(tCommon("copyFailed")),
+      ok ? "success" : "error",
+    );
   };
 
-  const handleCopyWalletAddress = () => {
-    if (singleCryptoWallet?.address) {
-      navigator.clipboard.writeText(singleCryptoWallet.address);
+  const handleSharePaymentLink = async () => {
+    if (!paymentLink) {
+      showToast(String(tCommon("copyFailed")), "error");
+      return;
     }
-    showToast(tCommon("copiedToClipboard"));
+    // Prefer the native share sheet on mobile; fall back to copying the link.
+    try {
+      if (typeof navigator !== "undefined" && typeof navigator.share === "function") {
+        await navigator.share({
+          title: tPaymentLink("paymentLink"),
+          url: paymentLink,
+        });
+        return;
+      }
+    } catch {
+      // user cancelled or share failed — fall through to copy
+      return;
+    }
+    await handleCopyPaymentLink();
+  };
+
+  const handleCopyWalletAddress = async () => {
+    if (!singleCryptoWallet?.address) {
+      showToast(String(tCommon("copyFailed")), "error");
+      return;
+    }
+    const ok = await copyToClipboard(singleCryptoWallet.address);
+    showToast(
+      ok ? String(tCommon("copiedToClipboard")) : String(tCommon("copyFailed")),
+      ok ? "success" : "error",
+    );
   };
 
   return (
@@ -192,7 +226,10 @@ const PaymentLinkSuccessModal: React.FC<PaymentLinkSuccessModalProps> = ({
                 label={tPaymentLink("paymentLink")}
                 inputHeight={isMobile ? "32px" : "40px"}
               />
-              <ApiKeyCopyButton sx={{ display: { xs: "flex", lg: "none" } }}>
+              <ApiKeyCopyButton
+                onClick={handleSharePaymentLink}
+                sx={{ display: { xs: "flex", lg: "none" } }}
+              >
                 <Image
                   src={ShareIcon.src}
                   alt="share"
@@ -376,7 +413,7 @@ const PaymentLinkSuccessModal: React.FC<PaymentLinkSuccessModalProps> = ({
       <Toast
         open={openToast}
         message={toastMessage}
-        severity="success"
+        severity={toastSeverity}
       />
     </>
   );

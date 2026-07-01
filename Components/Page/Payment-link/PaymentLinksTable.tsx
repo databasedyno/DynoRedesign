@@ -50,6 +50,7 @@ import { MobileNavigationButtons } from "@/Components/Page/Transactions/styled";
 import CustomButton from "@/Components/UI/Buttons";
 import RowsPerPageSelector from "@/Components/UI/RowsPerPageSelector";
 import Toast from "@/Components/UI/Toast";
+import { copyToClipboard } from "@/helpers/copyToClipboard";
 import useIsMobile from "@/hooks/useIsMobile";
 import { HourGlassIcon } from "@/utils/customIcons";
 import {
@@ -130,6 +131,8 @@ const PaymentLinksTable = ({
   const theme = useTheme();
   const isMobile = useIsMobile("md");
   const [openToast, setOpenToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string>("");
+  const [toastSeverity, setToastSeverity] = useState<"success" | "error">("success");
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [openViewModel, setOpenViewModel] = useState<boolean>(false);
   const [viewModelData, setViewModelData] = useState<{
@@ -157,8 +160,9 @@ const PaymentLinksTable = ({
 
   const paginatedData = paymentLinks.slice(start, end);
 
-  const handleCopy = (url: string) => {
-    navigator.clipboard.writeText(url);
+  const fireToast = (message: string, severity: "success" | "error") => {
+    setToastMessage(message);
+    setToastSeverity(severity);
     setOpenToast(false);
 
     setTimeout(() => {
@@ -172,6 +176,18 @@ const PaymentLinksTable = ({
     toastTimer.current = setTimeout(() => {
       setOpenToast(false);
     }, 2000);
+  };
+
+  const handleCopy = async (url: string) => {
+    if (!url) {
+      fireToast(String(tCommon("copyFailed")), "error");
+      return;
+    }
+    const ok = await copyToClipboard(url);
+    fireToast(
+      ok ? String(tCommon("copiedToClipboard")) : String(tCommon("copyFailed")),
+      ok ? "success" : "error",
+    );
   };
 
   // Parse DD/MM/YYYY HH:MM:SS format from API
@@ -223,10 +239,16 @@ const PaymentLinksTable = ({
     setOpenViewModel(true);
   };
 
-  const handleCopyLink = () => {
-    if (paymentLink) {
-      navigator.clipboard.writeText(paymentLink);
+  const handleCopyLink = async () => {
+    if (!paymentLink) {
+      fireToast(String(tCommon("copyFailed")), "error");
+      return;
     }
+    const ok = await copyToClipboard(paymentLink);
+    fireToast(
+      ok ? String(tCommon("copiedToClipboard")) : String(tCommon("copyFailed")),
+      ok ? "success" : "error",
+    );
   };
 
   function formatUtcToDisplay(dateString: string): string {
@@ -690,8 +712,8 @@ const PaymentLinksTable = ({
 
       <Toast
         open={openToast}
-        message={tCommon("copiedToClipboard")}
-        severity="success"
+        message={toastMessage || tCommon("copiedToClipboard")}
+        severity={toastSeverity}
       />
 
       <Dialog

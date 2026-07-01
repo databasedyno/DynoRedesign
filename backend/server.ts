@@ -1202,7 +1202,13 @@ const startServer = async () => {
     startVolatilityMonitor();
 
     // Start error monitoring (sends admin digest every 15 min when errors exist)
-    startErrorMonitoring();
+    // SAFETY: Only on the primary/cron runner — secondary API instances must NOT
+    // send admin error digests (would duplicate/spam from non-authoritative nodes).
+    if (isCronEnabled) {
+      startErrorMonitoring();
+    } else {
+      log('⚠️  Skipping error digest monitoring (background jobs disabled)', 'warn');
+    }
 
     // Start fee wallet monitoring (checks TRX balance every 30min)
     if (isCronEnabled) {
@@ -1230,11 +1236,18 @@ const startServer = async () => {
     }
 
     // ── Start BullMQ webhook worker ───────────────────────────────────────────
-    try {
-      startWebhookWorker(processWebhookJob);
-      log('BullMQ webhook worker started (concurrency: 5)', 'info');
-    } catch (workerErr) {
-      log(`BullMQ webhook worker failed to start: ${(workerErr as Error).message}`, 'error');
+    // SAFETY: Only the primary/cron runner consumes the shared "tatum-webhooks"
+    // queue. Secondary API instances (e.g. preview) must NOT pull production
+    // webhook jobs, or they would steal delivery from the authoritative runner.
+    if (isCronEnabled) {
+      try {
+        startWebhookWorker(processWebhookJob);
+        log('BullMQ webhook worker started (concurrency: 5)', 'info');
+      } catch (workerErr) {
+        log(`BullMQ webhook worker failed to start: ${(workerErr as Error).message}`, 'error');
+      }
+    } else {
+      log('⚠️  Skipping BullMQ webhook worker (background jobs disabled — secondary instance)', 'warn');
     }
 
     // ── Run startup reconciliation (catch missed webhooks during downtime) ────
