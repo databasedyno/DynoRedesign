@@ -4,7 +4,7 @@
 - **Email**: nomadly@moxx.co
 - **Password**: Katiekendra123@
 - **Company**: Nomadly1
-- **Pod URL**: https://terms-portugal.preview.emergentagent.com
+- **Pod URL**: https://quick-start-233.preview.emergentagent.com
 
 ---
 
