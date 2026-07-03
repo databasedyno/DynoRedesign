@@ -249,6 +249,52 @@ const isRetryable = (error: Error): boolean => {
 };
 
 /**
+ * Detect whether an incoming Tatum webhook actually describes one of OUR OWN outgoing
+ * transactions (a merchant payout, gas-funding transfer, or fee sweep) rather than a real
+ * customer payment.
+ *
+ * Why this exists: Tatum can (re-)deliver a webhook for a transaction WE sent — e.g. a merchant
+ * payout where funds move from a pool deposit address → the merchant's wallet. From the merchant
+ * wallet's perspective that looks like an INCOMING transfer (address = merchant wallet,
+ * counterAddress = our pool address). If reconciliation re-queues such a (previously failed)
+ * webhook, the processor would otherwise treat it as a brand-new payment and fire a spurious
+ * "payment pending" email — and, if a live payment session existed, risk double-processing.
+ *
+ * Two independent, safe signals (either is conclusive):
+ *   (A) The sender (counterAddress) is one of our merchant pool deposit addresses — funds LEFT
+ *       our pool, so this is money WE moved, never a customer payment.
+ *   (B) The txId is already recorded by us as an outgoing settlement (merchant_tx_id) or a
+ *       gas-funding transfer (gas_funding_tx_id).
+ *
+ * Returns a short reason string when it IS our own outgoing tx, otherwise null.
+ * Callers MUST fail-open (treat errors as "not ours") so a genuine payment is never dropped.
+ */
+async function isOwnOutgoingTransaction(payload: WebhookJobData["payload"]): Promise<string | null> {
+  const { merchantTempAddressModel, merchantPoolTransactionModel } = await import("../models");
+
+  // (A) counterAddress (the sender) is one of our own pool deposit addresses
+  const sender = payload.counterAddress;
+  if (sender) {
+    const poolAddr = await merchantTempAddressModel.findOne({
+      where: { wallet_address: sender },
+      attributes: ["temp_address_id"],
+    });
+    if (poolAddr) return "pool_sender";
+  }
+
+  // (B) txId matches an outgoing settlement/gas-funding tx we already recorded
+  if (payload.txId) {
+    const knownOutgoing = await merchantPoolTransactionModel.findOne({
+      where: { [Op.or]: [{ merchant_tx_id: payload.txId }, { gas_funding_tx_id: payload.txId }] },
+      attributes: ["pool_tx_id"],
+    });
+    if (knownOutgoing) return "known_settlement_tx";
+  }
+
+  return null;
+}
+
+/**
  * Process a Tatum webhook job.
  * This is the full processing pipeline — called from the BullMQ worker.
  */
@@ -302,6 +348,24 @@ export async function processWebhookJob(data: WebhookJobData): Promise<void> {
       await setRedisItem(processedTxKey, { processed: true, type: "internal_sweep", timestamp: new Date().toISOString() });
       await setRedisTTL(processedTxKey, 86400);
       return;
+    }
+
+    // ── 3b. Ignore OUR OWN outgoing transactions (merchant payouts / gas funding / sweeps) ────
+    // A stale or previously-failed Tatum webhook for a transaction WE sent (e.g. a merchant
+    // payout: pool address → merchant wallet) can be re-delivered / reconciled and misread as a
+    // brand-new INCOMING payment, producing a spurious "payment pending" email (and, if a live
+    // session existed, risking double-processing). Detect and skip these. Fail-open on error so a
+    // genuine customer payment is never dropped.
+    try {
+      const ownOutgoing = await isOwnOutgoingTransaction(payload);
+      if (ownOutgoing) {
+        webhookLogs.info(`[WebhookProcessor] Ignoring our own outgoing tx (${ownOutgoing}): txId=${payload.txId} from=${payload.counterAddress} to=${payload.address}`);
+        await setRedisItem(processedTxKey, { processed: true, type: `own_outgoing_${ownOutgoing}`, timestamp: new Date().toISOString() });
+        await setRedisTTL(processedTxKey, 86400);
+        return;
+      }
+    } catch (err) {
+      webhookLogs.warn(`[WebhookProcessor] own-outgoing check failed (continuing with normal processing): ${(err as Error).message}`);
     }
 
     // ── 4. Address resolution (BCH + tag-based chains) ────────────────────────

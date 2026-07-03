@@ -5,6 +5,18 @@ USDT-TRC20 payment gateway platform. Users can create companies, wallets, paymen
 
 ## What's Been Implemented
 
+### 2026-07-03 — Incident forensics + fix: spurious "payment pending" email from our OWN outgoing payout
+- **Reported**: a "payment pending" email showed raw i18n keys AND a merchant claimed a USDT payment "wasn't forwarded" (tx `ed41de1f…`, 58.93755 USDT-TRC20, ~$58.94).
+- **Forensics (read-only: DO logs + prod Postgres + Redis + on-chain Tronscan)** — corrected an initial wrong assumption (I first queried the UNUSED `tbl_usdt_pool_*` tables; the live merchant-pool tables are `tbl_merchant_*`):
+  - `tbl_merchant_pool_transaction` pool_tx **262**: incoming `ff91ca96…` = customer paid **61 USDT** → pool addr `TMsSrj1Z…` (temp_address_id 23); merchant payout `ed41de1f…` = **58.93755 USDT** → merchant wallet `TTve8v6…`; admin fee 1.93166667; **status = completed** (Jul‑02 12:52).
+  - On-chain (Tronscan, both **SUCCESS**): `ff91ca96` TU4vEr…→TMsSrj1Z 61 USDT; `ed41de1f` TMsSrj1Z→TTve8v6 58.93755 USDT.
+  - `TTve8v6…` = `tbl_user_wallet` wallet_id 4, user 1 (company "hostbay"), type USDT-TRC20 → the merchant's own wallet. **Funds WERE delivered; nothing to recover (a "recovery" would have double-paid).**
+  - The Jul‑03 email: a `reconciled-tx` (`source: tatum-failed-webhook`) re-queued txId `ed41de1f` (our OWN outgoing payout). The webhook (address=merchant wallet, counterAddress=our pool addr) was misread as a NEW incoming payment → spurious "pending" notif (`pending-notif` sentAt `12:33:55Z`, ~17s BEFORE the email-fix deploy went live `12:34:12Z` → hence raw keys). Also mislabeled chain as ERC20 (it's TRC20).
+- **Fix** (`services/webhookProcessor.ts`): added `isOwnOutgoingTransaction()` guard (runs right after the INTERNAL_WALLETS check). Skips a webhook when **(A)** `counterAddress` (sender) is one of our `tbl_merchant_temp_address.wallet_address` pool addresses, or **(B)** `txId` matches a recorded `merchant_tx_id`/`gas_funding_tx_id` in `tbl_merchant_pool_transaction`. Fail-open on error (never drops a real payment). Uses dynamic `import("../models")` to avoid circular deps.
+- **Verified** against real prod data: spurious payout → both signals TRUE (skipped); real customer payment (customer sender + fresh incoming txId) → both FALSE (processed normally). Backend boots clean, `/api/`→200.
+- **Not done / recommended**: graceful drain of in-flight BullMQ webhook jobs before a deploy stops the container (the Jul‑03 failed webhook coincided with the deploy restart). Lower priority since no funds were lost.
+
+
 ### 2026-07-03 — Bug fix: localized emails/PDFs rendered raw i18n keys in production
 - **Symptom** (reported on a real prod payment-pending email): subject/body showed literal keys — `paymentPending.subject`, `paymentPending.heading`, `common.greeting`, `labels.amount`, `statusLabels.awaitingConfirmation`, `paymentPending.btcTime`, etc. — while interpolated values (amount, tx hash) came through fine.
 - **Root cause**: `utils/emailI18n.ts` `loadCatalog()` read the catalog from `path.join(__dirname, "..", "locales", lang, "emails.json")`. That works under ts-node (source: `backend/utils` → `backend/locales`), but in the production Docker image the backend runs compiled (`node dist/server.js`, `__dirname=backend/dist/utils`) and (a) `tsc` never emits the `.json` catalogs into `dist/`, and (b) the Dockerfile copied `dist/`, `node_modules`, `public`, `swagger` into the runner but **never copied `locales/`**. So every catalog load threw → cached `{}` → `t()` fell through to its "return the key" last resort. (Not reproducible in preview, which runs ts-node from source.)
