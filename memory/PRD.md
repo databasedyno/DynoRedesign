@@ -5,6 +5,15 @@ USDT-TRC20 payment gateway platform. Users can create companies, wallets, paymen
 
 ## What's Been Implemented
 
+### 2026-07-03 — Re-setup on fresh container from DigitalOcean prod env (WORKER_ROLE=secondary)
+- Fresh container: `/app/node_modules`, `/app/backend/node_modules`, and all `.env` files were missing → frontend FATAL (`next: not found`), Node backend down.
+- User provided a DigitalOcean API token. Pulled the prod app **`dynopay`** (app id `f86b27dc-feb0-4a44-a4e9-ebd2053e0468`, live `https://dynopay.com`) spec via `GET /v2/apps/{id}`. All 150 env vars were stored as GENERAL (plaintext) — retrieved every value incl. DB/Redis/Tatum/Brevo/Telnyx/Google KMS PEM.
+- Wrote `/app/backend/.env` from prod values with overrides: URLs (SERVER_URL/FRONTEND_URL/CHECKOUT_URL/NEXTAUTH_URL/NEXT_PUBLIC_BASE_URL + added NEXT_PUBLIC_SERVER_URL/NEXT_PUBLIC_API_DOCS_URL) → preview origin `https://09fb673d-d6f7-4606-82be-0b11f1484439.preview.emergentagent.com`; preview origin appended to CORS_ALLOWED_ORIGINS; **WORKER_ROLE=secondary** (cron/sweeps/settlement OFF — verified in logs "background jobs disabled — secondary instance"). Values single-quoted so the GOOGLE_CLIENT_KEY PEM (literal `\n`) stays verbatim. Prod NEXTAUTH_SECRET was the literal placeholder "openssl rand -base64 32" → replaced with a real generated base64 secret (in both backend .env and .env.local).
+- Wrote `/app/.env.local` (Next.js public vars → preview origin) and `/app/frontend/.env` (`REACT_APP_BACKEND_URL` → preview origin, ingress contract).
+- `yarn install` in `/app` (Next.js 14.2.35) and `/app/backend` (Node/TS) — both clean. Restarted backend + frontend via supervisor.
+- Health verified: internal `GET /api/`→200, `/api/pay/network-fees`→200, `/api/geo-detect`→200; frontend `/`→200; login page renders via public preview origin (screenshot). Backend connected to Railway Postgres (models synced) + Redis, Tatum rates cached. Binance WS geo-blocked → CoinGecko fallback (expected). NOTE: this instance talks to the **live prod DB/Redis** — WORKER_ROLE=secondary keeps it read/serve-only for background work, but UI actions still write to prod data.
+
+
 ### 2026-06-30 — Email Internationalization, Phase 2 (full email-copy localization) ✅ VERIFIED
 Phase 2a (customer payment emails + PDF) and Phase 2b (all merchant lifecycle emails) — all email copy now localizes into the 6 supported languages (en/pt/es/fr/de/nl) with EN fallback.
 - **Phase 2a (verified)**: 8 customer payment email functions in `emailService.ts` + `pdfReceiptService.ts` refactored to `t(key,lang,vars)`; `lang` threaded through `cryptoSettlement.ts`, `pendingPaymentService.ts`, `merchantPoolSweep.ts`. Verified via `scripts/_tmp_verify_emails.ts` (all keys render, PDFs generate en/de/fr).
