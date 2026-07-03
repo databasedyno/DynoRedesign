@@ -1020,6 +1020,11 @@ cron.schedule("*/10 * * * *", function () {
   });
 });
 
+// HTTP server instance — captured so graceful shutdown can stop accepting new
+// requests (and fail the health check) BEFORE tearing down the worker/DB. This
+// prevents a deploy/restart from accepting a webhook and then dropping it mid-shutdown.
+let httpServer: import("http").Server | null = null;
+
 const startServer = async () => {
   log('Connecting to Redis...', 'info');
   await connectRedis();
@@ -1171,7 +1176,7 @@ const startServer = async () => {
     const errMsg = error instanceof Error ? error.message : String(error);
     log(`PostgreSQL Unable to connect to the database: ${errMsg}`, 'error');
   }
-  app.listen(port, () => {
+  httpServer = app.listen(port, () => {
     log(`🚀 Server is listening on port ${port}!`, 'info');
     log(`📚 Swagger docs available at /api/docs`, 'info');
     log(`❤️ Health check available at /health`, 'info');
@@ -1324,6 +1329,17 @@ const gracefulShutdown = async (signal: string) => {
   if (isShuttingDown) return; // Prevent double shutdown
   isShuttingDown = true;
   log(`Received ${signal}. Starting graceful shutdown...`, 'warn');
+
+  // 0. Stop accepting NEW HTTP requests first (fails health check → platform stops routing;
+  //    lets in-flight requests finish). Bounded so lingering keep-alive conns can't hang the
+  //    shutdown past the platform's SIGTERM→SIGKILL grace window.
+  if (httpServer) {
+    await new Promise<void>((resolve) => {
+      const timer = setTimeout(resolve, 5000);
+      httpServer!.close(() => { clearTimeout(timer); resolve(); });
+    });
+    log('HTTP server closed (no longer accepting new requests).', 'info');
+  }
 
   // 1. Destroy all cron jobs so no new DB/Redis work is scheduled
   const cronTasks = cron.getTasks();
