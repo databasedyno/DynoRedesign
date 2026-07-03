@@ -1292,6 +1292,24 @@ async function handleNewTransaction(
 
   } catch (verifyError: unknown) {
     const err = verifyError as { message?: string };
+
+    // ── TEMPORARY GAS DEFERRAL — NOT a real failure ──────────────────────────
+    // Settlement defers (throws "DEFERRED: ...") when the gas/fee wallet is critically
+    // low. The payment WAS received on-chain; it will auto-retry via BullMQ and the
+    // reconciliation sweep (which re-queues `gas_pending`/`failed` sessions for up to
+    // 7 days) once the gas wallet is topped up. So: mark the session `gas_pending`,
+    // persist it (setRedisItem uses SET which clears the TTL → durable for reconciliation),
+    // and do NOT fire the alarming `payment.settlement_failed` webhook for a transient
+    // condition (avoids false "not forwarded" alerts to the merchant).
+    if (typeof err.message === "string" && err.message.startsWith("DEFERRED:")) {
+      webhookLogs.warn(`[WebhookProcessor] ⏸️ Settlement DEFERRED (gas) — will auto-retry when gas is available: addr=${address}, tx=${payload.txId}, reason=${err.message}`);
+      await setRedisItem(redisKey, {
+        ...items, status: "gas_pending", receivedAmount: incomingAmount,
+        txId: payload.txId, deferredAt: new Date().toISOString(), lastError: err.message,
+      });
+      throw verifyError; // let BullMQ / reconciliation retry once gas is topped up
+    }
+
     webhookLogs.error("[WebhookProcessor] cryptoVerification failed after retries:", verifyError);
     log(`[WebhookProcessor] ❌ FAILED: addr=${address}, tx=${payload.txId}, err=${err.message}`, "error");
 
