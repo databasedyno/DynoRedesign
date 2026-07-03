@@ -113,6 +113,9 @@ COPY --from=backend-builder /app/node_modules ./backend/node_modules
 COPY --from=backend-builder /app/package.json ./backend/package.json
 COPY --from=backend-builder /app/public ./backend/public
 COPY --from=backend-builder /app/swagger ./backend/swagger
+# Email/PDF i18n catalogs (read at runtime via fs; tsc does NOT emit these .json files).
+# Without this, all localized emails/PDFs render raw i18n keys in production.
+COPY --from=backend-builder /app/locales ./backend/locales
 
 # --- Frontend files (Next.js standalone) ---
 COPY --from=frontend-builder /app/.next/standalone ./frontend/

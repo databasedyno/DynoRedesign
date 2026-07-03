@@ -39,16 +39,37 @@ const asValidLang = (lang?: string | null): EmailLanguage | null => {
 // ── Catalog loading (cached) ────────────────────────────────────────────────
 const catalogCache: Partial<Record<EmailLanguage, Record<string, unknown>>> = {};
 
+// Resolve the locales directory across BOTH runtimes:
+//  - ts-node from source:           __dirname = backend/utils        -> ../locales    = backend/locales
+//  - compiled (node dist/server.js): __dirname = backend/dist/utils  -> ../../locales = backend/locales
+// Extra cwd-based fallbacks make this robust to however the process is launched.
+// (Without this, the production `dist` build — which never bundles the JSON catalogs —
+//  loaded an empty catalog and every t() fell through to returning the raw key.)
+const LOCALE_DIR_CANDIDATES = [
+  path.join(__dirname, "..", "locales"),
+  path.join(__dirname, "..", "..", "locales"),
+  path.join(process.cwd(), "locales"),
+  path.join(process.cwd(), "backend", "locales"),
+];
+
 const loadCatalog = (lang: EmailLanguage): Record<string, unknown> => {
   if (catalogCache[lang]) return catalogCache[lang] as Record<string, unknown>;
   let parsed: Record<string, unknown> = {};
-  try {
-    const file = path.join(__dirname, "..", "locales", lang, "emails.json");
-    parsed = JSON.parse(fs.readFileSync(file, "utf8"));
-  } catch {
-    parsed = {};
+  for (const dir of LOCALE_DIR_CANDIDATES) {
+    try {
+      const file = path.join(dir, lang, "emails.json");
+      const candidate = JSON.parse(fs.readFileSync(file, "utf8"));
+      if (candidate && typeof candidate === "object" && Object.keys(candidate).length > 0) {
+        parsed = candidate;
+        break;
+      }
+    } catch {
+      // catalog not at this location — try the next candidate
+    }
   }
-  catalogCache[lang] = parsed;
+  // Only cache a successfully-loaded (non-empty) catalog, so a transient miss at
+  // startup is never permanently cached as empty.
+  if (Object.keys(parsed).length > 0) catalogCache[lang] = parsed;
   return parsed;
 };
 

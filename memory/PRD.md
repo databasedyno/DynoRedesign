@@ -5,6 +5,16 @@ USDT-TRC20 payment gateway platform. Users can create companies, wallets, paymen
 
 ## What's Been Implemented
 
+### 2026-07-03 — Bug fix: localized emails/PDFs rendered raw i18n keys in production
+- **Symptom** (reported on a real prod payment-pending email): subject/body showed literal keys — `paymentPending.subject`, `paymentPending.heading`, `common.greeting`, `labels.amount`, `statusLabels.awaitingConfirmation`, `paymentPending.btcTime`, etc. — while interpolated values (amount, tx hash) came through fine.
+- **Root cause**: `utils/emailI18n.ts` `loadCatalog()` read the catalog from `path.join(__dirname, "..", "locales", lang, "emails.json")`. That works under ts-node (source: `backend/utils` → `backend/locales`), but in the production Docker image the backend runs compiled (`node dist/server.js`, `__dirname=backend/dist/utils`) and (a) `tsc` never emits the `.json` catalogs into `dist/`, and (b) the Dockerfile copied `dist/`, `node_modules`, `public`, `swagger` into the runner but **never copied `locales/`**. So every catalog load threw → cached `{}` → `t()` fell through to its "return the key" last resort. (Not reproducible in preview, which runs ts-node from source.)
+- **Fix (2 parts)**:
+  1. `utils/emailI18n.ts` — `loadCatalog()` now tries multiple candidate dirs (`../locales`, `../../locales`, `cwd/locales`, `cwd/backend/locales`) and only caches a non-empty catalog. Works from both source and compiled builds.
+  2. `Dockerfile` (runner stage) — added `COPY --from=backend-builder /app/locales ./backend/locales` (alongside the existing swagger/public copies) so the JSON catalogs exist at `/app/backend/locales` in prod; the `../../locales` candidate resolves there.
+- **Verified**: real `t()` (via backend ts-node) renders correct English + German with interpolation (`Hey Alex,`, `BTC: 10-60 min (3 confirmations)`, `Ihre Zahlung wartet auf Bestätigung`); simulated compiled `__dirname=/app/backend/dist/utils` and confirmed it resolves to the real catalog; backend boots clean, `/api/`→200 (no regression). Also fixes localized PDF receipts (same `t()`).
+- **Deploy note**: preview already worked (source runtime), so this only changes production behavior. It takes effect on the next prod deploy (Save to GitHub → DO rebuilds the Docker image incl. the new locales copy).
+
+
 ### 2026-07-03 — Re-setup on fresh container from DigitalOcean prod env (WORKER_ROLE=secondary)
 - Fresh container: `/app/node_modules`, `/app/backend/node_modules`, and all `.env` files were missing → frontend FATAL (`next: not found`), Node backend down.
 - User provided a DigitalOcean API token. Pulled the prod app **`dynopay`** (app id `f86b27dc-feb0-4a44-a4e9-ebd2053e0468`, live `https://dynopay.com`) spec via `GET /v2/apps/{id}`. All 150 env vars were stored as GENERAL (plaintext) — retrieved every value incl. DB/Redis/Tatum/Brevo/Telnyx/Google KMS PEM.
