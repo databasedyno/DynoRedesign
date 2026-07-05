@@ -19,6 +19,12 @@ import useIsMobile from "@/hooks/useIsMobile";
  * value prop lands harder when you can actually try it.
  */
 
+// Brand base URL for the curl snippet. Always render as dynopay.com regardless
+// of the environment so the copy-paste example matches what devs will actually
+// use in production (and stays SSR-stable — no window.location.origin, which
+// would differ between server and client and cause a hydration mismatch).
+const BRAND_BASE_URL = "https://dynopay.com";
+
 const SANDBOX_KEY = "dyno_sk_sandbox_demo_9f621db8";
 
 const buildCurl = (baseUrl: string): string => {
@@ -139,10 +145,7 @@ const TryItNow: React.FC = () => {
   const isMobile = useIsMobile("md");
   const [copiedSnack, setCopiedSnack] = useState<string | null>(null);
 
-  const baseUrl = useMemo(() => {
-    if (typeof window !== "undefined") return window.location.origin;
-    return process.env.NEXT_PUBLIC_BASE_URL || "https://dynopay.com";
-  }, []);
+  const baseUrl = BRAND_BASE_URL;
   const curl = useMemo(() => buildCurl(baseUrl), [baseUrl]);
 
   const copy = useCallback(async (text: string, label: string) => {
