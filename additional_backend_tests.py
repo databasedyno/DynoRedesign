@@ -8,7 +8,7 @@ import requests
 import json
 import sys
 
-BACKEND_URL = "https://auth-deploy-3.preview.emergentagent.com"
+BACKEND_URL = "https://prod-deploy-check.preview.emergentagent.com"
 
 def test_additional_scenarios():
     """Test additional scenarios and edge cases"""

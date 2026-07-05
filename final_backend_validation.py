@@ -8,7 +8,7 @@ import requests
 import json
 import sys
 
-BACKEND_URL = "https://auth-deploy-3.preview.emergentagent.com"
+BACKEND_URL = "https://prod-deploy-check.preview.emergentagent.com"
 
 def final_validation_tests():
     """Final validation of all review request requirements"""
