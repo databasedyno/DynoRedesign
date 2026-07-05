@@ -6080,3 +6080,13 @@ for all 6 languages. Date formatting via `toLocaleDateString(i18n.language, ...)
 locale-appropriate formats (English "Jun 30, 2026", German "30. Juni 2026", French "30 juin 2026",
 Portuguese "30 de jun. de 2026", etc.).
 
+
+## BUG FIX — Paid-link checkout flash (2026-07-05)
+User report: paid link /pay?d=7d9602b4... briefly showed old checkout ("0.01") before "Payment Successful".
+Root causes: (a) checkout form rendered during the entire pay/getData roundtrip (loading only skeletonized amounts);
+(b) sessionStorage payment_active_step=2 saved by the alreadyPaid path could restore the old stepper on same-tab revisit.
+Fix (pages/pay/index.tsx): initialLoading full-render gate w/ neutral loader [data-testid=checkout-loading];
+router.isReady guard; payment_completed branch clears payment_active_step + payment_transfer_method (setActiveStep(2) removed);
+walletState guarded (amount||0, currency||'USD') for degenerate payloads.
+VERDICT: iteration_16.json — 5/5 PASS (28-sample rapid poll: form never appears; revisit clean; unpaid link bde22009... renders form; bogus token no fake success; PT pill "Pago há 4 dias").
+Production checkout.dynopay.com needs redeploy to receive this fix.

@@ -200,6 +200,12 @@ Verified by testing agent (Python Playwright + JWT injection): 6/6 PASS. Banner 
 - Empty state text invisible in dark mode — `EmptyDataModel`, `NoData`, `PaymentLink`, `Wallet` dialog all fixed to use theme-aware colors
 - **Verified**: Testing agent Iteration 14
 
+### 2026-07-05 — Paid-Link Checkout Flash Fix (checkout.dynopay.com report)
+- Bug: opening an already-paid link flashed the OLD checkout form ("Total 0.01" dust) for a few seconds before the success card
+- Fix in `pages/pay/index.tsx`: `initialLoading` render gate (neutral loader, testid `checkout-loading`) until `pay/getData` resolves; `router.isReady` guard on the query effect; payment_completed branch clears stale sessionStorage keys (`payment_active_step`, `payment_transfer_method`) instead of `setActiveStep(2)`; walletState currency/amount guarded against degenerate payloads
+- **Verified**: Testing agent Iteration 16 — 5/5 scenarios (rapid-sample no-flash, same-tab revisit, unpaid regression, bogus token, PT i18n)
+- NOTE: production checkout.dynopay.com requires redeploy to pick up this fix
+
 ### 2026-06-28 — Password Update OTP Bug Fixes
 - Removed "current password" requirement, replaced with OTP channel selector
 - Fixed OTP dialog close button overflow, "Verify" text, auto-submit
