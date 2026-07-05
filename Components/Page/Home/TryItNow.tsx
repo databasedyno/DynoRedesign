@@ -235,13 +235,16 @@ const TryItNow: React.FC = () => {
       <Box
         sx={{
           display: "grid",
-          gridTemplateColumns: { xs: "1fr", md: "minmax(320px, 460px) 1fr" },
+          gridTemplateColumns: { xs: "minmax(0, 1fr)", md: "minmax(320px, 460px) minmax(0, 1fr)" },
           gap: { xs: 3, md: 4 },
           alignItems: "start",
         }}
       >
         {/* ── Left: embedded live checkout ─────────────────────────────── */}
-        <Box>
+        {/* NB: each grid item wrapper needs minWidth:0 too, otherwise its   *
+         *     intrinsic content (long <pre>, wide iframe) forces the whole  *
+         *     column to grow past viewport width on mobile.                 */}
+        <Box sx={{ minWidth: 0 }}>
           <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1.5 }}>
             <Typography
               sx={{
@@ -351,7 +354,7 @@ const TryItNow: React.FC = () => {
         </Box>
 
         {/* ── Right: curl snippet + response ───────────────────────────── */}
-        <Box>
+        <Box sx={{ minWidth: 0 }}>
           <Typography
             sx={{
               fontFamily: "UrbanistBold",

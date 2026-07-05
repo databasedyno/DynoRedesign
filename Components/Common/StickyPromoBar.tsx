@@ -82,12 +82,23 @@ const StickyPromoBar: React.FC = () => {
           alignItems: 'center',
           gap: 0.8,
           textAlign: 'center',
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          minWidth: 0,
         }}
       >
         <Box component="span" sx={{ fontSize: 16, lineHeight: 1 }}>🎁</Box>
-        Your first{' '}
-        <Box component="span" sx={{ fontFamily: 'UrbanistBold' }}>$500</Box>{' '}
-        in payments is <Box component="span" sx={{ fontFamily: 'UrbanistBold' }}>fee-free</Box>
+        {/* Shorter copy on mobile so the whole bar fits in one line at 375px iPhone width. */}
+        <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
+          Your first{' '}
+          <Box component="span" sx={{ fontFamily: 'UrbanistBold' }}>$500</Box>{' '}
+          in payments is <Box component="span" sx={{ fontFamily: 'UrbanistBold' }}>fee-free</Box>
+        </Box>
+        <Box component="span" sx={{ display: { xs: 'inline', sm: 'none' } }}>
+          First <Box component="span" sx={{ fontFamily: 'UrbanistBold' }}>$500</Box>{' '}
+          <Box component="span" sx={{ fontFamily: 'UrbanistBold' }}>fee-free</Box>
+        </Box>
       </Typography>
 
       <Box

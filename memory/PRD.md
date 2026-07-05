@@ -5,6 +5,13 @@ USDT-TRC20 payment gateway platform. Users can create companies, wallets, paymen
 
 ## What's Been Implemented
 
+### 2026-07-05 — Mobile alignment fixes (iPhone SE / 14 / Pro Max)
+User reported: "Mobile doesn't look properly aligned on iPhone". Diagnosed at 375/390/430px viewports:
+- **StickyPromoBar** — the full copy "🎁 Your first $500 in payments is fee-free" wrapped to 3-4 lines at 375px, blowing the 36px bar height and pushing the Claim button + X into the wrap mess. Fix: added a `display: {xs:'inline', sm:'none'}` short variant "🎁 First $500 fee-free" for mobile, + `whiteSpace: nowrap` + `minWidth: 0` on the Typography. Bar now stays exactly 36px tall on all iPhones.
+- **TryItNow iframe overflow** — grid `gridTemplateColumns: {xs:'1fr', md:'minmax(320px, 460px) 1fr'}` was fine intent but broken behavior: CSS Grid `1fr` defaults to `min-width: auto`, so the intrinsic size of children (long `<pre>` curl block on the right, checkout iframe on the left) forced the whole column to grow past the viewport (iframe was 515px wide inside a 375px viewport → 180px clipped past the right edge). Fix: changed to `minmax(0, 1fr)` for both mobile and the right desktop column, and added `sx={{ minWidth: 0 }}` on both grid item wrappers so the pre's overflow-x can actually scroll instead of forcing column growth. iframe now: 293px @ 375, 308px @ 390, 348px @ 430 — all fit inside their columns.
+- Verification via Playwright at 3 iPhone viewports (375×667, 390×844, 430×932): `document.documentElement.scrollWidth === viewport width` on all three (no horizontal overflow anywhere on the page). Screenshots confirmed clean rendering of hero, product tabs, TryItNow playground, curl block, FeeCalculator, compliance/chains grids, testimonials, FAQ, final CTA.
+- Files touched: `Components/Common/StickyPromoBar.tsx`, `Components/Page/Home/TryItNow.tsx`.
+
 ### 2026-07-05 — Landing page slim-down (4 sections + exit-intent modal removed)
 User feedback: "How we stack up doesn't appear needed", "exit-intent popup keeps popping up repeatedly even when the user isn't leaving", "landing looks rough or too busy". Trimmed `Components/Page/Home/index.tsx`:
 - **Removed** `ComparisonTable` (L) — the "How we stack up" DynoPay-vs-Coinbase/BitPay/Stripe table.
