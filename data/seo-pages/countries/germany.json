@@ -1,0 +1,57 @@
+{
+  "meta_title": "Accept Crypto Payments in Germany | DynoPay Gateway",
+  "meta_description": "Accept Bitcoin, Ethereum, USDT and 10+ cryptocurrencies in Germany. Non-custodial, 1.5% flat fee, no monthly costs. Start accepting crypto in 10 minutes.",
+  "h1": "Accept crypto payments in Germany with a non-custodial gateway",
+  "subheading": "Receive Bitcoin, Ethereum, Solana, and stablecoins directly to your wallet. No custody risk, no monthly fees—just 1.5% per transaction.",
+  "intro_paragraph": "German businesses can now accept cryptocurrency payments without giving up control of their funds. DynoPay is a non-custodial payment gateway that sends Bitcoin, Ethereum, USDT, and 10+ other digital assets directly to your wallet—we never hold your money. You pay a flat 1.5% transaction fee with no setup costs, no monthly subscriptions, and no hidden charges. Whether you invoice in EUR or accept global payments, you go live in under 10 minutes with a payment link or checkout widget.",
+  "features": [
+    {
+      "title": "You control the funds",
+      "description": "DynoPay never holds customer payments. Every transaction settles directly into your own Bitcoin, Ethereum, or multi-chain wallet. You retain full custody from payment to withdrawal."
+    },
+    {
+      "title": "1.5% flat fee, no subscriptions",
+      "description": "Pay 1.5% per successful transaction plus a small fixed component based on order size. No monthly platform fees, no setup costs, no surprises on your invoice."
+    },
+    {
+      "title": "Live in under 10 minutes",
+      "description": "Sign up, verify your email, add your payout wallet address, and generate a payment link or embed the widget. Start accepting crypto the same day without developer resources."
+    }
+  ],
+  "how_it_works": [
+    "Sign up with your email, verify your account, and create a company profile in DynoPay.",
+    "Add your cryptocurrency wallet address where you want to receive payments—one wallet or multiple chains.",
+    "Generate a payment link or drop the checkout widget on your site and start accepting payments immediately."
+  ],
+  "faqs": [
+    {
+      "question": "Which cryptocurrencies can I accept in Germany with DynoPay?",
+      "answer": "You can accept Bitcoin, Litecoin, Bitcoin Cash, Dogecoin, Ethereum, USDT on three networks (ERC20, Polygon, TRC20), USDC, RLUSD on Ethereum and XRP Ledger, Polygon MATIC, Tron, Solana, and XRP. All payments go directly to your wallet."
+    },
+    {
+      "question": "Does DynoPay hold my cryptocurrency payments?",
+      "answer": "No. DynoPay is non-custodial. Every payment your customers make is sent directly to the wallet address you provide during setup. You control your private keys and funds at all times. We never hold, store, or have access to your cryptocurrency."
+    },
+    {
+      "question": "What fees does DynoPay charge German merchants?",
+      "answer": "DynoPay charges a flat 1.5% platform fee on each successful transaction, plus a tiered fixed component: one dollar for orders under 100 dollars, scaling to one dollar for orders under 1,000 dollars. There are no monthly fees, setup fees, or hidden costs."
+    },
+    {
+      "question": "How long does it take to start accepting crypto payments?",
+      "answer": "Most merchants go live in under 10 minutes. You sign up, verify your email, add your company details, provide one payout wallet address, then generate a payment link or add the checkout widget to your website. No lengthy integration or approval process required."
+    },
+    {
+      "question": "Can I accept crypto payments from customers outside Germany?",
+      "answer": "Yes. DynoPay has no country restrictions on who can pay you in cryptocurrency. Your business can receive payments from customers anywhere in the world. You maintain custody of funds regardless of where your customers are located."
+    }
+  ],
+  "cta_headline": "Start accepting crypto payments today",
+  "cta_body": "Create your DynoPay account now and go live in 10 minutes with no setup fees or monthly costs",
+  "_generated_at": "2026-07-05T09:23:23.435781Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "country",
+  "_slug": "germany",
+  "_display_name": "Germany",
+  "_currency": "EUR",
+  "_flag": "🇩🇪"
+}

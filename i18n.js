@@ -290,9 +290,21 @@ async function loadLanguageAsync(lang) {
 }
 
 // ─── Detect initial language synchronously ───
-// On client: reads localStorage → browser locale → timezone (all synchronous)
-// On server: always "en" (no localStorage/navigator available)
-const initialLang = getInitialLanguage();
+// IMPORTANT: We MUST init i18n with the SAME language on server + client so
+// React hydration doesn't mismatch (server rendered "Features" but client
+// rendered "Recursos" → hydration error).
+//
+// - Server-side has no localStorage/navigator, so it always initialises with
+//   DEFAULT_LANGUAGE ("en"). Ignoring that constraint caused the bug.
+// - Client-side detection (localStorage → navigator → timezone) runs LATER,
+//   after React has hydrated, inside `LanguageBootstrap` via
+//   `applyDetectedLanguage()` below. i18n's `changeLanguage()` triggers a
+//   re-render of every `useTranslation()` consumer, so the visible language
+//   updates immediately (and because we PRE-LOAD the detected language into
+//   `initialResources` on the client, the switch is synchronous — no async
+//   chunk load, no visible flash beyond the very first paint).
+const clientDetectedLang = !isServer ? getInitialLanguage() : DEFAULT_LANGUAGE;
+const initialLang = DEFAULT_LANGUAGE;
 
 const initialResources = {};
 
@@ -300,18 +312,22 @@ const initialResources = {};
 initialResources.en = requireLanguage("en");
 _loadedLanguages.add("en");
 
-// If the detected language is not English, also load it synchronously at init time.
-// This ensures the very first React render is already in the correct language,
-// eliminating the "English flash" for returning users and browser-locale matches.
-if (initialLang !== "en" && SUPPORTED_LANGUAGES.includes(initialLang)) {
-  initialResources[initialLang] = requireLanguage(initialLang);
-  _loadedLanguages.add(initialLang);
+// On the CLIENT, also pre-load the detected language's resources so the
+// post-hydration `changeLanguage(clientDetectedLang)` call is synchronous.
+// On the server, we skip this because SSR only ever renders in English now.
+if (
+  !isServer &&
+  clientDetectedLang !== "en" &&
+  SUPPORTED_LANGUAGES.includes(clientDetectedLang)
+) {
+  initialResources[clientDetectedLang] = requireLanguage(clientDetectedLang);
+  _loadedLanguages.add(clientDetectedLang);
 }
 
 const instance = i18n.use(LanguageDetector).use(initReactI18next);
 
 instance.init({
-  lng: initialLang, // Use detected language synchronously (localStorage → browser locale → timezone → "en")
+  lng: initialLang, // Always DEFAULT_LANGUAGE ("en") to match SSR — see comment above.
   fallbackLng: DEFAULT_LANGUAGE,
   supportedLngs: SUPPORTED_LANGUAGES,
   debug: false,
@@ -351,20 +367,36 @@ if (!isServer) {
 
 /**
  * Apply the user's detected language AFTER React hydration completes.
- * Call this from _app.tsx useEffect.
+ * Call this from `_app.tsx` / `LanguageBootstrap` inside `useEffect`.
  *
- * Since i18n is now initialised with the correct synchronous language
- * (localStorage / browser locale), this function only needs to:
- * 1. Run async IP-based geo-detection for first-time visitors whose
+ * Order of work (all runs POST-hydration so it cannot cause SSR mismatch):
+ * 1. Switch i18n to `clientDetectedLang` (localStorage → browser locale →
+ *    timezone). Resources for that language are already pre-loaded into
+ *    the initial bundle (see i18n.init above) so this is synchronous.
+ * 2. Kick off async IP-based geo-detection for first-time visitors whose
  *    browser locale didn't match their country.
- * 2. Keep <html lang> in sync.
  */
 async function applyDetectedLanguage() {
   if (isServer) return;
 
-  // Run geo-detection immediately (no delay) if user hasn't manually chosen.
-  // This only matters for first-time visitors whose browser locale differs
-  // from their actual country (e.g., English browser in Brazil).
+  // Step 1 — sync switch to the client-detected language (was previously
+  // done at module-load time, which caused a server/client hydration
+  // mismatch because the server always used "en"). Moving it here keeps
+  // the FIRST render in English on both sides, then switches immediately
+  // after hydration.
+  if (
+    clientDetectedLang !== i18n.language &&
+    SUPPORTED_LANGUAGES.includes(clientDetectedLang)
+  ) {
+    // Ensure resources for the detected language exist (they should — we
+    // pre-loaded them above — but this is defensive).
+    if (!_loadedLanguages.has(clientDetectedLang)) {
+      await loadLanguageAsync(clientDetectedLang);
+    }
+    await i18n.changeLanguage(clientDetectedLang);
+  }
+
+  // Step 2 — async IP geo-detect (only when the user hasn't manually chosen).
   const userChoseManually = (() => {
     try { return localStorage.getItem("lang_manual") === "true"; } catch { return false; }
   })();

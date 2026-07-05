@@ -1,0 +1,57 @@
+{
+  "meta_title": "Accept Crypto Payments in Nigeria | DynoPay Gateway",
+  "meta_description": "Accept Bitcoin, USDT, Ethereum and 12+ cryptocurrencies in Nigeria. Non-custodial gateway, 1.5% flat fee, funds to your wallet. Start in 10 minutes.",
+  "h1": "Accept crypto payments in Nigeria and get paid directly to your wallet",
+  "subheading": "DynoPay lets Nigerian businesses receive Bitcoin, stablecoins, and 12+ cryptocurrencies without giving up custody or paying monthly fees.",
+  "intro_paragraph": "Nigerian businesses lose customers who want to pay with crypto, and traditional payment processors charge high fees on international transactions. DynoPay is a non-custodial gateway that sends funds directly to your wallet—you control your money at all times. You pay a flat 1.5% fee per transaction with no monthly charges, no setup costs, and no hidden fees. Accept Bitcoin, USDT, Ethereum, and nine other assets from customers anywhere in the world, then convert to NGN on your own terms.",
+  "features": [
+    {
+      "title": "Funds go to your wallet",
+      "description": "Every payment lands directly in your own cryptocurrency wallet. DynoPay never holds, freezes, or controls your funds. You decide when and how to convert to fiat currency."
+    },
+    {
+      "title": "1.5% flat fee, no subscriptions",
+      "description": "Pay 1.5% plus a small fixed fee per successful transaction. No monthly bills, no setup charges, no surprise costs. You only pay when you get paid."
+    },
+    {
+      "title": "Live in under 10 minutes",
+      "description": "Sign up, verify your email, add your payout wallet address, and generate a payment link. Drop the widget on your site or share the link. Start accepting payments today."
+    }
+  ],
+  "how_it_works": [
+    "Sign up with your email, verify your account, and create your company profile on DynoPay.",
+    "Add one cryptocurrency wallet address where you want to receive payments from your customers.",
+    "Generate a payment link or embed the checkout widget on your website and start receiving crypto."
+  ],
+  "faqs": [
+    {
+      "question": "Which cryptocurrencies can I accept with DynoPay in Nigeria?",
+      "answer": "DynoPay supports Bitcoin, Litecoin, Bitcoin Cash, Dogecoin, Ethereum, USDT on three networks (ERC20, Polygon, TRC20), USDC, RLUSD on Ethereum and XRP Ledger, MATIC, Tron, Solana, and XRP. You can accept any or all of these from customers worldwide."
+    },
+    {
+      "question": "How much does DynoPay charge per transaction?",
+      "answer": "DynoPay charges 1.5% per successful transaction plus a small fixed fee: $0.50 for orders under $100, and $1 for orders between $100 and $1,000. There are no monthly fees, setup fees, or hidden charges."
+    },
+    {
+      "question": "Does DynoPay hold my cryptocurrency or can I control it?",
+      "answer": "DynoPay is non-custodial. Every payment goes directly to your own wallet address. You control your private keys and funds at all times. DynoPay never holds, freezes, or has access to your cryptocurrency."
+    },
+    {
+      "question": "How long does it take to start accepting crypto payments?",
+      "answer": "Most merchants go live in under 10 minutes. Sign up, verify your email, add your company details, enter one wallet address for payouts, and generate a payment link or install the widget. You can accept payments immediately."
+    },
+    {
+      "question": "Can customers from any country pay me through DynoPay?",
+      "answer": "Yes. DynoPay has no country restrictions on receiving cryptocurrency payments. Customers anywhere in the world can pay you. KYC requirements only apply if you use a third-party service to convert crypto to fiat currency."
+    }
+  ],
+  "cta_headline": "Start accepting crypto payments in 10 minutes",
+  "cta_body": "Sign up now, add your wallet, and take your first Bitcoin or stablecoin payment today. No monthly fees, ever.",
+  "_generated_at": "2026-07-05T09:22:00.937618Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "country",
+  "_slug": "nigeria",
+  "_display_name": "Nigeria",
+  "_currency": "NGN",
+  "_flag": "🇳🇬"
+}

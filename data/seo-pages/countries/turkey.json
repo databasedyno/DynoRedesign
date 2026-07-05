@@ -1,0 +1,57 @@
+{
+  "meta_title": "Accept Crypto Payments in Türkiye | DynoPay Gateway",
+  "meta_description": "Accept Bitcoin, Ethereum, USDT and 10+ cryptocurrencies in Türkiye. Non-custodial gateway with 1.5% fees. Funds go directly to your wallet. Start now.",
+  "h1": "Accept crypto payments in Türkiye and keep full control of your funds",
+  "subheading": "DynoPay is a non-custodial gateway that sends Bitcoin, Ethereum, USDT and other cryptocurrencies directly to your wallet—no middleman holding your money.",
+  "intro_paragraph": "Turkish businesses now accept cryptocurrency from customers worldwide without giving up control of their funds. DynoPay routes payments directly to your wallet—we never hold or freeze your money. You get a payment gateway that supports Bitcoin, Ethereum, Tron, Solana, and stablecoins like USDT and USDC across multiple chains. Set transparent fees (1.5% + small fixed component), no monthly charges, and go live in under 10 minutes. Perfect for e-commerce, freelancers, and service providers looking to expand beyond TRY transactions.",
+  "features": [
+    {
+      "title": "Your wallet, your custody always",
+      "description": "Payments land directly in the wallet you control. DynoPay never holds, freezes, or touches your funds. You maintain full custody from the moment a customer pays until you decide what to do with it."
+    },
+    {
+      "title": "Support 12+ coins and tokens",
+      "description": "Accept Bitcoin, Ethereum, Litecoin, Dogecoin, Tron, Solana, XRP, MATIC, and stablecoins including USDT on three chains, USDC, and RLUSD. One gateway covers the cryptos your customers actually use."
+    },
+    {
+      "title": "Transparent pricing, no monthly fees",
+      "description": "Pay 1.5% per successful transaction plus a small fixed fee based on order size. No setup costs, no monthly subscriptions, no surprise charges. You only pay when you get paid."
+    }
+  ],
+  "how_it_works": [
+    "Sign up with your email, verify it, and create your company profile on the DynoPay platform.",
+    "Add the cryptocurrency wallet address where you want to receive payments—just one address to start.",
+    "Generate a payment link or embed the checkout widget on your website and start accepting crypto immediately."
+  ],
+  "faqs": [
+    {
+      "question": "How do I accept crypto payments in Türkiye as a business?",
+      "answer": "Sign up for DynoPay, verify your email, add your wallet address, and generate a payment link or embed our widget. You'll be accepting Bitcoin, Ethereum, USDT and other cryptocurrencies in under 10 minutes. Funds go directly to your wallet, and you pay 1.5% per transaction with no monthly fees."
+    },
+    {
+      "question": "Which cryptocurrencies can I accept with DynoPay?",
+      "answer": "DynoPay supports Bitcoin, Litecoin, Bitcoin Cash, Dogecoin, Ethereum, Polygon, Tron, Solana, and XRP. You can also accept stablecoins including USDT on Ethereum, Polygon and Tron, plus USDC and RLUSD on Ethereum, and RLUSD on XRP Ledger."
+    },
+    {
+      "question": "What are DynoPay's fees for accepting cryptocurrency?",
+      "answer": "You pay a flat 1.5% platform fee on each successful transaction, plus a tiered fixed component: $1 for orders under $100, scaling up to $1 for orders under $1,000. No setup fees, no monthly fees, and no hidden charges."
+    },
+    {
+      "question": "Does DynoPay hold my cryptocurrency payments?",
+      "answer": "No. DynoPay is non-custodial. Every payment goes directly from your customer to the wallet address you provide. We never hold, control, or have access to your funds. You maintain complete custody at all times."
+    },
+    {
+      "question": "How long does it take to start accepting crypto payments?",
+      "answer": "Most merchants go live in under 10 minutes. The process is: sign up, verify your email, create a company profile, add your payout wallet address, then generate a payment link or add our widget to your site. No lengthy approvals or technical integration required."
+    }
+  ],
+  "cta_headline": "Start accepting crypto payments in minutes",
+  "cta_body": "Sign up now and add your wallet address. No monthly fees, no setup costs, and you keep full control of every payment you receive.",
+  "_generated_at": "2026-07-05T09:23:45.905023Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "country",
+  "_slug": "turkey",
+  "_display_name": "Türkiye",
+  "_currency": "TRY",
+  "_flag": "🇹🇷"
+}

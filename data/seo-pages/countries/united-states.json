@@ -1,0 +1,57 @@
+{
+  "meta_title": "Accept Crypto Payments in the United States | DynoPay",
+  "meta_description": "Accept crypto payments in the United States with DynoPay. Non-custodial gateway, 1.5% fees, Bitcoin, Ethereum, Solana and more. Start in 10 minutes.",
+  "h1": "Accept crypto payments in the United States with full custody",
+  "subheading": "DynoPay routes Bitcoin, Ethereum, Solana, and stablecoins directly to your wallet. You control the funds, we handle the checkout.",
+  "intro_paragraph": "Most payment processors hold your crypto for days or weeks before releasing funds. DynoPay is non-custodial—every Bitcoin, Ethereum, or stablecoin payment lands directly in your wallet within minutes. You pay a flat 1.5% platform fee with no monthly charges, no setup costs, and no hidden fees. Your customers can pay from anywhere, and you convert to USD on your own timeline using the exchange you trust.",
+  "features": [
+    {
+      "title": "You keep full custody",
+      "description": "Payments go straight to your wallet address. DynoPay never holds your funds, so you decide when to convert to USD or hold long-term."
+    },
+    {
+      "title": "1.5% flat fee, no subscriptions",
+      "description": "Pay 1.5% per transaction plus a small fixed component. No monthly fees, no setup costs, no surprise charges that eat into your margins."
+    },
+    {
+      "title": "Live in under 10 minutes",
+      "description": "Sign up, verify your email, add your payout wallet, and generate a payment link. Start accepting Bitcoin and stablecoins before lunch."
+    }
+  ],
+  "how_it_works": [
+    "Create your DynoPay account and verify your email address to activate your merchant dashboard.",
+    "Add your wallet address for Bitcoin, Ethereum, Solana, or any supported chain you want to accept.",
+    "Drop the checkout widget on your site or share a payment link to start receiving funds directly."
+  ],
+  "faqs": [
+    {
+      "question": "Which cryptocurrencies can I accept with DynoPay in the United States?",
+      "answer": "DynoPay supports Bitcoin, Litecoin, Bitcoin Cash, Dogecoin, Ethereum, USDT and USDC on Ethereum and Polygon, RLUSD on Ethereum and XRP Ledger, MATIC, Tron, TRX, Solana, and XRP. You choose which assets to enable."
+    },
+    {
+      "question": "Do I need to complete KYC to accept crypto payments?",
+      "answer": "No KYC is required to accept cryptocurrency payments and receive funds in your wallet. KYC applies only if you use a fiat off-ramp service in certain jurisdictions, which is separate from payment acceptance."
+    },
+    {
+      "question": "How long does it take to receive crypto payments in my wallet?",
+      "answer": "Payments arrive in your wallet as soon as the blockchain confirms the transaction—typically minutes for most chains. DynoPay never holds your funds, so there are no payout delays or batching windows."
+    },
+    {
+      "question": "What are DynoPay's fees for accepting crypto payments?",
+      "answer": "DynoPay charges 1.5% per successful transaction plus a small fixed fee based on order size: one dollar for orders under one hundred dollars, scaling to one dollar for orders under one thousand. No monthly or setup fees."
+    },
+    {
+      "question": "Can my customers pay from outside the United States?",
+      "answer": "Yes. DynoPay has no country restrictions on who can send you crypto payments. Your customers can pay from anywhere in the world, and funds still go directly to your wallet."
+    }
+  ],
+  "cta_headline": "Start accepting crypto payments today",
+  "cta_body": "Set up your account in under 10 minutes and receive your first payment directly to your wallet with no monthly commitment",
+  "_generated_at": "2026-07-05T09:21:19.734648Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "country",
+  "_slug": "united-states",
+  "_display_name": "the United States",
+  "_currency": "USD",
+  "_flag": "🇺🇸"
+}

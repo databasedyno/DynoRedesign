@@ -1,0 +1,57 @@
+{
+  "meta_title": "Accept Crypto Payments in the United Kingdom | DynoPay",
+  "meta_description": "Accept Bitcoin, Ethereum, USDT and 10+ cryptocurrencies in the UK. Non-custodial gateway, 1.5% flat fee, funds direct to your wallet. Start in 10 minutes.",
+  "h1": "Accept crypto payments in the United Kingdom with DynoPay",
+  "subheading": "Receive Bitcoin, Ethereum, stablecoins and 10+ digital currencies directly to your wallet. No monthly fees, no custody risk, live in under 10 minutes.",
+  "intro_paragraph": "UK businesses now accept cryptocurrency payments without handing funds to a third party. DynoPay is a non-custodial payment gateway—every Bitcoin, USDT, or Ethereum transaction lands directly in your wallet, not ours. You pay a flat 1.5% per successful transaction with no monthly fees, no setup costs, and no hidden charges. Convert to GBP through your preferred exchange or hold crypto long-term. Your funds, your control, from the first payment onward.",
+  "features": [
+    {
+      "title": "Funds arrive in your wallet",
+      "description": "DynoPay never holds your money. Customers pay, and Bitcoin or stablecoins arrive directly in the wallet you control. No waiting for batch payouts or third-party custody risk."
+    },
+    {
+      "title": "Flat 1.5% transaction fee",
+      "description": "Pay 1.5% per successful payment plus a small fixed component. No monthly subscription, no setup fees, no surprise charges. You know the cost before you go live."
+    },
+    {
+      "title": "Live in under 10 minutes",
+      "description": "Sign up, verify your email, add your payout wallet, and generate a payment link or embed the checkout widget. No lengthy application, no bank integration delays."
+    }
+  ],
+  "how_it_works": [
+    "Sign up for a free DynoPay account and verify your email address in seconds.",
+    "Add your cryptocurrency wallet address where you want Bitcoin, USDT, or other payments sent.",
+    "Generate a payment link or drop the checkout widget on your site and start accepting crypto."
+  ],
+  "faqs": [
+    {
+      "question": "Which cryptocurrencies can I accept with DynoPay in the UK?",
+      "answer": "DynoPay supports Bitcoin, Litecoin, Bitcoin Cash, Dogecoin, Ethereum, USDT and USDC on Ethereum and Polygon, USDT on Tron, Solana, XRP, MATIC, TRX, and RLUSD on Ethereum and XRP Ledger. All payments go directly to your wallet."
+    },
+    {
+      "question": "How much does DynoPay charge per transaction?",
+      "answer": "DynoPay charges a flat 1.5% platform fee on every successful payment, plus a small tiered fixed component: one dollar for orders under 100 dollars, scaling to one dollar for orders under 1,000 dollars. No monthly or setup fees apply."
+    },
+    {
+      "question": "Do I need a business bank account to accept crypto payments?",
+      "answer": "No. DynoPay sends cryptocurrency directly to the wallet address you provide during onboarding. You control when and how to convert crypto to GBP using your preferred exchange or service."
+    },
+    {
+      "question": "How long does it take to start accepting cryptocurrency payments?",
+      "answer": "Most merchants go live in under 10 minutes. Sign up, verify your email, create a company profile, add one payout wallet address, then generate a payment link or install the checkout widget on your website."
+    },
+    {
+      "question": "Does DynoPay hold my crypto before sending it to me?",
+      "answer": "No. DynoPay is non-custodial. When a customer pays, the cryptocurrency goes straight from their wallet to yours. DynoPay never takes custody, so you eliminate counterparty and platform insolvency risk."
+    }
+  ],
+  "cta_headline": "Start accepting crypto payments today",
+  "cta_body": "Create your free DynoPay account now and take your first Bitcoin or stablecoin payment in under 10 minutes",
+  "_generated_at": "2026-07-05T09:21:40.723854Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "country",
+  "_slug": "united-kingdom",
+  "_display_name": "the United Kingdom",
+  "_currency": "GBP",
+  "_flag": "🇬🇧"
+}

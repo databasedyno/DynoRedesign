@@ -1,0 +1,55 @@
+{
+  "meta_title": "Crypto Payments for Gaming & iGaming | DynoPay",
+  "meta_description": "Accept Bitcoin, ETH, USDT and 12+ cryptocurrencies. Zero chargebacks, no KYC friction for players. 1.5% flat fee. Start accepting crypto payments for gaming & iGaming today.",
+  "h1": "Crypto payments for gaming & iGaming that skip KYC friction and chargebacks",
+  "subheading": "Let players deposit with Bitcoin, Ethereum, USDT, and 12+ cryptocurrencies while you receive funds directly in your wallet—no middleman holding your money.",
+  "intro_paragraph": "Gaming and iGaming operators face two costly problems: players abandon sign-up when asked for bank details and ID documents, and traditional payment processors freeze accounts without warning. DynoPay is a non-custodial gateway that lets players pay with crypto in under 60 seconds while you maintain full custody—funds land directly in your wallet, not ours. You're live in under 10 minutes with support for Bitcoin, Ethereum, USDT across four networks, Solana, and 12 total assets.",
+  "features": [
+    {
+      "title": "Zero chargeback risk, ever",
+      "description": "Crypto transactions are final. No player can dispute a deposit 90 days later, and no processor can claw back settled funds from your account."
+    },
+    {
+      "title": "Players skip KYC at checkout",
+      "description": "Accept deposits globally without collecting bank details or identity documents upfront. Players pay with a wallet address—you decide your own compliance requirements."
+    },
+    {
+      "title": "You control the funds always",
+      "description": "Every payment lands directly in your own wallet within minutes. DynoPay never holds, touches, or has access to your customer funds at any point."
+    }
+  ],
+  "how_it_works": [
+    "Sign up, verify your email, and create your company profile in DynoPay's dashboard in under three minutes.",
+    "Add the cryptocurrency wallet address where you want to receive payments—one address per asset you want to accept.",
+    "Drop the checkout widget on your site or share a payment link. Start accepting deposits immediately with no further setup."
+  ],
+  "faqs": [
+    {
+      "question": "Do I need a crypto license to accept cryptocurrency payments for gaming?",
+      "answer": "DynoPay provides payment infrastructure only. You remain responsible for compliance with gaming and gambling regulations in your jurisdiction. Because you receive funds directly and DynoPay does not custody assets, we operate as a non-custodial technology provider. Consult your legal counsel for licensing requirements."
+    },
+    {
+      "question": "Which cryptocurrencies can gaming players use to deposit?",
+      "answer": "Players can deposit using Bitcoin, Litecoin, Bitcoin Cash, Dogecoin, Ethereum, USDT on Ethereum, USDC, RLUSD on Ethereum, Polygon MATIC, USDT on Polygon, Tron, USDT on Tron, Solana, XRP, and RLUSD on XRP Ledger. You choose which assets to accept."
+    },
+    {
+      "question": "How long does it take for crypto deposits to reach my wallet?",
+      "answer": "Deposits arrive in your wallet as soon as the blockchain confirms the transaction. Bitcoin typically takes 10-30 minutes, Ethereum 2-5 minutes, and Tron or Solana under one minute. DynoPay does not add processing delays because we never custody funds."
+    },
+    {
+      "question": "What fees does DynoPay charge for gaming transactions?",
+      "answer": "DynoPay charges 1.5% per successful transaction plus a small fixed fee: $1 for orders under $100, scaling to $1 for orders under $1,000. No monthly fees, no setup fees, no withdrawal fees, no hidden costs."
+    },
+    {
+      "question": "Can I accept crypto payments from players in any country?",
+      "answer": "Yes. Crypto payments have no geographic restrictions at the gateway level. You receive payments globally by default. However, you remain responsible for verifying that you are legally permitted to offer gaming services to players in their specific jurisdictions."
+    }
+  ],
+  "cta_headline": "Start accepting crypto deposits in 10 minutes",
+  "cta_body": "No setup fees, no monthly costs, and you keep full custody of every deposit. Create your account and go live today.",
+  "_generated_at": "2026-07-05T09:25:16.426465Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "gaming",
+  "_display_name": "Gaming & iGaming"
+}

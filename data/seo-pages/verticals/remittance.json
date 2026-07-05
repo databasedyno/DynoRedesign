@@ -1,0 +1,55 @@
+{
+  "meta_title": "Crypto Payments for Remittance & Cross-Border Payouts | DynoPay",
+  "meta_description": "Accept Bitcoin, USDT, XRP and stablecoins for remittance & cross-border payouts. Non-custodial, 1.5% flat fee, no chargebacks. Start in 10 minutes.",
+  "h1": "Crypto payments for remittance & cross-border payouts businesses",
+  "subheading": "Cut processing costs, eliminate chargebacks, and send funds to any country without correspondent banking delays or FX markups.",
+  "intro_paragraph": "Traditional remittance corridors cost you 3-7% in fees, expose you to chargeback fraud, and lock funds for days in correspondent banking chains. DynoPay is a non-custodial gateway that lets you accept Bitcoin, Ethereum, USDT, XRP, and nine other cryptocurrencies at 1.5% flat—no monthly fees, no setup costs. Funds arrive directly in your wallet within minutes, and you keep full custody from payment to payout.",
+  "features": [
+    {
+      "title": "Funds hit your wallet directly",
+      "description": "Non-custodial architecture means every payment lands in your own Bitcoin, Ethereum, Tron, or Solana wallet. No holding accounts, no withdrawal queues, no counterparty risk."
+    },
+    {
+      "title": "Accept stablecoins and volatile crypto",
+      "description": "Support USDT and USDC on three chains plus RLUSD on Ethereum and XRP Ledger. Customers pay in their preferred asset while you choose what you hold."
+    },
+    {
+      "title": "No chargebacks, ever",
+      "description": "Cryptocurrency transactions are final. Once confirmed on-chain, funds cannot be reversed by a payment network or issuing bank, eliminating refund abuse and friendly fraud."
+    }
+  ],
+  "how_it_works": [
+    "Sign up, verify your email, create a company profile, and paste one wallet address for payouts.",
+    "Generate a payment link or embed the checkout widget on your site to start accepting crypto.",
+    "Customer pays in BTC, USDT, XRP or any supported asset; funds appear in your wallet within minutes."
+  ],
+  "faqs": [
+    {
+      "question": "What fees does DynoPay charge for remittance payments?",
+      "answer": "DynoPay charges a flat 1.5% platform fee on each successful transaction, plus a small tiered fixed component: one dollar for orders under one hundred dollars, scaling to one dollar for orders under one thousand dollars. No monthly fees, no setup fees, no hidden costs."
+    },
+    {
+      "question": "Which cryptocurrencies can I accept for cross-border payouts?",
+      "answer": "You can accept Bitcoin, Litecoin, Bitcoin Cash, Dogecoin, Ethereum, Polygon MATIC, Tron TRX, Solana SOL, XRP, plus stablecoins USDT on Ethereum, Polygon and Tron, USDC on Ethereum, and RLUSD on Ethereum and XRP Ledger."
+    },
+    {
+      "question": "Do you hold my funds or do I need a separate wallet?",
+      "answer": "DynoPay never holds your funds. You provide your own wallet address during onboarding, and every customer payment is sent directly to that address. You maintain full custody at all times, with no withdrawal limits or approval queues."
+    },
+    {
+      "question": "Can I accept crypto payments from any country?",
+      "answer": "Yes. DynoPay has no country restrictions on receiving cryptocurrency payments. Your customers can pay from anywhere. KYC requirements apply only if you choose to use a fiat off-ramp service in certain jurisdictions."
+    },
+    {
+      "question": "How long does it take to start accepting crypto for remittances?",
+      "answer": "Onboarding takes under ten minutes. Sign up, verify your email, create a company profile, add one payout wallet address, then generate a payment link or add the checkout widget to your site. You can accept your first payment immediately."
+    }
+  ],
+  "cta_headline": "Start accepting crypto payments in 10 minutes",
+  "cta_body": "No setup fees, no monthly costs, and funds go directly to your wallet. Create your account and go live today.",
+  "_generated_at": "2026-07-05T09:25:38.268016Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "remittance",
+  "_display_name": "Remittance & Cross-Border Payouts"
+}

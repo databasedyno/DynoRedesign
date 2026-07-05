@@ -1,0 +1,55 @@
+{
+  "meta_title": "Crypto Payments for SaaS & Subscription Products | DynoPay",
+  "meta_description": "Accept Bitcoin, Ethereum, USDT, and 10+ cryptocurrencies for your SaaS. Non-custodial, 1.5% fee, no chargebacks. Start in 10 minutes with DynoPay.",
+  "h1": "Accept crypto payments for SaaS & subscription products without chargebacks",
+  "subheading": "DynoPay lets you charge subscribers in Bitcoin, Ethereum, stablecoins, and 10+ cryptocurrencies. Funds go directly to your wallet—no custodian, no involuntary churn from failed cards.",
+  "intro_paragraph": "SaaS companies lose 9% of monthly recurring revenue to involuntary churn when credit cards expire or hit spending limits. Crypto subscriptions eliminate failed payments and chargebacks entirely. DynoPay is a non-custodial gateway: your customers pay in BTC, ETH, USDT, or 10+ assets, and funds arrive directly in your wallet. You stay in control. No monthly fees, just 1.5% per transaction. Go live in under 10 minutes with a payment link or checkout widget.",
+  "features": [
+    {
+      "title": "Zero involuntary churn from payments",
+      "description": "Crypto wallets don't expire like credit cards. Subscribers who pay in stablecoins or Bitcoin stay active as long as they choose, eliminating the 20-40% of churn caused by payment failures."
+    },
+    {
+      "title": "Non-custodial: you control your funds",
+      "description": "DynoPay never holds your money. Payments from customers go directly to your Ethereum, Bitcoin, or Tron wallet. You maintain custody from the first transaction to withdrawal."
+    },
+    {
+      "title": "Flat 1.5% fee, no monthly charges",
+      "description": "Pay 1.5% per successful transaction plus a small fixed component ($1 for orders under $100). No setup fees, no monthly minimums, no surprise costs for international customers."
+    }
+  ],
+  "how_it_works": [
+    "Sign up with your email, verify, and create your company profile in DynoPay's dashboard.",
+    "Add one payout wallet address for Bitcoin, Ethereum, Polygon, Tron, Solana, or XRP Ledger assets.",
+    "Generate a payment link or embed the checkout widget on your site to start accepting crypto."
+  ],
+  "faqs": [
+    {
+      "question": "Which cryptocurrencies can I accept for SaaS subscriptions?",
+      "answer": "DynoPay supports Bitcoin, Litecoin, Bitcoin Cash, Dogecoin, Ethereum, Polygon, Tron, Solana, and XRP Ledger. You can accept stablecoins like USDT and USDC on Ethereum, Polygon, and Tron, plus RLUSD on Ethereum and XRP Ledger for price stability."
+    },
+    {
+      "question": "Do I need to hold crypto or can customers pay while I receive stablecoins?",
+      "answer": "Customers pay in any supported crypto. You choose which wallet receives funds, so you can direct payments to a USDT or USDC address if you prefer stablecoins over volatile assets like Bitcoin or Ethereum."
+    },
+    {
+      "question": "How does DynoPay handle recurring subscription billing?",
+      "answer": "You generate a payment link or widget for each billing cycle. Customers send crypto directly to your wallet when invoices are due. Because wallets don't expire, you avoid involuntary churn from outdated card details."
+    },
+    {
+      "question": "What are the fees for accepting crypto payments?",
+      "answer": "DynoPay charges 1.5% per successful transaction, plus a tiered fixed fee: $1 for orders under $100, up to $1 for orders under $1,000. No setup fees, no monthly fees, no hidden charges."
+    },
+    {
+      "question": "How long does it take to start accepting cryptocurrency payments?",
+      "answer": "Onboarding takes under 10 minutes. Sign up, verify your email, create a company profile, add one payout wallet address, then generate a payment link or drop the checkout widget on your site to go live."
+    }
+  ],
+  "cta_headline": "Start accepting crypto payments in 10 minutes",
+  "cta_body": "No setup fees, no monthly charges, and funds go directly to your wallet. Sign up now and charge your first subscriber today.",
+  "_generated_at": "2026-07-05T09:24:29.994776Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "saas",
+  "_display_name": "SaaS & Subscription Products"
+}

@@ -1,0 +1,57 @@
+{
+  "meta_title": "Accept Crypto Payments in Vietnam | DynoPay Gateway",
+  "meta_description": "Accept crypto payments in Vietnam with DynoPay. Non-custodial gateway supporting Bitcoin, USDT, Ethereum & more. 1.5% flat fee. Start in 10 minutes.",
+  "h1": "Accept Crypto Payments in Vietnam with Your Own Wallet",
+  "subheading": "Start receiving Bitcoin, USDT, Ethereum and 15+ cryptocurrencies directly to your wallet. No custody risk, no monthly fees, live in under 10 minutes.",
+  "intro_paragraph": "Vietnamese businesses can now accept cryptocurrency payments without giving up control of their funds. DynoPay is a non-custodial payment gateway that sends customer payments directly to your wallet—we never hold your money. You pay a flat 1.5% fee per transaction with no monthly charges, no setup costs, and no hidden fees. Support 16 cryptocurrencies across 7 blockchains, convert to VND through your preferred exchange, and start accepting payments in under 10 minutes.",
+  "features": [
+    {
+      "title": "Your Wallet, Your Custody",
+      "description": "Customer payments arrive directly in your own Bitcoin, Ethereum, or USDT wallet. DynoPay never holds, freezes, or controls your funds. You maintain full custody from payment to withdrawal."
+    },
+    {
+      "title": "Flat 1.5% Transaction Fee",
+      "description": "Pay only 1.5% plus a small fixed fee per successful payment. No monthly subscriptions, no setup charges, no withdrawal fees. You know exactly what you pay before you start."
+    },
+    {
+      "title": "Live in Under 10 Minutes",
+      "description": "Verify your email, add your payout wallet address, and generate a payment link or embed our checkout widget. No lengthy approval process or complex integration required."
+    }
+  ],
+  "how_it_works": [
+    "Sign up for a DynoPay account, verify your email, and create your company profile.",
+    "Add your cryptocurrency wallet address where you want to receive payments directly.",
+    "Generate a payment link or add our checkout widget to your website and start accepting crypto."
+  ],
+  "faqs": [
+    {
+      "question": "What cryptocurrencies can I accept with DynoPay in Vietnam?",
+      "answer": "DynoPay supports Bitcoin, Litecoin, Bitcoin Cash, Dogecoin, Ethereum, USDT on three networks (ERC20, TRC20, Polygon), USDC, RLUSD on Ethereum and XRP Ledger, Polygon MATIC, Tron, Solana, and XRP. You receive all payments directly to your own wallet."
+    },
+    {
+      "question": "How much does DynoPay charge per transaction?",
+      "answer": "DynoPay charges a flat 1.5% platform fee on each successful transaction, plus a small fixed component: $1 for orders under $100, scaling to $1 for orders under $1,000. There are no monthly fees, setup fees, or hidden charges."
+    },
+    {
+      "question": "Do I need a Vietnamese bank account to use DynoPay?",
+      "answer": "No. DynoPay sends cryptocurrency directly to your own wallet address. You control when and how to convert your crypto to VND through any exchange you choose. DynoPay does not handle fiat currency for merchant payouts."
+    },
+    {
+      "question": "How long does it take to receive crypto payments?",
+      "answer": "Payments arrive in your wallet as soon as the blockchain confirms the transaction. Bitcoin typically takes 10-60 minutes, Ethereum 1-5 minutes, and Tron or Solana under one minute. DynoPay does not add processing delays."
+    },
+    {
+      "question": "Does DynoPay hold my funds at any point?",
+      "answer": "No. DynoPay is non-custodial. Your customers send cryptocurrency directly to your wallet address. We provide the payment interface and confirmation system but never take custody of your funds or require you to withdraw through us."
+    }
+  ],
+  "cta_headline": "Start Accepting Crypto Payments Today",
+  "cta_body": "Create your account and add your wallet address in under 10 minutes. No monthly fees, no long-term contracts.",
+  "_generated_at": "2026-07-05T09:23:02.754751Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "country",
+  "_slug": "vietnam",
+  "_display_name": "Vietnam",
+  "_currency": "VND",
+  "_flag": "🇻🇳"
+}
