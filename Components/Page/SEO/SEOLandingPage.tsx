@@ -13,18 +13,20 @@ import HomeCard from "@/Components/UI/HomeCard";
 import HomeSectionTitle from "@/Components/UI/SectionTitle";
 import useIsMobile from "@/hooks/useIsMobile";
 import { useThemeMode } from "@/contexts/ThemeContext";
-import type { SEOPageContent } from "@/utils/seoContent";
+import type { SEOPageContent, SEOPageIndexEntry } from "@/utils/seoContent";
 
 interface Props {
   content: SEOPageContent;
   /** Absolute URL of this page (without trailing slash), used for canonical + JSON-LD */
   canonicalUrl: string;
+  /** Cross-link targets (3 pages of the opposite kind) — for SEO crawl depth */
+  relatedPages?: SEOPageIndexEntry[];
 }
 
 const SITE_ORIGIN = "https://dynopay.com";
 const SIGNUP_PATH = "/auth/register";
 
-const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl }) => {
+const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages = [] }) => {
   const isMobile = useIsMobile("md");
   const theme = useTheme();
   const { isDark } = useThemeMode();
@@ -531,6 +533,136 @@ const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl }) => {
           ))}
         </Box>
       </Box>
+
+      {/* ── Related pages (cross-link for SEO crawl depth) ─────────────── */}
+      {relatedPages.length > 0 ? (
+        <Box
+          component="section"
+          data-testid="seo-related-pages"
+          aria-labelledby="seo-related-pages-heading"
+          sx={{
+            maxWidth: 1200,
+            mx: "auto",
+            px: { xs: 2, md: 3 },
+            py: { xs: 5, md: 7 },
+          }}
+        >
+          <HomeSectionTitle
+            type="small"
+            badgeText={content._kind === "country" ? "For your industry" : "For your country"}
+            title={
+              content._kind === "country"
+                ? "Popular use cases for "
+                : "Popular countries for "
+            }
+            highlightText={
+              content._kind === "country"
+                ? "crypto merchants"
+                : "crypto merchants"
+            }
+            subtitle={
+              content._kind === "country"
+                ? "See how businesses like yours use DynoPay to accept crypto payments."
+                : "Find country-specific guides for accepting crypto in your market."
+            }
+            headingAs="h2"
+            sx={{ maxWidth: "100%" }}
+          />
+
+          <Box sx={{ pt: { xs: 4, md: 6 } }}>
+            <Grid container spacing={{ xs: 2, md: 3 }}>
+              {relatedPages.map((rp) => (
+                <Grid item xs={12} md={4} key={rp.slug} display="flex" justifyContent="center">
+                  <Link href={rp.urlPath} passHref legacyBehavior>
+                    <Box
+                      component="a"
+                      data-testid={`seo-related-link-${rp.kind}-${rp.slug}`}
+                      sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "flex-start",
+                        gap: 1.5,
+                        width: "100%",
+                        maxWidth: 395,
+                        p: { xs: 2.5, md: 3 },
+                        borderRadius: 3,
+                        textDecoration: "none",
+                        bgcolor: isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)",
+                        border: `1px solid ${isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)"}`,
+                        transition: "all 0.2s ease",
+                        "&:hover": {
+                          borderColor: theme.palette.primary.main,
+                          transform: "translateY(-2px)",
+                          bgcolor: isDark ? "rgba(120,120,220,0.08)" : "rgba(85,86,239,0.04)",
+                        },
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 1.5,
+                          width: "100%",
+                        }}
+                      >
+                        {rp.flag ? (
+                          <Typography component="span" sx={{ fontSize: 28, lineHeight: 1 }} aria-hidden="true">
+                            {rp.flag}
+                          </Typography>
+                        ) : (
+                          <Box
+                            sx={{
+                              width: 32,
+                              height: 32,
+                              borderRadius: 1.5,
+                              bgcolor: isDark ? "rgba(120,120,220,0.15)" : "rgba(85,86,239,0.10)",
+                              display: "inline-flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              color: theme.palette.primary.main,
+                              fontWeight: 700,
+                            }}
+                          >
+                            {rp.displayName.charAt(0).toUpperCase()}
+                          </Box>
+                        )}
+                        <Typography
+                          component="h3"
+                          sx={{
+                            fontSize: { xs: 16, md: 18 },
+                            fontWeight: 700,
+                            color: theme.palette.text.primary,
+                            m: 0,
+                            lineHeight: 1.3,
+                          }}
+                        >
+                          {rp.kind === "country"
+                            ? `Accept crypto in ${rp.displayName}`
+                            : `Crypto payments for ${rp.displayName}`}
+                        </Typography>
+                      </Box>
+                      <Typography
+                        component="span"
+                        sx={{
+                          fontSize: 14,
+                          color: theme.palette.primary.main,
+                          fontWeight: 600,
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 0.5,
+                        }}
+                      >
+                        Read the guide
+                        <ArrowForwardIcon sx={{ fontSize: 16 }} />
+                      </Typography>
+                    </Box>
+                  </Link>
+                </Grid>
+              ))}
+            </Grid>
+          </Box>
+        </Box>
+      ) : null}
 
       {/* ── Final CTA ─────────────────────────────────────────────────── */}
       <Box

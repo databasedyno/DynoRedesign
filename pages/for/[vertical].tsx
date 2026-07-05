@@ -4,7 +4,9 @@ import SEOLandingPage from "@/Components/Page/SEO/SEOLandingPage";
 import {
   getAllVerticalSlugs,
   getVerticalContent,
+  getRelatedPages,
   type SEOPageContent,
+  type SEOPageIndexEntry,
 } from "@/utils/seoContent";
 
 const SITE_ORIGIN = "https://dynopay.com";
@@ -12,10 +14,17 @@ const SITE_ORIGIN = "https://dynopay.com";
 interface Props {
   content: SEOPageContent;
   canonicalUrl: string;
+  relatedPages: SEOPageIndexEntry[];
 }
 
-const VerticalSEOPage: React.FC<Props> = ({ content, canonicalUrl }) => {
-  return <SEOLandingPage content={content} canonicalUrl={canonicalUrl} />;
+const VerticalSEOPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages }) => {
+  return (
+    <SEOLandingPage
+      content={content}
+      canonicalUrl={canonicalUrl}
+      relatedPages={relatedPages}
+    />
+  );
 };
 
 export const getStaticPaths: GetStaticPaths = async () => {
@@ -36,6 +45,7 @@ export const getStaticProps: GetStaticProps<Props> = async ({ params }) => {
     props: {
       content,
       canonicalUrl: `${SITE_ORIGIN}/for/${slug}`,
+      relatedPages: getRelatedPages("vertical", slug, 3),
     },
   };
 };

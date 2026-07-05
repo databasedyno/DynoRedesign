@@ -9,6 +9,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { FC, memo, useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { Box, Typography } from "@mui/material";
 import {
   BottomSection,
   ContentRow,
@@ -36,6 +37,12 @@ interface RouteItemType {
   readonly external?: boolean;
 }
 
+interface SEOLinkItem {
+  readonly label: string;
+  readonly link: string;
+  readonly flag?: string;
+}
+
 const SOCIALS: readonly SocialItemType[] = [
   { label: "X", icon: X, link: "https://x.com/Dynopaycom" },
   { label: "Instagram", icon: Instagram, link: "https://www.instagram.com/dynopay" },
@@ -49,6 +56,30 @@ const ROUTES: readonly RouteItemType[] = [
   { labelKey: "footerPrivacy", link: "/privacy-policy" },
   { labelKey: "footerApiStatus", link: "/system-status" },
   { labelKey: "footerSupport", link: "/help-support" },
+] as const;
+
+/**
+ * SEO landing pages surfaced in the footer to spread PageRank across every
+ * public page. Keep in sync with /app/data/seo-pages/{countries,verticals}/*.json.
+ */
+const SEO_COUNTRIES: readonly SEOLinkItem[] = [
+  { label: "United States", flag: "🇺🇸", link: "/accept-crypto-payments-in/united-states" },
+  { label: "United Kingdom", flag: "🇬🇧", link: "/accept-crypto-payments-in/united-kingdom" },
+  { label: "Germany", flag: "🇩🇪", link: "/accept-crypto-payments-in/germany" },
+  { label: "India", flag: "🇮🇳", link: "/accept-crypto-payments-in/india" },
+  { label: "Nigeria", flag: "🇳🇬", link: "/accept-crypto-payments-in/nigeria" },
+  { label: "Brazil", flag: "🇧🇷", link: "/accept-crypto-payments-in/brazil" },
+  { label: "Turkey", flag: "🇹🇷", link: "/accept-crypto-payments-in/turkey" },
+  { label: "Vietnam", flag: "🇻🇳", link: "/accept-crypto-payments-in/vietnam" },
+] as const;
+
+const SEO_VERTICALS: readonly SEOLinkItem[] = [
+  { label: "E-commerce", link: "/for/ecommerce" },
+  { label: "SaaS", link: "/for/saas" },
+  { label: "Freelancers", link: "/for/freelancers" },
+  { label: "Gaming", link: "/for/gaming" },
+  { label: "Remittance", link: "/for/remittance" },
+  { label: "Digital Downloads", link: "/for/digital-downloads" },
 ] as const;
 
 const HomeFooter: FC = () => {
@@ -119,6 +150,134 @@ const HomeFooter: FC = () => {
             <NavigationList>{routeItems}</NavigationList>
           </ContentRow>
         </TopSection>
+
+        {/* ── SEO link block (crawl depth + PageRank distribution) ────── */}
+        <Box
+          component="section"
+          data-testid="footer-seo-links"
+          aria-label="Country and industry guides"
+          sx={{
+            mt: { xs: 4, md: 6 },
+            pt: { xs: 4, md: 5 },
+            pb: { xs: 3, md: 4 },
+            borderTop: "1px solid rgba(255, 255, 255, 0.1)",
+            display: "grid",
+            gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
+            gap: { xs: 3, md: 6 },
+          }}
+        >
+          <Box>
+            <Typography
+              component="h3"
+              sx={{
+                color: "#FFFFFF",
+                fontSize: 14,
+                fontWeight: 600,
+                fontFamily: "OutfitRegular",
+                letterSpacing: "0.05em",
+                textTransform: "uppercase",
+                opacity: 0.85,
+                mb: 2,
+              }}
+            >
+              Accept crypto by country
+            </Typography>
+            <Box
+              component="ul"
+              data-testid="footer-seo-countries"
+              sx={{
+                listStyle: "none",
+                p: 0,
+                m: 0,
+                display: "grid",
+                gridTemplateColumns: { xs: "1fr 1fr", sm: "1fr 1fr 1fr 1fr" },
+                gap: { xs: 1.25, md: 1.5 },
+              }}
+            >
+              {SEO_COUNTRIES.map((c) => (
+                <Box component="li" key={c.link} sx={{ display: "flex" }}>
+                  <Link href={c.link} passHref legacyBehavior>
+                    <Box
+                      component="a"
+                      data-testid={`footer-country-link-${c.link.split("/").pop()}`}
+                      sx={{
+                        color: "#FCFBF8",
+                        opacity: 0.75,
+                        fontSize: 13,
+                        fontFamily: "OutfitRegular",
+                        textDecoration: "none",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 0.75,
+                        transition: "opacity 0.15s ease",
+                        "&:hover": { opacity: 1, textDecoration: "underline" },
+                      }}
+                    >
+                      {c.flag ? (
+                        <Typography component="span" sx={{ fontSize: 15, lineHeight: 1 }} aria-hidden="true">
+                          {c.flag}
+                        </Typography>
+                      ) : null}
+                      {c.label}
+                    </Box>
+                  </Link>
+                </Box>
+              ))}
+            </Box>
+          </Box>
+
+          <Box>
+            <Typography
+              component="h3"
+              sx={{
+                color: "#FFFFFF",
+                fontSize: 14,
+                fontWeight: 600,
+                fontFamily: "OutfitRegular",
+                letterSpacing: "0.05em",
+                textTransform: "uppercase",
+                opacity: 0.85,
+                mb: 2,
+              }}
+            >
+              For your industry
+            </Typography>
+            <Box
+              component="ul"
+              data-testid="footer-seo-verticals"
+              sx={{
+                listStyle: "none",
+                p: 0,
+                m: 0,
+                display: "grid",
+                gridTemplateColumns: { xs: "1fr 1fr", sm: "1fr 1fr 1fr" },
+                gap: { xs: 1.25, md: 1.5 },
+              }}
+            >
+              {SEO_VERTICALS.map((v) => (
+                <Box component="li" key={v.link} sx={{ display: "flex" }}>
+                  <Link href={v.link} passHref legacyBehavior>
+                    <Box
+                      component="a"
+                      data-testid={`footer-vertical-link-${v.link.split("/").pop()}`}
+                      sx={{
+                        color: "#FCFBF8",
+                        opacity: 0.75,
+                        fontSize: 13,
+                        fontFamily: "OutfitRegular",
+                        textDecoration: "none",
+                        transition: "opacity 0.15s ease",
+                        "&:hover": { opacity: 1, textDecoration: "underline" },
+                      }}
+                    >
+                      {v.label}
+                    </Box>
+                  </Link>
+                </Box>
+              ))}
+            </Box>
+          </Box>
+        </Box>
 
         <BottomSection>
           <CopyrightText>{t("footerCopyright", { year: new Date().getFullYear() })}</CopyrightText>

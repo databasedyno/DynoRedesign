@@ -83,6 +83,61 @@ const Register = () => {
     }
   }, [router.query]);
 
+  // ─── SEO-attribution capture ─────────────────────────────────────
+  // When users arrive from /accept-crypto-payments-in/{country} or /for/{vertical}
+  // the SEO pages append `?src=seo&page={slug}&kind={country|vertical}` to the
+  // signup link. Capture it (7-day localStorage window) so we can measure
+  // per-SEO-page conversion downstream. We also SEND it on registerEmail /
+  // registerPhone so the backend can log it against the new-user creation.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const src =
+        typeof router.query.src === "string" ? router.query.src : null;
+      const pageSlug =
+        typeof router.query.page === "string" ? router.query.page : null;
+      const kind =
+        typeof router.query.kind === "string" &&
+        (router.query.kind === "country" || router.query.kind === "vertical")
+          ? router.query.kind
+          : null;
+      if (src === "seo" && pageSlug && kind) {
+        const payload = { src, page: pageSlug, kind, ts: Date.now() };
+        localStorage.setItem("dyno_seo_attr", JSON.stringify(payload));
+      }
+    } catch {
+      /* attribution capture must never break the app */
+    }
+  }, [router.query]);
+
+  // Load stored SEO attribution (fresh <= 7d) so it survives a browser refresh
+  // between landing on the SEO page and finishing signup.
+  const getSeoAttribution = useCallback((): {
+    src: string;
+    page: string;
+    kind: "country" | "vertical";
+  } | null => {
+    if (typeof window === "undefined") return null;
+    try {
+      const raw = localStorage.getItem("dyno_seo_attr");
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      const MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
+      if (
+        parsed?.src === "seo" &&
+        typeof parsed?.page === "string" &&
+        (parsed?.kind === "country" || parsed?.kind === "vertical") &&
+        typeof parsed?.ts === "number" &&
+        Date.now() - parsed.ts <= MAX_AGE_MS
+      ) {
+        return { src: parsed.src, page: parsed.page, kind: parsed.kind };
+      }
+    } catch {
+      /* ignore */
+    }
+    return null;
+  }, []);
+
   // Countdown timer
   useEffect(() => {
     if (countdown <= 0) return;
@@ -126,6 +181,7 @@ const Register = () => {
 
     try {
       let exists = false;
+      const attribution = getSeoAttribution();
       if (method === "email") {
         if (!email || !email.includes("@")) {
           setEmailError("Please enter a valid email address");
@@ -135,6 +191,7 @@ const Register = () => {
         const res = await axiosBaseApi.post("/user/registerEmail", {
           email: email.toLowerCase().trim(),
           referral_code: referralCode || undefined,
+          attribution: attribution || undefined,
         });
         exists = res?.data?.data?.account_exists === true;
       } else {
@@ -155,6 +212,7 @@ const Register = () => {
         const res = await axiosBaseApi.post("/user/registerPhone", {
           mobile: digits,
           referral_code: referralCode || undefined,
+          attribution: attribution || undefined,
         });
         exists = res?.data?.data?.account_exists === true;
       }
@@ -170,7 +228,7 @@ const Register = () => {
     } finally {
       setLoading(false);
     }
-  }, [method, email, phone, referralCode, checkPhoneType]);
+  }, [method, email, phone, referralCode, checkPhoneType, getSeoAttribution]);
 
   // ─── Step 2: Verify OTP & Create Account ───
   const handleVerifyOtp = useCallback(async (otpCode: string) => {
@@ -184,11 +242,13 @@ const Register = () => {
 
     try {
       let response;
+      const attribution = getSeoAttribution();
       if (method === "email") {
         response = await axiosBaseApi.post("/user/registerEmail/verify-otp", {
           email: email.toLowerCase().trim(),
           otp: otpCode,
           language: i18n.language,
+          attribution: attribution || undefined,
         });
       } else {
         const digits = phone.replace(/[^\d]/g, "");
@@ -196,6 +256,7 @@ const Register = () => {
           mobile: digits,
           otp: otpCode,
           language: i18n.language,
+          attribution: attribution || undefined,
         });
       }
 
@@ -228,7 +289,7 @@ const Register = () => {
     } finally {
       setLoading(false);
     }
-  }, [method, email, phone, accountExists, dispatch, router]);
+  }, [method, email, phone, accountExists, dispatch, router, i18n.language, getSeoAttribution]);
 
   // ─── Resend OTP ───
   const handleResendOtp = useCallback(async () => {

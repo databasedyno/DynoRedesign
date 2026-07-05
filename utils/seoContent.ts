@@ -89,6 +89,8 @@ export interface SEOPageIndexEntry {
   displayName: string;
   kind: "country" | "vertical";
   urlPath: string;
+  /** Emoji flag when available (countries). null for verticals so Next.js `getStaticProps` can serialize it. */
+  flag?: string | null;
 }
 
 export function getAllSEOPagesIndex(): SEOPageIndexEntry[] {
@@ -101,6 +103,7 @@ export function getAllSEOPagesIndex(): SEOPageIndexEntry[] {
         displayName: c._display_name,
         kind: "country",
         urlPath: `/accept-crypto-payments-in/${slug}`,
+        flag: c._flag || null,
       });
     }
   }
@@ -112,8 +115,44 @@ export function getAllSEOPagesIndex(): SEOPageIndexEntry[] {
         displayName: v._display_name,
         kind: "vertical",
         urlPath: `/for/${slug}`,
+        flag: v._flag || null,
       });
     }
   }
   return out;
+}
+
+/**
+ * Deterministic slug hash — same slug always yields the same "related pages" set
+ * so Google (and users) see a stable link graph across builds.
+ */
+function _hashSlug(slug: string): number {
+  let h = 0;
+  for (let i = 0; i < slug.length; i++) {
+    h = (h * 31 + slug.charCodeAt(i)) | 0;
+  }
+  return Math.abs(h);
+}
+
+/**
+ * Pick `count` related pages of the OPPOSITE kind (country ↔ vertical) using a
+ * deterministic slug hash. Every country page therefore links to exactly
+ * `count` verticals (and vice versa), which is what we want for even
+ * PageRank distribution and crawl depth.
+ */
+export function getRelatedPages(
+  currentKind: "country" | "vertical",
+  currentSlug: string,
+  count = 3,
+): SEOPageIndexEntry[] {
+  const oppositeKind: "country" | "vertical" =
+    currentKind === "country" ? "vertical" : "country";
+  const pool = getAllSEOPagesIndex().filter((p) => p.kind === oppositeKind);
+  if (pool.length === 0) return [];
+
+  // Rotate the pool by the slug hash so different pages surface different
+  // counterparts — good for link diversity across the site.
+  const start = _hashSlug(currentSlug) % pool.length;
+  const rotated = [...pool.slice(start), ...pool.slice(0, start)];
+  return rotated.slice(0, Math.min(count, rotated.length));
 }

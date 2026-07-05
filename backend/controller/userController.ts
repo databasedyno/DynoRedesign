@@ -34,6 +34,21 @@ import { normalizeLang } from "../utils/emailI18n";
 // Cache TTL for profile data (60 seconds)
 const PROFILE_CACHE_TTL = 60;
 
+// ── SEO Attribution Helper ────────────────────────────────────────────────
+// SEO landing pages send { attribution: { src: "seo", page, kind } } on
+// register API calls. This helper produces a compact ` [seo:kind/slug]`
+// suffix for the userLogger line so admins can grep how many signups each
+// SEO page produced.
+function _formatAttribution(attr: unknown): string {
+  if (!attr || typeof attr !== "object") return "";
+  const a = attr as { src?: unknown; page?: unknown; kind?: unknown };
+  if (a.src !== "seo" || !a.page || !a.kind) return "";
+  const kind = String(a.kind).replace(/[^a-z]/gi, "").slice(0, 16);
+  const page = String(a.page).replace(/[^a-z0-9-]/gi, "").slice(0, 64);
+  if (!kind || !page) return "";
+  return ` [seo:${kind}/${page}]`;
+}
+
 // ── User-Agent Parser ─────────────────────────────────────────────────────
 function parseUserAgent(ua: string): { device: string; browser: string; os: string } {
   let device = 'Unknown Device';
@@ -237,13 +252,18 @@ const generateReferralCode = () => {
  */
 const registerEmailStep1 = async (req: express.Request, res: express.Response) => {
   try {
-    const { email, referral_code } = req.body;
+    const { email, referral_code, attribution } = req.body;
 
     if (!email) {
       return errorResponseHelper(res, 400, "Email is required");
     }
 
     const emailLower = email.toLowerCase().trim();
+
+    // Optional SEO attribution — captured on the client from
+    // `?src=seo&page={slug}&kind={country|vertical}` on landing pages.
+    // We log it so admins can measure per-page conversion downstream.
+    const attrStr = _formatAttribution(attribution);
 
     // Check if email already exists — if so, switch to a passwordless LOGIN via OTP
     // instead of dead-ending. We still send a code; verify-otp will sign the user in.
@@ -253,13 +273,24 @@ const registerEmailStep1 = async (req: express.Request, res: express.Response) =
       if (!sentLogin) {
         return errorResponseHelper(res, 503, "Unable to send verification code. Please try again.");
       }
-      userLogger.info(`[RegisterEmail] Existing account — login OTP sent: ${emailLower}`);
+      userLogger.info(`[RegisterEmail] Existing account — login OTP sent: ${emailLower}${attrStr}`);
       return successResponseHelper(res, 200, "You already have an account — we've sent a code to log you in.", { account_exists: true });
     }
 
-    // Store referral code in Redis for later use during verification
+    // Store referral code + attribution in Redis for later use during verification
     if (referral_code) {
       await setRedisItemWithTTL(`reg-referral:${emailLower}`, { referral_code }, 900);
+    }
+    if (attribution && typeof attribution === "object" && attribution.src === "seo") {
+      await setRedisItemWithTTL(
+        `reg-attribution:${emailLower}`,
+        {
+          src: String(attribution.src),
+          page: String(attribution.page || ""),
+          kind: String(attribution.kind || ""),
+        },
+        900,
+      );
     }
 
     // Send OTP via email
@@ -268,7 +299,7 @@ const registerEmailStep1 = async (req: express.Request, res: express.Response) =
       return errorResponseHelper(res, 503, "Unable to send verification code. Please try again.");
     }
 
-    userLogger.info(`[RegisterEmail] OTP sent for registration: ${emailLower}`);
+    userLogger.info(`[RegisterEmail] OTP sent for registration: ${emailLower}${attrStr}`);
     return successResponseHelper(res, 200, "Verification code sent to your email", { account_exists: false });
 
   } catch (e) {
@@ -317,7 +348,8 @@ const registerEmailVerifyOtp = async (req: express.Request, res: express.Respons
     const existing = await userModel.findOne({ where: { email: emailLower } });
     if (existing) {
       const loginData = await getAccessToken(existing.dataValues.user_id);
-      userLogger.info(`[RegisterEmail] Existing account logged in via OTP: ${emailLower}`);
+      const existingAttr = _formatAttribution(req.body?.attribution);
+      userLogger.info(`[RegisterEmail] Existing account logged in via OTP: ${emailLower}${existingAttr}`);
       return successResponseHelper(res, 200, "Logged in successfully!", {
         ...loginData,
         account_exists: true,
@@ -329,6 +361,13 @@ const registerEmailVerifyOtp = async (req: express.Request, res: express.Respons
     const referralData = await getRedisItem(`reg-referral:${emailLower}`);
     const referral_code = referralData?.referral_code || null;
     if (referralData) await deleteRedisItem(`reg-referral:${emailLower}`);
+
+    // Retrieve SEO attribution (if the user arrived from an SEO landing page)
+    const storedAttr = await getRedisItem(`reg-attribution:${emailLower}`);
+    if (storedAttr) await deleteRedisItem(`reg-attribution:${emailLower}`);
+    const requestAttr = _formatAttribution(req.body?.attribution);
+    const storedAttrStr = _formatAttribution(storedAttr && Object.keys(storedAttr).length > 0 ? storedAttr : null);
+    const attrLogSuffix = requestAttr || storedAttrStr;
 
     // Create user — no name, no password
     const photoLocation = await downloadUserImage();
@@ -388,7 +427,7 @@ const registerEmailVerifyOtp = async (req: express.Request, res: express.Respons
 
     const resData = await getAccessToken(createdUser.dataValues.user_id);
 
-    userLogger.info(`[RegisterEmail] User registered via simplified email flow: ${emailLower}`);
+    userLogger.info(`[RegisterEmail] User registered via simplified email flow: ${emailLower}${attrLogSuffix}`);
 
     return successResponseHelper(res, 200, "Account created successfully!", {
       ...resData,
@@ -465,7 +504,7 @@ const phoneTypeCheck = async (req: express.Request, res: express.Response) => {
 const registerPhoneStep1 = async (req: express.Request, res: express.Response) => {
   try {
     let { mobile } = req.body;
-    const { referral_code } = req.body;
+    const { referral_code, attribution } = req.body;
     
     if (!mobile) {
       return errorResponseHelper(res, 400, "Mobile number is required");
@@ -479,6 +518,8 @@ const registerPhoneStep1 = async (req: express.Request, res: express.Response) =
     if (!phoneRegex.test(mobile)) {
       return errorResponseHelper(res, 400, "Invalid mobile number format. Use 10-15 digits with country code (e.g. 13025141000)");
     }
+
+    const attrStr = _formatAttribution(attribution);
     
     // Check if mobile already registered — if so, switch to a passwordless LOGIN
     // via OTP instead of dead-ending. verify step will sign the user in.
@@ -491,7 +532,7 @@ const registerPhoneStep1 = async (req: express.Request, res: express.Response) =
       if (!smsLoginSent) {
         return errorResponseHelper(res, 503, "Failed to send verification code. Please try again.");
       }
-      userLogger.info(`[RegisterPhone] Existing account — login OTP sent: ${mobile}`);
+      userLogger.info(`[RegisterPhone] Existing account — login OTP sent: ${mobile}${attrStr}`);
       return successResponseHelper(res, 200, "You already have an account — we've sent a code to log you in.", { account_exists: true });
     }
 
@@ -499,10 +540,23 @@ const registerPhoneStep1 = async (req: express.Request, res: express.Response) =
     if (referral_code) {
       await setRedisItemWithTTL(`reg-referral-phone:${mobile}`, { referral_code }, 900);
     }
+    // Store SEO attribution for later log at user-creation time
+    if (attribution && typeof attribution === "object" && (attribution as any).src === "seo") {
+      await setRedisItemWithTTL(
+        `reg-attribution-phone:${mobile}`,
+        {
+          src: String((attribution as any).src),
+          page: String((attribution as any).page || ""),
+          kind: String((attribution as any).kind || ""),
+        },
+        900,
+      );
+    }
     
     // Send OTP via Telnyx
     const smsSent = await sendTelnyxSMS(mobile);
     if (smsSent) {
+      userLogger.info(`[RegisterPhone] OTP sent for registration: ${mobile}${attrStr}`);
       return successResponseHelper(res, 200, "Verification code sent to your phone number.", { account_exists: false });
     }
     return errorResponseHelper(res, 503, "Failed to send verification code. Please try again.");
@@ -558,7 +612,8 @@ const registerPhoneStep2 = async (req: express.Request, res: express.Response) =
     const mobileExists = await userModel.findOne({ where: { mobile } });
     if (mobileExists) {
       const loginData = await getAccessToken(mobileExists.dataValues.user_id);
-      userLogger.info(`[RegisterPhone] Existing account logged in via OTP: ${mobile}`);
+      const existingAttr = _formatAttribution(req.body?.attribution);
+      userLogger.info(`[RegisterPhone] Existing account logged in via OTP: ${mobile}${existingAttr}`);
       return successResponseHelper(res, 200, "Logged in successfully!", {
         ...loginData,
         account_exists: true,
@@ -569,6 +624,15 @@ const registerPhoneStep2 = async (req: express.Request, res: express.Response) =
     const referralData = await getRedisItem(`reg-referral-phone:${mobile}`);
     const referral_code = referralData?.referral_code || null;
     if (referralData) await deleteRedisItem(`reg-referral-phone:${mobile}`);
+
+    // Retrieve SEO attribution (if the user arrived from an SEO landing page)
+    const storedAttrPhone = await getRedisItem(`reg-attribution-phone:${mobile}`);
+    if (storedAttrPhone) await deleteRedisItem(`reg-attribution-phone:${mobile}`);
+    const requestAttrPhone = _formatAttribution(req.body?.attribution);
+    const storedAttrPhoneStr = _formatAttribution(
+      storedAttrPhone && Object.keys(storedAttrPhone).length > 0 ? storedAttrPhone : null,
+    );
+    const attrLogSuffixPhone = requestAttrPhone || storedAttrPhoneStr;
     
     const photoLocation = await downloadUserImage();
     const photo = process.env.SERVER_URL + photoLocation;
@@ -617,7 +681,7 @@ const registerPhoneStep2 = async (req: express.Request, res: express.Response) =
     
     const resData = await getAccessToken(createdUser.dataValues.user_id);
     
-    userLogger.info(`[RegisterPhone] User registered via simplified phone flow: ${mobile}`);
+    userLogger.info(`[RegisterPhone] User registered via simplified phone flow: ${mobile}${attrLogSuffixPhone}`);
 
     emailService.sendNewUserAdminNotification({
       name: mobile, mobile, login_type: "SMS",
