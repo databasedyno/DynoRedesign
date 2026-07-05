@@ -6062,3 +6062,21 @@ PASS CRITERIA:
 
 If any language fails, copy the ACTUAL captured innerText per language so I can debug the pluralization or interpolation.
 
+
+## FINAL VERDICT — Paid-at i18n localization (2026-07-05)
+
+Frontend testing agent — full PASS on 6 languages + 2 regression checks:
+  ✅ en:  "Paid 4 days ago • Jun 30, 2026"          (226×28px)
+  ✅ pt:  "Pago há 4 dias • 30 de jun. de 2026"     (254×28px)
+  ✅ es:  "Pagado hace 4 días • 30 jun 2026"        (244×28px)
+  ✅ fr:  "Payé il y a 4 jours • 30 juin 2026"      (230×28px)
+  ✅ de:  "Bezahlt vor 4 Tagen • 30. Juni 2026"     (256×28px)
+  ✅ nl:  "Betaald 4 dagen geleden • 30 jun 2026"   (280×28px)
+  ✅ R1 en: "Payment Successful" still visible (bug fix intact)
+  ✅ R2 nl: "Betaling Geslaagd" visible (whole card localises)
+
+No cross-language contamination detected. i18next pluralization (`_one`/`_other`) working correctly
+for all 6 languages. Date formatting via `toLocaleDateString(i18n.language, ...)` produces
+locale-appropriate formats (English "Jun 30, 2026", German "30. Juni 2026", French "30 juin 2026",
+Portuguese "30 de jun. de 2026", etc.).
+
