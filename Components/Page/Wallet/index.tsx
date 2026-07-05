@@ -171,10 +171,15 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: () => void }) => {
                 </HeaderIcon>
               }
               showHeaderBorder={false}
-              headerPadding={theme.spacing(2.5, 2.5, 0, 2.5)}
+              // H3 — tighter mobile padding so 13 wallet cards don't require a mile of scroll.
+              headerPadding={
+                isMobile
+                  ? theme.spacing(1.25, 1.75, 0, 1.75)
+                  : theme.spacing(2.5, 2.5, 0, 2.5)
+              }
               bodyPadding={
                 isMobile
-                  ? theme.spacing(1.75, 2, 2, 2)
+                  ? theme.spacing(1, 1.75, 1.5, 1.75)
                   : theme.spacing(3, 2.5, 2.5, 2.5)
               }
               headerAction={
@@ -266,39 +271,77 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: () => void }) => {
                   </CopyButton>
                 </WalletCardBodyRow>
                 <WalletCardBodyRow>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: isMobile ? 1 : 1.25,
-                    }}
-                  >
-                    <WalletLabel>
-                      <Image
-                        src={RoundedStackIcon}
-                        alt="Total processed"
-                        draggable={false}
-                      />
-                      <span>{tWallet("totalProcessed")}</span>
-                    </WalletLabel>
-                    <Typography
+                  {isMobile ? (
+                    /* H3 — MOBILE: inline "Total processed" label + value on one row
+                       instead of stacked, saving ~30px per card. Was
+                       ~205px tall, now ~150px. */
+                    <Box
                       sx={{
-                        fontSize: isMobile ? "15px" : "20px",
-                        fontWeight: 500,
-                        color: theme.palette.text.primary,
-                        lineHeight: isMobile ? "18px" : "24px",
-                        fontFamily: "UrbanistMedium",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        width: "100%",
+                        gap: 1,
                       }}
                     >
-                      {getCurrencySymbol(
-                        "USD",
-                        formatNumberWithComma(wallet.totalProcessed),
-                      )}
-                    </Typography>
-                  </Box>
+                      <WalletLabel sx={{ margin: 0 }}>
+                        <Image
+                          src={RoundedStackIcon}
+                          alt="Total processed"
+                          draggable={false}
+                        />
+                        <span>{tWallet("totalProcessed")}</span>
+                      </WalletLabel>
+                      <Typography
+                        sx={{
+                          fontSize: "15px",
+                          fontWeight: 600,
+                          color: theme.palette.text.primary,
+                          lineHeight: "18px",
+                          fontFamily: "UrbanistSemibold",
+                        }}
+                      >
+                        {getCurrencySymbol(
+                          "USD",
+                          formatNumberWithComma(wallet.totalProcessed),
+                        )}
+                      </Typography>
+                    </Box>
+                  ) : (
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 1.25,
+                      }}
+                    >
+                      <WalletLabel>
+                        <Image
+                          src={RoundedStackIcon}
+                          alt="Total processed"
+                          draggable={false}
+                        />
+                        <span>{tWallet("totalProcessed")}</span>
+                      </WalletLabel>
+                      <Typography
+                        sx={{
+                          fontSize: "20px",
+                          fontWeight: 500,
+                          color: theme.palette.text.primary,
+                          lineHeight: "24px",
+                          fontFamily: "UrbanistMedium",
+                        }}
+                      >
+                        {getCurrencySymbol(
+                          "USD",
+                          formatNumberWithComma(wallet.totalProcessed),
+                        )}
+                      </Typography>
+                    </Box>
+                  )}
                 </WalletCardBodyRow>
 
-                <Box sx={{ marginTop: isMobile ? "2px" : "4px" }}>
+                <Box sx={{ marginTop: isMobile ? "0px" : "4px" }}>
                   <WalletCardBodyRow>
                     <CustomButton
                       onClick={() => {
@@ -306,19 +349,19 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: () => void }) => {
                       }}
                       label={tWallet("viewTransactions")}
                       variant="outlined"
-                      endIcon={<ArrowOutward sx={{ fontSize: 16 }} />}
+                      endIcon={<ArrowOutward sx={{ fontSize: isMobile ? 13 : 16 }} />}
                       sx={{
                         backgroundColor: theme.palette.background.paper,
                         color: theme.palette.primary.main,
                         border: `1px solid ${theme.palette.primary.main}`,
                         borderRadius: "6px",
-                        fontSize: "15px",
+                        fontSize: isMobile ? "13px" : "15px",
                         fontWeight: 500,
                         fontFamily: "UrbanistMedium",
                         lineHeight: "18px",
-                        px: isMobile ? "14px" : "24px",
-                        py: isMobile ? "8px" : "11px",
-                        height: isMobile ? "32px" : "40px",
+                        px: isMobile ? "12px" : "24px",
+                        py: isMobile ? "5px" : "11px",
+                        height: isMobile ? "28px" : "40px",
                         gap: isMobile ? "6px" : "10px",
                         "&:hover": {
                           backgroundColor: theme.palette.background.paper,

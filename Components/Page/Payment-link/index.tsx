@@ -118,13 +118,10 @@ const PaymentLinksPage = ({
     setDateEnd(end);
   };
 
-  if (paymentLinkState.loading) {
-    return (
-      <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
-        <CircularProgress size={32} />
-      </Box>
-    );
-  }
+  // NB: no full-page spinner while loading — the Table now renders skeleton
+  // rows internally (see PaymentLinksTable.tsx, M4). This keeps the top-bar
+  // filters interactive during the initial fetch.
+  const isLoading = !!paymentLinkState.loading;
 
   return (
     <Box
@@ -145,10 +142,14 @@ const PaymentLinksPage = ({
         statusFilter={statusFilter}
       />
 
-      {filteredLinks?.length === 0 ? (
+      {!isLoading && filteredLinks?.length === 0 ? (
         <EmptyDataModel pageName="payment-links" />
       ) : (
-        <PaymentLinksTable paymentLinks={filteredLinks} rowsPerPage={10} />
+        <PaymentLinksTable
+          paymentLinks={filteredLinks}
+          rowsPerPage={10}
+          loading={isLoading}
+        />
       )}
     </Box>
   );

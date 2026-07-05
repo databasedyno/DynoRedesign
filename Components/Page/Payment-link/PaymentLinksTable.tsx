@@ -4,6 +4,7 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  Skeleton,
   Table,
   TableBody,
   TableCell,
@@ -121,7 +122,8 @@ Header.displayName = "Header";
 const PaymentLinksTable = ({
   paymentLinks,
   rowsPerPage = 10,
-}: PaymentLinksTableProps) => {
+  loading = false,
+}: PaymentLinksTableProps & { loading?: boolean }) => {
   const router = useRouter();
   const dispatch = useDispatch();
   const [page, setPage] = useState(0);
@@ -432,11 +434,36 @@ const PaymentLinksTable = ({
               </TableHead>
 
               <TableBody sx={{ overflowY: "auto" }}>
-                {paginatedData.map((row, index) => (
+                {/* Loading skeleton — 6 shimmer rows (M4). Renders whenever the API is
+                     in-flight so users see structure immediately instead of a spinner. */}
+                {loading && paginatedData.length === 0
+                  ? Array.from({ length: 6 }).map((_, i) => (
+                      <TableRow
+                        key={`skel-${i}`}
+                        sx={{
+                          height: "52px",
+                          borderTop: i === 0 ? "none" : "1px solid #E5E7EB",
+                        }}
+                      >
+                        {Array.from({ length: 9 }).map((__, colIdx) => (
+                          <TableBodyCell key={colIdx} sx={{ pl: colIdx === 0 ? "15px" : undefined }}>
+                            <Skeleton
+                              variant="text"
+                              width={colIdx === 0 ? 30 : colIdx === 8 ? 92 : 90}
+                              height={16}
+                              sx={{ bgcolor: theme.palette.mode === "dark" ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)" }}
+                            />
+                          </TableBodyCell>
+                        ))}
+                      </TableRow>
+                    ))
+                  : paginatedData.map((row, index) => (
                   <TableRow
                     key={index}
                     sx={{
-                      height: isMobile ? "59px" : "63px",
+                      // L1 — tighter row density: was 59/63px, now 48/52px so ~15% more rows
+                      // fit above the fold on a 900px viewport without feeling cramped.
+                      height: isMobile ? "48px" : "52px",
                       borderTop: index === 0 ? "none" : "1px solid #E5E7EB",
                     }}
                   >
@@ -502,13 +529,21 @@ const PaymentLinksTable = ({
                     <TableBodyCell
                       align="center"
                       sx={{
-                        height: isMobile ? "58px" : "62px",
-                        width: "fit-content",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "8px",
+                        // H2 — was `width: fit-content; display: flex` on the <td> which
+                        // pushed the whole cell past the container. Now the cell just holds
+                        // an inner flex Box so the table can compute the column width
+                        // properly and the icons stay inside the visible area.
+                        whiteSpace: "nowrap",
                       }}
                     >
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: "8px",
+                        }}
+                      >
                       {row.status !== "expired" && (
                         <CopyButton onClick={() => handleCopy(row.paymentUrl)}>
                           <Image
@@ -593,6 +628,7 @@ const PaymentLinksTable = ({
                           />
                         </CopyButton>
                       )}
+                      </Box>
                     </TableBodyCell>
                   </TableRow>
                 ))}

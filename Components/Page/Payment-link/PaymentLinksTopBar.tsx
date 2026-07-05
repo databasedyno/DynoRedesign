@@ -1,10 +1,19 @@
+import CustomDatePicker, { DatePickerRef } from "@/Components/UI/DatePicker";
+import CalendarIcon from "@/assets/Icons/calendar-icon.svg";
 import SearchIcon from "@/assets/Icons/search-icon.svg";
 import useIsMobile from "@/hooks/useIsMobile";
-import { Box, InputBase, MenuItem, Select, useTheme } from "@mui/material";
+import { DateRange } from "@/utils/types/dashboard";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import { Box, InputBase, MenuItem, Select, Typography, useTheme } from "@mui/material";
+import { format } from "date-fns";
 import Image from "next/image";
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { SearchIconButton } from "../Transactions/styled";
+import {
+  DatePickerTriggerButton,
+  DatePickerWrapper,
+  SearchIconButton,
+} from "../Transactions/styled";
 
 export type PaymentLinkStatusFilter = "all" | "active" | "completed" | "expired" | "pending";
 
@@ -15,6 +24,16 @@ interface PaymentLinksTopBarProps {
   statusFilter: PaymentLinkStatusFilter;
 }
 
+/**
+ * PaymentLinksTopBar — filter row for `/pay-links`.
+ *
+ * Cleaned up 2026-07-05: the two raw `<input type="date">` fields (which
+ * rendered differently on every browser and looked completely unstyled
+ * next to the app's other filter chips) were replaced with the same
+ * `CustomDatePicker` component the Transactions page uses. This gives us
+ * a single, consistent date-range experience across every merchant-facing
+ * table (M3 — unified filter bar).
+ */
 const PaymentLinksTopBar = ({
   onSearch,
   onStatusFilter,
@@ -24,35 +43,47 @@ const PaymentLinksTopBar = ({
   const { t } = useTranslation("paymentLinks");
   const isMobile = useIsMobile("md");
   const theme = useTheme();
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
 
-  const handleStartDateChange = (val: string) => {
-    setStartDate(val);
-    if (val && endDate) onDateFilter(val, endDate);
-    if (!val && !endDate) onDateFilter("", "");
-  };
+  const datePickerRef = useRef<DatePickerRef>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const [dateRange, setDateRange] = useState<DateRange>({
+    startDate: null,
+    endDate: null,
+  });
 
-  const handleEndDateChange = (val: string) => {
-    setEndDate(val);
-    if (startDate && val) onDateFilter(startDate, val);
-    if (!startDate && !val) onDateFilter("", "");
-  };
-
-  const selectSx = {
-    height: isMobile ? "32px" : "40px",
-    borderRadius: "6px",
-    border: `1px solid ${theme.palette.mode === "dark" ? "rgba(255,255,255,0.12)" : "#E9ECF2"}`,
-    backgroundColor: theme.palette.mode === "dark" ? "rgba(255,255,255,0.05)" : "#FFFFFF",
-    fontFamily: "UrbanistMedium",
-    fontSize: isMobile ? "10px" : "13px",
-    color: theme.palette.text.primary,
-    "& .MuiOutlinedInput-notchedOutline": { border: "none" },
-    "& .MuiSelect-select": {
-      py: 0,
-      display: "flex",
-      alignItems: "center",
+  const handleDateRangeChange = useCallback(
+    (range: DateRange) => {
+      setDateRange(range);
+      const s = range.startDate ? format(range.startDate, "yyyy-MM-dd") : "";
+      const e = range.endDate ? format(range.endDate, "yyyy-MM-dd") : "";
+      onDateFilter(s, e);
     },
+    [onDateFilter],
+  );
+
+  const handleCalendarButtonClick = (e: React.MouseEvent<HTMLElement>) => {
+    if (datePickerRef.current) datePickerRef.current.open(e);
+  };
+
+  const formatDateRange = (): string => {
+    if (dateRange.startDate && dateRange.endDate) {
+      if (isMobile) {
+        return `${format(dateRange.startDate, "dd.MM.yy")}-${format(
+          dateRange.endDate,
+          "dd.MM.yy",
+        )}`;
+      }
+      return `${format(dateRange.startDate, "MMM dd, yyyy")} - ${format(
+        dateRange.endDate,
+        "MMM dd, yyyy",
+      )}`;
+    }
+    if (dateRange.startDate) {
+      return isMobile
+        ? format(dateRange.startDate, "dd.MM.yy")
+        : format(dateRange.startDate, "MMM dd, yyyy");
+    }
+    return isMobile ? "Period" : "Select date range";
   };
 
   const inputSx = {
@@ -64,6 +95,16 @@ const PaymentLinksTopBar = ({
     fontFamily: "UrbanistMedium",
     fontSize: isMobile ? "10px" : "13px",
     color: theme.palette.text.primary,
+  };
+
+  const selectSx = {
+    ...inputSx,
+    "& .MuiOutlinedInput-notchedOutline": { border: "none" },
+    "& .MuiSelect-select": {
+      py: 0,
+      display: "flex",
+      alignItems: "center",
+    },
   };
 
   return (
@@ -78,27 +119,77 @@ const PaymentLinksTopBar = ({
       }}
     >
       {/* Search */}
-      <Box sx={{ display: "flex", alignItems: "center", gap: "8px", flex: 1, minWidth: isMobile ? "100%" : "200px", maxWidth: isMobile ? "100%" : "280px" }}>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: "8px",
+          flex: 1,
+          minWidth: isMobile ? "100%" : "200px",
+          maxWidth: isMobile ? "100%" : "280px",
+        }}
+      >
         <InputBase
           placeholder={t("searchInputPlaceholder")}
           onChange={(e) => onSearch(e.target.value)}
-          sx={{
-            ...inputSx,
-            width: "100%",
-          }}
+          sx={{ ...inputSx, width: "100%" }}
         />
         <SearchIconButton>
-          <Image src={SearchIcon} alt="search" width={20} height={20} className="themed-icon-primary" />
+          <Image
+            src={SearchIcon}
+            alt="search"
+            width={20}
+            height={20}
+            className="themed-icon-primary"
+          />
         </SearchIconButton>
       </Box>
 
-      {/* Status Filter */}
+      {/* Date-range picker — SAME component as /transactions for consistency */}
+      <DatePickerWrapper>
+        <DatePickerTriggerButton
+          ref={buttonRef}
+          onClick={handleCalendarButtonClick}
+        >
+          <Image
+            src={CalendarIcon}
+            alt="calendar"
+            width={14}
+            height={14}
+            className="themed-icon"
+            style={{ marginTop: "-3px" }}
+          />
+          <Typography className="date-text">{formatDateRange()}</Typography>
+          <Box className="separator" />
+          <KeyboardArrowDownIcon className="arrow-icon" />
+        </DatePickerTriggerButton>
+
+        <Box
+          sx={{
+            position: "absolute",
+            width: 0,
+            height: 0,
+            overflow: "hidden",
+            opacity: 0,
+            pointerEvents: "none",
+          }}
+        >
+          <CustomDatePicker
+            ref={datePickerRef}
+            value={dateRange}
+            onChange={handleDateRangeChange}
+            hideTrigger={true}
+          />
+        </Box>
+      </DatePickerWrapper>
+
+      {/* Status filter */}
       <Select
         value={statusFilter}
         onChange={(e) => onStatusFilter(e.target.value as PaymentLinkStatusFilter)}
         size="small"
         displayEmpty
-        sx={{ ...selectSx, minWidth: isMobile ? "100%" : "140px" }}
+        sx={{ ...selectSx, minWidth: isMobile ? "100%" : "160px" }}
       >
         <MenuItem value="all">All Statuses</MenuItem>
         <MenuItem value="active">Active</MenuItem>
@@ -107,45 +198,30 @@ const PaymentLinksTopBar = ({
         <MenuItem value="pending">Pending</MenuItem>
       </Select>
 
-      {/* Date Range */}
-      <Box sx={{ display: "flex", alignItems: "center", gap: "6px" }}>
-        <InputBase
-          type="date"
-          value={startDate}
-          onChange={(e) => handleStartDateChange(e.target.value)}
-          placeholder="From"
-          sx={{ ...inputSx, width: isMobile ? "100%" : "150px" }}
-          inputProps={{ style: { fontFamily: "UrbanistMedium", fontSize: isMobile ? "10px" : "13px" } }}
-        />
-        <InputBase
-          type="date"
-          value={endDate}
-          onChange={(e) => handleEndDateChange(e.target.value)}
-          placeholder="To"
-          sx={{ ...inputSx, width: isMobile ? "100%" : "150px" }}
-          inputProps={{ style: { fontFamily: "UrbanistMedium", fontSize: isMobile ? "10px" : "13px" } }}
-        />
-        {(startDate || endDate) && (
-          <Box
-            component="button"
-            onClick={() => { setStartDate(""); setEndDate(""); onDateFilter("", ""); }}
-            sx={{
-              border: "none",
-              background: "none",
-              color: theme.palette.primary.main,
-              cursor: "pointer",
-              fontFamily: "UrbanistMedium",
-              fontSize: "12px",
-              whiteSpace: "nowrap",
-              p: "4px 8px",
-              borderRadius: "4px",
-              "&:hover": { bgcolor: theme.palette.primary.main + "10" },
-            }}
-          >
-            Clear
-          </Box>
-        )}
-      </Box>
+      {/* Clear-range button — only when a range is set */}
+      {(dateRange.startDate || dateRange.endDate) && (
+        <Box
+          component="button"
+          onClick={() => {
+            setDateRange({ startDate: null, endDate: null });
+            onDateFilter("", "");
+          }}
+          sx={{
+            border: "none",
+            background: "none",
+            color: theme.palette.primary.main,
+            cursor: "pointer",
+            fontFamily: "UrbanistMedium",
+            fontSize: "12px",
+            whiteSpace: "nowrap",
+            p: "4px 8px",
+            borderRadius: "4px",
+            "&:hover": { bgcolor: theme.palette.primary.main + "10" },
+          }}
+        >
+          Clear
+        </Box>
+      )}
     </Box>
   );
 };

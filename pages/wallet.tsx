@@ -10,7 +10,6 @@ import { theme } from "@/styles/theme";
 import { pageProps, rootReducer } from "@/utils/types";
 import {
   AddRounded,
-  ArrowOutward as ArrowOutwardIcon,
   BusinessRounded,
 } from "@mui/icons-material";
 import { Box, Typography } from "@mui/material";
@@ -221,30 +220,22 @@ const WalletPage = ({
 
   useEffect(() => {
     if (!setPageAction) return;
+    // M1 (2026-07-05): removed the redundant "Create payment link" outlined button.
+    // The Wallets page is about wallet ADDRESSES, not payment links. The global
+    // bottom-nav "Create" tab (mobile) + sidebar "Payment Links" nav item (desktop)
+    // already give users a fast path to create links.
     setPageAction(
-      <>
+      canAddMoreWallets ? (
         <CustomButton
-          label={tDashboard("createPaymentLink", "Create payment link")}
-          variant="outlined"
+          label={tDashboard("addWallet", "Add wallet")}
+          variant="primary"
           size="medium"
-          endIcon={<ArrowOutwardIcon sx={{ fontSize: isMobile ? 14 : 16 }} />}
-          onClick={() => {
-            router.push("/create-pay-link");
-          }}
+          endIcon={<AddRounded sx={{ fontSize: isMobile ? 18 : 20 }} />}
+          onClick={() => setOpenCreate(true)}
           sx={{
-            border: `1px solid ${theme.palette.primary.main}`,
-            color: theme.palette.primary.main,
             height: isMobile ? 34 : 40,
             px: isMobile ? 1.5 : 2.5,
             fontSize: isMobile ? 13 : 15,
-            "&:hover": {
-              border: `1px solid ${theme.palette.primary.main}`,
-              color: theme.palette.primary.main,
-            },
-            "&:disabled": {
-              border: `1px solid ${theme.palette.border.main}`,
-              color: theme.palette.text.primary,
-            },
             [theme.breakpoints.down("sm")]: {
               flex: 1,
               whiteSpace: "nowrap",
@@ -253,30 +244,10 @@ const WalletPage = ({
             },
           }}
         />
-        {canAddMoreWallets && (
-          <CustomButton
-            label={tDashboard("addWallet", "Add wallet")}
-            variant="primary"
-            size="medium"
-            endIcon={<AddRounded sx={{ fontSize: isMobile ? 18 : 20 }} />}
-            onClick={() => setOpenCreate(true)}
-            sx={{
-              height: isMobile ? 34 : 40,
-              px: isMobile ? 1.5 : 2.5,
-              fontSize: isMobile ? 13 : 15,
-              [theme.breakpoints.down("sm")]: {
-                flex: 1,
-                whiteSpace: "nowrap",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-              },
-            }}
-          />
-        )}
-      </>,
+      ) : null,
     );
     return () => setPageAction(null);
-  }, [setPageAction, tDashboard, isMobile, router, canAddMoreWallets]);
+  }, [setPageAction, tDashboard, isMobile, canAddMoreWallets]);
 
   return (
     <>

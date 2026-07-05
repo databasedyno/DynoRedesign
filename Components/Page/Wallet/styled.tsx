@@ -75,7 +75,10 @@ export const WalletCardBody = styled(Box)(({ theme }) => ({
   flexDirection: "column",
   gap: 20,
   [theme.breakpoints.down("md")]: {
-    gap: 12,
+    // H3 (2026-07-05): tightened mobile gaps between the 3 rows
+    // (address / total-processed / actions) to ~half so the wallet card
+    // is significantly shorter — was ~180px tall on 390px viewport, now ~120px.
+    gap: 8,
   },
 }));
 

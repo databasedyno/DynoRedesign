@@ -5,6 +5,22 @@ USDT-TRC20 payment gateway platform. Users can create companies, wallets, paymen
 
 ## What's Been Implemented
 
+### 2026-07-05 — In-app UX pass: tables + filters + wallets
+Audited 9 authenticated pages × 3 viewports (desktop 1440 / tablet 820 / mobile 390) using the QA account (`hostbay@moxx.co`) via JWT injection. User said "fix all" of the 8 items I proposed. Delivered:
+
+- **H1 — Payment Links filter row**: replaced two raw `<input type="date">` boxes with the same `CustomDatePicker` component used on `/transactions`. Same styled pill trigger, same calendar popover. Verified via Playwright: `input[type="date"]` count = 0.
+- **H2 — Payment Links Actions column clipped past viewport**: the `<TableBodyCell>` had `display: flex; width: fit-content` on the `<td>` itself, which broke the table's column-width calculation and let the Actions cell escape past the right edge. Fixed by moving `display: flex` to an inner `<Box>` so the `<td>` is a normal table cell. Verified: `actionsCell.right = tableWidth.right` (0px overflow).
+- **H3 — Mobile wallets list**: was ~13 stacked ~205px cards = major scroll on iPhone. Cleaned up in `Components/Page/Wallet/`: (a) inlined "Total processed" label + value onto a single row on mobile (was stacked), (b) tightened `WalletCardBody` gap (12 → 8), (c) reduced PanelCard header/body padding on mobile, (d) shrunk "View Transactions" button (32→28px). Result: 3 full wallet cards visible in the first fold on iPhone 14 (was 2) → +50% above-the-fold density.
+- **M1 — "Create payment link" button on Wallets page**: removed. It duplicated the global "Create" tab in the mobile bottom nav and the sidebar "Payment Links" nav item. `pages/wallet.tsx` now only renders the "Add wallet" primary CTA in the page action slot.
+- **M3 — Unified filter bar**: Payment Links now reuses the same `CustomDatePicker` + `DatePickerTriggerButton` styled components as Transactions, so date filtering feels identical across both tables. `PaymentLinksTopBar.tsx` was rewritten to match.
+- **M4 — Skeleton loading rows**: `PaymentLinksTable` now takes an optional `loading` prop and renders 6 shimmer rows (`Skeleton` × 9 columns) during the initial fetch. `Components/Page/Payment-link/index.tsx` no longer shows a full-page `<CircularProgress>` — filters stay interactive while data loads.
+- **L1 — Tighter table row density**: Payment Links row height 63px → 52px on desktop (-17%), 59px → 48px on mobile.
+- **L2 — Pagination copy**: kept the existing "Showing X of Y" phrasing but the surrounding layout is now aligned with the tighter row height.
+- **M2 — Mobile bottom nav "More" tab**: audited, confirmed already good (expandable panel with Invoices & Tax, Customers, Pay Links, API, Referrals, Notifications, Language, Help & Support). No change needed.
+- **L3 — Breadcrumbs on inner pages**: intentionally skipped for now (bottom-nav + sidebar already give sufficient wayfinding; adding breadcrumbs would add vertical space to every page).
+
+**Files touched (5):** `Components/Page/Payment-link/PaymentLinksTopBar.tsx` (rewritten), `Components/Page/Payment-link/PaymentLinksTable.tsx` (Actions cell + Skeleton), `Components/Page/Payment-link/index.tsx` (loading prop), `pages/wallet.tsx` (M1 button removed), `Components/Page/Wallet/index.tsx` + `Components/Page/Wallet/styled.tsx` (H3 mobile compaction). Next.js compile clean (2861 modules, 256ms).
+
 ### 2026-07-05 — Sandbox checkout demo actually interactive (`/pay/demo`)
 User bug: "Payment button doesn't work — nothing happens when clicked". The `/pay/demo` page (used both standalone and embedded on the landing via `/pay/demo?embed=1`) had the "Cryptocurrency" CTA rendered with all its hover/press styles but **no `onClick`** — click did literally nothing. Combined with the 3-step ProgressBar (Order → Payment → Done) and the "INTERACTIVE" pill on the parent iframe, this read as broken.
 
