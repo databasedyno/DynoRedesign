@@ -189,21 +189,22 @@ const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages =
       <Box
         component="section"
         sx={{
-          maxWidth: 1200,
+          maxWidth: 1000,
           mx: "auto",
           px: { xs: 2, md: 3 },
-          pt: { xs: 3, md: 5 },
+          pt: { xs: 4, md: 7 },
           pb: { xs: 5, md: 7 },
           textAlign: "center",
         }}
       >
-        {/* Hero illustration — flag on gradient for countries, custom SVG icon for verticals */}
-        <Box sx={{ display: "flex", justifyContent: "center", mb: { xs: 2.5, md: 3 } }}>
+        {/* Hero illustration — smaller (was 128 → now 72) so it acts as an
+             accent instead of the loudest thing on the page. */}
+        <Box sx={{ display: "flex", justifyContent: "center", mb: { xs: 2, md: 2.5 } }}>
           <SEOIllustration
             slug={content._slug || ""}
             kind={content._kind}
             flag={content._flag}
-            size={128}
+            size={72}
             hero
           />
         </Box>
@@ -211,12 +212,12 @@ const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages =
         <Typography
           component="h1"
           sx={{
-            fontSize: { xs: 32, md: 52 },
+            fontSize: { xs: 30, md: 44 },
             lineHeight: 1.1,
-            fontWeight: 700,
+            fontWeight: 600,
             letterSpacing: "-0.02em",
             color: theme.palette.text.primary,
-            maxWidth: 900,
+            maxWidth: 820,
             mx: "auto",
             mb: 2,
           }}
@@ -227,17 +228,19 @@ const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages =
         <Typography
           component="p"
           sx={{
-            fontSize: { xs: 16, md: 20 },
-            lineHeight: 1.5,
+            fontSize: { xs: 16, md: 18 },
+            lineHeight: 1.55,
             color: theme.palette.text.secondary,
-            maxWidth: 720,
+            maxWidth: 620,
             mx: "auto",
-            mb: { xs: 4, md: 5 },
+            mb: { xs: 3, md: 4 },
           }}
         >
           {content.subheading}
         </Typography>
 
+        {/* Single primary CTA — dropped the redundant "See fees" secondary
+             button to reduce hero visual weight. */}
         <Box
           sx={{
             display: "flex",
@@ -260,54 +263,14 @@ const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages =
                 px: { xs: 3, md: 4 },
                 py: 1.5,
                 borderRadius: 2,
-                "&:hover": { bgcolor: theme.palette.primary.dark },
+                boxShadow: "none",
+                "&:hover": { bgcolor: theme.palette.primary.dark, boxShadow: "none" },
               }}
             >
               {content.cta_headline}
             </Button>
           </Link>
-          <Link href="/fees" passHref legacyBehavior>
-            <Button
-              component="a"
-              variant="outlined"
-              sx={{
-                borderColor: isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.15)",
-                color: theme.palette.text.primary,
-                textTransform: "none",
-                fontWeight: 600,
-                fontSize: 16,
-                px: { xs: 3, md: 4 },
-                py: 1.5,
-                borderRadius: 2,
-              }}
-            >
-              See fees
-            </Button>
-          </Link>
         </Box>
-      </Box>
-
-      {/* ── Intro paragraph ───────────────────────────────────────────── */}
-      <Box
-        component="section"
-        sx={{
-          maxWidth: 900,
-          mx: "auto",
-          px: { xs: 2, md: 3 },
-          pb: { xs: 5, md: 7 },
-        }}
-      >
-        <Typography
-          component="p"
-          sx={{
-            fontSize: { xs: 16, md: 18 },
-            lineHeight: 1.7,
-            color: theme.palette.text.primary,
-            textAlign: "center",
-          }}
-        >
-          {content.intro_paragraph}
-        </Typography>
       </Box>
 
       {/* ── Features grid ─────────────────────────────────────────────── */}
@@ -674,20 +637,21 @@ const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages =
             textAlign: "center",
             p: { xs: 4, md: 7 },
             borderRadius: 4,
-            background: isDark
-              ? "linear-gradient(135deg, rgba(85,86,239,0.15) 0%, rgba(120,80,220,0.10) 100%)"
-              : "linear-gradient(135deg, rgba(85,86,239,0.08) 0%, rgba(120,80,220,0.05) 100%)",
-            border: `1px solid ${isDark ? "rgba(120,120,220,0.25)" : "rgba(85,86,239,0.15)"}`,
+            // Plain subtle contrast panel — no gradient. Was a
+            // blue→purple gradient background that read as busy.
+            bgcolor: isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)",
+            border: `1px solid ${isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)"}`,
           }}
         >
           <Typography
             component="h2"
             sx={{
-              fontSize: { xs: 26, md: 38 },
-              fontWeight: 700,
+              fontSize: { xs: 26, md: 34 },
+              fontWeight: 600,
               color: theme.palette.text.primary,
               mb: 2,
               lineHeight: 1.2,
+              letterSpacing: "-0.01em",
             }}
           >
             {content.cta_headline}
@@ -719,7 +683,8 @@ const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages =
                 px: { xs: 3, md: 5 },
                 py: { xs: 1.5, md: 2 },
                 borderRadius: 2,
-                "&:hover": { bgcolor: theme.palette.primary.dark },
+                boxShadow: "none",
+                "&:hover": { bgcolor: theme.palette.primary.dark, boxShadow: "none" },
               }}
             >
               Create your free account

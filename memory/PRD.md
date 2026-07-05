@@ -5,6 +5,51 @@ USDT-TRC20 payment gateway platform. Users can create companies, wallets, paymen
 
 ## What's Been Implemented
 
+### 2026-07-05 — Landing + SEO pages: deep "clean" pass (Stripe/Linear-style)
+User feedback: "Landing page and other pages on the footer links appears too busy and unclean." After narrowing down (A + C = landing `/` + SEO country/vertical templates), applied a system-wide cleanup:
+
+**1. `Components/UI/SectionTitle/styled.tsx` — the highest-leverage change.**
+- `Badge`: was a pill (blue text on light background, `9999px` radius, 14px). Now a subtle uppercase eyebrow — 12px, letter-spacing 1.6px, muted gray, no background.
+- `HighlightText`: was a `linear-gradient(90deg, #0004FF, #6A4DFF)` with `WebkitBackgroundClip: text` + transparent fill (the "brochure gradient text" pattern in every section h2). Now a solid `theme.palette.primary.main` span with the same font weight.
+- Heading sizes tuned down slightly (large: 60px → 48px, small: 36px → 32px, mobile: 45→36 / 36→28) so section titles feel calmer.
+- This one file automatically cleaned up every downstream section title across `/`, `/fees`, `/documentation`, and BOTH SEO templates (`/accept-crypto-payments-in/[country]`, `/for/[vertical]`) without touching their JSX.
+
+**2. `Components/Page/Home/HeroClean.tsx` (new) — replaces HeroV2 on `/`.**
+Dropped from HeroV2 (which was 620 lines of complexity):
+- Audience switcher pills (For merchants / For developers)
+- Right-hand tabbed product preview (Checkout iframe / Dashboard mock / API code)
+- Mesh-gradient / drifting radial background
+- Blue→purple gradient text on the second h1 line
+- Trust-badges row ("🔒 Non-custodial · ⚡ Under 2-minute payouts")
+- Star-rating pill above the h1
+Kept: country-personalized trust line via `useCountry`, 90s-demo video modal, primary → /auth/register CTA. HeroV2.tsx kept in repo for rollback.
+
+**3. `Components/Page/Home/index.tsx` — dropped 2 more elements.**
+- Removed `StickyPromoBar` (kept file in repo — sticky "$500 fee-free" bar at top of every page added constant visual pressure).
+- Removed `LivePriceStrip` (full-width scrolling marquee of live crypto prices — marquees add motion noise).
+- Swapped `HeroV2` → `HeroClean`.
+Section count is unchanged (still 9 sections) but visual density dropped significantly because Hero, Section titles, and top-of-page overlays are all calmer.
+
+**4. `Components/Page/SEO/SEOLandingPage.tsx` — SEO template cleanup (applies to all `/accept-crypto-payments-in/*` and `/for/*` pages).**
+- Hero illustration: `size={128}` → `size={72}`. Was cartoonish/loud; now an accent.
+- Removed the standalone "Intro paragraph" section (its content just restates the h1/subtitle).
+- Removed the secondary "See fees" outline button in the hero (kept only the primary CTA).
+- H1 typography: 32/52px, weight 700 → 30/44px, weight 600 with -0.02em tracking (still prominent, less shouty).
+- Final CTA: was a `linear-gradient(135deg, blue→purple)` bordered panel; now a plain subtle contrast panel with the same border radius, so the CTA doesn't look like a marketing brochure.
+- SEO stuff untouched (breadcrumbs, JSON-LD, canonical, OG, related-pages cross-links).
+
+**Verification (Playwright, 5 scenarios):**
+| Scenario | StickyPromoBar | LivePriceStrip | "See fees" btn | scrollWidth |
+|---|---|---|---|---|
+| Desktop `/` (1440) | 0 ✅ | 0 ✅ | — | 1440 |
+| Desktop `/accept-crypto-payments-in/united-states` (1440) | 0 ✅ | 0 ✅ | 0 ✅ | 1440 |
+| Desktop `/for/saas` (1440) | 0 ✅ | 0 ✅ | 0 ✅ | 1440 |
+| Mobile `/` (390) | 0 ✅ | 0 ✅ | — | 390 |
+| Mobile `/accept-crypto-payments-in/united-states` (390) | 0 ✅ | 0 ✅ | 0 ✅ | 390 |
+Landing page height at 1440w: was ~8500px, now 6552px (-23%). SEO US page: was 4172px, now 3802px (-9%). Next.js compiled clean (2.7s, 2662 modules).
+
+**Files touched (4):** `Components/UI/SectionTitle/styled.tsx`, `Components/Page/Home/HeroClean.tsx` (new), `Components/Page/Home/index.tsx`, `Components/Page/SEO/SEOLandingPage.tsx`. Removed components kept in repo for A/B rollback: `HeroV2.tsx`, `LivePriceStrip.tsx`, `StickyPromoBar.tsx`.
+
 ### 2026-07-05 — Mobile alignment fixes (iPhone SE / 14 / Pro Max)
 User reported: "Mobile doesn't look properly aligned on iPhone". Diagnosed at 375/390/430px viewports:
 - **StickyPromoBar** — the full copy "🎁 Your first $500 in payments is fee-free" wrapped to 3-4 lines at 375px, blowing the 36px bar height and pushing the Claim button + X into the wrap mess. Fix: added a `display: {xs:'inline', sm:'none'}` short variant "🎁 First $500 fee-free" for mobile, + `whiteSpace: nowrap` + `minWidth: 0` on the Typography. Bar now stays exactly 36px tall on all iPhones.

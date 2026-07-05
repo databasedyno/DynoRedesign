@@ -1,7 +1,6 @@
 import { FC, memo, useEffect } from "react";
-import HeroV2 from "./HeroV2";
+import HeroClean from "./HeroClean";
 import ComplianceLogoStrip from "./ComplianceLogoStrip";
-import LivePriceStrip from "./LivePriceStrip";
 import SupportedChainsRail from "./SupportedChainsRail";
 import FeeCalculator from "./FeeCalculator";
 import TryItNow from "./TryItNow";
@@ -9,36 +8,41 @@ import CoreValueProps from "./CoreValueProps";
 import TestimonialsV2 from "./TestimonialsV2";
 import FinalCTA from "./FinalCTA";
 import FAQ from "./FAQ";
-import StickyPromoBar from "@/Components/Common/StickyPromoBar";
 import { HomeContainer, HomeFullWidthContainer, HomeWrapper } from "./styled";
 
 /**
- * HomePage — order optimized for conversion, trimmed 2026-07-05 for clarity.
+ * HomePage — cleaned up (2026-07-05, second pass).
  *
- *   1. StickyPromoBar (C)              — $500 fee-free bar at the very top
- *   2. LivePriceStrip                  — real-time crypto prices
- *   3. HeroV2 (A + J + M + K)          — product-tabbed hero, audience switcher,
- *                                        mesh gradient, country personalization
- *   4. ComplianceLogoStrip (F)         — SOC 2 · GDPR · PCI DSS · KYT · Chainalysis
- *   5. SupportedChainsRail             — chain logos
- *   6. FeeCalculator (B)               — interactive slider + savings vs picked competitor
- *   7. TryItNow                        — embedded checkout + curl
- *   8. CoreValueProps                  — 4 core benefits
- *   9. TestimonialsV2 (H)              — richer cards with initials avatars
- *  10. FAQ
- *  11. FinalCTA
+ * Structure:
+ *   1. HeroClean            — plain centered hero, one accent color
+ *   2. ComplianceLogoStrip  — compact "ENTERPRISE-GRADE SECURITY" row
+ *   3. SupportedChainsRail  — chain logos rail
+ *   4. FeeCalculator        — the interactive calculator (highest value)
+ *   5. TryItNow             — embedded live checkout + curl playground
+ *   6. CoreValueProps       — three reasons businesses choose us
+ *   7. TestimonialsV2       — merchant testimonials
+ *   8. FAQ                  — accordion
+ *   9. FinalCTA             — plain CTA panel
  *
- * REMOVED 2026-07-05 per user feedback ("landing looks too busy, not clean"):
- *   • ComparisonTable (L)  — "How we stack up" — user said "doesn't appear needed"
- *   • ExitIntentModal (N)  — kept re-firing on any mouse-toward-tabs move,
- *                             annoying users who weren't actually leaving
- *   • LiveActivityStrip    — was CURATED FAKE data (per its own file header)
- *   • IndustryLogoWall (G) — used fabricated per-industry merchant counts
+ * REMOVED for the "clean" pass (previous set was too visually busy):
+ *   • StickyPromoBar         — sticky "$500 fee-free" bar at the top of every
+ *                              page. Adds constant visual pressure. Kept in the
+ *                              tree for A/B rollback (Components/Common/StickyPromoBar.tsx).
+ *   • LivePriceStrip         — full-width scrolling marquee of live crypto
+ *                              prices. Great signal, but marquees add motion
+ *                              noise and don't survive a "cleanliness" audit.
+ *   • HeroV2                 — replaced with HeroClean. HeroV2 had audience
+ *                              switcher + tabbed product preview + mesh
+ *                              gradient + gradient text + trust badges row +
+ *                              star pill — 6 mini-elements too many.
  *
- * Components still live in the repo for A/B rollback if we want them back.
+ * Also on the same pass, `Components/UI/SectionTitle/styled.tsx` was updated
+ * so every downstream section title stops using the pill badge + blue→purple
+ * gradient text — meaning FAQ, CoreValueProps, TestimonialsV2, FinalCTA,
+ * ComplianceLogoStrip, SEO country/vertical pages, and `/fees` all render
+ * calmer without touching their individual JSX.
  */
 const HomePage: FC = () => {
-  // ─── Visitor tracking: notify admin of new unique visitors ───
   useEffect(() => {
     if (typeof window === "undefined") return;
     const key = "dynopay_visitor_tracked";
@@ -57,59 +61,43 @@ const HomePage: FC = () => {
   }, []);
 
   return (
-    <>
-      {/* C — sticky promo bar. Rendered outside HomeWrapper so it can sit above the header. */}
-      <StickyPromoBar />
+    <HomeWrapper>
+      <HomeFullWidthContainer>
+        <HeroClean />
+      </HomeFullWidthContainer>
 
-      <HomeWrapper>
-        {/* Live crypto price strip — signals "this is a real-time crypto product" */}
-        <HomeFullWidthContainer>
-          <LivePriceStrip />
-        </HomeFullWidthContainer>
+      <HomeFullWidthContainer>
+        <ComplianceLogoStrip />
+      </HomeFullWidthContainer>
 
-        {/* A + J + M + K — new hero */}
-        <HomeFullWidthContainer>
-          <HeroV2 />
-        </HomeFullWidthContainer>
+      <HomeFullWidthContainer>
+        <SupportedChainsRail />
+      </HomeFullWidthContainer>
 
-        {/* F — compliance & infra badges */}
-        <HomeFullWidthContainer>
-          <ComplianceLogoStrip />
-        </HomeFullWidthContainer>
+      <HomeFullWidthContainer>
+        <FeeCalculator />
+      </HomeFullWidthContainer>
 
-        {/* Supported chains rail */}
-        <HomeFullWidthContainer>
-          <SupportedChainsRail />
-        </HomeFullWidthContainer>
+      <HomeFullWidthContainer>
+        <TryItNow />
+      </HomeFullWidthContainer>
 
-        {/* B — interactive fee calculator (highest-converting section) */}
-        <HomeFullWidthContainer>
-          <FeeCalculator />
-        </HomeFullWidthContainer>
+      <HomeContainer>
+        <CoreValueProps />
+      </HomeContainer>
 
-        {/* Interactive playground: embedded checkout + curl */}
-        <HomeFullWidthContainer>
-          <TryItNow />
-        </HomeFullWidthContainer>
+      <HomeFullWidthContainer>
+        <TestimonialsV2 />
+      </HomeFullWidthContainer>
 
-        <HomeContainer>
-          <CoreValueProps />
-        </HomeContainer>
+      <HomeFullWidthContainer>
+        <FAQ />
+      </HomeFullWidthContainer>
 
-        {/* H — testimonial cards with initials + chain badges */}
-        <HomeFullWidthContainer>
-          <TestimonialsV2 />
-        </HomeFullWidthContainer>
-
-        <HomeFullWidthContainer>
-          <FAQ />
-        </HomeFullWidthContainer>
-
-        <HomeFullWidthContainer>
-          <FinalCTA />
-        </HomeFullWidthContainer>
-      </HomeWrapper>
-    </>
+      <HomeFullWidthContainer>
+        <FinalCTA />
+      </HomeFullWidthContainer>
+    </HomeWrapper>
   );
 };
 
