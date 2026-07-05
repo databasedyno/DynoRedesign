@@ -4,9 +4,12 @@ import { alpha, styled } from "@mui/material/styles";
 // HomePage
 export const HomeWrapper = styled(Box)(({ theme }) => ({
   width: "100%",
-  paddingTop: 65,
+  // paddingTop = header height (65 desktop / 76 mobile) + sticky promo bar height
+  // (set via --dyno-promo-h by StickyPromoBar). When the promo bar is dismissed
+  // or absent, --dyno-promo-h resolves to 0px and layout is unchanged.
+  paddingTop: "calc(65px + var(--dyno-promo-h, 0px))",
   [theme.breakpoints.down("md")]: {
-    paddingTop: 76,
+    paddingTop: "calc(76px + var(--dyno-promo-h, 0px))",
   },
 }));
 

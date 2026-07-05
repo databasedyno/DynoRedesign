@@ -12,12 +12,15 @@ import {
 
 export const FixedHeader = styled("header")(({ theme }) => ({
   position: "fixed",
-  top: 0,
+  // top shifts down by the sticky promo bar height (set via a CSS var by
+  // StickyPromoBar). When the promo bar is dismissed or absent, --dyno-promo-h
+  // is 0px so the header sits flush against the viewport top.
+  top: "var(--dyno-promo-h, 0px)",
   left: 0,
   right: 0,
   zIndex: 1400,
   backgroundColor: theme.palette.background.paper,
-  transition: "transform 0.3s ease-in-out, background-color 0.3s ease",
+  transition: "transform 0.3s ease-in-out, top 0.25s ease, background-color 0.3s ease",
   width: "100%",
 }));
 

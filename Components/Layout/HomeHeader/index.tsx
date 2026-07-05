@@ -2,6 +2,7 @@ import DynopayLogo from "@/assets/Images/auth/dynopay-logo.svg";
 import DynopayWhiteLogo from "@/assets/Icons/home/dynopay-whiteLogo.svg";
 import LanguageSwitcher from "@/Components/UI/LanguageSwitcher";
 import ThemeToggle from "@/Components/UI/ThemeToggle";
+import SystemStatusPill from "@/Components/Common/SystemStatusPill";
 import useIsMobile from "@/hooks/useIsMobile";
 import { Button, useTheme } from "@mui/material";
 import Image from "next/image";
@@ -56,6 +57,11 @@ const HEADER_ITEMS: readonly HeaderItem[] = [
   { translationKey: "blog", path: "/blog", external: false },
 ] as const;
 
+// Section IDs on the homepage that we scroll-spy against (D).
+// Order matters — we highlight the last one whose top is above the viewport
+// midpoint.
+const SPY_SECTIONS: readonly string[] = ["hero", "fee-calculator", "features", "use-cases"] as const;
+
 /* ================= COMPONENT ================= */
 
 const HomeHeader = memo(function HomeHeader() {
@@ -67,6 +73,7 @@ const HomeHeader = memo(function HomeHeader() {
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   const [isHeaderVisible, setIsHeaderVisible] = useState<boolean>(true);
+  const [activeSection, setActiveSection] = useState<string>("hero");
   // Avoid SSR/client hydration mismatch for theme-dependent assets.
   // SSR always renders in 'dark' mode (ThemeContext fallback), so we
   // must match that on the first client render, then switch after mount.
@@ -148,6 +155,34 @@ const HomeHeader = memo(function HomeHeader() {
     return () => window.removeEventListener("scroll", onScroll);
   }, [isHeaderVisible]);
 
+  /* ================= SCROLL-SPY (D) ================= */
+  // Highlights the nav item whose section is currently at/above the header.
+  // Only runs on the homepage — noop on every other route.
+  useEffect(() => {
+    if (router.pathname !== "/") return;
+
+    let raf = 0;
+    const onScrollSpy = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        const mid = window.scrollY + HEADER_OFFSET_PX + 40;
+        let current = SPY_SECTIONS[0];
+        for (const id of SPY_SECTIONS) {
+          const el = document.getElementById(id);
+          if (!el) continue;
+          const top = el.offsetTop;
+          if (top <= mid) current = id;
+        }
+        setActiveSection(current);
+        raf = 0;
+      });
+    };
+
+    onScrollSpy();
+    window.addEventListener("scroll", onScrollSpy, { passive: true });
+    return () => window.removeEventListener("scroll", onScrollSpy);
+  }, [router.pathname]);
+
   /* ================= SCROLL LOCK ================= */
 
   useEffect(() => {
@@ -199,20 +234,45 @@ const HomeHeader = memo(function HomeHeader() {
           </ClickableLogo>
 
           <NavLinks>
-            {HEADER_ITEMS.map((item) => (
-              <Button
-                key={item.translationKey}
-                disableRipple
-                onClick={() => handleNav(item)}
-              >
-                {t(item.translationKey)}
-              </Button>
-            ))}
+            {HEADER_ITEMS.map((item) => {
+              const isActive = item.sectionId ? activeSection === item.sectionId : false;
+              return (
+                <Button
+                  key={item.translationKey}
+                  disableRipple
+                  onClick={() => handleNav(item)}
+                  sx={{
+                    position: "relative",
+                    // Subtle underline for the currently-visible section
+                    "&::after": item.sectionId
+                      ? {
+                          content: '""',
+                          position: "absolute",
+                          left: "50%",
+                          bottom: 2,
+                          transform: `translateX(-50%) scaleX(${isActive ? 1 : 0})`,
+                          transformOrigin: "center",
+                          width: 18,
+                          height: 2,
+                          borderRadius: 2,
+                          background: "linear-gradient(90deg, #0004FF, #6C7BFF)",
+                          transition: "transform 0.25s ease",
+                        }
+                      : undefined,
+                    color: isActive ? "primary.main" : undefined,
+                  }}
+                >
+                  {t(item.translationKey)}
+                </Button>
+              );
+            })}
           </NavLinks>
         </LeftGroup>
 
         <RightGroup>
           <Actions>
+            {!isMobile && <SystemStatusPill />}
+
             {!isMobile && (
               <DesktopLanguageWrapper>
                 <LanguageSwitcher />

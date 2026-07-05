@@ -252,3 +252,114 @@ Verified by testing agent (Python Playwright + JWT injection): 6/6 PASS. Banner 
 - Webhook retry logic + dead letter queue
 - Admin dashboard for stuck payment visibility
 - Further `paymentController.ts` refactoring
+
+
+### 2026-07-05 — Landing page overhaul: 14 conversion-focused improvements (A–N)
+
+Full landing-page redesign benchmarked against Stripe / Vercel / Linear / Ramp /
+Emergent / Coinbase Commerce / BitPay. Additive only — no existing section was
+deleted; the old `Hero.tsx`, `SocialProof.tsx`, `Testimonials.tsx`, `FeeSection.tsx`
+remain in the repo (unused) for easy A/B rollback.
+
+**New order of `/` (see `Components/Page/Home/index.tsx`):**
+StickyPromoBar → LivePriceStrip → HeroV2 → ComplianceLogoStrip → LiveActivityStrip
+→ SupportedChainsRail → FeeCalculator → TryItNow → CoreValueProps → ComparisonTable
+→ IndustryLogoWall → TestimonialsV2 → FAQ → FinalCTA → ExitIntentModal.
+
+**Item-by-item:**
+- **A + J + M + K → `HeroV2.tsx`**. Two-column hero. Left column: audience switcher
+  (`For merchants` / `For developers`) that swaps H1, subtext, and CTA; H1 has gradient
+  highlight; country-personalized trust line (`🇺🇸 Trusted in United States — for
+  merchants`) via `useCountry()`. Right column: tabbed product surface (Checkout /
+  Dashboard / API) auto-rotating every 5s until the user clicks a tab. Checkout tab is
+  the actual `/pay/demo?embed=1` iframe. Dashboard tab is a full-fidelity CSS mock
+  (KPI cards, animated bar chart, recent-tx list). API tab is a syntax-highlighted
+  fake-terminal with copyable curl + 200 status footer. Layered radial-gradient mesh
+  background with 22s/26s drift animations (Linear/Cursor feel). "Watch 90s demo"
+  opens `DemoVideoModal`.
+- **B → `FeeCalculator.tsx`**. Slider (500 → $500K/mo, log-ish stepping). Alternative
+  picker = Stripe / Coinbase Commerce / BitPay / PayPal / typical credit card.
+  Side-by-side cost bars (DynoPay wins the "Best" badge). "You save $XXX/month —
+  that's $XX,XXX/yr, XX.X% less than {alt}" headline card with a "Start saving today"
+  CTA. Assumes $75 avg transaction to compute tx count for fixed-fee alternatives.
+  Section id="fee-calculator" for the header scroll-spy anchor.
+- **C → `StickyPromoBar.tsx`**. Fixed at viewport top (z-index 1500, height 36px).
+  "🎁 Your first $500 in payments is fee-free — [Claim →]" with a dismiss X.
+  Dismiss persisted in localStorage (`dyno_promo_dismissed_v1`). Uses a CSS custom
+  property `--dyno-promo-h` (0px | 36px) that shifts the `FixedHeader.top` and adds
+  to `HomeWrapper.paddingTop` so nothing overlaps.
+- **D → HomeHeader scroll-spy**. Existing sticky header now has an animated
+  gradient underline on the currently-visible section (`hero` / `fee-calculator` /
+  `features` / `use-cases`). Highlight state derived from `window.scrollY` via
+  requestAnimationFrame. Only runs on the homepage.
+- **E → `SystemStatusPill.tsx`**. Inlined into HomeHeader right group (desktop only).
+  Reads `overall_uptime_percentage` from `GET /api/status/uptime`; falls back to
+  99.98%. Green/amber/red thresholds at ≥99.5 / ≥97 / else. Links to `/system-status`.
+  Pulses.
+- **F → `ComplianceLogoStrip.tsx`**. Monochrome 5-badge row directly under the hero:
+  SOC 2 (Type II in progress) · GDPR · PCI DSS · KYT · Chainalysis (Tatum
+  intentionally excluded per direction). Material icons rather than 3rd-party logos to
+  avoid trademark issues. Grayscale + `opacity: 0.85`; `filter: grayscale(0)` on hover.
+- **G → `IndustryLogoWall.tsx`**. "Trusted across 40+ countries" heading + 8-tile
+  industry grid (E-commerce 180+, SaaS 95+, Marketplaces 60+, Agencies 50+,
+  Freelancers 75+, Digital goods 40+, Web3 startups 55+, Creators 30+). Colored
+  gradient tile with material icon. Hover raises the tile.
+- **H → `TestimonialsV2.tsx`**. Three richer cards (desktop grid, mobile carousel with
+  dot pagination). Each card: 5-star row, quote, initials-in-gradient-circle avatar
+  (Name · Role · Company + Industry · Country + chain-badge). Placeholders since no
+  real logos: Amelia Rodrigues (Bloomvue Studio · Portugal · USDT-TRC20), David Kimani
+  (Payflex · Kenya · USDT-ERC20), Sofia Chen (North Gate Marketplace · Singapore ·
+  USDC-Polygon).
+- **I → `DemoVideoModal.tsx`**. Triggered by "Watch 90s demo" in HeroV2. Since we
+  don't have a produced video yet, it shows a 3-step storyboard modal that
+  auto-advances every 4.5s (Create link → Customer picks any chain → You settle in
+  stablecoins). Big gradient hero pane, step dots, dark backdrop with blur. When we
+  ship a real video, swap the storyboard for an `<iframe src={videoUrl}>` — same
+  open/close plumbing.
+- **K → `hooks/useCountry.ts`**. Wraps `/api/geo-detect` (existing endpoint, no changes).
+  Cached in sessionStorage. Returns `{ country, countryCode, flag }`. Used by HeroV2
+  trust line. SSR-safe: returns null on server, hydrates cleanly on client.
+- **L → `ComparisonTable.tsx`**. 4-column head-to-head (DynoPay · Coinbase Commerce ·
+  BitPay · Stripe). 14 feature rows including fee, chains, settlement time,
+  non-custodial, chargebacks, KYC, developer surface, recurring billing, free tier.
+  DynoPay column has a subtle gradient wash + "Best value" gradient badge above the
+  header cell. Green/red check-cross for booleans. Horizontally scrollable on mobile
+  (min-width 720). Footnote about pricing accuracy as of 2026-07.
+- **N → `ExitIntentModal.tsx`**. Fires on `mouseout` when `e.clientY ≤ 0` (mouse
+  leaving the viewport top). Desktop-only (skipped on `window.innerWidth < 900`).
+  Only fires once per session (sessionStorage). Armed 4s after page load to avoid
+  catching bounce-back-through visitors. Escape to close. Shows the sandbox key
+  (`dyno_sk_sandbox_demo_9f621db8`) in a copyable code pill + "Claim $500 fee-free"
+  and "View API docs" CTAs.
+
+**Verification (Playwright headless, 1440×900, US IP):**
+- Console errors: 0 non-preexisting (only `[next-auth] CLIENT_FETCH_ERROR` which is a
+  session-fetch race unrelated to these changes).
+- All 13 element locators found (`Promo bar`, `Hero H1`, `Audience switcher`,
+  `Watch 90s demo`, `Status pill`, `Compliance SOC 2`, `Fee Calculator`, `Compare
+  against`, `Coinbase Commerce`, `E-commerce`, `What builders are saying`,
+  `Merchant accepted` ×32 marquee, `Try the API`).
+- Bounding-box check: promo bar `{y:0, h:36}`, header `{y:36, h:69}`. After dismissing
+  the promo bar, header snaps back to `{y:0, h:69}` (CSS var `--dyno-promo-h` cycles
+  36→0). No visual overlap.
+- HeroV2 tab auto-rotation observed cycling Checkout → Dashboard → API every 5s.
+- FeeCalculator at $10K/mo with Stripe alt shows DynoPay $50 vs Stripe $330 → "You
+  save $280/month · $3,359/yr · 84.8% less" (math verified: 10000×2.9% + 133×0.30 =
+  329.90 ≈ $330).
+
+**Files touched (new = 11, modified = 4):**
+- New: `hooks/useCountry.ts`, `Components/Common/StickyPromoBar.tsx`,
+  `Components/Common/SystemStatusPill.tsx`, `Components/Modals/ExitIntentModal.tsx`,
+  `Components/Modals/DemoVideoModal.tsx`, `Components/Page/Home/HeroV2.tsx`,
+  `Components/Page/Home/FeeCalculator.tsx`, `Components/Page/Home/ComparisonTable.tsx`,
+  `Components/Page/Home/IndustryLogoWall.tsx`,
+  `Components/Page/Home/TestimonialsV2.tsx`,
+  `Components/Page/Home/ComplianceLogoStrip.tsx`.
+- Modified: `Components/Page/Home/index.tsx` (new section order),
+  `Components/Page/Home/styled.tsx` (paddingTop includes --dyno-promo-h),
+  `Components/Layout/HomeHeader/index.tsx` (SystemStatusPill import + scroll-spy
+  useEffect + activeSection underline in NavLinks),
+  `Components/Layout/HomeHeader/styled.tsx` (FixedHeader.top uses --dyno-promo-h var).
+
+**Test credentials**: unchanged. No new accounts. No prod DB writes. No third-party
+integrations added.

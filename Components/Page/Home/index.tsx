@@ -1,21 +1,48 @@
 import { FC, memo, useEffect } from "react";
-import FeeSection from "./FeeSection";
-import HeroSection from "./Hero";
+import HeroV2 from "./HeroV2";
+import ComplianceLogoStrip from "./ComplianceLogoStrip";
 import LiveActivityStrip from "./LiveActivityStrip";
 import LivePriceStrip from "./LivePriceStrip";
-import SocialProofSection from "./SocialProof";
 import SupportedChainsRail from "./SupportedChainsRail";
-import CoreValueProps from "./CoreValueProps";
-import FinalCTA from "./FinalCTA";
-import Testimonials from "./Testimonials";
+import FeeCalculator from "./FeeCalculator";
 import TryItNow from "./TryItNow";
+import CoreValueProps from "./CoreValueProps";
+import ComparisonTable from "./ComparisonTable";
+import IndustryLogoWall from "./IndustryLogoWall";
+import TestimonialsV2 from "./TestimonialsV2";
+import FinalCTA from "./FinalCTA";
 import FAQ from "./FAQ";
+import StickyPromoBar from "@/Components/Common/StickyPromoBar";
+import ExitIntentModal from "@/Components/Modals/ExitIntentModal";
 import { HomeContainer, HomeFullWidthContainer, HomeWrapper } from "./styled";
 
+/**
+ * HomePage — order optimized for conversion:
+ *
+ *   1. StickyPromoBar (C)              — $500 fee-free bar at the very top
+ *   2. LivePriceStrip                  — real-time crypto prices (existing)
+ *   3. HeroV2 (A + J + M + K)          — product-tabbed hero, audience switcher,
+ *                                        mesh gradient, country personalization
+ *   4. ComplianceLogoStrip (F)         — SOC 2 · GDPR · PCI DSS · KYT · Chainalysis
+ *   5. LiveActivityStrip               — anonymized settlement ticker (existing)
+ *   6. SupportedChainsRail             — chain logos
+ *   7. FeeCalculator (B)               — interactive slider + savings vs picked competitor
+ *   8. TryItNow                        — embedded checkout + curl (existing)
+ *   9. CoreValueProps                  — 4 core benefits (existing)
+ *  10. ComparisonTable (L)             — DynoPay vs Coinbase Commerce / BitPay / Stripe
+ *  11. IndustryLogoWall (G)            — anonymized industry-silhouette wall
+ *  12. TestimonialsV2 (H)              — richer cards with initials avatars
+ *  13. FAQ                             — existing
+ *  14. FinalCTA                        — existing
+ *
+ * Plus:
+ *   • ExitIntentModal (N)              — fires on mouse-leave-top (desktop only)
+ *   • Sticky nav / status pill (D + E) — inside HomeHeader (see Layout/HomeHeader)
+ *   • DemoVideoModal (I)               — mounted inside HeroV2, opens on "Watch demo"
+ */
 const HomePage: FC = () => {
   // ─── Visitor tracking: notify admin of new unique visitors ───
   useEffect(() => {
-    // Fire once per browser session (sessionStorage clears on tab close)
     if (typeof window === "undefined") return;
     const key = "dynopay_visitor_tracked";
     if (sessionStorage.getItem(key)) return;
@@ -29,59 +56,81 @@ const HomePage: FC = () => {
         page: window.location.pathname,
         referrer: document.referrer || null,
       }),
-    }).catch(() => {}); // Fire-and-forget — never block the UI
+    }).catch(() => {});
   }, []);
 
   return (
-    <HomeWrapper>
-      {/* Live crypto price strip — signals "this is a real-time crypto product" */}
-      <HomeFullWidthContainer>
-        <LivePriceStrip />
-      </HomeFullWidthContainer>
+    <>
+      {/* C — sticky promo bar. Rendered outside HomeWrapper so it can sit above the header. */}
+      <StickyPromoBar />
 
-      <HomeContainer>
-        <HeroSection />
-      </HomeContainer>
+      <HomeWrapper>
+        {/* Live crypto price strip — signals "this is a real-time crypto product" */}
+        <HomeFullWidthContainer>
+          <LivePriceStrip />
+        </HomeFullWidthContainer>
 
-      {/* Anonymized, live-feeling activity strip — social proof of liveness */}
-      <HomeFullWidthContainer>
-        <LiveActivityStrip />
-      </HomeFullWidthContainer>
+        {/* A + J + M + K — new hero */}
+        <HomeFullWidthContainer>
+          <HeroV2 />
+        </HomeFullWidthContainer>
 
-      {/* "Powered by" chain logo rail — replaces the generic SaaS "trusted by" line */}
-      <HomeFullWidthContainer>
-        <SupportedChainsRail />
-      </HomeFullWidthContainer>
+        {/* F — compliance & infra badges */}
+        <HomeFullWidthContainer>
+          <ComplianceLogoStrip />
+        </HomeFullWidthContainer>
 
-      <HomeFullWidthContainer>
-        <SocialProofSection />
-      </HomeFullWidthContainer>
+        {/* Anonymized, live-feeling activity strip */}
+        <HomeFullWidthContainer>
+          <LiveActivityStrip />
+        </HomeFullWidthContainer>
 
-      {/* Interactive playground: embedded checkout + copy-pasteable curl */}
-      <HomeFullWidthContainer>
-        <TryItNow />
-      </HomeFullWidthContainer>
+        {/* Supported chains rail */}
+        <HomeFullWidthContainer>
+          <SupportedChainsRail />
+        </HomeFullWidthContainer>
 
-      <HomeContainer>
-        <CoreValueProps />
-      </HomeContainer>
+        {/* B — interactive fee calculator (highest-converting section) */}
+        <HomeFullWidthContainer>
+          <FeeCalculator />
+        </HomeFullWidthContainer>
 
-      <HomeFullWidthContainer>
-        <FeeSection />
-      </HomeFullWidthContainer>
+        {/* Interactive playground: embedded checkout + curl */}
+        <HomeFullWidthContainer>
+          <TryItNow />
+        </HomeFullWidthContainer>
 
-      <HomeContainer>
-        <Testimonials />
-      </HomeContainer>
+        <HomeContainer>
+          <CoreValueProps />
+        </HomeContainer>
 
-      <HomeFullWidthContainer>
-        <FAQ />
-      </HomeFullWidthContainer>
+        {/* L — head-to-head vs Coinbase Commerce, BitPay, Stripe */}
+        <HomeFullWidthContainer>
+          <ComparisonTable />
+        </HomeFullWidthContainer>
 
-      <HomeFullWidthContainer>
-        <FinalCTA />
-      </HomeFullWidthContainer>
-    </HomeWrapper>
+        {/* G — industry logo wall (anonymized) */}
+        <HomeFullWidthContainer>
+          <IndustryLogoWall />
+        </HomeFullWidthContainer>
+
+        {/* H — testimonial cards with initials + chain badges */}
+        <HomeFullWidthContainer>
+          <TestimonialsV2 />
+        </HomeFullWidthContainer>
+
+        <HomeFullWidthContainer>
+          <FAQ />
+        </HomeFullWidthContainer>
+
+        <HomeFullWidthContainer>
+          <FinalCTA />
+        </HomeFullWidthContainer>
+      </HomeWrapper>
+
+      {/* N — desktop-only exit-intent modal */}
+      <ExitIntentModal />
+    </>
   );
 };
 
