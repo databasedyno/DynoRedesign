@@ -6,8 +6,15 @@ import React from 'react';
 
 export default function Pay3Layout({
     children,
+    embed = false,
 }: {
     children: React.ReactNode;
+    /**
+     * When true, hides the site header and footer so the checkout card can be
+     * embedded inside an iframe (e.g. the homepage TryItNow playground). Also
+     * tightens vertical padding to fit smaller iframe heights.
+     */
+    embed?: boolean;
 }) {
     const { mode, toggleTheme, isDark } = useThemeMode();
     const theme = useTheme();
@@ -15,7 +22,7 @@ export default function Pay3Layout({
     return (
         <Box
             sx={{
-                minHeight: '100vh',
+                minHeight: embed ? 'auto' : '100vh',
                 display: 'flex',
                 flexDirection: 'column',
                 background: theme.palette.background.default,
@@ -58,7 +65,7 @@ export default function Pay3Layout({
                 }}
             />
 
-            <Header darkMode={isDark} toggleDarkMode={toggleTheme} />
+            {!embed && <Header darkMode={isDark} toggleDarkMode={toggleTheme} />}
             <Box
                 component="main"
                 sx={{
@@ -66,14 +73,14 @@ export default function Pay3Layout({
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'center',
-                    py: { xs: 2, sm: 3 },
+                    py: embed ? { xs: 0.5, sm: 1 } : { xs: 2, sm: 3 },
                     position: 'relative',
                     zIndex: 1,
                 }}
             >
                 {children}
             </Box>
-            <Footer />
+            {!embed && <Footer />}
         </Box>
     );
 }

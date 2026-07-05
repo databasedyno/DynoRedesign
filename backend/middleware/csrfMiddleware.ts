@@ -69,6 +69,9 @@ const EXEMPT_PATHS = [
   "/api/track/visitor",
   // Security: Flag suspicious login — public, uses one-time security token from email
   "/api/user/security/flag-login",
+  // Sandbox playground endpoint — public, rate-limited, returns ephemeral in-memory
+  // stub responses (never touches DB). Used by the homepage curl snippet.
+  "/api/public/sandbox",
 ];
 
 /**

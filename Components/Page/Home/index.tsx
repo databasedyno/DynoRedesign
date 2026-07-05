@@ -1,12 +1,14 @@
 import { FC, memo, useEffect } from "react";
 import FeeSection from "./FeeSection";
 import HeroSection from "./Hero";
+import LiveActivityStrip from "./LiveActivityStrip";
 import LivePriceStrip from "./LivePriceStrip";
 import SocialProofSection from "./SocialProof";
 import SupportedChainsRail from "./SupportedChainsRail";
 import CoreValueProps from "./CoreValueProps";
 import FinalCTA from "./FinalCTA";
 import Testimonials from "./Testimonials";
+import TryItNow from "./TryItNow";
 import FAQ from "./FAQ";
 import { HomeContainer, HomeFullWidthContainer, HomeWrapper } from "./styled";
 
@@ -41,6 +43,11 @@ const HomePage: FC = () => {
         <HeroSection />
       </HomeContainer>
 
+      {/* Anonymized, live-feeling activity strip — social proof of liveness */}
+      <HomeFullWidthContainer>
+        <LiveActivityStrip />
+      </HomeFullWidthContainer>
+
       {/* "Powered by" chain logo rail — replaces the generic SaaS "trusted by" line */}
       <HomeFullWidthContainer>
         <SupportedChainsRail />
@@ -48,6 +55,11 @@ const HomePage: FC = () => {
 
       <HomeFullWidthContainer>
         <SocialProofSection />
+      </HomeFullWidthContainer>
+
+      {/* Interactive playground: embedded checkout + copy-pasteable curl */}
+      <HomeFullWidthContainer>
+        <TryItNow />
       </HomeFullWidthContainer>
 
       <HomeContainer>

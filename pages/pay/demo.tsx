@@ -9,7 +9,8 @@ import {
   useTheme,
   Snackbar
 } from '@mui/material'
-import React, { useEffect, useState, useCallback } from 'react'
+import React, { useEffect, useState, useCallback, useMemo } from 'react'
+import { useRouter } from 'next/router'
 import { Icon } from '@iconify/react'
 import BitCoinGreenIcon from '@/assets/Icons/BitCoinGreenIcon'
 import Logo from '@/assets/Icons/Logo'
@@ -34,8 +35,16 @@ const PaymentDemo = () => {
   const theme = useTheme()
   const isDark = theme.palette.mode === 'dark'
   const { t } = useTranslation('common')
+  const router = useRouter()
   const [copySnackbar, setCopySnackbar] = useState(false)
   const [countdown, setCountdown] = useState('')
+
+  // ?embed=1 hides the site header + footer so the demo can be dropped into
+  // an iframe on the homepage TryItNow playground.
+  const isEmbed = useMemo(() => {
+    const q = router?.query?.embed
+    return q === '1' || q === 'true'
+  }, [router?.query?.embed])
 
   useEffect(() => {
     const updateCountdown = () => {
@@ -80,7 +89,7 @@ const PaymentDemo = () => {
   }, [])
 
   return (
-    <Pay3Layout>
+    <Pay3Layout embed={isEmbed}>
       <Box>
         <ProgressBar activeStep={0} />
 

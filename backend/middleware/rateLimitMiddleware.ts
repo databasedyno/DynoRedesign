@@ -255,6 +255,25 @@ export const paymentRateLimiter = createRateLimiter(
   })
 );
 
+/**
+ * Sandbox rate limiter — for the public homepage playground endpoints
+ * (POST /api/public/sandbox/*). 10 requests per minute per IP.
+ * These endpoints never touch the DB — they return in-memory stub responses.
+ */
+export const sandboxRateLimiter = createRateLimiter(
+  (req) => {
+    const ip = req.ip ||
+               req.headers['x-forwarded-for'] as string ||
+               req.socket.remoteAddress ||
+               'unknown';
+    return `sandbox:${ip}`;
+  },
+  async () => ({
+    windowMs: 60 * 1000,       // 1 minute
+    maxRequests: 10,            // 10 sandbox requests per IP per minute
+  })
+);
+
 export default {
   createRateLimiter,
   apiKeyRateLimiter,
@@ -265,4 +284,5 @@ export default {
   otpRateLimiter,
   webhookRateLimiter,
   paymentRateLimiter,
+  sandboxRateLimiter,
 };

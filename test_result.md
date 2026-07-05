@@ -6117,3 +6117,89 @@ start-all.sh fires it on every prod boot with --delay 90 (fire-and-forget; INDEX
 Dockerfile runner: COPY scripts/indexnow-ping.mjs.
 SELF-TEST: dry-run returned all 21 sitemap URLs (7 static + 14 SEO); REAL submission of homepage accepted
 HTTP 202 by api.indexnow.org using the live production key. sh -n start-all.sh OK.
+
+
+─────────────────────────────────────────────────────────────────────────────
+2026-07-05 — DEPLOY FIX + Homepage social-proof + interactive playground
+─────────────────────────────────────────────────────────────────────────────
+
+## A) DIGITALOCEAN DEPLOY BLOCKER — .dockerignore excluded scripts/indexnow-ping.mjs
+Failed deployment 26906b0d-28a9-4264-b610-e3a56a627311 (manual re-deploy of commit
+ea02c86, 14:57 UTC). Kaniko exited with:
+  "error building image: error building stage: failed to optimize instructions:
+   failed to get files used from context: copy failed: no source files specified"
+Root cause: commit ea02c86 added a runner-stage line to /app/Dockerfile:
+    COPY scripts/indexnow-ping.mjs ./scripts/indexnow-ping.mjs
+…but /app/.dockerignore excluded the entire `scripts` directory (added earlier).
+Every push since 2026-07-05 14:16 UTC has failed at this exact COPY. Active site
+still serves the pre-IndexNow build 86211a90 (commit 94a44ac).
+
+FIX (/app/.dockerignore): add a negation for the one file the runner needs.
+    scripts
+    !scripts/indexnow-ping.mjs
+Effect: `scripts/` still excluded from the build context in general, but
+`scripts/indexnow-ping.mjs` is included so the COPY resolves. Dockerfile.frontend
+doesn't reference scripts/, unaffected.
+
+## B) NEW BACKEND — public sandbox playground endpoints (no DB, rate-limited)
+Added three read-only, in-memory endpoints for the homepage "Try the API" section:
+- POST /api/public/sandbox/payment-links  (body: amount/currency/description/customer_email)
+    → returns stubbed payment_link mirroring the real create shape
+    → nothing written to Postgres/Redis; safe to hand out publicly
+- GET  /api/public/sandbox/payment-links/:id (validates plink_sandbox_[a-f0-9]{6,64})
+- GET  /api/public/sandbox/info            (returns SANDBOX_PUBLIC_KEY + base_url + rate limit)
+Rate limiter: 10 req/IP/min (new sandboxRateLimiter in rateLimitMiddleware.ts using
+the existing Redis-backed sliding-window pattern). CSRF exempt path added:
+"/api/public/sandbox". SANDBOX_PUBLIC_KEY is a display-only string
+"dyno_sk_sandbox_demo_9f621db8" — it authenticates NOTHING; the endpoint is public.
+Self-test (curl on internal :8001):
+  POST create → 200 { object:"payment_link", id:"plink_sandbox_...", ... }
+  GET back    → 200 for /^plink_sandbox_[a-f0-9]{6,64}$/, 404 for bogus id
+  GET info    → 200 with correct base_url from SERVER_URL
+Files touched: backend/routes/index.ts, backend/middleware/rateLimitMiddleware.ts,
+backend/middleware/csrfMiddleware.ts.
+
+## C) NEW FRONTEND — LiveActivityStrip + TryItNow sections on homepage
+CURATED FAKE DATA (per product approval 2026-07-05) — nothing here queries prod.
+When we're ready to flip the strip to real settlements, swap SEED[] for a
+`fetch('/api/public/activity-feed')` call (endpoint not yet built).
+
+- Components/Page/Home/LiveActivityStrip.tsx — anonymized marquee under the hero.
+  Headline: "🟢 LIVE $128,4xx processed in the last 24h · 1,247 payments this
+  week" (client-only tick drift so it feels alive). Pills: country flag +
+  "Merchant accepted 84 USDT · 2 min ago" style, 16-event seed rotates every 5s,
+  ages every 1s. Hydration-safe: all random/time-dependent values initialized to
+  0 on the server and only start after client mount (fixes SSR text mismatch).
+- Components/Page/Home/TryItNow.tsx — "Playground" section, two-column layout.
+    LEFT: <iframe src="/pay/demo?embed=1"> — the real demo checkout, no signup.
+    RIGHT: fake-terminal curl block hitting POST /public/sandbox/payment-links
+           + example JSON response + Copy cURL / Full API docs CTAs.
+  Snackbar confirms copy. Sandbox key rendered as a visible <code> pill.
+- pages/pay/demo.tsx + Components/Layout/Pay3Layout.tsx — added `?embed=1`
+  query param (parsed via useRouter). Layout accepts `embed` prop; when true,
+  hides Header/Footer + tightens vertical padding so the checkout card fits
+  inside the homepage iframe.
+- Components/Page/Home/index.tsx — inserted both sections between Hero and
+  CoreValueProps. Order: Hero → LiveActivityStrip → SupportedChainsRail →
+  SocialProof → TryItNow → CoreValueProps → FeeSection → Testimonials → FAQ →
+  FinalCTA (unchanged sections untouched).
+
+HYDRATION FIXES applied during dev:
+1. LiveActivityStrip: removed useMemo(Math.random) computed at render time —
+   moved to useState + useEffect so SSR gets 0, client hydrates to 0, then
+   ticks. No more "Text content did not match. Server: '5s ago' Client: '8s ago'".
+2. TryItNow: two <Typography> containers had raw <Box /> children (render as
+   <div>), causing "Expected server HTML to contain a matching <div> in <p>".
+   Added component="span" to the Typography + component="span" +
+   display: "inline-block" to the pulse dots.
+
+VERIFICATION (Playwright headless, viewport 1440×900, dark & light both OK):
+- Homepage GET / → 200
+- /pay/demo → 200, /pay/demo?embed=1 → 200
+- Console errors: 0
+- 'Merchant accepted' pills: 32 (16 events × 2 for seamless marquee loop)
+- 'Playground' header found; 'Copy cURL' button clickable; iframe checkout
+  renders the Review Your Order card + expiry countdown inside the homepage.
+
+## D) TEST CREDENTIALS
+Unchanged. No new accounts created. Nothing here writes to prod DB.

@@ -36,6 +36,11 @@ test_result.md
 # === Misc ===
 memory
 scripts
+# Exception: indexnow-ping.mjs is COPY'd by the runner stage of Dockerfile
+# (added 2026-07-05 for the IndexNow deploy ping). Without this negation,
+# Kaniko fails with "copy failed: no source files specified" — see
+# failed DO deployment 26906b0d-28a9-4264-b610-e3a56a627311.
+!scripts/indexnow-ping.mjs
 .env.example
 Dockerfile*
 docker-compose*.yml
