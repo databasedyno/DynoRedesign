@@ -5,6 +5,21 @@ USDT-TRC20 payment gateway platform. Users can create companies, wallets, paymen
 
 ## What's Been Implemented
 
+### 2026-07-05 — Sandbox checkout demo actually interactive (`/pay/demo`)
+User bug: "Payment button doesn't work — nothing happens when clicked". The `/pay/demo` page (used both standalone and embedded on the landing via `/pay/demo?embed=1`) had the "Cryptocurrency" CTA rendered with all its hover/press styles but **no `onClick`** — click did literally nothing. Combined with the 3-step ProgressBar (Order → Payment → Done) and the "INTERACTIVE" pill on the parent iframe, this read as broken.
+
+Rewrote `pages/pay/demo.tsx` as a small 3-step client-side state machine (no backend calls — it's a sandbox):
+- **Step 0 Order** — unchanged card, but the CTA now has `onClick={goToPayment}`.
+- **Step 1 Payment** — new UI: 5 coin chips (USDT-TRC20 / USDC-ERC20 / BTC / ETH / SOL), each clicking swaps the amount + wallet address + brand color live. Mock QR SVG on the left, real-format wallet addresses (`TTve…`, `0x9a…`, `1JH5…`, etc.), "Copy address" (writes to clipboard). Awaiting-confirmation box with a spinner and a live countdown ("auto-confirms in {n}s") that ticks down every second — at 0, auto-advances to Done. Back + "Simulate payment received" buttons.
+- **Step 2 Done** — green checkmark, "Payment received · {crypto amount} {short} · €125.50 EUR settled to the merchant wallet", receipt block (Merchant / Invoice / Network in the coin's brand color), "Try the demo again" reset button that returns to Step 0 + resets timer.
+
+ProgressBar's `activeStep` is now bound to the step state, so the stepper actually walks Order → Payment → Done. All existing i18n keys reused (`checkout.title`, `checkout.orderDetails`, `checkout.cryptocurrency`, etc.) — no missing translations.
+
+Verified end-to-end via Playwright at 460×900:
+- Step 0 button present · Click → Step 1 renders (coin chips × 5, wallet address, awaiting box, simulate button all present) · Click BTC chip → address updates from `TTve8v6Y…4mAkxR` to `1JH5TnZz…Hc1Do7` and amount from `125.5 USDT` to `0.00189 BTC` · Click "Simulate" → Step 2 renders (checkmark + reset button) · Click Reset → back to Step 0. Next.js compiled clean in 3.3s (2658 modules), no errors.
+
+Files touched (1): `pages/pay/demo.tsx` (390 → 500 lines).
+
 ### 2026-07-05 — Landing + SEO pages: deep "clean" pass (Stripe/Linear-style)
 User feedback: "Landing page and other pages on the footer links appears too busy and unclean." After narrowing down (A + C = landing `/` + SEO country/vertical templates), applied a system-wide cleanup:
 
