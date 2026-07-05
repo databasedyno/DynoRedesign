@@ -106,13 +106,15 @@ const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages =
       <Head>
         <title>{content.meta_title}</title>
         <meta name="description" content={content.meta_description} />
-        <link rel="canonical" href={canonicalUrl} />
+        {/* `key="canonical"` overrides the fallback canonical in `_app.tsx`
+             so search engines see the slug-specific URL. */}
+        <link key="canonical" rel="canonical" href={canonicalUrl} />
 
         {/* OpenGraph */}
         <meta property="og:type" content="website" />
         <meta property="og:title" content={content.meta_title} />
         <meta property="og:description" content={content.meta_description} />
-        <meta property="og:url" content={canonicalUrl} />
+        <meta key="og:url" property="og:url" content={canonicalUrl} />
         <meta property="og:site_name" content="DynoPay" />
 
         {/* Twitter */}

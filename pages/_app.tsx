@@ -402,7 +402,9 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
 
         {/* ─── Canonical URL ─── */}
-        <link rel="canonical" href={canonicalUrl} />
+        {/* `key="canonical"` lets per-page Head overrides (e.g. SEOLandingPage
+             with its slug-specific canonical) DEDUPE this fallback. */}
+        <link key="canonical" rel="canonical" href={canonicalUrl} />
 
         {/* ─── Robots: noindex for private pages ─── */}
         {isPrivatePage && <meta name="robots" content="noindex, nofollow" />}
@@ -411,7 +413,7 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
         <meta property="og:type" content={pathname === "/" ? "website" : "article"} />
         <meta property="og:title" content={pageTitle} />
         <meta property="og:description" content={metaDescription} />
-        <meta property="og:url" content={canonicalUrl} />
+        <meta key="og:url" property="og:url" content={canonicalUrl} />
         <meta property="og:image" content={OG_IMAGE} />
         <meta property="og:site_name" content="DynoPay" />
         <meta property="og:locale" content={i18n.language || "en"} />

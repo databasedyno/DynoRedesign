@@ -4996,6 +4996,49 @@ The bug fix is working perfectly. The circular JSON structure error has been com
 ## SEO Landing Pages Test Results (2026-07-05 10:45 UTC)
 - agent: testing
 - test_date: 2026-07-05 10:45:00 UTC
+
+## FOLLOW-UP FIX: canonical link deduplication (2026-07-05, same session)
+Previous frontend test flagged: canonical URL on `/accept-crypto-payments-in/{slug}` and `/for/{slug}` pages was `https://dynopay.com/accept-crypto-payments-in` (missing slug) and `https://dynopay.com/for` (missing slug).
+
+ROOT CAUSE: `pages/_app.tsx` set a fallback `<link rel="canonical">` computed from `router.pathname` (which for dynamic routes strips `[country]` to become `/accept-crypto-payments-in/`). `SEOLandingPage.tsx` set its own slug-specific `<link rel="canonical">` after — but neither used `key`, so Next.js `<Head>` did NOT dedupe, and both tags appeared in the HTML. The tester's querySelector picked the FIRST one (the fallback), reporting the missing slug.
+
+FIX: Added `key="canonical"` to both `<link rel="canonical">` tags (in `_app.tsx` and `SEOLandingPage.tsx`) — Next.js now dedupes to the last one (the slug-specific version). Same treatment applied to `<meta property="og:url">` (`key="og:url"`).
+
+Files:
+  - `/app/pages/_app.tsx` — added `key="canonical"` and `key="og:url"`
+  - `/app/Components/Page/SEO/SEOLandingPage.tsx` — added `key="canonical"` and `key="og:url"`
+
+MANUAL CURL VERIFICATION (main agent):
+  - `curl /accept-crypto-payments-in/united-states | grep canonical` → single tag with href `https://dynopay.com/accept-crypto-payments-in/united-states` ✅
+  - `curl /for/saas | grep canonical` → single tag with href `https://dynopay.com/for/saas` ✅
+  - `curl /` (Home) → still `https://dynopay.com/` ✅ (no regression)
+
+RETEST REQUEST for frontend testing agent — VERIFY THE CANONICAL FIX ONLY:
+Please re-verify the previously flagged issue is resolved. All other cases (A–H) already PASSED and do NOT need retesting.
+
+Only re-run this focused check:
+  Base URL: https://88b19283-41ff-4c38-bb16-543195dfc9a1.preview.emergentagent.com
+  HARD CONSTRAINT: Do NOT log in / submit any form. Public pages only.
+
+  For each URL in the list below:
+    - Navigate to it. Wait networkidle + 500ms.
+    - Get `document.querySelectorAll('link[rel="canonical"]')` — assert exactly ONE canonical tag.
+    - Assert its `href` equals the expected canonical.
+
+  URLs + expected canonicals:
+    /accept-crypto-payments-in/united-states  →  https://dynopay.com/accept-crypto-payments-in/united-states
+    /accept-crypto-payments-in/brazil         →  https://dynopay.com/accept-crypto-payments-in/brazil
+    /accept-crypto-payments-in/india          →  https://dynopay.com/accept-crypto-payments-in/india
+    /for/saas                                  →  https://dynopay.com/for/saas
+    /for/ecommerce                             →  https://dynopay.com/for/ecommerce
+    /for/gaming                                →  https://dynopay.com/for/gaming
+    /                                          →  https://dynopay.com/       (must NOT regress)
+
+  Also check `<meta property="og:url">` — one tag per page, href matches canonical.
+
+  REPORT PER URL: actual canonical `href`, actual og:url `content`, PASS/FAIL.
+
+
 - test_url: https://88b19283-41ff-4c38-bb16-543195dfc9a1.preview.emergentagent.com
 - test_scope: 14 SEO landing pages (8 countries + 6 verticals) + 3 enhancements (cross-linking, footer SEO block, UTM funnel)
 
@@ -5294,3 +5337,151 @@ All 8 test cases passed successfully. One minor SEO issue identified (canonical 
 **Recommendation for Main Agent:**
 The three SEO enhancements are working correctly. Consider fixing the minor canonical link issue by updating the canonical URL generation in both country and vertical page components to include the full slug path.
 
+
+
+## Canonical URL Fix Verification — Test Results (2026-07-05 10:48 UTC)
+- agent: testing
+- test_date: 2026-07-05 10:48:00 UTC
+- test_url: https://88b19283-41ff-4c38-bb16-543195dfc9a1.preview.emergentagent.com
+- bug_fix_context: Previous test flagged canonical `<link rel="canonical">` was missing the slug on SEO country + vertical pages. Fix: added `key="canonical"` (and `key="og:url"`) to both `_app.tsx` fallback and SEOLandingPage component to ensure Next.js deduplicates correctly.
+- test_results: ✅ ALL TESTS PASSED (7/7 URLs - 100% success rate)
+
+### CRITICAL PASS/FAIL CRITERIA - ALL PASSED ✅
+
+**FOCUSED RETEST: Canonical URL + og:url Tag Verification**
+
+**Test Scope:**
+- Verify exactly 1 canonical tag per page (no duplicates)
+- Verify canonical href includes full slug (not truncated)
+- Verify exactly 1 og:url tag per page
+- Verify og:url matches canonical value
+- Test 7 URLs: 3 country pages + 3 vertical pages + 1 root page (regression check)
+
+---
+
+### TEST RESULTS PER URL
+
+**TEST 1: /accept-crypto-payments-in/united-states** ✅ PASS
+- Expected canonical: https://dynopay.com/accept-crypto-payments-in/united-states
+- Actual canonical: https://dynopay.com/accept-crypto-payments-in/united-states ✅
+- Canonical tag count: 1 ✅
+- Actual og:url: https://dynopay.com/accept-crypto-payments-in/united-states ✅
+- og:url tag count: 1 ✅
+- **Verdict:** ✅ PASS - Canonical and og:url both correct with full slug
+
+**TEST 2: /accept-crypto-payments-in/brazil** ✅ PASS
+- Expected canonical: https://dynopay.com/accept-crypto-payments-in/brazil
+- Actual canonical: https://dynopay.com/accept-crypto-payments-in/brazil ✅
+- Canonical tag count: 1 ✅
+- Actual og:url: https://dynopay.com/accept-crypto-payments-in/brazil ✅
+- og:url tag count: 1 ✅
+- **Verdict:** ✅ PASS - Canonical and og:url both correct with full slug
+
+**TEST 3: /accept-crypto-payments-in/india** ✅ PASS
+- Expected canonical: https://dynopay.com/accept-crypto-payments-in/india
+- Actual canonical: https://dynopay.com/accept-crypto-payments-in/india ✅
+- Canonical tag count: 1 ✅
+- Actual og:url: https://dynopay.com/accept-crypto-payments-in/india ✅
+- og:url tag count: 1 ✅
+- **Verdict:** ✅ PASS - Canonical and og:url both correct with full slug
+
+**TEST 4: /for/saas** ✅ PASS
+- Expected canonical: https://dynopay.com/for/saas
+- Actual canonical: https://dynopay.com/for/saas ✅
+- Canonical tag count: 1 ✅
+- Actual og:url: https://dynopay.com/for/saas ✅
+- og:url tag count: 1 ✅
+- **Verdict:** ✅ PASS - Canonical and og:url both correct with full slug
+
+**TEST 5: /for/ecommerce** ✅ PASS
+- Expected canonical: https://dynopay.com/for/ecommerce
+- Actual canonical: https://dynopay.com/for/ecommerce ✅
+- Canonical tag count: 1 ✅
+- Actual og:url: https://dynopay.com/for/ecommerce ✅
+- og:url tag count: 1 ✅
+- **Verdict:** ✅ PASS - Canonical and og:url both correct with full slug
+
+**TEST 6: /for/gaming** ✅ PASS
+- Expected canonical: https://dynopay.com/for/gaming
+- Actual canonical: https://dynopay.com/for/gaming ✅
+- Canonical tag count: 1 ✅
+- Actual og:url: https://dynopay.com/for/gaming ✅
+- og:url tag count: 1 ✅
+- **Verdict:** ✅ PASS - Canonical and og:url both correct with full slug
+
+**TEST 7: / (root page - regression check)** ✅ PASS
+- Expected canonical: https://dynopay.com/
+- Actual canonical: https://dynopay.com/ ✅
+- Canonical tag count: 1 ✅
+- Actual og:url: https://dynopay.com/ ✅
+- og:url tag count: 1 ✅
+- **Verdict:** ✅ PASS - Root canonical still correct (no regression)
+
+---
+
+### VERIFICATION STATUS: COMPLETE ✅
+
+**Summary:**
+- ✅ Total tests: 7
+- ✅ Passed: 7
+- ✅ Failed: 0
+- ✅ Success rate: 100%
+
+**Key Findings:**
+1. ✅ **No duplicate canonical tags** - Every page has exactly 1 canonical tag (was 2+ before fix)
+2. ✅ **Full slug included** - All canonical hrefs now include the complete slug path (was truncated before fix)
+3. ✅ **og:url matches canonical** - Every page has exactly 1 og:url tag with value matching canonical
+4. ✅ **No regression on root page** - Homepage still has correct canonical (https://dynopay.com/)
+5. ✅ **Fix working across all page types** - Country pages, vertical pages, and root page all correct
+
+**Technical Details:**
+- **Root cause (before fix):** `_app.tsx` fallback canonical didn't have `key="canonical"` prop, so Next.js's `<Head>` component didn't deduplicate it against the SEOLandingPage's slug-specific canonical. Result: 2 canonical tags per page, with the fallback one missing the slug.
+- **Fix applied:** Added `key="canonical"` to both `_app.tsx` fallback and SEOLandingPage component. Also added `key="og:url"` to ensure og:url deduplication.
+- **Result:** Next.js now correctly deduplicates, keeping only the page-specific canonical with full slug.
+
+**Before Fix (Example: /accept-crypto-payments-in/united-states):**
+```html
+<link rel="canonical" href="https://dynopay.com/accept-crypto-payments-in" />
+<link rel="canonical" href="https://dynopay.com/accept-crypto-payments-in/united-states" />
+```
+(2 canonical tags, first one missing slug)
+
+**After Fix (Same page):**
+```html
+<link rel="canonical" href="https://dynopay.com/accept-crypto-payments-in/united-states" />
+```
+(1 canonical tag with full slug)
+
+---
+
+### PASS CRITERIA VERIFICATION ✅
+
+**All criteria met:**
+- ✅ Every URL has exactly 1 canonical tag (no duplicates)
+- ✅ Every canonical href includes the full slug (not truncated)
+- ✅ Every URL has exactly 1 og:url tag
+- ✅ Every og:url value matches the canonical value
+- ✅ Root page (/) still has correct canonical (no regression)
+
+---
+
+### FINAL VERDICT: ✅ ALL TESTS PASSED
+
+**Conclusion:**
+The canonical URL fix is working correctly. All SEO landing pages (country + vertical) now have:
+- Exactly 1 canonical tag (no duplicates)
+- Full slug in canonical href (not truncated)
+- Matching og:url tag with same value
+
+The `key="canonical"` and `key="og:url"` props successfully force Next.js to deduplicate the meta tags, keeping only the page-specific values with full slugs. No regression on the root page.
+
+**SEO Impact:**
+- ✅ Search engines will now correctly identify the canonical URL for each page
+- ✅ No duplicate canonical confusion
+- ✅ Proper og:url for social sharing
+- ✅ Improved SEO signal clarity
+
+**Recommendation for Main Agent:**
+The canonical URL fix is verified and working correctly. No further action needed on this issue.
+
+---
