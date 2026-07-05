@@ -46,7 +46,7 @@ export default function TransferExpectedCard({
 }: TransferExpectedCardProps) {
   const theme = useTheme()
   const isDark = theme.palette.mode === 'dark'
-  const { t } = useTranslation('common')
+  const { t, i18n } = useTranslation('common')
   
   const [countdown, setCountdown] = useState(5)
   const [isAutoRedirecting, setIsAutoRedirecting] = useState(false)
@@ -127,7 +127,10 @@ export default function TransferExpectedCard({
   // Returns `{ relative, absolute }` for the given ISO timestamp — used on the
   // "already paid" success card so merchants revisiting the link can see when
   // the customer actually settled. Inline (no date-fns dep) since we only need
-  // one relative format on one screen.
+  // one relative format on one screen. Uses i18n's current language for both
+  // the relative-time strings AND the absolute date so switching language via
+  // the header dropdown reformats everything in one place.
+  const currentLang = i18n.language
   const paidAtFormatted = useMemo(() => {
     if (!paidAt) return null
     const ts = new Date(paidAt)
@@ -152,12 +155,12 @@ export default function TransferExpectedCard({
     }
     let absolute = ''
     try {
-      absolute = ts.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
+      absolute = ts.toLocaleDateString(currentLang || undefined, { year: 'numeric', month: 'short', day: 'numeric' })
     } catch {
       absolute = ts.toISOString().slice(0, 10)
     }
     return { relative, absolute }
-  }, [paidAt, t])
+  }, [paidAt, t, currentLang])
 
   // Done state - final thank you screen
   if (showDoneState) {

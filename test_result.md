@@ -6003,3 +6003,62 @@ Frontend testing agent — all 4 focused cases PASS:
   ✅ CASE 3: Country illustrations unaffected — 4 total (1 hero 128×128 + 3 related 48×48), all non-zero, hash-rotated gradients.
   ✅ CASE 4: Bogus link `?d=nonexistent-...` shows no timestamp and no fake success.
 
+
+## LOCALIZATION: 6 paid-at i18n keys translated (2026-07-05)
+
+Added the 6 paid-at keys with i18next-v25 pluralization (`_one` / `_other`) to all 6 supported
+locales' `common.json` under the `success` block:
+  - `paidJustNow` (no count)
+  - `paidMinutesAgo_one` / `paidMinutesAgo_other` (count-aware)
+  - `paidHoursAgo_one`   / `paidHoursAgo_other`
+  - `paidDaysAgo_one`    / `paidDaysAgo_other`
+  - `paidMonthsAgo_one`  / `paidMonthsAgo_other`
+  - `paidWhen` = "Paid|Pago|Pagado|Payé|Bezahlt|Betaald {{relative}} • {{absolute}}"
+
+Also `TransferExpectedCard` now uses `i18n.language` for `toLocaleDateString(...)` so the ABSOLUTE
+date matches the UI language (e.g. "30 juin 2026" in French, "30. Juni 2026" in German, "30 de jun. de 2026" in PT-BR).
+
+MANUAL VERIFICATION (main agent, fresh browser context per language, `localStorage.lang=X` + `lang_manual=true`, then navigate to `/pay?d=7d9602b4...`):
+  - en:  "Paid 4 days ago • Jun 30, 2026"
+  - pt:  "Pago há 4 dias • 30 de jun. de 2026"
+  - es:  "Pagado hace 4 días • 30 jun 2026"
+  - fr:  "Payé il y a 4 jours • 30 juin 2026"
+  - de:  "Bezahlt vor 4 Tagen • 30. Juni 2026"
+  - nl:  "Betaald 4 dagen geleden • 30 jun 2026"
+
+All 6 langs render correctly. Screenshot on NL shows the whole card localized (`Betaling Geslaagd`, `betaald`, `Klaar`, `Veilige betaling door Dynopay`), confirming the pill fits alongside the existing translations.
+
+FRONTEND TEST REQUEST — focused verification:
+
+Base URL: https://88b19283-41ff-4c38-bb16-543195dfc9a1.preview.emergentagent.com
+
+HARD CONSTRAINTS: no form submits, no CTA clicks. Public pages only.
+
+Test the paid-at pill across all 6 supported languages on the paid link:
+`/pay?d=7d9602b42ed3591bec4583e78319576eb08c383058bb848c`
+
+For each of `["en","pt","es","fr","de","nl"]`:
+  1. Create a fresh browser context (or use `add_init_script` to preseed localStorage BEFORE the first
+     navigation) with `localStorage.lang="{lang}"` AND `localStorage.lang_manual="true"`.
+  2. Navigate to the paid link. Wait networkidle + 4000ms.
+  3. Read `[data-testid="paid-timestamp"]` innerText.
+  4. Assert the string starts with the expected verb prefix per language:
+     - en: begins with `Paid `
+     - pt: begins with `Pago `
+     - es: begins with `Pagado `
+     - fr: begins with `Payé `
+     - de: begins with `Bezahlt `
+     - nl: begins with `Betaald `
+  5. Assert the string contains `2026` (absolute date year) AND does NOT contain any of the OTHER 5 verb prefixes (rule out "Paid X ago" leaking into non-en languages).
+  6. Report the exact captured string per language + PASS/FAIL.
+
+Also regression checks:
+  7. For `en`: assert "Payment Successful" still visible (prior bug fix intact).
+  8. For `nl`: assert "Betaling Geslaagd" is visible (existing Dutch translation of the success heading — proves the whole card localises, not just the pill).
+
+PASS CRITERIA:
+  - All 6 languages return a paid-timestamp with the correct verb prefix.
+  - "Payment Successful" (en) / "Betaling Geslaagd" (nl) still render — no regression.
+
+If any language fails, copy the ACTUAL captured innerText per language so I can debug the pluralization or interpolation.
+
