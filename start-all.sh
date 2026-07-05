@@ -35,6 +35,13 @@ NGINX_PID=$!
 
 echo "[start-all] All services started (backend=$BACKEND_PID, frontend=$FRONTEND_PID, nginx=$NGINX_PID)"
 
+# Notify search engines (IndexNow) that this deployment is live.
+# Fire-and-forget: waits 90s for traffic switchover, reads /sitemap.xml from
+# the local frontend, submits all URLs. Opt out with INDEXNOW_DISABLED=true.
+if [ -f /app/scripts/indexnow-ping.mjs ]; then
+  FRONTEND_PORT=$FRONTEND_PORT node /app/scripts/indexnow-ping.mjs --delay 90 &
+fi
+
 # Trap signals for graceful shutdown
 trap "echo '[start-all] Shutting down...'; kill $BACKEND_PID $FRONTEND_PID $NGINX_PID 2>/dev/null; exit 0" SIGTERM SIGINT
 

@@ -200,6 +200,11 @@ Verified by testing agent (Python Playwright + JWT injection): 6/6 PASS. Banner 
 - Empty state text invisible in dark mode — `EmptyDataModel`, `NoData`, `PaymentLink`, `Wallet` dialog all fixed to use theme-aware colors
 - **Verified**: Testing agent Iteration 14
 
+### 2026-07-05 — IndexNow Deploy Ping Automation
+- New `scripts/indexnow-ping.mjs` (zero-dep Node): reads local `/sitemap.xml` (retry loop) → submits all URLs to api.indexnow.org (Bing/Yandex/Seznam/Naver); key from `public/indexnow-key.txt`; flags `--dry-run`/`--delay`/`--urls`; opt-out `INDEXNOW_DISABLED=true`
+- `start-all.sh` fires it on every production boot (90s delay, fire-and-forget); `Dockerfile` runner ships the script
+- **Verified**: dry-run captured all 21 sitemap URLs (7 static + 14 SEO); real homepage submission accepted HTTP 202 with the live prod key
+
 ### 2026-07-05 — SEO Pages: OG Share Images + Social Meta
 - Generated 14 branded 1200×630 OpenGraph images (PIL + repo Urbanist/Outfit fonts) → `public/og/{kind}-{slug}.png`; reproducible via `scripts/generate-og-images.py`
 - `SEOLandingPage.tsx`: added `og:image` (+width/height/alt) and `twitter:image` (+alt) with absolute dynopay.com URLs; FAQ/WebPage/Breadcrumb JSON-LD already existed

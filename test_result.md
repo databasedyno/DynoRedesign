@@ -6109,3 +6109,11 @@ using PIL + repo Urbanist/Outfit fonts) and wired og:image/og:image:width/height
 SEOLandingPage.tsx (absolute https://dynopay.com URLs). FAQ/WebPage/Breadcrumb JSON-LD already existed.
 SELF-TEST: 14/14 pages SSR HTML contains og:image + twitter:image + FAQPage schema; /og/*.png serves 200 image/png.
 Images ship via the existing COPY public/ in both Dockerfiles — included in the next production deploy.
+
+## FEATURE — IndexNow deploy ping automation (2026-07-05)
+scripts/indexnow-ping.mjs (zero-dep Node): waits for local /sitemap.xml (20x15s retries), parses <loc> URLs,
+POSTs to api.indexnow.org with key from public/indexnow-key.txt (keyLocation = dynopay.com/{key}.txt).
+start-all.sh fires it on every prod boot with --delay 90 (fire-and-forget; INDEXNOW_DISABLED=true opts out).
+Dockerfile runner: COPY scripts/indexnow-ping.mjs.
+SELF-TEST: dry-run returned all 21 sitemap URLs (7 static + 14 SEO); REAL submission of homepage accepted
+HTTP 202 by api.indexnow.org using the live production key. sh -n start-all.sh OK.

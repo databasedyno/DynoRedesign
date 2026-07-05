@@ -135,6 +135,9 @@ COPY nginx.conf /etc/nginx/nginx.conf.template
 COPY start-all.sh ./start-all.sh
 RUN chmod +x ./start-all.sh
 
+# --- IndexNow deploy pinger (fired by start-all.sh) ---
+COPY scripts/indexnow-ping.mjs ./scripts/indexnow-ping.mjs
+
 # Create required directories
 RUN mkdir -p /var/log/nginx /var/lib/nginx/tmp /run/nginx backend/logs
 
