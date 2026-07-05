@@ -5485,3 +5485,25 @@ The `key="canonical"` and `key="og:url"` props successfully force Next.js to ded
 The canonical URL fix is verified and working correctly. No further action needed on this issue.
 
 ---
+
+## FINAL VERDICT — SEO enhancements + canonical fix (2026-07-05)
+
+Frontend testing agent — 2 rounds — full PASS:
+
+Round 1 (Cases A–H, 14 SEO pages + 3 enhancements):
+  - All 14 SEO pages HTTP 200
+  - Country pages: 3 vertical related links each (CASE A ✅)
+  - Vertical pages: 3 country related links each (CASE B ✅)
+  - Cross-linking is opposite-kind only (CASE C ✅)
+  - Home footer: 8 country + 6 vertical SEO links, all navigable (CASE D ✅)
+  - UTM funnel: `?src=seo&page=X&kind=Y` persists to `localStorage.dyno_seo_attr` and survives reload (CASE E ✅)
+  - Mobile 390x844: no horizontal scroll (CASE F ✅)
+  - Dark mode: readable (CASE G ✅)
+  - i18n pt-BR: no hydration errors (CASE H ✅)
+  - Minor issue flagged: duplicate `<link rel="canonical">` tag on SEO pages (fallback from _app.tsx not deduping against SEOLandingPage's slug-specific one)
+
+Round 2 (canonical dedup fix retest, 7 URLs):
+  - Every URL now has exactly 1 canonical tag with the full slug ✅
+  - og:url matches canonical (1 per page) ✅
+  - Root canonical unchanged (no regression) ✅
+
