@@ -226,6 +226,7 @@ const Payment = () => {
     base_currency: string;
     paid_amount: number;
     paid_currency: string;
+    paid_at: string | null;
   } | null>(null)
 
   // Save activeStep to sessionStorage when it changes (for language change persistence)
@@ -392,6 +393,7 @@ const Payment = () => {
           base_currency: baseCur,
           paid_amount: Number(data.paid_amount || 0),
           paid_currency: data.paid_currency || '',
+          paid_at: data.paid_at || null,
         });
         setWalletState({ amount: baseAmt, currency: baseCur });
         setIsSuccess(true);
@@ -736,6 +738,7 @@ const Payment = () => {
               amount={amountDisplay}
               email={tokenData?.email}
               customerName={customerName}
+              paidAt={alreadyPaid.paid_at}
             />
           </Box>
         </Box>

@@ -64,8 +64,9 @@ const VERTICAL_ICON_MAP: Record<string, React.FC> = {
 };
 
 // ─── Deterministic gradient per slug ──────────────────────────────────────
-// Same slug → same gradient across the whole site. Keeps the "Related pages"
-// cards visually stable while giving each destination its own identity.
+// Verticals get a brand-appropriate hand-picked gradient (green for money,
+// purple for SaaS, etc.). Countries get a hash-rotation across the same pool
+// so all 8 look distinct.
 const GRADIENTS: readonly [string, string][] = [
   ["#6366F1", "#8B5CF6"], // indigo → violet
   ["#0EA5E9", "#22D3EE"], // sky → cyan
@@ -77,13 +78,32 @@ const GRADIENTS: readonly [string, string][] = [
   ["#F97316", "#EF4444"], // orange → red
 ] as const;
 
+/**
+ * Brand-appropriate vertical gradients — chosen so the visual immediately
+ * hints at the vertical (green = money, purple = SaaS/cloud, etc.).
+ */
+const VERTICAL_GRADIENT_MAP: Record<string, [string, string]> = {
+  ecommerce: ["#6366F1", "#8B5CF6"],           // indigo → violet (shopping cart)
+  saas: ["#8B5CF6", "#A855F7"],                // violet → purple (cloud / SaaS)
+  freelancers: ["#0EA5E9", "#22D3EE"],         // sky → cyan (professional / laptop)
+  gaming: ["#EC4899", "#F43F5E"],              // pink → rose (vibrant gaming)
+  remittance: ["#10B981", "#34D399"],          // emerald (money / cross-border)
+  "digital-downloads": ["#F59E0B", "#F97316"], // amber → orange (downloads / energy)
+};
+
 function _slugHash(slug: string): number {
   let h = 0;
   for (let i = 0; i < slug.length; i++) h = (h * 31 + slug.charCodeAt(i)) | 0;
   return Math.abs(h);
 }
 
-function _gradientFor(slug: string): [string, string] {
+function _gradientFor(slug: string, kind: "country" | "vertical"): [string, string] {
+  // Verticals get a hand-picked brand gradient; fall back to hash rotation if
+  // we ever add a vertical without a mapped entry.
+  if (kind === "vertical") {
+    const mapped = VERTICAL_GRADIENT_MAP[slug];
+    if (mapped) return mapped;
+  }
   return GRADIENTS[_slugHash(slug) % GRADIENTS.length];
 }
 
@@ -110,7 +130,7 @@ const SEOIllustration: React.FC<SEOIllustrationProps> = ({
   hero = false,
   sx,
 }) => {
-  const [c1, c2] = _gradientFor(slug);
+  const [c1, c2] = _gradientFor(slug, kind);
   const isVertical = kind === "vertical";
   const IconComponent = isVertical
     ? VERTICAL_ICON_MAP[slug] || IconSaas

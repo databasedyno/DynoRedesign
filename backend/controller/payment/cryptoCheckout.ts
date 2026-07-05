@@ -159,7 +159,7 @@ const getData = async (req: express.Request, res: express.Response) => {
     if (item.link_id) {
       try {
         const [dbLink] = await sequelize.query(
-          `SELECT status, base_amount, base_currency, paid_amount, paid_currency FROM tbl_payment_link WHERE link_id = :linkId`,
+          `SELECT status, base_amount, base_currency, paid_amount, paid_currency, "updatedAt" FROM tbl_payment_link WHERE link_id = :linkId`,
           { replacements: { linkId: item.link_id }, type: QueryTypes.SELECT }
         ) as any[];
 
@@ -193,6 +193,11 @@ const getData = async (req: express.Request, res: express.Response) => {
             );
             const baseCurrencyForDisplay =
               (dbLink as any).base_currency || item.base_currency || null;
+            // `updatedAt` is when the payment settled (status flipped to
+            // successful/confirmed/…). Returned so the checkout page can show
+            // "Paid X days ago" — helps merchants disambiguate when they share
+            // the same link across teammates.
+            const paidAtForDisplay = (dbLink as any).updatedAt || null;
             return res.status(200).json({
               success: true,
               data: {
@@ -203,6 +208,7 @@ const getData = async (req: express.Request, res: express.Response) => {
                 base_currency: baseCurrencyForDisplay,
                 paid_amount: dbLink.paid_amount,
                 paid_currency: dbLink.paid_currency,
+                paid_at: paidAtForDisplay,
                 description: item.description || null,
                 redirect_url: item.redirect_url || null,
               },

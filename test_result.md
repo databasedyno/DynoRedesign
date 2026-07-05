@@ -5787,3 +5787,210 @@ Frontend testing agent — full PASS on all 5 cases:
 
 9 screenshots captured. All illustrations visible with non-zero dimensions. No console errors.
 
+
+## ENHANCEMENTS: Paid-at timestamp + brand vertical gradients (2026-07-05, same session)
+
+Both enhancements are additive on top of the previously-verified fix/feature. No behavior change for
+other flows.
+
+### 1) Paid-at timestamp on already-paid success card
+- Backend `/app/backend/controller/payment/cryptoCheckout.ts`: added `updatedAt` to the DB SELECT
+  and returned it as `paid_at` in the `payment_completed` response.
+- Frontend `/app/pages/pay/index.tsx`: `alreadyPaid` state gains `paid_at: string | null` and
+  passes it as `paidAt` to `<TransferExpectedCard />`.
+- Component `/app/Components/UI/TransferExpectedCard/Index.tsx`: new optional `paidAt?: string | null`
+  prop. Adds a small green "clock-check" pill under the amount: `Paid X <time-unit> ago • MMM DD, YYYY`.
+  i18n keys: `success.paidJustNow/paidMinutesAgo/paidHoursAgo/paidDaysAgo/paidMonthsAgo/paidWhen`
+  (all have `defaultValue` fallbacks so nothing breaks if translations aren't added).
+- MANUAL CURL VERIFY: `curl POST /api/pay/getData -d '{"data":"7d9602b4..."}'` now returns
+  `"paid_at":"2026-06-30T16:58:29.726Z"` in the response.
+- MANUAL SCREENSHOT VERIFY: `/pay?d=7d9602b4...` shows the pill "Paid 4 days ago • Jun 30, 2026" in
+  a subtle green style between the amount line and the Done button.
+
+### 2) Brand-specific vertical gradients
+- `/app/Components/Page/SEO/SEOIllustration.tsx`: `_gradientFor()` now takes `kind` too. Verticals
+  look up a hand-picked `VERTICAL_GRADIENT_MAP`; countries continue to use hash rotation.
+- Vertical → gradient:
+    ecommerce           → indigo → violet   (shopping)
+    saas                → violet → purple   (cloud / SaaS)
+    freelancers         → sky → cyan        (professional)
+    gaming              → pink → rose       (vibrant gaming)
+    remittance          → emerald → green   (money / cross-border)
+    digital-downloads   → amber → orange    (downloads / energy)
+- MANUAL COMPUTED-STYLE VERIFY per vertical (checked 4/6):
+    remittance         → rgb(16,185,129) → rgb(52,211,153)  ✅ green
+    saas               → rgb(139,92,246) → rgb(168,85,247)  ✅ purple
+    gaming             → rgb(236,72,153) → rgb(244,63,94)   ✅ pink
+    digital-downloads  → rgb(245,158,11) → rgb(249,115,22)  ✅ amber
+
+FRONTEND TEST REQUEST — focused verification (do NOT re-run prior full test):
+
+Base URL: https://88b19283-41ff-4c38-bb16-543195dfc9a1.preview.emergentagent.com
+HARD CONSTRAINTS: no form submits, no CTA clicks, no clicking "Done" button on paid link. Public pages only.
+
+CASE 1 — Paid-at timestamp visible on already-paid link:
+  1. Navigate to `/pay?d=7d9602b42ed3591bec4583e78319576eb08c383058bb848c`. Wait networkidle + 4000ms.
+  2. Assert element `[data-testid="paid-timestamp"]` exists AND is visible (`getBoundingClientRect` non-zero).
+  3. Assert its innerText matches the regex `/Paid .+ (ago|now).*Jun 30, 2026/i`.
+  4. Assert the "Payment Successful" text is STILL visible (regression check on the prior bug fix).
+  5. Assert the timestamp element appears BETWEEN the amount line ("0.0069 ETH (≈ 10.00 USD) paid") and the "Done" button — verify by y-coordinate ordering.
+  6. Screenshot.
+
+CASE 2 — Vertical brand gradients are correct (not the hash-rotation set):
+  For each pair below, navigate to `/for/{slug}` and read the computed `background` on
+  `[data-testid="seo-illustration-vertical-{slug}"]`. Assert the background CSS text CONTAINS both
+  gradient stops.
+    - `remittance`         → must contain `rgb(16, 185, 129)` AND `rgb(52, 211, 153)`
+    - `saas`               → must contain `rgb(139, 92, 246)` AND `rgb(168, 85, 247)`
+    - `gaming`             → must contain `rgb(236, 72, 153)` AND `rgb(244, 63, 94)`
+    - `digital-downloads`  → must contain `rgb(245, 158, 11)` AND `rgb(249, 115, 22)`
+    - `freelancers`        → must contain `rgb(14, 165, 233)` AND `rgb(34, 211, 238)`
+    - `ecommerce`          → must contain `rgb(99, 102, 241)` AND `rgb(139, 92, 246)`
+  Report actual computed style per slug + PASS/FAIL.
+
+CASE 3 — No regression: country gradients still rotate by hash (unchanged):
+  1. Navigate to `/accept-crypto-payments-in/united-states`. Read `[data-testid="seo-illustration-country-united-states"]` computed background.
+  2. Assert it is a linear-gradient (any 2 colors) — just verify format, values don't need to match a specific pair.
+  3. Assert 4 total illustrations on the page (1 hero + 3 related), all with non-zero size.
+
+CASE 4 — Regression: unrelated flows unaffected:
+  1. Navigate to `/pay?d=nonexistent-ref-xyz`. Wait networkidle + 3000ms.
+  2. Assert `[data-testid="paid-timestamp"]` does NOT exist (only shows for paid links).
+  3. Assert "Payment Successful" does NOT appear.
+
+PASS CRITERIA:
+  - CASE 1: timestamp pill visible, format matches "Paid X ago • Jun 30, 2026", between amount and Done.
+  - CASE 2: all 6 vertical gradients match their brand pairs.
+  - CASE 3: country illustrations still render correctly.
+  - CASE 4: no timestamp on bogus link, no fake success.
+
+
+
+## Paid-at Timestamp + Vertical Brand Gradients — VERIFICATION RESULTS (2026-07-05)
+- agent: testing
+- test_date: 2026-07-05 11:25:00 UTC
+- test_url: https://88b19283-41ff-4c38-bb16-543195dfc9a1.preview.emergentagent.com
+- scope: Focused verification of TWO enhancements on top of previously verified features
+- enhancements_tested:
+  1. Paid-at timestamp: Already-paid success card shows green pill "Paid X days ago • MMM DD, YYYY"
+  2. Vertical brand gradients: SEOIllustration.tsx uses hand-picked brand gradients per vertical
+
+### TEST RESULTS: ✅ ALL 4 CASES PASSED (100% SUCCESS)
+
+**CASE 1: Paid-at timestamp on already-paid link** ✅ PASS
+- Test URL: `/pay?d=7d9602b42ed3591bec4583e78319576eb08c383058bb848c`
+- Results:
+  * ✅ `paid-timestamp` element exists and is visible (226px × 28px)
+  * ✅ Text: "Paid 4 days ago • Jun 30, 2026" (matches expected pattern)
+  * ✅ "Payment Successful" text is visible (regression check passed)
+  * ✅ Y-coordinate order correct:
+    - Amount: 560.73px
+    - Timestamp: 592.73px (between amount and Done)
+    - Done button: 640.73px
+  * ✅ Green pill styling visible in screenshot
+- Screenshot: case1_paid_timestamp.png
+- **VERDICT: ✅ PASS - Paid-at timestamp visible and correctly positioned between amount and Done button**
+
+**CASE 2: All 6 vertical brand gradients** ✅ PASS (6/6 verticals)
+- Test: Navigate to `/for/{slug}` for each vertical, verify computed background contains both brand RGB values
+- Results:
+  1. **remittance** ✅ PASS
+     - Expected: rgb(16, 185, 129) → rgb(52, 211, 153) (emerald green - money/cross-border)
+     - Actual: Contains both RGB values ✅
+  2. **saas** ✅ PASS
+     - Expected: rgb(139, 92, 246) → rgb(168, 85, 247) (violet → purple - cloud/SaaS)
+     - Actual: Contains both RGB values ✅
+  3. **gaming** ✅ PASS
+     - Expected: rgb(236, 72, 153) → rgb(244, 63, 94) (pink → rose - vibrant gaming)
+     - Actual: Contains both RGB values ✅
+  4. **digital-downloads** ✅ PASS
+     - Expected: rgb(245, 158, 11) → rgb(249, 115, 22) (amber → orange - downloads/energy)
+     - Actual: Contains both RGB values ✅
+  5. **freelancers** ✅ PASS
+     - Expected: rgb(14, 165, 233) → rgb(34, 211, 238) (sky → cyan - professional/laptop)
+     - Actual: Contains both RGB values ✅
+  6. **ecommerce** ✅ PASS
+     - Expected: rgb(99, 102, 241) → rgb(139, 92, 246) (indigo → violet - shopping cart)
+     - Actual: Contains both RGB values ✅
+- **VERDICT: ✅ PASS - All 6 vertical brand gradients correct and brand-appropriate**
+
+**CASE 3: Regression - country page illustrations still render** ✅ PASS
+- Test URL: `/accept-crypto-payments-in/united-states`
+- Results:
+  * ✅ Found 4 illustration elements (correct count)
+  * ✅ All 4 have non-zero dimensions:
+    - Illustration 1: 128px × 128px (hero)
+    - Illustration 2: 48px × 48px (related)
+    - Illustration 3: 48px × 48px (related)
+    - Illustration 4: 48px × 48px (related)
+  * ✅ Country illustration `[data-testid="seo-illustration-country-united-states"]` has linear-gradient
+- **VERDICT: ✅ PASS - Country illustrations still work correctly (no regression)**
+
+**CASE 4: Regression - bogus link unaffected** ✅ PASS
+- Test URL: `/pay?d=nonexistent-ref-xyz`
+- Results:
+  * ✅ `paid-timestamp` element is null (does not exist)
+  * ✅ Body does NOT contain "Payment Successful"
+- **VERDICT: ✅ PASS - Bogus link unaffected (no fake success or timestamp)**
+
+### VERIFICATION STATUS: COMPLETE ✅
+- ✅ Enhancement 1 (Paid-at timestamp): VERIFIED WORKING
+- ✅ Enhancement 2 (Vertical brand gradients): VERIFIED WORKING
+- ✅ Regression checks: ALL PASSED
+- ✅ No critical issues found
+- ✅ No minor issues found
+- ✅ All test constraints followed (no form submissions, no signup clicks, no Done button clicks)
+
+### TECHNICAL DETAILS
+
+**Paid-at Timestamp Implementation:**
+- Component: `/app/Components/UI/TransferExpectedCard/Index.tsx`
+- Prop: `paidAt` (ISO timestamp from `dbLink.updatedAt`)
+- Display: Green pill with clock icon, relative time + absolute date
+- Format: "Paid {relative} • {absolute}" (e.g., "Paid 4 days ago • Jun 30, 2026")
+- Styling: Green background (#F0FDF4), green text (#12B76A), green border (#BBF7D0)
+- Position: Between amount line and Done button
+- Testid: `paid-timestamp`
+
+**Vertical Brand Gradients Implementation:**
+- Component: `/app/Components/Page/SEO/SEOIllustration.tsx`
+- Mapping: `VERTICAL_GRADIENT_MAP` with 6 hand-picked brand-appropriate gradients
+- Gradient direction: 135deg (diagonal)
+- Countries: Still use hash-rotation across 8 gradient pairs (unchanged)
+- Verticals: Use fixed brand-appropriate colors:
+  * Money/remittance → emerald green
+  * SaaS/cloud → violet/purple
+  * Gaming → pink/rose
+  * Digital downloads → amber/orange
+  * Freelancers → sky/cyan
+  * E-commerce → indigo/violet
+
+### SCREENSHOTS CAPTURED
+1. case1_paid_timestamp.png - Already-paid success card with green "Paid 4 days ago • Jun 30, 2026" pill
+
+### FINAL VERDICT
+🎉 **ALL TESTS PASSED** - Both enhancements verified successfully!
+
+**Summary:**
+1. Paid-at Timestamp: ✅ WORKING
+   • Green pill visible on already-paid links
+   • Shows relative time + absolute date
+   • Correctly positioned between amount and Done button
+   • Regression check passed (Payment Successful still visible)
+
+2. Vertical Brand Gradients: ✅ WORKING
+   • All 6 verticals use hand-picked brand-appropriate gradients
+   • Green for money/remittance
+   • Purple for SaaS/cloud
+   • Pink for gaming
+   • Orange for digital downloads
+   • Blue for freelancers
+   • Indigo for e-commerce
+
+3. Regression Checks: ✅ ALL PASSED
+   • Country illustrations still render correctly
+   • Bogus links unaffected (no fake success or timestamp)
+
+**Conclusion:**
+Both enhancements have been successfully implemented and verified. The paid-at timestamp provides clear context for merchants revisiting already-paid links, and the vertical brand gradients create immediate visual associations with each industry vertical. No regressions detected in existing functionality.
+

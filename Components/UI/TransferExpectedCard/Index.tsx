@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react'
+import React, { useEffect, useState, useCallback, useMemo } from 'react'
 import { 
   Box, 
   Typography, 
@@ -26,6 +26,10 @@ interface TransferExpectedCardProps {
   amount?: string
   email?: string
   customerName?: string
+  /** ISO timestamp (`dbLink.updatedAt`) — when the payment settled. When set,
+   *  the success card shows a small "Paid X days ago (Mon DD, YYYY)" line
+   *  under the amount. Helps merchants disambiguate revisits of the same link. */
+  paidAt?: string | null
 }
 
 export default function TransferExpectedCard({
@@ -37,7 +41,8 @@ export default function TransferExpectedCard({
   merchantName,
   amount,
   email,
-  customerName
+  customerName,
+  paidAt,
 }: TransferExpectedCardProps) {
   const theme = useTheme()
   const isDark = theme.palette.mode === 'dark'
@@ -117,6 +122,42 @@ export default function TransferExpectedCard({
   const handleDone = () => {
     setShowDoneState(true)
   }
+
+  // ─── Paid-at formatter ───────────────────────────────────────────────
+  // Returns `{ relative, absolute }` for the given ISO timestamp — used on the
+  // "already paid" success card so merchants revisiting the link can see when
+  // the customer actually settled. Inline (no date-fns dep) since we only need
+  // one relative format on one screen.
+  const paidAtFormatted = useMemo(() => {
+    if (!paidAt) return null
+    const ts = new Date(paidAt)
+    if (Number.isNaN(ts.getTime())) return null
+    const nowMs = Date.now()
+    const diffSec = Math.max(0, Math.round((nowMs - ts.getTime()) / 1000))
+    let relative: string
+    if (diffSec < 60) {
+      relative = t('success.paidJustNow', { defaultValue: 'just now' })
+    } else if (diffSec < 3600) {
+      const n = Math.floor(diffSec / 60)
+      relative = t('success.paidMinutesAgo', { count: n, defaultValue: `${n} minute${n === 1 ? '' : 's'} ago` })
+    } else if (diffSec < 86400) {
+      const n = Math.floor(diffSec / 3600)
+      relative = t('success.paidHoursAgo', { count: n, defaultValue: `${n} hour${n === 1 ? '' : 's'} ago` })
+    } else if (diffSec < 86400 * 30) {
+      const n = Math.floor(diffSec / 86400)
+      relative = t('success.paidDaysAgo', { count: n, defaultValue: `${n} day${n === 1 ? '' : 's'} ago` })
+    } else {
+      const n = Math.floor(diffSec / (86400 * 30))
+      relative = t('success.paidMonthsAgo', { count: n, defaultValue: `${n} month${n === 1 ? '' : 's'} ago` })
+    }
+    let absolute = ''
+    try {
+      absolute = ts.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
+    } catch {
+      absolute = ts.toISOString().slice(0, 10)
+    }
+    return { relative, absolute }
+  }, [paidAt, t])
 
   // Done state - final thank you screen
   if (showDoneState) {
@@ -254,7 +295,7 @@ export default function TransferExpectedCard({
             <Typography
               variant='body1'
               color={isDark ? theme.palette.text.secondary : '#515151'}
-              mb={3}
+              mb={paidAtFormatted ? 1 : 3}
               
             >
               {merchantName && amount
@@ -264,6 +305,38 @@ export default function TransferExpectedCard({
                 : t('success.paymentConfirmed')
               }
             </Typography>
+
+            {/* Paid-at timestamp — appears only when `paidAt` prop is set.
+                Used on the "already-paid revisit" success card so merchants
+                can see when the customer actually settled. */}
+            {paidAtFormatted ? (
+              <Box
+                data-testid="paid-timestamp"
+                sx={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 0.75,
+                  bgcolor: isDark ? 'rgba(18, 183, 106, 0.12)' : '#F0FDF4',
+                  color: isDark ? '#4ADE80' : '#12B76A',
+                  border: `1px solid ${isDark ? 'rgba(74, 222, 128, 0.25)' : '#BBF7D0'}`,
+                  px: 1.25,
+                  py: 0.5,
+                  borderRadius: '999px',
+                  fontSize: 12,
+                  fontWeight: 500,
+                  mb: 2.5,
+                }}
+              >
+                <Icon icon="mdi:clock-check-outline" width={13} />
+                <span>
+                  {t('success.paidWhen', {
+                    relative: paidAtFormatted.relative,
+                    absolute: paidAtFormatted.absolute,
+                    defaultValue: `Paid ${paidAtFormatted.relative} • ${paidAtFormatted.absolute}`,
+                  })}
+                </span>
+              </Box>
+            ) : null}
 
             {/* Transaction ID Box - prominent when no email */}
             {transactionId && (
