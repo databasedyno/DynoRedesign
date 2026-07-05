@@ -3,7 +3,6 @@ import { Box, Typography, useTheme } from '@mui/material';
 import {
   VerifiedUser,
   PrivacyTip,
-  CreditScore,
   Radar,
   Shield,
 } from '@mui/icons-material';
@@ -35,10 +34,14 @@ const BADGES: Badge[] = [
     sub: 'EU data compliant',
     icon: <PrivacyTip sx={{ fontSize: 22 }} />,
   },
+  // 2026-07-05 — Removed PCI DSS badge. PCI DSS is a card-industry data-security
+  // standard (Visa/Mastercard/etc). DynoPay is a non-custodial crypto gateway —
+  // we don't touch card PANs, so claiming PCI DSS compliance is (a) misleading
+  // and (b) irrelevant to merchants evaluating crypto rails.
   {
-    label: 'PCI DSS',
-    sub: 'Payment card standards',
-    icon: <CreditScore sx={{ fontSize: 22 }} />,
+    label: 'Non-custodial',
+    sub: 'Funds go direct to your wallet',
+    icon: <Shield sx={{ fontSize: 22 }} />,
   },
   {
     label: 'KYT',

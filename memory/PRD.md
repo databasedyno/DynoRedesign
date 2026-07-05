@@ -5,6 +5,22 @@ USDT-TRC20 payment gateway platform. Users can create companies, wallets, paymen
 
 ## What's Been Implemented
 
+### 2026-07-05 — Removed non-crypto marketing claims (PCI DSS + credit-card copy)
+User feedback: "Remove PCI DSS from MainMenu because I doubt it has to do with crypto. Also remove anything unrelated to crypto." Rationale is correct — PCI DSS is a card-industry (Visa/Mastercard) data-security standard, and DynoPay is a **non-custodial** crypto gateway that never touches card PANs, so claiming PCI DSS compliance is (a) misleading and (b) irrelevant to a merchant evaluating crypto rails.
+
+Applied:
+- **`Components/Page/Home/ComplianceLogoStrip.tsx`** — dropped the PCI DSS badge (with the `CreditScore` icon). Replaced it in-place with a **"Non-custodial · Funds go direct to your wallet"** badge (Shield icon) so the row still has 5 items and layout is preserved on desktop + 2-col mobile grid.
+- **`langs/locales/{en,nl,de,es,fr,pt}/landing.json`** — changed the FinalCTA subtitle from "No credit card required" to "No signup fees, no lock-in" across all 6 supported languages. Same intent (signal a low-friction signup) without a card-payment phrase that belongs to fiat SaaS. English version now reads: *"Start in minutes. No signup fees, no lock-in. Your first $500 is on us."*
+
+Not touched — deliberately (they're either non-user-visible dev comments or positive crypto-vs-cards contrast that IS pro-crypto messaging):
+- FAQ, testimonials, hero subtitle references to "no chargebacks", "cut processing fees from 3.2% to 0.8%" — these are contrasting crypto AGAINST cards as a competitive advantage, not claiming card support.
+- The dead `ComparisonTable.tsx` still has "credit-card baseline" text but the component isn't rendered anywhere (removed from `Home/index.tsx` in a prior pass).
+- `pages/payment/*` still lists Card/Google Pay/Apple Pay as merchant checkout options — this is an actual PRODUCT feature (multi-method checkout including crypto), not a false marketing claim. Left alone unless product intent changes.
+
+Verified via Playwright: `PCI DSS` count = 0 on landing, `Non-custodial` label = present in strip, `No credit card required` count = 0, `No signup fees` = present in FinalCTA. Both desktop (1440) and mobile (390) screenshots confirm 5 tiles / 2-col mobile grid still lays out cleanly.
+
+**Files touched (7):** `ComplianceLogoStrip.tsx` + 6 `landing.json` locale files.
+
 ### 2026-07-05 — In-app UX pass: tables + filters + wallets
 Audited 9 authenticated pages × 3 viewports (desktop 1440 / tablet 820 / mobile 390) using the QA account (`hostbay@moxx.co`) via JWT injection. User said "fix all" of the 8 items I proposed. Delivered:
 
