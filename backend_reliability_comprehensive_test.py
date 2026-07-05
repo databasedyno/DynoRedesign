@@ -10,7 +10,7 @@ import json
 import time
 
 # Configuration
-BASE_URL = "https://prod-deploy-check.preview.emergentagent.com"
+BASE_URL = "https://merchant-portal-185.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 # Test credentials
