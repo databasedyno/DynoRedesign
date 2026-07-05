@@ -461,14 +461,41 @@ export default function App({
   );
 }
 
-// Read the theme cookie server-side so SSR renders the user's actual theme
-// (eliminates the emotion className hydration mismatch app-wide).
+// Read the theme preference server-side. Priority:
+//   1. `Sec-CH-Prefers-Color-Scheme` request header (User Preference Media
+//      Features client hint — Chromium browsers auto-send this because we
+//      opt-in via `Accept-CH` / `Critical-CH` in next.config.mjs). This is
+//      the ONLY way for the server to know the user's OS theme preference,
+//      so SSR renders the correct MUI theme on first paint.
+//   2. `theme-mode` cookie (set by the blocking script in _document.tsx
+//      once JS runs, and by the manual toggle) — this covers users who
+//      have explicitly picked a theme AND subsequent visits from
+//      non-Chromium browsers.
+//   3. Fallback: 'light' (the browser default; also what our blocking
+//      script defaults to when `matchMedia` doesn't match dark).
+// Together with the cookie/localStorage reconciliation done client-side in
+// ThemeContext, this eliminates the emotion className hydration mismatch
+// AND the "flash of dark" that happened when SSR always defaulted to dark.
 App.getInitialProps = async (appContext: AppContext) => {
   const appProps = await NextApp.getInitialProps(appContext);
+  const req = appContext.ctx.req;
+  const reqHeaders = req?.headers || {};
+
+  // 1. Client hint (Chromium browsers) — sent as "light" or "dark"
+  const clientHintRaw = reqHeaders["sec-ch-prefers-color-scheme"];
+  const clientHint = Array.isArray(clientHintRaw) ? clientHintRaw[0] : clientHintRaw;
+  const normalizedHint =
+    clientHint === "light" || clientHint === "dark" ? clientHint : null;
+
+  // 2. Cookie
   const cookieHeader =
-    appContext.ctx.req?.headers?.cookie ||
+    reqHeaders.cookie ||
     (typeof document !== "undefined" ? document.cookie : "");
   const match = /(?:^|;\s*)theme-mode=(light|dark)/.exec(cookieHeader || "");
-  const initialThemeMode = (match ? match[1] : "dark") as "light" | "dark";
+  const cookieValue = match ? (match[1] as "light" | "dark") : null;
+
+  // 3. Resolve: hint > cookie > default light
+  const initialThemeMode: "light" | "dark" =
+    normalizedHint || cookieValue || "light";
   return { ...appProps, initialThemeMode };
 };

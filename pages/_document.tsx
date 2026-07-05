@@ -98,13 +98,14 @@ export default function MyDocument({ emotionStyleTags }: MyDocumentProps) {
     document.documentElement.dataset.theme = mode;
     document.documentElement.style.colorScheme = mode;
     document.documentElement.style.backgroundColor = mode === 'light' ? '#F2F3F8' : '#0B0D17';
-    if (!/(?:^|;\\s*)theme-mode=(light|dark)/.test(document.cookie)) {
-      document.cookie = 'theme-mode=' + mode + '; path=/; max-age=31536000; samesite=lax';
-    }
+    // Always refresh the theme-mode cookie so it tracks the current preference
+    // (used by SSR on the next request in browsers that don't send the
+    // Sec-CH-Prefers-Color-Scheme client hint, e.g. Firefox/Safari).
+    document.cookie = 'theme-mode=' + mode + '; path=/; max-age=31536000; samesite=lax';
   } catch(e) {
-    document.documentElement.dataset.theme = 'dark';
-    document.documentElement.style.colorScheme = 'dark';
-    document.documentElement.style.backgroundColor = '#0B0D17';
+    document.documentElement.dataset.theme = 'light';
+    document.documentElement.style.colorScheme = 'light';
+    document.documentElement.style.backgroundColor = '#F2F3F8';
   }
 })();
 `,

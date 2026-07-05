@@ -12,9 +12,9 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-/** Read the OS / device preference. Falls back to 'dark' during SSR. */
+/** Read the OS / device preference. Falls back to 'light' during SSR. */
 function getSystemPreference(): ThemeMode {
-  if (typeof window === 'undefined') return 'dark';
+  if (typeof window === 'undefined') return 'light';
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 }
 
@@ -33,9 +33,9 @@ export const useThemeMode = () => {
   const context = useContext(ThemeContext);
   if (!context) {
     return {
-      mode: 'dark' as ThemeMode,
+      mode: 'light' as ThemeMode,
       toggleTheme: () => {},
-      isDark: true,
+      isDark: false,
     };
   }
   return context;
@@ -43,13 +43,14 @@ export const useThemeMode = () => {
 
 export const ThemeProvider: React.FC<{
   children: React.ReactNode;
-  /** Theme resolved server-side from the cookie. Guarantees the first client
-   * render matches the server render (no emotion className hydration mismatch). */
+  /** Theme resolved server-side from the Sec-CH-Prefers-Color-Scheme client
+   * hint or the theme-mode cookie. Guarantees the first client render matches
+   * the server render (no emotion className hydration mismatch). */
   initialMode?: ThemeMode;
 }> = ({ children, initialMode }) => {
-  // Initial state mirrors the server-provided cookie value (default 'dark').
+  // Initial state mirrors the server-provided value (default 'light').
   // Identical on server + first client render → no hydration mismatch.
-  const [mode, setMode] = useState<ThemeMode>(initialMode ?? 'dark');
+  const [mode, setMode] = useState<ThemeMode>(initialMode ?? 'light');
 
   // Track whether the user has explicitly chosen a theme (manual toggle)
   const userOverrideRef = useRef(false);

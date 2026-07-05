@@ -52,6 +52,28 @@ const nextConfig = {
       },
     ],
   },
+
+  // ─── Opt-in to the User Preference Media-Features Client Hint so the
+  //     browser sends `Sec-CH-Prefers-Color-Scheme` on every request. This
+  //     lets SSR pick the correct MUI theme on the FIRST paint (no flash
+  //     from dark → light for users whose OS is set to light). `Critical-CH`
+  //     tells Chromium browsers to re-issue the very first request with the
+  //     hint attached, so even a brand-new visitor never sees the wrong
+  //     theme on first load. Firefox/Safari fall back to the cookie set by
+  //     the blocking script in `_document.tsx` on subsequent loads.
+  //     Docs: https://developer.mozilla.org/en-US/docs/Web/HTTP/Client_hints
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          { key: "Accept-CH", value: "Sec-CH-Prefers-Color-Scheme" },
+          { key: "Critical-CH", value: "Sec-CH-Prefers-Color-Scheme" },
+          { key: "Vary", value: "Sec-CH-Prefers-Color-Scheme" },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;
