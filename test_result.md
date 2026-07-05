@@ -5774,3 +5774,16 @@ PASS CRITERIA:
 **Conclusion:**
 The user-reported bug (paid checkout link showing fresh checkout form instead of "Payment Successful") has been COMPLETELY RESOLVED. The frontend now correctly displays the success view with both crypto and fiat amounts, and the stepper shows the correct completion state. The new SEO illustrations feature is working perfectly across all country and vertical pages, with all illustrations rendering at the correct sizes and with proper visual styling.
 
+
+## FINAL VERDICT — Checkout bug fix + SEO illustrations (2026-07-05)
+
+Frontend testing agent — full PASS on all 5 cases:
+  ✅ CASE 1 (CRITICAL BUG FIX): Paid link 7d9602b4... now renders "Payment Successful" with
+     "0.0069 ETH (≈ 10.00 USD) paid". Fresh checkout form NOT shown. Stepper on Done step.
+  ✅ CASE 2: Country pages (US + Brazil) — 4 illustrations each, hero 128×128, cards 48×48, section title with "crypto merchants" highlight visible.
+  ✅ CASE 3: Vertical pages (SaaS + Ecommerce) — 4 illustrations each, hero 128×128, cards 48×48.
+  ✅ CASE 4 (regression): Bogus link `?d=nonexistent-...` does NOT fake "Payment Successful" — page renders 200 with appropriate empty/invalid state.
+  ✅ CASE 5 (regression): Related-page navigation still works — links open to correct target pages.
+
+9 screenshots captured. All illustrations visible with non-zero dimensions. No console errors.
+
