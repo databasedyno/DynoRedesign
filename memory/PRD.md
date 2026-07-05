@@ -5,6 +5,15 @@ USDT-TRC20 payment gateway platform. Users can create companies, wallets, paymen
 
 ## What's Been Implemented
 
+### 2026-07-05 — Landing page slim-down (4 sections + exit-intent modal removed)
+User feedback: "How we stack up doesn't appear needed", "exit-intent popup keeps popping up repeatedly even when the user isn't leaving", "landing looks rough or too busy". Trimmed `Components/Page/Home/index.tsx`:
+- **Removed** `ComparisonTable` (L) — the "How we stack up" DynoPay-vs-Coinbase/BitPay/Stripe table.
+- **Removed** `ExitIntentModal` (N) — the desktop exit-intent overlay fired on any `mouseout` with `clientY <= 0`, i.e. also when the user reached for the URL bar / tab strip / bookmark bar / dev-tools. On real usage that reads as "keeps popping up repeatedly". Killed the whole component from the tree.
+- **Removed** `LiveActivityStrip` — its own file header labels it "CURATED FAKE data" (approved in the original overhaul). Contributes to the "fake feel" of the page.
+- **Removed** `IndustryLogoWall` (G) — fabricated per-industry merchant counts (E-commerce 180+, SaaS 95+, …). Same fake-feel issue.
+- Kept everything else (StickyPromoBar, LivePriceStrip w/ REAL prices, HeroV2, ComplianceLogoStrip, SupportedChainsRail, FeeCalculator, TryItNow, CoreValueProps, TestimonialsV2, FAQ, FinalCTA).
+- Section count: 12 → 10 sections + 2 → 1 overlays. Playwright screenshots confirm the removed sections' text ("How we stack up", "Trusted across", "Settled just now") is gone from the DOM; ExitIntentModal count = 0. Next.js recompiled clean in 631ms (2655 modules) — no errors. Component files kept in the repo for A/B rollback.
+
 ### 2026-07-05 — Re-setup on user-provided .env (preview origin f12696f9-…)
 - Fresh container: `/app/node_modules`, `/app/backend/node_modules`, and all `.env` files were missing → frontend supervisor FATAL, backend Node process down.
 - Wrote `/app/backend/.env` from the user-supplied values (single-quoted so `GOOGLE_CLIENT_KEY` PEM with literal `\n` stays verbatim). Overrode URLs to this preview origin `https://merchant-portal-185.preview.emergentagent.com` (`FRONTEND_URL` / `SERVER_URL` / `NEXTAUTH_URL` / `NEXT_PUBLIC_BASE_URL` / `CHECKOUT_URL` + added `NEXT_PUBLIC_SERVER_URL` and `NEXT_PUBLIC_API_DOCS_URL`). Appended preview origin to `CORS_ALLOWED_ORIGINS`. Replaced the placeholder `NEXTAUTH_SECRET="openssl rand -base64 32"` with a real generated base64 secret. Kept **WORKER_ROLE=secondary** (cron/sweeps/settlement OFF — verified "background jobs disabled — secondary instance"). Added the `EMERGENT_LLM_KEY` used by the SEO generator.

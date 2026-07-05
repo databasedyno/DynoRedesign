@@ -1,44 +1,41 @@
 import { FC, memo, useEffect } from "react";
 import HeroV2 from "./HeroV2";
 import ComplianceLogoStrip from "./ComplianceLogoStrip";
-import LiveActivityStrip from "./LiveActivityStrip";
 import LivePriceStrip from "./LivePriceStrip";
 import SupportedChainsRail from "./SupportedChainsRail";
 import FeeCalculator from "./FeeCalculator";
 import TryItNow from "./TryItNow";
 import CoreValueProps from "./CoreValueProps";
-import ComparisonTable from "./ComparisonTable";
-import IndustryLogoWall from "./IndustryLogoWall";
 import TestimonialsV2 from "./TestimonialsV2";
 import FinalCTA from "./FinalCTA";
 import FAQ from "./FAQ";
 import StickyPromoBar from "@/Components/Common/StickyPromoBar";
-import ExitIntentModal from "@/Components/Modals/ExitIntentModal";
 import { HomeContainer, HomeFullWidthContainer, HomeWrapper } from "./styled";
 
 /**
- * HomePage — order optimized for conversion:
+ * HomePage — order optimized for conversion, trimmed 2026-07-05 for clarity.
  *
  *   1. StickyPromoBar (C)              — $500 fee-free bar at the very top
- *   2. LivePriceStrip                  — real-time crypto prices (existing)
+ *   2. LivePriceStrip                  — real-time crypto prices
  *   3. HeroV2 (A + J + M + K)          — product-tabbed hero, audience switcher,
  *                                        mesh gradient, country personalization
  *   4. ComplianceLogoStrip (F)         — SOC 2 · GDPR · PCI DSS · KYT · Chainalysis
- *   5. LiveActivityStrip               — anonymized settlement ticker (existing)
- *   6. SupportedChainsRail             — chain logos
- *   7. FeeCalculator (B)               — interactive slider + savings vs picked competitor
- *   8. TryItNow                        — embedded checkout + curl (existing)
- *   9. CoreValueProps                  — 4 core benefits (existing)
- *  10. ComparisonTable (L)             — DynoPay vs Coinbase Commerce / BitPay / Stripe
- *  11. IndustryLogoWall (G)            — anonymized industry-silhouette wall
- *  12. TestimonialsV2 (H)              — richer cards with initials avatars
- *  13. FAQ                             — existing
- *  14. FinalCTA                        — existing
+ *   5. SupportedChainsRail             — chain logos
+ *   6. FeeCalculator (B)               — interactive slider + savings vs picked competitor
+ *   7. TryItNow                        — embedded checkout + curl
+ *   8. CoreValueProps                  — 4 core benefits
+ *   9. TestimonialsV2 (H)              — richer cards with initials avatars
+ *  10. FAQ
+ *  11. FinalCTA
  *
- * Plus:
- *   • ExitIntentModal (N)              — fires on mouse-leave-top (desktop only)
- *   • Sticky nav / status pill (D + E) — inside HomeHeader (see Layout/HomeHeader)
- *   • DemoVideoModal (I)               — mounted inside HeroV2, opens on "Watch demo"
+ * REMOVED 2026-07-05 per user feedback ("landing looks too busy, not clean"):
+ *   • ComparisonTable (L)  — "How we stack up" — user said "doesn't appear needed"
+ *   • ExitIntentModal (N)  — kept re-firing on any mouse-toward-tabs move,
+ *                             annoying users who weren't actually leaving
+ *   • LiveActivityStrip    — was CURATED FAKE data (per its own file header)
+ *   • IndustryLogoWall (G) — used fabricated per-industry merchant counts
+ *
+ * Components still live in the repo for A/B rollback if we want them back.
  */
 const HomePage: FC = () => {
   // ─── Visitor tracking: notify admin of new unique visitors ───
@@ -80,11 +77,6 @@ const HomePage: FC = () => {
           <ComplianceLogoStrip />
         </HomeFullWidthContainer>
 
-        {/* Anonymized, live-feeling activity strip */}
-        <HomeFullWidthContainer>
-          <LiveActivityStrip />
-        </HomeFullWidthContainer>
-
         {/* Supported chains rail */}
         <HomeFullWidthContainer>
           <SupportedChainsRail />
@@ -104,16 +96,6 @@ const HomePage: FC = () => {
           <CoreValueProps />
         </HomeContainer>
 
-        {/* L — head-to-head vs Coinbase Commerce, BitPay, Stripe */}
-        <HomeFullWidthContainer>
-          <ComparisonTable />
-        </HomeFullWidthContainer>
-
-        {/* G — industry logo wall (anonymized) */}
-        <HomeFullWidthContainer>
-          <IndustryLogoWall />
-        </HomeFullWidthContainer>
-
         {/* H — testimonial cards with initials + chain badges */}
         <HomeFullWidthContainer>
           <TestimonialsV2 />
@@ -127,9 +109,6 @@ const HomePage: FC = () => {
           <FinalCTA />
         </HomeFullWidthContainer>
       </HomeWrapper>
-
-      {/* N — desktop-only exit-intent modal */}
-      <ExitIntentModal />
     </>
   );
 };
