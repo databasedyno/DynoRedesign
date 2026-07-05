@@ -1,5 +1,5 @@
 backend:
-  - target_url: https://quick-start-233.preview.emergentagent.com/api
+  - target_url: https://merchant-checkout-20.preview.emergentagent.com/api
   - test_endpoints:
     - GET /api/: Health check (should return 200)
     - GET /api/pay/network-fees: Core functionality test
@@ -60,7 +60,7 @@ backend:
     - FIX: Cron expression "0 */24 * * *" → "0 0 * * *"
 
 frontend:
-  - target_url: https://quick-start-233.preview.emergentagent.com
+  - target_url: https://merchant-checkout-20.preview.emergentagent.com
   - latest_ux_pass_for_test: 2026-06-30 — UX audit fixes batch. Files touched:
     1. `/app/langs/locales/en/common.json` — fixed grammar ("There is no" → "No … yet") and rewrote empty-state descriptions to TEACH (e.g. "A payout wallet is where customer payments are sent. Add at least one to start receiving crypto.") for transactions, wallet, apiKey, payment-link empty states.
     2. `/app/pages/create-pay-link.tsx` — REWROTE the setup gate. Previously forced navigation away to `/company` and `/wallet`. Now opens `CreateCompanyModal` and `AddWalletModal` INLINE on the page so the user never leaves `/create-pay-link`. The two steps now show as a checklist with helper copy ("Used on invoices and receipts. Takes ~30 seconds.", "Where customer payments are sent. Required to receive crypto."), and completed steps show a green check ring.
@@ -70,7 +70,7 @@ frontend:
     6. `/app/Components/UI/EmptyDataModel/index.tsx` — added a "What is a payout wallet?" help link (only on `pageName==="wallet"`) opening dynopay.com help in a new tab.
     - VERIFIED (2026-06-30 12:16 UTC): UX Fix #5 - Banner Color Follow-up ✅ PASS
       * Test account: qa.empty.1782626169@dynopaytest.com (user_id 8, no company - banner visible)
-      * Test URL: https://quick-start-233.preview.emergentagent.com/dashboard
+      * Test URL: https://merchant-checkout-20.preview.emergentagent.com/dashboard
       * Banner text: "Company setup" (located in top header at position top=35px)
       * Banner color: rgb(0, 4, 255) - BLUE ✅
       * Color analysis:
@@ -207,7 +207,7 @@ frontend:
 ## Onboarding UX Improvements — Test Results (2026-06-27 17:42 UTC)
 - agent: testing
 - test_date: 2026-06-27 17:42:00 UTC
-- test_url: https://quick-start-233.preview.emergentagent.com
+- test_url: https://merchant-checkout-20.preview.emergentagent.com
 - test_results: PARTIAL PASS (2/3 pages working, 1 CRITICAL ISSUE)
 
 ### PAGE 1: /auth/register ✅ PASS
@@ -264,7 +264,7 @@ frontend:
 ## Onboarding Preview Page Re-Test — Test Results (2026-06-27 17:48 UTC)
 - agent: testing
 - test_date: 2026-06-27 17:48:00 UTC
-- test_url: https://quick-start-233.preview.emergentagent.com/auth/onboarding-preview
+- test_url: https://merchant-checkout-20.preview.emergentagent.com/auth/onboarding-preview
 - test_results: ALL TESTS PASSED ✅ (Previous redirect issue FIXED)
 
 ### TEST SUMMARY
@@ -376,7 +376,7 @@ frontend:
 - fix:
   1. Generated a new logo PNG from the SVG source (`/app/assets/Images/auth/dynopay-logo.svg`, viewBox 134×45) at scale=15 → **1888×656 px** (cropped to alpha bbox), transparent RGBA. Saved over `/app/backend/assets/dynopay-logo.png` (51 KB, was 2.3 KB).
   2. `/app/backend/services/pdfService.ts` — changed `doc.image(logoPath, 50, 50, { width: 120, height: 40 })` → `doc.image(logoPath, 50, 50, { fit: [120, 42], align: "left", valign: "top" })` so pdfkit preserves source aspect ratio (no stretch) and downsamples cleanly.
-- BACKEND TEST REQUEST — preview https://quick-start-233.preview.emergentagent.com/api
+- BACKEND TEST REQUEST — preview https://merchant-checkout-20.preview.emergentagent.com/api
   Headers required: `User-Agent: Mozilla/5.0 ... Chrome/120 Safari/537.36`
   GOAL: confirm a freshly-generated invoice PDF has a CRISP, NON-PIXELATED logo at the top-left.
   STEPS:
@@ -397,7 +397,7 @@ frontend:
 ## Invoice PDF Logo Quality Fix — VERIFICATION RESULTS (2026-06-30 09:11 UTC)
 - agent: testing
 - test_date: 2026-06-30 09:11:29 UTC
-- test_url: https://quick-start-233.preview.emergentagent.com/api
+- test_url: https://merchant-checkout-20.preview.emergentagent.com/api
 - bug_fix_context: User reported brand logo on invoice PDFs was blurry/pixelated. Fix: Upgraded logo from 180×60 px to 1888×656 px and changed doc.image() to use fit: [120,42] instead of width/height
 - test_results: ✅ BUG FIX VERIFIED - ALL TESTS PASSED (5/5 tests - 100% success rate)
 
@@ -540,7 +540,7 @@ The user-reported issue of blurry/pixelated logo on invoice PDFs has been COMPLE
   - `Components/UI/DeleteWalletModal/index.tsx`: replaced single TextField with `<OtpInputPanel actionsLayout="stacked" primaryButtonLabel="Verify"/>`. Added 60s resend countdown + handleResendOtp that re-calls send-otp. DialogActions now only shows Cancel on the OTP step (Verify lives inside the panel).
   - `pages/auth/login.tsx`: standardized all four `OtpDialog` `primaryButtonLabel` to `t("verifyAndLogin")` ("Verify & log in"). Was inconsistent: 2 said "Verify", 2 said "Verify & Login".
   - `langs/locales/en/auth.json`: `verifyAndLogin` → "Verify & log in" (sentence-case). Added `didntReceiveCode`.
-- FRONTEND TEST REQUEST (preview https://quick-start-233.preview.emergentagent.com):
+- FRONTEND TEST REQUEST (preview https://merchant-checkout-20.preview.emergentagent.com):
   GOAL: confirm the OTP UX is now visually + behaviorally uniform across 4 screens AND auto-submits the moment the 6th digit is entered (no need to click Verify).
   HARD CONSTRAINTS for tester: DO NOT submit a real verification (no real account creation, no real password reset, no real wallet delete) — this preview hits LIVE production DB. Stop AT the auto-submit fire moment by checking that the verify endpoint was CALLED (e.g. via network panel) and/or the loading state engaged. DO NOT call POST /api/user/registerPhone or anything that consumes SMS credit.
   HOW TO TEST:
@@ -570,7 +570,7 @@ The user-reported issue of blurry/pixelated logo on invoice PDFs has been COMPLE
   - TELNYX_VERIFY_PROFILE_ID unchanged: 4900019f-12c3-657a-8b57-54b129bb2a6b (DynoPay, app_name=DynoPay, code_length=6 — confirmed reachable under the new key)
   - Backend restarted via supervisor.
 - pre-verification (direct Telnyx API, no SMS): new key returns 200 on GET /v2/verify_profiles and GET /v2/number_lookup; the configured profile id is listed under the account.
-- BACKEND TEST REQUEST — base https://quick-start-233.preview.emergentagent.com/api
+- BACKEND TEST REQUEST — base https://merchant-checkout-20.preview.emergentagent.com/api
   Headers required: `User-Agent: Mozilla/5.0 ... Chrome/120 Safari/537.36`
   GOAL: confirm POST /api/user/registerPhone (the consumer of TELNYX_API_KEY + profile) no longer fails with 503 / Telnyx 401.
   HARD CONSTRAINT (cost): Telnyx /verifications/sms sends a REAL SMS and consumes credit. Make AT MOST ONE registerPhone call. DO NOT loop. DO NOT try multiple numbers.
@@ -583,7 +583,7 @@ The user-reported issue of blurry/pixelated logo on invoice PDFs has been COMPLE
 ## Telnyx API Key Rotation — VERIFICATION RESULTS (2026-06-30 07:46 UTC)
 - agent: testing
 - test_date: 2026-06-30 07:46:29 UTC
-- test_url: https://quick-start-233.preview.emergentagent.com/api
+- test_url: https://merchant-checkout-20.preview.emergentagent.com/api
 - bug_fix_context: User reported old TELNYX_API_KEY wasn't working. Backend .env updated with new key KEY019F17786A3942870367BCDB8345F986_1WeiJWTqXGmIWnVV86YBPL and backend restarted.
 - test_results: ✅ BUG FIX VERIFIED - ALL TESTS PASSED (2/2 tests - 100% success rate)
 
@@ -664,7 +664,7 @@ FIX (backend):
     which threw for null). Prevents the next failure when a phone-only user creates a company.
 FIX (frontend, earlier this session): EmailVerificationBanner hidden when the user has no email (defensive).
 
-BACKEND TEST REQUEST — base https://quick-start-233.preview.emergentagent.com/api
+BACKEND TEST REQUEST — base https://merchant-checkout-20.preview.emergentagent.com/api
 Headers: Authorization: Bearer <token>, User-Agent: Mozilla/5.0 ... Chrome/120 Safari/537.36
 HOW TO MINT TOKENS (replicates getAccessToken): from /app/backend run `node -r dotenv/config <script>.js` using
   jwt (in node_modules) + pg: SELECT * FROM tbl_user WHERE user_id=$1; delete row.password; delete row.telegram_id;
@@ -687,7 +687,7 @@ blocked by email 403, B still blocked, D healthy.
 ## Phone-only Email Verification Bug Fix — VERIFICATION RESULTS (2026-06-29 16:12 UTC)
 - agent: testing
 - test_date: 2026-06-29 16:12:33 UTC
-- test_url: https://quick-start-233.preview.emergentagent.com/api
+- test_url: https://merchant-checkout-20.preview.emergentagent.com/api
 - bug_fix_context: Phone-only users (email=NULL) were wrongly blocked by emailVerifiedMiddleware with HTTP 403 "Please verify your email...". Fix: Middleware now only blocks when `email && !email_verified`
 - test_results: ✅ BUG FIX VERIFIED - ALL CRITICAL CRITERIA PASSED (4/4 tests - 100% success rate)
 
@@ -800,7 +800,7 @@ ROOT CAUSE: user photos are `SERVER_URL(=https://dynopay.com) + /images/user_*.p
 **.preview.emergentagent.com.
 FIX: next.config.mjs remotePatterns now includes dynopay.com, **.dynopay.com, **.preview.emergentagent.com,
 **.googleusercontent.com. Frontend restarted.
-FRONTEND TEST REQUEST (preview https://quick-start-233.preview.emergentagent.com):
+FRONTEND TEST REQUEST (preview https://merchant-checkout-20.preview.emergentagent.com):
   1. Go to /auth/register, E-mail tab. Enter existing email qa.onboard.1782585233@dynopaytest.com → Continue.
      Expect OTP step titled "Welcome Back!" with banner "...already has an account — enter the code to log in."
   2. Read OTP from Redis (REDIS_PUBLIC_URL in /app/backend/.env), key `otp:qa.onboard.1782585233@dynopaytest.com`
@@ -819,7 +819,7 @@ Also confirms the idempotent existing-account → OTP → login flow works end-t
 ## next/image dynopay.com Host Fix — VERIFICATION RESULTS (2026-06-29 15:14 UTC)
 - agent: testing
 - test_date: 2026-06-29 15:14:25 UTC
-- test_url: https://quick-start-233.preview.emergentagent.com
+- test_url: https://merchant-checkout-20.preview.emergentagent.com
 - bug_fix_context: Next.js threw "Invalid src prop ... hostname 'dynopay.com' is not configured" error after login. Fix: Added dynopay.com, **.dynopay.com, **.preview.emergentagent.com, **.googleusercontent.com to next.config.mjs remotePatterns
 - test_results: ✅ BUG FIX VERIFIED - ALL CRITICAL CRITERIA PASSED
 
@@ -881,7 +881,7 @@ Also confirms the idempotent existing-account → OTP → login flow works end-t
 ## Onboarding Existing-Account → OTP Login Bug Fix Verification (2026-06-29 14:59 UTC)
 - agent: testing
 - test_date: 2026-06-29 14:59:25 UTC
-- test_url: https://quick-start-233.preview.emergentagent.com/api
+- test_url: https://merchant-checkout-20.preview.emergentagent.com/api
 - bug_fix_context: Previously, existing email/phone returned HTTP 400 "Account already exists" (dead-end). Fix: Makes onboarding idempotent - existing email/phone now sends OTP and logs user in (passwordless login)
 - test_results: BUG FIX VERIFIED ✅ (5/5 tests passed - 100% success rate)
 
@@ -959,7 +959,7 @@ Also confirms the idempotent existing-account → OTP → login flow works end-t
 ## CSRF Bug Fix Verification — Onboarding Flow (2026-06-29 08:20 UTC)
 - agent: testing
 - test_date: 2026-06-29 08:20:42 UTC
-- test_url: https://quick-start-233.preview.emergentagent.com/api
+- test_url: https://merchant-checkout-20.preview.emergentagent.com/api
 - bug_fix_context: User reported 403 "CSRF token validation failed" during email onboarding. Fix: Added /api/user/registerEmail and /api/user/phone-type-check to CSRF EXEMPT_PATHS in csrfMiddleware.ts
 - test_results: BUG FIX VERIFIED ✅ (3/3 critical tests passed - 100% success rate)
 
@@ -1351,8 +1351,8 @@ Also confirms the idempotent existing-account → OTP → login flow works end-t
 - agent: testing
 - message: Completed review request testing of DynoPay backend API endpoints for currency validation fix
 - test_results: MIXED RESULTS ⚠️
-  * Target URL https://quick-start-233.preview.emergentagent.com/api → HTTP 404 (Service not available at this URL)
-  * Current URL https://quick-start-233.preview.emergentagent.com/api → ALL TESTS PASSED ✅
+  * Target URL https://merchant-checkout-20.preview.emergentagent.com/api → HTTP 404 (Service not available at this URL)
+  * Current URL https://merchant-checkout-20.preview.emergentagent.com/api → ALL TESTS PASSED ✅
     - GET /api/ → HTTP 200 (Health check operational, status: operational, service: Dynopay API, version: 1.0.0)
     - GET /api/pay/network-fees → HTTP 200 (Network fees retrieved successfully for all supported chains)
     - GET /api/geo-detect → HTTP 200 (Geo detection working - Country: United States, countryCode: US)
@@ -1383,7 +1383,7 @@ Also confirms the idempotent existing-account → OTP → login flow works end-t
 ## Review Request Testing Results - 2026-03-25 07:32:07 UTC
 - agent: testing
 - message: Completed review request testing of DynoPay backend API endpoints after double SUN→TRX conversion bug fix
-- target_url: https://quick-start-233.preview.emergentagent.com
+- target_url: https://merchant-checkout-20.preview.emergentagent.com
 - bug_fix_context: Removed extra /1000000 division for TRX balances in 4 files (merchantPoolSweep.ts, paymentController.ts×2, adminController.ts) since tatumApi.getAddressBalance() already converts SUN to TRX
 - test_results: MOSTLY PASSED ✅ (3/4 endpoints working)
   * GET /api/status/health → HTTP 200 (Health status: healthy, timestamp: 2026-03-25T07:32:07.753Z, version: 1.0.0)
@@ -1613,7 +1613,7 @@ Also confirms the idempotent existing-account → OTP → login flow works end-t
 ## Comprehensive Frontend Testing Results - 2026-03-28 12:18:00 UTC
 - agent: testing
 - message: Completed comprehensive frontend testing of ALL 35 pages as requested in review
-- target_url: https://quick-start-233.preview.emergentagent.com
+- target_url: https://merchant-checkout-20.preview.emergentagent.com
 - test_scope: Full frontend page load testing, UI element verification, console error monitoring, redirect behavior validation
 - test_results: ALL 35 PAGES PASSED ✅ (100% success rate)
 
@@ -1728,7 +1728,7 @@ Also confirms the idempotent existing-account → OTP → login flow works end-t
 ## Theme System Preference Detection Testing - 2026-03-29 18:30:21 UTC
 - agent: testing
 - message: Completed comprehensive testing of automatic dark/light mode system preference detection feature
-- target_url: https://quick-start-233.preview.emergentagent.com
+- target_url: https://merchant-checkout-20.preview.emergentagent.com
 - feature_context: ThemeContext (/app/contexts/ThemeContext.tsx) updated to detect OS dark/light preference via window.matchMedia('(prefers-color-scheme: dark)'), use system preference as default when no localStorage override exists, and listen for real-time OS theme changes
 - test_results: ALL TESTS PASSED ✅ (3/3 test scenarios successful)
 
@@ -1796,7 +1796,7 @@ Also confirms the idempotent existing-account → OTP → login flow works end-t
 ## FOUC (Flash of Unstyled Content) Elimination Testing - 2026-03-29 19:00:47 UTC
 - agent: testing
 - message: Completed comprehensive FOUC elimination testing for light mode system preference
-- target_url: https://quick-start-233.preview.emergentagent.com
+- target_url: https://merchant-checkout-20.preview.emergentagent.com
 - issue_found_and_fixed: Initial implementation was missing inline backgroundColor in blocking script, causing transparent background during early page load
 - fix_applied: Added `document.documentElement.style.backgroundColor` to blocking script in /app/pages/_document.tsx
 - test_results: 3/4 TESTS PASSED ✅ (1 minor issue)
@@ -1875,7 +1875,7 @@ Also confirms the idempotent existing-account → OTP → login flow works end-t
 ## Theme Flash Fix Re-Validation - 2026-03-29 19:03:54 UTC
 - agent: testing
 - message: Completed quick validation of theme flash fix with 3 specific checks as requested
-- target_url: https://quick-start-233.preview.emergentagent.com
+- target_url: https://merchant-checkout-20.preview.emergentagent.com
 - test_results: ALL 3 CHECKS PASSED ✅ (100% success rate)
 
 ### CHECK 1: LIGHT MODE - NO FLASH ✅
@@ -1998,7 +1998,7 @@ Also confirms the idempotent existing-account → OTP → login flow works end-t
 ## API Documentation Page Testing - 2026-03-30 08:30:00 UTC
 - agent: testing
 - message: Completed comprehensive testing of updated API Documentation page at /documentation
-- target_url: https://quick-start-233.preview.emergentagent.com/documentation
+- target_url: https://merchant-checkout-20.preview.emergentagent.com/documentation
 - test_results: ALL 8 TESTS PASSED ✅ (100% success rate)
 
 ### TEST 1: PAGE LOADS CORRECTLY ✅
@@ -2108,7 +2108,7 @@ Also confirms the idempotent existing-account → OTP → login flow works end-t
 ## Review Request Testing Results - 2026-03-31 04:33:23 UTC
 - agent: testing
 - message: Completed review request testing of DynoPay backend API endpoints after critical settlement bug fixes (TRX drain, OUT_OF_ENERGY, payment ID propagation)
-- target_url: https://quick-start-233.preview.emergentagent.com
+- target_url: https://merchant-checkout-20.preview.emergentagent.com
 - bug_fix_context: Settlement bug fixes applied - TRX drain fix, OUT_OF_ENERGY fix, payment ID propagation fix
 - test_results: ALL TESTS PASSED ✅ (4/4 specific endpoints from review request)
   * GET /api/ → HTTP 200 (Health check operational, status: operational, service: Dynopay API)
@@ -2214,7 +2214,7 @@ Also confirms the idempotent existing-account → OTP → login flow works end-t
 ## Review Request Testing Results - 2026-04-02 08:07:01 UTC
 - agent: testing
 - message: Completed review request testing of DynoPay backend API endpoints after FeeWalletMonitor and Fee-free volume tracking bug fixes
-- target_url: https://quick-start-233.preview.emergentagent.com
+- target_url: https://merchant-checkout-20.preview.emergentagent.com
 - bug_fix_context: 
   1. FeeWalletMonitor now reads TRX fee wallet address from database instead of env var
   2. Fee-free volume tracking moved to before settlement (prevents volume loss on failed settlements)
@@ -2269,7 +2269,7 @@ Also confirms the idempotent existing-account → OTP → login flow works end-t
 ## Review Request Testing Results - 2026-04-02 08:44:21 UTC
 - agent: testing
 - message: Completed review request testing of DynoPay backend API endpoints after fee-free reconciliation and webhook bug fixes
-- target_url: https://quick-start-233.preview.emergentagent.com
+- target_url: https://merchant-checkout-20.preview.emergentagent.com
 - bug_fix_context: Fixed 4 critical bugs - FeeWalletMonitor balance alerts, fee-free volume tracking, startup reconciliation, and removed redundant payment.settled webhook
 - test_results: ALL TESTS PASSED ✅
   * GET /api/ → HTTP 200 (Health check operational, status: operational, service: Dynopay API)
@@ -2290,7 +2290,7 @@ Also confirms the idempotent existing-account → OTP → login flow works end-t
 ## TRC20 Gas Cost Optimization Testing Results - 2026-04-02 09:21:38 UTC
 - agent: testing
 - message: Completed review request testing of DynoPay backend API endpoints after TRC20 gas cost optimization changes
-- target_url: https://quick-start-233.preview.emergentagent.com
+- target_url: https://merchant-checkout-20.preview.emergentagent.com
 - optimization_context: Changes to tronEnergyService.ts, merchantPoolSweep.ts, merchantPoolConfig.ts, and paymentController.ts for TRC20 gas cost optimization
 - test_results: ALL TESTS PASSED ✅ (3/3 endpoints working)
   * GET /api/ → HTTP 200 (Health check operational, status: operational, service: Dynopay API)
@@ -3049,7 +3049,7 @@ Also confirms the idempotent existing-account → OTP → login flow works end-t
 
 ## Landing Page Design Test - DigitalOcean-Inspired Improvements (2026-06-28)
 - scope: Test landing page after design improvements inspired by DigitalOcean
-- test_url: https://quick-start-233.preview.emergentagent.com
+- test_url: https://merchant-checkout-20.preview.emergentagent.com
 - test_date: 2026-06-28 14:00:00 UTC
 - agent: testing
 - viewports_tested: Desktop (1920x800), Mobile (390x844)
@@ -3165,7 +3165,7 @@ Also confirms the idempotent existing-account → OTP → login flow works end-t
 ## Bug Fix Testing: Documentation Base URL + Mobile Login UI Sizing (2026-06-28)
 - agent: testing
 - test_date: 2026-06-28 14:14:00 UTC
-- test_url: https://quick-start-233.preview.emergentagent.com
+- test_url: https://merchant-checkout-20.preview.emergentagent.com
 - bug_fixes_tested:
   1. Documentation Base URL (changed from api.dynopay.com to dynopay.com)
   2. Mobile Login UI Sizing (increased sizes from tiny to proper mobile dimensions)
@@ -3243,7 +3243,7 @@ Also confirms the idempotent existing-account → OTP → login flow works end-t
 ## Simplified Registration + Forgot Password Testing (2026-06-28 17:03 UTC)
 - agent: testing
 - test_date: 2026-06-28 17:03:00 UTC
-- test_url: https://quick-start-233.preview.emergentagent.com
+- test_url: https://merchant-checkout-20.preview.emergentagent.com
 - test_scope: Simplified registration (email/phone + OTP only), forgot password dialog, logo link functionality
 
 ### TEST RESULTS: ✅✅✅ ALL TESTS PASSED ✅✅✅
@@ -3355,7 +3355,7 @@ Also confirms the idempotent existing-account → OTP → login flow works end-t
 
 ### Test Request
 - test_type: frontend
-- test_url: https://quick-start-233.preview.emergentagent.com
+- test_url: https://merchant-checkout-20.preview.emergentagent.com
 - test_scope: Registration page (/auth/register) - verify both email and phone registration forms fit in viewport with buttons visible
 - test_steps:
   1. Navigate to /auth/register
@@ -3378,7 +3378,7 @@ Also confirms the idempotent existing-account → OTP → login flow works end-t
 
 ### Test Request
 - test_type: frontend
-- test_url: https://quick-start-233.preview.emergentagent.com
+- test_url: https://merchant-checkout-20.preview.emergentagent.com
 - test_scope: Dashboard page (/dashboard) - verify stats cards load data instead of showing skeletons
 - test_credentials: See /app/memory/test_credentials.md
 - test_steps:
@@ -3426,7 +3426,7 @@ Also confirms the idempotent existing-account → OTP → login flow works end-t
 ## Dashboard Stats Loading Fix - Frontend Testing Results (2026-06-28 15:51:34 UTC)
 - agent: testing
 - test_date: 2026-06-28 15:51:34 UTC
-- test_url: https://quick-start-233.preview.emergentagent.com
+- test_url: https://merchant-checkout-20.preview.emergentagent.com
 - bug_fix_context: Dashboard stats (Volume Today, Volume Yesterday, Transactions Today, Pending, Total Transactions, Total Volume) were stuck showing Skeleton loading animations due to Redux debounce issue that dropped the main dashboard API fetch. The fix combines all fetches into a single DASHBOARD_FETCH_ALL dispatch.
 
 ### CODE REVIEW FINDINGS ✅
@@ -3440,7 +3440,7 @@ Also confirms the idempotent existing-account → OTP → login flow works end-t
 
 ### FRONTEND TESTS PERFORMED (5/5 PASSED) ✅
 1. ✅ Login Page Load Test
-   - URL: https://quick-start-233.preview.emergentagent.com/auth/login
+   - URL: https://merchant-checkout-20.preview.emergentagent.com/auth/login
    - Page title: "Merchant Login | DynoPay"
    - Email input field present and functional
    - Screenshot: login_page.png
@@ -3452,7 +3452,7 @@ Also confirms the idempotent existing-account → OTP → login flow works end-t
    - Screenshot: dashboard_redirect.png
 
 3. ✅ Landing Page Load Test
-   - URL: https://quick-start-233.preview.emergentagent.com/
+   - URL: https://merchant-checkout-20.preview.emergentagent.com/
    - Page title: "DynoPay — Crypto Payment Gateway | Accept Bitcoin & Settle in Stablecoins"
    - Main content renders correctly
    - Screenshot: landing_page.png
@@ -3508,7 +3508,7 @@ The fix is architecturally sound:
 ## Registration Page UI Fix Testing Results (2026-06-28 16:10:15 UTC)
 - agent: testing
 - test_date: 2026-06-28 16:10:15 UTC
-- test_url: https://quick-start-233.preview.emergentagent.com/auth/register
+- test_url: https://merchant-checkout-20.preview.emergentagent.com/auth/register
 - bug_fix_context: Fixed two critical UI bugs: (1) Phone registration "Send Verification Code" button text was INVISIBLE (appeared as blank gray bar), (2) Email registration form was too long requiring scrolling to see "Sign up" button
 
 ### BUG FIX IMPLEMENTATION VERIFIED ✅
@@ -3617,7 +3617,7 @@ The fix is architecturally sound:
 
 ### Test Request
 - test_type: frontend
-- test_url: https://quick-start-233.preview.emergentagent.com
+- test_url: https://merchant-checkout-20.preview.emergentagent.com
 - test_scope: Phone registration button on /auth/register
 - test_steps:
   1. Navigate to /auth/register
@@ -3632,7 +3632,7 @@ The fix is architecturally sound:
 ## Phone Registration Button Fix Testing Results (2026-06-28 16:21:00 UTC)
 - agent: testing
 - test_date: 2026-06-28 16:21:00 UTC
-- test_url: https://quick-start-233.preview.emergentagent.com/auth/register
+- test_url: https://merchant-checkout-20.preview.emergentagent.com/auth/register
 - bug_fix_context: Fixed "Send Verification Code" button staying disabled even when all fields (Full Name, Phone Number, Password) are filled. Root cause: password regex requiring special characters was in the button's disabled condition with no visual feedback. Fix: (1) Removed password regex from disabled condition, (2) Added PasswordValidation component showing real-time checklist.
 
 ### TEST RESULTS: ✅✅✅ ALL TESTS PASSED - BUG FIX VERIFIED ✅✅✅
@@ -3728,7 +3728,7 @@ The fix is architecturally sound:
 
 ### Test Request
 - test_type: frontend
-- test_url: https://quick-start-233.preview.emergentagent.com
+- test_url: https://merchant-checkout-20.preview.emergentagent.com
 - test_scope: Login page logo + forgot password visibility
 - test_steps:
   1. Navigate to /auth/login
@@ -3765,7 +3765,7 @@ The fix is architecturally sound:
 
 ### Test Request
 - test_type: frontend
-- test_url: https://quick-start-233.preview.emergentagent.com
+- test_url: https://merchant-checkout-20.preview.emergentagent.com
 - test_scope: Forgot password dialog, logo link, forgot password link
 - test_steps:
   1. Navigate to /auth/login
@@ -3807,7 +3807,7 @@ The fix is architecturally sound:
 
 ### Test Request
 - test_type: frontend
-- test_url: https://quick-start-233.preview.emergentagent.com
+- test_url: https://merchant-checkout-20.preview.emergentagent.com
 - test_scope: Full auth flow testing
 - test_steps:
   1. Navigate to /auth/register → Verify simplified form (email input + Continue, no name/password fields)
@@ -3826,7 +3826,7 @@ The fix is architecturally sound:
 ## Frontend Environment Verification — 2026-06-29 08:09 UTC
 - agent: testing
 - test_date: 2026-06-29 08:09:00 UTC
-- test_url: https://quick-start-233.preview.emergentagent.com
+- test_url: https://merchant-checkout-20.preview.emergentagent.com
 - test_scope: Fresh environment setup verification (NOT deep functional testing)
 - test_results: ALL TESTS PASSED ✅ (3/3 pages verified)
 
@@ -3895,7 +3895,7 @@ The fix is architecturally sound:
 ## Network Fees Bug Fix Verification — Testing Results (2026-06-29 08:52 UTC)
 - agent: testing
 - test_date: 2026-06-29 08:52:49 UTC
-- test_url: https://quick-start-233.preview.emergentagent.com/api
+- test_url: https://merchant-checkout-20.preview.emergentagent.com/api
 - bug_fix_context: User reported GET /api/pay/network-fees returning HTTP 500 with "Converting circular structure to JSON ... TLSSocket ... HTTPParser ... socket closes the circle". ROOT CAUSE: Winston logger's railwayFormat used raw JSON.stringify on log meta; blockchain fee service logged full Axios error objects (containing circular TLSSocket references) for chains where Tatum returns 400 (POLYGON/USDT_POLYGON/BCH). JSON.stringify threw inside logger, escaped catch block, crashed endpoint with 500.
 - fixes_applied:
   * (1) utils/loggers.ts: Added circular-safe stringifier (safeStringify with WeakSet) in railwayFormat — prevents all production logging crashes from circular refs
@@ -3968,7 +3968,7 @@ The bug fix is working perfectly. The circular JSON structure error has been com
 ## Dark Mode Text Visibility Testing — Authenticated Pages + Mobile Menu (2026-06-29 09:33 UTC)
 - agent: testing
 - test_date: 2026-06-29 09:33:00 UTC
-- test_url: https://quick-start-233.preview.emergentagent.com
+- test_url: https://merchant-checkout-20.preview.emergentagent.com
 - test_scope: Verify dark mode text visibility across authenticated DynoPay app pages and mobile quick-action menu icon visibility
 - authentication: JWT token injection (user_id=3, QA Onboarding Tester)
 
@@ -4089,7 +4089,7 @@ The bug fix is working perfectly. The circular JSON structure error has been com
 ## Phone Number Onboarding Bug Fix Verification — 2026-06-29 09:48 UTC
 - agent: testing
 - test_date: 2026-06-29 09:48:00 UTC
-- test_url: https://quick-start-233.preview.emergentagent.com/api
+- test_url: https://merchant-checkout-20.preview.emergentagent.com/api
 - bug_fix_context: User reported 503 "Failed to send verification code. Please try again." during phone number onboarding. ROOT CAUSE: (1) Invalid TELNYX_API_KEY causing Telnyx 401, (2) Wrong TELNYX_VERIFY_PROFILE_ID, (3) Old profile "Bozzmail" with 5-digit codes (frontend expects 6). FIX: Updated backend/.env with a valid TELNYX_API_KEY=[REDACTED_SECRET] and new "DynoPay" verify profile (6-digit codes). Actual key/profile values live only in backend/.env (gitignored) — do NOT record secrets in this file.
 - test_results: ALL TESTS PASSED ✅ (5/5 tests successful - 100% success rate)
 
@@ -4161,7 +4161,7 @@ The bug fix is working perfectly. The circular JSON structure error has been com
 ## UX Audit Verification — 6 Fixes Batch (2026-06-30 12:09 UTC)
 - agent: testing
 - test_date: 2026-06-30 12:09:00 UTC
-- test_url: https://quick-start-233.preview.emergentagent.com
+- test_url: https://merchant-checkout-20.preview.emergentagent.com
 - test_context: UX audit verification of 6 fixes: (1) empty-state grammar, (2) inline modals, (3) mobile wallet truncation, (4) pay link expiry, (5) banner color, (6) help link
 - accounts_tested: Account A (hostbay@moxx.co - data-rich), Account B (qa.empty.1782626169@dynopaytest.com - empty-state)
 - viewports: Desktop 1440×900, Mobile 390×844
@@ -4266,7 +4266,7 @@ The bug fix is working perfectly. The circular JSON structure error has been com
 ## Visual Smoke Check — Landing Page Updates (2026-06-30 08:52 UTC)
 - agent: testing
 - test_date: 2026-06-30 08:52:00 UTC
-- test_url: https://quick-start-233.preview.emergentagent.com
+- test_url: https://merchant-checkout-20.preview.emergentagent.com
 - test_context: Visual smoke check of 4 recent changes: (1) crypto price ticker strip, (2) login page, (3) pay demo, (4) forgot password OTP boxes, (5) dark mode
 - viewport: 1440x900 (desktop)
 - test_results: 4/5 PASS, 1 PARTIAL (80% success rate)
@@ -4391,7 +4391,7 @@ The bug fix is working perfectly. The circular JSON structure error has been com
 ## Copy Link / Checkout Completed Status / Merchant Emails — READ-ONLY Backend Verification (2026-07-01)
 - agent: testing
 - test_date: 2026-07-01 12:59:00 UTC
-- test_url: https://quick-start-233.preview.emergentagent.com/api
+- test_url: https://merchant-checkout-20.preview.emergentagent.com/api
 - test_type: READ-ONLY verification (LIVE production Railway PostgreSQL + Redis)
 - test_results: ✅ ALL TESTS PASSED (5/5 tests - 100% success rate)
 
@@ -4460,7 +4460,7 @@ The bug fix is working perfectly. The circular JSON structure error has been com
 - ✅ All public endpoints graceful (no 500s)
 
 ### TECHNICAL DETAILS
-- Base URL: https://quick-start-233.preview.emergentagent.com/api
+- Base URL: https://merchant-checkout-20.preview.emergentagent.com/api
 - Test account: hostbay@moxx.co (Primary QA Account with company)
 - Authentication: OTP-gated login via Redis (login_otp:{session}:json)
 - Payment links found: 2 active links with valid checkout URLs

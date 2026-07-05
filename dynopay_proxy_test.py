@@ -91,7 +91,7 @@ class DynoPayProxyTester:
         try:
             # Check if backend .env has FRONTEND_URL set to pod URL
             env_path = "/app/backend/.env"
-            expected_url = "https://quick-start-233.preview.emergentagent.com"
+            expected_url = "https://merchant-checkout-20.preview.emergentagent.com"
             
             if os.path.exists(env_path):
                 with open(env_path, 'r') as f:
