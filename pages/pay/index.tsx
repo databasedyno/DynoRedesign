@@ -11,6 +11,7 @@ import {
 import {
   Box,
   Button,
+  CircularProgress,
   Divider,
   IconButton,
   Menu,
@@ -209,6 +210,10 @@ const Payment = () => {
     return '';
   })
   const [loading, setLoading] = useState(true)
+  // Gates the very first render until pay/getData resolves — prevents the
+  // checkout form (or a sessionStorage-restored stepper) from flashing with
+  // a zero/dust amount before an already-paid link flips to the success card.
+  const [initialLoading, setInitialLoading] = useState(true)
   const [isSuccess, setIsSuccess] = useState(false)
   const [isBank, setIsBank] = useState()
   const [feePayer, setFeePayer] = useState<string>('')
@@ -351,13 +356,17 @@ const Payment = () => {
   }, [paymentType])
 
   useEffect(() => {
-    if (router.query && router.query?.d) {
+    // Wait for Next.js to parse the query string — router.query is {} on the
+    // first hydration render even when a ?d= param is present in the URL.
+    if (!router.isReady) return
+    if (router.query?.d) {
       getQueryData()
     } else {
       setLoading(false)
+      setInitialLoading(false)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router.query])
+  }, [router.isReady, router.query])
 
   const getQueryData = async () => {
     try {
@@ -397,13 +406,16 @@ const Payment = () => {
         });
         setWalletState({ amount: baseAmt, currency: baseCur });
         setIsSuccess(true);
-        // Jump the stepper to the "Done" step so the ProgressBar shows the
-        // correct state (Order ✓ / Payment ✓ / Done ●).
-        setActiveStep(2);
+        // Clear stale stepper persistence so a revisit in the same tab never
+        // restores the checkout stepper for a paid link (the alreadyPaid
+        // render below hardcodes the "Done" stepper state itself).
+        sessionStorage.removeItem('payment_active_step');
+        sessionStorage.removeItem('payment_transfer_method');
         if (data.redirect_url) {
           setRedirectUrl(data.redirect_url);
         }
         setLoading(false);
+        setInitialLoading(false);
         return;
       }
 
@@ -510,8 +522,10 @@ const Payment = () => {
       }
       
       setLoading(false)
+      setInitialLoading(false)
     } catch (e: any) {
       setLoading(false)
+      setInitialLoading(false)
       const message = e?.response?.data?.message ?? e.message
       dispatch({
         type: TOAST_SHOW,
@@ -705,6 +719,31 @@ const Payment = () => {
   }
 
   const isOpen = Boolean(anchorEl)
+
+  // ─── Initial fetch gate ───────────────────────────────────────────
+  // Show a neutral loader until pay/getData resolves. Rendering the checkout
+  // form here caused paid links to flash the old checkout (with a dust/zero
+  // amount) for a few seconds before the success card appeared.
+  if (initialLoading) {
+    return (
+      <Pay3Layout>
+        <Box
+          display='flex'
+          flexDirection='column'
+          alignItems='center'
+          justifyContent='center'
+          minHeight='55vh'
+          gap={2}
+          data-testid="checkout-loading"
+        >
+          <CircularProgress size={36} sx={{ color: theme.palette.primary.main }} />
+          <Typography fontSize={13.5} color={theme.palette.text.secondary}>
+            {t('checkout.loading')}
+          </Typography>
+        </Box>
+      </Pay3Layout>
+    );
+  }
 
   // ─── Already-paid revisit view ────────────────────────────────────
   // When the customer visits a link that has already been paid, render a

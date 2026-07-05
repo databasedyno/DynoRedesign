@@ -1,0 +1,26 @@
+{
+  "summary": "Iteration 16 - Verified flash-timing bug fix in /pay?d=... (paid checkout link). Ran 5 Playwright scenarios per review request. All pass: (1) rapid-sample paid link — no checkout-card / crypto-payment-btn / 'Total 0.01' ever appears across 28 samples; only allowed intermediate state is [data-testid='checkout-loading']; final = 'Payment Successful' + '0.0069 ETH (≈ 10.00 USD) paid' + exactly one [data-testid='paid-timestamp']. (2) same-tab revisit — no flash, sessionStorage 'payment_active_step' & 'payment_transfer_method' both null after render. (3) unpaid link regression — loader resolves, checkout-card + crypto-payment-btn + currency-selector present, no fake success. (4) bogus token — no infinite loader, no fake success. (5) i18n PT — paid pill text = 'Pago há 4 dias • 30 de jun. de 2026' (starts with 'Pago'); heading 'Pagamento Bem-sucedido' rendered in Portuguese. Fix is working as intended.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "/pay (unpaid + bogus links in preview env)", "issues": ["Subtotal renders as '0 undefined' when currency string is empty — minor pre-existing display glitch, not caused by this fix. Suggest defaulting currency to '' with a fallback or hiding the row when currency is missing. Same behavior seen on both unpaid and bogus tokens in this preview env, suggesting the preview backend data pathway returns 0-amount payloads. Not in scope of the current bug fix."]}
+    ]
+  },
+  "test_report_links": ["/app/test_reports/iteration_16.json"],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Fix in /app/pages/pay/index.tsx is correct and minimal: initialLoading gate at line ~727 blocks the entire render behind [data-testid='checkout-loading'] until pay/getData resolves; router.isReady guard at line 361 prevents SSR-vs-CSR query race; payment_completed branch (lines 393-419) clears both stale sessionStorage keys and sets initialLoading=false before returning. Verified with 28-sample rapid polling that the checkout form never leaks even for a single sample.",
+    "Success card renders paid pill exactly once ([data-testid='paid-timestamp'] count = 1) with correct localized text in both EN and PT.",
+    "Nit (out of scope): on the unpaid/bogus paths where backend returns amount=0 and currency is missing, the Subtotal row shows 'undefined' as currency. Consider guarding with `data.base_currency ?? ''` at line 424 or hiding the row if currency is empty."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (frontend-only per request)", "frontend": "100% (5/5 scenarios)"},
+  "test_credentials": "None — all tests use public /pay?d=... links",
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Bug fix for paid-link flash is fully validated. Paid token d=7d9602b4... reliably returns payment_completed:true with 0.0069 ETH / 10.00 USD. Unpaid token d=bde22009... in this preview env returns a zero-amount payload (Total: 0, currency undefined) but still renders the checkout form correctly (no infinite loader, no fake success). Bogus token behaves identically. i18n Portuguese pill format is 'Pago há N dias • DD de MMM. de YYYY'. sessionStorage keys used: payment_active_step, payment_transfer_method — both cleared on the payment_completed branch.",
+  "rca of the issue": "Original bug: on already-paid revisit the old stepper flashed 'Total 0.01' before the success card. Two root causes: (a) initial render happened before pay/getData resolved so the default (stepper) branch rendered with a small residual amount; (b) sessionStorage.payment_active_step from a prior session was rehydrated on same-tab revisit, restoring the stepper. Fix: (1) initialLoading gate at line 727 short-circuits render to a neutral loader until getData resolves; (2) router.isReady guard at line 361 prevents effect firing with empty router.query; (3) payment_completed branch clears both sessionStorage keys so revisit cannot restore old stepper. Verified — no flash across 28 samples in both first-visit and same-tab revisit."
+}
