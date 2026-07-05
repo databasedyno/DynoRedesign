@@ -5507,3 +5507,270 @@ Round 2 (canonical dedup fix retest, 7 URLs):
   - og:url matches canonical (1 per page) ✅
   - Root canonical unchanged (no regression) ✅
 
+
+## BUG FIX: Already-paid checkout link shows "small unpaid remainder" instead of "Payment Successful" (2026-07-05)
+
+USER REPORT: The paid link `https://checkout.dynopay.com/pay?d=7d9602b42ed3591bec4583e78319576eb08c383058bb848c`
+was successfully paid (link_id=2, status="successful", paid_amount=0.0069 ETH ≈ $10 USD).
+BUT visiting the URL renders the fresh checkout form showing "Total 0.01, Cryptocurrency" — as if
+a small dust amount remains unpaid — instead of the "Payment Successful" confirmation.
+
+ROOT CAUSE (traced via DB dig + screenshot reproduction):
+  1) Backend `/api/pay/getData` was returning `payment_completed: true` correctly, BUT it was
+     returning `amount: item.base_amount || item.amount || 0`. The Redis customer session stores
+     `amount: 0.00635942 ETH` (crypto amount, not USD) and `base_amount` is NOT set. So the response
+     had `amount: 0.00635942, base_currency: "USD"` — the frontend rendered it as "$0.01 USD"
+     (that's the "dust remainder" the user saw).
+  2) Frontend `/app/pages/pay/index.tsx` at line 368: when `data.payment_completed === true`, it set
+     `setIsSuccess(true)` and `setWalletState({amount, currency})` but did NOT jump the stepper past
+     step 0 (Order). The stepper stayed at Order → renderer at line 686 still showed the checkout
+     form. `isSuccess` was only consumed at step 2 (Bank success card) — never reached for crypto
+     revisits.
+
+FIX (backend — `/app/backend/controller/payment/cryptoCheckout.ts::getData`):
+  - Added `base_amount, base_currency` to the DB SELECT.
+  - In the `isPaid` branch, `amount` and `base_currency` now come from the DB row (source of truth),
+    falling back to Redis fields only when the DB row is unexpectedly missing them.
+  - Response shape now: `{ payment_completed: true, amount, base_amount, base_currency, paid_amount,
+    paid_currency, status: 'successful', description, redirect_url }`.
+  - MANUAL CURL VERIFY: `curl POST /api/pay/getData -d '{"data":"7d9602b4..."}'` now returns
+    `{"amount":10,"base_amount":10,"base_currency":"USD","paid_amount":0.0069,"paid_currency":"ETH"}`
+    (was `{"amount":0.00635942,"base_currency":"USD"}` before fix).
+
+FIX (frontend — `/app/pages/pay/index.tsx`):
+  - Added `alreadyPaid` state (paid_amount + paid_currency + base_amount + base_currency).
+  - On `data.payment_completed === true`: stores paid data, jumps stepper to `activeStep = 2`,
+    stores base fiat amount (NOT crypto amount) into walletState.
+  - Added a top-level early-render branch: when `alreadyPaid` is set, renders `<TransferExpectedCard
+    isTrue={true} type="crypto" amount="0.0069 ETH (≈ 10.00 USD)"/>` with the full stepper showing
+    Order ✓ / Payment ✓ / Done ●. Short-circuits the entire stepper below.
+  - MANUAL SCREENSHOT VERIFY: visiting `/pay?d=7d9602b4...` now shows green "Payment Successful"
+    card with "0.0069 ETH (≈ 10.00 USD) paid" and a Done button.
+
+## FEATURE: SEO landing page illustrations (2026-07-05, same session)
+
+Replaced the plain flag emoji (hero) and flag emoji / display-name-initial (Related pages cards) with
+a new `SEOIllustration` component:
+  - `/app/Components/Page/SEO/SEOIllustration.tsx` — takes `{slug, kind, flag?, size, hero?}`.
+    Country cards: flag emoji floating on a slug-hashed gradient with glass-morphism circles.
+    Vertical cards: custom SVG icon (ecommerce=cart, saas=cloud, freelancers=laptop, gaming=controller,
+    remittance=globe-arrows, digital-downloads=download-arrow) on the same gradient system.
+    8 gradients rotate deterministically by slug hash — same slug always gets the same gradient.
+  - Applied in TWO places in `Components/Page/SEO/SEOLandingPage.tsx`:
+      1) Hero (top of every SEO page): `<SEOIllustration size={128} hero />` in place of the plain flag emoji
+      2) Related pages cards (bottom of every SEO page): `<SEOIllustration size={48} />` in place of the flag or display-name initial
+  - Testid: `seo-illustration-{kind}-{slug}` (one per illustration).
+  - Also fixed HomeSectionTitle usage: highlightText MUST be a substring of title, so combined into
+    "Popular use cases for crypto merchants" / "Popular countries for crypto merchants".
+
+FRONTEND TEST REQUEST — verify both:
+
+Base URL: https://88b19283-41ff-4c38-bb16-543195dfc9a1.preview.emergentagent.com
+
+HARD CONSTRAINTS:
+  - Do NOT submit forms. Do NOT click Signup CTAs. Do NOT touch the paid link's "Done" button.
+  - Public pages only.
+
+CASE 1 — Already-paid checkout link renders "Payment Successful" (the reported bug):
+  1. Navigate to `/pay?d=7d9602b42ed3591bec4583e78319576eb08c383058bb848c`.
+  2. Wait for networkidle + 4000ms (React state settle).
+  3. Assert the page text contains "Payment Successful" (from TransferExpectedCard success view).
+  4. Assert the page text contains "0.0069 ETH" AND "10.00 USD" (paid amount + base amount).
+  5. Assert the page DOES NOT contain "Total 0.01" or "Complete your payment to finalize your order" (fresh checkout form must NOT render).
+  6. Assert the ProgressBar stepper shows Order and Payment as complete (checkmark) and Done as current — verify via visible text "Order" "Payment" "Done" (all three step labels visible).
+  7. Screenshot the result.
+
+CASE 2 — SEO illustrations render on country page:
+  1. Navigate to `/accept-crypto-payments-in/united-states`. Wait networkidle + 2000ms.
+  2. Assert 4 illustrations exist: 1 hero (`seo-illustration-country-united-states`) + 3 in related cards (`seo-illustration-vertical-*`).
+  3. Assert none is broken (each `[data-testid^="seo-illustration-"]` has non-zero width and height in `getBoundingClientRect`).
+  4. Assert the section title "Popular use cases for crypto merchants" is present (both regular + highlight parts).
+  5. Screenshot hero AND related-pages section.
+
+CASE 3 — SEO illustrations render on vertical page:
+  1. Navigate to `/for/saas`. Wait networkidle + 2000ms.
+  2. Assert 4 illustrations: 1 hero (`seo-illustration-vertical-saas`) + 3 in related cards (`seo-illustration-country-*`).
+  3. Assert all have non-zero size.
+  4. Assert section title "Popular countries for crypto merchants" is present.
+  5. Screenshot hero AND related-pages section.
+
+CASE 4 — Regression check: unpaid/nonexistent link path unaffected:
+  1. Navigate to `/pay?d=nonexistent-reference-abc123` (should show error/not found — NOT the payment-completed view).
+  2. Assert the page does NOT display "Payment Successful".
+  3. HTTP should be 200 (page still renders the "invalid/expired" state, not a crash).
+
+PASS CRITERIA:
+  - CASE 1: "Payment Successful" visible, "0.0069 ETH" and "10.00 USD" visible, no fresh checkout form, no "Total 0.01".
+  - CASE 2/3: 4 illustrations per SEO page, all with non-zero dimensions, section titles include "crypto merchants".
+  - CASE 4: page doesn't crash and doesn't fake a "Payment Successful" for a bogus link.
+
+
+
+
+## BUG FIX + SEO ILLUSTRATIONS — VERIFICATION RESULTS (2026-07-05)
+- agent: testing
+- test_date: 2026-07-05 11:07:00 UTC
+- test_url: https://88b19283-41ff-4c38-bb16-543195dfc9a1.preview.emergentagent.com
+- bug_fix_context: User reported paid checkout link showing fresh checkout form instead of "Payment Successful". Fix: Backend now returns base_amount/base_currency from DB; frontend short-circuits to TransferExpectedCard success view with stepper on Done.
+- feature_context: Added SEOIllustration component (SVG icons per vertical + flag-on-gradient per country) to replace plain flag emoji on SEO landing pages.
+
+### CRITICAL PASS/FAIL CRITERIA - ALL PASSED ✅
+
+**CASE 1: CRITICAL BUG FIX - Paid checkout link** ✅ PASS
+- Test URL: `/pay?d=7d9602b42ed3591bec4583e78319576eb08c383058bb848c`
+- Results:
+  * ✅ "Payment Successful" text found
+  * ✅ ETH amount found: "0.0069 ETH"
+  * ✅ USD amount found: "10.00 USD"
+  * ✅ "Total 0.01" NOT found (good)
+  * ✅ "Complete your payment" NOT found (good)
+  * ✅ "Cryptocurrency" button NOT found (good)
+  * ✅ "Bank Transfer" button NOT found (good)
+  * ✅ All three stepper labels visible: Order, Payment, Done
+  * Payment Successful element: `<h5 class="MuiTypography-root MuiTypography-h5 mui-1136tzu-MuiTypography-root" data-testid="success-title">Payment Successful</h5>`
+- Screenshot: case1_paid_checkout.png
+- **VERDICT: ✅ PASS - All assertions passed (CRITICAL FIX VERIFIED)**
+
+**CASE 2: SEO Illustrations on Country Pages** ✅ PASS
+
+*CASE 2.1: United States*
+- Test URL: `/accept-crypto-payments-in/united-states`
+- Results:
+  * ✅ Found 4 illustrations (expected: 4)
+  * ✅ Hero illustration `seo-illustration-country-united-states` found
+  * ✅ 3 vertical illustrations in related cards found
+  * ✅ All illustrations visible with non-zero size:
+    - Illustration 1 (hero): 128×128 px
+    - Illustration 2 (card): 48×48 px
+    - Illustration 3 (card): 48×48 px
+    - Illustration 4 (card): 48×48 px
+  * ✅ Section title "Popular use cases for crypto merchants" found
+- Screenshots: case2_us_hero.png, case2_us_related.png
+- **VERDICT: ✅ PASS**
+
+*CASE 2.2: Brazil*
+- Test URL: `/accept-crypto-payments-in/brazil`
+- Results:
+  * ✅ Found 4 illustrations (expected: 4)
+  * ✅ Hero illustration `seo-illustration-country-brazil` found
+  * ✅ All illustrations visible with non-zero size
+- Screenshot: case2_brazil.png
+- **VERDICT: ✅ PASS**
+
+**CASE 3: SEO Illustrations on Vertical Pages** ✅ PASS
+
+*CASE 3.1: SaaS*
+- Test URL: `/for/saas`
+- Results:
+  * ✅ Found 4 illustrations (expected: 4)
+  * ✅ Hero illustration `seo-illustration-vertical-saas` found
+  * ✅ 3 country illustrations in related cards found
+  * ✅ All illustrations visible with non-zero size:
+    - Illustration 1 (hero): 128×128 px
+    - Illustration 2 (card): 48×48 px
+    - Illustration 3 (card): 48×48 px
+    - Illustration 4 (card): 48×48 px
+  * ✅ Section title "Popular countries for crypto merchants" found
+- Screenshots: case3_saas_hero.png, case3_saas_related.png
+- **VERDICT: ✅ PASS**
+
+*CASE 3.2: Ecommerce*
+- Test URL: `/for/ecommerce`
+- Results:
+  * ✅ Found 4 illustrations (expected: 4)
+  * ✅ Hero illustration `seo-illustration-vertical-ecommerce` found
+  * ✅ All illustrations visible with non-zero size
+- Screenshot: case3_ecommerce.png
+- **VERDICT: ✅ PASS**
+
+**CASE 4: Regression Check - Bogus Link** ✅ PASS
+- Test URL: `/pay?d=nonexistent-reference-abc123`
+- Results:
+  * ✅ HTTP 200 (page renders without crash)
+  * ✅ "Payment Successful" NOT found (correct behavior)
+- Screenshot: case4_bogus_link.png
+- **VERDICT: ✅ PASS - Bogus link does not fake success**
+
+**CASE 5: Regression Check - Related Pages Links** ✅ PASS
+- Test URL: `/accept-crypto-payments-in/united-states`
+- Results:
+  * ✅ Found 3 related vertical links
+  * ✅ All hrefs valid and start with `/for/`:
+    - Link 1: `/for/remittance`
+    - Link 2: `/for/saas`
+    - Link 3: `/for/digital-downloads`
+  * ✅ Navigation successful - clicked first link, H1 found: "Crypto payments for remittance & cross-border payo"
+- Screenshot: case5_related_link.png
+- **VERDICT: ✅ PASS - Related pages navigation working correctly**
+
+### VERIFICATION STATUS: COMPLETE ✅
+- ✅ CRITICAL BUG FIX CONFIRMED WORKING
+- ✅ Paid checkout link now shows "Payment Successful" with correct amounts
+- ✅ No fresh checkout form elements present on paid link
+- ✅ Stepper correctly shows Order ✓ / Payment ✓ / Done ●
+- ✅ SEO illustrations render correctly on all country pages (tested: US, Brazil)
+- ✅ SEO illustrations render correctly on all vertical pages (tested: SaaS, Ecommerce)
+- ✅ All illustrations have non-zero dimensions (visible)
+- ✅ Section titles correct ("Popular use cases" / "Popular countries")
+- ✅ Regression checks pass (bogus link, related pages navigation)
+- ✅ No console errors or broken pages
+
+### TECHNICAL DETAILS
+
+**Bug Fix Implementation:**
+- Backend (`cryptoCheckout.ts::getData`): Now returns `base_amount, base_currency` from DB row (source of truth) instead of crypto amount from Redis session
+- Frontend (`pages/pay/index.tsx`): Added `alreadyPaid` state; on `payment_completed === true`, jumps stepper to step 2 and renders top-level `<TransferExpectedCard isTrue={true}/>` with full stepper showing Order ✓ / Payment ✓ / Done ●
+- Result: Paid links now show "Payment Successful" with both crypto amount (0.0069 ETH) and fiat amount (10.00 USD)
+
+**SEO Illustrations Feature:**
+- Component: `/app/Components/Page/SEO/SEOIllustration.tsx`
+- Country cards: Flag emoji on slug-hashed gradient with glass-morphism
+- Vertical cards: Custom SVG icons (ecommerce=cart, saas=cloud, etc.) on gradient
+- 8 gradients rotate deterministically by slug hash
+- Applied in hero (128×128 px) and related cards (48×48 px)
+- Testid format: `seo-illustration-{kind}-{slug}`
+
+**Pages Tested:**
+1. `/pay?d=7d9602b42ed3591bec4583e78319576eb08c383058bb848c` (paid checkout)
+2. `/accept-crypto-payments-in/united-states` (country page)
+3. `/accept-crypto-payments-in/brazil` (country page)
+4. `/for/saas` (vertical page)
+5. `/for/ecommerce` (vertical page)
+6. `/pay?d=nonexistent-reference-abc123` (bogus link)
+7. `/for/remittance` (related page navigation)
+
+### SCREENSHOTS CAPTURED
+1. case1_paid_checkout.png - Paid checkout showing "Payment Successful"
+2. case2_us_hero.png - US country page hero with flag illustration
+3. case2_us_related.png - US country page related cards with vertical illustrations
+4. case2_brazil.png - Brazil country page with flag illustration
+5. case3_saas_hero.png - SaaS vertical page hero with cloud icon
+6. case3_saas_related.png - SaaS vertical page related cards with country illustrations
+7. case3_ecommerce.png - Ecommerce vertical page with cart icon
+8. case4_bogus_link.png - Bogus link showing error (not success)
+9. case5_related_link.png - Related page navigation working
+
+### FINAL VERDICT
+🎉 **ALL TESTS PASSED (5/5 CASES)** - Bug fix and SEO illustrations verified successfully!
+
+**Summary:**
+1. ✅ CRITICAL BUG FIX VERIFIED
+   • Paid checkout link shows "Payment Successful" (not fresh checkout form)
+   • Both crypto (0.0069 ETH) and fiat (10.00 USD) amounts displayed
+   • Stepper correctly shows Order ✓ / Payment ✓ / Done ●
+   • No "Total 0.01" or payment method buttons
+
+2. ✅ SEO ILLUSTRATIONS WORKING
+   • Country pages: 4 illustrations per page (1 hero + 3 vertical cards)
+   • Vertical pages: 4 illustrations per page (1 hero + 3 country cards)
+   • All illustrations visible with correct dimensions
+   • Section titles correct and visible
+
+3. ✅ REGRESSION CHECKS PASS
+   • Bogus link does not show "Payment Successful"
+   • Related pages links navigate correctly
+   • No broken pages or console errors
+
+**Conclusion:**
+The user-reported bug (paid checkout link showing fresh checkout form instead of "Payment Successful") has been COMPLETELY RESOLVED. The frontend now correctly displays the success view with both crypto and fiat amounts, and the stepper shows the correct completion state. The new SEO illustrations feature is working perfectly across all country and vertical pages, with all illustrations rendering at the correct sizes and with proper visual styling.
+

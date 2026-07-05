@@ -14,6 +14,7 @@ import HomeSectionTitle from "@/Components/UI/SectionTitle";
 import useIsMobile from "@/hooks/useIsMobile";
 import { useThemeMode } from "@/contexts/ThemeContext";
 import type { SEOPageContent, SEOPageIndexEntry } from "@/utils/seoContent";
+import SEOIllustration from "./SEOIllustration";
 
 interface Props {
   content: SEOPageContent;
@@ -186,15 +187,16 @@ const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages =
           textAlign: "center",
         }}
       >
-        {content._flag ? (
-          <Typography
-            component="div"
-            sx={{ fontSize: { xs: 56, md: 72 }, lineHeight: 1, mb: 2 }}
-            aria-hidden="true"
-          >
-            {content._flag}
-          </Typography>
-        ) : null}
+        {/* Hero illustration — flag on gradient for countries, custom SVG icon for verticals */}
+        <Box sx={{ display: "flex", justifyContent: "center", mb: { xs: 2.5, md: 3 } }}>
+          <SEOIllustration
+            slug={content._slug || ""}
+            kind={content._kind}
+            flag={content._flag}
+            size={128}
+            hero
+          />
+        </Box>
 
         <Typography
           component="h1"
@@ -554,14 +556,10 @@ const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages =
             badgeText={content._kind === "country" ? "For your industry" : "For your country"}
             title={
               content._kind === "country"
-                ? "Popular use cases for "
-                : "Popular countries for "
+                ? "Popular use cases for crypto merchants"
+                : "Popular countries for crypto merchants"
             }
-            highlightText={
-              content._kind === "country"
-                ? "crypto merchants"
-                : "crypto merchants"
-            }
+            highlightText="crypto merchants"
             subtitle={
               content._kind === "country"
                 ? "See how businesses like yours use DynoPay to accept crypto payments."
@@ -607,27 +605,12 @@ const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages =
                           width: "100%",
                         }}
                       >
-                        {rp.flag ? (
-                          <Typography component="span" sx={{ fontSize: 28, lineHeight: 1 }} aria-hidden="true">
-                            {rp.flag}
-                          </Typography>
-                        ) : (
-                          <Box
-                            sx={{
-                              width: 32,
-                              height: 32,
-                              borderRadius: 1.5,
-                              bgcolor: isDark ? "rgba(120,120,220,0.15)" : "rgba(85,86,239,0.10)",
-                              display: "inline-flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              color: theme.palette.primary.main,
-                              fontWeight: 700,
-                            }}
-                          >
-                            {rp.displayName.charAt(0).toUpperCase()}
-                          </Box>
-                        )}
+                        <SEOIllustration
+                          slug={rp.slug}
+                          kind={rp.kind}
+                          flag={rp.flag}
+                          size={48}
+                        />
                         <Typography
                           component="h3"
                           sx={{

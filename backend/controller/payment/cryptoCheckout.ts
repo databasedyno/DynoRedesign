@@ -159,7 +159,7 @@ const getData = async (req: express.Request, res: express.Response) => {
     if (item.link_id) {
       try {
         const [dbLink] = await sequelize.query(
-          `SELECT status, paid_amount, paid_currency FROM tbl_payment_link WHERE link_id = :linkId`,
+          `SELECT status, base_amount, base_currency, paid_amount, paid_currency FROM tbl_payment_link WHERE link_id = :linkId`,
           { replacements: { linkId: item.link_id }, type: QueryTypes.SELECT }
         ) as any[];
 
@@ -182,13 +182,25 @@ const getData = async (req: express.Request, res: express.Response) => {
             (parsedState !== undefined && COMPLETED_STATES.has(parsedState));
 
           if (isPaid) {
+            // Pull display fields FROM THE DB (source of truth) — the Redis
+            // customer session stores `amount`/`currency` in CRYPTO terms
+            // (e.g. `amount: 0.00635942 ETH`), not the base fiat total. If we
+            // pass those to the checkout page it renders "Total 0.01" (dust)
+            // instead of "$10 USD paid". Fall back to Redis fields only when
+            // the DB row is unexpectedly missing them.
+            const baseAmountForDisplay = Number(
+              (dbLink as any).base_amount ?? item.base_amount ?? item.amount ?? 0,
+            );
+            const baseCurrencyForDisplay =
+              (dbLink as any).base_currency || item.base_currency || null;
             return res.status(200).json({
               success: true,
               data: {
                 payment_completed: true,
                 status: 'successful',
-                amount: Number(item.base_amount || item.amount || 0),
-                base_currency: item.base_currency,
+                amount: baseAmountForDisplay,
+                base_amount: baseAmountForDisplay,
+                base_currency: baseCurrencyForDisplay,
                 paid_amount: dbLink.paid_amount,
                 paid_currency: dbLink.paid_currency,
                 description: item.description || null,

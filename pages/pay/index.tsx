@@ -215,6 +215,19 @@ const Payment = () => {
   const [linkId, setLinkId] = useState<string>('')
   const [redirectUrl, setRedirectUrl] = useState<string | null>(null)
 
+  // ─── Already-completed payment view ──────────────────────────────
+  // When the customer revisits a link that has already been paid, the
+  // backend returns { payment_completed: true, base_amount, base_currency,
+  // paid_amount, paid_currency }. We store those here and render a dedicated
+  // success card BEFORE the stepper — otherwise the stepper still shows the
+  // fresh checkout form and the payer sees a misleading "small remainder".
+  const [alreadyPaid, setAlreadyPaid] = useState<{
+    base_amount: number;
+    base_currency: string;
+    paid_amount: number;
+    paid_currency: string;
+  } | null>(null)
+
   // Save activeStep to sessionStorage when it changes (for language change persistence)
   useEffect(() => {
     if (typeof window !== 'undefined' && activeStep > 0) {
@@ -364,18 +377,32 @@ const Payment = () => {
         language: i18n.language
       })
 
-      // Check if payment is already completed (Direct Pay edge case)
+      // Check if payment is already completed (Direct Pay edge case
+      // AND revisit-after-paid case — the customer opened the link a second
+      // time after the payment settled).
       if (data?.payment_completed) {
-        setIsSuccess(true)
-        setWalletState({
-          amount: Number(data.amount),
-          currency: data.base_currency
-        })
+        // Preserve the ORIGINAL base fiat amount for the success card —
+        // do NOT set walletState.amount to the crypto amount, otherwise the
+        // stepper (if ever rendered) shows "Total 0.01" (dust) instead of
+        // "$10 USD paid". The rendered success card uses `alreadyPaid` directly.
+        const baseAmt = Number(data.base_amount ?? data.amount ?? 0);
+        const baseCur = data.base_currency || '';
+        setAlreadyPaid({
+          base_amount: baseAmt,
+          base_currency: baseCur,
+          paid_amount: Number(data.paid_amount || 0),
+          paid_currency: data.paid_currency || '',
+        });
+        setWalletState({ amount: baseAmt, currency: baseCur });
+        setIsSuccess(true);
+        // Jump the stepper to the "Done" step so the ProgressBar shows the
+        // correct state (Order ✓ / Payment ✓ / Done ●).
+        setActiveStep(2);
         if (data.redirect_url) {
-          setRedirectUrl(data.redirect_url)
+          setRedirectUrl(data.redirect_url);
         }
-        setLoading(false)
-        return
+        setLoading(false);
+        return;
       }
 
       setWalletState({
@@ -676,6 +703,45 @@ const Payment = () => {
   }
 
   const isOpen = Boolean(anchorEl)
+
+  // ─── Already-paid revisit view ────────────────────────────────────
+  // When the customer visits a link that has already been paid, render a
+  // dedicated "Payment Completed" success card and short-circuit the stepper
+  // so we NEVER show the checkout form again. Uses TransferExpectedCard's
+  // built-in "isTrue" success layout with base + crypto amounts.
+  if (alreadyPaid) {
+    const cryptoStr =
+      alreadyPaid.paid_amount > 0 && alreadyPaid.paid_currency
+        ? `${alreadyPaid.paid_amount} ${alreadyPaid.paid_currency}`
+        : '';
+    const fiatStr = alreadyPaid.base_currency
+      ? `${formatWithSeparators(Number(alreadyPaid.base_amount || 0), alreadyPaid.base_currency)} ${alreadyPaid.base_currency}`
+      : '';
+    const amountDisplay = cryptoStr && fiatStr
+      ? `${cryptoStr} (≈ ${fiatStr})`
+      : cryptoStr || fiatStr || '';
+
+    return (
+      <Pay3Layout>
+        <Box>
+          <Box>
+            <ProgressBar activeStep={2} />
+            <TransferExpectedCard
+              isTrue={true}
+              dataUrl=""
+              type="crypto"
+              redirectUrl={redirectUrl}
+              transactionId={linkId}
+              merchantName={merchantInfo?.name}
+              amount={amountDisplay}
+              email={tokenData?.email}
+              customerName={customerName}
+            />
+          </Box>
+        </Box>
+      </Pay3Layout>
+    );
+  }
 
   return (
     <Pay3Layout>
