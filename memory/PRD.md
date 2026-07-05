@@ -200,6 +200,13 @@ Verified by testing agent (Python Playwright + JWT injection): 6/6 PASS. Banner 
 - Empty state text invisible in dark mode — `EmptyDataModel`, `NoData`, `PaymentLink`, `Wallet` dialog all fixed to use theme-aware colors
 - **Verified**: Testing agent Iteration 14
 
+### 2026-07-05 — Production SEO Landing Pages 404 Fix
+- Bug: all `/accept-crypto-payments-in/*` (8) and `/for/*` (6) pages 404'd on production dynopay.com (worked in preview)
+- Root cause: both Dockerfiles copied every frontend dir EXCEPT `data/` → `getStaticPaths` silently emitted zero paths at Docker build time (`fallback: false` → 404)
+- Fix: `COPY data/ ./data/` added to builder stages + runtime data copy to runner stages of `Dockerfile` and `Dockerfile.frontend` (sitemap.xml reads data/ via fs at runtime); `getStaticPaths` in both dynamic pages now throws loudly if slugs are empty
+- **Verified**: Testing agent Iteration 17 — 19/19 (all 14 pages 200, homepage link integrity, sitemap coverage, unknown-slug 404s); simulated production build emitted all 14 pages into standalone output
+- ⚠️ USER ACTION: production must be REDEPLOYED with the updated Dockerfile for the fix to go live
+
 ### 2026-07-05 — Paid-Link Checkout Flash Fix (checkout.dynopay.com report)
 - Bug: opening an already-paid link flashed the OLD checkout form ("Total 0.01" dust) for a few seconds before the success card
 - Fix in `pages/pay/index.tsx`: `initialLoading` render gate (neutral loader, testid `checkout-loading`) until `pay/getData` resolves; `router.isReady` guard on the query effect; payment_completed branch clears stale sessionStorage keys (`payment_active_step`, `payment_transfer_method`) instead of `setActiveStep(2)`; walletState currency/amount guarded against degenerate payloads

@@ -6090,3 +6090,15 @@ router.isReady guard; payment_completed branch clears payment_active_step + paym
 walletState guarded (amount||0, currency||'USD') for degenerate payloads.
 VERDICT: iteration_16.json — 5/5 PASS (28-sample rapid poll: form never appears; revisit clean; unpaid link bde22009... renders form; bogus token no fake success; PT pill "Pago há 4 dias").
 Production checkout.dynopay.com needs redeploy to receive this fix.
+
+## BUG FIX — Production SEO landing pages 404 (2026-07-05)
+User report: all /accept-crypto-payments-in/* and /for/* links 404 on production dynopay.com, work in preview.
+Root cause: Dockerfile & Dockerfile.frontend copied all frontend dirs EXCEPT data/ → utils/seoContent.ts
+fs.existsSync guard returned [] at Docker build time → getStaticPaths emitted 0 paths → fallback:false = silent 404s.
+Fix: COPY data/ ./data/ in builder stages; data copied into runner stages (sitemap.xml getServerSideProps reads it
+at runtime); getStaticPaths in both dynamic pages now THROWS if slugs empty (build fails loudly, never silent 404s).
+Proof: simulated production build (exact Dockerfile COPY list + data/) emitted all 8 country + 6 vertical
+pages into .next/server/pages and standalone output.
+VERDICT: iteration_17.json — 19/19 PASS (all 14 pages 200 + content, homepage link integrity, sitemap has all 14
+URLs, unknown slugs 404 cleanly). Regression test kept at /app/backend/tests/test_seo_pages.py.
+⚠️ Production requires REDEPLOY with updated Dockerfiles to take effect.
