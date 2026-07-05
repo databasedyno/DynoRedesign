@@ -41,6 +41,50 @@ USDT-TRC20 payment gateway platform. Users can create companies, wallets, paymen
 - Health verified: internal `GET /api/`→200, `/api/pay/network-fees`→200, `/api/geo-detect`→200; frontend `/`→200; login page renders via public preview origin (screenshot). Backend connected to Railway Postgres (models synced) + Redis, Tatum rates cached. Binance WS geo-blocked → CoinGecko fallback (expected). NOTE: this instance talks to the **live prod DB/Redis** — WORKER_ROLE=secondary keeps it read/serve-only for background work, but UI actions still write to prod data.
 
 
+## 2026-07-05 — Programmatic SEO landing pages (Claude Sonnet 4.5)
+
+### What was built
+- **Offline content generator** at `/app/scripts/generate-seo-pages.py` — Python script using `emergentintegrations` + Claude Sonnet 4.5 (`claude-sonnet-4-5-20250929`) via the Emergent Universal Key. Reads a curated list of 8 countries + 6 verticals, prompts Claude for strict JSON (meta title/description, H1, subheading, intro paragraph, 3 features, 3-step how-it-works, 5 FAQs, CTA copy), validates schema, and writes to `/app/data/seo-pages/{countries,verticals}/{slug}.json`. Idempotent — skips files under `--max-age-days` unless `--force` or `--only country:xxx` is passed.
+- **14 pre-generated JSON files** committed to the repo. Content is fact-grounded via a hardcoded `DYNOPAY_FACTS` block in the script (chains, fee %, onboarding flow, custody model) so Claude cannot hallucinate features/fees.
+- **Next.js dynamic pages** (pages router, SSG via `getStaticProps` + `getStaticPaths`, `fallback: false`):
+  - `/accept-crypto-payments-in/[country]` — 8 country pages (US, UK, Nigeria, India, Brazil, Vietnam, Germany, Turkey).
+  - `/for/[vertical]` — 6 vertical pages (e-commerce, SaaS, freelancers, gaming, remittance, digital-downloads).
+- **Shared page component** `/app/Components/Page/SEO/SEOLandingPage.tsx` — reuses the site's design system (MUI, `HomeCard`, `HomeSectionTitle`, theme-aware colors, `useThemeMode`). Sections: breadcrumbs → hero (flag + H1 + subheading + dual CTA) → intro → 3-feature grid → 3-step how-it-works → FAQ accordion → final CTA card.
+- **SEO essentials** on every page:
+  - Unique `<title>` and `<meta name="description">` (Head tags after _app's default → override).
+  - Canonical URL, OpenGraph, Twitter Card meta.
+  - 3 JSON-LD scripts: `WebPage`, `FAQPage` (from the 5 Q&A), `BreadcrumbList`.
+  - Proper heading hierarchy: 1×H1, 4×H2, 8×H3.
+  - Real `<a href>` CTAs (Next.js `<Link>` + MUI `Button component="a"`) so Google can crawl them — critically, NOT the shared `HomeButton` which uses JS `router.push` and produces no `href`.
+  - Attribution query params on every signup link: `/auth/register?src=seo&page={slug}&kind={country|vertical}` — ready for downstream funnel measurement.
+- **Sitemap update** — `/app/pages/sitemap.xml.tsx` now dynamically appends all 14 SEO pages via `getAllSEOPagesIndex()` from `/app/utils/seoContent.ts`. Total: 21 URLs (7 public + 14 SEO).
+- **robots.txt** — added `Allow: /accept-crypto-payments-in/` and `Allow: /for/`.
+- **Layout routing fix** — `/app/pages/_app.tsx` `resolvedLayout` was defaulting the new SEO paths to `ClientLayout` (the authenticated dashboard shell) which produced an empty SSR body. Added prefix matching so `/accept-crypto-payments-in/*` and `/for/*` resolve to `"home"` (public HomeLayout with header/footer).
+
+### Environment
+- `EMERGENT_LLM_KEY=sk-emergent-9F621Db8357Ce055fE` added to `/app/backend/.env` (used only by the offline generator, not by the running Next.js app).
+
+### Regeneration
+```bash
+# Refresh all pages older than 30 days
+python3 /app/scripts/generate-seo-pages.py
+
+# Force regenerate everything
+python3 /app/scripts/generate-seo-pages.py --force
+
+# Regenerate a single page
+python3 /app/scripts/generate-seo-pages.py --only country:brazil
+python3 /app/scripts/generate-seo-pages.py --only vertical:saas
+```
+
+### Follow-ups (not implemented, ranked by impact)
+1. Expand to 30–50 countries + 12–15 verticals (each JSON file is a couple KB and takes ~2s to generate).
+2. Add internal cross-linking: country page → 3 relevant vertical pages (and vice versa) → improves crawl depth + PageRank distribution.
+3. Add hreflang alternates once translated versions exist.
+4. `Product` / `Service` JSON-LD with pricing offer, once we're comfortable committing to structured pricing in schema.
+5. Wire the `src=seo&page=...` UTM params into the register funnel analytics.
+
+
 ### 2026-06-30 — Email Internationalization, Phase 2 (full email-copy localization) ✅ VERIFIED
 Phase 2a (customer payment emails + PDF) and Phase 2b (all merchant lifecycle emails) — all email copy now localizes into the 6 supported languages (en/pt/es/fr/de/nl) with EN fallback.
 - **Phase 2a (verified)**: 8 customer payment email functions in `emailService.ts` + `pdfReceiptService.ts` refactored to `t(key,lang,vars)`; `lang` threaded through `cryptoSettlement.ts`, `pendingPaymentService.ts`, `merchantPoolSweep.ts`. Verified via `scripts/_tmp_verify_emails.ts` (all keys render, PDFs generate en/de/fr).

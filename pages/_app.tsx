@@ -118,7 +118,14 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
       "/blog",
     ]);
 
-    if (homePaths.has(pathname) || pathname.startsWith("/blog/")) return "home";
+    if (
+      homePaths.has(pathname) ||
+      pathname.startsWith("/blog/") ||
+      pathname.startsWith("/accept-crypto-payments-in/") ||
+      pathname.startsWith("/for/")
+    ) {
+      return "home";
+    }
 
     if (
       pathname.startsWith("/auth") ||

@@ -5,6 +5,8 @@ Allow: /
 Allow: /fees
 Allow: /documentation
 Allow: /system-status
+Allow: /accept-crypto-payments-in/
+Allow: /for/
 
 # Private / Authenticated Pages
 Disallow: /dashboard
