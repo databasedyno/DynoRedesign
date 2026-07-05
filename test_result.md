@@ -5994,3 +5994,12 @@ PASS CRITERIA:
 **Conclusion:**
 Both enhancements have been successfully implemented and verified. The paid-at timestamp provides clear context for merchants revisiting already-paid links, and the vertical brand gradients create immediate visual associations with each industry vertical. No regressions detected in existing functionality.
 
+
+## FINAL VERDICT — Paid-at timestamp + brand vertical gradients (2026-07-05)
+
+Frontend testing agent — all 4 focused cases PASS:
+  ✅ CASE 1: Paid-at pill "Paid 4 days ago • Jun 30, 2026" (226×28px) between amount (y=560) and Done button (y=640); "Payment Successful" still visible (regression).
+  ✅ CASE 2: All 6 vertical brand gradients match the map — remittance=emerald, saas=violet, gaming=pink, digital-downloads=amber, freelancers=sky, ecommerce=indigo.
+  ✅ CASE 3: Country illustrations unaffected — 4 total (1 hero 128×128 + 3 related 48×48), all non-zero, hash-rotated gradients.
+  ✅ CASE 4: Bogus link `?d=nonexistent-...` shows no timestamp and no fake success.
+
