@@ -35,6 +35,9 @@ COPY assets/ ./assets/
 COPY public/ ./public/
 COPY Redux/ ./Redux/
 COPY helpers/ ./helpers/
+# SEO landing-page content — required at build time (getStaticPaths) and
+# runtime (sitemap.xml). Omitting it ships zero SEO pages (production 404s).
+COPY data/ ./data/
 
 # NEXT_PUBLIC_* vars must be set at BUILD time
 # These are inlined into the JavaScript bundle by Next.js
@@ -83,6 +86,8 @@ ENV PORT=3000
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
+# SEO content read via fs at runtime by sitemap.xml
+COPY --from=builder /app/data ./data
 
 EXPOSE 3000
 

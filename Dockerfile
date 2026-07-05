@@ -35,6 +35,10 @@ COPY assets/ ./assets/
 COPY public/ ./public/
 COPY Redux/ ./Redux/
 COPY helpers/ ./helpers/
+# SEO landing-page content — read by getStaticPaths/getStaticProps at build
+# time AND by sitemap.xml getServerSideProps at runtime. Omitting this ships
+# zero /accept-crypto-payments-in/* and /for/* pages (production 404s).
+COPY data/ ./data/
 
 # NEXT_PUBLIC_* must be set at BUILD time (inlined into JS bundle)
 # Default: empty = relative URLs (works when frontend+backend share the same domain)
@@ -121,6 +125,8 @@ COPY --from=backend-builder /app/locales ./backend/locales
 COPY --from=frontend-builder /app/.next/standalone ./frontend/
 COPY --from=frontend-builder /app/.next/static ./frontend/.next/static
 COPY --from=frontend-builder /app/public ./frontend/public
+# SEO content read via fs at runtime by sitemap.xml (cwd = /app/frontend)
+COPY --from=frontend-builder /app/data ./frontend/data
 
 # --- Nginx config template ---
 COPY nginx.conf /etc/nginx/nginx.conf.template

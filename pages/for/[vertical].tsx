@@ -29,6 +29,13 @@ const VerticalSEOPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages 
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const slugs = getAllVerticalSlugs();
+  if (slugs.length === 0) {
+    // Fail the build loudly — a missing data/seo-pages dir silently shipped
+    // zero pages (production 404s) when the Dockerfile omitted COPY data/.
+    throw new Error(
+      "SEO build error: data/seo-pages/verticals is missing or empty — check Dockerfile COPY data/ ./data/"
+    );
+  }
   return {
     paths: slugs.map((slug) => ({ params: { vertical: slug } })),
     fallback: false,
