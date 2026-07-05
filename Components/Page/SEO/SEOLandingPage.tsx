@@ -37,6 +37,10 @@ const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages =
   // conversion downstream (query param arrives in the register funnel).
   const signupHref = `${SIGNUP_PATH}?src=seo&page=${encodeURIComponent(content._slug)}&kind=${content._kind}`;
 
+  // Pre-rendered branded share image (public/og/, built by
+  // scripts/generate-og-images.py). Absolute URL required by OG scrapers.
+  const ogImageUrl = `${SITE_ORIGIN}/og/${content._kind}-${content._slug}.png`;
+
   const breadcrumbLabel =
     content._kind === "country" ? "Countries" : "Industries";
   const breadcrumbParentPath =
@@ -117,11 +121,17 @@ const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages =
         <meta property="og:description" content={content.meta_description} />
         <meta key="og:url" property="og:url" content={canonicalUrl} />
         <meta property="og:site_name" content="DynoPay" />
+        <meta key="og:image" property="og:image" content={ogImageUrl} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content={content.meta_title} />
 
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={content.meta_title} />
         <meta name="twitter:description" content={content.meta_description} />
+        <meta key="twitter:image" name="twitter:image" content={ogImageUrl} />
+        <meta name="twitter:image:alt" content={content.meta_title} />
 
         {/* Structured data */}
         <script

@@ -200,6 +200,11 @@ Verified by testing agent (Python Playwright + JWT injection): 6/6 PASS. Banner 
 - Empty state text invisible in dark mode — `EmptyDataModel`, `NoData`, `PaymentLink`, `Wallet` dialog all fixed to use theme-aware colors
 - **Verified**: Testing agent Iteration 14
 
+### 2026-07-05 — SEO Pages: OG Share Images + Social Meta
+- Generated 14 branded 1200×630 OpenGraph images (PIL + repo Urbanist/Outfit fonts) → `public/og/{kind}-{slug}.png`; reproducible via `scripts/generate-og-images.py`
+- `SEOLandingPage.tsx`: added `og:image` (+width/height/alt) and `twitter:image` (+alt) with absolute dynopay.com URLs; FAQ/WebPage/Breadcrumb JSON-LD already existed
+- **Verified**: self-test — all 14 pages SSR-render og:image + twitter:image + FAQPage schema; images served 200 image/png; ships with existing `COPY public/` in Dockerfiles
+
 ### 2026-07-05 — Production SEO Landing Pages 404 Fix
 - Bug: all `/accept-crypto-payments-in/*` (8) and `/for/*` (6) pages 404'd on production dynopay.com (worked in preview)
 - Root cause: both Dockerfiles copied every frontend dir EXCEPT `data/` → `getStaticPaths` silently emitted zero paths at Docker build time (`fallback: false` → 404)
