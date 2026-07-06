@@ -72,7 +72,9 @@ const PaymentSettingsBasic: React.FC<PaymentSettingsBasicProps> = ({
             onBlur={() => handlePaymentSettingsBlur("value")}
             type="number"
             inputMode="decimal"
-            placeholder="10"
+            // Placeholder uses "0.00" — the universal money-input convention. Was
+            // previously "10", which merchants read as a pre-filled default value.
+            placeholder="0.00"
             error={
               paymentSettingsTouched.value &&
               Boolean(paymentSettingsErrors.value)
