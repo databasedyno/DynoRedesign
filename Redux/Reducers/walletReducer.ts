@@ -10,6 +10,8 @@ import {
   WALLET_INSERT,
   WALLET_UPDATE,
   VERIFY_OTP,
+  WALLET_ADDRESS_ERROR,
+  WALLET_ADDRESS_ERROR_CLEAR,
 } from "../Actions/WalletAction";
 
 const walletInitialState: IWalletReducer = {
@@ -24,6 +26,11 @@ const walletInitialState: IWalletReducer = {
     fields: [],
     uniqueRef: "",
   },
+  // Field-hinted error from the most recent validateWalletAddress failure.
+  // Consumed by AddWalletModal to surface an inline hint on the right field.
+  addressError: null as string | null,
+  addressErrorField: null as string | null,
+  addressErrorNonce: 0,
 };
 
 const walletReducer = (state = walletInitialState, action: ReducerAction) => {
@@ -34,6 +41,11 @@ const walletReducer = (state = walletInitialState, action: ReducerAction) => {
       return {
         ...state,
         loading: true,
+        // Clear stale field errors when a new attempt starts
+        ...((action as any).crudType === WALLET_ADD_ADDRESS && {
+          addressError: null,
+          addressErrorField: null,
+        }),
       };
     case WALLET_INSERT:
       return {
@@ -96,6 +108,23 @@ const walletReducer = (state = walletInitialState, action: ReducerAction) => {
         ...state,
         loading: false,
         fetched: true,
+      };
+
+    case WALLET_ADDRESS_ERROR:
+      return {
+        ...state,
+        loading: false,
+        fetched: true,
+        addressError: payload?.message ?? "Wallet validation failed",
+        addressErrorField: payload?.field ?? "generic",
+        addressErrorNonce: (state.addressErrorNonce || 0) + 1,
+      };
+
+    case WALLET_ADDRESS_ERROR_CLEAR:
+      return {
+        ...state,
+        addressError: null,
+        addressErrorField: null,
       };
     default:
       return {

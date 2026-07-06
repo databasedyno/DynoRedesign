@@ -6,6 +6,10 @@ export const COMPANY_DELETE = "COMPANY_DELETE";
 export const COMPANY_API_ERROR = "COMPANY_API_ERROR";
 export const COMPANY_VALIDATE_TAX = "COMPANY_VALIDATE_TAX";
 export const COMPANY_SELECT = "COMPANY_SELECT";
+// Field-hinted error emitted by CompanySaga on addCompany / updateCompany failure,
+// so CreateCompanyModal can surface the message inline next to the offending field.
+export const COMPANY_CREATE_ERROR = "COMPANY_CREATE_ERROR";
+export const COMPANY_CREATE_ERROR_CLEAR = "COMPANY_CREATE_ERROR_CLEAR";
 
 export const CompanyAction = (type?: string, data?: any) => {
   return { type: COMPANY_INIT, payload: data, crudType: type };

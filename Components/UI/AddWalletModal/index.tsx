@@ -73,6 +73,31 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
   const [walletsAdded, setWalletsAdded] = useState(0); // Track how many wallets added in this session
   const [showSuccessChoice, setShowSuccessChoice] = useState(false); // Show add-more/done choice
 
+  // Watch WALLET_ADDRESS_ERROR from the saga and surface it inline on the
+  // right field. WalletSaga's catch also fires a toast, so this is purely
+  // additive — the merchant now sees the message next to the offending
+  // field (address / name / currency) instead of just a corner toast.
+  const walletState = useSelector((state: rootReducer) => state.walletReducer as any);
+  const lastAddressErrorNonceRef = React.useRef<number>(walletState?.addressErrorNonce || 0);
+  useEffect(() => {
+    const nonce = walletState?.addressErrorNonce || 0;
+    if (nonce === lastAddressErrorNonceRef.current) return;
+    lastAddressErrorNonceRef.current = nonce;
+    const field = walletState?.addressErrorField as string | null;
+    const message = walletState?.addressError as string | null;
+    if (!field || !message) return;
+    // Any address-validate failure means we're no longer submitting
+    setPopupLoading(false);
+    setIsSubmitting(false);
+    // The wallet field ids used by mapBackendErrorToField already match this
+    // component's error keys, so we just spread.
+    setErrors((prev) => ({ ...prev, [field]: message }));
+  }, [
+    walletState?.addressErrorNonce,
+    walletState?.addressErrorField,
+    walletState?.addressError,
+  ]);
+
   // Email-required gate — wallet security OTPs are delivered by email, so a verified email is required.
   const [needsEmail, setNeedsEmail] = useState(false);
   const [gateEmail, setGateEmail] = useState("");

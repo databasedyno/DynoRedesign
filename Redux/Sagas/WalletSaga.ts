@@ -2,7 +2,11 @@ import { call, put } from "redux-saga/effects";
 
 import axios from "@/axiosConfig";
 import { TOAST_SHOW } from "../Actions/ToastAction";
-import { WALLET_API_ERROR, WALLET_FETCH, WALLET_ADD_ADDRESS, WALLET_UPDATE, WALLET_DELETE, VERIFY_OTP } from "../Actions/WalletAction";
+import { WALLET_API_ERROR, WALLET_FETCH, WALLET_ADD_ADDRESS, WALLET_UPDATE, WALLET_DELETE, VERIFY_OTP, WALLET_ADDRESS_ERROR } from "../Actions/WalletAction";
+import {
+  mapBackendErrorToField,
+  walletKeywordMap,
+} from "./helpers/mapBackendErrorToField";
 interface IWalletAction {
   crudType: string;
   payload: any;
@@ -122,12 +126,17 @@ export function* validateWalletAddress(payload: any): unknown {
     });
   } catch (e: any) {
     const message = e?.response?.data?.message ?? e?.message ?? "Failed to validate wallet address";
+    const mapped = mapBackendErrorToField(message, walletKeywordMap);
     yield put({
       type: TOAST_SHOW,
       payload: {
         message: message,
         severity: "error",
       },
+    });
+    yield put({
+      type: WALLET_ADDRESS_ERROR,
+      payload: { message: mapped.friendly, field: mapped.field },
     });
     yield put({
       type: WALLET_API_ERROR,

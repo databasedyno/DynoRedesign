@@ -9,7 +9,12 @@ import {
   COMPANY_INSERT,
   COMPANY_UPDATE,
   COMPANY_VALIDATE_TAX,
+  COMPANY_CREATE_ERROR,
 } from "../Actions/CompanyAction";
+import {
+  mapBackendErrorToField,
+  companyKeywordMap,
+} from "./helpers/mapBackendErrorToField";
 
 interface ICompanyAction {
   crudType: string;
@@ -63,12 +68,17 @@ export function* addCompany(payload: any): unknown {
     });
   } catch (e: any) {
     const message = e?.response?.data?.message ?? e?.message ?? "An error occurred";
+    const mapped = mapBackendErrorToField(message, companyKeywordMap);
     yield put({
       type: TOAST_SHOW,
       payload: {
         message: message,
         severity: "error",
       },
+    });
+    yield put({
+      type: COMPANY_CREATE_ERROR,
+      payload: { message: mapped.friendly, field: mapped.field },
     });
     yield put({
       type: COMPANY_API_ERROR,

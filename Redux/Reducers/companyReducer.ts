@@ -9,6 +9,8 @@ import {
   COMPANY_UPDATE,
   COMPANY_VALIDATE_TAX,
   COMPANY_SELECT,
+  COMPANY_CREATE_ERROR,
+  COMPANY_CREATE_ERROR_CLEAR,
 } from "../Actions/CompanyAction";
 
 // Helper: get last company id from localStorage
@@ -38,7 +40,12 @@ const companyInitialState: ICompanyReducer = {
   fetched: false,
   taxValidation: null,
   selectedCompanyId: null,
-};
+  // Field-hinted error from the most recent addCompany failure.
+  // Consumed by CreateCompanyModal to surface an inline hint on the right field.
+  createError: null as string | null,
+  createErrorField: null as string | null,
+  createErrorNonce: 0,
+} as any;
 
 const companyReducer = (state = companyInitialState, action: ReducerAction) => {
   const { payload } = action;
@@ -48,11 +55,16 @@ const companyReducer = (state = companyInitialState, action: ReducerAction) => {
       return {
         ...state,
         loading: true,
+        // Clear stale field-hinted errors when a new attempt starts
+        createError: null,
+        createErrorField: null,
       };
     case COMPANY_INSERT:
       return {
         ...state,
         loading: false,
+        createError: null,
+        createErrorField: null,
         companyList: [...state.companyList, payload],
       };
 
@@ -133,6 +145,23 @@ const companyReducer = (state = companyInitialState, action: ReducerAction) => {
         ...state,
         loading: false,
         fetched: true,
+      };
+
+    case COMPANY_CREATE_ERROR:
+      return {
+        ...state,
+        loading: false,
+        fetched: true,
+        createError: (payload?.message as string) ?? "Company creation failed",
+        createErrorField: (payload?.field as string) ?? "generic",
+        createErrorNonce: (state as any).createErrorNonce + 1 || 1,
+      };
+
+    case COMPANY_CREATE_ERROR_CLEAR:
+      return {
+        ...state,
+        createError: null,
+        createErrorField: null,
       };
 
     case COMPANY_VALIDATE_TAX:

@@ -4,9 +4,12 @@ import { TRANSACTION_FETCH, TRANSACTION_EXPORT } from "@/Redux/Actions/Transacti
 import { ICustomerTransactions, rootReducer } from "@/utils/types";
 import { DateRange } from "@/utils/types/dashboard";
 import { ExtendedTransaction } from "@/utils/types/transaction";
-import { Box, CircularProgress } from "@mui/material";
+import { Box, CircularProgress, Dialog, IconButton, Typography, useTheme } from "@mui/material";
+import { CheckCircleRounded, CloseRounded } from "@mui/icons-material";
+import confetti from "canvas-confetti";
+import CustomButton from "@/Components/UI/Buttons";
 import { endOfDay, isWithinInterval, parseISO, startOfDay } from "date-fns";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import TransactionsTable from "./TransactionsTable";
@@ -73,6 +76,57 @@ const TransactionPage = () => {
     const payload = selectedCompanyId ? { company_id: selectedCompanyId } : undefined;
     dispatch(TransactionAction(TRANSACTION_FETCH, payload));
   }, [dispatch, selectedCompanyId]);
+
+  // "First payment received" celebration ─────────────────────────────────────
+  // Fires ONCE per company_id the first time we detect at least one CONFIRMED
+  // or COMPLETED payment in the transaction list. Persists in localStorage
+  // so it doesn't re-trigger on subsequent visits.
+  const theme = useTheme();
+  const [firstPaymentCelebrationOpen, setFirstPaymentCelebrationOpen] = useState(false);
+  const firstPaymentFiredRef = useRef(false);
+
+  const hasFirstConfirmedPayment = useMemo(() => {
+    const list = transactionState?.customers_transactions || [];
+    return list.some((t: any) => {
+      const status = String(t?.status || "").toLowerCase();
+      return ["confirmed", "completed", "settled", "success", "paid"].includes(status);
+    });
+  }, [transactionState?.customers_transactions]);
+
+  useEffect(() => {
+    if (!selectedCompanyId) return;
+    if (!hasFirstConfirmedPayment) return;
+    if (firstPaymentFiredRef.current) return;
+    const storageKey = `dynopay_first_payment_celebrated_${selectedCompanyId}`;
+    let alreadyCelebrated = false;
+    try {
+      alreadyCelebrated = typeof window !== "undefined" && !!localStorage.getItem(storageKey);
+    } catch {
+      /* private-mode safe */
+    }
+    if (alreadyCelebrated) {
+      firstPaymentFiredRef.current = true;
+      return;
+    }
+    firstPaymentFiredRef.current = true;
+    try {
+      localStorage.setItem(storageKey, new Date().toISOString());
+    } catch {
+      /* private-mode safe */
+    }
+    // Fire the celebration: three confetti bursts + open the modal.
+    setFirstPaymentCelebrationOpen(true);
+    try {
+      const colors = ["#0004FF", "#6A7BFF", "#10B981", "#F59E0B", "#EC4899"];
+      confetti({ particleCount: 90, spread: 70, startVelocity: 45, origin: { x: 0.2, y: 0.6 }, colors, scalar: 1 });
+      confetti({ particleCount: 90, spread: 70, startVelocity: 45, origin: { x: 0.8, y: 0.6 }, colors, scalar: 1 });
+      setTimeout(() => {
+        confetti({ particleCount: 60, spread: 80, startVelocity: 35, origin: { x: 0.5, y: 0.3 }, colors, scalar: 0.9 });
+      }, 350);
+    } catch {
+      /* canvas-confetti is client-only, safe to ignore */
+    }
+  }, [hasFirstConfirmedPayment, selectedCompanyId]);
 
   const formatDateTime = (isoString: string) => {
     const date = new Date(isoString);
@@ -291,6 +345,84 @@ const TransactionPage = () => {
         initialWallet={selectedWallet}
       />
       <TransactionsTable transactions={processedTransactions} rowsPerPage={10} />
+
+      {/* First-payment celebration modal — one-time per company. */}
+      <Dialog
+        open={firstPaymentCelebrationOpen}
+        onClose={() => setFirstPaymentCelebrationOpen(false)}
+        maxWidth="xs"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: "20px",
+            overflow: "visible",
+            maxWidth: "440px",
+          },
+        }}
+        data-testid="first-payment-celebration-modal"
+      >
+        <IconButton
+          onClick={() => setFirstPaymentCelebrationOpen(false)}
+          aria-label="Close"
+          sx={{
+            position: "absolute",
+            top: 12,
+            right: 12,
+            zIndex: 1,
+            color: theme.palette.text.secondary,
+          }}
+        >
+          <CloseRounded sx={{ fontSize: 20 }} />
+        </IconButton>
+        <Box sx={{ px: 3, pt: 4, pb: 3, textAlign: "center" }}>
+          <Box
+            sx={{
+              width: 88,
+              height: 88,
+              borderRadius: "50%",
+              background: "linear-gradient(135deg, #10B981, #059669)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              margin: "0 auto 20px",
+              boxShadow: "0 10px 32px rgba(16, 185, 129, 0.35)",
+            }}
+          >
+            <CheckCircleRounded sx={{ fontSize: 48, color: "#fff" }} />
+          </Box>
+          <Typography
+            sx={{
+              fontFamily: "UrbanistBold",
+              fontWeight: 700,
+              fontSize: "22px",
+              color: theme.palette.text.primary,
+              mb: 1,
+            }}
+          >
+            First payment landed! 🎉
+          </Typography>
+          <Typography
+            sx={{
+              fontFamily: "UrbanistMedium",
+              fontSize: "14px",
+              color: theme.palette.text.secondary,
+              lineHeight: 1.55,
+              mb: 3,
+            }}
+          >
+            You&apos;re officially a DynoPay merchant. This is a big one — your first
+            real payment is settled in your dashboard.
+          </Typography>
+          <CustomButton
+            data-testid="first-payment-celebration-cta"
+            label="View my transactions"
+            variant="primary"
+            size="medium"
+            fullWidth
+            onClick={() => setFirstPaymentCelebrationOpen(false)}
+          />
+        </Box>
+      </Dialog>
     </Box>
   );
 };
