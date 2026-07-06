@@ -14,7 +14,7 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv('/app/backend/.env')
 
-BASE_URL = "https://payment-processor-68.preview.emergentagent.com/api"
+BASE_URL = "https://auth-fix-mobile-1.preview.emergentagent.com/api"
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
     "Content-Type": "application/json"
@@ -277,7 +277,7 @@ def test_geo_detect():
 def main():
     print("\n" + "="*80)
     print("DynoPay API - READ-ONLY Backend Verification")
-    print("Base URL: https://payment-processor-68.preview.emergentagent.com/api")
+    print("Base URL: https://auth-fix-mobile-1.preview.emergentagent.com/api")
     print("CRITICAL: Connected to LIVE PRODUCTION DB - READ-ONLY TESTS ONLY")
     print("="*80)
     
