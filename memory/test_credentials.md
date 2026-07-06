@@ -1,9 +1,14 @@
 # Test Credentials
 
-## Primary QA Account (active user with company)
+## Preview Environment (Emergent)
+- URL: https://15e89113-c89f-4d59-81a2-709d609d4c36.preview.emergentagent.com
+- Backend .env: /app/backend/.env (points to Railway PostgreSQL `railway` DB on `roundhouse.proxy.rlwy.net:23599`)
+- Redis: nozomi.proxy.rlwy.net:15794
+
+## Primary QA Account (active user with $18k+ in transactions)
 - Email: hostbay@moxx.co
 - Password: Katiekendra123@
-- Notes: Main account for QA testing
+- Notes: Main account for QA testing. Has significant transaction history (~$18k lifetime volume).
 
 ## IMPORTANT — Preview backend DB note
 - The preview backend's Railway PostgreSQL appears to have test users only.

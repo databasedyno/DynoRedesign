@@ -422,10 +422,14 @@ export const SearchContainer = styled(Box)(({ theme }) => ({
     flex: 1,
     minWidth: "350px",
   },
+  // On mobile (< md), let search take the full available row and wrap
+  // instead of forcing a 350px minWidth (which overflowed iPhone SE 320px
+  // and squeezed neighboring filter chips on 360-390px devices).
   [theme.breakpoints.down("md")]: {
     gap: "8px",
-    flex: 1,
-    minWidth: "350px",
+    flex: "1 1 100%",
+    minWidth: 0,
+    width: "100%",
   },
 }));
 

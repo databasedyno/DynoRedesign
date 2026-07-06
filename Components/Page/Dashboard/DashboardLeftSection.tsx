@@ -283,13 +283,32 @@ const DashboardLeftSection = () => {
   const walletState = useSelector((s: rootReducer) => s.walletReducer);
   const hasCompany = (companyState.companyList?.length ?? 0) > 0;
   const hasWallet = (walletState.walletList?.length ?? 0) > 0;
+  // AUTHORITATIVE: use aggregate stats from the backend as the source of truth
+  // for whether the merchant has EVER received a payment. Previously we only
+  // scanned the latest 5 `recentTransactions` — if none of those happened to
+  // carry a confirmed/settled/paid status (e.g. all pending or refunded, or
+  // the merchant's most recent activity was old and the widget was empty),
+  // established merchants with $18k+ lifetime volume were wrongly shown the
+  // "waiting for your first payment" empty state.
+  //
+  // Fix: aggregate stats.totalTransactions / stats.totalVolume are the
+  // authoritative signal. Fall back to the recent-list scan only when the
+  // aggregate is unavailable (older API responses).
+  const hasAggregatePayments = useMemo(() => {
+    const totalTx = Number(stats?.totalTransactions ?? 0);
+    const totalVol = Number(stats?.totalVolume ?? 0);
+    return totalTx > 0 || totalVol > 0;
+  }, [stats?.totalTransactions, stats?.totalVolume]);
   const hasAnyConfirmedTxn = useMemo(() => {
+    // Primary signal: aggregate stats say there's been at least one payment.
+    if (hasAggregatePayments) return true;
+    // Fallback: scan the recent transactions list for any settled state.
     const list = (recentTransactions as any[]) || [];
     return list.some((tx) => {
       const status = String(tx?.status || "").toLowerCase();
       return ["confirmed", "completed", "settled", "success", "paid"].includes(status);
     });
-  }, [recentTransactions]);
+  }, [hasAggregatePayments, recentTransactions]);
   // Show empty state instead of Hero when merchant has set up but hasn't
   // received any real payment yet. Turns the top-of-dashboard into a guide.
   const showEmptyState = hasCompany && hasWallet && !hasAnyConfirmedTxn && !loading;

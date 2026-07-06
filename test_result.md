@@ -1,3 +1,88 @@
+## Dashboard "new account" empty-state bug + mobile responsiveness — Test Request (2026-07-06)
+
+### CONTEXT
+1. User reported: existing user `hostbay@moxx.co` appearing on `/dashboard` like a NEW account (empty-state
+   panel: "Waiting for your first payment") despite having transactions of over $18,000 lifetime.
+2. Also reported: dashboard does not scroll/render correctly on mobile. Fix must cover **all device types**.
+
+### ROOT CAUSE (bug 1)
+`Components/Page/Dashboard/DashboardLeftSection.tsx` line 286-295 previously determined `hasAnyConfirmedTxn`
+by scanning ONLY the latest 5 `recentTransactions` for statuses `confirmed/completed/settled/success/paid`.
+If none of those 5 items happened to be settled (e.g. the merchant's most recent activity was pending, or
+the widget was empty), the aggregate empty-state was shown — even for merchants with $18k+ lifetime volume.
+
+### FIX (bug 1)
+Use the aggregate stats from `stats.totalTransactions` / `stats.totalVolume` (both come from
+`/api/dashboard` → `total_transactions.count` + `total_volume.amount`) as the AUTHORITATIVE
+signal for "has this merchant ever received a payment". Only fall back to the recent-list
+scan when aggregate stats are unavailable. See DashboardLeftSection.tsx lines 296-316.
+
+### FIX (bug 2 — initial pass)
+`Components/Page/Transactions/styled.tsx` SearchContainer forced `minWidth: 350px` on mobile,
+overflowing iPhone SE (320px) and squeezing filter chips on 360-390px devices. Changed to
+`minWidth: 0; flex: 1 1 100%; width: 100%` on `< md` breakpoint.
+
+### FRONTEND TEST REQUEST
+
+BASE URL: https://15e89113-c89f-4d59-81a2-709d609d4c36.preview.emergentagent.com
+
+Test credentials (use the token-injection approach — login is OTP-gated in the app):
+- Email: hostbay@moxx.co
+- Password: Katiekendra123@
+
+To inject a token for hostbay@moxx.co, use this approach:
+  1. `POST /api/user/login` {email:"hostbay@moxx.co", password:"Katiekendra123@"} → returns
+     `session` or `accessToken` (depends on flow).
+  2. If OTP required, read the Redis key `login_otp:<session>:json` on
+     `redis://default:HAEMJseUAdqAjpiICURxlefSoSYXKEUg@nozomi.proxy.rlwy.net:15794` and
+     `POST /api/user/verifyLoginOTP` to get accessToken.
+  3. Alternative: mint a JWT server-side using `ACCESS_TOKEN_SECRET` env var (see previous
+     test requests for the pg + jwt script).
+  4. Inject: `localStorage.setItem("token", "<jwt>")` on the preview origin, then navigate
+     to `/dashboard`. User-Agent must include `Mozilla/5.0 ... Chrome/120 Safari/537.36`.
+
+#### CASE A — Dashboard bug fix for hostbay@moxx.co
+1. Log in as hostbay@moxx.co (or inject its JWT).
+2. Navigate to `/dashboard`. Wait networkidle + 3s.
+3. Assert `data-testid="dashboard-hero-metrics"` IS PRESENT (HeroMetrics is shown).
+4. Assert `data-testid="dashboard-empty-state"` IS NOT PRESENT (no wrong empty state).
+5. Assert the "Lifetime volume" tile shows a value > $0 (should be around $18k).
+6. Screenshot: `dashboard_hostbay_hero_metrics.png`.
+7. FAIL if empty-state is shown OR lifetime volume reads $0.00.
+
+#### CASE B — Mobile responsiveness sweep — public pages (no auth)
+For each viewport [{w:320,h:568,name:"iphone_se"}, {w:375,h:812,name:"iphone_13"},
+{w:390,h:844,name:"iphone_14"}, {w:768,h:1024,name:"ipad_portrait"}]:
+  1. Navigate to `/`, `/auth/login`, `/auth/register`, `/fees`, `/documentation`, `/pay/demo`.
+  2. For each page: assert `document.documentElement.scrollWidth &lt;= clientWidth + 5px`
+     (allowing 5px tolerance for scrollbar rendering). No horizontal scroll.
+  3. Assert no element has computed `width > viewportWidth + 10px`.
+  4. Screenshot the fold: `<page>_<name>.png`.
+5. Report ANY page/viewport combo that fails.
+
+#### CASE C — Mobile responsiveness sweep — authenticated pages (with hostbay token)
+Same viewports as CASE B. For each page: `/dashboard`, `/transactions`, `/pay-links`,
+`/wallet`, `/customers`, `/invoices`, `/company`, `/profile`.
+  1. Inject token, navigate. Wait networkidle + 3s.
+  2. Assert no horizontal scroll (`scrollWidth &lt;= clientWidth + 5px`).
+  3. Assert bottom nav (`data-testid` on MobileNavigationBar or nav element)
+     does NOT overlap page content on scroll-to-bottom.
+  4. Assert all primary CTAs have tap-target ≥ 40px height (recommended ≥ 44px).
+  5. Screenshot each page at each viewport.
+6. Report ALL issues (horizontal overflow, overlapping elements, tiny tap targets,
+   text clipping, cards cut off, sticky headers).
+
+#### CASE D — Regression check on desktop dashboard
+1. Set viewport 1440x900. Navigate to `/dashboard` with hostbay token.
+2. Assert HeroMetrics tiles are present and legible.
+3. Assert recent transactions widget renders 5 items OR its empty-state.
+4. Screenshot: `dashboard_desktop_regression.png`.
+
+PASS = A ✅ AND (B failures listed for follow-up) AND (C failures listed for follow-up)
+AND D ✅. Per-case: report PASS/FAIL, screenshots, and the exact failing selectors/measurements
+so we can make targeted fixes in the next iteration.
+
+
 ## Landing/marketing copy: auto-convert is opt-in, not default (2026-07-06)
 
 - report: user said landing page and other pages sound like auto-conversion
