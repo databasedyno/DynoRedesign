@@ -4,7 +4,7 @@
 - **Email**: nomadly@moxx.co
 - **Password**: Katiekendra123@
 - **Company**: Nomadly1
-- **Pod URL**: https://merchant-portal-185.preview.emergentagent.com
+- **Pod URL**: https://payment-processor-68.preview.emergentagent.com
 
 ---
 
