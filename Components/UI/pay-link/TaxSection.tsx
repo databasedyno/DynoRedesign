@@ -50,7 +50,11 @@ const TaxSection: React.FC<TaxSectionProps> = ({
 
       <Box
         sx={{
-          width: isMobile ? "324px" : "300px",
+          // On mobile allow the row to fluidly fill the container instead of
+          // pinning to 324px which overflowed iPhone SE (320px viewport minus
+          // the outer 16px padding = 288px effective).
+          width: { xs: "100%", sm: "324px", md: "300px" },
+          maxWidth: "100%",
           height: "49px",
           border: `1px solid ${theme.palette.border.main}`,
           borderRadius: "6px",

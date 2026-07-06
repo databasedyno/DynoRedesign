@@ -303,10 +303,11 @@ const DashboardLeftSection = () => {
     // Primary signal: aggregate stats say there's been at least one payment.
     if (hasAggregatePayments) return true;
     // Fallback: scan the recent transactions list for any settled state.
+    // Note: backend actually persists "successful" (not "success") — include both.
     const list = (recentTransactions as any[]) || [];
     return list.some((tx) => {
       const status = String(tx?.status || "").toLowerCase();
-      return ["confirmed", "completed", "settled", "success", "paid"].includes(status);
+      return ["confirmed", "completed", "settled", "success", "successful", "paid"].includes(status);
     });
   }, [hasAggregatePayments, recentTransactions]);
   // Show empty state instead of Hero when merchant has set up but hasn't

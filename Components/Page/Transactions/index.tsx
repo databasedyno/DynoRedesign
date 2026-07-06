@@ -89,7 +89,8 @@ const TransactionPage = () => {
     const list = transactionState?.customers_transactions || [];
     return list.some((t: any) => {
       const status = String(t?.status || "").toLowerCase();
-      return ["confirmed", "completed", "settled", "success", "paid"].includes(status);
+      // Backend uses "successful" (not "success") for confirmed payments — include both.
+      return ["confirmed", "completed", "settled", "success", "successful", "paid"].includes(status);
     });
   }, [transactionState?.customers_transactions]);
 

@@ -40,7 +40,9 @@ export interface RecentTransactionsWidgetProps {
 
 const statusStyle = (status: string, theme: any) => {
   const s = String(status || "").toLowerCase();
-  if (["confirmed", "completed", "settled", "success", "paid"].includes(s)) {
+  // Backend actually persists "successful" (not "success") for confirmed payments,
+  // so include both here and everywhere else in the app that classifies status.
+  if (["confirmed", "completed", "settled", "success", "successful", "paid"].includes(s)) {
     return {
       color: theme.palette.success.dark || "#059669",
       bg: theme.palette.mode === "dark" ? "rgba(16,185,129,0.18)" : "rgba(16,185,129,0.12)",
