@@ -1,3 +1,30 @@
+## Theme flash + i18n missing-keys fixes — Test Request (2026-07-06)
+
+### USER REPORT
+1. **Dark-mode flash**: On the landing page (visit/refresh), a dark theme flashes briefly before the white/light page appears.
+2. **Language**: Some pages (inside and outside the app) stay in English even after switching language.
+
+### ROOT CAUSES & FIXES
+1. **Theme flash** — `pages/_app.tsx` `getInitialProps` resolved the SSR theme as
+   `Sec-CH-Prefers-Color-Scheme (OS) > theme-mode cookie > light`. A user on a dark OS
+   who picked LIGHT got a dark SSR first paint (OS hint won) that then flipped to light
+   after hydration (cookie/localStorage). FIX: reversed priority to
+   `cookie (explicit choice) > OS client hint > light`. One-line change.
+2. **Language** — Non-English locale files were missing keys, so i18next fell back to
+   English (`fallbackLng: 'en'`) for those strings. Backfilled all missing keys for the
+   in-app namespaces across pt/fr/es/de/nl: profile, auth, transactions, fees,
+   dashboardLayout, companyDialog, createPaymentLinkScreen, common. (Legal pages
+   terms/privacy/aml for de+nl still pending — out of scope for this test.)
+
+### FRONTEND TEST PLAN (preview URL: https://d8ea571f-0b45-411c-9fe8-d786a0e4f290.preview.emergentagent.com)
+- **Theme flash**: emulate `prefers-color-scheme: dark`, set localStorage `theme-mode=light`
+  + cookie `theme-mode=light`, load `/` and reload; verify the page renders LIGHT with no
+  dark→light flash. Also toggle theme → reload → verify it persists with no flash.
+- **Language**: on public pages `/fees` and `/` switch language to Portuguese and German
+  via the language switcher; verify the fee-free banner (feeFreeBannerTitle/CTA) renders in
+  the selected language, NOT English. Verify no visible English remains in those sections.
+
+
 ## Login/Register page alignment fix — full-viewport BlockBee-style layout (2026-07-06)
 
 ### USER REPORT

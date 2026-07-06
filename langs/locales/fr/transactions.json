@@ -39,5 +39,10 @@
   "copy": "Copier",
   "copiedToClipboard": "Copié dans le presse-papiers",
   "totalFees": "Frais",
-  "amountReceived": "Montant Reçu"
+  "amountReceived": "Montant Reçu",
+  "confirmed": "confirmé",
+  "settled": "réglé",
+  "processing": "en cours",
+  "settlement_failed": "échoué",
+  "settledTo": "Réglé vers"
 }

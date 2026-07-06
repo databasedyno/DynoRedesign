@@ -31,5 +31,17 @@
   "passwordMismatch": "Passwörter stimmen nicht überein",
   "communicationLanguage": "Kommunikationssprache",
   "communicationLanguageHelp": "Wir verwenden diese Sprache für Ihre E-Mails und das Dashboard.",
-  "communicationLanguageSaved": "Kommunikationssprache aktualisiert"
+  "communicationLanguageSaved": "Kommunikationssprache aktualisiert",
+  "addEmail": "E-Mail-Adresse hinzufügen",
+  "addEmailDescription": "Fügen Sie Ihrem Konto eine E-Mail-Adresse hinzu. Sie erhalten einen Bestätigungscode.",
+  "enterEmail": "Geben Sie Ihre E-Mail-Adresse ein",
+  "sendVerificationCode": "Bestätigungscode senden",
+  "verifyAndSave": "Bestätigen & speichern",
+  "addPhone": "Telefonnummer hinzufügen",
+  "addPhoneDescription": "Fügen Sie Ihrem Konto eine Telefonnummer hinzu. Sie erhalten einen Bestätigungscode per SMS.",
+  "enterPhone": "Geben Sie Ihre Telefonnummer ein",
+  "emailAdded": "E-Mail erfolgreich hinzugefügt!",
+  "phoneAdded": "Telefonnummer erfolgreich hinzugefügt!",
+  "noEmailSet": "Keine E-Mail-Adresse in Ihrem Konto",
+  "noPhoneSet": "Keine Telefonnummer in Ihrem Konto"
 }

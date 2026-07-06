@@ -84,5 +84,7 @@
   "customerEmail": "Email do Cliente",
   "optional": "Opcional",
   "customerEmailDescription": "Enviar link de pagamento e código de indicação para este email",
-  "customerEmailPlaceholder": "cliente@exemplo.com"
+  "customerEmailPlaceholder": "cliente@exemplo.com",
+  "createPaymentLink": "Criar link de pagamento",
+  "creating": "Criando..."
 }

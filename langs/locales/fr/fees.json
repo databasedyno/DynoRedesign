@@ -71,5 +71,9 @@
   "feeSectionHighlight": "frais instantanément",
   "feeSectionSubtitle": "Voyez exactement ce que vous recevrez avant d'accepter un paiement.",
   "viewFullBreakdown": "Voir la répartition complète des frais",
-  "headerFees": "Frais"
+  "headerFees": "Frais",
+  "feeFreeBannerTitle": "Commencez avec 0 $ de frais sur vos premiers 500 $",
+  "feeFreeBannerDescription": "Les nouveaux marchands ne paient aucuns frais de plateforme sur leurs premiers 500 $ de transactions. Ensuite, seulement 1,5 % — soit la moitié de PayPal ou Stripe.",
+  "feeFreeBannerCta": "Commencer sans frais",
+  "feeCalcFeeFreeNote": "Nouveau marchand ? Vos premiers 500 $ de transactions sont sans frais."
 }

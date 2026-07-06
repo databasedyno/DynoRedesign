@@ -323,5 +323,6 @@
   },
   "myProfile": "Meu Perfil",
   "logout": "Sair",
-  "hello": "Olá"
+  "hello": "Olá",
+  "copyFailed": "Não foi possível copiar — copie manualmente"
 }

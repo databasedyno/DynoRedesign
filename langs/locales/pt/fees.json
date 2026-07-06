@@ -71,5 +71,9 @@
   "feeSectionHighlight": "taxas instantaneamente",
   "feeSectionSubtitle": "Veja exatamente o que receberá antes de aceitar qualquer pagamento.",
   "viewFullBreakdown": "Ver divisão completa de taxas",
-  "headerFees": "Taxas"
+  "headerFees": "Taxas",
+  "feeFreeBannerTitle": "Comece com $0 de taxas nos seus primeiros $500",
+  "feeFreeBannerDescription": "Novos comerciantes não pagam taxas de plataforma nos primeiros $500 em transações. Depois disso, apenas 1,5% — ainda metade do PayPal ou Stripe.",
+  "feeFreeBannerCta": "Comece sem taxas",
+  "feeCalcFeeFreeNote": "Novo comerciante? Seus primeiros $500 em transações são isentos de taxas."
 }

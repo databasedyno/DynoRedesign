@@ -39,5 +39,10 @@
   "copy": "Kopieren",
   "copiedToClipboard": "In die Zwischenablage kopiert",
   "totalFees": "Gebühr",
-  "amountReceived": "Erhaltener Betrag"
+  "amountReceived": "Erhaltener Betrag",
+  "confirmed": "bestätigt",
+  "settled": "abgerechnet",
+  "processing": "in Bearbeitung",
+  "settlement_failed": "fehlgeschlagen",
+  "settledTo": "Abgerechnet an"
 }

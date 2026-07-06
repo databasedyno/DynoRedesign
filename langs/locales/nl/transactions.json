@@ -39,5 +39,10 @@
   "copy": "Kopiëren",
   "copiedToClipboard": "Gekopieerd naar klembord",
   "totalFees": "Kosten",
-  "amountReceived": "Ontvangen Bedrag"
+  "amountReceived": "Ontvangen Bedrag",
+  "confirmed": "bevestigd",
+  "settled": "afgewikkeld",
+  "processing": "wordt verwerkt",
+  "settlement_failed": "mislukt",
+  "settledTo": "Afgewikkeld naar"
 }

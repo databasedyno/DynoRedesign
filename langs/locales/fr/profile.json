@@ -31,5 +31,17 @@
   "passwordMismatch": "Les mots de passe ne correspondent pas",
   "communicationLanguage": "Langue de communication",
   "communicationLanguageHelp": "Nous utiliserons cette langue pour vos e-mails et le tableau de bord.",
-  "communicationLanguageSaved": "Langue de communication mise à jour"
+  "communicationLanguageSaved": "Langue de communication mise à jour",
+  "addEmail": "Ajouter une adresse e-mail",
+  "addEmailDescription": "Ajoutez une adresse e-mail à votre compte. Vous recevrez un code de vérification.",
+  "enterEmail": "Saisissez votre adresse e-mail",
+  "sendVerificationCode": "Envoyer le code de vérification",
+  "verifyAndSave": "Vérifier et enregistrer",
+  "addPhone": "Ajouter un numéro de téléphone",
+  "addPhoneDescription": "Ajoutez un numéro de téléphone à votre compte. Vous recevrez un code de vérification par SMS.",
+  "enterPhone": "Saisissez votre numéro de téléphone",
+  "emailAdded": "E-mail ajouté avec succès !",
+  "phoneAdded": "Numéro de téléphone ajouté avec succès !",
+  "noEmailSet": "Aucune adresse e-mail sur votre compte",
+  "noPhoneSet": "Aucun numéro de téléphone sur votre compte"
 }

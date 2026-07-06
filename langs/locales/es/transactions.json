@@ -39,5 +39,10 @@
   "copy": "Copiar",
   "copiedToClipboard": "Copiado al portapapeles",
   "totalFees": "Tarifa",
-  "amountReceived": "Monto Recibido"
+  "amountReceived": "Monto Recibido",
+  "confirmed": "confirmado",
+  "settled": "liquidado",
+  "processing": "procesando",
+  "settlement_failed": "fallido",
+  "settledTo": "Liquidado a"
 }

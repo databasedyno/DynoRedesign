@@ -31,5 +31,17 @@
   "passwordMismatch": "Las contraseñas no coinciden",
   "communicationLanguage": "Idioma de comunicación",
   "communicationLanguageHelp": "Usaremos este idioma para tus correos y el panel.",
-  "communicationLanguageSaved": "Idioma de comunicación actualizado"
+  "communicationLanguageSaved": "Idioma de comunicación actualizado",
+  "addEmail": "Agregar dirección de correo",
+  "addEmailDescription": "Agrega una dirección de correo a tu cuenta. Recibirás un código de verificación.",
+  "enterEmail": "Ingresa tu dirección de correo",
+  "sendVerificationCode": "Enviar código de verificación",
+  "verifyAndSave": "Verificar y guardar",
+  "addPhone": "Agregar número de teléfono",
+  "addPhoneDescription": "Agrega un número de teléfono a tu cuenta. Recibirás un código de verificación por SMS.",
+  "enterPhone": "Ingresa tu número de teléfono",
+  "emailAdded": "¡Correo agregado correctamente!",
+  "phoneAdded": "¡Número de teléfono agregado correctamente!",
+  "noEmailSet": "No hay dirección de correo en tu cuenta",
+  "noPhoneSet": "No hay número de teléfono en tu cuenta"
 }

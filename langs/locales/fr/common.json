@@ -323,5 +323,6 @@
   },
   "myProfile": "Mon Profil",
   "logout": "Déconnexion",
-  "hello": "Bonjour"
+  "hello": "Bonjour",
+  "copyFailed": "Impossible de copier — veuillez copier manuellement"
 }

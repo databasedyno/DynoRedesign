@@ -39,5 +39,10 @@
   "copy": "Copiar",
   "copiedToClipboard": "Copiado para a área de transferência",
   "totalFees": "Taxa",
-  "amountReceived": "Valor Recebido"
+  "amountReceived": "Valor Recebido",
+  "confirmed": "confirmado",
+  "settled": "liquidado",
+  "processing": "processando",
+  "settlement_failed": "falhou",
+  "settledTo": "Liquidado para"
 }

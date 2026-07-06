@@ -71,5 +71,9 @@
   "feeSectionHighlight": "kosten direct",
   "feeSectionSubtitle": "Zie precies wat u ontvangt voordat u een betaling accepteert.",
   "viewFullBreakdown": "Bekijk volledig kostenoverzicht",
-  "headerFees": "Kosten"
+  "headerFees": "Kosten",
+  "feeFreeBannerTitle": "Begin met $0 kosten op je eerste $500",
+  "feeFreeBannerDescription": "Nieuwe verkopers betalen geen platformkosten over hun eerste $500 aan transacties. Daarna slechts 1,5% — nog altijd de helft van PayPal of Stripe.",
+  "feeFreeBannerCta": "Begin zonder kosten",
+  "feeCalcFeeFreeNote": "Nieuwe verkoper? Je eerste $500 aan transacties is kosteloos."
 }

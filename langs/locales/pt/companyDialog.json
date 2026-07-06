@@ -79,5 +79,6 @@
     "zipCodeRequired": "O código postal é obrigatório"
   },
   "vatNumber": "Número de IVA (opcional)",
-  "vatVerify": "Número de IVA verificado"
+  "vatVerify": "Número de IVA verificado",
+  "mobilePlaceholder": "Digite seu número de celular"
 }

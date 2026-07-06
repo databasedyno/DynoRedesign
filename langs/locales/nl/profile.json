@@ -31,5 +31,17 @@
   "passwordMismatch": "Wachtwoorden komen niet overeen",
   "communicationLanguage": "Communicatietaal",
   "communicationLanguageHelp": "We gebruiken deze taal voor uw e-mails en het dashboard.",
-  "communicationLanguageSaved": "Communicatietaal bijgewerkt"
+  "communicationLanguageSaved": "Communicatietaal bijgewerkt",
+  "addEmail": "E-mailadres toevoegen",
+  "addEmailDescription": "Voeg een e-mailadres toe aan je account. Je ontvangt een verificatiecode.",
+  "enterEmail": "Voer je e-mailadres in",
+  "sendVerificationCode": "Verificatiecode verzenden",
+  "verifyAndSave": "Verifiëren en opslaan",
+  "addPhone": "Telefoonnummer toevoegen",
+  "addPhoneDescription": "Voeg een telefoonnummer toe aan je account. Je ontvangt een verificatiecode via sms.",
+  "enterPhone": "Voer je telefoonnummer in",
+  "emailAdded": "E-mail succesvol toegevoegd!",
+  "phoneAdded": "Telefoonnummer succesvol toegevoegd!",
+  "noEmailSet": "Geen e-mailadres op je account",
+  "noPhoneSet": "Geen telefoonnummer op je account"
 }

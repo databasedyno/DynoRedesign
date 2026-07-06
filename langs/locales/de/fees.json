@@ -71,5 +71,9 @@
   "feeSectionHighlight": "Gebühren sofort",
   "feeSectionSubtitle": "Sehen Sie genau, was Sie erhalten, bevor Sie eine Zahlung akzeptieren.",
   "viewFullBreakdown": "Vollständige Gebührenaufschlüsselung anzeigen",
-  "headerFees": "Gebühren"
+  "headerFees": "Gebühren",
+  "feeFreeBannerTitle": "Starten Sie mit 0 $ Gebühren für Ihre ersten 500 $",
+  "feeFreeBannerDescription": "Neue Händler zahlen keine Plattformgebühren für ihre ersten 500 $ an Transaktionen. Danach nur 1,5 % — immer noch die Hälfte von PayPal oder Stripe.",
+  "feeFreeBannerCta": "Gebührenfrei starten",
+  "feeCalcFeeFreeNote": "Neuer Händler? Ihre ersten 500 $ an Transaktionen sind gebührenfrei."
 }
