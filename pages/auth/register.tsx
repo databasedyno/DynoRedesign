@@ -378,41 +378,45 @@ const Register = () => {
                     descriptionColor={theme.palette.text.secondary}
                   />
 
-                  {/* Google Sign Up */}
-                  <CustomButton
-                    data-testid="google-signup-btn"
-                    label="Continue with Google"
-                    variant="outlined"
-                    fullWidth
-                    onClick={handleGoogleLogin}
-                    startIcon={
-                      <Image src={GoogleIcon} alt="google" width={20} height={20} draggable={false} />
-                    }
-                    sx={{ mt: 1.5 }}
-                  />
+                  {/* Google Sign Up — hidden when NEXT_PUBLIC_ENABLE_GOOGLE_AUTH !== "true" */}
+                  {process.env.NEXT_PUBLIC_ENABLE_GOOGLE_AUTH === "true" && (
+                    <>
+                      <CustomButton
+                        data-testid="google-signup-btn"
+                        label="Continue with Google"
+                        variant="outlined"
+                        fullWidth
+                        onClick={handleGoogleLogin}
+                        startIcon={
+                          <Image src={GoogleIcon} alt="google" width={20} height={20} draggable={false} />
+                        }
+                        sx={{ mt: 1.5 }}
+                      />
 
-                  {/* Divider */}
-                  <Box sx={{ mt: 1.5, mb: 1.5 }}>
-                    <Divider
-                      sx={{
-                        "&::before, &::after": {
-                          borderColor: theme.palette.mode === "dark" ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.08)",
-                        },
-                      }}
-                    >
-                      <Typography
-                        sx={{
-                          fontSize: "12px",
-                          color: "text.secondary",
-                          fontFamily: "UrbanistMedium",
-                          textTransform: "lowercase",
-                          px: 1,
-                        }}
-                      >
-                        or sign up with
-                      </Typography>
-                    </Divider>
-                  </Box>
+                      {/* Divider */}
+                      <Box sx={{ mt: 1.5, mb: 1.5 }}>
+                        <Divider
+                          sx={{
+                            "&::before, &::after": {
+                              borderColor: theme.palette.mode === "dark" ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.08)",
+                            },
+                          }}
+                        >
+                          <Typography
+                            sx={{
+                              fontSize: "12px",
+                              color: "text.secondary",
+                              fontFamily: "UrbanistMedium",
+                              textTransform: "lowercase",
+                              px: 1,
+                            }}
+                          >
+                            or sign up with
+                          </Typography>
+                        </Divider>
+                      </Box>
+                    </>
+                  )}
 
                   {/* Method Toggle */}
                   <Box sx={{ mb: 1.5 }}>

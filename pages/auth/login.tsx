@@ -1812,89 +1812,94 @@ export default function Login() {
           />
         )}
 
-        {/* Social Login Section - shown only when login methods are visible */}
+        {/* Social Login Section — hidden when NEXT_PUBLIC_ENABLE_GOOGLE_AUTH !== "true".
+            Wraps both the "or" divider AND the Google icon row so we don't leave a
+            useless divider dangling when Google is disabled. */}
+        {process.env.NEXT_PUBLIC_ENABLE_GOOGLE_AUTH === "true" && (
+          <>
+            <Box sx={{ marginTop: isMobile ? "16px" : "24px" }}>
+              <Divider
+                sx={{
+                  borderColor: "red",
+                  "&::before, &::after": {
+                    borderColor: "divider",
+                  },
+                }}
+              >
+                <Typography
+                  variant="body2"
+                  sx={{
+                    fontFamily: "UrbanistMedium",
+                    color: theme.palette.text.secondary,
+                    padding: "0 24px",
+                    fontSize: isMobile ? "10px" : "15px",
+                    fontWeight: 500,
+                    lineHeight: "1.2",
+                    letterSpacing: 0,
+                  }}
+                >
+                  {t("or")}
+                </Typography>
+              </Divider>
+            </Box>
 
-        <Box sx={{ marginTop: isMobile ? "16px" : "24px" }}>
-          <Divider
-            sx={{
-              borderColor: "red",
-              "&::before, &::after": {
-                borderColor: "divider",
-              },
-            }}
-          >
-            <Typography
-              variant="body2"
+            <Box
               sx={{
-                fontFamily: "UrbanistMedium",
-                color: theme.palette.text.secondary,
-                padding: "0 24px",
-                fontSize: isMobile ? "10px" : "15px",
-                fontWeight: 500,
-                lineHeight: "1.2",
-                letterSpacing: 0,
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                gap: "16px",
+                padding: 0,
+                marginTop: isMobile ? "16px" : "24px",
               }}
             >
-              {t("or")}
-            </Typography>
-          </Divider>
-        </Box>
+              <Typography
+                variant="body2"
+                sx={{
+                  fontSize: isMobile ? "13px" : "15px",
+                  fontFamily: "UrbanistMedium",
+                  color: theme.palette.text.secondary,
+                  fontWeight: 500,
+                  lineHeight: "1.2",
+                  letterSpacing: 0,
+                }}
+              >
+                {t("registerLogin")}
+              </Typography>
 
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            gap: "16px",
-            padding: 0,
-            marginTop: isMobile ? "16px" : "24px",
-          }}
-        >
-          <Typography
-            variant="body2"
-            sx={{
-              fontSize: isMobile ? "13px" : "15px",
-              fontFamily: "UrbanistMedium",
-              color: theme.palette.text.secondary,
-              fontWeight: 500,
-              lineHeight: "1.2",
-              letterSpacing: 0,
-            }}
-          >
-            {t("registerLogin")}
-          </Typography>
-
-          <Box
-            sx={{
-              height: isMobile ? "32px" : "40px",
-              width: isMobile ? "32px" : "40px",
-              borderRadius: "100%",
-              border: "1px solid",
-              borderColor: "divider",
-              backgroundColor: "action.hover",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              transition: "all 0.2s ease",
-              "&:hover": {
-                backgroundColor: "action.selected",
-                borderColor: "#D0D5DD",
-              },
-            }}
-            onClick={handleGoogleLogin}
-          >
-            <ImageCenter>
-              <Image
-                src={GoogleIcon}
-                alt="google login"
-                width={24}
-                height={24}
-                draggable={false}
-              />
-            </ImageCenter>
-          </Box>
-        </Box>
+              <Box
+                sx={{
+                  height: isMobile ? "32px" : "40px",
+                  width: isMobile ? "32px" : "40px",
+                  borderRadius: "100%",
+                  border: "1px solid",
+                  borderColor: "divider",
+                  backgroundColor: "action.hover",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  transition: "all 0.2s ease",
+                  "&:hover": {
+                    backgroundColor: "action.selected",
+                    borderColor: "#D0D5DD",
+                  },
+                }}
+                onClick={handleGoogleLogin}
+              >
+                <ImageCenter>
+                  <Image
+                    src={GoogleIcon}
+                    alt="google login"
+                    width={24}
+                    height={24}
+                    draggable={false}
+                  />
+                </ImageCenter>
+              </Box>
+            </Box>
+          </>
+        )}
 
       </Box>
       </FormPanel>
