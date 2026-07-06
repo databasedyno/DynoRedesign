@@ -6757,3 +6757,120 @@ The NEXT_PUBLIC_ENABLE_GOOGLE_AUTH environment variable is working correctly. Wh
 
 **Ready for Production:** Yes, the Google auth button hiding feature is working as intended and ready for deployment.
 
+
+## Onboarding UX Improvements Batch 2 — Frontend Test Request (2026-07-06)
+- scope: THREE post-onboarding audit fixes for merchant cloudchris93's friction points:
+  1. Register celebration confetti + new copy ("You're in! 🎉" instead of "Welcome to DynoPay!")
+  2. Payment-link inline field errors (amount field shows inline error, not just toast)
+  3. Wallet OTP stepped-progress screen (loading screen with rotating messages during OTP verification)
+- test_date: 2026-07-06 19:57:00 UTC
+- test_url: https://f8aebaba-bfa3-4705-9202-7a4ca96de59d.preview.emergentagent.com
+- agent: testing
+
+### FIX 1: Register Celebration Confetti + Copy ✅ PASS
+
+**Test Approach:**
+- Stubbed API endpoints (no real account creation):
+  * POST /api/user/registerEmail → 200 {"success":true,"message":"OTP sent","data":{}}
+  * POST /api/user/registerEmail/verify-otp → 200 (800ms delay) with stub JWT
+- Navigated to /auth/register, entered email qa.confetti@dynopaytest.com
+- Typed 6-digit OTP, waited for success screen
+
+**ASSERTIONS - ALL PASSED:**
+
+a. ✅ **Verified Confirmation Chip Present**
+   - Element: `[data-testid="verified-confirmation-chip"]` found
+   - Text: "Email verified"
+   - Color: Green tint with border (rgba(16,185,129,...))
+   - Icon: CheckCircleOutline present
+
+b. ✅ **New Heading Copy**
+   - Heading text: "You're in! 🎉"
+   - NOT "Welcome to DynoPay!" (old copy)
+   - Matches specification exactly
+
+c. ✅ **Body Text Mentions Business Details**
+   - Body text: "Your account is ready. Next up: your business details — takes about 30 seconds."
+   - Nudges toward company onboarding as intended
+
+d. ✅ **Confetti Animation Fired**
+   - Canvas element count: 1
+   - Confetti particles visible in screenshot
+   - Animation triggered on step="success" render
+   - Uses canvas-confetti library as expected
+
+**Screenshots:**
+- fix1_initial_register.png - Registration page initial state
+- fix1_otp_step.png - OTP verification step
+- register_success_celebration.png - Success screen with confetti + new copy
+
+**VERDICT: ✅ PASS** - All 4 assertions passed. The register celebration fix is working correctly:
+- Confetti animation fires on success
+- New "You're in! 🎉" heading replaces old "Welcome to DynoPay!"
+- "Email verified" chip displays prominently
+- Body text nudges toward business details onboarding
+
+---
+
+### FIX 2: Payment-Link Inline Field Errors ⏭️ SKIPPED
+
+**Reason:** Requires authenticated access to /create-pay-link page. No JWT available in /app/memory/test_credentials.md for token injection. Cannot test without real login (LIVE prod DB constraint).
+
+**What Would Be Tested:**
+- Navigate to /create-pay-link with injected JWT
+- Stub POST /api/pay/createPaymentLink → 400 {"success":false,"message":"Amount is required..."}
+- Click "Create" without filling amount field
+- Assert inline error appears next to amount input (MuiFormHelperText-root or data-testid="payment-value-error")
+- Assert toast also shown (existing behavior)
+- Assert active tab is "Payment settings" / Tab 0
+
+**Recommendation:** Main agent should manually verify this fix with a real QA account, or provide a valid JWT for automated testing.
+
+---
+
+### FIX 3: Wallet OTP Stepped-Progress Screen ⏭️ SKIPPED
+
+**Reason:** Requires authenticated access to /wallet or /company page (AddWalletModal only reachable when logged in). No JWT available for token injection. Cannot test without real login (LIVE prod DB constraint).
+
+**What Would Be Tested:**
+- Navigate to /wallet with injected JWT
+- Stub POST /api/wallet/validateWalletAddress → 200 (OTP sent)
+- Stub POST /api/wallet/verifyOtp → HANG (inspect loading state indefinitely)
+- Click "Add Wallet", fill wallet details, type OTP
+- Assert `[data-testid="otp-stepped-progress"]` present
+- Assert CircularProgress spinner present (size ≥ 80px)
+- Assert heading contains "Almost done" or "Setting up your wallet"
+- Assert `[data-testid="otp-stepped-progress-message"]` present with rotating messages
+- Wait 2200ms, assert message text CHANGED (rotation working)
+- Assert step dots present (≥ 6 dots)
+
+**Recommendation:** Main agent should manually verify this fix with a real QA account, or provide a valid JWT for automated testing.
+
+---
+
+### SUMMARY
+
+**FIX 1 (Register Celebration):** ✅ **PASS** - MUST PASS requirement met
+- Confetti animation working
+- New "You're in! 🎉" copy implemented
+- "Email verified" chip displays correctly
+- Body text nudges toward business details
+
+**FIX 2 (Payment-Link Inline Errors):** ⏭️ **SKIPPED** - No JWT available
+- Requires authenticated /create-pay-link access
+- Cannot test without token injection or real login
+
+**FIX 3 (Wallet OTP Progress):** ⏭️ **SKIPPED** - No JWT available
+- Requires authenticated /wallet access
+- Cannot test without token injection or real login
+
+**PASS CRITERIA MET:**
+- FIX 1 MUST PASS: ✅ PASSED
+- FIX 2 and FIX 3: SKIP acceptable per instructions (no JWT available)
+
+**NEXT STEPS FOR MAIN AGENT:**
+1. ✅ FIX 1 is verified and working - no action needed
+2. Manually verify FIX 2 (payment-link inline errors) with QA account hostbay@moxx.co
+3. Manually verify FIX 3 (wallet OTP progress) with QA account hostbay@moxx.co
+4. OR: Provide a valid JWT in /app/memory/test_credentials.md for automated testing of FIX 2 and FIX 3
+

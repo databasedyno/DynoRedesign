@@ -7,7 +7,28 @@ import {
   PAYLINK_ERROR,
   PAYLINK_INIT,
   PAYLINK_FEE_PREVIEW,
+  PAYLINK_CREATE_ERROR,
+  PAYLINK_CREATE_ERROR_CLEAR,
 } from "../Actions/PaymentLinkAction";
+
+/**
+ * Optional field hint attached to a PAYLINK_CREATE_ERROR. The value MUST match one
+ * of the client-side form field ids so the CreatePaymentLink page can surface the
+ * error inline next to that exact field.
+ */
+export type PaymentLinkErrorField =
+  | "value"
+  | "currency"
+  | "description"
+  | "expire"
+  | "customer_email"
+  | "webhook_url"
+  | "redirect_url"
+  | "callback_url"
+  | "accepted_currencies"
+  | "company_id"
+  | "kyc"
+  | "generic";
 
 export interface PaymentLinkState {
   paymentLinks: any[];
@@ -16,6 +37,16 @@ export interface PaymentLinkState {
   createLoading: boolean;
   feePreview: any | null;
   fetched: boolean;
+  /**
+   * Populated on a failed create attempt so the CreatePaymentLink page can
+   * surface an inline error next to the offending field. Cleared on the next
+   * create attempt / on PAYLINK_CREATE_ERROR_CLEAR / on successful PAYLINK_CREATE.
+   */
+  createError: string | null;
+  createErrorField: PaymentLinkErrorField | null;
+  /** Monotonically incremented on each new create error so effects can react even
+   *  when the message/field are identical to a previous error. */
+  createErrorNonce: number;
 }
 
 const paymentLinkInitialState: PaymentLinkState = {
@@ -25,6 +56,9 @@ const paymentLinkInitialState: PaymentLinkState = {
   createLoading: false,
   feePreview: null,
   fetched: false,
+  createError: null,
+  createErrorField: null,
+  createErrorNonce: 0,
 };
 
 const paymentLinkReducer = (
@@ -44,7 +78,13 @@ const paymentLinkReducer = (
       return {
         ...state,
         loading: state.paymentLinks.length === 0,
-        ...((action as any).crudType === PAYLINK_CREATE && { createLoading: true }),
+        // Clear any previous create error on a NEW create attempt so stale
+        // "Amount is required" inline hints disappear the moment the user retries.
+        ...((action as any).crudType === PAYLINK_CREATE && {
+          createLoading: true,
+          createError: null,
+          createErrorField: null,
+        }),
       };
 
     case PAYLINK_FETCH:
@@ -60,7 +100,27 @@ const paymentLinkReducer = (
         ...state,
         loading: false,
         createLoading: false,
+        createError: null,
+        createErrorField: null,
         paymentLinks: [payload.paymentLink, ...state.paymentLinks],
+      };
+
+    case PAYLINK_CREATE_ERROR:
+      return {
+        ...state,
+        loading: false,
+        createLoading: false,
+        fetched: true,
+        createError: payload?.message ?? "Payment link creation failed",
+        createErrorField: (payload?.field as PaymentLinkErrorField) ?? "generic",
+        createErrorNonce: state.createErrorNonce + 1,
+      };
+
+    case PAYLINK_CREATE_ERROR_CLEAR:
+      return {
+        ...state,
+        createError: null,
+        createErrorField: null,
       };
 
     case PAYLINK_UPDATE:

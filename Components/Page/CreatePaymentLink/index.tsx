@@ -150,6 +150,65 @@ const CreatePaymentLinkPage = ({
       }
     }
   }, [paymentLinkState?.createLoading, isCreating, successModalOpen]);
+
+  // Surface backend create errors INLINE next to the offending field (in addition
+  // to the toast the saga fires). Watches `createErrorNonce` so identical repeated
+  // errors still trigger the effect. Fixes the merchant-onboarding "silent 400"
+  // where the first createPaymentLink attempt shows only a toast and no field-level
+  // hint about what was wrong.
+  const lastNonceRef = useRef<number>(paymentLinkState?.createErrorNonce || 0);
+  useEffect(() => {
+    const nonce = paymentLinkState?.createErrorNonce || 0;
+    if (nonce === lastNonceRef.current) return;
+    lastNonceRef.current = nonce;
+
+    const field = paymentLinkState?.createErrorField as string | null;
+    const message = paymentLinkState?.createError as string | null;
+    if (!field || !message) return;
+
+    // Also make sure we're not stuck in "creating" state
+    setIsCreating(false);
+
+    switch (field) {
+      case "value":
+        setPaymentSettingsErrors((prev) => ({ ...prev, value: message }));
+        setPaymentSettingsTouched((prev) => ({ ...prev, value: true }));
+        if (activeTab !== 0) setActiveTab(0);
+        break;
+      case "currency":
+        setPaymentSettingsErrors((prev) => ({ ...prev, currency: message }));
+        if (activeTab !== 0) setActiveTab(0);
+        break;
+      case "description":
+        setPaymentSettingsErrors((prev) => ({ ...prev, description: message }));
+        if (activeTab !== 0) setActiveTab(0);
+        break;
+      case "customer_email":
+        setCustomerEmailError(message);
+        if (activeTab !== 0) setActiveTab(0);
+        break;
+      case "expire":
+      case "accepted_currencies":
+        // These live on Tab 0 payment settings but don't have dedicated inline
+        // error slots — switch the tab so the toast (already dispatched by the
+        // saga) is next to the offending control.
+        if (activeTab !== 0) setActiveTab(0);
+        break;
+      case "webhook_url":
+      case "redirect_url":
+      case "callback_url":
+        // These live on Tab 1 (Post-payment settings). Switch to that tab so the
+        // toast is at least next to the offending field.
+        if (activeTab !== 1) setActiveTab(1);
+        break;
+      case "kyc":
+      case "company_id":
+      case "generic":
+      default:
+        // Nothing to surface inline — the toast already carries the message.
+        break;
+    }
+  }, [paymentLinkState?.createErrorNonce, paymentLinkState?.createErrorField, paymentLinkState?.createError, activeTab]);
   const currencyTriggerRef = useRef<HTMLButtonElement | null>(null);
   const currencyAnchorEl = useRef<HTMLButtonElement | null>(null);
   const [includeTax, setIncludeTax] = useState<boolean>(

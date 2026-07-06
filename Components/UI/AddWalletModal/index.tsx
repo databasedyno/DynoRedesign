@@ -793,6 +793,17 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
       error={otpError}
       onClearError={() => setOtpError("")}
       countdown={0}
+      preventClose={otpLoading}
+      loadingTitle="Setting up your wallet…"
+      loadingSteps={[
+        "Verifying your OTP…",
+        "Registering your wallet address…",
+        "Creating your on-chain deposit address…",
+        "Configuring webhook notifications…",
+        "Generating your API key…",
+        "Almost there — final touches…",
+      ]}
+      loadingStepIntervalMs={2000}
     />
 
     <OtpDialog

@@ -15,9 +15,10 @@ import { signIn } from "next-auth/react";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { USER_LOGIN } from "@/Redux/Actions/UserAction";
 import axiosBaseApi from "@/axiosConfig";
+import confetti from "canvas-confetti";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useDispatch } from "react-redux";
 import {
@@ -74,6 +75,43 @@ const Register = () => {
   // Bumped each time we send a new OTP — tells OtpInputPanel to clear its boxes
   // and re-focus the first input.
   const [otpResetKey, setOtpResetKey] = useState(0);
+
+  // Fire a small confetti burst the moment the user lands on step="success" —
+  // only for NEW account creation (not for existing-account log-in), and only once.
+  // Emergent-style delight moment: light celebration → user proceeds to onboarding.
+  const confettiFiredRef = useRef(false);
+  useEffect(() => {
+    if (step !== "success") {
+      confettiFiredRef.current = false;
+      return;
+    }
+    if (confettiFiredRef.current) return;
+    if (accountExists) return; // no need to celebrate a re-login
+    confettiFiredRef.current = true;
+    // Small, tasteful burst — 2 sides, brand colors, 90ms total.
+    try {
+      confetti({
+        particleCount: 60,
+        spread: 60,
+        startVelocity: 35,
+        origin: { x: 0.3, y: 0.5 },
+        colors: ["#0004FF", "#6A7BFF", "#10B981", "#F59E0B"],
+        scalar: 0.9,
+        ticks: 200,
+      });
+      confetti({
+        particleCount: 60,
+        spread: 60,
+        startVelocity: 35,
+        origin: { x: 0.7, y: 0.5 },
+        colors: ["#0004FF", "#6A7BFF", "#10B981", "#F59E0B"],
+        scalar: 0.9,
+        ticks: 200,
+      });
+    } catch {
+      /* canvas-confetti is client-only and safe to ignore on unusual envs */
+    }
+  }, [step, accountExists]);
 
   // Check for referral code in URL
   useEffect(() => {
@@ -685,12 +723,12 @@ const Register = () => {
                   </Box>
 
                   <Typography sx={{ fontWeight: 700, fontSize: "24px", color: "text.primary", fontFamily: "UrbanistBold", mb: 1 }}>
-                    {accountExists ? "Welcome back to DynoPay!" : "Welcome to DynoPay!"}
+                    {accountExists ? "Welcome back to DynoPay!" : "You're in! 🎉"}
                   </Typography>
                   <Typography sx={{ fontSize: "15px", color: "text.secondary", fontFamily: "UrbanistMedium", lineHeight: 1.6, mb: 1 }}>
                     {accountExists
                       ? "You're logged in. Redirecting to your dashboard..."
-                      : "Your account has been created. Redirecting to your dashboard..."}
+                      : "Your account is ready. Next up: your business details — takes about 30 seconds."}
                   </Typography>
                   <LoadingSpinner size={24} />
                 </Box>
