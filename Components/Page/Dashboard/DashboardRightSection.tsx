@@ -1,26 +1,24 @@
 import { ArrowOutward } from "@mui/icons-material";
 import { Box, IconButton, Typography, useTheme } from "@mui/material";
 import Image from "next/image";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useSelector } from "react-redux";
 
 import ReferralAndKnowledge from "@/Components/Layout/ReferralAndKnowledge";
 import CustomButton from "@/Components/UI/Buttons";
 import PanelCard from "@/Components/UI/PanelCard";
 import FeeTierProgress from "./FeeTierProgress";
+import GrowPanel from "./GrowPanel";
 
 import { formatNumberWithComma, getCurrencySymbol } from "@/helpers";
 import useIsMobile from "@/hooks/useIsMobile";
 import { useDashboardData } from "@/hooks/useDashboardData";
+import { rootReducer } from "@/utils/types";
 // Using muiTheme from useTheme() for dark mode support
 
 import CheckCircleIcon from "@/assets/Icons/correct-icon.png";
 import CurrencyIcon from "@/assets/Icons/dollar-sign-icon.svg";
-import CrownIcon from "@/assets/Icons/premium-icon.svg";
-import BgDesktopImage from "@/assets/Images/bg-white.png";
-import BgMobileImage from "@/assets/Images/premium-card-bg.png";
-
-import { PremiumTierCard } from "./styled";
 
 const DEFAULT_MONTHLY_LIMIT = 50000;
 const DEFAULT_USED_AMOUNT = 0;
@@ -38,9 +36,25 @@ const DashboardRightSection = () => {
 
   const { feeTiers } = useDashboardData();
 
+  // Fee-free credit flag: user still has trial credit → prioritize that promo.
+  // Reading from userReducer.free_trial_volume_used vs FREE_TRIAL_VOLUME_USD ($500).
+  const userState = useSelector((s: rootReducer) => (s as any).userReducer);
+  const hasFeeFreeCredit = useMemo(() => {
+    const used = Number(userState?.free_trial_volume_used ?? 0);
+    const total = 500;
+    return used < total;
+  }, [userState?.free_trial_volume_used]);
+
   const monthlyLimit = feeTiers.monthlyLimit || DEFAULT_MONTHLY_LIMIT;
   const currentTier = feeTiers.currentTier || CURRENT_TIER;
   const [usedAmount, setUsedAmount] = useState(feeTiers.usedAmount || DEFAULT_USED_AMOUNT);
+
+  // Merchant is "premium eligible" once they've hit ≥60% of monthly limit —
+  // meaning they're actually processing real volume and would benefit.
+  const isPremiumEligible = useMemo(
+    () => usedAmount / Math.max(monthlyLimit, 1) >= 0.6,
+    [usedAmount, monthlyLimit],
+  );
 
   useEffect(() => {
     if (feeTiers.usedAmount > 0) {
@@ -209,98 +223,19 @@ const DashboardRightSection = () => {
             </Typography>
           </Box>
 
-          {/* Premium Upgrade Card */}
-          <PremiumTierCard
-            sx={{ mt: isMobile ? 1.5 : 2, position: "relative" }}
-          >
-            <Box
-              sx={{
-                position: "absolute",
-                inset: 0,
-                top: "6px",
-                left: "-10px",
-                zIndex: -1,
-                maxWidth: 310,
-                opacity: muiTheme.palette.mode === "dark" ? 0.15 : 1,
-              }}
-            >
-              <Image
-                src={isMobile ? BgMobileImage : BgDesktopImage}
-                alt="Background"
-                fill
-                sizes={isMobile ? "100vw" : "310px"}
-                draggable={false}
-                style={{ objectFit: "contain" }}
-              />
-            </Box>
-
-            <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-              <Box>
-                <Typography
-                  sx={{
-                    fontSize: isMobile ? 13 : 15,
-                    fontWeight: 500,
-                    fontFamily: "UrbanistMedium",
-                    lineHeight: "1.2",
-                    letterSpacing: "0",
-                    wordBreak: "break-all",
-                    color: muiTheme.palette.text.primary,
-                  }}
-                >
-                  {tDashboard("upgradeToPremiumTier")}
-                </Typography>
-
-                <Typography
-                  sx={{
-                    fontSize: isMobile ? 10 : 13,
-                    fontWeight: 500,
-                    color: muiTheme.palette.text.secondary,
-                    fontFamily: "UrbanistMedium",
-                    mt: isMobile ? 0.75 : 1.2,
-                    lineHeight: "1.2",
-                    letterSpacing: "0",
-                    wordBreak: "break-all",
-                  }}
-                >
-                  {tDashboard("lowerFeesAndPrioritySupport")}
-                </Typography>
-              </Box>
-
-              <Box
-                sx={{
-                  width: isMobile ? 32 : 49,
-                  height: isMobile ? 32 : 49,
-                  border: `1px solid ${muiTheme.palette.border.main}`,
-                  borderRadius: "50%",
-                  background: muiTheme.palette.background.paper,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  flexShrink: 0,
-                }}
-              >
-                <Image
-                  src={CrownIcon}
-                  alt="Premium"
-                  width={isMobile ? 14 : 18}
-                  height={isMobile ? 12 : 18}
-                  draggable={false}
-                />
-              </Box>
-            </Box>
-
-            <Box mt={2.5}>
-              <CustomButton
-                label={tDashboard("learnMore")}
-                variant="secondary"
-                size={isMobile ? "small" : "medium"}
-                endIcon={<ArrowOutward sx={{ fontSize: 16 }} />}
-                fullWidth
-              />
-            </Box>
-          </PremiumTierCard>
+          {/* Consolidated "Grow with DynoPay" panel — replaces the standalone
+              PremiumTierCard. Surfaces ONE offer at a time in priority order
+              (fee-free trial credit → premium upgrade → referral program)
+              so the right rail doesn't feel salesy. */}
         </Box>
       </PanelCard>
+
+      <Box sx={{ mt: 2 }}>
+        <GrowPanel
+          hasFeeFreeCredit={hasFeeFreeCredit}
+          isPremiumEligible={isPremiumEligible}
+        />
+      </Box>
 
       {isMobile && (
         <Box mt={2}>

@@ -40,6 +40,11 @@ import { PercentageChip } from "./styled";
 import ConversionBanner from "./ConversionBanner";
 import TodaySummaryStrip from "./TodaySummaryStrip";
 import FeeFreeWidget from "./FeeFreeWidget";
+import HeroMetrics from "./HeroMetrics";
+import RecentTransactionsWidget from "./RecentTransactionsWidget";
+import EmptyStatePanel from "./EmptyStatePanel";
+import { rootReducer } from "@/utils/types";
+import { useSelector } from "react-redux";
 
 const formatDate = (date: Date): string => {
   const months = [
@@ -271,7 +276,23 @@ const DashboardLeftSection = () => {
   );
 
   const { activeWalletsData } = useWalletData();
-  const { stats, chartData, loading, fetchChartData } = useDashboardData();
+  const { stats, chartData, loading, fetchChartData, recentTransactions } = useDashboardData();
+
+  // Selectors for empty-state decision (company + wallet setup + payment history).
+  const companyState = useSelector((s: rootReducer) => s.companyReducer);
+  const walletState = useSelector((s: rootReducer) => s.walletReducer);
+  const hasCompany = (companyState.companyList?.length ?? 0) > 0;
+  const hasWallet = (walletState.walletList?.length ?? 0) > 0;
+  const hasAnyConfirmedTxn = useMemo(() => {
+    const list = (recentTransactions as any[]) || [];
+    return list.some((tx) => {
+      const status = String(tx?.status || "").toLowerCase();
+      return ["confirmed", "completed", "settled", "success", "paid"].includes(status);
+    });
+  }, [recentTransactions]);
+  // Show empty state instead of Hero when merchant has set up but hasn't
+  // received any real payment yet. Turns the top-of-dashboard into a guide.
+  const showEmptyState = hasCompany && hasWallet && !hasAnyConfirmedTxn && !loading;
 
   // Fetch chart data when period changes
   useEffect(() => {
@@ -410,41 +431,39 @@ const DashboardLeftSection = () => {
 
   return (
     <Box>
-      {/* Today Summary Strip */}
-      <TodaySummaryStrip todaySummary={stats.todaySummary} loading={loading} />
-
-      {/* Fee-Free Promotion Widget */}
-      <Box sx={{ mx: { xs: 2, md: 0 }, mb: 0 }}>
-        <FeeFreeWidget />
-      </Box>
-
-      {/* Getting Started Banner - shows when user has zero transactions */}
-      {totalTransactions === 0 && !loading && (
-        <Box
-          sx={{
-            mb: 2.5,
-            mx: { xs: 2, md: 0 },
-            p: isMobile ? 2.5 : 3,
-            borderRadius: "14px",
-            border: `1px solid ${theme.palette.primary.main}20`,
-            bgcolor: `${theme.palette.primary.main}06`,
-            display: "flex",
-            flexDirection: isMobile ? "column" : "row",
-            alignItems: isMobile ? "flex-start" : "center",
-            justifyContent: "space-between",
-            gap: 2,
-          }}
-        >
-          <Box>
-            <Typography sx={{ fontSize: isMobile ? "16px" : "18px", fontFamily: "UrbanistSemibold", fontWeight: 600, color: theme.palette.text.primary, mb: 0.5 }}>
-              Welcome to Dynopay! 🚀
-            </Typography>
-            <Typography sx={{ fontSize: isMobile ? "13px" : "14px", fontFamily: "UrbanistMedium", color: theme.palette.text.secondary, lineHeight: 1.5 }}>
-              Start accepting crypto payments in minutes. Create your first payment link and share it with your customers.
-            </Typography>
-          </Box>
-        </Box>
+      {/* Top of dashboard: empty-state for zero-payment merchants, else HeroMetrics.
+          The old TodaySummaryStrip + FeeFreeWidget + "Welcome to Dynopay" banner
+          were all fighting for the top-of-fold real estate. Consolidated here:
+          - No confirmed payment yet → EmptyStatePanel (single clear next action)
+          - Any confirmed payment → HeroMetrics (3 glanceable tiles) */}
+      {showEmptyState ? (
+        <EmptyStatePanel
+          hasCompany={hasCompany}
+          hasWallet={hasWallet}
+          onCreateLink={() => router.push("/create-pay-link")}
+        />
+      ) : (
+        <HeroMetrics
+          loading={loading}
+          currencySymbol={stats.currencySymbol}
+          currency={stats.currency}
+          volumeTodayFormatted={stats.todaySummary?.volumeTodayFormatted}
+          volumeTodayChangePercent={stats.todaySummary?.volumeChangePercent}
+          totalVolumeFormatted={totalVolumeFormatted}
+          volumeChangePercent={volumeChange}
+          transactionsToday={stats.todaySummary?.transactionsToday}
+          transactionsChangePercent={stats.todaySummary?.transactionsChangePercent}
+          activeWallets={stats.activeWallets}
+        />
       )}
+
+      {/* Recent transactions — trust/retention signal. Renders empty-state
+          copy internally when the list is empty. */}
+      <RecentTransactionsWidget
+        transactions={recentTransactions as any[]}
+        loading={loading}
+      />
+
       {/* Stat Cards */}
       <Box
         ref={statCardsContainerRef}
@@ -495,215 +514,6 @@ const DashboardLeftSection = () => {
           },
         }}
       >
-        {/* Total Transactions */}
-        <PanelCard
-          title={tDashboard("totalTransactions")}
-          showHeaderBorder={false}
-          headerPadding={
-            isMobile
-              ? theme.spacing(2, 2, 0, 2)
-              : theme.spacing(2.5, 2.5, 0, 2.5)
-          }
-          bodyPadding={
-            isMobile
-              ? theme.spacing(1.5, 2, 2, 2)
-              : theme.spacing(2, 2, 2.5, 2.5)
-          }
-          sx={{
-            width: { xs: "200px", sm: "240px", md: "289px", xl: "315px" },
-            minHeight: { xs: "128px", sm: "140px", md: "176px" },
-            flexShrink: 0,
-          }}
-          headerAction={
-            <IconButton
-              sx={{
-                padding: "8px",
-                width: isMobile ? "32px" : "40px",
-                height: isMobile ? "32px" : "40px",
-                "&:hover": { backgroundColor: "transparent" },
-              }}
-            >
-              <Image
-                src={TransactionIcon}
-                alt="Transaction Icon"
-                width={17}
-                height={14}
-                style={{
-                  width: "clamp(14px, 2vw, 17px)",
-                  height: "auto",
-                }}
-                draggable={false}
-              />
-            </IconButton>
-          }
-        >
-          <Typography
-            sx={{
-              fontSize: isMobile ? "20px" : "40px",
-              color: theme.palette.text.primary,
-              fontFamily: "UrbanistMedium",
-              lineHeight: "100%",
-              fontWeight: 500,
-              letterSpacing: 0,
-            }}
-          >
-            {loading ? <Skeleton width={60} /> : totalTransactions}
-          </Typography>
-
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              gap: 1,
-              mt: { xs: "18px", sm: 3, md: 2.5 },
-            }}
-          >
-            <PercentageChip
-              sx={{ padding: isMobile ? "4px 6px" : "4px 8px", lineHeight: 1 }}
-            >
-              <Image
-                src={ArrowUpSuccessIcon}
-                alt="Arrow Up Success Icon"
-                width={11}
-                height={11}
-                style={{
-                  width: "clamp(8px, 2vw, 11px)",
-                  height: "auto",
-                }}
-              />
-              <Typography
-                component="span"
-                sx={{
-                  fontSize: isMobile ? "10px" : "13px",
-                  color: transactionChange >= 0 ? theme.palette.border.success : theme.palette.error.main,
-                  fontFamily: "UrbanistMedium",
-                  lineHeight: 1.2,
-                  padding: isMobile ? "0px 2px" : "4px 0px",
-                  fontWeight: 500,
-                  letterSpacing: 0,
-                }}
-              >
-                {Math.abs(transactionChange).toFixed(1)}%
-              </Typography>
-            </PercentageChip>
-            <Typography
-              sx={{
-                fontSize: isMobile ? "10px" : "13px",
-                color: theme.palette.text.secondary,
-                fontFamily: "UrbanistMedium",
-                lineHeight: "100%",
-                fontWeight: 500,
-                letterSpacing: 0,
-              }}
-            >
-              {t("comparedToLastMonth")}
-            </Typography>
-          </Box>
-        </PanelCard>
-
-        {/* Total Volume */}
-        <PanelCard
-          title={t("totalVolume")}
-          showHeaderBorder={false}
-          headerPadding={
-            isMobile
-              ? theme.spacing(2, 2, 0, 2)
-              : theme.spacing(2.5, 2.5, 0, 2.5)
-          }
-          bodyPadding={
-            isMobile ? theme.spacing(1.5, 2, 2, 2) : theme.spacing(2, 2, 2.5, 2)
-          }
-          sx={{
-            width: { xs: "200px", sm: "240px", md: "289px", xl: "315px" },
-            minHeight: { xs: "128px", sm: "140px", md: "176px" },
-            flexShrink: 0,
-          }}
-          headerAction={
-            <IconButton
-              sx={{
-                padding: "8px",
-                width: isMobile ? "32px" : "40px",
-                height: isMobile ? "32px" : "40px",
-                "&:hover": { backgroundColor: "transparent" },
-              }}
-            >
-              <Image
-                src={RoundedStackIcon}
-                alt="Rounded Stack Icon"
-                style={{
-                  width: "clamp(14px, 2vw, 17px)",
-                  height: "auto",
-                }}
-                draggable={false}
-              />
-            </IconButton>
-          }
-        >
-          <Typography
-            sx={{
-              fontSize: isMobile ? "20px" : "40px",
-              color: theme.palette.text.primary,
-              fontFamily: "UrbanistMedium",
-              lineHeight: "100%",
-              fontWeight: 500,
-              letterSpacing: 0,
-            }}
-          >
-            {loading ? <Skeleton width={120} /> : totalVolumeFormatted}
-          </Typography>
-
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "start",
-              alignItems: "center",
-              gap: 1,
-              mt: { xs: "18px", sm: 3, md: 2.5 },
-            }}
-          >
-            <PercentageChip
-              sx={{ padding: isMobile ? "4px 6px" : "4px 8px", lineHeight: 1 }}
-            >
-              <Image
-                src={ArrowUpSuccessIcon}
-                alt="Arrow Up Success Icon"
-                width={11}
-                height={11}
-                style={{
-                  width: "clamp(8px, 2vw, 11px)",
-                  height: "auto",
-                }}
-              />
-              <Typography
-                component="span"
-                sx={{
-                  fontSize: isMobile ? "10px" : "13px",
-                  color: volumeChange >= 0 ? theme.palette.border.success : theme.palette.error.main,
-                  fontFamily: "UrbanistMedium",
-                  lineHeight: 1.2,
-                  padding: isMobile ? "0px 2px" : "4px 0px",
-                  fontWeight: 500,
-                  letterSpacing: 0,
-                }}
-              >
-                {Math.abs(volumeChange).toFixed(1)}%
-              </Typography>
-            </PercentageChip>
-            <Typography
-              sx={{
-                fontSize: isMobile ? "10px" : "12px",
-                color: theme.palette.text.secondary,
-                fontFamily: "UrbanistMedium",
-                lineHeight: 1.2,
-                fontWeight: 500,
-                letterSpacing: 0,
-              }}
-            >
-              {t("comparedToLastMonth")}
-            </Typography>
-          </Box>
-        </PanelCard>
-
         {/* Active Wallets */}
         <PanelCard
           title={tDashboard("activeWallets")}
@@ -874,10 +684,11 @@ const DashboardLeftSection = () => {
         </PanelCard>
       </Box>
 
-      {/* Auto-Convert to Stablecoins Banner */}
-      <ConversionBanner />
+      {/* Auto-Convert banner removed — the promo now lives inside the
+          consolidated GrowPanel on the right side to reduce upsell noise. */}
 
-      {/* Transaction Volume Graph */}
+      {/* Transaction Volume Graph — moved below the fold. Merchants first
+          see Hero + Recent Txns above; the chart is for drill-down. */}
       <Box sx={{ px: { xs: "16px", md: "0px" } }}>
         <PanelCard
           showHeaderBorder={false}
