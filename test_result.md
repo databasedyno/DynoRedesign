@@ -1,3 +1,50 @@
+## Login/Register page alignment fix — full-viewport BlockBee-style layout (2026-07-06)
+
+### USER REPORT
+Login page was appearing "small and near the top" across desktop, tablet, and mobile —
+looking nothing like the reference `dash.blockbee.io/login` which uses a full-viewport
+two-panel split with the form vertically centered.
+
+### VISUAL DIAGNOSIS (screenshots)
+- **Desktop 1440**: `SplitLayoutWrapper` was `maxWidth: 1100px, minHeight: 600px, maxHeight:
+  calc(100dvh - 64px)` — sat floating in the middle of the viewport with big empty space
+  above and below.
+- **Tablet 768**: `AuthBrandPanel` hidden `< lg`, and `SplitLayoutWrapper` capped at
+  `maxWidth: 520px` — showed as a tiny 520px card floating in the middle of a 768px
+  viewport with the form crammed into 520px minus padding.
+- **Mobile 375**: `AuthPageBackground` had `justifyContent: flex-start` on `sm`, so the
+  form floated near the TOP of the viewport with a big empty space below.
+
+### FIX (`Containers/Login/styled.tsx` + `Components/UI/AuthLayout/AuthBrandPanel.tsx`)
+
+1. `SplitLayoutWrapper`: removed `maxWidth: 1100px`, `minHeight: 600px`, `maxHeight`,
+   `borderRadius`, `border`, `boxShadow`. Now `minHeight: 100dvh` so it always fills the
+   whole viewport (desktop = row split, `< lg` = column stack).
+2. `AuthPageBackground`: removed `justifyContent: center` and inner padding. The wrapper
+   now sits behind the full-viewport split.
+3. `FormPanel`: `alignItems: center` on ALL viewports (was `flex-start` on sm). Ensures
+   the form is vertically centered on mobile, tablet, AND desktop. `minHeight: 100dvh`
+   guarantees it fills the viewport height even when the form itself is short.
+4. `AuthBrandPanel`: dropped inline `flex: "0 0 46%"`, `borderRadius: "16px 0 0 16px"`,
+   `minHeight: 580` — now `flex: 1 1 50%`, `maxWidth: 50%`, `minHeight: 100dvh`, with
+   `padding: { lg: "56px 48px 44px", xl: "72px 64px 56px" }`. Hidden on `< lg`.
+
+### RESULT (verified with screenshots)
+- **Desktop 1440 / 1920**: brand panel LEFT (50% viewport), form panel RIGHT (50%),
+  form vertically centered. No more floating card ✅
+- **Tablet 768**: single form panel filling the entire viewport, form vertically
+  centered. No more tiny 520px card ✅
+- **Mobile 375**: full-viewport form, vertically centered (was previously flex-start
+  at the top) ✅
+- **iPhone SE 320**: form fits with room to breathe, still vertically centered ✅
+
+### FILES CHANGED
+- `/app/Containers/Login/styled.tsx` — SplitLayoutWrapper, AuthPageBackground, FormPanel
+- `/app/Components/UI/AuthLayout/AuthBrandPanel.tsx` — outer Box sx: `flex/maxWidth/minHeight/padding/borderRadius` reset
+
+Applies to **both /auth/login and /auth/register** (they share the same styled containers).
+
+
 ## Dashboard "new account" bug + mobile responsiveness — VERIFIED (2026-07-06)
 
 ### RESULTS

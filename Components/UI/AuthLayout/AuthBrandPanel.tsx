@@ -97,16 +97,19 @@ const AuthBrandPanel = () => {
   return (
   <Box
     sx={{
-      flex: "0 0 46%",
-      maxWidth: "46%",
+      // Fill 50% of the viewport width and the full viewport height.
+      // Previously this had its own flex:"0 0 46%" + minHeight:580 +
+      // borderRadius, which made it a small rounded card instead of a
+      // full-height panel — that's what made the login look "small".
+      flex: "1 1 50%",
+      maxWidth: "50%",
+      minHeight: "100dvh",
       position: "relative",
       flexDirection: "column",
       justifyContent: "space-between",
       overflow: "hidden",
       background: "linear-gradient(160deg, #0004FF 0%, #1a0a6e 50%, #0e063a 100%)",
-      padding: "40px 36px 32px",
-      borderRadius: "16px 0 0 16px",
-      minHeight: 580,
+      padding: { lg: "56px 48px 44px", xl: "72px 64px 56px" },
       /* hide on tablets / mobile — form takes full width */
       display: { xs: "none", lg: "flex" },
     }}

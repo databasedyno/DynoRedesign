@@ -26,43 +26,33 @@ export const ContentWrapper = styled(Box)(() => ({
   },
 }));
 
-/* ── New Split Layout ────────────────────────────────── */
+/* ── New Split Layout ──────────────────────────────────
+ * Full-viewport two-column layout inspired by BlockBee. Design goals:
+ *   - Desktop (lg+): brand panel on the LEFT filling half the viewport,
+ *     form panel on the RIGHT filling the other half. Form is vertically
+ *     centered so it never floats near the top of the page.
+ *   - Tablet (md-lg): single form panel filling the ENTIRE viewport with
+ *     the form vertically centered. Previously the login card floated as
+ *     a small 520px box in the middle of a 768px viewport, which looked
+ *     "small and near the top".
+ *   - Mobile (< sm): full viewport, form vertically centered, edge padding.
+ */
 
 export const SplitLayoutWrapper = styled(Box)(({ theme }) => ({
   display: "flex",
   flexDirection: "row",
   alignItems: "stretch",
   width: "100%",
-  maxWidth: "1100px",
-  height: "auto",
-  minHeight: "600px",
-  maxHeight: "calc(100dvh - 64px)",
-  margin: "0 auto",
+  // Fill the whole viewport — no maxWidth so the panels grow to fit any
+  // desktop/tablet size instead of being capped at 1100px.
+  minHeight: "100dvh",
+  margin: 0,
   background: theme.palette.mode === "dark" ? "#0B0D17" : "#fff",
-  borderRadius: "20px",
   overflow: "hidden",
-  boxShadow:
-    theme.palette.mode === "dark"
-      ? "0 8px 60px rgba(0,0,0,0.5)"
-      : "0 8px 60px rgba(47,47,101,0.10)",
-  border: `1px solid ${theme.palette.mode === "dark" ? "#1f2237" : "#e8eaf0"}`,
 
   [theme.breakpoints.down("lg")]: {
     flexDirection: "column",
-    maxWidth: "520px",
-    minHeight: "auto",
-    maxHeight: "none",
-    margin: "24px auto",
-    borderRadius: "16px",
-  },
-
-  [theme.breakpoints.down("sm")]: {
-    margin: "0 auto",
-    borderRadius: "0",
-    border: "none",
-    boxShadow: "none",
     minHeight: "100dvh",
-    maxHeight: "none",
   },
 }));
 
@@ -72,21 +62,18 @@ export const AuthPageBackground = styled(Box)(({ theme }) => ({
   minHeight: "100dvh",
   display: "flex",
   flexDirection: "column",
-  justifyContent: "center",
-  background: theme.palette.mode === "dark" ? "#0B0D17" : "#f0f2f7",
-  padding: "32px 24px",
+  // No inner padding — the SplitLayoutWrapper now fills the entire viewport
+  // so the page background just needs to sit behind it.
+  padding: 0,
   boxSizing: "border-box",
-
-  [theme.breakpoints.down("sm")]: {
-    padding: "0",
-    justifyContent: "flex-start",
-    background: theme.palette.mode === "dark" ? "#0B0D17" : "#f4f6fa",
-  },
+  background: theme.palette.mode === "dark" ? "#0B0D17" : "#fff",
 }));
 
 export const BrandPanel = styled(Box)(({ theme }) => ({
-  flex: "0 0 48%",
-  maxWidth: "48%",
+  // 50/50 split on desktop, filling the full viewport height.
+  flex: "1 1 50%",
+  maxWidth: "50%",
+  minHeight: "100dvh",
   position: "relative",
   display: "flex",
   flexDirection: "column",
@@ -99,24 +86,36 @@ export const BrandPanel = styled(Box)(({ theme }) => ({
 }));
 
 export const FormPanel = styled(Box)(({ theme }) => ({
-  flex: 1,
+  // Right half on desktop, full width on tablet/mobile. Always vertically
+  // centers its child so the login form never floats near the top.
+  flex: "1 1 50%",
   display: "flex",
   justifyContent: "center",
-  alignItems: "flex-start",
-  padding: "32px 48px",
+  alignItems: "center",
+  minHeight: "100dvh",
+  padding: "48px 56px",
   overflowY: "auto",
   overflowX: "hidden",
   background: theme.palette.mode === "dark" ? "#0B0D17" : "#fff",
   scrollbarWidth: "none",
   "&::-webkit-scrollbar": { display: "none" },
 
+  [theme.breakpoints.down("lg")]: {
+    // Tablet: form fills the whole viewport (no brand panel), vertically
+    // centered, with roomier padding so it doesn't look small.
+    flex: "1 1 100%",
+    maxWidth: "100%",
+    padding: "40px 32px",
+  },
+
   [theme.breakpoints.down("md")]: {
-    padding: "28px 28px",
+    padding: "32px 24px",
   },
 
   [theme.breakpoints.down("sm")]: {
-    padding: "24px 24px 40px",
-    alignItems: "flex-start",
+    // Mobile: keep centered vertically but with tighter padding.
+    padding: "24px 20px",
+    alignItems: "center",
     justifyContent: "center",
   },
 }));
