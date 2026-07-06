@@ -739,11 +739,11 @@ const OtpInputPanel: React.FC<OtpInputPanelProps> = ({
                 <CustomButton
                   variant="primary"
                   size={isMobile ? "small" : "medium"}
-                  label={labelPrimary}
+                  label={loading ? (t("verifying") || "Verifying…") : labelPrimary}
                   type="submit"
+                  loading={loading}
                   disabled={
                     submitDisable ||
-                    loading ||
                     !areAllFieldsFilled ||
                     !isValid
                   }
@@ -766,11 +766,11 @@ const OtpInputPanel: React.FC<OtpInputPanelProps> = ({
                 <CustomButton
                   variant="primary"
                   size="medium"
-                  label={labelPrimary}
+                  label={loading ? (t("verifying") || "Verifying…") : labelPrimary}
                   type="submit"
+                  loading={loading}
                   disabled={
                     submitDisable ||
-                    loading ||
                     !areAllFieldsFilled ||
                     !isValid
                   }

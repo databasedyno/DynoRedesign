@@ -1,5 +1,5 @@
 import useIsMobile from "@/hooks/useIsMobile";
-import { Box, Button as MuiButton, Typography, useTheme } from "@mui/material";
+import { Box, Button as MuiButton, CircularProgress, Typography, useTheme } from "@mui/material";
 import { SxProps, Theme } from "@mui/system";
 import Image, { StaticImageData } from "next/image";
 import React from "react";
@@ -9,6 +9,14 @@ export interface CustomButtonProps {
   variant?: "primary" | "secondary" | "outlined" | "danger";
   size?: "small" | "medium" | "large";
   disabled?: boolean;
+  /**
+   * When true, the button behaves as disabled (no clicks) BUT keeps its
+   * variant color (e.g. primary stays blue) and shows a CircularProgress
+   * spinner in place of the label. Use this for "verifying / submitting"
+   * states so the user gets clear "we heard you, working on it" feedback
+   * instead of the button graying out.
+   */
+  loading?: boolean;
   fullWidth?: boolean;
   startIcon?: React.ReactNode | StaticImageData;
   endIcon?: React.ReactNode | StaticImageData;
@@ -29,6 +37,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   variant = "primary",
   size = "medium",
   disabled = false,
+  loading = false,
   fullWidth = false,
   startIcon,
   endIcon,
@@ -146,11 +155,16 @@ const CustomButton: React.FC<CustomButtonProps> = ({
       ? "error-shake"
       : "";
 
+  // "loading" behaves like disabled (no clicks) but keeps the variant color
+  // (e.g. primary stays blue) and swaps the label for a spinner. This gives
+  // users clear "processing" feedback without the button turning gray.
+  const isBlockedForClicks = disabled || loading;
+
   return (
     <MuiButton
       type={type}
       data-testid={dataTestId}
-      disabled={disabled}
+      disabled={isBlockedForClicks}
       fullWidth={fullWidth}
       onClick={onClick}
       className={animationClass}
@@ -161,7 +175,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
         borderRadius: "6px",
         lineHeight: "1",
         textTransform: "none",
-        cursor: disabled ? "not-allowed" : "pointer",
+        cursor: loading ? "wait" : disabled ? "not-allowed" : "pointer",
         transition: "all 0.3s ease",
         display: "flex",
         alignItems: "center",
@@ -169,13 +183,24 @@ const CustomButton: React.FC<CustomButtonProps> = ({
         gap: config.gap,
         ...variantStyle,
         ...(variant === "primary" &&
-          !disabled && {
+          !isBlockedForClicks && {
             "&:hover": {
               backgroundColor: "#0004FF99",
               color: theme.palette.common.white,
             },
           }),
-        ...(disabled && {
+        // When loading (but not user-disabled), KEEP the variant color so
+        // the button reads as "active / processing" instead of "disabled".
+        ...(loading && !disabled && {
+          "&.Mui-disabled": {
+            backgroundColor: variantStyle.backgroundColor,
+            color: variantStyle.color,
+            opacity: 0.9,
+          },
+        }),
+        // Only apply the gray disabled style when the button is DISABLED
+        // and NOT loading.
+        ...(disabled && !loading && {
           backgroundColor: variant === "primary" ? "#B0BEC5" : theme.palette.background.paper,
           color:
             variant === "primary" ? `${theme.palette.common.white} !important` : `${theme.palette.text.secondary} !important`,
@@ -211,51 +236,82 @@ const CustomButton: React.FC<CustomButtonProps> = ({
         ...sx,
       }}
     >
-      {startIcon && (
-        <Box
-          component="span"
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize:
-              size === "small" ? "16px" : size === "medium" ? "18px" : "20px",
-          }}
-        >
-          {renderIcon(startIcon, finalIconSize)}
-        </Box>
-      )}
+      {loading ? (
+        <>
+          <CircularProgress
+            size={size === "large" ? 20 : 16}
+            thickness={5}
+            sx={{
+              color: variantStyle.color || theme.palette.common.white,
+              mr: 1,
+            }}
+          />
+          {!hideLabel && (
+            <Typography
+              className="custom-button-label"
+              sx={{
+                fontSize: isMobile ? "13px" : "15px",
+                fontFamily: "UrbanistMedium",
+                fontWeight: 500,
+                lineHeight: "1.2",
+                letterSpacing: 0,
+                whiteSpace: "nowrap",
+                ...labelSx,
+              }}
+            >
+              {label}
+            </Typography>
+          )}
+        </>
+      ) : (
+        <>
+          {startIcon && (
+            <Box
+              component="span"
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize:
+                  size === "small" ? "16px" : size === "medium" ? "18px" : "20px",
+              }}
+            >
+              {renderIcon(startIcon, finalIconSize)}
+            </Box>
+          )}
 
-      {!shouldHideLabel && !hideLabel && (
-        <Typography
-          className="custom-button-label"
-          sx={{
-            fontSize: isMobile ? "13px" : "15px",
-            fontFamily: "UrbanistMedium",
-            fontWeight: 500,
-            lineHeight: "1.2",
-            letterSpacing: 0,
-            whiteSpace: "nowrap",
-            ...labelSx,
-          }}
-        >
-          {label}
-        </Typography>
-      )}
+          {!shouldHideLabel && !hideLabel && (
+            <Typography
+              className="custom-button-label"
+              sx={{
+                fontSize: isMobile ? "13px" : "15px",
+                fontFamily: "UrbanistMedium",
+                fontWeight: 500,
+                lineHeight: "1.2",
+                letterSpacing: 0,
+                whiteSpace: "nowrap",
+                ...labelSx,
+              }}
+            >
+              {label}
+            </Typography>
+          )}
 
-      {endIcon && (
-        <Box
-          component="span"
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize:
-              size === "small" ? "10px" : size === "medium" ? "10px" : "20px",
-          }}
-        >
-          {renderIcon(endIcon, finalIconSize)}
-        </Box>
+          {endIcon && (
+            <Box
+              component="span"
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize:
+                  size === "small" ? "10px" : size === "medium" ? "10px" : "20px",
+              }}
+            >
+              {renderIcon(endIcon, finalIconSize)}
+            </Box>
+          )}
+        </>
       )}
     </MuiButton>
   );

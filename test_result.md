@@ -1,3 +1,146 @@
+## Onboarding UX fixes — Frontend Test Request (2026-07-06)
+
+- scope: User reported after real onboarding audit (cloudchris93@gmail.com) that
+  (1) the "Verify & create account" / "Verify & log in" button remained COLORLESS/gray
+      even after all 6 OTP digits were typed — it never turned primary blue, and
+  (2) the flow never explicitly says "Email verified ✓" / "Phone number verified ✓"
+      like Emergent does; it jumps straight to "Welcome to DynoPay!" with no
+      acknowledgement that the verification step was successful.
+- root cause of (1): `Components/UI/OtpInputPanel/index.tsx` set the primary button
+  `disabled={submitDisable || loading || !areAllFieldsFilled || !isValid}`. The
+  moment the 6th digit is typed, `handleOtpChange` calls `attemptAutoSubmit`
+  synchronously → parent's `handleVerifyOtp` calls `setLoading(true)`. React 18
+  batches all these updates in the same event, so the next render already has
+  `loading=true` — the button skips the "enabled/blue" state entirely and goes
+  from gray-disabled ("5 of 6") straight to gray-disabled ("loading"). It never
+  visibly turns blue.
+- fix for (1):
+  1. `Components/UI/Buttons/index.tsx` — new explicit `loading?: boolean` prop on
+     CustomButton. When `loading=true`, the button is unclickable BUT keeps its
+     variant color (primary stays blue, not `#B0BEC5` gray), the cursor becomes
+     `wait`, and a CircularProgress spinner replaces/precedes the label. The gray
+     `#B0BEC5` disabled style ONLY applies when `disabled && !loading`. This is
+     achieved by (a) tracking `isBlockedForClicks = disabled || loading`, (b)
+     using `&.Mui-disabled { backgroundColor: variantStyle.backgroundColor }`
+     override when `loading && !disabled`, and (c) only applying the gray
+     disabled style in the `disabled && !loading` branch.
+  2. `Components/UI/OtpInputPanel/index.tsx` (both "row" and "stacked" layouts) —
+     removed `loading` from `disabled`, added `loading={loading}` prop, and the
+     button label swaps to "Verifying…" (i18n key `verifying`, EN fallback)
+     while loading. Result: the moment the 6th digit is typed, the button
+     transitions from gray → blue with the spinner, giving clear "working on it"
+     feedback instead of dead-looking gray.
+- fix for (2): `pages/auth/register.tsx` step="success" now renders a green
+  "✓ Email verified" / "✓ Phone number verified" pill (data-testid
+  "verified-confirmation-chip") ABOVE the "Welcome to DynoPay!" heading. Text
+  varies by `method`. Green tint + border, theme-aware (dark/light).
+
+- FRONTEND TEST REQUEST — preview https://f8aebaba-bfa3-4705-9202-7a4ca96de59d.preview.emergentagent.com
+
+  HARD CONSTRAINTS:
+  * DO NOT create real users — backend is connected to LIVE production DB/Brevo/Telnyx.
+  * Do all interactive tests with Playwright `page.route()` STUBS for the auth
+    endpoints so no real emails/SMS are sent and no DB rows are created.
+
+  CASE A — button color/state on /auth/register (email flow, OTP step):
+    1. `context.set_default_navigation_timeout(30000)`; add route stubs:
+       - `POST **/api/user/registerEmail` → HTTP 200 body `{"success":true,"message":"OTP sent","data":{}}`
+       - `POST **/api/user/registerEmail/verify-otp` → after a 1200ms delay,
+         HTTP 200 body `{"success":true,"data":{"accessToken":"stub-jwt-1","user":{"id":9999,"email":"qa.otpbtn@dynopaytest.com"},"account_exists":false}}`
+    2. Navigate to `/auth/register`. Wait networkidle + 1500ms.
+    3. Type an email into the email input (e.g. `qa.otpbtn@dynopaytest.com`) and
+       click the primary "Continue" / "Send OTP" button. Wait for the OTP step
+       to appear (heading text "Verify Your Email").
+    4. Locate the 6 OTP inputs (`ariaLabel*="OTP digit"` OR by walking the
+       OtpInputPanel form). Locate the primary submit button — its label should
+       currently be "Verify & create account". Read its computed background
+       color BEFORE typing anything → assert it's the gray/disabled color
+       (rgb value near 176,190,197 = #B0BEC5).
+    5. Type digits "1","2","3","4","5" into the first 5 boxes. After each digit,
+       do NOT expect the button to be blue — it should stay gray-disabled.
+    6. IMMEDIATELY BEFORE typing the 6th digit, install a MutationObserver via
+       `page.evaluate` to capture the button's background color when the label
+       text changes to "Verifying…". You can also just poll every 50ms for 2s
+       after typing digit 6 to capture the background color while the label is
+       either "Verify & create account" (any milliseconds) OR "Verifying…".
+    7. Type "6" into the 6th box.
+    8. WITHIN the next 2000ms poll and record: the button's computed
+       `background-color`, the button's `disabled` attribute, whether a
+       CircularProgress spinner is present (query `.MuiCircularProgress-root`
+       INSIDE the button), and the current label text.
+    9. Wait for the stubbed verify-otp response (1200ms delay) to resolve.
+    10. Assert BOTH of these MUST have been true at some point during the poll:
+        (a) the button's background color was in the BLUE family (blue channel
+            ≥ 200 AND blue > red AND blue > green — DynoPay primary is
+            `#0004FF` = rgb(0,4,255)), NOT the gray family (r≈g≈b, all around
+            176/190/197). Screenshot the button at that exact frame.
+        (b) at the same time, either (i) the label text was "Verifying…" AND a
+            CircularProgress element was present INSIDE the button, OR (ii) the
+            label was still "Verify & create account" — either is acceptable
+            AS LONG AS the button was BLUE. The user's exact complaint was
+            "remain colorless"; the fix is that once the 6th digit is entered,
+            the button MUST be blue.
+    11. FAIL if the button's background color was gray (`#B0BEC5` or near) at
+        every sampled frame between the 6th digit landing and the API response.
+    12. Screenshots: `otpbtn_gray_5digits.png` (5 digits, expect gray),
+        `otpbtn_blue_loading.png` (6 digits, expect blue+spinner or blue+label).
+
+  CASE B — success screen shows "Email verified ✓":
+    1. Same stubs as Case A. Complete the flow (type all 6 digits, let the
+       stubbed verify-otp resolve).
+    2. Wait for the success screen (heading "Welcome to DynoPay!" or similar).
+    3. Assert the element with `data-testid="verified-confirmation-chip"` is
+       PRESENT and visible.
+    4. Assert its text contains "Email verified" (case-insensitive).
+    5. Assert its computed color is in the green family (green channel >
+       red AND green > blue, or hex reads to a green — e.g. `#047857` in light,
+       `#6EE7B7` in dark).
+    6. Screenshot: `verified_chip_email.png`.
+
+  CASE C — success screen shows "Phone number verified ✓" (phone method):
+    1. Stubs (all under `**/api/`):
+       - `POST **/api/user/phone-type-check` → HTTP 200 body `{"success":true,"data":{"is_valid":true,"country_code":"US"}}`
+       - `POST **/api/user/registerPhone` → HTTP 200 body `{"success":true,"message":"OTP sent","data":{}}`
+       - `POST **/api/user/registerPhone/verify` → after 1200ms, HTTP 200 body
+         `{"success":true,"data":{"accessToken":"stub-jwt-2","user":{"id":9998,"mobile":"12025550100"},"account_exists":false}}`
+    2. Navigate to `/auth/register`. Wait networkidle + 1500ms. Switch to the
+       "Mobile Number" tab (or "Phone" / "SMS" tab — whatever the tab label is).
+    3. Fill a bogus phone number (US +1 202 555 0100 works — E.164 friendly).
+       Click Continue / Send OTP.
+    4. On the OTP step, verify the heading now reads "Verify Your Phone" or
+       similar (not "Verify Your Email").
+    5. Type "1","2","3","4","5","6" into the 6 boxes.
+    6. Wait for success screen.
+    7. Assert `data-testid="verified-confirmation-chip"` present, text contains
+       "Phone number verified" (case-insensitive).
+    8. Screenshot: `verified_chip_phone.png`.
+
+  CASE D — regression: login page OTP button also fixed:
+    1. Stubs: `POST **/api/user/checkEmail?email=*` → HTTP 200 `{"success":true,"data":{"account_exists":true}}`
+       (any 200 that doesn't 4xx works — the intent is to bypass the pre-check).
+       `POST **/api/user/generateOTP` → HTTP 200 body `{"success":true}`.
+    2. Navigate to `/auth/login`. Enter an email and click "Continue" so the
+       OTP dialog opens (the login OTP dialog uses the SAME OtpInputPanel
+       component we fixed).
+    3. Type 5 digits — button should be gray-disabled.
+    4. IMPORTANT: do NOT stub verify-login-otp; instead intercept it and
+       let it hang so we can inspect the "loading blue" state:
+       `page.route("**/api/user/verifyLoginOTP", lambda r: None)` (don't
+       respond — the request just hangs).
+    5. Type the 6th digit.
+    6. Within 2000ms poll: assert the button is BLUE (same rgb check as A.10a)
+       and its label is either the loading label OR still the primary label —
+       what matters is it's NOT gray.
+    7. Screenshot: `login_otpbtn_blue.png`.
+
+  PASS = A ✅ AND B ✅ AND (C ✅ OR C skipped due to phone-input requiring a real
+  country dropdown selection — noted but not a fail) AND D ✅.
+
+  REPORT for each case: PASS / FAIL, the actual button background rgb values
+  captured at each poll frame, the presence of the verified chip, and the
+  screenshots. If FAIL, quote the exact frame's rgb and label text.
+
+
 backend:
   - target_url: https://payment-processor-68.preview.emergentagent.com/api
   - test_endpoints:

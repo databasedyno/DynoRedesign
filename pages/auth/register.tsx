@@ -647,6 +647,43 @@ const Register = () => {
                   >
                     <CheckCircleOutline sx={{ fontSize: 40, color: "#fff" }} />
                   </Box>
+
+                  {/* Explicit "Email/Phone verified" confirmation chip — Emergent-style */}
+                  <Box
+                    data-testid="verified-confirmation-chip"
+                    sx={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      px: 1.5,
+                      py: 0.75,
+                      mb: 1.5,
+                      borderRadius: "999px",
+                      backgroundColor:
+                        theme.palette.mode === "dark"
+                          ? "rgba(16,185,129,0.16)"
+                          : "rgba(16,185,129,0.10)",
+                      border: `1px solid ${
+                        theme.palette.mode === "dark"
+                          ? "rgba(16,185,129,0.45)"
+                          : "rgba(16,185,129,0.35)"
+                      }`,
+                    }}
+                  >
+                    <CheckCircleOutline sx={{ fontSize: 16, color: "#10B981" }} />
+                    <Typography
+                      sx={{
+                        fontSize: "13px",
+                        color: theme.palette.mode === "dark" ? "#6EE7B7" : "#047857",
+                        fontFamily: "UrbanistSemiBold",
+                        fontWeight: 600,
+                        lineHeight: 1,
+                      }}
+                    >
+                      {method === "email" ? "Email verified" : "Phone number verified"}
+                    </Typography>
+                  </Box>
+
                   <Typography sx={{ fontWeight: 700, fontSize: "24px", color: "text.primary", fontFamily: "UrbanistBold", mb: 1 }}>
                     {accountExists ? "Welcome back to DynoPay!" : "Welcome to DynoPay!"}
                   </Typography>
