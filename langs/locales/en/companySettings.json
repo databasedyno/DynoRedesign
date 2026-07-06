@@ -31,7 +31,7 @@
         "minutes": "minutes"
     },
     "cryptoConversion": "Crypto conversion",
-    "cryptoConversionSubtitle": "Incoming BTC, ETH, LTC will be automatically converted to a stablecoin.",
+    "cryptoConversionSubtitle": "Optional — when enabled, incoming BTC, ETH, LTC on this wallet will be converted to a stablecoin. Off by default; leave off to receive the original coin.",
     "cryptoConversionAlert": "Please set up your USDT/USDC wallet first.",
     "cryptoConversionAutoConvert": "Auto-convert volatile crypto",
     "cryptoConversionYes": "Yes",

@@ -106,7 +106,7 @@ Dynopay supports 15+ cryptocurrencies including:
 
 ## Auto-Convert to Stablecoins
 
-Worried about crypto price volatility? Dynopay can automatically convert incoming crypto payments to USDT or USDC, so you always receive a stable value.
+Worried about crypto price volatility? Dynopay lets you switch on auto-conversion per wallet — incoming crypto payments are then converted to USDT or USDC automatically, so on those wallets you receive stable value. Prefer to keep the original coin? Leave auto-convert off and you'll receive exactly what the customer sent.
 
 ## Conclusion
 
@@ -136,18 +136,20 @@ This volatility risk is the #1 reason merchants hesitate to accept crypto. But i
 
 ## What Is Stablecoin Settlement?
 
-Stablecoin settlement means that when a customer pays you in any cryptocurrency (BTC, ETH, LTC, etc.), the payment is **automatically converted to a stablecoin** like USDT or USDC before it reaches your wallet.
+Stablecoin settlement means that when a customer pays you in any cryptocurrency (BTC, ETH, LTC, etc.) **and you have auto-conversion switched on for the receiving wallet**, the payment is converted to a stablecoin like USDT or USDC before it reaches you. Auto-conversion is entirely opt-in — leave it off and you receive exactly the coin the customer sent.
 
 Stablecoins are cryptocurrencies pegged 1:1 to the US dollar. 1 USDT = $1.00, always.
 
-## How It Works with Dynopay
+## How It Works with Dynopay (when auto-convert is enabled)
+
+Auto-convert is a per-wallet setting you toggle from your dashboard. Once you turn it on for a wallet:
 
 1. **Customer pays** in BTC, ETH, or any supported crypto
 2. **Dynopay receives** the crypto payment and confirms it on-chain
-3. **Auto-conversion** kicks in — the crypto is instantly converted to your chosen stablecoin
-4. **You receive** USDT or USDC in your wallet — stable value, guaranteed
+3. **Auto-conversion kicks in** — the crypto is converted to your chosen stablecoin
+4. **You receive** USDT or USDC in that wallet — stable value on every payment routed to it
 
-The entire process takes seconds, not days. And you never touch the volatile asset.
+The entire process takes seconds, not days. And if you leave auto-convert off, you receive the original coin exactly as the customer sent it — nothing is converted without your permission.
 
 ## The Numbers Don't Lie
 

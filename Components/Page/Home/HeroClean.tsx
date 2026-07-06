@@ -93,7 +93,7 @@ const HeroClean: React.FC = () => {
           mb: { xs: 2.5, md: 3 },
         }}
       >
-        Accept crypto. Get paid in stablecoins.
+        Accept crypto. Keep it, or auto-convert to stablecoins.
       </Typography>
 
       {/* Subtitle — plain body text, muted color, generous max-width */}
@@ -108,8 +108,9 @@ const HeroClean: React.FC = () => {
           mb: { xs: 4, md: 5 },
         }}
       >
-        Accept 13 chains from customers in 40+ countries and settle in USDT/USDC in
-        minutes. Non-custodial. 0.5% flat — no chargebacks.
+        Accept 13 chains from customers in 40+ countries. Receive the crypto as-is,
+        or opt in to auto-convert to USDT/USDC in minutes — the choice is yours.
+        Non-custodial. 0.5% flat — no chargebacks.
       </Typography>
 
       {/* CTAs — one solid, one text-link (no outlined box for calmer feel). */}

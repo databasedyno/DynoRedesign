@@ -30,7 +30,7 @@ const QUOTES: Testimonial[] = [
     industry: 'E-commerce · Portugal',
     color: '#0004FF',
     chain: 'USDT-TRC20',
-    quote: 'We switched from Stripe to DynoPay for our international customers and cut processing fees from 3.2% to 0.8%. Settlements land in USDT within minutes — no more three-day holds.',
+    quote: 'We switched from Stripe to DynoPay for our international customers and cut processing fees from 3.2% to 0.8%. We turned on auto-convert for our main wallet, so settlements land in USDT within minutes — no more three-day holds.',
   },
   {
     name: 'David Kimani',

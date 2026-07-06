@@ -600,7 +600,7 @@ POST /api/admin/customers/:id/credit
 ```
 
 ### Q: What currencies are supported for wallet balances?
-**A**: Wallet balances are stored in your API key's base currency (USD, EUR, GBP, etc.). When customers pay in crypto, it's auto-converted to your base currency.
+**A**: Wallet balances are stored in your API key's base currency (USD, EUR, GBP, etc.). This is a display/reporting conversion for your dashboard totals — merchants receive the actual crypto in their wallet. If you want on-chain conversion of incoming crypto to a stablecoin (USDT/USDC), that's a separate opt-in toggle per wallet — enable it in Company Settings → Crypto Conversion, otherwise you keep the original coin.
 
 ### Q: How do I get the customer_id for admin wallet operations?
 **A**: 
