@@ -12,7 +12,7 @@ import time
 from typing import Dict, Any, Optional
 
 # Configuration
-BASE_URL = "https://15e89113-c89f-4d59-81a2-709d609d4c36.preview.emergentagent.com/api"
+BASE_URL = "https://deploy-now-121.preview.emergentagent.com/api"
 REDIS_URL = "redis://default:HAEMJseUAdqAjpiICURxlefSoSYXKEUg@nozomi.proxy.rlwy.net:15794"
 
 # Test credentials

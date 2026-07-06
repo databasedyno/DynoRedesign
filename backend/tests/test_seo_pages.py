@@ -4,7 +4,7 @@ import re
 import pytest
 import requests
 
-BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://auth-fix-mobile-1.preview.emergentagent.com").rstrip("/")
+BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://deploy-now-121.preview.emergentagent.com").rstrip("/")
 
 COUNTRIES = [
     "united-states", "united-kingdom", "germany", "india",

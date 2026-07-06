@@ -10,7 +10,7 @@ import json
 import time
 
 # Configuration
-BASE_URL = "https://auth-fix-mobile-1.preview.emergentagent.com"
+BASE_URL = "https://deploy-now-121.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 # Test credentials

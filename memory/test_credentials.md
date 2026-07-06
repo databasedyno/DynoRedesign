@@ -1,7 +1,9 @@
 # Test Credentials
 
 ## Preview Environment (Emergent)
-- URL: https://15e89113-c89f-4d59-81a2-709d609d4c36.preview.emergentagent.com
+- URL: https://d8ea571f-0b45-411c-9fe8-d786a0e4f290.preview.emergentagent.com
+- (Previous fork URL: https://deploy-now-121.preview.emergentagent.com)
+- Frontend .env: /app/.env (NEXT_PUBLIC_BASE_URL points to the preview URL; /api/* routed to backend on port 8001)
 - Backend .env: /app/backend/.env (points to Railway PostgreSQL `railway` DB on `roundhouse.proxy.rlwy.net:23599`)
 - Redis: nozomi.proxy.rlwy.net:15794
 
