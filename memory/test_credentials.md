@@ -8,7 +8,7 @@
 - Redis: nozomi.proxy.rlwy.net:15794
 - Backend runs NODE_ENV=production (sequelize .sync({}) = no destructive ALTER) + WORKER_ROLE=secondary + ENABLE_BACKGROUND_JOBS=false (API-only; ALL cron jobs/sweeps/conversions/webhook-migration/emails DISABLED — safe alongside production).
 - CORS_ALLOWED_ORIGINS includes the preview URL + dynopay.com + checkout.dynopay.com.
-- Re-provisioned 2026-07-07 from a fresh checkout: `yarn install` in /app and /app/backend, .env files recreated from provided credentials. Verified: PostgreSQL + Redis connected, /health + /api/csrf-token = 200, homepage + /auth/login render (SSR) with no console errors.
+- Re-provisioned 2026-07-07 from a fresh checkout using user-supplied credentials: `yarn install` in /app and /app/backend; recreated /app/.env (frontend app-URLs → https://blockchain-gateway-10.preview.emergentagent.com for NEXT_PUBLIC_BASE_URL/NEXT_PUBLIC_SERVER_URL/SERVER_URL/FRONTEND_URL/NEXTAUTH_URL + a freshly generated NEXTAUTH_SECRET) and /app/backend/.env (Railway PG + Redis + all API keys). SAFETY overrides kept: NODE_ENV=production, WORKER_ROLE=secondary, ENABLE_BACKGROUND_JOBS=false — re-verified in logs (error-digest / webhook-URL-migration / BullMQ webhook worker / startup-reconciliation all skipped; only the read-only rate-cache refresh runs). CORS_ALLOWED_ORIGINS = both preview hostnames (blockchain-gateway-10 + cd23a8b9-…) + dynopay.com + checkout.dynopay.com. Verified: PostgreSQL + Redis connected, /health + /api/csrf-token = 200 (internal + external on blockchain-gateway-10), homepage + /auth/login SSR render full content, axios base = blockchain-gateway-10, zero console errors.
 
 ## Primary QA Account (active user with $18k+ in transactions)
 - Email: hostbay@moxx.co
