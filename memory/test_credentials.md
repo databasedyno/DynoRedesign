@@ -1,13 +1,14 @@
 # Test Credentials
 
 ## Preview Environment (Emergent)
-- URL: https://env-setup-preview-1.preview.emergentagent.com
-- (Previous fork URL: https://env-setup-preview-1.preview.emergentagent.com)
-- Frontend .env: /app/.env.local (NEXT_PUBLIC_BASE_URL + NEXTAUTH_URL point to the preview URL; /api/* routed to backend on port 8001)
+- URL: https://bf3ccd3d-9d59-4688-ad54-2c1a3bb2a53a.preview.emergentagent.com
+- (Older fork URL: https://env-setup-preview-1.preview.emergentagent.com)
+- Frontend .env: /app/.env (NEXT_PUBLIC_BASE_URL + NEXT_PUBLIC_SERVER_URL + NEXTAUTH_URL point to the preview URL; /api/* routed to backend on port 8001). NOTE: no /app/.env.local present — Next.js reads /app/.env.
 - Backend .env: /app/backend/.env (points to Railway PostgreSQL `railway` DB on `roundhouse.proxy.rlwy.net:23599`)
 - Redis: nozomi.proxy.rlwy.net:15794
-- Backend runs NODE_ENV=production (sequelize .sync({}) = no destructive ALTER) + WORKER_ROLE=secondary (API-only; ALL cron jobs/sweeps/conversions/webhook-migration DISABLED — safe alongside production).
-- Re-provisioned 2026-07-07 from a fresh checkout: `yarn install` in /app and /app/backend, .env files recreated from provided credentials.
+- Backend runs NODE_ENV=production (sequelize .sync({}) = no destructive ALTER) + WORKER_ROLE=secondary + ENABLE_BACKGROUND_JOBS=false (API-only; ALL cron jobs/sweeps/conversions/webhook-migration/emails DISABLED — safe alongside production).
+- CORS_ALLOWED_ORIGINS includes the preview URL + dynopay.com + checkout.dynopay.com.
+- Re-provisioned 2026-07-07 from a fresh checkout: `yarn install` in /app and /app/backend, .env files recreated from provided credentials. Verified: PostgreSQL + Redis connected, /health + /api/csrf-token = 200, homepage + /auth/login render (SSR) with no console errors.
 
 ## Primary QA Account (active user with $18k+ in transactions)
 - Email: hostbay@moxx.co
