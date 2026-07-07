@@ -27,10 +27,10 @@ const CustomConnector = styled(StepConnector)(({ theme }) => ({
     transition: 'background-color 0.4s ease',
   },
   [`&.${stepConnectorClasses.active} .${stepConnectorClasses.line}`]: {
-    background: 'linear-gradient(90deg, #0004FF 0%, #3D40FF 100%)',
+    background: theme.palette.primary.main,
   },
   [`&.${stepConnectorClasses.completed} .${stepConnectorClasses.line}`]: {
-    background: 'linear-gradient(90deg, #0004FF 0%, #3D40FF 100%)',
+    background: theme.palette.primary.main,
   },
 }))
 
@@ -38,39 +38,42 @@ const StepIconRoot = styled('div')<{
   ownerState: { completed: boolean; active: boolean }
 }>(({ theme, ownerState }) => ({
   backgroundColor: ownerState.completed
-    ? '#0004FF'
+    ? theme.palette.primary.main
     : ownerState.active
-      ? '#fff'
+      ? (theme.palette.mode === 'dark' ? '#1a1a2e' : '#fff')
       : theme.palette.mode === 'dark' ? '#1a1a2e' : '#fff',
   zIndex: 1,
-  color: ownerState.completed ? '#fff' : '#0004FF',
+  color: ownerState.completed ? theme.palette.primary.contrastText : theme.palette.primary.main,
   width: 24,
   height: 24,
   display: 'flex',
   border: `2px solid ${
-    ownerState.active || ownerState.completed ? '#0004FF' : theme.palette.mode === 'dark' ? '#3a3a5a' : '#D0D5E0'
+    ownerState.active || ownerState.completed ? theme.palette.primary.main : theme.palette.mode === 'dark' ? '#3a3a5a' : '#D0D5E0'
   }`,
   borderRadius: '50%',
   justifyContent: 'center',
   alignItems: 'center',
   transition: 'all 0.3s ease',
-  boxShadow: ownerState.active ? '0 0 0 4px rgba(0,4,255,0.12)' : 'none',
+  boxShadow: ownerState.active
+    ? (theme.palette.mode === 'dark' ? '0 0 0 4px rgba(204,255,0,0.18)' : '0 0 0 4px rgba(10,10,10,0.12)')
+    : 'none',
 }))
 
 function StepIconComponent(props: any) {
   const { active, completed } = props
+  const theme = useTheme()
 
   return (
     <StepIconRoot ownerState={{ completed, active }}>
       {completed ? (
-        <CheckIcon style={{ fontSize: 14, color: '#fff' }} />
+        <CheckIcon style={{ fontSize: 14, color: theme.palette.primary.contrastText }} />
       ) : (
         <div
           style={{
             width: 7,
             height: 7,
             borderRadius: '50%',
-            background: active ? '#0004FF' : '#CBD5E1',
+            background: active ? theme.palette.primary.main : '#CBD5E1',
             transition: 'all 0.3s ease',
           }}
         />

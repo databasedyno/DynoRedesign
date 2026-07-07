@@ -212,11 +212,11 @@ export default function TransferExpectedCard({
               gap={0.5}
               mt={2}
             >
-              <Icon icon="mdi:lock" width={14} color={isDark ? '#6C7BFF' : '#0004FF'} />
+              <Icon icon="mdi:lock" width={14} color={theme.palette.primary.main} />
               <Typography
                 fontSize={12}
                 
-                color={isDark ? '#6C7BFF' : '#0004FF'}
+                color={theme.palette.primary.main}
                 fontWeight={500}
               >
                 {t('checkout.securePayment')}
@@ -432,7 +432,7 @@ export default function TransferExpectedCard({
                 mb={2}
                 data-testid="redirect-countdown"
               >
-                <CircularProgress size={16} sx={{ color: '#0004FF' }} />
+                <CircularProgress size={16} sx={{ color: theme.palette.primary.main }} />
                 <Typography
                   fontSize={13}
                   
@@ -456,7 +456,7 @@ export default function TransferExpectedCard({
                   onClick={handleRedirect}
                   data-testid="return-btn"
                   sx={{
-                    backgroundColor: '#0004FF',
+                    backgroundColor: theme.palette.primary.main,
                     color: '#fff',
                     textTransform: 'none',
                     borderRadius: 30,
@@ -493,7 +493,7 @@ export default function TransferExpectedCard({
                 onClick={handleDone}
                 data-testid="done-btn"
                 sx={{
-                  backgroundColor: '#0004FF',
+                  backgroundColor: theme.palette.primary.main,
                   color: '#fff',
                   textTransform: 'none',
                   borderRadius: 30,
@@ -517,11 +517,11 @@ export default function TransferExpectedCard({
               gap={0.5}
               mt={2}
             >
-              <Icon icon="mdi:lock" width={14} color={isDark ? '#6C7BFF' : '#0004FF'} />
+              <Icon icon="mdi:lock" width={14} color={theme.palette.primary.main} />
               <Typography
                 fontSize={12}
                 
-                color={isDark ? '#6C7BFF' : '#0004FF'}
+                color={theme.palette.primary.main}
                 fontWeight={500}
               >
                 {t('checkout.securePayment')}
@@ -678,15 +678,15 @@ export default function TransferExpectedCard({
             variant='outlined'
             onClick={handleDone}
             sx={{
-              borderColor: '#0004FF',
-              color: '#0004FF',
+              borderColor: theme.palette.primary.main,
+              color: theme.palette.primary.main,
               textTransform: 'none',
               borderRadius: 30,
               py: 1.5,
               fontWeight: 500,
               '&:hover': {
                 backgroundColor: isDark ? 'rgba(79, 70, 229, 0.1)' : '#EEF2FF',
-                borderColor: '#0004FF'
+                borderColor: theme.palette.primary.main
               }
             }}
           >

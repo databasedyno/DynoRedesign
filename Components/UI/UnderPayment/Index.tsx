@@ -402,11 +402,11 @@ const UnderPayment = ({
             gap={0.5}
             mt={2}
           >
-            <Icon icon="mdi:lock" width={14} color={isDark ? '#6C7BFF' : '#0004FF'} />
+            <Icon icon="mdi:lock" width={14} color={theme.palette.primary.main} />
             <Typography
               fontSize={12}
               
-              color={isDark ? '#6C7BFF' : '#0004FF'}
+              color={theme.palette.primary.main}
               fontWeight={500}
             >
               {t('checkout.securePayment')}

@@ -428,7 +428,7 @@ const OverPayment = ({
                 gap={1} 
                 mb={2}
               >
-                <CircularProgress size={16} sx={{ color: '#0004FF' }} />
+                <CircularProgress size={16} sx={{ color: theme.palette.primary.main }} />
                 <Typography
                   fontSize={13}
                   
@@ -450,7 +450,7 @@ const OverPayment = ({
                 onClick={handleRedirect}
                 data-testid="return-btn"
                 sx={{
-                  backgroundColor: '#0004FF',
+                  backgroundColor: theme.palette.primary.main,
                   color: '#fff',
                   textTransform: "none",
                   borderRadius: 30,
@@ -493,11 +493,11 @@ const OverPayment = ({
             gap={0.5}
             mt={2}
           >
-            <Icon icon="mdi:lock" width={14} color={isDark ? '#6C7BFF' : '#0004FF'} />
+            <Icon icon="mdi:lock" width={14} color={theme.palette.primary.main} />
             <Typography
               fontSize={12}
               
-              color={isDark ? '#6C7BFF' : '#0004FF'}
+              color={theme.palette.primary.main}
               fontWeight={500}
             >
               {t('checkout.securePayment')}
