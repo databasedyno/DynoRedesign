@@ -71,5 +71,6 @@
     "cancel": "Annuler",
     "generate": "Générer la Clé",
     "done": "Terminé"
-  }
+  },
+  "apiKeyTitle": "Clé API {{currency}}"
 }

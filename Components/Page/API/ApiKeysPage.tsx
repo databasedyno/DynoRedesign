@@ -539,7 +539,7 @@ const ApiKeysPage = ({
               }}
             >
               <ApiKeyCard
-                title={`keys.${api.base_currency.toLowerCase()}`}
+                title={t("apiKeyTitle", { currency: (api.base_currency || "USD").toUpperCase() })}
                 apiRow={api}
                 onCopy={handleCopy}
                 onDelete={requestDelete}

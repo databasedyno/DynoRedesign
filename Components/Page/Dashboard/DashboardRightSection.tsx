@@ -191,8 +191,8 @@ const DashboardRightSection = () => {
               px: 1.5,
               py: isMobile ? "8px" : "11px",
               borderRadius: "100px",
-              background: muiTheme.palette.success.main,
-              border: `1px solid ${muiTheme.palette.success.light}`,
+              background: muiTheme.palette.success.light,
+              border: `1px solid ${muiTheme.palette.success.main}`,
             }}
           >
             <Typography

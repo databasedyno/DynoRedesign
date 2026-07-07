@@ -71,5 +71,6 @@
     "cancel": "Annuleren",
     "generate": "Sleutel genereren",
     "done": "Klaar"
-  }
+  },
+  "apiKeyTitle": "{{currency}} API-sleutel"
 }

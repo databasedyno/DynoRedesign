@@ -85,18 +85,22 @@ const TransactionPage = () => {
   const [firstPaymentCelebrationOpen, setFirstPaymentCelebrationOpen] = useState(false);
   const firstPaymentFiredRef = useRef(false);
 
-  const hasFirstConfirmedPayment = useMemo(() => {
+  const confirmedPaymentCount = useMemo(() => {
     const list = transactionState?.customers_transactions || [];
-    return list.some((t: any) => {
+    return list.reduce((n: number, t: any) => {
       const status = String(t?.status || "").toLowerCase();
       // Backend uses "successful" (not "success") for confirmed payments — include both.
-      return ["confirmed", "completed", "settled", "success", "successful", "paid"].includes(status);
-    });
+      return ["confirmed", "completed", "settled", "success", "successful", "paid"].includes(status)
+        ? n + 1
+        : n;
+    }, 0);
   }, [transactionState?.customers_transactions]);
 
   useEffect(() => {
     if (!selectedCompanyId) return;
-    if (!hasFirstConfirmedPayment) return;
+    // Only celebrate a GENUINE first payment (exactly one confirmed payment ever).
+    // Existing merchants with a transaction history must never see this.
+    if (confirmedPaymentCount !== 1) return;
     if (firstPaymentFiredRef.current) return;
     const storageKey = `dynopay_first_payment_celebrated_${selectedCompanyId}`;
     let alreadyCelebrated = false;
@@ -127,7 +131,7 @@ const TransactionPage = () => {
     } catch {
       /* canvas-confetti is client-only, safe to ignore */
     }
-  }, [hasFirstConfirmedPayment, selectedCompanyId]);
+  }, [confirmedPaymentCount, selectedCompanyId]);
 
   const formatDateTime = (isoString: string) => {
     const date = new Date(isoString);

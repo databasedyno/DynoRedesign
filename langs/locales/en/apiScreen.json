@@ -9,7 +9,7 @@
     "viewDocumentation": "View Documentation",
     "infoIconAlt": "information"
   },
-    "icons": {
+  "icons": {
     "copyAlt": "copy",
     "eyeAlt": "view",
     "trashAlt": "delete"
@@ -71,5 +71,6 @@
     "cancel": "Cancel",
     "generate": "Generate Key",
     "done": "Done"
-  }
+  },
+  "apiKeyTitle": "{{currency}} API Key"
 }

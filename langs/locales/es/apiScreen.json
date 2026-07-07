@@ -71,5 +71,6 @@
     "cancel": "Cancelar",
     "generate": "Generar Clave",
     "done": "Hecho"
-  }
+  },
+  "apiKeyTitle": "Clave API {{currency}}"
 }

@@ -71,5 +71,6 @@
     "cancel": "Abbrechen",
     "generate": "Schlüssel generieren",
     "done": "Fertig"
-  }
+  },
+  "apiKeyTitle": "{{currency}} API-Schlüssel"
 }

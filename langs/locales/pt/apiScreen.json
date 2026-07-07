@@ -66,10 +66,11 @@
     "addressManagement": "Gerenciar endereços",
     "off": "DESLIGADO",
     "enable": "Ativar"
-    },
+  },
   "actions": {
     "cancel": "Cancelar",
     "generate": "Gerar chave",
     "done": "Feito"
-  }
+  },
+  "apiKeyTitle": "Chave de API {{currency}}"
 }
