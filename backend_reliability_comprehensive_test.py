@@ -10,7 +10,7 @@ import json
 import time
 
 # Configuration
-BASE_URL = "https://config-center-15.preview.emergentagent.com"
+BASE_URL = "https://fast-start-8.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 # Test credentials
