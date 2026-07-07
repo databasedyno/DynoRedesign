@@ -1,11 +1,13 @@
 # Test Credentials
 
 ## Preview Environment (Emergent)
-- URL: https://d8ea571f-0b45-411c-9fe8-d786a0e4f290.preview.emergentagent.com
-- (Previous fork URL: https://deploy-now-121.preview.emergentagent.com)
-- Frontend .env: /app/.env (NEXT_PUBLIC_BASE_URL points to the preview URL; /api/* routed to backend on port 8001)
+- URL: https://17da7815-ce04-4e60-a816-59b8a98b94de.preview.emergentagent.com
+- (Previous fork URL: https://crypto-payment-hub-23.preview.emergentagent.com)
+- Frontend .env: /app/.env.local (NEXT_PUBLIC_BASE_URL + NEXTAUTH_URL point to the preview URL; /api/* routed to backend on port 8001)
 - Backend .env: /app/backend/.env (points to Railway PostgreSQL `railway` DB on `roundhouse.proxy.rlwy.net:23599`)
 - Redis: nozomi.proxy.rlwy.net:15794
+- Backend runs NODE_ENV=production (sequelize .sync({}) = no destructive ALTER) + WORKER_ROLE=secondary (API-only; ALL cron jobs/sweeps/conversions/webhook-migration DISABLED — safe alongside production).
+- Re-provisioned 2026-07-07 from a fresh checkout: `yarn install` in /app and /app/backend, .env files recreated from provided credentials.
 
 ## Primary QA Account (active user with $18k+ in transactions)
 - Email: hostbay@moxx.co

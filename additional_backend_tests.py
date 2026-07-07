@@ -8,7 +8,7 @@ import requests
 import json
 import sys
 
-BACKEND_URL = "https://deploy-now-121.preview.emergentagent.com"
+BACKEND_URL = "https://crypto-payment-hub-23.preview.emergentagent.com"
 
 def test_additional_scenarios():
     """Test additional scenarios and edge cases"""
