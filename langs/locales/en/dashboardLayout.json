@@ -99,6 +99,7 @@
   "growSecondaryReferral": "Referral program",
   "growSecondaryPremium": "Premium tier",
   "apiPaymentLabel": "API payment",
+  "paymentLinkLabel": "Payment link",
   "emptyReadyTitle": "Waiting for your first payment",
   "emptyNotReadyTitle": "You're almost there",
   "emptyReadyBody": "Create your first payment link, share it with a customer, and your dashboard will light up the moment their crypto lands on-chain.",

@@ -665,16 +665,35 @@ const getRecentTransactions = async (req: express.Request, res: express.Response
         ut.id,
         ut.base_amount,
         ut.base_currency,
+        ut.crypto_currency,
         ut.status,
         ut.transaction_type,
         ut.transaction_reference,
         ut."createdAt",
         uw.wallet_type,
         c.customer_name,
-        c.email as customer_email
+        c.email as customer_email,
+        -- Payment source detection so the frontend can show a meaningful
+        -- label instead of an internal placeholder email:
+        --   * 'payment_link' — a matching row exists in tbl_payment_link
+        --   * 'legacy_api'   — customer email matches the synthetic
+        --                      "legacy-api-…@dynopay.internal" pattern
+        --                      minted by legacyApiAuthMiddleware
+        --   * 'checkout'     — non-legacy pattern with @dynopay.internal
+        --                      (recovered-… placeholders from merchantApi)
+        --   * null           — direct crypto receive / real customer
+        CASE
+          WHEN pl.link_id IS NOT NULL THEN 'payment_link'
+          WHEN c.email LIKE 'legacy-api-%@dynopay.internal' THEN 'legacy_api'
+          WHEN c.email LIKE '%@dynopay.internal' THEN 'checkout'
+          ELSE NULL
+        END AS source
        FROM tbl_user_transaction ut
        LEFT JOIN tbl_user_wallet uw ON ut.wallet_id = uw.wallet_id
        LEFT JOIN tbl_customer c ON ut.customer_id = c.customer_id
+       LEFT JOIN tbl_payment_link pl
+         ON pl.transaction_reference = ut.transaction_reference
+         AND pl.user_id = ut.user_id
        WHERE ut.user_id = :userId
        ORDER BY ut."createdAt" DESC
        LIMIT :limit`,

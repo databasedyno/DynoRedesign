@@ -1,3 +1,44 @@
+## TEST REQUEST (2026-07-07 follow-up) — Source-aware transaction labels
+### ⚠️ LIVE PRODUCTION — READ-ONLY. JWT injection only.
+Preview: https://a407732e-14a9-4081-a594-da3ee5210448.preview.emergentagent.com
+JWT: `node /app/scripts/mint_ux_tokens.js` (hostbay@moxx.co has BOTH `legacy_api` and `payment_link` rows).
+
+### CONTEXT
+User asked: "would payment show relevant label if not API payment but payment link?" — previous fix only masked legacy-API placeholders. Now the backend explicitly identifies the payment source and the frontend maps it to a label.
+
+### BACKEND CHANGE
+- `backend/controller/dashboardController.ts` — `getRecentTransactions` now `LEFT JOIN tbl_payment_link` on `(transaction_reference, user_id)` and returns a computed `source` field per row: `'payment_link' | 'legacy_api' | 'checkout' | null`. Redis cache cleared to force fresh reads.
+
+### FRONTEND CHANGE
+- `Components/Page/Dashboard/RecentTransactionsWidget.tsx` — new label priority:
+  1. `source === 'payment_link'` → **"Payment link"** (i18n `paymentLinkLabel`)
+  2. `source === 'legacy_api'` OR `'checkout'` OR internal-email heuristic → **"API payment"** (i18n `apiPaymentLabel`)
+  3. real customer email → shows the email
+  4. no email + no source → "Received {when}"
+- New i18n key `paymentLinkLabel` added to all 6 locales (en/pt/fr/es/de/nl).
+
+### VERIFIED VIA API (hostbay, limit=100)
+- 98 rows return `source: "legacy_api"` (masked "Legacy API Customer" placeholder) → frontend should render "API payment"
+- 2 rows return `source: "payment_link"` (link_id 1 & 2, transaction_ids 328 & 329) → frontend should render "Payment link"
+
+### FRONTEND TEST PLAN
+1. Load `/dashboard` as hostbay@moxx.co. Wait for compile + data load.
+2. In the Recent transactions widget, scroll through ALL visible rows and report the secondary-line text of each. Expected:
+   - Most rows say **"API payment"**.
+   - The two most-recent payment-link rows (transaction_ids 328 and 329, both ~$10 USD, ETH, from 2026-06-28) say **"Payment link"** (specifically NOT "API payment", NOT "Received Xh ago", and NOT any @dynopay.internal address).
+3. Assert NO row anywhere on the widget contains the substrings `@dynopay.internal`, `legacy-api-`, or `Legacy API Customer`.
+4. Screenshot the widget with both label types visible.
+5. Language spot-check: set `localStorage.lang='de'` + reload — the "Payment link" rows should now say **"Zahlungslink"** and "API payment" rows should say **"API-Zahlung"**.
+6. Console: report any new errors.
+
+### EXPECTED VERDICT
+- Both "API payment" and "Payment link" labels visible in the correct rows.
+- No internal-email leakage.
+- German localization works.
+
+---
+
+
 ## TEST REQUEST (2026-07-07) — Dashboard 4-bug fix (hostbay-visible bugs)
 ### ⚠️ LIVE PRODUCTION — READ-ONLY. JWT injection only; no forms/mutations/OTP.
 Preview: https://a407732e-14a9-4081-a594-da3ee5210448.preview.emergentagent.com

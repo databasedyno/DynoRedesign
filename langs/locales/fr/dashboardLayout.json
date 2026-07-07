@@ -120,5 +120,6 @@
   "obPaymentDesc": "Partagez votre lien de paiement et soyez payé",
   "growTrialCompleteTitle": "🎉 Essai sans frais terminé",
   "growTrialCompleteBody": "Vous avez traité vos premiers 500 $ sans frais. Parrainez un autre commerçant et gagnez 50 $ de crédit sans frais supplémentaires lorsqu'il traite 100 $.",
-  "apiPaymentLabel": "Paiement API"
+  "apiPaymentLabel": "Paiement API",
+  "paymentLinkLabel": "Lien de paiement"
 }

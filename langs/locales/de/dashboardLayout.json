@@ -120,5 +120,6 @@
   "obPaymentDesc": "Teilen Sie Ihren Zahlungslink und werden Sie bezahlt",
   "growTrialCompleteTitle": "🎉 Gebührenfreier Test abgeschlossen",
   "growTrialCompleteBody": "Sie haben Ihre ersten 500 $ gebührenfrei verarbeitet. Empfehlen Sie einen weiteren Händler und verdienen Sie zusätzliche 50 $ gebührenfreies Guthaben, wenn er 100 $ verarbeitet.",
-  "apiPaymentLabel": "API-Zahlung"
+  "apiPaymentLabel": "API-Zahlung",
+  "paymentLinkLabel": "Zahlungslink"
 }

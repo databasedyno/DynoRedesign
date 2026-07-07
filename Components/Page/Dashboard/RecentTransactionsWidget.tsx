@@ -33,6 +33,16 @@ interface RecentTx {
   customerEmail?: string;
   customer_name?: string;
   customerName?: string;
+  /**
+   * Set by the backend when it can determine how the transaction originated:
+   *   * 'payment_link' — merchant sent a DynoPay checkout URL to the payer
+   *   * 'legacy_api'   — accepted via the merchant's REST API
+   *   * 'checkout'     — accepted via other DynoPay-internal placeholders
+   *   * null/undefined — direct crypto receive or a real customer email
+   * The frontend uses this to render a friendly label instead of the
+   * synthetic `…@dynopay.internal` placeholder addresses.
+   */
+  source?: "payment_link" | "legacy_api" | "checkout" | null;
 }
 
 /**
@@ -41,8 +51,7 @@ interface RecentTx {
  * `legacy-api-1-1776537566415@dynopay.internal` / "Legacy API Customer"
  * for payments accepted through the legacy REST API (where no real
  * customer email is provided). Showing that raw string to the merchant
- * looks broken/leaky. Fall back to the "just now / Received 3h ago"
- * time label instead.
+ * looks broken/leaky. Fall back to a source-appropriate label instead.
  */
 const isInternalCustomerEmail = (email: string): boolean => {
   if (!email) return false;
@@ -216,15 +225,31 @@ const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
               const when = formatWhen(tx.createdAt || tx.created_at, t, i18n.language);
               const rawEmail = tx.customer_email || tx.customerEmail || "";
               const rawName = (tx as any).customer_name || (tx as any).customerName || "";
-              // Mask internal identifiers created for legacy-API payments —
-              // showing the raw "legacy-api-…@dynopay.internal" address to
-              // the merchant looks broken.
-              const hideCustomerId =
+              const source = tx.source;
+
+              // Prefer the backend-provided `source` when available. Fall back
+              // to email/name heuristics for older API responses that don't
+              // return the source field yet (cached responses, etc.).
+              const isInternalId =
                 isInternalCustomerEmail(rawEmail) || isInternalCustomerName(rawName);
+              const hideCustomerId = source != null || isInternalId;
               const email = hideCustomerId ? "" : rawEmail;
-              const secondaryLabel = hideCustomerId
-                ? t("apiPaymentLabel")
-                : email || (when ? t("receivedWhen", { when }) : "");
+
+              // Label priority:
+              //   1. `payment_link` source → "Payment link"
+              //   2. `legacy_api` or `checkout` source, or legacy internal id → "API payment"
+              //   3. real customer email → show email
+              //   4. nothing to show → "Received {when}" (existing fallback)
+              let secondaryLabel: string;
+              if (source === "payment_link") {
+                secondaryLabel = t("paymentLinkLabel");
+              } else if (source === "legacy_api" || source === "checkout" || isInternalId) {
+                secondaryLabel = t("apiPaymentLabel");
+              } else if (email) {
+                secondaryLabel = email;
+              } else {
+                secondaryLabel = when ? t("receivedWhen", { when }) : "";
+              }
               return (
                 <Box
                   key={String(tx.id ?? i)}

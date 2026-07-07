@@ -120,5 +120,6 @@
   "obPaymentDesc": "Comparte tu enlace de pago y cobra",
   "growTrialCompleteTitle": "🎉 Prueba sin comisiones completada",
   "growTrialCompleteBody": "Procesaste tus primeros $500 sin comisiones. Refiere a otro comercio y gana $50 más de crédito sin comisiones cuando procese $100.",
-  "apiPaymentLabel": "Pago por API"
+  "apiPaymentLabel": "Pago por API",
+  "paymentLinkLabel": "Enlace de pago"
 }
