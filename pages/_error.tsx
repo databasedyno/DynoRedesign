@@ -50,7 +50,7 @@ const Error = ({ statusCode, setPageName }: any) => {
         <Button
           variant="rounded"
           sx={{
-            background: (theme) => theme.palette.mode === "dark" ? "#6A7BFF" : "#12131C",
+            background: (theme) => theme.palette.mode === "dark" ? theme.palette.primary.main : "#12131C",
             color: "#fff",
             "&:hover": {
               color: (theme) => theme.palette.mode === "dark" ? "#fff" : "#12131C",

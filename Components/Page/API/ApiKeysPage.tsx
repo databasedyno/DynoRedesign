@@ -459,7 +459,7 @@ const ApiKeysPage = ({
             endIcon={<ArrowOutwardIcon sx={{ fontSize: 16 }} />}
             variant="outlined"
             sx={{
-              borderColor: "#0004FF",
+              borderColor: theme.palette.primary.main,
               color: theme.palette.primary.main,
               "&:hover": { background: theme.palette.mode === "dark" ? "rgba(106,123,255,0.08)" : "#f0f5ff", borderColor: theme.palette.primary.main },
             }}

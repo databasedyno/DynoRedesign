@@ -165,7 +165,7 @@ export const DateCellWrapper = styled(Box, {
   ...(inRange &&
     !isStart &&
     !isEnd && {
-    backgroundColor: "#E5EDFF",
+    backgroundColor: theme.palette.primary.light,
     ...(isWeekStart && {
       borderTopLeftRadius: "20px",
       borderBottomLeftRadius: "20px",
@@ -178,13 +178,13 @@ export const DateCellWrapper = styled(Box, {
   ...(isStart &&
     !isEnd && {
     background:
-      "linear-gradient(to right, transparent 0%, transparent 50%, #E5EDFF 50%)",
+      `linear-gradient(to right, transparent 0%, transparent 50%, ${theme.palette.primary.light} 50%)`,
     borderRadius: "20px 0 0 20px",
   }),
   ...(isEnd &&
     !isStart && {
     background:
-      "linear-gradient(to left, transparent 0%, transparent 50%, #E5EDFF 50%)",
+      `linear-gradient(to left, transparent 0%, transparent 50%, ${theme.palette.primary.light} 50%)`,
     borderRadius: "0 20px 20px 0",
   }),
   ...(isStart &&
@@ -230,15 +230,15 @@ export const DateButton = styled(Button, {
   ...(!selected &&
     iscurrentmonth && {
     "&:hover": {
-      backgroundColor: "#E5EDFF",
+      backgroundColor: theme.palette.primary.light,
       color: theme.palette.primary.main,
     },
   }),
   ...(selected && {
     backgroundColor: theme.palette.primary.main,
-    color: "#FFFFFF",
+    color: theme.palette.primary.contrastText,
     fontWeight: 500,
-    boxShadow: "0 2px 4px rgba(0, 4, 255, 0.3)",
+    boxShadow: "0 2px 4px rgba(0, 0, 0, 0.2)",
     "&:hover": {
       backgroundColor: theme.palette.primary.main,
     },
@@ -254,7 +254,7 @@ export const NavigationButton = styled(IconButton)(({ theme }) => ({
   width: "28px",
   height: "28px",
   "&:hover": {
-    backgroundColor: "#E5EDFF",
+    backgroundColor: theme.palette.primary.light,
   },
 }));
 

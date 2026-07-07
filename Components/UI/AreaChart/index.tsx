@@ -256,15 +256,15 @@ const Chart = ({ data }: { data: ChartData[] }) => {
   const gradientId = "areaGradient";
 
   // Theme-aware colors
-  const lineColor = isDark ? "#60A5FA" : "#1E40FF";
-  const dotColor = isDark ? "#60A5FA" : "#1E40FF";
+  const lineColor = isDark ? "#CCFF00" : "#0A0A0A";
+  const dotColor = isDark ? "#CCFF00" : "#0A0A0A";
   const gridColor = isDark ? "rgba(255,255,255,0.06)" : "#E5E7EB";
   const tickColor = isDark ? "#94A3B8" : "#676768";
   const emptyTextColor = isDark ? "#64748B" : "#9CA3AF";
 
   // Theme-aware gradient
-  const gradientStartColor = isDark ? "rgba(96,165,250,0.35)" : "#D1E0FF";
-  const gradientEndColor = isDark ? "rgba(96,165,250,0)" : "#E5EDFF";
+  const gradientStartColor = isDark ? "rgba(204,255,0,0.30)" : "rgba(10,10,10,0.14)";
+  const gradientEndColor = isDark ? "rgba(204,255,0,0)" : "rgba(10,10,10,0)";
   const gradientStartOpacity = 1;
   const gradientEndOpacity = 0;
 

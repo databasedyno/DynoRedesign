@@ -202,7 +202,7 @@ export default function TimeDropdown({
                   justifyContent: "center",
                   cursor: "pointer",
                   ":hover": {
-                    backgroundColor: value === option ? "" : "#E5EDFF",
+                    backgroundColor: value === option ? "" : "primary.light",
                   },
                 }}
               >

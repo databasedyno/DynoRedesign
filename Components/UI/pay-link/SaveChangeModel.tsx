@@ -1,6 +1,5 @@
 import InfoIcon from "@/assets/Icons/info-icon.svg";
 import useIsMobile from "@/hooks/useIsMobile";
-import { theme } from "@/styles/theme";
 import { SaveChangeModelProps } from "@/utils/types/create-pay-link";
 import {Box,
   Button,
@@ -12,6 +11,7 @@ import Image from "next/image";
 
 const SaveChangeModel = ({ open, onClose, onSave }: SaveChangeModelProps) => {
   const isMobile = useIsMobile("md");
+  const theme = useTheme();
   return (
     <Dialog
       open={open}
@@ -97,12 +97,12 @@ const SaveChangeModel = ({ open, onClose, onSave }: SaveChangeModelProps) => {
             fontFamily: "UrbanistMedium",
             fontWeight: 500,
             fontSize: isMobile ? "13px" : "15px",
-            color: "#FFFFFF",
-            backgroundColor: "#0004FF",
+            color: theme.palette.primary.contrastText,
+            backgroundColor: theme.palette.primary.main,
             py: "11px",
             borderRadius: "6px",
             "&:hover": {
-              backgroundColor: "#0003cc",
+              backgroundColor: theme.palette.primary.dark,
             },
           }}
         >

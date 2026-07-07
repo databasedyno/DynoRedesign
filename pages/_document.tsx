@@ -25,7 +25,7 @@ export default function MyDocument({ emotionStyleTags }: MyDocumentProps) {
         {/* iOS safe area and mobile optimization — viewport is set via next.config or _app */}
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="theme-color" content="#0004FF" />
+        <meta name="theme-color" content="#0A0A0A" />
 
         {/* Google Fonts — preconnect + link (non-blocking, replaces CSS @import) */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />

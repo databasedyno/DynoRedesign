@@ -113,14 +113,14 @@ const EmailVerificationBanner: React.FC = () => {
           sx={{
             fontSize: isMobile ? "11px" : "13px",
             fontFamily: "UrbanistMedium",
-            color: "#0004FF",
+            color: theme.palette.primary.main,
             textTransform: "none",
-            border: "1px solid #0004FF",
+            border: `1px solid ${theme.palette.primary.main}`,
             borderRadius: "6px",
             px: 2,
             py: 0.5,
             whiteSpace: "nowrap",
-            "&:hover": { backgroundColor: "rgba(0, 4, 255, 0.08)" },
+            "&:hover": { backgroundColor: theme.palette.primary.light },
           }}
         >
           {sending ? <CircularProgress size={16} /> : "Verify Now"}

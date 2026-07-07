@@ -423,7 +423,7 @@ const InputField: React.FC<InputFieldProps> = ({
                   (disabled
                     ? theme.palette.action.disabledBackground
                     : success
-                      ? (theme.palette.mode === "dark" ? "rgba(59,130,246,0.1)" : "#E5EDFF")
+                      ? theme.palette.success.light
                       : error
                         ? (theme.palette.mode === "dark" ? "rgba(239,68,68,0.05)" : "#FFFBFB")
                         : theme.palette.background.paper),

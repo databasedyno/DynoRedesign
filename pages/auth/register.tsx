@@ -95,7 +95,7 @@ const Register = () => {
         spread: 60,
         startVelocity: 35,
         origin: { x: 0.3, y: 0.5 },
-        colors: ["#0004FF", "#6A7BFF", "#10B981", "#F59E0B"],
+        colors: ["#CCFF00", "#B4E600", "#10B981", "#F59E0B"],
         scalar: 0.9,
         ticks: 200,
       });
@@ -104,7 +104,7 @@ const Register = () => {
         spread: 60,
         startVelocity: 35,
         origin: { x: 0.7, y: 0.5 },
-        colors: ["#0004FF", "#6A7BFF", "#10B981", "#F59E0B"],
+        colors: ["#CCFF00", "#B4E600", "#10B981", "#F59E0B"],
         scalar: 0.9,
         ticks: 200,
       });

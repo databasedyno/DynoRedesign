@@ -961,7 +961,7 @@ export default function CompanyDetailsSection({
                           backgroundColor:
                             country.code === vatValue.code &&
                             country.taxCode === vatValue.taxCode
-                              ? "#E5EDFF"
+                              ? "primary.light"
                               : "",
                           borderRadius: "63px",
                           height: "40px",
@@ -971,8 +971,8 @@ export default function CompanyDetailsSection({
                             backgroundColor:
                               country.code === vatValue.code &&
                               country.taxCode === vatValue.taxCode
-                                ? "#E5EDFF"
-                                : "#F0F4FF",
+                                ? "primary.light"
+                                : "action.hover",
                           },
                         }}
                       >

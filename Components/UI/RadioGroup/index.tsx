@@ -22,7 +22,7 @@ const CustomRadio = styled(Radio)<CustomRadioProps>(({ theme }) => ({
     borderRadius: "50%",
   },
   "&.Mui-checked": {
-    color: "#0004FF",
+    color: theme.palette.primary.main,
   },
   "& .MuiSvgIcon-root": {
     width: "28px !important",
@@ -32,7 +32,7 @@ const CustomRadio = styled(Radio)<CustomRadioProps>(({ theme }) => ({
     fill: "transparent",
   },
   "& svg[data-testid='RadioButtonCheckedIcon']": {
-    fill: "#0004FF",
+    fill: theme.palette.primary.main,
   },
 
   "&.Mui-disabled": {

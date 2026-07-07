@@ -399,10 +399,10 @@ const PaymentLinksTable = ({
                   position: "sticky",
                   top: 0,
                   zIndex: 2,
-                  backgroundColor: theme.palette.mode === "dark" ? theme.palette.background.paper : "#E5EDFF",
+                  backgroundColor: theme.palette.mode === "dark" ? theme.palette.background.paper : theme.palette.primary.light,
                 }}
               >
-                <TableRow sx={{ backgroundColor: theme.palette.mode === "dark" ? theme.palette.background.paper : "#E5EDFF" }}>
+                <TableRow sx={{ backgroundColor: theme.palette.mode === "dark" ? theme.palette.background.paper : theme.palette.primary.light }}>
                   <TableCell>
                     <Header label="linkIdHeader" />
                   </TableCell>

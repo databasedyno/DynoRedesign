@@ -212,7 +212,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
           animation: "successPulse 0.6s ease-in-out",
           "@keyframes successPulse": {
             "0%, 100%": {
-              backgroundColor: variant === "primary" ? "#0004FF" : theme.palette.background.paper,
+              backgroundColor: variant === "primary" ? theme.palette.primary.main : theme.palette.background.paper,
             },
             "50%": {
               transform: "scale(0.98)",
