@@ -9150,3 +9150,141 @@ Tested 6 pages in BOTH dark and light themes (12 total page loads):
 - Critical issues: hero animation, /pay/demo blue leaks, light mode header
 - Medium issues: light mode background color across all pages
 
+
+---
+
+## VERIFICATION RESULTS (2026-07-07) — Dashboard Data Loading Fix: OnboardingFlow DASHBOARD_FETCH_ALL ✅ ALL PASS
+
+### TEST EXECUTION
+- agent: testing (auto_frontend_testing_agent)
+- test_date: 2026-07-07 16:55:28 UTC
+- test_url: https://a407732e-14a9-4081-a594-da3ee5210448.preview.emergentagent.com
+- verification_method: Playwright UI testing with JWT injection (READ-ONLY, no mutations)
+- test_account: hostbay@moxx.co (user_id 1, cumulative_volume_usd=17357.55, fee_free_remaining_usd=0.00)
+- safety_compliance: ✅ NO forms submitted, NO data mutations
+
+### BUG CONTEXT
+**Root Cause:** OnboardingFlow was dispatching `DASHBOARD_FETCH` (stats-only) which got debounce-collapsed with `useDashboardData`'s `DASHBOARD_FETCH_ALL` (stats + fee-tiers + recent-transactions). The saga uses `debounce(400, DASHBOARD_INIT, …)`, so both dispatches merged and the LAST one (`DASHBOARD_FETCH`) won → only `/api/dashboard` was called, skipping `/api/dashboard/fee-tiers` and `/api/dashboard/recent-transactions`.
+
+**The Fix:** OnboardingFlow (line 119 in `/app/Components/UI/OnboardingFlow/index.tsx`) now dispatches `DASHBOARD_FETCH_ALL`, ensuring the full trio always runs.
+
+### CRITICAL PASS/FAIL CRITERIA - ALL PASSED ✅
+
+**TEST 1: Network - /api/dashboard/recent-transactions called** ✅ PASS
+- Expected: Endpoint called with HTTP 200
+- Actual: ✓ Called successfully
+- URL: https://a407732e-14a9-4081-a594-da3ee5210448.preview.emergentagent.com/api/dashboard/recent-transactions?company_id=1
+- Status: HTTP 200
+- **VERDICT: ✅ PASS - Endpoint is now being called (was previously skipped)**
+
+**TEST 2: Network - /api/dashboard/fee-tiers called** ✅ PASS
+- Expected: Endpoint called with HTTP 200
+- Actual: ✓ Called successfully
+- URL: https://a407732e-14a9-4081-a594-da3ee5210448.preview.emergentagent.com/api/dashboard/fee-tiers?company_id=1
+- Status: HTTP 200
+- **VERDICT: ✅ PASS - Endpoint is now being called (was previously skipped)**
+
+**TEST 3: Network - /api/dashboard called** ✅ PASS
+- Expected: Endpoint called with HTTP 200
+- Actual: ✓ Called successfully
+- URL: https://a407732e-14a9-4081-a594-da3ee5210448.preview.emergentagent.com/api/dashboard?company_id=1
+- Status: HTTP 200
+- **VERDICT: ✅ PASS - Endpoint called as expected**
+
+**TEST 4: Recent Transactions Widget - Shows data (not empty state)** ✅ PASS
+- Expected: Widget present with ≥5 transaction rows
+- Actual: ✓ Widget found with 5 transaction rows
+- Widget selector: [data-testid="recent-transactions-widget"]
+- Row selector: [data-testid="recent-txn-row"]
+- **VERDICT: ✅ PASS - Widget shows data (not empty state)**
+
+**TEST 5: Transaction Row Labels - No internal placeholders** ✅ PASS
+- Expected: Rows show "API payment", real email, or "Payment link" (NOT @dynopay.internal, legacy-api-, or Legacy API Customer)
+- Actual: All 5 rows show "API payment" label
+  - Row 1: ✓ 'API payment'
+  - Row 2: ✓ 'API payment'
+  - Row 3: ✓ 'API payment'
+  - Row 4: ✓ 'API payment'
+  - Row 5: ✓ 'API payment'
+- **VERDICT: ✅ PASS - No internal placeholders visible**
+
+**TEST 6: GrowPanel - Shows correct offer variant** ✅ PASS
+- Expected: trial_complete or referral (NOT fee_free)
+- Actual: ✓ trial_complete offer shown
+- Selector: [data-testid="grow-offer-trial_complete"]
+- Title: "🎉 Fee-free trial complete"
+- **VERDICT: ✅ PASS - Correct offer for hostbay (fee_free_remaining_usd=0.00)**
+
+**TEST 7: Dashboard Metrics - Rendered correctly** ✅ PASS
+- Today's Revenue: $87.99 USD
+- Lifetime Volume: $18,888.74 USD
+- Payments Today: 1
+- Active Wallets: 13
+- **VERDICT: ✅ PASS - All metrics rendered correctly**
+
+### VERIFICATION STATUS: COMPLETE ✅
+- ✅ BUG FIX CONFIRMED WORKING
+- ✅ All three dashboard endpoints now called (/api/dashboard, /fee-tiers, /recent-transactions)
+- ✅ Recent Transactions widget shows data (not empty state)
+- ✅ No internal placeholder emails visible
+- ✅ GrowPanel shows correct offer variant
+- ✅ Dashboard metrics rendered correctly
+- ✅ No console errors
+
+### TECHNICAL DETAILS
+
+**Fix Implementation:**
+- File: `/app/Components/UI/OnboardingFlow/index.tsx`
+- Line: 119
+- Change: `DASHBOARD_FETCH` → `DASHBOARD_FETCH_ALL`
+- Comment added (lines 108-113): Explains why DASHBOARD_FETCH_ALL is required to prevent debounce collapse
+
+**Network Call Sequence:**
+1. /api/dashboard/recent-transactions?company_id=1 → HTTP 200 (first to complete)
+2. /api/dashboard/fee-tiers?company_id=1 → HTTP 200
+3. /api/dashboard?company_id=1 → HTTP 200
+
+**Widget Rendering:**
+- Recent Transactions Widget: Present with 5 rows
+- All rows show "API payment" label (localized, no internal placeholders)
+- Widget selector: [data-testid="recent-transactions-widget"]
+- Row selector: [data-testid="recent-txn-row"]
+
+**GrowPanel Offer:**
+- Variant: trial_complete
+- Selector: [data-testid="grow-offer-trial_complete"]
+- Title: "🎉 Fee-free trial complete"
+- Correct for hostbay (fee_free_remaining_usd=0.00, cumulative_volume_usd=17357.55)
+
+### SCREENSHOTS CAPTURED
+1. dashboard_verification_complete.png - Full dashboard with all data loaded correctly
+
+### FINAL VERDICT
+🎉 **ALL TESTS PASSED** - Dashboard data loading fix verified successfully!
+
+**Summary:**
+1. Network Calls: ✅ ALL 3 ENDPOINTS CALLED
+   • /api/dashboard → HTTP 200 ✓
+   • /api/dashboard/fee-tiers → HTTP 200 ✓
+   • /api/dashboard/recent-transactions → HTTP 200 ✓
+
+2. Recent Transactions Widget: ✅ WORKING
+   • Widget present with 5 transaction rows ✓
+   • All rows show "API payment" label ✓
+   • No internal placeholders (@dynopay.internal, legacy-api-) ✓
+
+3. GrowPanel: ✅ WORKING
+   • Shows trial_complete offer (correct for hostbay) ✓
+   • NOT showing fee_free offer ✓
+
+4. Dashboard Metrics: ✅ WORKING
+   • Today's Revenue: $87.99 USD ✓
+   • Lifetime Volume: $18,888.74 USD ✓
+   • Payments Today: 1 ✓
+   • Active Wallets: 13 ✓
+
+**Conclusion:**
+The root-cause bug has been COMPLETELY RESOLVED. OnboardingFlow now dispatches `DASHBOARD_FETCH_ALL` instead of `DASHBOARD_FETCH`, ensuring all three dashboard endpoints are called. The debounce collapse issue is fixed, and the Recent Transactions widget now shows data correctly instead of an empty state.
+
+---
+

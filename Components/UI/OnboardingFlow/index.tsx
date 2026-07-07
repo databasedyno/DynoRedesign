@@ -2,7 +2,7 @@ import { CompanyAction, WalletAction, PaymentLinkAction, DashboardAction } from 
 import { COMPANY_FETCH } from "@/Redux/Actions/CompanyAction";
 import { WALLET_FETCH } from "@/Redux/Actions/WalletAction";
 import { PAYLINK_FETCH } from "@/Redux/Actions/PaymentLinkAction";
-import { DASHBOARD_FETCH } from "@/Redux/Actions/DashboardAction";
+import { DASHBOARD_FETCH_ALL } from "@/Redux/Actions/DashboardAction";
 import { rootReducer } from "@/utils/types";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -104,12 +104,19 @@ const OnboardingFlow: React.FC = () => {
 
   // Once a payment link exists, fetch dashboard stats once so the "first
   // payment" milestone reflects reality (skip if the dashboard already loaded them).
+  //
+  // IMPORTANT: dispatch DASHBOARD_FETCH_ALL (not DASHBOARD_FETCH) — the saga
+  // watches DASHBOARD_INIT with a 400ms debounce. If this fired AFTER
+  // `useDashboardData` already dispatched DASHBOARD_FETCH_ALL, the two
+  // dispatches would collapse and the LAST one (DASHBOARD_FETCH — stats only)
+  // would win, silently dropping the parallel fetches for fee-tiers and
+  // recent-transactions. That left the Recent Transactions widget empty.
   useEffect(() => {
     if (hasLink && !dashboardFetched && !dashboardRequested.current) {
       dashboardRequested.current = true;
       dispatch(
         DashboardAction(
-          DASHBOARD_FETCH,
+          DASHBOARD_FETCH_ALL,
           companyId ? { company_id: companyId } : undefined,
         ),
       );
