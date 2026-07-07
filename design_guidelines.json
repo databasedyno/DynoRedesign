@@ -1,0 +1,138 @@
+{
+  "theme_archetype": "7 (Electric & Neon) + 5 (Luxury) Hybrid",
+  "domain": "Crypto/Web3 Payment Gateway Auth Suite",
+  "global_rules": {
+    "data_testid_requirement": "All interactive and key informational elements MUST include a data-testid attribute in kebab-case format (e.g., data-testid='login-email-input').",
+    "theme_support": "MUST fully support both Dark and Light modes using Tailwind's standard dark: classes."
+  },
+  "typography": {
+    "font_families": {
+      "heading": "Unbounded, sans-serif",
+      "body": "Manrope, sans-serif",
+      "mono": "JetBrains Mono, monospace"
+    },
+    "scale": {
+      "h1": "text-4xl md:text-5xl lg:text-6xl tracking-tighter font-black",
+      "h2": "text-2xl md:text-3xl tracking-tight font-bold",
+      "h3": "text-xl md:text-2xl tracking-tight font-semibold",
+      "body": "text-base leading-relaxed",
+      "small": "text-sm text-muted-foreground",
+      "micro": "text-xs tracking-widest uppercase font-mono"
+    }
+  },
+  "color_system": {
+    "dark_mode": {
+      "background": "#050505",
+      "surface": "rgba(255, 255, 255, 0.03)",
+      "surface_glass": "rgba(255, 255, 255, 0.05)",
+      "border": "rgba(255, 255, 255, 0.1)",
+      "text_primary": "#FFFFFF",
+      "text_secondary": "#A1A1AA",
+      "primary_neon": "#CCFF00",
+      "primary_neon_glow": "rgba(204, 255, 0, 0.4)",
+      "error": "#FF3B30",
+      "success": "#00E676"
+    },
+    "light_mode": {
+      "background": "#F5F7FA",
+      "surface": "rgba(255, 255, 255, 0.7)",
+      "surface_glass": "rgba(255, 255, 255, 0.9)",
+      "border": "rgba(5, 5, 5, 0.1)",
+      "text_primary": "#050505",
+      "text_secondary": "#52525B",
+      "primary_neon": "#050505",
+      "primary_neon_text": "#CCFF00",
+      "primary_neon_glow": "rgba(5, 5, 5, 0.2)",
+      "error": "#D32F2F",
+      "success": "#00C853"
+    }
+  },
+  "layout_strategy": {
+    "composition": "Immersive Floating Glass Bento Overlay. Not a rigid split-screen, but a centered dynamic container overlapping a high-fidelity abstract background.",
+    "container": "min-h-screen w-full flex items-center justify-center p-4 md:p-8 relative overflow-hidden",
+    "background_treatment": "Full-screen absolute positioning. Dark mode uses deep void black with subtle glowing mesh. Light mode uses frosty silver mesh. An additional heavy vignette/gradient mask prevents text collision.",
+    "grid_structure": {
+      "wrapper": "relative z-10 max-w-6xl w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-center",
+      "auth_form_col": "lg:col-span-6 xl:col-span-5 w-full",
+      "marketing_bento_col": "hidden lg:grid lg:col-span-6 xl:col-span-7 grid-cols-2 gap-4"
+    }
+  },
+  "components": {
+    "surfaces": {
+      "glass_card": "backdrop-blur-2xl bg-white/5 dark:bg-white/5 bg-white/70 dark:border-white/10 border-black/10 border shadow-2xl rounded-3xl p-8 md:p-12",
+      "bento_widget": "backdrop-blur-xl bg-white/5 dark:bg-white/5 bg-white/60 dark:border-white/10 border-black/5 border rounded-2xl p-6 hover:-translate-y-1 transition-transform duration-300"
+    },
+    "inputs": {
+      "style": "Floating label approach. No clunky borders. 1px bottom border only that glows neon on focus.",
+      "classes": "w-full bg-transparent border-b border-black/20 dark:border-white/20 px-0 py-3 text-lg focus:outline-none focus:border-black dark:focus:border-[#CCFF00] transition-colors rounded-none",
+      "phone_input": "flex gap-2. Country code dropdown styled as a minimal selector with border-r, next to the main phone number input."
+    },
+    "buttons": {
+      "primary": "w-full py-4 rounded-xl font-bold tracking-wide transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] bg-black text-[#CCFF00] dark:bg-[#CCFF00] dark:text-black shadow-[0_0_20px_rgba(0,0,0,0.2)] dark:hover:shadow-[0_0_30px_rgba(204,255,0,0.4)]",
+      "secondary_social": "w-full py-4 rounded-xl font-semibold flex items-center justify-center gap-3 border border-black/10 dark:border-white/10 bg-white/50 dark:bg-black/50 hover:bg-white dark:hover:bg-white/10 transition-colors backdrop-blur-md"
+    },
+    "otp_input": {
+      "container": "flex justify-between gap-2 md:gap-4",
+      "slot": "w-12 h-14 md:w-16 md:h-16 border border-black/20 dark:border-white/20 rounded-xl text-center text-2xl font-mono focus:border-black dark:focus:border-[#CCFF00] focus:ring-1 focus:ring-black dark:focus:ring-[#CCFF00] bg-white/50 dark:bg-black/50 transition-all"
+    },
+    "password_strength": {
+      "container": "mt-4 space-y-3",
+      "segments": "flex gap-2 h-1.5 w-full",
+      "segment_weak": "bg-[#FF3B30] shadow-[0_0_10px_rgba(255,59,48,0.5)]",
+      "segment_fair": "bg-[#FF9500]",
+      "segment_good": "bg-[#CCFF00]",
+      "segment_strong": "bg-[#00E676] shadow-[0_0_10px_rgba(0,230,118,0.5)]",
+      "checklist_item": "flex items-center gap-2 text-sm font-mono text-muted-foreground transition-colors. Checked state uses primary neon color."
+    }
+  },
+  "screens": {
+    "shared_elements": {
+      "header_controls": "Absolute top-6 right-6 flex items-center gap-4 z-50",
+      "language_switcher": "Minimal dropdown showing EN/PT/FR/ES/DE/NL with globe icon. Glassmorphism styling.",
+      "theme_toggle": "Icon button toggling sun/moon, applies 'dark' class to html.",
+      "logo": "Positioned top-8 left-8 absolute or embedded at top of auth form for mobile. SVG format."
+    },
+    "login": {
+      "flow": "Two-step architecture via Framer Motion AnimatePresence.",
+      "step_1": "Email/Phone toggle tabs. Input field. 'Continue' button. 'Continue with Google' divider.",
+      "step_2": "Animates horizontally. Shows active email in a read-only pill with an 'Edit' pencil. Password field below. 'Sign In' button. 'Forgot Password?' link (triggers modal).",
+      "marketing_panel": "Three bento widgets: 1. Big bold typography '1,000+ Businesses', 2. Scrolling marquee of 15+ Crypto Icons (BTC, ETH, SOL, etc.), 3. Highlight card '<1min Settlements' with a glowing green pulse dot."
+    },
+    "register": {
+      "flow": "Collects Email/Phone -> Password creation -> OTP verification.",
+      "password_creation": "Includes the real-time segmented neon strength bar + checklist.",
+      "otp_verification": "Triggers OTP Dialog. Distinguishes UI message depending on Email or Phone selection."
+    },
+    "forgot_password": {
+      "flow": "Triggered as a Glassmorphism Dialog over the login screen. Input email -> Send Reset Link -> Confirm State."
+    }
+  },
+  "motion_interactions": {
+    "library": "framer-motion",
+    "page_load": "Staggered fade-in. Background scale-down from 1.1 to 1.0 (duration: 1.5s, ease: 'easeOut'). Bento boxes animate in from bottom (y: 20, opacity: 0) with a stagger of 0.1s.",
+    "two_step_transition": "initial: { x: 20, opacity: 0 }, animate: { x: 0, opacity: 1 }, exit: { x: -20, opacity: 0 }, transition: { type: 'spring', stiffness: 300, damping: 30 }",
+    "modals": "Backdrop uses initial={{ opacity: 0 }} animate={{ opacity: 1 }}. Dialog uses initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}."
+  },
+  "media": {
+    "images": [
+      {
+        "category": "background_dark",
+        "url": "https://images.unsplash.com/photo-1643139863038-7355941e9e89?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NzB8MHwxfHNlYXJjaHwyfHxkYXJrJTIwbmVvbiUyMGFic3RyYWN0JTIwM2QlMjBtZXNofGVufDB8fHx8MTc4Mjc1NzI4M3ww&ixlib=rb-4.1.0&q=85",
+        "description": "Abstract dark neon 3D mesh"
+      },
+      {
+        "category": "background_light",
+        "url": "https://images.unsplash.com/photo-1673629914875-d8fd33f7d9fb?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1MDV8MHwxfHNlYXJjaHwxfHxhYnN0cmFjdCUyMGxpZ2h0JTIwZ3JheSUyMGZyb3N0ZWQlMjBnbGFzc3xlbnwwfHx8fDE3ODMzMjY3MzN8MA&ixlib=rb-4.1.0&q=85",
+        "description": "Abstract light silver frosted glass"
+      }
+    ]
+  },
+  "instructions_to_main_agent": {
+    "1": "Install 'framer-motion' for complex layout transitions (2-step login) and 'lucide-react' for icons.",
+    "2": "Override default Shadcn input borders to match the '1px bottom border only' guideline using Tailwind classes.",
+    "3": "Implement the layout as a Floating Bento overlay rather than a full-height split screen.",
+    "4": "Ensure the Language Switcher and Dark Mode toggle are sticky or absolute-positioned outside the main scrollable form area.",
+    "5": "Do not hardcode 'Inter' or 'Roboto'. Set up Unbounded (heading), Manrope (body), and JetBrains Mono (mono) via Google Fonts or Next.js font optimization.",
+    "6": "Add data-testid to every input, button, and dynamic component for E2E testing compatibility."
+  }
+}
