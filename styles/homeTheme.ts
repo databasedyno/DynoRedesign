@@ -42,7 +42,7 @@ export const homeTheme = createTheme({
     text: {
       primary: "#0A0A0A",
       secondary: "#52525B",
-      disabled: "#A1A1AA",
+      disabled: "#71717A",
     },
     background: {
       default: "#EEF1F6",
@@ -82,7 +82,7 @@ export const homeThemeDark = createTheme({
     text: {
       primary: "#FFFFFF",
       secondary: "#9CA3AF",
-      disabled: "#5B5B63",
+      disabled: "#8A8A94",
     },
     background: {
       default: "#060606",

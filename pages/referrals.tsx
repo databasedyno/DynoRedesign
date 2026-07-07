@@ -288,7 +288,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
                   py: 1.25,
                   borderRadius: "10px",
                   bgcolor: theme.palette.primary.main,
-                  color: "#fff",
+                  color: (theme.palette.primary as any).contrastText || "#fff",
                   cursor: "pointer",
                   whiteSpace: "nowrap",
                   "&:hover": { opacity: 0.9 },
