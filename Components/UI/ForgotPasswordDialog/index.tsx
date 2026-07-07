@@ -113,7 +113,7 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
     try {
       if (method === "email") {
         if (!email || !email.includes("@")) {
-          setError("Please enter a valid email address");
+          setError(t("forgotPasswordDialog.errEmailInvalid"));
           setLoading(false);
           return;
         }
@@ -121,7 +121,7 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
       } else {
         const digits = phone.replace(/[^\d]/g, "");
         if (digits.length < 10) {
-          setError("Please enter a valid phone number");
+          setError(t("forgotPasswordDialog.errPhoneInvalid"));
           setLoading(false);
           return;
         }
@@ -132,7 +132,7 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
       setOtpResetKey((k) => k + 1);
       setCountdown(60);
     } catch (err: any) {
-      const msg = err?.response?.data?.message || "Failed to send OTP. Please try again.";
+      const msg = err?.response?.data?.message || t("forgotPasswordDialog.errSendFailed");
       setError(msg);
     } finally {
       setLoading(false);
@@ -142,7 +142,7 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
   // ─── Step 2: Verify OTP ───
   const handleVerifyOtp = useCallback(async (otpCode: string) => {
     if (otpCode.length !== 6) {
-      setError("Please enter the complete 6-digit code");
+      setError(t("forgotPasswordDialog.errOtpIncomplete"));
       return;
     }
 
@@ -169,10 +169,10 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
         setResetToken(token);
         setStep("newPassword");
       } else {
-        setError("Verification failed. Please try again.");
+        setError(t("forgotPasswordDialog.errVerifyFailed"));
       }
     } catch (err: any) {
-      const msg = err?.response?.data?.message || "Invalid OTP. Please try again.";
+      const msg = err?.response?.data?.message || t("forgotPasswordDialog.errOtpInvalid");
       setError(msg);
     } finally {
       setLoading(false);
@@ -182,12 +182,12 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
   // ─── Step 3: Reset Password ───
   const handleResetPassword = useCallback(async () => {
     if (!passwordRegex.test(newPassword)) {
-      setError("Password doesn't meet the requirements");
+      setError(t("forgotPasswordDialog.errPwReq"));
       setShowPasswordValidation(true);
       return;
     }
     if (newPassword !== confirmPassword) {
-      setError("Passwords do not match");
+      setError(t("forgotPasswordDialog.errPwMismatch"));
       return;
     }
 
@@ -201,7 +201,7 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
       });
       setStep("success");
     } catch (err: any) {
-      const msg = err?.response?.data?.message || "Failed to reset password. Please try again.";
+      const msg = err?.response?.data?.message || t("forgotPasswordDialog.errResetFailed");
       setError(msg);
     } finally {
       setLoading(false);
@@ -224,7 +224,7 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
       setCountdown(60);
       setOtpResetKey((k) => k + 1);
     } catch (err: any) {
-      setError("Failed to resend code. Please try again.");
+      setError(t("forgotPasswordDialog.errResendFailed"));
     } finally {
       setLoading(false);
     }
@@ -309,10 +309,10 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
             </Box>
             <Box>
               <Typography sx={{ fontWeight: 700, fontSize: "20px", color: "text.primary", fontFamily: "UrbanistBold", lineHeight: 1.2 }}>
-                Reset Password
+                {t("forgotPasswordDialog.title")}
               </Typography>
               <Typography sx={{ fontSize: "13px", color: "text.secondary", fontFamily: "UrbanistMedium", mt: 0.25 }}>
-                Choose how to verify your identity
+                {t("forgotPasswordDialog.methodSubtitle")}
               </Typography>
             </Box>
           </Box>
@@ -348,8 +348,8 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
                 },
               }}
             >
-              <ToggleButton value="email">E-mail</ToggleButton>
-              <ToggleButton value="phone">Phone Number</ToggleButton>
+              <ToggleButton value="email">{t("forgotPasswordDialog.emailTab")}</ToggleButton>
+              <ToggleButton value="phone">{t("forgotPasswordDialog.phoneTab")}</ToggleButton>
             </ToggleButtonGroup>
           </Box>
 
@@ -357,12 +357,12 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
           {method === "email" ? (
             <Box sx={{ mb: 2 }}>
               <InputField
-                label="Email Address"
+                label={t("forgotPasswordDialog.emailLabel")}
                 type="email"
                 value={email}
                 onChange={(e) => { setEmail(e.target.value); setError(""); }}
                 onKeyDown={(e) => { if (e.key === "Enter") handleSendOtp(); }}
-                placeholder="Enter your email address"
+                placeholder={t("forgotPasswordDialog.emailPlaceholder")}
                 error={!!error}
                 helperText=""
               />
@@ -372,10 +372,10 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
               <CountryPhoneInput
                 value={phone}
                 onChange={(value) => { setPhone(value); setError(""); }}
-                label="Phone Number"
+                label={t("forgotPasswordDialog.phoneLabel")}
                 error={!!error}
                 helperText=""
-                placeholder="Enter phone number"
+                placeholder={t("forgotPasswordDialog.phonePlaceholder")}
               />
             </Box>
           )}
@@ -391,7 +391,7 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
           <CustomButton
             variant="primary"
             size="medium"
-            label="Send Verification Code"
+            label={t("forgotPasswordDialog.sendCode")}
             onClick={handleSendOtp}
             disabled={loading}
             fullWidth
@@ -413,7 +413,7 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
               }}
             >
               <ArrowBack sx={{ fontSize: "16px" }} />
-              Back to login
+              {t("forgotPasswordDialog.backToLogin")}
             </Link>
           </Box>
         </PanelCard>
@@ -453,10 +453,10 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
               <Typography sx={{ fontSize: "28px" }}>🔐</Typography>
             </Box>
             <Typography sx={{ fontWeight: 700, fontSize: "20px", color: "text.primary", fontFamily: "UrbanistBold" }}>
-              Enter Verification Code
+              {t("forgotPasswordDialog.otpTitle")}
             </Typography>
             <Typography sx={{ fontSize: "14px", color: "text.secondary", fontFamily: "UrbanistMedium", mt: 0.5, lineHeight: 1.5 }}>
-              We sent a 6-digit code to{" "}
+              {t("forgotPasswordDialog.otpSubtitlePrefix")}{" "}
               <Typography component="span" sx={{ fontWeight: 600, color: "text.primary", fontSize: "14px" }}>
                 {maskedTarget}
               </Typography>
@@ -473,7 +473,7 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
             countdown={countdown}
             loading={loading}
             error={error}
-            primaryButtonLabel="Verify"
+            primaryButtonLabel={t("forgotPasswordDialog.verifyBtn")}
             showInfoChip={false}
             showLabel={false}
             actionsLayout="stacked"
@@ -493,7 +493,7 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
               }}
             >
               <ArrowBack sx={{ fontSize: "16px" }} />
-              Change {method === "email" ? "email" : "phone number"}
+              {method === "email" ? t("forgotPasswordDialog.changeEmail") : t("forgotPasswordDialog.changePhone")}
             </Link>
           </Box>
         </PanelCard>
@@ -529,10 +529,10 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
               <Image src={LockIcon.src} alt="lock" width={24} height={24} draggable={false} style={{ filter: "brightness(10)" }} />
             </Box>
             <Typography sx={{ fontWeight: 700, fontSize: "20px", color: "text.primary", fontFamily: "UrbanistBold" }}>
-              Create New Password
+              {t("forgotPasswordDialog.newPwTitle")}
             </Typography>
             <Typography sx={{ fontSize: "14px", color: "text.secondary", fontFamily: "UrbanistMedium", mt: 0.5 }}>
-              Your new password must be different from your previous one
+              {t("forgotPasswordDialog.newPwSubtitle")}
             </Typography>
           </Box>
 
@@ -542,7 +542,7 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
               type={showNewPassword ? "text" : "password"}
               value={newPassword}
               autoComplete="new-password"
-              label="New Password"
+              label={t("forgotPasswordDialog.newPwLabel")}
               onChange={(e) => {
                 const val = e.target.value.replace(/\s/g, "");
                 setNewPassword(val);
@@ -556,7 +556,7 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
               }}
               onBlur={() => { setTimeout(() => setShowPasswordValidation(false), 200); }}
               onKeyDown={(e) => { if (e.key === "Enter") handleResetPassword(); }}
-              placeholder="Enter new password"
+              placeholder={t("forgotPasswordDialog.newPwPlaceholder")}
               error={!!error && error.includes("requirements")}
               sideButton={true}
               sideButtonType="primary"
@@ -583,12 +583,12 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
               type={showConfirmPassword ? "text" : "password"}
               value={confirmPassword}
               autoComplete="new-password"
-              label="Confirm Password"
+              label={t("forgotPasswordDialog.confirmPwLabel")}
               onChange={(e) => { setConfirmPassword(e.target.value.replace(/\s/g, "")); setError(""); }}
               onKeyDown={(e) => { if (e.key === "Enter") handleResetPassword(); }}
-              placeholder="Confirm new password"
+              placeholder={t("forgotPasswordDialog.confirmPwPlaceholder")}
               error={(!!confirmPassword && newPassword !== confirmPassword) || (!!error && error.includes("match"))}
-              helperText={confirmPassword && newPassword !== confirmPassword ? "Passwords do not match" : ""}
+              helperText={confirmPassword && newPassword !== confirmPassword ? t("forgotPasswordDialog.errPwMismatch") : ""}
               sideButton={true}
               sideButtonType="primary"
               sideButtonIcon={showConfirmPassword ? <VisibilityOffIcon sx={{ color: "text.secondary", height: "18px", width: "16px" }} /> : <VisibilityIcon sx={{ color: "text.secondary", height: "18px", width: "16px" }} />}
@@ -610,7 +610,7 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
           <CustomButton
             variant="primary"
             size="medium"
-            label="Reset Password"
+            label={t("forgotPasswordDialog.resetBtn")}
             onClick={handleResetPassword}
             disabled={loading || !newPassword || !confirmPassword}
             fullWidth
@@ -650,16 +650,16 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
           </Box>
 
           <Typography sx={{ fontWeight: 700, fontSize: "22px", color: "text.primary", fontFamily: "UrbanistBold", mb: 1 }}>
-            Password Reset Successful
+            {t("forgotPasswordDialog.successTitle")}
           </Typography>
           <Typography sx={{ fontSize: "14px", color: "text.secondary", fontFamily: "UrbanistMedium", lineHeight: 1.6, mb: 3, maxWidth: "320px", mx: "auto" }}>
-            Your password has been updated. You can now log in with your new password.
+            {t("forgotPasswordDialog.successBody")}
           </Typography>
 
           <CustomButton
             variant="primary"
             size="medium"
-            label="Back to Login"
+            label={t("forgotPasswordDialog.backToLoginBtn")}
             onClick={handleClose}
             fullWidth
             sx={{ fontWeight: 700, padding: "14px 24px", borderRadius: "12px", fontSize: "15px" }}
