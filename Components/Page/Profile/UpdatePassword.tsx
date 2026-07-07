@@ -151,14 +151,14 @@ const UpdatePassword = () => {
 
   const passwordSchema = yup.object().shape({
     newPassword: yup.string()
-      .required(t("newPasswordRequired") || "New password is required")
-      .test("password-validation", t("passwordComplexity") || "Password must be 8-20 characters with uppercase, lowercase, number, and special character", (value) => {
+      .required(t("newPasswordRequired"))
+      .test("password-validation", t("passwordComplexity"), (value) => {
         if (!value || value.trim() === "") return true;
         return passwordRegex.test(value);
       }),
     confirmPassword: yup.string()
-      .required(t("confirmPasswordRequired") || "Please confirm your new password")
-      .test("password-match", t("passwordMismatch") || "Passwords do not match", function (value) {
+      .required(t("confirmPasswordRequired"))
+      .test("password-match", t("passwordMismatch"), function (value) {
         if (!value || value.trim() === "") return true;
         return value === this.parent.newPassword;
       }),

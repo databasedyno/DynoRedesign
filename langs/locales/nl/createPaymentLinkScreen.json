@@ -86,5 +86,8 @@
   "customerEmail": "Klant E-mail",
   "optional": "Optioneel",
   "customerEmailDescription": "Betaallink en verwijzingscode naar dit e-mailadres sturen",
-  "customerEmailPlaceholder": "klant@voorbeeld.nl"
+  "customerEmailPlaceholder": "klant@voorbeeld.nl",
+  "expiryRecommendation": "Voor de veiligheid raden we aan een vervaldatum in te stellen, zodat de link niet onbeperkt gebruikt kan worden.",
+  "valueHelper": "Het bedrag dat je klant gaat betalen.",
+  "clientNameHelper": "Wordt getoond op de factuur en de bon."
 }

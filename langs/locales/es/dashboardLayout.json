@@ -61,5 +61,8 @@
   "setupStablecoinWallet": "Configure primero una billetera stablecoin",
   "selectStablecoin": "Seleccionar stablecoin objetivo",
   "awaitingPayment": "esperando pago",
-  "profile": "Perfil"
+  "profile": "Perfil",
+  "idleTimeoutTitle": "Aviso de expiración de sesión",
+  "signOutNow": "Cerrar sesión",
+  "staySignedIn": "Mantener la sesión iniciada"
 }

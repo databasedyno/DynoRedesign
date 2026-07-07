@@ -86,5 +86,8 @@
   "customerEmail": "Email del Cliente",
   "optional": "Opcional",
   "customerEmailDescription": "Enviar enlace de pago y código de referido a este email",
-  "customerEmailPlaceholder": "cliente@ejemplo.com"
+  "customerEmailPlaceholder": "cliente@ejemplo.com",
+  "expiryRecommendation": "Por seguridad, recomendamos establecer una fecha de caducidad para que el enlace no pueda usarse indefinidamente.",
+  "valueHelper": "El importe que pagará tu cliente.",
+  "clientNameHelper": "Se muestra en la factura y el recibo."
 }

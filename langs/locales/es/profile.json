@@ -43,5 +43,6 @@
   "emailAdded": "¡Correo agregado correctamente!",
   "phoneAdded": "¡Número de teléfono agregado correctamente!",
   "noEmailSet": "No hay dirección de correo en tu cuenta",
-  "noPhoneSet": "No hay número de teléfono en tu cuenta"
+  "noPhoneSet": "No hay número de teléfono en tu cuenta",
+  "passwordComplexity": "La contraseña debe tener 8-20 caracteres, con mayúscula, minúscula, número y carácter especial"
 }

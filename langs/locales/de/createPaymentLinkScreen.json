@@ -86,5 +86,8 @@
   "customerEmail": "Kunden-E-Mail",
   "optional": "Optional",
   "customerEmailDescription": "Zahlungslink und Empfehlungscode an diese E-Mail senden",
-  "customerEmailPlaceholder": "kunde@beispiel.de"
+  "customerEmailPlaceholder": "kunde@beispiel.de",
+  "expiryRecommendation": "Aus Sicherheitsgründen empfehlen wir, ein Ablaufdatum festzulegen, damit der Link nicht unbegrenzt verwendet werden kann.",
+  "valueHelper": "Der Betrag, den Ihr Kunde bezahlen wird.",
+  "clientNameHelper": "Wird auf Rechnung und Beleg angezeigt."
 }

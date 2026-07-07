@@ -223,7 +223,7 @@ const AddContactInfo: React.FC<AddContactInfoProps> = ({ tokenData }) => {
               <InputField
                 fullWidth
                 inputHeight={isMobile ? "32px" : "38px"}
-                label={t("email", { ns: "auth" }) || "Email"}
+                label={t("email", { ns: "auth" })}
                 placeholder={tProfile("enterEmail")}
                 type="email"
                 value={emailInput}
@@ -250,11 +250,11 @@ const AddContactInfo: React.FC<AddContactInfoProps> = ({ tokenData }) => {
           <OtpDialog
             open={emailOtpDialogOpen}
             onClose={() => setEmailOtpDialogOpen(false)}
-            title={t("emailVerification", { ns: "auth" }) || "Email Verification"}
-            subtitle={t("emailVerificationSubtitle", { ns: "auth" }) || "Enter the verification code sent to your email"}
+            title={t("emailVerification", { ns: "auth" })}
+            subtitle={t("emailVerificationSubtitle", { ns: "auth" })}
             contactInfo={emailInput}
             contactType="email"
-            resendCodeLabel={t("resendCode", { ns: "auth" }) || "Resend Code"}
+            resendCodeLabel={t("resendCode", { ns: "auth" })}
             resendCodeCountdownLabel={(seconds) => `Code in ${seconds}s`}
             primaryButtonLabel={tProfile("verifyAndSave")}
             onResendCode={handleSendEmailOtp}
@@ -303,7 +303,7 @@ const AddContactInfo: React.FC<AddContactInfoProps> = ({ tokenData }) => {
                     lineHeight: "100%",
                   }}
                 >
-                  {t("phoneNumber", { ns: "auth" }) || "Phone Number"}
+                  {t("phoneNumber", { ns: "auth" })}
                 </Typography>
                 <CountryPhoneInput
                   fullWidth
@@ -346,11 +346,11 @@ const AddContactInfo: React.FC<AddContactInfoProps> = ({ tokenData }) => {
           <OtpDialog
             open={phoneOtpDialogOpen}
             onClose={() => setPhoneOtpDialogOpen(false)}
-            title={t("smsVerification", { ns: "auth" }) || "SMS Verification"}
-            subtitle={t("otpSentToPhone", { ns: "auth" }) || "Enter the verification code sent to your phone"}
+            title={t("smsVerification", { ns: "auth" })}
+            subtitle={t("otpSentToPhone", { ns: "auth" })}
             contactInfo={phoneInput}
             contactType="phone"
-            resendCodeLabel={t("resendCode", { ns: "auth" }) || "Resend Code"}
+            resendCodeLabel={t("resendCode", { ns: "auth" })}
             resendCodeCountdownLabel={(seconds) => `Code in ${seconds}s`}
             primaryButtonLabel={tProfile("verifyAndSave")}
             onResendCode={handleSendPhoneOtp}

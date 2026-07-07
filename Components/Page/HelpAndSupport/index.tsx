@@ -248,7 +248,7 @@ const HelpAndSupport = () => {
                     >
                         {articles.length === 0 ? (
                             <TextDecoration style={{ fontSize: "15px", color: theme.palette.text.secondary }}>
-                                {t("noResults") || "No articles found. Try a different search term."}
+                                {t("noResults")}
                             </TextDecoration>
                         ) : (
                             articles.map((item, index) => (

@@ -43,5 +43,6 @@
   "emailAdded": "E-mail ajouté avec succès !",
   "phoneAdded": "Numéro de téléphone ajouté avec succès !",
   "noEmailSet": "Aucune adresse e-mail sur votre compte",
-  "noPhoneSet": "Aucun numéro de téléphone sur votre compte"
+  "noPhoneSet": "Aucun numéro de téléphone sur votre compte",
+  "passwordComplexity": "Le mot de passe doit comporter 8 à 20 caractères, avec majuscule, minuscule, chiffre et caractère spécial"
 }

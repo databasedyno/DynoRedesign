@@ -117,11 +117,11 @@ const OtpInputPanel: React.FC<OtpInputPanelProps> = ({
   const isSubmittingRef = useRef<boolean>(false);
   const resetFormRef = useRef<((values?: OtpFormValues) => void) | null>(null);
 
-  const labelResend = resendCodeLabel || t("resendCode") || "Resend code";
+  const labelResend = resendCodeLabel || t("resendCode");
   const labelCountdown =
     resendCodeCountdownLabel ||
-    ((seconds: number) => `${t("codeIn") || "Resend in"} ${seconds}s`);
-  const labelPrimary = primaryButtonLabel || t("verify") || "Verify";
+    ((seconds: number) => `${t("codeIn")} ${seconds}s`);
+  const labelPrimary = primaryButtonLabel || t("verify");
 
   const inputSize = isMobile ? "44px" : "48px";
 
@@ -134,8 +134,8 @@ const OtpInputPanel: React.FC<OtpInputPanelProps> = ({
       const fieldName = `otp${i}` as OtpFieldName;
       shape[fieldName] = yup
         .string()
-        .required(t("required") || "Required")
-        .matches(/^[0-9]$/, t("mustBeNumeric") || "Must be a single digit");
+        .required(t("required"))
+        .matches(/^[0-9]$/, t("mustBeNumeric"));
     }
     return yup.object().shape(shape);
   }, [otpLength, t]);
@@ -551,7 +551,7 @@ const OtpInputPanel: React.FC<OtpInputPanelProps> = ({
                     minWidth: 0,
                   }}
                 >
-                  {t("codeSentTo") || "Code sent to"}{" "}
+                  {t("codeSentTo")}{" "}
                   <span style={{ fontWeight: 600, fontFamily: "UrbanistBold" }}>
                     {contactInfo}
                   </span>
@@ -572,7 +572,7 @@ const OtpInputPanel: React.FC<OtpInputPanelProps> = ({
                     marginBottom: "8px",
                   }}
                 >
-                  {t("verificationCode") || "Verification Code"} *
+                  {t("verificationCode")} *
                 </Typography>
               )}
               <Box
@@ -739,7 +739,7 @@ const OtpInputPanel: React.FC<OtpInputPanelProps> = ({
                 <CustomButton
                   variant="primary"
                   size={isMobile ? "small" : "medium"}
-                  label={loading ? (t("verifying") || "Verifying…") : labelPrimary}
+                  label={loading ? (t("verifying")) : labelPrimary}
                   type="submit"
                   loading={loading}
                   disabled={
@@ -766,7 +766,7 @@ const OtpInputPanel: React.FC<OtpInputPanelProps> = ({
                 <CustomButton
                   variant="primary"
                   size="medium"
-                  label={loading ? (t("verifying") || "Verifying…") : labelPrimary}
+                  label={loading ? (t("verifying")) : labelPrimary}
                   type="submit"
                   loading={loading}
                   disabled={
@@ -797,7 +797,7 @@ const OtpInputPanel: React.FC<OtpInputPanelProps> = ({
                       fontFamily: "UrbanistMedium",
                     }}
                   >
-                    {t("didntReceiveCode") || "Didn't receive the code?"}
+                    {t("didntReceiveCode")}
                   </Typography>
                   {countdown > 0 ? (
                     <Typography

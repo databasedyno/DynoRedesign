@@ -332,7 +332,7 @@ export default function Login() {
       setPhoneError("errorCheckingPhone");
       dispatch({
         type: TOAST_SHOW,
-        payload: { message: t("errorCheckingPhone") || "Error checking phone number", severity: "error" },
+        payload: { message: t("errorCheckingPhone"), severity: "error" },
       });
     } finally {
       setPhoneCheckLoading(false);
@@ -1001,7 +1001,7 @@ export default function Login() {
                 transition: "all 0.2s ease",
               }}
             >
-              {t("email") || "Email"}
+              {t("email")}
             </Box>
             <Box
               onClick={() => handleLoginModeSwitch("phone")}
@@ -1019,7 +1019,7 @@ export default function Login() {
                 transition: "all 0.2s ease",
               }}
             >
-              {t("phoneNumber") || "Phone Number"}
+              {t("phoneNumber")}
             </Box>
           </Box>
         )}
@@ -1041,11 +1041,11 @@ export default function Login() {
                     lineHeight: "100%",
                   }}
                 >
-                  {t("phoneNumber") || "Phone Number"}
+                  {t("phoneNumber")}
                 </Typography>
                 <CountryPhoneInput
                   fullWidth={true}
-                  placeholder={t("mobilePlaceholder") || "Enter phone number"}
+                  placeholder={t("mobilePlaceholder")}
                   name="phoneLogin"
                   defaultCountry="US"
                   value={phoneInput}
@@ -1143,7 +1143,7 @@ export default function Login() {
                     lineHeight: "100%",
                   }}
                 >
-                  {t("phoneNumber") || "Phone Number"}
+                  {t("phoneNumber")}
                 </Typography>
                 <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
                   <InputField
@@ -1172,7 +1172,7 @@ export default function Login() {
                   color: "text.secondary",
                 }}
               >
-                {t("otpSentToPhone") || "Enter the OTP sent to your phone number"}
+                {t("otpSentToPhone")}
               </Typography>
             </Box>
 
@@ -1184,8 +1184,8 @@ export default function Login() {
                 disabled={phoneLoginOtpCountdown > 0 || userState.loading}
                 label={
                   phoneLoginOtpCountdown > 0
-                    ? `${t("codeIn") || "Code in"} ${phoneLoginOtpCountdown}s`
-                    : t("resendCode") || "Resend Code"
+                    ? `${t("codeIn")} ${phoneLoginOtpCountdown}s`
+                    : t("resendCode")
                 }
                 onClick={() => handleSendPhoneLoginOtp()}
                 sx={{ fontWeight: 500, padding: "8px 20px" }}
@@ -1786,13 +1786,13 @@ export default function Login() {
           <OtpDialog
             open={phoneLoginOtpDialogOpen}
             onClose={() => setPhoneLoginOtpDialogOpen(false)}
-            title={t("smsVerification") || "SMS Verification"}
-            subtitle={t("otpSentToPhone") || "Enter the verification code sent to your phone number"}
+            title={t("smsVerification")}
+            subtitle={t("otpSentToPhone")}
             contactInfo={"+" + verifiedPhone}
             contactType="phone"
-            resendCodeLabel={t("resendCode") || "Resend Code"}
-            resendCodeCountdownLabel={(seconds) => `${t("codeIn") || "Code in"} ${seconds}s`}
-            primaryButtonLabel={t("verifyAndLogin") || "Verify & log in"}
+            resendCodeLabel={t("resendCode")}
+            resendCodeCountdownLabel={(seconds) => `${t("codeIn")} ${seconds}s`}
+            primaryButtonLabel={t("verifyAndLogin")}
             onResendCode={() => handleSendPhoneLoginOtp()}
             onVerify={handlePhoneLoginOtpVerify}
             onClearError={() => {
@@ -1918,7 +1918,7 @@ export default function Login() {
           contactType="email"
           resendCodeLabel={t("resendCode")}
           resendCodeCountdownLabel={(seconds) => `${t("codeIn")} ${seconds}s`}
-          primaryButtonLabel={t("verifyAndLogin") || "Verify & log in"}
+          primaryButtonLabel={t("verifyAndLogin")}
           onResendCode={handleSendEmailOtp}
           onVerify={handleEmailOtpVerify}
           onClearError={() => {
@@ -1945,16 +1945,15 @@ export default function Login() {
           onClose={() => {
             setSmsOtpDialogOpen(false);
           }}
-          title={t("smsVerification") || "SMS Verification"}
+          title={t("smsVerification")}
           subtitle={
-            t("smsVerificationSubtitle") ||
-            "Enter the verification code sent to your mobile number"
+            t("smsVerificationSubtitle")
           }
           contactInfo={userState.mobile || mobile}
           contactType="phone"
           resendCodeLabel={t("resendCode")}
           resendCodeCountdownLabel={(seconds) => `${t("codeIn")} ${seconds}s`}
-          primaryButtonLabel={t("verifyAndLogin") || "Verify & log in"}
+          primaryButtonLabel={t("verifyAndLogin")}
           onResendCode={handleSendSmsOtp}
           onVerify={handleSmsOtpVerify}
           onClearError={() => {
@@ -1978,13 +1977,13 @@ export default function Login() {
       <OtpDialog
         open={userState.loginOtpRequired}
         onClose={handleLoginOtpClose}
-        title={t("loginVerification") || "Login Verification"}
-        subtitle={t("loginOtpSubtitle") || "Enter the verification code sent to your email to complete login"}
+        title={t("loginVerification")}
+        subtitle={t("loginOtpSubtitle")}
         contactInfo={userState.loginOtpMaskedEmail}
         contactType="email"
-        resendCodeLabel={t("resendCode") || "Resend Code"}
-        resendCodeCountdownLabel={(seconds) => `${t("codeIn") || "Code in"} ${seconds}s`}
-        primaryButtonLabel={t("verifyAndLogin") || "Verify & log in"}
+        resendCodeLabel={t("resendCode")}
+        resendCodeCountdownLabel={(seconds) => `${t("codeIn")} ${seconds}s`}
+        primaryButtonLabel={t("verifyAndLogin")}
         onResendCode={handleLoginOtpResend}
         onVerify={handleLoginOtpVerify}
         onClearError={() => {}}

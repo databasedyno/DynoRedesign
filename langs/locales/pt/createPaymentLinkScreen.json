@@ -86,5 +86,8 @@
   "customerEmailDescription": "Enviar link de pagamento e código de indicação para este email",
   "customerEmailPlaceholder": "cliente@exemplo.com",
   "createPaymentLink": "Criar link de pagamento",
-  "creating": "Criando..."
+  "creating": "Criando...",
+  "expiryRecommendation": "Por segurança, recomendamos definir uma data de expiração para que o link não possa ser usado indefinidamente.",
+  "valueHelper": "O valor que o seu cliente irá pagar.",
+  "clientNameHelper": "Apresentado na fatura e no recibo."
 }

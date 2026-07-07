@@ -61,5 +61,8 @@
   "selectStablecoin": "Selecionar stablecoin alvo",
   "awaitingPayment": "aguardando pagamento",
   "profile": "Perfil",
-  "pay-links": "Links de pagamento"
+  "pay-links": "Links de pagamento",
+  "idleTimeoutTitle": "Aviso de expiração da sessão",
+  "signOutNow": "Terminar sessão",
+  "staySignedIn": "Manter sessão iniciada"
 }

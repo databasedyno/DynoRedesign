@@ -130,7 +130,7 @@ const MobileNavigationBar = () => {
       id: "invoices",
     },
     {
-      label: t("customers") || "Customers",
+      label: t("customers"),
       icon: "customers",
       path: "/customers",
       id: "customers",
@@ -147,7 +147,7 @@ const MobileNavigationBar = () => {
   // Third row items (expanded) - additional nav items
   const thirdRowItems = [
     {
-      label: t("referrals") || "Referrals",
+      label: t("referrals"),
       icon: "referrals",
       path: "/referrals",
       id: "referrals",
@@ -160,7 +160,7 @@ const MobileNavigationBar = () => {
     },
     { label: t("language"), icon: "language", path: null, id: "language" },
     {
-      label: t("helpSupport") || "Help",
+      label: t("helpSupport"),
       icon: "help",
       path: "/help-support",
       id: "help-support",

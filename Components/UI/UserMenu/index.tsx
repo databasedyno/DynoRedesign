@@ -252,7 +252,7 @@ export default function UserMenu() {
                   fontSize: isMobile ? "13px" : "15px",
                 }}
               >
-                {t("profile") || "Profile"}
+                {t("profile")}
               </Typography>
             </MenuItemRow>
 

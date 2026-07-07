@@ -42,5 +42,14 @@
   "emailAddressLabel": "Email address",
   "emailAddressPlaceholder": "Enter your email address",
   "sendCode": "Send verification code",
-  "emailInvalid": "Please enter a valid email address"
+  "emailInvalid": "Please enter a valid email address",
+  "done": "Done",
+  "addAnother": "Add another",
+  "walletAddedSuccess": "Wallet added!",
+  "walletsAddedCount": "{{count}} wallets added!",
+  "addAnotherWalletPrompt": "Want to add another wallet for a different cryptocurrency?",
+  "editWalletTitle": "Edit wallet",
+  "saveChanges": "Save changes",
+  "walletNameHelper": "A label just for you — e.g. “Main USDT payouts”. Your customers never see it.",
+  "walletAddressHelper": "Paste your address for the selected network. Payments settle here directly — we never hold your funds."
 }

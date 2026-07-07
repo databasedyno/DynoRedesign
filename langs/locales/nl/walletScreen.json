@@ -42,5 +42,14 @@
   "emailAddressLabel": "E-mailadres",
   "emailAddressPlaceholder": "Voer uw e-mailadres in",
   "sendCode": "Verificatiecode versturen",
-  "emailInvalid": "Voer een geldig e-mailadres in"
+  "emailInvalid": "Voer een geldig e-mailadres in",
+  "done": "Klaar",
+  "addAnother": "Nog een toevoegen",
+  "walletAddedSuccess": "Wallet toegevoegd!",
+  "walletsAddedCount": "{{count}} wallets toegevoegd!",
+  "addAnotherWalletPrompt": "Wil je nog een wallet toevoegen voor een andere cryptomunt?",
+  "editWalletTitle": "Wallet bewerken",
+  "saveChanges": "Wijzigingen opslaan",
+  "walletNameHelper": "Een label alleen voor jou — bijv. “Belangrijkste USDT-uitbetalingen”. Je klanten zien het nooit.",
+  "walletAddressHelper": "Plak je adres voor het geselecteerde netwerk. Betalingen worden hier direct afgewikkeld — we beheren je geld nooit."
 }

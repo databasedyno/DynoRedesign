@@ -42,5 +42,14 @@
   "emailAddressLabel": "E-Mail-Adresse",
   "emailAddressPlaceholder": "Geben Sie Ihre E-Mail-Adresse ein",
   "sendCode": "Bestätigungscode senden",
-  "emailInvalid": "Bitte geben Sie eine gültige E-Mail-Adresse ein"
+  "emailInvalid": "Bitte geben Sie eine gültige E-Mail-Adresse ein",
+  "done": "Fertig",
+  "addAnother": "Weitere hinzufügen",
+  "walletAddedSuccess": "Wallet hinzugefügt!",
+  "walletsAddedCount": "{{count}} Wallets hinzugefügt!",
+  "addAnotherWalletPrompt": "Möchten Sie eine weitere Wallet für eine andere Kryptowährung hinzufügen?",
+  "editWalletTitle": "Wallet bearbeiten",
+  "saveChanges": "Änderungen speichern",
+  "walletNameHelper": "Ein Label nur für Sie — z. B. „Haupt-USDT-Auszahlungen“. Ihre Kunden sehen es nie.",
+  "walletAddressHelper": "Fügen Sie Ihre Adresse für das ausgewählte Netzwerk ein. Zahlungen werden direkt hier abgewickelt — wir verwahren Ihre Gelder nie."
 }

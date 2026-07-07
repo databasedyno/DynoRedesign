@@ -43,5 +43,6 @@
   "emailAdded": "E-Mail erfolgreich hinzugefügt!",
   "phoneAdded": "Telefonnummer erfolgreich hinzugefügt!",
   "noEmailSet": "Keine E-Mail-Adresse in Ihrem Konto",
-  "noPhoneSet": "Keine Telefonnummer in Ihrem Konto"
+  "noPhoneSet": "Keine Telefonnummer in Ihrem Konto",
+  "passwordComplexity": "Das Passwort muss 8-20 Zeichen umfassen, mit Groß- und Kleinbuchstabe, Zahl und Sonderzeichen"
 }

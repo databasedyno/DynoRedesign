@@ -61,5 +61,8 @@
   "setupStablecoinWallet": "Configurez d'abord un portefeuille stablecoin",
   "selectStablecoin": "Sélectionner le stablecoin cible",
   "awaitingPayment": "en attente de paiement",
-  "profile": "Profil"
+  "profile": "Profil",
+  "idleTimeoutTitle": "Avertissement d'expiration de session",
+  "signOutNow": "Se déconnecter",
+  "staySignedIn": "Rester connecté"
 }

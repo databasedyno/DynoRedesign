@@ -549,18 +549,18 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
             fontWeight: 600,
             fontFamily: "UrbanistSemiBold",
           }}>
-            {walletsAdded === 1 ? "Wallet Added Successfully!" : `${walletsAdded} Wallets Added!`}
+            {walletsAdded === 1 ? tWallet("walletAddedSuccess") : t("walletsAddedCount", { count: walletsAdded })}
           </Typography>
           <Typography sx={{
             fontSize: isMobile ? 13 : 14,
             color: muiTheme.palette.text.secondary,
             fontFamily: "UrbanistMedium",
           }}>
-            Would you like to add another wallet for a different cryptocurrency?
+            {tWallet("addAnotherWalletPrompt")}
           </Typography>
           <Box sx={{ display: "flex", gap: 2, mt: 1, width: "100%" }}>
             <CustomButton
-              label="Done"
+              label={tWallet("done")}
               variant="outlined"
               onClick={() => {
                 setShowSuccessChoice(false);
@@ -570,7 +570,7 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
               sx={{ flex: 1 }}
             />
             <CustomButton
-              label="Add Another"
+              label={tWallet("addAnother")}
               variant="primary"
               onClick={() => {
                 setShowSuccessChoice(false);
@@ -582,7 +582,7 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
         </Box>
       ) : (
       <PanelCard
-        title={editMode ? tWallet("editWalletTitle") || "Edit Wallet" : tWallet("addWalletTitle")}
+        title={editMode ? tWallet("editWalletTitle") : tWallet("addWalletTitle")}
         showHeaderBorder={false}
         headerIcon={
           <Image
@@ -678,7 +678,7 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
               setWalletName(e.target.value);
             }}
             error={!!errors.walletName}
-            helperText={errors.walletName}
+            helperText={errors.walletName || tWallet("walletNameHelper")}
           />
           <CryptocurrencySelector
             label={tWallet("cryptocurrency") + " *"}
@@ -711,7 +711,7 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
               }
             }}
             error={!!errors.walletAddress}
-            helperText={errors.walletAddress}
+            helperText={errors.walletAddress || tWallet("walletAddressHelper")}
           />
 
           <WarningContainer>
@@ -781,7 +781,7 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
             }}
           />
           <CustomButton
-            label={editMode ? (tWallet("saveChanges") || "Save Changes") : tWallet("continue")}
+            label={editMode ? tWallet("saveChanges") : tWallet("continue")}
             variant="primary"
             onClick={handleSubmit}
             disabled={popupLoading || isSubmitting || !walletName.trim() || !cryptocurrency || !walletAddress.trim()}

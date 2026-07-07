@@ -86,5 +86,8 @@
   "customerEmail": "Email du Client",
   "optional": "Facultatif",
   "customerEmailDescription": "Envoyer le lien de paiement et le code de parrainage à cet email",
-  "customerEmailPlaceholder": "client@exemple.fr"
+  "customerEmailPlaceholder": "client@exemple.fr",
+  "expiryRecommendation": "Pour plus de sécurité, nous vous recommandons de définir une date d'expiration afin que le lien ne puisse pas être utilisé indéfiniment.",
+  "valueHelper": "Le montant que votre client va payer.",
+  "clientNameHelper": "Affiché sur la facture et le reçu."
 }

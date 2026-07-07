@@ -81,7 +81,7 @@ const OtpDialog: React.FC<OtpDialogProps> = ({
   const theme = useTheme();
   const isMobile = useIsMobile("sm");
 
-  const dialogTitle = title || t("emailVerification") || "Verification";
+  const dialogTitle = title || t("emailVerification");
   const dialogSubtitle = subtitle;
 
   // Should we swap the OTP form for the stepped-progress screen?

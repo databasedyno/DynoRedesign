@@ -86,5 +86,8 @@
   "customerEmail": "Customer Email",
   "optional": "Optional",
   "customerEmailDescription": "Send payment link and referral code to this email",
-  "customerEmailPlaceholder": "customer@example.com"
+  "customerEmailPlaceholder": "customer@example.com",
+  "expiryRecommendation": "For security, we recommend setting an expiry date so the link can't be used indefinitely.",
+  "valueHelper": "The amount your customer will pay.",
+  "clientNameHelper": "Shown on the invoice and receipt."
 }

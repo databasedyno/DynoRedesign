@@ -227,7 +227,7 @@ const IdleTimeoutManager: React.FC = () => {
             color: "text.primary",
           }}
         >
-          {t("idleTimeoutTitle") || "Session Timeout Warning"}
+          {t("idleTimeoutTitle")}
         </Typography>
 
         <Typography
@@ -239,8 +239,7 @@ const IdleTimeoutManager: React.FC = () => {
             lineHeight: 1.6,
           }}
         >
-          {t("idleTimeoutMessage") ||
-            "You've been inactive for a while. For your security, you'll be signed out automatically."}
+          {t("idleTimeoutMessage")}
         </Typography>
 
         {/* Countdown */}
@@ -276,7 +275,7 @@ const IdleTimeoutManager: React.FC = () => {
               "&:hover": { bgcolor: "action.hover" },
             }}
           >
-            {t("signOutNow") || "Sign Out"}
+            {t("signOutNow")}
           </Box>
 
           <Box
@@ -295,7 +294,7 @@ const IdleTimeoutManager: React.FC = () => {
               "&:hover": { opacity: 0.9 },
             }}
           >
-            {t("staySignedIn") || "Stay Signed In"}
+            {t("staySignedIn")}
           </Box>
         </Box>
       </Box>

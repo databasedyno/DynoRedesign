@@ -42,5 +42,14 @@
   "emailAddressLabel": "Adresse e-mail",
   "emailAddressPlaceholder": "Saisissez votre adresse e-mail",
   "sendCode": "Envoyer le code de vérification",
-  "emailInvalid": "Veuillez saisir une adresse e-mail valide"
+  "emailInvalid": "Veuillez saisir une adresse e-mail valide",
+  "done": "Terminé",
+  "addAnother": "Ajouter un autre",
+  "walletAddedSuccess": "Portefeuille ajouté !",
+  "walletsAddedCount": "{{count}} portefeuilles ajoutés !",
+  "addAnotherWalletPrompt": "Voulez-vous ajouter un autre portefeuille pour une autre cryptomonnaie ?",
+  "editWalletTitle": "Modifier le portefeuille",
+  "saveChanges": "Enregistrer les modifications",
+  "walletNameHelper": "Un libellé pour vous seul — ex. : « Paiements USDT principaux ». Vos clients ne le voient jamais.",
+  "walletAddressHelper": "Collez votre adresse pour le réseau sélectionné. Les paiements sont réglés ici directement — nous ne détenons jamais vos fonds."
 }

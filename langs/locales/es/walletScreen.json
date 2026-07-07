@@ -42,5 +42,14 @@
   "emailAddressLabel": "Correo electrónico",
   "emailAddressPlaceholder": "Introduce tu correo electrónico",
   "sendCode": "Enviar código de verificación",
-  "emailInvalid": "Introduce un correo válido"
+  "emailInvalid": "Introduce un correo válido",
+  "done": "Listo",
+  "addAnother": "Añadir otra",
+  "walletAddedSuccess": "¡Billetera añadida!",
+  "walletsAddedCount": "¡{{count}} billeteras añadidas!",
+  "addAnotherWalletPrompt": "¿Quieres añadir otra billetera para una criptomoneda diferente?",
+  "editWalletTitle": "Editar billetera",
+  "saveChanges": "Guardar cambios",
+  "walletNameHelper": "Una etiqueta solo para ti — p. ej., “Pagos USDT principales”. Tus clientes nunca la ven.",
+  "walletAddressHelper": "Pega tu dirección para la red seleccionada. Los pagos se liquidan aquí directamente: nunca retenemos tus fondos."
 }

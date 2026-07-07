@@ -82,7 +82,7 @@ const PaymentSettingsBasic: React.FC<PaymentSettingsBasicProps> = ({
             helperText={
               paymentSettingsTouched.value && paymentSettingsErrors.value
                 ? paymentSettingsErrors.value
-                : undefined
+                : tPaymentLink("valueHelper")
             }
             sx={{
               width: "100%",
@@ -140,6 +140,7 @@ const PaymentSettingsBasic: React.FC<PaymentSettingsBasicProps> = ({
           }
           type="text"
           inputMode="text"
+          helperText={tPaymentLink("clientNameHelper")}
           sx={{
             width: "100%",
           }}
@@ -165,7 +166,7 @@ const PaymentSettingsBasic: React.FC<PaymentSettingsBasicProps> = ({
             required
             helperText={
               paymentSettings.expire === "no"
-                ? "For security, we recommend setting an expiry date so the link can't be used indefinitely."
+                ? tPaymentLink("expiryRecommendation")
                 : undefined
             }
           />

@@ -169,7 +169,7 @@ const ResetPasswordPage = () => {
 
       <CardWrapper sx={{ padding: "30px" }}>
         <TitleDescription
-          title={t("setNewPassword") || "Set the New Password"}
+          title={t("setNewPassword")}
           align="left"
           titleVariant="h2"
           descriptionVariant="p"

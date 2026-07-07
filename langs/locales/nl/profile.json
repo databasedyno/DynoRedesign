@@ -43,5 +43,6 @@
   "emailAdded": "E-mail succesvol toegevoegd!",
   "phoneAdded": "Telefoonnummer succesvol toegevoegd!",
   "noEmailSet": "Geen e-mailadres op je account",
-  "noPhoneSet": "Geen telefoonnummer op je account"
+  "noPhoneSet": "Geen telefoonnummer op je account",
+  "passwordComplexity": "Het wachtwoord moet 8-20 tekens bevatten, met hoofdletter, kleine letter, cijfer en speciaal teken"
 }

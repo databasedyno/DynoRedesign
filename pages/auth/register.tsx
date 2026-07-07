@@ -421,7 +421,7 @@ const Register = () => {
                     <>
                       <CustomButton
                         data-testid="google-signup-btn"
-                        label="Continue with Google"
+                        label={t("continueWithGoogle")}
                         variant="outlined"
                         fullWidth
                         onClick={handleGoogleLogin}
@@ -449,7 +449,7 @@ const Register = () => {
                               px: 1,
                             }}
                           >
-                            or sign up with
+                            {t("orSignUpWith")}
                           </Typography>
                         </Divider>
                       </Box>
@@ -506,8 +506,8 @@ const Register = () => {
                         value={email}
                         onChange={(e) => { setEmail(e.target.value); setEmailError(""); }}
                         onKeyDown={(e) => { if (e.key === "Enter") handleContinue(); }}
-                        placeholder="Enter your email address"
-                        label="E-mail"
+                        placeholder={t("emailPlaceholder")}
+                        label={t("email")}
                         error={!!emailError}
                         helperText={emailError}
                       />
@@ -517,14 +517,14 @@ const Register = () => {
                       <CountryPhoneInput
                         value={phone}
                         onChange={(value) => { setPhone(value); setPhoneError(""); }}
-                        label="Mobile Number"
+                        label={t("phone")}
                         error={!!phoneError}
                         helperText={phoneError}
-                        placeholder="Enter mobile number"
+                        placeholder={t("enterMobilePlaceholder")}
                       />
                       {phoneTypeChecking && (
                         <Typography sx={{ fontSize: "12px", color: "text.secondary", fontFamily: "UrbanistMedium", mt: 0.5, ml: 0.5 }}>
-                          Checking number type...
+                          {t("checkingNumberType")}
                         </Typography>
                       )}
                     </Box>
@@ -544,7 +544,7 @@ const Register = () => {
                       }}
                       onClick={() => setShowReferralInput(true)}
                     >
-                      Have a referral code?
+                      {t("haveReferralCode")}
                     </Typography>
                   ) : (
                     <Box sx={{ mb: 1.5 }}>
@@ -552,8 +552,8 @@ const Register = () => {
                         type="text"
                         value={referralCode}
                         onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
-                        placeholder="Enter referral code (optional)"
-                        label="Referral Code"
+                        placeholder={t("referralCodePlaceholder")}
+                        label={t("referralCode")}
                       />
                     </Box>
                   )}
@@ -562,7 +562,7 @@ const Register = () => {
                   <CustomButton
                     variant="primary"
                     size="medium"
-                    label="Continue"
+                    label={t("continue")}
                     onClick={handleContinue}
                     disabled={loading || phoneTypeChecking}
                     fullWidth
@@ -574,7 +574,7 @@ const Register = () => {
                   {/* Already have account */}
                   <Box sx={{ display: "flex", gap: "7px", justifyContent: "center", mt: 2 }}>
                     <Typography sx={{ fontSize: "13px", color: "text.secondary", fontFamily: "UrbanistMedium" }}>
-                      Do you already have an account?
+                      {t("alreadyHaveAccountLink")}
                     </Typography>
                     <Typography
                       sx={{
@@ -583,7 +583,7 @@ const Register = () => {
                       }}
                       onClick={() => router.push("/auth/login")}
                     >
-                      Log in
+                      {t("login")}
                     </Typography>
                   </Box>
                 </>
@@ -604,10 +604,10 @@ const Register = () => {
                       <Typography sx={{ fontSize: "28px" }}>✉️</Typography>
                     </Box>
                     <Typography sx={{ fontWeight: 700, fontSize: "22px", color: "text.primary", fontFamily: "UrbanistBold" }}>
-                      {accountExists ? "Welcome Back!" : `Verify Your ${method === "email" ? "Email" : "Phone"}`}
+                      {accountExists ? t("welcomeBack") : method === "email" ? t("verifyYourEmail") : t("verifyYourPhone")}
                     </Typography>
                     <Typography sx={{ fontSize: "14px", color: "text.secondary", fontFamily: "UrbanistMedium", mt: 0.5, lineHeight: 1.5 }}>
-                      Enter the 6-digit code sent to{" "}
+                      {t("enterSixDigitCodeSentTo")}{" "}
                       <Typography component="span" sx={{ fontWeight: 600, color: "text.primary", fontSize: "14px" }}>
                         {method === "email"
                           ? email.replace(/(.{2}).*(@.*)/, "$1***$2")
@@ -629,7 +629,7 @@ const Register = () => {
                         }}
                       >
                         <Typography sx={{ fontSize: "13px", color: "text.primary", fontFamily: "UrbanistSemiBold", lineHeight: 1.5 }}>
-                          This {method === "email" ? "email" : "phone number"} already has an account — enter the code to log in.
+                          {method === "email" ? t("emailAlreadyHasAccount") : t("phoneAlreadyHasAccount")}
                         </Typography>
                       </Box>
                     )}
@@ -645,7 +645,7 @@ const Register = () => {
                     countdown={countdown}
                     loading={loading}
                     error={otpError}
-                    primaryButtonLabel={accountExists ? "Verify & log in" : "Verify & create account"}
+                    primaryButtonLabel={accountExists ? t("verifyAndLogin") : t("verifyAndCreateAccount")}
                     showInfoChip={false}
                     showLabel={false}
                     actionsLayout="stacked"
@@ -665,7 +665,7 @@ const Register = () => {
                       }}
                     >
                       <ArrowBack sx={{ fontSize: "16px" }} />
-                      Change {method === "email" ? "email" : "phone number"}
+                      {method === "email" ? t("changeEmail") : t("changePhone")}
                     </Link>
                   </Box>
                 </>
@@ -718,17 +718,17 @@ const Register = () => {
                         lineHeight: 1,
                       }}
                     >
-                      {method === "email" ? "Email verified" : "Phone number verified"}
+                      {method === "email" ? t("emailVerified") : t("phoneVerified")}
                     </Typography>
                   </Box>
 
                   <Typography sx={{ fontWeight: 700, fontSize: "24px", color: "text.primary", fontFamily: "UrbanistBold", mb: 1 }}>
-                    {accountExists ? "Welcome back to DynoPay!" : "You're in! 🎉"}
+                    {accountExists ? t("welcomeBackToDynopay") : t("accountReadyTitle")}
                   </Typography>
                   <Typography sx={{ fontSize: "15px", color: "text.secondary", fontFamily: "UrbanistMedium", lineHeight: 1.6, mb: 1 }}>
                     {accountExists
-                      ? "You're logged in. Redirecting to your dashboard..."
-                      : "Your account is ready. Next up: your business details — takes about 30 seconds."}
+                      ? t("redirectingToDashboard")
+                      : t("accountReadyDesc")}
                   </Typography>
                   <LoadingSpinner size={24} />
                 </Box>
