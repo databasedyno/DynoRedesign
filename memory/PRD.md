@@ -5,6 +5,15 @@ USDT-TRC20 payment gateway platform. Users can create companies, wallets, paymen
 
 ## What's Been Implemented
 
+### 2026-07-07 — Auth suite bold redesign: "Floating Glass Bento" ✅ (design-verified)
+- Full redesign of Login + Register + Forgot/Reset password to a bold, Emergent-style aesthetic (user request: "not bold like emergent"). Approved direction: cyber-lime (#CCFF00) on void-black glass (dark) / near-black buttons w/ lime text (light).
+- Implemented as a **scoped MUI theme** (`styles/authTheme.ts` → `authThemeLight`/`authThemeDark`) wired into `pages/_app.tsx` for the `login` layout (covers `/auth/*`, `/reset-password`, `/admin/login`) — so the accent/glass cascades through ALL shared auth components (inputs, buttons, OTP/forgot dialogs) WITHOUT touching the ~2000-line auth logic. Rest of app untouched.
+- Redesigned shell `Containers/Login/styled.tsx` (animated gradient-mesh + grain canvas, floating glass form card w/ entrance motion) and `Components/UI/AuthLayout/AuthBrandPanel.tsx` (bento tiles: 1,000+ businesses / 15+ coins / <1min settlements pulse + scrolling coin marquee, Unbounded/Manrope/JetBrains Mono fonts).
+- Backward-compatible `CustomButton` tweak (uses `primary.contrastText` + optional `primary.hover` token; falls back to old values app-wide). Added 3 Google Fonts in `_document.tsx`. Added `brandBusinessesCaption` i18n key ×6 locales.
+- **Verified via screenshots**: Login (dark+light), Register (dark), Phone-tab + email-focus interactions render beautifully; home/fees/documentation still compile (no app regression). NOTE: reset-password card body needs a valid token to view (redirects to login otherwise) — shares the same redesigned shell, compiles 200. No live auth mutations triggered.
+- Backlog: extend this bold theme into the app/dashboard (user said "yes, later").
+
+
 ### 2026-07-07 — i18n "Batch A": high-priority merchant pages ✅ VERIFIED
 - Internationalized 4 merchant surfaces across all 6 locales (en/pt/fr/es/de/nl):
   - **Referrals** (`pages/referrals.tsx`, `referrals` ns): How It Works 3-steps, You Get/They Get reward cards, Fee Discount panel (+ `daysRemaining` interpolation), Earnings Breakdown, My Referrals table, Leaderboard (`referralsCount`/`you` interpolation). ~21 keys added.

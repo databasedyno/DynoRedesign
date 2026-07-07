@@ -1,9 +1,204 @@
 import { Box, Card, styled } from "@mui/material";
 
-export const LoginWrapper = styled(Box)(({ theme }) => ({
-  background: theme.palette.mode === "dark" ? "#0B0D17" : "#f4f6fa",
+/* ─────────────────────────────────────────────────────────────
+ * DynoPay Auth Shell — "Floating Glass Bento"
+ * Void-black (dark) / frosty-silver (light) canvas with an animated
+ * gradient mesh + fine grain, a floating glass form card, and a
+ * bento marketing column. Colors are driven by the scoped authTheme.
+ * ───────────────────────────────────────────────────────────── */
+
+const GRAIN =
+  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")";
+
+const meshBg = (dark: boolean) =>
+  dark
+    ? "radial-gradient(38% 40% at 16% 20%, rgba(204,255,0,0.16) 0%, transparent 62%), radial-gradient(44% 46% at 86% 12%, rgba(88,101,242,0.22) 0%, transparent 60%), radial-gradient(52% 52% at 78% 90%, rgba(0,224,150,0.13) 0%, transparent 62%)"
+    : "radial-gradient(38% 40% at 16% 20%, rgba(150,180,0,0.20) 0%, transparent 62%), radial-gradient(44% 46% at 86% 12%, rgba(88,101,242,0.16) 0%, transparent 60%), radial-gradient(52% 52% at 78% 90%, rgba(0,180,120,0.12) 0%, transparent 62%)";
+
+/** Full-viewport canvas: mesh + grain, centers its content. */
+export const AuthPageBackground = styled(Box)(({ theme }) => {
+  const dark = theme.palette.mode === "dark";
+  return {
+    position: "relative",
+    width: "100%",
+    minHeight: "100dvh",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: "40px 24px",
+    boxSizing: "border-box",
+    overflow: "hidden",
+    background: dark ? "#060606" : "#EEF1F6",
+    "&::before": {
+      content: '""',
+      position: "absolute",
+      inset: "-25%",
+      background: meshBg(dark),
+      filter: "blur(30px)",
+      animation: "authMeshDrift 24s ease-in-out infinite alternate",
+      pointerEvents: "none",
+      zIndex: 0,
+    },
+    "&::after": {
+      content: '""',
+      position: "absolute",
+      inset: 0,
+      backgroundImage: GRAIN,
+      backgroundSize: "140px 140px",
+      opacity: dark ? 0.05 : 0.035,
+      mixBlendMode: dark ? "overlay" : "multiply",
+      pointerEvents: "none",
+      zIndex: 1,
+    },
+    "@keyframes authMeshDrift": {
+      "0%": { transform: "translate3d(0,0,0) scale(1)" },
+      "100%": { transform: "translate3d(-4%, 3%, 0) scale(1.1)" },
+    },
+    [theme.breakpoints.down("sm")]: { padding: "24px 16px" },
+  };
+});
+
+/** Centered row: bento column (left) + glass form card (right). */
+export const SplitLayoutWrapper = styled(Box)(({ theme }) => ({
+  position: "relative",
+  zIndex: 2,
   width: "100%",
-  height: "100dvh",
+  maxWidth: 1180,
+  margin: "0 auto",
+  display: "flex",
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: 64,
+  [theme.breakpoints.down("lg")]: {
+    flexDirection: "column",
+    gap: 0,
+    maxWidth: 480,
+  },
+}));
+
+/** The floating glass form card. */
+export const FormPanel = styled(Box)(({ theme }) => {
+  const dark = theme.palette.mode === "dark";
+  return {
+    position: "relative",
+    zIndex: 3,
+    flex: "0 1 468px",
+    width: "100%",
+    maxWidth: 468,
+    display: "flex",
+    flexDirection: "column",
+    boxSizing: "border-box",
+    padding: "40px 40px 34px",
+    borderRadius: 28,
+    background: dark ? "rgba(255,255,255,0.045)" : "rgba(255,255,255,0.72)",
+    backdropFilter: "blur(26px)",
+    WebkitBackdropFilter: "blur(26px)",
+    border: `1px solid ${dark ? "rgba(255,255,255,0.10)" : "rgba(255,255,255,0.9)"}`,
+    boxShadow: dark
+      ? "0 40px 120px -24px rgba(0,0,0,0.85), inset 0 1px 0 rgba(255,255,255,0.07)"
+      : "0 40px 120px -34px rgba(31,41,55,0.38), inset 0 1px 0 rgba(255,255,255,0.9)",
+    animation: "authCardIn 0.7s cubic-bezier(0.16,1,0.3,1) both",
+    "@keyframes authCardIn": {
+      "0%": { opacity: 0, transform: "translateY(26px) scale(0.985)" },
+      "100%": { opacity: 1, transform: "translateY(0) scale(1)" },
+    },
+    [theme.breakpoints.down("lg")]: { flex: "1 1 auto", maxWidth: 480 },
+    [theme.breakpoints.down("sm")]: {
+      padding: "26px 20px 24px",
+      borderRadius: 22,
+      background: dark ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.86)",
+    },
+  };
+});
+
+/** Legacy brand-panel export (kept for import compatibility). */
+export const BrandPanel = styled(Box)(({ theme }) => ({
+  flex: "1 1 50%",
+  maxWidth: "50%",
+  position: "relative",
+  display: "flex",
+  flexDirection: "column",
+  overflow: "hidden",
+  [theme.breakpoints.down("lg")]: { display: "none" },
+}));
+
+/* ── reset-password / simpler screens ─────────────────────────
+ * AuthContainer paints the same full-viewport canvas and centers a
+ * column of glass CardWrappers. */
+export const AuthContainer = styled(Box)(({ theme }) => {
+  const dark = theme.palette.mode === "dark";
+  return {
+    position: "relative",
+    width: "100%",
+    minHeight: "100dvh",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: "20px",
+    padding: "48px 24px",
+    boxSizing: "border-box",
+    overflow: "hidden",
+    background: dark ? "#060606" : "#EEF1F6",
+    "&::before": {
+      content: '""',
+      position: "absolute",
+      inset: "-25%",
+      background: meshBg(dark),
+      filter: "blur(30px)",
+      animation: "authMeshDrift 24s ease-in-out infinite alternate",
+      pointerEvents: "none",
+      zIndex: 0,
+    },
+    "& > *": { position: "relative", zIndex: 2 },
+    "@keyframes authMeshDrift": {
+      "0%": { transform: "translate3d(0,0,0) scale(1)" },
+      "100%": { transform: "translate3d(-4%, 3%, 0) scale(1.1)" },
+    },
+    [theme.breakpoints.down("sm")]: { gap: "16px", padding: "32px 16px" },
+  };
+});
+
+/** Glass card used by reset-password. */
+export const CardWrapper = styled(Card)(({ theme }) => {
+  const dark = theme.palette.mode === "dark";
+  return {
+    width: "100%",
+    maxWidth: 468,
+    height: "fit-content",
+    borderRadius: 24,
+    padding: "12px",
+    background: dark ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.78)",
+    backdropFilter: "blur(26px)",
+    WebkitBackdropFilter: "blur(26px)",
+    textAlign: "center",
+    border: `1px solid ${dark ? "rgba(255,255,255,0.10)" : "rgba(255,255,255,0.9)"}`,
+    boxShadow: dark
+      ? "0 40px 120px -24px rgba(0,0,0,0.85), inset 0 1px 0 rgba(255,255,255,0.07)"
+      : "0 40px 120px -34px rgba(31,41,55,0.38), inset 0 1px 0 rgba(255,255,255,0.9)",
+    animation: "authCardIn 0.7s cubic-bezier(0.16,1,0.3,1) both",
+    "@keyframes authCardIn": {
+      "0%": { opacity: 0, transform: "translateY(26px) scale(0.985)" },
+      "100%": { opacity: 1, transform: "translateY(0) scale(1)" },
+    },
+    [theme.breakpoints.down("sm")]: { padding: "10px", borderRadius: 20 },
+  };
+});
+
+export const ImageCenter = styled(Box)(() => ({
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  width: "100%",
+  height: "100%",
+  cursor: "pointer",
+}));
+
+/* ── Legacy exports (kept so older imports never break) ──────── */
+export const LoginWrapper = styled(Box)(({ theme }) => ({
+  background: theme.palette.mode === "dark" ? "#060606" : "#EEF1F6",
+  width: "100%",
   minHeight: "100dvh",
   position: "relative",
   overflow: "auto",
@@ -13,158 +208,10 @@ export const ContentWrapper = styled(Box)(() => ({
   position: "relative",
   zIndex: 20,
   width: "100%",
-  maxWidth: "100%",
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
-  padding: "60px 16px 40px 16px",
+  padding: "40px 16px",
   minHeight: "100dvh",
   boxSizing: "border-box",
-  scrollbarWidth: "none",
-  "&::-webkit-scrollbar": {
-    display: "none",
-  },
-}));
-
-/* ── New Split Layout ──────────────────────────────────
- * Full-viewport two-column layout inspired by BlockBee. Design goals:
- *   - Desktop (lg+): brand panel on the LEFT filling half the viewport,
- *     form panel on the RIGHT filling the other half. Form is vertically
- *     centered so it never floats near the top of the page.
- *   - Tablet (md-lg): single form panel filling the ENTIRE viewport with
- *     the form vertically centered. Previously the login card floated as
- *     a small 520px box in the middle of a 768px viewport, which looked
- *     "small and near the top".
- *   - Mobile (< sm): full viewport, form vertically centered, edge padding.
- */
-
-export const SplitLayoutWrapper = styled(Box)(({ theme }) => ({
-  display: "flex",
-  flexDirection: "row",
-  alignItems: "stretch",
-  width: "100%",
-  // Fill the whole viewport — no maxWidth so the panels grow to fit any
-  // desktop/tablet size instead of being capped at 1100px.
-  minHeight: "100dvh",
-  margin: 0,
-  background: theme.palette.mode === "dark" ? "#0B0D17" : "#fff",
-  overflow: "hidden",
-
-  [theme.breakpoints.down("lg")]: {
-    flexDirection: "column",
-    minHeight: "100dvh",
-  },
-}));
-
-/** Page-level background wrapper */
-export const AuthPageBackground = styled(Box)(({ theme }) => ({
-  width: "100%",
-  minHeight: "100dvh",
-  display: "flex",
-  flexDirection: "column",
-  // No inner padding — the SplitLayoutWrapper now fills the entire viewport
-  // so the page background just needs to sit behind it.
-  padding: 0,
-  boxSizing: "border-box",
-  background: theme.palette.mode === "dark" ? "#0B0D17" : "#fff",
-}));
-
-export const BrandPanel = styled(Box)(({ theme }) => ({
-  // 50/50 split on desktop, filling the full viewport height.
-  flex: "1 1 50%",
-  maxWidth: "50%",
-  minHeight: "100dvh",
-  position: "relative",
-  display: "flex",
-  flexDirection: "column",
-  overflow: "hidden",
-  background: "#6C5CE7",
-
-  [theme.breakpoints.down("lg")]: {
-    display: "none",
-  },
-}));
-
-export const FormPanel = styled(Box)(({ theme }) => ({
-  // Right half on desktop, full width on tablet/mobile. Always vertically
-  // centers its child so the login form never floats near the top.
-  flex: "1 1 50%",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  minHeight: "100dvh",
-  padding: "48px 56px",
-  overflowY: "auto",
-  overflowX: "hidden",
-  background: theme.palette.mode === "dark" ? "#0B0D17" : "#fff",
-  scrollbarWidth: "none",
-  "&::-webkit-scrollbar": { display: "none" },
-
-  [theme.breakpoints.down("lg")]: {
-    // Tablet: form fills the whole viewport (no brand panel), vertically
-    // centered, with roomier padding so it doesn't look small.
-    flex: "1 1 100%",
-    maxWidth: "100%",
-    padding: "40px 32px",
-  },
-
-  [theme.breakpoints.down("md")]: {
-    padding: "32px 24px",
-  },
-
-  [theme.breakpoints.down("sm")]: {
-    // Mobile: keep centered vertically but with tighter padding.
-    padding: "24px 20px",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-}));
-
-/* ── Original components (kept for backwards compat) ─── */
-
-export const AuthContainer = styled(Box)(({ theme }) => ({
-  display: "flex",
-  flexDirection: "column",
-  justifyContent: "flex-start",
-  alignItems: "center",
-  gap: "24px",
-  overflow: "visible",
-  position: "relative",
-  zIndex: 1,
-  padding: "0",
-  width: "100%",
-  maxWidth: "480px",
-
-  [theme.breakpoints.down("sm")]: {
-    gap: "20px",
-    padding: "0",
-    width: "100%",
-  },
-}));
-
-export const CardWrapper = styled(Card)(({ theme }) => ({
-  width: "100%",
-  maxWidth: "480px",
-  height: "fit-content",
-  borderRadius: "12px",
-  padding: "8px",
-  background: theme.palette.mode === "dark" ? "#1A1D2E" : "rgba(0,0,0,0.015)",
-  textAlign: "center",
-  border: `1px solid ${theme.palette.mode === "dark" ? "#2A2D42" : "#E9ECF2"}`,
-  boxShadow: "none",
-
-  [theme.breakpoints.down("sm")]: {
-    padding: "12px",
-    width: "100%",
-    borderRadius: "10px",
-  },
-}));
-
-export const ImageCenter = styled(Box)(() => ({
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  width: "100%",
-  height: "100%",
-  cursor: "pointer",
 }));

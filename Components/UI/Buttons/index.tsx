@@ -80,7 +80,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   const variantConfig = {
     primary: {
       backgroundColor: theme.palette.primary.main,
-      color: theme.palette.common.white,
+      color: (theme.palette.primary as any).contrastText || theme.palette.common.white,
       fontFamily: "UrbanistBold",
       borderRadius: "6px",
     },
@@ -185,8 +185,8 @@ const CustomButton: React.FC<CustomButtonProps> = ({
         ...(variant === "primary" &&
           !isBlockedForClicks && {
             "&:hover": {
-              backgroundColor: "#0004FF99",
-              color: theme.palette.common.white,
+              backgroundColor: (theme.palette.primary as any).hover || "#0004FF99",
+              color: (theme.palette.primary as any).contrastText || theme.palette.common.white,
             },
           }),
         // When loading (but not user-disabled), KEEP the variant color so

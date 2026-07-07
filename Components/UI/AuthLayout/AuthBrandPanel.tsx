@@ -1,210 +1,227 @@
 import React from "react";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, useTheme } from "@mui/material";
 import Image from "next/image";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import WhiteLogo from "@/assets/Images/auth/dynopay-white-logo.png";
+import DarkLogo from "@/assets/Images/auth/dynopay-logo.png";
 
-/* ── Floating crypto coin – pure CSS ─────────────────── */
-const CryptoCoin = ({
-  symbol,
-  size,
-  top,
-  left,
-  delay,
-  color,
-}: {
-  symbol: string;
-  size: number;
-  top: string;
-  left: string;
-  delay: string;
-  color: string;
-}) => (
-  <Box
-    sx={{
-      position: "absolute",
-      top,
-      left,
-      width: size,
-      height: size,
-      borderRadius: "50%",
-      background: color,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      fontSize: size * 0.45,
-      fontWeight: 700,
-      color: "#fff",
-      fontFamily: "UrbanistBold, sans-serif",
-      opacity: 0.55,
-      animation: `floatCoin 6s ease-in-out ${delay} infinite`,
-      "@keyframes floatCoin": {
-        "0%, 100%": { transform: "translateY(0px)" },
-        "50%": { transform: "translateY(-10px)" },
-      },
-    }}
-  >
-    {symbol}
-  </Box>
-);
+const FONT_DISPLAY = "'Unbounded', sans-serif";
+const FONT_BODY = "'Manrope', 'Urbanist', sans-serif";
+const FONT_MONO = "'JetBrains Mono', monospace";
 
-/* ── Trust metric pill ──────────────────────────────── */
-const TrustPill = ({
-  value,
-  label,
-}: {
-  value: string;
-  label: string;
-}) => (
-  <Box
-    sx={{
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      gap: "2px",
-    }}
-  >
-    <Typography
-      sx={{
-        fontFamily: "UrbanistBold, sans-serif",
-        fontWeight: 800,
-        fontSize: "28px",
-        lineHeight: 1.1,
-        color: "#fff",
-      }}
-    >
-      {value}
-    </Typography>
-    <Typography
-      sx={{
-        fontFamily: "UrbanistMedium, sans-serif",
-        fontSize: "12px",
-        fontWeight: 500,
-        color: "rgba(255,255,255,0.7)",
-        letterSpacing: "0.02em",
-        textTransform: "uppercase",
-      }}
-    >
-      {label}
-    </Typography>
-  </Box>
-);
+const COINS = [
+  { s: "BTC", c: "#F7931A" },
+  { s: "ETH", c: "#627EEA" },
+  { s: "USDT", c: "#26A17B" },
+  { s: "USDC", c: "#2775CA" },
+  { s: "SOL", c: "#9945FF" },
+  { s: "BNB", c: "#F0B90B" },
+  { s: "XRP", c: "#23292F" },
+  { s: "TRX", c: "#EF0027" },
+];
 
-/* ── Main Export ─────────────────────────────────────── */
 const AuthBrandPanel = () => {
   const { t } = useTranslation("auth");
-  return (
-  <Box
-    sx={{
-      // Fill 50% of the viewport width and the full viewport height.
-      // Previously this had its own flex:"0 0 46%" + minHeight:580 +
-      // borderRadius, which made it a small rounded card instead of a
-      // full-height panel — that's what made the login look "small".
-      flex: "1 1 50%",
-      maxWidth: "50%",
-      minHeight: "100dvh",
-      position: "relative",
-      flexDirection: "column",
-      justifyContent: "space-between",
-      overflow: "hidden",
-      background: "linear-gradient(160deg, #0004FF 0%, #1a0a6e 50%, #0e063a 100%)",
-      padding: { lg: "56px 48px 44px", xl: "72px 64px 56px" },
-      /* hide on tablets / mobile — form takes full width */
-      display: { xs: "none", lg: "flex" },
-    }}
-  >
-    {/* Decorative gradient orbs */}
-    <Box
-      sx={{
-        position: "absolute",
-        width: 300,
-        height: 300,
-        borderRadius: "50%",
-        background: "radial-gradient(circle, rgba(99,102,241,0.35) 0%, transparent 70%)",
-        top: -60,
-        right: -80,
-        pointerEvents: "none",
-      }}
-    />
-    <Box
-      sx={{
-        position: "absolute",
-        width: 250,
-        height: 250,
-        borderRadius: "50%",
-        background: "radial-gradient(circle, rgba(0,4,255,0.25) 0%, transparent 70%)",
-        bottom: -40,
-        left: -60,
-        pointerEvents: "none",
-      }}
-    />
+  const theme = useTheme();
+  const dark = theme.palette.mode === "dark";
+  const lime = theme.palette.mode === "dark" ? "#CCFF00" : "#5A6B00";
 
-    {/* Floating crypto coins */}
-    <CryptoCoin symbol="₿" size={44} top="22%" left="78%" delay="0s" color="rgba(247,147,26,0.65)" />
-    <CryptoCoin symbol="Ξ" size={36} top="55%" left="82%" delay="1.5s" color="rgba(98,126,234,0.65)" />
-    <CryptoCoin symbol="$" size={30} top="72%" left="10%" delay="3s" color="rgba(38,161,123,0.6)" />
-    <CryptoCoin symbol="◎" size={28} top="15%" left="12%" delay="2s" color="rgba(153,69,255,0.55)" />
+  const tileBg = dark ? "rgba(255,255,255,0.045)" : "rgba(255,255,255,0.6)";
+  const tileBorder = dark ? "rgba(255,255,255,0.1)" : "rgba(10,10,10,0.08)";
+  const tileShadow = dark
+    ? "inset 0 1px 0 rgba(255,255,255,0.06)"
+    : "0 20px 50px -30px rgba(31,41,55,0.4), inset 0 1px 0 rgba(255,255,255,0.9)";
+  const sub = dark ? "rgba(255,255,255,0.62)" : "rgba(10,10,10,0.6)";
 
-    {/* Top: Logo */}
-    <Box sx={{ position: "relative", zIndex: 1 }}>
-      <Link href="/" style={{ display: "inline-block", cursor: "pointer" }}>
-        <Image
-          src={WhiteLogo}
-          alt="DynoPay"
-          width={130}
-          height={44}
-          draggable={false}
-        />
-      </Link>
-    </Box>
-
-    {/* Middle: Headline */}
-    <Box sx={{ position: "relative", zIndex: 1, my: "auto", pt: 4 }}>
-      <Typography
-        sx={{
-          fontFamily: "UrbanistBold, sans-serif",
-          fontWeight: 800,
-          fontSize: "32px",
-          lineHeight: 1.2,
-          color: "#fff",
-          mb: 1.5,
-        }}
-      >
-        {t("brandHeadlineLine1")}
-        <br />
-        {t("brandHeadlineLine2")}
-      </Typography>
-      <Typography
-        sx={{
-          fontFamily: "UrbanistRegular, sans-serif",
-          fontSize: "15px",
-          lineHeight: 1.55,
-          color: "rgba(255,255,255,0.72)",
-          maxWidth: 340,
-        }}
-      >
-        {t("brandSubtitle")}
-      </Typography>
-    </Box>
-
-    {/* Bottom: Trust metrics */}
+  const Tile: React.FC<{ children: React.ReactNode; sx?: any; delay?: number }> = ({
+    children,
+    sx,
+    delay = 0,
+  }) => (
     <Box
       sx={{
         position: "relative",
-        zIndex: 1,
-        display: "flex",
-        justifyContent: "space-between",
-        gap: 2,
-        pt: 3,
-        borderTop: "1px solid rgba(255,255,255,0.12)",
+        overflow: "hidden",
+        borderRadius: "22px",
+        background: tileBg,
+        border: `1px solid ${tileBorder}`,
+        backdropFilter: "blur(20px)",
+        WebkitBackdropFilter: "blur(20px)",
+        boxShadow: tileShadow,
+        padding: "22px 24px",
+        animation: `brandTileIn 0.7s cubic-bezier(0.16,1,0.3,1) ${delay}s both`,
+        "@keyframes brandTileIn": {
+          "0%": { opacity: 0, transform: "translateY(20px)" },
+          "100%": { opacity: 1, transform: "translateY(0)" },
+        },
+        ...sx,
       }}
     >
-      <TrustPill value="1,000+" label={t("brandStatBusinessesLabel")} />
-      <TrustPill value="15+" label={t("brandStatCoinsLabel")} />
-      <TrustPill value="<1min" label={t("brandStatSettlementsLabel")} />
+      {children}
     </Box>
-  </Box>
+  );
+
+  return (
+    <Box
+      sx={{
+        flex: "1 1 auto",
+        maxWidth: 600,
+        display: { xs: "none", lg: "flex" },
+        flexDirection: "column",
+        gap: "20px",
+      }}
+    >
+      {/* Logo */}
+      <Link href="/" style={{ display: "inline-block", width: "fit-content" }}>
+        <Image src={dark ? WhiteLogo : DarkLogo} alt="DynoPay" width={140} height={47} draggable={false} />
+      </Link>
+
+      {/* Headline */}
+      <Box sx={{ mt: 0.5 }}>
+        <Typography
+          sx={{
+            fontFamily: FONT_DISPLAY,
+            fontWeight: 800,
+            fontSize: "44px",
+            lineHeight: 1.05,
+            letterSpacing: "-0.02em",
+            color: theme.palette.text.primary,
+          }}
+        >
+          {t("brandHeadlineLine1")}{" "}
+          <Box component="span" sx={{ color: lime }}>
+            {t("brandHeadlineLine2")}
+          </Box>
+        </Typography>
+        <Typography
+          sx={{
+            fontFamily: FONT_BODY,
+            fontSize: "16px",
+            lineHeight: 1.55,
+            color: sub,
+            maxWidth: 420,
+            mt: 2,
+          }}
+        >
+          {t("brandSubtitle")}
+        </Typography>
+      </Box>
+
+      {/* Bento grid */}
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: "1.4fr 1fr",
+          gridTemplateRows: "auto auto",
+          gap: "16px",
+          mt: 1,
+        }}
+      >
+        {/* Big businesses tile */}
+        <Tile delay={0.05} sx={{ gridRow: "span 2", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+          <Box
+            sx={{
+              position: "absolute",
+              width: 180,
+              height: 180,
+              top: -70,
+              right: -50,
+              borderRadius: "50%",
+              background: `radial-gradient(circle, ${dark ? "rgba(204,255,0,0.18)" : "rgba(90,107,0,0.12)"} 0%, transparent 70%)`,
+              pointerEvents: "none",
+            }}
+          />
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Box sx={{ width: 8, height: 8, borderRadius: "50%", background: lime, boxShadow: `0 0 12px ${lime}` }} />
+            <Typography sx={{ fontFamily: FONT_MONO, fontSize: "11px", letterSpacing: "0.14em", textTransform: "uppercase", color: sub }}>
+              {t("brandStatBusinessesLabel")}
+            </Typography>
+          </Box>
+          <Box>
+            <Typography sx={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: "52px", lineHeight: 1, color: theme.palette.text.primary }}>
+              1,000+
+            </Typography>
+            <Typography sx={{ fontFamily: FONT_BODY, fontSize: "13px", color: sub, mt: 1 }}>
+              {t("brandBusinessesCaption")}
+            </Typography>
+          </Box>
+        </Tile>
+
+        {/* Coins tile */}
+        <Tile delay={0.12}>
+          <Typography sx={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: "34px", lineHeight: 1, color: lime }}>
+            15+
+          </Typography>
+          <Typography sx={{ fontFamily: FONT_MONO, fontSize: "11px", letterSpacing: "0.14em", textTransform: "uppercase", color: sub, mt: 1 }}>
+            {t("brandStatCoinsLabel")}
+          </Typography>
+        </Tile>
+
+        {/* Settlements tile */}
+        <Tile delay={0.19}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Box
+              sx={{
+                width: 9,
+                height: 9,
+                borderRadius: "50%",
+                background: lime,
+                animation: "brandPulse 1.8s ease-in-out infinite",
+                "@keyframes brandPulse": {
+                  "0%, 100%": { boxShadow: `0 0 0 0 ${dark ? "rgba(204,255,0,0.55)" : "rgba(90,107,0,0.5)"}` },
+                  "50%": { boxShadow: `0 0 0 7px rgba(204,255,0,0)` },
+                },
+              }}
+            />
+            <Typography sx={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: "30px", lineHeight: 1, color: theme.palette.text.primary }}>
+              &lt;1min
+            </Typography>
+          </Box>
+          <Typography sx={{ fontFamily: FONT_MONO, fontSize: "11px", letterSpacing: "0.14em", textTransform: "uppercase", color: sub, mt: 1 }}>
+            {t("brandStatSettlementsLabel")}
+          </Typography>
+        </Tile>
+      </Box>
+
+      {/* Coin marquee */}
+      <Box
+        sx={{
+          position: "relative",
+          overflow: "hidden",
+          borderRadius: "16px",
+          border: `1px solid ${tileBorder}`,
+          background: tileBg,
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+          py: "14px",
+          maskImage: "linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent)",
+          WebkitMaskImage: "linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent)",
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            gap: "28px",
+            width: "max-content",
+            animation: "coinMarquee 22s linear infinite",
+            "@keyframes coinMarquee": {
+              "0%": { transform: "translateX(0)" },
+              "100%": { transform: "translateX(-50%)" },
+            },
+          }}
+        >
+          {[...COINS, ...COINS].map((coin, i) => (
+            <Box key={i} sx={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
+              <Box sx={{ width: 7, height: 7, borderRadius: "50%", background: coin.c }} />
+              <Typography sx={{ fontFamily: FONT_MONO, fontSize: "13px", fontWeight: 600, color: theme.palette.text.primary, opacity: 0.85 }}>
+                {coin.s}
+              </Typography>
+            </Box>
+          ))}
+        </Box>
+      </Box>
+    </Box>
   );
 };
 

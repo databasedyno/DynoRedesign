@@ -34,6 +34,11 @@ export default function MyDocument({ emotionStyleTags }: MyDocumentProps) {
           rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
         />
+        {/* Auth-suite display / body / mono fonts (bold "Floating Glass Bento" theme) */}
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;600;700;800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap"
+        />
 
         {/* Preload critical fonts used on landing page for instant rendering */}
         <link rel="preload" href="/fonts/Outfit-Regular.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
