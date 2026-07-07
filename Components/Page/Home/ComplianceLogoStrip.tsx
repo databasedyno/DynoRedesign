@@ -1,5 +1,6 @@
 import React, { memo } from 'react';
 import { Box, Typography, useTheme } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import {
   VerifiedUser,
   PrivacyTip,
@@ -19,19 +20,21 @@ import {
 
 interface Badge {
   label: string;
-  sub: string;
+  /** i18n key for the label; falls back to `label` when absent (acronyms stay as-is). */
+  labelKey?: string;
+  subKey: string;
   icon: React.ReactNode;
 }
 
 const BADGES: Badge[] = [
   {
     label: 'SOC 2',
-    sub: 'Type II in progress',
+    subKey: 'complianceSoc2Sub',
     icon: <VerifiedUser sx={{ fontSize: 22 }} />,
   },
   {
     label: 'GDPR',
-    sub: 'EU data compliant',
+    subKey: 'complianceGdprSub',
     icon: <PrivacyTip sx={{ fontSize: 22 }} />,
   },
   // 2026-07-05 — Removed PCI DSS badge. PCI DSS is a card-industry data-security
@@ -40,17 +43,18 @@ const BADGES: Badge[] = [
   // and (b) irrelevant to merchants evaluating crypto rails.
   {
     label: 'Non-custodial',
-    sub: 'Funds go direct to your wallet',
+    labelKey: 'complianceNonCustodialLabel',
+    subKey: 'complianceNonCustodialSub',
     icon: <Shield sx={{ fontSize: 22 }} />,
   },
   {
     label: 'KYT',
-    sub: 'Know-your-transaction',
+    subKey: 'complianceKytSub',
     icon: <Radar sx={{ fontSize: 22 }} />,
   },
   {
     label: 'Chainalysis',
-    sub: 'On-chain monitoring',
+    subKey: 'complianceChainalysisSub',
     icon: <Shield sx={{ fontSize: 22 }} />,
   },
 ];
@@ -58,6 +62,7 @@ const BADGES: Badge[] = [
 const ComplianceLogoStrip: React.FC = () => {
   const theme = useTheme();
   const isDark = theme.palette.mode === 'dark';
+  const { t } = useTranslation('landing');
 
   return (
     <Box
@@ -81,7 +86,7 @@ const ComplianceLogoStrip: React.FC = () => {
           mb: 2.5,
         }}
       >
-        Enterprise-grade security · built on regulated infrastructure
+        {t('complianceHeader')}
       </Typography>
       <Box
         sx={{
@@ -125,7 +130,7 @@ const ComplianceLogoStrip: React.FC = () => {
                 letterSpacing: '0.3px',
               }}
             >
-              {b.label}
+              {b.labelKey ? t(b.labelKey) : b.label}
             </Typography>
             <Typography
               sx={{
@@ -136,7 +141,7 @@ const ComplianceLogoStrip: React.FC = () => {
                 textAlign: 'center',
               }}
             >
-              {b.sub}
+              {t(b.subKey)}
             </Typography>
           </Box>
         ))}

@@ -4,6 +4,7 @@ import { ArrowForward, PlayArrow } from '@mui/icons-material';
 import { useRouter } from 'next/router';
 import useCountry from '@/hooks/useCountry';
 import DemoVideoModal from '@/Components/Modals/DemoVideoModal';
+import { useTranslation } from 'react-i18next';
 
 /**
  * HeroClean — a Stripe/Linear-style minimal hero that replaces HeroV2 on the
@@ -30,6 +31,7 @@ const HeroClean: React.FC = () => {
   const theme = useTheme();
   const router = useRouter();
   const { country } = useCountry();
+  const { t } = useTranslation('landing');
   const [videoOpen, setVideoOpen] = useState(false);
 
   const goPrimary = useCallback(() => {
@@ -42,8 +44,8 @@ const HeroClean: React.FC = () => {
   // Country flag from IP geo — falls back gracefully if lookup is still in-flight.
   const trustLine =
     country?.country && country?.flag
-      ? `${country.flag} Trusted by merchants in ${country.country} and 40+ countries`
-      : 'Trusted by merchants in 40+ countries';
+      ? `${country.flag} ${t('heroTrustCountry', { country: country.country })}`
+      : t('heroTrustGeneric');
 
   return (
     <Box
@@ -75,7 +77,7 @@ const HeroClean: React.FC = () => {
           mb: 2,
         }}
       >
-        Crypto payments infrastructure
+        {t('heroCleanEyebrow')}
       </Typography>
 
       {/* H1 — single color, no gradient. Two short lines instead of one long one. */}
@@ -93,7 +95,7 @@ const HeroClean: React.FC = () => {
           mb: { xs: 2.5, md: 3 },
         }}
       >
-        Accept crypto. Keep it, or auto-convert to stablecoins.
+        {t('heroCleanTitle')}
       </Typography>
 
       {/* Subtitle — plain body text, muted color, generous max-width */}
@@ -108,9 +110,7 @@ const HeroClean: React.FC = () => {
           mb: { xs: 4, md: 5 },
         }}
       >
-        Accept 13 chains from customers in 40+ countries. Receive the crypto as-is,
-        or opt in to auto-convert to USDT/USDC in minutes — the choice is yours.
-        Non-custodial. 0.5% flat — no chargebacks.
+        {t('heroCleanSubtitle')}
       </Typography>
 
       {/* CTAs — one solid, one text-link (no outlined box for calmer feel). */}
@@ -142,7 +142,7 @@ const HeroClean: React.FC = () => {
             '&:hover': { bgcolor: theme.palette.primary.dark, boxShadow: 'none' },
           }}
         >
-          Start accepting crypto
+          {t('startAcceptingCrypto')}
         </Button>
         <Button
           onClick={openVideo}
@@ -158,7 +158,7 @@ const HeroClean: React.FC = () => {
             py: 1,
           }}
         >
-          Watch 90s demo
+          {t('heroWatchDemo')}
         </Button>
       </Box>
 

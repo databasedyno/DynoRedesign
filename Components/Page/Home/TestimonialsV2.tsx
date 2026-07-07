@@ -1,6 +1,7 @@
 import React, { memo, useState } from 'react';
 import { Box, Typography, useTheme, IconButton } from '@mui/material';
 import { ArrowBack, ArrowForward, FormatQuote, Star } from '@mui/icons-material';
+import { useTranslation } from 'react-i18next';
 
 /**
  * TestimonialsV2 (item H) — richer testimonial cards with initials-avatar,
@@ -17,7 +18,7 @@ interface Testimonial {
   role: string;
   company: string;
   industry: string;
-  quote: string;
+  quoteKey: string;
   color: string;
   chain: string;
 }
@@ -30,7 +31,7 @@ const QUOTES: Testimonial[] = [
     industry: 'E-commerce · Portugal',
     color: '#0004FF',
     chain: 'USDT-TRC20',
-    quote: 'We switched from Stripe to DynoPay for our international customers and cut processing fees from 3.2% to 0.8%. We turned on auto-convert for our main wallet, so settlements land in USDT within minutes — no more three-day holds.',
+    quoteKey: 'testimonial1Quote',
   },
   {
     name: 'David Kimani',
@@ -39,7 +40,7 @@ const QUOTES: Testimonial[] = [
     industry: 'SaaS · Kenya',
     color: '#7C3AED',
     chain: 'USDT-ERC20',
-    quote: 'The API is genuinely one integration and it just worked. We accept 12 chains today and the checkout is embeddable. Chargebacks dropped to zero the day we launched.',
+    quoteKey: 'testimonial2Quote',
   },
   {
     name: 'Sofia Chen',
@@ -48,14 +49,14 @@ const QUOTES: Testimonial[] = [
     industry: 'Marketplace · Singapore',
     color: '#10B981',
     chain: 'USDC-Polygon',
-    quote: 'Our sellers span 30 countries. DynoPay lets them get paid in the token they want and we settle to bank in whatever currency they want. Support answers in under an hour.',
+    quoteKey: 'testimonial3Quote',
   },
 ];
 
 const initials = (name: string): string =>
   name.split(' ').filter(Boolean).slice(0, 2).map((n) => n[0]).join('').toUpperCase();
 
-const Card: React.FC<{ t: Testimonial; isDark: boolean }> = ({ t, isDark }) => {
+const Card: React.FC<{ t: Testimonial; isDark: boolean; tr: (key: string) => string }> = ({ t, isDark, tr }) => {
   return (
     <Box
       sx={{
@@ -96,7 +97,7 @@ const Card: React.FC<{ t: Testimonial; isDark: boolean }> = ({ t, isDark }) => {
           flex: 1,
         }}
       >
-        “{t.quote}”
+        {"\u201C"}{tr(t.quoteKey)}{"\u201D"}
       </Typography>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
         <Box
@@ -173,6 +174,7 @@ const Card: React.FC<{ t: Testimonial; isDark: boolean }> = ({ t, isDark }) => {
 const TestimonialsV2: React.FC = () => {
   const theme = useTheme();
   const isDark = theme.palette.mode === 'dark';
+  const { t } = useTranslation('landing');
   const [active, setActive] = useState(0);
 
   const prev = () => setActive((a) => (a - 1 + QUOTES.length) % QUOTES.length);
@@ -200,7 +202,7 @@ const TestimonialsV2: React.FC = () => {
             mb: 1.5,
           }}
         >
-          Testimonials
+          {t('testimonialsEyebrow')}
         </Typography>
         <Typography
           component="h2"
@@ -212,7 +214,7 @@ const TestimonialsV2: React.FC = () => {
             letterSpacing: '-0.5px',
           }}
         >
-          What builders are saying
+          {t('testimonialsHeading')}
         </Typography>
       </Box>
 
@@ -226,12 +228,12 @@ const TestimonialsV2: React.FC = () => {
         }}
       >
         {QUOTES.map((q) => (
-          <Card key={q.name} t={q} isDark={isDark} />
+          <Card key={q.name} t={q} isDark={isDark} tr={t} />
         ))}
       </Box>
 
       <Box sx={{ display: { xs: 'block', md: 'none' } }}>
-        <Card t={QUOTES[active]} isDark={isDark} />
+        <Card t={QUOTES[active]} isDark={isDark} tr={t} />
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 1.5, mt: 2 }}>
           <IconButton onClick={prev} aria-label="Previous testimonial">
             <ArrowBack sx={{ fontSize: 18 }} />

@@ -1,3 +1,39 @@
+## Landing page i18n fix — Test Request (2026-07-07)
+
+### USER REPORT
+"Landing page language is still not changing." The homepage ("/") stayed in English
+even after switching language, even though /fees worked.
+
+### ROOT CAUSE & FIX
+The landing page ("/") was rewritten on 2026-07-05 with new components that were never
+internationalized (hardcoded English, no useTranslation): HeroClean, ComplianceLogoStrip,
+SupportedChainsRail, FAQ, TestimonialsV2. FIX: wired react-i18next `useTranslation("landing")`
+into all 5 components and added 35 new keys to landing.json for all 6 languages
+(en/pt/fr/es/de/nl): hero eyebrow/title/subtitle/CTAs/trust line, compliance header + badge
+sublabels, chains header, FAQ badge/title/subtitle + 6 Q&A pairs, testimonials eyebrow/heading
++ 3 quotes. Reused existing `startAcceptingCrypto` key for the primary CTA.
+
+### FRONTEND TEST PLAN (preview: https://d8ea571f-0b45-411c-9fe8-d786a0e4f290.preview.emergentagent.com)
+- Load the LANDING page "/" (public, no login).
+- Locate the language switcher in the top header (shows "EN" with a flag + dropdown chevron).
+- Switch to Portuguese (PT). Verify the HERO + sections now render Portuguese, e.g.:
+  - eyebrow "Infraestrutura de pagamentos em cripto"
+  - hero title contains "Aceite cripto"
+  - primary CTA "Comece a aceitar cripto"
+  - compliance header contains "Segurança de nível empresarial"
+  - FAQ title "Perguntas frequentes"
+  - testimonials heading "O que os criadores estão dizendo"
+  - NONE of the English equivalents should remain visible in these sections.
+- Switch to German (DE). Verify German renders, e.g. hero title contains "Krypto akzeptieren",
+  compliance header contains "Sicherheit auf Unternehmensniveau", FAQ title "Häufig gestellte Fragen".
+- Switch back to English (EN) and confirm English shows again.
+- Scroll through the whole landing page in PT to confirm the hero, compliance strip, chains rail,
+  testimonials, and FAQ are all translated (report any section still stuck in English — NOTE:
+  the FeeCalculator and TryItNow widgets are known to be NOT yet internationalized and are OUT OF
+  SCOPE for this test).
+Report PASS/FAIL with quoted visible text for PT and DE for the hero + FAQ + compliance sections.
+
+
 ## Theme flash + i18n missing-keys fixes — Test Request (2026-07-06)
 
 ### USER REPORT

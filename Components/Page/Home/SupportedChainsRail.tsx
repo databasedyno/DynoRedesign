@@ -1,5 +1,6 @@
 import React, { memo } from "react";
 import { Box, Typography, useTheme } from "@mui/material";
+import { useTranslation } from "react-i18next";
 import BTC from "@/assets/Icons/coins/BTC";
 import ETH from "@/assets/Icons/coins/ETH";
 import SOL from "@/assets/Icons/coins/SOL";
@@ -46,6 +47,7 @@ const CHAINS: ChainDef[] = [
 const SupportedChainsRail: React.FC = () => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
+  const { t } = useTranslation("landing");
 
   return (
     <Box
@@ -67,7 +69,7 @@ const SupportedChainsRail: React.FC = () => {
           mb: 2.5,
         }}
       >
-        Settle on the chains your customers already use
+        {t("chainsHeader")}
       </Typography>
       <Box
         sx={{
