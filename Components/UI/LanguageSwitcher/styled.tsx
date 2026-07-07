@@ -97,11 +97,11 @@ export const DropdownListItem = styled(Box)(({ theme }) => ({
   transition: "background 0.2s ease",
 
   "&[data-selected='true']": {
-    background: theme.palette.mode === "dark" ? "rgba(106,123,255,0.15)" : "#E8F0FF",
+    background: theme.palette.mode === "dark" ? "rgba(204,255,0,0.15)" : "#E8F0FF",
   },
 
   "&:hover": {
-    background: theme.palette.mode === "dark" ? "rgba(106,123,255,0.1)" : "#e8f0ff",
+    background: theme.palette.mode === "dark" ? "rgba(204,255,0,0.1)" : "#e8f0ff",
   },
 
   "&:focus-visible": {

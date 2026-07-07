@@ -646,7 +646,7 @@ export const themeDark = createTheme({
       error: "#E8484A",
     },
     primary: {
-      main: "#6A7BFF",
+      main: "#CCFF00",
       dark: "#FFFFFF",
       light: "#1A1F3D",
       contrastText: "#fff",
@@ -777,17 +777,17 @@ export const themeDark = createTheme({
             border: "1px solid",
             color: "#fff",
             padding: "12px 30px",
-            background: "#6A7BFF",
+            background: "#CCFF00",
             fontWeight: 400,
             borderRadius: "50px",
             textTransform: "none",
             cursor: "pointer",
             "&:hover": {
-              color: "#6A7BFF",
+              color: "#CCFF00",
               background: "#1a1a2e",
             },
             "&.Mui-disabled": {
-              background: "#6A7BFF88",
+              background: "#CCFF0088",
               color: "#fff",
               pointerEvents: "auto",
               cursor: "not-allowed",
@@ -828,13 +828,13 @@ export const themeDark = createTheme({
           style: {
             border: "1px solid",
             padding: "10px 30px",
-            color: "#6A7BFF",
+            color: "#CCFF00",
             fontWeight: 600,
             borderRadius: "15px",
             fontSize: "16px",
             "&:hover": {
               color: "#fff",
-              background: "#6A7BFF",
+              background: "#CCFF00",
             },
           },
         },
@@ -844,16 +844,16 @@ export const themeDark = createTheme({
             border: "1px solid",
             padding: "10px 30px",
             color: "#fff",
-            background: "#6A7BFF",
+            background: "#CCFF00",
             fontWeight: 600,
             borderRadius: "15px",
             fontSize: "16px",
             "&:hover": {
-              color: "#6A7BFF",
+              color: "#CCFF00",
               background: "#1a1a2e",
             },
             "&.Mui-disabled": {
-              background: "#6A7BFF99",
+              background: "#CCFF0099",
               color: "#fff",
             },
           },
@@ -895,7 +895,7 @@ export const themeDark = createTheme({
       },
       styleOverrides: {
         outlined: {
-          color: "#6A7BFF",
+          color: "#CCFF00",
           padding: "10px 15px",
           borderRadius: "20px",
           border: "1px solid ",
@@ -961,7 +961,7 @@ export const themeDark = createTheme({
       styleOverrides: {
         root: {
           "&:hover": {
-            backgroundColor: "rgba(106,123,255,0.06)",
+            backgroundColor: "rgba(204,255,0,0.06)",
           },
         },
       },
@@ -971,13 +971,13 @@ export const themeDark = createTheme({
         root: {
           color: "#E8E8EC",
           "&:hover": {
-            backgroundColor: "rgba(106,123,255,0.08)",
+            backgroundColor: "rgba(204,255,0,0.08)",
           },
           "&.Mui-selected": {
-            backgroundColor: "rgba(106,123,255,0.12)",
+            backgroundColor: "rgba(204,255,0,0.12)",
             color: "#E8E8EC",
             "&:hover": {
-              backgroundColor: "rgba(106,123,255,0.16)",
+              backgroundColor: "rgba(204,255,0,0.16)",
             },
           },
         },

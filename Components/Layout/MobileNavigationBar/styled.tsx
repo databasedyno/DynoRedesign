@@ -75,7 +75,7 @@ export const IconButton = styled(Box, {
     background:
       theme.palette.mode === "dark"
         ? active
-          ? "rgba(106, 123, 255, 0.22)"
+          ? "rgba(204, 255, 0, 0.22)"
           : "#2A2D42"
         : theme.palette.common.white,
     display: "flex",

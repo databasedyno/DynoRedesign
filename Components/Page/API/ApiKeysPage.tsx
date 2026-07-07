@@ -461,7 +461,7 @@ const ApiKeysPage = ({
             sx={{
               borderColor: theme.palette.primary.main,
               color: theme.palette.primary.main,
-              "&:hover": { background: theme.palette.mode === "dark" ? "rgba(106,123,255,0.08)" : "#f0f5ff", borderColor: theme.palette.primary.main },
+              "&:hover": { background: theme.palette.mode === "dark" ? "rgba(204,255,0,0.08)" : "#f0f5ff", borderColor: theme.palette.primary.main },
             }}
             onClick={() => {
               window.open(docsUrl, "_blank", "noopener,noreferrer");

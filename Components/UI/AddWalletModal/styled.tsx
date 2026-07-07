@@ -19,7 +19,7 @@ export const ModalSubtitle = styled(Box)(({ theme }) => ({
 }));
 
 export const WarningContainer = styled(Box)(({ theme }) => ({
-  backgroundColor: theme.palette.mode === "dark" ? "rgba(106, 123, 255, 0.1)" : theme.palette.primary.light,
+  backgroundColor: theme.palette.mode === "dark" ? "rgba(204, 255, 0, 0.1)" : theme.palette.primary.light,
   padding: theme.spacing(1),
   borderRadius: "7px",
   border: `1px solid ${theme.palette.border.main}`,

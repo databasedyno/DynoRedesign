@@ -286,7 +286,7 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            backgroundColor: userPhoto && !imageError ? "transparent" : "#2563EB",
+            backgroundColor: userPhoto && !imageError ? "transparent" : "primary.main",
           }}
         >
           {userPhoto && !imageError ? (
