@@ -5,6 +5,41 @@ USDT-TRC20 payment gateway platform. Users can create companies, wallets, paymen
 
 ## What's Been Implemented
 
+### 2026-07-07 — Volume-based fee tier system + marketing copy alignment ✅ VERIFIED (7/7 backend)
+User flagged: (a) marketing said "0.5% flat" but backend actually charged 1.5%, (b) dashboard "Fee Tier Progress" widget only ever showed "Standard". User approved: 4 volume tiers (Starter 1.5%, Growth 1.0%, Scale 0.7%, Enterprise 0.5%) with auto-upgrade + auto-downgrade + upgrade emails.
+
+**New backend files:**
+- `backend/utils/volumeTierUtils.ts` — single source of truth. Reads `VOLUME_TIER_<NAME>_{MIN,MAX,PERCENT}` env vars (defaults hard-coded). Exports `getVolumeTiers()`, `getTierForVolume(usdVolume)`, `getTierByName(name)`, `getPlatformFeePercent(userTier)`. Legacy `standard`/`trial`/`null`/typo tier names all safely map to Starter (1.5%) — no accidental discount.
+- `backend/services/volumeTierReconciliation.ts` — nightly cron. For every non-trial user, joins `tbl_user_transaction`, computes lifetime USD volume, calls `getTierForVolume()`, updates `tbl_user.fee_tier` if changed. Silent on downgrades; fires `sendVolumeTierUpgradeEmail` on upgrades.
+
+**Modified backend:**
+- `backend/.env` — 12 new env vars `VOLUME_TIER_{STARTER,GROWTH,SCALE,ENTERPRISE}_{MIN,MAX,PERCENT}` = 0/10000/1.5, 10000/100000/1.0, 100000/500000/0.7, 500000/-/0.5. Legacy `TRANSACTION_FEE_PERCENT=1.5` retained as fallback.
+- `backend/services/feeService.ts` — `getBlockchainConfig()`, `calculateTransactionFees()`, `calculateTransactionFeesWithDiscount()` now accept optional `userId`, look up user's `fee_tier`, use `getPlatformFeePercent(tier)`. Falls back to `TRANSACTION_FEE_PERCENT` (1.5%) if user unknown.
+- `backend/controller/payment/feeController.ts::calculateCheckoutFees` — accepts optional `paymentLinkId` / `linkId` in body; resolves merchant `user_id` via `payment_link` table; uses their tier %. Falls back to 1.5% if merchant unknown (preserves prior behavior on `/fees` marketing calculator).
+- `backend/controller/dashboardController.ts::getFeeTiers` — replaced hardcoded 5-tier array with `getFeeTiersArray()` from `volumeTierUtils`. Response now includes per-tier `percent` field + `current_tier_percent` + `next_tier_percent` + `current_tier_key` + `next_tier_key`. Auto-computes user's tier from real all-time USD volume.
+- `backend/services/emailService.ts` — fixed hardcoded `"Platform Fee (1.5%)"` in auto-conversion payout email → now computes effective % from `(platformFeeUsd / grossSaleUsd) × 100`. Added new `sendVolumeTierUpgradeEmail(email, {name, previousTier, previousPercent, newTier, newPercent, totalVolumeUsd, language})` — renders a "you saved X%" comparison block. Fired only on upgrades, never on downgrades.
+- `backend/server.ts` — new `cron.schedule("0 3 * * *", ...)` for tier reconciliation. Guarded by existing `ENABLE_BACKGROUND_JOBS` + `WORKER_ROLE=secondary` checks + `acquireLock("cron:volumeTierReconciliation")`.
+
+**Modified frontend:**
+- `Redux/Sagas/DashboardSaga.ts` + `Redux/Reducers/dashboardReducer.ts` — pass through `currentTierPercent`, `nextTierPercent`, `currentTierKey`, `nextTierKey`, `tiers`.
+- `Components/Page/Dashboard/DashboardRightSection.tsx` — "Current Tier" badge now shows `Starter · 1.5%` (name + rate) with `data-testid="current-tier-percent"`. Below it, when a lower next-tier exists, renders `[data-testid="next-tier-hint"]` line "Reach Growth tier for 1.0% fees (save 0.50%)".
+- `Components/Page/Home/FeeCalculator.tsx` — REPLACED hardcoded `DYNOPAY_PERCENT = 0.5` with `DYNOPAY_TIERS` ladder matching backend. Cost calc uses `dynopayTierFor(monthlyVolume)`: a merchant at $500/mo sees 1.5% (Starter), $50K/mo sees 0.7% (Scale). Subtitle now reads e.g. `"1.0% (Growth) · 133 tx/mo"`.
+
+**Marketing copy alignment (all 6 locales en/pt/fr/es/de/nl):**
+- `landing.json::heroCleanSubtitle` "0.5% flat" → "Fees from 0.5%"
+- `landing.json::faq3A` — FAQ answer rewritten to explain tiered fees start at 1.5%, drop to 0.5%
+- `fees.json::feeFreeBannerDescription` — "just 1.5%" → "start at 1.5%, drop as low as 0.5%"
+- `dashboardLayout.json::lowerFeesAndPrioritySupport` — "Lower fees (0.5%)" → "Fees drop as your volume grows — as low as 0.5%"
+- `dashboardLayout.json::nextTierHint` (NEW) — "Reach {next} tier for {pct} fees (save {savings})"
+- `Components/Page/Home/HeroV2.tsx` — hero copy "0.5% flat" → "Fees from 0.5%"
+- `Components/Page/Home/ComparisonTable.tsx` — "0.5% flat" → "0.5%–1.5% by volume"
+- `Components/Page/Home/FeeSection.tsx` — DynoPay row fee "1.5%" → "0.5%–1.5%" · "By volume · first $500 free"
+- `Components/Modals/DemoVideoModal.tsx` — "0.5% flat" → "Fees from 0.5% (drops with volume)"
+
+**Verified** by backend testing agent (7/7 PASS): (1) `/api/pay/calculateFees` returns 1.5% default with correct math ($1000×1.5%=$15) both USD+EUR; (2) `/api/dashboard/fee-tiers` returns EXACT 4-tier structure with correct min/max/percent per tier; hostbay ($18,888.74 real volume) correctly shown as **Growth · 1.0%** with next tier Scale · 0.7% — this is the auto-computed tier from volume, not the DB's legacy `standard` value; (3) unit tests on `getTierForVolume` — all 10 boundary cases correct; `getPlatformFeePercent` fallbacks — all 9 cases (null/undefined/empty/trial/standard/typo → 1.5% safe default; growth→1.0%, scale→0.7%, enterprise→0.5%) correct; (4) `sendVolumeTierUpgradeEmail` exported; (5) `reconcileVolumeTiers` exported (subagent fixed import `{emailService}` → default `emailService`); (6) regression — all `/api/` + `/api/csrf-token` + `/api/dashboard` + `/api/dashboard/recent-transactions` + `/api/pay/calculateFees` return 200; (7) grep confirmed no hardcoded "1.5%" in the payout receipt template. Frontend testing NOT run yet (requires user permission per test protocol).
+
+
+
 ### 2026-07-07 — Google OAuth enabled + security fix (server-side client secret) ✅ VERIFIED (6/6)
 User provided Google OAuth credentials (`163670787265-g39k8mfhfc4rgv4jpgt6k6n62phif72o.apps.googleusercontent.com` / secret `GOCSPX-…`) and asked to enable Google auth.
 - **Pre-flight credential validation** (main agent, before any code change):
