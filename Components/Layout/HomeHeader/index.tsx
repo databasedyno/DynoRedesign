@@ -255,7 +255,7 @@ const HomeHeader = memo(function HomeHeader() {
                           width: 18,
                           height: 2,
                           borderRadius: 2,
-                          background: "linear-gradient(90deg, #0004FF, #6C7BFF)",
+                          bgcolor: "primary.main",
                           transition: "transform 0.25s ease",
                         }
                       : undefined,

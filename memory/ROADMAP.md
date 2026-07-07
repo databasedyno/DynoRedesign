@@ -145,15 +145,28 @@ awaiting a go-ahead:
 
 ## 5. Landing page & other public / checkout surfaces
 
-Public/marketing pages use the **`homeTheme`** (blue `#0004FF`, `styles/homeTheme.ts`)
-and the `home` layout — they do NOT yet share the bold cyber-lime auth look.
-Checkout uses the `pay`/`payment` layouts (`lightTheme`/`darkTheme`).
+Public/marketing pages use the **`homeTheme`** ("Floating Glass Bento": cyber-lime
+`#CCFF00` on void-black in dark / near-black + lime on frost in light — mirrored from
+`styles/authTheme.ts`, see `styles/homeTheme.ts` + shared tokens in `styles/homeBento.ts`)
+and the `home` layout. As of 2026-07-07 the **landing page redesign (Phase 1) is DONE**
+and the new palette now cascades to fees/blog/docs/legal (they still need per-section glass
+polish — Phases 2–3). Checkout uses the `pay`/`payment` layouts (`lightTheme`/`darkTheme`).
+
+### ✅ Phase 1 — Landing redesign (DONE 2026-07-07)
+Updated `homeTheme`/`homeThemeDark` (bold palette, opaque `background.paper` so header
+menus stay crisp) + new `styles/homeBento.ts`. Restyled: `HomeWrapper` (hero lime aurora
+glow), `HomeButton` (lime/near-black + glass outlined), `SectionTitle` (Unbounded headings),
+HeroClean, CoreValueProps (lime/indigo/emerald glass cards), FinalCTA (glass + lime glow),
+FAQ (glass accordion, lime open-state), TestimonialsV2 (indigo avatar, Unbounded), FeeCalculator
+(lime slider/winner-card/CTA via `primary.contrastText`), TryItNow (glass panels, lime CTA).
+ComplianceLogoStrip + SupportedChainsRail auto-adapt (theme tokens). Verified in light+dark
+by the frontend testing agent: correct colors, Unbounded fonts, no blue leaks, no console errors.
 
 ### Surface inventory (design + i18n status)
 
 | Surface | File(s) | Theme today | i18n | Priority |
 |---|---|---|---|---|
-| Landing / home | `pages/index.tsx`, `Containers/Home` | blue homeTheme | ✅ `landing.json` | design refresh (P1) |
+| Landing / home | `pages/index.tsx`, `Containers/Home` | ✅ bento (lime/void) homeTheme | ✅ `landing.json` | ✅ redesign DONE 2026-07-07 |
 | Fees | `pages/fees.tsx` | blue homeTheme | ✅ `fees.json` | design refresh (P2) |
 | Terms / Privacy / AML | `pages/terms-conditions.tsx`, `privacy-policy.tsx`, `aml-policy.tsx` | blue homeTheme | ✅ (each has a namespace) | low |
 | Documentation | `pages/documentation.tsx` | blue homeTheme | ❌ (~150 strings) | i18n P2 |
