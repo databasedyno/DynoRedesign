@@ -174,7 +174,10 @@ const OtpDialog: React.FC<OtpDialogProps> = ({
         bodyPadding="0"
         headerPadding="0 !important"
         sx={{
-          backgroundColor: "background.paper",
+          backgroundColor: theme.palette.mode === "dark" ? "rgba(14,15,18,0.92)" : "rgba(255,255,255,0.86)",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+          border: `1px solid ${theme.palette.mode === "dark" ? "rgba(255,255,255,0.12)" : "rgba(10,10,10,0.10)"}`,
           borderRadius: "14px",
           padding: "30px",
           boxShadow: "none",

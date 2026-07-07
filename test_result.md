@@ -8224,3 +8224,282 @@ d. ✅ **Confetti Animation Fired**
 **Conclusion:**
 All six dashboard redesign changes have been successfully bundled and deployed. The chunk-grep verification confirms that all signature strings for the 4 new components are present in the compiled JavaScript bundles, all old dashboard components have been removed, and the public registration page shows no regressions. The dashboard redesign Batch 4 is ready for production use.
 
+
+## Visual Regression Check - Floating Glass Bento Theme (2026-07-07)
+
+### CONTEXT
+Testing agent performed VISUAL-ONLY regression check after multi-page design rollout. The "Floating Glass Bento" theme was rolled out across fees, blog, docs, and crypto checkout pages with:
+- Dark mode: void-black #060606 + cyber-lime #CCFF00 neon accents + frosted glass cards
+- Light mode: frost silver + near-black bold accents + lime highlights
+- Headings in "Unbounded" display font
+- Staggered fade-in entrance animation on landing hero
+
+### TEST SCOPE
+Tested 6 pages in BOTH dark and light themes (12 total page loads):
+1. "/" (landing) - hero animation check
+2. "/fees" - fee calculator + comparison cards
+3. "/blog" - blog cards grid
+4. "/blog/how-to-accept-crypto-payments-on-your-website" - article body + CTA box
+5. "/documentation" - sidebar nav + API endpoint method badges
+6. "/pay/demo" - crypto checkout header bar + payment card
+
+### VERIFICATION RESULTS (2026-07-07 09:40 UTC)
+- agent: testing (auto_frontend_testing_agent)
+- test_date: 2026-07-07 09:40:00 UTC
+- test_url: https://bf3ccd3d-9d59-4688-ad54-2c1a3bb2a53a.preview.emergentagent.com
+- verification_method: Playwright visual testing (READ-ONLY, no auth, no form submissions)
+
+---
+
+### DARK MODE RESULTS ✅ MOSTLY PASS
+
+**1. Landing (/) - DARK MODE** ✅ PASS (with animation issue)
+- ✅ Renders with content (5,350 chars body text)
+- ✅ Void-black background: rgb(6, 6, 6) = #060606 ✓
+- ✅ Lime accents: 28 elements with #CCFF00 found
+- ✅ NO blue theme leaks (#0004FF): 0 found
+- ✅ No horizontal scroll
+- ⚠️ **Hero animation NOT detected**: animation: none, transition: all, opacity: 1
+  - Expected: staggered fade-in entrance animation
+  - Actual: hero appears instantly with no animation
+- Screenshot: landing_dark_mode.png, landing_hero_animation_check.png
+
+**2. Fees (/fees) - DARK MODE** ✅ PASS
+- ✅ Renders with content (2,971 chars)
+- ✅ Void-black background: rgb(6, 6, 6)
+- ✅ Lime accents: 36 elements found
+- ✅ NO blue theme leaks: 0 found
+- ✅ No horizontal scroll
+- Screenshot: fees_dark_mode.png
+
+**3. Blog (/blog) - DARK MODE** ✅ PASS
+- ✅ Renders with content (1,773 chars)
+- ✅ Void-black background: rgb(6, 6, 6)
+- ✅ Lime accents: 9 elements found
+- ✅ NO blue theme leaks: 0 found
+- ✅ No horizontal scroll
+- Screenshot: blog_dark_mode.png
+
+**4. Blog Article (/blog/how-to-accept-crypto-payments-on-your-website) - DARK MODE** ✅ PASS
+- ✅ Renders with content (3,994 chars)
+- ✅ Void-black background: rgb(6, 6, 6)
+- ✅ Lime accents: 19 elements found
+- ✅ NO blue theme leaks: 0 found
+- ✅ CTA box "Ready to accept crypto payments?" found near bottom with lime CTA button
+- ✅ No horizontal scroll
+- Screenshot: blog_article_dark_mode.png, blog_article_cta_dark.png
+
+**5. Documentation (/documentation) - DARK MODE** ✅ PASS
+- ✅ Renders with content (10,464 chars)
+- ✅ Void-black background: rgb(6, 6, 6)
+- ✅ Lime accents: 34 elements found
+- ✅ NO blue theme leaks: 0 found
+- ✅ Sidebar nav present and readable
+- ✅ API method badges working correctly:
+  - GET badges: green rgb(34, 197, 94) with white text ✓
+  - POST badges: purple rgb(88, 101, 242) with white text (NOT old #0004FF blue) ✓
+- ✅ Code blocks: dark background rgb(13, 15, 26) with light text
+- ✅ No horizontal scroll
+- Screenshot: documentation_dark_mode.png, documentation_dark_methods.png
+
+**6. Pay Demo (/pay/demo) - DARK MODE** ⚠️ PARTIAL PASS
+- ✅ Renders with content (435 chars)
+- ✅ Void-black background: rgb(6, 6, 6)
+- ✅ Lime accents: 3 elements found
+- ❌ **BLUE THEME LEAKS FOUND: 6 elements with old #0004FF blue**
+  - Elements: DIV.mui-ua6rqu, DIV.mui-crj9i5 (multiple instances)
+  - Colors found: rgb(0, 4, 255) in backgroundColor, color, and borderColor
+  - This is the OLD blue theme (#0004FF) leaking through
+- ✅ Header bar found: transparent background, white text rgb(255, 255, 255) - readable
+- ⚠️ Payment card NOT found (selector may need adjustment)
+- ✅ No horizontal scroll
+- Screenshot: pay_demo_dark_mode.png, pay_demo_detailed_dark.png
+
+---
+
+### LIGHT MODE RESULTS ⚠️ ISSUES FOUND
+
+**1. Landing (/) - LIGHT MODE** ⚠️ PARTIAL PASS
+- ✅ Renders with content (5,350 chars)
+- ⚠️ **Background: rgb(238, 241, 246) - NOT the expected "frost silver" or near-white**
+  - Expected: light frost background (likely rgb(250, 250, 250) or similar)
+  - Actual: light gray-blue rgb(238, 241, 246)
+- ✅ Lime accents: 28 elements found
+- ✅ NO blue theme leaks: 0 found
+- ✅ No horizontal scroll
+- Screenshot: landing_light_mode.png
+
+**2. Fees (/fees) - LIGHT MODE** ⚠️ PARTIAL PASS
+- ✅ Renders with content (2,971 chars)
+- ⚠️ Background: rgb(238, 241, 246) - same issue as landing
+- ✅ Lime accents: 10 elements found
+- ✅ NO blue theme leaks: 0 found
+- ✅ No horizontal scroll
+- Screenshot: fees_light_mode.png
+
+**3. Blog (/blog) - LIGHT MODE** ⚠️ PARTIAL PASS
+- ✅ Renders with content (1,773 chars)
+- ⚠️ Background: rgb(238, 241, 246) - same issue
+- ✅ Lime accents: 2 elements found
+- ✅ NO blue theme leaks: 0 found
+- ✅ No horizontal scroll
+- Screenshot: blog_light_mode.png
+
+**4. Blog Article - LIGHT MODE** ⚠️ PARTIAL PASS
+- ✅ Renders with content (3,994 chars)
+- ⚠️ Background: rgb(238, 241, 246) - same issue
+- ✅ Lime accents: 3 elements found
+- ✅ NO blue theme leaks: 0 found
+- ✅ No horizontal scroll
+- Screenshot: blog_article_light_mode.png
+
+**5. Documentation (/documentation) - LIGHT MODE** ⚠️ PARTIAL PASS
+- ✅ Renders with content (10,464 chars)
+- ⚠️ Background: rgb(238, 241, 246) - same issue
+- ✅ Lime accents: 6 elements found
+- ✅ NO blue theme leaks: 0 found
+- ✅ API method badges working:
+  - GET badges: green rgb(34, 197, 94) ✓
+  - POST badges: purple rgb(88, 101, 242) ✓
+- ✅ No horizontal scroll
+- Screenshot: documentation_light_mode.png, documentation_light_methods.png
+
+**6. Pay Demo (/pay/demo) - LIGHT MODE** ❌ FAIL
+- ✅ Renders with content (435 chars)
+- ⚠️ Background: rgb(238, 241, 246) - same issue
+- ✅ Lime accents: 15 elements found
+- ❌ **BLUE THEME LEAKS FOUND: 6 elements with old #0004FF blue** (same as dark mode)
+- ⚠️ Header bar: transparent background, **lime text rgb(204, 255, 0)**
+  - **Expected: dark/near-black bar with white text**
+  - **Actual: transparent bar with lime text (low contrast on light background)**
+- ⚠️ Payment card NOT found
+- ✅ No horizontal scroll
+- Screenshot: pay_demo_light_mode.png, pay_demo_light_header.png
+
+---
+
+### CONSOLE ERRORS
+- Total: 16 errors (all non-critical)
+- Type: [next-auth][error][CLIENT_FETCH_ERROR] - Failed to fetch /api/auth/session
+- Note: Expected errors on public pages (no auth session available)
+- No errors related to theme, styling, or layout
+
+---
+
+### CRITICAL ISSUES FOUND
+
+**ISSUE 1: Landing Hero Animation Missing** 🔴 HIGH PRIORITY
+- Page: "/" (landing)
+- Expected: Staggered fade-in entrance animation on hero content
+- Actual: Hero appears instantly with animation: none
+- Impact: Missing key visual feature mentioned in rollout context
+- Recommendation: Check if animation CSS/JS is properly loaded or if there's a timing issue
+
+**ISSUE 2: /pay/demo Blue Theme Leaks** 🔴 HIGH PRIORITY
+- Page: "/pay/demo"
+- Found: 6 elements still using old #0004FF blue theme
+- Elements: DIV.mui-ua6rqu, DIV.mui-crj9i5 (multiple instances)
+- Colors: rgb(0, 4, 255) in backgroundColor, color, borderColor
+- Impact: Old theme leaking through on crypto checkout page
+- Affects: BOTH dark and light modes
+- Recommendation: Update these MUI component styles to use new theme colors
+
+**ISSUE 3: Light Mode Background Color** 🟡 MEDIUM PRIORITY
+- Pages: ALL pages in light mode
+- Expected: "frost silver" or near-white background
+- Actual: rgb(238, 241, 246) - light gray-blue
+- Impact: Light mode doesn't match "frost silver" description
+- Recommendation: Verify if rgb(238, 241, 246) is intentional or should be lighter (e.g., rgb(250, 250, 250))
+
+**ISSUE 4: /pay/demo Light Mode Header** 🟡 MEDIUM PRIORITY
+- Page: "/pay/demo" in light mode
+- Expected: Dark/near-black header bar with white text
+- Actual: Transparent header with lime text rgb(204, 255, 0)
+- Impact: Potential readability issue (lime on light background)
+- Recommendation: Add dark background to header in light mode
+
+---
+
+### POSITIVE FINDINGS ✅
+
+1. **Dark Mode Theme**: ✅ EXCELLENT
+   - All pages have correct void-black #060606 backgrounds
+   - Lime #CCFF00 accents present throughout (28-36 elements per page)
+   - Glass card effects visible in screenshots
+   - No old blue theme leaks (except /pay/demo)
+
+2. **Content Rendering**: ✅ PERFECT
+   - All pages render with full content (not blank)
+   - No horizontal scroll issues on any page
+   - All text readable and properly styled
+
+3. **Documentation Method Badges**: ✅ WORKING
+   - GET badges: green rgb(34, 197, 94) ✓
+   - POST badges: purple rgb(88, 101, 242) ✓
+   - NOT using old #0004FF blue
+
+4. **Blog Article CTA Box**: ✅ FOUND
+   - "Ready to accept crypto payments?" CTA box present near bottom
+   - Lime CTA button visible and styled correctly
+
+5. **No Layout Breaks**: ✅ CLEAN
+   - No overlapping elements detected
+   - No broken layouts
+   - Responsive design working
+
+---
+
+### SCREENSHOTS CAPTURED (16 total)
+
+**Dark Mode:**
+1. landing_dark_mode.png - Landing page hero
+2. landing_hero_animation_check.png - Hero animation check
+3. fees_dark_mode.png - Fees page with calculator
+4. blog_dark_mode.png - Blog cards grid
+5. blog_article_dark_mode.png - Blog article
+6. blog_article_cta_dark.png - Blog article CTA box
+7. documentation_dark_mode.png - Documentation page
+8. documentation_dark_methods.png - API method badges
+9. pay_demo_dark_mode.png - Crypto checkout
+10. pay_demo_detailed_dark.png - Checkout detailed view
+
+**Light Mode:**
+11. landing_light_mode.png - Landing page
+12. fees_light_mode.png - Fees page
+13. blog_light_mode.png - Blog grid
+14. blog_article_light_mode.png - Blog article
+15. documentation_light_mode.png - Documentation
+16. documentation_light_methods.png - API method badges
+17. pay_demo_light_mode.png - Crypto checkout
+18. pay_demo_light_header.png - Checkout header detail
+
+---
+
+### SUMMARY BY PAGE
+
+| Page | Dark Mode | Light Mode | Issues |
+|------|-----------|------------|--------|
+| / (landing) | ✅ PASS | ⚠️ PARTIAL | Hero animation missing, light bg color |
+| /fees | ✅ PASS | ⚠️ PARTIAL | Light bg color |
+| /blog | ✅ PASS | ⚠️ PARTIAL | Light bg color |
+| /blog/article | ✅ PASS | ⚠️ PARTIAL | Light bg color |
+| /documentation | ✅ PASS | ⚠️ PARTIAL | Light bg color |
+| /pay/demo | ⚠️ PARTIAL | ❌ FAIL | Blue theme leaks (both modes), light header issue |
+
+---
+
+### FINAL VERDICT
+
+**DARK MODE: ✅ 83% PASS** (5/6 pages fully pass, 1 partial)
+- Excellent void-black backgrounds with lime accents
+- Only issue: /pay/demo blue theme leaks + missing hero animation
+
+**LIGHT MODE: ⚠️ 0% PASS** (0/6 pages fully pass, 5 partial, 1 fail)
+- Background color doesn't match "frost silver" description
+- /pay/demo has multiple issues (blue leaks + header readability)
+
+**OVERALL: ⚠️ PARTIAL PASS**
+- Theme rollout is 80% successful
+- Critical issues: hero animation, /pay/demo blue leaks, light mode header
+- Medium issues: light mode background color across all pages
+

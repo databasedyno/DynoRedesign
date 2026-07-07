@@ -42,7 +42,7 @@ const Header = ({
         sx={{
           background: darkMode
             ? `linear-gradient(90deg, ${theme.palette.background.default} 0%, ${theme.palette.background.paper} 100%)`
-            : `linear-gradient(90deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark || theme.palette.primary.main} 50%, ${theme.palette.primary.light || theme.palette.primary.main} 100%)`,
+            : `linear-gradient(90deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark || theme.palette.primary.main} 100%)`,
           height: '60px',
           justifyContent: 'center',
         }}
@@ -123,7 +123,7 @@ const Header = ({
                     transition: 'all 0.3s ease',
                   }}
                 >
-                  <WbSunnyIcon sx={{ fontSize: 14, color: !darkMode ? theme.palette.primary.main : 'rgba(255,255,255,0.5)' }} />
+                  <WbSunnyIcon sx={{ fontSize: 14, color: !darkMode ? '#0A0A0A' : 'rgba(255,255,255,0.5)' }} />
                 </Box>
                 <Box
                   sx={{
@@ -137,7 +137,7 @@ const Header = ({
                     transition: 'all 0.3s ease',
                   }}
                 >
-                  <BedtimeIcon sx={{ fontSize: 14, color: darkMode ? theme.palette.primary.main : 'rgba(255,255,255,0.5)' }} />
+                  <BedtimeIcon sx={{ fontSize: 14, color: darkMode ? '#0A0A0A' : 'rgba(255,255,255,0.5)' }} />
                 </Box>
               </Box>
             </Stack>
@@ -202,7 +202,7 @@ const Header = ({
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: 'white',
+                color: theme.palette.primary.contrastText,
                 transition: 'all 0.3s ease',
               }}
             >

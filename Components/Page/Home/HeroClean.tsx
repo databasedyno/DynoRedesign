@@ -5,6 +5,17 @@ import { useRouter } from 'next/router';
 import useCountry from '@/hooks/useCountry';
 import DemoVideoModal from '@/Components/Modals/DemoVideoModal';
 import { useTranslation } from 'react-i18next';
+import { motion } from 'framer-motion';
+
+// Staggered entrance for the hero — a calm fade + rise, cascading top-to-bottom.
+const heroContainer = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.12, delayChildren: 0.06 } },
+};
+const heroItem = {
+  hidden: { opacity: 0, y: 22 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } },
+};
 
 /**
  * HeroClean — a Stripe/Linear-style minimal hero that replaces HeroV2 on the
@@ -49,9 +60,12 @@ const HeroClean: React.FC = () => {
 
   return (
     <Box
-      component="section"
+      component={motion.section}
       id="hero"
       aria-labelledby="hero-heading"
+      initial="hidden"
+      animate="show"
+      variants={heroContainer}
       sx={{
         width: '100%',
         maxWidth: 1200,
@@ -83,7 +97,8 @@ const HeroClean: React.FC = () => {
       {/* H1 — single color, no gradient. Two short lines instead of one long one. */}
       <Typography
         id="hero-heading"
-        component="h1"
+        component={motion.h1}
+        variants={heroItem}
         sx={{
           fontFamily: "'Unbounded', 'OutfitMedium', system-ui, sans-serif",
           fontWeight: 600,
@@ -100,7 +115,8 @@ const HeroClean: React.FC = () => {
 
       {/* Subtitle — plain body text, muted color, generous max-width */}
       <Typography
-        component="p"
+        component={motion.p}
+        variants={heroItem}
         sx={{
           fontFamily: 'OutfitRegular',
           fontSize: { xs: 16, md: 19 },
@@ -115,6 +131,8 @@ const HeroClean: React.FC = () => {
 
       {/* CTAs — one solid, one text-link (no outlined box for calmer feel). */}
       <Box
+        component={motion.div}
+        variants={heroItem}
         sx={{
           display: 'flex',
           gap: { xs: 1.5, md: 2.5 },
@@ -170,7 +188,8 @@ const HeroClean: React.FC = () => {
 
       {/* Single subtle trust line, country-personalized. Replaces the row of pill trust badges. */}
       <Typography
-        component="p"
+        component={motion.p}
+        variants={heroItem}
         sx={{
           fontSize: 14,
           color: theme.palette.text.secondary,

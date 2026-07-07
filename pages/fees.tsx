@@ -45,8 +45,8 @@ const StepCard = styled(Box)(({ theme }) => {
     alignItems: "flex-start",
     gap: "16px",
     padding: "20px",
-    background: isDark ? "#141625" : "#FFFFFF",
-    border: `1px solid ${isDark ? "#2A2D42" : "#E7E8EF"}`,
+    background: isDark ? "rgba(255,255,255,0.045)" : "#FFFFFF",
+    border: `1px solid ${isDark ? "rgba(255,255,255,0.12)" : "rgba(10,10,10,0.10)"}`,
     borderRadius: "16px",
     height: "100%",
   };
@@ -62,8 +62,8 @@ const StepIcon = styled(Box)(({ theme }) => {
     height: "40px",
     minWidth: "40px",
     borderRadius: "12px",
-    background: isDark ? "rgba(106,123,255,0.1)" : "#0004FF1A",
-    color: isDark ? "#A5B4FC" : "#0004FF",
+    background: isDark ? "rgba(204,255,0,0.1)" : "#0A0A0A1A",
+    color: isDark ? "#CCFF00" : "#0A0A0A",
     "& svg": { fontSize: "20px" },
   };
 });
@@ -82,8 +82,8 @@ const ComparisonTable = styled(Box)(({ theme }) => {
     width: "100%",
     borderRadius: "16px",
     overflow: "hidden",
-    border: `1px solid ${isDark ? "#2A2D42" : "#E7E8EF"}`,
-    background: isDark ? "#141625" : "#FFFFFF",
+    border: `1px solid ${isDark ? "rgba(255,255,255,0.12)" : "rgba(10,10,10,0.10)"}`,
+    background: isDark ? "rgba(255,255,255,0.045)" : "#FFFFFF",
   };
 });
 
@@ -95,7 +95,7 @@ const TableRow = styled(Box)(({ theme }) => {
     alignItems: "center",
     padding: "14px 24px",
     "&:not(:last-child)": {
-      borderBottom: `1px solid ${isDark ? "#2A2D42" : "#E7E8EF"}`,
+      borderBottom: `1px solid ${isDark ? "rgba(255,255,255,0.12)" : "rgba(10,10,10,0.10)"}`,
     },
     [theme.breakpoints.down("sm")]: {
       padding: "12px 16px",
@@ -107,7 +107,7 @@ const TableRow = styled(Box)(({ theme }) => {
 const TableHeader = styled(TableRow)(({ theme }) => {
   const isDark = theme.palette.mode === "dark";
   return {
-    background: isDark ? "rgba(106,123,255,0.05)" : "#F8F9FC",
+    background: isDark ? "rgba(204,255,0,0.05)" : "#F8F9FC",
   };
 });
 
@@ -134,8 +134,8 @@ const SecurityCard = styled(Box)(({ theme }) => {
     alignItems: "center",
     gap: "12px",
     padding: "16px",
-    background: isDark ? "#141625" : "#FFFFFF",
-    border: `1px solid ${isDark ? "#2A2D42" : "#E7E8EF"}`,
+    background: isDark ? "rgba(255,255,255,0.045)" : "#FFFFFF",
+    border: `1px solid ${isDark ? "rgba(255,255,255,0.12)" : "rgba(10,10,10,0.10)"}`,
     borderRadius: "12px",
   };
 });
@@ -147,9 +147,9 @@ const CTASection = styled(Box)(({ theme }) => {
     padding: "64px 24px",
     borderRadius: "24px",
     background: isDark
-      ? `linear-gradient(135deg, rgba(106,123,255,0.08) 0%, rgba(20,22,37,1) 100%)`
-      : `linear-gradient(135deg, rgba(0,4,255,0.04) 0%, rgba(255,255,255,1) 100%)`,
-    border: `1px solid ${isDark ? "#2A2D42" : "#E7E8EF"}`,
+      ? `linear-gradient(135deg, rgba(204,255,0,0.08) 0%, rgba(14,15,18,1) 100%)`
+      : `linear-gradient(135deg, rgba(10,10,10,0.04) 0%, rgba(255,255,255,1) 100%)`,
+    border: `1px solid ${isDark ? "rgba(255,255,255,0.12)" : "rgba(10,10,10,0.10)"}`,
   };
 });
 
@@ -160,8 +160,8 @@ const HowToStepRow = styled(Box)(({ theme }) => {
     alignItems: "center",
     gap: "16px",
     padding: "16px 20px",
-    background: isDark ? "#141625" : "#FFFFFF",
-    border: `1px solid ${isDark ? "#2A2D42" : "#E7E8EF"}`,
+    background: isDark ? "rgba(255,255,255,0.045)" : "#FFFFFF",
+    border: `1px solid ${isDark ? "rgba(255,255,255,0.12)" : "rgba(10,10,10,0.10)"}`,
     borderRadius: "12px",
   };
 });
@@ -176,8 +176,8 @@ const StepNumber = styled(Box)(({ theme }) => {
     height: "32px",
     minWidth: "32px",
     borderRadius: "10px",
-    background: isDark ? "rgba(106,123,255,0.15)" : "#0004FF1A",
-    color: isDark ? "#A5B4FC" : "#0004FF",
+    background: isDark ? "rgba(204,255,0,0.15)" : "#0A0A0A1A",
+    color: isDark ? "#CCFF00" : "#0A0A0A",
     fontSize: "14px",
     fontWeight: 600,
     fontFamily: "OutfitSemiBold",
@@ -396,7 +396,7 @@ const FeesPage = () => {
                   <SecurityCard>
                     <ShieldOutlinedIcon
                       sx={{
-                        color: isDark ? "#A5B4FC" : "#0004FF",
+                        color: isDark ? "#CCFF00" : "#0A0A0A",
                         fontSize: 24,
                         minWidth: 24,
                       }}

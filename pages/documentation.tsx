@@ -72,19 +72,19 @@ const ProductCard = styled(Box)(({ theme }) => {
   return {
     padding: "24px",
     borderRadius: "16px",
-    border: `1px solid ${dk ? "#2A2D42" : "#E7E8EF"}`,
-    background: dk ? "#141625" : "#FFFFFF",
+    border: `1px solid ${dk ? "rgba(255,255,255,0.12)" : "rgba(10,10,10,0.10)"}`,
+    background: dk ? "rgba(255,255,255,0.045)" : "#FFFFFF",
     cursor: "pointer",
     transition: "all 0.2s ease",
     height: "100%",
     display: "flex",
     flexDirection: "column" as const,
     "&:hover": {
-      borderColor: dk ? "#6A7BFF" : "#0004FF",
+      borderColor: dk ? "#CCFF00" : "#0A0A0A",
       transform: "translateY(-2px)",
       boxShadow: dk
-        ? "0 8px 32px rgba(106,123,255,0.15)"
-        : "0 8px 32px rgba(0,4,255,0.08)",
+        ? "0 8px 32px rgba(204,255,0,0.15)"
+        : "0 8px 32px rgba(10,10,10,0.08)",
     },
   };
 });
@@ -98,8 +98,8 @@ const ProductIcon = styled(Box)(({ theme }) => {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    background: dk ? "rgba(106,123,255,0.1)" : "#0004FF0D",
-    color: dk ? "#A5B4FC" : "#0004FF",
+    background: dk ? "rgba(204,255,0,0.1)" : "#0A0A0A0D",
+    color: dk ? "#CCFF00" : "#0A0A0A",
     marginBottom: "16px",
     "& svg": { fontSize: 24 },
   };
@@ -116,11 +116,11 @@ const SidebarWrapper = styled(Box)(({ theme }) => {
     maxHeight: "calc(100vh - 100px)",
     overflowY: "auto" as const,
     paddingRight: "16px",
-    borderRight: `1px solid ${dk ? "#2A2D42" : "#E7E8EF"}`,
+    borderRight: `1px solid ${dk ? "rgba(255,255,255,0.12)" : "rgba(10,10,10,0.10)"}`,
     "&::-webkit-scrollbar": { width: 4 },
     "&::-webkit-scrollbar-track": { background: "transparent" },
     "&::-webkit-scrollbar-thumb": {
-      background: dk ? "#2A2D42" : "#E7E8EF",
+      background: dk ? "rgba(255,255,255,0.12)" : "rgba(10,10,10,0.10)",
       borderRadius: 4,
     },
   };
@@ -136,13 +136,13 @@ const SidebarItem = styled(Box, {
     fontSize: "14px",
     fontFamily: active ? "OutfitMedium" : "OutfitRegular",
     fontWeight: active ? 500 : 400,
-    color: active ? (dk ? "#A5B4FC" : "#0004FF") : theme.palette.text.secondary,
-    background: active ? (dk ? "rgba(106,123,255,0.1)" : "#0004FF08") : "transparent",
+    color: active ? (dk ? "#CCFF00" : "#0A0A0A") : theme.palette.text.secondary,
+    background: active ? (dk ? "rgba(204,255,0,0.1)" : "#0A0A0A08") : "transparent",
     cursor: "pointer",
     transition: "all 0.15s",
     "&:hover": {
-      background: dk ? "rgba(106,123,255,0.06)" : "#F8F9FC",
-      color: dk ? "#A5B4FC" : "#0004FF",
+      background: dk ? "rgba(204,255,0,0.06)" : "#F8F9FC",
+      color: dk ? "#CCFF00" : "#0A0A0A",
     },
   };
 });
@@ -166,15 +166,15 @@ const EndpointCardWrapper = styled(Box)(({ theme }) => {
   const dk = theme.palette.mode === "dark";
   return {
     marginBottom: "24px",
-    border: `1px solid ${dk ? "#2A2D42" : "#E7E8EF"}`,
+    border: `1px solid ${dk ? "rgba(255,255,255,0.12)" : "rgba(10,10,10,0.10)"}`,
     borderRadius: "16px",
     overflow: "hidden",
     transition: "box-shadow 0.2s",
     scrollMarginTop: "100px",
     "&:hover": {
       boxShadow: dk
-        ? "0 4px 20px rgba(106,123,255,0.08)"
-        : "0 4px 20px rgba(0,4,255,0.04)",
+        ? "0 4px 20px rgba(204,255,0,0.08)"
+        : "0 4px 20px rgba(10,10,10,0.04)",
     },
   };
 });
@@ -190,11 +190,11 @@ const EndpointHeader = styled(Box, {
     padding: "16px 20px",
     cursor: "pointer",
     background: expanded
-      ? dk ? "rgba(106,123,255,0.04)" : "#FAFBFF"
-      : dk ? "#141625" : "#FFFFFF",
+      ? dk ? "rgba(204,255,0,0.04)" : "#FAFBFF"
+      : dk ? "rgba(255,255,255,0.045)" : "#FFFFFF",
     transition: "background 0.15s",
     "&:hover": {
-      background: dk ? "rgba(106,123,255,0.06)" : "#F5F7FF",
+      background: dk ? "rgba(204,255,0,0.06)" : "#F5F7FF",
     },
   };
 });
@@ -212,7 +212,7 @@ const MethodBadgeStyled = styled("span", {
   letterSpacing: "0.5px",
   fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
   color: "#FFFFFF",
-  background: isGet ? "#22C55E" : "#0004FF",
+  background: isGet ? "#22C55E" : "#5865F2",
   minWidth: 44,
 }));
 
@@ -281,7 +281,7 @@ const CopyBtn = styled("button")(({ theme }) => ({
 const TableWrapper = styled(Box)(({ theme }) => {
   const dk = theme.palette.mode === "dark";
   return {
-    border: `1px solid ${dk ? "#2A2D42" : "#E7E8EF"}`,
+    border: `1px solid ${dk ? "rgba(255,255,255,0.12)" : "rgba(10,10,10,0.10)"}`,
     borderRadius: "12px",
     overflow: "hidden",
     marginBottom: "20px",
@@ -296,8 +296,8 @@ const StepCard = styled(Box)(({ theme }) => {
     alignItems: "flex-start",
     padding: "20px",
     borderRadius: "14px",
-    border: `1px solid ${dk ? "#2A2D42" : "#E7E8EF"}`,
-    background: dk ? "#141625" : "#FFFFFF",
+    border: `1px solid ${dk ? "rgba(255,255,255,0.12)" : "rgba(10,10,10,0.10)"}`,
+    background: dk ? "rgba(255,255,255,0.045)" : "#FFFFFF",
   };
 });
 
@@ -311,7 +311,7 @@ const StepNumber = styled(Box)(({ theme }) => {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    background: dk ? "rgba(106,123,255,0.15)" : "#0004FF",
+    background: dk ? "rgba(204,255,0,0.15)" : "#0A0A0A",
     color: "#FFFFFF",
     fontWeight: 700,
     fontSize: "15px",
@@ -350,9 +350,9 @@ const InfoBox = styled(Box)(({ theme }) => {
     padding: "20px",
     borderRadius: "14px",
     background: dk
-      ? "linear-gradient(135deg, rgba(106,123,255,0.06) 0%, rgba(109,40,217,0.06) 100%)"
+      ? "linear-gradient(135deg, rgba(204,255,0,0.06) 0%, rgba(109,40,217,0.06) 100%)"
       : "linear-gradient(135deg, #F0F5FF 0%, #F5F3FF 100%)",
-    border: `1px solid ${dk ? "#2A2D42" : "#E7E8EF"}`,
+    border: `1px solid ${dk ? "rgba(255,255,255,0.12)" : "rgba(10,10,10,0.10)"}`,
   };
 });
 
@@ -755,8 +755,8 @@ CodeBlock.displayName = "CodeBlock";
 const ParamTable = memo(({ title, params }: { title: string; params: { name: string; type: string; required?: boolean; description: string }[] }) => {
   const theme = useTheme();
   const dk = theme.palette.mode === "dark";
-  const borderClr = dk ? "#2A2D42" : "#E7E8EF";
-  const headBg = dk ? "rgba(106,123,255,0.04)" : "#F8F9FC";
+  const borderClr = dk ? "rgba(255,255,255,0.12)" : "rgba(10,10,10,0.10)";
+  const headBg = dk ? "rgba(204,255,0,0.04)" : "#F8F9FC";
   return (
     <Box sx={{ mb: 2.5 }}>
       <Typography sx={{ fontSize: 13, fontWeight: 600, fontFamily: "OutfitSemiBold", color: "text.primary", mb: 1 }}>{title}</Typography>
@@ -773,7 +773,7 @@ const ParamTable = memo(({ title, params }: { title: string; params: { name: str
             {params.map((p, i) => (
               <tr key={p.name} style={{ borderBottom: i < params.length - 1 ? `1px solid ${dk ? "#1E2030" : "#F3F4F6"}` : "none" }}>
                 <td style={{ padding: "10px 16px" }}>
-                  <code style={{ color: dk ? "#A5B4FC" : "#0004FF", fontWeight: 600, fontSize: 13, fontFamily: "'JetBrains Mono', monospace" }}>{p.name}</code>
+                  <code style={{ color: dk ? "#CCFF00" : "#0A0A0A", fontWeight: 600, fontSize: 13, fontFamily: "'JetBrains Mono', monospace" }}>{p.name}</code>
                   {"required" in p && p.required && <span style={{ color: "#EF4444", fontSize: 11, marginLeft: 6, fontFamily: "OutfitMedium" }}>required</span>}
                 </td>
                 <td style={{ padding: "10px 16px" }}><code style={{ fontSize: 12, color: dk ? "#8B8FA0" : "#6B7280" }}>{p.type}</code></td>
@@ -806,7 +806,7 @@ const EndpointCard = memo(({ ep }: { ep: Endpoint }) => {
         <ExpandMoreIcon sx={{ fontSize: 20, color: "text.secondary", transform: expanded ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }} />
       </EndpointHeader>
       {expanded && (
-        <Box sx={{ px: 2.5, py: 2.5, borderTop: `1px solid ${dk ? "#2A2D42" : "#E7E8EF"}` }}>
+        <Box sx={{ px: 2.5, py: 2.5, borderTop: `1px solid ${dk ? "rgba(255,255,255,0.12)" : "rgba(10,10,10,0.10)"}` }}>
           <Typography sx={{ fontSize: 14, fontFamily: "OutfitRegular", color: "text.secondary", mb: 2.5, lineHeight: 1.7 }}>{ep.description}</Typography>
           <ParamTable title="Headers" params={ep.headers.map((h) => ({ name: h.name, type: "string", description: h.description || h.value }))} />
           {ep.pathParams && ep.pathParams.length > 0 && <ParamTable title="Path Parameters" params={ep.pathParams} />}
@@ -868,8 +868,8 @@ const DocumentationPage = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const borderClr = dk ? "#2A2D42" : "#E7E8EF";
-  const headBg = dk ? "rgba(106,123,255,0.04)" : "#F8F9FC";
+  const borderClr = dk ? "rgba(255,255,255,0.12)" : "rgba(10,10,10,0.10)";
+  const headBg = dk ? "rgba(204,255,0,0.04)" : "#F8F9FC";
 
   const productCards = [
     { title: "Checkout Payments", desc: "Hosted payment page — redirect customers to complete crypto payments in a few clicks.", icon: <PaymentIcon />, section: "payments" },
@@ -896,7 +896,7 @@ const DocumentationPage = () => {
               subtitle="Everything you need to accept crypto payments, manage customer wallets, and track transactions programmatically."
             />
             <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
-              <Box sx={{ display: "inline-flex", gap: 1.5, background: dk ? "#0D0F1A" : "#1E1E2E", borderRadius: "12px", px: 2.5, py: 1.5, border: `1px solid ${dk ? "#2A2D42" : "rgba(255,255,255,0.06)"}` }}>
+              <Box sx={{ display: "inline-flex", gap: 1.5, background: dk ? "#0D0F1A" : "#1E1E2E", borderRadius: "12px", px: 2.5, py: 1.5, border: `1px solid ${dk ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.06)"}` }}>
                 <Typography sx={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, color: "rgba(255,255,255,0.5)" }}>Base URL</Typography>
                 <Typography sx={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, color: "#CDD6F4", fontWeight: 600 }}>https://dynopay.com/api/user</Typography>
               </Box>
@@ -917,7 +917,7 @@ const DocumentationPage = () => {
                   <Typography sx={{ fontSize: "13px", fontFamily: "OutfitRegular", color: "text.secondary", lineHeight: "20px", flex: 1 }}>
                     {card.desc}
                   </Typography>
-                  <Typography sx={{ fontSize: "13px", fontFamily: "OutfitMedium", color: dk ? "#A5B4FC" : "#0004FF", mt: 2 }}>
+                  <Typography sx={{ fontSize: "13px", fontFamily: "OutfitMedium", color: dk ? "#CCFF00" : "#0A0A0A", mt: 2 }}>
                     Learn more →
                   </Typography>
                 </ProductCard>
@@ -1137,7 +1137,7 @@ curl -X POST https://dynopay.com/api/user/createUser \\
                       ].map(([event, desc, action], i) => (
                         <tr key={event} style={{ borderBottom: i < 2 ? `1px solid ${dk ? "#1E2030" : "#F3F4F6"}` : "none" }}>
                           <td style={{ padding: "10px 16px" }}>
-                            <code style={{ fontWeight: 700, color: dk ? "#A5B4FC" : "#0004FF", fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>{event}</code>
+                            <code style={{ fontWeight: 700, color: dk ? "#CCFF00" : "#0A0A0A", fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>{event}</code>
                           </td>
                           <td style={{ padding: "10px 16px", color: dk ? "#A0A3B1" : "#374151", fontFamily: "OutfitRegular" }}>{desc}</td>
                           <td style={{ padding: "10px 16px", color: dk ? "#A0A3B1" : "#374151", fontFamily: "OutfitRegular", fontSize: 12 }}>{action}</td>
@@ -1193,7 +1193,7 @@ curl -X POST https://dynopay.com/api/user/createUser \\
                       ].map(([header, desc], i) => (
                         <tr key={header} style={{ borderBottom: i < 4 ? `1px solid ${dk ? "#1E2030" : "#F3F4F6"}` : "none" }}>
                           <td style={{ padding: "10px 16px" }}>
-                            <code style={{ fontWeight: 600, color: dk ? "#A5B4FC" : "#0004FF", fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>{header}</code>
+                            <code style={{ fontWeight: 600, color: dk ? "#CCFF00" : "#0A0A0A", fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>{header}</code>
                           </td>
                           <td style={{ padding: "10px 16px", color: dk ? "#A0A3B1" : "#374151", fontFamily: "OutfitRegular" }}>{desc}</td>
                         </tr>
@@ -1313,7 +1313,7 @@ app.post('/webhooks/dynopay', (req, res) => {
                         <tr key={cat} style={{ borderBottom: i < 3 ? `1px solid ${dk ? "#1E2030" : "#F3F4F6"}` : "none" }}>
                           <td style={{ padding: "10px 16px", fontFamily: "OutfitRegular", color: dk ? "#A0A3B1" : "#374151" }}>{cat}</td>
                           <td style={{ padding: "10px 16px" }}>
-                            <code style={{ fontWeight: 600, color: dk ? "#A5B4FC" : "#0004FF", fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>{limit}</code>
+                            <code style={{ fontWeight: 600, color: dk ? "#CCFF00" : "#0A0A0A", fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>{limit}</code>
                           </td>
                           <td style={{ padding: "10px 16px", fontFamily: "OutfitRegular", color: dk ? "#A0A3B1" : "#374151" }}>{window}</td>
                         </tr>

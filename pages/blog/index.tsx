@@ -7,7 +7,7 @@ import useIsMobile from "@/hooks/useIsMobile";
 // HomeHeader is rendered by HomeLayout in _app.tsx
 
 const categoryColors: Record<string, string> = {
-  "Integration Guide": "#0004FF",
+  "Integration Guide": "#5865F2",
   "Business Strategy": "#10B981",
   "Cost Analysis": "#F59E0B",
   "Developer Guide": "#7C3AED",
@@ -125,10 +125,10 @@ const BlogPage = () => {
                     transition: "all 0.3s ease",
                     "&:hover": {
                       transform: "translateY(-4px)",
-                      borderColor: isDark ? "rgba(0,4,255,0.25)" : "rgba(0,4,255,0.12)",
+                      borderColor: isDark ? "rgba(204,255,0,0.30)" : "rgba(10,10,10,0.18)",
                       boxShadow: isDark
-                        ? "0 16px 48px rgba(0,4,255,0.1)"
-                        : "0 16px 48px rgba(0,0,0,0.06)",
+                        ? "0 16px 48px rgba(0,0,0,0.4)"
+                        : "0 16px 48px rgba(10,10,10,0.08)",
                     },
                   }}
                 >

@@ -1422,7 +1422,7 @@ const CryptoTransfer = ({
             }}
             sx={{
               backgroundColor: theme.palette.primary.main,
-              color: "#FFFFFF",
+              color: theme.palette.primary.contrastText,
               borderRadius: "30px",
               py: 1.5,
               fontWeight: 500,

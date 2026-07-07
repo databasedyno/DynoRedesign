@@ -236,10 +236,13 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
       borderRadius: "16px",
       maxWidth: "480px",
       width: "100%",
-      background: theme.palette.mode === "dark" ? "#0B0D17" : "#fff",
+      background: theme.palette.mode === "dark" ? "rgba(14,15,18,0.92)" : "rgba(255,255,255,0.86)",
+      backdropFilter: "blur(20px)",
+      WebkitBackdropFilter: "blur(20px)",
+      border: `1px solid ${theme.palette.mode === "dark" ? "rgba(255,255,255,0.12)" : "rgba(10,10,10,0.10)"}`,
       boxShadow: theme.palette.mode === "dark"
-        ? "0 24px 80px rgba(0,0,0,0.5)"
-        : "0 24px 80px rgba(47,47,101,0.12)",
+        ? "0 24px 80px rgba(0,0,0,0.6)"
+        : "0 24px 80px rgba(10,10,10,0.12)",
     },
     [theme.breakpoints.down("sm")]: {
       "& .MuiDialog-paper": {
@@ -267,13 +270,13 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
         width: 32,
         height: 32,
         borderRadius: "50%",
-        background: theme.palette.mode === "dark" ? "#1f2237" : "#f3f4f6",
+        background: theme.palette.mode === "dark" ? "rgba(255,255,255,0.08)" : "rgba(10,10,10,0.06)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
         cursor: "pointer",
         transition: "all 0.2s",
-        "&:hover": { background: theme.palette.mode === "dark" ? "#2a2d45" : "#e5e7eb" },
+        "&:hover": { background: theme.palette.mode === "dark" ? "rgba(255,255,255,0.14)" : "rgba(10,10,10,0.10)" },
       }}
     >
       <Image src={CloseIcon.src} alt="close" width={12} height={12} draggable={false} className="themed-icon" />
@@ -300,7 +303,7 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
             <Box
               sx={{
                 width: 40, height: 40, borderRadius: "12px",
-                background: "linear-gradient(135deg, #4F46E5, #7C3AED)",
+                background: "linear-gradient(135deg, #5865F2, #4650C7)",
                 display: "flex", alignItems: "center", justifyContent: "center",
                 flexShrink: 0,
               }}
@@ -325,9 +328,10 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
               onChange={(_, val) => { if (val) { setMethod(val); setError(""); } }}
               sx={{
                 width: "100%",
-                background: theme.palette.mode === "dark" ? "#1a1d2e" : "#f3f4f6",
+                background: theme.palette.mode === "dark" ? "rgba(255,255,255,0.06)" : "rgba(10,10,10,0.05)",
                 borderRadius: "12px",
                 padding: "4px",
+                border: `1px solid ${theme.palette.mode === "dark" ? "rgba(255,255,255,0.10)" : "rgba(10,10,10,0.08)"}`,
                 "& .MuiToggleButton-root": {
                   flex: 1,
                   border: "none",
@@ -339,10 +343,10 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
                   padding: "10px 0",
                   transition: "all 0.25s",
                   "&.Mui-selected": {
-                    background: theme.palette.mode === "dark" ? "#2a2d45" : "#fff",
-                    color: "text.primary",
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-                    "&:hover": { background: theme.palette.mode === "dark" ? "#2a2d45" : "#fff" },
+                    background: theme.palette.mode === "dark" ? "rgba(204,255,0,0.16)" : theme.palette.primary.main,
+                    color: theme.palette.mode === "dark" ? theme.palette.primary.main : theme.palette.primary.contrastText,
+                    boxShadow: theme.palette.mode === "dark" ? "0 0 16px rgba(204,255,0,0.16)" : "0 2px 8px rgba(10,10,10,0.18)",
+                    "&:hover": { background: theme.palette.mode === "dark" ? "rgba(204,255,0,0.20)" : (theme.palette.primary as any).hover },
                   },
                   "&:hover": { background: "transparent" },
                 },
@@ -445,7 +449,7 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
             <Box
               sx={{
                 width: 56, height: 56, borderRadius: "16px",
-                background: "linear-gradient(135deg, #4F46E5, #7C3AED)",
+                background: "linear-gradient(135deg, #5865F2, #4650C7)",
                 display: "flex", alignItems: "center", justifyContent: "center",
                 margin: "0 auto 12px",
               }}
@@ -521,7 +525,7 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
             <Box
               sx={{
                 width: 56, height: 56, borderRadius: "16px",
-                background: "linear-gradient(135deg, #4F46E5, #7C3AED)",
+                background: "linear-gradient(135deg, #5865F2, #4650C7)",
                 display: "flex", alignItems: "center", justifyContent: "center",
                 margin: "0 auto 12px",
               }}

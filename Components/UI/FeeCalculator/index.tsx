@@ -102,8 +102,8 @@ const CURRENCY_SYMBOLS: Record<string, string> = {
 const CalculatorCard = styled(Box)(({ theme }) => {
   const isDark = theme.palette.mode === "dark";
   return {
-    background: isDark ? "#141625" : "#FFFFFF",
-    border: `1px solid ${isDark ? "#2A2D42" : "#E7E8EF"}`,
+    background: isDark ? "rgba(255,255,255,0.045)" : "#FFFFFF",
+    border: `1px solid ${isDark ? "rgba(255,255,255,0.12)" : "rgba(10,10,10,0.10)"}`,
     borderRadius: "20px",
     padding: "32px",
     position: "relative",
@@ -116,7 +116,7 @@ const CalculatorCard = styled(Box)(({ theme }) => {
       transform: "translateX(-50%)",
       width: "80%",
       height: "60%",
-      background: `radial-gradient(at center bottom, ${isDark ? "#6A7BFF3D" : "#0004FF1A"}, transparent)`,
+      background: `radial-gradient(at center bottom, ${isDark ? "#CCFF003D" : "#0A0A0A1A"}, transparent)`,
       filter: "blur(80px)",
       opacity: 0.5,
       zIndex: 0,
@@ -135,7 +135,7 @@ const ResultRow = styled(Box)(({ theme }) => ({
   alignItems: "center",
   padding: "10px 0",
   "&:not(:last-child)": {
-    borderBottom: `1px solid ${theme.palette.mode === "dark" ? "#2A2D42" : "#E7E8EF"}`,
+    borderBottom: `1px solid ${theme.palette.mode === "dark" ? "rgba(255,255,255,0.12)" : "rgba(10,10,10,0.10)"}`,
   },
 }));
 
@@ -156,8 +156,8 @@ const ResultValue = styled(Typography)(({ theme }) => ({
 const HighlightBox = styled(Box)(({ theme }) => {
   const isDark = theme.palette.mode === "dark";
   return {
-    background: isDark ? "rgba(106,123,255,0.1)" : "#0004FF08",
-    border: `1px solid ${isDark ? "rgba(106,123,255,0.2)" : "#0004FF1A"}`,
+    background: isDark ? "rgba(204,255,0,0.1)" : "#0A0A0A08",
+    border: `1px solid ${isDark ? "rgba(204,255,0,0.2)" : "#0A0A0A1A"}`,
     borderRadius: "12px",
     padding: "16px",
     marginTop: "16px",
@@ -184,7 +184,7 @@ const SummaryValue = styled(Typography)(({ theme }) => {
     fontSize: "20px",
     fontWeight: 600,
     fontFamily: "OutfitSemiBold",
-    color: isDark ? "#A5B4FC" : "#0004FF",
+    color: isDark ? "#CCFF00" : "#0A0A0A",
   };
 });
 
@@ -341,7 +341,7 @@ const FeeCalculator: React.FC<FeeCalculatorProps> = ({ compact = false }) => {
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
-                <Typography sx={{ fontFamily: "OutfitMedium", color: isDark ? "#A5B4FC" : "#0004FF" }}>
+                <Typography sx={{ fontFamily: "OutfitMedium", color: isDark ? "#CCFF00" : "#0A0A0A" }}>
                   {symbol}
                 </Typography>
               </InputAdornment>
@@ -412,7 +412,7 @@ const FeeCalculator: React.FC<FeeCalculatorProps> = ({ compact = false }) => {
       {/* Results */}
       {loading ? (
         <Box sx={{ display: "flex", justifyContent: "center", py: 3 }}>
-          <CircularProgress size={28} sx={{ color: isDark ? "#6A7BFF" : "#0004FF" }} />
+          <CircularProgress size={28} sx={{ color: isDark ? "#CCFF00" : "#0A0A0A" }} />
           <Typography sx={{ ml: 2, fontFamily: "OutfitRegular", color: "text.secondary", fontSize: "14px" }}>
             {t("calculating")}
           </Typography>

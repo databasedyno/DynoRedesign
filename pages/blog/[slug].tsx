@@ -9,7 +9,7 @@ import type { GetStaticPaths, GetStaticProps } from "next";
 import { sanitizeHtml } from "@/utils/sanitizeHtml";
 
 const categoryColors: Record<string, string> = {
-  "Integration Guide": "#0004FF",
+  "Integration Guide": "#5865F2",
   "Business Strategy": "#10B981",
   "Cost Analysis": "#F59E0B",
   "Developer Guide": "#7C3AED",
@@ -339,7 +339,7 @@ const BlogPostPage = ({ slug }: BlogPostPageProps) => {
               dangerouslySetInnerHTML={{
                 __html: sanitizeHtml(text
                   .replace(/\*\*(.*?)\*\*/g, '<strong style="color: ' + (isDark ? "#E5E7EB" : "#1F2937") + '">$1</strong>')
-                  .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" style="color: #0004FF; text-decoration: none;">$1</a>')
+                  .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" style="color: #5865F2; text-decoration: none;">$1</a>')
                   .replace(/`(.*?)`/g, '<code style="background: ' + (isDark ? "#1E2030" : "#F3F4F6") + '; padding: 1px 5px; border-radius: 4px; font-size: 13px;">$1</code>')),
               }}
             />
@@ -373,7 +373,7 @@ const BlogPostPage = ({ slug }: BlogPostPageProps) => {
               dangerouslySetInnerHTML={{
                 __html: sanitizeHtml(numberedMatch[2]
                   .replace(/\*\*(.*?)\*\*/g, '<strong style="color: ' + (isDark ? "#E5E7EB" : "#1F2937") + '">$1</strong>')
-                  .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" style="color: #0004FF; text-decoration: none;">$1</a>')
+                  .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" style="color: #5865F2; text-decoration: none;">$1</a>')
                   .replace(/`(.*?)`/g, '<code style="background: ' + (isDark ? "#1E2030" : "#F3F4F6") + '; padding: 1px 5px; border-radius: 4px; font-size: 13px;">$1</code>')),
               }}
             />
@@ -396,7 +396,7 @@ const BlogPostPage = ({ slug }: BlogPostPageProps) => {
           dangerouslySetInnerHTML={{
             __html: sanitizeHtml(line
               .replace(/\*\*(.*?)\*\*/g, '<strong style="color: ' + (isDark ? "#E5E7EB" : "#1F2937") + '">$1</strong>')
-              .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" style="color: #0004FF; text-decoration: none;">$1</a>')
+              .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" style="color: #5865F2; text-decoration: none;">$1</a>')
               .replace(/`(.*?)`/g, '<code style="background: ' + (isDark ? "#1E2030" : "#F3F4F6") + '; padding: 1px 5px; border-radius: 4px; font-size: 13px;">$1</code>')
               .replace(/\\"(.*?)\\"/g, '"$1"')),
           }}
@@ -577,8 +577,10 @@ const BlogPostPage = ({ slug }: BlogPostPageProps) => {
             py: 5,
             px: 3,
             borderRadius: "20px",
-            bgcolor: isDark ? "rgba(0,4,255,0.04)" : "rgba(0,4,255,0.02)",
-            border: `1px solid ${isDark ? "rgba(0,4,255,0.15)" : "rgba(0,4,255,0.08)"}`,
+            bgcolor: isDark ? "rgba(255,255,255,0.045)" : "rgba(255,255,255,0.72)",
+            backdropFilter: "blur(14px)",
+            WebkitBackdropFilter: "blur(14px)",
+            border: `1px solid ${isDark ? "rgba(204,255,0,0.20)" : "rgba(10,10,10,0.10)"}`,
           }}
         >
           <Typography
@@ -611,7 +613,7 @@ const BlogPostPage = ({ slug }: BlogPostPageProps) => {
               py: 1.5,
               borderRadius: "12px",
               bgcolor: theme.palette.primary.main,
-              color: "#fff",
+              color: theme.palette.primary.contrastText,
               textDecoration: "none",
               fontFamily: "OutfitSemiBold",
               fontSize: "15px",
@@ -619,7 +621,7 @@ const BlogPostPage = ({ slug }: BlogPostPageProps) => {
               transition: "all 0.2s ease",
               "&:hover": {
                 transform: "translateY(-2px)",
-                boxShadow: "0 8px 24px rgba(0,4,255,0.25)",
+                boxShadow: isDark ? "0 8px 24px rgba(204,255,0,0.3)" : "0 8px 24px rgba(10,10,10,0.2)",
               },
             }}
           >

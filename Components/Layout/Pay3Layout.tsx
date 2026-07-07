@@ -42,8 +42,8 @@ export default function Pay3Layout({
                     height: '600px',
                     borderRadius: '50%',
                     background: isDark
-                        ? 'radial-gradient(circle, rgba(0,4,255,0.06) 0%, transparent 70%)'
-                        : 'radial-gradient(circle, rgba(0,4,255,0.05) 0%, transparent 70%)',
+                        ? 'radial-gradient(circle, rgba(204,255,0,0.06) 0%, transparent 70%)'
+                        : 'radial-gradient(circle, rgba(204,255,0,0.10) 0%, transparent 70%)',
                     pointerEvents: 'none',
                     zIndex: 0,
                 }}
@@ -58,8 +58,8 @@ export default function Pay3Layout({
                     height: '400px',
                     borderRadius: '50%',
                     background: isDark
-                        ? 'radial-gradient(circle, rgba(108,123,255,0.04) 0%, transparent 70%)'
-                        : 'radial-gradient(circle, rgba(0,4,255,0.03) 0%, transparent 70%)',
+                        ? 'radial-gradient(circle, rgba(88,101,242,0.05) 0%, transparent 70%)'
+                        : 'radial-gradient(circle, rgba(10,10,10,0.03) 0%, transparent 70%)',
                     pointerEvents: 'none',
                     zIndex: 0,
                 }}

@@ -470,9 +470,10 @@ const Register = () => {
                       }}
                       sx={{
                         width: "100%",
-                        background: theme.palette.mode === "dark" ? "#1a1d2e" : "#f3f4f6",
+                        background: theme.palette.mode === "dark" ? "rgba(255,255,255,0.06)" : "rgba(10,10,10,0.05)",
                         borderRadius: "12px",
                         padding: "3px",
+                        border: `1px solid ${theme.palette.mode === "dark" ? "rgba(255,255,255,0.10)" : "rgba(10,10,10,0.08)"}`,
                         "& .MuiToggleButton-root": {
                           flex: 1,
                           border: "none",
@@ -484,10 +485,10 @@ const Register = () => {
                           padding: "8px 0",
                           transition: "all 0.25s",
                           "&.Mui-selected": {
-                            background: theme.palette.mode === "dark" ? "#2a2d45" : "#fff",
-                            color: "text.primary",
-                            boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-                            "&:hover": { background: theme.palette.mode === "dark" ? "#2a2d45" : "#fff" },
+                            background: theme.palette.mode === "dark" ? "rgba(204,255,0,0.16)" : theme.palette.primary.main,
+                            color: theme.palette.mode === "dark" ? theme.palette.primary.main : theme.palette.primary.contrastText,
+                            boxShadow: theme.palette.mode === "dark" ? "0 0 16px rgba(204,255,0,0.16)" : "0 2px 8px rgba(10,10,10,0.18)",
+                            "&:hover": { background: theme.palette.mode === "dark" ? "rgba(204,255,0,0.20)" : (theme.palette.primary as any).hover },
                           },
                           "&:hover": { background: "transparent" },
                         },

@@ -15,6 +15,9 @@ import {
   ContentCopyRounded,
   ShareRounded,
   PersonAddRounded,
+  WhatsApp,
+  Telegram,
+  Twitter,
 } from "@mui/icons-material";
 import Head from "next/head";
 import { useCallback, useEffect, useState } from "react";
@@ -157,6 +160,23 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
     }
   }, [codeData?.referral_link, t]);
 
+  // One-tap channel sharing (WhatsApp / Telegram / X) with a localized,
+  // pre-filled invite message + the referral link. Pure client-side deep links.
+  const shareTo = useCallback(
+    (channel: "whatsapp" | "telegram" | "x") => {
+      const link = codeData?.referral_link;
+      if (!link) return;
+      const msg = t("shareMessage");
+      const urls: Record<typeof channel, string> = {
+        whatsapp: `https://wa.me/?text=${encodeURIComponent(`${msg} ${link}`)}`,
+        telegram: `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(msg)}`,
+        x: `https://twitter.com/intent/tweet?text=${encodeURIComponent(msg)}&url=${encodeURIComponent(link)}`,
+      };
+      window.open(urls[channel], "_blank", "noopener,noreferrer");
+    },
+    [codeData?.referral_link, t]
+  );
+
   const stats = codeData?.stats;
 
   const statCards = [
@@ -279,6 +299,36 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
                   {t("shareLink")}
                 </Typography>
               </Box>
+
+              {/* One-tap channel share (WhatsApp / Telegram / X) */}
+              {[
+                { key: "whatsapp" as const, Icon: WhatsApp, bg: "#25D366", label: "WhatsApp" },
+                { key: "telegram" as const, Icon: Telegram, bg: "#229ED9", label: "Telegram" },
+                { key: "x" as const, Icon: Twitter, bg: theme.palette.mode === "dark" ? "#1D1D1F" : "#000000", label: "X" },
+              ].map(({ key, Icon, bg, label }) => (
+                <Box
+                  key={key}
+                  data-testid={`share-${key}-btn`}
+                  role="button"
+                  aria-label={`Share on ${label}`}
+                  onClick={() => shareTo(key)}
+                  sx={{
+                    width: 44,
+                    height: 44,
+                    borderRadius: "10px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    bgcolor: bg,
+                    color: "#fff",
+                    cursor: "pointer",
+                    transition: "transform 0.15s ease, opacity 0.15s ease",
+                    "&:hover": { opacity: 0.9, transform: "translateY(-2px)" },
+                  }}
+                >
+                  <Icon sx={{ fontSize: 20 }} />
+                </Box>
+              ))}
             </Box>
           )}
         </Box>

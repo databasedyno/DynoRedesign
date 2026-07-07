@@ -333,7 +333,7 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
       case "login":
         return isDark ? authThemeDark : authThemeLight;
       case "pay":
-        return isDark ? darkTheme : lightTheme;
+        return isDark ? homeThemeDark : homeTheme;
       default:
         return isDark ? themeDark : theme;
     }
