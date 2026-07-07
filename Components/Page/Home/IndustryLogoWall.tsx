@@ -30,7 +30,7 @@ interface Industry {
 }
 
 const INDUSTRIES: Industry[] = [
-  { name: 'E-commerce',   icon: <ShoppingBag sx={{ fontSize: 28 }} />,     count: '180+', color: '#0004FF' },
+  { name: 'E-commerce',   icon: <ShoppingBag sx={{ fontSize: 28 }} />,     count: '180+', color: '#4F46E5' },
   { name: 'SaaS',         icon: <Cloud sx={{ fontSize: 28 }} />,           count: '95+',  color: '#7C3AED' },
   { name: 'Marketplaces', icon: <Storefront sx={{ fontSize: 28 }} />,      count: '60+',  color: '#0EA5E9' },
   { name: 'Agencies',     icon: <AutoAwesome sx={{ fontSize: 28 }} />,     count: '50+',  color: '#F59E0B' },
@@ -83,7 +83,7 @@ const IndustryLogoWall: React.FC = () => {
           <Box
             component="span"
             sx={{
-              background: 'linear-gradient(135deg, #0004FF 0%, #6C7BFF 100%)',
+              background: 'linear-gradient(135deg, #4F46E5 0%, #6C7BFF 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
             }}

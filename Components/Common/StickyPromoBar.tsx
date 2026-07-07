@@ -63,7 +63,7 @@ const StickyPromoBar: React.FC = () => {
         zIndex: 1500, // above FixedHeader (1400)
         height: `${PROMO_HEIGHT_PX}px`,
         width: '100%',
-        background: 'linear-gradient(90deg, #0004FF 0%, #3D40FF 55%, #6C7BFF 100%)',
+        background: 'linear-gradient(90deg, #4F46E5 0%, #3D40FF 55%, #6C7BFF 100%)',
         color: '#fff',
         px: { xs: 2, md: 3 },
         display: 'flex',

@@ -180,7 +180,7 @@ const FeeSection = () => {
               borderColor: c.highlight
                 ? isDark
                   ? "#6A7BFF"
-                  : "#0004FF"
+                  : "#4F46E5"
                 : undefined,
               bgcolor: c.highlight
                 ? isDark
@@ -208,7 +208,7 @@ const FeeSection = () => {
                   transform: "translateX(-50%)",
                   width: "60%",
                   height: "2px",
-                  background: "linear-gradient(90deg, #0004FF, #6A4DFF)",
+                  background: "linear-gradient(90deg, #4F46E5, #6A4DFF)",
                   borderRadius: "0 0 2px 2px",
                 }}
               />

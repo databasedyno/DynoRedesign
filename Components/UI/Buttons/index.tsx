@@ -185,7 +185,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
         ...(variant === "primary" &&
           !isBlockedForClicks && {
             "&:hover": {
-              backgroundColor: (theme.palette.primary as any).hover || "#0004FF99",
+              backgroundColor: (theme.palette.primary as any).hover || "#4F46E599",
               color: (theme.palette.primary as any).contrastText || theme.palette.common.white,
             },
           }),

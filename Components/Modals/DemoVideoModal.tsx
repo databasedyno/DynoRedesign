@@ -33,7 +33,7 @@ const STEPS: Step[] = [
     n: 1,
     title: 'Create a payment link',
     detail: 'One POST to /api/pay/payment-links — or one click in your dashboard. Set amount, currency, description. That’s it.',
-    color: '#0004FF',
+    color: '#4F46E5',
     accent: '#6C7BFF',
   },
   {
@@ -243,7 +243,7 @@ const DemoVideoModal: React.FC<DemoVideoModalProps> = ({ open, onClose }) => {
                 px: 2.2,
                 py: 0.9,
                 borderRadius: '10px',
-                background: 'linear-gradient(135deg, #0004FF 0%, #3D40FF 100%)',
+                background: 'linear-gradient(135deg, #4F46E5 0%, #3D40FF 100%)',
               }}
             >
               Start free

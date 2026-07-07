@@ -675,11 +675,13 @@ const OtpInputPanel: React.FC<OtpInputPanelProps> = ({
                           },
                           "& .MuiInputBase-input": {
                             textAlign: "center",
-                            fontSize: isMobile ? "20px" : "22px",
-                            fontWeight: 700,
-                            fontFamily: "UrbanistBold",
+                            fontSize: isMobile ? "22px" : "24px",
+                            fontWeight: 600,
+                            fontFamily:
+                              "'JetBrains Mono', 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace",
+                            fontVariantNumeric: "tabular-nums",
                             padding: "0 !important",
-                            letterSpacing: "0.5px",
+                            letterSpacing: "1px",
                             color: theme.palette.text.primary,
                             height: "100%",
                             lineHeight: inputSize,

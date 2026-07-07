@@ -74,9 +74,9 @@ export const theme = createTheme({
       error: "#E8484A",
     },
     primary: {
-      main: "#0004FF", //Dark Blue
+      main: "#4F46E5", //Dark Blue
       dark: "#000000",
-      light: "#E5EDFF", //Light Blue
+      light: "#EEF2FF", //Light Blue
       contrastText: "#fff",
     },
     secondary: {
@@ -201,17 +201,17 @@ export const theme = createTheme({
             border: "1px solid",
             color: "#fff",
             padding: "12px 30px",
-            background: "#0004FF",
+            background: "#4F46E5",
             fontWeight: 400,
             borderRadius: "50px",
             textTransform: "none",
             cursor: "pointer",
             "&:hover": {
-              color: "#0004FF",
+              color: "#4F46E5",
               background: "#fff",
             },
             "&.Mui-disabled": {
-              background: "#0004FF88",
+              background: "#4F46E588",
               color: "#fff",
               pointerEvents: "auto",
               cursor: "not-allowed",
@@ -252,13 +252,13 @@ export const theme = createTheme({
           style: {
             border: "1px solid",
             padding: "10px 30px",
-            color: "#0004FF",
+            color: "#4F46E5",
             fontWeight: 600,
             borderRadius: "15px",
             fontSize: "16px",
             "&:hover": {
               color: "#fff",
-              background: "#0004FF",
+              background: "#4F46E5",
             },
           },
         },
@@ -268,16 +268,16 @@ export const theme = createTheme({
             border: "1px solid",
             padding: "10px 30px",
             color: "#fff",
-            background: "#0004FF",
+            background: "#4F46E5",
             fontWeight: 600,
             borderRadius: "15px",
             fontSize: "16px",
             "&:hover": {
-              color: "#0004FF",
+              color: "#4F46E5",
               background: "#fff",
             },
             "&.Mui-disabled": {
-              background: "#0004FF99",
+              background: "#4F46E599",
               color: "#fff",
             },
           },
@@ -385,17 +385,17 @@ const getCheckoutComponentStyles = (isDark: boolean) => ({
           border: "1px solid",
           color: "#fff",
           padding: "12px 30px",
-          background: "#0004FF",
+          background: "#4F46E5",
           fontWeight: 400,
           borderRadius: "50px",
           textTransform: "none" as const,
           cursor: "pointer",
           "&:hover": {
-            color: "#0004FF",
+            color: "#4F46E5",
             background: isDark ? "#1a1a2e" : "#fff",
           },
           "&.Mui-disabled": {
-            background: "#0004FF88",
+            background: "#4F46E588",
             color: "#fff",
             pointerEvents: "auto" as const,
             cursor: "not-allowed",
@@ -442,7 +442,7 @@ const getCheckoutComponentStyles = (isDark: boolean) => ({
           fontSize: "16px",
           "&:hover": {
             color: "#fff",
-            background: "#0004FF",
+            background: "#4F46E5",
           },
         },
       },
@@ -452,16 +452,16 @@ const getCheckoutComponentStyles = (isDark: boolean) => ({
           border: "1px solid",
           padding: "10px 30px",
           color: "#fff",
-          background: "#0004FF",
+          background: "#4F46E5",
           fontWeight: 600,
           borderRadius: "15px",
           fontSize: "16px",
           "&:hover": {
-            color: "#0004FF",
+            color: "#4F46E5",
             background: isDark ? "#1a1a2e" : "#fff",
           },
           "&.Mui-disabled": {
-            background: "#0004FF99",
+            background: "#4F46E599",
             color: "#fff",
           },
         },
@@ -575,15 +575,15 @@ export const lightTheme = createTheme({
   palette: {
     mode: "light",
     common: { black: "#242428", white: "#fff" },
-    primary: { main: "#0004FF", dark: "#0003CC", light: "#E5EDFF", contrastText: "#fff" },
-    secondary: { main: "#0004FF", dark: "#0003CC", light: "#E5EDFF" },
+    primary: { main: "#4F46E5", dark: "#4338CA", light: "#EEF2FF", contrastText: "#fff" },
+    secondary: { main: "#4F46E5", dark: "#4338CA", light: "#EEF2FF" },
     text: { primary: "#242428", secondary: "#676768" },
     background: { default: "#F4F6FA", paper: "#FFFFFF" },
     surface: { main: "#F4F6FA", paper: "#FFFFFF", border: "#E9ECF2" },
     // Mirror of `surface.border` so that components that use `palette.border.main`
     // (the convention used in the rest of the app's theme tokens) keep working
     // when rendered inside the /pay route's lightTheme.
-    border: { main: "#E9ECF2", focus: "#0004FF", success: "#10B981", error: "#E8484A" },
+    border: { main: "#E9ECF2", focus: "#4F46E5", success: "#10B981", error: "#E8484A" },
   },
   typography: {
     fontFamily: "'Urbanist', sans-serif",

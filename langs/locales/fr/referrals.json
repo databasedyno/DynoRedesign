@@ -56,5 +56,9 @@
   "noReferralsYet": "Aucun parrainage pour le moment. Partagez votre code pour commencer à gagner !",
   "leaderboardEmpty": "Le classement est vide. Soyez le premier à parrainer et à mener !",
   "you": "(Vous)",
-  "referralsCount": "{{count}} parrainages"
+  "referralsCount": "{{count}} parrainages",
+  "shareOnWhatsApp": "Partager sur WhatsApp",
+  "shareOnTelegram": "Partager sur Telegram",
+  "shareOnX": "Partager sur X",
+  "shareInvite": "Partager l'invitation"
 }

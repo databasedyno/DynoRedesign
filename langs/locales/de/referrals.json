@@ -56,5 +56,9 @@
   "noReferralsYet": "Noch keine Empfehlungen. Teile deinen Code, um mit dem Verdienen zu beginnen!",
   "leaderboardEmpty": "Die Rangliste ist leer. Sei der Erste, der empfiehlt und führt!",
   "you": "(Du)",
-  "referralsCount": "{{count}} Empfehlungen"
+  "referralsCount": "{{count}} Empfehlungen",
+  "shareOnWhatsApp": "Auf WhatsApp teilen",
+  "shareOnTelegram": "Auf Telegram teilen",
+  "shareOnX": "Auf X teilen",
+  "shareInvite": "Einladung teilen"
 }

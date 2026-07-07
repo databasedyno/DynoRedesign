@@ -154,7 +154,7 @@ const HeroV2: React.FC = () => {
                     fontSize: { xs: 12.5, md: 13 },
                     letterSpacing: '0.4px',
                     color: active ? '#fff' : theme.palette.text.secondary,
-                    background: active ? 'linear-gradient(135deg, #0004FF 0%, #3D40FF 100%)' : 'transparent',
+                    background: active ? 'linear-gradient(135deg, #4F46E5 0%, #3D40FF 100%)' : 'transparent',
                     transition: 'all 0.25s ease',
                   }}
                 >
@@ -207,7 +207,7 @@ const HeroV2: React.FC = () => {
             <Box
               component="span"
               sx={{
-                background: 'linear-gradient(135deg, #0004FF 0%, #6C7BFF 100%)',
+                background: 'linear-gradient(135deg, #4F46E5 0%, #6C7BFF 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 display: 'inline',
@@ -251,10 +251,10 @@ const HeroV2: React.FC = () => {
                 px: 3,
                 py: 1.2,
                 borderRadius: '12px',
-                background: 'linear-gradient(135deg, #0004FF 0%, #3D40FF 100%)',
+                background: 'linear-gradient(135deg, #4F46E5 0%, #3D40FF 100%)',
                 boxShadow: '0 10px 28px rgba(0,4,255,0.28)',
                 '&:hover': {
-                  background: 'linear-gradient(135deg, #0004FF 0%, #4D50FF 100%)',
+                  background: 'linear-gradient(135deg, #4F46E5 0%, #4D50FF 100%)',
                   boxShadow: '0 12px 32px rgba(0,4,255,0.35)',
                   transform: 'translateY(-1px)',
                 },
@@ -339,7 +339,7 @@ const HeroV2: React.FC = () => {
                     fontSize: 12.5,
                     color: active ? '#fff' : theme.palette.text.secondary,
                     background: active
-                      ? 'linear-gradient(135deg, #0004FF 0%, #3D40FF 100%)'
+                      ? 'linear-gradient(135deg, #4F46E5 0%, #3D40FF 100%)'
                       : isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)',
                     transition: 'all 0.25s ease',
                     userSelect: 'none',
@@ -467,7 +467,7 @@ const DashboardMock: React.FC<{ isDark: boolean }> = ({ isDark }) => {
     <Box sx={{ p: { xs: 2.4, md: 3 } }}>
       {/* Top row — fake nav */}
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-        <Box sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: '#0004FF' }} />
+        <Box sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: '#4F46E5' }} />
         <Typography sx={{ fontFamily: 'UrbanistBold', fontSize: 14, color: (t) => t.palette.text.primary }}>
           Dashboard
         </Typography>
@@ -482,7 +482,7 @@ const DashboardMock: React.FC<{ isDark: boolean }> = ({ isDark }) => {
       {/* KPI cards */}
       <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 1.5, mb: 2 }}>
         {[
-          { label: 'Volume (7d)', value: '$47,320', delta: '+18.2%', color: '#0004FF' },
+          { label: 'Volume (7d)', value: '$47,320', delta: '+18.2%', color: '#4F46E5' },
           { label: 'Payments',    value: '1,247',   delta: '+9.1%',  color: '#7C3AED' },
           { label: 'Avg. settle', value: '48s',     delta: '-6s',    color: '#10B981' },
         ].map((k) => (
@@ -520,7 +520,7 @@ const DashboardMock: React.FC<{ isDark: boolean }> = ({ isDark }) => {
               flex: 1,
               height: `${h}%`,
               borderRadius: '6px 6px 3px 3px',
-              background: 'linear-gradient(180deg, #6C7BFF 0%, #0004FF 100%)',
+              background: 'linear-gradient(180deg, #6C7BFF 0%, #4F46E5 100%)',
               animation: `dyno-bar-in 0.6s ${i * 0.08}s ease-out both`,
               '@keyframes dyno-bar-in': {
                 '0%':   { transform: 'scaleY(0)', transformOrigin: 'bottom' },

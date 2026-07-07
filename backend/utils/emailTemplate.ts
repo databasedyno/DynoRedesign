@@ -45,7 +45,7 @@ export const baseEmailTemplate = (
 
   const buttonBlock = showButton && buttonText && buttonLink
     ? `<tr><td align="center" style="padding: 28px 0 8px 0;">
-        <a href="${buttonLink}" style="display: inline-block; background-color: #f47323; color: #ffffff; text-decoration: none; padding: 13px 36px; border-radius: 6px; font-weight: 600; font-size: 15px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; mso-padding-alt: 0; text-align: center;">
+        <a href="${buttonLink}" style="display: inline-block; background-color: #4F46E5; color: #ffffff; text-decoration: none; padding: 13px 36px; border-radius: 6px; font-weight: 600; font-size: 15px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; mso-padding-alt: 0; text-align: center;">
           <!--[if mso]><i style="mso-font-width: 150%; mso-text-raise: 26pt;">&nbsp;</i><![endif]-->
           <span style="mso-text-raise: 13pt;">${buttonText}</span>
           <!--[if mso]><i style="mso-font-width: 150%;">&nbsp;</i><![endif]-->
@@ -130,7 +130,7 @@ export const baseEmailTemplate = (
       .stat-card .stat-value { color: #93c5fd !important; }
       .stat-card .stat-value-green { color: #86efac !important; }
       /* OTP code block */
-      .otp-code { background-color: #1e293b !important; border-color: #3b82f6 !important; color: #93c5fd !important; }
+      .otp-code { background-color: #1e293b !important; border-color: #818cf8 !important; color: #c7d2fe !important; }
       /* Warning/security text */
       .warn-text, .warn-text p { color: #fca5a5 !important; }
       .warn-text strong { color: #fee2e2 !important; }
@@ -284,7 +284,7 @@ export const p = (text: string, extra: string = ''): string => {
 export const otpBlock = (code: string): string => {
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin: 24px 0;">
     <tr><td align="center">
-      <div class="otp-code" style="display: inline-block; background-color: #f0f4ff; border: 2px dashed #0d1f5c; border-radius: 8px; padding: 16px 40px; font-size: 32px; font-weight: 700; color: #0d1f5c; letter-spacing: 10px; font-family: 'SF Mono', 'Fira Code', monospace, Arial, sans-serif;">${code}</div>
+      <div class="otp-code" style="display: inline-block; background-color: #EEF2FF; border: 2px dashed #4F46E5; border-radius: 8px; padding: 16px 40px; font-size: 32px; font-weight: 700; color: #4F46E5; letter-spacing: 10px; font-family: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;">${code}</div>
     </td></tr>
   </table>`;
 };

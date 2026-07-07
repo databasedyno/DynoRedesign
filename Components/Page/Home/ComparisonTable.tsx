@@ -41,7 +41,7 @@ const BEST_COL = 0;
 const ValueCell: React.FC<{ v: string | boolean; isBest: boolean }> = ({ v, isBest }) => {
   if (typeof v === 'boolean') {
     return v ? (
-      <Check sx={{ color: isBest ? '#0004FF' : '#22C55E', fontSize: 20 }} />
+      <Check sx={{ color: isBest ? '#4F46E5' : '#22C55E', fontSize: 20 }} />
     ) : (
       <Close sx={{ color: '#EF4444', fontSize: 20, opacity: 0.55 }} />
     );
@@ -160,7 +160,7 @@ const ComparisonTable: React.FC = () => {
                         transform: 'translate(-50%, -50%)',
                         px: 1, py: 0.15,
                         borderRadius: '999px',
-                        background: 'linear-gradient(135deg, #0004FF 0%, #3D40FF 100%)',
+                        background: 'linear-gradient(135deg, #4F46E5 0%, #3D40FF 100%)',
                         color: '#fff',
                         display: 'inline-flex',
                         alignItems: 'center',

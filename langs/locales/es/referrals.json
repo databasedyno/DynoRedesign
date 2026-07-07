@@ -56,5 +56,9 @@
   "noReferralsYet": "Aún no hay referidos. ¡Comparte tu código para empezar a ganar!",
   "leaderboardEmpty": "La clasificación está vacía. ¡Sé el primero en referir y liderar!",
   "you": "(Tú)",
-  "referralsCount": "{{count}} referidos"
+  "referralsCount": "{{count}} referidos",
+  "shareOnWhatsApp": "Compartir en WhatsApp",
+  "shareOnTelegram": "Compartir en Telegram",
+  "shareOnX": "Compartir en X",
+  "shareInvite": "Compartir invitación"
 }

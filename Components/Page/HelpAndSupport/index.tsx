@@ -199,7 +199,7 @@ const HelpAndSupport = () => {
                     <Box
                         sx={{
                             "& input:focus": {
-                                borderColor: "#0004FF",
+                                borderColor: "#4F46E5",
                             },
                         }}>
                         <input
@@ -332,20 +332,20 @@ const HelpAndSupport = () => {
                             {item.buttonContent ? (
                                 <Button
                                     sx={{
-                                        border: "1px solid #0004FF",
+                                        border: "1px solid #4F46E5",
                                         borderRadius: "6px",
                                         display: "flex",
                                         justifyContent: "center",
                                         alignItems: "center",
                                         gap: "6px",
                                         padding: isMobile ? "8px 16px" : "10px 25px",
-                                        color: "#0004FF",
+                                        color: "#4F46E5",
                                     }}
                                 >
                                     <TextDecoration style={{ fontSize: isMobile ? "10px" :"13px" }}>
                                         {item.buttonContent}
                                     </TextDecoration>
-                                    <ArrowOutwardIcon sx={{ color: "#0004FF", fontSize: 15 }} />
+                                    <ArrowOutwardIcon sx={{ color: "#4F46E5", fontSize: 15 }} />
                                 </Button>
                             ) : (
                                 <TextDecoration style={{ fontSize: isMobile ? "14px" :"18px", color: theme.palette.text.primary }}>

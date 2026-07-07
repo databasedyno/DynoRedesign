@@ -99,7 +99,7 @@ const HelpDetail = ({
         </Typography>
         <Button
           onClick={() => router.push("/help-support")}
-          sx={{ color: "#0004FF", textTransform: "none", fontFamily: "UrbanistMedium" }}
+          sx={{ color: "#4F46E5", textTransform: "none", fontFamily: "UrbanistMedium" }}
         >
           Back to Help & Support
         </Button>
@@ -123,7 +123,7 @@ const HelpDetail = ({
             <Box
               sx={{
                 "& input:focus": {
-                  borderColor: "#0004FF",
+                  borderColor: "#4F46E5",
                 },
               }}>
               <input
@@ -175,7 +175,7 @@ const HelpDetail = ({
               <Typography sx={{
                 fontSize: "12px",
                 fontFamily: "UrbanistMedium",
-                color: "#0004FF",
+                color: "#4F46E5",
                 backgroundColor: "rgba(0, 4, 255, 0.08)",
                 px: 1.5,
                 py: 0.5,
@@ -237,7 +237,7 @@ const HelpDetail = ({
                 overflow: "auto",
               },
               "& a": {
-                color: "#0004FF",
+                color: "#4F46E5",
                 textDecoration: "none",
                 "&:hover": { textDecoration: "underline" },
               },

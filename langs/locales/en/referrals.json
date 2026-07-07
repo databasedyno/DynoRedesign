@@ -56,5 +56,9 @@
   "noReferralsYet": "No referrals yet. Share your code to start earning!",
   "leaderboardEmpty": "Leaderboard is empty. Be the first to refer and lead!",
   "you": "(You)",
-  "referralsCount": "{{count}} referrals"
+  "referralsCount": "{{count}} referrals",
+  "shareOnWhatsApp": "Share on WhatsApp",
+  "shareOnTelegram": "Share on Telegram",
+  "shareOnX": "Share on X",
+  "shareInvite": "Share invite"
 }

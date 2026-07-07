@@ -38,7 +38,7 @@ export const StyledCard = styled(Card)(({ theme }) => {
       height: "120%",
       background: isDesktopSafari
         ? `radial-gradient(ellipse at bottom, ${glowColor} 0%, ${fadeTo} 70%)`
-        : `radial-gradient(at center bottom, ${isDark ? "#6A7BFF3D" : "#0004FF4D"}, ${fadeTo})`,
+        : `radial-gradient(at center bottom, ${isDark ? "#6A7BFF3D" : "#4F46E54D"}, ${fadeTo})`,
       filter: isDesktopSafari ? "blur(140px)" : "blur(100px)",
       opacity: isDesktopSafari ? 0.7 : 0.5,
       zIndex: 0,
@@ -98,7 +98,7 @@ export const FeatureIcon = styled(Box)(({ theme }) => ({
   minWidth: "48px",
   borderRadius: "16px",
   background: theme.palette.background.default,
-  color: theme.palette.mode === "dark" ? "#A5B4FC" : "#0004FF",
+  color: theme.palette.mode === "dark" ? "#A5B4FC" : "#4F46E5",
   "& img, & svg": {
     filter: theme.palette.mode === "dark" ? "brightness(1.8) saturate(1.2)" : "none",
   },
@@ -158,8 +158,8 @@ export const WhyChooseDynoPayIcon = styled(Box)(({ theme }) => ({
   minHeight: "56px",
   minWidth: "56px",
   borderRadius: "20px",
-  background: theme.palette.mode === "dark" ? "rgba(106,123,255,0.1)" : "#0004FF1A",
-  color: theme.palette.mode === "dark" ? "#A5B4FC" : "#0004FF",
+  background: theme.palette.mode === "dark" ? "rgba(106,123,255,0.1)" : "#4F46E51A",
+  color: theme.palette.mode === "dark" ? "#A5B4FC" : "#4F46E5",
   "& img, & svg": {
     filter: theme.palette.mode === "dark" ? "brightness(1.8) saturate(1.2)" : "none",
   },

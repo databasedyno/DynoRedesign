@@ -11,7 +11,7 @@ const testimonials = [
     role: "Head of Payments",
     company: "NovaMart",
     initials: "SC",
-    gradient: "linear-gradient(135deg, #0004FF 0%, #6A4DFF 100%)",
+    gradient: "linear-gradient(135deg, #4F46E5 0%, #6A4DFF 100%)",
   },
   {
     quote:

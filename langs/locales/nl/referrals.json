@@ -56,5 +56,9 @@
   "noReferralsYet": "Nog geen verwijzingen. Deel je code om te beginnen met verdienen!",
   "leaderboardEmpty": "De ranglijst is leeg. Wees de eerste die verwijst en leidt!",
   "you": "(Jij)",
-  "referralsCount": "{{count}} verwijzingen"
+  "referralsCount": "{{count}} verwijzingen",
+  "shareOnWhatsApp": "Delen op WhatsApp",
+  "shareOnTelegram": "Delen op Telegram",
+  "shareOnX": "Delen op X",
+  "shareInvite": "Uitnodiging delen"
 }

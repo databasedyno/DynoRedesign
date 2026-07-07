@@ -49,7 +49,7 @@ const SubText = styled(Typography)(({ theme }) => ({
 }));
 
 const HighlightText = styled("span")(() => ({
-  background: "linear-gradient(90deg, #0004FF 0%, #6A4DFF 100%)",
+  background: "linear-gradient(90deg, #4F46E5 0%, #6A4DFF 100%)",
   WebkitBackgroundClip: "text",
   WebkitTextFillColor: "transparent",
   backgroundClip: "text",

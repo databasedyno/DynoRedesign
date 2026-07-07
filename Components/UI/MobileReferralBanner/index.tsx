@@ -75,7 +75,7 @@ const MobileReferralBanner: React.FC = () => {
               color: theme.palette.text.secondary,
             }}
           >
-            Your Referral Code
+            {t("yourReferralCode")}
           </Typography>
         </Box>
         <Typography

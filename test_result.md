@@ -1,3 +1,56 @@
+## TEST REQUEST (2026-07-07) — Brand refresh (logo/email/OTP) + Sidebar referral one-tap share
+### ⚠️ LIVE PRODUCTION — READ-ONLY. JWT injection only; no forms/mutations/OTP.
+Preview: https://684aeab8-5dd5-4e76-aa75-00ec0ca14d45.preview.emergentagent.com
+JWT: `node /app/scripts/mint_ux_tokens.js` — use `hostbay@moxx.co` (data-rich).
+
+### CONTEXT (from `/app/memory/BRAND_REFRESH_BRIEF.md`)
+The user reported: (a) blue logo `#0004FF` reads harsh/dated, (b) emails clash with the new brand, (c) OTP boxes on the web show normal sans-serif text while emails show digital/monospace — should all be digital. Approved defaults: **1a (`#4F46E5` indigo-600) + 2a (email CTA matches primary) + 3a (JetBrains Mono for OTP)**. Also asked to add a one-tap Share to WhatsApp/Telegram/X with a pre-filled localized invite in the sidebar referral card.
+
+### FIXES APPLIED (main agent)
+**Brand color (issue #1)**
+- `assets/Images/auth/dynopay-logo.svg` — every `fill="#0004FF"` → `fill="#4F46E5"` (14 occurrences).
+- Re-rendered 4 blue PNG variants via cairosvg at original dimensions: `dynopay-logo.png` (429×152), `dynopay-mobile-logo.png` (88×96), `backend/assets/dynopay-logo.png` (1888×656), `backend/assets/dynopay-logo2.png` (69×78).
+- Re-rendered 3 white-variant PNGs (fill=#FFFFFF) from the same SVG: `dynopay-white-logo.png` (auth/, backend/public/, backend/assets/).
+- Every `assets/Icons/*.svg` and `assets/Images/*.svg` sed'd `#0004FF → #4F46E5` (copy-icon, wallet, dashboard-icon, api-key, search, ShareIcon, logout, Transactions, MessageIcon, CallIcon, Referral Code Icon, Group, payment-link etc.).
+- `styles/theme.ts` — primary + secondary main token `#0004FF → #4F46E5`, primary.dark `#0003CC → #4338CA`, primary.light `#E5EDFF → #EEF2FF`, `border.focus` also updated. Same for the alternate theme block.
+- `pages/help-support/[slug].tsx`, `Components/Modals/ExitIntentModal.tsx`, `Components/Modals/DemoVideoModal.tsx`, `Components/Common/StickyPromoBar.tsx`, `Components/Page/HelpAndSupport/index.tsx`, `Components/Page/Home/Testimonials.tsx`, `Components/Page/Home/SocialProof.tsx`, `Components/Page/Home/HeroV2.tsx`, `Components/Page/Home/ComparisonTable.tsx`, `Components/Page/Home/IndustryLogoWall.tsx`, `Components/Page/Home/FeeSection.tsx`, `Components/UI/Loading.tsx`, `Components/UI/Buttons/index.tsx`, `Components/UI/HomeCard/styled.tsx`, `Components/UI/UseCaseBanner/index.tsx` — all `#0004FF` → `#4F46E5`.
+- Zero functional `#0004FF` references remain (only 1 historical comment in `SectionTitle/styled.tsx` describing the old→new migration).
+
+**Email harmony (issue #2 — option 2a)**
+- `backend/utils/emailTemplate.ts` line 48 — CTA button `background-color: #f47323` (orange) → `#4F46E5`.
+- Line ~287 (OTP block) — background `#f0f4ff → #EEF2FF`, border-color + text `#0d1f5c → #4F46E5`, font-family from `'SF Mono', 'Fira Code'` → `'JetBrains Mono', 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace` (matching the web OTP field).
+- Line ~133 (dark-mode OTP override) — border-color `#3b82f6 → #818cf8` (indigo-400), color `#93c5fd → #c7d2fe` (indigo-200).
+- Header bar `#0d1f5c` deep-navy retained (approved — pairs cleanly with new indigo primary).
+
+**OTP typography (issue #3 — option 3a)**
+- `Components/UI/OtpInputPanel/index.tsx` `MuiInputBase-input` — `fontFamily` `UrbanistBold` → `'JetBrains Mono', 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace`; added `fontVariantNumeric: 'tabular-nums'`; `fontWeight` 700 → 600 (mono at 700 is too heavy); `letterSpacing` 0.5px → 1px; `fontSize` bumped to `22px / 24px` (mono renders optically smaller).
+- `pages/_document.tsx` already loads JetBrains Mono via Google Fonts (weights 500;600).
+
+**Sidebar one-tap referral share (new feature)**
+- `Components/Layout/ReferralAndKnowledge/index.tsx` — under the copy-code row, added a NEW `[data-testid="referral-share-row"]` row with 3 icon buttons: WhatsApp / Telegram / X. Each opens the platform's share URL in a popup, prefilled with the *localized* invite (from `referrals.shareMessage` + the merchant's real `referral_link`). Icons are inline SVGs (WhatsApp/Telegram/X) using `currentColor` for theme-adaptive coloring.
+- `langs/locales/{en,pt,fr,es,de,nl}/referrals.json` — added 4 new keys per language: `shareOnWhatsApp`, `shareOnTelegram`, `shareOnX`, `shareInvite`. Reused existing `shareMessage` for the invite body (already localized). Tooltips show the localized label; aria-labels set for a11y.
+- `Components/UI/MobileReferralBanner/index.tsx` — localized the "Your Referral Code" heading (was hardcoded English).
+
+### FRONTEND TEST PLAN
+1. **Logo** — Load `/` (public) + `/auth/login` + `/dashboard` (JWT hostbay). For each: screenshot the top-of-page area. Assert:
+   - The wordmark logo renders indigo (`#4F46E5` — verifiable via computed style or visually vs old electric blue). NO `#0004FF` should be visible in the DOM.
+   - No broken/404 image requests (`console` + Network tab).
+2. **Email OTP block** (visual code review since we can't send live email) — quickly render `backend/utils/emailTemplate.ts`'s `otpBlock("123456")` string, assert it contains `background-color: #EEF2FF` + `border: 2px dashed #4F46E5` + `color: #4F46E5` + `font-family: 'JetBrains Mono'`. Report PASS if all three present, FAIL otherwise.
+3. **OTP font (web)** — Open `/auth/login`, enter a valid-looking email, click Continue (this triggers the OTP dialog WITHOUT sending real OTP if you interrupt), OR directly navigate `/auth/register` and progress past the first step to reach the OTP boxes. Assert `getComputedStyle(otpInput).fontFamily` starts with `JetBrains Mono` (case-insensitive). If register form submission would send real OTP, then skip and test on any page where OtpInputPanel already renders inline. **If you cannot trigger the OTP screen safely without a mutation, this is acceptable — verify via code-inspection screenshot instead.**
+4. **Sidebar referral share** — Inject hostbay JWT → `/dashboard`. In the sidebar, find the referral card (data-testid `referral-share-row`). Assert:
+   - 3 icon buttons render (WhatsApp / Telegram / X), each has an aria-label matching the current language.
+   - Click WhatsApp → asserts a new window/popup opens to `https://wa.me/?text=...` (`window.open` intercepted); URL contains the localized invite text + the merchant's real `referral_link` (query it via the "copy code" element's neighbor if needed).
+   - Repeat for Telegram → `https://t.me/share/url?...` and X → `https://twitter.com/intent/tweet?...`.
+   - Language switch: set `localStorage.lang='de'; localStorage.lang_manual='true'`; reload; assert tooltips read "Auf WhatsApp teilen", "Auf Telegram teilen", "Auf X teilen".
+5. **Console errors** — 0 errors on any tested page.
+6. **Regression** — Screenshot `/dashboard` full-page for hostbay to confirm no theme-primary regression (chart lines, buttons, active nav should all render in the new indigo).
+
+### EXPECTED VERDICT
+Brand issues #1, #2, #3 all PASS. Sidebar share row visible on `/dashboard` in the referral card, opens the correct platform URL with the localized invite pre-filled, localizes tooltips to DE.
+
+---
+
+
 ## TEST REQUEST (2026-07-07 follow-up) — Source-aware transaction labels
 ### ⚠️ LIVE PRODUCTION — READ-ONLY. JWT injection only.
 Preview: https://fast-start-8.preview.emergentagent.com

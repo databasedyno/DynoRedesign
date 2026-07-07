@@ -6,7 +6,7 @@ const stats = [
   {
     value: "$2M+",
     label: "Processed",
-    gradient: "linear-gradient(135deg, #0004FF 0%, #4D50FF 100%)",
+    gradient: "linear-gradient(135deg, #4F46E5 0%, #4D50FF 100%)",
   },
   {
     value: "500+",
