@@ -103,5 +103,17 @@
   "emptyWatchDemo": "Watch 60-second demo",
   "emptyAddWallet": "Add a wallet",
   "emptyCreateCompany": "Create your company",
-  "companySetupWarningShort": "Company setup"
+  "companySetupWarningShort": "Company setup",
+  "obCompanyLabel": "Create your company",
+  "obCompanyDesc": "Add your business details",
+  "obWalletLabel": "Add a payout wallet",
+  "obWalletDesc": "Required — funds are forwarded here",
+  "obLinkLabel": "Create your first payment link",
+  "obLinkDesc": "Start getting paid in seconds",
+  "obAllSet": "You're all set!",
+  "obFinishSetup": "Finish setting up",
+  "obProgress": "{{completed}} of {{total}} done — a few quick steps to start accepting crypto",
+  "obLockedStep": "Complete the step above first",
+  "obExpandChecklist": "Expand setup checklist",
+  "obCollapseChecklist": "Collapse setup checklist"
 }

@@ -89,5 +89,12 @@
   "creating": "Criando...",
   "expiryRecommendation": "Por segurança, recomendamos definir uma data de expiração para que o link não possa ser usado indefinidamente.",
   "valueHelper": "O valor que o seu cliente irá pagar.",
-  "clientNameHelper": "Apresentado na fatura e no recibo."
+  "clientNameHelper": "Apresentado na fatura e no recibo.",
+  "setupTitle": "Primeiro, alguns passos rápidos",
+  "setupSubtitle": "Conclua estes passos para começar a aceitar pagamentos em cripto — sem sair desta página.",
+  "setupStepCompanyLabel": "Crie uma empresa",
+  "setupStepCompanyHelper": "Usado em faturas e recibos. Demora ~30 segundos.",
+  "setupStepWalletLabel": "Adicione uma carteira de pagamento",
+  "setupStepWalletHelper": "Para onde os pagamentos dos clientes são enviados. Necessário para receber cripto.",
+  "setupDone": "Concluído"
 }

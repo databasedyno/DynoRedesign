@@ -89,5 +89,12 @@
   "customerEmailPlaceholder": "client@exemple.fr",
   "expiryRecommendation": "Pour plus de sécurité, nous vous recommandons de définir une date d'expiration afin que le lien ne puisse pas être utilisé indéfiniment.",
   "valueHelper": "Le montant que votre client va payer.",
-  "clientNameHelper": "Affiché sur la facture et le reçu."
+  "clientNameHelper": "Affiché sur la facture et le reçu.",
+  "setupTitle": "D'abord, quelques étapes rapides",
+  "setupSubtitle": "Terminez ces étapes pour commencer à accepter les paiements en crypto — sans quitter cette page.",
+  "setupStepCompanyLabel": "Créez une entreprise",
+  "setupStepCompanyHelper": "Utilisé sur les factures et les reçus. Prend ~30 secondes.",
+  "setupStepWalletLabel": "Ajoutez un portefeuille de versement",
+  "setupStepWalletHelper": "Où sont envoyés les paiements des clients. Requis pour recevoir de la crypto.",
+  "setupDone": "Terminé"
 }

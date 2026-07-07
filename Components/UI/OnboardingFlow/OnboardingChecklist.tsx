@@ -9,6 +9,7 @@ import {
 } from "@mui/icons-material";
 import { Box, Collapse, IconButton, Typography, useTheme } from "@mui/material";
 import useIsMobile from "@/hooks/useIsMobile";
+import { useTranslation } from "react-i18next";
 import { trackOnboarding } from "@/utils/trackOnboarding";
 
 export interface ChecklistStep {
@@ -34,6 +35,7 @@ const COLLAPSE_KEY = "onboarding_checklist_collapsed";
 const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({ steps }) => {
   const theme = useTheme();
   const isMobile = useIsMobile("md");
+  const { t } = useTranslation("dashboardLayout");
 
   const [collapsed, setCollapsed] = useState<boolean>(() => {
     if (typeof window === "undefined") return false;
@@ -102,7 +104,7 @@ const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({ steps }) => {
               lineHeight: 1.3,
             }}
           >
-            {completed === total ? "You're all set!" : "Finish setting up"}
+            {completed === total ? t("obAllSet") : t("obFinishSetup")}
           </Typography>
           <Typography
             sx={{
@@ -113,15 +115,14 @@ const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({ steps }) => {
               lineHeight: 1.4,
             }}
           >
-            {completed} of {total} done — a few quick steps to start accepting
-            crypto
+            {t("obProgress", { completed, total })}
           </Typography>
         </Box>
         <IconButton
           data-testid="onboarding-checklist-toggle"
           size="small"
           onClick={toggleCollapsed}
-          aria-label={collapsed ? "Expand setup checklist" : "Collapse setup checklist"}
+          aria-label={collapsed ? t("obExpandChecklist") : t("obCollapseChecklist")}
           sx={{ color: theme.palette.text.secondary }}
         >
           {collapsed ? <ExpandMoreRounded /> : <ExpandLessRounded />}
@@ -265,7 +266,7 @@ const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({ steps }) => {
                       }}
                     >
                       {isLocked
-                        ? "Complete the step above first"
+                        ? t("obLockedStep")
                         : step.description}
                     </Typography>
                   )}

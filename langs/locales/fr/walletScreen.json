@@ -51,5 +51,7 @@
   "editWalletTitle": "Modifier le portefeuille",
   "saveChanges": "Enregistrer les modifications",
   "walletNameHelper": "Un libellé pour vous seul — ex. : « Paiements USDT principaux ». Vos clients ne le voient jamais.",
-  "walletAddressHelper": "Collez votre adresse pour le réseau sélectionné. Les paiements sont réglés ici directement — nous ne détenons jamais vos fonds."
+  "walletAddressHelper": "Collez votre adresse pour le réseau sélectionné. Les paiements sont réglés ici directement — nous ne détenons jamais vos fonds.",
+  "walletCompanyFirstTitle": "Créez d'abord une entreprise",
+  "walletCompanyFirstBody": "Vous devez créer un profil d'entreprise avant d'ajouter des adresses de portefeuille. Appuyez ici pour commencer."
 }

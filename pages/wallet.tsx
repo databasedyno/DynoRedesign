@@ -121,7 +121,7 @@ const WalletPage = ({
                   letterSpacing: 0,
                 }}
               >
-                Create a company first
+                {t("walletCompanyFirstTitle")}
               </Typography>
               <Typography
                 sx={{
@@ -132,20 +132,7 @@ const WalletPage = ({
                   letterSpacing: 0,
                 }}
               >
-                You need to{" "}
-                <Typography
-                  component="span"
-                  sx={{
-                    fontFamily: "UrbanistSemibold",
-                    fontWeight: "600",
-                    fontSize: isMobile ? "10px" : "15px",
-                    lineHeight: "130%",
-                    letterSpacing: 0,
-                  }}
-                >
-                  create a company profile
-                </Typography>
-                {" "}before adding wallet addresses. Tap here to get started.
+                {t("walletCompanyFirstBody")}
               </Typography>
             </Box>
           </SetupWarnnigContainer>

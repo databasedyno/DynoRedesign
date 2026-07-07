@@ -6,6 +6,7 @@ import { rootReducer } from "@/utils/types";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
+import { useTranslation } from "react-i18next";
 import {
   BusinessRounded,
   AccountBalanceWalletRounded,
@@ -34,6 +35,7 @@ const AUTO_OPEN_SESSION_KEY = "onboarding_autoopen_seen";
 const OnboardingFlow: React.FC = () => {
   const dispatch = useDispatch();
   const router = useRouter();
+  const { t } = useTranslation("dashboardLayout");
 
   const [activeModal, setActiveModal] = useState<ActiveModal>(null);
   const [celebrate, setCelebrate] = useState(false);
@@ -162,30 +164,30 @@ const OnboardingFlow: React.FC = () => {
     () => [
       {
         key: "company",
-        label: "Create your company",
-        description: "Add your business details",
+        label: t("obCompanyLabel"),
+        description: t("obCompanyDesc"),
         icon: BusinessRounded,
         done: hasCompany,
         onClick: openCompany,
       },
       {
         key: "wallet",
-        label: "Add a payout wallet",
-        description: "Required — funds are forwarded here",
+        label: t("obWalletLabel"),
+        description: t("obWalletDesc"),
         icon: AccountBalanceWalletRounded,
         done: hasWallet,
         onClick: openWallet,
       },
       {
         key: "link",
-        label: "Create your first payment link",
-        description: "Start getting paid in seconds",
+        label: t("obLinkLabel"),
+        description: t("obLinkDesc"),
         icon: LinkRounded,
         done: hasLink,
         onClick: openFirstLink,
       },
     ],
-    [hasCompany, hasWallet, hasLink, openCompany, openWallet, openFirstLink],
+    [hasCompany, hasWallet, hasLink, openCompany, openWallet, openFirstLink, t],
   );
 
   // Decide whether to show the checklist card

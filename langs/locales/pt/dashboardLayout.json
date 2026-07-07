@@ -103,5 +103,17 @@
   "emptyWatchDemo": "Ver demo de 60 segundos",
   "emptyAddWallet": "Adicionar uma carteira",
   "emptyCreateCompany": "Crie a sua empresa",
-  "companySetupWarningShort": "Configuração da empresa"
+  "companySetupWarningShort": "Configuração da empresa",
+  "obCompanyLabel": "Crie a sua empresa",
+  "obCompanyDesc": "Adicione os dados da sua empresa",
+  "obWalletLabel": "Adicione uma carteira de pagamento",
+  "obWalletDesc": "Obrigatório — os fundos são enviados para aqui",
+  "obLinkLabel": "Crie o seu primeiro link de pagamento",
+  "obLinkDesc": "Comece a receber em segundos",
+  "obAllSet": "Está tudo pronto!",
+  "obFinishSetup": "Conclua a configuração",
+  "obProgress": "{{completed}} de {{total}} concluídos — alguns passos rápidos para começar a aceitar cripto",
+  "obLockedStep": "Conclua primeiro o passo acima",
+  "obExpandChecklist": "Expandir lista de configuração",
+  "obCollapseChecklist": "Recolher lista de configuração"
 }

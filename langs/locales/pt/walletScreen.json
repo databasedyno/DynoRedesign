@@ -51,5 +51,7 @@
   "editWalletTitle": "Editar carteira",
   "saveChanges": "Guardar alterações",
   "walletNameHelper": "Uma etiqueta só para si — ex.: “Pagamentos USDT principais”. Os seus clientes nunca a veem.",
-  "walletAddressHelper": "Cole o seu endereço para a rede selecionada. Os pagamentos são liquidados aqui diretamente — nunca retemos os seus fundos."
+  "walletAddressHelper": "Cole o seu endereço para a rede selecionada. Os pagamentos são liquidados aqui diretamente — nunca retemos os seus fundos.",
+  "walletCompanyFirstTitle": "Crie primeiro uma empresa",
+  "walletCompanyFirstBody": "Precisa de criar um perfil de empresa antes de adicionar endereços de carteira. Toque aqui para começar."
 }

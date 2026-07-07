@@ -89,5 +89,12 @@
   "customerEmailPlaceholder": "cliente@ejemplo.com",
   "expiryRecommendation": "Por seguridad, recomendamos establecer una fecha de caducidad para que el enlace no pueda usarse indefinidamente.",
   "valueHelper": "El importe que pagará tu cliente.",
-  "clientNameHelper": "Se muestra en la factura y el recibo."
+  "clientNameHelper": "Se muestra en la factura y el recibo.",
+  "setupTitle": "Primero, unos pasos rápidos",
+  "setupSubtitle": "Completa estos pasos para empezar a aceptar pagos en cripto, sin salir de esta página.",
+  "setupStepCompanyLabel": "Crea una empresa",
+  "setupStepCompanyHelper": "Se usa en facturas y recibos. Tarda ~30 segundos.",
+  "setupStepWalletLabel": "Añade un monedero de pagos",
+  "setupStepWalletHelper": "Adonde se envían los pagos de los clientes. Necesario para recibir cripto.",
+  "setupDone": "Hecho"
 }

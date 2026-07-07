@@ -51,5 +51,7 @@
   "editWalletTitle": "Editar billetera",
   "saveChanges": "Guardar cambios",
   "walletNameHelper": "Una etiqueta solo para ti — p. ej., “Pagos USDT principales”. Tus clientes nunca la ven.",
-  "walletAddressHelper": "Pega tu dirección para la red seleccionada. Los pagos se liquidan aquí directamente: nunca retenemos tus fondos."
+  "walletAddressHelper": "Pega tu dirección para la red seleccionada. Los pagos se liquidan aquí directamente: nunca retenemos tus fondos.",
+  "walletCompanyFirstTitle": "Primero crea una empresa",
+  "walletCompanyFirstBody": "Debes crear un perfil de empresa antes de añadir direcciones de monedero. Toca aquí para empezar."
 }

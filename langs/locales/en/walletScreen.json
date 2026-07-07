@@ -51,5 +51,7 @@
   "editWalletTitle": "Edit wallet",
   "saveChanges": "Save changes",
   "walletNameHelper": "A label just for you — e.g. “Main USDT payouts”. Your customers never see it.",
-  "walletAddressHelper": "Paste your address for the selected network. Payments settle here directly — we never hold your funds."
+  "walletAddressHelper": "Paste your address for the selected network. Payments settle here directly — we never hold your funds.",
+  "walletCompanyFirstTitle": "Create a company first",
+  "walletCompanyFirstBody": "You need to create a company profile before adding wallet addresses. Tap here to get started."
 }

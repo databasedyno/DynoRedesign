@@ -103,5 +103,17 @@
   "emptyWatchDemo": "60-Sekunden-Demo ansehen",
   "emptyAddWallet": "Wallet hinzufügen",
   "emptyCreateCompany": "Erstellen Sie Ihr Unternehmen",
-  "companySetupWarningShort": "Unternehmen einrichten"
+  "companySetupWarningShort": "Unternehmen einrichten",
+  "obCompanyLabel": "Erstellen Sie Ihr Unternehmen",
+  "obCompanyDesc": "Fügen Sie Ihre Unternehmensdaten hinzu",
+  "obWalletLabel": "Fügen Sie ein Auszahlungs-Wallet hinzu",
+  "obWalletDesc": "Erforderlich — Gelder werden hierhin weitergeleitet",
+  "obLinkLabel": "Erstellen Sie Ihren ersten Zahlungslink",
+  "obLinkDesc": "Erhalten Sie in Sekunden Zahlungen",
+  "obAllSet": "Alles erledigt!",
+  "obFinishSetup": "Einrichtung abschließen",
+  "obProgress": "{{completed}} von {{total}} erledigt — ein paar schnelle Schritte, um Krypto zu akzeptieren",
+  "obLockedStep": "Schließen Sie zuerst den obigen Schritt ab",
+  "obExpandChecklist": "Einrichtungs-Checkliste erweitern",
+  "obCollapseChecklist": "Einrichtungs-Checkliste einklappen"
 }

@@ -51,5 +51,7 @@
   "editWalletTitle": "Wallet bewerken",
   "saveChanges": "Wijzigingen opslaan",
   "walletNameHelper": "Een label alleen voor jou — bijv. “Belangrijkste USDT-uitbetalingen”. Je klanten zien het nooit.",
-  "walletAddressHelper": "Plak je adres voor het geselecteerde netwerk. Betalingen worden hier direct afgewikkeld — we beheren je geld nooit."
+  "walletAddressHelper": "Plak je adres voor het geselecteerde netwerk. Betalingen worden hier direct afgewikkeld — we beheren je geld nooit.",
+  "walletCompanyFirstTitle": "Maak eerst een bedrijf aan",
+  "walletCompanyFirstBody": "Je moet een bedrijfsprofiel aanmaken voordat je walletadressen toevoegt. Tik hier om te beginnen."
 }

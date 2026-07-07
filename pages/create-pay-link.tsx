@@ -72,16 +72,16 @@ const CreatePaymentLink = ({ setPageName, setPageDescription }: pageProps) => {
   const steps: Step[] = [
     {
       key: "company",
-      label: "Create a Company",
-      helper: "Used on invoices and receipts. Takes ~30 seconds.",
+      label: tCreatePaymentLink("setupStepCompanyLabel"),
+      helper: tCreatePaymentLink("setupStepCompanyHelper"),
       icon: BusinessRounded,
       done: hasCompany,
       onClick: () => setCompanyModalOpen(true),
     },
     {
       key: "wallet",
-      label: "Add a Payout Wallet",
-      helper: "Where customer payments are sent. Required to receive crypto.",
+      label: tCreatePaymentLink("setupStepWalletLabel"),
+      helper: tCreatePaymentLink("setupStepWalletHelper"),
       icon: AccountBalanceWalletRounded,
       done: hasWallet,
       onClick: () => setWalletModalOpen(true),
@@ -148,7 +148,7 @@ const CreatePaymentLink = ({ setPageName, setPageDescription }: pageProps) => {
               mb: 1,
             }}
           >
-            A couple of quick steps first
+            {tCreatePaymentLink("setupTitle")}
           </Typography>
           <Typography
             sx={{
@@ -160,7 +160,7 @@ const CreatePaymentLink = ({ setPageName, setPageDescription }: pageProps) => {
               lineHeight: 1.5,
             }}
           >
-            Finish these to start accepting crypto payments — no need to leave this page.
+            {tCreatePaymentLink("setupSubtitle")}
           </Typography>
 
           <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
@@ -231,7 +231,7 @@ const CreatePaymentLink = ({ setPageName, setPageDescription }: pageProps) => {
                         mt: 0.25,
                       }}
                     >
-                      {step.done ? "Done" : step.helper}
+                      {step.done ? tCreatePaymentLink("setupDone") : step.helper}
                     </Typography>
                   </Box>
                   {!step.done && (

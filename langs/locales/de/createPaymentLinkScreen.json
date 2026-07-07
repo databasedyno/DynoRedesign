@@ -89,5 +89,12 @@
   "customerEmailPlaceholder": "kunde@beispiel.de",
   "expiryRecommendation": "Aus Sicherheitsgründen empfehlen wir, ein Ablaufdatum festzulegen, damit der Link nicht unbegrenzt verwendet werden kann.",
   "valueHelper": "Der Betrag, den Ihr Kunde bezahlen wird.",
-  "clientNameHelper": "Wird auf Rechnung und Beleg angezeigt."
+  "clientNameHelper": "Wird auf Rechnung und Beleg angezeigt.",
+  "setupTitle": "Zuerst ein paar schnelle Schritte",
+  "setupSubtitle": "Schließen Sie diese ab, um Krypto-Zahlungen zu akzeptieren — ohne diese Seite zu verlassen.",
+  "setupStepCompanyLabel": "Unternehmen erstellen",
+  "setupStepCompanyHelper": "Wird auf Rechnungen und Belegen verwendet. Dauert ~30 Sekunden.",
+  "setupStepWalletLabel": "Auszahlungs-Wallet hinzufügen",
+  "setupStepWalletHelper": "Wohin Kundenzahlungen gesendet werden. Erforderlich, um Krypto zu empfangen.",
+  "setupDone": "Erledigt"
 }

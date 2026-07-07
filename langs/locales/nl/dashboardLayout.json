@@ -103,5 +103,17 @@
   "emptyWatchDemo": "Bekijk demo van 60 seconden",
   "emptyAddWallet": "Wallet toevoegen",
   "emptyCreateCompany": "Maak je bedrijf aan",
-  "companySetupWarningShort": "Bedrijfsinstelling"
+  "companySetupWarningShort": "Bedrijfsinstelling",
+  "obCompanyLabel": "Maak je bedrijf aan",
+  "obCompanyDesc": "Voeg je bedrijfsgegevens toe",
+  "obWalletLabel": "Voeg een uitbetalingswallet toe",
+  "obWalletDesc": "Vereist — geld wordt hierheen doorgestuurd",
+  "obLinkLabel": "Maak je eerste betaallink",
+  "obLinkDesc": "Word binnen enkele seconden betaald",
+  "obAllSet": "Alles is klaar!",
+  "obFinishSetup": "Voltooi het instellen",
+  "obProgress": "{{completed}} van {{total}} klaar — een paar snelle stappen om crypto te accepteren",
+  "obLockedStep": "Voltooi eerst de bovenstaande stap",
+  "obExpandChecklist": "Configuratielijst uitvouwen",
+  "obCollapseChecklist": "Configuratielijst inklappen"
 }

@@ -89,5 +89,12 @@
   "customerEmailPlaceholder": "customer@example.com",
   "expiryRecommendation": "For security, we recommend setting an expiry date so the link can't be used indefinitely.",
   "valueHelper": "The amount your customer will pay.",
-  "clientNameHelper": "Shown on the invoice and receipt."
+  "clientNameHelper": "Shown on the invoice and receipt.",
+  "setupTitle": "A couple of quick steps first",
+  "setupSubtitle": "Finish these to start accepting crypto payments — no need to leave this page.",
+  "setupStepCompanyLabel": "Create a Company",
+  "setupStepCompanyHelper": "Used on invoices and receipts. Takes ~30 seconds.",
+  "setupStepWalletLabel": "Add a Payout Wallet",
+  "setupStepWalletHelper": "Where customer payments are sent. Required to receive crypto.",
+  "setupDone": "Done"
 }

@@ -89,5 +89,12 @@
   "customerEmailPlaceholder": "klant@voorbeeld.nl",
   "expiryRecommendation": "Voor de veiligheid raden we aan een vervaldatum in te stellen, zodat de link niet onbeperkt gebruikt kan worden.",
   "valueHelper": "Het bedrag dat je klant gaat betalen.",
-  "clientNameHelper": "Wordt getoond op de factuur en de bon."
+  "clientNameHelper": "Wordt getoond op de factuur en de bon.",
+  "setupTitle": "Eerst een paar snelle stappen",
+  "setupSubtitle": "Voltooi deze om cryptobetalingen te accepteren — zonder deze pagina te verlaten.",
+  "setupStepCompanyLabel": "Maak een bedrijf aan",
+  "setupStepCompanyHelper": "Gebruikt op facturen en bonnen. Duurt ~30 seconden.",
+  "setupStepWalletLabel": "Voeg een uitbetalingswallet toe",
+  "setupStepWalletHelper": "Waar klantbetalingen naartoe gaan. Vereist om crypto te ontvangen.",
+  "setupDone": "Klaar"
 }
