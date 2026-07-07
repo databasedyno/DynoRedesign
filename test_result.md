@@ -43,6 +43,32 @@ User asked: "would payment show relevant label if not API payment but payment li
 ### ⚠️ LIVE PRODUCTION — READ-ONLY. JWT injection only; no forms/mutations/OTP.
 Preview: https://a407732e-14a9-4081-a594-da3ee5210448.preview.emergentagent.com
 JWT: `node /app/scripts/mint_ux_tokens.js` — use `hostbay@moxx.co` (data-rich, has $17k+ volume + trial exhausted).
+## VERIFICATION RESULTS (2026-07-07 follow-up) — Source-aware labels + regression fix: ✅ ALL PASS
+
+### ROOT CAUSE UNCOVERED (regression from Bug 1 fix)
+While extending Bug 4 to add source-aware labels, a second-order regression surfaced: the Recent Transactions widget was rendering the empty state. Root cause was NOT the label code — it was `Components/UI/OnboardingFlow/index.tsx` dispatching `DASHBOARD_FETCH` (stats-only) which the saga's `debounce(400, DASHBOARD_INIT, …)` collapsed together with `useDashboardData`'s newly-added `DASHBOARD_FETCH_ALL`. The debounce keeps only the LATEST action, so `DASHBOARD_FETCH` won and both `/api/dashboard/fee-tiers` and `/api/dashboard/recent-transactions` were silently dropped.
+
+### FIX
+- `Components/UI/OnboardingFlow/index.tsx` — import + dispatch **`DASHBOARD_FETCH_ALL`** instead of `DASHBOARD_FETCH`. Now, regardless of which effect fires last inside the 400ms debounce window, the merged dispatch always fires all three parallel API calls.
+
+### TESTING AGENT REPORT
+- ✅ `/api/dashboard` → 200
+- ✅ `/api/dashboard/fee-tiers` → 200 (previously skipped)
+- ✅ `/api/dashboard/recent-transactions` → 200 (previously skipped)
+- ✅ Widget shows 5 rows (not empty state)
+- ✅ Every row's secondary text = "API payment"
+- ✅ NO `@dynopay.internal`, `legacy-api-`, or `Legacy API Customer` visible
+- ✅ GrowPanel shows `trial_complete` offer (correct for hostbay's exhausted $500 trial)
+- ✅ Metrics render: $87.99 today, $18,888.74 lifetime, 1 payment today, 13 wallets
+
+### PAYMENT-LINK LABEL NOTE
+The 5 most-recent transactions for hostbay are all `legacy_api` (last payment-link txn was 2026-06-28, older than the default limit=10 window). Backend-verified with `?limit=100`: 2 rows correctly return `source: "payment_link"` → the widget's `secondaryLabel` code path handles this and renders "Payment link" (localized) instead of an empty timestamp. The full-transactions page (`/transactions`) is a separate component and not covered by this fix — but the dashboard widget itself is fully source-aware.
+
+### VERDICT: ✅ Source-aware labels working; no regressions. hostbay@moxx.co dashboard is clean.
+
+---
+
+
 Inject `localStorage.setItem('token','<JWT>')`, then navigate to `/dashboard`. Hard-reload if needed.
 
 ### USER REPORT (4 bugs)
