@@ -42,6 +42,23 @@ Inject `localStorage.setItem('token','<JWT>')`, then navigate to `/dashboard`. H
 
 ## TEST REQUEST (2026-07-07) — Feature A Phase 1 FINAL: dashboard bento reskin after per-component blue sweep + light-mode check
 ### ⚠️ LIVE PRODUCTION — READ-ONLY. JWT injection only; no forms/mutations/OTP. Light/dark toggle is a safe UI preference.
+## VERIFICATION RESULTS (2026-07-07) — Dashboard 4-bug fix: ✅ ALL PASS
+
+### TEST EXECUTION
+- agent: testing (auto_frontend_testing_agent)
+- account: hostbay@moxx.co (fee_free_remaining_usd=0, cumulative_volume_usd=17357.55)
+- Bug 1 — Fee-free CTA: **PASS** — `grow-offer-fee_free` NOT present; `grow-offer-trial_complete` with "🎉 Fee-free trial complete" shown; encourages referral. Screenshot bug1_pass_trial_complete.png.
+- Bug 2 — Daily transaction volume: **PASS** — Today's revenue = **$87.99 USD**, Payments today = **1**, Lifetime volume = **$18,888.74 USD**. Transaction Volume chart SVG rendered (path d length 184). Screenshots bug2_hero_metrics.png + bug2_chart.png.
+- Bug 3 — Broken CTA routes: **PASS** — Referral program → `/referrals` renders, Premium tier → `/fees` renders. Primary CTA (trial_complete) → `/referrals`. Screenshots bug3_referrals_page.png + bug3_fees_page.png.
+- Bug 4 — Legacy API email leak: **PASS** — `@dynopay.internal`, `legacy-api-`, `Legacy API Customer` all absent; rows show localized "API payment" instead. Screenshot bug4_detailed_recent_tx.png.
+- i18n spot-check: German locale confirmed working (/referrals → "Empfehlungen").
+- Console: no JS errors affecting functionality. Only minor 400 on `/images/user_image.png` (pre-existing cosmetic).
+
+### VERDICT: ✅ ALL 4 BUGS FIXED — READY FOR USER.
+
+---
+
+
 Preview: https://config-center-15.preview.emergentagent.com ; JWT: `node /app/scripts/mint_ux_tokens.js` (hostbay@moxx.co). Inject `localStorage.setItem('token','<JWT>')`, hard-reload to get latest build.
 Context: after the previous pass I swept component-level hardcoded blues → theme tokens: RadioGroup (radios), DatePicker range highlight, PaymentLinksTable header, EmailVerificationBanner, SaveChangeModel, CompanySettingsDialog VAT rows, AreaChart line+gradient, Transactions/CelebrationOverlay confetti, ApiKeysPage border, TimePicker, Loading spinner. Expect the OLD electric blue (#0004FF) / indigo (#6C7BFF, rgb(88,101,242)) to be essentially GONE from the dashboard.
 1. DARK mode — /dashboard, /wallet, /pay-links, /transactions, /profile: confirm accent is cyber-lime, and specifically re-check the previously-blue elements: radio buttons, date-range picker highlight, the metrics area CHART line, table header row, "verify email" banner, selects. Report any element STILL blue/indigo (page + element). Screenshot.
