@@ -72,7 +72,7 @@ const CodeBlock: React.FC<{
         borderRadius: "12px",
         overflow: "hidden",
         border: `1px solid ${isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)"}`,
-        background: isDark ? "#0B0D17" : "#0E1020",
+        background: "#0A0A0B",
       }}
     >
       {/* Fake terminal header */}
@@ -199,21 +199,19 @@ const TryItNow: React.FC = () => {
           id="try-it-now-heading"
           component="h2"
           sx={{
-            fontFamily: "OutfitBold",
+            fontFamily: "'Unbounded', 'OutfitBold', system-ui, sans-serif",
             fontSize: { xs: 28, sm: 34, md: 42 },
             lineHeight: 1.12,
             color: theme.palette.text.primary,
             mb: 1.5,
-            letterSpacing: "-0.5px",
+            letterSpacing: "-0.02em",
           }}
         >
           {t("tryItTitle")}{" "}
           <Box
             component="span"
             sx={{
-              background: "linear-gradient(135deg, #0004FF 0%, #6C7BFF 100%)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
+              color: theme.palette.primary.main,
             }}
           >
             {t("tryItTitleHighlight")}
@@ -289,7 +287,7 @@ const TryItNow: React.FC = () => {
                 fontSize: 12,
                 textTransform: "none",
                 color: theme.palette.primary.main,
-                "&:hover": { bgcolor: "rgba(0,4,255,0.06)" },
+                "&:hover": { bgcolor: isDark ? "rgba(204,255,0,0.10)" : "rgba(10,10,10,0.05)" },
               }}
             >
               {t("tryItOpenFullPage")}
@@ -300,11 +298,13 @@ const TryItNow: React.FC = () => {
               position: "relative",
               borderRadius: "16px",
               overflow: "hidden",
-              border: `1px solid ${isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)"}`,
-              background: isDark ? "rgba(15,16,30,0.5)" : "rgba(255,255,255,0.6)",
+              border: `1px solid ${isDark ? "rgba(255,255,255,0.12)" : "rgba(10,10,10,0.10)"}`,
+              background: isDark ? "rgba(255,255,255,0.045)" : "rgba(255,255,255,0.72)",
+              backdropFilter: "blur(16px)",
+              WebkitBackdropFilter: "blur(16px)",
               boxShadow: isDark
-                ? "0 12px 40px rgba(0,0,0,0.4)"
-                : "0 12px 40px rgba(0,4,255,0.08)",
+                ? "0 12px 40px rgba(0,0,0,0.45)"
+                : "0 12px 40px rgba(10,10,10,0.08)",
             }}
           >
             <Box
@@ -375,7 +375,7 @@ const TryItNow: React.FC = () => {
                 px: 0.9,
                 py: 0.15,
                 borderRadius: 0.8,
-                bgcolor: isDark ? "rgba(108,123,255,0.15)" : "rgba(0,4,255,0.08)",
+                bgcolor: isDark ? "rgba(204,255,0,0.15)" : "rgba(10,10,10,0.06)",
                 color: theme.palette.primary.main,
                 fontFamily: "UrbanistBold",
                 fontSize: 11,
@@ -414,11 +414,12 @@ const TryItNow: React.FC = () => {
                 px: 2.2,
                 py: 0.9,
                 borderRadius: "10px",
-                background: "linear-gradient(135deg, #0004FF 0%, #3D40FF 100%)",
-                boxShadow: "0 8px 22px rgba(0,4,255,0.25)",
+                background: theme.palette.primary.main,
+                color: theme.palette.primary.contrastText,
+                boxShadow: isDark ? "0 8px 24px rgba(204,255,0,0.3)" : "0 8px 22px rgba(10,10,10,0.2)",
                 "&:hover": {
-                  background: "linear-gradient(135deg, #0004FF 0%, #4D50FF 100%)",
-                  boxShadow: "0 10px 26px rgba(0,4,255,0.3)",
+                  background: (theme.palette.primary as any).hover || theme.palette.primary.dark,
+                  boxShadow: isDark ? "0 10px 28px rgba(204,255,0,0.4)" : "0 10px 26px rgba(10,10,10,0.28)",
                 },
               }}
               startIcon={<ContentCopy sx={{ fontSize: 15 }} />}
@@ -440,7 +441,7 @@ const TryItNow: React.FC = () => {
                 color: theme.palette.text.primary,
                 "&:hover": {
                   borderColor: theme.palette.primary.main,
-                  bgcolor: isDark ? "rgba(108,123,255,0.06)" : "rgba(0,4,255,0.04)",
+                  bgcolor: isDark ? "rgba(204,255,0,0.06)" : "rgba(10,10,10,0.04)",
                 },
               }}
             >

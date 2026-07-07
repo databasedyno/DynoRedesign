@@ -68,7 +68,7 @@ const FeeCalculator: React.FC = () => {
   const yearlySavings  = monthlySavings * 12;
   const savingsPct = altCost > 0 ? (monthlySavings / altCost) * 100 : 0;
 
-  const primaryColor = '#0004FF';
+  const primaryColor = theme.palette.primary.main;
   const altColor = '#EF4444';
 
   return (
@@ -100,11 +100,11 @@ const FeeCalculator: React.FC = () => {
         <Typography
           component="h2"
           sx={{
-            fontFamily: 'OutfitBold',
+            fontFamily: "'Unbounded', 'OutfitBold', system-ui, sans-serif",
             fontSize: { xs: 28, sm: 34, md: 42 },
             lineHeight: 1.15,
             color: theme.palette.text.primary,
-            letterSpacing: '-0.5px',
+            letterSpacing: '-0.02em',
             mb: 1.5,
           }}
         >
@@ -112,9 +112,7 @@ const FeeCalculator: React.FC = () => {
           <Box
             component="span"
             sx={{
-              background: 'linear-gradient(135deg, #0004FF 0%, #6C7BFF 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
+              color: theme.palette.primary.main,
             }}
           >
             {t('feeCalcTitleHighlight')}
@@ -195,8 +193,8 @@ const FeeCalculator: React.FC = () => {
             sx={{
               color: primaryColor,
               height: 8,
-              '& .MuiSlider-thumb': { width: 22, height: 22, boxShadow: '0 4px 12px rgba(0,4,255,0.35)' },
-              '& .MuiSlider-track':  { background: 'linear-gradient(90deg, #0004FF, #6C7BFF)' },
+              '& .MuiSlider-thumb': { width: 22, height: 22, boxShadow: isDark ? '0 4px 14px rgba(204,255,0,0.4)' : '0 4px 12px rgba(10,10,10,0.25)' },
+              '& .MuiSlider-track':  { border: 'none', backgroundColor: primaryColor },
               '& .MuiSlider-rail':   { opacity: isDark ? 0.18 : 0.12 },
             }}
           />
@@ -272,8 +270,10 @@ const FeeCalculator: React.FC = () => {
           sx={{
             p: { xs: 3, md: 4 },
             borderRadius: '20px',
-            background: `linear-gradient(135deg, ${isDark ? '#12132A' : '#F4F5FF'} 0%, ${isDark ? '#0B0D1A' : '#ffffff'} 100%)`,
-            border: `1px solid ${isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,4,255,0.10)'}`,
+            background: isDark ? 'rgba(255,255,255,0.045)' : 'rgba(255,255,255,0.72)',
+            backdropFilter: 'blur(16px)',
+            WebkitBackdropFilter: 'blur(16px)',
+            border: `1px solid ${isDark ? 'rgba(255,255,255,0.12)' : 'rgba(10,10,10,0.10)'}`,
             display: 'flex',
             flexDirection: 'column',
           }}
@@ -302,11 +302,11 @@ const FeeCalculator: React.FC = () => {
             sx={{
               px: 2.2, py: 2.4,
               borderRadius: '14px',
-              background: `linear-gradient(135deg, ${primaryColor}, #6C7BFF)`,
-              color: '#fff',
+              background: primaryColor,
+              color: theme.palette.primary.contrastText,
               display: 'flex', flexDirection: 'column', gap: 1,
               mb: 2,
-              boxShadow: '0 12px 30px rgba(0,4,255,0.25)',
+              boxShadow: isDark ? '0 12px 34px rgba(204,255,0,0.28)' : '0 12px 30px rgba(10,10,10,0.18)',
             }}
           >
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.6, opacity: 0.9 }}>
@@ -337,9 +337,9 @@ const FeeCalculator: React.FC = () => {
               px: 2.2, py: 1,
               border: 'none', cursor: 'pointer',
               borderRadius: '10px',
-              fontFamily: 'UrbanistBold', fontSize: 14, color: '#fff',
-              background: 'linear-gradient(135deg, #0004FF 0%, #3D40FF 100%)',
-              boxShadow: '0 8px 22px rgba(0,4,255,0.25)',
+              fontFamily: 'UrbanistBold', fontSize: 14, color: theme.palette.primary.contrastText,
+              background: primaryColor,
+              boxShadow: isDark ? '0 8px 24px rgba(204,255,0,0.3)' : '0 8px 22px rgba(10,10,10,0.2)',
               transition: 'transform 0.2s ease',
               '&:hover': { transform: 'translateY(-1px)' },
             }}

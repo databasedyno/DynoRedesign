@@ -29,7 +29,7 @@ const QUOTES: Testimonial[] = [
     role: 'Founder',
     company: 'Bloomvue Studio',
     industry: 'E-commerce · Portugal',
-    color: '#0004FF',
+    color: '#5865F2',
     chain: 'USDT-TRC20',
     quoteKey: 'testimonial1Quote',
   },
@@ -65,7 +65,7 @@ const Card: React.FC<{ t: Testimonial; isDark: boolean; tr: (key: string) => str
         borderRadius: '16px',
         border: `1px solid ${isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'}`,
         background: isDark ? 'rgba(255,255,255,0.02)' : 'rgba(255,255,255,0.7)',
-        boxShadow: isDark ? '0 6px 20px rgba(0,0,0,0.25)' : '0 6px 20px rgba(0,4,255,0.06)',
+        boxShadow: isDark ? '0 6px 20px rgba(0,0,0,0.35)' : '0 6px 20px rgba(10,10,10,0.06)',
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
@@ -207,11 +207,11 @@ const TestimonialsV2: React.FC = () => {
         <Typography
           component="h2"
           sx={{
-            fontFamily: 'OutfitBold',
+            fontFamily: "'Unbounded', 'OutfitBold', system-ui, sans-serif",
             fontSize: { xs: 26, sm: 32, md: 38 },
             lineHeight: 1.15,
             color: theme.palette.text.primary,
-            letterSpacing: '-0.5px',
+            letterSpacing: '-0.02em',
           }}
         >
           {t('testimonialsHeading')}

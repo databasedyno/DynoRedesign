@@ -43,8 +43,13 @@ const FinalCTA: React.FC = () => {
           textAlign: "center",
           py: isMobile ? 6 : 8,
           px: isMobile ? 3 : 6,
-          border: `1px solid ${isDark ? "rgba(106,123,255,0.2)" : "rgba(0,4,255,0.1)"}`,
-          bgcolor: isDark ? "rgba(106,123,255,0.04)" : "rgba(0,4,255,0.02)",
+          border: `1px solid ${isDark ? "rgba(204,255,0,0.28)" : "rgba(10,10,10,0.12)"}`,
+          bgcolor: isDark ? "rgba(255,255,255,0.045)" : "rgba(255,255,255,0.72)",
+          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(16px)",
+          boxShadow: isDark
+            ? "0 24px 80px rgba(0,0,0,0.45), 0 0 60px rgba(204,255,0,0.10)"
+            : "0 24px 80px rgba(10,10,10,0.08)",
           transition: "all 0.5s ease",
           transform: isVisible ? "translateY(0)" : "translateY(20px)",
           opacity: isVisible ? 1 : 0,
@@ -61,8 +66,8 @@ const FinalCTA: React.FC = () => {
             height: "500px",
             borderRadius: "50%",
             background: isDark
-              ? "radial-gradient(circle, rgba(106,123,255,0.08) 0%, transparent 70%)"
-              : "radial-gradient(circle, rgba(0,4,255,0.05) 0%, transparent 70%)",
+              ? "radial-gradient(circle, rgba(204,255,0,0.12) 0%, transparent 70%)"
+              : "radial-gradient(circle, rgba(204,255,0,0.16) 0%, transparent 70%)",
             pointerEvents: "none",
           }}
         />
@@ -70,10 +75,11 @@ const FinalCTA: React.FC = () => {
         <Typography
           sx={{
             fontSize: isMobile ? "32px" : "44px",
-            fontFamily: "OutfitMedium",
+            fontFamily: "'Unbounded', 'OutfitMedium', system-ui, sans-serif",
             fontWeight: 600,
             color: theme.palette.text.primary,
             lineHeight: 1.15,
+            letterSpacing: "-0.02em",
             mb: 1.5,
             position: "relative",
             zIndex: 1,

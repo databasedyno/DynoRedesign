@@ -17,8 +17,8 @@ interface ValueProp {
 const valueProps: ValueProp[] = [
   {
     icon: "🔄",
-    gradient: "linear-gradient(135deg, #10B981 0%, #34D399 100%)",
-    glowColor: "rgba(16,185,129,0.15)",
+    gradient: "linear-gradient(135deg, #CCFF00 0%, #9EDB00 100%)",
+    glowColor: "rgba(204,255,0,0.18)",
     titleKey: "coreValue1Title",
     descriptionKey: "coreValue1Description",
     stat: "<5s",
@@ -26,8 +26,8 @@ const valueProps: ValueProp[] = [
   },
   {
     icon: "🔗",
-    gradient: "linear-gradient(135deg, #0004FF 0%, #6A4DFF 100%)",
-    glowColor: "rgba(0,4,255,0.12)",
+    gradient: "linear-gradient(135deg, #7C8BFF 0%, #5865F2 100%)",
+    glowColor: "rgba(88,101,242,0.18)",
     titleKey: "coreValue2Title",
     descriptionKey: "coreValue2Description",
     stat: "30s",
@@ -35,8 +35,8 @@ const valueProps: ValueProp[] = [
   },
   {
     icon: "📋",
-    gradient: "linear-gradient(135deg, #F59E0B 0%, #F97316 100%)",
-    glowColor: "rgba(245,158,11,0.12)",
+    gradient: "linear-gradient(135deg, #10B981 0%, #34D399 100%)",
+    glowColor: "rgba(16,185,129,0.16)",
     titleKey: "coreValue3Title",
     descriptionKey: "coreValue3Description",
     stat: "100%",
@@ -98,8 +98,10 @@ const CoreValueProps: React.FC = () => {
             sx={{
               position: "relative",
               borderRadius: "24px",
-              bgcolor: isDark ? "#141625" : "#FFFFFF",
-              border: `1px solid ${isDark ? "#2A2D42" : "#E7E8EF"}`,
+              bgcolor: isDark ? "rgba(255,255,255,0.045)" : "rgba(255,255,255,0.72)",
+              backdropFilter: "blur(16px)",
+              WebkitBackdropFilter: "blur(16px)",
+              border: `1px solid ${isDark ? "rgba(255,255,255,0.12)" : "rgba(10,10,10,0.10)"}`,
               p: isMobile ? 3 : 4,
               overflow: "hidden",
               transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
@@ -109,10 +111,10 @@ const CoreValueProps: React.FC = () => {
               cursor: "default",
               "&:hover": {
                 transform: "translateY(-6px)",
-                borderColor: isDark ? "rgba(106,123,255,0.4)" : "rgba(0,4,255,0.2)",
+                borderColor: isDark ? "rgba(204,255,0,0.45)" : "rgba(10,10,10,0.28)",
                 boxShadow: isDark
-                  ? `0 20px 60px rgba(0,0,0,0.2), 0 0 40px ${prop.glowColor}`
-                  : `0 20px 60px rgba(0,0,0,0.06), 0 0 40px ${prop.glowColor}`,
+                  ? `0 20px 60px rgba(0,0,0,0.4), 0 0 40px ${prop.glowColor}`
+                  : `0 20px 60px rgba(10,10,10,0.08), 0 0 40px ${prop.glowColor}`,
               },
               "&::before": {
                 content: '""',
@@ -218,9 +220,7 @@ const CoreValueProps: React.FC = () => {
                   fontSize: "16px",
                   fontFamily: "OutfitSemiBold",
                   fontWeight: 700,
-                  background: prop.gradient,
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
+                  color: theme.palette.text.primary,
                 }}
               >
                 {prop.stat}

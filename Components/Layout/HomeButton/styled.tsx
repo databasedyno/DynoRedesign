@@ -52,8 +52,8 @@ export const StyledHomeButton = styled(Button, {
 
       ...(intent === "primary"
         ? {
-            backgroundColor: isDark ? "#6A7BFF" : "#0004FF",
-            color: theme.palette.common.white,
+            backgroundColor: theme.palette.primary.main,
+            color: theme.palette.primary.contrastText,
 
             "& .MuiSvgIcon-root": {
               animation: `${bounceUpDown} 1.5s ease-in-out infinite`,
@@ -61,8 +61,9 @@ export const StyledHomeButton = styled(Button, {
             },
 
             "&:hover": {
-              backgroundColor: isDark ? "#5A6BEF" : "#0004FFE5",
-              boxShadow: "none",
+              backgroundColor:
+                (theme.palette.primary as any).hover || theme.palette.primary.dark,
+              boxShadow: isDark ? "0 0 26px rgba(204,255,0,0.35)" : "none",
 
               "& .MuiSvgIcon-root": {
                 animation: "none",
@@ -71,7 +72,7 @@ export const StyledHomeButton = styled(Button, {
             },
 
             "&:active": {
-              backgroundColor: isDark ? "#6A7BFF" : "#0004FF",
+              backgroundColor: theme.palette.primary.main,
 
               "& .MuiSvgIcon-root": {
                 animation: "none",
@@ -85,18 +86,26 @@ export const StyledHomeButton = styled(Button, {
             },
           }
         : {
-            backgroundColor: isDark ? theme.palette.background.paper : theme.palette.common.white,
+            backgroundColor: isDark
+              ? "rgba(255,255,255,0.05)"
+              : "rgba(255,255,255,0.72)",
+            backdropFilter: "blur(12px)",
+            WebkitBackdropFilter: "blur(12px)",
             color: theme.palette.text.primary,
-            border: `1px solid ${isDark ? "#2A2D42" : theme.palette.divider}`,
+            border: `1px solid ${(theme.palette as any).border?.main || theme.palette.divider}`,
 
             "&:hover": {
-              backgroundColor: isDark ? theme.palette.background.default : theme.palette.common.white,
-              color: theme.palette.primary.main,
+              backgroundColor: isDark
+                ? "rgba(255,255,255,0.09)"
+                : "rgba(255,255,255,0.92)",
+              borderColor: theme.palette.primary.main,
               boxShadow: "none",
             },
 
             "&:active": {
-              backgroundColor: isDark ? theme.palette.background.paper : theme.palette.common.white,
+              backgroundColor: isDark
+                ? "rgba(255,255,255,0.05)"
+                : "rgba(255,255,255,0.72)",
             },
 
             "&:disabled": {

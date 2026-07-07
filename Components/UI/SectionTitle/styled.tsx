@@ -47,12 +47,12 @@ export const Badge = styled(Box)(({ theme }) => ({
 }));
 
 export const Heading = styled(Typography)(({ theme }) => ({
-  fontWeight: 500,
-  fontFamily: "OutfitMedium",
+  fontWeight: 600,
+  fontFamily: "'Unbounded', 'OutfitMedium', system-ui, sans-serif",
   color: theme.palette.text.primary,
   padding: "0 15px",
   textAlign: "center",
-  letterSpacing: "-0.01em",
+  letterSpacing: "-0.02em",
   "&[data-align='start']": {
     textAlign: "left",
   },

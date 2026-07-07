@@ -35,29 +35,31 @@ const FAQItem: React.FC<{
     <Box
       sx={{
         borderRadius: "16px",
+        backdropFilter: "blur(14px)",
+        WebkitBackdropFilter: "blur(14px)",
         border: `1px solid ${
           isOpen
             ? isDark
-              ? "rgba(106,123,255,0.3)"
-              : "rgba(0,4,255,0.15)"
+              ? "rgba(204,255,0,0.35)"
+              : "rgba(10,10,10,0.25)"
             : isDark
-            ? "#2A2D42"
-            : "#E7E8EF"
+            ? "rgba(255,255,255,0.12)"
+            : "rgba(10,10,10,0.10)"
         }`,
         bgcolor: isOpen
           ? isDark
-            ? "rgba(106,123,255,0.04)"
-            : "rgba(0,4,255,0.02)"
+            ? "rgba(204,255,0,0.06)"
+            : "rgba(10,10,10,0.03)"
           : isDark
-          ? "#141625"
-          : "#FFFFFF",
+          ? "rgba(255,255,255,0.045)"
+          : "rgba(255,255,255,0.72)",
         overflow: "hidden",
         transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
         transform: isVisible ? "translateY(0)" : "translateY(20px)",
         opacity: isVisible ? 1 : 0,
         transitionDelay: `${idx * 80}ms`,
         "&:hover": {
-          borderColor: isDark ? "rgba(106,123,255,0.25)" : "rgba(0,4,255,0.12)",
+          borderColor: isDark ? "rgba(204,255,0,0.28)" : "rgba(10,10,10,0.2)",
         },
       }}
     >

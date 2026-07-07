@@ -85,13 +85,13 @@ const HeroClean: React.FC = () => {
         id="hero-heading"
         component="h1"
         sx={{
-          fontFamily: 'OutfitMedium',
-          fontWeight: 500,
+          fontFamily: "'Unbounded', 'OutfitMedium', system-ui, sans-serif",
+          fontWeight: 600,
           color: theme.palette.text.primary,
-          fontSize: { xs: 40, sm: 52, md: 68 },
-          lineHeight: 1.05,
-          letterSpacing: '-0.02em',
-          maxWidth: 820,
+          fontSize: { xs: 38, sm: 50, md: 66 },
+          lineHeight: 1.06,
+          letterSpacing: '-0.03em',
+          maxWidth: 860,
           mb: { xs: 2.5, md: 3 },
         }}
       >
@@ -130,7 +130,7 @@ const HeroClean: React.FC = () => {
           endIcon={<ArrowForward />}
           sx={{
             bgcolor: theme.palette.primary.main,
-            color: '#fff',
+            color: theme.palette.primary.contrastText,
             textTransform: 'none',
             fontFamily: 'OutfitMedium',
             fontWeight: 600,
@@ -139,7 +139,13 @@ const HeroClean: React.FC = () => {
             py: { xs: 1.4, md: 1.6 },
             borderRadius: 2,
             boxShadow: 'none',
-            '&:hover': { bgcolor: theme.palette.primary.dark, boxShadow: 'none' },
+            '&:hover': {
+              bgcolor: (theme.palette.primary as any).hover || theme.palette.primary.dark,
+              boxShadow:
+                theme.palette.mode === 'dark'
+                  ? '0 0 30px rgba(204,255,0,0.4)'
+                  : 'none',
+            },
           }}
         >
           {t('startAcceptingCrypto')}
