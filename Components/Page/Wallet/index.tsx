@@ -107,7 +107,7 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: () => void }) => {
       >
         <CircularProgress
           sx={{
-            color: "#0004ff",
+            color: "primary.main",
           }}
         />
       </Box>
@@ -476,12 +476,12 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: () => void }) => {
               fontFamily: "UrbanistMedium",
               fontWeight: 500,
               fontSize: "15px",
-              color: "#FFFFFF",
-              backgroundColor: "#0004FF",
+              color: "primary.contrastText",
+              backgroundColor: "primary.main",
               py: "11px",
               borderRadius: "6px",
               "&:hover": {
-                backgroundColor: "#0003cc"
+                backgroundColor: "primary.dark"
               }
             }}
           >
