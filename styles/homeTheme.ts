@@ -42,7 +42,7 @@ export const homeTheme = createTheme({
     text: {
       primary: "#0A0A0A",
       secondary: "#52525B",
-      disabled: "#71717A",
+      disabled: "#5F5F6B",
     },
     background: {
       default: "#EEF1F6",

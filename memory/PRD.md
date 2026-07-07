@@ -5,6 +5,15 @@ USDT-TRC20 payment gateway platform. Users can create companies, wallets, paymen
 
 ## What's Been Implemented
 
+### 2026-07-07 — Bug fix: invisible/low-contrast text app-wide + wrong first-payment celebration ✅ VERIFIED
+User reported (1) text invisible in BOTH light & dark across in-app pages, layouts & landing (e.g. dashboard KPIs, API-keys page, raw key `keys.usd`, "Active" pill), and (2) an EXISTING merchant (350+ tx) wrongly saw the "First payment landed!" celebration.
+- **Root cause (contrast):** the bento reskin overloaded two palette tokens that the app uses as *surfaces*: `secondary.main` (was a light-gray/dark surface → reskin made it the near-black/lime ACCENT) and `success.main` (was a light tint → reskin made it a saturated green). Every component using them as a *background* (sidebar ReferralCard, /referrals step cards, RadioGroup, CustomSwitch, PanelCard header pills, wallet/dashboard panels, HelpAndSupport, OtpInputPanel, status badges) rendered near-1:1 (dark-on-dark / green-on-green).
+- **Fix:** restored `secondary` in `styles/appTheme.ts` to a neutral SURFACE token (light `#F4F6FA`, dark `#1E1E28`) — one palette correction fixed ~30 surfaces at once; `primary`/`success` remain the true lime accents used with explicit contrastText. Also fixed 3 success badges (`Components/Page/API/styled.tsx` Tags, `Dashboard/styled.tsx` PercentageChip, `DashboardRightSection.tsx` tier badge → `success.light` bg). Fixed `/referrals` share button (`primary.contrastText`) and darkened landing muted-caption token (`homeTheme` text.disabled).
+- **i18n:** `ApiKeysPage.tsx` card title was a raw `keys.usd` string → now `t("apiKeyTitle",{currency})` ("USD API Key"), key added to all 6 locales.
+- **Celebration fix:** `Components/Page/Transactions/index.tsx` now fires the first-payment celebration ONLY when the merchant has exactly ONE confirmed payment (was: any confirmed payment + localStorage gate) — existing merchants with history never see it.
+- **Verified** by frontend testing agent (iteration_23): 13/13 — all previously-invisible items readable in light+dark (sidebar 16–20:1, referrals steps, dev-keys title/body, dashboard KPI, wallet chips, landing captions), celebration correctly suppressed for hostbay (350+ tx), no console blockers. Live-prod-safe (JWT read-only, no mutations).
+
+
 ### 2026-07-07 — Auth suite bold redesign: "Floating Glass Bento" ✅ (design-verified)
 - Full redesign of Login + Register + Forgot/Reset password to a bold, Emergent-style aesthetic (user request: "not bold like emergent"). Approved direction: cyber-lime (#CCFF00) on void-black glass (dark) / near-black buttons w/ lime text (light).
 - Implemented as a **scoped MUI theme** (`styles/authTheme.ts` → `authThemeLight`/`authThemeDark`) wired into `pages/_app.tsx` for the `login` layout (covers `/auth/*`, `/reset-password`, `/admin/login`) — so the accent/glass cascades through ALL shared auth components (inputs, buttons, OTP/forgot dialogs) WITHOUT touching the ~2000-line auth logic. Rest of app untouched.
