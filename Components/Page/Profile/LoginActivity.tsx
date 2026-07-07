@@ -9,6 +9,7 @@ import TabletIcon from "@mui/icons-material/Tablet";
 import LocationOnOutlinedIcon from "@mui/icons-material/LocationOnOutlined";
 import FlagOutlinedIcon from "@mui/icons-material/FlagOutlined";
 import React, { useCallback, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import axiosBaseApi from "@/axiosConfig";
 
 interface LoginEntry {
@@ -26,6 +27,7 @@ interface LoginEntry {
 const LoginActivity = () => {
   const theme = useTheme();
   const isMobile = useIsMobile("md");
+  const { t } = useTranslation("profile");
   const [activities, setActivities] = useState<LoginEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -57,10 +59,10 @@ const LoginActivity = () => {
     const diffHours = Math.floor(diffMs / 3600000);
     const diffDays = Math.floor(diffMs / 86400000);
 
-    if (diffMins < 1) return "Just now";
-    if (diffMins < 60) return `${diffMins}m ago`;
-    if (diffHours < 24) return `${diffHours}h ago`;
-    if (diffDays < 7) return `${diffDays}d ago`;
+    if (diffMins < 1) return t("justNow");
+    if (diffMins < 60) return t("minutesAgo", { count: diffMins });
+    if (diffHours < 24) return t("hoursAgo", { count: diffHours });
+    if (diffDays < 7) return t("daysAgo", { count: diffDays });
     return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
   };
 
@@ -83,7 +85,7 @@ const LoginActivity = () => {
   return (
     <PanelCard
       bodyPadding={isMobile ? `${theme.spacing(1.5, 2, 2, 2)}` : `${theme.spacing(2, 2.5, 2.5, 2.5)}`}
-      title="Login Activity"
+      title={t("loginActivity")}
       showHeaderBorder={false}
       headerAction={
         <IconButton>
@@ -102,7 +104,7 @@ const LoginActivity = () => {
           data-testid="no-login-activity"
           sx={{ fontSize: "14px", color: theme.palette.text.secondary, fontFamily: "UrbanistMedium", textAlign: "center", py: 3 }}
         >
-          No login activity recorded yet.
+          {t("noLoginActivity")}
         </Typography>
       ) : (
         <Box sx={{ display: "flex", flexDirection: "column", gap: "8px" }}>
@@ -151,7 +153,7 @@ const LoginActivity = () => {
                     <Chip
                       data-testid={`flagged-badge-${entry.id}`}
                       icon={<FlagOutlinedIcon sx={{ fontSize: "13px !important" }} />}
-                      label="Flagged"
+                      label={t("flagged")}
                       size="small"
                       color="error"
                       variant="outlined"

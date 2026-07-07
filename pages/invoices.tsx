@@ -103,8 +103,8 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
 
   useEffect(() => {
     if (setPageName && setPageDescription) {
-      setPageName("Invoices & Tax");
-      setPageDescription("View invoices and tax reports");
+      setPageName(t("invoices.pageName"));
+      setPageDescription(t("invoices.pageDescription"));
     }
   }, [setPageName, setPageDescription]);
 
@@ -314,12 +314,12 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
             <Tab
               icon={<ReceiptLongRounded sx={{ fontSize: 18 }} />}
               iconPosition="start"
-              label="Invoices"
+              label={t("invoices.tabInvoices")}
             />
             <Tab
               icon={<AssessmentRounded sx={{ fontSize: 18 }} />}
               iconPosition="start"
-              label="Tax Report"
+              label={t("invoices.tabTaxReport")}
             />
           </Tabs>
         </Box>
@@ -328,7 +328,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
         {activeTab === 0 && (
           <Box>
             <PanelCard
-              title={`Invoices (${totalInvoices})`}
+              title={t("invoices.invoicesTitle", { count: totalInvoices })}
               showHeaderBorder
               headerPadding={appTheme.spacing(2.5)}
               bodyPadding={appTheme.spacing(0)}
@@ -345,7 +345,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                           fontSize: isMobile ? 11 : 13,
                         }}
                       >
-                        Invoice #
+                        {t("invoices.colInvoiceNumber")}
                       </TableCell>
                       <TableCell
                         sx={{
@@ -355,7 +355,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                           fontSize: isMobile ? 11 : 13,
                         }}
                       >
-                        Date
+                        {t("invoices.colDate")}
                       </TableCell>
                       <TableCell
                         sx={{
@@ -365,18 +365,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                           fontSize: isMobile ? 11 : 13,
                         }}
                       >
-                        Customer
-                      </TableCell>
-                      <TableCell
-                        align="right"
-                        sx={{
-                          fontFamily: "UrbanistMedium",
-                          fontWeight: 600,
-                          color: muiTheme.palette.text.secondary,
-                          fontSize: isMobile ? 11 : 13,
-                        }}
-                      >
-                        VAT
+                        {t("invoices.colCustomer")}
                       </TableCell>
                       <TableCell
                         align="right"
@@ -387,7 +376,18 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                           fontSize: isMobile ? 11 : 13,
                         }}
                       >
-                        Total
+                        {t("invoices.colVat")}
+                      </TableCell>
+                      <TableCell
+                        align="right"
+                        sx={{
+                          fontFamily: "UrbanistMedium",
+                          fontWeight: 600,
+                          color: muiTheme.palette.text.secondary,
+                          fontSize: isMobile ? 11 : 13,
+                        }}
+                      >
+                        {t("invoices.colTotal")}
                       </TableCell>
                       <TableCell
                         align="center"
@@ -398,7 +398,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                           fontSize: isMobile ? 11 : 13,
                         }}
                       >
-                        PDF
+                        {t("invoices.colPdf")}
                       </TableCell>
                     </TableRow>
                   </TableHead>
@@ -461,7 +461,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                                     fontSize: isMobile ? 15 : 16,
                                   }}
                                 >
-                                  No invoices yet
+                                  {t("invoices.noInvoicesTitle")}
                                 </Typography>
                                 <Typography
                                   sx={{
@@ -472,7 +472,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                                     lineHeight: 1.5,
                                   }}
                                 >
-                                  Invoices are automatically generated when your customers complete payments. Create a payment link to get started!
+                                  {t("invoices.noInvoicesDesc")}
                                 </Typography>
                               </Box>
                             </TableCell>
@@ -554,7 +554,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                               </Typography>
                             </TableCell>
                             <TableCell align="center">
-                              <Tooltip title="Download PDF">
+                              <Tooltip title={t("invoices.downloadPdf")}>
                                 <IconButton
                                   size="small"
                                   onClick={() =>
@@ -585,7 +585,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                   }}
                 >
                   <CustomButton
-                    label="Previous"
+                    label={t("invoices.previous")}
                     variant="secondary"
                     size="small"
                     disabled={page <= 1}
@@ -600,10 +600,10 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                       px: 1,
                     }}
                   >
-                    Page {page} of {Math.ceil(totalInvoices / 20)}
+                    {t("invoices.pageOf", { page, total: Math.ceil(totalInvoices / 20) })}
                   </Typography>
                   <CustomButton
-                    label="Next"
+                    label={t("invoices.next")}
                     variant="secondary"
                     size="small"
                     disabled={page >= Math.ceil(totalInvoices / 20)}
@@ -640,12 +640,12 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                       height: 36,
                     }}
                   >
-                    <MenuItem value="all">All Time</MenuItem>
-                    <MenuItem value="thisMonth">This Month</MenuItem>
-                    <MenuItem value="lastMonth">Last Month</MenuItem>
-                    <MenuItem value="thisQuarter">This Quarter</MenuItem>
-                    <MenuItem value="thisYear">This Year</MenuItem>
-                    <MenuItem value="lastYear">Last Year</MenuItem>
+                    <MenuItem value="all">{t("invoices.allTime")}</MenuItem>
+                    <MenuItem value="thisMonth">{t("invoices.thisMonth")}</MenuItem>
+                    <MenuItem value="lastMonth">{t("invoices.lastMonth")}</MenuItem>
+                    <MenuItem value="thisQuarter">{t("invoices.thisQuarter")}</MenuItem>
+                    <MenuItem value="thisYear">{t("invoices.thisYear")}</MenuItem>
+                    <MenuItem value="lastYear">{t("invoices.lastYear")}</MenuItem>
                   </Select>
                 </FormControl>
                 <FormControl size="small">
@@ -659,15 +659,15 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                       height: 36,
                     }}
                   >
-                    <MenuItem value="month">By Month</MenuItem>
-                    <MenuItem value="quarter">By Quarter</MenuItem>
-                    <MenuItem value="year">By Year</MenuItem>
+                    <MenuItem value="month">{t("invoices.byMonth")}</MenuItem>
+                    <MenuItem value="quarter">{t("invoices.byQuarter")}</MenuItem>
+                    <MenuItem value="year">{t("invoices.byYear")}</MenuItem>
                   </Select>
                 </FormControl>
               </Box>
               <Box sx={{ display: "flex", gap: 1 }}>
                 <CustomButton
-                  label="Export CSV"
+                  label={t("invoices.exportCsv")}
                   startIcon={<FileDownloadRounded sx={{ fontSize: 16 }} />}
                   variant="secondary"
                   size="small"
@@ -675,7 +675,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                   sx={{ fontSize: 13 }}
                 />
                 <CustomButton
-                  label="Print"
+                  label={t("invoices.print")}
                   startIcon={<PrintRounded sx={{ fontSize: 16 }} />}
                   variant="secondary"
                   size="small"
@@ -695,21 +695,21 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
             >
               {[
                 {
-                  label: "Total Revenue",
+                  label: t("invoices.totalRevenue"),
                   value: taxReport
                     ? formatCurrency(taxReport.summary.total_revenue)
                     : "—",
                   color: muiTheme.palette.text.primary,
                 },
                 {
-                  label: "Tax Collected",
+                  label: t("invoices.taxCollected"),
                   value: taxReport
                     ? formatCurrency(taxReport.summary.total_tax)
                     : "—",
                   color: "#22C55E",
                 },
                 {
-                  label: "Total Invoices",
+                  label: t("invoices.totalInvoices"),
                   value: taxReport
                     ? String(taxReport.summary.total_invoices)
                     : "—",
@@ -758,7 +758,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
 
             {/* Tax by Period */}
             <PanelCard
-              title="Tax by Period"
+              title={t("invoices.taxByPeriod")}
               showHeaderBorder
               headerPadding={appTheme.spacing(2.5)}
               bodyPadding={appTheme.spacing(0)}
@@ -775,7 +775,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                           fontSize: isMobile ? 11 : 13,
                         }}
                       >
-                        Period
+                        {t("invoices.period")}
                       </TableCell>
                       <TableCell
                         align="right"
@@ -786,7 +786,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                           fontSize: isMobile ? 11 : 13,
                         }}
                       >
-                        Revenue
+                        {t("invoices.revenue")}
                       </TableCell>
                       <TableCell
                         align="right"
@@ -797,7 +797,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                           fontSize: isMobile ? 11 : 13,
                         }}
                       >
-                        Tax Collected
+                        {t("invoices.taxCollected")}
                       </TableCell>
                       <TableCell
                         align="right"
@@ -808,7 +808,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                           fontSize: isMobile ? 11 : 13,
                         }}
                       >
-                        Invoices
+                        {t("invoices.colInvoices")}
                       </TableCell>
                     </TableRow>
                   </TableHead>
@@ -832,7 +832,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                               color: muiTheme.palette.text.secondary,
                             }}
                           >
-                            No tax data for this period
+                            {t("invoices.noTaxData")}
                           </Typography>
                         </TableCell>
                       </TableRow>
@@ -891,7 +891,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
 
             {/* Tax by Jurisdiction */}
             <PanelCard
-              title="Tax by Jurisdiction"
+              title={t("invoices.taxByJurisdiction")}
               showHeaderBorder
               headerPadding={appTheme.spacing(2.5)}
               bodyPadding={appTheme.spacing(0)}
@@ -908,7 +908,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                           fontSize: isMobile ? 11 : 13,
                         }}
                       >
-                        Country
+                        {t("invoices.country")}
                       </TableCell>
                       <TableCell
                         align="right"
@@ -919,7 +919,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                           fontSize: isMobile ? 11 : 13,
                         }}
                       >
-                        Tax Rate
+                        {t("invoices.taxRate")}
                       </TableCell>
                       <TableCell
                         align="right"
@@ -930,7 +930,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                           fontSize: isMobile ? 11 : 13,
                         }}
                       >
-                        Tax Collected
+                        {t("invoices.taxCollected")}
                       </TableCell>
                       <TableCell
                         align="right"
@@ -941,7 +941,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                           fontSize: isMobile ? 11 : 13,
                         }}
                       >
-                        Revenue
+                        {t("invoices.revenue")}
                       </TableCell>
                     </TableRow>
                   </TableHead>
@@ -965,7 +965,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                               color: muiTheme.palette.text.secondary,
                             }}
                           >
-                            No jurisdiction data available
+                            {t("invoices.noJurisdictionData")}
                           </Typography>
                         </TableCell>
                       </TableRow>

@@ -99,7 +99,7 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
     if (e.target.files) {
       const file = e.target.files[0];
       if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
-        setPhotoError(`Image size must be less than ${MAX_FILE_SIZE_MB}MB`);
+        setPhotoError(t("imageSizeError", { ns: "profile", max: MAX_FILE_SIZE_MB }));
         if (fileRef.current) fileRef.current.value = "";
         return;
       }
@@ -134,7 +134,7 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
   const handleSendEmailOtp = async () => {
     const email = emailInput.trim();
     if (!email || !email.includes("@")) {
-      setEmailError("Please enter a valid email address");
+      setEmailError(t("validEmailError", { ns: "profile" }));
       return;
     }
     setEmailError("");
@@ -143,9 +143,9 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
       await axiosBaseApi.post("user/addEmail", { email });
       setEmailOtpOpen(true);
       setEmailOtpCountdown(30);
-      dispatch({ type: TOAST_SHOW, payload: { message: "Verification code sent to your email" } });
+      dispatch({ type: TOAST_SHOW, payload: { message: t("codeSentEmail", { ns: "profile" }) } });
     } catch (e: any) {
-      const msg = e.response?.data?.message || "Failed to send verification code";
+      const msg = e.response?.data?.message || t("failedSendCode", { ns: "profile" });
       setEmailError(msg);
       dispatch({ type: TOAST_SHOW, payload: { message: msg, severity: "error" } });
     } finally {
@@ -155,7 +155,7 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
 
   const handleVerifyEmailOtp = async (otp: string) => {
     if (!otp || otp.length !== 6) {
-      setEmailOtpError("Please enter a valid 6-digit code");
+      setEmailOtpError(t("valid6DigitError", { ns: "profile" }));
       return;
     }
     setEmailOtpError("");
@@ -170,9 +170,9 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
       setEmailOtpOpen(false);
       setEditingEmail(false);
       setEmailInput("");
-      dispatch({ type: TOAST_SHOW, payload: { message: message || "Email updated successfully!" } });
+      dispatch({ type: TOAST_SHOW, payload: { message: message || t("emailUpdated", { ns: "profile" }) } });
     } catch (e: any) {
-      setEmailOtpError(e.response?.data?.message || "Verification failed");
+      setEmailOtpError(e.response?.data?.message || t("verificationFailed", { ns: "profile" }));
     } finally {
       setEmailOtpLoading(false);
     }
@@ -182,7 +182,7 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
   const handleSendPhoneOtp = async () => {
     const cleaned = phoneInput.replace(/[^0-9]/g, "");
     if (!cleaned || cleaned.length < 10) {
-      setPhoneError("Please enter a valid phone number");
+      setPhoneError(t("validPhoneError", { ns: "profile" }));
       return;
     }
     setPhoneError("");
@@ -191,9 +191,9 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
       await axiosBaseApi.post("/user/addPhone", { phone: cleaned });
       setPhoneOtpOpen(true);
       setPhoneOtpCountdown(30);
-      dispatch({ type: TOAST_SHOW, payload: { message: "Verification code sent to your phone" } });
+      dispatch({ type: TOAST_SHOW, payload: { message: t("codeSentPhone", { ns: "profile" }) } });
     } catch (e: any) {
-      const msg = e.response?.data?.message || "Failed to send verification code";
+      const msg = e.response?.data?.message || t("failedSendCode", { ns: "profile" });
       setPhoneError(msg);
       dispatch({ type: TOAST_SHOW, payload: { message: msg, severity: "error" } });
     } finally {
@@ -203,7 +203,7 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
 
   const handleVerifyPhoneOtp = async (otp: string) => {
     if (!otp || otp.length !== 6) {
-      setPhoneOtpError("Please enter a valid 6-digit code");
+      setPhoneOtpError(t("valid6DigitError", { ns: "profile" }));
       return;
     }
     setPhoneOtpError("");
@@ -219,9 +219,9 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
       setPhoneOtpOpen(false);
       setEditingPhone(false);
       setPhoneInput("");
-      dispatch({ type: TOAST_SHOW, payload: { message: message || "Phone updated successfully!" } });
+      dispatch({ type: TOAST_SHOW, payload: { message: message || t("phoneUpdated", { ns: "profile" }) } });
     } catch (e: any) {
-      setPhoneOtpError(e.response?.data?.message || "Verification failed");
+      setPhoneOtpError(e.response?.data?.message || t("verificationFailed", { ns: "profile" }));
     } finally {
       setPhoneOtpLoading(false);
     }
@@ -341,8 +341,8 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
           {hasPhotoChanges && (
             <Box sx={{ display: "flex", justifyContent: "center", mt: 1 }}>
               <CustomButton
+                label={t("savePhoto", { ns: "profile" })}
                 data-testid="save-photo-btn"
-                label="Save Photo"
                 variant="primary"
                 size="small"
                 onClick={handlePhotoSave}
@@ -364,14 +364,14 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
         {/* First Name & Last Name (Read-only) */}
         <Grid container columnSpacing={2} rowSpacing={0}>
           <Grid item xs={12} sm={6}>
-            <Tooltip title="Contact support to change your name" placement="top" arrow>
+            <Tooltip title={t("contactSupportName", { ns: "profile" })} placement="top" arrow>
               <Box>
                 <InputField
                   data-testid="first-name-input"
                   fullWidth
                   inputHeight={isMobile ? "32px" : "38px"}
                   label={t("firstName", { ns: "profile" })}
-                  placeholder="First Name"
+                  placeholder={t("firstName", { ns: "profile" })}
                   value={firstName}
                   name="firstName"
                   disabled
@@ -381,14 +381,14 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
             </Tooltip>
           </Grid>
           <Grid item xs={12} sm={6} sx={{ marginTop: { xs: "12px", sm: "0px" } }}>
-            <Tooltip title="Contact support to change your name" placement="top" arrow>
+            <Tooltip title={t("contactSupportName", { ns: "profile" })} placement="top" arrow>
               <Box>
                 <InputField
                   data-testid="last-name-input"
                   fullWidth
                   inputHeight={isMobile ? "32px" : "38px"}
                   label={t("lastName", { ns: "profile" })}
-                  placeholder="Last Name"
+                  placeholder={t("lastName", { ns: "profile" })}
                   value={lastName}
                   name="lastName"
                   disabled
@@ -406,7 +406,7 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
             data-testid="name-restriction-notice"
             sx={{ fontSize: "12px", color: theme.palette.text.secondary, fontFamily: "UrbanistMedium" }}
           >
-            To update your name, please contact support.
+            {t("updateNameNotice", { ns: "profile" })}
           </Typography>
         </Box>
 
@@ -421,7 +421,7 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
                     fullWidth
                     inputHeight={isMobile ? "32px" : "38px"}
                     label={t("email", { ns: "profile" })}
-                    placeholder="No email set"
+                    placeholder={t("placeholderNoEmail", { ns: "profile" })}
                     value={tokenData.email || ""}
                     name="email"
                     disabled
@@ -430,7 +430,7 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
                 </Box>
                 <CustomButton
                   data-testid="change-email-btn"
-                  label={tokenData.email ? "Change" : "Add Email"}
+                  label={tokenData.email ? t("change", { ns: "profile" }) : t("addEmailBtn", { ns: "profile" })}
                   variant="outlined"
                   size={isMobile ? "small" : "medium"}
                   startIcon={<EditOutlinedIcon sx={{ fontSize: "16px" }} />}
@@ -444,8 +444,8 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
                   data-testid="new-email-input"
                   fullWidth
                   inputHeight={isMobile ? "32px" : "38px"}
-                  label="New Email Address"
-                  placeholder="Enter new email"
+                  label={t("newEmailAddress", { ns: "profile" })}
+                  placeholder={t("enterNewEmail", { ns: "profile" })}
                   type="email"
                   value={emailInput}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => { setEmailInput(e.target.value); if (emailError) setEmailError(""); }}
@@ -456,14 +456,14 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
                 <Box sx={{ display: "flex", gap: "8px", justifyContent: "flex-end" }}>
                   <CustomButton
                     data-testid="cancel-email-btn"
-                    label="Cancel"
+                    label={t("cancel", { ns: "profile" })}
                     variant="outlined"
                     size="small"
                     onClick={() => { setEditingEmail(false); setEmailInput(""); setEmailError(""); }}
                   />
                   <CustomButton
                     data-testid="send-email-otp-btn"
-                    label="Send Verification Code"
+                    label={t("sendVerificationCode", { ns: "profile" })}
                     variant="primary"
                     size="small"
                     onClick={handleSendEmailOtp}
@@ -486,7 +486,7 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
                     fullWidth
                     inputHeight={isMobile ? "32px" : "38px"}
                     label={t("mobile", { ns: "profile" })}
-                    placeholder="No phone set"
+                    placeholder={t("placeholderNoPhone", { ns: "profile" })}
                     value={tokenData.mobile || ""}
                     name="mobile"
                     disabled
@@ -495,7 +495,7 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
                 </Box>
                 <CustomButton
                   data-testid="change-phone-btn"
-                  label={tokenData.mobile ? "Change" : "Add Phone"}
+                  label={tokenData.mobile ? t("change", { ns: "profile" }) : t("addPhoneBtn", { ns: "profile" })}
                   variant="outlined"
                   size={isMobile ? "small" : "medium"}
                   startIcon={<EditOutlinedIcon sx={{ fontSize: "16px" }} />}
@@ -507,12 +507,12 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
               <Box sx={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                 <Box>
                   <Typography variant="body2" sx={labelSx}>
-                    New Phone Number
+                    {t("newPhoneNumber", { ns: "profile" })}
                   </Typography>
                   <Box sx={{ mt: "8px" }}>
                     <CountryPhoneInput
                       fullWidth
-                      placeholder="Enter new phone number"
+                      placeholder={t("enterNewPhone", { ns: "profile" })}
                       name="newPhone"
                       defaultCountry="US"
                       value={phoneInput}
@@ -529,14 +529,14 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
                 <Box sx={{ display: "flex", gap: "8px", justifyContent: "flex-end" }}>
                   <CustomButton
                     data-testid="cancel-phone-btn"
-                    label="Cancel"
+                    label={t("cancel", { ns: "profile" })}
                     variant="outlined"
                     size="small"
                     onClick={() => { setEditingPhone(false); setPhoneInput(""); setPhoneError(""); }}
                   />
                   <CustomButton
                     data-testid="send-phone-otp-btn"
-                    label="Send Verification Code"
+                    label={t("sendVerificationCode", { ns: "profile" })}
                     variant="primary"
                     size="small"
                     onClick={handleSendPhoneOtp}
@@ -590,13 +590,13 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
       <OtpDialog
         open={emailOtpOpen}
         onClose={() => setEmailOtpOpen(false)}
-        title="Email Verification"
-        subtitle="Enter the verification code sent to your email"
+        title={t("emailVerification", { ns: "profile" })}
+        subtitle={t("emailVerificationSubtitle", { ns: "profile" })}
         contactInfo={emailInput}
         contactType="email"
-        resendCodeLabel="Resend Code"
-        resendCodeCountdownLabel={(s) => `Code in ${s}s`}
-        primaryButtonLabel="Verify"
+        resendCodeLabel={t("resendCode", { ns: "profile" })}
+        resendCodeCountdownLabel={(s) => t("codeInSeconds", { ns: "profile", seconds: s })}
+        primaryButtonLabel={t("verify", { ns: "profile" })}
         onResendCode={handleSendEmailOtp}
         onVerify={handleVerifyEmailOtp}
         onClearError={() => setEmailOtpError("")}
@@ -610,13 +610,13 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
       <OtpDialog
         open={phoneOtpOpen}
         onClose={() => setPhoneOtpOpen(false)}
-        title="SMS Verification"
-        subtitle="Enter the verification code sent to your phone"
+        title={t("smsVerification", { ns: "profile" })}
+        subtitle={t("smsVerificationSubtitle", { ns: "profile" })}
         contactInfo={phoneInput}
         contactType="phone"
-        resendCodeLabel="Resend Code"
-        resendCodeCountdownLabel={(s) => `Code in ${s}s`}
-        primaryButtonLabel="Verify"
+        resendCodeLabel={t("resendCode", { ns: "profile" })}
+        resendCodeCountdownLabel={(s) => t("codeInSeconds", { ns: "profile", seconds: s })}
+        primaryButtonLabel={t("verify", { ns: "profile" })}
         onResendCode={handleSendPhoneOtp}
         onVerify={handleVerifyPhoneOtp}
         onClearError={() => setPhoneOtpError("")}

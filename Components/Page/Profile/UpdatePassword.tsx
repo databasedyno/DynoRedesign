@@ -88,9 +88,9 @@ const UpdatePassword = () => {
       setOtpDialogOpen(true);
       setOtpCountdown(30);
       setOtpStep("otp_sent");
-      dispatch({ type: TOAST_SHOW, payload: { message: `Verification code sent to your ${data?.sent_via || "email"}` } });
+      dispatch({ type: TOAST_SHOW, payload: { message: t("codeSentToChannel", { channel: data?.sent_via || "email" }) } });
     } catch (e: any) {
-      const msg = e.response?.data?.message || "Failed to send verification code";
+      const msg = e.response?.data?.message || t("failedSendCode");
       dispatch({ type: TOAST_SHOW, payload: { message: msg, severity: "error" } });
       setOtpStep("idle");
     }
@@ -102,9 +102,9 @@ const UpdatePassword = () => {
       const res = await axiosBaseApi.post("user/profile/request-password-otp", selectedChannel ? { channel: selectedChannel } : {});
       const { data } = res.data || {};
       setOtpCountdown(30);
-      dispatch({ type: TOAST_SHOW, payload: { message: `New verification code sent to your ${data?.sent_via || "email"}` } });
+      dispatch({ type: TOAST_SHOW, payload: { message: t("newCodeSentToChannel", { channel: data?.sent_via || "email" }) } });
     } catch (e: any) {
-      const msg = e.response?.data?.message || "Failed to resend code";
+      const msg = e.response?.data?.message || t("failedResendCode");
       dispatch({ type: TOAST_SHOW, payload: { message: msg, severity: "error" } });
     }
   };
@@ -112,14 +112,14 @@ const UpdatePassword = () => {
   // Verify OTP (just store it, password is set in the form submit)
   const handleVerifyOtp = async (otp: string) => {
     if (!otp || otp.length !== 6) {
-      setOtpError("Please enter a valid 6-digit code");
+      setOtpError(t("valid6DigitError"));
       return;
     }
     setOtpError("");
     setVerifiedOtp(otp);
     setOtpDialogOpen(false);
     setOtpStep("verified");
-    dispatch({ type: TOAST_SHOW, payload: { message: "Identity verified! Now enter your new password." } });
+    dispatch({ type: TOAST_SHOW, payload: { message: t("identityVerifiedEnterPassword") } });
   };
 
   // Submit new password with OTP
@@ -131,14 +131,14 @@ const UpdatePassword = () => {
         otp: verifiedOtp,
         newPassword,
       });
-      dispatch({ type: TOAST_SHOW, payload: { message: res.data?.message || "Password set successfully!" } });
+      dispatch({ type: TOAST_SHOW, payload: { message: res.data?.message || t("passwordSetSuccess") } });
       dispatch(UserAction(USER_PROFILE_FETCH));
       setOtpStep("idle");
       setVerifiedOtp("");
       setSelectedChannel("");
       setFormKey((prev) => prev + 1);
     } catch (e: any) {
-      const msg = e.response?.data?.message || "Failed to set password";
+      const msg = e.response?.data?.message || t("failedSetPassword");
       dispatch({ type: TOAST_SHOW, payload: { message: msg, severity: "error" } });
       if (msg.toLowerCase().includes("otp") || msg.toLowerCase().includes("expired")) {
         setOtpStep("idle");
@@ -164,10 +164,10 @@ const UpdatePassword = () => {
       }),
   });
 
-  const title = hasPassword ? t("updatePassword") : "Set Password";
+  const title = hasPassword ? t("updatePassword") : t("setPassword");
   const subtitle = hasPassword
-    ? "Verify your identity via OTP to update your password."
-    : "You signed up without a password. Set one now for added security.";
+    ? t("updatePasswordSubtitle")
+    : t("setPasswordSubtitle");
 
   const maskEmail = (email: string) => email?.replace(/(.{2})(.*)(@.*)/, "$1***$3") || "";
   const maskPhone = (phone: string) => phone ? `****${phone.slice(-4)}` : "";
@@ -199,7 +199,7 @@ const UpdatePassword = () => {
           <Box sx={{ display: "flex", justifyContent: { xs: "stretch", sm: "flex-start" } }}>
             <CustomButton
               data-testid="request-password-otp-btn"
-              label={hasPassword ? "Update Password" : "Set Password"}
+              label={hasPassword ? t("updatePassword") : t("setPassword")}
               variant="primary"
               size={isMobile ? "small" : "medium"}
               onClick={handleStartOtp}
@@ -212,7 +212,7 @@ const UpdatePassword = () => {
         {otpStep === "choose" && (
           <Box sx={{ display: "flex", flexDirection: "column", gap: "10px" }}>
             <Typography sx={{ fontSize: "14px", color: theme.palette.text.primary, fontFamily: "UrbanistMedium", mb: "4px" }}>
-              Where should we send the verification code?
+              {t("whereToSendCode")}
             </Typography>
             <Box
               data-testid="choose-email-btn"
@@ -227,7 +227,7 @@ const UpdatePassword = () => {
             >
               <EmailOutlinedIcon sx={{ fontSize: "20px", color: theme.palette.primary.main }} />
               <Box>
-                <Typography sx={{ fontSize: "14px", fontWeight: 600, fontFamily: "UrbanistSemibold", color: theme.palette.text.primary }}>Email</Typography>
+                <Typography sx={{ fontSize: "14px", fontWeight: 600, fontFamily: "UrbanistSemibold", color: theme.palette.text.primary }}>{t("channelEmail")}</Typography>
                 <Typography sx={{ fontSize: "12px", color: theme.palette.text.secondary, fontFamily: "UrbanistMedium" }}>{maskEmail(profile?.email)}</Typography>
               </Box>
             </Box>
@@ -244,13 +244,13 @@ const UpdatePassword = () => {
             >
               <PhoneAndroidOutlinedIcon sx={{ fontSize: "20px", color: theme.palette.primary.main }} />
               <Box>
-                <Typography sx={{ fontSize: "14px", fontWeight: 600, fontFamily: "UrbanistSemibold", color: theme.palette.text.primary }}>Phone</Typography>
+                <Typography sx={{ fontSize: "14px", fontWeight: 600, fontFamily: "UrbanistSemibold", color: theme.palette.text.primary }}>{t("channelPhone")}</Typography>
                 <Typography sx={{ fontSize: "12px", color: theme.palette.text.secondary, fontFamily: "UrbanistMedium" }}>{maskPhone(profile?.mobile)}</Typography>
               </Box>
             </Box>
             <CustomButton
               data-testid="cancel-choose-btn"
-              label="Cancel"
+              label={t("cancel")}
               variant="outlined"
               size="small"
               onClick={() => setOtpStep("idle")}
@@ -265,7 +265,7 @@ const UpdatePassword = () => {
             data-testid="otp-sent-notice"
             sx={{ fontSize: "13px", color: theme.palette.text.secondary, fontFamily: "UrbanistMedium" }}
           >
-            A verification code has been sent to {otpMaskedContact}. Please check your {otpSentVia} and enter the code.
+            {t("otpSentNotice", { contact: otpMaskedContact, channel: otpSentVia })}
           </Typography>
         )}
 
@@ -281,7 +281,7 @@ const UpdatePassword = () => {
               <Box sx={{ display: "flex", flexDirection: "column", gap: isMobile ? "12px" : "14px" }}>
                 <Box sx={{ display: "flex", alignItems: "center", gap: "6px", p: "8px 12px", borderRadius: "8px", backgroundColor: theme.palette.mode === "dark" ? "rgba(34, 197, 94, 0.1)" : "rgba(34, 197, 94, 0.08)", border: "1px solid", borderColor: theme.palette.mode === "dark" ? "rgba(34, 197, 94, 0.3)" : "rgba(34, 197, 94, 0.2)" }}>
                   <Typography sx={{ fontSize: "13px", color: theme.palette.mode === "dark" ? "#4ade80" : "#16a34a", fontFamily: "UrbanistMedium" }}>
-                    Identity verified via {otpSentVia}. Enter your new password below.
+                    {t("identityVerifiedViaChannel", { channel: otpSentVia })}
                   </Typography>
                 </Box>
 
@@ -361,7 +361,7 @@ const UpdatePassword = () => {
                 <Box sx={{ display: "flex", justifyContent: { xs: "stretch", sm: "flex-end" } }}>
                   <CustomButton
                     data-testid="set-password-submit-btn"
-                    label={hasPassword ? t("update") : "Set Password"}
+                    label={hasPassword ? t("update") : t("setPassword")}
                     variant="primary"
                     size={isMobile ? "small" : "medium"}
                     disabled={submitDisable || !values.newPassword?.trim() || !values.confirmPassword?.trim() || savingPassword}
@@ -379,13 +379,13 @@ const UpdatePassword = () => {
       <OtpDialog
         open={otpDialogOpen}
         onClose={() => setOtpDialogOpen(false)}
-        title="Verify Your Identity"
-        subtitle={`Enter the verification code sent to your ${otpSentVia}`}
+        title={t("verifyYourIdentity")}
+        subtitle={t("verifyIdentitySubtitle", { channel: otpSentVia })}
         contactInfo={otpMaskedContact}
         contactType={otpSentVia === "phone" ? "phone" : "email"}
-        resendCodeLabel="Resend Code"
-        resendCodeCountdownLabel={(s) => `Code in ${s}s`}
-        primaryButtonLabel="Verify"
+        resendCodeLabel={t("resendCode")}
+        resendCodeCountdownLabel={(s) => t("codeInSeconds", { seconds: s })}
+        primaryButtonLabel={t("verify")}
         onResendCode={handleResendOtp}
         onVerify={handleVerifyOtp}
         onClearError={() => setOtpError("")}

@@ -68,7 +68,7 @@ const AddContactInfo: React.FC<AddContactInfoProps> = ({ tokenData }) => {
   // Handle send email OTP
   const handleSendEmailOtp = async () => {
     if (!emailInput || !emailInput.includes("@")) {
-      setEmailError("Please enter a valid email address");
+      setEmailError(t("validEmailError", { ns: "profile" }));
       return;
     }
     setEmailError("");
@@ -79,10 +79,10 @@ const AddContactInfo: React.FC<AddContactInfoProps> = ({ tokenData }) => {
       setEmailOtpCountdown(30);
       dispatch({
         type: TOAST_SHOW,
-        payload: { message: "Verification code sent to your email" },
+        payload: { message: t("codeSentEmail", { ns: "profile" }) },
       });
     } catch (e: any) {
-      const msg = e.response?.data?.message || "Failed to send verification code";
+      const msg = e.response?.data?.message || t("failedSendCode", { ns: "profile" });
       setEmailError(msg);
       dispatch({
         type: TOAST_SHOW,
@@ -96,7 +96,7 @@ const AddContactInfo: React.FC<AddContactInfoProps> = ({ tokenData }) => {
   // Handle verify email OTP
   const handleVerifyEmailOtp = async (otp: string) => {
     if (!otp || otp.length !== 6) {
-      setEmailOtpError("Please enter a valid 6-digit code");
+      setEmailOtpError(t("valid6DigitError", { ns: "profile" }));
       return;
     }
     setEmailOtpError("");
@@ -121,7 +121,7 @@ const AddContactInfo: React.FC<AddContactInfoProps> = ({ tokenData }) => {
         payload: { message: message || tProfile("emailAdded") },
       });
     } catch (e: any) {
-      const msg = e.response?.data?.message || "Verification failed";
+      const msg = e.response?.data?.message || t("verificationFailed", { ns: "profile" });
       setEmailOtpError(msg);
     } finally {
       setEmailOtpLoading(false);
@@ -132,7 +132,7 @@ const AddContactInfo: React.FC<AddContactInfoProps> = ({ tokenData }) => {
   const handleSendPhoneOtp = async () => {
     const cleaned = phoneInput.replace(/[^0-9]/g, "");
     if (!cleaned || cleaned.length < 10) {
-      setPhoneError("Please enter a valid phone number");
+      setPhoneError(t("validPhoneError", { ns: "profile" }));
       return;
     }
     setPhoneError("");
@@ -143,10 +143,10 @@ const AddContactInfo: React.FC<AddContactInfoProps> = ({ tokenData }) => {
       setPhoneOtpCountdown(30);
       dispatch({
         type: TOAST_SHOW,
-        payload: { message: "Verification code sent to your phone" },
+        payload: { message: t("codeSentPhone", { ns: "profile" }) },
       });
     } catch (e: any) {
-      const msg = e.response?.data?.message || "Failed to send verification code";
+      const msg = e.response?.data?.message || t("failedSendCode", { ns: "profile" });
       setPhoneError(msg);
       dispatch({
         type: TOAST_SHOW,
@@ -160,7 +160,7 @@ const AddContactInfo: React.FC<AddContactInfoProps> = ({ tokenData }) => {
   // Handle verify phone OTP
   const handleVerifyPhoneOtp = async (otp: string) => {
     if (!otp || otp.length !== 6) {
-      setPhoneOtpError("Please enter a valid 6-digit code");
+      setPhoneOtpError(t("valid6DigitError", { ns: "profile" }));
       return;
     }
     setPhoneOtpError("");
@@ -186,7 +186,7 @@ const AddContactInfo: React.FC<AddContactInfoProps> = ({ tokenData }) => {
         payload: { message: message || tProfile("phoneAdded") },
       });
     } catch (e: any) {
-      const msg = e.response?.data?.message || "Verification failed";
+      const msg = e.response?.data?.message || t("verificationFailed", { ns: "profile" });
       setPhoneOtpError(msg);
     } finally {
       setPhoneOtpLoading(false);
@@ -255,7 +255,7 @@ const AddContactInfo: React.FC<AddContactInfoProps> = ({ tokenData }) => {
             contactInfo={emailInput}
             contactType="email"
             resendCodeLabel={t("resendCode", { ns: "auth" })}
-            resendCodeCountdownLabel={(seconds) => `Code in ${seconds}s`}
+            resendCodeCountdownLabel={(seconds) => t("codeInSeconds", { ns: "profile", seconds })}
             primaryButtonLabel={tProfile("verifyAndSave")}
             onResendCode={handleSendEmailOtp}
             onVerify={handleVerifyEmailOtp}
@@ -351,7 +351,7 @@ const AddContactInfo: React.FC<AddContactInfoProps> = ({ tokenData }) => {
             contactInfo={phoneInput}
             contactType="phone"
             resendCodeLabel={t("resendCode", { ns: "auth" })}
-            resendCodeCountdownLabel={(seconds) => `Code in ${seconds}s`}
+            resendCodeCountdownLabel={(seconds) => t("codeInSeconds", { ns: "profile", seconds })}
             primaryButtonLabel={tProfile("verifyAndSave")}
             onResendCode={handleSendPhoneOtp}
             onVerify={handleVerifyPhoneOtp}

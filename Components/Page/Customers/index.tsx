@@ -35,6 +35,7 @@ import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import axiosBaseApi from "@/axiosConfig";
 import { useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 import { formatNumberWithComma, getCurrencySymbol } from "@/helpers";
 import useIsMobile from "@/hooks/useIsMobile";
 
@@ -73,6 +74,7 @@ interface Aggregates {
 const CustomersPage: React.FC = () => {
   const theme = useTheme();
   const isMobile = useIsMobile("md");
+  const { t } = useTranslation("common");
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -198,12 +200,12 @@ const CustomersPage: React.FC = () => {
 
     // Validation
     if (!walletAmount || isNaN(Number(walletAmount)) || Number(walletAmount) <= 0) {
-      setWalletError("Please enter a valid positive amount");
+      setWalletError(t("customers.validAmountError"));
       return;
     }
 
     if (!walletDescription.trim()) {
-      setWalletError("Description is required");
+      setWalletError(t("customers.descriptionRequired"));
       return;
     }
 
@@ -220,10 +222,12 @@ const CustomersPage: React.FC = () => {
 
       if (res.data?.success) {
         setWalletSuccess(
-          `Successfully ${walletAction === "credit" ? "credited" : "debited"} ${getCurrencySymbol(
-            selectedCustomer.wallet?.wallet_type || baseCurrency,
-            formatNumberWithComma(Number(walletAmount).toFixed(2))
-          )}`
+          t(walletAction === "credit" ? "customers.creditSuccess" : "customers.debitSuccess", {
+            amount: getCurrencySymbol(
+              selectedCustomer.wallet?.wallet_type || baseCurrency,
+              formatNumberWithComma(Number(walletAmount).toFixed(2))
+            ),
+          })
         );
 
         // Refresh customer details
@@ -240,7 +244,7 @@ const CustomersPage: React.FC = () => {
       }
     } catch (err: any) {
       console.error("Wallet operation error:", err);
-      setWalletError(err.response?.data?.message || "Failed to process wallet operation");
+      setWalletError(err.response?.data?.message || t("customers.walletOpFailed"));
     } finally {
       setWalletLoading(false);
     }
@@ -284,7 +288,7 @@ const CustomersPage: React.FC = () => {
           </Box>
           <Box>
             <Typography variant="body2" color="text.secondary">
-              Total Customers
+              {t("customers.totalCustomers")}
             </Typography>
             <Typography variant="h5" fontWeight={700}>
               {loading ? <Skeleton width={60} /> : formatNumberWithComma(aggregates.total_customers)}
@@ -317,7 +321,7 @@ const CustomersPage: React.FC = () => {
           </Box>
           <Box>
             <Typography variant="body2" color="text.secondary">
-              Total Wallet Balance
+              {t("customers.totalWalletBalance")}
             </Typography>
             <Typography variant="h5" fontWeight={700}>
               {loading ? (
@@ -354,7 +358,7 @@ const CustomersPage: React.FC = () => {
           </Box>
           <Box>
             <Typography variant="body2" color="text.secondary">
-              Base Currency
+              {t("customers.baseCurrency")}
             </Typography>
             <Typography variant="h5" fontWeight={700}>
               {loading ? <Skeleton width={60} /> : baseCurrency}
@@ -367,7 +371,7 @@ const CustomersPage: React.FC = () => {
       <Box sx={{ mb: 3 }}>
         <TextField
           fullWidth
-          placeholder="Search customers by name or email..."
+          placeholder={t("customers.searchPlaceholder")}
           value={search}
           onChange={(e) => {
             setSearch(e.target.value);
@@ -400,12 +404,12 @@ const CustomersPage: React.FC = () => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell sx={{ fontWeight: 700 }}>Customer</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>Email</TableCell>
-              {!isMobile && <TableCell sx={{ fontWeight: 700 }}>Wallet Balance</TableCell>}
-              {!isMobile && <TableCell sx={{ fontWeight: 700 }}>Transactions</TableCell>}
-              {!isMobile && <TableCell sx={{ fontWeight: 700 }}>Created</TableCell>}
-              <TableCell sx={{ fontWeight: 700 }} align="center">Actions</TableCell>
+              <TableCell sx={{ fontWeight: 700 }}>{t("customers.colCustomer")}</TableCell>
+              <TableCell sx={{ fontWeight: 700 }}>{t("customers.colEmail")}</TableCell>
+              {!isMobile && <TableCell sx={{ fontWeight: 700 }}>{t("customers.colWalletBalance")}</TableCell>}
+              {!isMobile && <TableCell sx={{ fontWeight: 700 }}>{t("customers.colTransactions")}</TableCell>}
+              {!isMobile && <TableCell sx={{ fontWeight: 700 }}>{t("customers.colCreated")}</TableCell>}
+              <TableCell sx={{ fontWeight: 700 }} align="center">{t("customers.colActions")}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -425,7 +429,7 @@ const CustomersPage: React.FC = () => {
                     <TableCell colSpan={6} align="center" sx={{ py: 6 }}>
                       <PeopleIcon sx={{ fontSize: 48, color: theme.palette.text.disabled, mb: 1 }} />
                       <Typography color="text.secondary">
-                        {search ? "No customers found matching your search" : "No customers yet. Customers are created via API."}
+                        {search ? t("customers.noCustomersSearch") : t("customers.noCustomers")}
                       </Typography>
                     </TableCell>
                   </TableRow>
@@ -456,7 +460,7 @@ const CustomersPage: React.FC = () => {
                           {(customer.customer_name || "?").charAt(0).toUpperCase()}
                         </Box>
                         <Typography fontWeight={600}>
-                          {customer.customer_name || "Unnamed"}
+                          {customer.customer_name || t("customers.unnamed")}
                         </Typography>
                       </Box>
                     </TableCell>
@@ -478,7 +482,7 @@ const CustomersPage: React.FC = () => {
                     {!isMobile && (
                       <TableCell>
                         <Chip
-                          label={`${customer.transaction_count} txns`}
+                          label={t("customers.txns", { count: customer.transaction_count })}
                           size="small"
                           sx={{ fontWeight: 600, borderRadius: 2 }}
                         />
@@ -529,7 +533,7 @@ const CustomersPage: React.FC = () => {
       >
         <DialogTitle sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", pb: 1 }}>
           <Typography variant="h6" fontWeight={700}>
-            Customer Details
+            {t("customers.customerDetails")}
           </Typography>
           <IconButton onClick={() => setDetailOpen(false)}>
             <CloseIcon />
@@ -554,19 +558,19 @@ const CustomersPage: React.FC = () => {
                 }}
               >
                 <Box sx={{ p: 2, borderRadius: 2, bgcolor: theme.palette.background.default }}>
-                  <Typography variant="body2" color="text.secondary">Name</Typography>
+                  <Typography variant="body2" color="text.secondary">{t("customers.name")}</Typography>
                   <Typography fontWeight={600}>{selectedCustomer.customer?.customer_name || "-"}</Typography>
                 </Box>
                 <Box sx={{ p: 2, borderRadius: 2, bgcolor: theme.palette.background.default }}>
-                  <Typography variant="body2" color="text.secondary">Email</Typography>
+                  <Typography variant="body2" color="text.secondary">{t("customers.email")}</Typography>
                   <Typography fontWeight={600}>{selectedCustomer.customer?.email || "-"}</Typography>
                 </Box>
                 <Box sx={{ p: 2, borderRadius: 2, bgcolor: theme.palette.background.default }}>
-                  <Typography variant="body2" color="text.secondary">Mobile</Typography>
+                  <Typography variant="body2" color="text.secondary">{t("customers.mobile")}</Typography>
                   <Typography fontWeight={600}>{selectedCustomer.customer?.mobile || "-"}</Typography>
                 </Box>
                 <Box sx={{ p: 2, borderRadius: 2, bgcolor: theme.palette.background.default }}>
-                  <Typography variant="body2" color="text.secondary">Wallet Balance</Typography>
+                  <Typography variant="body2" color="text.secondary">{t("customers.walletBalance")}</Typography>
                   <Typography fontWeight={700} variant="h6" color="primary">
                     {getCurrencySymbol(
                       selectedCustomer.wallet?.wallet_type || baseCurrency,
@@ -575,11 +579,11 @@ const CustomersPage: React.FC = () => {
                   </Typography>
                 </Box>
                 <Box sx={{ p: 2, borderRadius: 2, bgcolor: theme.palette.background.default }}>
-                  <Typography variant="body2" color="text.secondary">Company</Typography>
+                  <Typography variant="body2" color="text.secondary">{t("customers.company")}</Typography>
                   <Typography fontWeight={600}>{selectedCustomer.customer?.company_name || "-"}</Typography>
                 </Box>
                 <Box sx={{ p: 2, borderRadius: 2, bgcolor: theme.palette.background.default }}>
-                  <Typography variant="body2" color="text.secondary">Created</Typography>
+                  <Typography variant="body2" color="text.secondary">{t("customers.created")}</Typography>
                   <Typography fontWeight={600}>{formatDate(selectedCustomer.customer?.createdAt)}</Typography>
                 </Box>
               </Box>
@@ -593,7 +597,7 @@ const CustomersPage: React.FC = () => {
                   onClick={() => openWalletModal("credit")}
                   sx={{ flex: isMobile ? "1 1 100%" : "1 1 auto" }}
                 >
-                  Credit Wallet
+                  {t("customers.creditWallet")}
                 </Button>
                 <Button
                   variant="outlined"
@@ -602,13 +606,13 @@ const CustomersPage: React.FC = () => {
                   onClick={() => openWalletModal("debit")}
                   sx={{ flex: isMobile ? "1 1 100%" : "1 1 auto" }}
                 >
-                  Debit Wallet
+                  {t("customers.debitWallet")}
                 </Button>
               </Box>
 
               {/* Tabs: Overview, Transactions */}
               <Tabs value={detailTab} onChange={(_, v) => setDetailTab(v)} sx={{ mb: 2 }}>
-                <Tab label="Transactions" />
+                <Tab label={t("customers.transactions")} />
               </Tabs>
 
               {/* Transaction History */}
@@ -616,7 +620,7 @@ const CustomersPage: React.FC = () => {
                 <Box>
                   {selectedCustomer.transactions?.data?.length === 0 ? (
                     <Box sx={{ py: 4, textAlign: "center" }}>
-                      <Typography color="text.secondary">No transactions found for this customer.</Typography>
+                      <Typography color="text.secondary">{t("customers.noCustomerTransactions")}</Typography>
                     </Box>
                   ) : (
                     <>
@@ -624,10 +628,10 @@ const CustomersPage: React.FC = () => {
                         <Table size="small">
                           <TableHead>
                             <TableRow>
-                              <TableCell sx={{ fontWeight: 700 }}>Type</TableCell>
-                              <TableCell sx={{ fontWeight: 700 }}>Amount</TableCell>
-                              <TableCell sx={{ fontWeight: 700 }}>Status</TableCell>
-                              <TableCell sx={{ fontWeight: 700 }}>Date</TableCell>
+                              <TableCell sx={{ fontWeight: 700 }}>{t("customers.colType")}</TableCell>
+                              <TableCell sx={{ fontWeight: 700 }}>{t("customers.colAmount")}</TableCell>
+                              <TableCell sx={{ fontWeight: 700 }}>{t("customers.colStatus")}</TableCell>
+                              <TableCell sx={{ fontWeight: 700 }}>{t("customers.colDate")}</TableCell>
                             </TableRow>
                           </TableHead>
                           <TableBody>
@@ -689,7 +693,7 @@ const CustomersPage: React.FC = () => {
             </Box>
           ) : (
             <Box sx={{ py: 4, textAlign: "center" }}>
-              <Typography color="text.secondary">Customer not found.</Typography>
+              <Typography color="text.secondary">{t("customers.customerNotFound")}</Typography>
             </Box>
           )}
         </DialogContent>
@@ -715,7 +719,7 @@ const CustomersPage: React.FC = () => {
               <RemoveIcon sx={{ color: "error.main" }} />
             )}
             <Typography variant="h6" fontWeight={700}>
-              {walletAction === "credit" ? "Credit" : "Debit"} Wallet
+              {walletAction === "credit" ? t("customers.creditWallet") : t("customers.debitWallet")}
             </Typography>
           </Box>
           <IconButton onClick={closeWalletModal} disabled={walletLoading}>
@@ -736,7 +740,7 @@ const CustomersPage: React.FC = () => {
 
           {selectedCustomer && (
             <Box sx={{ mb: 2, p: 2, borderRadius: 2, bgcolor: theme.palette.background.default }}>
-              <Typography variant="body2" color="text.secondary">Current Balance</Typography>
+              <Typography variant="body2" color="text.secondary">{t("customers.currentBalance")}</Typography>
               <Typography variant="h5" fontWeight={700} color="primary">
                 {getCurrencySymbol(
                   selectedCustomer.wallet?.wallet_type || baseCurrency,
@@ -748,11 +752,11 @@ const CustomersPage: React.FC = () => {
 
           <TextField
             fullWidth
-            label="Amount"
+            label={t("customers.amount")}
             type="number"
             value={walletAmount}
             onChange={(e) => setWalletAmount(e.target.value)}
-            placeholder="Enter amount"
+            placeholder={t("customers.enterAmount")}
             disabled={walletLoading}
             sx={{ mb: 2 }}
             InputProps={{
@@ -766,18 +770,18 @@ const CustomersPage: React.FC = () => {
 
           <TextField
             fullWidth
-            label="Description / Reason"
+            label={t("customers.descriptionReason")}
             multiline
             rows={3}
             value={walletDescription}
             onChange={(e) => setWalletDescription(e.target.value)}
-            placeholder="Enter description or reason for this transaction"
+            placeholder={t("customers.enterDescription")}
             disabled={walletLoading}
           />
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
           <Button onClick={closeWalletModal} disabled={walletLoading}>
-            Cancel
+            {t("customers.cancel")}
           </Button>
           <Button
             variant="contained"
@@ -786,7 +790,7 @@ const CustomersPage: React.FC = () => {
             disabled={walletLoading || !walletAmount || !walletDescription}
             startIcon={walletLoading && <CircularProgress size={16} />}
           >
-            {walletLoading ? "Processing..." : walletAction === "credit" ? "Credit Wallet" : "Debit Wallet"}
+            {walletLoading ? t("customers.processing") : walletAction === "credit" ? t("customers.creditWallet") : t("customers.debitWallet")}
           </Button>
         </DialogActions>
       </Dialog>

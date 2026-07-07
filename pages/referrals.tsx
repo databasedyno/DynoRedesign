@@ -303,7 +303,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
               mb: 2,
             }}
           >
-            How It Works
+            {t("howItWorks")}
           </Typography>
 
           {/* 3-step flow */}
@@ -316,9 +316,9 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
             }}
           >
             {[
-              { step: "1", title: "Share Your Code", desc: "Send your referral code or link to friends and colleagues" },
-              { step: "2", title: "They Sign Up", desc: "Your friend creates an account using your code" },
-              { step: "3", title: "You Both Earn", desc: "Both of you get fee discounts automatically applied" },
+              { step: "1", title: t("step1Title"), desc: t("step1Desc") },
+              { step: "2", title: t("step2Title"), desc: t("step2Desc") },
+              { step: "3", title: t("step3Title"), desc: t("step3Desc") },
             ].map((item) => (
               <Box
                 key={item.step}
@@ -380,13 +380,13 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
               }}
             >
               <Typography sx={{ fontSize: "12px", fontFamily: "UrbanistMedium", color: theme.palette.text.secondary, mb: 0.5, textTransform: "uppercase", letterSpacing: "0.5px" }}>
-                You Get (Referrer)
+                {t("youGetReferrer")}
               </Typography>
               <Typography sx={{ fontSize: isMobile ? "22px" : "26px", fontFamily: "UrbanistSemibold", fontWeight: 700, color: theme.palette.primary.main, lineHeight: 1.2 }}>
-                10% Off Fees
+                {t("referrerReward")}
               </Typography>
               <Typography sx={{ fontSize: "13px", fontFamily: "UrbanistMedium", color: theme.palette.text.secondary, mt: 0.5 }}>
-                for 30 days per referral
+                {t("referrerRewardDesc")}
               </Typography>
             </Box>
             <Box
@@ -398,13 +398,13 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
               }}
             >
               <Typography sx={{ fontSize: "12px", fontFamily: "UrbanistMedium", color: theme.palette.text.secondary, mb: 0.5, textTransform: "uppercase", letterSpacing: "0.5px" }}>
-                They Get (New User)
+                {t("theyGetNewUser")}
               </Typography>
               <Typography sx={{ fontSize: isMobile ? "22px" : "26px", fontFamily: "UrbanistSemibold", fontWeight: 700, color: theme.palette.border.success, lineHeight: 1.2 }}>
-                50% Off Fees
+                {t("refereeReward")}
               </Typography>
               <Typography sx={{ fontSize: "13px", fontFamily: "UrbanistMedium", color: theme.palette.text.secondary, mt: 0.5 }}>
-                for 90 days when they sign up
+                {t("refereeRewardDesc")}
               </Typography>
             </Box>
           </Box>
@@ -502,7 +502,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
                   color: theme.palette.text.primary,
                 }}
               >
-                Fee Discount
+                {t("feeDiscount")}
               </Typography>
             </Box>
             {loading ? (
@@ -530,8 +530,8 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
                   }}
                 >
                   {discount.days_remaining > 0
-                    ? `${discount.days_remaining} days remaining`
-                    : "Active"}
+                    ? t("daysRemaining", { count: discount.days_remaining })
+                    : t("active")}
                   {discount.reason && ` — ${discount.reason}`}
                 </Typography>
               </Box>
@@ -546,7 +546,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
                     lineHeight: 1.5,
                   }}
                 >
-                  No active fee discount. Refer friends to earn discounts on transaction fees!
+                  {t("noActiveFeeDiscount")}
                 </Typography>
               </Box>
             )}
@@ -572,7 +572,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
                   color: theme.palette.text.primary,
                 }}
               >
-                Earnings Breakdown
+                {t("earningsBreakdown")}
               </Typography>
             </Box>
             {loading ? (
@@ -640,7 +640,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
                 color: theme.palette.text.primary,
               }}
             >
-              My Referrals
+              {t("myReferrals")}
             </Typography>
           </Box>
           {loading ? (
@@ -659,7 +659,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
                 textAlign: "center",
               }}
             >
-              No referrals yet. Share your code to start earning!
+              {t("noReferralsYet")}
             </Typography>
           ) : (
             <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
@@ -747,7 +747,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
                 color: theme.palette.text.primary,
               }}
             >
-              Leaderboard
+              {t("leaderboard")}
             </Typography>
           </Box>
           {loading ? (
@@ -766,7 +766,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
                 textAlign: "center",
               }}
             >
-              Leaderboard is empty. Be the first to refer and lead!
+              {t("leaderboardEmpty")}
             </Typography>
           ) : (
             <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
@@ -808,7 +808,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
                     }}
                   >
                     {entry.name}
-                    {entry.is_current_user && " (You)"}
+                    {entry.is_current_user && ` ${t("you")}`}
                   </Typography>
                   <Typography
                     sx={{
@@ -818,7 +818,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
                       color: theme.palette.primary.main,
                     }}
                   >
-                    {entry.referral_count} referrals
+                    {t("referralsCount", { count: entry.referral_count })}
                   </Typography>
                 </Box>
               ))}
