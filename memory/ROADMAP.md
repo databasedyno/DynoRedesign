@@ -1,3 +1,12 @@
+# PROGRESS LOG (most recent on top)
+
+## 2026-07-07 — Features B & C DONE ✅ (tested by testing agent, read-only)
+- **B — Checkout /pay i18n (P1):** bankTransferCompo.tsx fully i18n'd (~13 strings under common.checkout.*: bankName, accountNumber, copy, recipient, toPay, secureTransfer, accountUnique, madePayment, invoiceExpiresIn, ngnBankTransfer, noAccountToCopy, paymentNotVerified) + backButton "Back" (common.checkout.back). All 6 locales. Verified: Back button EN/DE/FR on /pay legal pages. NOTE: crypto checkout flow (cryptoTransfer + TransferExpectedCard + header) was ALREADY i18n'd; success/failed/verify Pay3 components are dead code (unused). Generic "Something went wrong" fallback in bankTransferCompo left as-is (edge case, out of scope).
+- **C — Onboarding "first payment" milestone:** added 4th checklist step "Receive your first payment" (obPaymentLabel/obPaymentDesc, 6 locales). Added `fetched` flag to dashboardReducer; OnboardingFlow fetches dashboard stats once when a link exists (company-scoped, no clobber) and keeps the checklist visible (nudge) until totalTransactions>0. Verified: qa.empty 0/4, qa.onboard 1/4, hostbay (has tx) checklist hidden.
+- **NEXT: A — extend bold bento theme into the logged-in dashboard (phased).**
+- Gotcha reconfirmed: parallel search_replace on the SAME file can silently drop edits AND corrupt the file tail (both hit here — dashboardReducer `cer;` + OnboardingFlow duplicated tail). Do same-file edits SEQUENTIALLY and always re-lint/verify tail.
+
+
 # DynoPay — Roadmap & Next-Agent Handoff
 
 > Living document of what's left and what could be improved. Pair this with

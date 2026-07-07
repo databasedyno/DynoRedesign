@@ -28,6 +28,7 @@ import { homeTheme, homeThemeDark } from "@/styles/homeTheme";
 import { theme, themeDark } from "@/styles/theme";
 import { lightTheme, darkTheme } from "@/styles/theme";
 import { authThemeLight, authThemeDark } from "@/styles/authTheme";
+import { appThemeLight, appThemeDark } from "@/styles/appTheme";
 
 // Client-side emotion cache shared across the whole app (created once).
 const clientSideEmotionCache = createEmotionCache();
@@ -335,7 +336,7 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
       case "pay":
         return isDark ? homeThemeDark : homeTheme;
       default:
-        return isDark ? themeDark : theme;
+        return isDark ? appThemeDark : appThemeLight;
     }
   }, [resolvedLayout, isDark]);
 
