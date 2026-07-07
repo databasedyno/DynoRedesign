@@ -6,6 +6,20 @@
 
 ---
 
+## ⭐ Suggested next actions (carried over from last session, verbatim)
+
+These were proposed to the user at the end of the auth-redesign session and are
+awaiting a go-ahead:
+
+- **Potential improvement:** want me to add a subtle animated 3D coin/mesh or a
+  "trusted by" logo strip to the bento — plus mirror this bold theme on your
+  public landing page so the brand feels consistent from first click to sign-up?
+- **Optionally:** quick pass on the OTP dialog + forgot-password modal visuals
+  (they inherit the theme; not individually screenshotted).
+- **Extend the bold theme into the app/dashboard** (user said "yes, later").
+
+---
+
 ## 0. ⚠️ CRITICAL SAFETY (read before touching backend)
 
 - This app is connected to the user's **LIVE PRODUCTION** PostgreSQL (Railway) + Redis and uses **LIVE MAINNET** crypto keys.
