@@ -1,3 +1,13 @@
+## VERIFICATION RESULTS (2026-07-07) — Auth redesign visuals + FR/ES/PT i18n — ✅ ALL PASSED
+- agent: testing (auto_frontend_testing_agent); method: Playwright visual + JWT injection; READ-ONLY (no submits/mutations/OTP — safety-compliant on live prod).
+- test_url: https://blockchain-gateway-10.preview.emergentagent.com
+- PART A (auth "Floating Glass Bento"): PASS all 4 — /auth/login dark (void-black + #CCFF00) + light (frost + lime text); /auth/register active Email/Mobile tab IS cyber-lime (consistent w/ login — resolves the "indigo?" concern); Forgot-password dialog IS themed (glass+lime, not plain MUI — resolves concern); /admin/login inherits theme. Two-step login intact, no console errors.
+- PART B (i18n): 12/12 PASS — /referrals, /invoices, /customers, /profile all translated in FR + ES + PT, no raw dotted keys, no untranslated English.
+- STILL UNVERIFIED (intentionally skipped — would send REAL emails/OTP on live prod, needs user decision): (1) reset-password card BODY (needs a valid ?token= → real forgot-password email), (2) OTP dialog visuals (only appears after submitting real creds → real OTP send).
+
+---
+
+
 ## VERIFICATION COMPLETE (2026-07-07) — Auth redesign visuals + FR/ES/PT i18n ✅
 
 ### TEST EXECUTION
