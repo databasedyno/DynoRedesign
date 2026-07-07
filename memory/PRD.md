@@ -5,6 +5,20 @@ USDT-TRC20 payment gateway platform. Users can create companies, wallets, paymen
 
 ## What's Been Implemented
 
+### 2026-07-07 — UX microcopy pass + i18n hardening (auth / wallet / payment-link) ✅ VERIFIED
+User asked to fix "some pages still in English after switching", do a UX-copy pass across auth/payment-link/wallet, write a copy style guide, and remove the `t()||"English"` fallback anti-pattern. Delivered (order per user):
+- **Auth register page fully internationalized** (`pages/auth/register.tsx`) — it was the main "still English" offender: ~19 hardcoded strings (Google button, divider, Email/Mobile toggle, labels/placeholders, referral link, Continue, footer, OTP-step titles/subtitles, account-exists banner, "Change email/phone", success-step copy). All now use `t()` (auth ns). 18 new keys added × 6 langs. **Note:** the Email/Mobile segmented toggle needed a second edit — the first `search_replace` silently no-op'd (recurring tool bug) and also appended a corrupted `xport default` line to `AddWalletModal.tsx` which had to be repaired.
+- **Wallet Add modal** (`Components/UI/AddWalletModal/index.tsx`) — fixed hardcoded "Done/Add Another/Edit Wallet/Save Changes" + success heading, and added helper microcopy under Wallet name & Wallet address fields (`walletNameHelper`, `walletAddressHelper`).
+- **Create payment link** (`Components/UI/pay-link/PaymentSettingsBasic.tsx`) — moved the hardcoded expiry recommendation to i18n (`expiryRecommendation`) and added `valueHelper` + `clientNameHelper` under the Value & Client name fields.
+- **Removed the `t("key") || "English"` anti-pattern** — stripped **56** fallbacks across 10 frontend files (login, register OTP panel, OtpDialog, IdleTimeoutManager, MobileNavigationBar, UserMenu, HelpAndSupport, Profile AddContactInfo/UpdatePassword, reset-password). Critically this surfaced **7 latent missing keys** whose fallback masked a raw-key leak (`verifying`, `mustBeNumeric`, `mobilePlaceholder` [auth], `passwordComplexity` [profile], `idleTimeoutTitle`/`signOutNow`/`staySignedIn` [dashboardLayout]) — all added × 6 langs so users no longer see raw camelCase keys.
+- **Copy Style Guide** written at `docs/COPY_STYLE_GUIDE.md` (voice, sentence-case buttons, CTA/helper/error rules, i18n rules, canonical terminology).
+- All new copy translated to pt/es/fr/de/nl; `scripts/check-i18n.mjs` passes (all 5 non-EN locales complete).
+- **Verified** by frontend testing agent (iterations 18 + 19): register localizes EN/DE/NL incl. toggle; login DE no raw keys; wallet & payment-link helper texts render localized EN/DE (hostbay JWT); mobile bottom-nav localized; NO raw i18n keys leak on any scoped screen.
+- **i18n note for testers:** client language is localStorage key **`lang`** (+ `lang_manual`), NOT `i18nextLng`; SSR renders EN then client switches on hydration. Documented in `memory/test_credentials.md`.
+
+**Remaining i18n backlog (out of THIS scope — same "still English" class, flagged by testing agent):** sidebar labels (Customers/API/Referrals/Settings), `/create-pay-link` & `/wallet` onboarding-gate/empty-state copy, Profile "Change/Add Phone/Update Password/Login Activity" block, mobile dashboard KPI widgets, and the Create-Company modal.
+
+
 ### 2026-07-05 — Removed non-crypto marketing claims (PCI DSS + credit-card copy)
 User feedback: "Remove PCI DSS from MainMenu because I doubt it has to do with crypto. Also remove anything unrelated to crypto." Rationale is correct — PCI DSS is a card-industry (Visa/Mastercard) data-security standard, and DynoPay is a **non-custodial** crypto gateway that never touches card PANs, so claiming PCI DSS compliance is (a) misleading and (b) irrelevant to a merchant evaluating crypto rails.
 
