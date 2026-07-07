@@ -1,8 +1,8 @@
 # Test Credentials
 
 ## Preview Environment (Emergent)
-- URL: https://17da7815-ce04-4e60-a816-59b8a98b94de.preview.emergentagent.com
-- (Previous fork URL: https://crypto-payment-hub-23.preview.emergentagent.com)
+- URL: https://env-setup-preview-1.preview.emergentagent.com
+- (Previous fork URL: https://env-setup-preview-1.preview.emergentagent.com)
 - Frontend .env: /app/.env.local (NEXT_PUBLIC_BASE_URL + NEXTAUTH_URL point to the preview URL; /api/* routed to backend on port 8001)
 - Backend .env: /app/backend/.env (points to Railway PostgreSQL `railway` DB on `roundhouse.proxy.rlwy.net:23599`)
 - Redis: nozomi.proxy.rlwy.net:15794
