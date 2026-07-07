@@ -451,14 +451,14 @@ const OverPayment = ({
                 data-testid="return-btn"
                 sx={{
                   backgroundColor: theme.palette.primary.main,
-                  color: '#fff',
+                  color: theme.palette.primary.contrastText,
                   textTransform: "none",
                   borderRadius: 30,
                   py: 1.75,
                   fontSize: '15px',
                   fontWeight: 600,
                   "&:hover": {
-                    backgroundColor: '#4338CA',
+                    backgroundColor: (theme.palette.primary as any).hover || theme.palette.primary.dark,
                   },
                 }}
                 endIcon={<Icon icon="mdi:arrow-right" width={18} />}

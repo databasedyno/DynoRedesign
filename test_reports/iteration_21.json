@@ -1,0 +1,47 @@
+{
+  "summary": "Focused visual-contrast check of CTA button fix on /pay/payment-states-demo and /pay/demo (client-side sandbox pages, no backend calls). Verified computed styles of primary CTA buttons in DARK and LIGHT modes across all Overpay toggle states. Pages render correctly (no blank-paint issue in this env). Bug fix verified as WORKING on payment-states-demo (OverPayment CTA). On /pay/demo, the Done step actually renders a demo-specific inline success card with an outlined 'demo-reset-btn', NOT the TransferExpectedCard — so the fix is not exercised there (expectation mismatch in review request).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "/pay/payment-states-demo (all Overpay states, both themes)", "issues": ["Header icon SVG inside the OverPayment card renders in indigo rgb(68,76,231) = #444CE7. Not on the reviewer's blocklist (#4338CA / #0004FF), so treated as intentional icon color. Reporting for awareness."]}
+    ]
+  },
+  "test_report_links": ["/app/test_reports/iteration_21.json"],
+  "action_items": [
+    "OPTIONAL: Consider re-styling the OverPayment header piggy/wallet icon (#444CE7 indigo) to align with the lime/near-black theme if the design intent was to remove all indigo accents. Currently readable but visually inconsistent with theme.",
+    "CLARIFICATION for main agent: The /pay/demo Done step does NOT render TransferExpectedCard. It uses an inline demo success card (pages/pay/demo.tsx lines ~660–725) with an OUTLINED 'Try the demo again' button (data-testid='demo-reset-btn'), not 'return-btn'/'done-btn'. So the TransferExpectedCard contrastText fix is not exercised by walking /pay/demo. If you want that path tested, either add a route/toggle in /pay/demo that renders TransferExpectedCard, or rely on /pay/payment-states-demo (which does render OverPayment / TransferExpectedCard-family CTAs and PASSED)."
+  ],
+  "critical_code_review_comments": [
+    "Fix verified in code: Components/UI/TransferExpectedCard/Index.tsx return-btn (line 459-460) and done-btn (line 496-497) use theme.palette.primary.contrastText and hover uses (primary as any).hover with fallback to primary.dark — clean.",
+    "Components/UI/OverPayment/Index.tsx line 454 also uses theme.palette.primary.contrastText — clean.",
+    "TransferExpectedCard line 277 DoneIcon color:'#fff' on the green #12B76A success circle is intentional and correct (white check on green).",
+    "No hardcoded #4338CA / #0004FF remain in scanned DOM on the two demo pages.",
+    "Minor: (primary as any).hover typing bypass — consider extending the MUI PaletteColor type augmentation to declare `hover` so the `as any` cast is unnecessary."
+  ],
+  "computed_style_evidence": {
+    "payment_states_demo_dark_overpay_redirect_email": {"testid": "return-btn", "backgroundColor": "rgb(204, 255, 0)", "color": "rgb(6, 6, 6)", "text": "Return to Acme Store", "body_bg": "rgb(6, 6, 6)", "verdict": "PASS - lime bg + near-black text, high contrast"},
+    "payment_states_demo_dark_overpay_redirect_only": {"testid": "return-btn", "backgroundColor": "rgb(204, 255, 0)", "color": "rgb(6, 6, 6)", "verdict": "PASS"},
+    "payment_states_demo_dark_overpay_email_only": {"testid": "return-btn", "backgroundColor": "rgb(204, 255, 0)", "color": "rgb(6, 6, 6)", "text": "Done", "verdict": "PASS"},
+    "payment_states_demo_dark_overpay_done_only": {"testid": "return-btn", "backgroundColor": "rgb(204, 255, 0)", "color": "rgb(6, 6, 6)", "text": "Done", "verdict": "PASS"},
+    "payment_states_demo_dark_underpayment": {"note": "UnderPayment component does not render a return-btn/done-btn — it shows an outlined 'Pay Remaining with Crypto' button. Out of scope for this contrastText fix."},
+    "payment_states_demo_light_overpay_redirect_email": {"testid": "return-btn", "backgroundColor": "rgb(10, 10, 10)", "color": "rgb(204, 255, 0)", "text": "Return to Acme Store", "body_bg": "rgb(238, 241, 246)", "verdict": "PASS - near-black bg + lime text"},
+    "payment_states_demo_light_overpay_redirect_only": {"testid": "return-btn", "backgroundColor": "rgb(10, 10, 10)", "color": "rgb(204, 255, 0)", "verdict": "PASS"},
+    "payment_states_demo_light_overpay_email_only": {"testid": "return-btn", "backgroundColor": "rgb(10, 10, 10)", "color": "rgb(204, 255, 0)", "text": "Done", "verdict": "PASS"},
+    "payment_states_demo_light_overpay_done_only": {"testid": "return-btn", "backgroundColor": "rgb(10, 10, 10)", "color": "rgb(204, 255, 0)", "text": "Done", "verdict": "PASS"},
+    "demo_page_dark_done_step": {"testid": "demo-reset-btn", "backgroundColor": "rgba(0, 0, 0, 0)", "color": "rgb(255, 255, 255)", "borderColor": "rgba(255, 255, 255, 0.14)", "note": "Outlined variant on inline demo success card. This is NOT TransferExpectedCard — verdict: renders correctly for outlined button, but the review's stated return-btn/done-btn selector never appears on /pay/demo."},
+    "demo_page_light_done_step": {"testid": "demo-reset-btn", "backgroundColor": "rgba(0, 0, 0, 0)", "color": "rgb(10, 10, 10)", "borderColor": "rgba(10, 10, 10, 0.12)", "note": "Outlined variant, readable."},
+    "green_success_check_circle": {"backgroundColor_or_gradient": "linear-gradient #12B76A -> #0E9F5C", "check_icon_color": "#fff", "verdict": "PASS - intentional white check on green, preserved"},
+    "indigo_leftover_scan_4338CA_0004FF": "0 matches on both pages, both themes",
+    "console_errors": "None (only informational i18next branding, HMR connected, React DevTools tip)",
+    "i18n_raw_key_leak": "None detected"
+  },
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped)", "frontend": "100% for the in-scope OverPayment/TransferExpectedCard CTA fix on /pay/payment-states-demo"},
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "The /pay/demo Done step renders an inline demo success block (pages/pay/demo.tsx ~660-725) with data-testid='demo-reset-btn' (outlined button). It does NOT render TransferExpectedCard. To exercise TransferExpectedCard's return-btn/done-btn CTA visually, use /pay/payment-states-demo (Overpay: Redirect+Email / Redirect Only / Email Only / Done Only states) — all four states already verified with lime primary CTA correctly styled in both themes. Force theme via: localStorage.setItem('theme-mode','dark'|'light'); document.cookie='theme-mode=dark|light; path=/'; then reload. Pages render normally in this browser env (no blank-paint issue observed).",
+  "rca_of_the_issue": "Bug fix confirmed correct at code + runtime. The previous hardcoded color: '#fff' on OverPayment/TransferExpectedCard CTA buttons produced unreadable white-on-lime in dark mode. Fix replaces color with theme.palette.primary.contrastText (which is #060606 near-black in dark, #CCFF00 lime in light), and hover replaces the leftover indigo #4338CA with (theme.palette.primary as any).hover. Runtime confirms bg=rgb(204,255,0) + color=rgb(6,6,6) in dark and bg=rgb(10,10,10) + color=rgb(204,255,0) in light — meeting WCAG AAA contrast."
+}
