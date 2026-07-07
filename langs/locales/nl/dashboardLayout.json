@@ -117,5 +117,8 @@
   "obExpandChecklist": "Configuratielijst uitvouwen",
   "obCollapseChecklist": "Configuratielijst inklappen",
   "obPaymentLabel": "Ontvang je eerste betaling",
-  "obPaymentDesc": "Deel je betaallink en word betaald"
+  "obPaymentDesc": "Deel je betaallink en word betaald",
+  "growTrialCompleteTitle": "🎉 Kostenloze proefperiode voltooid",
+  "growTrialCompleteBody": "U heeft uw eerste $500 zonder kosten verwerkt. Verwijs een andere verkoper en verdien $50 extra tegoed zonder kosten wanneer zij $100 verwerken.",
+  "apiPaymentLabel": "API-betaling"
 }

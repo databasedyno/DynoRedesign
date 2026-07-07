@@ -117,5 +117,8 @@
   "obExpandChecklist": "Expandir lista de configuração",
   "obCollapseChecklist": "Recolher lista de configuração",
   "obPaymentLabel": "Receba seu primeiro pagamento",
-  "obPaymentDesc": "Compartilhe seu link de pagamento e receba"
+  "obPaymentDesc": "Compartilhe seu link de pagamento e receba",
+  "growTrialCompleteTitle": "🎉 Período grátis concluído",
+  "growTrialCompleteBody": "Você processou seus primeiros $500 sem taxas. Indique outro comerciante e ganhe mais $50 de crédito grátis quando ele processar $100.",
+  "apiPaymentLabel": "Pagamento via API"
 }

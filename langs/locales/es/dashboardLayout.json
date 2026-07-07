@@ -117,5 +117,8 @@
   "obExpandChecklist": "Expandir lista de configuración",
   "obCollapseChecklist": "Contraer lista de configuración",
   "obPaymentLabel": "Recibe tu primer pago",
-  "obPaymentDesc": "Comparte tu enlace de pago y cobra"
+  "obPaymentDesc": "Comparte tu enlace de pago y cobra",
+  "growTrialCompleteTitle": "🎉 Prueba sin comisiones completada",
+  "growTrialCompleteBody": "Procesaste tus primeros $500 sin comisiones. Refiere a otro comercio y gana $50 más de crédito sin comisiones cuando procese $100.",
+  "apiPaymentLabel": "Pago por API"
 }

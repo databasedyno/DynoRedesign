@@ -117,5 +117,8 @@
   "obExpandChecklist": "Développer la liste de configuration",
   "obCollapseChecklist": "Réduire la liste de configuration",
   "obPaymentLabel": "Recevez votre premier paiement",
-  "obPaymentDesc": "Partagez votre lien de paiement et soyez payé"
+  "obPaymentDesc": "Partagez votre lien de paiement et soyez payé",
+  "growTrialCompleteTitle": "🎉 Essai sans frais terminé",
+  "growTrialCompleteBody": "Vous avez traité vos premiers 500 $ sans frais. Parrainez un autre commerçant et gagnez 50 $ de crédit sans frais supplémentaires lorsqu'il traite 100 $.",
+  "apiPaymentLabel": "Paiement API"
 }

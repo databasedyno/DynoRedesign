@@ -1,3 +1,45 @@
+## TEST REQUEST (2026-07-07) — Dashboard 4-bug fix (hostbay-visible bugs)
+### ⚠️ LIVE PRODUCTION — READ-ONLY. JWT injection only; no forms/mutations/OTP.
+Preview: https://a407732e-14a9-4081-a594-da3ee5210448.preview.emergentagent.com
+JWT: `node /app/scripts/mint_ux_tokens.js` — use `hostbay@moxx.co` (data-rich, has $17k+ volume + trial exhausted).
+Inject `localStorage.setItem('token','<JWT>')`, then navigate to `/dashboard`. Hard-reload if needed.
+
+### USER REPORT (4 bugs)
+1. **Fee-free CTA shown to hostbay who already used the $500 trial.** Should show an *encouraging* alternative instead (trial complete celebration + referral prompt, premium tier, etc.).
+2. **"Daily transaction volume" on dashboard doesn't appear to be working.** (Interpretation: either the "Today's revenue" tile or the Transaction Volume chart / "Payments today" tile is showing 0 / empty / broken even though the backend has $87.99 today + 1 txn today).
+3. **`/settings/referral` and `/settings/billing`-style routes 404.** The right-rail GrowPanel "secondary CTAs" (Referral program, Premium tier) navigate to non-existent pages.
+4. **Recent transactions list shows the internal placeholder email** `legacy-api-1-1776537566415@dynopay.internal` for legacy-API-accepted payments — looks broken/leaky to the merchant.
+
+### FIXES APPLIED (main agent)
+- `Components/Page/Dashboard/DashboardRightSection.tsx` — replaced non-existent `userReducer.free_trial_volume_used` with the real signal `userReducer.profile.fee_free_remaining_usd` (populated by `/api/user/profile`). Now `hasFeeFreeCredit=true` ONLY when remaining>0. Also derives `hasCompletedFeeFreeTrial` (remaining==0 AND cumulative_volume>0).
+- `Components/Page/Dashboard/GrowPanel.tsx` — added a 4th offer variant **`trial_complete`** (title: "🎉 Fee-free trial complete", body: encouragement + referral nudge, CTA → `/referrals`). Fixed the two broken routes: **`/settings/billing` → `/fees`** (public pricing/premium page) and **`/settings/referral` → `/referrals`** (existing merchant page). Priority chain now: fee_free → trial_complete → premium → referral.
+- `hooks/useDashboardData.ts` — dispatches `USER_PROFILE_FETCH` once on dashboard mount so `fee_free_remaining_usd` is available (previously only /profile page fetched it).
+- `Components/Page/Dashboard/RecentTransactionsWidget.tsx` — added `isInternalCustomerEmail()` / `isInternalCustomerName()` guards. Rows where the email matches `@dynopay.internal` / starts with `legacy-api-` / name matches `/legacy\s*api\s*customer/i` now show the localized label **"API payment"** (i18n key `apiPaymentLabel`) instead of the internal identifier.
+- `langs/locales/{en,pt,fr,es,de,nl}/dashboardLayout.json` — added 3 new keys per language: `growTrialCompleteTitle`, `growTrialCompleteBody`, `apiPaymentLabel`.
+- Bug 2 (daily transaction volume): backend API `/api/dashboard` returns correct `today_summary.volume_today=87.99` for hostbay; frontend saga+reducer+HeroMetrics wiring all look correct. Please verify empirically what the user meant — inspect the "Today's revenue" tile value, the "Payments today" tile value, AND the Transaction Volume chart's last data point (should be ~$87.99 for 2026-07-07).
+
+### FRONTEND TEST PLAN (READ-ONLY — no forms, no OTP, no wallet ops)
+1. Inject hostbay@moxx.co JWT → `/dashboard`. Wait for compile + data load (≥15s on first hit).
+2. **Bug 1** — In the right rail, find the "Grow with DynoPay" card. Assert it is **NOT** the fee-free variant. Expected: **"🎉 Fee-free trial complete"** (data-testid `grow-offer-trial_complete`) OR the referral card if profile fetch is still pending. FAIL if the card shows "You have fee-free credit" (data-testid `grow-offer-fee_free`).
+3. **Bug 3** — Click the "Referral program" secondary link inside the GrowPanel → assert URL becomes `/referrals` and the page renders (NOT 404). Go back to `/dashboard`, click "Premium tier" secondary link → assert URL becomes `/fees` and renders (NOT 404). Screenshot both.
+4. **Bug 4** — In the Recent transactions widget, assert **no row** shows the raw internal email `@dynopay.internal` or "Legacy API Customer". Rows previously containing that identifier should now show **"API payment"** (or the localized equivalent for whichever language is active). Screenshot the widget.
+5. **Bug 2** — Screenshot the top-of-dashboard Hero tiles and the Transaction Volume chart. Read out:
+   - "Today's revenue" tile value (expected: `$87.99 USD` or similar per API; NOT `$0.00`).
+   - "Payments today" tile value (expected: `1`).
+   - Chart's last data point tooltip on hover — expected non-zero value for today's date.
+   Report what you observe; if any of those show 0/empty, tell us WHICH tile/element and its exact text.
+6. Language spot-check (bonus): set `localStorage.lang='de'; localStorage.lang_manual='true'` + reload. Assert the GrowPanel title translates ("Wachsen Sie mit DynoPay" or similar), the trial-complete title translates, and the "API payment" label appears in German ("API-Zahlung") on the recent-tx row.
+7. Console: report any new errors on `/dashboard`.
+
+### EXPECTED VERDICT
+- Bug 1: PASS — no fee-free CTA for hostbay; either trial-complete celebration or referral shown.
+- Bug 3: PASS — Referral program → `/referrals` ✓, Premium tier → `/fees` ✓, no 404.
+- Bug 4: PASS — no `@dynopay.internal` email visible in recent-tx list; replaced by "API payment".
+- Bug 2: DIAGNOSIS — either PASS (all values render correctly) or precise report on which tile is broken.
+
+---
+
+
 ## TEST REQUEST (2026-07-07) — Feature A Phase 1 FINAL: dashboard bento reskin after per-component blue sweep + light-mode check
 ### ⚠️ LIVE PRODUCTION — READ-ONLY. JWT injection only; no forms/mutations/OTP. Light/dark toggle is a safe UI preference.
 Preview: https://config-center-15.preview.emergentagent.com ; JWT: `node /app/scripts/mint_ux_tokens.js` (hostbay@moxx.co). Inject `localStorage.setItem('token','<JWT>')`, hard-reload to get latest build.

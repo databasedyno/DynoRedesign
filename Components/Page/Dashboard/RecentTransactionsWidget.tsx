@@ -31,7 +31,32 @@ interface RecentTx {
   cryptocurrency?: string;
   customer_email?: string;
   customerEmail?: string;
+  customer_name?: string;
+  customerName?: string;
 }
+
+/**
+ * Hide system-generated internal customer identifiers on the dashboard.
+ * The backend synthesises a placeholder like
+ * `legacy-api-1-1776537566415@dynopay.internal` / "Legacy API Customer"
+ * for payments accepted through the legacy REST API (where no real
+ * customer email is provided). Showing that raw string to the merchant
+ * looks broken/leaky. Fall back to the "just now / Received 3h ago"
+ * time label instead.
+ */
+const isInternalCustomerEmail = (email: string): boolean => {
+  if (!email) return false;
+  const lower = email.toLowerCase();
+  return (
+    lower.endsWith("@dynopay.internal") ||
+    lower.startsWith("legacy-api-") ||
+    lower.includes("@dynopay.local")
+  );
+};
+const isInternalCustomerName = (name: string): boolean => {
+  if (!name) return false;
+  return /legacy\s*api\s*customer/i.test(name);
+};
 
 export interface RecentTransactionsWidgetProps {
   transactions?: RecentTx[];
@@ -189,7 +214,17 @@ const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
               const fiat = tx.base_currency || tx.currency || "USD";
               const crypto = tx.crypto_currency || tx.cryptocurrency || "";
               const when = formatWhen(tx.createdAt || tx.created_at, t, i18n.language);
-              const email = tx.customer_email || tx.customerEmail || "";
+              const rawEmail = tx.customer_email || tx.customerEmail || "";
+              const rawName = (tx as any).customer_name || (tx as any).customerName || "";
+              // Mask internal identifiers created for legacy-API payments —
+              // showing the raw "legacy-api-…@dynopay.internal" address to
+              // the merchant looks broken.
+              const hideCustomerId =
+                isInternalCustomerEmail(rawEmail) || isInternalCustomerName(rawName);
+              const email = hideCustomerId ? "" : rawEmail;
+              const secondaryLabel = hideCustomerId
+                ? t("apiPaymentLabel")
+                : email || (when ? t("receivedWhen", { when }) : "");
               return (
                 <Box
                   key={String(tx.id ?? i)}
@@ -263,7 +298,7 @@ const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
                         textOverflow: "ellipsis",
                       }}
                     >
-                      {email || (when ? t("receivedWhen", { when }) : "")}
+                      {secondaryLabel}
                     </Typography>
                   </Box>
                   <Box sx={{ textAlign: "right", flexShrink: 0 }}>

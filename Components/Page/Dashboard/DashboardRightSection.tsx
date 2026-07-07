@@ -37,13 +37,31 @@ const DashboardRightSection = () => {
   const { feeTiers } = useDashboardData();
 
   // Fee-free credit flag: user still has trial credit → prioritize that promo.
-  // Reading from userReducer.free_trial_volume_used vs FREE_TRIAL_VOLUME_USD ($500).
+  // Read from userReducer.profile.fee_free_remaining_usd (set by /user/profile).
+  // Previously read a non-existent `free_trial_volume_used` field which
+  // defaulted to 0, so EVERY user (including those who had exhausted their
+  // trial) saw the fee-free CTA — wrong for merchants like hostbay@moxx.co
+  // who processed $17k+ and have $0 fee-free credit remaining.
   const userState = useSelector((s: rootReducer) => (s as any).userReducer);
+  const feeFreeRemainingRaw =
+    userState?.profile?.fee_free_remaining_usd ??
+    userState?.profile?.feeFreeRemainingUsd;
+  const feeFreeRemaining = Number(feeFreeRemainingRaw ?? NaN);
   const hasFeeFreeCredit = useMemo(() => {
-    const used = Number(userState?.free_trial_volume_used ?? 0);
-    const total = 500;
-    return used < total;
-  }, [userState?.free_trial_volume_used]);
+    // Only show fee-free CTA when the field is known AND still positive.
+    // If unknown (undefined/NaN), don't assume — fall through to premium/referral.
+    return Number.isFinite(feeFreeRemaining) && feeFreeRemaining > 0;
+  }, [feeFreeRemaining]);
+  // True when the merchant HAS used their trial (i.e. the field exists but is 0).
+  // Lets GrowPanel show a "trial complete → keep growing" state instead of the
+  // fee-free CTA — more encouraging than blindly falling to a generic offer.
+  const hasCompletedFeeFreeTrial = useMemo(() => {
+    return (
+      Number.isFinite(feeFreeRemaining) &&
+      feeFreeRemaining <= 0 &&
+      Number(userState?.profile?.cumulative_volume_usd ?? 0) > 0
+    );
+  }, [feeFreeRemaining, userState?.profile?.cumulative_volume_usd]);
 
   const monthlyLimit = feeTiers.monthlyLimit || DEFAULT_MONTHLY_LIMIT;
   const currentTier = feeTiers.currentTier || CURRENT_TIER;
@@ -233,6 +251,7 @@ const DashboardRightSection = () => {
       <Box sx={{ mt: 2 }}>
         <GrowPanel
           hasFeeFreeCredit={hasFeeFreeCredit}
+          hasCompletedFeeFreeTrial={hasCompletedFeeFreeTrial}
           isPremiumEligible={isPremiumEligible}
         />
       </Box>

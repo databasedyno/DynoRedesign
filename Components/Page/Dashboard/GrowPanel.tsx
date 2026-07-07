@@ -6,6 +6,7 @@ import {
   DiamondRounded,
   CardGiftcardRounded,
   LocalOfferRounded,
+  CelebrationRounded,
 } from "@mui/icons-material";
 import { Box, Typography, useTheme } from "@mui/material";
 import { useRouter } from "next/router";
@@ -17,8 +18,10 @@ import { useTranslation } from "react-i18next";
  * ReferralAndKnowledge, ConversionBanner} into ONE card that surfaces
  * exactly ONE offer at a time in priority order:
  *   1. Fee-free promo — highest urgency, expires
- *   2. Premium upgrade — for users who've hit fee tier 3+
- *   3. Referral program — evergreen
+ *   2. Trial complete celebration — for merchants who USED the trial
+ *      (encouragement + next-step; replaces the stale fee-free CTA)
+ *   3. Premium upgrade — for users who've hit fee tier 3+
+ *   4. Referral program — evergreen
  *
  * Priority is resolved from the props/state passed in — caller decides
  * what's active. Removes the "5 competing upsells" clutter the older
@@ -26,7 +29,7 @@ import { useTranslation } from "react-i18next";
  */
 
 interface OfferConfig {
-  key: "fee_free" | "premium" | "referral";
+  key: "fee_free" | "trial_complete" | "premium" | "referral";
   title: string;
   body: string;
   ctaLabel: string;
@@ -38,6 +41,8 @@ interface OfferConfig {
 export interface GrowPanelProps {
   /** True when the merchant still has unspent fee-free trial credit. */
   hasFeeFreeCredit?: boolean;
+  /** True when the merchant has already used their $500 fee-free trial. */
+  hasCompletedFeeFreeTrial?: boolean;
   /** True when the merchant is on a paid tier and could upgrade further. */
   isPremiumEligible?: boolean;
   /** Called when the user clicks the fee-free CTA (or falls back to a default route). */
@@ -48,6 +53,7 @@ export interface GrowPanelProps {
 
 const GrowPanel: React.FC<GrowPanelProps> = ({
   hasFeeFreeCredit = false,
+  hasCompletedFeeFreeTrial = false,
   isPremiumEligible = false,
   onFeeFreeCta,
   onPremiumCta,
@@ -68,12 +74,28 @@ const GrowPanel: React.FC<GrowPanelProps> = ({
     accent: theme.palette.success.dark || "#10B981",
   };
 
+  const trialCompleteOffer: OfferConfig = {
+    key: "trial_complete",
+    // Congratulatory / encouraging state for merchants who USED the trial.
+    // Nudges them toward the referral program (evergreen way to earn more
+    // fee-free credit) rather than showing a stale fee-free CTA they can't
+    // benefit from any more.
+    title: t("growTrialCompleteTitle"),
+    body: t("growTrialCompleteBody"),
+    ctaLabel: t("growReferralCta"),
+    onCtaClick: onReferralCta || (() => router.push("/referrals")),
+    icon: <CelebrationRounded sx={{ fontSize: 22 }} />,
+    accent: "#F59E0B", // amber — celebratory, distinct from the fee-free green
+  };
+
   const premiumOffer: OfferConfig = {
     key: "premium",
     title: t("growPremiumTitle"),
     body: t("growPremiumBody"),
     ctaLabel: t("learnMore"),
-    onCtaClick: onPremiumCta || (() => router.push("/settings/billing")),
+    // /fees is the public pricing/premium tier page. Previous target
+    // (/settings/billing) 404'd because no such page exists.
+    onCtaClick: onPremiumCta || (() => router.push("/fees")),
     icon: <DiamondRounded sx={{ fontSize: 22 }} />,
     accent: theme.palette.primary.main,
   };
@@ -83,17 +105,22 @@ const GrowPanel: React.FC<GrowPanelProps> = ({
     title: t("growReferralTitle"),
     body: t("growReferralBody"),
     ctaLabel: t("growReferralCta"),
-    onCtaClick: onReferralCta || (() => router.push("/settings/referral")),
+    // /referrals is the merchant referral page. Previous target
+    // (/settings/referral) 404'd because no such page exists.
+    onCtaClick: onReferralCta || (() => router.push("/referrals")),
     icon: <CardGiftcardRounded sx={{ fontSize: 22 }} />,
     accent: "#EC4899",
   };
 
-  // Priority: fee-free (highest, has expiry) > premium (eligibility gate) > referral (evergreen)
+  // Priority: fee-free (highest, has expiry) > trial-complete (celebration) >
+  //           premium (eligibility gate) > referral (evergreen)
   const active: OfferConfig = hasFeeFreeCredit
     ? feeFreeOffer
-    : isPremiumEligible
-      ? premiumOffer
-      : referralOffer;
+    : hasCompletedFeeFreeTrial
+      ? trialCompleteOffer
+      : isPremiumEligible
+        ? premiumOffer
+        : referralOffer;
 
   return (
     <Box sx={{ px: { xs: 2, md: 0 } }} data-testid="dashboard-grow-panel">
