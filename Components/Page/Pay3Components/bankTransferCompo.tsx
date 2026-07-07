@@ -260,7 +260,7 @@ const BankTransferCompo = ({
               onClick={() => setActiveStep(activeStep - 1)}
               sx={{
                 backgroundColor: "#F5F8FF",
-                color: "#0004FF",
+                color: "#5865F2",
                 borderRadius: "50%",
                 padding: "10px",
                 "&:hover": {
@@ -268,7 +268,7 @@ const BankTransferCompo = ({
                 },
               }}
             >
-              <ArrowBack sx={{ color: "#0004FF" }} />
+              <ArrowBack sx={{ color: "#5865F2" }} />
             </IconButton>
 
             {/* Title */}
@@ -286,7 +286,7 @@ const BankTransferCompo = ({
                 icon="mingcute:bank-line"
                 width="26"
                 height="29"
-                style={{ color: "#0004FF" }}
+                style={{ color: "#5865F2" }}
               />
               NGN Bank Transfer
             </Typography>
@@ -304,7 +304,7 @@ const BankTransferCompo = ({
               <Box display="flex" alignItems="center" gap={1}>
                 {transferDetails?.transfer_bank ? (
                   <Typography
-                    color={isDark ? '#6C7BFF' : "#2D3282"}
+                    color={isDark ? '#5865F2' : "#2D3282"}
                     fontWeight="bold"
                     display="flex"
                     alignItems="center"
@@ -338,7 +338,7 @@ const BankTransferCompo = ({
               <Box display="flex" alignItems="center" gap={1} mb={"4px"}>
                 {transferDetails?.transfer_account ? (
                   <Typography
-                    color={isDark ? '#6C7BFF' : "#2D3282"}
+                    color={isDark ? '#5865F2' : "#2D3282"}
                     fontWeight="600"
                     fontFamily="Space Grotesk"
                   >
@@ -359,7 +359,7 @@ const BankTransferCompo = ({
                     size="small"
                     sx={{
                       fontSize: "12px",
-                      color: isDark ? '#6C7BFF' : "#0004FF",
+                      color: isDark ? '#5865F2' : "#5865F2",
                       bgcolor: isDark ? 'rgba(108, 123, 255, 0.2)' : "#E9ECF2",
                       borderRadius: "6px",
                       gap: "4px",
@@ -392,7 +392,7 @@ const BankTransferCompo = ({
               </Typography>
               <Typography
                 fontWeight="600"
-                color={isDark ? '#6C7BFF' : "#2D3282"}
+                color={isDark ? '#5865F2' : "#2D3282"}
                 fontSize={"18px"}
                 fontFamily="Space Grotesk"
               >
@@ -523,13 +523,13 @@ const BankTransferCompo = ({
                   sx={{
                     mt: 1,
                     borderRadius: "99999px",
-                    bgcolor: "#0004FF",
+                    bgcolor: "#5865F2",
                     fontWeight: 500,
                     py: "17px",
                     textTransform: "none",
                     boxShadow: "none",
                     "&:hover": {
-                      bgcolor: "#0004FF",
+                      bgcolor: "#5865F2",
                       boxShadow: "none",
                     },
                   }}

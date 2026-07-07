@@ -4,15 +4,17 @@ import { useTheme } from '@mui/material'
 interface LogoProps {
   width?: number
   height?: number
+  color?: string
 }
 
-const Logo = ({ width = 65, height = 78 }: LogoProps) => {
+const Logo = ({ width = 65, height = 78, color }: LogoProps) => {
   const theme = useTheme()
   const isDark = theme.palette.mode === 'dark'
   
   // Light mode: Dark blue logo (#444CE7)
   // Dark mode: Light/white logo for better visibility
-  const fillColor = isDark ? '#A5B4FC' : '#444CE7'
+  // `color` prop overrides both (e.g. white logo on the dark checkout header bar).
+  const fillColor = color || (isDark ? '#A5B4FC' : '#444CE7')
   
   return (
     <svg 

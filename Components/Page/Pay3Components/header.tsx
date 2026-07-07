@@ -56,7 +56,7 @@ const Header = ({
         >
           {/* Left: Logo */}
           <Box display='flex' alignItems='center'>
-            <Logo width={36} height={42} />
+            <Logo width={36} height={42} color="#FFFFFF" />
           </Box>
 
           {/* Right */}

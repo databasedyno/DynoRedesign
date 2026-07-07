@@ -224,14 +224,14 @@ const PaymentDemo = () => {
               border: `1px solid ${theme.palette.border.main}`,
               boxShadow: isDark
                 ? '0 12px 40px rgba(0,0,0,0.35)'
-                : '0 8px 32px rgba(0,4,255,0.06), 0 2px 8px rgba(0,0,0,0.04)',
+                : '0 8px 32px rgba(10,10,10,0.06), 0 2px 8px rgba(0,0,0,0.04)',
               backgroundColor: theme.palette.background.paper,
             }}
           >
             <Box
               sx={{
                 height: '3px',
-                background: 'linear-gradient(90deg, #0004FF 0%, #3D40FF 40%, #6C6FFF 100%)',
+                background: 'linear-gradient(90deg, #CCFF00 0%, #7A8BFF 55%, #5865F2 100%)',
               }}
             />
 
@@ -378,7 +378,7 @@ const PaymentDemo = () => {
                       alignItems='center'
                       mb={1.5}
                       sx={{
-                        backgroundColor: isDark ? 'rgba(0,4,255,0.06)' : 'rgba(0,4,255,0.03)',
+                        backgroundColor: isDark ? 'rgba(204,255,0,0.08)' : 'rgba(10,10,10,0.04)',
                         borderRadius: '8px',
                         mx: -0.75,
                         px: 0.75,
@@ -594,7 +594,7 @@ const PaymentDemo = () => {
                       display: 'flex',
                       alignItems: 'center',
                       gap: 1.5,
-                      bgcolor: isDark ? 'rgba(0,4,255,0.06)' : 'rgba(0,4,255,0.03)',
+                      bgcolor: isDark ? 'rgba(204,255,0,0.08)' : 'rgba(10,10,10,0.04)',
                       mb: 1.5,
                     }}
                     data-testid="demo-awaiting-confirmation"

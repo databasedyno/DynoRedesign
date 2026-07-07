@@ -82,7 +82,7 @@ const Success = ({ redirectUrl, transactionId }: SuccessProps) => {
       
       {isRedirecting && (
         <Box display="flex" flexDirection="column" alignItems="center" gap={2}>
-          <CircularProgress size={24} sx={{ color: isDark ? '#6C7BFF' : "#0004FF" }} />
+          <CircularProgress size={24} sx={{ color: theme.palette.primary.main }} />
           <Typography
             variant="body1"
             color={theme.palette.text.secondary}

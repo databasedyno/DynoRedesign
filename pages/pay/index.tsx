@@ -811,13 +811,13 @@ const Payment = () => {
                   border: `1px solid ${theme.palette.border.main}`,
                   boxShadow: isDark 
                     ? '0 12px 40px rgba(0,0,0,0.35)' 
-                    : '0 8px 32px rgba(0,4,255,0.06), 0 2px 8px rgba(0,0,0,0.04)',
+                    : '0 8px 32px rgba(10,10,10,0.06), 0 2px 8px rgba(0,0,0,0.04)',
                   backgroundColor: theme.palette.background.paper,
                   transition: 'box-shadow 0.3s ease, transform 0.3s ease',
                   '&:hover': {
                     boxShadow: isDark
                       ? '0 16px 48px rgba(0,0,0,0.4)'
-                      : '0 12px 40px rgba(0,4,255,0.08), 0 4px 12px rgba(0,0,0,0.06)',
+                      : '0 12px 40px rgba(10,10,10,0.08), 0 4px 12px rgba(0,0,0,0.06)',
                     transform: 'translateY(-1px)',
                   },
                 }}
@@ -1017,10 +1017,10 @@ const Payment = () => {
                             onClick={handleCopyInvoice}
                             data-testid="copy-invoice-btn"
                             sx={{
-                              bgcolor: isDark ? 'rgba(106,123,255,0.18)' : theme.palette.action.hover,
+                              bgcolor: isDark ? 'rgba(204,255,0,0.16)' : theme.palette.action.hover,
                               p: 0.75,
                               borderRadius: '6px',
-                              '&:hover': { bgcolor: isDark ? 'rgba(106,123,255,0.28)' : theme.palette.action.selected }
+                              '&:hover': { bgcolor: isDark ? 'rgba(204,255,0,0.24)' : theme.palette.action.selected }
                             }}
                           >
                             <CopyIcon />
@@ -1145,7 +1145,7 @@ const Payment = () => {
                     alignItems='center'
                     mb={1.5}
                     sx={{
-                      backgroundColor: isDark ? 'rgba(0,4,255,0.06)' : 'rgba(0,4,255,0.03)',
+                      backgroundColor: isDark ? 'rgba(204,255,0,0.08)' : 'rgba(10,10,10,0.04)',
                       borderRadius: '8px',
                       mx: -0.75,
                       px: 0.75,
