@@ -493,8 +493,8 @@ const Register = () => {
                         },
                       }}
                     >
-                      <ToggleButton value="email">E-mail</ToggleButton>
-                      <ToggleButton value="phone">Mobile Number</ToggleButton>
+                      <ToggleButton value="email">{t("email")}</ToggleButton>
+                      <ToggleButton value="phone">{t("phone")}</ToggleButton>
                     </ToggleButtonGroup>
                   </Box>
 

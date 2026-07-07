@@ -28,6 +28,16 @@
 - user_id: 8 (email_verified=true). NO company, NO wallet, NO payment link, NO transactions.
 - has_password: true
 
+## i18n / language switching (IMPORTANT)
+- The client language is stored in localStorage under the key **`lang`** (values: `en`/`pt`/`es`/`fr`/`de`/`nl`), NOT `i18nextLng`. Setting `i18nextLng` has NO effect.
+- To force a language in a test: `localStorage.setItem('lang','de'); localStorage.setItem('lang_manual','true');` then **reload** (SSR always renders English first, the client switches on hydration ~1-2s).
+- Easiest in a real browser: use the header language dropdown (e.g. pick "DE - Deutsch").
+
+## Mint a 30-day JWT (bypass OTP) for logged-in UI tests
+- Run: `node /app/scripts/mint_ux_tokens.js` — prints JWTs for `hostbay@moxx.co` (data-rich), `qa.empty...`, `qa.onboard...`.
+- Inject: on the app origin `localStorage.setItem('token','<JWT>')`, then navigate to `/dashboard` (or `/create-pay-link`, `/wallet`, etc.).
+- Use `hostbay@moxx.co` for pay-link tests — it has a company + wallet, so `/create-pay-link` reaches the Payment Settings form (the empty QA merchant is blocked by the onboarding gate).
+
 ## How to test logged-in flows (login is OTP-gated)
 1. **Token injection (recommended for frontend tests)**: obtain a valid 30-day JWT and inject it:
    - On the app origin: `localStorage.setItem('token', '<JWT>')` then navigate to `/dashboard`.
