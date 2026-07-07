@@ -143,7 +143,53 @@ awaiting a go-ahead:
 
 ---
 
-## 5. Refactoring / tech-debt backlog
+## 5. Landing page & other public / checkout surfaces
+
+Public/marketing pages use the **`homeTheme`** (blue `#0004FF`, `styles/homeTheme.ts`)
+and the `home` layout — they do NOT yet share the bold cyber-lime auth look.
+Checkout uses the `pay`/`payment` layouts (`lightTheme`/`darkTheme`).
+
+### Surface inventory (design + i18n status)
+
+| Surface | File(s) | Theme today | i18n | Priority |
+|---|---|---|---|---|
+| Landing / home | `pages/index.tsx`, `Containers/Home` | blue homeTheme | ✅ `landing.json` | design refresh (P1) |
+| Fees | `pages/fees.tsx` | blue homeTheme | ✅ `fees.json` | design refresh (P2) |
+| Terms / Privacy / AML | `pages/terms-conditions.tsx`, `privacy-policy.tsx`, `aml-policy.tsx` | blue homeTheme | ✅ (each has a namespace) | low |
+| Documentation | `pages/documentation.tsx` | blue homeTheme | ❌ (~150 strings) | i18n P2 |
+| Blog | `pages/blog/index.tsx`, `blog/[slug].tsx` | blue homeTheme | ❌ content | P2 |
+| System status | `pages/system-status.tsx` | blue homeTheme | partial (`apiStatus.json`) | P2 |
+| QA / demos | `pages/QA.tsx`, `pages/pay/demo.tsx`, `pay/payment-states-demo.tsx`, `pay/success-demo.tsx` | mixed | ❌ | lowest |
+| **Checkout `/pay`** | `pages/pay/index.tsx` + method components | pay theme | ❌ (~30 strings: Bank transfer, Mobile Money, USSD, Card, Bank account) | **i18n P1** |
+| Payment result | `pages/payment/{success,failed,verify,index}.tsx` | payment theme | ❓ verify | P1 |
+| Pay legal | `pages/pay/aml-policy.tsx`, `pay/terms-of-service.tsx` | pay theme | ❓ | P2 |
+
+### What's left / recommended for the landing + public pages
+
+**Design (brand consistency — the user's stated direction):**
+- **Mirror the bold "Floating Glass Bento" theme onto the landing page** (`pages/index.tsx` /
+  `Containers/Home`) so the brand feels consistent from first click → sign-up. This is
+  the biggest visual win. Approach mirrors auth: create a scoped landing theme (or extend
+  `homeTheme`) with the cyber-lime accent + void/frost canvas, and restyle the hero,
+  feature bento, pricing/CTA sections. **Get user approval on scope first** (landing is a
+  high-traffic marketing page — larger than auth).
+- Roll the same accent/glass system through **fees, blog, docs, legal** pages for a unified
+  look (secondary priority).
+- Reuse the auth fonts (Unbounded/Manrope/JetBrains Mono — already loaded in `_document.tsx`).
+
+**Checkout `/pay` (highest-impact non-auth surface — this is what the merchant's customers see):**
+- Finish **i18n of the payment-method strings** (P1 in section 2).
+- Consider a light design polish so the hosted checkout feels premium and trustworthy
+  (it directly affects payment conversion). Keep it its own restrained theme — a checkout
+  shouldn't be as "loud" as the marketing site.
+
+**i18n (public pages):**
+- `documentation.tsx`, `blog`, `system-status`, demos still need translation (P2).
+- Verify `pages/payment/*` result screens (success/failed/verify) are translated.
+
+---
+
+## 6. Refactoring / tech-debt backlog
 
 - `pages/auth/login.tsx` is ~2000 lines — candidate for extraction into smaller
   components (EmailStep, PhoneStep, OtpStep, SocialAuth) once flows are stable.
@@ -154,7 +200,7 @@ awaiting a go-ahead:
 
 ---
 
-## 6. Quick reference
+## 7. Quick reference
 
 - Preview URL comes from `frontend/.env` `REACT_APP_BACKEND_URL` /
   `.env.local` `NEXT_PUBLIC_BASE_URL` — trust the current one, ignore stale URLs.
