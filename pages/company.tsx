@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 import { useRouter } from "next/router";
 import Head from "next/head";
 import {
@@ -30,6 +31,7 @@ import { ICompany, pageProps, rootReducer } from "@/utils/types";
 const Company = ({ setPageName, setPageDescription, setPageAction }: pageProps) => {
   const dispatch = useDispatch();
   const theme = useTheme();
+  const { t } = useTranslation("companyDialog");
   const router = useRouter();
   const isMobile = useIsMobile("md");
   const companyState = useSelector(
@@ -420,9 +422,9 @@ const Company = ({ setPageName, setPageDescription, setPageAction }: pageProps) 
         onClose={handleAddClose}
         onSuccess={handleAddSuccess}
         showStepIndicator={false}
-        title="Add a New Company"
-        subtitle="Set up another business profile under your account"
-        closeLabel="Cancel"
+        title={t("createModal.addTitle")}
+        subtitle={t("createModal.addSubtitle")}
+        closeLabel={t("createModal.cancel")}
       />
 
       {/* Company Settings Dialog (Manage) */}

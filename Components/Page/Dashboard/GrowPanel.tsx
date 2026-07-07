@@ -10,6 +10,7 @@ import {
 import { Box, Typography, useTheme } from "@mui/material";
 import { useRouter } from "next/router";
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 /**
  * GrowPanel — consolidates the old {FeeFreeWidget, PremiumTierCard,
@@ -55,12 +56,13 @@ const GrowPanel: React.FC<GrowPanelProps> = ({
   const theme = useTheme();
   const isMobile = useIsMobile("sm");
   const router = useRouter();
+  const { t } = useTranslation("dashboardLayout");
 
   const feeFreeOffer: OfferConfig = {
     key: "fee_free",
-    title: "You have fee-free credit",
-    body: "Your first $500 of payment volume is 100% fee-free — keep every cent.",
-    ctaLabel: "Create payment link",
+    title: t("growFeeFreeTitle"),
+    body: t("growFeeFreeBody"),
+    ctaLabel: t("createPaymentLink"),
     onCtaClick: onFeeFreeCta || (() => router.push("/create-pay-link")),
     icon: <LocalOfferRounded sx={{ fontSize: 22 }} />,
     accent: theme.palette.success.dark || "#10B981",
@@ -68,9 +70,9 @@ const GrowPanel: React.FC<GrowPanelProps> = ({
 
   const premiumOffer: OfferConfig = {
     key: "premium",
-    title: "Upgrade to Premium",
-    body: "Lower per-transaction fees and priority support. Unlock at Tier 3.",
-    ctaLabel: "Learn more",
+    title: t("growPremiumTitle"),
+    body: t("growPremiumBody"),
+    ctaLabel: t("learnMore"),
     onCtaClick: onPremiumCta || (() => router.push("/settings/billing")),
     icon: <DiamondRounded sx={{ fontSize: 22 }} />,
     accent: theme.palette.primary.main,
@@ -78,9 +80,9 @@ const GrowPanel: React.FC<GrowPanelProps> = ({
 
   const referralOffer: OfferConfig = {
     key: "referral",
-    title: "Earn with referrals",
-    body: "Refer a merchant, both of you get $50 fee-free credit when they process $100.",
-    ctaLabel: "Invite a merchant",
+    title: t("growReferralTitle"),
+    body: t("growReferralBody"),
+    ctaLabel: t("growReferralCta"),
     onCtaClick: onReferralCta || (() => router.push("/settings/referral")),
     icon: <CardGiftcardRounded sx={{ fontSize: 22 }} />,
     accent: "#EC4899",
@@ -99,8 +101,8 @@ const GrowPanel: React.FC<GrowPanelProps> = ({
         showHeaderBorder={false}
         headerPadding={theme.spacing(2.5, 2.5, 0, 2.5)}
         bodyPadding={theme.spacing(2, 2.5, 2.5, 2.5)}
-        title="Grow with DynoPay"
-        subTitle="Suggested next step"
+        title={t("growTitle")}
+        subTitle={t("growSubtitle")}
       >
         <Box
           data-testid={`grow-offer-${active.key}`}
@@ -188,7 +190,7 @@ const GrowPanel: React.FC<GrowPanelProps> = ({
               }}
               data-testid="grow-secondary-referral"
             >
-              Referral program
+              {t("growSecondaryReferral")}
             </Typography>
           )}
           {active.key !== "premium" && (
@@ -203,7 +205,7 @@ const GrowPanel: React.FC<GrowPanelProps> = ({
               }}
               data-testid="grow-secondary-premium"
             >
-              Premium tier
+              {t("growSecondaryPremium")}
             </Typography>
           )}
         </Box>

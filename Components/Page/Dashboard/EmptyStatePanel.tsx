@@ -8,6 +8,7 @@ import {
 import { Box, Typography, useTheme } from "@mui/material";
 import { useRouter } from "next/router";
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 /**
  * EmptyStatePanel — shown INSTEAD of HeroMetrics when the merchant has
@@ -31,6 +32,7 @@ const EmptyStatePanel: React.FC<EmptyStatePanelProps> = ({
   const theme = useTheme();
   const isMobile = useIsMobile("md");
   const router = useRouter();
+  const { t } = useTranslation("dashboardLayout");
 
   const ready = hasCompany && hasWallet;
 
@@ -77,7 +79,7 @@ const EmptyStatePanel: React.FC<EmptyStatePanelProps> = ({
             mb: 1,
           }}
         >
-          {ready ? "Waiting for your first payment" : "You're almost there"}
+          {ready ? t("emptyReadyTitle") : t("emptyNotReadyTitle")}
         </Typography>
         <Typography
           sx={{
@@ -88,16 +90,14 @@ const EmptyStatePanel: React.FC<EmptyStatePanelProps> = ({
             mb: 2,
           }}
         >
-          {ready
-            ? "Create your first payment link, share it with a customer, and your dashboard will light up the moment their crypto lands on-chain."
-            : "Finish setting up your account to start accepting crypto payments. It takes less than 2 minutes."}
+          {ready ? t("emptyReadyBody") : t("emptyNotReadyBody")}
         </Typography>
         <Box sx={{ display: "flex", gap: 1.5, flexWrap: "wrap", alignItems: "center" }}>
           {ready ? (
             <>
               <CustomButton
                 data-testid="empty-state-create-link"
-                label="Create payment link"
+                label={t("createPaymentLink")}
                 variant="primary"
                 size={isMobile ? "small" : "medium"}
                 endIcon={<ArrowOutward sx={{ fontSize: 16 }} />}
@@ -118,13 +118,13 @@ const EmptyStatePanel: React.FC<EmptyStatePanelProps> = ({
                 data-testid="empty-state-watch-demo"
               >
                 <PlayCircleFilledRounded sx={{ fontSize: 20 }} />
-                Watch 60-second demo
+                {t("emptyWatchDemo")}
               </Box>
             </>
           ) : (
             <CustomButton
               data-testid="empty-state-finish-setup"
-              label={hasCompany ? "Add a wallet" : "Create your company"}
+              label={hasCompany ? t("emptyAddWallet") : t("emptyCreateCompany")}
               variant="primary"
               size={isMobile ? "small" : "medium"}
               endIcon={<ArrowOutward sx={{ fontSize: 16 }} />}

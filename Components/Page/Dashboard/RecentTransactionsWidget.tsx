@@ -5,6 +5,7 @@ import { ArrowOutward, CheckCircleRounded, HourglassEmptyRounded, ErrorOutlineRo
 import { Box, Skeleton, Typography, useTheme } from "@mui/material";
 import { useRouter } from "next/router";
 import React from "react";
+import { useTranslation } from "react-i18next";
 import CustomButton from "@/Components/UI/Buttons";
 
 /**
@@ -38,7 +39,7 @@ export interface RecentTransactionsWidgetProps {
   max?: number;
 }
 
-const statusStyle = (status: string, theme: any) => {
+const statusStyle = (status: string, theme: any, t: (k: string) => string) => {
   const s = String(status || "").toLowerCase();
   // Backend actually persists "successful" (not "success") for confirmed payments,
   // so include both here and everywhere else in the app that classifies status.
@@ -47,7 +48,7 @@ const statusStyle = (status: string, theme: any) => {
       color: theme.palette.success.dark || "#059669",
       bg: theme.palette.mode === "dark" ? "rgba(16,185,129,0.18)" : "rgba(16,185,129,0.12)",
       icon: <CheckCircleRounded sx={{ fontSize: 14 }} />,
-      label: "Paid",
+      label: t("statusPaid"),
     };
   }
   if (["pending", "waiting", "unconfirmed", "processing"].includes(s)) {
@@ -55,31 +56,35 @@ const statusStyle = (status: string, theme: any) => {
       color: theme.palette.warning.dark || "#B45309",
       bg: theme.palette.mode === "dark" ? "rgba(245,158,11,0.18)" : "rgba(245,158,11,0.12)",
       icon: <HourglassEmptyRounded sx={{ fontSize: 14 }} />,
-      label: s ? s.charAt(0).toUpperCase() + s.slice(1) : "Pending",
+      label: t("statusPending"),
     };
   }
   return {
     color: theme.palette.error.main,
     bg: theme.palette.mode === "dark" ? "rgba(239,68,68,0.18)" : "rgba(239,68,68,0.12)",
     icon: <ErrorOutlineRounded sx={{ fontSize: 14 }} />,
-    label: s ? s.charAt(0).toUpperCase() + s.slice(1) : "Failed",
+    label: t("statusFailed"),
   };
 };
 
-const formatWhen = (iso?: string) => {
+const formatWhen = (
+  iso: string | undefined,
+  t: (k: string, opts?: Record<string, unknown>) => string,
+  lang: string,
+) => {
   if (!iso) return "";
-  const t = new Date(iso).getTime();
-  if (Number.isNaN(t)) return "";
-  const diff = Date.now() - t;
+  const time = new Date(iso).getTime();
+  if (Number.isNaN(time)) return "";
+  const diff = Date.now() - time;
   const min = Math.floor(diff / 60_000);
-  if (min < 1) return "just now";
-  if (min < 60) return `${min}m ago`;
+  if (min < 1) return t("timeJustNow");
+  if (min < 60) return t("timeMinAgo", { count: min });
   const hrs = Math.floor(min / 60);
-  if (hrs < 24) return `${hrs}h ago`;
+  if (hrs < 24) return t("timeHrAgo", { count: hrs });
   const days = Math.floor(hrs / 24);
-  if (days < 7) return `${days}d ago`;
+  if (days < 7) return t("timeDayAgo", { count: days });
   const d = new Date(iso);
-  return `${String(d.getDate()).padStart(2, "0")} ${d.toLocaleString("en", { month: "short" })}`;
+  return `${String(d.getDate()).padStart(2, "0")} ${d.toLocaleString(lang || "en", { month: "short" })}`;
 };
 
 const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
@@ -90,6 +95,7 @@ const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
   const theme = useTheme();
   const isMobile = useIsMobile("sm");
   const router = useRouter();
+  const { t, i18n } = useTranslation("dashboardLayout");
   const list = (transactions || []).slice(0, max);
 
   return (
@@ -98,12 +104,12 @@ const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
         showHeaderBorder={false}
         headerPadding={theme.spacing(2.5, 2.5, 1.5, 2.5)}
         bodyPadding={theme.spacing(0, 0, 1.5, 0)}
-        title="Recent transactions"
-        subTitle={list.length > 0 ? "Latest activity on your account" : undefined}
+        title={t("recentTransactions")}
+        subTitle={list.length > 0 ? t("recentActivitySubtitle") : undefined}
         headerActionLayout="inline"
         headerAction={
           <CustomButton
-            label="View all"
+            label={t("viewAll")}
             variant="secondary"
             size="small"
             endIcon={<ArrowOutward sx={{ fontSize: 14 }} />}
@@ -160,7 +166,7 @@ const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
                 color: theme.palette.text.primary,
               }}
             >
-              No transactions yet
+              {t("noTransactionsYet")}
             </Typography>
             <Typography
               sx={{
@@ -171,18 +177,18 @@ const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
                 lineHeight: 1.5,
               }}
             >
-              Create your first payment link and share it with a customer to see activity here.
+              {t("noTransactionsDesc")}
             </Typography>
           </Box>
         ) : (
           <Box>
             {list.map((tx, i) => {
               const status = String(tx.status || "").toLowerCase();
-              const s = statusStyle(status, theme);
+              const s = statusStyle(status, theme, t);
               const amount = tx.base_amount ?? tx.amount ?? 0;
               const fiat = tx.base_currency || tx.currency || "USD";
               const crypto = tx.crypto_currency || tx.cryptocurrency || "";
-              const when = formatWhen(tx.createdAt || tx.created_at);
+              const when = formatWhen(tx.createdAt || tx.created_at, t, i18n.language);
               const email = tx.customer_email || tx.customerEmail || "";
               return (
                 <Box
@@ -257,7 +263,7 @@ const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
                         textOverflow: "ellipsis",
                       }}
                     >
-                      {email || (when ? `Received ${when}` : "")}
+                      {email || (when ? t("receivedWhen", { when }) : "")}
                     </Typography>
                   </Box>
                   <Box sx={{ textAlign: "right", flexShrink: 0 }}>

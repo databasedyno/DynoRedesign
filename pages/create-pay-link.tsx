@@ -252,9 +252,9 @@ const CreatePaymentLink = ({ setPageName, setPageDescription }: pageProps) => {
         onSuccess={handleCompanySuccess}
         onClose={() => setCompanyModalOpen(false)}
         showStepIndicator={false}
-        title="Create Your Company"
-        subtitle="Used on invoices and receipts. Takes about 30 seconds."
-        closeLabel="Cancel"
+        title={t("companyDialog:createModal.title")}
+        subtitle={t("companyDialog:createModal.payLinkSubtitle")}
+        closeLabel={t("companyDialog:createModal.cancel")}
       />
       {walletModalOpen && (
         <AddWalletModal

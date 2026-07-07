@@ -161,7 +161,7 @@ const NewHeader = () => {
                         color: muiTheme.palette.primary.main,
                       }}
                     >
-                      Complete company setup
+                      {tDashboard("companySetupWarning")}
                     </RequiredKYCText>
                     <RequiredKYCText
                       sx={{
@@ -169,7 +169,7 @@ const NewHeader = () => {
                         color: muiTheme.palette.primary.main,
                       }}
                     >
-                      Company setup
+                      {tDashboard("companySetupWarningShort")}
                     </RequiredKYCText>
                   </RequiredKYC>
                 </Link>

@@ -1,3 +1,63 @@
+## i18n backlog: sidebar + dashboard + Create-Company modal — COMPLETED (2026-07-07)
+
+### SCOPE (user request)
+Finish the remaining i18n backlog so a merchant switching language sees no English on the
+last big authenticated surfaces: **(1) sidebar nav labels, (2) the whole dashboard, and
+(3) the Create-Company modal**. 6 languages: en/pt/fr/es/de/nl.
+
+### WHAT WAS DONE
+**Sidebar / nav chrome**
+- `Components/Layout/NewSidebar/index.tsx` — the 3 remaining hardcoded labels ("Customers",
+  "Referrals", "Settings") now use `t("customers"/"referrals"/"settings")` (keys already existed
+  in all 6 langs).
+- `Components/Layout/MobileNavigationBar/index.tsx` — "Complete company setup" → `t("companySetupWarning")`.
+- `Components/Layout/NewHeader/index.tsx` — desktop header "Complete company setup" / "Company setup"
+  → `tDashboard("companySetupWarning" / "companySetupWarningShort")`.
+
+**Dashboard** (`Components/Page/Dashboard/`)
+- `RecentTransactionsWidget.tsx` — title/subtitle/"View all"/empty-state/status pills
+  (Paid/Pending/Failed)/relative-time ("just now", "{{count}}m ago", "Received {{when}}") all i18n'd.
+- `HeroMetrics.tsx` — KPI tiles ("Today's revenue"/"Lifetime volume"/"Payments today"),
+  "vs yesterday"/"vs last month", pluralized "{{count}} active wallet(s)".
+- `GrowPanel.tsx` — panel title/subtitle + all 3 offers (fee-free/premium/referral) + secondary links.
+- `EmptyStatePanel.tsx` — ready/not-ready titles+bodies, CTAs ("Watch 60-second demo", add wallet, etc.).
+
+**Create-Company modal** (`Components/UI/OnboardingFlow/CreateCompanyModal.tsx`)
+- Full i18n: title/subtitle, section headers, all field labels + placeholders, mobile/website/country/
+  currency/logo, submit + cancel, 5 stepped-progress messages, all validation + file-upload errors.
+- Caller props also translated: `pages/company.tsx` ("Add a New Company"/subtitle/"Cancel"),
+  `pages/create-pay-link.tsx` (title/pay-link subtitle/"Cancel"), `Components/UI/OnboardingFlow/index.tsx`
+  (dropped hardcoded closeLabel → translated default). `CompanySelector` already used defaults.
+
+**Translations added** to `langs/locales/{en,pt,fr,es,de,nl}/` — `dashboardLayout.json` (~40 keys)
+and `companyDialog.json` (`createModal` block ~44 keys). Merge scripts: `scripts/i18n_add_keys*.js`.
+
+### SELF-VERIFICATION (main agent, German, via token injection)
+- Sidebar: Kunden / Empfehlungen / Einstellungen ✅
+- Dashboard KPI: HEUTIGER UMSATZ / GESAMTVOLUMEN / ZAHLUNGEN HEUTE, "ggü. gestern", "vs. letzter Monat",
+  "13 aktive Wallets" ✅; Recent Transactions: "Letzte Transaktionen"/"Alle anzeigen"/"Bezahlt"/"Ausstehend"/"vor 7 Std." ✅;
+  Grow panel: "Wachsen Sie mit DynoPay"/"Sie haben gebührenfreies Guthaben" ✅
+- Create-Company modal (via /create-pay-link → "Create a Company"): "Erstellen Sie Ihr Unternehmen",
+  Vorname/Nachname/Firmenname/Geschäftliche E-Mail/Land/Standardwährung/Markenlogo,
+  "Unternehmen erstellen"/"Abbrechen" — zero English ✅
+- All edited files lint-clean; all pages compile 200.
+
+### OUT OF SCOPE (broader backlog, per user — still English, not touched)
+/create-pay-link & /wallet onboarding "quick steps"/empty-state copy, Profile
+(Change/Add phone/Update password/Login activity), CompanySettingsDialog.
+
+### FRONTEND TEST PLAN (preview: https://17da7815-ce04-4e60-a816-59b8a98b94de.preview.emergentagent.com)
+Auth is OTP-gated → inject a JWT (`node /app/scripts/mint_ux_tokens.js` → use `hostbay@moxx.co`
+for the data-rich dashboard, `qa.empty...@dynopaytest.com` for the Create-Company modal). Set
+`localStorage.token`, `localStorage.lang="de"` (or fr/es/pt/nl), `localStorage.lang_manual="true"`.
+- `/dashboard` (hostbay, DE): assert sidebar (Kunden/Empfehlungen/Einstellungen), KPI tiles, Recent
+  Transactions, and Grow panel are German; assert NO "Customers"/"Recent transactions"/"View all"/
+  "Grow with DynoPay"/"Today's revenue" English strings.
+- `/create-pay-link` (qa.empty, DE): click the "Create a Company" step → assert modal renders German
+  ("Erstellen Sie Ihr Unternehmen", "Firmenname", "Unternehmen erstellen", "Abbrechen"); no English.
+- Repeat spot-check for FR + ES. Report any English still leaking in these 3 surfaces.
+
+
 ## Landing page i18n fix — Test Request (2026-07-07)
 
 ### USER REPORT

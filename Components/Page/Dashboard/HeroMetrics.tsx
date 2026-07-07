@@ -3,6 +3,7 @@ import useIsMobile from "@/hooks/useIsMobile";
 import { ArrowDownward, ArrowUpward, TrendingUpRounded, ReceiptLongRounded, PaidRounded } from "@mui/icons-material";
 import { Box, Skeleton, Typography, useTheme } from "@mui/material";
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 /**
  * HeroMetrics — the top-of-dashboard glanceable summary.
@@ -202,6 +203,7 @@ const HeroMetrics: React.FC<HeroMetricsProps> = ({
   activeWallets,
 }) => {
   const isMobile = useIsMobile("md");
+  const { t } = useTranslation("dashboardLayout");
 
   return (
     <Box
@@ -219,26 +221,26 @@ const HeroMetrics: React.FC<HeroMetricsProps> = ({
     >
       <Tile
         testId="hero-tile-today-revenue"
-        label="Today's revenue"
+        label={t("heroTodayRevenue")}
         value={volumeTodayFormatted || `${currencySymbol}0.00`}
         changePercent={volumeTodayChangePercent}
-        changeLabel={"vs yesterday"}
+        changeLabel={t("vsYesterday")}
         icon={<PaidRounded sx={{ fontSize: 18 }} />}
         loading={loading}
         variant="primary"
       />
       <Tile
         testId="hero-tile-total-volume"
-        label="Lifetime volume"
+        label={t("heroLifetimeVolume")}
         value={totalVolumeFormatted || `${currencySymbol}0.00`}
         changePercent={volumeChangePercent}
-        changeLabel={"vs last month"}
+        changeLabel={t("vsLastMonth")}
         icon={<TrendingUpRounded sx={{ fontSize: 18 }} />}
         loading={loading}
       />
       <Tile
         testId="hero-tile-payments-today"
-        label="Payments today"
+        label={t("heroPaymentsToday")}
         value={
           loading
             ? ""
@@ -247,12 +249,12 @@ const HeroMetrics: React.FC<HeroMetricsProps> = ({
         changePercent={transactionsChangePercent}
         changeLabel={
           activeWallets != null
-            ? `${activeWallets} active wallet${activeWallets === 1 ? "" : "s"}`
-            : "vs yesterday"
+            ? t("activeWalletsCount", { count: activeWallets })
+            : t("vsYesterday")
         }
         meta={
           activeWallets != null
-            ? `${activeWallets} active wallet${activeWallets === 1 ? "" : "s"}`
+            ? t("activeWalletsCount", { count: activeWallets })
             : undefined
         }
         icon={<ReceiptLongRounded sx={{ fontSize: 18 }} />}

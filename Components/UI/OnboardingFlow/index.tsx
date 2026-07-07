@@ -220,7 +220,6 @@ const OnboardingFlow: React.FC = () => {
         open={activeModal === "company"}
         onSuccess={handleCompanyCreated}
         onClose={handleModalClose}
-        closeLabel="I'll do this later"
       />
 
       <AddWalletModal

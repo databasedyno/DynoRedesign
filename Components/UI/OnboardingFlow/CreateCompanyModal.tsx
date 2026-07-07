@@ -28,6 +28,7 @@ import { TransitionProps } from "@mui/material/transitions";
 import { MuiTelInput } from "mui-tel-input";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & { children: React.ReactElement<any, any> },
@@ -54,7 +55,7 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
   open,
   onSuccess,
   onClose,
-  closeLabel = "I'll do this later",
+  closeLabel,
   showStepIndicator = true,
   title,
   subtitle,
@@ -62,6 +63,7 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
   const theme = useTheme();
   const dispatch = useDispatch();
   const isMobile = useIsMobile("sm");
+  const { t } = useTranslation("companyDialog");
   const companyState = useSelector(
     (state: rootReducer) => state.companyReducer,
   );
@@ -158,22 +160,22 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
 
   const validate = () => {
     const newErrors: Record<string, string> = {};
-    if (!firstName.trim()) newErrors.firstName = "First name is required";
-    if (!lastName.trim()) newErrors.lastName = "Last name is required";
-    if (!companyName.trim()) newErrors.companyName = "Company name is required";
-    if (!email.trim()) newErrors.email = "Email is required";
+    if (!firstName.trim()) newErrors.firstName = t("createModal.validation.firstNameRequired");
+    if (!lastName.trim()) newErrors.lastName = t("createModal.validation.lastNameRequired");
+    if (!companyName.trim()) newErrors.companyName = t("createModal.validation.companyNameRequired");
+    if (!email.trim()) newErrors.email = t("createModal.validation.emailRequired");
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
-      newErrors.email = "Please enter a valid email";
+      newErrors.email = t("createModal.validation.emailInvalid");
     // D) Mobile is optional — only validate the format if a value was entered.
     if (mobile && mobile.replace(/\D/g, "").length < 10)
-      newErrors.mobile = "Please enter a valid mobile number";
+      newErrors.mobile = t("createModal.validation.mobileInvalid");
     if (website.trim()) {
       const urlPattern = /^(https?:\/\/)?([\w-]+\.)+[\w-]{2,}(\/[\w\-._~:/?#[\]@!$&'()*+,;=%]*)?$/i;
       if (!urlPattern.test(website.trim()))
-        newErrors.website = "Please enter a valid URL (e.g., https://yourcompany.com)";
+        newErrors.website = t("createModal.validation.websiteInvalid");
     }
-    if (!country) newErrors.country = "Please select your country";
-    if (!currency) newErrors.currency = "Please select a currency";
+    if (!country) newErrors.country = t("createModal.validation.countryRequired");
+    if (!currency) newErrors.currency = t("createModal.validation.currencyRequired");
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -183,11 +185,11 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
   const handleFileChange = (file: File) => {
     const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml"];
     if (!allowedTypes.includes(file.type)) {
-      setFileError("Only image files are allowed (JPEG, PNG, GIF, WebP, SVG)");
+      setFileError(t("createModal.fileTypeError"));
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      setFileError("File size must be less than 5MB");
+      setFileError(t("createModal.fileSizeError"));
       return;
     }
     setFileError("");
@@ -325,7 +327,7 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
                 lineHeight: 1.3,
               }}
             >
-              {title || "Create Your Company"}
+              {title || t("createModal.title")}
             </Typography>
             <Typography
               sx={{
@@ -336,7 +338,7 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
                 lineHeight: 1.4,
               }}
             >
-              {subtitle || "Set up your business profile to start accepting payments"}
+              {subtitle || t("createModal.subtitle")}
             </Typography>
           </Box>
         </Box>
@@ -360,13 +362,13 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
         {submitting ? (
           <SteppedProgressPanel
             active={submitting}
-            title="Setting up your company…"
+            title={t("createModal.progressTitle")}
             steps={[
-              "Creating your business profile…",
-              "Configuring billing preferences…",
-              "Sending welcome emails…",
-              "Provisioning your merchant account…",
-              "Almost done — preparing your dashboard…",
+              t("createModal.progressStep1"),
+              t("createModal.progressStep2"),
+              t("createModal.progressStep3"),
+              t("createModal.progressStep4"),
+              t("createModal.progressStep5"),
             ]}
             intervalMs={2000}
             data-testid="create-company-progress"
@@ -382,13 +384,13 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
               letterSpacing: "0.5px",
             }}
           >
-            Your Name
+            {t("createModal.sectionYourName")}
           </Typography>
           <Box sx={{ display: "flex", gap: "12px" }}>
             <Box sx={{ flex: 1 }}>
               <InputField
-                label="First Name *"
-                placeholder="First name"
+                label={t("createModal.firstNameLabel")}
+                placeholder={t("createModal.firstNamePlaceholder")}
                 value={firstName}
                 onChange={(e) => {
                   setFirstName(e.target.value);
@@ -400,8 +402,8 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
             </Box>
             <Box sx={{ flex: 1 }}>
               <InputField
-                label="Last Name *"
-                placeholder="Last name"
+                label={t("createModal.lastNameLabel")}
+                placeholder={t("createModal.lastNamePlaceholder")}
                 value={lastName}
                 onChange={(e) => {
                   setLastName(e.target.value);
@@ -423,13 +425,13 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
               letterSpacing: "0.5px",
             }}
           >
-            Company Details
+            {t("createModal.sectionCompanyDetails")}
           </Typography>
         </Box>
 
         <InputField
-          label="Company Name *"
-          placeholder="Enter your company name"
+          label={t("createModal.companyNameLabel")}
+          placeholder={t("createModal.companyNamePlaceholder")}
           value={companyName}
           onChange={(e) => {
             setCompanyName(e.target.value);
@@ -441,8 +443,8 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
         />
 
         <InputField
-          label="Business Email *"
-          placeholder="Enter your business email"
+          label={t("createModal.businessEmailLabel")}
+          placeholder={t("createModal.businessEmailPlaceholder")}
           type="email"
           value={email}
           onChange={(e) => {
@@ -465,11 +467,11 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
               ml: 0.25,
             }}
           >
-            Mobile Number (optional)
+            {t("createModal.mobileLabel")}
           </Typography>
           <MuiTelInput
             fullWidth
-            placeholder="Enter mobile number"
+            placeholder={t("createModal.mobilePlaceholder")}
             forceCallingCode
             disableFormatting
             defaultCountry="US"
@@ -513,7 +515,7 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
         </Box>
 
         <InputField
-          label="Website (optional)"
+          label={t("createModal.websiteLabel")}
           placeholder="https://yourcompany.com"
           value={website}
           onChange={(e) => {
@@ -539,7 +541,7 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
               ml: 0.25,
             }}
           >
-            Country *
+            {t("createModal.countryLabel")}
           </Typography>
           <Autocomplete
             fullWidth
@@ -588,7 +590,7 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
             renderInput={(params) => (
               <TextField
                 {...params}
-                placeholder="Start typing your country…"
+                placeholder={t("createModal.countryPlaceholder")}
                 error={!!errors.country}
                 helperText={errors.country}
                 InputProps={{
@@ -630,7 +632,7 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
               ml: 0.25,
             }}
           >
-            Default currency *
+            {t("createModal.currencyLabel")}
           </Typography>
           <Autocomplete
             fullWidth
@@ -649,7 +651,7 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
             renderInput={(params) => (
               <TextField
                 {...params}
-                placeholder="Select currency"
+                placeholder={t("createModal.currencyPlaceholder")}
                 error={!!errors.currency}
                 helperText={errors.currency}
                 sx={{
@@ -682,7 +684,7 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
               ml: 0.25,
             }}
           >
-            Brand Logo (optional)
+            {t("createModal.brandLogoLabel")}
           </Typography>
           <Box
             sx={{
@@ -717,7 +719,7 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
                   color: theme.palette.text.secondary,
                 }}
               >
-                {fileName ? "Change" : "Upload"}
+                {fileName ? t("createModal.uploadChange") : t("createModal.uploadUpload")}
               </Typography>
             </Box>
             {imagePreview && (
@@ -787,7 +789,7 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
       >
         <CustomButton
           data-testid="create-company-submit-btn"
-          label="Create Company"
+          label={t("createModal.submit")}
           variant="primary"
           size={isMobile ? "small" : "medium"}
           fullWidth
@@ -797,7 +799,7 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
         {onClose && (
           <CustomButton
             data-testid="cancel-company-btn"
-            label={closeLabel}
+            label={closeLabel || t("createModal.closeLater")}
             variant="secondary"
             size={isMobile ? "small" : "medium"}
             fullWidth

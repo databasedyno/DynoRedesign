@@ -404,7 +404,7 @@ const MobileNavigationBar = () => {
                   <ErrorIcon
                     sx={{ color: theme.palette.error.main, fontSize: "20px" }}
                   />
-                  <AlertText>Complete company setup</AlertText>
+                  <AlertText>{t("companySetupWarning")}</AlertText>
                 </AlertBanner>
               </Link>
             </ExpandedContent>
@@ -432,7 +432,9 @@ const MobileNavigationBar = () => {
             try {
               const { loadLanguageAsync } = await import("@/i18n");
               await loadLanguageAsync(code);
-            } catch {}
+            } catch {
+              /* noop — fall back to changeLanguage below */
+            }
             i18n.changeLanguage(code);
             localStorage.setItem("lang", code);
             localStorage.setItem("lang_manual", "true");
