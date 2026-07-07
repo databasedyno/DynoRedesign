@@ -1,8 +1,8 @@
 # Test Credentials
 
 ## Preview Environment (Emergent)
-- URL: https://bf3ccd3d-9d59-4688-ad54-2c1a3bb2a53a.preview.emergentagent.com
-- (Older fork URL: https://env-setup-preview-1.preview.emergentagent.com)
+- URL: https://blockchain-gateway-10.preview.emergentagent.com
+- (Older fork URL: https://blockchain-gateway-10.preview.emergentagent.com)
 - Frontend .env: /app/.env (NEXT_PUBLIC_BASE_URL + NEXT_PUBLIC_SERVER_URL + NEXTAUTH_URL point to the preview URL; /api/* routed to backend on port 8001). NOTE: no /app/.env.local present — Next.js reads /app/.env.
 - Backend .env: /app/backend/.env (points to Railway PostgreSQL `railway` DB on `roundhouse.proxy.rlwy.net:23599`)
 - Redis: nozomi.proxy.rlwy.net:15794
