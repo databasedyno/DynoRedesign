@@ -19,5 +19,157 @@
   "governingLawText": "Diese Bedingungen unterliegen den Gesetzen der Gerichtsbarkeit, in der Dynopay tätig ist.",
   "contact": "Kontakt",
   "contactText": "Wenn Sie Fragen zu diesen Bedingungen haben, kontaktieren Sie uns bitte.",
-  "backToHome": "Zurück zur Startseite"
+  "backToHome": "Zurück zur Startseite",
+  "termsConditionsTitle": "Allgemeine Geschäftsbedingungen",
+  "section1Title": "1. Annahme der Bedingungen",
+  "section1Desc1": "Indem Sie ein Konto erstellen, auf das Dashboard zugreifen, die API integrieren oder Krypto-Zahlungen über Dynopay („den Dienst“) verarbeiten, bestätigen Sie, dass:",
+  "section1Desc2": "",
+  "section1Footer": "Wenn Sie mit einem Teil dieser Bedingungen nicht einverstanden sind, nutzen Sie den Dienst nicht.",
+  "section2Title": "2. Beschreibung des Dienstes",
+  "section2Desc1": "Dynopay stellt Werkzeuge zum Empfangen, Verwalten und Überwachen von Kryptowährungszahlungen bereit, darunter:",
+  "section2Desc2": "",
+  "section2Footer": "Wir agieren nicht als Bank, Verwahrer, Broker-Dealer oder Finanzberater. Sie bleiben rechtlicher Eigentümer und Verwalter Ihrer Krypto-Wallets.",
+  "section3Title": "3. Berechtigung & Compliance",
+  "section3Desc1": "Sie dürfen den Dienst nur nutzen, wenn dies in Ihrem Land rechtlich zulässig ist.",
+  "section3Desc2": "Sie sind verantwortlich für:",
+  "section3Footer": "Wir behalten uns das Recht vor, Konten zu sperren oder einzuschränken, die gegen Gesetze verstoßen oder Compliance-Risiken darstellen.",
+  "section4Title": "4. Verantwortlichkeiten des Nutzerkontos",
+  "section4Desc1": "",
+  "section4Desc2": "Sie müssen:",
+  "section4Footer": "Wir haften nicht für Verluste durch kompromittierte Zugangsdaten.",
+  "section5Title": "5. Wallet-Verbindungen",
+  "section5Desc1": "Sie können Ihre externen Kryptowährungs-Wallets mit dem Dienst verbinden.",
+  "section5Desc2": "Damit erkennen Sie an:",
+  "section5Footer": "Sie bleiben vollständig verantwortlich für On-Chain-Aktivitäten, die mit Ihren Wallets durchgeführt werden.",
+  "section6Title": "6. Zahlungsabwicklung",
+  "section6Desc1": "",
+  "section6Desc2": "Durch das Erstellen eines Zahlungslinks oder einer API-Anfrage:",
+  "section6Footer": "Wir garantieren keine Preisstabilität, sofortige Abwicklung oder Erstattbarkeit von Krypto-Transaktionen.",
+  "section7Title": "7. Gebühren",
+  "section7Desc1": "",
+  "section7Desc2": "Unsere Gebühren können umfassen:",
+  "section7Footer": "Alle Gebühren werden im Dashboard angezeigt und können mit vorheriger Ankündigung aktualisiert werden. Sofern nicht ausdrücklich anders konfiguriert, sind Sie für Blockchain-Netzwerkgebühren verantwortlich.",
+  "section8Title": "8. Verbotene Aktivitäten",
+  "section8Desc1": "",
+  "section8Desc2": "Sie dürfen den Dienst NICHT nutzen für:",
+  "section8Footer": "Wir können Konten sperren oder kündigen, die an verbotenen Aktivitäten beteiligt sind.",
+  "section9Title": "9. API-Nutzung",
+  "section9Desc1": "Sie können die API nutzen, um Krypto-Zahlungsanfragen zu erstellen und zu verwalten.",
+  "section9Desc2": "Sie verpflichten sich, Folgendes zu unterlassen:",
+  "section9Footer": "Wir können den API-Zugriff drosseln oder einschränken, um die Plattformstabilität zu gewährleisten.",
+  "section10Title": "10. Daten & Datenschutz",
+  "section10Desc1": "Wir erheben und verarbeiten Daten wie in unserer Datenschutzrichtlinie beschrieben.",
+  "section10Desc2": "Durch die Nutzung des Dienstes stimmen Sie Folgendem zu:",
+  "section10Footer": "Wir verkaufen keine personenbezogenen Daten an Dritte.",
+  "section11Title": "11. Verfügbarkeit des Dienstes",
+  "section11Desc1": "",
+  "section11Desc2": "Wir bemühen uns um eine zuverlässige Verfügbarkeit, garantieren jedoch nicht:",
+  "section11Footer": "Wir können Funktionen ohne Haftung ändern oder einstellen.",
+  "section12Title": "12. Geistiges Eigentum",
+  "section12Desc1": "Alle Inhalte, UI-Elemente, das Branding und der Code des Dienstes gehören Dynopay.",
+  "section12Desc2": "",
+  "section12Footer": "Sie dürfen unsere Materialien ohne Genehmigung nicht kopieren, weiterverkaufen, ändern oder verbreiten.",
+  "section13Title": "13. Haftungsbeschränkung",
+  "section13Desc1": "",
+  "section13Desc2": "Im maximal gesetzlich zulässigen Umfang:",
+  "section13Footer": "Unsere Gesamthaftung übersteigt nicht den Betrag, den Sie in den letzten 3 Monaten für den Dienst gezahlt haben.",
+  "section14Title": "14. Freistellung",
+  "section14Desc1": "",
+  "section14Desc2": "Sie erklären sich damit einverstanden, Dynopay von allen Ansprüchen, Verlusten, Verbindlichkeiten oder Kosten freizustellen und schadlos zu halten, die sich ergeben aus:",
+  "section14Footer": "",
+  "section15Title": "15. Kündigung",
+  "section15Desc1": "",
+  "section15Desc2": "Wir können Ihr Konto sperren oder kündigen, wenn:",
+  "section15Footer": "Nach der Kündigung wird Ihr Zugriff auf das Dashboard und die API widerrufen.",
+  "section16Title": "16. Änderungen dieser Bedingungen",
+  "section16Desc1": "Wir können diese Bedingungen jederzeit aktualisieren.",
+  "section16Desc2": "Änderungen werden mit der Veröffentlichung wirksam.",
+  "section16Footer": "Die fortgesetzte Nutzung des Dienstes bedeutet, dass Sie die aktualisierten Bedingungen akzeptieren.",
+  "section17Title": "17. Anwendbares Recht",
+  "section17Desc1": "Diese Bedingungen unterliegen dem Recht Portugals.",
+  "section17Desc2": "Streitigkeiten werden vor den Gerichten in Lissabon, Portugal, beigelegt.",
+  "section17Footer": "",
+  "section18Title": "18. Kontaktinformationen",
+  "section18Desc1": "Bei Fragen oder Anliegen kontaktieren Sie uns unter:",
+  "section18Desc2": "hi@dynopay.com",
+  "section18Footer": "",
+  "section1Bullets": [
+    "Sie haben diese Allgemeinen Geschäftsbedingungen gelesen und stimmen ihnen zu;",
+    "Sie sind mindestens 18 Jahre alt;",
+    "Sie dürfen in Ihrer Region rechtlich krypto-bezogene Dienste nutzen."
+  ],
+  "section2Bullets": [
+    "Krypto-Zahlungslinks",
+    "API-basierte Zahlungsabwicklung",
+    "Wallet-Aggregation",
+    "Dashboards zur Transaktionsüberwachung",
+    "Gebühren- und Abrechnungstools"
+  ],
+  "section3Bullets": [
+    "Die Einhaltung lokaler Kryptowährungsvorschriften",
+    "Sicherzustellen, dass Ihre Kunden in Krypto bezahlen dürfen",
+    "Die Durchführung erforderlicher KYC/AML-Maßnahmen, falls zutreffend"
+  ],
+  "section4Bullets": [
+    "Genaue Registrierungsinformationen bereitstellen",
+    "Ihre Anmeldedaten sicher aufbewahren",
+    "Den Zugriff auf Ihr Konto beschränken",
+    "Uns unverzüglich über unbefugten Zugriff informieren"
+  ],
+  "section5Bullets": [
+    "Wir nehmen Ihre Gelder nicht in Verwahrung",
+    "Alle Blockchain-Transaktionen sind unwiderruflich",
+    "Verzögerungen oder Ausfälle durch Netzwerküberlastung liegen außerhalb unserer Kontrolle"
+  ],
+  "section6Bullets": [
+    "Sie weisen den Kunden an, Kryptowährung direkt an Ihre Wallet zu senden",
+    "Sie akzeptieren, dass Blockchain-Bestätigungen Zeit in Anspruch nehmen können",
+    "Sie erkennen an, dass die Werte von Krypto-Assets schwanken"
+  ],
+  "section7Bullets": [
+    "Transaktionsgebühren",
+    "Abonnementgebühren",
+    "Individuelle Unternehmensgebühren"
+  ],
+  "section8Bullets": [
+    "Geldwäsche oder Terrorismusfinanzierung",
+    "Betrug, Scams oder Ponzi-artige Systeme",
+    "Verkauf illegaler Waren oder Dienstleistungen",
+    "Verschleierte Mixer/Tumbler",
+    "Hochriskante Aktivitäten, die geltendes Recht verletzen",
+    "Missbräuchliche API-Nutzung"
+  ],
+  "section9Bullets": [
+    "Die API zurückzuentwickeln",
+    "Schwachstellen auszunutzen",
+    "Ratenlimits zu überschreiten",
+    "Die API für unbefugtes Scraping oder Automatisierung zu nutzen"
+  ],
+  "section10Bullets": [
+    "Die Erhebung von Nutzungsdaten",
+    "Die Verarbeitung von Konto- und Wallet-Metadaten",
+    "Die Speicherung von Protokollen für Sicherheit und Compliance"
+  ],
+  "section11Bullets": [
+    "Durchgehenden, unterbrechungsfreien Betrieb",
+    "Keinerlei Fehler oder Bugs",
+    "Keine Ausfallzeiten für Wartung"
+  ],
+  "section13Bullets": [
+    "Wir haften nicht für entgangene Gewinne, verlorene Krypto, Betriebsunterbrechungen oder indirekte Schäden",
+    "Blockchain-Verzögerungen, Volatilität oder Netzwerkausfälle liegen außerhalb unserer Kontrolle",
+    "Sie nutzen den Dienst „wie besehen“, ohne Garantien"
+  ],
+  "section14Bullets": [
+    "Ihren Missbrauch des Dienstes",
+    "Ihren Gesetzesverstoß",
+    "Ihre Streitigkeiten mit Kunden",
+    "Transaktionen, die über Ihre verbundenen Wallets ausgeführt werden"
+  ],
+  "section15Bullets": [
+    "Sie gegen diese Bedingungen verstoßen",
+    "Sie an verbotenen Aktivitäten teilnehmen",
+    "Sie ein Sicherheits- oder Compliance-Risiko darstellen",
+    "Sie die Löschung des Kontos beantragen"
+  ]
 }

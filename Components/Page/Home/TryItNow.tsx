@@ -2,6 +2,7 @@ import React, { memo, useState, useCallback, useMemo } from "react";
 import { Box, Button, IconButton, Snackbar, Tooltip, Typography, useTheme } from "@mui/material";
 import { ContentCopy, OpenInNew } from "@mui/icons-material";
 import useIsMobile from "@/hooks/useIsMobile";
+import { useTranslation } from "react-i18next";
 
 /**
  * TryItNow — homepage playground section.
@@ -64,6 +65,7 @@ const CodeBlock: React.FC<{
 }> = ({ title, language, code, onCopy, copyable = true }) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
+  const { t } = useTranslation("landing");
   return (
     <Box
       sx={{
@@ -102,7 +104,7 @@ const CodeBlock: React.FC<{
           </Typography>
         </Box>
         {copyable && onCopy && (
-          <Tooltip title="Copy" placement="top">
+          <Tooltip title={t("tryItCopyTooltip")} placement="top">
             <IconButton
               size="small"
               onClick={onCopy}
@@ -143,6 +145,7 @@ const TryItNow: React.FC = () => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const isMobile = useIsMobile("md");
+  const { t } = useTranslation("landing");
   const [copiedSnack, setCopiedSnack] = useState<string | null>(null);
 
   const baseUrl = BRAND_BASE_URL;
@@ -162,11 +165,11 @@ const TryItNow: React.FC = () => {
         document.execCommand("copy");
         document.body.removeChild(ta);
       }
-      setCopiedSnack(`${label} copied`);
+      setCopiedSnack(t("tryItCopied", { label }));
     } catch {
-      setCopiedSnack(`${label} copied`);
+      setCopiedSnack(t("tryItCopied", { label }));
     }
-  }, []);
+  }, [t]);
 
   return (
     <Box
@@ -190,7 +193,7 @@ const TryItNow: React.FC = () => {
             mb: 1.5,
           }}
         >
-          Playground
+          {t("tryItEyebrow")}
         </Typography>
         <Typography
           id="try-it-now-heading"
@@ -204,7 +207,7 @@ const TryItNow: React.FC = () => {
             letterSpacing: "-0.5px",
           }}
         >
-          Don&apos;t just read about it —{" "}
+          {t("tryItTitle")}{" "}
           <Box
             component="span"
             sx={{
@@ -213,7 +216,7 @@ const TryItNow: React.FC = () => {
               WebkitTextFillColor: "transparent",
             }}
           >
-            try it
+            {t("tryItTitleHighlight")}
           </Box>
           .
         </Typography>
@@ -226,8 +229,7 @@ const TryItNow: React.FC = () => {
             mx: "auto",
           }}
         >
-          Click the live checkout on the left. Copy the API call on the right. Both use the
-          real, deployed DynoPay stack — no signup, no keys, no persistence.
+          {t("tryItSubtitle")}
         </Typography>
       </Box>
 
@@ -290,7 +292,7 @@ const TryItNow: React.FC = () => {
                 "&:hover": { bgcolor: "rgba(0,4,255,0.06)" },
               }}
             >
-              Open full page
+              {t("tryItOpenFullPage")}
             </Button>
           </Box>
           <Box
@@ -337,7 +339,7 @@ const TryItNow: React.FC = () => {
                 zIndex: 3,
               }}
             >
-              Interactive
+              {t("tryItInteractive")}
             </Box>
           </Box>
           <Typography
@@ -349,7 +351,7 @@ const TryItNow: React.FC = () => {
               textAlign: "center",
             }}
           >
-            Sandbox mode — no real payment, no signup required.
+            {t("tryItSandboxMode")}
           </Typography>
         </Box>
 
@@ -386,7 +388,7 @@ const TryItNow: React.FC = () => {
           </Typography>
 
           <CodeBlock
-            title="Try the API — request"
+            title={t("tryItRequestTitle")}
             language="bash"
             code={curl}
             onCopy={() => copy(curl, "cURL")}
@@ -395,7 +397,7 @@ const TryItNow: React.FC = () => {
           <Box sx={{ height: 12 }} />
 
           <CodeBlock
-            title="Example response (200)"
+            title={t("tryItResponseTitle")}
             language="json"
             code={SAMPLE_RESPONSE}
             copyable={false}
@@ -421,7 +423,7 @@ const TryItNow: React.FC = () => {
               }}
               startIcon={<ContentCopy sx={{ fontSize: 15 }} />}
             >
-              Copy cURL
+              {t("tryItCopyCurl")}
             </Button>
             <Button
               variant="outlined"
@@ -442,7 +444,7 @@ const TryItNow: React.FC = () => {
                 },
               }}
             >
-              Full API docs
+              {t("tryItFullApiDocs")}
             </Button>
           </Box>
 
@@ -455,9 +457,7 @@ const TryItNow: React.FC = () => {
               lineHeight: 1.5,
             }}
           >
-            The sandbox key <Box component="code" sx={{ fontFamily: "monospace", px: 0.5, py: 0.15, borderRadius: 0.5, bgcolor: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)", fontSize: 11 }}>{SANDBOX_KEY}</Box> is public.
-            It only authorizes the ephemeral sandbox endpoint — 10 req/min per IP,
-            no persistence, no billing.
+            {t("tryItSandboxKeyNote1")} <Box component="code" sx={{ fontFamily: "monospace", px: 0.5, py: 0.15, borderRadius: 0.5, bgcolor: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)", fontSize: 11 }}>{SANDBOX_KEY}</Box> {t("tryItSandboxKeyNote2")}
           </Typography>
         </Box>
       </Box>
@@ -474,3 +474,4 @@ const TryItNow: React.FC = () => {
 };
 
 export default memo(TryItNow);
+

@@ -17,5 +17,79 @@
   "rightsText": "Sie haben das Recht auf Zugang, Berichtigung und Löschung Ihrer persönlichen Daten.",
   "contact": "Kontakt",
   "contactText": "Wenn Sie Fragen zu dieser Datenschutzrichtlinie haben, kontaktieren Sie uns bitte.",
-  "backToHome": "Zurück zur Startseite"
+  "backToHome": "Zurück zur Startseite",
+  "privacyPolicyTitle": "Datenschutzrichtlinie",
+  "intro": "Diese Datenschutzrichtlinie erläutert, wie Dynopay („wir“, „uns“, „unser“) Ihre Daten erhebt, verwendet und schützt, wenn Sie unsere Website, unser Dashboard oder unsere API („den Dienst“) nutzen.",
+  "section1Title": "1. Welche Daten wir erheben",
+  "section1Desc": "Wir erheben nur das, was für den Betrieb des Dienstes erforderlich ist:",
+  "section1Footer": "(Wir greifen niemals auf Ihre privaten Schlüssel oder Gelder zu und kontrollieren diese nicht.)",
+  "section2Title": "2. Wie wir Ihre Daten verwenden",
+  "section2Desc": "Wir verwenden die erhobenen Daten, um:",
+  "section2Footer": "Wir verkaufen keine personenbezogenen Daten an Dritte.",
+  "section3Title": "3. Weitergabe von Daten",
+  "section3Desc": "Wir geben begrenzte Daten weiter an:",
+  "section3Footer": "Wir geben niemals private Wallet-Schlüssel, Krypto-Guthaben oder sensible Kundendaten weiter.",
+  "section4Title": "4. Cookies & Tracking",
+  "section4Desc": "Wir verwenden Cookies und ähnliche Technologien für:",
+  "section4Footer": "Sie können Cookies in Ihrem Browser blockieren, aber einige Funktionen funktionieren dann möglicherweise nicht.",
+  "section5Title": "5. Datensicherheit",
+  "section5Desc": "Wir verwenden branchenübliche Verschlüsselung, Zugriffskontrollen und Überwachung, um Ihre Daten zu schützen.",
+  "section5Footer": "Kein Onlinedienst ist jedoch zu 100 % sicher, und Blockchain-Transaktionen bleiben systembedingt öffentlich sichtbar.",
+  "section6Title": "6. Datenspeicherung",
+  "section6Desc": "Wir speichern personenbezogene und Nutzungsdaten nur so lange wie nötig für:",
+  "section6Footer": "Sie können jederzeit die Löschung Ihres Kontos beantragen.",
+  "section7Title": "7. Ihre Rechte",
+  "section7Desc": "Je nach Region können Sie Folgendes anfordern:",
+  "section7Footer": "Kontaktieren Sie uns unter {{SUPPORT_EMAIL}} für jede Anfrage.",
+  "section8Title": "8. Links zu Dritten",
+  "section8Desc": "Unser Dienst kann Links oder Integrationen mit Tools von Drittanbietern enthalten.",
+  "section8Footer": "Wir sind nicht für deren Datenschutzpraktiken verantwortlich.",
+  "section9Title": "9. Änderungen dieser Richtlinie",
+  "section9Desc": "Wir können diese Datenschutzrichtlinie von Zeit zu Zeit aktualisieren.",
+  "section9Footer": "Änderungen werden mit der Veröffentlichung auf unserer Website wirksam.",
+  "section10Title": "10. Kontakt",
+  "section10Desc": "Wenn Sie Fragen haben, erreichen Sie uns unter:",
+  "section10Footer": "{{SUPPORT_EMAIL}}",
+  "section1Info": [
+    {
+      "title": "Kontoinformationen:",
+      "details": "E-Mail, Name, Unternehmensangaben und Anmeldedaten."
+    },
+    {
+      "title": "Nutzungsdaten:",
+      "details": "Protokolle, Geräte-/Browserinformationen, IP-Adresse, Interaktionen mit dem Dashboard und der API."
+    },
+    {
+      "title": "Transaktionsmetadaten:",
+      "details": "Blockchain-Transaktions-IDs, von Ihnen verbundene Wallet-Adressen, von Ihnen erstellte Zahlungsanfragen."
+    }
+  ],
+  "section2Items": [
+    "Den Dienst bereitzustellen und zu betreiben",
+    "Konten zu sichern und Betrug zu verhindern",
+    "Die Produktleistung zu verbessern",
+    "Kundensupport anzubieten",
+    "Gesetzliche oder regulatorische Anforderungen zu erfüllen"
+  ],
+  "section3Items": [
+    "Dienstleister (Cloud-Hosting, Analyse, E-Mail-Plattformen)",
+    "Compliance-Partner, sofern gesetzlich vorgeschrieben",
+    "Behörden nur bei gesetzlicher Verpflichtung"
+  ],
+  "section4Items": [
+    "Authentifizierung",
+    "Sitzungsverwaltung",
+    "Grundlegende Analyse"
+  ],
+  "section6Items": [
+    "Die Bereitstellung des Dienstes",
+    "Compliance-Pflichten",
+    "Sicherheit und Betrugsprävention"
+  ],
+  "section7Items": [
+    "Zugriff auf Ihre Daten",
+    "Berichtigung oder Löschung",
+    "Export Ihrer Daten",
+    "Einschränkung der Verarbeitung"
+  ]
 }

@@ -9,5 +9,80 @@
   "monitoringText": "We monitoren alle transacties op verdachte activiteiten met behulp van geavanceerde analysetools en handmatige controle.",
   "reportingTitle": "Melding van verdachte activiteiten",
   "reportingText": "Alle verdachte activiteiten worden onmiddellijk gemeld aan de bevoegde autoriteiten.",
-  "backToHome": "Terug naar startpagina"
+  "backToHome": "Terug naar startpagina",
+  "amlPolicyTitle": "AML-beleid",
+  "intro": "Dit AML-beleid beschrijft hoe Dynopay ('wij', 'ons', 'onze') witwassen, terrorismefinanciering en andere illegale activiteiten voorkomt wanneer gebruikers onze crypto-betaaldiensten ('de Dienst') gebruiken.",
+  "section1Title": "1. Doel van het beleid",
+  "section1Desc": "Ons doel is te waarborgen dat {{PRODUCT_NAME}} niet wordt gebruikt om illegale financiële activiteiten te faciliteren. We volgen internationale AML-normen en passen redelijke, risicogebaseerde maatregelen toe op ons platform.",
+  "section1Footer": "",
+  "section2Title": "2. Reikwijdte",
+  "section2Desc": "Dit beleid is van toepassing op:",
+  "section2Footer": "We bewaren of beheren geen gebruikersgeld, maar we monitoren platformactiviteit voor AML-naleving.",
+  "section3Title": "3. KYC-vereisten",
+  "section3Desc": "Afhankelijk van het risiconiveau en de toepasselijke regelgeving kunnen we verzoeken om:",
+  "section3Footer": "We kunnen de dienst opschorten totdat de vereiste informatie is verstrekt.",
+  "section4Title": "4. Wallet- & transactiemonitoring",
+  "section4Desc": "We gebruiken geautomatiseerde en handmatige controles om verdachte activiteit te herkennen, waaronder:",
+  "section4Footer": "We kunnen gebruikers om verduidelijking of ondersteunende documentatie vragen.",
+  "section5Title": "5. Verboden gebruik",
+  "section5Desc": "Je mag de Dienst niet gebruiken voor:",
+  "section5Footer": "We kunnen verboden gedrag melden bij de bevoegde autoriteiten.",
+  "section6Title": "6. Administratie",
+  "section6Desc": "Om te voldoen aan AML-vereisten kunnen we het volgende veilig opslaan:",
+  "section6Footer": "",
+  "section7Title": "7. Meldingsverplichtingen",
+  "section7Desc": "We kunnen meldingen doen aan toezichthouders of opsporingsinstanties als we het volgende vaststellen:",
+  "section7Footer": "",
+  "section8Title": "8. Personeelstraining & nalevingstoezicht",
+  "section8Desc": "Ons team krijgt doorlopende training in:",
+  "section8Footer": "Een aangewezen compliance-functionaris houdt toezicht op de uitvoering van dit beleid.",
+  "section9Title": "9. Updates van dit beleid",
+  "section9Desc": "We kunnen dit AML-beleid periodiek bijwerken. Wijzigingen worden van kracht zodra ze op onze website zijn gepubliceerd.",
+  "section9Footer": "",
+  "section2Bullets": [
+    "Alle gebruikers en bedrijven die de Dienst gebruiken",
+    "Alle betaallink-transacties",
+    "Alle via de API gegenereerde transacties",
+    "Alle gekoppelde cryptovaluta-wallets"
+  ],
+  "section3Bullets": [
+    "Volledige naam",
+    "Bedrijfsinformatie",
+    "Geldige identiteitsdocumenten",
+    "Bewijs van adres",
+    "Informatie over bedrijfsactiviteit en transactiedoel"
+  ],
+  "section4Bullets": [
+    "Wallet-adressen met een hoog risico",
+    "Bekende illegale bronnen (gesanctioneerd, gehackt, mixer-gerelateerd)",
+    "Ongebruikelijke transactiepatronen",
+    "Rechtsgebieden met een hoog risico",
+    "Structureren of herhaalde mislukte pogingen"
+  ],
+  "section5Bullets": [
+    "Witwassen of terrorismefinanciering",
+    "Fraude, oplichting of phishing",
+    "Activiteit op dark-webmarktplaatsen",
+    "Verhuld mixen/tumblen",
+    "Gesanctioneerde personen of entiteiten",
+    "Illegale goederen of diensten"
+  ],
+  "section6Bullets": [
+    "KYC-informatie",
+    "Transactiemetadata",
+    "Interne nalevingsnotities",
+    "Risicobeoordelingen",
+    "Gegevens kunnen worden bewaard tot de wettelijk vereiste duur."
+  ],
+  "section7Bullets": [
+    "Verdachte transacties",
+    "Pogingen om nalevingscontroles te omzeilen",
+    "Frauduleuze of criminele activiteit",
+    "Gebruikers worden niet op de hoogte gesteld wanneer melding wettelijk beperkt is."
+  ],
+  "section8Bullets": [
+    "AML-vereisten",
+    "Risicodetectie",
+    "Omgaan met verdachte activiteit"
+  ]
 }

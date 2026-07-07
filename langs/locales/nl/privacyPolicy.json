@@ -17,5 +17,79 @@
   "rightsText": "U heeft het recht op toegang tot, rectificatie en verwijdering van uw persoonlijke gegevens.",
   "contact": "Contact",
   "contactText": "Als u vragen heeft over dit privacybeleid, neem dan contact met ons op.",
-  "backToHome": "Terug naar startpagina"
+  "backToHome": "Terug naar startpagina",
+  "privacyPolicyTitle": "Privacybeleid",
+  "intro": "Dit privacybeleid legt uit hoe Dynopay ('wij', 'ons', 'onze') je gegevens verzamelt, gebruikt en beschermt wanneer je onze website, ons dashboard of onze API ('de Dienst') gebruikt.",
+  "section1Title": "1. Informatie die we verzamelen",
+  "section1Desc": "We verzamelen alleen wat nodig is om de Dienst te laten werken:",
+  "section1Footer": "(We hebben nooit toegang tot je privésleutels of geld en beheren die niet.)",
+  "section2Title": "2. Hoe we je informatie gebruiken",
+  "section2Desc": "We gebruiken de verzamelde gegevens om:",
+  "section2Footer": "Wij verkopen geen persoonsgegevens aan derden.",
+  "section3Title": "3. Delen van informatie",
+  "section3Desc": "We kunnen beperkte informatie delen met:",
+  "section3Footer": "We delen nooit privésleutels van wallets, cryptosaldi of gevoelige klantgegevens.",
+  "section4Title": "4. Cookies & tracking",
+  "section4Desc": "We gebruiken cookies en vergelijkbare technologieën voor:",
+  "section4Footer": "Je kunt cookies in je browser blokkeren, maar sommige functies werken dan mogelijk niet.",
+  "section5Title": "5. Gegevensbeveiliging",
+  "section5Desc": "We gebruiken versleuteling, toegangscontroles en monitoring volgens de industriestandaard om je gegevens te beschermen.",
+  "section5Footer": "Geen enkele onlinedienst is echter 100% veilig, en blockchaintransacties blijven per ontwerp openbaar zichtbaar.",
+  "section6Title": "6. Gegevensbewaring",
+  "section6Desc": "We bewaren persoons- en gebruiksgegevens alleen zo lang als nodig is voor:",
+  "section6Footer": "Je kunt op elk moment verzoeken om verwijdering van je account.",
+  "section7Title": "7. Jouw rechten",
+  "section7Desc": "Afhankelijk van je regio kun je verzoeken om:",
+  "section7Footer": "Neem voor elk verzoek contact met ons op via {{SUPPORT_EMAIL}}.",
+  "section8Title": "8. Links van derden",
+  "section8Desc": "Onze Dienst kan links of integraties met tools van derden bevatten.",
+  "section8Footer": "Wij zijn niet verantwoordelijk voor hun privacypraktijken.",
+  "section9Title": "9. Wijzigingen van dit beleid",
+  "section9Desc": "We kunnen dit privacybeleid van tijd tot tijd bijwerken.",
+  "section9Footer": "Wijzigingen worden van kracht zodra ze op onze website zijn gepubliceerd.",
+  "section10Title": "10. Contact",
+  "section10Desc": "Als je vragen hebt, bereik ons dan via:",
+  "section10Footer": "{{SUPPORT_EMAIL}}",
+  "section1Info": [
+    {
+      "title": "Accountgegevens:",
+      "details": "E-mail, naam, bedrijfsgegevens en inloggegevens."
+    },
+    {
+      "title": "Gebruiksgegevens:",
+      "details": "Logs, apparaat-/browserinformatie, IP-adres, interacties met het dashboard en de API."
+    },
+    {
+      "title": "Transactiemetadata:",
+      "details": "Blockchain-transactie-ID's, wallet-adressen die je koppelt, betalingsverzoeken die je genereert."
+    }
+  ],
+  "section2Items": [
+    "De Dienst leveren en onderhouden",
+    "Accounts beveiligen en fraude voorkomen",
+    "De productprestaties verbeteren",
+    "Klantenondersteuning bieden",
+    "Voldoen aan wettelijke of regelgevende vereisten"
+  ],
+  "section3Items": [
+    "Dienstverleners (cloudhosting, analyse, e-mailplatforms)",
+    "Nalevingspartners indien wettelijk vereist",
+    "Autoriteiten alleen wanneer wettelijk verplicht"
+  ],
+  "section4Items": [
+    "Authenticatie",
+    "Sessiebeheer",
+    "Basisanalyse"
+  ],
+  "section6Items": [
+    "Het leveren van de Dienst",
+    "Nalevingsverplichtingen",
+    "Beveiliging en fraudepreventie"
+  ],
+  "section7Items": [
+    "Toegang tot je gegevens",
+    "Correctie of verwijdering",
+    "Export van je gegevens",
+    "Beperking van de verwerking"
+  ]
 }

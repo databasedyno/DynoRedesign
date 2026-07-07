@@ -9,5 +9,80 @@
   "monitoringText": "Wir überwachen alle Transaktionen auf verdächtige Aktivitäten mithilfe fortschrittlicher Analysetools und manueller Überprüfung.",
   "reportingTitle": "Meldung verdächtiger Aktivitäten",
   "reportingText": "Alle verdächtigen Aktivitäten werden umgehend den zuständigen Behörden gemeldet.",
-  "backToHome": "Zurück zur Startseite"
+  "backToHome": "Zurück zur Startseite",
+  "amlPolicyTitle": "AML-Richtlinie",
+  "intro": "Diese AML-Richtlinie beschreibt, wie Dynopay („wir“, „uns“, „unser“) Geldwäsche, Terrorismusfinanzierung und andere illegale Aktivitäten verhindert, wenn Nutzer unsere Krypto-Zahlungsdienste („den Dienst“) nutzen.",
+  "section1Title": "1. Zweck der Richtlinie",
+  "section1Desc": "Unser Ziel ist es sicherzustellen, dass {{PRODUCT_NAME}} nicht zur Erleichterung illegaler Finanzaktivitäten genutzt wird. Wir befolgen internationale AML-Standards und wenden angemessene risikobasierte Maßnahmen auf unserer Plattform an.",
+  "section1Footer": "",
+  "section2Title": "2. Geltungsbereich",
+  "section2Desc": "Diese Richtlinie gilt für:",
+  "section2Footer": "Wir speichern oder kontrollieren keine Nutzergelder, überwachen jedoch die Plattformaktivität zur AML-Compliance.",
+  "section3Title": "3. KYC-Anforderungen",
+  "section3Desc": "Je nach Risikograd und geltenden Vorschriften können wir Folgendes anfordern:",
+  "section3Footer": "Wir können den Dienst aussetzen, bis die erforderlichen Informationen bereitgestellt werden.",
+  "section4Title": "4. Wallet- & Transaktionsüberwachung",
+  "section4Desc": "Wir verwenden automatische und manuelle Prüfungen, um verdächtige Aktivitäten zu erkennen, darunter:",
+  "section4Footer": "Wir können von Nutzern Klarstellungen oder Nachweise anfordern.",
+  "section5Title": "5. Verbotene Nutzung",
+  "section5Desc": "Sie dürfen den Dienst nicht nutzen für:",
+  "section5Footer": "Wir können verbotenes Verhalten den zuständigen Behörden melden.",
+  "section6Title": "6. Aufbewahrung von Aufzeichnungen",
+  "section6Desc": "Zur Einhaltung der AML-Anforderungen können wir Folgendes sicher speichern:",
+  "section6Footer": "",
+  "section7Title": "7. Meldepflichten",
+  "section7Desc": "Wir können Berichte an Aufsichtsbehörden oder Strafverfolgungsbehörden übermitteln, wenn wir Folgendes feststellen:",
+  "section7Footer": "",
+  "section8Title": "8. Mitarbeiterschulung & Compliance-Aufsicht",
+  "section8Desc": "Unser Team erhält fortlaufende Schulungen in:",
+  "section8Footer": "Ein benannter Compliance-Beauftragter überwacht die Umsetzung dieser Richtlinie.",
+  "section9Title": "9. Aktualisierungen dieser Richtlinie",
+  "section9Desc": "Wir können diese AML-Richtlinie regelmäßig aktualisieren. Änderungen werden wirksam, sobald sie auf unserer Website veröffentlicht werden.",
+  "section9Footer": "",
+  "section2Bullets": [
+    "Alle Nutzer und Unternehmen, die den Dienst nutzen",
+    "Alle Zahlungslink-Transaktionen",
+    "Alle über die API erzeugten Transaktionen",
+    "Alle verbundenen Kryptowährungs-Wallets"
+  ],
+  "section3Bullets": [
+    "Vollständiger Name",
+    "Unternehmensinformationen",
+    "Gültige Ausweisdokumente",
+    "Adressnachweis",
+    "Informationen zur Geschäftstätigkeit und zum Transaktionszweck"
+  ],
+  "section4Bullets": [
+    "Hochriskante Wallet-Adressen",
+    "Bekannte illegale Quellen (sanktioniert, gehackt, Mixer-bezogen)",
+    "Ungewöhnliche Transaktionsmuster",
+    "Hochrisiko-Jurisdiktionen",
+    "Structuring oder wiederholte fehlgeschlagene Versuche"
+  ],
+  "section5Bullets": [
+    "Geldwäsche oder Terrorismusfinanzierung",
+    "Betrug, Scams oder Phishing",
+    "Aktivitäten auf Darknet-Marktplätzen",
+    "Verschleiertes Mixing/Tumbling",
+    "Sanktionierte Personen oder Organisationen",
+    "Illegale Waren oder Dienstleistungen"
+  ],
+  "section6Bullets": [
+    "KYC-Informationen",
+    "Transaktionsmetadaten",
+    "Interne Compliance-Notizen",
+    "Risikobewertungen",
+    "Aufzeichnungen können bis zur gesetzlich vorgeschriebenen Dauer aufbewahrt werden."
+  ],
+  "section7Bullets": [
+    "Verdächtige Transaktionen",
+    "Versuche, Compliance-Prüfungen zu umgehen",
+    "Betrügerische oder kriminelle Aktivitäten",
+    "Nutzer werden nicht benachrichtigt, wenn die Meldung gesetzlich eingeschränkt ist."
+  ],
+  "section8Bullets": [
+    "AML-Anforderungen",
+    "Risikoerkennung",
+    "Umgang mit verdächtigen Aktivitäten"
+  ]
 }

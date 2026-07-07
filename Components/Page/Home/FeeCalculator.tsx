@@ -2,6 +2,7 @@ import React, { memo, useMemo, useState } from 'react';
 import { Box, Typography, Slider, useTheme, Select, MenuItem, InputBase, FormControl } from '@mui/material';
 import { TrendingDown, ArrowForward } from '@mui/icons-material';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'react-i18next';
 
 /**
  * FeeCalculator (item B) — the highest-impact conversion element on payment
@@ -47,6 +48,11 @@ const FeeCalculator: React.FC = () => {
   const theme = useTheme();
   const isDark = theme.palette.mode === 'dark';
   const router = useRouter();
+  const { t } = useTranslation('landing');
+  const altName = (a: { id: string; name: string }) =>
+    a.id === 'credit' ? t('feeCalcCreditCardName') : a.name;
+  const altNote = (id: string) =>
+    t(`feeCalcNote${id.charAt(0).toUpperCase()}${id.slice(1)}`);
 
   const [volume, setVolume] = useState<number>(10_000);
   const [altId, setAltId] = useState<string>('stripe');
@@ -89,7 +95,7 @@ const FeeCalculator: React.FC = () => {
             mb: 1.5,
           }}
         >
-          Fee calculator
+          {t('feeCalcEyebrow')}
         </Typography>
         <Typography
           component="h2"
@@ -102,7 +108,7 @@ const FeeCalculator: React.FC = () => {
             mb: 1.5,
           }}
         >
-          See what you&apos;ll save.{' '}
+          {t('feeCalcTitle')}{' '}
           <Box
             component="span"
             sx={{
@@ -111,7 +117,7 @@ const FeeCalculator: React.FC = () => {
               WebkitTextFillColor: 'transparent',
             }}
           >
-            No math required.
+            {t('feeCalcTitleHighlight')}
           </Box>
         </Typography>
         <Typography
@@ -123,8 +129,7 @@ const FeeCalculator: React.FC = () => {
             mx: 'auto',
           }}
         >
-          Drag the slider. Pick your current processor. We&apos;ll show you the
-          difference in your monthly and annual costs.
+          {t('feeCalcSubtitle')}
         </Typography>
       </Box>
 
@@ -156,7 +161,7 @@ const FeeCalculator: React.FC = () => {
               mb: 1,
             }}
           >
-            Monthly processing volume
+            {t('feeCalcVolumeLabel')}
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1, mb: 2 }}>
             <Typography
@@ -177,7 +182,7 @@ const FeeCalculator: React.FC = () => {
                 color: theme.palette.text.secondary,
               }}
             >
-              /month
+              {t('feeCalcPerMonth')}
             </Typography>
           </Box>
           <Slider
@@ -216,7 +221,7 @@ const FeeCalculator: React.FC = () => {
               mb: 1,
             }}
           >
-            Compare against
+            {t('feeCalcCompareAgainst')}
           </Typography>
           <FormControl fullWidth size="small">
             <Select
@@ -240,13 +245,13 @@ const FeeCalculator: React.FC = () => {
             >
               {ALTERNATIVES.map((a) => (
                 <MenuItem key={a.id} value={a.id}>
-                  {a.name}
+                  {altName(a)}
                 </MenuItem>
               ))}
             </Select>
           </FormControl>
           <Typography sx={{ mt: 1, fontFamily: 'UrbanistMedium', fontSize: 11.5, color: theme.palette.text.disabled }}>
-            {alt.note}
+            {altNote(alt.id)}
           </Typography>
 
           <Typography
@@ -258,7 +263,7 @@ const FeeCalculator: React.FC = () => {
               lineHeight: 1.5,
             }}
           >
-            Assumes $75 average transaction → <Box component="span" sx={{ fontFamily: 'UrbanistBold' }}>~{alt.txPerMonth.toLocaleString()}</Box> transactions/month. Real numbers depend on your business mix.
+            {t('feeCalcAssumption', { count: `~${alt.txPerMonth.toLocaleString()}` })}
           </Typography>
         </Box>
 
@@ -277,15 +282,15 @@ const FeeCalculator: React.FC = () => {
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.6, mb: 3 }}>
             <CostBar
               label="DynoPay"
-              subtitle={`0.5% flat · ${alt.txPerMonth.toLocaleString()} tx`}
+              subtitle={`0.5% ${t('feeCalcFlat')} · ${alt.txPerMonth.toLocaleString()} ${t('feeCalcTxAbbrev')}`}
               amount={dynopayCost}
               max={Math.max(dynopayCost, altCost, 1)}
               color={primaryColor}
               isBest
             />
             <CostBar
-              label={alt.name}
-              subtitle={`${alt.percent}%${alt.fixed ? ` + ${formatUSD(alt.fixed)}/tx` : ''}`}
+              label={altName(alt)}
+              subtitle={`${alt.percent}%${alt.fixed ? ` + ${formatUSD(alt.fixed)}${t('feeCalcPerTx')}` : ''}`}
               amount={altCost}
               max={Math.max(dynopayCost, altCost, 1)}
               color={altColor}
@@ -307,7 +312,7 @@ const FeeCalculator: React.FC = () => {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.6, opacity: 0.9 }}>
               <TrendingDown sx={{ fontSize: 15 }} />
               <Typography sx={{ fontFamily: 'UrbanistBold', fontSize: 11, letterSpacing: '1.2px', textTransform: 'uppercase' }}>
-                You save
+                {t('feeCalcYouSave')}
               </Typography>
             </Box>
             <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1.2, flexWrap: 'wrap' }}>
@@ -315,11 +320,11 @@ const FeeCalculator: React.FC = () => {
                 {formatUSD(monthlySavings)}
               </Typography>
               <Typography sx={{ fontFamily: 'UrbanistMedium', fontSize: 14, opacity: 0.85 }}>
-                per month
+                {t('feeCalcPerMonthLong')}
               </Typography>
             </Box>
             <Typography sx={{ fontFamily: 'UrbanistSemiBold', fontSize: 13, opacity: 0.95, mt: 0.4 }}>
-              That&apos;s {formatUSD(yearlySavings)}/yr · {savingsPct.toFixed(1)}% less than {alt.name}
+              {t('feeCalcSavingsSummary', { yearly: formatUSD(yearlySavings), pct: savingsPct.toFixed(1), alt: altName(alt) })}
             </Typography>
           </Box>
 
@@ -339,7 +344,7 @@ const FeeCalculator: React.FC = () => {
               '&:hover': { transform: 'translateY(-1px)' },
             }}
           >
-            Start saving today <ArrowForward sx={{ fontSize: 16 }} />
+            {t('feeCalcCta')} <ArrowForward sx={{ fontSize: 16 }} />
           </Box>
         </Box>
       </Box>
@@ -355,6 +360,7 @@ const CostBar: React.FC<{
   color: string;
   isBest?: boolean;
 }> = ({ label, subtitle, amount, max, color, isBest }) => {
+  const { t } = useTranslation('landing');
   const pct = Math.min(100, (amount / (max || 1)) * 100);
   return (
     <Box>
@@ -378,7 +384,7 @@ const CostBar: React.FC<{
                 textTransform: 'uppercase',
               }}
             >
-              Best
+              {t('feeCalcBest')}
             </Box>
           )}
           <Typography sx={{ fontFamily: 'UrbanistMedium', fontSize: 11.5, color: (t) => t.palette.text.disabled, mt: 0.2 }}>
