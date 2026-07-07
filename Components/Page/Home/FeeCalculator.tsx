@@ -38,8 +38,26 @@ const ALTERNATIVES: Omit<Alternative, 'txPerMonth'>[] = [
   { id: 'credit',  name: 'Credit card (typical)', percent: 2.5,  fixed: 0.10, note: 'Effective total incl. interchange + assessment' },
 ];
 
-const DYNOPAY_PERCENT = 0.5;
 const DYNOPAY_FIXED = 0;
+
+/**
+ * Volume-tier ladder used by the landing calculator. Must mirror the backend
+ * `VOLUME_TIER_*` env vars (backend/utils/volumeTierUtils.ts). We keep this as
+ * a client-side copy so the calculator can render instantly without an API
+ * round-trip; if backend tiers change, update here too.
+ * Volume is interpreted as ANNUAL/lifetime — matches `annualVolume = volume * 12`.
+ */
+const DYNOPAY_TIERS: Array<{ minAnnual: number; percent: number; name: string }> = [
+  { minAnnual: 0,      percent: 1.5, name: 'Starter'    },
+  { minAnnual: 10000,  percent: 1.0, name: 'Growth'     },
+  { minAnnual: 100000, percent: 0.7, name: 'Scale'      },
+  { minAnnual: 500000, percent: 0.5, name: 'Enterprise' },
+];
+
+const dynopayTierFor = (monthlyVolume: number) => {
+  const annual = monthlyVolume * 12;
+  return [...DYNOPAY_TIERS].reverse().find((t) => annual >= t.minAnnual) ?? DYNOPAY_TIERS[0];
+};
 
 const formatUSD = (n: number) =>
   n.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: n < 100 ? 2 : 0 });
@@ -62,7 +80,8 @@ const FeeCalculator: React.FC = () => {
     return { ...base, txPerMonth: txCount(volume) };
   }, [altId, volume]);
 
-  const dynopayCost = useMemo(() => (volume * DYNOPAY_PERCENT) / 100 + DYNOPAY_FIXED * alt.txPerMonth, [volume, alt.txPerMonth]);
+  const dynopayTier = useMemo(() => dynopayTierFor(volume), [volume]);
+  const dynopayCost = useMemo(() => (volume * dynopayTier.percent) / 100 + DYNOPAY_FIXED * alt.txPerMonth, [volume, alt.txPerMonth, dynopayTier.percent]);
   const altCost     = useMemo(() => (volume * alt.percent) / 100 + alt.fixed * alt.txPerMonth, [volume, alt]);
   const monthlySavings = Math.max(0, altCost - dynopayCost);
   const yearlySavings  = monthlySavings * 12;
@@ -282,7 +301,7 @@ const FeeCalculator: React.FC = () => {
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.6, mb: 3 }}>
             <CostBar
               label="DynoPay"
-              subtitle={`0.5% ${t('feeCalcFlat')} · ${alt.txPerMonth.toLocaleString()} ${t('feeCalcTxAbbrev')}`}
+              subtitle={`${dynopayTier.percent}% (${dynopayTier.name}) · ${alt.txPerMonth.toLocaleString()} ${t('feeCalcTxAbbrev')}`}
               amount={dynopayCost}
               max={Math.max(dynopayCost, altCost, 1)}
               color={primaryColor}

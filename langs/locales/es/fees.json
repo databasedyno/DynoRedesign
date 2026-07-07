@@ -73,7 +73,7 @@
   "viewFullBreakdown": "Ver desglose completo de tarifas",
   "headerFees": "Tarifas",
   "feeFreeBannerTitle": "Comienza con $0 en comisiones en tus primeros $500",
-  "feeFreeBannerDescription": "Los nuevos comercios no pagan comisiones de plataforma en sus primeros $500 en transacciones. Después, solo 1,5 %, la mitad que PayPal o Stripe.",
+  "feeFreeBannerDescription": "Los nuevos comerciantes no pagan comisiones de plataforma en sus primeros $500 en transacciones. Después de eso, las comisiones empiezan en solo 1,5% y bajan hasta 0,5% para comerciantes de alto volumen — aún muy por debajo de PayPal o Stripe.",
   "feeFreeBannerCta": "Empieza sin comisiones",
   "feeCalcFeeFreeNote": "¿Nuevo comercio? Tus primeros $500 en transacciones son sin comisiones."
 }

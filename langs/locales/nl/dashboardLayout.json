@@ -30,7 +30,7 @@
   "yourProgressTowardsTheNextFeeTier": "Uw voortgang naar het volgende tariefniveau",
   "monthlyVolume": "Maandelijks volume",
   "upgradeToPremiumTier": "Upgraden naar Premium-niveau",
-  "lowerFeesAndPrioritySupport": "Lagere tarieven (0,5%) en prioriteitsondersteuning",
+  "lowerFeesAndPrioritySupport": "Tarieven dalen naarmate je volume groeit — vanaf 0,5%",
   "learnMore": "Meer informatie",
   "currentTier": "Huidig niveau",
   "toNextTier": "naar volgend niveau",
@@ -121,5 +121,6 @@
   "growTrialCompleteTitle": "🎉 Kostenloze proefperiode voltooid",
   "growTrialCompleteBody": "U heeft uw eerste $500 zonder kosten verwerkt. Verwijs een andere verkoper en verdien $50 extra tegoed zonder kosten wanneer zij $100 verwerken.",
   "apiPaymentLabel": "API-betaling",
-  "paymentLinkLabel": "Betaallink"
+  "paymentLinkLabel": "Betaallink",
+  "nextTierHint": "Bereik het {next}-niveau voor {pct} kosten (bespaar {savings})"
 }

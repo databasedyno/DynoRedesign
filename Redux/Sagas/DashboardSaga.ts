@@ -79,11 +79,15 @@ function* fetchFeeTiers(payload: any) {
             ? userTier.total_volume + userTier.amount_to_next_tier
             : 50000,
           usedAmount: userTier.total_volume ?? 0,
-          currentTier: userTier.current_tier ?? "Standard",
+          currentTier: userTier.current_tier ?? "Starter",
+          currentTierKey: userTier.current_tier_key ?? "starter",
+          currentTierPercent: userTier.current_tier_percent ?? 1.5,
           tiers: apiData.tiers || [],
           percentToNextTier: userTier.percent_to_next_tier ?? 0,
           amountToNextTier: userTier.amount_to_next_tier ?? 0,
           nextTier: userTier.next_tier ?? "",
+          nextTierKey: userTier.next_tier_key ?? "",
+          nextTierPercent: userTier.next_tier_percent ?? null,
         },
       },
     });

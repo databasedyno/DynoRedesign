@@ -36,6 +36,14 @@ export interface DashboardState {
     monthlyLimit: number;
     usedAmount: number;
     currentTier: string;
+    currentTierKey?: string;
+    currentTierPercent?: number;
+    tiers?: any[];
+    percentToNextTier?: number;
+    amountToNextTier?: number;
+    nextTier?: string;
+    nextTierKey?: string;
+    nextTierPercent?: number | null;
   };
   recentTransactions: any[];
   loading: boolean;

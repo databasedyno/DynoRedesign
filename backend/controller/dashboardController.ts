@@ -14,6 +14,7 @@ import { validateCompanyOwnership } from "../utils/validateCompanyOwnership";
 import sequelize from "../utils/dbInstance";
 import { getRedisItem, setRedisItem, setRedisTTL } from "../utils/redisInstance";
 import { getCurrencySymbol, getCurrencyInfo, formatAmountForDisplay, COMPANY_CURRENCY_QUERY, convertToFiat, getCompanyBaseCurrency } from "../utils/currencyUtils";
+import { getVolumeTiers } from "../utils/volumeTierUtils";
 
 /**
  * Convert per-currency volume rows to a single target fiat amount.
@@ -44,42 +45,57 @@ async function convertVolumesToFiat(
 // Cache TTL for dashboard data (30 seconds)
 const DASHBOARD_CACHE_TTL = 120;  // 2 minutes — stats don't change rapidly
 
-// Fee Tiers Configuration (thresholds in USD - will be converted for display)
-const FEE_TIERS = [
-  { name: "Starter", min: 0, max: 10000, description: "For new users testing the platform" },
-  { name: "Standard", min: 10000, max: 50000, description: "For growing users" },
-  { name: "Pro", min: 50000, max: 250000, description: "For serious merchants and creators" },
-  { name: "Business", min: 250000, max: 1000000, description: "For high-volume operations" },
-  { name: "Enterprise", min: 1000000, max: Infinity, description: "Custom pricing, priority support" },
-];
+// Fee Tiers Configuration — reads from volumeTierUtils (single source of truth).
+// Legacy `max=Infinity` semantics preserved by mapping `null` (unbounded top tier)
+// to Number.POSITIVE_INFINITY, and legacy tier NAMES (Standard/Pro/Business) are
+// replaced by the current 4-tier system (Starter/Growth/Scale/Enterprise) with
+// real fee percentages.
+const buildFeeTiers = (): Array<{ name: string; displayName: string; min: number; max: number; percent: number; description: string }> => {
+  const tiers = getVolumeTiers();
+  return tiers.map((t) => ({
+    name: t.name,                        // canonical lowercase name ('starter' etc)
+    displayName: t.displayName,          // human-readable ('Starter' etc)
+    min: t.min,
+    max: t.max === null ? Number.POSITIVE_INFINITY : t.max,
+    percent: t.percent,
+    description: t.description,
+  }));
+};
+
+// Convenience accessor — always reads fresh from env so hot-reload / tier config
+// changes take effect without a restart.
+const getFeeTiersArray = () => buildFeeTiers();
 
 /**
- * Get current fee tier based on monthly volume (in USD)
- * @param monthlyVolumeUSD - Volume in USD
- * @param displayCurrency - Currency to display thresholds in
- * @param conversionRate - Rate to convert USD to display currency (1 USD = X displayCurrency)
+ * Get current fee tier based on all-time transaction volume (in USD).
+ * Also exposes the merchant's platform-fee percentage for the dashboard widget.
  */
 const getFeeTier = (monthlyVolumeUSD: number, displayCurrency: string = 'USD', conversionRate: number = 1) => {
-  const tier = FEE_TIERS.find(t => monthlyVolumeUSD >= t.min && monthlyVolumeUSD < t.max) || FEE_TIERS[FEE_TIERS.length - 1];
-  const nextTier = FEE_TIERS.find(t => t.min > monthlyVolumeUSD);
+  const tiers = buildFeeTiers();
+  const tier = tiers.find(t => monthlyVolumeUSD >= t.min && monthlyVolumeUSD < t.max) || tiers[tiers.length - 1];
+  const nextTier = tiers.find(t => t.min > monthlyVolumeUSD);
   
   // Convert thresholds to display currency
   const displayVolume = Math.round(monthlyVolumeUSD * conversionRate * 100) / 100;
-  const displayThreshold = tier.max === Infinity ? null : Math.round(tier.max * conversionRate);
+  const displayThreshold = tier.max === Number.POSITIVE_INFINITY ? null : Math.round(tier.max * conversionRate);
   const displayAmountToNext = nextTier ? Math.round((nextTier.min - monthlyVolumeUSD) * conversionRate * 100) / 100 : 0;
   const currencySymbol = getCurrencySymbol(displayCurrency);
   
   return {
-    current_tier: tier.name,
+    current_tier: tier.displayName,      // Frontend shows the human-readable name
+    current_tier_key: tier.name,         // Machine key for the frontend to match icons/colors
     tier_description: tier.description,
+    tier_percent: tier.percent,          // NEW: platform fee % for this merchant
     monthly_volume: displayVolume,
     monthly_volume_usd: monthlyVolumeUSD, // Always include USD for reference
     tier_threshold: displayThreshold,
     tier_threshold_formatted: displayThreshold ? `${currencySymbol}${displayThreshold.toLocaleString()} ${displayCurrency}` : 'Unlimited',
-    percent_complete: tier.max === Infinity ? 100 : Math.round((monthlyVolumeUSD / tier.max) * 100 * 10) / 10,
+    percent_complete: tier.max === Number.POSITIVE_INFINITY ? 100 : Math.round((monthlyVolumeUSD / tier.max) * 100 * 10) / 10,
     amount_to_next_tier: displayAmountToNext,
     amount_to_next_tier_formatted: nextTier ? `${currencySymbol}${displayAmountToNext.toLocaleString()} ${displayCurrency}` : null,
-    next_tier: nextTier?.name || null,
+    next_tier: nextTier?.displayName || null,
+    next_tier_key: nextTier?.name || null,
+    next_tier_percent: nextTier?.percent ?? null,   // NEW: fee % at the next tier
     currency: displayCurrency,
   };
 };
@@ -605,28 +621,34 @@ const getFeeTiers = async (req: express.Request, res: express.Response) => {
     const currencySymbol = getCurrencySymbol(preferredCurrency);
 
     // Build tiers with indicator for current tier (show thresholds in preferred currency)
-    const tiersWithStatus = FEE_TIERS.map(tier => ({
-      name: tier.name,
+    const tiersWithStatus = getFeeTiersArray().map(tier => ({
+      name: tier.name,                                         // canonical lowercase key ('starter' etc)
+      display_name: tier.displayName,                          // human-readable name
+      percent: tier.percent,                                   // platform fee % for this tier
       min_volume: Math.round(tier.min * conversionRate),
-      max_volume: tier.max === Infinity ? null : Math.round(tier.max * conversionRate),
+      max_volume: tier.max === Number.POSITIVE_INFINITY ? null : Math.round(tier.max * conversionRate),
       min_volume_formatted: `${currencySymbol}${Math.round(tier.min * conversionRate).toLocaleString()}`,
-      max_volume_formatted: tier.max === Infinity ? 'Unlimited' : `${currencySymbol}${Math.round(tier.max * conversionRate).toLocaleString()}`,
+      max_volume_formatted: tier.max === Number.POSITIVE_INFINITY ? 'Unlimited' : `${currencySymbol}${Math.round(tier.max * conversionRate).toLocaleString()}`,
       description: tier.description,
-      is_current: tier.name === userTierInfo.current_tier,
+      is_current: tier.name === userTierInfo.current_tier_key,
     }));
 
     const feeTiersResponse = {
       tiers: tiersWithStatus,
       currency: preferredCurrency,
       user_tier: {
-        current_tier: userTierInfo.current_tier,
+        current_tier: userTierInfo.current_tier,                  // 'Starter' etc
+        current_tier_key: userTierInfo.current_tier_key,          // 'starter' etc
+        current_tier_percent: userTierInfo.tier_percent,          // e.g. 1.5
         tier_description: userTierInfo.tier_description,
         total_volume: userTierInfo.monthly_volume,
         total_volume_formatted: `${currencySymbol}${userTierInfo.monthly_volume.toLocaleString()} ${preferredCurrency}`,
         percent_to_next_tier: userTierInfo.percent_complete,
         amount_to_next_tier: userTierInfo.amount_to_next_tier,
         amount_to_next_tier_formatted: userTierInfo.amount_to_next_tier_formatted,
-        next_tier: userTierInfo.next_tier,
+        next_tier: userTierInfo.next_tier,                        // e.g. 'Growth'
+        next_tier_key: userTierInfo.next_tier_key,                // e.g. 'growth'
+        next_tier_percent: userTierInfo.next_tier_percent,        // e.g. 1.0
       },
     };
 

@@ -919,6 +919,27 @@ cron.schedule("*/30 * * * *", async function () {
 // Setup weekly summary cron job (every Monday at 9:00 AM UTC)
 setupWeeklySummaryCron();
 
+// Volume-based fee tier reconciliation (daily at 3:00 AM UTC).
+// Auto-upgrades/downgrades merchants based on their all-time confirmed USD volume.
+// Sends "your fees just dropped" email on upgrade; downgrades are silent (updated
+// silently in DB — the dashboard widget will reflect the new tier on next load).
+cron.schedule("0 3 * * *", async function () {
+  const lockAcquired = await acquireLock("cron:volumeTierReconciliation", 900, 1, 100, true);
+  if (!lockAcquired) { log("Cron: volumeTierReconciliation skipped (already running)", "info"); return; }
+  try {
+    log("Cron: volumeTierReconciliation running", "info");
+    const { reconcileVolumeTiers } = await import("./services/volumeTierReconciliation");
+    const stats = await reconcileVolumeTiers();
+    log(`Cron: Volume-tier reconciliation complete — upgraded=${stats.upgraded}, downgraded=${stats.downgraded}, unchanged=${stats.unchanged}, skipped=${stats.skipped}`, "info");
+  } catch (err) {
+    log(`Cron: Volume-tier reconciliation failed: ${(err as Error).message}`, "error");
+    captureError(err as Error, 'cron', { extraContext: 'volumeTierReconciliation' });
+  } finally {
+    await releaseLock("cron:volumeTierReconciliation");
+  }
+});
+log("Volume-tier reconciliation cron scheduled (daily at 3:00 AM UTC)", "info");
+
 // Weekly conversion summary email (every Monday at 9:30 AM UTC)
 cron.schedule("30 9 * * 1", async function () {
   const lockAcquired = await acquireLock("cron:weeklyConversionSummary", 600, 1, 100, true);

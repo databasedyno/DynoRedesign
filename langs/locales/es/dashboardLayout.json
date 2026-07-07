@@ -29,7 +29,7 @@
   "yourProgressTowardsTheNextFeeTier": "Tu progreso hacia el siguiente nivel de comisiones",
   "monthlyVolume": "Volumen Mensual",
   "upgradeToPremiumTier": "Actualizar al Nivel Premium",
-  "lowerFeesAndPrioritySupport": "Comisiones más bajas (0.5%) y soporte prioritario",
+  "lowerFeesAndPrioritySupport": "Las comisiones bajan conforme crece tu volumen — hasta 0,5%",
   "learnMore": "Más información",
   "currentTier": "Nivel Actual",
   "toNextTier": "para el siguiente nivel",
@@ -121,5 +121,6 @@
   "growTrialCompleteTitle": "🎉 Prueba sin comisiones completada",
   "growTrialCompleteBody": "Procesaste tus primeros $500 sin comisiones. Refiere a otro comercio y gana $50 más de crédito sin comisiones cuando procese $100.",
   "apiPaymentLabel": "Pago por API",
-  "paymentLinkLabel": "Enlace de pago"
+  "paymentLinkLabel": "Enlace de pago",
+  "nextTierHint": "Alcanza el nivel {next} para tarifas del {pct} (ahorra {savings})"
 }

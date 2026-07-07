@@ -26,6 +26,8 @@ import {
   getDiscountedTransactionFee,
 } from "../../services/feeService";
 import { getCryptoPriceForPayment } from "./paymentHelpers";
+import { getPlatformFeePercent } from "../../utils/volumeTierUtils";
+import { paymentLinkModel as _pl, userModel } from "../../models";
 
 /**
  * Convert a raw blockchain fee result into a plain, JSON-safe object containing
@@ -408,7 +410,7 @@ export const calculateCheckoutFees = async (
   res: express.Response
 ) => {
   try {
-    const { amount, cryptocurrency, currency = 'USD' } = req.body;
+    const { amount, cryptocurrency, currency = 'USD', paymentLinkId, linkId } = req.body;
 
     // Validate required fields
     if (!amount || amount <= 0) {
@@ -439,6 +441,25 @@ export const calculateCheckoutFees = async (
       return errorResponseHelper(res, 400, `Invalid currency. Common options: USD, EUR, GBP, AUD, CAD, etc.`);
     }
 
+    // Resolve the merchant user_id from the payment link (if provided) so we can
+    // use their VOLUME TIER percentage instead of the flat fallback. Safe fallback:
+    // if no link id is supplied OR the lookup fails, we use TRANSACTION_FEE_PERCENT
+    // (1.5%, same as before this change).
+    let merchantUserId: number | undefined;
+    const linkRef = paymentLinkId ?? linkId;
+    if (linkRef) {
+      try {
+        const link = await _pl.findOne({
+          where: { link_id: linkRef },
+          attributes: ["user_id"],
+          raw: true,
+        });
+        merchantUserId = (link as any)?.user_id;
+      } catch (e) {
+        cronLogger.warn(`[calculateCheckoutFees] Failed to resolve merchant for link ${linkRef}: ${(e as Error).message}`);
+      }
+    }
+
     // Convert amount to USD for fee calculation if not already USD
     let amountUSD = paymentAmount;
     let exchangeRate = 1;
@@ -462,7 +483,8 @@ export const calculateCheckoutFees = async (
     // Calculate actual fees using existing fee logic (based on USD amount)
     const { totalDeduction } = await calculateTransactionFees(
       crypto,
-      amountUSD
+      amountUSD,
+      merchantUserId
     );
 
     // Get blockchain network fee for display
@@ -478,9 +500,21 @@ export const calculateCheckoutFees = async (
     const totalActualFeesUSD = totalDeduction + networkFeeUSD;
 
     // Fee breakdown (in USD first):
-    // Platform fee = transaction fee % of amount (from tier system)
+    // Platform fee = merchant's tier % of amount (falls back to 1.5% if no merchant known)
     // Blockchain fee = network fee for the selected cryptocurrency
-    const platformFeePercent = parseFloat(process.env.TRANSACTION_FEE_PERCENT || '1.5');
+    let platformFeePercent = parseFloat(process.env.TRANSACTION_FEE_PERCENT || '1.5');
+    if (merchantUserId) {
+      try {
+        const merchant = await userModel.findOne({
+          where: { user_id: merchantUserId },
+          attributes: ["fee_tier"],
+          raw: true,
+        });
+        platformFeePercent = getPlatformFeePercent((merchant as any)?.fee_tier);
+      } catch {
+        // Keep the safe 1.5% fallback
+      }
+    }
     const platformFeeUSD = parseFloat((amountUSD * platformFeePercent / 100).toFixed(2));
     
     // Total fees in USD

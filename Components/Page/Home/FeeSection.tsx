@@ -7,7 +7,7 @@ import HomeButton from "@/Components/Layout/HomeButton";
 import FeeCalculator from "@/Components/UI/FeeCalculator";
 
 const competitors = [
-  { name: "DynoPay", fee: "1.5%", extra: "First $500 free", highlight: true },
+  { name: "DynoPay", fee: "0.5%–1.5%", extra: "By volume · first $500 free", highlight: true },
   { name: "PayPal", fee: "2.9%", extra: "+ $0.30", highlight: false },
   { name: "Stripe", fee: "2.9%", extra: "+ $0.30", highlight: false },
 ];

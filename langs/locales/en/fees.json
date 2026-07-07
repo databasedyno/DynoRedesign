@@ -71,7 +71,7 @@
   "feeSectionHighlight": "Fees Instantly",
   "feeSectionSubtitle": "See exactly what you'll receive before accepting any payment.",
   "feeFreeBannerTitle": "Start with $0 fees on your first $500",
-  "feeFreeBannerDescription": "New merchants pay zero platform fees on their first $500 in transactions. After that, just 1.5% — still half of PayPal or Stripe.",
+  "feeFreeBannerDescription": "New merchants pay zero platform fees on their first $500 in transactions. After that, fees start at just 1.5% and drop as low as 0.5% for high-volume merchants — still far below PayPal or Stripe.",
   "feeFreeBannerCta": "Get Started Fee-Free",
   "feeCalcFeeFreeNote": "New merchant? Your first $500 in transactions is fee-free.",
   "viewFullBreakdown": "View Full Fee Breakdown",

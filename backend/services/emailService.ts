@@ -119,6 +119,68 @@ export const sendWelcomeEmail = async (
 };
 
 /**
+ * Volume-Tier Upgrade
+ * Fired by volumeTierReconciliation when a merchant's tier improves (lower %).
+ * Silent on downgrades — no email sent for tier drops.
+ */
+export const sendVolumeTierUpgradeEmail = async (
+  email: string,
+  opts: {
+    name: string;
+    previousTier: string;
+    previousPercent: number;
+    newTier: string;
+    newPercent: number;
+    totalVolumeUsd: number;
+    language?: string;
+  }
+) => {
+  try {
+    const {
+      name, previousTier, previousPercent,
+      newTier, newPercent, totalVolumeUsd, language,
+    } = opts;
+    const savingsPct = Math.max(0, previousPercent - newPercent).toFixed(2);
+    const volumeStr = `$${totalVolumeUsd.toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
+    const subject = `You just unlocked the ${newTier} tier — ${newPercent}% fees`;
+
+    const content = `${p(`Hey ${name},`)}
+    ${p(`Great news — you've crossed <strong>${volumeStr}</strong> in lifetime processed volume, and your platform-fee tier has just been upgraded from <strong>${previousTier}</strong> to <strong>${newTier}</strong>.`)}
+    ${infoBox(`
+      <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #0d1f5c; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;"><strong>Your new rate</strong></p>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+          <td style="padding: 4px 0; font-size: 14px; color: #6b7280; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">Previous fee</td>
+          <td style="padding: 4px 0; font-size: 14px; color: #6b7280; text-align: right; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;"><s>${previousPercent}%</s></td>
+        </tr>
+        <tr>
+          <td style="padding: 4px 0; font-size: 15px; font-weight: 600; color: #0d1f5c; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">New fee (${newTier})</td>
+          <td style="padding: 4px 0; font-size: 20px; font-weight: 700; color: #4F46E5; text-align: right; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${newPercent}%</td>
+        </tr>
+        <tr>
+          <td style="padding: 4px 0; font-size: 13px; color: #16a34a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">You save</td>
+          <td style="padding: 4px 0; font-size: 13px; color: #16a34a; text-align: right; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${savingsPct}% per transaction</td>
+        </tr>
+      </table>
+    `)}
+    ${p(`This is applied automatically to every new payment starting now — no action needed. Keep processing, and the next tier down is waiting for you.`)}
+    ${p(`Thanks for building on Dynopay.`)}`;
+
+    const html = dynoPayEmailTemplate(
+      `You're now ${newTier} — enjoy ${newPercent}% fees`,
+      content,
+      true,
+      "View your dashboard",
+      `${FRONTEND_BASE_URL}/dashboard`
+    );
+    await mailTransporter({ to: email, name, subject, body: html });
+    apiLogger.info(`Volume-tier upgrade email sent to ${email} (${previousTier}→${newTier})`);
+  } catch (e) {
+    apiLogger.error("Volume-tier upgrade email error:", e);
+  }
+};
+
+/**
  * Template 8: Email Verification OTP
  */
 export const sendEmailVerificationOTPEmail = async (
@@ -1697,9 +1759,20 @@ export const sendAutoConversionPayoutEmail = async (
       </p>
     `) : '';
 
+    // Compute the effective platform-fee % from the actual charged fee vs. gross sale.
+    // This shows the merchant's REAL tier rate on the receipt (1.5% → 0.5% depending on
+    // volume tier), instead of a hardcoded "1.5%" string.
+    const effectivePlatformPct =
+      grossSaleUsd > 0 && platformFeeUsd > 0
+        ? (platformFeeUsd / grossSaleUsd) * 100
+        : 0;
+    const platformPctLabel = effectivePlatformPct > 0
+      ? effectivePlatformPct.toFixed(effectivePlatformPct < 1 ? 2 : 1) + "%"
+      : "";
+
     const feeRows = [
       feeRow('Gross Conversion', `$${grossSaleUsd.toFixed(2)} ${targetCurrency}`),
-      platformFeeUsd > 0 ? feeRow('Platform Fee (1.5%)', `-$${platformFeeUsd.toFixed(4)}`, true) : '',
+      platformFeeUsd > 0 ? feeRow(`Platform Fee${platformPctLabel ? ` (${platformPctLabel})` : ''}`, `-$${platformFeeUsd.toFixed(4)}`, true) : '',
       sweepGasFeeUsd > 0 ? feeRow('Network Gas Fee (sweep)', `-$${sweepGasFeeUsd.toFixed(4)}`, true) : '',
       tradeFeeUsd > 0 ? feeRow('Exchange Fee (0.1%)', `-$${tradeFeeUsd.toFixed(4)}`, true) : '',
       binanceWithdrawalFeeUsd > 0
@@ -2953,4 +3026,6 @@ export default {
   sendOnboardingCompletedAdminEmail,
   sendFirstPaymentAdminEmail,
   sendNewVisitorAdminEmail,
+  // Volume-based fee tier
+  sendVolumeTierUpgradeEmail,
 };

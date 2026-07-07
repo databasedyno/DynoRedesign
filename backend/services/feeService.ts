@@ -16,6 +16,8 @@ import { feesModel } from "../models";
 import { getRedisItem, setRedisItem } from "../utils/redisInstance";
 import { log } from "../utils/loggers";
 import { getBlockchainThreshold, getTransactionFeePercent, getFeeTiers } from "../utils/feeConfigUtils";
+import { getPlatformFeePercent } from "../utils/volumeTierUtils";
+import { userModel } from "../models";
 import User from "../models/userModels/userModel";
 
 // ── Fee Retrieval ───────────────────────────────────────────────────────────
@@ -111,7 +113,26 @@ export const getBlockchainFee = async () => {
 
 // ── Fee Configuration ───────────────────────────────────────────────────────
 
-export const getBlockchainConfig = async (blockchain: string) => {
+/**
+ * Look up a user's platform-fee % based on their fee_tier column. Safe against
+ * missing/unknown values (falls back to 1.5% starter rate via getPlatformFeePercent).
+ */
+const getUserPlatformFeePercent = async (userId?: number): Promise<number> => {
+  if (!userId) return getTransactionFeePercent();
+  try {
+    const user = await userModel.findOne({
+      where: { user_id: userId },
+      attributes: ["fee_tier"],
+      raw: true,
+    });
+    const tierName = (user as any)?.fee_tier as string | undefined;
+    return getPlatformFeePercent(tierName);
+  } catch {
+    return getTransactionFeePercent();
+  }
+};
+
+export const getBlockchainConfig = async (blockchain: string, userId?: number) => {
   const threshold = getBlockchainThreshold(blockchain);
   const tiers = getFeeTiers();
 
@@ -119,7 +140,7 @@ export const getBlockchainConfig = async (blockchain: string) => {
     return {
       blockchain,
       min_forwarding_amount: threshold,
-      transaction_fee_percent: getTransactionFeePercent(),
+      transaction_fee_percent: await getUserPlatformFeePercent(userId),
       tiers: tiers.map(t => ({
         min_amount: t.min,
         max_amount: t.max,
@@ -166,7 +187,7 @@ export const calculateTransactionFees = async (
   amount: number,
   userId?: number
 ) => {
-  const config = await getBlockchainConfig(blockchain);
+  const config = await getBlockchainConfig(blockchain, userId);
   if (!config) {
     throw new Error(`Blockchain ${blockchain} configuration not found`);
   }
@@ -224,7 +245,7 @@ export const calculateTransactionFeesWithDiscount = async (
   amount: number,
   userId: number
 ) => {
-  const config = await getBlockchainConfig(blockchain);
+  const config = await getBlockchainConfig(blockchain, userId);
   if (!config) {
     throw new Error(`Blockchain ${blockchain} configuration not found`);
   }

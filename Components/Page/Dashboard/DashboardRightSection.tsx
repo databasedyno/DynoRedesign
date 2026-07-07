@@ -20,9 +20,10 @@ import { rootReducer } from "@/utils/types";
 import CheckCircleIcon from "@/assets/Icons/correct-icon.png";
 import CurrencyIcon from "@/assets/Icons/dollar-sign-icon.svg";
 
-const DEFAULT_MONTHLY_LIMIT = 50000;
+const DEFAULT_MONTHLY_LIMIT = 10000;
 const DEFAULT_USED_AMOUNT = 0;
-const CURRENT_TIER = "Standard";
+const CURRENT_TIER = "Starter";
+const DEFAULT_TIER_PERCENT = 1.5;
 
 const DashboardRightSection = () => {
   const muiTheme = useTheme();
@@ -65,6 +66,9 @@ const DashboardRightSection = () => {
 
   const monthlyLimit = feeTiers.monthlyLimit || DEFAULT_MONTHLY_LIMIT;
   const currentTier = feeTiers.currentTier || CURRENT_TIER;
+  const currentTierPercent = feeTiers.currentTierPercent ?? DEFAULT_TIER_PERCENT;
+  const nextTier = feeTiers.nextTier || "";
+  const nextTierPercent = feeTiers.nextTierPercent ?? null;
   const [usedAmount, setUsedAmount] = useState(feeTiers.usedAmount || DEFAULT_USED_AMOUNT);
 
   // Merchant is "premium eligible" once they've hit ≥60% of monthly limit —
@@ -196,11 +200,11 @@ const DashboardRightSection = () => {
             currentTier={currentTier}
           />
 
-          {/* Current Tier Badge */}
+          {/* Current Tier Badge — shows tier NAME + real %-rate merchant is charged */}
           <Box
             sx={{
               mt: isMobile ? 1.5 : 3,
-              height: isMobile ? "32px" : "40px",
+              minHeight: isMobile ? "32px" : "40px",
               width: "100%",
               display: "inline-flex",
               alignItems: "center",
@@ -225,6 +229,8 @@ const DashboardRightSection = () => {
                 display: "flex",
                 alignItems: "center",
                 gap: 1,
+                flexWrap: "wrap",
+                justifyContent: "center",
               }}
             >
               {tDashboard("currentTier")}:
@@ -236,10 +242,43 @@ const DashboardRightSection = () => {
                   height={16}
                   draggable={false}
                 />
-                {currentTier}
+                <Box component="span" data-testid="current-tier-name">{currentTier}</Box>
+                <Box
+                  component="span"
+                  data-testid="current-tier-percent"
+                  sx={{
+                    fontWeight: 700,
+                    fontFamily: "UrbanistBold",
+                    color: muiTheme.palette.success.dark,
+                    ml: 0.5,
+                  }}
+                >
+                  · {currentTierPercent}%
+                </Box>
               </Box>
             </Typography>
           </Box>
+
+          {/* Next-tier savings hint — encourages continued volume growth */}
+          {nextTier && nextTierPercent !== null && nextTierPercent < currentTierPercent && (
+            <Typography
+              data-testid="next-tier-hint"
+              sx={{
+                mt: isMobile ? 1 : 1.5,
+                textAlign: "center",
+                fontSize: isMobile ? 11 : 12,
+                color: muiTheme.palette.text.secondary,
+                fontFamily: "UrbanistMedium",
+                lineHeight: 1.4,
+                px: 1,
+              }}
+            >
+              {tDashboard("nextTierHint")
+                .replace("{next}", nextTier)
+                .replace("{pct}", `${nextTierPercent}%`)
+                .replace("{savings}", `${(currentTierPercent - nextTierPercent).toFixed(2)}%`)}
+            </Typography>
+          )}
 
           {/* Consolidated "Grow with DynoPay" panel — replaces the standalone
               PremiumTierCard. Surfaces ONE offer at a time in priority order

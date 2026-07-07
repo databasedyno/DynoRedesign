@@ -85,7 +85,7 @@ const HeroV2: React.FC = () => {
       badge: 'For merchants',
       h1: 'Accept crypto.',
       highlight: 'Keep it, or auto-convert to stablecoins.',
-      sub: 'Accept 13 chains from customers in 40+ countries. Receive the crypto as-is, or opt in to auto-convert to USDT/USDC in minutes — your choice. 0.5% flat — no chargebacks, ever.',
+      sub: 'Accept 13 chains from customers in 40+ countries. Receive the crypto as-is, or opt in to auto-convert to USDT/USDC in minutes — your choice. Fees from 0.5% — no chargebacks, ever.',
       primaryLabel: 'Start accepting crypto',
       primaryHref: '/auth/register?ref=hero_merchant',
       secondaryLabel: 'Watch 90s demo',

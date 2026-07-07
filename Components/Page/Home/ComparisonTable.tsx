@@ -20,7 +20,7 @@ type Feature = {
 const COLUMNS = ['DynoPay', 'Coinbase Commerce', 'BitPay', 'Stripe'] as const;
 
 const FEATURES: Feature[] = [
-  { label: 'Transaction fee',      values: ['0.5% flat',           '1% (after $1M)',   '1% + miner fee',   '2.9% + $0.30']  },
+  { label: 'Transaction fee',      values: ['0.5%–1.5% by volume', '1% (after $1M)',   '1% + miner fee',   '2.9% + $0.30']  },
   { label: 'Supported chains',     values: ['13 chains',           '5 chains',         '8 chains',         'None (fiat only)'] },
   { label: 'Stablecoin settlement',values: [true,                  true,                true,               false] },
   { label: 'Bank-account settlement',values:[true,                 false,               true,               true]  },

@@ -29,7 +29,7 @@
   "yourProgressTowardsTheNextFeeTier": "Votre progression vers le prochain niveau de frais",
   "monthlyVolume": "Volume Mensuel",
   "upgradeToPremiumTier": "Passer au Niveau Premium",
-  "lowerFeesAndPrioritySupport": "Frais réduits (0,5%) et support prioritaire",
+  "lowerFeesAndPrioritySupport": "Les frais baissent quand votre volume augmente — jusqu'à 0,5%",
   "learnMore": "En savoir plus",
   "currentTier": "Niveau Actuel",
   "toNextTier": "vers le prochain niveau",
@@ -121,5 +121,6 @@
   "growTrialCompleteTitle": "🎉 Essai sans frais terminé",
   "growTrialCompleteBody": "Vous avez traité vos premiers 500 $ sans frais. Parrainez un autre commerçant et gagnez 50 $ de crédit sans frais supplémentaires lorsqu'il traite 100 $.",
   "apiPaymentLabel": "Paiement API",
-  "paymentLinkLabel": "Lien de paiement"
+  "paymentLinkLabel": "Lien de paiement",
+  "nextTierHint": "Atteignez le niveau {next} pour des frais de {pct} (économisez {savings})"
 }

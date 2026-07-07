@@ -29,7 +29,7 @@
   "yourProgressTowardsTheNextFeeTier": "Seu progresso em direção ao próximo nível de taxas",
   "monthlyVolume": "Volume mensal",
   "upgradeToPremiumTier": "Faça upgrade para o nível Premium",
-  "lowerFeesAndPrioritySupport": "Taxas reduzidas (0,5%) e apoio prioritário.",
+  "lowerFeesAndPrioritySupport": "As taxas diminuem conforme seu volume cresce — a partir de 0,5%",
   "learnMore": "Saber mais",
   "currentTier": "Nível atual",
   "toNextTier": "para o próximo nível",
@@ -121,5 +121,6 @@
   "growTrialCompleteTitle": "🎉 Período grátis concluído",
   "growTrialCompleteBody": "Você processou seus primeiros $500 sem taxas. Indique outro comerciante e ganhe mais $50 de crédito grátis quando ele processar $100.",
   "apiPaymentLabel": "Pagamento via API",
-  "paymentLinkLabel": "Link de pagamento"
+  "paymentLinkLabel": "Link de pagamento",
+  "nextTierHint": "Alcance o nível {next} para taxas de {pct} (economize {savings})"
 }

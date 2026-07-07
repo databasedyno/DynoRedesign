@@ -30,7 +30,7 @@
   "yourProgressTowardsTheNextFeeTier": "Ihr Fortschritt zur nächsten Gebührenstufe",
   "monthlyVolume": "Monatliches Volumen",
   "upgradeToPremiumTier": "Auf Premium-Stufe upgraden",
-  "lowerFeesAndPrioritySupport": "Niedrigere Gebühren (0,5%) und Prioritäts-Support",
+  "lowerFeesAndPrioritySupport": "Gebühren sinken, wenn Ihr Volumen wächst — bis zu 0,5%",
   "learnMore": "Mehr erfahren",
   "currentTier": "Aktuelle Stufe",
   "toNextTier": "zur nächsten Stufe",
@@ -121,5 +121,6 @@
   "growTrialCompleteTitle": "🎉 Gebührenfreier Test abgeschlossen",
   "growTrialCompleteBody": "Sie haben Ihre ersten 500 $ gebührenfrei verarbeitet. Empfehlen Sie einen weiteren Händler und verdienen Sie zusätzliche 50 $ gebührenfreies Guthaben, wenn er 100 $ verarbeitet.",
   "apiPaymentLabel": "API-Zahlung",
-  "paymentLinkLabel": "Zahlungslink"
+  "paymentLinkLabel": "Zahlungslink",
+  "nextTierHint": "Erreichen Sie die {next}-Stufe für {pct} Gebühren (sparen Sie {savings})"
 }

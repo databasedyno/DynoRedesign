@@ -1,416 +1,340 @@
 #!/usr/bin/env python3
 """
-DynoPay Backend Testing Script
-Tests the backend API after Railway PostgreSQL setup
-Focus: Verify dashboard stats for hostbay@moxx.co (user with $18k+ transactions)
+Backend API Testing for Volume-Based Fee Tier System
+Test Date: 2026-07-07
 """
 
 import requests
 import json
-import redis
-import time
-from typing import Dict, Any, Optional
+import sys
 
 # Configuration
 BASE_URL = "https://fast-start-8.preview.emergentagent.com/api"
-REDIS_URL = "redis://default:HAEMJseUAdqAjpiICURxlefSoSYXKEUg@nozomi.proxy.rlwy.net:15794"
+HOSTBAY_JWT = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJuYW1lIjoiSG9zdEJheSIsImVtYWlsIjoiaG9zdGJheUBtb3h4LmNvIiwidXNlcm5hbWUiOm51bGwsIm1vYmlsZSI6bnVsbCwicGhvdG8iOiJpbWFnZXMvdXNlcl9pbWFnZS5wbmciLCJsb2dpbl90eXBlIjoiRU1BSUwiLCJjdXN0b21lcl9pZCI6bnVsbCwiZXh0ZXJuYWxfaWQiOm51bGwsInN0YXR1cyI6ImFjdGl2ZSIsInZlcmlmaWVkX290cCI6bnVsbCwib3RwX2V4cGlyZWQiOm51bGwsIm90cF9jdXJyZW5jeSI6bnVsbCwicmVzZXRfdG9rZW4iOm51bGwsInJlc2V0X3Rva2VuX2V4cGlyeSI6bnVsbCwiZ29vZ2xlX2lkIjpudWxsLCJ3YWxsZXRfcmVtaW5kZXJfc2VudCI6dHJ1ZSwicmVmZXJyYWxfY29kZSI6IkRZTk8tOVhWUFVZIiwicmVmZXJyYWxfY291bnQiOjAsInJlZmVycmFsX2JvbnVzX2Vhcm5lZCI6IjAuMDAiLCJyZWZlcnJlZF9ieV9jb2RlIjpudWxsLCJyZWZlcnJlZF9ieV9yZWZlcmVlX2NvZGUiOm51bGwsImZlZV9kaXNjb3VudF9wZXJjZW50IjoiMC4wMCIsImZlZV9kaXNjb3VudF9leHBpcmVzX2F0IjpudWxsLCJmZWVfZGlzY291bnRfcmVhc29uIjpudWxsLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwibGFzdF9sb2dpbl9pcCI6IjEwNC4xOTguMjE0LjIyMyIsImxhc3RfY29tcGFueV9pZCI6bnVsbCwiY3VtdWxhdGl2ZV92b2x1bWVfdXNkIjoiMTczNTcuNTUiLCJmZWVfZnJlZV9yZW1haW5pbmdfdXNkIjoiMC4wMCIsImZlZV90aWVyIjoic3RhbmRhcmQiLCJjcmVhdGVkQXQiOiIyMDI2LTA0LTE4VDE4OjE5OjExLjg4N1oiLCJ1cGRhdGVkQXQiOiIyMDI2LTA3LTA3VDEzOjAzOjQzLjM0NFoiLCJsYW5ndWFnZSI6ImVuIiwiaWF0IjoxNzgzNDQ5NDE5LCJleHAiOjE3ODYwNDE0MTl9.AGRoH624V3DpSvMiLOYPUo7mjMLVG8Po9BNd1peCK98"
 
-# Test credentials
-TEST_EMAIL = "hostbay@moxx.co"
-TEST_PASSWORD = "Katiekendra123@"
-
-# User-Agent header (required by backend)
-HEADERS = {
-    "Content-Type": "application/json",
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+# Test results storage
+results = {
+    "part1": {"status": "NOT_RUN", "details": {}},
+    "part2": {"status": "NOT_RUN", "details": {}},
+    "part6": {"status": "NOT_RUN", "details": {}},
 }
 
-class Colors:
-    GREEN = '\033[92m'
-    RED = '\033[91m'
-    YELLOW = '\033[93m'
-    BLUE = '\033[94m'
-    RESET = '\033[0m'
-    BOLD = '\033[1m'
+def print_section(title):
+    print(f"\n{'='*80}")
+    print(f"  {title}")
+    print(f"{'='*80}\n")
 
-def print_test(name: str):
-    print(f"\n{Colors.BLUE}{Colors.BOLD}{'='*80}{Colors.RESET}")
-    print(f"{Colors.BLUE}{Colors.BOLD}TEST: {name}{Colors.RESET}")
-    print(f"{Colors.BLUE}{Colors.BOLD}{'='*80}{Colors.RESET}")
-
-def print_pass(message: str):
-    print(f"{Colors.GREEN}✓ PASS: {message}{Colors.RESET}")
-
-def print_fail(message: str):
-    print(f"{Colors.RED}✗ FAIL: {message}{Colors.RESET}")
-
-def print_info(message: str):
-    print(f"{Colors.YELLOW}ℹ INFO: {message}{Colors.RESET}")
-
-def print_response(response: requests.Response):
-    print(f"\n{Colors.YELLOW}Response Status: {response.status_code}{Colors.RESET}")
-    try:
-        data = response.json()
-        print(f"{Colors.YELLOW}Response Body:{Colors.RESET}")
-        print(json.dumps(data, indent=2))
-    except:
-        print(f"{Colors.YELLOW}Response Body (raw):{Colors.RESET}")
-        print(response.text[:500])
-
-def test_health_check() -> bool:
-    """Test 1: Health check (no auth)"""
-    print_test("1. Health Check (GET /api/)")
+def test_part1_public_fee_calculator():
+    """Part 1 - Public checkout fee endpoint (unchanged for public calculator)"""
+    print_section("PART 1: Public Checkout Fee Endpoint")
     
+    # Test 1: USD with BTC
+    print("Test 1.1: POST /api/pay/calculateFees (USD, BTC, no paymentLinkId)")
     try:
-        response = requests.get(f"{BASE_URL}/", headers={"User-Agent": HEADERS["User-Agent"]}, timeout=10)
-        print_response(response)
-        
-        if response.status_code == 200:
-            data = response.json()
-            if data.get("status") == "operational":
-                print_pass("Health check returned 200 with status: operational")
-                return True
-            else:
-                print_fail(f"Health check returned 200 but status is: {data.get('status')}")
-                return False
-        else:
-            print_fail(f"Health check returned {response.status_code}, expected 200")
-            return False
-    except Exception as e:
-        print_fail(f"Health check failed with exception: {str(e)}")
-        return False
-
-def get_redis_otp(session: str) -> Optional[str]:
-    """Read OTP from Redis"""
-    try:
-        r = redis.from_url(REDIS_URL, decode_responses=True)
-        key = f"login_otp:{session}:json"
-        print_info(f"Reading Redis key: {key}")
-        
-        value = r.get(key)
-        if value:
-            data = json.loads(value)
-            otp = data.get("otp")
-            print_info(f"Found OTP in Redis: {otp}")
-            return otp
-        else:
-            print_fail(f"No OTP found in Redis for key: {key}")
-            return None
-    except Exception as e:
-        print_fail(f"Failed to read OTP from Redis: {str(e)}")
-        return None
-
-def test_login_flow() -> Optional[str]:
-    """Test 2: Login flow for hostbay@moxx.co"""
-    print_test("2. Login Flow for hostbay@moxx.co")
-    
-    try:
-        # Step 1: POST /api/user/login
-        print_info("Step 1: POST /api/user/login")
-        login_payload = {
-            "email": TEST_EMAIL,
-            "password": TEST_PASSWORD
-        }
-        
         response = requests.post(
-            f"{BASE_URL}/user/login",
-            headers=HEADERS,
-            json=login_payload,
-            timeout=10
-        )
-        print_response(response)
-        
-        if response.status_code != 200:
-            print_fail(f"Login request failed with status {response.status_code}")
-            return None
-        
-        data = response.json()
-        
-        # Check if we got accessToken directly or need OTP flow
-        if data.get("success") and "accessToken" in data.get("data", {}):
-            access_token = data["data"]["accessToken"]
-            print_pass(f"Login successful - got accessToken directly")
-            return access_token
-        
-        # OTP flow
-        data_obj = data.get("data", {})
-        if "login_otp_session" in data_obj or "session" in data_obj:
-            session = data_obj.get("login_otp_session") or data_obj.get("session")
-            print_info(f"OTP flow required - session: {session}")
-            
-            # Step 2: Read OTP from Redis
-            print_info("Step 2: Reading OTP from Redis")
-            time.sleep(1)  # Wait a moment for Redis to be updated
-            otp = get_redis_otp(session)
-            
-            if not otp:
-                print_fail("Could not retrieve OTP from Redis")
-                return None
-            
-            # Step 3: POST /api/user/verifyLoginOTP
-            print_info("Step 3: POST /api/user/verifyLoginOTP")
-            verify_payload = {
-                "login_otp_session": session,
-                "otp": otp
-            }
-            
-            verify_response = requests.post(
-                f"{BASE_URL}/user/verifyLoginOTP",
-                headers=HEADERS,
-                json=verify_payload,
-                timeout=10
-            )
-            print_response(verify_response)
-            
-            if verify_response.status_code == 200:
-                verify_data = verify_response.json()
-                # Check both possible locations for accessToken
-                access_token = None
-                if "data" in verify_data:
-                    if isinstance(verify_data["data"], dict):
-                        access_token = verify_data["data"].get("accessToken")
-                
-                if access_token:
-                    print_pass(f"OTP verification successful - got accessToken")
-                    return access_token
-                else:
-                    print_fail("OTP verification response missing accessToken")
-                    return None
-            else:
-                print_fail(f"OTP verification failed with status {verify_response.status_code}")
-                return None
-        
-        print_fail("Login response format unexpected")
-        return None
-        
-    except Exception as e:
-        print_fail(f"Login flow failed with exception: {str(e)}")
-        return None
-
-def test_dashboard_stats(access_token: str) -> bool:
-    """Test 3: Dashboard aggregate stats (KEY TEST)"""
-    print_test("3. Dashboard Aggregate Stats (KEY TEST)")
-    
-    try:
-        auth_headers = {
-            **HEADERS,
-            "Authorization": f"Bearer {access_token}"
-        }
-        
-        response = requests.get(
-            f"{BASE_URL}/dashboard",
-            headers=auth_headers,
-            timeout=10
-        )
-        print_response(response)
-        
-        if response.status_code != 200:
-            print_fail(f"Dashboard request failed with status {response.status_code}")
-            return False
-        
-        data = response.json()
-        
-        # Check for required fields (backend doesn't always return "success" field)
-        dashboard_data = data.get("data", {})
-        
-        # KEY CHECKS: total_transactions and total_volume
-        total_transactions = dashboard_data.get("total_transactions", {})
-        total_volume = dashboard_data.get("total_volume", {})
-        
-        print_info("\n=== KEY METRICS ===")
-        print_info(f"total_transactions.count: {total_transactions.get('count')}")
-        print_info(f"total_volume.amount: {total_volume.get('amount')}")
-        print_info(f"total_volume.amount_formatted: {total_volume.get('amount_formatted')}")
-        
-        # Verify total_transactions.count > 0
-        txn_count = total_transactions.get("count", 0)
-        if txn_count > 0:
-            print_pass(f"total_transactions.count = {txn_count} (> 0) ✓")
-        else:
-            print_fail(f"total_transactions.count = {txn_count} (expected > 0)")
-            return False
-        
-        # Verify total_volume.amount > 0
-        volume_amount = total_volume.get("amount", 0)
-        if volume_amount > 0:
-            print_pass(f"total_volume.amount = {volume_amount} (> 0) ✓")
-        else:
-            print_fail(f"total_volume.amount = {volume_amount} (expected > 0)")
-            return False
-        
-        # Check other expected fields
-        if "today_summary" in dashboard_data:
-            print_pass("today_summary object present ✓")
-        else:
-            print_info("today_summary object missing (may be acceptable)")
-        
-        if "active_wallets" in dashboard_data:
-            print_pass("active_wallets object present ✓")
-        else:
-            print_info("active_wallets object missing (may be acceptable)")
-        
-        print_pass("Dashboard stats test PASSED - user has transaction history")
-        return True
-        
-    except Exception as e:
-        print_fail(f"Dashboard stats test failed with exception: {str(e)}")
-        return False
-
-def test_get_companies(access_token: str) -> Optional[list]:
-    """Test 4: Get companies for hostbay@moxx.co"""
-    print_test("4. Get Companies")
-    
-    try:
-        auth_headers = {
-            **HEADERS,
-            "Authorization": f"Bearer {access_token}"
-        }
-        
-        response = requests.get(
-            f"{BASE_URL}/company/getCompany",
-            headers=auth_headers,
-            timeout=10
-        )
-        print_response(response)
-        
-        if response.status_code != 200:
-            print_fail(f"Get companies request failed with status {response.status_code}")
-            return None
-        
-        data = response.json()
-        
-        # Backend doesn't always return "success" field, check for data directly
-        companies = data.get("data", [])
-        print_info(f"\n=== COMPANIES ({len(companies)}) ===")
-        for company in companies:
-            company_id = company.get("company_id") or company.get("id")
-            company_name = company.get("company_name") or company.get("name")
-            print_info(f"  - ID: {company_id}, Name: {company_name}")
-        
-        print_pass(f"Found {len(companies)} companies")
-        return companies
-        
-    except Exception as e:
-        print_fail(f"Get companies test failed with exception: {str(e)}")
-        return None
-
-def test_recent_transactions(access_token: str) -> bool:
-    """Test 5: Recent transactions"""
-    print_test("5. Recent Transactions")
-    
-    try:
-        auth_headers = {
-            **HEADERS,
-            "Authorization": f"Bearer {access_token}"
-        }
-        
-        # Try /api/dashboard/recent-transactions first
-        response = requests.get(
-            f"{BASE_URL}/dashboard/recent-transactions",
-            headers=auth_headers,
-            timeout=10
+            f"{BASE_URL}/pay/calculateFees",
+            json={"amount": 1000, "cryptocurrency": "BTC", "currency": "USD"},
+            headers={"Content-Type": "application/json"},
+            timeout=30
         )
         
-        print_info(f"Trying GET /api/dashboard/recent-transactions")
-        print_response(response)
-        
-        if response.status_code == 404:
-            print_info("Endpoint not found, trying alternative endpoints...")
-            
-            # Try /api/pay/getUserTransaction
-            response = requests.get(
-                f"{BASE_URL}/pay/getUserTransaction",
-                headers=auth_headers,
-                timeout=10
-            )
-            print_info(f"Trying GET /api/pay/getUserTransaction")
-            print_response(response)
+        print(f"Status: {response.status_code}")
         
         if response.status_code == 200:
             data = response.json()
+            print(f"Response (first 500 chars): {json.dumps(data, indent=2)[:500]}")
             
-            # Backend doesn't always return "success" field, check for data directly
-            transactions_data = data.get("data", {})
-            
-            # Handle both array and object responses
-            if isinstance(transactions_data, dict):
-                transactions = transactions_data.get("transactions", [])
+            # Assertions
+            if "data" in data and "fee_breakdown" in data["data"]:
+                fee_breakdown = data["data"]["fee_breakdown"]
+                platform_fee_percent = fee_breakdown.get("platform_fee_percent")
+                platform_fee = fee_breakdown.get("platform_fee")
+                
+                print(f"\nAssertion checks:")
+                print(f"  platform_fee_percent: {platform_fee_percent} (expected: 1.5)")
+                print(f"  platform_fee: {platform_fee} (expected: 15)")
+                
+                if platform_fee_percent == 1.5 and platform_fee == 15:
+                    results["part1"]["test1_usd_btc"] = "PASS"
+                    print("  ✅ PASS")
+                else:
+                    results["part1"]["test1_usd_btc"] = f"FAIL - platform_fee_percent={platform_fee_percent}, platform_fee={platform_fee}"
+                    print(f"  ❌ FAIL")
             else:
-                transactions = transactions_data
-            
-            print_info(f"\n=== RECENT TRANSACTIONS ({len(transactions)}) ===")
-            
-            for i, txn in enumerate(transactions[:5], 1):
-                status = txn.get("status", "unknown")
-                amount = txn.get("amount") or txn.get("base_amount", 0)
-                currency = txn.get("currency") or txn.get("base_currency", "")
-                print_info(f"  {i}. Status: {status}, Amount: {amount} {currency}")
-            
-            print_pass(f"Found {len(transactions)} recent transactions")
-            return True
+                results["part1"]["test1_usd_btc"] = "FAIL - Missing fee_breakdown in response"
+                print("  ❌ FAIL - Missing fee_breakdown")
         else:
-            print_fail(f"Recent transactions request failed with status {response.status_code}")
-            return False
-        
+            results["part1"]["test1_usd_btc"] = f"FAIL - HTTP {response.status_code}"
+            print(f"  ❌ FAIL - HTTP {response.status_code}")
+            print(f"Response: {response.text[:500]}")
     except Exception as e:
-        print_fail(f"Recent transactions test failed with exception: {str(e)}")
-        return False
+        results["part1"]["test1_usd_btc"] = f"ERROR - {str(e)}"
+        print(f"  ❌ ERROR: {e}")
+    
+    # Test 2: EUR with ETH
+    print("\n\nTest 1.2: POST /api/pay/calculateFees (EUR, ETH)")
+    try:
+        response = requests.post(
+            f"{BASE_URL}/pay/calculateFees",
+            json={"amount": 1000, "cryptocurrency": "ETH", "currency": "EUR"},
+            headers={"Content-Type": "application/json"},
+            timeout=30
+        )
+        
+        print(f"Status: {response.status_code}")
+        
+        if response.status_code == 200:
+            data = response.json()
+            print(f"Response (first 500 chars): {json.dumps(data, indent=2)[:500]}")
+            
+            if "data" in data and "fee_breakdown" in data["data"]:
+                fee_breakdown = data["data"]["fee_breakdown"]
+                platform_fee_percent = fee_breakdown.get("platform_fee_percent")
+                
+                print(f"\nAssertion checks:")
+                print(f"  platform_fee_percent: {platform_fee_percent} (expected: 1.5)")
+                
+                if platform_fee_percent == 1.5:
+                    results["part1"]["test2_eur_eth"] = "PASS"
+                    print("  ✅ PASS")
+                else:
+                    results["part1"]["test2_eur_eth"] = f"FAIL - platform_fee_percent={platform_fee_percent}"
+                    print(f"  ❌ FAIL")
+            else:
+                results["part1"]["test2_eur_eth"] = "FAIL - Missing fee_breakdown in response"
+                print("  ❌ FAIL - Missing fee_breakdown")
+        else:
+            results["part1"]["test2_eur_eth"] = f"FAIL - HTTP {response.status_code}"
+            print(f"  ❌ FAIL - HTTP {response.status_code}")
+    except Exception as e:
+        results["part1"]["test2_eur_eth"] = f"ERROR - {str(e)}"
+        print(f"  ❌ ERROR: {e}")
+    
+    results["part1"]["status"] = "COMPLETED"
+
+def test_part2_dashboard_fee_tiers():
+    """Part 2 - Authenticated dashboard fee-tiers endpoint"""
+    print_section("PART 2: Authenticated Dashboard Fee-Tiers Endpoint")
+    
+    print("Test 2.1: GET /api/dashboard/fee-tiers (with hostbay JWT)")
+    try:
+        response = requests.get(
+            f"{BASE_URL}/dashboard/fee-tiers",
+            headers={
+                "Authorization": f"Bearer {HOSTBAY_JWT}",
+                "Content-Type": "application/json"
+            },
+            timeout=30
+        )
+        
+        print(f"Status: {response.status_code}")
+        
+        if response.status_code == 200:
+            data = response.json()
+            print(f"\nFull Response:\n{json.dumps(data, indent=2)}")
+            
+            # Detailed assertions
+            print(f"\n{'='*60}")
+            print("DETAILED ASSERTIONS:")
+            print(f"{'='*60}")
+            
+            passed = True
+            
+            # Check tiers array
+            if "data" in data and "tiers" in data["data"]:
+                tiers = data["data"]["tiers"]
+                print(f"\n✓ data.tiers exists: {len(tiers)} tiers found")
+                
+                if len(tiers) == 4:
+                    print(f"✓ Exactly 4 tiers present")
+                    
+                    # Expected tier structure
+                    expected_tiers = [
+                        {"index": 0, "name": "starter", "display_name": "Starter", "percent": 1.5, "min_volume": 0, "max_volume": 10000},
+                        {"index": 1, "name": "growth", "display_name": "Growth", "percent": 1.0, "min_volume": 10000, "max_volume": 100000},
+                        {"index": 2, "name": "scale", "display_name": "Scale", "percent": 0.7, "min_volume": 100000, "max_volume": 500000},
+                        {"index": 3, "name": "enterprise", "display_name": "Enterprise", "percent": 0.5, "min_volume": 500000, "max_volume": None}
+                    ]
+                    
+                    print(f"\nTier-by-tier validation:")
+                    for i, expected in enumerate(expected_tiers):
+                        if i < len(tiers):
+                            tier = tiers[i]
+                            print(f"\n  Tier {i} ({expected['name']}):")
+                            print(f"    name: {tier.get('name')} (expected: {expected['name']}) {'✓' if tier.get('name') == expected['name'] else '✗'}")
+                            print(f"    display_name: {tier.get('display_name')} (expected: {expected['display_name']}) {'✓' if tier.get('display_name') == expected['display_name'] else '✗'}")
+                            print(f"    percent: {tier.get('percent')} (expected: {expected['percent']}) {'✓' if tier.get('percent') == expected['percent'] else '✗'}")
+                            print(f"    min_volume: {tier.get('min_volume')} (expected: {expected['min_volume']}) {'✓' if tier.get('min_volume') == expected['min_volume'] else '✗'}")
+                            print(f"    max_volume: {tier.get('max_volume')} (expected: {expected['max_volume']}) {'✓' if tier.get('max_volume') == expected['max_volume'] else '✗'}")
+                            
+                            # Check if all fields match
+                            if (tier.get('name') != expected['name'] or 
+                                tier.get('display_name') != expected['display_name'] or
+                                tier.get('percent') != expected['percent'] or
+                                tier.get('min_volume') != expected['min_volume'] or
+                                tier.get('max_volume') != expected['max_volume']):
+                                passed = False
+                else:
+                    print(f"✗ Expected 4 tiers, got {len(tiers)}")
+                    passed = False
+            else:
+                print(f"✗ data.tiers not found in response")
+                passed = False
+            
+            # Check user_tier object
+            if "data" in data and "user_tier" in data["data"]:
+                user_tier = data["data"]["user_tier"]
+                print(f"\n✓ data.user_tier exists")
+                
+                # hostbay has $17,357 lifetime volume, which should map to Growth tier (1.0%)
+                # Note: The test request says it should be Growth based on volume, not the DB column
+                print(f"\n  User tier details:")
+                print(f"    current_tier: {user_tier.get('current_tier')} (expected: Growth)")
+                print(f"    current_tier_key: {user_tier.get('current_tier_key')} (expected: growth)")
+                print(f"    current_tier_percent: {user_tier.get('current_tier_percent')} (expected: 1.0)")
+                print(f"    next_tier: {user_tier.get('next_tier')} (expected: Scale)")
+                print(f"    next_tier_key: {user_tier.get('next_tier_key')} (expected: scale)")
+                print(f"    next_tier_percent: {user_tier.get('next_tier_percent')} (expected: 0.7)")
+                print(f"    total_volume: {user_tier.get('total_volume')} (expected: ~17357.55)")
+                
+                # Validate user_tier fields
+                if (user_tier.get('current_tier') == "Growth" and
+                    user_tier.get('current_tier_key') == "growth" and
+                    user_tier.get('current_tier_percent') == 1.0 and
+                    user_tier.get('next_tier') == "Scale" and
+                    user_tier.get('next_tier_key') == "scale" and
+                    user_tier.get('next_tier_percent') == 0.7 and
+                    abs(float(user_tier.get('total_volume', 0)) - 17357.55) < 100):  # Allow some variance
+                    print(f"\n  ✓ All user_tier fields match expected values")
+                else:
+                    print(f"\n  ✗ Some user_tier fields don't match expected values")
+                    passed = False
+            else:
+                print(f"✗ data.user_tier not found in response")
+                passed = False
+            
+            # Check for is_current flag
+            if "data" in data and "tiers" in data["data"]:
+                current_tiers = [t for t in data["data"]["tiers"] if t.get("is_current")]
+                if len(current_tiers) == 1 and current_tiers[0].get("name") == "growth":
+                    print(f"\n✓ Exactly ONE tier has is_current=true (growth tier)")
+                else:
+                    print(f"\n✗ Expected exactly one tier with is_current=true (growth), found {len(current_tiers)}")
+                    if current_tiers:
+                        print(f"  Current tiers: {[t.get('name') for t in current_tiers]}")
+                    passed = False
+            
+            if passed:
+                results["part2"]["status"] = "PASS"
+                print(f"\n{'='*60}")
+                print("✅ PART 2: PASS - All assertions passed")
+                print(f"{'='*60}")
+            else:
+                results["part2"]["status"] = "FAIL"
+                print(f"\n{'='*60}")
+                print("❌ PART 2: FAIL - Some assertions failed")
+                print(f"{'='*60}")
+        else:
+            results["part2"]["status"] = f"FAIL - HTTP {response.status_code}"
+            print(f"  ❌ FAIL - HTTP {response.status_code}")
+            print(f"Response: {response.text[:500]}")
+    except Exception as e:
+        results["part2"]["status"] = f"ERROR - {str(e)}"
+        print(f"  ❌ ERROR: {e}")
+
+def test_part6_regression():
+    """Part 6 - Regression: no existing endpoint broke"""
+    print_section("PART 6: Regression Tests")
+    
+    endpoints = [
+        {"method": "GET", "path": "/health", "auth": False},
+        {"method": "GET", "path": "/api/", "auth": False},
+        {"method": "GET", "path": "/api/csrf-token", "auth": False},
+        {"method": "GET", "path": "/api/dashboard", "auth": True},
+        {"method": "GET", "path": "/api/dashboard/recent-transactions", "auth": True},
+        {"method": "POST", "path": "/api/pay/calculateFees", "auth": False, "body": {"amount": 100, "cryptocurrency": "BTC", "currency": "USD"}},
+    ]
+    
+    regression_results = {}
+    
+    for endpoint in endpoints:
+        path = endpoint["path"]
+        method = endpoint["method"]
+        auth = endpoint["auth"]
+        body = endpoint.get("body")
+        
+        print(f"\nTesting: {method} {path}")
+        
+        try:
+            headers = {"Content-Type": "application/json"}
+            if auth:
+                headers["Authorization"] = f"Bearer {HOSTBAY_JWT}"
+            
+            # Construct full URL
+            if path.startswith("/api/"):
+                url = f"{BASE_URL.rsplit('/api', 1)[0]}{path}"
+            else:
+                url = f"{BASE_URL.rsplit('/api', 1)[0]}{path}"
+            
+            if method == "GET":
+                response = requests.get(url, headers=headers, timeout=30)
+            elif method == "POST":
+                response = requests.post(url, json=body, headers=headers, timeout=30)
+            
+            status = response.status_code
+            print(f"  Status: {status}")
+            
+            if status == 200:
+                regression_results[path] = "✅ 200"
+            else:
+                regression_results[path] = f"❌ {status}"
+                print(f"  Response: {response.text[:200]}")
+        except Exception as e:
+            regression_results[path] = f"❌ ERROR: {str(e)}"
+            print(f"  ERROR: {e}")
+    
+    print(f"\n{'='*60}")
+    print("REGRESSION TEST SUMMARY:")
+    print(f"{'='*60}")
+    for path, result in regression_results.items():
+        print(f"  {path}: {result}")
+    
+    # Check if all passed
+    all_passed = all("✅" in result for result in regression_results.values())
+    results["part6"]["status"] = "PASS" if all_passed else "FAIL"
+    results["part6"]["details"] = regression_results
 
 def main():
-    """Run all backend tests"""
-    print(f"\n{Colors.BOLD}{'='*80}{Colors.RESET}")
-    print(f"{Colors.BOLD}DynoPay Backend Testing - Railway PostgreSQL Setup{Colors.RESET}")
-    print(f"{Colors.BOLD}{'='*80}{Colors.RESET}")
-    print(f"Base URL: {BASE_URL}")
-    print(f"Test User: {TEST_EMAIL}")
-    print(f"Redis: {REDIS_URL.split('@')[1]}")
+    print(f"\n{'#'*80}")
+    print(f"#  VOLUME-BASED FEE TIER SYSTEM - BACKEND API TESTING")
+    print(f"#  Test Date: 2026-07-07")
+    print(f"#  Base URL: {BASE_URL}")
+    print(f"{'#'*80}\n")
     
-    results = {}
+    # Run all tests
+    test_part1_public_fee_calculator()
+    test_part2_dashboard_fee_tiers()
+    test_part6_regression()
     
-    # Test 1: Health check
-    results["health_check"] = test_health_check()
+    # Final summary
+    print(f"\n\n{'#'*80}")
+    print(f"#  FINAL TEST SUMMARY")
+    print(f"{'#'*80}\n")
     
-    # Test 2: Login flow
-    access_token = test_login_flow()
-    results["login_flow"] = access_token is not None
+    print("PART 1 (Public Fee Calculator):")
+    if "test1_usd_btc" in results["part1"]:
+        print(f"  Test 1.1 (USD/BTC): {results['part1']['test1_usd_btc']}")
+    if "test2_eur_eth" in results["part1"]:
+        print(f"  Test 1.2 (EUR/ETH): {results['part1']['test2_eur_eth']}")
     
-    if not access_token:
-        print_fail("\n❌ Cannot proceed with authenticated tests - login failed")
-        print_summary(results)
-        return
+    print(f"\nPART 2 (Dashboard Fee Tiers): {results['part2']['status']}")
     
-    # Test 3: Dashboard stats (KEY TEST)
-    results["dashboard_stats"] = test_dashboard_stats(access_token)
+    print(f"\nPART 6 (Regression Tests): {results['part6']['status']}")
+    if results["part6"].get("details"):
+        for path, result in results["part6"]["details"].items():
+            print(f"  {path}: {result}")
     
-    # Test 4: Get companies
-    companies = test_get_companies(access_token)
-    results["get_companies"] = companies is not None
-    
-    # Test 5: Recent transactions
-    results["recent_transactions"] = test_recent_transactions(access_token)
-    
-    # Print summary
-    print_summary(results)
-
-def print_summary(results: Dict[str, bool]):
-    """Print test summary"""
-    print(f"\n{Colors.BOLD}{'='*80}{Colors.RESET}")
-    print(f"{Colors.BOLD}TEST SUMMARY{Colors.RESET}")
-    print(f"{Colors.BOLD}{'='*80}{Colors.RESET}")
-    
-    total = len(results)
-    passed = sum(1 for v in results.values() if v)
-    
-    for test_name, passed_flag in results.items():
-        status = f"{Colors.GREEN}✓ PASS{Colors.RESET}" if passed_flag else f"{Colors.RED}✗ FAIL{Colors.RESET}"
-        print(f"{status} - {test_name}")
-    
-    print(f"\n{Colors.BOLD}Total: {passed}/{total} tests passed{Colors.RESET}")
-    
-    if passed == total:
-        print(f"{Colors.GREEN}{Colors.BOLD}🎉 ALL TESTS PASSED{Colors.RESET}")
-    else:
-        print(f"{Colors.RED}{Colors.BOLD}❌ SOME TESTS FAILED{Colors.RESET}")
+    print(f"\n{'#'*80}\n")
 
 if __name__ == "__main__":
     main()

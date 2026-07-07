@@ -30,7 +30,7 @@
   "yourProgressTowardsTheNextFeeTier": "Your progress toward the next fee tier",
   "monthlyVolume": "Monthly Volume",
   "upgradeToPremiumTier": "Upgrade to Premium Tier",
-  "lowerFeesAndPrioritySupport": "Lower fees (0.5%) and priority support",
+  "lowerFeesAndPrioritySupport": "Fees drop as your volume grows — as low as 0.5%",
   "learnMore": "Learn more",
   "currentTier": "Current Tier",
   "toNextTier": "to next tier",
@@ -121,5 +121,6 @@
   "obExpandChecklist": "Expand setup checklist",
   "obCollapseChecklist": "Collapse setup checklist",
   "obPaymentLabel": "Receive your first payment",
-  "obPaymentDesc": "Share your payment link and get paid"
+  "obPaymentDesc": "Share your payment link and get paid",
+  "nextTierHint": "Reach {next} tier for {pct} fees (save {savings})"
 }
