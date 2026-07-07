@@ -1,3 +1,10 @@
+## 2026-07-07 — Feature A (dashboard bento reskin) — Phase 1: DARK MODE DONE ✅ (tested), light-mode + residual-blue cleanup REMAINING
+- Created styles/appTheme.ts (appThemeDark/appThemeLight) = createTheme(themeDark/theme, bento palette) — cyber-lime accent, void/frost canvas; re-declared custom MuiButton variants (rounded/pills/bluepill) with accent; set BOTH primary & secondary to the accent (old theme used one blue for both, so many dashboard elements read `secondary`). Wired into _app.tsx `default` (client) layout case. Fixed hardcoded blues in Components/Page/Wallet/index.tsx (→ palette tokens).
+- Testing agent (read-only, JWT): DARK MODE PASS — lime dominant (dashboard 124 lime / 18 blue, wallet 211/19, pay-links 68/17, profile 78/17), renders, no console errors. NewSidebar/dashboard widgets already palette-driven → now lime.
+- REMAINING for A: (1) LIGHT mode polish — applies (frost + near-black buttons w/ lime text) but agent judged it not "lime-forward" (by design for light) — needs a visual design pass; (2) ~14-18 residual blue elements per page from COMPONENT-LEVEL hardcoded #0004FF/#6C7BFF (RadioGroup, EmailVerificationBanner, CustomButton, some selects/borders) — need a per-component sweep to palette tokens. theme.ts #0004FF are all in MuiButton variants (already overridden in appTheme); homeTheme is standalone (landing NOT affected); theme2.ts (#1034A6) appears unused.
+- NOTE: auto_frontend_testing_agent re-routed the DashboardAction import in OnboardingFlow/index.tsx to the @/Redux/Actions barrel (functionally equivalent; lints clean). CHECKPOINTED with user on how to proceed with A's remaining light-mode + blue-cleanup (iterative, needs testing-agent visual QA each cycle).
+
+
 # PROGRESS LOG (most recent on top)
 
 ## 2026-07-07 — Features B & C DONE ✅ (tested by testing agent, read-only)
