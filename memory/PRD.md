@@ -5,6 +5,18 @@ USDT-TRC20 payment gateway platform. Users can create companies, wallets, paymen
 
 ## What's Been Implemented
 
+### 2026-07-07 — i18n "Batch A": high-priority merchant pages ✅ VERIFIED
+- Internationalized 4 merchant surfaces across all 6 locales (en/pt/fr/es/de/nl):
+  - **Referrals** (`pages/referrals.tsx`, `referrals` ns): How It Works 3-steps, You Get/They Get reward cards, Fee Discount panel (+ `daysRemaining` interpolation), Earnings Breakdown, My Referrals table, Leaderboard (`referralsCount`/`you` interpolation). ~21 keys added.
+  - **Invoices & Tax** (`pages/invoices.tsx`, keys nested under `common.invoices`): tabs, invoice table headers, empty state, pagination, period/group dropdowns, Export CSV/Print, Total Revenue/Tax Collected/Total Invoices cards, Tax-by-Period + Tax-by-Jurisdiction tables. ~40 keys.
+  - **Customers** (`pages/customers.tsx` + `Components/Page/Customers/index.tsx`, keys nested under `common.customers`; added `useTranslation` to both): stat cards, search, table, detail dialog, wallet credit/debit modal, toasts (`creditSuccess`/`debitSuccess`/`txns` interpolation). ~46 keys.
+  - **Profile** (`AccountSetting.tsx`, `UpdatePassword.tsx`, `LoginActivity.tsx`, `AddContactInfo.tsx`, `profile` ns): email/phone change + OTP dialogs, Set/Update Password OTP flow, Login Activity relative-time labels + Flagged, all validation/toast strings. ~57 keys.
+- Keys injected via `scripts/i18n_batchA.js` (merges into referrals.json, common.json[invoices/customers], profile.json ×6 locales). `invoices`/`customers` reuse the already-loaded `common` namespace to avoid touching the large `i18n.js` loader.
+- Fixed a `search_replace` tail-corruption crash on `pages/referrals.tsx` (`errals is not defined`).
+- **Verified** by frontend testing agent (iteration 20): 4/4 pages render translated in EN/DE/NL, no raw dotted keys leak, /referrals crash fixed. No data mutations performed (live-prod-safe).
+- Minor/optional (non-blocking): "Unknown" jurisdiction label in Tax-by-Jurisdiction is backend-supplied data (not a UI key).
+
+
 ### 2026-07-07 — UX microcopy pass + i18n hardening (auth / wallet / payment-link) ✅ VERIFIED
 User asked to fix "some pages still in English after switching", do a UX-copy pass across auth/payment-link/wallet, write a copy style guide, and remove the `t()||"English"` fallback anti-pattern. Delivered (order per user):
 - **Auth register page fully internationalized** (`pages/auth/register.tsx`) — it was the main "still English" offender: ~19 hardcoded strings (Google button, divider, Email/Mobile toggle, labels/placeholders, referral link, Continue, footer, OTP-step titles/subtitles, account-exists banner, "Change email/phone", success-step copy). All now use `t()` (auth ns). 18 new keys added × 6 langs. **Note:** the Email/Mobile segmented toggle needed a second edit — the first `search_replace` silently no-op'd (recurring tool bug) and also appended a corrupted `xport default` line to `AddWalletModal.tsx` which had to be repaired.
