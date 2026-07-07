@@ -115,5 +115,7 @@
   "obProgress": "{{completed}} van {{total}} klaar — een paar snelle stappen om crypto te accepteren",
   "obLockedStep": "Voltooi eerst de bovenstaande stap",
   "obExpandChecklist": "Configuratielijst uitvouwen",
-  "obCollapseChecklist": "Configuratielijst inklappen"
+  "obCollapseChecklist": "Configuratielijst inklappen",
+  "obPaymentLabel": "Ontvang je eerste betaling",
+  "obPaymentDesc": "Deel je betaallink en word betaald"
 }

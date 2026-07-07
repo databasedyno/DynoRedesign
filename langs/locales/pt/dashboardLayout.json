@@ -115,5 +115,7 @@
   "obProgress": "{{completed}} de {{total}} concluídos — alguns passos rápidos para começar a aceitar cripto",
   "obLockedStep": "Conclua primeiro o passo acima",
   "obExpandChecklist": "Expandir lista de configuração",
-  "obCollapseChecklist": "Recolher lista de configuração"
+  "obCollapseChecklist": "Recolher lista de configuração",
+  "obPaymentLabel": "Receba seu primeiro pagamento",
+  "obPaymentDesc": "Compartilhe seu link de pagamento e receba"
 }

@@ -32,6 +32,7 @@ import Warning from "@/assets/Icons/Warning";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { currencyOptions } from "@/pages/pay";
 import { formatWithSeparators } from "@/utils/currencyFormat";
+import { useTranslation } from "react-i18next";
 
 interface BankTransferCompoProps {
   activeStep: number;
@@ -51,6 +52,7 @@ const BankTransferCompo = ({
   redirectUrl,
 }: BankTransferCompoProps) => {
   const theme = useTheme();
+  const { t } = useTranslation("common");
   const isDark = theme.palette.mode === 'dark';
   const [currencyRates, setCurrencyRates] = useState<currencyData[]>();
   const [selectedCurrency, setSelectedCurrency] = useState<currencyData>();
@@ -71,7 +73,7 @@ const BankTransferCompo = ({
       dispatch({
         type: TOAST_SHOW,
         payload: {
-          message: "No account number to copy.",
+          message: t("checkout.noAccountToCopy"),
           severity: "warning",
         },
       });
@@ -212,7 +214,7 @@ const BankTransferCompo = ({
         dispatch({
           type: TOAST_SHOW,
           payload: {
-            message: "Payment not verified.",
+            message: t("checkout.paymentNotVerified"),
             severity: "error",
           },
         });
@@ -288,7 +290,7 @@ const BankTransferCompo = ({
                 height="29"
                 style={{ color: "#5865F2" }}
               />
-              NGN Bank Transfer
+              {t("checkout.ngnBankTransfer")}
             </Typography>
 
             {/* Bank Details */}
@@ -299,7 +301,7 @@ const BankTransferCompo = ({
                 fontFamily="Space Grotesk"
                 color={theme.palette.text.secondary}
               >
-                Bank Name:
+                {t("checkout.bankName")}
               </Typography>
               <Box display="flex" alignItems="center" gap={1}>
                 {transferDetails?.transfer_bank ? (
@@ -333,7 +335,7 @@ const BankTransferCompo = ({
                 fontFamily="Space Grotesk"
                 color={theme.palette.text.secondary}
               >
-                Account Number:
+                {t("checkout.accountNumber")}
               </Typography>
               <Box display="flex" alignItems="center" gap={1} mb={"4px"}>
                 {transferDetails?.transfer_account ? (
@@ -353,7 +355,7 @@ const BankTransferCompo = ({
                     sx={{ borderRadius: "6px", background: isDark ? 'rgba(108, 123, 255, 0.1)' : "#F5F8FF" }}
                   />
                 )}
-                <Tooltip title="Copy">
+                <Tooltip title={t("checkout.copy")}>
                   <IconButton
                     onClick={handleCopy}
                     size="small"
@@ -366,7 +368,7 @@ const BankTransferCompo = ({
                     }}
                   >
                     <CopyIcon />
-                    Copy
+                    {t("checkout.copy")}
                   </IconButton>
                 </Tooltip>
               </Box>
@@ -377,7 +379,7 @@ const BankTransferCompo = ({
                   color={theme.palette.text.secondary}
                   fontFamily="Space Grotesk"
                 >
-                  This account number is unique for each transaction.
+                  {t("checkout.accountUnique")}
                 </Typography>
               </Box>
 
@@ -388,7 +390,7 @@ const BankTransferCompo = ({
                 fontFamily="Space Grotesk"
                 color={theme.palette.text.secondary}
               >
-                Recipient:
+                {t("checkout.recipient")}
               </Typography>
               <Typography
                 fontWeight="600"
@@ -426,8 +428,7 @@ const BankTransferCompo = ({
                 fontFamily="Space Grotesk"
                 lineHeight="100%"
               >
-                Secure bank transfer with automatic confirmation. No need to
-                notify us!
+                {t("checkout.secureTransfer")}
               </Typography>
             </Box>
 
@@ -448,7 +449,7 @@ const BankTransferCompo = ({
                     fontWeight="500"
                     fontFamily="Space Grotesk"
                   >
-                    To Pay:
+                    {t("checkout.toPay")}
                   </Typography>
                   <Box textAlign={"end"}>
                     {transferDetails?.transfer_amount ? (
@@ -510,7 +511,7 @@ const BankTransferCompo = ({
                     fontFamily="Space Grotesk"
                     color={theme.palette.text.primary}
                   >
-                    Invoice expires in: {formatTime(timeLeft)}
+                    {t("checkout.invoiceExpiresIn")} {formatTime(timeLeft)}
                   </Typography>
                 </Box>
                 <Button
@@ -534,7 +535,7 @@ const BankTransferCompo = ({
                     },
                   }}
                 >
-                  I’ve made the payment
+                  {t("checkout.madePayment")}
                 </Button>
               </CardContent>
             </Card>
@@ -546,3 +547,4 @@ const BankTransferCompo = ({
 };
 
 export default BankTransferCompo;
+

@@ -40,6 +40,7 @@ export interface DashboardState {
   recentTransactions: any[];
   loading: boolean;
   chartLoading: boolean;
+  fetched: boolean;
 }
 
 const dashboardInitialState: DashboardState = {
@@ -62,6 +63,7 @@ const dashboardInitialState: DashboardState = {
   recentTransactions: [],
   loading: false,
   chartLoading: false,
+  fetched: false,
 };
 
 const dashboardReducer = (

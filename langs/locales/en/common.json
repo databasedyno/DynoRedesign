@@ -60,7 +60,18 @@
     "validPaymentLinkRequired": "Please use a valid payment link to proceed with checkout.",
     "goToHomepage": "Go to Homepage",
     "paymentLinkExpired": "This payment link has expired. Please contact the merchant for a new link.",
-    "memoTag": "Memo / Tag"
+    "memoTag": "Memo / Tag",
+    "back": "Back",
+    "ngnBankTransfer": "NGN Bank Transfer",
+    "bankName": "Bank Name:",
+    "accountNumber": "Account Number:",
+    "copy": "Copy",
+    "accountUnique": "This account number is unique for each transaction.",
+    "recipient": "Recipient:",
+    "secureTransfer": "Secure bank transfer with automatic confirmation. No need to notify us!",
+    "madePayment": "I've made the payment",
+    "noAccountToCopy": "No account number to copy.",
+    "paymentNotVerified": "Payment not verified."
   },
   "crypto": {
     "title": "Cryptocurrency",

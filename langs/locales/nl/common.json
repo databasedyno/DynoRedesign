@@ -38,7 +38,18 @@
     "validPaymentLinkRequired": "Gebruik een geldige betalingslink om door te gaan met afrekenen.",
     "goToHomepage": "Naar Startpagina",
     "paymentLinkExpired": "Deze betalingslink is verlopen. Neem contact op met de verkoper voor een nieuwe link.",
-    "memoTag": "Memo / Tag"
+    "memoTag": "Memo / Tag",
+    "back": "Terug",
+    "ngnBankTransfer": "NGN-bankoverschrijving",
+    "bankName": "Banknaam:",
+    "accountNumber": "Rekeningnummer:",
+    "copy": "Kopiëren",
+    "accountUnique": "Dit rekeningnummer is uniek voor elke transactie.",
+    "recipient": "Ontvanger:",
+    "secureTransfer": "Veilige bankoverschrijving met automatische bevestiging. U hoeft ons niet te informeren!",
+    "madePayment": "Ik heb de betaling gedaan",
+    "noAccountToCopy": "Geen rekeningnummer om te kopiëren.",
+    "paymentNotVerified": "Betaling niet geverifieerd."
   },
   "crypto": {
     "title": "Cryptovaluta",

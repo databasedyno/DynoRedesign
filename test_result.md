@@ -1,3 +1,132 @@
+## TEST REQUEST (2026-07-07) — Feature B (checkout /pay i18n) + Feature C (onboarding "first payment" milestone)
+
+### ⚠️ SAFETY — LIVE PRODUCTION. READ-ONLY / NAVIGATION / LANGUAGE-SWITCH ONLY.
+Do NOT submit login/register/forgot forms, do NOT create accounts/companies/links, do NOT do wallet credit/debit, do NOT trigger any real payment/OTP/email. Use JWT injection for logged-in pages.
+Preview URL: https://blockchain-gateway-10.preview.emergentagent.com
+JWTs: `node /app/scripts/mint_ux_tokens.js` (prints hostbay@moxx.co [data-rich], qa.empty [user_id 8: nothing set up], qa.onboard [user_id 3: 1 company only]). Inject via `localStorage.setItem('token','<JWT>')` then navigate. Language: localStorage `lang` + `lang_manual='true'` then reload.
+
+### FEATURE B — checkout /pay bank-transfer + Back i18n
+Note: the NGN bank-transfer screen renders only on a live checkout (creating a payment = mutation) — DO NOT trigger it. Instead verify the i18n plumbing on the safe checkout surfaces:
+1. Visit `/pay/terms-of-service` and `/pay/aml-policy` in EN, then switch to DE and FR (localStorage lang + reload). Confirm the "Back" button text translates (EN "Back" → DE "Zurück" → FR "Retour") and the page renders without console errors.
+Report PASS/FAIL with the observed Back-button text per language.
+
+### FEATURE C — onboarding "Receive your first payment" milestone
+The onboarding checklist now has a 4th step "Receive your first payment" and stays visible (nudging) until the merchant has ≥1 transaction; it hides for fully-onboarded merchants with payments.
+1. Inject qa.empty (user_id 8) JWT → `/dashboard`. Expect the onboarding checklist to show with **4 steps**: Set up company / Add a wallet / Create a payment link / **Receive your first payment**, progress "0 of 4". Screenshot. No console errors.
+2. Inject qa.onboard (user_id 3) JWT → `/dashboard`. Expect checklist showing, company step DONE, progress "1 of 4", the 4th "Receive your first payment" step present (locked/pending). Screenshot.
+3. Inject hostbay@moxx.co JWT → `/dashboard`. This account has transactions ($18k) → expect the onboarding checklist to be HIDDEN (no regression), dashboard KPIs render normally, no console errors. Screenshot.
+4. (i18n bonus) With qa.empty + lang=de, confirm the 4th step label shows the German text ("Erhalten Sie Ihre erste Zahlung").
+Report a matrix: per account — checklist visible? step count / progress? 4th step present + label? console errors?
+
+### Expected
+B: Back button translates on the 2 legal pages. C: qa.empty shows 4-step checklist (0/4), qa.onboard 1/4 with 4th step present, hostbay hides checklist (has payments), no console errors, DE label correct.
+
+---
+
+## VERIFICATION RESULTS (2026-07-07) — Feature B + C ✅ ALL PASSED
+
+### TEST EXECUTION
+- agent: testing (auto_frontend_testing_agent)
+- test_date: 2026-07-07 11:59-12:02 UTC
+- test_url: https://blockchain-gateway-10.preview.emergentagent.com
+- verification_method: Playwright UI testing with JWT injection (READ-ONLY, no mutations)
+- safety_compliance: ✅ NO forms submitted, NO data mutations, NO OTP/email triggers
+
+### FEATURE B — /pay Back button i18n ✅ ALL PASSED (6/6)
+
+**Test Results:**
+- ✅ /pay/terms-of-service (EN): Back button shows "Back"
+- ✅ /pay/terms-of-service (DE): Back button shows "Zurück"
+- ✅ /pay/terms-of-service (FR): Back button shows "Retour"
+- ✅ /pay/aml-policy (EN): Back button shows "Back"
+- ✅ /pay/aml-policy (DE): Back button shows "Zurück"
+- ✅ /pay/aml-policy (FR): Back button shows "Retour"
+
+**Verification Details:**
+- BackButton component correctly uses `t('checkout.back')` from common namespace
+- Translation keys verified in all 3 languages:
+  - en/common.json: "checkout.back": "Back"
+  - de/common.json: "checkout.back": "Zurück"
+  - fr/common.json: "checkout.back": "Retour"
+- Language switching works correctly via localStorage (lang + lang_manual='true')
+- No console errors on any page
+- Screenshots: feature_b_terms_de_back_button.png
+
+**VERDICT: ✅ PASS** - Back button i18n working correctly on both legal pages in all 3 languages
+
+### FEATURE C — Onboarding "Receive your first payment" milestone ✅ ALL PASSED (4/4)
+
+**Test Case 1: qa.empty (user_id 8) - NO company, NO wallet** ✅ PASS
+- Onboarding checklist: VISIBLE ✅
+- Number of steps: 4 ✅
+  1. onboarding-step-company: "Create your company"
+  2. onboarding-step-wallet: "Add a payout wallet"
+  3. onboarding-step-link: "Create your first payment link"
+  4. onboarding-step-payment: "Receive your first payment" ✅
+- Progress text: "0 of 4 done" ✅
+- 4th step present: YES ✅
+- 4th step label: "Receive your first payment" ✅
+- Screenshot: feature_c_qa_empty_english_detailed.png
+
+**Test Case 2: qa.onboard (user_id 3) - 1 company only** ✅ PASS
+- Onboarding checklist: VISIBLE ✅
+- Number of steps: 4 ✅
+- Progress text: "1 of 4 done" ✅
+- Company step status: DONE (green checkmark) ✅
+- 4th step present: YES ✅
+- 4th step label: "Receive your first payment" ✅
+- 4th step status: LOCKED (pending - "Complete the step above first") ✅
+- Screenshot: feature_c_qa_onboard_english_detailed.png
+
+**Test Case 3: hostbay@moxx.co - HAS transactions ($18k)** ✅ PASS
+- Onboarding checklist: HIDDEN ✅ (as expected)
+- Dashboard KPI cards: Rendering normally ✅
+- Console errors: NONE ✅
+- No regression detected ✅
+- Screenshot: feature_c_hostbay_dashboard.png
+
+**Test Case 4: qa.empty with German (DE) - i18n verification** ✅ PASS
+- 4th step German label: "Erhalten Sie Ihre erste Zahlung" ✅
+- Translation key verified: de/dashboardLayout.json: "obPaymentLabel": "Erhalten Sie Ihre erste Zahlung"
+- Progress text in German: "0 von 4 erledigt" ✅
+- Screenshot: feature_c_qa_empty_german.png
+
+**Verification Details:**
+- OnboardingFlow component correctly defines 4 steps (company, wallet, link, payment)
+- 4th step uses key="payment", label=t("obPaymentLabel"), icon=PaymentsRounded
+- Checklist visibility logic working correctly:
+  - Shows when: !hasCompany OR !hasWallet OR !hasLink OR !hasPayment
+  - Hides when: hasPayment = true (derived from dashboardState.stats.totalTransactions > 0)
+- Progress calculation: "X of 4 done" where X = number of completed steps
+- Step locking logic: steps after first incomplete step show "Complete the step above first"
+- i18n working correctly in both EN and DE
+
+**VERDICT: ✅ PASS** - All 4 test cases passed. The 4th onboarding step "Receive your first payment" is correctly implemented, displays proper progress, hides for merchants with transactions, and translates correctly to German.
+
+### FINAL VERDICT ✅ ALL TESTS PASSED
+
+**FEATURE B Summary:**
+- ✅ /pay/terms-of-service Back button translates correctly (EN/DE/FR)
+- ✅ /pay/aml-policy Back button translates correctly (EN/DE/FR)
+- ✅ NO console errors
+- ✅ 6/6 test cases PASSED
+
+**FEATURE C Summary:**
+- ✅ qa.empty shows 4-step checklist with "0 of 4" progress
+- ✅ qa.onboard shows 4-step checklist with "1 of 4" progress (company done)
+- ✅ hostbay@moxx.co checklist HIDDEN (has transactions)
+- ✅ 4th step "Receive your first payment" present in all cases
+- ✅ German i18n working: "Erhalten Sie Ihre erste Zahlung"
+- ✅ NO console errors
+- ✅ 4/4 test cases PASSED
+
+**Conclusion:**
+Both Feature B (checkout /pay Back button i18n) and Feature C (onboarding 4th milestone) are working correctly as specified. The Back button translates properly across EN/DE/FR on both legal pages. The onboarding checklist now includes the 4th "Receive your first payment" step, shows correct progress (X of 4), stays visible until the merchant receives their first payment, and hides for merchants who already have transactions. The German translation is also working correctly.
+
+---
+
+
+
 ## VERIFICATION RESULTS (2026-07-07) — Auth redesign visuals + FR/ES/PT i18n — ✅ ALL PASSED
 - agent: testing (auto_frontend_testing_agent); method: Playwright visual + JWT injection; READ-ONLY (no submits/mutations/OTP — safety-compliant on live prod).
 - test_url: https://blockchain-gateway-10.preview.emergentagent.com

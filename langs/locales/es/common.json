@@ -59,7 +59,18 @@
     "validPaymentLinkRequired": "Por favor usa un enlace de pago válido para proceder con el pago.",
     "goToHomepage": "Ir a la Página de Inicio",
     "paymentLinkExpired": "Este enlace de pago ha expirado. Por favor contacta al comerciante para obtener un nuevo enlace.",
-    "memoTag": "Memo / Tag"
+    "memoTag": "Memo / Tag",
+    "back": "Atrás",
+    "ngnBankTransfer": "Transferencia bancaria NGN",
+    "bankName": "Nombre del banco:",
+    "accountNumber": "Número de cuenta:",
+    "copy": "Copiar",
+    "accountUnique": "Este número de cuenta es único para cada transacción.",
+    "recipient": "Destinatario:",
+    "secureTransfer": "Transferencia bancaria segura con confirmación automática. ¡No necesitas avisarnos!",
+    "madePayment": "He realizado el pago",
+    "noAccountToCopy": "No hay número de cuenta para copiar.",
+    "paymentNotVerified": "Pago no verificado."
   },
   "crypto": {
     "title": "Criptomoneda",

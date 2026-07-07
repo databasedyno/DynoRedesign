@@ -11,6 +11,7 @@ import {
   BusinessRounded,
   AccountBalanceWalletRounded,
   LinkRounded,
+  PaymentsRounded,
 } from "@mui/icons-material";
 import CreateCompanyModal from "./CreateCompanyModal";
 import AddWalletModal from "@/Components/UI/AddWalletModal";
@@ -43,6 +44,7 @@ const OnboardingFlow: React.FC = () => {
   const autoOpened = useRef(false);
   const dismissed = useRef(false);
   const payLinkRequested = useRef(false);
+  const dashboardRequested = useRef(false);
   const shownTracked = useRef(false);
 
   const companyState = useSelector((state: rootReducer) => state.companyReducer);
@@ -50,12 +52,18 @@ const OnboardingFlow: React.FC = () => {
   const payLinkState = useSelector(
     (state: rootReducer) => state.paymentLinkReducer,
   );
+  const dashboardState = useSelector(
+    (state: rootReducer) => state.dashboardReducer,
+  );
 
   const companyList = companyState.companyList ?? [];
   const walletList = walletState.walletList ?? [];
   const hasCompany = companyList.length > 0;
   const hasWallet = walletList.length > 0;
   const hasLink = (payLinkState.paymentLinks?.length ?? 0) > 0;
+  // "First payment received" milestone — derived from real dashboard stats.
+  const dashboardFetched = Boolean(dashboardState.fetched);
+  const hasPayment = (dashboardState.stats?.totalTransactions ?? 0) > 0;
 
   const companyId =
     companyState.selectedCompanyId || companyList?.[0]?.company_id;
@@ -92,6 +100,20 @@ const OnboardingFlow: React.FC = () => {
       dispatch(PaymentLinkAction(PAYLINK_FETCH, { company_id: companyId }));
     }
   }, [hasCompany, companyId, dispatch]);
+
+  // Once a payment link exists, fetch dashboard stats once so the "first
+  // payment" milestone reflects reality (skip if the dashboard already loaded them).
+  useEffect(() => {
+    if (hasLink && !dashboardFetched && !dashboardRequested.current) {
+      dashboardRequested.current = true;
+      dispatch(
+        DashboardAction(
+          DASHBOARD_FETCH,
+          companyId ? { company_id: companyId } : undefined,
+        ),
+      );
+    }
+  }, [hasLink, dashboardFetched, companyId, dispatch]);
 
   // Auto-open the company step ONCE per session for brand-new users (closable, non-blocking)
   useEffect(() => {
@@ -160,6 +182,14 @@ const OnboardingFlow: React.FC = () => {
     else router.push("/create-pay-link");
   }, [hasCompany, hasWallet, router]);
 
+  const openFirstPayment = useCallback(() => {
+    trackOnboarding({ event_type: "step_clicked", step_key: "payment" });
+    if (!hasCompany) setActiveModal("company");
+    else if (!hasWallet) setActiveModal("wallet");
+    else if (!hasLink) router.push("/create-pay-link");
+    else router.push("/pay-links");
+  }, [hasCompany, hasWallet, hasLink, router]);
+
   const steps: ChecklistStep[] = useMemo(
     () => [
       {
@@ -186,8 +216,16 @@ const OnboardingFlow: React.FC = () => {
         done: hasLink,
         onClick: openFirstLink,
       },
+      {
+        key: "payment",
+        label: t("obPaymentLabel"),
+        description: t("obPaymentDesc"),
+        icon: PaymentsRounded,
+        done: hasPayment,
+        onClick: openFirstPayment,
+      },
     ],
-    [hasCompany, hasWallet, hasLink, openCompany, openWallet, openFirstLink, t],
+    [hasCompany, hasWallet, hasLink, hasPayment, openCompany, openWallet, openFirstLink, openFirstPayment, t],
   );
 
   // Decide whether to show the checklist card
@@ -198,6 +236,9 @@ const OnboardingFlow: React.FC = () => {
       showChecklist = true;
     } else if (payLinkFetched && !hasLink) {
       // company + wallet done, but no payment link yet
+      showChecklist = true;
+    } else if (hasLink && dashboardFetched && !hasPayment) {
+      // everything set up, but no payment received yet — nudge to first payment
       showChecklist = true;
     }
   }

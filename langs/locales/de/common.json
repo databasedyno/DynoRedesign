@@ -38,7 +38,18 @@
     "validPaymentLinkRequired": "Bitte verwenden Sie einen gültigen Zahlungslink, um zur Kasse zu gelangen.",
     "goToHomepage": "Zur Startseite",
     "paymentLinkExpired": "Dieser Zahlungslink ist abgelaufen. Bitte kontaktieren Sie den Händler für einen neuen Link.",
-    "memoTag": "Memo / Tag"
+    "memoTag": "Memo / Tag",
+    "back": "Zurück",
+    "ngnBankTransfer": "NGN-Banküberweisung",
+    "bankName": "Bankname:",
+    "accountNumber": "Kontonummer:",
+    "copy": "Kopieren",
+    "accountUnique": "Diese Kontonummer ist für jede Transaktion einzigartig.",
+    "recipient": "Empfänger:",
+    "secureTransfer": "Sichere Banküberweisung mit automatischer Bestätigung. Keine Benachrichtigung nötig!",
+    "madePayment": "Ich habe die Zahlung getätigt",
+    "noAccountToCopy": "Keine Kontonummer zum Kopieren.",
+    "paymentNotVerified": "Zahlung nicht verifiziert."
   },
   "crypto": {
     "title": "Kryptowährung",

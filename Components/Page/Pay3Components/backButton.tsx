@@ -2,14 +2,16 @@
 
 import { Button } from '@mui/material'
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew'
+import { useTranslation } from 'react-i18next'
 
 export default function BackButton({
   onClick,
-  label = 'Back'
+  label
 }: {
   onClick?: () => void
-  label?: String
+  label?: string
 }) {
+  const { t } = useTranslation('common')
   return (
     <Button
       variant="outlined"
@@ -31,7 +33,7 @@ export default function BackButton({
         
       }}
     >
-      {label}
+      {label ?? t('checkout.back')}
     </Button>
   )
 }
