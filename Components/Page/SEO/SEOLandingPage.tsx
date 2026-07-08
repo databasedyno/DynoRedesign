@@ -15,6 +15,7 @@ import useIsMobile from "@/hooks/useIsMobile";
 import { useThemeMode } from "@/contexts/ThemeContext";
 import type { SEOPageContent, SEOPageIndexEntry } from "@/utils/seoContent";
 import SEOIllustration from "./SEOIllustration";
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   content: SEOPageContent;
@@ -28,6 +29,7 @@ const SITE_ORIGIN = "https://dynopay.com";
 const SIGNUP_PATH = "/auth/register";
 
 const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages = [] }) => {
+  const { t } = useTranslation('landing');
   const isMobile = useIsMobile("md");
   const theme = useTheme();
   const { isDark } = useThemeMode();
@@ -610,7 +612,7 @@ const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages =
                           gap: 0.5,
                         }}
                       >
-                        Read the guide
+                        {t('readTheGuide')}
                         <ArrowForwardIcon sx={{ fontSize: 16 }} />
                       </Typography>
                     </Box>
@@ -687,7 +689,7 @@ const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages =
                 "&:hover": { bgcolor: theme.palette.primary.dark, boxShadow: "none" },
               }}
             >
-              Create your free account
+              {t('createFreeAccount')}
             </Button>
           </Link>
         </Box>

@@ -33,5 +33,6 @@
   "deleteModelTitle": "Eliminar enlace de pago",
   "deleteModelDescription": "¿Estás seguro de que quieres eliminar este enlace de pago?",
   "cancel": "Cancelar",
-  "delete": "Eliminar"
+  "delete": "Eliminar",
+  "allStatuses": "Todos los estados"
 }

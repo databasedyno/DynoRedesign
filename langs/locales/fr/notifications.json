@@ -22,5 +22,7 @@
   "browserNotificationsTitle": "Notifications du Navigateur",
   "browserNotificationsDescription": "Recevez des notifications sur votre bureau",
   "activate": "Activer",
-  "saveChanges": "Enregistrer les Modifications"
+  "saveChanges": "Enregistrer les Modifications",
+  "noNotificationsYet": "Aucune notification pour le moment",
+  "notSupportedInBrowser": "Non pris en charge par ce navigateur"
 }

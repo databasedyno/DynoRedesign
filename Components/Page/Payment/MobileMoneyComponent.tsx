@@ -27,6 +27,7 @@ import Dropdown from "@/Components/UI/Dropdown";
 import { paymentTypes } from "@/utils/enums";
 import { NorthEastRounded } from "@mui/icons-material";
 import { usePaymentRates } from "@/hooks/usePaymentRates";
+import { useTranslation } from "react-i18next";
 
 const initialValue = {
   network: "MTN",
@@ -36,6 +37,7 @@ const initialValue = {
 const currencyListItems = ["KES", "GHS", "RWF", "UGX"];
 
 const MobileMoneyComponent = () => {
+  const { t } = useTranslation("common");
   const theme = useTheme();
   const dispatch = useDispatch();
   const walletState = useSelector((state: rootReducer) => state.walletReducer);
@@ -133,7 +135,7 @@ const MobileMoneyComponent = () => {
     >
       {loading ? (
         <>
-          <Typography>Please wait</Typography>
+          <Typography>{t("pleaseWait")}</Typography>
           <Box
             sx={{
               height: "375px",
@@ -220,7 +222,7 @@ const MobileMoneyComponent = () => {
               </Box>
               <Box>
                 <Typography className="topText" textAlign={"right"}>
-                  Transfer Rate
+                  {t("transferRate")}
                 </Typography>
                 <Typography fontSize={14} fontWeight={600}>
                   ({" "}
@@ -371,7 +373,7 @@ const MobileMoneyComponent = () => {
             <Collapse in={checkVerify}>
               {loading2 ? (
                 <>
-                  <Typography textAlign={"center"}>Please wait</Typography>
+                  <Typography textAlign={"center"}>{t("pleaseWait")}</Typography>
                   <Box
                     sx={{
                       height: "275px",
@@ -408,7 +410,7 @@ const MobileMoneyComponent = () => {
                       <NorthEastRounded fontSize="inherit" />
                     </Box>
                     <Typography>
-                      You need to complete this payment from your M-PESA App.
+                      {t("completeFromMpesa")}
                     </Typography>
                   </Box>
                   <Button
@@ -416,7 +418,7 @@ const MobileMoneyComponent = () => {
                     sx={{ mt: 3 }}
                     onClick={handleVerify}
                   >
-                    I have completed this payment
+                    {t("completedPayment")}
                   </Button>
                 </Box>
               )}

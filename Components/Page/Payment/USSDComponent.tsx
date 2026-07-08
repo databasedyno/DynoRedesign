@@ -24,6 +24,7 @@ import * as yup from "yup";
 import Dropdown from "@/Components/UI/Dropdown";
 import { paymentTypes } from "@/utils/enums";
 import { usePaymentRates } from "@/hooks/usePaymentRates";
+import { useTranslation } from "react-i18next";
 
 const BankList = [
   { label: "Select Bank", value: "0" },
@@ -48,6 +49,7 @@ const BankList = [
 ];
 
 const USSDComponent = () => {
+  const { t } = useTranslation("common");
   const dispatch = useDispatch();
   const walletState = useSelector((state: rootReducer) => state.walletReducer);
   const [ussdDetails, setUssdDetails] = useState({
@@ -162,7 +164,7 @@ const USSDComponent = () => {
           </Box>
         ) : (
           <>
-            <Typography>Please Choose your bank to begin payment</Typography>
+            <Typography>{t("chooseBankToBegin")}</Typography>
             <Box
               sx={{
                 display: "flex",
@@ -210,7 +212,7 @@ const USSDComponent = () => {
               {selectedCurrency?.currency !== walletState.currency && (
                 <Box>
                   <Typography className="topText" textAlign={"right"}>
-                    Transfer Rate
+                    {t("transferRate")}
                   </Typography>
                   <Typography fontSize={14} fontWeight={600}>
                     ({" "}
@@ -294,8 +296,7 @@ const USSDComponent = () => {
             }}
           >
             <Typography textAlign={"center"}>
-              Dial the <strong>{currentBank}</strong> USSD code below on your
-              mobile phone to complete the payment
+              {t("ussdDialInstruction", { bank: currentBank })}
             </Typography>
 
             <Typography variant="h4" fontWeight={800} mt={5}>
@@ -315,11 +316,11 @@ const USSDComponent = () => {
               color={"text.disabled"}
               textAlign={"center"}
             >
-              Enter the payment code if necessary to complete the payment.
+              {t("enterPaymentCodeIfNecessary")}
             </Typography>
 
             <Button variant="rounded" sx={{ mt: 3 }} onClick={handleSubmit}>
-              I have completed this payment
+              {t("completedPayment")}
             </Button>
           </Box>
         </>

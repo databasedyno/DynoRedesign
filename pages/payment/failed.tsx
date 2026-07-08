@@ -3,8 +3,10 @@ import React, { useEffect, useState } from "react";
 import { Box, Typography, Button, useTheme } from "@mui/material";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import BrandLogo from "@/Components/Layout/BrandLogo";
+import { useTranslation } from "react-i18next";
 
 const Failed = () => {
+  const { t } = useTranslation("common");
   const router = useRouter();
   const theme = useTheme();
   const [errorData, setErrorData] = useState<Record<string, unknown> | null>(null);
@@ -63,7 +65,7 @@ const Failed = () => {
           variant="h5"
           sx={{ fontFamily: "OutfitSemiBold", mb: 1, color: "text.primary" }}
         >
-          Payment Failed
+          {t("paymentFailed")}
         </Typography>
 
         <Typography
@@ -76,7 +78,7 @@ const Failed = () => {
         >
           {errorData?.error
             ? String(errorData.error)
-            : "Your payment could not be processed. Please try again or contact support."}
+            : t("paymentFailedBody")}
         </Typography>
 
         {errorData?.transaction_id && (
@@ -96,7 +98,7 @@ const Failed = () => {
                 mb: 0.5,
               }}
             >
-              Transaction Reference
+              {t("transactionReferenceLabel")}
             </Typography>
             <Typography
               sx={{
@@ -122,7 +124,7 @@ const Failed = () => {
               py: 1.2,
             }}
           >
-            Try Again
+            {t("tryAgain")}
           </Button>
           <Button
             variant="contained"
@@ -135,7 +137,7 @@ const Failed = () => {
               py: 1.2,
             }}
           >
-            Return Home
+            {t("returnHome")}
           </Button>
         </Box>
       </Box>

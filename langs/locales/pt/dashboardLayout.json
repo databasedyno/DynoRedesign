@@ -122,5 +122,6 @@
   "growTrialCompleteBody": "Você processou seus primeiros $500 sem taxas. Indique outro comerciante e ganhe mais $50 de crédito grátis quando ele processar $100.",
   "apiPaymentLabel": "Pagamento via API",
   "paymentLinkLabel": "Link de pagamento",
-  "nextTierHint": "Alcance o nível {next} para taxas de {pct} (economize {savings})"
+  "nextTierHint": "Alcance o nível {next} para taxas de {pct} (economize {savings})",
+  "switchedToCompany": "Alterado para"
 }

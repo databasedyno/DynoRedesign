@@ -96,5 +96,6 @@
   "setupStepCompanyHelper": "Gebruikt op facturen en bonnen. Duurt ~30 seconden.",
   "setupStepWalletLabel": "Voeg een uitbetalingswallet toe",
   "setupStepWalletHelper": "Waar klantbetalingen naartoe gaan. Vereist om crypto te ontvangen.",
-  "setupDone": "Klaar"
+  "setupDone": "Klaar",
+  "youReceive": "U ontvangt"
 }

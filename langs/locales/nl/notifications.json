@@ -22,5 +22,7 @@
   "browserNotificationsTitle": "Browsermeldingen",
   "browserNotificationsDescription": "Ontvang meldingen op uw desktop",
   "activate": "Activeren",
-  "saveChanges": "Wijzigingen opslaan"
+  "saveChanges": "Wijzigingen opslaan",
+  "noNotificationsYet": "Nog geen meldingen",
+  "notSupportedInBrowser": "Niet ondersteund in deze browser"
 }

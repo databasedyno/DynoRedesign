@@ -468,7 +468,7 @@ export default function CompanyDetailsSection({
                         color: "text.secondary",
                       }}
                     >
-                      <Typography variant="body2">No results found</Typography>
+                      <Typography variant="body2">{t("noResultsFound")}</Typography>
                     </Box>
                   )}
                 </CryptocurrencyDropdown>
@@ -624,7 +624,7 @@ export default function CompanyDetailsSection({
                         color: "text.secondary",
                       }}
                     >
-                      <Typography variant="body2">No results found</Typography>
+                      <Typography variant="body2">{t("noResultsFound")}</Typography>
                     </Box>
                   )}
                 </CryptocurrencyDropdown>
@@ -780,7 +780,7 @@ export default function CompanyDetailsSection({
                         color: "text.secondary",
                       }}
                     >
-                      <Typography variant="body2">No results found</Typography>
+                      <Typography variant="body2">{t("noResultsFound")}</Typography>
                     </Box>
                   )}
                 </CryptocurrencyDropdown>

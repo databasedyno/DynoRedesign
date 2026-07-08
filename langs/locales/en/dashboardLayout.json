@@ -122,5 +122,6 @@
   "obCollapseChecklist": "Collapse setup checklist",
   "obPaymentLabel": "Receive your first payment",
   "obPaymentDesc": "Share your payment link and get paid",
-  "nextTierHint": "Reach {next} tier for {pct} fees (save {savings})"
+  "nextTierHint": "Reach {next} tier for {pct} fees (save {savings})",
+  "switchedToCompany": "Switched to"
 }

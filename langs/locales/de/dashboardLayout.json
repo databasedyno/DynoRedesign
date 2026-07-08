@@ -122,5 +122,6 @@
   "growTrialCompleteBody": "Sie haben Ihre ersten 500 $ gebührenfrei verarbeitet. Empfehlen Sie einen weiteren Händler und verdienen Sie zusätzliche 50 $ gebührenfreies Guthaben, wenn er 100 $ verarbeitet.",
   "apiPaymentLabel": "API-Zahlung",
   "paymentLinkLabel": "Zahlungslink",
-  "nextTierHint": "Erreichen Sie die {next}-Stufe für {pct} Gebühren (sparen Sie {savings})"
+  "nextTierHint": "Erreichen Sie die {next}-Stufe für {pct} Gebühren (sparen Sie {savings})",
+  "switchedToCompany": "Gewechselt zu"
 }

@@ -20,5 +20,7 @@
   "incident2Name": "API Latency Increase",
   "incident2Time": "Nov 28, 2025",
   "incident2Description": "Brief latency spike resolved within 15 minutes.",
-  "resolved": "Resolved"
+  "resolved": "Resolved",
+  "noRecentIncidents": "No recent incidents. All systems running smoothly.",
+  "autoRefresh60": "Auto-refreshes every 60 seconds"
 }

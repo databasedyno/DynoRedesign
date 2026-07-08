@@ -35,6 +35,7 @@ import Dropdown from "@/Components/UI/Dropdown";
 import { paymentTypes } from "@/utils/enums";
 import { CopyAllRounded, NorthEastRounded } from "@mui/icons-material";
 import { usePaymentRates } from "@/hooks/usePaymentRates";
+import { useTranslation } from "react-i18next";
 
 const currencyList2 = [
   "BTC",
@@ -65,6 +66,7 @@ interface CryptoDetails {
 }
 
 const CyrptoComponent = () => {
+  const { t } = useTranslation("common");
   const theme = useTheme();
   const dispatch = useDispatch();
   const walletState = useSelector((state: rootReducer) => state.walletReducer);
@@ -164,7 +166,7 @@ const CyrptoComponent = () => {
     >
       {loading ? (
         <>
-          <Typography>Please wait</Typography>
+          <Typography>{t("pleaseWait")}</Typography>
           <Box
             sx={{
               height: "375px",
@@ -251,7 +253,7 @@ const CyrptoComponent = () => {
               </Box>
               <Box>
                 <Typography className="topText" textAlign={"right"}>
-                  Transfer Rate
+                  {t("transferRate")}
                 </Typography>
                 <Typography fontSize={14} fontWeight={600}>
                   ({" "}
@@ -320,7 +322,7 @@ const CyrptoComponent = () => {
             <Collapse in={checkVerify}>
               {loading2 ? (
                 <>
-                  <Typography textAlign={"center"}>Please wait</Typography>
+                  <Typography textAlign={"center"}>{t("pleaseWait")}</Typography>
                   <Box
                     sx={{
                       height: "275px",
@@ -389,7 +391,7 @@ const CyrptoComponent = () => {
                       sx={{ mt: 3 }}
                       onClick={handleVerify}
                     >
-                      I have completed this payment
+                      {t("completedPayment")}
                     </Button>
                   </Box>
                 </Box>

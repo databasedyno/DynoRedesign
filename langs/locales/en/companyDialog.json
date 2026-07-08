@@ -129,5 +129,9 @@
     "addSubtitle": "Set up another business profile under your account",
     "payLinkSubtitle": "Used on invoices and receipts. Takes about 30 seconds.",
     "cancel": "Cancel"
-  }
+  },
+  "addCompanyBtn": "Add Company",
+  "noCompaniesYet": "No companies yet",
+  "createFirstCompanyBody": "Create your first company profile to start accepting payments and managing your business.",
+  "noResultsFound": "No results found"
 }

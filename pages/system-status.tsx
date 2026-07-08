@@ -508,7 +508,7 @@ const StatusPage = () => {
             }}
           >
             <TypographyDescription>
-              No recent incidents. All systems running smoothly.
+              {t('noRecentIncidents')}
             </TypographyDescription>
           </Box>
         ) : (
@@ -604,7 +604,7 @@ const StatusPage = () => {
       {/* LAST UPDATED */}
       {!loading && (
         <TypographyTime sx={{ textAlign: "center" }}>
-          Auto-refreshes every 60 seconds
+          {t('autoRefresh60')}
         </TypographyTime>
       )}
     </Box>

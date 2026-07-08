@@ -11,6 +11,7 @@ import { useRouter } from "next/router";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { CommonDetails } from "@/utils/types/paymentTypes";
 import { NorthEastRounded } from "@mui/icons-material";
+import { useTranslation } from "react-i18next";
 
 interface BankAccountProps {
   accountDetails?: CommonDetails;
@@ -19,6 +20,7 @@ interface BankAccountProps {
 const timer = (ms: any) => new Promise((res) => setTimeout(res, ms));
 
 const GooglePayComponent = ({ accountDetails }: BankAccountProps) => {
+  const { t } = useTranslation("common");
   const theme = useTheme();
   const dispatch = useDispatch();
   const walletState = useSelector((state: rootReducer) => state.walletReducer);
@@ -87,7 +89,7 @@ const GooglePayComponent = ({ accountDetails }: BankAccountProps) => {
     >
       {loading ? (
         <>
-          <Typography>Please wait</Typography>
+          <Typography>{t("pleaseWait")}</Typography>
           <Box
             sx={{
               height: "375px",
@@ -151,7 +153,7 @@ const GooglePayComponent = ({ accountDetails }: BankAccountProps) => {
                 <NorthEastRounded fontSize="inherit" />
               </Box>
               <Typography>
-                You will be redirected to complete this payment.
+                {t("redirectToCompletePayment")}
               </Typography>
             </Box>
           </Box>

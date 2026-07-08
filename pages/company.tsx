@@ -116,7 +116,7 @@ const Company = ({ setPageName, setPageDescription, setPageAction }: pageProps) 
           onClick={() => setAddOpen(true)}
         >
           <AddCircleOutlineRounded fontSize="small" sx={{ mr: 0.5 }} />
-          Add Company
+          {t("addCompanyBtn")}
         </Button>
       </Box>
 
@@ -156,7 +156,7 @@ const Company = ({ setPageName, setPageDescription, setPageAction }: pageProps) 
               mt: 1,
             }}
           >
-            No companies yet
+            {t("noCompaniesYet")}
           </Typography>
           <Typography
             sx={{
@@ -167,7 +167,7 @@ const Company = ({ setPageName, setPageDescription, setPageAction }: pageProps) 
               maxWidth: 360,
             }}
           >
-            Create your first company profile to start accepting payments and managing your business.
+            {t("createFirstCompanyBody")}
           </Typography>
           <Button
             data-testid="empty-add-company-btn"
@@ -183,7 +183,7 @@ const Company = ({ setPageName, setPageDescription, setPageAction }: pageProps) 
             }}
           >
             <AddCircleOutlineRounded fontSize="small" />
-            Add Company
+            {t("addCompanyBtn")}
           </Button>
         </Box>
       )}

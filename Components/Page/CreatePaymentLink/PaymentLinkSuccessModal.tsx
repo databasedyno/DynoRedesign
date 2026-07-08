@@ -312,7 +312,7 @@ const PaymentLinkSuccessModal: React.FC<PaymentLinkSuccessModalProps> = ({
                     lineHeight: 1.4,
                   }}
                 >
-                  Scan QR code to pay directly to this wallet
+                  {t("common:scanQrPayWallet")}
                 </Typography>
 
                 <Box

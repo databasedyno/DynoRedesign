@@ -1,31 +1,28 @@
 {
   "notifications": "Notificações",
   "notificationsDescription": "Gerencie como você recebe atualizações sobre seus pagamentos cripto",
-
   "transactionAlertsTitle": "Alertas de Transação",
   "transactionAlertsSubtitle": "Seja notificado sobre mudanças no status das transações",
   "transactionUpdatesTitle": "Atualizações de Transação",
   "transactionUpdatesDescription": "Receba notificações quando transações forem confirmadas ou concluídas",
   "paymentReceivedTitle": "Pagamento Recebido",
   "paymentReceivedDescription": "Seja notificado imediatamente quando receber um pagamento",
-
   "weeklyReportsTitle": "Relatórios Semanais",
   "weeklyReportsSubtitle": "Receba um resumo semanal de suas atividades",
   "weeklySummaryTitle": "Resumo Semanal",
   "weeklySummaryDescription": "Receba um resumo semanal de suas atividades toda segunda-feira",
   "securityAlertsTitle": "Alertas de Segurança",
   "securityAlertsDescription": "Alertas para atividades suspeitas ou alterações de segurança",
-
   "emailNotificationsCardTitle": "Notificações por Email",
   "emailNotificationsCardSubtitle": "Receber notificações por email para eventos importantes",
   "emailNotificationsTitle": "Notificações por Email",
   "emailNotificationsDescription": "Receba atualizações importantes via email",
   "smsNotificationsTitle": "Notificações por SMS",
   "smsNotificationsDescription": "Receba alertas críticos via SMS",
-
   "browserNotificationsTitle": "Notificações do Navegador",
   "browserNotificationsDescription": "Receba notificações na área de trabalho",
-
   "activate": "Ativar",
-  "saveChanges": "Salvar Alterações"
+  "saveChanges": "Salvar Alterações",
+  "noNotificationsYet": "Nenhuma notificação ainda",
+  "notSupportedInBrowser": "Não suportado neste navegador"
 }

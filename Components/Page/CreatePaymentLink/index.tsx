@@ -1071,7 +1071,7 @@ const CreatePaymentLinkPage = ({
                 </Box>
                 <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <Typography sx={{ fontSize: 12, fontFamily: "UrbanistMedium", color: theme.palette.text.secondary }}>
-                    You receive
+                    {t("youReceive")}
                   </Typography>
                   <Typography sx={{ fontSize: 13, fontFamily: "UrbanistSemiBold", color: theme.palette.success?.main || "#22c55e" }}>
                     {feePreview.you_receive != null ? `${feePreview.you_receive} ${feePreview.currency || paymentSettings.currency}` : "—"}

@@ -261,7 +261,7 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
       "name": "DynoPay",
       "url": SITE_URL,
       "logo": OG_IMAGE,
-      "description": "DynoPay is a cryptocurrency payment gateway that enables businesses to accept Bitcoin, Ethereum, and stablecoins. Merchants keep the crypto they receive, or opt in to auto-convert settlements to USDT or USDC.",
+      "description": "DynoPay is a cryptocurrency payment gateway that enables businesses to accept Bitcoin, Ethereum, and stablecoins. Payments are forwarded instantly to the merchant's own wallet — as the original crypto, or auto-converted to USDT or USDC if enabled.",
       "foundingDate": "2024",
       "sameAs": [
         "https://x.com/Dynopaycom"

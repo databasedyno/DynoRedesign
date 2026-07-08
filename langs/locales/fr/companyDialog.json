@@ -129,5 +129,9 @@
     "addSubtitle": "Configurez un autre profil d'entreprise sous votre compte",
     "payLinkSubtitle": "Utilisé sur les factures et les reçus. Prend environ 30 secondes.",
     "cancel": "Annuler"
-  }
+  },
+  "addCompanyBtn": "Ajouter une entreprise",
+  "noCompaniesYet": "Aucune entreprise pour le moment",
+  "createFirstCompanyBody": "Créez le profil de votre première entreprise pour commencer à accepter des paiements et gérer votre activité.",
+  "noResultsFound": "Aucun résultat trouvé"
 }

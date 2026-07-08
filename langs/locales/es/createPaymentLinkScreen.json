@@ -96,5 +96,6 @@
   "setupStepCompanyHelper": "Se usa en facturas y recibos. Tarda ~30 segundos.",
   "setupStepWalletLabel": "Añade un monedero de pagos",
   "setupStepWalletHelper": "Adonde se envían los pagos de los clientes. Necesario para recibir cripto.",
-  "setupDone": "Hecho"
+  "setupDone": "Hecho",
+  "youReceive": "Tú recibes"
 }

@@ -96,5 +96,6 @@
   "setupStepCompanyHelper": "Used on invoices and receipts. Takes ~30 seconds.",
   "setupStepWalletLabel": "Add a Payout Wallet",
   "setupStepWalletHelper": "Where customer payments are sent. Required to receive crypto.",
-  "setupDone": "Done"
+  "setupDone": "Done",
+  "youReceive": "You receive"
 }

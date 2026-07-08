@@ -20,5 +20,7 @@
   "incident2Name": "Erhöhte API-Latenz",
   "incident2Time": "28. Nov. 2025",
   "incident2Description": "Kurzer Latenzanstieg innerhalb von 15 Minuten behoben.",
-  "resolved": "Behoben"
+  "resolved": "Behoben",
+  "noRecentIncidents": "Keine aktuellen Vorfälle. Alle Systeme laufen reibungslos.",
+  "autoRefresh60": "Aktualisiert sich automatisch alle 60 Sekunden"
 }

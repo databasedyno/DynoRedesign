@@ -2,6 +2,7 @@ import React, { memo, useEffect, useState } from 'react';
 import { Box, Typography, IconButton, Button, useTheme } from '@mui/material';
 import { Close, ContentCopy, ArrowForward } from '@mui/icons-material';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'react-i18next';
 
 /**
  * ExitIntentModal (item N) — fires when the mouse leaves the top of the
@@ -19,6 +20,7 @@ const SESSION_KEY = 'dyno_exit_intent_shown_v1';
 const SANDBOX_KEY = 'dyno_sk_sandbox_demo_9f621db8';
 
 const ExitIntentModal: React.FC = () => {
+  const { t } = useTranslation('landing');
   const router = useRouter();
   const theme = useTheme();
   const isDark = theme.palette.mode === 'dark';
@@ -148,7 +150,7 @@ const ExitIntentModal: React.FC = () => {
               letterSpacing: '-0.4px',
             }}
           >
-            Try DynoPay in your terminal, right now.
+            {t('exitIntentTitle')}
           </Typography>
           <Typography
             sx={{
@@ -243,7 +245,7 @@ const ExitIntentModal: React.FC = () => {
                 color: theme.palette.text.primary,
               }}
             >
-              View API docs
+              {t('viewApiDocs')}
             </Button>
           </Box>
         </Box>

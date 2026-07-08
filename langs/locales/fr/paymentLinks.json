@@ -33,5 +33,6 @@
   "deleteModelTitle": "Supprimer le lien de paiement",
   "deleteModelDescription": "Êtes-vous sûr de vouloir supprimer ce lien de paiement ?",
   "cancel": "Annuler",
-  "delete": "Supprimer"
+  "delete": "Supprimer",
+  "allStatuses": "Tous les statuts"
 }

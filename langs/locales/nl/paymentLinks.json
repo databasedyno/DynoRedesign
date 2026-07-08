@@ -33,5 +33,6 @@
   "deleteModelTitle": "Betaallink verwijderen",
   "deleteModelDescription": "Weet u zeker dat u deze betaallink wilt verwijderen?",
   "cancel": "Annuleren",
-  "delete": "Verwijderen"
+  "delete": "Verwijderen",
+  "allStatuses": "Alle statussen"
 }

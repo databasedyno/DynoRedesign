@@ -398,7 +398,7 @@ export default function CompanySelector() {
         message={
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <BusinessCenterIcon sx={{ fontSize: 18, color: theme.palette.text.secondary }} />
-            <span>Switched to <strong>{switchToast}</strong></span>
+            <span>{t("switchedToCompany")} <strong>{switchToast}</strong></span>
           </Box>
         }
         ContentProps={{

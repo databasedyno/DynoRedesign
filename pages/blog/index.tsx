@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import Head from "next/head";
 import { blogPosts } from "@/utils/blogData";
 import useIsMobile from "@/hooks/useIsMobile";
+import { useTranslation } from 'react-i18next';
 // HomeHeader is rendered by HomeLayout in _app.tsx
 
 const categoryColors: Record<string, string> = {
@@ -14,6 +15,7 @@ const categoryColors: Record<string, string> = {
 };
 
 const BlogPage = () => {
+  const { t } = useTranslation('landing');
   const theme = useTheme();
   const router = useRouter();
   const isMobile = useIsMobile("md");
@@ -101,7 +103,7 @@ const BlogPage = () => {
               lineHeight: 1.6,
             }}
           >
-            Guides, strategies, and developer resources to help you accept crypto and grow your business
+            {t('blogSubtitle')}
           </Typography>
         </Box>
 

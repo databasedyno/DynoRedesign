@@ -2,6 +2,7 @@ import React, { memo, useEffect, useState } from 'react';
 import { Box, Typography, IconButton, Button, useTheme } from '@mui/material';
 import { Close, PlayArrow, ArrowForward } from '@mui/icons-material';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'react-i18next';
 
 /**
  * DemoVideoModal (item I) — opens when the visitor clicks "Watch demo" in the
@@ -53,6 +54,7 @@ const STEPS: Step[] = [
 ];
 
 const DemoVideoModal: React.FC<DemoVideoModalProps> = ({ open, onClose }) => {
+  const { t } = useTranslation('landing');
   const theme = useTheme();
   const isDark = theme.palette.mode === 'dark';
   const router = useRouter();
@@ -246,7 +248,7 @@ const DemoVideoModal: React.FC<DemoVideoModalProps> = ({ open, onClose }) => {
                 background: 'linear-gradient(135deg, #4F46E5 0%, #3D40FF 100%)',
               }}
             >
-              Start free
+              {t('startFree')}
             </Button>
           </Box>
         </Box>

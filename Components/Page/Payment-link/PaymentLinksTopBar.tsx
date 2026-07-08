@@ -191,7 +191,7 @@ const PaymentLinksTopBar = ({
         displayEmpty
         sx={{ ...selectSx, minWidth: isMobile ? "100%" : "160px" }}
       >
-        <MenuItem value="all">All Statuses</MenuItem>
+        <MenuItem value="all">{t("allStatuses")}</MenuItem>
         <MenuItem value="active">Active</MenuItem>
         <MenuItem value="completed">Completed</MenuItem>
         <MenuItem value="expired">Expired</MenuItem>

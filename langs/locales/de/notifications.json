@@ -22,5 +22,7 @@
   "browserNotificationsTitle": "Browser-Benachrichtigungen",
   "browserNotificationsDescription": "Benachrichtigungen auf Ihrem Desktop erhalten",
   "activate": "Aktivieren",
-  "saveChanges": "Änderungen speichern"
+  "saveChanges": "Änderungen speichern",
+  "noNotificationsYet": "Noch keine Benachrichtigungen",
+  "notSupportedInBrowser": "In diesem Browser nicht unterstützt"
 }

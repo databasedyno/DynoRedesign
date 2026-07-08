@@ -96,5 +96,6 @@
   "setupStepCompanyHelper": "Utilisé sur les factures et les reçus. Prend ~30 secondes.",
   "setupStepWalletLabel": "Ajoutez un portefeuille de versement",
   "setupStepWalletHelper": "Où sont envoyés les paiements des clients. Requis pour recevoir de la crypto.",
-  "setupDone": "Terminé"
+  "setupDone": "Terminé",
+  "youReceive": "Vous recevez"
 }

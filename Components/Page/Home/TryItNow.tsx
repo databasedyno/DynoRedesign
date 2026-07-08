@@ -273,7 +273,7 @@ const TryItNow: React.FC = () => {
                   },
                 }}
               />
-              Live checkout
+              {t('liveCheckoutLabel')}
             </Typography>
             <Button
               size="small"

@@ -33,5 +33,6 @@
   "deleteModelTitle": "Zahlungslink löschen",
   "deleteModelDescription": "Sind Sie sicher, dass Sie diesen Zahlungslink löschen möchten?",
   "cancel": "Abbrechen",
-  "delete": "Löschen"
+  "delete": "Löschen",
+  "allStatuses": "Alle Status"
 }

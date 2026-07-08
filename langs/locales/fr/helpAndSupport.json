@@ -9,5 +9,9 @@
   "chatUs": "Discutez avec nous",
   "openChat": "Ouvrir le Chat",
   "chatResponseTime": "Temps de réponse typique : moins de 3 minutes",
-  "noResults": "Aucun article trouvé. Essayez un autre terme de recherche."
+  "noResults": "Aucun article trouvé. Essayez un autre terme de recherche.",
+  "articleNotFound": "Article introuvable",
+  "backToHelpSupport": "Retour à l'aide et au support",
+  "feedbackThanks": "Merci pour votre retour !",
+  "wasArticleHelpful": "Cet article vous a-t-il été utile ?"
 }

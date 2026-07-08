@@ -10,6 +10,7 @@ import {Dialog,
 import { WarningAmberRounded, DeleteOutlineRounded } from "@mui/icons-material";
 import OtpInputPanel from "@/Components/UI/OtpInputPanel";
 import axiosBaseApi from "@/axiosConfig";
+import { useTranslation } from "react-i18next";
 
 interface DeleteWalletModalProps {
   open: boolean;
@@ -30,6 +31,7 @@ const DeleteWalletModal: React.FC<DeleteWalletModalProps> = ({
   companyId,
   onDeleted,
 }) => {
+  const { t } = useTranslation("common");
   const theme = useTheme();
   const [step, setStep] = useState<"confirm" | "otp">("confirm");
   const [loading, setLoading] = useState(false);
@@ -146,7 +148,7 @@ const DeleteWalletModal: React.FC<DeleteWalletModalProps> = ({
                   lineHeight: "100%",
                 }}
               >
-                Delete Wallet?
+                {t("deleteWalletTitle")}
               </Typography>
             </Box>
 
@@ -203,7 +205,7 @@ const DeleteWalletModal: React.FC<DeleteWalletModalProps> = ({
                   lineHeight: "100%",
                 }}
               >
-                Enter Verification Code
+                {t("enterVerificationCode")}
               </Typography>
             </Box>
 
@@ -277,7 +279,7 @@ const DeleteWalletModal: React.FC<DeleteWalletModalProps> = ({
               "&:disabled": { backgroundColor: "#FCA5A5", color: "#FFF" },
             }}
           >
-            {loading ? <CircularProgress size={20} sx={{ color: "#FFF" }} /> : "Delete Wallet"}
+            {loading ? <CircularProgress size={20} sx={{ color: "#FFF" }} /> : t("deleteWalletAction")}
           </Button>
         </DialogActions>
       )}

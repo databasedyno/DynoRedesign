@@ -7,6 +7,7 @@ import useIsMobile from "@/hooks/useIsMobile";
 // HomeHeader is rendered by HomeLayout in _app.tsx
 import type { GetStaticPaths, GetStaticProps } from "next";
 import { sanitizeHtml } from "@/utils/sanitizeHtml";
+import { useTranslation } from 'react-i18next';
 
 const categoryColors: Record<string, string> = {
   "Integration Guide": "#5865F2",
@@ -20,6 +21,7 @@ interface BlogPostPageProps {
 }
 
 const BlogPostPage = ({ slug }: BlogPostPageProps) => {
+  const { t } = useTranslation('landing');
   const theme = useTheme();
   const router = useRouter();
   const isMobile = useIsMobile("md");
@@ -31,7 +33,7 @@ const BlogPostPage = ({ slug }: BlogPostPageProps) => {
       <>
         <Box sx={{ pt: 20, textAlign: "center", minHeight: "100vh" }}>
           <Typography variant="h4" sx={{ fontFamily: "OutfitSemiBold", color: theme.palette.text.primary }}>
-            Post not found
+            {t('blogPostNotFound')}
           </Typography>
           <Typography
             onClick={() => router.push("/blog")}
@@ -592,7 +594,7 @@ const BlogPostPage = ({ slug }: BlogPostPageProps) => {
               mb: 1.5,
             }}
           >
-            Ready to accept crypto payments?
+            {t('blogReadyCta')}
           </Typography>
           <Typography
             sx={{

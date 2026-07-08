@@ -429,7 +429,7 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: () => void }) => {
                 lineHeight: "100%"
               }}
             >
-              You Don’t Have Active Wallets
+              {t("noActiveWalletsTitle")}
             </Typography>
           </Box>
 
@@ -443,7 +443,7 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: () => void }) => {
               color: theme.palette.text.secondary
             }}
           >
-            You have to have at least one wallet address added in order to proceed.
+            {t("noActiveWalletsBody")}
           </Typography>
         </DialogContent>
 
@@ -485,7 +485,7 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: () => void }) => {
               }
             }}
           >
-            Go to Wallets
+            {t("goToWallets")}
           </Button>
         </DialogActions>
       </Dialog> */}

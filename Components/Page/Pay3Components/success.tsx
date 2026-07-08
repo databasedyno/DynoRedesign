@@ -1,6 +1,7 @@
 import { Box, Typography, CircularProgress, useTheme } from "@mui/material";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
+import { useTranslation } from 'react-i18next';
 
 interface SuccessProps {
   redirectUrl?: string | null;
@@ -8,6 +9,7 @@ interface SuccessProps {
 }
 
 const Success = ({ redirectUrl, transactionId }: SuccessProps) => {
+  const { t } = useTranslation('common');
   const router = useRouter();
   const theme = useTheme();
   const isDark = theme.palette.mode === 'dark';
@@ -77,7 +79,7 @@ const Success = ({ redirectUrl, transactionId }: SuccessProps) => {
         fontFamily="Space Grotesk"
         mb={2}
       >
-        Payment Successful!
+        {t('paymentSuccessful')}
       </Typography>
       
       {isRedirecting && (

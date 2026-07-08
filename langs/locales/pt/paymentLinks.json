@@ -33,5 +33,6 @@
   "deleteModelTitle": "Excluir link de pagamento",
   "deleteModelDescription": "Tem certeza de que deseja excluir este link de pagamento?",
   "cancel": "Cancelar",
-  "delete": "Excluir"
+  "delete": "Excluir",
+  "allStatuses": "Todos os status"
 }

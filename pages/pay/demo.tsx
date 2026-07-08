@@ -448,7 +448,7 @@ const PaymentDemo = () => {
               {step === 1 && (
                 <>
                   <Typography fontWeight={700} fontSize={{ xs: 16, sm: 18 }} color={theme.palette.text.primary} letterSpacing='-0.3px'>
-                    Choose how to pay
+                    {t('demoChooseHowToPay')}
                   </Typography>
                   <Typography color={theme.palette.text.secondary} fontSize={12.5} lineHeight={1.5} mb={2} mt={0.5}>
                     Total <Box component="span" sx={{ fontWeight: 700, color: theme.palette.text.primary }}>€{MOCK_DATA.totalAmount.toFixed(2)} EUR</Box>{' '}— pick a network and send from your wallet.
@@ -492,7 +492,7 @@ const PaymentDemo = () => {
                     }}
                   >
                     <Typography fontSize={10.5} color={theme.palette.text.secondary} fontWeight={700} letterSpacing={1} textTransform='uppercase' mb={0.5}>
-                      Send exactly
+                      {t('demoSendExactly')}
                     </Typography>
                     <Typography fontWeight={800} fontSize={{ xs: 20, sm: 24 }} color={theme.palette.text.primary} letterSpacing='-0.5px'>
                       {selectedCoin.amountCrypto}{' '}
@@ -552,7 +552,7 @@ const PaymentDemo = () => {
 
                     <Box sx={{ flex: 1, minWidth: 0 }}>
                       <Typography fontSize={10.5} color={theme.palette.text.secondary} fontWeight={700} letterSpacing={1} textTransform='uppercase' mb={0.5}>
-                        Wallet address
+                        {t('walletAddressLabel')}
                       </Typography>
                       <Tooltip title={selectedCoin.address} arrow>
                         <Typography
@@ -580,7 +580,7 @@ const PaymentDemo = () => {
                           py: 0.25,
                         }}
                       >
-                        Copy address
+                        {t('copyAddress')}
                       </Button>
                     </Box>
                   </Box>
@@ -647,7 +647,7 @@ const PaymentDemo = () => {
                         },
                       }}
                     >
-                      Simulate payment received
+                      {t('demoSimulatePayment')}
                     </Button>
                   </Box>
                 </>
@@ -675,7 +675,7 @@ const PaymentDemo = () => {
                   </Box>
 
                   <Typography fontWeight={700} fontSize={{ xs: 18, sm: 20 }} color={theme.palette.text.primary} letterSpacing='-0.3px'>
-                    Payment received
+                    {t('paymentReceived')}
                   </Typography>
                   <Typography color={theme.palette.text.secondary} fontSize={12.5} lineHeight={1.5} mt={0.5} mb={2}>
                     {selectedCoin.amountCrypto} {selectedCoin.short} · <Box component="span" sx={{ fontWeight: 700, color: theme.palette.text.primary }}>€{MOCK_DATA.totalAmount.toFixed(2)} EUR</Box> settled to the merchant wallet.
@@ -721,7 +721,7 @@ const PaymentDemo = () => {
                       color: theme.palette.text.primary,
                     }}
                   >
-                    Try the demo again
+                    {t('tryDemoAgain')}
                   </Button>
                 </>
               )}

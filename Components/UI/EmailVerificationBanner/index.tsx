@@ -11,8 +11,10 @@ import {
 import { rootReducer } from "@/utils/types";
 import OtpDialog from "@/Components/UI/OtpDialog";
 import useIsMobile from "@/hooks/useIsMobile";
+import { useTranslation } from "react-i18next";
 
 const EmailVerificationBanner: React.FC = () => {
+  const { t } = useTranslation("common");
   const theme = useTheme();
   const dispatch = useDispatch();
   const isMobile = useIsMobile("sm");
@@ -104,7 +106,7 @@ const EmailVerificationBanner: React.FC = () => {
               color: theme.palette.text.primary,
             }}
           >
-            Please verify your email address to access all features.
+            {t("verifyEmailBanner")}
           </Typography>
         </Box>
         <Button

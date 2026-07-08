@@ -21,8 +21,10 @@ import {
 } from "@/utils/types/paymentTypes";
 import { paymentTypes } from "@/utils/enums";
 import { usePaymentRates } from "@/hooks/usePaymentRates";
+import { useTranslation } from "react-i18next";
 
 const BankTransferComponent = () => {
+  const { t } = useTranslation("common");
   const theme = useTheme();
   const dispatch = useDispatch();
   const walletState = useSelector((state: rootReducer) => state.walletReducer);
@@ -118,7 +120,7 @@ const BankTransferComponent = () => {
       }}
     >
       <Typography>
-        Proceed to your bank app to complete this transfer
+        {t("proceedToBankApp")}
       </Typography>
       {loading ? (
         <Box
@@ -191,7 +193,7 @@ const BankTransferComponent = () => {
               {selectedCurrency?.currency !== walletState.currency && (
                 <Box>
                   <Typography className="topText" textAlign={"right"}>
-                    Transfer Rate
+                    {t("transferRate")}
                   </Typography>
                   <Typography fontSize={14} fontWeight={600}>
                     ({" "}
@@ -211,13 +213,13 @@ const BankTransferComponent = () => {
               )}
             </Box>
             <Box>
-              <Typography className="topText">Account Number</Typography>
+              <Typography className="topText">{t("accountNumberLabel")}</Typography>
               <Typography className="mainText">
                 {transferDetails?.transfer_account ?? "00000"}
               </Typography>
             </Box>
             <Box>
-              <Typography className="topText">Bank Name</Typography>
+              <Typography className="topText">{t("bankNameLabel")}</Typography>
               <Typography className="mainText">
                 {transferDetails?.transfer_bank ?? "Bank"}
               </Typography>
@@ -238,7 +240,7 @@ const BankTransferComponent = () => {
             </Typography>
           </Box>
           <Button variant="rounded" sx={{ mt: 3 }} onClick={handleSubmit}>
-            I have made this bank transfer
+            {t("madeBankTransfer")}
           </Button>
         </>
       )}

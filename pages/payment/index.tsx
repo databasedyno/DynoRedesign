@@ -30,6 +30,7 @@ import React, { useEffect, useState } from "react";
 import "react-credit-cards-2/dist/es/styles-compiled.css";
 import { useSelector } from "react-redux";
 import CyrptoComponent from "../../Components/Page/Payment/CryptoComponent";
+import { useTranslation } from "react-i18next";
 
 const paymentMethods = [
   { label: "Card", value: paymentTypes.CARD, icon: <CreditCardRounded /> },
@@ -76,6 +77,7 @@ const paymentMethods = [
 ];
 
 const Payment = () => {
+  const { t } = useTranslation("common");
   const theme = useTheme();
   const tokenData = useTokenData();
   const [paymentType, setPaymentType] = useState(paymentTypes.CARD);
@@ -195,7 +197,7 @@ const Payment = () => {
             >
               <Box>
                 <BrandLogo redirect={false} />
-                <Typography>Standard Payment</Typography>
+                <Typography>{t("standardPayment")}</Typography>
               </Box>
               <Box>
                 <Typography sx={{ fontWeight: 500, fontSize: 24 }}>

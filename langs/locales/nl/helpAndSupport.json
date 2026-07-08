@@ -9,5 +9,9 @@
   "chatUs": "Chat met ons",
   "openChat": "Chat openen",
   "chatResponseTime": "Typische reactietijd: minder dan 3 minuten",
-  "noResults": "Geen artikelen gevonden. Probeer een andere zoekterm."
+  "noResults": "Geen artikelen gevonden. Probeer een andere zoekterm.",
+  "articleNotFound": "Artikel niet gevonden",
+  "backToHelpSupport": "Terug naar Hulp & Ondersteuning",
+  "feedbackThanks": "Bedankt voor uw feedback!",
+  "wasArticleHelpful": "Was dit artikel nuttig?"
 }

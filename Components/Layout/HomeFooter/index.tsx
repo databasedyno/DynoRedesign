@@ -180,7 +180,7 @@ const HomeFooter: FC = () => {
                 mb: 2,
               }}
             >
-              Accept crypto by country
+              {t('footerByCountry')}
             </Typography>
             <Box
               component="ul"
@@ -240,7 +240,7 @@ const HomeFooter: FC = () => {
                 mb: 2,
               }}
             >
-              For your industry
+              {t('footerByIndustry')}
             </Typography>
             <Box
               component="ul"

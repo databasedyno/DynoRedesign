@@ -21,8 +21,10 @@ import {
 import { NorthEastRounded } from "@mui/icons-material";
 import { paymentTypes } from "@/utils/enums";
 import { usePaymentRates } from "@/hooks/usePaymentRates";
+import { useTranslation } from "react-i18next";
 
 const QRCodeComponent = () => {
+  const { t } = useTranslation("common");
   const theme = useTheme();
   const dispatch = useDispatch();
   const walletState = useSelector((state: rootReducer) => state.walletReducer);
@@ -114,7 +116,7 @@ const QRCodeComponent = () => {
     >
       {loading ? (
         <>
-          <Typography>Please wait</Typography>
+          <Typography>{t("pleaseWait")}</Typography>
           <Box
             sx={{
               height: "375px",
@@ -183,7 +185,7 @@ const QRCodeComponent = () => {
               {selectedCurrency?.currency !== walletState.currency && (
                 <Box>
                   <Typography className="topText" textAlign={"right"}>
-                    Transfer Rate
+                    {t("transferRate")}
                   </Typography>
                   <Typography fontSize={14} fontWeight={600}>
                     ({" "}
@@ -220,7 +222,7 @@ const QRCodeComponent = () => {
             </Box>
           </Box>
           <Button variant="rounded" sx={{ mt: 3 }} onClick={handleSubmit}>
-            I have completed this payment
+            {t("completedPayment")}
           </Button>
         </>
       )}

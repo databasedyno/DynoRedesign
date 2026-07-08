@@ -8,6 +8,7 @@ import {
 import { Box, Typography, useTheme } from "@mui/material";
 import useIsMobile from "@/hooks/useIsMobile";
 import { useRouter } from "next/router";
+import { useTranslation } from "react-i18next";
 
 interface SetupStep {
   label: string;
@@ -25,6 +26,7 @@ const DashboardSetupPrompt: React.FC<DashboardSetupPromptProps> = ({
   hasCompany,
   hasWallet,
 }) => {
+  const { t } = useTranslation("common");
   const theme = useTheme();
   const isMobile = useIsMobile("md");
   const router = useRouter();
@@ -86,7 +88,7 @@ const DashboardSetupPrompt: React.FC<DashboardSetupPromptProps> = ({
               lineHeight: 1.3,
             }}
           >
-            Complete your setup
+            {t("completeYourSetup")}
           </Typography>
           <Typography
             sx={{

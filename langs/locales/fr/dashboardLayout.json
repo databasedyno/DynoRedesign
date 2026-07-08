@@ -122,5 +122,6 @@
   "growTrialCompleteBody": "Vous avez traité vos premiers 500 $ sans frais. Parrainez un autre commerçant et gagnez 50 $ de crédit sans frais supplémentaires lorsqu'il traite 100 $.",
   "apiPaymentLabel": "Paiement API",
   "paymentLinkLabel": "Lien de paiement",
-  "nextTierHint": "Atteignez le niveau {next} pour des frais de {pct} (économisez {savings})"
+  "nextTierHint": "Atteignez le niveau {next} pour des frais de {pct} (économisez {savings})",
+  "switchedToCompany": "Basculé vers"
 }

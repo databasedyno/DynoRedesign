@@ -1,4 +1,5 @@
 import React, { Component, ErrorInfo, ReactNode } from "react";
+import i18n from "@/i18n";
 
 interface Props {
   children: ReactNode;
@@ -58,10 +59,10 @@ class ErrorBoundary extends Component<Props, State> {
             }}
           >
             <h2 style={{ color: "#dc2626", marginBottom: "0.5rem" }}>
-              Something went wrong
+              {i18n.t("common:somethingWentWrong")}
             </h2>
             <p style={{ color: "#6b7280", marginBottom: "1.5rem" }}>
-              An unexpected error occurred. Please try refreshing the page.
+              {i18n.t("common:unexpectedErrorRefresh")}
             </p>
             <button
               onClick={() => window.location.reload()}
@@ -76,7 +77,7 @@ class ErrorBoundary extends Component<Props, State> {
                 marginRight: "0.5rem",
               }}
             >
-              Refresh Page
+              {i18n.t("common:refreshPage")}
             </button>
             <button
               onClick={this.handleReset}
@@ -90,7 +91,7 @@ class ErrorBoundary extends Component<Props, State> {
                 fontSize: "0.95rem",
               }}
             >
-              Try Again
+              {i18n.t("common:tryAgain")}
             </button>
           </div>
         </div>

@@ -1,31 +1,28 @@
 {
   "notifications": "Notifications",
   "notificationsDescription": "Manage how you receive updates about your crypto payments",
-
   "transactionAlertsTitle": "Transaction Alerts",
   "transactionAlertsSubtitle": "Be notified about changes in transaction statuses",
   "transactionUpdatesTitle": "Transaction Updates",
   "transactionUpdatesDescription": "Receive notifications when transactions are confirmed or completed",
   "paymentReceivedTitle": "Payment Received",
   "paymentReceivedDescription": "Be notified immediately when you receive a payment",
-
   "weeklyReportsTitle": "Weekly Reports",
   "weeklyReportsSubtitle": "Receive a weekly summary of your activities",
   "weeklySummaryTitle": "Weekly Summary",
   "weeklySummaryDescription": "Receive a weekly summary of your activities every Monday",
   "securityAlertsTitle": "Security Alerts",
   "securityAlertsDescription": "Alerts for suspicious activity or security changes",
-
   "emailNotificationsCardTitle": "Email Notifications",
   "emailNotificationsCardSubtitle": "Receive email notifications for important events",
   "emailNotificationsTitle": "Email Notifications",
   "emailNotificationsDescription": "Receive important updates via email",
   "smsNotificationsTitle": "SMS notifications",
   "smsNotificationsDescription": "Receive critical alerts via SMS",
-
   "browserNotificationsTitle": "Browser Notifications",
   "browserNotificationsDescription": "Receive notifications on your desktop",
-
   "activate": "Activate",
-  "saveChanges": "Save Changes"
+  "saveChanges": "Save Changes",
+  "noNotificationsYet": "No notifications yet",
+  "notSupportedInBrowser": "Not supported in this browser"
 }

@@ -96,5 +96,6 @@
   "setupStepCompanyHelper": "Usado em faturas e recibos. Demora ~30 segundos.",
   "setupStepWalletLabel": "Adicione uma carteira de pagamento",
   "setupStepWalletHelper": "Para onde os pagamentos dos clientes são enviados. Necessário para receber cripto.",
-  "setupDone": "Concluído"
+  "setupDone": "Concluído",
+  "youReceive": "Você recebe"
 }

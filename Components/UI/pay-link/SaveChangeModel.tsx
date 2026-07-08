@@ -8,8 +8,10 @@ import {Box,
   DialogContent,
   Typography, useTheme} from "@mui/material";
 import Image from "next/image";
+import { useTranslation } from "react-i18next";
 
 const SaveChangeModel = ({ open, onClose, onSave }: SaveChangeModelProps) => {
+  const { t } = useTranslation("common");
   const isMobile = useIsMobile("md");
   const theme = useTheme();
   return (
@@ -43,7 +45,7 @@ const SaveChangeModel = ({ open, onClose, onSave }: SaveChangeModelProps) => {
               color: theme.palette.text.primary,
             }}
           >
-            Save Changes?
+            {t("saveChangesTitle")}
           </Typography>
         </Box>
 
@@ -106,7 +108,7 @@ const SaveChangeModel = ({ open, onClose, onSave }: SaveChangeModelProps) => {
             },
           }}
         >
-          Save Change
+          {t("saveChangeAction")}
         </Button>
       </DialogActions>
     </Dialog>

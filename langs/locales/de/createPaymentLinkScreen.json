@@ -96,5 +96,6 @@
   "setupStepCompanyHelper": "Wird auf Rechnungen und Belegen verwendet. Dauert ~30 Sekunden.",
   "setupStepWalletLabel": "Auszahlungs-Wallet hinzufügen",
   "setupStepWalletHelper": "Wohin Kundenzahlungen gesendet werden. Erforderlich, um Krypto zu empfangen.",
-  "setupDone": "Erledigt"
+  "setupDone": "Erledigt",
+  "youReceive": "Sie erhalten"
 }

@@ -3,8 +3,10 @@ import React, { useEffect, useState } from "react";
 import { Box, Typography, Button, CircularProgress, useTheme } from "@mui/material";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import BrandLogo from "@/Components/Layout/BrandLogo";
+import { useTranslation } from "react-i18next";
 
 const Success = () => {
+  const { t } = useTranslation("common");
   const router = useRouter();
   const theme = useTheme();
   const [paymentData, setPaymentData] = useState<Record<string, unknown> | null>(null);
@@ -65,7 +67,7 @@ const Success = () => {
           variant="h5"
           sx={{ fontFamily: "OutfitSemiBold", mb: 1, color: "text.primary" }}
         >
-          Payment Successful
+          {t("paymentSuccessful")}
         </Typography>
 
         <Typography
@@ -76,7 +78,7 @@ const Success = () => {
             fontSize: 15,
           }}
         >
-          Your payment has been processed successfully.
+          {t("paymentProcessedSuccessfully")}
         </Typography>
 
         {paymentData?.transaction_id && (
@@ -96,7 +98,7 @@ const Success = () => {
                 mb: 0.5,
               }}
             >
-              Transaction ID
+              {t("transactionIdLabel")}
             </Typography>
             <Typography
               sx={{
@@ -121,7 +123,7 @@ const Success = () => {
             py: 1.2,
           }}
         >
-          Return Home
+          {t("returnHome")}
         </Button>
       </Box>
     </Box>

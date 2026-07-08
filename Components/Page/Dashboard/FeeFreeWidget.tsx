@@ -3,6 +3,7 @@ import { Box, Typography, LinearProgress, useTheme } from "@mui/material";
 import { Icon } from "@iconify/react";
 import axiosBaseApi from "@/axiosConfig";
 import useIsMobile from "@/hooks/useIsMobile";
+import { useTranslation } from "react-i18next";
 
 interface FeeFreeData {
   fee_free_remaining_usd: number;
@@ -15,6 +16,7 @@ interface FeeFreeData {
 }
 
 const FeeFreeWidget: React.FC = () => {
+  const { t } = useTranslation("common");
   const theme = useTheme();
   const isMobile = useIsMobile("md");
   const [data, setData] = useState<FeeFreeData | null>(null);
@@ -88,7 +90,7 @@ const FeeFreeWidget: React.FC = () => {
               color: theme.palette.text.primary,
             }}
           >
-            Fee-Free Promotion
+            {t("feeFreePromotion")}
           </Typography>
         </Box>
         <Typography

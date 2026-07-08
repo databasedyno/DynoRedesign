@@ -129,5 +129,9 @@
     "addSubtitle": "Stel nog een bedrijfsprofiel in onder je account",
     "payLinkSubtitle": "Gebruikt op facturen en bonnen. Duurt ongeveer 30 seconden.",
     "cancel": "Annuleren"
-  }
+  },
+  "addCompanyBtn": "Bedrijf toevoegen",
+  "noCompaniesYet": "Nog geen bedrijven",
+  "createFirstCompanyBody": "Maak uw eerste bedrijfsprofiel aan om betalingen te accepteren en uw bedrijf te beheren.",
+  "noResultsFound": "Geen resultaten gevonden"
 }

@@ -1,5 +1,6 @@
 import { Box, Typography, useTheme, useMediaQuery } from "@mui/material";
 import { useEffect, useState, useCallback, ReactNode } from "react";
+import i18n from "@/i18n";
 
 /* ─────────────────────────────────────────────────────
    CAROUSEL SLIDE DATA
@@ -316,7 +317,7 @@ const CheckoutMockup = () => (
     </Box>
     {/* Amount display */}
     <Box sx={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "8px", p: "10px", mb: "10px", textAlign: "center" }}>
-      <Typography sx={{ fontSize: "9px", color: "rgba(255,255,255,0.45)", fontFamily: "UrbanistMedium, sans-serif", mb: "2px" }}>You will pay</Typography>
+      <Typography sx={{ fontSize: "9px", color: "rgba(255,255,255,0.45)", fontFamily: "UrbanistMedium, sans-serif", mb: "2px" }}>{i18n.t("common:youWillPay")}</Typography>
       <Typography sx={{ fontSize: "15px", fontWeight: 700, color: "#fff", fontFamily: "UrbanistBold, sans-serif" }}>0.00289 BTC</Typography>
       <Typography sx={{ fontSize: "8px", color: "rgba(255,255,255,0.4)", fontFamily: "monospace", mt: "2px" }}>≈ $250.00 USD</Typography>
     </Box>

@@ -95,13 +95,13 @@ const HelpDetail = ({
     return (
       <Box sx={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 2, minHeight: 300 }}>
         <Typography sx={{ fontSize: "18px", fontFamily: "UrbanistMedium", color: theme.palette.text.secondary }}>
-          Article not found
+          {t('articleNotFound')}
         </Typography>
         <Button
           onClick={() => router.push("/help-support")}
           sx={{ color: "#4F46E5", textTransform: "none", fontFamily: "UrbanistMedium" }}
         >
-          Back to Help & Support
+          {t('backToHelpSupport')}
         </Button>
       </Box>
     );
@@ -160,7 +160,7 @@ const HelpDetail = ({
           >
             <Image src={BackArrow} alt="Back" width={16} height={16} />
             <Typography sx={{ fontSize: "14px", fontFamily: "UrbanistMedium", color: theme.palette.text.secondary }}>
-              Back to Help & Support
+              {t('backToHelpSupport')}
             </Typography>
           </Box>
 
@@ -260,12 +260,12 @@ const HelpDetail = ({
           >
             {feedbackSubmitted ? (
               <Typography sx={{ fontSize: "15px", fontFamily: "UrbanistMedium", color: theme.palette.text.primary }}>
-                Thank you for your feedback!
+                {t('feedbackThanks')}
               </Typography>
             ) : (
               <>
                 <Typography sx={{ fontSize: "15px", fontFamily: "UrbanistMedium", color: theme.palette.text.primary }}>
-                  Was this article helpful?
+                  {t('wasArticleHelpful')}
                 </Typography>
                 <Box sx={{ display: "flex", gap: 2 }}>
                   <Button

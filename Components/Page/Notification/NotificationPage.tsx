@@ -329,7 +329,7 @@ const NotificationPage = () => {
           ) : notifications.length === 0 ? (
             <Box sx={{ textAlign: "center", py: 6 }}>
               <Typography sx={{ fontSize: "15px", color: theme.palette.text.secondary, fontFamily: "UrbanistMedium" }}>
-                No notifications yet
+                {t("noNotificationsYet")}
               </Typography>
             </Box>
           ) : (
@@ -722,7 +722,7 @@ const NotificationPage = () => {
                         fontStyle: "italic",
                       }}
                     >
-                      Not supported in this browser
+                      {t("notSupportedInBrowser")}
                     </Typography>
                   )}
                 </Box>

@@ -12,6 +12,7 @@ import {
 import { Box, Typography, useTheme } from "@mui/material";
 import Image from "next/image";
 import {
+import { useTranslation } from "react-i18next";
   Area,
   AreaChart,
   CartesianGrid,
@@ -245,6 +246,7 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({
 };
 
 const Chart = ({ data }: { data: ChartData[] }) => {
+  const { t } = useTranslation("common");
   const muiTheme = useTheme();
   const isDark = muiTheme.palette.mode === "dark";
   const isAllZero = data.every((item) => item.value === 0);
@@ -599,7 +601,7 @@ const Chart = ({ data }: { data: ChartData[] }) => {
                     fontFamily="UrbanistMedium"
                     letterSpacing={0}
                   >
-                    There is no data to show
+                    {t("noDataToShow")}
                   </text>
                 </>
               )}

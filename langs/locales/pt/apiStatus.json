@@ -20,5 +20,7 @@
   "incident2Name": "Aumento de Latência da API",
   "incident2Time": "28 de nov. de 2025",
   "incident2Description": "Pico breve de latência resolvido em 15 minutos.",
-  "resolved": "Resolvido"
+  "resolved": "Resolvido",
+  "noRecentIncidents": "Nenhum incidente recente. Todos os sistemas funcionando normalmente.",
+  "autoRefresh60": "Atualiza automaticamente a cada 60 segundos"
 }

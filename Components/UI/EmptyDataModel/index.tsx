@@ -170,7 +170,7 @@ const EmptyDataModel = ({ pageName, onAddWallet }: EmptyDataModelProps) => {
                         }}
                     >
                         <HelpOutlineRounded sx={{ fontSize: isMobile ? 14 : 16 }} />
-                        What is a payout wallet?
+                        {t("whatIsPayoutWallet")}
                     </MuiLink>
                 )}
             </Box>

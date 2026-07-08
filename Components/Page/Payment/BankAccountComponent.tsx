@@ -27,12 +27,14 @@ import { paymentTypes } from "@/utils/enums";
 import FormManager from "../Common/FormManager";
 import Dropdown from "@/Components/UI/Dropdown";
 import { usePaymentRates } from "@/hooks/usePaymentRates";
+import { useTranslation } from "react-i18next";
 
 const timer = (ms: any) => new Promise((res) => setTimeout(res, ms));
 
 const currencyListItems = ["EUR", "GBP", "NGN"];
 
 const BankAccountComponent = () => {
+  const { t } = useTranslation("common");
   const theme = useTheme();
   const dispatch = useDispatch();
   const walletState = useSelector((state: rootReducer) => state.walletReducer);
@@ -134,7 +136,7 @@ const BankAccountComponent = () => {
     >
       {loading ? (
         <>
-          <Typography>Please wait</Typography>
+          <Typography>{t("pleaseWait")}</Typography>
           <Box
             sx={{
               height: "375px",
@@ -219,7 +221,7 @@ const BankAccountComponent = () => {
               </Box>
               <Box>
                 <Typography className="topText" textAlign={"right"}>
-                  Transfer Rate
+                  {t("transferRate")}
                 </Typography>
                 <Typography fontSize={14} fontWeight={600}>
                   ({" "}
@@ -287,7 +289,7 @@ const BankAccountComponent = () => {
             <Collapse in={collapse}>
               {loading2 ? (
                 <>
-                  <Typography textAlign={"center"}>Please wait</Typography>
+                  <Typography textAlign={"center"}>{t("pleaseWait")}</Typography>
                   <Box
                     sx={{
                       height: "275px",
@@ -324,7 +326,7 @@ const BankAccountComponent = () => {
                       <NorthEastRounded fontSize="inherit" />
                     </Box>
                     <Typography>
-                      You will be redirected to complete this payment.
+                      {t("redirectToCompletePayment")}
                     </Typography>
                   </Box>
                   <Button
