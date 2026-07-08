@@ -1,5 +1,6 @@
 import PanelCard from "@/Components/UI/PanelCard";
 import { Box, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { useRouter } from "next/router";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
@@ -767,6 +768,60 @@ const CreatePaymentLinkPage = ({
       .filter((label) => !configuredTypes.has(label));
   }, [walletList, ALL_CRYPTO_ITEMS]);
 
+  // UX-2026-07-08: Pre-select the 3 most-popular cryptos (BTC / ETH / USDT-ERC20)
+  // intersected with what the merchant actually has wallets configured for.
+  // Only runs when creating a NEW pay-link (skip when editing) AND when no crypto
+  // has been picked yet — otherwise we'd nuke the user's own choices on re-render.
+  const hasSeededDefaultsRef = useRef(false);
+  useEffect(() => {
+    if (hasSeededDefaultsRef.current) return;
+    if (hasPaymentLinkData) return; // never auto-modify while editing
+    if (paymentSettings.acceptedCryptoCurrency && paymentSettings.acceptedCryptoCurrency.length > 0) return;
+    if (!walletList || walletList.length === 0) return; // wait until wallets are known
+    const PREFERRED = ["BTC", "ETH", "USDT-ERC20"];
+    const configured = new Set(
+      walletList.filter((w: any) => Boolean(w.wallet_address)).map((w: any) => w.wallet_type),
+    );
+    const preselect = PREFERRED.filter((label) => configured.has(label));
+    if (preselect.length === 0) return;
+    hasSeededDefaultsRef.current = true;
+    setPaymentSettings((prev) => ({ ...prev, acceptedCryptoCurrency: preselect }));
+  }, [walletList, hasPaymentLinkData, paymentSettings.acceptedCryptoCurrency]);
+
+  // UX-2026-07-08: apply query-string template presets when arriving via
+  // empty-state chips (e.g. /create-pay-link?template=invoice&amount=500).
+  const router = useRouter();
+  const hasAppliedTemplateRef = useRef(false);
+  useEffect(() => {
+    if (hasAppliedTemplateRef.current) return;
+    if (hasPaymentLinkData) return;
+    if (!router.isReady) return;
+    const template = String(router.query.template || "").toLowerCase();
+    const amountQ = Number(router.query.amount);
+    if (!template && !Number.isFinite(amountQ)) return;
+
+    const templateTitles: Record<string, string> = {
+      invoice: tPaymentLink("templateInvoice", { defaultValue: "Invoice" }),
+      product: tPaymentLink("templateProduct", { defaultValue: "Product" }),
+      donation: tPaymentLink("templateDonation", { defaultValue: "Donation" }),
+      tips: tPaymentLink("templateTips", { defaultValue: "Tip" }),
+    };
+    const templateDescs: Record<string, string> = {
+      invoice: tPaymentLink("templateInvoiceDesc", { defaultValue: "Invoice payment" }),
+      product: tPaymentLink("templateProductDesc", { defaultValue: "Product purchase" }),
+      donation: tPaymentLink("templateDonationDesc", { defaultValue: "Donation" }),
+      tips: tPaymentLink("templateTipsDesc", { defaultValue: "Thanks for the tip!" }),
+    };
+
+    hasAppliedTemplateRef.current = true;
+    setPaymentSettings((prev) => ({
+      ...prev,
+      amount: Number.isFinite(amountQ) && amountQ > 0 ? String(amountQ) : prev.amount,
+      title: templateTitles[template] || prev.title,
+      description: templateDescs[template] || prev.description,
+    }));
+  }, [router.isReady, router.query.template, router.query.amount, hasPaymentLinkData, tPaymentLink]);
+
   useEffect(() => {
     const handleResize = () => {
       setWindowWidth(window.innerWidth);
@@ -820,26 +875,92 @@ const CreatePaymentLinkPage = ({
           <Box
             sx={{
               display: "flex",
-              alignItems: "center",
+              alignItems: "flex-start",
               gap: 1.5,
-              p: "12px 16px",
+              p: "14px 16px",
               mb: 2,
               borderRadius: "10px",
               bgcolor: theme.palette.mode === "dark" ? "rgba(255, 152, 0, 0.12)" : "rgba(255, 152, 0, 0.08)",
               border: `1px solid ${theme.palette.mode === "dark" ? "rgba(255, 152, 0, 0.3)" : "rgba(255, 152, 0, 0.4)"}`,
+              flexDirection: { xs: "column", sm: "row" },
             }}
           >
-            <Typography sx={{ fontSize: "18px" }}>⚠️</Typography>
-            <Typography
-              sx={{
-                fontSize: "13px",
-                fontFamily: "UrbanistMedium",
-                color: theme.palette.mode === "dark" ? "#FFB74D" : "#E65100",
-                lineHeight: 1.4,
-              }}
-            >
-              {tPaymentLink("noApiKeyWarning") || "No active API key found. Please create an API key in Developer Settings before creating payment links. An API key is automatically created when you complete onboarding."}
-            </Typography>
+            <Typography sx={{ fontSize: "18px" }} aria-hidden>⚠️</Typography>
+            <Box sx={{ flex: 1 }}>
+              <Typography
+                sx={{
+                  fontSize: "14px",
+                  fontFamily: "UrbanistSemiBold",
+                  fontWeight: 600,
+                  color: theme.palette.mode === "dark" ? "#FFB74D" : "#E65100",
+                  lineHeight: 1.4,
+                  mb: 0.5,
+                }}
+              >
+                {tPaymentLink("activationRequiredTitle", { defaultValue: "Preview mode — activate to accept real payments" })}
+              </Typography>
+              <Typography
+                sx={{
+                  fontSize: "13px",
+                  fontFamily: "UrbanistMedium",
+                  color: theme.palette.mode === "dark" ? "#FFB74D" : "#E65100",
+                  lineHeight: 1.5,
+                  opacity: 0.9,
+                }}
+              >
+                {tPaymentLink("activationRequiredBody", { defaultValue: "You can design and preview your payment link now. To activate it (accept real crypto payments), complete two quick steps: add your business details and at least one payout wallet. It takes ~60 seconds." })}
+              </Typography>
+              <Box sx={{ display: "flex", gap: 1, mt: 1.25, flexWrap: "wrap" }}>
+                <Box
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => router.push("/dashboard?onboarding=1")}
+                  onKeyDown={(e: React.KeyboardEvent) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      router.push("/dashboard?onboarding=1");
+                    }
+                  }}
+                  sx={{
+                    cursor: "pointer",
+                    padding: "6px 12px",
+                    borderRadius: 999,
+                    fontFamily: "UrbanistSemiBold",
+                    fontSize: 12,
+                    backgroundColor: theme.palette.mode === "dark" ? "#FFB74D" : "#E65100",
+                    color: theme.palette.mode === "dark" ? "#000" : "#FFF",
+                    "&:hover": { filter: "brightness(1.1)" },
+                    userSelect: "none",
+                  }}
+                >
+                  {tPaymentLink("activationCta", { defaultValue: "Complete setup" })}
+                </Box>
+                <Box
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => router.push("/wallet")}
+                  onKeyDown={(e: React.KeyboardEvent) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      router.push("/wallet");
+                    }
+                  }}
+                  sx={{
+                    cursor: "pointer",
+                    padding: "6px 12px",
+                    borderRadius: 999,
+                    fontFamily: "UrbanistSemiBold",
+                    fontSize: 12,
+                    border: `1px solid ${theme.palette.mode === "dark" ? "#FFB74D" : "#E65100"}`,
+                    color: theme.palette.mode === "dark" ? "#FFB74D" : "#E65100",
+                    "&:hover": { backgroundColor: theme.palette.mode === "dark" ? "rgba(255,183,77,0.15)" : "rgba(230,81,0,0.10)" },
+                    userSelect: "none",
+                  }}
+                >
+                  {tPaymentLink("addWalletCta", { defaultValue: "Add payout wallet" })}
+                </Box>
+              </Box>
+            </Box>
           </Box>
         )}
         <TabNavigation
@@ -948,84 +1069,153 @@ const CreatePaymentLinkPage = ({
                 }}
               />
 
-              {/* Optional Customer Email for referral code delivery */}
-              <Box sx={{ py: 2 }}>
-                <Typography
+              {/* UX-2026-07-08: Progressive disclosure — collapse optional inputs
+                  behind an "Advanced options" accordion so the form defaults to
+                  5 essentials (Amount, Currency, Cryptos, Title, Expiry). */}
+              <Box
+                component="details"
+                sx={{
+                  border: `1px solid ${theme.palette.border.main}`,
+                  borderRadius: "10px",
+                  padding: 0,
+                  overflow: "hidden",
+                  "&[open] > summary::after": {
+                    transform: "rotate(180deg)",
+                  },
+                  "& > summary::-webkit-details-marker": { display: "none" },
+                }}
+              >
+                <Box
+                  component="summary"
                   sx={{
-                    fontSize: "14px",
+                    px: isMobile ? 2 : 2.5,
+                    py: isMobile ? 1.25 : 1.5,
+                    cursor: "pointer",
+                    listStyle: "none",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    userSelect: "none",
                     fontFamily: "UrbanistSemiBold",
+                    fontSize: 14,
                     fontWeight: 600,
                     color: theme.palette.text.primary,
-                    mb: 1,
+                    "&::after": {
+                      content: "'▾'",
+                      display: "inline-block",
+                      transition: "transform 180ms ease",
+                      fontSize: 14,
+                      color: theme.palette.text.secondary,
+                    },
+                    "&:hover": {
+                      backgroundColor: theme.palette.action.hover,
+                    },
                   }}
                 >
-                  {tPaymentLink("customerEmail") || "Customer Email"}{" "}
-                  <Typography component="span" sx={{ fontSize: "13px", color: theme.palette.text.secondary, fontFamily: "UrbanistRegular" }}>
-                    ({tPaymentLink("optional") || "Optional"})
-                  </Typography>
-                </Typography>
-                <Typography
-                  sx={{
-                    fontSize: "12px",
-                    fontFamily: "UrbanistRegular",
-                    color: theme.palette.text.secondary,
-                    mb: 1.5,
-                  }}
-                >
-                  {tPaymentLink("customerEmailDescription") || "Send payment link and referral code to this email"}
-                </Typography>
+                  <Box component="span" sx={{ display: "inline-flex", alignItems: "center", gap: 1 }}>
+                    <span aria-hidden>⚙️</span>
+                    {tPaymentLink("advancedOptions", { defaultValue: "Advanced options" })}
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontFamily: "UrbanistRegular",
+                        fontWeight: 400,
+                        fontSize: 12,
+                        color: theme.palette.text.secondary,
+                        ml: 0.5,
+                      }}
+                    >
+                      {tPaymentLink("advancedOptionsHint", { defaultValue: "Customer email, tax" })}
+                    </Typography>
+                  </Box>
+                </Box>
                 <Box
-                  component="input"
-                  type="email"
-                  value={customerEmail}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => { setCustomerEmail(e.target.value); setCustomerEmailError(""); }}
-                  placeholder={tPaymentLink("customerEmailPlaceholder") || "customer@example.com"}
                   sx={{
-                    width: "100%",
-                    p: "10px 14px",
-                    borderRadius: "10px",
-                    border: `1px solid ${customerEmailError ? theme.palette.error.main : theme.palette.border.main}`,
-                    bgcolor: theme.palette.background.paper,
-                    color: theme.palette.text.primary,
-                    fontFamily: "UrbanistRegular",
-                    fontSize: "14px",
-                    outline: "none",
-                    "&:focus": {
-                      borderColor: customerEmailError ? theme.palette.error.main : theme.palette.primary.main,
-                    },
-                    "&::placeholder": {
-                      color: theme.palette.text.disabled,
-                    },
+                    borderTop: `1px solid ${theme.palette.border.main}`,
+                    px: isMobile ? 2 : 2.5,
+                    py: 1,
                   }}
-                />
-                {customerEmailError && (
-                  <Typography
+                >
+                  {/* Optional Customer Email for referral code delivery */}
+                  <Box sx={{ py: 2 }}>
+                    <Typography
+                      sx={{
+                        fontSize: "14px",
+                        fontFamily: "UrbanistSemiBold",
+                        fontWeight: 600,
+                        color: theme.palette.text.primary,
+                        mb: 1,
+                      }}
+                    >
+                      {tPaymentLink("customerEmail") || "Customer Email"}{" "}
+                      <Typography component="span" sx={{ fontSize: "13px", color: theme.palette.text.secondary, fontFamily: "UrbanistRegular" }}>
+                        ({tPaymentLink("optional") || "Optional"})
+                      </Typography>
+                    </Typography>
+                    <Typography
+                      sx={{
+                        fontSize: "12px",
+                        fontFamily: "UrbanistRegular",
+                        color: theme.palette.text.secondary,
+                        mb: 1.5,
+                      }}
+                    >
+                      {tPaymentLink("customerEmailDescription") || "Send payment link and referral code to this email"}
+                    </Typography>
+                    <Box
+                      component="input"
+                      type="email"
+                      value={customerEmail}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => { setCustomerEmail(e.target.value); setCustomerEmailError(""); }}
+                      placeholder={tPaymentLink("customerEmailPlaceholder") || "customer@example.com"}
+                      sx={{
+                        width: "100%",
+                        p: "10px 14px",
+                        borderRadius: "10px",
+                        border: `1px solid ${customerEmailError ? theme.palette.error.main : theme.palette.border.main}`,
+                        bgcolor: theme.palette.background.paper,
+                        color: theme.palette.text.primary,
+                        fontFamily: "UrbanistRegular",
+                        fontSize: "14px",
+                        outline: "none",
+                        "&:focus": {
+                          borderColor: customerEmailError ? theme.palette.error.main : theme.palette.primary.main,
+                        },
+                        "&::placeholder": {
+                          color: theme.palette.text.disabled,
+                        },
+                      }}
+                    />
+                    {customerEmailError && (
+                      <Typography
+                        sx={{
+                          fontSize: "12px",
+                          fontFamily: "UrbanistMedium",
+                          color: theme.palette.error.main,
+                          mt: "4px",
+                        }}
+                      >
+                        {customerEmailError}
+                      </Typography>
+                    )}
+                  </Box>
+
+                  <Box
                     sx={{
-                      fontSize: "12px",
-                      fontFamily: "UrbanistMedium",
-                      color: theme.palette.error.main,
-                      mt: "4px",
+                      height: "1px",
+                      backgroundColor: theme.palette.border.main,
                     }}
-                  >
-                    {customerEmailError}
-                  </Typography>
-                )}
+                  />
+
+                  <TaxSection
+                    isMobile={isMobile}
+                    tPaymentLink={tPaymentLink}
+                    includeTax={includeTax}
+                    setIncludeTax={setIncludeTax}
+                    currentLng={currentLng}
+                  />
+                </Box>
               </Box>
-
-              <Box
-                sx={{
-                  height: "1px",
-                  backgroundColor: theme.palette.border.main,
-                }}
-              />
-
-              <TaxSection
-                isMobile={isMobile}
-                tPaymentLink={tPaymentLink}
-                includeTax={includeTax}
-                setIncludeTax={setIncludeTax}
-                currentLng={currentLng}
-              />
 
               {hasPaymentLinkData && (
                 <Box

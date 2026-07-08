@@ -127,5 +127,6 @@
   "sidebarSectionMain": "Resumen",
   "sidebarSectionPayments": "Pagos",
   "sidebarSectionAccount": "Cuenta",
-  "newPaymentLink": "Nuevo enlace de pago"
+  "newPaymentLink": "Nuevo enlace de pago",
+  "account": "Cuenta"
 }

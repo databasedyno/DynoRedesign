@@ -68,9 +68,24 @@ const CryptoItemCard: React.FC<CryptoItemCardProps> = React.memo(
               };
             });
           }}
+          role="button"
+          tabIndex={walletNotSetUp.includes(item.label) ? -1 : 0}
+          aria-pressed={paymentSettings.acceptedCryptoCurrency.includes(item.label)}
+          aria-disabled={walletNotSetUp.includes(item.label) || undefined}
+          data-testid={`crypto-card-${item.label}`}
+          onKeyDown={(e: React.KeyboardEvent) => {
+            if (walletNotSetUp.includes(item.label)) return;
+            if (e.key === " " || e.key === "Enter") {
+              e.preventDefault();
+              (e.currentTarget as HTMLElement).click();
+            }
+          }}
           sx={{
             cursor: "pointer",
-            height: isMobile ? "50px" : "66px",
+            // UX-2026-07-08: enforce ≥44px touch-target on mobile (WCAG 2.5.5)
+            // while keeping the desktop card visual size (66px) unchanged.
+            minHeight: isMobile ? "56px" : "66px",
+            height: isMobile ? "auto" : "66px",
             maxWidth: "326px",
             border: `1px solid ${
               paymentSettings.acceptedCryptoCurrency.includes(item.label)
@@ -80,7 +95,7 @@ const CryptoItemCard: React.FC<CryptoItemCardProps> = React.memo(
                   : theme.palette.text.secondary
             }`,
             borderRadius: "14px",
-            padding: isMobile ? "10px" : "18px 12px",
+            padding: isMobile ? "12px 12px" : "18px 12px",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
@@ -89,6 +104,16 @@ const CryptoItemCard: React.FC<CryptoItemCardProps> = React.memo(
             WebkitUserSelect: "none",
             MozUserSelect: "none",
             msUserSelect: "none",
+            transition: "background-color 120ms ease, border-color 120ms ease",
+            "&:hover": walletNotSetUp.includes(item.label)
+              ? undefined
+              : {
+                  backgroundColor: theme.palette.action.hover,
+                },
+            "&:focus-visible": {
+              outline: `2px solid ${theme.palette.primary.main}`,
+              outlineOffset: "2px",
+            },
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: "10px" }}>

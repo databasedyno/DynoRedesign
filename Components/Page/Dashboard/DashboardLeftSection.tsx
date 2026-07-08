@@ -276,6 +276,25 @@ const DashboardLeftSection = () => {
   );
 
   const { activeWalletsData } = useWalletData();
+  // UX-2026-07-08: allow user to compact the Active Wallets card so the hero
+  // row can stay clean. Preference is persisted per browser.
+  const [walletCardCompact, setWalletCardCompact] = useState(false);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const v = window.localStorage.getItem("dash_wallets_compact");
+      if (v === "1") setWalletCardCompact(true);
+    } catch { /* ignore */ }
+  }, []);
+  const toggleWalletCardCompact = useCallback(() => {
+    setWalletCardCompact((prev) => {
+      const next = !prev;
+      try {
+        window.localStorage.setItem("dash_wallets_compact", next ? "1" : "0");
+      } catch { /* ignore */ }
+      return next;
+    });
+  }, []);
   const { stats, chartData, loading, fetchChartData, recentTransactions } = useDashboardData();
 
   // Selectors for empty-state decision (company + wallet setup + payment history).
@@ -545,21 +564,30 @@ const DashboardLeftSection = () => {
           }
           bodyPadding={
             isMobile
-              ? theme.spacing(1.5, 2, 2, 2)
-              : theme.spacing(2, 2, 2.5, 2.5)
+              ? theme.spacing(1.5, 2, walletCardCompact ? 1 : 2, 2)
+              : theme.spacing(2, 2, walletCardCompact ? 1 : 2.5, 2.5)
           }
           sx={{
             width: { xs: "200px", sm: "240px", md: "289px", xl: "315px" },
-            minHeight: { xs: "128px", sm: "140px", md: "176px" },
+            minHeight: walletCardCompact
+              ? { xs: "88px", sm: "96px", md: "108px" }
+              : { xs: "128px", sm: "140px", md: "176px" },
             flexShrink: 0,
+            transition: "min-height 200ms ease",
           }}
           headerAction={
             <IconButton
+              onClick={toggleWalletCardCompact}
+              aria-label={
+                walletCardCompact
+                  ? tDashboard("expandWallets", { defaultValue: "Show wallets" })
+                  : tDashboard("compactWallets", { defaultValue: "Compact view" })
+              }
               sx={{
                 padding: "8px",
                 width: isMobile ? "32px" : "40px",
                 height: isMobile ? "32px" : "40px",
-                "&:hover": { backgroundColor: "transparent" },
+                "&:hover": { backgroundColor: theme.palette.action.hover },
               }}
             >
               <Image
@@ -568,6 +596,7 @@ const DashboardLeftSection = () => {
                 style={{
                   width: "clamp(12px, 2vw, 17px)",
                   height: "auto",
+                  opacity: walletCardCompact ? 0.5 : 1,
                 }}
                 draggable={false}
               />
@@ -594,7 +623,7 @@ const DashboardLeftSection = () => {
             onMouseUp={handleMouseUp}
             onMouseLeave={handleMouseLeave}
             sx={{
-              display: "flex",
+              display: walletCardCompact ? "none" : "flex",
               justifyContent: "start",
               alignItems: "center",
               gap: isMobile ? "6px" : "8px",

@@ -153,6 +153,78 @@ const EmptyDataModel = ({ pageName, onAddWallet }: EmptyDataModelProps) => {
                     }}
                 />
 
+                {/* UX-2026-07-08: Use-case chips on the payment-links empty state
+                    so first-time merchants understand *what* a payment link is
+                    good for and get a starting template.  */}
+                {pageName === "payment-links" && (
+                    <Box
+                        sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            gap: 1.25,
+                            mt: -0.5,
+                            maxWidth: 460,
+                            width: "100%",
+                            px: 2,
+                        }}
+                    >
+                        <Typography
+                            sx={{
+                                fontFamily: "UrbanistMedium",
+                                fontSize: isMobile ? "12px" : "13px",
+                                color: theme.palette.text.secondary,
+                                mb: 0.5,
+                            }}
+                        >
+                            {t("EmptyPaymentLinkQuickstart", { defaultValue: "Try a template" })}
+                        </Typography>
+                        <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", justifyContent: "center" }}>
+                            {[
+                                { key: "invoice", label: t("EmptyPLChipInvoice", { defaultValue: "Invoice a client" }), amount: 500 },
+                                { key: "product", label: t("EmptyPLChipProduct", { defaultValue: "Sell a product" }), amount: 99 },
+                                { key: "donation", label: t("EmptyPLChipDonation", { defaultValue: "Accept a donation" }), amount: 10 },
+                                { key: "tips", label: t("EmptyPLChipTip", { defaultValue: "Tip jar" }), amount: 5 },
+                            ].map((chip) => (
+                                <Box
+                                    key={chip.key}
+                                    role="button"
+                                    tabIndex={0}
+                                    onClick={() => router.push(`/create-pay-link?template=${chip.key}&amount=${chip.amount}`)}
+                                    onKeyDown={(e: React.KeyboardEvent) => {
+                                        if (e.key === "Enter" || e.key === " ") {
+                                            e.preventDefault();
+                                            router.push(`/create-pay-link?template=${chip.key}&amount=${chip.amount}`);
+                                        }
+                                    }}
+                                    sx={{
+                                        cursor: "pointer",
+                                        border: `1px solid ${theme.palette.border.main}`,
+                                        borderRadius: 999,
+                                        padding: isMobile ? "6px 12px" : "8px 14px",
+                                        fontFamily: "UrbanistMedium",
+                                        fontSize: isMobile ? 12 : 13,
+                                        color: theme.palette.text.primary,
+                                        backgroundColor: theme.palette.background.paper,
+                                        transition: "border-color 120ms ease, background-color 120ms ease, transform 120ms ease",
+                                        userSelect: "none",
+                                        "&:hover": {
+                                            borderColor: theme.palette.primary.main,
+                                            backgroundColor: theme.palette.action.hover,
+                                        },
+                                        "&:focus-visible": {
+                                            outline: `2px solid ${theme.palette.primary.main}`,
+                                            outlineOffset: 2,
+                                        },
+                                    }}
+                                >
+                                    {chip.label}
+                                </Box>
+                            ))}
+                        </Box>
+                    </Box>
+                )}
+
                 {pageName === "wallet" && (
                     <MuiLink
                         href="https://www.dynopay.com/help-support/what-is-a-payout-wallet"

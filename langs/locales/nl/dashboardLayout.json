@@ -127,5 +127,6 @@
   "sidebarSectionMain": "Overzicht",
   "sidebarSectionPayments": "Betalingen",
   "sidebarSectionAccount": "Account",
-  "newPaymentLink": "Nieuwe betaallink"
+  "newPaymentLink": "Nieuwe betaallink",
+  "account": "Account"
 }

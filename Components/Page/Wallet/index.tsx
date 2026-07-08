@@ -16,8 +16,9 @@ import { WalletAction } from "@/Redux/Actions";
 import { WALLET_FETCH } from "@/Redux/Actions/WalletAction";
 import { theme as staticTheme } from "@/styles/theme";
 import { WalletDataType } from "@/utils/types/wallet";
+import { getNetworkLabel, isTokenOnOtherChain } from "@/utils/networkLabels";
 import { ArrowOutward, DeleteOutlineRounded } from "@mui/icons-material";
-import { Box, CircularProgress, Grid, Typography, useTheme } from "@mui/material";
+import { Box, CircularProgress, Grid, Tooltip, Typography, useTheme } from "@mui/material";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { useCallback, useState } from "react";
@@ -195,6 +196,51 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: () => void }) => {
                       ? "USDT"
                       : wallet.walletTitle}
                   </span>
+                  {/* Network chip — prevents wrong-chain send mistakes. */}
+                  {(() => {
+                    const netLabel = getNetworkLabel(wallet.name);
+                    if (!netLabel) return null;
+                    const tokenOnOther = isTokenOnOtherChain(wallet.name);
+                    return (
+                      <Tooltip
+                        placement="top"
+                        arrow
+                        title={
+                          tokenOnOther
+                            ? tWallet("networkTokenChipTooltip", "Token on this network — only send on the matching chain.")
+                            : tWallet("networkChipTooltip", "Network / chain this address belongs to.")
+                        }
+                      >
+                        <Box
+                          component="span"
+                          data-testid={`wallet-network-chip-${wallet.name}`}
+                          sx={{
+                            ml: 0.75,
+                            fontFamily: "UrbanistSemibold, sans-serif",
+                            fontWeight: 600,
+                            fontSize: isMobile ? 10 : 11,
+                            lineHeight: 1,
+                            letterSpacing: "0.2px",
+                            padding: isMobile ? "3px 6px" : "3px 8px",
+                            borderRadius: 999,
+                            display: "inline-flex",
+                            alignItems: "center",
+                            border: `1px solid ${tokenOnOther ? theme.palette.warning?.main || "#F59E0B" : theme.palette.border?.main || theme.palette.divider}`,
+                            color: tokenOnOther
+                              ? theme.palette.warning?.main || "#F59E0B"
+                              : theme.palette.text.secondary,
+                            backgroundColor: tokenOnOther
+                              ? (theme.palette.mode === "dark" ? "rgba(245,158,11,0.10)" : "rgba(245,158,11,0.08)")
+                              : (theme.palette.mode === "dark" ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)"),
+                            textTransform: "none",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          {netLabel}
+                        </Box>
+                      </Tooltip>
+                    );
+                  })()}
                 </WalletHeaderAction>
               }
             >

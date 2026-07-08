@@ -41,6 +41,7 @@ import {
 } from "./styled";
 
 import { useWalletData } from "@/hooks/useWalletData";
+import { useUnreadNotificationsCount } from "@/hooks/useUnreadNotificationsCount";
 
 const MobileNavigationBar = () => {
   const router = useRouter();
@@ -52,6 +53,7 @@ const MobileNavigationBar = () => {
   const [kycRequired, setKycRequired] = useState(false);
   const [kycLoading, setKycLoading] = useState(false);
   const { walletWarning } = useWalletData();
+  const unreadNotifications = useUnreadNotificationsCount();
   const companyState = useSelector((state: any) => state.companyReducer);
   const hasCompany = (companyState?.companyList ?? []).length > 0;
   const companyFetched = companyState?.fetched;
@@ -98,6 +100,8 @@ const MobileNavigationBar = () => {
   ];
 
   // First row items (5 items)
+  // UX-2026-07-08: renamed "More" → "Account" so users understand what's inside
+  // (settings, help, notifications, language, etc.). Fallback via defaultValue.
   const firstRowItems = [
     { label: t("dash"), icon: "dashboard", path: "/dashboard", id: "dash" },
     {
@@ -114,7 +118,9 @@ const MobileNavigationBar = () => {
     },
     { label: t("wallets"), icon: "wallets", path: "/wallet", id: "wallets" },
     {
-      label: isExpanded ? t("close") : t("more"),
+      label: isExpanded
+        ? t("close")
+        : t("account", { defaultValue: "Account" }),
       icon: isExpanded ? "close" : "more",
       path: null,
       id: "more",
@@ -327,6 +333,8 @@ const MobileNavigationBar = () => {
                   const active = isActiveRoute(item.path);
                   const isCreate = item.id === "create";
                   const currentLang = i18n.language || "en";
+                  const isNotif = item.id === "notifications";
+                  const showBadge = isNotif && unreadNotifications > 0;
 
                   return (
                     <NavItem
@@ -334,7 +342,7 @@ const MobileNavigationBar = () => {
                       active={active}
                       onClick={() => handleNavClick(item)}
                     >
-                      <IconButton active={active || isCreate}>
+                      <IconButton active={active || isCreate} sx={{ position: "relative" }}>
                         {item.id === "language" ? (
                           <Box
                             sx={{
@@ -367,6 +375,32 @@ const MobileNavigationBar = () => {
                                 : theme.palette.text.primary
                             }
                           />
+                        )}
+                        {showBadge && (
+                          <Box
+                            data-testid="mobile-nav-notifications-badge"
+                            aria-label={`${unreadNotifications} unread notifications`}
+                            sx={{
+                              position: "absolute",
+                              top: -4,
+                              right: -6,
+                              minWidth: 16,
+                              height: 16,
+                              px: unreadNotifications > 9 ? 0.4 : 0,
+                              borderRadius: 999,
+                              backgroundColor: "#E11D48",
+                              color: "#FFFFFF",
+                              fontSize: 9,
+                              fontFamily: "UrbanistSemibold, sans-serif",
+                              fontWeight: 700,
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              border: `2px solid ${theme.palette.background.default || "#FFFFFF"}`,
+                            }}
+                          >
+                            {unreadNotifications > 99 ? "99+" : unreadNotifications}
+                          </Box>
                         )}
                       </IconButton>
                       <NavLabel active={active}>{item.label}</NavLabel>

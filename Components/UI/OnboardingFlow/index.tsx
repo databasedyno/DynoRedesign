@@ -60,7 +60,13 @@ const OnboardingFlow: React.FC = () => {
   const companyList = companyState.companyList ?? [];
   const walletList = walletState.walletList ?? [];
   const hasCompany = companyList.length > 0;
-  const hasWallet = walletList.length > 0;
+  // UX-2026-07-08: Only count wallets that ACTUALLY have an address set. The
+  // walletReducer sometimes carries placeholder rows for supported chains
+  // even when the user hasn't configured them yet — those must not falsely
+  // mark the "Add payout wallet" step as complete.
+  const hasWallet = walletList.some(
+    (w: any) => Boolean(w?.wallet_address && String(w.wallet_address).trim().length > 0),
+  );
   const hasLink = (payLinkState.paymentLinks?.length ?? 0) > 0;
   // "First payment received" milestone — derived from real dashboard stats.
   const dashboardFetched = Boolean(dashboardState.fetched);
@@ -185,10 +191,13 @@ const OnboardingFlow: React.FC = () => {
   }, [hasCompany]);
   const openFirstLink = useCallback(() => {
     trackOnboarding({ event_type: "step_clicked", step_key: "link" });
-    if (!hasCompany) setActiveModal("company");
-    else if (!hasWallet) setActiveModal("wallet");
-    else router.push("/create-pay-link");
-  }, [hasCompany, hasWallet, router]);
+    // UX-2026-07-08: previously we blocked navigation until company + wallet
+    // existed. That kills momentum — users lose the "aha" of seeing the link
+    // form. Now we ALWAYS navigate to /create-pay-link; the page itself shows
+    // an "Activate before accepting real payments" banner + gates the Save
+    // action for users missing the prerequisites.
+    router.push("/create-pay-link");
+  }, [router]);
 
   const openFirstPayment = useCallback(() => {
     trackOnboarding({ event_type: "step_clicked", step_key: "payment" });
