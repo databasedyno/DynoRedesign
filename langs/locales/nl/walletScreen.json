@@ -56,5 +56,6 @@
   "walletCompanyFirstBody": "Je moet een bedrijfsprofiel aanmaken voordat je walletadressen toevoegt. Tik hier om te beginnen.",
   "noActiveWalletsTitle": "U heeft geen actieve wallets",
   "noActiveWalletsBody": "U moet minstens één walletadres hebben toegevoegd om door te gaan.",
-  "goToWallets": "Naar wallets"
+  "goToWallets": "Naar wallets",
+  "alreadyAdded": "Toegevoegd"
 }

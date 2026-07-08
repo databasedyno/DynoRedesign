@@ -56,5 +56,6 @@
   "walletCompanyFirstBody": "Precisa de criar um perfil de empresa antes de adicionar endereços de carteira. Toque aqui para começar.",
   "noActiveWalletsTitle": "Você não tem carteiras ativas",
   "noActiveWalletsBody": "Você precisa ter pelo menos um endereço de carteira adicionado para continuar.",
-  "goToWallets": "Ir para carteiras"
+  "goToWallets": "Ir para carteiras",
+  "alreadyAdded": "Adicionado"
 }

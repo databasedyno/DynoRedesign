@@ -56,5 +56,6 @@
   "walletCompanyFirstBody": "Sie müssen ein Unternehmensprofil erstellen, bevor Sie Wallet-Adressen hinzufügen. Tippen Sie hier, um zu beginnen.",
   "noActiveWalletsTitle": "Sie haben keine aktiven Wallets",
   "noActiveWalletsBody": "Sie müssen mindestens eine Wallet-Adresse hinzugefügt haben, um fortzufahren.",
-  "goToWallets": "Zu den Wallets"
+  "goToWallets": "Zu den Wallets",
+  "alreadyAdded": "Hinzugefügt"
 }

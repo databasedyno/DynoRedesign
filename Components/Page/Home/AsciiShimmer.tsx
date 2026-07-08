@@ -38,7 +38,7 @@ const AsciiShimmer: React.FC<{ isDark: boolean }> = ({ isDark }) => {
 
     const CELL_W = 22;
     const CELL_H = 26;
-    const FONT = "12px 'JetBrains Mono', Menlo, Consolas, monospace";
+    const FONT = "13px 'JetBrains Mono', Menlo, Consolas, monospace";
 
     let raf = 0;
     let lastTick = 0;
@@ -65,14 +65,14 @@ const AsciiShimmer: React.FC<{ isDark: boolean }> = ({ isDark }) => {
       const cx = cols / 2;
       for (let r = 0; r < rows; r++) {
         for (let c = 0; c < cols; c++) {
-          // Density mask: 0 in the central ~30% of columns, ramps up toward edges
+          // Density mask: 0 in the central ~25% of columns, ramps up toward edges
           const dx = cx > 0 ? Math.abs(c - cx) / cx : 1;
-          const edge = Math.max(0, dx * 1.4 - 0.4);
-          const base = edge * (0.25 + Math.random() * 0.75);
+          const edge = Math.max(0, dx * 1.35 - 0.32);
+          const base = edge * (0.35 + Math.random() * 0.65);
           cells.push({
             ch: Math.random() < 0.55 ? pick() : " ",
-            alpha: base * Math.random(),
-            target: base * Math.random(),
+            alpha: base * (0.3 + Math.random() * 0.7),
+            target: base * (0.3 + Math.random() * 0.7),
             base,
           });
         }
@@ -86,7 +86,7 @@ const AsciiShimmer: React.FC<{ isDark: boolean }> = ({ isDark }) => {
       ctx.font = FONT;
       ctx.textBaseline = "top";
       const rgb = isDark ? "255,255,255" : "10,10,10";
-      const maxA = isDark ? 0.16 : 0.12;
+      const maxA = isDark ? 0.30 : 0.26;
       let i = 0;
       for (let r = 0; r < rows; r++) {
         for (let c = 0; c < cols; c++, i++) {
@@ -107,7 +107,7 @@ const AsciiShimmer: React.FC<{ isDark: boolean }> = ({ isDark }) => {
         const cell = cells[rand(cells.length)];
         if (!cell || cell.base <= 0) continue;
         if (Math.random() < 0.35) cell.ch = Math.random() < 0.85 ? pick() : " ";
-        cell.target = cell.base * Math.random();
+        cell.target = cell.base * (0.25 + Math.random() * 0.75);
       }
     };
 

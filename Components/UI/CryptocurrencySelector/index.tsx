@@ -2,6 +2,7 @@ import useIsMobile from "@/hooks/useIsMobile";
 import CheckIcon from "@mui/icons-material/Check";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import {
   Box,
   ListItemButton,
@@ -9,7 +10,8 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   CryptocurrencyDividerLine,
   CryptocurrencyIcon,
@@ -42,15 +44,33 @@ const CryptocurrencySelector: React.FC<CryptocurrencySelectorProps> = ({
   required = false,
   sx,
   closeDropdownTrigger,
+  locked = false,
+  showAllWithDisabled = false,
 }) => {
   const theme = useTheme();
   const isMobile = useIsMobile("sm");
+  const { t } = useTranslation("walletScreen");
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const triggerRef = useRef<HTMLDivElement>(null);
 
-  const { cryptocurrencies } = useWalletData();
+  const { cryptocurrencies, allCryptocurrencies } = useWalletData();
+
+  // Options for the dropdown:
+  // - default: only currencies NOT yet added (legacy behavior)
+  // - showAllWithDisabled: ALL currencies, with already-added ones marked disabled
+  const options = useMemo(() => {
+    if (!showAllWithDisabled) {
+      return cryptocurrencies.map((c) => ({ ...c, disabled: false }));
+    }
+    const availableCodes = new Set(cryptocurrencies.map((c) => c.code));
+    return (allCryptocurrencies || []).map((c: any) => ({
+      ...c,
+      disabled: !availableCodes.has(c.code),
+    }));
+  }, [showAllWithDisabled, cryptocurrencies, allCryptocurrencies]);
 
   const handleOpen = (event: React.MouseEvent<HTMLElement>) => {
+    if (locked) return;
     setAnchorEl(event.currentTarget);
   };
 
@@ -72,8 +92,7 @@ const CryptocurrencySelector: React.FC<CryptocurrencySelectorProps> = ({
   const isOpen = Boolean(anchorEl);
 
   // In edit mode the currency may already be in the wallet (filtered out of `cryptocurrencies`).
-  // Import ALLCRYPTOCURRENCIES so we can always resolve the icon/name.
-  const { allCryptocurrencies } = useWalletData();
+  // allCryptocurrencies lets us always resolve the icon/name.
   const resolvedCrypto = selectedCrypto.icon
     ? selectedCrypto
     : allCryptocurrencies?.find((c: any) => c.code === value) || selectedCrypto;
@@ -143,7 +162,11 @@ const CryptocurrencySelector: React.FC<CryptocurrencySelectorProps> = ({
         }}
       >
         {/* ===== Trigger ===== */}
-        <CryptocurrencyTrigger onClick={handleOpen}>
+        <CryptocurrencyTrigger
+          onClick={handleOpen}
+          data-testid="crypto-selector-trigger"
+          style={locked ? { cursor: "default" } : undefined}
+        >
           {value === "" ? (
             <Box sx={{ display: "flex", alignItems: "center", gap: "6px" }}>
               <CryptocurrencyText
@@ -176,7 +199,15 @@ const CryptocurrencySelector: React.FC<CryptocurrencySelectorProps> = ({
 
           <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
             <CryptocurrencyDividerLine />
-            {!isOpen ? (
+            {locked ? (
+              <LockOutlinedIcon
+                data-testid="crypto-selector-lock"
+                sx={{
+                  fontSize: isMobile ? "15px" : "19px",
+                  color: theme.palette.text.secondary,
+                }}
+              />
+            ) : !isOpen ? (
               <ExpandMoreIcon
                 sx={{
                   fontSize: isMobile ? "16px" : "22px",
@@ -249,10 +280,13 @@ const CryptocurrencySelector: React.FC<CryptocurrencySelectorProps> = ({
                 overflow: "auto",
               }}
             >
-              {cryptocurrencies.map((crypto) => (
+              {options.map((crypto) => (
                 <ListItemButton
                   key={crypto.code}
+                  disabled={crypto.disabled}
+                  data-testid={`crypto-option-${crypto.code}`}
                   onClick={() => {
+                    if (crypto.disabled) return;
                     handleSelect(crypto.code);
                     handleClose();
                   }}
@@ -268,6 +302,9 @@ const CryptocurrencySelector: React.FC<CryptocurrencySelectorProps> = ({
                       crypto.code === value
                         ? theme.palette.primary.light
                         : "transparent",
+                    "&.Mui-disabled": {
+                      opacity: 0.45,
+                    },
                     "&:hover": {
                       background: theme.palette.primary.light,
                     },
@@ -296,10 +333,33 @@ const CryptocurrencySelector: React.FC<CryptocurrencySelectorProps> = ({
                     }}
                   />
 
-                  {crypto.code === value && (
-                    <CheckIcon
-                      sx={{ fontSize: isMobile ? 15 : 18, ml: "auto" }}
-                    />
+                  {crypto.disabled ? (
+                    <Box
+                      component="span"
+                      sx={{
+                        ml: "auto",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "3px",
+                        fontSize: isMobile ? "9px" : "11px",
+                        fontWeight: 600,
+                        fontFamily: "UrbanistMedium",
+                        color: theme.palette.text.secondary,
+                        border: `1px solid ${theme.palette.border.main}`,
+                        borderRadius: "10px",
+                        padding: "2px 8px",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      <CheckIcon sx={{ fontSize: isMobile ? 10 : 12 }} />
+                      {t("alreadyAdded")}
+                    </Box>
+                  ) : (
+                    crypto.code === value && (
+                      <CheckIcon
+                        sx={{ fontSize: isMobile ? 15 : 18, ml: "auto" }}
+                      />
+                    )
                   )}
                 </ListItemButton>
               ))}

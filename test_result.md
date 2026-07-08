@@ -10384,3 +10384,14 @@ The GitHub OAuth sign-in endpoint is fully functional and production-ready:
 **All 4 test cases passed with exact status codes and messages as specified.**
 
 ---
+
+## User-reported issues round 2 (2026-07-08) — Frontend Test Request
+FIXES APPLIED:
+1. ASCII shimmer visibility boosted (Components/Page/Home/AsciiShimmer.tsx — alpha 0.26/0.30, font 13px,
+   wider edge density). Canvas has data-testid="ascii-shimmer", mounted behind HeroClean on homepage.
+2. Wallet EDIT dialog: currency selector now LOCKED in edit mode (lock icon, dropdown disabled) —
+   was showing only not-yet-added currencies (e.g. RLUSD only) because it reused the filtered add-list.
+3. Wallet ADD dialog: currency dropdown now lists ALL 15 currencies; already-added ones disabled with
+   "Added" badge (was silently hiding them). CryptocurrencySelector new props locked/showAllWithDisabled;
+   testids: crypto-selector-trigger, crypto-selector-lock, crypto-option-<CODE>.
+SAFETY: PRODUCTION DB — do NOT submit any wallet add/edit forms (OTP emails + DB mutations). UI-only.

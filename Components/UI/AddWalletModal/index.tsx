@@ -686,6 +686,8 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
             onChange={(value) => {
               setCryptocurrency(value);
             }}
+            locked={editMode}
+            showAllWithDisabled={!editMode}
             error={!!errors.cryptocurrency}
             helperText={errors.cryptocurrency}
             sxIconChip={{

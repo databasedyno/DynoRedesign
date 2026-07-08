@@ -47,6 +47,10 @@ export interface CryptocurrencySelectorProps {
   sx?: React.CSSProperties;
   sxIconChip?: React.CSSProperties;
   closeDropdownTrigger?: boolean;
+  /** Edit mode: currency cannot be changed — renders a read-only trigger with a lock icon */
+  locked?: boolean;
+  /** Add mode: list ALL supported currencies; ones already added are disabled with an "Added" badge */
+  showAllWithDisabled?: boolean;
 }
 
 export type WalletType =

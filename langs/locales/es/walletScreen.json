@@ -56,5 +56,6 @@
   "walletCompanyFirstBody": "Debes crear un perfil de empresa antes de añadir direcciones de monedero. Toca aquí para empezar.",
   "noActiveWalletsTitle": "No tienes billeteras activas",
   "noActiveWalletsBody": "Debes tener al menos una dirección de billetera añadida para continuar.",
-  "goToWallets": "Ir a billeteras"
+  "goToWallets": "Ir a billeteras",
+  "alreadyAdded": "Añadido"
 }
