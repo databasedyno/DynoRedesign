@@ -101,7 +101,7 @@ export const sendWelcomeEmail = async (
     ${p(t('merchant.welcome.intro1', L))}
     ${p(t('merchant.welcome.intro2', L))}
     ${infoBox(`
-      <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #0d1f5c; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;"><strong>${t('merchant.welcome.nextTitle', L)}</strong></p>
+      <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #0a0a0a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;"><strong>${t('merchant.welcome.nextTitle', L)}</strong></p>
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         <tr><td style="padding: 4px 0; font-size: 14px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.welcome.next1', L)}</td></tr>
         <tr><td style="padding: 4px 0; font-size: 14px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.welcome.next2', L)}</td></tr>
@@ -147,15 +147,15 @@ export const sendVolumeTierUpgradeEmail = async (
     const content = `${p(`Hey ${name},`)}
     ${p(`Great news — you've crossed <strong>${volumeStr}</strong> in lifetime processed volume, and your platform-fee tier has just been upgraded from <strong>${previousTier}</strong> to <strong>${newTier}</strong>.`)}
     ${infoBox(`
-      <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #0d1f5c; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;"><strong>Your new rate</strong></p>
+      <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #0a0a0a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;"><strong>Your new rate</strong></p>
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         <tr>
           <td style="padding: 4px 0; font-size: 14px; color: #6b7280; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">Previous fee</td>
           <td style="padding: 4px 0; font-size: 14px; color: #6b7280; text-align: right; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;"><s>${previousPercent}%</s></td>
         </tr>
         <tr>
-          <td style="padding: 4px 0; font-size: 15px; font-weight: 600; color: #0d1f5c; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">New fee (${newTier})</td>
-          <td style="padding: 4px 0; font-size: 20px; font-weight: 700; color: #4F46E5; text-align: right; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${newPercent}%</td>
+          <td style="padding: 4px 0; font-size: 15px; font-weight: 600; color: #0a0a0a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">New fee (${newTier})</td>
+          <td style="padding: 4px 0; font-size: 20px; font-weight: 700; color: #0a0a0a; text-align: right; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${newPercent}%</td>
         </tr>
         <tr>
           <td style="padding: 4px 0; font-size: 13px; color: #16a34a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">You save</td>
@@ -551,7 +551,7 @@ export const sendCompanyProfileCreatedEmail = async (
     ${p(t('merchant.companyCreated.intro1', L, { companyName }))}
     ${p(t('merchant.companyCreated.intro2', L))}
     ${infoBox(`
-      <p style="margin: 0 0 6px 0; font-size: 14px; font-weight: 600; color: #0d1f5c; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.companyCreated.whyTitle', L)}</p>
+      <p style="margin: 0 0 6px 0; font-size: 14px; font-weight: 600; color: #0a0a0a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.companyCreated.whyTitle', L)}</p>
       <p style="margin: 0; font-size: 14px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.companyCreated.whyText', L)}</p>
     `)}`;
 
@@ -579,7 +579,7 @@ export const sendCompanyContactWelcomeEmail = async (
     ${p(t('merchant.companyContactWelcome.intro1', L, { companyName, accountHolderName }))}
     ${p(t('merchant.companyContactWelcome.intro2', L))}
     ${infoBox(`
-      <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #0d1f5c; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.companyContactWelcome.meansTitle', L)}</p>
+      <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #0a0a0a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.companyContactWelcome.meansTitle', L)}</p>
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         <tr><td style="padding: 4px 0; font-size: 14px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.companyContactWelcome.means1', L)}</td></tr>
         <tr><td style="padding: 4px 0; font-size: 14px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.companyContactWelcome.means2', L)}</td></tr>
@@ -785,7 +785,7 @@ export const sendAddWalletReminderEmail = async (
     const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
     ${p(t('merchant.addWalletReminder.intro', L, { companyName }))}
     ${infoBox(`
-      <p style="margin: 0 0 6px 0; font-size: 14px; font-weight: 600; color: #0d1f5c; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.addWalletReminder.whyTitle', L)}</p>
+      <p style="margin: 0 0 6px 0; font-size: 14px; font-weight: 600; color: #0a0a0a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.addWalletReminder.whyTitle', L)}</p>
       <p style="margin: 0; font-size: 14px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.addWalletReminder.whyText', L)}</p>
     `)}
     ${p(t('merchant.addWalletReminder.outro', L))}`;
@@ -1999,7 +1999,7 @@ export const sendPaymentLinkCreatedEmail = async (
         ${dataRow(t('labels.amount', L), `<strong>${amount} ${currency}</strong>`)}
         ${description ? dataRow(t('labels.description', L), description) : ''}
         ${dataRow(t('merchant.labels.expires', L), expiresAt || t('merchant.never', L))}
-        ${dataRow(t('merchant.labels.link', L), `<a href="${paymentLink}" style="color: #0d1f5c; text-decoration: none;">${shortDisplayUrl}</a>`, true)}
+        ${dataRow(t('merchant.labels.link', L), `<a href="${paymentLink}" style="color: #0a0a0a; text-decoration: none;">${shortDisplayUrl}</a>`, true)}
       </table>
     `)}
     ${p(t('merchant.paymentLinkCreated.outro', L))}`;
@@ -2274,7 +2274,7 @@ export const sendKYCRequiredEmail = async (
     ${p(t('merchant.kycRequired.intro', L, { symbol: currencySymbol, volume: totalVolume, currency }))}
     ${p(t('merchant.kycRequired.intro2', L, { symbol: currencySymbol, threshold: thresholdAmount }))}
     ${infoBox(`
-      <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #0d1f5c; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.kycRequired.needTitle', L)}</p>
+      <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #0a0a0a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.kycRequired.needTitle', L)}</p>
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         <tr><td style="padding: 4px 0; font-size: 14px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.kycRequired.need1', L)}</td></tr>
         <tr><td style="padding: 4px 0; font-size: 14px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.kycRequired.need2', L)}</td></tr>
@@ -2341,7 +2341,7 @@ export const sendKYCStartedEmail = async (email: string, name: string, verificat
     const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
     ${p(t('merchant.kycStarted.intro', L))}
     ${infoBox(`
-      <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #0d1f5c; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.kycStarted.needTitle', L)}</p>
+      <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #0a0a0a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.kycStarted.needTitle', L)}</p>
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         <tr><td style="padding: 4px 0; font-size: 14px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.kycStarted.need1', L)}</td></tr>
         <tr><td style="padding: 4px 0; font-size: 14px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.kycStarted.need2', L)}</td></tr>

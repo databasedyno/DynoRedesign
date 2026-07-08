@@ -10165,3 +10165,106 @@ Both the status pill i18n bug fix and the modern sidebar redesign are fully func
 
 ---
 
+
+## Session 5 changes (2026-07-08) — Admin token fix + Email template redesign — Test Request
+CHANGES MADE (backend):
+1. /app/backend/controller/apiController.ts (getApi): formattedData now normalizes
+   `adminToken: api.admin_token || api.adminToken || null` — fixes "Admin token not visible on
+   API Keys page" (legacy rows have adminToken=NULL; real value lives in admin_token column).
+2. /app/backend/utils/emailTemplate.ts — full visual redesign of the master email template
+   (brand black #050505 + neon lime #CCFF00, new dark-mode media-query palette, OTP block,
+   CTA button now wrapped in its own <table> — fixes a pre-existing stray-<tr> layout bug).
+   /app/backend/services/emailService.ts + helper/sendEmail.ts — swept legacy navy/indigo
+   inline colors (#0d1f5c, #4F46E5 → #0a0a0a). NO email sending logic changed — only HTML.
+3. NEW script (QA-only, not part of app runtime): /app/backend/scripts/render_email_previews.ts
+
+BACKEND TEST REQUEST — base https://a12ec985-3845-48d1-94ff-bae3784d76bd.preview.emergentagent.com/api
+SAFETY: DO NOT send any real emails. DO NOT mutate production data. READ-ONLY tests only.
+Headers: Authorization: Bearer <token>, User-Agent: Mozilla/5.0 ... Chrome/120 Safari/537.36
+Mint a token for hostbay@moxx.co with: node /app/scripts/mint_ux_tokens.js
+CASES:
+  A) Admin token fix: GET /api/userApi/getApi (Bearer hostbay token)
+     EXPECT: 200; data.all[0].adminToken is a NON-empty string (equals data.all[0].admin_token);
+     data.all[0].apiKey non-empty; apiKey_masked present.
+  B) Email template unit render (NO sending): from /app/backend run
+     `node_modules/.bin/ts-node --transpile-only scripts/render_email_previews.ts`
+     EXPECT: exit 0, writes 3 files to /tmp/email_preview/. Then verify each file:
+     contains "#CCFF00" and "#050505", contains balanced <table>/</table> counts,
+     the CTA button block (payment.html/welcome.html) is inside its own <table> (search
+     `<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center"`),
+     and NO occurrences of "#0d1f5c" or "#4F46E5".
+  C) Regression: GET /api/ → 200; GET /api/csrf-token → 200; GET /api/dashboard (Bearer) → 200;
+     GET /api/dashboard/fee-tiers (Bearer) → 200; POST /api/pay/calculateFees
+     {amount:1000, currency:"USD", crypto:"BTC"} → 200 with platform_fee_percent=1.5.
+Report exact status codes. PASS = A adminToken non-empty, B renders clean, C all 200.
+
+
+## VERIFICATION RESULTS (2026-07-08) — Session 5: Admin token fix + Email template redesign ✅ ALL PASS
+
+### TEST EXECUTION
+- **agent:** testing (auto_backend_testing_agent)
+- **test_date:** 2026-07-08 04:30 UTC
+- **test_url:** https://a12ec985-3845-48d1-94ff-bae3784d76bd.preview.emergentagent.com/api
+- **verification_method:** Backend API testing + email template render script (READ-ONLY, no mutations, no email sending)
+- **test_account:** hostbay@moxx.co (user_id: 1)
+- **safety_compliance:** ✅ NO emails sent, NO DB mutations, READ-ONLY API calls only
+
+### OVERALL RESULT: ✅ ALL PASS (3/3 parts)
+
+All 3 test parts completed successfully. No issues found.
+
+### DETAILED RESULTS
+
+**Part A: Admin Token Fix** ✅ PASS
+- GET /api/userApi/getApi: 200 ✅
+- data.all[0].adminToken: non-empty string (length: 128) ✅
+- adminToken equals admin_token: YES ✅
+- apiKey present: YES ✅
+- apiKey_masked present: YES (dpk_live_U2FsdGVk...9HNn) ✅
+- **Verification:** The normalization fix `adminToken: api.admin_token || api.adminToken || null` is working correctly. Legacy rows with NULL adminToken now correctly show the admin_token column value.
+
+**Part B: Email Template Render** ✅ PASS
+- Script execution: exit code 0 ✅
+- Files created: 3 (otp.html, payment.html, welcome.html) ✅
+- **otp.html:**
+  - Contains #CCFF00: YES (10 occurrences) ✅
+  - Contains #050505: YES (7 occurrences) ✅
+  - Balanced <table> tags: YES (7 pairs) ✅
+  - NO #0d1f5c: CONFIRMED ✅
+  - NO #4F46E5: CONFIRMED ✅
+- **payment.html:**
+  - Contains #CCFF00: YES (11 occurrences) ✅
+  - Contains #050505: YES (6 occurrences) ✅
+  - Balanced <table> tags: YES (14 pairs) ✅
+  - NO #0d1f5c: CONFIRMED ✅
+  - NO #4F46E5: CONFIRMED ✅
+  - CTA button wrapped in its own table: YES ✅
+- **welcome.html:**
+  - Contains #CCFF00: YES (10 occurrences) ✅
+  - Contains #050505: YES (6 occurrences) ✅
+  - Balanced <table> tags: YES (9 pairs) ✅
+  - NO #0d1f5c: CONFIRMED ✅
+  - NO #4F46E5: CONFIRMED ✅
+  - CTA button wrapped in its own table: YES ✅
+- **Verification:** Email template redesign is complete. All old colors (#0d1f5c, #4F46E5) removed. New brand colors (#CCFF00 lime, #050505 black) applied throughout. CTA button layout bug fixed (now wrapped in its own table).
+
+**Part C: Regression Tests** ✅ PASS
+- GET /api/: 200 ✅
+- GET /api/csrf-token: 200 ✅
+- GET /api/dashboard (Bearer): 200 ✅
+- GET /api/dashboard/fee-tiers (Bearer): 200 ✅
+- POST /api/pay/calculateFees ({"amount":1000,"currency":"USD","cryptocurrency":"BTC"}): 200 ✅
+  - platform_fee_percent: 1.5 ✅
+- **Verification:** All regression endpoints working correctly. No breaking changes introduced.
+
+### VERDICT: ✅ SYSTEM PRODUCTION-READY
+
+Session 5 changes are fully functional:
+- ✅ Admin token normalization working (legacy rows now show admin_token value)
+- ✅ Email template redesign complete (new brand colors, no old colors, CTA layout fixed)
+- ✅ All regression tests passing
+- ✅ No breaking changes
+
+**Test script:** `/app/backend_test.py`
+
+---

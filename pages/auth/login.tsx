@@ -3,9 +3,9 @@ import LoadingIcon from "@/assets/Icons/LoadingIcon";
 import ArrowUpwardIcon from "@/assets/Icons/up-arrow-icon.png";
 import Logo from "@/assets/Images/auth/dynopay-logo.png";
 import WhiteLogo from "@/assets/Images/auth/dynopay-white-logo.png";
-import GoogleIcon from "@/assets/Images/googleIcon.svg";
 import axiosBaseApi from "@/axiosConfig";
 import InputField from "@/Components/UI/AuthLayout/InputFields";
+import SocialAuthButtons from "@/Components/Common/SocialAuthButtons";
 import TitleDescription from "@/Components/UI/AuthLayout/TitleDescription";
 import CustomButton from "@/Components/UI/Buttons";
 import CountryPhoneInput from "@/Components/UI/CountryPhoneInput";
@@ -21,7 +21,6 @@ import {
   SplitLayoutWrapper,
   FormPanel,
   CardWrapper,
-  ImageCenter,
 } from "@/Containers/Login/styled";
 import useIsMobile from "@/hooks/useIsMobile";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
@@ -873,6 +872,27 @@ export default function Login() {
       // Fallback to NextAuth
       signIn("google", { callbackUrl: "/auth/validateSocialLogin" });
     }
+  };
+
+  // Handle GitHub social login — standard OAuth authorization-code redirect flow.
+  // Only reachable when NEXT_PUBLIC_ENABLE_GITHUB_AUTH === "true".
+  const handleGithubLogin = () => {
+    const clientId = process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID;
+    if (!clientId || typeof window === "undefined") return;
+    const state = `${Date.now().toString(36)}${Math.random().toString(36).slice(2)}`;
+    try {
+      sessionStorage.setItem("gh_oauth_state", state);
+    } catch {
+      /* sessionStorage unavailable — state check will be skipped on callback */
+    }
+    const redirectUri = `${window.location.origin}/auth/github/callback`;
+    const params = new URLSearchParams({
+      client_id: clientId,
+      redirect_uri: redirectUri,
+      scope: "read:user user:email",
+      state,
+    });
+    window.location.href = `https://github.com/login/oauth/authorize?${params.toString()}`;
   };
 
   // Forgot password countdown timer
@@ -1812,10 +1832,11 @@ export default function Login() {
           />
         )}
 
-        {/* Social Login Section — hidden when NEXT_PUBLIC_ENABLE_GOOGLE_AUTH !== "true".
-            Wraps both the "or" divider AND the Google icon row so we don't leave a
-            useless divider dangling when Google is disabled. */}
-        {process.env.NEXT_PUBLIC_ENABLE_GOOGLE_AUTH === "true" && (
+        {/* Social Login Section — hidden when NEXT_PUBLIC_ENABLE_GOOGLE_AUTH !== "true"
+            AND NEXT_PUBLIC_ENABLE_GITHUB_AUTH !== "true". Wraps both the "or" divider
+            AND the social buttons so we don't leave a useless divider dangling. */}
+        {(process.env.NEXT_PUBLIC_ENABLE_GOOGLE_AUTH === "true" ||
+          process.env.NEXT_PUBLIC_ENABLE_GITHUB_AUTH === "true") && (
           <>
             <Box sx={{ marginTop: isMobile ? "16px" : "24px" }}>
               <Divider
@@ -1843,60 +1864,16 @@ export default function Login() {
               </Divider>
             </Box>
 
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                gap: "16px",
-                padding: 0,
-                marginTop: isMobile ? "16px" : "24px",
-              }}
-            >
-              <Typography
-                variant="body2"
-                sx={{
-                  fontSize: isMobile ? "13px" : "15px",
-                  fontFamily: "UrbanistMedium",
-                  color: theme.palette.text.secondary,
-                  fontWeight: 500,
-                  lineHeight: "1.2",
-                  letterSpacing: 0,
-                }}
-              >
-                {t("registerLogin")}
-              </Typography>
-
-              <Box
-                sx={{
-                  height: isMobile ? "32px" : "40px",
-                  width: isMobile ? "32px" : "40px",
-                  borderRadius: "100%",
-                  border: "1px solid",
-                  borderColor: "divider",
-                  backgroundColor: "action.hover",
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  transition: "all 0.2s ease",
-                  "&:hover": {
-                    backgroundColor: "action.selected",
-                    borderColor: "#D0D5DD",
-                  },
-                }}
-                onClick={handleGoogleLogin}
-              >
-                <ImageCenter>
-                  <Image
-                    src={GoogleIcon}
-                    alt="google login"
-                    width={24}
-                    height={24}
-                    draggable={false}
-                  />
-                </ImageCenter>
-              </Box>
+            <Box sx={{ marginTop: isMobile ? "16px" : "24px" }}>
+              <SocialAuthButtons
+                googleLabel={t("continueWithGoogle")}
+                onGoogle={handleGoogleLogin}
+                showGoogle={process.env.NEXT_PUBLIC_ENABLE_GOOGLE_AUTH === "true"}
+                showGithub={process.env.NEXT_PUBLIC_ENABLE_GITHUB_AUTH === "true"}
+                onGithub={handleGithubLogin}
+                googleTestId="google-login-btn"
+                githubTestId="github-login-btn"
+              />
             </Box>
           </>
         )}

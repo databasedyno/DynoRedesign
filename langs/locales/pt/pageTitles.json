@@ -90,5 +90,7 @@
   "adminProfile_title": "Perfil Admin | DynoPay",
   "adminProfile_desc": "Gerencie o perfil da sua conta de administrador DynoPay.",
   "blogTitle": "Blog — Crypto Payment Insights",
-  "blogDescription": "Guides and strategies for merchants accepting crypto payments"
+  "blogDescription": "Guides and strategies for merchants accepting crypto payments",
+  "authSecureAccount_title": "Proteja a Sua Conta | DynoPay",
+  "authSecureAccount_desc": "Reveja a atividade de início de sessão recente e proteja a sua conta de comerciante DynoPay."
 }

@@ -149,7 +149,8 @@ const ApiKeyCard = ({ title, apiRow, onCopy, onDelete, onRegenerate, onToggleSta
   const theme = useTheme();
 
   const apiKey: string = apiRow?.apiKey || "";
-  const adminToken: string = apiRow?.adminToken || "";
+  const adminToken: string =
+    (apiRow as { admin_token?: string })?.admin_token || apiRow?.adminToken || "";
   const baseCurrency: string = apiRow?.base_currency || "USD";
   const createdAt =
     apiRow?.created_at || apiRow?.createdAt || apiRow?.createdOn || "";

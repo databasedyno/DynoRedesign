@@ -1,5 +1,7 @@
 import { FC, memo, useEffect } from "react";
+import { Box, useTheme } from "@mui/material";
 import HeroClean from "./HeroClean";
+import AsciiShimmer from "./AsciiShimmer";
 import ComplianceLogoStrip from "./ComplianceLogoStrip";
 import SupportedChainsRail from "./SupportedChainsRail";
 import FeeCalculator from "./FeeCalculator";
@@ -43,6 +45,7 @@ import { HomeContainer, HomeFullWidthContainer, HomeWrapper } from "./styled";
  * calmer without touching their individual JSX.
  */
 const HomePage: FC = () => {
+  const theme = useTheme();
   useEffect(() => {
     if (typeof window === "undefined") return;
     const key = "dynopay_visitor_tracked";
@@ -63,7 +66,13 @@ const HomePage: FC = () => {
   return (
     <HomeWrapper>
       <HomeFullWidthContainer>
-        <HeroClean />
+        {/* Emergent-style animated ASCII shimmer behind the hero (full viewport width) */}
+        <Box sx={{ position: "relative", overflow: "hidden" }}>
+          <AsciiShimmer isDark={theme.palette.mode === "dark"} />
+          <Box sx={{ position: "relative", zIndex: 1 }}>
+            <HeroClean />
+          </Box>
+        </Box>
       </HomeFullWidthContainer>
 
       <HomeFullWidthContainer>

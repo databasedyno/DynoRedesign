@@ -44,13 +44,13 @@ export const baseEmailTemplate = (
   const { showButton = false, buttonText = '', buttonLink = '', preheader = '' } = options || {};
 
   const buttonBlock = showButton && buttonText && buttonLink
-    ? `<tr><td align="center" style="padding: 28px 0 8px 0;">
-        <a href="${buttonLink}" style="display: inline-block; background-color: #4F46E5; color: #ffffff; text-decoration: none; padding: 13px 36px; border-radius: 6px; font-weight: 600; font-size: 15px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; mso-padding-alt: 0; text-align: center;">
+    ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding: 28px 0 8px 0;">
+        <a href="${buttonLink}" class="btn" style="display: inline-block; background-color: #050505; color: #CCFF00; text-decoration: none; padding: 14px 40px; border-radius: 12px; font-weight: 700; font-size: 15px; letter-spacing: 0.2px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; mso-padding-alt: 0; text-align: center;">
           <!--[if mso]><i style="mso-font-width: 150%; mso-text-raise: 26pt;">&nbsp;</i><![endif]-->
           <span style="mso-text-raise: 13pt;">${buttonText}</span>
           <!--[if mso]><i style="mso-font-width: 150%;">&nbsp;</i><![endif]-->
         </a>
-      </td></tr>`
+      </td></tr></table>`
     : '';
 
   return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -81,83 +81,89 @@ export const baseEmailTemplate = (
       .ftr { padding: 24px 20px !important; }
     }
     @media (prefers-color-scheme: dark) {
-      body, .bg { background-color: #111827 !important; }
-      .card { background-color: #1f2937 !important; }
-      .hdr-bar { background-color: #0c1a3d !important; }
-      h1.hdg { color: #93c5fd !important; }
+      body, .bg { background-color: #0a0a0a !important; }
+      .card { background-color: #18181b !important; }
+      .hdr-bar { background-color: #050505 !important; }
+      h1.hdg { color: #fafafa !important; }
+      /* CTA button inverts in dark mode (matches app: lime bg, black text) */
+      .btn { background-color: #CCFF00 !important; color: #050505 !important; }
       /* Content area: override ALL child elements */
-      .msg, .msg p, .msg li, .msg td, .msg div, .msg span { color: #d1d5db !important; }
-      .msg strong, .msg b { color: #f3f4f6 !important; }
-      .msg a:not(.btn) { color: #93c5fd !important; }
+      .msg, .msg p, .msg li, .msg td, .msg div, .msg span { color: #d4d4d8 !important; }
+      .msg strong, .msg b { color: #fafafa !important; }
+      .msg a:not(.btn) { color: #CCFF00 !important; }
       /* Tables inside content */
-      .msg table td { color: #d1d5db !important; }
-      .msg table td strong { color: #f3f4f6 !important; }
-      .msg table td span { color: #d1d5db !important; }
-      /* Info box (blue accent) */
-      .info-box { background-color: #1e293b !important; border-left-color: #3b82f6 !important; }
-      .info-box td, .info-box p, .info-box span { color: #d1d5db !important; }
-      .info-box strong { color: #f3f4f6 !important; }
+      .msg table td { color: #d4d4d8 !important; }
+      .msg table td strong { color: #fafafa !important; }
+      .msg table td span { color: #d4d4d8 !important; }
+      /* Info box */
+      .info-box { background-color: #212124 !important; border-color: #33333a !important; }
+      .info-box td, .info-box p, .info-box span { color: #d4d4d8 !important; }
+      .info-box strong { color: #fafafa !important; }
       /* Status badges */
-      .status-success { background-color: #064e3b !important; color: #6ee7b7 !important; }
+      .status-success { background-color: #1a2e05 !important; color: #CCFF00 !important; }
       .status-pending { background-color: #78350f !important; color: #fcd34d !important; }
       .status-error { background-color: #7f1d1d !important; color: #fca5a5 !important; }
       /* Data rows */
-      .data-row { border-bottom-color: #374151 !important; }
+      .data-row { border-bottom-color: #33333a !important; }
       /* Sign-off */
-      .sign { color: #9ca3af !important; }
-      .sign strong { color: #d1d5db !important; }
-      .sep { border-top-color: #374151 !important; }
+      .sign { color: #a1a1aa !important; }
+      .sign strong { color: #d4d4d8 !important; }
+      .sep { border-top-color: #33333a !important; }
       /* Footer */
-      .ftr-bg { background-color: #0f172a !important; }
-      .ftr-text { color: #6b7280 !important; }
-      .ftr-link { color: #6b7280 !important; }
+      .ftr-bg { background-color: #050505 !important; }
+      .ftr-text { color: #71717a !important; }
+      .ftr-link { color: #71717a !important; }
       /* Colored accent boxes */
-      .alert-box { background-color: #451a03 !important; border-left-color: #f59e0b !important; }
+      .alert-box { background-color: #2b2108 !important; border-left-color: #f59e0b !important; }
       .alert-box td, .alert-box p, .alert-box span { color: #fcd34d !important; }
       .alert-box strong { color: #fef3c7 !important; }
-      .error-box { background-color: #450a0a !important; border-left-color: #ef4444 !important; }
+      .error-box { background-color: #2c0f0f !important; border-left-color: #ef4444 !important; }
       .error-box td, .error-box p, .error-box span { color: #fca5a5 !important; }
       .error-box strong { color: #fee2e2 !important; }
-      .success-box { background-color: #052e16 !important; border-left-color: #22c55e !important; }
-      .success-box td, .success-box p, .success-box span { color: #86efac !important; }
-      .success-box strong { color: #dcfce7 !important; }
-      .neutral-box { background-color: #1e293b !important; border-color: #374151 !important; }
-      .neutral-box td, .neutral-box p, .neutral-box span { color: #d1d5db !important; }
-      .neutral-box strong { color: #f3f4f6 !important; }
+      .success-box { background-color: #14210a !important; border-left-color: #CCFF00 !important; }
+      .success-box td, .success-box p, .success-box span { color: #d9f99d !important; }
+      .success-box strong { color: #f7fee7 !important; }
+      .neutral-box { background-color: #212124 !important; border-color: #33333a !important; }
+      .neutral-box td, .neutral-box p, .neutral-box span { color: #d4d4d8 !important; }
+      .neutral-box strong { color: #fafafa !important; }
       /* Stat cards (two-column highlight blocks) */
-      .stat-card { background-color: #1e293b !important; }
-      .stat-card td, .stat-card p, .stat-card span { color: #d1d5db !important; }
-      .stat-card .stat-value { color: #93c5fd !important; }
-      .stat-card .stat-value-green { color: #86efac !important; }
-      /* OTP code block */
-      .otp-code { background-color: #1e293b !important; border-color: #818cf8 !important; color: #c7d2fe !important; }
+      .stat-card { background-color: #212124 !important; }
+      .stat-card td, .stat-card p, .stat-card span { color: #d4d4d8 !important; }
+      .stat-card .stat-value { color: #fafafa !important; }
+      .stat-card .stat-value-green { color: #CCFF00 !important; }
+      /* OTP code block (already dark by design — brighten the frame) */
+      .otp-code { background-color: #0a0a0a !important; border-color: #CCFF00 !important; color: #CCFF00 !important; }
       /* Warning/security text */
       .warn-text, .warn-text p { color: #fca5a5 !important; }
       .warn-text strong { color: #fee2e2 !important; }
       /* Monospace text (addresses, tx IDs) */
-      .mono { color: #d1d5db !important; }
+      .mono { color: #d4d4d8 !important; }
       /* Wallet address box */
-      .addr-box { background-color: #1e293b !important; }
-      .addr-box td { color: #d1d5db !important; }
+      .addr-box { background-color: #212124 !important; }
+      .addr-box td { color: #d4d4d8 !important; }
       /* Fee table rows */
-      .fee-row td { color: #d1d5db !important; border-bottom-color: #374151 !important; }
-      .fee-total td { color: #f3f4f6 !important; }
+      .fee-row td { color: #d4d4d8 !important; border-bottom-color: #33333a !important; }
+      .fee-total td { color: #fafafa !important; }
       /* Section dividers */
-      .section-border { border-bottom-color: #374151 !important; }
+      .section-border { border-bottom-color: #33333a !important; }
       /* Gmail workaround */
-      u + .body .bg { background-color: #111827 !important; }
+      u + .body .bg { background-color: #0a0a0a !important; }
     }
   </style>
 </head>
-<body class="body" style="margin: 0; padding: 0; background-color: #f3f4f6;">
-  ${preheader ? `<div style="display:none;font-size:1px;color:#f3f4f6;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">${preheader}</div>` : ''}
-  <table role="presentation" class="bg" width="100%" cellpadding="0" cellspacing="0" style="background-color: #f3f4f6; table-layout: fixed;">
+<body class="body" style="margin: 0; padding: 0; background-color: #f5f5f4;">
+  ${preheader ? `<div style="display:none;font-size:1px;color:#f5f5f4;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">${preheader}</div>` : ''}
+  <table role="presentation" class="bg" width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f4; table-layout: fixed;">
     <tr>
       <td align="center" style="padding: 32px 16px;">
-        <table role="presentation" class="outer card" width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 12px; overflow: hidden;">
-          <!-- Accent bar + Logo Header -->
+        <table role="presentation" class="outer card" width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 16px; overflow: hidden;">
+          <!-- Neon accent bar -->
           <tr>
-            <td class="hdr hdr-bar" style="background-color: #0d1f5c; padding: 24px 32px; text-align: center;">
+            <td style="background-color: #CCFF00; height: 5px; line-height: 5px; font-size: 5px;">&nbsp;</td>
+          </tr>
+          <!-- Logo Header -->
+          <tr>
+            <td class="hdr hdr-bar" style="background-color: #050505; padding: 26px 32px; text-align: center;">
               <a href="https://dynopay.com" style="text-decoration: none;">
                 <img src="${LOGO_URL}" alt="DynoPay" width="120" height="40" style="display: inline-block; max-width: 120px; height: auto;" />
               </a>
@@ -165,8 +171,8 @@ export const baseEmailTemplate = (
           </tr>
           <!-- Content -->
           <tr>
-            <td class="inner msg" style="padding: 8px 40px 40px 40px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">
-              <h1 class="hdg" style="font-size: 22px; font-weight: 700; color: #0d1f5c; margin: 0 0 20px 0; line-height: 1.3;">${heading}</h1>
+            <td class="inner msg" style="padding: 36px 40px 40px 40px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">
+              <h1 class="hdg" style="font-size: 24px; font-weight: 800; color: #0a0a0a; margin: 0 0 20px 0; line-height: 1.3; letter-spacing: -0.3px;">${heading}</h1>
               ${bodyContent}
               ${buttonBlock}
               <!-- Sign-off -->
@@ -181,7 +187,7 @@ export const baseEmailTemplate = (
           </tr>
           <!-- Footer -->
           <tr>
-            <td class="ftr ftr-bg" style="background-color: #111827; padding: 28px 32px; text-align: center; border-radius: 0 0 12px 12px;">
+            <td class="ftr ftr-bg" style="background-color: #050505; padding: 28px 32px; text-align: center; border-radius: 0 0 16px 16px;">
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td align="center" style="padding-bottom: 16px;">
@@ -189,7 +195,7 @@ export const baseEmailTemplate = (
                   </td>
                 </tr>
                 <tr>
-                  <td align="center" class="ftr-text" style="color: #6b7280; font-size: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; padding-bottom: 16px; line-height: 1.5;">
+                  <td align="center" class="ftr-text" style="color: #CCFF00; font-size: 12px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; padding-bottom: 16px; line-height: 1.5;">
                     Secure Crypto Payment Gateway
                   </td>
                 </tr>
@@ -240,8 +246,8 @@ export const baseEmailTemplate = (
  * Reusable email component: Info/data box
  * Used for payment details, transaction info, etc.
  */
-export const infoBox = (content: string, borderColor: string = '#0d1f5c'): string => {
-  return `<table role="presentation" class="info-box" width="100%" cellpadding="0" cellspacing="0" style="background-color: #f8fafc; border-radius: 8px; border-left: 3px solid ${borderColor}; margin: 20px 0;">
+export const infoBox = (content: string, borderColor: string = '#CCFF00'): string => {
+  return `<table role="presentation" class="info-box" width="100%" cellpadding="0" cellspacing="0" style="background-color: #fafaf9; border: 1px solid #e7e5e4; border-radius: 12px; border-left: 4px solid ${borderColor}; margin: 20px 0;">
     <tr><td style="padding: 16px 20px;">${content}</td></tr>
   </table>`;
 };
@@ -284,7 +290,7 @@ export const p = (text: string, extra: string = ''): string => {
 export const otpBlock = (code: string): string => {
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin: 24px 0;">
     <tr><td align="center">
-      <div class="otp-code" style="display: inline-block; background-color: #EEF2FF; border: 2px dashed #4F46E5; border-radius: 8px; padding: 16px 40px; font-size: 32px; font-weight: 700; color: #4F46E5; letter-spacing: 10px; font-family: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;">${code}</div>
+      <div class="otp-code" style="display: inline-block; background-color: #050505; border: 1px solid #050505; border-radius: 14px; padding: 18px 44px; font-size: 32px; font-weight: 700; color: #CCFF00; letter-spacing: 10px; font-family: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;">${code}</div>
     </td></tr>
   </table>`;
 };
@@ -338,8 +344,8 @@ export const neutralBox = (content: string): string => {
  */
 export const statCard = (label: string, value: string, subtitle: string, variant: 'blue' | 'green' = 'blue'): string => {
   const valueClass = variant === 'green' ? 'stat-value-green' : 'stat-value';
-  const valueFallbackColor = variant === 'green' ? '#15803d' : '#0d1f5c';
-  return `<table role="presentation" class="stat-card" width="100%" cellpadding="0" cellspacing="0" style="background-color: ${variant === 'green' ? '#f0fdf4' : '#f0f4ff'}; border-radius: 8px;">
+  const valueFallbackColor = variant === 'green' ? '#3f6212' : '#0a0a0a';
+  return `<table role="presentation" class="stat-card" width="100%" cellpadding="0" cellspacing="0" style="background-color: ${variant === 'green' ? '#f7fee7' : '#fafaf9'}; border: 1px solid ${variant === 'green' ? '#d9f99d' : '#e7e5e4'}; border-radius: 12px;">
     <tr><td style="padding: 16px; text-align: center;">
       <p style="font-size: 11px; font-weight: 600; color: #6b7280; margin: 0 0 4px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; text-transform: uppercase; letter-spacing: 0.5px;">${label}</p>
       <p class="${valueClass}" style="font-size: 22px; font-weight: 700; color: ${valueFallbackColor}; margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${value}</p>

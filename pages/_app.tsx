@@ -204,6 +204,7 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
       "/auth/login":               "authLogin",
       "/auth/register":            "authRegister",
       "/auth/validateSocialLogin": "authValidateSocialLogin",
+      "/auth/secure-account":      "authSecureAccount",
       "/reset-password":           "resetPassword",
 
       // ─── Dashboard / App ───

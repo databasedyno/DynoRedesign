@@ -9,7 +9,7 @@ import AuthBrandPanel from "@/Components/UI/AuthLayout/AuthBrandPanel";
 import { AuthPageBackground, SplitLayoutWrapper, FormPanel } from "@/Containers/Login/styled";
 import useIsMobile from "@/hooks/useIsMobile";
 import CountryPhoneInput from "@/Components/UI/CountryPhoneInput";
-import GoogleIcon from "@/assets/Images/googleIcon.svg";
+import SocialAuthButtons from "@/Components/Common/SocialAuthButtons";
 import OtpInputPanel from "@/Components/UI/OtpInputPanel";
 import { signIn } from "next-auth/react";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
@@ -184,12 +184,70 @@ const Register = () => {
   }, [countdown]);
 
   // ─── Google Sign Up ───
+  // Uses client-side Google Identity Services (same flow as login page) so it
+  // works behind the K8s ingress; falls back to NextAuth if GIS isn't loaded.
   const handleGoogleLogin = useCallback(async () => {
+    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+    if (!clientId) {
+      signIn("google", { callbackUrl: "/dashboard" });
+      return;
+    }
     try {
-      await signIn("google", { callbackUrl: "/dashboard" });
+      if (typeof window !== "undefined" && (window as any).google?.accounts?.oauth2) {
+        const tokenClient = (window as any).google.accounts.oauth2.initTokenClient({
+          client_id: clientId,
+          scope: "openid email profile",
+          callback: async (tokenResponse: any) => {
+            if (tokenResponse?.access_token) {
+              try {
+                const res = await axiosBaseApi.post("user/google-signin", {
+                  accessToken: tokenResponse.access_token,
+                });
+                const { data, message } = res?.data || {};
+                if (data?.userData && data?.accessToken) {
+                  dispatch({ type: TOAST_SHOW, payload: { message: message || "Login successful" } });
+                  dispatch({
+                    type: USER_LOGIN,
+                    payload: { ...data.userData, accessToken: data.accessToken, refreshToken: data.refreshToken },
+                  });
+                } else {
+                  throw new Error("Invalid response");
+                }
+              } catch (e: any) {
+                const msg = e.response?.data?.message ?? e.message ?? "Google sign-up failed";
+                dispatch({ type: TOAST_SHOW, payload: { message: msg, severity: "error" } });
+              }
+            }
+          },
+        });
+        tokenClient.requestAccessToken();
+      } else {
+        signIn("google", { callbackUrl: "/dashboard" });
+      }
     } catch (err) {
       console.error("Google sign-in error:", err);
+      signIn("google", { callbackUrl: "/dashboard" });
     }
+  }, [dispatch]);
+
+  // ─── GitHub Sign Up — OAuth authorization-code redirect flow ───
+  const handleGithubLogin = useCallback(() => {
+    const clientId = process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID;
+    if (!clientId || typeof window === "undefined") return;
+    const state = `${Date.now().toString(36)}${Math.random().toString(36).slice(2)}`;
+    try {
+      sessionStorage.setItem("gh_oauth_state", state);
+    } catch {
+      /* ignore */
+    }
+    const redirectUri = `${window.location.origin}/auth/github/callback`;
+    const params = new URLSearchParams({
+      client_id: clientId,
+      redirect_uri: redirectUri,
+      scope: "read:user user:email",
+      state,
+    });
+    window.location.href = `https://github.com/login/oauth/authorize?${params.toString()}`;
   }, []);
 
   // ─── Phone Type Check ───
@@ -416,20 +474,21 @@ const Register = () => {
                     descriptionColor={theme.palette.text.secondary}
                   />
 
-                  {/* Google Sign Up — hidden when NEXT_PUBLIC_ENABLE_GOOGLE_AUTH !== "true" */}
-                  {process.env.NEXT_PUBLIC_ENABLE_GOOGLE_AUTH === "true" && (
+                  {/* Social Sign Up — hidden when both social flags are off */}
+                  {(process.env.NEXT_PUBLIC_ENABLE_GOOGLE_AUTH === "true" ||
+                    process.env.NEXT_PUBLIC_ENABLE_GITHUB_AUTH === "true") && (
                     <>
-                      <CustomButton
-                        data-testid="google-signup-btn"
-                        label={t("continueWithGoogle")}
-                        variant="outlined"
-                        fullWidth
-                        onClick={handleGoogleLogin}
-                        startIcon={
-                          <Image src={GoogleIcon} alt="google" width={20} height={20} draggable={false} />
-                        }
-                        sx={{ mt: 1.5 }}
-                      />
+                      <Box sx={{ mt: 1.5 }}>
+                        <SocialAuthButtons
+                          googleLabel={t("continueWithGoogle")}
+                          onGoogle={handleGoogleLogin}
+                          showGoogle={process.env.NEXT_PUBLIC_ENABLE_GOOGLE_AUTH === "true"}
+                          showGithub={process.env.NEXT_PUBLIC_ENABLE_GITHUB_AUTH === "true"}
+                          onGithub={handleGithubLogin}
+                          googleTestId="google-signup-btn"
+                          githubTestId="github-signup-btn"
+                        />
+                      </Box>
 
                       {/* Divider */}
                       <Box sx={{ mt: 1.5, mb: 1.5 }}>

@@ -1,340 +1,369 @@
 #!/usr/bin/env python3
 """
-Backend API Testing for Volume-Based Fee Tier System
-Test Date: 2026-07-07
+Session 5 Backend Testing Script
+Tests: Admin token fix + Email template redesign + Regression
 """
 
 import requests
 import json
 import sys
+import subprocess
+import os
+from pathlib import Path
 
 # Configuration
-BASE_URL = "https://blockchain-gateway-12.preview.emergentagent.com/api"
-HOSTBAY_JWT = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJuYW1lIjoiSG9zdEJheSIsImVtYWlsIjoiaG9zdGJheUBtb3h4LmNvIiwidXNlcm5hbWUiOm51bGwsIm1vYmlsZSI6bnVsbCwicGhvdG8iOiJpbWFnZXMvdXNlcl9pbWFnZS5wbmciLCJsb2dpbl90eXBlIjoiRU1BSUwiLCJjdXN0b21lcl9pZCI6bnVsbCwiZXh0ZXJuYWxfaWQiOm51bGwsInN0YXR1cyI6ImFjdGl2ZSIsInZlcmlmaWVkX290cCI6bnVsbCwib3RwX2V4cGlyZWQiOm51bGwsIm90cF9jdXJyZW5jeSI6bnVsbCwicmVzZXRfdG9rZW4iOm51bGwsInJlc2V0X3Rva2VuX2V4cGlyeSI6bnVsbCwiZ29vZ2xlX2lkIjpudWxsLCJ3YWxsZXRfcmVtaW5kZXJfc2VudCI6dHJ1ZSwicmVmZXJyYWxfY29kZSI6IkRZTk8tOVhWUFVZIiwicmVmZXJyYWxfY291bnQiOjAsInJlZmVycmFsX2JvbnVzX2Vhcm5lZCI6IjAuMDAiLCJyZWZlcnJlZF9ieV9jb2RlIjpudWxsLCJyZWZlcnJlZF9ieV9yZWZlcmVlX2NvZGUiOm51bGwsImZlZV9kaXNjb3VudF9wZXJjZW50IjoiMC4wMCIsImZlZV9kaXNjb3VudF9leHBpcmVzX2F0IjpudWxsLCJmZWVfZGlzY291bnRfcmVhc29uIjpudWxsLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwibGFzdF9sb2dpbl9pcCI6IjEwNC4xOTguMjE0LjIyMyIsImxhc3RfY29tcGFueV9pZCI6bnVsbCwiY3VtdWxhdGl2ZV92b2x1bWVfdXNkIjoiMTczNTcuNTUiLCJmZWVfZnJlZV9yZW1haW5pbmdfdXNkIjoiMC4wMCIsImZlZV90aWVyIjoic3RhbmRhcmQiLCJjcmVhdGVkQXQiOiIyMDI2LTA0LTE4VDE4OjE5OjExLjg4N1oiLCJ1cGRhdGVkQXQiOiIyMDI2LTA3LTA3VDEzOjAzOjQzLjM0NFoiLCJsYW5ndWFnZSI6ImVuIiwiaWF0IjoxNzgzNDQ5NDE5LCJleHAiOjE3ODYwNDE0MTl9.AGRoH624V3DpSvMiLOYPUo7mjMLVG8Po9BNd1peCK98"
+BASE_URL = "https://a12ec985-3845-48d1-94ff-bae3784d76bd.preview.emergentagent.com/api"
+HOSTBAY_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJuYW1lIjoiSG9zdEJheSIsImVtYWlsIjoiaG9zdGJheUBtb3h4LmNvIiwidXNlcm5hbWUiOm51bGwsIm1vYmlsZSI6bnVsbCwicGhvdG8iOiJpbWFnZXMvdXNlcl9pbWFnZS5wbmciLCJsb2dpbl90eXBlIjoiRU1BSUwiLCJjdXN0b21lcl9pZCI6bnVsbCwiZXh0ZXJuYWxfaWQiOm51bGwsInN0YXR1cyI6ImFjdGl2ZSIsInZlcmlmaWVkX290cCI6bnVsbCwib3RwX2V4cGlyZWQiOm51bGwsIm90cF9jdXJyZW5jeSI6bnVsbCwicmVzZXRfdG9rZW4iOm51bGwsInJlc2V0X3Rva2VuX2V4cGlyeSI6bnVsbCwiZ29vZ2xlX2lkIjpudWxsLCJ3YWxsZXRfcmVtaW5kZXJfc2VudCI6dHJ1ZSwicmVmZXJyYWxfY29kZSI6IkRZTk8tOVhWUFVZIiwicmVmZXJyYWxfY291bnQiOjAsInJlZmVycmFsX2JvbnVzX2Vhcm5lZCI6IjAuMDAiLCJyZWZlcnJlZF9ieV9jb2RlIjpudWxsLCJyZWZlcnJlZF9ieV9yZWZlcmVlX2NvZGUiOm51bGwsImZlZV9kaXNjb3VudF9wZXJjZW50IjoiMC4wMCIsImZlZV9kaXNjb3VudF9leHBpcmVzX2F0IjpudWxsLCJmZWVfZGlzY291bnRfcmVhc29uIjpudWxsLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwibGFzdF9sb2dpbl9pcCI6IjEwNC4xOTguMjE0LjIyMyIsImxhc3RfY29tcGFueV9pZCI6bnVsbCwiY3VtdWxhdGl2ZV92b2x1bWVfdXNkIjoiMTc0NzcuNTUiLCJmZWVfZnJlZV9yZW1haW5pbmdfdXNkIjoiMC4wMCIsImZlZV90aWVyIjoic3RhbmRhcmQiLCJjcmVhdGVkQXQiOiIyMDI2LTA0LTE4VDE4OjE5OjExLjg4N1oiLCJ1cGRhdGVkQXQiOiIyMDI2LTA3LTA4VDAzOjIxOjUwLjExOVoiLCJsYW5ndWFnZSI6ImVuIiwiaWF0IjoxNzgzNTE0Njc3LCJleHAiOjE3ODYxMDY2Nzd9.Gwbknnx-KFQUNMXmzwx6Qv4SG2cAcMz4LL89Jl-DDOw"
 
-# Test results storage
-results = {
-    "part1": {"status": "NOT_RUN", "details": {}},
-    "part2": {"status": "NOT_RUN", "details": {}},
-    "part6": {"status": "NOT_RUN", "details": {}},
+HEADERS = {
+    "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    "Content-Type": "application/json"
 }
 
-def print_section(title):
-    print(f"\n{'='*80}")
-    print(f"  {title}")
-    print(f"{'='*80}\n")
+AUTH_HEADERS = {
+    **HEADERS,
+    "Authorization": f"Bearer {HOSTBAY_TOKEN}"
+}
 
-def test_part1_public_fee_calculator():
-    """Part 1 - Public checkout fee endpoint (unchanged for public calculator)"""
-    print_section("PART 1: Public Checkout Fee Endpoint")
+# Test results
+results = {
+    "A_admin_token": {"status": "NOT_RUN", "details": []},
+    "B_email_template": {"status": "NOT_RUN", "details": []},
+    "C_regression": {"status": "NOT_RUN", "details": []}
+}
+
+def log(message, test_part=None):
+    """Log message and optionally add to test details"""
+    print(message)
+    if test_part and test_part in results:
+        results[test_part]["details"].append(message)
+
+def test_admin_token():
+    """Test A: Admin token fix"""
+    log("\n=== TEST A: Admin Token Fix ===", "A_admin_token")
     
-    # Test 1: USD with BTC
-    print("Test 1.1: POST /api/pay/calculateFees (USD, BTC, no paymentLinkId)")
     try:
-        response = requests.post(
-            f"{BASE_URL}/pay/calculateFees",
-            json={"amount": 1000, "cryptocurrency": "BTC", "currency": "USD"},
-            headers={"Content-Type": "application/json"},
+        url = f"{BASE_URL}/userApi/getApi"
+        log(f"GET {url}", "A_admin_token")
+        
+        response = requests.get(url, headers=AUTH_HEADERS, timeout=30)
+        log(f"Status: {response.status_code}", "A_admin_token")
+        
+        if response.status_code != 200:
+            results["A_admin_token"]["status"] = "FAIL"
+            log(f"❌ Expected 200, got {response.status_code}", "A_admin_token")
+            log(f"Response: {response.text[:500]}", "A_admin_token")
+            return False
+        
+        data = response.json()
+        
+        # Check if data.all exists and has at least one item
+        if "data" not in data or "all" not in data["data"] or len(data["data"]["all"]) == 0:
+            results["A_admin_token"]["status"] = "FAIL"
+            log(f"❌ No API keys found in response", "A_admin_token")
+            log(f"Response structure: {json.dumps(data, indent=2)[:500]}", "A_admin_token")
+            return False
+        
+        api_key = data["data"]["all"][0]
+        log(f"API Key data: {json.dumps(api_key, indent=2)[:500]}", "A_admin_token")
+        
+        # Check adminToken is non-empty
+        admin_token = api_key.get("adminToken")
+        if not admin_token or not isinstance(admin_token, str) or len(admin_token) == 0:
+            results["A_admin_token"]["status"] = "FAIL"
+            log(f"❌ adminToken is empty or not a string: {admin_token}", "A_admin_token")
+            return False
+        
+        log(f"✅ adminToken is non-empty string (length: {len(admin_token)})", "A_admin_token")
+        
+        # Check adminToken equals admin_token
+        admin_token_col = api_key.get("admin_token")
+        if admin_token != admin_token_col:
+            results["A_admin_token"]["status"] = "FAIL"
+            log(f"❌ adminToken != admin_token", "A_admin_token")
+            log(f"   adminToken: {admin_token[:50]}...", "A_admin_token")
+            log(f"   admin_token: {admin_token_col[:50] if admin_token_col else 'null'}...", "A_admin_token")
+            return False
+        
+        log(f"✅ adminToken equals admin_token", "A_admin_token")
+        
+        # Check apiKey present
+        if not api_key.get("apiKey"):
+            results["A_admin_token"]["status"] = "FAIL"
+            log(f"❌ apiKey is missing", "A_admin_token")
+            return False
+        
+        log(f"✅ apiKey present", "A_admin_token")
+        
+        # Check apiKey_masked present
+        if not api_key.get("apiKey_masked"):
+            results["A_admin_token"]["status"] = "FAIL"
+            log(f"❌ apiKey_masked is missing", "A_admin_token")
+            return False
+        
+        log(f"✅ apiKey_masked present: {api_key.get('apiKey_masked')}", "A_admin_token")
+        
+        results["A_admin_token"]["status"] = "PASS"
+        log("✅ TEST A PASSED", "A_admin_token")
+        return True
+        
+    except Exception as e:
+        results["A_admin_token"]["status"] = "ERROR"
+        log(f"❌ Exception: {str(e)}", "A_admin_token")
+        import traceback
+        log(traceback.format_exc(), "A_admin_token")
+        return False
+
+def test_email_template():
+    """Test B: Email template render"""
+    log("\n=== TEST B: Email Template Render ===", "B_email_template")
+    
+    try:
+        # Create output directory
+        output_dir = Path("/tmp/email_preview")
+        output_dir.mkdir(parents=True, exist_ok=True)
+        log(f"✅ Created directory: {output_dir}", "B_email_template")
+        
+        # Run the render script
+        log("Running: node_modules/.bin/ts-node --transpile-only scripts/render_email_previews.ts", "B_email_template")
+        result = subprocess.run(
+            ["node_modules/.bin/ts-node", "--transpile-only", "scripts/render_email_previews.ts"],
+            cwd="/app/backend",
+            capture_output=True,
+            text=True,
             timeout=30
         )
         
-        print(f"Status: {response.status_code}")
+        log(f"Exit code: {result.returncode}", "B_email_template")
+        if result.stdout:
+            log(f"STDOUT: {result.stdout}", "B_email_template")
+        if result.stderr:
+            log(f"STDERR: {result.stderr}", "B_email_template")
         
-        if response.status_code == 200:
-            data = response.json()
-            print(f"Response (first 500 chars): {json.dumps(data, indent=2)[:500]}")
+        if result.returncode != 0:
+            results["B_email_template"]["status"] = "FAIL"
+            log(f"❌ Script exited with code {result.returncode}", "B_email_template")
+            return False
+        
+        log("✅ Script exited with code 0", "B_email_template")
+        
+        # Check for 3 files
+        expected_files = ["otp.html", "payment.html", "welcome.html"]
+        for filename in expected_files:
+            filepath = output_dir / filename
+            if not filepath.exists():
+                results["B_email_template"]["status"] = "FAIL"
+                log(f"❌ Missing file: {filename}", "B_email_template")
+                return False
+            log(f"✅ Found file: {filename}", "B_email_template")
+        
+        # Verify each file
+        all_checks_passed = True
+        for filename in expected_files:
+            filepath = output_dir / filename
+            content = filepath.read_text()
             
-            # Assertions
-            if "data" in data and "fee_breakdown" in data["data"]:
-                fee_breakdown = data["data"]["fee_breakdown"]
-                platform_fee_percent = fee_breakdown.get("platform_fee_percent")
-                platform_fee = fee_breakdown.get("platform_fee")
-                
-                print(f"\nAssertion checks:")
-                print(f"  platform_fee_percent: {platform_fee_percent} (expected: 1.5)")
-                print(f"  platform_fee: {platform_fee} (expected: 15)")
-                
-                if platform_fee_percent == 1.5 and platform_fee == 15:
-                    results["part1"]["test1_usd_btc"] = "PASS"
-                    print("  ✅ PASS")
-                else:
-                    results["part1"]["test1_usd_btc"] = f"FAIL - platform_fee_percent={platform_fee_percent}, platform_fee={platform_fee}"
-                    print(f"  ❌ FAIL")
-            else:
-                results["part1"]["test1_usd_btc"] = "FAIL - Missing fee_breakdown in response"
-                print("  ❌ FAIL - Missing fee_breakdown")
-        else:
-            results["part1"]["test1_usd_btc"] = f"FAIL - HTTP {response.status_code}"
-            print(f"  ❌ FAIL - HTTP {response.status_code}")
-            print(f"Response: {response.text[:500]}")
-    except Exception as e:
-        results["part1"]["test1_usd_btc"] = f"ERROR - {str(e)}"
-        print(f"  ❌ ERROR: {e}")
-    
-    # Test 2: EUR with ETH
-    print("\n\nTest 1.2: POST /api/pay/calculateFees (EUR, ETH)")
-    try:
-        response = requests.post(
-            f"{BASE_URL}/pay/calculateFees",
-            json={"amount": 1000, "cryptocurrency": "ETH", "currency": "EUR"},
-            headers={"Content-Type": "application/json"},
-            timeout=30
-        )
-        
-        print(f"Status: {response.status_code}")
-        
-        if response.status_code == 200:
-            data = response.json()
-            print(f"Response (first 500 chars): {json.dumps(data, indent=2)[:500]}")
+            log(f"\n--- Checking {filename} ---", "B_email_template")
             
-            if "data" in data and "fee_breakdown" in data["data"]:
-                fee_breakdown = data["data"]["fee_breakdown"]
-                platform_fee_percent = fee_breakdown.get("platform_fee_percent")
-                
-                print(f"\nAssertion checks:")
-                print(f"  platform_fee_percent: {platform_fee_percent} (expected: 1.5)")
-                
-                if platform_fee_percent == 1.5:
-                    results["part1"]["test2_eur_eth"] = "PASS"
-                    print("  ✅ PASS")
-                else:
-                    results["part1"]["test2_eur_eth"] = f"FAIL - platform_fee_percent={platform_fee_percent}"
-                    print(f"  ❌ FAIL")
+            # Check for #CCFF00
+            if "#CCFF00" not in content:
+                log(f"❌ {filename}: Missing #CCFF00", "B_email_template")
+                all_checks_passed = False
             else:
-                results["part1"]["test2_eur_eth"] = "FAIL - Missing fee_breakdown in response"
-                print("  ❌ FAIL - Missing fee_breakdown")
+                count = content.count("#CCFF00")
+                log(f"✅ {filename}: Contains #CCFF00 ({count} occurrences)", "B_email_template")
+            
+            # Check for #050505
+            if "#050505" not in content:
+                log(f"❌ {filename}: Missing #050505", "B_email_template")
+                all_checks_passed = False
+            else:
+                count = content.count("#050505")
+                log(f"✅ {filename}: Contains #050505 ({count} occurrences)", "B_email_template")
+            
+            # Check balanced <table> tags
+            table_open = content.count("<table")
+            table_close = content.count("</table>")
+            if table_open != table_close:
+                log(f"❌ {filename}: Unbalanced <table> tags (open: {table_open}, close: {table_close})", "B_email_template")
+                all_checks_passed = False
+            else:
+                log(f"✅ {filename}: Balanced <table> tags ({table_open} pairs)", "B_email_template")
+            
+            # Check NO #0d1f5c
+            if "#0d1f5c" in content:
+                count = content.count("#0d1f5c")
+                log(f"❌ {filename}: Contains old color #0d1f5c ({count} occurrences)", "B_email_template")
+                all_checks_passed = False
+            else:
+                log(f"✅ {filename}: No #0d1f5c found", "B_email_template")
+            
+            # Check NO #4F46E5
+            if "#4F46E5" in content:
+                count = content.count("#4F46E5")
+                log(f"❌ {filename}: Contains old color #4F46E5 ({count} occurrences)", "B_email_template")
+                all_checks_passed = False
+            else:
+                log(f"✅ {filename}: No #4F46E5 found", "B_email_template")
+            
+            # Check CTA button wrapped in its own table (payment.html and welcome.html)
+            if filename in ["payment.html", "welcome.html"]:
+                cta_table_pattern = '<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center"'
+                if cta_table_pattern not in content:
+                    log(f"❌ {filename}: CTA button not wrapped in its own table", "B_email_template")
+                    all_checks_passed = False
+                else:
+                    log(f"✅ {filename}: CTA button wrapped in its own table", "B_email_template")
+        
+        if all_checks_passed:
+            results["B_email_template"]["status"] = "PASS"
+            log("\n✅ TEST B PASSED", "B_email_template")
+            return True
         else:
-            results["part1"]["test2_eur_eth"] = f"FAIL - HTTP {response.status_code}"
-            print(f"  ❌ FAIL - HTTP {response.status_code}")
+            results["B_email_template"]["status"] = "FAIL"
+            log("\n❌ TEST B FAILED - Some checks did not pass", "B_email_template")
+            return False
+        
     except Exception as e:
-        results["part1"]["test2_eur_eth"] = f"ERROR - {str(e)}"
-        print(f"  ❌ ERROR: {e}")
-    
-    results["part1"]["status"] = "COMPLETED"
+        results["B_email_template"]["status"] = "ERROR"
+        log(f"❌ Exception: {str(e)}", "B_email_template")
+        import traceback
+        log(traceback.format_exc(), "B_email_template")
+        return False
 
-def test_part2_dashboard_fee_tiers():
-    """Part 2 - Authenticated dashboard fee-tiers endpoint"""
-    print_section("PART 2: Authenticated Dashboard Fee-Tiers Endpoint")
+def test_regression():
+    """Test C: Regression tests"""
+    log("\n=== TEST C: Regression Tests ===", "C_regression")
     
-    print("Test 2.1: GET /api/dashboard/fee-tiers (with hostbay JWT)")
+    all_passed = True
+    
+    # Test 1: GET /api/
     try:
-        response = requests.get(
-            f"{BASE_URL}/dashboard/fee-tiers",
-            headers={
-                "Authorization": f"Bearer {HOSTBAY_JWT}",
-                "Content-Type": "application/json"
-            },
-            timeout=30
-        )
-        
-        print(f"Status: {response.status_code}")
-        
+        url = f"{BASE_URL}/"
+        log(f"\n1. GET {url}", "C_regression")
+        response = requests.get(url, headers=HEADERS, timeout=30)
+        log(f"   Status: {response.status_code}", "C_regression")
         if response.status_code == 200:
-            data = response.json()
-            print(f"\nFull Response:\n{json.dumps(data, indent=2)}")
-            
-            # Detailed assertions
-            print(f"\n{'='*60}")
-            print("DETAILED ASSERTIONS:")
-            print(f"{'='*60}")
-            
-            passed = True
-            
-            # Check tiers array
-            if "data" in data and "tiers" in data["data"]:
-                tiers = data["data"]["tiers"]
-                print(f"\n✓ data.tiers exists: {len(tiers)} tiers found")
-                
-                if len(tiers) == 4:
-                    print(f"✓ Exactly 4 tiers present")
-                    
-                    # Expected tier structure
-                    expected_tiers = [
-                        {"index": 0, "name": "starter", "display_name": "Starter", "percent": 1.5, "min_volume": 0, "max_volume": 10000},
-                        {"index": 1, "name": "growth", "display_name": "Growth", "percent": 1.0, "min_volume": 10000, "max_volume": 100000},
-                        {"index": 2, "name": "scale", "display_name": "Scale", "percent": 0.7, "min_volume": 100000, "max_volume": 500000},
-                        {"index": 3, "name": "enterprise", "display_name": "Enterprise", "percent": 0.5, "min_volume": 500000, "max_volume": None}
-                    ]
-                    
-                    print(f"\nTier-by-tier validation:")
-                    for i, expected in enumerate(expected_tiers):
-                        if i < len(tiers):
-                            tier = tiers[i]
-                            print(f"\n  Tier {i} ({expected['name']}):")
-                            print(f"    name: {tier.get('name')} (expected: {expected['name']}) {'✓' if tier.get('name') == expected['name'] else '✗'}")
-                            print(f"    display_name: {tier.get('display_name')} (expected: {expected['display_name']}) {'✓' if tier.get('display_name') == expected['display_name'] else '✗'}")
-                            print(f"    percent: {tier.get('percent')} (expected: {expected['percent']}) {'✓' if tier.get('percent') == expected['percent'] else '✗'}")
-                            print(f"    min_volume: {tier.get('min_volume')} (expected: {expected['min_volume']}) {'✓' if tier.get('min_volume') == expected['min_volume'] else '✗'}")
-                            print(f"    max_volume: {tier.get('max_volume')} (expected: {expected['max_volume']}) {'✓' if tier.get('max_volume') == expected['max_volume'] else '✗'}")
-                            
-                            # Check if all fields match
-                            if (tier.get('name') != expected['name'] or 
-                                tier.get('display_name') != expected['display_name'] or
-                                tier.get('percent') != expected['percent'] or
-                                tier.get('min_volume') != expected['min_volume'] or
-                                tier.get('max_volume') != expected['max_volume']):
-                                passed = False
-                else:
-                    print(f"✗ Expected 4 tiers, got {len(tiers)}")
-                    passed = False
-            else:
-                print(f"✗ data.tiers not found in response")
-                passed = False
-            
-            # Check user_tier object
-            if "data" in data and "user_tier" in data["data"]:
-                user_tier = data["data"]["user_tier"]
-                print(f"\n✓ data.user_tier exists")
-                
-                # hostbay has $17,357 lifetime volume, which should map to Growth tier (1.0%)
-                # Note: The test request says it should be Growth based on volume, not the DB column
-                print(f"\n  User tier details:")
-                print(f"    current_tier: {user_tier.get('current_tier')} (expected: Growth)")
-                print(f"    current_tier_key: {user_tier.get('current_tier_key')} (expected: growth)")
-                print(f"    current_tier_percent: {user_tier.get('current_tier_percent')} (expected: 1.0)")
-                print(f"    next_tier: {user_tier.get('next_tier')} (expected: Scale)")
-                print(f"    next_tier_key: {user_tier.get('next_tier_key')} (expected: scale)")
-                print(f"    next_tier_percent: {user_tier.get('next_tier_percent')} (expected: 0.7)")
-                print(f"    total_volume: {user_tier.get('total_volume')} (expected: ~17357.55)")
-                
-                # Validate user_tier fields
-                if (user_tier.get('current_tier') == "Growth" and
-                    user_tier.get('current_tier_key') == "growth" and
-                    user_tier.get('current_tier_percent') == 1.0 and
-                    user_tier.get('next_tier') == "Scale" and
-                    user_tier.get('next_tier_key') == "scale" and
-                    user_tier.get('next_tier_percent') == 0.7 and
-                    abs(float(user_tier.get('total_volume', 0)) - 17357.55) < 100):  # Allow some variance
-                    print(f"\n  ✓ All user_tier fields match expected values")
-                else:
-                    print(f"\n  ✗ Some user_tier fields don't match expected values")
-                    passed = False
-            else:
-                print(f"✗ data.user_tier not found in response")
-                passed = False
-            
-            # Check for is_current flag
-            if "data" in data and "tiers" in data["data"]:
-                current_tiers = [t for t in data["data"]["tiers"] if t.get("is_current")]
-                if len(current_tiers) == 1 and current_tiers[0].get("name") == "growth":
-                    print(f"\n✓ Exactly ONE tier has is_current=true (growth tier)")
-                else:
-                    print(f"\n✗ Expected exactly one tier with is_current=true (growth), found {len(current_tiers)}")
-                    if current_tiers:
-                        print(f"  Current tiers: {[t.get('name') for t in current_tiers]}")
-                    passed = False
-            
-            if passed:
-                results["part2"]["status"] = "PASS"
-                print(f"\n{'='*60}")
-                print("✅ PART 2: PASS - All assertions passed")
-                print(f"{'='*60}")
-            else:
-                results["part2"]["status"] = "FAIL"
-                print(f"\n{'='*60}")
-                print("❌ PART 2: FAIL - Some assertions failed")
-                print(f"{'='*60}")
+            log(f"   ✅ PASS", "C_regression")
         else:
-            results["part2"]["status"] = f"FAIL - HTTP {response.status_code}"
-            print(f"  ❌ FAIL - HTTP {response.status_code}")
-            print(f"Response: {response.text[:500]}")
+            log(f"   ❌ FAIL - Expected 200", "C_regression")
+            all_passed = False
     except Exception as e:
-        results["part2"]["status"] = f"ERROR - {str(e)}"
-        print(f"  ❌ ERROR: {e}")
-
-def test_part6_regression():
-    """Part 6 - Regression: no existing endpoint broke"""
-    print_section("PART 6: Regression Tests")
+        log(f"   ❌ ERROR: {str(e)}", "C_regression")
+        all_passed = False
     
-    endpoints = [
-        {"method": "GET", "path": "/health", "auth": False},
-        {"method": "GET", "path": "/api/", "auth": False},
-        {"method": "GET", "path": "/api/csrf-token", "auth": False},
-        {"method": "GET", "path": "/api/dashboard", "auth": True},
-        {"method": "GET", "path": "/api/dashboard/recent-transactions", "auth": True},
-        {"method": "POST", "path": "/api/pay/calculateFees", "auth": False, "body": {"amount": 100, "cryptocurrency": "BTC", "currency": "USD"}},
-    ]
+    # Test 2: GET /api/csrf-token
+    try:
+        url = f"{BASE_URL}/csrf-token"
+        log(f"\n2. GET {url}", "C_regression")
+        response = requests.get(url, headers=HEADERS, timeout=30)
+        log(f"   Status: {response.status_code}", "C_regression")
+        if response.status_code == 200:
+            log(f"   ✅ PASS", "C_regression")
+        else:
+            log(f"   ❌ FAIL - Expected 200", "C_regression")
+            all_passed = False
+    except Exception as e:
+        log(f"   ❌ ERROR: {str(e)}", "C_regression")
+        all_passed = False
     
-    regression_results = {}
+    # Test 3: GET /api/dashboard (Bearer)
+    try:
+        url = f"{BASE_URL}/dashboard"
+        log(f"\n3. GET {url} (with Bearer token)", "C_regression")
+        response = requests.get(url, headers=AUTH_HEADERS, timeout=30)
+        log(f"   Status: {response.status_code}", "C_regression")
+        if response.status_code == 200:
+            log(f"   ✅ PASS", "C_regression")
+        else:
+            log(f"   ❌ FAIL - Expected 200", "C_regression")
+            log(f"   Response: {response.text[:200]}", "C_regression")
+            all_passed = False
+    except Exception as e:
+        log(f"   ❌ ERROR: {str(e)}", "C_regression")
+        all_passed = False
     
-    for endpoint in endpoints:
-        path = endpoint["path"]
-        method = endpoint["method"]
-        auth = endpoint["auth"]
-        body = endpoint.get("body")
+    # Test 4: GET /api/dashboard/fee-tiers (Bearer)
+    try:
+        url = f"{BASE_URL}/dashboard/fee-tiers"
+        log(f"\n4. GET {url} (with Bearer token)", "C_regression")
+        response = requests.get(url, headers=AUTH_HEADERS, timeout=30)
+        log(f"   Status: {response.status_code}", "C_regression")
+        if response.status_code == 200:
+            log(f"   ✅ PASS", "C_regression")
+        else:
+            log(f"   ❌ FAIL - Expected 200", "C_regression")
+            log(f"   Response: {response.text[:200]}", "C_regression")
+            all_passed = False
+    except Exception as e:
+        log(f"   ❌ ERROR: {str(e)}", "C_regression")
+        all_passed = False
+    
+    # Test 5: POST /api/pay/calculateFees
+    try:
+        url = f"{BASE_URL}/pay/calculateFees"
+        payload = {"amount": 1000, "currency": "USD", "cryptocurrency": "BTC"}
+        log(f"\n5. POST {url}", "C_regression")
+        log(f"   Payload: {json.dumps(payload)}", "C_regression")
+        response = requests.post(url, headers=HEADERS, json=payload, timeout=30)
+        log(f"   Status: {response.status_code}", "C_regression")
         
-        print(f"\nTesting: {method} {path}")
-        
-        try:
-            headers = {"Content-Type": "application/json"}
-            if auth:
-                headers["Authorization"] = f"Bearer {HOSTBAY_JWT}"
+        if response.status_code != 200:
+            log(f"   ❌ FAIL - Expected 200", "C_regression")
+            log(f"   Response: {response.text[:200]}", "C_regression")
+            all_passed = False
+        else:
+            data = response.json()
+            platform_fee_percent = data.get("data", {}).get("fee_breakdown", {}).get("platform_fee_percent")
+            log(f"   platform_fee_percent: {platform_fee_percent}", "C_regression")
             
-            # Construct full URL
-            if path.startswith("/api/"):
-                url = f"{BASE_URL.rsplit('/api', 1)[0]}{path}"
+            if platform_fee_percent == 1.5:
+                log(f"   ✅ PASS - platform_fee_percent is 1.5", "C_regression")
             else:
-                url = f"{BASE_URL.rsplit('/api', 1)[0]}{path}"
-            
-            if method == "GET":
-                response = requests.get(url, headers=headers, timeout=30)
-            elif method == "POST":
-                response = requests.post(url, json=body, headers=headers, timeout=30)
-            
-            status = response.status_code
-            print(f"  Status: {status}")
-            
-            if status == 200:
-                regression_results[path] = "✅ 200"
-            else:
-                regression_results[path] = f"❌ {status}"
-                print(f"  Response: {response.text[:200]}")
-        except Exception as e:
-            regression_results[path] = f"❌ ERROR: {str(e)}"
-            print(f"  ERROR: {e}")
+                log(f"   ❌ FAIL - Expected platform_fee_percent=1.5, got {platform_fee_percent}", "C_regression")
+                all_passed = False
+    except Exception as e:
+        log(f"   ❌ ERROR: {str(e)}", "C_regression")
+        all_passed = False
     
-    print(f"\n{'='*60}")
-    print("REGRESSION TEST SUMMARY:")
-    print(f"{'='*60}")
-    for path, result in regression_results.items():
-        print(f"  {path}: {result}")
-    
-    # Check if all passed
-    all_passed = all("✅" in result for result in regression_results.values())
-    results["part6"]["status"] = "PASS" if all_passed else "FAIL"
-    results["part6"]["details"] = regression_results
+    if all_passed:
+        results["C_regression"]["status"] = "PASS"
+        log("\n✅ TEST C PASSED", "C_regression")
+        return True
+    else:
+        results["C_regression"]["status"] = "FAIL"
+        log("\n❌ TEST C FAILED - Some regression tests failed", "C_regression")
+        return False
 
 def main():
-    print(f"\n{'#'*80}")
-    print(f"#  VOLUME-BASED FEE TIER SYSTEM - BACKEND API TESTING")
-    print(f"#  Test Date: 2026-07-07")
-    print(f"#  Base URL: {BASE_URL}")
-    print(f"{'#'*80}\n")
+    """Run all tests"""
+    print("=" * 80)
+    print("SESSION 5 BACKEND TESTING")
+    print("Admin token fix + Email template redesign + Regression")
+    print("=" * 80)
     
-    # Run all tests
-    test_part1_public_fee_calculator()
-    test_part2_dashboard_fee_tiers()
-    test_part6_regression()
+    # Run tests
+    test_a_passed = test_admin_token()
+    test_b_passed = test_email_template()
+    test_c_passed = test_regression()
     
-    # Final summary
-    print(f"\n\n{'#'*80}")
-    print(f"#  FINAL TEST SUMMARY")
-    print(f"{'#'*80}\n")
+    # Summary
+    print("\n" + "=" * 80)
+    print("TEST SUMMARY")
+    print("=" * 80)
+    print(f"A) Admin Token Fix:      {results['A_admin_token']['status']}")
+    print(f"B) Email Template:       {results['B_email_template']['status']}")
+    print(f"C) Regression Tests:     {results['C_regression']['status']}")
+    print("=" * 80)
     
-    print("PART 1 (Public Fee Calculator):")
-    if "test1_usd_btc" in results["part1"]:
-        print(f"  Test 1.1 (USD/BTC): {results['part1']['test1_usd_btc']}")
-    if "test2_eur_eth" in results["part1"]:
-        print(f"  Test 1.2 (EUR/ETH): {results['part1']['test2_eur_eth']}")
+    all_passed = test_a_passed and test_b_passed and test_c_passed
     
-    print(f"\nPART 2 (Dashboard Fee Tiers): {results['part2']['status']}")
-    
-    print(f"\nPART 6 (Regression Tests): {results['part6']['status']}")
-    if results["part6"].get("details"):
-        for path, result in results["part6"]["details"].items():
-            print(f"  {path}: {result}")
-    
-    print(f"\n{'#'*80}\n")
+    if all_passed:
+        print("\n✅ ALL TESTS PASSED")
+        return 0
+    else:
+        print("\n❌ SOME TESTS FAILED")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

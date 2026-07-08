@@ -33,7 +33,7 @@
   "editPayLink_desc": "Bewerk het bedrag, de valuta en instellingen van uw crypto-betaallink.",
   "createPayLink_title": "Crypto Betaallink Aanmaken | DynoPay",
   "createPayLink_desc": "Genereer een nieuwe cryptocurrency betaallink om Bitcoin-, Ethereum- of stablecoin-betalingen te accepteren.",
-  "wallet_title": "Crypto Wallets | DynoPay",
+  "wallet_title": "Crypto-wallets | DynoPay",
   "wallet_desc": "Beheer uw Bitcoin-, Ethereum-, Litecoin-, USDT- en USDC-wallet-adressen.",
   "customers_title": "Klantenbeheer | DynoPay",
   "customers_desc": "Bekijk en beheer uw klantgegevens en betalingsgeschiedenis.",
@@ -90,5 +90,7 @@
   "adminProfile_title": "Admin-Profiel | DynoPay",
   "adminProfile_desc": "Beheer uw DynoPay-beheerdersaccountprofiel.",
   "blogTitle": "Blog — Crypto Payment Insights",
-  "blogDescription": "Guides and strategies for merchants accepting crypto payments"
+  "blogDescription": "Guides and strategies for merchants accepting crypto payments",
+  "authSecureAccount_title": "Beveilig uw account | DynoPay",
+  "authSecureAccount_desc": "Bekijk recente inlogactiviteit en beveilig uw DynoPay-handelsaccount."
 }
