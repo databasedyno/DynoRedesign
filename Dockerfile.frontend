@@ -57,6 +57,13 @@ ENV NEXT_PUBLIC_CYPHER_KEY=${NEXT_PUBLIC_CYPHER_KEY}
 ARG NEXT_PUBLIC_GOOGLE_CLIENT_ID
 ENV NEXT_PUBLIC_GOOGLE_CLIENT_ID=${NEXT_PUBLIC_GOOGLE_CLIENT_ID}
 
+# Feature flag: shows the "Continue with Google" button on login/register.
+# MUST be declared here — Docker silently drops undeclared build args, so
+# without this line the platform's NEXT_PUBLIC_ENABLE_GOOGLE_AUTH env never
+# reaches `yarn build` and the flag is inlined as undefined (button hidden).
+ARG NEXT_PUBLIC_ENABLE_GOOGLE_AUTH=
+ENV NEXT_PUBLIC_ENABLE_GOOGLE_AUTH=${NEXT_PUBLIC_ENABLE_GOOGLE_AUTH}
+
 ARG NEXT_PUBLIC_GOOGLE_CLIENT_SECRET
 ENV NEXT_PUBLIC_GOOGLE_CLIENT_SECRET=${NEXT_PUBLIC_GOOGLE_CLIENT_SECRET}
 
