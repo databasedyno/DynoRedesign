@@ -2,7 +2,7 @@
 """
 Backend API Testing for Password Login OTP Removal + Fee-Free Welcome Popup
 Test Date: 2026-07-08
-Base URL: https://a12ec985-3845-48d1-94ff-bae3784d76bd.preview.emergentagent.com/api
+Base URL: https://crypto-payment-hub-24.preview.emergentagent.com/api
 Test Account: qa.onboard.1782585233@dynopaytest.com / QaOnboard#2026
 """
 
@@ -10,7 +10,7 @@ import requests
 import json
 from typing import Dict, Any
 
-BASE_URL = "https://a12ec985-3845-48d1-94ff-bae3784d76bd.preview.emergentagent.com/api"
+BASE_URL = "https://crypto-payment-hub-24.preview.emergentagent.com/api"
 TEST_EMAIL = "qa.onboard.1782585233@dynopaytest.com"
 TEST_PASSWORD = "QaOnboard#2026"
 WRONG_PASSWORD = "WrongPass#123"

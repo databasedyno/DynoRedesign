@@ -17,7 +17,7 @@ import os
 import re
 import subprocess
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://blockchain-gateway-12.preview.emergentagent.com').rstrip('/')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://crypto-payment-hub-24.preview.emergentagent.com').rstrip('/')
 
 
 class TestBackendHealth:
