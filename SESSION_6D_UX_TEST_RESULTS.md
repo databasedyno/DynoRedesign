@@ -1,7 +1,7 @@
 # SESSION 6d UX VERIFICATION RESULTS
 **Date:** 2026-07-08  
 **Tester:** Testing Agent (auto_frontend_testing_agent)  
-**App URL:** https://3aa3b1bf-2a1d-4662-bf6d-dc9fe9ad2c6c.preview.emergentagent.com  
+**App URL:** https://dynopay-preview-4.preview.emergentagent.com  
 **Method:** Playwright UI automation with JWT injection (READ-ONLY, no mutations)
 
 ---

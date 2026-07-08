@@ -16,7 +16,7 @@ import json
 import sys
 
 # Base URL
-BASE_URL = "https://3aa3b1bf-2a1d-4662-bf6d-dc9fe9ad2c6c.preview.emergentagent.com"
+BASE_URL = "https://dynopay-preview-4.preview.emergentagent.com"
 
 # JWTs
 ADMIN_JWT = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im1veHhjb21wYW55QGdtYWlsLmNvbSIsInJvbGUiOiJBRE1JTiIsImlhdCI6MTc4MzUyNDkyNywiZXhwIjoxNzg2MTE2OTI3fQ.tdFRWfspg8avsmrWFGRg5-sLeRu-ATKOng2ZEPpgY8k"
