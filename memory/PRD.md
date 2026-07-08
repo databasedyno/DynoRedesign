@@ -5,6 +5,14 @@ USDT-TRC20 payment gateway platform. Users can create companies, wallets, paymen
 
 ## What's Been Implemented
 
+### 2026-07-08 — Session 5c: Round-2 fixes (shimmer visibility + wallet edit/add currency selector) ✅ VERIFIED (frontend agent 3/3 PASS)
+User reported: (1) shimmer "nothing looks different", (2) editing a BTC wallet showed only RLUSD options, (3) add-wallet similar.
+- **Shimmer**: boosted visibility in AsciiShimmer.tsx (maxA 0.26 light / 0.30 dark, font 13px, wider edge density, higher alpha floors). Verified on EXTERNAL preview URL: 8.8k–18.7k painted pixels. NOTE: user may have checked prod dynopay.com which has NOT been redeployed.
+- **ROOT CAUSE wallet dropdowns**: useWalletData().cryptocurrencies = ALLCRYPTOCURRENCIES minus already-added wallets. Merchant w/ 13/15 wallets → dropdown legitimately only RLUSD+RLUSD-ERC20. EDIT dialog reused this filtered list → wallet's own currency (BTC) excluded.
+- **FIX**: CryptocurrencySelector new props `locked` (edit mode: no dropdown ever renders `{isOpen && !locked}`, lock icon, cursor default, data-locked attr) + `showAllWithDisabled` (add mode: lists ALL 15 currencies; already-added disabled w/ "Added" badge — key walletScreen:alreadyAdded ×6 locales). AddWalletModal passes locked={editMode} showAllWithDisabled={!editMode}; content wrapped in [data-testid="edit-wallet-dialog"/"add-wallet-dialog"] for scoped tests (PopupModal `keepMounted` keeps BOTH modal DOMs mounted on /wallet — first agent run force-clicked the hidden add-modal trigger → false FAIL).
+- **QA FIXTURE**: tbl_user_wallet wallet_id=15 inserted (user_id=3 qa.onboard, company_id=2, BTC, 1JH5Tn…) so qa.onboard has 1 wallet — enables add/edit dialog testing (hostbay has all 15 → Add button hidden).
+- **Verified 3/3 by frontend agent (scoped, no force-clicks)**: edit dialog locked (BTC shown, dropdown never opens), add dialog 15 options w/ BTC disabled+Added badge & ETH selectable, homepage shimmer 18.7k painted px. Lock icon "not visible" note = SVG offsetWidth quirk; visually confirmed rendered.
+
 ### 2026-07-08 — Session 5b: GitHub OAuth sign-in ✅ VERIFIED (backend 4/4; frontend agent NOT yet run)
 User supplied GitHub OAuth App creds (Client ID Ov23liyOOHYelH9Y6Vp0; secret in /app/backend/.env only). Full flow implemented:
 - **DB (production Railway PG — shared by preview+prod)**: `ALTER TYPE enum_tbl_user_login_type ADD VALUE 'GITHUB'` executed (additive/safe); userModel enum list updated. GitHub identity stored in existing `external_id` column PREFIXED `github:<id>` (column shared w/ Facebook raw ids — prefix avoids collision; NO schema change needed).

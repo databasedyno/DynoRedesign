@@ -68,3 +68,7 @@ Header required: `User-Agent: Mozilla/5.0 ... Chrome/120 Safari/537.36`
 - Registered callback: https://dynopay.com/auth/github/callback (PROD ONLY — preview end-to-end will fail redirect_uri validation unless a 2nd dev OAuth app is created with the preview callback)
 - Flow: login/register GitHub icon button → github.com authorize → /auth/github/callback → POST /api/user/github-signin {code, redirectUri} (CSRF-protected)
 - login_type enum now includes 'GITHUB'; GitHub identity stored as external_id='github:<id>'
+
+## QA fixture (added 2026-07-08, session 5c)
+- tbl_user_wallet wallet_id=15: user_id=3 (qa.onboard), company_id=2, BTC, address 1JH5TnZzjYTf1yYwBDLjWoHgkAcCHc1Do7, name "QA BTC Wallet".
+- Purpose: qa.onboard has exactly ONE wallet so the /wallet Add dialog shows 1 disabled "Added" + 14 enabled currencies, and the BTC card enables edit-dialog testing. hostbay has ALL 15 currencies → its Add Wallet button is hidden by design.
