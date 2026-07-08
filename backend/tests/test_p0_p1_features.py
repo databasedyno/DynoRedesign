@@ -23,7 +23,7 @@ import uuid
 BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', '').rstrip('/')
 # Fallback to internal URL if env not set
 if not BASE_URL:
-    BASE_URL = "https://fast-start-8.preview.emergentagent.com"
+    BASE_URL = "https://blockchain-gateway-11.preview.emergentagent.com"
 
 # Test credentials
 TEST_EMAIL = "richard@dyno.pt"
