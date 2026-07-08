@@ -1,7 +1,9 @@
-import { Box, CircularProgress, Grid, Typography } from "@mui/material";
-import { useEffect, useState } from "react";
+import { Box, CircularProgress, Grid, Typography, MenuItem, Select, FormControl } from "@mui/material";
+import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
+import axiosBaseApi from "@/axiosConfig";
 
 import ArrowOutwardIcon from "@mui/icons-material/ArrowOutward";
 
@@ -141,8 +143,16 @@ const ApiDocumentationCard = ({ docsUrl }: { docsUrl: string }) => {
   );
 };
 
+const SUPPORTED_CURRENCIES = [
+  "USD", "EUR", "GBP", "NGN", "BRL",
+  "INR", "JPY", "CNY", "AUD", "CAD", "CHF",
+  "ZAR", "MXN", "AED", "SGD", "HKD", "SEK", "NZD",
+  "BTC",
+];
+
 const ApiKeyCard = ({ title, apiRow, onCopy, onDelete, onRegenerate, onToggleStatus }: ApiKeyCardProps & { onRegenerate?: (id: string | number) => void; onToggleStatus?: (id: string | number, status: string) => void }) => {
   const { t } = useTranslation("apiScreen");
+  const dispatch = useDispatch();
   const [showApiKey, setShowApiKey] = useState(false);
   const [showAdminToken, setShowAdminToken] = useState(false);
   const isMobile = useIsMobile("md");
@@ -151,7 +161,54 @@ const ApiKeyCard = ({ title, apiRow, onCopy, onDelete, onRegenerate, onToggleSta
   const apiKey: string = apiRow?.apiKey || "";
   const adminToken: string =
     (apiRow as { admin_token?: string })?.admin_token || apiRow?.adminToken || "";
-  const baseCurrency: string = apiRow?.base_currency || "USD";
+  const [baseCurrency, setBaseCurrency] = useState<string>(apiRow?.base_currency || "USD");
+  const [savingCurrency, setSavingCurrency] = useState(false);
+  const [currencySaved, setCurrencySaved] = useState(false);
+  useEffect(() => {
+    setBaseCurrency(apiRow?.base_currency || "USD");
+  }, [apiRow?.base_currency]);
+
+  const currencyOptions = useMemo(() => {
+    // Ensure the currently selected currency is always present in the list,
+    // even if it's some legacy/typed-in value the backend allowed previously.
+    const set = new Set(SUPPORTED_CURRENCIES);
+    if (baseCurrency) set.add(baseCurrency.toUpperCase());
+    return Array.from(set);
+  }, [baseCurrency]);
+
+  const handleCurrencyChange = async (next: string) => {
+    const upper = String(next || "").toUpperCase();
+    if (!upper || upper === baseCurrency) return;
+    const previous = baseCurrency;
+    setBaseCurrency(upper);
+    setSavingCurrency(true);
+    setCurrencySaved(false);
+    try {
+      const apiId = apiRow?.api_id || (apiRow as any)?.id;
+      if (!apiId) throw new Error("Missing api_id");
+      await axiosBaseApi.put(`userApi/updateApi/${apiId}`, {
+        base_currency: upper,
+      });
+      setCurrencySaved(true);
+      dispatch({
+        type: TOAST_SHOW,
+        payload: { message: t("currency.updated", { defaultValue: `Settlement currency updated to ${upper}` }), severity: "success" },
+      });
+      // Refresh the list so any downstream data (fees preview, etc.) reflects the change
+      dispatch(ApiAction(API_FETCH));
+      // Clear the "saved" tick after a moment
+      setTimeout(() => setCurrencySaved(false), 2000);
+    } catch (err: any) {
+      setBaseCurrency(previous);
+      dispatch({
+        type: TOAST_SHOW,
+        payload: { message: err?.response?.data?.message || t("currency.updateFailed", { defaultValue: "Failed to update currency" }), severity: "error" },
+      });
+    } finally {
+      setSavingCurrency(false);
+    }
+  };
+
   const createdAt =
     apiRow?.created_at || apiRow?.createdAt || apiRow?.createdOn || "";
 
@@ -184,16 +241,50 @@ const ApiKeyCard = ({ title, apiRow, onCopy, onDelete, onRegenerate, onToggleSta
     >
       <ApiKeyCardSubTitle>
         {t("currency.baseCurrency")}
-        <span className="flag">
-          <Image
-            src={UnitedStatesFlag}
-            alt={`${baseCurrency} Flag`}
-            width={16}
-            height={16}
-            draggable={false}
-          />
-        </span>
-        {baseCurrency}
+        <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.5, ml: 0.5 }}>
+          <FormControl size="small" sx={{ minWidth: 90 }}>
+            <Select
+              value={baseCurrency}
+              onChange={(e) => handleCurrencyChange(String(e.target.value))}
+              disabled={savingCurrency}
+              displayEmpty
+              variant="outlined"
+              inputProps={{ "aria-label": "Settlement currency" }}
+              sx={{
+                fontFamily: "UrbanistSemiBold, sans-serif",
+                fontSize: 13,
+                height: 30,
+                borderRadius: "8px",
+                background: theme.palette.mode === "dark" ? "rgba(255,255,255,0.04)" : "#F7F8FA",
+                "& .MuiOutlinedInput-notchedOutline": { borderColor: "transparent" },
+                "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: theme.palette.primary.main },
+                "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: theme.palette.primary.main },
+                "& .MuiSelect-select": { py: 0.5, pl: 1.5, pr: 3.5 },
+              }}
+              MenuProps={{
+                PaperProps: {
+                  sx: {
+                    maxHeight: 320,
+                    mt: 0.5,
+                    borderRadius: "10px",
+                  },
+                },
+              }}
+            >
+              {currencyOptions.map((c) => (
+                <MenuItem key={c} value={c} sx={{ fontFamily: "UrbanistMedium, sans-serif", fontSize: 13 }}>
+                  {c}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          {savingCurrency && (
+            <CircularProgress size={14} sx={{ color: theme.palette.primary.main }} />
+          )}
+          {currencySaved && !savingCurrency && (
+            <CheckRoundedIcon sx={{ fontSize: 16, color: theme.palette.success?.main || "#22C55E" }} />
+          )}
+        </Box>
       </ApiKeyCardSubTitle>
 
       <ApiKeyCardBody sx={{ pt: isMobile ? "16px" : "18px" }}>

@@ -2231,26 +2231,70 @@ const getAddressBalance = async (address: string, currency: string, skipCache: b
   } else if (currency === "ETH") {
     res = await tatumSdk.blockchain.eth.ethGetBalance(address);
   } else if (currency === "USDT-ERC20") {
-    const tempRes = await tatumSdk.fungibleToken.erc20GetBalance(
-      "ETH",
-      address,
-      process.env.ETH_CONTRACT
-    );
-    res = { balance: Number(tempRes.balance) / 1000000 };
+    // FIX (2026-07-08): Tatum SDK's fungibleToken.erc20GetBalance() has been observed
+    // returning 0 for addresses that clearly hold USDT on-chain (confirmed via Ethplorer
+    // and direct v3 REST). This caused customer payment 0a5bd34d... (100 USDT) to be
+    // silently lost by the checkMissedPayments fallback cron. Switch to direct REST.
+    try {
+      const headers = await getTatumHeaders();
+      const contract = process.env.ETH_CONTRACT || "0xdac17f958d2ee523a2206206994597c13d831ec7";
+      const { data: erc20Res } = await axios.get(
+        `https://api.tatum.io/v3/ethereum/account/balance/erc20/${address}`,
+        { headers, params: { contractAddress: contract }, timeout: 15000 }
+      );
+      // Response: {"balance":"100204754"} — raw units, 6 decimals
+      res = { balance: (Number(erc20Res?.balance || 0) / 1000000).toString() };
+    } catch (e: unknown) {
+      const err = e as { message?: string };
+      cronLogger.warn(`[getAddressBalance] USDT-ERC20 REST failed for ${address}: ${err?.message}, trying SDK fallback`);
+      const tempRes = await tatumSdk.fungibleToken.erc20GetBalance(
+        "ETH",
+        address,
+        process.env.ETH_CONTRACT
+      );
+      res = { balance: (Number(tempRes.balance) / 1000000).toString() };
+    }
   } else if (currency === "USDC-ERC20") {
-    const tempRes = await tatumSdk.fungibleToken.erc20GetBalance(
-      "ETH",
-      address,
-      process.env.USDC_CONTRACT
-    );
-    res = { balance: Number(tempRes.balance) / 1000000 };
+    // Same REST-first strategy as USDT-ERC20 (see fix note above).
+    try {
+      const headers = await getTatumHeaders();
+      const contract = process.env.USDC_CONTRACT || "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48";
+      const { data: erc20Res } = await axios.get(
+        `https://api.tatum.io/v3/ethereum/account/balance/erc20/${address}`,
+        { headers, params: { contractAddress: contract }, timeout: 15000 }
+      );
+      res = { balance: (Number(erc20Res?.balance || 0) / 1000000).toString() };
+    } catch (e: unknown) {
+      const err = e as { message?: string };
+      cronLogger.warn(`[getAddressBalance] USDC-ERC20 REST failed for ${address}: ${err?.message}, trying SDK fallback`);
+      const tempRes = await tatumSdk.fungibleToken.erc20GetBalance(
+        "ETH",
+        address,
+        process.env.USDC_CONTRACT
+      );
+      res = { balance: (Number(tempRes.balance) / 1000000).toString() };
+    }
   } else if (currency === "RLUSD-ERC20") {
-    const tempRes = await tatumSdk.fungibleToken.erc20GetBalance(
-      "ETH",
-      address,
-      process.env.RLUSD_ERC20_CONTRACT
-    );
-    res = { balance: Number(tempRes.balance) / 1000000 };
+    // Same REST-first strategy as USDT-ERC20 (see fix note above).
+    try {
+      const headers = await getTatumHeaders();
+      const contract = process.env.RLUSD_ERC20_CONTRACT || "0x8292Bb45bf1Ee4d140127049757C2E0fF06317eD";
+      const { data: erc20Res } = await axios.get(
+        `https://api.tatum.io/v3/ethereum/account/balance/erc20/${address}`,
+        { headers, params: { contractAddress: contract }, timeout: 15000 }
+      );
+      // RLUSD ERC20 uses 18 decimals
+      res = { balance: (Number(erc20Res?.balance || 0) / 1e18).toString() };
+    } catch (e: unknown) {
+      const err = e as { message?: string };
+      cronLogger.warn(`[getAddressBalance] RLUSD-ERC20 REST failed for ${address}: ${err?.message}, trying SDK fallback`);
+      const tempRes = await tatumSdk.fungibleToken.erc20GetBalance(
+        "ETH",
+        address,
+        process.env.RLUSD_ERC20_CONTRACT
+      );
+      res = { balance: (Number(tempRes.balance) / 1000000).toString() };
+    }
   } else if (currency === "TRX") {
     try {
       const tempRes = await tatumSdk.blockchain.tron.tronGetAccount(address);
@@ -2389,12 +2433,25 @@ const getAddressBalance = async (address: string, currency: string, skipCache: b
   } else if (currency === "POLYGON") {
     res = await tatumSdk.blockchain.polygon.polygonGetBalance(address);
   } else if (currency === "USDT-POLYGON") {
-    const tempRes = await tatumSdk.fungibleToken.erc20GetBalance(
-      "MATIC",
-      address,
-      process.env.USDT_POLYGON_CONTRACT || "0xc2132D05D31c914a87C6611C10748AEb04B58e8F"
-    );
-    res = { balance: Number(tempRes.balance) / 1000000 };
+    // FIX (2026-07-08): Mirror USDT-ERC20 REST-first strategy to bypass SDK stale-balance bug.
+    try {
+      const headers = await getTatumHeaders();
+      const contract = process.env.USDT_POLYGON_CONTRACT || "0xc2132D05D31c914a87C6611C10748AEb04B58e8F";
+      const { data: erc20Res } = await axios.get(
+        `https://api.tatum.io/v3/polygon/account/balance/erc20/${address}`,
+        { headers, params: { contractAddress: contract }, timeout: 15000 }
+      );
+      res = { balance: (Number(erc20Res?.balance || 0) / 1000000).toString() };
+    } catch (e: unknown) {
+      const err = e as { message?: string };
+      cronLogger.warn(`[getAddressBalance] USDT-POLYGON REST failed for ${address}: ${err?.message}, trying SDK fallback`);
+      const tempRes = await tatumSdk.fungibleToken.erc20GetBalance(
+        "MATIC",
+        address,
+        process.env.USDT_POLYGON_CONTRACT || "0xc2132D05D31c914a87C6611C10748AEb04B58e8F"
+      );
+      res = { balance: (Number(tempRes.balance) / 1000000).toString() };
+    }
   }
 
   // TATUM CREDIT OPTIMIZATION: Cache the result in Redis

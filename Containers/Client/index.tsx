@@ -4,6 +4,8 @@ import NewSidebar from "@/Components/Layout/NewSidebar";
 import withAuth from "@/Components/Page/Common/HOC/withAuth";
 import { CompanySettingsDialogProvider } from "@/Components/UI/CompanySettingsDialog/context";
 import EmailVerificationBanner from "@/Components/UI/EmailVerificationBanner";
+import FeeFreeWelcomeModal from "@/Components/Modals/FeeFreeWelcomeModal";
+import FeeFreeBanner from "@/Components/UI/FeeFreeBanner";
 import Toast from "@/Components/UI/Toast";
 import useIsMobile from "@/hooks/useIsMobile";
 import { LayoutProps, rootReducer } from "@/utils/types";
@@ -92,6 +94,8 @@ const ClientLayout = ({
 
           {/* ================= EMAIL VERIFICATION BANNER ================= */}
           <EmailVerificationBanner />
+          {/* ================= FEE-FREE PROGRESS BANNER ================= */}
+          <FeeFreeBanner />
 
           {/* ================= BODY ================= */}
           <Box
@@ -220,6 +224,8 @@ const ClientLayout = ({
       severity={ToastState.severity || "success"}
       loading={ToastState.loading}
     />
+    {/* Fee-free welcome (celebratory modal — shown once per user) */}
+    <FeeFreeWelcomeModal />
     </>
   );
 };

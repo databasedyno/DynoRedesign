@@ -889,6 +889,65 @@ router.post("/recover-stuck-payment", adminAuthMiddleware, async (req: express.R
         steps.push({ step: "check_balance_trongrid_fallback", status: "error", details: String(tronErr) });
       }
     }
+
+    // Ethplorer fallback: Same as TronGrid but for ERC20 tokens.
+    // Root cause (2026-07-08): Tatum SDK's erc20GetBalance was returning 0 for addresses
+    // that verifiably held tokens on-chain, silently losing customer payments.
+    if (isERC20Token && tokenBalance <= 0) {
+      try {
+        const axios = require("axios");
+        const isPolygon = currency?.includes("POLYGON");
+        if (isPolygon) {
+          // For Polygon, use Tatum v3 REST directly (Ethplorer is Ethereum only)
+          const headers = { "x-api-key": process.env.TATUM_KEY || process.env.TATUM_SECRET_KEY || "" };
+          const contract = currency === "USDT-POLYGON"
+            ? (process.env.USDT_POLYGON_CONTRACT || "0xc2132D05D31c914a87C6611C10748AEb04B58e8F")
+            : undefined;
+          const [tokenRes, gasRes] = await Promise.all([
+            axios.get(`https://api.tatum.io/v3/polygon/account/balance/erc20/${tempAddress}`, {
+              headers, params: { contractAddress: contract }, timeout: 15000,
+            }).catch(() => ({ data: { balance: "0" } })),
+            axios.get(`https://api.tatum.io/v3/polygon/account/balance/${tempAddress}`, {
+              headers, timeout: 15000,
+            }).catch(() => ({ data: { balance: "0" } })),
+          ]);
+          tokenBalance = Number(tokenRes.data?.balance || 0) / 1e6;
+          gasBalance = Number(gasRes.data?.balance || 0);
+        } else {
+          // Ethplorer freekey — reliable, matches on-chain reality
+          const ethRes = await axios.get(
+            `https://api.ethplorer.io/getAddressInfo/${tempAddress}?apiKey=freekey`,
+            { timeout: 15000 }
+          );
+          const ethBalance = ethRes.data?.ETH?.balance || 0;
+          gasBalance = Number(ethBalance);
+          // Map currency → known contract
+          const contractMap: Record<string, string | undefined> = {
+            "USDT-ERC20": (process.env.ETH_CONTRACT || "0xdac17f958d2ee523a2206206994597c13d831ec7").toLowerCase(),
+            "USDC-ERC20": (process.env.USDC_CONTRACT || "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48").toLowerCase(),
+            "RLUSD-ERC20": (process.env.RLUSD_ERC20_CONTRACT || "0x8292Bb45bf1Ee4d140127049757C2E0fF06317eD").toLowerCase(),
+          };
+          const targetContract = contractMap[currency || ""];
+          const tokens = ethRes.data?.tokens || [];
+          for (const t of tokens) {
+            const tokenAddr = (t.tokenInfo?.address || "").toLowerCase();
+            if (tokenAddr === targetContract) {
+              const rawBalance = t.balance || 0;
+              const decimals = parseInt(t.tokenInfo?.decimals || "6", 10);
+              tokenBalance = Number(rawBalance) / Math.pow(10, decimals);
+              break;
+            }
+          }
+        }
+        steps.push({ step: "check_balance_ethplorer_fallback", status: "ok", details: {
+          token_balance: `${tokenBalance} ${currency}`,
+          gas_balance: `${gasBalance} ${gasToken}`,
+          source: isPolygon ? "Tatum v3 REST direct (Polygon)" : "Ethplorer freekey (Tatum SDK returned 0)",
+        }});
+      } catch (ethErr) {
+        steps.push({ step: "check_balance_ethplorer_fallback", status: "error", details: String(ethErr) });
+      }
+    }
     
     steps.push({ step: "check_balance", status: "ok", details: {
       temp_address: tempAddress,
@@ -1001,6 +1060,32 @@ router.post("/recover-stuck-payment", adminAuthMiddleware, async (req: express.R
       } catch (energyErr) {
         steps.push({ step: "energy_estimation", status: "error", details: String(energyErr) });
       }
+    } else if (isERC20Token) {
+      // FIX (2026-07-08): Recovery endpoint previously did NOT fund gas for ERC20/POLYGON
+      // tokens, causing recovery transfers to fail immediately because the temp address
+      // rarely has enough native ETH/MATIC to pay for a token transfer.
+      try {
+        const fundResult = await fundGasIfNeeded(
+          tempAddrRecord as unknown as { dataValues: { wallet_address: string }; update: (data: Record<string, unknown>) => Promise<void> },
+          currency!,
+          merchantSendAmount,
+          destination || undefined,
+        );
+        steps.push({ step: "gas_refund_erc20", status: fundResult.funded ? "ok" : "skipped", details: {
+          funded: fundResult.funded,
+          amount: fundResult.amount,
+          txId: fundResult.txId,
+          reason: fundResult.reason || "fundGasIfNeeded",
+        }});
+        if (fundResult.funded) {
+          // Wait for gas funding tx to confirm on-chain before attempting the token transfer
+          const waitSecs = currency?.includes("POLYGON") ? 20 : 30;
+          cronLogger.info(`[RecoverPayment] ERC20 gas funded (${fundResult.amount} native), waiting ${waitSecs}s for on-chain confirmation before transfer`);
+          await new Promise(resolve => setTimeout(resolve, waitSecs * 1000));
+        }
+      } catch (gasErr) {
+        steps.push({ step: "gas_refund_erc20", status: "error", details: String(gasErr) });
+      }
     }
 
     // Step 6: Look up Redis data for additional context
@@ -1107,15 +1192,38 @@ router.post("/recover-stuck-payment", adminAuthMiddleware, async (req: express.R
         fees = { fast: Math.ceil(dynamicFee.fast * 1.3 * 100) / 100 };
       }
 
-      const transferResult = await tatumApi.assetToOtherAddress({
-        currency,
-        fromAddress: tempAddress,
-        toAddress: destination!,
-        privateKey,
-        amount: merchantSendAmount,
-        fee: fees,
-        _contractAddress: contractAddress,
-      });
+      let transferResult: { txId?: string; id?: string } | undefined;
+
+      // FIX (2026-07-08): For ERC20/POLYGON tokens, tatumApi.assetToOtherAddress passes
+      // an empty fee object which triggers a NaN.toString() crash and also uses the
+      // deprecated Tatum SDK path (known "ghost TX" issues). Use directEvmSweep instead —
+      // the same battle-tested EIP-1559 broadcaster that fundGasIfNeeded uses.
+      if (isERC20Token) {
+        const { directEvmSweep } = await import("../services/merchantPool/directEvmTransfer");
+        const evmResult = await directEvmSweep({
+          fromAddress: tempAddress,
+          toAddress: destination!,
+          privateKey: privateKey!,
+          walletType: currency!,
+          amount: merchantSendAmount,
+        });
+        transferResult = { txId: evmResult.txHash, id: evmResult.txHash };
+        steps.push({ step: "erc20_direct_transfer", status: "ok", details: {
+          txId: evmResult.txHash,
+          gas_price_gwei: evmResult.gasPriceGwei,
+          method: "directEvmSweep (ethers.js EIP-1559)",
+        }});
+      } else {
+        transferResult = await tatumApi.assetToOtherAddress({
+          currency,
+          fromAddress: tempAddress,
+          toAddress: destination!,
+          privateKey,
+          amount: merchantSendAmount,
+          fee: fees,
+          _contractAddress: contractAddress,
+        });
+      }
       
       const recoveryTxId = transferResult?.txId || transferResult?.id;
       

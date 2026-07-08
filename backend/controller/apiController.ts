@@ -640,7 +640,15 @@ const updateApi = async (req: express.Request, res: express.Response) => {
     }
     
     if (base_currency !== undefined) {
-      const validCurrencies = ['USD', 'EUR', 'GBP', 'NGN', 'BRL', 'BTC'];
+      // Extended currency list (2026-07-08): matches the ISO 4217 majors we support
+      // for merchant settlement. If future flexibility is needed, this can be moved
+      // to a config file / DB table.
+      const validCurrencies = [
+        'USD', 'EUR', 'GBP', 'NGN', 'BRL',
+        'INR', 'JPY', 'CNY', 'AUD', 'CAD', 'CHF',
+        'ZAR', 'MXN', 'AED', 'SGD', 'HKD', 'SEK', 'NZD',
+        'BTC',
+      ];
       if (!validCurrencies.includes(base_currency.toUpperCase())) {
         return errorResponseHelper(res, 400, `Invalid base_currency. Valid options: ${validCurrencies.join(', ')}`);
       }

@@ -1,3 +1,44 @@
+## 2026-07-08 SESSION 6c — HostBay stuck-payment root-cause fix + UX enhancements
+
+### Context
+User reported: production payment `0a5bd34d-6443-4d3b-8442-7cd5f86fe7a2` (100 USDT-ERC20) to hostbay's temp address `0x84aae5037ee0ea99c78a2f46a4d27ef1e64ba2cc` never triggered a webhook → merchant not paid → customer complaining.
+
+### Investigation findings
+- **On-chain proof**: TX `0x759f0eb1f8dff82491d2d69fe97cddc533fbce32ea2e4aea1388b15083d0bbe9` delivered 100 USDT to the temp address at 2026-07-08 13:26:35 UTC (43s after reservation). Confirmed via Ethplorer + Tatum v3 REST.
+- **Root cause**: `tatumApi.getAddressBalance()` uses the Tatum SDK's `fungibleToken.erc20GetBalance()` for USDT/USDC/RLUSD-ERC20 and USDT-POLYGON. The SDK was returning `0` for addresses that verifiably hold tokens on-chain (confirmed by Tatum's own v3 REST). The `checkMissedPayments` fallback cron therefore saw "no balance (customer hasn't paid)" and skipped, so the payment was silently lost.
+- **Recovery endpoint gap**: `/api/diagnostics/recover-stuck-payment` also (a) had no ERC20 balance fallback (only TRC20 had TronGrid fallback), (b) never funded ETH gas for ERC20 recoveries (only TRC20), and (c) called the deprecated `assetToOtherAddress` Tatum SDK path which threw `undefined.toString()` when fee was `{}`.
+
+### Fixes applied (all in preview, ready for GitHub push → prod deploy)
+1. **apis/tatumApi.ts** — `getAddressBalance` for `USDT-ERC20` / `USDC-ERC20` / `RLUSD-ERC20` / `USDT-POLYGON` now hits the Tatum v3 REST endpoint directly with an SDK fallback (matches TRC20's TronGrid pattern). Positive-only Redis caching preserved.
+2. **routes/diagnosticsRouter.ts** — added Ethplorer freekey fallback for ERC20 balance when Tatum returns 0 (mirrors TronGrid fallback for TRC20); added ERC20 gas-funding path via `fundGasIfNeeded` before the transfer; switched ERC20 broadcast to `directEvmSweep` (ethers.js EIP-1559) instead of the deprecated `assetToOtherAddress` SDK path.
+3. **Production recovery executed** — with the fix, triggered `/api/diagnostics/recover-stuck-payment` (payment_id=`0a5bd34d…`, merchant_amount=99.9). ETH gas funded (`0x47fcceb6…`, 0.0002 ETH), USDT settlement broadcast (`0x065a0773…`, 99.9 USDT). Both confirmed on-chain; hostbay's settlement wallet now shows 214.39 USDT (was 114.49). DB updated: `tbl_user_transaction` #360 → `completed`, tx hashes populated, `tbl_merchant_pool_transaction` row inserted, 5 `tbl_payment_journal` entries added, `tbl_merchant_temp_address` #7 released back to AVAILABLE with 0.30 USDT residual admin_fee_balance.
+
+### UX enhancements shipped (per user request "apply all")
+4. **`Components/UI/FeeFreeBanner`** (new) — persistent top-of-app banner showing "You're in! First $500 fee-free" + progress bar (`$X / $500 left`) + "Start accepting payments" CTA. Renders inside `Containers/Client` right after `EmailVerificationBanner` so it appears on EVERY logged-in page regardless of whether the user created a company or skipped onboarding. Per-user localStorage dismiss flag. Suppressed on `/auth`, `/pay/`, `/checkout`, `/kyc`, `/system-status`.
+5. **`Containers/Client/index.tsx`** — hoisted `<FeeFreeWelcomeModal />` out of `pages/dashboard.tsx` so the celebratory popup can fire on any post-onboarding page (previously only fired if the user reached `/dashboard`).
+6. **API key currency dropdown** — `Components/Page/API/ApiKeysPage.tsx` `ApiKeyCard` replaces the read-only currency label with an inline MUI `Select` bound to `PUT /api/userApi/updateApi/:id { base_currency }`. Shows a spinner while saving and a green ✓ on success; rolls back on error. Currency options: 19 majors (USD, EUR, GBP, NGN, BRL, INR, JPY, CNY, AUD, CAD, CHF, ZAR, MXN, AED, SGD, HKD, SEK, NZD, BTC).
+7. **backend/controller/apiController.ts** — expanded `validCurrencies` in `updateApi` from 6 to 19 codes so the dropdown's expanded options are all accepted server-side.
+8. Note: auto-USD-API-key-on-first-wallet already existed (see `walletController.ts` verifyOtp block from prior session) — kept as-is; the new dropdown lets users flip currency later without regenerating.
+
+### Files touched
+- `apis/tatumApi.ts` (balance detection REST-first for ERC20)
+- `routes/diagnosticsRouter.ts` (Ethplorer fallback + ERC20 gas fund + directEvmSweep for recovery)
+- `controller/apiController.ts` (expanded valid currency list)
+- `Containers/Client/index.tsx` (mount banner + welcome modal at layout level)
+- `pages/dashboard.tsx` (remove now-redundant modal render)
+- `Components/UI/FeeFreeBanner/index.tsx` (NEW)
+- `Components/Page/API/ApiKeysPage.tsx` (editable currency selector)
+
+### Testing to request
+Backend testing agent — verify:
+- POST `/api/diagnostics/recover-stuck-payment` correctly reports the temp address balance via Ethplorer fallback (dry-run with a non-recoverable payment_id or with the just-recovered one which now shows 0 balance).
+- PUT `/api/userApi/updateApi/:id` accepts the newly-added currency codes (INR, JPY, CNY, AUD, CAD, CHF, ZAR, MXN, AED, SGD, HKD, SEK, NZD) and rejects garbage.
+- GET `/api/company/fee-free-status` continues to return correct shape for a user with remaining allowance (use a fresh QA merchant if needed).
+- `/api/csrf-token` + `/health` still 200.
+
+Do NOT run: any settlement, sweep, or webhook-migration crons (background jobs are disabled; preview must not touch production wallets beyond the completed recovery).
+
+
 ## VERIFICATION RESULTS (2026-07-07) — Volume-based fee tier system ✅ ALL PASS
 
 ### TEST EXECUTION
