@@ -1871,6 +1871,7 @@ export default function Login() {
                 showGoogle={process.env.NEXT_PUBLIC_ENABLE_GOOGLE_AUTH === "true"}
                 showGithub={process.env.NEXT_PUBLIC_ENABLE_GITHUB_AUTH === "true"}
                 onGithub={handleGithubLogin}
+                githubAriaLabel={t("continueWithGithub")}
                 googleTestId="google-login-btn"
                 githubTestId="github-login-btn"
               />

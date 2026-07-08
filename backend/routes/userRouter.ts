@@ -52,6 +52,7 @@ userRouter.post("/reset-password", strictRateLimiter, userController.resetPasswo
 
 // Social Sign-In endpoints - moderate rate limiting (10 per 15 min per IP)
 userRouter.post("/google-signin", moderateRateLimiter, userController.googleSignIn);
+userRouter.post("/github-signin", moderateRateLimiter, userController.githubSignIn);
 userRouter.post("/facebook-signin", moderateRateLimiter, userController.facebookSignIn);
 
 // Profile endpoints (requires auth)

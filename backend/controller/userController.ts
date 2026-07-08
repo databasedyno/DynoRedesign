@@ -2115,6 +2115,195 @@ const googleSignIn = async (req: express.Request, res: express.Response) => {
 };
 
 /**
+ * GitHub Sign-In - OAuth authorization-code exchange
+ * POST /api/user/github-signin
+ * Body: { code: string, redirectUri?: string }
+ * The client secret never leaves the server — the SPA sends only the temporary code.
+ */
+const githubSignIn = async (req: express.Request, res: express.Response) => {
+  try {
+    const { code, redirectUri } = req.body;
+
+    if (!code) {
+      return errorResponseHelper(res, 400, "GitHub authorization code is required");
+    }
+
+    const clientId = process.env.GITHUB_CLIENT_ID;
+    const clientSecret = process.env.GITHUB_CLIENT_SECRET;
+    if (!clientId || !clientSecret) {
+      return errorResponseHelper(res, 503, "GitHub login is not configured");
+    }
+
+    // 1. Exchange the authorization code for an access token
+    let ghAccessToken: string | undefined;
+    try {
+      const tokenRes = await axios.post(
+        "https://github.com/login/oauth/access_token",
+        {
+          client_id: clientId,
+          client_secret: clientSecret,
+          code,
+          ...(redirectUri ? { redirect_uri: redirectUri } : {}),
+        },
+        { headers: { Accept: "application/json" }, timeout: 15000 }
+      );
+      ghAccessToken = tokenRes.data?.access_token;
+      if (!ghAccessToken) {
+        userLogger.warn(`[GitHub] Token exchange failed: ${JSON.stringify(tokenRes.data?.error || tokenRes.data)}`);
+        return errorResponseHelper(res, 401, "Invalid GitHub authorization code");
+      }
+    } catch (tokenError) {
+      return errorResponseHelper(res, 401, "Invalid GitHub authorization code");
+    }
+
+    // 2. Fetch the GitHub user profile
+    const ghHeaders = {
+      Authorization: `Bearer ${ghAccessToken}`,
+      Accept: "application/vnd.github+json",
+      "User-Agent": "DynoPay-Auth",
+    };
+    let ghUser: { id?: number; login?: string; name?: string; email?: string; avatar_url?: string };
+    try {
+      const userRes = await axios.get("https://api.github.com/user", { headers: ghHeaders, timeout: 15000 });
+      ghUser = userRes.data;
+    } catch (profileError) {
+      return errorResponseHelper(res, 401, "Could not retrieve user info from GitHub");
+    }
+    if (!ghUser || !ghUser.id) {
+      return errorResponseHelper(res, 400, "Could not retrieve user info from GitHub");
+    }
+
+    // 3. Resolve a verified email (profile email may be private/null)
+    let email: string | null = ghUser.email || null;
+    if (!email) {
+      try {
+        const emailsRes = await axios.get("https://api.github.com/user/emails", { headers: ghHeaders, timeout: 15000 });
+        const emails = Array.isArray(emailsRes.data) ? emailsRes.data : [];
+        const best =
+          emails.find((e: { primary?: boolean; verified?: boolean; email?: string }) => e.primary && e.verified) ||
+          emails.find((e: { verified?: boolean; email?: string }) => e.verified);
+        email = best?.email || null;
+      } catch {
+        /* fall through — handled below */
+      }
+    }
+    if (!email) {
+      return errorResponseHelper(res, 400, "Your GitHub account has no verified email address. Please verify an email on GitHub and try again.");
+    }
+
+    // Prefixed to avoid clashing with raw Facebook ids that share the external_id column
+    const githubId = `github:${ghUser.id}`;
+    const name = ghUser.name || ghUser.login || email.split("@")[0];
+    const picture = ghUser.avatar_url;
+
+    // 4. Existing user → login
+    let user = await userModel.findOne({
+      where: {
+        [Op.or]: [
+          { email: email.toLowerCase() },
+          { external_id: githubId },
+        ],
+      },
+    });
+
+    if (user) {
+      // Link the GitHub identity if not linked yet
+      if (!user.dataValues.external_id) {
+        await userModel.update(
+          { external_id: githubId },
+          { where: { user_id: user.dataValues.user_id } }
+        );
+      }
+
+      const ipAddress = req.headers["x-forwarded-for"] || req.socket?.remoteAddress || "unknown";
+      await userModel.update(
+        { last_login_ip: typeof ipAddress === "string" ? ipAddress : String(ipAddress) },
+        { where: { user_id: user.dataValues.user_id } }
+      );
+
+      const sessionData = await createSession(user.dataValues, req as any);
+      const { password: _pw, telegram_id: _tid, ...userDataClean } = user.dataValues;
+      const resData = {
+        userData: userDataClean,
+        accessToken: sessionData.accessToken,
+        refreshToken: sessionData.refreshToken,
+        expiresIn: sessionData.expiresIn,
+        session_id: sessionData.session_id,
+        token_type: "Bearer",
+      };
+      return successResponseHelper(res, 200, "Login Successful!", resData);
+    }
+
+    // 5. New user → register (mirrors googleSignIn)
+    const photoUrl = picture || process.env.SERVER_URL + (await downloadUserImage());
+
+    const createdUser = await userModel.create({
+      name,
+      email: email.toLowerCase(),
+      photo: photoUrl,
+      login_type: "GITHUB",
+      external_id: githubId,
+      email_verified: true, // GitHub verified the email for us
+      language: normalizeLang(req.body?.language),
+    });
+
+    // Create default wallets for new user
+    const walletData = await adminWalletModel.findAll();
+    const fiatData = walletData.filter((x) => x.dataValues.currency_type === "FIAT");
+    const cryptoData = walletData.filter((x) => x.dataValues.currency_type === "CRYPTO");
+
+    for (let i = 0; i < fiatData.length; i++) {
+      await userWalletModel.create({
+        id: crypto.randomUUID(),
+        user_id: createdUser.dataValues.user_id,
+        wallet_type: fiatData[i].dataValues.wallet_type,
+        currency_type: "FIAT",
+      });
+    }
+
+    for (let i = 0; i < cryptoData.length; i++) {
+      await userWalletModel.create({
+        id: crypto.randomUUID(),
+        user_id: createdUser.dataValues.user_id,
+        wallet_type: cryptoData[i].dataValues.wallet_type,
+        currency_type: "CRYPTO",
+      });
+    }
+
+    const sessionDataNew = await createSession(createdUser.dataValues, req as any);
+    const { password: _pw2, telegram_id: _tid2, ...newUserDataClean } = createdUser.dataValues;
+    const resData = {
+      userData: newUserDataClean,
+      accessToken: sessionDataNew.accessToken,
+      refreshToken: sessionDataNew.refreshToken,
+      expiresIn: sessionDataNew.expiresIn,
+      session_id: sessionDataNew.session_id,
+      token_type: "Bearer",
+    };
+
+    // Send welcome email (non-fatal)
+    try {
+      await emailService.sendWelcomeEmail(email.toLowerCase(), name);
+    } catch (emailError) {
+      userLogger.error("Error sending welcome email:", emailError);
+    }
+
+    userLogger.info(`New user registered via GitHub: ${email}`);
+
+    emailService.sendNewUserAdminNotification({
+      name, email: email.toLowerCase(),
+      login_type: "GitHub", user_id: createdUser.dataValues.user_id,
+    }).catch(err => userLogger.error("Admin notification error:", err));
+
+    return successResponseHelper(res, 200, "Registration Successful!", resData);
+
+  } catch (e) {
+
+      handleControllerError(res, e, userLogger);
+  }
+};
+
+/**
  * Get User Profile
  * GET /api/user/profile
  */
@@ -3682,6 +3871,7 @@ export default {
   forgotPasswordPhoneVerifyOtp,
   resetPassword,
   googleSignIn,
+  githubSignIn,
   getProfile,
   updateProfile,
   changeEmail,

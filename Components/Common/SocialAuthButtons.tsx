@@ -134,6 +134,7 @@ interface SocialAuthButtonsProps {
   showGoogle?: boolean;
   showGithub?: boolean;
   onGithub?: () => void;
+  githubAriaLabel?: string;
   googleTestId?: string;
   githubTestId?: string;
 }
@@ -144,6 +145,7 @@ const SocialAuthButtons: React.FC<SocialAuthButtonsProps> = ({
   showGoogle = true,
   showGithub = false,
   onGithub,
+  githubAriaLabel,
   googleTestId,
   githubTestId,
 }) => {
@@ -162,7 +164,7 @@ const SocialAuthButtons: React.FC<SocialAuthButtonsProps> = ({
         <GoogleAuthButton label={googleLabel} onClick={onGoogle} testId={googleTestId} />
       )}
       {showGithub && onGithub && (
-        <GithubAuthButton onClick={onGithub} testId={githubTestId} />
+        <GithubAuthButton onClick={onGithub} testId={githubTestId} ariaLabel={githubAriaLabel} />
       )}
     </Box>
   );

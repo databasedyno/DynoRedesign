@@ -92,5 +92,7 @@
   "blogTitle": "Blog — Crypto Payment Insights",
   "blogDescription": "Guides and strategies for merchants accepting crypto payments",
   "authSecureAccount_title": "Proteja a Sua Conta | DynoPay",
-  "authSecureAccount_desc": "Reveja a atividade de início de sessão recente e proteja a sua conta de comerciante DynoPay."
+  "authSecureAccount_desc": "Reveja a atividade de início de sessão recente e proteja a sua conta de comerciante DynoPay.",
+  "authGithubCallback_title": "A iniciar sessão | DynoPay",
+  "authGithubCallback_desc": "A concluir o seu início de sessão com o GitHub."
 }

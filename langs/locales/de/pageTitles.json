@@ -92,5 +92,7 @@
   "blogTitle": "Blog — Crypto Payment Insights",
   "blogDescription": "Guides and strategies for merchants accepting crypto payments",
   "authSecureAccount_title": "Konto absichern | DynoPay",
-  "authSecureAccount_desc": "Überprüfen Sie die letzten Anmeldeaktivitäten und sichern Sie Ihr DynoPay-Händlerkonto."
+  "authSecureAccount_desc": "Überprüfen Sie die letzten Anmeldeaktivitäten und sichern Sie Ihr DynoPay-Händlerkonto.",
+  "authGithubCallback_title": "Anmeldung läuft | DynoPay",
+  "authGithubCallback_desc": "Ihre GitHub-Anmeldung wird abgeschlossen."
 }

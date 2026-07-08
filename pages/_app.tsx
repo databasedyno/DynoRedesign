@@ -205,6 +205,7 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
       "/auth/register":            "authRegister",
       "/auth/validateSocialLogin": "authValidateSocialLogin",
       "/auth/secure-account":      "authSecureAccount",
+      "/auth/github/callback":     "authGithubCallback",
       "/reset-password":           "resetPassword",
 
       // ─── Dashboard / App ───
