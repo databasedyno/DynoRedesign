@@ -35,6 +35,20 @@ C) Notifications list regression: GET /api/notifications (list route) with hostb
 D) Core regression: GET /api/ → 200; GET /api/csrf-token → 200; wrong-password login → 401.
 E) DO NOT trigger settlements/webhooks/emails. Backend runs WORKER_ROLE=secondary ENABLE_BACKGROUND_JOBS=false.
 
+### FRONTEND TEST REQUEST (post-backend-pass) — READ-ONLY UI verification
+1. Login UI flow (2-step): /auth/login → fill email hostbay@moxx.co → "Continue" → select "Password" radio →
+   "Continue" → fill Katiekendra123@ → "Continue" → lands on /dashboard.
+2. Issue 2: on /dashboard scroll to "Transaction Volume" card → EXPECT a rendered area chart with non-zero
+   series; the text "There is no data to show" MUST NOT be present; a network GET /api/dashboard/chart?period=7d…
+   MUST fire and return 200.
+3. Issue 1 (historical display rounding): /notifications → EXPECT NO number with 9+ decimal digits anywhere
+   in the list (regex \d+\.\d{9,} finds nothing); amounts show like "0.00033164 BTC".
+4. Issue 3: mobile viewport 390×844 on /notifications (scrolled so cards sit behind the bottom nav pill) →
+   EXPECT the floating bottom nav ("Dash / Transactions / Create / Wallets / Account") fully OPAQUE — no page
+   text visible through the pill; computed backgroundColor of the pill = opaque paper (rgb(255,255,255) light).
+5. HARD CONSTRAINTS: NO mutations — do not create companies/wallets/links, do not submit any form other than
+   the login form. Production DB is live.
+
 
 ## 2026-07-08 SESSION 7 BACKEND TESTING — 3-Bug Fix Batch ✅ ALL PASS
 
@@ -196,6 +210,168 @@ E) DO NOT trigger settlements/webhooks/emails. Backend runs WORKER_ROLE=secondar
 - `/app/test_bcd.js` — Tests B, C, D API endpoint tests
 
 ---
+
+
+## 2026-07-08 SESSION 7 FRONTEND TESTING — 3-Bug Fix Batch ✅ ALL PASS
+
+### TEST EXECUTION
+- **agent:** testing (auto_frontend_testing_agent)
+- **test_date:** 2026-07-08 21:20-21:25 UTC
+- **test_url:** https://090222ef-6e7d-426e-9d7a-2d9a88e6caf0.preview.emergentagent.com
+- **verification_method:** Playwright UI testing (READ-ONLY, no mutations)
+- **test_account:** hostbay@moxx.co (user_id=1, company_id=1)
+- **safety_compliance:** ✅ READ-ONLY testing, NO data mutations except login form submission
+- **viewport:** Desktop 1920×1080, Mobile 390×844
+
+### OVERALL RESULT: ✅ ALL PASS (3/3 frontend tests)
+
+---
+
+### TEST 0: Login Flow (2-step) — ✅ PASS
+
+**Purpose:** Verify the 2-step login flow works correctly
+
+**Steps:**
+1. Navigate to /auth/login
+2. Enter email: hostbay@moxx.co → Click "Continue"
+3. Select "Password" radio option → Click "Continue"
+4. Enter password: Katiekendra123@ → Click "Continue"
+5. Wait for redirect to /dashboard
+
+**Results:**
+- ✅ Email input filled successfully
+- ✅ Password option selected successfully
+- ✅ Password input filled successfully
+- ✅ Successfully landed on /dashboard after ~10s
+- ✅ Dashboard loaded with user data
+
+**Verdict:** ✅ PASS — Login flow works as expected
+
+---
+
+### TEST 1: Transaction Volume Chart (Issue 2 Fix) — ✅ PASS
+
+**Purpose:** Verify the Transaction Volume chart renders with data and the chart API fires correctly
+
+**Test Details:**
+- Network request listener attached BEFORE login (critical - dashboard loads right after login)
+- Chart API endpoint: `GET /api/dashboard/chart?period=7d&company_id=1`
+
+**Results:**
+- ✅ Chart API request detected: 1 request captured
+- ✅ Chart API response: 200 OK
+- ✅ Chart data structure: 8 daily buckets returned
+- ✅ Buckets with volume > 0: 7 out of 8 buckets
+- ✅ "Transaction Volume" card found on dashboard
+- ✅ "There is no data to show" text NOT present (PASS)
+- ✅ Chart renders with actual transaction data
+
+**Evidence:**
+- Screenshot: `.screenshots/test1_transaction_volume_chart.png`
+- Network request URL: `https://090222ef-6e7d-426e-9d7a-2d9a88e6caf0.preview.emergentagent.com/api/dashboard/chart?period=7d&company_id=1`
+
+**Verdict:** ✅ PASS — Chart API fires correctly, returns 200 with data, chart renders without "no data" message. Issue #2 is FIXED.
+
+---
+
+### TEST 2: Historical Notification Amounts Rounded (Issue 1 Fix) — ✅ PASS
+
+**Purpose:** Verify historical notification messages display rounded crypto amounts (no 9+ decimal digits)
+
+**Test Details:**
+- Navigated to /notifications page
+- Extracted text from all notification items (20 items found)
+- Applied regex pattern `\d+\.\d{9,}` to detect long decimals
+- Scrolled to load more notifications and re-checked
+
+**Results:**
+- ✅ Found 20 notification items
+- ✅ Initial check: 0 long decimals found
+- ✅ After scroll: 0 long decimals found
+- ✅ All crypto amounts properly rounded (e.g., "0.00033164 BTC" instead of "0.00033163515000000004 BTC")
+
+**Sample Notifications Checked:**
+- "Your company hostbay received 0.00033164 BTC" ✅ (rounded)
+- "Your company hostbay received 0.65405385 LTC" ✅ (rounded)
+- "Your company hostbay received 0.00107849 BTC" ✅ (rounded)
+
+**Evidence:**
+- Screenshot: `.screenshots/test2_notifications_rounded.png`
+
+**Verdict:** ✅ PASS — All notification amounts are properly rounded. The `roundLongDecimalsInText()` function in `utils/currencyFormat.ts` is working correctly. Issue #1 is FIXED.
+
+---
+
+### TEST 3: Opaque Floating Bottom Nav (Issue 3 Fix) — ✅ PASS
+
+**Purpose:** Verify the mobile floating bottom navigation pill is fully opaque (no page content visible through it)
+
+**Test Details:**
+- Switched to mobile viewport: 390×844
+- Navigated to /notifications page
+- Scrolled down ~500px so notification cards sit behind the nav pill
+- Located the navigation pill element (rounded container with "Dash / Transactions / Create / Wallets / Account")
+- Inspected computed styles
+
+**Results:**
+- ✅ Mobile navigation pill found
+- ✅ Pill element: `MuiBox-root` with `borderRadius: 50px`
+- ✅ **backgroundColor:** `rgb(255, 255, 255)` — **OPAQUE RGB** (no alpha channel)
+- ✅ **backgroundImage:** `linear-gradient(0deg, rgba(10, 10, 10, 0.06), rgba(10, 10, 10, 0.06))` — **GRADIENT OVERLAY PRESENT**
+- ✅ opacity: 1
+- ✅ Visual inspection: No notification text visible through the pill background
+
+**Technical Details:**
+The fix uses a two-layer approach:
+1. **Base layer:** `backgroundColor: theme.palette.background.paper` (opaque white `rgb(255, 255, 255)`)
+2. **Tint layer:** `backgroundImage: linear-gradient(...)` with `primary.light` (subtle brand tint)
+
+This ensures the pill is fully opaque while maintaining the same visual appearance as before.
+
+**Evidence:**
+- Screenshot: `.screenshots/test3_final_mobile_nav.png`
+
+**Verdict:** ✅ PASS — Mobile navigation pill is fully opaque with gradient overlay. No page content bleeds through. Issue #3 is FIXED.
+
+---
+
+### SUMMARY
+
+**All 3 frontend tests PASSED:**
+- ✅ **TEST 1 (Transaction Volume Chart):** Chart API fires, returns 200 with 8 buckets (7 with volume), chart renders correctly, no "no data" message
+- ✅ **TEST 2 (Notification Rounding):** All notification amounts properly rounded, 0 long decimals found (regex `\d+\.\d{9,}` matched nothing)
+- ✅ **TEST 3 (Mobile Nav Opacity):** Navigation pill is fully opaque (`rgb(255, 255, 255)` + `linear-gradient` overlay), no transparency issues
+
+**Bug Fix Verification:**
+1. ✅ **Issue #1 (long crypto amounts):** Frontend `roundLongDecimalsInText()` correctly rounds historical notification messages
+2. ✅ **Issue #2 (empty volume chart):** Chart API now fires correctly (new DASHBOARD_CHART_INIT saga), returns data, chart renders
+3. ✅ **Issue #3 (transparent mobile nav):** Mobile nav pill uses opaque `background.paper` + gradient overlay, fully opaque
+
+**Safety Compliance:**
+- ✅ READ-ONLY testing throughout
+- ✅ Only mutation: login form submission with correct credentials
+- ✅ No data created/modified/deleted
+- ✅ No navigation to create/edit pages
+- ✅ Production DB untouched
+
+**Screenshots Captured:**
+1. `test1_transaction_volume_chart.png` — Dashboard with Transaction Volume chart rendered
+2. `test2_notifications_rounded.png` — Notifications page with rounded amounts
+3. `test3_final_mobile_nav.png` — Mobile view with opaque bottom navigation pill
+
+---
+
+### VERDICT: ✅ ALL 3 BUG FIXES VERIFIED — PRODUCTION READY
+
+All three user-reported bugs have been successfully fixed and verified:
+- ✅ Long crypto amounts in notifications are now rounded (backend + frontend)
+- ✅ Transaction Volume chart loads and displays data correctly
+- ✅ Mobile floating navigation is fully opaque
+
+**No regressions detected. All features working as expected.**
+
+---
+
 
 ## 2026-07-08 SESSION 6d RETEST — AFTER 4 FIXES APPLIED ✅ ALL PASS
 
