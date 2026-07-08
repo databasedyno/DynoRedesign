@@ -581,6 +581,7 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
           </Box>
         </Box>
       ) : (
+      <Box data-testid={editMode ? "edit-wallet-dialog" : "add-wallet-dialog"}>
       <PanelCard
         title={editMode ? tWallet("editWalletTitle") : tWallet("addWalletTitle")}
         showHeaderBorder={false}
@@ -800,6 +801,7 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
         </>
         )}
       </PanelCard>
+      </Box>
       )}
     </PopupModal>
 

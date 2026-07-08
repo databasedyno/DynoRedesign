@@ -165,7 +165,8 @@ const CryptocurrencySelector: React.FC<CryptocurrencySelectorProps> = ({
         <CryptocurrencyTrigger
           onClick={handleOpen}
           data-testid="crypto-selector-trigger"
-          style={locked ? { cursor: "default" } : undefined}
+          data-locked={locked ? "true" : "false"}
+          style={locked ? { cursor: "default", pointerEvents: "auto" } : undefined}
         >
           {value === "" ? (
             <Box sx={{ display: "flex", alignItems: "center", gap: "6px" }}>
@@ -225,8 +226,8 @@ const CryptocurrencySelector: React.FC<CryptocurrencySelectorProps> = ({
           </Box>
         </CryptocurrencyTrigger>
 
-        {/* ===== Dropdown ===== */}
-        {isOpen && (
+        {/* ===== Dropdown (never rendered when locked) ===== */}
+        {isOpen && !locked && (
           <Box
             sx={{
               position: "absolute",
