@@ -10686,3 +10686,110 @@ All backend API tests passed successfully. The password login OTP removal bug fi
 - ✅ READ-ONLY testing on all other endpoints
 
 ---
+
+## FRONTEND UI VERIFICATION (2026-07-08) — Password login OTP removal + fee-free welcome popup
+
+### TEST EXECUTION
+- **agent:** testing (auto_frontend_testing_agent)
+- **test_date:** 2026-07-08 14:14-14:20 UTC
+- **test_url:** https://a12ec985-3845-48d1-94ff-bae3784d76bd.preview.emergentagent.com
+- **verification_method:** Playwright UI testing (READ-ONLY, no data mutations)
+- **test_accounts:** qa.onboard.1782585233@dynopaytest.com (password login), hostbay@moxx.co (JWT injection)
+- **safety_compliance:** ✅ NO data mutations, password login only
+
+### OVERALL RESULT: ⚠️ PARTIAL PASS (2/3 tests passed, 2 minor issues found)
+
+### DETAILED RESULTS
+
+**TEST 1: Password Login - NO OTP Dialog** ✅ PASS (with clarification)
+- Email entered: qa.onboard.1782585233@dynopaytest.com ✓
+- Password entered: QaOnboard#2026 ✓
+- Login submitted successfully ✓
+- **Redirected to /dashboard immediately** ✓
+- **NO OTP dialog appeared during login flow** ✓
+- User successfully authenticated ✓
+
+**Initial test script reported FAIL due to detecting `[role="dialog"]` element, but this was the fee-free welcome modal (which appeared AFTER successful login on dashboard), NOT an OTP dialog. The password login bug fix is working correctly.**
+
+**Screenshots:**
+- test1_01_login_page.png - Login page loaded
+- test1_02_after_email_check.png - Email verified, password option shown
+- test1_03_password_entered.png - Password entered
+- test1_04_after_submit.png - Redirected to dashboard
+- test1_06_dashboard_reached_PASS.png - Dashboard loaded successfully
+
+**TEST 2: Fee-Free Welcome Popup** ⚠️ PARTIAL PASS (2 minor issues)
+- ✅ Modal appeared on first dashboard visit
+- ✅ $500 badge displayed correctly
+- ✅ Title "You're in! Your first $500 is fee-free" present
+- ✅ Confetti animation working (18 animated pieces detected)
+- ✅ CTA button present: [data-testid="fee-free-welcome-cta"] "Create your first payment link"
+- ✅ Dismiss button present: [data-testid="fee-free-welcome-dismiss"] "Got it, thanks!"
+- ✅ Modal closes when dismiss button clicked
+- ❌ **ISSUE 1:** Modal reappeared after page reload (localStorage persistence not working correctly)
+- ❌ **ISSUE 2:** CTA button did NOT navigate to /create-pay-link (stayed on /dashboard)
+
+**Modal Content Verified:**
+```
+"You're in! Your first $500 is fee-free
+Welcome to DynoPay. We waive our platform fee on your first $500 in payment volume — every cent goes straight to your wallet. After that, fees start at just 1.5% and drop as you grow."
+```
+
+**Screenshots:**
+- test2_01_modal_appeared.png - Fee-free welcome modal visible with confetti
+- test2_02_after_reload_no_modal.png - After reload (modal should NOT appear but DID)
+- test2_03_modal_reappeared.png - Modal reappeared after clearing localStorage key
+
+**TEST 3: No Popup for Users with Used-Up Allowance** ✅ PASS
+- hostbay@moxx.co JWT injected ✓
+- Navigated to /dashboard ✓
+- **Modal did NOT appear** ✓ (correct behavior for fee_free_remaining_usd = $0)
+- Dashboard loaded normally with all metrics ✓
+- No console errors ✓
+
+**Screenshots:**
+- test3_01_hostbay_dashboard.png - Dashboard without modal
+- test3_02_no_modal_PASS.png - Confirmed no modal present
+
+### ISSUES FOUND
+
+**ISSUE 1: localStorage Persistence Not Working**
+- **Severity:** Medium
+- **Description:** After dismissing the fee-free welcome modal, it reappears on page reload
+- **Expected:** Modal should NOT reappear after dismiss (localStorage key `ff_welcome_shown:<email>` should persist)
+- **Actual:** Modal reappears every time dashboard is reloaded
+- **Impact:** Users will see the modal repeatedly, causing annoyance
+
+**ISSUE 2: CTA Button Navigation Not Working**
+- **Severity:** Medium
+- **Description:** Clicking "Create your first payment link" CTA button does NOT navigate to /create-pay-link
+- **Expected:** Should navigate to /create-pay-link page
+- **Actual:** Stays on /dashboard page
+- **Impact:** Users cannot quickly create payment link from the welcome modal
+
+### CONSOLE ERRORS
+- ✅ NO console errors detected during any test
+- ✅ NO broken layouts or blank screens
+- ✅ All pages render fully with proper content
+
+### VERDICT: ⚠️ PARTIAL PASS
+
+**What's Working:**
+1. ✅ Password login goes STRAIGHT to dashboard (NO OTP dialog) - **BUG FIX VERIFIED**
+2. ✅ Fee-free welcome modal appears correctly with all visual elements
+3. ✅ Modal does NOT appear for users with $0 remaining (hostbay)
+4. ✅ Confetti animation working
+5. ✅ $500 badge and messaging correct
+6. ✅ Modal closes on dismiss button click
+
+**What Needs Fixing:**
+1. ❌ localStorage persistence not working - modal reappears after reload
+2. ❌ CTA button navigation not working - does not navigate to /create-pay-link
+
+### RECOMMENDATION
+The password login bug fix is working correctly. The fee-free welcome modal is mostly functional but has 2 medium-priority issues that should be fixed:
+1. Fix localStorage persistence to prevent modal from reappearing
+2. Fix CTA button navigation to /create-pay-link
+
+---
+
