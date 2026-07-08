@@ -75,5 +75,11 @@
   "feeFreeBannerTitle": "Comienza con $0 en comisiones en tus primeros $500",
   "feeFreeBannerDescription": "Los nuevos comerciantes no pagan comisiones de plataforma en sus primeros $500 en transacciones. Después de eso, las comisiones empiezan en solo 1,5% y bajan hasta 0,5% para comerciantes de alto volumen — aún muy por debajo de PayPal o Stripe.",
   "feeFreeBannerCta": "Empieza sin comisiones",
-  "feeCalcFeeFreeNote": "¿Nuevo comercio? Tus primeros $500 en transacciones son sin comisiones."
+  "feeCalcFeeFreeNote": "¿Nuevo comercio? Tus primeros $500 en transacciones son sin comisiones.",
+  "ffWelcomeBadge": "Sin comisiones",
+  "ffWelcomeTitle": "¡Bienvenido! Tus primeros $500 no tienen comisiones",
+  "ffWelcomeBody": "Bienvenido a DynoPay. Eximimos nuestra comisión de plataforma en tus primeros {{amount}} de volumen de pagos: cada centavo va directo a tu billetera. Después, las comisiones comienzan en solo 1,5% y bajan a medida que creces.",
+  "ffWelcomeCta": "Crea tu primer enlace de pago",
+  "ffWelcomeDismiss": "¡Entendido, gracias!",
+  "ffWelcomeFootnote": "Consulta tu saldo sin comisiones en cualquier momento desde el panel."
 }

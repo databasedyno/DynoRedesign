@@ -75,5 +75,11 @@
   "feeFreeBannerTitle": "Comece com $0 de taxas nos seus primeiros $500",
   "feeFreeBannerDescription": "Novos comerciantes pagam zero taxas de plataforma nos primeiros $500 em transações. Depois disso, as taxas começam em apenas 1,5% e caem até 0,5% para comerciantes de alto volume — ainda muito abaixo do PayPal ou Stripe.",
   "feeFreeBannerCta": "Comece sem taxas",
-  "feeCalcFeeFreeNote": "Novo comerciante? Seus primeiros $500 em transações são isentos de taxas."
+  "feeCalcFeeFreeNote": "Novo comerciante? Seus primeiros $500 em transações são isentos de taxas.",
+  "ffWelcomeBadge": "Sem taxas",
+  "ffWelcomeTitle": "Bem-vindo! Os seus primeiros $500 são isentos de taxas",
+  "ffWelcomeBody": "Bem-vindo à DynoPay. Isentamos a nossa taxa de plataforma nos seus primeiros {{amount}} em volume de pagamentos — cada cêntimo vai diretamente para a sua carteira. Depois disso, as taxas começam em apenas 1,5% e diminuem à medida que cresce.",
+  "ffWelcomeCta": "Criar o seu primeiro link de pagamento",
+  "ffWelcomeDismiss": "Entendi, obrigado!",
+  "ffWelcomeFootnote": "Acompanhe o seu saldo isento de taxas a qualquer momento no painel."
 }

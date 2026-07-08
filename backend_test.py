@@ -1,307 +1,454 @@
 #!/usr/bin/env python3
 """
-Backend API Test Suite for GitHub OAuth Sign-In
-Tests the new GitHub OAuth endpoint with CSRF protection
+Backend API Testing for Password Login OTP Removal + Fee-Free Welcome Popup
+Test Date: 2026-07-08
+Base URL: https://a12ec985-3845-48d1-94ff-bae3784d76bd.preview.emergentagent.com/api
+Test Account: qa.onboard.1782585233@dynopaytest.com / QaOnboard#2026
 """
 
 import requests
 import json
-import sys
+from typing import Dict, Any
 
-# Base URL from the test request
 BASE_URL = "https://a12ec985-3845-48d1-94ff-bae3784d76bd.preview.emergentagent.com/api"
+TEST_EMAIL = "qa.onboard.1782585233@dynopaytest.com"
+TEST_PASSWORD = "QaOnboard#2026"
+WRONG_PASSWORD = "WrongPass#123"
 
-# User-Agent header as specified in the test request
-USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+# User-Agent header as specified
+HEADERS = {
+    "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    "Content-Type": "application/json"
+}
 
-def print_test_header(test_name):
-    """Print a formatted test header"""
-    print(f"\n{'='*80}")
-    print(f"TEST: {test_name}")
-    print(f"{'='*80}")
-
-def print_result(passed, message, details=None):
-    """Print test result"""
-    status = "✅ PASS" if passed else "❌ FAIL"
-    print(f"{status}: {message}")
-    if details:
-        print(f"Details: {details}")
-
-def get_csrf_token():
-    """Get CSRF token from the API"""
-    print_test_header("Getting CSRF Token")
-    try:
-        response = requests.get(
-            f"{BASE_URL}/csrf-token",
-            headers={"User-Agent": USER_AGENT},
-            timeout=10
-        )
-        
-        if response.status_code == 200:
-            data = response.json()
-            csrf_token = data.get("csrf_token")
-            cookies = response.cookies
-            
-            if csrf_token and "dynopay_csrf" in cookies:
-                print_result(True, f"CSRF token obtained: {csrf_token[:20]}...")
-                return csrf_token, cookies
-            else:
-                print_result(False, "CSRF token or cookie missing in response", data)
-                return None, None
+class TestResults:
+    def __init__(self):
+        self.results = []
+        self.passed = 0
+        self.failed = 0
+    
+    def add_result(self, test_name: str, passed: bool, details: str):
+        self.results.append({
+            "test": test_name,
+            "status": "✅ PASS" if passed else "❌ FAIL",
+            "details": details
+        })
+        if passed:
+            self.passed += 1
         else:
-            print_result(False, f"Failed to get CSRF token: {response.status_code}", response.text)
-            return None, None
-    except Exception as e:
-        print_result(False, f"Exception getting CSRF token: {str(e)}")
-        return None, None
+            self.failed += 1
+    
+    def print_summary(self):
+        print("\n" + "="*80)
+        print("TEST SUMMARY")
+        print("="*80)
+        for result in self.results:
+            print(f"\n{result['status']} - {result['test']}")
+            print(f"   {result['details']}")
+        print("\n" + "="*80)
+        print(f"TOTAL: {self.passed} passed, {self.failed} failed out of {len(self.results)} tests")
+        print("="*80 + "\n")
 
-def test_case_a(csrf_token, cookies):
-    """
-    Test Case A: POST /api/user/github-signin with empty body
-    Expected: 400 "GitHub authorization code is required"
-    """
-    print_test_header("Case A: Empty body (no code)")
+def get_csrf_token(session: requests.Session) -> str:
+    """Get CSRF token from the API"""
+    print("\n🔐 Getting CSRF token...")
+    response = session.get(f"{BASE_URL}/csrf-token", headers=HEADERS)
+    print(f"   Status: {response.status_code}")
     
-    try:
-        response = requests.post(
-            f"{BASE_URL}/user/github-signin",
-            json={},
-            headers={
-                "User-Agent": USER_AGENT,
-                "x-csrf-token": csrf_token,
-                "Content-Type": "application/json"
-            },
-            cookies=cookies,
-            timeout=10
-        )
-        
-        status_code = response.status_code
-        try:
-            response_data = response.json()
-            message = response_data.get("message", "")
-        except:
-            message = response.text
-        
-        expected_status = 400
-        expected_message = "GitHub authorization code is required"
-        
-        passed = (status_code == expected_status and expected_message in message)
-        
-        print_result(
-            passed,
-            f"Status: {status_code} (expected {expected_status}), Message: '{message}'",
-            f"Full response: {response.text[:200]}"
-        )
-        
-        return passed
-        
-    except Exception as e:
-        print_result(False, f"Exception: {str(e)}")
-        return False
+    if response.status_code == 200:
+        data = response.json()
+        csrf_token = data.get("csrf_token")
+        print(f"   CSRF Token: {csrf_token[:20]}..." if csrf_token else "   No token in response")
+        print(f"   Cookies: {session.cookies.get_dict()}")
+        return csrf_token
+    else:
+        print(f"   ERROR: {response.text}")
+        return None
 
-def test_case_b(csrf_token, cookies):
-    """
-    Test Case B: POST /api/user/github-signin with fake code
-    Expected: 401 "Invalid GitHub authorization code"
-    """
-    print_test_header("Case B: Fake authorization code")
-    
-    try:
-        response = requests.post(
-            f"{BASE_URL}/user/github-signin",
-            json={"code": "fake_code_123"},
-            headers={
-                "User-Agent": USER_AGENT,
-                "x-csrf-token": csrf_token,
-                "Content-Type": "application/json"
-            },
-            cookies=cookies,
-            timeout=10
-        )
-        
-        status_code = response.status_code
-        try:
-            response_data = response.json()
-            message = response_data.get("message", "")
-        except:
-            message = response.text
-        
-        expected_status = 401
-        expected_message = "Invalid GitHub authorization code"
-        
-        passed = (status_code == expected_status and expected_message in message)
-        
-        print_result(
-            passed,
-            f"Status: {status_code} (expected {expected_status}), Message: '{message}'",
-            f"Full response: {response.text[:200]}"
-        )
-        
-        return passed
-        
-    except Exception as e:
-        print_result(False, f"Exception: {str(e)}")
-        return False
-
-def test_case_c():
-    """
-    Test Case C: POST /api/user/github-signin without CSRF header
-    Expected: 403 CSRF error
-    """
-    print_test_header("Case C: Missing CSRF header")
-    
-    try:
-        response = requests.post(
-            f"{BASE_URL}/user/github-signin",
-            json={"code": "x"},
-            headers={
-                "User-Agent": USER_AGENT,
-                "Content-Type": "application/json"
-                # Intentionally NOT including x-csrf-token header
-            },
-            timeout=10
-        )
-        
-        status_code = response.status_code
-        try:
-            response_data = response.json()
-            message = response_data.get("message", "")
-        except:
-            message = response.text
-        
-        expected_status = 403
-        
-        # CSRF error messages can vary, but status code should be 403
-        passed = (status_code == expected_status)
-        
-        print_result(
-            passed,
-            f"Status: {status_code} (expected {expected_status}), Message: '{message}'",
-            f"Full response: {response.text[:200]}"
-        )
-        
-        return passed
-        
-    except Exception as e:
-        print_result(False, f"Exception: {str(e)}")
-        return False
-
-def test_case_d_regression(csrf_token, cookies):
-    """
-    Test Case D: Regression tests
-    D1: GET /api/ → 200
-    D2: POST /api/user/google-signin with fake token → 401 "Invalid Google access token"
-    """
-    print_test_header("Case D: Regression Tests")
-    
-    results = []
-    
-    # D1: GET /api/
-    print("\n--- D1: GET /api/ ---")
-    try:
-        response = requests.get(
-            f"{BASE_URL}/",
-            headers={"User-Agent": USER_AGENT},
-            timeout=10
-        )
-        
-        status_code = response.status_code
-        passed = (status_code == 200)
-        
-        print_result(
-            passed,
-            f"GET /api/ returned {status_code} (expected 200)",
-            f"Response: {response.text[:100]}"
-        )
-        results.append(passed)
-        
-    except Exception as e:
-        print_result(False, f"Exception: {str(e)}")
-        results.append(False)
-    
-    # D2: POST /api/user/google-signin with fake token
-    print("\n--- D2: POST /api/user/google-signin ---")
-    try:
-        response = requests.post(
-            f"{BASE_URL}/user/google-signin",
-            json={"accessToken": "fake"},
-            headers={
-                "User-Agent": USER_AGENT,
-                "x-csrf-token": csrf_token,
-                "Content-Type": "application/json"
-            },
-            cookies=cookies,
-            timeout=10
-        )
-        
-        status_code = response.status_code
-        try:
-            response_data = response.json()
-            message = response_data.get("message", "")
-        except:
-            message = response.text
-        
-        expected_status = 401
-        expected_message = "Invalid Google access token"
-        
-        passed = (status_code == expected_status and expected_message in message)
-        
-        print_result(
-            passed,
-            f"Status: {status_code} (expected {expected_status}), Message: '{message}'",
-            f"Full response: {response.text[:200]}"
-        )
-        results.append(passed)
-        
-    except Exception as e:
-        print_result(False, f"Exception: {str(e)}")
-        results.append(False)
-    
-    return all(results)
-
-def main():
-    """Run all test cases"""
+def test_a_correct_login(session: requests.Session, csrf_token: str, results: TestResults):
+    """Test A: POST /api/user/login with correct credentials"""
     print("\n" + "="*80)
-    print("GitHub OAuth Sign-In Backend API Tests")
-    print("="*80)
-    print(f"Base URL: {BASE_URL}")
-    print(f"Test Date: 2026-07-08")
+    print("TEST A: Login with CORRECT password (Bug Fix Verification)")
     print("="*80)
     
-    # Get CSRF token first
-    csrf_token, cookies = get_csrf_token()
-    if not csrf_token or not cookies:
-        print("\n❌ FATAL: Could not obtain CSRF token. Aborting tests.")
-        sys.exit(1)
+    headers = HEADERS.copy()
+    headers["x-csrf-token"] = csrf_token
     
-    # Run all test cases
-    results = {
-        "Case A (Empty body)": test_case_a(csrf_token, cookies),
-        "Case B (Fake code)": test_case_b(csrf_token, cookies),
-        "Case C (No CSRF)": test_case_c(),
-        "Case D (Regression)": test_case_d_regression(csrf_token, cookies)
+    payload = {
+        "email": TEST_EMAIL,
+        "password": TEST_PASSWORD
     }
     
-    # Print summary
+    print(f"POST {BASE_URL}/user/login")
+    print(f"Payload: {json.dumps(payload, indent=2)}")
+    
+    response = session.post(f"{BASE_URL}/user/login", json=payload, headers=headers)
+    
+    print(f"\nResponse Status: {response.status_code}")
+    print(f"Response Body: {json.dumps(response.json(), indent=2)}")
+    
+    try:
+        data = response.json()
+        
+        # Check status code
+        if response.status_code != 200:
+            results.add_result(
+                "Test A: Correct Login",
+                False,
+                f"Expected 200, got {response.status_code}. Response: {data}"
+            )
+            return None
+        
+        # Check message
+        message = data.get("message", "")
+        if "Login Successful" not in message:
+            results.add_result(
+                "Test A: Correct Login",
+                False,
+                f"Expected 'Login Successful!' message, got: {message}"
+            )
+            return None
+        
+        # Check userData present
+        user_data = data.get("data", {}).get("userData")
+        if not user_data:
+            results.add_result(
+                "Test A: Correct Login",
+                False,
+                "userData not present in response"
+            )
+            return None
+        
+        # Check accessToken present
+        access_token = data.get("data", {}).get("accessToken")
+        if not access_token:
+            results.add_result(
+                "Test A: Correct Login",
+                False,
+                "accessToken not present in response"
+            )
+            return None
+        
+        # THE BUG FIX: Check NO requires_login_otp field
+        requires_login_otp = data.get("data", {}).get("requires_login_otp")
+        login_otp_session = data.get("data", {}).get("login_otp_session")
+        
+        if requires_login_otp is not None or login_otp_session is not None:
+            results.add_result(
+                "Test A: Correct Login - BUG FIX",
+                False,
+                f"❌ BUG NOT FIXED: Found requires_login_otp={requires_login_otp} or login_otp_session={login_otp_session}. Password login should NOT require OTP!"
+            )
+            return None
+        
+        results.add_result(
+            "Test A: Correct Login - BUG FIX",
+            True,
+            f"✅ Login successful with direct session. userData present, accessToken present, NO requires_login_otp field. BUG FIXED!"
+        )
+        
+        return access_token
+        
+    except Exception as e:
+        results.add_result(
+            "Test A: Correct Login",
+            False,
+            f"Exception: {str(e)}"
+        )
+        return None
+
+def test_b_wrong_password(session: requests.Session, csrf_token: str, results: TestResults):
+    """Test B: POST /api/user/login with wrong password (ONE attempt only)"""
     print("\n" + "="*80)
-    print("TEST SUMMARY")
+    print("TEST B: Login with WRONG password (ONE attempt)")
     print("="*80)
     
-    for test_name, passed in results.items():
-        status = "✅ PASS" if passed else "❌ FAIL"
-        print(f"{status}: {test_name}")
+    headers = HEADERS.copy()
+    headers["x-csrf-token"] = csrf_token
     
-    total_tests = len(results)
-    passed_tests = sum(1 for p in results.values() if p)
+    payload = {
+        "email": TEST_EMAIL,
+        "password": WRONG_PASSWORD
+    }
     
-    print(f"\nTotal: {passed_tests}/{total_tests} tests passed")
+    print(f"POST {BASE_URL}/user/login")
+    print(f"Payload: {json.dumps(payload, indent=2)}")
     
-    if passed_tests == total_tests:
-        print("\n🎉 ALL TESTS PASSED!")
-        sys.exit(0)
+    response = session.post(f"{BASE_URL}/user/login", json=payload, headers=headers)
+    
+    print(f"\nResponse Status: {response.status_code}")
+    print(f"Response Body: {json.dumps(response.json(), indent=2)}")
+    
+    try:
+        data = response.json()
+        
+        # Check status code is 401
+        if response.status_code != 401:
+            results.add_result(
+                "Test B: Wrong Password",
+                False,
+                f"Expected 401, got {response.status_code}. Response: {data}"
+            )
+            return
+        
+        # Check error message contains "Invalid email or password"
+        message = data.get("message", "")
+        if "Invalid email or password" in message or "remaining attempts" in message.lower():
+            results.add_result(
+                "Test B: Wrong Password",
+                True,
+                f"Correctly rejected with 401: {message}"
+            )
+        else:
+            results.add_result(
+                "Test B: Wrong Password",
+                False,
+                f"Got 401 but unexpected message: {message}"
+            )
+            
+    except Exception as e:
+        results.add_result(
+            "Test B: Wrong Password",
+            False,
+            f"Exception: {str(e)}"
+        )
+    
+    # Now re-login with CORRECT password to clear failed attempt counter
+    print("\n⚠️  Re-logging in with CORRECT password to clear failed attempt counter...")
+    payload_correct = {
+        "email": TEST_EMAIL,
+        "password": TEST_PASSWORD
+    }
+    response_correct = session.post(f"{BASE_URL}/user/login", json=payload_correct, headers=headers)
+    print(f"   Re-login Status: {response_correct.status_code}")
+    if response_correct.status_code == 200:
+        print("   ✅ Failed attempt counter cleared")
     else:
-        print(f"\n⚠️  {total_tests - passed_tests} test(s) failed")
-        sys.exit(1)
+        print(f"   ⚠️  Re-login response: {response_correct.text}")
+
+def test_c_missing_password_and_otp_regression(session: requests.Session, csrf_token: str, results: TestResults):
+    """Test C: Missing password + OTP verification regression"""
+    print("\n" + "="*80)
+    print("TEST C: Missing password + OTP verification regression")
+    print("="*80)
+    
+    headers = HEADERS.copy()
+    headers["x-csrf-token"] = csrf_token
+    
+    # C1: Missing password
+    print("\nC1: POST /api/user/login with missing password")
+    payload_no_password = {
+        "email": TEST_EMAIL
+    }
+    
+    response = session.post(f"{BASE_URL}/user/login", json=payload_no_password, headers=headers)
+    print(f"Response Status: {response.status_code}")
+    print(f"Response Body: {json.dumps(response.json(), indent=2)}")
+    
+    if response.status_code == 400:
+        results.add_result(
+            "Test C1: Missing Password",
+            True,
+            f"Correctly returned 400 for missing password"
+        )
+    else:
+        results.add_result(
+            "Test C1: Missing Password",
+            False,
+            f"Expected 400, got {response.status_code}"
+        )
+    
+    # C2: Bogus OTP verification
+    print("\nC2: POST /api/user/verifyLoginOTP with bogus session")
+    payload_bogus_otp = {
+        "login_otp_session": "bogus-session",
+        "otp": "123456"
+    }
+    
+    response = session.post(f"{BASE_URL}/user/verifyLoginOTP", json=payload_bogus_otp, headers=headers)
+    print(f"Response Status: {response.status_code}")
+    print(f"Response Body: {json.dumps(response.json(), indent=2)}")
+    
+    try:
+        data = response.json()
+        message = data.get("message", "")
+        
+        if response.status_code == 400 and ("OTP expired" in message or "invalid session" in message.lower()):
+            results.add_result(
+                "Test C2: Bogus OTP Verification",
+                True,
+                f"Correctly returned 400 with message: {message}"
+            )
+        else:
+            results.add_result(
+                "Test C2: Bogus OTP Verification",
+                False,
+                f"Expected 400 with 'OTP expired or invalid session', got {response.status_code}: {message}"
+            )
+    except Exception as e:
+        results.add_result(
+            "Test C2: Bogus OTP Verification",
+            False,
+            f"Exception: {str(e)}"
+        )
+
+def test_d_fee_free_status(session: requests.Session, access_token: str, results: TestResults):
+    """Test D: GET /api/company/fee-free-status"""
+    print("\n" + "="*80)
+    print("TEST D: Fee-Free Status Endpoint")
+    print("="*80)
+    
+    if not access_token:
+        results.add_result(
+            "Test D: Fee-Free Status",
+            False,
+            "Cannot test - no access token from Test A"
+        )
+        return
+    
+    headers = HEADERS.copy()
+    headers["Authorization"] = f"Bearer {access_token}"
+    
+    print(f"GET {BASE_URL}/company/fee-free-status")
+    print(f"Authorization: Bearer {access_token[:20]}...")
+    
+    response = session.get(f"{BASE_URL}/company/fee-free-status", headers=headers)
+    
+    print(f"\nResponse Status: {response.status_code}")
+    print(f"Response Body: {json.dumps(response.json(), indent=2)}")
+    
+    try:
+        data = response.json()
+        
+        if response.status_code != 200:
+            results.add_result(
+                "Test D: Fee-Free Status",
+                False,
+                f"Expected 200, got {response.status_code}. Response: {data}"
+            )
+            return
+        
+        response_data = data.get("data", {})
+        is_fee_free = response_data.get("is_fee_free")
+        fee_free_remaining = response_data.get("fee_free_remaining_usd")
+        
+        # Check is_fee_free is true
+        if is_fee_free != True:
+            results.add_result(
+                "Test D: Fee-Free Status",
+                False,
+                f"Expected is_fee_free=true, got {is_fee_free}"
+            )
+            return
+        
+        # Check fee_free_remaining_usd is 500 or "500.00"
+        if fee_free_remaining in [500, "500", "500.00", "500.0"]:
+            results.add_result(
+                "Test D: Fee-Free Status",
+                True,
+                f"✅ is_fee_free=true, fee_free_remaining_usd={fee_free_remaining}"
+            )
+        else:
+            results.add_result(
+                "Test D: Fee-Free Status",
+                False,
+                f"Expected fee_free_remaining_usd=500, got {fee_free_remaining}"
+            )
+            
+    except Exception as e:
+        results.add_result(
+            "Test D: Fee-Free Status",
+            False,
+            f"Exception: {str(e)}"
+        )
+
+def test_e_regression(session: requests.Session, csrf_token: str, results: TestResults):
+    """Test E: Regression tests"""
+    print("\n" + "="*80)
+    print("TEST E: Regression Tests")
+    print("="*80)
+    
+    # E1: GET /api/
+    print("\nE1: GET /api/")
+    response = session.get(f"{BASE_URL}/", headers=HEADERS)
+    print(f"Response Status: {response.status_code}")
+    
+    if response.status_code == 200:
+        results.add_result(
+            "Test E1: GET /api/",
+            True,
+            "Root endpoint returns 200"
+        )
+    else:
+        results.add_result(
+            "Test E1: GET /api/",
+            False,
+            f"Expected 200, got {response.status_code}"
+        )
+    
+    # E2: POST /api/user/github-signin with fake code
+    print("\nE2: POST /api/user/github-signin with fake code")
+    headers = HEADERS.copy()
+    headers["x-csrf-token"] = csrf_token
+    
+    payload = {"code": "fake_code"}
+    response = session.post(f"{BASE_URL}/user/github-signin", json=payload, headers=headers)
+    print(f"Response Status: {response.status_code}")
+    print(f"Response Body: {json.dumps(response.json(), indent=2)}")
+    
+    try:
+        data = response.json()
+        message = data.get("message", "")
+        
+        if response.status_code == 401 and "Invalid GitHub authorization code" in message:
+            results.add_result(
+                "Test E2: GitHub Signin Regression",
+                True,
+                f"Correctly returned 401: {message}"
+            )
+        else:
+            results.add_result(
+                "Test E2: GitHub Signin Regression",
+                False,
+                f"Expected 401 with 'Invalid GitHub authorization code', got {response.status_code}: {message}"
+            )
+    except Exception as e:
+        results.add_result(
+            "Test E2: GitHub Signin Regression",
+            False,
+            f"Exception: {str(e)}"
+        )
+
+def main():
+    print("="*80)
+    print("BACKEND API TESTING")
+    print("Password Login OTP Removal + Fee-Free Welcome Popup")
+    print("="*80)
+    print(f"Base URL: {BASE_URL}")
+    print(f"Test Account: {TEST_EMAIL}")
+    print("="*80)
+    
+    results = TestResults()
+    session = requests.Session()
+    
+    # Get CSRF token
+    csrf_token = get_csrf_token(session)
+    if not csrf_token:
+        print("\n❌ FATAL: Could not get CSRF token. Aborting tests.")
+        return
+    
+    # Run tests
+    access_token = test_a_correct_login(session, csrf_token, results)
+    test_b_wrong_password(session, csrf_token, results)
+    test_c_missing_password_and_otp_regression(session, csrf_token, results)
+    test_d_fee_free_status(session, access_token, results)
+    test_e_regression(session, csrf_token, results)
+    
+    # Print summary
+    results.print_summary()
+    
+    # Return exit code
+    return 0 if results.failed == 0 else 1
 
 if __name__ == "__main__":
-    main()
+    exit(main())

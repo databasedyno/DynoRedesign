@@ -75,5 +75,11 @@
   "feeFreeBannerTitle": "Begin met $0 kosten op je eerste $500",
   "feeFreeBannerDescription": "Nieuwe verkopers betalen geen platformtarieven voor hun eerste $500 aan transacties. Daarna beginnen de tarieven bij slechts 1,5% en dalen tot 0,5% voor verkopers met hoog volume — nog steeds ver onder PayPal of Stripe.",
   "feeFreeBannerCta": "Begin zonder kosten",
-  "feeCalcFeeFreeNote": "Nieuwe verkoper? Je eerste $500 aan transacties is kosteloos."
+  "feeCalcFeeFreeNote": "Nieuwe verkoper? Je eerste $500 aan transacties is kosteloos.",
+  "ffWelcomeBadge": "Zonder kosten",
+  "ffWelcomeTitle": "Welkom! Uw eerste $500 is zonder kosten",
+  "ffWelcomeBody": "Welkom bij DynoPay. Over uw eerste {{amount}} aan betalingsvolume rekenen wij geen platformkosten — elke cent gaat rechtstreeks naar uw wallet. Daarna beginnen de kosten bij slechts 1,5% en dalen ze naarmate u groeit.",
+  "ffWelcomeCta": "Maak uw eerste betaallink",
+  "ffWelcomeDismiss": "Begrepen, bedankt!",
+  "ffWelcomeFootnote": "Bekijk uw kostenvrije saldo op elk moment op het dashboard."
 }

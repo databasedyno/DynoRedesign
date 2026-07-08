@@ -698,6 +698,114 @@ const registerPhoneStep2 = async (req: express.Request, res: express.Response) =
   }
 };
 
+// ── Shared login completion ────────────────────────────────────────────────
+// Records device/IP activity, sends the login notification email, updates
+// last_login_ip, creates the session and sends the final "Login Successful!"
+// response. Used by BOTH the direct password login and the OTP login path.
+const finalizeLogin = async (
+  userData: any,
+  req: express.Request,
+  res: express.Response,
+  logPrefix: string
+) => {
+  // Check if 2FA is required (TOTP)
+  const needs2FA = await is2FARequired(userData.dataValues.user_id);
+  if (needs2FA) {
+    return successResponseHelper(res, 200, "2FA verification required", {
+      requires_2fa: true,
+      user_id: userData.dataValues.user_id,
+      message: "Please provide your 2FA code to complete login.",
+    });
+  }
+
+  // Check for new device/IP login
+  const rawIp = req.headers['x-forwarded-for'] as string || req.ip || 'Unknown';
+  const ipAddress = rawIp.split(',')[0].trim().substring(0, 45);
+  const userAgent = (req.headers['user-agent'] || 'Unknown') as string;
+  const { device, browser, os } = parseUserAgent(userAgent);
+
+  userLogger.info(`${logPrefix} User ${userData.dataValues.email} - IP: ${ipAddress}, Device: ${device}, Browser: ${browser}`);
+
+  // Geo-locate the IP (best-effort, non-blocking)
+  let location: string | null = null;
+  try {
+    const geoResponse = await axios.get(`http://ip-api.com/json/${ipAddress}?fields=status,city,country`, { timeout: 3000 });
+    if (geoResponse.data && geoResponse.data.status === 'success') {
+      const { city, country } = geoResponse.data;
+      location = city && country ? `${city}, ${country}` : (country || null);
+    }
+  } catch (geoError: any) {
+    userLogger.info(`${logPrefix} IP geolocation failed: ${geoError.message}`);
+  }
+
+  // Generate a unique security token for the "Not you?" link
+  const securityToken = crypto.randomBytes(32).toString('hex');
+
+  // Record login activity in the database
+  try {
+    await loginActivityModel.create({
+      user_id: userData.dataValues.user_id,
+      ip_address: ipAddress,
+      user_agent: userAgent,
+      device,
+      browser,
+      os,
+      location,
+      security_token: securityToken,
+    });
+  } catch (activityError: any) {
+    userLogger.error(`${logPrefix} Failed to record login activity: ${activityError.message}`);
+  }
+
+  // Send login notification email (every login)
+  try {
+    if (userData.dataValues.email) {
+      const { sendLoginNotificationEmail } = await import("../services/emailService");
+      const now = new Date();
+      const date = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
+      const time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+      // Fire and forget — don't block the login response
+      sendLoginNotificationEmail(
+        userData.dataValues.email,
+        userData.dataValues.name || 'User',
+        ipAddress,
+        device,
+        browser,
+        os,
+        location,
+        date,
+        time,
+        securityToken
+      ).catch(err => userLogger.error(`${logPrefix} Login notification email failed:`, err));
+    }
+  } catch (emailError) {
+    userLogger.error(`${logPrefix} Failed to send login notification:`, emailError);
+  }
+
+  // Update last login IP
+  await userModel.update(
+    { last_login_ip: ipAddress },
+    { where: { user_id: userData.dataValues.user_id } }
+  );
+
+  // Create Session with Refresh Token
+  const sessionData = await createSession(userData.dataValues, req as any);
+
+  // Build response
+  const { password: _pw, telegram_id: _tid, ...userDataClean } = userData.dataValues;
+  const resData = {
+    userData: userDataClean,
+    accessToken: sessionData.accessToken,
+    refreshToken: sessionData.refreshToken,
+    expiresIn: sessionData.expiresIn,
+    session_id: sessionData.session_id,
+    token_type: "Bearer",
+  };
+
+  userLogger.info(`${logPrefix} Login completed for ${userData.dataValues.email}`);
+  return successResponseHelper(res, 200, "Login Successful!", resData);
+};
+
 const login = async (req: express.Request, res: express.Response) => {
   try {
     const { email, password } = req.body;
@@ -803,42 +911,16 @@ const login = async (req: express.Request, res: express.Response) => {
         );
       }
 
-      // ── Successful Credentials — Send Login OTP ─────────────────────────
-      // Clear lockout and failed attempts
+      // ── Successful Credentials — Complete Login Directly ────────────────
+      // Password IS the authentication factor. Users who prove their password
+      // are logged in immediately (no email OTP round-trip). Accounts with
+      // TOTP 2FA enabled still get the requires_2fa step inside finalizeLogin.
+      // Passwordless (email-OTP / SMS) login paths are unaffected.
       await clearFailedAttempts(email);
       const cacheKey = `failed_logins:${email.toLowerCase()}`;
       await deleteRedisItem(cacheKey);
-      
-      // Generate 6-digit OTP
-      const otp = String(Math.floor(100000 + Math.random() * 900000));
-      const loginOtpSession = crypto.randomUUID();
-      const otpData = {
-        user_id: userData.dataValues.user_id,
-        email: userData.dataValues.email,
-        name: userData.dataValues.name || 'User',
-        otp,
-        attempts: 0,
-      };
-      await setRedisItemWithTTL(`login_otp:${loginOtpSession}`, otpData, 300);
 
-      // Send OTP email
-      const { sendLoginOTPEmail } = await import("../services/emailService");
-      await sendLoginOTPEmail(userData.dataValues.email, userData.dataValues.name || 'User', otp);
-
-      // Mask email for display
-      const emailParts = email.split('@');
-      const maskedLocal = emailParts[0].length > 2
-        ? emailParts[0].charAt(0) + '*'.repeat(emailParts[0].length - 2) + emailParts[0].charAt(emailParts[0].length - 1)
-        : emailParts[0].charAt(0) + '***';
-      const maskedEmail = maskedLocal + '@' + emailParts[1];
-
-      userLogger.info(`[Login] Login OTP sent to ${email}`);
-      
-      return successResponseHelper(res, 200, "OTP sent to your email", {
-        requires_login_otp: true,
-        login_otp_session: loginOtpSession,
-        masked_email: maskedEmail,
-      });
+      return await finalizeLogin(userData, req, res, "[Login]");
     }
   } catch (e) {
 
@@ -889,102 +971,7 @@ const verifyLoginOTP = async (req: express.Request, res: express.Response) => {
       return errorResponseHelper(res, 400, "User not found");
     }
 
-    // Check if 2FA is required (TOTP)
-    const needs2FA = await is2FARequired(userData.dataValues.user_id);
-    if (needs2FA) {
-      return successResponseHelper(res, 200, "2FA verification required", {
-        requires_2fa: true,
-        user_id: userData.dataValues.user_id,
-        message: "Please provide your 2FA code to complete login.",
-      });
-    }
-
-    // Check for new device/IP login
-    const rawIp = req.headers['x-forwarded-for'] as string || req.ip || 'Unknown';
-    const ipAddress = rawIp.split(',')[0].trim().substring(0, 45);
-    const userAgent = (req.headers['user-agent'] || 'Unknown') as string;
-    const { device, browser, os } = parseUserAgent(userAgent);
-
-    userLogger.info(`[Login OTP Verify] User ${otpData.email} - IP: ${ipAddress}, Device: ${device}, Browser: ${browser}`);
-
-    // Geo-locate the IP (best-effort, non-blocking)
-    let location: string | null = null;
-    try {
-      const geoResponse = await axios.get(`http://ip-api.com/json/${ipAddress}?fields=status,city,country`, { timeout: 3000 });
-      if (geoResponse.data && geoResponse.data.status === 'success') {
-        const { city, country } = geoResponse.data;
-        location = city && country ? `${city}, ${country}` : (country || null);
-      }
-    } catch (geoError: any) {
-      userLogger.info(`[Login OTP Verify] IP geolocation failed: ${geoError.message}`);
-    }
-
-    // Generate a unique security token for the "Not you?" link
-    const securityToken = crypto.randomBytes(32).toString('hex');
-
-    // Record login activity in the database
-    try {
-      await loginActivityModel.create({
-        user_id: userData.dataValues.user_id,
-        ip_address: ipAddress,
-        user_agent: userAgent,
-        device,
-        browser,
-        os,
-        location,
-        security_token: securityToken,
-      });
-    } catch (activityError: any) {
-      userLogger.error(`[Login OTP Verify] Failed to record login activity: ${activityError.message}`);
-    }
-
-    // Send login notification email (every login)
-    try {
-      if (userData.dataValues.email) {
-        const { sendLoginNotificationEmail } = await import("../services/emailService");
-        const now = new Date();
-        const date = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
-        const time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
-        // Fire and forget — don't block the login response
-        sendLoginNotificationEmail(
-          userData.dataValues.email,
-          userData.dataValues.name || 'User',
-          ipAddress,
-          device,
-          browser,
-          os,
-          location,
-          date,
-          time,
-          securityToken
-        ).catch(err => userLogger.error("[Login OTP Verify] Login notification email failed:", err));
-      }
-    } catch (emailError) {
-      userLogger.error("[Login OTP Verify] Failed to send login notification:", emailError);
-    }
-
-    // Update last login IP
-    await userModel.update(
-      { last_login_ip: ipAddress },
-      { where: { user_id: userData.dataValues.user_id } }
-    );
-
-    // Create Session with Refresh Token
-    const sessionData = await createSession(userData.dataValues, req as any);
-
-    // Build response
-    const { password: _pw, telegram_id: _tid, ...userDataClean } = userData.dataValues;
-    const resData = {
-      userData: userDataClean,
-      accessToken: sessionData.accessToken,
-      refreshToken: sessionData.refreshToken,
-      expiresIn: sessionData.expiresIn,
-      session_id: sessionData.session_id,
-      token_type: "Bearer",
-    };
-
-    userLogger.info(`[Login OTP Verify] Login completed for ${otpData.email}`);
-    successResponseHelper(res, 200, "Login Successful!", resData);
+    return await finalizeLogin(userData, req, res, "[Login OTP Verify]");
   } catch (e) {
     userLogger.error("[verifyLoginOTP] Error:", e);
     handleControllerError(res, e, userLogger);

@@ -75,5 +75,11 @@
   "feeFreeBannerTitle": "Commencez avec 0 $ de frais sur vos premiers 500 $",
   "feeFreeBannerDescription": "Les nouveaux marchands ne paient aucun frais de plateforme sur leurs premiers 500$ de transactions. Ensuite, les frais commencent à seulement 1,5% et descendent jusqu'à 0,5% pour les marchands à fort volume — toujours bien en dessous de PayPal ou Stripe.",
   "feeFreeBannerCta": "Commencer sans frais",
-  "feeCalcFeeFreeNote": "Nouveau marchand ? Vos premiers 500 $ de transactions sont sans frais."
+  "feeCalcFeeFreeNote": "Nouveau marchand ? Vos premiers 500 $ de transactions sont sans frais.",
+  "ffWelcomeBadge": "Sans frais",
+  "ffWelcomeTitle": "Bienvenue ! Vos premiers 500 $ sont sans frais",
+  "ffWelcomeBody": "Bienvenue chez DynoPay. Nous renonçons à nos frais de plateforme sur vos premiers {{amount}} de volume de paiements — chaque centime va directement dans votre portefeuille. Ensuite, les frais commencent à seulement 1,5 % et baissent à mesure que vous grandissez.",
+  "ffWelcomeCta": "Créer votre premier lien de paiement",
+  "ffWelcomeDismiss": "Compris, merci !",
+  "ffWelcomeFootnote": "Suivez votre solde sans frais à tout moment sur le tableau de bord."
 }
