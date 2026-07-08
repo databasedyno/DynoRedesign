@@ -10793,3 +10793,164 @@ The password login bug fix is working correctly. The fee-free welcome modal is m
 
 ---
 
+
+## Fee-free popup round-2 fixes (2026-07-08) — Re-test Request
+Prior frontend run: Test 1 (no-OTP password login) PASS, Test 3 (no popup for hostbay) PASS,
+Test 2 partial — persistence + CTA nav failed. FIXES:
+- storageKey now derived from the JWT in localStorage (email/user_id from token payload) instead of
+  Redux userState.email (empty right after reload → key mismatch race). Flag `ff_welcome_shown:<email>`
+  is now written AT SHOW TIME (once-semantics survive reloads without clicks) and again on dismiss/CTA.
+- CTA handler no longer closes the modal before router.push (unmount race + dev compile delay);
+  it marks the flag then navigates; route change unmounts the modal.
+RE-TEST Test 2 only (popup show → reload no-reshow → key-removal reshow → CTA navigates to /create-pay-link).
+
+
+## VERIFICATION RESULTS (2026-07-08) — Fee-free welcome popup RE-TEST ✅ ALL PASS (7/7)
+
+### TEST EXECUTION
+- **agent:** testing (auto_frontend_testing_agent)
+- **test_date:** 2026-07-08 14:32 UTC
+- **test_url:** https://a12ec985-3845-48d1-94ff-bae3784d76bd.preview.emergentagent.com
+- **verification_method:** Playwright UI testing (READ-ONLY, no data mutations)
+- **test_account:** qa.onboard.1782585233@dynopaytest.com / QaOnboard#2026
+- **safety_compliance:** ✅ NO data mutations, password login only, NO form submissions on /create-pay-link
+
+### OVERALL RESULT: ✅ ALL PASS (7/7 steps)
+
+All 7 test steps passed successfully. Both critical fixes verified working:
+1. **Persistence fix:** localStorage flag written AT SHOW TIME from JWT-derived email
+2. **CTA navigation fix:** router.push without closing modal first (unmount race eliminated)
+
+### DETAILED RESULTS
+
+**STEP 1: Fresh Context Login** ✅ PASS
+- localStorage cleared successfully
+- Email entered: qa.onboard.1782585233@dynopaytest.com
+- Password option selected (two-step login flow)
+- Password entered: QaOnboard#2026
+- Login successful, redirected to /dashboard
+- **VERDICT:** Password login working correctly (no OTP required)
+
+**STEP 2: Modal Appears on First Visit** ✅ PASS
+- Modal appeared after 1 second
+- **Title:** "You're in! Your first $500 is fee-free"
+- **CTA button:** "Create your first payment link" [data-testid="fee-free-welcome-cta"]
+- **Dismiss button:** "Got it, thanks!" [data-testid="fee-free-welcome-dismiss"]
+- **Visual elements:** $500 badge visible, confetti animation detected (lime/black colors)
+- Screenshot: step2_modal_visible.png
+- **VERDICT:** Modal displays correctly with all required elements
+
+**STEP 3: Reload WITHOUT Clicking - Modal Does NOT Reappear** ✅ PASS (KEY FIX)
+- Page reloaded
+- Waited 8 seconds
+- Modal did NOT reappear
+- Screenshot: step3_no_modal_PASS.png
+- **VERDICT:** ✅ PERSISTENCE FIX WORKING - localStorage flag written AT SHOW TIME prevents re-display
+
+**STEP 4: localStorage Flag Contains Email** ✅ PASS (KEY FIX)
+- Found 1 localStorage key: `ff_welcome_shown:qa.onboard.1782585233@dynopaytest.com`
+- Key contains correct email address (derived from JWT token payload)
+- Value: 1783521137184 (timestamp)
+- **VERDICT:** ✅ JWT-DERIVED EMAIL FIX WORKING - flag uses stable identity from token, not Redux state
+
+**STEP 5: Remove Flag and Reload - Modal REAPPEARS** ✅ PASS
+- Removed localStorage key: `ff_welcome_shown:qa.onboard.1782585233@dynopaytest.com`
+- Key removal verified: true
+- Page reloaded
+- Modal REAPPEARED after 1 second (as expected)
+- Screenshot: step5_modal_reappeared_PASS.png
+- **VERDICT:** Flag removal correctly triggers modal re-display (logic working as designed)
+
+**STEP 6: Click CTA - Navigates to /create-pay-link** ✅ PASS (KEY FIX)
+- Current URL: https://a12ec985-3845-48d1-94ff-bae3784d76bd.preview.emergentagent.com/dashboard
+- CTA button clicked: "Create your first payment link"
+- URL changed to /create-pay-link after 2 seconds
+- New URL: https://a12ec985-3845-48d1-94ff-bae3784d76bd.preview.emergentagent.com/create-pay-link
+- Page loaded successfully (Payment Settings form visible)
+- Screenshot: step6_create_pay_link_PASS.png
+- **VERDICT:** ✅ CTA NAVIGATION FIX WORKING - router.push without closing modal first eliminates unmount race
+
+**STEP 7: Navigate Back to Dashboard - Modal Does NOT Appear** ✅ PASS
+- Navigated back to /dashboard
+- Waited 8 seconds
+- Modal did NOT appear (stays dismissed)
+- Screenshot: step7_no_modal_PASS.png
+- **VERDICT:** Modal correctly stays dismissed after CTA navigation (flag persists across navigation)
+
+### VISUAL EVIDENCE
+
+**Screenshots captured:**
+1. step2_modal_visible.png - Fee-free welcome modal with $500 badge, confetti, and 2 buttons
+2. step3_no_modal_PASS.png - Dashboard after reload, no modal (persistence working)
+3. step5_modal_reappeared_PASS.png - Modal reappeared after flag removal (logic correct)
+4. step6_create_pay_link_PASS.png - /create-pay-link page after CTA click (navigation working)
+5. step7_no_modal_PASS.png - Dashboard after return, no modal (stays dismissed)
+
+**Modal content verified:**
+- Title: "You're in! Your first $500 is fee-free"
+- Body: "Welcome to DynoPay. We waive our platform fee on your first $500 in payment volume — every cent goes straight to your wallet. After that, fees start at just 1.5% and drop as you grow."
+- $500 badge with "FEE-FREE" label (black background, lime border, lime text)
+- Confetti animation with lime/black/green colors
+- Two buttons: CTA (black bg, lime text) + Dismiss (outlined)
+
+### CODE FIXES VERIFIED
+
+**Fix 1: localStorage Key Derived from JWT Token** ✅ VERIFIED
+- **File:** `/app/Components/Modals/FeeFreeWelcomeModal.tsx` lines 90-107
+- **Implementation:** Extracts email or user_id from JWT token payload in localStorage
+- **Key format:** `ff_welcome_shown:qa.onboard.1782585233@dynopaytest.com`
+- **Benefit:** Stable identity survives page reloads (Redux userState.email is empty after reload)
+- **Test result:** Step 4 confirmed key contains correct email from JWT
+
+**Fix 2: Flag Written AT SHOW TIME** ✅ VERIFIED
+- **File:** `/app/Components/Modals/FeeFreeWelcomeModal.tsx` lines 124-130
+- **Implementation:** `localStorage.setItem(key, String(Date.now()))` called IMMEDIATELY when modal shows
+- **Benefit:** "Once" semantics survive reloads even if user never clicks a button
+- **Test result:** Step 3 confirmed modal does NOT reappear after reload without any user interaction
+
+**Fix 3: CTA Navigation Without Closing Modal First** ✅ VERIFIED
+- **File:** `/app/Components/Modals/FeeFreeWelcomeModal.tsx` lines 158-164
+- **Implementation:** `router.push("/create-pay-link")` called WITHOUT `setOpen(false)` first
+- **Benefit:** Eliminates unmount race condition + dev-mode compile delay
+- **Test result:** Step 6 confirmed navigation to /create-pay-link works within 2 seconds
+
+### CONSOLE ERRORS
+- ✅ NO console errors detected during any test step
+- ✅ NO broken layouts or blank screens
+- ✅ All pages render fully with proper content
+
+### REGRESSION CHECK
+- ✅ Password login still works (no OTP required) - Step 1
+- ✅ Dashboard loads correctly after login - Steps 1, 3, 7
+- ✅ /create-pay-link page loads correctly - Step 6
+- ✅ Modal logic does not interfere with normal navigation - Step 7
+
+### VERDICT: ✅ ALL FIXES VERIFIED - PRODUCTION READY
+
+**Summary:**
+Both critical issues from the previous test run have been successfully fixed:
+
+1. **Persistence Issue (FIXED):**
+   - ❌ Previous: Modal reappeared on every reload (localStorage key mismatch)
+   - ✅ Now: Modal does NOT reappear after reload (flag written at show time with JWT-derived email)
+
+2. **CTA Navigation Issue (FIXED):**
+   - ❌ Previous: CTA button did not navigate to /create-pay-link (unmount race)
+   - ✅ Now: CTA button navigates to /create-pay-link within 2 seconds (router.push without closing first)
+
+**What's Working:**
+1. ✅ Modal appears on first dashboard visit for eligible users (fee_free_remaining_usd > 0)
+2. ✅ Modal does NOT reappear after page reload (persistence working)
+3. ✅ localStorage flag uses JWT-derived email (stable across reloads)
+4. ✅ Flag is written AT SHOW TIME (survives reloads without clicks)
+5. ✅ CTA button navigates to /create-pay-link (unmount race fixed)
+6. ✅ Modal stays dismissed after CTA navigation (flag persists)
+7. ✅ Visual elements correct: $500 badge, confetti, 2 buttons, proper styling
+
+**No Issues Found:**
+- All 7 test steps passed
+- No console errors
+- No regressions
+- No visual glitches
+
+---

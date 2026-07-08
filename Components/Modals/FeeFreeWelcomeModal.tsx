@@ -1,13 +1,11 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Box, Typography, useTheme } from "@mui/material";
 import { useRouter } from "next/router";
-import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
 import axiosBaseApi from "@/axiosConfig";
 import PopupModal from "@/Components/UI/PopupModal";
 import CustomButton from "@/Components/UI/Buttons";
-import { rootReducer } from "@/utils/types";
 
 /**
  * FeeFreeWelcomeModal — one-time celebratory popup shown on the dashboard the
@@ -81,23 +79,38 @@ const FeeFreeWelcomeModal: React.FC = () => {
   const { t } = useTranslation("fees");
   const theme = useTheme();
   const router = useRouter();
-  const userState = useSelector((state: rootReducer) => state.userReducer);
   const [open, setOpen] = useState(false);
   const [remaining, setRemaining] = useState(500);
-
-  const storageKey = useMemo(() => {
-    const who = userState?.email || "anon";
-    return `ff_welcome_shown:${who}`;
-  }, [userState?.email]);
+  const [storageKey, setStorageKey] = useState<string | null>(null);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
     let cancelled = false;
+
+    // Derive a RELOAD-STABLE identity from the JWT in localStorage.
+    // (Redux userState.email is empty right after a reload — using it caused
+    // the dismiss flag to be written under a different key than it was read.)
+    let identity: string | null = null;
     try {
-      if (localStorage.getItem(storageKey)) return;
+      const token = localStorage.getItem("token");
+      if (!token) return; // not logged in — never show
+      const payloadB64 = token.split(".")[1] || "";
+      const json = JSON.parse(
+        atob(payloadB64.replace(/-/g, "+").replace(/_/g, "/")),
+      );
+      identity = json?.email || (json?.user_id != null ? `uid:${json.user_id}` : null);
     } catch {
       return;
     }
+    if (!identity) return;
+
+    const key = `ff_welcome_shown:${identity}`;
+    try {
+      if (localStorage.getItem(key)) return; // already shown once
+    } catch {
+      return;
+    }
+
     (async () => {
       try {
         const res = await axiosBaseApi.get("company/fee-free-status");
@@ -108,6 +121,14 @@ const FeeFreeWelcomeModal: React.FC = () => {
           d.is_fee_free &&
           Number(d.fee_free_remaining_usd) > 0
         ) {
+          // Mark as shown IMMEDIATELY — "once" semantics survive reloads
+          // even if the user never clicks a button.
+          try {
+            localStorage.setItem(key, String(Date.now()));
+          } catch {
+            /* ignore */
+          }
+          setStorageKey(key);
           setRemaining(Number(d.fee_free_remaining_usd));
           setOpen(true);
         }
@@ -118,15 +139,28 @@ const FeeFreeWelcomeModal: React.FC = () => {
     return () => {
       cancelled = true;
     };
-  }, [storageKey]);
+  }, []);
 
-  const dismiss = () => {
+  const markShown = () => {
+    if (!storageKey) return;
     try {
       localStorage.setItem(storageKey, String(Date.now()));
     } catch {
       /* ignore */
     }
+  };
+
+  const dismiss = () => {
+    markShown();
     setOpen(false);
+  };
+
+  const goToCreateLink = () => {
+    markShown();
+    // Navigate WITHOUT closing first — closing unmounts the modal mid-handler
+    // and the dev-mode page compile can take a moment; the route change will
+    // unmount us anyway.
+    router.push("/create-pay-link");
   };
 
   if (!open) return null;
@@ -244,10 +278,7 @@ const FeeFreeWelcomeModal: React.FC = () => {
             label={t("ffWelcomeCta")}
             variant="primary"
             fullWidth
-            onClick={() => {
-              dismiss();
-              router.push("/create-pay-link");
-            }}
+            onClick={goToCreateLink}
           />
           <CustomButton
             data-testid="fee-free-welcome-dismiss"
