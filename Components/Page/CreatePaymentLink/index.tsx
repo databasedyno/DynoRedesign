@@ -888,6 +888,7 @@ const CreatePaymentLinkPage = ({
       >
         {showActivationBanner && (
           <Box
+            data-testid="pay-link-activation-banner"
             sx={{
               display: "flex",
               alignItems: "flex-start",
@@ -1089,6 +1090,7 @@ const CreatePaymentLinkPage = ({
                   5 essentials (Amount, Currency, Cryptos, Title, Expiry). */}
               <Box
                 component="details"
+                data-testid="pay-link-advanced-options"
                 sx={{
                   border: `1px solid ${theme.palette.border.main}`,
                   borderRadius: "10px",

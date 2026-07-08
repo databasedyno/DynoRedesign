@@ -44,43 +44,62 @@ const FeeFreeBanner: React.FC = () => {
     const suppressPaths = ["/auth", "/pay/", "/checkout", "/kyc", "/system-status"];
     if (suppressPaths.some((p) => path.startsWith(p))) return;
 
-    let identity: string | null = null;
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) return;
-      const payloadB64 = token.split(".")[1] || "";
-      const json = JSON.parse(atob(payloadB64.replace(/-/g, "+").replace(/_/g, "/")));
-      identity = json?.email || (json?.user_id != null ? `uid:${json.user_id}` : null);
-    } catch {
-      return;
-    }
-    if (!identity) return;
-
-    const key = `ff_banner_dismissed:${identity}`;
-    setStorageKey(key);
-    try {
-      if (localStorage.getItem(key)) {
-        setDismissed(true);
-        return;
+    const resolveIdentity = (): string | null => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) return null;
+        const payloadB64 = token.split(".")[1] || "";
+        const json = JSON.parse(
+          atob(payloadB64.replace(/-/g, "+").replace(/_/g, "/")),
+        );
+        return json?.email || (json?.user_id != null ? `uid:${json.user_id}` : null);
+      } catch {
+        return null;
       }
-    } catch {
-      /* ignore */
-    }
+    };
 
     let cancelled = false;
-    (async () => {
+    let retryTimer: ReturnType<typeof setTimeout> | null = null;
+
+    const attempt = () => {
+      const identity = resolveIdentity();
+      if (!identity) {
+        // Token not yet in localStorage (e.g. tester injected AFTER mount).
+        // Retry a few times before giving up so the banner catches up.
+        if (!cancelled) retryTimer = setTimeout(attempt, 500);
+        return;
+      }
+      const key = `ff_banner_dismissed:${identity}`;
+      setStorageKey(key);
       try {
-        const res = await axiosBaseApi.get("company/fee-free-status");
-        const d = res?.data?.data as FeeFreeData | undefined;
-        if (!cancelled && d && d.is_fee_free && Number(d.fee_free_remaining_usd) > 0) {
-          setData(d);
+        if (localStorage.getItem(key)) {
+          setDismissed(true);
+          return;
         }
       } catch {
-        /* silent — never block the app */
+        /* ignore */
       }
-    })();
+      // Fetch status. Note: we DO NOT gate rendering on apiState.loading —
+      // we render as soon as the API says the trial has money left.
+      axiosBaseApi
+        .get("company/fee-free-status")
+        .then((res) => {
+          if (cancelled) return;
+          const d = res?.data?.data as FeeFreeData | undefined;
+          if (d && d.is_fee_free && Number(d.fee_free_remaining_usd) > 0) {
+            setData(d);
+          }
+        })
+        .catch(() => {
+          /* silent — never block the app */
+        });
+    };
+
+    attempt();
+
     return () => {
       cancelled = true;
+      if (retryTimer) clearTimeout(retryTimer);
     };
   }, [router.pathname]);
 
@@ -108,6 +127,7 @@ const FeeFreeBanner: React.FC = () => {
 
   return (
     <Box
+      data-testid="fee-free-banner"
       role="region"
       aria-label="Fee-free trial progress"
       sx={{

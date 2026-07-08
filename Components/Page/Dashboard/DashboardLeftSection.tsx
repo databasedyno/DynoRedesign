@@ -578,6 +578,7 @@ const DashboardLeftSection = () => {
           headerAction={
             <IconButton
               onClick={toggleWalletCardCompact}
+              data-testid="wallets-compact-toggle"
               aria-label={
                 walletCardCompact
                   ? tDashboard("expandWallets", { defaultValue: "Show wallets" })
