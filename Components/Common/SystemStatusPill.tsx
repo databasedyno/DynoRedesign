@@ -1,5 +1,6 @@
 import React, { memo, useEffect, useState } from 'react';
 import { Box, Typography } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 
 /**
  * SystemStatusPill (item E) — tiny always-visible pill that reads live uptime
@@ -19,11 +20,12 @@ interface UptimePayload {
 
 type Status = 'operational' | 'degraded' | 'outage' | 'unknown';
 
-const statusColorMap: Record<Status, { dot: string; bg: string; border: string; label: string }> = {
-  operational: { dot: '#22C55E', bg: 'rgba(34,197,94,0.10)', border: 'rgba(34,197,94,0.35)', label: 'All systems normal' },
-  degraded:    { dot: '#F59E0B', bg: 'rgba(245,158,11,0.10)', border: 'rgba(245,158,11,0.35)', label: 'Partial degradation' },
-  outage:      { dot: '#EF4444', bg: 'rgba(239,68,68,0.10)',  border: 'rgba(239,68,68,0.35)',  label: 'Service disruption' },
-  unknown:     { dot: '#94A3B8', bg: 'rgba(148,163,184,0.10)', border: 'rgba(148,163,184,0.35)', label: 'System status' },
+// labelKey is resolved through i18n (common namespace) at render time.
+const statusColorMap: Record<Status, { dot: string; bg: string; border: string; labelKey: string }> = {
+  operational: { dot: '#22C55E', bg: 'rgba(34,197,94,0.10)', border: 'rgba(34,197,94,0.35)', labelKey: 'statusOperational' },
+  degraded:    { dot: '#F59E0B', bg: 'rgba(245,158,11,0.10)', border: 'rgba(245,158,11,0.35)', labelKey: 'statusDegraded' },
+  outage:      { dot: '#EF4444', bg: 'rgba(239,68,68,0.10)',  border: 'rgba(239,68,68,0.35)',  labelKey: 'statusOutage' },
+  unknown:     { dot: '#94A3B8', bg: 'rgba(148,163,184,0.10)', border: 'rgba(148,163,184,0.35)', labelKey: 'statusUnknown' },
 };
 
 const deriveStatus = (pct: number): Status => {
@@ -33,6 +35,7 @@ const deriveStatus = (pct: number): Status => {
 };
 
 const SystemStatusPill: React.FC<{ compact?: boolean }> = ({ compact = false }) => {
+  const { t } = useTranslation('common');
   const [status, setStatus] = useState<Status>('operational'); // optimistic default
   const [uptime, setUptime] = useState<number>(99.98);
   const [mounted, setMounted] = useState(false);
@@ -65,12 +68,13 @@ const SystemStatusPill: React.FC<{ compact?: boolean }> = ({ compact = false }) 
   // Use the optimistic "operational" default until mount to prevent hydration
   // mismatch. The SSR and initial client render both render "99.98% / green".
   const s = statusColorMap[mounted ? status : 'operational'];
+  const label = t(s.labelKey);
 
   return (
     <Box
       component="a"
       href="/system-status"
-      title={`${s.label} · ${uptime}% uptime (last 30 days)`}
+      title={t('statusUptimeTooltip', { label, uptime })}
       sx={{
         display: 'inline-flex',
         alignItems: 'center',
@@ -110,7 +114,7 @@ const SystemStatusPill: React.FC<{ compact?: boolean }> = ({ compact = false }) 
           letterSpacing: '0.2px',
         }}
       >
-        {compact ? `${uptime}%` : `${s.label} · ${uptime}%`}
+        {compact ? `${uptime}%` : `${label} · ${uptime}%`}
       </Typography>
     </Box>
   );

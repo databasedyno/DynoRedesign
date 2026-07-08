@@ -469,5 +469,10 @@
   "demoSimulatePayment": "Simular pago recibido",
   "paymentReceived": "Pago recibido",
   "tryDemoAgain": "Probar la demo de nuevo",
-  "paymentFailedBody": "No se pudo procesar tu pago. Inténtalo de nuevo o contacta con soporte."
+  "paymentFailedBody": "No se pudo procesar tu pago. Inténtalo de nuevo o contacta con soporte.",
+  "statusOperational": "Todos los sistemas operativos",
+  "statusDegraded": "Degradación parcial",
+  "statusOutage": "Interrupción del servicio",
+  "statusUnknown": "Estado del sistema",
+  "statusUptimeTooltip": "{{label}} · {{uptime}}% de disponibilidad (últimos 30 días)"
 }

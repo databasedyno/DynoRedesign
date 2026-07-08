@@ -469,5 +469,10 @@
   "demoSimulatePayment": "Ontvangen betaling simuleren",
   "paymentReceived": "Betaling ontvangen",
   "tryDemoAgain": "Demo opnieuw proberen",
-  "paymentFailedBody": "Uw betaling kon niet worden verwerkt. Probeer het opnieuw of neem contact op met support."
+  "paymentFailedBody": "Uw betaling kon niet worden verwerkt. Probeer het opnieuw of neem contact op met support.",
+  "statusOperational": "Alle systemen normaal",
+  "statusDegraded": "Gedeeltelijke verstoring",
+  "statusOutage": "Servicestoring",
+  "statusUnknown": "Systeemstatus",
+  "statusUptimeTooltip": "{{label}} · {{uptime}}% uptime (afgelopen 30 dagen)"
 }

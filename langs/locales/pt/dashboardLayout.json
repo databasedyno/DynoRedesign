@@ -123,5 +123,9 @@
   "apiPaymentLabel": "Pagamento via API",
   "paymentLinkLabel": "Link de pagamento",
   "nextTierHint": "Alcance o nível {next} para taxas de {pct} (economize {savings})",
-  "switchedToCompany": "Alterado para"
+  "switchedToCompany": "Alterado para",
+  "sidebarSectionMain": "Visão geral",
+  "sidebarSectionPayments": "Pagamentos",
+  "sidebarSectionAccount": "Conta",
+  "newPaymentLink": "Novo link de pagamento"
 }

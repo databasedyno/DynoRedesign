@@ -11,8 +11,8 @@ import {
 } from "@/utils/types/dashboard";
 import { Box, Typography, useTheme } from "@mui/material";
 import Image from "next/image";
-import {
 import { useTranslation } from "react-i18next";
+import {
   Area,
   AreaChart,
   CartesianGrid,

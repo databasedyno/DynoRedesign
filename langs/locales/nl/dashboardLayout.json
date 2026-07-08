@@ -123,5 +123,9 @@
   "apiPaymentLabel": "API-betaling",
   "paymentLinkLabel": "Betaallink",
   "nextTierHint": "Bereik het {next}-niveau voor {pct} kosten (bespaar {savings})",
-  "switchedToCompany": "Overgeschakeld naar"
+  "switchedToCompany": "Overgeschakeld naar",
+  "sidebarSectionMain": "Overzicht",
+  "sidebarSectionPayments": "Betalingen",
+  "sidebarSectionAccount": "Account",
+  "newPaymentLink": "Nieuwe betaallink"
 }

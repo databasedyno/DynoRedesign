@@ -16,9 +16,22 @@ export const SidebarWrapper = styled("aside")(({ theme }) => ({
 export const Menu = styled("div")(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
-  gap: "4px",
+  gap: "14px",
   background: theme.palette.background.paper,
   borderRadius: "12px",
+}));
+
+/** Small uppercase group caption — modern SaaS sidebar pattern. */
+export const SectionLabel = styled("div")(({ theme }) => ({
+  fontSize: "10.5px",
+  fontFamily: "UrbanistBold",
+  fontWeight: 700,
+  letterSpacing: "1.4px",
+  textTransform: "uppercase",
+  color: theme.palette.text.disabled,
+  padding: "0 14px",
+  marginBottom: "4px",
+  userSelect: "none",
 }));
 
 export const MenuItem = styled("div", {
@@ -30,33 +43,38 @@ export const MenuItem = styled("div", {
     gap: "10px",
     maxHeight: "44px",
     padding: "10px 14px",
-    borderRadius: "7px",
+    borderRadius: "10px",
     cursor: "pointer",
-    background: active ? theme.palette.primary.light : "transparent",
+    // Bento identity: light mode = near-black pill w/ lime text,
+    // dark mode = lime pill w/ near-black text (primary + contrastText tokens).
+    background: active ? theme.palette.primary.main : "transparent",
     fontSize: "14px",
     fontWeight: 500,
-    color: active ? theme.palette.primary.main : theme.palette.text.primary,
-    transition: "all 0.2s ease",
+    color: active ? theme.palette.primary.contrastText : theme.palette.text.primary,
+    boxShadow: active
+      ? theme.palette.mode === "dark"
+        ? "0 4px 14px rgba(204,255,0,0.22)"
+        : "0 4px 14px rgba(10,10,10,0.28)"
+      : "none",
+    transition: "background 0.18s ease, color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease",
     position: "relative",
 
     "&:hover": {
-      background: theme.palette.primary.light,
+      background: active ? theme.palette.primary.main : theme.palette.secondary.main,
+      transform: active ? "none" : "translateX(3px)",
+    },
+    "&:active": {
+      transform: "scale(0.985)",
     },
   }),
 );
 
+/** @deprecated kept for backward-compat — the pill itself now signals the active route. */
 export const ActiveIndicator = styled("div", {
   shouldForwardProp: (prop) => prop !== "active",
 })<{ active?: boolean }>(
   ({ active, theme }) => ({
-    position: "absolute",
-    left: "-16px",
-    top: 0,
-    bottom: 0,
-    width: "6px",
-    background: active ? theme.palette.primary.main : "transparent",
-    borderRadius: "0 7px 7px 0",
-    transition: "all 0.2s ease",
+    display: "none",
   }),
 );
 
@@ -70,14 +88,34 @@ export const IconBox = styled("div", {
     width: "26px",
     height: "26px",
     borderRadius: "6px",
-    background: active ? theme.palette.primary.light : "transparent",
+    background: "transparent",
+    flexShrink: 0,
+  }),
+);
 
-    "& img": {
-      filter: active
-        ? "brightness(0) saturate(100%) invert(13%) sepia(94%) saturate(7151%) hue-rotate(240deg) brightness(101%) contrast(150%)"
-        : theme.palette.mode === "dark"
-          ? "brightness(0) saturate(100%) invert(80%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(90%)"
-          : "brightness(0) saturate(100%) invert(15%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(95%) contrast(100%)",
+/** Inline quick-action (+) on the Payment Links row. */
+export const QuickAddButton = styled("button", {
+  shouldForwardProp: (prop) => prop !== "active",
+})<{ active?: boolean }>(
+  ({ active, theme }) => ({
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "24px",
+    height: "24px",
+    padding: 0,
+    marginLeft: "auto",
+    borderRadius: "8px",
+    border: "none",
+    cursor: "pointer",
+    color: active ? theme.palette.primary.main : theme.palette.primary.contrastText,
+    background: active ? theme.palette.primary.contrastText : theme.palette.primary.main,
+    transition: "transform 0.15s ease, opacity 0.15s ease",
+    "&:hover": {
+      transform: "scale(1.12)",
+    },
+    "&:active": {
+      transform: "scale(0.95)",
     },
   }),
 );

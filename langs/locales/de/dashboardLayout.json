@@ -123,5 +123,9 @@
   "apiPaymentLabel": "API-Zahlung",
   "paymentLinkLabel": "Zahlungslink",
   "nextTierHint": "Erreichen Sie die {next}-Stufe für {pct} Gebühren (sparen Sie {savings})",
-  "switchedToCompany": "Gewechselt zu"
+  "switchedToCompany": "Gewechselt zu",
+  "sidebarSectionMain": "Übersicht",
+  "sidebarSectionPayments": "Zahlungen",
+  "sidebarSectionAccount": "Konto",
+  "newPaymentLink": "Neuer Zahlungslink"
 }

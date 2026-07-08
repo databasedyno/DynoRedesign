@@ -123,5 +123,9 @@
   "obPaymentLabel": "Receive your first payment",
   "obPaymentDesc": "Share your payment link and get paid",
   "nextTierHint": "Reach {next} tier for {pct} fees (save {savings})",
-  "switchedToCompany": "Switched to"
+  "switchedToCompany": "Switched to",
+  "sidebarSectionMain": "Overview",
+  "sidebarSectionPayments": "Payments",
+  "sidebarSectionAccount": "Account",
+  "newPaymentLink": "New payment link"
 }

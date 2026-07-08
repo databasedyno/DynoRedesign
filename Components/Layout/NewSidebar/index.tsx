@@ -3,18 +3,31 @@ import SidebarIcon from "@/utils/customIcons/sidebar-icons";
 import AddIcon from "@mui/icons-material/Add";
 import GroupAddRounded from "@mui/icons-material/GroupAddRounded";
 import SettingsRounded from "@mui/icons-material/SettingsRounded";
-import { Box, useTheme } from "@mui/material";
+import { Box, Tooltip, useTheme } from "@mui/material";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import ReferralAndKnowledge from "../ReferralAndKnowledge";
 import {
-  ActiveIndicator,
   IconBox,
   Menu,
   MenuItem,
+  QuickAddButton,
+  SectionLabel,
   SidebarWrapper,
 } from "./styled";
+
+interface SidebarItem {
+  label: string;
+  icon: string;
+  path: string;
+  plus?: boolean;
+}
+
+interface SidebarSection {
+  label: string;
+  items: SidebarItem[];
+}
 
 const NewSidebar = () => {
   const isMobile = useIsMobile("md");
@@ -32,37 +45,31 @@ const NewSidebar = () => {
   }, []);
   const { t } = useTranslation("dashboardLayout");
 
-  const menuItems = [
-    { label: t("dashboard"), icon: "dashboard", path: "/dashboard" },
+  const sections: SidebarSection[] = [
     {
-      label: t("transactions"),
-      icon: "transactions",
-      path: "/transactions",
+      label: t("sidebarSectionMain"),
+      items: [
+        { label: t("dashboard"), icon: "dashboard", path: "/dashboard" },
+        { label: t("transactions"), icon: "transactions", path: "/transactions" },
+        { label: t("invoicesTax"), icon: "invoices", path: "/invoices" },
+      ],
     },
     {
-      label: t("invoicesTax"),
-      icon: "invoices",
-      path: "/invoices",
+      label: t("sidebarSectionPayments"),
+      items: [
+        { label: t("payLinks"), icon: "payment-links", path: "/pay-links", plus: true },
+        { label: t("wallets"), icon: "wallets", path: "/wallet" },
+        { label: t("customers"), icon: "customers", path: "/customers" },
+      ],
     },
     {
-      label: t("payLinks"),
-      icon: "payment-links",
-      path: "/pay-links",
-      plus: true,
-    },
-    { label: t("wallets"), icon: "wallets", path: "/wallet" },
-    { label: t("customers"), icon: "customers", path: "/customers" },
-    { label: t("api"), icon: "api", path: "/developer-keys" },
-    { label: t("referrals"), icon: "referrals", path: "/referrals" },
-    {
-      label: t("notifications"),
-      icon: "notifications",
-      path: "/notifications",
-    },
-    {
-      label: t("settings"),
-      icon: "settings",
-      path: "/settings",
+      label: t("sidebarSectionAccount"),
+      items: [
+        { label: t("api"), icon: "api", path: "/developer-keys" },
+        { label: t("referrals"), icon: "referrals", path: "/referrals" },
+        { label: t("notifications"), icon: "notifications", path: "/notifications" },
+        { label: t("settings"), icon: "settings", path: "/settings" },
+      ],
     },
   ];
 
@@ -71,102 +78,78 @@ const NewSidebar = () => {
     return router.pathname.startsWith(path);
   };
 
+  const iconColor = (isActive: boolean) =>
+    isActive ? theme.palette.primary.contrastText : theme.palette.text.secondary;
+
   return (
     <SidebarWrapper>
       <Menu>
-        {menuItems.map((item, i) => {
-          const isActive = isActiveRoute(item.path);
+        {sections.map((section) => (
+          <Box key={section.label} sx={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+            {!isMobile && <SectionLabel>{section.label}</SectionLabel>}
 
-          return (
-            <MenuItem
-              key={i}
-              active={isActive}
-              onClick={() => router.push(item.path)}
-            >
-              <ActiveIndicator active={isActive} />
-              <IconBox active={isActive}>
-                {item.icon === "referrals" ? (
-                  <GroupAddRounded
-                    sx={{
-                      fontSize: 20,
-                      color: isActive
-                        ? theme.palette.primary.main
-                        : theme.palette.text.primary,
-                    }}
-                  />
-                ) : item.icon === "settings" ? (
-                  <SettingsRounded
-                    sx={{
-                      fontSize: 20,
-                      color: isActive
-                        ? theme.palette.primary.main
-                        : theme.palette.text.primary,
-                    }}
-                  />
-                ) : (
-                  <SidebarIcon
-                    name={item.icon}
-                    size={item.icon === "customers" ? 24 : 20}
-                    color={
-                      isActive
-                        ? theme.palette.primary.main
-                        : theme.palette.text.primary
-                    }
-                  />
-                )}
-              </IconBox>
+            {section.items.map((item) => {
+              const isActive = isActiveRoute(item.path);
 
-              <Box
-                component="span"
-                sx={{
-                  fontSize: isMobile ? "11px" : "14px",
-                  fontWeight: 500,
-                  textAlign: "center",
-                  lineHeight: 1.2,
-                  fontFamily: "UrbanistMedium",
-                  [theme.breakpoints.down("md")]: {
-                    fontSize: "11px",
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    maxWidth: "100%",
-                  },
-                }}
-              >
-                {isMobile ? item.label.split(" ")[0] : item.label}
-              </Box>
-
-              {item.plus && !isMobile && (
-                <Box
-                  sx={{
-                    background: theme.palette.secondary.light,
-                    borderRadius: "50%",
-                    padding: "4px",
-                    width: "28px",
-                    height: "28px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    marginLeft: "auto",
-                    fontFamily: "UrbanistMedium",
-                  }}
+              return (
+                <MenuItem
+                  key={item.path}
+                  active={isActive}
+                  onClick={() => router.push(item.path)}
                 >
-                  <AddIcon
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      router.push("/create-pay-link");
-                    }}
+                  <IconBox active={isActive}>
+                    {item.icon === "referrals" ? (
+                      <GroupAddRounded sx={{ fontSize: 20, color: iconColor(isActive) }} />
+                    ) : item.icon === "settings" ? (
+                      <SettingsRounded sx={{ fontSize: 20, color: iconColor(isActive) }} />
+                    ) : (
+                      <SidebarIcon
+                        name={item.icon}
+                        size={item.icon === "customers" ? 24 : 20}
+                        color={iconColor(isActive)}
+                      />
+                    )}
+                  </IconBox>
+
+                  <Box
+                    component="span"
                     sx={{
-                      marginLeft: "auto",
-                      color: theme.palette.primary.main,
-                      fontSize: "20px",
+                      fontSize: isMobile ? "11px" : "14px",
+                      fontWeight: isActive ? 700 : 500,
+                      textAlign: "center",
+                      lineHeight: 1.2,
+                      fontFamily: isActive ? "UrbanistBold" : "UrbanistMedium",
+                      [theme.breakpoints.down("md")]: {
+                        fontSize: "11px",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        maxWidth: "100%",
+                      },
                     }}
-                  />
-                </Box>
-              )}
-            </MenuItem>
-          );
-        })}
+                  >
+                    {isMobile ? item.label.split(" ")[0] : item.label}
+                  </Box>
+
+                  {item.plus && !isMobile && (
+                    <Tooltip title={t("newPaymentLink")} placement="right" arrow>
+                      <QuickAddButton
+                        active={isActive}
+                        aria-label={t("newPaymentLink")}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          router.push("/create-pay-link");
+                        }}
+                      >
+                        <AddIcon sx={{ fontSize: "16px", color: "inherit" }} />
+                      </QuickAddButton>
+                    </Tooltip>
+                  )}
+                </MenuItem>
+              );
+            })}
+          </Box>
+        ))}
       </Menu>
       {/* Referral and Knowledge Base Section */}
       <ReferralAndKnowledge isMobile={isMobile} />
