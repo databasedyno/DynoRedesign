@@ -5,6 +5,14 @@ USDT-TRC20 payment gateway platform. Users can create companies, wallets, paymen
 
 ## What's Been Implemented
 
+### 2026-07-08 — PROD bug fix: Google auth button missing on DigitalOcean ✅ VERIFIED (4/4 by testing agent)
+User: dynopay.com (DO App Platform, app id f86b27dc-feb0-4a44-a4e9-ebd2053e0468, repo databasedyno/DynoRedesign@New-Onboarding, dockerfile_path=/Dockerfile, deploy_on_push=true) doesn't show Google button despite NEXT_PUBLIC_ENABLE_GOOGLE_AUTH=true in DO env. Investigated via user-supplied DO API token.
+- ROOT CAUSE: DO spec HAS the env (scope RUN_AND_BUILD_TIME, passed as docker build-arg) but the Dockerfile frontend-builder stage never declared `ARG NEXT_PUBLIC_ENABLE_GOOGLE_AUTH` — Docker silently drops undeclared build args → `yarn build` inlined undefined → flag false in prod bundle → button hidden (login.tsx ~1818 / register.tsx ~420 gate on === "true").
+- FIX: added `ARG NEXT_PUBLIC_ENABLE_GOOGLE_AUTH=` + `ENV ...=${...}` before `RUN yarn build` in BOTH /app/Dockerfile and /app/Dockerfile.frontend.
+- Verified 4/4: Dockerfiles static ✅; preview shows button on login+register and click invokes GIS initTokenClient with client_id 163670787265-… ✅; prod dynopay.com/auth/login confirmed button ABSENT (pre-fix build) ✅; preview /api/ + /api/csrf-token 200 ✅.
+- ⚠️ PENDING USER ACTION: push to GitHub (Save to GitHub → New-Onboarding) so DO rebuilds — agents must not git-push.
+- 🔎 BONUS FINDING (not yet fixed): DO env NEXTAUTH_SECRET is the literal string "openssl rand -base64 32" (the command, not a secret). Harmless for primary GIS flow (/api/user/google-signin) but breaks NextAuth fallback (/api/auth/*). Offer to fix via DO API (triggers redeploy).
+
 ### 2026-07-08 — Language detection: IP wins over browser language for first-time visitors ✅ VERIFIED (4/4)
 User (US IP) saw Portuguese — root-caused: browser-language previously took effect before async IP geo-detect, and a sticky `lang_manual` choice bypasses geo forever. User picked option (b): IP-based detection should WIN for first-time visitors.
 - `i18n.js::applyDetectedLanguage()` restructured: RETURNING visitors (saved `lang`) → apply saved lang instantly, geo refines in background (non-manual only). FIRST-TIME visitors → stay on SSR English, AWAIT `/api/geo-detect`, apply country locale; fall back to browser/timezone (`clientDetectedLang`) ONLY if geo lookup fails.
