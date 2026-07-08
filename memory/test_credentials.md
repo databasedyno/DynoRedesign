@@ -62,3 +62,9 @@ Header required: `User-Agent: Mozilla/5.0 ... Chrome/120 Safari/537.36`
 - JWT access tokens expire after 30 days.
 - OTP rate limiter: 10 requests per IP:contact combo per 15 minutes.
 - Login activity is recorded in `tbl_login_activities` on every successful login.
+
+## GitHub OAuth (added 2026-07-08, session 5)
+- OAuth App Client ID: Ov23liyOOHYelH9Y6Vp0 (secret in /app/backend/.env GITHUB_CLIENT_SECRET)
+- Registered callback: https://dynopay.com/auth/github/callback (PROD ONLY — preview end-to-end will fail redirect_uri validation unless a 2nd dev OAuth app is created with the preview callback)
+- Flow: login/register GitHub icon button → github.com authorize → /auth/github/callback → POST /api/user/github-signin {code, redirectUri} (CSRF-protected)
+- login_type enum now includes 'GITHUB'; GitHub identity stored as external_id='github:<id>'
