@@ -163,7 +163,11 @@ const FeeFreeWelcomeModal: React.FC = () => {
     router.push("/create-pay-link");
   };
 
+  // Belt-and-suspenders: even if `open` somehow got set true, refuse to render
+  // when there's nothing left in the trial. Guards against any future code path
+  // that flips `open` without re-checking the balance.
   if (!open) return null;
+  if (remaining <= 0) return null;
 
   const dark = theme.palette.mode === "dark";
 

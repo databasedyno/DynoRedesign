@@ -1,3 +1,271 @@
+## 2026-07-08 SESSION 6d VERIFICATION — CRITICAL BUG FIXES + 4 PARTIAL ITEMS ⚠️ MIXED RESULTS
+
+### TEST EXECUTION
+- **agent:** testing (auto_frontend_testing_agent)
+- **test_date:** 2026-07-08 17:18-17:25 UTC
+- **test_url:** https://3aa3b1bf-2a1d-4662-bf6d-dc9fe9ad2c6c.preview.emergentagent.com
+- **verification_method:** Playwright UI testing with JWT injection (READ-ONLY, no mutations)
+- **test_accounts:** hostbay@moxx.co (user_id=1), qa.empty (user_id=8), qa.onboard (user_id=3)
+- **safety_compliance:** ✅ NO forms submitted, NO data mutations
+
+### OVERALL RESULT: ⚠️ 1 PASS / 6 FAIL (1 critical bug found)
+
+---
+
+### PRIORITY-1: CRITICAL BUG FIXES
+
+#### ✅ BUG-FIX-1: FeeFreeWelcomeModal correctly hidden for hostbay — PASS
+**Test:** Modal must NOT show for hostbay (trial exhausted, fee_free_remaining_usd=0)
+- ✅ Modal does NOT exist on /dashboard after 5s wait
+- ✅ API `/api/company/fee-free-status` returns `is_fee_free=False, remaining=0`
+- ✅ Dashboard renders normally with no modal overlay
+- **Evidence:** `.screenshots/bugfix1_dashboard_hostbay.png`
+
+#### ❌ BUG-FIX-2: Preview mode banner NOT showing for qa.empty — **CRITICAL FAIL**
+**Test:** Banner MUST show for qa.empty (no company, no wallet, no API key)
+- ❌ Banner with "Preview mode" text is **NOT VISIBLE** on `/create-pay-link`
+- ❌ Orange warning banner not found (searched by text + background color)
+- ❌ CTAs "Complete setup" and "Add payout wallet" not present
+- **Expected behavior:** Banner should show when `!hasCompanyForBanner || !hasConfiguredWallet || !hasActiveApiKey`
+- **Actual:** qa.empty has no company, no wallet, no API key → banner SHOULD show but doesn't
+- **Evidence:** `.screenshots/bugfix2_fail_no_banner.png`
+- **Root cause:** Needs investigation — component logic in `Components/Page/CreatePaymentLink/index.tsx` line 784 may not be evaluating correctly
+
+---
+
+### PRIORITY-2: PARTIAL ITEMS FROM PRIOR RUN
+
+#### ❌ PARTIAL-1: Active Wallets card collapse toggle — FAIL
+**Test:** Toggle button should collapse/expand wallet icons, persist in localStorage
+- ❌ Toggle button NOT FOUND with current selectors
+- ✅ Active Wallets card renders correctly on /dashboard
+- ✅ Card shows "13" active wallets for hostbay
+- **Issue:** Button selector `button[aria-label*="Compact"], button[aria-label*="Show wallets"]` returns 0 matches
+- **Code reference:** `DashboardLeftSection.tsx` line 578-604 — button has `aria-label` and wallet icon
+- **Evidence:** `.screenshots/partial1_state1_expanded.png` shows card but toggle not identified
+
+#### ❌ PARTIAL-2: Empty pay-links → template navigation — BLOCKED
+**Test:** Click "Sell a product" chip → navigate to `/create-pay-link?template=product&amount=99`
+- ✅ Empty state with 4 template chips found on `/pay-links`
+- ❌ Click on "Sell a product" chip **BLOCKED** by FeeFreeWelcomeModal overlay
+- **Issue:** qa.onboard has `fee_free_remaining_usd=500` → modal correctly shows, but blocks interaction
+- **Playwright error:** `<div data-testid="fee-free-welcome-modal"> intercepts pointer events`
+- **Evidence:** `.screenshots/partial2_empty_state.png` shows modal blocking click
+- **Note:** Template functionality itself may be working, but cannot verify due to modal
+
+#### ❌ PARTIAL-3: Mobile Advanced options accordion — FAIL
+**Test:** Accordion should hide Customer Email field until clicked (mobile 375×812)
+- ❌ Advanced options accordion **NOT FOUND** on mobile `/create-pay-link`
+- **Searched for:** Text "Advanced options", `<details>` elements, accordion patterns
+- **Issue:** Selector not matching or component not rendering on mobile
+- **Code reference:** `CreatePaymentLink/index.tsx` mentions `<details>` "Advanced options" accordion
+- **Evidence:** `.screenshots/partial3_before_expand.png` (test incomplete)
+
+#### ❌ PARTIAL-4: Mobile pay-link form focused fields — FAIL
+**Test:** Verify core fields visible above accordion, Customer Email + Tax inside
+- ❌ Could not verify — Advanced options accordion not found (prerequisite for PARTIAL-3)
+- **Status:** Test not executed due to PARTIAL-3 failure
+
+---
+
+### REGRESSION SPOT-CHECKS
+
+#### ⚠️ REGRESSION: PARTIAL PASS
+- ✅ `/api/csrf-token` = 200
+- ⚠️ `/health` = 404 (expected — Next.js frontend route, not backend API)
+- ✅ No red console errors on /dashboard, /create-pay-link, /settings, /pay-links, /wallet
+- ❌ **Fee-free banner NOT showing** for qa.onboard on /dashboard or /wallet
+  - **Expected:** Top-strip banner "You're in! First $500 fee-free" should render
+  - **Actual:** Banner not visible (searched for text "fee-free", "$500")
+  - **User has:** `fee_free_remaining_usd=500`, `fee_tier=trial`
+  - **Issue:** `FeeFreeWelcomeModal` shows (correctly), but persistent top-banner missing
+
+---
+
+### DETAILED FINDINGS
+
+#### 🔴 CRITICAL: BUG-FIX-2 Preview Banner Not Showing
+**Component:** `Components/Page/CreatePaymentLink/index.tsx` line 772-784
+
+**Logic:**
+```typescript
+const showActivationBanner = (!hasCompanyForBanner || !hasConfiguredWallet || !hasActiveApiKey) && !apiState?.loading;
+```
+
+**qa.empty state:**
+- `hasCompanyForBanner`: Should be `false` (no company)
+- `hasConfiguredWallet`: Should be `false` (no wallet)
+- `hasActiveApiKey`: Should be `false` (no API key)
+- `apiState?.loading`: Should be `false` after 4s wait
+
+**Hypothesis:** One of these conditions is not evaluating correctly. Possible causes:
+1. `companyListForBanner` is not empty (may include placeholder/default company)
+2. `walletList` contains placeholder rows (similar to issue #6 from session 6d)
+3. `apiState?.loading` is stuck `true` or `apiState` is undefined
+4. Banner render is conditional on another hidden state
+
+**Recommendation:** Add console logging to debug which condition is failing:
+```typescript
+console.log('Banner debug:', { hasCompanyForBanner, hasConfiguredWallet, hasActiveApiKey, loading: apiState?.loading, showActivationBanner });
+```
+
+#### 🟡 MODERATE: Fee-Free Banner Missing for qa.onboard
+**Component:** `Components/UI/FeeFreeBanner/index.tsx` (session 6c)
+
+**Expected:** Persistent top-strip banner on every logged-in page (except /auth, /pay/, /checkout, /kyc, /system-status)
+
+**Actual:** Banner not visible on /dashboard or /wallet for qa.onboard
+
+**User state:**
+- `fee_free_remaining_usd`: 500.00
+- `fee_tier`: trial
+- `cumulative_volume_usd`: 0.00
+
+**Hypothesis:** Banner may be:
+1. Dismissed via localStorage flag (check `localStorage` for dismiss key)
+2. Not mounted in `Containers/Client/index.tsx` (verify component import/render)
+3. Hidden by CSS (z-index, display:none, visibility:hidden)
+4. Conditional on additional state (e.g., `email_verified`, `has_company`)
+
+**Note:** `FeeFreeWelcomeModal` (one-time popup) IS showing correctly for qa.onboard, but the persistent banner is missing.
+
+#### 🟡 MODERATE: Active Wallets Toggle Button Selector
+**Component:** `Components/Page/Dashboard/DashboardLeftSection.tsx` line 578-604
+
+**Code:**
+```typescript
+<IconButton
+  onClick={toggleWalletCardCompact}
+  aria-label={walletCardCompact ? "Show wallets" : "Compact view"}
+  sx={{ padding: "8px", width: isMobile ? "32px" : "40px", height: isMobile ? "32px" : "40px" }}
+>
+  <Image src={WalletIcon} alt="Wallet Icon" ... />
+</IconButton>
+```
+
+**Issue:** Playwright selector `button[aria-label*="Compact"], button[aria-label*="Show wallets"]` returns 0 matches
+
+**Possible causes:**
+1. `aria-label` text is localized (not "Compact view" in English)
+2. Button is inside a shadow DOM or iframe
+3. Button is rendered but not in viewport (need scroll)
+4. `tDashboard("compactWallets")` / `tDashboard("expandWallets")` returns different text
+
+**Recommendation:** Use more specific selector:
+```typescript
+// Find button inside Active Wallets card that contains wallet icon
+page.locator('text="Active Wallets"').locator('..').locator('button').filter({ has: page.locator('img[alt="Wallet Icon"]') })
+```
+
+#### 🟡 MODERATE: Advanced Options Accordion Not Found (Mobile)
+**Component:** `Components/Page/CreatePaymentLink/index.tsx` (mentioned in session 6d fix #9)
+
+**Expected:** `<details>` element with summary "⚙️ Advanced options" containing Customer Email + Tax fields
+
+**Issue:** Element not found on mobile viewport (375×812)
+
+**Possible causes:**
+1. Accordion is desktop-only (not rendered on mobile)
+2. Text is localized (not "Advanced options" in English)
+3. Component uses different HTML structure (not `<details>`)
+4. Accordion is below fold (need scroll)
+
+**Recommendation:** Search for:
+```typescript
+// Try multiple selectors
+page.locator('details')
+page.locator('summary')
+page.locator('text=/advanced/i')
+page.locator('[data-testid*="advanced"]')
+```
+
+---
+
+### SCREENSHOTS CAPTURED
+1. `bugfix1_dashboard_hostbay.png` — Dashboard with no modal (PASS)
+2. `bugfix2_fail_no_banner.png` — /create-pay-link with no preview banner (FAIL)
+3. `partial1_state1_expanded.png` — Active Wallets card (toggle not found)
+4. `partial2_empty_state.png` — Pay-links empty state (modal blocking)
+5. `investigate_bugfix2_full_page.png` — Full page scan for orange banner
+6. `investigate_partial1_wallets_card.png` — Close-up of Active Wallets card
+7. `investigate_partial3_mobile_full.png` — Mobile /create-pay-link full page
+
+---
+
+### SUMMARY FOR MAIN AGENT
+
+#### ✅ WORKING
+- FeeFreeWelcomeModal correctly hidden for trial-exhausted users (hostbay)
+- Dashboard, wallet, pay-links, settings pages load without errors
+- Backend API `/api/csrf-token` returns 200
+
+#### ❌ CRITICAL FAILURES
+1. **Preview mode banner NOT showing for qa.empty** on `/create-pay-link`
+   - User has no company, no wallet, no API key → banner SHOULD show
+   - Component logic at `CreatePaymentLink/index.tsx:784` may not be evaluating correctly
+   - **ACTION:** Debug `showActivationBanner` condition — add logging to identify which check is failing
+
+#### ❌ MODERATE FAILURES
+2. **Fee-free persistent banner missing** for qa.onboard on /dashboard + /wallet
+   - User has $500 remaining → banner SHOULD show
+   - `FeeFreeWelcomeModal` (popup) works, but `FeeFreeB anner` (top-strip) doesn't
+   - **ACTION:** Verify `FeeFreeB anner` is mounted in `Containers/Client/index.tsx` and not dismissed
+
+3. **Active Wallets toggle button not found** with current selectors
+   - Card renders, but toggle button selector doesn't match
+   - **ACTION:** Use more specific selector (button with wallet icon inside Active Wallets card)
+
+4. **Template navigation blocked** by FeeFreeWelcomeModal for qa.onboard
+   - Modal correctly shows (user has $500 trial), but blocks clicks on pay-links page
+   - **ACTION:** Dismiss modal before testing template chips, OR test with hostbay (no modal)
+
+5. **Advanced options accordion not found** on mobile
+   - Cannot verify Customer Email field hiding/showing
+   - **ACTION:** Verify accordion renders on mobile, check localized text, try `<details>` selector
+
+---
+
+### NEXT ACTION ITEMS FOR MAIN AGENT
+
+**HIGH PRIORITY:**
+1. **FIX BUG-FIX-2:** Investigate why preview banner not showing for qa.empty
+   - Add debug logging to `showActivationBanner` condition
+   - Check `companyListForBanner`, `walletList`, `apiState` values
+   - Verify banner render logic at line 889-980
+
+2. **FIX REGRESSION:** Investigate why fee-free persistent banner missing for qa.onboard
+   - Verify `FeeFreeB anner` component is imported and rendered in `Containers/Client/index.tsx`
+   - Check localStorage for dismiss flags
+   - Verify banner conditions (should show when `fee_free_remaining_usd > 0`)
+
+**MEDIUM PRIORITY:**
+3. **FIX PARTIAL-1:** Update Active Wallets toggle button selector
+   - Use more specific selector (button with wallet icon inside card)
+   - OR add `data-testid="wallet-toggle-button"` to button
+
+4. **FIX PARTIAL-3/4:** Verify Advanced options accordion on mobile
+   - Check if accordion renders on mobile viewport
+   - Verify `<details>` element exists
+   - Add `data-testid="advanced-options-accordion"` for easier testing
+
+**LOW PRIORITY:**
+5. **RE-TEST PARTIAL-2:** After fixing modal issue, verify template navigation
+   - Test with hostbay (no modal) OR dismiss modal before clicking chips
+   - Verify URL params `?template=product&amount=99`
+   - Verify form pre-fill (amount, title, description)
+
+---
+
+### TESTING NOTES
+- All tests were READ-ONLY (no forms submitted, no data mutations)
+- JWT injection used for authentication (bypassed OTP)
+- Desktop viewport: 1440×900, Mobile viewport: 375×812
+- Total test duration: ~7 minutes
+- Some tests incomplete due to component not found or modal blocking
+
+---
+
+
 ## 2026-07-08 SESSION 6d — END-TO-END UX AUDIT REMEDIATION (13/14 fixes)
 
 Context: user requested "FIX ALL" 14 UX issues from the audit report at `/app/.screenshots/UX_AUDIT_REPORT.md` (overall score 3.2/5). All fixes shipped in preview; frontend hot-reloaded successfully; every affected route returns HTTP 200.

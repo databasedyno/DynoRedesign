@@ -757,6 +757,7 @@ const CreatePaymentLinkPage = ({
 
   // Dynamically compute which wallets are not set up based on actual wallet data
   const walletList = useSelector((state: any) => state.walletReducer?.walletList ?? []);
+  const companyListForBanner = useSelector((state: any) => state?.companyReducer?.companyList ?? []);
   const walletNotSetUp = useMemo(() => {
     const configuredTypes = new Set(
       walletList
@@ -767,6 +768,20 @@ const CreatePaymentLinkPage = ({
       .map((item) => item.label)
       .filter((label) => !configuredTypes.has(label));
   }, [walletList, ALL_CRYPTO_ITEMS]);
+
+  // UX-2026-07-08: "Preview mode" banner — show whenever the user is missing
+  // ANY of the prerequisites for accepting real money on this link:
+  //   • no company,   OR
+  //   • no configured payout wallet,   OR
+  //   • no active API key.
+  // Previously only the API-key check ran, which hid the banner from the exact
+  // audience the "Preview mode" flow was built for (brand-new empty users).
+  const hasCompanyForBanner = companyListForBanner.length > 0;
+  const hasConfiguredWallet = useMemo(
+    () => walletList.some((w: any) => Boolean(w?.wallet_address && String(w.wallet_address).trim().length > 0)),
+    [walletList],
+  );
+  const showActivationBanner = (!hasCompanyForBanner || !hasConfiguredWallet || !hasActiveApiKey) && !apiState?.loading;
 
   // UX-2026-07-08: Pre-select the 3 most-popular cryptos (BTC / ETH / USDT-ERC20)
   // intersected with what the merchant actually has wallets configured for.
@@ -871,7 +886,7 @@ const CreatePaymentLinkPage = ({
           borderRadius: { xs: "8px", md: "14px" },
         }}
       >
-        {!hasActiveApiKey && !apiState?.loading && (
+        {showActivationBanner && (
           <Box
             sx={{
               display: "flex",
