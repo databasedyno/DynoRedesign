@@ -6,6 +6,7 @@ import {
   DASHBOARD_RECENT_TX_FETCH,
   DASHBOARD_ERROR,
   DASHBOARD_INIT,
+  DASHBOARD_CHART_INIT,
 } from "../Actions/DashboardAction";
 
 export interface DashboardState {
@@ -85,6 +86,12 @@ const dashboardReducer = (
       return {
         ...state,
         loading: true,
+      };
+
+    case DASHBOARD_CHART_INIT:
+      return {
+        ...state,
+        chartLoading: true,
       };
 
     case DASHBOARD_FETCH:

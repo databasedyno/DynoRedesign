@@ -24,7 +24,14 @@ export const NavigationBar = styled(Box, {
     alignItems: "center",
     justifyContent: "flex-start",
     gap: expanded ? "16px" : "6px",
-    background: theme.palette.primary.light,
+    // OPAQUE surface — primary.light is a translucent brand tint
+    // (rgba(10,10,10,0.06) light / rgba(204,255,0,0.14) dark). Using it
+    // directly as the background let page content bleed through this
+    // floating pill on every device size that shows it (< lg breakpoint).
+    // Layering the tint over the opaque paper color keeps the same look
+    // while making the surface fully opaque.
+    backgroundColor: theme.palette.background.paper,
+    backgroundImage: `linear-gradient(0deg, ${theme.palette.primary.light}, ${theme.palette.primary.light})`,
     borderRadius: expanded ? "30px" : "50px",
     padding: expanded ? "20px" : "8px",
     maxWidth: "100%",

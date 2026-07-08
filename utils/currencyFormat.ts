@@ -133,4 +133,20 @@ export const formatCryptoAmount = (amount: number | string, currency: string): s
   return formatWithSeparators(numAmount, currency, 2);
 };
 
+/**
+ * Round overly-long decimal numbers inside a free-text string.
+ * Fixes float artifacts stored in historical notification messages, e.g.
+ * "received 0.00033163515000000004 BTC" → "received 0.00033164 BTC".
+ * Only numbers with 9+ fractional digits are touched (legit on-chain
+ * amounts never exceed 8 decimals), so tx ids/dates/short amounts are safe.
+ */
+export const roundLongDecimalsInText = (text?: string | null): string => {
+  if (!text) return text ?? "";
+  return text.replace(/\d+\.\d{9,}/g, (match) => {
+    const num = parseFloat(match);
+    if (!isFinite(num)) return match;
+    return num.toFixed(8).replace(/0+$/, "").replace(/\.$/, "");
+  });
+};
+
 export default currencyFormats;

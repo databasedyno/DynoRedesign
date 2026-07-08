@@ -22,7 +22,7 @@ import {
   setRedisItemWithTTL,
   softDeleteRedisItem,
 } from "../../utils/redisInstance";
-import { formatAmountForDisplay, getCurrencyInfo } from "../../utils/currencyUtils";
+import { formatAmountForDisplay, getCurrencyInfo, formatCryptoAmount } from "../../utils/currencyUtils";
 import sequelize from "../../utils/dbInstance";
 import { Op, QueryTypes } from "sequelize";
 import jwt from "jsonwebtoken";
@@ -953,7 +953,7 @@ const createCryptoPayment = async (
             return errorResponseHelper(
               res,
               400,
-              `You have an incomplete payment of ${incompletePayment.pending_amount} ${incompletePayment.currency}. ` +
+              `You have an incomplete payment of ${formatCryptoAmount(incompletePayment.pending_amount, incompletePayment.currency)} ${incompletePayment.currency}. ` +
               `Please complete it or wait for expiry (${remainingMinutes} minutes remaining) before switching currencies.`
             );
           }
@@ -969,7 +969,7 @@ const createCryptoPayment = async (
             is_continuation: true,
             // XRP/RLUSD: Include destination tag for tag-based chains
             ...(incompletePayment.destination_tag && { destination_tag: Number(incompletePayment.destination_tag) }),
-            message: `You have ${remainingMinutes} minutes to complete your payment of ${incompletePayment.pending_amount} ${incompletePayment.currency}`
+            message: `You have ${remainingMinutes} minutes to complete your payment of ${formatCryptoAmount(incompletePayment.pending_amount, incompletePayment.currency)} ${incompletePayment.currency}`
           });
         } else {
           // Grace period expired - clear incomplete payment info and allow new payment

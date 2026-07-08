@@ -231,10 +231,33 @@ export const convertToMultiple = async (
   });
 };
 
+/**
+ * Format a crypto (or stablecoin) amount for human-readable display.
+ * Fixes float artifacts like 0.00033163515000000004 → "0.00033164".
+ * - Stablecoins / fiat-pegged: max 2 decimals
+ * - All other crypto: max 8 decimals (native precision for BTC/LTC/DOGE/BCH)
+ * - Trailing zeros trimmed ("0.65400000" → "0.654", "100.00" → "100")
+ * NOTE: display-only — never use for on-chain math or stored values.
+ */
+export const formatCryptoAmount = (
+  amount: number | string,
+  currency: string = ''
+): string => {
+  const num = typeof amount === 'number' ? amount : parseFloat(String(amount));
+  if (!isFinite(num)) return String(amount);
+  const upper = String(currency || '').toUpperCase();
+  const isStableOrFiat = /USDT|USDC|BUSD|DAI|USD|EUR|GBP|BRL/.test(upper);
+  const decimals = isStableOrFiat ? 2 : 8;
+  const fixed = num.toFixed(decimals);
+  // toFixed(>0) always contains '.', so trimming trailing zeros is safe
+  return fixed.replace(/0+$/, '').replace(/\.$/, '');
+};
+
 export default {
   getCurrencySymbol,
   formatCurrency,
   formatAmountForDisplay,
+  formatCryptoAmount,
   getCurrencyInfo,
   CURRENCY_SYMBOLS,
   SUPPORTED_BASE_CURRENCIES,

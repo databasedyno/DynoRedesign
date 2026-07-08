@@ -1,11 +1,13 @@
 import { useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { DashboardAction } from "@/Redux/Actions";
+import { DashboardAction, DashboardChartAction } from "@/Redux/Actions";
 import {
   DASHBOARD_FETCH,
   DASHBOARD_CHART_FETCH,
   DASHBOARD_FETCH_ALL,
 } from "@/Redux/Actions/DashboardAction";
+// (DASHBOARD_CHART_FETCH kept for type parity; chart dispatches now go
+// through DashboardChartAction / DASHBOARD_CHART_INIT — see fetchChartData)
 import { UserAction } from "@/Redux/Actions";
 import { USER_PROFILE_FETCH } from "@/Redux/Actions/UserAction";
 import { rootReducer } from "@/utils/types";
@@ -63,8 +65,12 @@ export const useDashboardData = () => {
   const fetchChartData = useCallback(
     (period: string, startDate?: string, endDate?: string) => {
       if (!companiesFetched) return;
+      // Dispatched on its own DASHBOARD_CHART_INIT channel (takeLatest).
+      // The shared DASHBOARD_INIT channel is debounced 400ms — chart fetches
+      // dispatched alongside DASHBOARD_FETCH_ALL on mount were dropped,
+      // leaving the Transaction Volume chart empty for active merchants.
       dispatch(
-        DashboardAction(DASHBOARD_CHART_FETCH, { period, startDate, endDate, company_id: selectedCompanyId })
+        DashboardChartAction({ period, startDate, endDate, company_id: selectedCompanyId })
       );
     },
     [dispatch, selectedCompanyId, companiesFetched]

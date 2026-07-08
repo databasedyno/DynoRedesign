@@ -11,8 +11,8 @@ import { API_INIT } from "../Actions/ApiAction";
 import { ApiSaga } from "./ApiSaga";
 import { TRANSACTION_INIT } from "../Actions/TransactionAction";
 import { TransactionSaga } from "./TransactionSaga";
-import { DASHBOARD_INIT } from "../Actions/DashboardAction";
-import { DashboardSaga } from "./DashboardSaga";
+import { DASHBOARD_INIT, DASHBOARD_CHART_INIT } from "../Actions/DashboardAction";
+import { DashboardSaga, DashboardChartSaga } from "./DashboardSaga";
 import { PAYLINK_INIT } from "../Actions/PaymentLinkAction";
 import { PaymentLinkSaga } from "./PaymentLinkSaga";
 
@@ -26,6 +26,10 @@ function* RootSaga() {
   yield debounce(600, WALLET_INIT, WalletSaga);
   yield takeEvery(TRANSACTION_INIT, TransactionSaga);
   yield debounce(400, DASHBOARD_INIT, DashboardSaga);
+  // Chart fetches MUST NOT share the debounced DASHBOARD_INIT channel:
+  // on dashboard mount DASHBOARD_FETCH_ALL lands in the same 400ms window
+  // and swallowed the chart fetch (empty "Transaction Volume" chart).
+  yield takeLatest(DASHBOARD_CHART_INIT, DashboardChartSaga);
   yield takeEvery(PAYLINK_INIT, PaymentLinkSaga);
 }
 

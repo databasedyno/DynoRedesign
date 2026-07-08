@@ -37,6 +37,7 @@ import {
   userWalletModel,
 } from "../../models";
 import { createNotification, NOTIFICATION_TYPES } from "../notificationController";
+import { formatCryptoAmount } from "../../utils/currencyUtils";
 import {
   sendPartialPaymentNotification,
 } from "../../services/pendingPaymentService";
@@ -2828,7 +2829,7 @@ const cryptoVerification = async (address, webhook = true, overrideRedisKey?: st
           customerData.adm_id,
           NOTIFICATION_TYPES.PAYMENT_RECEIVED,
           "Payment Received",
-          `Your company ${companyName} received ${userAmountToSend} ${tempCurrency}`,
+          `Your company ${companyName} received ${formatCryptoAmount(userAmountToSend, tempCurrency)} ${tempCurrency}`,
           {
             amount: userAmountToSend,
             currency: tempCurrency,

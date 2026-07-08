@@ -109,6 +109,49 @@ function* fetchRecentTransactions(payload: any) {
   }
 }
 
+/* ── Chart series fetch (shared by DashboardSaga + DashboardChartSaga) ── */
+
+function* fetchChartSeries(payload: any): Generator<any, void, any> {
+  const period = payload?.period || "7d";
+  const params: any = { period };
+  if (payload?.company_id) params.company_id = payload.company_id;
+  if (payload?.startDate) params.startDate = payload.startDate;
+  if (payload?.endDate) params.endDate = payload.endDate;
+
+  const response: any = yield call(axiosBaseApi.get, "/dashboard/chart", { params });
+  const apiData = response?.data?.data;
+  if (apiData) {
+    yield put({
+      type: DASHBOARD_CHART_FETCH,
+      payload: {
+        chartData: (apiData.chart_data || []).map((item: any) => ({
+          date: item.date,
+          value: item.volume ?? 0,
+          transactionCount: item.transaction_count ?? 0,
+        })),
+      },
+    });
+  } else {
+    yield put({ type: DASHBOARD_ERROR });
+  }
+}
+
+/* ── Dedicated chart saga ──
+   Watched via takeLatest(DASHBOARD_CHART_INIT) in RootSaga. The main
+   DASHBOARD_INIT channel is debounced (400ms); chart fetches dispatched in
+   the same window as DASHBOARD_FETCH_ALL were dropped, leaving the
+   Transaction Volume chart permanently empty. This channel guarantees the
+   chart request always executes. */
+
+export function* DashboardChartSaga(action: DashboardSagaAction): Generator<any, void, any> {
+  try {
+    yield call(fetchChartSeries, action.payload);
+  } catch (error) {
+    console.error("DashboardChartSaga error:", error);
+    yield put({ type: DASHBOARD_ERROR });
+  }
+}
+
 /* ── Main Saga ── */
 
 export function* DashboardSaga(action: DashboardSagaAction): Generator<any, void, any> {
@@ -132,28 +175,7 @@ export function* DashboardSaga(action: DashboardSagaAction): Generator<any, void
       }
 
       case DASHBOARD_CHART_FETCH: {
-        const period = payload?.period || "7d";
-        const params: any = { period };
-        if (payload?.company_id) params.company_id = payload.company_id;
-        if (payload?.startDate) params.startDate = payload.startDate;
-        if (payload?.endDate) params.endDate = payload.endDate;
-
-        const response: any = yield call(axiosBaseApi.get, "/dashboard/chart", { params });
-        const apiData = response?.data?.data;
-        if (apiData) {
-          yield put({
-            type: DASHBOARD_CHART_FETCH,
-            payload: {
-              chartData: (apiData.chart_data || []).map((item: any) => ({
-                date: item.date,
-                value: item.volume ?? 0,
-                transactionCount: item.transaction_count ?? 0,
-              })),
-            },
-          });
-        } else {
-          yield put({ type: DASHBOARD_ERROR });
-        }
+        yield call(fetchChartSeries, payload);
         break;
       }
 

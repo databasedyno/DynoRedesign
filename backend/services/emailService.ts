@@ -3,6 +3,7 @@ import { apiLogger } from "../utils/loggers";
 import { captureError } from "./errorMonitoringService";
 import { generatePaymentReceipt, getReceiptFilename } from "./pdfReceiptService";
 import { t, normalizeLang, resolveEmailLang } from "../utils/emailI18n";
+import { formatCryptoAmount } from "../utils/currencyUtils";
 import { baseEmailTemplate, getCurrencySymbol, infoBox, dataRow, statusBadge, p, otpBlock, warnText, alertBox, errorBox, successBox, neutralBox, statCard, twoColumnStats, feeRow, feeTotalRow, feeTable, mono } from "../utils/emailTemplate";
 
 /** Dynamic base URL for all email CTA links — uses FRONTEND_URL env var */
@@ -1091,7 +1092,7 @@ export const sendPaymentReceivedEmail = async (
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         ${dataRow(t('labels.amount', L), `<strong>${amount} ${currency}</strong>`)}
-        ${cryptoAmount && cryptoCurrency ? dataRow(t('labels.cryptoAmount', L), `${cryptoAmount} ${cryptoCurrency}`) : ''}
+        ${cryptoAmount && cryptoCurrency ? dataRow(t('labels.cryptoAmount', L), `${formatCryptoAmount(cryptoAmount, cryptoCurrency)} ${cryptoCurrency}`) : ''}
         ${dataRow(t('labels.status', L), statusBadge(t('statusLabels.received', L), 'success'))}
         ${dataRow(t('labels.date', L), dateTimeStr)}
         ${dataRow(t('labels.transactionId', L), `<span style="font-size: 12px; font-family: monospace;">${transactionId}</span>`, true)}
@@ -1131,7 +1132,7 @@ export const sendPaymentPendingEmail = async (
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         ${dataRow(t('labels.amount', L), `<strong>${amount} ${currency}</strong>`)}
-        ${cryptoAmount && cryptoCurrency ? dataRow(t('labels.cryptoAmount', L), `${cryptoAmount} ${cryptoCurrency}`) : ''}
+        ${cryptoAmount && cryptoCurrency ? dataRow(t('labels.cryptoAmount', L), `${formatCryptoAmount(cryptoAmount, cryptoCurrency)} ${cryptoCurrency}`) : ''}
         ${dataRow(t('labels.status', L), statusBadge(t('statusLabels.awaitingConfirmation', L), 'pending'))}
         ${dataRow(t('labels.transactionId', L), `<span style="font-family: monospace; font-size: 13px;">${transactionId}</span>`, true)}
       </table>
@@ -1185,7 +1186,7 @@ export const sendPaymentConfirmingEmail = async (
         <tr><td style="padding: 20px;">
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
             <tr><td style="padding: 8px 0; color: #6b7280; font-size: 14px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; border-bottom: 1px solid #f3f4f6;">${t('labels.amount', L)}</td><td style="padding: 8px 0; color: #1a1a2e; font-size: 16px; font-weight: 600; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; text-align: right; border-bottom: 1px solid #f3f4f6;">${amount} ${currency}</td></tr>
-            ${cryptoAmount && cryptoCurrency ? `<tr><td style="padding: 8px 0; color: #6b7280; font-size: 14px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; border-bottom: 1px solid #f3f4f6;">${t('labels.cryptoAmount', L)}</td><td style="padding: 8px 0; color: #1a1a2e; font-size: 14px; font-weight: 600; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; text-align: right; border-bottom: 1px solid #f3f4f6;">${cryptoAmount} ${cryptoCurrency}</td></tr>` : ''}
+            ${cryptoAmount && cryptoCurrency ? `<tr><td style="padding: 8px 0; color: #6b7280; font-size: 14px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; border-bottom: 1px solid #f3f4f6;">${t('labels.cryptoAmount', L)}</td><td style="padding: 8px 0; color: #1a1a2e; font-size: 14px; font-weight: 600; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; text-align: right; border-bottom: 1px solid #f3f4f6;">${formatCryptoAmount(cryptoAmount, cryptoCurrency)} ${cryptoCurrency}</td></tr>` : ''}
             <tr><td style="padding: 8px 0; color: #6b7280; font-size: 14px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; border-bottom: 1px solid #f3f4f6;">${t('labels.confirmations', L)}</td><td style="padding: 8px 0; color: #1a1a2e; font-size: 14px; font-weight: 600; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; text-align: right; border-bottom: 1px solid #f3f4f6;">${t('paymentConfirming.confirmationsOf', L, { current: currentConfirmations, required: requiredConfirmations })}</td></tr>
             <tr><td colspan="2" style="padding: 12px 0 4px 0;">
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background: #e5e7eb; border-radius: 4px; height: 8px;">
@@ -1485,7 +1486,7 @@ export const sendCustomerPaymentConfirmationEmail = async (
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         ${dataRow(t('labels.status', L), statusBadge(t('statusLabels.complete', L), 'success'))}
         ${dataRow(t('labels.amountPaid', L), `<strong>${amount} ${currency}</strong>`)}
-        ${cryptoAmount && cryptoCurrency ? dataRow(t('labels.cryptoAmount', L), `${cryptoAmount} ${cryptoCurrency}`) : ''}
+        ${cryptoAmount && cryptoCurrency ? dataRow(t('labels.cryptoAmount', L), `${formatCryptoAmount(cryptoAmount, cryptoCurrency)} ${cryptoCurrency}`) : ''}
         ${description ? dataRow(t('labels.description', L), description) : ''}
         ${dataRow(t('labels.transactionId', L), `<span style="font-family: monospace; font-size: 13px;">${transactionId}</span>`)}
         ${transactionReference ? dataRow(t('labels.reference', L), transactionReference) : ''}
@@ -1528,7 +1529,7 @@ export const sendLargeTransactionAlertEmail = async (
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         ${dataRow(t('labels.amount', L), `<strong>${amount} ${currency}</strong>`)}
-        ${dataRow(t('merchant.labels.crypto', L), `${cryptoAmount} ${cryptoCurrency}`)}
+        ${dataRow(t('merchant.labels.crypto', L), `${formatCryptoAmount(cryptoAmount, cryptoCurrency)} ${cryptoCurrency}`)}
         ${customerEmail ? dataRow(t('labels.customer', L), customerEmail) : ''}
         ${dataRow(t('labels.transactionId', L), `<span style="font-family: monospace; font-size: 13px;">${transactionId}</span>`, true)}
       </table>
@@ -2857,7 +2858,7 @@ export const sendFirstPaymentAdminEmail = async (data: {
       ? `${data.days_since_registration} days after registration`
       : "N/A";
 
-    const subject = `🎉 First Payment! — ${merchantName} received ${data.amount} ${data.currency}`;
+    const subject = `🎉 First Payment! — ${merchantName} received ${formatCryptoAmount(data.amount, data.currency)} ${data.currency}`;
 
     const content = `${p(`A merchant has received their <strong>very first payment</strong> on DynoPay! 🎉`)}
     ${infoBox(`
@@ -2866,7 +2867,7 @@ export const sendFirstPaymentAdminEmail = async (data: {
         ${dataRow('Email', data.merchant_email || 'N/A')}
         ${dataRow('Company', data.company_name || 'N/A')}
         ${dataRow('User ID', String(data.user_id))}
-        ${dataRow('Amount', `<strong>${data.amount} ${data.currency}</strong>${data.amount_usd ? ` (~$${data.amount_usd} USD)` : ''}`)}
+        ${dataRow('Amount', `<strong>${formatCryptoAmount(data.amount, data.currency)} ${data.currency}</strong>${data.amount_usd ? ` (~$${data.amount_usd} USD)` : ''}`)}
         ${dataRow('Payment Method', data.payment_method)}
         ${dataRow('Customer', data.customer_email || 'Anonymous')}
         ${dataRow('Transaction ID', data.transaction_id)}

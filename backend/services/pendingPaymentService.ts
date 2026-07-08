@@ -15,7 +15,7 @@ import {
   sendPaymentPartialExpiredEmail
 } from "../helper";
 import { getRedisItem, setRedisItem } from "../utils/redisInstance";
-import { getCompanyBaseCurrency, convertToUSD, convertToFiat } from "../utils/currencyUtils";
+import { getCompanyBaseCurrency, convertToUSD, convertToFiat, formatCryptoAmount } from "../utils/currencyUtils";
 
 /**
  * Convert a received crypto amount into the merchant's fiat display currency
@@ -134,7 +134,7 @@ export const sendPendingPaymentNotification = async (
       user.user_id,
       NOTIFICATION_TYPES.PAYMENT_PENDING,
       "Payment Pending Confirmation",
-      `A payment of ${amount} ${currency} has been detected and is awaiting blockchain confirmation. Transaction ID: ${txId.substring(0, 16)}...`,
+      `A payment of ${formatCryptoAmount(amount, currency)} ${currency} has been detected and is awaiting blockchain confirmation. Transaction ID: ${txId.substring(0, 16)}...`,
       {
         tx_id: txId,
         amount: amount,
@@ -393,7 +393,7 @@ export const sendPartialPaymentNotification = async (
       user.user_id,
       NOTIFICATION_TYPES.PAYMENT_PARTIAL,
       "Partial Payment Received",
-      `A partial payment of ${receivedAmount} ${currency} has been received. Expected: ${expectedAmount} ${currency}. Please send the remaining ${remainingAmount} ${currency} within ${gracePeriodMinutes} minutes to complete this payment.`,
+      `A partial payment of ${formatCryptoAmount(receivedAmount, currency)} ${currency} has been received. Expected: ${formatCryptoAmount(expectedAmount, currency)} ${currency}. Please send the remaining ${formatCryptoAmount(remainingAmount, currency)} ${currency} within ${gracePeriodMinutes} minutes to complete this payment.`,
       {
         tx_id: txId,
         received_amount: receivedAmount,
@@ -488,8 +488,8 @@ export const sendPartialPaymentExpiredNotification = async (
       NOTIFICATION_TYPES.PAYMENT_PARTIAL_EXPIRED,
       isCompleted ? "Partial Payment Processed" : "Partial Payment Expired",
       isCompleted
-        ? `Your partial payment of ${receivedAmount} ${currency} has been processed. The funds have been forwarded with adjusted fees.`
-        : `The grace period for your partial payment has expired. Received ${receivedAmount} of ${expectedAmount} ${currency}. The partial amount has been processed.`,
+        ? `Your partial payment of ${formatCryptoAmount(receivedAmount, currency)} ${currency} has been processed. The funds have been forwarded with adjusted fees.`
+        : `The grace period for your partial payment has expired. Received ${formatCryptoAmount(receivedAmount, currency)} of ${formatCryptoAmount(expectedAmount, currency)} ${currency}. The partial amount has been processed.`,
       {
         tx_id: txId,
         received_amount: receivedAmount,

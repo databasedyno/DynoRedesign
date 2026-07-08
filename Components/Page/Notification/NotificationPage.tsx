@@ -13,6 +13,7 @@ import Toast from "@/Components/UI/Toast";
 import useIsMobile from "@/hooks/useIsMobile";
 import { useNotificationPreferences } from "@/hooks/useNotificationPreferences";
 import { NotificationItemProps } from "@/utils/types/notification";
+import { roundLongDecimalsInText } from "@/utils/currencyFormat";
 import ArrowOutwardIcon from "@mui/icons-material/ArrowOutward";
 import DoneAllIcon from "@mui/icons-material/DoneAll";
 import CircleIcon from "@mui/icons-material/Circle";
@@ -388,7 +389,7 @@ const NotificationPage = () => {
                         WebkitBoxOrient: "vertical",
                       }}
                     >
-                      {notif.message}
+                      {roundLongDecimalsInText(notif.message)}
                     </Typography>
                     <Chip
                       label={notif.type.split("_").map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")}
