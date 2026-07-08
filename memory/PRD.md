@@ -5,6 +5,13 @@ USDT-TRC20 payment gateway platform. Users can create companies, wallets, paymen
 
 ## What's Been Implemented
 
+### 2026-07-08 — Language detection: IP wins over browser language for first-time visitors ✅ VERIFIED (4/4)
+User (US IP) saw Portuguese — root-caused: browser-language previously took effect before async IP geo-detect, and a sticky `lang_manual` choice bypasses geo forever. User picked option (b): IP-based detection should WIN for first-time visitors.
+- `i18n.js::applyDetectedLanguage()` restructured: RETURNING visitors (saved `lang`) → apply saved lang instantly, geo refines in background (non-manual only). FIRST-TIME visitors → stay on SSR English, AWAIT `/api/geo-detect`, apply country locale; fall back to browser/timezone (`clientDetectedLang`) ONLY if geo lookup fails.
+- `detectAndApplyGeoLocale()` now returns boolean (lookup success), persists `lang` even when no switch needed.
+- **Critical gotcha fixed during testing**: `i18n.init()` (LanguageDetector `caches:["localStorage"]` + `languageChanged` listener) writes `lang=en` into localStorage DURING init — a live localStorage read inside `applyDetectedLanguage` made every visitor look like a returning "en" user (broke browser-fallback AND wiped manual pt). Fix: new module-load-time snapshot `savedLangAtBoot` (captured before init) used instead of live read.
+- Verified via browser automation (pt-BR navigator override, US egress IP): (1) first-time pt-browser+US-IP → English, ZERO pt flash; (2) first-time + geo blocked → falls back to Portuguese; (3) returning cached lang=pt non-manual → pt then geo-refined to en; (4) manual pt → stays pt, flags preserved.
+
 ### 2026-07-08 — Fresh container re-provisioned (session 4) ✅
 - Fresh container: no node_modules, no .env files → frontend FATAL. Re-provisioned from user-supplied credentials: `yarn install` in /app + /app/backend; wrote /app/backend/.env, /app/.env, /app/frontend/.env with all app URLs → https://53e54123-59fe-4253-80e3-faf7464c6752.preview.emergentagent.com, preview host in CORS, fresh NEXTAUTH_SECRET. SAFETY overrides: NODE_ENV=production, WORKER_ROLE=secondary, ENABLE_BACKGROUND_JOBS=false (all cron/sweeps/emails skipped — verified in logs). Health: Railway PostgreSQL + Redis connected, internal /api/ /health /api/csrf-token = 200, external preview /api/ + / + /auth/login = 200.
 
