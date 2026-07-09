@@ -5,7 +5,7 @@
 
 const { chromium } = require('playwright');
 
-const PREVIEW_URL = 'https://fast-start-9.preview.emergentagent.com';
+const PREVIEW_URL = 'https://transaction-platform-3.preview.emergentagent.com';
 
 async function testGISIntegration() {
   console.log('='.repeat(80));
