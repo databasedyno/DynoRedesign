@@ -87,12 +87,15 @@ export const GoogleAuthButton: React.FC<GoogleAuthButtonProps> = ({
 
 interface GithubAuthButtonProps {
   onClick: () => void;
+  /** Visible label, e.g. t("continueWithGithub"). Falls back to ariaLabel. */
+  label?: string;
   ariaLabel?: string;
   testId?: string;
 }
 
 export const GithubAuthButton: React.FC<GithubAuthButtonProps> = ({
   onClick,
+  label,
   ariaLabel = "Continue with GitHub",
   testId = "github-auth-btn",
 }) => {
@@ -101,29 +104,64 @@ export const GithubAuthButton: React.FC<GithubAuthButtonProps> = ({
   return (
     <ButtonBase
       data-testid={testId}
-      aria-label={ariaLabel}
+      aria-label={label || ariaLabel}
       onClick={onClick}
       focusRipple
       sx={{
-        width: 88,
+        // Full-width labeled pill matching GoogleAuthButton's geometry so the
+        // two buttons read as one cohesive group (was an 88px icon-only pill
+        // that looked small/disconnected under the big Google button).
+        width: "100%",
         height: 48,
         borderRadius: "24px",
         border: "1px solid",
-        borderColor: dark ? "rgba(255,255,255,0.16)" : "rgba(0,0,0,0.12)",
+        borderColor: dark ? "rgba(255,255,255,0.16)" : "rgba(0,0,0,0.16)",
         backgroundColor: dark ? "rgba(255,255,255,0.06)" : "#f7f7f7",
+        color: dark ? "#ffffff" : "#1f1f1f",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
+        gap: 1.25,
+        px: 2,
         transition: "all 0.2s ease",
         "&:hover": {
           backgroundColor: dark ? "rgba(255,255,255,0.12)" : "#ededed",
           transform: "translateY(-1px)",
+          boxShadow: dark
+            ? "0 4px 14px rgba(0,0,0,0.25)"
+            : "0 4px 14px rgba(0,0,0,0.10)",
         },
       }}
     >
-      <GitHubIcon
-        sx={{ fontSize: 24, color: dark ? "#ffffff" : "#1f1f1f" }}
-      />
+      <Box
+        sx={{
+          // Mirrors the white G-logo circle on the Google pill (inverted).
+          width: 28,
+          height: 28,
+          borderRadius: "50%",
+          backgroundColor: dark ? "#ffffff" : "#131314",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexShrink: 0,
+        }}
+      >
+        <GitHubIcon
+          sx={{ fontSize: 18, color: dark ? "#131314" : "#ffffff" }}
+        />
+      </Box>
+      <Typography
+        component="span"
+        sx={{
+          fontFamily: "UrbanistSemiBold, Urbanist, sans-serif",
+          fontWeight: 600,
+          fontSize: "15px",
+          letterSpacing: 0,
+          lineHeight: 1,
+        }}
+      >
+        {label || ariaLabel}
+      </Typography>
     </ButtonBase>
   );
 };
@@ -134,6 +172,7 @@ interface SocialAuthButtonsProps {
   showGoogle?: boolean;
   showGithub?: boolean;
   onGithub?: () => void;
+  githubLabel?: string;
   githubAriaLabel?: string;
   googleTestId?: string;
   githubTestId?: string;
@@ -145,6 +184,7 @@ const SocialAuthButtons: React.FC<SocialAuthButtonsProps> = ({
   showGoogle = true,
   showGithub = false,
   onGithub,
+  githubLabel,
   githubAriaLabel,
   googleTestId,
   githubTestId,
@@ -164,7 +204,12 @@ const SocialAuthButtons: React.FC<SocialAuthButtonsProps> = ({
         <GoogleAuthButton label={googleLabel} onClick={onGoogle} testId={googleTestId} />
       )}
       {showGithub && onGithub && (
-        <GithubAuthButton onClick={onGithub} testId={githubTestId} ariaLabel={githubAriaLabel} />
+        <GithubAuthButton
+          onClick={onGithub}
+          testId={githubTestId}
+          label={githubLabel}
+          ariaLabel={githubAriaLabel}
+        />
       )}
     </Box>
   );

@@ -5,6 +5,12 @@ USDT-TRC20 payment gateway platform. Users can create companies, wallets, paymen
 
 ## What's Been Implemented
 
+### 2026-07-09 — Session 7b: GitHub auth button redesign ✅ (visually verified light+dark; frontend agent NOT run — presentational only)
+User: GitHub logo on auth pages "looks disconnected or small" (was an 88×48 icon-only pill under the big Google pill).
+- `Components/Common/SocialAuthButtons.tsx::GithubAuthButton` → full-width labeled pill matching GoogleAuthButton geometry (100%×48, radius 24, same typography/hover), new optional `label` prop (falls back to ariaLabel); GitHub mark inside 28px circle mirroring the G-logo circle (light mode: dark #131314 circle + white mark on #f7f7f7 outlined pill; dark mode: white circle + dark mark on rgba(255,255,255,0.06) pill). SocialAuthButtons wrapper gained `githubLabel` passthrough.
+- login.tsx + register.tsx pass `githubLabel={t("continueWithGithub")}` (key already existed ×6 locales). OAuth handlers untouched. testids unchanged (github-login-btn / github-signup-btn). tsc error set identical to baseline (106 pre-existing, 0 new).
+- Verified via screenshots: login light (386×48 "Continue with GitHub" under Google) + register dark — cohesive stacked pill group.
+
 ### 2026-07-08 — Session 7: 3-bug batch (crypto rounding / empty volume chart / transparent nav) ✅ VERIFIED (backend agent 4/4, frontend agent 3/3)
 User reported 3 bugs (screenshots from prod dynopay.com; user had already pushed — all 3 reproduced in current code):
 - **Issue 1 — long crypto amounts in notifications** ("received 0.00033163515000000004 BTC"): backend built messages with raw JS floats. NEW `formatCryptoAmount(amount, currency)` in backend/utils/currencyUtils.ts (8 decimals crypto / 2 stables via /USDT|USDC|BUSD|DAI|USD|EUR|GBP|BRL/, trims trailing zeros, toFixed → no sci-notation) applied at: cryptoSettlement.ts payment-received notification, pendingPaymentService.ts pending+partial×2, cryptoCheckout.ts incomplete-payment msgs×2, emailService.ts first-payment subject+row + `${cryptoAmount} ${cryptoCurrency}` rows×5. Frontend: `roundLongDecimalsInText()` in utils/currencyFormat.ts (regex \d+\.\d{9,} → toFixed(8) trimmed) applied in NotificationPage message render so HISTORICAL stored messages display rounded (DB untouched; RecentTransactionsWidget already rounded).

@@ -485,6 +485,7 @@ const Register = () => {
                           showGoogle={process.env.NEXT_PUBLIC_ENABLE_GOOGLE_AUTH === "true"}
                           showGithub={process.env.NEXT_PUBLIC_ENABLE_GITHUB_AUTH === "true"}
                           onGithub={handleGithubLogin}
+                          githubLabel={t("continueWithGithub")}
                           githubAriaLabel={t("continueWithGithub")}
                           googleTestId="google-signup-btn"
                           githubTestId="github-signup-btn"
