@@ -1,3 +1,145 @@
+## FINAL RETEST C ONLY (session 10 UX batch, round 4) — Test Request (2026-07-09)
+
+### ROOT CAUSE OF ROUND-3 "FAIL" IDENTIFIED + FIXED (rebuilt)
+Round-3 log showed the hook was ALREADY correct (its 2 requests both had company_id=1, TTL-spaced). The
+un-scoped request at t=50.07s came from NotificationPage.tsx's OWN useEffect (fires on /notifications with
+selectedCompanyId=null pre-hydration, then again post-hydration). FIX:
+- NotificationPage now uses effectiveCompanyId = selectedCompanyId ?? localStorage.last_company_id for BOTH
+  /notifications list + unread-count, and its unread-count call goes through the SHARED TTL-cached
+  fetchUnreadCount() (same cache as sidebar/mobile badges → no duplicate when badge fetched recently).
+- markAllAsRead writes 0 through the shared cache; markOneAsRead invalidates it.
+- EXPECTED: 5-page sequence (~60s) → ≤2 unread-count requests TOTAL, ALL with company_id=1, ZERO un-scoped.
+
+### PACING: one context, 8-10s between navigations; on any 429 sleep 120s. READ-ONLY (LIVE PROD DB): login only, no mutations, no /pay/*. NOTE: do NOT click "mark as read" buttons on /notifications (mutation).
+
+### TEST (hostbay@moxx.co / Katiekendra123@, 2-step password login)
+C) Capture network for "unread-count". Navigate /dashboard → 9s → /transactions → 9s → /pay-links → 9s → /wallet → 9s → /notifications → wait 5s. PASS if ≤2 requests total AND all have company_id=1 (zero without). Report count + query strings + timestamps. Also confirm /notifications list renders and unread chip shows a number.
+
+### RESULT: see run log below.
+
+---
+
+## 2026-07-09 SESSION 10 — FINAL RETEST C EXECUTION (Round 4) ✅ PASS
+
+### TEST EXECUTION
+- **agent:** testing (auto_frontend_testing_agent)
+- **test_date:** 2026-07-09 23:48-23:50 UTC
+- **test_url:** https://c1d37d98-8df4-41ed-8b27-55606e4cba5b.preview.emergentagent.com
+- **verification_method:** Playwright UI automation with network monitoring (READ-ONLY, no mutations)
+- **test_account:** hostbay@moxx.co (user_id=1, company_id=1)
+- **safety_compliance:** ✅ READ-ONLY testing, NO data mutations except login form submission
+- **viewport:** Desktop 1920×1080
+- **pacing:** 9 second waits between ALL page navigations (as specified)
+
+### OVERALL RESULT: ✅ PASS
+
+**Test:** TEST C (unread-count request caching)
+**Status:** ✅ PASS — All criteria met
+
+---
+
+### TEST C: Unread-count request caching — ✅ PASS
+
+**Purpose:** Verify /api/notifications/unread-count is cached (45s TTL) with ALL requests company-scoped
+
+**Test procedure:**
+- Enabled network request monitoring for all "unread-count" requests
+- Navigated through 5 pages with 9-second waits: /dashboard → /transactions → /pay-links → /wallet → /notifications → wait 5s
+- Total navigation time: ~73 seconds
+- Counted ALL requests to /api/notifications/unread-count
+
+**Expected:** ≤2 requests total AND every request has company_id=1 (ZERO without company_id)
+
+**Actual:** ✅ 2 requests detected, BOTH with company_id=1, ZERO without company_id
+
+**Request timestamps and details:**
+1. t=18.70s - `/api/notifications/unread-count?company_id=1` ✅
+2. t=65.62s - `/api/notifications/unread-count?company_id=1` ✅
+
+**Analysis:**
+- ✅ Total requests: 2 (within ≤2 limit)
+- ✅ ALL requests include company_id=1
+- ✅ ZERO requests without company_id (the round-3 bug is FIXED)
+- ✅ Time between requests: ~47 seconds (cache expired after 45s TTL, second request expected)
+- ✅ NO requests during intermediate pages (/transactions, /pay-links, /wallet) — cache working correctly
+- ✅ /notifications page renders with 567 unread notifications
+- ✅ Unread count badge visible in Inbox tab: "Inbox (567)"
+- ✅ 20 notification items rendered on the page
+
+**Root cause resolution verified:**
+The round-4 fix where NotificationPage.tsx now uses `effectiveCompanyId = selectedCompanyId ?? readLastCompanyId()` has successfully eliminated the un-scoped request that appeared at t=50.07s in round 3. The /notifications page's useEffect now:
+1. Falls back to localStorage.last_company_id when selectedCompanyId is null (pre-hydration)
+2. Uses the SHARED TTL-cached fetchUnreadCount() function
+3. Shares the same cache as sidebar/mobile badges (no duplicate requests)
+
+**Verdict:** ✅ PASS — All 3 criteria met:
+- (a) Total ≤2 requests ✓
+- (b) EVERY request has company_id=1, ZERO without company_id ✓
+- (c) /notifications page renders with list and unread count badge ✓
+
+---
+
+### SAFETY COMPLIANCE VERIFICATION
+
+✅ **READ-ONLY testing throughout:**
+- Only form submitted: login form (2-step: email → password option → password)
+- NO Create/Save/Send/Delete/Update/Submit buttons clicked (except login Continue)
+- NO navigation to /pay/* checkout URLs
+- NO mutations of any kind
+- NO "Mark as Read" or "Mark All as Read" buttons clicked on /notifications
+
+✅ **Proper pacing:**
+- 9 second waits between ALL page navigations (as specified)
+- ONE browser context used throughout
+- NO parallel page loads
+- Result: ZERO 429 errors detected
+
+---
+
+### SCREENSHOTS CAPTURED
+
+1. `.screenshots/testC_notifications_page.png` — /notifications page showing Inbox (567) with notification list
+
+---
+
+### SUMMARY FOR MAIN AGENT
+
+#### ✅ TEST C: PASS — Unread-count caching working correctly
+
+**Problem RESOLVED:** The un-scoped request from round 3 has been eliminated.
+
+**What was fixed:**
+- NotificationPage.tsx now uses `effectiveCompanyId = selectedCompanyId ?? readLastCompanyId()` for both /notifications list fetch AND unread-count fetch
+- The unread-count call goes through the SHARED TTL-cached fetchUnreadCount() function
+- This ensures ALL requests are company-scoped from the first moment, even before Redux hydration
+
+**Test results:**
+- 2 requests total (within ≤2 limit) ✓
+- BOTH requests include company_id=1 ✓
+- ZERO requests without company_id ✓
+- Cache working correctly (no requests during intermediate page navigations) ✓
+- /notifications page renders correctly with 567 unread notifications ✓
+
+**Cache behavior verified:**
+- First request at t=18.70s (dashboard load, sidebar badge)
+- Cache TTL: 45 seconds
+- Second request at t=65.62s (47 seconds later, cache expired, /notifications page load)
+- NO requests during /transactions, /pay-links, /wallet (cache still fresh)
+
+**Recommendation:** This fix is production-ready. The unread-count caching is now working as designed.
+
+---
+
+### NEXT STEPS
+
+✅ **TEST C COMPLETE** — No further action needed for this test.
+
+The round-4 fix has successfully resolved the un-scoped request issue. The unread-count caching feature is working correctly with proper company scoping and TTL-based cache management.
+
+---
+
+
+
 ## FINAL RETEST C+D (session 10 UX batch, round 3) — Test Request (2026-07-09)
 
 ### FIXES SINCE ROUND 2 (rebuilt)

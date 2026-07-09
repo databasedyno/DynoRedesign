@@ -70,7 +70,7 @@ const inflight = new Map<string, Promise<number>>();
 // Mirrors Redux companyReducer's persisted selection so the very first fetch
 // after a full page load is already company-scoped (Redux hydrates a moment
 // later; without this we'd fire an un-scoped duplicate request first).
-function readLastCompanyId(): number | null {
+export function readLastCompanyId(): number | null {
   if (typeof window === "undefined") return null;
   try {
     const val = window.localStorage.getItem("last_company_id");
@@ -91,8 +91,7 @@ function getFreshCached(companyId: unknown): number | null {
   return null;
 }
 
-function fetchUnreadCount(companyId: unknown): Promise<number> {
-  const key = cacheKey(companyId);
+function fetchUnreadCount(companyId: unknown): Promise<number> {  const key = cacheKey(companyId);
 
   // Fresh cache → no network.
   const cached = getFreshCached(companyId);
@@ -120,6 +119,27 @@ function fetchUnreadCount(companyId: unknown): Promise<number> {
 
   inflight.set(key, request);
   return request;
+}
+
+export { fetchUnreadCount };
+
+/**
+ * Write-through update of the shared cached count (e.g. after "mark all as
+ * read" we know the count is 0) so the sidebar/mobile badges reflect the
+ * change immediately without another request.
+ */
+export function setCachedUnreadCount(companyId: unknown, count: number) {
+  countCache.set(cacheKey(companyId), { count, ts: Date.now() });
+  persistCache();
+}
+
+/**
+ * Drop the cached count (e.g. after marking a single notification read) so
+ * the next badge poll refetches a fresh value.
+ */
+export function invalidateUnreadCountCache(companyId: unknown) {
+  countCache.delete(cacheKey(companyId));
+  persistCache();
 }
 
 export function useUnreadNotificationsCount(): number {

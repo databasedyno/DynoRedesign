@@ -22,6 +22,12 @@ import { useTranslation } from "react-i18next";
 import axiosBaseApi from "@/axiosConfig";
 import { useSelector } from "react-redux";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
+import {
+  fetchUnreadCount,
+  readLastCompanyId,
+  setCachedUnreadCount,
+  invalidateUnreadCountCache,
+} from "@/hooks/useUnreadNotificationsCount";
 import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
 import NotificationsOffIcon from "@mui/icons-material/NotificationsOff";
 import TransactionDetailsModal from "@/Components/Page/Transactions/TransactionDetailsModal";
@@ -104,6 +110,10 @@ const NotificationPage = () => {
   const selectedCompanyId = useSelector(
     (state: any) => state?.companyReducer?.selectedCompanyId
   );
+  // Fall back to the persisted last_company_id before Redux hydrates so the
+  // initial fetches are already company-scoped (avoids a duplicate un-scoped
+  // request on every full page load).
+  const effectiveCompanyId = selectedCompanyId ?? readLastCompanyId();
 
   const {
     preferences,
@@ -205,24 +215,28 @@ const NotificationPage = () => {
 
   useEffect(() => {
     const params: Record<string, any> = {};
-    if (selectedCompanyId) params.company_id = selectedCompanyId;
+    if (effectiveCompanyId) params.company_id = effectiveCompanyId;
     axiosBaseApi.get("/notifications", { params })
       .then((res) => setNotifications(res?.data?.data?.notifications || []))
       .catch(() => {})
       .finally(() => setNotifLoading(false));
-    axiosBaseApi.get("/notifications/unread-count", { params })
-      .then((res) => setUnreadCount(res?.data?.data?.unread_count || 0))
+    // Shared, TTL-cached fetch (same cache as the sidebar/mobile badges) —
+    // no duplicate request when the badge already fetched recently.
+    fetchUnreadCount(effectiveCompanyId)
+      .then((n) => setUnreadCount(n))
       .catch(() => {});
-  }, [selectedCompanyId]);
+  }, [effectiveCompanyId]);
 
   const markAllAsRead = async () => {
     setMarkingAllRead(true);
     try {
       const body: Record<string, any> = {};
-      if (selectedCompanyId) body.company_id = selectedCompanyId;
+      if (effectiveCompanyId) body.company_id = effectiveCompanyId;
       await axiosBaseApi.put("/notifications/read-all", body);
       setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
       setUnreadCount(0);
+      // Badges elsewhere can trust 0 immediately — write through the cache.
+      setCachedUnreadCount(effectiveCompanyId, 0);
     } catch {}
     setMarkingAllRead(false);
   };
@@ -234,6 +248,8 @@ const NotificationPage = () => {
         prev.map((n) => (n.notification_id === id ? { ...n, is_read: true } : n))
       );
       setUnreadCount((prev) => Math.max(0, prev - 1));
+      // Cached badge count is now stale — let the next poll refetch it.
+      invalidateUnreadCountCache(effectiveCompanyId);
     } catch {}
   };
 
