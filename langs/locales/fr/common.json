@@ -376,7 +376,8 @@
     "taxByJurisdiction": "Taxes par juridiction",
     "country": "Pays",
     "taxRate": "Taux de taxe",
-    "noJurisdictionData": "Aucune donnée de juridiction disponible"
+    "noJurisdictionData": "Aucune donnée de juridiction disponible",
+    "noInvoicesCta": "Créer un lien de paiement"
   },
   "customers": {
     "pageName": "Clients",
@@ -424,7 +425,11 @@
     "descriptionRequired": "La description est requise",
     "walletOpFailed": "Échec du traitement de l'opération sur le portefeuille",
     "creditSuccess": "Crédité avec succès {{amount}}",
-    "debitSuccess": "Débité avec succès {{amount}}"
+    "debitSuccess": "Débité avec succès {{amount}}",
+    "noCustomersTitle": "Aucun client pour le moment",
+    "noCustomersDesc": "Les clients sont créés via l'API DynoPay. Une fois l'intégration effectuée, ils apparaissent ici automatiquement avec le solde de leur portefeuille et l'historique de leurs transactions.",
+    "noCustomersCtaDocs": "Voir la documentation de l'API",
+    "noCustomersCtaKeys": "Obtenir des clés API"
   },
   "pleaseWait": "Veuillez patienter",
   "transferRate": "Taux de change",

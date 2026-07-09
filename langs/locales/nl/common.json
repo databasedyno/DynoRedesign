@@ -376,7 +376,8 @@
     "taxByJurisdiction": "Belasting per rechtsgebied",
     "country": "Land",
     "taxRate": "Belastingtarief",
-    "noJurisdictionData": "Geen gegevens over rechtsgebied beschikbaar"
+    "noJurisdictionData": "Geen gegevens over rechtsgebied beschikbaar",
+    "noInvoicesCta": "Betaallink aanmaken"
   },
   "customers": {
     "pageName": "Klanten",
@@ -424,7 +425,11 @@
     "descriptionRequired": "Beschrijving is verplicht",
     "walletOpFailed": "Wallet-bewerking kon niet worden verwerkt",
     "creditSuccess": "Succesvol gecrediteerd {{amount}}",
-    "debitSuccess": "Succesvol gedebiteerd {{amount}}"
+    "debitSuccess": "Succesvol gedebiteerd {{amount}}",
+    "noCustomersTitle": "Nog geen klanten",
+    "noCustomersDesc": "Klanten worden aangemaakt via de DynoPay-API. Na integratie verschijnen ze hier automatisch met hun walletsaldo's en transactiegeschiedenis.",
+    "noCustomersCtaDocs": "API-documentatie bekijken",
+    "noCustomersCtaKeys": "API-sleutels ophalen"
   },
   "pleaseWait": "Even geduld",
   "transferRate": "Wisselkoers",

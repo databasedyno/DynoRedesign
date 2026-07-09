@@ -376,7 +376,8 @@
     "taxByJurisdiction": "Tax by Jurisdiction",
     "country": "Country",
     "taxRate": "Tax Rate",
-    "noJurisdictionData": "No jurisdiction data available"
+    "noJurisdictionData": "No jurisdiction data available",
+    "noInvoicesCta": "Create payment link"
   },
   "customers": {
     "pageName": "Customers",
@@ -424,7 +425,11 @@
     "descriptionRequired": "Description is required",
     "walletOpFailed": "Failed to process wallet operation",
     "creditSuccess": "Successfully credited {{amount}}",
-    "debitSuccess": "Successfully debited {{amount}}"
+    "debitSuccess": "Successfully debited {{amount}}",
+    "noCustomersTitle": "No customers yet",
+    "noCustomersDesc": "Customers are created through the DynoPay API. Once integrated, they appear here automatically with their wallet balances and transaction history.",
+    "noCustomersCtaDocs": "View API documentation",
+    "noCustomersCtaKeys": "Get API keys"
   },
   "pleaseWait": "Please wait",
   "transferRate": "Transfer Rate",

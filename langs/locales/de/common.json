@@ -376,7 +376,8 @@
     "taxByJurisdiction": "Steuern nach Land",
     "country": "Land",
     "taxRate": "Steuersatz",
-    "noJurisdictionData": "Keine Länderdaten verfügbar"
+    "noJurisdictionData": "Keine Länderdaten verfügbar",
+    "noInvoicesCta": "Zahlungslink erstellen"
   },
   "customers": {
     "pageName": "Kunden",
@@ -424,7 +425,11 @@
     "descriptionRequired": "Beschreibung ist erforderlich",
     "walletOpFailed": "Wallet-Vorgang konnte nicht verarbeitet werden",
     "creditSuccess": "Erfolgreich gutgeschrieben {{amount}}",
-    "debitSuccess": "Erfolgreich belastet {{amount}}"
+    "debitSuccess": "Erfolgreich belastet {{amount}}",
+    "noCustomersTitle": "Noch keine Kunden",
+    "noCustomersDesc": "Kunden werden über die DynoPay-API angelegt. Nach der Integration erscheinen sie hier automatisch mit ihren Wallet-Guthaben und ihrem Transaktionsverlauf.",
+    "noCustomersCtaDocs": "API-Dokumentation ansehen",
+    "noCustomersCtaKeys": "API-Schlüssel abrufen"
   },
   "pleaseWait": "Bitte warten",
   "transferRate": "Wechselkurs",

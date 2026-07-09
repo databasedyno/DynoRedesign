@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import Head from "next/head";
+import { useRouter } from "next/router";
 import {
   Box,
   Typography,
@@ -78,6 +79,7 @@ interface TaxReportData {
 }
 
 const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
+  const router = useRouter();
   const muiTheme = useTheme();
   const isMobile = useIsMobile("md");
   const { t } = useTranslation("common");
@@ -474,6 +476,14 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                                 >
                                   {t("invoices.noInvoicesDesc")}
                                 </Typography>
+                                <Box sx={{ mt: 1 }}>
+                                  <CustomButton
+                                    label={t("invoices.noInvoicesCta")}
+                                    variant="primary"
+                                    size="small"
+                                    onClick={() => router.push("/create-pay-link")}
+                                  />
+                                </Box>
                               </Box>
                             </TableCell>
                           </TableRow>

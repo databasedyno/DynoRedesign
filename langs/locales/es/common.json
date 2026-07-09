@@ -376,7 +376,8 @@
     "taxByJurisdiction": "Impuestos por jurisdicción",
     "country": "País",
     "taxRate": "Tasa de impuesto",
-    "noJurisdictionData": "No hay datos de jurisdicción disponibles"
+    "noJurisdictionData": "No hay datos de jurisdicción disponibles",
+    "noInvoicesCta": "Crear enlace de pago"
   },
   "customers": {
     "pageName": "Clientes",
@@ -424,7 +425,11 @@
     "descriptionRequired": "La descripción es obligatoria",
     "walletOpFailed": "No se pudo procesar la operación de la cartera",
     "creditSuccess": "Acreditado correctamente {{amount}}",
-    "debitSuccess": "Debitado correctamente {{amount}}"
+    "debitSuccess": "Debitado correctamente {{amount}}",
+    "noCustomersTitle": "Aún no hay clientes",
+    "noCustomersDesc": "Los clientes se crean a través de la API de DynoPay. Una vez integrada, aparecerán aquí automáticamente con sus saldos de billetera y su historial de transacciones.",
+    "noCustomersCtaDocs": "Ver documentación de la API",
+    "noCustomersCtaKeys": "Obtener claves API"
   },
   "pleaseWait": "Por favor espere",
   "transferRate": "Tasa de cambio",

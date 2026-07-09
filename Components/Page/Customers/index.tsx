@@ -38,6 +38,8 @@ import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { formatNumberWithComma, getCurrencySymbol } from "@/helpers";
 import useIsMobile from "@/hooks/useIsMobile";
+import { useRouter } from "next/router";
+import CustomButton from "@/Components/UI/Buttons";
 
 interface Customer {
   customer_id: string;
@@ -72,6 +74,7 @@ interface Aggregates {
 }
 
 const CustomersPage: React.FC = () => {
+  const router = useRouter();
   const theme = useTheme();
   const isMobile = useIsMobile("md");
   const { t } = useTranslation("common");
@@ -426,11 +429,59 @@ const CustomersPage: React.FC = () => {
                 ))
               : customers.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} align="center" sx={{ py: 6 }}>
-                      <PeopleIcon sx={{ fontSize: 48, color: theme.palette.text.disabled, mb: 1 }} />
-                      <Typography color="text.secondary">
-                        {search ? t("customers.noCustomersSearch") : t("customers.noCustomers")}
-                      </Typography>
+                    <TableCell colSpan={6} align="center" sx={{ py: 6, border: "none" }}>
+                      <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1.5 }}>
+                        <PeopleIcon sx={{ fontSize: 48, color: theme.palette.text.disabled }} />
+                        {search ? (
+                          <Typography color="text.secondary">
+                            {t("customers.noCustomersSearch")}
+                          </Typography>
+                        ) : (
+                          <>
+                            <Typography
+                              sx={{
+                                fontWeight: 600,
+                                color: theme.palette.text.primary,
+                                fontSize: isMobile ? 15 : 16,
+                              }}
+                            >
+                              {t("customers.noCustomersTitle")}
+                            </Typography>
+                            <Typography
+                              sx={{
+                                color: theme.palette.text.secondary,
+                                fontSize: isMobile ? 12 : 13,
+                                maxWidth: 400,
+                                lineHeight: 1.5,
+                              }}
+                            >
+                              {t("customers.noCustomersDesc")}
+                            </Typography>
+                            <Box
+                              sx={{
+                                display: "flex",
+                                gap: 1.5,
+                                mt: 1,
+                                flexWrap: "wrap",
+                                justifyContent: "center",
+                              }}
+                            >
+                              <CustomButton
+                                label={t("customers.noCustomersCtaDocs")}
+                                variant="primary"
+                                size="small"
+                                onClick={() => router.push("/documentation")}
+                              />
+                              <CustomButton
+                                label={t("customers.noCustomersCtaKeys")}
+                                variant="secondary"
+                                size="small"
+                                onClick={() => router.push("/developer-keys")}
+                              />
+                            </Box>
+                          </>
+                        )}
+                      </Box>
                     </TableCell>
                   </TableRow>
                 )
