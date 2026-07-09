@@ -343,3 +343,39 @@ html[data-theme="light"] {
   --text-secondary: #71717A;
   --text-tertiary: #A1A1AA;
 }
+
+/* ============================================================
+   HERO TILE PULSE — "new payment landed" attention flash.
+   Triggered from HeroMetrics.tsx when Today's Revenue increments.
+   Design: soft green outer glow + subtle scale 1 → 1.015 → 1.
+   Duration matches the useState timeout (700ms) in the component.
+   Respects prefers-reduced-motion.
+   ============================================================ */
+@keyframes hero-tile-pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.35),
+                0 0 0 0 rgba(16, 185, 129, 0);
+  }
+  40% {
+    transform: scale(1.015);
+    box-shadow: 0 0 0 6px rgba(16, 185, 129, 0.18),
+                0 0 24px 4px rgba(16, 185, 129, 0.25);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0),
+                0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}
+
+.hero-tile-pulse {
+  animation: hero-tile-pulse 700ms cubic-bezier(0.16, 1, 0.3, 1);
+  animation-fill-mode: both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-tile-pulse {
+    animation: none;
+  }
+}

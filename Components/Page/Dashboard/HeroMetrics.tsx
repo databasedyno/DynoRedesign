@@ -3,7 +3,7 @@ import useIsMobile from "@/hooks/useIsMobile";
 import { ArrowDownward, ArrowUpward, TrendingUpRounded, ReceiptLongRounded, PaidRounded } from "@mui/icons-material";
 import { Box, Skeleton, Typography, useTheme } from "@mui/material";
 import { motion } from "framer-motion";
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 /**
@@ -16,6 +16,64 @@ const tileAnim = {
   initial: { opacity: 0, y: 8 },
   animate: { opacity: 1, y: 0 },
   transition: { duration: 0.36, ease: [0.16, 1, 0.3, 1] as const },
+};
+
+/**
+ * Detect when a formatted-currency string (e.g. "$1,234.56", "€1.234,56")
+ * numerically INCREASES between renders — used to fire the "new payment
+ * landed" pulse on the Today's Revenue tile.
+ *
+ * - Strips all non-digit / non-dot / non-comma / non-minus characters
+ * - Handles both US ("," thousands, "." decimal) and EU ("." thousands,
+ *   "," decimal) — falls back gracefully if it can't parse
+ * - Returns a boolean that flips to `true` for the pulse duration
+ *   (700ms) whenever a real increment is detected, then back to `false`
+ * - Suppresses on first render (no baseline yet) so we don't pulse on load
+ */
+const parseFormattedAmount = (formatted?: string): number | null => {
+  if (!formatted) return null;
+  // Strip currency symbol + spaces
+  const clean = formatted.replace(/[^\d.,-]/g, "");
+  if (!clean) return null;
+  const hasDot = clean.includes(".");
+  const hasComma = clean.includes(",");
+  let normalized = clean;
+  if (hasDot && hasComma) {
+    // Whichever appears LAST is the decimal separator
+    if (clean.lastIndexOf(",") > clean.lastIndexOf(".")) {
+      normalized = clean.replace(/\./g, "").replace(",", ".");
+    } else {
+      normalized = clean.replace(/,/g, "");
+    }
+  } else if (hasComma && !hasDot) {
+    // Only comma present — assume it's decimal if there are ≤2 digits after
+    const parts = clean.split(",");
+    if (parts.length === 2 && parts[1].length <= 2) {
+      normalized = clean.replace(",", ".");
+    } else {
+      normalized = clean.replace(/,/g, "");
+    }
+  }
+  const n = Number(normalized);
+  return Number.isFinite(n) ? n : null;
+};
+
+const usePulseOnIncrement = (formattedValue?: string, pulseMs = 700): boolean => {
+  const [pulsing, setPulsing] = useState(false);
+  const prevRef = useRef<number | null>(null);
+  useEffect(() => {
+    const current = parseFormattedAmount(formattedValue);
+    const prev = prevRef.current;
+    if (current !== null && prev !== null && current > prev) {
+      setPulsing(true);
+      const t = setTimeout(() => setPulsing(false), pulseMs);
+      prevRef.current = current;
+      return () => clearTimeout(t);
+    }
+    // Update baseline without pulsing (first meaningful value, or decrement)
+    if (current !== null) prevRef.current = current;
+  }, [formattedValue, pulseMs]);
+  return pulsing;
 };
 
 /**
@@ -51,6 +109,8 @@ interface TileProps {
   loading?: boolean;
   variant?: "primary" | "neutral";
   testId?: string;
+  /** When true, plays a soft green flash + subtle scale — signals "new payment landed". */
+  pulse?: boolean;
 }
 
 const DeltaChip: React.FC<{ change: number }> = ({ change }) => {
@@ -98,6 +158,7 @@ const Tile: React.FC<TileProps> = ({
   loading,
   variant = "neutral",
   testId,
+  pulse = false,
 }) => {
   const theme = useTheme();
   const isMobile = useIsMobile("sm");
@@ -105,6 +166,8 @@ const Tile: React.FC<TileProps> = ({
   return (
     <Box
       data-testid={testId}
+      data-pulsing={pulse ? "true" : undefined}
+      className={pulse ? "hero-tile-pulse" : undefined}
       sx={{
         position: "relative",
         flex: 1,
@@ -218,6 +281,10 @@ const HeroMetrics: React.FC<HeroMetricsProps> = ({
   const isMobile = useIsMobile("md");
   const { t } = useTranslation("dashboardLayout");
 
+  // Pulse the Today's Revenue tile whenever the value goes UP between renders
+  // (i.e. a new payment landed). Suppresses on initial load.
+  const revenuePulse = usePulseOnIncrement(volumeTodayFormatted);
+
   return (
     <Box
       data-testid="dashboard-hero-metrics"
@@ -242,6 +309,7 @@ const HeroMetrics: React.FC<HeroMetricsProps> = ({
           icon={<PaidRounded sx={{ fontSize: 18 }} />}
           loading={loading}
           variant="primary"
+          pulse={revenuePulse}
         />
       </motion.div>
       <motion.div {...tileAnim} transition={{ ...tileAnim.transition, delay: 0.09 }}>
