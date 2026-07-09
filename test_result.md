@@ -1,4 +1,11 @@
 ## 2026-07-09 SESSION 10 — Fresh container re-provisioned ✅ (setup only, no code changes)
+### Addendum (user request): frontend switched to standalone server + heap cap
+- User asked: (a) remove `output: 'standalone'` OR run `node .next/standalone/server.js`; (b) NODE_OPTIONS=--max-old-space-size=1536 for frontend.
+- Chose option (b)-style switch: `output: "standalone"` KEPT in next.config.mjs because Dockerfile.frontend (Railway prod) copies .next/standalone and runs `node server.js` — removing it would break prod builds.
+- Supervisor conf is READONLY → both changes implemented in /app/frontend/package.json `start` script: creates symlinks (.next/standalone/.next/static → /app/.next/static, .next/standalone/public → /app/public, .next/standalone/.env → /app/.env) then runs `NODE_OPTIONS=--max-old-space-size=1536 HOSTNAME=0.0.0.0 PORT=3000 node .next/standalone/server.js`.
+- Verified: node process has NODE_OPTIONS applied; local + external / /auth/login /api/ /api/csrf-token = 200; google/github SSO buttons present; /_next/static + public assets 200; /api/auth/providers (local :3000) = 200 with preview NEXTAUTH_URL → standalone server loads runtime .env via symlink.
+- NOTE for future sessions: after frontend code changes run `cd /app && node_modules/.bin/next build` then restart frontend (symlinks are re-created by the start script).
+
 - Fresh container (no node_modules, no .env files, no .next build → frontend FATAL). Re-provisioned from user-supplied `<continuation_request>` .env per documented procedure (full detail in /app/memory/test_credentials.md).
 - `yarn install` in /app (111s) + /app/backend (72s); wrote /app/backend/.env, /app/.env, /app/frontend/.env; ran `next build` (required — frontend shim runs `next start`).
 - All app URLs → https://c1d37d98-8df4-41ed-8b27-55606e4cba5b.preview.emergentagent.com (this container's APP_URL); preview host FIRST in CORS_ALLOWED_ORIGINS (+ crypto-gateway-24 alias kept).
