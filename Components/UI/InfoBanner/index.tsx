@@ -53,7 +53,7 @@ export default function InfoBanner({ message, children, sx }: InfoBannerProps) {
             color: "text.primary",
             fontSize: "13px",
             fontWeight: 500,
-            fontFamily: "UrbanistMedium",
+            fontFamily: "var(--font-sans)",
             lineHeight: "16px",
           }}
         >

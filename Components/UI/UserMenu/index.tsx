@@ -118,7 +118,7 @@ export default function UserMenu() {
                   fontSize: isMobile ? "10px" : "12px",
                   fontWeight: 600,
                   color: theme.palette.primary.main,
-                  fontFamily: "UrbanistMedium",
+                  fontFamily: "var(--font-sans)",
                   textTransform: "uppercase",
                   lineHeight: 1,
                 }}
@@ -207,7 +207,7 @@ export default function UserMenu() {
                       fontSize: isMobile ? "10px" : "12px",
                       fontWeight: 600,
                       color: theme.palette.primary.main,
-                      fontFamily: "UrbanistMedium",
+                      fontFamily: "var(--font-sans)",
                       textTransform: "uppercase",
                       lineHeight: 1,
                     }}
@@ -248,7 +248,7 @@ export default function UserMenu() {
               <PersonIcon sx={{ fontSize: "16px" }} />
               <Typography
                 sx={{
-                  fontFamily: "UrbanistMedium",
+                  fontFamily: "var(--font-sans)",
                   fontSize: isMobile ? "13px" : "15px",
                 }}
               >
@@ -271,7 +271,7 @@ export default function UserMenu() {
               <SettingsIcon sx={{ fontSize: "16px" }} />
               <Typography
                 sx={{
-                  fontFamily: "UrbanistMedium",
+                  fontFamily: "var(--font-sans)",
                   fontSize: isMobile ? "13px" : "15px",
                 }}
               >

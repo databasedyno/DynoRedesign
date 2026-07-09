@@ -106,7 +106,7 @@ export default function SettingsAccordion({
           {icon}
           <Typography
             sx={{
-              fontFamily: "UrbanistMedium",
+              fontFamily: "var(--font-sans)",
               fontWeight: 500,
               fontSize: isMobile ? "15px" : "20px",
               lineHeight: 1.2,
@@ -130,7 +130,7 @@ export default function SettingsAccordion({
             color: "text.secondary",
             mb: isMobile ? "12px" : 3,
             mt: isMobile ? "6px" : 1,
-            fontFamily: "UrbanistMedium",
+            fontFamily: "var(--font-sans)",
             fontWeight: 500,
             fontSize: isMobile ? "13px" : "15px",
             lineHeight: "18px",

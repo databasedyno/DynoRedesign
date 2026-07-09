@@ -49,7 +49,7 @@ const ValueCell: React.FC<{ v: string | boolean; isBest: boolean }> = ({ v, isBe
   return (
     <Typography
       sx={{
-        fontFamily: isBest ? 'UrbanistBold' : 'UrbanistMedium',
+        fontFamily: isBest ? 'var(--font-sans)' : 'var(--font-sans)',
         fontSize: 13,
         color: (theme) => (isBest ? theme.palette.primary.main : theme.palette.text.primary),
         lineHeight: 1.35,
@@ -81,7 +81,7 @@ const ComparisonTable: React.FC = () => {
       <Box sx={{ textAlign: 'center', mb: { xs: 4, md: 6 } }}>
         <Typography
           sx={{
-            fontFamily: 'UrbanistBold',
+            fontFamily: 'var(--font-sans)',
             fontSize: 12,
             letterSpacing: '1.5px',
             color: theme.palette.primary.main,
@@ -106,7 +106,7 @@ const ComparisonTable: React.FC = () => {
         </Typography>
         <Typography
           sx={{
-            fontFamily: 'UrbanistMedium',
+            fontFamily: 'var(--font-sans)',
             fontSize: { xs: 14, md: 16 },
             color: theme.palette.text.secondary,
             maxWidth: 620,
@@ -165,7 +165,7 @@ const ComparisonTable: React.FC = () => {
                         display: 'inline-flex',
                         alignItems: 'center',
                         gap: 0.4,
-                        fontFamily: 'UrbanistBold',
+                        fontFamily: 'var(--font-sans)',
                         fontSize: 10,
                         letterSpacing: '1px',
                         textTransform: 'uppercase',
@@ -178,7 +178,7 @@ const ComparisonTable: React.FC = () => {
                   )}
                   <Typography
                     sx={{
-                      fontFamily: 'UrbanistBold',
+                      fontFamily: 'var(--font-sans)',
                       fontSize: { xs: 12, md: 14 },
                       color: isBest ? theme.palette.primary.main : theme.palette.text.primary,
                       letterSpacing: '0.3px',
@@ -208,7 +208,7 @@ const ComparisonTable: React.FC = () => {
               <Box sx={{ p: { xs: 1.5, md: 2 } }}>
                 <Typography
                   sx={{
-                    fontFamily: 'UrbanistSemiBold',
+                    fontFamily: 'var(--font-sans)',
                     fontSize: { xs: 12.5, md: 13.5 },
                     color: theme.palette.text.primary,
                     lineHeight: 1.3,
@@ -245,7 +245,7 @@ const ComparisonTable: React.FC = () => {
       <Typography
         sx={{
           mt: 2,
-          fontFamily: 'UrbanistMedium',
+          fontFamily: 'var(--font-sans)',
           fontSize: 11.5,
           color: theme.palette.text.disabled,
           textAlign: 'center',

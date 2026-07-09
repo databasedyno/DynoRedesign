@@ -196,7 +196,7 @@ const OtpDialog: React.FC<OtpDialogProps> = ({
             sx={{
               fontSize: isMobile ? "13px" : "15px",
               color: theme.palette.text.secondary,
-              fontFamily: "UrbanistMedium",
+              fontFamily: "var(--font-sans)",
               marginBottom: isMobile ? "14px" : "16px",
               marginTop: isMobile ? "10px" : "12px",
               lineHeight: "1.2",
@@ -258,7 +258,7 @@ const OtpDialog: React.FC<OtpDialogProps> = ({
             {/* Heading */}
             <Typography
               sx={{
-                fontFamily: "UrbanistBold",
+                fontFamily: "var(--font-sans)",
                 fontWeight: 700,
                 fontSize: isMobile ? "20px" : "22px",
                 color: theme.palette.text.primary,
@@ -273,7 +273,7 @@ const OtpDialog: React.FC<OtpDialogProps> = ({
               data-testid="otp-stepped-progress-message"
               key={stepIndex}
               sx={{
-                fontFamily: "UrbanistMedium",
+                fontFamily: "var(--font-sans)",
                 fontSize: isMobile ? "14px" : "15px",
                 color: theme.palette.text.secondary,
                 minHeight: "1.5em",
@@ -314,7 +314,7 @@ const OtpDialog: React.FC<OtpDialogProps> = ({
 
             <Typography
               sx={{
-                fontFamily: "UrbanistMedium",
+                fontFamily: "var(--font-sans)",
                 fontSize: "12px",
                 color: theme.palette.text.disabled,
                 mt: 1,

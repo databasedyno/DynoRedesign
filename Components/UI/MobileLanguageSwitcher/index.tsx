@@ -71,7 +71,7 @@ const LanguageSwitcherModal: React.FC<Props> = ({
                   <ListItemText
                     sx={{
                       fontSize: "15px",
-                      fontFamily: "UrbanistMedium",
+                      fontFamily: "var(--font-sans)",
                       fontWeight: 500,
                       "& .MuiListItemText-primary": {
                         fontSize: "15px",

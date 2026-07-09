@@ -114,7 +114,7 @@ const WalletPage = ({
             <Box>
               <Typography
                 sx={{
-                  fontFamily: "UrbanistSemibold",
+                  fontFamily: "var(--font-sans)",
                   fontWeight: "600",
                   fontSize: isMobile ? "10px" : "15px",
                   lineHeight: "130%",
@@ -125,7 +125,7 @@ const WalletPage = ({
               </Typography>
               <Typography
                 sx={{
-                  fontFamily: "UrbanistMedium",
+                  fontFamily: "var(--font-sans)",
                   fontWeight: "500",
                   fontSize: isMobile ? "10px" : "15px",
                   lineHeight: "130%",
@@ -152,7 +152,7 @@ const WalletPage = ({
             <Box>
               <Typography
                 sx={{
-                  fontFamily: "UrbanistSemibold",
+                  fontFamily: "var(--font-sans)",
                   fontWeight: "600",
                   fontSize: isMobile ? "10px" : "15px",
                   lineHeight: "130%",
@@ -163,7 +163,7 @@ const WalletPage = ({
               </Typography>
               <Typography
                 sx={{
-                  fontFamily: "UrbanistMedium",
+                  fontFamily: "var(--font-sans)",
                   fontWeight: "500",
                   fontSize: isMobile ? "10px" : "15px",
                   lineHeight: "130%",
@@ -181,7 +181,7 @@ const WalletPage = ({
                         <Typography
                           component="span"
                           sx={{
-                            fontFamily: "UrbanistSemibold",
+                            fontFamily: "var(--font-sans)",
                             fontWeight: "600",
                             fontSize: isMobile ? "10px" : "15px",
                             lineHeight: "130%",

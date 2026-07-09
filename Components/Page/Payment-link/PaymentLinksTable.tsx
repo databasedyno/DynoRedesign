@@ -104,7 +104,7 @@ const Header = React.memo(({ label }: { label: string }) => {
         sx={{
           fontSize: isMobile ? "10px" : "15px",
           fontWeight: 500,
-          fontFamily: "UrbanistMedium",
+          fontFamily: "var(--font-sans)",
           lineHeight: 1.2,
           letterSpacing: 0,
           color: headerTheme.palette.text.primary,
@@ -296,7 +296,7 @@ const PaymentLinksTable = ({
           <Box sx={{ display: "flex", flexDirection: "column", gap: 1, px: 2 }}>
             {paginatedData.length === 0 ? (
               <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
-                <Typography sx={{ fontSize: "14px", fontFamily: "UrbanistMedium", color: theme.palette.text.secondary }}>
+                <Typography sx={{ fontSize: "14px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary }}>
                   {tCommon("noDataAvailable")}
                 </Typography>
               </Box>
@@ -313,7 +313,7 @@ const PaymentLinksTable = ({
                 >
                   {/* Top: Description + Status */}
                   <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 1.25 }}>
-                    <Typography sx={{ fontSize: "14px", fontFamily: "UrbanistSemibold", fontWeight: 600, color: theme.palette.text.primary, flex: 1, mr: 1, lineHeight: 1.3 }}>
+                    <Typography sx={{ fontSize: "14px", fontFamily: "var(--font-sans)", fontWeight: 600, color: theme.palette.text.primary, flex: 1, mr: 1, lineHeight: 1.3 }}>
                       {row.description || "Payment Link"}
                     </Typography>
                     <StatusChip status={row.status}>
@@ -331,18 +331,18 @@ const PaymentLinksTable = ({
                   </Box>
                   {/* Middle: USD + Crypto */}
                   <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", mb: 1 }}>
-                    <Typography sx={{ fontSize: "16px", fontFamily: "UrbanistSemibold", fontWeight: 700, color: theme.palette.text.primary }}>
+                    <Typography sx={{ fontSize: "16px", fontFamily: "var(--font-sans)", fontWeight: 700, color: theme.palette.text.primary }}>
                       {row.usdValue}
                     </Typography>
                     {row.cryptoValue && (
-                      <Typography sx={{ fontSize: "13px", fontFamily: "UrbanistMedium", color: theme.palette.primary.main }}>
+                      <Typography sx={{ fontSize: "13px", fontFamily: "var(--font-sans)", color: theme.palette.primary.main }}>
                         {row.cryptoValue}
                       </Typography>
                     )}
                   </Box>
                   {/* Bottom: Date + Actions */}
                   <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <Typography sx={{ fontSize: "11px", fontFamily: "UrbanistMedium", color: theme.palette.text.secondary }}>
+                    <Typography sx={{ fontSize: "11px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary }}>
                       {formatUtcToDisplay(row.createdAt)}
                       {row.timesUsed > 0 ? ` · Used ${row.timesUsed}x` : ""}
                     </Typography>
@@ -674,7 +674,7 @@ const PaymentLinksTable = ({
                   },
                   ".custom-button-label": {
                     fontSize: "13px !important",
-                    fontFamily: "UrbanistMedium",
+                    fontFamily: "var(--font-sans)",
                     lineHeight: "100%",
                     fontWeight: 500,
                   },
@@ -707,7 +707,7 @@ const PaymentLinksTable = ({
                   },
                   ".custom-button-label": {
                     fontSize: "13px !important",
-                    fontFamily: "UrbanistMedium",
+                    fontFamily: "var(--font-sans)",
                     lineHeight: "100%",
                     fontWeight: 500,
                   },
@@ -797,7 +797,7 @@ const PaymentLinksTable = ({
               sx={{
                 fontWeight: 500,
                 fontSize: isMobile ? "16px" : "20px",
-                fontFamily: "UrbanistMedium",
+                fontFamily: "var(--font-sans)",
                 color: "text.primary",
                 lineHeight: "24px",
               }}
@@ -812,7 +812,7 @@ const PaymentLinksTable = ({
               fontSize: isMobile ? "13px" : "15px",
               color: "text.secondary",
               lineHeight: "18px",
-              fontFamily: "UrbanistMedium",
+              fontFamily: "var(--font-sans)",
             }}
           >
             {t("deleteModelDescription")}

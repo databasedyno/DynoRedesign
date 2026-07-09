@@ -94,12 +94,12 @@ const HelpDetail = ({
   if (!article) {
     return (
       <Box sx={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 2, minHeight: 300 }}>
-        <Typography sx={{ fontSize: "18px", fontFamily: "UrbanistMedium", color: theme.palette.text.secondary }}>
+        <Typography sx={{ fontSize: "18px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary }}>
           {t('articleNotFound')}
         </Typography>
         <Button
           onClick={() => router.push("/help-support")}
-          sx={{ color: "#4F46E5", textTransform: "none", fontFamily: "UrbanistMedium" }}
+          sx={{ color: "#4F46E5", textTransform: "none", fontFamily: "var(--font-sans)" }}
         >
           {t('backToHelpSupport')}
         </Button>
@@ -132,7 +132,7 @@ const HelpDetail = ({
                 style={{
                   width: isMobile ? "300px" : "639px",
                   fontSize: isMobile ? "10px" : "13px",
-                  fontFamily: "UrbanistMedium",
+                  fontFamily: "var(--font-sans)",
                   lineHeight: "100%",
                   letterSpacing: 0,
                   fontWeight: 500,
@@ -159,7 +159,7 @@ const HelpDetail = ({
             onClick={() => router.push("/help-support")}
           >
             <Image src={BackArrow} alt="Back" width={16} height={16} />
-            <Typography sx={{ fontSize: "14px", fontFamily: "UrbanistMedium", color: theme.palette.text.secondary }}>
+            <Typography sx={{ fontSize: "14px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary }}>
               {t('backToHelpSupport')}
             </Typography>
           </Box>
@@ -174,7 +174,7 @@ const HelpDetail = ({
             {article.category_name && (
               <Typography sx={{
                 fontSize: "12px",
-                fontFamily: "UrbanistMedium",
+                fontFamily: "var(--font-sans)",
                 color: "#4F46E5",
                 backgroundColor: "rgba(0, 4, 255, 0.08)",
                 px: 1.5,
@@ -185,7 +185,7 @@ const HelpDetail = ({
               </Typography>
             )}
             {article.reading_time_minutes && (
-              <Typography sx={{ fontSize: "13px", fontFamily: "UrbanistMedium", color: theme.palette.text.secondary }}>
+              <Typography sx={{ fontSize: "13px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary }}>
                 {article.reading_time_minutes} min read
               </Typography>
             )}
@@ -199,7 +199,7 @@ const HelpDetail = ({
               borderRadius: "14px",
               padding: isMobile ? "16px" : "32px",
               "& h1, & h2, & h3": {
-                fontFamily: "UrbanistMedium",
+                fontFamily: "var(--font-sans)",
                 color: theme.palette.text.primary,
                 marginTop: "24px",
                 marginBottom: "12px",
@@ -207,7 +207,7 @@ const HelpDetail = ({
               "& h2": { fontSize: isMobile ? "18px" : "22px" },
               "& h3": { fontSize: isMobile ? "16px" : "18px" },
               "& p": {
-                fontFamily: "UrbanistMedium",
+                fontFamily: "var(--font-sans)",
                 fontSize: isMobile ? "13px" : "15px",
                 color: theme.palette.text.secondary,
                 lineHeight: 1.7,
@@ -218,7 +218,7 @@ const HelpDetail = ({
                 marginBottom: "12px",
               },
               "& li": {
-                fontFamily: "UrbanistMedium",
+                fontFamily: "var(--font-sans)",
                 fontSize: isMobile ? "13px" : "15px",
                 color: theme.palette.text.secondary,
                 lineHeight: 1.7,
@@ -259,12 +259,12 @@ const HelpDetail = ({
             }}
           >
             {feedbackSubmitted ? (
-              <Typography sx={{ fontSize: "15px", fontFamily: "UrbanistMedium", color: theme.palette.text.primary }}>
+              <Typography sx={{ fontSize: "15px", fontFamily: "var(--font-sans)", color: theme.palette.text.primary }}>
                 {t('feedbackThanks')}
               </Typography>
             ) : (
               <>
-                <Typography sx={{ fontSize: "15px", fontFamily: "UrbanistMedium", color: theme.palette.text.primary }}>
+                <Typography sx={{ fontSize: "15px", fontFamily: "var(--font-sans)", color: theme.palette.text.primary }}>
                   {t('wasArticleHelpful')}
                 </Typography>
                 <Box sx={{ display: "flex", gap: 2 }}>
@@ -276,7 +276,7 @@ const HelpDetail = ({
                       borderRadius: "8px",
                       color: theme.palette.text.primary,
                       textTransform: "none",
-                      fontFamily: "UrbanistMedium",
+                      fontFamily: "var(--font-sans)",
                       px: 3,
                       "&:hover": { backgroundColor: "rgba(0, 200, 83, 0.08)", borderColor: "#00C853" },
                     }}
@@ -291,7 +291,7 @@ const HelpDetail = ({
                       borderRadius: "8px",
                       color: theme.palette.text.primary,
                       textTransform: "none",
-                      fontFamily: "UrbanistMedium",
+                      fontFamily: "var(--font-sans)",
                       px: 3,
                       "&:hover": { backgroundColor: "rgba(255, 0, 0, 0.08)", borderColor: "#FF0000" },
                     }}

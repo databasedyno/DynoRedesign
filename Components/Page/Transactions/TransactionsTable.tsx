@@ -184,7 +184,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
     },
     ".custom-button-label": {
       fontSize: "13px !important",
-      fontFamily: "UrbanistMedium",
+      fontFamily: "var(--font-sans)",
       lineHeight: "16px",
       fontWeight: 500,
     },
@@ -235,7 +235,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
     <Box sx={{ display: "flex", flexDirection: "column", gap: 1, px: 2 }}>
       {isDataEmpty ? (
         <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", py: 4 }}>
-          <Typography sx={{ fontSize: "14px", fontFamily: "UrbanistMedium", color: theme.palette.text.secondary }}>
+          <Typography sx={{ fontSize: "14px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary }}>
             {t("transactionsNotAvailable", { ns: "common" })}
           </Typography>
         </Box>
@@ -264,7 +264,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                   height={24}
                   draggable={false}
                 />
-                <Typography sx={{ fontSize: "15px", fontFamily: "UrbanistSemibold", fontWeight: 600, color: theme.palette.text.primary }}>
+                <Typography sx={{ fontSize: "15px", fontFamily: "var(--font-sans)", fontWeight: 600, color: theme.palette.text.primary }}>
                   {transaction.crypto}
                 </Typography>
               </Box>
@@ -275,7 +275,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                 <StatusText status={transaction.status}>
                   {tTransactions(transaction.status)}
                   {transaction.autoConverted && transaction.status === "settled" && (
-                    <Typography component="span" sx={{ fontSize: "10px", fontFamily: "UrbanistMedium", color: "#1565C0", ml: 0.5 }}>
+                    <Typography component="span" sx={{ fontSize: "10px", fontFamily: "var(--font-sans)", color: "#1565C0", ml: 0.5 }}>
                       · Converted
                     </Typography>
                   )}
@@ -284,19 +284,19 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
             </Box>
             {/* Middle row: Amount + USD */}
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", mb: 0.75 }}>
-              <Typography sx={{ fontSize: "16px", fontFamily: "UrbanistSemibold", fontWeight: 700, color: theme.palette.text.primary }}>
+              <Typography sx={{ fontSize: "16px", fontFamily: "var(--font-sans)", fontWeight: 700, color: theme.palette.text.primary }}>
                 {formatAmount(transaction.amount)}
               </Typography>
-              <Typography sx={{ fontSize: "14px", fontFamily: "UrbanistMedium", fontWeight: 500, color: theme.palette.primary.main }}>
+              <Typography sx={{ fontSize: "14px", fontFamily: "var(--font-sans)", fontWeight: 500, color: theme.palette.primary.main }}>
                 {formatUsd(transaction.usdValue)}
               </Typography>
             </Box>
             {/* Bottom row: ID + Date */}
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <Typography sx={{ fontSize: "11px", fontFamily: "UrbanistMedium", color: theme.palette.text.secondary, maxWidth: "50%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              <Typography sx={{ fontSize: "11px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary, maxWidth: "50%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                 {transaction.id}
               </Typography>
-              <Typography sx={{ fontSize: "11px", fontFamily: "UrbanistMedium", color: theme.palette.text.secondary }}>
+              <Typography sx={{ fontSize: "11px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary }}>
                 {transaction.dateTime}
               </Typography>
             </Box>
@@ -449,7 +449,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                       <StatusText status={transaction.status}>
                         {tTransactions(transaction.status)}
                         {transaction.autoConverted && transaction.status === "settled" && (
-                          <Typography component="span" sx={{ fontSize: "11px", fontFamily: "UrbanistMedium", color: "#1565C0", ml: 0.5 }}>
+                          <Typography component="span" sx={{ fontSize: "11px", fontFamily: "var(--font-sans)", color: "#1565C0", ml: 0.5 }}>
                             · Converted
                           </Typography>
                         )}

@@ -87,7 +87,7 @@ const RowsPerPageSelector: React.FC<RowsPerPageSelectorProps> = ({
           color: theme.palette.text.secondary,
           fontSize: "13px",
           fontWeight: 500,
-          fontFamily: "UrbanistMedium",
+          fontFamily: "var(--font-sans)",
           lineHeight: "16px",
           [theme.breakpoints.down("md")]: {
             display: "none",
@@ -166,7 +166,7 @@ const RowsPerPageSelector: React.FC<RowsPerPageSelectorProps> = ({
                   sx={{
                     fontSize: "15px",
                     fontWeight: 500,
-                    fontFamily: "UrbanistMedium",
+                    fontFamily: "var(--font-sans)",
                     lineHeight: "18px",
                     padding: "8px 12px",
                   }}

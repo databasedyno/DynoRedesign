@@ -13,7 +13,7 @@ export const PercentageChip = styled(Box)(({ theme }) => ({
   lineHeight: 1.54,
   fontWeight: 500,
   border: `1px solid ${theme.palette.success.main}`,
-  fontFamily: "UrbanistMedium",
+  fontFamily: "var(--font-sans)",
   width: "fit-content",
   [theme.breakpoints.down("md")]: {
     gap: 2,

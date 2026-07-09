@@ -551,7 +551,7 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
                         <pre
                           style={{
                             margin: 0,
-                            fontFamily: "UrbanistMedium",
+                            fontFamily: "var(--font-sans)",
                             fontSize: isMobile ? "10px" : "13px",
                             lineHeight: 1.2,
                             letterSpacing: 0,

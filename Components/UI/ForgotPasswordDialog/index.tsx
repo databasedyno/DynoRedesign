@@ -311,10 +311,10 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
               <Image src={LockIcon.src} alt="lock" width={20} height={20} draggable={false} style={{ filter: "brightness(10)" }} />
             </Box>
             <Box>
-              <Typography sx={{ fontWeight: 700, fontSize: "20px", color: "text.primary", fontFamily: "UrbanistBold", lineHeight: 1.2 }}>
+              <Typography sx={{ fontWeight: 700, fontSize: "20px", color: "text.primary", fontFamily: "var(--font-sans)", lineHeight: 1.2 }}>
                 {t("forgotPasswordDialog.title")}
               </Typography>
-              <Typography sx={{ fontSize: "13px", color: "text.secondary", fontFamily: "UrbanistMedium", mt: 0.25 }}>
+              <Typography sx={{ fontSize: "13px", color: "text.secondary", fontFamily: "var(--font-sans)", mt: 0.25 }}>
                 {t("forgotPasswordDialog.methodSubtitle")}
               </Typography>
             </Box>
@@ -337,7 +337,7 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
                   border: "none",
                   borderRadius: "10px !important",
                   textTransform: "none",
-                  fontFamily: "UrbanistSemiBold",
+                  fontFamily: "var(--font-sans)",
                   fontSize: "14px",
                   color: "text.secondary",
                   padding: "10px 0",
@@ -386,7 +386,7 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
 
           {/* Error */}
           {error && (
-            <Typography sx={{ fontSize: "13px", color: theme.palette.error.main, fontFamily: "UrbanistMedium", mb: 1.5, textAlign: "center" }}>
+            <Typography sx={{ fontSize: "13px", color: theme.palette.error.main, fontFamily: "var(--font-sans)", mb: 1.5, textAlign: "center" }}>
               {error}
             </Typography>
           )}
@@ -410,7 +410,7 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
               component="button"
               onClick={handleClose}
               sx={{
-                fontSize: "13px", color: "text.secondary", fontFamily: "UrbanistMedium",
+                fontSize: "13px", color: "text.secondary", fontFamily: "var(--font-sans)",
                 textDecoration: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: "6px",
                 background: "transparent", border: "none", padding: 0,
                 "&:hover": { textDecoration: "underline" },
@@ -456,10 +456,10 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
             >
               <Typography sx={{ fontSize: "28px" }}>🔐</Typography>
             </Box>
-            <Typography sx={{ fontWeight: 700, fontSize: "20px", color: "text.primary", fontFamily: "UrbanistBold" }}>
+            <Typography sx={{ fontWeight: 700, fontSize: "20px", color: "text.primary", fontFamily: "var(--font-sans)" }}>
               {t("forgotPasswordDialog.otpTitle")}
             </Typography>
-            <Typography sx={{ fontSize: "14px", color: "text.secondary", fontFamily: "UrbanistMedium", mt: 0.5, lineHeight: 1.5 }}>
+            <Typography sx={{ fontSize: "14px", color: "text.secondary", fontFamily: "var(--font-sans)", mt: 0.5, lineHeight: 1.5 }}>
               {t("forgotPasswordDialog.otpSubtitlePrefix")}{" "}
               <Typography component="span" sx={{ fontWeight: 600, color: "text.primary", fontSize: "14px" }}>
                 {maskedTarget}
@@ -490,7 +490,7 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
               component="button"
               onClick={() => { setStep("method"); setError(""); setOtpResetKey((k) => k + 1); }}
               sx={{
-                fontSize: "13px", color: "text.secondary", fontFamily: "UrbanistMedium",
+                fontSize: "13px", color: "text.secondary", fontFamily: "var(--font-sans)",
                 textDecoration: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: "6px",
                 background: "transparent", border: "none", padding: 0,
                 "&:hover": { textDecoration: "underline" },
@@ -532,10 +532,10 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
             >
               <Image src={LockIcon.src} alt="lock" width={24} height={24} draggable={false} style={{ filter: "brightness(10)" }} />
             </Box>
-            <Typography sx={{ fontWeight: 700, fontSize: "20px", color: "text.primary", fontFamily: "UrbanistBold" }}>
+            <Typography sx={{ fontWeight: 700, fontSize: "20px", color: "text.primary", fontFamily: "var(--font-sans)" }}>
               {t("forgotPasswordDialog.newPwTitle")}
             </Typography>
-            <Typography sx={{ fontSize: "14px", color: "text.secondary", fontFamily: "UrbanistMedium", mt: 0.5 }}>
+            <Typography sx={{ fontSize: "14px", color: "text.secondary", fontFamily: "var(--font-sans)", mt: 0.5 }}>
               {t("forgotPasswordDialog.newPwSubtitle")}
             </Typography>
           </Box>
@@ -605,7 +605,7 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
 
           {/* Error */}
           {error && !error.includes("match") && !error.includes("requirements") && (
-            <Typography sx={{ fontSize: "13px", color: theme.palette.error.main, fontFamily: "UrbanistMedium", mb: 1.5, textAlign: "center" }}>
+            <Typography sx={{ fontSize: "13px", color: theme.palette.error.main, fontFamily: "var(--font-sans)", mb: 1.5, textAlign: "center" }}>
               {error}
             </Typography>
           )}
@@ -653,10 +653,10 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
             <CheckCircleOutline sx={{ fontSize: 40, color: "#fff" }} />
           </Box>
 
-          <Typography sx={{ fontWeight: 700, fontSize: "22px", color: "text.primary", fontFamily: "UrbanistBold", mb: 1 }}>
+          <Typography sx={{ fontWeight: 700, fontSize: "22px", color: "text.primary", fontFamily: "var(--font-sans)", mb: 1 }}>
             {t("forgotPasswordDialog.successTitle")}
           </Typography>
-          <Typography sx={{ fontSize: "14px", color: "text.secondary", fontFamily: "UrbanistMedium", lineHeight: 1.6, mb: 3, maxWidth: "320px", mx: "auto" }}>
+          <Typography sx={{ fontSize: "14px", color: "text.secondary", fontFamily: "var(--font-sans)", lineHeight: 1.6, mb: 3, maxWidth: "320px", mx: "auto" }}>
             {t("forgotPasswordDialog.successBody")}
           </Typography>
 

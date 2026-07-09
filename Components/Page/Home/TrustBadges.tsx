@@ -68,7 +68,7 @@ const TrustBadgesSection: FC = () => {
           <Typography
             sx={{
               fontSize: "12px",
-              fontFamily: "UrbanistSemibold",
+              fontFamily: "var(--font-sans)",
               fontWeight: 600,
               color: "#10B981",
               textTransform: "uppercase",
@@ -81,7 +81,7 @@ const TrustBadgesSection: FC = () => {
         <Typography
           sx={{
             fontSize: isMobile ? "28px" : "40px",
-            fontFamily: "UrbanistSemibold",
+            fontFamily: "var(--font-sans)",
             fontWeight: 700,
             color: theme.palette.text.primary,
             lineHeight: 1.15,
@@ -93,7 +93,7 @@ const TrustBadgesSection: FC = () => {
         <Typography
           sx={{
             fontSize: isMobile ? "14px" : "16px",
-            fontFamily: "UrbanistMedium",
+            fontFamily: "var(--font-sans)",
             color: theme.palette.text.secondary,
             maxWidth: 560,
             mx: "auto",
@@ -156,7 +156,7 @@ const TrustBadgesSection: FC = () => {
               <Typography
                 sx={{
                   fontSize: isMobile ? "15px" : "16px",
-                  fontFamily: "UrbanistSemibold",
+                  fontFamily: "var(--font-sans)",
                   fontWeight: 600,
                   color: theme.palette.text.primary,
                   lineHeight: 1.3,
@@ -168,7 +168,7 @@ const TrustBadgesSection: FC = () => {
               <Typography
                 sx={{
                   fontSize: isMobile ? "13px" : "14px",
-                  fontFamily: "UrbanistMedium",
+                  fontFamily: "var(--font-sans)",
                   color: theme.palette.text.secondary,
                   lineHeight: 1.5,
                 }}

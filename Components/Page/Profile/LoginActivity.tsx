@@ -102,7 +102,7 @@ const LoginActivity = () => {
       ) : activities.length === 0 ? (
         <Typography
           data-testid="no-login-activity"
-          sx={{ fontSize: "14px", color: theme.palette.text.secondary, fontFamily: "UrbanistMedium", textAlign: "center", py: 3 }}
+          sx={{ fontSize: "14px", color: theme.palette.text.secondary, fontFamily: "var(--font-sans)", textAlign: "center", py: 3 }}
         >
           {t("noLoginActivity")}
         </Typography>
@@ -141,11 +141,11 @@ const LoginActivity = () => {
               {/* Details */}
               <Box sx={{ flex: 1, minWidth: 0 }}>
                 <Box sx={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }}>
-                  <Typography sx={{ fontSize: isMobile ? "13px" : "14px", fontWeight: 600, fontFamily: "UrbanistSemibold", color: theme.palette.text.primary, lineHeight: 1.3 }}>
+                  <Typography sx={{ fontSize: isMobile ? "13px" : "14px", fontWeight: 600, fontFamily: "var(--font-sans)", color: theme.palette.text.primary, lineHeight: 1.3 }}>
                     {entry.device}{entry.browser && entry.browser !== 'Unknown' ? ` · ${entry.browser}` : ''}
                   </Typography>
                   {entry.os && entry.os !== 'Unknown' && (
-                    <Typography sx={{ fontSize: "12px", color: theme.palette.text.secondary, fontFamily: "UrbanistMedium" }}>
+                    <Typography sx={{ fontSize: "12px", color: theme.palette.text.secondary, fontFamily: "var(--font-sans)" }}>
                       {entry.os}
                     </Typography>
                   )}
@@ -157,7 +157,7 @@ const LoginActivity = () => {
                       size="small"
                       color="error"
                       variant="outlined"
-                      sx={{ height: "20px", fontSize: "11px", fontFamily: "UrbanistMedium" }}
+                      sx={{ height: "20px", fontSize: "11px", fontFamily: "var(--font-sans)" }}
                     />
                   )}
                 </Box>
@@ -165,13 +165,13 @@ const LoginActivity = () => {
                   {entry.location && (
                     <>
                       <LocationOnOutlinedIcon sx={{ fontSize: "13px", color: theme.palette.text.secondary }} />
-                      <Typography sx={{ fontSize: "12px", color: theme.palette.text.secondary, fontFamily: "UrbanistMedium" }}>
+                      <Typography sx={{ fontSize: "12px", color: theme.palette.text.secondary, fontFamily: "var(--font-sans)" }}>
                         {entry.location}
                       </Typography>
                       <Typography sx={{ fontSize: "12px", color: theme.palette.text.secondary, mx: "2px" }}>·</Typography>
                     </>
                   )}
-                  <Typography sx={{ fontSize: "12px", color: theme.palette.text.secondary, fontFamily: "UrbanistMedium", fontVariantNumeric: "tabular-nums" }}>
+                  <Typography sx={{ fontSize: "12px", color: theme.palette.text.secondary, fontFamily: "var(--font-sans)", fontVariantNumeric: "tabular-nums" }}>
                     IP: {entry.ip_address}
                   </Typography>
                 </Box>
@@ -183,7 +183,7 @@ const LoginActivity = () => {
                   sx={{
                     fontSize: isMobile ? "11px" : "12px",
                     color: theme.palette.text.secondary,
-                    fontFamily: "UrbanistMedium",
+                    fontFamily: "var(--font-sans)",
                     whiteSpace: "nowrap",
                     flexShrink: 0,
                   }}

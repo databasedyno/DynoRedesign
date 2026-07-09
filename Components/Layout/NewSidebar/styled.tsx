@@ -24,7 +24,7 @@ export const Menu = styled("div")(({ theme }) => ({
 /** Small uppercase group caption — modern SaaS sidebar pattern. */
 export const SectionLabel = styled("div")(({ theme }) => ({
   fontSize: "10.5px",
-  fontFamily: "UrbanistBold",
+  fontFamily: "var(--font-sans)",
   fontWeight: 700,
   letterSpacing: "1.4px",
   textTransform: "uppercase",
@@ -146,7 +146,7 @@ export const HelpSupportBtn = styled("button")(({ theme }) => ({
 
 export const KnowledgeBaseTitle = styled("div")(({ theme }) => ({
   fontSize: "15px",
-  fontFamily: "UrbanistMedium",
+  fontFamily: "var(--font-sans)",
   fontWeight: 500,
   color: theme.palette.text.secondary,
   [theme.breakpoints.down("md")]: {
@@ -173,7 +173,7 @@ export const ReferralCard = styled("div")(({ theme }) => ({
 export const ReferralCardTitle = styled("div")(({ theme }) => ({
   fontSize: "15px",
   fontWeight: 500,
-  fontFamily: "UrbanistMedium",
+  fontFamily: "var(--font-sans)",
   color: theme.palette.text.primary,
   [theme.breakpoints.down("md")]: {
     fontSize: "13px",
@@ -210,7 +210,7 @@ export const ReferralCardContentValue = styled("span")(({ theme }) => ({
   background: theme.palette.background.paper,
   fontSize: "15px",
   fontWeight: 500,
-  fontFamily: "UrbanistMedium",
+  fontFamily: "var(--font-sans)",
   color: theme.palette.primary.main,
   flex: 1,
   lineHeight: 1.2,

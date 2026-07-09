@@ -175,7 +175,7 @@ const SettingsPage = ({
             mb: { xs: 2, md: 3 },
             minHeight: 40,
             "& .MuiTab-root": {
-              fontFamily: "UrbanistSemibold",
+              fontFamily: "var(--font-sans)",
               fontSize: { xs: 13, md: 14 },
               textTransform: "none",
               minHeight: 40,
@@ -261,7 +261,7 @@ const SettingsPage = ({
                 <Typography
                   sx={{
                     fontSize: { xs: "14px", md: "16px" },
-                    fontFamily: "UrbanistSemibold",
+                    fontFamily: "var(--font-sans)",
                     fontWeight: 600,
                     color: theme.palette.text.primary,
                     mb: 0.5,
@@ -272,7 +272,7 @@ const SettingsPage = ({
                 <Typography
                   sx={{
                     fontSize: { xs: "12px", md: "13px" },
-                    fontFamily: "UrbanistMedium",
+                    fontFamily: "var(--font-sans)",
                     color: theme.palette.text.secondary,
                     lineHeight: 1.5,
                   }}
@@ -289,7 +289,7 @@ const SettingsPage = ({
                 gridColumn: "1 / -1",
                 textAlign: "center",
                 py: 4,
-                fontFamily: "UrbanistMedium",
+                fontFamily: "var(--font-sans)",
               }}
             >
               No settings in this section yet.

@@ -290,7 +290,7 @@ export default function TimePeriodSelector({
                 textTransform: "none",
                 fontSize: "14px",
                 fontWeight: 500,
-                fontFamily: "UrbanistMedium",
+                fontFamily: "var(--font-sans)",
                 color: theme.palette.text.primary,
                 backgroundColor: theme.palette.background.paper,
                 border: `1px solid ${theme.palette.border.main}`,
@@ -322,7 +322,7 @@ export default function TimePeriodSelector({
             <Typography
               sx={{
                 fontSize: isMobile ? "13px" : "15px",
-                fontFamily: "UrbanistMedium",
+                fontFamily: "var(--font-sans)",
                 flex: 1,
                 textAlign: "left",
               }}
@@ -375,7 +375,7 @@ export default function TimePeriodSelector({
               style={{
                 fontWeight: "500",
                 fontSize: isMobile ? "13px" : "15px",
-                fontFamily: "UrbanistMedium",
+                fontFamily: "var(--font-sans)",
                 lineHeight: 1.2,
                 letterSpacing: 0,
                 whiteSpace: "nowrap",
@@ -451,7 +451,7 @@ export default function TimePeriodSelector({
                 style={{
                   fontWeight: "500",
                   fontSize: isMobile ? "13px" : "15px",
-                  fontFamily: "UrbanistMedium",
+                  fontFamily: "var(--font-sans)",
                   whiteSpace: "nowrap",
                 }}
               >
@@ -492,7 +492,7 @@ export default function TimePeriodSelector({
                 sx={{
                   borderRadius: "63px",
                   fontSize: isMobile ? "13px" : "15px",
-                  fontFamily: "UrbanistMedium",
+                  fontFamily: "var(--font-sans)",
                   height: "32px",
                   px: "12px",
                   display: "flex",

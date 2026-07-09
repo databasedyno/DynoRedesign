@@ -305,7 +305,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
             onChange={(_, v) => setActiveTab(v)}
             sx={{
               "& .MuiTab-root": {
-                fontFamily: "UrbanistMedium",
+                fontFamily: "var(--font-sans)",
                 fontSize: isMobile ? 13 : 15,
                 textTransform: "none",
               },
@@ -339,7 +339,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                     <TableRow>
                       <TableCell
                         sx={{
-                          fontFamily: "UrbanistMedium",
+                          fontFamily: "var(--font-sans)",
                           fontWeight: 600,
                           color: muiTheme.palette.text.secondary,
                           fontSize: isMobile ? 11 : 13,
@@ -349,7 +349,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                       </TableCell>
                       <TableCell
                         sx={{
-                          fontFamily: "UrbanistMedium",
+                          fontFamily: "var(--font-sans)",
                           fontWeight: 600,
                           color: muiTheme.palette.text.secondary,
                           fontSize: isMobile ? 11 : 13,
@@ -359,7 +359,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                       </TableCell>
                       <TableCell
                         sx={{
-                          fontFamily: "UrbanistMedium",
+                          fontFamily: "var(--font-sans)",
                           fontWeight: 600,
                           color: muiTheme.palette.text.secondary,
                           fontSize: isMobile ? 11 : 13,
@@ -370,7 +370,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                       <TableCell
                         align="right"
                         sx={{
-                          fontFamily: "UrbanistMedium",
+                          fontFamily: "var(--font-sans)",
                           fontWeight: 600,
                           color: muiTheme.palette.text.secondary,
                           fontSize: isMobile ? 11 : 13,
@@ -381,7 +381,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                       <TableCell
                         align="right"
                         sx={{
-                          fontFamily: "UrbanistMedium",
+                          fontFamily: "var(--font-sans)",
                           fontWeight: 600,
                           color: muiTheme.palette.text.secondary,
                           fontSize: isMobile ? 11 : 13,
@@ -392,7 +392,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                       <TableCell
                         align="center"
                         sx={{
-                          fontFamily: "UrbanistMedium",
+                          fontFamily: "var(--font-sans)",
                           fontWeight: 600,
                           color: muiTheme.palette.text.secondary,
                           fontSize: isMobile ? 11 : 13,
@@ -455,7 +455,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                                 </Box>
                                 <Typography
                                   sx={{
-                                    fontFamily: "UrbanistSemibold",
+                                    fontFamily: "var(--font-sans)",
                                     fontWeight: 600,
                                     color: muiTheme.palette.text.primary,
                                     fontSize: isMobile ? 15 : 16,
@@ -465,7 +465,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                                 </Typography>
                                 <Typography
                                   sx={{
-                                    fontFamily: "UrbanistMedium",
+                                    fontFamily: "var(--font-sans)",
                                     color: muiTheme.palette.text.secondary,
                                     fontSize: isMobile ? 12 : 13,
                                     maxWidth: 340,
@@ -483,7 +483,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                             <TableCell>
                               <Typography
                                 sx={{
-                                  fontFamily: "UrbanistMedium",
+                                  fontFamily: "var(--font-sans)",
                                   fontSize: isMobile ? 12 : 14,
                                   color: muiTheme.palette.text.primary,
                                 }}
@@ -494,7 +494,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                             <TableCell>
                               <Typography
                                 sx={{
-                                  fontFamily: "UrbanistMedium",
+                                  fontFamily: "var(--font-sans)",
                                   fontSize: isMobile ? 11 : 13,
                                   color: muiTheme.palette.text.secondary,
                                 }}
@@ -505,7 +505,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                             <TableCell>
                               <Typography
                                 sx={{
-                                  fontFamily: "UrbanistMedium",
+                                  fontFamily: "var(--font-sans)",
                                   fontSize: isMobile ? 11 : 13,
                                   color: muiTheme.palette.text.primary,
                                 }}
@@ -519,7 +519,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                                   label={`${formatCurrency(parseFloat(String(inv.vat_amount)), inv.crypto_currency)} (${inv.vat_rate}%)`}
                                   size="small"
                                   sx={{
-                                    fontFamily: "UrbanistMedium",
+                                    fontFamily: "var(--font-sans)",
                                     fontSize: isMobile ? 10 : 12,
                                     backgroundColor: "#22C55E1A",
                                     color: "#22C55E",
@@ -529,7 +529,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                               ) : (
                                 <Typography
                                   sx={{
-                                    fontFamily: "UrbanistMedium",
+                                    fontFamily: "var(--font-sans)",
                                     fontSize: isMobile ? 11 : 13,
                                     color: muiTheme.palette.text.secondary,
                                   }}
@@ -541,7 +541,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                             <TableCell align="right">
                               <Typography
                                 sx={{
-                                  fontFamily: "UrbanistMedium",
+                                  fontFamily: "var(--font-sans)",
                                   fontSize: isMobile ? 12 : 14,
                                   fontWeight: 500,
                                   color: muiTheme.palette.text.primary,
@@ -593,7 +593,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                   />
                   <Typography
                     sx={{
-                      fontFamily: "UrbanistMedium",
+                      fontFamily: "var(--font-sans)",
                       fontSize: 13,
                       display: "flex",
                       alignItems: "center",
@@ -634,7 +634,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                     value={taxPeriod}
                     onChange={(e) => setTaxPeriod(e.target.value)}
                     sx={{
-                      fontFamily: "UrbanistMedium",
+                      fontFamily: "var(--font-sans)",
                       fontSize: 13,
                       minWidth: 140,
                       height: 36,
@@ -653,7 +653,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                     value={groupBy}
                     onChange={(e) => setGroupBy(e.target.value)}
                     sx={{
-                      fontFamily: "UrbanistMedium",
+                      fontFamily: "var(--font-sans)",
                       fontSize: 13,
                       minWidth: 120,
                       height: 36,
@@ -729,7 +729,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                 >
                   <Typography
                     sx={{
-                      fontFamily: "UrbanistMedium",
+                      fontFamily: "var(--font-sans)",
                       fontSize: isMobile ? 11 : 13,
                       color: muiTheme.palette.text.secondary,
                       mb: 0.5,
@@ -742,7 +742,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                   ) : (
                     <Typography
                       sx={{
-                        fontFamily: "UrbanistMedium",
+                        fontFamily: "var(--font-sans)",
                         fontSize: isMobile ? 20 : 28,
                         fontWeight: 500,
                         color: card.color,
@@ -769,7 +769,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                     <TableRow>
                       <TableCell
                         sx={{
-                          fontFamily: "UrbanistMedium",
+                          fontFamily: "var(--font-sans)",
                           fontWeight: 600,
                           color: muiTheme.palette.text.secondary,
                           fontSize: isMobile ? 11 : 13,
@@ -780,7 +780,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                       <TableCell
                         align="right"
                         sx={{
-                          fontFamily: "UrbanistMedium",
+                          fontFamily: "var(--font-sans)",
                           fontWeight: 600,
                           color: muiTheme.palette.text.secondary,
                           fontSize: isMobile ? 11 : 13,
@@ -791,7 +791,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                       <TableCell
                         align="right"
                         sx={{
-                          fontFamily: "UrbanistMedium",
+                          fontFamily: "var(--font-sans)",
                           fontWeight: 600,
                           color: muiTheme.palette.text.secondary,
                           fontSize: isMobile ? 11 : 13,
@@ -802,7 +802,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                       <TableCell
                         align="right"
                         sx={{
-                          fontFamily: "UrbanistMedium",
+                          fontFamily: "var(--font-sans)",
                           fontWeight: 600,
                           color: muiTheme.palette.text.secondary,
                           fontSize: isMobile ? 11 : 13,
@@ -827,7 +827,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                         <TableCell colSpan={4} align="center" sx={{ py: 3 }}>
                           <Typography
                             sx={{
-                              fontFamily: "UrbanistMedium",
+                              fontFamily: "var(--font-sans)",
                               fontSize: 13,
                               color: muiTheme.palette.text.secondary,
                             }}
@@ -842,7 +842,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                           <TableCell>
                             <Typography
                               sx={{
-                                fontFamily: "UrbanistMedium",
+                                fontFamily: "var(--font-sans)",
                                 fontSize: isMobile ? 12 : 14,
                               }}
                             >
@@ -852,7 +852,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                           <TableCell align="right">
                             <Typography
                               sx={{
-                                fontFamily: "UrbanistMedium",
+                                fontFamily: "var(--font-sans)",
                                 fontSize: isMobile ? 12 : 14,
                               }}
                             >
@@ -862,7 +862,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                           <TableCell align="right">
                             <Typography
                               sx={{
-                                fontFamily: "UrbanistMedium",
+                                fontFamily: "var(--font-sans)",
                                 fontSize: isMobile ? 12 : 14,
                                 color: "#22C55E",
                                 fontWeight: 500,
@@ -874,7 +874,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                           <TableCell align="right">
                             <Typography
                               sx={{
-                                fontFamily: "UrbanistMedium",
+                                fontFamily: "var(--font-sans)",
                                 fontSize: isMobile ? 12 : 14,
                               }}
                             >
@@ -902,7 +902,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                     <TableRow>
                       <TableCell
                         sx={{
-                          fontFamily: "UrbanistMedium",
+                          fontFamily: "var(--font-sans)",
                           fontWeight: 600,
                           color: muiTheme.palette.text.secondary,
                           fontSize: isMobile ? 11 : 13,
@@ -913,7 +913,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                       <TableCell
                         align="right"
                         sx={{
-                          fontFamily: "UrbanistMedium",
+                          fontFamily: "var(--font-sans)",
                           fontWeight: 600,
                           color: muiTheme.palette.text.secondary,
                           fontSize: isMobile ? 11 : 13,
@@ -924,7 +924,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                       <TableCell
                         align="right"
                         sx={{
-                          fontFamily: "UrbanistMedium",
+                          fontFamily: "var(--font-sans)",
                           fontWeight: 600,
                           color: muiTheme.palette.text.secondary,
                           fontSize: isMobile ? 11 : 13,
@@ -935,7 +935,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                       <TableCell
                         align="right"
                         sx={{
-                          fontFamily: "UrbanistMedium",
+                          fontFamily: "var(--font-sans)",
                           fontWeight: 600,
                           color: muiTheme.palette.text.secondary,
                           fontSize: isMobile ? 11 : 13,
@@ -960,7 +960,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                         <TableCell colSpan={4} align="center" sx={{ py: 3 }}>
                           <Typography
                             sx={{
-                              fontFamily: "UrbanistMedium",
+                              fontFamily: "var(--font-sans)",
                               fontSize: 13,
                               color: muiTheme.palette.text.secondary,
                             }}
@@ -975,7 +975,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                           <TableCell>
                             <Typography
                               sx={{
-                                fontFamily: "UrbanistMedium",
+                                fontFamily: "var(--font-sans)",
                                 fontSize: isMobile ? 12 : 14,
                               }}
                             >
@@ -987,7 +987,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                               label={`${row.tax_rate}%`}
                               size="small"
                               sx={{
-                                fontFamily: "UrbanistMedium",
+                                fontFamily: "var(--font-sans)",
                                 fontSize: 11,
                                 backgroundColor:
                                   row.tax_rate > 0 ? "#22C55E1A" : "#F3F4F6",
@@ -1001,7 +1001,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                           <TableCell align="right">
                             <Typography
                               sx={{
-                                fontFamily: "UrbanistMedium",
+                                fontFamily: "var(--font-sans)",
                                 fontSize: isMobile ? 12 : 14,
                                 color: "#22C55E",
                                 fontWeight: 500,
@@ -1013,7 +1013,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                           <TableCell align="right">
                             <Typography
                               sx={{
-                                fontFamily: "UrbanistMedium",
+                                fontFamily: "var(--font-sans)",
                                 fontSize: isMobile ? 12 : 14,
                               }}
                             >

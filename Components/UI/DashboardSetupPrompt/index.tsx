@@ -82,7 +82,7 @@ const DashboardSetupPrompt: React.FC<DashboardSetupPromptProps> = ({
           <Typography
             sx={{
               fontSize: isMobile ? "15px" : "17px",
-              fontFamily: "UrbanistSemibold",
+              fontFamily: "var(--font-sans)",
               fontWeight: 600,
               color: theme.palette.text.primary,
               lineHeight: 1.3,
@@ -93,7 +93,7 @@ const DashboardSetupPrompt: React.FC<DashboardSetupPromptProps> = ({
           <Typography
             sx={{
               fontSize: isMobile ? "12px" : "13px",
-              fontFamily: "UrbanistMedium",
+              fontFamily: "var(--font-sans)",
               fontWeight: 500,
               color: theme.palette.text.secondary,
               lineHeight: 1.4,
@@ -158,7 +158,7 @@ const DashboardSetupPrompt: React.FC<DashboardSetupPromptProps> = ({
                 sx={{
                   flex: 1,
                   fontSize: isMobile ? "13px" : "14px",
-                  fontFamily: isDone ? "UrbanistMedium" : "UrbanistSemibold",
+                  fontFamily: isDone ? "var(--font-sans)" : "var(--font-sans)",
                   fontWeight: isDone ? 500 : 600,
                   color: isDone ? theme.palette.text.secondary : theme.palette.text.primary,
                   textDecoration: isDone ? "line-through" : "none",

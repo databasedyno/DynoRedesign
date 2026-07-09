@@ -906,7 +906,7 @@ const CreatePaymentLinkPage = ({
               <Typography
                 sx={{
                   fontSize: "14px",
-                  fontFamily: "UrbanistSemiBold",
+                  fontFamily: "var(--font-sans)",
                   fontWeight: 600,
                   color: theme.palette.mode === "dark" ? "#FFB74D" : "#E65100",
                   lineHeight: 1.4,
@@ -918,7 +918,7 @@ const CreatePaymentLinkPage = ({
               <Typography
                 sx={{
                   fontSize: "13px",
-                  fontFamily: "UrbanistMedium",
+                  fontFamily: "var(--font-sans)",
                   color: theme.palette.mode === "dark" ? "#FFB74D" : "#E65100",
                   lineHeight: 1.5,
                   opacity: 0.9,
@@ -941,7 +941,7 @@ const CreatePaymentLinkPage = ({
                     cursor: "pointer",
                     padding: "6px 12px",
                     borderRadius: 999,
-                    fontFamily: "UrbanistSemiBold",
+                    fontFamily: "var(--font-sans)",
                     fontSize: 12,
                     backgroundColor: theme.palette.mode === "dark" ? "#FFB74D" : "#E65100",
                     color: theme.palette.mode === "dark" ? "#000" : "#FFF",
@@ -965,7 +965,7 @@ const CreatePaymentLinkPage = ({
                     cursor: "pointer",
                     padding: "6px 12px",
                     borderRadius: 999,
-                    fontFamily: "UrbanistSemiBold",
+                    fontFamily: "var(--font-sans)",
                     fontSize: 12,
                     border: `1px solid ${theme.palette.mode === "dark" ? "#FFB74D" : "#E65100"}`,
                     color: theme.palette.mode === "dark" ? "#FFB74D" : "#E65100",
@@ -1114,7 +1114,7 @@ const CreatePaymentLinkPage = ({
                     alignItems: "center",
                     justifyContent: "space-between",
                     userSelect: "none",
-                    fontFamily: "UrbanistSemiBold",
+                    fontFamily: "var(--font-sans)",
                     fontSize: 14,
                     fontWeight: 600,
                     color: theme.palette.text.primary,
@@ -1136,7 +1136,7 @@ const CreatePaymentLinkPage = ({
                     <Typography
                       component="span"
                       sx={{
-                        fontFamily: "UrbanistRegular",
+                        fontFamily: "var(--font-sans)",
                         fontWeight: 400,
                         fontSize: 12,
                         color: theme.palette.text.secondary,
@@ -1159,21 +1159,21 @@ const CreatePaymentLinkPage = ({
                     <Typography
                       sx={{
                         fontSize: "14px",
-                        fontFamily: "UrbanistSemiBold",
+                        fontFamily: "var(--font-sans)",
                         fontWeight: 600,
                         color: theme.palette.text.primary,
                         mb: 1,
                       }}
                     >
                       {tPaymentLink("customerEmail") || "Customer Email"}{" "}
-                      <Typography component="span" sx={{ fontSize: "13px", color: theme.palette.text.secondary, fontFamily: "UrbanistRegular" }}>
+                      <Typography component="span" sx={{ fontSize: "13px", color: theme.palette.text.secondary, fontFamily: "var(--font-sans)" }}>
                         ({tPaymentLink("optional") || "Optional"})
                       </Typography>
                     </Typography>
                     <Typography
                       sx={{
                         fontSize: "12px",
-                        fontFamily: "UrbanistRegular",
+                        fontFamily: "var(--font-sans)",
                         color: theme.palette.text.secondary,
                         mb: 1.5,
                       }}
@@ -1193,7 +1193,7 @@ const CreatePaymentLinkPage = ({
                         border: `1px solid ${customerEmailError ? theme.palette.error.main : theme.palette.border.main}`,
                         bgcolor: theme.palette.background.paper,
                         color: theme.palette.text.primary,
-                        fontFamily: "UrbanistRegular",
+                        fontFamily: "var(--font-sans)",
                         fontSize: "14px",
                         outline: "none",
                         "&:focus": {
@@ -1208,7 +1208,7 @@ const CreatePaymentLinkPage = ({
                       <Typography
                         sx={{
                           fontSize: "12px",
-                          fontFamily: "UrbanistMedium",
+                          fontFamily: "var(--font-sans)",
                           color: theme.palette.error.main,
                           mt: "4px",
                         }}
@@ -1270,23 +1270,23 @@ const CreatePaymentLinkPage = ({
                 }}
               >
                 <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <Typography sx={{ fontSize: 13, fontFamily: "UrbanistMedium", color: theme.palette.text.secondary }}>
+                  <Typography sx={{ fontSize: 13, fontFamily: "var(--font-sans)", color: theme.palette.text.secondary }}>
                     Estimated Fee ({feePreview.fee_info?.final_fee_percent ?? feePreview.fee_info?.base_fee_percent ?? "—"}%)
                   </Typography>
-                  <Typography sx={{ fontSize: 14, fontFamily: "UrbanistSemiBold", color: theme.palette.text.primary }}>
+                  <Typography sx={{ fontSize: 14, fontFamily: "var(--font-sans)", color: theme.palette.text.primary }}>
                     {feePreview.fee != null ? `${feePreview.fee} ${feePreview.currency || paymentSettings.currency}` : "—"}
                   </Typography>
                 </Box>
                 <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <Typography sx={{ fontSize: 12, fontFamily: "UrbanistMedium", color: theme.palette.text.secondary }}>
+                  <Typography sx={{ fontSize: 12, fontFamily: "var(--font-sans)", color: theme.palette.text.secondary }}>
                     {t("youReceive")}
                   </Typography>
-                  <Typography sx={{ fontSize: 13, fontFamily: "UrbanistSemiBold", color: theme.palette.success?.main || "#22c55e" }}>
+                  <Typography sx={{ fontSize: 13, fontFamily: "var(--font-sans)", color: theme.palette.success?.main || "#22c55e" }}>
                     {feePreview.you_receive != null ? `${feePreview.you_receive} ${feePreview.currency || paymentSettings.currency}` : "—"}
                   </Typography>
                 </Box>
                 {paymentSettings.blockchainFees && (
-                  <Typography sx={{ fontSize: 11, fontFamily: "UrbanistRegular", color: theme.palette.text.secondary, opacity: 0.7 }}>
+                  <Typography sx={{ fontSize: 11, fontFamily: "var(--font-sans)", color: theme.palette.text.secondary, opacity: 0.7 }}>
                     Fee paid by: {paymentSettings.blockchainFees === "customer" ? "Customer" : "Company"}
                   </Typography>
                 )}

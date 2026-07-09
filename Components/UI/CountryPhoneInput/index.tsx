@@ -61,7 +61,7 @@ const CountryPhoneInput: React.FC<CountryPhoneInputProps> = ({
           htmlFor={name}
           sx={{
             fontWeight: 500,
-            fontFamily: "UrbanistMedium",
+            fontFamily: "var(--font-sans)",
             fontSize: isMobile ? "14px" : "15px",
             color: theme.palette.text.primary,
             lineHeight: 1.2,
@@ -93,12 +93,12 @@ const CountryPhoneInput: React.FC<CountryPhoneInputProps> = ({
           width: "100%",
           borderRadius: "6px !important",
           boxShadow: "none",
-          fontFamily: "UrbanistMedium",
+          fontFamily: "var(--font-sans)",
           "& .MuiInputBase-root .MuiTypography-root": {
             border: "none !important",
             fontSize: inputFontSize,
             color: fieldText,
-            fontFamily: "UrbanistMedium",
+            fontFamily: "var(--font-sans)",
             paddingLeft: "8px !important",
             [theme.breakpoints.down("md")]: {
               fontSize: "14px",
@@ -116,7 +116,7 @@ const CountryPhoneInput: React.FC<CountryPhoneInputProps> = ({
             color: fieldText,
             "& input": {
               padding: "12px 0 !important",
-              fontFamily: "UrbanistMedium",
+              fontFamily: "var(--font-sans)",
               boxSizing: "border-box",
               color: fieldText,
               fontSize: inputFontSize,
@@ -124,7 +124,7 @@ const CountryPhoneInput: React.FC<CountryPhoneInputProps> = ({
               "&::placeholder": {
                 color: theme.palette.text.secondary,
                 opacity: 1,
-                fontFamily: "UrbanistMedium",
+                fontFamily: "var(--font-sans)",
                 fontSize: inputFontSize,
                 lineHeight: 1.2,
               },
@@ -231,7 +231,7 @@ const CountryPhoneInput: React.FC<CountryPhoneInputProps> = ({
             "& p": {
               fontSize: "15px",
               color: fieldText,
-              fontFamily: "UrbanistMedium",
+              fontFamily: "var(--font-sans)",
               margin: 0,
             },
           },
@@ -265,7 +265,7 @@ const CountryPhoneInput: React.FC<CountryPhoneInputProps> = ({
         <Typography
           sx={{
             fontSize: isMobile ? "12px" : "13px",
-            fontFamily: "UrbanistMedium",
+            fontFamily: "var(--font-sans)",
             fontWeight: 500,
             color: error ? theme.palette.error.main : theme.palette.text.secondary,
             lineHeight: 1.2,

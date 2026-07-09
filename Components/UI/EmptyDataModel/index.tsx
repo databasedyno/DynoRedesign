@@ -113,7 +113,7 @@ const EmptyDataModel = ({ pageName, onAddWallet }: EmptyDataModelProps) => {
                     <Typography
                         component="h2"
                         sx={{
-                            fontFamily: "UrbanistMedium",
+                            fontFamily: "var(--font-sans)",
                             fontWeight: 500,
                             fontSize: isMobile ? "16px" : "20px",
                             lineHeight: "100%",
@@ -127,7 +127,7 @@ const EmptyDataModel = ({ pageName, onAddWallet }: EmptyDataModelProps) => {
                     <Typography
                         component="p"
                         sx={{
-                            fontFamily: "UrbanistMedium",
+                            fontFamily: "var(--font-sans)",
                             fontWeight: 500,
                             fontSize: isMobile ? "12px" : "15px",
                             lineHeight: "100%",
@@ -171,7 +171,7 @@ const EmptyDataModel = ({ pageName, onAddWallet }: EmptyDataModelProps) => {
                     >
                         <Typography
                             sx={{
-                                fontFamily: "UrbanistMedium",
+                                fontFamily: "var(--font-sans)",
                                 fontSize: isMobile ? "12px" : "13px",
                                 color: theme.palette.text.secondary,
                                 mb: 0.5,
@@ -202,7 +202,7 @@ const EmptyDataModel = ({ pageName, onAddWallet }: EmptyDataModelProps) => {
                                         border: `1px solid ${theme.palette.border.main}`,
                                         borderRadius: 999,
                                         padding: isMobile ? "6px 12px" : "8px 14px",
-                                        fontFamily: "UrbanistMedium",
+                                        fontFamily: "var(--font-sans)",
                                         fontSize: isMobile ? 12 : 13,
                                         color: theme.palette.text.primary,
                                         backgroundColor: theme.palette.background.paper,
@@ -236,7 +236,7 @@ const EmptyDataModel = ({ pageName, onAddWallet }: EmptyDataModelProps) => {
                             alignItems: "center",
                             gap: 0.5,
                             mt: -1.25,
-                            fontFamily: "UrbanistMedium",
+                            fontFamily: "var(--font-sans)",
                             fontSize: isMobile ? "12px" : "13px",
                             color: theme.palette.primary.main,
                         }}

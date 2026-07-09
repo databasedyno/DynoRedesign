@@ -347,7 +347,7 @@ const TransactionsTopBar: React.FC<TransactionsTopBarProps & { initialWallet?: s
               minWidth: "auto",
               height: isLgMobile ? "32px" : "40px",
               fontSize: isLgMobile ? "13px" : "15px",
-              fontFamily: "UrbanistMedium",
+              fontFamily: "var(--font-sans)",
               fontWeight: 500,
             }}
           />

@@ -143,7 +143,7 @@ const DashboardRightSection = () => {
               sx={{
                 fontSize: isMobile ? 10 : 13,
                 color: muiTheme.palette.text.secondary,
-                fontFamily: "UrbanistMedium",
+                fontFamily: "var(--font-sans)",
                 lineHeight: 1.2,
                 letterSpacing: 0,
                 fontWeight: 500,
@@ -152,7 +152,7 @@ const DashboardRightSection = () => {
               {tDashboard("monthlyVolume")}
             </Typography>
 
-            <Typography component="div" sx={{ fontFamily: "UrbanistMedium" }}>
+            <Typography component="div" sx={{ fontFamily: "var(--font-sans)" }}>
               <Box
                 component="span"
                 sx={{
@@ -223,7 +223,7 @@ const DashboardRightSection = () => {
                 fontSize: isMobile ? 13 : 15,
                 fontWeight: 500,
                 color: muiTheme.palette.success.dark,
-                fontFamily: "UrbanistMedium",
+                fontFamily: "var(--font-sans)",
                 lineHeight: 1.2,
                 letterSpacing: "0",
                 display: "flex",
@@ -248,7 +248,7 @@ const DashboardRightSection = () => {
                   data-testid="current-tier-percent"
                   sx={{
                     fontWeight: 700,
-                    fontFamily: "UrbanistBold",
+                    fontFamily: "var(--font-sans)",
                     color: muiTheme.palette.success.dark,
                     ml: 0.5,
                   }}
@@ -268,7 +268,7 @@ const DashboardRightSection = () => {
                 textAlign: "center",
                 fontSize: isMobile ? 11 : 12,
                 color: muiTheme.palette.text.secondary,
-                fontFamily: "UrbanistMedium",
+                fontFamily: "var(--font-sans)",
                 lineHeight: 1.4,
                 px: 1,
               }}

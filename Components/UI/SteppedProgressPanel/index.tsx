@@ -111,7 +111,7 @@ const SteppedProgressPanel: React.FC<SteppedProgressPanelProps> = ({
 
       <Typography
         sx={{
-          fontFamily: "UrbanistBold",
+          fontFamily: "var(--font-sans)",
           fontWeight: 700,
           fontSize: size === "sm" ? "18px" : "22px",
           color: theme.palette.text.primary,
@@ -125,7 +125,7 @@ const SteppedProgressPanel: React.FC<SteppedProgressPanelProps> = ({
         data-testid={`${testId}-message`}
         key={stepIndex}
         sx={{
-          fontFamily: "UrbanistMedium",
+          fontFamily: "var(--font-sans)",
           fontSize: "15px",
           color: theme.palette.text.secondary,
           minHeight: "1.5em",
@@ -166,7 +166,7 @@ const SteppedProgressPanel: React.FC<SteppedProgressPanelProps> = ({
       {hint && (
         <Typography
           sx={{
-            fontFamily: "UrbanistMedium",
+            fontFamily: "var(--font-sans)",
             fontSize: "12px",
             color: theme.palette.text.disabled,
             mt: 1,

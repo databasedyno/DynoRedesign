@@ -212,7 +212,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
             <Typography
               sx={{
                 fontSize: isMobile ? "16px" : "18px",
-                fontFamily: "UrbanistSemibold",
+                fontFamily: "var(--font-sans)",
                 fontWeight: 600,
                 color: theme.palette.text.primary,
                 mb: 0.5,
@@ -228,7 +228,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
                   data-testid="referral-code-value"
                   sx={{
                     fontSize: isMobile ? "18px" : "22px",
-                    fontFamily: "UrbanistSemibold",
+                    fontFamily: "var(--font-sans)",
                     fontWeight: 700,
                     color: theme.palette.primary.main,
                     letterSpacing: "1px",
@@ -273,7 +273,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
                 }}
               >
                 <ContentCopyRounded sx={{ fontSize: 18 }} />
-                <Typography sx={{ fontSize: "14px", fontFamily: "UrbanistSemibold", fontWeight: 600 }}>
+                <Typography sx={{ fontSize: "14px", fontFamily: "var(--font-sans)", fontWeight: 600 }}>
                   {t("copyLink")}
                 </Typography>
               </Box>
@@ -295,7 +295,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
                 }}
               >
                 <ShareRounded sx={{ fontSize: 18 }} />
-                <Typography sx={{ fontSize: "14px", fontFamily: "UrbanistSemibold", fontWeight: 600 }}>
+                <Typography sx={{ fontSize: "14px", fontFamily: "var(--font-sans)", fontWeight: 600 }}>
                   {t("shareLink")}
                 </Typography>
               </Box>
@@ -347,7 +347,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
           <Typography
             sx={{
               fontSize: isMobile ? "15px" : "17px",
-              fontFamily: "UrbanistSemibold",
+              fontFamily: "var(--font-sans)",
               fontWeight: 600,
               color: theme.palette.text.primary,
               mb: 2,
@@ -393,7 +393,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    fontFamily: "UrbanistSemibold",
+                    fontFamily: "var(--font-sans)",
                     fontWeight: 700,
                     fontSize: isMobile ? "13px" : "15px",
                     flexShrink: 0,
@@ -402,10 +402,10 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
                   {item.step}
                 </Box>
                 <Box>
-                  <Typography sx={{ fontSize: isMobile ? "13px" : "14px", fontFamily: "UrbanistSemibold", fontWeight: 600, color: theme.palette.text.primary, lineHeight: 1.3 }}>
+                  <Typography sx={{ fontSize: isMobile ? "13px" : "14px", fontFamily: "var(--font-sans)", fontWeight: 600, color: theme.palette.text.primary, lineHeight: 1.3 }}>
                     {item.title}
                   </Typography>
-                  <Typography sx={{ fontSize: isMobile ? "11px" : "12px", fontFamily: "UrbanistMedium", color: theme.palette.text.secondary, lineHeight: 1.4, mt: 0.25 }}>
+                  <Typography sx={{ fontSize: isMobile ? "11px" : "12px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary, lineHeight: 1.4, mt: 0.25 }}>
                     {item.desc}
                   </Typography>
                 </Box>
@@ -429,13 +429,13 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
                 bgcolor: `${theme.palette.primary.main}08`,
               }}
             >
-              <Typography sx={{ fontSize: "12px", fontFamily: "UrbanistMedium", color: theme.palette.text.secondary, mb: 0.5, textTransform: "uppercase", letterSpacing: "0.5px" }}>
+              <Typography sx={{ fontSize: "12px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary, mb: 0.5, textTransform: "uppercase", letterSpacing: "0.5px" }}>
                 {t("youGetReferrer")}
               </Typography>
-              <Typography sx={{ fontSize: isMobile ? "22px" : "26px", fontFamily: "UrbanistSemibold", fontWeight: 700, color: theme.palette.primary.main, lineHeight: 1.2 }}>
+              <Typography sx={{ fontSize: isMobile ? "22px" : "26px", fontFamily: "var(--font-sans)", fontWeight: 700, color: theme.palette.primary.main, lineHeight: 1.2 }}>
                 {t("referrerReward")}
               </Typography>
-              <Typography sx={{ fontSize: "13px", fontFamily: "UrbanistMedium", color: theme.palette.text.secondary, mt: 0.5 }}>
+              <Typography sx={{ fontSize: "13px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary, mt: 0.5 }}>
                 {t("referrerRewardDesc")}
               </Typography>
             </Box>
@@ -447,13 +447,13 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
                 bgcolor: `${theme.palette.border.success}08`,
               }}
             >
-              <Typography sx={{ fontSize: "12px", fontFamily: "UrbanistMedium", color: theme.palette.text.secondary, mb: 0.5, textTransform: "uppercase", letterSpacing: "0.5px" }}>
+              <Typography sx={{ fontSize: "12px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary, mb: 0.5, textTransform: "uppercase", letterSpacing: "0.5px" }}>
                 {t("theyGetNewUser")}
               </Typography>
-              <Typography sx={{ fontSize: isMobile ? "22px" : "26px", fontFamily: "UrbanistSemibold", fontWeight: 700, color: theme.palette.border.success, lineHeight: 1.2 }}>
+              <Typography sx={{ fontSize: isMobile ? "22px" : "26px", fontFamily: "var(--font-sans)", fontWeight: 700, color: theme.palette.border.success, lineHeight: 1.2 }}>
                 {t("refereeReward")}
               </Typography>
-              <Typography sx={{ fontSize: "13px", fontFamily: "UrbanistMedium", color: theme.palette.text.secondary, mt: 0.5 }}>
+              <Typography sx={{ fontSize: "13px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary, mt: 0.5 }}>
                 {t("refereeRewardDesc")}
               </Typography>
             </Box>
@@ -500,7 +500,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
                 <Typography
                   sx={{
                     fontSize: isMobile ? "20px" : "24px",
-                    fontFamily: "UrbanistSemibold",
+                    fontFamily: "var(--font-sans)",
                     fontWeight: 700,
                     color: theme.palette.text.primary,
                     lineHeight: 1.2,
@@ -512,7 +512,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
               <Typography
                 sx={{
                   fontSize: isMobile ? "11px" : "13px",
-                  fontFamily: "UrbanistMedium",
+                  fontFamily: "var(--font-sans)",
                   fontWeight: 500,
                   color: theme.palette.text.secondary,
                   mt: 0.5,
@@ -547,7 +547,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
               <Typography
                 sx={{
                   fontSize: isMobile ? "14px" : "16px",
-                  fontFamily: "UrbanistSemibold",
+                  fontFamily: "var(--font-sans)",
                   fontWeight: 600,
                   color: theme.palette.text.primary,
                 }}
@@ -562,7 +562,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
                 <Typography
                   sx={{
                     fontSize: isMobile ? "28px" : "34px",
-                    fontFamily: "UrbanistSemibold",
+                    fontFamily: "var(--font-sans)",
                     fontWeight: 700,
                     color: theme.palette.border.success,
                     lineHeight: 1.2,
@@ -573,7 +573,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
                 <Typography
                   sx={{
                     fontSize: "13px",
-                    fontFamily: "UrbanistMedium",
+                    fontFamily: "var(--font-sans)",
                     fontWeight: 500,
                     color: theme.palette.text.secondary,
                     mt: 0.5,
@@ -590,7 +590,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
                 <Typography
                   sx={{
                     fontSize: "14px",
-                    fontFamily: "UrbanistMedium",
+                    fontFamily: "var(--font-sans)",
                     fontWeight: 500,
                     color: theme.palette.text.secondary,
                     lineHeight: 1.5,
@@ -617,7 +617,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
               <Typography
                 sx={{
                   fontSize: isMobile ? "14px" : "16px",
-                  fontFamily: "UrbanistSemibold",
+                  fontFamily: "var(--font-sans)",
                   fontWeight: 600,
                   color: theme.palette.text.primary,
                 }}
@@ -645,7 +645,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
                     <Typography
                       sx={{
                         fontSize: "13px",
-                        fontFamily: "UrbanistMedium",
+                        fontFamily: "var(--font-sans)",
                         fontWeight: 500,
                         color: theme.palette.text.secondary,
                       }}
@@ -655,7 +655,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
                     <Typography
                       sx={{
                         fontSize: "14px",
-                        fontFamily: "UrbanistSemibold",
+                        fontFamily: "var(--font-sans)",
                         fontWeight: 600,
                         color: theme.palette.text.primary,
                       }}
@@ -685,7 +685,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
             <Typography
               sx={{
                 fontSize: isMobile ? "14px" : "16px",
-                fontFamily: "UrbanistSemibold",
+                fontFamily: "var(--font-sans)",
                 fontWeight: 600,
                 color: theme.palette.text.primary,
               }}
@@ -702,7 +702,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
             <Typography
               sx={{
                 fontSize: "14px",
-                fontFamily: "UrbanistMedium",
+                fontFamily: "var(--font-sans)",
                 fontWeight: 500,
                 color: theme.palette.text.secondary,
                 py: 3,
@@ -729,7 +729,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
                     <Typography
                       sx={{
                         fontSize: "14px",
-                        fontFamily: "UrbanistSemibold",
+                        fontFamily: "var(--font-sans)",
                         fontWeight: 600,
                         color: theme.palette.text.primary,
                       }}
@@ -740,7 +740,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
                       <Typography
                         sx={{
                           fontSize: "12px",
-                          fontFamily: "UrbanistMedium",
+                          fontFamily: "var(--font-sans)",
                           color: theme.palette.text.secondary,
                         }}
                       >
@@ -752,7 +752,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
                     label={r.status}
                     size="small"
                     sx={{
-                      fontFamily: "UrbanistSemibold",
+                      fontFamily: "var(--font-sans)",
                       fontSize: "12px",
                       fontWeight: 600,
                       bgcolor:
@@ -792,7 +792,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
             <Typography
               sx={{
                 fontSize: isMobile ? "14px" : "16px",
-                fontFamily: "UrbanistSemibold",
+                fontFamily: "var(--font-sans)",
                 fontWeight: 600,
                 color: theme.palette.text.primary,
               }}
@@ -809,7 +809,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
             <Typography
               sx={{
                 fontSize: "14px",
-                fontFamily: "UrbanistMedium",
+                fontFamily: "var(--font-sans)",
                 fontWeight: 500,
                 color: theme.palette.text.secondary,
                 py: 3,
@@ -840,7 +840,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
                   <Typography
                     sx={{
                       fontSize: "15px",
-                      fontFamily: "UrbanistSemibold",
+                      fontFamily: "var(--font-sans)",
                       fontWeight: 700,
                       color: entry.rank <= 3 ? "#F59E0B" : theme.palette.text.secondary,
                       minWidth: 24,
@@ -852,7 +852,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
                     sx={{
                       flex: 1,
                       fontSize: "14px",
-                      fontFamily: "UrbanistSemibold",
+                      fontFamily: "var(--font-sans)",
                       fontWeight: 600,
                       color: theme.palette.text.primary,
                     }}
@@ -863,7 +863,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
                   <Typography
                     sx={{
                       fontSize: "14px",
-                      fontFamily: "UrbanistSemibold",
+                      fontFamily: "var(--font-sans)",
                       fontWeight: 600,
                       color: theme.palette.primary.main,
                     }}

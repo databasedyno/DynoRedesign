@@ -321,7 +321,7 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
               data-testid="create-company-title"
               sx={{
                 fontSize: isMobile ? "18px" : "20px",
-                fontFamily: "UrbanistSemibold",
+                fontFamily: "var(--font-sans)",
                 fontWeight: 700,
                 color: theme.palette.text.primary,
                 lineHeight: 1.3,
@@ -332,7 +332,7 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
             <Typography
               sx={{
                 fontSize: isMobile ? "12px" : "13px",
-                fontFamily: "UrbanistMedium",
+                fontFamily: "var(--font-sans)",
                 fontWeight: 500,
                 color: theme.palette.text.secondary,
                 lineHeight: 1.4,
@@ -379,7 +379,7 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
         <Box>
           <Typography
             sx={{
-              fontSize: "13px", fontWeight: 600, fontFamily: "UrbanistSemiBold",
+              fontSize: "13px", fontWeight: 600, fontFamily: "var(--font-sans)",
               color: theme.palette.text.secondary, mb: 1, textTransform: "uppercase",
               letterSpacing: "0.5px",
             }}
@@ -420,7 +420,7 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
         <Box>
           <Typography
             sx={{
-              fontSize: "13px", fontWeight: 600, fontFamily: "UrbanistSemiBold",
+              fontSize: "13px", fontWeight: 600, fontFamily: "var(--font-sans)",
               color: theme.palette.text.secondary, mb: 1, textTransform: "uppercase",
               letterSpacing: "0.5px",
             }}
@@ -461,7 +461,7 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
             sx={{
               fontSize: "13px",
               fontWeight: 500,
-              fontFamily: "UrbanistMedium",
+              fontFamily: "var(--font-sans)",
               color: theme.palette.text.primary,
               mb: 0.5,
               ml: 0.25,
@@ -486,7 +486,7 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
               "& .MuiOutlinedInput-root": {
                 borderRadius: "10px",
                 fontSize: isMobile ? "13px" : "15px",
-                fontFamily: "UrbanistMedium",
+                fontFamily: "var(--font-sans)",
                 height: isMobile ? "40px" : "44px",
                 "& fieldset": {
                   borderColor: errors.mobile
@@ -505,7 +505,7 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
                 },
               },
               "& .MuiFormHelperText-root": {
-                fontFamily: "UrbanistMedium",
+                fontFamily: "var(--font-sans)",
                 fontSize: "12px",
                 marginLeft: "4px",
               },
@@ -535,7 +535,7 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
             sx={{
               fontSize: "13px",
               fontWeight: 500,
-              fontFamily: "UrbanistMedium",
+              fontFamily: "var(--font-sans)",
               color: theme.palette.text.primary,
               mb: 0.5,
               ml: 0.25,
@@ -575,7 +575,7 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
                   display: "flex",
                   gap: 1,
                   py: 0.75,
-                  fontFamily: "UrbanistMedium",
+                  fontFamily: "var(--font-sans)",
                   fontSize: "14px",
                 }}
                 data-testid={`country-option-${option.isoCode}`}
@@ -605,13 +605,13 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
                   "& .MuiOutlinedInput-root": {
                     borderRadius: "10px",
                     fontSize: isMobile ? "13px" : "15px",
-                    fontFamily: "UrbanistMedium",
+                    fontFamily: "var(--font-sans)",
                     minHeight: isMobile ? "40px" : "44px",
                     "& fieldset": { borderColor: errors.country ? theme.palette.error.main : "#E9ECF2" },
                     "&:hover fieldset": { borderColor: errors.country ? theme.palette.error.main : "#D0D5DD" },
                     "&.Mui-focused fieldset": { borderColor: errors.country ? theme.palette.error.main : theme.palette.primary.main },
                   },
-                  "& .MuiFormHelperText-root": { fontFamily: "UrbanistMedium", fontSize: "12px", marginLeft: "4px" },
+                  "& .MuiFormHelperText-root": { fontFamily: "var(--font-sans)", fontSize: "12px", marginLeft: "4px" },
                 }}
                 data-testid="company-country-input"
               />
@@ -626,7 +626,7 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
             sx={{
               fontSize: "13px",
               fontWeight: 500,
-              fontFamily: "UrbanistMedium",
+              fontFamily: "var(--font-sans)",
               color: theme.palette.text.primary,
               mb: 0.5,
               ml: 0.25,
@@ -658,13 +658,13 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
                   "& .MuiOutlinedInput-root": {
                     borderRadius: "10px",
                     fontSize: isMobile ? "13px" : "15px",
-                    fontFamily: "UrbanistMedium",
+                    fontFamily: "var(--font-sans)",
                     minHeight: isMobile ? "40px" : "44px",
                     "& fieldset": { borderColor: errors.currency ? theme.palette.error.main : "#E9ECF2" },
                     "&:hover fieldset": { borderColor: errors.currency ? theme.palette.error.main : "#D0D5DD" },
                     "&.Mui-focused fieldset": { borderColor: errors.currency ? theme.palette.error.main : theme.palette.primary.main },
                   },
-                  "& .MuiFormHelperText-root": { fontFamily: "UrbanistMedium", fontSize: "12px", marginLeft: "4px" },
+                  "& .MuiFormHelperText-root": { fontFamily: "var(--font-sans)", fontSize: "12px", marginLeft: "4px" },
                 }}
                 data-testid="company-currency-input"
               />
@@ -678,7 +678,7 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
             sx={{
               fontSize: "13px",
               fontWeight: 500,
-              fontFamily: "UrbanistMedium",
+              fontFamily: "var(--font-sans)",
               color: theme.palette.text.primary,
               mb: 0.75,
               ml: 0.25,
@@ -714,7 +714,7 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
               <Typography
                 sx={{
                   fontSize: "13px",
-                  fontFamily: "UrbanistMedium",
+                  fontFamily: "var(--font-sans)",
                   fontWeight: 500,
                   color: theme.palette.text.secondary,
                 }}
@@ -741,7 +741,7 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
                 sx={{
                   fontSize: "12px",
                   color: theme.palette.text.secondary,
-                  fontFamily: "UrbanistMedium",
+                  fontFamily: "var(--font-sans)",
                 }}
               >
                 {fileName}
@@ -762,7 +762,7 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
               sx={{
                 color: theme.palette.error.main,
                 fontSize: "12px",
-                fontFamily: "UrbanistMedium",
+                fontFamily: "var(--font-sans)",
                 mt: 0.5,
               }}
             >

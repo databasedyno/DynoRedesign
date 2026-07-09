@@ -184,7 +184,7 @@ const LivePriceStrip: React.FC = () => {
               <Typography
                 sx={{
                   fontSize: "13px",
-                  fontFamily: "UrbanistSemiBold",
+                  fontFamily: "var(--font-sans)",
                   fontWeight: 600,
                   color: "#fff",
                   letterSpacing: "0.5px",
@@ -195,7 +195,7 @@ const LivePriceStrip: React.FC = () => {
               <Typography
                 sx={{
                   fontSize: "13px",
-                  fontFamily: "UrbanistBold",
+                  fontFamily: "var(--font-sans)",
                   fontWeight: 700,
                   color: "#fff",
                   fontVariantNumeric: "tabular-nums",
@@ -220,7 +220,7 @@ const LivePriceStrip: React.FC = () => {
                   <Typography
                     sx={{
                       fontSize: "12px",
-                      fontFamily: "UrbanistMedium",
+                      fontFamily: "var(--font-sans)",
                       fontWeight: 600,
                       color: changeColor,
                       fontVariantNumeric: "tabular-nums",

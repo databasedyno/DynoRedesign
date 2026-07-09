@@ -27,7 +27,7 @@ export const TriggerText = styled("span")(({ theme }) => ({
   fontWeight: 500,
   whiteSpace: "nowrap",
   fontSize: "15px",
-  fontFamily: "UrbanistMedium",
+  fontFamily: "var(--font-sans)",
   lineHeight: "100%",
   letterSpacing: 0,
   [theme.breakpoints.down("md")]: {

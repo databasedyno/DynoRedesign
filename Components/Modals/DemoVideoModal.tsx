@@ -148,7 +148,7 @@ const DemoVideoModal: React.FC<DemoVideoModalProps> = ({ open, onClose }) => {
               borderRadius: '999px',
               bgcolor: 'rgba(255,255,255,0.18)',
               color: '#fff',
-              fontFamily: 'UrbanistBold',
+              fontFamily: 'var(--font-sans)',
               fontSize: 12,
               letterSpacing: '1px',
               backdropFilter: 'blur(4px)',
@@ -206,7 +206,7 @@ const DemoVideoModal: React.FC<DemoVideoModalProps> = ({ open, onClose }) => {
         <Box sx={{ p: { xs: 2.5, md: 3.5 } }}>
           <Typography
             sx={{
-              fontFamily: 'UrbanistMedium',
+              fontFamily: 'var(--font-sans)',
               fontSize: { xs: 14, md: 15 },
               color: theme.palette.text.primary,
               lineHeight: 1.5,
@@ -240,7 +240,7 @@ const DemoVideoModal: React.FC<DemoVideoModalProps> = ({ open, onClose }) => {
               endIcon={<ArrowForward sx={{ fontSize: 16 }} />}
               onClick={() => { onClose(); router.push('/auth/register?ref=demo_video'); }}
               sx={{
-                fontFamily: 'UrbanistBold',
+                fontFamily: 'var(--font-sans)',
                 textTransform: 'none',
                 px: 2.2,
                 py: 0.9,

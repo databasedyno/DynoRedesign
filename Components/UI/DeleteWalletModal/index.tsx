@@ -142,7 +142,7 @@ const DeleteWalletModal: React.FC<DeleteWalletModalProps> = ({
               </Box>
               <Typography
                 sx={{
-                  fontFamily: "UrbanistSemibold",
+                  fontFamily: "var(--font-sans)",
                   fontWeight: 600,
                   fontSize: "18px",
                   lineHeight: "100%",
@@ -154,7 +154,7 @@ const DeleteWalletModal: React.FC<DeleteWalletModalProps> = ({
 
             <Typography
               sx={{
-                fontFamily: "UrbanistMedium",
+                fontFamily: "var(--font-sans)",
                 fontWeight: 500,
                 fontSize: "14px",
                 lineHeight: "150%",
@@ -166,7 +166,7 @@ const DeleteWalletModal: React.FC<DeleteWalletModalProps> = ({
               {truncatedAddress && (
                 <Typography
                   component="span"
-                  sx={{ fontFamily: "UrbanistSemibold", color: "text.primary" }}
+                  sx={{ fontFamily: "var(--font-sans)", color: "text.primary" }}
                 >
                   {" "}
                   ({truncatedAddress})
@@ -176,7 +176,7 @@ const DeleteWalletModal: React.FC<DeleteWalletModalProps> = ({
             </Typography>
 
             {error && (
-              <Alert severity="error" sx={{ mb: 1, fontFamily: "UrbanistMedium", fontSize: "13px" }}>
+              <Alert severity="error" sx={{ mb: 1, fontFamily: "var(--font-sans)", fontSize: "13px" }}>
                 {error}
               </Alert>
             )}
@@ -199,7 +199,7 @@ const DeleteWalletModal: React.FC<DeleteWalletModalProps> = ({
               </Box>
               <Typography
                 sx={{
-                  fontFamily: "UrbanistSemibold",
+                  fontFamily: "var(--font-sans)",
                   fontWeight: 600,
                   fontSize: "18px",
                   lineHeight: "100%",
@@ -211,7 +211,7 @@ const DeleteWalletModal: React.FC<DeleteWalletModalProps> = ({
 
             <Typography
               sx={{
-                fontFamily: "UrbanistMedium",
+                fontFamily: "var(--font-sans)",
                 fontWeight: 500,
                 fontSize: "14px",
                 lineHeight: "150%",
@@ -250,7 +250,7 @@ const DeleteWalletModal: React.FC<DeleteWalletModalProps> = ({
             onClick={handleClose}
             disabled={loading}
             sx={{
-              fontFamily: "UrbanistMedium",
+              fontFamily: "var(--font-sans)",
               fontWeight: 500,
               fontSize: "14px",
               color: theme.palette.text.secondary,
@@ -267,7 +267,7 @@ const DeleteWalletModal: React.FC<DeleteWalletModalProps> = ({
             onClick={handleSendOtp}
             disabled={loading}
             sx={{
-              fontFamily: "UrbanistMedium",
+              fontFamily: "var(--font-sans)",
               fontWeight: 500,
               fontSize: "14px",
               color: "#FFFFFF",
@@ -290,7 +290,7 @@ const DeleteWalletModal: React.FC<DeleteWalletModalProps> = ({
             onClick={handleClose}
             disabled={loading}
             sx={{
-              fontFamily: "UrbanistMedium",
+              fontFamily: "var(--font-sans)",
               fontWeight: 500,
               fontSize: "13px",
               color: theme.palette.text.secondary,

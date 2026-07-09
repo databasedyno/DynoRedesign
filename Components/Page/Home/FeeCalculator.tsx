@@ -106,7 +106,7 @@ const FeeCalculator: React.FC = () => {
       <Box sx={{ textAlign: 'center', mb: { xs: 4, md: 6 } }}>
         <Typography
           sx={{
-            fontFamily: 'UrbanistBold',
+            fontFamily: 'var(--font-sans)',
             fontSize: 12,
             letterSpacing: '1.5px',
             color: theme.palette.primary.main,
@@ -139,7 +139,7 @@ const FeeCalculator: React.FC = () => {
         </Typography>
         <Typography
           sx={{
-            fontFamily: 'UrbanistMedium',
+            fontFamily: 'var(--font-sans)',
             fontSize: { xs: 14, md: 16 },
             color: theme.palette.text.secondary,
             maxWidth: 620,
@@ -170,7 +170,7 @@ const FeeCalculator: React.FC = () => {
         >
           <Typography
             sx={{
-              fontFamily: 'UrbanistMedium',
+              fontFamily: 'var(--font-sans)',
               fontSize: 12.5,
               color: theme.palette.text.disabled,
               textTransform: 'uppercase',
@@ -194,7 +194,7 @@ const FeeCalculator: React.FC = () => {
             </Typography>
             <Typography
               sx={{
-                fontFamily: 'UrbanistMedium',
+                fontFamily: 'var(--font-sans)',
                 fontSize: 15,
                 color: theme.palette.text.secondary,
               }}
@@ -218,10 +218,10 @@ const FeeCalculator: React.FC = () => {
             }}
           />
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 0.5 }}>
-            <Typography sx={{ fontFamily: 'UrbanistMedium', fontSize: 11.5, color: theme.palette.text.disabled }}>
+            <Typography sx={{ fontFamily: 'var(--font-sans)', fontSize: 11.5, color: theme.palette.text.disabled }}>
               $500
             </Typography>
-            <Typography sx={{ fontFamily: 'UrbanistMedium', fontSize: 11.5, color: theme.palette.text.disabled }}>
+            <Typography sx={{ fontFamily: 'var(--font-sans)', fontSize: 11.5, color: theme.palette.text.disabled }}>
               $500K
             </Typography>
           </Box>
@@ -229,7 +229,7 @@ const FeeCalculator: React.FC = () => {
           {/* Alternative picker */}
           <Typography
             sx={{
-              fontFamily: 'UrbanistMedium',
+              fontFamily: 'var(--font-sans)',
               fontSize: 12.5,
               color: theme.palette.text.disabled,
               textTransform: 'uppercase',
@@ -252,7 +252,7 @@ const FeeCalculator: React.FC = () => {
                     borderRadius: '10px',
                     border: `1px solid ${isDark ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.10)'}`,
                     bgcolor: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.7)',
-                    fontFamily: 'UrbanistSemiBold',
+                    fontFamily: 'var(--font-sans)',
                     fontSize: 14,
                     color: theme.palette.text.primary,
                     '& .MuiSelect-icon': { color: theme.palette.text.primary, mr: 1 },
@@ -267,14 +267,14 @@ const FeeCalculator: React.FC = () => {
               ))}
             </Select>
           </FormControl>
-          <Typography sx={{ mt: 1, fontFamily: 'UrbanistMedium', fontSize: 11.5, color: theme.palette.text.disabled }}>
+          <Typography sx={{ mt: 1, fontFamily: 'var(--font-sans)', fontSize: 11.5, color: theme.palette.text.disabled }}>
             {altNote(alt.id)}
           </Typography>
 
           <Typography
             sx={{
               mt: 3,
-              fontFamily: 'UrbanistMedium',
+              fontFamily: 'var(--font-sans)',
               fontSize: 11.5,
               color: theme.palette.text.disabled,
               lineHeight: 1.5,
@@ -330,7 +330,7 @@ const FeeCalculator: React.FC = () => {
           >
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.6, opacity: 0.9 }}>
               <TrendingDown sx={{ fontSize: 15 }} />
-              <Typography sx={{ fontFamily: 'UrbanistBold', fontSize: 11, letterSpacing: '1.2px', textTransform: 'uppercase' }}>
+              <Typography sx={{ fontFamily: 'var(--font-sans)', fontSize: 11, letterSpacing: '1.2px', textTransform: 'uppercase' }}>
                 {t('feeCalcYouSave')}
               </Typography>
             </Box>
@@ -338,11 +338,11 @@ const FeeCalculator: React.FC = () => {
               <Typography sx={{ fontFamily: 'var(--font-sans)', fontSize: { xs: 32, md: 40 }, lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>
                 {formatUSD(monthlySavings)}
               </Typography>
-              <Typography sx={{ fontFamily: 'UrbanistMedium', fontSize: 14, opacity: 0.85 }}>
+              <Typography sx={{ fontFamily: 'var(--font-sans)', fontSize: 14, opacity: 0.85 }}>
                 {t('feeCalcPerMonthLong')}
               </Typography>
             </Box>
-            <Typography sx={{ fontFamily: 'UrbanistSemiBold', fontSize: 13, opacity: 0.95, mt: 0.4 }}>
+            <Typography sx={{ fontFamily: 'var(--font-sans)', fontSize: 13, opacity: 0.95, mt: 0.4 }}>
               {t('feeCalcSavingsSummary', { yearly: formatUSD(yearlySavings), pct: savingsPct.toFixed(1), alt: altName(alt) })}
             </Typography>
           </Box>
@@ -356,7 +356,7 @@ const FeeCalculator: React.FC = () => {
               px: 2.2, py: 1,
               border: 'none', cursor: 'pointer',
               borderRadius: '10px',
-              fontFamily: 'UrbanistBold', fontSize: 14, color: theme.palette.primary.contrastText,
+              fontFamily: 'var(--font-sans)', fontSize: 14, color: theme.palette.primary.contrastText,
               background: primaryColor,
               boxShadow: isDark ? '0 8px 24px rgba(204,255,0,0.3)' : '0 8px 22px rgba(10,10,10,0.2)',
               transition: 'transform 0.2s ease',
@@ -385,7 +385,7 @@ const CostBar: React.FC<{
     <Box>
       <Box sx={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', mb: 0.6 }}>
         <Box>
-          <Typography component="span" sx={{ fontFamily: 'UrbanistBold', fontSize: 14, color: (t) => t.palette.text.primary }}>
+          <Typography component="span" sx={{ fontFamily: 'var(--font-sans)', fontSize: 14, color: (t) => t.palette.text.primary }}>
             {label}
           </Typography>
           {isBest && (
@@ -397,7 +397,7 @@ const CostBar: React.FC<{
                 borderRadius: '999px',
                 bgcolor: 'rgba(34,197,94,0.12)',
                 color: '#16A34A',
-                fontFamily: 'UrbanistBold',
+                fontFamily: 'var(--font-sans)',
                 fontSize: 10,
                 letterSpacing: '0.6px',
                 textTransform: 'uppercase',
@@ -406,7 +406,7 @@ const CostBar: React.FC<{
               {t('feeCalcBest')}
             </Box>
           )}
-          <Typography sx={{ fontFamily: 'UrbanistMedium', fontSize: 11.5, color: (t) => t.palette.text.disabled, mt: 0.2 }}>
+          <Typography sx={{ fontFamily: 'var(--font-sans)', fontSize: 11.5, color: (t) => t.palette.text.disabled, mt: 0.2 }}>
             {subtitle}
           </Typography>
         </Box>

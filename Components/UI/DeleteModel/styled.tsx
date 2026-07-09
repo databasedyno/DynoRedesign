@@ -15,7 +15,7 @@ export const DeleteModelTitle = styled(Typography)({
   fontSize: "15px",
   fontWeight: 500,
   lineHeight: 1.15,
-  fontFamily: "UrbanistMedium",
+  fontFamily: "var(--font-sans)",
   color: theme.palette.text.secondary,
   [theme.breakpoints.down("sm")]: {
     fontSize: "13px",

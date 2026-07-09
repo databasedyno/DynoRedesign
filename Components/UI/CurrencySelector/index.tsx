@@ -138,7 +138,7 @@ const CurrencySelector: React.FC<CurrencySelectorProps> = ({
           variant="body2"
           sx={{
             fontWeight: 500,
-            fontFamily: "UrbanistMedium",
+            fontFamily: "var(--font-sans)",
             fontSize: isMobile ? "13px" : "15px",
             textAlign: "start",
             color: theme.palette.text.primary,
@@ -228,7 +228,7 @@ const CurrencySelector: React.FC<CurrencySelectorProps> = ({
               mt: "2px",
               borderRadius: "6px",
               overflow: "hidden",
-              fontFamily: "UrbanistMedium",
+              fontFamily: "var(--font-sans)",
               width: triggerRef.current?.offsetWidth || "auto",
               border: `1px solid ${borderColor}`,
               borderTop: "none",
@@ -277,7 +277,7 @@ const CurrencySelector: React.FC<CurrencySelectorProps> = ({
                   primary={currency.code}
                   primaryTypographyProps={{
                     sx: {
-                      fontFamily: "UrbanistMedium",
+                      fontFamily: "var(--font-sans)",
                       fontWeight: 500,
                       fontSize: isMobile ? "10px" : "13px",
                       color: theme.palette.text.primary,

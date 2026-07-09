@@ -162,7 +162,7 @@ const GrowPanel: React.FC<GrowPanelProps> = ({
             </Box>
             <Typography
               sx={{
-                fontFamily: "UrbanistSemiBold",
+                fontFamily: "var(--font-sans)",
                 fontWeight: 700,
                 fontSize: isMobile ? "15px" : "16px",
                 color: theme.palette.text.primary,
@@ -174,7 +174,7 @@ const GrowPanel: React.FC<GrowPanelProps> = ({
           </Box>
           <Typography
             sx={{
-              fontFamily: "UrbanistMedium",
+              fontFamily: "var(--font-sans)",
               fontSize: isMobile ? "13px" : "13.5px",
               color: theme.palette.text.secondary,
               lineHeight: 1.55,
@@ -209,7 +209,7 @@ const GrowPanel: React.FC<GrowPanelProps> = ({
             <Typography
               onClick={referralOffer.onCtaClick}
               sx={{
-                fontFamily: "UrbanistMedium",
+                fontFamily: "var(--font-sans)",
                 fontSize: "12px",
                 color: theme.palette.text.secondary,
                 cursor: "pointer",
@@ -224,7 +224,7 @@ const GrowPanel: React.FC<GrowPanelProps> = ({
             <Typography
               onClick={premiumOffer.onCtaClick}
               sx={{
-                fontFamily: "UrbanistMedium",
+                fontFamily: "var(--font-sans)",
                 fontSize: "12px",
                 color: theme.palette.text.secondary,
                 cursor: "pointer",

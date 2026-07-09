@@ -28,7 +28,7 @@ const DescriptionSection: React.FC<DescriptionSectionProps> = ({
             sx={{
               fontSize: "12px",
               color: theme.palette.text.secondary,
-              fontFamily: "UrbanistRegular",
+              fontFamily: "var(--font-sans)",
               fontWeight: 400,
               ml: 0.5,
             }}

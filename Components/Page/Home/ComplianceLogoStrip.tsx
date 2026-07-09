@@ -77,7 +77,7 @@ const ComplianceLogoStrip: React.FC = () => {
     >
       <Typography
         sx={{
-          fontFamily: 'UrbanistBold',
+          fontFamily: 'var(--font-sans)',
           fontSize: 11,
           letterSpacing: '1.4px',
           textTransform: 'uppercase',
@@ -123,7 +123,7 @@ const ComplianceLogoStrip: React.FC = () => {
             <Box sx={{ color: theme.palette.text.primary, opacity: 0.85 }}>{b.icon}</Box>
             <Typography
               sx={{
-                fontFamily: 'UrbanistBold',
+                fontFamily: 'var(--font-sans)',
                 fontSize: 13,
                 color: theme.palette.text.primary,
                 lineHeight: 1.2,
@@ -134,7 +134,7 @@ const ComplianceLogoStrip: React.FC = () => {
             </Typography>
             <Typography
               sx={{
-                fontFamily: 'UrbanistMedium',
+                fontFamily: 'var(--font-sans)',
                 fontSize: 10.5,
                 color: theme.palette.text.disabled,
                 lineHeight: 1.2,

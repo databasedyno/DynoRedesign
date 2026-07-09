@@ -135,7 +135,7 @@ const CelebrationOverlay: React.FC<CelebrationOverlayProps> = ({
           data-testid="celebration-title"
           sx={{
             fontSize: isMobile ? "22px" : "28px",
-            fontFamily: "UrbanistSemibold",
+            fontFamily: "var(--font-sans)",
             fontWeight: 700,
             color: theme.palette.text.primary,
             lineHeight: 1.2,
@@ -152,7 +152,7 @@ const CelebrationOverlay: React.FC<CelebrationOverlayProps> = ({
         <Typography
           sx={{
             fontSize: isMobile ? "13px" : "15px",
-            fontFamily: "UrbanistMedium",
+            fontFamily: "var(--font-sans)",
             fontWeight: 500,
             color: theme.palette.text.secondary,
             lineHeight: 1.5,

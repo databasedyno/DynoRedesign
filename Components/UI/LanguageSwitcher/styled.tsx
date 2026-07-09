@@ -119,7 +119,7 @@ export const ListItemLeft = styled(Box)(() => ({
 export const LangTextDesktop = styled(Typography)(({ theme }) => ({
   fontSize: 15,
   fontWeight: 500,
-  fontFamily: "UrbanistMedium",
+  fontFamily: "var(--font-sans)",
   lineHeight: 1.2,
   letterSpacing: 0,
   paddingTop: 0,
@@ -134,7 +134,7 @@ export const LangTextDesktop = styled(Typography)(({ theme }) => ({
 export const LangTextMobile = styled(Typography)(({ theme }) => ({
   fontSize: 10.5,
   fontWeight: 500,
-  fontFamily: "UrbanistMedium",
+  fontFamily: "var(--font-sans)",
   lineHeight: "100%",
   letterSpacing: 0,
   paddingTop: 2.5,

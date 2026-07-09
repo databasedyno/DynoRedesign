@@ -37,7 +37,7 @@ export const WalletHeaderAction = styled(Box)(({ theme }) => ({
   borderRadius: 50,
   border: `1px solid ${theme.palette.border.main}`,
   textTransform: "capitalize",
-  fontFamily: "UrbanistMedium",
+  fontFamily: "var(--font-sans)",
   position: "absolute",
   top: 0,
   right: 0,
@@ -53,7 +53,7 @@ export const WalletHeaderAction = styled(Box)(({ theme }) => ({
     fontWeight: 500,
     lineHeight: "18px",
     letterSpacing: "0",
-    fontFamily: "UrbanistMedium",
+    fontFamily: "var(--font-sans)",
     color: theme.palette.text.secondary,
   },
   [theme.breakpoints.down("md")]: {
@@ -133,7 +133,7 @@ export const WalletLabel = styled(Box)(({ theme }) => ({
     fontWeight: 500,
     color: theme.palette.text.secondary,
     lineHeight: "18px",
-    fontFamily: "UrbanistMedium",
+    fontFamily: "var(--font-sans)",
     [theme.breakpoints.down("md")]: {
       fontSize: "13px",
       lineHeight: "16px",

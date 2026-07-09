@@ -40,7 +40,7 @@ export const FooterIconButton = styled(IconButton)(({ theme }) => ({
 }));
 
 export const TextDecoration = styled(Typography)(({ theme }) => ({
-    fontFamily: "UrbanistMedium",
+    fontFamily: "var(--font-sans)",
     fontWeight: 500,
     lineHeight: "100%",
     letterSpacing: 0

@@ -78,5 +78,5 @@ export const RequiredKYCText = styled("span")(({ theme }) => ({
   fontSize: "15px",
   lineHeight: "1.2",
   letterSpacing: "0",
-  fontFamily: "UrbanistMedium",
+  fontFamily: "var(--font-sans)",
 }));

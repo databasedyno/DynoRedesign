@@ -74,7 +74,7 @@ const StepIndicator: React.FC<StepIndicatorProps> = ({
                 <Typography
                   sx={{
                     fontSize: isMobile ? "10px" : "11px",
-                    fontFamily: "UrbanistSemibold",
+                    fontFamily: "var(--font-sans)",
                     fontWeight: 700,
                     color: isActive ? "#fff" : "#9DA3AE",
                     lineHeight: 1,
@@ -89,7 +89,7 @@ const StepIndicator: React.FC<StepIndicatorProps> = ({
             <Typography
               sx={{
                 fontSize: isMobile ? "11px" : "12px",
-                fontFamily: isActive ? "UrbanistSemibold" : "UrbanistMedium",
+                fontFamily: isActive ? "var(--font-sans)" : "var(--font-sans)",
                 fontWeight: isActive ? 600 : 500,
                 color: isActive || isCompleted
                   ? theme.palette.text.primary

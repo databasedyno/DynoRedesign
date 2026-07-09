@@ -147,7 +147,7 @@ const Toast = (props: IToastProps) => {
           sx={{
             flex: 1,
             fontSize: isMobile ? "13px" : "15px",
-            fontFamily: "UrbanistMedium",
+            fontFamily: "var(--font-sans)",
             color: toastStyles.textColor,
             lineHeight: "1.5",
           }}

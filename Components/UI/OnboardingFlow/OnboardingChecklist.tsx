@@ -98,7 +98,7 @@ const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({ steps }) => {
           <Typography
             sx={{
               fontSize: isMobile ? "15px" : "17px",
-              fontFamily: "UrbanistSemibold",
+              fontFamily: "var(--font-sans)",
               fontWeight: 600,
               color: theme.palette.text.primary,
               lineHeight: 1.3,
@@ -109,7 +109,7 @@ const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({ steps }) => {
           <Typography
             sx={{
               fontSize: isMobile ? "12px" : "13px",
-              fontFamily: "UrbanistMedium",
+              fontFamily: "var(--font-sans)",
               fontWeight: 500,
               color: theme.palette.text.secondary,
               lineHeight: 1.4,
@@ -242,8 +242,8 @@ const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({ steps }) => {
                       fontSize: isMobile ? "13px" : "14px",
                       fontFamily:
                         isDone || isLocked
-                          ? "UrbanistMedium"
-                          : "UrbanistSemibold",
+                          ? "var(--font-sans)"
+                          : "var(--font-sans)",
                       fontWeight: isDone || isLocked ? 500 : 600,
                       color: isDone
                         ? theme.palette.text.secondary
@@ -259,7 +259,7 @@ const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({ steps }) => {
                     <Typography
                       sx={{
                         fontSize: isMobile ? "11px" : "12px",
-                        fontFamily: "UrbanistMedium",
+                        fontFamily: "var(--font-sans)",
                         fontWeight: 500,
                         color: theme.palette.text.secondary,
                         lineHeight: 1.3,

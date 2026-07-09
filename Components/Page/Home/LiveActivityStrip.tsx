@@ -129,7 +129,7 @@ const Pill: React.FC<{ ev: Event; isDark: boolean }> = ({ ev, isDark }) => {
       <Typography
         component="span"
         sx={{
-          fontFamily: "UrbanistMedium",
+          fontFamily: "var(--font-sans)",
           fontSize: { xs: 12.5, sm: 13 },
           color: (theme) => theme.palette.text.secondary,
           whiteSpace: "nowrap",
@@ -146,7 +146,7 @@ const Pill: React.FC<{ ev: Event; isDark: boolean }> = ({ ev, isDark }) => {
         <Typography
           component="span"
           sx={{
-            fontFamily: "UrbanistBold",
+            fontFamily: "var(--font-sans)",
             fontSize: { xs: 13, sm: 14 },
             color: (theme) => theme.palette.text.primary,
             fontVariantNumeric: "tabular-nums",
@@ -159,7 +159,7 @@ const Pill: React.FC<{ ev: Event; isDark: boolean }> = ({ ev, isDark }) => {
       <Typography
         component="span"
         sx={{
-          fontFamily: "UrbanistRegular",
+          fontFamily: "var(--font-sans)",
           fontSize: { xs: 11.5, sm: 12 },
           color: (theme) => theme.palette.text.disabled,
           whiteSpace: "nowrap",
@@ -265,7 +265,7 @@ const LiveActivityStrip: React.FC = () => {
           />
           <Typography
             sx={{
-              fontFamily: "UrbanistBold",
+              fontFamily: "var(--font-sans)",
               fontSize: 11.5,
               letterSpacing: "0.6px",
               color: isDark ? "#4ADE80" : "#16A34A",
@@ -277,7 +277,7 @@ const LiveActivityStrip: React.FC = () => {
         </Box>
         <Typography
           sx={{
-            fontFamily: "UrbanistMedium",
+            fontFamily: "var(--font-sans)",
             fontSize: { xs: 13, md: 14 },
             color: theme.palette.text.secondary,
             textAlign: "center",
@@ -286,7 +286,7 @@ const LiveActivityStrip: React.FC = () => {
           <Box
             component="span"
             sx={{
-              fontFamily: "UrbanistBold",
+              fontFamily: "var(--font-sans)",
               color: theme.palette.text.primary,
               fontVariantNumeric: "tabular-nums",
             }}
@@ -297,7 +297,7 @@ const LiveActivityStrip: React.FC = () => {
           <Box
             component="span"
             sx={{
-              fontFamily: "UrbanistBold",
+              fontFamily: "var(--font-sans)",
               color: theme.palette.text.primary,
               fontVariantNumeric: "tabular-nums",
             }}

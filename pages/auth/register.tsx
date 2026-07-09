@@ -505,7 +505,7 @@ const Register = () => {
                             sx={{
                               fontSize: "12px",
                               color: "text.secondary",
-                              fontFamily: "UrbanistMedium",
+                              fontFamily: "var(--font-sans)",
                               textTransform: "lowercase",
                               px: 1,
                             }}
@@ -540,7 +540,7 @@ const Register = () => {
                           border: "none",
                           borderRadius: "10px !important",
                           textTransform: "none",
-                          fontFamily: "UrbanistSemiBold",
+                          fontFamily: "var(--font-sans)",
                           fontSize: "14px",
                           color: "text.secondary",
                           padding: "8px 0",
@@ -585,7 +585,7 @@ const Register = () => {
                         placeholder={t("enterMobilePlaceholder")}
                       />
                       {phoneTypeChecking && (
-                        <Typography sx={{ fontSize: "12px", color: "text.secondary", fontFamily: "UrbanistMedium", mt: 0.5, ml: 0.5 }}>
+                        <Typography sx={{ fontSize: "12px", color: "text.secondary", fontFamily: "var(--font-sans)", mt: 0.5, ml: 0.5 }}>
                           {t("checkingNumberType")}
                         </Typography>
                       )}
@@ -598,7 +598,7 @@ const Register = () => {
                       sx={{
                         fontSize: "13px",
                         color: theme.palette.primary.main,
-                        fontFamily: "UrbanistMedium",
+                        fontFamily: "var(--font-sans)",
                         cursor: "pointer",
                         textDecoration: "underline",
                         textUnderlineOffset: "2px",
@@ -635,13 +635,13 @@ const Register = () => {
 
                   {/* Already have account */}
                   <Box sx={{ display: "flex", gap: "7px", justifyContent: "center", mt: 2 }}>
-                    <Typography sx={{ fontSize: "13px", color: "text.secondary", fontFamily: "UrbanistMedium" }}>
+                    <Typography sx={{ fontSize: "13px", color: "text.secondary", fontFamily: "var(--font-sans)" }}>
                       {t("alreadyHaveAccountLink")}
                     </Typography>
                     <Typography
                       sx={{
                         fontSize: "13px", color: theme.palette.primary.main, fontWeight: 500,
-                        cursor: "pointer", textDecoration: "underline", fontFamily: "UrbanistMedium",
+                        cursor: "pointer", textDecoration: "underline", fontFamily: "var(--font-sans)",
                       }}
                       onClick={() => router.push("/auth/login")}
                     >
@@ -665,10 +665,10 @@ const Register = () => {
                     >
                       <Typography sx={{ fontSize: "28px" }}>✉️</Typography>
                     </Box>
-                    <Typography sx={{ fontWeight: 700, fontSize: "22px", color: "text.primary", fontFamily: "UrbanistBold" }}>
+                    <Typography sx={{ fontWeight: 700, fontSize: "22px", color: "text.primary", fontFamily: "var(--font-sans)" }}>
                       {accountExists ? t("welcomeBack") : method === "email" ? t("verifyYourEmail") : t("verifyYourPhone")}
                     </Typography>
-                    <Typography sx={{ fontSize: "14px", color: "text.secondary", fontFamily: "UrbanistMedium", mt: 0.5, lineHeight: 1.5 }}>
+                    <Typography sx={{ fontSize: "14px", color: "text.secondary", fontFamily: "var(--font-sans)", mt: 0.5, lineHeight: 1.5 }}>
                       {t("enterSixDigitCodeSentTo")}{" "}
                       <Typography component="span" sx={{ fontWeight: 600, color: "text.primary", fontSize: "14px" }}>
                         {method === "email"
@@ -690,7 +690,7 @@ const Register = () => {
                           border: `1px solid ${theme.palette.mode === "dark" ? "rgba(124,58,237,0.4)" : "rgba(79,70,229,0.2)"}`,
                         }}
                       >
-                        <Typography sx={{ fontSize: "13px", color: "text.primary", fontFamily: "UrbanistSemiBold", lineHeight: 1.5 }}>
+                        <Typography sx={{ fontSize: "13px", color: "text.primary", fontFamily: "var(--font-sans)", lineHeight: 1.5 }}>
                           {method === "email" ? t("emailAlreadyHasAccount") : t("phoneAlreadyHasAccount")}
                         </Typography>
                       </Box>
@@ -720,7 +720,7 @@ const Register = () => {
                       component="button"
                       onClick={() => { setStep("input"); setOtpError(""); setAccountExists(false); setOtpResetKey((k) => k + 1); }}
                       sx={{
-                        fontSize: "13px", color: "text.secondary", fontFamily: "UrbanistMedium",
+                        fontSize: "13px", color: "text.secondary", fontFamily: "var(--font-sans)",
                         textDecoration: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: "6px",
                         background: "transparent", border: "none", padding: 0,
                         "&:hover": { textDecoration: "underline" },
@@ -775,7 +775,7 @@ const Register = () => {
                       sx={{
                         fontSize: "13px",
                         color: theme.palette.mode === "dark" ? "#6EE7B7" : "#047857",
-                        fontFamily: "UrbanistSemiBold",
+                        fontFamily: "var(--font-sans)",
                         fontWeight: 600,
                         lineHeight: 1,
                       }}
@@ -784,10 +784,10 @@ const Register = () => {
                     </Typography>
                   </Box>
 
-                  <Typography sx={{ fontWeight: 700, fontSize: "24px", color: "text.primary", fontFamily: "UrbanistBold", mb: 1 }}>
+                  <Typography sx={{ fontWeight: 700, fontSize: "24px", color: "text.primary", fontFamily: "var(--font-sans)", mb: 1 }}>
                     {accountExists ? t("welcomeBackToDynopay") : t("accountReadyTitle")}
                   </Typography>
-                  <Typography sx={{ fontSize: "15px", color: "text.secondary", fontFamily: "UrbanistMedium", lineHeight: 1.6, mb: 1 }}>
+                  <Typography sx={{ fontSize: "15px", color: "text.secondary", fontFamily: "var(--font-sans)", lineHeight: 1.6, mb: 1 }}>
                     {accountExists
                       ? t("redirectingToDashboard")
                       : t("accountReadyDesc")}

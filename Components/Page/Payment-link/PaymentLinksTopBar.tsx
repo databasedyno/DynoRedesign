@@ -92,7 +92,7 @@ const PaymentLinksTopBar = ({
     border: `1px solid ${theme.palette.mode === "dark" ? "rgba(255,255,255,0.12)" : "#E9ECF2"}`,
     backgroundColor: theme.palette.mode === "dark" ? "rgba(255,255,255,0.05)" : "#FFFFFF",
     px: "10px",
-    fontFamily: "UrbanistMedium",
+    fontFamily: "var(--font-sans)",
     fontSize: isMobile ? "10px" : "13px",
     color: theme.palette.text.primary,
   };
@@ -211,7 +211,7 @@ const PaymentLinksTopBar = ({
             background: "none",
             color: theme.palette.primary.main,
             cursor: "pointer",
-            fontFamily: "UrbanistMedium",
+            fontFamily: "var(--font-sans)",
             fontSize: "12px",
             whiteSpace: "nowrap",
             p: "4px 8px",

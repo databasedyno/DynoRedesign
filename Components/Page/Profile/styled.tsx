@@ -21,7 +21,7 @@ export const InfoText = styled(Typography)(({ theme }) => ({
   fontWeight: 500,
   color: theme.palette.text.primary,
   lineHeight: "1.23",
-  fontFamily: "UrbanistMedium",
+  fontFamily: "var(--font-sans)",
   flex: 1,
   [theme.breakpoints.down("md")]: {
     fontSize: "10px",

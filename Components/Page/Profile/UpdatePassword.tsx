@@ -211,7 +211,7 @@ const UpdatePassword = () => {
         {/* Step 2: Choose channel (only if user has both email and phone) */}
         {otpStep === "choose" && (
           <Box sx={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-            <Typography sx={{ fontSize: "14px", color: theme.palette.text.primary, fontFamily: "UrbanistMedium", mb: "4px" }}>
+            <Typography sx={{ fontSize: "14px", color: theme.palette.text.primary, fontFamily: "var(--font-sans)", mb: "4px" }}>
               {t("whereToSendCode")}
             </Typography>
             <Box
@@ -227,8 +227,8 @@ const UpdatePassword = () => {
             >
               <EmailOutlinedIcon sx={{ fontSize: "20px", color: theme.palette.primary.main }} />
               <Box>
-                <Typography sx={{ fontSize: "14px", fontWeight: 600, fontFamily: "UrbanistSemibold", color: theme.palette.text.primary }}>{t("channelEmail")}</Typography>
-                <Typography sx={{ fontSize: "12px", color: theme.palette.text.secondary, fontFamily: "UrbanistMedium" }}>{maskEmail(profile?.email)}</Typography>
+                <Typography sx={{ fontSize: "14px", fontWeight: 600, fontFamily: "var(--font-sans)", color: theme.palette.text.primary }}>{t("channelEmail")}</Typography>
+                <Typography sx={{ fontSize: "12px", color: theme.palette.text.secondary, fontFamily: "var(--font-sans)" }}>{maskEmail(profile?.email)}</Typography>
               </Box>
             </Box>
             <Box
@@ -244,8 +244,8 @@ const UpdatePassword = () => {
             >
               <PhoneAndroidOutlinedIcon sx={{ fontSize: "20px", color: theme.palette.primary.main }} />
               <Box>
-                <Typography sx={{ fontSize: "14px", fontWeight: 600, fontFamily: "UrbanistSemibold", color: theme.palette.text.primary }}>{t("channelPhone")}</Typography>
-                <Typography sx={{ fontSize: "12px", color: theme.palette.text.secondary, fontFamily: "UrbanistMedium" }}>{maskPhone(profile?.mobile)}</Typography>
+                <Typography sx={{ fontSize: "14px", fontWeight: 600, fontFamily: "var(--font-sans)", color: theme.palette.text.primary }}>{t("channelPhone")}</Typography>
+                <Typography sx={{ fontSize: "12px", color: theme.palette.text.secondary, fontFamily: "var(--font-sans)" }}>{maskPhone(profile?.mobile)}</Typography>
               </Box>
             </Box>
             <CustomButton
@@ -263,7 +263,7 @@ const UpdatePassword = () => {
         {otpStep === "otp_sent" && (
           <Typography
             data-testid="otp-sent-notice"
-            sx={{ fontSize: "13px", color: theme.palette.text.secondary, fontFamily: "UrbanistMedium" }}
+            sx={{ fontSize: "13px", color: theme.palette.text.secondary, fontFamily: "var(--font-sans)" }}
           >
             {t("otpSentNotice", { contact: otpMaskedContact, channel: otpSentVia })}
           </Typography>
@@ -280,7 +280,7 @@ const UpdatePassword = () => {
             {({ errors, handleBlur, handleChange, submitDisable, touched, values }) => (
               <Box sx={{ display: "flex", flexDirection: "column", gap: isMobile ? "12px" : "14px" }}>
                 <Box sx={{ display: "flex", alignItems: "center", gap: "6px", p: "8px 12px", borderRadius: "8px", backgroundColor: theme.palette.mode === "dark" ? "rgba(34, 197, 94, 0.1)" : "rgba(34, 197, 94, 0.08)", border: "1px solid", borderColor: theme.palette.mode === "dark" ? "rgba(34, 197, 94, 0.3)" : "rgba(34, 197, 94, 0.2)" }}>
-                  <Typography sx={{ fontSize: "13px", color: theme.palette.mode === "dark" ? "#4ade80" : "#16a34a", fontFamily: "UrbanistMedium" }}>
+                  <Typography sx={{ fontSize: "13px", color: theme.palette.mode === "dark" ? "#4ade80" : "#16a34a", fontFamily: "var(--font-sans)" }}>
                     {t("identityVerifiedViaChannel", { channel: otpSentVia })}
                   </Typography>
                 </Box>

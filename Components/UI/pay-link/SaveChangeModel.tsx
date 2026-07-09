@@ -37,7 +37,7 @@ const SaveChangeModel = ({ open, onClose, onSave }: SaveChangeModelProps) => {
           />
           <Typography
             sx={{
-              fontFamily: "UrbanistMedium",
+              fontFamily: "var(--font-sans)",
               fontWeight: 500,
               fontSize: "20px",
               lineHeight: 1.2,
@@ -51,7 +51,7 @@ const SaveChangeModel = ({ open, onClose, onSave }: SaveChangeModelProps) => {
 
         <Typography
           sx={{
-            fontFamily: "UrbanistMedium",
+            fontFamily: "var(--font-sans)",
             fontWeight: 500,
             fontSize: isMobile ? "13px" : "15px",
             lineHeight: "140%",
@@ -76,7 +76,7 @@ const SaveChangeModel = ({ open, onClose, onSave }: SaveChangeModelProps) => {
           fullWidth
           sx={{
             height: isMobile ? "32px" : "40px",
-            fontFamily: "UrbanistMedium",
+            fontFamily: "var(--font-sans)",
             fontWeight: 500,
             fontSize: isMobile ? "13px" : "15px",
             color: theme.palette.text.secondary,
@@ -96,7 +96,7 @@ const SaveChangeModel = ({ open, onClose, onSave }: SaveChangeModelProps) => {
           fullWidth
           sx={{
             height: isMobile ? "32px" : "40px",
-            fontFamily: "UrbanistMedium",
+            fontFamily: "var(--font-sans)",
             fontWeight: 500,
             fontSize: isMobile ? "13px" : "15px",
             color: theme.palette.primary.contrastText,

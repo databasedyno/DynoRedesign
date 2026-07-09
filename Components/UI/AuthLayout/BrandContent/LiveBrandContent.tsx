@@ -84,10 +84,10 @@ const StatCard = ({ label, value, accent }: { label: string; value: string; acce
       minWidth: 0,
     }}
   >
-    <Typography sx={{ fontSize: "8px", color: "rgba(255,255,255,0.55)", fontFamily: "UrbanistMedium, sans-serif", mb: "3px", letterSpacing: "0.5px", textTransform: "uppercase" }}>
+    <Typography sx={{ fontSize: "8px", color: "rgba(255,255,255,0.55)", fontFamily: "var(--font-sans), sans-serif", mb: "3px", letterSpacing: "0.5px", textTransform: "uppercase" }}>
       {label}
     </Typography>
-    <Typography sx={{ fontSize: "15px", fontWeight: 700, color: accent, fontFamily: "UrbanistBold, sans-serif", lineHeight: 1 }}>
+    <Typography sx={{ fontSize: "15px", fontWeight: 700, color: accent, fontFamily: "var(--font-sans), sans-serif", lineHeight: 1 }}>
       {value}
     </Typography>
   </Box>
@@ -109,10 +109,10 @@ const ListRow = ({ icon, label, value, sub, color }: { icon: string; label: stri
       {icon}
     </Box>
     <Box sx={{ flex: 1, minWidth: 0 }}>
-      <Typography sx={{ fontSize: "11px", fontWeight: 600, color: "rgba(255,255,255,0.9)", fontFamily: "UrbanistBold, sans-serif" }}>{label}</Typography>
-      {sub && <Typography sx={{ fontSize: "8px", color: "rgba(255,255,255,0.45)", fontFamily: "UrbanistMedium, sans-serif" }}>{sub}</Typography>}
+      <Typography sx={{ fontSize: "11px", fontWeight: 600, color: "rgba(255,255,255,0.9)", fontFamily: "var(--font-sans), sans-serif" }}>{label}</Typography>
+      {sub && <Typography sx={{ fontSize: "8px", color: "rgba(255,255,255,0.45)", fontFamily: "var(--font-sans), sans-serif" }}>{sub}</Typography>}
     </Box>
-    <Typography sx={{ fontSize: "11px", fontWeight: 600, color: "rgba(255,255,255,0.85)", fontFamily: "UrbanistBold, sans-serif", flexShrink: 0 }}>{value}</Typography>
+    <Typography sx={{ fontSize: "11px", fontWeight: 600, color: "rgba(255,255,255,0.85)", fontFamily: "var(--font-sans), sans-serif", flexShrink: 0 }}>{value}</Typography>
   </Box>
 );
 
@@ -131,12 +131,12 @@ const PaymentLinksMockup = () => (
     {/* Payment link card */}
     <Box sx={{ background: "rgba(124,92,231,0.18)", border: "1px solid rgba(124,92,231,0.35)", borderRadius: "10px", p: "12px", mb: "10px" }}>
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: "6px" }}>
-        <Typography sx={{ fontSize: "10px", fontWeight: 700, color: "#c4b5fd", fontFamily: "UrbanistBold, sans-serif" }}>Payment #2847</Typography>
+        <Typography sx={{ fontSize: "10px", fontWeight: 700, color: "#c4b5fd", fontFamily: "var(--font-sans), sans-serif" }}>Payment #2847</Typography>
         <Box sx={{ px: "6px", py: "2px", borderRadius: "4px", background: "rgba(52,211,153,0.2)", border: "1px solid rgba(52,211,153,0.4)" }}>
-          <Typography sx={{ fontSize: "7px", fontWeight: 600, color: "#6ee7b7", fontFamily: "UrbanistBold, sans-serif" }}>ACTIVE</Typography>
+          <Typography sx={{ fontSize: "7px", fontWeight: 600, color: "#6ee7b7", fontFamily: "var(--font-sans), sans-serif" }}>ACTIVE</Typography>
         </Box>
       </Box>
-      <Typography sx={{ fontSize: "17px", fontWeight: 700, color: "#fff", fontFamily: "UrbanistBold, sans-serif", mb: "4px" }}>0.05 ETH</Typography>
+      <Typography sx={{ fontSize: "17px", fontWeight: 700, color: "#fff", fontFamily: "var(--font-sans), sans-serif", mb: "4px" }}>0.05 ETH</Typography>
       <Typography sx={{ fontSize: "9px", color: "rgba(255,255,255,0.5)", fontFamily: "monospace" }}>pay.dynopay.com/lnk_28f7a...</Typography>
     </Box>
     {/* Recent activity */}
@@ -180,9 +180,9 @@ const InstantSettlementMockup = () => (
         <Typography sx={{ fontSize: "9px", color: "rgba(255,255,255,0.45)", fontFamily: "monospace", width: "50px", flexShrink: 0 }}>{tx.time}</Typography>
         <Box sx={{ width: "7px", height: "7px", borderRadius: "50%", background: tx.statusColor, flexShrink: 0, boxShadow: `0 0 6px ${tx.statusColor}40` }} />
         <Box sx={{ flex: 1, minWidth: 0 }}>
-          <Typography sx={{ fontSize: "10px", fontWeight: 600, color: "rgba(255,255,255,0.85)", fontFamily: "UrbanistBold, sans-serif" }}>{tx.label}</Typography>
+          <Typography sx={{ fontSize: "10px", fontWeight: 600, color: "rgba(255,255,255,0.85)", fontFamily: "var(--font-sans), sans-serif" }}>{tx.label}</Typography>
         </Box>
-        <Typography sx={{ fontSize: "10px", fontWeight: 600, color: "rgba(255,255,255,0.75)", fontFamily: "UrbanistBold, sans-serif", flexShrink: 0 }}>{tx.amount}</Typography>
+        <Typography sx={{ fontSize: "10px", fontWeight: 600, color: "rgba(255,255,255,0.75)", fontFamily: "var(--font-sans), sans-serif", flexShrink: 0 }}>{tx.amount}</Typography>
       </Box>
     ))}
     <Box sx={{ height: "8px" }} />
@@ -238,7 +238,7 @@ const DashboardMockup = () => (
     </Box>
     <Box sx={{ display: "flex", justifyContent: "space-between", px: "4px" }}>
       {["Jan", "Feb", "Mar", "Apr", "May", "Jun"].map((m) => (
-        <Typography key={m} sx={{ fontSize: "8px", color: "rgba(255,255,255,0.4)", fontFamily: "UrbanistMedium, sans-serif" }}>{m}</Typography>
+        <Typography key={m} sx={{ fontSize: "8px", color: "rgba(255,255,255,0.4)", fontFamily: "var(--font-sans), sans-serif" }}>{m}</Typography>
       ))}
     </Box>
     <Box sx={{ height: "8px" }} />
@@ -262,10 +262,10 @@ const LowFeesMockup = () => (
     ].map((item) => (
       <Box key={item.name} sx={{ mb: "8px" }}>
         <Box sx={{ display: "flex", justifyContent: "space-between", mb: "3px" }}>
-          <Typography sx={{ fontSize: "10px", fontWeight: item.highlight ? 700 : 500, color: item.highlight ? "#fff" : "rgba(255,255,255,0.65)", fontFamily: "UrbanistBold, sans-serif" }}>
+          <Typography sx={{ fontSize: "10px", fontWeight: item.highlight ? 700 : 500, color: item.highlight ? "#fff" : "rgba(255,255,255,0.65)", fontFamily: "var(--font-sans), sans-serif" }}>
             {item.name}
           </Typography>
-          <Typography sx={{ fontSize: "10px", fontWeight: 600, color: item.highlight ? "#6ee7b7" : "rgba(255,255,255,0.5)", fontFamily: "UrbanistBold, sans-serif" }}>
+          <Typography sx={{ fontSize: "10px", fontWeight: 600, color: item.highlight ? "#6ee7b7" : "rgba(255,255,255,0.5)", fontFamily: "var(--font-sans), sans-serif" }}>
             {item.pct}%
           </Typography>
         </Box>
@@ -283,9 +283,9 @@ const CheckoutMockup = () => (
   <MockBrowserChrome>
     {/* Checkout form */}
     <Box sx={{ textAlign: "center", mb: "10px" }}>
-      <Typography sx={{ fontSize: "11px", fontWeight: 700, color: "#fff", fontFamily: "UrbanistBold, sans-serif" }}>Pay Invoice #4821</Typography>
-      <Typography sx={{ fontSize: "22px", fontWeight: 700, color: "#c4b5fd", fontFamily: "UrbanistBold, sans-serif", my: "4px" }}>$250.00</Typography>
-      <Typography sx={{ fontSize: "9px", color: "rgba(255,255,255,0.5)", fontFamily: "UrbanistMedium, sans-serif" }}>to Acme Corp</Typography>
+      <Typography sx={{ fontSize: "11px", fontWeight: 700, color: "#fff", fontFamily: "var(--font-sans), sans-serif" }}>Pay Invoice #4821</Typography>
+      <Typography sx={{ fontSize: "22px", fontWeight: 700, color: "#c4b5fd", fontFamily: "var(--font-sans), sans-serif", my: "4px" }}>$250.00</Typography>
+      <Typography sx={{ fontSize: "9px", color: "rgba(255,255,255,0.5)", fontFamily: "var(--font-sans), sans-serif" }}>to Acme Corp</Typography>
     </Box>
     {/* Currency selection */}
     <Box sx={{ display: "flex", gap: "6px", mb: "10px" }}>
@@ -309,7 +309,7 @@ const CheckoutMockup = () => (
           }}
         >
           <Typography sx={{ fontSize: "13px", lineHeight: 1 }}>{c.s}</Typography>
-          <Typography sx={{ fontSize: "8px", fontWeight: 600, color: c.active ? "#c4b5fd" : "rgba(255,255,255,0.5)", fontFamily: "UrbanistBold, sans-serif", mt: "2px" }}>
+          <Typography sx={{ fontSize: "8px", fontWeight: 600, color: c.active ? "#c4b5fd" : "rgba(255,255,255,0.5)", fontFamily: "var(--font-sans), sans-serif", mt: "2px" }}>
             {c.l}
           </Typography>
         </Box>
@@ -317,13 +317,13 @@ const CheckoutMockup = () => (
     </Box>
     {/* Amount display */}
     <Box sx={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "8px", p: "10px", mb: "10px", textAlign: "center" }}>
-      <Typography sx={{ fontSize: "9px", color: "rgba(255,255,255,0.45)", fontFamily: "UrbanistMedium, sans-serif", mb: "2px" }}>{i18n.t("common:youWillPay")}</Typography>
-      <Typography sx={{ fontSize: "15px", fontWeight: 700, color: "#fff", fontFamily: "UrbanistBold, sans-serif" }}>0.00289 BTC</Typography>
+      <Typography sx={{ fontSize: "9px", color: "rgba(255,255,255,0.45)", fontFamily: "var(--font-sans), sans-serif", mb: "2px" }}>{i18n.t("common:youWillPay")}</Typography>
+      <Typography sx={{ fontSize: "15px", fontWeight: 700, color: "#fff", fontFamily: "var(--font-sans), sans-serif" }}>0.00289 BTC</Typography>
       <Typography sx={{ fontSize: "8px", color: "rgba(255,255,255,0.4)", fontFamily: "monospace", mt: "2px" }}>≈ $250.00 USD</Typography>
     </Box>
     {/* CTA */}
     <Box sx={{ background: "linear-gradient(135deg, #6C5CE7, #a78bfa)", borderRadius: "8px", py: "10px", textAlign: "center", mb: "12px", boxShadow: "0 4px 12px rgba(108,92,231,0.35)" }}>
-      <Typography sx={{ fontSize: "11px", fontWeight: 700, color: "#fff", fontFamily: "UrbanistBold, sans-serif" }}>Pay Now</Typography>
+      <Typography sx={{ fontSize: "11px", fontWeight: 700, color: "#fff", fontFamily: "var(--font-sans), sans-serif" }}>Pay Now</Typography>
     </Box>
   </MockBrowserChrome>
 );
@@ -486,7 +486,7 @@ const LiveBrandContent = () => {
           sx={{
             fontSize: "16px",
             fontWeight: 600,
-            fontFamily: "UrbanistBold, sans-serif",
+            fontFamily: "var(--font-sans), sans-serif",
             color: "rgba(255,255,255,0.85)",
             mb: "4px",
           }}
@@ -497,7 +497,7 @@ const LiveBrandContent = () => {
           sx={{
             fontSize: "28px",
             fontWeight: 700,
-            fontFamily: "UrbanistBold, sans-serif",
+            fontFamily: "var(--font-sans), sans-serif",
             color: "#fff",
             mb: "8px",
             textShadow: "0 2px 12px rgba(0,0,0,0.15)",
@@ -509,7 +509,7 @@ const LiveBrandContent = () => {
           sx={{
             fontSize: "14px",
             fontWeight: 400,
-            fontFamily: "UrbanistMedium, sans-serif",
+            fontFamily: "var(--font-sans), sans-serif",
             color: "rgba(255,255,255,0.75)",
             lineHeight: 1.5,
             maxWidth: "340px",

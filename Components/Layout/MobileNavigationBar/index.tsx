@@ -348,7 +348,7 @@ const MobileNavigationBar = () => {
                             sx={{
                               fontSize: "14px",
                               fontWeight: 600,
-                              fontFamily: "UrbanistMedium",
+                              fontFamily: "var(--font-sans)",
                               color: active
                                 ? theme.palette.primary.main
                                 : theme.palette.text.primary,
@@ -391,7 +391,7 @@ const MobileNavigationBar = () => {
                               backgroundColor: "#E11D48",
                               color: "#FFFFFF",
                               fontSize: 9,
-                              fontFamily: "UrbanistSemibold, sans-serif",
+                              fontFamily: "var(--font-sans), sans-serif",
                               fontWeight: 700,
                               display: "flex",
                               alignItems: "center",

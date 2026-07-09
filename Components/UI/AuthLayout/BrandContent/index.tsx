@@ -51,7 +51,7 @@ const AuthBrandContent = ({
           sx={{
             fontSize: "32px",
             fontWeight: 700,
-            fontFamily: "UrbanistBold, sans-serif",
+            fontFamily: "var(--font-sans), sans-serif",
             lineHeight: 1.25,
             color: "#fff",
             mb: "16px",
@@ -64,7 +64,7 @@ const AuthBrandContent = ({
           sx={{
             fontSize: "15px",
             fontWeight: 400,
-            fontFamily: "UrbanistMedium, sans-serif",
+            fontFamily: "var(--font-sans), sans-serif",
             lineHeight: 1.6,
             color: "rgba(255,255,255,0.72)",
           }}
@@ -91,7 +91,7 @@ const AuthBrandContent = ({
               backdropFilter: "blur(4px)",
               border: "1px solid rgba(255,255,255,0.15)",
               fontSize: "12px",
-              fontFamily: "UrbanistMedium, sans-serif",
+              fontFamily: "var(--font-sans), sans-serif",
               fontWeight: 500,
               color: "rgba(255,255,255,0.85)",
               letterSpacing: "0.3px",

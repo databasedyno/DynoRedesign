@@ -144,7 +144,7 @@ const CryptocurrencySelector: React.FC<CryptocurrencySelectorProps> = ({
             fontWeight: 500,
             fontSize: isMobile ? "13px" : "15px",
             color: theme.palette.text.primary,
-            fontFamily: "UrbanistMedium",
+            fontFamily: "var(--font-sans)",
             lineHeight: "1.2",
             letterSpacing: "0",
           }}
@@ -296,7 +296,7 @@ const CryptocurrencySelector: React.FC<CryptocurrencySelectorProps> = ({
                     p: isMobile ? "6px 14px 6px 5px" : "3px 12px 3px 3px",
                     gap: isMobile ? 1 : 1.5,
                     minHeight: isMobile ? "35px" : "40px",
-                    fontFamily: "UrbanistMedium",
+                    fontFamily: "var(--font-sans)",
                     lineHeight: "1.2",
                     letterSpacing: "0",
                     background:
@@ -327,7 +327,7 @@ const CryptocurrencySelector: React.FC<CryptocurrencySelectorProps> = ({
                       sx: {
                         fontWeight: 500,
                         fontSize: isMobile ? "10px" : "15px",
-                        fontFamily: "UrbanistMedium",
+                        fontFamily: "var(--font-sans)",
                         lineHeight: "1.2",
                         letterSpacing: "0",
                       },
@@ -344,7 +344,7 @@ const CryptocurrencySelector: React.FC<CryptocurrencySelectorProps> = ({
                         gap: "3px",
                         fontSize: isMobile ? "9px" : "11px",
                         fontWeight: 600,
-                        fontFamily: "UrbanistMedium",
+                        fontFamily: "var(--font-sans)",
                         color: theme.palette.text.secondary,
                         border: `1px solid ${theme.palette.border.main}`,
                         borderRadius: "10px",

@@ -87,7 +87,7 @@ const CreateApiModel: React.FC<CreateApiModelProps> = ({ open, onClose }) => {
               fontSize: isMobile ? "13px" : "15px",
               fontWeight: 500,
               letterSpacing: 0,
-              fontFamily: "UrbanistMedium",
+              fontFamily: "var(--font-sans)",
               lineHeight: isMobile ? "16px" : "18px",
             }}
           >

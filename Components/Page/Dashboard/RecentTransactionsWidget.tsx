@@ -194,7 +194,7 @@ const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
             </Box>
             <Typography
               sx={{
-                fontFamily: "UrbanistSemiBold",
+                fontFamily: "var(--font-sans)",
                 fontSize: "15px",
                 fontWeight: 600,
                 color: theme.palette.text.primary,
@@ -204,7 +204,7 @@ const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
             </Typography>
             <Typography
               sx={{
-                fontFamily: "UrbanistMedium",
+                fontFamily: "var(--font-sans)",
                 fontSize: "13px",
                 color: theme.palette.text.secondary,
                 maxWidth: 320,
@@ -287,7 +287,7 @@ const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
                   <Box sx={{ flex: 1, minWidth: 0 }}>
                     <Typography
                       sx={{
-                        fontFamily: "UrbanistSemiBold",
+                        fontFamily: "var(--font-sans)",
                         fontWeight: 600,
                         fontSize: isMobile ? "14px" : "15px",
                         color: theme.palette.text.primary,
@@ -304,7 +304,7 @@ const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
                           sx={{
                             ml: 1,
                             color: theme.palette.text.secondary,
-                            fontFamily: "UrbanistMedium",
+                            fontFamily: "var(--font-sans)",
                             fontSize: "12px",
                           }}
                         >
@@ -314,7 +314,7 @@ const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
                     </Typography>
                     <Typography
                       sx={{
-                        fontFamily: "UrbanistMedium",
+                        fontFamily: "var(--font-sans)",
                         fontSize: "12px",
                         color: theme.palette.text.secondary,
                         mt: 0.25,
@@ -338,7 +338,7 @@ const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
                         backgroundColor: s.bg,
                         color: s.color,
                         fontSize: "11px",
-                        fontFamily: "UrbanistSemiBold",
+                        fontFamily: "var(--font-sans)",
                         fontWeight: 600,
                         lineHeight: 1,
                       }}
@@ -348,7 +348,7 @@ const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
                     {when && (
                       <Typography
                         sx={{
-                          fontFamily: "UrbanistMedium",
+                          fontFamily: "var(--font-sans)",
                           fontSize: "11px",
                           color: theme.palette.text.secondary,
                           mt: 0.5,

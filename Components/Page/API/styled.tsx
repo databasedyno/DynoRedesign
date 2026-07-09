@@ -13,7 +13,7 @@ export const ApiKeyCardSubTitle = styled(Typography)(({ theme }) => ({
   color: theme.palette.text.primary,
   fontWeight: 500,
   lineHeight: "17px",
-  fontFamily: "UrbanistMedium",
+  fontFamily: "var(--font-sans)",
   display: "inline-flex",
   alignItems: "center",
   gap: 7,
@@ -117,7 +117,7 @@ export const ApiKeyCreatedText = styled(Typography)(({ theme }) => ({
   gap: "7px",
   "& .created-on-text": {
     fontSize: 13,
-    fontFamily: "UrbanistMedium",
+    fontFamily: "var(--font-sans)",
   },
   [theme.breakpoints.down("md")]: {
     "& .created-on-text": {
@@ -139,7 +139,7 @@ export const Tags = styled(Typography)(({ theme }) => ({
   fontWeight: 500,
   border: `1px solid ${theme.palette.success.main}`,
   textTransform: "capitalize",
-  fontFamily: "UrbanistMedium",
+  fontFamily: "var(--font-sans)",
   position: "absolute",
   top: 12,
   right: 12,
@@ -158,7 +158,7 @@ export const InfoText = styled(Typography)(({ theme }) => ({
   color: theme.palette.text.primary,
   fontWeight: 500,
   lineHeight: "18px",
-  fontFamily: "UrbanistMedium",
+  fontFamily: "var(--font-sans)",
   [theme.breakpoints.down("md")]: {
     fontSize: "10px",
     lineHeight: "12px",
@@ -167,7 +167,7 @@ export const InfoText = styled(Typography)(({ theme }) => ({
 
 export const ApiDocumentationCardDescription = styled(Typography)(
   ({ theme }) => ({
-    fontFamily: "UrbanistMedium",
+    fontFamily: "var(--font-sans)",
     fontSize: 13,
     color: theme.palette.text.secondary,
     fontWeight: 500,

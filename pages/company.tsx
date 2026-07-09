@@ -149,7 +149,7 @@ const Company = ({ setPageName, setPageDescription, setPageAction }: pageProps) 
           </Box>
           <Typography
             sx={{
-              fontFamily: "UrbanistSemibold",
+              fontFamily: "var(--font-sans)",
               fontSize: "20px",
               fontWeight: 600,
               color: theme.palette.text.primary,
@@ -160,7 +160,7 @@ const Company = ({ setPageName, setPageDescription, setPageAction }: pageProps) 
           </Typography>
           <Typography
             sx={{
-              fontFamily: "UrbanistMedium",
+              fontFamily: "var(--font-sans)",
               fontSize: "14px",
               color: theme.palette.text.secondary,
               textAlign: "center",
@@ -252,7 +252,7 @@ const Company = ({ setPageName, setPageDescription, setPageAction }: pageProps) 
                       ) : (
                         <Typography
                           sx={{
-                            fontFamily: "UrbanistSemibold",
+                            fontFamily: "var(--font-sans)",
                             fontWeight: 700,
                             fontSize: "18px",
                             color: theme.palette.primary.main,
@@ -290,7 +290,7 @@ const Company = ({ setPageName, setPageDescription, setPageAction }: pageProps) 
                         <Typography
                           sx={{
                             fontSize: isMobile ? "13px" : "14px",
-                            fontFamily: "UrbanistMedium",
+                            fontFamily: "var(--font-sans)",
                             color: theme.palette.text.secondary,
                             overflow: "hidden",
                             textOverflow: "ellipsis",
@@ -320,7 +320,7 @@ const Company = ({ setPageName, setPageDescription, setPageAction }: pageProps) 
                         <Typography
                           sx={{
                             fontSize: isMobile ? "13px" : "14px",
-                            fontFamily: "UrbanistMedium",
+                            fontFamily: "var(--font-sans)",
                             color: theme.palette.text.secondary,
                           }}
                         >
@@ -347,7 +347,7 @@ const Company = ({ setPageName, setPageDescription, setPageAction }: pageProps) 
                         <Typography
                           sx={{
                             fontSize: isMobile ? "13px" : "14px",
-                            fontFamily: "UrbanistMedium",
+                            fontFamily: "var(--font-sans)",
                             color: theme.palette.primary.main,
                             overflow: "hidden",
                             textOverflow: "ellipsis",
@@ -364,7 +364,7 @@ const Company = ({ setPageName, setPageDescription, setPageAction }: pageProps) 
                       <Typography
                         sx={{
                           fontSize: isMobile ? "12px" : "13px",
-                          fontFamily: "UrbanistMedium",
+                          fontFamily: "var(--font-sans)",
                           color: theme.palette.text.secondary,
                           opacity: 0.8,
                         }}
@@ -391,7 +391,7 @@ const Company = ({ setPageName, setPageDescription, setPageAction }: pageProps) 
                         sx={{
                           borderRadius: "8px",
                           textTransform: "none",
-                          fontFamily: "UrbanistMedium",
+                          fontFamily: "var(--font-sans)",
                           fontWeight: 500,
                           fontSize: "13px",
                           borderColor: theme.palette.divider,

@@ -252,7 +252,7 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
   const labelSx = {
     fontWeight: 500,
     fontSize: isMobile ? "13px" : "15px",
-    fontFamily: "UrbanistMedium",
+    fontFamily: "var(--font-sans)",
     textAlign: "start" as const,
     color: theme.palette.text.primary,
     letterSpacing: 0,
@@ -304,7 +304,7 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
                 fontSize: isMobile ? "24px" : "28px",
                 fontWeight: 700,
                 color: "#fff",
-                fontFamily: "UrbanistSemibold",
+                fontFamily: "var(--font-sans)",
                 textTransform: "uppercase",
                 lineHeight: 1,
               }}
@@ -353,7 +353,7 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
 
         <input type="file" accept="image/*" hidden ref={fileRef} onChange={handleFileChange} />
         {photoError && (
-          <Typography sx={{ color: theme.palette.error.main, fontSize: "12px", fontFamily: "UrbanistMedium", textAlign: "center", mt: 0.5 }}>
+          <Typography sx={{ color: theme.palette.error.main, fontSize: "12px", fontFamily: "var(--font-sans)", textAlign: "center", mt: 0.5 }}>
             {photoError}
           </Typography>
         )}
@@ -404,7 +404,7 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
           <InfoOutlinedIcon sx={{ fontSize: "14px", color: theme.palette.text.secondary }} />
           <Typography
             data-testid="name-restriction-notice"
-            sx={{ fontSize: "12px", color: theme.palette.text.secondary, fontFamily: "UrbanistMedium" }}
+            sx={{ fontSize: "12px", color: theme.palette.text.secondary, fontFamily: "var(--font-sans)" }}
           >
             {t("updateNameNotice", { ns: "profile" })}
           </Typography>
@@ -521,7 +521,7 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
                     />
                   </Box>
                   {phoneError && (
-                    <Typography sx={{ fontSize: "12px", color: "error.main", fontFamily: "UrbanistMedium", mt: "4px" }}>
+                    <Typography sx={{ fontSize: "12px", color: "error.main", fontFamily: "var(--font-sans)", mt: "4px" }}>
                       {phoneError}
                     </Typography>
                   )}
@@ -562,7 +562,7 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
                 size="small"
                 sx={{
                   height: isMobile ? "32px" : "38px",
-                  fontFamily: "UrbanistMedium",
+                  fontFamily: "var(--font-sans)",
                   fontSize: isMobile ? "13px" : "15px",
                 }}
               >
@@ -576,7 +576,7 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
                 sx={{
                   fontSize: "12px",
                   color: theme.palette.text.secondary,
-                  fontFamily: "UrbanistMedium",
+                  fontFamily: "var(--font-sans)",
                 }}
               >
                 {t("communicationLanguageHelp", { ns: "profile" })}

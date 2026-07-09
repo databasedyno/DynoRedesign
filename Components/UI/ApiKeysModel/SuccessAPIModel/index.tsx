@@ -132,7 +132,7 @@ const SuccessAPIModel: React.FC<SuccessAPIModelProps> = ({
               sx={{
                 "& .MuiInputBase-root input": {
                   fontSize: "13px !important",
-                  fontFamily: "UrbanistMedium !important",
+                  fontFamily: "var(--font-sans) !important",
                   fontWeight: 500,
                   padding: "12px 8px !important",
                   color: theme.palette.text.primary,
@@ -193,7 +193,7 @@ const SuccessAPIModel: React.FC<SuccessAPIModelProps> = ({
               sx={{
                 "& .MuiInputBase-root input": {
                   fontSize: "13px !important",
-                  fontFamily: "UrbanistMedium !important",
+                  fontFamily: "var(--font-sans) !important",
                   fontWeight: 500,
                   padding: "12px 8px !important",
                   color: theme.palette.text.primary,

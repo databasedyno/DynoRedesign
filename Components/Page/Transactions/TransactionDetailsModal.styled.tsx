@@ -28,7 +28,7 @@ export const TitleColumn = styled(Box)(({ theme }) => ({
 export const TitleLabel = styled(Typography)(({ theme }) => ({
   fontSize: "15px",
   fontWeight: 500,
-  fontFamily: "UrbanistMedium",
+  fontFamily: "var(--font-sans)",
   color:
     theme.palette.mode === "dark"
       ? "rgba(232, 232, 236, 0.82)"
@@ -42,7 +42,7 @@ export const TitleLabel = styled(Typography)(({ theme }) => ({
 export const TitleValue = styled(Typography)(({ theme }) => ({
   fontSize: "20px",
   fontWeight: 500,
-  fontFamily: "UrbanistMedium",
+  fontFamily: "var(--font-sans)",
   color: theme.palette.text.primary,
   lineHeight: "1.2",
   [theme.breakpoints.down("md")]: {
@@ -68,7 +68,7 @@ export const SectionTitle = styled(Typography)(({ theme }) => ({
   fontWeight: 500,
   lineHeight: "1.2",
   letterSpacing: "-0.02em",
-  fontFamily: "UrbanistMedium",
+  fontFamily: "var(--font-sans)",
   color: theme.palette.text.primary,
   [theme.breakpoints.down("md")]: {
     fontSize: "15px",
@@ -94,7 +94,7 @@ export const DetailRow = styled(Box)(({ theme }) => ({
 export const DetailLabel = styled(Typography)(({ theme }) => ({
   fontSize: "14px",
   fontWeight: 500,
-  fontFamily: "UrbanistMedium",
+  fontFamily: "var(--font-sans)",
   color: theme.palette.text.secondary,
   [theme.breakpoints.down("md")]: {
     fontSize: "13px",
@@ -104,7 +104,7 @@ export const DetailLabel = styled(Typography)(({ theme }) => ({
 export const DetailValue = styled(Typography)(({ theme }) => ({
   fontSize: "15px",
   fontWeight: 500,
-  fontFamily: "UrbanistMedium",
+  fontFamily: "var(--font-sans)",
   color: theme.palette.text.primary,
   [theme.breakpoints.down("md")]: {
     fontSize: "14px",
@@ -149,7 +149,7 @@ export const StatusBadge = styled(Box)<{
     border: `1px solid ${colors.border}`,
     fontSize: "13px",
     fontWeight: 500,
-    fontFamily: "UrbanistMedium",
+    fontFamily: "var(--font-sans)",
     width: "fit-content",
     [theme.breakpoints.down("md")]: {
       padding: "6px 7px",
@@ -201,7 +201,7 @@ export const StatusText = styled(Typography)<{
     fontSize: "13px",
     fontWeight: 500,
     color: (statusColors[status] || statusColors.pending).textColor,
-    fontFamily: "UrbanistMedium",
+    fontFamily: "var(--font-sans)",
     textTransform: "capitalize",
     lineHeight: 1.2,
     [theme.breakpoints.down("md")]: {
@@ -246,7 +246,7 @@ export const HashInputBox = styled(Box)(({ theme }) => ({
   border: `1px solid ${theme.palette.border.main}`,
   fontSize: "13px",
   fontWeight: 400,
-  fontFamily: "UrbanistRegular",
+  fontFamily: "var(--font-sans)",
   color: theme.palette.text.primary,
   wordBreak: "break-all",
   lineHeight: "1.5",
@@ -260,7 +260,7 @@ export const HashInputBox = styled(Box)(({ theme }) => ({
 export const HashValue = styled(Typography)(({ theme }) => ({
   fontSize: "13px",
   fontWeight: 400,
-  fontFamily: "UrbanistRegular",
+  fontFamily: "var(--font-sans)",
   color: theme.palette.text.primary,
   wordBreak: "break-all",
   lineHeight: "1.5",
@@ -340,7 +340,7 @@ export const WebhookResponseBox = styled(Box)(({ theme }) => ({
     color: theme.palette.text.primary,
     fontSize: "13px",
     fontWeight: 500,
-    fontFamily: "UrbanistMedium",
+    fontFamily: "var(--font-sans)",
   },
   [theme.breakpoints.down("md")]: {
     margin: "10px",

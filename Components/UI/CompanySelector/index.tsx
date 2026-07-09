@@ -296,7 +296,7 @@ export default function CompanySelector() {
                 fontSize: "15px",
                 color: theme.palette.text.secondary,
                 fontWeight: 500,
-                fontFamily: "UrbanistMedium",
+                fontFamily: "var(--font-sans)",
               }}
             >
               {t("companySelectorTitle")}:
@@ -326,7 +326,7 @@ export default function CompanySelector() {
                   <Typography
                     sx={{
                       fontSize: isMobile ? "10px" : "13px",
-                      fontFamily: "UrbanistMedium",
+                      fontFamily: "var(--font-sans)",
                       fontWeight: 500,
                       color: theme.palette.text.secondary,
                     }}
@@ -404,7 +404,7 @@ export default function CompanySelector() {
         ContentProps={{
           sx: {
             borderRadius: "10px",
-            fontFamily: "UrbanistMedium",
+            fontFamily: "var(--font-sans)",
             fontSize: "14px",
             minWidth: "auto",
             boxShadow: "0 4px 20px rgba(0,0,0,0.12)",

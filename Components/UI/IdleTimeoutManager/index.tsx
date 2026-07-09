@@ -222,7 +222,7 @@ const IdleTimeoutManager: React.FC = () => {
           sx={{
             fontSize: "18px",
             fontWeight: 700,
-            fontFamily: "UrbanistBold, sans-serif",
+            fontFamily: "var(--font-sans), sans-serif",
             mb: 1,
             color: "text.primary",
           }}
@@ -233,7 +233,7 @@ const IdleTimeoutManager: React.FC = () => {
         <Typography
           sx={{
             fontSize: "14px",
-            fontFamily: "UrbanistRegular, sans-serif",
+            fontFamily: "var(--font-sans), sans-serif",
             mb: 1,
             color: "text.secondary",
             lineHeight: 1.6,
@@ -247,7 +247,7 @@ const IdleTimeoutManager: React.FC = () => {
           sx={{
             fontSize: "32px",
             fontWeight: 700,
-            fontFamily: "UrbanistBold, monospace",
+            fontFamily: "var(--font-sans), monospace",
             color: secondsLeft <= 30 ? "error.main" : "warning.main",
             mb: 3,
             letterSpacing: 2,
@@ -269,7 +269,7 @@ const IdleTimeoutManager: React.FC = () => {
               borderRadius: "10px",
               p: "10px 24px",
               fontSize: "14px",
-              fontFamily: "UrbanistMedium, sans-serif",
+              fontFamily: "var(--font-sans), sans-serif",
               cursor: "pointer",
               transition: "all 0.2s",
               "&:hover": { bgcolor: "action.hover" },
@@ -288,7 +288,7 @@ const IdleTimeoutManager: React.FC = () => {
               borderRadius: "10px",
               p: "10px 24px",
               fontSize: "14px",
-              fontFamily: "UrbanistMedium, sans-serif",
+              fontFamily: "var(--font-sans), sans-serif",
               cursor: "pointer",
               transition: "all 0.2s",
               "&:hover": { opacity: 0.9 },

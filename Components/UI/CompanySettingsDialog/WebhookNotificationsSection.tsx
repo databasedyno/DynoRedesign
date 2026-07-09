@@ -148,7 +148,7 @@ export default function WebhookNotificationsSection({
             display: "block",
             fontWeight: 500,
             fontSize: isMobile ? "13px" : "15px",
-            fontFamily: "UrbanistMedium",
+            fontFamily: "var(--font-sans)",
             color: "text.primary",
             lineHeight: "18px",
             mb: "12px",
@@ -246,7 +246,7 @@ export default function WebhookNotificationsSection({
           sx={{
             mt: 0.75,
             fontSize: isMobile ? "10px" : "13px",
-            fontFamily: "UrbanistMedium",
+            fontFamily: "var(--font-sans)",
             fontWeight: 500,
             color: "text.secondary",
             lineHeight: 1.2,
@@ -308,7 +308,7 @@ export default function WebhookNotificationsSection({
               sx={{
                 fontWeight: 500,
                 fontSize: isMobile ? "16px" : "20px",
-                fontFamily: "UrbanistMedium",
+                fontFamily: "var(--font-sans)",
                 color: "text.primary",
                 lineHeight: "24px",
               }}
@@ -349,7 +349,7 @@ export default function WebhookNotificationsSection({
               fontSize: isMobile ? "13px" : "15px",
               color: "text.secondary",
               lineHeight: "18px",
-              fontFamily: "UrbanistMedium",
+              fontFamily: "var(--font-sans)",
             }}
           >
             {tSettings("webhookRegenerateConfirmMessage")}

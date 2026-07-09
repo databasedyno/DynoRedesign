@@ -251,7 +251,7 @@ const ApiKeyCard = ({ title, apiRow, onCopy, onDelete, onRegenerate, onToggleSta
               variant="outlined"
               inputProps={{ "aria-label": "Settlement currency" }}
               sx={{
-                fontFamily: "UrbanistSemiBold, sans-serif",
+                fontFamily: "var(--font-sans), sans-serif",
                 fontSize: 13,
                 height: 30,
                 borderRadius: "8px",
@@ -272,7 +272,7 @@ const ApiKeyCard = ({ title, apiRow, onCopy, onDelete, onRegenerate, onToggleSta
               }}
             >
               {currencyOptions.map((c) => (
-                <MenuItem key={c} value={c} sx={{ fontFamily: "UrbanistMedium, sans-serif", fontSize: 13 }}>
+                <MenuItem key={c} value={c} sx={{ fontFamily: "var(--font-sans), sans-serif", fontSize: 13 }}>
                   {c}
                 </MenuItem>
               ))}
@@ -298,7 +298,7 @@ const ApiKeyCard = ({ title, apiRow, onCopy, onDelete, onRegenerate, onToggleSta
               "& .label": {
                 fontSize: "13px",
                 lineHeight: "16px",
-                fontFamily: "UrbanistMedium",
+                fontFamily: "var(--font-sans)",
                 fontWeight: 500,
                 color: theme.palette.text.secondary,
               },
@@ -337,7 +337,7 @@ const ApiKeyCard = ({ title, apiRow, onCopy, onDelete, onRegenerate, onToggleSta
               "& .label": {
                 fontSize: "13px",
                 lineHeight: "16px",
-                fontFamily: "UrbanistMedium",
+                fontFamily: "var(--font-sans)",
                 fontWeight: 500,
                 color: theme.palette.text.secondary,
               },

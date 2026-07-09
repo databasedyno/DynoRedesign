@@ -7,7 +7,7 @@ import { styled } from "@mui/material/styles";
 export const TableHeaderCell = styled(TableCell)(({ theme }) => ({
   fontSize: "13px",
   fontWeight: 500,
-  fontFamily: "UrbanistMedium",
+  fontFamily: "var(--font-sans)",
   color: "#111827",
   borderBottom: "none",
   padding: "14px 16px",
@@ -21,7 +21,7 @@ export const TableBodyCell = styled(TableCell)(({ theme }) => ({
   padding: "0px 10px",
   fontSize: "15px",
   fontWeight: 500,
-  fontFamily: "UrbanistMedium",
+  fontFamily: "var(--font-sans)",
   color: theme.palette.text.primary,
   lineHeight: 1,
   letterSpacing: 0,
@@ -72,7 +72,7 @@ export const StatusChip = styled(Box)<StatusChipProps>(({ status, theme }) => ({
           : "#F7931A",
   fontSize: "13px",
   fontWeight: 500,
-  fontFamily: "UrbanistMedium",
+  fontFamily: "var(--font-sans)",
   lineHeight: "100%",
   letterSpacing: 0,
   whiteSpace: "nowrap",
@@ -87,7 +87,7 @@ export const StatusChip = styled(Box)<StatusChipProps>(({ status, theme }) => ({
 export const ActionButton = styled(Box)(({ theme }) => ({
   width: "36px",
   height: "36px",
-  fontFamily: "UrbanistMedium",
+  fontFamily: "var(--font-sans)",
   borderRadius: "8px",
   border: "1px solid #E0E7FF",
   display: "flex",
@@ -126,14 +126,14 @@ export const RowsPerPageBox = styled(Box)(({ theme }) => ({
   gap: "8px",
   fontSize: "13px",
   color: "#374151",
-  fontFamily: "UrbanistMedium",
+  fontFamily: "var(--font-sans)",
 }));
 
 export const FooterText = styled(Box)(({ theme }) => ({
   fontSize: "13px",
   fontWeight: 500,
   color: theme.palette.text.secondary,
-  fontFamily: "UrbanistMedium",
+  fontFamily: "var(--font-sans)",
   lineHeight: "100%",
   whiteSpace: "nowrap",
   [theme.breakpoints.down("md")]: {
@@ -146,7 +146,7 @@ export const FooterText = styled(Box)(({ theme }) => ({
 
 export const HeaderRow = styled("tr")(() => ({
   backgroundColor: "#EEF4FF",
-  fontFamily: "UrbanistMedium",
+  fontFamily: "var(--font-sans)",
 }));
 
 export const TransactionsTableScrollWrapper = styled(Box)(({ theme }) => ({

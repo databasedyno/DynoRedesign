@@ -160,7 +160,7 @@ const FeeFreeBanner: React.FC = () => {
           <Typography
             component="span"
             sx={{
-              fontFamily: "UrbanistSemiBold, sans-serif",
+              fontFamily: "var(--font-sans), sans-serif",
               fontSize: { xs: 12, md: 14 },
               lineHeight: 1.2,
               whiteSpace: "nowrap",
@@ -189,7 +189,7 @@ const FeeFreeBanner: React.FC = () => {
           <Typography
             component="span"
             sx={{
-              fontFamily: "UrbanistMedium, sans-serif",
+              fontFamily: "var(--font-sans), sans-serif",
               fontSize: { xs: 11, md: 13 },
               color: "rgba(255,255,255,0.85)",
               whiteSpace: "nowrap",
@@ -211,7 +211,7 @@ const FeeFreeBanner: React.FC = () => {
               px: 1.75,
               py: 0.6,
               borderRadius: 999,
-              fontFamily: "UrbanistSemiBold, sans-serif",
+              fontFamily: "var(--font-sans), sans-serif",
               fontSize: 12,
               cursor: "pointer",
               display: "flex",

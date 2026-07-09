@@ -33,7 +33,7 @@ export const CurrencyTrigger = muiStyled(Box, {
   boxSizing: "border-box",
   transition: "all 0.3s ease",
   boxShadow: "rgba(16, 24, 40, 0.05) 0px 1px 2px 0px",
-  fontFamily: "UrbanistMedium",
+  fontFamily: "var(--font-sans)",
   "&:hover": {
     borderColor: error ? theme.palette.error.main : theme.palette.primary.light,
   },
@@ -63,7 +63,7 @@ export const CurrencyText = muiStyled('span', {
 })<{ isMobile?: boolean }>(({ theme, isMobile }: any) => ({
   fontSize: isMobile ? "10px" : "13px",
   fontWeight: 500,
-  fontFamily: "UrbanistMedium",
+  fontFamily: "var(--font-sans)",
   color: theme.palette.text.primary,
   lineHeight: 1.2,
 }));

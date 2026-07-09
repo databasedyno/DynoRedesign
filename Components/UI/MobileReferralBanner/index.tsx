@@ -70,7 +70,7 @@ const MobileReferralBanner: React.FC = () => {
           <Typography
             sx={{
               fontSize: "13px",
-              fontFamily: "UrbanistSemiBold",
+              fontFamily: "var(--font-sans)",
               fontWeight: 600,
               color: theme.palette.text.secondary,
             }}
@@ -82,7 +82,7 @@ const MobileReferralBanner: React.FC = () => {
           onClick={() => router.push("/referrals")}
           sx={{
             fontSize: "12px",
-            fontFamily: "UrbanistMedium",
+            fontFamily: "var(--font-sans)",
             color: theme.palette.primary.main,
             cursor: "pointer",
             "&:hover": { textDecoration: "underline" },
@@ -110,7 +110,7 @@ const MobileReferralBanner: React.FC = () => {
           <Typography
             sx={{
               fontSize: "16px",
-              fontFamily: "UrbanistSemiBold",
+              fontFamily: "var(--font-sans)",
               fontWeight: 700,
               color: theme.palette.primary.main,
               letterSpacing: "1.5px",

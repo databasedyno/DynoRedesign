@@ -62,7 +62,7 @@ const SupportedChainsRail: React.FC = () => {
         sx={{
           fontSize: "12px",
           fontWeight: 600,
-          fontFamily: "UrbanistSemiBold",
+          fontFamily: "var(--font-sans)",
           letterSpacing: "2px",
           textTransform: "uppercase",
           color: theme.palette.text.secondary,
@@ -112,7 +112,7 @@ const SupportedChainsRail: React.FC = () => {
               sx={{
                 fontSize: "13px",
                 fontWeight: 600,
-                fontFamily: "UrbanistSemiBold",
+                fontFamily: "var(--font-sans)",
                 color: theme.palette.text.primary,
                 display: { xs: "none", sm: "block" },
               }}

@@ -344,10 +344,10 @@ export default function CompanyDetailsSection({
                     value={isOpen ? searchTerm : String(values.country || "")}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     sx={{
-                      fontFamily: "UrbanistMedium",
+                      fontFamily: "var(--font-sans)",
                       fontSize: isMobile ? "13px" : "15px",
                       "& .MuiInputBase-input::placeholder": {
-                        fontFamily: "UrbanistMedium",
+                        fontFamily: "var(--font-sans)",
                         fontSize: isMobile ? "10px" : "13px",
                         color: "rgba(189, 189, 189, 1)",
                       },
@@ -446,7 +446,7 @@ export default function CompanyDetailsSection({
                             primary={c.name}
                             primaryTypographyProps={{
                               sx: {
-                                fontFamily: "UrbanistMedium",
+                                fontFamily: "var(--font-sans)",
                                 fontWeight: 500,
                                 fontSize: isMobile ? "13px" : "15px",
                                 lineHeight: "100%",
@@ -510,10 +510,10 @@ export default function CompanyDetailsSection({
                     }
                     onChange={(e) => setStateSearchTerm(e.target.value)}
                     sx={{
-                      fontFamily: "UrbanistMedium",
+                      fontFamily: "var(--font-sans)",
                       fontSize: isMobile ? "13px" : "15px",
                       "& .MuiInputBase-input::placeholder": {
-                        fontFamily: "UrbanistMedium",
+                        fontFamily: "var(--font-sans)",
                         fontSize: isMobile ? "10px" : "13px",
                         color: "rgba(189, 189, 189, 1)",
                       },
@@ -601,7 +601,7 @@ export default function CompanyDetailsSection({
                             primary={s.name}
                             primaryTypographyProps={{
                               sx: {
-                                fontFamily: "UrbanistMedium",
+                                fontFamily: "var(--font-sans)",
                                 fontWeight: 500,
                                 fontSize: isMobile ? "13px" : "15px",
                                 lineHeight: "100%",
@@ -666,10 +666,10 @@ export default function CompanyDetailsSection({
                     }
                     onChange={(e) => setCitySearchTerm(e.target.value)}
                     sx={{
-                      fontFamily: "UrbanistMedium",
+                      fontFamily: "var(--font-sans)",
                       fontSize: isMobile ? "13px" : "15px",
                       "& .MuiInputBase-input::placeholder": {
-                        fontFamily: "UrbanistMedium",
+                        fontFamily: "var(--font-sans)",
                         fontSize: isMobile ? "10px" : "13px",
                         color: "rgba(189, 189, 189, 1)",
                       },
@@ -757,7 +757,7 @@ export default function CompanyDetailsSection({
                             primary={c.name}
                             primaryTypographyProps={{
                               sx: {
-                                fontFamily: "UrbanistMedium",
+                                fontFamily: "var(--font-sans)",
                                 fontWeight: 500,
                                 fontSize: isMobile ? "13px" : "15px",
                                 lineHeight: "100%",
@@ -885,7 +885,7 @@ export default function CompanyDetailsSection({
                     <Typography
                       sx={{
                         fontSize: isMobile ? "10px" : "13px",
-                        fontFamily: "UrbanistMedium",
+                        fontFamily: "var(--font-sans)",
                         lineHeight: "100%",
                         letterSpacing: 0,
                         fontWeight: 500,
@@ -993,7 +993,7 @@ export default function CompanyDetailsSection({
                           <Typography
                             sx={{
                               fontSize: "13px",
-                              fontFamily: "UrbanistMedium",
+                              fontFamily: "var(--font-sans)",
                               lineHeight: "100%",
                               letterSpacing: 0,
                               fontWeight: 500,
@@ -1061,7 +1061,7 @@ export default function CompanyDetailsSection({
                     fontSize: "12px",
                     color: taxValidation.valid !== false ? "#1B902B" : "#E84848",
                     fontWeight: 500,
-                    fontFamily: "UrbanistMedium",
+                    fontFamily: "var(--font-sans)",
                     lineHeight: "100%",
                     letterSpacing: 0,
                   }}

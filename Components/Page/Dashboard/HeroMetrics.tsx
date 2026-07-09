@@ -2,8 +2,21 @@ import { formatNumberWithComma } from "@/helpers";
 import useIsMobile from "@/hooks/useIsMobile";
 import { ArrowDownward, ArrowUpward, TrendingUpRounded, ReceiptLongRounded, PaidRounded } from "@mui/icons-material";
 import { Box, Skeleton, Typography, useTheme } from "@mui/material";
+import { motion } from "framer-motion";
 import React from "react";
 import { useTranslation } from "react-i18next";
+
+/**
+ * Stagger animation config (added 2026-07-09).
+ * Each tile fades + slides up 8px with a 90ms delay between siblings, so the
+ * hero row "cascades in" instead of dumping — makes the metrics feel earned.
+ * Uses a fluid cubic-bezier for the entry curve.
+ */
+const tileAnim = {
+  initial: { opacity: 0, y: 8 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.36, ease: [0.16, 1, 0.3, 1] as const },
+};
 
 /**
  * HeroMetrics — the top-of-dashboard glanceable summary.
@@ -63,7 +76,7 @@ const DeltaChip: React.FC<{ change: number }> = ({ change }) => {
         borderRadius: "999px",
         backgroundColor: bg,
         color,
-        fontFamily: "UrbanistSemiBold",
+        fontFamily: "var(--font-sans)",
         fontSize: "11px",
         fontWeight: 600,
         lineHeight: 1,
@@ -124,7 +137,7 @@ const Tile: React.FC<TileProps> = ({
       <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <Typography
           sx={{
-            fontFamily: "UrbanistMedium",
+            fontFamily: "var(--font-sans)",
             fontSize: isMobile ? "12px" : "13px",
             color: theme.palette.text.secondary,
             letterSpacing: "0.2px",
@@ -155,7 +168,7 @@ const Tile: React.FC<TileProps> = ({
       </Box>
       <Typography
         sx={{
-          fontFamily: "UrbanistBold",
+          fontFamily: "var(--font-sans)",
           fontSize: isMobile ? "24px" : "32px",
           fontWeight: 700,
           color: theme.palette.text.primary,
@@ -176,7 +189,7 @@ const Tile: React.FC<TileProps> = ({
             )}
             <Typography
               sx={{
-                fontFamily: "UrbanistMedium",
+                fontFamily: "var(--font-sans)",
                 fontSize: isMobile ? "11px" : "12px",
                 color: theme.palette.text.secondary,
                 lineHeight: 1.3,
@@ -219,47 +232,53 @@ const HeroMetrics: React.FC<HeroMetricsProps> = ({
         mb: { xs: 2, md: 2.5 },
       }}
     >
-      <Tile
-        testId="hero-tile-today-revenue"
-        label={t("heroTodayRevenue")}
-        value={volumeTodayFormatted || `${currencySymbol}0.00`}
-        changePercent={volumeTodayChangePercent}
-        changeLabel={t("vsYesterday")}
-        icon={<PaidRounded sx={{ fontSize: 18 }} />}
-        loading={loading}
-        variant="primary"
-      />
-      <Tile
-        testId="hero-tile-total-volume"
-        label={t("heroLifetimeVolume")}
-        value={totalVolumeFormatted || `${currencySymbol}0.00`}
-        changePercent={volumeChangePercent}
-        changeLabel={t("vsLastMonth")}
-        icon={<TrendingUpRounded sx={{ fontSize: 18 }} />}
-        loading={loading}
-      />
-      <Tile
-        testId="hero-tile-payments-today"
-        label={t("heroPaymentsToday")}
-        value={
-          loading
-            ? ""
-            : formatNumberWithComma(String(transactionsToday ?? 0))
-        }
-        changePercent={transactionsChangePercent}
-        changeLabel={
-          activeWallets != null
-            ? t("activeWalletsCount", { count: activeWallets })
-            : t("vsYesterday")
-        }
-        meta={
-          activeWallets != null
-            ? t("activeWalletsCount", { count: activeWallets })
-            : undefined
-        }
-        icon={<ReceiptLongRounded sx={{ fontSize: 18 }} />}
-        loading={loading}
-      />
+      <motion.div {...tileAnim} transition={{ ...tileAnim.transition, delay: 0 }}>
+        <Tile
+          testId="hero-tile-today-revenue"
+          label={t("heroTodayRevenue")}
+          value={volumeTodayFormatted || `${currencySymbol}0.00`}
+          changePercent={volumeTodayChangePercent}
+          changeLabel={t("vsYesterday")}
+          icon={<PaidRounded sx={{ fontSize: 18 }} />}
+          loading={loading}
+          variant="primary"
+        />
+      </motion.div>
+      <motion.div {...tileAnim} transition={{ ...tileAnim.transition, delay: 0.09 }}>
+        <Tile
+          testId="hero-tile-total-volume"
+          label={t("heroLifetimeVolume")}
+          value={totalVolumeFormatted || `${currencySymbol}0.00`}
+          changePercent={volumeChangePercent}
+          changeLabel={t("vsLastMonth")}
+          icon={<TrendingUpRounded sx={{ fontSize: 18 }} />}
+          loading={loading}
+        />
+      </motion.div>
+      <motion.div {...tileAnim} transition={{ ...tileAnim.transition, delay: 0.18 }}>
+        <Tile
+          testId="hero-tile-payments-today"
+          label={t("heroPaymentsToday")}
+          value={
+            loading
+              ? ""
+              : formatNumberWithComma(String(transactionsToday ?? 0))
+          }
+          changePercent={transactionsChangePercent}
+          changeLabel={
+            activeWallets != null
+              ? t("activeWalletsCount", { count: activeWallets })
+              : t("vsYesterday")
+          }
+          meta={
+            activeWallets != null
+              ? t("activeWalletsCount", { count: activeWallets })
+              : undefined
+          }
+          icon={<ReceiptLongRounded sx={{ fontSize: 18 }} />}
+          loading={loading}
+        />
+      </motion.div>
     </Box>
   );
 };

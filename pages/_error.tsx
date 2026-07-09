@@ -31,7 +31,7 @@ const Error = ({ statusCode, setPageName }: any) => {
       }}
     >
       <Image src={NoAccess} alt="No Access" height={200} width={200} draggable={false} style={{ objectFit: "contain" }} />
-      <Typography color="primary" variant="h5" fontFamily="UrbanistBold" fontSize="24px" lineHeight="32px" letterSpacing="0.01em" textTransform="none" maxWidth="500px">
+      <Typography color="primary" variant="h5" fontFamily="var(--font-sans)" fontSize="24px" lineHeight="32px" letterSpacing="0.01em" textTransform="none" maxWidth="500px">
         {statusCode === 404
           ? "The page you are looking for was not found or is unavailable"
           : statusCode
@@ -56,7 +56,7 @@ const Error = ({ statusCode, setPageName }: any) => {
               color: (theme) => theme.palette.mode === "dark" ? "#fff" : "#12131C",
               background: (theme) => theme.palette.mode === "dark" ? "#5A6BEF" : "transparent",
             },
-            fontFamily: "UrbanistBold",
+            fontFamily: "var(--font-sans)",
             fontSize: "16px",
             lineHeight: "24px",
             letterSpacing: "0.01em",

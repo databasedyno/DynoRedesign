@@ -142,7 +142,7 @@ const NewSidebar = () => {
                             backgroundColor: "#E11D48",
                             color: "#FFFFFF",
                             fontSize: 10,
-                            fontFamily: "UrbanistSemibold, sans-serif",
+                            fontFamily: "var(--font-sans), sans-serif",
                             fontWeight: 700,
                             display: "flex",
                             alignItems: "center",
@@ -163,7 +163,7 @@ const NewSidebar = () => {
                         fontWeight: isActive ? 700 : 500,
                         textAlign: "center",
                         lineHeight: 1.2,
-                        fontFamily: isActive ? "UrbanistBold" : "UrbanistMedium",
+                        fontFamily: isActive ? "var(--font-sans)" : "var(--font-sans)",
                         [theme.breakpoints.down("md")]: {
                           fontSize: "11px",
                           whiteSpace: "nowrap",

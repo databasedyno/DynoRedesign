@@ -70,14 +70,14 @@ const StickyPromoBar: React.FC = () => {
         alignItems: 'center',
         justifyContent: 'center',
         gap: 1.5,
-        fontFamily: 'UrbanistMedium',
+        fontFamily: 'var(--font-sans)',
       }}
     >
       <Typography
         component="span"
         sx={{
           fontSize: { xs: 12.5, md: 13.5 },
-          fontFamily: 'UrbanistSemiBold',
+          fontFamily: 'var(--font-sans)',
           display: 'inline-flex',
           alignItems: 'center',
           gap: 0.8,
@@ -92,12 +92,12 @@ const StickyPromoBar: React.FC = () => {
         {/* Shorter copy on mobile so the whole bar fits in one line at 375px iPhone width. */}
         <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
           Your first{' '}
-          <Box component="span" sx={{ fontFamily: 'UrbanistBold' }}>$500</Box>{' '}
-          in payments is <Box component="span" sx={{ fontFamily: 'UrbanistBold' }}>fee-free</Box>
+          <Box component="span" sx={{ fontFamily: 'var(--font-sans)' }}>$500</Box>{' '}
+          in payments is <Box component="span" sx={{ fontFamily: 'var(--font-sans)' }}>fee-free</Box>
         </Box>
         <Box component="span" sx={{ display: { xs: 'inline', sm: 'none' } }}>
-          First <Box component="span" sx={{ fontFamily: 'UrbanistBold' }}>$500</Box>{' '}
-          <Box component="span" sx={{ fontFamily: 'UrbanistBold' }}>fee-free</Box>
+          First <Box component="span" sx={{ fontFamily: 'var(--font-sans)' }}>$500</Box>{' '}
+          <Box component="span" sx={{ fontFamily: 'var(--font-sans)' }}>fee-free</Box>
         </Box>
       </Typography>
 
@@ -112,7 +112,7 @@ const StickyPromoBar: React.FC = () => {
           cursor: 'pointer',
           bgcolor: 'rgba(255,255,255,0.16)',
           color: '#fff',
-          fontFamily: 'UrbanistBold',
+          fontFamily: 'var(--font-sans)',
           fontSize: { xs: 12, md: 12.5 },
           px: { xs: 1.2, md: 1.6 },
           py: { xs: 0.3, md: 0.4 },

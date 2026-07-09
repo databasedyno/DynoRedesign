@@ -228,7 +228,7 @@ const FeeFreeWelcomeModal: React.FC = () => {
                 fontWeight: 800,
                 fontSize: 28,
                 lineHeight: 1,
-                fontFamily: "UrbanistSemiBold, Urbanist, sans-serif",
+                fontFamily: "var(--font-sans), Urbanist, sans-serif",
               }}
             >
               ${Math.round(remaining)}
@@ -242,7 +242,7 @@ const FeeFreeWelcomeModal: React.FC = () => {
                 letterSpacing: "1px",
                 textTransform: "uppercase",
                 mt: 0.5,
-                fontFamily: "UrbanistMedium, Urbanist, sans-serif",
+                fontFamily: "var(--font-sans), Urbanist, sans-serif",
               }}
             >
               {t("ffWelcomeBadge")}
@@ -255,7 +255,7 @@ const FeeFreeWelcomeModal: React.FC = () => {
           sx={{
             fontSize: { xs: 20, sm: 23 },
             fontWeight: 800,
-            fontFamily: "UrbanistSemiBold, Urbanist, sans-serif",
+            fontFamily: "var(--font-sans), Urbanist, sans-serif",
             color: theme.palette.text.primary,
             mb: 1.25,
             lineHeight: 1.25,
@@ -268,7 +268,7 @@ const FeeFreeWelcomeModal: React.FC = () => {
           sx={{
             fontSize: 14.5,
             color: theme.palette.text.secondary,
-            fontFamily: "UrbanistMedium, Urbanist, sans-serif",
+            fontFamily: "var(--font-sans), Urbanist, sans-serif",
             lineHeight: 1.6,
             mb: 3,
           }}
@@ -298,7 +298,7 @@ const FeeFreeWelcomeModal: React.FC = () => {
             mt: 2,
             fontSize: 12,
             color: dark ? "rgba(255,255,255,0.45)" : "rgba(0,0,0,0.45)",
-            fontFamily: "UrbanistMedium, Urbanist, sans-serif",
+            fontFamily: "var(--font-sans), Urbanist, sans-serif",
           }}
         >
           {t("ffWelcomeFootnote")}

@@ -49,7 +49,7 @@ const TitleDescription: React.FC<TitleDescriptionProps> = ({
           component="div"
           sx={{
             fontSize: "20px",
-            fontFamily: "UrbanistMedium",
+            fontFamily: "var(--font-sans)",
             color: "text.primary",
             lineHeight: "1.2",
             letterSpacing: 0,
@@ -64,7 +64,7 @@ const TitleDescription: React.FC<TitleDescriptionProps> = ({
         <Typography
           sx={{
             fontSize: "15px",
-            fontFamily: "UrbanistMedium",
+            fontFamily: "var(--font-sans)",
             color: "text.secondary",
             lineHeight: "1.4",
             letterSpacing: 0,

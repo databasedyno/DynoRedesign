@@ -98,7 +98,7 @@ const SecureAccountPage = () => {
           sx={{
             fontSize: { xs: "20px", sm: "24px" },
             fontWeight: 700,
-            fontFamily: "UrbanistBold",
+            fontFamily: "var(--font-sans)",
             color: theme.palette.text.primary,
             mb: 1,
           }}
@@ -110,7 +110,7 @@ const SecureAccountPage = () => {
           sx={{
             fontSize: { xs: "13px", sm: "14px" },
             color: theme.palette.text.secondary,
-            fontFamily: "UrbanistMedium",
+            fontFamily: "var(--font-sans)",
             lineHeight: 1.6,
             mb: 3,
           }}
@@ -124,7 +124,7 @@ const SecureAccountPage = () => {
               sx={{
                 fontSize: "13px",
                 color: theme.palette.text.secondary,
-                fontFamily: "UrbanistMedium",
+                fontFamily: "var(--font-sans)",
                 p: "12px 16px",
                 borderRadius: "8px",
                 backgroundColor: theme.palette.mode === "dark" ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)",
@@ -145,7 +145,7 @@ const SecureAccountPage = () => {
                 display: "inline-block",
                 fontSize: "14px",
                 fontWeight: 600,
-                fontFamily: "UrbanistSemibold",
+                fontFamily: "var(--font-sans)",
                 color: theme.palette.primary.main,
                 textDecoration: "none",
                 "&:hover": { textDecoration: "underline" },
@@ -164,7 +164,7 @@ const SecureAccountPage = () => {
               display: "inline-block",
               fontSize: "14px",
               fontWeight: 600,
-              fontFamily: "UrbanistSemibold",
+              fontFamily: "var(--font-sans)",
               color: theme.palette.primary.main,
               textDecoration: "none",
               "&:hover": { textDecoration: "underline" },

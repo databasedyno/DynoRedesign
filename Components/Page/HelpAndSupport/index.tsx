@@ -211,7 +211,7 @@ const HelpAndSupport = () => {
                                 height: isMobile ? "32px" : "40px",
                                 width: isMobile ? "300px" : "639px",
                                 fontSize: isMobile ? "10px" : "13px",
-                                fontFamily: "UrbanistMedium",
+                                fontFamily: "var(--font-sans)",
                                 lineHeight: "100%",
                                 letterSpacing: 0,
                                 fontWeight: 500,

@@ -94,7 +94,7 @@ const CodeBlock: React.FC<{
           <Typography
             sx={{
               ml: 1,
-              fontFamily: "UrbanistMedium",
+              fontFamily: "var(--font-sans)",
               fontSize: 12,
               color: "rgba(255,255,255,0.55)",
               letterSpacing: "0.3px",
@@ -185,7 +185,7 @@ const TryItNow: React.FC = () => {
       <Box sx={{ textAlign: "center", mb: { xs: 4, md: 6 } }}>
         <Typography
           sx={{
-            fontFamily: "UrbanistBold",
+            fontFamily: "var(--font-sans)",
             fontSize: 12,
             letterSpacing: "1.5px",
             color: theme.palette.primary.main,
@@ -220,7 +220,7 @@ const TryItNow: React.FC = () => {
         </Typography>
         <Typography
           sx={{
-            fontFamily: "UrbanistMedium",
+            fontFamily: "var(--font-sans)",
             fontSize: { xs: 14, md: 16 },
             color: theme.palette.text.secondary,
             maxWidth: 620,
@@ -248,7 +248,7 @@ const TryItNow: React.FC = () => {
           <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1.5 }}>
             <Typography
               sx={{
-                fontFamily: "UrbanistBold",
+                fontFamily: "var(--font-sans)",
                 fontSize: 13,
                 color: theme.palette.text.primary,
                 display: "inline-flex",
@@ -283,7 +283,7 @@ const TryItNow: React.FC = () => {
               target="_blank"
               rel="noopener noreferrer"
               sx={{
-                fontFamily: "UrbanistSemiBold",
+                fontFamily: "var(--font-sans)",
                 fontSize: 12,
                 textTransform: "none",
                 color: theme.palette.primary.main,
@@ -331,7 +331,7 @@ const TryItNow: React.FC = () => {
                 borderRadius: "999px",
                 bgcolor: "rgba(0,0,0,0.55)",
                 color: "#fff",
-                fontFamily: "UrbanistSemiBold",
+                fontFamily: "var(--font-sans)",
                 fontSize: 10.5,
                 letterSpacing: "0.5px",
                 textTransform: "uppercase",
@@ -345,7 +345,7 @@ const TryItNow: React.FC = () => {
           <Typography
             sx={{
               mt: 1.3,
-              fontFamily: "UrbanistMedium",
+              fontFamily: "var(--font-sans)",
               fontSize: 11.5,
               color: theme.palette.text.disabled,
               textAlign: "center",
@@ -359,7 +359,7 @@ const TryItNow: React.FC = () => {
         <Box sx={{ minWidth: 0 }}>
           <Typography
             sx={{
-              fontFamily: "UrbanistBold",
+              fontFamily: "var(--font-sans)",
               fontSize: 13,
               color: theme.palette.text.primary,
               mb: 1.5,
@@ -377,7 +377,7 @@ const TryItNow: React.FC = () => {
                 borderRadius: 0.8,
                 bgcolor: isDark ? "rgba(204,255,0,0.15)" : "rgba(10,10,10,0.06)",
                 color: theme.palette.primary.main,
-                fontFamily: "UrbanistBold",
+                fontFamily: "var(--font-sans)",
                 fontSize: 11,
                 letterSpacing: "0.4px",
               }}
@@ -408,7 +408,7 @@ const TryItNow: React.FC = () => {
               variant="contained"
               onClick={() => copy(curl, "cURL")}
               sx={{
-                fontFamily: "UrbanistSemiBold",
+                fontFamily: "var(--font-sans)",
                 textTransform: "none",
                 fontSize: 13.5,
                 px: 2.2,
@@ -431,7 +431,7 @@ const TryItNow: React.FC = () => {
               component="a"
               href="/documentation"
               sx={{
-                fontFamily: "UrbanistSemiBold",
+                fontFamily: "var(--font-sans)",
                 textTransform: "none",
                 fontSize: 13.5,
                 px: 2.2,
@@ -452,7 +452,7 @@ const TryItNow: React.FC = () => {
           <Typography
             sx={{
               mt: 2,
-              fontFamily: "UrbanistMedium",
+              fontFamily: "var(--font-sans)",
               fontSize: 11.5,
               color: theme.palette.text.disabled,
               lineHeight: 1.5,

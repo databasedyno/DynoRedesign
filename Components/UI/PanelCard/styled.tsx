@@ -39,7 +39,7 @@ export const HeaderTitle = styled(Typography)(({ theme }) => ({
   fontWeight: 500,
   lineHeight: "1.2",
   letterSpacing: 0,
-  fontFamily: "UrbanistMedium",
+  fontFamily: "var(--font-sans)",
   color: theme.palette.text.primary,
   [theme.breakpoints.down("md")]: {
     fontSize: "15px",
@@ -78,5 +78,5 @@ export const HeaderSubTitle = styled(Typography)(({ theme }) => ({
   lineHeight: 1.2,
   letterSpacing: 0,
   color: theme.palette.text.secondary,
-  fontFamily: "UrbanistRegular",
+  fontFamily: "var(--font-sans)",
 }));

@@ -38,7 +38,7 @@ export const TabItem = styled(Box, {
     fontWeight: active ? 700 : 500,
     lineHeight: 1.2,
     color: theme.palette.text.primary,
-    fontFamily: active ? "UrbanistBold" : "UrbanistMedium",
+    fontFamily: active ? "var(--font-sans)" : "var(--font-sans)",
     textTransform: "capitalize",
     textAlign: "center",
     whiteSpace: "nowrap",
@@ -83,7 +83,7 @@ export const PaymentSettingsLabel = styled(Box)(({ theme }) => ({
     fontWeight: 500,
     color: theme.palette.text.primary,
     lineHeight: "16px",
-    fontFamily: "UrbanistMedium",
+    fontFamily: "var(--font-sans)",
   },
   [theme.breakpoints.up("md")]: {
     gap: 8,
@@ -127,7 +127,7 @@ export const ExpireTrigger = styled(Box, {
   boxSizing: "border-box",
   transition: "all 0.3s ease",
   boxShadow: "rgba(16, 24, 40, 0.05) 0px 1px 2px 0px",
-  fontFamily: "UrbanistMedium",
+  fontFamily: "var(--font-sans)",
   position: "relative",
   "&:hover": {
     borderColor: error ? theme.palette.error.main : theme.palette.border.focus,
@@ -154,7 +154,7 @@ export const ExpireText = styledEmotion.span<{ isMobile?: boolean }>(
   ({ isMobile }) => ({
     fontSize: isMobile ? "10px" : "13px",
     fontWeight: 500,
-    fontFamily: "UrbanistMedium",
+    fontFamily: "var(--font-sans)",
     color: theme.palette.text.primary,
     lineHeight: "1.5",
     textTransform: "capitalize",
@@ -183,7 +183,7 @@ export const PaymentDetailsContainer = styled(Box)(({ theme }) => ({
 export const PaymentDetailsTitle = styled(Typography)(({ theme }) => ({
   fontSize: "13px",
   fontWeight: 500,
-  fontFamily: "UrbanistMedium",
+  fontFamily: "var(--font-sans)",
   color: theme.palette.text.primary,
   lineHeight: "1.2",
 }));
@@ -196,7 +196,7 @@ export const Row = styled(Box)(() => ({
 }));
 
 export const LabelText = styled(Typography)(({ theme }) => ({
-  fontFamily: "UrbanistMedium",
+  fontFamily: "var(--font-sans)",
   fontWeight: 500,
   color: theme.palette.text.secondary,
   whiteSpace: "nowrap",
@@ -209,7 +209,7 @@ export const LabelText = styled(Typography)(({ theme }) => ({
 }));
 
 export const Text = styled(Typography)(({ theme }) => ({
-  fontFamily: "UrbanistMedium",
+  fontFamily: "var(--font-sans)",
   fontWeight: 500,
   whiteSpace: "nowrap",
   lineHeight: 1.2,
@@ -217,7 +217,7 @@ export const Text = styled(Typography)(({ theme }) => ({
 }));
 
 export const ValueText = styled(Typography)(({ theme }) => ({
-  fontFamily: "UrbanistMedium",
+  fontFamily: "var(--font-sans)",
   fontWeight: 500,
   color: theme.palette.text.primary,
   wordBreak: "break-word",

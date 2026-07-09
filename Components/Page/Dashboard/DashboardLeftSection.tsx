@@ -608,7 +608,7 @@ const DashboardLeftSection = () => {
             sx={{
               fontSize: isMobile ? "20px" : "40px",
               color: theme.palette.text.primary,
-              fontFamily: "UrbanistMedium",
+              fontFamily: "var(--font-sans)",
               lineHeight: "100%",
               fontWeight: 500,
               letterSpacing: 0,
@@ -766,7 +766,7 @@ const DashboardLeftSection = () => {
                 sx={{
                   fontSize: isMobile ? "15px" : "20px",
                   color: theme.palette.text.primary,
-                  fontFamily: "UrbanistMedium",
+                  fontFamily: "var(--font-sans)",
                   lineHeight: 1.2,
                 }}
               >
@@ -776,7 +776,7 @@ const DashboardLeftSection = () => {
                 sx={{
                   fontSize: "13px",
                   color: theme.palette.text.secondary,
-                  fontFamily: "UrbanistMedium",
+                  fontFamily: "var(--font-sans)",
                   lineHeight: 1.2,
                 }}
               >

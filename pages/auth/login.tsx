@@ -1012,7 +1012,7 @@ export default function Login() {
                 textAlign: "center",
                 padding: isMobile ? "10px 0" : "10px 0",
                 cursor: "pointer",
-                fontFamily: "UrbanistMedium",
+                fontFamily: "var(--font-sans)",
                 fontSize: isMobile ? "14px" : "14px",
                 fontWeight: loginMode === "email" ? 600 : 500,
                 color: loginMode === "email" ? "primary.contrastText" : "text.secondary",
@@ -1030,7 +1030,7 @@ export default function Login() {
                 textAlign: "center",
                 padding: isMobile ? "10px 0" : "10px 0",
                 cursor: "pointer",
-                fontFamily: "UrbanistMedium",
+                fontFamily: "var(--font-sans)",
                 fontSize: isMobile ? "14px" : "14px",
                 fontWeight: loginMode === "phone" ? 600 : 500,
                 color: loginMode === "phone" ? "primary.contrastText" : "text.secondary",
@@ -1054,7 +1054,7 @@ export default function Login() {
                   sx={{
                     fontWeight: 500,
                     fontSize: isMobile ? "13px" : "15px",
-                    fontFamily: "UrbanistMedium",
+                    fontFamily: "var(--font-sans)",
                     textAlign: "start",
                     color: theme.palette.text.primary,
                     letterSpacing: 0,
@@ -1083,7 +1083,7 @@ export default function Login() {
                     sx={{
                       fontSize: "12px",
                       color: "error.main",
-                      fontFamily: "UrbanistMedium",
+                      fontFamily: "var(--font-sans)",
                       textAlign: "start",
                     }}
                   >
@@ -1105,7 +1105,7 @@ export default function Login() {
                 sx={{
                   fontSize: "13px",
                   color: theme.palette.text.secondary,
-                  fontFamily: "UrbanistMedium",
+                  fontFamily: "var(--font-sans)",
                   lineHeight: "1.2",
                   letterSpacing: 0,
                 }}
@@ -1122,7 +1122,7 @@ export default function Login() {
                   letterSpacing: 0,
                   cursor: "pointer",
                   textDecoration: "underline",
-                  fontFamily: "UrbanistMedium",
+                  fontFamily: "var(--font-sans)",
                 }}
                 onClick={() => router.push("/auth/register")}
               >
@@ -1156,7 +1156,7 @@ export default function Login() {
                   sx={{
                     fontWeight: 500,
                     fontSize: isMobile ? "13px" : "15px",
-                    fontFamily: "UrbanistMedium",
+                    fontFamily: "var(--font-sans)",
                     textAlign: "start",
                     color: theme.palette.text.primary,
                     letterSpacing: 0,
@@ -1186,7 +1186,7 @@ export default function Login() {
                 sx={{
                   textAlign: "start",
                   fontSize: isMobile ? "13px" : "15px",
-                  fontFamily: "UrbanistMedium",
+                  fontFamily: "var(--font-sans)",
                   lineHeight: "1.2",
                   letterSpacing: 0,
                   color: "text.secondary",
@@ -1287,7 +1287,7 @@ export default function Login() {
                   sx={{
                     fontSize: "13px",
                     color: theme.palette.text.secondary,
-                    fontFamily: "UrbanistMedium",
+                    fontFamily: "var(--font-sans)",
                     lineHeight: "1.2",
                     letterSpacing: 0,
                   }}
@@ -1304,7 +1304,7 @@ export default function Login() {
                     letterSpacing: 0,
                     cursor: "pointer",
                     textDecoration: "underline",
-                    fontFamily: "UrbanistMedium",
+                    fontFamily: "var(--font-sans)",
                   }}
                   onClick={() => {
                     router.push("/auth/register");
@@ -1322,7 +1322,7 @@ export default function Login() {
                   cursor: "pointer",
                   textDecoration: "underline",
                   textUnderlineOffset: "2px",
-                  fontFamily: "UrbanistMedium",
+                  fontFamily: "var(--font-sans)",
                   lineHeight: "1.2",
                 }}
                 onClick={() => {
@@ -1376,7 +1376,7 @@ export default function Login() {
                 sx={{
                   textAlign: "start",
                   fontSize: isMobile ? "13px" : "15px",
-                  fontFamily: "UrbanistMedium",
+                  fontFamily: "var(--font-sans)",
                   lineHeight: "1.2",
                   letterSpacing: 0,
                   color: "text.secondary",
@@ -1393,7 +1393,7 @@ export default function Login() {
                   sx={{
                     "& .MuiFormControlLabel-label": {
                       fontSize: isMobile ? "13px" : "15px",
-                      fontFamily: "UrbanistMedium",
+                      fontFamily: "var(--font-sans)",
                       color: "text.primary",
                       paddingLeft: "8px",
                     },
@@ -1466,7 +1466,7 @@ export default function Login() {
                           textAlign: "start",
                           fontSize: "12px",
                           color: "text.secondary",
-                          fontFamily: "UrbanistMedium",
+                          fontFamily: "var(--font-sans)",
                         }}
                       >
                         {t("codeWillBeSentTo")}
@@ -1739,7 +1739,7 @@ export default function Login() {
                     cursor: "pointer",
                     textDecoration: "underline",
                     textUnderlineOffset: "2px",
-                    fontFamily: "UrbanistMedium",
+                    fontFamily: "var(--font-sans)",
                   }}
                   onClick={() => {
                     setForgotPasswordDialogOpen(true);
@@ -1850,7 +1850,7 @@ export default function Login() {
                 <Typography
                   variant="body2"
                   sx={{
-                    fontFamily: "UrbanistMedium",
+                    fontFamily: "var(--font-sans)",
                     color: theme.palette.text.secondary,
                     padding: "0 24px",
                     fontSize: isMobile ? "10px" : "15px",

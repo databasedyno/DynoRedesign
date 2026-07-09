@@ -33,7 +33,7 @@ export const CryptocurrencyTrigger = muiStyled(Box, {
   boxSizing: "border-box",
   transition: "all 0.3s ease",
   boxShadow: "rgba(16, 24, 40, 0.05) 0px 1px 2px 0px",
-  fontFamily: "UrbanistMedium",
+  fontFamily: "var(--font-sans)",
   "&:hover": {
     borderColor: error ? theme.palette.error.main : theme.palette.primary.light,
   },
@@ -52,7 +52,7 @@ export const CryptocurrencyText = styled.span<{ isMobile?: boolean }>(
   ({ isMobile }) => ({
     fontSize: "15px",
     fontWeight: 500,
-    fontFamily: "UrbanistMedium",
+    fontFamily: "var(--font-sans)",
     color: theme.palette.text.primary,
     lineHeight: "100%",
     letterSpacing: 0,
@@ -80,7 +80,7 @@ export const IconChip = styled(Box)({
   padding: "5px 9px",
   borderRadius: "999px",
   background: theme.palette.secondary.light,
-  fontFamily: "UrbanistMedium",
+  fontFamily: "var(--font-sans)",
   fontSize: "13px",
   fontWeight: 500,
   color: theme.palette.text.primary,

@@ -85,7 +85,7 @@ const SystemStatusPill: React.FC<{ compact?: boolean }> = ({ compact = false }) 
         border: `1px solid ${s.border}`,
         bgcolor: s.bg,
         textDecoration: 'none',
-        fontFamily: 'UrbanistMedium',
+        fontFamily: 'var(--font-sans)',
         transition: 'all 0.2s ease',
         '&:hover': { transform: 'translateY(-1px)', borderColor: s.dot },
       }}
@@ -108,7 +108,7 @@ const SystemStatusPill: React.FC<{ compact?: boolean }> = ({ compact = false }) 
         component="span"
         sx={{
           fontSize: compact ? 11 : 11.5,
-          fontFamily: 'UrbanistSemiBold',
+          fontFamily: 'var(--font-sans)',
           color: (theme) => theme.palette.text.primary,
           whiteSpace: 'nowrap',
           letterSpacing: '0.2px',

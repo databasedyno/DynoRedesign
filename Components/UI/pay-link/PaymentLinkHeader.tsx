@@ -38,7 +38,7 @@ const DisabledNotice: React.FC<{
       sx={{
         fontSize: isMobile ? "10px" : "13px",
         fontWeight: 600,
-        fontFamily: "UrbanistSemibold",
+        fontFamily: "var(--font-sans)",
         color: theme.palette.text.primary,
         whiteSpace: "wrap",
       }}
@@ -80,7 +80,7 @@ const PaymentLinkHeader: React.FC<PaymentLinkHeaderProps> = React.memo(
               sx={{
                 fontSize: isMobile ? "15px" : "20px",
                 fontWeight: 700,
-                fontFamily: "UrbanistBold",
+                fontFamily: "var(--font-sans)",
               }}
             >
               {tPaymentLink("linkId")}:
@@ -88,7 +88,7 @@ const PaymentLinkHeader: React.FC<PaymentLinkHeaderProps> = React.memo(
             <Text
               sx={{
                 fontSize: isMobile ? "15px" : "20px",
-                fontFamily: "UrbanistMedium",
+                fontFamily: "var(--font-sans)",
               }}
             >
               #{truncateByWords(paymentLinkData.link_id, count)}

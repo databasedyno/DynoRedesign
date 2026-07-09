@@ -79,7 +79,7 @@ export default function AdornedInputField({
           variant="body2"
           sx={{
             fontWeight: 500,
-            fontFamily: "UrbanistMedium",
+            fontFamily: "var(--font-sans)",
             fontSize: isMobile ? "13px" : "15px",
             textAlign: "start",
             color: theme.palette.text.primary,
@@ -174,7 +174,7 @@ export default function AdornedInputField({
             border: "none",
             outline: "none",
             padding: `0 ${INPUT_PADDING_X}px`,
-            fontFamily: "UrbanistMedium",
+            fontFamily: "var(--font-sans)",
             fontSize: isMobile ? "13px" : "15px",
             color: disabled ? "#B0BEC5" : theme.palette.text.primary,
             backgroundColor: "transparent",
@@ -227,7 +227,7 @@ export default function AdornedInputField({
                 paddingRight: "14px",
                 color: theme.palette.text.secondary,
                 fontSize: isMobile ? "10px" : "13px",
-                fontFamily: "UrbanistMedium",
+                fontFamily: "var(--font-sans)",
               }}
             >
               {endAdornment}
@@ -241,7 +241,7 @@ export default function AdornedInputField({
           sx={{
             margin: "4px 0 0 0",
             fontSize: isMobile ? "10px" : "13px",
-            fontFamily: "UrbanistMedium",
+            fontFamily: "var(--font-sans)",
             fontWeight: 500,
             color: error
               ? theme.palette.error.main

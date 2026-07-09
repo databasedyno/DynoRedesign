@@ -192,7 +192,7 @@ const PaymentSettingsBasic: React.FC<PaymentSettingsBasicProps> = ({
                 sx={{
                   "& .MuiFormControlLabel-label": {
                     fontSize: { xs: "13px", md: "15px" },
-                    fontFamily: "UrbanistRegular",
+                    fontFamily: "var(--font-sans)",
                     color: theme.palette.text.primary,
                     paddingLeft: "8px",
                     lineHeight: 1.2,

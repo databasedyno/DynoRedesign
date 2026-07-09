@@ -46,7 +46,7 @@ export const WarningContent = styled(Box)(({ theme }) => ({
     maxWidth: "300px",
     fontSize: "13px",
     fontWeight: 500,
-    fontFamily: "UrbanistMedium",
+    fontFamily: "var(--font-sans)",
     lineHeight: "15px",
     color: theme.palette.text.primary,
     [theme.breakpoints.down("md")]: {

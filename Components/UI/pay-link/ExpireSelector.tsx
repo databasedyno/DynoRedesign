@@ -97,7 +97,7 @@ const ExpireSelector: React.FC<ExpireSelectorProps> = ({
       {label && (
         <Typography
           sx={{
-            fontFamily: "UrbanistMedium",
+            fontFamily: "var(--font-sans)",
             fontSize: isMobile ? "13px" : "15px",
             fontWeight: 500,
             color: theme.palette.text.primary,
@@ -196,7 +196,7 @@ const ExpireSelector: React.FC<ExpireSelectorProps> = ({
                   primary={option.label}
                   primaryTypographyProps={{
                     sx: {
-                      fontFamily: "UrbanistMedium",
+                      fontFamily: "var(--font-sans)",
                       fontWeight: 500,
                       fontSize: isMobile ? "12px" : "14px",
                       color: theme.palette.text.primary,

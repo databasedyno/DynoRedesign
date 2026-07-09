@@ -113,7 +113,7 @@ const TaxSection: React.FC<TaxSectionProps> = ({
               sx={{
                 fontSize: isMobile ? "13px" : "15px",
                 fontWeight: 700,
-                fontFamily: "UrbanistBold",
+                fontFamily: "var(--font-sans)",
                 color: theme.palette.border.success,
               }}
             >
@@ -180,7 +180,7 @@ const TaxSection: React.FC<TaxSectionProps> = ({
             sx={{
               fontSize: isMobile ? "10px" : "13px",
               fontWeight: 600,
-              fontFamily: "UrbanistSemibold",
+              fontFamily: "var(--font-sans)",
               color: theme.palette.text.primary,
               whiteSpace: "wrap",
             }}

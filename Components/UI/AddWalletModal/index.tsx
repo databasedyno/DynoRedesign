@@ -547,14 +547,14 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
           <Typography sx={{
             fontSize: isMobile ? 16 : 18,
             fontWeight: 600,
-            fontFamily: "UrbanistSemiBold",
+            fontFamily: "var(--font-sans)",
           }}>
             {walletsAdded === 1 ? tWallet("walletAddedSuccess") : t("walletsAddedCount", { count: walletsAdded })}
           </Typography>
           <Typography sx={{
             fontSize: isMobile ? 13 : 14,
             color: muiTheme.palette.text.secondary,
-            fontFamily: "UrbanistMedium",
+            fontFamily: "var(--font-sans)",
           }}>
             {tWallet("addAnotherWalletPrompt")}
           </Typography>
@@ -612,7 +612,7 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
               sx={{
                 fontSize: isMobile ? "14px" : "16px",
                 fontWeight: 600,
-                fontFamily: "UrbanistSemiBold",
+                fontFamily: "var(--font-sans)",
               }}
             >
               {tWallet("emailRequiredTitle")}
@@ -621,7 +621,7 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
               sx={{
                 fontSize: isMobile ? "13px" : "14px",
                 color: muiTheme.palette.text.secondary,
-                fontFamily: "UrbanistMedium",
+                fontFamily: "var(--font-sans)",
                 lineHeight: 1.4,
               }}
             >
@@ -663,7 +663,7 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
           sx={{
             fontSize: isMobile ? "13px" : "15px",
             fontWeight: 500,
-            fontFamily: "UrbanistMedium",
+            fontFamily: "var(--font-sans)",
             lineHeight: isMobile ? "16px" : "18px",
             mb: isMobile ? "14px" : "16px",
           }}

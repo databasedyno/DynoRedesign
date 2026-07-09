@@ -71,7 +71,7 @@ const EmptyStatePanel: React.FC<EmptyStatePanelProps> = ({
       <Box sx={{ flex: 1, minWidth: 0 }}>
         <Typography
           sx={{
-            fontFamily: "UrbanistBold",
+            fontFamily: "var(--font-sans)",
             fontWeight: 700,
             fontSize: isMobile ? "20px" : "26px",
             color: theme.palette.text.primary,
@@ -83,7 +83,7 @@ const EmptyStatePanel: React.FC<EmptyStatePanelProps> = ({
         </Typography>
         <Typography
           sx={{
-            fontFamily: "UrbanistMedium",
+            fontFamily: "var(--font-sans)",
             fontSize: isMobile ? "13.5px" : "15px",
             color: theme.palette.text.secondary,
             lineHeight: 1.55,
@@ -110,7 +110,7 @@ const EmptyStatePanel: React.FC<EmptyStatePanelProps> = ({
                   gap: 0.75,
                   color: theme.palette.text.secondary,
                   fontSize: "13px",
-                  fontFamily: "UrbanistMedium",
+                  fontFamily: "var(--font-sans)",
                   cursor: "pointer",
                   "&:hover": { color: theme.palette.primary.main },
                 }}

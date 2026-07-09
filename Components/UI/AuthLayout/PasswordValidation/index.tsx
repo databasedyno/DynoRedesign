@@ -94,7 +94,7 @@ const PasswordValidation: React.FC<PasswordValidationProps> = ({
       <Typography
         sx={{
           fontSize: isMobile ? "12px" : "13px",
-          fontFamily: "UrbanistMedium",
+          fontFamily: "var(--font-sans)",
           lineHeight: 1.2,
         }}
       >

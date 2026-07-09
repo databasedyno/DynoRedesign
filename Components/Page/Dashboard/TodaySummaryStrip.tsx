@@ -92,7 +92,7 @@ const TodaySummaryStrip: React.FC<TodaySummaryProps> = ({ todaySummary, loading 
             <Typography
               sx={{
                 fontSize: { xs: "11px", md: "12px" },
-                fontFamily: "UrbanistMedium",
+                fontFamily: "var(--font-sans)",
                 color: theme.palette.text.secondary,
                 fontWeight: 500,
                 textTransform: "uppercase",
@@ -107,7 +107,7 @@ const TodaySummaryStrip: React.FC<TodaySummaryProps> = ({ todaySummary, loading 
           <Typography
             sx={{
               fontSize: { xs: "18px", md: "22px" },
-              fontFamily: "UrbanistSemibold",
+              fontFamily: "var(--font-sans)",
               fontWeight: 600,
               color: theme.palette.text.primary,
               lineHeight: 1.2,
@@ -143,7 +143,7 @@ const TodaySummaryStrip: React.FC<TodaySummaryProps> = ({ todaySummary, loading 
                 ) : (
                   <>
                     <TrendIcon value={card.change} />
-                    <Typography sx={{ fontSize: "11px", fontFamily: "UrbanistMedium", fontWeight: 500 }}>
+                    <Typography sx={{ fontSize: "11px", fontFamily: "var(--font-sans)", fontWeight: 500 }}>
                       {card.change > 0 ? "+" : ""}{card.change.toFixed(1)}%
                     </Typography>
                   </>
@@ -152,7 +152,7 @@ const TodaySummaryStrip: React.FC<TodaySummaryProps> = ({ todaySummary, loading 
               <Typography
                 sx={{
                   fontSize: "11px",
-                  fontFamily: "UrbanistMedium",
+                  fontFamily: "var(--font-sans)",
                   color: theme.palette.text.secondary,
                 }}
               >
@@ -165,7 +165,7 @@ const TodaySummaryStrip: React.FC<TodaySummaryProps> = ({ todaySummary, loading 
             <Typography
               sx={{
                 fontSize: "11px",
-                fontFamily: "UrbanistMedium",
+                fontFamily: "var(--font-sans)",
                 color: theme.palette.text.secondary,
               }}
             >

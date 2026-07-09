@@ -142,7 +142,7 @@ const CreatePaymentLink = ({ setPageName, setPageDescription }: pageProps) => {
             data-testid="setup-required-title"
             sx={{
               fontSize: isMobile ? "18px" : "22px",
-              fontFamily: "UrbanistSemibold",
+              fontFamily: "var(--font-sans)",
               fontWeight: 600,
               color: theme.palette.text.primary,
               mb: 1,
@@ -153,7 +153,7 @@ const CreatePaymentLink = ({ setPageName, setPageDescription }: pageProps) => {
           <Typography
             sx={{
               fontSize: isMobile ? "13px" : "15px",
-              fontFamily: "UrbanistMedium",
+              fontFamily: "var(--font-sans)",
               fontWeight: 500,
               color: theme.palette.text.secondary,
               mb: 3,
@@ -216,7 +216,7 @@ const CreatePaymentLink = ({ setPageName, setPageDescription }: pageProps) => {
                     <Typography
                       sx={{
                         fontSize: isMobile ? "14px" : "15px",
-                        fontFamily: "UrbanistSemibold",
+                        fontFamily: "var(--font-sans)",
                         fontWeight: 600,
                         color: theme.palette.text.primary,
                       }}
@@ -226,7 +226,7 @@ const CreatePaymentLink = ({ setPageName, setPageDescription }: pageProps) => {
                     <Typography
                       sx={{
                         fontSize: isMobile ? "11px" : "12px",
-                        fontFamily: "UrbanistMedium",
+                        fontFamily: "var(--font-sans)",
                         color: theme.palette.text.secondary,
                         mt: 0.25,
                       }}

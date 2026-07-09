@@ -72,7 +72,7 @@ export const GoogleAuthButton: React.FC<GoogleAuthButtonProps> = ({
       <Typography
         component="span"
         sx={{
-          fontFamily: "UrbanistSemiBold, Urbanist, sans-serif",
+          fontFamily: "var(--font-sans), Urbanist, sans-serif",
           fontWeight: 600,
           fontSize: "15px",
           letterSpacing: 0,
@@ -153,7 +153,7 @@ export const GithubAuthButton: React.FC<GithubAuthButtonProps> = ({
       <Typography
         component="span"
         sx={{
-          fontFamily: "UrbanistSemiBold, Urbanist, sans-serif",
+          fontFamily: "var(--font-sans), Urbanist, sans-serif",
           fontWeight: 600,
           fontSize: "15px",
           letterSpacing: 0,

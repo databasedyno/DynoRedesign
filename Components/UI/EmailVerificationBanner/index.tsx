@@ -102,7 +102,7 @@ const EmailVerificationBanner: React.FC = () => {
           <Typography
             sx={{
               fontSize: isMobile ? "12px" : "14px",
-              fontFamily: "UrbanistMedium",
+              fontFamily: "var(--font-sans)",
               color: theme.palette.text.primary,
             }}
           >
@@ -114,7 +114,7 @@ const EmailVerificationBanner: React.FC = () => {
           disabled={sending}
           sx={{
             fontSize: isMobile ? "11px" : "13px",
-            fontFamily: "UrbanistMedium",
+            fontFamily: "var(--font-sans)",
             color: theme.palette.primary.main,
             textTransform: "none",
             border: `1px solid ${theme.palette.primary.main}`,

@@ -79,7 +79,7 @@ export default function PaymentToleranceSection({
               component="span"
               variant="body2"
               sx={{
-                fontFamily: "UrbanistMedium",
+                fontFamily: "var(--font-sans)",
                 color: "text.primary",
                 fontWeight: 500,
                 lineHeight: 1.2,
@@ -108,7 +108,7 @@ export default function PaymentToleranceSection({
               component="span"
               variant="body2"
               sx={{
-                fontFamily: "UrbanistMedium",
+                fontFamily: "var(--font-sans)",
                 color: "text.primary",
                 fontWeight: 500,
                 lineHeight: 1.2,

@@ -20,7 +20,7 @@ export const SecurityNoticeSubtitle = styled(Typography)(({ theme }) => ({
   color: theme.palette.text.primary,
   fontWeight: 500,
   fontSize: "15px",
-  fontFamily: "UrbanistMedium",
+  fontFamily: "var(--font-sans)",
   [theme.breakpoints.down("sm")]: {
     fontSize: "13px",
     lineHeight: 1.2,
@@ -33,7 +33,7 @@ export const SecurityNoticeTitle = styled(Typography)(({ theme }) => ({
   marginBottom: theme.spacing(0.5),
   fontSize: "13px",
   lineHeight: 1.2,
-  fontFamily: "UrbanistBold",
+  fontFamily: "var(--font-sans)",
   [theme.breakpoints.down("sm")]: {
     fontSize: "10px",
   },
@@ -44,7 +44,7 @@ export const SecurityNoticeDescription = styled("ul")(({ theme }) => ({
   marginBottom: theme.spacing(0.5),
   fontSize: "13px",
   lineHeight: 1.2,
-  fontFamily: "UrbanistRegular",
+  fontFamily: "var(--font-sans)",
   fontWeight: 400,
   [theme.breakpoints.down("sm")]: {
     fontSize: "10px",

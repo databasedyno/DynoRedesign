@@ -81,7 +81,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
     primary: {
       backgroundColor: theme.palette.primary.main,
       color: (theme.palette.primary as any).contrastText || theme.palette.common.white,
-      fontFamily: "UrbanistBold",
+      fontFamily: "var(--font-sans)",
       borderRadius: "6px",
     },
     secondary: {
@@ -95,7 +95,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
       color: theme.palette.text.primary,
       border: `1px solid ${theme.palette.border.main}`,
       fontWeight: 400,
-      fontFamily: "UrbanistRegular",
+      fontFamily: "var(--font-sans)",
       fontSize: "15px",
       "&:hover": {
         backgroundColor: theme.palette.background.paper,
@@ -110,7 +110,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
       backgroundColor: theme.palette.error.main,
       color: theme.palette.common.white,
       border: `1px solid ${theme.palette.error.main}`,
-      fontFamily: "UrbanistBold",
+      fontFamily: "var(--font-sans)",
       "&:hover": {
         backgroundColor: theme.palette.error.main,
         color: theme.palette.common.white,
@@ -251,7 +251,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
               className="custom-button-label"
               sx={{
                 fontSize: isMobile ? "13px" : "15px",
-                fontFamily: "UrbanistMedium",
+                fontFamily: "var(--font-sans)",
                 fontWeight: 500,
                 lineHeight: "1.2",
                 letterSpacing: 0,
@@ -285,7 +285,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
               className="custom-button-label"
               sx={{
                 fontSize: isMobile ? "13px" : "15px",
-                fontFamily: "UrbanistMedium",
+                fontFamily: "var(--font-sans)",
                 fontWeight: 500,
                 lineHeight: "1.2",
                 letterSpacing: 0,

@@ -150,7 +150,7 @@ const HeroV2: React.FC = () => {
                     py: 0.6,
                     borderRadius: '999px',
                     cursor: 'pointer',
-                    fontFamily: 'UrbanistBold',
+                    fontFamily: 'var(--font-sans)',
                     fontSize: { xs: 12.5, md: 13 },
                     letterSpacing: '0.4px',
                     color: active ? '#fff' : theme.palette.text.secondary,
@@ -167,7 +167,7 @@ const HeroV2: React.FC = () => {
           {/* Trust line — uses geolocated country (K) */}
           <Typography
             sx={{
-              fontFamily: 'UrbanistSemiBold',
+              fontFamily: 'var(--font-sans)',
               fontSize: 12,
               letterSpacing: '1.4px',
               textTransform: 'uppercase',
@@ -219,7 +219,7 @@ const HeroV2: React.FC = () => {
 
           <Typography
             sx={{
-              fontFamily: 'UrbanistMedium',
+              fontFamily: 'var(--font-sans)',
               fontSize: { xs: 15.5, md: 17 },
               color: theme.palette.text.secondary,
               lineHeight: 1.55,
@@ -245,7 +245,7 @@ const HeroV2: React.FC = () => {
               endIcon={<ArrowForward sx={{ fontSize: 18 }} />}
               onClick={() => router.push(content.primaryHref)}
               sx={{
-                fontFamily: 'UrbanistBold',
+                fontFamily: 'var(--font-sans)',
                 textTransform: 'none',
                 fontSize: 15,
                 px: 3,
@@ -270,7 +270,7 @@ const HeroV2: React.FC = () => {
                 else router.push(content.secondaryHref);
               }}
               sx={{
-                fontFamily: 'UrbanistSemiBold',
+                fontFamily: 'var(--font-sans)',
                 textTransform: 'none',
                 fontSize: 15,
                 px: 3,
@@ -303,14 +303,14 @@ const HeroV2: React.FC = () => {
               {Array.from({ length: 5 }).map((_, i) => (
                 <Star key={i} sx={{ fontSize: 15, color: '#F59E0B' }} />
               ))}
-              <Typography component="span" sx={{ ml: 0.5, fontFamily: 'UrbanistSemiBold', fontSize: 12.5, color: theme.palette.text.secondary }}>
+              <Typography component="span" sx={{ ml: 0.5, fontFamily: 'var(--font-sans)', fontSize: 12.5, color: theme.palette.text.secondary }}>
                 4.9 from 200+ merchants
               </Typography>
             </Box>
-            <Typography component="span" sx={{ fontFamily: 'UrbanistMedium', fontSize: 12.5, color: theme.palette.text.secondary }}>
+            <Typography component="span" sx={{ fontFamily: 'var(--font-sans)', fontSize: 12.5, color: theme.palette.text.secondary }}>
               🔒 Non-custodial settlement
             </Typography>
-            <Typography component="span" sx={{ fontFamily: 'UrbanistMedium', fontSize: 12.5, color: theme.palette.text.secondary }}>
+            <Typography component="span" sx={{ fontFamily: 'var(--font-sans)', fontSize: 12.5, color: theme.palette.text.secondary }}>
               ⚡ Under 2-minute payouts
             </Typography>
           </Box>
@@ -335,7 +335,7 @@ const HeroV2: React.FC = () => {
                     py: 0.6,
                     borderRadius: '999px',
                     cursor: 'pointer',
-                    fontFamily: 'UrbanistSemiBold',
+                    fontFamily: 'var(--font-sans)',
                     fontSize: 12.5,
                     color: active ? '#fff' : theme.palette.text.secondary,
                     background: active
@@ -370,7 +370,7 @@ const HeroV2: React.FC = () => {
                     '@keyframes dyno-hero-live': { '0%': { opacity: 1 }, '50%': { opacity: 0.35 }, '100%': { opacity: 1 } },
                   }}
                 />
-                <Typography component="span" sx={{ fontFamily: 'UrbanistBold', fontSize: 10.5, color: '#16A34A' }}>
+                <Typography component="span" sx={{ fontFamily: 'var(--font-sans)', fontSize: 10.5, color: '#16A34A' }}>
                   LIVE
                 </Typography>
               </Box>
@@ -468,13 +468,13 @@ const DashboardMock: React.FC<{ isDark: boolean }> = ({ isDark }) => {
       {/* Top row — fake nav */}
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
         <Box sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: '#4F46E5' }} />
-        <Typography sx={{ fontFamily: 'UrbanistBold', fontSize: 14, color: (t) => t.palette.text.primary }}>
+        <Typography sx={{ fontFamily: 'var(--font-sans)', fontSize: 14, color: (t) => t.palette.text.primary }}>
           Dashboard
         </Typography>
         <Box sx={{ flex: 1 }} />
         <Box sx={{
           px: 1, py: 0.3, borderRadius: '999px',
-          fontFamily: 'UrbanistSemiBold', fontSize: 10,
+          fontFamily: 'var(--font-sans)', fontSize: 10,
           bgcolor: 'rgba(34,197,94,0.12)', color: '#16A34A',
         }}>Live</Box>
       </Box>
@@ -495,13 +495,13 @@ const DashboardMock: React.FC<{ isDark: boolean }> = ({ isDark }) => {
               bgcolor: isDark ? 'rgba(255,255,255,0.02)' : 'rgba(255,255,255,0.8)',
             }}
           >
-            <Typography sx={{ fontFamily: 'UrbanistMedium', fontSize: 11, color: (t) => t.palette.text.disabled }}>
+            <Typography sx={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: (t) => t.palette.text.disabled }}>
               {k.label}
             </Typography>
             <Typography sx={{ fontFamily: 'var(--font-sans)', fontSize: 20, color: (t) => t.palette.text.primary, mt: 0.2 }}>
               {k.value}
             </Typography>
-            <Typography sx={{ fontFamily: 'UrbanistSemiBold', fontSize: 11, color: k.color }}>
+            <Typography sx={{ fontFamily: 'var(--font-sans)', fontSize: 11, color: k.color }}>
               {k.delta}
             </Typography>
           </Box>
@@ -509,7 +509,7 @@ const DashboardMock: React.FC<{ isDark: boolean }> = ({ isDark }) => {
       </Box>
 
       {/* Bar chart */}
-      <Typography sx={{ fontFamily: 'UrbanistSemiBold', fontSize: 12, color: (t) => t.palette.text.secondary, mb: 1 }}>
+      <Typography sx={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: (t) => t.palette.text.secondary, mb: 1 }}>
         Volume, last 7 days
       </Typography>
       <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 1, height: 100, mb: 2.2 }}>
@@ -547,10 +547,10 @@ const DashboardMock: React.FC<{ isDark: boolean }> = ({ isDark }) => {
             }}
           >
             <Typography component="span" sx={{ fontSize: 15 }}>{r.flag}</Typography>
-            <Typography component="span" sx={{ fontFamily: 'UrbanistSemiBold', fontSize: 12.5, color: (t) => t.palette.text.primary, flex: 1 }}>
+            <Typography component="span" sx={{ fontFamily: 'var(--font-sans)', fontSize: 12.5, color: (t) => t.palette.text.primary, flex: 1 }}>
               Received {r.amount}
             </Typography>
-            <Typography component="span" sx={{ fontFamily: 'UrbanistMedium', fontSize: 11.5, color: (t) => t.palette.text.disabled }}>
+            <Typography component="span" sx={{ fontFamily: 'var(--font-sans)', fontSize: 11.5, color: (t) => t.palette.text.disabled }}>
               {r.chain} · {r.ago}
             </Typography>
           </Box>
@@ -573,7 +573,7 @@ const ApiSnippet: React.FC<{ isDark: boolean; copied: boolean; onCopy: () => voi
         {['#FF5F57', '#FEBC2E', '#28C840'].map((c) => (
           <Box key={c} sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: c }} />
         ))}
-        <Typography component="span" sx={{ ml: 1, fontFamily: 'UrbanistMedium', fontSize: 12, color: 'rgba(255,255,255,0.55)' }}>
+        <Typography component="span" sx={{ ml: 1, fontFamily: 'var(--font-sans)', fontSize: 12, color: 'rgba(255,255,255,0.55)' }}>
           POST /api/pay/payment-links
         </Typography>
         <Box sx={{ flex: 1 }} />

@@ -90,7 +90,7 @@ const Card: React.FC<{ t: Testimonial; isDark: boolean; tr: (key: string) => str
       </Box>
       <Typography
         sx={{
-          fontFamily: 'UrbanistMedium',
+          fontFamily: 'var(--font-sans)',
           fontSize: { xs: 14.5, md: 15 },
           lineHeight: 1.55,
           color: (theme) => theme.palette.text.primary,
@@ -109,7 +109,7 @@ const Card: React.FC<{ t: Testimonial; isDark: boolean; tr: (key: string) => str
             alignItems: 'center',
             justifyContent: 'center',
             color: '#fff',
-            fontFamily: 'UrbanistBold',
+            fontFamily: 'var(--font-sans)',
             fontSize: 15,
             background: `linear-gradient(135deg, ${t.color}, ${t.color}CC)`,
             boxShadow: `0 6px 16px ${t.color}33`,
@@ -121,7 +121,7 @@ const Card: React.FC<{ t: Testimonial; isDark: boolean; tr: (key: string) => str
         <Box sx={{ flex: 1, minWidth: 0 }}>
           <Typography
             sx={{
-              fontFamily: 'UrbanistBold',
+              fontFamily: 'var(--font-sans)',
               fontSize: 14,
               color: (theme) => theme.palette.text.primary,
               lineHeight: 1.2,
@@ -131,7 +131,7 @@ const Card: React.FC<{ t: Testimonial; isDark: boolean; tr: (key: string) => str
           </Typography>
           <Typography
             sx={{
-              fontFamily: 'UrbanistMedium',
+              fontFamily: 'var(--font-sans)',
               fontSize: 12.5,
               color: (theme) => theme.palette.text.secondary,
               lineHeight: 1.3,
@@ -141,7 +141,7 @@ const Card: React.FC<{ t: Testimonial; isDark: boolean; tr: (key: string) => str
           </Typography>
           <Typography
             sx={{
-              fontFamily: 'UrbanistMedium',
+              fontFamily: 'var(--font-sans)',
               fontSize: 11,
               color: (theme) => theme.palette.text.disabled,
               lineHeight: 1.2,
@@ -157,7 +157,7 @@ const Card: React.FC<{ t: Testimonial; isDark: boolean; tr: (key: string) => str
             py: 0.3,
             borderRadius: '999px',
             border: `1px solid ${t.color}55`,
-            fontFamily: 'UrbanistBold',
+            fontFamily: 'var(--font-sans)',
             fontSize: 10.5,
             color: t.color,
             whiteSpace: 'nowrap',
@@ -194,7 +194,7 @@ const TestimonialsV2: React.FC = () => {
       <Box sx={{ textAlign: 'center', mb: { xs: 4, md: 6 } }}>
         <Typography
           sx={{
-            fontFamily: 'UrbanistBold',
+            fontFamily: 'var(--font-sans)',
             fontSize: 12,
             letterSpacing: '1.5px',
             color: theme.palette.primary.main,

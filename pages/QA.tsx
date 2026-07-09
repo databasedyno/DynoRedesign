@@ -1610,10 +1610,10 @@ const QAPage = () => {
               }}
             >
               <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
-                <Typography sx={{ fontSize: 13, fontFamily: "UrbanistSemibold", color: "text.secondary" }}>
+                <Typography sx={{ fontSize: 13, fontFamily: "var(--font-sans)", color: "text.secondary" }}>
                   Overall Progress
                 </Typography>
-                <Typography sx={{ fontSize: 13, fontFamily: "UrbanistSemibold", color: "text.primary" }}>
+                <Typography sx={{ fontSize: 13, fontFamily: "var(--font-sans)", color: "text.primary" }}>
                   {testedSteps} / {totalSteps} steps ({progressPercent.toFixed(0)}%)
                 </Typography>
               </Box>
@@ -1650,9 +1650,9 @@ const QAPage = () => {
 
             {/* Stats chips */}
             <Box sx={{ display: "flex", gap: 1, justifyContent: "center", mt: 2, flexWrap: "wrap" }}>
-              <Chip label={`${filteredSections.length} Sections`} size="small" sx={{ fontFamily: "UrbanistSemibold", fontSize: 12 }} />
-              <Chip label={`${totalCases} Test Cases`} size="small" sx={{ fontFamily: "UrbanistSemibold", fontSize: 12 }} />
-              <Chip label={`${totalSteps} Steps`} size="small" sx={{ fontFamily: "UrbanistSemibold", fontSize: 12 }} />
+              <Chip label={`${filteredSections.length} Sections`} size="small" sx={{ fontFamily: "var(--font-sans)", fontSize: 12 }} />
+              <Chip label={`${totalCases} Test Cases`} size="small" sx={{ fontFamily: "var(--font-sans)", fontSize: 12 }} />
+              <Chip label={`${totalSteps} Steps`} size="small" sx={{ fontFamily: "var(--font-sans)", fontSize: 12 }} />
             </Box>
 
             {/* Search */}
@@ -1692,7 +1692,7 @@ const QAPage = () => {
               <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, width: "100%" }}>
                 <Typography sx={{ fontSize: 22 }}>🧪</Typography>
                 <Box sx={{ flex: 1 }}>
-                  <Typography sx={{ fontFamily: "UrbanistSemibold", fontSize: 16, color: "text.primary" }}>
+                  <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 16, color: "text.primary" }}>
                     Test Data — Nomadly1 Wallet Addresses
                   </Typography>
                   <Typography sx={{ fontSize: 12, color: "text.secondary", mt: 0.2 }}>
@@ -1702,7 +1702,7 @@ const QAPage = () => {
                 <Chip
                   label="15 wallets"
                   size="small"
-                  sx={{ fontSize: 11, fontFamily: "UrbanistSemibold", bgcolor: alpha("#8B5CF6", 0.12), color: "#8B5CF6", mr: 1 }}
+                  sx={{ fontSize: 11, fontFamily: "var(--font-sans)", bgcolor: alpha("#8B5CF6", 0.12), color: "#8B5CF6", mr: 1 }}
                 />
               </Box>
             </AccordionSummary>
@@ -1720,11 +1720,11 @@ const QAPage = () => {
               >
                 {!isMobile && (
                   <>
-                    <Typography sx={{ fontSize: 10, color: "text.secondary", fontFamily: "UrbanistSemibold", textTransform: "uppercase" }}>ID</Typography>
-                    <Typography sx={{ fontSize: 10, color: "text.secondary", fontFamily: "UrbanistSemibold", textTransform: "uppercase" }}>Type</Typography>
-                    <Typography sx={{ fontSize: 10, color: "text.secondary", fontFamily: "UrbanistSemibold", textTransform: "uppercase" }}>Address</Typography>
-                    <Typography sx={{ fontSize: 10, color: "text.secondary", fontFamily: "UrbanistSemibold", textTransform: "uppercase" }}>Balance</Typography>
-                    <Typography sx={{ fontSize: 10, color: "text.secondary", fontFamily: "UrbanistSemibold", textTransform: "uppercase" }}>Network</Typography>
+                    <Typography sx={{ fontSize: 10, color: "text.secondary", fontFamily: "var(--font-sans)", textTransform: "uppercase" }}>ID</Typography>
+                    <Typography sx={{ fontSize: 10, color: "text.secondary", fontFamily: "var(--font-sans)", textTransform: "uppercase" }}>Type</Typography>
+                    <Typography sx={{ fontSize: 10, color: "text.secondary", fontFamily: "var(--font-sans)", textTransform: "uppercase" }}>Address</Typography>
+                    <Typography sx={{ fontSize: 10, color: "text.secondary", fontFamily: "var(--font-sans)", textTransform: "uppercase" }}>Balance</Typography>
+                    <Typography sx={{ fontSize: 10, color: "text.secondary", fontFamily: "var(--font-sans)", textTransform: "uppercase" }}>Network</Typography>
                   </>
                 )}
               </Box>
@@ -1747,7 +1747,7 @@ const QAPage = () => {
                       <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
                         <Chip label={w.type} size="small" sx={{ fontSize: 11, fontFamily: "monospace", fontWeight: 700, height: 22 }} />
                         <Typography sx={{ fontSize: 11, color: "text.secondary" }}>{w.network}</Typography>
-                        <Typography sx={{ fontSize: 11, fontFamily: "UrbanistSemibold", color: parseFloat(w.balance) > 0 ? "#22C55E" : "text.secondary", ml: "auto" }}>
+                        <Typography sx={{ fontSize: 11, fontFamily: "var(--font-sans)", color: parseFloat(w.balance) > 0 ? "#22C55E" : "text.secondary", ml: "auto" }}>
                           {w.balance}
                         </Typography>
                       </Box>
@@ -1787,7 +1787,7 @@ const QAPage = () => {
                       <Typography
                         sx={{
                           fontSize: 12,
-                          fontFamily: "UrbanistSemibold",
+                          fontFamily: "var(--font-sans)",
                           color: parseFloat(w.balance.replace(",", "")) > 0 ? "#22C55E" : "text.secondary",
                         }}
                       >
@@ -1799,7 +1799,7 @@ const QAPage = () => {
                 </Box>
               ))}
               <Box sx={{ mt: 2, p: 1.5, borderRadius: 2, bgcolor: isDark ? alpha("#3B82F6", 0.06) : alpha("#3B82F6", 0.04), border: `1px solid ${alpha("#3B82F6", 0.12)}` }}>
-                <Typography sx={{ fontSize: 12, color: "#3B82F6", fontFamily: "UrbanistSemibold" }}>
+                <Typography sx={{ fontSize: 12, color: "#3B82F6", fontFamily: "var(--font-sans)" }}>
                   💡 Click any address to copy it. Green balances indicate wallets with funds available for transaction testing.
                   Shared EVM addresses (ETH, USDT-ERC20, USDC-ERC20, POLYGON, USDT-POLYGON, RLUSD-ERC20) all use the same address: 0x9a72...b38f
                 </Typography>
@@ -1822,7 +1822,7 @@ const QAPage = () => {
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, width: "100%" }}>
                   <Typography sx={{ fontSize: 22 }}>{section.icon}</Typography>
                   <Box sx={{ flex: 1 }}>
-                    <Typography sx={{ fontFamily: "UrbanistSemibold", fontSize: 16, color: "text.primary" }}>
+                    <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 16, color: "text.primary" }}>
                       {section.title}
                     </Typography>
                     <Typography sx={{ fontSize: 12, color: "text.secondary", mt: 0.2 }}>
@@ -1840,7 +1840,7 @@ const QAPage = () => {
                         size="small"
                         sx={{
                           fontSize: 11,
-                          fontFamily: "UrbanistSemibold",
+                          fontFamily: "var(--font-sans)",
                           bgcolor: sectionPassed === sectionSteps.length ? alpha("#22C55E", 0.15) : alpha("#3B82F6", 0.1),
                           color: sectionPassed === sectionSteps.length ? "#22C55E" : "#3B82F6",
                           mr: 1,
@@ -1865,7 +1865,7 @@ const QAPage = () => {
                           bgcolor: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)",
                         }}
                       />
-                      <Typography sx={{ fontFamily: "UrbanistSemibold", fontSize: 14, color: "text.primary", flex: 1 }}>
+                      <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 14, color: "text.primary", flex: 1 }}>
                         {testCase.title}
                       </Typography>
                       <Chip
@@ -1873,7 +1873,7 @@ const QAPage = () => {
                         size="small"
                         sx={{
                           fontSize: 10,
-                          fontFamily: "UrbanistSemibold",
+                          fontFamily: "var(--font-sans)",
                           bgcolor: alpha(PRIORITY_COLORS[testCase.priority], 0.12),
                           color: PRIORITY_COLORS[testCase.priority],
                           height: 22,
@@ -1892,7 +1892,7 @@ const QAPage = () => {
                           border: `1px solid ${alpha("#F59E0B", 0.15)}`,
                         }}
                       >
-                        <Typography sx={{ fontSize: 12, color: "#F59E0B", fontFamily: "UrbanistSemibold" }}>
+                        <Typography sx={{ fontSize: 12, color: "#F59E0B", fontFamily: "var(--font-sans)" }}>
                           ⚠️ Preconditions: {testCase.preconditions}
                         </Typography>
                       </Box>
@@ -1909,7 +1909,7 @@ const QAPage = () => {
                           border: `1px solid ${alpha("#EF4444", 0.15)}`,
                         }}
                       >
-                        <Typography sx={{ fontSize: 12, color: "#EF4444", fontFamily: "UrbanistSemibold" }}>
+                        <Typography sx={{ fontSize: 12, color: "#EF4444", fontFamily: "var(--font-sans)" }}>
                           📌 {testCase.notes}
                         </Typography>
                       </Box>
@@ -1918,16 +1918,16 @@ const QAPage = () => {
                     {/* Column headers (desktop only) */}
                     {!isMobile && (
                       <StepRow sx={{ borderBottom: `1px solid ${isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)"}`, py: 0.5 }}>
-                        <Typography sx={{ fontSize: 10, color: "text.secondary", fontFamily: "UrbanistSemibold", textTransform: "uppercase" }}>
+                        <Typography sx={{ fontSize: 10, color: "text.secondary", fontFamily: "var(--font-sans)", textTransform: "uppercase" }}>
                           #
                         </Typography>
-                        <Typography sx={{ fontSize: 10, color: "text.secondary", fontFamily: "UrbanistSemibold", textTransform: "uppercase" }}>
+                        <Typography sx={{ fontSize: 10, color: "text.secondary", fontFamily: "var(--font-sans)", textTransform: "uppercase" }}>
                           Action
                         </Typography>
-                        <Typography sx={{ fontSize: 10, color: "text.secondary", fontFamily: "UrbanistSemibold", textTransform: "uppercase" }}>
+                        <Typography sx={{ fontSize: 10, color: "text.secondary", fontFamily: "var(--font-sans)", textTransform: "uppercase" }}>
                           Expected Result
                         </Typography>
-                        <Typography sx={{ fontSize: 10, color: "text.secondary", fontFamily: "UrbanistSemibold", textTransform: "uppercase", textAlign: "center" }}>
+                        <Typography sx={{ fontSize: 10, color: "text.secondary", fontFamily: "var(--font-sans)", textTransform: "uppercase", textAlign: "center" }}>
                           Status
                         </Typography>
                       </StepRow>
@@ -1944,7 +1944,7 @@ const QAPage = () => {
                             </IconButton>
                           </Tooltip>
                           <Box sx={{ flex: 1 }}>
-                            <Typography sx={{ fontSize: 13, color: "text.primary", fontFamily: "UrbanistSemibold", mb: 0.5 }}>
+                            <Typography sx={{ fontSize: 13, color: "text.primary", fontFamily: "var(--font-sans)", mb: 0.5 }}>
                               Step {step.id}: {step.action}
                             </Typography>
                             <Typography sx={{ fontSize: 12, color: "text.secondary" }}>
@@ -1954,7 +1954,7 @@ const QAPage = () => {
                         </Box>
                       ) : (
                         <StepRow key={step.id}>
-                          <Typography sx={{ fontSize: 12, color: "text.secondary", fontFamily: "UrbanistSemibold", pt: 0.3 }}>
+                          <Typography sx={{ fontSize: 12, color: "text.secondary", fontFamily: "var(--font-sans)", pt: 0.3 }}>
                             {step.id}
                           </Typography>
                           <Typography sx={{ fontSize: 13, color: "text.primary", lineHeight: 1.5 }}>

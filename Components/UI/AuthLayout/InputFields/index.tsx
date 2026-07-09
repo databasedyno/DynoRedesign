@@ -271,7 +271,7 @@ const InputField: React.FC<InputFieldProps> = ({
           variant="body2"
           sx={{
             fontWeight: 500,
-            fontFamily: "UrbanistMedium",
+            fontFamily: "var(--font-sans)",
             fontSize: isMobile ? "14px" : "15px",
             textAlign: "start",
             color: theme.palette.text.primary,
@@ -372,7 +372,7 @@ const InputField: React.FC<InputFieldProps> = ({
               ...(sideButton && { flex: 1 }),
               borderRadius: "6px !important",
               boxShadow: "none",
-              fontFamily: "UrbanistMedium",
+              fontFamily: "var(--font-sans)",
               "& .MuiInputBase-root": {
                 ...(multiline
                   ? {
@@ -394,11 +394,11 @@ const InputField: React.FC<InputFieldProps> = ({
                   "&::placeholder": {
                     color: theme.palette.text.secondary,
                     opacity: 1,
-                    fontFamily: "UrbanistMedium",
+                    fontFamily: "var(--font-sans)",
                     fontSize: isMobile ? "14px" : "13px",
                     lineHeight: 1.2,
                   },
-                  fontFamily: "UrbanistMedium",
+                  fontFamily: "var(--font-sans)",
                   ...(type === "number" && {
                     MozAppearance: "textfield",
                     "&::-webkit-outer-spin-button": {
@@ -467,7 +467,7 @@ const InputField: React.FC<InputFieldProps> = ({
             sx={{
               margin: "6px 0 0 0",
               fontSize: isMobile ? "12px" : "13px",
-              fontFamily: "UrbanistMedium",
+              fontFamily: "var(--font-sans)",
               fontWeight: 500,
               color: error
                 ? theme.palette.error.main

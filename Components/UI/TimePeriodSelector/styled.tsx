@@ -28,7 +28,7 @@ export const PeriodTrigger = muiStyled(Box)(({ theme }: any) => ({
 
 export const PeriodText = styled.span`
   font-weight: 500;
-  font-family: UrbanistMedium;
+  font-family: var(--font-sans);
   white-space: nowrap;
 `;
 

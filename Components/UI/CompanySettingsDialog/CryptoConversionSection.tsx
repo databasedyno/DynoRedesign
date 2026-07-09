@@ -61,7 +61,7 @@ export default function CryptoConversionSection({
               display: "block",
               fontSize: isMobile ? "13px" : "15px",
               fontWeight: 500,
-              fontFamily: "UrbanistMedium",
+              fontFamily: "var(--font-sans)",
               color: "text.primary",
               lineHeight: "18px",
               mb: 1.5,
@@ -86,7 +86,7 @@ export default function CryptoConversionSection({
               sx={{
                 "& .MuiFormControlLabel-label": {
                   fontSize: isMobile ? "13px" : "14px",
-                  fontFamily: "UrbanistMedium",
+                  fontFamily: "var(--font-sans)",
                   color: "text.secondary",
                 },
               }}
@@ -98,7 +98,7 @@ export default function CryptoConversionSection({
               sx={{
                 "& .MuiFormControlLabel-label": {
                   fontSize: isMobile ? "13px" : "14px",
-                  fontFamily: "UrbanistMedium",
+                  fontFamily: "var(--font-sans)",
                   color: "text.secondary",
                 },
               }}
@@ -109,7 +109,7 @@ export default function CryptoConversionSection({
             sx={{
               mt: 1,
               fontSize: isMobile ? "13px" : "14px",
-              fontFamily: "UrbanistMedium",
+              fontFamily: "var(--font-sans)",
               color: "text.secondary",
             }}
           >
@@ -123,7 +123,7 @@ export default function CryptoConversionSection({
               display: "block",
               fontSize: isMobile ? "13px" : "15px",
               fontWeight: 500,
-              fontFamily: "UrbanistMedium",
+              fontFamily: "var(--font-sans)",
               color: "text.primary",
               mb: 1.5,
             }}
@@ -147,7 +147,7 @@ export default function CryptoConversionSection({
               sx={{
                 "& .MuiFormControlLabel-label": {
                   fontSize: isMobile ? "13px" : "14px",
-                  fontFamily: "UrbanistMedium",
+                  fontFamily: "var(--font-sans)",
                   color: "text.secondary",
                 },
               }}
@@ -159,7 +159,7 @@ export default function CryptoConversionSection({
               sx={{
                 "& .MuiFormControlLabel-label": {
                   fontSize: isMobile ? "13px" : "14px",
-                  fontFamily: "UrbanistMedium",
+                  fontFamily: "var(--font-sans)",
                   color: "text.secondary",
                 },
               }}
@@ -171,7 +171,7 @@ export default function CryptoConversionSection({
               sx={{
                 "& .MuiFormControlLabel-label": {
                   fontSize: isMobile ? "13px" : "14px",
-                  fontFamily: "UrbanistMedium",
+                  fontFamily: "var(--font-sans)",
                   color: "text.secondary",
                 },
               }}

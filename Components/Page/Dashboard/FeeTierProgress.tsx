@@ -175,7 +175,7 @@ const FeeTierProgress: React.FC<FeeTierProgressProps> = ({
             fontSize: isMobile ? "10px" : "13px",
             fontWeight: 500,
             color: theme.palette.primary.main,
-            fontFamily: "UrbanistMedium",
+            fontFamily: "var(--font-sans)",
             lineHeight: isMobile ? "12px" : "16px",
             letterSpacing: 0,
           }}
@@ -187,7 +187,7 @@ const FeeTierProgress: React.FC<FeeTierProgressProps> = ({
             fontSize: isMobile ? "10px" : "13px",
             fontWeight: 500,
             color: theme.palette.text.secondary,
-            fontFamily: "UrbanistMedium",
+            fontFamily: "var(--font-sans)",
             lineHeight: isMobile ? "12px" : "16px",
             letterSpacing: 0,
           }}

@@ -112,7 +112,7 @@ export const NavLabel = styled(Box, {
 })<{ active?: boolean }>(
   ({ active, theme }) => ({
     fontSize: "13px",
-    fontFamily: "UrbanistMedium",
+    fontFamily: "var(--font-sans)",
     fontWeight: 500,
     color: active ? theme.palette.primary.main : theme.palette.text.primary,
     textAlign: "center",
@@ -206,7 +206,7 @@ export const AlertIcon = styled(Box)(({ theme }) => ({
 
 export const AlertText = styled(Box)(({ theme }) => ({
   fontSize: "13px",
-  fontFamily: "UrbanistMedium",
+  fontFamily: "var(--font-sans)",
   fontWeight: 500,
   color: theme.palette.error.main,
   flex: 1,

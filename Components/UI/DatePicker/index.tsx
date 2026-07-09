@@ -871,7 +871,7 @@ const CustomDatePicker = forwardRef<DatePickerRef, DatePickerProps>(
                 <Typography
                   sx={{
                     fontSize: "13px",
-                    fontFamily: "UrbanistMedium",
+                    fontFamily: "var(--font-sans)",
                     color: theme.palette.error.main,
                     lineHeight: 1.2,
                   }}

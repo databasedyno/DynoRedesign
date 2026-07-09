@@ -397,7 +397,7 @@ const TransactionPage = () => {
           </Box>
           <Typography
             sx={{
-              fontFamily: "UrbanistBold",
+              fontFamily: "var(--font-sans)",
               fontWeight: 700,
               fontSize: "22px",
               color: theme.palette.text.primary,
@@ -408,7 +408,7 @@ const TransactionPage = () => {
           </Typography>
           <Typography
             sx={{
-              fontFamily: "UrbanistMedium",
+              fontFamily: "var(--font-sans)",
               fontSize: "14px",
               color: theme.palette.text.secondary,
               lineHeight: 1.55,

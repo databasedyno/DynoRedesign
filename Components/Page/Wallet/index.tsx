@@ -216,7 +216,7 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: () => void }) => {
                           data-testid={`wallet-network-chip-${wallet.name}`}
                           sx={{
                             ml: 0.75,
-                            fontFamily: "UrbanistSemibold, sans-serif",
+                            fontFamily: "var(--font-sans), sans-serif",
                             fontWeight: 600,
                             fontSize: isMobile ? 10 : 11,
                             lineHeight: 1,
@@ -263,7 +263,7 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: () => void }) => {
                       <Typography
                         title={wallet.walletAddress}
                         sx={{
-                          fontFamily: "UrbanistMedium",
+                          fontFamily: "var(--font-sans)",
                           fontSize: "13px",
                           color: theme.palette.text.primary,
                           letterSpacing: "0.2px",
@@ -344,7 +344,7 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: () => void }) => {
                           fontWeight: 600,
                           color: theme.palette.text.primary,
                           lineHeight: "18px",
-                          fontFamily: "UrbanistSemibold",
+                          fontFamily: "var(--font-sans)",
                         }}
                       >
                         {getCurrencySymbol(
@@ -375,7 +375,7 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: () => void }) => {
                           fontWeight: 500,
                           color: theme.palette.text.primary,
                           lineHeight: "24px",
-                          fontFamily: "UrbanistMedium",
+                          fontFamily: "var(--font-sans)",
                         }}
                       >
                         {getCurrencySymbol(
@@ -403,7 +403,7 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: () => void }) => {
                         borderRadius: "6px",
                         fontSize: isMobile ? "13px" : "15px",
                         fontWeight: 500,
-                        fontFamily: "UrbanistMedium",
+                        fontFamily: "var(--font-sans)",
                         lineHeight: "18px",
                         px: isMobile ? "12px" : "24px",
                         py: isMobile ? "5px" : "11px",
@@ -469,7 +469,7 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: () => void }) => {
             <Image src={WalletIcon} alt="wallet" width={14} height={14} className="themed-icon" />
             <Typography
               sx={{
-                fontFamily: "UrbanistMedium",
+                fontFamily: "var(--font-sans)",
                 fontWeight: 500,
                 fontSize: "20px",
                 lineHeight: "100%"
@@ -481,7 +481,7 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: () => void }) => {
 
           <Typography
             sx={{
-              fontFamily: "UrbanistMedium",
+              fontFamily: "var(--font-sans)",
               fontWeight: 500,
               fontSize: "15px",
               lineHeight: "140%",
@@ -504,7 +504,7 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: () => void }) => {
           <Button
             fullWidth
             sx={{
-              fontFamily: "UrbanistMedium",
+              fontFamily: "var(--font-sans)",
               fontWeight: 500,
               fontSize: "15px",
               color: theme.palette.text.secondary,
@@ -519,7 +519,7 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: () => void }) => {
           <Button
             fullWidth
             sx={{
-              fontFamily: "UrbanistMedium",
+              fontFamily: "var(--font-sans)",
               fontWeight: 500,
               fontSize: "15px",
               color: "primary.contrastText",

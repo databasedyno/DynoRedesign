@@ -49,7 +49,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
             sx={{
               fontSize: { xs: "13px", md: "15px" },
               fontWeight: 700,
-              fontFamily: "UrbanistBold",
+              fontFamily: "var(--font-sans)",
               color: theme.palette.text.primary,
               mb: isMobile ? "9px" : 1,
               lineHeight: 1.2,
@@ -61,7 +61,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
           <Typography
             sx={{
               fontSize: { xs: "13px", md: "15px" },
-              fontFamily: "UrbanistMedium",
+              fontFamily: "var(--font-sans)",
               color: theme.palette.text.primary,
               lineHeight: 1.2,
             }}
@@ -329,7 +329,7 @@ const NotificationPage = () => {
             </Box>
           ) : notifications.length === 0 ? (
             <Box sx={{ textAlign: "center", py: 6 }}>
-              <Typography sx={{ fontSize: "15px", color: theme.palette.text.secondary, fontFamily: "UrbanistMedium" }}>
+              <Typography sx={{ fontSize: "15px", color: theme.palette.text.secondary, fontFamily: "var(--font-sans)" }}>
                 {t("noNotificationsYet")}
               </Typography>
             </Box>
@@ -363,7 +363,7 @@ const NotificationPage = () => {
                         sx={{
                           fontSize: { xs: "13px", md: "15px" },
                           fontWeight: notif.is_read ? 500 : 700,
-                          fontFamily: notif.is_read ? "UrbanistMedium" : "UrbanistBold",
+                          fontFamily: notif.is_read ? "var(--font-sans)" : "var(--font-sans)",
                           color: theme.palette.text.primary,
                           lineHeight: 1.3,
                         }}
@@ -371,7 +371,7 @@ const NotificationPage = () => {
                         {notif.title}
                       </Typography>
                       <Typography
-                        sx={{ fontSize: "12px", color: theme.palette.text.secondary, fontFamily: "UrbanistRegular", whiteSpace: "nowrap", ml: 1 }}
+                        sx={{ fontSize: "12px", color: theme.palette.text.secondary, fontFamily: "var(--font-sans)", whiteSpace: "nowrap", ml: 1 }}
                       >
                         {formatTimeAgo(notif.created_at)}
                       </Typography>
@@ -380,7 +380,7 @@ const NotificationPage = () => {
                       sx={{
                         fontSize: { xs: "12px", md: "13px" },
                         color: theme.palette.text.secondary,
-                        fontFamily: "UrbanistRegular",
+                        fontFamily: "var(--font-sans)",
                         lineHeight: 1.4,
                         overflow: "hidden",
                         textOverflow: "ellipsis",
@@ -398,7 +398,7 @@ const NotificationPage = () => {
                         mt: 0.5,
                         height: 22,
                         fontSize: "11px",
-                        fontFamily: "UrbanistMedium",
+                        fontFamily: "var(--font-sans)",
                         backgroundColor: `${getTypeColor(notif.type)}15`,
                         color: getTypeColor(notif.type),
                         border: `1px solid ${getTypeColor(notif.type)}30`,
@@ -640,7 +640,7 @@ const NotificationPage = () => {
                         sx={{
                           fontSize: { xs: "13px", md: "15px" },
                           fontWeight: 700,
-                          fontFamily: "UrbanistMedium",
+                          fontFamily: "var(--font-sans)",
                           color: theme.palette.text.primary,
                           lineHeight: 1.2,
                           letterSpacing: 0,
@@ -672,7 +672,7 @@ const NotificationPage = () => {
                     <Typography
                       sx={{
                         fontSize: { xs: "13px", md: "15px" },
-                        fontFamily: "UrbanistRegular",
+                        fontFamily: "var(--font-sans)",
                         color: theme.palette.text.primary,
                         lineHeight: 1.2,
                       }}

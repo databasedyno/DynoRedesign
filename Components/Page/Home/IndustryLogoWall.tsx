@@ -58,7 +58,7 @@ const IndustryLogoWall: React.FC = () => {
       <Box sx={{ textAlign: 'center', mb: { xs: 4, md: 6 } }}>
         <Typography
           sx={{
-            fontFamily: 'UrbanistBold',
+            fontFamily: 'var(--font-sans)',
             fontSize: 12,
             letterSpacing: '1.5px',
             color: theme.palette.primary.main,
@@ -93,7 +93,7 @@ const IndustryLogoWall: React.FC = () => {
         </Typography>
         <Typography
           sx={{
-            fontFamily: 'UrbanistMedium',
+            fontFamily: 'var(--font-sans)',
             fontSize: { xs: 14, md: 15.5 },
             color: theme.palette.text.secondary,
             maxWidth: 620,
@@ -157,7 +157,7 @@ const IndustryLogoWall: React.FC = () => {
             </Box>
             <Typography
               sx={{
-                fontFamily: 'UrbanistBold',
+                fontFamily: 'var(--font-sans)',
                 fontSize: 13.5,
                 color: theme.palette.text.primary,
                 textAlign: 'center',
@@ -167,7 +167,7 @@ const IndustryLogoWall: React.FC = () => {
             </Typography>
             <Typography
               sx={{
-                fontFamily: 'UrbanistSemiBold',
+                fontFamily: 'var(--font-sans)',
                 fontSize: 12,
                 color: ind.color,
                 fontVariantNumeric: 'tabular-nums',

@@ -296,7 +296,7 @@ const AddContactInfo: React.FC<AddContactInfoProps> = ({ tokenData }) => {
                   sx={{
                     fontWeight: 500,
                     fontSize: isMobile ? "13px" : "15px",
-                    fontFamily: "UrbanistMedium",
+                    fontFamily: "var(--font-sans)",
                     textAlign: "start",
                     color: theme.palette.text.primary,
                     letterSpacing: 0,
@@ -322,7 +322,7 @@ const AddContactInfo: React.FC<AddContactInfoProps> = ({ tokenData }) => {
                     sx={{
                       fontSize: "12px",
                       color: "error.main",
-                      fontFamily: "UrbanistMedium",
+                      fontFamily: "var(--font-sans)",
                       textAlign: "start",
                     }}
                   >

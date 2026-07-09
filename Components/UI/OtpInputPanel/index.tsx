@@ -542,7 +542,7 @@ const OtpInputPanel: React.FC<OtpInputPanelProps> = ({
                   sx={{
                     fontSize: isMobile ? "12px" : "14px",
                     color: theme.palette.primary.main,
-                    fontFamily: "UrbanistMedium",
+                    fontFamily: "var(--font-sans)",
                     lineHeight: 1.3,
                     overflow: "hidden",
                     textOverflow: "ellipsis",
@@ -552,7 +552,7 @@ const OtpInputPanel: React.FC<OtpInputPanelProps> = ({
                   }}
                 >
                   {t("codeSentTo")}{" "}
-                  <span style={{ fontWeight: 600, fontFamily: "UrbanistBold" }}>
+                  <span style={{ fontWeight: 600, fontFamily: "var(--font-sans)" }}>
                     {contactInfo}
                   </span>
                 </Typography>
@@ -568,7 +568,7 @@ const OtpInputPanel: React.FC<OtpInputPanelProps> = ({
                     lineHeight: "1.2",
                     letterSpacing: 0,
                     color: theme.palette.text.primary,
-                    fontFamily: "UrbanistMedium",
+                    fontFamily: "var(--font-sans)",
                     marginBottom: "8px",
                   }}
                 >
@@ -699,7 +699,7 @@ const OtpInputPanel: React.FC<OtpInputPanelProps> = ({
                     fontSize: "12px",
                     color: theme.palette.error.main,
                     marginTop: "8px",
-                    fontFamily: "UrbanistMedium",
+                    fontFamily: "var(--font-sans)",
                   }}
                 >
                   {error}
@@ -796,7 +796,7 @@ const OtpInputPanel: React.FC<OtpInputPanelProps> = ({
                     sx={{
                       fontSize: "13px",
                       color: "text.secondary",
-                      fontFamily: "UrbanistMedium",
+                      fontFamily: "var(--font-sans)",
                     }}
                   >
                     {t("didntReceiveCode")}
@@ -806,7 +806,7 @@ const OtpInputPanel: React.FC<OtpInputPanelProps> = ({
                       sx={{
                         fontSize: "13px",
                         color: "text.secondary",
-                        fontFamily: "UrbanistSemiBold",
+                        fontFamily: "var(--font-sans)",
                       }}
                     >
                       {labelCountdown(countdown)}
@@ -822,7 +822,7 @@ const OtpInputPanel: React.FC<OtpInputPanelProps> = ({
                       sx={{
                         fontSize: "13px",
                         color: theme.palette.primary.main,
-                        fontFamily: "UrbanistSemiBold",
+                        fontFamily: "var(--font-sans)",
                         cursor: "pointer",
                         background: "none",
                         border: "none",

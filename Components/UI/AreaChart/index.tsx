@@ -193,7 +193,7 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({
             fontSize: 12,
             fontWeight: 500,
             color: labelColor,
-            fontFamily: "UrbanistMedium",
+            fontFamily: "var(--font-sans)",
             lineHeight: "100%",
             letterSpacing: 0,
           }}
@@ -214,7 +214,7 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({
         <Typography
           sx={{
             fontSize: "12px",
-            fontFamily: "UrbanistMedium",
+            fontFamily: "var(--font-sans)",
             color: muiTheme.palette.primary.main,
             lineHeight: "100%",
             letterSpacing: 0,
@@ -467,7 +467,7 @@ const Chart = ({ data }: { data: ChartData[] }) => {
                         textAnchor="middle"
                         fill={tickColor}
                         fontSize={isMobile ? 10 : 12}
-                        fontFamily="UrbanistMedium"
+                        fontFamily="var(--font-sans)"
                       >
                         {payload.value}
                       </text>
@@ -483,7 +483,7 @@ const Chart = ({ data }: { data: ChartData[] }) => {
                 tick={{
                   fill: tickColor,
                   fontSize: isMobile ? 10 : 12,
-                  fontFamily: "UrbanistMedium",
+                  fontFamily: "var(--font-sans)",
                   letterSpacing: 0,
                 }}
                 tickMargin={5}
@@ -598,7 +598,7 @@ const Chart = ({ data }: { data: ChartData[] }) => {
                     fill={emptyTextColor}
                     fontSize="16px"
                     fontWeight={500}
-                    fontFamily="UrbanistMedium"
+                    fontFamily="var(--font-sans)"
                     letterSpacing={0}
                   >
                     {t("noDataToShow")}

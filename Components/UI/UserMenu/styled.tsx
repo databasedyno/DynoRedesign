@@ -22,7 +22,7 @@ export const UserTrigger = styled("div")(({ theme }) => ({
 export const UserName = styled("span")(({ theme }) => ({
   fontWeight: 500,
   color: theme.palette.text.primary,
-  fontFamily: "UrbanistMedium",
+  fontFamily: "var(--font-sans)",
   whiteSpace: "nowrap",
   display: "inline-block",
   maxWidth: "130px",

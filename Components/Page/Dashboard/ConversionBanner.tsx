@@ -254,7 +254,7 @@ const ConversionBanner = () => {
               sx={{
                 fontSize: isMobile ? 13 : 14,
                 fontWeight: 500,
-                fontFamily: "UrbanistMedium",
+                fontFamily: "var(--font-sans)",
                 color: muiTheme.palette.text.primary,
                 lineHeight: 1.3,
                 letterSpacing: 0,
@@ -265,7 +265,7 @@ const ConversionBanner = () => {
             <Typography
               sx={{
                 fontSize: isMobile ? 11 : 12,
-                fontFamily: "UrbanistMedium",
+                fontFamily: "var(--font-sans)",
                 color: !hasStablecoinWallet && !enabled
                   ? "#F59E0B"
                   : muiTheme.palette.text.secondary,
@@ -304,7 +304,7 @@ const ConversionBanner = () => {
                 onChange={(e) => handleStablecoinSelect(e.target.value as string)}
                 sx={{
                   fontSize: 12,
-                  fontFamily: "UrbanistMedium",
+                  fontFamily: "var(--font-sans)",
                   height: 32,
                   "& .MuiSelect-select": {
                     py: 0.5,
@@ -355,7 +355,7 @@ const ConversionBanner = () => {
             }}
             sx={{
               fontSize: isMobile ? 12 : 13,
-              fontFamily: "UrbanistMedium",
+              fontFamily: "var(--font-sans)",
               color: muiTheme.palette.primary.main,
               cursor: "pointer",
               whiteSpace: "nowrap",

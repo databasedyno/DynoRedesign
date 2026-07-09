@@ -126,7 +126,7 @@ const GettingStartedWithDynopay = ({ data }: { data: HelpArticle }) => {
                     </TextDecoration>
                     {helpData.map((item) => (
                         <Box key={item.title} sx={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-                            <TextDecoration style={{ fontSize: isMobile ? "15px" : "20px", fontWeight: 600, fontFamily: "UrbanistSemibold", color: theme.palette.text.primary }}>{item.title}</TextDecoration>
+                            <TextDecoration style={{ fontSize: isMobile ? "15px" : "20px", fontWeight: 600, fontFamily: "var(--font-sans)", color: theme.palette.text.primary }}>{item.title}</TextDecoration>
                             {item.description && (
                                 <TextDecoration style={{ fontSize: isMobile ? "13px" : "15px", color: theme.palette.text.primary }}>{item.description}</TextDecoration>
                             )}
@@ -140,7 +140,7 @@ const GettingStartedWithDynopay = ({ data }: { data: HelpArticle }) => {
 
                                         <ul style={{ paddingLeft: "25px", }}>
                                             {item.bulletPoints.points.map((point, index) => (
-                                                <li key={index} style={{ fontSize: isMobile ? "13px" : "15px", fontWeight: 500, lineHeight: "100%", letterSpacing: 0, fontFamily: "UrbanistMedium", color: theme.palette.text.primary }}>{point}</li>
+                                                <li key={index} style={{ fontSize: isMobile ? "13px" : "15px", fontWeight: 500, lineHeight: "100%", letterSpacing: 0, fontFamily: "var(--font-sans)", color: theme.palette.text.primary }}>{point}</li>
                                             ))}
                                         </ul>
                                     </>

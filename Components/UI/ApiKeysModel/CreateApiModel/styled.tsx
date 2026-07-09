@@ -33,7 +33,7 @@ export const PermissionsTitle = styled(Typography)(({ theme }) => ({
   fontWeight: 600,
   fontStyle: "semibold",
   lineHeight: 1.2,
-  fontFamily: "UrbanistRegular",
+  fontFamily: "var(--font-sans)",
   marginBottom: theme.spacing(0.5),
   fontSize: "13px",
   [theme.breakpoints.down("md")]: {
@@ -45,7 +45,7 @@ export const PermissionsList = styled("ul")(({ theme }) => ({
   margin: 0,
   paddingLeft: theme.spacing(1),
   listStyle: "none",
-  fontFamily: "UrbanistMedium",
+  fontFamily: "var(--font-sans)",
   "& li": {
     color: theme.palette.text.primary,
     fontSize: "13px",

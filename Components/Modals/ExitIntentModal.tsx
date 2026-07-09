@@ -128,7 +128,7 @@ const ExitIntentModal: React.FC = () => {
         <Box sx={{ p: { xs: 3, md: 4 }, pt: { xs: 3, md: 4 } }}>
           <Typography
             sx={{
-              fontFamily: 'UrbanistBold',
+              fontFamily: 'var(--font-sans)',
               fontSize: 11,
               letterSpacing: '1.6px',
               color: theme.palette.primary.main,
@@ -154,7 +154,7 @@ const ExitIntentModal: React.FC = () => {
           </Typography>
           <Typography
             sx={{
-              fontFamily: 'UrbanistMedium',
+              fontFamily: 'var(--font-sans)',
               fontSize: 14,
               color: theme.palette.text.secondary,
               mb: 2.5,
@@ -196,7 +196,7 @@ const ExitIntentModal: React.FC = () => {
               size="small"
               startIcon={<ContentCopy sx={{ fontSize: 14 }} />}
               sx={{
-                fontFamily: 'UrbanistSemiBold',
+                fontFamily: 'var(--font-sans)',
                 fontSize: 12,
                 textTransform: 'none',
                 color: theme.palette.primary.main,
@@ -215,7 +215,7 @@ const ExitIntentModal: React.FC = () => {
                 router.push('/auth/register?ref=exit_intent');
               }}
               sx={{
-                fontFamily: 'UrbanistBold',
+                fontFamily: 'var(--font-sans)',
                 textTransform: 'none',
                 px: 2.2,
                 py: 1,
@@ -236,7 +236,7 @@ const ExitIntentModal: React.FC = () => {
                 router.push('/documentation');
               }}
               sx={{
-                fontFamily: 'UrbanistSemiBold',
+                fontFamily: 'var(--font-sans)',
                 textTransform: 'none',
                 px: 2.2,
                 py: 1,

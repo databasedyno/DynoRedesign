@@ -41,7 +41,7 @@ export const CustomSelectValue = styled(Typography)(({ theme }) => ({
   fontSize: "15px",
   fontWeight: 500,
   color: theme.palette.text.primary,
-  fontFamily: "UrbanistMedium",
+  fontFamily: "var(--font-sans)",
   lineHeight: "1",
   minWidth: "20px",
   textAlign: "center",
