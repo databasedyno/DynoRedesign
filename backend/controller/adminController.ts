@@ -447,17 +447,49 @@ const getFeeWalletBalance = async (
     });
     const cryptoWallets = [];
     for (let i = 0; i < adminFeesWallets.length; i++) {
-      const currentBalance = await tatumApi.getAddressBalance(
-        adminFeesWallets[i]?.dataValues.wallet_address,
-        adminFeesWallets[i]?.dataValues.wallet_type
-      );
       let amount = adminFeesWallets[i]?.dataValues.amount;
+
+      // BUGFIX 2026-07-09: Fee wallet balance was showing stale / zero values in
+      // the admin UI because this call was reading from Redis (10-min TTL) and
+      // any Tatum error (e.g. account.not.found → fallback '0') was clobbering
+      // the DB `amount` column with bad data. Mirror the correct pattern used
+      // by checkFeeBalance in paymentController.ts (skipCache + try/catch + NaN guard).
+      let currentBalance;
+      try {
+        currentBalance = await tatumApi.getAddressBalance(
+          adminFeesWallets[i]?.dataValues.wallet_address,
+          adminFeesWallets[i]?.dataValues.wallet_type,
+          true // skipCache — admin UI must always see real-time data
+        );
+      } catch (balErr: unknown) {
+        const balError = balErr as { message?: string; body?: { errorCode?: string } };
+        const errMsg = balError?.message || '';
+        const errCode = balError?.body?.errorCode || '';
+        // Not-yet-activated accounts (XRP reserve, unfunded TRX) return
+        // account.not.found — keep the last known DB value instead of overwriting to 0.
+        if (errMsg.includes('account.not.found') || errMsg.includes('Account not found') ||
+            errCode.includes('account.failed') || errMsg.includes('not.found')) {
+          adminLogger.info(`[getFeeWalletBalance] ⏭️ Skipping refresh for ${adminFeesWallets[i]?.dataValues.wallet_type} — account not activated (${adminFeesWallets[i]?.dataValues.wallet_address?.substring(0, 12)}...)`);
+        } else {
+          adminLogger.warn(`[getFeeWalletBalance] Tatum balance fetch failed for ${adminFeesWallets[i]?.dataValues.wallet_type}: ${errMsg} — using last known DB value.`);
+        }
+        currentBalance = null;
+      }
+
       // NOTE: getAddressBalance() already converts SUN→TRX for TRX currency.
       // Do NOT divide by 1,000,000 again — double-division caused wrong admin display.
-      let newBalance = currentBalance?.balance;
-      adminLogger.info("newBalance=========>", newBalance);
-      if (newBalance != adminFeesWallets[i]?.dataValues.amount) {
-        amount = newBalance;
+      const newBalance = currentBalance?.balance;
+      const parsedBalance = Number(newBalance);
+      // Only update DB if the fresh value is a valid finite number AND actually changed.
+      // Prevents clobbering the real balance with undefined/null/NaN from a bad response.
+      if (
+        newBalance !== undefined &&
+        newBalance !== null &&
+        Number.isFinite(parsedBalance) &&
+        parsedBalance !== Number(adminFeesWallets[i]?.dataValues.amount)
+      ) {
+        adminLogger.info(`[getFeeWalletBalance] ${adminFeesWallets[i]?.dataValues.wallet_type}: balance changed ${amount} → ${parsedBalance}`);
+        amount = parsedBalance;
         await adminFeeModel.update(
           { amount },
           {
