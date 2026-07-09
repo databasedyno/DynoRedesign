@@ -2,11 +2,15 @@
  * useUnreadNotificationsCount — helper that keeps the sidebar badge and
  * mobile-nav badge reasonably fresh WITHOUT hammering the API.
  *
- * Chattiness controls (added session 10 UX audit):
- *  - Module-level cache with a 45s TTL: remounts on page navigation and
- *    multiple simultaneous consumers (sidebar + mobile nav) reuse the cached
- *    value instead of re-fetching.
- *  - In-flight request dedupe: concurrent consumers share one HTTP request.
+ * Chattiness controls (session 10 UX audit):
+ *  - Cache with a 45s TTL, persisted in sessionStorage so it survives BOTH
+ *    SPA navigations (module scope) and full page reloads.
+ *  - In-flight request dedupe: concurrent consumers (sidebar + mobile nav)
+ *    share one HTTP request.
+ *  - The first fetch after mount is deferred ~400ms: on a fresh page load the
+ *    Redux company id hydrates a moment after mount, and without the deferral
+ *    the hook would fire once WITHOUT company_id and again WITH it. The
+ *    deferral lets effect cleanup cancel the stale pre-hydration fetch.
  *  - 60s polling + focus refresh are kept, but both go through the TTL gate.
  *
  * The count is company-scoped. If the user has no company selected, we return 0
@@ -18,11 +22,49 @@ import axiosBaseApi from "@/axiosConfig";
 
 const POLL_INTERVAL_MS = 60_000;
 const CACHE_TTL_MS = 45_000;
+const INITIAL_FETCH_DELAY_MS = 400;
+const STORAGE_KEY = "unread_count_cache_v1";
 
 type CacheEntry = { count: number; ts: number };
 
-// Module-level (shared across all hook consumers and page navigations)
+// Module-level (shared across all hook consumers and SPA navigations)
 const countCache = new Map<string, CacheEntry>();
+
+// Hydrate from sessionStorage once per page load so hard reloads also reuse
+// recent counts instead of refetching.
+if (typeof window !== "undefined") {
+  try {
+    const raw = window.sessionStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw) as Record<string, CacheEntry>;
+      Object.entries(parsed).forEach(([k, v]) => {
+        if (
+          v &&
+          typeof v.count === "number" &&
+          typeof v.ts === "number" &&
+          Date.now() - v.ts < CACHE_TTL_MS
+        ) {
+          countCache.set(k, v);
+        }
+      });
+    }
+  } catch {
+    /* corrupt cache — ignore */
+  }
+}
+
+function persistCache() {
+  try {
+    const obj: Record<string, CacheEntry> = {};
+    countCache.forEach((v, k) => {
+      obj[k] = v;
+    });
+    window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(obj));
+  } catch {
+    /* storage full/unavailable — cache still works in-memory */
+  }
+}
+
 const inflight = new Map<string, Promise<number>>();
 
 function cacheKey(companyId: unknown): string {
@@ -55,6 +97,7 @@ function fetchUnreadCount(companyId: unknown): Promise<number> {
       const n = Number(res?.data?.data?.unread_count || 0);
       const count = Number.isFinite(n) && n >= 0 ? n : 0;
       countCache.set(key, { count, ts: Date.now() });
+      persistCache();
       return count;
     })
     .finally(() => {
@@ -81,6 +124,7 @@ export function useUnreadNotificationsCount(): number {
 
     let cancelled = false;
     let timer: ReturnType<typeof setInterval> | null = null;
+    let initialTimer: ReturnType<typeof setTimeout> | null = null;
 
     const refresh = () => {
       fetchUnreadCount(selectedCompanyId)
@@ -92,7 +136,14 @@ export function useUnreadNotificationsCount(): number {
         });
     };
 
-    refresh();
+    // If we already have a fresh cached value, surface it immediately.
+    const cached = getFreshCached(selectedCompanyId);
+    if (cached !== null) setCount(cached);
+
+    // Defer the first network attempt slightly so a company-id hydration
+    // right after mount replaces this effect BEFORE the un-scoped request
+    // fires (avoids the double no-id/with-id fetch on every page load).
+    initialTimer = setTimeout(refresh, INITIAL_FETCH_DELAY_MS);
     timer = setInterval(refresh, POLL_INTERVAL_MS);
 
     // Refresh when the tab regains focus (users often check notifications on
@@ -103,6 +154,7 @@ export function useUnreadNotificationsCount(): number {
 
     return () => {
       cancelled = true;
+      if (initialTimer) clearTimeout(initialTimer);
       if (timer) clearInterval(timer);
       window.removeEventListener("focus", onFocus);
     };
