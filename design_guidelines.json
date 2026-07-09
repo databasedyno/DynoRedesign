@@ -1,138 +1,132 @@
 {
-  "theme_archetype": "7 (Electric & Neon) + 5 (Luxury) Hybrid",
-  "domain": "Crypto/Web3 Payment Gateway Auth Suite",
-  "global_rules": {
-    "data_testid_requirement": "All interactive and key informational elements MUST include a data-testid attribute in kebab-case format (e.g., data-testid='login-email-input').",
-    "theme_support": "MUST fully support both Dark and Light modes using Tailwind's standard dark: classes."
-  },
   "typography": {
-    "font_families": {
-      "heading": "Unbounded, sans-serif",
-      "body": "Manrope, sans-serif",
-      "mono": "JetBrains Mono, monospace"
-    },
-    "scale": {
-      "h1": "text-4xl md:text-5xl lg:text-6xl tracking-tighter font-black",
-      "h2": "text-2xl md:text-3xl tracking-tight font-bold",
-      "h3": "text-xl md:text-2xl tracking-tight font-semibold",
-      "body": "text-base leading-relaxed",
-      "small": "text-sm text-muted-foreground",
-      "micro": "text-xs tracking-widest uppercase font-mono"
-    }
-  },
-  "color_system": {
-    "dark_mode": {
-      "background": "#050505",
-      "surface": "rgba(255, 255, 255, 0.03)",
-      "surface_glass": "rgba(255, 255, 255, 0.05)",
-      "border": "rgba(255, 255, 255, 0.1)",
-      "text_primary": "#FFFFFF",
-      "text_secondary": "#A1A1AA",
-      "primary_neon": "#CCFF00",
-      "primary_neon_glow": "rgba(204, 255, 0, 0.4)",
-      "error": "#FF3B30",
-      "success": "#00E676"
-    },
-    "light_mode": {
-      "background": "#F5F7FA",
-      "surface": "rgba(255, 255, 255, 0.7)",
-      "surface_glass": "rgba(255, 255, 255, 0.9)",
-      "border": "rgba(5, 5, 5, 0.1)",
-      "text_primary": "#050505",
-      "text_secondary": "#52525B",
-      "primary_neon": "#050505",
-      "primary_neon_text": "#CCFF00",
-      "primary_neon_glow": "rgba(5, 5, 5, 0.2)",
-      "error": "#D32F2F",
-      "success": "#00C853"
-    }
-  },
-  "layout_strategy": {
-    "composition": "Immersive Floating Glass Bento Overlay. Not a rigid split-screen, but a centered dynamic container overlapping a high-fidelity abstract background.",
-    "container": "min-h-screen w-full flex items-center justify-center p-4 md:p-8 relative overflow-hidden",
-    "background_treatment": "Full-screen absolute positioning. Dark mode uses deep void black with subtle glowing mesh. Light mode uses frosty silver mesh. An additional heavy vignette/gradient mask prevents text collision.",
-    "grid_structure": {
-      "wrapper": "relative z-10 max-w-6xl w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-center",
-      "auth_form_col": "lg:col-span-6 xl:col-span-5 w-full",
-      "marketing_bento_col": "hidden lg:grid lg:col-span-6 xl:col-span-7 grid-cols-2 gap-4"
-    }
-  },
-  "components": {
-    "surfaces": {
-      "glass_card": "backdrop-blur-2xl bg-white/5 dark:bg-white/5 bg-white/70 dark:border-white/10 border-black/10 border shadow-2xl rounded-3xl p-8 md:p-12",
-      "bento_widget": "backdrop-blur-xl bg-white/5 dark:bg-white/5 bg-white/60 dark:border-white/10 border-black/5 border rounded-2xl p-6 hover:-translate-y-1 transition-transform duration-300"
-    },
-    "inputs": {
-      "style": "Floating label approach. No clunky borders. 1px bottom border only that glows neon on focus.",
-      "classes": "w-full bg-transparent border-b border-black/20 dark:border-white/20 px-0 py-3 text-lg focus:outline-none focus:border-black dark:focus:border-[#CCFF00] transition-colors rounded-none",
-      "phone_input": "flex gap-2. Country code dropdown styled as a minimal selector with border-r, next to the main phone number input."
-    },
-    "buttons": {
-      "primary": "w-full py-4 rounded-xl font-bold tracking-wide transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] bg-black text-[#CCFF00] dark:bg-[#CCFF00] dark:text-black shadow-[0_0_20px_rgba(0,0,0,0.2)] dark:hover:shadow-[0_0_30px_rgba(204,255,0,0.4)]",
-      "secondary_social": "w-full py-4 rounded-xl font-semibold flex items-center justify-center gap-3 border border-black/10 dark:border-white/10 bg-white/50 dark:bg-black/50 hover:bg-white dark:hover:bg-white/10 transition-colors backdrop-blur-md"
-    },
-    "otp_input": {
-      "container": "flex justify-between gap-2 md:gap-4",
-      "slot": "w-12 h-14 md:w-16 md:h-16 border border-black/20 dark:border-white/20 rounded-xl text-center text-2xl font-mono focus:border-black dark:focus:border-[#CCFF00] focus:ring-1 focus:ring-black dark:focus:ring-[#CCFF00] bg-white/50 dark:bg-black/50 transition-all"
-    },
-    "password_strength": {
-      "container": "mt-4 space-y-3",
-      "segments": "flex gap-2 h-1.5 w-full",
-      "segment_weak": "bg-[#FF3B30] shadow-[0_0_10px_rgba(255,59,48,0.5)]",
-      "segment_fair": "bg-[#FF9500]",
-      "segment_good": "bg-[#CCFF00]",
-      "segment_strong": "bg-[#00E676] shadow-[0_0_10px_rgba(0,230,118,0.5)]",
-      "checklist_item": "flex items-center gap-2 text-sm font-mono text-muted-foreground transition-colors. Checked state uses primary neon color."
-    }
-  },
-  "screens": {
-    "shared_elements": {
-      "header_controls": "Absolute top-6 right-6 flex items-center gap-4 z-50",
-      "language_switcher": "Minimal dropdown showing EN/PT/FR/ES/DE/NL with globe icon. Glassmorphism styling.",
-      "theme_toggle": "Icon button toggling sun/moon, applies 'dark' class to html.",
-      "logo": "Positioned top-8 left-8 absolute or embedded at top of auth form for mobile. SVG format."
-    },
-    "login": {
-      "flow": "Two-step architecture via Framer Motion AnimatePresence.",
-      "step_1": "Email/Phone toggle tabs. Input field. 'Continue' button. 'Continue with Google' divider.",
-      "step_2": "Animates horizontally. Shows active email in a read-only pill with an 'Edit' pencil. Password field below. 'Sign In' button. 'Forgot Password?' link (triggers modal).",
-      "marketing_panel": "Three bento widgets: 1. Big bold typography '1,000+ Businesses', 2. Scrolling marquee of 15+ Crypto Icons (BTC, ETH, SOL, etc.), 3. Highlight card '<1min Settlements' with a glowing green pulse dot."
-    },
-    "register": {
-      "flow": "Collects Email/Phone -> Password creation -> OTP verification.",
-      "password_creation": "Includes the real-time segmented neon strength bar + checklist.",
-      "otp_verification": "Triggers OTP Dialog. Distinguishes UI message depending on Email or Phone selection."
-    },
-    "forgot_password": {
-      "flow": "Triggered as a Glassmorphism Dialog over the login screen. Input email -> Send Reset Link -> Confirm State."
-    }
-  },
-  "motion_interactions": {
-    "library": "framer-motion",
-    "page_load": "Staggered fade-in. Background scale-down from 1.1 to 1.0 (duration: 1.5s, ease: 'easeOut'). Bento boxes animate in from bottom (y: 20, opacity: 0) with a stagger of 0.1s.",
-    "two_step_transition": "initial: { x: 20, opacity: 0 }, animate: { x: 0, opacity: 1 }, exit: { x: -20, opacity: 0 }, transition: { type: 'spring', stiffness: 300, damping: 30 }",
-    "modals": "Backdrop uses initial={{ opacity: 0 }} animate={{ opacity: 1 }}. Dialog uses initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}."
-  },
-  "media": {
-    "images": [
+    "font_family_recommendations": [
       {
-        "category": "background_dark",
-        "url": "https://images.unsplash.com/photo-1643139863038-7355941e9e89?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NzB8MHwxfHNlYXJjaHwyfHxkYXJrJTIwbmVvbiUyMGFic3RyYWN0JTIwM2QlMjBtZXNofGVufDB8fHx8MTc4Mjc1NzI4M3ww&ixlib=rb-4.1.0&q=85",
-        "description": "Abstract dark neon 3D mesh"
+        "option": 1,
+        "name": "The Modern Tech Standard (Recommended)",
+        "primary": "Geist Sans",
+        "display": "Geist Sans (or Instrument Sans for Marketing)",
+        "mono": "Geist Mono",
+        "reasoning": "Geist is highly engineered for readability at both micro and macro scales, reminiscent of Vercel and Linear. It naturally handles high data density beautifully, has tabular features, and zero cost (OFL).",
+        "license": "Open Source (OFL)"
       },
       {
-        "category": "background_light",
-        "url": "https://images.unsplash.com/photo-1673629914875-d8fd33f7d9fb?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1MDV8MHwxfHNlYXJjaHwxfHxhYnN0cmFjdCUyMGxpZ2h0JTIwZ3JheSUyMGZyb3N0ZWQlMjBnbGFzc3xlbnwwfHx8fDE3ODMzMjY3MzN8MA&ixlib=rb-4.1.0&q=85",
-        "description": "Abstract light silver frosted glass"
+        "option": 2,
+        "name": "The Premium Fintech",
+        "primary": "Söhne",
+        "display": "Söhne",
+        "mono": "Söhne Mono",
+        "reasoning": "This mimics the ultra-refined Stripe/Ramp aesthetic. Extremely neutral but undeniably premium. Requires a paid license.",
+        "license": "Premium Paid",
+        "fallback": "DM Sans (Body) + Cabinet Grotesk (Headings)"
+      },
+      {
+        "option": 3,
+        "name": "Refine Current Stack",
+        "primary": "Manrope (Tuned)",
+        "display": "Unbounded (Marketing Only) / Manrope (App)",
+        "mono": "JetBrains Mono",
+        "reasoning": "Easiest migration. Manrope is highly legible but the current implementation uses font-weight 500 for regular text. Dropping body weight to 400, adjusting line-heights, and enabling optical sizing/tabular figures will instantly fix the 'muddy' feel.",
+        "license": "Open Source (OFL)"
       }
-    ]
+    ],
+    "weight_strategy": {
+      "regular": "400 (Crucial fix: Drop from current 500 to 400 for all body text to reduce visual muddiness)",
+      "medium": "500 (Use only for secondary emphasis, small labels, or table headers)",
+      "semibold": "600 (Use for primary buttons, KPI values, and subheadings h4-h6)",
+      "bold": "700 (Use for dashboard h1-h3 and marketing h2-h3)",
+      "extrabold": "800 (Reserve exclusively for Marketing Hero h1)"
+    },
+    "type_scale": {
+      "marketing": {
+        "display-2xl": { "size": "72px", "line-height": "1.05", "letter-spacing": "-0.03em", "weight": "800" },
+        "display-xl": { "size": "60px", "line-height": "1.1", "letter-spacing": "-0.02em", "weight": "800" },
+        "display-lg": { "size": "48px", "line-height": "1.15", "letter-spacing": "-0.02em", "weight": "700" }
+      },
+      "app_dashboard": {
+        "h1": { "size": "32px", "line-height": "1.25", "letter-spacing": "-0.015em", "weight": "700" },
+        "h2": { "size": "28px", "line-height": "1.3", "letter-spacing": "-0.01em", "weight": "700" },
+        "h3": { "size": "24px", "line-height": "1.35", "letter-spacing": "-0.01em", "weight": "600" },
+        "h4": { "size": "20px", "line-height": "1.4", "letter-spacing": "0", "weight": "600" },
+        "body-lg": { "size": "18px", "line-height": "1.5", "letter-spacing": "0", "weight": "400" },
+        "body-md": { "size": "16px", "line-height": "1.5", "letter-spacing": "0", "weight": "400" },
+        "body-sm": { "size": "14px", "line-height": "1.55", "letter-spacing": "0", "weight": "400" },
+        "caption": { "size": "12px", "line-height": "1.5", "letter-spacing": "0", "weight": "400" },
+        "overline": { "size": "11px", "line-height": "1.4", "letter-spacing": "0.06em", "weight": "600", "transform": "uppercase" }
+      }
+    }
+  },
+  "colors": {
+    "light_mode": {
+      "bg-primary": { "hex": "#FFFFFF", "usage": "Main app background" },
+      "bg-elevated": { "hex": "#F4F4F5", "usage": "Cards, hover states, secondary surfaces" },
+      "text-primary": { "hex": "#18181B", "contrast_ratio": "17.1:1 AAA", "usage": "Headings, primary body" },
+      "text-secondary": { "hex": "#71717A", "contrast_ratio": "4.6:1 AA", "usage": "Subtitles, metadata, placeholders" },
+      "text-tertiary": { "hex": "#A1A1AA", "contrast_ratio": "2.8:1", "usage": "Disabled text only" },
+      "text-inverse": { "hex": "#FFFFFF", "contrast_ratio": "17.1:1 AAA", "usage": "Text on dark buttons/banners" }
+    },
+    "dark_mode": {
+      "bg-primary": { "hex": "#09090B", "usage": "Main app background" },
+      "bg-elevated": { "hex": "#18181B", "usage": "Cards, dropdowns, table rows" },
+      "text-primary": { "hex": "#FAFAFA", "contrast_ratio": "17.5:1 AAA", "usage": "Headings, primary body" },
+      "text-secondary": { "hex": "#A1A1AA", "contrast_ratio": "8.5:1 AAA", "usage": "Subtitles, metadata" },
+      "text-tertiary": { "hex": "#52525B", "contrast_ratio": "2.7:1", "usage": "Disabled text only" },
+      "text-inverse": { "hex": "#09090B", "contrast_ratio": "17.5:1 AAA", "usage": "Text on light buttons/badges" }
+    }
+  },
+  "finance_specific_rules": {
+    "tabular_numerals": "Apply `font-variant-numeric: tabular-nums` (Tailwind `.tabular-nums`) to ALL currency amounts, timers, table columns containing numbers, and KPI values. This ensures vertical alignment.",
+    "crypto_addresses": "Use the Mono font. Truncate mid-string for UI display (e.g., `0x1234...abcd`) rather than wrapping long addresses. Provide a one-click copy button next to it.",
+    "long_decimals": "For crypto with 6-8 decimals, visually de-emphasize the trailing zeros or decimals if insignificant. E.g. `<span class=\"text-primary\">1.23</span><span class=\"text-secondary\">4567</span> BTC`."
+  },
+  "implementation_notes": {
+    "font_loading": "If using Next.js/React, move away from `<link>` tags in document.js and utilize standard bundler imports for local fonts or `@fontsource` to prevent FOUT (Flash of Unstyled Text) and CLS. Keep fonts in `/public/fonts` but import them cleanly.",
+    "theme_consolidation": "Consolidate `theme.js`, `theme2.js`, `homeTheme.js`, `homeBento.js`, and `authTheme.js` into a single source of truth (e.g., `theme.config.js` or via standard CSS variables in `globals.css` that Shadcn/MUI can consume).",
+    "css_variables": "Map typography into structural CSS variables: `--font-sans`, `--font-mono`, `--font-display` to allow easy swapping.",
+    "file_type_constraint": "Note: Use `.js` or `.jsx` configurations as per project strict requirements (no `.tsx`)."
+  },
+  "before_after_guidance": {
+    "marketing_hero": {
+      "before": "<h1 class=\"text-4xl font-bold font-unbounded\">Accept Crypto</h1><p class=\"text-base font-medium font-manrope\">...</p>",
+      "after": "<h1 class=\"text-6xl font-extrabold tracking-tight font-display\">Accept Crypto</h1><p class=\"text-lg font-normal font-sans leading-relaxed text-secondary\">...</p>"
+    },
+    "dashboard_kpi": {
+      "before": "<div class=\"font-manrope font-medium text-3xl\">$124,592.45</div>",
+      "after": "<div class=\"font-sans font-semibold text-3xl tracking-tight tabular-nums\">$124,592.45</div>"
+    },
+    "transaction_table": {
+      "before": "<td class=\"font-manrope text-sm font-medium\">0xABC123...</td><td class=\"font-manrope text-sm font-medium\">+ 1.054 BTC</td>",
+      "after": "<td class=\"font-mono text-sm font-normal text-secondary\">0xABC...123</td><td class=\"font-sans text-sm font-medium tabular-nums\">+1.054 BTC</td>"
+    }
+  },
+  "visual_enhancers": {
+    "glassmorphism": "Use backdrop-blur-xl with bg-white/70 (light) or bg-black/60 (dark) + 1px border. CRITICAL: Never use a fully transparent background for headers, sticky navs, or dropdowns. Always apply solid or glass backing.",
+    "shadows": "Rely on crisp, subtle layered ambient shadows over flat dark borders for light mode. Dark mode should use 1px inner-white/10 borders instead of shadows.",
+    "borders": "Limit border radiuses to max 8px for dashboards (tight, technical) and up to 16px for marketing cards."
+  },
+  "grids": {
+    "marketing": "Bento Grid protocol. grid-cols-1 md:grid-cols-12 with gap-8 to gap-12. High asymmetry.",
+    "dashboard": "High-density Grid. Tight gap-4 or gap-6. Every pixel utilized, stretch children to match heights."
+  },
+  "layouts": {
+    "spacing": "Generous Spacing Philosophy (Tailwind scale p-4 to p-12). Ensure internal padding prevents text collision with borders."
+  },
+  "accessibility": {
+    "testing_attributes": "All interactive and key informational elements MUST include `data-testid` attribute (e.g., `data-testid=\"login-submit-button\"`).",
+    "contrast": "Adhere strictly to minimum 4.5:1 for body text (WCAG AA). Hover/Focus states MUST explicitly set text color and ensure higher contrast.",
+    "motion": "Respect `prefers-reduced-motion`."
   },
   "instructions_to_main_agent": {
-    "1": "Install 'framer-motion' for complex layout transitions (2-step login) and 'lucide-react' for icons.",
-    "2": "Override default Shadcn input borders to match the '1px bottom border only' guideline using Tailwind classes.",
-    "3": "Implement the layout as a Floating Bento overlay rather than a full-height split screen.",
-    "4": "Ensure the Language Switcher and Dark Mode toggle are sticky or absolute-positioned outside the main scrollable form area.",
-    "5": "Do not hardcode 'Inter' or 'Roboto'. Set up Unbounded (heading), Manrope (body), and JetBrains Mono (mono) via Google Fonts or Next.js font optimization.",
-    "6": "Add data-testid to every input, button, and dynamic component for E2E testing compatibility."
-  }
+    "action": "This is a SPEC-ONLY file generated per user instructions. Do NOT blindly execute code replacement without explicit user confirmation of the chosen font stack.",
+    "priority": "Adopt the `finance_specific_rules` and `accessibility` guidelines strictly when modifying components."
+  },
+  "UNIVERSAL GUIDELINES FOR MAIN AGENT": [
+    "Avoid generic 'AI slop' aesthetics. Do not use centered alignments globally or simplistic gradient backgrounds.",
+    "NEVER use fully transparent backgrounds on elements that overlap content (e.g., Navs, Headers, Dropdowns).",
+    "For icons: Use `lucide-react`, `@phosphor-icons/react` or `@heroicons/react`. DO NOT use emojis as UI icons.",
+    "Apply `data-testid` to all functional components.",
+    "Ensure hover states explicitly manage both `bg` and `text` colors.",
+    "DO NOT use 'Space Grotesk' for dashboard typography.",
+    "DO NOT use teal (#1B93A4) for dashboards."
+  ]
 }
