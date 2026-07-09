@@ -5,6 +5,14 @@ USDT-TRC20 payment gateway platform. Users can create companies, wallets, paymen
 
 ## What's Been Implemented
 
+### 2026-07-09 — Session 8b: Typography standardization to Manrope ✅ VERIFIED
+User: "our in-app fonts are not so good, including auth pages — recommend something better?" → selected Option A (Manrope primary, keep app UI cohesive).
+- **Self-hosted Manrope** (`.woff` L/R/M/SB/B/EB) at `/app/public/fonts/Manrope-*.woff` (verified served: `curl /fonts/Manrope-Regular.woff` → 200 both internal + external preview).
+- **Non-destructive alias approach in `/app/styles/globals.css`**: legacy family names (`UrbanistLight/Regular/Medium/SemiBold/Semibold/Bold/ExtraBold` + `OutfitLight/Regular/Medium/SemiBold/Bold/ExtraBold`) declared as `@font-face` pointing at the matching Manrope weight file. ~1000 existing `fontFamily: "UrbanistX"` refs in `sx`/inline styles now render Manrope with **zero component changes**. Global `body { font-family: "Manrope", -apple-system, ... }` primary.
+- **Theme files cleaned**: `/app/styles/theme.ts`, `appTheme.ts`, `theme2.ts` — legacy `Urbanist`/`Poppins` typography.fontFamily replaced with `Manrope`.
+- **Preload updated**: `/app/pages/_document.tsx` preloads Manrope Regular/Medium/SemiBold/Bold (was Urbanist).
+- **Verified**: `/auth/login` computed body `font-family = "Manrope, -apple-system, ..."`; rendered HTML shows `font-family:'Manrope',sans-serif` inline + `<link rel=preload href="/fonts/Manrope-*.woff">`; visual screenshot confirms cohesive Manrope across headline, form, buttons, metrics (no layout breakage). Note: original Option A also mentioned optional Unbounded (auth hero) + JetBrains Mono (amounts/OTP) accents — NOT applied yet, pending user opt-in.
+
 ### 2026-07-09 — Session 8: Fresh container re-provisioned ✅
 - Fresh container (no node_modules, no .env). Re-provisioned per documented procedure: `yarn install` /app + /app/backend; wrote /app/backend/.env, /app/.env, /app/frontend/.env with app URLs → https://daa5e6f5-5c84-42a9-8cca-44bffb25d3f2.preview.emergentagent.com, preview host first in CORS, fresh NEXTAUTH_SECRET, GitHub creds from colon-syntax (NEW Client ID Ov23liBuaGCFqNpp2QzW). SAFETY overrides: NODE_ENV=production, WORKER_ROLE=secondary, ENABLE_BACKGROUND_JOBS=false (all cron/sweeps/webhook-worker skipped — verified in logs). Health: Railway PG + Redis + Tatum OK, internal+external /api/ /auth/login = 200, SSO buttons render, bad-creds 401.
 

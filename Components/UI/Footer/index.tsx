@@ -31,7 +31,7 @@ export default function Footer() {
             fontSize: '11.5px',
             fontWeight: 500,
             textDecoration: 'none',
-            fontFamily: "'Urbanist', sans-serif",
+            fontFamily: "'Manrope', sans-serif",
             letterSpacing: '0.2px',
             transition: 'color 0.2s ease',
           }}
@@ -48,7 +48,7 @@ export default function Footer() {
             fontSize: '11.5px',
             fontWeight: 500,
             textDecoration: 'none',
-            fontFamily: "'Urbanist', sans-serif",
+            fontFamily: "'Manrope', sans-serif",
             letterSpacing: '0.2px',
             transition: 'color 0.2s ease',
           }}
@@ -62,7 +62,7 @@ export default function Footer() {
           sx={{
             color: 'rgba(255,255,255,0.35)',
             fontSize: '11px',
-            fontFamily: "'Urbanist', sans-serif",
+            fontFamily: "'Manrope', sans-serif",
             letterSpacing: '0.2px',
           }}
         >

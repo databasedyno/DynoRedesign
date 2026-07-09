@@ -48,7 +48,7 @@ export const theme = createTheme({
   },
   typography: {
     allVariants: {
-      fontFamily: "Poppins",
+      fontFamily: "'Manrope', sans-serif",
     },
   },
   components: {

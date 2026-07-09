@@ -7,7 +7,7 @@ import WhiteLogo from "@/assets/Images/auth/dynopay-white-logo.png";
 import DarkLogo from "@/assets/Images/auth/dynopay-logo.png";
 
 const FONT_DISPLAY = "'Unbounded', sans-serif";
-const FONT_BODY = "'Manrope', 'Urbanist', sans-serif";
+const FONT_BODY = "'Manrope', sans-serif";
 const FONT_MONO = "'JetBrains Mono', monospace";
 
 const COINS = [

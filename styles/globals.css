@@ -52,7 +52,7 @@ html,
 body {
   max-width: 100vw;
   overflow-x: hidden;
-  font-family: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
@@ -115,97 +115,156 @@ a {
 }
 
 
+/* ============================================================
+   TYPOGRAPHY SYSTEM — Manrope (self-hosted, full charset)
+   'Manrope' is THE app UI font. The legacy families below
+   (UrbanistX / OutfitX) are kept as ALIASES pointing at the
+   matching Manrope weight so the ~1000 existing fontFamily
+   references render Manrope without touching every component.
+   NOTE: "UrbanistSemibold"/"OutfitSemibold" (lowercase b) were
+   referenced in code but never declared — now fixed.
+   ============================================================ */
+
 @font-face {
-  font-family: "UrbanistLight";
-  src: url("/fonts/Urbanist-Light.woff2") format("woff2");
+  font-family: "Manrope";
+  src: url("/fonts/Manrope-Light.woff") format("woff");
   font-weight: 300;
   font-style: normal;
   font-display: swap;
 }
-
 @font-face {
-  font-family: "UrbanistRegular";
-  src: url("/fonts/Urbanist-Regular.woff2") format("woff2");
+  font-family: "Manrope";
+  src: url("/fonts/Manrope-Regular.woff") format("woff");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
-
 @font-face {
-  font-family: "UrbanistMedium";
-  src: url("/fonts/Urbanist-Medium.woff2") format("woff2");
+  font-family: "Manrope";
+  src: url("/fonts/Manrope-Medium.woff") format("woff");
   font-weight: 500;
   font-style: normal;
   font-display: swap;
 }
-
 @font-face {
-  font-family: "UrbanistSemiBold";
-  src: url("/fonts/Urbanist-SemiBold.woff2") format("woff2");
+  font-family: "Manrope";
+  src: url("/fonts/Manrope-SemiBold.woff") format("woff");
   font-weight: 600;
   font-style: normal;
   font-display: swap;
 }
-
 @font-face {
-  font-family: "UrbanistBold";
-  src: url("/fonts/Urbanist-Bold.woff2") format("woff2");
+  font-family: "Manrope";
+  src: url("/fonts/Manrope-Bold.woff") format("woff");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
-
 @font-face {
-  font-family: "UrbanistExtraBold";
-  src: url("/fonts/Urbanist-ExtraBold.woff2") format("woff2");
+  font-family: "Manrope";
+  src: url("/fonts/Manrope-ExtraBold.woff") format("woff");
   font-weight: 800;
   font-style: normal;
   font-display: swap;
 }
 
+/* --- Legacy weight-carrying aliases (Urbanist*) → Manrope --- */
 @font-face {
-  font-family: "OutfitLight";
-  src: url("/fonts/Outfit-Light.woff2") format("woff2");
+  font-family: "UrbanistLight";
+  src: url("/fonts/Manrope-Light.woff") format("woff");
   font-weight: 300;
   font-style: normal;
   font-display: swap;
 }
-
 @font-face {
-  font-family: "OutfitRegular";
-  src: url("/fonts/Outfit-Regular.woff2") format("woff2");
+  font-family: "UrbanistRegular";
+  src: url("/fonts/Manrope-Regular.woff") format("woff");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
-
 @font-face {
-  font-family: "OutfitMedium";
-  src: url("/fonts/Outfit-Medium.woff2") format("woff2");
+  font-family: "UrbanistMedium";
+  src: url("/fonts/Manrope-Medium.woff") format("woff");
   font-weight: 500;
   font-style: normal;
   font-display: swap;
 }
-
 @font-face {
-  font-family: "OutfitSemiBold";
-  src: url("/fonts/Outfit-SemiBold.woff2") format("woff2");
+  font-family: "UrbanistSemiBold";
+  src: url("/fonts/Manrope-SemiBold.woff") format("woff");
   font-weight: 600;
   font-style: normal;
   font-display: swap;
 }
-
 @font-face {
-  font-family: "OutfitBold";
-  src: url("/fonts/Outfit-Bold.woff2") format("woff2");
+  font-family: "UrbanistSemibold";
+  src: url("/fonts/Manrope-SemiBold.woff") format("woff");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "UrbanistBold";
+  src: url("/fonts/Manrope-Bold.woff") format("woff");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
+@font-face {
+  font-family: "UrbanistExtraBold";
+  src: url("/fonts/Manrope-ExtraBold.woff") format("woff");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
 
+/* --- Legacy weight-carrying aliases (Outfit*) → Manrope --- */
+@font-face {
+  font-family: "OutfitLight";
+  src: url("/fonts/Manrope-Light.woff") format("woff");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "OutfitRegular";
+  src: url("/fonts/Manrope-Regular.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "OutfitMedium";
+  src: url("/fonts/Manrope-Medium.woff") format("woff");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "OutfitSemiBold";
+  src: url("/fonts/Manrope-SemiBold.woff") format("woff");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "OutfitSemibold";
+  src: url("/fonts/Manrope-SemiBold.woff") format("woff");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "OutfitBold";
+  src: url("/fonts/Manrope-Bold.woff") format("woff");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
 @font-face {
   font-family: "OutfitExtraBold";
-  src: url("/fonts/Outfit-ExtraBold.woff2") format("woff2");
+  src: url("/fonts/Manrope-ExtraBold.woff") format("woff");
   font-weight: 800;
   font-style: normal;
   font-display: swap;

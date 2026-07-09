@@ -30,23 +30,17 @@ export default function MyDocument({ emotionStyleTags }: MyDocumentProps) {
         {/* Google Fonts — preconnect + link (non-blocking, replaces CSS @import) */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        {/* Display + mono fonts (Manrope is self-hosted — see globals.css) */}
         <link
           rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-        />
-        {/* Auth-suite display / body / mono fonts (bold "Floating Glass Bento" theme) */}
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;600;700;800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap"
         />
 
-        {/* Preload critical fonts used on landing page for instant rendering */}
-        <link rel="preload" href="/fonts/Outfit-Regular.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
-        <link rel="preload" href="/fonts/Outfit-Medium.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
-        <link rel="preload" href="/fonts/Outfit-SemiBold.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
-        <link rel="preload" href="/fonts/Urbanist-Medium.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
-        <link rel="preload" href="/fonts/Urbanist-SemiBold.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
-        <link rel="preload" href="/fonts/Urbanist-Bold.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+        {/* Preload critical self-hosted Manrope weights for instant rendering */}
+        <link rel="preload" href="/fonts/Manrope-Regular.woff" as="font" type="font/woff" crossOrigin="anonymous" />
+        <link rel="preload" href="/fonts/Manrope-Medium.woff" as="font" type="font/woff" crossOrigin="anonymous" />
+        <link rel="preload" href="/fonts/Manrope-SemiBold.woff" as="font" type="font/woff" crossOrigin="anonymous" />
+        <link rel="preload" href="/fonts/Manrope-Bold.woff" as="font" type="font/woff" crossOrigin="anonymous" />
 
         {/* Google Identity Services for client-side OAuth (bypasses NextAuth /api/auth/* K8s conflict) */}
         <script src="https://accounts.google.com/gsi/client" async defer></script>

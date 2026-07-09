@@ -313,7 +313,7 @@ const PaymentDemo = () => {
                         <Typography fontWeight={700} fontSize={9} color={theme.palette.text.secondary} letterSpacing={0.8} textTransform='uppercase'>
                           {t('checkout.invoice')}
                         </Typography>
-                        <Typography fontWeight={500} fontSize={12} color={theme.palette.text.primary} sx={{ fontFamily: "'Urbanist', monospace" }}>
+                        <Typography fontWeight={500} fontSize={12} color={theme.palette.text.primary} sx={{ fontFamily: "'JetBrains Mono', monospace" }}>
                           {MOCK_DATA.orderReference}
                         </Typography>
                       </Box>
@@ -556,7 +556,7 @@ const PaymentDemo = () => {
                       </Typography>
                       <Tooltip title={selectedCoin.address} arrow>
                         <Typography
-                          fontFamily="'Urbanist', monospace"
+                          fontFamily="'JetBrains Mono', monospace"
                           fontSize={13}
                           fontWeight={600}
                           color={theme.palette.text.primary}
@@ -697,7 +697,7 @@ const PaymentDemo = () => {
                     </Box>
                     <Box display='flex' justifyContent='space-between' mb={0.75}>
                       <Typography fontSize={12} color={theme.palette.text.secondary}>Invoice</Typography>
-                      <Typography fontSize={12} fontWeight={600} color={theme.palette.text.primary} fontFamily="'Urbanist', monospace">{MOCK_DATA.orderReference}</Typography>
+                      <Typography fontSize={12} fontWeight={600} color={theme.palette.text.primary} fontFamily="'JetBrains Mono', monospace">{MOCK_DATA.orderReference}</Typography>
                     </Box>
                     <Box display='flex' justifyContent='space-between'>
                       <Typography fontSize={12} color={theme.palette.text.secondary}>Network</Typography>

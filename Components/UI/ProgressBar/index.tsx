@@ -107,7 +107,7 @@ export default function ProgressBar({ activeStep }: { activeStep: number }) {
                     ? (isDark ? '#fff' : '#242428')
                     : (isDark ? '#666' : '#9CA3AF'),
                   mt: '4px !important',
-                  fontFamily: "'Urbanist', sans-serif",
+                  fontFamily: "'Manrope', sans-serif",
                   letterSpacing: '0.3px',
                   transition: 'all 0.3s ease',
                 },
