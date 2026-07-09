@@ -16,7 +16,7 @@ import json
 import sys
 
 # Base URL
-BASE_URL = "https://transaction-platform-3.preview.emergentagent.com"
+BASE_URL = "https://crypto-gateway-24.preview.emergentagent.com"
 
 # JWTs
 ADMIN_JWT = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im1veHhjb21wYW55QGdtYWlsLmNvbSIsInJvbGUiOiJBRE1JTiIsImlhdCI6MTc4MzUyNDkyNywiZXhwIjoxNzg2MTE2OTI3fQ.tdFRWfspg8avsmrWFGRg5-sLeRu-ATKOng2ZEPpgY8k"
