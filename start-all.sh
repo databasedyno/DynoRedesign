@@ -21,7 +21,7 @@ BACKEND_PID=$!
 # Start Next.js frontend (port 3000)
 echo "[start-all] Starting Next.js frontend on port $FRONTEND_PORT..."
 cd /app/frontend
-PORT=$FRONTEND_PORT HOSTNAME=0.0.0.0 node server.js &
+PORT=$FRONTEND_PORT HOSTNAME=0.0.0.0 NODE_OPTIONS="--no-warnings --max-old-space-size=1536" node server.js &
 FRONTEND_PID=$!
 
 # Wait for backend and frontend to be ready

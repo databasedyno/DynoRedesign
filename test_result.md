@@ -1,4 +1,9 @@
 ## 2026-07-09 SESSION 10 — Fresh container re-provisioned ✅ (setup only, no code changes)
+### Addendum 2 (user correction: prod is DIGITALOCEAN, not Railway) — inspected via user's DO API token
+- DO App Platform app "dynopay" (id f86b27dc-…), service "dynoredesign", repo databasedyno/DynoRedesign branch New-Onboarding2, autodeploy; single container from repo-root /Dockerfile → start-all.sh runs nginx(:8001) + backend(:3300) + Next STANDALONE server(:3000). Prod ALREADY ran `node server.js` (standalone) — so `output: "standalone"` must stay.
+- Changes applied for prod: (1) /app/start-all.sh frontend start line → NODE_OPTIONS="--no-warnings --max-old-space-size=1536" (deploys on next Save-to-GitHub push); (2) instance upgraded apps-s-1vcpu-1gb → apps-s-1vcpu-2gb (×2) via DO API spec PUT (user chose option c; cost $24→$50/mo) — deployment f4e35db6 ACTIVE, dynopay.com / + /health = 200.
+- Flagged: 2 instances both WORKER_ROLE=primary + ENABLE_BACKGROUND_JOBS=true → background jobs run twice in parallel.
+
 ### Addendum (user request): frontend switched to standalone server + heap cap
 - User asked: (a) remove `output: 'standalone'` OR run `node .next/standalone/server.js`; (b) NODE_OPTIONS=--max-old-space-size=1536 for frontend.
 - Chose option (b)-style switch: `output: "standalone"` KEPT in next.config.mjs because Dockerfile.frontend (Railway prod) copies .next/standalone and runs `node server.js` — removing it would break prod builds.
