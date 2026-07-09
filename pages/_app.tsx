@@ -2,6 +2,12 @@ import "@/styles/globals.css";
 import "nprogress/nprogress.css";
 import "../i18n";
 
+// Geist Sans + Mono — Vercel's OSS typeface. Loaded via next/font/local for
+// zero-CLS, no external network dependency, and automatic CSS-variable exposure.
+// Replaces the legacy Manrope + Unbounded + JetBrains Mono stack.
+import { GeistSans } from "geist/font/sans";
+import { GeistMono } from "geist/font/mono";
+
 import type { NextPage } from "next";
 import NextApp, { type AppProps, type AppContext } from "next/app";
 import { useRouter } from "next/router";
@@ -401,6 +407,14 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
     <MuiThemeProvider theme={activeTheme}>
       <CssBaseline />
       <Head>
+        {/* ─── Font CSS variables (Geist Sans + Geist Mono, self-hosted via next/font) ─── */}
+        <style>{`
+          :root {
+            --font-sans: ${GeistSans.style.fontFamily}, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --font-mono: ${GeistMono.style.fontFamily}, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            --font-display: ${GeistSans.style.fontFamily}, -apple-system, sans-serif;
+          }
+        `}</style>
         <title>{pageTitle}</title>
         <meta name="description" content={metaDescription} />
 

@@ -11,8 +11,8 @@ import { Theme, alpha } from "@mui/material";
 
 export const HOME_LIME = "#CCFF00";
 
-/** Display font for big headings (loaded in _document.tsx). */
-export const DISPLAY_FONT = "'Unbounded', 'OutfitMedium', system-ui, sans-serif";
+/** Display font for big headings (Geist Sans via next/font, exposed as --font-sans). */
+export const DISPLAY_FONT = "var(--font-sans), 'Unbounded', 'OutfitMedium', system-ui, sans-serif";
 
 export interface BentoTokens {
   isDark: boolean;

@@ -100,7 +100,7 @@ const HeroClean: React.FC = () => {
         component={motion.h1}
         variants={heroItem}
         sx={{
-          fontFamily: "'Unbounded', 'OutfitMedium', system-ui, sans-serif",
+          fontFamily: "var(--font-sans), system-ui, sans-serif",
           fontWeight: 600,
           color: theme.palette.text.primary,
           fontSize: { xs: 38, sm: 50, md: 66 },
@@ -118,7 +118,7 @@ const HeroClean: React.FC = () => {
         component={motion.p}
         variants={heroItem}
         sx={{
-          fontFamily: 'OutfitRegular',
+          fontFamily: 'var(--font-sans)',
           fontSize: { xs: 16, md: 19 },
           lineHeight: 1.55,
           color: theme.palette.text.secondary,
@@ -150,7 +150,7 @@ const HeroClean: React.FC = () => {
             bgcolor: theme.palette.primary.main,
             color: theme.palette.primary.contrastText,
             textTransform: 'none',
-            fontFamily: 'OutfitMedium',
+            fontFamily: 'var(--font-sans)',
             fontWeight: 600,
             fontSize: { xs: 15, md: 16 },
             px: { xs: 3, md: 3.5 },
@@ -175,7 +175,7 @@ const HeroClean: React.FC = () => {
           sx={{
             color: theme.palette.text.primary,
             textTransform: 'none',
-            fontFamily: 'OutfitMedium',
+            fontFamily: 'var(--font-sans)',
             fontWeight: 500,
             fontSize: { xs: 15, md: 16 },
             px: 1.5,
@@ -193,7 +193,7 @@ const HeroClean: React.FC = () => {
         sx={{
           fontSize: 14,
           color: theme.palette.text.secondary,
-          fontFamily: 'OutfitRegular',
+          fontFamily: 'var(--font-sans)',
           opacity: 0.85,
         }}
       >

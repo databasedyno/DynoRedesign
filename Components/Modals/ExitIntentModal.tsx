@@ -142,7 +142,7 @@ const ExitIntentModal: React.FC = () => {
             id="exit-intent-title"
             component="h3"
             sx={{
-              fontFamily: 'OutfitBold',
+              fontFamily: 'var(--font-sans)',
               fontSize: { xs: 22, md: 26 },
               lineHeight: 1.18,
               color: theme.palette.text.primary,

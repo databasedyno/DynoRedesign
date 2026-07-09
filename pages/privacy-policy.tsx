@@ -27,7 +27,7 @@ const PrivacyPolicy = () => {
           color: "text.primary",
           fontWeight: isMobile ? 600 : 500,
           textAlign: "center",
-          fontFamily: "OutfitMedium",
+          fontFamily: "var(--font-sans)",
           lineHeight: "60px",
           letterSpacing: 0,
           mb: "15px",
@@ -50,7 +50,7 @@ const PrivacyPolicy = () => {
             fontSize: "18px",
             color: "text.secondary",
             fontWeight: 400,
-            fontFamily: "OutfitRegular",
+            fontFamily: "var(--font-sans)",
             lineHeight: "28px",
             letterSpacing: 0,
           }}
@@ -71,7 +71,7 @@ const PrivacyPolicy = () => {
                   fontSize: "18px",
                   color: "text.secondary",
                   fontWeight: 600,
-                  fontFamily: "OutfitBold",
+                  fontFamily: "var(--font-sans)",
                   lineHeight: "28px",
                   letterSpacing: 0,
                 }}
@@ -84,7 +84,7 @@ const PrivacyPolicy = () => {
                   fontSize: "18px",
                   color: "text.secondary",
                   fontWeight: 400,
-                  fontFamily: "OutfitRegular",
+                  fontFamily: "var(--font-sans)",
                   lineHeight: "28px",
                   letterSpacing: 0,
                 }}
@@ -104,7 +104,7 @@ const PrivacyPolicy = () => {
                           fontSize: "18px",
                           color: "text.secondary",
                           fontWeight: 400,
-                          fontFamily: "OutfitRegular",
+                          fontFamily: "var(--font-sans)",
                           lineHeight: "28px",
                           letterSpacing: 0,
                         }}
@@ -118,7 +118,7 @@ const PrivacyPolicy = () => {
                           fontSize: "18px",
                           color: "text.secondary",
                           fontWeight: 400,
-                          fontFamily: "OutfitRegular",
+                          fontFamily: "var(--font-sans)",
                           lineHeight: "28px",
                           letterSpacing: 0,
                         }}
@@ -140,7 +140,7 @@ const PrivacyPolicy = () => {
                         fontSize: "18px",
                         color: "text.secondary",
                         fontWeight: 400,
-                        fontFamily: "OutfitRegular",
+                        fontFamily: "var(--font-sans)",
                         lineHeight: "28px",
                         letterSpacing: 0,
                       }}
@@ -155,7 +155,7 @@ const PrivacyPolicy = () => {
                   fontSize: "18px",
                   color: "text.secondary",
                   fontWeight: 400,
-                  fontFamily: "OutfitRegular",
+                  fontFamily: "var(--font-sans)",
                   lineHeight: "28px",
                   letterSpacing: 0,
                 }}

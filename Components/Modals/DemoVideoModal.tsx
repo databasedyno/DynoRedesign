@@ -171,7 +171,7 @@ const DemoVideoModal: React.FC<DemoVideoModalProps> = ({ open, onClose }) => {
               alignItems: 'center',
               justifyContent: 'center',
               color: '#fff',
-              fontFamily: 'OutfitBold',
+              fontFamily: 'var(--font-sans)',
               fontSize: { xs: 56, md: 72 },
               animation: 'dyno-demo-pop 0.5s ease-out',
               '@keyframes dyno-demo-pop': {
@@ -192,7 +192,7 @@ const DemoVideoModal: React.FC<DemoVideoModalProps> = ({ open, onClose }) => {
               left: 24,
               right: 24,
               color: '#fff',
-              fontFamily: 'OutfitBold',
+              fontFamily: 'var(--font-sans)',
               fontSize: { xs: 22, md: 28 },
               lineHeight: 1.2,
               textShadow: '0 2px 12px rgba(0,0,0,0.3)',

@@ -65,7 +65,7 @@ export const GoLiveCount = styled(Typography)(({ theme }) => ({
   fontWeight: 500,
   lineHeight: "48px",
   letterSpacing: 0,
-  fontFamily: "OutfitMedium",
+  fontFamily: "var(--font-sans)",
   color: theme.palette.primary.main,
   opacity: 0.2,
 }));
@@ -75,7 +75,7 @@ export const FeatureTitle = styled(Typography)(({ theme }) => ({
   fontWeight: 500,
   lineHeight: "28px",
   letterSpacing: 0,
-  fontFamily: "OutfitMedium",
+  fontFamily: "var(--font-sans)",
   color: theme.palette.text.primary,
 }));
 
@@ -84,7 +84,7 @@ export const GoLiveDescription = styled(Typography)(({ theme }) => ({
   fontWeight: 400,
   lineHeight: "20px",
   letterSpacing: 0,
-  fontFamily: "OutfitRegular",
+  fontFamily: "var(--font-sans)",
   color: theme.palette.text.secondary,
 }));
 
@@ -135,7 +135,7 @@ export const WhyChooseDynoPayTitle = styled(Typography)(({ theme }) => ({
   fontStyle: "semibold",
   letterSpacing: 0,
   textAlign: "center",
-  fontFamily: "OutfitMedium",
+  fontFamily: "var(--font-sans)",
   color: theme.palette.text.primary,
 }));
 
@@ -145,7 +145,7 @@ export const WhyChooseDynoPayDescription = styled(Typography)(({ theme }) => ({
   lineHeight: "20px",
   letterSpacing: 0,
   textAlign: "center",
-  fontFamily: "OutfitRegular",
+  fontFamily: "var(--font-sans)",
   color: theme.palette.text.secondary,
 }));
 
@@ -189,7 +189,7 @@ export const HeaderTitle = styled(Typography)(({ theme }) => ({
   fontWeight: 500,
   lineHeight: 1.2,
   letterSpacing: "-0.02em",
-  fontFamily: "OutfitMedium",
+  fontFamily: "var(--font-sans)",
   color: theme.palette.text.primary,
   [theme.breakpoints.down("md")]: {
     fontSize: "15px",
@@ -225,7 +225,7 @@ export const HeaderSubTitle = styled(Typography)(({ theme }) => ({
   lineHeight: 1.2,
   letterSpacing: "-0.02em",
   color: theme.palette.text.secondary,
-  fontFamily: "OutfitRegular",
+  fontFamily: "var(--font-sans)",
 }));
 
 export const SuccessChip = styled(Box)(({ theme }) => ({
@@ -251,7 +251,7 @@ export const TypographyTitle = styled(Typography)(({ theme }) => ({
 
 export const TypographyDescription = styled(Typography)(({ theme }) => ({
   fontSize: "14px",
-  fontFamily: "OutfitRegular",
+  fontFamily: "var(--font-sans)",
   fontWeight: 400,
   lineHeight: "20px",
   letterSpacing: 0,
@@ -260,7 +260,7 @@ export const TypographyDescription = styled(Typography)(({ theme }) => ({
 
 export const TypographyTime = styled(Typography)(({ theme }) => ({
   fontSize: "12px",
-  fontFamily: "OutfitRegular",
+  fontFamily: "var(--font-sans)",
   fontWeight: 400,
   lineHeight: "16px",
   letterSpacing: 0,

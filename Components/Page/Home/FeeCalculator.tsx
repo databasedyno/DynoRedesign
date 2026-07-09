@@ -119,7 +119,7 @@ const FeeCalculator: React.FC = () => {
         <Typography
           component="h2"
           sx={{
-            fontFamily: "'Unbounded', 'OutfitBold', system-ui, sans-serif",
+            fontFamily: "var(--font-sans), system-ui, sans-serif",
             fontSize: { xs: 28, sm: 34, md: 42 },
             lineHeight: 1.15,
             color: theme.palette.text.primary,
@@ -183,7 +183,7 @@ const FeeCalculator: React.FC = () => {
           <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1, mb: 2 }}>
             <Typography
               sx={{
-                fontFamily: 'OutfitBold',
+                fontFamily: 'var(--font-sans)',
                 fontSize: { xs: 40, md: 52 },
                 color: theme.palette.text.primary,
                 fontVariantNumeric: 'tabular-nums',
@@ -335,7 +335,7 @@ const FeeCalculator: React.FC = () => {
               </Typography>
             </Box>
             <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1.2, flexWrap: 'wrap' }}>
-              <Typography sx={{ fontFamily: 'OutfitBold', fontSize: { xs: 32, md: 40 }, lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>
+              <Typography sx={{ fontFamily: 'var(--font-sans)', fontSize: { xs: 32, md: 40 }, lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>
                 {formatUSD(monthlySavings)}
               </Typography>
               <Typography sx={{ fontFamily: 'UrbanistMedium', fontSize: 14, opacity: 0.85 }}>
@@ -412,7 +412,7 @@ const CostBar: React.FC<{
         </Box>
         <Typography
           sx={{
-            fontFamily: 'OutfitBold',
+            fontFamily: 'var(--font-sans)',
             fontSize: 18,
             color: (t) => t.palette.text.primary,
             fontVariantNumeric: 'tabular-nums',

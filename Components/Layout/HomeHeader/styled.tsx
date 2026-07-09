@@ -79,7 +79,7 @@ export const NavLinks = styled("nav")(({ theme }) => ({
   display: "flex",
   gap: 32,
   letterSpacing: "0px",
-  fontFamily: "OutfitRegular",
+  fontFamily: "var(--font-sans)",
   alignItems: "center",
   justifyContent: "space-between",
 
@@ -93,7 +93,7 @@ export const NavLinks = styled("nav")(({ theme }) => ({
     fontWeight: 400,
     lineHeight: "22px",
     letterSpacing: "0px",
-    fontFamily: "OutfitMedium",
+    fontFamily: "var(--font-sans)",
     color: theme.palette.text.secondary,
     padding: "6px 4px",
 
@@ -115,7 +115,7 @@ export const Actions = styled(Box)(({ theme }) => ({
     fontWeight: 500,
     color: theme.palette.text.primary,
     lineHeight: "22px",
-    fontFamily: "OutfitMedium",
+    fontFamily: "var(--font-sans)",
     whiteSpace: "nowrap",
 
     "&:hover": {
@@ -208,7 +208,7 @@ export const MobileNavItem = styled(Typography)(({ theme }) => ({
   fontSize: "15.88px",
   fontWeight: 400,
   lineHeight: "22.68px",
-  fontFamily: "OutfitRegular",
+  fontFamily: "var(--font-sans)",
   color: theme.palette.text.secondary,
   cursor: "pointer",
   transition: "color 0.2s ease",
@@ -228,7 +228,7 @@ export const StyledSignInButton = styled(Button)(({ theme }) => ({
   fontSize: "15px",
   fontWeight: 500,
   lineHeight: "22px",
-  fontFamily: "OutfitMedium",
+  fontFamily: "var(--font-sans)",
   color: theme.palette.text.primary,
   whiteSpace: "nowrap",
   padding: "6px 4px",

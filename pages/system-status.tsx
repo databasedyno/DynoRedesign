@@ -247,7 +247,7 @@ const StatusPage = () => {
             fontWeight: 700,
             fontSize: "30px",
             lineHeight: "36px",
-            fontFamily: "OutfitBold",
+            fontFamily: "var(--font-sans)",
             color: "text.primary",
             letterSpacing: 0,
           }}
@@ -261,7 +261,7 @@ const StatusPage = () => {
             fontSize: "16px",
             lineHeight: "24px",
             letterSpacing: 0,
-            fontFamily: "OutfitRegular",
+            fontFamily: "var(--font-sans)",
             color: "text.secondary",
           }}
         >
@@ -347,7 +347,7 @@ const StatusPage = () => {
                     />
                     <Typography
                       sx={{
-                        fontFamily: "OutfitRegular",
+                        fontFamily: "var(--font-sans)",
                         lineHeight: "24px",
                         letterSpacing: 0,
                         color: "text.primary",
@@ -382,7 +382,7 @@ const StatusPage = () => {
                         fontSize: "14px",
                         lineHeight: "20px",
                         letterSpacing: 0,
-                        fontFamily: "OutfitRegular",
+                        fontFamily: "var(--font-sans)",
                         color: getStatusColor(service.status),
                         textTransform: "capitalize",
                       }}
@@ -417,7 +417,7 @@ const StatusPage = () => {
             <Typography
               sx={{
                 fontSize: "14px",
-                fontFamily: "OutfitMedium",
+                fontFamily: "var(--font-sans)",
                 color: getStatusColor("operational"),
               }}
             >
@@ -528,7 +528,7 @@ const StatusPage = () => {
               <Box sx={{ display: "flex", justifyContent: "space-between" }}>
                 <Typography
                   sx={{
-                    fontFamily: "OutfitMedium",
+                    fontFamily: "var(--font-sans)",
                     fontWeight: 500,
                     lineHeight: "24px",
                     letterSpacing: 0,
@@ -558,7 +558,7 @@ const StatusPage = () => {
                         <Typography
                           sx={{
                             fontSize: "11px",
-                            fontFamily: "OutfitRegular",
+                            fontFamily: "var(--font-sans)",
                             color: "text.secondary",
                             textTransform: "capitalize",
                           }}
@@ -584,7 +584,7 @@ const StatusPage = () => {
                 <Typography
                   sx={{
                     fontSize: "12px",
-                    fontFamily: "OutfitRegular",
+                    fontFamily: "var(--font-sans)",
                     fontWeight: 400,
                     lineHeight: "16px",
                     letterSpacing: 0,

@@ -115,7 +115,7 @@ const SocialProofSection: FC = () => {
             <Typography
               sx={{
                 fontSize: isMobile ? "13px" : "14px",
-                fontFamily: "OutfitMedium",
+                fontFamily: "var(--font-sans)",
                 color: theme.palette.text.secondary,
                 lineHeight: 1.2,
               }}
@@ -154,7 +154,7 @@ const SocialProofSection: FC = () => {
             <Typography
               sx={{
                 fontSize: "13px",
-                fontFamily: "OutfitMedium",
+                fontFamily: "var(--font-sans)",
                 color: theme.palette.text.secondary,
                 whiteSpace: "nowrap",
               }}

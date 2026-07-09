@@ -35,14 +35,14 @@ const TitleText = styled(Typography)(({ theme }) => ({
   fontSize: "36px",
   lineHeight: "40px",
   fontWeight: 500,
-  fontFamily: "OutfitMedium",
+  fontFamily: "var(--font-sans)",
   color: theme.palette.text.primary,
 }));
 
 const SubText = styled(Typography)(({ theme }) => ({
   fontSize: "18px",
   fontWeight: 400,
-  fontFamily: "OutfitRegular",
+  fontFamily: "var(--font-sans)",
   color: theme.palette.text.secondary,
   lineHeight: "28px",
   letterSpacing: "0",

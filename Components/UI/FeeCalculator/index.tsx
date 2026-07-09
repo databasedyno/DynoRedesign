@@ -142,14 +142,14 @@ const ResultRow = styled(Box)(({ theme }) => ({
 const ResultLabel = styled(Typography)(({ theme }) => ({
   fontSize: "14px",
   fontWeight: 400,
-  fontFamily: "OutfitRegular",
+  fontFamily: "var(--font-sans)",
   color: theme.palette.text.secondary,
 }));
 
 const ResultValue = styled(Typography)(({ theme }) => ({
   fontSize: "14px",
   fontWeight: 500,
-  fontFamily: "OutfitMedium",
+  fontFamily: "var(--font-sans)",
   color: theme.palette.text.primary,
 }));
 
@@ -174,7 +174,7 @@ const SummaryRow = styled(Box)(({ theme }) => ({
 const SummaryLabel = styled(Typography)(({ theme }) => ({
   fontSize: "16px",
   fontWeight: 500,
-  fontFamily: "OutfitMedium",
+  fontFamily: "var(--font-sans)",
   color: theme.palette.text.secondary,
 }));
 
@@ -191,7 +191,7 @@ const SummaryValue = styled(Typography)(({ theme }) => {
 const NetworkNote = styled(Typography)(({ theme }) => ({
   fontSize: "12px",
   fontWeight: 400,
-  fontFamily: "OutfitRegular",
+  fontFamily: "var(--font-sans)",
   color: theme.palette.text.secondary,
   marginTop: "12px",
   textAlign: "center",
@@ -199,7 +199,7 @@ const NetworkNote = styled(Typography)(({ theme }) => ({
 }));
 
 const styledSelect = {
-  fontFamily: "OutfitRegular",
+  fontFamily: "var(--font-sans)",
   fontSize: "14px",
   borderRadius: "12px",
   "& .MuiOutlinedInput-notchedOutline": {
@@ -208,14 +208,14 @@ const styledSelect = {
 };
 
 const styledInput = {
-  fontFamily: "OutfitRegular",
+  fontFamily: "var(--font-sans)",
   fontSize: "14px",
   "& .MuiOutlinedInput-root": {
     borderRadius: "12px",
-    fontFamily: "OutfitMedium",
+    fontFamily: "var(--font-sans)",
   },
   "& .MuiInputLabel-root": {
-    fontFamily: "OutfitRegular",
+    fontFamily: "var(--font-sans)",
   },
 };
 
@@ -341,7 +341,7 @@ const FeeCalculator: React.FC<FeeCalculatorProps> = ({ compact = false }) => {
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
-                <Typography sx={{ fontFamily: "OutfitMedium", color: isDark ? "#CCFF00" : "#0A0A0A" }}>
+                <Typography sx={{ fontFamily: "var(--font-sans)", color: isDark ? "#CCFF00" : "#0A0A0A" }}>
                   {symbol}
                 </Typography>
               </InputAdornment>
@@ -350,7 +350,7 @@ const FeeCalculator: React.FC<FeeCalculatorProps> = ({ compact = false }) => {
         />
 
         <FormControl fullWidth>
-          <InputLabel sx={{ fontFamily: "OutfitRegular" }}>{t("inputCurrency")}</InputLabel>
+          <InputLabel sx={{ fontFamily: "var(--font-sans)" }}>{t("inputCurrency")}</InputLabel>
           <Select
             value={currency}
             onChange={handleCurrencyChange}
@@ -358,7 +358,7 @@ const FeeCalculator: React.FC<FeeCalculatorProps> = ({ compact = false }) => {
             sx={styledSelect}
           >
             {FIAT_CURRENCIES.map((c) => (
-              <MenuItem key={c} value={c} sx={{ fontFamily: "OutfitRegular" }}>
+              <MenuItem key={c} value={c} sx={{ fontFamily: "var(--font-sans)" }}>
                 {c}
               </MenuItem>
             ))}
@@ -366,7 +366,7 @@ const FeeCalculator: React.FC<FeeCalculatorProps> = ({ compact = false }) => {
         </FormControl>
 
         <FormControl fullWidth>
-          <InputLabel sx={{ fontFamily: "OutfitRegular" }}>{t("inputCrypto")}</InputLabel>
+          <InputLabel sx={{ fontFamily: "var(--font-sans)" }}>{t("inputCrypto")}</InputLabel>
           <Select
             value={crypto}
             onChange={handleCryptoChange}
@@ -388,16 +388,16 @@ const FeeCalculator: React.FC<FeeCalculatorProps> = ({ compact = false }) => {
             {CRYPTO_OPTIONS.map((c) => {
               const icon = CRYPTO_ICON_MAP[c.value];
               return (
-                <MenuItem key={c.value} value={c.value} sx={{ fontFamily: "OutfitRegular" }}>
+                <MenuItem key={c.value} value={c.value} sx={{ fontFamily: "var(--font-sans)" }}>
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
                     {icon && (
                       <Image src={icon} alt={c.value} width={22} height={22} style={{ flexShrink: 0 }} />
                     )}
                     <Box>
-                      <Typography sx={{ fontSize: "14px", fontFamily: "OutfitMedium", lineHeight: 1.3 }}>
+                      <Typography sx={{ fontSize: "14px", fontFamily: "var(--font-sans)", lineHeight: 1.3 }}>
                         {c.label}
                       </Typography>
-                      <Typography sx={{ fontSize: "11px", fontFamily: "OutfitRegular", color: "text.secondary", lineHeight: 1.2 }}>
+                      <Typography sx={{ fontSize: "11px", fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.2 }}>
                         {c.network}
                       </Typography>
                     </Box>
@@ -413,7 +413,7 @@ const FeeCalculator: React.FC<FeeCalculatorProps> = ({ compact = false }) => {
       {loading ? (
         <Box sx={{ display: "flex", justifyContent: "center", py: 3 }}>
           <CircularProgress size={28} sx={{ color: isDark ? "#CCFF00" : "#0A0A0A" }} />
-          <Typography sx={{ ml: 2, fontFamily: "OutfitRegular", color: "text.secondary", fontSize: "14px" }}>
+          <Typography sx={{ ml: 2, fontFamily: "var(--font-sans)", color: "text.secondary", fontSize: "14px" }}>
             {t("calculating")}
           </Typography>
         </Box>
@@ -430,7 +430,7 @@ const FeeCalculator: React.FC<FeeCalculatorProps> = ({ compact = false }) => {
               <ResultValue>{formatAmount(result.fee_breakdown.blockchain_fee)}</ResultValue>
             </ResultRow>
             <ResultRow>
-              <ResultLabel sx={{ fontWeight: 500, fontFamily: "OutfitMedium" }}>{t("resultTotalFees")}</ResultLabel>
+              <ResultLabel sx={{ fontWeight: 500, fontFamily: "var(--font-sans)" }}>{t("resultTotalFees")}</ResultLabel>
               <ResultValue sx={{ fontWeight: 600, fontFamily: "OutfitSemiBold" }}>
                 {formatAmount(result.fee_breakdown.total_fees)}
               </ResultValue>
@@ -455,7 +455,7 @@ const FeeCalculator: React.FC<FeeCalculatorProps> = ({ compact = false }) => {
         </>
       ) : (
         <Box sx={{ textAlign: "center", py: 3 }}>
-          <Typography sx={{ fontFamily: "OutfitRegular", color: "text.secondary", fontSize: "14px" }}>
+          <Typography sx={{ fontFamily: "var(--font-sans)", color: "text.secondary", fontSize: "14px" }}>
             {error || t("enterAmount")}
           </Typography>
         </Box>

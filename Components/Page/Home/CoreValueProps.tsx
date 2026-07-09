@@ -173,7 +173,7 @@ const CoreValueProps: React.FC = () => {
             <Typography
               sx={{
                 fontSize: isMobile ? "20px" : "22px",
-                fontFamily: "OutfitMedium",
+                fontFamily: "var(--font-sans)",
                 fontWeight: 600,
                 color: theme.palette.text.primary,
                 lineHeight: 1.3,
@@ -189,7 +189,7 @@ const CoreValueProps: React.FC = () => {
             <Typography
               sx={{
                 fontSize: "14px",
-                fontFamily: "OutfitRegular",
+                fontFamily: "var(--font-sans)",
                 color: theme.palette.text.secondary,
                 lineHeight: 1.6,
                 mb: 3,
@@ -228,7 +228,7 @@ const CoreValueProps: React.FC = () => {
               <Typography
                 sx={{
                   fontSize: "12px",
-                  fontFamily: "OutfitRegular",
+                  fontFamily: "var(--font-sans)",
                   color: theme.palette.text.secondary,
                 }}
               >

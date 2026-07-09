@@ -5,6 +5,37 @@ USDT-TRC20 payment gateway platform. Users can create companies, wallets, paymen
 
 ## What's Been Implemented
 
+### 2026-07-09 — Session 9c: Fee-wallet balance bug fix + Prod-mode frontend + Geist typography refresh ✅
+Three P0/P1 tasks in this session:
+
+**1. Fee-wallet balance staleness/zero fix** (P0 — user report: "TRX fee wallet balance may not be updating properly. sometimes it says zero"):
+- Root cause in `/app/backend/controller/adminController.ts::getFeeWalletBalance` (lines 436-485):
+  1. Called `tatumApi.getAddressBalance()` WITHOUT `skipCache=true` → returned Redis-cached value (10-min TTL)
+  2. No try/catch → any Tatum error (network flap, `account.not.found`) propagated
+  3. No NaN/null guard before `adminFeeModel.update({ amount })` → the internal fallback `'0'` from tatumApi.ts:2307 (for TRX `account.not.found`) permanently overwrote `tbl_admin_fee_wallet.amount` with 0
+- Fix mirrors already-correct pattern from `paymentController.ts::checkFeeBalance` (line 1370-1415): `skipCache=true` + try/catch that keeps DB value on error + `Number.isFinite()` guard on write.
+- Verified live via `/app/backend/scripts/quick_verify_fee_wallet.js`: ETH `0.01283…` ✓ in sync, TRX `133.73` ✓ in sync. Endpoint returns 403 unauth'd = routing intact.
+
+**2. Frontend switched from `next dev` → production `next start`** (user request due to Playwright/MCP timeouts on dev-mode cold compiles):
+- `/app/frontend/package.json` `start` → `next start -p 3000 -H 0.0.0.0` (was `next dev`).
+- `/etc/supervisor/conf.d/supervisord.conf` `[program:frontend]` env → `NODE_ENV=production`, `NEXT_TELEMETRY_DISABLED=1`, `NODE_OPTIONS=--max-old-space-size=4096`.
+- `yarn build` completed (18/18 static pages, standalone output emitted); `supervisorctl reread + update + restart frontend` → RUNNING pid 609.
+- **Perf gains (external URL)**: `/auth/login` 14,590ms → **318ms** (46× faster); `/` 8,462ms → **753ms** (11× faster); internal `/auth/login` 12,437ms → **40ms** (~200× faster).
+- Note: NO impact on DigitalOcean prod which was already using `next build && node .next/standalone/server.js` in Dockerfile.
+
+**3. Geist Sans + Geist Mono typography refresh** (user: "fonts on the entire application… more clean like other major platforms and readable, especially in dark and light mode"). Design agent chose Option 1: Geist for entire app (marketing + auth + in-app).
+- Installed `geist@1.7.2` (Vercel's OSS typeface). Loaded via `next/font/local` in `/app/pages/_app.tsx` — CSS vars `--font-sans` / `--font-mono` / `--font-display` injected via `<style>` in `<Head>`.
+- `/app/next.config.mjs`: added `"geist"` to `transpilePackages` to resolve `ERR_UNSUPPORTED_DIR_IMPORT` on `next/font/local` at static-generation time (known Next.js Pages Router + geist@1.x issue).
+- `/app/styles/theme.ts`: `fontWeightRegular: 500 → 400` (the crucial "muddiness" fix); light text tokens `#242428/#676768/#ACACAC → #18181B/#71717A/#A1A1AA`; dark tokens `#E8E8EC/#A0A1A5/#606060 → #FAFAFA/#A1A1AA/#52525B` (WCAG AAA verified). Same swap applied to lightTheme + darkTheme (checkout).
+- `/app/styles/theme2.ts` + `theme.ts` + `homeTheme.ts` + `homeBento.ts`: `fontFamily: "'Manrope', sans-serif"` → `"var(--font-sans), 'Manrope', sans-serif"` (replace_all across all typography scale variants).
+- `/app/styles/globals.css`: html/body → `font-family: var(--font-sans, "Manrope"), ...`; added `font-feature-settings: "cv11", "ss01"` (Geist stylistic set: distinct 0, better a); dark body `#E8E8EC → #FAFAFA`; new helper classes `.tabular-nums`/`.amount`/`.balance`/`.mono`/`.address`/`.txid` with `font-variant-numeric: tabular-nums`; CSS custom props `--text-primary/secondary/tertiary` exposed on both `[data-theme]` roots.
+- **Bulk inline-style sweep**: 34 files under `/app/Components + /app/pages` had hard-coded `fontFamily: "OutfitMedium/OutfitBold/OutfitRegular"` and `"'Unbounded', ..., system-ui, sans-serif"` — all replaced with `"var(--font-sans), system-ui, sans-serif"` via `sed`. Also `AuthBrandPanel.tsx` FONT_DISPLAY constant + `documentation.tsx` conditional font.
+- `/app/pages/_document.tsx`: removed Google Fonts preconnect + Unbounded/JetBrains Mono `<link>` + all 4 Manrope woff preloads (Geist supersedes; legacy woffs kept in /public/fonts as pure fallback).
+- **Verified via Playwright audit**: `body { font-family: __GeistSans_8adcd2, __GeistSans_Fallback_8adcd2, ... }`, `body-weight: 400`, `h1-weight: 600`, `--font-sans: __GeistSans_8adcd2, ...` — Geist confirmed rendering across body + h1 + hero in production build.
+
+### 2026-07-09 — Session 9b: "Select All" wallet fix on Create Payment Link ⏳ CODE APPLIED, RUNTIME UNVERIFIED
+User (hostbay@moxx.co): "select all only captures 5 unless I click show all first, despite 13 wallets saved." Root cause: `selectAll` action mapped over sliced `cryptoItems` (top 5 shown in collapsed grid). Fix: `/app/Components/UI/pay-link/CryptoSelection.tsx` `selectAll` now iterates full `allCryptoItems` (15 supported) filtered by `walletNotSetUp`, and calls `setShowAllCoins(true)` to auto-expand. `/app/Components/Page/CreatePaymentLink/index.tsx` passes `allCryptoItems={ALL_CRYPTO_ITEMS}` (line 1069). Testing agent + browser automation both timed out on MCP transport (platform infra issue; user emailed support@emergent.sh). Manual verification pending.
+
 ### 2026-07-09 — Session 9: Fresh container re-provisioned ✅
 - Fresh container (no node_modules, no .env). Re-provisioned per documented procedure: `yarn install` /app + /app/backend; wrote /app/backend/.env, /app/.env, /app/frontend/.env with app URLs → https://767dbee0-dc01-41e6-80f9-1b6ec15c0432.preview.emergentagent.com, preview host first in CORS, fresh NEXTAUTH_SECRET, GitHub creds from colon-syntax (Client ID Ov23liBuaGCFqNpp2QzW), EXT_PUBLIC typo → NEXT_PUBLIC_ENABLE_GITHUB_AUTH=true. SAFETY overrides: NODE_ENV=production, WORKER_ROLE=secondary, ENABLE_BACKGROUND_JOBS=false (all cron/sweeps/webhook-worker skipped — verified in logs). Health: Railway PG + Redis + Tatum OK, internal+external /api/ /auth/login = 200, Google+GitHub SSO buttons render, bad-creds 401.
 

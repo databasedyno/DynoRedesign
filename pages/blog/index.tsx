@@ -96,7 +96,7 @@ const BlogPage = () => {
           <Typography
             sx={{
               fontSize: isMobile ? "15px" : "18px",
-              fontFamily: "OutfitMedium",
+              fontFamily: "var(--font-sans)",
               color: theme.palette.text.secondary,
               maxWidth: 600,
               mx: "auto",
@@ -161,7 +161,7 @@ const BlogPage = () => {
                     <Typography
                       sx={{
                         fontSize: "12px",
-                        fontFamily: "OutfitMedium",
+                        fontFamily: "var(--font-sans)",
                         color: theme.palette.text.secondary,
                       }}
                     >
@@ -187,7 +187,7 @@ const BlogPage = () => {
                   <Typography
                     sx={{
                       fontSize: isMobile ? "13px" : "14px",
-                      fontFamily: "OutfitMedium",
+                      fontFamily: "var(--font-sans)",
                       color: theme.palette.text.secondary,
                       lineHeight: 1.6,
                       mb: 3,
@@ -230,7 +230,7 @@ const BlogPage = () => {
                         <Typography
                           sx={{
                             fontSize: "11px",
-                            fontFamily: "OutfitMedium",
+                            fontFamily: "var(--font-sans)",
                             color: theme.palette.text.secondary,
                           }}
                         >

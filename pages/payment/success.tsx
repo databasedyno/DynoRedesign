@@ -72,7 +72,7 @@ const Success = () => {
 
         <Typography
           sx={{
-            fontFamily: "OutfitRegular",
+            fontFamily: "var(--font-sans)",
             color: "text.secondary",
             mb: 3,
             fontSize: 15,
@@ -92,7 +92,7 @@ const Success = () => {
           >
             <Typography
               sx={{
-                fontFamily: "OutfitRegular",
+                fontFamily: "var(--font-sans)",
                 fontSize: 13,
                 color: "text.secondary",
                 mb: 0.5,
@@ -102,7 +102,7 @@ const Success = () => {
             </Typography>
             <Typography
               sx={{
-                fontFamily: "OutfitMedium",
+                fontFamily: "var(--font-sans)",
                 fontSize: 14,
                 wordBreak: "break-all",
               }}
@@ -116,7 +116,7 @@ const Success = () => {
           variant="contained"
           onClick={() => router.push("/")}
           sx={{
-            fontFamily: "OutfitMedium",
+            fontFamily: "var(--font-sans)",
             textTransform: "none",
             borderRadius: 2,
             px: 4,

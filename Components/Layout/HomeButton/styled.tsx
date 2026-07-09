@@ -30,7 +30,7 @@ export const StyledHomeButton = styled(Button, {
       maxHeight: 44,
       lineHeight: "20px",
       fontWeight: 500,
-      fontFamily: "OutfitMedium",
+      fontFamily: "var(--font-sans)",
       borderRadius: 10,
       letterSpacing: 0,
       textTransform: "none" as const,

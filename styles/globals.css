@@ -16,16 +16,16 @@ html[data-theme="light"] {
    keep raw text and native form controls legible in dark mode. They use low
    specificity so intentional MUI palette colors (which nest deeper) still win. */
 html[data-theme="dark"] body {
-  color: #E8E8EC;
+  color: #FAFAFA;
 }
 html[data-theme="dark"] input,
 html[data-theme="dark"] textarea,
 html[data-theme="dark"] select {
-  color: #E8E8EC;
+  color: #FAFAFA;
 }
 html[data-theme="dark"] input::placeholder,
 html[data-theme="dark"] textarea::placeholder {
-  color: #A0A1A5;
+  color: #A1A1AA;
   opacity: 1;
 }
 /* Chrome/Safari force a white background + dark text on autofilled inputs.
@@ -35,10 +35,10 @@ html[data-theme="dark"] input:-webkit-autofill,
 html[data-theme="dark"] input:-webkit-autofill:hover,
 html[data-theme="dark"] input:-webkit-autofill:focus,
 html[data-theme="dark"] input:-webkit-autofill:active {
-  -webkit-text-fill-color: #E8E8EC !important;
+  -webkit-text-fill-color: #FAFAFA !important;
   -webkit-box-shadow: 0 0 0 1000px #141625 inset !important;
   box-shadow: 0 0 0 1000px #141625 inset !important;
-  caret-color: #E8E8EC;
+  caret-color: #FAFAFA;
   transition: background-color 9999s ease-in-out 0s;
 }
 
@@ -52,7 +52,11 @@ html,
 body {
   max-width: 100vw;
   overflow-x: hidden;
-  font-family: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  /* BUGFIX 2026-07-09: Geist Sans (via next/font, exposed as --font-sans in _app.tsx).
+     Manrope kept as fallback so any component that still references it directly
+     during hydration doesn't FOUT. */
+  font-family: var(--font-sans, "Manrope"), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-feature-settings: "cv11", "ss01";  /* Geist's stylistic tweaks: better a, distinct 0 */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
@@ -291,4 +295,51 @@ html[data-theme="dark"] .themed-icon {
 }
 html[data-theme="dark"] .themed-icon-primary {
   filter: brightness(0) saturate(100%) invert(55%) sepia(60%) saturate(3000%) hue-rotate(220deg) brightness(105%) contrast(100%);
+}
+
+/* ============================================================
+   FINANCE-SPECIFIC TYPOGRAPHY HELPERS (added 2026-07-09)
+   Ensures amounts, balances, and rates render with tabular
+   figures so digits align vertically across table rows.
+   Ensures crypto addresses / txids render in monospace with
+   readable letter-spacing.
+   ============================================================ */
+
+.tabular-nums,
+.amount,
+.balance,
+.rate,
+.kpi-value,
+.tx-amount,
+[data-tabular],
+td.numeric {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+}
+
+.mono,
+.address,
+.txid,
+.crypto-address,
+code {
+  font-family: var(--font-mono, "JetBrains Mono"), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  letter-spacing: -0.01em;  /* Geist Mono ships slightly wide by default */
+}
+
+/* De-emphasize trailing crypto decimals (opt-in via .crypto-amount .trailing) */
+.crypto-amount .trailing {
+  opacity: 0.55;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Improved dark-mode text contrast baseline (WCAG AAA on #09090B). */
+html[data-theme="dark"] {
+  --text-primary: #FAFAFA;
+  --text-secondary: #A1A1AA;
+  --text-tertiary: #52525B;
+}
+html[data-theme="light"] {
+  --text-primary: #18181B;
+  --text-secondary: #71717A;
+  --text-tertiary: #A1A1AA;
 }

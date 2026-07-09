@@ -78,7 +78,7 @@ const FAQItem: React.FC<{
         <Typography
           sx={{
             fontSize: "16px",
-            fontFamily: "OutfitMedium",
+            fontFamily: "var(--font-sans)",
             fontWeight: 500,
             color: theme.palette.text.primary,
             lineHeight: 1.4,
@@ -112,7 +112,7 @@ const FAQItem: React.FC<{
           <Typography
             sx={{
               fontSize: "14px",
-              fontFamily: "OutfitRegular",
+              fontFamily: "var(--font-sans)",
               color: theme.palette.text.secondary,
               lineHeight: 1.7,
             }}

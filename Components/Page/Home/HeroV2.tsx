@@ -195,7 +195,7 @@ const HeroV2: React.FC = () => {
           <Typography
             component="h1"
             sx={{
-              fontFamily: 'OutfitBold',
+              fontFamily: 'var(--font-sans)',
               fontSize: { xs: 36, sm: 44, md: 54, lg: 60 },
               lineHeight: 1.05,
               letterSpacing: '-1px',
@@ -498,7 +498,7 @@ const DashboardMock: React.FC<{ isDark: boolean }> = ({ isDark }) => {
             <Typography sx={{ fontFamily: 'UrbanistMedium', fontSize: 11, color: (t) => t.palette.text.disabled }}>
               {k.label}
             </Typography>
-            <Typography sx={{ fontFamily: 'OutfitBold', fontSize: 20, color: (t) => t.palette.text.primary, mt: 0.2 }}>
+            <Typography sx={{ fontFamily: 'var(--font-sans)', fontSize: 20, color: (t) => t.palette.text.primary, mt: 0.2 }}>
               {k.value}
             </Typography>
             <Typography sx={{ fontFamily: 'UrbanistSemiBold', fontSize: 11, color: k.color }}>

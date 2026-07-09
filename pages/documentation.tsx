@@ -134,7 +134,8 @@ const SidebarItem = styled(Box, {
     padding: "8px 12px",
     borderRadius: "10px",
     fontSize: "14px",
-    fontFamily: active ? "OutfitMedium" : "OutfitRegular",
+    fontFamily: "var(--font-sans)",
+    fontWeight: active ? 600 : 400,
     fontWeight: active ? 500 : 400,
     color: active ? (dk ? "#CCFF00" : "#0A0A0A") : theme.palette.text.secondary,
     background: active ? (dk ? "rgba(204,255,0,0.1)" : "#0A0A0A08") : "transparent",
@@ -227,7 +228,7 @@ const AuthBadge = styled("span", {
     padding: "3px 10px",
     borderRadius: "6px",
     fontWeight: 600,
-    fontFamily: "OutfitMedium",
+    fontFamily: "var(--font-sans)",
     whiteSpace: "nowrap" as const,
     background: isApiOnly
       ? dk ? "rgba(29,78,216,0.15)" : "#DBEAFE"
@@ -269,7 +270,7 @@ const CopyBtn = styled("button")(({ theme }) => ({
   padding: "5px 12px",
   color: "#FFFFFF",
   fontSize: "12px",
-  fontFamily: "OutfitRegular",
+  fontFamily: "var(--font-sans)",
   cursor: "pointer",
   display: "flex",
   alignItems: "center",
@@ -765,7 +766,7 @@ const ParamTable = memo(({ title, params }: { title: string; params: { name: str
           <thead>
             <tr style={{ background: headBg }}>
               {["Parameter", "Type", "Description"].map((h) => (
-                <th key={h} style={{ textAlign: "left", padding: "10px 16px", fontWeight: 500, fontFamily: "OutfitMedium", color: dk ? "#C8CAD5" : "#374151", borderBottom: `1px solid ${borderClr}`, fontSize: 12 }}>{h}</th>
+                <th key={h} style={{ textAlign: "left", padding: "10px 16px", fontWeight: 500, fontFamily: "var(--font-sans)", color: dk ? "#C8CAD5" : "#374151", borderBottom: `1px solid ${borderClr}`, fontSize: 12 }}>{h}</th>
               ))}
             </tr>
           </thead>
@@ -774,10 +775,10 @@ const ParamTable = memo(({ title, params }: { title: string; params: { name: str
               <tr key={p.name} style={{ borderBottom: i < params.length - 1 ? `1px solid ${dk ? "#1E2030" : "#F3F4F6"}` : "none" }}>
                 <td style={{ padding: "10px 16px" }}>
                   <code style={{ color: dk ? "#CCFF00" : "#0A0A0A", fontWeight: 600, fontSize: 13, fontFamily: "'JetBrains Mono', monospace" }}>{p.name}</code>
-                  {"required" in p && p.required && <span style={{ color: "#EF4444", fontSize: 11, marginLeft: 6, fontFamily: "OutfitMedium" }}>required</span>}
+                  {"required" in p && p.required && <span style={{ color: "#EF4444", fontSize: 11, marginLeft: 6, fontFamily: "var(--font-sans)" }}>required</span>}
                 </td>
                 <td style={{ padding: "10px 16px" }}><code style={{ fontSize: 12, color: dk ? "#8B8FA0" : "#6B7280" }}>{p.type}</code></td>
-                <td style={{ padding: "10px 16px", color: dk ? "#A0A3B1" : "#374151", fontFamily: "OutfitRegular", fontSize: 13 }}>{p.description}</td>
+                <td style={{ padding: "10px 16px", color: dk ? "#A0A3B1" : "#374151", fontFamily: "var(--font-sans)", fontSize: 13 }}>{p.description}</td>
               </tr>
             ))}
           </tbody>
@@ -799,7 +800,7 @@ const EndpointCard = memo(({ ep }: { ep: Endpoint }) => {
         <Typography sx={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, fontWeight: 500, color: "text.secondary", flex: 1 }}>
           {ep.path.startsWith("/api/") ? ep.path : `${BASE_URL}${ep.path}`}
         </Typography>
-        <Typography sx={{ fontSize: 14, fontWeight: 500, fontFamily: "OutfitMedium", color: "text.primary", mr: 1, display: { xs: "none", md: "block" } }}>
+        <Typography sx={{ fontSize: 14, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mr: 1, display: { xs: "none", md: "block" } }}>
           {ep.title}
         </Typography>
         <AuthBadge authType={ep.auth}>{ep.auth === "api-key" ? "API Key" : ep.auth === "api-key-optional-bearer" ? "API Key (Bearer Optional)" : "API Key + Bearer"}</AuthBadge>
@@ -807,7 +808,7 @@ const EndpointCard = memo(({ ep }: { ep: Endpoint }) => {
       </EndpointHeader>
       {expanded && (
         <Box sx={{ px: 2.5, py: 2.5, borderTop: `1px solid ${dk ? "rgba(255,255,255,0.12)" : "rgba(10,10,10,0.10)"}` }}>
-          <Typography sx={{ fontSize: 14, fontFamily: "OutfitRegular", color: "text.secondary", mb: 2.5, lineHeight: 1.7 }}>{ep.description}</Typography>
+          <Typography sx={{ fontSize: 14, fontFamily: "var(--font-sans)", color: "text.secondary", mb: 2.5, lineHeight: 1.7 }}>{ep.description}</Typography>
           <ParamTable title="Headers" params={ep.headers.map((h) => ({ name: h.name, type: "string", description: h.description || h.value }))} />
           {ep.pathParams && ep.pathParams.length > 0 && <ParamTable title="Path Parameters" params={ep.pathParams} />}
           {ep.queryParams && ep.queryParams.length > 0 && <ParamTable title="Query Parameters" params={ep.queryParams} />}
@@ -911,13 +912,13 @@ const DocumentationPage = () => {
               <Grid key={card.title} item xs={12} sm={6} md={3}>
                 <ProductCard onClick={() => scrollTo(card.section)}>
                   <ProductIcon>{card.icon}</ProductIcon>
-                  <Typography sx={{ fontSize: "16px", fontWeight: 500, fontFamily: "OutfitMedium", color: "text.primary", mb: 1 }}>
+                  <Typography sx={{ fontSize: "16px", fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1 }}>
                     {card.title}
                   </Typography>
-                  <Typography sx={{ fontSize: "13px", fontFamily: "OutfitRegular", color: "text.secondary", lineHeight: "20px", flex: 1 }}>
+                  <Typography sx={{ fontSize: "13px", fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: "20px", flex: 1 }}>
                     {card.desc}
                   </Typography>
-                  <Typography sx={{ fontSize: "13px", fontFamily: "OutfitMedium", color: dk ? "#CCFF00" : "#0A0A0A", mt: 2 }}>
+                  <Typography sx={{ fontSize: "13px", fontFamily: "var(--font-sans)", color: dk ? "#CCFF00" : "#0A0A0A", mt: 2 }}>
                     Learn more →
                   </Typography>
                 </ProductCard>
@@ -952,25 +953,25 @@ const DocumentationPage = () => {
             <Box sx={{ flex: 1, minWidth: 0 }}>
               {/* Overview */}
               <Box id="overview" sx={{ mb: 8, scrollMarginTop: "100px" }}>
-                <Typography sx={{ fontSize: { xs: 24, md: 30 }, fontWeight: 500, fontFamily: "OutfitMedium", color: "text.primary", mb: 1.5 }}>
+                <Typography sx={{ fontSize: { xs: 24, md: 30 }, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1.5 }}>
                   Overview
                 </Typography>
-                <Typography sx={{ fontSize: 15, fontFamily: "OutfitRegular", color: "text.secondary", lineHeight: 1.8, mb: 3 }}>
+                <Typography sx={{ fontSize: 15, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.8, mb: 3 }}>
                   DynoPay provides a simple API to accept cryptocurrency payments, manage customer wallets, and track transactions. Payments are instantly forwarded to your configured wallet with transparent fees. Every endpoint on this page is a <strong>merchant</strong> endpoint — authenticated with your API key.
                 </Typography>
 
-                <Typography sx={{ fontSize: 17, fontWeight: 500, fontFamily: "OutfitMedium", color: "text.primary", mb: 1 }}>
+                <Typography sx={{ fontSize: 17, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1 }}>
                   Base URL
                 </Typography>
-                <Typography sx={{ fontSize: 14, fontFamily: "OutfitRegular", color: "text.secondary", lineHeight: 1.7, mb: 1.5 }}>
+                <Typography sx={{ fontSize: 14, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.7, mb: 1.5 }}>
                   All merchant endpoints are relative to the base URL below. A path shown as <code>/createPayment</code> is called at <code>https://dynopay.com/api/user/createPayment</code>.
                 </Typography>
                 <CodeBlock lang="bash" code={`https://dynopay.com/api/user`} />
 
-                <Typography sx={{ fontSize: 17, fontWeight: 500, fontFamily: "OutfitMedium", color: "text.primary", mb: 1, mt: 3 }}>
+                <Typography sx={{ fontSize: 17, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1, mt: 3 }}>
                   When to use each section
                 </Typography>
-                <Box component="ul" sx={{ pl: 2.5, m: 0, mb: 3, "& li": { fontSize: 14, fontFamily: "OutfitRegular", color: "text.secondary", lineHeight: 1.9 } }}>
+                <Box component="ul" sx={{ pl: 2.5, m: 0, mb: 3, "& li": { fontSize: 14, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.9 } }}>
                   <li><strong>Customers</strong> — optional. Create a customer to track payments and balances per buyer. Skip it for one-off "userless" checkouts.</li>
                   <li><strong>Payments</strong> — the core of the API. Create a hosted checkout or a direct crypto payment and the buyer pays in crypto.</li>
                   <li><strong>Wallets</strong> — top up, debit, and check a customer's wallet balance.</li>
@@ -980,7 +981,7 @@ const DocumentationPage = () => {
                   <li><strong>Webhooks</strong> — get notified the moment a payment's status changes.</li>
                 </Box>
 
-                <Typography sx={{ fontSize: 17, fontWeight: 500, fontFamily: "OutfitMedium", color: "text.primary", mb: 1.5, mt: 3 }}>
+                <Typography sx={{ fontSize: 17, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1.5, mt: 3 }}>
                   A typical payment, end to end
                 </Typography>
                 <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5, mb: 3 }}>
@@ -993,16 +994,16 @@ const DocumentationPage = () => {
                     <StepCard key={s.step}>
                       <StepNumber>{s.step}</StepNumber>
                       <Box>
-                        <Typography sx={{ fontWeight: 500, fontFamily: "OutfitMedium", fontSize: 15, color: "text.primary", mb: 0.3 }}>{s.title}</Typography>
-                        <Typography sx={{ fontSize: 14, fontFamily: "OutfitRegular", color: "text.secondary", lineHeight: 1.6 }}>{s.desc}</Typography>
+                        <Typography sx={{ fontWeight: 500, fontFamily: "var(--font-sans)", fontSize: 15, color: "text.primary", mb: 0.3 }}>{s.title}</Typography>
+                        <Typography sx={{ fontSize: 14, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.6 }}>{s.desc}</Typography>
                       </Box>
                     </StepCard>
                   ))}
                 </Box>
 
                 <InfoBox>
-                  <Typography sx={{ fontSize: 14, fontFamily: "OutfitMedium", color: "text.primary", mb: 1 }}>Quick Integration</Typography>
-                  <Typography sx={{ fontSize: 13, fontFamily: "OutfitRegular", color: "text.secondary", lineHeight: 1.7 }}>
+                  <Typography sx={{ fontSize: 14, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1 }}>Quick Integration</Typography>
+                  <Typography sx={{ fontSize: 13, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.7 }}>
                     Most integrations only need two API calls: <strong>Create Customer</strong> → <strong>Create Payment</strong>. The customer pays in crypto, and funds are forwarded instantly to your wallet.
                   </Typography>
                 </InfoBox>
@@ -1010,10 +1011,10 @@ const DocumentationPage = () => {
 
               {/* Getting Started */}
               <Box id="getting-started" sx={{ mb: 8, scrollMarginTop: "100px" }}>
-                <Typography sx={{ fontSize: { xs: 24, md: 30 }, fontWeight: 500, fontFamily: "OutfitMedium", color: "text.primary", mb: 1.5 }}>
+                <Typography sx={{ fontSize: { xs: 24, md: 30 }, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1.5 }}>
                   Getting Started
                 </Typography>
-                <Typography sx={{ fontSize: 15, fontFamily: "OutfitRegular", color: "text.secondary", lineHeight: 1.8, mb: 3 }}>
+                <Typography sx={{ fontSize: 15, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.8, mb: 3 }}>
                   Integrate DynoPay in just two steps — no customer creation needed:
                 </Typography>
                 <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mb: 4 }}>
@@ -1024,8 +1025,8 @@ const DocumentationPage = () => {
                     <StepCard key={s.step}>
                       <StepNumber>{s.step}</StepNumber>
                       <Box>
-                        <Typography sx={{ fontWeight: 500, fontFamily: "OutfitMedium", fontSize: 15, color: "text.primary", mb: 0.3 }}>{s.title}</Typography>
-                        <Typography sx={{ fontSize: 14, fontFamily: "OutfitRegular", color: "text.secondary", lineHeight: 1.6 }}>{s.desc}</Typography>
+                        <Typography sx={{ fontWeight: 500, fontFamily: "var(--font-sans)", fontSize: 15, color: "text.primary", mb: 0.3 }}>{s.title}</Typography>
+                        <Typography sx={{ fontSize: 14, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.6 }}>{s.desc}</Typography>
                       </Box>
                     </StepCard>
                   ))}
@@ -1055,17 +1056,17 @@ curl -X POST https://dynopay.com/api/user/createUser \\
 
               {/* Authentication */}
               <Box id="authentication" sx={{ mb: 8, scrollMarginTop: "100px" }}>
-                <Typography sx={{ fontSize: { xs: 24, md: 30 }, fontWeight: 500, fontFamily: "OutfitMedium", color: "text.primary", mb: 1.5 }}>
+                <Typography sx={{ fontSize: { xs: 24, md: 30 }, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1.5 }}>
                   Authentication
                 </Typography>
-                <Typography sx={{ fontSize: 15, fontFamily: "OutfitRegular", color: "text.secondary", lineHeight: 1.8, mb: 3 }}>
+                <Typography sx={{ fontSize: 15, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.8, mb: 3 }}>
                   DynoPay uses three levels of authentication depending on the endpoint:
                 </Typography>
                 <Grid container spacing={2.5} sx={{ mb: 3 }}>
                   <Grid item xs={12} md={4}>
                     <AuthCard variant="blue">
-                      <Typography sx={{ fontWeight: 500, fontFamily: "OutfitMedium", fontSize: 15, color: "#60A5FA", mb: 1 }}>API Key Only</Typography>
-                      <Typography sx={{ fontSize: 13, fontFamily: "OutfitRegular", color: "text.secondary", lineHeight: 1.7, mb: 2 }}>
+                      <Typography sx={{ fontWeight: 500, fontFamily: "var(--font-sans)", fontSize: 15, color: "#60A5FA", mb: 1 }}>API Key Only</Typography>
+                      <Typography sx={{ fontSize: 13, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.7, mb: 2 }}>
                         Used for creating customers and listing supported currencies. Only requires the <code style={{ background: dk ? "#1E2030" : "#E5E7EB", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>x-api-key</code> header.
                       </Typography>
                       <CodeBlock code="x-api-key: your_api_key" />
@@ -1073,8 +1074,8 @@ curl -X POST https://dynopay.com/api/user/createUser \\
                   </Grid>
                   <Grid item xs={12} md={4}>
                     <AuthCard variant="green">
-                      <Typography sx={{ fontWeight: 500, fontFamily: "OutfitMedium", fontSize: 15, color: "#10B981", mb: 1 }}>API Key (Bearer Optional)</Typography>
-                      <Typography sx={{ fontSize: 13, fontFamily: "OutfitRegular", color: "text.secondary", lineHeight: 1.7, mb: 2 }}>
+                      <Typography sx={{ fontWeight: 500, fontFamily: "var(--font-sans)", fontSize: 15, color: "#10B981", mb: 1 }}>API Key (Bearer Optional)</Typography>
+                      <Typography sx={{ fontSize: 13, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.7, mb: 2 }}>
                         For payments and wallet operations. Works with just the API key (userless mode). Optionally add a customer token for per-customer tracking.
                       </Typography>
                       <CodeBlock code={`x-api-key: your_api_key\n# Optional:\nAuthorization: Bearer eyJhbGciOi...`} />
@@ -1082,8 +1083,8 @@ curl -X POST https://dynopay.com/api/user/createUser \\
                   </Grid>
                   <Grid item xs={12} md={4}>
                     <AuthCard variant="purple">
-                      <Typography sx={{ fontWeight: 500, fontFamily: "OutfitMedium", fontSize: 15, color: "#A78BFA", mb: 1 }}>API Key + Bearer Token</Typography>
-                      <Typography sx={{ fontSize: 13, fontFamily: "OutfitRegular", color: "text.secondary", lineHeight: 1.7, mb: 2 }}>
+                      <Typography sx={{ fontWeight: 500, fontFamily: "var(--font-sans)", fontSize: 15, color: "#A78BFA", mb: 1 }}>API Key + Bearer Token</Typography>
+                      <Typography sx={{ fontSize: 13, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.7, mb: 2 }}>
                         For customer-specific operations where you want per-customer history and wallet balances.
                       </Typography>
                       <CodeBlock code={`x-api-key: your_api_key\nAuthorization: Bearer eyJhbGciOi...`} />
@@ -1095,7 +1096,7 @@ curl -X POST https://dynopay.com/api/user/createUser \\
               {/* Endpoint Sections */}
               {SECTIONS.filter((s) => s.endpoints).map((section) => (
                 <Box key={section.id} id={section.id} sx={{ mb: 8, scrollMarginTop: "100px" }}>
-                  <Typography sx={{ fontSize: { xs: 24, md: 30 }, fontWeight: 500, fontFamily: "OutfitMedium", color: "text.primary", mb: 2.5 }}>
+                  <Typography sx={{ fontSize: { xs: 24, md: 30 }, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 2.5 }}>
                     {section.title}
                   </Typography>
                   {section.endpoints!.map((epId) => {
@@ -1109,15 +1110,15 @@ curl -X POST https://dynopay.com/api/user/createUser \\
                   WEBHOOKS SECTION
                   ═══════════════════════════════════════════════════════ */}
               <Box id="webhooks" sx={{ mb: 8, scrollMarginTop: "100px" }}>
-                <Typography sx={{ fontSize: { xs: 24, md: 30 }, fontWeight: 500, fontFamily: "OutfitMedium", color: "text.primary", mb: 1.5 }}>
+                <Typography sx={{ fontSize: { xs: 24, md: 30 }, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1.5 }}>
                   Webhooks
                 </Typography>
-                <Typography sx={{ fontSize: 15, fontFamily: "OutfitRegular", color: "text.secondary", lineHeight: 1.8, mb: 3 }}>
+                <Typography sx={{ fontSize: 15, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.8, mb: 3 }}>
                   DynoPay sends webhook notifications to your configured URL when payment events occur. You set the <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>webhook_url</code> when creating a payment, or configure a default in your company settings.
                 </Typography>
 
                 {/* Event Types */}
-                <Typography sx={{ fontSize: 17, fontWeight: 500, fontFamily: "OutfitMedium", color: "text.primary", mb: 1.5 }}>
+                <Typography sx={{ fontSize: 17, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1.5 }}>
                   Event Types
                 </Typography>
                 <TableWrapper>
@@ -1125,7 +1126,7 @@ curl -X POST https://dynopay.com/api/user/createUser \\
                     <thead>
                       <tr style={{ background: headBg }}>
                         {["Event", "Description", "Action"].map((h) => (
-                          <th key={h} style={{ textAlign: "left", padding: "10px 16px", fontWeight: 500, fontFamily: "OutfitMedium", color: dk ? "#C8CAD5" : "#374151", borderBottom: `1px solid ${borderClr}`, fontSize: 12 }}>{h}</th>
+                          <th key={h} style={{ textAlign: "left", padding: "10px 16px", fontWeight: 500, fontFamily: "var(--font-sans)", color: dk ? "#C8CAD5" : "#374151", borderBottom: `1px solid ${borderClr}`, fontSize: 12 }}>{h}</th>
                         ))}
                       </tr>
                     </thead>
@@ -1139,8 +1140,8 @@ curl -X POST https://dynopay.com/api/user/createUser \\
                           <td style={{ padding: "10px 16px" }}>
                             <code style={{ fontWeight: 700, color: dk ? "#CCFF00" : "#0A0A0A", fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>{event}</code>
                           </td>
-                          <td style={{ padding: "10px 16px", color: dk ? "#A0A3B1" : "#374151", fontFamily: "OutfitRegular" }}>{desc}</td>
-                          <td style={{ padding: "10px 16px", color: dk ? "#A0A3B1" : "#374151", fontFamily: "OutfitRegular", fontSize: 12 }}>{action}</td>
+                          <td style={{ padding: "10px 16px", color: dk ? "#A0A3B1" : "#374151", fontFamily: "var(--font-sans)" }}>{desc}</td>
+                          <td style={{ padding: "10px 16px", color: dk ? "#A0A3B1" : "#374151", fontFamily: "var(--font-sans)", fontSize: 12 }}>{action}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -1148,10 +1149,10 @@ curl -X POST https://dynopay.com/api/user/createUser \\
                 </TableWrapper>
 
                 {/* Payload Example */}
-                <Typography sx={{ fontSize: 17, fontWeight: 500, fontFamily: "OutfitMedium", color: "text.primary", mb: 1.5, mt: 3 }}>
+                <Typography sx={{ fontSize: 17, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1.5, mt: 3 }}>
                   Webhook Payload
                 </Typography>
-                <Typography sx={{ fontSize: 14, fontFamily: "OutfitRegular", color: "text.secondary", lineHeight: 1.7, mb: 2 }}>
+                <Typography sx={{ fontSize: 14, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.7, mb: 2 }}>
                   All webhook events are sent as <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>POST</code> requests with a JSON body to your configured URL.
                 </Typography>
                 <CodeBlock lang="json" code={`{
@@ -1171,7 +1172,7 @@ curl -X POST https://dynopay.com/api/user/createUser \\
 }`} />
 
                 {/* Headers */}
-                <Typography sx={{ fontSize: 17, fontWeight: 500, fontFamily: "OutfitMedium", color: "text.primary", mb: 1.5, mt: 3 }}>
+                <Typography sx={{ fontSize: 17, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1.5, mt: 3 }}>
                   Webhook Headers
                 </Typography>
                 <TableWrapper>
@@ -1179,7 +1180,7 @@ curl -X POST https://dynopay.com/api/user/createUser \\
                     <thead>
                       <tr style={{ background: headBg }}>
                         {["Header", "Description"].map((h) => (
-                          <th key={h} style={{ textAlign: "left", padding: "10px 16px", fontWeight: 500, fontFamily: "OutfitMedium", color: dk ? "#C8CAD5" : "#374151", borderBottom: `1px solid ${borderClr}`, fontSize: 12 }}>{h}</th>
+                          <th key={h} style={{ textAlign: "left", padding: "10px 16px", fontWeight: 500, fontFamily: "var(--font-sans)", color: dk ? "#C8CAD5" : "#374151", borderBottom: `1px solid ${borderClr}`, fontSize: 12 }}>{h}</th>
                         ))}
                       </tr>
                     </thead>
@@ -1195,7 +1196,7 @@ curl -X POST https://dynopay.com/api/user/createUser \\
                           <td style={{ padding: "10px 16px" }}>
                             <code style={{ fontWeight: 600, color: dk ? "#CCFF00" : "#0A0A0A", fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>{header}</code>
                           </td>
-                          <td style={{ padding: "10px 16px", color: dk ? "#A0A3B1" : "#374151", fontFamily: "OutfitRegular" }}>{desc}</td>
+                          <td style={{ padding: "10px 16px", color: dk ? "#A0A3B1" : "#374151", fontFamily: "var(--font-sans)" }}>{desc}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -1203,10 +1204,10 @@ curl -X POST https://dynopay.com/api/user/createUser \\
                 </TableWrapper>
 
                 {/* Signature Verification */}
-                <Typography sx={{ fontSize: 17, fontWeight: 500, fontFamily: "OutfitMedium", color: "text.primary", mb: 1.5, mt: 3 }}>
+                <Typography sx={{ fontSize: 17, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1.5, mt: 3 }}>
                   Signature Verification
                 </Typography>
-                <Typography sx={{ fontSize: 14, fontFamily: "OutfitRegular", color: "text.secondary", lineHeight: 1.7, mb: 2 }}>
+                <Typography sx={{ fontSize: 14, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.7, mb: 2 }}>
                   Verify the <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>X-DynoPay-Signature</code> header to ensure webhook requests are authentic and haven&apos;t been tampered with.
                 </Typography>
                 <CodeBlock lang="javascript" code={`const crypto = require('crypto');
@@ -1246,14 +1247,14 @@ app.post('/webhooks/dynopay', (req, res) => {
 
                 {/* Retry Policy */}
                 <InfoBox sx={{ mt: 3 }}>
-                  <Typography sx={{ fontSize: 14, fontFamily: "OutfitMedium", color: "text.primary", mb: 1 }}>Retry Policy</Typography>
-                  <Typography sx={{ fontSize: 13, fontFamily: "OutfitRegular", color: "text.secondary", lineHeight: 1.7 }}>
+                  <Typography sx={{ fontSize: 14, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1 }}>Retry Policy</Typography>
+                  <Typography sx={{ fontSize: 13, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.7 }}>
                     If your endpoint returns a non-2xx status code (or times out), DynoPay retries delivery with exponential backoff — up to <strong>5 retries</strong> over approximately 30 minutes. After all retries fail, the webhook is moved to a dead-letter queue. You can re-trigger failed deliveries from the dashboard.
                   </Typography>
                 </InfoBox>
 
                 {/* Webhook URL Priority */}
-                <Typography sx={{ fontSize: 17, fontWeight: 500, fontFamily: "OutfitMedium", color: "text.primary", mb: 1.5, mt: 3 }}>
+                <Typography sx={{ fontSize: 17, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1.5, mt: 3 }}>
                   Webhook URL Priority
                 </Typography>
                 <TableWrapper>
@@ -1261,7 +1262,7 @@ app.post('/webhooks/dynopay', (req, res) => {
                     <thead>
                       <tr style={{ background: headBg }}>
                         {["Priority", "Source", "When to Use"].map((h) => (
-                          <th key={h} style={{ textAlign: "left", padding: "10px 16px", fontWeight: 500, fontFamily: "OutfitMedium", color: dk ? "#C8CAD5" : "#374151", borderBottom: `1px solid ${borderClr}`, fontSize: 12 }}>{h}</th>
+                          <th key={h} style={{ textAlign: "left", padding: "10px 16px", fontWeight: 500, fontFamily: "var(--font-sans)", color: dk ? "#C8CAD5" : "#374151", borderBottom: `1px solid ${borderClr}`, fontSize: 12 }}>{h}</th>
                         ))}
                       </tr>
                     </thead>
@@ -1275,8 +1276,8 @@ app.post('/webhooks/dynopay', (req, res) => {
                           <td style={{ padding: "10px 16px" }}>
                             <code style={{ fontWeight: 700, color: "#F59E0B", fontFamily: "'JetBrains Mono', monospace" }}>{pri}</code>
                           </td>
-                          <td style={{ padding: "10px 16px", color: dk ? "#A0A3B1" : "#374151", fontFamily: "OutfitRegular" }}>{src}</td>
-                          <td style={{ padding: "10px 16px", color: dk ? "#A0A3B1" : "#374151", fontFamily: "OutfitRegular", fontSize: 13 }}>{use}</td>
+                          <td style={{ padding: "10px 16px", color: dk ? "#A0A3B1" : "#374151", fontFamily: "var(--font-sans)" }}>{src}</td>
+                          <td style={{ padding: "10px 16px", color: dk ? "#A0A3B1" : "#374151", fontFamily: "var(--font-sans)", fontSize: 13 }}>{use}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -1288,10 +1289,10 @@ app.post('/webhooks/dynopay', (req, res) => {
                   RATE LIMITS SECTION
                   ═══════════════════════════════════════════════════════ */}
               <Box id="rate-limits" sx={{ mb: 8, scrollMarginTop: "100px" }}>
-                <Typography sx={{ fontSize: { xs: 24, md: 30 }, fontWeight: 500, fontFamily: "OutfitMedium", color: "text.primary", mb: 1.5 }}>
+                <Typography sx={{ fontSize: { xs: 24, md: 30 }, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1.5 }}>
                   Rate Limits
                 </Typography>
-                <Typography sx={{ fontSize: 15, fontFamily: "OutfitRegular", color: "text.secondary", lineHeight: 1.8, mb: 3 }}>
+                <Typography sx={{ fontSize: 15, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.8, mb: 3 }}>
                   DynoPay enforces rate limits to ensure platform stability. Limits are applied per IP address and per API key.
                 </Typography>
                 <TableWrapper>
@@ -1299,7 +1300,7 @@ app.post('/webhooks/dynopay', (req, res) => {
                     <thead>
                       <tr style={{ background: headBg }}>
                         {["Endpoint Category", "Limit", "Window"].map((h) => (
-                          <th key={h} style={{ textAlign: "left", padding: "10px 16px", fontWeight: 500, fontFamily: "OutfitMedium", color: dk ? "#C8CAD5" : "#374151", borderBottom: `1px solid ${borderClr}`, fontSize: 12 }}>{h}</th>
+                          <th key={h} style={{ textAlign: "left", padding: "10px 16px", fontWeight: 500, fontFamily: "var(--font-sans)", color: dk ? "#C8CAD5" : "#374151", borderBottom: `1px solid ${borderClr}`, fontSize: 12 }}>{h}</th>
                         ))}
                       </tr>
                     </thead>
@@ -1311,18 +1312,18 @@ app.post('/webhooks/dynopay', (req, res) => {
                         ["Webhook delivery", "200 requests", "5 minutes"],
                       ].map(([cat, limit, window], i) => (
                         <tr key={cat} style={{ borderBottom: i < 3 ? `1px solid ${dk ? "#1E2030" : "#F3F4F6"}` : "none" }}>
-                          <td style={{ padding: "10px 16px", fontFamily: "OutfitRegular", color: dk ? "#A0A3B1" : "#374151" }}>{cat}</td>
+                          <td style={{ padding: "10px 16px", fontFamily: "var(--font-sans)", color: dk ? "#A0A3B1" : "#374151" }}>{cat}</td>
                           <td style={{ padding: "10px 16px" }}>
                             <code style={{ fontWeight: 600, color: dk ? "#CCFF00" : "#0A0A0A", fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>{limit}</code>
                           </td>
-                          <td style={{ padding: "10px 16px", fontFamily: "OutfitRegular", color: dk ? "#A0A3B1" : "#374151" }}>{window}</td>
+                          <td style={{ padding: "10px 16px", fontFamily: "var(--font-sans)", color: dk ? "#A0A3B1" : "#374151" }}>{window}</td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
                 </TableWrapper>
                 <InfoBox sx={{ mt: 2 }}>
-                  <Typography sx={{ fontSize: 13, fontFamily: "OutfitRegular", color: "text.secondary", lineHeight: 1.7 }}>
+                  <Typography sx={{ fontSize: 13, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.7 }}>
                     When rate limited, the API returns HTTP <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>429 Too Many Requests</code> with a <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>Retry-After</code> header indicating when you can retry.
                   </Typography>
                 </InfoBox>
@@ -1330,10 +1331,10 @@ app.post('/webhooks/dynopay', (req, res) => {
 
               {/* Error Handling */}
               <Box id="errors" sx={{ mb: 8, scrollMarginTop: "100px" }}>
-                <Typography sx={{ fontSize: { xs: 24, md: 30 }, fontWeight: 500, fontFamily: "OutfitMedium", color: "text.primary", mb: 1.5 }}>
+                <Typography sx={{ fontSize: { xs: 24, md: 30 }, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1.5 }}>
                   Error Handling
                 </Typography>
-                <Typography sx={{ fontSize: 15, fontFamily: "OutfitRegular", color: "text.secondary", lineHeight: 1.8, mb: 2.5 }}>
+                <Typography sx={{ fontSize: 15, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.8, mb: 2.5 }}>
                   All errors follow a consistent format. Check the <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>success</code> field and the HTTP status code.
                 </Typography>
                 <CodeBlock lang="json" code={`{
@@ -1345,8 +1346,8 @@ app.post('/webhooks/dynopay', (req, res) => {
                   <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
                     <thead>
                       <tr style={{ background: headBg }}>
-                        <th style={{ textAlign: "left", padding: "10px 16px", fontWeight: 500, fontFamily: "OutfitMedium", color: dk ? "#C8CAD5" : "#374151", borderBottom: `1px solid ${borderClr}`, fontSize: 12 }}>Status</th>
-                        <th style={{ textAlign: "left", padding: "10px 16px", fontWeight: 500, fontFamily: "OutfitMedium", color: dk ? "#C8CAD5" : "#374151", borderBottom: `1px solid ${borderClr}`, fontSize: 12 }}>Meaning</th>
+                        <th style={{ textAlign: "left", padding: "10px 16px", fontWeight: 500, fontFamily: "var(--font-sans)", color: dk ? "#C8CAD5" : "#374151", borderBottom: `1px solid ${borderClr}`, fontSize: 12 }}>Status</th>
+                        <th style={{ textAlign: "left", padding: "10px 16px", fontWeight: 500, fontFamily: "var(--font-sans)", color: dk ? "#C8CAD5" : "#374151", borderBottom: `1px solid ${borderClr}`, fontSize: 12 }}>Meaning</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -1361,7 +1362,7 @@ app.post('/webhooks/dynopay', (req, res) => {
                           <td style={{ padding: "10px 16px" }}>
                             <code style={{ fontWeight: 700, color: Number(code) >= 500 ? "#EF4444" : "#F59E0B", fontFamily: "'JetBrains Mono', monospace" }}>{code}</code>
                           </td>
-                          <td style={{ padding: "10px 16px", color: dk ? "#A0A3B1" : "#374151", fontFamily: "OutfitRegular" }}>{desc}</td>
+                          <td style={{ padding: "10px 16px", color: dk ? "#A0A3B1" : "#374151", fontFamily: "var(--font-sans)" }}>{desc}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -1371,10 +1372,10 @@ app.post('/webhooks/dynopay', (req, res) => {
 
               {/* CTA */}
               <InfoBox sx={{ textAlign: "center", py: 5 }}>
-                <Typography sx={{ fontSize: { xs: 22, md: 28 }, fontWeight: 500, fontFamily: "OutfitMedium", color: "text.primary", mb: 1.5 }}>
+                <Typography sx={{ fontSize: { xs: 22, md: 28 }, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1.5 }}>
                   Ready to get started?
                 </Typography>
-                <Typography sx={{ fontSize: 15, fontFamily: "OutfitRegular", color: "text.secondary", mb: 3 }}>
+                <Typography sx={{ fontSize: 15, fontFamily: "var(--font-sans)", color: "text.secondary", mb: 3 }}>
                   Join merchants worldwide accepting crypto with DynoPay
                 </Typography>
                 <Box sx={{ display: "flex", gap: 2, justifyContent: "center", flexWrap: "wrap" }}>

@@ -15,7 +15,7 @@ const TermsConditions = () => {
         width: isMobile ? "100%" : 768,
         px: isMobile ? "15px" : 0,
         mx: "auto",
-        fontFamily: "OutfitMedium",
+        fontFamily: "var(--font-sans)",
         mb: isMobile ? "52px" : "93px",
         pt: isMobile ? "100px" : "128px",
       }}
@@ -29,7 +29,7 @@ const TermsConditions = () => {
           color: "text.primary",
           fontWeight: isMobile ? 600 : 500,
           textAlign: "center",
-          fontFamily: "OutfitMedium",
+          fontFamily: "var(--font-sans)",
           mb: "15px",
           lineHeight: "60px",
           letterSpacing: 0,
@@ -61,7 +61,7 @@ const TermsConditions = () => {
                   fontSize: "18px",
                   color: "text.secondary",
                   fontWeight: 600,
-                  fontFamily: "OutfitBold",
+                  fontFamily: "var(--font-sans)",
                   lineHeight: "28px",
                   letterSpacing: 0,
                 }}
@@ -75,7 +75,7 @@ const TermsConditions = () => {
                   sx={{
                     fontSize: "18px",
                     color: "text.secondary",
-                    fontFamily: "OutfitRegular",
+                    fontFamily: "var(--font-sans)",
                     lineHeight: "28px",
                     letterSpacing: 0,
                   }}
@@ -90,7 +90,7 @@ const TermsConditions = () => {
                   sx={{
                     fontSize: "18px",
                     color: "text.secondary",
-                    fontFamily: "OutfitRegular",
+                    fontFamily: "var(--font-sans)",
                     lineHeight: "28px",
                     letterSpacing: 0,
                   }}
@@ -111,7 +111,7 @@ const TermsConditions = () => {
                         fontSize: "18px",
                         color: "text.secondary",
                         fontWeight: 400,
-                        fontFamily: "OutfitRegular",
+                        fontFamily: "var(--font-sans)",
                         lineHeight: "28px",
                         letterSpacing: 0,
                       }}
@@ -129,7 +129,7 @@ const TermsConditions = () => {
                     fontSize: "18px",
                     color: "text.secondary",
                     fontWeight: 400,
-                    fontFamily: "OutfitRegular",
+                    fontFamily: "var(--font-sans)",
                     lineHeight: "28px",
                     letterSpacing: 0,
                   }}

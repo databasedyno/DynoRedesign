@@ -33,7 +33,7 @@ export const Badge = styled(Box)(({ theme }) => ({
   letterSpacing: "1.6px",
   textTransform: "uppercase",
   fontWeight: 600,
-  fontFamily: "OutfitMedium",
+  fontFamily: "var(--font-sans)",
   color: theme.palette.text.secondary,
   backgroundColor: "transparent",
   padding: 0,
@@ -48,7 +48,7 @@ export const Badge = styled(Box)(({ theme }) => ({
 
 export const Heading = styled(Typography)(({ theme }) => ({
   fontWeight: 600,
-  fontFamily: "'Unbounded', 'OutfitMedium', system-ui, sans-serif",
+  fontFamily: "var(--font-sans), system-ui, sans-serif",
   color: theme.palette.text.primary,
   padding: "0 15px",
   textAlign: "center",
@@ -89,7 +89,7 @@ export const SubText = styled(Typography)(({ theme }) => ({
   padding: 0,
   fontWeight: 400,
   letterSpacing: "0px !important",
-  fontFamily: "OutfitRegular",
+  fontFamily: "var(--font-sans)",
   color: theme.palette.text.secondary,
   textAlign: "center",
   display: "block",

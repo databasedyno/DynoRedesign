@@ -27,20 +27,9 @@ export default function MyDocument({ emotionStyleTags }: MyDocumentProps) {
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="theme-color" content="#0A0A0A" />
 
-        {/* Google Fonts — preconnect + link (non-blocking, replaces CSS @import) */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        {/* Display + mono fonts (Manrope is self-hosted — see globals.css) */}
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap"
-        />
-
-        {/* Preload critical self-hosted Manrope weights for instant rendering */}
-        <link rel="preload" href="/fonts/Manrope-Regular.woff" as="font" type="font/woff" crossOrigin="anonymous" />
-        <link rel="preload" href="/fonts/Manrope-Medium.woff" as="font" type="font/woff" crossOrigin="anonymous" />
-        <link rel="preload" href="/fonts/Manrope-SemiBold.woff" as="font" type="font/woff" crossOrigin="anonymous" />
-        <link rel="preload" href="/fonts/Manrope-Bold.woff" as="font" type="font/woff" crossOrigin="anonymous" />
+        {/* Fonts now served via next/font (Geist Sans + Geist Mono). See _app.tsx.
+            Legacy Manrope woffs kept in /public/fonts as fallback for any
+            component that still references Manrope by name during hydration. */}
 
         {/* Google Identity Services for client-side OAuth (bypasses NextAuth /api/auth/* K8s conflict) */}
         <script src="https://accounts.google.com/gsi/client" async defer></script>

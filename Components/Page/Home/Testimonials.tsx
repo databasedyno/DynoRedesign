@@ -125,7 +125,7 @@ const Testimonials: React.FC = () => {
             <Typography
               sx={{
                 fontSize: "15px",
-                fontFamily: "OutfitRegular",
+                fontFamily: "var(--font-sans)",
                 color: theme.palette.text.secondary,
                 lineHeight: 1.7,
                 mb: 4,
@@ -170,7 +170,7 @@ const Testimonials: React.FC = () => {
                 <Typography
                   sx={{
                     fontSize: "13px",
-                    fontFamily: "OutfitRegular",
+                    fontFamily: "var(--font-sans)",
                     color: theme.palette.text.secondary,
                     lineHeight: 1.3,
                   }}

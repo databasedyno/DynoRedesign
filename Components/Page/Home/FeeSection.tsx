@@ -117,7 +117,7 @@ const FeeSection = () => {
             <Typography
               sx={{
                 fontSize: isMobile ? "18px" : "20px",
-                fontFamily: "OutfitBold",
+                fontFamily: "var(--font-sans)",
                 fontWeight: 800,
                 color: theme.palette.text.primary,
                 lineHeight: 1.3,
@@ -129,7 +129,7 @@ const FeeSection = () => {
             <Typography
               sx={{
                 fontSize: "14px",
-                fontFamily: "OutfitRegular",
+                fontFamily: "var(--font-sans)",
                 color: theme.palette.text.secondary,
                 lineHeight: 1.5,
               }}
@@ -216,7 +216,7 @@ const FeeSection = () => {
             <Typography
               sx={{
                 fontSize: "13px",
-                fontFamily: "OutfitMedium",
+                fontFamily: "var(--font-sans)",
                 color: c.highlight ? theme.palette.primary.main : theme.palette.text.secondary,
                 mb: 0.5,
                 fontWeight: c.highlight ? 600 : 400,
@@ -239,7 +239,7 @@ const FeeSection = () => {
               <Typography
                 sx={{
                   fontSize: "12px",
-                  fontFamily: "OutfitRegular",
+                  fontFamily: "var(--font-sans)",
                   color: c.highlight ? "#10B981" : theme.palette.text.secondary,
                   fontWeight: c.highlight ? 500 : 400,
                   mt: 0.3,
@@ -275,7 +275,7 @@ const FeeSection = () => {
           <Typography
             sx={{
               fontSize: "13px",
-              fontFamily: "OutfitMedium",
+              fontFamily: "var(--font-sans)",
               color: "#10B981",
               lineHeight: 1.4,
             }}

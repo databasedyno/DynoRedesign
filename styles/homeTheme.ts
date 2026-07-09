@@ -40,9 +40,9 @@ export const homeTheme = createTheme({
       main: "#16A34A",
     },
     text: {
-      primary: "#0A0A0A",
-      secondary: "#52525B",
-      disabled: "#5F5F6B",
+      primary: "#18181B",
+      secondary: "#71717A",
+      disabled: "#A1A1AA",
     },
     background: {
       default: "#EEF1F6",
@@ -80,9 +80,9 @@ export const homeThemeDark = createTheme({
       main: "#22C55E",
     },
     text: {
-      primary: "#FFFFFF",
-      secondary: "#9CA3AF",
-      disabled: "#8A8A94",
+      primary: "#FAFAFA",
+      secondary: "#A1A1AA",
+      disabled: "#52525B",
     },
     background: {
       default: "#060606",

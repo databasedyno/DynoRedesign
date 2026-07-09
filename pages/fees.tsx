@@ -72,7 +72,7 @@ const StepText = styled(Typography)(({ theme }) => ({
   fontSize: "14px",
   fontWeight: 400,
   lineHeight: "22px",
-  fontFamily: "OutfitRegular",
+  fontFamily: "var(--font-sans)",
   color: theme.palette.text.secondary,
 }));
 
@@ -114,14 +114,14 @@ const TableHeader = styled(TableRow)(({ theme }) => {
 const TableCell = styled(Typography)(({ theme }) => ({
   fontSize: "14px",
   fontWeight: 400,
-  fontFamily: "OutfitRegular",
+  fontFamily: "var(--font-sans)",
   color: theme.palette.text.secondary,
 }));
 
 const TableHeaderCell = styled(Typography)(({ theme }) => ({
   fontSize: "13px",
   fontWeight: 500,
-  fontFamily: "OutfitMedium",
+  fontFamily: "var(--font-sans)",
   color: theme.palette.text.primary,
   textTransform: "uppercase" as const,
   letterSpacing: "0.5px",
@@ -232,7 +232,7 @@ const FeesPage = () => {
               <Typography
                 sx={{
                   fontSize: "16px",
-                  fontFamily: "OutfitRegular",
+                  fontFamily: "var(--font-sans)",
                   color: "text.secondary",
                   maxWidth: 500,
                   mx: "auto",
@@ -327,7 +327,7 @@ const FeesPage = () => {
                       ) : (
                         <CloseIcon sx={{ fontSize: 18, color: "#22C55E" }} />
                       )}
-                      <TableCell sx={{ color: "#22C55E", fontFamily: "OutfitMedium" }}>
+                      <TableCell sx={{ color: "#22C55E", fontFamily: "var(--font-sans)" }}>
                         {row.dynoText}
                       </TableCell>
                     </Box>
@@ -366,7 +366,7 @@ const FeesPage = () => {
                   <Typography
                     sx={{
                       fontSize: "15px",
-                      fontFamily: "OutfitRegular",
+                      fontFamily: "var(--font-sans)",
                       color: "text.primary",
                       lineHeight: "22px",
                     }}
@@ -404,7 +404,7 @@ const FeesPage = () => {
                     <Typography
                       sx={{
                         fontSize: "14px",
-                        fontFamily: "OutfitRegular",
+                        fontFamily: "var(--font-sans)",
                         color: "text.secondary",
                         lineHeight: "20px",
                       }}
@@ -426,7 +426,7 @@ const FeesPage = () => {
                 sx={{
                   fontSize: isMobile ? "28px" : "36px",
                   fontWeight: 500,
-                  fontFamily: "OutfitMedium",
+                  fontFamily: "var(--font-sans)",
                   color: "text.primary",
                   lineHeight: isMobile ? "36px" : "44px",
                   mb: 2,
@@ -437,7 +437,7 @@ const FeesPage = () => {
               <Typography
                 sx={{
                   fontSize: "16px",
-                  fontFamily: "OutfitRegular",
+                  fontFamily: "var(--font-sans)",
                   color: "text.secondary",
                   mb: 4,
                 }}

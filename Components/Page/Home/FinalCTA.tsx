@@ -75,7 +75,7 @@ const FinalCTA: React.FC = () => {
         <Typography
           sx={{
             fontSize: isMobile ? "32px" : "44px",
-            fontFamily: "'Unbounded', 'OutfitMedium', system-ui, sans-serif",
+            fontFamily: "var(--font-sans), system-ui, sans-serif",
             fontWeight: 600,
             color: theme.palette.text.primary,
             lineHeight: 1.15,
@@ -91,7 +91,7 @@ const FinalCTA: React.FC = () => {
         <Typography
           sx={{
             fontSize: isMobile ? "16px" : "18px",
-            fontFamily: "OutfitRegular",
+            fontFamily: "var(--font-sans)",
             color: theme.palette.text.secondary,
             mb: 4,
             position: "relative",
@@ -134,7 +134,7 @@ const FinalCTA: React.FC = () => {
             href="/help-support"
             sx={{
               fontSize: "14px",
-              fontFamily: "OutfitMedium",
+              fontFamily: "var(--font-sans)",
               color: theme.palette.text.secondary,
               textDecoration: "none",
               transition: "color 0.2s ease",
@@ -159,7 +159,7 @@ const FinalCTA: React.FC = () => {
             href="/documentation"
             sx={{
               fontSize: "14px",
-              fontFamily: "OutfitMedium",
+              fontFamily: "var(--font-sans)",
               color: theme.palette.text.secondary,
               textDecoration: "none",
               transition: "color 0.2s ease",

@@ -268,7 +268,7 @@ const PaymentLinkSuccessModal: React.FC<PaymentLinkSuccessModalProps> = ({
                   sx={{
                     fontSize: isMobile ? "13px" : "14px",
                     fontWeight: 600,
-                    fontFamily: "OutfitMedium",
+                    fontFamily: "var(--font-sans)",
                     color: "text.primary",
                     textAlign: "center",
                   }}

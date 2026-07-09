@@ -69,7 +69,7 @@ const Bars: React.FC<BarsProps> = ({ dailyStatus }) => {
         justifyContent: "space-between",
         gap: "2px",
         mt: "16px",
-        fontFamily: "OutfitRegular",
+        fontFamily: "var(--font-sans)",
         opacity: 0.9,
       }}
     >

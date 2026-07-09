@@ -60,7 +60,7 @@ export const DescriptionText = styled(Typography)(({ theme }) => ({
   opacity: 0.6,
   fontSize: 14,
   maxWidth: 420,
-  fontFamily: "OutfitRegular",
+  fontFamily: "var(--font-sans)",
   whiteSpace: "nowrap",
 
   [theme.breakpoints.down("md")]: {
@@ -98,7 +98,7 @@ export const CopyrightText = styled(Typography)(({ theme }) => ({
   color: theme.palette.common.white,
   opacity: 0.6,
   fontSize: 14,
-  fontFamily: "OutfitRegular",
+  fontFamily: "var(--font-sans)",
 }));
 
 export const SocialsWrapper = styled(Box)({
@@ -126,7 +126,7 @@ export const Navigation = styled("nav")({
   textDecoration: "underline",
   fontSize: 14,
   letterSpacing: 0,
-  fontFamily: "OutfitRegular",
+  fontFamily: "var(--font-sans)",
   fontWeight: 400,
   lineHeight: "20px",
 });

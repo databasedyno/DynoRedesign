@@ -8,7 +8,7 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  transpilePackages: ["mui-tel-input"],
+  transpilePackages: ["mui-tel-input", "geist"],
 
   // ─── Performance: tree-shake heavy barrel-file libraries ───
   experimental: {

@@ -207,7 +207,7 @@ const TestimonialsV2: React.FC = () => {
         <Typography
           component="h2"
           sx={{
-            fontFamily: "'Unbounded', 'OutfitBold', system-ui, sans-serif",
+            fontFamily: "var(--font-sans), system-ui, sans-serif",
             fontSize: { xs: 26, sm: 32, md: 38 },
             lineHeight: 1.15,
             color: theme.palette.text.primary,

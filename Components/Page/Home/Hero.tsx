@@ -76,7 +76,7 @@ const HeroSection = () => {
           <Typography
             sx={{
               fontSize: "13px",
-              fontFamily: "OutfitRegular",
+              fontFamily: "var(--font-sans)",
               color: theme.palette.text.secondary,
             }}
           >
@@ -121,7 +121,7 @@ const HeroSection = () => {
             <Typography
               sx={{
                 fontSize: "13px",
-                fontFamily: "OutfitMedium",
+                fontFamily: "var(--font-sans)",
                 fontWeight: 500,
                 color: "#10B981",
                 lineHeight: 1,
@@ -225,7 +225,7 @@ const HeroSection = () => {
               <Typography
                 sx={{
                   fontSize: "13px",
-                  fontFamily: "OutfitRegular",
+                  fontFamily: "var(--font-sans)",
                   color: theme.palette.text.secondary,
                   mt: 0.3,
                   lineHeight: 1.4,

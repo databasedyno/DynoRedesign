@@ -48,7 +48,7 @@ export const theme = createTheme({
   },
   typography: {
     allVariants: {
-      fontFamily: "'Manrope', sans-serif",
+      fontFamily: "var(--font-sans), 'Manrope', sans-serif",
     },
   },
   components: {

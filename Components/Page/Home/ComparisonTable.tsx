@@ -94,7 +94,7 @@ const ComparisonTable: React.FC = () => {
         <Typography
           component="h2"
           sx={{
-            fontFamily: 'OutfitBold',
+            fontFamily: 'var(--font-sans)',
             fontSize: { xs: 26, sm: 32, md: 40 },
             lineHeight: 1.15,
             color: theme.palette.text.primary,

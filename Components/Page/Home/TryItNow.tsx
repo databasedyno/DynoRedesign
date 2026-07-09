@@ -199,7 +199,7 @@ const TryItNow: React.FC = () => {
           id="try-it-now-heading"
           component="h2"
           sx={{
-            fontFamily: "'Unbounded', 'OutfitBold', system-ui, sans-serif",
+            fontFamily: "var(--font-sans), system-ui, sans-serif",
             fontSize: { xs: 28, sm: 34, md: 42 },
             lineHeight: 1.12,
             color: theme.palette.text.primary,

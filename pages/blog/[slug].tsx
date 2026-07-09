@@ -41,7 +41,7 @@ const BlogPostPage = ({ slug }: BlogPostPageProps) => {
               mt: 2,
               cursor: "pointer",
               color: theme.palette.primary.main,
-              fontFamily: "OutfitMedium",
+              fontFamily: "var(--font-sans)",
               "&:hover": { textDecoration: "underline" },
             }}
           >
@@ -168,7 +168,7 @@ const BlogPostPage = ({ slug }: BlogPostPageProps) => {
                 width: "100%",
                 borderCollapse: "collapse",
                 fontSize: isMobile ? "13px" : "14px",
-                fontFamily: "OutfitMedium",
+                fontFamily: "var(--font-sans)",
               }}
             >
               <thead>
@@ -334,7 +334,7 @@ const BlogPostPage = ({ slug }: BlogPostPageProps) => {
             <Typography
               sx={{
                 fontSize: isMobile ? "14px" : "16px",
-                fontFamily: "OutfitMedium",
+                fontFamily: "var(--font-sans)",
                 color: theme.palette.text.secondary,
                 lineHeight: 1.7,
               }}
@@ -368,7 +368,7 @@ const BlogPostPage = ({ slug }: BlogPostPageProps) => {
             <Typography
               sx={{
                 fontSize: isMobile ? "14px" : "16px",
-                fontFamily: "OutfitMedium",
+                fontFamily: "var(--font-sans)",
                 color: theme.palette.text.secondary,
                 lineHeight: 1.7,
               }}
@@ -390,7 +390,7 @@ const BlogPostPage = ({ slug }: BlogPostPageProps) => {
           key={`p-${i}`}
           sx={{
             fontSize: isMobile ? "14px" : "16px",
-            fontFamily: "OutfitMedium",
+            fontFamily: "var(--font-sans)",
             color: theme.palette.text.secondary,
             lineHeight: 1.8,
             mb: 2,
@@ -479,7 +479,7 @@ const BlogPostPage = ({ slug }: BlogPostPageProps) => {
           <Typography
             sx={{
               fontSize: "12px",
-              fontFamily: "OutfitMedium",
+              fontFamily: "var(--font-sans)",
               color: theme.palette.text.secondary,
             }}
           >
@@ -488,7 +488,7 @@ const BlogPostPage = ({ slug }: BlogPostPageProps) => {
           <Typography
             sx={{
               fontSize: "12px",
-              fontFamily: "OutfitMedium",
+              fontFamily: "var(--font-sans)",
               color: theme.palette.text.secondary,
             }}
           >
@@ -546,7 +546,7 @@ const BlogPostPage = ({ slug }: BlogPostPageProps) => {
             <Typography
               sx={{
                 fontSize: "12px",
-                fontFamily: "OutfitMedium",
+                fontFamily: "var(--font-sans)",
                 color: theme.palette.text.secondary,
               }}
             >
@@ -599,7 +599,7 @@ const BlogPostPage = ({ slug }: BlogPostPageProps) => {
           <Typography
             sx={{
               fontSize: "15px",
-              fontFamily: "OutfitMedium",
+              fontFamily: "var(--font-sans)",
               color: theme.palette.text.secondary,
               mb: 3,
             }}

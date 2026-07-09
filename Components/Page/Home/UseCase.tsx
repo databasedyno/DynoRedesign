@@ -62,7 +62,7 @@ const UseCaseDescription = styled(Typography)(({ theme }) => ({
   lineHeight: "20px",
   fontWeight: 400,
   maxWidth: "244px",
-  fontFamily: "OutfitRegular",
+  fontFamily: "var(--font-sans)",
   letterSpacing: 0,
   color: theme.palette.text.secondary,
 }));
@@ -77,7 +77,7 @@ const UseCaseTag = styled(Typography)(({ theme }) => {
     fontSize: "13px",
     lineHeight: "18px",
     fontWeight: 500,
-    fontFamily: "OutfitMedium",
+    fontFamily: "var(--font-sans)",
     color: "#47B464",
     border: `1px solid ${isDark ? "#1B3A26" : "#DCF6E4"}`,
     display: "flex",
