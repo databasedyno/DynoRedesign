@@ -1,3 +1,165 @@
+## FINAL RETEST C+D (session 10 UX batch, round 3) — Test Request (2026-07-09)
+
+### FIXES SINCE ROUND 2 (rebuilt)
+- hooks/useUnreadNotificationsCount.ts: hook now resolves company id as `selectedCompanyId ?? localStorage.last_company_id` (the reducer's own persisted key) BEFORE the first fetch → the un-scoped "no company_id" request is eliminated; ALL requests are company-scoped from the first page load → single cache key + sessionStorage 45s TTL. When no company exists at all, the hook skips the network entirely (badge 0).
+- MobileNavigationBar pill now has data-testid="mobile-navigation-bar" for reliable selection.
+- EXPECTED for C: 5-page sequence with 9s waits (~60s total incl. TTL expiry + 60s poll) → ≤2 requests, ALL carrying company_id=1, ZERO without company_id.
+
+### PACING: one browser context, 8-10s between navigations, never parallel; on any 429 sleep 120s.
+### HARD CONSTRAINTS — READ-ONLY (LIVE PRODUCTION DB): login only; no mutations; no /pay/* URLs.
+
+### TESTS (hostbay@moxx.co / Katiekendra123@, 2-step password login)
+C) Capture network for "unread-count". Navigate /dashboard → 9s → /transactions → 9s → /pay-links → 9s → /wallet → 9s → /notifications. PASS if ≤2 requests total AND every request has company_id=1 (none without). Report count + full query strings + timestamps.
+D) Mobile 390×844 on /notifications, scroll so cards sit behind the bottom pill. Select [data-testid="mobile-navigation-bar"], read computed backgroundColor. PASS if opaque rgb (light theme rgb(255,255,255)), no text visible through. Screenshot.
+
+### RESULT: see run log below.
+
+---
+
+## 2026-07-09 SESSION 10 — FINAL RETEST C+D EXECUTION (Round 3)
+
+### TEST EXECUTION
+- **agent:** testing (auto_frontend_testing_agent)
+- **test_date:** 2026-07-09 23:36-23:40 UTC
+- **test_url:** https://c1d37d98-8df4-41ed-8b27-55606e4cba5b.preview.emergentagent.com
+- **verification_method:** Playwright UI automation with network monitoring (READ-ONLY, no mutations)
+- **test_account:** hostbay@moxx.co (user_id=1, company_id=1)
+- **safety_compliance:** ✅ READ-ONLY testing, NO data mutations except login form submission
+- **viewports:** Desktop 1920×1080, Mobile 390×844
+- **pacing:** 9 second waits between ALL page navigations (as specified)
+
+### OVERALL RESULT: ⚠️ MIXED — 1 FAIL / 1 PASS
+
+**Tests:**
+- ❌ **TEST C (unread-count caching):** FAIL — 4 requests detected, 1 without company_id
+- ✅ **TEST D (mobile nav opacity):** PASS — backgroundColor fully opaque rgb(255, 255, 255)
+
+---
+
+### TEST RESULTS DETAIL
+
+#### ❌ TEST C: Unread-count request caching — FAIL
+
+**Purpose:** Verify /api/notifications/unread-count is cached (45s TTL) with ALL requests company-scoped
+
+**Test procedure:**
+- Enabled network request monitoring
+- Navigated through 5 pages with 9-second waits: /dashboard → /transactions → /pay-links → /wallet → /notifications
+- Total navigation time: ~50 seconds
+- Counted ALL requests to /api/notifications/unread-count
+
+**Expected:** ≤2 requests total AND every request has company_id=1 (ZERO without company_id)
+
+**Actual:** 4 requests detected, 1 WITHOUT company_id
+
+**Request timestamps and details:**
+1. t=0.38s - `/api/notifications/unread-count?company_id=1` ✅
+2. t=50.07s - `/api/notifications/unread-count` ❌ NO company_id
+3. t=50.69s - `/api/notifications/unread-count?company_id=1` ✅
+4. t=50.92s - `/api/notifications/unread-count?company_id=1` ✅
+
+**Analysis:**
+- First request at t=0.38s correctly has company_id=1 (localStorage fallback working initially)
+- At t=50.07s (when navigating to /notifications), a request WITHOUT company_id fires
+- Immediately followed by 2 more requests WITH company_id=1
+- This indicates the localStorage fallback is NOT consistently preventing un-scoped requests
+
+**Root cause:**
+The fix applied (`effectiveCompanyId = selectedCompanyId ?? readLastCompanyId()`) is NOT eliminating the un-scoped request. The issue appears to be:
+1. The hook is still being called from some component/context where BOTH selectedCompanyId AND localStorage.last_company_id are undefined/null
+2. OR there's a race condition where the hook fires before localStorage is accessible
+3. OR multiple instances of the hook are running with different company_id states
+
+**Verdict:** ❌ FAIL — The fix did NOT resolve the issue. Still seeing:
+- 4 total requests (expected ≤2) ✗
+- 1 request without company_id (expected 0) ✗
+
+---
+
+#### ✅ TEST D: Mobile bottom-nav opacity — PASS
+
+**Purpose:** Verify mobile floating bottom navigation pill is fully opaque (no page content visible through it)
+
+**Test procedure:**
+- Switched to mobile viewport (390×844)
+- Navigated to /notifications
+- Scrolled down 500px so notification cards sit behind the bottom nav
+- Located element using `[data-testid="mobile-navigation-bar"]`
+- Read computed backgroundColor via JavaScript
+
+**Expected:** Bottom nav pill with opaque backgroundColor (rgb(255,255,255) or rgba with alpha=1)
+
+**Actual:** ✅ Element found and backgroundColor is fully opaque
+
+**Results:**
+- ✅ Element located successfully using data-testid="mobile-navigation-bar"
+- ✅ Computed backgroundColor: `rgb(255, 255, 255)` (fully opaque)
+- ✅ No alpha channel (rgb format, not rgba)
+- ✅ Visual inspection: no notification text visible through the pill
+
+**Verdict:** ✅ PASS — Mobile navigation bar is fully opaque as expected
+
+---
+
+### SAFETY COMPLIANCE VERIFICATION
+
+✅ **READ-ONLY testing throughout:**
+- Only form submitted: login form (2-step: email → password option → password)
+- NO Create/Save/Send/Delete/Update/Submit buttons clicked (except login Continue)
+- NO navigation to /pay/* checkout URLs
+- NO mutations of any kind
+
+✅ **Proper pacing:**
+- 9 second waits between ALL page navigations (as specified)
+- ONE browser context used throughout
+- NO parallel page loads
+- Result: ZERO 429 errors detected
+
+---
+
+### SCREENSHOTS CAPTURED
+
+1. `.screenshots/testD_mobile_nav_final.png` — Mobile /notifications with bottom nav visible (opaque white pill)
+
+---
+
+### SUMMARY FOR MAIN AGENT
+
+#### ❌ CRITICAL ISSUE: TEST C STILL FAILING
+
+**Problem:** 4 requests detected instead of ≤2, with 1 request lacking company_id
+
+**The fix applied is NOT working:**
+- `effectiveCompanyId = selectedCompanyId ?? readLastCompanyId()` in useUnreadNotificationsCount.ts
+- This was supposed to eliminate un-scoped requests by falling back to localStorage.last_company_id
+- However, at t=50.07s, a request WITHOUT company_id still fires
+
+**Possible root causes:**
+1. **Multiple hook instances:** The hook may be called from different components (sidebar + mobile nav) that mount at different times, and one of them fires before localStorage is accessible
+2. **Effect timing:** The 400ms deferred fetch may not be long enough for localStorage to be read in all cases
+3. **SSR/hydration issue:** On the /notifications page specifically, the hook may be firing during SSR or early hydration when localStorage isn't available
+4. **Cache key mismatch:** Even with the fallback, if one component calls with company_id and another without, they create separate cache entries
+
+**Recommended next steps:**
+1. Add defensive check: if `effectiveCompanyId` is null/undefined, skip the network request entirely (return early)
+2. Increase the deferred fetch delay from 400ms to 800ms to ensure localStorage is always accessible
+3. Add logging to identify which component is making the un-scoped request
+4. Consider moving the unread count to Redux state so all components share a single source of truth
+
+#### ✅ TEST D: PASS — Mobile nav opacity working correctly
+
+The data-testid attribute was successfully added and the backgroundColor is fully opaque rgb(255, 255, 255). No further action needed for TEST D.
+
+---
+
+### NEXT STEPS
+
+1. **HIGH PRIORITY:** Fix TEST C — the localStorage fallback is not preventing un-scoped requests
+2. **RETEST:** After fixing TEST C, rerun the test to verify ≤2 requests with ALL having company_id=1
+
+---
+
+
 ## RETEST C/D/E (session 10 UX batch) after cache-hook fix — Test Request (2026-07-09)
 
 ### FIX APPLIED SINCE LAST RUN (hooks/useUnreadNotificationsCount.ts, rebuilt)

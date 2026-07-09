@@ -67,6 +67,20 @@ function persistCache() {
 
 const inflight = new Map<string, Promise<number>>();
 
+// Mirrors Redux companyReducer's persisted selection so the very first fetch
+// after a full page load is already company-scoped (Redux hydrates a moment
+// later; without this we'd fire an un-scoped duplicate request first).
+function readLastCompanyId(): number | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const val = window.localStorage.getItem("last_company_id");
+    const n = val ? parseInt(val, 10) : NaN;
+    return Number.isFinite(n) ? n : null;
+  } catch {
+    return null;
+  }
+}
+
 function cacheKey(companyId: unknown): string {
   return companyId ? String(companyId) : "all";
 }
@@ -112,22 +126,32 @@ export function useUnreadNotificationsCount(): number {
   const selectedCompanyId = useSelector(
     (state: any) => state?.companyReducer?.selectedCompanyId,
   );
+  // Before Redux hydrates, fall back to the persisted last_company_id so the
+  // first request is already scoped to the right company (single cache key).
+  const effectiveCompanyId = selectedCompanyId ?? readLastCompanyId();
   // Seed from cache so remounts render the badge instantly with no flicker.
   const [count, setCount] = useState<number>(
-    () => getFreshCached(selectedCompanyId) ?? 0,
+    () => getFreshCached(effectiveCompanyId) ?? 0,
   );
 
   useEffect(() => {
     if (typeof window === "undefined") return;
     const token = localStorage.getItem("token");
     if (!token) return;
+    // Count is company-scoped: with no company (neither hydrated nor
+    // persisted) there is nothing to badge against — skip the network
+    // entirely. Effect re-runs once a company gets selected.
+    if (!effectiveCompanyId) {
+      setCount(0);
+      return;
+    }
 
     let cancelled = false;
     let timer: ReturnType<typeof setInterval> | null = null;
     let initialTimer: ReturnType<typeof setTimeout> | null = null;
 
     const refresh = () => {
-      fetchUnreadCount(selectedCompanyId)
+      fetchUnreadCount(effectiveCompanyId)
         .then((n) => {
           if (!cancelled) setCount(n);
         })
@@ -137,7 +161,7 @@ export function useUnreadNotificationsCount(): number {
     };
 
     // If we already have a fresh cached value, surface it immediately.
-    const cached = getFreshCached(selectedCompanyId);
+    const cached = getFreshCached(effectiveCompanyId);
     if (cached !== null) setCount(cached);
 
     // Defer the first network attempt slightly so a company-id hydration
@@ -158,7 +182,7 @@ export function useUnreadNotificationsCount(): number {
       if (timer) clearInterval(timer);
       window.removeEventListener("focus", onFocus);
     };
-  }, [selectedCompanyId]);
+  }, [effectiveCompanyId]);
 
   return count;
 }

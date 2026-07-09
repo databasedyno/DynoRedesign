@@ -249,7 +249,7 @@ const MobileNavigationBar = () => {
   return (
     <NavigationBarContainer>
       <Box position="relative" ref={navBarRef}>
-        <NavigationBar expanded={isExpanded}>
+        <NavigationBar expanded={isExpanded} data-testid="mobile-navigation-bar">
           <MainNavRow expanded={isExpanded}>
             {/* First row - 5 items */}
             <FirstRow>
