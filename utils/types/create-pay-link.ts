@@ -36,6 +36,8 @@ export interface CryptoSelectionProps {
   setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
   handleSearch: () => void;
   cryptoItems: ICryptoItem[];
+  /** Full unsliced currency list — "Select all" must operate on this, not the visible (collapsed) slice */
+  allCryptoItems: ICryptoItem[];
   filteredCryptoItems: ICryptoItem[];
   showFilteredCryptoItems: boolean;
   showAllCoins: boolean;

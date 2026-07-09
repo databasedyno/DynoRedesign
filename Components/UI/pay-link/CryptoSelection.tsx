@@ -17,6 +17,7 @@ const CryptoSelection: React.FC<CryptoSelectionProps> = ({
   setSearchTerm,
   handleSearch,
   cryptoItems,
+  allCryptoItems,
   filteredCryptoItems,
   showFilteredCryptoItems,
   showAllCoins,
@@ -216,7 +217,7 @@ const CryptoSelection: React.FC<CryptoSelectionProps> = ({
                 color: theme.palette.text.primary,
               }}
             >
-              {`${paymentSettings.acceptedCryptoCurrency.length} ${t("of")} ${cryptoItems.length} ${t("currenciesSelected")}`}
+              {`${paymentSettings.acceptedCryptoCurrency.length} ${t("of")} ${allCryptoItems.length} ${t("currenciesSelected")}`}
             </Text>
           </Box>
           <Box sx={{ display: "flex", gap: "16px" }}>
@@ -226,9 +227,12 @@ const CryptoSelection: React.FC<CryptoSelectionProps> = ({
                 <Box
                   onClick={() => {
                     if (item === t("selectAll")) {
+                      // BUGFIX 2026-07-09: select from the FULL currency list, not the
+                      // visible slice (collapsed view shows only 5) — otherwise
+                      // "Select all" captured just the 5 on-screen coins.
                       setPaymentSettings((prev: any) => ({
                         ...prev,
-                        acceptedCryptoCurrency: cryptoItems
+                        acceptedCryptoCurrency: allCryptoItems
                           .map((item) => {
                             if (!walletNotSetUp.includes(item.label))
                               return item.label;
@@ -236,6 +240,8 @@ const CryptoSelection: React.FC<CryptoSelectionProps> = ({
                           })
                           .filter((item) => item !== null) as string[],
                       }));
+                      // Expand the grid so every selected currency is visible
+                      setShowAllCoins(true);
                     } else {
                       setPaymentSettings((prev: any) => ({
                         ...prev,

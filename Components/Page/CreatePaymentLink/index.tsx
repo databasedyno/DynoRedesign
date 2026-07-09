@@ -1066,6 +1066,7 @@ const CreatePaymentLinkPage = ({
                 setSearchTerm={setSearchTerm}
                 handleSearch={handleSearch}
                 cryptoItems={cryptoItems}
+                allCryptoItems={ALL_CRYPTO_ITEMS}
                 filteredCryptoItems={filteredCryptoItems}
                 showFilteredCryptoItems={showFilteredCryptoItems}
                 showAllCoins={showAllCoins}

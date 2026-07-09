@@ -1,3 +1,39 @@
+## "Select all" on Create Payment Link only captures 5 currencies (Bug Fix) — Test Request (2026-07-09, session 9)
+
+### USER REPORT (hostbay@moxx.co)
+On /create-pay-link, clicking "Select all" only selected 5 currencies unless "Show all" was clicked first —
+despite the account having 13 saved wallets.
+
+### ROOT CAUSE
+Components/UI/pay-link/CryptoSelection.tsx "Select all" handler mapped over `cryptoItems` — the VISIBLE list,
+which is sliced to the first 5 currencies while the grid is collapsed (parent CreatePaymentLink/index.tsx keeps
+`cryptoItems` = shortOrder<=5 unless showAllCoins). The "X of Y" counter used the same sliced list as denominator.
+
+### FIX (frontend only, 3 files)
+- utils/types/create-pay-link.ts: CryptoSelectionProps gains `allCryptoItems: ICryptoItem[]` (full unsliced list).
+- Components/Page/CreatePaymentLink/index.tsx: passes `allCryptoItems={ALL_CRYPTO_ITEMS}` (15 currencies).
+- Components/UI/pay-link/CryptoSelection.tsx: "Select all" now maps `allCryptoItems` (minus walletNotSetUp),
+  auto-expands the grid (`setShowAllCoins(true)`) so all selected cards are visible, and the counter denominator
+  is `allCryptoItems.length` (stable "of 15" regardless of collapse state).
+
+### FRONTEND TEST REQUEST — https://767dbee0-dc01-41e6-80f9-1b6ec15c0432.preview.emergentagent.com
+HARD CONSTRAINTS: backend uses LIVE PRODUCTION Railway PG. READ-ONLY — login allowed, navigating allowed,
+clicking Select all/Clear all/Show all allowed (client-side state only). DO NOT submit/create/save a payment
+link, DO NOT click any final "Create"/"Save" button, no other mutations.
+1. Login (2-step): /auth/login → email hostbay@moxx.co → Continue → "Password" radio → Continue →
+   Katiekendra123@ → Continue → /dashboard.
+2. Go to /create-pay-link. In "Accepted cryptocurrencies" the grid shows 5 currency cards (collapsed) with a
+   "Show all" button. DO NOT click Show all.
+3. Click "Select all". EXPECT: (a) grid auto-expands to all 15 currency cards ("Show less" button appears);
+   (b) ALL currencies with configured wallets become selected — counter reads "13 of 15 currencies selected"
+   (hostbay has 13 configured wallets; NOT "5 of ..."); (c) unconfigured currencies stay unselected.
+4. Click "Clear all" → counter "0 of 15". Click "Show less" to collapse, then "Select all" again while
+   collapsed → counter again "13 of 15" (regression re-check).
+5. Leave the page WITHOUT saving.
+
+### RESULT (2026-07-09): tested by frontend agent — see run log below.
+
+
 ## 2026-07-09 SESSION 9 — Fresh container re-provisioned ✅ (setup only, no code changes)
 - Fresh container (no node_modules, no .env files, frontend FATAL). Re-provisioned from user-supplied `<continuation_request>` .env per documented procedure (see /app/memory/test_credentials.md for full detail).
 - `yarn install` in /app (76s) + /app/backend (26s); wrote /app/backend/.env, /app/.env, /app/frontend/.env.
