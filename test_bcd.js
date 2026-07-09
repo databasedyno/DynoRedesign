@@ -3,7 +3,7 @@
  * Tests B, C, D: API endpoint testing with authentication
  */
 
-const BASE_URL = 'https://090222ef-6e7d-426e-9d7a-2d9a88e6caf0.preview.emergentagent.com/api';
+const BASE_URL = 'https://fast-start-9.preview.emergentagent.com/api';
 const TEST_EMAIL = 'hostbay@moxx.co';
 const TEST_PASSWORD = 'Katiekendra123@';
 
