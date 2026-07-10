@@ -1,6 +1,8 @@
 import express from "express";
 import jwt from "jsonwebtoken";
 import OpenAI from "openai";
+import path from "path";
+import fs from "fs";
 import supportChatMessageModel from "../models/supportChatModel";
 import companyModel from "../models/companyModels/companyModel";
 import { apiLogger } from "../utils/loggers";
@@ -29,6 +31,16 @@ const HISTORY_TURNS_FOR_CONTEXT = 20; // messages (user+assistant) sent to the m
 const MAX_SESSION_MESSAGES = 200; // hard cap per session (abuse guard)
 const MODEL = process.env.SUPPORT_CHAT_MODEL || "gpt-5.4";
 
+// Attachments (session 14): uploaded via POST /api/support/chat/upload, stored on
+// disk under <uploads>/support-chat and served at /api/static/support-chat/<file>.
+// Path must resolve the same directory as server.ts's uploadsPath (one level up).
+export const SUPPORT_UPLOAD_DIR = path.join(
+  process.env.UPLOAD_PATH || path.join(__dirname, "../../uploads"),
+  "support-chat"
+);
+const ATTACHMENT_URL_RE = /^\/api\/static\/support-chat\/[A-Za-z0-9][A-Za-z0-9._-]{0,140}$/;
+const IMAGE_MIMES = ["image/png", "image/jpeg", "image/webp", "image/gif"];
+
 let openaiClient: OpenAI | null = null;
 const getOpenAI = (): OpenAI | null => {
   if (!process.env.OPENAI_API_KEY) return null;
@@ -38,7 +50,7 @@ const getOpenAI = (): OpenAI | null => {
   return openaiClient;
 };
 
-const SYSTEM_PROMPT = `You are Dyno, the friendly AI support assistant for DynoPay (https://dynopay.com), a non-custodial cryptocurrency payment gateway for merchants.
+const SYSTEM_PROMPT = `You are Emily, the friendly support assistant for DynoPay (https://dynopay.com), a non-custodial cryptocurrency payment gateway for merchants.
 
 WHAT DYNOPAY DOES
 - Lets businesses accept crypto payments that settle STRAIGHT to the merchant's own wallet (non-custodial — DynoPay never holds merchant funds).
@@ -74,6 +86,7 @@ RULES
 - NEVER invent features, prices or limits that are not listed above. If you are not sure, say so and point the user to https://dynopay.com/documentation or https://dynopay.com/fees, or suggest they press the "Talk to a human" button in this chat to reach the support team.
 - For account-specific actions you cannot perform (refunds, KYC review, unlocking accounts, payout investigations, changing account data), apologise briefly and direct the user to the "Talk to a human" escalation button.
 - NEVER ask for or accept private keys, seed phrases, passwords or 2FA codes. If a user shares one, tell them to consider it compromised and rotate it immediately.
+- The user may attach screenshots/images. When an image is attached, look at it carefully and use it to help (e.g. error messages, payment pages, dashboard issues).
 - Keep replies under 150 words unless the user asks for detail.`;
 
 interface JwtUser {
@@ -125,15 +138,44 @@ const buildUserContext = async (user: JwtUser): Promise<string> => {
 /** POST /api/support/chat — one user turn → one assistant reply. */
 const chatWithSupport = async (req: express.Request, res: express.Response) => {
   try {
-    const { session_id, message } = req.body || {};
+    const { session_id, message, attachment_url, attachment_name, attachment_type } = req.body || {};
 
     if (typeof session_id !== "string" || !SESSION_ID_RE.test(session_id)) {
       return errorResponseHelper(res, 400, "Invalid session_id.");
     }
-    if (typeof message !== "string" || message.trim().length === 0) {
+
+    // Validate the optional attachment (must be a file we served from our own
+    // support-chat upload endpoint — never an arbitrary URL).
+    let attachedFilePath: string | null = null;
+    let attachedMime: string | null = null;
+    let cleanAttachmentUrl: string | null = null;
+    let cleanAttachmentName: string | null = null;
+    if (attachment_url !== undefined && attachment_url !== null && attachment_url !== "") {
+      if (typeof attachment_url !== "string" || !ATTACHMENT_URL_RE.test(attachment_url)) {
+        return errorResponseHelper(res, 400, "Invalid attachment.");
+      }
+      const fileName = path.basename(attachment_url);
+      const filePath = path.join(SUPPORT_UPLOAD_DIR, fileName);
+      if (!fs.existsSync(filePath)) {
+        return errorResponseHelper(res, 400, "Attachment not found. Please upload it again.");
+      }
+      cleanAttachmentUrl = `/api/static/support-chat/${fileName}`;
+      cleanAttachmentName =
+        typeof attachment_name === "string" && attachment_name.length > 0
+          ? attachment_name.slice(0, 255)
+          : fileName;
+      attachedMime =
+        typeof attachment_type === "string" && /^[a-z]+\/[a-z0-9.+-]+$/i.test(attachment_type)
+          ? attachment_type.toLowerCase()
+          : null;
+      attachedFilePath = filePath;
+    }
+
+    const trimmedMessage = typeof message === "string" ? message.trim() : "";
+    if (trimmedMessage.length === 0 && !attachedFilePath) {
       return errorResponseHelper(res, 400, "Message is required.");
     }
-    if (message.length > MAX_MESSAGE_CHARS) {
+    if (trimmedMessage.length > MAX_MESSAGE_CHARS) {
       return errorResponseHelper(res, 400, `Message too long (max ${MAX_MESSAGE_CHARS} characters).`);
     }
 
@@ -163,13 +205,35 @@ const chatWithSupport = async (req: express.Request, res: express.Response) => {
       systemContent += await buildUserContext(user);
     }
 
-    const messages: Array<{ role: "system" | "user" | "assistant"; content: string }> = [
+    // Current user turn: plain text, or multimodal (text + image) when an
+    // image attachment is present. Non-image attachments are described in text.
+    const isImage = !!(attachedMime && IMAGE_MIMES.includes(attachedMime));
+    let currentUserContent: OpenAI.Chat.Completions.ChatCompletionMessageParam["content"] = trimmedMessage;
+    if (attachedFilePath && isImage) {
+      try {
+        const b64 = fs.readFileSync(attachedFilePath).toString("base64");
+        currentUserContent = [
+          {
+            type: "text",
+            text: trimmedMessage.length > 0 ? trimmedMessage : "(The user sent an image without any text.)",
+          },
+          { type: "image_url", image_url: { url: `data:${attachedMime};base64,${b64}` } },
+        ];
+      } catch (readErr) {
+        apiLogger.warn(`[supportChat] could not read attachment for vision: ${(readErr as Error).message}`);
+        currentUserContent = `${trimmedMessage}\n\n[The user attached an image named "${cleanAttachmentName}" but it could not be loaded.]`;
+      }
+    } else if (attachedFilePath && !isImage) {
+      currentUserContent = `${trimmedMessage}\n\n[The user attached a file named "${cleanAttachmentName}" (${attachedMime || "unknown type"}). You cannot open it — acknowledge it and, if needed, suggest the "Talk to a human" escalation so the team can review it.]`;
+    }
+
+    const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
       { role: "system", content: systemContent },
       ...historyRows.map((m) => ({
         role: (m.role === "assistant" ? "assistant" : "user") as "assistant" | "user",
-        content: m.content,
+        content: m.attachment_url ? `${m.content}\n[This message included an attachment: ${m.attachment_name || "file"}]` : m.content,
       })),
-      { role: "user", content: message.trim() },
+      { role: "user", content: currentUserContent },
     ];
 
     const completion = await openai.chat.completions.create({
@@ -190,9 +254,12 @@ const chatWithSupport = async (req: express.Request, res: express.Response) => {
       session_id,
       user_id: user?.user_id ?? null,
       role: "user",
-      content: message.trim(),
+      content: trimmedMessage,
+      attachment_url: cleanAttachmentUrl,
+      attachment_name: cleanAttachmentName,
+      attachment_type: attachedMime,
     });
-    await supportChatMessageModel.create({
+    const assistantRow = await supportChatMessageModel.create({
       session_id,
       user_id: user?.user_id ?? null,
       role: "assistant",
@@ -200,7 +267,7 @@ const chatWithSupport = async (req: express.Request, res: express.Response) => {
     });
 
     apiLogger.info(`[supportChat] session=${session_id} user=${user?.user_id ?? "anon"} tokens=${completion.usage?.total_tokens ?? "?"}`);
-    return successResponseHelper(res, 200, "", { session_id, reply });
+    return successResponseHelper(res, 200, "", { session_id, reply, replied_at: assistantRow.createdAt });
   } catch (e) {
     const err = e as { status?: number; message?: string };
     apiLogger.error(`[supportChat] chat failed: ${err?.message}`);
@@ -225,7 +292,7 @@ const getChatHistory = async (req: express.Request, res: express.Response) => {
       where: { session_id: sessionId },
       order: [["createdAt", "ASC"]],
       limit: 100,
-      attributes: ["message_id", "role", "content", "createdAt"],
+      attributes: ["message_id", "role", "content", "attachment_url", "attachment_name", "attachment_type", "createdAt"],
     });
     return successResponseHelper(res, 200, "", { session_id: sessionId, messages: rows });
   } catch (e) {
@@ -274,9 +341,12 @@ const escalateChat = async (req: express.Request, res: express.Response) => {
     const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     const transcriptHtml = rows
       .map((m) => {
-        const who = m.role === "assistant" ? "Dyno (AI)" : "Visitor";
+        const who = m.role === "assistant" ? "Emily (AI)" : "Visitor";
         const when = m.createdAt ? new Date(m.createdAt).toISOString().replace("T", " ").slice(0, 16) : "";
-        return `<p style=\"margin:4px 0\"><strong>${who}</strong> <span style=\"color:#888\">${when} UTC</span><br/>${esc(m.content)}</p>`;
+        const attachmentLine = m.attachment_url
+          ? `<br/><em>Attachment:</em> <a href="${esc(`${process.env.SERVER_URL || "https://dynopay.com"}${m.attachment_url}`)}">${esc(m.attachment_name || "file")}</a>`
+          : "";
+        return `<p style=\"margin:4px 0\"><strong>${who}</strong> <span style=\"color:#888\">${when} UTC</span><br/>${esc(m.content)}${attachmentLine}</p>`;
       })
       .join("\n");
 
@@ -307,4 +377,26 @@ const escalateChat = async (req: express.Request, res: express.Response) => {
   }
 };
 
-export default { chatWithSupport, getChatHistory, escalateChat };
+/** POST /api/support/chat/upload — attachment upload (multer runs in the router).
+ * Accepts one file field named "file"; returns the served URL + metadata. */
+const uploadAttachment = async (req: express.Request, res: express.Response) => {
+  try {
+    const file = (req as express.Request & { file?: Express.Multer.File }).file;
+    if (!file) {
+      return errorResponseHelper(res, 400, "No file uploaded.");
+    }
+    const url = `/api/static/support-chat/${file.filename}`;
+    apiLogger.info(`[supportChat] attachment uploaded: ${file.filename} (${file.mimetype}, ${file.size}b)`);
+    return successResponseHelper(res, 200, "", {
+      url,
+      name: file.originalname?.slice(0, 255) || file.filename,
+      type: file.mimetype,
+      size: file.size,
+    });
+  } catch (e) {
+    apiLogger.error(`[supportChat] upload failed: ${(e as Error).message}`);
+    return errorResponseHelper(res, 500, "Upload failed. Please try again.");
+  }
+};
+
+export default { chatWithSupport, getChatHistory, escalateChat, uploadAttachment };

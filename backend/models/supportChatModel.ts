@@ -16,12 +16,18 @@ interface SupportChatMessageAttributes {
   role: "user" | "assistant";
   content: string;
   escalated: boolean;
+  attachment_url?: string | null;
+  attachment_name?: string | null;
+  attachment_type?: string | null;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
 interface SupportChatMessageCreationAttributes
-  extends Optional<SupportChatMessageAttributes, "message_id" | "user_id" | "escalated" | "createdAt" | "updatedAt"> {}
+  extends Optional<
+    SupportChatMessageAttributes,
+    "message_id" | "user_id" | "escalated" | "attachment_url" | "attachment_name" | "attachment_type" | "createdAt" | "updatedAt"
+  > {}
 
 class SupportChatMessage
   extends Model<SupportChatMessageAttributes, SupportChatMessageCreationAttributes>
@@ -33,6 +39,9 @@ class SupportChatMessage
   public role!: "user" | "assistant";
   public content!: string;
   public escalated!: boolean;
+  public attachment_url?: string | null;
+  public attachment_name?: string | null;
+  public attachment_type?: string | null;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 }
@@ -64,6 +73,18 @@ SupportChatMessage.init(
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: false,
+    },
+    attachment_url: {
+      type: DataTypes.STRING(512),
+      allowNull: true,
+    },
+    attachment_name: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+    },
+    attachment_type: {
+      type: DataTypes.STRING(64),
+      allowNull: true,
     },
   },
   {

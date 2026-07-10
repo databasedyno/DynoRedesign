@@ -1,9 +1,8 @@
-import React, { memo, useCallback, useState } from 'react';
+import React, { memo, useCallback } from 'react';
 import { Box, Typography, Button, useTheme } from '@mui/material';
-import { ArrowForward, PlayArrow } from '@mui/icons-material';
+import { ArrowForward } from '@mui/icons-material';
 import { useRouter } from 'next/router';
 import useCountry from '@/hooks/useCountry';
-import DemoVideoModal from '@/Components/Modals/DemoVideoModal';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 
@@ -31,8 +30,10 @@ const heroItem = {
  *
  * What we KEPT (still useful):
  *   • Country-personalized trust line via useCountry() ("Trusted in X")
- *   • "Watch 90s demo" video modal (secondary CTA)
  *   • Primary → /auth/register CTA
+ *
+ * REMOVED (session 14): the "Watch 90s demo" video modal CTA — the animated
+ * ProductShowcase right below the hero replaces the demo video entirely.
  *
  * The hero is roughly single-column and centered — same as most B2B SaaS
  * landings that read as "clean" (Stripe, Linear, Mercury, Ramp).
@@ -43,14 +44,10 @@ const HeroClean: React.FC = () => {
   const router = useRouter();
   const { country } = useCountry();
   const { t } = useTranslation('landing');
-  const [videoOpen, setVideoOpen] = useState(false);
 
   const goPrimary = useCallback(() => {
     router.push('/auth/register?ref=hero_clean');
   }, [router]);
-
-  const openVideo = useCallback(() => setVideoOpen(true), []);
-  const closeVideo = useCallback(() => setVideoOpen(false), []);
 
   // Country flag from IP geo — falls back gracefully if lookup is still in-flight.
   const trustLine =
@@ -168,22 +165,6 @@ const HeroClean: React.FC = () => {
         >
           {t('startAcceptingCrypto')}
         </Button>
-        <Button
-          onClick={openVideo}
-          variant="text"
-          startIcon={<PlayArrow />}
-          sx={{
-            color: theme.palette.text.primary,
-            textTransform: 'none',
-            fontFamily: 'var(--font-sans)',
-            fontWeight: 500,
-            fontSize: { xs: 15, md: 16 },
-            px: 1.5,
-            py: 1,
-          }}
-        >
-          {t('heroWatchDemo')}
-        </Button>
       </Box>
 
       {/* Single subtle trust line, country-personalized. Replaces the row of pill trust badges. */}
@@ -199,8 +180,6 @@ const HeroClean: React.FC = () => {
       >
         {trustLine}
       </Typography>
-
-      <DemoVideoModal open={videoOpen} onClose={closeVideo} />
     </Box>
   );
 };

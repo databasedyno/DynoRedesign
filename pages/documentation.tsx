@@ -363,6 +363,36 @@ const InfoBox = styled(Box)(({ theme }) => {
 
 const BASE_URL = "/api/user";
 
+// Public origin shown in copy-paste examples (matches production).
+const DOC_ORIGIN = "https://dynopay.com";
+
+// --- "Try It Live" sandbox playground (migrated from the landing page's
+// TryItNow section, session 14). POST /api/public/sandbox/payment-links is a
+// public, rate-limited endpoint that returns an ephemeral in-memory response —
+// nothing hits the DB, safe to run without an account.
+const SANDBOX_KEY = "dyno_sk_sandbox_demo_9f621db8";
+const SANDBOX_CURL = `curl -X POST "${DOC_ORIGIN}/api/public/sandbox/payment-links" \\
+  -H "Authorization: Bearer ${SANDBOX_KEY}" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "amount": 49.99,
+    "currency": "USD",
+    "description": "Pro Plan – Monthly",
+    "customer_email": "customer@example.com"
+  }'`;
+const SANDBOX_RESPONSE = `{
+  "object": "payment_link",
+  "id": "plink_sandbox_2727324c61ebfb8b",
+  "livemode": false,
+  "sandbox": true,
+  "status": "awaiting_payment",
+  "amount": 49.99,
+  "currency": "USD",
+  "checkout_url": "https://dynopay.com/pay/…",
+  "expires_at": "2026-07-05T16:14:12.536Z",
+  "supported_chains": ["USDT-TRC20", "USDT-ERC20", …]
+}`;
+
 const ENDPOINTS: Endpoint[] = [
   {
     id: "create-user",
@@ -710,6 +740,7 @@ const ENDPOINTS: Endpoint[] = [
 const SECTIONS: Section[] = [
   { id: "overview", title: "Overview", icon: <CodeIcon /> },
   { id: "getting-started", title: "Getting Started", icon: <CodeIcon /> },
+  { id: "try-it", title: "Try It Live", icon: <PaymentIcon /> },
   { id: "authentication", title: "Authentication", icon: <ShieldOutlinedIcon /> },
   { id: "customers", title: "Customers", icon: <PersonAddAlt1Icon />, endpoints: ["create-user"] },
   { id: "payments", title: "Payments", icon: <PaymentIcon />, endpoints: ["create-payment", "crypto-payment"] },
@@ -808,7 +839,14 @@ const EndpointCard = memo(({ ep }: { ep: Endpoint }) => {
       </EndpointHeader>
       {expanded && (
         <Box sx={{ px: 2.5, py: 2.5, borderTop: `1px solid ${dk ? "rgba(255,255,255,0.12)" : "rgba(10,10,10,0.10)"}` }}>
-          <Typography sx={{ fontSize: 14, fontFamily: "var(--font-sans)", color: "text.secondary", mb: 2.5, lineHeight: 1.7 }}>{ep.description}</Typography>
+          <Typography sx={{ fontSize: 14, fontFamily: "var(--font-sans)", color: "text.secondary", mb: 2, lineHeight: 1.7 }}>{ep.description}</Typography>
+          {/* Full production URL — so the correct host + /api prefix is visible where it matters */}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2.5, px: 1.5, py: 1, borderRadius: "8px", background: dk ? "rgba(204,255,0,0.05)" : "#F5F6FA", border: `1px solid ${dk ? "rgba(255,255,255,0.10)" : "rgba(10,10,10,0.08)"}`, overflowX: "auto" }}>
+            <Typography component="span" sx={{ fontSize: 11, fontWeight: 700, fontFamily: "var(--font-sans)", color: "text.secondary", flexShrink: 0 }}>{ep.method}</Typography>
+            <Typography component="code" sx={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12.5, color: "text.primary", whiteSpace: "nowrap" }}>
+              {`https://dynopay.com${ep.path.startsWith("/api/") ? ep.path : `${BASE_URL}${ep.path}`}`}
+            </Typography>
+          </Box>
           <ParamTable title="Headers" params={ep.headers.map((h) => ({ name: h.name, type: "string", description: h.description || h.value }))} />
           {ep.pathParams && ep.pathParams.length > 0 && <ParamTable title="Path Parameters" params={ep.pathParams} />}
           {ep.queryParams && ep.queryParams.length > 0 && <ParamTable title="Query Parameters" params={ep.queryParams} />}
@@ -1052,6 +1090,25 @@ curl -X POST https://dynopay.com/api/user/createUser \\
   -H "Content-Type: application/json" \\
   -d '{"name": "Jane Smith", "email": "jane@example.com"}'`}
                 />
+              </Box>
+
+              {/* Try It Live — sandbox playground (no account needed) */}
+              <Box id="try-it" sx={{ mb: 8, scrollMarginTop: "100px" }}>
+                <Typography sx={{ fontSize: { xs: 24, md: 30 }, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1.5 }}>
+                  Try It Live
+                </Typography>
+                <Typography sx={{ fontSize: 15, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.8, mb: 3 }}>
+                  Run this request right now — no signup and no API key setup. It hits our public <strong>sandbox</strong> endpoint, returns an ephemeral payment link and never touches real funds or your data. Rate-limited per IP.
+                </Typography>
+                <Typography sx={{ fontSize: 13, fontWeight: 600, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1 }}>Request</Typography>
+                <CodeBlock lang="bash" code={SANDBOX_CURL} />
+                <Typography sx={{ fontSize: 13, fontWeight: 600, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1, mt: 2.5 }}>Sample response</Typography>
+                <CodeBlock lang="json" code={SANDBOX_RESPONSE} />
+                <Typography sx={{ fontSize: 13, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.7, mt: 2 }}>
+                  The sandbox key <code style={{ fontSize: 12 }}>{SANDBOX_KEY}</code> is public and only works on this endpoint. When you are ready to go live, create your own API key in the dashboard and switch to the real endpoints below — the request shape is the same. You can also{" "}
+                  <a href="/pay/demo" target="_blank" rel="noopener noreferrer" style={{ color: "inherit", textDecoration: "underline" }}>open the live checkout demo</a>{" "}
+                  to see what your customers experience.
+                </Typography>
               </Box>
 
               {/* Authentication */}

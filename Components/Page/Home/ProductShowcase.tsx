@@ -346,10 +346,10 @@ const SettlementSlide: React.FC<{ dark: boolean; reduced: boolean }> = ({ dark, 
 // ---------------------------------------------------------------------------
 
 const CODE_LINES = [
-  "$ curl -X POST https://api.dynopay.com/v1/payments \\",
-  "    -H \"Authorization: Bearer sk_live_…\" \\",
-  "    -d amount=250 -d currency=USD \\",
-  "    -d settle_in=USDT",
+  "$ curl -X POST https://dynopay.com/api/user/createPayment \\",
+  "    -H \"x-api-key: your_api_key\" \\",
+  "    -H \"Content-Type: application/json\" \\",
+  "    -d '{\"amount\": 250, \"redirect_uri\": \"https://yoursite.com/thanks\"}'",
 ];
 
 const DevSlide: React.FC<{ dark: boolean; reduced: boolean }> = ({ dark, reduced }) => {
@@ -554,7 +554,7 @@ const ProductShowcase: React.FC = () => {
             <Box sx={{ flex: 1, maxWidth: 380, mx: "auto", display: "flex", alignItems: "center", justifyContent: "center", gap: 0.75, px: 2, py: 0.5, borderRadius: "8px", backgroundColor: dark ? "rgba(255,255,255,0.06)" : "rgba(10,10,10,0.05)" }}>
               <Box component="span" sx={{ fontSize: 11, color: sub }}>🔒</Box>
               <Typography sx={{ fontSize: 12.5, color: sub, fontFamily: "var(--font-mono), monospace" }}>
-                {index === 0 ? "checkout.dynopay.com" : index === 1 ? "dynopay.com/dashboard" : "api.dynopay.com"}
+                {index === 0 ? "checkout.dynopay.com" : index === 1 ? "dynopay.com/dashboard" : "dynopay.com/api"}
               </Typography>
             </Box>
             <Box sx={{ width: 44 }} />

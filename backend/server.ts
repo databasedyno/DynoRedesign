@@ -237,6 +237,11 @@ app.get("/api/static/images/*", imageFallbackHandler);
 app.get("/images/*", imageFallbackHandler);
 app.use("/api/static/videos", express.static(path.join(uploadsPath, "videos")));
 app.use("/videos", express.static(path.join(uploadsPath, "videos")));
+// Support-chat attachments (session 14) — uploaded via POST /api/support/chat/upload
+app.use(
+  "/api/static/support-chat",
+  express.static(path.join(uploadsPath, "support-chat"), { dotfiles: "deny", maxAge: "1d" })
+);
 
 // Setup Swagger API documentation
 setupSwagger(app);

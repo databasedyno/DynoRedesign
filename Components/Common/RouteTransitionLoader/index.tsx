@@ -24,7 +24,8 @@ import DynopayWhiteLogo from "@/assets/Icons/home/dynopay-whiteLogo.svg";
 import { useThemeMode } from "@/contexts/ThemeContext";
 
 const SHOW_DELAY_MS = 250; // don't show for near-instant transitions
-const MIN_VISIBLE_MS = 500; // once shown, keep visible at least this long
+const MIN_VISIBLE_MS = 350; // once shown, keep visible at least this long
+const FADE_OUT_MS = 240; // graceful fade-out so the hand-off "flows" into the page
 
 const overlayFadeIn = keyframes`
   from { opacity: 0; }
@@ -43,9 +44,13 @@ const RouteTransitionLoader: React.FC = () => {
   const router = useRouter();
   const { isDark } = useThemeMode();
   const [visible, setVisible] = useState(false);
+  // "leaving" keeps the overlay mounted while it fades out, so the loader
+  // hands off smoothly to the freshly rendered page instead of hard-cutting.
+  const [leaving, setLeaving] = useState(false);
 
   const showTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const fadeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const shownAtRef = useRef<number>(0);
 
   useEffect(() => {
@@ -58,6 +63,10 @@ const RouteTransitionLoader: React.FC = () => {
         clearTimeout(hideTimerRef.current);
         hideTimerRef.current = null;
       }
+      if (fadeTimerRef.current) {
+        clearTimeout(fadeTimerRef.current);
+        fadeTimerRef.current = null;
+      }
     };
 
     const handleStart = (url: string, opts?: { shallow?: boolean }) => {
@@ -67,10 +76,21 @@ const RouteTransitionLoader: React.FC = () => {
       if (stripPath(url) === stripPath(router.asPath)) return;
 
       clearTimers();
+      setLeaving(false);
       showTimerRef.current = setTimeout(() => {
         shownAtRef.current = Date.now();
         setVisible(true);
       }, SHOW_DELAY_MS);
+    };
+
+    // Fade the overlay out, then unmount it.
+    const beginFadeOut = () => {
+      setLeaving(true);
+      fadeTimerRef.current = setTimeout(() => {
+        fadeTimerRef.current = null;
+        setVisible(false);
+        setLeaving(false);
+      }, FADE_OUT_MS);
     };
 
     const handleDone = () => {
@@ -81,11 +101,12 @@ const RouteTransitionLoader: React.FC = () => {
       setVisible((current) => {
         if (!current) return false;
         const elapsed = Date.now() - shownAtRef.current;
-        if (elapsed >= MIN_VISIBLE_MS) return false;
-        if (!hideTimerRef.current) {
+        if (elapsed >= MIN_VISIBLE_MS) {
+          beginFadeOut();
+        } else if (!hideTimerRef.current) {
           hideTimerRef.current = setTimeout(() => {
             hideTimerRef.current = null;
-            setVisible(false);
+            beginFadeOut();
           }, MIN_VISIBLE_MS - elapsed);
         }
         return true;
@@ -95,6 +116,7 @@ const RouteTransitionLoader: React.FC = () => {
     const handleError = () => {
       clearTimers();
       setVisible(false);
+      setLeaving(false);
     };
 
     router.events.on("routeChangeStart", handleStart);
@@ -133,7 +155,9 @@ const RouteTransitionLoader: React.FC = () => {
         backdropFilter: "blur(10px)",
         WebkitBackdropFilter: "blur(10px)",
         animation: `${overlayFadeIn} 180ms ease-out`,
-        pointerEvents: "all",
+        opacity: leaving ? 0 : 1,
+        transition: `opacity ${FADE_OUT_MS}ms ease-out`,
+        pointerEvents: leaving ? "none" : "all",
       }}
     >
       <Box
@@ -146,6 +170,10 @@ const RouteTransitionLoader: React.FC = () => {
           animation: `${logoBreath} 1.4s ease-in-out infinite`,
           willChange: "opacity, transform",
           userSelect: "none",
+          "@media (prefers-reduced-motion: reduce)": {
+            animation: "none",
+            opacity: 0.9,
+          },
         }}
         draggable={false}
       />

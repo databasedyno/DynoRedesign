@@ -6,7 +6,6 @@ import ComplianceLogoStrip from "./ComplianceLogoStrip";
 import SupportedChainsRail from "./SupportedChainsRail";
 import ProductShowcase from "./ProductShowcase";
 import FeeCalculator from "./FeeCalculator";
-import TryItNow from "./TryItNow";
 import CoreValueProps from "./CoreValueProps";
 import TestimonialsV2 from "./TestimonialsV2";
 import FinalCTA from "./FinalCTA";
@@ -14,18 +13,25 @@ import FAQ from "./FAQ";
 import { HomeContainer, HomeFullWidthContainer, HomeWrapper } from "./styled";
 
 /**
- * HomePage — cleaned up (2026-07-05, second pass).
+ * HomePage — cleaned up (2026-07-05, second pass; reordered 2026-07-10, session 14).
  *
  * Structure:
  *   1. HeroClean            — plain centered hero, one accent color
- *   2. ComplianceLogoStrip  — compact "ENTERPRISE-GRADE SECURITY" row
- *   3. SupportedChainsRail  — chain logos rail
- *   4. FeeCalculator        — the interactive calculator (highest value)
- *   5. TryItNow             — embedded live checkout + curl playground
+ *   2. ProductShowcase      — animated product story (moved up near the top —
+ *                             it replaces the old "Watch 90s demo" video)
+ *   3. ComplianceLogoStrip  — compact "ENTERPRISE-GRADE SECURITY" row
+ *   4. SupportedChainsRail  — chain logos rail
+ *   5. FeeCalculator        — the interactive calculator (highest value)
  *   6. CoreValueProps       — three reasons businesses choose us
  *   7. TestimonialsV2       — merchant testimonials
  *   8. FAQ                  — accordion
  *   9. FinalCTA             — plain CTA panel
+ *
+ * REMOVED (session 14, per user):
+ *   • TryItNow              — live sandbox curl playground moved to /documentation
+ *                             (kept in the tree: Components/Page/Home/TryItNow.tsx).
+ *   • "Watch 90s demo" CTA  — removed from HeroClean; the ProductShowcase
+ *                             animation replaces the demo video.
  *
  * REMOVED for the "clean" pass (previous set was too visually busy):
  *   • StickyPromoBar         — sticky "$500 fee-free" bar at the top of every
@@ -34,16 +40,7 @@ import { HomeContainer, HomeFullWidthContainer, HomeWrapper } from "./styled";
  *   • LivePriceStrip         — full-width scrolling marquee of live crypto
  *                              prices. Great signal, but marquees add motion
  *                              noise and don't survive a "cleanliness" audit.
- *   • HeroV2                 — replaced with HeroClean. HeroV2 had audience
- *                              switcher + tabbed product preview + mesh
- *                              gradient + gradient text + trust badges row +
- *                              star pill — 6 mini-elements too many.
- *
- * Also on the same pass, `Components/UI/SectionTitle/styled.tsx` was updated
- * so every downstream section title stops using the pill badge + blue→purple
- * gradient text — meaning FAQ, CoreValueProps, TestimonialsV2, FinalCTA,
- * ComplianceLogoStrip, SEO country/vertical pages, and `/fees` all render
- * calmer without touching their individual JSX.
+ *   • HeroV2                 — replaced with HeroClean.
  */
 const HomePage: FC = () => {
   const theme = useTheme();
@@ -77,6 +74,11 @@ const HomePage: FC = () => {
       </HomeFullWidthContainer>
 
       <HomeFullWidthContainer>
+        {/* Emergent-style animated product story (checkout → settlement → API) */}
+        <ProductShowcase />
+      </HomeFullWidthContainer>
+
+      <HomeFullWidthContainer>
         <ComplianceLogoStrip />
       </HomeFullWidthContainer>
 
@@ -85,16 +87,7 @@ const HomePage: FC = () => {
       </HomeFullWidthContainer>
 
       <HomeFullWidthContainer>
-        {/* Emergent-style animated product story (checkout → settlement → API) */}
-        <ProductShowcase />
-      </HomeFullWidthContainer>
-
-      <HomeFullWidthContainer>
         <FeeCalculator />
-      </HomeFullWidthContainer>
-
-      <HomeFullWidthContainer>
-        <TryItNow />
       </HomeFullWidthContainer>
 
       <HomeContainer>

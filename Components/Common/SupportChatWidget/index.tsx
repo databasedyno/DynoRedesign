@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Box,
+  CircularProgress,
   IconButton,
   InputBase,
   Tooltip,
@@ -12,31 +13,65 @@ import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import SendRoundedIcon from "@mui/icons-material/SendRounded";
 import SupportAgentRoundedIcon from "@mui/icons-material/SupportAgentRounded";
 import RestartAltRoundedIcon from "@mui/icons-material/RestartAltRounded";
+import AttachFileRoundedIcon from "@mui/icons-material/AttachFileRounded";
+import SentimentSatisfiedAltRoundedIcon from "@mui/icons-material/SentimentSatisfiedAltRounded";
+import InsertDriveFileRoundedIcon from "@mui/icons-material/InsertDriveFileRounded";
 import axiosBaseApi from "@/axiosConfig";
 
 /**
- * SupportChatWidget (session 12, 2026-07-10) — floating AI support chat,
- * available on the landing pages (anonymous) and inside the merchant app
- * (logged-in; the backend personalises answers via the Bearer token that
- * axiosConfig attaches automatically).
+ * SupportChatWidget — "Emily", DynoPay's floating AI support chat.
+ * Session 14 parity upgrade (Emergent-style): agent renamed to Emily with an
+ * "Active" presence dot, per-message timestamps, emoji picker, and image/PDF
+ * attachments (Emily can "see" uploaded screenshots via OpenAI vision).
  *
  * Backend API:
- *   POST support/chat                     { session_id, message } → { data: { reply } }
- *   GET  support/chat/history/:session_id → { data: { messages: [...] } }
- *   POST support/chat/escalate            { session_id, contact_email?, note? }
+ *   POST support/chat          { session_id, message, attachment_url?, attachment_name?, attachment_type? }
+ *                              → { data: { reply, replied_at } }
+ *   GET  support/chat/history/:session_id → { data: { messages: [{ role, content, attachment_*, createdAt }] } }
+ *   POST support/chat/escalate { session_id, contact_email?, note? }
+ *   POST support/chat/upload   multipart "file" → { data: { url, name, type, size } }
  */
 
 const LIME = "#CCFF00";
 const INK = "#0A0A0B";
+const GREEN = "#22C55E";
 const SESSION_KEY = "support_chat_sid";
 const MAX_CHARS = 2000;
+const MAX_FILE_BYTES = 5 * 1024 * 1024;
+const ACCEPTED_FILES = "image/png,image/jpeg,image/webp,image/gif,application/pdf";
+
+const API_ORIGIN = (process.env.NEXT_PUBLIC_BASE_URL || "").replace(/\/+$/, "");
+const absoluteAttachmentUrl = (url?: string | null): string =>
+  url ? (url.startsWith("http") ? url : `${API_ORIGIN}${url}`) : "";
 
 type ChatRole = "user" | "assistant";
+interface ChatAttachment {
+  url: string;
+  name: string;
+  type: string;
+}
 interface ChatMsg {
   role: ChatRole;
   content: string;
+  at?: string; // ISO timestamp
+  attachment?: ChatAttachment | null;
   error?: boolean;
 }
+
+const EMOJI_GROUPS: Array<{ label: string; emojis: string[] }> = [
+  {
+    label: "Smileys",
+    emojis: ["😀", "😄", "😁", "😅", "😂", "🙂", "😉", "😊", "😍", "🤩", "😎", "🤔", "😐", "😕", "🙁", "😢", "😭", "😤", "😴", "🤯"],
+  },
+  {
+    label: "Gestures",
+    emojis: ["👍", "👎", "👋", "🙏", "👏", "🙌", "🤝", "💪", "✌️", "🤞", "👌", "🫶", "❤️", "💛", "🔥", "✨", "🎉", "💯", "⭐", "✅"],
+  },
+  {
+    label: "Objects",
+    emojis: ["💰", "💳", "🪙", "📈", "📉", "🚀", "🔒", "🔑", "🧾", "📎", "📷", "💡", "⚙️", "🛠️", "📣", "❓", "❗", "⏳", "🌍", "🤖"],
+  },
+];
 
 const makeSessionId = (): string => {
   try {
@@ -57,8 +92,19 @@ const getOrCreateSessionId = (): string => {
   }
 };
 
+const formatTime = (iso?: string): string => {
+  if (!iso) return "";
+  try {
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return "";
+    return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  } catch (_e) {
+    return "";
+  }
+};
+
 const GREETING =
-  "Hi, I'm Dyno — DynoPay's AI assistant. Ask me anything about fees, supported coins, payment links, wallets or our API. Need a person? Hit the headset icon above to reach human support.";
+  "Hi, I'm Emily — your DynoPay support assistant. Ask me anything about fees, supported coins, payment links, wallets or our API. You can also attach a screenshot and I'll take a look. Need a person? Hit the headset icon above to reach human support.";
 
 interface SupportChatWidgetProps {
   layout?: "home" | "client";
@@ -78,17 +124,21 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
   const [escalateEmail, setEscalateEmail] = useState("");
   const [escalateNote, setEscalateNote] = useState("");
   const [escalating, setEscalating] = useState(false);
+  const [emojiOpen, setEmojiOpen] = useState(false);
+  const [pendingAttachment, setPendingAttachment] = useState<ChatAttachment | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState("");
 
   const listRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     setSessionId(getOrCreateSessionId());
   }, []);
 
   // Allow any part of the app to open the chat programmatically, e.g. the
-  // landing page "Chat with us" link in FinalCTA (which previously pointed at
-  // the auth-gated /help-support page and bounced visitors to login).
+  // landing page "Chat with us" link in FinalCTA.
   useEffect(() => {
     const openChat = () => setOpen(true);
     window.addEventListener("dynopay:open-support-chat", openChat);
@@ -99,7 +149,7 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
   useEffect(() => {
     const el = listRef.current;
     if (el) el.scrollTop = el.scrollHeight;
-  }, [messages, sending, open, escalateOpen]);
+  }, [messages, sending, open, escalateOpen, pendingAttachment]);
 
   // Load history once, on first open
   useEffect(() => {
@@ -111,10 +161,23 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
         const rows = res?.data?.data?.messages;
         if (!cancelled && Array.isArray(rows) && rows.length > 0) {
           setMessages(
-            rows.map((r: { role: string; content: string }) => ({
-              role: r.role === "assistant" ? "assistant" : "user",
-              content: r.content,
-            }))
+            rows.map(
+              (r: {
+                role: string;
+                content: string;
+                createdAt?: string;
+                attachment_url?: string | null;
+                attachment_name?: string | null;
+                attachment_type?: string | null;
+              }) => ({
+                role: r.role === "assistant" ? "assistant" : "user",
+                content: r.content,
+                at: r.createdAt,
+                attachment: r.attachment_url
+                  ? { url: r.attachment_url, name: r.attachment_name || "file", type: r.attachment_type || "" }
+                  : null,
+              })
+            )
           );
         }
       } catch (_e) {
@@ -128,18 +191,37 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
 
   const send = useCallback(async () => {
     const text = input.trim();
-    if (!text || sending || !sessionId) return;
+    const attachment = pendingAttachment;
+    if ((!text && !attachment) || sending || !sessionId || uploading) return;
     if (text.length > MAX_CHARS) return;
 
     setInput("");
-    setMessages((prev) => [...prev, { role: "user", content: text }]);
+    setPendingAttachment(null);
+    setEmojiOpen(false);
+    setUploadError("");
+    setMessages((prev) => [
+      ...prev,
+      { role: "user", content: text, at: new Date().toISOString(), attachment },
+    ]);
     setSending(true);
     try {
-      const res = await axiosBaseApi.post("support/chat", { session_id: sessionId, message: text });
+      const res = await axiosBaseApi.post("support/chat", {
+        session_id: sessionId,
+        message: text,
+        attachment_url: attachment?.url || undefined,
+        attachment_name: attachment?.name || undefined,
+        attachment_type: attachment?.type || undefined,
+      });
       const reply = res?.data?.data?.reply;
+      const repliedAt = res?.data?.data?.replied_at || new Date().toISOString();
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", content: reply || "Sorry — I could not generate a reply. Please try again." , error: !reply },
+        {
+          role: "assistant",
+          content: reply || "Sorry — I could not generate a reply. Please try again.",
+          at: repliedAt,
+          error: !reply,
+        },
       ]);
     } catch (err: unknown) {
       const status = (err as { response?: { status?: number } })?.response?.status;
@@ -147,12 +229,68 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
         status === 429
           ? "You're sending messages a little fast — please wait a moment and try again."
           : "Sorry, something went wrong reaching support. Please try again in a moment.";
-      setMessages((prev) => [...prev, { role: "assistant", content: friendly, error: true }]);
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: friendly, at: new Date().toISOString(), error: true },
+      ]);
     } finally {
       setSending(false);
       setTimeout(() => inputRef.current?.focus(), 50);
     }
-  }, [input, sending, sessionId]);
+  }, [input, sending, sessionId, pendingAttachment, uploading]);
+
+  const handleFileSelected = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    // allow re-selecting the same file later
+    e.target.value = "";
+    if (!file) return;
+    setUploadError("");
+    if (file.size > MAX_FILE_BYTES) {
+      setUploadError("File too large (max 5MB).");
+      return;
+    }
+    setUploading(true);
+    try {
+      const form = new FormData();
+      form.append("file", file);
+      const res = await axiosBaseApi.post("support/chat/upload", form, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      const data = res?.data?.data;
+      if (data?.url) {
+        setPendingAttachment({ url: data.url, name: data.name || file.name, type: data.type || file.type });
+      } else {
+        setUploadError("Upload failed. Please try again.");
+      }
+    } catch (err: unknown) {
+      const apiMsg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
+      setUploadError(apiMsg || "Upload failed. Please try again.");
+    } finally {
+      setUploading(false);
+    }
+  }, []);
+
+  const insertEmoji = useCallback((emoji: string) => {
+    const el = inputRef.current;
+    setInput((prev) => {
+      if (el && typeof el.selectionStart === "number") {
+        const start = el.selectionStart;
+        const end = el.selectionEnd ?? start;
+        const next = prev.slice(0, start) + emoji + prev.slice(end);
+        // restore caret after the inserted emoji on next tick
+        setTimeout(() => {
+          try {
+            el.focus();
+            const pos = start + emoji.length;
+            el.setSelectionRange(pos, pos);
+          } catch (_e) { /* noop */ }
+        }, 0);
+        return next.length <= MAX_CHARS ? next : prev;
+      }
+      const appended = prev + emoji;
+      return appended.length <= MAX_CHARS ? appended : prev;
+    });
+  }, []);
 
   const submitEscalation = useCallback(async () => {
     if (escalating || !sessionId) return;
@@ -169,6 +307,7 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
           role: "assistant",
           content:
             "Done — your conversation has been forwarded to our support team. A human will get back to you by email as soon as possible.",
+          at: new Date().toISOString(),
         },
       ]);
       setEscalateOpen(false);
@@ -185,6 +324,7 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
             status === 400 && apiMsg
               ? apiMsg
               : "Sorry, the escalation could not be sent right now. Please try again shortly.",
+          at: new Date().toISOString(),
           error: true,
         },
       ]);
@@ -200,6 +340,9 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
     setMessages([]);
     setHistoryLoaded(true); // fresh session — nothing to load
     setEscalateOpen(false);
+    setEmojiOpen(false);
+    setPendingAttachment(null);
+    setUploadError("");
   }, []);
 
   const onKeyDown = useCallback(
@@ -250,6 +393,15 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
     [messages]
   );
 
+  const composerIconSx = {
+    width: 34,
+    height: 34,
+    borderRadius: "9px",
+    color: theme.palette.text.secondary,
+    flexShrink: 0,
+    "&:hover": { background: isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)" },
+  } as const;
+
   return (
     <>
       {/* ── Floating panel ── */}
@@ -285,27 +437,43 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
               flexShrink: 0,
             }}
           >
-            <Box
-              sx={{
-                width: 34,
-                height: 34,
-                borderRadius: "50%",
-                background: LIME,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                flexShrink: 0,
-              }}
-            >
-              <SupportAgentRoundedIcon sx={{ fontSize: 20, color: INK }} />
+            <Box sx={{ position: "relative", flexShrink: 0 }}>
+              <Box
+                sx={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: "50%",
+                  background: LIME,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 15, fontWeight: 700, color: INK, lineHeight: 1 }}>
+                  E
+                </Typography>
+              </Box>
+              {/* presence dot */}
+              <Box
+                sx={{
+                  position: "absolute",
+                  right: -1,
+                  bottom: -1,
+                  width: 10,
+                  height: 10,
+                  borderRadius: "50%",
+                  background: GREEN,
+                  border: `2px solid ${INK}`,
+                }}
+              />
             </Box>
             <Box sx={{ flex: 1, minWidth: 0 }}>
-              <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 14.5, fontWeight: 600, color: "#FFFFFF", lineHeight: 1.2 }}>
-                DynoPay Support
+              <Typography data-testid="support-chat-agent-name" sx={{ fontFamily: "var(--font-sans)", fontSize: 14.5, fontWeight: 600, color: "#FFFFFF", lineHeight: 1.2 }}>
+                Emily
               </Typography>
               <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 11.5, color: "rgba(255,255,255,0.65)", display: "flex", alignItems: "center", gap: 0.6 }}>
-                <Box component="span" sx={{ width: 7, height: 7, borderRadius: "50%", bgcolor: LIME, display: "inline-block" }} />
-                AI assistant · replies instantly
+                <Box component="span" sx={{ width: 7, height: 7, borderRadius: "50%", bgcolor: GREEN, display: "inline-block" }} />
+                Active
               </Typography>
             </Box>
             <Tooltip title="Talk to a human">
@@ -334,33 +502,89 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
             ref={listRef}
             sx={{ flex: 1, overflowY: "auto", px: 1.75, py: 1.75, display: "flex", flexDirection: "column", gap: 1.1 }}
           >
-            {visibleMessages.map((m, i) => (
-              <Box
-                key={i}
-                sx={{
-                  alignSelf: m.role === "user" ? "flex-end" : "flex-start",
-                  maxWidth: "84%",
-                  px: 1.5,
-                  py: 1,
-                  borderRadius: m.role === "user" ? "14px 14px 4px 14px" : "14px 14px 14px 4px",
-                  background: m.role === "user" ? userBubbleBg : assistantBubbleBg,
-                  border: m.error ? `1px solid ${isDark ? "rgba(255,120,120,0.5)" : "rgba(200,40,40,0.35)"}` : "none",
-                }}
-              >
-                <Typography
-                  sx={{
-                    fontFamily: "var(--font-sans)",
-                    fontSize: 14,
-                    lineHeight: 1.45,
-                    whiteSpace: "pre-wrap",
-                    wordBreak: "break-word",
-                    color: m.role === "user" ? userBubbleColor : theme.palette.text.primary,
-                  }}
-                >
-                  {m.content}
-                </Typography>
-              </Box>
-            ))}
+            {visibleMessages.map((m, i) => {
+              const isUser = m.role === "user";
+              const time = formatTime(m.at);
+              const isImageAttachment = !!m.attachment && m.attachment.type.startsWith("image/");
+              return (
+                <Box key={i} sx={{ alignSelf: isUser ? "flex-end" : "flex-start", maxWidth: "84%", display: "flex", flexDirection: "column", alignItems: isUser ? "flex-end" : "flex-start" }}>
+                  <Box
+                    sx={{
+                      px: 1.5,
+                      py: 1,
+                      borderRadius: isUser ? "14px 14px 4px 14px" : "14px 14px 14px 4px",
+                      background: isUser ? userBubbleBg : assistantBubbleBg,
+                      border: m.error ? `1px solid ${isDark ? "rgba(255,120,120,0.5)" : "rgba(200,40,40,0.35)"}` : "none",
+                    }}
+                  >
+                    {m.attachment && (
+                      <Box sx={{ mb: m.content ? 0.75 : 0 }}>
+                        {isImageAttachment ? (
+                          <Box
+                            component="a"
+                            href={absoluteAttachmentUrl(m.attachment.url)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            sx={{ display: "block", lineHeight: 0 }}
+                          >
+                            <Box
+                              component="img"
+                              src={absoluteAttachmentUrl(m.attachment.url)}
+                              alt={m.attachment.name}
+                              sx={{ maxWidth: 200, maxHeight: 160, borderRadius: "10px", display: "block", objectFit: "cover" }}
+                            />
+                          </Box>
+                        ) : (
+                          <Box
+                            component="a"
+                            href={absoluteAttachmentUrl(m.attachment.url)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            sx={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: 0.75,
+                              px: 1,
+                              py: 0.6,
+                              borderRadius: "8px",
+                              background: isUser ? "rgba(255,255,255,0.14)" : (isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)"),
+                              textDecoration: "none",
+                            }}
+                          >
+                            <InsertDriveFileRoundedIcon sx={{ fontSize: 16, color: isUser ? userBubbleColor : theme.palette.text.secondary }} />
+                            <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 12.5, color: isUser ? userBubbleColor : theme.palette.text.primary, maxWidth: 160, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                              {m.attachment.name}
+                            </Typography>
+                          </Box>
+                        )}
+                      </Box>
+                    )}
+                    {m.content && (
+                      <Typography
+                        sx={{
+                          fontFamily: "var(--font-sans)",
+                          fontSize: 14,
+                          lineHeight: 1.45,
+                          whiteSpace: "pre-wrap",
+                          wordBreak: "break-word",
+                          color: isUser ? userBubbleColor : theme.palette.text.primary,
+                        }}
+                      >
+                        {m.content}
+                      </Typography>
+                    )}
+                  </Box>
+                  {time && (
+                    <Typography
+                      data-testid="support-chat-timestamp"
+                      sx={{ fontFamily: "var(--font-sans)", fontSize: 10.5, color: theme.palette.text.disabled, mt: 0.35, px: 0.5 }}
+                    >
+                      {time}
+                    </Typography>
+                  )}
+                </Box>
+              );
+            })}
 
             {sending && (
               <Box sx={{ alignSelf: "flex-start", display: "flex", gap: 0.6, alignItems: "center", px: 1.5, py: 1.2, borderRadius: "14px 14px 14px 4px", background: assistantBubbleBg }}>
@@ -421,8 +645,139 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
             )}
           </Box>
 
+          {/* Emoji picker */}
+          {emojiOpen && (
+            <Box
+              data-testid="support-chat-emoji-picker"
+              sx={{
+                borderTop: `1px solid ${panelBorder}`,
+                px: 1.5,
+                py: 1,
+                maxHeight: 168,
+                overflowY: "auto",
+                background: isDark ? "rgba(255,255,255,0.02)" : "#FCFCFD",
+                flexShrink: 0,
+              }}
+            >
+              {EMOJI_GROUPS.map((group) => (
+                <Box key={group.label} sx={{ mb: 0.5 }}>
+                  <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 10.5, fontWeight: 600, color: theme.palette.text.disabled, textTransform: "uppercase", letterSpacing: "0.06em", mb: 0.25 }}>
+                    {group.label}
+                  </Typography>
+                  <Box sx={{ display: "flex", flexWrap: "wrap" }}>
+                    {group.emojis.map((emoji) => (
+                      <Box
+                        key={emoji}
+                        component="button"
+                        type="button"
+                        onClick={() => insertEmoji(emoji)}
+                        aria-label={`Insert ${emoji}`}
+                        sx={{
+                          border: "none",
+                          background: "transparent",
+                          fontSize: 19,
+                          lineHeight: 1,
+                          p: "5px",
+                          borderRadius: "7px",
+                          cursor: "pointer",
+                          "&:hover": { background: isDark ? "rgba(255,255,255,0.10)" : "rgba(0,0,0,0.07)" },
+                        }}
+                      >
+                        {emoji}
+                      </Box>
+                    ))}
+                  </Box>
+                </Box>
+              ))}
+            </Box>
+          )}
+
+          {/* Pending attachment / upload state */}
+          {(pendingAttachment || uploading || uploadError) && (
+            <Box sx={{ px: 1.5, pt: 1, display: "flex", alignItems: "center", gap: 1, borderTop: `1px solid ${panelBorder}`, flexShrink: 0 }}>
+              {uploading && (
+                <>
+                  <CircularProgress size={16} sx={{ color: theme.palette.text.secondary }} />
+                  <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 12.5, color: theme.palette.text.secondary }}>
+                    Uploading…
+                  </Typography>
+                </>
+              )}
+              {!uploading && pendingAttachment && (
+                <Box
+                  data-testid="support-chat-pending-attachment"
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 0.75,
+                    px: 1,
+                    py: 0.5,
+                    borderRadius: "9px",
+                    border: `1px solid ${panelBorder}`,
+                    background: isDark ? "rgba(255,255,255,0.05)" : "#F7F7F8",
+                    maxWidth: "100%",
+                  }}
+                >
+                  {pendingAttachment.type.startsWith("image/") ? (
+                    <Box
+                      component="img"
+                      src={absoluteAttachmentUrl(pendingAttachment.url)}
+                      alt={pendingAttachment.name}
+                      sx={{ width: 28, height: 28, borderRadius: "6px", objectFit: "cover" }}
+                    />
+                  ) : (
+                    <InsertDriveFileRoundedIcon sx={{ fontSize: 18, color: theme.palette.text.secondary }} />
+                  )}
+                  <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 12.5, color: theme.palette.text.primary, maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {pendingAttachment.name}
+                  </Typography>
+                  <IconButton size="small" onClick={() => setPendingAttachment(null)} aria-label="Remove attachment" sx={{ p: 0.25 }}>
+                    <CloseRoundedIcon sx={{ fontSize: 15 }} />
+                  </IconButton>
+                </Box>
+              )}
+              {!uploading && !pendingAttachment && uploadError && (
+                <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 12.5, color: isDark ? "#FF8A8A" : "#C22828" }}>
+                  {uploadError}
+                </Typography>
+              )}
+            </Box>
+          )}
+
           {/* Input */}
-          <Box sx={{ display: "flex", alignItems: "flex-end", gap: 1, px: 1.5, py: 1.25, borderTop: `1px solid ${panelBorder}`, flexShrink: 0 }}>
+          <Box sx={{ display: "flex", alignItems: "flex-end", gap: 0.5, px: 1.5, py: 1.25, borderTop: (pendingAttachment || uploading || uploadError) ? "none" : `1px solid ${panelBorder}`, flexShrink: 0 }}>
+            <Tooltip title="Emoji">
+              <IconButton
+                data-testid="support-chat-emoji"
+                onClick={() => setEmojiOpen((v) => !v)}
+                aria-label="Insert emoji"
+                sx={{ ...composerIconSx, color: emojiOpen ? (isDark ? LIME : INK) : theme.palette.text.secondary }}
+              >
+                <SentimentSatisfiedAltRoundedIcon sx={{ fontSize: 20 }} />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Attach image or PDF (max 5MB)">
+              <span>
+                <IconButton
+                  data-testid="support-chat-attach"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                  aria-label="Attach a file"
+                  sx={composerIconSx}
+                >
+                  <AttachFileRoundedIcon sx={{ fontSize: 19 }} />
+                </IconButton>
+              </span>
+            </Tooltip>
+            <input
+              ref={fileInputRef}
+              data-testid="support-chat-file-input"
+              type="file"
+              accept={ACCEPTED_FILES}
+              onChange={(e) => void handleFileSelected(e)}
+              style={{ display: "none" }}
+              aria-hidden="true"
+            />
             <InputBase
               data-testid="support-chat-input"
               inputRef={inputRef}
@@ -438,7 +793,7 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
             <IconButton
               data-testid="support-chat-send"
               onClick={() => void send()}
-              disabled={sending || input.trim().length === 0}
+              disabled={sending || uploading || (input.trim().length === 0 && !pendingAttachment)}
               aria-label="Send message"
               sx={{
                 width: 40,
