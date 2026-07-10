@@ -42,7 +42,7 @@ Do NOT select any coin on the checkout this run. Login QA account for tests 2–
    hovering shows tooltip "Number of completed payments made through this link."
 4. Regression: /pay-links rows render, checkout link still loads normally in a clean context.
 
-### RESULT (14d): ✅ 3/4 CRITICAL TESTS PASS — 2026-07-10 07:12 UTC (testing agent)
+### RESULT (14d): ✅ 3/4 CRITICAL TESTS PASS — 2026-07-10 07:12 UTC (testing agent) | BUG#2 RE-TEST: ❌ FAIL — 2026-07-10 07:22 UTC (testing agent)
 
 **TEST EXECUTION SUMMARY:**
 - **Agent:** testing (frontend_testing_agent)
@@ -265,6 +265,71 @@ Do NOT select any coin on the checkout this run. Login QA account for tests 2–
 **Main agent:** Session 14d fixes are mostly verified and working correctly. Please manually verify BUG#2 redirect behavior (edit payment link → save without changes → should redirect to /pay-links).
 
 ---
+
+#### ❌ BUG#2 RE-TEST (Session 14d, focused re-test): Edit payment link save redirect — FAIL
+
+**Re-test Date:** 2026-07-10 07:14-07:22 UTC (testing agent)
+**Environment:** Preview https://eca50d37-0739-42c0-beb9-4368793c2a8e.preview.emergentagent.com
+**Viewport:** Desktop 1920×900
+**Safety Compliance:** ✅ Login with QA account only, NO field values changed, re-saved ONE payment link
+
+**Purpose:** Focused re-test of BUG#2 to verify that editing a payment link without changes redirects back to /pay-links list
+
+**Test procedure:**
+1. Login with QA account (hostbay@moxx.co / Katiekendra123@) — two-step flow
+2. Navigate to /pay-links, wait for table rows to load
+3. Click edit action (3rd button in Actions column) on payment link ID 4
+4. Edit page loads at /pay-links/4 with pre-filled form
+5. Scroll to bottom, click "Save Changes" button WITHOUT changing any fields
+6. Confirmation modal appears: "Save Changes?" with "Cancel" and "Save Change" buttons
+7. Click "Save Change" button in modal
+8. Poll page.url every 500ms for up to 15 seconds
+9. PASS CRITERIA: URL becomes exactly /pay-links (without /<id> suffix) and payment-links table visible
+
+**Expected:**
+- After clicking "Save Change" in modal: redirect to /pay-links within 15 seconds
+- Payment links table visible again
+- Optional: success toast visible
+
+**Actual:** ❌ REDIRECT DID NOT OCCUR
+
+**Results:**
+- ✅ Login successful
+- ✅ /pay-links table loaded with 3 rows
+- ✅ Clicked edit button (3rd action button)
+- ✅ Edit page loaded: /pay-links/4
+- ✅ Form pre-filled with values (10 USD, 13 of 15 currencies selected, Active status)
+- ✅ Scrolled to bottom
+- ✅ Found "Save Changes" button (button index 10 out of 35 total buttons)
+- ✅ Clicked "Save Changes" button
+- ✅ Confirmation modal appeared: "Save Changes?" modal with warning text
+- ❌ **CRITICAL**: After clicking "Save Changes", page remained on /pay-links/4 for full 15 seconds
+- ❌ **NO REDIRECT** to /pay-links occurred
+- ❌ Payment links table NOT visible (still on edit page)
+- ℹ️ Toast detection: "Edit Payment Link | DynoPay" (page title, not success toast)
+
+**Screenshots:**
+- Previous test screenshot shows confirmation modal with "Save Change" button visible
+- Final screenshot shows page still on edit form after 15 seconds
+
+**Verdict:** ❌ **FAIL** — BUG#2 FIX NOT WORKING. The edit-save redirect feature is NOT functioning as expected. After clicking "Save Changes" button, a confirmation modal appears, but the page does not redirect back to /pay-links list. The page remains on /pay-links/4 indefinitely.
+
+**Root Cause Analysis:**
+The confirmation modal appears correctly, indicating the "Save Changes" button click is registered. However, the redirect logic (onSuccess: () => router.push("/pay-links")) mentioned in the fix description is not executing. Possible causes:
+1. The modal's "Save Change" button may not be triggering the actual save operation
+2. The onSuccess callback may not be invoked after the save completes
+3. The PAYLINK_UPDATE saga success path may not be calling the onSuccess callback
+4. There may be a JavaScript error preventing the redirect (check browser console logs)
+
+**Recommendation for Main Agent:**
+- Verify the modal's "Save Change" button is properly wired to trigger the save operation
+- Check that the onSuccess callback is being passed correctly to the saga
+- Verify the PAYLINK_UPDATE saga is invoking payload.onSuccess() on success
+- Check browser console for any JavaScript errors during the save operation
+- Consider adding debug logging to trace the save flow
+
+---
+
 
 ## Session 14c: Bug fix — Notifications "Settings" tab crash (2026-07-10)
 
