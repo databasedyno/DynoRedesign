@@ -214,6 +214,7 @@ function LanguageSwitcher({ showBig = false }: Props) {
                 width={16}
                 height={16}
                 draggable={false}
+                unoptimized
               />
               <LangTextDesktop>{selected.code.toUpperCase()}</LangTextDesktop>
             </HeaderSelectedLeft>
@@ -260,9 +261,10 @@ function LanguageSwitcher({ showBig = false }: Props) {
                     <Image
                       src={lng.flag}
                       alt="flag"
-                      width={16}
-                      height={16}
+                      width={18}
+                      height={18}
                       draggable={false}
+                      unoptimized
                     />
                     <LangTextDesktop>
                       {lng.code.toUpperCase()} - {lng.label}

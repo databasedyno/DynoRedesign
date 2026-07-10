@@ -88,7 +88,8 @@ export const theme = createTheme({
     text: {
       primary: "#18181B",
       secondary: "#71717A",
-      disabled: "#A1A1AA",
+      // FIX (2026-07-10): raised from #A1A1AA (~2.3:1) for legible tertiary text
+      disabled: "#73737C",
     },
   },
   typography: {
@@ -660,7 +661,8 @@ export const themeDark = createTheme({
     text: {
       primary: "#FAFAFA",
       secondary: "#A1A1AA",
-      disabled: "#52525B",
+      // FIX (2026-07-10): raised from #52525B (~2.6:1) for legible tertiary text
+      disabled: "#86868F",
     },
     background: {
       default: "#0B0D17",

@@ -6,11 +6,11 @@ export const WrapperBox = styled(Box)(() => ({
 }));
 
 export const TriggerBox = styled(Box)(({ theme }) => ({
-  border: `1px solid ${theme.palette.mode === "dark" ? "#2A2D42" : "#e8f0ff"}`,
+  border: `1px solid ${theme.palette.mode === "dark" ? "rgba(255,255,255,0.12)" : "#E4E4E7"}`,
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
-  borderRadius: 6,
+  borderRadius: 8,
   cursor: "pointer",
   backgroundColor: theme.palette.background.paper,
 
@@ -38,22 +38,22 @@ export const TriggerRight = styled(Box)(({ theme }) => ({
 
 export const TriggerDivider = styled(Box)(({ theme }) => ({
   width: 1,
-  background: theme.palette.mode === "dark" ? "#3A3D52" : "#D9D9D9",
+  background: theme.palette.mode === "dark" ? "rgba(255,255,255,0.16)" : "#D9D9D9",
 }));
 
 export const DropdownContainer = styled(Box)(({ theme }) => ({
   position: "absolute",
   top: 0,
   right: 0,
-  width: 169,
-  border: `1px solid ${theme.palette.mode === "dark" ? "#2A2D42" : "#e8f0ff"}`,
+  width: 196,
+  border: `1px solid ${theme.palette.mode === "dark" ? "rgba(255,255,255,0.12)" : "#E4E4E7"}`,
   backgroundColor: theme.palette.background.paper,
   zIndex: 2000,
-  padding: "10px 6px 6px",
+  padding: "10px 8px 8px",
   boxShadow: theme.palette.mode === "dark"
-    ? "0px 8px 24px rgba(0, 0, 0, 0.3)"
-    : "0px 8px 24px rgba(0, 0, 0, 0.08)",
-  borderRadius: 6,
+    ? "0px 12px 32px rgba(0, 0, 0, 0.5)"
+    : "0px 12px 32px rgba(0, 0, 0, 0.10)",
+  borderRadius: 10,
 }));
 
 export const DropdownHeader = styled(Box)(() => ({
@@ -78,7 +78,7 @@ export const HeaderRight = styled(Box)(() => ({
 
 export const HeaderDivider = styled(Box)(({ theme }) => ({
   width: 1,
-  background: theme.palette.mode === "dark" ? "#3A3D52" : "#ddd",
+  background: theme.palette.mode === "dark" ? "rgba(255,255,255,0.16)" : "#ddd",
   height: 16,
 
   [theme.breakpoints.down("md")]: {
@@ -87,21 +87,21 @@ export const HeaderDivider = styled(Box)(({ theme }) => ({
 }));
 
 export const DropdownListItem = styled(Box)(({ theme }) => ({
-  padding: 7,
+  padding: "8px 10px",
   display: "flex",
   alignItems: "center",
   justifyContent: "space-between",
-  borderRadius: 63,
+  borderRadius: 8,
   cursor: "pointer",
-  marginBottom: 6,
+  marginBottom: 4,
   transition: "background 0.2s ease",
 
   "&[data-selected='true']": {
-    background: theme.palette.mode === "dark" ? "rgba(204,255,0,0.15)" : "#E8F0FF",
+    background: theme.palette.mode === "dark" ? "rgba(204,255,0,0.15)" : "rgba(10,10,10,0.07)",
   },
 
   "&:hover": {
-    background: theme.palette.mode === "dark" ? "rgba(204,255,0,0.1)" : "#e8f0ff",
+    background: theme.palette.mode === "dark" ? "rgba(204,255,0,0.1)" : "rgba(10,10,10,0.045)",
   },
 
   "&:focus-visible": {

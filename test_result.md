@@ -1,3 +1,69 @@
+## Session 12: Setup + 4-issue fix batch (2026-07-10) — Test Request
+
+### CONTEXT
+Fresh container re-provisioned (yarn install /app + /app/backend, 3 .env files, next build standalone,
+SAFETY overrides: NODE_ENV=production, WORKER_ROLE=secondary, ENABLE_BACKGROUND_JOBS=false — backend shares
+LIVE prod Railway PG + Redis). Preview: https://7cf0a9cc-76f7-4dc9-9220-24f400ee928a.preview.emergentagent.com
+
+### FIXES APPLIED THIS SESSION
+1. BACKEND (user issue: "admin fee USDT address was already activated long ago"): 
+   /app/backend/services/tronEnergyService.ts::isRecipientActivatedForToken — old TronGrid endpoint
+   `/v1/accounts/{addr}/tokens/trc20` now returns 404 and TronScan fallback returns 401 → EVERY check
+   defaulted to "NEW recipient" (130k energy, 2× fee budget) even for long-activated addresses.
+   NEW: TronGrid `GET /v1/accounts/{addr}` (parses trc20 array) with Tatum `GET /v3/tron/account/{addr}`
+   fallback (x-api-key TATUM_KEY). New helper hasTrc20TokenBalance(). Caching behavior unchanged
+   ({activated} with 5-min TTL, both states).
+2. FRONTEND: Geist via next/font/local display:optional (_app.tsx — kills the FOUT size-jump in header);
+   header nav 15→16px/500 (HomeHeader/styled.tsx); SystemStatusPill 11.5→12.5; LanguageSwitcher flags
+   `unoptimized` + new circular DE/NL flag PNGs + dropdown polish (opaque neutral hover, radius 8/10);
+   landing logo light-mode → new near-black /app/assets/Icons/home/dynopay-blackLogo.svg (HomeHeader);
+   ComplianceLogoStrip: grayscale/opacity removed, label 13→14/600, sub 10.5→12 text.secondary;
+   text.disabled contrast raised: homeTheme + theme.ts + appTheme + authTheme (light #A1A1AA→#73737C,
+   dark #52525B/#5B5B63→#86868F).
+
+### HARD CONSTRAINTS — LIVE PROD DB + REDIS SHARED (READ-ONLY!)
+- Do NOT execute sweeps/transfers, do NOT start leader election, do NOT write Redis keys except:
+  (a) throwaway keys named test:*, (b) tron:activated:* keys produced NATURALLY by calling
+  isRecipientActivatedForToken (they contain accurate on-chain data with ≤5-min/no-harm TTL — same as prod).
+- Do NOT set ENABLE_BACKGROUND_JOBS=true. No mutations to PG beyond nothing — READ ONLY.
+- TronGrid unauthenticated rate limit = 1 req/sec: sleep ≥2s between activation-check calls.
+  If TronGrid 429s, the function falls back to Tatum (log: "via Tatum fallback") — that is a PASS too.
+
+### BACKEND TEST REQUEST (base https://7cf0a9cc-76f7-4dc9-9220-24f400ee928a.preview.emergentagent.com/api, internal http://localhost:8001)
+A) Compile/module: `cd /app/backend && node_modules/.bin/tsc --noEmit` exits 0. ts-node --transpile-only
+   require of services/tronEnergyService still exports isRecipientActivatedForToken, markRecipientActivated,
+   calculateOptimalFeeLimit, calculateDynamicTRC20Fee.
+B) Activation check FUNCTIONAL (the fix). Using ts-node script with dotenv from /app/backend, USDT contract
+   TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t:
+   B1. isRecipientActivatedForToken("TNXoiAJ3dct8Fjg4M9fkLFh9S2v9TXc32G", USDT) === true (Binance hot
+       wallet, holds USDT). Must come from a successful API parse (TronGrid or Tatum-fallback log), NOT from
+       the "assuming NEW recipient" warn default.
+   B2. sleep 3; isRecipientActivatedForToken("TTve8v6Y48ChsCTEiCjMRFSbjNtz4mAkxR", USDT) === false (admin
+       fee wallet — exists since 2022 but currently holds 0 USDT) AND no "Could not check token activation"
+       warn for this call (i.e., a real API answer, not the failure default).
+   B3. Old endpoint really dead (context check, plain HTTP): GET
+       https://api.trongrid.io/v1/accounts/TTve8v6Y48ChsCTEiCjMRFSbjNtz4mAkxR/tokens/trc20 → 404.
+C) calculateOptimalFeeLimit("TMHECc7emykw5XwX2njp5Y2K4FXLwsTZtC", "TNXoiAJ3dct8Fjg4M9fkLFh9S2v9TXc32G",
+   USDT) returns isNewRecipient === false (activated recipient → 65k energy path). READ-ONLY — do NOT
+   execute any transfer. (Cache from B1 makes this deterministic.)
+D) Core API regression: GET /api/ → 200; GET /api/csrf-token → 200; GET /health (internal :8001) → 200 with
+   background_jobs.eligible=false; POST /api/user/login wrong creds → 401.
+
+### FRONTEND TEST REQUEST (run after backend pass, landing page only — no login needed)
+1. / (light mode default): header nav links (Features/Fees/Documentation/Blog) computed font-size = 16px;
+   logo <img> src contains "dynopay-blackLogo" (near-black logo, NOT the old blue one).
+2. Language dropdown: click header [role=button][aria-haspopup=listbox] → 6 rows EN/PT/FR/ES/DE/NL, ALL
+   flag <img> have naturalWidth>0 and src pointing at /_next/static/media/*.png (NOT /_next/image —
+   unoptimized). Germany + Netherlands flags render (no broken icon).
+3. Compliance strip (section[aria-label='Security and compliance']): card text "SOC 2"/"Type II in progress"
+   visible; computed color of the subtitle is NOT the old #A1A1AA; card style has NO grayscale filter.
+4. Toggle dark mode (button[aria-label*='Dark']): repeat check 3 — subtitle computed color ≈ rgb(134,134,143)
+   (#86868F), readable on near-black. Screenshot both modes.
+5. Regression: no console errors on /; /auth/login still renders (Google + GitHub buttons visible).
+
+### RESULT: see run log below.
+
+
 ## 3-Issue Fix Batch (session 11): DO deploy failure / double-primary workers / transparent country dropdown — Test Request (2026-07-10)
 
 ### ISSUE A — DigitalOcean deployment failed (FIXED, repo — takes effect after user pushes via Save to GitHub)

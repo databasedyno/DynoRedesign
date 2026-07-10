@@ -107,8 +107,9 @@ const SystemStatusPill: React.FC<{ compact?: boolean }> = ({ compact = false }) 
       <Typography
         component="span"
         sx={{
-          fontSize: compact ? 11 : 11.5,
+          fontSize: compact ? 12 : 12.5,
           fontFamily: 'var(--font-sans)',
+          fontWeight: 500,
           color: (theme) => theme.palette.text.primary,
           whiteSpace: 'nowrap',
           letterSpacing: '0.2px',

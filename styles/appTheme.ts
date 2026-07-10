@@ -113,7 +113,7 @@ export const appThemeDark = createTheme(themeDark, {
       contrastText: "#3A3D52",
     },
     background: { default: "#08080A", paper: "#141417" },
-    text: { primary: "#FFFFFF", secondary: "#9CA3AF", disabled: "#5B5B63" },
+    text: { primary: "#FFFFFF", secondary: "#9CA3AF", disabled: "#86868F" },
     divider: "rgba(255,255,255,0.10)",
     border: {
       main: "rgba(255,255,255,0.12)",
@@ -150,7 +150,7 @@ export const appThemeLight = createTheme(theme, {
       contrastText: "#D9D9D9",
     },
     background: { default: "#EEF1F6", paper: "#FFFFFF" },
-    text: { primary: "#0A0A0A", secondary: "#52525B", disabled: "#A1A1AA" },
+    text: { primary: "#0A0A0A", secondary: "#52525B", disabled: "#73737C" },
     divider: "rgba(10,10,10,0.10)",
     border: {
       main: "rgba(10,10,10,0.12)",

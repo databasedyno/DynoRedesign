@@ -281,8 +281,35 @@ export const getAccountResources = async (address: string): Promise<AccountResou
 // ─── Recipient Activation Check ──────────────────────────────────────────────
 
 /**
- * Check if a recipient address has received a specific TRC20 token before.
- * New recipients cost ~2x energy (130k vs 65k).
+ * Parse a TRC20 balance list in the shape [{ "<contractAddress>": "<rawBalance>" }, ...]
+ * (returned by both TronGrid /v1/accounts/{addr} and Tatum /v3/tron/account/{addr})
+ * and determine whether the account currently holds a non-zero balance of the token.
+ */
+const hasTrc20TokenBalance = (
+  trc20List: Array<Record<string, string>> | undefined,
+  tokenContractAddress: string
+): boolean => {
+  if (!Array.isArray(trc20List)) return false;
+  for (const entry of trc20List) {
+    const rawBalance = entry?.[tokenContractAddress];
+    if (rawBalance !== undefined && parseFloat(rawBalance) > 0) return true;
+  }
+  return false;
+};
+
+/**
+ * Check if a recipient address currently holds a specific TRC20 token.
+ * New recipients (empty token storage slot) cost ~2x energy (130k vs 65k).
+ *
+ * BUGFIX (2026-07-10): The previous implementation called TronGrid
+ * `GET /v1/accounts/{addr}/tokens/trc20?contract_address=...` which now returns
+ * 404 (endpoint removed), and its TronScan fallback now returns 401 (API key
+ * required). Result: EVERY activation check failed and defaulted to
+ * "NEW recipient" — long-activated addresses (incl. the admin fee USDT wallet)
+ * were treated as new, doubling the energy budget (130k vs 65k) on every
+ * USDT-TRC20 transfer/sweep. Fixed by using the still-supported TronGrid
+ * `GET /v1/accounts/{addr}` (returns the full trc20 balance array, no key
+ * needed) with Tatum `GET /v3/tron/account/{addr}` as fallback (TATUM_KEY).
  */
 export const isRecipientActivatedForToken = async (
   recipientAddress: string,
@@ -294,66 +321,59 @@ export const isRecipientActivatedForToken = async (
   try {
     const cached = await getRedisItem(cacheKey) as { activated?: boolean; ts?: number } | null;
     if (cached && cached.activated !== undefined) {
-      // FIX: Redis TTL handles expiry, but also check if cached value exists
       return cached.activated;
     }
   } catch (_e) {
     // Continue
   }
 
+  const cacheResult = async (activated: boolean) => {
+    // Cache BOTH activated and not-activated states with a short 5-min TTL
+    // (see 2026-04-07 fix: only caching TRUE caused 429 storms + stale TRUE).
+    try {
+      await setRedisItemWithTTL(cacheKey, { activated }, CACHE_TTL.ACCOUNT_ACTIVATED);
+    } catch (_e) {
+      // Non-critical
+    }
+  };
+
   try {
-    // FIX: Add retry logic with exponential backoff and TronScan fallback
-    let lastError: unknown;
-    
-    // Attempt 1: TronGrid API (primary)
+    // Attempt 1: TronGrid account endpoint (primary, no API key required).
+    // A non-existent (never funded) account returns 200 with data: [] —
+    // correctly treated as NOT activated.
     for (let attempt = 0; attempt < 2; attempt++) {
       try {
         const response = await axios.get(
-          `${TRONGRID_API}/v1/accounts/${recipientAddress}/tokens/trc20?contract_address=${tokenContractAddress}&limit=1`,
-          { timeout: 10000 } // FIX: Increased timeout from 8s → 10s
+          `${TRONGRID_API}/v1/accounts/${recipientAddress}`,
+          { timeout: 10000 }
         );
 
-        const tokens = response.data?.data || [];
-        const activated = tokens.length > 0 && parseFloat(tokens[0]?.balance || "0") > 0;
-
-        // FIX (2026-04-07): Cache BOTH activated and not-activated states.
-        // Previously only cached TRUE, which meant zeroed wallets were checked
-        // on every call (causing 429s) and once cached TRUE, stayed cached for 24h
-        // even after balance went to 0. Now caches both with short 5-min TTL.
-        try {
-          await setRedisItemWithTTL(cacheKey, { activated }, CACHE_TTL.ACCOUNT_ACTIVATED);
-        } catch (_e) {
-          // Non-critical
-        }
-
+        const account = response.data?.data?.[0];
+        const activated = hasTrc20TokenBalance(account?.trc20, tokenContractAddress);
+        await cacheResult(activated);
         return activated;
-      } catch (err: unknown) {
-        lastError = err;
+      } catch (_err: unknown) {
         if (attempt === 0) {
           await new Promise(resolve => setTimeout(resolve, 1000)); // 1s backoff before retry
         }
       }
     }
 
-    // Attempt 2: TronScan API fallback
+    // Attempt 2: Tatum fallback (same trc20 array shape, uses existing TATUM_KEY)
     try {
-      const tronscanResponse = await axios.get(
-        `https://apilist.tronscanapi.com/api/account/tokens?address=${recipientAddress}&token=${tokenContractAddress}&start=0&limit=1`,
-        { timeout: 8000, headers: { 'Accept': 'application/json' } }
-      );
-      
-      const tronscanTokens = tronscanResponse.data?.data || tronscanResponse.data?.tokens || [];
-      const activated = tronscanTokens.length > 0;
-      
-      if (activated) {
-        try {
-          await setRedisItem(cacheKey, { activated: true });
-        } catch (_e) { /* Non-critical */ }
+      const tatumKey = process.env.TATUM_KEY || process.env.TATUM_SECRET_KEY;
+      if (tatumKey) {
+        const tatumResponse = await axios.get(
+          `https://api.tatum.io/v3/tron/account/${recipientAddress}`,
+          { timeout: 10000, headers: { "x-api-key": tatumKey, Accept: "application/json" } }
+        );
+
+        const activated = hasTrc20TokenBalance(tatumResponse.data?.trc20, tokenContractAddress);
+        await cacheResult(activated);
+        cronLogger.info(`[TronEnergy] Token activation check succeeded via Tatum fallback for ${recipientAddress}: ${activated}`);
+        return activated;
       }
-      
-      cronLogger.info(`[TronEnergy] Token activation check succeeded via TronScan fallback for ${recipientAddress}: ${activated}`);
-      return activated;
-    } catch (_tronscanErr) {
+    } catch (_tatumErr) {
       // Both APIs failed
     }
 

@@ -1,4 +1,6 @@
-import DynopayLogo from "@/assets/Images/auth/dynopay-logo.svg";
+// FIX (2026-07-10, user report): the indigo/blue logo clashed with the black +
+// lime landing brand in light mode — swapped for a near-black monochrome mark.
+import DynopayLogo from "@/assets/Icons/home/dynopay-blackLogo.svg";
 import DynopayWhiteLogo from "@/assets/Icons/home/dynopay-whiteLogo.svg";
 import LanguageSwitcher from "@/Components/UI/LanguageSwitcher";
 import ThemeToggle from "@/Components/UI/ThemeToggle";
@@ -298,7 +300,7 @@ const HomeHeader = memo(function HomeHeader() {
                   borderRadius: "8px",
                   padding: "10px 18px",
                   minWidth: "108px",
-                  fontSize: "15px",
+                  fontSize: "16px",
                 }}
               />
             </StyledGetStartedButton>

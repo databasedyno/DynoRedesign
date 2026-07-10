@@ -78,10 +78,11 @@ const ComplianceLogoStrip: React.FC = () => {
       <Typography
         sx={{
           fontFamily: 'var(--font-sans)',
-          fontSize: 11,
+          fontSize: 12,
+          fontWeight: 600,
           letterSpacing: '1.4px',
           textTransform: 'uppercase',
-          color: theme.palette.text.disabled,
+          color: theme.palette.text.secondary,
           textAlign: 'center',
           mb: 2.5,
         }}
@@ -112,22 +113,21 @@ const ComplianceLogoStrip: React.FC = () => {
               py: { xs: 1.6, md: 2 },
               px: 1.2,
               borderRadius: '12px',
-              border: `1px solid ${isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)'}`,
-              background: isDark ? 'rgba(255,255,255,0.02)' : 'rgba(255,255,255,0.6)',
-              filter: 'grayscale(1)',
-              opacity: 0.85,
-              transition: 'filter 0.25s ease, opacity 0.25s ease, transform 0.25s ease',
-              '&:hover': { filter: 'grayscale(0)', opacity: 1, transform: 'translateY(-2px)' },
+              border: `1px solid ${isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.10)'}`,
+              background: isDark ? 'rgba(255,255,255,0.045)' : 'rgba(255,255,255,0.75)',
+              transition: 'border-color 0.25s ease, transform 0.25s ease',
+              '&:hover': { borderColor: isDark ? 'rgba(255,255,255,0.22)' : 'rgba(0,0,0,0.18)', transform: 'translateY(-2px)' },
             }}
           >
-            <Box sx={{ color: theme.palette.text.primary, opacity: 0.85 }}>{b.icon}</Box>
+            <Box sx={{ color: theme.palette.text.primary, display: 'flex' }}>{b.icon}</Box>
             <Typography
               sx={{
                 fontFamily: 'var(--font-sans)',
-                fontSize: 13,
+                fontSize: 14,
+                fontWeight: 600,
                 color: theme.palette.text.primary,
-                lineHeight: 1.2,
-                letterSpacing: '0.3px',
+                lineHeight: 1.25,
+                letterSpacing: '0.2px',
               }}
             >
               {b.labelKey ? t(b.labelKey) : b.label}
@@ -135,9 +135,9 @@ const ComplianceLogoStrip: React.FC = () => {
             <Typography
               sx={{
                 fontFamily: 'var(--font-sans)',
-                fontSize: 10.5,
-                color: theme.palette.text.disabled,
-                lineHeight: 1.2,
+                fontSize: 12,
+                color: theme.palette.text.secondary,
+                lineHeight: 1.3,
                 textAlign: 'center',
               }}
             >

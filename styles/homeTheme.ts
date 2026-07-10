@@ -42,7 +42,10 @@ export const homeTheme = createTheme({
     text: {
       primary: "#18181B",
       secondary: "#71717A",
-      disabled: "#A1A1AA",
+      // FIX (2026-07-10): #A1A1AA was ~2.3:1 on white — tertiary text (badge
+      // subtitles, footnotes, section eyebrows) was barely legible. #73737C
+      // keeps the muted look at ~4.6:1 (WCAG AA).
+      disabled: "#73737C",
     },
     background: {
       default: "#EEF1F6",
@@ -82,7 +85,9 @@ export const homeThemeDark = createTheme({
     text: {
       primary: "#FAFAFA",
       secondary: "#A1A1AA",
-      disabled: "#52525B",
+      // FIX (2026-07-10): #52525B was ~2.6:1 on near-black — tertiary text was
+      // unreadable in dark mode. #86868F keeps hierarchy at ~5:1 (WCAG AA).
+      disabled: "#86868F",
     },
     background: {
       default: "#060606",

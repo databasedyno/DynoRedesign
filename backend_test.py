@@ -1,387 +1,376 @@
 #!/usr/bin/env python3
 """
-Session-11 3-Issue Fix Batch Backend Test Suite
-Tests A-F for DynoPay crypto payment gateway
+Backend Test Suite for Session 12: TronGrid API Fix
+Tests the isRecipientActivatedForToken fix in tronEnergyService.ts
+
+CRITICAL SAFETY: READ-ONLY testing only
+- No DB writes, no sweeps, no crypto transfers
+- Redis writes allowed ONLY for: test:* keys and tron:activated:* keys (natural behavior)
+- TronGrid rate limit: 1 req/sec - sleep 2-3s between activation checks
 """
 
-import subprocess
-import sys
-import json
 import requests
 import time
-import random
-import string
+import json
+import sys
+import subprocess
 
-def run_command(cmd, cwd=None, check=True):
-    """Run a shell command and return output"""
+# Configuration
+BASE_URL = "http://localhost:8001"
+API_BASE = f"{BASE_URL}/api"
+ADMIN_FEE_WALLET = "TTve8v6Y48ChsCTEiCjMRFSbjNtz4mAkxR"
+
+# Colors for output
+GREEN = '\033[92m'
+RED = '\033[91m'
+YELLOW = '\033[93m'
+BLUE = '\033[94m'
+RESET = '\033[0m'
+
+def log_test(test_name):
+    print(f"\n{BLUE}{'='*80}{RESET}")
+    print(f"{BLUE}TEST: {test_name}{RESET}")
+    print(f"{BLUE}{'='*80}{RESET}")
+
+def log_pass(message):
+    print(f"{GREEN}✓ PASS: {message}{RESET}")
+
+def log_fail(message):
+    print(f"{RED}✗ FAIL: {message}{RESET}")
+
+def log_info(message):
+    print(f"{YELLOW}ℹ INFO: {message}{RESET}")
+
+def log_result(test_name, passed, details=""):
+    status = f"{GREEN}PASS{RESET}" if passed else f"{RED}FAIL{RESET}"
+    print(f"\n{test_name}: {status}")
+    if details:
+        print(f"  {details}")
+    return passed
+
+# ============================================================================
+# TEST A: TypeScript Compilation & Module Exports
+# ============================================================================
+
+def test_a_typescript_compilation():
+    log_test("A) TypeScript Compilation & Module Exports")
+    
+    # A1: TypeScript compilation
+    log_info("Running: cd /app/backend && node_modules/.bin/tsc --noEmit")
     result = subprocess.run(
-        cmd,
-        shell=True,
-        cwd=cwd,
+        ["node_modules/.bin/tsc", "--noEmit"],
+        cwd="/app/backend",
         capture_output=True,
         text=True
     )
-    if check and result.returncode != 0:
-        print(f"❌ Command failed: {cmd}")
-        print(f"STDOUT: {result.stdout}")
-        print(f"STDERR: {result.stderr}")
-        return None
-    return result
-
-def test_a_public_files():
-    """TEST A: Verify /app/public has 42 files restored"""
-    print("\n" + "="*80)
-    print("TEST A: Public directory files (deploy blocker fix)")
-    print("="*80)
     
-    # Count files in filesystem
-    result = run_command("find /app/public -type f | wc -l")
-    fs_count = int(result.stdout.strip())
-    
-    # Count files in git
-    result = run_command("cd /app && git ls-files public | wc -l")
-    git_count = int(result.stdout.strip())
-    
-    print(f"Filesystem count: {fs_count}")
-    print(f"Git tracked count: {git_count}")
-    
-    if fs_count == 42 and git_count == 42:
-        print("✅ TEST A PASS: 42 files present in both filesystem and git")
-        return True
+    if result.returncode == 0:
+        log_pass("TypeScript compilation successful (exit code 0)")
+        tsc_pass = True
     else:
-        print(f"❌ TEST A FAIL: Expected 42 files, got fs={fs_count}, git={git_count}")
-        return False
-
-def test_b_typescript_compile():
-    """TEST B: Verify TypeScript compiles without errors"""
-    print("\n" + "="*80)
-    print("TEST B: TypeScript compilation (merchantPoolSweep.ts fix)")
-    print("="*80)
+        log_fail(f"TypeScript compilation failed (exit code {result.returncode})")
+        if result.stdout:
+            print(f"STDOUT: {result.stdout}")
+        if result.stderr:
+            print(f"STDERR: {result.stderr}")
+        tsc_pass = False
     
-    result = run_command("cd /app/backend && node_modules/.bin/tsc --noEmit", check=False)
+    # A2: Module exports check
+    log_info("Checking module exports via ts-node...")
+    result = subprocess.run(
+        ["node_modules/.bin/ts-node", "--project", "tsconfig.test.json", "test_exports.cjs"],
+        cwd="/app/backend",
+        capture_output=True,
+        text=True
+    )
     
-    if result.returncode == 0 and not result.stdout.strip():
-        print("✅ TEST B PASS: TypeScript compiles with no errors")
-        return True
+    if "ALL_EXPORTS_PRESENT" in result.stdout:
+        log_pass("All required exports present: isRecipientActivatedForToken, markRecipientActivated, calculateOptimalFeeLimit, calculateDynamicTRC20Fee")
+        exports_pass = True
     else:
-        print(f"❌ TEST B FAIL: TypeScript compilation failed")
-        print(f"Exit code: {result.returncode}")
+        log_fail("Missing exports detected")
         print(f"Output: {result.stdout}")
-        print(f"Errors: {result.stderr}")
-        return False
+        if result.stderr:
+            print(f"STDERR: {result.stderr}")
+        exports_pass = False
+    
+    return log_result("TEST A", tsc_pass and exports_pass)
 
-def test_c_sweep_module():
-    """TEST C: Verify sweep module loads and exports functions (READ-ONLY)"""
-    print("\n" + "="*80)
-    print("TEST C: Sweep module regression check (READ-ONLY)")
-    print("="*80)
+# ============================================================================
+# TEST B: Functional Activation Checks
+# ============================================================================
+
+def test_b_functional_activation():
+    log_test("B) Functional Activation Checks")
     
-    test_script = """
-const sweep = require('./services/merchantPool/merchantPoolSweep');
-console.log('Module loaded successfully');
-console.log('Exports:', Object.keys(sweep));
-const hasAll = sweep.sweepPoolAddress && sweep.sweepByThreshold && sweep.performScheduledSweeps;
-console.log('Has all required exports:', hasAll);
-process.exit(hasAll ? 0 : 1);
-"""
+    # B1: Binance hot wallet (should be activated - holds USDT)
+    log_info("B1: Testing TNXoiAJ3dct8Fjg4M9fkLFh9S2v9TXc32G (Binance hot wallet, should be TRUE)")
     
-    # Write test script
-    with open('/tmp/test_sweep.js', 'w') as f:
-        f.write(test_script)
-    
-    result = run_command(
-        "cd /app/backend && node -r dotenv/config -r ts-node/register/transpile-only /tmp/test_sweep.js",
-        check=False
+    result = subprocess.run(
+        ["node_modules/.bin/ts-node", "--project", "tsconfig.test.json", "test_b1.cjs"],
+        cwd="/app/backend",
+        capture_output=True,
+        text=True,
+        timeout=30
     )
     
-    print(f"Output: {result.stdout}")
-    
-    if result.returncode == 0 and 'Has all required exports: true' in result.stdout:
-        print("✅ TEST C PASS: Sweep module loads and exports all required functions")
-        return True
-    else:
-        print(f"❌ TEST C FAIL: Sweep module check failed")
-        print(f"Stderr: {result.stderr}")
-        return False
-
-def test_d_leader_election_module():
-    """TEST D: Verify leader election module loads and isLeader() === false"""
-    print("\n" + "="*80)
-    print("TEST D: Leader election module check (NO election start)")
-    print("="*80)
-    
-    test_script = """
-const le = require('./utils/leaderElection');
-console.log('Module loaded successfully');
-console.log('Exports:', Object.keys(le));
-const hasAll = le.startLeaderElection && le.stopLeaderElection && le.isLeader && le.getInstanceId;
-console.log('Has all required exports:', hasAll);
-const isLeaderVal = le.isLeader();
-console.log('isLeader():', isLeaderVal);
-const instanceId = le.getInstanceId();
-console.log('getInstanceId():', instanceId);
-const pass = hasAll && isLeaderVal === false && instanceId && instanceId.length > 0;
-console.log('Test pass:', pass);
-process.exit(pass ? 0 : 1);
-"""
-    
-    with open('/tmp/test_leader.js', 'w') as f:
-        f.write(test_script)
-    
-    result = run_command(
-        "cd /app/backend && node -r dotenv/config -r ts-node/register/transpile-only /tmp/test_leader.js",
-        check=False
-    )
-    
-    print(f"Output: {result.stdout}")
-    
-    if result.returncode == 0 and 'Test pass: true' in result.stdout:
-        print("✅ TEST D PASS: Leader election module loads, isLeader() === false")
-        return True
-    else:
-        print(f"❌ TEST D FAIL: Leader election module check failed")
-        print(f"Stderr: {result.stderr}")
-        return False
-
-def test_e_redis_lease_semantics():
-    """TEST E: Verify Redis lease semantics on throwaway key"""
-    print("\n" + "="*80)
-    print("TEST E: Redis lease semantics (throwaway key only)")
-    print("="*80)
-    
-    # Generate random key
-    random_suffix = ''.join(random.choices(string.ascii_lowercase + string.digits, k=8))
-    test_key = f"leader:test-{random_suffix}"
-    test_value = f"test-instance-{random_suffix}"
-    wrong_value = "wrong-instance"
-    
-    print(f"Using throwaway key: {test_key}")
-    
-    test_script = f"""
-const {{ redis }} = require('./utils/redisInstance');
-
-async function testRedisLease() {{
-    try {{
-        // Test 1: SET NX EX 60 should return 'OK'
-        const set1 = await redis.set('{test_key}', '{test_value}', 'NX', 'EX', 60);
-        console.log('First SET NX EX 60:', set1);
-        
-        // Test 2: Second SET NX should return null
-        const set2 = await redis.set('{test_key}', 'other-value', 'NX', 'EX', 60);
-        console.log('Second SET NX:', set2);
-        
-        // Test 3: Lua extend script with correct value should return 1
-        const extendScript = `
-            if redis.call("GET", KEYS[1]) == ARGV[1] then
-                return redis.call("EXPIRE", KEYS[1], ARGV[2])
-            else
-                return 0
-            end
-        `;
-        const extend1 = await redis.eval(extendScript, 1, '{test_key}', '{test_value}', 60);
-        console.log('Lua extend with correct value:', extend1);
-        
-        // Test 4: Lua extend script with wrong value should return 0
-        const extend2 = await redis.eval(extendScript, 1, '{test_key}', '{wrong_value}', 60);
-        console.log('Lua extend with wrong value:', extend2);
-        
-        // Test 5: Lua release with correct value should return 1
-        const releaseScript = `
-            if redis.call("GET", KEYS[1]) == ARGV[1] then
-                return redis.call("DEL", KEYS[1])
-            else
-                return 0
-            end
-        `;
-        const release1 = await redis.eval(releaseScript, 1, '{test_key}', '{test_value}');
-        console.log('Lua release with correct value:', release1);
-        
-        // Cleanup: DEL the key
-        await redis.del('{test_key}');
-        console.log('Cleanup: key deleted');
-        
-        // Check results
-        const pass = set1 === 'OK' && set2 === null && extend1 === 1 && extend2 === 0 && release1 === 1;
-        console.log('All tests pass:', pass);
-        process.exit(pass ? 0 : 1);
-    }} catch (err) {{
-        console.error('Error:', err);
-        process.exit(1);
-    }}
-}}
-
-testRedisLease();
-"""
-    
-    with open('/tmp/test_redis.js', 'w') as f:
-        f.write(test_script)
-    
-    result = run_command(
-        "cd /app/backend && node -r dotenv/config -r ts-node/register/transpile-only /tmp/test_redis.js",
-        check=False
-    )
-    
-    print(f"Output: {result.stdout}")
-    
-    if result.returncode == 0 and 'All tests pass: true' in result.stdout:
-        print("✅ TEST E PASS: Redis lease semantics working correctly")
-        return True
-    else:
-        print(f"❌ TEST E FAIL: Redis lease semantics check failed")
-        print(f"Stderr: {result.stderr}")
-        return False
-
-def test_f_health_and_api():
-    """TEST F: Verify /health endpoint and preview isolation"""
-    print("\n" + "="*80)
-    print("TEST F: Health endpoint and preview isolation")
-    print("="*80)
-    
-    base_url = "http://localhost:8001"
-    
-    # Test /health endpoint
-    print("\n1. Testing /health endpoint...")
-    try:
-        resp = requests.get(f"{base_url}/health", timeout=10)
-        print(f"Status: {resp.status_code}")
-        
-        if resp.status_code == 200:
-            data = resp.json()
-            print(f"Response: {json.dumps(data, indent=2)}")
-            
-            # Check background_jobs fields
-            bg_jobs = data.get('background_jobs', {})
-            eligible = bg_jobs.get('eligible')
-            is_leader = bg_jobs.get('is_leader')
-            instance_id = bg_jobs.get('instance_id')
-            
-            print(f"\nBackground jobs check:")
-            print(f"  eligible: {eligible} (expected: false)")
-            print(f"  is_leader: {is_leader} (expected: false)")
-            print(f"  instance_id: {instance_id} (expected: non-empty)")
-            
-            health_pass = (
-                eligible is False and 
-                is_leader is False and 
-                instance_id and 
-                len(str(instance_id)) > 0
-            )
-            
-            if not health_pass:
-                print("❌ /health check FAIL: background_jobs fields incorrect")
-                return False
+    b1_pass = False
+    api_path_b1 = "unknown"
+    if "RESULT: true" in result.stdout:
+        log_pass("B1: TNXoiAJ3dct8Fjg4M9fkLFh9S2v9TXc32G returned TRUE (activated)")
+        # Check which API path was used
+        if "via Tatum fallback" in result.stdout:
+            api_path_b1 = "Tatum fallback"
+            log_info("B1: Result via Tatum fallback (TronGrid 429 or error)")
         else:
-            print(f"❌ /health returned {resp.status_code}")
-            return False
-    except Exception as e:
-        print(f"❌ /health request failed: {e}")
-        return False
+            api_path_b1 = "TronGrid primary"
+            log_info("B1: Result via TronGrid primary API")
+        
+        # Check that it's from real API, not warning default
+        if "Could not check token activation" in result.stdout or "assuming NEW recipient" in result.stdout:
+            log_fail("B1: Result came from warning default, not real API parse")
+        else:
+            log_pass("B1: Result from successful API parse (no warning default)")
+            b1_pass = True
+    else:
+        log_fail(f"B1: Expected TRUE, got output: {result.stdout[:200]}")
+        if result.stderr:
+            print(f"STDERR: {result.stderr[:500]}")
     
-    # Check backend logs for "Skipping" warnings and NO "[LeaderElection]" lines
-    print("\n2. Checking backend logs...")
-    result = run_command("tail -n 200 /var/log/supervisor/backend.out.log")
-    log_content = result.stdout
+    # Rate limit protection
+    log_info("Sleeping 3 seconds (TronGrid rate limit: 1 req/sec)...")
+    time.sleep(3)
     
-    # Count "Skipping" lines
-    skipping_lines = [line for line in log_content.split('\n') if 'Skipping' in line]
-    leader_lines = [line for line in log_content.split('\n') if '[LeaderElection]' in line]
+    # B2: Admin fee wallet (should be NOT activated - 0 USDT currently)
+    log_info("B2: Testing TTve8v6Y48ChsCTEiCjMRFSbjNtz4mAkxR (admin fee wallet, 0 USDT, should be FALSE)")
     
-    print(f"\nFound {len(skipping_lines)} 'Skipping' lines (expected: 4)")
-    for line in skipping_lines[-4:]:
-        print(f"  {line.strip()}")
+    result = subprocess.run(
+        ["node_modules/.bin/ts-node", "--project", "tsconfig.test.json", "test_b2.cjs"],
+        cwd="/app/backend",
+        capture_output=True,
+        text=True,
+        timeout=30
+    )
     
-    print(f"\nFound {len(leader_lines)} '[LeaderElection]' lines (expected: 0)")
-    if leader_lines:
-        for line in leader_lines[:5]:
-            print(f"  {line.strip()}")
+    b2_pass = False
+    api_path_b2 = "unknown"
+    if "RESULT: false" in result.stdout:
+        log_pass("B2: TTve8v6Y48ChsCTEiCjMRFSbjNtz4mAkxR returned FALSE (not activated)")
+        # Check which API path was used
+        if "via Tatum fallback" in result.stdout:
+            api_path_b2 = "Tatum fallback"
+            log_info("B2: Result via Tatum fallback")
+        else:
+            api_path_b2 = "TronGrid primary"
+            log_info("B2: Result via TronGrid primary API")
+        
+        # Check that it's from real API, not warning default
+        if "Could not check token activation" in result.stdout:
+            log_fail("B2: Result came from 'Could not check token activation' warning")
+        else:
+            log_pass("B2: Result from real API answer (no 'Could not check' warning)")
+            b2_pass = True
+    else:
+        log_fail(f"B2: Expected FALSE, got output: {result.stdout[:200]}")
+        if result.stderr:
+            print(f"STDERR: {result.stderr[:500]}")
     
-    logs_pass = len(skipping_lines) >= 4 and len(leader_lines) == 0
+    # B3: Verify old endpoint is dead (404)
+    log_info("B3: Verifying old TronGrid endpoint returns 404...")
+    old_endpoint = f"https://api.trongrid.io/v1/accounts/{ADMIN_FEE_WALLET}/tokens/trc20"
     
-    if not logs_pass:
-        print("❌ Log check FAIL: Expected 4+ 'Skipping' lines and 0 '[LeaderElection]' lines")
-        return False
-    
-    # Test core API endpoints
-    print("\n3. Testing core API endpoints...")
-    
-    # GET /api/
     try:
-        resp = requests.get(f"{base_url}/api/", timeout=10)
-        print(f"GET /api/ -> {resp.status_code}")
-        if resp.status_code != 200:
-            print(f"❌ GET /api/ failed with {resp.status_code}")
-            return False
+        response = requests.get(old_endpoint, timeout=10)
+        if response.status_code == 404:
+            log_pass(f"B3: Old endpoint returns 404 (confirms it's dead)")
+            b3_pass = True
+        else:
+            log_fail(f"B3: Old endpoint returned {response.status_code}, expected 404")
+            b3_pass = False
     except Exception as e:
-        print(f"❌ GET /api/ failed: {e}")
-        return False
+        log_fail(f"B3: Failed to check old endpoint: {e}")
+        b3_pass = False
     
-    # GET /api/csrf-token
+    details = f"B1: {b1_pass} ({api_path_b1}), B2: {b2_pass} ({api_path_b2}), B3: {b3_pass}"
+    return log_result("TEST B", b1_pass and b2_pass and b3_pass, details)
+
+# ============================================================================
+# TEST C: calculateOptimalFeeLimit (READ-ONLY)
+# ============================================================================
+
+def test_c_calculate_optimal_fee_limit():
+    log_test("C) calculateOptimalFeeLimit (READ-ONLY)")
+    
+    log_info("Testing calculateOptimalFeeLimit with known activated recipient...")
+    log_info("Sender: TMHECc7emykw5XwX2njp5Y2K4FXLwsTZtC")
+    log_info("Recipient: TNXoiAJ3dct8Fjg4M9fkLFh9S2v9TXc32G (activated from B1)")
+    log_info("Token: TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t")
+    
+    result = subprocess.run(
+        ["node_modules/.bin/ts-node", "--project", "tsconfig.test.json", "test_c.cjs"],
+        cwd="/app/backend",
+        capture_output=True,
+        text=True,
+        timeout=30
+    )
+    
+    c_pass = False
+    if result.returncode == 0:
+        try:
+            # Extract JSON from output - it starts after "RESULT: " on the same line
+            output = result.stdout
+            result_marker = "RESULT: "
+            if result_marker in output:
+                json_start_idx = output.index(result_marker) + len(result_marker)
+                json_str = output[json_start_idx:].strip()
+                fee_result = json.loads(json_str)
+                
+                log_info(f"Result: {json.dumps(fee_result, indent=2)}")
+                
+                if fee_result.get('isNewRecipient') == False:
+                    log_pass("C: isNewRecipient === false (activated recipient, 65k energy path)")
+                    log_pass(f"C: feeLimit = {fee_result.get('feeLimit')} TRX")
+                    log_pass(f"C: energyNeeded = {fee_result.get('energyNeeded')}")
+                    c_pass = True
+                else:
+                    log_fail(f"C: Expected isNewRecipient=false, got {fee_result.get('isNewRecipient')}")
+            else:
+                log_fail("C: Could not find RESULT marker in output")
+                print(f"Output: {result.stdout[:500]}")
+        except Exception as e:
+            log_fail(f"C: Failed to parse result: {e}")
+            print(f"Output: {result.stdout[:500]}")
+    else:
+        log_fail(f"C: Function call failed (exit code {result.returncode})")
+        if result.stderr:
+            print(f"STDERR: {result.stderr[:500]}")
+    
+    return log_result("TEST C", c_pass)
+
+# ============================================================================
+# TEST D: Core API Regression
+# ============================================================================
+
+def test_d_core_api_regression():
+    log_test("D) Core API Regression")
+    
+    tests_passed = []
+    
+    # D1: GET /api/ (root health check)
+    log_info("D1: GET /api/ (root health check)")
     try:
-        resp = requests.get(f"{base_url}/api/csrf-token", timeout=10)
-        print(f"GET /api/csrf-token -> {resp.status_code}")
-        if resp.status_code != 200:
-            print(f"❌ GET /api/csrf-token failed with {resp.status_code}")
-            return False
+        response = requests.get(f"{API_BASE}/", timeout=10)
+        if response.status_code == 200:
+            log_pass("D1: GET /api/ returned 200")
+            tests_passed.append(True)
+        else:
+            log_fail(f"D1: GET /api/ returned {response.status_code}")
+            tests_passed.append(False)
     except Exception as e:
-        print(f"❌ GET /api/csrf-token failed: {e}")
-        return False
+        log_fail(f"D1: GET /api/ failed: {e}")
+        tests_passed.append(False)
     
-    # POST /api/user/login with wrong creds
+    # D2: GET /api/csrf-token
+    log_info("D2: GET /api/csrf-token")
     try:
-        resp = requests.post(
-            f"{base_url}/api/user/login",
-            json={"email": "bad@bad.com", "password": "wrongpassword"},
-            timeout=10
-        )
-        print(f"POST /api/user/login (wrong creds) -> {resp.status_code}")
-        if resp.status_code != 401:
-            print(f"❌ POST /api/user/login expected 401, got {resp.status_code}")
-            return False
+        response = requests.get(f"{API_BASE}/csrf-token", timeout=10)
+        if response.status_code == 200:
+            log_pass("D2: GET /api/csrf-token returned 200")
+            tests_passed.append(True)
+        else:
+            log_fail(f"D2: GET /api/csrf-token returned {response.status_code}")
+            tests_passed.append(False)
     except Exception as e:
-        print(f"❌ POST /api/user/login failed: {e}")
-        return False
+        log_fail(f"D2: GET /api/csrf-token failed: {e}")
+        tests_passed.append(False)
     
-    print("\n✅ TEST F PASS: All health and API checks passed")
-    return True
+    # D3: GET /health (internal :8001)
+    log_info("D3: GET /health (internal :8001)")
+    try:
+        response = requests.get(f"{BASE_URL}/health", timeout=10)
+        if response.status_code == 200:
+            data = response.json()
+            bg_jobs = data.get('background_jobs', {})
+            if bg_jobs.get('eligible') == False:
+                log_pass("D3: GET /health returned 200 with background_jobs.eligible=false")
+                tests_passed.append(True)
+            else:
+                log_fail(f"D3: background_jobs.eligible={bg_jobs.get('eligible')}, expected false")
+                tests_passed.append(False)
+        else:
+            log_fail(f"D3: GET /health returned {response.status_code}")
+            tests_passed.append(False)
+    except Exception as e:
+        log_fail(f"D3: GET /health failed: {e}")
+        tests_passed.append(False)
+    
+    # D4: POST /api/user/login with wrong credentials
+    log_info("D4: POST /api/user/login with wrong credentials")
+    try:
+        headers = {
+            'Content-Type': 'application/json',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        }
+        payload = {
+            'email': 'wrong@example.com',
+            'password': 'WrongPassword123!'
+        }
+        response = requests.post(f"{API_BASE}/user/login", json=payload, headers=headers, timeout=10)
+        if response.status_code == 401:
+            log_pass("D4: POST /api/user/login with wrong creds returned 401")
+            tests_passed.append(True)
+        else:
+            log_fail(f"D4: POST /api/user/login returned {response.status_code}, expected 401")
+            tests_passed.append(False)
+    except Exception as e:
+        log_fail(f"D4: POST /api/user/login failed: {e}")
+        tests_passed.append(False)
+    
+    all_passed = all(tests_passed)
+    return log_result("TEST D", all_passed, 
+                     f"D1: {tests_passed[0] if len(tests_passed) > 0 else False}, "
+                     f"D2: {tests_passed[1] if len(tests_passed) > 1 else False}, "
+                     f"D3: {tests_passed[2] if len(tests_passed) > 2 else False}, "
+                     f"D4: {tests_passed[3] if len(tests_passed) > 3 else False}")
+
+# ============================================================================
+# MAIN
+# ============================================================================
 
 def main():
-    """Run all tests"""
-    print("\n" + "="*80)
-    print("SESSION-11 3-ISSUE FIX BATCH - BACKEND TEST SUITE")
-    print("="*80)
-    print("Testing: Deploy blockers + TypeScript errors + Leader election")
-    print("Safety: READ-ONLY testing, no mutations, no election start")
-    print("="*80)
+    print(f"\n{BLUE}{'='*80}{RESET}")
+    print(f"{BLUE}Backend Test Suite - Session 12: TronGrid API Fix{RESET}")
+    print(f"{BLUE}Testing: /app/backend/services/tronEnergyService.ts{RESET}")
+    print(f"{BLUE}{'='*80}{RESET}\n")
     
-    results = {}
+    results = []
     
     # Run all tests
-    results['A'] = test_a_public_files()
-    results['B'] = test_b_typescript_compile()
-    results['C'] = test_c_sweep_module()
-    results['D'] = test_d_leader_election_module()
-    results['E'] = test_e_redis_lease_semantics()
-    results['F'] = test_f_health_and_api()
+    results.append(("A: TypeScript Compilation", test_a_typescript_compilation()))
+    results.append(("B: Functional Activation", test_b_functional_activation()))
+    results.append(("C: calculateOptimalFeeLimit", test_c_calculate_optimal_fee_limit()))
+    results.append(("D: Core API Regression", test_d_core_api_regression()))
     
     # Summary
-    print("\n" + "="*80)
-    print("TEST SUMMARY")
-    print("="*80)
+    print(f"\n{BLUE}{'='*80}{RESET}")
+    print(f"{BLUE}TEST SUMMARY{RESET}")
+    print(f"{BLUE}{'='*80}{RESET}\n")
     
-    for test, passed in results.items():
-        status = "✅ PASS" if passed else "❌ FAIL"
-        print(f"TEST {test}: {status}")
+    for test_name, passed in results:
+        status = f"{GREEN}PASS{RESET}" if passed else f"{RED}FAIL{RESET}"
+        print(f"  {test_name}: {status}")
     
-    all_pass = all(results.values())
+    total_passed = sum(1 for _, passed in results if passed)
+    total_tests = len(results)
     
-    print("\n" + "="*80)
-    if all_pass:
-        print("✅ ALL TESTS PASSED")
+    print(f"\n{BLUE}Total: {total_passed}/{total_tests} tests passed{RESET}\n")
+    
+    if total_passed == total_tests:
+        print(f"{GREEN}✓ ALL TESTS PASSED{RESET}\n")
+        return 0
     else:
-        print("❌ SOME TESTS FAILED")
-    print("="*80)
-    
-    return 0 if all_pass else 1
+        print(f"{RED}✗ SOME TESTS FAILED{RESET}\n")
+        return 1
 
 if __name__ == "__main__":
     sys.exit(main())

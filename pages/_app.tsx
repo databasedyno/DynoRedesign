@@ -2,11 +2,30 @@ import "@/styles/globals.css";
 import "nprogress/nprogress.css";
 import "../i18n";
 
-// Geist Sans + Mono — Vercel's OSS typeface. Loaded via next/font/local for
-// zero-CLS, no external network dependency, and automatic CSS-variable exposure.
-// Replaces the legacy Manrope + Unbounded + JetBrains Mono stack.
-import { GeistSans } from "geist/font/sans";
-import { GeistMono } from "geist/font/mono";
+// Geist Sans + Mono — Vercel's OSS typeface, self-hosted from the `geist`
+// package but declared with next/font/local directly so we control `display`.
+// FIX (2026-07-10): the upstream `geist/font/sans` export hardcodes
+// font-display: swap, which caused a visible FOUT on the landing header —
+// text painted in the (slightly smaller) metric-adjusted Arial fallback, then
+// "grew" when Geist swapped in. `display: "optional"` eliminates that
+// mid-paint size jump: if the font isn't ready within the ~100ms block
+// period, the fallback is kept for the whole paint (no swap), and the cached
+// font renders instantly on every subsequent load.
+import localFont from "next/font/local";
+
+const GeistSans = localFont({
+  src: "../node_modules/geist/dist/fonts/geist-sans/Geist-Variable.woff2",
+  variable: "--font-geist-sans",
+  weight: "100 900",
+  display: "optional",
+});
+
+const GeistMono = localFont({
+  src: "../node_modules/geist/dist/fonts/geist-mono/GeistMono-Variable.woff2",
+  variable: "--font-geist-mono",
+  weight: "100 900",
+  display: "optional",
+});
 
 import type { NextPage } from "next";
 import NextApp, { type AppProps, type AppContext } from "next/app";

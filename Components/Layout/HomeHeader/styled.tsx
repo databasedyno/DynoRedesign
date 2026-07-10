@@ -89,9 +89,9 @@ export const NavLinks = styled("nav")(({ theme }) => ({
 
   button: {
     textTransform: "none",
-    fontSize: "15px",
-    fontWeight: 400,
-    lineHeight: "22px",
+    fontSize: "16px",
+    fontWeight: 500,
+    lineHeight: "24px",
     letterSpacing: "0px",
     fontFamily: "var(--font-sans)",
     color: theme.palette.text.secondary,
@@ -205,9 +205,9 @@ export const MobileNavContent = styled(Box)({
 });
 
 export const MobileNavItem = styled(Typography)(({ theme }) => ({
-  fontSize: "15.88px",
-  fontWeight: 400,
-  lineHeight: "22.68px",
+  fontSize: "16.5px",
+  fontWeight: 500,
+  lineHeight: "24px",
   fontFamily: "var(--font-sans)",
   color: theme.palette.text.secondary,
   cursor: "pointer",
@@ -225,9 +225,9 @@ export const MobileNavItem = styled(Typography)(({ theme }) => ({
 
 export const StyledSignInButton = styled(Button)(({ theme }) => ({
   textTransform: "none",
-  fontSize: "15px",
+  fontSize: "16px",
   fontWeight: 500,
-  lineHeight: "22px",
+  lineHeight: "24px",
   fontFamily: "var(--font-sans)",
   color: theme.palette.text.primary,
   whiteSpace: "nowrap",
