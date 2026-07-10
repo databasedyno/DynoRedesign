@@ -5,6 +5,10 @@ USDT-TRC20 payment gateway platform. Users can create companies, wallets, paymen
 
 ## What's Been Implemented
 
+### 2026-07-10 — Session 13c: "13 chains" copy + "Chat with us" login-redirect ✅ VERIFIED (frontend agent 5/5)
+- Hero copy "Accept 13 chains" → "Accept 15+ chains" in landing.json ×6 locales + DemoVideoModal/HeroV2/ComparisonTable hardcoded copies (zero "13 chain" strings remain).
+- FinalCTA "Chat with us" was <a href="/help-support"> (auth-gated → visitors bounced to login). Now a button (testid final-cta-chat) dispatching CustomEvent "dynopay:open-support-chat"; SupportChatWidget listens and opens in place. Verified: URL stays on /, panel opens, no chat message sent.
+
 ### 2026-07-10 — Session 13b: auth logos / font FOUT round 2 / ProductShowcase ✅ VERIFIED (frontend agent 13/15, all user issues resolved)
 - **Auth logo fix**: AuthBrandPanel + login.tsx + register.tsx + reset-password.tsx + NewHeader now use dynopay-blackLogo.svg (light) / dynopay-whiteLogo.svg (dark) — old blue dynopay-logo.png removed from these. Register 600–1200px "no logo" gap fixed with CSS-responsive logo+controls row mirroring login (top-right controls bar now lg-only).
 - **Font FOUT round 2**: prod dynopay.com still on pre-fix commit e35c0cb0 (deploys failing) — explains user's "still smaller then bigger" on prod. PLUS 20 remaining font-display:swap @font-face in styles/globals.css (Manrope + Urbanist/Outfit aliases) flipped to optional → built CSS now 0×swap / 22×optional; nav width verified stable.
