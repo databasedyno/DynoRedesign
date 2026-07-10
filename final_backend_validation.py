@@ -8,7 +8,7 @@ import requests
 import json
 import sys
 
-BACKEND_URL = "https://blockchain-gateway-13.preview.emergentagent.com"
+BACKEND_URL = "https://merchant-gateway-32.preview.emergentagent.com"
 
 def final_validation_tests():
     """Final validation of all review request requirements"""
