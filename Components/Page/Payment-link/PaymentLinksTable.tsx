@@ -180,6 +180,72 @@ const PaymentLinksTable = ({
 
   const paginatedData = paymentLinks.slice(start, end);
 
+  // ── Donation campaign helpers ──────────────────────────────────────
+  const donationChip = (
+    <Box
+      component="span"
+      data-testid="donation-badge"
+      sx={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: "3px",
+        px: "7px",
+        py: "1px",
+        borderRadius: "999px",
+        fontSize: "10.5px",
+        fontWeight: 700,
+        fontFamily: "var(--font-sans)",
+        letterSpacing: "0.2px",
+        color: "#10B981",
+        backgroundColor:
+          theme.palette.mode === "dark" ? "rgba(16,185,129,0.14)" : "rgba(16,185,129,0.10)",
+        border: "1px solid rgba(16,185,129,0.35)",
+        whiteSpace: "nowrap",
+        flexShrink: 0,
+      }}
+    >
+      {t("donationBadge", { defaultValue: "Donation" })}
+    </Box>
+  );
+
+  const donationProgressBar = (row: PaymentLinkData, maxWidth = 96) =>
+    row.donation?.goalAmount ? (
+      <Box sx={{ display: "flex", alignItems: "center", gap: "6px" }}>
+        <Box
+          sx={{
+            flex: 1,
+            maxWidth,
+            height: 4,
+            borderRadius: 999,
+            backgroundColor:
+              theme.palette.mode === "dark" ? "rgba(255,255,255,0.10)" : "rgba(0,0,0,0.08)",
+            overflow: "hidden",
+          }}
+        >
+          <Box
+            sx={{
+              width: `${Math.min(100, row.donation.progressPercent || 0)}%`,
+              height: "100%",
+              borderRadius: 999,
+              backgroundColor: "#10B981",
+            }}
+          />
+        </Box>
+        <Typography
+          component="span"
+          sx={{
+            fontSize: "11px",
+            fontFamily: "var(--font-sans)",
+            color: theme.palette.text.secondary,
+            fontVariantNumeric: "tabular-nums",
+            flexShrink: 0,
+          }}
+        >
+          {Math.min(100, row.donation.progressPercent || 0)}%
+        </Typography>
+      </Box>
+    ) : null;
+
   const fireToast = (message: string, severity: "success" | "error") => {
     setToastMessage(message);
     setToastSeverity(severity);
@@ -331,9 +397,12 @@ const PaymentLinksTable = ({
                 >
                   {/* Top: Description + Status */}
                   <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 1.25 }}>
-                    <Typography sx={{ fontSize: "14px", fontFamily: "var(--font-sans)", fontWeight: 600, color: theme.palette.text.primary, flex: 1, mr: 1, lineHeight: 1.3 }}>
-                      {row.description || "Payment Link"}
-                    </Typography>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: "6px", flex: 1, mr: 1, flexWrap: "wrap" }}>
+                      <Typography sx={{ fontSize: "14px", fontFamily: "var(--font-sans)", fontWeight: 600, color: theme.palette.text.primary, lineHeight: 1.3 }}>
+                        {row.description || "Payment Link"}
+                      </Typography>
+                      {row.linkType === "donation" && donationChip}
+                    </Box>
                     <StatusChip status={row.status}>
                       {row.status === "active" ? (
                         <Image src={TrueIcon} alt="Active" width={12} height={12} draggable={false} />
@@ -358,6 +427,9 @@ const PaymentLinksTable = ({
                       </Typography>
                     )}
                   </Box>
+                  {row.linkType === "donation" && row.donation?.goalAmount ? (
+                    <Box sx={{ mb: 1 }}>{donationProgressBar(row, 999)}</Box>
+                  ) : null}
                   {/* Bottom: Date + Actions */}
                   <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <Typography sx={{ fontSize: "11px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary }}>
@@ -486,7 +558,19 @@ const PaymentLinksTable = ({
                     }}
                   >
                     <TableBodyCell sx={{ pl: "15px" }}>{row.id}</TableBodyCell>
-                    <TableBodyCell>{row.description}</TableBodyCell>
+                    <TableBodyCell>
+                      {row.linkType === "donation" ? (
+                        <Box sx={{ display: "flex", flexDirection: "column", gap: "3px", minWidth: 130 }}>
+                          <Box sx={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                            <Box component="span">{row.description}</Box>
+                            {donationChip}
+                          </Box>
+                          {donationProgressBar(row)}
+                        </Box>
+                      ) : (
+                        row.description
+                      )}
+                    </TableBodyCell>
                     <TableBodyCell>{row.usdValue}</TableBodyCell>
                     <TableBodyCell>{row.cryptoValue}</TableBodyCell>
                     <TableBodyCell>

@@ -505,5 +505,32 @@
     "selectCompany": "Company",
     "addCompany": "Add company",
     "noCompanies": "Create your first company to configure payments, webhooks, and branding."
+  },
+  "donation": {
+    "defaultTitle": "Support this campaign",
+    "raisedOfGoal": "raised of {{goal}} goal",
+    "raised": "raised",
+    "percentFunded": "{{percent}}% funded",
+    "supportersCount_one": "{{count}} supporter",
+    "supportersCount_other": "{{count}} supporters",
+    "chooseAmount": "Choose an amount",
+    "customAmountPlaceholder": "Other amount",
+    "minAmountHint": "Minimum {{amount}}",
+    "minAmountError": "Minimum donation is {{amount}}.",
+    "enterAmount": "Please choose or enter a donation amount.",
+    "donorDetails": "Your details",
+    "optional": "optional",
+    "namePlaceholder": "Your name",
+    "messagePlaceholder": "Leave a message of support…",
+    "donateAnonymously": "Donate anonymously",
+    "donate": "Donate",
+    "donateAmount": "Donate {{amount}}",
+    "secureNote": "Secure crypto payment — you will pick a coin on the next step.",
+    "recentSupporters": "Recent supporters",
+    "anonymous": "Anonymous",
+    "closedGoalReached": "Goal reached — thank you!",
+    "closedExpired": "This campaign has ended",
+    "closedSubtitle": "This campaign is no longer accepting donations.",
+    "startError": "Unable to start your donation. Please try again."
   }
 }

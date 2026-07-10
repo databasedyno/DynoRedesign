@@ -36,5 +36,6 @@
   "delete": "Eliminar",
   "allStatuses": "Todos los estados",
   "timesUsedTooltip": "Número de pagos completados a través de este enlace.",
-  "paymentsReceivedShort": "{{count}}× pagado"
+  "paymentsReceivedShort": "{{count}}× pagado",
+  "donationBadge": "Donación"
 }

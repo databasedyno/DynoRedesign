@@ -505,5 +505,32 @@
     "selectCompany": "Bedrijf",
     "addCompany": "Bedrijf toevoegen",
     "noCompanies": "Maak uw eerste bedrijf aan om betalingen, webhooks en branding te configureren."
+  },
+  "donation": {
+    "defaultTitle": "Steun deze campagne",
+    "raisedOfGoal": "opgehaald van {{goal}} doel",
+    "raised": "opgehaald",
+    "percentFunded": "{{percent}}% gefinancierd",
+    "supportersCount_one": "{{count}} supporter",
+    "supportersCount_other": "{{count}} supporters",
+    "chooseAmount": "Kies een bedrag",
+    "customAmountPlaceholder": "Ander bedrag",
+    "minAmountHint": "Minimaal {{amount}}",
+    "minAmountError": "De minimale donatie is {{amount}}.",
+    "enterAmount": "Kies of voer een donatiebedrag in.",
+    "donorDetails": "Jouw gegevens",
+    "optional": "optioneel",
+    "namePlaceholder": "Je naam",
+    "messagePlaceholder": "Laat een steunbericht achter…",
+    "donateAnonymously": "Anoniem doneren",
+    "donate": "Doneren",
+    "donateAmount": "{{amount}} doneren",
+    "secureNote": "Veilige cryptobetaling — je kiest een munt in de volgende stap.",
+    "recentSupporters": "Recente supporters",
+    "anonymous": "Anoniem",
+    "closedGoalReached": "Doel bereikt — bedankt!",
+    "closedExpired": "Deze campagne is beëindigd",
+    "closedSubtitle": "Deze campagne accepteert geen donaties meer.",
+    "startError": "Je donatie kon niet worden gestart. Probeer het opnieuw."
   }
 }

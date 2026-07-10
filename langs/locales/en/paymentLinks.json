@@ -36,5 +36,6 @@
   "delete": "Delete",
   "allStatuses": "All Statuses",
   "timesUsedTooltip": "Number of completed payments made through this link.",
-  "paymentsReceivedShort": "{{count}}× paid"
+  "paymentsReceivedShort": "{{count}}× paid",
+  "donationBadge": "Donation"
 }

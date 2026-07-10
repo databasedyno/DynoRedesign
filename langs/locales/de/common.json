@@ -505,5 +505,32 @@
     "selectCompany": "Unternehmen",
     "addCompany": "Unternehmen hinzufügen",
     "noCompanies": "Erstellen Sie Ihr erstes Unternehmen, um Zahlungen, Webhooks und Branding zu konfigurieren."
+  },
+  "donation": {
+    "defaultTitle": "Unterstütze diese Kampagne",
+    "raisedOfGoal": "gesammelt von {{goal}} Ziel",
+    "raised": "gesammelt",
+    "percentFunded": "{{percent}}% finanziert",
+    "supportersCount_one": "{{count}} Unterstützer",
+    "supportersCount_other": "{{count}} Unterstützer",
+    "chooseAmount": "Betrag wählen",
+    "customAmountPlaceholder": "Anderer Betrag",
+    "minAmountHint": "Mindestens {{amount}}",
+    "minAmountError": "Die Mindestspende beträgt {{amount}}.",
+    "enterAmount": "Bitte wähle oder gib einen Spendenbetrag ein.",
+    "donorDetails": "Deine Angaben",
+    "optional": "optional",
+    "namePlaceholder": "Dein Name",
+    "messagePlaceholder": "Hinterlasse eine unterstützende Nachricht…",
+    "donateAnonymously": "Anonym spenden",
+    "donate": "Spenden",
+    "donateAmount": "{{amount}} spenden",
+    "secureNote": "Sichere Krypto-Zahlung — die Coin-Auswahl folgt im nächsten Schritt.",
+    "recentSupporters": "Letzte Unterstützer",
+    "anonymous": "Anonym",
+    "closedGoalReached": "Ziel erreicht — vielen Dank!",
+    "closedExpired": "Diese Kampagne ist beendet",
+    "closedSubtitle": "Diese Kampagne nimmt keine Spenden mehr an.",
+    "startError": "Deine Spende konnte nicht gestartet werden. Bitte versuche es erneut."
   }
 }

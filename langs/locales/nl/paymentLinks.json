@@ -36,5 +36,6 @@
   "delete": "Verwijderen",
   "allStatuses": "Alle statussen",
   "timesUsedTooltip": "Aantal voltooide betalingen via deze link.",
-  "paymentsReceivedShort": "{{count}}× betaald"
+  "paymentsReceivedShort": "{{count}}× betaald",
+  "donationBadge": "Donatie"
 }

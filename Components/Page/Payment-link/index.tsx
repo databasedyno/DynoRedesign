@@ -44,14 +44,20 @@ const PaymentLinksPage = ({
 
   // Map API data to PaymentLinkData format
   const paymentLinks: PaymentLinkData[] = useMemo(() => {
-    return paymentLinkState.paymentLinks.map((link: any) => ({
+    return paymentLinkState.paymentLinks.map((link: any) => {
+      const isDonation = link.link_type === "donation";
+      return {
       id: link._id || link.link_id || link.id,
-      description: link.description || "",
-      usdValue: link.display_value
-        ? String(link.display_value)
-        : link.base_amount
-          ? `${Number(link.base_amount).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${link.base_currency || ""}`
-          : "0",
+      // Donation campaigns: the campaign title is the meaningful label
+      description: (isDonation ? link.donation?.title : null) || link.description || "",
+      // Donation campaigns: show the RAISED amount in the value column
+      usdValue: isDonation
+        ? `${Number(link.donation?.raised_amount || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${link.base_currency || "USD"}`
+        : link.display_value
+          ? String(link.display_value)
+          : link.base_amount
+            ? `${Number(link.base_amount).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${link.base_currency || ""}`
+            : "0",
       cryptoValue: link.crypto_currencies
         ? String(link.crypto_currencies)
         : "",
@@ -60,7 +66,18 @@ const PaymentLinksPage = ({
       status: (link.status || "pending").toLowerCase(),
       timesUsed: link.times_used || link.timesUsed || 0,
       paymentUrl: link.payment_link || link.paymentUrl || link.payment_url || "",
-    }));
+      linkType: isDonation ? ("donation" as const) : ("standard" as const),
+      donation: link.donation
+        ? {
+            title: link.donation.title || null,
+            goalAmount: link.donation.goal_amount ?? null,
+            raisedAmount: link.donation.raised_amount || 0,
+            supportersCount: link.donation.supporters_count || 0,
+            progressPercent: link.donation.progress_percent ?? null,
+          }
+        : null,
+      };
+    });
   }, [paymentLinkState.paymentLinks]);
 
   // Filter by search, status, and date range

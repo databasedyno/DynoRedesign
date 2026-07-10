@@ -32,12 +32,20 @@ import {
   ActionButtons,
   CryptoSelection,
   DescriptionSection,
+  DonationSettingsSection,
+  LinkTypeSelector,
+  LivePreviewPanel,
   PaymentLinkHeader,
   PaymentSettingsBasic,
   PostPaymentSettings,
-  TabNavigation,
   TaxSection,
 } from "@/Components/UI/pay-link";
+import type { LinkKind } from "@/Components/UI/pay-link/LinkTypeSelector";
+import type {
+  DonationSettingsState,
+  DonationErrors,
+} from "@/Components/UI/pay-link/DonationSettingsSection";
+import axiosBaseApi from "@/axiosConfig";
 import SaveChangeModel from "@/Components/UI/pay-link/SaveChangeModel";
 import {
   CreatePaymentLinkPageProps,
@@ -300,6 +308,103 @@ const CreatePaymentLinkPage = ({
       : "",
   });
 
+  // ── Donation / crowdfunding state ─────────────────────────────────
+  const [linkKind, setLinkKind] = useState<LinkKind>(
+    hasPaymentLinkData && (paymentLinkData as PaymentLink).link_type === "donation"
+      ? "donation"
+      : "standard"
+  );
+  const [donationSettings, setDonationSettings] = useState<DonationSettingsState>(() => {
+    const don = hasPaymentLinkData ? (paymentLinkData as PaymentLink).donation : null;
+    return {
+      title: don?.title || "",
+      goalAmount: don?.goal_amount != null ? String(don.goal_amount) : "",
+      minAmount: don?.min_amount != null ? String(don.min_amount) : "1",
+      presets: don?.preset_amounts || [],
+      allowCustom: don?.allow_custom_amount !== false,
+      showProgress: don?.show_progress !== false,
+      showSupporters: don?.show_supporters !== false,
+      autoCloseAtGoal: Boolean(don?.auto_close_at_goal),
+      campaignImage: don?.campaign_image || null,
+    };
+  });
+  const [donationErrors, setDonationErrors] = useState<DonationErrors>({});
+  const [imageUploading, setImageUploading] = useState(false);
+
+  const handleDonationChange = (patch: Partial<DonationSettingsState>) => {
+    setDonationSettings((prev) => ({ ...prev, ...patch }));
+  };
+  const clearDonationError = (field: keyof DonationErrors) => {
+    setDonationErrors((prev) => ({ ...prev, [field]: undefined }));
+  };
+
+  const handleUploadCampaignImage = async (file: File) => {
+    if (file.size > 10 * 1024 * 1024) {
+      dispatch({
+        type: "TOAST_SHOW",
+        payload: {
+          message: t("donationImageTooLarge", { defaultValue: "Image is too large (max 10MB)." }),
+          severity: "error",
+        },
+      });
+      return;
+    }
+    setImageUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append("image", file);
+      const res = await axiosBaseApi.post("/pay/uploadCampaignImage", fd, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      const url = res?.data?.data?.url;
+      if (url) {
+        setDonationSettings((prev) => ({ ...prev, campaignImage: url }));
+      } else {
+        throw new Error("No URL returned");
+      }
+    } catch (e: any) {
+      dispatch({
+        type: "TOAST_SHOW",
+        payload: {
+          message:
+            e?.response?.data?.message ||
+            t("donationImageUploadFailed", { defaultValue: "Image upload failed. Please try again." }),
+          severity: "error",
+        },
+      });
+    } finally {
+      setImageUploading(false);
+    }
+  };
+
+  const validateDonationSettings = (): boolean => {
+    const errs: DonationErrors = {};
+    if (!donationSettings.title.trim()) {
+      errs.title = t("donationTitleRequired", { defaultValue: "Campaign title is required" });
+    }
+    if (donationSettings.goalAmount) {
+      const goal = parseFloat(donationSettings.goalAmount);
+      if (!Number.isFinite(goal) || goal <= 0) {
+        errs.goalAmount = t("donationGoalInvalid", { defaultValue: "Enter a valid goal amount" });
+      } else if (goal > 999999999) {
+        errs.goalAmount = t("donationGoalTooLarge", { defaultValue: "Goal amount is too large" });
+      }
+    }
+    if (donationSettings.minAmount) {
+      const min = parseFloat(donationSettings.minAmount);
+      if (!Number.isFinite(min) || min <= 0) {
+        errs.minAmount = t("donationMinInvalid", { defaultValue: "Enter a valid minimum amount" });
+      }
+    }
+    if (!donationSettings.allowCustom && donationSettings.presets.length === 0) {
+      errs.presets = t("donationPresetsRequired", {
+        defaultValue: "Add at least one suggested amount when custom amounts are disabled",
+      });
+    }
+    setDonationErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
+
   // Sync form state when paymentLinkData changes (handles async data loading)
   useEffect(() => {
     if (Object.keys(paymentLinkData).length === 0) return;
@@ -325,6 +430,24 @@ const CreatePaymentLinkPage = ({
     });
     if (data.acceptedCryptoCurrency?.length) {
       setShowAllCoins(true);
+    }
+    // Donation campaign: sync link kind + campaign settings (async load on edit)
+    if (data.link_type === "donation") {
+      setLinkKind("donation");
+      const don = data.donation;
+      if (don) {
+        setDonationSettings({
+          title: don.title || "",
+          goalAmount: don.goal_amount != null ? String(don.goal_amount) : "",
+          minAmount: don.min_amount != null ? String(don.min_amount) : "1",
+          presets: don.preset_amounts || [],
+          allowCustom: don.allow_custom_amount !== false,
+          showProgress: don.show_progress !== false,
+          showSupporters: don.show_supporters !== false,
+          autoCloseAtGoal: Boolean(don.auto_close_at_goal),
+          campaignImage: don.campaign_image || null,
+        });
+      }
     }
   }, [paymentLinkData]);
 
@@ -454,6 +577,17 @@ const CreatePaymentLinkPage = ({
     // Prevent multiple rapid clicks — use createLoading (not generic loading which can be stuck from fee preview)
     if (isCreating || paymentLinkState?.createLoading) return;
 
+    if (linkKind === "donation") {
+      // Donation campaigns: validate campaign fields instead of a fixed amount
+      if (!validateDonationSettings()) return;
+      if (paymentSettings.description && paymentSettings.description.length > 500) {
+        setPaymentSettingsErrors((prev) => ({
+          ...prev,
+          description: tPaymentLink("descriptionMaxLength"),
+        }));
+        return;
+      }
+    } else {
     // Always validate payment settings from Tab 0 regardless of active tab
     setPaymentSettingsTouched({
       value: true,
@@ -478,6 +612,7 @@ const CreatePaymentLinkPage = ({
       }
       setCustomerEmailError("");
     }
+    }
 
     // Enforce at least 1 cryptocurrency selected
     if (!paymentSettings.acceptedCryptoCurrency || paymentSettings.acceptedCryptoCurrency.length === 0) {
@@ -492,22 +627,49 @@ const CreatePaymentLinkPage = ({
     }
 
     // Build API payload with backend-compatible field names
-    const apiPayload: any = {
-      amount: parseFloat(paymentSettings.value),
-      currency: paymentSettings.currency,
-      description: paymentSettings.description,
-      name: paymentSettings.clientName,
-      expire: paymentSettings.expire === "no" ? "No" : paymentSettings.expire,
-      fee_payer: paymentSettings.blockchainFees,
-      accepted_currencies: paymentSettings.acceptedCryptoCurrency,
-      redirect_url: postPaymentSettings.redirectUrl,
-      webhook_url: postPaymentSettings.webhookUrl,
-      callback_url: postPaymentSettings.callbackUrl,
-      apply_tax: includeTax,
-      company_id: selectedCompanyId,
-    };
+    const apiPayload: any =
+      linkKind === "donation"
+        ? {
+            link_type: "donation",
+            title: donationSettings.title.trim(),
+            description: paymentSettings.description,
+            currency: paymentSettings.currency,
+            goal_amount: donationSettings.goalAmount
+              ? parseFloat(donationSettings.goalAmount)
+              : null,
+            min_amount: donationSettings.minAmount
+              ? parseFloat(donationSettings.minAmount)
+              : 1,
+            preset_amounts: donationSettings.presets,
+            allow_custom_amount: donationSettings.allowCustom,
+            show_progress: donationSettings.showProgress,
+            show_supporters: donationSettings.showSupporters,
+            auto_close_at_goal: donationSettings.autoCloseAtGoal,
+            campaign_image: donationSettings.campaignImage,
+            expire: paymentSettings.expire === "no" ? "No" : paymentSettings.expire,
+            fee_payer: paymentSettings.blockchainFees,
+            accepted_currencies: paymentSettings.acceptedCryptoCurrency,
+            redirect_url: postPaymentSettings.redirectUrl,
+            webhook_url: postPaymentSettings.webhookUrl,
+            callback_url: postPaymentSettings.callbackUrl,
+            company_id: selectedCompanyId,
+          }
+        : {
+            amount: parseFloat(paymentSettings.value),
+            currency: paymentSettings.currency,
+            description: paymentSettings.description,
+            name: paymentSettings.clientName,
+            expire: paymentSettings.expire === "no" ? "No" : paymentSettings.expire,
+            fee_payer: paymentSettings.blockchainFees,
+            accepted_currencies: paymentSettings.acceptedCryptoCurrency,
+            redirect_url: postPaymentSettings.redirectUrl,
+            webhook_url: postPaymentSettings.webhookUrl,
+            callback_url: postPaymentSettings.callbackUrl,
+            apply_tax: includeTax,
+            company_id: selectedCompanyId,
+          };
 
-    if (customerEmail.trim()) {
+    if (linkKind !== "donation" && customerEmail.trim()) {
       apiPayload.customer_email = customerEmail.trim();
     }
 
@@ -557,6 +719,20 @@ const CreatePaymentLinkPage = ({
       setPaymentLink("");
       setDirectPayAddress(null);
       setDirectPayQrCode(null);
+      // Reset donation campaign fields (link kind is kept so the merchant can
+      // quickly create another campaign)
+      setDonationSettings({
+        title: "",
+        goalAmount: "",
+        minAmount: "1",
+        presets: [],
+        allowCustom: true,
+        showProgress: true,
+        showSupporters: true,
+        autoCloseAtGoal: false,
+        campaignImage: null,
+      });
+      setDonationErrors({});
     }
   };
 
@@ -873,6 +1049,14 @@ const CreatePaymentLinkPage = ({
         onSave={handleCreatePaymentLink}
       />
 
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "flex-start",
+          gap: 3,
+          width: "100%",
+        }}
+      >
       <PanelCard
         bodyPadding={
           isMobile
@@ -885,6 +1069,8 @@ const CreatePaymentLinkPage = ({
           mb: hasPaymentLinkData ? 10 : 0,
           maxWidth: { xs: "100%", md: "959px" },
           width: "100%",
+          minWidth: 0,
+          flex: 1,
           borderRadius: { xs: "8px", md: "14px" },
         }}
       >
@@ -981,14 +1167,15 @@ const CreatePaymentLinkPage = ({
             </Box>
           </Box>
         )}
-        <TabNavigation
-          activeTab={activeTab}
-          onChange={handleTabChange}
-          tPaymentLink={tPaymentLink}
-          hasPaymentLinkData={hasPaymentLinkData}
+        {/* Link type: Payment link vs Donation / Crowdfunding (locked in edit mode) */}
+        <LinkTypeSelector
+          value={linkKind}
+          onChange={(k) => setLinkKind(k)}
+          disabled={hasPaymentLinkData || disabled}
+          isMobile={isMobile}
         />
 
-        {activeTab === 0 && (
+        {(
           <TabContentContainer
             sx={{
               padding: isMobile
@@ -1010,6 +1197,27 @@ const CreatePaymentLinkPage = ({
             )}
 
             <TabContentContainer sx={{ ...disable }}>
+              {linkKind === "donation" ? (
+                <DonationSettingsSection
+                  isMobile={isMobile}
+                  settings={donationSettings}
+                  onChange={handleDonationChange}
+                  errors={donationErrors}
+                  clearError={clearDonationError}
+                  currency={paymentSettings.currency}
+                  currencies={currencies}
+                  onCurrencyChange={(c) => handleCurrencySelect(c)}
+                  purpose={paymentSettings.description}
+                  onPurposeChange={(v) => handlePaymentSettingsChange("description", v)}
+                  purposeError={paymentSettingsErrors.description}
+                  expire={paymentSettings.expire}
+                  onExpireChange={(v) => handlePaymentSettingsChange("expire", v)}
+                  feePayer={blockchainFees}
+                  onFeePayerChange={handleBlockchainFeesChange}
+                  onUploadImage={handleUploadCampaignImage}
+                  imageUploading={imageUploading}
+                />
+              ) : (
               <Box
                 sx={{
                   display: "flex",
@@ -1054,6 +1262,7 @@ const CreatePaymentLinkPage = ({
                   />
                 </Box>
               </Box>
+              )}
 
               <Box
                 sx={{
@@ -1145,7 +1354,11 @@ const CreatePaymentLinkPage = ({
                         ml: 0.5,
                       }}
                     >
-                      {tPaymentLink("advancedOptionsHint", { defaultValue: "Customer email, tax" })}
+                      {linkKind === "donation"
+                        ? t("advancedOptionsHintDonation", { defaultValue: "Webhooks, redirect URL" })
+                        : !hasPaymentLinkData
+                          ? t("advancedOptionsHintFull", { defaultValue: "Customer email, tax, webhooks" })
+                          : tPaymentLink("advancedOptionsHint", { defaultValue: "Customer email, tax" })}
                     </Typography>
                   </Box>
                 </Box>
@@ -1156,6 +1369,8 @@ const CreatePaymentLinkPage = ({
                     py: 1,
                   }}
                 >
+                  {linkKind !== "donation" && (
+                  <>
                   {/* Optional Customer Email for referral code delivery */}
                   <Box sx={{ py: 2 }}>
                     <Typography
@@ -1234,6 +1449,33 @@ const CreatePaymentLinkPage = ({
                     setIncludeTax={setIncludeTax}
                     currentLng={currentLng}
                   />
+                  </>
+                  )}
+
+                  {/* Post-payment settings (webhook / redirect / callback URLs)
+                      live here for NEW links — the old second tab is gone. Edit
+                      mode keeps its dedicated inline section below. */}
+                  {!hasPaymentLinkData && (
+                    <>
+                      {linkKind !== "donation" && (
+                        <Box
+                          sx={{
+                            height: "1px",
+                            backgroundColor: theme.palette.border.main,
+                          }}
+                        />
+                      )}
+                      <Box sx={{ py: 1 }}>
+                        <PostPaymentSettings
+                          hasPaymentLinkData={hasPaymentLinkData}
+                          isMobile={isMobile}
+                          tPaymentLink={tPaymentLink}
+                          postPaymentSettings={postPaymentSettings}
+                          handleChange={handlePostPaymentSettingsChange}
+                        />
+                      </Box>
+                    </>
+                  )}
                 </Box>
               </Box>
 
@@ -1257,7 +1499,7 @@ const CreatePaymentLinkPage = ({
               )}
             </TabContentContainer>
 
-            {feePreview && (
+            {feePreview && linkKind === "standard" && (
               <Box
                 data-testid="fee-preview-display"
                 sx={{
@@ -1315,36 +1557,41 @@ const CreatePaymentLinkPage = ({
                 paymentSettingsErrors={paymentSettingsErrors}
                 paymentSettings={paymentSettings}
                 isCreating={isCreating}
+                requireAmount={linkKind !== "donation"}
+                extraDisabled={linkKind === "donation" && !donationSettings.title.trim()}
               />
             </Box>
           </TabContentContainer>
         )}
-
-        {activeTab === 1 && (
-          <TabContentContainer
-            sx={{ padding: isMobile ? "14px 0px 0px 0px" : "16px 0px 0px 0px" }}
-          >
-            <PostPaymentSettings
-              hasPaymentLinkData={hasPaymentLinkData}
-              isMobile={isMobile}
-              tPaymentLink={tPaymentLink}
-              postPaymentSettings={postPaymentSettings}
-              handleChange={handlePostPaymentSettingsChange}
-              showHelpers={true}
-              showCreateButton={true}
-              onCreate={handleCreatePaymentLink}
-              createDisabled={
-                isCreating ||
-                !paymentSettings.value ||
-                paymentSettings.value.trim() === "" ||
-                !paymentSettings.currency ||
-                !paymentSettings.acceptedCryptoCurrency ||
-                paymentSettings.acceptedCryptoCurrency.length === 0
-              }
-            />
-          </TabContentContainer>
-        )}
       </PanelCard>
+
+      {/* ── Live preview (desktop only) ─────────────────────────────── */}
+      <Box
+        sx={{
+          width: 350,
+          flexShrink: 0,
+          position: "sticky",
+          top: 24,
+          display: { xs: "none", lg: "block" },
+        }}
+      >
+        <LivePreviewPanel
+          linkKind={linkKind}
+          amount={paymentSettings.value}
+          currency={paymentSettings.currency}
+          clientName={paymentSettings.clientName}
+          description={paymentSettings.description}
+          donation={donationSettings}
+          purpose={paymentSettings.description}
+          acceptedCount={paymentSettings.acceptedCryptoCurrency?.length || 0}
+          companyName={
+            (companyListForBanner.find(
+              (c: any) => c.company_id === selectedCompanyId
+            ) || {})?.company_name || null
+          }
+        />
+      </Box>
+      </Box>
     </div>
   );
 };

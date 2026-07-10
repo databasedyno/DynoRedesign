@@ -7,3 +7,6 @@ export { default as CryptoSelection } from "./CryptoSelection";
 export { default as TaxSection } from "./TaxSection";
 export { default as ActionButtons } from "./ActionButtons";
 export { default as PostPaymentSettings } from "./PostPaymentSettings";
+export { default as LinkTypeSelector } from "./LinkTypeSelector";
+export { default as DonationSettingsSection } from "./DonationSettingsSection";
+export { default as LivePreviewPanel } from "./LivePreviewPanel";

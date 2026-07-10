@@ -1,3 +1,28 @@
+export interface PaymentLinkDonation {
+  title: string | null;
+  goal_amount: number | null;
+  raised_amount: number;
+  supporters_count: number;
+  progress_percent: number | null;
+  min_amount: number;
+  preset_amounts: number[];
+  allow_custom_amount: boolean;
+  show_progress: boolean;
+  show_supporters: boolean;
+  auto_close_at_goal: boolean;
+  campaign_image: string | null;
+  contributions?: Array<{
+    link_id: number | string;
+    amount: number;
+    currency: string;
+    donor_name: string | null;
+    donor_message: string | null;
+    is_anonymous: boolean;
+    status: string;
+    created_at: string;
+  }>;
+}
+
 export interface PaymentLink {
   link_id: string;
   amount: number;
@@ -11,6 +36,8 @@ export interface PaymentLink {
   payment_url: string;
   redirect_url: string;
   webhook_url: string;
+  link_type?: "standard" | "donation";
+  donation?: PaymentLinkDonation | null;
   metadata: {
     order_id: string;
     customer_email: string;
@@ -44,6 +71,14 @@ export interface PaymentLinkData {
   status: PaymentLinkStatus;
   timesUsed: number;
   paymentUrl: string;
+  linkType?: "standard" | "donation";
+  donation?: {
+    title: string | null;
+    goalAmount: number | null;
+    raisedAmount: number;
+    supportersCount: number;
+    progressPercent: number | null;
+  } | null;
 }
 
 export interface PaymentLinksTableProps {

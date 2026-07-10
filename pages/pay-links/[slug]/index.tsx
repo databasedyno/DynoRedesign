@@ -59,6 +59,8 @@ export default function EditPaymentLink() {
             payment_url: d.payment_link ?? "",
             redirect_url: d.redirect_url ?? "",
             webhook_url: d.webhook_url ?? "",
+            link_type: d.link_type === "donation" ? "donation" : "standard",
+            donation: d.donation ?? null,
             metadata: {
               order_id: d.transaction_id ?? "",
               customer_email: d.email ?? "",

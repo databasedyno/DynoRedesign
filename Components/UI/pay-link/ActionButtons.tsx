@@ -12,6 +12,8 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
   paymentSettingsErrors,
   paymentSettings,
   isCreating,
+  requireAmount = true,
+  extraDisabled = false,
 }) => {
   const router = useRouter();
 
@@ -41,11 +43,12 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
           onClick={handleCreatePaymentLink}
           disabled={
             isCreating ||
+            extraDisabled ||
             Boolean(paymentSettingsErrors.value) ||
             Boolean(paymentSettingsErrors.currency) ||
             Boolean(paymentSettingsErrors.description) ||
-            !paymentSettings.value ||
-            paymentSettings.value.trim() === "" ||
+            (requireAmount &&
+              (!paymentSettings.value || paymentSettings.value.trim() === "")) ||
             !paymentSettings.currency ||
             !paymentSettings.acceptedCryptoCurrency ||
             paymentSettings.acceptedCryptoCurrency.length === 0

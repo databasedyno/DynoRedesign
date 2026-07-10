@@ -36,5 +36,6 @@
   "delete": "Supprimer",
   "allStatuses": "Tous les statuts",
   "timesUsedTooltip": "Nombre de paiements effectués via ce lien.",
-  "paymentsReceivedShort": "{{count}}× payé"
+  "paymentsReceivedShort": "{{count}}× payé",
+  "donationBadge": "Don"
 }

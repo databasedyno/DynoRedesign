@@ -43,6 +43,7 @@ import BitCoinGreenIcon from '@/assets/Icons/BitCoinGreenIcon'
 import Logo from '@/assets/Icons/Logo'
 import CryptoTransfer from '@/Components/Page/Pay3Components/cryptoTransfer'
 import BankTransferCompo from '@/Components/Page/Pay3Components/bankTransferCompo'
+import DonationCampaign, { DonationCampaignData } from '@/Components/Page/Pay3Components/donationCampaign'
 import Pay3Layout from '@/Components/Layout/Pay3Layout'
 import Image from 'next/image'
 // Flag icon imports - International
@@ -261,6 +262,15 @@ const Payment = () => {
     paid_at: string | null;
   } | null>(null)
 
+  // ─── Donation campaign view ──────────────────────────────────────
+  // When getData returns { is_donation: true, donation: {...} } the link is a
+  // multi-use crowdfunding campaign. We render DonationCampaign instead of the
+  // stepper; "Donate" calls pay/startDonation which spawns a per-donor payment
+  // session, then we push /pay?d=<child-ref> and the normal flow takes over.
+  const [donationData, setDonationData] = useState<DonationCampaignData | null>(null)
+  const [donationRef, setDonationRef] = useState<string>('')
+  const [donateSubmitting, setDonateSubmitting] = useState(false)
+
   // Save activeStep to sessionStorage when it changes (for language change persistence)
   useEffect(() => {
     if (typeof window !== 'undefined' && activeStep > 0) {
@@ -446,6 +456,31 @@ const Payment = () => {
         return;
       }
 
+      // ─── Donation campaign link ───────────────────────────────────
+      // Multi-use crowdfunding parent: render the campaign view. The donor
+      // picks an amount there; pay/startDonation spawns their own payment
+      // session and we re-enter this flow with the child reference.
+      if (data?.is_donation && data?.donation) {
+        setDonationData(data.donation as DonationCampaignData)
+        setDonationRef(String(query_data))
+        if (data.merchant) {
+          setMerchantInfo({
+            name: data.merchant.name || data.merchant.company_name || '',
+            company_logo: data.merchant.company_logo || null
+          })
+        }
+        // A fresh campaign visit invalidates any stale per-payment stepper state
+        sessionStorage.removeItem('payment_active_step')
+        sessionStorage.removeItem('payment_transfer_method')
+        setLoading(false)
+        setInitialLoading(false)
+        return
+      }
+      // Leaving a campaign for a child payment (or any non-donation link):
+      // make sure the campaign view unmounts.
+      setDonationData(null)
+      setDonateSubmitting(false)
+
       setWalletState({
         amount: Number(data.amount) || 0,
         currency: data.base_currency || 'USD'
@@ -628,6 +663,41 @@ const Payment = () => {
     setAccountDetails(data)
   }
 
+  // ─── Donation: start a contribution ────────────────────────────────
+  // Spawns a per-donor payment session on the backend, then navigates to the
+  // returned child reference — from there the regular checkout flow runs.
+  const handleStartDonation = async (payload: {
+    amount: number
+    donor_name?: string
+    donor_message?: string
+    is_anonymous?: boolean
+  }) => {
+    if (donateSubmitting || !donationRef) return
+    setDonateSubmitting(true)
+    try {
+      const { data: res }: { data: any } = await axiosBaseApi.post('pay/startDonation', {
+        data: donationRef,
+        ...payload
+      })
+      const childRef = res?.data?.d
+      if (!childRef) throw new Error('No payment reference returned')
+      // Fresh payment session — clear any persisted stepper state
+      sessionStorage.removeItem('payment_active_step')
+      sessionStorage.removeItem('payment_transfer_method')
+      setInitialLoading(true)
+      setDonationData(null)
+      // push (not replace) so the browser Back button returns to the campaign
+      router.push(`/pay?d=${childRef}`)
+      // getQueryData re-runs via the router.query effect and renders checkout
+    } catch (e: any) {
+      const message =
+        e?.response?.data?.message ||
+        t('donation.startError', { defaultValue: 'Unable to start your donation. Please try again.' })
+      dispatch({ type: TOAST_SHOW, payload: { message, severity: 'error' } })
+      setDonateSubmitting(false)
+    }
+  }
+
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     // Don't allow opening currency selector when incomplete payment exists
     if (incompletePayment) return
@@ -808,6 +878,23 @@ const Payment = () => {
             />
           </Box>
         </Box>
+      </Pay3Layout>
+    );
+  }
+
+  // ─── Donation campaign view ───────────────────────────────────────
+  // Multi-use crowdfunding link: render the campaign card (no stepper —
+  // the payment stepper starts once the donor picks an amount and their
+  // own payment session begins).
+  if (donationData) {
+    return (
+      <Pay3Layout>
+        <DonationCampaign
+          donation={donationData}
+          merchant={merchantInfo || null}
+          submitting={donateSubmitting}
+          onDonate={handleStartDonation}
+        />
       </Pay3Layout>
     );
   }

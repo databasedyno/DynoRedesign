@@ -20,6 +20,10 @@ export interface ActionButtonsProps {
   paymentSettingsErrors: any;
   paymentSettings: any;
   isCreating?: boolean;
+  /** When false (donation links) the fixed amount field is not required */
+  requireAmount?: boolean;
+  /** Extra disable condition supplied by the caller (e.g. missing campaign title) */
+  extraDisabled?: boolean;
 }
 
 export interface ICryptoItem {

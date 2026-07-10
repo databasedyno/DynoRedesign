@@ -59,6 +59,9 @@ Company id: use the QA account's first company from GET /api/company/getCompany.
     cascade-deleted). DELETE the standard link too. Confirm GET /pay/getPaymentLinks no longer shows QA test links.
 
 ### RESULT (session 16 Phase A): ✅ 23/24 TESTS PASS — 2026-07-10 09:54 UTC (testing agent)
+### PHASE B (donor checkout campaign view): ✅ code complete + smoke-tested by main agent via Playwright screenshots (campaign card renders w/ progress/presets/wall; Donate $25 → child ref → standard checkout w/ donor name + campaign title). Files: Components/Page/Pay3Components/donationCampaign.tsx (NEW), pages/pay/index.tsx (donation branch + handleStartDonation), common.json donation.* ×6 locales.
+### PHASE C (create-page redesign + donation form + live preview + list badge): ✅ COMPLETE & screenshot-verified by main agent (2026-07-10 10:39 UTC). Full UI create flow tested against live backend (campaign created via redesigned form → verified via API → badge/progress in pay-links list → deleted, DB clean). Bonus: pre-existing advancedOptions/advancedOptionsHint missing-i18n-key bug fixed ×6 locales. See /app/memory/PRD.md session 16 for the complete file inventory. NOT yet run through deep frontend testing agent — awaiting user decision.
+### MAIN AGENT RE-CHECK (10:00 UTC): the 1 "failed" case (Test 7 GET BY ID contributions[]) PASSES on clean reproduction — contribution row returned with donor fields; agent failure was a sequencing artifact from their pre-fix run. Testing agent's linkMiddleware.ts fix (Joi amount optional for link_type='donation') reviewed and kept. Cascade delete verified directly in DB: zero orphan rows, zero QA test residue. Phase A COMPLETE.
 
 **TEST EXECUTION SUMMARY:**
 - **Agent:** testing (backend_testing_agent)

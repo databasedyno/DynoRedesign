@@ -505,5 +505,32 @@
     "selectCompany": "Entreprise",
     "addCompany": "Ajouter une entreprise",
     "noCompanies": "Créez votre première entreprise pour configurer paiements, webhooks et image de marque."
+  },
+  "donation": {
+    "defaultTitle": "Soutenez cette campagne",
+    "raisedOfGoal": "collectés sur un objectif de {{goal}}",
+    "raised": "collectés",
+    "percentFunded": "{{percent}}% financé",
+    "supportersCount_one": "{{count}} contributeur",
+    "supportersCount_other": "{{count}} contributeurs",
+    "chooseAmount": "Choisissez un montant",
+    "customAmountPlaceholder": "Autre montant",
+    "minAmountHint": "Minimum {{amount}}",
+    "minAmountError": "Le don minimum est de {{amount}}.",
+    "enterAmount": "Veuillez choisir ou saisir un montant de don.",
+    "donorDetails": "Vos informations",
+    "optional": "facultatif",
+    "namePlaceholder": "Votre nom",
+    "messagePlaceholder": "Laissez un message de soutien…",
+    "donateAnonymously": "Faire un don anonyme",
+    "donate": "Faire un don",
+    "donateAmount": "Donner {{amount}}",
+    "secureNote": "Paiement crypto sécurisé — vous choisirez la devise à l'étape suivante.",
+    "recentSupporters": "Contributeurs récents",
+    "anonymous": "Anonyme",
+    "closedGoalReached": "Objectif atteint — merci !",
+    "closedExpired": "Cette campagne est terminée",
+    "closedSubtitle": "Cette campagne n'accepte plus de dons.",
+    "startError": "Impossible de démarrer votre don. Veuillez réessayer."
   }
 }

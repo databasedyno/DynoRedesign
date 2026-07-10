@@ -505,5 +505,32 @@
     "selectCompany": "Empresa",
     "addCompany": "Adicionar empresa",
     "noCompanies": "Crie sua primeira empresa para configurar pagamentos, webhooks e marca."
+  },
+  "donation": {
+    "defaultTitle": "Apoie esta campanha",
+    "raisedOfGoal": "arrecadado de uma meta de {{goal}}",
+    "raised": "arrecadado",
+    "percentFunded": "{{percent}}% financiado",
+    "supportersCount_one": "{{count}} apoiador",
+    "supportersCount_other": "{{count}} apoiadores",
+    "chooseAmount": "Escolha um valor",
+    "customAmountPlaceholder": "Outro valor",
+    "minAmountHint": "Mínimo {{amount}}",
+    "minAmountError": "A doação mínima é {{amount}}.",
+    "enterAmount": "Escolha ou insira um valor de doação.",
+    "donorDetails": "Seus dados",
+    "optional": "opcional",
+    "namePlaceholder": "Seu nome",
+    "messagePlaceholder": "Deixe uma mensagem de apoio…",
+    "donateAnonymously": "Doar anonimamente",
+    "donate": "Doar",
+    "donateAmount": "Doar {{amount}}",
+    "secureNote": "Pagamento cripto seguro — você escolherá a moeda na próxima etapa.",
+    "recentSupporters": "Apoiadores recentes",
+    "anonymous": "Anônimo",
+    "closedGoalReached": "Meta alcançada — obrigado!",
+    "closedExpired": "Esta campanha foi encerrada",
+    "closedSubtitle": "Esta campanha não aceita mais doações.",
+    "startError": "Não foi possível iniciar sua doação. Tente novamente."
   }
 }
