@@ -1248,7 +1248,7 @@ const Payment = () => {
                         </Box>
                       )}
 
-                      <Divider sx={{ my: 1.5, borderColor: isDark ? theme.palette.surface.border : undefined }} />
+                      <Divider sx={{ my: 1.5, borderColor: isDark ? theme.palette.surface?.border : undefined }} />
                     </>
                   )}
 
@@ -1442,7 +1442,7 @@ const Payment = () => {
 
                   <Divider sx={{ 
                     mb: 1.5, 
-                    borderColor: isDark ? theme.palette.surface.border : undefined 
+                    borderColor: isDark ? theme.palette.surface?.border : undefined 
                   }} />
 
                   <Box display='flex' gap={2}>

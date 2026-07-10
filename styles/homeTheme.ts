@@ -56,6 +56,14 @@ export const homeTheme = createTheme({
       main: "rgba(10,10,10,0.12)",
       focus: "#0A0A0A",
     } as any,
+    // Custom `surface` palette used by the checkout (pay) page. Must exist in
+    // BOTH light and dark or `theme.palette.surface.border` throws in dark mode
+    // (root cause of the checkout "Something went wrong" crash, 2026-07-10).
+    surface: {
+      main: "#F4F6FA",
+      paper: "#FFFFFF",
+      border: "#E9ECF2",
+    } as any,
     action: {
       hover: "rgba(10,10,10,0.04)",
       selected: "rgba(10,10,10,0.06)",
@@ -97,6 +105,12 @@ export const homeThemeDark = createTheme({
     border: {
       main: "rgba(255,255,255,0.14)",
       focus: HOME_LIME,
+    } as any,
+    // Custom `surface` palette used by the checkout (pay) page — see light theme note.
+    surface: {
+      main: "#0E0F12",
+      paper: "#16171B",
+      border: "#26272B",
     } as any,
     action: {
       hover: "rgba(255,255,255,0.06)",
