@@ -5,6 +5,11 @@ USDT-TRC20 payment gateway platform. Users can create companies, wallets, paymen
 
 ## What's Been Implemented
 
+### 2026-07-10 — Session 14b: Checkout cleanup + crypto page redesign ✅ VERIFIED (frontend agent 6/6, 1 minor test-selector note only)
+- Removed checkout's decorative FloatingChatButton (pages/pay/index.tsx) and the dead "Dynopay Wallet" header button (Pay3Components/header.tsx, desktop + mobile drawer).
+- Redesigned cryptoTransfer.tsx (VISUAL ONLY, logic intact): dropdown → coin TILE GRID (crypto-tile-<VALUE> testids, green #10B981 selected state), segmented network pills, fixed 196px QR card, mono address + amount (tabular-nums), Space Grotesk → var(--font-sans) everywhere (30×), consistent 10–14px radii. Verified live with user's real payment link (USDT→TRC20→QR/amount/countdown), light + dark.
+- User-reported "Something went wrong" on prod payment link: NOT reproducible (prod + preview load fine; DO logs clean) — timing matched the 04:23–04:35Z rolling deploy (stale chunks). ErrorBoundary auto-reload regex extended to webpack mismatch signatures ("reading 'call'", "Unexpected token '<'").
+
 ### 2026-07-10 — Session 14: Emily chat parity + landing reorg + docs Try-It-Live + loader fade + public/ ROOT CAUSE ✅ VERIFIED (backend agent 11/11, frontend agent 11/13 + main agent completed the remaining 2)
 - **ROOT CAUSE of recurring public/ deletion FOUND & FIXED**: Next.js cleanDistDir (lib/recursive-delete) follows directory symlinks; the shim's `ln -sfn /app/public .next/standalone/public` made every `next build` wipe /app/public → auto-commits recorded deletions → DO kaniko failures. Shim now COPIES public/ instead. DO deploy b2643132 (cd81f6c) ACTIVE; dynopay.com healthy.
 - **Support chat → "Emily"** (Emergent parity, GIF skipped per user): renamed w/ green "Active" presence dot; per-message timestamps; built-in emoji picker (3 groups, no new deps); image/PDF attachments (paperclip → POST /api/support/chat/upload, multer 5MB, uuid names, served at /api/static/support-chat/) with thumbnails/chips in bubbles; Emily SEES image attachments via OpenAI vision (base64 image_url); history + escalation email include attachments; live Railway PG got 3 additive nullable columns on tbl_support_chat_message.
