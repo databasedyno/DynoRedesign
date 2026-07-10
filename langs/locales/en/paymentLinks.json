@@ -9,7 +9,7 @@
   "created": "Created",
   "expires": "Expires",
   "status": "Status",
-  "timesUsed": "Times Used",
+  "timesUsed": "Payments received",
   "actions": "Actions",
   "active": "Active",
   "expired": "Expired",
@@ -27,12 +27,14 @@
   "createdHeader": "Created",
   "expiresHeader": "Expires",
   "statusHeader": "Status",
-  "timesUsedHeader": "Times Used",
+  "timesUsedHeader": "Payments received",
   "actionsHeader": "Actions",
   "searchInputPlaceholder": "Search links...",
   "deleteModelTitle": "Delete payment link",
   "deleteModelDescription": "Are you sure you want to delete this payment link?",
   "cancel": "Cancel",
   "delete": "Delete",
-  "allStatuses": "All Statuses"
+  "allStatuses": "All Statuses",
+  "timesUsedTooltip": "Number of completed payments made through this link.",
+  "paymentsReceivedShort": "{{count}}× paid"
 }

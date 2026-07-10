@@ -517,6 +517,8 @@ const CreatePaymentLinkPage = ({
         PaymentLinkAction(PAYLINK_UPDATE, {
           id: (paymentLinkData as PaymentLink).link_id,
           ...apiPayload,
+          // Session 14d: return to the payment-links list after a successful save
+          onSuccess: () => router.push("/pay-links"),
         })
       );
     } else {

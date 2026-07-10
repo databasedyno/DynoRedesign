@@ -45,11 +45,16 @@ const WalletPage = ({
 
     if (!stored) return;
 
-    const { openCreate, cryptocurrency } = JSON.parse(stored);
+    // Guarded parse (session 14d) — corrupt storage must never crash the page.
+    try {
+      const { openCreate, cryptocurrency } = JSON.parse(stored);
 
-    if (openCreate && cryptocurrency) {
-      setOpenCreate(true);
-      setCurrentCryptocurrency(cryptocurrency);
+      if (openCreate && cryptocurrency) {
+        setOpenCreate(true);
+        setCurrentCryptocurrency(cryptocurrency);
+      }
+    } catch (_e) {
+      /* ignore corrupt value — cleaned up below */
     }
 
     sessionStorage.removeItem("walletAction");

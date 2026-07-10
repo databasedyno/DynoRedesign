@@ -9,7 +9,7 @@
   "created": "Créé",
   "expires": "Expire",
   "status": "Statut",
-  "timesUsed": "Fois Utilisé",
+  "timesUsed": "Paiements reçus",
   "actions": "Actions",
   "active": "Actif",
   "expired": "Expiré",
@@ -27,12 +27,14 @@
   "createdHeader": "Créé",
   "expiresHeader": "Expire",
   "statusHeader": "Statut",
-  "timesUsedHeader": "Fois Utilisé",
+  "timesUsedHeader": "Paiements reçus",
   "actionsHeader": "Actions",
   "searchInputPlaceholder": "Rechercher des liens...",
   "deleteModelTitle": "Supprimer le lien de paiement",
   "deleteModelDescription": "Êtes-vous sûr de vouloir supprimer ce lien de paiement ?",
   "cancel": "Annuler",
   "delete": "Supprimer",
-  "allStatuses": "Tous les statuts"
+  "allStatuses": "Tous les statuts",
+  "timesUsedTooltip": "Nombre de paiements effectués via ce lien.",
+  "paymentsReceivedShort": "{{count}}× payé"
 }

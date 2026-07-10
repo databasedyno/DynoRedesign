@@ -9,7 +9,7 @@
   "created": "Erstellt",
   "expires": "Läuft ab",
   "status": "Status",
-  "timesUsed": "Mal verwendet",
+  "timesUsed": "Zahlungen erhalten",
   "actions": "Aktionen",
   "active": "Aktiv",
   "expired": "Abgelaufen",
@@ -27,12 +27,14 @@
   "createdHeader": "Erstellt",
   "expiresHeader": "Läuft ab",
   "statusHeader": "Status",
-  "timesUsedHeader": "Mal verwendet",
+  "timesUsedHeader": "Zahlungen erhalten",
   "actionsHeader": "Aktionen",
   "searchInputPlaceholder": "Links suchen...",
   "deleteModelTitle": "Zahlungslink löschen",
   "deleteModelDescription": "Sind Sie sicher, dass Sie diesen Zahlungslink löschen möchten?",
   "cancel": "Abbrechen",
   "delete": "Löschen",
-  "allStatuses": "Alle Status"
+  "allStatuses": "Alle Status",
+  "timesUsedTooltip": "Anzahl der abgeschlossenen Zahlungen über diesen Link.",
+  "paymentsReceivedShort": "{{count}}× bezahlt"
 }

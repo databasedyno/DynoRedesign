@@ -9,7 +9,7 @@
   "created": "Criado em",
   "expires": "Expira em",
   "status": "Status",
-  "timesUsed": "Vezes usadas",
+  "timesUsed": "Pagamentos recebidos",
   "actions": "Ações",
   "active": "Ativo",
   "expired": "Expirado",
@@ -27,12 +27,14 @@
   "createdHeader": "Criado em",
   "expiresHeader": "Expira em",
   "statusHeader": "Status",
-  "timesUsedHeader": "Vezes usadas",
+  "timesUsedHeader": "Pagamentos recebidos",
   "actionsHeader": "Ações",
   "searchInputPlaceholder": "Pesquisar links...",
   "deleteModelTitle": "Excluir link de pagamento",
   "deleteModelDescription": "Tem certeza de que deseja excluir este link de pagamento?",
   "cancel": "Cancelar",
   "delete": "Excluir",
-  "allStatuses": "Todos os status"
+  "allStatuses": "Todos os status",
+  "timesUsedTooltip": "Número de pagamentos concluídos através deste link.",
+  "paymentsReceivedShort": "{{count}}× pago"
 }

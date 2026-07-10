@@ -9,7 +9,7 @@
   "created": "Aangemaakt",
   "expires": "Verloopt",
   "status": "Status",
-  "timesUsed": "Keer gebruikt",
+  "timesUsed": "Ontvangen betalingen",
   "actions": "Acties",
   "active": "Actief",
   "expired": "Verlopen",
@@ -27,12 +27,14 @@
   "createdHeader": "Aangemaakt",
   "expiresHeader": "Verloopt",
   "statusHeader": "Status",
-  "timesUsedHeader": "Keer gebruikt",
+  "timesUsedHeader": "Ontvangen betalingen",
   "actionsHeader": "Acties",
   "searchInputPlaceholder": "Links zoeken...",
   "deleteModelTitle": "Betaallink verwijderen",
   "deleteModelDescription": "Weet u zeker dat u deze betaallink wilt verwijderen?",
   "cancel": "Annuleren",
   "delete": "Verwijderen",
-  "allStatuses": "Alle statussen"
+  "allStatuses": "Alle statussen",
+  "timesUsedTooltip": "Aantal voltooide betalingen via deze link.",
+  "paymentsReceivedShort": "{{count}}× betaald"
 }

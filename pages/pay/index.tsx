@@ -176,15 +176,31 @@ const Payment = () => {
   const [currencyRates, setCurrencyRates] = useState<currencyData>()
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [activeStep, setActiveStep] = useState<number>(() => {
-    // Restore activeStep from sessionStorage on mount (for language change persistence)
+    // Restore activeStep from sessionStorage on mount (for language change persistence).
+    // HARDENED (session 14d): JSON.parse is guarded — a legacy/corrupt value here
+    // (e.g. a plain string written by an older build) used to THROW inside the
+    // useState initializer and crash the whole checkout with "Something went
+    // wrong" on EVERY load (sessionStorage survives refreshes in the same tab).
     if (typeof window !== 'undefined') {
-      const saved = sessionStorage.getItem('payment_active_step');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        // Only restore if saved within the last 30 minutes
-        if (parsed.timestamp && Date.now() - parsed.timestamp < 30 * 60 * 1000) {
-          return parsed.step || 0;
+      try {
+        const saved = sessionStorage.getItem('payment_active_step');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          // Only restore if saved within the last 30 minutes
+          if (
+            parsed &&
+            typeof parsed === 'object' &&
+            typeof parsed.timestamp === 'number' &&
+            Date.now() - parsed.timestamp < 30 * 60 * 1000 &&
+            Number.isInteger(parsed.step) &&
+            parsed.step >= 0 &&
+            parsed.step <= 2
+          ) {
+            return parsed.step;
+          }
         }
+      } catch (_e) {
+        try { sessionStorage.removeItem('payment_active_step'); } catch (_e2) { /* noop */ }
       }
     }
     return 0;
@@ -195,14 +211,27 @@ const Payment = () => {
     currency: 'USD'
   })
   const [transferMethod, setTransferMethod] = useState(() => {
-    // Restore transferMethod from sessionStorage on mount
+    // Restore transferMethod from sessionStorage on mount.
+    // HARDENED (session 14d): guarded JSON.parse — an older build stored this key
+    // as a PLAIN STRING (e.g. "crypto"), which made JSON.parse throw and crash
+    // the checkout persistently for returning visitors (user-reported bug).
     if (typeof window !== 'undefined') {
-      const saved = sessionStorage.getItem('payment_transfer_method');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (parsed.timestamp && Date.now() - parsed.timestamp < 30 * 60 * 1000) {
-          return parsed.method || '';
+      try {
+        const saved = sessionStorage.getItem('payment_transfer_method');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (
+            parsed &&
+            typeof parsed === 'object' &&
+            typeof parsed.timestamp === 'number' &&
+            Date.now() - parsed.timestamp < 30 * 60 * 1000 &&
+            typeof parsed.method === 'string'
+          ) {
+            return parsed.method;
+          }
         }
+      } catch (_e) {
+        try { sessionStorage.removeItem('payment_transfer_method'); } catch (_e2) { /* noop */ }
       }
     }
     return '';

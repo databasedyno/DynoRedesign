@@ -77,7 +77,7 @@ export function* PaymentLinkSaga(action: PaymentLinkSagaAction): Generator<any, 
       }
 
       case PAYLINK_UPDATE: {
-        const { id, ...updateData } = payload;
+        const { id, onSuccess, ...updateData } = payload;
         const response = yield call(axiosBaseApi.put, `/pay/links/${id}`, updateData);
         const apiData = response?.data?.data;
         if (apiData) {
@@ -94,6 +94,11 @@ export function* PaymentLinkSaga(action: PaymentLinkSagaAction): Generator<any, 
               severity: "success",
             },
           });
+          // Session 14d: let the edit page navigate back to /pay-links after a
+          // successful save (previously the user stayed on the edit form).
+          if (typeof onSuccess === "function") {
+            onSuccess();
+          }
         } else {
           yield put({ type: PAYLINK_ERROR });
           yield put({

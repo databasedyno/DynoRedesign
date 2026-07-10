@@ -10,9 +10,11 @@ import {
   TableCell,
   TableHead,
   TableRow,
+  Tooltip,
   Typography,
   useTheme,
 } from "@mui/material";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import React, { useCallback, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
@@ -74,16 +76,17 @@ const headerIconMap: Record<string, any> = {
   actionsHeader: ActionIcon,
 };
 
-const Header = React.memo(({ label }: { label: string }) => {
+const Header = React.memo(({ label, tooltip }: { label: string; tooltip?: string }) => {
   const { t } = useTranslation("paymentLinks");
   const isMobile = useIsMobile("md");
   const headerTheme = useTheme();
-  return (
+  const content = (
     <Box
       sx={{
         display: "flex",
         alignItems: "center",
         gap: isMobile ? "6px" : "10px",
+        cursor: tooltip ? "help" : undefined,
       }}
     >
       {headerIconMap[label] && (
@@ -113,7 +116,22 @@ const Header = React.memo(({ label }: { label: string }) => {
       >
         {t(label)}
       </Typography>
+      {tooltip && (
+        <InfoOutlinedIcon
+          sx={{
+            fontSize: isMobile ? 12 : 14,
+            color: headerTheme.palette.text.secondary,
+            marginTop: "-1px",
+          }}
+        />
+      )}
     </Box>
+  );
+  if (!tooltip) return content;
+  return (
+    <Tooltip title={t(tooltip)} placement="top" arrow>
+      {content}
+    </Tooltip>
   );
 });
 
@@ -344,7 +362,7 @@ const PaymentLinksTable = ({
                   <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <Typography sx={{ fontSize: "11px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary }}>
                       {formatUtcToDisplay(row.createdAt)}
-                      {row.timesUsed > 0 ? ` · Used ${row.timesUsed}x` : ""}
+                      {row.timesUsed > 0 ? ` · ${t("paymentsReceivedShort", { count: row.timesUsed })}` : ""}
                     </Typography>
                     <Box sx={{ display: "flex", gap: "6px" }}>
                       {row.status !== "expired" && (
@@ -425,7 +443,7 @@ const PaymentLinksTable = ({
                     <Header label="statusHeader" />
                   </TableCell>
                   <TableCell>
-                    <Header label="timesUsedHeader" />
+                    <Header label="timesUsedHeader" tooltip="timesUsedTooltip" />
                   </TableCell>
                   <TableCell align="center">
                     <Header label="actionsHeader" />

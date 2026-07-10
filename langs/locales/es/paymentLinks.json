@@ -9,7 +9,7 @@
   "created": "Creado",
   "expires": "Expira",
   "status": "Estado",
-  "timesUsed": "Veces Usado",
+  "timesUsed": "Pagos recibidos",
   "actions": "Acciones",
   "active": "Activo",
   "expired": "Expirado",
@@ -27,12 +27,14 @@
   "createdHeader": "Creado",
   "expiresHeader": "Expira",
   "statusHeader": "Estado",
-  "timesUsedHeader": "Veces Usado",
+  "timesUsedHeader": "Pagos recibidos",
   "actionsHeader": "Acciones",
   "searchInputPlaceholder": "Buscar enlaces...",
   "deleteModelTitle": "Eliminar enlace de pago",
   "deleteModelDescription": "¿Estás seguro de que quieres eliminar este enlace de pago?",
   "cancel": "Cancelar",
   "delete": "Eliminar",
-  "allStatuses": "Todos los estados"
+  "allStatuses": "Todos los estados",
+  "timesUsedTooltip": "Número de pagos completados a través de este enlace.",
+  "paymentsReceivedShort": "{{count}}× pagado"
 }
