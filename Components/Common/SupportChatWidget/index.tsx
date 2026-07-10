@@ -86,6 +86,15 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
     setSessionId(getOrCreateSessionId());
   }, []);
 
+  // Allow any part of the app to open the chat programmatically, e.g. the
+  // landing page "Chat with us" link in FinalCTA (which previously pointed at
+  // the auth-gated /help-support page and bounced visitors to login).
+  useEffect(() => {
+    const openChat = () => setOpen(true);
+    window.addEventListener("dynopay:open-support-chat", openChat);
+    return () => window.removeEventListener("dynopay:open-support-chat", openChat);
+  }, []);
+
   // Auto-scroll on new messages / typing indicator
   useEffect(() => {
     const el = listRef.current;

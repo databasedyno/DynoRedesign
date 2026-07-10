@@ -130,8 +130,10 @@ const FinalCTA: React.FC = () => {
           }}
         >
           <Typography
-            component="a"
-            href="/help-support"
+            component="button"
+            type="button"
+            data-testid="final-cta-chat"
+            onClick={() => window.dispatchEvent(new CustomEvent("dynopay:open-support-chat"))}
             sx={{
               fontSize: "14px",
               fontFamily: "var(--font-sans)",
@@ -139,6 +141,9 @@ const FinalCTA: React.FC = () => {
               textDecoration: "none",
               transition: "color 0.2s ease",
               cursor: "pointer",
+              background: "none",
+              border: "none",
+              padding: 0,
               "&:hover": {
                 color: theme.palette.primary.main,
               },

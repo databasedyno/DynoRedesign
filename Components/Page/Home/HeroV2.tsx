@@ -73,7 +73,7 @@ const HeroV2: React.FC = () => {
       return {
         badge: 'For developers',
         h1: 'Payment API for crypto.',
-        highlight: 'One integration, 13 chains.',
+        highlight: 'One integration, 15+ chains.',
         sub: 'Ship a checkout in an afternoon. Idempotent REST, webhooks, sandbox, TypeScript SDK. Zero on-chain plumbing.',
         primaryLabel: 'Get sandbox key',
         primaryHref: '/auth/register?ref=hero_dev',
@@ -85,7 +85,7 @@ const HeroV2: React.FC = () => {
       badge: 'For merchants',
       h1: 'Accept crypto.',
       highlight: 'Straight to your wallet, or auto-converted to stablecoins.',
-      sub: 'Accept 13 chains from customers in 40+ countries. Every payment is forwarded instantly to your own saved wallet — as the original coin, or auto-converted to USDT/USDC if you opt in. Fees from 0.5% — no chargebacks, ever.',
+      sub: 'Accept 15+ chains from customers in 40+ countries. Every payment is forwarded instantly to your own saved wallet — as the original coin, or auto-converted to USDT/USDC if you opt in. Fees from 0.5% — no chargebacks, ever.',
       primaryLabel: 'Start accepting crypto',
       primaryHref: '/auth/register?ref=hero_merchant',
       secondaryLabel: 'Watch 90s demo',
