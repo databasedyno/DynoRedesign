@@ -5,6 +5,29 @@ USDT-TRC20 payment gateway platform. Users can create companies, wallets, paymen
 
 ## What's Been Implemented
 
+### 2026-07-10 — Session 20: Crypto-card overflow fix + mobile/tablet live-preview bottom sheet ✅ FIXED + VERIFIED
+
+**User report (screenshot):** On Create Payment Link → "Accepted cryptocurrencies", long network-label cards
+(USDT-TRC20, USDT-ERC20, USDC-ERC20, USDT-POLYGON, RLUSD-ERC20 + the "stable" tag) overflowed the card border
+and pushed the green checkbox outside the card. Also: the live checkout preview didn't appear on mobile.
+
+**Fixes:**
+- `Components/UI/pay-link/CryptoItemCard.tsx` — removed fixed `maxWidth:326px` + fixed 66px height (→ width:100%,
+  height:auto, minHeight kept). Left group is now `flex:1 + minWidth:0`; icon/badge/checkbox are `flexShrink:0`;
+  name + label badge + "stable" sit in a `flexWrap` group so a long badge wraps to a 2nd line instead of
+  overflowing. Checkbox now pinned inside the card.
+- `Components/Page/CreatePaymentLink/index.tsx` — desktop (≥lg/1200px) keeps the existing sticky sidebar preview.
+  Below lg (phones + portrait tablets) added a fixed "Preview" FAB (`data-testid=mobile-preview-fab`) that opens a
+  bottom-sheet MUI Drawer (`data-testid=mobile-preview-drawer`, close btn `mobile-preview-close`) rendering the
+  same `LivePreviewPanel`.
+
+**Verified (frontend testing agent):** Desktop 1920 — 0px overflow on all 15 cards incl. the 5 long-label ones,
+checkbox inside. Tablet 768 + mobile 390 — FAB visible, drawer opens/closes with live preview; FAB hidden on
+desktop. Regression: coin toggle + Select all/Clear all OK. Known pre-existing/unrelated: desktop sidebar preview
+total didn't update on amount entry in the test (mobile drawer using the same component DID update) — not touched
+by this change.
+
+
 ### 2026-07-10 — Session 17: P0 Bug Fix — Silent-Drop of ERC-20 Incoming Webhooks ✅ RECOVERED + FIXED + VERIFIED
 
 **Bug**: Two USDT-ERC20 API payments to `hostbay@moxx.co` (52 + 30 USDT) were detected on-chain but silently dropped by the webhook processor — no `payment_journal` entry, no merchant webhook, no settlement, funds stuck in temp addresses `0xe8c0…` (id=8) and `0x84aa…` (id=7).
