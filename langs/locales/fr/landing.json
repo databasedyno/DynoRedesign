@@ -184,5 +184,17 @@
   "createFreeAccount": "Créez votre compte gratuit",
   "blogPostNotFound": "Article introuvable",
   "blogReadyCta": "Prêt à accepter les paiements en crypto ?",
-  "blogSubtitle": "Guides, stratégies et ressources développeurs pour vous aider à accepter la crypto et développer votre activité"
+  "blogSubtitle": "Guides, stratégies et ressources développeurs pour vous aider à accepter la crypto et développer votre activité",
+  "showcase": {
+    "title": "Conçu pour le commerce crypto",
+    "subtitle": "Suivez un paiement du checkout de votre client jusqu'à votre portefeuille — réglé en quelques secondes, pas en jours.",
+    "slide1Label": "Paiement",
+    "slide2Label": "Règlement",
+    "slide3Label": "Développeurs",
+    "slide1Caption": "Votre client paie avec n'importe quelle crypto majeure",
+    "slide2Caption": "Les fonds sont transférés directement vers votre propre portefeuille",
+    "slide3Caption": "Intégrez en un après-midi avec une API simple",
+    "prev": "Diapositive précédente",
+    "next": "Diapositive suivante"
+  }
 }

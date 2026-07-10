@@ -184,5 +184,17 @@
   "createFreeAccount": "Maak uw gratis account aan",
   "blogPostNotFound": "Bericht niet gevonden",
   "blogReadyCta": "Klaar om cryptobetalingen te accepteren?",
-  "blogSubtitle": "Gidsen, strategieën en developer-resources om crypto te accepteren en uw bedrijf te laten groeien"
+  "blogSubtitle": "Gidsen, strategieën en developer-resources om crypto te accepteren en uw bedrijf te laten groeien",
+  "showcase": {
+    "title": "Gemaakt voor crypto-commerce",
+    "subtitle": "Zie hoe een betaling van de checkout van uw klant naar uw wallet reist — afgewikkeld in seconden, niet dagen.",
+    "slide1Label": "Checkout",
+    "slide2Label": "Afwikkeling",
+    "slide3Label": "Developers",
+    "slide1Caption": "Uw klant betaalt met elke grote coin",
+    "slide2Caption": "Tegoeden worden rechtstreeks naar uw eigen wallet doorgestuurd",
+    "slide3Caption": "Integreer in één middag met een eenvoudige API",
+    "prev": "Vorige dia",
+    "next": "Volgende dia"
+  }
 }

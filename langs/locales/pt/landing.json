@@ -184,5 +184,17 @@
   "createFreeAccount": "Crie sua conta gratuita",
   "blogPostNotFound": "Publicação não encontrada",
   "blogReadyCta": "Pronto para aceitar pagamentos em cripto?",
-  "blogSubtitle": "Guias, estratégias e recursos para desenvolvedores para ajudar você a aceitar cripto e expandir seu negócio"
+  "blogSubtitle": "Guias, estratégias e recursos para desenvolvedores para ajudar você a aceitar cripto e expandir seu negócio",
+  "showcase": {
+    "title": "Feito para o comércio cripto",
+    "subtitle": "Veja um pagamento viajar do checkout do seu cliente até a sua carteira — liquidado em segundos, não em dias.",
+    "slide1Label": "Checkout",
+    "slide2Label": "Liquidação",
+    "slide3Label": "Desenvolvedores",
+    "slide1Caption": "Seu cliente paga com qualquer moeda principal",
+    "slide2Caption": "Os fundos são encaminhados direto para a sua própria carteira",
+    "slide3Caption": "Integre em uma tarde com uma API simples",
+    "prev": "Slide anterior",
+    "next": "Próximo slide"
+  }
 }

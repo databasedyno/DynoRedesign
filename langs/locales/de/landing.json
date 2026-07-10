@@ -184,5 +184,17 @@
   "createFreeAccount": "Kostenloses Konto erstellen",
   "blogPostNotFound": "Beitrag nicht gefunden",
   "blogReadyCta": "Bereit, Krypto-Zahlungen zu akzeptieren?",
-  "blogSubtitle": "Leitfäden, Strategien und Entwickler-Ressourcen, die Ihnen helfen, Krypto zu akzeptieren und Ihr Geschäft auszubauen"
+  "blogSubtitle": "Leitfäden, Strategien und Entwickler-Ressourcen, die Ihnen helfen, Krypto zu akzeptieren und Ihr Geschäft auszubauen",
+  "showcase": {
+    "title": "Gemacht für Krypto-Commerce",
+    "subtitle": "Sehen Sie, wie eine Zahlung vom Checkout Ihres Kunden bis in Ihre Wallet wandert — abgewickelt in Sekunden, nicht Tagen.",
+    "slide1Label": "Checkout",
+    "slide2Label": "Abwicklung",
+    "slide3Label": "Entwickler",
+    "slide1Caption": "Ihr Kunde zahlt mit jedem gängigen Coin",
+    "slide2Caption": "Gelder werden direkt in Ihre eigene Wallet weitergeleitet",
+    "slide3Caption": "Integration an einem Nachmittag mit einer einfachen API",
+    "prev": "Vorherige Folie",
+    "next": "Nächste Folie"
+  }
 }

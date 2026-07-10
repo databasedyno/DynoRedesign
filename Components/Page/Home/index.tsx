@@ -4,6 +4,7 @@ import HeroClean from "./HeroClean";
 import AsciiShimmer from "./AsciiShimmer";
 import ComplianceLogoStrip from "./ComplianceLogoStrip";
 import SupportedChainsRail from "./SupportedChainsRail";
+import ProductShowcase from "./ProductShowcase";
 import FeeCalculator from "./FeeCalculator";
 import TryItNow from "./TryItNow";
 import CoreValueProps from "./CoreValueProps";
@@ -81,6 +82,11 @@ const HomePage: FC = () => {
 
       <HomeFullWidthContainer>
         <SupportedChainsRail />
+      </HomeFullWidthContainer>
+
+      <HomeFullWidthContainer>
+        {/* Emergent-style animated product story (checkout → settlement → API) */}
+        <ProductShowcase />
       </HomeFullWidthContainer>
 
       <HomeFullWidthContainer>

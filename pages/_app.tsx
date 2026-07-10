@@ -47,6 +47,7 @@ import store from "@/store";
 import ErrorBoundary from "@/Components/ErrorBoundary";
 import { ThemeProvider as AppThemeProvider, useThemeMode } from "@/contexts/ThemeContext";
 import IdleTimeoutManager from "@/Components/UI/IdleTimeoutManager";
+import RouteTransitionLoader from "@/Components/Common/RouteTransitionLoader";
 import { createEmotionCache } from "@/utils/createEmotionCache";
 
 import { homeTheme, homeThemeDark } from "@/styles/homeTheme";
@@ -486,6 +487,7 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
         )}
       </Head>
       <IdleTimeoutManager />
+      <RouteTransitionLoader />
       {renderWithLayout()}
       {(resolvedLayout === "home" || resolvedLayout === "client") && (
         <SupportChatWidget layout={resolvedLayout} />

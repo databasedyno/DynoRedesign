@@ -1,5 +1,5 @@
-import Logo from "@/assets/Images/auth/dynopay-logo.png";
-import LogoDark from "@/assets/Images/auth/dynopay-white-logo.png";
+import Logo from "@/assets/Icons/home/dynopay-blackLogo.svg";
+import LogoDark from "@/assets/Icons/home/dynopay-whiteLogo.svg";
 import MobileLogo from "@/assets/Images/auth/dynopay-mobile-logo.png";
 import CompanySelector from "@/Components/UI/CompanySelector";
 import LanguageSwitcher from "@/Components/UI/LanguageSwitcher";

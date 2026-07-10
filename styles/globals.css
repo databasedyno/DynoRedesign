@@ -134,42 +134,42 @@ a {
   src: url("/fonts/Manrope-Light.woff") format("woff");
   font-weight: 300;
   font-style: normal;
-  font-display: swap;
+  font-display: optional; /* was swap — mid-paint font swap caused visible size-jump (FOUT) on cold visits */
 }
 @font-face {
   font-family: "Manrope";
   src: url("/fonts/Manrope-Regular.woff") format("woff");
   font-weight: 400;
   font-style: normal;
-  font-display: swap;
+  font-display: optional; /* was swap — mid-paint font swap caused visible size-jump (FOUT) on cold visits */
 }
 @font-face {
   font-family: "Manrope";
   src: url("/fonts/Manrope-Medium.woff") format("woff");
   font-weight: 500;
   font-style: normal;
-  font-display: swap;
+  font-display: optional; /* was swap — mid-paint font swap caused visible size-jump (FOUT) on cold visits */
 }
 @font-face {
   font-family: "Manrope";
   src: url("/fonts/Manrope-SemiBold.woff") format("woff");
   font-weight: 600;
   font-style: normal;
-  font-display: swap;
+  font-display: optional; /* was swap — mid-paint font swap caused visible size-jump (FOUT) on cold visits */
 }
 @font-face {
   font-family: "Manrope";
   src: url("/fonts/Manrope-Bold.woff") format("woff");
   font-weight: 700;
   font-style: normal;
-  font-display: swap;
+  font-display: optional; /* was swap — mid-paint font swap caused visible size-jump (FOUT) on cold visits */
 }
 @font-face {
   font-family: "Manrope";
   src: url("/fonts/Manrope-ExtraBold.woff") format("woff");
   font-weight: 800;
   font-style: normal;
-  font-display: swap;
+  font-display: optional; /* was swap — mid-paint font swap caused visible size-jump (FOUT) on cold visits */
 }
 
 /* --- Legacy weight-carrying aliases (Urbanist*) → Manrope --- */
@@ -178,49 +178,49 @@ a {
   src: url("/fonts/Manrope-Light.woff") format("woff");
   font-weight: 300;
   font-style: normal;
-  font-display: swap;
+  font-display: optional; /* was swap — mid-paint font swap caused visible size-jump (FOUT) on cold visits */
 }
 @font-face {
   font-family: "UrbanistRegular";
   src: url("/fonts/Manrope-Regular.woff") format("woff");
   font-weight: 400;
   font-style: normal;
-  font-display: swap;
+  font-display: optional; /* was swap — mid-paint font swap caused visible size-jump (FOUT) on cold visits */
 }
 @font-face {
   font-family: "UrbanistMedium";
   src: url("/fonts/Manrope-Medium.woff") format("woff");
   font-weight: 500;
   font-style: normal;
-  font-display: swap;
+  font-display: optional; /* was swap — mid-paint font swap caused visible size-jump (FOUT) on cold visits */
 }
 @font-face {
   font-family: "UrbanistSemiBold";
   src: url("/fonts/Manrope-SemiBold.woff") format("woff");
   font-weight: 600;
   font-style: normal;
-  font-display: swap;
+  font-display: optional; /* was swap — mid-paint font swap caused visible size-jump (FOUT) on cold visits */
 }
 @font-face {
   font-family: "UrbanistSemibold";
   src: url("/fonts/Manrope-SemiBold.woff") format("woff");
   font-weight: 600;
   font-style: normal;
-  font-display: swap;
+  font-display: optional; /* was swap — mid-paint font swap caused visible size-jump (FOUT) on cold visits */
 }
 @font-face {
   font-family: "UrbanistBold";
   src: url("/fonts/Manrope-Bold.woff") format("woff");
   font-weight: 700;
   font-style: normal;
-  font-display: swap;
+  font-display: optional; /* was swap — mid-paint font swap caused visible size-jump (FOUT) on cold visits */
 }
 @font-face {
   font-family: "UrbanistExtraBold";
   src: url("/fonts/Manrope-ExtraBold.woff") format("woff");
   font-weight: 800;
   font-style: normal;
-  font-display: swap;
+  font-display: optional; /* was swap — mid-paint font swap caused visible size-jump (FOUT) on cold visits */
 }
 
 /* --- Legacy weight-carrying aliases (Outfit*) → Manrope --- */
@@ -229,49 +229,49 @@ a {
   src: url("/fonts/Manrope-Light.woff") format("woff");
   font-weight: 300;
   font-style: normal;
-  font-display: swap;
+  font-display: optional; /* was swap — mid-paint font swap caused visible size-jump (FOUT) on cold visits */
 }
 @font-face {
   font-family: "OutfitRegular";
   src: url("/fonts/Manrope-Regular.woff") format("woff");
   font-weight: 400;
   font-style: normal;
-  font-display: swap;
+  font-display: optional; /* was swap — mid-paint font swap caused visible size-jump (FOUT) on cold visits */
 }
 @font-face {
   font-family: "OutfitMedium";
   src: url("/fonts/Manrope-Medium.woff") format("woff");
   font-weight: 500;
   font-style: normal;
-  font-display: swap;
+  font-display: optional; /* was swap — mid-paint font swap caused visible size-jump (FOUT) on cold visits */
 }
 @font-face {
   font-family: "OutfitSemiBold";
   src: url("/fonts/Manrope-SemiBold.woff") format("woff");
   font-weight: 600;
   font-style: normal;
-  font-display: swap;
+  font-display: optional; /* was swap — mid-paint font swap caused visible size-jump (FOUT) on cold visits */
 }
 @font-face {
   font-family: "OutfitSemibold";
   src: url("/fonts/Manrope-SemiBold.woff") format("woff");
   font-weight: 600;
   font-style: normal;
-  font-display: swap;
+  font-display: optional; /* was swap — mid-paint font swap caused visible size-jump (FOUT) on cold visits */
 }
 @font-face {
   font-family: "OutfitBold";
   src: url("/fonts/Manrope-Bold.woff") format("woff");
   font-weight: 700;
   font-style: normal;
-  font-display: swap;
+  font-display: optional; /* was swap — mid-paint font swap caused visible size-jump (FOUT) on cold visits */
 }
 @font-face {
   font-family: "OutfitExtraBold";
   src: url("/fonts/Manrope-ExtraBold.woff") format("woff");
   font-weight: 800;
   font-style: normal;
-  font-display: swap;
+  font-display: optional; /* was swap — mid-paint font swap caused visible size-jump (FOUT) on cold visits */
 }
 /* NProgress bar styling */
 #nprogress .bar {

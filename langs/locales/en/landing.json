@@ -184,5 +184,17 @@
   "createFreeAccount": "Create your free account",
   "blogPostNotFound": "Post not found",
   "blogReadyCta": "Ready to accept crypto payments?",
-  "blogSubtitle": "Guides, strategies, and developer resources to help you accept crypto and grow your business"
+  "blogSubtitle": "Guides, strategies, and developer resources to help you accept crypto and grow your business",
+  "showcase": {
+    "title": "Built for crypto commerce",
+    "subtitle": "Watch a payment travel from your customer's checkout to your wallet — settled in seconds, not days.",
+    "slide1Label": "Checkout",
+    "slide2Label": "Settlement",
+    "slide3Label": "Developers",
+    "slide1Caption": "Your customer pays in any major coin",
+    "slide2Caption": "Funds are forwarded straight to your own wallet",
+    "slide3Caption": "Integrate in an afternoon with a simple API",
+    "prev": "Previous slide",
+    "next": "Next slide"
+  }
 }

@@ -12,6 +12,30 @@ COPY package.json yarn.lock* ./
 RUN yarn install --frozen-lockfile || yarn install
 
 ##############################################
+# Stage 1b: Source-context guard for public/
+# The workspace auto-commit machinery has TWICE deleted the top-level
+# public/ directory from git (2026-07-09 commit 78bb5b03, 2026-07-10 commit
+# 3567cad2). A bare `COPY public/ ./public/` then aborts the whole build
+# (kaniko: "lstat /.app_platform_workspace/public: no such file or
+# directory"). This stage guarantees /src/public ALWAYS exists: it prefers
+# the real ./public from the repo, and falls back to the tracked mirror at
+# assets/public-runtime/ (keep both in sync when adding runtime assets:
+#   cp -r public/. assets/public-runtime/ ).
+##############################################
+FROM node:20-alpine AS srcguard
+
+WORKDIR /src
+
+COPY . .
+
+RUN mkdir -p public \
+ && if [ ! -f public/favicon.ico ] && [ -d assets/public-runtime ]; then \
+      echo "WARNING: public/ missing from build context — restoring from assets/public-runtime mirror"; \
+      cp -r assets/public-runtime/. public/; \
+    fi \
+ && ls public | head -5
+
+##############################################
 # Stage 2: Build Next.js frontend
 ##############################################
 FROM node:20-alpine AS frontend-builder
@@ -32,7 +56,8 @@ COPY hooks/ ./hooks/
 COPY langs/ ./langs/
 COPY utils/ ./utils/
 COPY assets/ ./assets/
-COPY public/ ./public/
+# public/ comes via the srcguard stage (mirror fallback) — see Stage 1b.
+COPY --from=srcguard /src/public/ ./public/
 COPY Redux/ ./Redux/
 COPY helpers/ ./helpers/
 # SEO landing-page content — read by getStaticPaths/getStaticProps at build

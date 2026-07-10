@@ -1,4 +1,5 @@
-import Logo from "@/assets/Images/auth/dynopay-logo.png";
+import Logo from "@/assets/Icons/home/dynopay-blackLogo.svg";
+import WhiteLogo from "@/assets/Icons/home/dynopay-whiteLogo.svg";
 import InputField from "@/Components/UI/AuthLayout/InputFields";
 import PasswordValidation from "@/Components/UI/AuthLayout/PasswordValidation";
 import TitleDescription from "@/Components/UI/AuthLayout/TitleDescription";
@@ -27,6 +28,7 @@ const ResetPasswordPage = () => {
   const dispatch = useDispatch();
 
   const isMobile = useIsMobile();
+  const muiTheme = useTheme();
   const userState = useSelector((state: rootReducer) => state.userReducer);
   const { t } = useTranslation("auth");
 
@@ -151,7 +153,7 @@ const ResetPasswordPage = () => {
       >
         {/* Logo */}
         <Image
-          src={Logo}
+          src={muiTheme.palette.mode === "dark" ? WhiteLogo : Logo}
           alt="logo"
           width={isMobile ? 86 : 114}
           height={isMobile ? 29 : 39}

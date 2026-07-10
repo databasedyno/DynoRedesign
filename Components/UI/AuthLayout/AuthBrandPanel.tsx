@@ -3,8 +3,11 @@ import { Box, Typography, useTheme } from "@mui/material";
 import Image from "next/image";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
-import WhiteLogo from "@/assets/Images/auth/dynopay-white-logo.png";
-import DarkLogo from "@/assets/Images/auth/dynopay-logo.png";
+// Near-black (light mode) / white (dark mode) wordmarks — same assets as the
+// landing header. The old blue PNG (dynopay-logo.png) clashed with the
+// lime/olive auth palette in light mode.
+import WhiteLogo from "@/assets/Icons/home/dynopay-whiteLogo.svg";
+import BlackLogo from "@/assets/Icons/home/dynopay-blackLogo.svg";
 
 const FONT_DISPLAY = "var(--font-sans), sans-serif";
 const FONT_BODY = "'Manrope', sans-serif";
@@ -74,7 +77,7 @@ const AuthBrandPanel = () => {
     >
       {/* Logo */}
       <Link href="/" style={{ display: "inline-block", width: "fit-content" }}>
-        <Image src={dark ? WhiteLogo : DarkLogo} alt="DynoPay" width={140} height={47} draggable={false} />
+        <Image src={dark ? WhiteLogo : BlackLogo} alt="DynoPay" width={140} height={47} draggable={false} />
       </Link>
 
       {/* Headline */}

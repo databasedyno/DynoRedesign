@@ -1,5 +1,5 @@
-import Logo from "@/assets/Images/auth/dynopay-logo.png";
-import WhiteLogo from "@/assets/Images/auth/dynopay-white-logo.png";
+import Logo from "@/assets/Icons/home/dynopay-blackLogo.svg";
+import WhiteLogo from "@/assets/Icons/home/dynopay-whiteLogo.svg";
 import InputField from "@/Components/UI/AuthLayout/InputFields";
 import TitleDescription from "@/Components/UI/AuthLayout/TitleDescription";
 import CustomButton from "@/Components/UI/Buttons";
@@ -422,18 +422,17 @@ const Register = () => {
         <title>Create Account | DynoPay</title>
       </Head>
       <AuthPageBackground>
-        {/* Top bar: Language + Theme */}
-        {!isMobile && (
-          <Box
-            sx={{
-              position: "absolute", top: "24px", right: "32px",
-              display: "flex", gap: "12px", zIndex: 10,
-            }}
-          >
-            <LanguageSwitcher />
-            <ThemeToggle />
-          </Box>
-        )}
+        {/* Top bar: Language + Theme (desktop ≥lg only — below lg the in-card
+            mobile row shows logo + controls, same as login) */}
+        <Box
+          sx={{
+            position: "absolute", top: "24px", right: "32px",
+            display: { xs: "none", lg: "flex" }, gap: "12px", zIndex: 10,
+          }}
+        >
+          <LanguageSwitcher />
+          <ThemeToggle />
+        </Box>
 
         <SplitLayoutWrapper>
           {/* Left Panel: Brand */}
@@ -448,21 +447,31 @@ const Register = () => {
                 py: isMobile ? 2 : 0,
               }}
             >
-              {/* Mobile Logo */}
-              {isMobile && (
-                <Box
-                  sx={{ display: "flex", justifyContent: "center", mb: 2, cursor: "pointer" }}
+              {/* Mobile/tablet-only: Logo + controls (hidden on desktop since
+                  brand panel shows the logo — mirrors login.tsx). Fixes the
+                  600–1200px range that previously had NO logo at all. */}
+              <Box
+                sx={{
+                  display: { xs: "flex", lg: "none" },
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  mb: 3,
+                }}
+              >
+                <Image
+                  src={theme.palette.mode === "dark" ? WhiteLogo : Logo}
+                  alt="logo"
+                  width={114}
+                  height={39}
+                  draggable={false}
                   onClick={() => router.push("/")}
-                >
-                  <Image
-                    src={theme.palette.mode === "dark" ? WhiteLogo : Logo}
-                    alt="logo"
-                    width={110}
-                    height={38}
-                    draggable={false}
-                  />
+                  style={{ cursor: "pointer" }}
+                />
+                <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                  <LanguageSwitcher />
+                  <ThemeToggle size="small" />
                 </Box>
-              )}
+              </Box>
 
               {/* ─── STEP 1: Input ─── */}
               {step === "input" && (
