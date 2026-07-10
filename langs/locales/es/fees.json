@@ -78,7 +78,7 @@
   "feeCalcFeeFreeNote": "¿Nuevo comercio? Tus primeros $500 en transacciones son sin comisiones.",
   "ffWelcomeBadge": "Sin comisiones",
   "ffWelcomeTitle": "¡Bienvenido! Tus primeros $500 no tienen comisiones",
-  "ffWelcomeBody": "Bienvenido a DynoPay. Eximimos nuestra comisión de plataforma en tus primeros {{amount}} de volumen de pagos: cada centavo va directo a tu billetera. Después, las comisiones comienzan en solo 1,5% y bajan a medida que creces.",
+  "ffWelcomeBody": "Bienvenido a Dynopay. Eximimos nuestra comisión de plataforma en tus primeros {{amount}} de volumen de pagos: cada centavo va directo a tu billetera. Después, las comisiones comienzan en solo 1,5% y bajan a medida que creces.",
   "ffWelcomeCta": "Crea tu primer enlace de pago",
   "ffWelcomeDismiss": "¡Entendido, gracias!",
   "ffWelcomeFootnote": "Consulta tu saldo sin comisiones en cualquier momento desde el panel."

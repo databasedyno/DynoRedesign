@@ -1058,7 +1058,7 @@ const CreatePaymentLinkPage = ({
           standard link keeps its route SEO title). */}
       {!hasPaymentLinkData && linkKind === "donation" && (
         <Head>
-          <title>{`${tPaymentLink("createDonationTitle")} | DynoPay`}</title>
+          <title>{`${tPaymentLink("createDonationTitle")} | Dynopay`}</title>
         </Head>
       )}
       <PaymentLinkSuccessModal

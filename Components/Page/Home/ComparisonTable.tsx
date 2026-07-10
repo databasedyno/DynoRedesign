@@ -4,20 +4,20 @@ import { Check, Close, StarRate } from '@mui/icons-material';
 
 /**
  * ComparisonTable (item L) — head-to-head against the crypto payment
- * competitors DynoPay actually runs into (Coinbase Commerce, BitPay) plus
+ * competitors Dynopay actually runs into (Coinbase Commerce, BitPay) plus
  * Stripe as the credit-card baseline for merchants who haven't tried crypto.
  *
- * Highlights the DynoPay column with a subtle accent and adds a "Best" badge.
+ * Highlights the Dynopay column with a subtle accent and adds a "Best" badge.
  * Facts here are the generally-known publicly documented positions of each
  * product as of 2026-07. Update if any provider changes their pricing.
  */
 
 type Feature = {
   label: string;
-  values: (string | boolean)[]; // one per column: DynoPay, Coinbase Commerce, BitPay, Stripe
+  values: (string | boolean)[]; // one per column: Dynopay, Coinbase Commerce, BitPay, Stripe
 };
 
-const COLUMNS = ['DynoPay', 'Coinbase Commerce', 'BitPay', 'Stripe'] as const;
+const COLUMNS = ['Dynopay', 'Coinbase Commerce', 'BitPay', 'Stripe'] as const;
 
 const FEATURES: Feature[] = [
   { label: 'Transaction fee',      values: ['0.5%–1.5% by volume', '1% (after $1M)',   '1% + miner fee',   '2.9% + $0.30']  },
@@ -113,7 +113,7 @@ const ComparisonTable: React.FC = () => {
             mx: 'auto',
           }}
         >
-          DynoPay vs. the crypto-payment options merchants usually consider,
+          Dynopay vs. the crypto-payment options merchants usually consider,
           plus Stripe as the credit-card baseline.
         </Typography>
       </Box>

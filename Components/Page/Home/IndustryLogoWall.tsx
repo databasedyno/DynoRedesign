@@ -12,7 +12,7 @@ import {
 } from '@mui/icons-material';
 
 /**
- * IndustryLogoWall (item G) — anonymized "who uses DynoPay" wall.
+ * IndustryLogoWall (item G) — anonymized "who uses Dynopay" wall.
  * Since we can't display real customer logos yet, we group merchants by
  * industry silhouette. Each tile shows the industry icon, the industry name,
  * and a plausible merchant count — gives the same trust signal as a logo wall
@@ -66,7 +66,7 @@ const IndustryLogoWall: React.FC = () => {
             mb: 1.5,
           }}
         >
-          Who’s on DynoPay
+          Who’s on Dynopay
         </Typography>
         <Typography
           component="h2"
@@ -100,7 +100,7 @@ const IndustryLogoWall: React.FC = () => {
             mx: 'auto',
           }}
         >
-          From boutique e-commerce brands to Web3 studios, merchants use DynoPay
+          From boutique e-commerce brands to Web3 studios, merchants use Dynopay
           to accept crypto and settle in stable, spendable value.
         </Typography>
       </Box>

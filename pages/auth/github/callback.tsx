@@ -13,7 +13,7 @@ import { useDispatch, useSelector } from "react-redux";
  * GitHub redirects here with ?code=...&state=... after the user authorizes.
  * We validate the state (CSRF), then hand the one-time code to the backend
  * (POST /api/user/github-signin) which exchanges it server-side (the client
- * secret never reaches the browser) and returns a normal DynoPay session.
+ * secret never reaches the browser) and returns a normal Dynopay session.
  */
 const GithubCallback = () => {
   const router = useRouter();

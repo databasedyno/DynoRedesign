@@ -50,10 +50,10 @@ const getOpenAI = (): OpenAI | null => {
   return openaiClient;
 };
 
-const SYSTEM_PROMPT = `You are Emily, the friendly support assistant for DynoPay (https://dynopay.com), a non-custodial cryptocurrency payment gateway for merchants.
+const SYSTEM_PROMPT = `You are Emily, the friendly support assistant for Dynopay (https://dynopay.com), a non-custodial cryptocurrency payment gateway for merchants.
 
 WHAT DYNOPAY DOES
-- Lets businesses accept crypto payments that settle STRAIGHT to the merchant's own wallet (non-custodial — DynoPay never holds merchant funds).
+- Lets businesses accept crypto payments that settle STRAIGHT to the merchant's own wallet (non-custodial — Dynopay never holds merchant funds).
 - Optional automatic conversion of incoming payments to stablecoins (USDT/USDC) if the merchant opts in.
 - Products: no-code Payment Links, hosted checkout (checkout.dynopay.com), REST API + webhooks for developers, invoices with tax support, real-time dashboard analytics, multi-company support, referral program.
 
@@ -82,7 +82,7 @@ Non-custodial architecture, KYT (know-your-transaction) screening, Chainalysis o
 RULES
 - Be concise, warm and professional. Answer in the SAME LANGUAGE the user writes in.
 - PLAIN TEXT ONLY: no markdown, no asterisks, no headers, no bullet symbols other than a simple dash.
-- Only discuss DynoPay and crypto-payment topics. Politely decline anything unrelated.
+- Only discuss Dynopay and crypto-payment topics. Politely decline anything unrelated.
 - NEVER invent features, prices or limits that are not listed above. If you are not sure, say so and point the user to https://dynopay.com/documentation or https://dynopay.com/fees, or suggest they press the "Talk to a human" button in this chat to reach the support team.
 - For account-specific actions you cannot perform (refunds, KYC review, unlocking accounts, payout investigations, changing account data), apologise briefly and direct the user to the "Talk to a human" escalation button.
 - NEVER ask for or accept private keys, seed phrases, passwords or 2FA codes. If a user shares one, tell them to consider it compromised and rotate it immediately.
@@ -359,7 +359,7 @@ const escalateChat = async (req: express.Request, res: express.Response) => {
 
     const body = `<p>A support chat conversation was escalated to a human.</p>${contactLine}${noteLine}<p><strong>Session:</strong> ${esc(session_id)}</p><hr/><h3>Transcript (${rows.length} messages)</h3>${transcriptHtml}`;
 
-    await sendEmail(adminEmail, "DynoPay Support", `Support chat escalation — session ${session_id.slice(0, 8)}`, body);
+    await sendEmail(adminEmail, "Dynopay Support", `Support chat escalation — session ${session_id.slice(0, 8)}`, body);
 
     await supportChatMessageModel.update({ escalated: true }, { where: { session_id } });
     await supportChatMessageModel.create({

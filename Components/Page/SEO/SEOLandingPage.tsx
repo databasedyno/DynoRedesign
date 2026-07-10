@@ -58,12 +58,12 @@ const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages =
     inLanguage: "en",
     isPartOf: {
       "@type": "WebSite",
-      name: "DynoPay",
+      name: "Dynopay",
       url: SITE_ORIGIN,
     },
     about: {
       "@type": "Organization",
-      name: "DynoPay",
+      name: "Dynopay",
       url: SITE_ORIGIN,
       description:
         "Non-custodial cryptocurrency payment gateway. Accept BTC, ETH, USDT and 12+ assets directly to your wallet.",
@@ -122,7 +122,7 @@ const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages =
         <meta property="og:title" content={content.meta_title} />
         <meta property="og:description" content={content.meta_description} />
         <meta key="og:url" property="og:url" content={canonicalUrl} />
-        <meta property="og:site_name" content="DynoPay" />
+        <meta property="og:site_name" content="Dynopay" />
         <meta key="og:image" property="og:image" content={ogImageUrl} />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
@@ -287,7 +287,7 @@ const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages =
       >
         <HomeSectionTitle
           type="small"
-          badgeText="Why DynoPay"
+          badgeText="Why Dynopay"
           title="Everything you need to "
           highlightText="start accepting crypto"
           subtitle="Non-custodial by design. You keep the wallet, we handle the checkout."
@@ -537,7 +537,7 @@ const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages =
             highlightText="crypto merchants"
             subtitle={
               content._kind === "country"
-                ? "See how businesses like yours use DynoPay to accept crypto payments."
+                ? "See how businesses like yours use Dynopay to accept crypto payments."
                 : "Find country-specific guides for accepting crypto in your market."
             }
             headingAs="h2"

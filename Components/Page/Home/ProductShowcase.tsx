@@ -13,7 +13,7 @@ import SOL from "@/assets/Icons/coins/SOL";
  * ProductShowcase — Emergent-style animated product story (2026-07-10).
  *
  * A soft-gradient section with a browser-window mockup that plays a looping,
- * 3-slide story of a crypto payment travelling through DynoPay:
+ * 3-slide story of a crypto payment travelling through Dynopay:
  *   1. Checkout    — a customer picks USDT and pays (animated cursor bubble)
  *   2. Settlement  — funds land on the merchant dashboard and are forwarded
  *                    straight to their own wallet (toast + new tx row)

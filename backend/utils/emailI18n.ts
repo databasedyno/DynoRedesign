@@ -125,7 +125,7 @@ export const resolveCustomerLanguage = (opts: {
 
 // ── Merchant language resolution by recipient email (cached) ────────────────
 // Merchant lifecycle emails (auth, wallet, KYC, payouts, etc.) are sent to a
-// known DynoPay user. We resolve the recipient's stored language directly from
+// known Dynopay user. We resolve the recipient's stored language directly from
 // their email so call sites don't each have to thread `lang` through. Customer
 // emails still pass an explicit language (from the transaction/checkout).
 const langByEmailCache = new Map<string, { lang: EmailLanguage; ts: number }>();

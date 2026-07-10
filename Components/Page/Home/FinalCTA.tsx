@@ -7,7 +7,7 @@ import { FONT_BODY, FONT_HERO, FONT_TECH, OBSIDIAN } from "./swiss";
 
 /**
  * FinalCTA — deep-obsidian full-width band regardless of theme mode.
- * "The old rails are slow. DynoPay is instant."
+ * "The old rails are slow. Dynopay is instant."
  */
 const FinalCTA: React.FC = () => {
   const { t } = useTranslation("landing");

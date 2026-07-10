@@ -1,6 +1,6 @@
 const HelpAndSupportData = [
   {
-    title: "Getting Started with DynoPay",
+    title: "Getting Started with Dynopay",
     description:
       "Learn how to set up your account and accept your first crypto payment in minutes.",
     slug: "getting-started-with-dynopay",
@@ -8,7 +8,7 @@ const HelpAndSupportData = [
   {
     title: "Supported Cryptocurrencies & Networks",
     description:
-      "See which cryptocurrencies and blockchain networks DynoPay supports and how to choose the right one.",
+      "See which cryptocurrencies and blockchain networks Dynopay supports and how to choose the right one.",
     slug: "supported-cryptocurrencies-and-networks",
   },
   {
@@ -38,13 +38,13 @@ const HelpAndSupportData = [
   {
     title: "API & Integrations",
     description:
-      "Integrate DynoPay into your website, app, or SaaS using our API and ready-made tools.",
+      "Integrate Dynopay into your website, app, or SaaS using our API and ready-made tools.",
     slug: "api-and-integrations",
   },
   {
     title: "Security & Transaction Safety",
     description:
-      "Discover how DynoPay protects transactions, funds, and merchant data.",
+      "Discover how Dynopay protects transactions, funds, and merchant data.",
     slug: "security-and-transaction-safety",
   },
 ];

@@ -280,7 +280,7 @@ const DashboardRightSection = () => {
             </Typography>
           )}
 
-          {/* Consolidated "Grow with DynoPay" panel — replaces the standalone
+          {/* Consolidated "Grow with Dynopay" panel — replaces the standalone
               PremiumTierCard. Surfaces ONE offer at a time in priority order
               (fee-free trial credit → premium upgrade → referral program)
               so the right rail doesn't feel salesy. */}

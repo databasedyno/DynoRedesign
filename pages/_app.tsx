@@ -293,10 +293,10 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
     const org = {
       "@context": "https://schema.org",
       "@type": "Organization",
-      "name": "DynoPay",
+      "name": "Dynopay",
       "url": SITE_URL,
       "logo": OG_IMAGE,
-      "description": "DynoPay is a cryptocurrency payment gateway that enables businesses to accept Bitcoin, Ethereum, and stablecoins. Payments are forwarded instantly to the merchant's own wallet — as the original crypto, or auto-converted to USDT or USDC if enabled.",
+      "description": "Dynopay is a cryptocurrency payment gateway that enables businesses to accept Bitcoin, Ethereum, and stablecoins. Payments are forwarded instantly to the merchant's own wallet — as the original crypto, or auto-converted to USDT or USDC if enabled.",
       "foundingDate": "2024",
       "sameAs": [
         "https://x.com/Dynopaycom"
@@ -310,7 +310,7 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
     const webSite = {
       "@context": "https://schema.org",
       "@type": "WebSite",
-      "name": "DynoPay",
+      "name": "Dynopay",
       "url": SITE_URL,
       "description": "Cryptocurrency payment gateway — accept Bitcoin, Ethereum, and 20+ cryptocurrencies with instant stablecoin settlement.",
       "potentialAction": {
@@ -322,7 +322,7 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
     const product = {
       "@context": "https://schema.org",
       "@type": "SoftwareApplication",
-      "name": "DynoPay Crypto Payment Gateway",
+      "name": "Dynopay Crypto Payment Gateway",
       "applicationCategory": "BusinessApplication",
       "operatingSystem": "Web",
       "url": SITE_URL,
@@ -347,7 +347,7 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
       ],
       "creator": {
         "@type": "Organization",
-        "name": "DynoPay"
+        "name": "Dynopay"
       }
     };
     return JSON.stringify([org, webSite, product]);
@@ -462,7 +462,7 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
         <meta property="og:description" content={metaDescription} />
         <meta key="og:url" property="og:url" content={canonicalUrl} />
         <meta property="og:image" content={OG_IMAGE} />
-        <meta property="og:site_name" content="DynoPay" />
+        <meta property="og:site_name" content="Dynopay" />
         <meta property="og:locale" content={i18n.language || "en"} />
 
         {/* ─── Twitter Cards ─── */}

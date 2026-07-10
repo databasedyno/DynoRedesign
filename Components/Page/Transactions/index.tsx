@@ -415,7 +415,7 @@ const TransactionPage = () => {
               mb: 3,
             }}
           >
-            You&apos;re officially a DynoPay merchant. This is a big one — your first
+            You&apos;re officially a Dynopay merchant. This is a big one — your first
             real payment is settled in your dashboard.
           </Typography>
           <CustomButton

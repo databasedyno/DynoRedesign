@@ -96,7 +96,7 @@ export const detectBinanceAccess = async (): Promise<void> => {
     // Test direct access (no proxy) with a short timeout
     await axios.get(directUrl, {
       timeout: 8000,
-      headers: { "User-Agent": "Mozilla/5.0 (compatible; DynoPay/1.0)" },
+      headers: { "User-Agent": "Mozilla/5.0 (compatible; Dynopay/1.0)" },
       // Explicitly NO proxy agent
     });
     proxyNeeded = false;
@@ -112,7 +112,7 @@ export const detectBinanceAccess = async (): Promise<void> => {
         try {
           await axios.get(directUrl, {
             timeout: 10000,
-            headers: { "User-Agent": "Mozilla/5.0 (compatible; DynoPay/1.0)" },
+            headers: { "User-Agent": "Mozilla/5.0 (compatible; Dynopay/1.0)" },
             httpAgent: proxyAgent,
             httpsAgent: proxyAgent,
           });
@@ -186,7 +186,7 @@ const makeSignedRequest = async (
   const headers = {
     "X-MBX-APIKEY": BINANCE_API_KEY,
     "Content-Type": "application/x-www-form-urlencoded",
-    "User-Agent": "Mozilla/5.0 (compatible; DynoPay/1.0)",
+    "User-Agent": "Mozilla/5.0 (compatible; Dynopay/1.0)",
   };
 
   try {
@@ -217,7 +217,7 @@ const makePublicRequest = async (
   try {
     const response = await axios.get(url, {
       timeout: 15000,
-      headers: { "User-Agent": "Mozilla/5.0 (compatible; DynoPay/1.0)" },
+      headers: { "User-Agent": "Mozilla/5.0 (compatible; Dynopay/1.0)" },
       ...(() => { const agent = getEffectiveProxyAgent(); return agent ? { httpAgent: agent, httpsAgent: agent } : {}; })(),
     });
     return response.data;
@@ -577,7 +577,7 @@ export const getSpotQuote = async (
 // Convert API (requires special Binance approval)
 // ============================================
 
-/** Map DynoPay currency names to Binance asset names */
+/** Map Dynopay currency names to Binance asset names */
 const toBinanceAsset = (currency: string): string => {
   const map: Record<string, string> = {
     BTC: "BTC",

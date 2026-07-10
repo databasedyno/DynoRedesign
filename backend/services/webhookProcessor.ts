@@ -33,11 +33,11 @@ import { Op } from "sequelize";
 // ═══════════════════════════════════════════════════════════════════════════════
 
 /**
- * Maps Tatum webhook `asset` names → DynoPay internal currency codes.
+ * Maps Tatum webhook `asset` names → Dynopay internal currency codes.
  * Tatum sends the native chain name for native tokens and specific asset
  * names for ERC-20/TRC-20/TRC-10 tokens.
  *
- * NOTE: This ONLY includes assets DynoPay actually supports. Any asset NOT
+ * NOTE: This ONLY includes assets Dynopay actually supports. Any asset NOT
  * in this map is treated as unknown (potential spam/scam token).
  */
 const TATUM_ASSET_TO_CURRENCY: Record<string, string[]> = {
@@ -74,7 +74,7 @@ const TATUM_ASSET_TO_CURRENCY: Record<string, string[]> = {
 };
 
 /**
- * FIX (2026-04-10): ERC-20/TRC-20 contract addresses → DynoPay currency.
+ * FIX (2026-04-10): ERC-20/TRC-20 contract addresses → Dynopay currency.
  * Tatum sometimes sends the raw contract address as the `asset` field instead
  * of a human-readable name. Without this mapping, legitimate USDT-ERC20 payments
  * were rejected as "SPAM TOKEN" (incident: payment 509b5aaf, $33 USDT-ERC20).
@@ -107,7 +107,7 @@ const GAS_TOKEN_FOR_CURRENCY: Record<string, string> = {
 
 /**
  * Validate whether a Tatum webhook asset is compatible with the expected
- * DynoPay currency for an address.
+ * Dynopay currency for an address.
  *
  * Returns:
  *   { valid: true, isGasFunding: false }  — Legitimate payment, process normally
@@ -165,7 +165,7 @@ function validateWebhookAsset(
     };
   }
 
-  // 3. Reverse lookup: asset might be an internal DynoPay currency name (e.g., "USDT-TRC20")
+  // 3. Reverse lookup: asset might be an internal Dynopay currency name (e.g., "USDT-TRC20")
   //    This happens when reconciliation re-queues using the internal currency format.
   for (const [tatumAsset, currencies] of Object.entries(TATUM_ASSET_TO_CURRENCY)) {
     if (currencies.includes(assetUpper) || currencies.includes(webhookAsset)) {
@@ -180,7 +180,7 @@ function validateWebhookAsset(
   return {
     valid: false,
     isGasFunding: false,
-    reason: `Unknown/unsupported asset "${webhookAsset}" — not a recognized DynoPay currency (possible spam/scam token)`,
+    reason: `Unknown/unsupported asset "${webhookAsset}" — not a recognized Dynopay currency (possible spam/scam token)`,
   };
 }
 

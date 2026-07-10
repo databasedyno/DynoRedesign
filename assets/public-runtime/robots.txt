@@ -1,4 +1,4 @@
-# DynoPay — Cryptocurrency Payment Gateway
+# Dynopay — Cryptocurrency Payment Gateway
 # https://dynopay.com
 User-agent: *
 Allow: /

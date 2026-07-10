@@ -10,7 +10,7 @@ import { baseEmailTemplate, getCurrencySymbol, infoBox, dataRow, statusBadge, p,
 const FRONTEND_BASE_URL = (process.env.FRONTEND_URL || 'https://dynopay.com').replace(/\/$/, '');
 
 /**
- * DynoPay Unified Email Service
+ * Dynopay Unified Email Service
  * Single source of truth for all email notifications
  * Provider: Brevo
  * Uses shared base template from utils/emailTemplate.ts
@@ -60,7 +60,7 @@ export const formatAmountWithCurrency = (amount: number, currency: string = 'USD
 // ============================================================
 
 /**
- * Send a generic email with the DynoPay template
+ * Send a generic email with the Dynopay template
  */
 export const sendEmail = async (
   recipientEmail: string,
@@ -1654,10 +1654,10 @@ export const sendAdminFeeSweepEmail = async (
       `, '#3b82f6')}
       ${p(`The admin fees have been transferred to the admin ${currency} wallet. You can verify the transaction on the blockchain explorer.`)}`;
 
-    const htmlBody = dynoPayEmailTemplate("Admin Fee Sweep Completed", `${p(`Hey DynoPay Admin,`)}\n${htmlContent}`);
+    const htmlBody = dynoPayEmailTemplate("Admin Fee Sweep Completed", `${p(`Hey Dynopay Admin,`)}\n${htmlContent}`);
     const info = await mailTransporter({
       to: recipientEmail,
-      name: "DynoPay Admin",
+      name: "Dynopay Admin",
       subject,
       body: htmlBody,
     });
@@ -2072,29 +2072,29 @@ export const sendRefereeCodeReminderEmail = async (
 
     switch (reminderType) {
       case 'week1':
-        subject = "Don't forget your exclusive DynoPay offer!";
+        subject = "Don't forget your exclusive Dynopay offer!";
         urgencyMessage = `You still have <strong>${daysRemaining} days</strong> to claim your exclusive discount.`;
         ctaText = "Claim Your Discount";
         break;
       case 'week2':
-        subject = "Your 50% discount is waiting - DynoPay";
+        subject = "Your 50% discount is waiting - Dynopay";
         urgencyMessage = `Your exclusive <strong>${discountPercent}% discount</strong> is still available! Only <strong>${daysRemaining} days</strong> remaining.`;
         ctaText = "Start Saving Today";
         break;
       case 'week3':
-        subject = `Only ${daysRemaining} days left on your DynoPay offer!`;
+        subject = `Only ${daysRemaining} days left on your Dynopay offer!`;
         urgencyMessage = `<strong>Time is running out!</strong> Your exclusive ${discountPercent}% discount expires in just <strong>${daysRemaining} days</strong>.`;
         ctaText = "Don't Miss Out";
         break;
       case 'final':
-        subject = "LAST CHANCE: Your DynoPay discount expires in 3 days!";
+        subject = "LAST CHANCE: Your Dynopay discount expires in 3 days!";
         urgencyMessage = `<strong style="color: #dc2626;">FINAL REMINDER:</strong> Your exclusive ${discountPercent}% discount expires in just <strong>${daysRemaining} days</strong>. This is your last chance!`;
         ctaText = "Claim Now Before It's Gone";
         break;
     }
 
     const message = `
-<p>We noticed you haven't claimed your exclusive DynoPay discount yet!</p>
+<p>We noticed you haven't claimed your exclusive Dynopay discount yet!</p>
 
 <div style="margin: 24px 0; padding: 20px; background: linear-gradient(135deg, #f0fff4 0%, #e6ffed 100%); border-left: 4px solid #22c55e; border-radius: 0 8px 8px 0;">
   <h3 style="margin: 0 0 12px 0; color: #166534; font-size: 18px;">Your Exclusive Offer</h3>
@@ -2108,7 +2108,7 @@ export const sendRefereeCodeReminderEmail = async (
 
 <p style="font-size: 15px;">${urgencyMessage}</p>
 
-<h4 style="margin: 24px 0 12px 0; color: #1034a6;">Why DynoPay?</h4>
+<h4 style="margin: 24px 0 12px 0; color: #1034a6;">Why Dynopay?</h4>
 <ul style="margin: 0; padding-left: 20px; color: #4a4a4a;">
   <li>Accept crypto payments from customers worldwide</li>
   <li>Support for Bitcoin, Ethereum, USDT, and more</li>
@@ -2694,7 +2694,7 @@ export const sendNewUserAdminNotification = async (userData: {
 
     const subject = `New Merchant Registration — ${displayName} (${registrationMethod})`;
 
-    const content = `${p(`A new merchant has registered on DynoPay.`)}
+    const content = `${p(`A new merchant has registered on Dynopay.`)}
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         ${dataRow('Name', displayName)}
@@ -2710,7 +2710,7 @@ export const sendNewUserAdminNotification = async (userData: {
     ${p(`You can review this account in the admin dashboard.`, `color: #6b7280; font-size: 13px;`)}`;
 
     const html = baseEmailTemplate("New Merchant Registration", content);
-    await mailTransporter({ to: adminEmail, name: "DynoPay Admin", subject, body: html });
+    await mailTransporter({ to: adminEmail, name: "Dynopay Admin", subject, body: html });
     apiLogger.info(`[Email] New user admin notification sent for ${contactInfo} (${registrationMethod})`);
   } catch (e) {
     // Non-blocking — don't fail registration if email fails
@@ -2769,7 +2769,7 @@ export const sendOnboardingStuckAdminEmail = async (userData: {
     ${p(`Consider reaching out to help this merchant complete their setup.`, `color: #6b7280; font-size: 13px;`)}`;
 
     const html = baseEmailTemplate("Onboarding Stuck Alert", content);
-    await mailTransporter({ to: adminEmail, name: "DynoPay Admin", subject, body: html });
+    await mailTransporter({ to: adminEmail, name: "Dynopay Admin", subject, body: html });
     apiLogger.info(`[Email] Onboarding stuck notification sent for user ${userData.user_id} (stuck at: ${stuckLabel}, ${hours}h)`);
   } catch (e) {
     apiLogger.error("[Email] Onboarding stuck notification error:", e);
@@ -2820,7 +2820,7 @@ export const sendOnboardingCompletedAdminEmail = async (userData: {
     ${p(`This merchant is now live and can receive their first payment.`, `color: #6b7280; font-size: 13px;`)}`;
 
     const html = baseEmailTemplate("Onboarding Complete", content);
-    await mailTransporter({ to: adminEmail, name: "DynoPay Admin", subject, body: html });
+    await mailTransporter({ to: adminEmail, name: "Dynopay Admin", subject, body: html });
     apiLogger.info(`[Email] Onboarding complete notification sent for user ${userData.user_id}`);
   } catch (e) {
     apiLogger.error("[Email] Onboarding complete notification error:", e);
@@ -2860,7 +2860,7 @@ export const sendFirstPaymentAdminEmail = async (data: {
 
     const subject = `🎉 First Payment! — ${merchantName} received ${formatCryptoAmount(data.amount, data.currency)} ${data.currency}`;
 
-    const content = `${p(`A merchant has received their <strong>very first payment</strong> on DynoPay! 🎉`)}
+    const content = `${p(`A merchant has received their <strong>very first payment</strong> on Dynopay! 🎉`)}
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         ${dataRow('Merchant', merchantName)}
@@ -2878,7 +2878,7 @@ export const sendFirstPaymentAdminEmail = async (data: {
     ${p(`You can view the full transaction details in the admin dashboard.`, `color: #6b7280; font-size: 13px;`)}`;
 
     const html = baseEmailTemplate("First Payment Milestone", content);
-    await mailTransporter({ to: adminEmail, name: "DynoPay Admin", subject, body: html });
+    await mailTransporter({ to: adminEmail, name: "Dynopay Admin", subject, body: html });
     apiLogger.info(`[Email] First payment notification sent for user ${data.user_id} — ${data.amount} ${data.currency}`);
   } catch (e) {
     apiLogger.error("[Email] First payment notification error:", e);
@@ -2926,7 +2926,7 @@ export const sendNewVisitorAdminEmail = async (visitorData: {
 
     const subject = `👀 New Visitor — ${country} via ${referrer === "Direct" ? "Direct" : new URL(referrer).hostname}`;
 
-    const content = `${p(`A new unique visitor has arrived at DynoPay.`)}
+    const content = `${p(`A new unique visitor has arrived at Dynopay.`)}
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         ${dataRow('Location', `${visitorData.city ? visitorData.city + ', ' : ''}${country}`)}
@@ -2940,7 +2940,7 @@ export const sendNewVisitorAdminEmail = async (visitorData: {
     ${p(`This visitor may become a potential merchant. Monitor sign-ups in the admin dashboard.`, `color: #6b7280; font-size: 13px;`)}`;
 
     const html = baseEmailTemplate("New Website Visitor", content);
-    await mailTransporter({ to: adminEmail, name: "DynoPay Admin", subject, body: html });
+    await mailTransporter({ to: adminEmail, name: "Dynopay Admin", subject, body: html });
     apiLogger.info(`[Email] New visitor notification sent — ${country}, page: ${page}`);
   } catch (e) {
     apiLogger.error("[Email] New visitor notification error:", e);

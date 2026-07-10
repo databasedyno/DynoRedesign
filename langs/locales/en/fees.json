@@ -78,7 +78,7 @@
   "headerFees": "Fees",
   "ffWelcomeBadge": "Fee-free",
   "ffWelcomeTitle": "You're in! Your first $500 is fee-free",
-  "ffWelcomeBody": "Welcome to DynoPay. We waive our platform fee on your first {{amount}} in payment volume — every cent goes straight to your wallet. After that, fees start at just 1.5% and drop as you grow.",
+  "ffWelcomeBody": "Welcome to Dynopay. We waive our platform fee on your first {{amount}} in payment volume — every cent goes straight to your wallet. After that, fees start at just 1.5% and drop as you grow.",
   "ffWelcomeCta": "Create your first payment link",
   "ffWelcomeDismiss": "Got it, thanks!",
   "ffWelcomeFootnote": "Track your fee-free balance anytime on the dashboard."

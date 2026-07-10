@@ -1,7 +1,7 @@
 import { Box, Card, styled } from "@mui/material";
 
 /* ─────────────────────────────────────────────────────────────
- * DynoPay Auth Shell — "Floating Glass Bento"
+ * Dynopay Auth Shell — "Floating Glass Bento"
  * Void-black (dark) / frosty-silver (light) canvas with an animated
  * gradient mesh + fine grain, a floating glass form card, and a
  * bento marketing column. Colors are driven by the scoped authTheme.

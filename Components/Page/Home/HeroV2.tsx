@@ -396,7 +396,7 @@ const HeroV2: React.FC = () => {
               <Box
                 component="iframe"
                 src="/pay/demo?embed=1"
-                title="DynoPay checkout demo"
+                title="Dynopay checkout demo"
                 loading="eager"
                 sx={{
                   display: 'block',

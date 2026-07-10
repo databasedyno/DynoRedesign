@@ -1,13 +1,13 @@
 {
-  "meta_title": "Accept Crypto Payments in Brazil | DynoPay Gateway",
+  "meta_title": "Accept Crypto Payments in Brazil | Dynopay Gateway",
   "meta_description": "Accept Bitcoin, Ethereum, USDT and 12+ cryptocurrencies in Brazil. Non-custodial, 1.5% fee, funds go directly to your wallet. Start in 10 minutes.",
   "h1": "Accept crypto payments in Brazil and keep full control of your funds",
-  "subheading": "DynoPay routes Bitcoin, Ethereum, Solana and stablecoins directly to your wallet—no custody risk, no monthly fees, live in under 10 minutes.",
-  "intro_paragraph": "Brazilian businesses can now accept cryptocurrency payments without giving up control of their funds. DynoPay is a non-custodial gateway that sends BTC, ETH, USDT, and 12 other digital assets straight to your wallet. You pay a flat 1.5% per transaction with no setup costs, no monthly fees, and no custody risk. Your customers pay in crypto, you receive it instantly in the wallet you control, and you decide when to convert to BRL or hold.",
+  "subheading": "Dynopay routes Bitcoin, Ethereum, Solana and stablecoins directly to your wallet—no custody risk, no monthly fees, live in under 10 minutes.",
+  "intro_paragraph": "Brazilian businesses can now accept cryptocurrency payments without giving up control of their funds. Dynopay is a non-custodial gateway that sends BTC, ETH, USDT, and 12 other digital assets straight to your wallet. You pay a flat 1.5% per transaction with no setup costs, no monthly fees, and no custody risk. Your customers pay in crypto, you receive it instantly in the wallet you control, and you decide when to convert to BRL or hold.",
   "features": [
     {
       "title": "Your wallet, your funds always",
-      "description": "Every payment goes directly to your own wallet address. DynoPay never holds, touches, or controls your cryptocurrency. You maintain full custody from the moment a customer completes checkout."
+      "description": "Every payment goes directly to your own wallet address. Dynopay never holds, touches, or controls your cryptocurrency. You maintain full custody from the moment a customer completes checkout."
     },
     {
       "title": "1.5% flat fee, nothing hidden",
@@ -19,22 +19,22 @@
     }
   ],
   "how_it_works": [
-    "Sign up for a DynoPay account, verify your email, and create your company profile in two minutes.",
+    "Sign up for a Dynopay account, verify your email, and create your company profile in two minutes.",
     "Add the cryptocurrency wallet address where you want to receive payments—one address per asset you accept.",
     "Generate a payment link or drop our checkout widget on your website and start accepting crypto immediately."
   ],
   "faqs": [
     {
-      "question": "What cryptocurrencies can I accept with DynoPay in Brazil?",
+      "question": "What cryptocurrencies can I accept with Dynopay in Brazil?",
       "answer": "You can accept Bitcoin, Litecoin, Bitcoin Cash, Dogecoin, Ethereum, USDT on three networks (ERC20, TRC20, Polygon), USDC, RLUSD on Ethereum and XRP Ledger, Polygon MATIC, Tron TRX, Solana SOL, and XRP. All payments go directly to your wallet."
     },
     {
-      "question": "How much does DynoPay charge per transaction?",
-      "answer": "DynoPay charges a flat 1.5% platform fee on each successful transaction, plus a small fixed component: $1 for orders under $100, scaling to $1 for orders under $1,000. There are no monthly fees, setup costs, or hidden charges."
+      "question": "How much does Dynopay charge per transaction?",
+      "answer": "Dynopay charges a flat 1.5% platform fee on each successful transaction, plus a small fixed component: $1 for orders under $100, scaling to $1 for orders under $1,000. There are no monthly fees, setup costs, or hidden charges."
     },
     {
-      "question": "Does DynoPay hold my cryptocurrency payments?",
-      "answer": "No. DynoPay is non-custodial. Every payment your customers make is routed directly to the wallet address you provide during setup. You control your private keys and funds at all times. DynoPay never holds customer funds."
+      "question": "Does Dynopay hold my cryptocurrency payments?",
+      "answer": "No. Dynopay is non-custodial. Every payment your customers make is routed directly to the wallet address you provide during setup. You control your private keys and funds at all times. Dynopay never holds customer funds."
     },
     {
       "question": "How long does it take to start accepting crypto payments?",
@@ -42,7 +42,7 @@
     },
     {
       "question": "Do I need KYC to accept crypto payments in Brazil?",
-      "answer": "You can accept cryptocurrency payments globally without country restrictions, and merchants keep custody at all times. KYC requirements apply if you use a fiat off-ramp service in certain jurisdictions, but receiving crypto directly to your wallet does not require KYC through DynoPay."
+      "answer": "You can accept cryptocurrency payments globally without country restrictions, and merchants keep custody at all times. KYC requirements apply if you use a fiat off-ramp service in certain jurisdictions, but receiving crypto directly to your wallet does not require KYC through Dynopay."
     }
   ],
   "cta_headline": "Start accepting crypto payments in 10 minutes",

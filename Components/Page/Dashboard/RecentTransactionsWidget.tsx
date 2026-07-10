@@ -35,9 +35,9 @@ interface RecentTx {
   customerName?: string;
   /**
    * Set by the backend when it can determine how the transaction originated:
-   *   * 'payment_link' — merchant sent a DynoPay checkout URL to the payer
+   *   * 'payment_link' — merchant sent a Dynopay checkout URL to the payer
    *   * 'legacy_api'   — accepted via the merchant's REST API
-   *   * 'checkout'     — accepted via other DynoPay-internal placeholders
+   *   * 'checkout'     — accepted via other Dynopay-internal placeholders
    *   * null/undefined — direct crypto receive or a real customer email
    * The frontend uses this to render a friendly label instead of the
    * synthetic `…@dynopay.internal` placeholder addresses.

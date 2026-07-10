@@ -21,7 +21,7 @@ import { HomeWrapper } from "./styled";
  *   3. ProductShowcase     — animated product story (checkout → settlement → API)
  *   4. StatWall            — 4 massive numbers ($0 / 0.5% / <5min / 13)
  *   5. FeeCalculator       — vertical-bar cost comparison (01 / Pricing)
- *   6. CoreValueProps      — three flat cards, volt top-border (02 / Why DynoPay)
+ *   6. CoreValueProps      — three flat cards, volt top-border (02 / Why Dynopay)
  *   7. UseCasesBento       — product-forward bento grid, no stock photos (03)
  *   8. ComplianceLogoStrip — inverted obsidian trust band
  *   9. TestimonialsV2      — editorial quotes (04)

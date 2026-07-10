@@ -77,7 +77,7 @@ const AuthBrandPanel = () => {
     >
       {/* Logo */}
       <Link href="/" style={{ display: "inline-block", width: "fit-content" }}>
-        <Image src={dark ? WhiteLogo : BlackLogo} alt="DynoPay" width={140} height={47} draggable={false} />
+        <Image src={dark ? WhiteLogo : BlackLogo} alt="Dynopay" width={140} height={47} draggable={false} />
       </Link>
 
       {/* Headline */}

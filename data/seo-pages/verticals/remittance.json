@@ -1,9 +1,9 @@
 {
-  "meta_title": "Crypto Payments for Remittance & Cross-Border Payouts | DynoPay",
+  "meta_title": "Crypto Payments for Remittance & Cross-Border Payouts | Dynopay",
   "meta_description": "Accept Bitcoin, USDT, XRP and stablecoins for remittance & cross-border payouts. Non-custodial, 1.5% flat fee, no chargebacks. Start in 10 minutes.",
   "h1": "Crypto payments for remittance & cross-border payouts businesses",
   "subheading": "Cut processing costs, eliminate chargebacks, and send funds to any country without correspondent banking delays or FX markups.",
-  "intro_paragraph": "Traditional remittance corridors cost you 3-7% in fees, expose you to chargeback fraud, and lock funds for days in correspondent banking chains. DynoPay is a non-custodial gateway that lets you accept Bitcoin, Ethereum, USDT, XRP, and nine other cryptocurrencies at 1.5% flat—no monthly fees, no setup costs. Funds arrive directly in your wallet within minutes, and you keep full custody from payment to payout.",
+  "intro_paragraph": "Traditional remittance corridors cost you 3-7% in fees, expose you to chargeback fraud, and lock funds for days in correspondent banking chains. Dynopay is a non-custodial gateway that lets you accept Bitcoin, Ethereum, USDT, XRP, and nine other cryptocurrencies at 1.5% flat—no monthly fees, no setup costs. Funds arrive directly in your wallet within minutes, and you keep full custody from payment to payout.",
   "features": [
     {
       "title": "Funds hit your wallet directly",
@@ -25,8 +25,8 @@
   ],
   "faqs": [
     {
-      "question": "What fees does DynoPay charge for remittance payments?",
-      "answer": "DynoPay charges a flat 1.5% platform fee on each successful transaction, plus a small tiered fixed component: one dollar for orders under one hundred dollars, scaling to one dollar for orders under one thousand dollars. No monthly fees, no setup fees, no hidden costs."
+      "question": "What fees does Dynopay charge for remittance payments?",
+      "answer": "Dynopay charges a flat 1.5% platform fee on each successful transaction, plus a small tiered fixed component: one dollar for orders under one hundred dollars, scaling to one dollar for orders under one thousand dollars. No monthly fees, no setup fees, no hidden costs."
     },
     {
       "question": "Which cryptocurrencies can I accept for cross-border payouts?",
@@ -34,11 +34,11 @@
     },
     {
       "question": "Do you hold my funds or do I need a separate wallet?",
-      "answer": "DynoPay never holds your funds. You provide your own wallet address during onboarding, and every customer payment is sent directly to that address. You maintain full custody at all times, with no withdrawal limits or approval queues."
+      "answer": "Dynopay never holds your funds. You provide your own wallet address during onboarding, and every customer payment is sent directly to that address. You maintain full custody at all times, with no withdrawal limits or approval queues."
     },
     {
       "question": "Can I accept crypto payments from any country?",
-      "answer": "Yes. DynoPay has no country restrictions on receiving cryptocurrency payments. Your customers can pay from anywhere. KYC requirements apply only if you choose to use a fiat off-ramp service in certain jurisdictions."
+      "answer": "Yes. Dynopay has no country restrictions on receiving cryptocurrency payments. Your customers can pay from anywhere. KYC requirements apply only if you choose to use a fiat off-ramp service in certain jurisdictions."
     },
     {
       "question": "How long does it take to start accepting crypto for remittances?",

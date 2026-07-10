@@ -56,7 +56,7 @@ const ALERT_COOLDOWN_MS = 30 * 60 * 1000;
 // Redis key prefix
 const REDIS_KEY_PREFIX = "dynopay:v1:volatility";
 
-// All non-stable cryptos DynoPay supports (re-exported from WS service)
+// All non-stable cryptos Dynopay supports (re-exported from WS service)
 const MONITORED_ASSETS = TRACKED_ASSETS;
 
 // ============================================

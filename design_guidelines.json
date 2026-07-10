@@ -71,7 +71,7 @@
       "composition": "A 12-column CSS grid. \n- Card 1 (Span 8): 'Online Stores' with a mock checkout UI component built in MUI.\n- Card 2 (Span 4): 'SaaS' with a code snippet showing API subscription logic.\n- Card 3 (Span 4): 'Creators' with a mock donation widget.\n- Card 4 (Span 8): 'Freelancers' with a sleek invoice table mockup.\nHover states should trigger micro-animations within the mockups."
     },
     "fee_calculator": {
-      "composition": "MUI Slider with a custom thumb. Left side: slider and input. Right side: Two vertical bars (HTML divs). DynoPay's bar is tiny and Volt Green. Stripe/PayPal's bar is huge and red/gray. The bars dynamically resize via inline styles as the slider moves to visually show savings visceral."
+      "composition": "MUI Slider with a custom thumb. Left side: slider and input. Right side: Two vertical bars (HTML divs). Dynopay's bar is tiny and Volt Green. Stripe/PayPal's bar is huge and red/gray. The bars dynamically resize via inline styles as the slider moves to visually show savings visceral."
     },
     "testimonials": {
       "composition": "Editorial layout. Ditch the standard carousel. Use a masonry layout or large, commanding quotes. Include avatar, name, and a 5-star visual.",
@@ -81,7 +81,7 @@
       "composition": "MUI Accordion. Override default styles: background transparent, `boxShadow: 'none'`, 1px bottom border. Icon is a simple '+' that rotates to '-'."
     },
     "final_cta": {
-      "composition": "Deep Obsidian background regardless of light/dark mode. Huge text: 'The old system is slow. DynoPay is instant.' Volt Green CTA button."
+      "composition": "Deep Obsidian background regardless of light/dark mode. Huge text: 'The old system is slow. Dynopay is instant.' Volt Green CTA button."
     }
   },
   "motion_guidelines": {

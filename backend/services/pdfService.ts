@@ -69,7 +69,7 @@ export const generateInvoicePDF = (invoiceData: InvoiceData): PDFKit.PDFDocument
     });
   };
 
-  // --- Add DynoPay Logo ---
+  // --- Add Dynopay Logo ---
   // Try multiple possible logo locations
   const possibleLogoPaths = [
     path.join(__dirname, "../assets/dynopay-logo.png"),
@@ -110,7 +110,7 @@ export const generateInvoicePDF = (invoiceData: InvoiceData): PDFKit.PDFDocument
       align: "right",
     });
 
-  // --- Provider (From) with full DynoPay branding ---
+  // --- Provider (From) with full Dynopay branding ---
   const providerStartY = logoY + 20;
   doc
     .fontSize(12)
@@ -367,7 +367,7 @@ export const generateInvoicePDF = (invoiceData: InvoiceData): PDFKit.PDFDocument
     .text("Thank you for your business!", 50, footerY + 20, { align: "center" })
     .fontSize(8)
     .fillColor("#1976D2")
-    .text("Powered by DynoPay - dynopay.com", 50, footerY + 35, { align: "center" })
+    .text("Powered by Dynopay - dynopay.com", 50, footerY + 35, { align: "center" })
     .fillColor("#000000");
 
   // Finalize PDF

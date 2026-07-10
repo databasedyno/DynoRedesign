@@ -11,7 +11,7 @@
  * shows a toast only.
  *
  * This intentionally does NOT parse structured errors from the backend —
- * DynoPay backend uses `errorResponseHelper` which returns `{message: '...'}`
+ * Dynopay backend uses `errorResponseHelper` which returns `{message: '...'}`
  * only, so keyword matching is what we have.
  */
 

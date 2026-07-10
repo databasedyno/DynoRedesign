@@ -49,7 +49,7 @@ const sendSlackAlert = async (payload: AlertPayload): Promise<boolean> => {
 
     await axios.post(SLACK_WEBHOOK_URL, {
       channel: ALERT_CHANNEL,
-      username: "DynoPay Alert",
+      username: "Dynopay Alert",
       icon_emoji: SEVERITY_EMOJI[payload.severity] || "ℹ️",
       attachments: [
         {
@@ -57,7 +57,7 @@ const sendSlackAlert = async (payload: AlertPayload): Promise<boolean> => {
           title: `${SEVERITY_EMOJI[payload.severity]} ${payload.title}`,
           text: payload.message,
           fields,
-          footer: `DynoPay | ${APP_ENV}`,
+          footer: `Dynopay | ${APP_ENV}`,
           ts: Math.floor(Date.now() / 1000),
         },
       ],
@@ -86,14 +86,14 @@ const sendDiscordAlert = async (payload: AlertPayload): Promise<boolean> => {
     }
 
     await axios.post(DISCORD_WEBHOOK_URL, {
-      username: "DynoPay Alert",
+      username: "Dynopay Alert",
       embeds: [
         {
           title: `${SEVERITY_EMOJI[payload.severity]} ${payload.title}`,
           description: payload.message,
           color: parseInt(SEVERITY_COLOR[payload.severity].replace("#", ""), 16),
           fields,
-          footer: { text: `DynoPay | ${APP_ENV}` },
+          footer: { text: `Dynopay | ${APP_ENV}` },
           timestamp: new Date().toISOString(),
         },
       ],

@@ -1,4 +1,4 @@
-// DynoPay Push Notification Service Worker
+// Dynopay Push Notification Service Worker
 // This runs in the background and handles push events even when the app tab is closed
 
 self.addEventListener("push", (event) => {
@@ -9,7 +9,7 @@ self.addEventListener("push", (event) => {
     payload = event.data.json();
   } catch {
     payload = {
-      title: "DynoPay",
+      title: "Dynopay",
       body: event.data.text(),
     };
   }
@@ -28,7 +28,7 @@ self.addEventListener("push", (event) => {
   };
 
   event.waitUntil(
-    self.registration.showNotification(payload.title || "DynoPay", options)
+    self.registration.showNotification(payload.title || "Dynopay", options)
   );
 });
 
@@ -41,7 +41,7 @@ self.addEventListener("notificationclick", (event) => {
 
   event.waitUntil(
     self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clientList) => {
-      // If a DynoPay tab is already open, focus it
+      // If a Dynopay tab is already open, focus it
       for (const client of clientList) {
         if (client.url.includes(self.location.origin) && "focus" in client) {
           client.navigate(urlToOpen);

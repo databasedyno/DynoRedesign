@@ -47,7 +47,7 @@ const STEPS: Step[] = [
   {
     n: 3,
     title: 'You settle in stablecoins',
-    detail: 'Funds land in your DynoPay wallet in stablecoin. Withdraw to bank, spend, or hold. Fees from 0.5% (drops with volume). No chargebacks, ever.',
+    detail: 'Funds land in your Dynopay wallet in stablecoin. Withdraw to bank, spend, or hold. Fees from 0.5% (drops with volume). No chargebacks, ever.',
     color: '#10B981',
     accent: '#34D399',
   },

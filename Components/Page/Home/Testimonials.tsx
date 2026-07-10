@@ -6,7 +6,7 @@ import HomeSectionTitle from "@/Components/UI/SectionTitle";
 const testimonials = [
   {
     quote:
-      "DynoPay eliminated our crypto payment headaches. Auto-conversion to USDT means we never worry about price swings eating into our margins.",
+      "Dynopay eliminated our crypto payment headaches. Auto-conversion to USDT means we never worry about price swings eating into our margins.",
     author: "Sarah Chen",
     role: "Head of Payments",
     company: "NovaMart",
@@ -68,7 +68,7 @@ const Testimonials: React.FC = () => {
         badgeText="What Merchants Say"
         title="Trusted by businesses worldwide"
         highlightText="worldwide"
-        subtitle="Real feedback from merchants who accept crypto with DynoPay every day."
+        subtitle="Real feedback from merchants who accept crypto with Dynopay every day."
         sx={{ maxWidth: "100%" }}
       />
 

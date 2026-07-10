@@ -448,7 +448,7 @@ const formatDigestEmail = (errors: GroupedError[], totalRaw: number): string => 
         <tr>
           <td style="background:linear-gradient(135deg,#1034a6 0%,#0d2570 100%);padding:24px 32px;">
             <table width="100%"><tr>
-              <td><span style="color:#fff;font-size:20px;font-weight:700;">🚨 DynoPay Error Digest</span></td>
+              <td><span style="color:#fff;font-size:20px;font-weight:700;">🚨 Dynopay Error Digest</span></td>
               <td align="right"><span style="color:rgba(255,255,255,0.7);font-size:13px;">${new Date().toISOString().replace("T", " ").substring(0, 19)} UTC</span></td>
             </tr></table>
           </td>
@@ -476,7 +476,7 @@ const formatDigestEmail = (errors: GroupedError[], totalRaw: number): string => 
         <!-- Footer -->
         <tr>
           <td style="padding:20px 32px;background:#f8fafc;border-top:1px solid #e5e7eb;font-size:12px;color:#9ca3af;text-align:center;">
-            DynoPay Error Monitor — Digest sent every 15 minutes when errors exist<br/>
+            Dynopay Error Monitor — Digest sent every 15 minutes when errors exist<br/>
             Server: ${process.env.SERVER_URL || "unknown"} | PID: ${process.pid}
           </td>
         </tr>
@@ -510,7 +510,7 @@ const formatImmediateAlertEmail = (entry: ErrorEntry): string => {
       <table width="640" cellpadding="0" cellspacing="0" style="max-width:640px;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.05);">
         <tr>
           <td style="background:linear-gradient(135deg,#dc2626 0%,#991b1b 100%);padding:24px 32px;">
-            <span style="color:#fff;font-size:20px;font-weight:700;">🔴 CRITICAL ERROR — DynoPay</span>
+            <span style="color:#fff;font-size:20px;font-weight:700;">🔴 CRITICAL ERROR — Dynopay</span>
           </td>
         </tr>
         <tr>
@@ -528,7 +528,7 @@ const formatImmediateAlertEmail = (entry: ErrorEntry): string => {
         </tr>
         <tr>
           <td style="padding:16px 32px;background:#fef2f2;border-top:1px solid #fecaca;font-size:12px;color:#991b1b;text-align:center;">
-            DynoPay Error Monitor — Immediate Alert | Server: ${process.env.SERVER_URL || "unknown"} | PID: ${process.pid}
+            Dynopay Error Monitor — Immediate Alert | Server: ${process.env.SERVER_URL || "unknown"} | PID: ${process.pid}
           </td>
         </tr>
       </table>
@@ -581,7 +581,7 @@ export const sendErrorDigest = async (): Promise<void> => {
     if (highCount > 0) subjectParts.push(`${highCount} high`);
     const severitySummary = subjectParts.length > 0 ? ` (${subjectParts.join(", ")})` : "";
 
-    const subject = `🚨 DynoPay Error Digest — ${totalRaw} error${totalRaw !== 1 ? "s" : ""} in last 15 min${severitySummary}`;
+    const subject = `🚨 Dynopay Error Digest — ${totalRaw} error${totalRaw !== 1 ? "s" : ""} in last 15 min${severitySummary}`;
     const htmlBody = formatDigestEmail(digest, totalRaw);
 
     const transporter = await getMailTransporter();
@@ -589,7 +589,7 @@ export const sendErrorDigest = async (): Promise<void> => {
     try {
       await transporter({
         to: adminEmail,
-        name: "DynoPay Admin",
+        name: "Dynopay Admin",
         subject,
         body: htmlBody,
       });
@@ -664,7 +664,7 @@ const sendImmediateAlert = async (entry: ErrorEntry): Promise<void> => {
     try {
       await transporter({
         to: adminEmail,
-        name: "DynoPay Admin",
+        name: "Dynopay Admin",
         subject,
         body: htmlBody,
       });

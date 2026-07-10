@@ -177,7 +177,7 @@ const CryptocurrencySelector: React.FC<CryptocurrencySelectorProps> = ({
               </CryptocurrencyText>
             </Box>
           ) : (
-            <Box sx={{ display: "flex", alignItems: "center", gap: "6px" }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: "6px", flex: 1, minWidth: 0, overflow: "hidden" }}>
               <IconChip
                 sx={{
                   minWidth: "fit-content",
@@ -194,11 +194,11 @@ const CryptocurrencySelector: React.FC<CryptocurrencySelectorProps> = ({
                 )}
                 <span>{resolvedCrypto.code}</span>
               </IconChip>
-              <CryptocurrencyText>{resolvedCrypto.name}</CryptocurrencyText>
+              <CryptocurrencyText style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", minWidth: 0 }}>{resolvedCrypto.name}</CryptocurrencyText>
             </Box>
           )}
 
-          <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
             <CryptocurrencyDividerLine />
             {locked ? (
               <LockOutlinedIcon
@@ -323,7 +323,9 @@ const CryptocurrencySelector: React.FC<CryptocurrencySelectorProps> = ({
 
                   <ListItemText
                     primary={crypto.name}
+                    sx={{ minWidth: 0, my: 0 }}
                     primaryTypographyProps={{
+                      noWrap: true,
                       sx: {
                         fontWeight: 500,
                         fontSize: isMobile ? "10px" : "15px",

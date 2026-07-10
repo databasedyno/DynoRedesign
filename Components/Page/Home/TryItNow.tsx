@@ -310,7 +310,7 @@ const TryItNow: React.FC = () => {
             <Box
               component="iframe"
               src="/pay/demo?embed=1"
-              title="DynoPay checkout demo"
+              title="Dynopay checkout demo"
               loading="lazy"
               sx={{
                 display: "block",

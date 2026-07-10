@@ -8,7 +8,7 @@ export const statusPaths = {
     get: {
       tags: ['Status'],
       summary: 'Get overall system status',
-      description: 'Get the overall health status of all DynoPay services.',
+      description: 'Get the overall health status of all Dynopay services.',
       responses: {
         200: {
           description: 'System status',

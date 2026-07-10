@@ -223,7 +223,7 @@ const FeeCalculator: React.FC = () => {
           <Box sx={{ display: 'flex', gap: { xs: 3, md: 6 }, justifyContent: 'center', px: { xs: 0, md: 4 } }}>
             <CostColumn
               s={s}
-              label="DynoPay"
+              label="Dynopay"
               subtitle={`${dynopayTier.percent}% (${dynopayTier.name}) · ${alt.txPerMonth.toLocaleString()} ${t('feeCalcTxAbbrev')}`}
               amount={dynopayCost}
               max={Math.max(dynopayCost, altCost, 1)}

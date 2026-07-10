@@ -34,7 +34,7 @@ export const useDashboardData = () => {
   // Track whether the user profile has already been fetched to avoid
   // re-dispatching on every render. Profile contains fee_free_remaining_usd
   // and cumulative_volume_usd — needed by GrowPanel to decide which
-  // "Grow with DynoPay" offer to show (fee-free trial vs. trial complete
+  // "Grow with Dynopay" offer to show (fee-free trial vs. trial complete
   // vs. premium vs. referral).
   const profileFetched = useSelector(
     (state: any) => Boolean(state.userReducer?.profile)

@@ -19,7 +19,7 @@ import InsertDriveFileRoundedIcon from "@mui/icons-material/InsertDriveFileRound
 import axiosBaseApi from "@/axiosConfig";
 
 /**
- * SupportChatWidget — "Emily", DynoPay's floating AI support chat.
+ * SupportChatWidget — "Emily", Dynopay's floating AI support chat.
  * Session 14 parity upgrade (Emergent-style): agent renamed to Emily with an
  * "Active" presence dot, per-message timestamps, emoji picker, and image/PDF
  * attachments (Emily can "see" uploaded screenshots via OpenAI vision).
@@ -104,7 +104,7 @@ const formatTime = (iso?: string): string => {
 };
 
 const GREETING =
-  "Hi, I'm Emily — your DynoPay support assistant. Ask me anything about fees, supported coins, payment links, wallets or our API. You can also attach a screenshot and I'll take a look. Need a person? Hit the headset icon above to reach human support.";
+  "Hi, I'm Emily — your Dynopay support assistant. Ask me anything about fees, supported coins, payment links, wallets or our API. You can also attach a screenshot and I'll take a look. Need a person? Hit the headset icon above to reach human support.";
 
 interface SupportChatWidgetProps {
   layout?: "home" | "client";

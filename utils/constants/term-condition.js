@@ -2,7 +2,7 @@ export const terms = [
   {
     title: "1. Acceptance of Terms",
     description1:
-      "By creating an account, accessing the dashboard, integrating the API, or processing crypto payments through DynoPay (“the Service”), you confirm that:",
+      "By creating an account, accessing the dashboard, integrating the API, or processing crypto payments through Dynopay (“the Service”), you confirm that:",
     description2: "",
     bulletPoints: [
       "You have read and agree to these Terms & Conditions;",
@@ -15,7 +15,7 @@ export const terms = [
   {
     title: "2. Description of the Service",
     description1:
-      "DynoPay provides tools for receiving, managing, and monitoring cryptocurrency payments, including:",
+      "Dynopay provides tools for receiving, managing, and monitoring cryptocurrency payments, including:",
     description2: "",
     bulletPoints: [
       "Crypto payment links",

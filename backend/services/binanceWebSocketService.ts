@@ -134,7 +134,7 @@ const connect = () => {
 
   try {
     ws = new WebSocket(url, {
-      headers: { "User-Agent": "Mozilla/5.0 (compatible; DynoPay/1.0)" },
+      headers: { "User-Agent": "Mozilla/5.0 (compatible; Dynopay/1.0)" },
       handshakeTimeout: 15000,
       ...(() => { const agent = getEffectiveProxyAgent(); return agent ? { agent } : {}; })(),
     });
@@ -344,7 +344,7 @@ const handleKline = (data: Record<string, unknown>) => {
 // ============================================
 
 const BINANCE_HEADERS = {
-  "User-Agent": "Mozilla/5.0 (compatible; DynoPay/1.0)",
+  "User-Agent": "Mozilla/5.0 (compatible; Dynopay/1.0)",
   Accept: "application/json",
 };
 

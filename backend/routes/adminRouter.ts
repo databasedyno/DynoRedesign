@@ -148,7 +148,7 @@ adminRouter.post("/alerts/test", adminAuthMiddleware, async (_req, res) => {
   try {
     const result = await sendAlert({
       title: "Test Alert",
-      message: "This is a test alert from DynoPay admin panel.",
+      message: "This is a test alert from Dynopay admin panel.",
       severity: "info",
       fields: { "Triggered by": "Admin test endpoint" },
     });

@@ -1,3 +1,37 @@
+## Session 20b: Brand casing DynoPay→Dynopay (end-to-end) + similar-overflow hardening — FRONTEND TEST REQUEST (2026-07-10)
+
+### CONTEXT / CHANGES
+1) BRAND CASING: replaced user-facing "DynoPay" → "Dynopay" everywhere that matters (1114 occurrences across UI
+   copy, all i18n locales en/es/fr/de/nl/pt, SEO JSON, email templates, 2FA issuer APP_NAME, push-notif title,
+   legal text, swagger). PRESERVED (functional, NOT renamed): the `X-DynoPay-*` webhook header names (API
+   contract merchants depend on), the `DynoPay-Auth` User-Agent, and all camelCase identifiers/component/file
+   names (WhyChooseDynoPay.tsx etc.). No JSON keys changed (only values).
+2) SIMILAR-OVERFLOW HARDENING: Components/UI/CryptocurrencySelector/index.tsx — the wallet add/edit currency
+   selector renders the same long labels (USDT-POLYGON, RLUSD-ERC20). Hardened: trigger left content flex:1+
+   minWidth:0+overflow:hidden, name text ellipsis, right (divider/chevron) box flexShrink:0, dropdown ListItemText
+   noWrap+minWidth:0. (Wallet page cards + LivePreviewPanel already use ellipsis/minWidth:0 — no change needed.)
+
+### FRONTEND TEST REQUEST — preview https://f490872d-1104-4f03-a264-7e1f78811335.preview.emergentagent.com
+LIVE prod DB. Token injection login. Mint tokens: `node /app/scripts/mint_ux_tokens.js`.
+
+A. BRANDING (English/default): visit "/", "/auth/login", "/auth/register", and (token=hostbay@moxx.co) "/dashboard",
+   "/create-pay-link", "/wallet". On each, assert the VISIBLE page text contains "Dynopay" and NO occurrence of the
+   wrong casing "DynoPay" (capital P). Check header, sidebar, footer, hero/marketing copy. Report any "DynoPay" found
+   with its location.
+B. OVERFLOW REGRESSION (create-pay-link, token=hostbay): desktop 1920 — "Accepted cryptocurrencies" grid, all cards
+   0px overflow incl. long-label ones (USDT-TRC20, USDT-ERC20, USDC-ERC20, USDT-POLYGON, RLUSD-ERC20), checkbox
+   inside. Mobile 390 + tablet 768 — cards no overflow; "Preview" FAB (mobile-preview-fab) opens/closes drawer
+   (mobile-preview-drawer / mobile-preview-close); FAB hidden at 1920.
+C. CURRENCY SELECTOR OVERFLOW (wallet add): token=qa.onboard.1782585233@dynopaytest.com (has 1 wallet → the /wallet
+   "Add" dialog is available and its CryptocurrencySelector lists all currencies incl. USDT-POLYGON / RLUSD-ERC20).
+   Open /wallet → Add wallet → open the crypto dropdown (data-testid=crypto-selector-trigger). At desktop 1920 AND
+   mobile 390, assert the selected/trigger content and each dropdown option (crypto-option-*) do NOT overflow their
+   container (no clipped/pushed-out text), especially the long labels. Screenshot the open dropdown.
+D. REGRESSION: coin card toggle + Select all/Clear all on create-pay-link still work.
+Do NOT create real payment links / wallets (delete anything created). Report PASS/FAIL per item with evidence.
+
+---
+
 ## Session 20: Crypto-card overflow fix + mobile/tablet live-preview bottom sheet — FRONTEND TEST REQUEST (2026-07-10)
 
 ### CONTEXT / FIXES

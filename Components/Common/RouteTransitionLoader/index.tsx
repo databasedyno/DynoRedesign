@@ -1,6 +1,6 @@
 /**
  * RouteTransitionLoader — Emergent-style full-screen loading overlay that
- * shows a pulsing DynoPay logo while the Next.js router is transitioning
+ * shows a pulsing Dynopay logo while the Next.js router is transitioning
  * between pages.
  *
  * Behaviour:
@@ -10,7 +10,7 @@
  *  - Anti-flicker: the overlay only appears if the transition takes longer
  *    than SHOW_DELAY_MS, and once visible it stays for at least
  *    MIN_VISIBLE_MS so it never strobes for a single frame.
- *  - Theme-aware: near-black DynoPay logo on a light glass backdrop, white
+ *  - Theme-aware: near-black Dynopay logo on a light glass backdrop, white
  *    logo on a dark glass backdrop (matches HomeHeader logo logic).
  *  - SSR-safe: renders null until a client-side router event fires.
  */
@@ -163,7 +163,7 @@ const RouteTransitionLoader: React.FC = () => {
       <Box
         component="img"
         src={(logoSrc as { src?: string })?.src || (logoSrc as unknown as string)}
-        alt="DynoPay"
+        alt="Dynopay"
         sx={{
           width: { xs: 130, sm: 150 },
           height: "auto",

@@ -1,9 +1,9 @@
 {
-  "meta_title": "Crypto Payments for E-commerce Stores | DynoPay",
+  "meta_title": "Crypto Payments for E-commerce Stores | Dynopay",
   "meta_description": "Accept Bitcoin, Ethereum, USDT, and 12+ cryptocurrencies with crypto payments for e-commerce stores. 1.5% flat fee, zero chargebacks. Start in 10 minutes.",
   "h1": "Accept crypto payments for e-commerce stores without chargebacks or fraud",
-  "subheading": "DynoPay lets you receive Bitcoin, Ethereum, stablecoins, and 12+ cryptocurrencies directly to your wallet. No chargebacks, no dispute fees, no funds held.",
-  "intro_paragraph": "E-commerce stores lose 0.47% of revenue to chargebacks, plus $15-100 in dispute fees per incident. Fraud and friendly fraud drain margins while payment processors hold your funds for days. DynoPay is a non-custodial gateway that sends crypto payments directly to your wallet—you control funds from the moment a customer pays. Flat 1.5% fee per transaction, no monthly costs, no chargeback risk.",
+  "subheading": "Dynopay lets you receive Bitcoin, Ethereum, stablecoins, and 12+ cryptocurrencies directly to your wallet. No chargebacks, no dispute fees, no funds held.",
+  "intro_paragraph": "E-commerce stores lose 0.47% of revenue to chargebacks, plus $15-100 in dispute fees per incident. Fraud and friendly fraud drain margins while payment processors hold your funds for days. Dynopay is a non-custodial gateway that sends crypto payments directly to your wallet—you control funds from the moment a customer pays. Flat 1.5% fee per transaction, no monthly costs, no chargeback risk.",
   "features": [
     {
       "title": "Zero Chargeback Risk, Ever",
@@ -11,7 +11,7 @@
     },
     {
       "title": "You Control Funds Immediately",
-      "description": "Non-custodial architecture sends Bitcoin, USDT, Ethereum, and other coins straight to your wallet. DynoPay never holds your money or freezes payouts during disputes."
+      "description": "Non-custodial architecture sends Bitcoin, USDT, Ethereum, and other coins straight to your wallet. Dynopay never holds your money or freezes payouts during disputes."
     },
     {
       "title": "1.5% Flat Fee, Fully Transparent",
@@ -26,19 +26,19 @@
   "faqs": [
     {
       "question": "Do I need a business bank account to accept crypto payments on my e-commerce store?",
-      "answer": "No. DynoPay sends funds directly to your cryptocurrency wallet. You control the wallet, and you decide when to convert to fiat through your own exchange or keep it in crypto. No bank account required to start accepting payments."
+      "answer": "No. Dynopay sends funds directly to your cryptocurrency wallet. You control the wallet, and you decide when to convert to fiat through your own exchange or keep it in crypto. No bank account required to start accepting payments."
     },
     {
-      "question": "Which cryptocurrencies can my e-commerce store accept with DynoPay?",
+      "question": "Which cryptocurrencies can my e-commerce store accept with Dynopay?",
       "answer": "You can accept Bitcoin, Litecoin, Bitcoin Cash, Dogecoin, Ethereum, USDT on Ethereum, Polygon, and Tron, USDC and RLUSD on Ethereum, MATIC, TRX, Solana, and XRP. Customers pay in any supported coin; you receive it in your wallet."
     },
     {
-      "question": "How does DynoPay prevent chargebacks for online stores?",
+      "question": "How does Dynopay prevent chargebacks for online stores?",
       "answer": "Cryptocurrency transactions are irreversible by design. Once a customer sends payment and the blockchain confirms it, the transaction cannot be disputed or reversed. You receive funds in your wallet with zero chargeback risk, eliminating dispute fees and fraud losses."
     },
     {
       "question": "What are the fees for accepting crypto payments on my e-commerce site?",
-      "answer": "DynoPay charges a flat 1.5% platform fee per successful transaction, plus a small fixed component: one dollar for orders under 100 dollars, scaling to one dollar for orders under 1,000 dollars. No monthly fees, no setup fees, no hidden costs."
+      "answer": "Dynopay charges a flat 1.5% platform fee per successful transaction, plus a small fixed component: one dollar for orders under 100 dollars, scaling to one dollar for orders under 1,000 dollars. No monthly fees, no setup fees, no hidden costs."
     },
     {
       "question": "How long does it take to start accepting cryptocurrency on my online store?",

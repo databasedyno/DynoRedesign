@@ -37,7 +37,7 @@ const StatWall: React.FC = () => {
   }, []);
 
   return (
-    <Box component="section" ref={ref} aria-label="DynoPay by the numbers" data-testid="stat-wall" sx={{ py: { xs: 9, md: 15 }, px: { xs: 3, md: 6 }, maxWidth: 1400, mx: "auto" }}>
+    <Box component="section" ref={ref} aria-label="Dynopay by the numbers" data-testid="stat-wall" sx={{ py: { xs: 9, md: 15 }, px: { xs: 3, md: 6 }, maxWidth: 1400, mx: "auto" }}>
       <Typography
         sx={{
           fontFamily: FONT_TECH,

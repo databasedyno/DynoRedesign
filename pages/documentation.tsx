@@ -403,7 +403,7 @@ const ENDPOINTS: Endpoint[] = [
       "Register a new customer under your company. Returns a bearer token for subsequent authenticated requests. If the customer already exists (same email + company), returns their existing token.",
     auth: "api-key",
     headers: [
-      { name: "x-api-key", value: "your_api_key", description: "Your DynoPay API key" },
+      { name: "x-api-key", value: "your_api_key", description: "Your Dynopay API key" },
       { name: "Content-Type", value: "application/json", description: "" },
     ],
     body: [
@@ -434,7 +434,7 @@ const ENDPOINTS: Endpoint[] = [
       "Create a hosted checkout session. Returns a redirect URL where your customer selects their crypto and completes payment. Works with just your API key (userless mode) — no customer creation needed. Optionally include a customer Bearer token for per-customer tracking.",
     auth: "api-key-optional-bearer",
     headers: [
-      { name: "x-api-key", value: "your_api_key", description: "Your DynoPay API key" },
+      { name: "x-api-key", value: "your_api_key", description: "Your Dynopay API key" },
       { name: "Authorization", value: "Bearer {customer_token}", description: "(Optional) Token from Create Customer — omit for userless mode" },
       { name: "Content-Type", value: "application/json", description: "" },
     ],
@@ -475,7 +475,7 @@ const ENDPOINTS: Endpoint[] = [
       "Create a direct crypto payment that returns a QR code and wallet address. Use this for in-app payment flows where you handle the UI. Works with just your API key (userless mode) — no customer creation needed. Optionally include a customer Bearer token for per-customer tracking. For XRP/RLUSD, the response includes a destination_tag that must be displayed to the customer.",
     auth: "api-key-optional-bearer",
     headers: [
-      { name: "x-api-key", value: "your_api_key", description: "Your DynoPay API key" },
+      { name: "x-api-key", value: "your_api_key", description: "Your Dynopay API key" },
       { name: "Authorization", value: "Bearer {customer_token}", description: "(Optional) Token from Create Customer — omit for userless mode" },
       { name: "Content-Type", value: "application/json", description: "" },
     ],
@@ -519,7 +519,7 @@ const ENDPOINTS: Endpoint[] = [
     description: "Add funds to a customer's wallet via a hosted checkout. Returns a redirect URL for the customer to complete the deposit. Works with just your API key (userless mode) or with a customer Bearer token for per-customer wallets.",
     auth: "api-key-optional-bearer",
     headers: [
-      { name: "x-api-key", value: "your_api_key", description: "Your DynoPay API key" },
+      { name: "x-api-key", value: "your_api_key", description: "Your Dynopay API key" },
       { name: "Authorization", value: "Bearer {customer_token}", description: "(Optional) Token from Create Customer — omit for userless mode" },
       { name: "Content-Type", value: "application/json", description: "" },
     ],
@@ -551,7 +551,7 @@ const ENDPOINTS: Endpoint[] = [
     description: "Debit a specified amount from a customer's wallet balance. Creates a debit transaction record. Works with just your API key (userless mode) or with a customer Bearer token.",
     auth: "api-key-optional-bearer",
     headers: [
-      { name: "x-api-key", value: "your_api_key", description: "Your DynoPay API key" },
+      { name: "x-api-key", value: "your_api_key", description: "Your Dynopay API key" },
       { name: "Authorization", value: "Bearer {customer_token}", description: "(Optional) Token from Create Customer — omit for userless mode" },
       { name: "Content-Type", value: "application/json", description: "" },
     ],
@@ -576,7 +576,7 @@ const ENDPOINTS: Endpoint[] = [
     description: "Retrieve the current wallet balance for a customer. Works with just your API key (userless mode) or with a customer Bearer token.",
     auth: "api-key-optional-bearer",
     headers: [
-      { name: "x-api-key", value: "your_api_key", description: "Your DynoPay API key" },
+      { name: "x-api-key", value: "your_api_key", description: "Your Dynopay API key" },
       { name: "Authorization", value: "Bearer {customer_token}", description: "(Optional) Token from Create Customer — omit for userless mode" },
     ],
     responseExample: `{
@@ -593,7 +593,7 @@ const ENDPOINTS: Endpoint[] = [
     description: "Get paginated transaction history for a customer, including auto-conversion details. Works with just your API key (userless mode) or with a customer Bearer token.",
     auth: "api-key-optional-bearer",
     headers: [
-      { name: "x-api-key", value: "your_api_key", description: "Your DynoPay API key" },
+      { name: "x-api-key", value: "your_api_key", description: "Your Dynopay API key" },
       { name: "Authorization", value: "Bearer {customer_token}", description: "(Optional) Token from Create Customer — omit for userless mode" },
     ],
     queryParams: [
@@ -620,7 +620,7 @@ const ENDPOINTS: Endpoint[] = [
     description: "Retrieve full details for a single transaction by its ID. Works with just your API key (userless mode) or with a customer Bearer token.",
     auth: "api-key-optional-bearer",
     headers: [
-      { name: "x-api-key", value: "your_api_key", description: "Your DynoPay API key" },
+      { name: "x-api-key", value: "your_api_key", description: "Your Dynopay API key" },
       { name: "Authorization", value: "Bearer {customer_token}", description: "(Optional) Token from Create Customer — omit for userless mode" },
     ],
     pathParams: [{ name: "id", type: "string", description: "The transaction ID" }],
@@ -644,7 +644,7 @@ const ENDPOINTS: Endpoint[] = [
     description: "Verify a crypto payment by its blockchain deposit address. Use this to poll payment status. Works with just your API key (userless mode) or with a customer Bearer token.",
     auth: "api-key-optional-bearer",
     headers: [
-      { name: "x-api-key", value: "your_api_key", description: "Your DynoPay API key" },
+      { name: "x-api-key", value: "your_api_key", description: "Your Dynopay API key" },
       { name: "Authorization", value: "Bearer {customer_token}", description: "(Optional) Token from Create Customer — omit for userless mode" },
     ],
     pathParams: [{ name: "address", type: "string", description: "The deposit address from cryptoPayment response" }],
@@ -660,7 +660,7 @@ const ENDPOINTS: Endpoint[] = [
     title: "Get Supported Currencies",
     description: "Get the list of cryptocurrencies configured for your merchant account.",
     auth: "api-key",
-    headers: [{ name: "x-api-key", value: "your_api_key", description: "Your DynoPay API key" }],
+    headers: [{ name: "x-api-key", value: "your_api_key", description: "Your Dynopay API key" }],
     responseExample: `{
   "success": true,
   "data": {
@@ -678,7 +678,7 @@ const ENDPOINTS: Endpoint[] = [
       "Add funds to a customer's wallet using your API key — handy for refunds, rewards, promos, or programmatic top-ups. Creates a CREDIT transaction record. (The route is prefixed with /admin for legacy reasons, but it is fully available to merchants via your API key.)",
     auth: "api-key",
     headers: [
-      { name: "x-api-key", value: "your_api_key", description: "Your DynoPay API key" },
+      { name: "x-api-key", value: "your_api_key", description: "Your Dynopay API key" },
       { name: "Content-Type", value: "application/json", description: "" },
     ],
     pathParams: [{ name: "customerId", type: "number", description: "The customer ID (numeric customer_id, not UUID)" }],
@@ -711,7 +711,7 @@ const ENDPOINTS: Endpoint[] = [
       "Deduct funds from a customer's wallet using your API key — useful for service fees or programmatic adjustments. Validates sufficient balance before debiting and creates a DEBIT transaction record. (The route is prefixed with /admin for legacy reasons, but it is fully available to merchants via your API key.)",
     auth: "api-key",
     headers: [
-      { name: "x-api-key", value: "your_api_key", description: "Your DynoPay API key" },
+      { name: "x-api-key", value: "your_api_key", description: "Your Dynopay API key" },
       { name: "Content-Type", value: "application/json", description: "" },
     ],
     pathParams: [{ name: "customerId", type: "number", description: "The customer ID (numeric customer_id, not UUID)" }],
@@ -921,7 +921,7 @@ const DocumentationPage = () => {
   return (
     <>
       <Head>
-        <meta name="description" content="Integrate crypto payments into your application with the DynoPay API." />
+        <meta name="description" content="Integrate crypto payments into your application with the Dynopay API." />
       </Head>
 
       <PageWrapper>
@@ -931,7 +931,7 @@ const DocumentationPage = () => {
             <HomeSectionTitle
               type="large"
               badgeText="Developer Documentation"
-              title="DynoPay API Reference"
+              title="Dynopay API Reference"
               highlightText="API Reference"
               subtitle="Everything you need to accept crypto payments, manage customer wallets, and track transactions programmatically."
             />
@@ -996,7 +996,7 @@ const DocumentationPage = () => {
                   Overview
                 </Typography>
                 <Typography sx={{ fontSize: 15, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.8, mb: 3 }}>
-                  DynoPay provides a simple API to accept cryptocurrency payments, manage customer wallets, and track transactions. Payments are instantly forwarded to your configured wallet with transparent fees. Every endpoint on this page is a <strong>merchant</strong> endpoint — authenticated with your API key.
+                  Dynopay provides a simple API to accept cryptocurrency payments, manage customer wallets, and track transactions. Payments are instantly forwarded to your configured wallet with transparent fees. Every endpoint on this page is a <strong>merchant</strong> endpoint — authenticated with your API key.
                 </Typography>
 
                 <Typography sx={{ fontSize: 17, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1 }}>
@@ -1028,7 +1028,7 @@ const DocumentationPage = () => {
                     { step: "1", title: "Create a payment", desc: "Call Create Checkout Payment with your API key and an amount. You get back a checkout URL." },
                     { step: "2", title: "Send the buyer to checkout", desc: "Redirect the buyer to the returned URL. They pick a cryptocurrency and pay." },
                     { step: "3", title: "Funds forward to your wallet", desc: "Once the payment confirms on-chain, funds are forwarded to your configured wallet, minus transparent fees." },
-                    { step: "4", title: "Get notified via webhook", desc: "DynoPay posts a webhook to your server with the final status, so you can fulfil the order automatically." },
+                    { step: "4", title: "Get notified via webhook", desc: "Dynopay posts a webhook to your server with the final status, so you can fulfil the order automatically." },
                   ].map((s) => (
                     <StepCard key={s.step}>
                       <StepNumber>{s.step}</StepNumber>
@@ -1054,11 +1054,11 @@ const DocumentationPage = () => {
                   Getting Started
                 </Typography>
                 <Typography sx={{ fontSize: 15, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.8, mb: 3 }}>
-                  Integrate DynoPay in just two steps — no customer creation needed:
+                  Integrate Dynopay in just two steps — no customer creation needed:
                 </Typography>
                 <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mb: 4 }}>
                   {[
-                    { step: "1", title: "Get your API Key", desc: 'Go to your DynoPay dashboard → API section → "Create New Key". You\'ll receive an API key for authenticating requests.' },
+                    { step: "1", title: "Get your API Key", desc: 'Go to your Dynopay dashboard → API section → "Create New Key". You\'ll receive an API key for authenticating requests.' },
                     { step: "2", title: "Create a Payment", desc: "Use the Checkout Payment or Direct Crypto Payment endpoint with just your API key. No customer creation needed! The customer pays in crypto, funds forward instantly to your wallet." },
                   ].map((s) => (
                     <StepCard key={s.step}>
@@ -1118,7 +1118,7 @@ curl -X POST https://dynopay.com/api/user/createUser \\
                   Authentication
                 </Typography>
                 <Typography sx={{ fontSize: 15, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.8, mb: 3 }}>
-                  DynoPay uses three levels of authentication depending on the endpoint:
+                  Dynopay uses three levels of authentication depending on the endpoint:
                 </Typography>
                 <Grid container spacing={2.5} sx={{ mb: 3 }}>
                   <Grid item xs={12} md={4}>
@@ -1172,7 +1172,7 @@ curl -X POST https://dynopay.com/api/user/createUser \\
                   Webhooks
                 </Typography>
                 <Typography sx={{ fontSize: 15, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.8, mb: 3 }}>
-                  DynoPay sends webhook notifications to your configured URL when payment events occur. You set the <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>webhook_url</code> when creating a payment, or configure a default in your company settings.
+                  Dynopay sends webhook notifications to your configured URL when payment events occur. You set the <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>webhook_url</code> when creating a payment, or configure a default in your company settings.
                 </Typography>
 
                 {/* Event Types */}
@@ -1307,7 +1307,7 @@ app.post('/webhooks/dynopay', (req, res) => {
                 <InfoBox sx={{ mt: 3 }}>
                   <Typography sx={{ fontSize: 14, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1 }}>Retry Policy</Typography>
                   <Typography sx={{ fontSize: 13, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.7 }}>
-                    If your endpoint returns a non-2xx status code (or times out), DynoPay retries delivery with exponential backoff — up to <strong>5 retries</strong> over approximately 30 minutes. After all retries fail, the webhook is moved to a dead-letter queue. You can re-trigger failed deliveries from the dashboard.
+                    If your endpoint returns a non-2xx status code (or times out), Dynopay retries delivery with exponential backoff — up to <strong>5 retries</strong> over approximately 30 minutes. After all retries fail, the webhook is moved to a dead-letter queue. You can re-trigger failed deliveries from the dashboard.
                   </Typography>
                 </InfoBox>
 
@@ -1351,7 +1351,7 @@ app.post('/webhooks/dynopay', (req, res) => {
                   Rate Limits
                 </Typography>
                 <Typography sx={{ fontSize: 15, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.8, mb: 3 }}>
-                  DynoPay enforces rate limits to ensure platform stability. Limits are applied per IP address and per API key.
+                  Dynopay enforces rate limits to ensure platform stability. Limits are applied per IP address and per API key.
                 </Typography>
                 <TableWrapper>
                   <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
@@ -1434,7 +1434,7 @@ app.post('/webhooks/dynopay', (req, res) => {
                   Ready to get started?
                 </Typography>
                 <Typography sx={{ fontSize: 15, fontFamily: "var(--font-sans)", color: "text.secondary", mb: 3 }}>
-                  Join merchants worldwide accepting crypto with DynoPay
+                  Join merchants worldwide accepting crypto with Dynopay
                 </Typography>
                 <Box sx={{ display: "flex", gap: 2, justifyContent: "center", flexWrap: "wrap" }}>
                   <HomeButton variant="primary" label="Get your API Key" navigateTo="/auth/register" />

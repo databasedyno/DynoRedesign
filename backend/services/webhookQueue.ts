@@ -401,7 +401,7 @@ async function sendDLQAlert(jobData: WebhookJobData, jobId: string, attempts: nu
 
   try {
     const transporter = await getMailTransporter();
-    await transporter({ to: adminEmail, name: "DynoPay Admin", subject, body: htmlBody });
+    await transporter({ to: adminEmail, name: "Dynopay Admin", subject, body: htmlBody });
     webhookLogs.info(`[WebhookQueue] DLQ alert sent to ${adminEmail} for tx ${payload.txId}`);
   } catch (emailErr) {
     webhookLogs.error(`[WebhookQueue] Failed to send DLQ alert: ${(emailErr as Error).message}`);
