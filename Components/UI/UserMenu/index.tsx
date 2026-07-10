@@ -259,7 +259,7 @@ export default function UserMenu() {
             <MenuItemRow
               data-testid="user-menu-settings"
               onClick={() => {
-                router.push("/profile");
+                router.push("/settings");
                 setAnchorEl(null);
               }}
               sx={{

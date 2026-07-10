@@ -13,6 +13,39 @@ import FAQ from "./FAQ";
 import { HomeContainer, HomeFullWidthContainer, HomeWrapper } from "./styled";
 
 /**
+ * SectionPanel — WalletConnect-style full-width rounded panel (session 15).
+ * Gives the landing a "panel rhythm": alternating white canvas and soft
+ * rounded panels, instead of every section floating on the same background.
+ * Purely a wrapper — section internals are untouched, so theme'd text/cards
+ * keep their contrast in both light and dark mode.
+ */
+const SectionPanel: FC<{ children: React.ReactNode; testId?: string }> = ({
+  children,
+  testId,
+}) => {
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
+  return (
+    <Box sx={{ px: { xs: 1.5, md: 3 }, width: "100%" }}>
+      <Box
+        data-testid={testId}
+        sx={{
+          maxWidth: 1360,
+          mx: "auto",
+          borderRadius: { xs: "20px", md: "28px" },
+          bgcolor: isDark ? "rgba(255,255,255,0.035)" : "#F5F6F8",
+          border: `1px solid ${isDark ? "rgba(255,255,255,0.06)" : "rgba(17,18,20,0.05)"}`,
+          overflow: "hidden",
+          py: { xs: 1, md: 2 },
+        }}
+      >
+        {children}
+      </Box>
+    </Box>
+  );
+};
+
+/**
  * HomePage — cleaned up (2026-07-05, second pass; reordered 2026-07-10, session 14).
  *
  * Structure:
@@ -79,15 +112,18 @@ const HomePage: FC = () => {
       </HomeFullWidthContainer>
 
       <HomeFullWidthContainer>
-        <ComplianceLogoStrip />
+        {/* Compliance badges + supported chains — grouped in one soft panel
+            (WalletConnect-style rounded panel rhythm, session 15) */}
+        <SectionPanel testId="panel-trust">
+          <ComplianceLogoStrip />
+          <SupportedChainsRail />
+        </SectionPanel>
       </HomeFullWidthContainer>
 
       <HomeFullWidthContainer>
-        <SupportedChainsRail />
-      </HomeFullWidthContainer>
-
-      <HomeFullWidthContainer>
-        <FeeCalculator />
+        <SectionPanel testId="panel-fees">
+          <FeeCalculator />
+        </SectionPanel>
       </HomeFullWidthContainer>
 
       <HomeContainer>
@@ -95,7 +131,9 @@ const HomePage: FC = () => {
       </HomeContainer>
 
       <HomeFullWidthContainer>
-        <TestimonialsV2 />
+        <SectionPanel testId="panel-testimonials">
+          <TestimonialsV2 />
+        </SectionPanel>
       </HomeFullWidthContainer>
 
       <HomeFullWidthContainer>

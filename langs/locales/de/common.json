@@ -429,7 +429,14 @@
     "noCustomersTitle": "Noch keine Kunden",
     "noCustomersDesc": "Kunden werden über die DynoPay-API angelegt. Nach der Integration erscheinen sie hier automatisch mit ihren Wallet-Guthaben und ihrem Transaktionsverlauf.",
     "noCustomersCtaDocs": "API-Dokumentation ansehen",
-    "noCustomersCtaKeys": "API-Schlüssel abrufen"
+    "noCustomersCtaKeys": "API-Schlüssel abrufen",
+    "apiCustomerName": "API-Zahlungen",
+    "recoveredCustomerName": "Wiederhergestellte Zahlung",
+    "noCustomerDetails": "Keine Kundendaten übermittelt",
+    "sourceApi": "API",
+    "apiRecordHint": "Dieser Eintrag bündelt Zahlungen über Ihre API-Integration, die keine Kundendaten enthielten. Übermitteln Sie Kundendaten in Ihren API-Aufrufen, um hier echte Kundenprofile zu sehen.",
+    "countLabel_one": "{{count}} Kunde",
+    "countLabel_other": "{{count}} Kunden"
   },
   "pleaseWait": "Bitte warten",
   "transferRate": "Wechselkurs",
@@ -479,5 +486,24 @@
   "statusDegraded": "Teilweise beeinträchtigt",
   "statusOutage": "Dienstunterbrechung",
   "statusUnknown": "Systemstatus",
-  "statusUptimeTooltip": "{{label}} · {{uptime}} % Verfügbarkeit (letzte 30 Tage)"
+  "statusUptimeTooltip": "{{label}} · {{uptime}} % Verfügbarkeit (letzte 30 Tage)",
+  "settingsPage": {
+    "title": "Einstellungen",
+    "description": "Verwalten Sie Konto, Unternehmen und Integrations-Konfiguration",
+    "profile": "Profil & Sicherheit",
+    "profileDesc": "Persönliche Daten, Passwort und Login-Sicherheit",
+    "company": "Unternehmen",
+    "companyDesc": "Firmenprofil, Logo und Unternehmensdaten",
+    "payments": "Zahlungen",
+    "paymentsDesc": "Auto-Umwandlung, Zahlungstoleranz und Checkout-Verhalten",
+    "webhooks": "Webhooks",
+    "webhooksDesc": "Echtzeit-Benachrichtigungen über Zahlungsereignisse",
+    "apiKeys": "API-Schlüssel",
+    "apiKeysDesc": "Schlüssel für die programmatische Integration mit DynoPay",
+    "notifications": "Benachrichtigungen",
+    "notificationsDesc": "E-Mail-, Push- und Hinweis-Einstellungen",
+    "selectCompany": "Unternehmen",
+    "addCompany": "Unternehmen hinzufügen",
+    "noCompanies": "Erstellen Sie Ihr erstes Unternehmen, um Zahlungen, Webhooks und Branding zu konfigurieren."
+  }
 }

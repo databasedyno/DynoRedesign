@@ -25,6 +25,10 @@ export type CompanySettingsDialogProps = {
   open: boolean;
   company: ICompany | null;
   onClose: () => void;
+  /** Render inline (no modal chrome) — used by the /settings page */
+  inline?: boolean;
+  /** Only render these form sections (default: all four) */
+  visibleSections?: Array<"company" | "crypto" | "webhook" | "payment">;
 };
 
 type CompanySettingsFormValues = {
@@ -73,7 +77,10 @@ export default function CompanySettingsDialog({
   open,
   company,
   onClose,
+  inline = false,
+  visibleSections,
 }: CompanySettingsDialogProps) {
+  const sections = visibleSections ?? ["company", "crypto", "webhook", "payment"];
   const theme = useTheme();
   const isMobile = useIsMobile("sm");
   const { t } = useTranslation("companyDialog");
@@ -198,12 +205,13 @@ export default function CompanySettingsDialog({
     [t],
   );
 
-  // When dialog opens with a company, remount form and expand first section
+  // When dialog opens with a company, remount form and expand first visible section
   useEffect(() => {
     if (open) {
-      setExpanded("company");
+      setExpanded(sections[0] ?? "company");
       if (company) setFormKey((prev) => prev + 1);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, company]);
 
   // Fetch auto-convert settings from dedicated endpoint
@@ -312,36 +320,19 @@ export default function CompanySettingsDialog({
     handleClose();
   };
 
-  return (
-    <>
-      <PopupModal
-        open={open}
-        showHeader={false}
-        transparent
-        handleClose={handleRequestClose}
-        sx={{
-          "& .MuiDialog-paper": {
-            minWidth: isMobile ? "100%" : "641px",
-            maxWidth: isMobile ? "358px" : "605px",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            p: 2,
-          },
-        }}
-      >
+  const body = (
         <Box
           sx={{
             width: "100%",
-            maxWidth: "705px",
-            mx: "auto",
+            maxWidth: inline ? "800px" : "705px",
+            mx: inline ? 0 : "auto",
             borderRadius: "14px",
             border: "1px solid",
             borderColor: "divider",
             overflow: "hidden",
             bgcolor: "background.paper",
-            boxShadow: "0px 8px 24px rgba(0,0,0,0.08)",
-            p: isMobile ? "4px 16px 16px 16px" : "5px 29px 29px 29px",
+            boxShadow: inline ? "none" : "0px 8px 24px rgba(0,0,0,0.08)",
+            p: isMobile ? "4px 16px 16px 16px" : inline ? "5px 24px 24px 24px" : "5px 29px 29px 29px",
           }}
         >
           <FormManager
@@ -361,6 +352,7 @@ export default function CompanySettingsDialog({
             }) => {
               return (
                 <>
+                  {sections.includes("company") && (
                   <CompanyDetailsSection
                     values={{
                       company_name: values.company_name,
@@ -386,7 +378,9 @@ export default function CompanySettingsDialog({
                     expanded={expanded === "company"}
                     onAccordionChange={handleAccordionChange("company")}
                   />
+                  )}
 
+                  {sections.includes("crypto") && (
                   <CryptoConversionSection
                     value={values.auto_convert_volatile_crypto ?? "no"}
                     convertTo={values.convert_to_stablecoin ?? "usdt_trc20"}
@@ -395,7 +389,9 @@ export default function CompanySettingsDialog({
                     expanded={expanded === "crypto"}
                     onAccordionChange={handleAccordionChange("crypto")}
                   />
+                  )}
 
+                  {sections.includes("webhook") && (
                   <WebhookNotificationsSection
                     notificationUrl={
                       webhookData?.webhook_url ??
@@ -450,7 +446,9 @@ export default function CompanySettingsDialog({
                     expanded={expanded === "webhook"}
                     onAccordionChange={handleAccordionChange("webhook")}
                   />
+                  )}
 
+                  {sections.includes("payment") && (
                   <PaymentToleranceSection
                     values={{
                       accept_underpayments_up_to:
@@ -465,6 +463,7 @@ export default function CompanySettingsDialog({
                     expanded={expanded === "payment"}
                     onAccordionChange={handleAccordionChange("payment")}
                   />
+                  )}
 
                   <Box
                     sx={{
@@ -475,22 +474,27 @@ export default function CompanySettingsDialog({
                       mt: 1,
                     }}
                   >
-                    <CustomButton
-                      label="Delete Company"
-                      variant="outlined"
-                      size={isMobile ? "small" : "medium"}
-                      onClick={() => setDeleteAlertOpen(true)}
-                      sx={{
-                        fontSize: "13px",
-                        color: theme.palette.error.main,
-                        borderColor: theme.palette.error.main,
-                        "&:hover": {
-                          borderColor: theme.palette.error.dark,
-                          backgroundColor: `${theme.palette.error.main}10`,
-                        },
-                      }}
-                    />
+                    {sections.includes("company") ? (
+                      <CustomButton
+                        label="Delete Company"
+                        variant="outlined"
+                        size={isMobile ? "small" : "medium"}
+                        onClick={() => setDeleteAlertOpen(true)}
+                        sx={{
+                          fontSize: "13px",
+                          color: theme.palette.error.main,
+                          borderColor: theme.palette.error.main,
+                          "&:hover": {
+                            borderColor: theme.palette.error.dark,
+                            backgroundColor: `${theme.palette.error.main}10`,
+                          },
+                        }}
+                      />
+                    ) : (
+                      <Box />
+                    )}
                     <Box sx={{ display: "flex", gap: 1.5 }}>
+                      {!inline && (
                       <CustomButton
                         label={tSettings("actions.cancel")}
                         variant="outlined"
@@ -502,6 +506,7 @@ export default function CompanySettingsDialog({
                           [theme.breakpoints.down("md")]: { fontSize: "13px" },
                         }}
                       />
+                      )}
                       <CustomButton
                         label={tSettings("actions.saveChanges")}
                         variant="primary"
@@ -520,7 +525,32 @@ export default function CompanySettingsDialog({
             }}
           </FormManager>
         </Box>
-      </PopupModal>
+  );
+
+  return (
+    <>
+      {inline ? (
+        body
+      ) : (
+        <PopupModal
+          open={open}
+          showHeader={false}
+          transparent
+          handleClose={handleRequestClose}
+          sx={{
+            "& .MuiDialog-paper": {
+              minWidth: isMobile ? "100%" : "641px",
+              maxWidth: isMobile ? "358px" : "605px",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              p: 2,
+            },
+          }}
+        >
+          {body}
+        </PopupModal>
+      )}
 
       <Toast
         open={openToast}

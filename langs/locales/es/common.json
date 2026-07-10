@@ -429,7 +429,14 @@
     "noCustomersTitle": "Aún no hay clientes",
     "noCustomersDesc": "Los clientes se crean a través de la API de DynoPay. Una vez integrada, aparecerán aquí automáticamente con sus saldos de billetera y su historial de transacciones.",
     "noCustomersCtaDocs": "Ver documentación de la API",
-    "noCustomersCtaKeys": "Obtener claves API"
+    "noCustomersCtaKeys": "Obtener claves API",
+    "apiCustomerName": "Pagos por API",
+    "recoveredCustomerName": "Pago recuperado",
+    "noCustomerDetails": "Sin datos del cliente",
+    "sourceApi": "API",
+    "apiRecordHint": "Este registro agrupa los pagos recibidos a través de su integración API que no incluían información del cliente. Envíe los datos del cliente en sus llamadas API para ver perfiles reales aquí.",
+    "countLabel_one": "{{count}} cliente",
+    "countLabel_other": "{{count}} clientes"
   },
   "pleaseWait": "Por favor espere",
   "transferRate": "Tasa de cambio",
@@ -479,5 +486,24 @@
   "statusDegraded": "Degradación parcial",
   "statusOutage": "Interrupción del servicio",
   "statusUnknown": "Estado del sistema",
-  "statusUptimeTooltip": "{{label}} · {{uptime}}% de disponibilidad (últimos 30 días)"
+  "statusUptimeTooltip": "{{label}} · {{uptime}}% de disponibilidad (últimos 30 días)",
+  "settingsPage": {
+    "title": "Configuración",
+    "description": "Gestione su cuenta, empresa y configuración de integraciones",
+    "profile": "Perfil y seguridad",
+    "profileDesc": "Datos personales, contraseña y seguridad de acceso",
+    "company": "Empresa",
+    "companyDesc": "Perfil comercial, logotipo y datos de la empresa",
+    "payments": "Pagos",
+    "paymentsDesc": "Autoconversión, tolerancia de pagos y comportamiento del checkout",
+    "webhooks": "Webhooks",
+    "webhooksDesc": "Notificaciones de eventos de pago en tiempo real",
+    "apiKeys": "Claves API",
+    "apiKeysDesc": "Claves para la integración programática con DynoPay",
+    "notifications": "Notificaciones",
+    "notificationsDesc": "Preferencias de correo, push y alertas",
+    "selectCompany": "Empresa",
+    "addCompany": "Añadir empresa",
+    "noCompanies": "Cree su primera empresa para configurar pagos, webhooks y marca."
+  }
 }

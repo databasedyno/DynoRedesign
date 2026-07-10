@@ -173,14 +173,7 @@ const Company = ({ setPageName, setPageDescription, setPageAction }: pageProps) 
             data-testid="empty-add-company-btn"
             variant="rounded"
             sx={{ mt: 1, display: "flex", alignItems: "center", gap: 0.5 }}
-            onClick={() => {
-              setInitialValue({
-                ...structuredClone(companyInitial),
-                email: userState.email || "",
-                mobile: userState.mobile || "",
-              });
-              setAddOpen(true);
-            }}
+            onClick={() => setAddOpen(true)}
           >
             <AddCircleOutlineRounded fontSize="small" />
             {t("addCompanyBtn")}

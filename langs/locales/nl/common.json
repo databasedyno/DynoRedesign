@@ -429,7 +429,14 @@
     "noCustomersTitle": "Nog geen klanten",
     "noCustomersDesc": "Klanten worden aangemaakt via de DynoPay-API. Na integratie verschijnen ze hier automatisch met hun walletsaldo's en transactiegeschiedenis.",
     "noCustomersCtaDocs": "API-documentatie bekijken",
-    "noCustomersCtaKeys": "API-sleutels ophalen"
+    "noCustomersCtaKeys": "API-sleutels ophalen",
+    "apiCustomerName": "API-betalingen",
+    "recoveredCustomerName": "Herstelde betaling",
+    "noCustomerDetails": "Geen klantgegevens opgegeven",
+    "sourceApi": "API",
+    "apiRecordHint": "Dit record groepeert betalingen die via uw API-integratie zijn ontvangen zonder klantgegevens. Geef klantgegevens mee in uw API-aanroepen om hier echte klantprofielen te zien.",
+    "countLabel_one": "{{count}} klant",
+    "countLabel_other": "{{count}} klanten"
   },
   "pleaseWait": "Even geduld",
   "transferRate": "Wisselkoers",
@@ -479,5 +486,24 @@
   "statusDegraded": "Gedeeltelijke verstoring",
   "statusOutage": "Servicestoring",
   "statusUnknown": "Systeemstatus",
-  "statusUptimeTooltip": "{{label}} · {{uptime}}% uptime (afgelopen 30 dagen)"
+  "statusUptimeTooltip": "{{label}} · {{uptime}}% uptime (afgelopen 30 dagen)",
+  "settingsPage": {
+    "title": "Instellingen",
+    "description": "Beheer uw account, bedrijf en integratie-instellingen",
+    "profile": "Profiel & beveiliging",
+    "profileDesc": "Persoonlijke gegevens, wachtwoord en inlogbeveiliging",
+    "company": "Bedrijf",
+    "companyDesc": "Bedrijfsprofiel, logo en bedrijfsgegevens",
+    "payments": "Betalingen",
+    "paymentsDesc": "Automatisch omzetten, betalingstolerantie en checkout-gedrag",
+    "webhooks": "Webhooks",
+    "webhooksDesc": "Realtime meldingen van betalingsgebeurtenissen",
+    "apiKeys": "API-sleutels",
+    "apiKeysDesc": "Sleutels voor programmatische integratie met DynoPay",
+    "notifications": "Meldingen",
+    "notificationsDesc": "E-mail-, push- en waarschuwingsvoorkeuren",
+    "selectCompany": "Bedrijf",
+    "addCompany": "Bedrijf toevoegen",
+    "noCompanies": "Maak uw eerste bedrijf aan om betalingen, webhooks en branding te configureren."
+  }
 }

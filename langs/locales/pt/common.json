@@ -429,7 +429,14 @@
     "noCustomersTitle": "Ainda não há clientes",
     "noCustomersDesc": "Os clientes são criados através da API da DynoPay. Após a integração, eles aparecem aqui automaticamente com os saldos das carteiras e o histórico de transações.",
     "noCustomersCtaDocs": "Ver documentação da API",
-    "noCustomersCtaKeys": "Obter chaves de API"
+    "noCustomersCtaKeys": "Obter chaves de API",
+    "apiCustomerName": "Pagamentos via API",
+    "recoveredCustomerName": "Pagamento recuperado",
+    "noCustomerDetails": "Sem dados do cliente",
+    "sourceApi": "API",
+    "apiRecordHint": "Este registro agrupa pagamentos recebidos pela sua integração de API sem informações do cliente. Envie os dados do cliente nas chamadas de API para ver perfis reais aqui.",
+    "countLabel_one": "{{count}} cliente",
+    "countLabel_other": "{{count}} clientes"
   },
   "pleaseWait": "Aguarde",
   "transferRate": "Taxa de conversão",
@@ -479,5 +486,24 @@
   "statusDegraded": "Degradação parcial",
   "statusOutage": "Interrupção do serviço",
   "statusUnknown": "Status do sistema",
-  "statusUptimeTooltip": "{{label}} · {{uptime}}% de disponibilidade (últimos 30 dias)"
+  "statusUptimeTooltip": "{{label}} · {{uptime}}% de disponibilidade (últimos 30 dias)",
+  "settingsPage": {
+    "title": "Configurações",
+    "description": "Gerencie sua conta, empresa e configurações de integração",
+    "profile": "Perfil e segurança",
+    "profileDesc": "Dados pessoais, senha e segurança de login",
+    "company": "Empresa",
+    "companyDesc": "Perfil comercial, logotipo e dados da empresa",
+    "payments": "Pagamentos",
+    "paymentsDesc": "Conversão automática, tolerância de pagamento e comportamento do checkout",
+    "webhooks": "Webhooks",
+    "webhooksDesc": "Notificações de eventos de pagamento em tempo real",
+    "apiKeys": "Chaves de API",
+    "apiKeysDesc": "Chaves para integração programática com o DynoPay",
+    "notifications": "Notificações",
+    "notificationsDesc": "Preferências de e-mail, push e alertas",
+    "selectCompany": "Empresa",
+    "addCompany": "Adicionar empresa",
+    "noCompanies": "Crie sua primeira empresa para configurar pagamentos, webhooks e marca."
+  }
 }

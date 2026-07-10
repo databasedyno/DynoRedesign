@@ -429,7 +429,14 @@
     "noCustomersTitle": "No customers yet",
     "noCustomersDesc": "Customers are created through the DynoPay API. Once integrated, they appear here automatically with their wallet balances and transaction history.",
     "noCustomersCtaDocs": "View API documentation",
-    "noCustomersCtaKeys": "Get API keys"
+    "noCustomersCtaKeys": "Get API keys",
+    "apiCustomerName": "API payments",
+    "recoveredCustomerName": "Recovered payment",
+    "noCustomerDetails": "No customer details provided",
+    "sourceApi": "API",
+    "apiRecordHint": "This record groups payments received through your API integration that didn't include customer information. Pass customer details in your API calls to see real customer profiles here.",
+    "countLabel_one": "{{count}} customer",
+    "countLabel_other": "{{count}} customers"
   },
   "pleaseWait": "Please wait",
   "transferRate": "Transfer Rate",
@@ -479,5 +486,24 @@
   "statusDegraded": "Partial degradation",
   "statusOutage": "Service disruption",
   "statusUnknown": "System status",
-  "statusUptimeTooltip": "{{label}} · {{uptime}}% uptime (last 30 days)"
+  "statusUptimeTooltip": "{{label}} · {{uptime}}% uptime (last 30 days)",
+  "settingsPage": {
+    "title": "Settings",
+    "description": "Manage your account, company, and integration configuration",
+    "profile": "Profile & Security",
+    "profileDesc": "Personal info, password, and login security",
+    "company": "Company",
+    "companyDesc": "Business profile, logo, and company details",
+    "payments": "Payments",
+    "paymentsDesc": "Auto-convert, payment tolerance, and checkout behavior",
+    "webhooks": "Webhooks",
+    "webhooksDesc": "Real-time payment event notifications for your systems",
+    "apiKeys": "API Keys",
+    "apiKeysDesc": "Keys for programmatic integration with DynoPay",
+    "notifications": "Notifications",
+    "notificationsDesc": "Email, push, and alert preferences",
+    "selectCompany": "Company",
+    "addCompany": "Add company",
+    "noCompanies": "Create your first company to configure payments, webhooks, and branding."
+  }
 }
