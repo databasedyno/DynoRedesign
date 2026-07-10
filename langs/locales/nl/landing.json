@@ -103,7 +103,7 @@
   "finalCtaDocs": "Bekijk documentatie",
   "heroCleanEyebrow": "Infrastructuur voor cryptobetalingen",
   "heroCleanTitle": "Accepteer crypto. Rechtstreeks naar uw wallet — of automatisch omgezet naar stablecoins.",
-  "heroCleanSubtitle": "Accepteer 15+ blockchains van klanten in 40+ landen. Elke betaling wordt direct doorgestuurd naar uw eigen wallet — als de originele munt, of automatisch omgezet naar USDT/USDC als u dat inschakelt. Non-custodial. Kosten vanaf 0,5% — geen terugboekingen.",
+  "heroCleanSubtitle": "Accepteer 15+ blockchains van klanten in 40+ landen. Elke betaling wordt direct doorgestuurd naar uw eigen wallet — als de originele munt, of automatisch omgezet naar USDT/USDC als u dat inschakelt. Non-custodial. Kosten vanaf 0,5% — geen terugboekingen. Nu ook met donaties en crowdfunding.",
   "heroWatchDemo": "Bekijk demo van 90 s",
   "heroTrustCountry": "Vertrouwd door verkopers in {{country}} en 40+ landen",
   "heroTrustGeneric": "Vertrouwd door verkopers in 40+ landen",
@@ -199,5 +199,10 @@
   },
   "heroStatBusinesses": "Bedrijven",
   "heroStatChains": "Chains",
-  "heroStatSettlement": "Gem. verwerking"
+  "heroStatSettlement": "Gem. verwerking",
+  "useCase5Title": "Donaties & Crowdfunding",
+  "useCase5Description": "Zamel geld in voor een doel — donateurs kiezen zelf hun bedrag en zien de voortgang live.",
+  "useCase5Tag": "Donaties",
+  "faq7Q": "Kan ik donaties innen of een crowdfundingcampagne opzetten?",
+  "faq7A": "Ja. Naast betaallinks met een vast bedrag kunt u met DynoPay donatie- en crowdfundinglinks maken waarbij supporters zelf kiezen hoeveel ze geven. Stel een doel in, voeg voorgestelde bedragen toe en deel één link die de voortgang live toont — ideaal voor fondsenwervers, creators en goede doelen die crypto accepteren."
 }

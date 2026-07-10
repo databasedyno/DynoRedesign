@@ -14,8 +14,17 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
   isCreating,
   requireAmount = true,
   extraDisabled = false,
+  linkKind,
 }) => {
   const router = useRouter();
+
+  // Create button label is context-aware: a donation campaign should not read
+  // "Create Payment Link". Edit mode keeps the neutral "Save Changes".
+  const createLabelKey =
+    linkKind === "donation" ? "createDonation" : "createPaymentLink";
+  const primaryLabel = isCreating
+    ? tPaymentLink("creating") || "Creating..."
+    : tPaymentLink(hasPaymentLinkData ? "saveChanges" : createLabelKey);
 
   return (
     <>
@@ -36,7 +45,7 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
       )}
       {!disabled && (
         <CustomButton
-          label={isCreating ? tPaymentLink("creating") || "Creating..." : tPaymentLink(hasPaymentLinkData ? "saveChanges" : "createPaymentLink")}
+          label={primaryLabel}
           variant="primary"
           size="medium"
           fullWidth={true}

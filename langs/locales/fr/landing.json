@@ -103,7 +103,7 @@
   "finalCtaDocs": "Voir la documentation",
   "heroCleanEyebrow": "Infrastructure de paiement en crypto",
   "heroCleanTitle": "Acceptez la crypto. Directement dans votre wallet — ou convertie automatiquement en stablecoins.",
-  "heroCleanSubtitle": "Acceptez 15+ blockchains de clients dans plus de 40 pays. Chaque paiement est transféré instantanément vers votre propre wallet — dans la crypto d'origine, ou converti automatiquement en USDT/USDC si vous l'activez. Non-custodial. Frais à partir de 0,5 % — sans rétrofacturation.",
+  "heroCleanSubtitle": "Acceptez 15+ blockchains de clients dans plus de 40 pays. Chaque paiement est transféré instantanément vers votre propre wallet — dans la crypto d'origine, ou converti automatiquement en USDT/USDC si vous l'activez. Non-custodial. Frais à partir de 0,5 % — sans rétrofacturation. Désormais avec dons et financement participatif.",
   "heroWatchDemo": "Voir la démo de 90 s",
   "heroTrustCountry": "Adopté par des marchands en {{country}} et dans plus de 40 pays",
   "heroTrustGeneric": "Adopté par des marchands dans plus de 40 pays",
@@ -199,5 +199,10 @@
   },
   "heroStatBusinesses": "Entreprises",
   "heroStatChains": "Chaînes",
-  "heroStatSettlement": "Règlement moyen"
+  "heroStatSettlement": "Règlement moyen",
+  "useCase5Title": "Dons et Financement participatif",
+  "useCase5Description": "Collectez des fonds pour un objectif : les donateurs choisissent leur montant et suivent la progression en direct.",
+  "useCase5Tag": "Dons",
+  "faq7Q": "Puis-je collecter des dons ou lancer une campagne de financement participatif ?",
+  "faq7A": "Oui. En plus des liens de paiement à montant fixe, DynoPay vous permet de créer des liens de don et de financement participatif où les donateurs choisissent le montant. Fixez un objectif, ajoutez des montants suggérés et partagez un seul lien qui affiche la progression en direct — idéal pour les collectes, les créateurs et les associations qui acceptent la crypto."
 }

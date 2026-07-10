@@ -14,6 +14,7 @@ const FAQ_KEYS: { qKey: string; aKey: string }[] = [
   { qKey: "faq4Q", aKey: "faq4A" },
   { qKey: "faq5Q", aKey: "faq5A" },
   { qKey: "faq6Q", aKey: "faq6A" },
+  { qKey: "faq7Q", aKey: "faq7A" },
 ];
 
 interface FaqEntry {

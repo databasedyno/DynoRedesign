@@ -7,6 +7,7 @@ import SupportedChainsRail from "./SupportedChainsRail";
 import ProductShowcase from "./ProductShowcase";
 import FeeCalculator from "./FeeCalculator";
 import CoreValueProps from "./CoreValueProps";
+import UseCaseSection from "./UseCase";
 import TestimonialsV2 from "./TestimonialsV2";
 import FinalCTA from "./FinalCTA";
 import FAQ from "./FAQ";
@@ -128,6 +129,11 @@ const HomePage: FC = () => {
 
       <HomeContainer>
         <CoreValueProps />
+      </HomeContainer>
+
+      <HomeContainer>
+        {/* Use cases — who DynoPay is built for, incl. Donations & Crowdfunding */}
+        <UseCaseSection />
       </HomeContainer>
 
       <HomeFullWidthContainer>

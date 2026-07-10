@@ -63,6 +63,7 @@ function truncateByWords(text: string, maxLength: number) {
 const CreatePaymentLinkPage = ({
   paymentLinkData,
   disabled,
+  setPageName,
 }: CreatePaymentLinkPageProps) => {
   const isMobile = useIsMobile("md");
   const theme = useTheme();
@@ -314,6 +315,22 @@ const CreatePaymentLinkPage = ({
       ? "donation"
       : "standard"
   );
+
+  // Keep the page/tab title aligned with the selected link kind while CREATING
+  // (in edit mode the parent route owns its own header). Only runs when the
+  // create route passes down setPageName.
+  useEffect(() => {
+    if (setPageName && !hasPaymentLinkData) {
+      setPageName(
+        tPaymentLink(
+          linkKind === "donation"
+            ? "createDonationTitle"
+            : "createPaymentLinkTitle",
+        ),
+      );
+    }
+  }, [setPageName, hasPaymentLinkData, linkKind, tPaymentLink]);
+
   const [donationSettings, setDonationSettings] = useState<DonationSettingsState>(() => {
     const don = hasPaymentLinkData ? (paymentLinkData as PaymentLink).donation : null;
     return {
@@ -1042,6 +1059,7 @@ const CreatePaymentLinkPage = ({
         walletList={walletList}
         directPayAddress={directPayAddress}
         directPayQrCode={directPayQrCode}
+        linkKind={linkKind}
       />
       <SaveChangeModel
         open={saveChangeModalOpen}
@@ -1559,6 +1577,7 @@ const CreatePaymentLinkPage = ({
                 isCreating={isCreating}
                 requireAmount={linkKind !== "donation"}
                 extraDisabled={linkKind === "donation" && !donationSettings.title.trim()}
+                linkKind={linkKind}
               />
             </Box>
           </TabContentContainer>

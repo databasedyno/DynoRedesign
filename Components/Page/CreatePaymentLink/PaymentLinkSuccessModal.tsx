@@ -70,6 +70,7 @@ const PaymentLinkSuccessModal: React.FC<PaymentLinkSuccessModalProps> = ({
   walletList,
   directPayAddress,
   directPayQrCode,
+  linkKind,
 }) => {
   const isMobile = useIsMobile("md");
   const { t } = useTranslation("createPaymentLinkScreen");
@@ -80,6 +81,7 @@ const PaymentLinkSuccessModal: React.FC<PaymentLinkSuccessModalProps> = ({
     },
     [t],
   );
+  const isDonation = linkKind === "donation";
   const tCommon = useCallback((key: string) => t(key, { ns: "common" }), [t]);
   const [openToast, setOpenToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
@@ -192,8 +194,16 @@ const PaymentLinkSuccessModal: React.FC<PaymentLinkSuccessModalProps> = ({
         }}
       >
         <PanelCard
-          title={tPaymentLink("paymentLinkSuccessfullyCreated")}
-          subTitle={tPaymentLink("shareLinkToReceivePayment")}
+          title={tPaymentLink(
+            isDonation
+              ? "donationSuccessfullyCreated"
+              : "paymentLinkSuccessfullyCreated",
+          )}
+          subTitle={tPaymentLink(
+            isDonation
+              ? "shareDonationToStartCollecting"
+              : "shareLinkToReceivePayment",
+          )}
           showHeaderBorder={false}
           bodyPadding={
             isMobile

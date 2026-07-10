@@ -107,6 +107,8 @@ export interface PaymentLinkSuccessModalProps {
   }>;
   directPayAddress?: string | null;
   directPayQrCode?: string | null;
+  /** Selected link kind — switches the success copy (donation vs standard). */
+  linkKind?: string;
 }
 
 export interface PaymentDetailRowProps {

@@ -110,7 +110,11 @@ const CreatePaymentLink = ({ setPageName, setPageDescription }: pageProps) => {
       </Head>
       {setupComplete ? (
         <Box sx={{ mt: isMobile ? "4px" : "0px" }}>
-          <CreatePaymentLinkPage paymentLinkData={{}} disabled={false} />
+          <CreatePaymentLinkPage
+            paymentLinkData={{}}
+            disabled={false}
+            setPageName={setPageName}
+          />
         </Box>
       ) : (
         <Box

@@ -47,6 +47,7 @@ export function* PaymentLinkSaga(action: PaymentLinkSagaAction): Generator<any, 
       case PAYLINK_CREATE: {
         const response = yield call(axiosBaseApi.post, "/pay/createPaymentLink", payload);
         const apiData = response?.data?.data;
+        const isDonationLink = payload?.link_type === "donation";
         if (apiData) {
           yield put({
             type: PAYLINK_CREATE,
@@ -57,7 +58,9 @@ export function* PaymentLinkSaga(action: PaymentLinkSagaAction): Generator<any, 
           yield put({
             type: TOAST_SHOW,
             payload: {
-              message: response?.data?.message || "Payment link created successfully",
+              message: isDonationLink
+                ? "Donation created successfully"
+                : response?.data?.message || "Payment link created successfully",
               severity: "success",
             },
           });

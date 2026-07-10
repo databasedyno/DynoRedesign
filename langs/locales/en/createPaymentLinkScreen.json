@@ -161,5 +161,9 @@
   "previewCoins": "{{count}} cryptocurrencies accepted",
   "previewSecure": "Secure payment by Dynopay",
   "advancedOptions": "Advanced options",
-  "advancedOptionsHint": "Customer email, tax"
+  "advancedOptionsHint": "Customer email, tax",
+  "createDonation": "Create donation",
+  "createDonationTitle": "Create Donation",
+  "donationSuccessfullyCreated": "Donation created",
+  "shareDonationToStartCollecting": "Share it to start collecting donations"
 }

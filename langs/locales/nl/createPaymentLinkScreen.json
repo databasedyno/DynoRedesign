@@ -161,5 +161,9 @@
   "previewCoins": "{{count}} cryptovaluta geaccepteerd",
   "previewSecure": "Veilige betaling door Dynopay",
   "advancedOptions": "Geavanceerde opties",
-  "advancedOptionsHint": "Klant-e-mail, belasting"
+  "advancedOptionsHint": "Klant-e-mail, belasting",
+  "createDonation": "Donatie aanmaken",
+  "createDonationTitle": "Donatie aanmaken",
+  "donationSuccessfullyCreated": "Donatie aangemaakt",
+  "shareDonationToStartCollecting": "Deel het om donaties te ontvangen"
 }

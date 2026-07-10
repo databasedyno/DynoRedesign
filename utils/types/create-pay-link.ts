@@ -3,6 +3,9 @@ import { PaymentLink } from "./paymentLink";
 export interface CreatePaymentLinkPageProps {
   paymentLinkData: PaymentLink | {};
   disabled: boolean;
+  /** Optional: lets the create route keep the page/tab title in sync with the
+   *  selected link kind (e.g. "Create Donation" vs "Create Payment Link"). */
+  setPageName?: (name: string) => void;
 }
 
 export interface SaveChangeModelProps {
@@ -24,6 +27,8 @@ export interface ActionButtonsProps {
   requireAmount?: boolean;
   /** Extra disable condition supplied by the caller (e.g. missing campaign title) */
   extraDisabled?: boolean;
+  /** Selected link kind — switches the create button label (donation vs standard). */
+  linkKind?: string;
 }
 
 export interface ICryptoItem {

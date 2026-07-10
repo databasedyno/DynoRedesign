@@ -103,7 +103,7 @@
   "finalCtaDocs": "Ver documentação",
   "heroCleanEyebrow": "Infraestrutura de pagamentos em cripto",
   "heroCleanTitle": "Aceite cripto. Direto para a sua carteira — ou convertido automaticamente em stablecoins.",
-  "heroCleanSubtitle": "Aceite 15+ redes de clientes em mais de 40 países. Cada pagamento é encaminhado na hora para a sua própria carteira — na moeda original ou convertido automaticamente em USDT/USDC, se você ativar. Não custodial. Taxas a partir de 0,5% — sem estornos.",
+  "heroCleanSubtitle": "Aceite 15+ redes de clientes em mais de 40 países. Cada pagamento é encaminhado na hora para a sua própria carteira — na moeda original ou convertido automaticamente em USDT/USDC, se você ativar. Não custodial. Taxas a partir de 0,5% — sem estornos. Agora com doações e financiamento coletivo.",
   "heroWatchDemo": "Ver demo de 90s",
   "heroTrustCountry": "Com a confiança de comerciantes em {{country}} e mais de 40 países",
   "heroTrustGeneric": "Com a confiança de comerciantes em mais de 40 países",
@@ -199,5 +199,10 @@
   },
   "heroStatBusinesses": "Empresas",
   "heroStatChains": "Redes",
-  "heroStatSettlement": "Liquidação média"
+  "heroStatSettlement": "Liquidação média",
+  "useCase5Title": "Doações e Crowdfunding",
+  "useCase5Description": "Arrecade fundos para uma meta — os doadores escolhem o valor e acompanham o progresso ao vivo.",
+  "useCase5Tag": "Doações",
+  "faq7Q": "Posso receber doações ou fazer uma campanha de financiamento coletivo?",
+  "faq7A": "Sim. Além dos links de pagamento com valor fixo, a DynoPay permite criar links de doação e financiamento coletivo em que os apoiadores escolhem quanto contribuir. Defina uma meta, adicione valores sugeridos e compartilhe um único link que mostra o progresso ao vivo — perfeito para arrecadações, criadores e ONGs que aceitam cripto."
 }

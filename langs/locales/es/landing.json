@@ -103,7 +103,7 @@
   "finalCtaDocs": "Ver documentación",
   "heroCleanEyebrow": "Infraestructura de pagos en cripto",
   "heroCleanTitle": "Acepta cripto. Directo a tu billetera — o convertida automáticamente a stablecoins.",
-  "heroCleanSubtitle": "Acepta 15+ redes de clientes en más de 40 países. Cada pago se envía al instante a tu propia billetera — en la moneda original o convertido automáticamente a USDT/USDC si lo activas. Sin custodia. Comisiones desde 0,5% — sin contracargos.",
+  "heroCleanSubtitle": "Acepta 15+ redes de clientes en más de 40 países. Cada pago se envía al instante a tu propia billetera — en la moneda original o convertido automáticamente a USDT/USDC si lo activas. Sin custodia. Comisiones desde 0,5% — sin contracargos. Ahora con donaciones y crowdfunding.",
   "heroWatchDemo": "Ver demo de 90 s",
   "heroTrustCountry": "Con la confianza de comercios en {{country}} y más de 40 países",
   "heroTrustGeneric": "Con la confianza de comercios en más de 40 países",
@@ -199,5 +199,10 @@
   },
   "heroStatBusinesses": "Empresas",
   "heroStatChains": "Cadenas",
-  "heroStatSettlement": "Liquidación media"
+  "heroStatSettlement": "Liquidación media",
+  "useCase5Title": "Donaciones y Crowdfunding",
+  "useCase5Description": "Recauda fondos para un objetivo: los donantes eligen su importe y ven el progreso en vivo.",
+  "useCase5Tag": "Donaciones",
+  "faq7Q": "¿Puedo recibir donaciones o hacer una campaña de crowdfunding?",
+  "faq7A": "Sí. Además de los enlaces de pago con importe fijo, DynoPay te permite crear enlaces de donación y crowdfunding donde los donantes eligen cuánto aportar. Define una meta, añade importes sugeridos y comparte un único enlace que muestra el progreso en vivo — ideal para recaudaciones, creadores y organizaciones sin fines de lucro que aceptan cripto."
 }

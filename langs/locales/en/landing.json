@@ -103,7 +103,7 @@
   "finalCtaDocs": "View documentation",
   "heroCleanEyebrow": "Crypto payments infrastructure",
   "heroCleanTitle": "Accept crypto. Straight to your wallet — or auto-converted to stablecoins.",
-  "heroCleanSubtitle": "Accept 15+ chains from customers in 40+ countries. Every payment is forwarded instantly to your own saved wallet — as the original coin, or auto-converted to USDT/USDC if you opt in. Non-custodial. Fees from 0.5% — no chargebacks.",
+  "heroCleanSubtitle": "Accept 15+ chains from customers in 40+ countries. Every payment is forwarded instantly to your own saved wallet — as the original coin, or auto-converted to USDT/USDC if you opt in. Non-custodial. Fees from 0.5% — no chargebacks. Now with donations and crowdfunding.",
   "heroWatchDemo": "Watch 90s demo",
   "heroTrustCountry": "Trusted by merchants in {{country}} and 40+ countries",
   "heroTrustGeneric": "Trusted by merchants in 40+ countries",
@@ -199,5 +199,10 @@
   },
   "heroStatBusinesses": "Businesses",
   "heroStatChains": "Chains",
-  "heroStatSettlement": "Avg settlement"
+  "heroStatSettlement": "Avg settlement",
+  "useCase5Title": "Donations & Crowdfunding",
+  "useCase5Description": "Raise funds toward a goal — supporters choose their own amount and watch live progress.",
+  "useCase5Tag": "Donations",
+  "faq7Q": "Can I collect donations or run a crowdfunding campaign?",
+  "faq7A": "Yes. Alongside fixed-amount payment links, DynoPay lets you create donation & crowdfunding links where supporters choose how much to give. Set a goal, add suggested amounts, and share a single link that shows live progress — perfect for fundraisers, creators, and nonprofits accepting crypto."
 }
