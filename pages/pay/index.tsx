@@ -36,8 +36,6 @@ import { TOAST_SHOW } from '@/Redux/Actions/ToastAction'
 import jwt from 'jsonwebtoken'
 import ProgressBar from '@/Components/UI/ProgressBar'
 
-import FloatingChatButton from '@/Components/UI/ChatButton'
-
 import TransferExpectedCard from '@/Components/UI/TransferExpectedCard/Index'
 import CopyIcon from '@/assets/Icons/CopyIcon'
 import { Icon } from '@iconify/react'
@@ -1436,7 +1434,6 @@ const Payment = () => {
             />
           ) : null}
         </Box>
-        <FloatingChatButton />
 
         {/* Copy Success Snackbar */}
         <Snackbar
