@@ -1,7 +1,6 @@
 import CustomButton from "@/Components/UI/Buttons";
 import CustomSwitch from "@/Components/UI/CustomSwitch";
 import PanelCard from "@/Components/UI/PanelCard";
-import { theme as staticTheme } from "@/styles/theme";
 import { Box, Chip, CircularProgress, Divider, Grid, IconButton, Typography, useTheme } from "@mui/material";
 import Image from "next/image";
 import React, { useRef, useState, useEffect } from "react";
@@ -40,6 +39,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
   onChange,
   showDivider = true,
 }) => {
+  const theme = useTheme();
   const isMobile = useIsMobile("md");
   return (
     <>
