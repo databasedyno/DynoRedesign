@@ -5,6 +5,13 @@ USDT-TRC20 payment gateway platform. Users can create companies, wallets, paymen
 
 ## What's Been Implemented
 
+### 2026-07-10 — Session 13b: auth logos / font FOUT round 2 / ProductShowcase ✅ VERIFIED (frontend agent 13/15, all user issues resolved)
+- **Auth logo fix**: AuthBrandPanel + login.tsx + register.tsx + reset-password.tsx + NewHeader now use dynopay-blackLogo.svg (light) / dynopay-whiteLogo.svg (dark) — old blue dynopay-logo.png removed from these. Register 600–1200px "no logo" gap fixed with CSS-responsive logo+controls row mirroring login (top-right controls bar now lg-only).
+- **Font FOUT round 2**: prod dynopay.com still on pre-fix commit e35c0cb0 (deploys failing) — explains user's "still smaller then bigger" on prod. PLUS 20 remaining font-display:swap @font-face in styles/globals.css (Manrope + Urbanist/Outfit aliases) flipped to optional → built CSS now 0×swap / 22×optional; nav width verified stable.
+- **NEW ProductShowcase** (Components/Page/Home/ProductShowcase.tsx, on landing between SupportedChainsRail and FeeCalculator): Emergent-style rounded gradient panel, coin chips flanking "Built for crypto commerce", browser mockup, 3-slide carousel (Checkout w/ animated Customer cursor + status pill → Forwarded ✓; Settlement w/ $12,480 count-up + new tx row + toast + You cursor; Developers w/ typewriter cURL + 201 Created + webhook 200 OK pill), arrows + elongated active dot, 9s auto-advance, pause-on-hover, reduced-motion safe, i18n showcase.* ×6 locales. Verified light+dark.
+- Minor (non-blocking, not fixed): showcase-status-pill testid briefly duplicated during crossfade; 3 resource 404s on landing.
+- ⚠️ PROD ACTION (user): push via "Save to GitHub" → DO autodeploy (includes session 13 deploy fix + all of the above).
+
 ### 2026-07-10 — Session 13: Fresh container re-provisioned + route-transition logo loader + DO deploy fix round 2
 - Re-provisioned on fresh container (preview https://a5041dce-551a-4931-b1fa-5da460af01fb.preview.emergentagent.com); NOTE: run the two yarn installs SEQUENTIALLY (parallel installs corrupt the shared yarn cache with ENOENT .yarn-metadata.json). Safety overrides re-applied + verified; next build standalone; all health checks green.
 - **NEW FEATURE — RouteTransitionLoader** (`/app/Components/Common/RouteTransitionLoader/index.tsx`, mounted in `_app.tsx`): Emergent-style full-screen pulsing DynoPay logo during page transitions. Router events, skips shallow/query-only changes, 250ms show-delay + 500ms min-visible anti-flicker, theme-aware frosted backdrop + correct logo variant per mode, z-index 2000, testid route-transition-loader. Verified both modes via Playwright.
