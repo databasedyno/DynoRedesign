@@ -8,15 +8,12 @@ import {
   IconButton,
   Drawer,
   Stack,
-  Button,
   useMediaQuery,
   useTheme
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import WbSunnyIcon from '@mui/icons-material/WbSunny';
 import BedtimeIcon from '@mui/icons-material/Bedtime';
-import { Icon } from '@iconify/react/dist/iconify.js';
-import { useTranslation } from 'react-i18next';
 import Logo from "@/assets/Icons/Logo";
 import LanguageSwitcher from "@/Components/UI/LanguageSwitcher";
 
@@ -30,7 +27,6 @@ const Header = ({
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const { t } = useTranslation('common');
 
   const toggleDrawer = () => setDrawerOpen(!drawerOpen);
 
@@ -66,32 +62,6 @@ const Header = ({
             </IconButton>
           ) : (
             <Stack direction='row' spacing={2} alignItems='center'>
-              {/* Wallet */}
-              <Button
-                startIcon={<Icon icon="solar:wallet-linear" width="18" height="18" />}
-                variant='contained'
-                size='small'
-                sx={{
-                  backgroundColor: 'rgba(255,255,255,0.15)',
-                  color: '#fff',
-                  borderRadius: 20,
-                  px: 2,
-                  py: 0.75,
-                  textTransform: 'none',
-                  fontSize: '13px',
-                  fontWeight: 600,
-                  boxShadow: 'none',
-                  backdropFilter: 'blur(8px)',
-                  '&:hover': {
-                    backgroundColor: 'rgba(255,255,255,0.25)',
-                    boxShadow: 'none',
-                  },
-                  height: '36px',
-                }}
-              >
-                {t('header.wallet')}
-              </Button>
-
               {/* Language Switcher with flag icons */}
               <LanguageSwitcher />
 
@@ -159,22 +129,6 @@ const Header = ({
         }}
       >
         <Stack spacing={2} mt={1}>
-          <Button
-            startIcon={<Icon icon="solar:wallet-linear" width="18" height="18" />}
-            variant='outlined'
-            size='small'
-            sx={{
-              borderColor: theme.palette.primary.main,
-              color: theme.palette.primary.main,
-              borderRadius: 20,
-              textTransform: 'none',
-              fontSize: '13px',
-              fontWeight: 600,
-            }}
-          >
-            {t('header.wallet')}
-          </Button>
-
           {/* Language Switcher with flag icons */}
           <LanguageSwitcher showBig />
 

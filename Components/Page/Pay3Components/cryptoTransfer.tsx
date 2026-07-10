@@ -4,13 +4,9 @@ import {
   Box,
   FormControl,
   IconButton,
-  MenuItem,
   Paper,
-  Select,
   Typography,
   Divider,
-  ListItemIcon,
-  ListItemText,
   CircularProgress,
   Tooltip,
   Button,
@@ -26,9 +22,7 @@ import { useDispatch } from "react-redux";
 import { paymentTypes } from "@/utils/enums";
 import { createEncryption } from "@/helpers";
 import { Icon } from "@iconify/react/dist/iconify.js";
-import BitCoinGreenIcon from "@/assets/Icons/BitCoinGreenIcon";
 import DoneIcon from "@mui/icons-material/Done";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import USDT from "@/assets/Icons/coins/USDT";
 import USDC from "@/assets/Icons/coins/USDC";
 import BTC from "@/assets/Icons/coins/BTC";
@@ -514,9 +508,6 @@ const CryptoTransfer = ({
   const filteredCryptoOptions = cryptoOptions.filter(opt => 
     availableCryptos.includes(opt.value)
   );
-
-  const getSelectedOption = () =>
-    cryptoOptions.find((opt) => opt.value === selectedCrypto);
 
   const getApiCurrency = () => {
     if (selectedCrypto === "USDT") return `USDT-${selectedNetwork}`;
@@ -1365,7 +1356,7 @@ const CryptoTransfer = ({
           <Typography
             variant="h5"
             fontWeight={600}
-            fontFamily="Space Grotesk"
+            fontFamily="var(--font-sans)"
             color={theme.palette.text.primary}
             mb={2}
           >
@@ -1374,7 +1365,7 @@ const CryptoTransfer = ({
 
           <Typography
             variant="body1"
-            fontFamily="Space Grotesk"
+            fontFamily="var(--font-sans)"
             color={theme.palette.text.secondary}
             mb={3}
             lineHeight={1.6}
@@ -1393,7 +1384,7 @@ const CryptoTransfer = ({
             >
               <Typography
                 variant="body2"
-                fontFamily="Space Grotesk"
+                fontFamily="var(--font-sans)"
                 color={theme.palette.text.secondary}
               >
                 {t('failed.merchant', { defaultValue: 'Merchant' })}
@@ -1401,7 +1392,7 @@ const CryptoTransfer = ({
               <Typography
                 variant="body1"
                 fontWeight={600}
-                fontFamily="Space Grotesk"
+                fontFamily="var(--font-sans)"
                 color={theme.palette.text.primary}
               >
                 {merchantInfo.name}
@@ -1500,7 +1491,7 @@ const CryptoTransfer = ({
           <Typography
             variant="h5"
             fontWeight={600}
-            fontFamily="Space Grotesk"
+            fontFamily="var(--font-sans)"
             color={theme.palette.text.primary}
             mb={2}
           >
@@ -1509,7 +1500,7 @@ const CryptoTransfer = ({
 
           <Typography
             variant="body1"
-            fontFamily="Space Grotesk"
+            fontFamily="var(--font-sans)"
             color={theme.palette.text.secondary}
             mb={3}
             lineHeight={1.6}
@@ -1528,7 +1519,7 @@ const CryptoTransfer = ({
             >
               <Typography
                 variant="body2"
-                fontFamily="Space Grotesk"
+                fontFamily="var(--font-sans)"
                 color={theme.palette.text.secondary}
               >
                 {t('expired.merchant')}
@@ -1536,7 +1527,7 @@ const CryptoTransfer = ({
               <Typography
                 variant="body1"
                 fontWeight={600}
-                fontFamily="Space Grotesk"
+                fontFamily="var(--font-sans)"
                 color={theme.palette.text.primary}
               >
                 {merchantInfo.name}
@@ -1589,40 +1580,40 @@ const CryptoTransfer = ({
           bgcolor: theme.palette.background.paper,
         }}
       >
-        <IconButton
-          onClick={() => setActiveStep(activeStep - 1)}
-          sx={{
-            backgroundColor: theme.palette.action.hover,
-            color: theme.palette.primary.main,
-            borderRadius: "50%",
-            padding: "10px",
-            "&:hover": { backgroundColor: theme.palette.action.selected },
-          }}
-        >
-          <ArrowBack sx={{ color: theme.palette.primary.main }} />
-        </IconButton>
+        <Box display="flex" alignItems="center" gap={1.5} mb={0.5}>
+          <IconButton
+            onClick={() => setActiveStep(activeStep - 1)}
+            size="small"
+            aria-label="Go back"
+            sx={{
+              backgroundColor: theme.palette.action.hover,
+              color: theme.palette.text.primary,
+              borderRadius: "10px",
+              width: 36,
+              height: 36,
+              "&:hover": { backgroundColor: theme.palette.action.selected },
+            }}
+          >
+            <ArrowBack sx={{ fontSize: 19 }} />
+          </IconButton>
+          <Typography
+            variant="h6"
+            fontWeight={600}
+            fontSize="19px"
+            fontFamily="var(--font-sans)"
+            color={theme.palette.text.primary}
+          >
+            {t('crypto.title')}
+          </Typography>
+        </Box>
 
-        <Typography
-          variant="h6"
-          fontWeight="medium"
-          mt={2}
-          display="flex"
-          alignItems="center"
-          gap={1}
-          fontSize="27px"
-          fontFamily="Space Grotesk"
-          color={theme.palette.text.primary}
-        >
-          <BitCoinGreenIcon />
-          {t('crypto.title')}
-        </Typography>
-
-        <Box mt={3} mb={1}>
+        <Box mt={2.5} mb={1.25}>
           <Typography
             variant="subtitle2"
             fontWeight={500}
-            fontFamily="Space Grotesk"
-            color={theme.palette.text.primary}
+            fontSize="13px"
+            fontFamily="var(--font-sans)"
+            color={theme.palette.text.secondary}
           >
             {t('crypto.preferredCrypto')}
           </Typography>
@@ -1639,7 +1630,7 @@ const CryptoTransfer = ({
               borderRadius="10px"
             >
               <CircularProgress size={24} sx={{ color: theme.palette.primary.main }} />
-              <Typography ml={2} fontFamily="Space Grotesk" color={theme.palette.text.secondary}>
+              <Typography ml={2} fontFamily="var(--font-sans)" color={theme.palette.text.secondary}>
                 {t('crypto.loadingCurrencies')}
               </Typography>
             </Box>
@@ -1653,7 +1644,7 @@ const CryptoTransfer = ({
               borderRadius="10px"
               bgcolor={isDark ? 'rgba(254, 242, 242, 0.1)' : "#fef2f2"}
             >
-              <Typography fontFamily="Space Grotesk" color="#ef4444">
+              <Typography fontFamily="var(--font-sans)" color="#ef4444">
                 {t('crypto.noCurrenciesConfigured')}
               </Typography>
             </Box>
@@ -1667,136 +1658,78 @@ const CryptoTransfer = ({
               borderRadius="10px"
               bgcolor={isDark ? 'rgba(255, 251, 235, 0.1)' : "#fffbeb"}
             >
-              <Typography fontFamily="Space Grotesk" color="#f59e0b">
+              <Typography fontFamily="var(--font-sans)" color="#f59e0b">
                 {t('crypto.noCryptoAvailable')}
               </Typography>
             </Box>
           ) : (
-          <Select
-            labelId="crypto-select-label"
-            id="crypto-select"
-            value={selectedCrypto}
-            displayEmpty
-            onChange={handleChange}
-            disabled={loadingCurrencies}
-            IconComponent={KeyboardArrowDownIcon}
-            sx={{
-              "& .MuiOutlinedInput-input": {
-                borderRadius: "10px !important",
-                borderColor: theme.palette.border.main,
-                "& :focus-visible": {
-                  outline: "none !important",
-                },
-                py: "16.5px  !important",
-              },
-              "& .MuiList-padding": {
-                padding: "17px 20px !important",
-              },
-              "& fieldset": {
-                borderRadius: "10px !important",
-                borderColor: `${theme.palette.border.main} !important`,
-                "& :focus-visible": {
-                  outline: "none !important",
-                },
-              },
-              "& .MuiList-root": {
-                padding: "15px",
-              },
-              "& .MuiMenu-paper": {
-                padding: "15px",
-              },
-              "& .MuiSelect-icon": {
-                color: theme.palette.text.primary,
-              },
-            }}
-            MenuProps={{
-              anchorOrigin: {
-                vertical: "bottom",
-                horizontal: "left",
-              },
-              transformOrigin: {
-                vertical: "top",
-                horizontal: "left",
-              },
-              PaperProps: {
-                sx: {
-                  py: "10px",
-                  px: "20px",
-                  mt: "4px",
-                  backgroundColor: theme.palette.background.paper,
-                  border: `1px solid ${theme.palette.border.main}`,
-                  boxShadow: 3,
-                  borderRadius: "10px",
-                },
-              },
-            }}
-            renderValue={(selected) => {
-              if (!selected)
+            /* Clean tile grid — every available coin visible at once
+               (replaces the old dropdown <Select>; same handleChange semantics) */
+            <Box
+              data-testid="crypto-tile-grid"
+              sx={{
+                display: "grid",
+                gridTemplateColumns: { xs: "repeat(3, 1fr)", sm: "repeat(4, 1fr)" },
+                gap: 1,
+              }}
+            >
+              {filteredCryptoOptions?.map((option) => {
+                const isSelected = selectedCrypto === option.value;
                 return (
-                  <span
-                    style={{
-                      color: theme.palette.text.primary,
-                      fontWeight: 500,
+                  <Box
+                    key={option.value}
+                    component="button"
+                    type="button"
+                    data-testid={`crypto-tile-${option.value}`}
+                    onClick={() => handleChange({ target: { value: option.value } })}
+                    aria-pressed={isSelected}
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: 0.75,
+                      py: 1.25,
+                      px: 0.5,
+                      cursor: "pointer",
+                      borderRadius: "12px",
+                      border: `1.5px solid ${isSelected ? "#10B981" : theme.palette.border.main}`,
+                      backgroundColor: isSelected
+                        ? (isDark ? "rgba(16,185,129,0.12)" : "#ECFDF5")
+                        : theme.palette.background.paper,
+                      transition: "border-color 0.15s ease, background-color 0.15s ease",
+                      "&:hover": {
+                        borderColor: isSelected ? "#10B981" : theme.palette.text.disabled,
+                      },
                     }}
                   >
-                    {t('crypto.selectCryptoType')}
-                  </span>
+                    <Box sx={{ height: 26, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      {option.icon}
+                    </Box>
+                    <Typography
+                      fontSize="12px"
+                      fontWeight={600}
+                      fontFamily="var(--font-sans)"
+                      color={theme.palette.text.primary}
+                      lineHeight={1}
+                    >
+                      {option.value === "POLYGON" ? "POL" : option.value}
+                    </Typography>
+                  </Box>
                 );
-              const option = getSelectedOption();
-              return (
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 1,
-                    color: theme.palette.text.primary,
-                    fontWeight: "medium",
-                    height: "24px",
-                  }}
-                >
-                  {option?.icon}
-                  {option?.label}
-                </Box>
-              );
-            }}
-          >
-            {filteredCryptoOptions?.map((option) => (
-              <MenuItem
-                key={option.value}
-                value={option.value}
-                sx={{
-                  borderRadius: "8px",
-                  color: theme.palette.text.primary,
-                  "&:hover": { backgroundColor: theme.palette.action.hover },
-                  "&.Mui-selected": {
-                    backgroundColor: theme.palette.action.selected,
-                    "&:hover": { backgroundColor: theme.palette.action.selected },
-                  },
-                  padding: "10px",
-                }}
-              >
-                <ListItemIcon style={{ height: "26px", width: "25px" }}>
-                  {option.icon}
-                </ListItemIcon>
-                <ListItemText 
-                  style={{ height: "24px", width: "24px" }}
-                  primaryTypographyProps={{ color: theme.palette.text.primary }}
-                >
-                  {option.label}
-                </ListItemText>
-              </MenuItem>
-            ))}
-          </Select>
+              })}
+            </Box>
           )}
         </FormControl>
 
         {isNetwork === "USDT" && (
-          <Box mt={1}>
+          <Box mt={2}>
             <Typography
               variant="subtitle2"
               fontWeight={500}
-              fontFamily="Space Grotesk"
-              color={theme.palette.text.primary}
+              fontSize="13px"
+              fontFamily="var(--font-sans)"
+              color={theme.palette.text.secondary}
             >
               {t('crypto.preferredNetwork')}
             </Typography>
@@ -1805,25 +1738,23 @@ const CryptoTransfer = ({
 
         {isNetwork === "USDT" && (
           availableUSDTNetworks.length > 0 ? (
-            <Box mt={"10px"} mb={3} display="flex" gap={1} alignItems="center" flexWrap="wrap">
+            <Box mt={1} mb={2.5} display="flex" gap={1} alignItems="center" flexWrap="wrap">
               {availableUSDTNetworks.map((net) => (
                 <Typography
                   key={net}
-                  border={`1px solid ${
-                    selectedNetwork === net 
-                      ? (theme.palette.primary.main) 
-                      : (theme.palette.border.main)
-                  }`}
-                  padding="5px 10px"
-                  fontSize="small"
-                  bgcolor={selectedNetwork === net 
-                    ? (theme.palette.action.hover) 
-                    : (theme.palette.action.hover)}
+                  component="button"
+                  border={`1.5px solid ${selectedNetwork === net ? "#10B981" : theme.palette.border.main}`}
+                  padding="7px 16px"
+                  fontSize="13px"
+                  fontWeight={600}
+                  bgcolor={selectedNetwork === net
+                    ? (isDark ? 'rgba(16,185,129,0.12)' : '#ECFDF5')
+                    : theme.palette.background.paper}
                   color={theme.palette.text.primary}
-                  borderRadius="5px"
-                  sx={{ cursor: "pointer" }}
+                  borderRadius="10px"
+                  sx={{ cursor: "pointer", transition: "border-color 0.15s ease, background-color 0.15s ease" }}
                   onClick={() => handleNetworkChange(net)}
-                  fontFamily="Space Grotesk"
+                  fontFamily="var(--font-sans)"
                 >
                   {net}
                 </Typography>
@@ -1841,7 +1772,7 @@ const CryptoTransfer = ({
               borderRadius="8px"
               bgcolor={isDark ? 'rgba(255, 251, 235, 0.1)' : "#fffbeb"}
             >
-              <Typography fontFamily="Space Grotesk" color="#f59e0b" fontSize="small">
+              <Typography fontFamily="var(--font-sans)" color="#f59e0b" fontSize="small">
                 {t('crypto.noUsdtNetworks')}
               </Typography>
             </Box>
@@ -1849,12 +1780,13 @@ const CryptoTransfer = ({
         )}
 
         {isNetwork === "RLUSD" && (
-          <Box mt={1}>
+          <Box mt={2}>
             <Typography
               variant="subtitle2"
               fontWeight={500}
-              fontFamily="Space Grotesk"
-              color={theme.palette.text.primary}
+              fontSize="13px"
+              fontFamily="var(--font-sans)"
+              color={theme.palette.text.secondary}
             >
               {t('crypto.preferredNetwork')}
             </Typography>
@@ -1863,25 +1795,23 @@ const CryptoTransfer = ({
 
         {isNetwork === "RLUSD" && (
           availableRLUSDNetworks.length > 0 ? (
-            <Box mt={"10px"} mb={3} display="flex" gap={1} alignItems="center" flexWrap="wrap">
+            <Box mt={1} mb={2.5} display="flex" gap={1} alignItems="center" flexWrap="wrap">
               {availableRLUSDNetworks.map((net) => (
                 <Typography
                   key={net}
-                  border={`1px solid ${
-                    selectedNetwork === net 
-                      ? (theme.palette.primary.main) 
-                      : (theme.palette.border.main)
-                  }`}
-                  padding="5px 10px"
-                  fontSize="small"
-                  bgcolor={selectedNetwork === net 
-                    ? (theme.palette.action.hover) 
-                    : (theme.palette.action.hover)}
+                  component="button"
+                  border={`1.5px solid ${selectedNetwork === net ? "#10B981" : theme.palette.border.main}`}
+                  padding="7px 16px"
+                  fontSize="13px"
+                  fontWeight={600}
+                  bgcolor={selectedNetwork === net
+                    ? (isDark ? 'rgba(16,185,129,0.12)' : '#ECFDF5')
+                    : theme.palette.background.paper}
                   color={theme.palette.text.primary}
-                  borderRadius="5px"
-                  sx={{ cursor: "pointer" }}
+                  borderRadius="10px"
+                  sx={{ cursor: "pointer", transition: "border-color 0.15s ease, background-color 0.15s ease" }}
                   onClick={() => handleRLUSDNetworkChange(net)}
-                  fontFamily="Space Grotesk"
+                  fontFamily="var(--font-sans)"
                 >
                   {net}
                 </Typography>
@@ -1899,7 +1829,7 @@ const CryptoTransfer = ({
               borderRadius="8px"
               bgcolor={isDark ? 'rgba(255, 251, 235, 0.1)' : "#fffbeb"}
             >
-              <Typography fontFamily="Space Grotesk" color="#f59e0b" fontSize="small">
+              <Typography fontFamily="var(--font-sans)" color="#f59e0b" fontSize="small">
                 {t('crypto.noRlusdNetworks', { defaultValue: 'No RLUSD networks configured' })}
               </Typography>
             </Box>
@@ -1914,11 +1844,12 @@ const CryptoTransfer = ({
             <>
               <Typography
                 variant="h6"
-                fontWeight="medium"
-                my={1}
-                fontSize="small"
-                fontFamily="Space Grotesk"
-                color={theme.palette.text.primary}
+                fontWeight={500}
+                mt={2.5}
+                mb={1}
+                fontSize="13px"
+                fontFamily="var(--font-sans)"
+                color={theme.palette.text.secondary}
               >
                 {selectedCrypto === "USDT" 
                   ? t('crypto.sendToAddress', { crypto: selectedCrypto, network: selectedNetwork })
@@ -1930,24 +1861,32 @@ const CryptoTransfer = ({
                 textAlign="center"
                 border={`1px solid ${theme.palette.border.main}`}
                 padding="20px"
-                borderRadius="20px"
-                bgcolor={theme.palette.action.hover}
+                borderRadius="14px"
+                bgcolor={isDark ? "rgba(255,255,255,0.03)" : "#FAFAFB"}
               >
                 <Box
                   sx={{
-                    bgcolor: theme.palette.background.paper,
-                    borderRadius: "10px",
-                    border: `1px solid ${theme.palette.border.main}`,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    mx: "auto",
                     mb: 2,
+                    width: loading ? "100%" : 196,
+                    height: loading ? "auto" : 196,
+                    bgcolor: "#FFFFFF",
+                    borderRadius: "12px",
+                    border: `1px solid ${theme.palette.border.main}`,
+                    overflow: "hidden",
+                    p: loading ? 0 : "8px",
                   }}
                 >
                   {loading ? (
                     <Box sx={{ padding: 2, textAlign: 'center' }}>
-                      <CircularProgress sx={{ color: theme.palette.primary.main }} />
+                      <CircularProgress sx={{ color: "#10B981" }} />
                       <Typography 
                         variant="body2" 
                         sx={{ mt: 1, color: theme.palette.text.secondary }}
-                        fontFamily="Space Grotesk"
+                        fontFamily="var(--font-sans)"
                       >
                         {loadingStep === 'rates' 
                           ? t('crypto.gettingRates')
@@ -1960,8 +1899,9 @@ const CryptoTransfer = ({
                     /* eslint-disable-next-line @next/next/no-img-element */
                     <img
                       src={cryptoDetails?.qr_code}
-                      width={"100%"}
-                      height={"100%"}
+                      width={180}
+                      height={180}
+                      style={{ display: "block" }}
                       alt="Payment QR Code"
                     />
                   )}
@@ -1970,16 +1910,17 @@ const CryptoTransfer = ({
                   display="flex"
                   alignItems="center"
                   justifyContent="space-between"
+                  gap={1}
                   border={`1px solid ${theme.palette.border.main}`}
-                  padding="10px"
-                  borderRadius="8px"
+                  padding="10px 12px"
+                  borderRadius="10px"
                   bgcolor={theme.palette.background.paper}
                 >
                   <Typography
                     variant="body2"
-                    sx={{ color: theme.palette.primary.main }}
-                    fontWeight="400"
-                    fontSize="11px"
+                    sx={{ color: theme.palette.text.primary, fontFamily: "var(--font-mono), monospace" }}
+                    fontWeight={500}
+                    fontSize="12px"
                     maxWidth="88%"
                     overflow="hidden"
                     textOverflow="ellipsis"
@@ -1993,9 +1934,9 @@ const CryptoTransfer = ({
                       sx={{
                         bgcolor: theme.palette.action.hover,
                         p: 0.5,
-                        height: "24px",
-                        width: "24px",
-                        borderRadius: "5px",
+                        height: "26px",
+                        width: "26px",
+                        borderRadius: "7px",
                         "&:hover": { bgcolor: theme.palette.action.selected },
                       }}
                       onClick={handleCopyAddress}
@@ -2011,7 +1952,7 @@ const CryptoTransfer = ({
                     <Typography
                       variant="caption"
                       fontWeight={600}
-                      fontFamily="Space Grotesk"
+                      fontFamily="var(--font-sans)"
                       color={isDark ? '#FF9F43' : '#E67E22'}
                       fontSize="11px"
                       letterSpacing={0.5}
@@ -2039,7 +1980,7 @@ const CryptoTransfer = ({
                         overflow="hidden"
                         textOverflow="ellipsis"
                         whiteSpace="nowrap"
-                        fontFamily="Space Grotesk"
+                        fontFamily="var(--font-sans)"
                         data-testid="memo-value"
                       >
                         {cryptoDetails.memo}
@@ -2066,7 +2007,7 @@ const CryptoTransfer = ({
                       <Icon icon="mdi:alert-circle-outline" width={14} color={isDark ? '#FF9F43' : '#E67E22'} />
                       <Typography
                         fontSize="11px"
-                        fontFamily="Space Grotesk"
+                        fontFamily="var(--font-sans)"
                         color={isDark ? '#FF9F43' : '#E67E22'}
                         fontWeight={500}
                       >
@@ -2086,7 +2027,7 @@ const CryptoTransfer = ({
                     fontSize="small"
                     textAlign="left"
                     lineHeight="18px"
-                    fontFamily="Space Grotesk"
+                    fontFamily="var(--font-sans)"
                   >
                     {selectedCrypto === "USDT"
                       ? t('crypto.sendOnlyWarning', { crypto: selectedCrypto, network: selectedNetwork })
@@ -2113,7 +2054,7 @@ const CryptoTransfer = ({
                     <Typography
                       variant="caption"
                       color="#10B981"
-                      fontFamily="Space Grotesk"
+                      fontFamily="var(--font-sans)"
                       fontWeight={500}
                     >
                       {t('crypto.monitoringPayment')}
@@ -2124,13 +2065,12 @@ const CryptoTransfer = ({
 
               {!isRecived && (
                 <Box
-                  mt={3}
+                  mt={2.5}
                   border={`1px solid ${theme.palette.border.main}`}
-                  padding="18px 21px"
-                  borderRadius="10px"
+                  padding="16px 18px"
+                  borderRadius="14px"
                   bgcolor={theme.palette.background.paper}
                   height={"auto"}
-                  minHeight={"129px"}
                   sx={{ opacity: isStart ? 0.5 : 1 }}
                 >
                   {/* Show "Remaining Balance" header if in partial payment mode */}
@@ -2146,7 +2086,7 @@ const CryptoTransfer = ({
                       <Typography
                         variant="caption"
                         color="#f59e0b"
-                        fontFamily="Space Grotesk"
+                        fontFamily="var(--font-sans)"
                         fontWeight={500}
                       >
                         {t('crypto.remainingBalance')}
@@ -2165,7 +2105,7 @@ const CryptoTransfer = ({
                         <Typography
                           variant="body2"
                           color={theme.palette.text.secondary}
-                          fontFamily="Space Grotesk"
+                          fontFamily="var(--font-sans)"
                           data-testid="fee-breakdown-subtotal-label"
                         >
                           {t('checkout.subtotal')}
@@ -2173,7 +2113,7 @@ const CryptoTransfer = ({
                         <Typography
                           variant="body2"
                           color={theme.palette.text.primary}
-                          fontFamily="Space Grotesk"
+                          fontFamily="var(--font-sans)"
                           fontWeight={500}
                           data-testid="fee-breakdown-subtotal-value"
                         >
@@ -2186,7 +2126,7 @@ const CryptoTransfer = ({
                           <Typography
                             variant="body2"
                             color={theme.palette.text.secondary}
-                            fontFamily="Space Grotesk"
+                            fontFamily="var(--font-sans)"
                             data-testid="fee-breakdown-tax-label"
                           >
                             {taxInfo.country 
@@ -2196,7 +2136,7 @@ const CryptoTransfer = ({
                           <Typography
                             variant="body2"
                             color={theme.palette.text.primary}
-                            fontFamily="Space Grotesk"
+                            fontFamily="var(--font-sans)"
                             fontWeight={500}
                             data-testid="fee-breakdown-tax-value"
                           >
@@ -2210,7 +2150,7 @@ const CryptoTransfer = ({
                           <Typography
                             variant="body2"
                             color={theme.palette.text.secondary}
-                            fontFamily="Space Grotesk"
+                            fontFamily="var(--font-sans)"
                             data-testid="fee-breakdown-processing-fee-label"
                           >
                             {t('checkout.processingFee')}
@@ -2218,7 +2158,7 @@ const CryptoTransfer = ({
                           <Typography
                             variant="body2"
                             color={feeInfo.fee_payer === 'merchant' ? '#10B981' : theme.palette.text.primary}
-                            fontFamily="Space Grotesk"
+                            fontFamily="var(--font-sans)"
                             fontWeight={500}
                             data-testid="fee-breakdown-processing-fee-value"
                           >
@@ -2232,14 +2172,15 @@ const CryptoTransfer = ({
                     </Box>
                   )}
 
-                  <Box display="flex" gap={2} justifyContent="space-between">
+                  <Box display="flex" gap={2} justifyContent="space-between" alignItems="flex-start">
                     <Typography
                       variant="h6"
                       fontWeight={500}
-                      fontSize="20px"
-                      fontFamily="Space Grotesk"
+                      fontSize="13px"
+                      fontFamily="var(--font-sans)"
                       whiteSpace="nowrap"
-                      color={theme.palette.text.primary}
+                      color={theme.palette.text.secondary}
+                      mt={0.75}
                     >
                       {t('checkout.toPay')}
                     </Typography>
@@ -2247,14 +2188,15 @@ const CryptoTransfer = ({
                       <Box textAlign="end">
                         <Typography
                           variant="body1"
-                          fontSize="25px"
-                          fontWeight={500}
+                          fontSize="23px"
+                          fontWeight={600}
                           display="flex"
                           alignItems="center"
+                          justifyContent="flex-end"
                           gap={1}
-                          fontFamily="Space Grotesk"
                           whiteSpace="nowrap"
                           color={theme.palette.text.primary}
+                          sx={{ fontFamily: "var(--font-mono), monospace", fontVariantNumeric: "tabular-nums" }}
                         >
                           {formatAmount(
                             isPartialPaymentMode && remainingPaymentInfo
@@ -2267,12 +2209,12 @@ const CryptoTransfer = ({
                         <Typography
                           variant="body1"
                           color={theme.palette.text.secondary}
-                          fontFamily="Space Grotesk"
+                          fontFamily="var(--font-sans)"
                           whiteSpace="nowrap"
-                          fontSize="14px"
+                          fontSize="13px"
                           fontWeight={500}
                         >
-                          ={formatWithSeparators(Number(
+                          ≈ {formatWithSeparators(Number(
                             isPartialPaymentMode && remainingPaymentInfo
                               ? Number(remainingPaymentInfo.remainingAmountUsd || 0) * transferRate
                               : Number(selectedCurrency?.total_amount_usd || selectedCurrency?.total_amount_source || walletState?.amount || 0) * transferRate
@@ -2286,11 +2228,11 @@ const CryptoTransfer = ({
                           sx={{
                             bgcolor: theme.palette.action.hover,
                             p: 0.5,
-                            height: "24px",
-                            width: "24px",
-                            borderRadius: "5px",
+                            height: "26px",
+                            width: "26px",
+                            borderRadius: "7px",
                             "&:hover": { bgcolor: theme.palette.action.selected },
-                            mt: 1,
+                            mt: 0.75,
                           }}
                           onClick={handleCopyAmount}
                         >
@@ -2325,7 +2267,7 @@ const CryptoTransfer = ({
                       variant="body2"
                       fontWeight={timeLeft !== null && timeLeft < 5 * 60 ? 600 : "normal"}
                       fontSize="13px"
-                      fontFamily="Space Grotesk"
+                      fontFamily="var(--font-sans)"
                       color={timeLeft !== null && timeLeft < 5 * 60 ? "#DC2626" : theme.palette.text.primary}
                     >
                       {t('checkout.invoiceExpiresIn')} {formatTime(timeLeft)}
@@ -2355,7 +2297,7 @@ const CryptoTransfer = ({
                       variant="h5"
                       fontWeight={600}
                       sx={{ color: isRecived ? "#13B76A" : (isDark ? '#86efac' : "#7CAB96") }}
-                      fontFamily="Space Grotesk"
+                      fontFamily="var(--font-sans)"
                     >
                       {formatAmount(
                         isPartialPaymentMode && remainingPaymentInfo
@@ -2370,7 +2312,7 @@ const CryptoTransfer = ({
                     <Typography
                       variant="body2"
                       color={theme.palette.text.secondary}
-                      fontFamily="Space Grotesk"
+                      fontFamily="var(--font-sans)"
                       fontSize={14}
                       mt={0.5}
                     >
@@ -2386,7 +2328,7 @@ const CryptoTransfer = ({
                     <Typography
                       variant="subtitle1"
                       fontWeight={500}
-                      fontFamily="Space Grotesk"
+                      fontFamily="var(--font-sans)"
                       fontSize={"15px"}
                       color={theme.palette.text.primary}
                     >
@@ -2397,7 +2339,7 @@ const CryptoTransfer = ({
                       sx={{ color: theme.palette.text.secondary }}
                       fontSize={"12px"}
                       fontWeight={400}
-                      fontFamily="Space Grotesk"
+                      fontFamily="var(--font-sans)"
                     >
                       {t('crypto.paymentDetectedDesc', { confirmations: 1 })}
                     </Typography>

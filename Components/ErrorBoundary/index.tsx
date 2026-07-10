@@ -31,7 +31,7 @@ class ErrorBoundary extends Component<Props, State> {
     // sessionStorage so a genuinely broken build can't cause a reload loop.
     const msg = `${error?.name || ""} ${error?.message || ""}`;
     const isChunkError =
-      /ChunkLoadError|Loading chunk [\w-]+ failed|Failed to fetch dynamically imported module|Importing a module script failed/i.test(
+      /ChunkLoadError|Loading chunk [\w-]+ failed|Failed to fetch dynamically imported module|Importing a module script failed|Cannot read propert(y|ies) of undefined \(reading 'call'\)|Unexpected token '<'/i.test(
         msg,
       );
     if (isChunkError && typeof window !== "undefined") {
