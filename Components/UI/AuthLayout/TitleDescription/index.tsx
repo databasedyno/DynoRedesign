@@ -48,12 +48,13 @@ const TitleDescription: React.FC<TitleDescriptionProps> = ({
         <Typography
           component="div"
           sx={{
-            fontSize: "20px",
-            fontFamily: "var(--font-sans)",
+            fontSize: "19px",
+            fontFamily: "var(--font-hero), var(--font-sans)",
+            fontWeight: 500,
             color: "text.primary",
-            lineHeight: "1.2",
-            letterSpacing: 0,
-            ...(isMobile && { fontSize: "20px" }),
+            lineHeight: "1.25",
+            letterSpacing: "-0.01em",
+            ...(isMobile && { fontSize: "18px" }),
           }}
         >
           {title}
@@ -63,10 +64,10 @@ const TitleDescription: React.FC<TitleDescriptionProps> = ({
       {description ? (
         <Typography
           sx={{
-            fontSize: "15px",
-            fontFamily: "var(--font-sans)",
+            fontSize: "14.5px",
+            fontFamily: "var(--font-body), var(--font-sans)",
             color: "text.secondary",
-            lineHeight: "1.4",
+            lineHeight: "1.5",
             letterSpacing: 0,
             ...(isMobile && { fontSize: "14px" }),
           }}

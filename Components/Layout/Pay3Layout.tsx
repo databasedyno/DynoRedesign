@@ -31,6 +31,21 @@ export default function Pay3Layout({
                 overflow: 'hidden',
             }}
         >
+            {/* Swiss grid backdrop */}
+            <Box
+                sx={{
+                    position: 'absolute',
+                    inset: 0,
+                    backgroundImage: isDark
+                        ? 'linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)'
+                        : 'linear-gradient(rgba(10,10,10,0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(10,10,10,0.045) 1px, transparent 1px)',
+                    backgroundSize: '54px 54px',
+                    maskImage: 'radial-gradient(ellipse 90% 80% at 50% 30%, black 25%, transparent 80%)',
+                    WebkitMaskImage: 'radial-gradient(ellipse 90% 80% at 50% 30%, black 25%, transparent 80%)',
+                    pointerEvents: 'none',
+                    zIndex: 0,
+                }}
+            />
             {/* Subtle radial glow behind card */}
             <Box
                 sx={{
@@ -44,22 +59,6 @@ export default function Pay3Layout({
                     background: isDark
                         ? 'radial-gradient(circle, rgba(204,255,0,0.06) 0%, transparent 70%)'
                         : 'radial-gradient(circle, rgba(204,255,0,0.10) 0%, transparent 70%)',
-                    pointerEvents: 'none',
-                    zIndex: 0,
-                }}
-            />
-            {/* Secondary glow accent */}
-            <Box
-                sx={{
-                    position: 'absolute',
-                    top: '60%',
-                    left: '30%',
-                    width: '400px',
-                    height: '400px',
-                    borderRadius: '50%',
-                    background: isDark
-                        ? 'radial-gradient(circle, rgba(88,101,242,0.05) 0%, transparent 70%)'
-                        : 'radial-gradient(circle, rgba(10,10,10,0.03) 0%, transparent 70%)',
                     pointerEvents: 'none',
                     zIndex: 0,
                 }}

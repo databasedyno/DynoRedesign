@@ -156,7 +156,7 @@ const SubItem = styled(SidebarItem)(() => ({
 const SidebarLabel = styled(Typography)(({ theme }) => ({
   fontSize: "11px",
   fontWeight: 600,
-  fontFamily: "OutfitSemiBold",
+  fontFamily: "var(--font-hero), var(--font-sans)",
   letterSpacing: "1.2px",
   textTransform: "uppercase" as const,
   color: theme.palette.text.secondary,
@@ -211,7 +211,7 @@ const MethodBadgeStyled = styled("span", {
   fontSize: "11px",
   fontWeight: 700,
   letterSpacing: "0.5px",
-  fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
+  fontFamily: "var(--font-tech), monospace",
   color: "#FFFFFF",
   background: isGet ? "#22C55E" : "#5865F2",
   minWidth: 44,
@@ -254,7 +254,7 @@ const Pre = styled("pre")(({ theme }) => {
     fontSize: "13px",
     lineHeight: 1.65,
     overflowX: "auto" as const,
-    fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
+    fontFamily: "var(--font-tech), monospace",
     margin: 0,
     border: `1px solid ${dk ? "#1E2030" : "rgba(255,255,255,0.06)"}`,
   };
@@ -316,7 +316,7 @@ const StepNumber = styled(Box)(({ theme }) => {
     color: "#FFFFFF",
     fontWeight: 700,
     fontSize: "15px",
-    fontFamily: "OutfitSemiBold",
+    fontFamily: "var(--font-hero), var(--font-sans)",
   };
 });
 
@@ -791,7 +791,7 @@ const ParamTable = memo(({ title, params }: { title: string; params: { name: str
   const headBg = dk ? "rgba(204,255,0,0.04)" : "#F8F9FC";
   return (
     <Box sx={{ mb: 2.5 }}>
-      <Typography sx={{ fontSize: 13, fontWeight: 600, fontFamily: "OutfitSemiBold", color: "text.primary", mb: 1 }}>{title}</Typography>
+      <Typography sx={{ fontSize: 13, fontWeight: 600, fontFamily: "var(--font-hero), var(--font-sans)", color: "text.primary", mb: 1 }}>{title}</Typography>
       <TableWrapper>
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
           <thead>
@@ -805,7 +805,7 @@ const ParamTable = memo(({ title, params }: { title: string; params: { name: str
             {params.map((p, i) => (
               <tr key={p.name} style={{ borderBottom: i < params.length - 1 ? `1px solid ${dk ? "#1E2030" : "#F3F4F6"}` : "none" }}>
                 <td style={{ padding: "10px 16px" }}>
-                  <code style={{ color: dk ? "#CCFF00" : "#0A0A0A", fontWeight: 600, fontSize: 13, fontFamily: "'JetBrains Mono', monospace" }}>{p.name}</code>
+                  <code style={{ color: dk ? "#CCFF00" : "#0A0A0A", fontWeight: 600, fontSize: 13, fontFamily: "var(--font-tech), monospace" }}>{p.name}</code>
                   {"required" in p && p.required && <span style={{ color: "#EF4444", fontSize: 11, marginLeft: 6, fontFamily: "var(--font-sans)" }}>required</span>}
                 </td>
                 <td style={{ padding: "10px 16px" }}><code style={{ fontSize: 12, color: dk ? "#8B8FA0" : "#6B7280" }}>{p.type}</code></td>
@@ -828,7 +828,7 @@ const EndpointCard = memo(({ ep }: { ep: Endpoint }) => {
     <EndpointCardWrapper id={ep.id}>
       <EndpointHeader expanded={expanded} onClick={() => setExpanded((v) => !v)}>
         <MethodBadgeStyled isGet={ep.method === "GET"}>{ep.method}</MethodBadgeStyled>
-        <Typography sx={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, fontWeight: 500, color: "text.secondary", flex: 1 }}>
+        <Typography sx={{ fontFamily: "var(--font-tech), monospace", fontSize: 13, fontWeight: 500, color: "text.secondary", flex: 1 }}>
           {ep.path.startsWith("/api/") ? ep.path : `${BASE_URL}${ep.path}`}
         </Typography>
         <Typography sx={{ fontSize: 14, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mr: 1, display: { xs: "none", md: "block" } }}>
@@ -843,7 +843,7 @@ const EndpointCard = memo(({ ep }: { ep: Endpoint }) => {
           {/* Full production URL — so the correct host + /api prefix is visible where it matters */}
           <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2.5, px: 1.5, py: 1, borderRadius: "8px", background: dk ? "rgba(204,255,0,0.05)" : "#F5F6FA", border: `1px solid ${dk ? "rgba(255,255,255,0.10)" : "rgba(10,10,10,0.08)"}`, overflowX: "auto" }}>
             <Typography component="span" sx={{ fontSize: 11, fontWeight: 700, fontFamily: "var(--font-sans)", color: "text.secondary", flexShrink: 0 }}>{ep.method}</Typography>
-            <Typography component="code" sx={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12.5, color: "text.primary", whiteSpace: "nowrap" }}>
+            <Typography component="code" sx={{ fontFamily: "var(--font-tech), monospace", fontSize: 12.5, color: "text.primary", whiteSpace: "nowrap" }}>
               {`https://dynopay.com${ep.path.startsWith("/api/") ? ep.path : `${BASE_URL}${ep.path}`}`}
             </Typography>
           </Box>
@@ -853,12 +853,12 @@ const EndpointCard = memo(({ ep }: { ep: Endpoint }) => {
           {ep.body && ep.body.length > 0 && <ParamTable title="Request Body" params={ep.body} />}
           {ep.requestExample && (
             <Box sx={{ mb: 2 }}>
-              <Typography sx={{ fontSize: 13, fontWeight: 600, fontFamily: "OutfitSemiBold", color: "text.primary", mb: 1 }}>Request Example</Typography>
+              <Typography sx={{ fontSize: 13, fontWeight: 600, fontFamily: "var(--font-hero), var(--font-sans)", color: "text.primary", mb: 1 }}>Request Example</Typography>
               <CodeBlock code={ep.requestExample} lang="json" />
             </Box>
           )}
           <Box>
-            <Typography sx={{ fontSize: 13, fontWeight: 600, fontFamily: "OutfitSemiBold", color: "text.primary", mb: 1 }}>Response Example</Typography>
+            <Typography sx={{ fontSize: 13, fontWeight: 600, fontFamily: "var(--font-hero), var(--font-sans)", color: "text.primary", mb: 1 }}>Response Example</Typography>
             <CodeBlock code={ep.responseExample} lang="json" />
           </Box>
         </Box>
@@ -936,8 +936,8 @@ const DocumentationPage = () => {
             />
             <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
               <Box sx={{ display: "inline-flex", gap: 1.5, background: dk ? "#0D0F1A" : "#1E1E2E", borderRadius: "12px", px: 2.5, py: 1.5, border: `1px solid ${dk ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.06)"}` }}>
-                <Typography sx={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, color: "rgba(255,255,255,0.5)" }}>Base URL</Typography>
-                <Typography sx={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, color: "#CDD6F4", fontWeight: 600 }}>https://dynopay.com/api/user</Typography>
+                <Typography sx={{ fontFamily: "var(--font-tech), monospace", fontSize: 13, color: "rgba(255,255,255,0.5)" }}>Base URL</Typography>
+                <Typography sx={{ fontFamily: "var(--font-tech), monospace", fontSize: 13, color: "#CDD6F4", fontWeight: 600 }}>https://dynopay.com/api/user</Typography>
               </Box>
             </Box>
           </section>
@@ -1069,7 +1069,7 @@ const DocumentationPage = () => {
                     </StepCard>
                   ))}
                 </Box>
-                <Typography sx={{ fontSize: 13, fontWeight: 600, fontFamily: "OutfitSemiBold", color: "text.primary", mb: 1 }}>Quick Example (Userless — API Key Only)</Typography>
+                <Typography sx={{ fontSize: 13, fontWeight: 600, fontFamily: "var(--font-hero), var(--font-sans)", color: "text.primary", mb: 1 }}>Quick Example (Userless — API Key Only)</Typography>
                 <CodeBlock
                   lang="bash"
                   code={`# Create a checkout payment — just your API key, no customer setup!
@@ -1195,7 +1195,7 @@ curl -X POST https://dynopay.com/api/user/createUser \\
                       ].map(([event, desc, action], i) => (
                         <tr key={event} style={{ borderBottom: i < 2 ? `1px solid ${dk ? "#1E2030" : "#F3F4F6"}` : "none" }}>
                           <td style={{ padding: "10px 16px" }}>
-                            <code style={{ fontWeight: 700, color: dk ? "#CCFF00" : "#0A0A0A", fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>{event}</code>
+                            <code style={{ fontWeight: 700, color: dk ? "#CCFF00" : "#0A0A0A", fontFamily: "var(--font-tech), monospace", fontSize: 12 }}>{event}</code>
                           </td>
                           <td style={{ padding: "10px 16px", color: dk ? "#A0A3B1" : "#374151", fontFamily: "var(--font-sans)" }}>{desc}</td>
                           <td style={{ padding: "10px 16px", color: dk ? "#A0A3B1" : "#374151", fontFamily: "var(--font-sans)", fontSize: 12 }}>{action}</td>
@@ -1251,7 +1251,7 @@ curl -X POST https://dynopay.com/api/user/createUser \\
                       ].map(([header, desc], i) => (
                         <tr key={header} style={{ borderBottom: i < 4 ? `1px solid ${dk ? "#1E2030" : "#F3F4F6"}` : "none" }}>
                           <td style={{ padding: "10px 16px" }}>
-                            <code style={{ fontWeight: 600, color: dk ? "#CCFF00" : "#0A0A0A", fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>{header}</code>
+                            <code style={{ fontWeight: 600, color: dk ? "#CCFF00" : "#0A0A0A", fontFamily: "var(--font-tech), monospace", fontSize: 12 }}>{header}</code>
                           </td>
                           <td style={{ padding: "10px 16px", color: dk ? "#A0A3B1" : "#374151", fontFamily: "var(--font-sans)" }}>{desc}</td>
                         </tr>
@@ -1331,7 +1331,7 @@ app.post('/webhooks/dynopay', (req, res) => {
                       ].map(([pri, src, use], i) => (
                         <tr key={pri} style={{ borderBottom: i < 2 ? `1px solid ${dk ? "#1E2030" : "#F3F4F6"}` : "none" }}>
                           <td style={{ padding: "10px 16px" }}>
-                            <code style={{ fontWeight: 700, color: "#F59E0B", fontFamily: "'JetBrains Mono', monospace" }}>{pri}</code>
+                            <code style={{ fontWeight: 700, color: "#F59E0B", fontFamily: "var(--font-tech), monospace" }}>{pri}</code>
                           </td>
                           <td style={{ padding: "10px 16px", color: dk ? "#A0A3B1" : "#374151", fontFamily: "var(--font-sans)" }}>{src}</td>
                           <td style={{ padding: "10px 16px", color: dk ? "#A0A3B1" : "#374151", fontFamily: "var(--font-sans)", fontSize: 13 }}>{use}</td>
@@ -1371,7 +1371,7 @@ app.post('/webhooks/dynopay', (req, res) => {
                         <tr key={cat} style={{ borderBottom: i < 3 ? `1px solid ${dk ? "#1E2030" : "#F3F4F6"}` : "none" }}>
                           <td style={{ padding: "10px 16px", fontFamily: "var(--font-sans)", color: dk ? "#A0A3B1" : "#374151" }}>{cat}</td>
                           <td style={{ padding: "10px 16px" }}>
-                            <code style={{ fontWeight: 600, color: dk ? "#CCFF00" : "#0A0A0A", fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>{limit}</code>
+                            <code style={{ fontWeight: 600, color: dk ? "#CCFF00" : "#0A0A0A", fontFamily: "var(--font-tech), monospace", fontSize: 12 }}>{limit}</code>
                           </td>
                           <td style={{ padding: "10px 16px", fontFamily: "var(--font-sans)", color: dk ? "#A0A3B1" : "#374151" }}>{window}</td>
                         </tr>
@@ -1417,7 +1417,7 @@ app.post('/webhooks/dynopay', (req, res) => {
                       ].map(([code, desc], i) => (
                         <tr key={code} style={{ borderBottom: i < 4 ? `1px solid ${dk ? "#1E2030" : "#F3F4F6"}` : "none" }}>
                           <td style={{ padding: "10px 16px" }}>
-                            <code style={{ fontWeight: 700, color: Number(code) >= 500 ? "#EF4444" : "#F59E0B", fontFamily: "'JetBrains Mono', monospace" }}>{code}</code>
+                            <code style={{ fontWeight: 700, color: Number(code) >= 500 ? "#EF4444" : "#F59E0B", fontFamily: "var(--font-tech), monospace" }}>{code}</code>
                           </td>
                           <td style={{ padding: "10px 16px", color: dk ? "#A0A3B1" : "#374151", fontFamily: "var(--font-sans)" }}>{desc}</td>
                         </tr>

@@ -50,8 +50,9 @@ const Success = () => {
           width: "100%",
           textAlign: "center",
           background: theme.palette.background.paper,
-          borderRadius: 3,
+          borderRadius: "18px",
           p: 5,
+          border: `1px solid ${theme.palette.mode === "dark" ? "rgba(255,255,255,0.1)" : "rgba(10,10,10,0.08)"}`,
           boxShadow: "0 4px 24px rgba(0,0,0,0.08)",
         }}
       >
@@ -65,7 +66,7 @@ const Success = () => {
 
         <Typography
           variant="h5"
-          sx={{ fontFamily: "OutfitSemiBold", mb: 1, color: "text.primary" }}
+          sx={{ fontFamily: "var(--font-hero)", fontWeight: 600, mb: 1, color: "text.primary" }}
         >
           {t("paymentSuccessful")}
         </Typography>
@@ -84,7 +85,8 @@ const Success = () => {
         {paymentData?.transaction_id && (
           <Box
             sx={{
-              background: theme.palette.mode === "dark" ? "#1a1a2e" : "#f0f4ff",
+              background: theme.palette.mode === "dark" ? "rgba(255,255,255,0.05)" : "rgba(10,10,10,0.04)",
+              border: `1px solid ${theme.palette.mode === "dark" ? "rgba(255,255,255,0.08)" : "rgba(10,10,10,0.08)"}`,
               borderRadius: 2,
               p: 2,
               mb: 3,
@@ -102,8 +104,8 @@ const Success = () => {
             </Typography>
             <Typography
               sx={{
-                fontFamily: "var(--font-sans)",
-                fontSize: 14,
+                fontFamily: "var(--font-tech)",
+                fontSize: 13.5,
                 wordBreak: "break-all",
               }}
             >

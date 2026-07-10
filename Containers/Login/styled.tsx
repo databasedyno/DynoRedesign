@@ -12,8 +12,13 @@ const GRAIN =
 
 const meshBg = (dark: boolean) =>
   dark
-    ? "radial-gradient(38% 40% at 16% 20%, rgba(204,255,0,0.16) 0%, transparent 62%), radial-gradient(44% 46% at 86% 12%, rgba(88,101,242,0.22) 0%, transparent 60%), radial-gradient(52% 52% at 78% 90%, rgba(0,224,150,0.13) 0%, transparent 62%)"
-    : "radial-gradient(38% 40% at 16% 20%, rgba(150,180,0,0.20) 0%, transparent 62%), radial-gradient(44% 46% at 86% 12%, rgba(88,101,242,0.16) 0%, transparent 60%), radial-gradient(52% 52% at 78% 90%, rgba(0,180,120,0.12) 0%, transparent 62%)";
+    ? "radial-gradient(42% 44% at 14% 18%, rgba(204,255,0,0.14) 0%, transparent 62%), radial-gradient(50% 50% at 84% 88%, rgba(204,255,0,0.07) 0%, transparent 62%)"
+    : "radial-gradient(42% 44% at 14% 18%, rgba(184,230,0,0.20) 0%, transparent 62%), radial-gradient(50% 50% at 84% 88%, rgba(184,230,0,0.10) 0%, transparent 62%)";
+
+const gridBg = (dark: boolean) => {
+  const line = dark ? "rgba(255,255,255,0.045)" : "rgba(10,10,10,0.045)";
+  return `linear-gradient(${line} 1px, transparent 1px), linear-gradient(90deg, ${line} 1px, transparent 1px)`;
+};
 
 /** Full-viewport canvas: mesh + grain, centers its content. */
 export const AuthPageBackground = styled(Box)(({ theme }) => {
@@ -29,6 +34,8 @@ export const AuthPageBackground = styled(Box)(({ theme }) => {
     boxSizing: "border-box",
     overflow: "hidden",
     background: dark ? "#060606" : "#EEF1F6",
+    backgroundImage: gridBg(dark),
+    backgroundSize: "54px 54px",
     "&::before": {
       content: '""',
       position: "absolute",
@@ -90,7 +97,7 @@ export const FormPanel = styled(Box)(({ theme }) => {
     flexDirection: "column",
     boxSizing: "border-box",
     padding: "40px 40px 34px",
-    borderRadius: 28,
+    borderRadius: 18,
     background: dark ? "rgba(255,255,255,0.045)" : "rgba(255,255,255,0.72)",
     backdropFilter: "blur(26px)",
     WebkitBackdropFilter: "blur(26px)",
@@ -106,7 +113,7 @@ export const FormPanel = styled(Box)(({ theme }) => {
     [theme.breakpoints.down("lg")]: { flex: "1 1 auto", maxWidth: 480 },
     [theme.breakpoints.down("sm")]: {
       padding: "26px 20px 24px",
-      borderRadius: 22,
+      borderRadius: 16,
       background: dark ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.86)",
     },
   };
@@ -141,6 +148,8 @@ export const AuthContainer = styled(Box)(({ theme }) => {
     boxSizing: "border-box",
     overflow: "hidden",
     background: dark ? "#060606" : "#EEF1F6",
+    backgroundImage: gridBg(dark),
+    backgroundSize: "54px 54px",
     "&::before": {
       content: '""',
       position: "absolute",
@@ -167,7 +176,7 @@ export const CardWrapper = styled(Card)(({ theme }) => {
     width: "100%",
     maxWidth: 468,
     height: "fit-content",
-    borderRadius: 24,
+    borderRadius: 18,
     padding: "12px",
     background: dark ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.78)",
     backdropFilter: "blur(26px)",
@@ -182,7 +191,7 @@ export const CardWrapper = styled(Card)(({ theme }) => {
       "0%": { opacity: 0, transform: "translateY(26px) scale(0.985)" },
       "100%": { opacity: 1, transform: "translateY(0) scale(1)" },
     },
-    [theme.breakpoints.down("sm")]: { padding: "10px", borderRadius: 20 },
+    [theme.breakpoints.down("sm")]: { padding: "10px", borderRadius: 16 },
   };
 });
 

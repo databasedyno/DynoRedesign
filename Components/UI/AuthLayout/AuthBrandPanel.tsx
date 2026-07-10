@@ -9,9 +9,9 @@ import { useTranslation } from "react-i18next";
 import WhiteLogo from "@/assets/Icons/home/dynopay-whiteLogo.svg";
 import BlackLogo from "@/assets/Icons/home/dynopay-blackLogo.svg";
 
-const FONT_DISPLAY = "var(--font-sans), sans-serif";
-const FONT_BODY = "'Manrope', sans-serif";
-const FONT_MONO = "'JetBrains Mono', monospace";
+const FONT_DISPLAY = "var(--font-hero), sans-serif";
+const FONT_BODY = "var(--font-body), sans-serif";
+const FONT_MONO = "var(--font-tech), monospace";
 
 const COINS = [
   { s: "BTC", c: "#F7931A" },
@@ -86,8 +86,8 @@ const AuthBrandPanel = () => {
           sx={{
             fontFamily: FONT_DISPLAY,
             fontWeight: 800,
-            fontSize: "44px",
-            lineHeight: 1.05,
+            fontSize: "34px",
+            lineHeight: 1.12,
             letterSpacing: "-0.02em",
             color: theme.palette.text.primary,
           }}
@@ -142,7 +142,7 @@ const AuthBrandPanel = () => {
             </Typography>
           </Box>
           <Box>
-            <Typography sx={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: "52px", lineHeight: 1, color: theme.palette.text.primary }}>
+            <Typography sx={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: "40px", lineHeight: 1, color: theme.palette.text.primary }}>
               1,000+
             </Typography>
             <Typography sx={{ fontFamily: FONT_BODY, fontSize: "13px", color: sub, mt: 1 }}>
@@ -153,7 +153,7 @@ const AuthBrandPanel = () => {
 
         {/* Coins tile */}
         <Tile delay={0.12}>
-          <Typography sx={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: "34px", lineHeight: 1, color: lime }}>
+          <Typography sx={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: "28px", lineHeight: 1, color: lime }}>
             15+
           </Typography>
           <Typography sx={{ fontFamily: FONT_MONO, fontSize: "11px", letterSpacing: "0.14em", textTransform: "uppercase", color: sub, mt: 1 }}>

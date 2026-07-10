@@ -1,18 +1,19 @@
 import React, { memo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { Box, Grid, Typography } from "@mui/material";
-import { styled, alpha, useTheme } from "@mui/material/styles";
+import { styled } from "@mui/material/styles";
 import useIsMobile from "@/hooks/useIsMobile";
-import HomeSectionTitle from "@/Components/UI/SectionTitle";
 import HomeButton from "@/Components/Layout/HomeButton";
 import FeeCalculator from "@/Components/UI/FeeCalculator";
+import SwissSectionHead from "@/Components/Page/Home/SwissSectionHead";
+import { FONT_BODY, FONT_HERO, FONT_TECH, OBSIDIAN, useSwiss } from "@/Components/Page/Home/swiss";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
 import ShieldOutlinedIcon from "@mui/icons-material/ShieldOutlined";
 import Head from "next/head";
 
-/* ================= STYLED COMPONENTS ================= */
+/* ── Swiss & High-Contrast restyle of the public /fees page (2026-07) ── */
 
 const PageWrapper = styled(Box)(({ theme }) => ({
   width: "100%",
@@ -26,171 +27,14 @@ const Container = styled(Box)(({ theme }) => ({
   width: "100%",
   maxWidth: 1280,
   margin: "0 auto",
-  paddingLeft: theme.spacing(2),
-  paddingRight: theme.spacing(2),
+  paddingLeft: theme.spacing(3),
+  paddingRight: theme.spacing(3),
 }));
-
-const FullWidthSection = styled(Box)(({ theme }) => ({
-  width: "100%",
-  margin: "0 auto",
-  paddingLeft: theme.spacing(2),
-  paddingRight: theme.spacing(2),
-  backgroundColor: alpha(theme.palette.background.default, 0.3),
-}));
-
-const StepCard = styled(Box)(({ theme }) => {
-  const isDark = theme.palette.mode === "dark";
-  return {
-    display: "flex",
-    alignItems: "flex-start",
-    gap: "16px",
-    padding: "20px",
-    background: isDark ? "rgba(255,255,255,0.045)" : "#FFFFFF",
-    border: `1px solid ${isDark ? "rgba(255,255,255,0.12)" : "rgba(10,10,10,0.10)"}`,
-    borderRadius: "16px",
-    height: "100%",
-  };
-});
-
-const StepIcon = styled(Box)(({ theme }) => {
-  const isDark = theme.palette.mode === "dark";
-  return {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    width: "40px",
-    height: "40px",
-    minWidth: "40px",
-    borderRadius: "12px",
-    background: isDark ? "rgba(204,255,0,0.1)" : "#0A0A0A1A",
-    color: isDark ? "#CCFF00" : "#0A0A0A",
-    "& svg": { fontSize: "20px" },
-  };
-});
-
-const StepText = styled(Typography)(({ theme }) => ({
-  fontSize: "14px",
-  fontWeight: 400,
-  lineHeight: "22px",
-  fontFamily: "var(--font-sans)",
-  color: theme.palette.text.secondary,
-}));
-
-const ComparisonTable = styled(Box)(({ theme }) => {
-  const isDark = theme.palette.mode === "dark";
-  return {
-    width: "100%",
-    borderRadius: "16px",
-    overflow: "hidden",
-    border: `1px solid ${isDark ? "rgba(255,255,255,0.12)" : "rgba(10,10,10,0.10)"}`,
-    background: isDark ? "rgba(255,255,255,0.045)" : "#FFFFFF",
-  };
-});
-
-const TableRow = styled(Box)(({ theme }) => {
-  const isDark = theme.palette.mode === "dark";
-  return {
-    display: "grid",
-    gridTemplateColumns: "2fr 1fr 1fr",
-    alignItems: "center",
-    padding: "14px 24px",
-    "&:not(:last-child)": {
-      borderBottom: `1px solid ${isDark ? "rgba(255,255,255,0.12)" : "rgba(10,10,10,0.10)"}`,
-    },
-    [theme.breakpoints.down("sm")]: {
-      padding: "12px 16px",
-      gridTemplateColumns: "1.5fr 1fr 1fr",
-    },
-  };
-});
-
-const TableHeader = styled(TableRow)(({ theme }) => {
-  const isDark = theme.palette.mode === "dark";
-  return {
-    background: isDark ? "rgba(204,255,0,0.05)" : "#F8F9FC",
-  };
-});
-
-const TableCell = styled(Typography)(({ theme }) => ({
-  fontSize: "14px",
-  fontWeight: 400,
-  fontFamily: "var(--font-sans)",
-  color: theme.palette.text.secondary,
-}));
-
-const TableHeaderCell = styled(Typography)(({ theme }) => ({
-  fontSize: "13px",
-  fontWeight: 500,
-  fontFamily: "var(--font-sans)",
-  color: theme.palette.text.primary,
-  textTransform: "uppercase" as const,
-  letterSpacing: "0.5px",
-}));
-
-const SecurityCard = styled(Box)(({ theme }) => {
-  const isDark = theme.palette.mode === "dark";
-  return {
-    display: "flex",
-    alignItems: "center",
-    gap: "12px",
-    padding: "16px",
-    background: isDark ? "rgba(255,255,255,0.045)" : "#FFFFFF",
-    border: `1px solid ${isDark ? "rgba(255,255,255,0.12)" : "rgba(10,10,10,0.10)"}`,
-    borderRadius: "12px",
-  };
-});
-
-const CTASection = styled(Box)(({ theme }) => {
-  const isDark = theme.palette.mode === "dark";
-  return {
-    textAlign: "center",
-    padding: "64px 24px",
-    borderRadius: "24px",
-    background: isDark
-      ? `linear-gradient(135deg, rgba(204,255,0,0.08) 0%, rgba(14,15,18,1) 100%)`
-      : `linear-gradient(135deg, rgba(10,10,10,0.04) 0%, rgba(255,255,255,1) 100%)`,
-    border: `1px solid ${isDark ? "rgba(255,255,255,0.12)" : "rgba(10,10,10,0.10)"}`,
-  };
-});
-
-const HowToStepRow = styled(Box)(({ theme }) => {
-  const isDark = theme.palette.mode === "dark";
-  return {
-    display: "flex",
-    alignItems: "center",
-    gap: "16px",
-    padding: "16px 20px",
-    background: isDark ? "rgba(255,255,255,0.045)" : "#FFFFFF",
-    border: `1px solid ${isDark ? "rgba(255,255,255,0.12)" : "rgba(10,10,10,0.10)"}`,
-    borderRadius: "12px",
-  };
-});
-
-const StepNumber = styled(Box)(({ theme }) => {
-  const isDark = theme.palette.mode === "dark";
-  return {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    width: "32px",
-    height: "32px",
-    minWidth: "32px",
-    borderRadius: "10px",
-    background: isDark ? "rgba(204,255,0,0.15)" : "#0A0A0A1A",
-    color: isDark ? "#CCFF00" : "#0A0A0A",
-    fontSize: "14px",
-    fontWeight: 600,
-    fontFamily: "OutfitSemiBold",
-  };
-});
-
-/* ================= PAGE COMPONENT ================= */
 
 const FeesPage = () => {
   const isMobile = useIsMobile("md");
   const { t } = useTranslation("fees");
-  const theme = useTheme();
-  const isDark = theme.palette.mode === "dark";
+  const s = useSwiss();
 
   const scrollToCalc = useCallback(() => {
     const el = document.getElementById("fee-calculator");
@@ -212,6 +56,16 @@ const FeesPage = () => {
   const howToSteps = [t("howToStep1"), t("howToStep2"), t("howToStep3"), t("howToStep4")];
   const securityItems = [t("security1"), t("security2"), t("security3")];
 
+  const cardSx = {
+    background: s.surface,
+    border: `1px solid ${s.line}`,
+    borderRadius: "16px",
+    transition: "transform 0.25s cubic-bezier(0.16,1,0.3,1), border-color 0.25s ease",
+    "&:hover": { transform: "translateY(-2px)", borderColor: s.dark ? "rgba(204,255,0,0.3)" : "rgba(10,10,10,0.22)" },
+  };
+
+  const gridLine = s.dark ? "rgba(255,255,255,0.05)" : "rgba(10,10,10,0.05)";
+
   return (
     <>
       <Head>
@@ -219,238 +73,219 @@ const FeesPage = () => {
 
       <PageWrapper>
         {/* ===== HERO ===== */}
-        <Container>
-          <section style={{ padding: isMobile ? "48px 0 40px" : "80px 0 60px" }}>
-            <HomeSectionTitle
-              type="large"
-              badgeText={t("pageTitle")}
-              title={`${t("heroTitle")} ${t("heroHighlight")}`}
-              highlightText={t("heroHighlight")}
-              subtitle={t("heroSubtitle")}
-            />
-            <Box sx={{ mt: 2, textAlign: "center" }}>
-              <Typography
-                sx={{
-                  fontSize: "16px",
-                  fontFamily: "var(--font-sans)",
-                  color: "text.secondary",
-                  maxWidth: 500,
-                  mx: "auto",
-                  lineHeight: "24px",
-                }}
-              >
+        <Box sx={{ position: "relative", overflow: "hidden" }}>
+          <Box
+            aria-hidden
+            sx={{
+              position: "absolute",
+              inset: 0,
+              pointerEvents: "none",
+              backgroundImage: `linear-gradient(${gridLine} 1px, transparent 1px), linear-gradient(90deg, ${gridLine} 1px, transparent 1px)`,
+              backgroundSize: "54px 54px",
+              maskImage: "radial-gradient(ellipse 95% 85% at 50% 0%, black 25%, transparent 78%)",
+              WebkitMaskImage: "radial-gradient(ellipse 95% 85% at 50% 0%, black 25%, transparent 78%)",
+            }}
+          />
+          <Container sx={{ position: "relative", zIndex: 1 }}>
+            <Box component="section" sx={{ pt: { xs: 7, md: 11 }, pb: { xs: 6, md: 8 }, textAlign: "center" }}>
+              <Typography sx={{ fontFamily: FONT_TECH, fontSize: 12, letterSpacing: "0.24em", textTransform: "uppercase", color: s.accentText, mb: 3 }}>
+                [ {t("pageTitle")} ]
+              </Typography>
+              <Typography component="h1" sx={{ fontFamily: FONT_HERO, fontWeight: 800, fontSize: { xs: 30, sm: 40, md: 48 }, lineHeight: 1.12, letterSpacing: "-0.03em", color: s.txt, maxWidth: 900, mx: "auto" }}>
+                {t("heroTitle")}{" "}
+                <Box component="span" sx={{ color: s.accentText }}>{t("heroHighlight")}</Box>
+              </Typography>
+              <Typography sx={{ fontFamily: FONT_BODY, fontSize: { xs: 15, md: 17 }, lineHeight: 1.65, color: s.sub, maxWidth: 620, mx: "auto", mt: 3 }}>
+                {t("heroSubtitle")}
+              </Typography>
+              <Typography sx={{ fontFamily: FONT_BODY, fontSize: { xs: 14, md: 15.5 }, lineHeight: 1.6, color: s.sub, maxWidth: 500, mx: "auto", mt: 1.5 }}>
                 {t("heroDescription")}
               </Typography>
+              <Box sx={{ display: "flex", justifyContent: "center", mt: 4.5 }}>
+                <HomeButton variant="primary" label={t("tryCTA")} onClick={scrollToCalc} />
+              </Box>
             </Box>
-            <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
-              <HomeButton
-                variant="primary"
-                label={t("tryCTA")}
-                onClick={scrollToCalc}
-              />
-            </Box>
-          </section>
-        </Container>
+          </Container>
+        </Box>
 
         {/* ===== HOW FEES WORK ===== */}
-        <FullWidthSection>
-          <Box sx={{ maxWidth: 1280, mx: "auto", py: isMobile ? "60px" : "96px" }}>
-            <HomeSectionTitle
-              type="small"
-              badgeText={t("howFeesBadge")}
+        <Container>
+          <Box component="section" sx={{ py: { xs: 7, md: 12 } }}>
+            <SwissSectionHead
+              num="01"
+              eyebrow={t("howFeesBadge")}
               title={`${t("howFeesTitle")} ${t("howFeesHighlight")}`}
-              highlightText={t("howFeesHighlight")}
-              subtitle={t("howFeesSubtitle")}
-              sx={{ maxWidth: "100%" }}
+              highlight={t("howFeesHighlight")}
+              sub={t("howFeesSubtitle")}
             />
-            <Box sx={{ pt: isMobile ? 4 : 6 }}>
-              <Grid container spacing={2}>
-                {steps.map((step, idx) => (
-                  <Grid key={idx} item xs={12} sm={6}>
-                    <StepCard>
-                      <StepIcon>
-                        <CheckCircleOutlineIcon />
-                      </StepIcon>
-                      <StepText>{step}</StepText>
-                    </StepCard>
-                  </Grid>
-                ))}
-              </Grid>
-            </Box>
-          </Box>
-        </FullWidthSection>
-
-        {/* ===== FEE CALCULATOR ===== */}
-        <Container>
-          <section
-            id="fee-calculator"
-            style={{ padding: isMobile ? "60px 0" : "96px 0" }}
-          >
-            <HomeSectionTitle
-              type="small"
-              badgeText={t("calculatorBadge")}
-              title={`${t("calculatorTitle")} — ${t("calculatorHighlight")}`}
-              highlightText={t("calculatorHighlight")}
-              subtitle={t("calculatorSubtitle")}
-              sx={{ maxWidth: "100%", mb: isMobile ? 4 : 6 }}
-            />
-            <Box sx={{ maxWidth: 720, mx: "auto" }}>
-              <FeeCalculator />
-            </Box>
-          </section>
-        </Container>
-
-        {/* ===== COMPARISON TABLE ===== */}
-        <FullWidthSection>
-          <Box sx={{ maxWidth: 1280, mx: "auto", py: isMobile ? "60px" : "96px" }}>
-            <HomeSectionTitle
-              type="small"
-              badgeText={t("comparisonBadge")}
-              title={`${t("comparisonTitle")} — ${t("comparisonHighlight")}`}
-              highlightText={t("comparisonHighlight")}
-              subtitle={t("comparisonSubtitle")}
-              sx={{ maxWidth: "100%", mb: isMobile ? 4 : 6 }}
-            />
-            <Box sx={{ maxWidth: 800, mx: "auto" }}>
-              <ComparisonTable>
-                <TableHeader>
-                  <TableHeaderCell>{t("featureCol")}</TableHeaderCell>
-                  <TableHeaderCell sx={{ textAlign: "center" }}>{t("dynopayCol")}</TableHeaderCell>
-                  <TableHeaderCell sx={{ textAlign: "center" }}>{t("othersCol")}</TableHeaderCell>
-                </TableHeader>
-                {comparisonRows.map((row, idx) => (
-                  <TableRow key={idx}>
-                    <TableCell>{row.feature}</TableCell>
-                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 0.5 }}>
-                      {row.dynopay ? (
-                        <CheckIcon sx={{ fontSize: 18, color: "#22C55E" }} />
-                      ) : (
-                        <CloseIcon sx={{ fontSize: 18, color: "#22C55E" }} />
-                      )}
-                      <TableCell sx={{ color: "#22C55E", fontFamily: "var(--font-sans)" }}>
-                        {row.dynoText}
-                      </TableCell>
+            <Grid container spacing={2}>
+              {steps.map((step, idx) => (
+                <Grid key={idx} item xs={12} sm={6}>
+                  <Box data-testid={`fees-step-card-${idx}`} sx={{ ...cardSx, display: "flex", alignItems: "flex-start", gap: 2, p: 2.75, height: "100%" }}>
+                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", width: 40, height: 40, minWidth: 40, borderRadius: "10px", border: `1px solid ${s.lineStrong}`, color: s.accentText }}>
+                      <CheckCircleOutlineIcon sx={{ fontSize: 20 }} />
                     </Box>
-                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 0.5 }}>
-                      {row.others ? (
-                        <CheckIcon sx={{ fontSize: 18, color: isDark ? "#EF4444" : "#DC2626" }} />
-                      ) : (
-                        <CloseIcon sx={{ fontSize: 18, color: isDark ? "#EF4444" : "#DC2626" }} />
-                      )}
-                      <TableCell sx={{ color: isDark ? "#EF4444" : "#DC2626" }}>
-                        {row.othersText}
-                      </TableCell>
-                    </Box>
-                  </TableRow>
-                ))}
-              </ComparisonTable>
-            </Box>
-          </Box>
-        </FullWidthSection>
-
-        {/* ===== HOW TO USE ===== */}
-        <Container>
-          <section style={{ padding: isMobile ? "60px 0" : "96px 0" }}>
-            <HomeSectionTitle
-              type="small"
-              badgeText={t("howToUseBadge")}
-              title={`${t("howToUseTitle")}`}
-              highlightText={t("howToUseHighlight")}
-              subtitle={t("howToUseSubtitle")}
-              sx={{ maxWidth: "100%", mb: isMobile ? 4 : 6 }}
-            />
-            <Box sx={{ maxWidth: 600, mx: "auto", display: "flex", flexDirection: "column", gap: 2 }}>
-              {howToSteps.map((step, idx) => (
-                <HowToStepRow key={idx}>
-                  <StepNumber>{idx + 1}</StepNumber>
-                  <Typography
-                    sx={{
-                      fontSize: "15px",
-                      fontFamily: "var(--font-sans)",
-                      color: "text.primary",
-                      lineHeight: "22px",
-                    }}
-                  >
-                    {step}
-                  </Typography>
-                </HowToStepRow>
-              ))}
-            </Box>
-          </section>
-        </Container>
-
-        {/* ===== SECURITY ===== */}
-        <FullWidthSection>
-          <Box sx={{ maxWidth: 1280, mx: "auto", py: isMobile ? "60px" : "96px" }}>
-            <HomeSectionTitle
-              type="small"
-              badgeText={t("securityBadge")}
-              title={`${t("securityTitle")} — ${t("securityHighlight")}`}
-              highlightText={t("securityHighlight")}
-              subtitle={t("securitySubtitle")}
-              sx={{ maxWidth: "100%", mb: isMobile ? 4 : 6 }}
-            />
-            <Grid container spacing={2} sx={{ maxWidth: 900, mx: "auto" }}>
-              {securityItems.map((item, idx) => (
-                <Grid key={idx} item xs={12} md={4}>
-                  <SecurityCard>
-                    <ShieldOutlinedIcon
-                      sx={{
-                        color: isDark ? "#CCFF00" : "#0A0A0A",
-                        fontSize: 24,
-                        minWidth: 24,
-                      }}
-                    />
-                    <Typography
-                      sx={{
-                        fontSize: "14px",
-                        fontFamily: "var(--font-sans)",
-                        color: "text.secondary",
-                        lineHeight: "20px",
-                      }}
-                    >
-                      {item}
-                    </Typography>
-                  </SecurityCard>
+                    <Typography sx={{ fontFamily: FONT_BODY, fontSize: 14, lineHeight: 1.6, color: s.sub }}>{step}</Typography>
+                  </Box>
                 </Grid>
               ))}
             </Grid>
           </Box>
-        </FullWidthSection>
+        </Container>
 
-        {/* ===== CTA ===== */}
+        {/* ===== FEE CALCULATOR ===== */}
         <Container>
-          <section style={{ padding: isMobile ? "40px 0 60px" : "64px 0 96px" }}>
-            <CTASection>
-              <Typography
+          <Box component="section" id="fee-calculator" sx={{ py: { xs: 7, md: 12 } }}>
+            <SwissSectionHead
+              num="02"
+              eyebrow={t("calculatorBadge")}
+              title={`${t("calculatorTitle")} — ${t("calculatorHighlight")}`}
+              highlight={t("calculatorHighlight")}
+              sub={t("calculatorSubtitle")}
+            />
+            <Box sx={{ maxWidth: 720, mx: "auto" }}>
+              <FeeCalculator />
+            </Box>
+          </Box>
+        </Container>
+
+        {/* ===== COMPARISON TABLE ===== */}
+        <Container>
+          <Box component="section" sx={{ py: { xs: 7, md: 12 } }}>
+            <SwissSectionHead
+              num="03"
+              eyebrow={t("comparisonBadge")}
+              title={`${t("comparisonTitle")} — ${t("comparisonHighlight")}`}
+              highlight={t("comparisonHighlight")}
+              sub={t("comparisonSubtitle")}
+            />
+            <Box data-testid="fees-comparison-table" sx={{ maxWidth: 820, mx: "auto", borderRadius: "16px", overflow: "hidden", border: `1px solid ${s.line}`, background: s.surface }}>
+              <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1.5fr 1fr 1fr", sm: "2fr 1fr 1fr" }, alignItems: "center", px: { xs: 2, sm: 3 }, py: 1.75, borderBottom: `1px solid ${s.lineStrong}`, background: s.dark ? "rgba(204,255,0,0.04)" : "rgba(10,10,10,0.03)" }}>
+                {[t("featureCol"), t("dynopayCol"), t("othersCol")].map((h, i) => (
+                  <Typography key={h} sx={{ fontFamily: FONT_TECH, fontSize: 11, fontWeight: 500, letterSpacing: "0.14em", textTransform: "uppercase", color: s.txt, textAlign: i === 0 ? "left" : "center" }}>
+                    {h}
+                  </Typography>
+                ))}
+              </Box>
+              {comparisonRows.map((row, idx) => (
+                <Box key={idx} sx={{ display: "grid", gridTemplateColumns: { xs: "1.5fr 1fr 1fr", sm: "2fr 1fr 1fr" }, alignItems: "center", px: { xs: 2, sm: 3 }, py: 1.75, "&:not(:last-child)": { borderBottom: `1px solid ${s.line}` } }}>
+                  <Typography sx={{ fontFamily: FONT_BODY, fontSize: 14, color: s.sub, pr: 1 }}>{row.feature}</Typography>
+                  <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 0.5 }}>
+                    {row.dynopay ? (
+                      <CheckIcon sx={{ fontSize: 16, color: s.accentText }} />
+                    ) : (
+                      <CloseIcon sx={{ fontSize: 16, color: s.accentText }} />
+                    )}
+                    <Typography sx={{ fontFamily: FONT_TECH, fontSize: 12.5, fontWeight: 500, color: s.accentText, textAlign: "center" }}>
+                      {row.dynoText}
+                    </Typography>
+                  </Box>
+                  <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 0.5 }}>
+                    {row.others ? (
+                      <CheckIcon sx={{ fontSize: 16, color: "#EF4444" }} />
+                    ) : (
+                      <CloseIcon sx={{ fontSize: 16, color: "#EF4444" }} />
+                    )}
+                    <Typography sx={{ fontFamily: FONT_TECH, fontSize: 12.5, color: "#EF4444", textAlign: "center" }}>
+                      {row.othersText}
+                    </Typography>
+                  </Box>
+                </Box>
+              ))}
+            </Box>
+          </Box>
+        </Container>
+
+        {/* ===== HOW TO USE ===== */}
+        <Container>
+          <Box component="section" sx={{ py: { xs: 7, md: 12 } }}>
+            <SwissSectionHead
+              num="04"
+              eyebrow={t("howToUseBadge")}
+              title={t("howToUseTitle")}
+              highlight={t("howToUseHighlight")}
+              sub={t("howToUseSubtitle")}
+            />
+            <Box sx={{ maxWidth: 620, mx: "auto", display: "flex", flexDirection: "column", gap: 2 }}>
+              {howToSteps.map((step, idx) => (
+                <Box key={idx} data-testid={`fees-howto-step-${idx}`} sx={{ ...cardSx, display: "flex", alignItems: "center", gap: 2, px: 2.5, py: 2, borderRadius: "12px" }}>
+                  <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", width: 32, height: 32, minWidth: 32, borderRadius: "8px", backgroundColor: s.accentSoft, color: s.accentText, fontSize: 13, fontWeight: 600, fontFamily: FONT_TECH }}>
+                    {String(idx + 1).padStart(2, "0")}
+                  </Box>
+                  <Typography sx={{ fontFamily: FONT_BODY, fontSize: 14.5, color: s.txt, lineHeight: 1.55 }}>
+                    {step}
+                  </Typography>
+                </Box>
+              ))}
+            </Box>
+          </Box>
+        </Container>
+
+        {/* ===== SECURITY ===== */}
+        <Container>
+          <Box component="section" sx={{ py: { xs: 7, md: 12 } }}>
+            <SwissSectionHead
+              num="05"
+              eyebrow={t("securityBadge")}
+              title={`${t("securityTitle")} — ${t("securityHighlight")}`}
+              highlight={t("securityHighlight")}
+              sub={t("securitySubtitle")}
+            />
+            <Grid container spacing={2} sx={{ maxWidth: 920, mx: "auto" }}>
+              {securityItems.map((item, idx) => (
+                <Grid key={idx} item xs={12} md={4}>
+                  <Box sx={{ ...cardSx, display: "flex", alignItems: "center", gap: 1.5, p: 2, borderRadius: "12px", height: "100%" }}>
+                    <ShieldOutlinedIcon sx={{ color: s.accentText, fontSize: 22, minWidth: 22 }} />
+                    <Typography sx={{ fontFamily: FONT_BODY, fontSize: 13.5, color: s.sub, lineHeight: 1.55 }}>
+                      {item}
+                    </Typography>
+                  </Box>
+                </Grid>
+              ))}
+            </Grid>
+          </Box>
+        </Container>
+
+        {/* ===== CTA — obsidian band ===== */}
+        <Container>
+          <Box component="section" sx={{ pt: { xs: 4, md: 6 }, pb: { xs: 8, md: 12 } }}>
+            <Box
+              data-testid="fees-cta-section"
+              sx={{
+                position: "relative",
+                overflow: "hidden",
+                textAlign: "center",
+                px: 3,
+                py: { xs: 7, md: 9 },
+                borderRadius: "20px",
+                backgroundColor: OBSIDIAN,
+                border: "1px solid rgba(255,255,255,0.1)",
+              }}
+            >
+              <Box
+                aria-hidden
                 sx={{
-                  fontSize: isMobile ? "28px" : "36px",
-                  fontWeight: 500,
-                  fontFamily: "var(--font-sans)",
-                  color: "text.primary",
-                  lineHeight: isMobile ? "36px" : "44px",
-                  mb: 2,
+                  position: "absolute",
+                  inset: 0,
+                  pointerEvents: "none",
+                  backgroundImage:
+                    "linear-gradient(rgba(255,255,255,0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.045) 1px, transparent 1px)",
+                  backgroundSize: "54px 54px",
+                  maskImage: "radial-gradient(ellipse 80% 90% at 50% 50%, black 20%, transparent 85%)",
+                  WebkitMaskImage: "radial-gradient(ellipse 80% 90% at 50% 50%, black 20%, transparent 85%)",
                 }}
-              >
-                {t("ctaTitle")}
-              </Typography>
-              <Typography
-                sx={{
-                  fontSize: "16px",
-                  fontFamily: "var(--font-sans)",
-                  color: "text.secondary",
-                  mb: 4,
-                }}
-              >
-                {t("ctaSubtitle")}
-              </Typography>
-              <HomeButton
-                variant="primary"
-                label={t("ctaButton")}
-                onClick={scrollToCalc}
               />
-            </CTASection>
-          </section>
+              <Box sx={{ position: "relative", zIndex: 1 }}>
+                <Typography sx={{ fontFamily: FONT_HERO, fontWeight: 800, fontSize: { xs: 24, md: 36 }, letterSpacing: "-0.02em", lineHeight: 1.2, color: "#F5F5F5", mb: 2 }}>
+                  {t("ctaTitle")}
+                </Typography>
+                <Typography sx={{ fontFamily: FONT_BODY, fontSize: { xs: 14.5, md: 16 }, color: "rgba(255,255,255,0.6)", mb: 4, maxWidth: 520, mx: "auto" }}>
+                  {t("ctaSubtitle")}
+                </Typography>
+                <HomeButton variant="primary" label={t("ctaButton")} onClick={scrollToCalc} />
+              </Box>
+            </Box>
+          </Box>
         </Container>
       </PageWrapper>
     </>

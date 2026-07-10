@@ -114,7 +114,7 @@ const Header = ({ pageName, component }: HeaderProps) => {
           <Typography
             variant="h6"
             component="div"
-            sx={{ fontSize: "24px", fontWeight: 600, whiteSpace: "nowrap" }}
+            sx={{ fontSize: "20px", fontWeight: 500, whiteSpace: "nowrap", fontFamily: "var(--font-hero), var(--font-sans)", letterSpacing: "-0.01em" }}
           >
             {pageName ?? ""}
           </Typography>
@@ -233,7 +233,7 @@ const Header = ({ pageName, component }: HeaderProps) => {
             <Typography
               variant="h6"
               component="div"
-              sx={{ fontSize: "24px", fontWeight: 600 }}
+              sx={{ fontSize: "20px", fontWeight: 500, fontFamily: "var(--font-hero), var(--font-sans)", letterSpacing: "-0.01em" }}
             >
               {pageName ?? ""}
             </Typography>

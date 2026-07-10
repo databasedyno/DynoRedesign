@@ -32,7 +32,7 @@ const BlogPostPage = ({ slug }: BlogPostPageProps) => {
     return (
       <>
         <Box sx={{ pt: 20, textAlign: "center", minHeight: "100vh" }}>
-          <Typography variant="h4" sx={{ fontFamily: "OutfitSemiBold", color: theme.palette.text.primary }}>
+          <Typography variant="h4" sx={{ fontFamily: "var(--font-hero), var(--font-sans)", color: theme.palette.text.primary }}>
             {t('blogPostNotFound')}
           </Typography>
           <Typography
@@ -101,7 +101,7 @@ const BlogPostPage = ({ slug }: BlogPostPageProps) => {
       <Typography
         sx={{
           fontSize: "13px",
-          fontFamily: "OutfitSemiBold",
+          fontFamily: "var(--font-hero), var(--font-sans)",
           color: theme.palette.text.secondary,
           mr: 0.5,
         }}
@@ -244,7 +244,7 @@ const BlogPostPage = ({ slug }: BlogPostPageProps) => {
                   fontSize: "13px",
                   lineHeight: 1.65,
                   color: "#CDD6F4",
-                  fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
+                  fontFamily: "var(--font-tech), monospace",
                 }}
               >
                 {codeLines.join("\n")}
@@ -283,7 +283,7 @@ const BlogPostPage = ({ slug }: BlogPostPageProps) => {
             key={`h2-${i}`}
             sx={{
               fontSize: isMobile ? "22px" : "28px",
-              fontFamily: "OutfitSemiBold",
+              fontFamily: "var(--font-hero), var(--font-sans)",
               fontWeight: 700,
               color: theme.palette.text.primary,
               mt: 5,
@@ -302,7 +302,7 @@ const BlogPostPage = ({ slug }: BlogPostPageProps) => {
             key={`h3-${i}`}
             sx={{
               fontSize: isMobile ? "18px" : "22px",
-              fontFamily: "OutfitSemiBold",
+              fontFamily: "var(--font-hero), var(--font-sans)",
               fontWeight: 600,
               color: theme.palette.text.primary,
               mt: 4,
@@ -358,7 +358,7 @@ const BlogPostPage = ({ slug }: BlogPostPageProps) => {
             <Typography
               sx={{
                 fontSize: "14px",
-                fontFamily: "OutfitSemiBold",
+                fontFamily: "var(--font-hero), var(--font-sans)",
                 color: theme.palette.primary.main,
                 minWidth: 20,
               }}
@@ -440,7 +440,7 @@ const BlogPostPage = ({ slug }: BlogPostPageProps) => {
           sx={{
             cursor: "pointer",
             fontSize: "14px",
-            fontFamily: "OutfitSemiBold",
+            fontFamily: "var(--font-hero), var(--font-sans)",
             color: theme.palette.primary.main,
             mb: 4,
             display: "inline-flex",
@@ -466,7 +466,7 @@ const BlogPostPage = ({ slug }: BlogPostPageProps) => {
             <Typography
               sx={{
                 fontSize: "11px",
-                fontFamily: "OutfitSemiBold",
+                fontFamily: "var(--font-hero), var(--font-sans)",
                 fontWeight: 600,
                 color: catColor,
                 textTransform: "uppercase",
@@ -504,7 +504,7 @@ const BlogPostPage = ({ slug }: BlogPostPageProps) => {
         <Typography
           sx={{
             fontSize: isMobile ? "28px" : "42px",
-            fontFamily: "OutfitSemiBold",
+            fontFamily: "var(--font-hero), var(--font-sans)",
             fontWeight: 700,
             color: theme.palette.text.primary,
             lineHeight: 1.2,
@@ -526,7 +526,7 @@ const BlogPostPage = ({ slug }: BlogPostPageProps) => {
               alignItems: "center",
               justifyContent: "center",
               fontSize: "15px",
-              fontFamily: "OutfitSemiBold",
+              fontFamily: "var(--font-hero), var(--font-sans)",
               color: catColor,
             }}
           >
@@ -536,7 +536,7 @@ const BlogPostPage = ({ slug }: BlogPostPageProps) => {
             <Typography
               sx={{
                 fontSize: "14px",
-                fontFamily: "OutfitSemiBold",
+                fontFamily: "var(--font-hero), var(--font-sans)",
                 color: theme.palette.text.primary,
                 lineHeight: 1.3,
               }}
@@ -588,7 +588,7 @@ const BlogPostPage = ({ slug }: BlogPostPageProps) => {
           <Typography
             sx={{
               fontSize: isMobile ? "20px" : "24px",
-              fontFamily: "OutfitSemiBold",
+              fontFamily: "var(--font-hero), var(--font-sans)",
               fontWeight: 700,
               color: theme.palette.text.primary,
               mb: 1.5,
@@ -617,7 +617,7 @@ const BlogPostPage = ({ slug }: BlogPostPageProps) => {
               bgcolor: theme.palette.primary.main,
               color: theme.palette.primary.contrastText,
               textDecoration: "none",
-              fontFamily: "OutfitSemiBold",
+              fontFamily: "var(--font-hero), var(--font-sans)",
               fontSize: "15px",
               fontWeight: 600,
               transition: "all 0.2s ease",

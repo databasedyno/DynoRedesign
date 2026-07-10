@@ -30,16 +30,18 @@ export const Badge = styled(Box)(({ theme }) => ({
   width: "fit-content",
   fontSize: 12,
   lineHeight: "16px",
-  letterSpacing: "1.6px",
+  letterSpacing: "0.2em",
   textTransform: "uppercase",
-  fontWeight: 600,
-  fontFamily: "var(--font-sans)",
-  color: theme.palette.text.secondary,
+  fontWeight: 500,
+  fontFamily: "var(--font-tech), monospace",
+  color: theme.palette.mode === "dark" ? "#CCFF00" : "#5A6B00",
   backgroundColor: "transparent",
   padding: 0,
   borderRadius: 0,
   alignSelf: "center",
   marginBottom: 4,
+  "&::before": { content: '"[ "' },
+  "&::after": { content: '" ]"' },
   "&[data-align='start']": {
     alignSelf: "flex-start",
     textAlign: "left",
@@ -48,7 +50,7 @@ export const Badge = styled(Box)(({ theme }) => ({
 
 export const Heading = styled(Typography)(({ theme }) => ({
   fontWeight: 600,
-  fontFamily: "var(--font-sans), system-ui, sans-serif",
+  fontFamily: "var(--font-hero), var(--font-sans), system-ui, sans-serif",
   color: theme.palette.text.primary,
   padding: "0 15px",
   textAlign: "center",
@@ -58,16 +60,16 @@ export const Heading = styled(Typography)(({ theme }) => ({
   },
 
   "&[data-type='large']": {
-    fontSize: "48px",
-    lineHeight: "56px",
-    maxWidth: 720,
+    fontSize: "40px",
+    lineHeight: "50px",
+    maxWidth: 760,
     marginTop: "16px",
     marginBottom: "12px",
   },
 
   "&[data-type='small']": {
-    fontSize: "32px",
-    lineHeight: "40px",
+    fontSize: "28px",
+    lineHeight: "38px",
     maxWidth: "auto",
     marginTop: "12px",
     marginBottom: "12px",
@@ -75,12 +77,12 @@ export const Heading = styled(Typography)(({ theme }) => ({
 
   [theme.breakpoints.down("md")]: {
     "&[data-type='large']": {
-      fontSize: "36px",
-      lineHeight: "42px",
+      fontSize: "30px",
+      lineHeight: "38px",
     },
     "&[data-type='small']": {
-      fontSize: "28px",
-      lineHeight: "34px",
+      fontSize: "23px",
+      lineHeight: "30px",
     },
   },
 }));
@@ -89,7 +91,7 @@ export const SubText = styled(Typography)(({ theme }) => ({
   padding: 0,
   fontWeight: 400,
   letterSpacing: "0px !important",
-  fontFamily: "var(--font-sans)",
+  fontFamily: "var(--font-body), var(--font-sans)",
   color: theme.palette.text.secondary,
   textAlign: "center",
   display: "block",
@@ -128,7 +130,7 @@ export const SubText = styled(Typography)(({ theme }) => ({
  * every section title read as marketing noise.
  */
 export const HighlightText = styled("span")(({ theme }) => ({
-  color: theme.palette.primary.main,
+  color: theme.palette.mode === "dark" ? "#CCFF00" : "#5A6B00",
   fontWeight: 500,
   // Keep the following overrides so any lingering global background-clip
   // rules from the old gradient don't leak through:

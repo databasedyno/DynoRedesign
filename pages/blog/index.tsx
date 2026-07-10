@@ -68,7 +68,7 @@ const BlogPage = () => {
             <Typography
               sx={{
                 fontSize: "12px",
-                fontFamily: "OutfitSemiBold",
+                fontFamily: "var(--font-hero), var(--font-sans)",
                 fontWeight: 600,
                 color: theme.palette.primary.main,
                 textTransform: "uppercase",
@@ -81,7 +81,7 @@ const BlogPage = () => {
           <Typography
             sx={{
               fontSize: isMobile ? "32px" : "48px",
-              fontFamily: "OutfitSemiBold",
+              fontFamily: "var(--font-hero), var(--font-sans)",
               fontWeight: 700,
               color: theme.palette.text.primary,
               lineHeight: 1.15,
@@ -148,7 +148,7 @@ const BlogPage = () => {
                       <Typography
                         sx={{
                           fontSize: "11px",
-                          fontFamily: "OutfitSemiBold",
+                          fontFamily: "var(--font-hero), var(--font-sans)",
                           fontWeight: 600,
                           color: catColor,
                           textTransform: "uppercase",
@@ -173,7 +173,7 @@ const BlogPage = () => {
                   <Typography
                     sx={{
                       fontSize: isMobile ? "18px" : "22px",
-                      fontFamily: "OutfitSemiBold",
+                      fontFamily: "var(--font-hero), var(--font-sans)",
                       fontWeight: 600,
                       color: theme.palette.text.primary,
                       lineHeight: 1.3,
@@ -210,7 +210,7 @@ const BlogPage = () => {
                           alignItems: "center",
                           justifyContent: "center",
                           fontSize: "13px",
-                          fontFamily: "OutfitSemiBold",
+                          fontFamily: "var(--font-hero), var(--font-sans)",
                           color: catColor,
                         }}
                       >
@@ -220,7 +220,7 @@ const BlogPage = () => {
                         <Typography
                           sx={{
                             fontSize: "12px",
-                            fontFamily: "OutfitSemiBold",
+                            fontFamily: "var(--font-hero), var(--font-sans)",
                             color: theme.palette.text.primary,
                             lineHeight: 1.2,
                           }}
@@ -245,7 +245,7 @@ const BlogPage = () => {
                     <Typography
                       sx={{
                         fontSize: "13px",
-                        fontFamily: "OutfitSemiBold",
+                        fontFamily: "var(--font-hero), var(--font-sans)",
                         color: theme.palette.primary.main,
                         display: "flex",
                         alignItems: "center",
