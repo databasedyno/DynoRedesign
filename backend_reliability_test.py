@@ -11,7 +11,7 @@ import time
 from typing import Dict, Any, Optional
 
 # Configuration
-BASE_URL = "https://merchant-gateway-32.preview.emergentagent.com"
+BASE_URL = "https://payment-hub-587.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 # Test credentials from test_result.md

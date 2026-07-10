@@ -15,7 +15,7 @@ from typing import Dict, Any, Optional
 
 class DynoPayComprehensiveTester:
     def __init__(self):
-        self.backend_url = "https://merchant-gateway-32.preview.emergentagent.com"
+        self.backend_url = "https://payment-hub-587.preview.emergentagent.com"
         self.session = requests.Session()
         self.access_token: Optional[str] = None
         self.login_otp_session: Optional[str] = None
