@@ -196,5 +196,8 @@
     "slide3Caption": "Intégrelo en una tarde con una API sencilla",
     "prev": "Diapositiva anterior",
     "next": "Siguiente diapositiva"
-  }
+  },
+  "heroStatBusinesses": "Empresas",
+  "heroStatChains": "Cadenas",
+  "heroStatSettlement": "Liquidación media"
 }

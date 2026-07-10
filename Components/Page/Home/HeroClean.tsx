@@ -1,4 +1,4 @@
-import React, { memo, useCallback } from 'react';
+import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { Box, Typography, Button, useTheme } from '@mui/material';
 import { ArrowForward } from '@mui/icons-material';
 import { useRouter } from 'next/router';
@@ -14,6 +14,55 @@ const heroContainer = {
 const heroItem = {
   hidden: { opacity: 0, y: 22 },
   show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } },
+};
+
+/**
+ * CountUp — WalletConnect-style animated counter (session 15, user request).
+ * Counts from 0 to `end` over ~1.4s with an ease-out curve on mount.
+ * Respects prefers-reduced-motion (jumps straight to the final value).
+ */
+const CountUp: React.FC<{ end: number; delayMs?: number; prefix?: string; suffix?: string }> = ({
+  end,
+  delayMs = 500,
+  prefix = '',
+  suffix = '',
+}) => {
+  const [value, setValue] = useState(0);
+  const rafRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+    if (reduced) {
+      setValue(end);
+      return;
+    }
+    const DURATION = 1400;
+    let start: number | null = null;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    const tick = (ts: number) => {
+      if (start === null) start = ts;
+      const p = Math.min((ts - start) / DURATION, 1);
+      const eased = 1 - Math.pow(1 - p, 3); // ease-out cubic
+      setValue(Math.round(eased * end));
+      if (p < 1) rafRef.current = requestAnimationFrame(tick);
+    };
+    timer = setTimeout(() => {
+      rafRef.current = requestAnimationFrame(tick);
+    }, delayMs);
+    return () => {
+      if (timer) clearTimeout(timer);
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, [end, delayMs]);
+
+  return (
+    <span className="tabular-nums">
+      {prefix}
+      {value.toLocaleString('en-US')}
+      {suffix}
+    </span>
+  );
 };
 
 /**
@@ -165,6 +214,68 @@ const HeroClean: React.FC = () => {
         >
           {t('startAcceptingCrypto')}
         </Button>
+      </Box>
+
+      {/* Animated stats row — count-up of the marketing claims already used
+          elsewhere on the page (WalletConnect-style, session 15). */}
+      <Box
+        component={motion.div}
+        variants={heroItem}
+        data-testid="hero-stats-row"
+        sx={{
+          display: 'flex',
+          alignItems: 'stretch',
+          justifyContent: 'center',
+          gap: { xs: 3, md: 5 },
+          flexWrap: 'wrap',
+          mb: { xs: 2.5, md: 3 },
+        }}
+      >
+        {[
+          { value: <CountUp end={1000} suffix="+" delayMs={550} />, label: t('heroStatBusinesses'), testId: 'hero-stat-businesses' },
+          { value: <CountUp end={15} suffix="+" delayMs={700} />, label: t('heroStatChains'), testId: 'hero-stat-chains' },
+          { value: <span>{'<1 min'}</span>, label: t('heroStatSettlement'), testId: 'hero-stat-settlement' },
+        ].map((s, i) => (
+          <Box
+            key={i}
+            data-testid={s.testId}
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 0.25,
+              px: { xs: 1, md: 2 },
+              minWidth: 92,
+            }}
+          >
+            <Typography
+              component="span"
+              sx={{
+                fontFamily: 'var(--font-sans)',
+                fontWeight: 700,
+                fontSize: { xs: 24, md: 30 },
+                lineHeight: 1.1,
+                color: theme.palette.text.primary,
+                letterSpacing: '-0.02em',
+              }}
+            >
+              {s.value}
+            </Typography>
+            <Typography
+              component="span"
+              sx={{
+                fontFamily: 'var(--font-sans)',
+                fontSize: 11.5,
+                fontWeight: 600,
+                letterSpacing: '0.08em',
+                textTransform: 'uppercase',
+                color: theme.palette.text.secondary,
+              }}
+            >
+              {s.label}
+            </Typography>
+          </Box>
+        ))}
       </Box>
 
       {/* Single subtle trust line, country-personalized. Replaces the row of pill trust badges. */}

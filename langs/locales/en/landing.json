@@ -196,5 +196,8 @@
     "slide3Caption": "Integrate in an afternoon with a simple API",
     "prev": "Previous slide",
     "next": "Next slide"
-  }
+  },
+  "heroStatBusinesses": "Businesses",
+  "heroStatChains": "Chains",
+  "heroStatSettlement": "Avg settlement"
 }
