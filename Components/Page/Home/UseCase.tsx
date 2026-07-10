@@ -8,7 +8,7 @@ import useCase2 from "@/assets/Images/UseCase/use-case-2.svg";
 import useCase3 from "@/assets/Images/UseCase/use-case-3.svg";
 import { styled } from "@mui/material/styles";
 import useCase4 from "@/assets/Images/UseCase/use-case-4.svg";
-import useCase5 from "@/assets/Images/UseCase/use-case-5.svg";
+import useCase5 from "@/assets/Images/UseCase/use-case-5.jpg";
 import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
 import UseCaseBanner from "@/Components/UI/UseCaseBanner";
 import useIsMobile from "@/hooks/useIsMobile";

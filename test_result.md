@@ -30,6 +30,9 @@ C. REGRESSION: standard payment-link creation flow still shows correct copy; /pa
 
 **MAIN-AGENT FOLLOW-UP (2026-07-10, post-run):** Testing agent verified create-flow copy 7/7 (button "Create Payment Link" ↔ "Create donation"; de "Spende erstellen"; pt "Criar doação"; no raw keys) + landing use-case card + regression. The one MINOR item (browser TAB title stayed static) is now FIXED: added a donation-only next/head <title> override in CreatePaymentLink/index.tsx → tab title becomes "Create Donation | DynoPay" when donation type is selected (standard link keeps its route SEO title "Create Crypto Payment Link | DynoPay"). The in-app visible page header already toggled via setPageName. Rebuilt + restarted; lint clean. FAQ7 confirmed present by main agent (accordion collapsed by default, hence the agent's selector miss). Feature complete.
 
+**REFINEMENT (2026-07-10, session 18b):** Donation use-case card polished for style consistency + retention. Replaced the flat vector (use-case-5.svg, removed) with a real photographic asset use-case-5.jpg (489×399, ~35KB — hands holding coins/"make a change") sourced via vision_expert_agent, so all 5 cards share the same photo style (verified: all 5 #use-cases imgs naturalWidth>0, complete). UseCase.tsx import switched .svg→.jpg (next/image static import). Copy made retention-oriented across all 6 locales: useCase5Description → "Goal-based campaigns with live progress that turn one-time givers into repeat supporters." (localized). Rebuilt + restarted, lint clean, visually verified. NOTE (pre-existing, out of scope): the other 4 use-case images are 7–9 MB embedded-raster .svg files that lazy-load slowly — candidate future perf optimization.
+
+
 
 **TEST EXECUTION SUMMARY:**
 - **Agent:** testing (frontend_testing_agent)
