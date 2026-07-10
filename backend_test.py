@@ -2,7 +2,7 @@
 """
 Session 16: Donation/Crowdfunding Backend Test Suite
 Tests the NEW donation/crowdfunding backend for DynoPay (Node/Express + PostgreSQL)
-Base URL: https://payment-hub-587.preview.emergentagent.com/api
+Base URL: https://dynopay-staging-2.preview.emergentagent.com/api
 """
 
 import requests
@@ -12,7 +12,7 @@ import os
 from typing import Dict, List, Optional, Tuple
 
 # Configuration
-BASE_URL = "https://payment-hub-587.preview.emergentagent.com/api"
+BASE_URL = "https://dynopay-staging-2.preview.emergentagent.com/api"
 QA_EMAIL = "hostbay@moxx.co"
 QA_PASSWORD = "Katiekendra123@"
 
@@ -568,7 +568,7 @@ def test_9_upload_campaign_image(token: str):
     result.add_pass("Test 9b", f"Upload returned URL: {url}")
     
     # Verify image is accessible
-    full_url = url if url.startswith("http") else f"https://payment-hub-587.preview.emergentagent.com{url}"
+    full_url = url if url.startswith("http") else f"https://dynopay-staging-2.preview.emergentagent.com{url}"
     response = requests.get(full_url, headers={"User-Agent": HEADERS["User-Agent"]})
     
     if response.status_code == 200 and response.headers.get("Content-Type", "").startswith("image"):
