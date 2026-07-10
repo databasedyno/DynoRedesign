@@ -1,6 +1,7 @@
 import PanelCard from "@/Components/UI/PanelCard";
 import Head from "next/head";
-import { Box, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { Box, Typography, useMediaQuery, useTheme, Drawer, IconButton } from "@mui/material";
+import { Icon } from "@iconify/react";
 import { useRouter } from "next/router";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -72,6 +73,8 @@ const CreatePaymentLinkPage = ({
   const { t } = useTranslation("createPaymentLinkScreen");
   const paymentLinkState = useSelector((state: any) => state.paymentLinkReducer);
   const feePreview = paymentLinkState?.feePreview;
+  // Mobile / tablet (< lg): live preview shown on demand via a bottom-sheet drawer.
+  const [previewOpen, setPreviewOpen] = useState(false);
   const selectedCompanyId = useSelector(
     (state: any) => state?.companyReducer?.selectedCompanyId
   );
@@ -1619,6 +1622,122 @@ const CreatePaymentLinkPage = ({
         />
       </Box>
       </Box>
+
+      {/* ── Live preview: mobile / tablet-portrait (< lg) — on-demand bottom sheet ── */}
+      <Box
+        onClick={() => setPreviewOpen(true)}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e: React.KeyboardEvent) => {
+          if (e.key === " " || e.key === "Enter") {
+            e.preventDefault();
+            setPreviewOpen(true);
+          }
+        }}
+        aria-label={t("livePreview", { defaultValue: "Live preview" })}
+        data-testid="mobile-preview-fab"
+        sx={{
+          display: { xs: "flex", lg: "none" },
+          position: "fixed",
+          bottom: 20,
+          right: 20,
+          zIndex: 1250,
+          alignItems: "center",
+          gap: "8px",
+          height: 48,
+          px: "18px",
+          borderRadius: "999px",
+          cursor: "pointer",
+          color: "#fff",
+          background: `linear-gradient(90deg, #10B981 0%, ${theme.palette.primary.main} 100%)`,
+          boxShadow: "0 8px 24px rgba(0,0,0,0.28)",
+          userSelect: "none",
+          transition: "transform 120ms ease",
+          "&:active": { transform: "scale(0.96)" },
+        }}
+      >
+        <Icon icon="mdi:eye-outline" width={20} />
+        <Typography sx={{ fontSize: 14, fontWeight: 700, fontFamily: "var(--font-sans)" }}>
+          {t("previewButton", { defaultValue: "Preview" })}
+        </Typography>
+      </Box>
+
+      <Drawer
+        anchor="bottom"
+        open={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+        data-testid="mobile-preview-drawer"
+        sx={{
+          display: { lg: "none" },
+          "& .MuiDrawer-paper": {
+            borderTopLeftRadius: 18,
+            borderTopRightRadius: 18,
+            maxHeight: "88vh",
+            backgroundColor: theme.palette.background.default,
+            backgroundImage: "none",
+            px: 2,
+            pt: 1.5,
+            pb: 3,
+          },
+        }}
+      >
+        <Box
+          sx={{
+            width: 40,
+            height: 4,
+            borderRadius: 999,
+            bgcolor: theme.palette.border.main,
+            mx: "auto",
+            mb: 1.5,
+          }}
+        />
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            mb: 1.5,
+          }}
+        >
+          <Typography
+            sx={{
+              fontSize: 16,
+              fontWeight: 700,
+              color: theme.palette.text.primary,
+              fontFamily: "var(--font-sans)",
+            }}
+          >
+            {t("livePreview", { defaultValue: "Live preview" })}
+          </Typography>
+          <IconButton
+            onClick={() => setPreviewOpen(false)}
+            size="small"
+            aria-label="close"
+            data-testid="mobile-preview-close"
+            sx={{ color: theme.palette.text.secondary }}
+          >
+            <Icon icon="mdi:close" width={22} />
+          </IconButton>
+        </Box>
+        <Box sx={{ overflowY: "auto", maxWidth: 440, width: "100%", mx: "auto", pb: 1 }}>
+          <LivePreviewPanel
+            linkKind={linkKind}
+            amount={paymentSettings.value}
+            currency={paymentSettings.currency}
+            clientName={paymentSettings.clientName}
+            description={paymentSettings.description}
+            donation={donationSettings}
+            purpose={paymentSettings.description}
+            acceptedCount={paymentSettings.acceptedCryptoCurrency?.length || 0}
+            companyName={
+              (companyListForBanner.find(
+                (c: any) => c.company_id === selectedCompanyId
+              ) || {})?.company_name || null
+            }
+          />
+        </Box>
+      </Drawer>
+
     </div>
   );
 };
