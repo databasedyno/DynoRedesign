@@ -85,8 +85,8 @@ const CryptoItemCard: React.FC<CryptoItemCardProps> = React.memo(
             // UX-2026-07-08: enforce ≥44px touch-target on mobile (WCAG 2.5.5)
             // while keeping the desktop card visual size (66px) unchanged.
             minHeight: isMobile ? "56px" : "66px",
-            height: isMobile ? "auto" : "66px",
-            maxWidth: "326px",
+            height: "auto",
+            width: "100%",
             border: `1px solid ${
               paymentSettings.acceptedCryptoCurrency.includes(item.label)
                 ? theme.palette.border.success
@@ -116,9 +116,18 @@ const CryptoItemCard: React.FC<CryptoItemCardProps> = React.memo(
             },
           }}
         >
-          <Box sx={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: "10px",
+              flex: 1,
+              minWidth: 0,
+            }}
+          >
             <Box
               sx={{
+                flexShrink: 0,
                 height: "30px",
                 width: "30px",
                 border: `0.48px solid ${theme.palette.border.main}`,
@@ -148,48 +157,67 @@ const CryptoItemCard: React.FC<CryptoItemCardProps> = React.memo(
               </Box>
             </Box>
 
-            <Text
-              sx={{
-                width: item.name === "POLYGON USDT" ? "80px" : "auto",
-                whiteSpace: "wrap",
-                fontSize: "15px",
-                color: theme.palette.text.primary,
-              }}
-            >
-              {item.name}
-            </Text>
-
             <Box
               sx={{
-                height: "30px",
-                width: "fit-content",
-                border: `0.48px solid ${theme.palette.border.main}`,
-                borderRadius: "100px",
-                backgroundColor: theme.palette.secondary.light,
-                padding: "6px 13px",
+                minWidth: 0,
                 display: "flex",
                 alignItems: "center",
+                flexWrap: "wrap",
+                gap: "4px 8px",
               }}
             >
               <Text
                 sx={{
-                  fontSize: "13px",
+                  whiteSpace: "nowrap",
+                  fontSize: "15px",
                   color: theme.palette.text.primary,
                 }}
               >
-                {item.label}
+                {item.name}
               </Text>
+
+              <Box
+                sx={{
+                  flexShrink: 0,
+                  height: "28px",
+                  width: "fit-content",
+                  border: `0.48px solid ${theme.palette.border.main}`,
+                  borderRadius: "100px",
+                  backgroundColor: theme.palette.secondary.light,
+                  padding: "5px 11px",
+                  display: "flex",
+                  alignItems: "center",
+                }}
+              >
+                <Text
+                  sx={{
+                    whiteSpace: "nowrap",
+                    fontSize: "13px",
+                    color: theme.palette.text.primary,
+                  }}
+                >
+                  {item.label}
+                </Text>
+              </Box>
+
+              {STABLECOIN_LABELS.includes(item.label) && (
+                <Text
+                  sx={{
+                    flexShrink: 0,
+                    whiteSpace: "nowrap",
+                    fontSize: "12px",
+                    color: theme.palette.text.secondary,
+                  }}
+                >
+                  {tPaymentLink("stable")}
+                </Text>
+              )}
             </Box>
           </Box>
 
-          {STABLECOIN_LABELS.includes(item.label) && (
-            <Text sx={{ fontSize: "12px", color: theme.palette.text.secondary }}>
-              {tPaymentLink("stable")}
-            </Text>
-          )}
-
           <Box
             sx={{
+              flexShrink: 0,
               height: isMobile ? "18px" : "24px",
               width: isMobile ? "18px" : "24px",
               backgroundColor: paymentSettings.acceptedCryptoCurrency.includes(
