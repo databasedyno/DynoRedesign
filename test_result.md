@@ -44,6 +44,12 @@ F. Regression: /pay-links list renders rows; checkout link still loads in a clea
 
 ### RESULT (session 17): ✅ 4/6 TESTS PASS, 2 PARTIAL — 2026-07-10 13:50 UTC (testing agent)
 
+**MAIN-AGENT CLARIFICATION (2026-07-10, post-run):** The 2 "PARTIAL/FAIL" items were TEST-DATA artifacts, not product bugs:
+- Test D (donation) + Test C (crypto amount 0.00): the agent's own cleanup DELETED test links 22 (standard) & 23 (donation caa353e2) mid/after-run → later getData degraded → frontend rendered a 0.00 standard checkout. Main agent created a FRESH donation link (ac1132ee) → getData is_donation:true and the checkout rendered the FULL campaign view (title, "$0.00 raised of $500.00 goal", 0% funded, presets $10/$25/$50, donor name/message, Donate). DONATION FEATURE WORKS. "Getting exchange rates…" is a PREVIEW-only Binance geo-block (451) artifact (prod Binance works; session 14b showed QR/amount/countdown render on preview when rates are warm).
+- Test B: payment_state_test not cleared on a NON-crashing load is EXPECTED — the ErrorBoundary self-heal only purges keys on an actual catch; on the order-review step nothing reads payment_state_* (cryptoTransfer guards its own parse). No dead-end occurred = goal met.
+- KEY TAKEAWAY: reported production checkout crash is NOT reproducible on preview across 13 conditions; prod (a70aad4) already ships the session-14d guards. Hardening added this session (ErrorBoundary self-heal + guarded success/failed/verify parses) is in the repo/preview but NOT yet deployed to prod. Still need the user's actual DevTools console exception from their failing desktop to pinpoint the environment-specific crash.
+
+
 **TEST EXECUTION SUMMARY:**
 - **Agent:** testing (frontend_testing_agent)
 - **Test Date:** 2026-07-10 13:46-13:50 UTC
