@@ -5,6 +5,11 @@ USDT-TRC20 payment gateway platform. Users can create companies, wallets, paymen
 
 ## What's Been Implemented
 
+### 2026-07-10 — Session 14c: Notifications "Settings" tab crash fix ✅ VERIFIED (frontend agent)
+- Prod bug: Settings tab on /notifications → ErrorBoundary. Root cause: NotificationItem (Settings-tab toggle rows) referenced bare `theme` with no `useTheme()` (top import had been renamed to staticTheme); shipped due to next.config `ignoreBuildErrors: true`. Fixed with `const theme = useTheme()` + removed unused import.
+- Repo sweep (tsc "Cannot find name 'theme'"): fixed one more latent case — UserMenu/styled.tsx PopWrapper styled-factory missing ({ theme }) (component currently unused). No other instances.
+- Known pre-existing cosmetic (NOT fixed): /_next/image 400 for /images/user_image.png avatar fallback.
+
 ### 2026-07-10 — Session 14b: Checkout cleanup + crypto page redesign ✅ VERIFIED (frontend agent 6/6, 1 minor test-selector note only)
 - Removed checkout's decorative FloatingChatButton (pages/pay/index.tsx) and the dead "Dynopay Wallet" header button (Pay3Components/header.tsx, desktop + mobile drawer).
 - Redesigned cryptoTransfer.tsx (VISUAL ONLY, logic intact): dropdown → coin TILE GRID (crypto-tile-<VALUE> testids, green #10B981 selected state), segmented network pills, fixed 196px QR card, mono address + amount (tabular-nums), Space Grotesk → var(--font-sans) everywhere (30×), consistent 10–14px radii. Verified live with user's real payment link (USDT→TRC20→QR/amount/countdown), light + dark.
