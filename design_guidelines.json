@@ -1,132 +1,126 @@
 {
+  "theme": "light_and_dark_supported",
+  "project_context": {
+    "app_type": "Marketing Landing Page for SaaS (Crypto Payment Gateway)",
+    "design_philosophy": "Institutional Trust meets Web3 Kinetics. Zero generic AI slop. Swiss precision with terminal-inspired technical details, inspired by Stripe's 2026 engineer-centric layouts.",
+    "tech_stack_rules": "Next.js Pages Router, Material UI (MUI) v5, TypeScript. STRICTLY NO TAILWIND. Use MUI `sx` prop, `styled` components, and pure CSS @keyframes."
+  },
   "typography": {
-    "font_family_recommendations": [
-      {
-        "option": 1,
-        "name": "The Modern Tech Standard (Recommended)",
-        "primary": "Geist Sans",
-        "display": "Geist Sans (or Instrument Sans for Marketing)",
-        "mono": "Geist Mono",
-        "reasoning": "Geist is highly engineered for readability at both micro and macro scales, reminiscent of Vercel and Linear. It naturally handles high data density beautifully, has tabular features, and zero cost (OFL).",
-        "license": "Open Source (OFL)"
-      },
-      {
-        "option": 2,
-        "name": "The Premium Fintech",
-        "primary": "Söhne",
-        "display": "Söhne",
-        "mono": "Söhne Mono",
-        "reasoning": "This mimics the ultra-refined Stripe/Ramp aesthetic. Extremely neutral but undeniably premium. Requires a paid license.",
-        "license": "Premium Paid",
-        "fallback": "DM Sans (Body) + Cabinet Grotesk (Headings)"
-      },
-      {
-        "option": 3,
-        "name": "Refine Current Stack",
-        "primary": "Manrope (Tuned)",
-        "display": "Unbounded (Marketing Only) / Manrope (App)",
-        "mono": "JetBrains Mono",
-        "reasoning": "Easiest migration. Manrope is highly legible but the current implementation uses font-weight 500 for regular text. Dropping body weight to 400, adjusting line-heights, and enabling optical sizing/tabular figures will instantly fix the 'muddy' feel.",
-        "license": "Open Source (OFL)"
-      }
+    "imports": [
+      "@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Unbounded:wght@300;400;600;800&display=swap');"
     ],
-    "weight_strategy": {
-      "regular": "400 (Crucial fix: Drop from current 500 to 400 for all body text to reduce visual muddiness)",
-      "medium": "500 (Use only for secondary emphasis, small labels, or table headers)",
-      "semibold": "600 (Use for primary buttons, KPI values, and subheadings h4-h6)",
-      "bold": "700 (Use for dashboard h1-h3 and marketing h2-h3)",
-      "extrabold": "800 (Reserve exclusively for Marketing Hero h1)"
+    "headings": {
+      "fontFamily": "'Unbounded', sans-serif",
+      "rules": "H1-H6. Use negative letter-spacing (-0.02em to -0.04em). Never use default bold, prefer distinct weights like 300 (Light) or 800 (Black). Capitalize strategically."
     },
-    "type_scale": {
-      "marketing": {
-        "display-2xl": { "size": "72px", "line-height": "1.05", "letter-spacing": "-0.03em", "weight": "800" },
-        "display-xl": { "size": "60px", "line-height": "1.1", "letter-spacing": "-0.02em", "weight": "800" },
-        "display-lg": { "size": "48px", "line-height": "1.15", "letter-spacing": "-0.02em", "weight": "700" }
-      },
-      "app_dashboard": {
-        "h1": { "size": "32px", "line-height": "1.25", "letter-spacing": "-0.015em", "weight": "700" },
-        "h2": { "size": "28px", "line-height": "1.3", "letter-spacing": "-0.01em", "weight": "700" },
-        "h3": { "size": "24px", "line-height": "1.35", "letter-spacing": "-0.01em", "weight": "600" },
-        "h4": { "size": "20px", "line-height": "1.4", "letter-spacing": "0", "weight": "600" },
-        "body-lg": { "size": "18px", "line-height": "1.5", "letter-spacing": "0", "weight": "400" },
-        "body-md": { "size": "16px", "line-height": "1.5", "letter-spacing": "0", "weight": "400" },
-        "body-sm": { "size": "14px", "line-height": "1.55", "letter-spacing": "0", "weight": "400" },
-        "caption": { "size": "12px", "line-height": "1.5", "letter-spacing": "0", "weight": "400" },
-        "overline": { "size": "11px", "line-height": "1.4", "letter-spacing": "0.06em", "weight": "600", "transform": "uppercase" }
-      }
+    "body": {
+      "fontFamily": "'IBM Plex Sans', sans-serif",
+      "rules": "Clean, highly legible. 16px to 18px base size. 1.6 line height. Used for paragraphs, subtitles, and general UI text."
+    },
+    "mono": {
+      "fontFamily": "'IBM Plex Mono', monospace",
+      "rules": "Used for data points, tags, overlines, and code snippets. Extremely technical vibe."
     }
   },
   "colors": {
+    "strategy": "Swiss & High-Contrast + Performance Pro. No generic SaaS blue. We use Deep Obsidian, Pure White, and Electric 'Volt' Green for kinetic energy. Color is function.",
     "light_mode": {
-      "bg-primary": { "hex": "#FFFFFF", "usage": "Main app background" },
-      "bg-elevated": { "hex": "#F4F4F5", "usage": "Cards, hover states, secondary surfaces" },
-      "text-primary": { "hex": "#18181B", "contrast_ratio": "17.1:1 AAA", "usage": "Headings, primary body" },
-      "text-secondary": { "hex": "#71717A", "contrast_ratio": "4.6:1 AA", "usage": "Subtitles, metadata, placeholders" },
-      "text-tertiary": { "hex": "#A1A1AA", "contrast_ratio": "2.8:1", "usage": "Disabled text only" },
-      "text-inverse": { "hex": "#FFFFFF", "contrast_ratio": "17.1:1 AAA", "usage": "Text on dark buttons/banners" }
+      "background": "#F4F5F6",
+      "surface": "#FFFFFF",
+      "primary_text": "#0A0A0A",
+      "secondary_text": "#5C5C5C",
+      "border": "rgba(10, 10, 10, 0.08)",
+      "accent": "#B8E600"
     },
     "dark_mode": {
-      "bg-primary": { "hex": "#09090B", "usage": "Main app background" },
-      "bg-elevated": { "hex": "#18181B", "usage": "Cards, dropdowns, table rows" },
-      "text-primary": { "hex": "#FAFAFA", "contrast_ratio": "17.5:1 AAA", "usage": "Headings, primary body" },
-      "text-secondary": { "hex": "#A1A1AA", "contrast_ratio": "8.5:1 AAA", "usage": "Subtitles, metadata" },
-      "text-tertiary": { "hex": "#52525B", "contrast_ratio": "2.7:1", "usage": "Disabled text only" },
-      "text-inverse": { "hex": "#09090B", "contrast_ratio": "17.5:1 AAA", "usage": "Text on light buttons/badges" }
+      "background": "#050505",
+      "surface": "#111111",
+      "primary_text": "#F5F5F5",
+      "secondary_text": "#A1A1A1",
+      "border": "rgba(255, 255, 255, 0.08)",
+      "accent": "#CCFF00"
     }
   },
-  "finance_specific_rules": {
-    "tabular_numerals": "Apply `font-variant-numeric: tabular-nums` (Tailwind `.tabular-nums`) to ALL currency amounts, timers, table columns containing numbers, and KPI values. This ensures vertical alignment.",
-    "crypto_addresses": "Use the Mono font. Truncate mid-string for UI display (e.g., `0x1234...abcd`) rather than wrapping long addresses. Provide a one-click copy button next to it.",
-    "long_decimals": "For crypto with 6-8 decimals, visually de-emphasize the trailing zeros or decimals if insignificant. E.g. `<span class=\"text-primary\">1.23</span><span class=\"text-secondary\">4567</span> BTC`."
+  "spacing_and_layout": {
+    "container": "Max width 1400px. Unusually generous padding. Sections should have 120px to 160px vertical padding (e.g., `py: { xs: 10, md: 20 }` in MUI).",
+    "bento_grid": "Use CSS Grid via MUI `sx={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: 3 }}`. Avoid standard equal-width cards. Mix `gridColumn: 'span 8'` and `span 4`.",
+    "card_surfaces": "No soft drop shadows. Flat surfaces, 1px sharp borders. Border radius max 16px. On hover, apply a technical '-translate-y-1' and a sharp colored shadow, e.g., `boxShadow: '4px 4px 0px var(--accent-color)'`."
   },
-  "implementation_notes": {
-    "font_loading": "If using Next.js/React, move away from `<link>` tags in document.js and utilize standard bundler imports for local fonts or `@fontsource` to prevent FOUT (Flash of Unstyled Text) and CLS. Keep fonts in `/public/fonts` but import them cleanly.",
-    "theme_consolidation": "Consolidate `theme.js`, `theme2.js`, `homeTheme.js`, `homeBento.js`, and `authTheme.js` into a single source of truth (e.g., `theme.config.js` or via standard CSS variables in `globals.css` that Shadcn/MUI can consume).",
-    "css_variables": "Map typography into structural CSS variables: `--font-sans`, `--font-mono`, `--font-display` to allow easy swapping.",
-    "file_type_constraint": "Note: Use `.js` or `.jsx` configurations as per project strict requirements (no `.tsx`)."
-  },
-  "before_after_guidance": {
-    "marketing_hero": {
-      "before": "<h1 class=\"text-4xl font-bold font-unbounded\">Accept Crypto</h1><p class=\"text-base font-medium font-manrope\">...</p>",
-      "after": "<h1 class=\"text-6xl font-extrabold tracking-tight font-display\">Accept Crypto</h1><p class=\"text-lg font-normal font-sans leading-relaxed text-secondary\">...</p>"
+  "section_blueprints": {
+    "hero": {
+      "composition": "Massive typography left-aligned. 'Unbounded' font. Right side features a floating Glassmorphic terminal window showcasing an instant settlement API call.",
+      "signature_moment": "Instead of blobs, use an SVG 'Tracing Beam' or geometric grid background. A bold button that says 'Start processing — 0.7%' in Volt Green."
     },
-    "dashboard_kpi": {
-      "before": "<div class=\"font-manrope font-medium text-3xl\">$124,592.45</div>",
-      "after": "<div class=\"font-sans font-semibold text-3xl tracking-tight tabular-nums\">$124,592.45</div>"
+    "compliance_strip": {
+      "composition": "A high-contrast strip (inverted background) with grayscale logos of SOC2, GDPR, Chainalysis, and non-custodial badges. Slow infinite CSS marquee."
     },
-    "transaction_table": {
-      "before": "<td class=\"font-manrope text-sm font-medium\">0xABC123...</td><td class=\"font-manrope text-sm font-medium\">+ 1.054 BTC</td>",
-      "after": "<td class=\"font-mono text-sm font-normal text-secondary\">0xABC...123</td><td class=\"font-sans text-sm font-medium tabular-nums\">+1.054 BTC</td>"
+    "product_showcase": {
+      "composition": "A 3-step interactive sticky-scroll or auto-playing tab system. Step 1: Customer QR Checkout. Step 2: Instant Settlement to wallet. Step 3: Developer Dashboard. Build these as abstract UI mockups using MUI boxes and typography, not images."
+    },
+    "supported_chains": {
+      "composition": "Horizontal rail. Very large IBM Plex Mono text overlapping or crisp, monochromatic SVG icons of the 13 chains. Minimalist, highly technical."
+    },
+    "stat_wall": {
+      "composition": "Stripe-inspired density. 4 massive numbers taking up the screen width. E.g., '$0' (Setup), '0.7%' (Fee), '< 2s' (Settlement), '13' (Chains). Use 'Unbounded' 800 weight, huge font sizes."
+    },
+    "value_props": {
+      "composition": "3 minimalist cards. Top border of the card acts as a progress bar or highlights in Volt Green on hover."
+    },
+    "use_cases_bento": {
+      "problem_solved": "Replaces generic stock photos with a product-forward Bento Grid.",
+      "composition": "A 12-column CSS grid. \n- Card 1 (Span 8): 'Online Stores' with a mock checkout UI component built in MUI.\n- Card 2 (Span 4): 'SaaS' with a code snippet showing API subscription logic.\n- Card 3 (Span 4): 'Creators' with a mock donation widget.\n- Card 4 (Span 8): 'Freelancers' with a sleek invoice table mockup.\nHover states should trigger micro-animations within the mockups."
+    },
+    "fee_calculator": {
+      "composition": "MUI Slider with a custom thumb. Left side: slider and input. Right side: Two vertical bars (HTML divs). DynoPay's bar is tiny and Volt Green. Stripe/PayPal's bar is huge and red/gray. The bars dynamically resize via inline styles as the slider moves to visually show savings visceral."
+    },
+    "testimonials": {
+      "composition": "Editorial layout. Ditch the standard carousel. Use a masonry layout or large, commanding quotes. Include avatar, name, and a 5-star visual.",
+      "avatars": "Use the provided image URLs in the media section."
+    },
+    "faq": {
+      "composition": "MUI Accordion. Override default styles: background transparent, `boxShadow: 'none'`, 1px bottom border. Icon is a simple '+' that rotates to '-'."
+    },
+    "final_cta": {
+      "composition": "Deep Obsidian background regardless of light/dark mode. Huge text: 'The old system is slow. DynoPay is instant.' Volt Green CTA button."
     }
   },
-  "visual_enhancers": {
-    "glassmorphism": "Use backdrop-blur-xl with bg-white/70 (light) or bg-black/60 (dark) + 1px border. CRITICAL: Never use a fully transparent background for headers, sticky navs, or dropdowns. Always apply solid or glass backing.",
-    "shadows": "Rely on crisp, subtle layered ambient shadows over flat dark borders for light mode. Dark mode should use 1px inner-white/10 borders instead of shadows.",
-    "borders": "Limit border radiuses to max 8px for dashboards (tight, technical) and up to 16px for marketing cards."
+  "motion_guidelines": {
+    "engine": "CSS @keyframes and MUI `<Fade>`, `<Slide>`, or `sx` transitions.",
+    "hover_states": "Interactive elements MUST have distinct hover states. E.g., `transition: transform 0.2s ease, border-color 0.2s ease`.",
+    "scroll_reveal": "Implement a simple `IntersectionObserver` hook to apply a `.visible` class that triggers a fade-up animation for sections as they enter the viewport."
   },
-  "grids": {
-    "marketing": "Bento Grid protocol. grid-cols-1 md:grid-cols-12 with gap-8 to gap-12. High asymmetry.",
-    "dashboard": "High-density Grid. Tight gap-4 or gap-6. Every pixel utilized, stretch children to match heights."
+  "accessibility_and_testing": {
+    "testing": "All interactive elements, buttons, inputs, and major sections MUST have a `data-testid` attribute (e.g., `data-testid='hero-cta-button'`).",
+    "contrast": "Ensure pure white text on deep obsidian meets APCA/WCAG standards. Volt Green on white must be used carefully; prefer it as a background with black text."
   },
-  "layouts": {
-    "spacing": "Generous Spacing Philosophy (Tailwind scale p-4 to p-12). Ensure internal padding prevents text collision with borders."
+  "media_urls": {
+    "testimonials": [
+      {
+        "url": "https://images.pexels.com/photos/26872232/pexels-photo-26872232.jpeg",
+        "description": "Avatar for Testimonial 1 - Confident professional"
+      },
+      {
+        "url": "https://images.pexels.com/photos/12931653/pexels-photo-12931653.jpeg",
+        "description": "Avatar for Testimonial 2 - Serious professional"
+      },
+      {
+        "url": "https://images.pexels.com/photos/14589344/pexels-photo-14589344.jpeg",
+        "description": "Avatar for Testimonial 3 - Business professional"
+      }
+    ]
   },
-  "accessibility": {
-    "testing_attributes": "All interactive and key informational elements MUST include `data-testid` attribute (e.g., `data-testid=\"login-submit-button\"`).",
-    "contrast": "Adhere strictly to minimum 4.5:1 for body text (WCAG AA). Hover/Focus states MUST explicitly set text color and ensure higher contrast.",
-    "motion": "Respect `prefers-reduced-motion`."
-  },
-  "instructions_to_main_agent": {
-    "action": "This is a SPEC-ONLY file generated per user instructions. Do NOT blindly execute code replacement without explicit user confirmation of the chosen font stack.",
-    "priority": "Adopt the `finance_specific_rules` and `accessibility` guidelines strictly when modifying components."
-  },
-  "UNIVERSAL GUIDELINES FOR MAIN AGENT": [
-    "Avoid generic 'AI slop' aesthetics. Do not use centered alignments globally or simplistic gradient backgrounds.",
-    "NEVER use fully transparent backgrounds on elements that overlap content (e.g., Navs, Headers, Dropdowns).",
-    "For icons: Use `lucide-react`, `@phosphor-icons/react` or `@heroicons/react`. DO NOT use emojis as UI icons.",
-    "Apply `data-testid` to all functional components.",
-    "Ensure hover states explicitly manage both `bg` and `text` colors.",
-    "DO NOT use 'Space Grotesk' for dashboard typography.",
-    "DO NOT use teal (#1B93A4) for dashboards."
+  "instructions_to_main_agent": [
+    "DO NOT USE TAILWIND CSS. The project uses MUI v5 and `sx` styling. Do not install or configure Tailwind.",
+    "Configure a custom MUI Theme (`createTheme`) mapping these typography and color rules to `theme.palette` and `theme.typography`.",
+    "Implement the Use Cases section strictly as a Bento Grid composed of MUI components acting as mini-UI mockups. NO STOCK PHOTOS. NO EXCEPTIONS.",
+    "For the fee calculator, write custom React state logic linked to a Slider and dynamically style the height/width of comparison bars to make the impact obvious.",
+    "Ensure the layout is perfectly responsive using MUI's `xs`, `sm`, `md`, `lg` breakpoints in `sx`."
+  ],
+  "UNIVERSAL_GUIDELINES_FOR_MAIN_AGENT": [
+    "You tend to converge toward generic outputs. Break that habit. Use the specified 'Unbounded' and 'IBM Plex Mono' fonts.",
+    "Apply 'Swiss & High-Contrast' design principles: dense data, crisp 1px borders, and striking neon accents against obsidian or pure white.",
+    "Never use AI assistant emojis. Use professional, monochromatic SVG icons (e.g., from MUI Icons).",
+    "Every section must feel highly deliberate and 'institutional' yet technically advanced.",
+    "Add `data-testid` to everything functional."
   ]
 }
