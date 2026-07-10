@@ -49,6 +49,39 @@ export const authThemeDark = createTheme(themeDark, {
       selected: "rgba(204,255,0,0.10)",
     },
   },
+  components: {
+    // FLOATING SURFACES MUST BE OPAQUE.
+    // The glass `background.paper` above (rgba(255,255,255,0.05)) is meant for
+    // the auth card ONLY. MUI Menu/Popover/Autocomplete papers default to
+    // `background.paper` and have NO backdrop-filter, so a translucent paper
+    // lets the page content bleed through (user-reported: the country dropdown
+    // in the phone input rendered transparent on login/signup).
+    MuiMenu: {
+      styleOverrides: {
+        paper: {
+          backgroundColor: "#15161B",
+          backgroundImage: "none",
+          border: "1px solid rgba(255,255,255,0.10)",
+        },
+      },
+    },
+    MuiPopover: {
+      styleOverrides: {
+        paper: {
+          backgroundColor: "#15161B",
+          backgroundImage: "none",
+        },
+      },
+    },
+    MuiAutocomplete: {
+      styleOverrides: {
+        paper: {
+          backgroundColor: "#15161B",
+          backgroundImage: "none",
+        },
+      },
+    },
+  },
 });
 
 export const authThemeLight = createTheme(theme, {
@@ -80,6 +113,36 @@ export const authThemeLight = createTheme(theme, {
     action: {
       hover: "rgba(10,10,10,0.04)",
       selected: "rgba(10,10,10,0.06)",
+    },
+  },
+  components: {
+    // FLOATING SURFACES MUST BE OPAQUE (see note in authThemeDark above).
+    // Light glass paper is rgba(255,255,255,0.72) — dropdowns inherited it and
+    // let the buttons behind bleed through the country list.
+    MuiMenu: {
+      styleOverrides: {
+        paper: {
+          backgroundColor: "#FFFFFF",
+          backgroundImage: "none",
+          border: "1px solid rgba(10,10,10,0.08)",
+        },
+      },
+    },
+    MuiPopover: {
+      styleOverrides: {
+        paper: {
+          backgroundColor: "#FFFFFF",
+          backgroundImage: "none",
+        },
+      },
+    },
+    MuiAutocomplete: {
+      styleOverrides: {
+        paper: {
+          backgroundColor: "#FFFFFF",
+          backgroundImage: "none",
+        },
+      },
     },
   },
 });

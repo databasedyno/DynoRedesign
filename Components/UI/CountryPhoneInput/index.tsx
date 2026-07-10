@@ -86,6 +86,15 @@ const CountryPhoneInput: React.FC<CountryPhoneInputProps> = ({
               maxHeight: "200px",
               overflowY: "auto",
               boxShadow: "0px 4px 16px 0px rgba(47, 47, 101, 0.15)",
+              // HARDENING: force an OPAQUE background. On auth pages the theme's
+              // `background.paper` is translucent glass (no backdrop-filter on
+              // menus), which made this country dropdown see-through.
+              backgroundColor: isDark ? "#15161B" : "#FFFFFF",
+              backgroundImage: "none",
+              border: `1px solid ${isDark ? "rgba(255,255,255,0.10)" : "rgba(10,10,10,0.08)"}`,
+              "& .MuiMenuItem-root": {
+                color: isDark ? "#E8E8EC" : "#18181B",
+              },
             },
           },
         }}

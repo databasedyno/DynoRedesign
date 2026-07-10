@@ -45,6 +45,7 @@ import { detectBinanceAccess, forceProxyState, getProxyState } from "./services/
 import { startTunnelManager } from "./services/sshTunnelManager";
 import { getAllFeeRates, getFeeRates } from "./services/feeRateService";
 import { captureError, startErrorMonitoring, stopErrorMonitoring, getMonitoringStats, flushErrorDigest, sendErrorDigest } from "./services/errorMonitoringService";
+import { startLeaderElection, stopLeaderElection, isLeader, getInstanceId } from "./utils/leaderElection";
 import * as merchantPoolService from "./services/merchantPoolService";
 
 // ============================================
@@ -257,7 +258,12 @@ app.get("/health", async (_req: express.Request, res: express.Response) => {
     status: "healthy",
     service: "Dynopay Backend",
     timestamp: new Date().toISOString(),
-    uptime: process.uptime()
+    uptime: process.uptime(),
+    background_jobs: {
+      eligible: isCronEnabled,
+      is_leader: isLeader(),
+      instance_id: getInstanceId(),
+    }
   };
   
   let statusCode = 200;
@@ -693,13 +699,36 @@ app.post("/diagnostics/clear-stale-reconciliation", adminAuthMiddleware, async (
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
-// CRON JOBS — Only run when background jobs enabled AND WORKER_ROLE != secondary
+// CRON JOBS — Only run on the elected LEADER instance (see utils/leaderElection.ts)
+//
+// MULTI-INSTANCE SAFETY: DigitalOcean runs 2 identical instances, both with
+// WORKER_ROLE=primary + ENABLE_BACKGROUND_JOBS=true (env vars are app-level).
+// Eligible instances compete for a Redis lease; exactly ONE registers/runs these
+// cron tasks. On leader death/redeploy a standby is promoted within ~15-60s.
+// Per-job locks below remain as a second line of defense during transitions.
 // ═══════════════════════════════════════════════════════════════════════════
-if (isCronEnabled) {
-log(`✅ CRON JOBS ENABLED — WORKER_ROLE=${workerRole}, environment=${isProduction ? 'production' : 'dev'}`, "info");
+const leaderCronTasks: ReturnType<typeof cron.schedule>[] = [];
+const leaderCron = {
+  schedule: (expr: string, fn: Parameters<typeof cron.schedule>[1]) => {
+    const task = cron.schedule(expr, fn);
+    leaderCronTasks.push(task);
+    return task;
+  },
+};
+let cronJobsRegistered = false;
+
+function registerLeaderCronJobs() {
+  if (cronJobsRegistered) {
+    // Re-promotion after a temporary demotion — restart the previously stopped tasks
+    leaderCronTasks.forEach((t) => t.start());
+    log(`✅ CRON JOBS RESUMED (re-promoted to leader) — ${leaderCronTasks.length} tasks restarted`, "info");
+    return;
+  }
+  cronJobsRegistered = true;
+  log(`✅ CRON JOBS ENABLED — WORKER_ROLE=${workerRole}, leader=${getInstanceId()}, environment=${isProduction ? 'production' : 'dev'}`, "info");
 
 // OPTIMIZED: Reduced from */30 to every 2h — legacy system, rarely has pending addresses
-cron.schedule("0 */2 * * *", async function () {
+leaderCron.schedule("0 */2 * * *", async function () {
   const lockAcquired = await acquireLock("cron:checkingUSDT", 300, 1, 100, true);
   if (!lockAcquired) return;
   try {
@@ -714,7 +743,7 @@ cron.schedule("0 */2 * * *", async function () {
 });
 
 // TATUM CREDIT OPTIMIZATION: Reduced from */15 to */30 — sweeps are rare, 30-min check is safe
-cron.schedule("*/30 * * * *", async function () {
+leaderCron.schedule("*/30 * * * *", async function () {
   const lockAcquired = await acquireLock("cron:sweepNativeAdminFees", 300, 1, 100, true);
   if (!lockAcquired) return;
   try {
@@ -727,7 +756,7 @@ cron.schedule("*/30 * * * *", async function () {
   }
 });
 
-cron.schedule("*/30 * * * *", async () => {
+leaderCron.schedule("*/30 * * * *", async () => {
   const lockAcquired = await acquireLock("cron:processIncompletePayments", 540, 1, 100, true);
   if (!lockAcquired) return; // silent skip
   try {
@@ -738,7 +767,7 @@ cron.schedule("*/30 * * * *", async () => {
 });
 
 // TATUM CREDIT OPTIMIZATION: Reduced from */15 to hourly — fee balance doesn't change rapidly
-cron.schedule("0 * * * *", async function () {
+leaderCron.schedule("0 * * * *", async function () {
   const lockAcquired = await acquireLock("cron:checkFeeBalance", 300, 1, 100, true);
   if (!lockAcquired) return;
   try {
@@ -751,7 +780,7 @@ cron.schedule("0 * * * *", async function () {
   }
 });
 
-cron.schedule("0 0 * * *", async function () {
+leaderCron.schedule("0 0 * * *", async function () {
   const lockAcquired = await acquireLock("cron:removeUnwantedSubscriptions", 300, 1, 100, true);
   if (!lockAcquired) return;
   try {
@@ -772,7 +801,7 @@ cron.schedule("0 0 * * *", async function () {
 // Merchant Pool: Sweep accumulated admin fees every 30 minutes
 // Handles both threshold-based ($30 USD) and time-based (3 min for ETH/TRX) sweeps
 // TATUM CREDIT OPTIMIZATION: Reduced from 15min to 30min — idle system rarely accumulates fees
-cron.schedule("*/30 * * * *", async function () {
+leaderCron.schedule("*/30 * * * *", async function () {
   const lockAcquired = await acquireLock("cron:performScheduledSweeps", 180, 1, 100, true);
   if (!lockAcquired) return; // silent skip — lock contention is normal
   try {
@@ -787,7 +816,7 @@ cron.schedule("*/30 * * * *", async function () {
 
 // Merchant Pool: Release expired reservations every 15 minutes
 // PERF: Increased from 5min to 15min — reservations have 30min TTL, 15min check is safe
-cron.schedule("*/15 * * * *", async function () {
+leaderCron.schedule("*/15 * * * *", async function () {
   const lockAcquired = await acquireLock("cron:releaseExpiredReservations", 120, 1, 100, true);
   if (!lockAcquired) return;
   try {
@@ -815,7 +844,7 @@ cron.schedule("*/15 * * * *", async function () {
 });
 
 // Merchant Pool: Cleanup stuck addresses every 15 minutes (safety net)
-cron.schedule("*/15 * * * *", async function () {
+leaderCron.schedule("*/15 * * * *", async function () {
   const lockAcquired = await acquireLock("cron:cleanupStaleAddresses", 120, 1, 100, true);
   if (!lockAcquired) return;
   try {
@@ -832,7 +861,7 @@ cron.schedule("*/15 * * * *", async function () {
 // Ensures each active merchant has PRE_RESERVED addresses ready for instant reservation
 // This moves ~400-600ms of lock+transaction+findOne off the payment creation critical path
 // ═══════════════════════════════════════════════════════════════════════
-cron.schedule("*/2 * * * *", async function () {
+leaderCron.schedule("*/2 * * * *", async function () {
   const lockAcquired = await acquireLock("cron:preWarmAddressPool", 120, 1, 100, true);
   if (!lockAcquired) return;
   try {
@@ -848,7 +877,7 @@ cron.schedule("*/2 * * * *", async function () {
 // Merchant Pool: Subscription health monitor every 6 hours
 // Ensures all pool addresses have valid Tatum webhook subscriptions
 // TATUM CREDIT OPTIMIZATION: Reduced from 2h to 6h — subscriptions rarely break on their own
-cron.schedule("0 */6 * * *", async function () {
+leaderCron.schedule("0 */6 * * *", async function () {
   const lockAcquired = await acquireLock("cron:ensurePoolSubscriptions", 600, 1, 100, true);
   if (!lockAcquired) return;
   try {
@@ -865,7 +894,7 @@ cron.schedule("0 */6 * * *", async function () {
 // Merchant Pool: Check for missed webhooks every hour
 // This is a fallback mechanism when Tatum webhooks fail to deliver
 // TATUM CREDIT OPTIMIZATION: Reduced from 20min to hourly — saves ~3x API calls
-cron.schedule("0 * * * *", async function () {
+leaderCron.schedule("0 * * * *", async function () {
   const lockAcquired = await acquireLock("cron:checkMissedPayments", 600, 1, 100, true);
   if (!lockAcquired) return; // silent skip
   try {
@@ -882,7 +911,7 @@ cron.schedule("0 * * * *", async function () {
 // Safety net: catches payments sent AFTER reservation expired and address was released
 // Uses saved last_payment_context for proper merchant/admin fee split
 // TATUM CREDIT OPTIMIZATION: Reduced from hourly to every 6h — was the #1 Tatum credit consumer
-cron.schedule("0 */6 * * *", async function () {
+leaderCron.schedule("0 */6 * * *", async function () {
   // FIX: Increased lock TTL from 900s to 1800s (30 min) — scanning 158+ addresses can take 10+ min with API latency
   const lockAcquired = await acquireLock("cron:detectOrphanPayments", 1800, 1, 100, true);
   if (!lockAcquired) { log("Cron: detectOrphanPayments skipped (already running)", "info"); return; }
@@ -901,7 +930,7 @@ cron.schedule("0 */6 * * *", async function () {
 // Ensures each active merchant has AVAILABLE addresses ready for instant reservation
 // Eliminates ~3-4s Tatum API call bottleneck during payment creation
 // TATUM CREDIT OPTIMIZATION: Reduced from 15min to 30min — pool rarely needs new addresses
-cron.schedule("*/30 * * * *", async function () {
+leaderCron.schedule("*/30 * * * *", async function () {
   const lockAcquired = await acquireLock("cron:prewarmPoolAddresses", 300, 1, 100, true);
   if (!lockAcquired) return;
   try {
@@ -923,7 +952,7 @@ setupWeeklySummaryCron();
 // Auto-upgrades/downgrades merchants based on their all-time confirmed USD volume.
 // Sends "your fees just dropped" email on upgrade; downgrades are silent (updated
 // silently in DB — the dashboard widget will reflect the new tier on next load).
-cron.schedule("0 3 * * *", async function () {
+leaderCron.schedule("0 3 * * *", async function () {
   const lockAcquired = await acquireLock("cron:volumeTierReconciliation", 900, 1, 100, true);
   if (!lockAcquired) { log("Cron: volumeTierReconciliation skipped (already running)", "info"); return; }
   try {
@@ -941,7 +970,7 @@ cron.schedule("0 3 * * *", async function () {
 log("Volume-tier reconciliation cron scheduled (daily at 3:00 AM UTC)", "info");
 
 // Weekly conversion summary email (every Monday at 9:30 AM UTC)
-cron.schedule("30 9 * * 1", async function () {
+leaderCron.schedule("30 9 * * 1", async function () {
   const lockAcquired = await acquireLock("cron:weeklyConversionSummary", 600, 1, 100, true);
   if (!lockAcquired) { log("Cron: weeklyConversionSummary skipped (already running)", "info"); return; }
   try {
@@ -978,7 +1007,7 @@ setupFirstPaymentMonitorCron();
 // ═══════════════════════════════════════════════════════════════════════
 // RELIABILITY: Payment Watchdog — detect stuck payments every 2 minutes
 // ═══════════════════════════════════════════════════════════════════════
-cron.schedule("*/2 * * * *", async function () {
+leaderCron.schedule("*/2 * * * *", async function () {
   const lockAcquired = await acquireLock("cron:paymentWatchdog", 90, 1, 100, true);
   if (!lockAcquired) return;
   try {
@@ -995,7 +1024,7 @@ cron.schedule("*/2 * * * *", async function () {
 // Stablecoin Conversion: Process pending conversions via Binance
 // Runs every N minutes (configurable via BINANCE_CONVERT_INTERVAL_MINUTES)
 const convertIntervalMinutes = Math.max(parseInt(process.env.BINANCE_CONVERT_INTERVAL_MINUTES || "10") || 10, 1);
-cron.schedule(`*/${convertIntervalMinutes} * * * *`, async function () {
+leaderCron.schedule(`*/${convertIntervalMinutes} * * * *`, async function () {
   const lockAcquired = await acquireLock("cron:stablecoinConversion", 240, 1, 100, true);
   if (!lockAcquired) { log("Cron: stablecoinConversion skipped (already running)", "info"); return; }
   try {
@@ -1013,7 +1042,7 @@ cron.schedule(`*/${convertIntervalMinutes} * * * *`, async function () {
 
 // Webhook Retry Queue: Process failed webhooks with exponential backoff
 // PERF: Increased from 2min to 10min — queue is almost always empty
-cron.schedule("*/10 * * * *", async function () {
+leaderCron.schedule("*/10 * * * *", async function () {
   const lockAcquired = await acquireLock("cron:webhookRetryQueue", 120, 1, 100, true);
   if (!lockAcquired) return;
   try {
@@ -1029,7 +1058,74 @@ cron.schedule("*/10 * * * *", async function () {
   }
 });
 
-} // end if (isCronEnabled) — cron jobs block
+} // end registerLeaderCronJobs()
+
+// Called when this instance loses the leader lease (rare — Redis flap or lease steal).
+// Stops all leader cron tasks; they restart if/when we are re-promoted.
+function pauseLeaderCronJobs() {
+  leaderCronTasks.forEach((t) => t.stop());
+  log(`⚠️  CRON JOBS PAUSED (leadership lost) — ${leaderCronTasks.length} tasks stopped on ${getInstanceId()}`, "warn");
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// LEADER-ONLY SERVICES — started once when this instance is first promoted.
+// NOT stopped on demotion (rare Redis-flap scenario): the BullMQ worker is a
+// proper queue consumer (safe with overlapping consumers) and error/fee-wallet
+// monitoring are read-mostly; one-shot migrations/reconciliations have already
+// completed by then. Cron tasks (the destructive part) DO pause on demotion.
+// ═══════════════════════════════════════════════════════════════════════════
+let leaderServicesStarted = false;
+
+function startLeaderOnlyServices() {
+  if (leaderServicesStarted) return;
+  leaderServicesStarted = true;
+
+  // Error monitoring (sends admin digest every 15 min when errors exist)
+  startErrorMonitoring();
+
+  // Fee wallet monitoring (checks TRX balance every 30min)
+  import("./services/feeWalletMonitor")
+    .then(({ startFeeWalletMonitoring }) => {
+      startFeeWalletMonitoring(30);
+      log("✅ Fee wallet monitoring started", "info");
+    })
+    .catch((err) => log(`⚠️ Fee wallet monitoring failed: ${err}`, 'warn'));
+
+  // Migrate stale webhook URLs from previous deployments (one-shot)
+  migrateWebhookUrls()
+    .then(stats => {
+      log(`Webhook URL migration complete: ${stats.updated} updated, ${stats.alreadyCorrect} already correct, ${stats.errors} errors (of ${stats.total} total)`, "info");
+    })
+    .catch(err => {
+      log(`Webhook URL migration failed: ${err.message}`, "error");
+    });
+
+  // BullMQ webhook worker — consumes the shared "tatum-webhooks" queue
+  try {
+    startWebhookWorker(processWebhookJob);
+    log('BullMQ webhook worker started (concurrency: 5)', 'info');
+  } catch (workerErr) {
+    log(`BullMQ webhook worker failed to start: ${(workerErr as Error).message}`, 'error');
+  }
+
+  // Fee-free balance reconciliation (corrects users with $500+ volume)
+  import("./services/feeFreeReconciliation")
+    .then(({ reconcileFeeFreeBalances }) => reconcileFeeFreeBalances())
+    .catch(err => log(`⚠️ Fee-free reconciliation failed: ${(err as Error).message}`, 'warn'));
+
+  // Startup reconciliation (catch missed webhooks during downtime)
+  runStartupReconciliation()
+    .then(stats => {
+      const total = stats.stuckPayments + stats.failedPayments + stats.failedStatePayments + stats.bullmqFailedJobs + stats.tatumMissed;
+      log(`Reconciliation complete: ${total} items re-queued (stuck=${stats.stuckPayments}, failed=${stats.failedPayments}, failedState=${stats.failedStatePayments}, bullmq=${stats.bullmqFailedJobs}, tatum=${stats.tatumMissed})`, 'info');
+      if (stats.errors.length > 0) {
+        log(`Reconciliation warnings: ${stats.errors.join('; ')}`, 'warn');
+      }
+    })
+    .catch(err => {
+      log(`Reconciliation failed: ${(err as Error).message}`, 'error');
+    });
+}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // ALWAYS-ON: Background rate cache refresh (not destructive, needed for conversions)
@@ -1227,76 +1323,31 @@ const startServer = async () => {
     // Start volatility monitor (now reads from WebSocket cache — zero REST calls)
     startVolatilityMonitor();
 
-    // Start error monitoring (sends admin digest every 15 min when errors exist)
-    // SAFETY: Only on the primary/cron runner — secondary API instances must NOT
-    // send admin error digests (would duplicate/spam from non-authoritative nodes).
+    // ── Leader-only services + cron jobs (multi-instance safe) ───────────────
+    // SAFETY: With 2 DO instances both running WORKER_ROLE=primary, these must
+    // only run on ONE instance. Leader election (Redis lease) picks exactly one;
+    // standby takes over automatically on leader death/redeploy.
+    //   - error digest monitoring (would double-spam admin emails)
+    //   - fee wallet monitoring (duplicate low-balance alerts)
+    //   - webhook URL migration (one-shot, racing writes)
+    //   - BullMQ webhook worker (both consumed the shared queue)
+    //   - startup + fee-free reconciliation (duplicate re-queues)
     if (isCronEnabled) {
-      startErrorMonitoring();
+      startLeaderElection({
+        onPromoted: () => {
+          registerLeaderCronJobs();
+          startLeaderOnlyServices();
+        },
+        onDemoted: () => {
+          // Cron tasks stop; BullMQ worker + error monitoring keep running
+          // (queue-based / low-risk — see notes in startLeaderOnlyServices).
+          pauseLeaderCronJobs();
+        },
+      });
     } else {
       log('⚠️  Skipping error digest monitoring (background jobs disabled)', 'warn');
-    }
-
-    // Start fee wallet monitoring (checks TRX balance every 30min)
-    if (isCronEnabled) {
-      import("./services/feeWalletMonitor")
-        .then(({ startFeeWalletMonitoring }) => {
-          startFeeWalletMonitoring(30);
-          log("✅ Fee wallet monitoring started", "info");
-        })
-        .catch((err) => log(`⚠️ Fee wallet monitoring failed: ${err}`, 'warn'));
-    }
-
-
-    // Migrate stale webhook URLs from previous deployments (runs once on startup)
-    // SAFETY: Only on production — dev instances would overwrite production webhook URLs
-    if (isCronEnabled) {
-    migrateWebhookUrls()
-      .then(stats => {
-        log(`Webhook URL migration complete: ${stats.updated} updated, ${stats.alreadyCorrect} already correct, ${stats.errors} errors (of ${stats.total} total)`, "info");
-      })
-      .catch(err => {
-        log(`Webhook URL migration failed: ${err.message}`, "error");
-      });
-    } else {
       log('⚠️  Skipping webhook URL migration (background jobs disabled)', 'warn');
-    }
-
-    // ── Start BullMQ webhook worker ───────────────────────────────────────────
-    // SAFETY: Only the primary/cron runner consumes the shared "tatum-webhooks"
-    // queue. Secondary API instances (e.g. preview) must NOT pull production
-    // webhook jobs, or they would steal delivery from the authoritative runner.
-    if (isCronEnabled) {
-      try {
-        startWebhookWorker(processWebhookJob);
-        log('BullMQ webhook worker started (concurrency: 5)', 'info');
-      } catch (workerErr) {
-        log(`BullMQ webhook worker failed to start: ${(workerErr as Error).message}`, 'error');
-      }
-    } else {
       log('⚠️  Skipping BullMQ webhook worker (background jobs disabled — secondary instance)', 'warn');
-    }
-
-    // ── Run startup reconciliation (catch missed webhooks during downtime) ────
-    // SAFETY: Only on production — dev instances shouldn't re-queue production payments
-    if (isCronEnabled) {
-
-    // ── Fee-free balance reconciliation (corrects users with $500+ volume) ────
-    import("./services/feeFreeReconciliation")
-      .then(({ reconcileFeeFreeBalances }) => reconcileFeeFreeBalances())
-      .catch(err => log(`⚠️ Fee-free reconciliation failed: ${(err as Error).message}`, 'warn'));
-
-    runStartupReconciliation()
-      .then(stats => {
-        const total = stats.stuckPayments + stats.failedPayments + stats.failedStatePayments + stats.bullmqFailedJobs + stats.tatumMissed;
-        log(`Reconciliation complete: ${total} items re-queued (stuck=${stats.stuckPayments}, failed=${stats.failedPayments}, failedState=${stats.failedStatePayments}, bullmq=${stats.bullmqFailedJobs}, tatum=${stats.tatumMissed})`, 'info');
-        if (stats.errors.length > 0) {
-          log(`Reconciliation warnings: ${stats.errors.join('; ')}`, 'warn');
-        }
-      })
-      .catch(err => {
-        log(`Reconciliation failed: ${(err as Error).message}`, 'error');
-      });
-    } else {
       log('⚠️  Skipping startup reconciliation (background jobs disabled)', 'warn');
     }
 
@@ -1350,6 +1401,14 @@ const gracefulShutdown = async (signal: string) => {
   if (isShuttingDown) return; // Prevent double shutdown
   isShuttingDown = true;
   log(`Received ${signal}. Starting graceful shutdown...`, 'warn');
+
+  // 0a. Release the background-jobs leadership lease FIRST so the surviving
+  //     instance can promote within ~15s (instead of waiting the full 60s TTL).
+  try {
+    await stopLeaderElection();
+  } catch (err) {
+    log(`Error releasing leadership lease: ${err}`, 'error');
+  }
 
   // 0. Stop accepting NEW HTTP requests first (fails health check → platform stops routing;
   //    lets in-flight requests finish). Bounded so lingering keep-alive conns can't hang the

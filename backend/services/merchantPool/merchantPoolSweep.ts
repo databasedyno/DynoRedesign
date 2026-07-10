@@ -385,10 +385,26 @@ interface ProfitabilityResult {
   profitMargin?: number;
 }
 
+// Fee data shape shared by tatumApi.feeEstimation results and the energy-aware
+// TRC20 estimate. Only fast/slow/medium/gasPrice/gasLimit/fee are ever read at
+// runtime; the legacy fixed-fee fields are optional for backward compatibility.
+interface SweepFeeData {
+  fixedFee?: number;
+  transactionFee?: number;
+  totalDeduction?: number;
+  gasPrice?: string;
+  gasLimit?: string;
+  fee?: string;
+  slow?: string | number;
+  medium?: string | number;
+  fast?: string | number;
+  [key: string]: unknown;
+}
+
 const checkSweepProfitability = async (
   walletType: string,
   balance: number,
-  feeData: { fixedFee: number; transactionFee: number; totalDeduction: number; gasPrice?: string; gasLimit?: string; fee?: string; slow?: string; fast?: string | number } | number
+  feeData: SweepFeeData | number
 ): Promise<ProfitabilityResult> => {
   try {
     // Extract estimated gas fee from feeData (in gas token units: TRX or ETH)
@@ -404,7 +420,7 @@ const checkSweepProfitability = async (
     } else if (feeData?.fee) {
       estimatedFee = parseFloat(feeData.fee);
     } else if (feeData?.slow) {
-      estimatedFee = parseFloat(feeData.slow);
+      estimatedFee = parseFloat(String(feeData.slow));
     }
     
     let balanceUSD = 0;
@@ -548,7 +564,7 @@ export const sweepPoolAddress = async (tempAddressId: number): Promise<unknown> 
     // ~7.8 TRX ≈ $2.6. The inflated estimate made every mid-size USDT-TRC20 sweep
     // "unprofitable" → 5 failed attempts → 7-day deferral loop → admin fees stuck
     // for weeks (root cause of the July 2026 "USDT admin fee not forwarded" report).
-    let feeData: Record<string, unknown>;
+    let feeData: SweepFeeData;
     if (walletType.includes("TRC20")) {
       try {
         const trc20Contract = walletType === "USDT-TRC20"
@@ -711,8 +727,8 @@ export const sweepPoolAddress = async (tempAddressId: number): Promise<unknown> 
       // UTXO chains: fee is separate from amount but must fit within total balance
       // amountToSend + fee = actualBalance → amountToSend = actualBalance - fee
       const utxoFee = typeof feeData === 'object' && feeData !== null
-        ? parseFloat(feeData.slow || feeData.medium || feeData.fast || "0.00005")
-        : parseFloat(feeData || "0.00005");
+        ? parseFloat(String(feeData.slow || feeData.medium || feeData.fast || "0.00005"))
+        : parseFloat(String(feeData || "0.00005"));
       amountToSend = actualBalance - utxoFee;
       // Round down to 8 decimal places (UTXO precision)
       amountToSend = Math.floor(amountToSend * 100000000) / 100000000;
@@ -724,7 +740,7 @@ export const sweepPoolAddress = async (tempAddressId: number): Promise<unknown> 
       }
       cronLogger.info(`[MerchantPool] UTXO chain sweep: ${actualBalance} - ${utxoFee} (fee) = ${amountToSend} ${walletType}`);
     } else if (isAccountChain) {
-      const gasFee = parseFloat(feeData?.slow || feeData?.fast || "0");
+      const gasFee = parseFloat(String(feeData?.slow || feeData?.fast || "0"));
       
       // XRP Ledger reserves (updated Dec 2, 2024 — validator vote reduced reserves 10x):
       //   Base reserve: 1 XRP per account (was 10 XRP)

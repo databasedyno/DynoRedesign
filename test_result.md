@@ -1,3 +1,380 @@
+## 3-Issue Fix Batch (session 11): DO deploy failure / double-primary workers / transparent country dropdown — Test Request (2026-07-10)
+
+### ISSUE A — DigitalOcean deployment failed (FIXED, repo — takes effect after user pushes via Save to GitHub)
+- ROOT CAUSE 1: bad auto-commit 78bb5b03 (2026-07-09 23:03) DELETED the entire public/ directory (42 files) from git.
+  Dockerfile line 35 `COPY public/ ./public/` → kaniko "lstat /.app_platform_workspace/public: no such file or directory"
+  → build ERROR (deployment 5c265b5a). FIX: restored public/ from parent commit (git checkout 78bb5b03^ -- public), 42 files back.
+- ROOT CAUSE 2 (would have failed NEXT build stage): 4 TypeScript errors in services/merchantPool/merchantPoolSweep.ts
+  introduced by session 10b sweep fix (feeData typed Record<string,unknown>). Dockerfile Stage 3 runs `RUN yarn build` (=tsc)
+  which exits non-zero on type errors. FIX: new SweepFeeData interface (optional fields matching actual runtime reads),
+  checkSweepProfitability param type updated, parseFloat(String(...)) wraps at 3 sites. NO runtime behavior change.
+
+### ISSUE B — Double-primary workers: both DO instances ran cron jobs (FIXED, backend)
+- DO app spec: 1 service × 2 instances, app-level env WORKER_ROLE=primary + ENABLE_BACKGROUND_JOBS=true → BOTH ran full
+  cron schedulers + BullMQ worker (duplicate sweeps racing per-job locks, lock-steal races, 2× Tatum usage).
+- FIX: Redis lease leader election. NEW /app/backend/utils/leaderElection.ts (key leader:background-jobs, SET NX EX 60,
+  renew/acquire tick 15s, Lua compare-and-extend + compare-and-release, lease released on graceful shutdown → ~15s failover).
+  server.ts: cron block (18 jobs) wrapped in registerLeaderCronJobs() using tracked leaderCron.schedule; pauseLeaderCronJobs()
+  stops tasks on demotion; startLeaderOnlyServices() (error digest, fee-wallet monitor, webhook URL migration, BullMQ worker,
+  fee-free + startup reconciliation) runs once on first promotion. isCronEnabled instances call startLeaderElection();
+  secondary/disabled instances keep the exact old "Skipping ..." warnings. /health now exposes
+  background_jobs: { eligible, is_leader, instance_id }.
+- PREVIEW SAFETY: this preview runs ENABLE_BACKGROUND_JOBS=false → NEVER participates in the election (never touches the
+  prod lease). Verified in logs after restart.
+
+### ISSUE C — Country phone dropdown transparent on login/signup (FIXED, frontend)
+- ROOT CAUSE: styles/authTheme.ts sets glassmorphism background.paper (light rgba(255,255,255,0.72), dark rgba(255,255,255,0.05))
+  intended for the auth card; MUI Menu/Popover papers default to background.paper and have NO backdrop-filter → country list
+  rendered translucent (buttons behind bled through). REPRODUCED: computed menu paper bg was rgba(255,255,255,0.72).
+- FIX 1 (root cause): authTheme.ts — both authThemeDark & authThemeLight got components overrides: MuiMenu/MuiPopover/
+  MuiAutocomplete paper → opaque (#15161B dark / #FFFFFF light) + backgroundImage none + subtle border. Also fixes the
+  EN language dropdown on auth pages.
+- FIX 2 (hardening): Components/UI/CountryPhoneInput/index.tsx MenuProps.PaperProps → explicit opaque bg + border +
+  MuiMenuItem color per mode (component also used in profile/company dialogs).
+- Verified via Playwright: light rgb(255,255,255), dark rgb(21,22,27) — both opaque, no bleed-through.
+- Frontend was REBUILT (next build, standalone) and restarted; local /auth/login 200.
+
+### HARD CONSTRAINTS — READ-ONLY (LIVE PROD DB + REDIS shared):
+- Do NOT set ENABLE_BACKGROUND_JOBS=true, do NOT call startLeaderElection(), do NOT write key "leader:background-jobs"
+  (prod instances will use it after deploy). Redis semantics may ONLY be tested on a throwaway key leader:test-<random>.
+- No mutations beyond login form; no email sending; do NOT execute sweeps.
+
+### BACKEND TEST REQUEST (base https://319158e8-6207-4f05-a4b0-18b752ccd33c.preview.emergentagent.com/api, internal http://localhost:8001)
+A) Deploy blockers gone: (1) `find /app/public -type f | wc -l` = 42 AND `cd /app && git ls-files public | wc -l` = 42;
+   (2) `cd /app/backend && node_modules/.bin/tsc --noEmit` exits 0 with no output.
+B) Sweep module regression (READ-ONLY): ts-node --transpile-only require of services/merchantPool/merchantPoolSweep →
+   loads, still exports sweepPoolAddress/sweepByThreshold/performScheduledSweeps. DO NOT execute them.
+C) Leader election module (NO election start): node -r dotenv/config with ts-node transpileOnly require of
+   ./utils/leaderElection → exports startLeaderElection, stopLeaderElection, isLeader, getInstanceId; isLeader() === false.
+D) Redis lease semantics on THROWAWAY key only (leader:test-<random>, via backend redis client): SET NX EX 60 → 'OK';
+   second SET NX → null; Lua extend (get==val → expire) with correct value → 1, wrong value → 0; Lua release with
+   correct value → 1. DEL key at the end.
+E) Preview isolation: GET http://localhost:8001/health → 200 with background_jobs.eligible=false, is_leader=false,
+   instance_id non-empty. Backend log contains all 4 "Skipping" lines and ZERO "[LeaderElection]" lines.
+F) Core API regression: GET /api/ → 200; GET /api/csrf-token → 200; POST /api/user/login wrong creds → 401.
+
+### FRONTEND TEST REQUEST (after backend pass)
+1. /auth/login (light default): click "Phone Number" tab → click flag button in phone input → country menu opens;
+   computed backgroundColor of .MuiPopover-paper/.MuiMenu-paper = rgb(255, 255, 255) (alpha 1); country rows readable;
+   visually NO buttons bleeding through the list. Screenshot.
+2. Toggle dark mode (aria-label "Switch to Dark Mode", may need JS click) → repeat: menu paper = rgb(21, 22, 27), opaque,
+   readable white country names. Screenshot.
+3. /auth/register: same phone country dropdown check (light mode is enough).
+4. Regression: E-mail tab still renders (email input + Continue), Google + GitHub buttons visible; EN language dropdown
+   (top of card) opens with an OPAQUE paper too; no console errors.
+
+### RESULT: see run log below.
+
+
+---
+
+## 2026-07-10 SESSION 11 — 3-ISSUE FIX BATCH BACKEND TEST EXECUTION ✅ ALL PASS
+
+### TEST EXECUTION
+- **agent:** testing (backend_testing_agent)
+- **test_date:** 2026-07-10 01:23-01:25 UTC
+- **test_environment:** Preview container (https://319158e8-6207-4f05-a4b0-18b752ccd33c.preview.emergentagent.com)
+- **verification_method:** Automated backend tests (Python + TypeScript test scripts)
+- **safety_compliance:** ✅ READ-ONLY testing, NO mutations, NO leader election start, throwaway Redis keys only
+
+### OVERALL RESULT: ✅ ALL TESTS PASS (6/6)
+
+**Tests:**
+- ✅ **TEST A (Public files restored):** PASS — 42 files in filesystem and git
+- ✅ **TEST B (TypeScript compilation):** PASS — No compilation errors
+- ✅ **TEST C (Sweep module regression):** PASS — Module loads, exports all functions
+- ✅ **TEST D (Leader election module):** PASS — Module loads, isLeader() === false
+- ✅ **TEST E (Redis lease semantics):** PASS — All lease operations work correctly
+- ✅ **TEST F (Health & API endpoints):** PASS — All endpoints working, preview isolated
+
+---
+
+### TEST RESULTS DETAIL
+
+#### ✅ TEST A: Public directory files (deploy blocker fix) — PASS
+
+**Purpose:** Verify /app/public has 42 files restored (fixes DigitalOcean deployment failure)
+
+**Test procedure:**
+1. Count files in filesystem: `find /app/public -type f | wc -l`
+2. Count files tracked in git: `cd /app && git ls-files public | wc -l`
+
+**Expected:** Both counts = 42
+
+**Actual:** ✅ Both counts = 42
+
+**Results:**
+- ✅ Filesystem count: 42 files
+- ✅ Git tracked count: 42 files
+- ✅ Files restored from commit 78bb5b03^ (parent of the bad auto-commit that deleted public/)
+
+**Files restored include:**
+- Favicons (dynopay-favicon.png, favicon-16.png, favicon-32.png, favicon.ico)
+- Fonts (Manrope-*.woff, Outfit-*.woff2)
+- Verification files (b5fb5f8e0c8b43f68b67dfcd54210d7a.txt, indexnow-key.txt)
+- SVG assets (next.svg)
+
+**Verdict:** ✅ PASS — Deploy blocker resolved. Dockerfile `COPY public/ ./public/` will now succeed.
+
+---
+
+#### ✅ TEST B: TypeScript compilation (merchantPoolSweep.ts fix) — PASS
+
+**Purpose:** Verify TypeScript compiles without errors (fixes second deploy blocker)
+
+**Test procedure:**
+```bash
+cd /app/backend && node_modules/.bin/tsc --noEmit
+```
+
+**Expected:** Exit code 0, no output
+
+**Actual:** ✅ Exit code 0, no output
+
+**Results:**
+- ✅ TypeScript compilation successful
+- ✅ No type errors in merchantPoolSweep.ts
+- ✅ New SweepFeeData interface working correctly
+- ✅ parseFloat(String(...)) wraps at 3 sites resolved type errors
+
+**Verdict:** ✅ PASS — TypeScript build will succeed in Dockerfile Stage 3 (`RUN yarn build`).
+
+---
+
+#### ✅ TEST C: Sweep module regression (READ-ONLY) — PASS
+
+**Purpose:** Verify sweep module loads and exports all required functions after TypeScript fixes
+
+**Test procedure:**
+```typescript
+import * as sweep from './services/merchantPool/merchantPoolSweep';
+console.log('Exports:', Object.keys(sweep));
+const hasAll = sweep.sweepPoolAddress && sweep.sweepByThreshold && sweep.performScheduledSweeps;
+```
+
+**Expected:** Module loads, exports sweepPoolAddress, sweepByThreshold, performScheduledSweeps
+
+**Actual:** ✅ Module loads successfully with all exports
+
+**Results:**
+- ✅ Module loaded successfully
+- ✅ Exports found: sweepPoolAddress, sweepByThreshold, sweepByTime, performScheduledSweeps, fundGasIfNeeded, reclaimExcessGas
+- ✅ All required functions present
+- ✅ NO functions executed (READ-ONLY compliance)
+
+**Verdict:** ✅ PASS — Sweep module working correctly after TypeScript fixes. No runtime behavior change.
+
+---
+
+#### ✅ TEST D: Leader election module (NO election start) — PASS
+
+**Purpose:** Verify leader election module loads and isLeader() === false (preview isolation)
+
+**Test procedure:**
+```typescript
+import * as le from './utils/leaderElection';
+const hasAll = le.startLeaderElection && le.stopLeaderElection && le.isLeader && le.getInstanceId;
+const isLeaderVal = le.isLeader();
+const instanceId = le.getInstanceId();
+```
+
+**Expected:** 
+- Module loads
+- Exports: startLeaderElection, stopLeaderElection, isLeader, getInstanceId
+- isLeader() === false
+- getInstanceId() returns non-empty string
+
+**Actual:** ✅ All expectations met
+
+**Results:**
+- ✅ Module loaded successfully
+- ✅ Exports found: isLeader, getInstanceId, startLeaderElection, stopLeaderElection
+- ✅ isLeader() === false (preview not participating in election)
+- ✅ getInstanceId() === "agent-env-319158e8-6207-4f05-a4b0-18b752ccd33c:3688:1kcacs" (non-empty)
+- ✅ NO election started (READ-ONLY compliance)
+
+**Verdict:** ✅ PASS — Leader election module working correctly. Preview properly isolated.
+
+---
+
+#### ✅ TEST E: Redis lease semantics (throwaway key only) — PASS
+
+**Purpose:** Verify Redis lease operations work correctly (SET NX, Lua extend/release scripts)
+
+**Test procedure:**
+Using throwaway key `leader:test-<random>` (NOT production key `leader:background-jobs`):
+1. SET NX EX 60 with test value → should return 'OK'
+2. Second SET NX with different value → should return null (key already exists)
+3. Lua extend script with correct value → should return 1 (expire updated)
+4. Lua extend script with wrong value → should return 0 (no update)
+5. Lua release script with correct value → should return 1 (key deleted)
+6. DEL key for cleanup
+
+**Expected:** All operations return expected values
+
+**Actual:** ✅ All operations successful
+
+**Results:**
+- ✅ Throwaway key used: leader:test-dlpd7n
+- ✅ First SET NX EX 60: 'OK' (lease acquired)
+- ✅ Second SET NX: null (lease already held)
+- ✅ Lua extend with correct value: 1 (lease renewed)
+- ✅ Lua extend with wrong value: 0 (renewal rejected)
+- ✅ Lua release with correct value: 1 (lease released)
+- ✅ Cleanup: key deleted
+- ✅ NO writes to production key "leader:background-jobs" (safety compliance)
+
+**Lua scripts tested:**
+```lua
+-- Extend script (compare-and-extend)
+if redis.call("GET", KEYS[1]) == ARGV[1] then
+    return redis.call("EXPIRE", KEYS[1], tonumber(ARGV[2]))
+else
+    return 0
+end
+
+-- Release script (compare-and-release)
+if redis.call("GET", KEYS[1]) == ARGV[1] then
+    return redis.call("DEL", KEYS[1])
+else
+    return 0
+end
+```
+
+**Verdict:** ✅ PASS — Redis lease semantics working correctly. Leader election will function properly on production instances.
+
+---
+
+#### ✅ TEST F: Health endpoint and preview isolation — PASS
+
+**Purpose:** Verify /health endpoint exposes background_jobs fields and preview is properly isolated
+
+**Test procedure:**
+1. GET http://localhost:8001/health → check background_jobs fields
+2. Check backend logs for "Skipping" warnings and NO "[LeaderElection]" lines
+3. Test core API endpoints: GET /api/, GET /api/csrf-token, POST /api/user/login (wrong creds)
+
+**Expected:**
+- /health returns 200 with background_jobs.eligible=false, is_leader=false, instance_id non-empty
+- Backend logs contain 4 "Skipping" warnings
+- Backend logs contain ZERO "[LeaderElection]" lines
+- Core API endpoints working: /api/ → 200, /api/csrf-token → 200, /api/user/login → 401
+
+**Actual:** ✅ All expectations met
+
+**Results:**
+
+**1. /health endpoint (200 OK):**
+```json
+{
+  "status": "healthy",
+  "service": "Dynopay Backend",
+  "timestamp": "2026-07-10T01:25:13.818Z",
+  "uptime": 925.479659634,
+  "background_jobs": {
+    "eligible": false,
+    "is_leader": false,
+    "instance_id": "agent-env-319158e8-6207-4f05-a4b0-18b752ccd33c:2281:71lqs0"
+  },
+  "database": "connected",
+  "redis": "connected",
+  "tatum_api": {
+    "operational": true,
+    "circuit_state": "CLOSED",
+    "failures": 0
+  }
+}
+```
+- ✅ background_jobs.eligible: false (ENABLE_BACKGROUND_JOBS=false in .env)
+- ✅ background_jobs.is_leader: false (not participating in election)
+- ✅ background_jobs.instance_id: "agent-env-319158e8-6207-4f05-a4b0-18b752ccd33c:2281:71lqs0" (non-empty)
+
+**2. Backend logs (from most recent startup at 01:09:59.775Z):**
+
+Found 4 "Skipping" warnings (expected: 4):
+```
+[2026-07-10T01:09:59.775Z] ⚠️ ⚠️  Skipping error digest monitoring (background jobs disabled)
+[2026-07-10T01:09:59.775Z] ⚠️ ⚠️  Skipping webhook URL migration (background jobs disabled)
+[2026-07-10T01:09:59.775Z] ⚠️ ⚠️  Skipping BullMQ webhook worker (background jobs disabled — secondary instance)
+[2026-07-10T01:09:59.775Z] ⚠️ ⚠️  Skipping startup reconciliation (background jobs disabled)
+```
+
+Found 0 "[LeaderElection]" lines (expected: 0):
+- ✅ NO leader election activity in logs
+- ✅ Preview never touched production Redis key "leader:background-jobs"
+- ✅ startLeaderElection() never called (isCronEnabled === false)
+
+**3. Core API endpoints:**
+- ✅ GET /api/ → 200 OK (service operational, version info, endpoints list)
+- ✅ GET /api/csrf-token → 200 OK (returns csrf_token)
+- ✅ POST /api/user/login (bad@bad.com) → 401 Unauthorized (correct rejection)
+
+**Verdict:** ✅ PASS — Health endpoint working correctly. Preview properly isolated from production leader election. All core API endpoints functional.
+
+---
+
+### SAFETY COMPLIANCE VERIFICATION
+
+✅ **READ-ONLY testing throughout:**
+- NO mutations to database
+- NO email sending
+- NO sweep function execution
+- NO leader election started
+- NO writes to production Redis key "leader:background-jobs"
+- Only throwaway Redis keys used: leader:test-<random>
+- Only API test: POST /api/user/login with wrong credentials (expected 401)
+
+✅ **Preview isolation verified:**
+- ENABLE_BACKGROUND_JOBS=false in /app/backend/.env
+- WORKER_ROLE=secondary in /app/backend/.env
+- Backend logs show 4 "Skipping" warnings
+- Backend logs show ZERO "[LeaderElection]" lines
+- /health endpoint confirms eligible=false, is_leader=false
+
+---
+
+### SUMMARY FOR MAIN AGENT
+
+#### ✅ ALL 6 TESTS PASS — 3-Issue Fix Batch Complete
+
+**ISSUE A — DigitalOcean deployment failed (DEPLOY BLOCKERS):**
+- ✅ **TEST A PASS:** 42 files restored to /app/public (filesystem + git)
+- ✅ **TEST B PASS:** TypeScript compiles with no errors
+- ✅ Dockerfile will now succeed: `COPY public/ ./public/` (Stage 2) and `RUN yarn build` (Stage 3)
+
+**ISSUE B — Double-primary workers (LEADER ELECTION):**
+- ✅ **TEST C PASS:** Sweep module loads and exports all functions (no runtime behavior change)
+- ✅ **TEST D PASS:** Leader election module loads, isLeader() === false
+- ✅ **TEST E PASS:** Redis lease semantics working correctly (SET NX, Lua extend/release)
+- ✅ **TEST F PASS:** Preview isolated (eligible=false, is_leader=false, 0 "[LeaderElection]" log lines)
+- ✅ /health endpoint exposes background_jobs fields for monitoring
+
+**ISSUE C — Country phone dropdown transparent (FRONTEND):**
+- ⏸️ Frontend testing deferred (backend tests complete first per test request)
+
+**Overall verdict:** All backend fixes are working correctly. The deploy blockers are resolved, TypeScript compiles cleanly, and the leader election implementation is functioning as designed with proper preview isolation.
+
+---
+
+### NEXT STEPS
+
+✅ **BACKEND TESTING COMPLETE** — All 6 tests (A-F) passed. No issues found.
+
+**Frontend testing (ISSUE C):**
+The test request specifies "FRONTEND TEST REQUEST (after backend pass)" with 4 tests for the country phone dropdown transparency fix. However, per system prompt instructions:
+
+**YOU MUST ASK USER BEFORE DOING FRONTEND TESTING**
+
+Main agent should:
+1. ✅ Summarize backend test results (all pass)
+2. ⏸️ Ask user if frontend testing should proceed for ISSUE C (country dropdown opacity)
+3. 🚀 If user approves, proceed with frontend tests 1-4 from the test request
+
+---
+
+
+---
+
 ## 4-Issue Fix Batch (session 10b): email CTAs / idle-timeout / checkout crash / USDT admin-fee sweep — Test Request (2026-07-10)
 
 ### ISSUE 1 — Email "View Transaction" button invisible + broken CTA links (FIXED, backend)
