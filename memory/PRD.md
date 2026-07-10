@@ -5,6 +5,31 @@ USDT-TRC20 payment gateway platform. Users can create companies, wallets, paymen
 
 ## What's Been Implemented
 
+### 2026-07-10 — Session 20b: Brand casing "DynoPay"→"Dynopay" (end-to-end) + similar-overflow hardening ✅ FIXED + VERIFIED
+
+**User request:** (1) fix brand casing — it's "Dynopay" not "DynoPay" — everywhere that matters; (2) analyze/fix
+overflow issues similar to the create-pay-link crypto-card bug.
+
+**Branding:** Replaced whole-word `DynoPay` → `Dynopay` (1114 occurrences across 112 files): UI copy, ALL i18n
+locales (en/es/fr/de/nl/pt), SEO JSON (data/seo-pages), email templates, 2FA issuer `APP_NAME`, push-notif title
+(public/sw-push.js + assets/public-runtime mirror), legal text, swagger. Used a protective regex
+`(?<![\w-])DynoPay(?![\w])(?!-(?:Event|Signature|Timestamp|Webhook-Id|Type|Auth))` so it did NOT touch:
+- camelCase identifiers / component & file names (`WhyChooseDynoPay.tsx`, `DynoPayLogo`, …)
+- the `X-DynoPay-*` webhook header names (public API contract merchants depend on — backend/webhooks + docs + swagger)
+- the `DynoPay-Auth` User-Agent header in userController.ts
+- JSON keys (only values changed). All changed JSON re-validated.
+
+**Similar-overflow analysis + fix:** The reported bug was CryptoItemCard's fixed-width/no-shrink design. Audited the
+analogs that render the same long labels: `CryptocurrencySelector` (wallet add/edit) had the same risk → hardened
+(trigger left content `flex:1/minWidth:0/overflow:hidden`, name ellipsis, right divider/chevron `flexShrink:0`,
+dropdown `ListItemText` `noWrap`+`minWidth:0`). Wallet-page cards and LivePreviewPanel already use ellipsis/minWidth:0
+(no change). Checkout selector uses `fullWidth` (no constrained-width overflow).
+
+**Verified (frontend testing agent):** Branding 6/6 pages show "Dynopay", zero wrong-cased "DynoPay". create-pay-link
+crypto cards 0px overflow + mobile FAB/drawer OK. CryptocurrencySelector trigger + dropdown 0px overflow for
+USDT-POLYGON / RLUSD-ERC20 / USDC-ERC20 / USDT-ERC20 at desktop 1920 AND mobile 390. Coin-toggle regression OK.
+
+
 ### 2026-07-10 — Session 20: Crypto-card overflow fix + mobile/tablet live-preview bottom sheet ✅ FIXED + VERIFIED
 
 **User report (screenshot):** On Create Payment Link → "Accepted cryptocurrencies", long network-label cards
