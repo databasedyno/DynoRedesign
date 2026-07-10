@@ -36,6 +36,7 @@ const FAQ: React.FC = () => {
                 onClick={() => handleToggle(idx)}
                 role="button"
                 tabIndex={0}
+                aria-expanded={isOpen}
                 onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleToggle(idx); } }}
                 sx={{
                   display: "flex",

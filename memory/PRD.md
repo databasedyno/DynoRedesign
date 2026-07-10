@@ -815,3 +815,18 @@ integrations added.
   Home/{index,UseCase,FAQ}.tsx, langs/locales/*/{createPaymentLinkScreen,landing}.json.
 - Verified by frontend testing agent (button toggle EN/DE/PT, landing card, regression) + main agent.
 - Test credentials unchanged. No prod DB schema writes. No third-party integrations added.
+
+---
+
+## Session 19 (2026-07-10) — Full landing page redesign: "Swiss & High-Contrast" (Stripe-caliber)
+- User: "Use Cases section looks really poor… get a high quality breathtaking landing page… compete with stripe.com and have even better". Approved full transformation, designer's-choice identity.
+- design_agent produced /app/design_guidelines.json: Unbounded (display) + IBM Plex Sans/Mono, volt #CCFF00 accent, obsidian #050505 bands, flat 1px borders, sharp 6px volt hover shadows, bento grids.
+- New sections (all in Components/Page/Home/): HeroSwiss (left-aligned type + live settlement terminal + grid/tracing-beam bg), ChainsMarquee (mono marquee of 13 chains), StatWall ($0 / 0.5% / <5min / 13), UseCasesBento (5 product-UI mockup cards — checkout, code, pay-link, tx table, donation campaign — NO stock photos), SwissSectionHead + swiss.ts (tokens).
+- Rewritten: FeeCalculator (vertical bar chart, logic unchanged), CoreValueProps, TestimonialsV2 (editorial + pexels avatars), FAQ (borderline rows, aria-expanded), FinalCTA (obsidian band "The old rails are slow. DynoPay is instant."), ComplianceLogoStrip (inverted obsidian strip), index.tsx (new order).
+- Deleted (now unused): HeroClean.tsx, AsciiShimmer.tsx, UseCase.tsx, SupportedChainsRail.tsx, Components/UI/UseCaseBanner/.
+- Infra: Google Fonts link in _document.tsx; --font-hero/--font-body/--font-tech vars + swiss-* keyframes in globals.css; styled.tsx aurora removed; ProductShowcase reframed (neutral canvas, Unbounded title).
+- i18n: 10 new keys (heroSwissTitle1/2, heroSwissCtaSecondary, statWall*, finalCtaSwiss*) added to all 6 locales.
+- Fixed during session: MUI height:1 = 100% bug on tracing beams; light-mode faint token bumped 0.38→0.62 for WCAG AA.
+- Testing: iteration_24.json — PASS. 43/43 testids in light+dark, 12/12 flows (CTAs thread ?ref= into register), 0 console errors, mobile 390px clean, regression (/fees, /auth/*) clean.
+- NOTE: production build workflow — after frontend changes run `yarn build` then `sudo supervisorctl restart frontend` (no hot reload).
+- Test credentials unchanged. No backend/DB changes. No new integrations.

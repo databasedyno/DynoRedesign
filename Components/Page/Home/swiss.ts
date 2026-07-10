@@ -28,7 +28,7 @@ export const useSwiss = (): SwissTokens => {
     surface: dark ? "#111113" : "#FFFFFF",
     txt: dark ? "#F5F5F5" : "#0A0A0A",
     sub: dark ? "#A1A1A1" : "#5C5C5C",
-    faint: dark ? "rgba(255,255,255,0.38)" : "rgba(10,10,10,0.38)",
+    faint: dark ? "rgba(255,255,255,0.5)" : "rgba(10,10,10,0.62)",
     line: dark ? "rgba(255,255,255,0.08)" : "rgba(10,10,10,0.08)",
     lineStrong: dark ? "rgba(255,255,255,0.18)" : "rgba(10,10,10,0.18)",
     accent: VOLT,
