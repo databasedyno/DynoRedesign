@@ -540,12 +540,44 @@ export const sweepPoolAddress = async (tempAddressId: number): Promise<unknown> 
     // === PROFITABILITY CHECK FIRST — before funding gas ===
     // This prevents wasting gas (TRX/ETH) on sweeps that turn out to be unprofitable.
     // Previously, gas was funded BEFORE profitability check, silently draining fee wallets.
-    const feeData = await tatumApi.feeEstimation(
-      walletType,
-      poolAddress.dataValues.wallet_address,
-      adminWallet,
-      actualBalance.toString()
-    );
+    //
+    // FIX (session 10): TRC20 tokens now use the energy-aware calculateDynamicTRC20Fee
+    // for the profitability estimate — the SAME estimator fundGasIfNeeded uses for the
+    // actual sweep. tatumApi.feeEstimation returned the worst-case fee limit
+    // (~34.8 TRX ≈ $11.5), while the real cost to the (activated) admin wallet is
+    // ~7.8 TRX ≈ $2.6. The inflated estimate made every mid-size USDT-TRC20 sweep
+    // "unprofitable" → 5 failed attempts → 7-day deferral loop → admin fees stuck
+    // for weeks (root cause of the July 2026 "USDT admin fee not forwarded" report).
+    let feeData: Record<string, unknown>;
+    if (walletType.includes("TRC20")) {
+      try {
+        const trc20Contract = walletType === "USDT-TRC20"
+          ? (process.env.TRX_CONTRACT || "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t")
+          : undefined;
+        const dynamicFee = await calculateDynamicTRC20Fee(
+          poolAddress.dataValues.wallet_address,
+          adminWallet,
+          trc20Contract
+        );
+        feeData = { fast: dynamicFee.fast };
+        cronLogger.info(`[MerchantPool] 🔋 TRC20 profitability using energy-aware fee: ${dynamicFee.fast} TRX (recipient ${dynamicFee.isNewRecipient ? "NEW" : "ACTIVATED"})`);
+      } catch (dynFeeErr) {
+        cronLogger.warn(`[MerchantPool] Energy-aware fee failed (${getErrorMessage(dynFeeErr)}) — falling back to tatumApi.feeEstimation`);
+        feeData = await tatumApi.feeEstimation(
+          walletType,
+          poolAddress.dataValues.wallet_address,
+          adminWallet,
+          actualBalance.toString()
+        );
+      }
+    } else {
+      feeData = await tatumApi.feeEstimation(
+        walletType,
+        poolAddress.dataValues.wallet_address,
+        adminWallet,
+        actualBalance.toString()
+      );
+    }
 
     const profitabilityResult = await checkSweepProfitability(walletType, actualBalance, feeData);
     
@@ -561,8 +593,12 @@ export const sweepPoolAddress = async (tempAddressId: number): Promise<unknown> 
       const isERC20 = ERC20_CHAINS.includes(walletType);
       const balUSD = profitabilityResult.balanceUSD || 0;
       
-      // ERC20 immediate write-off for dust < $0.10
-      if (isERC20 && balUSD < 0.10) {
+      // ERC20 immediate write-off for dust < $1.00 (bookkeeping only — the on-chain
+      // dust remains on the address and IS included the next time a real sweep runs,
+      // since sweeps always move the ACTUAL on-chain balance). $0.10 was too low:
+      // stale counters (e.g. DB said 6.39 USDT, chain held 0.12) kept addresses in a
+      // permanent unprofitable-deferral loop.
+      if (isERC20 && balUSD < 1.0) {
         cronLogger.warn(`[MerchantPool] 🗑️ ERC20 WRITE-OFF: ${poolAddress.dataValues.wallet_address} — $${balUSD.toFixed(4)} permanently written off (gas always >> balance)`);
         await poolAddress.update({ 
           status: "AVAILABLE", 
@@ -581,7 +617,10 @@ export const sweepPoolAddress = async (tempAddressId: number): Promise<unknown> 
       
       // Non-ERC20: track failures and defer after threshold
       const MAX_UNPROFITABLE_SWEEPS = 5;
-      const DEFERRAL_HOURS = 168; // 7 days
+      // FIX (session 10): was 168h (7 days). Energy prices and balances change
+      // hourly/daily — a week-long freeze kept growing admin-fee balances stuck
+      // long after they became profitable. 24h keeps retries timely.
+      const DEFERRAL_HOURS = 24;
       const failCountKey = `sweep:unprofitable:${tempAddressId}`;
       
       let failCount = 1;
@@ -1167,7 +1206,10 @@ export const sweepByThreshold = async (): Promise<number> => {
       try {
         const deferData = await getRedisItem(`sweep:unprofitable:${address.dataValues.temp_address_id}`) as { count: number; deferredUntil?: string } | null;
         if (deferData?.deferredUntil && new Date(deferData.deferredUntil) > new Date()) {
-          continue; // Silently skip — deferral check inside sweepAdminFeeToWallet will log if needed
+          // VISIBILITY FIX (session 10): this skip used to be silent, which made
+          // "admin fees not forwarding" impossible to diagnose from logs.
+          cronLogger.info(`[MerchantPool] ⏸️ ${walletAddress} (${walletType}): ${cryptoAmount} deferred until ${deferData.deferredUntil} (${deferData.count} unprofitable attempts) — skipping`);
+          continue;
         }
       } catch (_e) { /* Non-critical — proceed with sweep attempt */ }
       

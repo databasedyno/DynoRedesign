@@ -8,6 +8,8 @@ const IDLE_TIMEOUT_MS = 15 * 60 * 1000;       // 15 minutes total
 const WARNING_BEFORE_MS = 2 * 60 * 1000;       // Show warning 2 min before
 const WARNING_AT_MS = IDLE_TIMEOUT_MS - WARNING_BEFORE_MS; // 13 minutes
 const COUNTDOWN_TICK_MS = 1000;
+const ACTIVITY_PERSIST_THROTTLE_MS = 5000;     // write localStorage at most every 5s
+const LAST_ACTIVITY_KEY = "last_activity_ts";
 
 // Events that count as "user activity"
 const ACTIVITY_EVENTS: (keyof WindowEventMap)[] = [
@@ -48,9 +50,20 @@ const isPublicPath = (pathname: string): boolean => {
 /**
  * Global idle-timeout manager.
  *
- * Mounted once in _app.tsx. Watches for user inactivity on
- * authenticated pages. After 13 min idle → shows warning with
- * countdown. After 15 min idle → hard sign-out.
+ * Mounted once in _app.tsx. Watches for user inactivity on authenticated
+ * pages. After 13 min idle → warning with countdown ("Stay signed in?").
+ * After 15 min idle → hard sign-out.
+ *
+ * IMPLEMENTATION NOTES (rewritten session 10):
+ * - TIMESTAMP-BASED, not timer-only: browsers throttle/suspend timers in
+ *   background tabs, so wall-clock elapsed time is checked against a
+ *   persisted `last_activity_ts` (localStorage) on focus/visibility/mount.
+ *   This means: user leaves the app and returns <15 min later → warning
+ *   modal with the REMAINING countdown; returns ≥15 min later (even after a
+ *   tab close/reopen or laptop sleep) → signed out immediately.
+ * - Fixes the old stale-closure bug where any mousemove instantly dismissed
+ *   the warning before the user could see it (activity is ignored while the
+ *   warning is visible — the user must click "Stay signed in").
  */
 const IdleTimeoutManager: React.FC = () => {
   const router = useRouter();
@@ -59,73 +72,130 @@ const IdleTimeoutManager: React.FC = () => {
   const [showWarning, setShowWarning] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(Math.floor(WARNING_BEFORE_MS / 1000));
 
-  // Refs to hold timer IDs so we can clear across renders
+  // Refs to hold timer IDs / state so handlers never see stale values
   const warningTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const logoutTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const isActiveRef = useRef(true); // track if component should be active
+  const isActiveRef = useRef(true);
+  const showWarningRef = useRef(false);
+  const lastActivityRef = useRef<number>(Date.now());
+  const lastPersistRef = useRef<number>(0);
+
+  const clearTimers = () => {
+    if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
+    if (logoutTimerRef.current) clearTimeout(logoutTimerRef.current);
+    if (countdownRef.current) clearInterval(countdownRef.current);
+    warningTimerRef.current = null;
+    logoutTimerRef.current = null;
+    countdownRef.current = null;
+  };
+
+  const setWarningVisible = (visible: boolean) => {
+    showWarningRef.current = visible;
+    setShowWarning(visible);
+  };
+
+  const persistActivity = (ts: number, force = false) => {
+    if (!force && ts - lastPersistRef.current < ACTIVITY_PERSIST_THROTTLE_MS) return;
+    lastPersistRef.current = ts;
+    try {
+      localStorage.setItem(LAST_ACTIVITY_KEY, String(ts));
+    } catch {
+      /* storage unavailable — in-memory tracking still works */
+    }
+  };
+
+  const readPersistedActivity = (): number | null => {
+    try {
+      const raw = localStorage.getItem(LAST_ACTIVITY_KEY);
+      const n = raw ? parseInt(raw, 10) : NaN;
+      return Number.isFinite(n) ? n : null;
+    } catch {
+      return null;
+    }
+  };
 
   // ─── Sign-out logic ───
   const forceSignOut = useCallback(() => {
     // Clear all tokens
     localStorage.removeItem("token");
     localStorage.removeItem("refreshToken");
+    try {
+      localStorage.removeItem(LAST_ACTIVITY_KEY);
+    } catch {}
 
-    // Clean up timers
-    if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
-    if (logoutTimerRef.current) clearTimeout(logoutTimerRef.current);
-    if (countdownRef.current) clearInterval(countdownRef.current);
+    clearTimers();
 
     // Redirect to login
     window.location.href = "/auth/login";
   }, []);
 
-  // ─── Start / Reset timers ───
-  const resetTimers = useCallback(() => {
-    // Don't reset if we're not active
-    if (!isActiveRef.current) return;
+  // ─── Show the warning modal with the true remaining time ───
+  const openWarning = useCallback((msUntilLogout: number) => {
+    clearTimers();
+    setWarningVisible(true);
+    setSecondsLeft(Math.max(1, Math.ceil(msUntilLogout / 1000)));
 
-    // Only run when a token exists (user is authenticated)
+    countdownRef.current = setInterval(() => {
+      setSecondsLeft((prev) => {
+        if (prev <= 1) {
+          if (countdownRef.current) clearInterval(countdownRef.current);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, COUNTDOWN_TICK_MS);
+
+    logoutTimerRef.current = setTimeout(() => {
+      forceSignOut();
+    }, msUntilLogout);
+  }, [forceSignOut]);
+
+  // ─── Arm timers based on wall-clock elapsed idle time ───
+  const armTimers = useCallback(() => {
+    if (!isActiveRef.current) return;
     if (typeof window === "undefined") return;
     const token = localStorage.getItem("token");
     if (!token) return;
 
-    // Clear existing timers
-    if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
-    if (logoutTimerRef.current) clearTimeout(logoutTimerRef.current);
-    if (countdownRef.current) clearInterval(countdownRef.current);
+    const elapsed = Date.now() - lastActivityRef.current;
 
-    // Hide warning if it was showing
-    setShowWarning(false);
+    // Already past the hard limit (e.g. suspended tab, reopened page) → out.
+    if (elapsed >= IDLE_TIMEOUT_MS) {
+      forceSignOut();
+      return;
+    }
+
+    // Inside the warning window → show the modal with remaining time.
+    if (elapsed >= WARNING_AT_MS) {
+      openWarning(IDLE_TIMEOUT_MS - elapsed);
+      return;
+    }
+
+    // Normal case: schedule warning + logout for the REMAINING time.
+    clearTimers();
+    setWarningVisible(false);
     setSecondsLeft(Math.floor(WARNING_BEFORE_MS / 1000));
 
-    // Timer 1: show warning at 13 min
     warningTimerRef.current = setTimeout(() => {
-      setShowWarning(true);
-      setSecondsLeft(Math.floor(WARNING_BEFORE_MS / 1000));
+      openWarning(IDLE_TIMEOUT_MS - (Date.now() - lastActivityRef.current));
+    }, WARNING_AT_MS - elapsed);
 
-      // Start countdown
-      countdownRef.current = setInterval(() => {
-        setSecondsLeft((prev) => {
-          if (prev <= 1) {
-            if (countdownRef.current) clearInterval(countdownRef.current);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, COUNTDOWN_TICK_MS);
-    }, WARNING_AT_MS);
-
-    // Timer 2: force sign-out at 15 min
     logoutTimerRef.current = setTimeout(() => {
-      forceSignOut();
-    }, IDLE_TIMEOUT_MS);
-  }, [forceSignOut]);
+      // Re-check wall clock in case timers drifted
+      if (Date.now() - lastActivityRef.current >= IDLE_TIMEOUT_MS) forceSignOut();
+      else armTimers();
+    }, IDLE_TIMEOUT_MS - elapsed);
+  }, [forceSignOut, openWarning]);
 
   // ─── "Stay Signed In" handler ───
   const handleStayActive = useCallback(() => {
-    resetTimers();
-  }, [resetTimers]);
+    const now = Date.now();
+    lastActivityRef.current = now;
+    persistActivity(now, true);
+    setWarningVisible(false);
+    armTimers();
+  }, [armTimers]);
 
   // ─── Determine if timer should be active ───
   useEffect(() => {
@@ -135,34 +205,65 @@ const IdleTimeoutManager: React.FC = () => {
     isActiveRef.current = shouldBeActive;
 
     if (!shouldBeActive) {
-      // Clean up timers on public pages or when logged out
-      if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
-      if (logoutTimerRef.current) clearTimeout(logoutTimerRef.current);
-      if (countdownRef.current) clearInterval(countdownRef.current);
-      setShowWarning(false);
+      clearTimers();
+      setWarningVisible(false);
       return;
     }
 
-    // Active: set up event listeners and start timers
+    // Seed from the persisted timestamp (fresh page load / tab reopen):
+    // if the user has been away ≥15 min the token is expired for UX purposes.
+    const persisted = readPersistedActivity();
+    const now = Date.now();
+    if (persisted && persisted <= now) {
+      lastActivityRef.current = persisted;
+    } else {
+      lastActivityRef.current = now;
+      persistActivity(now, true);
+    }
+
     const onActivity = () => {
-      // If the warning modal is showing, don't reset on background activity
-      // (user must explicitly click "Stay Signed In")
-      if (!showWarning) {
-        resetTimers();
+      // While the warning modal is showing, background activity must NOT
+      // dismiss it — the user has to explicitly click "Stay signed in".
+      if (showWarningRef.current) return;
+      const ts = Date.now();
+      lastActivityRef.current = ts;
+      persistActivity(ts);
+    };
+
+    // On return to the tab, evaluate real elapsed time (timers may have been
+    // throttled or suspended while hidden).
+    const onReturn = () => {
+      if (document.visibilityState === "hidden") return;
+      if (showWarningRef.current) {
+        // Warning already visible — re-sync remaining time from wall clock.
+        const elapsed = Date.now() - lastActivityRef.current;
+        if (elapsed >= IDLE_TIMEOUT_MS) forceSignOut();
+        return;
       }
+      armTimers();
     };
 
     ACTIVITY_EVENTS.forEach((evt) => window.addEventListener(evt, onActivity, { passive: true }));
-    resetTimers();
+    window.addEventListener("focus", onReturn);
+    document.addEventListener("visibilitychange", onReturn);
+    armTimers();
+
+    // Re-arm periodically from activity (cheap: timers are only rescheduled
+    // when the warning fires or on return; activity itself just updates the
+    // timestamp — the warning callback recomputes remaining time from it).
+    const rearmInterval = setInterval(() => {
+      if (!showWarningRef.current) armTimers();
+    }, 60_000);
 
     return () => {
       ACTIVITY_EVENTS.forEach((evt) => window.removeEventListener(evt, onActivity));
-      if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
-      if (logoutTimerRef.current) clearTimeout(logoutTimerRef.current);
-      if (countdownRef.current) clearInterval(countdownRef.current);
+      window.removeEventListener("focus", onReturn);
+      document.removeEventListener("visibilitychange", onReturn);
+      clearInterval(rearmInterval);
+      clearTimers();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router.pathname, resetTimers]);
+  }, [router.pathname, armTimers, forceSignOut]);
 
   // ─── Format seconds into mm:ss ───
   const formatTime = (s: number) => {
@@ -191,6 +292,7 @@ const IdleTimeoutManager: React.FC = () => {
       }}
     >
       <Box
+        data-testid="idle-timeout-warning"
         sx={{
           bgcolor: "background.paper",
           borderRadius: "16px",
@@ -281,6 +383,7 @@ const IdleTimeoutManager: React.FC = () => {
           <Box
             component="button"
             onClick={handleStayActive}
+            data-testid="stay-signed-in-btn"
             sx={{
               bgcolor: "primary.main",
               color: "#fff",

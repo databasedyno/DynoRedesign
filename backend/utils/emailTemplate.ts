@@ -45,9 +45,9 @@ export const baseEmailTemplate = (
 
   const buttonBlock = showButton && buttonText && buttonLink
     ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding: 28px 0 8px 0;">
-        <a href="${buttonLink}" class="btn" style="display: inline-block; background-color: #050505; color: #CCFF00; text-decoration: none; padding: 14px 40px; border-radius: 12px; font-weight: 700; font-size: 15px; letter-spacing: 0.2px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; mso-padding-alt: 0; text-align: center;">
+        <a href="${buttonLink}" class="btn" style="display: inline-block; background-color: #CCFF00; color: #050505; -webkit-text-fill-color: #050505; text-decoration: none; padding: 14px 40px; border-radius: 12px; font-weight: 700; font-size: 15px; letter-spacing: 0.2px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; mso-padding-alt: 0; text-align: center;">
           <!--[if mso]><i style="mso-font-width: 150%; mso-text-raise: 26pt;">&nbsp;</i><![endif]-->
-          <span style="mso-text-raise: 13pt;">${buttonText}</span>
+          <span style="mso-text-raise: 13pt; color: #050505; -webkit-text-fill-color: #050505;">${buttonText}</span>
           <!--[if mso]><i style="mso-font-width: 150%;">&nbsp;</i><![endif]-->
         </a>
       </td></tr></table>`
@@ -85,8 +85,9 @@ export const baseEmailTemplate = (
       .card { background-color: #18181b !important; }
       .hdr-bar { background-color: #050505 !important; }
       h1.hdg { color: #fafafa !important; }
-      /* CTA button inverts in dark mode (matches app: lime bg, black text) */
-      .btn { background-color: #CCFF00 !important; color: #050505 !important; }
+      /* CTA button: same lime bg + black text in BOTH modes (inversion-proof) */
+      .btn { background-color: #CCFF00 !important; color: #050505 !important; -webkit-text-fill-color: #050505 !important; }
+      .btn span { color: #050505 !important; -webkit-text-fill-color: #050505 !important; }
       /* Content area: override ALL child elements */
       .msg, .msg p, .msg li, .msg td, .msg div, .msg span { color: #d4d4d8 !important; }
       .msg strong, .msg b { color: #fafafa !important; }

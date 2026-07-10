@@ -23,6 +23,30 @@ class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error("[ErrorBoundary] Uncaught error:", error, errorInfo);
+
+    // ─── ChunkLoadError auto-recovery ───
+    // During a rolling deploy the HTML may reference JS chunks that no longer
+    // exist on the instance that serves the request (old/new build mismatch).
+    // A single reload fetches the fresh HTML + matching chunks. Guarded via
+    // sessionStorage so a genuinely broken build can't cause a reload loop.
+    const msg = `${error?.name || ""} ${error?.message || ""}`;
+    const isChunkError =
+      /ChunkLoadError|Loading chunk [\w-]+ failed|Failed to fetch dynamically imported module|Importing a module script failed/i.test(
+        msg,
+      );
+    if (isChunkError && typeof window !== "undefined") {
+      try {
+        const KEY = "chunk_error_reloaded_at";
+        const last = Number(sessionStorage.getItem(KEY) || 0);
+        // Allow one auto-reload per 2 minutes
+        if (Date.now() - last > 2 * 60 * 1000) {
+          sessionStorage.setItem(KEY, String(Date.now()));
+          window.location.reload();
+        }
+      } catch {
+        /* storage unavailable — show the fallback instead */
+      }
+    }
   }
 
   handleReset = () => {
