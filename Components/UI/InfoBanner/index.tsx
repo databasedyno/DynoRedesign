@@ -1,6 +1,6 @@
 import InfoIcon from "@/assets/Icons/info-icon.svg";
 import useIsMobile from "@/hooks/useIsMobile";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, useTheme } from "@mui/material";
 import Image from "next/image";
 import React from "react";
 import { WarningIconContainer } from "../AddWalletModal/styled";
@@ -21,6 +21,8 @@ export type InfoBannerProps = {
  */
 export default function InfoBanner({ message, children, sx }: InfoBannerProps) {
   const isMobile = useIsMobile("md");
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
   return (
     <Box
       sx={{
@@ -30,7 +32,10 @@ export default function InfoBanner({ message, children, sx }: InfoBannerProps) {
         py: "12px",
         px: 2,
         borderRadius: "8px",
-        bgcolor: "#E8EBFB",
+        // Theme-aware: the old hardcoded light lavender (#E8EBFB) made the
+        // near-white dark-mode text unreadable (session 15 fix).
+        bgcolor: isDark ? "rgba(122,139,255,0.14)" : "#E8EBFB",
+        border: isDark ? "1px solid rgba(122,139,255,0.25)" : "none",
         width: "fit-content",
         ...sx,
       }}
