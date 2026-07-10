@@ -11,7 +11,7 @@
 const { chromium } = require('playwright');
 const fs = require('fs');
 
-const PREVIEW_URL = 'https://payment-hub-585.preview.emergentagent.com';
+const PREVIEW_URL = 'https://timestamps-6.preview.emergentagent.com';
 const PRODUCTION_URL = 'https://dynopay.com';
 
 async function runTests() {
