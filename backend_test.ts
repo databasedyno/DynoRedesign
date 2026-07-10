@@ -9,7 +9,7 @@ import axios from 'axios';
 import * as fs from 'fs';
 import * as path from 'path';
 
-const API_BASE = 'https://crypto-payment-hub-25.preview.emergentagent.com/api';
+const API_BASE = 'https://dynopay-config-setup.preview.emergentagent.com/api';
 
 interface TestResult {
   test: string;
