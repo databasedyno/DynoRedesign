@@ -153,6 +153,83 @@ const paymentLinkModel = sequelize.define(
       allowNull: true,
       comment: "Name of the customer this payment link is created for",
     },
+    // ── Donation / crowdfunding support ──────────────────────────────────
+    // 'standard' = normal one-off payment link (default)
+    // 'donation' = campaign parent link (multi-use, donors pick the amount)
+    // 'contribution' = child payment row spawned per donor (flows through the
+    //                  regular settlement pipeline untouched)
+    link_type: {
+      type: DataTypes.STRING(24),
+      defaultValue: "standard",
+      allowNull: true,
+    },
+    // Set on 'contribution' rows -> link_id of the donation parent
+    parent_link_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+    // Campaign headline / purpose (donation parents)
+    title: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+    },
+    // Fundraising target in base_currency (optional - open-ended if null)
+    goal_amount: {
+      type: DataTypes.FLOAT,
+      allowNull: true,
+    },
+    // Comma-separated suggested amounts, e.g. "10,25,50,100"
+    preset_amounts: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+    },
+    // Minimum accepted donation in base_currency (default 1 at controller level)
+    min_amount: {
+      type: DataTypes.FLOAT,
+      allowNull: true,
+    },
+    allow_custom_amount: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+      allowNull: true,
+    },
+    // Show progress bar (raised / goal) on the public checkout page
+    show_progress: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+      allowNull: true,
+    },
+    // Show recent supporters wall on the public checkout page
+    show_supporters: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+      allowNull: true,
+    },
+    // Stop accepting donations once goal_amount is reached
+    auto_close_at_goal: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: true,
+    },
+    // Absolute URL of the campaign cover image
+    campaign_image: {
+      type: DataTypes.STRING(512),
+      allowNull: true,
+    },
+    // ── Contribution (child row) fields ──────────────────────────────────
+    donor_name: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+    },
+    donor_message: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    is_anonymous: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: true,
+    },
   },
   {
     tableName: "tbl_payment_link",

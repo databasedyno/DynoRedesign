@@ -1,10 +1,11 @@
-import express from "express";
+import express, { RequestHandler } from "express";
 import { paymentController } from "../controller";
 import { walletController } from "../controller";
 import {
   authMiddleware,
   customerAuthMiddleware,
   linkMiddleware,
+  uploadImage,
 } from "../middleware";
 import { paymentRateLimiter } from "../middleware/rateLimitMiddleware";
 
@@ -15,6 +16,18 @@ const paymentRouter = express.Router();
 paymentRouter.post("/encrypt-payload", walletController.encryptPayload);
 
 paymentRouter.post("/getData", paymentRateLimiter, paymentController.getData);
+
+// Donation campaigns: public endpoint for a donor to start a contribution
+// (spawns a child payment session; checkout continues with the returned ref)
+paymentRouter.post("/startDonation", paymentRateLimiter, paymentController.startDonation);
+
+// Campaign cover image upload (merchant dashboard, authenticated)
+paymentRouter.post(
+  "/uploadCampaignImage",
+  authMiddleware,
+  uploadImage.single("image") as unknown as RequestHandler,
+  paymentController.uploadCampaignImage
+);
 
 paymentRouter.post(
   "/addPayment",

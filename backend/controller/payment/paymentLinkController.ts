@@ -24,6 +24,171 @@ import * as merchantPoolService from "../../services/merchantPoolService";
 import { getCryptoRedisKey } from "../../services/merchantPool/merchantPoolConfig";
 import { PaymentState, parseState } from "../../services/paymentStateMachine";
 
+// ═══════════════════════════════════════════════════════════════════════════
+// DONATION / CROWDFUNDING HELPERS
+// A donation link is a multi-use campaign parent (link_type='donation').
+// Every donor spawns a 'contribution' child row (parent_link_id set) that
+// flows through the regular settlement pipeline untouched. Aggregates below
+// are computed from completed child rows.
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Statuses that count as "money received" (legacy + state machine values)
+const DONATION_COMPLETED_STATUSES = [
+  "successful",
+  "completed",
+  "confirmed",
+  "processing",
+  "converted",
+  "payout_complete",
+];
+
+export const getDonationAggregates = async (
+  parentLinkId: number
+): Promise<{ raised_amount: number; supporters_count: number }> => {
+  const [row] = (await sequelize.query(
+    `SELECT COUNT(*)::int AS supporters_count, COALESCE(SUM(base_amount), 0)::float AS raised_amount
+     FROM tbl_payment_link
+     WHERE parent_link_id = :pid AND LOWER(status) IN (:statuses)`,
+    {
+      replacements: { pid: parentLinkId, statuses: DONATION_COMPLETED_STATUSES },
+      type: QueryTypes.SELECT,
+    }
+  )) as Array<{ supporters_count: number; raised_amount: number }>;
+  return {
+    raised_amount: Number(row?.raised_amount || 0),
+    supporters_count: Number(row?.supporters_count || 0),
+  };
+};
+
+export const getRecentSupporters = async (
+  parentLinkId: number,
+  limit = 10
+): Promise<Array<{ name: string | null; message: string | null; amount: number; currency: string; at: string }>> => {
+  const rows = (await sequelize.query(
+    `SELECT donor_name, donor_message, is_anonymous, base_amount, base_currency, "updatedAt"
+     FROM tbl_payment_link
+     WHERE parent_link_id = :pid AND LOWER(status) IN (:statuses)
+     ORDER BY "updatedAt" DESC LIMIT :lim`,
+    {
+      replacements: { pid: parentLinkId, statuses: DONATION_COMPLETED_STATUSES, lim: limit },
+      type: QueryTypes.SELECT,
+    }
+  )) as Array<{
+    donor_name: string | null;
+    donor_message: string | null;
+    is_anonymous: boolean | null;
+    base_amount: number;
+    base_currency: string | null;
+    updatedAt: string;
+  }>;
+  return rows.map((r) => ({
+    name: r.is_anonymous ? null : r.donor_name || null,
+    message: r.donor_message || null,
+    amount: Number(r.base_amount || 0),
+    currency: r.base_currency || "USD",
+    at: r.updatedAt,
+  }));
+};
+
+interface DonationValidationResult {
+  error?: string;
+  fields: Record<string, unknown>;
+}
+
+/**
+ * Validate + normalize donation campaign fields.
+ * partial=true (update): only validates fields that are present in the input.
+ * partial=false (create): title is required.
+ */
+const validateDonationInput = (
+  input: Record<string, unknown>,
+  { partial = false }: { partial?: boolean } = {}
+): DonationValidationResult => {
+  const fields: Record<string, unknown> = {};
+
+  if (input.title !== undefined || !partial) {
+    const t = String(input.title ?? "").trim();
+    if (!t) return { error: "Campaign title is required for donation links.", fields };
+    if (t.length > 255) return { error: "Campaign title must be 255 characters or less.", fields };
+    fields.title = t;
+  }
+
+  if (input.goal_amount !== undefined) {
+    if (input.goal_amount === null || input.goal_amount === "") {
+      fields.goal_amount = null;
+    } else {
+      const g = Number(input.goal_amount);
+      if (!Number.isFinite(g) || g <= 0) return { error: "goal_amount must be a positive number.", fields };
+      if (g > 999999999) return { error: "goal_amount is too large.", fields };
+      fields.goal_amount = Math.round(g * 100) / 100;
+    }
+  }
+
+  if (input.preset_amounts !== undefined) {
+    let arr: number[] = [];
+    if (input.preset_amounts === null || input.preset_amounts === "") {
+      arr = [];
+    } else if (Array.isArray(input.preset_amounts)) {
+      arr = (input.preset_amounts as unknown[]).map((n) => Number(n));
+    } else if (typeof input.preset_amounts === "string") {
+      arr = input.preset_amounts
+        .split(",")
+        .map((s) => s.trim())
+        .filter((s) => s !== "")
+        .map((s) => Number(s));
+    } else {
+      return { error: "preset_amounts must be an array of numbers or a comma-separated string.", fields };
+    }
+    if (arr.some((n) => !Number.isFinite(n) || n <= 0)) {
+      return { error: "preset_amounts must contain only positive numbers.", fields };
+    }
+    if (arr.length > 6) return { error: "A maximum of 6 preset amounts is allowed.", fields };
+    const unique = [...new Set(arr.map((n) => Math.round(n * 100) / 100))].sort((a, b) => a - b);
+    fields.preset_amounts = unique.length ? unique.join(",") : null;
+  }
+
+  if (input.min_amount !== undefined) {
+    if (input.min_amount === null || input.min_amount === "") {
+      fields.min_amount = null; // controller-level default of 1 applies
+    } else {
+      const m = Number(input.min_amount);
+      if (!Number.isFinite(m) || m <= 0) return { error: "min_amount must be a positive number.", fields };
+      if (m > 999999999) return { error: "min_amount is too large.", fields };
+      fields.min_amount = Math.round(m * 100) / 100;
+    }
+  }
+
+  for (const boolField of ["allow_custom_amount", "show_progress", "show_supporters", "auto_close_at_goal"]) {
+    if (input[boolField] !== undefined) {
+      fields[boolField] = Boolean(input[boolField]);
+    }
+  }
+
+  if (input.campaign_image !== undefined) {
+    if (input.campaign_image === null || input.campaign_image === "") {
+      fields.campaign_image = null;
+    } else {
+      const img = String(input.campaign_image).trim();
+      if (img.length > 512) return { error: "campaign_image URL is too long (max 512 chars).", fields };
+      if (!/^(https?:\/\/|\/)/i.test(img)) {
+        return { error: "campaign_image must be a valid URL.", fields };
+      }
+      fields.campaign_image = img;
+    }
+  }
+
+  return { fields };
+};
+
+/** Parse "10,25,50" -> [10, 25, 50] */
+export const parsePresetAmounts = (raw: string | null | undefined): number[] => {
+  if (!raw) return [];
+  return String(raw)
+    .split(",")
+    .map((s) => Number(s.trim()))
+    .filter((n) => Number.isFinite(n) && n > 0);
+};
+
 export const createPaymentLink = async (
   req: express.Request,
   res: express.Response
@@ -51,7 +216,18 @@ export const createPaymentLink = async (
     accepted_currencies, // Array of crypto types to accept (e.g., ['BTC', 'ETH', 'USDT-TRC20'])
     // Fixed tax parameters (alternative to apply_tax location-based)
     // tax_percentage and tax_name removed - not used in this function
-    name              // Customer name
+    name,              // Customer name
+    // ── Donation / crowdfunding fields ──
+    link_type,          // 'standard' (default) | 'donation'
+    title,              // Campaign headline (required for donations)
+    goal_amount,        // Fundraising target (optional)
+    preset_amounts,     // Suggested amounts: array or CSV string
+    min_amount,         // Minimum accepted donation (default 1)
+    allow_custom_amount, // Allow donor-entered amounts (default true)
+    show_progress,      // Show progress bar on checkout (default true)
+    show_supporters,    // Show supporter wall on checkout (default true)
+    auto_close_at_goal, // Stop accepting once goal reached (default false)
+    campaign_image      // Cover image URL (uploaded via /pay/uploadCampaignImage)
   } = req.body;
   
   // Normalize field names - use new format first, fall back to legacy, then default
@@ -60,7 +236,28 @@ export const createPaymentLink = async (
   // Priority: base_amount > amount
   const normalizedAmount = base_amount || amount;
   
+  // Donation campaign links are multi-use: donors choose the amount, so no
+  // fixed amount is required (base_amount stays 0 on the parent row).
+  const isDonation = String(link_type || '').toLowerCase() === 'donation';
+  let donationFields: Record<string, unknown> = {};
+  
   try {
+    if (isDonation) {
+      const donationCheck = validateDonationInput(
+        { title, goal_amount, preset_amounts, min_amount, allow_custom_amount, show_progress, show_supporters, auto_close_at_goal, campaign_image },
+        { partial: false }
+      );
+      if (donationCheck.error) {
+        return errorResponseHelper(res, 400, donationCheck.error);
+      }
+      donationFields = donationCheck.fields;
+      // If custom amounts are disabled, donors can only pick presets — so presets must exist
+      const presetsAfter = parsePresetAmounts(donationFields.preset_amounts as string | null);
+      const allowCustomAfter = donationFields.allow_custom_amount !== undefined ? Boolean(donationFields.allow_custom_amount) : true;
+      if (!allowCustomAfter && presetsAfter.length === 0) {
+        return errorResponseHelper(res, 400, "Provide at least one preset amount when custom amounts are disabled.");
+      }
+    } else {
     // Validate required fields with clear error messages
     if (!normalizedAmount) {
       return errorResponseHelper(
@@ -77,6 +274,7 @@ export const createPaymentLink = async (
         400,
         "Amount must be greater than zero."
       );
+    }
     }
     
     // Validate email format if provided
@@ -263,8 +461,11 @@ export const createPaymentLink = async (
     } else if (expire === "30d") {
       expires_at = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
     } else {
-      // Default to 7 days if not specified or explicitly set to "7d"
-      expires_at = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+      // Default to 7 days if not specified or explicitly set to "7d".
+      // Donation campaigns default to NO expiry (they run until closed).
+      expires_at = (isDonation && !expire)
+        ? null
+        : new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
     }
     
     // company_id is REQUIRED - validate it exists
@@ -323,7 +524,7 @@ export const createPaymentLink = async (
       transaction_id: crypto.randomUUID(),
       email: email || null,
       allowedModes: allowedModes,
-      base_amount: normalizedAmount,
+      base_amount: isDonation ? 0 : normalizedAmount,
       base_currency: normalizedCurrency,
       user_id: userData.user_id,
       adm_id: userData.user_id,  // Add adm_id for crypto payment compatibility
@@ -335,9 +536,22 @@ export const createPaymentLink = async (
       redirect_url: redirect_url || null,
       webhook_url: webhook_url || null,
       fee_payer: fee_payer || 'company',  // Default: company pays fees (existing behavior)
-      apply_tax: apply_tax || false,  // Tax toggle: OFF by default, merchant must enable
+      apply_tax: isDonation ? false : (apply_tax || false),  // Donations never collect sales tax
       accepted_currencies: acceptedCurrenciesString,  // Store merchant's selected currencies (null = all)
       customer_name: name || null,  // Optional customer name for payment link
+      // ── Donation campaign fields (only set for donation links) ──
+      ...(isDonation && {
+        link_type: 'donation',
+        title: donationFields.title,
+        goal_amount: donationFields.goal_amount ?? null,
+        preset_amounts: donationFields.preset_amounts ?? null,
+        min_amount: donationFields.min_amount ?? 1,
+        allow_custom_amount: donationFields.allow_custom_amount !== undefined ? donationFields.allow_custom_amount : true,
+        show_progress: donationFields.show_progress !== undefined ? donationFields.show_progress : true,
+        show_supporters: donationFields.show_supporters !== undefined ? donationFields.show_supporters : true,
+        auto_close_at_goal: donationFields.auto_close_at_goal !== undefined ? donationFields.auto_close_at_goal : false,
+        campaign_image: donationFields.campaign_image ?? null,
+      }),
     };
 
     const links = await paymentLinkModel.create(payload);
@@ -355,7 +569,8 @@ export const createPaymentLink = async (
     await setRedisItem("customer-" + uniqueRef, redisPayload);
 
     // Send payment link email with referee code (if email provided)
-    if (email && email.trim() !== "") {
+    // Skipped for donation campaigns — there is no single "customer" to bill.
+    if (!isDonation && email && email.trim() !== "") {
       try {
         // Import referee code service
         const { createRefereeCode } = await import("../../services/referralService");
@@ -435,10 +650,14 @@ ${refereeCodeSection}
         await sendPaymentLinkCreatedEmail(
           user.dataValues.email,
           user.dataValues.name || 'Merchant',
-          normalizedAmount.toString(),
+          isDonation
+            ? String(donationFields.goal_amount ?? 0)
+            : normalizedAmount.toString(),
           normalizedCurrency,
           payload.payment_link,
-          description || 'No description provided',
+          isDonation
+            ? `Donation campaign: ${donationFields.title}`
+            : (description || 'No description provided'),
           expires_at ? new Date(expires_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }) : null
         );
         cronLogger.info(`[PaymentLink] Merchant notification sent to ${user.dataValues.email}`);
@@ -457,6 +676,7 @@ ${refereeCodeSection}
     let directPayTempId: number | null = null;
 
     if (
+      !isDonation &&
       finalAcceptedCurrencies.length === 1 &&
       MERCHANT_POOL_CRYPTO_TYPES_FOR_LINK.includes(finalAcceptedCurrencies[0])
     ) {
@@ -540,7 +760,7 @@ ${refereeCodeSection}
     // ========================================
 
     // Format response to be consistent with getPaymentLinkById
-    const amountDisplay = formatAmountForDisplay(normalizedAmount, normalizedCurrency);
+    const amountDisplay = formatAmountForDisplay(isDonation ? 0 : normalizedAmount, normalizedCurrency);
     const currencyInfo = getCurrencyInfo(normalizedCurrency);
     
     const responseData = {
@@ -576,9 +796,11 @@ export const getPaymentLinks = async (req: express.Request, res: express.Respons
     
     cronLogger.info(`[getPaymentLinks] user_id=${userData.user_id}, company_id=${company_id || 'all'}`);
     
-    // Build where clause with optional company_id filter
+    // Build where clause with optional company_id filter.
+    // Contribution child rows (parent_link_id set) are internal — never listed.
     const whereClause: Record<string, unknown> = {
       user_id: userData.user_id,
+      parent_link_id: null,
     };
     
     if (company_id) {
@@ -621,19 +843,62 @@ export const getPaymentLinks = async (req: express.Request, res: express.Respons
       redirect_url?: string;
       webhook_url?: string;
       fee_payer?: string;
+      link_type?: string;
+      title?: string;
+      goal_amount?: number;
+      preset_amounts?: string;
+      min_amount?: number;
+      allow_custom_amount?: boolean;
+      show_progress?: boolean;
+      show_supporters?: boolean;
+      auto_close_at_goal?: boolean;
+      campaign_image?: string;
+    }
+
+    // ── Donation aggregates (raised amount + supporter count per campaign) ──
+    const donationLinkIds = (links as Array<{ dataValues: PaymentLinkData }>)
+      .filter((l) => l.dataValues.link_type === 'donation')
+      .map((l) => l.dataValues.link_id);
+    const donationAgg: Record<number, { raised_amount: number; supporters_count: number }> = {};
+    if (donationLinkIds.length > 0) {
+      try {
+        const aggRows = (await sequelize.query(
+          `SELECT parent_link_id, COUNT(*)::int AS supporters_count, COALESCE(SUM(base_amount),0)::float AS raised_amount
+           FROM tbl_payment_link
+           WHERE parent_link_id IN (:ids) AND LOWER(status) IN (:statuses)
+           GROUP BY parent_link_id`,
+          {
+            replacements: { ids: donationLinkIds, statuses: DONATION_COMPLETED_STATUSES },
+            type: QueryTypes.SELECT,
+          }
+        )) as Array<{ parent_link_id: number; supporters_count: number; raised_amount: number }>;
+        aggRows.forEach((r) => {
+          donationAgg[r.parent_link_id] = {
+            raised_amount: Number(r.raised_amount || 0),
+            supporters_count: Number(r.supporters_count || 0),
+          };
+        });
+      } catch (aggErr) {
+        cronLogger.warn('[getPaymentLinks] Donation aggregate query failed:', aggErr);
+      }
     }
 
     // Format for UI with computed status
     const formattedLinks = (links as Array<{ dataValues: PaymentLinkData }>).map((link) => {
       const linkData = link.dataValues;
       const now = new Date();
+      const isDonationLink = linkData.link_type === 'donation';
+      const agg = isDonationLink
+        ? donationAgg[linkData.link_id] || { raised_amount: 0, supporters_count: 0 }
+        : null;
       
       // Calculate status (normalized to lowercase for frontend consistency)
       let status = "active";
       
       // Check if link is still in draft/pending state (no payment_link URL yet or amount is 0)
+      // Donation parents legitimately have base_amount 0 — never "pending".
       const rawDbStatus = (linkData.status || "pending").toLowerCase().trim();
-      if (rawDbStatus === "pending" && (!linkData.base_amount || Number(linkData.base_amount) === 0)) {
+      if (!isDonationLink && rawDbStatus === "pending" && (!linkData.base_amount || Number(linkData.base_amount) === 0)) {
         status = "pending";
       }
       
@@ -644,6 +909,17 @@ export const getPaymentLinks = async (req: express.Request, res: express.Respons
       
       // Completed overrides everything except expired
       if (parseState(linkData.status) === PaymentState.PAYOUT_COMPLETE) {
+        status = "completed";
+      }
+
+      // Donation campaign auto-closed at goal → "completed"
+      if (
+        isDonationLink &&
+        status === "active" &&
+        linkData.auto_close_at_goal &&
+        Number(linkData.goal_amount) > 0 &&
+        (agg?.raised_amount || 0) >= Number(linkData.goal_amount)
+      ) {
         status = "completed";
       }
 
@@ -688,6 +964,27 @@ export const getPaymentLinks = async (req: express.Request, res: express.Respons
         webhook_url: linkData.webhook_url,
         fee_payer: linkData.fee_payer || 'company',  // Who pays blockchain fees
         company_id: linkData.company_id,  // Phase 10 Fix: Include company_id in response
+        // ── Donation campaign block ──
+        link_type: linkData.link_type || 'standard',
+        ...(isDonationLink && {
+          donation: {
+            title: linkData.title || null,
+            goal_amount: linkData.goal_amount != null ? Number(linkData.goal_amount) : null,
+            raised_amount: agg?.raised_amount || 0,
+            supporters_count: agg?.supporters_count || 0,
+            progress_percent:
+              Number(linkData.goal_amount) > 0
+                ? Math.min(100, Math.round(((agg?.raised_amount || 0) / Number(linkData.goal_amount)) * 100))
+                : null,
+            min_amount: linkData.min_amount != null ? Number(linkData.min_amount) : 1,
+            preset_amounts: parsePresetAmounts(linkData.preset_amounts),
+            allow_custom_amount: linkData.allow_custom_amount !== false,
+            show_progress: linkData.show_progress !== false,
+            show_supporters: linkData.show_supporters !== false,
+            auto_close_at_goal: Boolean(linkData.auto_close_at_goal),
+            campaign_image: linkData.campaign_image || null,
+          },
+        }),
       };
     });
 
@@ -735,13 +1032,15 @@ export const getPaymentLinkById = async (req: express.Request, res: express.Resp
 
     const linkData = link.dataValues;
     const now = new Date();
+    const isDonationLink = linkData.link_type === 'donation';
     
     // Calculate status (normalized to lowercase for frontend consistency)
     let status = "active";
     
     // Check if link is still in draft/pending state
+    // Donation parents legitimately have base_amount 0 — never "pending".
     const rawDbStatus = (linkData.status || "pending").toLowerCase().trim();
-    if (rawDbStatus === "pending" && (!linkData.base_amount || Number(linkData.base_amount) === 0)) {
+    if (!isDonationLink && rawDbStatus === "pending" && (!linkData.base_amount || Number(linkData.base_amount) === 0)) {
       status = "pending";
     }
     
@@ -797,7 +1096,66 @@ export const getPaymentLinkById = async (req: express.Request, res: express.Resp
       accepted_currencies: linkData.accepted_currencies 
         ? linkData.accepted_currencies.split(',').map((c: string) => c.trim())
         : null,  // null means all configured currencies are accepted
+      link_type: linkData.link_type || 'standard',
     };
+
+    // ── Donation campaign block: aggregates + contribution history ──
+    if (isDonationLink) {
+      const agg = await getDonationAggregates(Number(linkData.link_id));
+
+      // Auto-closed at goal → surface as "completed"
+      if (
+        response.status === 'active' &&
+        linkData.auto_close_at_goal &&
+        Number(linkData.goal_amount) > 0 &&
+        agg.raised_amount >= Number(linkData.goal_amount)
+      ) {
+        response.status = 'completed';
+      }
+
+      const contributionRows = (await sequelize.query(
+        `SELECT link_id, base_amount, base_currency, paid_amount, paid_currency, status,
+                donor_name, donor_message, is_anonymous, "createdAt", "updatedAt"
+         FROM tbl_payment_link
+         WHERE parent_link_id = :pid
+         ORDER BY "createdAt" DESC LIMIT 100`,
+        { replacements: { pid: linkData.link_id }, type: QueryTypes.SELECT }
+      )) as Array<Record<string, unknown>>;
+
+      const contributions = contributionRows.map((c) => {
+        const st = String(c.status || 'pending').toLowerCase().trim();
+        const isCompleted = DONATION_COMPLETED_STATUSES.includes(st);
+        return {
+          link_id: c.link_id,
+          amount: Number(c.base_amount || 0),
+          currency: c.base_currency || linkData.base_currency || 'USD',
+          donor_name: c.is_anonymous ? null : c.donor_name || null,
+          donor_message: c.donor_message || null,
+          is_anonymous: Boolean(c.is_anonymous),
+          status: isCompleted ? 'completed' : st,
+          created_at: c.createdAt,
+        };
+      });
+
+      (response as Record<string, unknown>).donation = {
+        title: linkData.title || null,
+        goal_amount: linkData.goal_amount != null ? Number(linkData.goal_amount) : null,
+        raised_amount: agg.raised_amount,
+        supporters_count: agg.supporters_count,
+        progress_percent:
+          Number(linkData.goal_amount) > 0
+            ? Math.min(100, Math.round((agg.raised_amount / Number(linkData.goal_amount)) * 100))
+            : null,
+        min_amount: linkData.min_amount != null ? Number(linkData.min_amount) : 1,
+        preset_amounts: parsePresetAmounts(linkData.preset_amounts),
+        allow_custom_amount: linkData.allow_custom_amount !== false,
+        show_progress: linkData.show_progress !== false,
+        show_supporters: linkData.show_supporters !== false,
+        auto_close_at_goal: Boolean(linkData.auto_close_at_goal),
+        campaign_image: linkData.campaign_image || null,
+        contributions,
+      };
+    }
 
     successResponseHelper(res, 200, "Payment link retrieved successfully", response);
   } catch (e) {
@@ -827,6 +1185,16 @@ export const updatePaymentLink = async (req: express.Request, res: express.Respo
     redirect_url, 
     webhook_url,
     name,                 // Customer name
+    // ── Donation / crowdfunding fields (donation links only) ──
+    title,
+    goal_amount,
+    preset_amounts,
+    min_amount,
+    allow_custom_amount,
+    show_progress,
+    show_supporters,
+    auto_close_at_goal,
+    campaign_image,
   } = req.body;
   
   try {
@@ -862,7 +1230,7 @@ export const updatePaymentLink = async (req: express.Request, res: express.Respo
       updateData.email = email;
     }
     
-    if (base_amount !== undefined) {
+    if (base_amount !== undefined && existingLink.dataValues.link_type !== 'donation') {
       const amount = Number(base_amount);
       if (isNaN(amount) || amount <= 0) {
         return errorResponseHelper(res, 400, "Invalid amount. Must be a positive number.");
@@ -999,6 +1367,42 @@ export const updatePaymentLink = async (req: express.Request, res: express.Respo
       updateData.customer_name = name || null;
     }
 
+    // ── Donation campaign field updates (donation links only) ──
+    if (existingLink.dataValues.link_type === 'donation') {
+      const donationInput: Record<string, unknown> = {};
+      if (title !== undefined) donationInput.title = title;
+      if (goal_amount !== undefined) donationInput.goal_amount = goal_amount;
+      if (preset_amounts !== undefined) donationInput.preset_amounts = preset_amounts;
+      if (min_amount !== undefined) donationInput.min_amount = min_amount;
+      if (allow_custom_amount !== undefined) donationInput.allow_custom_amount = allow_custom_amount;
+      if (show_progress !== undefined) donationInput.show_progress = show_progress;
+      if (show_supporters !== undefined) donationInput.show_supporters = show_supporters;
+      if (auto_close_at_goal !== undefined) donationInput.auto_close_at_goal = auto_close_at_goal;
+      if (campaign_image !== undefined) donationInput.campaign_image = campaign_image;
+
+      if (Object.keys(donationInput).length > 0) {
+        const donationCheck = validateDonationInput(donationInput, { partial: true });
+        if (donationCheck.error) {
+          return errorResponseHelper(res, 400, donationCheck.error);
+        }
+        Object.assign(updateData, donationCheck.fields);
+
+        // Cross-rule on the MERGED result: custom amounts off requires presets
+        const mergedAllowCustom =
+          updateData.allow_custom_amount !== undefined
+            ? Boolean(updateData.allow_custom_amount)
+            : existingLink.dataValues.allow_custom_amount !== false;
+        const mergedPresets = parsePresetAmounts(
+          (updateData.preset_amounts !== undefined
+            ? (updateData.preset_amounts as string | null)
+            : existingLink.dataValues.preset_amounts) as string | null
+        );
+        if (!mergedAllowCustom && mergedPresets.length === 0) {
+          return errorResponseHelper(res, 400, "Provide at least one preset amount when custom amounts are disabled.");
+        }
+      }
+    }
+
     // Check if there are any fields to update
     if (Object.keys(updateData).length === 0) {
       return errorResponseHelper(res, 400, "No valid fields provided for update");
@@ -1115,6 +1519,7 @@ export const updatePaymentLink = async (req: express.Request, res: express.Respo
             customer_name: linkData.customer_name,
             pathType: "createLink",
             link_id: linkData.link_id,
+            link_type: linkData.link_type || 'standard',
             available_currencies: availableCurrencies,
             all_configured_currencies: reconstructedCurrencies,
             createdAt: linkData.createdAt || new Date().toISOString(),
@@ -1206,6 +1611,19 @@ export const deletePaymentLink = async (
       },
     });
 
+    // Donation campaigns: also remove contribution child rows (internal records).
+    // In-flight donor Redis sessions are intentionally kept so a donor who is
+    // mid-payment can still complete (their child row is gone from the list anyway).
+    if (linkToDelete.dataValues.link_type === 'donation') {
+      const removedChildren = await paymentLinkModel.destroy({
+        where: {
+          user_id: userData.user_id,
+          parent_link_id: link_id,
+        },
+      });
+      cronLogger.info(`[deletePaymentLink] Removed ${removedChildren} contribution rows for campaign ${link_id}`);
+    }
+
     // Also delete from Redis to prevent checkout access
     if (uniqueRef) {
       await deleteRedisItem("customer-" + uniqueRef);
@@ -1216,5 +1634,166 @@ export const deletePaymentLink = async (
   } catch (e) {
 
       handleControllerError(res, e, apiLogger, { id: userData.id, email: userData.email });
+  }
+};
+
+// ═══════════════════════════════════════════════════════════════════════════
+// START DONATION (public checkout endpoint, rate-limited like getData)
+// Spawns a 'contribution' child payment link + Redis session for one donor.
+// The checkout page then continues its normal flow using the returned ref,
+// so 100% of the existing payment/settlement machinery is reused untouched.
+// ═══════════════════════════════════════════════════════════════════════════
+export const startDonation = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  try {
+    const { data, amount, donor_name, donor_message, is_anonymous } = req.body;
+
+    if (!data) {
+      return errorResponseHelper(res, 400, "Campaign reference is required");
+    }
+
+    // Resolve the campaign parent via its Redis session (same lookup as getData)
+    const item = await getRedisItem("customer-" + data);
+    if (!item || Object.keys(item).length === 0) {
+      return errorResponseHelper(res, 404, "Campaign not found or expired");
+    }
+    if (item.link_type !== "donation" || !item.link_id) {
+      return errorResponseHelper(res, 400, "This link is not a donation campaign");
+    }
+
+    // DB row is the source of truth for donation settings (survives edits)
+    const parent = await paymentLinkModel.findOne({ where: { link_id: item.link_id } });
+    if (!parent || parent.dataValues.link_type !== "donation") {
+      return errorResponseHelper(res, 404, "Campaign not found");
+    }
+    const p = parent.dataValues;
+
+    // Campaign ended?
+    if (p.expires_at && new Date(p.expires_at) <= new Date()) {
+      return errorResponseHelper(res, 410, "This campaign has ended.");
+    }
+
+    // Auto-close at goal?
+    const agg = await getDonationAggregates(Number(p.link_id));
+    if (p.auto_close_at_goal && Number(p.goal_amount) > 0 && agg.raised_amount >= Number(p.goal_amount)) {
+      return errorResponseHelper(res, 410, "This campaign has reached its goal and is now closed.");
+    }
+
+    // ── Amount validation ──
+    const rawAmt = Number(amount);
+    if (!Number.isFinite(rawAmt) || rawAmt <= 0) {
+      return errorResponseHelper(res, 400, "Please enter a valid donation amount.");
+    }
+    const amt = Math.round(rawAmt * 100) / 100;
+    const minAmt = Number(p.min_amount) > 0 ? Number(p.min_amount) : 1;
+    if (amt < minAmt) {
+      return errorResponseHelper(res, 400, `Minimum donation is ${minAmt} ${p.base_currency || "USD"}.`);
+    }
+    if (amt > 999999999) {
+      return errorResponseHelper(res, 400, "Amount is too large.");
+    }
+    const presets = parsePresetAmounts(p.preset_amounts);
+    const allowCustom = p.allow_custom_amount !== false;
+    if (!allowCustom && presets.length > 0 && !presets.some((ps) => Math.abs(ps - amt) < 0.001)) {
+      return errorResponseHelper(res, 400, "Please choose one of the suggested amounts.");
+    }
+
+    // ── Donor fields (sanitized) ──
+    const dName = donor_name ? String(donor_name).trim().slice(0, 100) : null;
+    const dMsg = donor_message ? String(donor_message).trim().slice(0, 280) : null;
+    const anon = Boolean(is_anonymous);
+
+    // ── Create the contribution child row ──
+    const uniqueRef = crypto.randomBytes(24).toString("hex");
+    const childPayload = {
+      transaction_id: crypto.randomUUID(),
+      email: null,
+      allowedModes: p.allowedModes || "crypto",
+      base_amount: amt,
+      base_currency: p.base_currency || "USD",
+      user_id: p.user_id,
+      adm_id: p.user_id, // crypto payment compatibility (mirrors createPaymentLink)
+      company_id: p.company_id || null,
+      payment_link: (process.env.CHECKOUT_URL || "").trim().replace(/\/$/, "") + "/pay?d=" + uniqueRef,
+      description: p.title || p.description || "Donation",
+      expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000), // donor payment window
+      callback_url: p.callback_url || null,
+      redirect_url: p.redirect_url || null,
+      webhook_url: p.webhook_url || null,
+      fee_payer: p.fee_payer || "company",
+      apply_tax: false, // donations never collect sales tax
+      accepted_currencies: p.accepted_currencies || null,
+      customer_name: anon ? null : dName,
+      link_type: "contribution",
+      parent_link_id: p.link_id,
+      donor_name: dName,
+      donor_message: dMsg,
+      is_anonymous: anon,
+    };
+
+    const child = await paymentLinkModel.create(childPayload);
+
+    // ── Available currencies for the donor's checkout session ──
+    let availableCurrencies: string[] = [];
+    if (Array.isArray(item.available_currencies)) {
+      availableCurrencies = item.available_currencies;
+    } else if (typeof item.available_currencies === "string" && item.available_currencies) {
+      availableCurrencies = item.available_currencies.split(",").map((c: string) => c.trim());
+    } else if (p.accepted_currencies) {
+      availableCurrencies = String(p.accepted_currencies).split(",").map((c: string) => c.trim());
+    }
+
+    const redisPayload = {
+      ...childPayload,
+      pathType: "createLink",
+      link_id: child.dataValues.link_id,
+      available_currencies: availableCurrencies,
+      all_configured_currencies: item.all_configured_currencies || availableCurrencies,
+      createdAt: new Date().toISOString(),
+    };
+    await setRedisItem("customer-" + uniqueRef, redisPayload);
+
+    cronLogger.info(
+      `[startDonation] Contribution ${child.dataValues.link_id} (${amt} ${childPayload.base_currency}) created for campaign ${p.link_id}${dName ? ` by ${anon ? "anonymous" : dName}` : ""}`
+    );
+
+    return successResponseHelper(res, 200, "Donation started", {
+      d: uniqueRef,
+      payment_link: childPayload.payment_link,
+      amount: amt,
+      currency: childPayload.base_currency,
+    });
+  } catch (e) {
+    handleControllerError(res, e, apiLogger, {});
+  }
+};
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CAMPAIGN COVER IMAGE UPLOAD (authenticated, uses shared uploadImage multer)
+// Returns an absolute URL served through /api/static/images (works behind
+// both the preview ingress and the production nginx, mirroring company logos).
+// ═══════════════════════════════════════════════════════════════════════════
+export const uploadCampaignImage = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  try {
+    const file = (req as express.Request & { file?: Express.Multer.File }).file;
+    if (!file) {
+      return errorResponseHelper(res, 400, "No image uploaded.");
+    }
+    const serverUrl = (process.env.SERVER_URL || "").trim().replace(/\/$/, "");
+    const url = `${serverUrl}/api/static/images/${file.filename}`;
+    apiLogger.info(`[uploadCampaignImage] uploaded: ${file.filename} (${file.mimetype}, ${file.size}b)`);
+    return successResponseHelper(res, 200, "Image uploaded", {
+      url,
+      name: file.originalname?.slice(0, 255) || file.filename,
+      type: file.mimetype,
+      size: file.size,
+    });
+  } catch (e) {
+    handleControllerError(res, e, apiLogger, {});
   }
 };

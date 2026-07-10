@@ -9,6 +9,8 @@ import {
   getPaymentLinkById,
   updatePaymentLink,
   deletePaymentLink,
+  startDonation,
+  uploadCampaignImage,
 } from "./payment/paymentLinkController";
 import {
   getNetworkFees,
@@ -2149,6 +2151,8 @@ export default {
   updatePaymentLink,
   deletePaymentLink,
   createPaymentLink,
+  startDonation,
+  uploadCampaignImage,
   cryptoVerification,
   checkingUSDT,
   sweepNativeAdminFees,

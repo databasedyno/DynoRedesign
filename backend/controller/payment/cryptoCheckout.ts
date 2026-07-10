@@ -76,6 +76,11 @@ import { PaymentState, parseState, toRedisStatus } from "../../services/paymentS
 
 import { calculateTaxForCheckout } from "./taxService";
 import { getLinkAccessToken, getAccessToken } from "./paymentTokens";
+import {
+  getDonationAggregates,
+  getRecentSupporters,
+  parsePresetAmounts,
+} from "./paymentLinkController";
 
 const getData = async (req: express.Request, res: express.Response) => {
   try {
@@ -121,6 +126,7 @@ const getData = async (req: express.Request, res: express.Response) => {
       accepted_currencies?: string;
       customer_name?: string;  // Optional customer name
       language?: string;  // Customer's preferred language captured at checkout
+      link_type?: string;  // 'standard' | 'donation' (campaign parent) | 'contribution'
     }
 
     const item = await getRedisItem("customer-" + data) as RedisPaymentItem | null;
@@ -156,7 +162,9 @@ const getData = async (req: express.Request, res: express.Response) => {
     // the payment form. This covers Direct Pay links where the customer may
     // have paid without visiting checkout (the Redis status stays stale).
     // ═══════════════════════════════════════════════════════════════════════════
-    if (item.link_id) {
+    // Donation campaign parents are multi-use — the "already completed" gate
+    // below must never fire for them (children carry the actual payments).
+    if (item.link_id && item.link_type !== 'donation') {
       try {
         const [dbLink] = await sequelize.query(
           `SELECT status, base_amount, base_currency, paid_amount, paid_currency, "updatedAt" FROM tbl_payment_link WHERE link_id = :linkId`,
@@ -320,13 +328,78 @@ const getData = async (req: express.Request, res: express.Response) => {
           }
         };
       } else {
-        // Payment link has expired - return error response
-        cronLogger.info(`[getData] Payment link expired at ${item.expires_at}`);
-        return errorResponseHelper(
-          res, 
-          410, 
-          "This payment link has expired. Please contact the merchant for a new payment link."
+        // Payment link has expired.
+        // Donation campaigns render a friendly "campaign ended" state on the
+        // checkout page instead of a hard error — fall through and let the
+        // donation block below set campaign_closed.
+        if (item.link_type !== 'donation') {
+          cronLogger.info(`[getData] Payment link expired at ${item.expires_at}`);
+          return errorResponseHelper(
+            res, 
+            410, 
+            "This payment link has expired. Please contact the merchant for a new payment link."
+          );
+        }
+        expiryInfo = {
+          expires_at: item.expires_at,
+          is_expired: true,
+        };
+      }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // DONATION CAMPAIGN DATA: settings are read fresh from the DB (survives
+    // edits) and progress is aggregated from completed contribution rows.
+    // ═══════════════════════════════════════════════════════════════════════
+    let donationInfo: Record<string, unknown> | null = null;
+    if (item.link_type === 'donation' && item.link_id) {
+      try {
+        const [parentRow] = (await sequelize.query(
+          `SELECT title, description, goal_amount, preset_amounts, min_amount, allow_custom_amount,
+                  show_progress, show_supporters, auto_close_at_goal, campaign_image, base_currency, expires_at
+           FROM tbl_payment_link WHERE link_id = :id AND link_type = 'donation'`,
+          { replacements: { id: item.link_id }, type: QueryTypes.SELECT }
+        )) as Array<Record<string, unknown>>;
+
+        if (!parentRow) {
+          return errorResponseHelper(res, 404, "Campaign not found or expired");
+        }
+
+        const agg = await getDonationAggregates(Number(item.link_id));
+        const goal = parentRow.goal_amount != null ? Number(parentRow.goal_amount) : null;
+        const goalReached = Boolean(parentRow.auto_close_at_goal) && goal != null && goal > 0 && agg.raised_amount >= goal;
+        const campaignExpired = Boolean(
+          parentRow.expires_at && new Date(parentRow.expires_at as string) <= new Date()
         );
+        const showSupporters = parentRow.show_supporters !== false;
+        const recentSupporters = showSupporters
+          ? await getRecentSupporters(Number(item.link_id))
+          : [];
+
+        donationInfo = {
+          title: parentRow.title || null,
+          purpose: parentRow.description || null,
+          campaign_image: parentRow.campaign_image || null,
+          currency: parentRow.base_currency || item.base_currency || 'USD',
+          goal_amount: goal,
+          raised_amount: agg.raised_amount,
+          supporters_count: agg.supporters_count,
+          progress_percent:
+            goal != null && goal > 0
+              ? Math.min(100, Math.round((agg.raised_amount / goal) * 100))
+              : null,
+          min_amount: Number(parentRow.min_amount) > 0 ? Number(parentRow.min_amount) : 1,
+          preset_amounts: parsePresetAmounts(parentRow.preset_amounts as string | null),
+          allow_custom_amount: parentRow.allow_custom_amount !== false,
+          show_progress: parentRow.show_progress !== false,
+          show_supporters: showSupporters,
+          campaign_closed: goalReached || campaignExpired,
+          closed_reason: goalReached ? 'goal_reached' : campaignExpired ? 'expired' : null,
+          recent_supporters: recentSupporters,
+        };
+      } catch (donationErr) {
+        cronLogger.error('[getData] Failed to load donation campaign data:', donationErr);
+        return errorResponseHelper(res, 500, "Unable to load campaign. Please try again.");
       }
     }
     
@@ -543,6 +616,9 @@ const getData = async (req: express.Request, res: express.Response) => {
             ...(item.incomplete_payment.destination_tag && { memo: String(item.incomplete_payment.destination_tag) }),
           }
         }),
+        // ── Donation campaign block (multi-use links; checkout renders the
+        //    campaign view and calls /pay/startDonation to begin a payment) ──
+        ...(donationInfo && { is_donation: true, donation: donationInfo }),
       };
     } else {
       // Validate customer_id exists before calling getAccessToken

@@ -14,8 +14,12 @@ const linkMiddleware = (
     currency,       // LEGACY format (backward compatibility)
     amount,         // Both formats use 'amount'
     base_amount,    // Alternative field name
-    modes 
+    modes,
+    link_type       // Check if this is a donation link
   } = req.body;
+
+  // Donation links don't require amount (donors choose amount)
+  const isDonation = String(link_type || '').toLowerCase() === 'donation';
 
   // Support both new and legacy field names
   // Priority: base_currency > currency > 'USD' (default)
@@ -114,13 +118,16 @@ const linkMiddleware = (
       "string.email": "Please provide a valid email address",
     }),
 
-    amount: Joi.number()
-      .required()
-      .min(0.01)
-      .messages({
-        "number.min": `Amount must be greater than 0`,
-        "any.required": "Amount is required. Please provide either 'amount' or 'base_amount' field.",
-      }),
+    // Amount is required for standard links, but optional for donation links
+    amount: isDonation 
+      ? Joi.number().optional().allow(null)
+      : Joi.number()
+          .required()
+          .min(0.01)
+          .messages({
+            "number.min": `Amount must be greater than 0`,
+            "any.required": "Amount is required. Please provide either 'amount' or 'base_amount' field.",
+          }),
     currency: Joi.string()
       .optional()
       .valid(...allowedCurrency)
