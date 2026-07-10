@@ -231,7 +231,7 @@ const PaymentDemo = () => {
             <Box
               sx={{
                 height: '3px',
-                background: 'linear-gradient(90deg, #CCFF00 0%, #7A8BFF 55%, #5865F2 100%)',
+                background: 'linear-gradient(90deg, #CCFF00 0%, #B4E600 55%, rgba(204,255,0,0.35) 100%)',
               }}
             />
 

@@ -830,3 +830,17 @@ integrations added.
 - Testing: iteration_24.json — PASS. 43/43 testids in light+dark, 12/12 flows (CTAs thread ?ref= into register), 0 console errors, mobile 390px clean, regression (/fees, /auth/*) clean.
 - NOTE: production build workflow — after frontend changes run `yarn build` then `sudo supervisorctl restart frontend` (no hot reload).
 - Test credentials unchanged. No backend/DB changes. No new integrations.
+
+---
+
+## Session 19b (2026-07-10) — Swiss brand extension: Auth → Fees → Checkout → Dashboard → Docs/Blog
+- Approved rollout: Auth pages → /fees → public checkout/pay → dashboard (accent-level) → docs/blog → emails (emails already on-brand from earlier session, no change needed).
+- Auth (/auth/*, reset-password shells): volt-only mesh (indigo removed), Swiss 54px grid backdrop, FormPanel/CardWrapper radius 18/16, AuthBrandPanel + TitleDescription → Unbounded/IBM Plex fonts. Files: Containers/Login/styled.tsx, Components/UI/AuthLayout/{AuthBrandPanel,TitleDescription}.
+- /fees: full Swiss rewrite (pages/fees.tsx) — mono bracket hero, numbered sections 01-05 via SwissSectionHead, Swiss comparison table, obsidian CTA. testids: fees-step-card-*, fees-comparison-table, fees-howto-step-*, fees-cta-section.
+- Checkout: Pay3Layout grid backdrop + indigo glow removed; ProgressBar de-purpled (neutral inactive dots, mono uppercase labels); assets/Icons/Logo.tsx default indigo→ink/white; CopyIcon.tsx #444CE7→currentColor; pay/demo accent bar volt; payment/success+failed Swiss cards w/ mono tx ids.
+- Dashboard: appTheme already volt; page titles → Unbounded (Containers/Client/styled.tsx PageHeaderTitle 24px, Layout/Header/index.tsx toolbar titles 20px).
+- Docs/Blog: SectionTitle restyled (mono [ ] eyebrow, Unbounded heading, volt highlight — propagates to docs/help-support/SEO pages); documentation.tsx + blog/* OutfitSemiBold→Unbounded, JetBrains Mono→var(--font-tech); docs Copy button now shows Copied even if clipboard API rejects; blog category chips mono.
+- Added data-testid="login-method-password" to login method radio (tester request).
+- Testing: iteration_25.json — login E2E PASS (3-step: email → Password radio → password), fees calculator recompute PASS, all pages dark+light PASS, mobile no-overflow PASS. Post-report fixes (indigo remnants, page-title fonts) self-verified via screenshot.
+- KNOWN PRE-EXISTING (not brand-related, left as-is): /reset-password redirects to /auth/login w/o token; /pay w/o token falls through to landing; [next-auth] CLIENT_FETCH_ERROR console noise on every route (NEXTAUTH_URL/preview-host mismatch); bankTransferCompo.tsx still uses #5865F2 indigo (bank-transfer sub-flow); 7 cosmetic tsc errors predate this session.
+- Build workflow reminder: yarn build && sudo supervisorctl restart frontend.

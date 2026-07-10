@@ -148,8 +148,8 @@ const BlogPage = () => {
                       <Typography
                         sx={{
                           fontSize: "11px",
-                          fontFamily: "var(--font-hero), var(--font-sans)",
-                          fontWeight: 600,
+                          fontFamily: "var(--font-tech), monospace",
+                          fontWeight: 500,
                           color: catColor,
                           textTransform: "uppercase",
                           letterSpacing: "0.5px",

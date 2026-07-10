@@ -760,10 +760,11 @@ const SECTIONS: Section[] = [
 const CopyButton = memo(({ text }: { text: string }) => {
   const [copied, setCopied] = useState(false);
   const handleCopy = useCallback(() => {
-    navigator.clipboard.writeText(text).then(() => {
+    const done = () => {
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
-    });
+    };
+    navigator.clipboard.writeText(text).then(done).catch(done);
   }, [text]);
   return (
     <CopyBtn onClick={handleCopy} style={copied ? { background: "rgba(34,197,94,0.2)", borderColor: "#22C55E" } : undefined}>

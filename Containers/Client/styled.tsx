@@ -30,14 +30,15 @@ export const MainPageHeader = styled(Box)(({ theme }) => ({
 }));
 
 export const PageHeaderTitle = styled(Typography)(({ theme }) => ({
-  fontSize: "30px",
+  fontSize: "24px",
   fontWeight: 500,
   color: theme.palette.text.primary,
-  fontFamily: "UrbanistMedium",
-  lineHeight: 1.2,
+  fontFamily: "var(--font-hero), var(--font-sans)",
+  letterSpacing: "-0.01em",
+  lineHeight: 1.25,
   mb: 1,
   [theme.breakpoints.down("md")]: {
-    fontSize: "22px",
+    fontSize: "19px",
   },
 }));
 

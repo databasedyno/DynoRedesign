@@ -11,10 +11,9 @@ const Logo = ({ width = 65, height = 78, color }: LogoProps) => {
   const theme = useTheme()
   const isDark = theme.palette.mode === 'dark'
   
-  // Light mode: Dark blue logo (#444CE7)
-  // Dark mode: Light/white logo for better visibility
+  // Swiss brand: ink logo in light mode, white in dark mode.
   // `color` prop overrides both (e.g. white logo on the dark checkout header bar).
-  const fillColor = color || (isDark ? '#A5B4FC' : '#444CE7')
+  const fillColor = color || (isDark ? '#F5F5F5' : '#0A0A0A')
   
   return (
     <svg 

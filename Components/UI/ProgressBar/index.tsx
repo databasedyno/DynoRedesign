@@ -22,7 +22,7 @@ const CustomConnector = styled(StepConnector)(({ theme }) => ({
   [`& .${stepConnectorClasses.line}`]: {
     height: 2,
     border: 0,
-    backgroundColor: theme.palette.mode === 'dark' ? '#2a2a4a' : '#E0E4ED',
+    backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.14)' : '#E0E4ED',
     borderRadius: 1,
     transition: 'background-color 0.4s ease',
   },
@@ -40,15 +40,15 @@ const StepIconRoot = styled('div')<{
   backgroundColor: ownerState.completed
     ? theme.palette.primary.main
     : ownerState.active
-      ? (theme.palette.mode === 'dark' ? '#1a1a2e' : '#fff')
-      : theme.palette.mode === 'dark' ? '#1a1a2e' : '#fff',
+      ? (theme.palette.mode === 'dark' ? '#111113' : '#fff')
+      : theme.palette.mode === 'dark' ? '#111113' : '#fff',
   zIndex: 1,
   color: ownerState.completed ? theme.palette.primary.contrastText : theme.palette.primary.main,
   width: 24,
   height: 24,
   display: 'flex',
   border: `2px solid ${
-    ownerState.active || ownerState.completed ? theme.palette.primary.main : theme.palette.mode === 'dark' ? '#3a3a5a' : '#D0D5E0'
+    ownerState.active || ownerState.completed ? theme.palette.primary.main : theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.22)' : '#D0D5E0'
   }`,
   borderRadius: '50%',
   justifyContent: 'center',
@@ -73,7 +73,7 @@ function StepIconComponent(props: any) {
             width: 7,
             height: 7,
             borderRadius: '50%',
-            background: active ? theme.palette.primary.main : '#CBD5E1',
+            background: active ? theme.palette.primary.main : (theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.3)' : '#CBD5E1'),
             transition: 'all 0.3s ease',
           }}
         />
@@ -107,8 +107,9 @@ export default function ProgressBar({ activeStep }: { activeStep: number }) {
                     ? (isDark ? '#fff' : '#242428')
                     : (isDark ? '#666' : '#9CA3AF'),
                   mt: '4px !important',
-                  fontFamily: "'Manrope', sans-serif",
-                  letterSpacing: '0.3px',
+                  fontFamily: 'var(--font-tech), monospace',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.08em',
                   transition: 'all 0.3s ease',
                 },
               }}

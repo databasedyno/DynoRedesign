@@ -1650,6 +1650,7 @@ export default function Login() {
                       value="password"
                       control={<CustomRadio />}
                       label={t("password")}
+                      data-testid="login-method-password"
                       sx={{ margin: "0px", color: "text.primary" }}
                       onClick={() => {
                         setLoginMethod("password");
