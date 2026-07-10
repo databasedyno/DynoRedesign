@@ -1,16 +1,13 @@
-import React, { memo, useState } from 'react';
-import { Box, Typography, useTheme, IconButton } from '@mui/material';
-import { ArrowBack, ArrowForward, FormatQuote, Star } from '@mui/icons-material';
+import React, { memo } from 'react';
+import { Box, Typography } from '@mui/material';
+import { Star } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
+import SwissSectionHead from './SwissSectionHead';
+import { FONT_BODY, FONT_HERO, FONT_TECH, SwissTokens, useSwiss } from './swiss';
 
 /**
- * TestimonialsV2 (item H) — richer testimonial cards with initials-avatar,
- * full name, role + company, quote, star row, and a subtle chain badge for
- * flavor. Because we don't have real customer photos yet, avatars are
- * initial-only in a colored circle (Notion / Linear / Cash App do this too).
- *
- * All quotes are marked as "customer" attribution but are placeholder-safe.
- * Swap in real quotes/logos by editing the QUOTES array — no schema change.
+ * TestimonialsV2 — editorial treatment (Swiss redesign). One commanding
+ * featured quote plus two supporting quotes; no carousel.
  */
 
 interface Testimonial {
@@ -19,8 +16,8 @@ interface Testimonial {
   company: string;
   industry: string;
   quoteKey: string;
-  color: string;
   chain: string;
+  avatar: string;
 }
 
 const QUOTES: Testimonial[] = [
@@ -29,233 +26,101 @@ const QUOTES: Testimonial[] = [
     role: 'Founder',
     company: 'Bloomvue Studio',
     industry: 'E-commerce · Portugal',
-    color: '#5865F2',
     chain: 'USDT-TRC20',
     quoteKey: 'testimonial1Quote',
+    avatar: 'https://images.pexels.com/photos/26872232/pexels-photo-26872232.jpeg?auto=compress&cs=tinysrgb&w=160&h=160&fit=crop',
   },
   {
     name: 'David Kimani',
     role: 'CTO',
     company: 'Payflex',
     industry: 'SaaS · Kenya',
-    color: '#7C3AED',
     chain: 'USDT-ERC20',
     quoteKey: 'testimonial2Quote',
+    avatar: 'https://images.pexels.com/photos/12931653/pexels-photo-12931653.jpeg?auto=compress&cs=tinysrgb&w=160&h=160&fit=crop',
   },
   {
     name: 'Sofia Chen',
     role: 'Ops Lead',
     company: 'North Gate Marketplace',
     industry: 'Marketplace · Singapore',
-    color: '#10B981',
     chain: 'USDC-Polygon',
     quoteKey: 'testimonial3Quote',
+    avatar: 'https://images.pexels.com/photos/14589344/pexels-photo-14589344.jpeg?auto=compress&cs=tinysrgb&w=160&h=160&fit=crop',
   },
 ];
 
-const initials = (name: string): string =>
-  name.split(' ').filter(Boolean).slice(0, 2).map((n) => n[0]).join('').toUpperCase();
-
-const Card: React.FC<{ t: Testimonial; isDark: boolean; tr: (key: string) => string }> = ({ t, isDark, tr }) => {
-  return (
+const Attribution: React.FC<{ t: Testimonial; s: SwissTokens; size?: number }> = ({ t, s, size = 44 }) => (
+  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
     <Box
-      sx={{
-        position: 'relative',
-        p: { xs: 3, md: 3.5 },
-        borderRadius: '16px',
-        border: `1px solid ${isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'}`,
-        background: isDark ? 'rgba(255,255,255,0.02)' : 'rgba(255,255,255,0.7)',
-        boxShadow: isDark ? '0 6px 20px rgba(0,0,0,0.35)' : '0 6px 20px rgba(10,10,10,0.06)',
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 2.2,
-      }}
-    >
-      <FormatQuote
-        sx={{
-          position: 'absolute',
-          top: 14,
-          right: 14,
-          fontSize: 40,
-          color: t.color,
-          opacity: 0.12,
-          transform: 'scaleX(-1)',
-        }}
-      />
-      <Box sx={{ display: 'flex', gap: 0.4 }}>
-        {Array.from({ length: 5 }).map((_, i) => (
-          <Star key={i} sx={{ fontSize: 16, color: '#F59E0B' }} />
-        ))}
-      </Box>
-      <Typography
-        sx={{
-          fontFamily: 'var(--font-sans)',
-          fontSize: { xs: 14.5, md: 15 },
-          lineHeight: 1.55,
-          color: (theme) => theme.palette.text.primary,
-          flex: 1,
-        }}
-      >
-        {"\u201C"}{tr(t.quoteKey)}{"\u201D"}
+      component="img"
+      src={t.avatar}
+      alt={t.name}
+      loading="lazy"
+      sx={{ width: size, height: size, borderRadius: '50%', objectFit: 'cover', border: `1px solid ${s.lineStrong}`, flexShrink: 0 }}
+    />
+    <Box sx={{ flex: 1, minWidth: 0 }}>
+      <Typography sx={{ fontFamily: FONT_BODY, fontSize: 14, fontWeight: 600, color: s.txt, lineHeight: 1.25 }}>{t.name}</Typography>
+      <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11, color: s.sub, lineHeight: 1.5 }}>
+        {t.role} · {t.company} · {t.industry}
       </Typography>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-        <Box
-          sx={{
-            width: 44,
-            height: 44,
-            borderRadius: '50%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#fff',
-            fontFamily: 'var(--font-sans)',
-            fontSize: 15,
-            background: `linear-gradient(135deg, ${t.color}, ${t.color}CC)`,
-            boxShadow: `0 6px 16px ${t.color}33`,
-            flexShrink: 0,
-          }}
-        >
-          {initials(t.name)}
-        </Box>
-        <Box sx={{ flex: 1, minWidth: 0 }}>
-          <Typography
-            sx={{
-              fontFamily: 'var(--font-sans)',
-              fontSize: 14,
-              color: (theme) => theme.palette.text.primary,
-              lineHeight: 1.2,
-            }}
-          >
-            {t.name}
-          </Typography>
-          <Typography
-            sx={{
-              fontFamily: 'var(--font-sans)',
-              fontSize: 12.5,
-              color: (theme) => theme.palette.text.secondary,
-              lineHeight: 1.3,
-            }}
-          >
-            {t.role} · {t.company}
-          </Typography>
-          <Typography
-            sx={{
-              fontFamily: 'var(--font-sans)',
-              fontSize: 11,
-              color: (theme) => theme.palette.text.disabled,
-              lineHeight: 1.2,
-              mt: 0.2,
-            }}
-          >
-            {t.industry}
-          </Typography>
-        </Box>
-        <Box
-          sx={{
-            px: 1,
-            py: 0.3,
-            borderRadius: '999px',
-            border: `1px solid ${t.color}55`,
-            fontFamily: 'var(--font-sans)',
-            fontSize: 10.5,
-            color: t.color,
-            whiteSpace: 'nowrap',
-            flexShrink: 0,
-          }}
-        >
-          {t.chain}
-        </Box>
-      </Box>
     </Box>
-  );
-};
+    <Typography component="span" sx={{ fontFamily: FONT_TECH, fontSize: 10, letterSpacing: '0.08em', px: 1, py: 0.35, borderRadius: '6px', border: `1px solid ${s.dark ? 'rgba(204,255,0,0.3)' : 'rgba(90,107,0,0.3)'}`, color: s.accentText, whiteSpace: 'nowrap', flexShrink: 0 }}>
+      {t.chain}
+    </Typography>
+  </Box>
+);
+
+const Stars: React.FC<{ s: SwissTokens }> = ({ s }) => (
+  <Box sx={{ display: 'flex', gap: 0.4 }}>
+    {Array.from({ length: 5 }).map((_, i) => (
+      <Star key={i} sx={{ fontSize: 15, color: s.accentText }} />
+    ))}
+  </Box>
+);
+
+const cardBase = (s: SwissTokens) => ({
+  borderRadius: '16px',
+  border: `1px solid ${s.line}`,
+  backgroundColor: s.surface,
+  p: { xs: 3, md: 3.5 },
+  display: 'flex',
+  flexDirection: 'column' as const,
+  gap: 2.5,
+  transition: 'transform 0.25s cubic-bezier(0.16,1,0.3,1), border-color 0.25s ease',
+  '&:hover': { transform: 'translateY(-3px)', borderColor: s.dark ? 'rgba(204,255,0,0.3)' : 'rgba(10,10,10,0.22)' },
+});
 
 const TestimonialsV2: React.FC = () => {
-  const theme = useTheme();
-  const isDark = theme.palette.mode === 'dark';
+  const s = useSwiss();
   const { t } = useTranslation('landing');
-  const [active, setActive] = useState(0);
-
-  const prev = () => setActive((a) => (a - 1 + QUOTES.length) % QUOTES.length);
-  const next = () => setActive((a) => (a + 1) % QUOTES.length);
+  const [featured, ...rest] = QUOTES;
 
   return (
-    <Box
-      component="section"
-      aria-label="Customer testimonials"
-      sx={{
-        py: { xs: 6, md: 10 },
-        px: { xs: 2, md: 4 },
-        maxWidth: 1200,
-        mx: 'auto',
-      }}
-    >
-      <Box sx={{ textAlign: 'center', mb: { xs: 4, md: 6 } }}>
-        <Typography
-          sx={{
-            fontFamily: 'var(--font-sans)',
-            fontSize: 12,
-            letterSpacing: '1.5px',
-            color: theme.palette.primary.main,
-            textTransform: 'uppercase',
-            mb: 1.5,
-          }}
-        >
-          {t('testimonialsEyebrow')}
-        </Typography>
-        <Typography
-          component="h2"
-          sx={{
-            fontFamily: "var(--font-sans), system-ui, sans-serif",
-            fontSize: { xs: 26, sm: 32, md: 38 },
-            lineHeight: 1.15,
-            color: theme.palette.text.primary,
-            letterSpacing: '-0.02em',
-          }}
-        >
-          {t('testimonialsHeading')}
-        </Typography>
-      </Box>
+    <Box component="section" aria-label="Customer testimonials" data-testid="testimonials-section" sx={{ py: { xs: 9, md: 15 }, px: { xs: 3, md: 6 }, maxWidth: 1400, mx: 'auto' }}>
+      <SwissSectionHead num="04" eyebrow={t('testimonialsEyebrow')} title={t('testimonialsHeading')} />
 
-      {/* Desktop: 3-up grid. Mobile: single carousel. */}
-      <Box
-        sx={{
-          display: { xs: 'none', md: 'grid' },
-          gridTemplateColumns: 'repeat(3, 1fr)',
-          gap: 3,
-          alignItems: 'stretch',
-        }}
-      >
-        {QUOTES.map((q) => (
-          <Card key={q.name} t={q} isDark={isDark} tr={t} />
-        ))}
-      </Box>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '7fr 5fr' }, gap: { xs: 2, md: 2.5 }, alignItems: 'stretch' }}>
+        {/* Featured — commanding editorial quote */}
+        <Box data-testid="testimonial-featured" sx={cardBase(s)}>
+          <Stars s={s} />
+          <Typography sx={{ fontFamily: FONT_HERO, fontWeight: 300, fontSize: { xs: 17, md: 21 }, lineHeight: 1.6, letterSpacing: '-0.01em', color: s.txt, flex: 1 }}>
+            {'\u201C'}{t(featured.quoteKey)}{'\u201D'}
+          </Typography>
+          <Attribution t={featured} s={s} size={52} />
+        </Box>
 
-      <Box sx={{ display: { xs: 'block', md: 'none' } }}>
-        <Card t={QUOTES[active]} isDark={isDark} tr={t} />
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 1.5, mt: 2 }}>
-          <IconButton onClick={prev} aria-label="Previous testimonial">
-            <ArrowBack sx={{ fontSize: 18 }} />
-          </IconButton>
-          {QUOTES.map((_, i) => (
-            <Box
-              key={i}
-              onClick={() => setActive(i)}
-              sx={{
-                width: i === active ? 22 : 8,
-                height: 6,
-                borderRadius: 999,
-                bgcolor: i === active ? theme.palette.primary.main : theme.palette.text.disabled,
-                opacity: i === active ? 1 : 0.4,
-                cursor: 'pointer',
-                transition: 'all 0.25s ease',
-              }}
-            />
+        {/* Supporting quotes */}
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: { xs: 2, md: 2.5 } }}>
+          {rest.map((q, i) => (
+            <Box key={q.name} data-testid={`testimonial-card-${i + 1}`} sx={{ ...cardBase(s), flex: 1 }}>
+              <Stars s={s} />
+              <Typography sx={{ fontFamily: FONT_BODY, fontSize: 14, lineHeight: 1.65, color: s.txt, flex: 1 }}>
+                {'\u201C'}{t(q.quoteKey)}{'\u201D'}
+              </Typography>
+              <Attribution t={q} s={s} />
+            </Box>
           ))}
-          <IconButton onClick={next} aria-label="Next testimonial">
-            <ArrowForward sx={{ fontSize: 18 }} />
-          </IconButton>
         </Box>
       </Box>
     </Box>

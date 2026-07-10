@@ -204,5 +204,15 @@
   "useCase5Description": "Campañas con meta y progreso en vivo que convierten a donantes puntuales en habituales.",
   "useCase5Tag": "Donaciones",
   "faq7Q": "¿Puedo recibir donaciones o hacer una campaña de crowdfunding?",
-  "faq7A": "Sí. Además de los enlaces de pago con importe fijo, DynoPay te permite crear enlaces de donación y crowdfunding donde los donantes eligen cuánto aportar. Define una meta, añade importes sugeridos y comparte un único enlace que muestra el progreso en vivo — ideal para recaudaciones, creadores y organizaciones sin fines de lucro que aceptan cripto."
+  "faq7A": "Sí. Además de los enlaces de pago con importe fijo, DynoPay te permite crear enlaces de donación y crowdfunding donde los donantes eligen cuánto aportar. Define una meta, añade importes sugeridos y comparte un único enlace que muestra el progreso en vivo — ideal para recaudaciones, creadores y organizaciones sin fines de lucro que aceptan cripto.",
+  "heroSwissTitle1": "Acepta cripto.",
+  "heroSwissTitle2": "Liquidado en tu wallet en segundos.",
+  "heroSwissCtaSecondary": "Mira cuánto ahorrarás",
+  "statWallEyebrow": "En cifras",
+  "statSetupLabel": "coste de configuración — empieza hoy",
+  "statFeeLabel": "comisión a escala — las tarjetas cobran 2,9 %",
+  "statSettlementLabel": "liquidación media a tu wallet",
+  "statChainsLabel": "cadenas, una sola integración",
+  "finalCtaSwissTitle1": "Los rieles antiguos son lentos.",
+  "finalCtaSwissTitle2": "DynoPay es instantáneo."
 }

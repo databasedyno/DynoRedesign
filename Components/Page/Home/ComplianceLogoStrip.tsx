@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { Box, Typography, useTheme } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import {
   VerifiedUser,
@@ -7,144 +7,88 @@ import {
   Radar,
   Shield,
 } from '@mui/icons-material';
+import { FONT_BODY, FONT_TECH, OBSIDIAN } from './swiss';
 
 /**
- * ComplianceLogoStrip (item F) — monochrome infra/compliance badge row that
- * replaces the emoji-based trust indicators. Modern SaaS pattern from Stripe,
- * Plaid, MoonPay, Bridge — reads as "we take security seriously" on scan.
- *
- * Note: badges are represented with material icons + text labels rather than
- * official 3rd-party logos to avoid trademark issues on stuff we haven't
- * formally partnered with. Ordered from most-recognized to most-technical.
+ * ComplianceLogoStrip — inverted deep-obsidian trust band (Swiss redesign).
+ * Same badge content as before, recomposed as a high-contrast full-width strip.
  */
 
 interface Badge {
   label: string;
-  /** i18n key for the label; falls back to `label` when absent (acronyms stay as-is). */
   labelKey?: string;
   subKey: string;
   icon: React.ReactNode;
 }
 
 const BADGES: Badge[] = [
-  {
-    label: 'SOC 2',
-    subKey: 'complianceSoc2Sub',
-    icon: <VerifiedUser sx={{ fontSize: 22 }} />,
-  },
-  {
-    label: 'GDPR',
-    subKey: 'complianceGdprSub',
-    icon: <PrivacyTip sx={{ fontSize: 22 }} />,
-  },
-  // 2026-07-05 — Removed PCI DSS badge. PCI DSS is a card-industry data-security
-  // standard (Visa/Mastercard/etc). DynoPay is a non-custodial crypto gateway —
-  // we don't touch card PANs, so claiming PCI DSS compliance is (a) misleading
-  // and (b) irrelevant to merchants evaluating crypto rails.
-  {
-    label: 'Non-custodial',
-    labelKey: 'complianceNonCustodialLabel',
-    subKey: 'complianceNonCustodialSub',
-    icon: <Shield sx={{ fontSize: 22 }} />,
-  },
-  {
-    label: 'KYT',
-    subKey: 'complianceKytSub',
-    icon: <Radar sx={{ fontSize: 22 }} />,
-  },
-  {
-    label: 'Chainalysis',
-    subKey: 'complianceChainalysisSub',
-    icon: <Shield sx={{ fontSize: 22 }} />,
-  },
+  { label: 'SOC 2', subKey: 'complianceSoc2Sub', icon: <VerifiedUser sx={{ fontSize: 20 }} /> },
+  { label: 'GDPR', subKey: 'complianceGdprSub', icon: <PrivacyTip sx={{ fontSize: 20 }} /> },
+  { label: 'Non-custodial', labelKey: 'complianceNonCustodialLabel', subKey: 'complianceNonCustodialSub', icon: <Shield sx={{ fontSize: 20 }} /> },
+  { label: 'KYT', subKey: 'complianceKytSub', icon: <Radar sx={{ fontSize: 20 }} /> },
+  { label: 'Chainalysis', subKey: 'complianceChainalysisSub', icon: <Shield sx={{ fontSize: 20 }} /> },
 ];
 
 const ComplianceLogoStrip: React.FC = () => {
-  const theme = useTheme();
-  const isDark = theme.palette.mode === 'dark';
   const { t } = useTranslation('landing');
 
   return (
     <Box
       component="section"
       aria-label="Security and compliance"
+      data-testid="compliance-strip"
       sx={{
-        py: { xs: 3, md: 4 },
-        px: { xs: 2, md: 4 },
-        maxWidth: 1200,
-        mx: 'auto',
+        backgroundColor: OBSIDIAN,
+        borderTop: '1px solid rgba(255,255,255,0.08)',
+        borderBottom: '1px solid rgba(255,255,255,0.08)',
+        py: { xs: 5, md: 7 },
+        px: { xs: 3, md: 6 },
       }}
     >
-      <Typography
-        sx={{
-          fontFamily: 'var(--font-sans)',
-          fontSize: 12,
-          fontWeight: 600,
-          letterSpacing: '1.4px',
-          textTransform: 'uppercase',
-          color: theme.palette.text.secondary,
-          textAlign: 'center',
-          mb: 2.5,
-        }}
-      >
-        {t('complianceHeader')}
-      </Typography>
-      <Box
-        sx={{
-          display: 'grid',
-          gridTemplateColumns: {
-            xs: 'repeat(2, 1fr)',
-            sm: 'repeat(3, 1fr)',
-            md: 'repeat(5, 1fr)',
-          },
-          gap: { xs: 1.5, md: 2 },
-          alignItems: 'stretch',
-        }}
-      >
-        {BADGES.map((b) => (
-          <Box
-            key={b.label}
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 0.5,
-              py: { xs: 1.6, md: 2 },
-              px: 1.2,
-              borderRadius: '12px',
-              border: `1px solid ${isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.10)'}`,
-              background: isDark ? 'rgba(255,255,255,0.045)' : 'rgba(255,255,255,0.75)',
-              transition: 'border-color 0.25s ease, transform 0.25s ease',
-              '&:hover': { borderColor: isDark ? 'rgba(255,255,255,0.22)' : 'rgba(0,0,0,0.18)', transform: 'translateY(-2px)' },
-            }}
-          >
-            <Box sx={{ color: theme.palette.text.primary, display: 'flex' }}>{b.icon}</Box>
-            <Typography
+      <Box sx={{ maxWidth: 1400, mx: 'auto' }}>
+        <Typography
+          sx={{
+            fontFamily: FONT_TECH,
+            fontSize: 11.5,
+            letterSpacing: '0.2em',
+            textTransform: 'uppercase',
+            color: 'rgba(255,255,255,0.45)',
+            textAlign: 'center',
+            mb: { xs: 3.5, md: 5 },
+          }}
+        >
+          {t('complianceHeader')}
+        </Typography>
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: { xs: 'repeat(2, 1fr)', sm: 'repeat(3, 1fr)', md: 'repeat(5, 1fr)' },
+            gap: { xs: 3, md: 0 },
+          }}
+        >
+          {BADGES.map((b, i) => (
+            <Box
+              key={b.label}
               sx={{
-                fontFamily: 'var(--font-sans)',
-                fontSize: 14,
-                fontWeight: 600,
-                color: theme.palette.text.primary,
-                lineHeight: 1.25,
-                letterSpacing: '0.2px',
-              }}
-            >
-              {b.labelKey ? t(b.labelKey) : b.label}
-            </Typography>
-            <Typography
-              sx={{
-                fontFamily: 'var(--font-sans)',
-                fontSize: 12,
-                color: theme.palette.text.secondary,
-                lineHeight: 1.3,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
                 textAlign: 'center',
+                gap: 0.75,
+                px: 2,
+                borderLeft: { md: i > 0 ? '1px solid rgba(255,255,255,0.1)' : 'none' },
               }}
             >
-              {t(b.subKey)}
-            </Typography>
-          </Box>
-        ))}
+              <Box sx={{ color: '#CCFF00', display: 'flex', mb: 0.25 }}>{b.icon}</Box>
+              <Typography sx={{ fontFamily: FONT_BODY, fontSize: 14.5, fontWeight: 600, color: '#F5F5F5', lineHeight: 1.2 }}>
+                {b.labelKey ? t(b.labelKey) : b.label}
+              </Typography>
+              <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11, color: 'rgba(255,255,255,0.45)', lineHeight: 1.5 }}>
+                {t(b.subKey)}
+              </Typography>
+            </Box>
+          ))}
+        </Box>
       </Box>
     </Box>
   );

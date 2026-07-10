@@ -204,5 +204,15 @@
   "useCase5Description": "Des campagnes avec objectif et progression en direct qui transforment les donateurs ponctuels en donateurs réguliers.",
   "useCase5Tag": "Dons",
   "faq7Q": "Puis-je collecter des dons ou lancer une campagne de financement participatif ?",
-  "faq7A": "Oui. En plus des liens de paiement à montant fixe, DynoPay vous permet de créer des liens de don et de financement participatif où les donateurs choisissent le montant. Fixez un objectif, ajoutez des montants suggérés et partagez un seul lien qui affiche la progression en direct — idéal pour les collectes, les créateurs et les associations qui acceptent la crypto."
+  "faq7A": "Oui. En plus des liens de paiement à montant fixe, DynoPay vous permet de créer des liens de don et de financement participatif où les donateurs choisissent le montant. Fixez un objectif, ajoutez des montants suggérés et partagez un seul lien qui affiche la progression en direct — idéal pour les collectes, les créateurs et les associations qui acceptent la crypto.",
+  "heroSwissTitle1": "Acceptez la crypto.",
+  "heroSwissTitle2": "Réglé sur votre wallet en quelques secondes.",
+  "heroSwissCtaSecondary": "Voyez ce que vous économiserez",
+  "statWallEyebrow": "En chiffres",
+  "statSetupLabel": "frais d'installation — lancez-vous aujourd'hui",
+  "statFeeLabel": "frais à grande échelle — les cartes prennent 2,9 %",
+  "statSettlementLabel": "règlement moyen vers votre wallet",
+  "statChainsLabel": "chaînes, une seule intégration",
+  "finalCtaSwissTitle1": "Les anciens rails sont lents.",
+  "finalCtaSwissTitle2": "DynoPay est instantané."
 }

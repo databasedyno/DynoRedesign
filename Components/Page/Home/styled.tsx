@@ -14,21 +14,8 @@ export const HomeWrapper = styled(Box)(({ theme }) => {
     [theme.breakpoints.down("md")]: {
       paddingTop: "calc(76px + var(--dyno-promo-h, 0px))",
     },
-    // Bento hero glow — a soft cyber-lime aurora anchored to the top of the page.
-    "&::before": {
-      content: '""',
-      position: "absolute",
-      top: 0,
-      left: "50%",
-      transform: "translateX(-50%)",
-      width: "min(1280px, 130vw)",
-      height: 640,
-      pointerEvents: "none",
-      zIndex: 0,
-      background: isDark
-        ? "radial-gradient(60% 60% at 50% 0%, rgba(204,255,0,0.11) 0%, rgba(204,255,0,0.035) 42%, transparent 72%)"
-        : "radial-gradient(60% 55% at 50% 0%, rgba(204,255,0,0.20) 0%, rgba(10,10,10,0.03) 46%, transparent 74%)",
-    },
+    // Swiss redesign: no global aurora — HeroSwiss owns its grid backdrop.
+    ...(isDark ? {} : {}),
   };
 });
 

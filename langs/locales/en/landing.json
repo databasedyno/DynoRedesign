@@ -204,5 +204,15 @@
   "useCase5Description": "Goal-based campaigns with live progress that turn one-time givers into repeat supporters.",
   "useCase5Tag": "Donations",
   "faq7Q": "Can I collect donations or run a crowdfunding campaign?",
-  "faq7A": "Yes. Alongside fixed-amount payment links, DynoPay lets you create donation & crowdfunding links where supporters choose how much to give. Set a goal, add suggested amounts, and share a single link that shows live progress — perfect for fundraisers, creators, and nonprofits accepting crypto."
+  "faq7A": "Yes. Alongside fixed-amount payment links, DynoPay lets you create donation & crowdfunding links where supporters choose how much to give. Set a goal, add suggested amounts, and share a single link that shows live progress — perfect for fundraisers, creators, and nonprofits accepting crypto.",
+  "heroSwissTitle1": "Accept crypto.",
+  "heroSwissTitle2": "Settled to your wallet in seconds.",
+  "heroSwissCtaSecondary": "See what you'll save",
+  "statWallEyebrow": "By the numbers",
+  "statSetupLabel": "setup cost — go live today",
+  "statFeeLabel": "fees at scale — cards charge 2.9%",
+  "statSettlementLabel": "average settlement to your wallet",
+  "statChainsLabel": "chains, one integration",
+  "finalCtaSwissTitle1": "The old rails are slow.",
+  "finalCtaSwissTitle2": "DynoPay is instant."
 }

@@ -502,11 +502,11 @@ const ProductShowcase: React.FC = () => {
         sx={{
           maxWidth: 1120,
           mx: "auto",
-          borderRadius: { xs: "24px", sm: "36px" },
-          border: `1px solid ${dark ? "rgba(255,255,255,0.07)" : "rgba(10,10,10,0.06)"}`,
+          borderRadius: { xs: "20px", sm: "24px" },
+          border: `1px solid ${dark ? "rgba(255,255,255,0.08)" : "rgba(10,10,10,0.08)"}`,
           background: dark
-            ? "radial-gradient(90% 70% at 50% 0%, rgba(204,255,0,0.09) 0%, rgba(204,255,0,0.02) 45%, transparent 100%), linear-gradient(180deg, #101208 0%, #0B0C09 100%)"
-            : "radial-gradient(90% 70% at 50% 0%, rgba(204,255,0,0.22) 0%, rgba(204,255,0,0.06) 45%, transparent 100%), linear-gradient(180deg, #F7F9EC 0%, #EFF3DE 100%)",
+            ? "radial-gradient(90% 70% at 50% 0%, rgba(204,255,0,0.07) 0%, transparent 55%), linear-gradient(180deg, #0C0C0E 0%, #060607 100%)"
+            : "radial-gradient(90% 70% at 50% 0%, rgba(204,255,0,0.13) 0%, transparent 55%), linear-gradient(180deg, #FFFFFF 0%, #F4F5F6 100%)",
           px: { xs: 2, sm: 6 },
           pt: { xs: 4, sm: 6 },
           pb: { xs: 3, sm: 4 },
@@ -519,7 +519,7 @@ const ProductShowcase: React.FC = () => {
             <CoinChip delay={0.1}><BTC width={24} height={24} /></CoinChip>
             <CoinChip delay={0.2}><ETH width={24} height={24} /></CoinChip>
           </Box>
-          <Typography component="h2" sx={{ fontFamily: "var(--font-display), sans-serif", fontWeight: 700, fontSize: { xs: 30, sm: 44 }, letterSpacing: "-0.02em", color: txt, textAlign: "center" }}>
+          <Typography component="h2" sx={{ fontFamily: "var(--font-hero)", fontWeight: 600, fontSize: { xs: 22, sm: 34 }, letterSpacing: "-0.02em", color: txt, textAlign: "center" }}>
             {t("showcase.title", "Built for crypto commerce")}
           </Typography>
           <Box sx={{ display: "flex", gap: 1 }}>
@@ -528,7 +528,7 @@ const ProductShowcase: React.FC = () => {
           </Box>
         </Box>
 
-        <Typography sx={{ textAlign: "center", color: sub, fontSize: { xs: 15, sm: 17 }, maxWidth: 620, mx: "auto", mb: { xs: 3, sm: 4 }, lineHeight: 1.55 }}>
+        <Typography sx={{ textAlign: "center", color: sub, fontFamily: "var(--font-body)", fontSize: { xs: 14.5, sm: 16.5 }, maxWidth: 620, mx: "auto", mb: { xs: 3, sm: 4 }, lineHeight: 1.55 }}>
           {t("showcase.subtitle", "Watch a payment travel from your customer's checkout to your wallet — settled in seconds, not days.")}
         </Typography>
 

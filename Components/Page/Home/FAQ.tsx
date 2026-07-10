@@ -1,12 +1,9 @@
-import React, { memo, useCallback, useEffect, useRef, useState } from "react";
-import { Box, Collapse, Typography, useTheme } from "@mui/material";
-import useIsMobile from "@/hooks/useIsMobile";
-import HomeSectionTitle from "@/Components/UI/SectionTitle";
-import AddIcon from "@mui/icons-material/Add";
-import RemoveIcon from "@mui/icons-material/Remove";
+import React, { memo, useCallback, useState } from "react";
+import { Box, Collapse, Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
+import SwissSectionHead from "./SwissSectionHead";
+import { FONT_BODY, FONT_TECH, useSwiss } from "./swiss";
 
-// Translation key pairs; resolved to text inside the component via t().
 const FAQ_KEYS: { qKey: string; aKey: string }[] = [
   { qKey: "faq1Q", aKey: "faq1A" },
   { qKey: "faq2Q", aKey: "faq2A" },
@@ -17,185 +14,75 @@ const FAQ_KEYS: { qKey: string; aKey: string }[] = [
   { qKey: "faq7Q", aKey: "faq7A" },
 ];
 
-interface FaqEntry {
-  question: string;
-  answer: string;
-}
-
-const FAQItem: React.FC<{
-  item: FaqEntry;
-  isOpen: boolean;
-  onToggle: () => void;
-  idx: number;
-  isVisible: boolean;
-}> = ({ item, isOpen, onToggle, idx, isVisible }) => {
-  const theme = useTheme();
-  const isDark = theme.palette.mode === "dark";
-
-  return (
-    <Box
-      sx={{
-        borderRadius: "16px",
-        backdropFilter: "blur(14px)",
-        WebkitBackdropFilter: "blur(14px)",
-        border: `1px solid ${
-          isOpen
-            ? isDark
-              ? "rgba(204,255,0,0.35)"
-              : "rgba(10,10,10,0.25)"
-            : isDark
-            ? "rgba(255,255,255,0.12)"
-            : "rgba(10,10,10,0.10)"
-        }`,
-        bgcolor: isOpen
-          ? isDark
-            ? "rgba(204,255,0,0.06)"
-            : "rgba(10,10,10,0.03)"
-          : isDark
-          ? "rgba(255,255,255,0.045)"
-          : "rgba(255,255,255,0.72)",
-        overflow: "hidden",
-        transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
-        transform: isVisible ? "translateY(0)" : "translateY(20px)",
-        opacity: isVisible ? 1 : 0,
-        transitionDelay: `${idx * 80}ms`,
-        "&:hover": {
-          borderColor: isDark ? "rgba(204,255,0,0.28)" : "rgba(10,10,10,0.2)",
-        },
-      }}
-    >
-      <Box
-        onClick={onToggle}
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          p: 3,
-          cursor: "pointer",
-          userSelect: "none",
-          gap: 2,
-        }}
-      >
-        <Typography
-          sx={{
-            fontSize: "16px",
-            fontFamily: "var(--font-sans)",
-            fontWeight: 500,
-            color: theme.palette.text.primary,
-            lineHeight: 1.4,
-          }}
-        >
-          {item.question}
-        </Typography>
-        <Box
-          sx={{
-            flexShrink: 0,
-            width: 32,
-            height: 32,
-            borderRadius: "10px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            bgcolor: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)",
-            transition: "all 0.3s ease",
-            transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
-          }}
-        >
-          {isOpen ? (
-            <RemoveIcon sx={{ fontSize: 18, color: theme.palette.primary.main }} />
-          ) : (
-            <AddIcon sx={{ fontSize: 18, color: theme.palette.text.secondary }} />
-          )}
-        </Box>
-      </Box>
-      <Collapse in={isOpen}>
-        <Box sx={{ px: 3, pb: 3, pt: 0 }}>
-          <Typography
-            sx={{
-              fontSize: "14px",
-              fontFamily: "var(--font-sans)",
-              color: theme.palette.text.secondary,
-              lineHeight: 1.7,
-            }}
-          >
-            {item.answer}
-          </Typography>
-        </Box>
-      </Collapse>
-    </Box>
-  );
-};
-
 const FAQ: React.FC = () => {
-  const isMobile = useIsMobile("md");
   const { t } = useTranslation("landing");
-  const faqs: FaqEntry[] = FAQ_KEYS.map((k) => ({
-    question: t(k.qKey),
-    answer: t(k.aKey),
-  }));
-  const sectionRef = useRef<HTMLElement>(null);
-  const [isVisible, setIsVisible] = useState(false);
+  const s = useSwiss();
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.1 }
-    );
-    if (sectionRef.current) observer.observe(sectionRef.current);
-    return () => observer.disconnect();
+  const handleToggle = useCallback((idx: number) => {
+    setOpenIndex((prev) => (prev === idx ? null : idx));
   }, []);
 
-  const handleToggle = useCallback(
-    (idx: number) => {
-      setOpenIndex((prev) => (prev === idx ? null : idx));
-    },
-    []
-  );
-
   return (
-    <section
-      ref={sectionRef}
-      style={{
-        padding: isMobile ? "80px 16px" : "140px 32px",
-        maxWidth: 800,
-        margin: "0 auto",
-      }}
-    >
-      <HomeSectionTitle
-        type="small"
-        badgeText={t("faqBadge")}
-        title={t("faqTitle")}
-        highlightText={t("faqHighlight")}
-        subtitle={t("faqSubtitle")}
-        sx={{ maxWidth: "100%" }}
-      />
+    <Box component="section" id="faq" data-testid="faq-section" sx={{ py: { xs: 9, md: 15 }, px: { xs: 3, md: 4 }, maxWidth: 860, mx: "auto" }}>
+      <SwissSectionHead num="05" eyebrow={t("faqBadge")} title={t("faqTitle")} highlight={t("faqHighlight")} sub={t("faqSubtitle")} />
 
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          gap: 1.5,
-          mt: isMobile ? 5 : 7,
-        }}
-      >
-        {faqs.map((faq, idx) => (
-          <FAQItem
-            key={faq.question}
-            item={faq}
-            isOpen={openIndex === idx}
-            onToggle={() => handleToggle(idx)}
-            idx={idx}
-            isVisible={isVisible}
-          />
-        ))}
+      <Box sx={{ borderTop: `1px solid ${s.lineStrong}` }}>
+        {FAQ_KEYS.map((k, idx) => {
+          const isOpen = openIndex === idx;
+          return (
+            <Box key={k.qKey} data-testid={`faq-item-${idx}`} sx={{ borderBottom: `1px solid ${s.line}` }}>
+              <Box
+                onClick={() => handleToggle(idx)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleToggle(idx); } }}
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: 3,
+                  py: 3,
+                  cursor: "pointer",
+                  userSelect: "none",
+                  "&:hover .faq-q": { color: s.accentText },
+                }}
+              >
+                <Box sx={{ display: "flex", alignItems: "baseline", gap: 2, minWidth: 0 }}>
+                  <Typography component="span" sx={{ fontFamily: FONT_TECH, fontSize: 12, color: s.faint, flexShrink: 0 }}>
+                    {String(idx + 1).padStart(2, "0")}
+                  </Typography>
+                  <Typography className="faq-q" sx={{ fontFamily: FONT_BODY, fontSize: { xs: 15, md: 16.5 }, fontWeight: 500, color: s.txt, lineHeight: 1.45, transition: "color 0.2s ease" }}>
+                    {t(k.qKey)}
+                  </Typography>
+                </Box>
+                <Typography
+                  component="span"
+                  aria-hidden
+                  sx={{
+                    fontFamily: FONT_TECH,
+                    fontSize: 22,
+                    fontWeight: 400,
+                    lineHeight: 1,
+                    color: isOpen ? s.accentText : s.faint,
+                    transition: "transform 0.3s cubic-bezier(0.16,1,0.3,1), color 0.2s ease",
+                    transform: isOpen ? "rotate(45deg)" : "rotate(0deg)",
+                    flexShrink: 0,
+                  }}
+                >
+                  +
+                </Typography>
+              </Box>
+              <Collapse in={isOpen}>
+                <Typography sx={{ fontFamily: FONT_BODY, fontSize: 14.5, color: s.sub, lineHeight: 1.75, pb: 3, pl: { xs: 0, md: 4.5 }, pr: { xs: 2, md: 6 }, maxWidth: 720 }}>
+                  {t(k.aKey)}
+                </Typography>
+              </Collapse>
+            </Box>
+          );
+        })}
       </Box>
-    </section>
+    </Box>
   );
 };
 

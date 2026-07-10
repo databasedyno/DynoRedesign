@@ -31,6 +31,14 @@ export default function MyDocument({ emotionStyleTags }: MyDocumentProps) {
             Legacy Manrope woffs kept in /public/fonts as fallback for any
             component that still references Manrope by name during hydration. */}
 
+        {/* Swiss landing display/body/mono fonts (Unbounded + IBM Plex) */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"
+          rel="stylesheet"
+        />
+
         {/* Google Identity Services for client-side OAuth (bypasses NextAuth /api/auth/* K8s conflict) */}
         <script src="https://accounts.google.com/gsi/client" async defer></script>
 

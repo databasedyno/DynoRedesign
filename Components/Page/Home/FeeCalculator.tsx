@@ -1,21 +1,15 @@
 import React, { memo, useMemo, useState } from 'react';
-import { Box, Typography, Slider, useTheme, Select, MenuItem, InputBase, FormControl } from '@mui/material';
+import { Box, Typography, Slider, Select, MenuItem, InputBase, FormControl } from '@mui/material';
 import { TrendingDown, ArrowForward } from '@mui/icons-material';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'react-i18next';
+import SwissSectionHead from './SwissSectionHead';
+import { FONT_BODY, FONT_HERO, FONT_TECH, OBSIDIAN, useSwiss, SwissTokens } from './swiss';
 
 /**
- * FeeCalculator (item B) — the highest-impact conversion element on payment
- * landing pages per Wise/Ramp/Deel public case studies.
- *
- * Left column: a slider for "monthly processing volume" (bounded).
- * Right column: side-by-side comparison card that shows:
- *   - What DynoPay costs at that volume (0.5% flat)
- *   - What the alternative costs (user-picked: Stripe / Coinbase Commerce /
- *     BitPay / PayPal / typical credit card processor)
- *   - The savings, monthly and annualised
- *
- * Section id="fee-calculator" so the nav in the site header can scroll-spy.
+ * FeeCalculator — Swiss redesign. Same tier logic and comparison math as
+ * before; presentation moved to a vertical-bar cost chart so the savings are
+ * visceral at a glance.
  */
 
 interface Alternative {
@@ -42,10 +36,7 @@ const DYNOPAY_FIXED = 0;
 
 /**
  * Volume-tier ladder used by the landing calculator. Must mirror the backend
- * `VOLUME_TIER_*` env vars (backend/utils/volumeTierUtils.ts). We keep this as
- * a client-side copy so the calculator can render instantly without an API
- * round-trip; if backend tiers change, update here too.
- * Volume is interpreted as ANNUAL/lifetime — matches `annualVolume = volume * 12`.
+ * `VOLUME_TIER_*` env vars (backend/utils/volumeTierUtils.ts).
  */
 const DYNOPAY_TIERS: Array<{ minAnnual: number; percent: number; name: string }> = [
   { minAnnual: 0,      percent: 1.5, name: 'Starter'    },
@@ -62,9 +53,50 @@ const dynopayTierFor = (monthlyVolume: number) => {
 const formatUSD = (n: number) =>
   n.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: n < 100 ? 2 : 0 });
 
+const CostColumn: React.FC<{
+  s: SwissTokens;
+  label: string;
+  subtitle: string;
+  amount: number;
+  max: number;
+  best?: boolean;
+  testId: string;
+}> = ({ s, label, subtitle, amount, max, best, testId }) => {
+  const pct = Math.max(6, Math.min(100, (amount / (max || 1)) * 100));
+  return (
+    <Box data-testid={testId} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, minWidth: 0 }}>
+      <Typography sx={{ fontFamily: FONT_TECH, fontSize: { xs: 14, md: 16 }, fontWeight: 500, color: s.txt, fontVariantNumeric: 'tabular-nums', mb: 1 }}>
+        {formatUSD(amount)}
+      </Typography>
+      <Box sx={{ width: '100%', maxWidth: 96, height: 190, display: 'flex', alignItems: 'flex-end' }}>
+        <Box
+          sx={{
+            width: '100%',
+            height: `${pct}%`,
+            borderRadius: '8px 8px 0 0',
+            backgroundColor: best ? s.accent : '#EF4444',
+            opacity: best ? 1 : 0.85,
+            transition: 'height 0.5s cubic-bezier(0.16,1,0.3,1)',
+          }}
+        />
+      </Box>
+      <Box sx={{ width: '100%', borderTop: `1px solid ${s.lineStrong}`, pt: 1.25, textAlign: 'center' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.75 }}>
+          <Typography sx={{ fontFamily: FONT_BODY, fontSize: 13.5, fontWeight: 600, color: s.txt }}>{label}</Typography>
+          {best && (
+            <Typography component="span" sx={{ fontFamily: FONT_TECH, fontSize: 9, letterSpacing: '0.12em', px: 0.75, py: 0.2, borderRadius: '4px', backgroundColor: s.accent, color: '#0A0A0A', fontWeight: 600 }}>
+              BEST
+            </Typography>
+          )}
+        </Box>
+        <Typography sx={{ fontFamily: FONT_TECH, fontSize: 10.5, color: s.faint, mt: 0.4, lineHeight: 1.5 }}>{subtitle}</Typography>
+      </Box>
+    </Box>
+  );
+};
+
 const FeeCalculator: React.FC = () => {
-  const theme = useTheme();
-  const isDark = theme.palette.mode === 'dark';
+  const s = useSwiss();
   const router = useRouter();
   const { t } = useTranslation('landing');
   const altName = (a: { id: string; name: string }) =>
@@ -87,162 +119,73 @@ const FeeCalculator: React.FC = () => {
   const yearlySavings  = monthlySavings * 12;
   const savingsPct = altCost > 0 ? (monthlySavings / altCost) * 100 : 0;
 
-  const primaryColor = theme.palette.primary.main;
-  const altColor = '#EF4444';
-
   return (
     <Box
       id="fee-calculator"
       component="section"
       aria-label="Fee calculator"
-      sx={{
-        py: { xs: 6, md: 10 },
-        px: { xs: 2, md: 4 },
-        maxWidth: 1200,
-        mx: 'auto',
-      }}
+      data-testid="fee-calculator-section"
+      sx={{ py: { xs: 9, md: 15 }, px: { xs: 3, md: 6 }, maxWidth: 1400, mx: 'auto' }}
     >
-      {/* Header */}
-      <Box sx={{ textAlign: 'center', mb: { xs: 4, md: 6 } }}>
-        <Typography
-          sx={{
-            fontFamily: 'var(--font-sans)',
-            fontSize: 12,
-            letterSpacing: '1.5px',
-            color: theme.palette.primary.main,
-            textTransform: 'uppercase',
-            mb: 1.5,
-          }}
-        >
-          {t('feeCalcEyebrow')}
-        </Typography>
-        <Typography
-          component="h2"
-          sx={{
-            fontFamily: "var(--font-sans), system-ui, sans-serif",
-            fontSize: { xs: 28, sm: 34, md: 42 },
-            lineHeight: 1.15,
-            color: theme.palette.text.primary,
-            letterSpacing: '-0.02em',
-            mb: 1.5,
-          }}
-        >
-          {t('feeCalcTitle')}{' '}
-          <Box
-            component="span"
-            sx={{
-              color: theme.palette.primary.main,
-            }}
-          >
-            {t('feeCalcTitleHighlight')}
-          </Box>
-        </Typography>
-        <Typography
-          sx={{
-            fontFamily: 'var(--font-sans)',
-            fontSize: { xs: 14, md: 16 },
-            color: theme.palette.text.secondary,
-            maxWidth: 620,
-            mx: 'auto',
-          }}
-        >
-          {t('feeCalcSubtitle')}
-        </Typography>
-      </Box>
+      <SwissSectionHead
+        num="01"
+        eyebrow={t('feeCalcEyebrow')}
+        title={`${t('feeCalcTitle')} ${t('feeCalcTitleHighlight')}`}
+        highlight={t('feeCalcTitleHighlight')}
+        sub={t('feeCalcSubtitle')}
+      />
 
-      {/* Body */}
-      <Box
-        sx={{
-          display: 'grid',
-          gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
-          gap: { xs: 3, md: 4 },
-          alignItems: 'stretch',
-        }}
-      >
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1.1fr' }, gap: { xs: 2.5, md: 3 }, alignItems: 'stretch', maxWidth: 1180, mx: 'auto' }}>
         {/* ==== LEFT: inputs ==== */}
-        <Box
-          sx={{
-            p: { xs: 3, md: 4 },
-            borderRadius: '20px',
-            border: `1px solid ${isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'}`,
-            background: isDark ? 'rgba(255,255,255,0.02)' : 'rgba(255,255,255,0.7)',
-          }}
-        >
-          <Typography
-            sx={{
-              fontFamily: 'var(--font-sans)',
-              fontSize: 12.5,
-              color: theme.palette.text.disabled,
-              textTransform: 'uppercase',
-              letterSpacing: '1px',
-              mb: 1,
-            }}
-          >
+        <Box sx={{ p: { xs: 3, md: 4 }, borderRadius: '16px', border: `1px solid ${s.line}`, backgroundColor: s.surface }}>
+          <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase', color: s.faint, mb: 1.5 }}>
             {t('feeCalcVolumeLabel')}
           </Typography>
-          <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1, mb: 2 }}>
-            <Typography
-              sx={{
-                fontFamily: 'var(--font-sans)',
-                fontSize: { xs: 40, md: 52 },
-                color: theme.palette.text.primary,
-                fontVariantNumeric: 'tabular-nums',
-                lineHeight: 1,
-              }}
-            >
+          <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1, mb: 2.5 }}>
+            <Typography data-testid="fee-calc-volume-value" sx={{ fontFamily: FONT_HERO, fontWeight: 600, fontSize: { xs: 32, md: 42 }, color: s.txt, fontVariantNumeric: 'tabular-nums', lineHeight: 1, letterSpacing: '-0.02em' }}>
               {formatUSD(volume)}
             </Typography>
-            <Typography
-              sx={{
-                fontFamily: 'var(--font-sans)',
-                fontSize: 15,
-                color: theme.palette.text.secondary,
-              }}
-            >
+            <Typography sx={{ fontFamily: FONT_TECH, fontSize: 13, color: s.sub }}>
               {t('feeCalcPerMonth')}
             </Typography>
           </Box>
           <Slider
             aria-label="Monthly processing volume"
+            data-testid="fee-calc-slider"
             value={volume}
             min={500}
             max={500_000}
             step={500}
             onChange={(_, v) => setVolume(Array.isArray(v) ? v[0] : v)}
             sx={{
-              color: primaryColor,
-              height: 8,
-              '& .MuiSlider-thumb': { width: 22, height: 22, boxShadow: isDark ? '0 4px 14px rgba(204,255,0,0.4)' : '0 4px 12px rgba(10,10,10,0.25)' },
-              '& .MuiSlider-track':  { border: 'none', backgroundColor: primaryColor },
-              '& .MuiSlider-rail':   { opacity: isDark ? 0.18 : 0.12 },
+              color: s.accent,
+              height: 6,
+              borderRadius: 0,
+              '& .MuiSlider-thumb': {
+                width: 18,
+                height: 18,
+                borderRadius: '5px',
+                backgroundColor: s.accent,
+                border: '2px solid #0A0A0A',
+                boxShadow: 'none',
+                '&:hover, &.Mui-focusVisible': { boxShadow: `0 0 0 6px ${s.accentSoft}` },
+              },
+              '& .MuiSlider-track': { border: 'none', backgroundColor: s.accent },
+              '& .MuiSlider-rail': { opacity: 1, backgroundColor: s.dark ? 'rgba(255,255,255,0.1)' : 'rgba(10,10,10,0.1)' },
             }}
           />
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 0.5 }}>
-            <Typography sx={{ fontFamily: 'var(--font-sans)', fontSize: 11.5, color: theme.palette.text.disabled }}>
-              $500
-            </Typography>
-            <Typography sx={{ fontFamily: 'var(--font-sans)', fontSize: 11.5, color: theme.palette.text.disabled }}>
-              $500K
-            </Typography>
+            <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11, color: s.faint }}>$500</Typography>
+            <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11, color: s.faint }}>$500K</Typography>
           </Box>
 
-          {/* Alternative picker */}
-          <Typography
-            sx={{
-              fontFamily: 'var(--font-sans)',
-              fontSize: 12.5,
-              color: theme.palette.text.disabled,
-              textTransform: 'uppercase',
-              letterSpacing: '1px',
-              mt: 3.5,
-              mb: 1,
-            }}
-          >
+          <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase', color: s.faint, mt: 4, mb: 1.5 }}>
             {t('feeCalcCompareAgainst')}
           </Typography>
           <FormControl fullWidth size="small">
             <Select
               value={altId}
+              data-testid="fee-calc-alt-select"
               onChange={(e) => setAltId(String(e.target.value))}
               input={
                 <InputBase
@@ -250,12 +193,11 @@ const FeeCalculator: React.FC = () => {
                     px: 1.6,
                     py: 1.2,
                     borderRadius: '10px',
-                    border: `1px solid ${isDark ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.10)'}`,
-                    bgcolor: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.7)',
-                    fontFamily: 'var(--font-sans)',
-                    fontSize: 14,
-                    color: theme.palette.text.primary,
-                    '& .MuiSelect-icon': { color: theme.palette.text.primary, mr: 1 },
+                    border: `1px solid ${s.lineStrong}`,
+                    fontFamily: FONT_TECH,
+                    fontSize: 13.5,
+                    color: s.txt,
+                    '& .MuiSelect-icon': { color: s.txt, mr: 1 },
                   }}
                 />
               }
@@ -267,177 +209,88 @@ const FeeCalculator: React.FC = () => {
               ))}
             </Select>
           </FormControl>
-          <Typography sx={{ mt: 1, fontFamily: 'var(--font-sans)', fontSize: 11.5, color: theme.palette.text.disabled }}>
+          <Typography sx={{ mt: 1.25, fontFamily: FONT_TECH, fontSize: 11, color: s.faint, lineHeight: 1.6 }}>
             {altNote(alt.id)}
           </Typography>
 
-          <Typography
-            sx={{
-              mt: 3,
-              fontFamily: 'var(--font-sans)',
-              fontSize: 11.5,
-              color: theme.palette.text.disabled,
-              lineHeight: 1.5,
-            }}
-          >
+          <Typography sx={{ mt: 3, fontFamily: FONT_TECH, fontSize: 11, color: s.faint, lineHeight: 1.6 }}>
             {t('feeCalcAssumption', { count: `~${alt.txPerMonth.toLocaleString()}` })}
           </Typography>
         </Box>
 
-        {/* ==== RIGHT: side-by-side results ==== */}
-        <Box
-          sx={{
-            p: { xs: 3, md: 4 },
-            borderRadius: '20px',
-            background: isDark ? 'rgba(255,255,255,0.045)' : 'rgba(255,255,255,0.72)',
-            backdropFilter: 'blur(16px)',
-            WebkitBackdropFilter: 'blur(16px)',
-            border: `1px solid ${isDark ? 'rgba(255,255,255,0.12)' : 'rgba(10,10,10,0.10)'}`,
-            display: 'flex',
-            flexDirection: 'column',
-          }}
-        >
-          {/* Compare bars */}
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.6, mb: 3 }}>
-            <CostBar
+        {/* ==== RIGHT: bar chart + savings ==== */}
+        <Box sx={{ p: { xs: 3, md: 4 }, borderRadius: '16px', border: `1px solid ${s.line}`, backgroundColor: s.surface, display: 'flex', flexDirection: 'column', gap: 3 }}>
+          <Box sx={{ display: 'flex', gap: { xs: 3, md: 6 }, justifyContent: 'center', px: { xs: 0, md: 4 } }}>
+            <CostColumn
+              s={s}
               label="DynoPay"
               subtitle={`${dynopayTier.percent}% (${dynopayTier.name}) · ${alt.txPerMonth.toLocaleString()} ${t('feeCalcTxAbbrev')}`}
               amount={dynopayCost}
               max={Math.max(dynopayCost, altCost, 1)}
-              color={primaryColor}
-              isBest
+              best
+              testId="fee-calc-bar-dynopay"
             />
-            <CostBar
+            <CostColumn
+              s={s}
               label={altName(alt)}
               subtitle={`${alt.percent}%${alt.fixed ? ` + ${formatUSD(alt.fixed)}${t('feeCalcPerTx')}` : ''}`}
               amount={altCost}
               max={Math.max(dynopayCost, altCost, 1)}
-              color={altColor}
+              testId="fee-calc-bar-alt"
             />
           </Box>
 
-          {/* Savings hero */}
-          <Box
-            sx={{
-              px: 2.2, py: 2.4,
-              borderRadius: '14px',
-              background: primaryColor,
-              color: theme.palette.primary.contrastText,
-              display: 'flex', flexDirection: 'column', gap: 1,
-              mb: 2,
-              boxShadow: isDark ? '0 12px 34px rgba(204,255,0,0.28)' : '0 12px 30px rgba(10,10,10,0.18)',
-            }}
-          >
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.6, opacity: 0.9 }}>
-              <TrendingDown sx={{ fontSize: 15 }} />
-              <Typography sx={{ fontFamily: 'var(--font-sans)', fontSize: 11, letterSpacing: '1.2px', textTransform: 'uppercase' }}>
+          {/* Savings block — always obsidian */}
+          <Box data-testid="fee-calc-savings" sx={{ px: 3, py: 2.75, borderRadius: '12px', backgroundColor: OBSIDIAN, border: '1px solid rgba(204,255,0,0.25)' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 0.75 }}>
+              <TrendingDown sx={{ fontSize: 14, color: '#CCFF00' }} />
+              <Typography sx={{ fontFamily: FONT_TECH, fontSize: 10.5, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#CCFF00' }}>
                 {t('feeCalcYouSave')}
               </Typography>
             </Box>
-            <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1.2, flexWrap: 'wrap' }}>
-              <Typography sx={{ fontFamily: 'var(--font-sans)', fontSize: { xs: 32, md: 40 }, lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>
+            <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1.25, flexWrap: 'wrap' }}>
+              <Typography sx={{ fontFamily: FONT_HERO, fontWeight: 600, fontSize: { xs: 30, md: 38 }, lineHeight: 1, color: '#F5F5F5', fontVariantNumeric: 'tabular-nums' }}>
                 {formatUSD(monthlySavings)}
               </Typography>
-              <Typography sx={{ fontFamily: 'var(--font-sans)', fontSize: 14, opacity: 0.85 }}>
+              <Typography sx={{ fontFamily: FONT_TECH, fontSize: 13, color: 'rgba(255,255,255,0.55)' }}>
                 {t('feeCalcPerMonthLong')}
               </Typography>
             </Box>
-            <Typography sx={{ fontFamily: 'var(--font-sans)', fontSize: 13, opacity: 0.95, mt: 0.4 }}>
+            <Typography sx={{ fontFamily: FONT_BODY, fontSize: 13, color: 'rgba(255,255,255,0.65)', mt: 1 }}>
               {t('feeCalcSavingsSummary', { yearly: formatUSD(yearlySavings), pct: savingsPct.toFixed(1), alt: altName(alt) })}
             </Typography>
           </Box>
 
           <Box
             component="button"
+            type="button"
+            data-testid="fee-calc-cta"
             onClick={() => router.push('/auth/register?ref=fee_calc')}
             sx={{
               alignSelf: 'flex-start',
-              display: 'inline-flex', alignItems: 'center', gap: 0.5,
-              px: 2.2, py: 1,
-              border: 'none', cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 0.75,
+              px: 2.5,
+              py: 1.25,
+              border: 'none',
+              cursor: 'pointer',
               borderRadius: '10px',
-              fontFamily: 'var(--font-sans)', fontSize: 14, color: theme.palette.primary.contrastText,
-              background: primaryColor,
-              boxShadow: isDark ? '0 8px 24px rgba(204,255,0,0.3)' : '0 8px 22px rgba(10,10,10,0.2)',
-              transition: 'transform 0.2s ease',
-              '&:hover': { transform: 'translateY(-1px)' },
+              fontFamily: FONT_BODY,
+              fontWeight: 600,
+              fontSize: 14,
+              color: '#0A0A0A',
+              backgroundColor: s.accent,
+              transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+              '&:hover': {
+                transform: 'translate(-2px, -2px)',
+                boxShadow: s.dark ? '4px 4px 0 rgba(204,255,0,0.35)' : '4px 4px 0 #0A0A0A',
+              },
             }}
           >
             {t('feeCalcCta')} <ArrowForward sx={{ fontSize: 16 }} />
           </Box>
         </Box>
-      </Box>
-    </Box>
-  );
-};
-
-const CostBar: React.FC<{
-  label: string;
-  subtitle: string;
-  amount: number;
-  max: number;
-  color: string;
-  isBest?: boolean;
-}> = ({ label, subtitle, amount, max, color, isBest }) => {
-  const { t } = useTranslation('landing');
-  const pct = Math.min(100, (amount / (max || 1)) * 100);
-  return (
-    <Box>
-      <Box sx={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', mb: 0.6 }}>
-        <Box>
-          <Typography component="span" sx={{ fontFamily: 'var(--font-sans)', fontSize: 14, color: (t) => t.palette.text.primary }}>
-            {label}
-          </Typography>
-          {isBest && (
-            <Box
-              component="span"
-              sx={{
-                ml: 1,
-                px: 0.8, py: 0.15,
-                borderRadius: '999px',
-                bgcolor: 'rgba(34,197,94,0.12)',
-                color: '#16A34A',
-                fontFamily: 'var(--font-sans)',
-                fontSize: 10,
-                letterSpacing: '0.6px',
-                textTransform: 'uppercase',
-              }}
-            >
-              {t('feeCalcBest')}
-            </Box>
-          )}
-          <Typography sx={{ fontFamily: 'var(--font-sans)', fontSize: 11.5, color: (t) => t.palette.text.disabled, mt: 0.2 }}>
-            {subtitle}
-          </Typography>
-        </Box>
-        <Typography
-          sx={{
-            fontFamily: 'var(--font-sans)',
-            fontSize: 18,
-            color: (t) => t.palette.text.primary,
-            fontVariantNumeric: 'tabular-nums',
-          }}
-        >
-          {formatUSD(amount)}
-        </Typography>
-      </Box>
-      <Box
-        sx={{
-          height: 8,
-          borderRadius: '999px',
-          bgcolor: (t) => (t.palette.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)'),
-          overflow: 'hidden',
-        }}
-      >
-        <Box
-          sx={{
-            width: `${pct}%`,
-            height: '100%',
-            background: `linear-gradient(90deg, ${color}, ${color}CC)`,
-            transition: 'width 0.4s ease',
-            borderRadius: '999px',
-          }}
-        />
       </Box>
     </Box>
   );

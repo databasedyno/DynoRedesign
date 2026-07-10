@@ -1,14 +1,17 @@
-import React, { memo, useEffect, useRef, useState } from "react";
+import React, { memo, useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Box, Typography, useTheme } from "@mui/material";
-import useIsMobile from "@/hooks/useIsMobile";
-import HomeButton from "@/Components/Layout/HomeButton";
+import { Box, Typography } from "@mui/material";
+import { ArrowForward } from "@mui/icons-material";
+import { useRouter } from "next/router";
+import { FONT_BODY, FONT_HERO, FONT_TECH, OBSIDIAN } from "./swiss";
 
+/**
+ * FinalCTA — deep-obsidian full-width band regardless of theme mode.
+ * "The old rails are slow. DynoPay is instant."
+ */
 const FinalCTA: React.FC = () => {
   const { t } = useTranslation("landing");
-  const theme = useTheme();
-  const isMobile = useIsMobile("md");
-  const isDark = theme.palette.mode === "dark";
+  const router = useRouter();
   const sectionRef = useRef<HTMLElement>(null);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -26,159 +29,138 @@ const FinalCTA: React.FC = () => {
     return () => observer.disconnect();
   }, []);
 
+  const goRegister = useCallback(() => router.push("/auth/register?ref=final_cta"), [router]);
+  const goDocs = useCallback(() => router.push("/documentation"), [router]);
+
   return (
-    <section
+    <Box
+      component="section"
       ref={sectionRef}
-      style={{
-        padding: isMobile ? "80px 16px" : "140px 32px",
-        maxWidth: 1280,
-        margin: "0 auto",
+      data-testid="final-cta-section"
+      sx={{
+        position: "relative",
+        overflow: "hidden",
+        backgroundColor: OBSIDIAN,
+        borderTop: "1px solid rgba(255,255,255,0.08)",
+        py: { xs: 11, md: 18 },
+        px: { xs: 3, md: 6 },
+        textAlign: "center",
       }}
     >
+      {/* Grid backdrop */}
+      <Box
+        aria-hidden
+        sx={{
+          position: "absolute",
+          inset: 0,
+          pointerEvents: "none",
+          backgroundImage:
+            "linear-gradient(rgba(255,255,255,0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.045) 1px, transparent 1px)",
+          backgroundSize: "54px 54px",
+          maskImage: "radial-gradient(ellipse 80% 90% at 50% 50%, black 20%, transparent 80%)",
+          WebkitMaskImage: "radial-gradient(ellipse 80% 90% at 50% 50%, black 20%, transparent 80%)",
+        }}
+      />
+
       <Box
         sx={{
           position: "relative",
-          borderRadius: "28px",
-          overflow: "hidden",
-          textAlign: "center",
-          py: isMobile ? 6 : 8,
-          px: isMobile ? 3 : 6,
-          border: `1px solid ${isDark ? "rgba(204,255,0,0.28)" : "rgba(10,10,10,0.12)"}`,
-          bgcolor: isDark ? "rgba(255,255,255,0.045)" : "rgba(255,255,255,0.72)",
-          backdropFilter: "blur(16px)",
-          WebkitBackdropFilter: "blur(16px)",
-          boxShadow: isDark
-            ? "0 24px 80px rgba(0,0,0,0.45), 0 0 60px rgba(204,255,0,0.10)"
-            : "0 24px 80px rgba(10,10,10,0.08)",
-          transition: "all 0.5s ease",
-          transform: isVisible ? "translateY(0)" : "translateY(20px)",
+          zIndex: 1,
+          maxWidth: 980,
+          mx: "auto",
           opacity: isVisible ? 1 : 0,
+          transform: isVisible ? "translateY(0)" : "translateY(28px)",
+          transition: "opacity 0.7s ease, transform 0.7s cubic-bezier(0.16,1,0.3,1)",
         }}
       >
-        {/* Background glow */}
-        <Box
-          sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: "500px",
-            height: "500px",
-            borderRadius: "50%",
-            background: isDark
-              ? "radial-gradient(circle, rgba(204,255,0,0.12) 0%, transparent 70%)"
-              : "radial-gradient(circle, rgba(204,255,0,0.16) 0%, transparent 70%)",
-            pointerEvents: "none",
-          }}
-        />
-
-        <Typography
-          sx={{
-            fontSize: isMobile ? "32px" : "44px",
-            fontFamily: "var(--font-sans), system-ui, sans-serif",
-            fontWeight: 600,
-            color: theme.palette.text.primary,
-            lineHeight: 1.15,
-            letterSpacing: "-0.02em",
-            mb: 1.5,
-            position: "relative",
-            zIndex: 1,
-          }}
-        >
-          {t("finalCtaTitle")}
+        <Typography component="h2" sx={{ m: 0 }}>
+          <Box component="span" sx={{ display: "block", fontFamily: FONT_HERO, fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1.12, color: "#F5F5F5", fontSize: { xs: 28, sm: 40, md: 52 } }}>
+            {t("finalCtaSwissTitle1")}
+          </Box>
+          <Box component="span" sx={{ display: "block", fontFamily: FONT_HERO, fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1.12, color: "#CCFF00", fontSize: { xs: 28, sm: 40, md: 52 } }}>
+            {t("finalCtaSwissTitle2")}
+          </Box>
         </Typography>
 
-        <Typography
-          sx={{
-            fontSize: isMobile ? "16px" : "18px",
-            fontFamily: "var(--font-sans)",
-            color: theme.palette.text.secondary,
-            mb: 4,
-            position: "relative",
-            zIndex: 1,
-            maxWidth: 480,
-            mx: "auto",
-            lineHeight: 1.5,
-          }}
-        >
+        <Typography sx={{ fontFamily: FONT_BODY, fontSize: { xs: 15, md: 17 }, color: "rgba(255,255,255,0.6)", maxWidth: 520, mx: "auto", mt: 3, mb: 5, lineHeight: 1.6 }}>
           {t("finalCtaSubtitle")}
         </Typography>
 
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            gap: 2,
-            mb: 3,
-            position: "relative",
-            zIndex: 1,
-            flexWrap: "wrap",
-          }}
-        >
-          <HomeButton variant="primary" label={t("startAcceptingCrypto")} navigateTo="/auth/register" />
-          <HomeButton variant="outlined" label="View Documentation" navigateTo="/documentation" showIcon={false} />
+        <Box sx={{ display: "flex", justifyContent: "center", gap: 2, flexWrap: "wrap", mb: 4 }}>
+          <Box
+            component="button"
+            type="button"
+            data-testid="final-cta-register"
+            onClick={goRegister}
+            sx={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 1,
+              px: 3.5,
+              py: 1.7,
+              borderRadius: "10px",
+              border: "none",
+              cursor: "pointer",
+              backgroundColor: "#CCFF00",
+              color: "#0A0A0A",
+              fontFamily: FONT_BODY,
+              fontWeight: 600,
+              fontSize: 15.5,
+              transition: "transform 0.2s ease, box-shadow 0.2s ease",
+              "&:hover": { transform: "translate(-2px, -2px)", boxShadow: "4px 4px 0 rgba(204,255,0,0.35)" },
+            }}
+          >
+            {t("startAcceptingCrypto")} <ArrowForward sx={{ fontSize: 17 }} />
+          </Box>
+          <Box
+            component="button"
+            type="button"
+            data-testid="final-cta-docs-btn"
+            onClick={goDocs}
+            sx={{
+              display: "inline-flex",
+              alignItems: "center",
+              px: 3.5,
+              py: 1.7,
+              borderRadius: "10px",
+              border: "1px solid rgba(255,255,255,0.25)",
+              cursor: "pointer",
+              backgroundColor: "transparent",
+              color: "#F5F5F5",
+              fontFamily: FONT_BODY,
+              fontWeight: 500,
+              fontSize: 15.5,
+              transition: "border-color 0.2s ease, background-color 0.2s ease",
+              "&:hover": { borderColor: "rgba(255,255,255,0.55)", backgroundColor: "rgba(255,255,255,0.05)" },
+            }}
+          >
+            {t("finalCtaDocs")}
+          </Box>
         </Box>
 
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            gap: isMobile ? 2 : 3,
-            position: "relative",
-            zIndex: 1,
-            flexWrap: "wrap",
-          }}
-        >
+        <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 2.5, flexWrap: "wrap" }}>
           <Typography
             component="button"
             type="button"
             data-testid="final-cta-chat"
             onClick={() => window.dispatchEvent(new CustomEvent("dynopay:open-support-chat"))}
             sx={{
-              fontSize: "14px",
-              fontFamily: "var(--font-sans)",
-              color: theme.palette.text.secondary,
-              textDecoration: "none",
-              transition: "color 0.2s ease",
-              cursor: "pointer",
+              fontFamily: FONT_TECH,
+              fontSize: 12.5,
+              color: "rgba(255,255,255,0.5)",
               background: "none",
               border: "none",
               padding: 0,
-              "&:hover": {
-                color: theme.palette.primary.main,
-              },
+              cursor: "pointer",
+              transition: "color 0.2s ease",
+              "&:hover": { color: "#CCFF00" },
             }}
           >
             {t("finalCtaChat")}
           </Typography>
-          <Typography
-            sx={{
-              color: isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.15)",
-              userSelect: "none",
-            }}
-          >
-            |
-          </Typography>
-          <Typography
-            component="a"
-            href="/documentation"
-            sx={{
-              fontSize: "14px",
-              fontFamily: "var(--font-sans)",
-              color: theme.palette.text.secondary,
-              textDecoration: "none",
-              transition: "color 0.2s ease",
-              cursor: "pointer",
-              "&:hover": {
-                color: theme.palette.primary.main,
-              },
-            }}
-          >
-            {t("finalCtaDocs")}
-          </Typography>
         </Box>
       </Box>
-    </section>
+    </Box>
   );
 };
 
