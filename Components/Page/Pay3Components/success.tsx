@@ -49,16 +49,20 @@ const Success = ({ redirectUrl, transactionId }: SuccessProps) => {
   // Legacy behavior - handle query params
   useEffect(() => {
     if (router.query && router.query.response) {
-      const successRes = JSON.parse(router.query.response as string);
-      if (successRes.redirect) {
-        const url: any = localStorage.getItem("redirect_uri");
-        console.log(url);
-        if (url) {
-          localStorage.removeItem("redirect_uri");
-          window.location.replace(url);
+      try {
+        const successRes = JSON.parse(router.query.response as string);
+        if (successRes.redirect) {
+          const url: any = localStorage.getItem("redirect_uri");
+          console.log(url);
+          if (url) {
+            localStorage.removeItem("redirect_uri");
+            window.location.replace(url);
+          }
         }
+        console.log(router.query.response);
+      } catch (_e) {
+        /* malformed response param — ignore instead of crashing the page */
       }
-      console.log(router.query.response);
     }
   }, [router.query]);
 

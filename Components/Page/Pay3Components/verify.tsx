@@ -10,12 +10,14 @@ const Verify = () => {
   const dispatch = useDispatch();
   useEffect(() => {
     if (router.query && router.query.response) {
-      const successRes = JSON.parse(router.query.response as string);
-
-      console.log(successRes);
+      try {
+        const successRes = JSON.parse(router.query.response as string);
+        console.log(successRes);
+      } catch (_e) {
+        /* malformed response param — ignore, getConfirmStatus handles its own parse */
+      }
       getConfirmStatus();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.query]);
 
   const getConfirmStatus = async () => {

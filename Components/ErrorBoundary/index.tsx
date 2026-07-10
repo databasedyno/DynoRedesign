@@ -21,20 +21,53 @@ class ErrorBoundary extends Component<Props, State> {
     return { hasError: true, error };
   }
 
+  // Purge checkout/payment client state that can otherwise wedge a returning
+  // visitor into a permanent crash loop. A legacy/corrupt value left by an
+  // older build (e.g. a plain string where JSON is now expected) can throw
+  // during render on EVERY load — and because sessionStorage survives reloads
+  // in the same tab, "Refresh Page" alone never fixes it (this is exactly the
+  // "works on a fresh browser / mobile, but keeps failing on my desktop"
+  // report). Clearing these keys makes a reload actually self-heal, regardless
+  // of which JS build the browser happens to be running.
+  static clearCheckoutStorage() {
+    if (typeof window === "undefined") return;
+    try {
+      sessionStorage.removeItem("payment_active_step");
+      sessionStorage.removeItem("payment_transfer_method");
+      // per-transaction crypto payment state: payment_state_<transactionId>
+      Object.keys(sessionStorage).forEach((k) => {
+        if (k.startsWith("payment_state_")) sessionStorage.removeItem(k);
+      });
+    } catch {
+      /* storage unavailable — nothing to clear */
+    }
+  }
+
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error("[ErrorBoundary] Uncaught error:", error, errorInfo);
 
-    // ─── ChunkLoadError auto-recovery ───
+    // Always purge potentially-corrupt checkout state first, so the reload
+    // below (or a manual retry) can recover instead of crashing again.
+    ErrorBoundary.clearCheckoutStorage();
+
+    // ─── Auto-recovery ───
     // During a rolling deploy the HTML may reference JS chunks that no longer
-    // exist on the instance that serves the request (old/new build mismatch).
-    // A single reload fetches the fresh HTML + matching chunks. Guarded via
-    // sessionStorage so a genuinely broken build can't cause a reload loop.
+    // exist on the instance that serves the request (old/new build mismatch);
+    // and returning visitors can carry corrupt checkout state. A single reload
+    // (after clearing that state) fetches fresh HTML + matching chunks and
+    // drops the bad state. Guarded via sessionStorage so a genuinely broken
+    // build/page can't cause a reload loop.
     const msg = `${error?.name || ""} ${error?.message || ""}`;
     const isChunkError =
       /ChunkLoadError|Loading chunk [\w-]+ failed|Failed to fetch dynamically imported module|Importing a module script failed|Cannot read propert(y|ies) of undefined \(reading 'call'\)|Unexpected token '<'/i.test(
         msg,
       );
-    if (isChunkError && typeof window !== "undefined") {
+    // Also self-heal on the public checkout routes, where a corrupt-state crash
+    // is the most damaging (a merchant's customer cannot pay).
+    const isCheckoutRoute =
+      typeof window !== "undefined" &&
+      window.location.pathname.startsWith("/pay");
+    if ((isChunkError || isCheckoutRoute) && typeof window !== "undefined") {
       try {
         const KEY = "chunk_error_reloaded_at";
         const last = Number(sessionStorage.getItem(KEY) || 0);
@@ -50,7 +83,15 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   handleReset = () => {
+    // Drop corrupt checkout state before re-rendering, otherwise "Try Again"
+    // just re-renders the same crashing state.
+    ErrorBoundary.clearCheckoutStorage();
     this.setState({ hasError: false, error: null });
+  };
+
+  handleReload = () => {
+    ErrorBoundary.clearCheckoutStorage();
+    if (typeof window !== "undefined") window.location.reload();
   };
 
   render() {
@@ -89,7 +130,7 @@ class ErrorBoundary extends Component<Props, State> {
               {i18n.t("common:unexpectedErrorRefresh")}
             </p>
             <button
-              onClick={() => window.location.reload()}
+              onClick={this.handleReload}
               style={{
                 padding: "0.6rem 1.5rem",
                 backgroundColor: "#2563eb",
