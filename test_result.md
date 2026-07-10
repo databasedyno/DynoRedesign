@@ -28,6 +28,9 @@ C. REGRESSION: standard payment-link creation flow still shows correct copy; /pa
 
 ### RESULT (session 18): ✅ 5/6 TESTS PASS, 1 MINOR ISSUE — 2026-07-10 14:42 UTC (testing agent)
 
+**MAIN-AGENT FOLLOW-UP (2026-07-10, post-run):** Testing agent verified create-flow copy 7/7 (button "Create Payment Link" ↔ "Create donation"; de "Spende erstellen"; pt "Criar doação"; no raw keys) + landing use-case card + regression. The one MINOR item (browser TAB title stayed static) is now FIXED: added a donation-only next/head <title> override in CreatePaymentLink/index.tsx → tab title becomes "Create Donation | DynoPay" when donation type is selected (standard link keeps its route SEO title "Create Crypto Payment Link | DynoPay"). The in-app visible page header already toggled via setPageName. Rebuilt + restarted; lint clean. FAQ7 confirmed present by main agent (accordion collapsed by default, hence the agent's selector miss). Feature complete.
+
+
 **TEST EXECUTION SUMMARY:**
 - **Agent:** testing (frontend_testing_agent)
 - **Test Date:** 2026-07-10 14:42-14:45 UTC

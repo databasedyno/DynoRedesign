@@ -1,4 +1,5 @@
 import PanelCard from "@/Components/UI/PanelCard";
+import Head from "next/head";
 import { Box, Typography, useMediaQuery, useTheme } from "@mui/material";
 import { useRouter } from "next/router";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -1050,6 +1051,13 @@ const CreatePaymentLinkPage = ({
 
   return (
     <div>
+      {/* Donation-aware browser tab title (only override in create mode; the
+          standard link keeps its route SEO title). */}
+      {!hasPaymentLinkData && linkKind === "donation" && (
+        <Head>
+          <title>{`${tPaymentLink("createDonationTitle")} | DynoPay`}</title>
+        </Head>
+      )}
       <PaymentLinkSuccessModal
         open={successModalOpen}
         onClose={handleCloseSuccessModal}

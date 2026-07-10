@@ -797,3 +797,21 @@ StickyPromoBar → LivePriceStrip → HeroV2 → ComplianceLogoStrip → LiveAct
 
 **Test credentials**: unchanged. No new accounts. No prod DB writes. No third-party
 integrations added.
+
+---
+
+## Session 18 (2026-07-10) — Donation UX copy + landing use-case (frontend-only)
+- Create flow copy is now donation-aware (was always "Payment Link"): submit button
+  ("Create donation"), success modal title/subtitle ("Donation created" / "Share it to
+  start collecting donations"), success toast ("Donation created successfully"), in-app
+  page header + browser tab title ("Create Donation | DynoPay"). New i18n keys added to
+  createPaymentLinkScreen.json across all 6 locales (en/es/fr/de/nl/pt).
+- Landing page: rendered the 4-card Use-Cases section + added a 5th "Donations &
+  Crowdfunding" card (new assets/Images/UseCase/use-case-5.svg + useCase5* keys), added
+  FAQ entry faq7 (donations/crowdfunding), and appended a donation clause to the hero
+  subtitle — all 6 locales. UseCaseSection now rendered in Home/index.tsx after CoreValueProps.
+- Files: ActionButtons.tsx, CreatePaymentLink/index.tsx, PaymentLinkSuccessModal.tsx,
+  Redux/Sagas/PaymentLinkSaga.ts, create-pay-link.tsx, utils/types (create-pay-link, paymentLink),
+  Home/{index,UseCase,FAQ}.tsx, langs/locales/*/{createPaymentLinkScreen,landing}.json.
+- Verified by frontend testing agent (button toggle EN/DE/PT, landing card, regression) + main agent.
+- Test credentials unchanged. No prod DB schema writes. No third-party integrations added.
