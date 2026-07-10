@@ -5,6 +5,31 @@ USDT-TRC20 payment gateway platform. Users can create companies, wallets, paymen
 
 ## What's Been Implemented
 
+### 2026-07-10 — Session 17: P0 Bug Fix — Silent-Drop of ERC-20 Incoming Webhooks ✅ RECOVERED + FIXED + VERIFIED
+
+**Bug**: Two USDT-ERC20 API payments to `hostbay@moxx.co` (52 + 30 USDT) were detected on-chain but silently dropped by the webhook processor — no `payment_journal` entry, no merchant webhook, no settlement, funds stuck in temp addresses `0xe8c0…` (id=8) and `0x84aa…` (id=7).
+
+**Root cause**: `isOwnOutgoingTransaction()` in `/app/backend/services/webhookProcessor.ts` (added commit `61cc2422` Jul 3 15:37 UTC) treated `payload.counterAddress` as the transaction SENDER. Empirically, Tatum's ADDRESS_EVENT payload for ERC-20 INCOMING transfers sends `payload.address = external sender` and `payload.counterAddress = OUR subscribed pool address` (receiver). The buggy check found the receiver in `tbl_merchant_temp_address` → returned `"pool_sender"` → processor bailed with `own_outgoing_pool_sender`, silently marking every legitimate ERC-20 incoming as our own outgoing tx and dropping it. Every ERC-20 payment on hostbay since Jul 3 15:37 required `manual_recovery`.
+
+**Recovery (executed against production DB + chain)**:
+- Payment 1 (`3264a681-…`, 52 USDT): incoming tx `0x8241d24e…7ca59`, settlement tx [`0x1b59674f…5d630`](https://etherscan.io/tx/0x1b59674f06279214d36b3bb0159f534b80b24e4f4d97ea839c736aac7875d630) → merchant received 50.22 USDT (1.78 admin fee retained on temp addr).
+- Payment 2 (`780ebded-…`, 30 USDT): incoming tx `0xddf05cfe…f25cb`, settlement tx [`0x9cf047f2…6a9ad`](https://etherscan.io/tx/0x9cf047f2a280b2c107394dedd1e53ae4eab6b9ee01437cddec572de42496a9ad) → merchant received 28.55 USDT (1.45 admin fee retained).
+- 6 merchant webhooks fired (3 per payment: pending → confirmed → settled), all HTTP 200 from `https://nomadly-email-ivr-production.up.railway.app/dynopay/crypto-wallet`.
+- DB reconciliation: `tbl_user_transaction` → status=completed with both tx hashes; `tbl_merchant_temp_address` → status=AVAILABLE + admin_fee_balance credited; 3 `tbl_payment_journal` entries per payment (payment_detected → settlement_sent → payment_completed) with `source: manual_recovery`; new `tbl_merchant_pool_transaction` audit rows; merchant wallet `wallet_id=5` credited +78.77 USDT total.
+- Rescue script preserved for audit: `/app/backend/scripts/rescue_hostbay_finalize.ts` (and initial attempt `rescue_hostbay_2payments.ts`).
+
+**Code fix** (`/app/backend/services/webhookProcessor.ts` lines 260-305):
+- Removed the buggy `payload.counterAddress`-as-sender heuristic entirely (never actually worked — Tatum's payload semantics don't guarantee counterAddress is the sender for any chain).
+- Detection now relies ONLY on tx-hash lookups against DB records of transactions we ourselves broadcast:
+  - `tbl_merchant_pool_transaction.merchant_tx_id` → `"known_merchant_settlement"`
+  - `tbl_merchant_pool_transaction.gas_funding_tx_id` → `"known_gas_funding"`
+  - `tbl_merchant_pool_sweep.sweep_tx_id` OR `.gas_funding_tx_id` → `"known_admin_sweep"` (NEW signal — belt-and-suspenders for admin fee sweeps)
+- Outer `try/catch` in `processWebhookJob` still fails-open — if the DB is transiently unavailable, a genuine incoming payment is NOT dropped.
+- Added regression tests to `/app/backend/__tests__/webhookProcessor.test.ts` (new describe block "Regression — Tatum ERC-20 incoming NOT misclassified as our-own-outgoing").
+- Lightweight prod-data verification script `/app/backend/scripts/verify_fix.js` — plain Node + `pg` (no ts-node), runs 5 classification checks + 2 recovery-state checks against live Railway PG. All pass: bug regression tx correctly returns null; recovery settlement + gas funding txs correctly return their respective known_* labels; unknown tx returns null; both recovered payments confirmed in `completed` status with correct tx hashes.
+
+**Testing**: `verify_fix.js` — all 7 assertions ✅ PASS against production data. Existing Jest suite (`__tests__/webhookProcessor.test.ts`) hit heap OOM in this preview pod — `--transpile-only` + `tsc --noEmit -p tsconfig.json` confirm clean compile of the fix.
+
 ### 2026-07-10 — Session 16 (IN PROGRESS): Donation/Crowdfunding + create-page redesign
 **Feature approved by user:** payment-link creation page redesign (type selector + live preview + sections instead of tabs) + full donation/crowdfunding support (goal, presets, min amount, cover image upload, supporter wall, auto-close-at-goal toggle). User answers: live preview YES, cover image INCLUDE, supporter wall YES, auto-close = merchant toggle, build order = my call (backend → checkout → create page).
 

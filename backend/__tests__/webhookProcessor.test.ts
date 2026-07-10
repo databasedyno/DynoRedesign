@@ -857,4 +857,93 @@ describe('Webhook Processor — processWebhookJob', () => {
       expect(releaseLock).toHaveBeenCalledWith('tatum-webhook-tx-eth-001');
     });
   });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Regression: isOwnOutgoingTransaction must NOT treat counterAddress as sender
+  // (bug from commit 61cc2422; caused every ERC-20 incoming to be dropped)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  describe('Regression — Tatum ERC-20 incoming NOT misclassified as our-own-outgoing', () => {
+    it('processes an ERC-20 incoming transfer where counterAddress is our subscribed pool addr', async () => {
+      // Mock the models used by isOwnOutgoingTransaction to return null for
+      // both signals. Direct import happens inside the function.
+      jest.doMock('../models', () => ({
+        __esModule: true,
+        merchantPoolTransactionModel: { findOne: jest.fn().mockResolvedValue(null) },
+        merchantPoolSweepModel: { findOne: jest.fn().mockResolvedValue(null) },
+        companyModel: { findOne: jest.fn().mockResolvedValue(null) },
+      }));
+
+      seedRedis(
+        'crypto-0xOurPoolAddr',
+        createRedisPaymentData({
+          amount: '52',
+          currency: 'USDT-ERC20',
+          payment_id: 'pay-erc20-001',
+        })
+      );
+
+      // Tatum ERC-20 incoming: payload.address = external sender,
+      // payload.counterAddress = OUR pool addr (the subscribed receiver)
+      const data = createJobData({
+        address: '0xExternalSender',
+        counterAddress: '0xOurPoolAddr',
+        amount: '52',
+        txId: 'tx-erc20-001',
+        asset: 'USDT-ERC20',
+        company_id: 1,
+      });
+
+      await processWebhookJob(data);
+
+      // Must NOT bail early — must attempt to acquire lock (bug would skip this)
+      expect(acquireLock).toHaveBeenCalled();
+      // Must NOT mark the tx as our-own-outgoing (the bug wrote this key)
+      expect(setRedisItem).not.toHaveBeenCalledWith(
+        'processed-tx-tx-erc20-001',
+        expect.objectContaining({ type: expect.stringMatching(/^own_outgoing_/) })
+      );
+      // The fallback path should find the session via counterAddress and proceed
+      expect(paymentController.cryptoVerification).toHaveBeenCalled();
+    });
+
+    it('correctly recognises OUR previously-recorded merchant settlement tx as our own outgoing', async () => {
+      // Signal: this txId already exists in tbl_merchant_pool_transaction as merchant_tx_id
+      jest.doMock('../models', () => ({
+        __esModule: true,
+        merchantPoolTransactionModel: {
+          findOne: jest.fn().mockImplementation((opts: any) => {
+            const or = opts?.where?.[Symbol.for('or')] || opts?.where?.$or;
+            // Return truthy for known merchant_tx_id
+            return Promise.resolve({
+              pool_tx_id: 42,
+              merchant_tx_id: 'tx-known-settle-001',
+              gas_funding_tx_id: null,
+            });
+          }),
+        },
+        merchantPoolSweepModel: { findOne: jest.fn().mockResolvedValue(null) },
+        companyModel: { findOne: jest.fn().mockResolvedValue(null) },
+      }));
+
+      const data = createJobData({
+        address: '0xOurPoolAddr',
+        counterAddress: '0xMerchantWallet',
+        amount: '50.22',
+        txId: 'tx-known-settle-001',
+        asset: 'USDT-ERC20',
+        company_id: 1,
+      });
+
+      await processWebhookJob(data);
+
+      // Must bail early and mark as our-own-outgoing
+      expect(setRedisItem).toHaveBeenCalledWith(
+        'processed-tx-tx-known-settle-001',
+        expect.objectContaining({ type: expect.stringMatching(/^own_outgoing_/) })
+      );
+      // Must NOT try to acquire main lock or call cryptoVerification
+      expect(paymentController.cryptoVerification).not.toHaveBeenCalled();
+    });
+  });
 });

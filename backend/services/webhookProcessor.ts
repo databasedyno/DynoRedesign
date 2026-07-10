@@ -260,36 +260,53 @@ const isRetryable = (error: Error): boolean => {
  * webhook, the processor would otherwise treat it as a brand-new payment and fire a spurious
  * "payment pending" email — and, if a live payment session existed, risk double-processing.
  *
- * Two independent, safe signals (either is conclusive):
- *   (A) The sender (counterAddress) is one of our merchant pool deposit addresses — funds LEFT
- *       our pool, so this is money WE moved, never a customer payment.
- *   (B) The txId is already recorded by us as an outgoing settlement (merchant_tx_id) or a
- *       gas-funding transfer (gas_funding_tx_id).
+ * Detects OUR OWN outgoing transactions (merchant payouts / gas funding / sweeps) that a
+ * Tatum ADDRESS_EVENT subscription may report back to us — we broadcast them, so they must
+ * NOT be treated as new incoming customer payments. If we don't filter these, a stale/replayed
+ * webhook, the processor would otherwise treat it as a brand-new payment and fire a spurious
+ * "payment pending" email — and, if a live payment session existed, risk double-processing.
+ *
+ * Detection strategy — match `payload.txId` against transactions we ourselves broadcast:
+ *   (A) `merchant_tx_id` in tbl_merchant_pool_transaction — outgoing merchant settlements
+ *   (B) `gas_funding_tx_id` in tbl_merchant_pool_transaction — fee wallet → pool gas top-ups
+ *   (C) `sweep_tx_id`  or `gas_funding_tx_id` in tbl_merchant_pool_sweep — admin fee sweeps
+ *
+ * NOTE on the previous "counterAddress-as-sender" heuristic: Tatum's ADDRESS_EVENT payload
+ * DOES NOT reliably use `counterAddress` for the sender. Empirically, for ERC-20 INCOMING
+ * transfers, Tatum sends `address = sender` and `counterAddress = our subscribed receiver`.
+ * The old heuristic then found OUR receiving pool address in tbl_merchant_temp_address and
+ * incorrectly flagged legitimate customer payments as "our own outgoing", silently dropping
+ * them (see commit 61cc2422 fix). The tx-hash-based approach above is 100% accurate — we
+ * ALWAYS persist our outgoing hashes before/immediately after broadcast, so any webhook
+ * about a tx we sent will match. If persistence fails for some reason, the downstream
+ * "no Redis session" branch already correctly ignores the unknown tx.
  *
  * Returns a short reason string when it IS our own outgoing tx, otherwise null.
  * Callers MUST fail-open (treat errors as "not ours") so a genuine payment is never dropped.
  */
 async function isOwnOutgoingTransaction(payload: WebhookJobData["payload"]): Promise<string | null> {
-  const { merchantTempAddressModel, merchantPoolTransactionModel } = await import("../models");
+  if (!payload.txId) return null;
 
-  // (A) counterAddress (the sender) is one of our own pool deposit addresses
-  const sender = payload.counterAddress;
-  if (sender) {
-    const poolAddr = await merchantTempAddressModel.findOne({
-      where: { wallet_address: sender },
-      attributes: ["temp_address_id"],
-    });
-    if (poolAddr) return "pool_sender";
+  const { merchantPoolTransactionModel, merchantPoolSweepModel } = await import("../models");
+
+  // (A + B) Match against outgoing settlement / gas-funding txs
+  const knownPoolTx = await merchantPoolTransactionModel.findOne({
+    where: { [Op.or]: [{ merchant_tx_id: payload.txId }, { gas_funding_tx_id: payload.txId }] },
+    attributes: ["pool_tx_id", "merchant_tx_id", "gas_funding_tx_id"],
+  });
+  if (knownPoolTx) {
+    const anyRow = knownPoolTx as unknown as { merchant_tx_id: string | null; gas_funding_tx_id: string | null };
+    if (anyRow.merchant_tx_id === payload.txId) return "known_merchant_settlement";
+    if (anyRow.gas_funding_tx_id === payload.txId) return "known_gas_funding";
+    return "known_settlement_tx";
   }
 
-  // (B) txId matches an outgoing settlement/gas-funding tx we already recorded
-  if (payload.txId) {
-    const knownOutgoing = await merchantPoolTransactionModel.findOne({
-      where: { [Op.or]: [{ merchant_tx_id: payload.txId }, { gas_funding_tx_id: payload.txId }] },
-      attributes: ["pool_tx_id"],
-    });
-    if (knownOutgoing) return "known_settlement_tx";
-  }
+  // (C) Match against admin fee sweeps
+  const knownSweepTx = await merchantPoolSweepModel.findOne({
+    where: { [Op.or]: [{ sweep_tx_id: payload.txId }, { gas_funding_tx_id: payload.txId }] },
+    attributes: ["sweep_id"],
+  });
+  if (knownSweepTx) return "known_admin_sweep";
 
   return null;
 }
