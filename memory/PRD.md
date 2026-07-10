@@ -5,6 +5,14 @@ USDT-TRC20 payment gateway platform. Users can create companies, wallets, paymen
 
 ## What's Been Implemented
 
+### 2026-07-10 — Session 14: Emily chat parity + landing reorg + docs Try-It-Live + loader fade + public/ ROOT CAUSE ✅ VERIFIED (backend agent 11/11, frontend agent 11/13 + main agent completed the remaining 2)
+- **ROOT CAUSE of recurring public/ deletion FOUND & FIXED**: Next.js cleanDistDir (lib/recursive-delete) follows directory symlinks; the shim's `ln -sfn /app/public .next/standalone/public` made every `next build` wipe /app/public → auto-commits recorded deletions → DO kaniko failures. Shim now COPIES public/ instead. DO deploy b2643132 (cd81f6c) ACTIVE; dynopay.com healthy.
+- **Support chat → "Emily"** (Emergent parity, GIF skipped per user): renamed w/ green "Active" presence dot; per-message timestamps; built-in emoji picker (3 groups, no new deps); image/PDF attachments (paperclip → POST /api/support/chat/upload, multer 5MB, uuid names, served at /api/static/support-chat/) with thumbnails/chips in bubbles; Emily SEES image attachments via OpenAI vision (base64 image_url); history + escalation email include attachments; live Railway PG got 3 additive nullable columns on tbl_support_chat_message.
+- **Landing reorg**: ProductShowcase moved directly under hero; "Watch 90s demo" button + DemoVideoModal removed from HeroClean (single CTA); TryItNow section removed from landing (component kept in tree).
+- **URL fixes**: showcase slide 3 browser bar api.dynopay.com → dynopay.com/api; showcase cURL → real POST https://dynopay.com/api/user/createPayment with x-api-key.
+- **Documentation**: new "Try It Live" section (#try-it, in sidebar) w/ sandbox curl + sample response (migrated from TryItNow); expanded endpoint cards now show full production URL https://dynopay.com/api/user/...; base URL already in hero pill + Overview.
+- **RouteTransitionLoader**: added 240ms fade-out ("leaving" state), MIN_VISIBLE 500→350ms, prefers-reduced-motion. Verified via CDP-throttled probe (fade-in ~280ms, smooth fade-out, no hard cut) + in-app logged-in probe (dashboard/wallet/transactions/pay-links: never stuck, query-only changes show nothing, zero console errors).
+
 ### 2026-07-10 — Session 13c: "13 chains" copy + "Chat with us" login-redirect ✅ VERIFIED (frontend agent 5/5)
 - Hero copy "Accept 13 chains" → "Accept 15+ chains" in landing.json ×6 locales + DemoVideoModal/HeroV2/ComparisonTable hardcoded copies (zero "13 chain" strings remain).
 - FinalCTA "Chat with us" was <a href="/help-support"> (auth-gated → visitors bounced to login). Now a button (testid final-cta-chat) dispatching CustomEvent "dynopay:open-support-chat"; SupportChatWidget listens and opens in place. Verified: URL stays on /, panel opens, no chat message sent.
