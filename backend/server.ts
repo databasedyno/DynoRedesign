@@ -1169,6 +1169,7 @@ const startServer = async () => {
       referralRewardModel,
       kbCategoryModel,
       kbArticleModel,
+      supportChatMessageModel,
       refereeCodeModel,
       userModel,
     } = await import("./models");
@@ -1192,6 +1193,10 @@ const startServer = async () => {
     await kbCategoryModel.sync(syncOptions);
     await kbArticleModel.sync(syncOptions);
     log('Knowledge Base tables synced successfully.', 'info');
+
+    // Sync AI Support Chat model
+    await supportChatMessageModel.sync(syncOptions);
+    log('Support Chat table synced successfully.', 'info');
     
     // Sync user model to add referral columns
     await userModel.sync(syncOptions);

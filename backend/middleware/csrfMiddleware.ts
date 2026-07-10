@@ -38,6 +38,7 @@ const EXEMPT_PATHS = [
   "/api/failed_webhook",
   "/api/veriff",
   "/api/kb/webhook",
+  "/api/support/chat",
   "/api/admin/login",
   "/api/user/login",
   "/api/user/registerUser",

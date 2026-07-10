@@ -16,6 +16,7 @@ import subscriptionRouter from "./subscriptionRouter";
 import testRouter from "./testRouter";
 import referralRouter from "./referralRouter";
 import knowledgeBaseRouter from "./knowledgeBaseRouter";
+import supportChatRouter from "./supportChatRouter";
 import merchantApiRouter from "./merchantApiRouter";
 import trackRouter from "./trackRouter";
 
@@ -355,6 +356,7 @@ router.use("/subscriptions", subscriptionRouter); // Subscription management
 router.use("/test", testRouter); // Test endpoints for development
 router.use("/referral", referralRouter); // Referral system endpoints
 router.use("/kb", knowledgeBaseRouter); // Knowledge Base endpoints
+router.use("/support", supportChatRouter); // AI support chat (public, rate-limited)
 router.use("/events", eventsRouter); // SSE real-time events
 router.use("/track", trackRouter); // Visitor tracking (public, rate-limited)
 router.use("/admin/analytics", analyticsRouter); // Admin analytics (revenue, cohorts, funnels)

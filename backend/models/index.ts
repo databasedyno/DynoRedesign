@@ -36,6 +36,7 @@ import refereeCodeModel from "./referralModels/refereeCodeModel";
 
 // Knowledge Base models
 import kbCategoryModel from "./knowledgeBaseModels/kbCategoryModel";
+import supportChatMessageModel from "./supportChatModel";
 import kbArticleModel from "./knowledgeBaseModels/kbArticleModel";
 
 // Stablecoin Conversion
@@ -106,6 +107,8 @@ export {
   // Knowledge Base models
   kbCategoryModel,
   kbArticleModel,
+  // AI Support Chat
+  supportChatMessageModel,
   // USDT Pool System models (legacy)
   usdtPoolAddressModel,
   usdtPoolTransactionModel,

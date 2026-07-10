@@ -75,6 +75,13 @@ const PaymentLayout = dynamic(() => import("@/Containers/Payment"), {
   loading: () => null,
 });
 
+// AI support chat widget — client-only (uses localStorage session), shown on
+// the public landing pages + inside the merchant app (not on checkout/admin).
+const SupportChatWidget = dynamic(
+  () => import("@/Components/Common/SupportChatWidget"),
+  { ssr: false, loading: () => null }
+);
+
 // -----------------------------
 // Types
 // -----------------------------
@@ -480,6 +487,9 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
       </Head>
       <IdleTimeoutManager />
       {renderWithLayout()}
+      {(resolvedLayout === "home" || resolvedLayout === "client") && (
+        <SupportChatWidget layout={resolvedLayout} />
+      )}
     </MuiThemeProvider>
   );
 }
