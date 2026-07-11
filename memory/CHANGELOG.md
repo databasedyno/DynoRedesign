@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-07-11 (session 28) — VERIFIED: checkout network-switch race fix (P0) + theme-flicker
+
+End-to-end verification of the crypto-checkout race-condition fix in `Components/Page/Pay3Components/cryptoTransfer.tsx` (`requestSeqRef` latest-wins + `inFlightTargetsRef` dedupe + `setCryptoDetails({empty})` on switch + `loading`-gated address render).
+- Method: temporarily restored the QA-only `pages/pay/crypto-preview.tsx` (real `CryptoTransfer` with mock props → NO live pool-address reservation), and drove it with Playwright request-interception mocking `/pay/getCurrencyRates`, `/pay/encrypt-payload`, `/pay/addPayment`. Simulated the exact bug: made USDT-TRC20's `addPayment` respond SLOWLY (2.2s) and a subsequent ETH selection respond fast (0.2s).
+- RESULTS (all pass): (1) after TRC20→ETH switch the address shows ETH and STAYS ETH even after the slow TRC-20 response resolves — stale address never overwrites; (2) exactly 2 `addPayment` calls for the switch (no duplicate firing); (3) rapid double-click on the same coin (ETH) fires exactly 1 `addPayment` call (dedupe prevents the double-address bug the user reported).
+- Theme-flicker fix (`contexts/ThemeContext.tsx` `useLayoutEffect` + `styles/globals.css` transitions) was already screenshot-verified in the prior session.
+- Cleanup: temp `crypto-preview.tsx` removed again; full standalone `next build` + frontend restart; `/pay/crypto-preview` → 404, `/` → 200.
+
+
 ## 2026-07-11 (session 27h) — Infra: DigitalOcean fixed 2 instances → CPU autoscaling
 
 Investigated (via DO API) why the app "needed two instances": the `dynopay` App Platform app is ONE service (`dynoredesign`) that was set to a fixed `instance_count: 2` (two replicas of the same container for HA/throughput) — not a hard requirement. Backend already supports multi-replica safely via `backend/utils/leaderElection.ts` (Redis lease → crons/BullMQ worker run on one leader only). The other DO app `moxxwebsite` is unrelated.

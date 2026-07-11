@@ -1,4 +1,8 @@
-# CURRENT PRIORITIES (2026-07-11, session 27) — top of stack
+# CURRENT PRIORITIES (2026-07-11, session 28) — top of stack
+
+✅ VERIFIED this session: crypto-checkout network-switch race fix (P0) — stale-address-on-switch, double-address-on-rapid-select, and superseded-response-overwrite all confirmed fixed via Playwright request-interception against the real `CryptoTransfer` component (no live data touched). See CHANGELOG session 28. Theme-flicker already verified prior session. NOTHING left on the last-working-item.
+
+# CURRENT PRIORITIES (2026-07-11, session 27) — earlier
 
 DONE this session (preview): login-bounce fix (withAuth retry), Google stay-on-page popup, Profile→Settings merge, Help refresh + chat CTA + quick-reply chips, branded favicon (ink+lime), site OG card, "15+ chains", "Dynotech" footer, SEO heading fix, donation/crowdfunding checkout redesign, **Creator vanity pages `dynopay.com/{handle}`** (migration on LIVE DB + endpoints + SSR page + Settings claim UI + dynamic OG), dynamic OG for shared /pay links, **landing refresh (creator vanity mockup)**, **standard /pay checkout lime polish + UX (low-fee hint, tap-to-copy address, trust strip)**. See CHANGELOG.
 
