@@ -280,7 +280,7 @@
   //
   // Usage:
   //   const dp = Dynopay('pk_live_...');
-  //   const elements = dp.elements({ appearance: { theme: 'dark', accent: '#CCFF00' } });
+  //   const elements = dp.elements({ appearance: { theme: 'auto', preset: 'stripe-like', accent: '#CCFF00', locale: 'es' } });
   //   const el = elements.create('crypto', { amount: 20, currency: 'USDT-TRC20' });
   //   el.mount('#dynopay-crypto-el');
   //   el.on('succeeded',       (data) => location.href = '/thanks?p=' + data.payment_id);
@@ -291,7 +291,140 @@
   // the payment reaches `succeeded`, `expired`, or `failed`. Fulfillment must still
   // rely on the server-to-server webhook (X-DynoPay-Signature) — the browser event
   // is UI-only.
+  //
+  // Appearance API:
+  //   theme:   'dark' | 'light' | 'auto'  (default 'auto' → follows prefers-color-scheme)
+  //   preset:  'default' | 'stripe-like' | 'flat' | 'minimal'  (default 'default')
+  //   accent:  '#RRGGBB'                  (default '#CCFF00')
+  //   radius:  number in px               (default derived from preset)
+  //   locale:  'en'|'es'|'fr'|'pt'|'hi'   (default: navigator.language → 'en')
+  //   labels:  { [key]: string }          (override any built-in string)
   var POLL_INTERVAL_MS = 5000;
+
+  // ─── i18n string table (Elements widget) ───────────────────────────
+  var DEFAULT_LOCALE = 'en';
+  var LOCALES = {
+    en: {
+      title: 'Pay with crypto',
+      subPick: '{amount} {baseCurrency} · pick a currency',
+      sendTitle: 'Send {currency}',
+      sendSub: 'Send exactly {amount} {currency} · {baseAmount} {baseCurrency}',
+      address: 'Address',
+      copy: 'Copy',
+      copied: 'Copied',
+      destTag: '\u26A0 Destination tag required: {tag}',
+      changeCurrency: 'Change currency',
+      secured: 'Secured by Dynopay',
+      loading: 'Loading\u2026',
+      errorTitle: 'Payment error',
+      waiting: 'Waiting for payment\u2026',
+      processing: 'Confirming on-chain\u2026',
+      succeeded: 'Payment received \u2713',
+      expired: 'Expired',
+      failed: 'Failed',
+    },
+    es: {
+      title: 'Pagar con cripto',
+      subPick: '{amount} {baseCurrency} \u00B7 elige una moneda',
+      sendTitle: 'Env\u00EDa {currency}',
+      sendSub: 'Env\u00EDa exactamente {amount} {currency} \u00B7 {baseAmount} {baseCurrency}',
+      address: 'Direcci\u00F3n',
+      copy: 'Copiar',
+      copied: 'Copiado',
+      destTag: '\u26A0 Se requiere destination tag: {tag}',
+      changeCurrency: 'Cambiar moneda',
+      secured: 'Protegido por Dynopay',
+      loading: 'Cargando\u2026',
+      errorTitle: 'Error de pago',
+      waiting: 'Esperando pago\u2026',
+      processing: 'Confirmando en la red\u2026',
+      succeeded: 'Pago recibido \u2713',
+      expired: 'Expirado',
+      failed: 'Fallido',
+    },
+    fr: {
+      title: 'Payer en crypto',
+      subPick: '{amount} {baseCurrency} \u00B7 choisissez une devise',
+      sendTitle: 'Envoyez {currency}',
+      sendSub: 'Envoyez exactement {amount} {currency} \u00B7 {baseAmount} {baseCurrency}',
+      address: 'Adresse',
+      copy: 'Copier',
+      copied: 'Copi\u00E9',
+      destTag: '\u26A0 Destination tag requis : {tag}',
+      changeCurrency: 'Changer de devise',
+      secured: 'S\u00E9curis\u00E9 par Dynopay',
+      loading: 'Chargement\u2026',
+      errorTitle: 'Erreur de paiement',
+      waiting: 'En attente de paiement\u2026',
+      processing: 'Confirmation sur la blockchain\u2026',
+      succeeded: 'Paiement re\u00E7u \u2713',
+      expired: 'Expir\u00E9',
+      failed: '\u00C9chec',
+    },
+    pt: {
+      title: 'Pagar com cripto',
+      subPick: '{amount} {baseCurrency} \u00B7 escolha uma moeda',
+      sendTitle: 'Enviar {currency}',
+      sendSub: 'Envie exatamente {amount} {currency} \u00B7 {baseAmount} {baseCurrency}',
+      address: 'Endere\u00E7o',
+      copy: 'Copiar',
+      copied: 'Copiado',
+      destTag: '\u26A0 Destination tag necess\u00E1rio: {tag}',
+      changeCurrency: 'Mudar moeda',
+      secured: 'Protegido por Dynopay',
+      loading: 'Carregando\u2026',
+      errorTitle: 'Erro no pagamento',
+      waiting: 'Aguardando pagamento\u2026',
+      processing: 'Confirmando na blockchain\u2026',
+      succeeded: 'Pagamento recebido \u2713',
+      expired: 'Expirado',
+      failed: 'Falhou',
+    },
+    hi: {
+      title: '\u0915\u094D\u0930\u093F\u092A\u094D\u091F\u094B \u0938\u0947 \u092D\u0941\u0917\u0924\u093E\u0928 \u0915\u0930\u0947\u0902',
+      subPick: '{amount} {baseCurrency} \u00B7 \u092E\u0941\u0926\u094D\u0930\u093E \u091A\u0941\u0928\u0947\u0902',
+      sendTitle: '{currency} \u092D\u0947\u091C\u0947\u0902',
+      sendSub: '\u0920\u0940\u0915 {amount} {currency} \u092D\u0947\u091C\u0947\u0902 \u00B7 {baseAmount} {baseCurrency}',
+      address: '\u092A\u0924\u093E',
+      copy: '\u0915\u0949\u092A\u0940',
+      copied: '\u0915\u0949\u092A\u0940 \u0939\u094B \u0917\u092F\u093E',
+      destTag: '\u26A0 Destination tag \u0906\u0935\u0936\u094D\u092F\u0915: {tag}',
+      changeCurrency: '\u092E\u0941\u0926\u094D\u0930\u093E \u092C\u0926\u0932\u0947\u0902',
+      secured: 'Dynopay \u0926\u094D\u0935\u093E\u0930\u093E \u0938\u0941\u0930\u0915\u094D\u0937\u093F\u0924',
+      loading: '\u0932\u094B\u0921 \u0939\u094B \u0930\u0939\u093E \u0939\u0948\u2026',
+      errorTitle: '\u092D\u0941\u0917\u0924\u093E\u0928 \u0924\u094D\u0930\u0941\u091F\u093F',
+      waiting: '\u092D\u0941\u0917\u0924\u093E\u0928 \u0915\u0940 \u092A\u094D\u0930\u0924\u0940\u0915\u094D\u0937\u093E \u0939\u0948\u2026',
+      processing: '\u092C\u094D\u0932\u0949\u0915\u091A\u0947\u0928 \u092A\u0930 \u092A\u0941\u0937\u094D\u091F\u093F \u0939\u094B \u0930\u0939\u0940 \u0939\u0948\u2026',
+      succeeded: '\u092D\u0941\u0917\u0924\u093E\u0928 \u092A\u094D\u0930\u093E\u092A\u094D\u0924 \u0939\u0941\u0906 \u2713',
+      expired: '\u0938\u092E\u093E\u092A\u094D\u0924',
+      failed: '\u0935\u093F\u092B\u0932',
+    },
+  };
+
+  function resolveLocale(explicit) {
+    if (explicit && LOCALES[explicit]) return explicit;
+    try {
+      var nav = ((navigator.language || navigator.userLanguage || '') + '').slice(0, 2).toLowerCase();
+      if (LOCALES[nav]) return nav;
+    } catch (e) { /* SSR / no navigator */ }
+    return DEFAULT_LOCALE;
+  }
+
+  function interpolate(str, vars) {
+    if (str == null) return '';
+    if (!vars) return String(str);
+    return String(str).replace(/\{(\w+)\}/g, function (_, k) {
+      return vars[k] != null ? String(vars[k]) : '';
+    });
+  }
+
+  // Named appearance presets — merchant can still override individual keys
+  var APPEARANCE_PRESETS = {
+    'default':     { radius: 12, panelBg: true,  borders: true  },
+    'stripe-like': { radius: 8,  panelBg: true,  borders: true  },
+    'flat':        { radius: 0,  panelBg: true,  borders: true  },
+    'minimal':     { radius: 16, panelBg: false, borders: false },
+  };
 
   function ElementsFactory(pk, cfg) {
     cfg = cfg || {};
@@ -407,18 +540,41 @@
   };
 
   /* --- rendering helpers --- */
+  CryptoElement.prototype._t = function (key, vars) {
+    var app = this._appearance || {};
+    var locale = resolveLocale(app.locale);
+    var labels = app.labels || {};
+    var strings = LOCALES[locale] || LOCALES[DEFAULT_LOCALE];
+    var tpl = (labels[key] != null) ? labels[key] : strings[key];
+    if (tpl == null) tpl = LOCALES[DEFAULT_LOCALE][key];
+    if (tpl == null) tpl = key;
+    return interpolate(tpl, vars);
+  };
   CryptoElement.prototype._theme = function () {
-    var app = this._appearance;
-    var dark = (app.theme || 'dark') !== 'light';
+    var app = this._appearance || {};
+    var presetName = app.preset || 'default';
+    var preset = APPEARANCE_PRESETS[presetName] || APPEARANCE_PRESETS['default'];
+
+    // Auto theme: if theme unset or 'auto', follow prefers-color-scheme.
+    // Falls back to 'dark' on SSR / older browsers.
+    var themeName = app.theme;
+    if (!themeName || themeName === 'auto') {
+      try {
+        themeName = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+      } catch (e) { themeName = 'dark'; }
+    }
+    var dark = themeName !== 'light';
+    var radius = (app.radius != null ? Number(app.radius) : preset.radius);
+
     return {
       dark: dark,
       bg:     dark ? '#0b0b0b' : '#ffffff',
-      panel:  dark ? '#141414' : '#f8fafc',
+      panel:  preset.panelBg ? (dark ? '#141414' : '#f8fafc') : (dark ? '#0b0b0b' : '#ffffff'),
       fg:     dark ? '#fafafa' : '#0b0b0b',
       muted:  dark ? '#a1a1aa' : '#52525b',
-      border: dark ? '#27272a' : '#e4e4e7',
+      border: preset.borders ? (dark ? '#27272a' : '#e4e4e7') : 'transparent',
       accent: app.accent || '#CCFF00',
-      radius: (app.radius != null ? app.radius : 12) + 'px',
+      radius: radius + 'px',
     };
   };
   CryptoElement.prototype._h = function (tag, style, text) {
@@ -440,13 +596,13 @@
   CryptoElement.prototype._renderLoading = function () {
     var t = this._theme();
     var root = this._panel();
-    root.appendChild(this._h('div', 'font-weight:600;font-size:15px;color:' + t.muted + ';margin-bottom:8px;', 'Loading…'));
+    root.appendChild(this._h('div', 'font-weight:600;font-size:15px;color:' + t.muted + ';margin-bottom:8px;', this._t('loading')));
     this._swap(root);
   };
   CryptoElement.prototype._renderError = function (msg) {
     var t = this._theme();
     var root = this._panel();
-    root.appendChild(this._h('div', 'font-weight:600;color:#dc2626;margin-bottom:4px;', 'Payment error'));
+    root.appendChild(this._h('div', 'font-weight:600;color:#dc2626;margin-bottom:4px;', this._t('errorTitle')));
     root.appendChild(this._h('div', 'color:' + t.muted + ';font-size:13px;', msg));
     this._swap(root);
     this._emit('error', { message: msg });
@@ -456,8 +612,9 @@
     var t = this._theme();
     var root = this._panel();
     var d = this._intent;
-    root.appendChild(this._h('div', 'font-weight:600;font-size:16px;margin-bottom:4px;', 'Pay with crypto'));
-    root.appendChild(this._h('div', 'color:' + t.muted + ';font-size:13px;margin-bottom:16px;', d.amount + ' ' + d.base_currency + ' · pick a currency'));
+    root.appendChild(this._h('div', 'font-weight:600;font-size:16px;margin-bottom:4px;', this._t('title')));
+    root.appendChild(this._h('div', 'color:' + t.muted + ';font-size:13px;margin-bottom:16px;',
+      this._t('subPick', { amount: d.amount, baseCurrency: d.base_currency })));
 
     var list = this._h('div', 'display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;');
     d.available_currencies.forEach(function (c) {
@@ -475,16 +632,20 @@
     });
     root.appendChild(list);
 
-    root.appendChild(this._h('div', 'color:' + t.muted + ';font-size:11px;margin-top:14px;text-align:center;', 'Secured by Dynopay'));
+    root.appendChild(this._h('div', 'color:' + t.muted + ';font-size:11px;margin-top:14px;text-align:center;', this._t('secured')));
     this._swap(root);
   };
 
   CryptoElement.prototype._renderAddress = function () {
     var self = this, t = this._theme(), s = this._selection, d = this._intent;
     var root = this._panel();
-    root.appendChild(this._h('div', 'font-weight:600;font-size:16px;margin-bottom:2px;', 'Send ' + s.currency));
+    root.appendChild(this._h('div', 'font-weight:600;font-size:16px;margin-bottom:2px;',
+      this._t('sendTitle', { currency: s.currency })));
     var amountLine = this._h('div', 'color:' + t.muted + ';font-size:13px;margin-bottom:16px;',
-      'Send exactly ' + s.amount + ' ' + s.currency + ' · ' + d.amount + ' ' + d.base_currency);
+      this._t('sendSub', {
+        amount: s.amount, currency: s.currency,
+        baseAmount: d.amount, baseCurrency: d.base_currency,
+      }));
     root.appendChild(amountLine);
 
     if (s.qr_code) {
@@ -497,19 +658,22 @@
       root.appendChild(qrWrap);
     }
 
-    var addrLabel = this._h('div', 'color:' + t.muted + ';font-size:11px;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;', 'Address');
+    var addrLabel = this._h('div', 'color:' + t.muted + ';font-size:11px;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;', this._t('address'));
     root.appendChild(addrLabel);
     var addrRow = this._h('div', 'display:flex;gap:8px;align-items:stretch;margin-bottom:12px;');
     var addr = this._h('div', 'flex:1;font: 400 12px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;background:' + t.panel + ';border:1px solid ' + t.border + ';padding:10px;border-radius:8px;overflow-wrap:anywhere;color:' + t.fg + ';', s.address);
     addr.setAttribute('data-testid', 'elements-address');
     addrRow.appendChild(addr);
-    var copy = this._h('button', 'appearance:none;cursor:pointer;padding:8px 14px;background:' + t.accent + ';color:#0b0b0b;border:0;border-radius:8px;font: 500 12px/1 inherit;', 'Copy');
-    copy.onclick = function () { try { navigator.clipboard.writeText(s.address); copy.textContent = 'Copied'; setTimeout(function () { copy.textContent = 'Copy'; }, 1500); } catch (e) { /* older browsers */ } };
+    var copyLabel = this._t('copy');
+    var copiedLabel = this._t('copied');
+    var copy = this._h('button', 'appearance:none;cursor:pointer;padding:8px 14px;background:' + t.accent + ';color:#0b0b0b;border:0;border-radius:8px;font: 500 12px/1 inherit;', copyLabel);
+    copy.onclick = function () { try { navigator.clipboard.writeText(s.address); copy.textContent = copiedLabel; setTimeout(function () { copy.textContent = copyLabel; }, 1500); } catch (e) { /* older browsers */ } };
     addrRow.appendChild(copy);
     root.appendChild(addrRow);
 
     if (s.destination_tag) {
-      root.appendChild(this._h('div', 'color:#f59e0b;font-size:12px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);padding:8px 10px;border-radius:8px;margin-bottom:12px;', '⚠ Destination tag required: ' + s.destination_tag));
+      root.appendChild(this._h('div', 'color:#f59e0b;font-size:12px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);padding:8px 10px;border-radius:8px;margin-bottom:12px;',
+        this._t('destTag', { tag: s.destination_tag })));
     }
 
     // Status banner (updated by polling)
@@ -519,7 +683,7 @@
     root.appendChild(this._statusEl);
 
     // "Change currency" link
-    var chg = this._h('button', 'appearance:none;cursor:pointer;margin-top:12px;background:transparent;color:' + t.muted + ';border:0;font: 500 12px/1 inherit;text-decoration:underline;padding:0;', 'Change currency');
+    var chg = this._h('button', 'appearance:none;cursor:pointer;margin-top:12px;background:transparent;color:' + t.muted + ';border:0;font: 500 12px/1 inherit;text-decoration:underline;padding:0;', this._t('changeCurrency'));
     chg.onclick = function () { if (self._done) return; self._selection = null; self._done = false; self._stopPolling(); self._renderCurrencyPicker(); };
     root.appendChild(chg);
 
@@ -533,10 +697,11 @@
     el.innerHTML = '';
     var dot = this._h('span', 'width:8px;height:8px;border-radius:50%;flex-shrink:0;');
     var text;
-    if (status === 'succeeded') { dot.style.background = '#10b981'; text = 'Payment received ✓'; el.style.color = '#10b981'; }
-    else if (status === 'processing') { dot.style.background = '#f59e0b'; text = 'Confirming on-chain…'; el.style.color = t.fg; }
-    else if (status === 'expired' || status === 'failed') { dot.style.background = '#dc2626'; text = status.charAt(0).toUpperCase() + status.slice(1); el.style.color = '#dc2626'; }
-    else { dot.style.background = t.accent; text = 'Waiting for payment…'; el.style.color = t.muted; }
+    if (status === 'succeeded') { dot.style.background = '#10b981'; text = this._t('succeeded'); el.style.color = '#10b981'; }
+    else if (status === 'processing') { dot.style.background = '#f59e0b'; text = this._t('processing'); el.style.color = t.fg; }
+    else if (status === 'expired') { dot.style.background = '#dc2626'; text = this._t('expired'); el.style.color = '#dc2626'; }
+    else if (status === 'failed')  { dot.style.background = '#dc2626'; text = this._t('failed');  el.style.color = '#dc2626'; }
+    else { dot.style.background = t.accent; text = this._t('waiting'); el.style.color = t.muted; }
     el.appendChild(dot);
     el.appendChild(this._h('span', '', text));
   };

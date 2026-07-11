@@ -32,7 +32,7 @@ interface Endpoint {
   path: string;
   title: string;
   description: string;
-  auth: "api-key" | "api-key-bearer" | "api-key-optional-bearer";
+  auth: "api-key" | "api-key-bearer" | "api-key-optional-bearer" | "publishable-key";
   headers: { name: string; value: string; description: string }[];
   body?: { name: string; type: string; required: boolean; description: string }[];
   queryParams?: { name: string; type: string; required: boolean; description: string }[];
@@ -223,6 +223,7 @@ const AuthBadge = styled("span", {
   const dk = theme.palette.mode === "dark";
   const isApiOnly = authType === "api-key";
   const isOptionalBearer = authType === "api-key-optional-bearer";
+  const isPublishable = authType === "publishable-key";
   return {
     fontSize: "11px",
     padding: "3px 10px",
@@ -230,12 +231,14 @@ const AuthBadge = styled("span", {
     fontWeight: 600,
     fontFamily: "var(--font-sans)",
     whiteSpace: "nowrap" as const,
-    background: isApiOnly
-      ? dk ? "rgba(29,78,216,0.15)" : "#DBEAFE"
-      : isOptionalBearer
-        ? dk ? "rgba(5,150,105,0.15)" : "#D1FAE5"
-        : dk ? "rgba(109,40,217,0.15)" : "#EDE9FE",
-    color: isApiOnly ? "#60A5FA" : isOptionalBearer ? "#10B981" : "#A78BFA",
+    background: isPublishable
+      ? dk ? "rgba(204,255,0,0.15)" : "#F0FDD4"
+      : isApiOnly
+        ? dk ? "rgba(29,78,216,0.15)" : "#DBEAFE"
+        : isOptionalBearer
+          ? dk ? "rgba(5,150,105,0.15)" : "#D1FAE5"
+          : dk ? "rgba(109,40,217,0.15)" : "#EDE9FE",
+    color: isPublishable ? "#84CC16" : isApiOnly ? "#60A5FA" : isOptionalBearer ? "#10B981" : "#A78BFA",
   };
 });
 
@@ -507,6 +510,106 @@ const ENDPOINTS: Endpoint[] = [
     "payment_methods": [
       { "type": "crypto", "currencies": ["USDT-TRC20","BTC","ETH"] }
     ]
+  }
+}`,
+  },
+  {
+    id: "elements-intent",
+    method: "POST",
+    path: "/embed/public/elements/intent",
+    title: "Create Elements Payment Intent",
+    description:
+      "Create a payment intent for the **Elements Inline Widget** — the SDK renders the pay UI (currency picker, address, QR, live status) directly in your DOM (no iframe). Called by `Dynopay(pk).elements().create('crypto', { amount }).mount('#el')` — you rarely call it directly. Uses a browser-safe **publishable key**; the request Origin must be on the key's `allowed_domains`. Returns a set of currencies (intersection of your configured wallets, the pk's `allowed_currencies`, and the merchant address pool) and a Redis-backed `intent_id` valid for 24h.",
+    auth: "publishable-key",
+    headers: [
+      { name: "x-publishable-key", value: "pk_live_...", description: "Browser-safe publishable key (domain-locked + amount-capped)" },
+      { name: "Origin", value: "https://your-site.com", description: "Must match an entry in the pk's allowed_domains (wildcards supported)" },
+      { name: "Content-Type", value: "application/json", description: "" },
+    ],
+    body: [
+      { name: "amount", type: "number", required: true, description: "Amount in the pk's base currency (min 5, ≤ pk.max_amount)" },
+      { name: "currency", type: "string", required: false, description: "Optional crypto — if in effective set, the picker is skipped" },
+      { name: "redirect_uri", type: "string", required: false, description: "URL to send the customer after success (not used by the widget, echoed in webhooks)" },
+      { name: "meta_data", type: "object", required: false, description: "Custom metadata echoed back in webhooks" },
+    ],
+    requestExample: `{
+  "amount": 20,
+  "currency": "USDT-TRC20",
+  "meta_data": { "order_id": "ORD-42" }
+}`,
+    responseExample: `{
+  "success": true,
+  "message": "Intent created",
+  "data": {
+    "intent_id": "pi_a1b2c3...",
+    "client_secret": "elm_x9y8z7...",
+    "available_currencies": ["BTC","ETH","USDT-TRC20","USDT-ERC20","LTC"],
+    "amount": 20,
+    "base_currency": "USD",
+    "expires_at": "2026-07-12T09:00:00.000Z",
+    "status": "requires_currency"
+  }
+}`,
+  },
+  {
+    id: "elements-select-currency",
+    method: "POST",
+    path: "/embed/public/elements/select-currency",
+    title: "Select Currency (Elements)",
+    description:
+      "Reserve a merchant-pool address for the chosen currency on an existing Elements intent. **Idempotent** — a second call with the same currency returns the SAME address. Switching currency after the intent has reached `processing`/`succeeded` returns `400`. Converts fiat → crypto with the live rate and generates a QR code. Called automatically by `element.mount()` after the customer picks a currency in the widget.",
+    auth: "publishable-key",
+    headers: [
+      { name: "x-publishable-key", value: "pk_live_...", description: "Browser-safe publishable key" },
+      { name: "Origin", value: "https://your-site.com", description: "Must match pk allowed_domains" },
+      { name: "Content-Type", value: "application/json", description: "" },
+    ],
+    body: [
+      { name: "intent_id", type: "string", required: true, description: "The pi_... returned from Create Intent" },
+      { name: "currency", type: "string", required: true, description: "One of the intent's available_currencies (e.g. USDT-TRC20)" },
+    ],
+    requestExample: `{
+  "intent_id": "pi_a1b2c3...",
+  "currency": "USDT-TRC20"
+}`,
+    responseExample: `{
+  "success": true,
+  "message": "Currency selected",
+  "data": {
+    "currency": "USDT-TRC20",
+    "address": "TTve8v6Y48ChsCTEiCjMRFSbjNtz4mAkxR",
+    "qr_code": "data:image/png;base64,...",
+    "amount": 20,
+    "destination_tag": null,
+    "payment_id": "txn_..."
+  }
+}`,
+  },
+  {
+    id: "elements-status",
+    method: "GET",
+    path: "/embed/public/elements/status?intent_id=pi_...",
+    title: "Poll Elements Intent Status",
+    description:
+      "Read the live status of an Elements intent. The SDK polls this every 5 seconds. DB status is mapped to a stable client status: `completed/successful/confirmed → succeeded`, `underpaid/partial/processing → processing`, `failed/expired/cancelled → failed`. Otherwise falls back to `requires_currency` / `awaiting_payment` / `expired` (24h TTL). **Fulfillment must be confirmed via the `payment.succeeded` webhook — this endpoint is UX-only.**",
+    auth: "publishable-key",
+    headers: [
+      { name: "x-publishable-key", value: "pk_live_...", description: "Browser-safe publishable key" },
+      { name: "Origin", value: "https://your-site.com", description: "Must match pk allowed_domains" },
+    ],
+    body: [],
+    requestExample: `GET /api/embed/public/elements/status?intent_id=pi_a1b2c3...`,
+    responseExample: `{
+  "success": true,
+  "data": {
+    "intent_id": "pi_a1b2c3...",
+    "status": "awaiting_payment",
+    "currency": "USDT-TRC20",
+    "address": "TTve8v6Y48ChsCTEiCjMRFSbjNtz4mAkxR",
+    "amount": 20,
+    "base_currency": "USD",
+    "payment_id": "txn_...",
+    "expires_at": "2026-07-12T09:00:00.000Z"
   }
 }`,
   },
@@ -789,6 +892,7 @@ const SECTIONS: Section[] = [
   { id: "customers", title: "Customers", icon: <PersonAddAlt1Icon />, endpoints: ["create-user"] },
   { id: "payments", title: "Payments", icon: <PaymentIcon />, endpoints: ["create-payment", "crypto-payment"] },
   { id: "embed", title: "Embedded Checkout", icon: <CodeIcon />, endpoints: ["embed-session"] },
+  { id: "elements", title: "Elements Inline Widget", icon: <CodeIcon />, endpoints: ["elements-intent", "elements-select-currency", "elements-status"] },
   { id: "wallets", title: "Wallets", icon: <AccountBalanceWalletIcon />, endpoints: ["add-funds", "use-wallet", "get-balance"] },
   { id: "transactions", title: "Transactions", icon: <ReceiptLongIcon />, endpoints: ["get-transactions", "get-single-transaction", "get-crypto-transaction"] },
   { id: "currencies", title: "Currencies", icon: <CurrencyExchangeIcon />, endpoints: ["get-supported-currency"] },
@@ -880,7 +984,7 @@ const EndpointCard = memo(({ ep }: { ep: Endpoint }) => {
         <Typography sx={{ fontSize: 14, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mr: 1, display: { xs: "none", md: "block" } }}>
           {ep.title}
         </Typography>
-        <AuthBadge authType={ep.auth}>{ep.auth === "api-key" ? "API Key" : ep.auth === "api-key-optional-bearer" ? "API Key (Bearer Optional)" : "API Key + Bearer"}</AuthBadge>
+        <AuthBadge authType={ep.auth}>{ep.auth === "publishable-key" ? "Publishable Key" : ep.auth === "api-key" ? "API Key" : ep.auth === "api-key-optional-bearer" ? "API Key (Bearer Optional)" : "API Key + Bearer"}</AuthBadge>
         <ExpandMoreIcon sx={{ fontSize: 20, color: "text.secondary", transform: expanded ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }} />
       </EndpointHeader>
       {expanded && (

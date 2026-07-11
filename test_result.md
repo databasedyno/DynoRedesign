@@ -1,3 +1,99 @@
+## Session 25: Phase 3(b) — Elements Dashboard UI + Docs + SDK Polish ✅ COMPLETE (2026-07-11)
+
+### Context
+Session 24 shipped the backend + SDK for the Elements Inline Widget. This session completes the remaining Phase 3 items:
+- **3C** Dashboard UI — new "Elements — Inline Crypto Widget" section on `/developer-keys` with copy-paste snippet + live preview toggle (mirrors the existing `EmbeddedCheckoutCard` Phase 1a section).
+- **3D** Docs — new section in `DEVELOPER_INTEGRATION_GUIDE.md` + new endpoint cards + section in `/documentation` page.
+- **Polish** — SDK auto dark/light theme, i18n (5 locales: en/es/fr/pt/hi + label overrides), and named appearance presets (default / stripe-like / flat / minimal).
+
+Phase 3E (real USDT-TRC20 E2E payment) intentionally deferred per user — will consume real crypto.
+
+### What was built (files changed)
+
+**SDK — `public/v1/embed.js` (32,597 → 40,116 bytes)**
+- `LOCALES` string table with en/es/fr/pt/hi + `{amount}`/`{currency}` interpolation.
+- `resolveLocale(explicit)` — resolves from `appearance.locale`, else `navigator.language.slice(0,2)`, else 'en'. `appearance.labels: {[key]: string}` overrides any built-in string per-key.
+- `APPEARANCE_PRESETS = { default | stripe-like | flat | minimal }` — bundles of `{radius, panelBg, borders}` merged with user overrides.
+- `_theme()`: when `appearance.theme` is unset or `'auto'`, follows `prefers-color-scheme: dark` via `window.matchMedia`. Falls back to `'dark'` on SSR.
+- `_t(key, vars)` helper added on `CryptoElement.prototype` and used in all render functions (`_renderLoading`, `_renderError`, `_renderCurrencyPicker`, `_renderAddress`, `_renderStatusInto`). Every hardcoded English string replaced.
+- Backward-compat: existing `Dynopay(pk).elements({appearance:{theme:'dark',accent:'#CCFF00'}})` calls keep working (the removed defaults were the same as new `default` preset).
+
+**Frontend — `Components/Page/API/ApiKeysPage.tsx` (935 → 1,235 lines)**
+- New `ElementsWidgetCard` component (~250 lines) rendered right after `BuyButtonsSection`.
+- Fetches active publishable key via `GET /api/publishable-keys?company_id=...`; falls back to `pk_live_YOUR_PUBLISHABLE_KEY` placeholder + warns the merchant if none exists.
+- Two `SnippetBlock` cards: HTML + React copy-paste snippets that use the merchant's real pk + `NEXT_PUBLIC_BASE_URL` for the SDK URL + Appearance API defaults (`theme:'auto', preset:'default'`).
+- "Show live preview" button lazily loads `/v1/embed.js` (dedup'd with `data-dynopay-sdk="1"`), constructs `Dynopay(pk).elements({appearance:{theme:'dark'|'light',accent}}).create('crypto',{amount:5})` with the dashboard's current MUI mode, and mounts it in a `<div ref>`. Auto re-mounts when the dashboard theme flips (dark ↔ light). Full cleanup on unmount / toggle-off / component unmount.
+- "View full guide" button opens `docsUrl + "#elements"` (anchors the new Elements section in the dashboard `/documentation` page).
+- Errors (e.g. Origin not in pk allowed_domains) shown inline with an actionable message; success emits a toast + Redux `TOAST_SHOW`.
+
+**Docs — `DEVELOPER_INTEGRATION_GUIDE.md` (858 → 1,058 lines)**
+- New top-level section `## Elements — Inline Crypto Widget (no iframe)` between the Embedded Checkout section and the Customer Wallet section. Includes ASCII sequence diagram, load-SDK snippet, mount snippet with full Appearance API, endpoints reference table (3 rows), events table (5 rows), Appearance API table (6 rows) + list of built-in string keys for i18n overrides, React example, security checklist, and testing tip pointing at `/elements-test.html`.
+- ToC entry added between Embedded Checkout and Customer Wallet.
+
+**Docs — `pages/documentation.tsx` (1,498 → 1,599 lines)**
+- Three new endpoints appended to `ENDPOINTS`: `elements-intent`, `elements-select-currency`, `elements-status` — each with the full auth (Origin + `x-publishable-key`), body params, request example, and realistic response example (uses `pi_...` / `elm_...` / `awaiting_payment` etc.).
+- New `Endpoint.auth` union member: `"publishable-key"`.
+- `AuthBadge` now supports the new auth type — cyber-lime lozenge with `#84CC16` text (`rgba(204,255,0,0.15)` in dark mode).
+- New `SECTIONS` entry: `{ id: "elements", title: "Elements Inline Widget", endpoints: [3 above] }` between `embed` and `wallets`.
+
+### Verification
+- `next build`: PASS (all 65 routes generated, no TS errors in changed files).
+- SDK served: `GET /v1/embed.js` returns 200, 40,116 bytes, contains `LOCALES`, `APPEARANCE_PRESETS`, `_t = function`, `prefers-color-scheme`, `resolveLocale`.
+- Dashboard: `GET /developer-keys` returns 200. Snippet block now includes appearance API + auto locale + preset. Live preview mount target renders.
+- `/documentation`: returns 200. New "Elements Inline Widget" section navigable via sidebar; three endpoint cards render with `Publishable Key` auth badge (cyber-lime).
+- `/elements-test.html`: unchanged, still 200. Docs guide anchor `#elements--inline-crypto-widget-no-iframe` resolves.
+- Existing sections (Embedded Checkout, Publishable Keys, Buy Buttons) untouched.
+
+### FILES CHANGED (this session)
+- `public/v1/embed.js` — MOD (Elements SDK: i18n + auto theme + presets, +~7.5 kB)
+- `Components/Page/API/ApiKeysPage.tsx` — MOD (new `ElementsWidgetCard`; mounted in section list; import `useRef`)
+- `DEVELOPER_INTEGRATION_GUIDE.md` — MOD (new "Elements" section, ToC entry)
+- `pages/documentation.tsx` — MOD (3 new endpoint cards, new SECTIONS entry, extended `Endpoint.auth` union, new `AuthBadge` variant for `publishable-key`)
+
+### backend
+  - task: "Elements Inline Widget endpoints (Session 24)"
+    implemented: true
+    working: true
+    file: "backend/controller/elementsController.ts, backend/routes/publishableKeyRouter.ts"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Backend already verified 17/17 in Session 24. NO backend changes in Session 25 — only frontend + SDK + docs. Skip re-testing per protocol (do not re-run already-passed backend tests)."
+
+### frontend
+  - task: "Elements dashboard section (3C) + Elements docs (3D) + SDK polish"
+    implemented: true
+    working: "NA"
+    file: "Components/Page/API/ApiKeysPage.tsx, pages/documentation.tsx, DEVELOPER_INTEGRATION_GUIDE.md, public/v1/embed.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Awaiting frontend testing agent verification (Session 25 additions)."
+
+### metadata
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 25
+  run_ui: false
+
+### test_plan
+  current_focus:
+    - "Elements dashboard section on /developer-keys — copy-paste snippet + live preview"
+    - "Elements docs section in /documentation — 3 new endpoints render + navigable"
+    - "SDK polish — auto theme, i18n locale detection, appearance presets"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+---
+
+
 ## Session 24: Phase 3(b) — Elements Inline Widget — BACKEND + SDK ✅ COMPLETE (2026-07-11)
 
 ### Context

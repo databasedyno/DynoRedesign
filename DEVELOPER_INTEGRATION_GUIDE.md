@@ -7,6 +7,7 @@ Welcome to the Dynopay API! This guide will help you integrate crypto payments a
 - [Userless Payment (Simplified)](#userless-payment-simplified)
 - [Common Integration Patterns](#common-integration-patterns)
 - [Embedded Checkout (iframe on your page)](#embedded-checkout-iframe-on-your-page)
+- [Elements — Inline Crypto Widget (no iframe)](#elements--inline-crypto-widget-no-iframe)
 - [Customer Wallet System](#customer-wallet-system)
 - [Best Practices](#best-practices)
 - [FAQ](#faq)
@@ -619,6 +620,199 @@ export function DynopayCheckout({ amount }: { amount: number }) {
 ### 6. Testing tip
 
 A ready-to-open test harness is served alongside the SDK at `/embed-test.html` (same origin as `embed.js`). Open it, paste a `client_secret` from your session, and click **Mount inline checkout** or **Open modal checkout** to sanity-check your setup end to end. Your dashboard's **Developer Keys** page also renders copy-paste snippets for your specific origin.
+
+---
+
+
+
+## Elements — Inline Crypto Widget (no iframe)
+
+> **Render Dynopay's crypto payment UI directly in your own DOM** — no iframe, no redirect. Uses a **publishable key** (browser-safe, domain-locked). The widget shows a currency picker → address + QR + copy button + live status pill. All fulfillment is still confirmed via **webhooks**, not the browser `succeeded` event.
+
+Think of it like Stripe's **Payment Element**: your merchant-side JS creates a payment intent with your **publishable** key, the SDK renders the pay UI in a `<div>` you own, and events tell you when the customer picks a currency, when the address is shown, and when payment lands on-chain.
+
+### Architecture at a glance
+
+```
+Merchant site (browser)                                Dynopay
+─────────────────────────                              ─────────────
+  <script src=CHECKOUT/v1/embed.js></script>
+  <div id="dynopay-crypto-el"></div>
+  const dp = Dynopay('pk_live_…');
+  const elements = dp.elements({ appearance:{theme:'auto'} });
+  const el = elements.create('crypto',{amount:20});
+  el.mount('#dynopay-crypto-el');
+        │
+        ├── POST /api/embed/public/elements/intent        ─▶ creates intent
+        │       headers: x-publishable-key + Origin              (Redis, 24h TTL)
+        │   ◀───────── { intent_id, client_secret,
+        │              available_currencies, amount, base_currency }
+        │
+        │ [customer clicks a currency]
+        ├── POST /api/embed/public/elements/select-currency ─▶ reserves ONE
+        │   ◀───────── { address, qr_code, amount,               merchant-pool
+        │              currency, destination_tag? }              address
+        │
+        └── GET  /api/embed/public/elements/status?...     ─▶ polls every 5s
+                                                              until succeeded/
+                                                              expired/failed
+```
+
+**Three things you MUST know:**
+1. Your **publishable key** (`pk_live_…` / `pk_test_…`) is **browser-safe** — but is **domain-locked** and **amount-capped** by default. Add every domain that mounts the widget to the key's `allowed_domains` (dashboard → Publishable Keys). Wildcards `*.example.com` are supported.
+2. **Trust webhooks, not the browser event.** Confirm every payment via the `payment.succeeded` webhook (`X-DynoPay-Signature`). The `succeeded` event on the element is a UI signal — never a fulfillment trigger.
+3. **The address is a real merchant-pool address** (same infra the hosted checkout uses). It's reserved for ~2h once the customer picks a currency; a real payment to that address triggers your webhook.
+
+---
+
+### 1. Load the SDK (once per page)
+
+```html
+<script src="https://checkout.dynopay.com/v1/embed.js"></script>
+```
+
+Exposes `window.Dynopay` — a **function** you call with your publishable key (`Dynopay('pk_live_…')`) that returns an SDK client. Backward-compat: `Dynopay.initEmbeddedCheckout` / `Dynopay.openCheckout` (from Embedded Checkout) still exist on the same object.
+
+---
+
+### 2. Mount the widget
+
+```html
+<div id="dynopay-crypto-el"></div>
+
+<script>
+  const dp = Dynopay('pk_live_…');
+  const elements = dp.elements({
+    appearance: {
+      theme:  'auto',        // 'dark' | 'light' | 'auto' (follows prefers-color-scheme)
+      preset: 'default',     // 'default' | 'stripe-like' | 'flat' | 'minimal'
+      accent: '#CCFF00',
+      radius: 12,            // px, or omit to use preset default
+      locale: 'en',          // 'en'|'es'|'fr'|'pt'|'hi' — auto-detected if omitted
+      // labels: { title: 'Pay with Bitcoin' }  // override any built-in string
+    },
+  });
+
+  const el = elements.create('crypto', {
+    amount: 20,                               // in the pk's base currency
+    currency: 'USDT-TRC20',                   // optional — skips the picker
+    redirectUri: 'https://shop.com/thanks',   // optional
+    meta: { order_id: 'ORD-42' },             // optional — echoed in webhooks
+  });
+
+  el.on('currency_selected', d => console.log('picked', d.currency, d.address));
+  el.on('succeeded', d => location.href = '/thanks?p=' + d.payment_id);
+  el.on('expired',   () => console.log('intent expired'));
+  el.on('failed',    () => console.log('payment failed'));
+  el.on('error',     e  => console.error(e.message));
+
+  el.mount('#dynopay-crypto-el');
+  // el.destroy();  // when you unmount
+</script>
+```
+
+The rendered UI has two phases:
+1. **Currency picker** — a grid of the currencies allowed by (a) your wallets, (b) this pk's `allowed_currencies`, and (c) the merchant address pool.
+2. **Address panel** — amount + QR + copy button + destination tag (for XRP/RLUSD) + live status pill polled every 5s + "Change currency" link (works until status becomes `processing`).
+
+---
+
+### 3. Endpoints (called by the SDK — reference)
+
+You never call these yourself — the SDK does. Listed for debugging.
+
+| Method | Path | Auth | Purpose |
+|---|---|---|---|
+| `POST` | `/api/embed/public/elements/intent` | `x-publishable-key` + `Origin` allow-list | Create an intent; returns `{intent_id, client_secret, available_currencies, amount, base_currency, expires_at}` |
+| `POST` | `/api/embed/public/elements/select-currency` | `x-publishable-key` + `Origin` | Reserve one merchant-pool address for the chosen currency; returns `{address, qr_code, amount, currency, destination_tag?}` |
+| `GET` | `/api/embed/public/elements/status?intent_id=…` | `x-publishable-key` + `Origin` | Live status: `requires_currency \| awaiting_payment \| processing \| succeeded \| expired \| failed` |
+
+Rate limits + Origin/domain checks + amount ≤ `pk.max_amount` are enforced identically to the Buy Button endpoints.
+
+---
+
+### 4. Events (client-side, UX-only)
+
+| Event | Fires when | Payload |
+|---|---|---|
+| `currency_selected` | Customer picks a currency & the address is reserved | `{ currency, address, amount }` |
+| `succeeded` | Backend polling sees `payment.succeeded` | `{ status: 'succeeded', payment_id, currency, address }` |
+| `expired` | Intent's 24h Redis TTL lapsed | `{ status: 'expired' }` |
+| `failed` | Backend reported `failed` / `cancelled` | `{ status: 'failed' }` |
+| `error` | Network or validation error | `{ message }` |
+
+Every event is also fired as a `dynopay:<event>` `CustomEvent` on the mounted DOM node — handy for a global listener.
+
+---
+
+### 5. Appearance API (theming)
+
+`elements({ appearance: {...} })` accepts:
+
+| Key | Type | Default | Notes |
+|---|---|---|---|
+| `theme` | `'dark' \| 'light' \| 'auto'` | `'auto'` | `'auto'` follows the browser's `prefers-color-scheme` |
+| `preset` | `'default' \| 'stripe-like' \| 'flat' \| 'minimal'` | `'default'` | Bundle of radius / border / panel-bg defaults |
+| `accent` | hex color | `'#CCFF00'` | Copy button + focus + status dots |
+| `radius` | number (px) | preset-dependent | Overrides the preset's radius |
+| `locale` | `'en' \| 'es' \| 'fr' \| 'pt' \| 'hi'` | `navigator.language → 'en'` | Auto-detected if omitted |
+| `labels` | `{ [key]: string }` | — | Override any built-in string (see keys below) |
+
+Built-in string keys you can override in `labels`:
+`title`, `subPick`, `sendTitle`, `sendSub`, `address`, `copy`, `copied`, `destTag`, `changeCurrency`, `secured`, `loading`, `errorTitle`, `waiting`, `processing`, `succeeded`, `expired`, `failed`. Variables like `{amount}`, `{currency}`, `{baseCurrency}`, `{baseAmount}`, `{tag}` are interpolated where applicable.
+
+---
+
+### 6. React example
+
+```tsx
+import { useEffect, useRef } from 'react';
+
+export function DynopayCryptoElement({ amount = 20 }: { amount?: number }) {
+  const box = useRef<HTMLDivElement>(null);
+  const el  = useRef<any>(null);
+
+  useEffect(() => {
+    (async () => {
+      await new Promise<void>((r) => {
+        if ((window as any).Dynopay) return r();
+        const s = document.createElement('script');
+        s.src = 'https://checkout.dynopay.com/v1/embed.js';
+        s.onload = () => r();
+        document.head.appendChild(s);
+      });
+
+      const dp = (window as any).Dynopay('pk_live_…');
+      el.current = dp
+        .elements({ appearance: { theme: 'auto', preset: 'stripe-like' } })
+        .create('crypto', { amount });
+
+      el.current.on('succeeded', () => { /* confirm via webhook */ });
+      el.current.mount(box.current!);
+    })();
+    return () => el.current?.destroy();
+  }, [amount]);
+
+  return <div ref={box} />;
+}
+```
+
+---
+
+### 7. Security checklist
+
+- Publishable key is **domain-locked** — add every host that mounts the widget to `allowed_domains` (wildcards `*.example.com` supported).
+- Publishable key is **amount-capped** — requests with `amount > pk.max_amount` return `400`.
+- Per-key rate limit (default **30/min**) — burst too high → `429`.
+- **CSRF middleware is skipped** for `x-publishable-key` — you don't need cookies or a CSRF token.
+- Fulfillment via **`payment.succeeded` webhook** (`X-DynoPay-Signature`) — the SDK `succeeded` event is UX only.
+- The address is a **real** merchant-pool address, reserved for ~2h. Real crypto sent to it will trigger your webhook exactly like the hosted checkout.
+
+---
+
+### 8. Testing tip
+
+A ready-to-open harness is served alongside the SDK at `/elements-test.html` (same origin as `embed.js`). Textbox for `pk` + amount + optional currency, "Mount Elements widget" button, real-time event log. Query prefill: `?pk=…&amt=20&ccy=USDT-TRC20`. Your dashboard's **Developer Keys → Elements — Inline Crypto Widget** section also has a "Show live preview" button that mounts the widget with your active publishable key using your dashboard's theme.
 
 ---
 

@@ -1,6 +1,6 @@
 import { Box, CircularProgress, Grid, Typography, MenuItem, Select, FormControl } from "@mui/material";
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import axiosBaseApi from "@/axiosConfig";
@@ -604,6 +604,321 @@ Dynopay.openCheckout({ fetchClientSecret, onComplete });`;
   );
 };
 
+/* ------------------------------------------------------------------ */
+/* Elements Inline Widget — Phase 3(b) UI card                        */
+/* Mirrors EmbeddedCheckoutCard: snippet + live preview + docs link.  */
+/* ------------------------------------------------------------------ */
+const ElementsWidgetCard = ({
+  onCopy,
+  docsUrl,
+}: {
+  onCopy: (v: string) => void;
+  docsUrl: string;
+}) => {
+  const theme = useTheme();
+  const dispatch = useDispatch();
+  const selectedCompanyId = useSelector(
+    (state: rootReducer) => (state as any).companyReducer?.selectedCompanyId
+  );
+
+  const baseUrl =
+    (process.env.NEXT_PUBLIC_BASE_URL as string) ||
+    (typeof window !== "undefined" ? window.location.origin : "https://checkout.dynopay.com");
+
+  // Load a real active pk for this company so the snippet + preview use it.
+  // Falls back to a `pk_live_...` placeholder if none exists (merchant hasn't
+  // created a publishable key yet — nudged to the Publishable Keys section).
+  const [pk, setPk] = useState<string>("pk_live_YOUR_PUBLISHABLE_KEY");
+  const [hasRealPk, setHasRealPk] = useState<boolean>(false);
+  const [previewOpen, setPreviewOpen] = useState<boolean>(false);
+  const [previewError, setPreviewError] = useState<string>("");
+  const previewRef = useRef<HTMLDivElement | null>(null);
+  const elementInstanceRef = useRef<any>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const params = selectedCompanyId ? `?company_id=${selectedCompanyId}` : "";
+        const { data } = await axiosBaseApi.get(`publishable-keys${params}`);
+        const rows: Array<{ publishable_key: string; status: string }> = data?.data?.keys || [];
+        const active = rows.find((r) => r.status === "active") || rows[0];
+        if (!cancelled && active?.publishable_key) {
+          setPk(active.publishable_key);
+          setHasRealPk(true);
+        }
+      } catch {
+        /* silent — keep placeholder */
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [selectedCompanyId]);
+
+  // Copy-paste HTML snippet. Includes the SDK <script> tag and a
+  // `Dynopay(pk).elements()` call with the live appearance API defaults.
+  const snippet =
+    `<!-- Load Dynopay embed SDK once per page -->\n` +
+    `<script src="${baseUrl}/v1/embed.js"></script>\n\n` +
+    `<!-- Mount target -->\n` +
+    `<div id="dynopay-crypto-el"></div>\n\n` +
+    `<script>\n` +
+    `  const dp = Dynopay("${pk}");\n` +
+    `  const elements = dp.elements({\n` +
+    `    appearance: { theme: "auto", preset: "default", accent: "#CCFF00" },\n` +
+    `    // locale: "en",   // optional — auto-detected from navigator.language\n` +
+    `  });\n` +
+    `  const el = elements.create("crypto", { amount: 5 });\n` +
+    `  el.on("succeeded", (data) => { location.href = "/thanks?p=" + data.payment_id; });\n` +
+    `  // Confirm fulfillment via webhook (payment.succeeded) — not this event.\n` +
+    `  el.mount("#dynopay-crypto-el");\n` +
+    `</script>`;
+
+  const reactSnippet =
+`import { useEffect, useRef } from "react";
+
+export function DynopayCryptoElement({ amount = 5 }: { amount?: number }) {
+  const box = useRef<HTMLDivElement>(null);
+  const el  = useRef<any>(null);
+  useEffect(() => {
+    (async () => {
+      await new Promise<void>((r) => {
+        if ((window as any).Dynopay) return r();
+        const s = document.createElement("script");
+        s.src = "${baseUrl}/v1/embed.js";
+        s.onload = () => r();
+        document.head.appendChild(s);
+      });
+      const dp = (window as any).Dynopay("${pk}");
+      el.current = dp.elements({ appearance: { theme: "auto" } })
+        .create("crypto", { amount });
+      el.current.on("succeeded", () => { /* confirm via webhook */ });
+      el.current.mount(box.current!);
+    })();
+    return () => el.current?.destroy();
+  }, [amount]);
+  return <div ref={box} />;
+}`;
+
+  const loadSdk = () =>
+    new Promise<void>((resolve, reject) => {
+      const w = window as any;
+      if (w.Dynopay && typeof w.Dynopay === "function") return resolve();
+      // For live preview we load the SDK from THIS origin so its API calls go
+      // to THIS backend (avoiding cross-origin issues when NEXT_PUBLIC_BASE_URL
+      // points to a different host than the dashboard is served from).
+      const src = window.location.origin + "/v1/embed.js";
+      const existing = document.querySelector('script[data-dynopay-sdk="1"]') as HTMLScriptElement | null;
+      if (existing) {
+        existing.addEventListener("load", () => resolve());
+        existing.addEventListener("error", () => reject(new Error("SDK failed to load")));
+        return;
+      }
+      const s = document.createElement("script");
+      s.src = src;
+      s.async = true;
+      s.setAttribute("data-dynopay-sdk", "1");
+      s.onload = () => resolve();
+      s.onerror = () => reject(new Error("SDK failed to load from " + src));
+      document.head.appendChild(s);
+    });
+
+  const mountPreview = async () => {
+    setPreviewError("");
+    if (!hasRealPk) {
+      setPreviewError(
+        "You need at least one active publishable key. Scroll to the Publishable Keys section below and create one — then come back and try the preview."
+      );
+      return;
+    }
+    try {
+      await loadSdk();
+      const dp = (window as any).Dynopay(pk);
+      // Destroy any prior instance before re-mounting
+      if (elementInstanceRef.current?.destroy) {
+        try { elementInstanceRef.current.destroy(); } catch { /* ignore */ }
+      }
+      const inst = dp
+        .elements({
+          appearance: {
+            theme: theme.palette.mode === "dark" ? "dark" : "light",
+            preset: "default",
+            accent: theme.palette.primary.main || "#CCFF00",
+          },
+        })
+        .create("crypto", { amount: 5 });
+
+      inst.on("error", (e: { message: string }) => {
+        setPreviewError(
+          e?.message ||
+          "Preview failed. If your publishable key is domain-locked, add this dashboard's origin to its allowed_domains and retry."
+        );
+      });
+      inst.on("succeeded", () => {
+        dispatch({
+          type: TOAST_SHOW,
+          payload: { message: "Preview payment succeeded (confirm via webhook)", severity: "success" },
+        });
+      });
+      inst.mount(previewRef.current);
+      elementInstanceRef.current = inst;
+    } catch (err: any) {
+      setPreviewError(err?.message || "Failed to mount preview");
+    }
+  };
+
+  const togglePreview = async () => {
+    if (previewOpen) {
+      if (elementInstanceRef.current?.destroy) {
+        try { elementInstanceRef.current.destroy(); } catch { /* ignore */ }
+        elementInstanceRef.current = null;
+      }
+      setPreviewOpen(false);
+      setPreviewError("");
+      return;
+    }
+    setPreviewOpen(true);
+    // Wait one tick for the container to render
+    setTimeout(() => { void mountPreview(); }, 0);
+  };
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (elementInstanceRef.current?.destroy) {
+        try { elementInstanceRef.current.destroy(); } catch { /* ignore */ }
+      }
+    };
+  }, []);
+
+  // Re-mount when theme flips while preview is open (dark/light auto-sync)
+  useEffect(() => {
+    if (previewOpen && elementInstanceRef.current) {
+      void mountPreview();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [theme.palette.mode]);
+
+  return (
+    <Box
+      data-testid="elements-widget-section"
+      sx={{
+        border: `1px solid ${theme.palette.border.main}`,
+        borderRadius: "12px",
+        background: theme.palette.background.paper,
+        p: { xs: 2, sm: 2.5 },
+      }}
+    >
+      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1, flexWrap: "wrap" }}>
+        <Typography
+          sx={{
+            fontSize: 18,
+            fontWeight: 700,
+            color: theme.palette.text.primary,
+            fontFamily: "var(--font-sans)",
+          }}
+        >
+          Elements — Inline Crypto Widget
+        </Typography>
+        <Box
+          component="span"
+          sx={{
+            fontSize: 10.5,
+            fontWeight: 700,
+            letterSpacing: 0.5,
+            px: 1,
+            py: 0.3,
+            borderRadius: "6px",
+            bgcolor: theme.palette.primary.main,
+            color: "#0b0b0b",
+          }}
+        >
+          NEW · publishable key
+        </Box>
+      </Box>
+      <Typography sx={{ mt: 0.5, fontSize: 14, color: theme.palette.text.secondary }}>
+        Render Dynopay's native crypto payment UI directly in your DOM — no iframe, no
+        redirect. Uses a publishable key (browser-safe) and your customer picks a
+        currency, then pays to the address shown. Always verify fulfillment via
+        webhooks — the browser <code>succeeded</code> event is UX only.
+      </Typography>
+
+      <SnippetBlock label="HTML — mount inline" code={snippet} onCopy={onCopy} />
+      <SnippetBlock label="React — hook form" code={reactSnippet} onCopy={onCopy} />
+
+      <Box sx={{ mt: 2, display: "flex", flexWrap: "wrap", gap: 1.25, alignItems: "center" }}>
+        <CustomButton
+          label={previewOpen ? "Hide live preview" : "Show live preview"}
+          data-testid="elements-preview-toggle"
+          variant="primary"
+          onClick={togglePreview}
+          sx={{
+            background: theme.palette.primary.main,
+            color: "#0b0b0b",
+            "&:hover": { background: theme.palette.primary.main, opacity: 0.9 },
+          }}
+        />
+        <CustomButton
+          label="View full guide"
+          endIcon={<ArrowOutwardIcon sx={{ fontSize: 16 }} />}
+          variant="outlined"
+          sx={{
+            borderColor: theme.palette.primary.main,
+            color: theme.palette.primary.main,
+            "&:hover": {
+              background: theme.palette.mode === "dark" ? "rgba(204,255,0,0.08)" : "#f0f5ff",
+              borderColor: theme.palette.primary.main,
+            },
+          }}
+          onClick={() => docsUrl && window.open(docsUrl + "#elements", "_blank", "noopener,noreferrer")}
+        />
+        {!hasRealPk && (
+          <Typography sx={{ fontSize: 12, color: theme.palette.warning?.main || "#F59E0B" }}>
+            No publishable key found — the snippet uses a placeholder. Create one in the
+            "Publishable Keys" section below.
+          </Typography>
+        )}
+      </Box>
+
+      {previewOpen && (
+        <Box
+          sx={{
+            mt: 2,
+            p: 2,
+            borderRadius: "10px",
+            border: `1px dashed ${theme.palette.border.main}`,
+            background: theme.palette.mode === "dark" ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.015)",
+          }}
+        >
+          <Typography sx={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.4, textTransform: "uppercase", color: theme.palette.text.secondary, mb: 1 }}>
+            Live preview · $5 · sandbox
+          </Typography>
+          {previewError ? (
+            <Typography
+              data-testid="elements-preview-error"
+              sx={{
+                fontSize: 13,
+                color: theme.palette.error.main,
+                background: "rgba(220,38,38,0.08)",
+                border: "1px solid rgba(220,38,38,0.3)",
+                borderRadius: "8px",
+                padding: "10px 12px",
+              }}
+            >
+              {previewError}
+            </Typography>
+          ) : (
+            <Box
+              ref={previewRef}
+              data-testid="elements-preview-mount"
+              sx={{ display: "flex", justifyContent: "center" }}
+            />
+          )}
+        </Box>
+      )}
+    </Box>
+  );
+};
+
 const ApiKeysPage = ({
   openCreate: openCreateProp,
   setOpenCreate: setOpenCreateProp,
@@ -865,6 +1180,17 @@ const ApiKeysPage = ({
         }}
       >
         <BuyButtonsSection />
+      </Box>
+
+      <Box
+        sx={{
+          mb: isMobile ? 2 : 2.5,
+          opacity: 0,
+          animation: "fadeSlideIn 0.5s ease forwards",
+          ...itemAnimation,
+        }}
+      >
+        <ElementsWidgetCard onCopy={handleCopy} docsUrl={docsUrl} />
       </Box>
 
       <Box
