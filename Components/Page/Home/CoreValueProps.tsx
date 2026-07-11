@@ -1,7 +1,14 @@
 import React, { memo, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Box, Typography } from "@mui/material";
-import { CurrencyExchange, InsertLink, ReceiptLong } from "@mui/icons-material";
+import {
+  CurrencyExchange,
+  InsertLink,
+  ReceiptLong,
+  AspectRatio,
+  SmartButton,
+  Widgets,
+} from "@mui/icons-material";
 import SwissSectionHead from "./SwissSectionHead";
 import { FONT_BODY, FONT_HERO, FONT_TECH, useSwiss } from "./swiss";
 
@@ -38,6 +45,30 @@ const valueProps: ValueProp[] = [
     stat: "100%",
     statLabel: "automated",
     testId: "value-prop-tax",
+  },
+  {
+    icon: <AspectRatio sx={{ fontSize: 22 }} />,
+    titleKey: "coreValue4Title",
+    descriptionKey: "coreValue4Description",
+    stat: "iframe",
+    statLabel: "or modal",
+    testId: "value-prop-embedded-checkout",
+  },
+  {
+    icon: <SmartButton sx={{ fontSize: 22 }} />,
+    titleKey: "coreValue5Title",
+    descriptionKey: "coreValue5Description",
+    stat: "1",
+    statLabel: "HTML tag · no-code",
+    testId: "value-prop-buy-buttons",
+  },
+  {
+    icon: <Widgets sx={{ fontSize: 22 }} />,
+    titleKey: "coreValue6Title",
+    descriptionKey: "coreValue6Description",
+    stat: "5",
+    statLabel: "languages · dark/light",
+    testId: "value-prop-elements",
   },
 ];
 
