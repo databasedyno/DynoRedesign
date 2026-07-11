@@ -227,7 +227,12 @@ app.post('/create-dynopay-session', async (req, res) => {
   - [ ] 2C dashboard UI — CRUD for pks + Buy Buttons (deferred to next session per user request)
   - [ ] 2D pre-created Buy Button objects (`button-id` path)
   - [ ] 2E docs update
-- [ ] Phase 3 — (b) Elements inline widget (intent APIs + elements SDK + status + tests)
+- [~] **Phase 3 — (b) Elements inline widget** (Session 24, 2026-07-11)
+  - [x] **3A backend endpoints** — `POST /api/embed/public/elements/intent`, `POST /api/embed/public/elements/select-currency`, `GET /api/embed/public/elements/status`. Reuses pk middleware (Origin allow-list + rate limit) + `merchantPoolService.reserveAddress` (SAME infra hosted checkout uses) + `currencyConvert` + `generateQRCodeWithLogo`. Intent state in Redis (`elements-intent:<pi_id>`, 24h TTL). Idempotent currency selection; currency switch after `processing`/`succeeded` rejected. **BACKEND-TESTED 17/17 (2 skips are K8s ingress limits, not defects)** — see `backend_test_session24_elements.js` (rerunnable) and `test_result.md` Session 24. T4 reserved ONE real merchant-pool address (USDT-TRC20, $5, idempotent, ~2h reservation, no fund movement).
+  - [x] **3B SDK bindings** — `public/v1/embed.js` grew 16.9k → 32.6k. Added `Dynopay(pk).elements({ appearance }).create('crypto', {amount, currency?, redirectUri?, meta?})` factory with `.mount(selector)`, `.on(event, cb)`, `.destroy()`. UI phases: loading → currency picker grid → address panel (amount + QR + Copy + destination-tag + live status pill polled every 5s + "Change currency"). Events: `currency_selected/succeeded/expired/failed/error`. Appearance API `{theme, accent, radius}`. Backward-compat: `window.Dynopay` is BOTH callable AND has all existing namespace properties (verified via Playwright — `Dynopay.initEmbeddedCheckout` still works). Merchant QA page at `/elements-test.html`.
+  - [ ] 3C dashboard UI ("Elements" tab in `/developer-keys` with snippet + live preview)
+  - [ ] 3D docs (guide + `/documentation` page)
+  - [ ] 3E end-to-end payment test on a real merchant page (would consume real crypto)
 - [x] Docs updated (guide + /documentation — completed 2026-07-11)
 - [ ] Final end-to-end test on a real merchant test page
 

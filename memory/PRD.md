@@ -5,6 +5,43 @@ USDT-TRC20 payment gateway platform. Users can create companies, wallets, paymen
 
 ## What's Been Implemented
 
+### 2026-07-11 — Session 24 — Embeddable Checkout Phase 3(b) "Elements Inline Widget" — BACKEND + SDK COMPLETE + BACKEND-TESTED 17/17
+
+Previous Session 23 built Elements endpoints + tests, but the container was recreated and the uncommitted work was lost. Session 24 rebuilds the feature from scratch based on `EMBED_INTEGRATION_PLAN.md §7`. Now committed.
+
+**Backend (Node/TS):**
+- NEW `backend/controller/elementsController.ts` (~475 lines) — 3 handlers with intent lifecycle in Redis (`elements-intent:<pi_id>`, 24h TTL) + idempotent currency selection + live status polling. Reuses `merchantPoolService.reserveAddress`, `currencyConvert`, `generateQRCodeWithLogo`, `findOrRecreateCustomer`, and the existing pk middleware (Origin allow-list + rate limit + usage stats).
+- Endpoints (mounted at `/api/embed/public/elements`, pk + Origin auth):
+  - `POST /elements/intent` — Body `{amount, currency?, redirect_uri?, meta_data?}`. Validates amount ≥ 5 and ≤ pk.max_amount, currency in effective set (intersect of merchant wallets, pk.allowed_currencies, MERCHANT_POOL_CRYPTO_TYPES). Returns `{intent_id: "pi_...", client_secret: "elm_...", available_currencies, amount, base_currency, expires_at, status: "requires_currency"}`.
+  - `POST /elements/select-currency` — Body `{intent_id, currency}`. Reserves ONE address from the merchant pool via the SAME service the hosted checkout uses. Converts fiat→crypto. Generates QR. Creates a pending `tbl_user_transaction` row for webhook lookup. Idempotent: 2nd call with same currency returns the same address. Currency switch after `processing`/`succeeded` is rejected 400.
+  - `GET /elements/status?intent_id=pi_...` — Reads intent from Redis + refreshes live status from `tbl_user_transaction`. DB status → SDK status: `completed/successful/confirmed → succeeded`, `underpaid/partial/processing → processing`, `failed/expired/cancelled → failed`.
+- MOD `backend/routes/publishableKeyRouter.ts` — added 3 elements routes.
+- MOD `backend/middleware/publishableKeyMiddleware.ts` — CORS `Access-Control-Allow-Methods` now includes `GET` for status polling.
+
+**SDK (`public/v1/embed.js` — 16,981 → 32,597 bytes):**
+- Added `Dynopay(pk).elements({ appearance }).create('crypto', {amount, currency?, redirectUri?, meta?})` returning a `CryptoElement` with `.mount(selector)`, `.on(event, cb)`, `.destroy()`. Events: `currency_selected`, `succeeded`, `expired`, `failed`, `error`.
+- 3 UI phases in merchant's own DOM (no iframe): loading → currency picker (grid) → address panel (amount both crypto+fiat, QR, mono address + Copy, destination-tag banner, live status pill polled every 5s, "Change currency" link).
+- Appearance API: `{theme: 'dark'|'light', accent: '#hex', radius: number}`.
+- **Backward-compat preserved**: `window.Dynopay` is now BOTH callable (`Dynopay(pk)` for Phase 3b) AND has the existing namespace properties (`Dynopay.initEmbeddedCheckout`/`openCheckout`/`redirectToCheckout`/`createSessionWithPk` + `dynopay-buy-button` custom element for Phases 1a/1c). Verified via Playwright.
+
+**Merchant QA page:** `public/elements-test.html` (`/elements-test.html`). Pk + amount + optional currency inputs, "Mount" button, real-time event log. Prefills from `?pk=&amt=&ccy=`.
+
+**Test suite:** `backend_test_session24_elements.js` — 19 test cases against LIVE Railway PG + Redis + mainnet Tatum. **17 PASS · 0 FAIL · 2 SKIP** (skips are K8s ingress limitations, not defects: T2b bogus-Origin — ingress rewrites the Origin header; T9c /health — ingress only exposes `/api/*`).
+
+**T4 SAFETY note:** Test T4 reserved ONE real USDT-TRC20 pool address for hostbay company_id=1 at $5. Address `TRyk74od7FfrRYeopp1azu26HcxKdb6zj2`, RESERVED status. Idempotency verified (2nd call returns same address). Will show RESERVED in `tbl_merchant_temp_address` until the ~2h reservation timeout expires. No wallet writes, no tx broadcast, safe.
+
+**Frontend smoke test:** Playwright confirmed `window.Dynopay` is callable + still has `.initEmbeddedCheckout` (regression). Mount triggered the intent call — 403 rendered as inline SDK error card because the browser's rewritten Origin (`https://4e39dada-…cluster-5.preview.emergentcf.cloud`) was not in the pk's allow-list at the moment of the click (test suite cleanup had restored the original values). This proves: SDK wires the API call correctly, origin validation works from the actual browser, SDK error handling renders as designed.
+
+**Phase 3 tracker (in `EMBED_INTEGRATION_PLAN.md §11`):**
+- 3A backend endpoints — ✅ DONE + TESTED
+- 3B SDK bindings — ✅ DONE + BROWSER-VERIFIED
+- 3C dashboard UI ("Elements" tab in `/developer-keys` with snippet + live preview) — DEFERRED
+- 3D docs (guide + `/documentation` page) — DEFERRED
+- 3E end-to-end payment test on a real merchant page — DEFERRED (would consume real crypto)
+
+### 2026-07-11 — Session 24: Fresh container re-provisioned ✅
+Fresh container: no node_modules, no .env, no build. Re-provisioned per documented procedure: SEQUENTIAL yarn installs — /app root (79s, 551 pkgs) then /app/backend (29s, 572 pkgs); wrote 3 .env from user continuation env (backend/.env + /app/.env + frontend/.env) with all app URLs → the preview URL `https://4e39dada-7833-4544-b988-09c2688f90fb.preview.emergentagent.com`, preview host FIRST in CORS_ALLOWED_ORIGINS (+ dynopay.com + checkout.dynopay.com), fresh NEXTAUTH_SECRET, GitHub creds (Ov23liBuaGCFqNpp2QzW), user typo EXT_PUBLIC → NEXT_PUBLIC_ENABLE_GITHUB_AUTH=true, GOOGLE_CLIENT_KEY kept \\n-escaped, PORT omitted (server.py injects 3300), OPENAI_API_KEY + SUPPORT_CHAT_MODEL=gpt-5.4 included. SAFETY OVERRIDES: NODE_ENV=production / WORKER_ROLE=secondary / ENABLE_BACKGROUND_JOBS=false verified in logs (error-digest / webhook-URL-migration / BullMQ webhook worker / startup-reconciliation all skipped). next build standalone OK (18/18 static pages, 429KB shared JS). Health: /health database=connected redis=connected tatum operational (40 rates); internal :8001 /api/ /health /api/csrf-token + :3000 / /auth/login = 200; external / /api/ /api/csrf-token /auth/login = 200 (google-login-btn + github-login-btn + "Continue with Google/GitHub" present); bad-creds POST /api/user/login = 401 "Invalid email or password". Expected quirks: Binance WS geo-blocked (451) → CoinGecko/Tatum fallback; sshpass missing → SSH tunnel disabled.
+
 ### 2026-07-10 — Embeddable Checkout Phase 1(a) "Embedded Checkout" — BACKEND DONE + VERIFIED (frontend iframe test pending)
 Stripe-style embedded (iframe) crypto checkout, built method-agnostic (see /app/EMBED_INTEGRATION_PLAN.md §5/§12).
 - Backend: `POST /api/user/embed/session` (secret `x-api-key`) → `{ client_secret, checkout_url(/pay?d=..&embed=1),

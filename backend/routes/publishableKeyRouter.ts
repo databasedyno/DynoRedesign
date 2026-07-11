@@ -1,5 +1,5 @@
 /**
- * Publishable Key routes — Phase 2 (Buy Button)
+ * Publishable Key routes — Phase 2 (Buy Button) + Phase 3 (Elements)
  *
  *  DASHBOARD (JWT):
  *    POST   /api/publishable-keys
@@ -9,7 +9,10 @@
  *    DELETE /api/publishable-keys/:id
  *
  *  PUBLIC (browser, pk + Origin):
- *    POST   /api/embed/public/session
+ *    POST   /api/embed/public/session                     — Buy Button
+ *    POST   /api/embed/public/elements/intent             — Elements (b): create intent
+ *    POST   /api/embed/public/elements/select-currency    — Elements (b): pick currency
+ *    GET    /api/embed/public/elements/status             — Elements (b): poll status
  */
 
 import express from "express";
@@ -22,6 +25,11 @@ import {
   deletePublishableKey,
   createPublicEmbedSession,
 } from "../controller/publishableKeyController";
+import {
+  createElementsIntent,
+  selectElementsCurrency,
+  getElementsStatus,
+} from "../controller/elementsController";
 import {
   publishablePublicCors,
   validatePublishableKey,
@@ -40,9 +48,15 @@ publishableKeyRouter.delete("/:id", authMiddleware, deletePublishableKey);
  * CORS is per-request:
  *   - publishablePublicCors reflects the Origin on preflight (OPTIONS)
  *   - validatePublishableKey re-validates the Origin against the pk's
- *     allow-list on the actual POST and re-sets the ACAO header.
+ *     allow-list on the actual POST/GET and re-sets the ACAO header.
  * This keeps the browser happy while still refusing origins that aren't
  * on the merchant's allow-list. */
 export const embedPublicRouter = express.Router();
 embedPublicRouter.use(publishablePublicCors);
+// Buy Button (Phase 2c)
 embedPublicRouter.post("/session", validatePublishableKey, createPublicEmbedSession);
+// Elements inline widget (Phase 3b)
+embedPublicRouter.post("/elements/intent", validatePublishableKey, createElementsIntent);
+embedPublicRouter.post("/elements/select-currency", validatePublishableKey, selectElementsCurrency);
+embedPublicRouter.get("/elements/status", validatePublishableKey, getElementsStatus);
+

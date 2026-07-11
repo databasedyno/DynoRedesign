@@ -108,7 +108,7 @@ export const publishablePublicCors = (
   if (typeof origin === "string" && origin) {
     res.setHeader("Access-Control-Allow-Origin", origin);
     res.setHeader("Vary", "Origin");
-    res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+    res.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
     res.setHeader(
       "Access-Control-Allow-Headers",
       "Content-Type, x-publishable-key, x-dynopay-source, Accept"

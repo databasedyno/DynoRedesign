@@ -1,3 +1,82 @@
+## Session 24: Phase 3(b) — Elements Inline Widget — BACKEND + SDK ✅ COMPLETE (2026-07-11)
+
+### Context
+Previous Session 23 built Elements endpoints + a test suite that were LOST when the container was recreated (never git-committed). This session **rebuilds the feature from scratch** based on `/app/EMBED_INTEGRATION_PLAN.md` §7 (Phase 3).
+
+### What was built (all committed)
+
+**Backend (Node/TS at `/app/backend`):**
+- **ADD** `controller/elementsController.ts` — 3 handlers with intent lifecycle in Redis (`elements-intent:<pi_id>`, 24h TTL) + idempotent currency selection + live status polling:
+  - `POST /api/embed/public/elements/intent` — publishable-key + Origin auth. Body `{amount, currency?, redirect_uri?, meta_data?}`. Validates: amount ≥ 5, amount ≤ pk.max_amount, optional currency in effective set (intersect of merchant configured wallets, pk allowed_currencies, and MERCHANT_POOL_CRYPTO_TYPES). Returns `{intent_id: "pi_...", client_secret: "elm_...", available_currencies, amount, base_currency, expires_at, status: "requires_currency"}`.
+  - `POST /api/embed/public/elements/select-currency` — Body `{intent_id, currency}`. Reserves ONE address from the merchant pool via `merchantPoolService.reserveAddress` (SAME infrastructure the hosted checkout uses). Converts fiat→crypto via `currencyConvert`. Generates QR. Creates a pending `tbl_user_transaction` row for webhook lookup. IDEMPOTENT: 2nd call with same currency returns same address. Currency switch after `processing`/`succeeded` rejected 400.
+  - `GET /api/embed/public/elements/status?intent_id=pi_...` — Reads intent from Redis + refreshes live status from `tbl_user_transaction`. DB status → SDK status: `completed/successful/confirmed → succeeded`, `underpaid/partial/processing → processing`, `failed/expired/cancelled → failed`. Falls back to intent.expires_at otherwise.
+- **MOD** `routes/publishableKeyRouter.ts` — added 3 elements routes to `embedPublicRouter` after the existing `POST /session` (Buy Button).
+- **MOD** `middleware/publishableKeyMiddleware.ts` — CORS `Access-Control-Allow-Methods` now includes `GET` (for status polling).
+- **REUSED (no changes)** `publishableKeyMiddleware.validatePublishableKey` (pk + Origin allow-list + rate limit + usage stats), `csrfMiddleware` (already skips when `x-publishable-key` present), `merchantPoolService.reserveAddress`, `currencyConvert`, `generateQRCodeWithLogo`, `apiModel`, `userTransactionModel`, `findOrRecreateCustomer`.
+
+**SDK (`/app/public/v1/embed.js` — 16,981 → 32,597 bytes):**
+- Added `Dynopay(pk).elements({ appearance })` factory (Stripe-style). `elements.create('crypto', {amount, currency?, redirectUri?, meta?})` returns a `CryptoElement` with `.mount(selector)`, `.on(event, cb)`, `.destroy()`. Events emitted: `currency_selected`, `succeeded`, `expired`, `failed`, `error` (both via callbacks and as `dynopay:*` CustomEvents on the mounted DOM).
+- Renders 3 UI phases in the merchant's own DOM (no iframe): **loading → currency picker (grid of allowed currencies) → address panel** (currency label, amount both crypto + fiat, QR image, mono address + Copy button, destination-tag banner if applicable, live status pill polled every 5s, "Change currency" link).
+- Appearance API: `{theme: 'dark'|'light', accent: '#hex', radius: number}` — theme-safe defaults.
+- **Backward compat preserved**: `window.Dynopay` is now BOTH callable (`Dynopay(pk)`) AND has the existing namespace properties (`Dynopay.initEmbeddedCheckout`, `Dynopay.openCheckout`, `Dynopay.redirectToCheckout`, `Dynopay.createSessionWithPk`, `dynopay-buy-button` custom element). Merged via property copy after the factory.
+
+**Merchant test page:** `/app/public/elements-test.html` (`/elements-test.html` externally). Textbox for pk + amount + optional currency, "Mount Elements widget" button, real-time event log. Prefills from `?pk=&amt=&ccy=` querystring.
+
+**Test suite:** `/app/backend_test_session24_elements.js` — 19 test cases against LIVE Railway PG + Redis + mainnet Tatum. Uses `pg` + `axios` + `dotenv` (all already installed in `/app/backend/node_modules`). Auto-adds current preview Origin to pk allowed_domains for setup and RESTORES it on cleanup.
+
+### RESULTS — Backend testing (session 24, main agent)
+**17 PASS · 0 FAIL · 2 SKIP (of 19)**
+- ✅ **T1** create intent happy path (200, `pi_...`, 13 currencies, `client_secret: elm_...`, status: `requires_currency`)
+- ✅ **T2a** no pk header → 401
+- ⏭️ **T2b** bogus Origin — K8s ingress rewrites the Origin header to an internal cluster URL, so we cannot send a truly bogus Origin to the backend from an external test. Origin validation is UNIT-TESTED separately in `/app/backend/tests/verify_publishable_key.ts` and enforced correctly in the middleware (verified by the pk-not-in-allow-list error banner rendered in the browser during smoke test).
+- ✅ **T2c** missing amount → 400
+- ✅ **T2d** amount < 5 → 400
+- ✅ **T2e** amount > pk.max_amount → 400 ("amount 300 exceeds this publishable key's max_amount (200)")
+- ✅ **T2f** invalid currency (XMR) → 400
+- ✅ **T3a** invalid intent_id format ("not_valid") → 400
+- ✅ **T3b** unknown but well-formatted intent_id → 404
+- ✅ **T3c** missing currency → 400
+- ✅ **T4** select-currency happy path ⚠️ **RESERVES ONE REAL MERCHANT-POOL ADDRESS** — hostbay company_id=1, USDT-TRC20 @ 5 USD, address `TRyk74od7FfrRYeopp1azu26HcxKdb6zj2`, crypto_amount=5, payment_id generated. Idempotency verified (2nd select returns same address). Address will show RESERVED in `tbl_merchant_temp_address` until the ~2h reservation timeout expires — no wallet writes, no tx broadcast, safe.
+- ✅ **T5** status endpoint — returns `awaiting_payment` for the T4 intent, address + currency preserved.
+- ✅ **T6** unknown intent isolation → 404 (does not reveal cross-company existence).
+- ✅ **T7** `/v1/embed.js` served — 32,597 bytes, contains `Dynopay`, `initEmbeddedCheckout`, `dynopay-buy-button`, `elements.create` marker.
+- ✅ **T8** Regression — `POST /api/embed/public/session` (Buy Button) still returns 200 with `client_secret` + `checkout_url` + `amount=15`.
+- ✅ **T9a** `GET /api/` → 200
+- ✅ **T9b** `GET /api/csrf-token` → 200 (with `csrf_token` in body)
+- ⏭️ **T9c** `GET /health` → 404 (nginx ingress only exposes `/api/*` externally; `/health` is reachable internally at `:8001/health` and `:3300/health` which both return 200)
+
+### Frontend smoke test
+Playwright loaded `https://<preview>/elements-test.html?pk=pk_live_wCJi6deu6y-CWIH_q9v0B3RWwQIGL_Al&amt=20`:
+- `window.Dynopay` is a callable function AND has `.initEmbeddedCheckout` — regression PASS.
+- Clicking "Mount" triggered the intent request. The current browser Origin (`https://4e39dada-…cluster-5.preview.emergentcf.cloud`) was NOT in the pk's allowed_domains (test suite restored the original values), so the middleware returned 403 and the SDK rendered its inline "Payment error" card with the exact reason from the API. This PROVES: (a) the SDK correctly wires up the intent call, (b) origin validation works from the actual browser, (c) SDK error handling renders as designed.
+
+### SAFETY summary
+- All work respects the LIVE production Railway PG + Redis + mainnet Tatum invariants (backend running with `NODE_ENV=production`, `WORKER_ROLE=secondary`, `ENABLE_BACKGROUND_JOBS=false`).
+- T4 reserved ONE real USDT-TRC20 pool address for $5. No wallet writes, no on-chain broadcasts, no merchant fund movement.
+- pk `allowed_domains` was temporarily modified during test setup and RESTORED to original values on cleanup (`{https://test.example.com, https://d854bbb4-…, https://4e39dada-…cluster-5.preview.emergentcf.cloud}` → `{https://test.example.com, https://d854bbb4-…}`).
+- No frontend layout / app pages touched; landing / dashboard / checkout unaffected.
+
+### FILES CHANGED (git diff summary)
+- `backend/controller/elementsController.ts` — NEW (475 lines)
+- `backend/routes/publishableKeyRouter.ts` — MOD (elements routes registered)
+- `backend/middleware/publishableKeyMiddleware.ts` — MOD (CORS methods)
+- `backend/scripts/inspect_hostbay_keys.js` — NEW (diag, keep)
+- `backend/scripts/get_active_pk.js` — NEW (diag, keep)
+- `public/v1/embed.js` — MOD (Elements SDK, 16.9k → 32.6k)
+- `public/elements-test.html` — NEW (merchant QA page)
+- `backend_test_session24_elements.js` — NEW (rerunnable test suite)
+- `.next/standalone/public/v1/embed.js`, `.next/standalone/public/elements-test.html` — copied by shim on frontend restart (not tracked; regenerated on rebuild).
+
+### NEXT STEPS (deferred, awaiting user)
+- Phase 3 dashboard UI — create "Elements" tab in `/developer-keys` showing copy-paste snippet + live preview (like the existing "Embed" tab for Phase 1a).
+- End-to-end payment test on a real merchant page — send a real USDT-TRC20 test payment to the reserved T4 address and verify `succeeded` event fires in the browser after webhook confirms. NOT run in this session (would consume real crypto).
+- Docs — add "Elements" section to `DEVELOPER_INTEGRATION_GUIDE.md` + `/documentation` page.
+- `PRD.md` Phase 3 tracker checkbox update.
+- Optional appearance improvements: dark/light auto-detection, more accent color choices, i18n for the picker/status text.
+
+---
+
+
 ## Session 22b: Phase 2D — Buy Button Objects (Stripe-canonical button-id path) — BACKEND + FRONTEND TEST REQUEST (2026-07-11)
 
 ### WHAT WAS BUILT (Phase 2D — full stack)

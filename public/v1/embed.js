@@ -276,7 +276,335 @@
     },
   };
 
-  // ─── (c) <dynopay-buy-button> custom element ────────────────────────────
+  // ─── (b) Elements Inline Widget — native crypto pay UI in your DOM ─────
+  //
+  // Usage:
+  //   const dp = Dynopay('pk_live_...');
+  //   const elements = dp.elements({ appearance: { theme: 'dark', accent: '#CCFF00' } });
+  //   const el = elements.create('crypto', { amount: 20, currency: 'USDT-TRC20' });
+  //   el.mount('#dynopay-crypto-el');
+  //   el.on('succeeded',       (data) => location.href = '/thanks?p=' + data.payment_id);
+  //   el.on('currency_selected', (d) => console.log('picked', d.currency));
+  //
+  // The rendered widget shows: currency picker → address + QR + amount + live status.
+  // Status is polled from GET /api/embed/public/elements/status every 5 seconds until
+  // the payment reaches `succeeded`, `expired`, or `failed`. Fulfillment must still
+  // rely on the server-to-server webhook (X-DynoPay-Signature) — the browser event
+  // is UI-only.
+  var POLL_INTERVAL_MS = 5000;
+
+  function ElementsFactory(pk, cfg) {
+    cfg = cfg || {};
+    var appearance = cfg.appearance || {};
+    return {
+      create: function (type, opts) {
+        if (type !== 'crypto') throw new Error("Dynopay.elements: only 'crypto' element type is supported in v1");
+        return new CryptoElement(pk, opts || {}, appearance);
+      },
+    };
+  }
+
+  function CryptoElement(pk, opts, appearance) {
+    this._pk = pk;
+    this._opts = opts;
+    this._appearance = appearance || {};
+    this._listeners = {};
+    this._root = null;
+    this._parent = null;
+    this._pollTimer = null;
+    this._intent = null;   // { intent_id, client_secret, available_currencies, amount, base_currency }
+    this._selection = null;   // { currency, address, qr_code, amount, destination_tag, payment_id }
+    this._destroyed = false;
+    this._done = false;
+  }
+
+  CryptoElement.prototype.on = function (event, cb) {
+    if (!this._listeners[event]) this._listeners[event] = [];
+    this._listeners[event].push(cb);
+    return this;
+  };
+  CryptoElement.prototype._emit = function (event, payload) {
+    var arr = this._listeners[event] || [];
+    for (var i = 0; i < arr.length; i++) { try { arr[i](payload); } catch (e) { /* swallow */ } }
+    if (this._root) this._root.dispatchEvent(new CustomEvent('dynopay:' + event, { detail: payload, bubbles: true }));
+  };
+
+  CryptoElement.prototype._apiHeaders = function () {
+    return {
+      'Content-Type': 'application/json',
+      'x-publishable-key': this._pk,
+      'x-dynopay-source': 'elements',
+    };
+  };
+
+  CryptoElement.prototype._createIntent = function () {
+    var body = {};
+    if (this._opts.amount != null) body.amount = Number(this._opts.amount);
+    if (this._opts.currency)       body.currency = this._opts.currency;
+    if (this._opts.redirectUri)    body.redirect_uri = this._opts.redirectUri;
+    if (this._opts.meta)           body.meta_data = this._opts.meta;
+    var self = this;
+    return fetch(ORIGIN + '/api/embed/public/elements/intent', {
+      method: 'POST', mode: 'cors', credentials: 'omit',
+      headers: this._apiHeaders(), body: JSON.stringify(body),
+    }).then(function (r) {
+      return r.json().then(function (d) {
+        if (!r.ok || !d || !d.success) throw new Error((d && d.message) || 'Intent creation failed');
+        self._intent = d.data;
+        return d.data;
+      });
+    });
+  };
+
+  CryptoElement.prototype._selectCurrency = function (currency) {
+    var self = this;
+    return fetch(ORIGIN + '/api/embed/public/elements/select-currency', {
+      method: 'POST', mode: 'cors', credentials: 'omit',
+      headers: this._apiHeaders(),
+      body: JSON.stringify({ intent_id: self._intent.intent_id, currency: currency }),
+    }).then(function (r) {
+      return r.json().then(function (d) {
+        if (!r.ok || !d || !d.success) throw new Error((d && d.message) || 'Currency selection failed');
+        self._selection = d.data;
+        return d.data;
+      });
+    });
+  };
+
+  CryptoElement.prototype._fetchStatus = function () {
+    if (!this._intent) return Promise.resolve(null);
+    var self = this;
+    var url = ORIGIN + '/api/embed/public/elements/status?intent_id=' + encodeURIComponent(this._intent.intent_id);
+    return fetch(url, {
+      method: 'GET', mode: 'cors', credentials: 'omit', headers: this._apiHeaders(),
+    }).then(function (r) { return r.json(); }).then(function (d) {
+      return (d && d.data) || null;
+    }).catch(function () { return null; });
+  };
+
+  CryptoElement.prototype._startPolling = function () {
+    var self = this;
+    if (self._pollTimer) return;
+    self._pollTimer = setInterval(function () {
+      if (self._destroyed || self._done) { self._stopPolling(); return; }
+      self._fetchStatus().then(function (data) {
+        if (!data) return;
+        self._renderStatusBanner(data.status);
+        if (data.status === 'succeeded') {
+          self._done = true;
+          self._stopPolling();
+          self._emit('succeeded', data);
+        } else if (data.status === 'expired' || data.status === 'failed') {
+          self._done = true;
+          self._stopPolling();
+          self._emit(data.status, data);
+        }
+      });
+    }, POLL_INTERVAL_MS);
+  };
+  CryptoElement.prototype._stopPolling = function () {
+    if (this._pollTimer) { clearInterval(this._pollTimer); this._pollTimer = null; }
+  };
+
+  /* --- rendering helpers --- */
+  CryptoElement.prototype._theme = function () {
+    var app = this._appearance;
+    var dark = (app.theme || 'dark') !== 'light';
+    return {
+      dark: dark,
+      bg:     dark ? '#0b0b0b' : '#ffffff',
+      panel:  dark ? '#141414' : '#f8fafc',
+      fg:     dark ? '#fafafa' : '#0b0b0b',
+      muted:  dark ? '#a1a1aa' : '#52525b',
+      border: dark ? '#27272a' : '#e4e4e7',
+      accent: app.accent || '#CCFF00',
+      radius: (app.radius != null ? app.radius : 12) + 'px',
+    };
+  };
+  CryptoElement.prototype._h = function (tag, style, text) {
+    var el = document.createElement(tag);
+    if (style) el.style.cssText = style;
+    if (text != null) el.textContent = text;
+    return el;
+  };
+  CryptoElement.prototype._panel = function () {
+    var t = this._theme();
+    var wrap = this._h('div', [
+      'font: 400 14px/1.5 -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif',
+      'color:' + t.fg, 'background:' + t.bg,
+      'border:1px solid ' + t.border, 'border-radius:' + t.radius,
+      'padding:20px', 'max-width:460px', 'box-sizing:border-box',
+    ].join(';'));
+    return wrap;
+  };
+  CryptoElement.prototype._renderLoading = function () {
+    var t = this._theme();
+    var root = this._panel();
+    root.appendChild(this._h('div', 'font-weight:600;font-size:15px;color:' + t.muted + ';margin-bottom:8px;', 'Loading…'));
+    this._swap(root);
+  };
+  CryptoElement.prototype._renderError = function (msg) {
+    var t = this._theme();
+    var root = this._panel();
+    root.appendChild(this._h('div', 'font-weight:600;color:#dc2626;margin-bottom:4px;', 'Payment error'));
+    root.appendChild(this._h('div', 'color:' + t.muted + ';font-size:13px;', msg));
+    this._swap(root);
+    this._emit('error', { message: msg });
+  };
+  CryptoElement.prototype._renderCurrencyPicker = function () {
+    var self = this;
+    var t = this._theme();
+    var root = this._panel();
+    var d = this._intent;
+    root.appendChild(this._h('div', 'font-weight:600;font-size:16px;margin-bottom:4px;', 'Pay with crypto'));
+    root.appendChild(this._h('div', 'color:' + t.muted + ';font-size:13px;margin-bottom:16px;', d.amount + ' ' + d.base_currency + ' · pick a currency'));
+
+    var list = this._h('div', 'display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;');
+    d.available_currencies.forEach(function (c) {
+      var b = self._h('button', [
+        'appearance:none', 'cursor:pointer',
+        'padding:10px 12px', 'font: 500 13px/1 inherit', 'color:' + t.fg,
+        'background:' + t.panel, 'border:1px solid ' + t.border, 'border-radius:10px',
+        'transition:border-color 150ms',
+      ].join(';'), c);
+      b.setAttribute('data-testid', 'elements-currency-' + c);
+      b.onmouseenter = function () { b.style.borderColor = t.accent; };
+      b.onmouseleave = function () { b.style.borderColor = t.border; };
+      b.onclick = function () { self._pickCurrency(c); };
+      list.appendChild(b);
+    });
+    root.appendChild(list);
+
+    root.appendChild(this._h('div', 'color:' + t.muted + ';font-size:11px;margin-top:14px;text-align:center;', 'Secured by Dynopay'));
+    this._swap(root);
+  };
+
+  CryptoElement.prototype._renderAddress = function () {
+    var self = this, t = this._theme(), s = this._selection, d = this._intent;
+    var root = this._panel();
+    root.appendChild(this._h('div', 'font-weight:600;font-size:16px;margin-bottom:2px;', 'Send ' + s.currency));
+    var amountLine = this._h('div', 'color:' + t.muted + ';font-size:13px;margin-bottom:16px;',
+      'Send exactly ' + s.amount + ' ' + s.currency + ' · ' + d.amount + ' ' + d.base_currency);
+    root.appendChild(amountLine);
+
+    if (s.qr_code) {
+      var qrWrap = this._h('div', 'display:flex;justify-content:center;margin-bottom:14px;');
+      var img = document.createElement('img');
+      img.src = s.qr_code;
+      img.alt = s.currency + ' payment QR';
+      img.style.cssText = 'width:200px;height:200px;background:#fff;border-radius:10px;padding:8px;box-sizing:border-box;border:1px solid ' + t.border + ';';
+      qrWrap.appendChild(img);
+      root.appendChild(qrWrap);
+    }
+
+    var addrLabel = this._h('div', 'color:' + t.muted + ';font-size:11px;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;', 'Address');
+    root.appendChild(addrLabel);
+    var addrRow = this._h('div', 'display:flex;gap:8px;align-items:stretch;margin-bottom:12px;');
+    var addr = this._h('div', 'flex:1;font: 400 12px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;background:' + t.panel + ';border:1px solid ' + t.border + ';padding:10px;border-radius:8px;overflow-wrap:anywhere;color:' + t.fg + ';', s.address);
+    addr.setAttribute('data-testid', 'elements-address');
+    addrRow.appendChild(addr);
+    var copy = this._h('button', 'appearance:none;cursor:pointer;padding:8px 14px;background:' + t.accent + ';color:#0b0b0b;border:0;border-radius:8px;font: 500 12px/1 inherit;', 'Copy');
+    copy.onclick = function () { try { navigator.clipboard.writeText(s.address); copy.textContent = 'Copied'; setTimeout(function () { copy.textContent = 'Copy'; }, 1500); } catch (e) { /* older browsers */ } };
+    addrRow.appendChild(copy);
+    root.appendChild(addrRow);
+
+    if (s.destination_tag) {
+      root.appendChild(this._h('div', 'color:#f59e0b;font-size:12px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);padding:8px 10px;border-radius:8px;margin-bottom:12px;', '⚠ Destination tag required: ' + s.destination_tag));
+    }
+
+    // Status banner (updated by polling)
+    this._statusEl = this._h('div', 'display:flex;align-items:center;gap:8px;color:' + t.muted + ';font-size:13px;margin-top:4px;padding:10px 12px;background:' + t.panel + ';border-radius:8px;border:1px solid ' + t.border + ';');
+    this._statusEl.setAttribute('data-testid', 'elements-status');
+    this._renderStatusInto(this._statusEl, 'awaiting_payment');
+    root.appendChild(this._statusEl);
+
+    // "Change currency" link
+    var chg = this._h('button', 'appearance:none;cursor:pointer;margin-top:12px;background:transparent;color:' + t.muted + ';border:0;font: 500 12px/1 inherit;text-decoration:underline;padding:0;', 'Change currency');
+    chg.onclick = function () { if (self._done) return; self._selection = null; self._done = false; self._stopPolling(); self._renderCurrencyPicker(); };
+    root.appendChild(chg);
+
+    this._swap(root);
+    this._startPolling();
+    this._emit('currency_selected', { currency: s.currency, address: s.address, amount: s.amount });
+  };
+
+  CryptoElement.prototype._renderStatusInto = function (el, status) {
+    var t = this._theme();
+    el.innerHTML = '';
+    var dot = this._h('span', 'width:8px;height:8px;border-radius:50%;flex-shrink:0;');
+    var text;
+    if (status === 'succeeded') { dot.style.background = '#10b981'; text = 'Payment received ✓'; el.style.color = '#10b981'; }
+    else if (status === 'processing') { dot.style.background = '#f59e0b'; text = 'Confirming on-chain…'; el.style.color = t.fg; }
+    else if (status === 'expired' || status === 'failed') { dot.style.background = '#dc2626'; text = status.charAt(0).toUpperCase() + status.slice(1); el.style.color = '#dc2626'; }
+    else { dot.style.background = t.accent; text = 'Waiting for payment…'; el.style.color = t.muted; }
+    el.appendChild(dot);
+    el.appendChild(this._h('span', '', text));
+  };
+  CryptoElement.prototype._renderStatusBanner = function (status) {
+    if (this._statusEl) this._renderStatusInto(this._statusEl, status);
+  };
+
+  CryptoElement.prototype._swap = function (newRoot) {
+    if (this._destroyed) return;
+    if (this._root && this._root.parentNode) this._root.parentNode.replaceChild(newRoot, this._root);
+    else if (this._parent) this._parent.appendChild(newRoot);
+    this._root = newRoot;
+  };
+
+  CryptoElement.prototype._pickCurrency = function (currency) {
+    var self = this;
+    this._renderLoading();
+    this._selectCurrency(currency).then(function () {
+      self._renderAddress();
+    }).catch(function (err) {
+      self._renderError(err.message || String(err));
+    });
+  };
+
+  CryptoElement.prototype.mount = function (selector) {
+    var self = this;
+    var parentEl = resolveEl(selector);
+    if (!parentEl) throw new Error('Dynopay Elements: mount target not found: ' + selector);
+    this._parent = parentEl;
+    this._renderLoading();
+    // If a pre-created intent was passed (clientSecret style), skip intent creation.
+    var intentPromise;
+    if (this._opts.intent) {
+      this._intent = this._opts.intent;
+      intentPromise = Promise.resolve(this._intent);
+    } else {
+      intentPromise = this._createIntent();
+    }
+    intentPromise.then(function () {
+      // If currency was passed, auto-select — otherwise show picker
+      if (self._opts.currency && self._intent.available_currencies.indexOf(self._opts.currency) >= 0) {
+        self._pickCurrency(self._opts.currency);
+      } else {
+        self._renderCurrencyPicker();
+      }
+    }).catch(function (err) {
+      self._renderError(err.message || String(err));
+    });
+    return this;
+  };
+
+  CryptoElement.prototype.destroy = function () {
+    this._destroyed = true;
+    this._stopPolling();
+    if (this._root && this._root.parentNode) this._root.parentNode.removeChild(this._root);
+    this._root = null; this._parent = null; this._listeners = {};
+  };
+
+  // Public factory — `const dp = Dynopay('pk_live_...')` returns an SDK client.
+  // Existing global `Dynopay` (holding initEmbeddedCheckout etc.) stays for
+  // Phase 1a — the factory is BOTH a function AND a namespace.
+  function DynopayClient(pk) {
+    return { elements: function (cfg) { return ElementsFactory(pk, cfg); } };
+  }
+  // We wire the callable up below, AFTER the existing `Dynopay` object is
+  // defined, by merging its properties onto the callable.
+
+
   // Rendered as a plain <button> with Dynopay styling. On click it hits the
   // public session endpoint using the pk header, then opens the checkout in
   // the requested mode ("modal" | "redirect" | "inline"). This is the
@@ -408,5 +736,11 @@
     try { window.customElements.define('dynopay-buy-button', BuyButtonElement); } catch (e) { /* older browsers */ }
   }
 
-  window.Dynopay = Dynopay;
+  // Merge the namespace `Dynopay` onto the callable factory so BOTH work:
+  //   const dp = Dynopay('pk_live_...');            // callable factory (b)
+  //   dp.elements().create('crypto').mount('#el');
+  //   Dynopay.initEmbeddedCheckout({...}).then(...); // static (a)/(c)
+  var DynopayCallable = function (pk) { return DynopayClient(pk); };
+  for (var _k in Dynopay) { if (Object.prototype.hasOwnProperty.call(Dynopay, _k)) DynopayCallable[_k] = Dynopay[_k]; }
+  window.Dynopay = DynopayCallable;
 })();
