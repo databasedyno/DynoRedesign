@@ -2229,7 +2229,14 @@ const getAddressBalance = async (address: string, currency: string, skipCache: b
   if (currency === "BTC") {
     res = await tatumSdk.blockchain.bitcoin.btcGetBalanceOfAddress(address);
   } else if (currency === "ETH") {
-    res = await tatumSdk.blockchain.eth.ethGetBalance(address);
+    // FIX (2026-07-11): Validate the SDK response so a transient failure ({}, undefined)
+    // does NOT silently degrade into balance:0 downstream (which would trip the fee
+    // wallet monitor into a false "empty" alert). Same rationale as the TRX branch.
+    const ethRes = await tatumSdk.blockchain.eth.ethGetBalance(address) as { balance?: string | number } | null | undefined;
+    if (!ethRes || (ethRes.balance === undefined || ethRes.balance === null)) {
+      throw new Error(`tatum.ethGetBalance.invalidResponse (address=${address})`);
+    }
+    res = { balance: String(ethRes.balance) };
   } else if (currency === "USDT-ERC20") {
     // FIX (2026-07-08): Tatum SDK's fungibleToken.erc20GetBalance() has been observed
     // returning 0 for addresses that clearly hold USDT on-chain (confirmed via Ethplorer
@@ -2508,7 +2515,13 @@ const getAddressBalance = async (address: string, currency: string, skipCache: b
       } else { throw e; }
     }
   } else if (currency === "POLYGON") {
-    res = await tatumSdk.blockchain.polygon.polygonGetBalance(address);
+    // FIX (2026-07-11): Validate the SDK response — see ETH/TRX branches for rationale.
+    // Guards feeWalletMonitor against a false-empty alert on transient Tatum failures.
+    const polyRes = await tatumSdk.blockchain.polygon.polygonGetBalance(address) as { balance?: string | number } | null | undefined;
+    if (!polyRes || (polyRes.balance === undefined || polyRes.balance === null)) {
+      throw new Error(`tatum.polygonGetBalance.invalidResponse (address=${address})`);
+    }
+    res = { balance: String(polyRes.balance) };
   } else if (currency === "USDT-POLYGON") {
     // FIX (2026-07-08): Mirror USDT-ERC20 REST-first strategy to bypass SDK stale-balance bug.
     try {

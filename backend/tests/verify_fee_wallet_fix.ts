@@ -132,15 +132,36 @@ async function testCheckFeeWalletBalance(): Promise<void> {
   pushResult(
     "checkFeeWalletBalance() returns valid WalletStatus with numeric balance",
     s1OK,
-    `balance=${s1?.balance} liquid=${s1?.liquid} frozen=${s1?.frozen} status=${s1?.status}`
+    `chain=${s1?.chain} balance=${s1?.balance} liquid=${s1?.liquid} frozen=${s1?.frozen} status=${s1?.status}`
   );
   // Second call immediately: cooldown should suppress a duplicate alert (no error)
   const s2 = await mod.checkFeeWalletBalance();
   pushResult(
     "Second immediate check doesn't crash & returns valid status",
     typeof s2?.balance === "number" && Number.isFinite(s2.balance),
-    `balance=${s2?.balance} status=${s2?.status}`
+    `chain=${s2?.chain} balance=${s2?.balance} status=${s2?.status}`
   );
+}
+
+async function testCheckAllFeeWallets(): Promise<void> {
+  console.log("\n=== TEST 4b: multi-chain checkAllFeeWallets() ===");
+  const mod = await import("../services/feeWalletMonitor");
+  const results = await mod.checkAllFeeWallets();
+  const chains = results.map((r) => r.chain);
+  pushResult(
+    "checkAllFeeWallets returns one status per configured chain (TRX+ETH+POLYGON)",
+    chains.includes('TRX') && chains.includes('ETH') && chains.includes('POLYGON') && results.length >= 3,
+    `chains=${chains.join(',')}`
+  );
+  const allValid = results.every((r) => Number.isFinite(r.balance) && !!r.status);
+  pushResult(
+    "Every chain returned a valid numeric balance + status",
+    allValid,
+    results.map((r) => `${r.chain}:${r.balance}(${r.status})`).join(' | ')
+  );
+  // Verify per-chain isolation: even if one chain's Tatum call blipped, the others should
+  // still have status filled in. We don't force a failure here — the above two assertions
+  // cover the happy path. Direct isolation is exercised in TEST 5.
 }
 
 async function testInvalidResponseGuard(): Promise<void> {
@@ -213,6 +234,7 @@ async function main(): Promise<void> {
   await testTrxUnactivatedAccount();
   await testCompareOnChain();
   await testCheckFeeWalletBalance();
+  await testCheckAllFeeWallets();
   await testInvalidResponseGuard();
   await testEthAndPolygonUnchanged();
 
