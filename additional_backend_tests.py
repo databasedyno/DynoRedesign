@@ -8,7 +8,7 @@ import requests
 import json
 import sys
 
-BACKEND_URL = "https://rapid-start-4.preview.emergentagent.com"
+BACKEND_URL = "https://fast-launch-38.preview.emergentagent.com"
 
 def test_additional_scenarios():
     """Test additional scenarios and edge cases"""
