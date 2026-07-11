@@ -2301,16 +2301,93 @@ const getAddressBalance = async (address: string, currency: string, skipCache: b
       // BUG FIX: tronGetAccount returns balance in SUN (1 TRX = 1,000,000 SUN).
       // Must convert to TRX to match how all other chains return human-readable units.
       // Without this, sweep code treats SUN value as TRX, attempting to send ~1M× more than available.
-      res = { balance: (Number(tempRes?.balance || 0) / 1000000).toString() };
+      //
+      // FIX (2026-07-11): Distinguish "account with 0 balance" from "Tatum returned garbage".
+      // Previously: undefined/null/{} → Number(undefined||0)/1e6 = 0 → silent false-empty
+      // → feeWalletMonitor fires "🚨 URGENT: TRX Fee Wallet Empty!" while wallet has funds.
+      // Now: only accept a response that CLEARLY represents a TRON account (has one of
+      // the well-known fields address/create_time/latest_opration_time or an explicit
+      // numeric balance). Otherwise throw so caller can degrade gracefully (skip / re-try).
+      // ALSO: report the TOTAL balance = liquid + frozenV2 (staked for energy/bandwidth).
+      // Operators typically stake TRX so daily gas spend comes from ENERGY (free), leaving
+      // liquid balance low; the staked portion is still theirs (unstakable), and it MUST
+      // count toward "wallet health" for alerting.
+      const acct = tempRes as Record<string, unknown> | undefined | null;
+      const hasAccountShape = !!acct && (
+        typeof (acct as Record<string, unknown>).balance === 'number' ||
+        typeof (acct as Record<string, unknown>).balance === 'string' ||
+        !!(acct as Record<string, unknown>).address ||
+        !!(acct as Record<string, unknown>).create_time ||
+        !!(acct as Record<string, unknown>).latest_opration_time
+      );
+      if (!hasAccountShape) {
+        // Empty {} / undefined / broken response — do NOT masquerade as balance:0.
+        // Throw so upstream (feeWalletMonitor / checkFeeBalance) can safely skip
+        // this cycle instead of firing a false "empty wallet" alert.
+        throw new Error(`tatum.tronGetAccount.invalidResponse (address=${address})`);
+      }
+      // liquid balance in SUN → TRX
+      const liquidSun = Number((acct as Record<string, unknown>).balance || 0);
+      // Stake 2.0 (frozenV2): array of { type?, amount? }
+      const frozenV2 = (acct as Record<string, unknown>).frozenV2;
+      let frozenSun = 0;
+      if (Array.isArray(frozenV2)) {
+        for (const f of frozenV2) {
+          const amt = Number((f as Record<string, unknown>)?.amount || 0);
+          if (Number.isFinite(amt)) frozenSun += amt;
+        }
+      }
+      // Stake 1.0 (legacy `frozen: [{ frozen_balance }]`) — still supported on chain
+      const legacyFrozen = (acct as Record<string, unknown>).frozen;
+      if (Array.isArray(legacyFrozen)) {
+        for (const f of legacyFrozen) {
+          const amt = Number((f as Record<string, unknown>)?.frozen_balance || 0);
+          if (Number.isFinite(amt)) frozenSun += amt;
+        }
+      }
+      // account_resource frozen_balance_for_energy (some SDK versions surface it here)
+      const accountResource = (acct as Record<string, unknown>).account_resource;
+      if (accountResource && typeof accountResource === 'object') {
+        const ar = accountResource as Record<string, unknown>;
+        const arEnergy = Number(ar.frozen_balance_for_energy || 0);
+        if (Number.isFinite(arEnergy)) frozenSun += arEnergy;
+      }
+      const totalSun = liquidSun + frozenSun;
+      res = {
+        // Keep `balance` = LIQUID for backward compat (settlement pre-check,
+        // sweep code, diagnostics all reason about spendable TRX, not staked).
+        balance: (liquidSun / 1000000).toString(),
+        liquid: (liquidSun / 1000000).toString(),
+        frozen: (frozenSun / 1000000).toString(),
+        // Total wallet worth (liquid + frozen). Used by feeWalletMonitor to
+        // avoid spamming low-balance alerts for well-staked fee wallets.
+        total: (totalSun / 1000000).toString(),
+      } as { balance: string; liquid?: string; frozen?: string; total?: string };
     } catch (e: unknown) {
       const err = e as { message?: string };
+      // Only treat "account not found" as a real 0. Everything else is a transient
+      // API failure and MUST propagate up so the caller doesn't send a false alert.
       if ((err.message || '').includes('account.not.found') || (err.message || '').includes('not.found')) {
-        res = { balance: '0' };
+        res = { balance: '0', liquid: '0', frozen: '0', total: '0' } as { balance: string; liquid?: string; frozen?: string; total?: string };
       } else { throw e; }
     }
   } else if (currency === "USDT-TRC20") {
     try {
       const tempRes = await tatumSdk.blockchain.tron.tronGetAccount(address);
+      // FIX (2026-07-11): reject clearly-broken responses (empty {}, undefined) instead
+      // of returning silent balance:0. See TRX branch above for full rationale.
+      const acct = tempRes as Record<string, unknown> | undefined | null;
+      const hasAccountShape = !!acct && (
+        typeof (acct as Record<string, unknown>).balance === 'number' ||
+        typeof (acct as Record<string, unknown>).balance === 'string' ||
+        !!(acct as Record<string, unknown>).address ||
+        !!(acct as Record<string, unknown>).create_time ||
+        !!(acct as Record<string, unknown>).latest_opration_time ||
+        Array.isArray((acct as Record<string, unknown>).trc20)
+      );
+      if (!hasAccountShape) {
+        throw new Error(`tatum.tronGetAccount.invalidResponse (address=${address})`);
+      }
       if (tempRes && tempRes?.trc20 && Array.isArray(tempRes.trc20)) {
         // FIX: Iterate through ALL trc20 entries to find the USDT contract.
         // Previously hardcoded trc20[0] which broke when spam/airdrop tokens

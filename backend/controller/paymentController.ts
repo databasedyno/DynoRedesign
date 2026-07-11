@@ -1389,21 +1389,34 @@ const checkFeeBalance = async () => {
           cronLogger.info(`[checkFeeBalance] ⏭️ Skipping ${wallet_type} — account not activated yet (${adminFeesWallets[i]?.dataValues.wallet_address?.substring(0, 12)}...)`);
           continue;
         }
-        throw balErr;
+        // FIX (2026-07-11): Transient Tatum failures (rate-limit, invalidResponse, timeouts)
+        // MUST NOT abort the whole loop and MUST NOT fabricate a false "empty" alert.
+        // Skip THIS wallet only, keep checking the others; next cron cycle will retry.
+        cronLogger.warn(`[checkFeeBalance] ⚠️ Tatum call failed for ${wallet_type} (${adminFeesWallets[i]?.dataValues.wallet_address?.substring(0, 12)}...): ${errMsg || 'unknown'} — skipping this wallet, will retry next cycle`);
+        continue;
       }
       let amount = adminFeesWallets[i]?.dataValues.amount;
       // NOTE: getAddressBalance() already converts SUN→TRX for TRX currency.
       // Do NOT divide by 1,000,000 again — double-division caused false $0 alerts.
-      let newBalance = currentBalance?.balance;
+      // FIX (2026-07-11): Tatum returns balance as a STRING (e.g. "94.281905"). Coerce
+      // to Number immediately so downstream comparisons (=== 0, !==) work correctly.
+      // Without this: (a) `amount === 0` fails for `"0"` → truly-empty wallets slip past
+      // the "skip unused wallets" guard and get alerted; (b) `newBalance !== dbAmount`
+      // (string vs number) is always true → DB write every cron cycle.
+      const rawNewBalance = currentBalance?.balance;
+      const newBalance: number | undefined = (rawNewBalance === undefined || rawNewBalance === null)
+        ? undefined
+        : Number(rawNewBalance);
+      const dbAmount = Number(adminFeesWallets[i]?.dataValues.amount || 0);
       
       // Quiet mode: only log when balance changes, not every check cycle
-      if (Math.abs(Number(newBalance) - Number(adminFeesWallets[i]?.dataValues.amount)) > 0.000001) {
-        cronLogger.info(`[checkFeeBalance] ${wallet_type}: balance changed ${amount} → ${newBalance}`);
+      if (newBalance !== undefined && Number.isFinite(newBalance) && Math.abs(newBalance - dbAmount) > 0.000001) {
+        cronLogger.info(`[checkFeeBalance] ${wallet_type}: balance changed ${dbAmount} → ${newBalance}`);
       }
       
-      // Only update if newBalance is a valid number
-      if (newBalance !== undefined && newBalance !== null && !isNaN(newBalance)) {
-        if (newBalance !== adminFeesWallets[i]?.dataValues.amount) {
+      // Only update if newBalance is a valid finite number AND meaningfully changed
+      if (newBalance !== undefined && Number.isFinite(newBalance)) {
+        if (Math.abs(newBalance - dbAmount) > 0.000001) {
           amount = newBalance;
           await adminFeeModel.update(
             { amount },
@@ -1413,11 +1426,16 @@ const checkFeeBalance = async () => {
               },
             }
           );
+        } else {
+          amount = dbAmount; // no meaningful change, keep numeric type
         }
       }
 
+      // Coerce amount to a numeric value for the zero/skip check below. This
+      // prevents a Tatum-returned "0" (string) from slipping past the guard.
+      const amountNum = Number(amount);
       // Skip currency conversion if amount is null, undefined, 0, or NaN
-      if (amount === null || amount === undefined || amount === 0 || isNaN(Number(amount))) {
+      if (amount === null || amount === undefined || amountNum === 0 || !Number.isFinite(amountNum)) {
         // Don't alert for zero-balance wallets — they're likely unused/not yet funded
         // Only alert for wallets that HAD balance but dropped below the limit
         cronLogger.debug(`[checkFeeBalance] ${wallet_type}: zero/null balance — skipping (not actively depleted)`);
