@@ -151,26 +151,62 @@ const MockCode: React.FC<{ s: SwissTokens }> = ({ s }) => (
   </Box>
 );
 
-const MockPayLink: React.FC<{ s: SwissTokens }> = ({ s }) => {
+const MockCreatorPage: React.FC<{ s: SwissTokens }> = ({ s }) => {
   const inner = s.dark ? "#0B0B0D" : "#F6F7F4";
   return (
     <Box sx={{ borderRadius: "12px", border: `1px solid ${s.line}`, backgroundColor: inner, p: 2 }}>
+      {/* Creator identity */}
+      <Box sx={{ display: "flex", alignItems: "center", gap: 1.25, mb: 1.5 }}>
+        <Box
+          sx={{
+            width: 38,
+            height: 38,
+            borderRadius: "50%",
+            flexShrink: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            backgroundColor: s.accentSoft,
+            color: s.accentText,
+            border: `1.5px solid ${s.accent}`,
+            fontFamily: FONT_HERO,
+            fontWeight: 600,
+            fontSize: 16,
+          }}
+        >
+          A
+        </Box>
+        <Box sx={{ minWidth: 0 }}>
+          <Typography sx={{ fontFamily: FONT_BODY, fontSize: 13.5, fontWeight: 600, color: s.txt, lineHeight: 1.2 }}>
+            Ava Designs
+          </Typography>
+          <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11, color: s.faint, lineHeight: 1.3 }}>
+            3 links · 128 supporters
+          </Typography>
+        </Box>
+      </Box>
+      {/* Vanity URL */}
       <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1, px: 1.5, py: 1, borderRadius: "8px", border: `1px dashed ${s.lineStrong}`, mb: 1.5 }}>
         <Typography sx={{ fontFamily: FONT_TECH, fontSize: 12, color: s.txt, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-          dynopay.me/ava-designs
+          dynopay.com/
+          <Box component="span" sx={{ color: s.accentText, fontWeight: 600 }}>ava-designs</Box>
         </Typography>
         <ContentCopy sx={{ fontSize: 14, color: s.faint, flexShrink: 0 }} />
       </Box>
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <Box>
-          <Typography sx={{ fontFamily: FONT_BODY, fontSize: 12.5, fontWeight: 500, color: s.txt }}>UI design template</Typography>
-          <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11, color: s.faint }}>one-time payment</Typography>
-        </Box>
-        <Typography sx={{ fontFamily: FONT_HERO, fontWeight: 600, fontSize: 17, color: s.txt }}>$12.00</Typography>
-      </Box>
-      <Box sx={{ display: "flex", alignItems: "center", gap: 0.75, mt: 1.5 }}>
-        <Box sx={{ width: 6, height: 6, borderRadius: "50%", backgroundColor: s.accentText }} />
-        <Typography sx={{ fontFamily: FONT_TECH, fontSize: 10.5, letterSpacing: "0.08em", color: s.sub }}>LINK ACTIVE · 0 CODE REQUIRED</Typography>
+      {/* Support CTA */}
+      <Box
+        sx={{
+          py: 1.1,
+          borderRadius: "8px",
+          textAlign: "center",
+          backgroundColor: s.accent,
+          color: "#0A0A0A",
+          fontFamily: FONT_BODY,
+          fontWeight: 600,
+          fontSize: 13,
+        }}
+      >
+        Support my work →
       </Box>
     </Box>
   );
@@ -262,7 +298,7 @@ const UseCasesBento: React.FC = () => {
         </BentoCard>
 
         <BentoCard s={s} span={{ xs: "span 12", md: "span 5" }} testId="usecase-card-creators" tag={t("useCase2Tag")} title={t("useCase2Title")} description={t("useCase2Description")}>
-          <MockPayLink s={s} />
+          <MockCreatorPage s={s} />
         </BentoCard>
 
         <BentoCard s={s} span={{ xs: "span 12", md: "span 7" }} testId="usecase-card-marketplaces" tag={t("useCase4Tag")} title={t("useCase4Title")} description={t("useCase4Description")}>

@@ -216,6 +216,12 @@ const CryptoTransfer = ({
   const theme = useTheme();
   const isDark = theme.palette.mode === 'dark';
   const dispatch = useDispatch();
+  // Brand accent (lime) — used for selection + primary affordances to match
+  // the landing page and donation checkout. Green (#10B981/#12B76A) is kept
+  // ONLY for payment-detected/confirmed states (universal "success" signal).
+  const ACCENT = '#CCFF00';
+  const ON_ACCENT = '#0A0A0B';
+  const ACCENT_SOFT = isDark ? 'rgba(204,255,0,0.12)' : 'rgba(204,255,0,0.16)';
   const [selectedCrypto, setSelectedCrypto] = useState("");
   const [selectedNetwork, setSelectedNetwork] = useState<
     "" | "TRC20" | "ERC20" | "POLYGON" | "XRPL"
@@ -1693,13 +1699,13 @@ const CryptoTransfer = ({
                       px: 0.5,
                       cursor: "pointer",
                       borderRadius: "12px",
-                      border: `1.5px solid ${isSelected ? "#10B981" : theme.palette.border.main}`,
+                      border: `1.5px solid ${isSelected ? ACCENT : theme.palette.border.main}`,
                       backgroundColor: isSelected
-                        ? (isDark ? "rgba(16,185,129,0.12)" : "#ECFDF5")
+                        ? ACCENT_SOFT
                         : theme.palette.background.paper,
                       transition: "border-color 0.15s ease, background-color 0.15s ease",
                       "&:hover": {
-                        borderColor: isSelected ? "#10B981" : theme.palette.text.disabled,
+                        borderColor: isSelected ? ACCENT : theme.palette.text.disabled,
                       },
                     }}
                   >
@@ -1743,12 +1749,12 @@ const CryptoTransfer = ({
                 <Typography
                   key={net}
                   component="button"
-                  border={`1.5px solid ${selectedNetwork === net ? "#10B981" : theme.palette.border.main}`}
+                  border={`1.5px solid ${selectedNetwork === net ? ACCENT : theme.palette.border.main}`}
                   padding="7px 16px"
                   fontSize="13px"
                   fontWeight={600}
                   bgcolor={selectedNetwork === net
-                    ? (isDark ? 'rgba(16,185,129,0.12)' : '#ECFDF5')
+                    ? ACCENT_SOFT
                     : theme.palette.background.paper}
                   color={theme.palette.text.primary}
                   borderRadius="10px"
@@ -1759,6 +1765,25 @@ const CryptoTransfer = ({
                   {net}
                 </Typography>
               ))}
+              {availableUSDTNetworks.includes('TRC20') && (
+                <Typography
+                  component="span"
+                  data-testid="lowfee-hint"
+                  sx={{
+                    width: '100%',
+                    mt: 0.25,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 0.5,
+                    fontFamily: 'var(--font-sans)',
+                    fontSize: '11.5px',
+                    color: theme.palette.text.secondary,
+                  }}
+                >
+                  <Icon icon="mdi:leaf" width={13} color="#10B981" />
+                  {t('crypto.lowestFeeHint', { defaultValue: 'TRC-20 usually has the lowest network fees.' })}
+                </Typography>
+              )}
             </Box>
           ) : (
             <Box 
@@ -1800,12 +1825,12 @@ const CryptoTransfer = ({
                 <Typography
                   key={net}
                   component="button"
-                  border={`1.5px solid ${selectedNetwork === net ? "#10B981" : theme.palette.border.main}`}
+                  border={`1.5px solid ${selectedNetwork === net ? ACCENT : theme.palette.border.main}`}
                   padding="7px 16px"
                   fontSize="13px"
                   fontWeight={600}
                   bgcolor={selectedNetwork === net
-                    ? (isDark ? 'rgba(16,185,129,0.12)' : '#ECFDF5')
+                    ? ACCENT_SOFT
                     : theme.palette.background.paper}
                   color={theme.palette.text.primary}
                   borderRadius="10px"
@@ -1907,6 +1932,8 @@ const CryptoTransfer = ({
                   )}
                 </Box>
                 <Box
+                  onClick={handleCopyAddress}
+                  data-testid="copy-address-row"
                   display="flex"
                   alignItems="center"
                   justifyContent="space-between"
@@ -1915,6 +1942,7 @@ const CryptoTransfer = ({
                   padding="10px 12px"
                   borderRadius="10px"
                   bgcolor={theme.palette.background.paper}
+                  sx={{ cursor: 'pointer', transition: 'border-color 0.15s ease', '&:hover': { borderColor: ACCENT } }}
                 >
                   <Typography
                     variant="body2"
@@ -2061,6 +2089,26 @@ const CryptoTransfer = ({
                     </Typography>
                   </Box>
                 )}
+              </Box>
+
+              <Box
+                data-testid="checkout-trust-strip"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                gap={0.75}
+                mt={1.5}
+                px={1}
+              >
+                <Icon icon="mdi:shield-check" width={14} color={isDark ? ACCENT : '#10B981'} />
+                <Typography
+                  fontSize="11.5px"
+                  fontFamily="var(--font-sans)"
+                  color={theme.palette.text.secondary}
+                  textAlign="center"
+                >
+                  {t('crypto.trustNote', { defaultValue: 'Funds go directly to the merchant · amount locked until the timer ends' })}
+                </Typography>
               </Box>
 
               {!isRecived && (

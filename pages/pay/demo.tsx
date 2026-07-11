@@ -404,19 +404,21 @@ const PaymentDemo = () => {
                       startIcon={<BitCoinGreenIcon width={7} />}
                       data-testid="crypto-payment-btn"
                       sx={{
-                        background: 'linear-gradient(135deg, #12B76A 0%, #0E9F5C 100%)',
-                        color: '#fff',
+                        backgroundColor: '#CCFF00',
+                        color: '#0A0A0B',
                         textTransform: 'none',
                         borderRadius: '12px',
-                        fontWeight: 700,
+                        fontWeight: 800,
                         py: 1.25,
                         fontSize: '14px',
                         minHeight: 46,
-                        letterSpacing: '0.2px',
-                        boxShadow: '0 4px 14px rgba(18, 183, 106, 0.3)',
+                        letterSpacing: '0.1px',
+                        boxShadow: '0 4px 14px rgba(204,255,0,0.28)',
+                        transition: 'filter 0.2s ease, box-shadow 0.2s ease',
                         '&:hover': {
-                          background: 'linear-gradient(135deg, #0E9F5C 0%, #0C8A50 100%)',
-                          boxShadow: '0 6px 20px rgba(18, 183, 106, 0.4)',
+                          backgroundColor: '#CCFF00',
+                          filter: 'brightness(1.05)',
+                          boxShadow: '0 6px 20px rgba(204,255,0,0.4)',
                         },
                       }}
                     >
