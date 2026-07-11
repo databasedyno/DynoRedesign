@@ -1375,7 +1375,7 @@ const DocumentationPage = () => {
                 </Box>
                 <Typography sx={{ fontSize: 13, fontWeight: 600, fontFamily: "var(--font-hero), var(--font-sans)", color: "text.primary", mb: 1 }}>Quick Example (Userless — API Key Only)</Typography>
                 {/* Language tabs */}
-                <Box sx={{ display: "flex", gap: 0.5, mb: 1.25, flexWrap: "wrap" }}>
+                <Box role="tablist" aria-label="Code language" sx={{ display: "flex", gap: 0.5, mb: 1.25, flexWrap: "wrap" }}>
                   {([
                     { key: "curl", label: "cURL" },
                     { key: "node", label: "Node.js" },
@@ -1387,6 +1387,9 @@ const DocumentationPage = () => {
                         key={tab.key}
                         component="button"
                         type="button"
+                        role="tab"
+                        aria-selected={active}
+                        data-testid={`gs-lang-${tab.key}`}
                         onClick={() => setGsLang(tab.key)}
                         sx={{
                           cursor: "pointer",
@@ -1773,9 +1776,9 @@ app.post('/webhooks/dynopay', (req, res) => {
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
             sx={{
               position: "fixed",
-              bottom: 24,
+              bottom: { xs: 88, md: 96 },
               right: 24,
-              zIndex: 1200,
+              zIndex: 1300,
               background: dk ? "#CCFF00" : "#0A0A0A",
               color: dk ? "#0A0A0A" : "#FFFFFF",
               boxShadow: "0 6px 20px rgba(0,0,0,0.25)",
