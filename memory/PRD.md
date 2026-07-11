@@ -5,6 +5,15 @@ USDT-TRC20 payment gateway platform. Users can create companies, wallets, paymen
 
 ## What's Been Implemented
 
+### 2026-07-10 — Embeddable Checkout (a/b/c) — PLAN CREATED (not started)
+User wants Stripe-style embeds: (a) Embedded Checkout [iframe], (b) Elements inline widget, (c) Buy Button.
+Full implementation plan + phased checklists + API contracts + security model live in **`/app/EMBED_INTEGRATION_PLAN.md`**.
+Key facts captured there: single SECRET api key today (`dpk_live_`/`dpk_test_`), need a NEW publishable key (`pk_live_`)
+for (b)/(c); `server.ts` helmet sets `frame-ancestors 'none'` (blocks all iframing — must relax per-embed-route);
+checkout is `/pay?d=<token>` with an existing `Pay3Layout embedded` mode. Recommended build order: (a) → (c) → (b).
+Resume by reading that doc's §1 + §11 tracker.
+
+
 ### 2026-07-10 — Session 20b: Brand casing "DynoPay"→"Dynopay" (end-to-end) + similar-overflow hardening ✅ FIXED + VERIFIED
 
 **User request:** (1) fix brand casing — it's "Dynopay" not "DynoPay" — everywhere that matters; (2) analyze/fix
