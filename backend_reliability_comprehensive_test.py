@@ -10,7 +10,7 @@ import json
 import time
 
 # Configuration
-BASE_URL = "https://multi-coin-processor.preview.emergentagent.com"
+BASE_URL = "https://credentials-48.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 # Test credentials
