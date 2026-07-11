@@ -1,3 +1,24 @@
+## Session 20d: Embedded Checkout Phase 1a — FRONTEND TEST REQUEST (2026-07-10)
+
+Verify the two frontend deliverables of Embedded Checkout (Phase 1a). Preview:
+https://f490872d-1104-4f03-a264-7e1f78811335.preview.emergentagent.com  (LIVE prod — clean up any created key).
+
+PART 1 — Dashboard "Embedded Checkout" snippet card (token = hostbay@moxx.co; it has an API key so the page is not empty):
+- Navigate to /developer-keys. Assert an "Embedded Checkout" card renders below the API key cards, containing 3 code
+  snippets labelled "1 · Server — create session", "2 · Client — mount checkout", "Optional — modal", each with a "Copy"
+  button, and a "View full guide" button. Click a Copy button → expect a "Copied" toast / no error. Screenshot.
+
+PART 2 — Live iframe embed (uses QA test key; clean up after):
+- Mint tokens (`node /app/scripts/mint_ux_tokens.js`); use qa.onboard.1782585233@dynopaytest.com.
+- Create a disposable secret key: POST /api/userApi/addApi (JWT) {company_id, base_currency:"USD", api_name:"embed-fe-test"}; capture plaintext dpk_ key.
+- Create a session: POST /api/user/embed/session (header x-api-key) {amount:50}; capture data.client_secret.
+- Load /embed-test.html?cs=<client_secret>. Click "Mount inline checkout" (data-testid=embed-mount-btn) → assert an <iframe> appears in #dynopay-checkout (embed-inline-container) whose src = <BASE>/pay?d=<cs>&embed=1, the iframe loads the checkout WITHOUT the site header/footer (embedded mode), and it has a non-trivial height (resize worked). Screenshot.
+- Reload, click "Open modal checkout" (data-testid=embed-modal-btn) → assert a centered overlay with an iframe appears; the close (×) button removes it. Screenshot.
+- CLEANUP: DELETE the created key (GET /api/userApi/getApi → DELETE /api/userApi/deleteApi/:id).
+Report PASS/FAIL per part with screenshots + evidence. Confirm cleanup.
+
+---
+
 ## Session 20c: Embeddable Checkout — Phase 1 (a) Embedded Checkout — BACKEND TEST REQUEST (2026-07-10)
 
 ### CONTEXT / WHAT WAS BUILT (Phase 1a of /app/EMBED_INTEGRATION_PLAN.md)

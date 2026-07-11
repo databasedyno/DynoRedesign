@@ -428,6 +428,180 @@ const ApiKeyCard = ({ title, apiRow, onCopy, onDelete, onRegenerate, onToggleSta
   );
 };
 
+const SnippetBlock = ({
+  label,
+  code,
+  onCopy,
+}: {
+  label: string;
+  code: string;
+  onCopy: (v: string) => void;
+}) => {
+  const theme = useTheme();
+  return (
+    <Box sx={{ mt: 1.5 }}>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          mb: 0.5,
+        }}
+      >
+        <Typography
+          sx={{
+            fontSize: 12,
+            fontWeight: 700,
+            letterSpacing: 0.4,
+            textTransform: "uppercase",
+            color: theme.palette.text.secondary,
+          }}
+        >
+          {label}
+        </Typography>
+        <Box
+          component="button"
+          type="button"
+          onClick={() => onCopy(code)}
+          sx={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 0.5,
+            border: `1px solid ${theme.palette.border.main}`,
+            background: "transparent",
+            color: theme.palette.text.secondary,
+            borderRadius: "6px",
+            px: 1,
+            py: 0.4,
+            cursor: "pointer",
+            fontSize: 12,
+            fontFamily: "var(--font-sans)",
+            "&:hover": { color: theme.palette.text.primary },
+          }}
+        >
+          <Image src={CopyIcon.src} alt="Copy" width={14} height={14} />
+          Copy
+        </Box>
+      </Box>
+      <Box
+        component="pre"
+        sx={{
+          m: 0,
+          p: 1.5,
+          borderRadius: "8px",
+          overflowX: "auto",
+          background: theme.palette.mode === "dark" ? "rgba(255,255,255,0.04)" : "#0b0b0b",
+          color: theme.palette.mode === "dark" ? "#d6f7c2" : "#e6e6e6",
+          fontSize: 12.5,
+          lineHeight: 1.6,
+          fontFamily: "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+          whiteSpace: "pre",
+          border: `1px solid ${theme.palette.border.main}`,
+        }}
+      >
+        {code}
+      </Box>
+    </Box>
+  );
+};
+
+const EmbeddedCheckoutCard = ({
+  onCopy,
+  docsUrl,
+}: {
+  onCopy: (v: string) => void;
+  docsUrl: string;
+}) => {
+  const theme = useTheme();
+  const baseUrl =
+    (process.env.NEXT_PUBLIC_BASE_URL as string) ||
+    (typeof window !== "undefined" ? window.location.origin : "https://checkout.dynopay.com");
+
+  const serverSnippet =
+`// 1) YOUR SERVER (Node) — the secret key stays here, never in the browser
+const res = await fetch("` + baseUrl + `/api/user/embed/session", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "x-api-key": process.env.DYNOPAY_API_KEY,   // your secret API key
+  },
+  body: JSON.stringify({
+    amount: 50,
+    redirect_uri: "https://your-site.com/thank-you",
+    allowed_origins: ["https://your-site.com"],
+  }),
+});
+const { data } = await res.json();
+return data.client_secret;   // send this to your frontend`;
+
+  const clientSnippet =
+`<!-- 2) YOUR CHECKOUT PAGE (browser) — no secret key here -->
+<div id="dynopay-checkout"></div>
+<script src="` + baseUrl + `/v1/embed.js"></script>
+<script>
+  const checkout = await Dynopay.initEmbeddedCheckout({
+    fetchClientSecret: () =>
+      fetch("/create-dynopay-session")   // your server route from step 1
+        .then(r => r.json())
+        .then(d => d.client_secret),
+    onComplete: () => { window.location.href = "/thank-you"; },
+  });
+  checkout.mount("#dynopay-checkout");
+</script>`;
+
+  const modalSnippet =
+`// Prefer a popup? Open the checkout in a modal instead of inline:
+Dynopay.openCheckout({ fetchClientSecret, onComplete });`;
+
+  return (
+    <Box
+      sx={{
+        border: `1px solid ${theme.palette.border.main}`,
+        borderRadius: "12px",
+        background: theme.palette.background.paper,
+        p: { xs: 2, sm: 2.5 },
+      }}
+    >
+      <Typography
+        sx={{
+          fontSize: 18,
+          fontWeight: 700,
+          color: theme.palette.text.primary,
+          fontFamily: "var(--font-sans)",
+        }}
+      >
+        Embedded Checkout
+      </Typography>
+      <Typography sx={{ mt: 0.5, fontSize: 14, color: theme.palette.text.secondary }}>
+        Accept crypto directly on your site — no redirect. Your server creates a
+        session with your secret key, then the browser mounts the checkout in an
+        iframe. Always confirm payments via webhooks, not the browser event.
+      </Typography>
+
+      <SnippetBlock label="1 · Server — create session" code={serverSnippet} onCopy={onCopy} />
+      <SnippetBlock label="2 · Client — mount checkout" code={clientSnippet} onCopy={onCopy} />
+      <SnippetBlock label="Optional — modal" code={modalSnippet} onCopy={onCopy} />
+
+      <Box sx={{ mt: 2 }}>
+        <CustomButton
+          label="View full guide"
+          endIcon={<ArrowOutwardIcon sx={{ fontSize: 16 }} />}
+          variant="outlined"
+          sx={{
+            borderColor: theme.palette.primary.main,
+            color: theme.palette.primary.main,
+            "&:hover": {
+              background: theme.palette.mode === "dark" ? "rgba(204,255,0,0.08)" : "#f0f5ff",
+              borderColor: theme.palette.primary.main,
+            },
+          }}
+          onClick={() => docsUrl && window.open(docsUrl, "_blank", "noopener,noreferrer")}
+        />
+      </Box>
+    </Box>
+  );
+};
+
 const ApiKeysPage = ({
   openCreate: openCreateProp,
   setOpenCreate: setOpenCreateProp,
@@ -657,6 +831,17 @@ const ApiKeysPage = ({
           <ApiDocumentationCard docsUrl={docsUrl} />
         </Grid>
       </Grid>
+
+      <Box
+        sx={{
+          mb: isMobile ? 2 : 2.5,
+          opacity: 0,
+          animation: "fadeSlideIn 0.5s ease forwards",
+          ...itemAnimation,
+        }}
+      >
+        <EmbeddedCheckoutCard onCopy={handleCopy} docsUrl={docsUrl} />
+      </Box>
 
       <Box
         sx={{
