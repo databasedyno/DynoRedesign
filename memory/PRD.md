@@ -5,6 +5,18 @@ USDT-TRC20 payment gateway platform. Users can create companies, wallets, paymen
 
 ## What's Been Implemented
 
+### 2026-07-10 — Embeddable Checkout Phase 1(a) "Embedded Checkout" — BACKEND DONE + VERIFIED (frontend iframe test pending)
+Stripe-style embedded (iframe) crypto checkout, built method-agnostic (see /app/EMBED_INTEGRATION_PLAN.md §5/§12).
+- Backend: `POST /api/user/embed/session` (secret `x-api-key`) → `{ client_secret, checkout_url(/pay?d=..&embed=1),
+  payment_methods:[{type:'crypto',currencies}], ui_mode:'embedded', expires_at, fee_payer }`. Reuses createPayment
+  flow (only writes Redis `customer-<id>`, no address reserved). **Backend-tested 7/7 (Session 20c)** incl. auth/min/bad-key
+  negatives, session persistence, cleanup.
+- Frontend SDK: `/v1/embed.js` (window.Dynopay.initEmbeddedCheckout / openCheckout(modal) / redirectToCheckout).
+- `/pay?...&embed=1` renders embedded (Pay3Layout embed hides chrome) + `EmbedBridge` posts dynopay:ready/resize/
+  success/redirect to parent. Merchant test page: `/embed-test.html?cs=<client_secret>`.
+- PENDING: frontend iframe-mount test (needs user OK), Dashboard "Embed" snippet UI, docs, then Phases (c)+(b).
+
+
 ### 2026-07-10 — Embeddable Checkout (a/b/c) — PLAN CREATED (not started)
 User wants Stripe-style embeds: (a) Embedded Checkout [iframe], (b) Elements inline widget, (c) Buy Button.
 Full implementation plan + phased checklists + API contracts + security model live in **`/app/EMBED_INTEGRATION_PLAN.md`**.

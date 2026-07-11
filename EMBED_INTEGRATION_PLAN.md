@@ -219,12 +219,14 @@ app.post('/create-dynopay-session', async (req, res) => {
 
 ## 11. Progress tracker
 
-- [ ] Phase 0 — Foundations (embed.js host, embeddable route, dynamic frame-ancestors, postMessage, session store)
-- [ ] Phase 1 — (a) Embedded Checkout (backend session + embed.js mount/modal + dashboard snippet + tests)
+- [~] **Phase 0 — Foundations**: embed.js host ✅ (`/v1/embed.js`), embeddable route ✅ (reused `/pay?...&embed=1`), postMessage ✅ (EmbedBridge: ready/resize/success/redirect), session store ✅ (Redis `customer-<id>`). ⬜ dynamic `frame-ancestors` per allowed_origins (DEFERRED — origins are now stored on the session; enforcement is a follow-up. Frontend currently sets no X-Frame-Options, so framing already works).
+- [~] **Phase 1 — (a) Embedded Checkout**: backend `POST /api/user/embed/session` ✅ (BACKEND-TESTED 7/7, Session 20c), `GET /pay?...&embed=1` embedded render ✅, `embed.js` `initEmbeddedCheckout`/`openCheckout`(modal)/`redirectToCheckout` ✅, merchant test page `/embed-test.html` ✅. ⬜ Dashboard "Embed" snippet UI. ⬜ Frontend iframe-mount test (needs user go-ahead).
 - [ ] Phase 2 — (c) Buy Button (publishable key + web component + dashboard + tests)
 - [ ] Phase 3 — (b) Elements inline widget (intent APIs + elements SDK + status + tests)
 - [ ] Docs updated (guide + /documentation)
 - [ ] Final end-to-end test on a real merchant test page
+
+**Session 20c (2026-07-10) delivered:** backend embed-session endpoint (method-agnostic), `/v1/embed.js` SDK, `/pay` embed mode + `EmbedBridge`, `/embed-test.html`. Backend verified 7/7. Files: `backend/routes/merchantApiRouter.ts` (route), `public/v1/embed.js`, `public/embed-test.html`, `Components/Common/EmbedBridge.tsx`, `Components/Layout/Pay3Layout.tsx`, `pages/pay/index.tsx`.
 
 ---
 
