@@ -312,7 +312,7 @@ const Header = ({ pageName, component }: HeaderProps) => {
               onClick={() => {
                 setOpen(false);
                 setAnchorEl(null);
-                router.push("/profile");
+                router.push("/settings?section=profile");
               }}
             >
               {t("myProfile")}

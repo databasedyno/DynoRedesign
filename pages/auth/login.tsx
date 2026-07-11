@@ -48,7 +48,6 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
-import { signIn } from "next-auth/react";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
@@ -185,7 +184,12 @@ export default function Login() {
         dispatch({ type: USER_LOGIN_OTP_RESET });
       }
       setTimeout(() => {
-        router.replace("/dashboard");
+        // Only navigate once the token is actually persisted — guards against
+        // an iOS localStorage write-visibility race that would otherwise land
+        // the user on the dashboard guard before the token is readable.
+        if (typeof window !== "undefined" && localStorage.getItem("token")) {
+          router.replace("/dashboard");
+        }
       }, 600);
     }
   }, [userState, router, isPasswordRecoveryMode]);
@@ -858,52 +862,69 @@ export default function Login() {
     setMobileTouched(false);
   };
 
-  // Handle Google social login
-  // Uses client-side Google Sign-In to avoid NextAuth /api/auth/* route conflicts
-  // with K8s ingress. Falls back to NextAuth if client-side fails.
+  // Handle Google social login — stays on the SAME page via the Google Identity
+  // Services popup token flow (no full-page redirect). The GIS script is loaded
+  // async in _document.tsx, so we briefly wait for it to be ready on click.
+  const runGoogleTokenFlow = () => {
+    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+    const tokenClient = (window as any).google.accounts.oauth2.initTokenClient({
+      client_id: clientId,
+      scope: "openid email profile",
+      callback: async (tokenResponse: any) => {
+        if (tokenResponse?.access_token) {
+          try {
+            const res = await axiosBaseApi.post("user/google-signin", {
+              accessToken: tokenResponse.access_token,
+            });
+            const { data, message } = res?.data || {};
+            if (data?.userData && data?.accessToken) {
+              dispatch({ type: TOAST_SHOW, payload: { message: message || "Login successful" } });
+              dispatch({ type: USER_LOGIN, payload: { ...data.userData, accessToken: data.accessToken, refreshToken: data.refreshToken } });
+            } else {
+              throw new Error("Invalid response");
+            }
+          } catch (e: any) {
+            const msg = e.response?.data?.message ?? e.message ?? "Google login failed";
+            dispatch({ type: TOAST_SHOW, payload: { message: msg, severity: "error" } });
+          }
+        }
+      },
+    });
+    tokenClient.requestAccessToken();
+  };
+
   const handleGoogleLogin = async () => {
     const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
     if (!clientId) {
-      // Fallback to NextAuth
-      signIn("google", { callbackUrl: "/auth/validateSocialLogin" });
+      dispatch({ type: TOAST_SHOW, payload: { message: "Google sign-in is not configured", severity: "error" } });
       return;
     }
 
-    try {
-      // Try loading Google Identity Services
-      if (typeof window !== "undefined" && (window as any).google?.accounts?.oauth2) {
-        const tokenClient = (window as any).google.accounts.oauth2.initTokenClient({
-          client_id: clientId,
-          scope: "openid email profile",
-          callback: async (tokenResponse: any) => {
-            if (tokenResponse?.access_token) {
-              try {
-                const res = await axiosBaseApi.post("user/google-signin", {
-                  accessToken: tokenResponse.access_token,
-                });
-                const { data, message } = res?.data || {};
-                if (data?.userData && data?.accessToken) {
-                  dispatch({ type: TOAST_SHOW, payload: { message: message || "Login successful" } });
-                  dispatch({ type: USER_LOGIN, payload: { ...data.userData, accessToken: data.accessToken, refreshToken: data.refreshToken } });
-                } else {
-                  throw new Error("Invalid response");
-                }
-              } catch (e: any) {
-                const msg = e.response?.data?.message ?? e.message ?? "Google login failed";
-                dispatch({ type: TOAST_SHOW, payload: { message: msg, severity: "error" } });
-              }
-            }
-          },
-        });
-        tokenClient.requestAccessToken();
-      } else {
-        // Google Identity Services not loaded, fallback to NextAuth
-        signIn("google", { callbackUrl: "/auth/validateSocialLogin" });
-      }
-    } catch {
-      // Fallback to NextAuth
-      signIn("google", { callbackUrl: "/auth/validateSocialLogin" });
+    // Wait (up to ~2.5s) for the async GIS script to finish loading, then open
+    // the popup. We intentionally do NOT fall back to a full-page redirect so
+    // the user always stays on this page.
+    const isGisReady = () =>
+      typeof window !== "undefined" && !!(window as any).google?.accounts?.oauth2;
+
+    if (isGisReady()) {
+      runGoogleTokenFlow();
+      return;
     }
+
+    let waited = 0;
+    const poll = setInterval(() => {
+      waited += 150;
+      if (isGisReady()) {
+        clearInterval(poll);
+        runGoogleTokenFlow();
+      } else if (waited >= 2500) {
+        clearInterval(poll);
+        dispatch({
+          type: TOAST_SHOW,
+          payload: { message: "Google sign-in is still loading — please try again in a moment.", severity: "error" },
+        });
+      }
+    }, 150);
   };
 
   // Handle GitHub social login — standard OAuth authorization-code redirect flow.

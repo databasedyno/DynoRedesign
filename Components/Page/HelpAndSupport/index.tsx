@@ -4,13 +4,12 @@ import { useTranslation } from "react-i18next";
 import MessageIcon from "@/assets/Icons/MessageIcon.svg";
 import Image from "next/image";
 import {
-    FooterCard,
     FooterIconButton,
     SearchIconButton,
     TextDecoration,
 } from "./styled";
 import ArrowOutwardIcon from "@mui/icons-material/ArrowOutward";
-import { theme as staticTheme } from "@/styles/theme";
+import ChatBubbleOutlineRoundedIcon from "@mui/icons-material/ChatBubbleOutlineRounded";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useState } from "react";
 import HelpAndSupportData from "@/hooks/useHelpAndSupportData";
@@ -26,6 +25,12 @@ interface KBArticle {
     category_name?: string;
     reading_time_minutes?: number;
 }
+
+const openSupportChat = () => {
+    if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("dynopay:open-support-chat"));
+    }
+};
 
 const HelpAndSupport = () => {
     const theme = useTheme();
@@ -159,16 +164,6 @@ const HelpAndSupport = () => {
         }
     }, [searchTerm]);
 
-    const footerData = [
-        {
-            contectType: t("emailUs"),
-            contectDetail: "support@dynopay.com",
-            buttonContent: "",
-            icon: MessageIcon,
-            responseTime: t("emaiResponseTime"),
-        },
-    ];
-
     useEffect(() => {
         const handler = (e: KeyboardEvent) => {
             if (e.key === "Enter") {
@@ -191,60 +186,85 @@ const HelpAndSupport = () => {
                 flex: 1,
                 display: "flex",
                 flexDirection: "column",
-                overflow: "auto"
+                overflow: "auto",
+                width: "100%",
             }}
         >
-            <Box sx={{ position: "sticky", top: 0, left: 0, pb: "20px", backgroundColor: theme.palette.secondary.main, zIndex: 1 }}>
-                <Box sx={{ display: "flex", gap: "8px", alignItems: "center" }}>
+            {/* ================= SEARCH ================= */}
+            <Box
+                sx={{
+                    position: "sticky",
+                    top: 0,
+                    left: 0,
+                    pb: "20px",
+                    backgroundColor: theme.palette.secondary.main,
+                    zIndex: 1,
+                }}
+            >
+                <Box sx={{ display: "flex", gap: "8px", alignItems: "center", width: "100%", maxWidth: 640 }}>
                     <Box
                         sx={{
+                            flex: 1,
+                            minWidth: 0,
                             "& input:focus": {
-                                borderColor: "#4F46E5",
+                                borderColor: theme.palette.primary.main,
                             },
-                        }}>
+                        }}
+                    >
                         <input
                             type="text"
                             value={searchTerm}
+                            data-testid="help-search-input"
                             onChange={(e) => setSearchTerm(e.target.value)}
                             placeholder={t("searchPlaceholder")}
                             style={{
-                                height: isMobile ? "32px" : "40px",
-                                width: isMobile ? "300px" : "639px",
-                                fontSize: isMobile ? "10px" : "13px",
+                                height: isMobile ? "40px" : "44px",
+                                width: "100%",
+                                fontSize: isMobile ? "13px" : "14px",
                                 fontFamily: "var(--font-sans)",
                                 lineHeight: "100%",
                                 letterSpacing: 0,
                                 fontWeight: 500,
-                                padding: "12px 13.5px",
-                                border: `1px solid ${theme.palette.border.main}`,
+                                padding: "12px 14px",
+                                border: `1px solid ${theme.palette.border?.main || theme.palette.divider}`,
                                 backgroundColor: theme.palette.background.paper,
                                 color: theme.palette.text.primary,
-                                borderRadius: "6px",
+                                borderRadius: "10px",
                                 outline: "none",
-                                transition: "0.2s",
+                                transition: "border-color 0.2s ease",
+                                boxSizing: "border-box",
                             }}
                         />
                     </Box>
-                    <SearchIconButton onClick={handleSearch}>
+                    <SearchIconButton
+                        onClick={handleSearch}
+                        data-testid="help-search-button"
+                        sx={{ borderRadius: "10px", height: isMobile ? 40 : 44, width: isMobile ? 40 : 44 }}
+                    >
                         <Image src={SearchIcon} alt="search" width={20} height={20} className="themed-icon-primary" />
                     </SearchIconButton>
                 </Box>
             </Box>
 
-            <Box sx={{ flex: 1, display: "flex", flexDirection: "column", gap: "20px", }}>
+            <Box sx={{ flex: 1, display: "flex", flexDirection: "column", gap: "28px" }}>
+                {/* ================= ARTICLES ================= */}
                 {loading || searching ? (
-                    <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
-                        <CircularProgress size={32} />
+                    <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
+                        <CircularProgress size={32} sx={{ color: theme.palette.primary.main }} />
                     </Box>
                 ) : (
                     <Box
                         sx={{
-                            display: "flex",
-                            flexWrap: "wrap",
+                            display: "grid",
+                            gridTemplateColumns: {
+                                xs: "1fr",
+                                sm: "repeat(2, 1fr)",
+                                lg: "repeat(3, 1fr)",
+                            },
+                            gap: "20px",
                             width: "100%",
-                            gap: "24px",
-                            justifyContent: "flex-start",
                         }}
+                        data-testid="help-articles-grid"
                     >
                         {articles.length === 0 ? (
                             <TextDecoration style={{ fontSize: "15px", color: theme.palette.text.secondary }}>
@@ -254,35 +274,52 @@ const HelpAndSupport = () => {
                             articles.map((item, index) => (
                                 <Box
                                     key={item.article_id || index}
+                                    data-testid={`help-article-card-${index}`}
                                     sx={{
-                                        width: isMobile ? "330px" : "355px",
-                                        height: isMobile ? "160px" : "202px",
+                                        minHeight: 168,
                                         backgroundColor: theme.palette.background.paper,
-                                    border: `1px solid ${theme.palette.divider}`,
-                                        borderRadius: "14px",
+                                        border: `1px solid ${theme.palette.divider}`,
+                                        borderRadius: "16px",
                                         display: "flex",
                                         flexDirection: "column",
                                         justifyContent: "space-between",
-                                        padding: "20px",
+                                        gap: "14px",
+                                        padding: "22px",
                                         cursor: "pointer",
-                                        transition: "box-shadow 0.2s",
+                                        transition: "border-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease",
                                         "&:hover": {
-                                            boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+                                            borderColor: theme.palette.primary.main,
+                                            transform: "translateY(-2px)",
+                                            boxShadow: `0 8px 24px ${theme.palette.mode === "dark" ? "rgba(0,0,0,0.4)" : "rgba(17,18,20,0.08)"}`,
                                         },
                                     }}
                                     onClick={() => router.push(`/help-support/${item.slug}`)}
                                 >
-                                    <TextDecoration style={{ fontSize: isMobile ? "15px" : "20px", color: theme.palette.text.primary }}>
-                                        {item.title}
-                                    </TextDecoration>
-                                    <TextDecoration style={{ fontSize: isMobile ? "13px" : "15px", color: theme.palette.text.secondary }}>
-                                        {item.excerpt || item.description}
-                                    </TextDecoration>
+                                    <Box sx={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                                        <TextDecoration style={{ fontSize: "17px", fontWeight: 600, color: theme.palette.text.primary, lineHeight: 1.3 }}>
+                                            {item.title}
+                                        </TextDecoration>
+                                        <TextDecoration
+                                            sx={{
+                                                fontSize: "14px",
+                                                color: theme.palette.text.secondary,
+                                                lineHeight: 1.5,
+                                                display: "-webkit-box",
+                                                WebkitLineClamp: 2,
+                                                WebkitBoxOrient: "vertical",
+                                                overflow: "hidden",
+                                            }}
+                                        >
+                                            {item.excerpt || item.description}
+                                        </TextDecoration>
+                                    </Box>
 
                                     <SearchIconButton
-                                        style={{
+                                        sx={{
                                             marginLeft: "auto",
-                                            borderColor: theme.palette.text.secondary,
+                                            borderColor: theme.palette.divider,
+                                            width: 36,
+                                            height: 36,
                                         }}
                                         onClick={(e: React.MouseEvent) => {
                                             e.stopPropagation();
@@ -290,7 +327,7 @@ const HelpAndSupport = () => {
                                         }}
                                     >
                                         <ArrowOutwardIcon
-                                            sx={{ color: theme.palette.text.secondary, fontSize: 18.5 }}
+                                            sx={{ color: theme.palette.text.secondary, fontSize: 18 }}
                                         />
                                     </SearchIconButton>
                                 </Box>
@@ -299,72 +336,122 @@ const HelpAndSupport = () => {
                     </Box>
                 )}
 
-                <TextDecoration sx={{ fontSize: "24px", color: theme.palette.text.primary }}>{t("needHelp")}</TextDecoration>
+                {/* ================= NEED HELP ================= */}
+                <TextDecoration sx={{ fontSize: "22px", fontWeight: 700, color: theme.palette.text.primary }}>
+                    {t("needHelp")}
+                </TextDecoration>
 
                 <Box
                     sx={{
-                        border: `1px solid ${theme.palette.divider}`,
-                        p: "20px",
-                        display: "flex",
-                        flexDirection: isMobile ? "column" : "row",
-                        gap: isMobile ? "40px" : "",
-                        backgroundColor: theme.palette.background.paper,
-                        borderRadius: "14px",
+                        display: "grid",
+                        gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)" },
+                        gap: "20px",
+                        width: "100%",
+                        maxWidth: 720,
                     }}
                 >
-                    {footerData.map((item) => (
-                        <FooterCard key={item.contectType}>
-                            <Box>
-                                <FooterIconButton
-                                    style={{
-                                        height: "58px",
-                                        width: "58px",
-                                        marginLeft: "auto",
-                                        borderColor: "#D7D7D7",
-                                    }}
-                                >
-                                    <Image src={item.icon} alt="search" width={24} height={24} className="themed-icon-primary" />
-                                </FooterIconButton>
-                            </Box>
-                            <TextDecoration style={{ fontSize: isMobile ? "10px" :"13px" }}>
-                                {item.contectType}
-                            </TextDecoration>
-                            {item.buttonContent ? (
-                                <Button
-                                    sx={{
-                                        border: "1px solid #4F46E5",
-                                        borderRadius: "6px",
-                                        display: "flex",
-                                        justifyContent: "center",
-                                        alignItems: "center",
-                                        gap: "6px",
-                                        padding: isMobile ? "8px 16px" : "10px 25px",
-                                        color: "#4F46E5",
-                                    }}
-                                >
-                                    <TextDecoration style={{ fontSize: isMobile ? "10px" :"13px" }}>
-                                        {item.buttonContent}
-                                    </TextDecoration>
-                                    <ArrowOutwardIcon sx={{ color: "#4F46E5", fontSize: 15 }} />
-                                </Button>
-                            ) : (
-                                <TextDecoration style={{ fontSize: isMobile ? "14px" :"18px", color: theme.palette.text.primary }}>
-                                    <a
-                                        href={`mailto:${item.contectDetail}`}
-                                        style={{
-                                            color: theme.palette.primary.main,
-                                            textDecoration: "none",
-                                        }}
-                                    >
-                                        {item.contectDetail}
-                                    </a>
-                                </TextDecoration>
-                            )}
-                            <TextDecoration style={{ fontSize: isMobile ? "10px" :"12px" }}>
-                                {item.responseTime}
-                            </TextDecoration>
-                        </FooterCard>
-                    ))}
+                    {/* Chat with us — opens the AI support widget (primary CTA) */}
+                    <Box
+                        data-testid="help-chat-cta"
+                        onClick={openSupportChat}
+                        sx={{
+                            border: `1px solid ${theme.palette.primary.main}`,
+                            p: "24px",
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            gap: "12px",
+                            textAlign: "center",
+                            backgroundColor: theme.palette.mode === "dark"
+                                ? "rgba(99,102,241,0.08)"
+                                : "rgba(99,102,241,0.04)",
+                            borderRadius: "16px",
+                            cursor: "pointer",
+                            transition: "transform 0.18s ease, box-shadow 0.18s ease",
+                            "&:hover": {
+                                transform: "translateY(-2px)",
+                                boxShadow: `0 8px 24px ${theme.palette.mode === "dark" ? "rgba(0,0,0,0.4)" : "rgba(79,70,229,0.16)"}`,
+                            },
+                        }}
+                    >
+                        <FooterIconButton
+                            sx={{
+                                height: 58,
+                                width: 58,
+                                borderColor: theme.palette.primary.main,
+                                backgroundColor: theme.palette.primary.main,
+                                pointerEvents: "none",
+                            }}
+                        >
+                            <ChatBubbleOutlineRoundedIcon sx={{ color: "#fff", fontSize: 24 }} />
+                        </FooterIconButton>
+                        <TextDecoration sx={{ fontSize: "15px", fontWeight: 600, color: theme.palette.text.primary }}>
+                            {t("chatUs")}
+                        </TextDecoration>
+                        <Button
+                            variant="contained"
+                            data-testid="help-open-chat-button"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                openSupportChat();
+                            }}
+                            sx={{
+                                textTransform: "none",
+                                borderRadius: "10px",
+                                px: 3,
+                                py: 1,
+                                boxShadow: "none",
+                                fontFamily: "var(--font-sans)",
+                                fontWeight: 600,
+                                fontSize: "13px",
+                                backgroundColor: theme.palette.primary.main,
+                                "&:hover": { backgroundColor: theme.palette.primary.dark || theme.palette.primary.main, boxShadow: "none" },
+                            }}
+                            endIcon={<ArrowOutwardIcon sx={{ fontSize: 15 }} />}
+                        >
+                            {t("openChat")}
+                        </Button>
+                        <TextDecoration sx={{ fontSize: "12px", color: theme.palette.text.secondary }}>
+                            {t("chatResponseTime")}
+                        </TextDecoration>
+                    </Box>
+
+                    {/* Email us */}
+                    <Box
+                        data-testid="help-email-card"
+                        sx={{
+                            border: `1px solid ${theme.palette.divider}`,
+                            p: "24px",
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            gap: "12px",
+                            textAlign: "center",
+                            backgroundColor: theme.palette.background.paper,
+                            borderRadius: "16px",
+                        }}
+                    >
+                        <FooterIconButton
+                            sx={{ height: 58, width: 58, borderColor: theme.palette.divider }}
+                        >
+                            <Image src={MessageIcon} alt="email" width={24} height={24} className="themed-icon-primary" />
+                        </FooterIconButton>
+                        <TextDecoration sx={{ fontSize: "15px", fontWeight: 600, color: theme.palette.text.primary }}>
+                            {t("emailUs")}
+                        </TextDecoration>
+                        <TextDecoration sx={{ fontSize: "15px", color: theme.palette.text.primary }}>
+                            <a
+                                href="mailto:support@dynopay.com"
+                                data-testid="help-email-link"
+                                style={{ color: theme.palette.primary.main, textDecoration: "none", fontWeight: 600 }}
+                            >
+                                support@dynopay.com
+                            </a>
+                        </TextDecoration>
+                        <TextDecoration sx={{ fontSize: "12px", color: theme.palette.text.secondary }}>
+                            {t("emaiResponseTime")}
+                        </TextDecoration>
+                    </Box>
                 </Box>
             </Box>
         </Box>

@@ -1,45 +1,18 @@
-import ProfilePage from "@/Components/Page/Profile/ProfilePage";
-import { UserAction } from "@/Redux/Actions";
-import { USER_PROFILE_FETCH } from "@/Redux/Actions/UserAction";
-import useTokenData from "@/hooks/useTokenData";
-import { pageProps, rootReducer } from "@/utils/types";
-import { useCallback, useEffect } from "react";
-import { useTranslation } from "react-i18next";
-import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from "react";
+import { useRouter } from "next/router";
+import Loading from "@/Components/UI/Loading";
 
-const Profile = ({ setPageName, setPageDescription }: pageProps) => {
-  const dispatch = useDispatch();
-  const tokenData = useTokenData();
-  const namespaces = ["profile", "common"];
-  const { t } = useTranslation(namespaces);
-  const tProfile = useCallback((key: string) => t(key, { ns: "profile" }), [t]);
-
-  const userState = useSelector((state: rootReducer) => state.userReducer);
-  const profile = userState.profile;
+// Profile has been consolidated into Settings — the "Profile & Security"
+// section lives at /settings?section=profile. Keep this route as a permanent
+// client-side redirect so existing links/bookmarks continue to work.
+const Profile = () => {
+  const router = useRouter();
 
   useEffect(() => {
-    dispatch(UserAction(USER_PROFILE_FETCH));
-  }, [dispatch]);
+    router.replace("/settings?section=profile");
+  }, [router]);
 
-  useEffect(() => {
-    if (setPageName && setPageDescription) {
-      setPageName(tProfile("profile"));
-      setPageDescription("");
-    }
-  }, [setPageName, setPageDescription, tProfile]);
-
-  // Merge profile API data with tokenData for a complete picture
-  const mergedTokenData = tokenData
-    ? {
-        ...tokenData,
-        ...(profile?.name && { name: profile.name }),
-        ...(profile?.email && { email: profile.email }),
-        ...(profile?.mobile && { mobile: profile.mobile }),
-        ...(profile?.photo && { photo: profile.photo }),
-      }
-    : undefined;
-
-  return <>{mergedTokenData && <ProfilePage tokenData={mergedTokenData} />}</>;
+  return <Loading />;
 };
 
 export default Profile;

@@ -50,7 +50,7 @@ const SideBar = ({ handleDrawerToggle, type = "user" }: SideBarProps) => {
             mb: 2,
           }}
         >
-          <BottomBullets onClick={() => router.push("/profile")}>
+          <BottomBullets onClick={() => router.push("/settings?section=profile")}>
             <SettingsRounded fill="#fff" />
           </BottomBullets>
           <BottomBullets onClick={() => router.push("/help")}>
