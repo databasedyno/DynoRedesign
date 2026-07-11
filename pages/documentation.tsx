@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo, useEffect, memo } from "react";
-import { Box, Typography, useTheme, useMediaQuery, Grid, Divider } from "@mui/material";
+import { Box, Typography, useTheme, useMediaQuery, Grid, Divider, Autocomplete, TextField, InputBase, Fab, Fade } from "@mui/material";
 import { styled, alpha } from "@mui/material/styles";
 import Head from "next/head";
 import { useRouter } from "next/router";
@@ -20,6 +20,8 @@ import SpeedIcon from "@mui/icons-material/Speed";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import CheckIcon from "@mui/icons-material/Check";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import SearchIcon from "@mui/icons-material/Search";
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import { useTranslation } from "react-i18next";
 
 /* ================================================================
@@ -902,6 +904,74 @@ const SECTIONS: Section[] = [
   { id: "errors", title: "Error Handling", icon: <WarningAmberIcon /> },
 ];
 
+/* Getting Started — "Quick Example" in multiple languages (curl / Node / Python).
+   Kept in sync: all three create the same checkout payment with just an API key. */
+const GS_EXAMPLES: Record<"curl" | "node" | "python", string> = {
+  curl: `# Create a checkout payment — just your API key, no customer setup!
+curl -X POST https://dynopay.com/api/user/createPayment \\
+  -H "x-api-key: your_api_key" \\
+  -H "Content-Type: application/json" \\
+  -d '{"amount": 50, "redirect_uri": "https://yoursite.com/thanks"}'
+
+# Or create a direct crypto payment with QR code:
+curl -X POST https://dynopay.com/api/user/cryptoPayment \\
+  -H "x-api-key: your_api_key" \\
+  -H "Content-Type: application/json" \\
+  -d '{"amount": 25, "currency": "BTC", "redirect_uri": "https://yoursite.com/done"}'
+
+# Optional: Create a customer for per-customer tracking
+curl -X POST https://dynopay.com/api/user/createUser \\
+  -H "x-api-key: your_api_key" \\
+  -H "Content-Type: application/json" \\
+  -d '{"name": "Jane Smith", "email": "jane@example.com"}'`,
+  node: `// Node.js 18+ (built-in fetch) — no dependencies needed
+const API_KEY = "your_api_key";
+const base = "https://dynopay.com/api/user";
+
+// 1. Create a checkout payment — just your API key, no customer setup!
+const res = await fetch(\`\${base}/createPayment\`, {
+  method: "POST",
+  headers: {
+    "x-api-key": API_KEY,
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({ amount: 50, redirect_uri: "https://yoursite.com/thanks" }),
+});
+const data = await res.json();
+console.log("Send your customer here:", data.checkout_url);
+
+// 2. Or create a direct crypto payment with QR code:
+const crypto = await fetch(\`\${base}/cryptoPayment\`, {
+  method: "POST",
+  headers: { "x-api-key": API_KEY, "Content-Type": "application/json" },
+  body: JSON.stringify({ amount: 25, currency: "BTC", redirect_uri: "https://yoursite.com/done" }),
+}).then((r) => r.json());
+console.log(crypto);`,
+  python: `# Python 3 — pip install requests
+import requests
+
+API_KEY = "your_api_key"
+BASE = "https://dynopay.com/api/user"
+headers = {"x-api-key": API_KEY}
+
+# 1. Create a checkout payment — just your API key, no customer setup!
+res = requests.post(
+    f"{BASE}/createPayment",
+    headers=headers,
+    json={"amount": 50, "redirect_uri": "https://yoursite.com/thanks"},
+)
+data = res.json()
+print("Send your customer here:", data.get("checkout_url"))
+
+# 2. Or create a direct crypto payment with QR code:
+crypto = requests.post(
+    f"{BASE}/cryptoPayment",
+    headers=headers,
+    json={"amount": 25, "currency": "BTC", "redirect_uri": "https://yoursite.com/done"},
+).json()
+print(crypto)`,
+};
+
 /* ================================================================
    HELPER COMPONENTS
    ================================================================ */
@@ -1028,6 +1098,22 @@ const DocumentationPage = () => {
   const dk = theme.palette.mode === "dark";
   const router = useRouter();
   const [activeSection, setActiveSection] = useState("overview");
+  const [search, setSearch] = useState("");
+  const [showTop, setShowTop] = useState(false);
+  const [gsLang, setGsLang] = useState<"curl" | "node" | "python">("curl");
+
+  // Sections filtered by the search box (matches section title, endpoint title or path)
+  const filteredSections = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return SECTIONS;
+    return SECTIONS.filter((s) => {
+      if (s.title.toLowerCase().includes(q)) return true;
+      return (s.endpoints || []).some((epId) => {
+        const ep = ENDPOINTS.find((e) => e.id === epId);
+        return ep ? ep.title.toLowerCase().includes(q) || ep.path.toLowerCase().includes(q) : false;
+      });
+    });
+  }, [search]);
 
   const endpointMap = useMemo(() => {
     const map: Record<string, Endpoint> = {};
@@ -1044,6 +1130,7 @@ const DocumentationPage = () => {
   // Track active section on scroll
   useEffect(() => {
     const handleScroll = () => {
+      setShowTop(window.scrollY > 600);
       const sections = SECTIONS.map((s) => document.getElementById(s.id)).filter(Boolean);
       for (let i = sections.length - 1; i >= 0; i--) {
         const el = sections[i];
@@ -1122,23 +1209,90 @@ const DocumentationPage = () => {
             {!isMobile && (
               <SidebarWrapper>
                 <SidebarLabel>Navigation</SidebarLabel>
-                {SECTIONS.map((sec) => (
-                  <Box key={sec.id}>
-                    <SidebarItem active={activeSection === sec.id} onClick={() => scrollTo(sec.id)}>
-                      {sec.title}
-                    </SidebarItem>
-                    {sec.endpoints?.map((epId) => (
-                      <SubItem key={epId} onClick={() => scrollTo(epId)}>
-                        {endpointMap[epId]?.title}
-                      </SubItem>
-                    ))}
-                  </Box>
-                ))}
+                {/* Search / filter */}
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    px: 1.25,
+                    py: 0.75,
+                    mb: 1.5,
+                    borderRadius: "10px",
+                    border: `1px solid ${borderClr}`,
+                    background: dk ? "rgba(255,255,255,0.04)" : "#F8F9FC",
+                  }}
+                >
+                  <SearchIcon sx={{ fontSize: 16, color: "text.secondary" }} />
+                  <InputBase
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    placeholder="Search docs…"
+                    sx={{ fontSize: 13, fontFamily: "var(--font-sans)", color: "text.primary", flex: 1 }}
+                    inputProps={{ "aria-label": "Search documentation" }}
+                  />
+                </Box>
+                {filteredSections.length === 0 ? (
+                  <Typography sx={{ fontSize: 13, color: "text.secondary", fontFamily: "var(--font-sans)", px: 1, py: 1 }}>
+                    No matches for “{search}”.
+                  </Typography>
+                ) : (
+                  filteredSections.map((sec) => (
+                    <Box key={sec.id}>
+                      <SidebarItem active={activeSection === sec.id} onClick={() => scrollTo(sec.id)}>
+                        {sec.title}
+                      </SidebarItem>
+                      {sec.endpoints?.map((epId) => (
+                        <SubItem key={epId} onClick={() => scrollTo(epId)}>
+                          {endpointMap[epId]?.title}
+                        </SubItem>
+                      ))}
+                    </Box>
+                  ))
+                )}
               </SidebarWrapper>
             )}
 
             {/* Main Content */}
             <Box sx={{ flex: 1, minWidth: 0 }}>
+              {/* Mobile: sticky search + jump-to-section (replaces the desktop sidebar) */}
+              {isMobile && (
+                <Box
+                  sx={{
+                    position: "sticky",
+                    top: 64,
+                    zIndex: 20,
+                    mx: -2,
+                    px: 2,
+                    py: 1.25,
+                    mb: 3,
+                    backdropFilter: "blur(8px)",
+                    background: dk ? "rgba(13,15,26,0.92)" : "rgba(255,255,255,0.92)",
+                    borderBottom: `1px solid ${borderClr}`,
+                  }}
+                >
+                  <Autocomplete
+                    options={SECTIONS}
+                    value={SECTIONS.find((s) => s.id === activeSection) || null}
+                    onChange={(_, val) => { if (val) scrollTo(val.id); }}
+                    isOptionEqualToValue={(o, v) => o.id === v.id}
+                    getOptionLabel={(o) => o.title}
+                    blurOnSelect
+                    size="small"
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        placeholder="Search or jump to a section…"
+                        InputProps={{
+                          ...params.InputProps,
+                          startAdornment: <SearchIcon sx={{ fontSize: 18, color: "text.secondary", ml: 0.5, mr: 0.25 }} />,
+                        }}
+                      />
+                    )}
+                  />
+                </Box>
+              )}
+
               {/* Overview */}
               <Box id="overview" sx={{ mb: 8, scrollMarginTop: "100px" }}>
                 <Typography sx={{ fontSize: { xs: 24, md: 30 }, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1.5 }}>
@@ -1220,25 +1374,42 @@ const DocumentationPage = () => {
                   ))}
                 </Box>
                 <Typography sx={{ fontSize: 13, fontWeight: 600, fontFamily: "var(--font-hero), var(--font-sans)", color: "text.primary", mb: 1 }}>Quick Example (Userless — API Key Only)</Typography>
+                {/* Language tabs */}
+                <Box sx={{ display: "flex", gap: 0.5, mb: 1.25, flexWrap: "wrap" }}>
+                  {([
+                    { key: "curl", label: "cURL" },
+                    { key: "node", label: "Node.js" },
+                    { key: "python", label: "Python" },
+                  ] as const).map((tab) => {
+                    const active = gsLang === tab.key;
+                    return (
+                      <Box
+                        key={tab.key}
+                        component="button"
+                        type="button"
+                        onClick={() => setGsLang(tab.key)}
+                        sx={{
+                          cursor: "pointer",
+                          border: `1px solid ${active ? (dk ? "#CCFF00" : "#0A0A0A") : borderClr}`,
+                          background: active ? (dk ? "rgba(204,255,0,0.12)" : "#0A0A0A") : "transparent",
+                          color: active ? (dk ? "#CCFF00" : "#FFFFFF") : "text.secondary",
+                          fontFamily: "var(--font-sans)",
+                          fontSize: 12.5,
+                          fontWeight: 600,
+                          px: 1.5,
+                          py: 0.6,
+                          borderRadius: "8px",
+                          transition: "all 0.15s ease",
+                        }}
+                      >
+                        {tab.label}
+                      </Box>
+                    );
+                  })}
+                </Box>
                 <CodeBlock
-                  lang="bash"
-                  code={`# Create a checkout payment — just your API key, no customer setup!
-curl -X POST https://dynopay.com/api/user/createPayment \\
-  -H "x-api-key: your_api_key" \\
-  -H "Content-Type: application/json" \\
-  -d '{"amount": 50, "redirect_uri": "https://yoursite.com/thanks"}'
-
-# Or create a direct crypto payment with QR code:
-curl -X POST https://dynopay.com/api/user/cryptoPayment \\
-  -H "x-api-key: your_api_key" \\
-  -H "Content-Type: application/json" \\
-  -d '{"amount": 25, "currency": "BTC", "redirect_uri": "https://yoursite.com/done"}'
-
-# Optional: Create a customer for per-customer tracking
-curl -X POST https://dynopay.com/api/user/createUser \\
-  -H "x-api-key: your_api_key" \\
-  -H "Content-Type: application/json" \\
-  -d '{"name": "Jane Smith", "email": "jane@example.com"}'`}
+                  lang={gsLang === "curl" ? "bash" : gsLang === "node" ? "javascript" : "python"}
+                  code={GS_EXAMPLES[gsLang]}
                 />
               </Box>
 
@@ -1593,6 +1764,27 @@ app.post('/webhooks/dynopay', (req, res) => {
             </Box>
           </Box>
         </Container>
+
+        {/* Back to top */}
+        <Fade in={showTop}>
+          <Fab
+            size="small"
+            aria-label="Back to top"
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            sx={{
+              position: "fixed",
+              bottom: 24,
+              right: 24,
+              zIndex: 1200,
+              background: dk ? "#CCFF00" : "#0A0A0A",
+              color: dk ? "#0A0A0A" : "#FFFFFF",
+              boxShadow: "0 6px 20px rgba(0,0,0,0.25)",
+              "&:hover": { background: dk ? "#b8e600" : "#222222" },
+            }}
+          >
+            <KeyboardArrowUpIcon />
+          </Fab>
+        </Fade>
       </PageWrapper>
     </>
   );

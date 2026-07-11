@@ -23,7 +23,7 @@ const Loading = () => {
         variant="subtitle1"
         color="text.secondary"
         mt={2}
-        fontFamily="Space Grotesk"
+        fontFamily="var(--font-sans)"
       >
         {t('crypto.pleaseWait')}...
       </Typography>

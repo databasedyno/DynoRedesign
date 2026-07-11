@@ -80,7 +80,7 @@ const Success = ({ redirectUrl, transactionId }: SuccessProps) => {
         variant="h5"
         fontWeight={600}
         color="#13B76A"
-        fontFamily="Space Grotesk"
+        fontFamily="var(--font-sans)"
         mb={2}
       >
         {t('paymentSuccessful')}
@@ -92,7 +92,7 @@ const Success = ({ redirectUrl, transactionId }: SuccessProps) => {
           <Typography
             variant="body1"
             color={theme.palette.text.secondary}
-            fontFamily="Space Grotesk"
+            fontFamily="var(--font-sans)"
           >
             Redirecting to merchant in {countdown} seconds...
           </Typography>

@@ -40,7 +40,7 @@ const AMLPolicyPage = () => {
             fontWeight={700}
             sx={{ 
               color: isDark ? theme.palette.secondary.main : '#2D3282', 
-              fontFamily: 'Space Grotesk', 
+              fontFamily: 'var(--font-sans)', 
               fontSize: { xs: '36px', sm: '50px' } 
             }}
             gutterBottom
@@ -59,7 +59,7 @@ const AMLPolicyPage = () => {
         <Box sx={{ mt: '12px' }}>
           <Typography 
             variant="body1" 
-            sx={{ fontFamily: 'Space Grotesk', color: theme.palette.text.primary }}
+            sx={{ fontFamily: 'var(--font-sans)', color: theme.palette.text.primary }}
           >
             {t('aml.intro')}
           </Typography>
@@ -89,7 +89,7 @@ const AMLPolicyPage = () => {
               <Typography
                 variant="subtitle1"
                 fontWeight={500}
-                sx={{ mb: '12px', fontFamily: 'Space Grotesk', color: theme.palette.text.primary }}
+                sx={{ mb: '12px', fontFamily: 'var(--font-sans)', color: theme.palette.text.primary }}
               >
                 {t(`aml.sections.${key}.title`)}
               </Typography>
@@ -99,7 +99,7 @@ const AMLPolicyPage = () => {
                   whiteSpace: 'pre-line', 
                   fontSize: "16px", 
                   lineHeight: 1.6, 
-                  fontFamily: 'Space Grotesk', 
+                  fontFamily: 'var(--font-sans)', 
                   color: theme.palette.text.primary 
                 }}
               >

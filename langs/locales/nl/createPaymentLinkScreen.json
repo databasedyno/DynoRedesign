@@ -157,7 +157,7 @@
   "previewGreetingGeneric": "Rond je betaling af",
   "previewOrderDetails": "Bestelgegevens",
   "previewTotal": "Totaal",
-  "previewPayCrypto": "Cryptovaluta",
+  "previewPayCrypto": "Betaal met cryptovaluta",
   "previewCoins": "{{count}} cryptovaluta geaccepteerd",
   "previewSecure": "Veilige betaling door Dynopay",
   "advancedOptions": "Geavanceerde opties",

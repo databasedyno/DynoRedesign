@@ -148,7 +148,7 @@ const UnderPayment = ({
             fontWeight={500}
             fontSize={{ xs: 20, sm: 25 }}
             gutterBottom
-            fontFamily="Space Grotesk"
+            fontFamily="var(--font-sans)"
             color={theme.palette.text.primary}
           >
             {t('underpayment.title')}
@@ -158,7 +158,7 @@ const UnderPayment = ({
             variant="body2"
             color={isDark ? theme.palette.text.secondary : "#515151"}
             mb={3}
-            fontFamily="Space Grotesk"
+            fontFamily="var(--font-sans)"
           >
             {t('underpayment.subtitle')}
           </Typography>
@@ -169,7 +169,7 @@ const UnderPayment = ({
               <Typography
                 variant="caption"
                 color={isDark ? theme.palette.text.secondary : "#515151"}
-                fontFamily="Space Grotesk"
+                fontFamily="var(--font-sans)"
                 fontWeight={500}
               >
                 {t('underpayment.paymentProgress')}
@@ -177,7 +177,7 @@ const UnderPayment = ({
               <Typography
                 variant="caption"
                 color="#10B981"
-                fontFamily="Space Grotesk"
+                fontFamily="var(--font-sans)"
                 fontWeight={600}
               >
                 {t('underpayment.complete', { percent: progressPercent.toFixed(1) })}
@@ -218,7 +218,7 @@ const UnderPayment = ({
             <Typography
               variant="body2"
               color="#92400E"
-              fontFamily="Space Grotesk"
+              fontFamily="var(--font-sans)"
               fontWeight={500}
               fontSize={13}
             >
@@ -294,7 +294,7 @@ const UnderPayment = ({
                 fontWeight={400}
                 fontSize={16}
                 color={isDark ? theme.palette.text.secondary : "#515151"}
-                fontFamily="Space Grotesk"
+                fontFamily="var(--font-sans)"
                 sx={{ fontSize: { xs: "12px", sm: "14px", md: "16px" } }}
               >
                 {t('underpayment.paid')}
@@ -306,7 +306,7 @@ const UnderPayment = ({
                   fontWeight={400}
                   color={isDark ? theme.palette.text.secondary : "#515151"}
                   fontSize={16}
-                  fontFamily="Space Grotesk"
+                  fontFamily="var(--font-sans)"
                   sx={{ fontSize: { xs: "12px", sm: "14px", md: "16px" } }}
                 >
                   {formatAmount(paidAmount, currency)} {currency}
@@ -315,7 +315,7 @@ const UnderPayment = ({
                   <Typography
                     variant="caption"
                     color={isDark ? theme.palette.text.secondary : "#737373"}
-                    fontFamily="Space Grotesk"
+                    fontFamily="var(--font-sans)"
                     fontSize={12}
                   >
                     ≈ {formatWithSeparators(convertedPaidAmount, showCurrency)} {showCurrency}
@@ -335,7 +335,7 @@ const UnderPayment = ({
                 fontWeight={500}
                 fontSize={20}
                 color={theme.palette.text.primary}
-                fontFamily="Space Grotesk"
+                fontFamily="var(--font-sans)"
                 sx={{ fontSize: { xs: "14px", sm: "16px", md: "20px" } }}
               >
                 {t('checkout.toPay')}
@@ -347,7 +347,7 @@ const UnderPayment = ({
                   fontWeight={500}
                   color={theme.palette.text.primary}
                   fontSize={20}
-                  fontFamily="Space Grotesk"
+                  fontFamily="var(--font-sans)"
                   sx={{ fontSize: { xs: "14px", sm: "16px", md: "20px" } }}
                 >
                   {formatAmount(remainingAmount, currency)} {currency}
@@ -356,7 +356,7 @@ const UnderPayment = ({
                   <Typography
                     variant="caption"
                     color={isDark ? theme.palette.text.secondary : "#737373"}
-                    fontFamily="Space Grotesk"
+                    fontFamily="var(--font-sans)"
                     fontSize={12}
                   >
                     ≈ {formatWithSeparators(convertedRemainingAmount, showCurrency)} {showCurrency}

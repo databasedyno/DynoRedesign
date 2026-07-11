@@ -157,7 +157,7 @@
   "previewGreetingGeneric": "Completa tu pago",
   "previewOrderDetails": "Detalles del pedido",
   "previewTotal": "Total",
-  "previewPayCrypto": "Criptomoneda",
+  "previewPayCrypto": "Pagar con criptomonedas",
   "previewCoins": "{{count}} criptomonedas aceptadas",
   "previewSecure": "Pago seguro por Dynopay",
   "advancedOptions": "Opciones avanzadas",

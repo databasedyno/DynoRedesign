@@ -179,7 +179,7 @@ const OverPayment = ({
             fontWeight={500}
             fontSize={{ xs: 20, sm: 25 }}
             gutterBottom
-            fontFamily="Space Grotesk"
+            fontFamily="var(--font-sans)"
             color={theme.palette.text.primary}
           >
             {t('overpayment.title')}
@@ -189,7 +189,7 @@ const OverPayment = ({
             variant="body2"
             color={isDark ? theme.palette.text.secondary : "#515151"}
             mb={3}
-            fontFamily="Space Grotesk"
+            fontFamily="var(--font-sans)"
           >
             {t('overpayment.subtitle')}
           </Typography>
@@ -262,7 +262,7 @@ const OverPayment = ({
                 fontWeight={400}
                 fontSize={16}
                 color={isDark ? theme.palette.text.secondary : "#515151"}
-                fontFamily="Space Grotesk"
+                fontFamily="var(--font-sans)"
                 sx={{ fontSize: { xs: "12px", sm: "14px", md: "16px" } }}
               >
                 {t('underpayment.paid')}
@@ -274,7 +274,7 @@ const OverPayment = ({
                   fontWeight={400}
                   color={isDark ? theme.palette.text.secondary : "#515151"}
                   fontSize={16}
-                  fontFamily="Space Grotesk"
+                  fontFamily="var(--font-sans)"
                   sx={{ fontSize: { xs: "12px", sm: "14px", md: "16px" } }}
                 >
                   {formatAmount(paidAmount, currency)} {currency}
@@ -283,7 +283,7 @@ const OverPayment = ({
                   <Typography
                     variant="caption"
                     color={isDark ? theme.palette.text.secondary : "#737373"}
-                    fontFamily="Space Grotesk"
+                    fontFamily="var(--font-sans)"
                     fontSize={12}
                   >
                     ≈ {formatWithSeparators(convertedPaidAmount, showCurrency)} {showCurrency}
@@ -302,7 +302,7 @@ const OverPayment = ({
                 fontWeight={400}
                 fontSize={16}
                 color={isDark ? theme.palette.text.secondary : "#515151"}
-                fontFamily="Space Grotesk"
+                fontFamily="var(--font-sans)"
                 sx={{ fontSize: { xs: "12px", sm: "14px", md: "16px" } }}
               >
                 {t('overpayment.totalDue')}
@@ -314,7 +314,7 @@ const OverPayment = ({
                   fontWeight={400}
                   color={isDark ? theme.palette.text.secondary : "#515151"}
                   fontSize={16}
-                  fontFamily="Space Grotesk"
+                  fontFamily="var(--font-sans)"
                   sx={{ fontSize: { xs: "12px", sm: "14px", md: "16px" } }}
                 >
                   {formatAmount(expectedAmount, currency)} {currency}
@@ -323,7 +323,7 @@ const OverPayment = ({
                   <Typography
                     variant="caption"
                     color={isDark ? theme.palette.text.secondary : "#737373"}
-                    fontFamily="Space Grotesk"
+                    fontFamily="var(--font-sans)"
                     fontSize={12}
                   >
                     ≈ {formatWithSeparators(convertedExpectedAmount, showCurrency)} {showCurrency}
@@ -343,7 +343,7 @@ const OverPayment = ({
                 fontWeight={500}
                 fontSize={20}
                 color={theme.palette.text.primary}
-                fontFamily="Space Grotesk"
+                fontFamily="var(--font-sans)"
                 sx={{ fontSize: { xs: "14px", sm: "16px", md: "20px" } }}
               >
                 {t('overpayment.excess')}
@@ -355,7 +355,7 @@ const OverPayment = ({
                   fontWeight={500}
                   color={theme.palette.text.primary}
                   fontSize={20}
-                  fontFamily="Space Grotesk"
+                  fontFamily="var(--font-sans)"
                   sx={{ fontSize: { xs: "14px", sm: "16px", md: "20px" } }}
                 >
                   {formatAmount(excessAmount, currency)} {currency}
@@ -364,7 +364,7 @@ const OverPayment = ({
                   <Typography
                     variant="caption"
                     color={isDark ? theme.palette.text.secondary : "#737373"}
-                    fontFamily="Space Grotesk"
+                    fontFamily="var(--font-sans)"
                     fontSize={12}
                   >
                     ≈ {formatWithSeparators(convertedExcessAmount, showCurrency)} {showCurrency}
@@ -391,7 +391,7 @@ const OverPayment = ({
               <Typography
                 fontSize={13}
                 color={isDark ? theme.palette.text.secondary : "#515151"}
-                fontFamily="Space Grotesk"
+                fontFamily="var(--font-sans)"
                 textAlign="left"
                 fontWeight={500}
               >

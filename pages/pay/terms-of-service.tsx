@@ -42,7 +42,7 @@ const TermsOfService = () => {
             fontWeight={700}
             sx={{ 
               color: isDark ? theme.palette.secondary.main : '#2D3282', 
-              fontFamily: 'Space Grotesk', 
+              fontFamily: 'var(--font-sans)', 
               fontSize: { xs: '36px', sm: '50px' } 
             }}
           >
@@ -61,7 +61,7 @@ const TermsOfService = () => {
           <Typography 
             variant="body1" 
             mb={2} 
-            sx={{ fontFamily: 'Space Grotesk', color: theme.palette.text.primary }}
+            sx={{ fontFamily: 'var(--font-sans)', color: theme.palette.text.primary }}
           >
             {t('terms.intro')}
           </Typography>
@@ -71,7 +71,7 @@ const TermsOfService = () => {
               <Typography
                 variant="subtitle1"
                 fontWeight={500}
-                sx={{ mb: '12px', fontFamily: 'Space Grotesk', color: theme.palette.text.primary }}
+                sx={{ mb: '12px', fontFamily: 'var(--font-sans)', color: theme.palette.text.primary }}
               >
                 {t(`terms.sections.${key}.title`)}
               </Typography>
@@ -81,7 +81,7 @@ const TermsOfService = () => {
                   whiteSpace: 'pre-line', 
                   fontSize: "16px", 
                   lineHeight: 1.6, 
-                  fontFamily: 'Space Grotesk', 
+                  fontFamily: 'var(--font-sans)', 
                   color: theme.palette.text.primary 
                 }}
               >

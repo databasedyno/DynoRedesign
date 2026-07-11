@@ -281,7 +281,7 @@ const BankTransferCompo = ({
               display="flex"
               alignItems="center"
               gap={1}
-              fontFamily="Space Grotesk"
+              fontFamily="var(--font-sans)"
               fontSize={"27px"}
             >
               <Icon
@@ -298,7 +298,7 @@ const BankTransferCompo = ({
               <Typography
                 variant="subtitle2"
                 fontWeight="300"
-                fontFamily="Space Grotesk"
+                fontFamily="var(--font-sans)"
                 color={theme.palette.text.secondary}
               >
                 {t("checkout.bankName")}
@@ -311,7 +311,7 @@ const BankTransferCompo = ({
                     display="flex"
                     alignItems="center"
                     gap={1}
-                    fontFamily="Space Grotesk"
+                    fontFamily="var(--font-sans)"
                     fontSize={"18px"}
                   >
                     {transferDetails.transfer_bank}
@@ -332,7 +332,7 @@ const BankTransferCompo = ({
                 variant="subtitle2"
                 mt={2}
                 fontWeight="300"
-                fontFamily="Space Grotesk"
+                fontFamily="var(--font-sans)"
                 color={theme.palette.text.secondary}
               >
                 {t("checkout.accountNumber")}
@@ -342,7 +342,7 @@ const BankTransferCompo = ({
                   <Typography
                     color={isDark ? '#5865F2' : "#2D3282"}
                     fontWeight="600"
-                    fontFamily="Space Grotesk"
+                    fontFamily="var(--font-sans)"
                   >
                     {transferDetails?.transfer_account}
                   </Typography>
@@ -377,7 +377,7 @@ const BankTransferCompo = ({
                 <Typography
                   variant="caption"
                   color={theme.palette.text.secondary}
-                  fontFamily="Space Grotesk"
+                  fontFamily="var(--font-sans)"
                 >
                   {t("checkout.accountUnique")}
                 </Typography>
@@ -387,7 +387,7 @@ const BankTransferCompo = ({
                 variant="subtitle2"
                 mt={"16px"}
                 fontWeight="300"
-                fontFamily="Space Grotesk"
+                fontFamily="var(--font-sans)"
                 color={theme.palette.text.secondary}
               >
                 {t("checkout.recipient")}
@@ -396,7 +396,7 @@ const BankTransferCompo = ({
                 fontWeight="600"
                 color={isDark ? '#5865F2' : "#2D3282"}
                 fontSize={"18px"}
-                fontFamily="Space Grotesk"
+                fontFamily="var(--font-sans)"
               >
                 Dynopay Payments Ltd.
               </Typography>
@@ -425,7 +425,7 @@ const BankTransferCompo = ({
                 fontSize={14}
                 color={"#515151"}
                 fontWeight={500}
-                fontFamily="Space Grotesk"
+                fontFamily="var(--font-sans)"
                 lineHeight="100%"
               >
                 {t("checkout.secureTransfer")}
@@ -447,7 +447,7 @@ const BankTransferCompo = ({
                     variant="body2"
                     fontSize={"20px"}
                     fontWeight="500"
-                    fontFamily="Space Grotesk"
+                    fontFamily="var(--font-sans)"
                   >
                     {t("checkout.toPay")}
                   </Typography>
@@ -458,7 +458,7 @@ const BankTransferCompo = ({
                           variant="h6"
                           fontWeight="500"
                           color="primary"
-                          fontFamily="Space Grotesk"
+                          fontFamily="var(--font-sans)"
                           fontSize={25}
                           lineHeight={"130%"}
                         >
@@ -485,7 +485,7 @@ const BankTransferCompo = ({
                     <Typography
                       variant="caption"
                       color={theme.palette.text.secondary}
-                      fontFamily="Space Grotesk"
+                      fontFamily="var(--font-sans)"
                       fontSize={14}
                     >
                       =
@@ -508,7 +508,7 @@ const BankTransferCompo = ({
                     variant="body2"
                     fontWeight="normal"
                     fontSize="13px"
-                    fontFamily="Space Grotesk"
+                    fontFamily="var(--font-sans)"
                     color={theme.palette.text.primary}
                   >
                     {t("checkout.invoiceExpiresIn")} {formatTime(timeLeft)}

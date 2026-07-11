@@ -116,14 +116,16 @@ interface TileProps {
 const DeltaChip: React.FC<{ change: number }> = ({ change }) => {
   const theme = useTheme();
   const positive = change >= 0;
-  const color = positive ? theme.palette.success.dark || "#10B981" : theme.palette.error.main;
+  // Declines are shown in a neutral, informational tone (not alarming red) —
+  // normal day/period swings on lower-volume accounts shouldn't read like an error.
+  const color = positive ? theme.palette.success.dark || "#10B981" : theme.palette.text.secondary;
   const bg = positive
     ? theme.palette.mode === "dark"
       ? "rgba(16,185,129,0.16)"
       : "rgba(16,185,129,0.10)"
     : theme.palette.mode === "dark"
-      ? "rgba(239,68,68,0.16)"
-      : "rgba(239,68,68,0.10)";
+      ? "rgba(255,255,255,0.08)"
+      : "rgba(10,10,10,0.05)";
   const Arrow = positive ? ArrowUpward : ArrowDownward;
   return (
     <Box
@@ -163,6 +165,13 @@ const Tile: React.FC<TileProps> = ({
   const theme = useTheme();
   const isMobile = useIsMobile("sm");
   const isPrimary = variant === "primary";
+  // Hide the change chip when the value is effectively zero (avoids a
+  // misleading "-100%" chip on days/periods that simply have no activity yet).
+  const numericValue = parseFormattedAmount(value);
+  const showDelta =
+    typeof changePercent === "number" &&
+    Number.isFinite(changePercent) &&
+    !(numericValue !== null && numericValue === 0);
   return (
     <Box
       data-testid={testId}
@@ -247,9 +256,7 @@ const Tile: React.FC<TileProps> = ({
           <Skeleton width={80} height={18} />
         ) : (
           <>
-            {typeof changePercent === "number" && Number.isFinite(changePercent) && (
-              <DeltaChip change={changePercent} />
-            )}
+            {showDelta && <DeltaChip change={changePercent as number} />}
             <Typography
               sx={{
                 fontFamily: "var(--font-sans)",
