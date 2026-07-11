@@ -76,6 +76,13 @@ userRouter.post("/profile/set-password", authMiddleware, otpRateLimiter, userCon
 // Creator vanity page (dynopay.com/{handle})
 userRouter.get("/creator/check-handle", authMiddleware, userController.checkHandle);
 userRouter.put("/creator/profile", authMiddleware, userController.updateCreatorProfile);
+userRouter.post(
+  "/creator/upload-cover",
+  authMiddleware,
+  uploadImage.single("image") as unknown as RequestHandler,
+  userController.uploadCoverImage
+);
+userRouter.get("/creator/stats", authMiddleware, userController.getCreatorStats);
 
 // Login activity (requires auth)
 userRouter.get("/login-activity", authMiddleware, userController.getLoginActivity);

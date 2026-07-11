@@ -183,6 +183,17 @@ const userModel = sequelize.define(
       allowNull: true,
       comment: "Whether the public creator page is live",
     },
+    cover_image: {
+      type: DataTypes.STRING(500),
+      allowNull: true,
+      comment: "Public banner image URL shown behind the avatar on the creator page",
+    },
+    social_links: {
+      type: DataTypes.JSONB,
+      allowNull: true,
+      defaultValue: {},
+      comment: "Creator's social handles: {twitter, instagram, youtube, tiktok, website}",
+    },
   },
   {
     tableName: "tbl_user",

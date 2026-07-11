@@ -14,7 +14,7 @@ import {
   sendEmail,
 } from "../../helper";
 import { handleControllerError } from "../../helper/controllerErrorHandler";
-import { getRedisItem, setRedisItem, deleteRedisItem } from "../../utils/redisInstance";
+import { getRedisItem, setRedisItem, deleteRedisItem, redis } from "../../utils/redisInstance";
 import { formatAmountForDisplay, getCurrencyInfo } from "../../utils/currencyUtils";
 import { companyModel, paymentLinkModel, userModel, userWalletModel } from "../../models";
 import { PaymentUserJwtPayload } from "../../utils/types";
@@ -1810,12 +1810,21 @@ export const getCreatorProfile = async (req: express.Request, res: express.Respo
     if (!handle) return errorResponseHelper(res, 400, "Handle is required");
 
     const creator = (await sequelize.query(
-      `SELECT user_id, name, photo, bio, handle, creator_page_enabled
+      `SELECT user_id, name, photo, bio, handle, creator_page_enabled, cover_image, social_links
        FROM tbl_user
        WHERE LOWER(handle) = :handle AND creator_page_enabled = true
        LIMIT 1`,
       { replacements: { handle }, type: QueryTypes.SELECT }
-    )) as Array<{ user_id: number; name: string; photo: string | null; bio: string | null; handle: string; creator_page_enabled: boolean }>;
+    )) as Array<{
+      user_id: number;
+      name: string;
+      photo: string | null;
+      bio: string | null;
+      handle: string;
+      creator_page_enabled: boolean;
+      cover_image: string | null;
+      social_links: Record<string, string> | null;
+    }>;
 
     if (!creator.length) {
       return errorResponseHelper(res, 404, "Creator page not found");
@@ -1869,12 +1878,24 @@ export const getCreatorProfile = async (req: express.Request, res: express.Respo
     // Donation campaigns first, then reusable links
     links.sort((a, b) => (a.type === "donation" ? -1 : 1) - (b.type === "donation" ? -1 : 1));
 
+    // Best-effort visit counter (redis). Fire-and-forget: never let this fail the SSR fetch.
+    try {
+      const ymd = new Date().toISOString().slice(0, 10);
+      // fire-and-forget promises — do NOT await
+      redis.incr(`creator-visits:${handle}`).catch(() => { /* noop */ });
+      redis.incr(`creator-visits:${handle}:day:${ymd}`)
+        .then(() => redis.expire(`creator-visits:${handle}:day:${ymd}`, 60 * 60 * 24 * 32))
+        .catch(() => { /* noop */ });
+    } catch { /* noop */ }
+
     return successResponseHelper(res, 200, "Creator profile retrieved", {
       creator: {
         name: c.name || c.handle,
         handle: c.handle,
         bio: c.bio || null,
         photo: c.photo && !String(c.photo).includes("user_image.png") ? c.photo : null,
+        cover_image: c.cover_image || null,
+        social_links: (c.social_links && typeof c.social_links === "object") ? c.social_links : {},
       },
       links,
     });

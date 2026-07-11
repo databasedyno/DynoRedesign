@@ -9,10 +9,33 @@ import { rootReducer } from "@/utils/types";
 
 const HANDLE_RE = /^[a-z0-9][a-z0-9_-]{2,29}$/;
 
-const CreatorPageSettings = () => {
+export interface CreatorFormState {
+  handle: string;
+  bio: string;
+  enabled: boolean;
+  coverImage: string | null;
+  socialLinks: Record<string, string>;
+}
+
+interface Props {
+  /** Notified on every form change so the live preview outside can mirror. */
+  onChange?: (s: CreatorFormState) => void;
+}
+
+const SOCIAL_PLATFORMS = [
+  { key: "twitter",   label: "Twitter / X",  icon: "mdi:twitter",     placeholder: "@yourname or full URL" },
+  { key: "instagram", label: "Instagram",     icon: "mdi:instagram",   placeholder: "@yourname or full URL" },
+  { key: "youtube",   label: "YouTube",       icon: "mdi:youtube",     placeholder: "channel URL" },
+  { key: "tiktok",    label: "TikTok",        icon: "mdi:music-note",  placeholder: "@yourname or full URL" },
+  { key: "website",   label: "Website",       icon: "mdi:web",         placeholder: "https://yourwebsite.com" },
+] as const;
+
+type PlatformKey = typeof SOCIAL_PLATFORMS[number]["key"];
+
+const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
   const theme = useTheme();
   const dispatch = useDispatch();
-  const profile = useSelector((s: rootReducer) => s.userReducer.profile) as any;
+  const profile = useSelector((s: rootReducer) => (s as any).userReducer.profile) as any;
 
   const siteUrl = (process.env.NEXT_PUBLIC_BASE_URL || "").replace(/\/+$/, "");
   const border = theme.palette.divider;
@@ -20,14 +43,18 @@ const CreatorPageSettings = () => {
   const [handle, setHandle] = useState("");
   const [bio, setBio] = useState("");
   const [enabled, setEnabled] = useState(false);
+  const [coverImage, setCoverImage] = useState<string | null>(null);
+  const [socialLinks, setSocialLinks] = useState<Record<string, string>>({});
+  const [uploadingCover, setUploadingCover] = useState(false);
   const [seeded, setSeeded] = useState(false);
   const [checking, setChecking] = useState(false);
   const [availability, setAvailability] = useState<{ available: boolean; reason: string | null } | null>(null);
   const [saving, setSaving] = useState(false);
   const [copied, setCopied] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const coverFileRef = useRef<HTMLInputElement>(null);
 
-  // Ensure the profile is loaded even when landing directly on this section
+  // Ensure the profile is loaded even when landing directly on this page
   useEffect(() => {
     if (!profile?.user_id) dispatch(UserAction(USER_PROFILE_FETCH));
   }, [dispatch, profile?.user_id]);
@@ -38,9 +65,18 @@ const CreatorPageSettings = () => {
       setHandle(profile.handle || "");
       setBio(profile.bio || "");
       setEnabled(Boolean(profile.creator_page_enabled));
+      setCoverImage(profile.cover_image || null);
+      setSocialLinks(
+        (profile.social_links && typeof profile.social_links === "object") ? profile.social_links : {},
+      );
       setSeeded(true);
     }
   }, [profile, seeded]);
+
+  // Broadcast form state to parent (for the live preview)
+  useEffect(() => {
+    onChange?.({ handle, bio, enabled, coverImage, socialLinks });
+  }, [handle, bio, enabled, coverImage, socialLinks, onChange]);
 
   const savedHandle = profile?.handle || "";
   const formatError = useMemo(() => {
@@ -69,13 +105,28 @@ const CreatorPageSettings = () => {
     return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
   }, [handle, formatError, savedHandle]);
 
+  const socialsEqualSaved = useMemo(() => {
+    const saved = (profile?.social_links && typeof profile.social_links === "object") ? profile.social_links : {};
+    const keys = new Set([...Object.keys(saved), ...Object.keys(socialLinks)]);
+    for (const k of Array.from(keys)) {
+      if ((saved[k] || "") !== (socialLinks[k] || "")) return false;
+    }
+    return true;
+  }, [socialLinks, profile?.social_links]);
+
   const canSave =
     seeded &&
     !saving &&
     !!handle &&
     !formatError &&
     (handle === savedHandle || availability?.available === true) &&
-    (handle !== savedHandle || bio !== (profile?.bio || "") || enabled !== Boolean(profile?.creator_page_enabled));
+    (
+      handle !== savedHandle ||
+      bio !== (profile?.bio || "") ||
+      enabled !== Boolean(profile?.creator_page_enabled) ||
+      (coverImage || null) !== (profile?.cover_image || null) ||
+      !socialsEqualSaved
+    );
 
   const handleSave = async () => {
     if (!canSave) return;
@@ -85,6 +136,8 @@ const CreatorPageSettings = () => {
         handle: handle.trim().toLowerCase(),
         bio,
         creator_page_enabled: enabled,
+        cover_image: coverImage,
+        social_links: socialLinks,
       });
       dispatch({ type: TOAST_SHOW, payload: { message: "Creator page saved" } });
       dispatch(UserAction(USER_PROFILE_FETCH));
@@ -105,6 +158,30 @@ const CreatorPageSettings = () => {
     setTimeout(() => setCopied(false), 1800);
   };
 
+  const onCoverFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) {
+      dispatch({ type: TOAST_SHOW, payload: { message: "Image must be under 10 MB", severity: "error" } });
+      return;
+    }
+    setUploadingCover(true);
+    try {
+      const fd = new FormData();
+      fd.append("image", file);
+      const r = await axiosBaseApi.post("/user/creator/upload-cover", fd, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      const url = r?.data?.data?.url;
+      if (url) setCoverImage(url);
+    } catch (err: any) {
+      dispatch({ type: TOAST_SHOW, payload: { message: err?.response?.data?.message || "Upload failed", severity: "error" } });
+    } finally {
+      setUploadingCover(false);
+      if (coverFileRef.current) coverFileRef.current.value = "";
+    }
+  };
+
   const inputSx = {
     width: "100%",
     padding: "11px 12px",
@@ -122,7 +199,7 @@ const CreatorPageSettings = () => {
   const labelSx = { fontSize: 13, fontWeight: 600, color: theme.palette.text.primary, mb: 0.75, display: "block", fontFamily: "var(--font-sans)" };
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: 3, maxWidth: 560 }} data-testid="creator-settings">
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }} data-testid="creator-settings">
       {/* Live URL banner */}
       {savedHandle && (
         <Box
@@ -148,6 +225,68 @@ const CreatorPageSettings = () => {
           </Box>
         </Box>
       )}
+
+      {/* Cover image */}
+      <Box>
+        <Typography sx={labelSx}>Cover image <Typography component="span" fontSize={11.5} color={theme.palette.text.disabled} fontWeight={400}>(optional, recommended 1200×400)</Typography></Typography>
+        <Box
+          data-testid="creator-cover-preview"
+          sx={{
+            position: "relative",
+            width: "100%",
+            aspectRatio: "3 / 1",
+            borderRadius: "14px",
+            border: `1px dashed ${border}`,
+            overflow: "hidden",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            backgroundColor: theme.palette.background.default,
+            backgroundImage: coverImage ? `url(${coverImage})` : "none",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
+        >
+          {!coverImage && !uploadingCover && (
+            <Box sx={{ textAlign: "center", color: theme.palette.text.secondary, px: 2 }}>
+              <Icon icon="mdi:image-plus-outline" width={26} />
+              <Typography fontSize={12.5} mt={0.5}>Upload a banner (up to 10 MB)</Typography>
+            </Box>
+          )}
+          {uploadingCover && <CircularProgress size={22} />}
+          {coverImage && !uploadingCover && (
+            <Box sx={{ position: "absolute", top: 8, right: 8, display: "flex", gap: 0.75 }}>
+              <Button
+                size="small"
+                variant="contained"
+                data-testid="creator-cover-remove"
+                onClick={() => setCoverImage(null)}
+                sx={{ textTransform: "none", fontSize: 11.5, minWidth: 0, py: 0.4, px: 1, backgroundColor: "rgba(0,0,0,0.65)", color: "#fff", "&:hover": { backgroundColor: "rgba(0,0,0,0.8)" } }}
+              >
+                Remove
+              </Button>
+            </Box>
+          )}
+        </Box>
+        <input
+          ref={coverFileRef}
+          type="file"
+          accept="image/*"
+          data-testid="creator-cover-input"
+          onChange={onCoverFile}
+          style={{ display: "none" }}
+        />
+        <Button
+          size="small"
+          onClick={() => coverFileRef.current?.click()}
+          disabled={uploadingCover}
+          startIcon={<Icon icon={coverImage ? "mdi:image-edit-outline" : "mdi:cloud-upload-outline"} width={16} />}
+          sx={{ mt: 1, textTransform: "none", fontSize: 12.5 }}
+          data-testid="creator-cover-upload-btn"
+        >
+          {coverImage ? "Replace image" : "Upload image"}
+        </Button>
+      </Box>
 
       {/* Handle */}
       <Box>
@@ -189,6 +328,36 @@ const CreatorPageSettings = () => {
           sx={{ ...inputSx, resize: "vertical", minHeight: 74, display: "block" }}
         />
         <Typography fontSize={10.5} color={theme.palette.text.disabled} textAlign="right" mt={0.25}>{bio.length}/500</Typography>
+      </Box>
+
+      {/* Social links */}
+      <Box>
+        <Typography sx={labelSx}>Social links <Typography component="span" fontSize={11.5} color={theme.palette.text.disabled} fontWeight={400}>(optional)</Typography></Typography>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+          {SOCIAL_PLATFORMS.map((p) => (
+            <Box key={p.key} sx={{ display: "flex", alignItems: "stretch", border: `1px solid ${border}`, borderRadius: "10px", overflow: "hidden", backgroundColor: theme.palette.background.default }}>
+              <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", px: 1.25, backgroundColor: theme.palette.mode === "dark" ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)", minWidth: 44 }}>
+                <Icon icon={p.icon} width={18} color={theme.palette.text.secondary} />
+              </Box>
+              <Box
+                component="input"
+                data-testid={`creator-social-${p.key}`}
+                value={socialLinks[p.key] || ""}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  const v = e.target.value.trim();
+                  setSocialLinks((prev) => {
+                    const next = { ...prev };
+                    if (v) next[p.key as PlatformKey] = v;
+                    else delete next[p.key as PlatformKey];
+                    return next;
+                  });
+                }}
+                placeholder={p.placeholder}
+                sx={{ flex: 1, border: "none", outline: "none", background: "transparent", padding: "10px 12px", fontFamily: "var(--font-sans)", fontSize: 13.5, color: theme.palette.text.primary, minWidth: 0 }}
+              />
+            </Box>
+          ))}
+        </Box>
       </Box>
 
       {/* Enable toggle */}

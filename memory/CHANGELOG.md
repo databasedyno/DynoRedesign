@@ -1,5 +1,53 @@
 # Changelog
 
+## 2026-07-11 (session 28-cont) — Creator page: flagship discovery + full feature expansion
+
+**Problem:** The Creator vanity page (dynopay.com/{handle}) was fully built (backend + settings UI + public /{handle} SSR page) and heavily marketed on the landing, but had **zero discovery inside the app** — no sidebar link, no dashboard card, no header entry. The only way to find it was `/settings → left rail → Creator page`. Confirmed via grep across every layout/nav file.
+
+**Shipped — full flagship treatment (option C + r2 + sparkles icon):**
+
+**Backend** (`/app/backend/`)
+- Migration `migrations/addCreatorFlagship.ts` (idempotent) — added `tbl_user.cover_image VARCHAR(500)` + `tbl_user.social_links JSONB DEFAULT '{}'::jsonb`. Ran ✅ on live Railway PG.
+- Model `models/userModels/userModel.ts` — added the two fields.
+- `controller/userController.ts`:
+  - `updateCreatorProfile` — now also accepts `cover_image` (url or null, validated http(s)/`/api/static/`) and `social_links` (allowlist: `twitter/instagram/youtube/tiktok/website`, ≤200 chars, blocks `javascript:/data:/vbscript:`). Returns fresh row incl. new fields.
+  - NEW `uploadCoverImage` — reuses existing multer `uploadImage`, returns `SERVER_URL/api/static/images/<file>`.
+  - NEW `getCreatorStats` — `{total_visits, this_week_visits, supporters_count, has_handle}` from Redis (`creator-visits:<handle>` + daily 32-day-TTL buckets) + SQL for distinct donation supporters. Best-effort; never fails the request.
+- `controller/payment/paymentLinkController.ts` `getCreatorProfile` — public route now returns `cover_image` + `social_links` and INCRs the Redis visit counters (fire-and-forget, ignored on failure).
+- `routes/userRouter.ts` — 2 new routes: `POST /api/user/creator/upload-cover` (auth + multer) + `GET /api/user/creator/stats` (auth).
+
+**Frontend — new files**
+- `pages/creator.tsx` — first-class `/creator` route. Dashboard-style layout: status banner (live/draft) → 3 stat tiles (visits, 7-day, supporters) → 2-column desktop (form left, sticky Live Preview right).
+- `Components/Page/Creator/CreatorLivePreview.tsx` — non-interactive visual clone of the public page driven by form state (browser chrome, cover, avatar, name, @handle, bio, social row, sample featured card, sample link, "Powered by").
+- `Components/Page/Dashboard/CreatorPageCard.tsx` — right-column dashboard card with **3 smart states**:
+  1. **No handle** → "Claim your creator page" with URL preview `.../yourname`, 3 benefits, lime "Claim my handle" CTA.
+  2. **Handle set, not published** → "Publish your creator page" with URL pill + "Go live" CTA.
+  3. **Live** → URL pill + Copy + View + 3 mini stats + "Manage page →" link.
+  Live stats come from `GET /api/user/creator/stats`.
+
+**Frontend — edits**
+- `Components/Page/Creator/CreatorPageSettings.tsx` (rewrite) — added: `onChange` prop (broadcasts form state for live preview), cover image upload (drag-target + Remove + 10 MB limit), 5 social inputs, save now sends `cover_image` + `social_links`.
+- `Components/Page/Creator/CreatorProfile.tsx` (public page) — renders new cover-image hero (140-180px, avatar overlaps bottom), social icon row below bio (`socialHref()` normalizes bare @handles to URLs per platform).
+- `Components/Layout/NewSidebar/index.tsx` — new "Creator page" item in Payments section (after Pay Links), `AutoAwesomeRounded` sparkles icon, lime "NEW" pill visible only until merchant claims + publishes.
+- `Components/Layout/NewSidebar/styled.tsx` (via new SidebarItem shape) + prefetch list includes `/creator`.
+- `Components/UI/UserMenu/index.tsx` — new "View my creator page ↗" (published) / "Claim my creator page" (not yet) entry, sparkles icon. Opens `dynopay.com/{handle}` in new tab when handle exists.
+- `Components/Page/Dashboard/DashboardRightSection.tsx` — inserts `<CreatorPageCard />` above `<GrowPanel />`.
+- `Components/Page/Dashboard/EmptyStatePanel.tsx` — second CTA "Or claim your creator page →" for zero-payment merchants (`empty-state-claim-creator` testid).
+- `pages/settings/index.tsx` — removed creator section from settings rail (it's now `/creator`). Added redirect: `/settings?section=creator` → `router.replace("/creator")` for backward-compat.
+
+**i18n** — 32 keys added to `dashboardLayout.json` × 6 locales (en/es/fr/de/nl/pt) via idempotent script `scripts/i18n_add_creator_flagship.py`.
+
+**Verified live** (Playwright + user JWT injection):
+- `hostbay@moxx.co` (claimed + published) → sidebar "Creator page" (no NEW pill), dashboard shows "Your creator page" card w/ URL pill + Copy + View + 3 stats; `/creator` shows green status banner + stats + form + preview; UserMenu shows "View my creator page ↗".
+- `qa.empty` (no handle) → sidebar "Creator page" **with NEW pill**, dashboard shows "Claim your creator page" card w/ benefits + lime CTA.
+- Public `/hostbay` → SSR renders name + @handle (mono) + bio + empty-state.
+- 3 endpoints healthy: `POST /api/user/creator/upload-cover` (403 without CSRF, expected), `GET /api/user/creator/stats` (401 without auth, expected), migration ran ✅.
+- `next build` clean; internal + external URLs all 200.
+
+**Fixed during build:** UserMenu edit was missing `import { useSelector } from "react-redux"` — caught by the ErrorBoundary on first Playwright run, re-imported, rebuilt.
+
+---
+
 ## 2026-07-11 (session 28) — VERIFIED: checkout network-switch race fix (P0) + theme-flicker
 
 End-to-end verification of the crypto-checkout race-condition fix in `Components/Page/Pay3Components/cryptoTransfer.tsx` (`requestSeqRef` latest-wins + `inFlightTargetsRef` dedupe + `setCryptoDetails({empty})` on switch + `loading`-gated address render).

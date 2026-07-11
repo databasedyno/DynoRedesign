@@ -2,10 +2,13 @@ import useIsMobile from "@/hooks/useIsMobile";
 import { useUnreadNotificationsCount } from "@/hooks/useUnreadNotificationsCount";
 import SidebarIcon from "@/utils/customIcons/sidebar-icons";
 import AddIcon from "@mui/icons-material/Add";
+import AutoAwesomeRounded from "@mui/icons-material/AutoAwesomeRounded";
 import GroupAddRounded from "@mui/icons-material/GroupAddRounded";
 import SettingsRounded from "@mui/icons-material/SettingsRounded";
 import { Box, Divider, Tooltip, useTheme } from "@mui/material";
 import { useRouter } from "next/router";
+import { useSelector } from "react-redux";
+import { rootReducer } from "@/utils/types";
 import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import ReferralAndKnowledge from "../ReferralAndKnowledge";
@@ -23,6 +26,7 @@ interface SidebarItem {
   icon: string;
   path: string;
   plus?: boolean;
+  isNew?: boolean;
 }
 
 interface SidebarSection {
@@ -35,13 +39,20 @@ const NewSidebar = () => {
   const router = useRouter();
   const theme = useTheme();
   const unreadNotifications = useUnreadNotificationsCount();
+  // Only surface the "Creator page" NEW pill for merchants who haven't
+  // published yet. Once they've set a handle & enabled the page, the pill
+  // disappears — feature is now theirs, no need for the marketing badge.
+  const userState = useSelector((s: rootReducer) => (s as any).userReducer);
+  const hasClaimedCreator = Boolean(
+    userState?.profile?.handle && userState?.profile?.creator_page_enabled,
+  );
 
   // Prefetch all menu routes for instant navigation
   useEffect(() => {
     const paths = [
       "/dashboard", "/transactions", "/invoices", "/pay-links",
       "/wallet", "/customers", "/developer-keys", "/referrals",
-      "/notifications", "/create-pay-link", "/settings"
+      "/notifications", "/create-pay-link", "/settings", "/creator",
     ];
     paths.forEach((p) => router.prefetch(p));
   }, []);
@@ -60,6 +71,7 @@ const NewSidebar = () => {
       label: t("sidebarSectionPayments"),
       items: [
         { label: t("payLinks"), icon: "payment-links", path: "/pay-links", plus: true },
+        { label: t("creatorPage", { defaultValue: "Creator page" }), icon: "creator", path: "/creator", isNew: !hasClaimedCreator },
         { label: t("wallets"), icon: "wallets", path: "/wallet" },
         { label: t("customers"), icon: "customers", path: "/customers" },
       ],
@@ -118,6 +130,8 @@ const NewSidebar = () => {
                         <GroupAddRounded sx={{ fontSize: 20, color: iconColor(isActive) }} />
                       ) : item.icon === "settings" ? (
                         <SettingsRounded sx={{ fontSize: 20, color: iconColor(isActive) }} />
+                      ) : item.icon === "creator" ? (
+                        <AutoAwesomeRounded sx={{ fontSize: 20, color: iconColor(isActive) }} />
                       ) : (
                         <SidebarIcon
                           name={item.icon}
@@ -175,6 +189,30 @@ const NewSidebar = () => {
                     >
                       {isMobile ? item.label.split(" ")[0] : item.label}
                     </Box>
+
+                    {item.isNew && !isMobile && (
+                      <Box
+                        component="span"
+                        data-testid={`sidebar-new-${item.icon}`}
+                        sx={{
+                          ml: 0.75,
+                          px: 0.75,
+                          py: 0.15,
+                          borderRadius: 999,
+                          fontSize: 9.5,
+                          fontWeight: 800,
+                          letterSpacing: "0.06em",
+                          textTransform: "uppercase",
+                          fontFamily: "var(--font-sans)",
+                          backgroundColor: "#CCFF00",
+                          color: "#0A0A0B",
+                          lineHeight: 1.4,
+                          alignSelf: "center",
+                        }}
+                      >
+                        {t("newBadge", { defaultValue: "New" })}
+                      </Box>
+                    )}
 
                     {item.plus && !isMobile && (
                       <Tooltip title={t("newPaymentLink")} placement="right" arrow>

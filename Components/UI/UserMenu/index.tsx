@@ -7,8 +7,12 @@ import { getInitials } from "@/helpers";
 import useIsMobile from "@/hooks/useIsMobile";
 import useTokenData from "@/hooks/useTokenData";
 import useWindow from "@/hooks/useWindow";
+import { useSelector } from "react-redux";
+import { rootReducer } from "@/utils/types";
+import AutoAwesomeRounded from "@mui/icons-material/AutoAwesomeRounded";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import OpenInNewRounded from "@mui/icons-material/OpenInNewRounded";
 import SettingsIcon from "@mui/icons-material/Settings";
 import Image from "next/image";
 import { useRouter } from "next/router";
@@ -27,6 +31,12 @@ export default function UserMenu() {
   const router = useRouter();
   const customWindow = useWindow();
   const { t } = useTranslation("dashboardLayout");
+
+  // Show "View my creator page" only once the user has claimed a handle AND published.
+  const profile = useSelector((s: rootReducer) => (s as any).userReducer.profile) as any;
+  const creatorHandle = profile?.handle && profile?.creator_page_enabled ? String(profile.handle) : "";
+  const siteUrl = (process.env.NEXT_PUBLIC_BASE_URL || "").replace(/\/+$/, "");
+  const creatorPublicUrl = creatorHandle ? `${siteUrl}/${creatorHandle}` : "";
 
   const wrapperRef = useRef<HTMLDivElement>(null);
 
@@ -232,6 +242,38 @@ export default function UserMenu() {
 
           {/* Content */}
           <Box sx={{ mt: "7px" }}>
+            <MenuItemRow
+              data-testid="user-menu-creator"
+              onClick={() => {
+                if (creatorPublicUrl) {
+                  window.open(creatorPublicUrl, "_blank", "noopener");
+                } else {
+                  router.push("/creator");
+                }
+                setAnchorEl(null);
+              }}
+              sx={{
+                gap: "8px",
+                justifyContent: "center",
+                "&:hover": { background: "transparent" },
+              }}
+            >
+              <AutoAwesomeRounded sx={{ fontSize: "16px" }} />
+              <Typography
+                sx={{
+                  fontFamily: "var(--font-sans)",
+                  fontSize: isMobile ? "13px" : "15px",
+                }}
+              >
+                {creatorHandle
+                  ? t("userMenuViewCreator", { defaultValue: "View my creator page" })
+                  : t("userMenuClaimCreator", { defaultValue: "Claim my creator page" })}
+              </Typography>
+              {creatorHandle && (
+                <OpenInNewRounded sx={{ fontSize: "13px", color: theme.palette.text.secondary, ml: -0.5 }} />
+              )}
+            </MenuItemRow>
+
             <MenuItemRow
               data-testid="user-menu-settings"
               onClick={() => {

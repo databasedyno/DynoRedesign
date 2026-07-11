@@ -114,6 +114,23 @@ const EmptyStatePanel: React.FC<EmptyStatePanelProps> = ({
                   cursor: "pointer",
                   "&:hover": { color: theme.palette.primary.main },
                 }}
+                onClick={() => router.push("/creator")}
+                data-testid="empty-state-claim-creator"
+              >
+                <AutoAwesomeRounded sx={{ fontSize: 18 }} />
+                {t("emptyClaimCreator", { defaultValue: "Or claim your creator page →" })}
+              </Box>
+              <Box
+                sx={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 0.75,
+                  color: theme.palette.text.secondary,
+                  fontSize: "13px",
+                  fontFamily: "var(--font-sans)",
+                  cursor: "pointer",
+                  "&:hover": { color: theme.palette.primary.main },
+                }}
                 onClick={() => router.push("/help/getting-started")}
                 data-testid="empty-state-watch-demo"
               >

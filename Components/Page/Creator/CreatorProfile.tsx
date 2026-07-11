@@ -29,6 +29,31 @@ export interface CreatorData {
   handle: string
   bio: string | null
   photo: string | null
+  cover_image?: string | null
+  social_links?: Record<string, string> | null
+}
+
+const SOCIAL_ICONS: Record<string, string> = {
+  twitter: 'mdi:twitter',
+  instagram: 'mdi:instagram',
+  youtube: 'mdi:youtube',
+  tiktok: 'mdi:music-note',
+  website: 'mdi:web',
+}
+
+// Normalize bare handles into URLs so socials always open externally.
+const socialHref = (platform: string, raw: string): string => {
+  const v = raw.trim()
+  if (/^https?:\/\//i.test(v)) return v
+  const stripped = v.replace(/^@/, '')
+  switch (platform) {
+    case 'twitter':   return `https://twitter.com/${stripped}`
+    case 'instagram': return `https://instagram.com/${stripped}`
+    case 'tiktok':    return `https://www.tiktok.com/@${stripped}`
+    case 'youtube':   return v.startsWith('http') ? v : `https://youtube.com/${stripped}`
+    case 'website':   return v.startsWith('http') ? v : `https://${v}`
+    default:          return v
+  }
 }
 
 const fmt = (n: number, currency: string) =>
@@ -99,17 +124,36 @@ const CreatorProfile = ({ creator, links }: { creator: CreatorData; links: Creat
   )
 
   return (
-    <Box sx={{ minHeight: '70vh', display: 'flex', justifyContent: 'center', px: { xs: 2, sm: 3 }, py: { xs: 4, sm: 6 } }}>
+    <Box sx={{ minHeight: '70vh', display: 'flex', justifyContent: 'center', px: { xs: 0, sm: 3 }, py: { xs: 0, sm: 4 } }}>
       <Box sx={{ width: '100%', maxWidth: 620 }}>
+        {/* ── Cover / hero image (optional) ── */}
+        {creator.cover_image && (
+          <Box
+            data-testid='creator-cover'
+            sx={{
+              height: { xs: 140, sm: 180 },
+              borderRadius: { xs: 0, sm: '20px' },
+              overflow: 'hidden',
+              backgroundImage: `url(${creator.cover_image})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              mb: { xs: 0, sm: -6 },
+            }}
+          />
+        )}
+
         {/* ── Header ── */}
-        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', mb: 4 }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', mb: 4, px: { xs: 2, sm: 3 }, pt: { xs: 3, sm: 0 } }}>
           <Box
             data-testid='creator-avatar'
             sx={{
               width: 104, height: 104, borderRadius: '50%', overflow: 'hidden',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              backgroundColor: limeTint, border: `3px solid ${LIME}`,
+              backgroundColor: creator.cover_image ? theme.palette.background.paper : limeTint,
+              border: `3px solid ${LIME}`,
               boxShadow: isDark ? '0 10px 40px rgba(204,255,0,0.12)' : '0 10px 30px rgba(10,10,10,0.10)',
+              position: 'relative',
+              zIndex: 1,
             }}
           >
             {creator.photo ? (
@@ -131,8 +175,44 @@ const CreatorProfile = ({ creator, links }: { creator: CreatorData; links: Creat
               {creator.bio}
             </Typography>
           )}
+
+          {/* ── Social links row (optional) ── */}
+          {creator.social_links && Object.keys(creator.social_links).length > 0 && (
+            <Box
+              data-testid='creator-socials'
+              sx={{ display: 'flex', gap: 1, mt: 2, flexWrap: 'wrap', justifyContent: 'center' }}
+            >
+              {Object.entries(creator.social_links).map(([platform, url]) => {
+                if (!url) return null
+                return (
+                  <Box
+                    key={platform}
+                    component='a'
+                    href={socialHref(platform, url)}
+                    target='_blank'
+                    rel='noopener noreferrer'
+                    data-testid={`creator-social-${platform}`}
+                    sx={{
+                      width: 40, height: 40, borderRadius: '50%',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      border: `1px solid ${border}`,
+                      backgroundColor: surface,
+                      color: theme.palette.text.primary,
+                      transition: 'border-color 160ms ease, transform 160ms ease',
+                      textDecoration: 'none',
+                      '&:hover': { borderColor: LIME, transform: 'translateY(-1px)' },
+                    }}
+                    aria-label={platform}
+                  >
+                    <Icon icon={SOCIAL_ICONS[platform] || 'mdi:link-variant'} width={18} />
+                  </Box>
+                )
+              })}
+            </Box>
+          )}
         </Box>
 
+        <Box sx={{ px: { xs: 2, sm: 3 } }}>
         {/* ── Featured donation / tip box ── */}
         {featured && (
           <Box
@@ -224,6 +304,7 @@ const CreatorProfile = ({ creator, links }: { creator: CreatorData; links: Creat
           <Typography fontSize={12} color={theme.palette.text.secondary}>Powered by</Typography>
           <Logo width={15} height={18} />
           <Typography fontSize={12} fontWeight={700} color={theme.palette.text.primary}>Dynopay</Typography>
+        </Box>
         </Box>
       </Box>
     </Box>

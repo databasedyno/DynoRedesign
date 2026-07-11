@@ -10,6 +10,7 @@ import CustomButton from "@/Components/UI/Buttons";
 import PanelCard from "@/Components/UI/PanelCard";
 import FeeTierProgress from "./FeeTierProgress";
 import GrowPanel from "./GrowPanel";
+import CreatorPageCard from "./CreatorPageCard";
 
 import { formatNumberWithComma, getCurrencySymbol } from "@/helpers";
 import useIsMobile from "@/hooks/useIsMobile";
@@ -286,6 +287,10 @@ const DashboardRightSection = () => {
               so the right rail doesn't feel salesy. */}
         </Box>
       </PanelCard>
+
+      <Box sx={{ mt: 2 }}>
+        <CreatorPageCard />
+      </Box>
 
       <Box sx={{ mt: 2 }}>
         <GrowPanel

@@ -25,7 +25,7 @@ import { IUserType } from "../utils/types";
 import axios from "axios";
 // tatumApi import removed - not used in this controller
 import { userLogger } from "../utils/loggers";
-import { getRedisItem, setRedisItem, setRedisTTL, deleteRedisItem, setRedisItemWithTTL } from "../utils/redisInstance";
+import { getRedisItem, setRedisItem, setRedisTTL, deleteRedisItem, setRedisItemWithTTL, redis } from "../utils/redisInstance";
 import { isAccountLocked, recordFailedAttempt, clearFailedAttempts } from "../services/accountLockoutService";
 import { createSession } from "../services/sessionService";
 import { is2FARequired } from "../services/twoFactorService";
@@ -3881,12 +3881,16 @@ const checkHandle = async (req: express.Request, res: express.Response) => {
   }
 };
 
-/** PUT /api/user/creator/profile  { handle, bio, creator_page_enabled } */
+/** PUT /api/user/creator/profile  { handle, bio, creator_page_enabled, cover_image, social_links } */
 const updateCreatorProfile = async (req: express.Request, res: express.Response) => {
   const userData = jwt.decode(res.locals.token) as IUserType;
   try {
-    const { handle: rawHandle, bio, creator_page_enabled } = req.body as {
-      handle?: string; bio?: string; creator_page_enabled?: boolean;
+    const { handle: rawHandle, bio, creator_page_enabled, cover_image, social_links } = req.body as {
+      handle?: string;
+      bio?: string;
+      creator_page_enabled?: boolean;
+      cover_image?: string | null;
+      social_links?: Record<string, string> | null;
     };
     const updates: Record<string, unknown> = {};
 
@@ -3911,6 +3915,42 @@ const updateCreatorProfile = async (req: express.Request, res: express.Response)
       updates.creator_page_enabled = Boolean(creator_page_enabled);
     }
 
+    // Cover image: URL string (uploaded via /user/creator/upload-cover) or null to clear
+    if (cover_image !== undefined) {
+      if (cover_image === null || cover_image === "") {
+        updates.cover_image = null;
+      } else {
+        const url = String(cover_image).trim();
+        // Basic URL sanity: must be http(s) or a local /api/static path
+        if (!/^https?:\/\//.test(url) && !url.startsWith("/api/static/")) {
+          return errorResponseHelper(res, 400, "Invalid cover image URL");
+        }
+        updates.cover_image = url.slice(0, 500);
+      }
+    }
+
+    // Social links: allowlist platforms + basic URL validation
+    if (social_links !== undefined) {
+      const ALLOWED = ["twitter", "instagram", "youtube", "tiktok", "website"] as const;
+      const cleaned: Record<string, string> = {};
+      const src = (social_links && typeof social_links === "object") ? social_links : {};
+      for (const key of ALLOWED) {
+        const raw = String((src as Record<string, unknown>)[key] || "").trim();
+        if (!raw) continue;
+        // Accept full URLs or bare handles (@name) — normalize handles to URLs client-side.
+        // Here we only enforce max length and that it's not obviously malicious.
+        if (raw.length > 200) {
+          return errorResponseHelper(res, 400, `${key} link is too long (max 200 chars)`);
+        }
+        // Reject javascript:/data: URIs
+        if (/^\s*(javascript:|data:|vbscript:)/i.test(raw)) {
+          return errorResponseHelper(res, 400, `Invalid ${key} link`);
+        }
+        cleaned[key] = raw;
+      }
+      updates.social_links = cleaned;
+    }
+
     // Can't enable the page without a handle
     if (updates.creator_page_enabled === true) {
       const cur = await userModel.findOne({ where: { user_id: userData.user_id }, attributes: ["handle"] });
@@ -3928,13 +3968,102 @@ const updateCreatorProfile = async (req: express.Request, res: express.Response)
 
     const fresh = await userModel.findOne({
       where: { user_id: userData.user_id },
-      attributes: ["handle", "bio", "creator_page_enabled"],
+      attributes: ["handle", "bio", "creator_page_enabled", "cover_image", "social_links"],
     });
     return successResponseHelper(res, 200, "Creator page updated", fresh?.dataValues || updates);
   } catch (e) {
     handleControllerError(res, e, userLogger);
   }
 };
+
+/** POST /api/user/creator/upload-cover — multipart/form-data with field "image" */
+const uploadCoverImage = async (req: express.Request, res: express.Response) => {
+  try {
+    const file = (req as express.Request & { file?: Express.Multer.File }).file;
+    if (!file) {
+      return errorResponseHelper(res, 400, "No image uploaded.");
+    }
+    const serverUrl = (process.env.SERVER_URL || "").trim().replace(/\/$/, "");
+    const url = `${serverUrl}/api/static/images/${file.filename}`;
+    userLogger.info(`[uploadCoverImage] uploaded: ${file.filename} (${file.mimetype}, ${file.size}b)`);
+    return successResponseHelper(res, 200, "Cover image uploaded", {
+      url,
+      name: file.originalname?.slice(0, 255) || file.filename,
+      type: file.mimetype,
+      size: file.size,
+    });
+  } catch (e) {
+    handleControllerError(res, e, userLogger);
+  }
+};
+
+/** GET /api/user/creator/stats — total + this-week visits, supporters count */
+const getCreatorStats = async (req: express.Request, res: express.Response) => {
+  const userData = jwt.decode(res.locals.token) as IUserType;
+  try {
+    const user = await userModel.findOne({
+      where: { user_id: userData.user_id },
+      attributes: ["handle"],
+    });
+    const handle = user?.dataValues?.handle ? String(user.dataValues.handle).toLowerCase() : null;
+
+    if (!handle) {
+      return successResponseHelper(res, 200, "Stats retrieved", {
+        total_visits: 0,
+        this_week_visits: 0,
+        supporters_count: 0,
+        has_handle: false,
+      });
+    }
+
+    // Total visits (single counter key)
+    let totalVisits = 0;
+    try {
+      const raw = await redis.get(`creator-visits:${handle}`);
+      totalVisits = Number(raw || 0);
+    } catch { /* redis best-effort */ }
+
+    // This week: sum last 7 daily buckets
+    let weekVisits = 0;
+    try {
+      const now = Date.now();
+      const daily = await Promise.all(
+        Array.from({ length: 7 }, (_, i) => {
+          const d = new Date(now - i * 86400000);
+          const ymd = d.toISOString().slice(0, 10);
+          return redis.get(`creator-visits:${handle}:day:${ymd}`);
+        })
+      );
+      weekVisits = daily.reduce((a: number, b) => a + Number(b || 0), 0);
+    } catch { /* best-effort */ }
+
+    // Supporters count: distinct customers on this user's completed donation contributions
+    let supportersCount = 0;
+    try {
+      const rows = await sequelize.query(
+        `SELECT COUNT(DISTINCT ut.customer_id) AS c
+         FROM tbl_user_transaction ut
+         JOIN tbl_payment_link pl ON pl.link_id = ut.link_id
+         JOIN tbl_payment_link parent ON parent.link_id = pl.parent_link_id
+         WHERE parent.user_id = :uid
+           AND parent.link_type = 'donation'
+           AND LOWER(ut.status) IN ('successful','completed','confirmed','processing','converted','payout_complete')`,
+        { replacements: { uid: userData.user_id }, type: QueryTypes.SELECT }
+      ) as Array<{ c: string | number }>;
+      supportersCount = Number(rows?.[0]?.c || 0);
+    } catch { /* best-effort */ }
+
+    return successResponseHelper(res, 200, "Stats retrieved", {
+      total_visits: totalVisits,
+      this_week_visits: weekVisits,
+      supporters_count: supportersCount,
+      has_handle: true,
+    });
+  } catch (e) {
+    handleControllerError(res, e, userLogger);
+  }
+};
+
 
 
 export default {
@@ -3985,4 +4114,6 @@ export default {
   flagLogin,
   checkHandle,
   updateCreatorProfile,
+  uploadCoverImage,
+  getCreatorStats,
 };

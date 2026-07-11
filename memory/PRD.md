@@ -5,6 +5,16 @@ USDT-TRC20 payment gateway platform. Users can create companies, wallets, paymen
 
 ## What's Been Implemented
 
+### 2026-07-11 — Session 28-cont — Creator page: flagship discovery + full feature expansion
+**Problem:** the Creator vanity page (dynopay.com/{handle}) had full backend + settings UI + public SSR page, and was heavily marketed on the landing, but had **zero discovery inside the app** (no sidebar link, no dashboard card, no header). Confirmed via grep across every layout/nav file. Users had to hunt in `/settings → Creator page` (6th item).
+
+**Shipped (option C + r2 + sparkles icon):**
+- **Backend** — migration `addCreatorFlagship.ts` (idempotent, ran ✅ on live Railway PG): added `tbl_user.cover_image VARCHAR(500)` + `tbl_user.social_links JSONB`. `updateCreatorProfile` now accepts cover_image + social_links (allowlist twitter/instagram/youtube/tiktok/website, blocks js/data URIs). NEW endpoints: `POST /api/user/creator/upload-cover` (auth + multer reuse) + `GET /api/user/creator/stats` (returns `{total_visits, this_week_visits, supporters_count}` from Redis daily buckets + SQL supporter count). Public `getCreatorProfile` now returns cover + socials and INCRs Redis visit counters (fire-and-forget).
+- **Frontend — new** — `pages/creator.tsx` (first-class route with status banner + 3 stat tiles + 2-column form/preview). `Components/Page/Creator/CreatorLivePreview.tsx` (non-interactive visual clone of the public page). `Components/Page/Dashboard/CreatorPageCard.tsx` (right-column dashboard card, 3 smart states: no handle → claim CTA; draft → publish CTA; live → URL pill + Copy + View + mini stats).
+- **Frontend — edits** — `CreatorPageSettings.tsx` (added cover upload, 5 socials, onChange broadcast). `CreatorProfile.tsx` public page (cover hero + social icons row). `NewSidebar/index.tsx` (Creator page item in Payments section w/ `AutoAwesomeRounded` sparkles icon + lime "NEW" pill until claimed+published). `UserMenu/index.tsx` (View my creator page ↗ / Claim my creator page). `DashboardRightSection.tsx` (injected CreatorPageCard above GrowPanel). `EmptyStatePanel.tsx` (second CTA "Or claim your creator page →"). `pages/settings/index.tsx` (removed creator section from rail + redirect `?section=creator → /creator` for backward-compat).
+- **i18n** — 32 keys added to `dashboardLayout.json` × 6 locales (en/es/fr/de/nl/pt) via `scripts/i18n_add_creator_flagship.py`.
+- **Verified live** (Playwright + JWT injection): `hostbay@moxx.co` sees live-state card + full /creator page + UserMenu "View my creator page"; `qa.empty` sees claim-state card + sidebar NEW pill + UserMenu "Claim my creator page"; public `/hostbay` SSR renders; backend endpoints healthy. `next build` clean, all URLs 200.
+
 ### 2026-07-11 — Session 28-cont — Fresh container re-provisioned ✅
 Fresh container: no node_modules, no .env, no build. Re-provisioned per documented procedure:
 - SEQUENTIAL yarn installs — `/app` root (82s, 551+ pkgs) then `/app/backend` (30s, 572+ pkgs)
