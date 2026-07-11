@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-07-11 (session 27h) — Infra: DigitalOcean fixed 2 instances → CPU autoscaling
+
+Investigated (via DO API) why the app "needed two instances": the `dynopay` App Platform app is ONE service (`dynoredesign`) that was set to a fixed `instance_count: 2` (two replicas of the same container for HA/throughput) — not a hard requirement. Backend already supports multi-replica safely via `backend/utils/leaderElection.ts` (Redis lease → crons/BullMQ worker run on one leader only). The other DO app `moxxwebsite` is unrelated.
+- Per user request, switched to **CPU autoscaling**: `apps-s-1vcpu-2gb` (shared, 2×, $50/mo) → `apps-d-1vcpu-2gb` (dedicated) with `autoscaling { min 1, max 3, cpu 80% }`. Floor ~$39/mo, bursts to $78/$117. (Autoscaling requires dedicated CPU; shared can't scale.)
+- Applied via full-spec round-trip PUT; all 170 env vars preserved (verified). Triggered a redeploy ("app spec updated").
+- App ID: f86b27dc-feb0-4a44-a4e9-ebd2053e0468 (region ams, repo databasedyno/DynoRedesign@New-Onboarding2, deploy_on_push).
+- SECURITY: DO API token was shared in chat — user advised to rotate it.
+
 ## 2026-07-11 (session 27g) — Removed "Accept crypto by country" SEO pages (regulatory risk)
 
 Decision (user): the programmatic per-country landing pages create regulatory exposure (targeting jurisdictions like UK/Turkey/Vietnam/Nigeria where crypto-payment promotion is restricted) that outweighs their modest SEO value. Removed entirely; kept the lower-risk industry/verticals pages.
