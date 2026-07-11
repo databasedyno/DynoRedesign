@@ -29,6 +29,7 @@ import InputField from "@/Components/UI/AuthLayout/InputFields";
 import DeleteModel from "@/Components/UI/DeleteModel";
 import EmptyDataModel from "@/Components/UI/EmptyDataModel";
 import PublishableKeysSection from "./PublishableKeysSection";
+import BuyButtonsSection from "./BuyButtonsSection";
 import UnitedStatesFlag from "@/assets/Images/Icons/flags/united-states-flag.png";
 import { stringShorten } from "@/helpers";
 import useIsMobile from "@/hooks/useIsMobile";
@@ -853,6 +854,17 @@ const ApiKeysPage = ({
         }}
       >
         <PublishableKeysSection />
+      </Box>
+
+      <Box
+        sx={{
+          mb: isMobile ? 2 : 2.5,
+          opacity: 0,
+          animation: "fadeSlideIn 0.5s ease forwards",
+          ...itemAnimation,
+        }}
+      >
+        <BuyButtonsSection />
       </Box>
 
       <Box

@@ -14,7 +14,7 @@
 import type express from "express";
 import crypto from "crypto";
 import { QueryTypes } from "sequelize";
-import { apiModel, publishableKeyModel } from "../models";
+import { apiModel, publishableKeyModel, buyButtonModel } from "../models";
 import sequelize from "../utils/dbInstance";
 import { setRedisItem } from "../utils/redisInstance";
 import { apiLogger } from "../utils/loggers";
@@ -373,17 +373,101 @@ export const createPublicEmbedSession = async (req: express.Request, res: expres
     const pk = res.locals.publishableKey as PublishableKeyRow;
     const origin = res.locals.pkOrigin as string;
 
-    const { amount, currency, redirect_uri, meta_data } = (req.body || {}) as {
-      amount: number;
+    const {
+      button_id,
+      amount: rawAmount,
+      currency,
+      redirect_uri,
+      meta_data,
+    } = (req.body || {}) as {
+      button_id?: string;
+      amount?: number;
       currency?: string;
       redirect_uri?: string;
       meta_data?: Record<string, unknown>;
     };
 
-    if (typeof amount !== "number" || !Number.isFinite(amount) || amount < 5) {
-      res.status(400).json({ success: false, message: "amount must be a number ≥ 5" });
-      return;
+    // ------------------------------------------------------------------
+    // Resolve button (if button_id supplied) — the canonical Stripe-style
+    // path. When button_id is present the client-supplied `amount` is only
+    // trusted when the button is a customer-priced button, and even then
+    // it's clamped to the button's min/max range.
+    // ------------------------------------------------------------------
+    let button: any = null;
+    let amount: number = 0;
+    let buttonLabel: string | undefined;
+    let buttonSuccessUrl: string | null = null;
+    let buttonMetadata: Record<string, unknown> | null = null;
+    let buttonAllowedCurr: string[] | null = null;
+
+    if (button_id && typeof button_id === "string") {
+      const row = await buyButtonModel.findOne({ where: { button_id } });
+      if (!row) {
+        res.status(404).json({ success: false, message: "Buy button not found" });
+        return;
+      }
+      button = row.dataValues;
+      if (button.company_id !== pk.company_id) {
+        // Do NOT reveal cross-company existence
+        res.status(404).json({ success: false, message: "Buy button not found" });
+        return;
+      }
+      if (button.status !== "active") {
+        res.status(400).json({ success: false, message: "Buy button is not active" });
+        return;
+      }
+
+      if (button.price_type === "fixed") {
+        if (typeof button.amount !== "number" || button.amount < 5) {
+          res.status(500).json({ success: false, message: "Buy button has an invalid fixed price" });
+          return;
+        }
+        // Client `amount` (if any) is IGNORED — this is the anti-tampering point.
+        amount = Number(button.amount);
+      } else {
+        // customer-priced
+        const minA = typeof button.min_amount === "number" ? button.min_amount : 5;
+        const maxA = typeof button.max_amount === "number" ? button.max_amount : pk.max_amount;
+        const a = Number(rawAmount);
+        if (!Number.isFinite(a)) {
+          res.status(400).json({ success: false, message: "amount is required for a customer-priced buy button" });
+          return;
+        }
+        if (a < minA) {
+          res.status(400).json({ success: false, message: `amount must be ≥ ${minA}` });
+          return;
+        }
+        if (typeof maxA === "number" && a > maxA) {
+          res.status(400).json({ success: false, message: `amount must be ≤ ${maxA}` });
+          return;
+        }
+        amount = a;
+      }
+
+      buttonLabel = button.label;
+      buttonSuccessUrl = button.success_url || null;
+      try {
+        buttonMetadata = button.metadata ? JSON.parse(button.metadata) : null;
+      } catch {
+        buttonMetadata = null;
+      }
+      try {
+        buttonAllowedCurr = button.allowed_currencies
+          ? JSON.parse(button.allowed_currencies)
+          : null;
+      } catch {
+        buttonAllowedCurr = null;
+      }
+    } else {
+      // Inline amount path (backward compat, no button-id)
+      if (typeof rawAmount !== "number" || !Number.isFinite(rawAmount) || rawAmount < 5) {
+        res.status(400).json({ success: false, message: "amount must be a number ≥ 5" });
+        return;
+      }
+      amount = rawAmount;
     }
+
+    // pk cap enforced in ALL cases (defense in depth)
     if (amount > pk.max_amount) {
       res.status(400).json({
         success: false,
@@ -418,7 +502,7 @@ export const createPublicEmbedSession = async (req: express.Request, res: expres
       return;
     }
 
-    // Compute effective currency filter: intersect(pk.allowed_currencies, request.currency, allConfigured)
+    // Compute effective currency filter: intersect(pk.allowed_currencies, button.allowed_currencies, request.currency, allConfigured)
     let allowedByPk: string[] | null = null;
     if (pk.allowed_currencies) {
       try { allowedByPk = JSON.parse(pk.allowed_currencies); } catch { allowedByPk = null; }
@@ -426,6 +510,9 @@ export const createPublicEmbedSession = async (req: express.Request, res: expres
     let effective = allConfigured;
     if (Array.isArray(allowedByPk) && allowedByPk.length > 0) {
       effective = effective.filter((c) => allowedByPk!.includes(c));
+    }
+    if (Array.isArray(buttonAllowedCurr) && buttonAllowedCurr.length > 0) {
+      effective = effective.filter((c) => buttonAllowedCurr!.includes(c));
     }
     if (currency && typeof currency === "string") {
       const cUp = currency.toUpperCase().trim();
@@ -455,6 +542,12 @@ export const createPublicEmbedSession = async (req: express.Request, res: expres
       secretData.base_currency || "USD"
     );
 
+    // Merge merchant meta_data with button metadata — button meta wins on collision.
+    let mergedMeta: Record<string, unknown> | null = null;
+    if (buttonMetadata || meta_data) {
+      mergedMeta = { ...(meta_data || {}), ...(buttonMetadata || {}) };
+    }
+
     const redisPayload = {
       customer_id: customerData.customer_id,
       company_id: pk.company_id,
@@ -462,7 +555,7 @@ export const createPublicEmbedSession = async (req: express.Request, res: expres
       base_currency: secretData.base_currency || "USD",
       base_amount: amount,
       amount,
-      redirect_uri: redirect_uri || null,
+      redirect_uri: buttonSuccessUrl || redirect_uri || null,
       pathType: "createPayment",
       fee_payer: "company", // Buy buttons always cover fees themselves
       available_currencies: effective,
@@ -473,12 +566,24 @@ export const createPublicEmbedSession = async (req: express.Request, res: expres
       ui_mode: "embedded",
       allowed_origins: [origin],
       pk_id: pk.pub_key_id,
-      pk_source: "buy-button",
-      ...(meta_data && { meta_data: JSON.stringify(meta_data) }),
+      pk_source: button_id ? "buy-button-object" : "buy-button",
+      button_id: button_id || null,
+      ...(buttonLabel && { button_label: buttonLabel }),
+      ...(mergedMeta && { meta_data: JSON.stringify(mergedMeta) }),
     };
 
     const transactionId = crypto.randomBytes(24).toString("hex");
     await setRedisItem("customer-" + transactionId, redisPayload);
+
+    // Increment button usage (fire-and-forget)
+    if (button_id) {
+      buyButtonModel
+        .increment("usage_count", { where: { button_id } })
+        .catch(() => undefined);
+      buyButtonModel
+        .update({ last_used_at: new Date() }, { where: { button_id } })
+        .catch(() => undefined);
+    }
 
     const checkoutBase = process.env.CHECKOUT_URL || process.env.NEXT_PUBLIC_BASE_URL || "https://checkout.dynopay.com";
     const client_secret = transactionId;
@@ -486,7 +591,7 @@ export const createPublicEmbedSession = async (req: express.Request, res: expres
     const expires_at = new Date(Date.now() + 60 * 60 * 1000).toISOString();
 
     apiLogger.info(
-      `[PublishableKey] Public session created — company=${pk.company_id} pk=${pk.pub_key_id} origin=${origin} amount=${amount}`
+      `[PublishableKey] Public session created — company=${pk.company_id} pk=${pk.pub_key_id} origin=${origin} amount=${amount} ${button_id ? `button=${button_id}` : ""}`
     );
 
     res.status(200).json({
@@ -498,6 +603,8 @@ export const createPublicEmbedSession = async (req: express.Request, res: expres
         expires_at,
         ui_mode: "embedded",
         currencies: effective,
+        amount,
+        ...(button_id && { button_id }),
       },
     });
   } catch (err) {

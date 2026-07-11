@@ -270,6 +270,12 @@ app.use("/api/diagnostics", diagnosticsRouter);
 // merchant preflights don't get intercepted by the global CORS handler.
 app.use("/api/publishable-keys", publishableKeyRouter);
 
+// Buy Buttons (Phase 2D) — dashboard CRUD (JWT). Buttons are referenced by the
+// public /api/embed/public/session flow via `button_id` so amounts can't be
+// tampered with client-side.
+import { buyButtonRouter } from "./routes/buyButtonRouter";
+app.use("/api/buy-buttons", buyButtonRouter);
+
 // Health check endpoint for Railway
 app.get("/health", async (_req: express.Request, res: express.Response) => {
   const health: Record<string, unknown> = {

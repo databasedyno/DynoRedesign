@@ -54,6 +54,9 @@ import loginActivityModel from "./loginActivityModel";
 // Publishable Keys (Phase 2 — Buy Button)
 import publishableKeyModel from "./publishableKeyModel";
 
+// Buy Buttons (Phase 2D — pre-created button objects, Stripe-canonical button-id path)
+import buyButtonModel from "./buyButtonModel";
+
 // USDT Pool System models (legacy - to be deprecated)
 import {
   usdtPoolAddressModel,
@@ -138,4 +141,6 @@ export {
   loginActivityModel,
   // Publishable Keys (Phase 2 — Buy Button)
   publishableKeyModel,
+  // Buy Buttons (Phase 2D)
+  buyButtonModel,
 };

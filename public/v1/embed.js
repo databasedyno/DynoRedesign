@@ -19,6 +19,14 @@
  *
  *  ─── (c) Buy Button — merchant server NOT required ───
  *  <script src="https://checkout.dynopay.com/v1/embed.js"></script>
+ *
+ *  Option 1: pre-created button object (CANONICAL, safest — amount lives server-side)
+ *  <dynopay-buy-button
+ *      publishable-key="pk_live_…"
+ *      button-id="btn_…">
+ *  </dynopay-buy-button>
+ *
+ *  Option 2: inline amount (backward-compat, only when you don't need tamper protection)
  *  <dynopay-buy-button
  *      publishable-key="pk_live_…"
  *      amount="49"
@@ -30,7 +38,11 @@
  *
  *  Attributes:
  *    publishable-key  (required)   pk_live_… or pk_test_… — safe to expose
- *    amount           (required)   numeric, min 5, ≤ the pk's max_amount
+ *    button-id        (preferred)  pre-created buy-button object — server resolves amount
+ *                                  and cannot be tampered with in the merchant's HTML
+ *    amount           (fallback)   numeric, min 5, ≤ the pk's max_amount
+ *                                  — required if button-id is absent
+ *                                  — for customer-priced buttons, forwarded as the shopper amount
  *    currency         (optional)   restrict to one crypto: BTC / ETH / USDT-TRC20 …
  *    label            (optional)   button text (default "Pay with crypto")
  *    mode             (optional)   "modal" (default) | "redirect" | "inline"
@@ -229,9 +241,16 @@
       opts = opts || {};
       var pk = opts.publishableKey;
       if (!pk) return Promise.reject(new Error('Dynopay: publishableKey is required'));
-      var body = {
-        amount: opts.amount,
-      };
+      // Canonical path: pass a pre-created button-id and let the server resolve
+      // the amount/currencies. Falls back to inline amount for backward compat.
+      var body = {};
+      if (opts.buttonId) {
+        body.button_id = opts.buttonId;
+        // For customer-priced buttons we still pass the shopper-chosen amount.
+        if (opts.amount != null && !Number.isNaN(Number(opts.amount))) body.amount = Number(opts.amount);
+      } else {
+        body.amount = opts.amount;
+      }
       if (opts.currency)    body.currency = opts.currency;
       if (opts.redirectUri) body.redirect_uri = opts.redirectUri;
       if (opts.meta)        body.meta_data = opts.meta;
@@ -242,7 +261,7 @@
         headers: {
           'Content-Type': 'application/json',
           'x-publishable-key': pk,
-          'x-dynopay-source': 'buy-button',
+          'x-dynopay-source': opts.buttonId ? 'buy-button-object' : 'buy-button',
         },
         body: JSON.stringify(body),
       }).then(function (r) {
@@ -263,9 +282,14 @@
   // the requested mode ("modal" | "redirect" | "inline"). This is the
   // no-code path for merchants who don't want a server integration.
   function readAttrs(el) {
+    var rawAmt = el.getAttribute('amount');
     return {
       publishableKey: el.getAttribute('publishable-key') || '',
-      amount:         Number(el.getAttribute('amount')),
+      // Prefer a pre-created button object (Stripe-canonical path). When a
+      // button-id is present the amount lives server-side and cannot be
+      // tampered with in the merchant's HTML.
+      buttonId:       el.getAttribute('button-id') || '',
+      amount:         rawAmt == null || rawAmt === '' ? undefined : Number(rawAmt),
       currency:       el.getAttribute('currency') || undefined,
       label:          el.getAttribute('label') || 'Pay with crypto',
       mode:           (el.getAttribute('mode') || 'modal').toLowerCase(),
@@ -320,9 +344,9 @@
     styleButton(btn, attrs.theme);
     btn.innerHTML = DYNO_ICON + '<span>' + (attrs.label || 'Pay with crypto') + '</span>';
 
-    if (!attrs.publishableKey || !attrs.amount || !(attrs.amount >= 5)) {
+    if (!attrs.publishableKey || (!attrs.buttonId && !(attrs.amount >= 5))) {
       btn.disabled = true;
-      btn.title = 'dynopay-buy-button: missing publishable-key or amount ≥ 5';
+      btn.title = 'dynopay-buy-button: needs publishable-key + (button-id OR amount ≥ 5)';
       btn.style.opacity = '0.5';
       btn.style.cursor = 'not-allowed';
     }
@@ -334,6 +358,7 @@
       btn.innerHTML = '<span>Loading…</span>';
       Dynopay.createSessionWithPk({
         publishableKey: attrs.publishableKey,
+        buttonId:       attrs.buttonId,
         amount:         attrs.amount,
         currency:       attrs.currency,
         redirectUri:    attrs.redirectUri,
