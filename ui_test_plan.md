@@ -4,7 +4,7 @@
 - **Email**: nomadly@moxx.co
 - **Password**: Katiekendra123@
 - **Company**: Nomadly1
-- **Pod URL**: https://cross-device-verify.preview.emergentagent.com
+- **Pod URL**: https://fast-launch-40.preview.emergentagent.com
 
 ---
 

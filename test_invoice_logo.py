@@ -10,7 +10,7 @@ import redis
 import sys
 import time
 
-BASE_URL = "https://cross-device-verify.preview.emergentagent.com/api"
+BASE_URL = "https://fast-launch-40.preview.emergentagent.com/api"
 REDIS_URL = "redis://default:HAEMJseUAdqAjpiICURxlefSoSYXKEUg@nozomi.proxy.rlwy.net:15794"
 
 HEADERS = {

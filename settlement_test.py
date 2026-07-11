@@ -6,7 +6,7 @@ Tests the 4 specific endpoints mentioned in the review request after critical se
 - OUT_OF_ENERGY fix  
 - Payment ID propagation fix
 
-Target: https://cross-device-verify.preview.emergentagent.com
+Target: https://fast-launch-40.preview.emergentagent.com
 """
 
 import requests
@@ -15,7 +15,7 @@ from datetime import datetime
 import sys
 
 # Target URL from review request
-BASE_URL = "https://cross-device-verify.preview.emergentagent.com"
+BASE_URL = "https://fast-launch-40.preview.emergentagent.com"
 
 def test_settlement_fix_endpoints():
     """Test the 4 specific endpoints mentioned in the review request"""

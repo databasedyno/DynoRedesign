@@ -8,7 +8,7 @@ import requests
 import json
 import sys
 
-BACKEND_URL = "https://cross-device-verify.preview.emergentagent.com"
+BACKEND_URL = "https://fast-launch-40.preview.emergentagent.com"
 
 def test_additional_scenarios():
     """Test additional scenarios and edge cases"""
