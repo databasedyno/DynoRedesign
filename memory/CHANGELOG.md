@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-07-11 (session 27g) — Removed "Accept crypto by country" SEO pages (regulatory risk)
+
+Decision (user): the programmatic per-country landing pages create regulatory exposure (targeting jurisdictions like UK/Turkey/Vietnam/Nigeria where crypto-payment promotion is restricted) that outweighs their modest SEO value. Removed entirely; kept the lower-risk industry/verticals pages.
+- Deleted route `pages/accept-crypto-payments-in/[country].tsx` + all `data/seo-pages/countries/*.json` (US, UK, DE, IN, NG, BR, TR, VN).
+- `Components/Layout/HomeFooter/index.tsx`: removed the `SEO_COUNTRIES` list + the "By country" footer block; SEO footer grid is now single-column (industries only).
+- `utils/seoContent.ts` `getRelatedPages()`: added same-kind fallback so vertical pages still cross-link to each other now that the opposite (country) pool is empty.
+- `Components/Page/SEO/SEOLandingPage.tsx`: related-links section header made kind-neutral ("Explore more / More guides for crypto merchants") since only vertical pages remain.
+- Sitemap auto-updates via `getAllSEOPagesIndex()` — 0 country URLs, 6 vertical pages retained.
+- **Verified:** build passes; country URLs → 404; `/for/ecommerce` → 200; footer shows only "For your industry"; sitemap country-count 0.
+- Note: also flagged (not yet fixed) that the deleted country pages had STALE facts (1.5% fee / 12 chains) vs the site's current 0.5% / 15+ — the surviving vertical pages should be checked for the same drift.
+
 ## 2026-07-11 (session 27f) — Testimonials redesigned (metric-led, Stripe-style credibility)
 
 User feedback: the testimonial section "looked common." Researched Stripe's approach (no quote-cards; they use logos + aggregate metrics + product-as-proof). User chose to KEEP testimonials but make them credible (option 3b).

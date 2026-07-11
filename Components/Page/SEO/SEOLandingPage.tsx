@@ -528,18 +528,10 @@ const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages =
         >
           <HomeSectionTitle
             type="small"
-            badgeText={content._kind === "country" ? "For your industry" : "For your country"}
-            title={
-              content._kind === "country"
-                ? "Popular use cases for crypto merchants"
-                : "Popular countries for crypto merchants"
-            }
+            badgeText="Explore more"
+            title="More guides for crypto merchants"
             highlightText="crypto merchants"
-            subtitle={
-              content._kind === "country"
-                ? "See how businesses like yours use Dynopay to accept crypto payments."
-                : "Find country-specific guides for accepting crypto in your market."
-            }
+            subtitle="See how businesses like yours use Dynopay to accept crypto payments."
             headingAs="h2"
             sx={{ maxWidth: "100%" }}
           />

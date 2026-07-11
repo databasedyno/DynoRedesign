@@ -147,7 +147,15 @@ export function getRelatedPages(
 ): SEOPageIndexEntry[] {
   const oppositeKind: "country" | "vertical" =
     currentKind === "country" ? "vertical" : "country";
-  const pool = getAllSEOPagesIndex().filter((p) => p.kind === oppositeKind);
+  let pool = getAllSEOPagesIndex().filter((p) => p.kind === oppositeKind);
+  if (pool.length === 0) {
+    // No opposite-kind pages exist (e.g. country pages were removed) — fall
+    // back to same-kind links (excluding the current page) so internal
+    // linking / crawl depth survives.
+    pool = getAllSEOPagesIndex().filter(
+      (p) => p.kind === currentKind && p.slug !== currentSlug,
+    );
+  }
   if (pool.length === 0) return [];
 
   // Rotate the pool by the slug hash so different pages surface different
