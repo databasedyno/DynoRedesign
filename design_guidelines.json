@@ -1,126 +1,87 @@
 {
-  "theme": "light_and_dark_supported",
-  "project_context": {
-    "app_type": "Marketing Landing Page for SaaS (Crypto Payment Gateway)",
-    "design_philosophy": "Institutional Trust meets Web3 Kinetics. Zero generic AI slop. Swiss precision with terminal-inspired technical details, inspired by Stripe's 2026 engineer-centric layouts.",
-    "tech_stack_rules": "Next.js Pages Router, Material UI (MUI) v5, TypeScript. STRICTLY NO TAILWIND. Use MUI `sx` prop, `styled` components, and pure CSS @keyframes."
-  },
   "typography": {
-    "imports": [
-      "@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Unbounded:wght@300;400;600;800&display=swap');"
-    ],
-    "headings": {
-      "fontFamily": "'Unbounded', sans-serif",
-      "rules": "H1-H6. Use negative letter-spacing (-0.02em to -0.04em). Never use default bold, prefer distinct weights like 300 (Light) or 800 (Black). Capitalize strategically."
-    },
-    "body": {
-      "fontFamily": "'IBM Plex Sans', sans-serif",
-      "rules": "Clean, highly legible. 16px to 18px base size. 1.6 line height. Used for paragraphs, subtitles, and general UI text."
-    },
-    "mono": {
-      "fontFamily": "'IBM Plex Mono', monospace",
-      "rules": "Used for data points, tags, overlines, and code snippets. Extremely technical vibe."
-    }
+    "headings": "Cabinet Grotesk or Outfit (Do not use Inter). Weight: Bold/Black. Tracking: Tight (-0.02em to -0.04em).",
+    "body": "Inter or IBM Plex Sans for readability.",
+    "mono_accent": "JetBrains Mono or Roboto Mono for labels, order references, live progress stats.",
+    "hierarchy_rules": "H1: fluid 4xl-6xl. H2: 3xl-4xl. Mono overlines: text-xs tracking-widest uppercase."
   },
   "colors": {
-    "strategy": "Swiss & High-Contrast + Performance Pro. No generic SaaS blue. We use Deep Obsidian, Pure White, and Electric 'Volt' Green for kinetic energy. Color is function.",
-    "light_mode": {
-      "background": "#F4F5F6",
+    "dark_theme": {
+      "background": "#0A0A0B",
+      "surface": "#141416",
+      "surface_glass": "rgba(255, 255, 255, 0.03)",
+      "primary": "#CCFF00",
+      "primary_text": "#000000",
+      "text_main": "#FFFFFF",
+      "text_muted": "#A0A0AB",
+      "border": "#27272A"
+    },
+    "light_theme": {
+      "background": "#F8F9FA",
       "surface": "#FFFFFF",
-      "primary_text": "#0A0A0A",
-      "secondary_text": "#5C5C5C",
-      "border": "rgba(10, 10, 10, 0.08)",
-      "accent": "#B8E600"
-    },
-    "dark_mode": {
-      "background": "#050505",
-      "surface": "#111111",
-      "primary_text": "#F5F5F5",
-      "secondary_text": "#A1A1A1",
-      "border": "rgba(255, 255, 255, 0.08)",
-      "accent": "#CCFF00"
+      "surface_glass": "rgba(0, 0, 0, 0.03)",
+      "primary": "#CCFF00",
+      "primary_text": "#000000",
+      "text_main": "#0A0A0B",
+      "text_muted": "#52525B",
+      "border": "#E4E4E7"
     }
   },
-  "spacing_and_layout": {
-    "container": "Max width 1400px. Unusually generous padding. Sections should have 120px to 160px vertical padding (e.g., `py: { xs: 10, md: 20 }` in MUI).",
-    "bento_grid": "Use CSS Grid via MUI `sx={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: 3 }}`. Avoid standard equal-width cards. Mix `gridColumn: 'span 8'` and `span 4`.",
-    "card_surfaces": "No soft drop shadows. Flat surfaces, 1px sharp borders. Border radius max 16px. On hover, apply a technical '-translate-y-1' and a sharp colored shadow, e.g., `boxShadow: '4px 4px 0px var(--accent-color)'`."
+  "visual enhancers": {
+    "surfaces": "Use 1px crisp borders (border-border). Avoid muddy shadows. For elevated cards, use subtle drop shadows only in light mode, and inner borders in dark mode.",
+    "glassmorphism": "Use heavy blur (backdrop-filter: blur(16px)) with highly transparent backgrounds for sticky headers or tip boxes. DO NOT use complete transparent backgrounds.",
+    "accents": "Use the bright lime (#CCFF00) strictly for primary CTA buttons, live progress bars, and active states. Do not overuse.",
+    "textures": "Optional subtle SVG noise overlay on the #0A0A0B background to reduce digital flatness."
   },
-  "section_blueprints": {
-    "hero": {
-      "composition": "Massive typography left-aligned. 'Unbounded' font. Right side features a floating Glassmorphic terminal window showcasing an instant settlement API call.",
-      "signature_moment": "Instead of blobs, use an SVG 'Tracing Beam' or geometric grid background. A bold button that says 'Start processing — 0.7%' in Volt Green."
+  "component name": {
+    "DonationCampaignCheckout": "Main campaign visual + interactive donation widget. Needs progress bar, stats, supporters list.",
+    "StandardPaymentCheckout": "Focused, narrow container. Receipt-like order summary. Coin selector grid.",
+    "CreatorProfilePage": "Public vanity page. Avatar, bio, grid of payment links, sticky tip box.",
+    "HandleClaimUI": "Settings module. Input with prefix, success/error state for availability.",
+    "LandingPageRefresh": "Update hero or features section to include creator pages and crowdfunding visuals."
+  },
+  "grids": {
+    "creator_page": "Bento Grid: 1 column on mobile. Desktop: 12-column grid. Left 8 cols for active links/bio, Right 4 cols for sticky Tip Box.",
+    "donation_checkout": "Asymmetrical 2-column. Left: Campaign storytelling (image, text, supporters). Right: Actionable donation form.",
+    "standard_checkout": "Centered narrow 1-column layout (max-width: 480px). Dense data display."
+  },
+  "layouts": {
+    "spacing": "Generous. Sections should have padding like py-24. Cards should have p-6 or p-8.",
+    "alignment": "Left-align dense text. Center standard checkout content. Optically align icons in buttons."
+  },
+  "motion": {
+    "interactions": "Hover states on all buttons: slight scale (scale(0.98)) or brightness increase. Progress bars should animate width on load.",
+    "transitions": "Use MUI transitions or simple CSS `transition: transform 0.2s ease, opacity 0.2s ease`."
+  },
+  "accessibility": {
+    "contrast": "Ensure black text (#000000) is used ON the primary lime green (#CCFF00) for contrast. Do not use white text on lime.",
+    "testing": "All interactive elements MUST have `data-testid` (e.g., `data-testid=\"tip-submit-button\"`).",
+    "focus": "High contrast focus rings for inputs and buttons."
+  },
+  "media": {
+    "rules": "Images must have max-h-[50vh] on mobile to prevent blocking UI. Use object-cover for cover images. Avoid fully transparent headers over images."
+  },
+  "3d libraries": {
+    "usage": "Not strictly required for checkout/profile pages to maintain performance and focus, but can use mild Framer Motion or CSS animations."
+  },
+  "image_urls": {
+    "creator_avatar": {
+      "url": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Njd8MHwxfHNlYXJjaHwxfHxjcmVhdG9yJTIwcHJvZmlsZSUyMHBvcnRyYWl0fGVufDB8fHx8MTc4Mzc5NDIwM3ww&ixlib=rb-4.1.0&q=85",
+      "description": "Avatar for the Creator Profile Page mockup.",
+      "category": "Avatar"
     },
-    "compliance_strip": {
-      "composition": "A high-contrast strip (inverted background) with grayscale logos of SOC2, GDPR, Chainalysis, and non-custodial badges. Slow infinite CSS marquee."
+    "donation_cover": {
+      "url": "https://images.unsplash.com/photo-1591522810850-58128c5fb089?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxODF8MHwxfHNlYXJjaHwxfHxjaGFyaXR5JTIwZG9uYXRpb24lMjBhYnN0cmFjdHxlbnwwfHx8fDE3ODM3OTQyMDR8MA&ixlib=rb-4.1.0&q=85",
+      "description": "Abstract cover image for the Donation/Crowdfunding Checkout page.",
+      "category": "Cover Image"
     },
-    "product_showcase": {
-      "composition": "A 3-step interactive sticky-scroll or auto-playing tab system. Step 1: Customer QR Checkout. Step 2: Instant Settlement to wallet. Step 3: Developer Dashboard. Build these as abstract UI mockups using MUI boxes and typography, not images."
-    },
-    "supported_chains": {
-      "composition": "Horizontal rail. Very large IBM Plex Mono text overlapping or crisp, monochromatic SVG icons of the 13 chains. Minimalist, highly technical."
-    },
-    "stat_wall": {
-      "composition": "Stripe-inspired density. 4 massive numbers taking up the screen width. E.g., '$0' (Setup), '0.7%' (Fee), '< 2s' (Settlement), '13' (Chains). Use 'Unbounded' 800 weight, huge font sizes."
-    },
-    "value_props": {
-      "composition": "3 minimalist cards. Top border of the card acts as a progress bar or highlights in Volt Green on hover."
-    },
-    "use_cases_bento": {
-      "problem_solved": "Replaces generic stock photos with a product-forward Bento Grid.",
-      "composition": "A 12-column CSS grid. \n- Card 1 (Span 8): 'Online Stores' with a mock checkout UI component built in MUI.\n- Card 2 (Span 4): 'SaaS' with a code snippet showing API subscription logic.\n- Card 3 (Span 4): 'Creators' with a mock donation widget.\n- Card 4 (Span 8): 'Freelancers' with a sleek invoice table mockup.\nHover states should trigger micro-animations within the mockups."
-    },
-    "fee_calculator": {
-      "composition": "MUI Slider with a custom thumb. Left side: slider and input. Right side: Two vertical bars (HTML divs). Dynopay's bar is tiny and Volt Green. Stripe/PayPal's bar is huge and red/gray. The bars dynamically resize via inline styles as the slider moves to visually show savings visceral."
-    },
-    "testimonials": {
-      "composition": "Editorial layout. Ditch the standard carousel. Use a masonry layout or large, commanding quotes. Include avatar, name, and a 5-star visual.",
-      "avatars": "Use the provided image URLs in the media section."
-    },
-    "faq": {
-      "composition": "MUI Accordion. Override default styles: background transparent, `boxShadow: 'none'`, 1px bottom border. Icon is a simple '+' that rotates to '-'."
-    },
-    "final_cta": {
-      "composition": "Deep Obsidian background regardless of light/dark mode. Huge text: 'The old system is slow. Dynopay is instant.' Volt Green CTA button."
+    "crypto_abstract": {
+      "url": "https://images.unsplash.com/photo-1770486036751-e55247238964?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2ODh8MHwxfHNlYXJjaHwyfHxjcnlwdG8lMjBhYnN0cmFjdCUyMGRhcmt8ZW58MHx8fHwxNzgzNzk0MjA0fDA&ixlib=rb-4.1.0&q=85",
+      "description": "Dark abstract pattern for Landing Page background accents or standard checkout merchant background.",
+      "category": "Background Texture"
     }
   },
-  "motion_guidelines": {
-    "engine": "CSS @keyframes and MUI `<Fade>`, `<Slide>`, or `sx` transitions.",
-    "hover_states": "Interactive elements MUST have distinct hover states. E.g., `transition: transform 0.2s ease, border-color 0.2s ease`.",
-    "scroll_reveal": "Implement a simple `IntersectionObserver` hook to apply a `.visible` class that triggers a fade-up animation for sections as they enter the viewport."
-  },
-  "accessibility_and_testing": {
-    "testing": "All interactive elements, buttons, inputs, and major sections MUST have a `data-testid` attribute (e.g., `data-testid='hero-cta-button'`).",
-    "contrast": "Ensure pure white text on deep obsidian meets APCA/WCAG standards. Volt Green on white must be used carefully; prefer it as a background with black text."
-  },
-  "media_urls": {
-    "testimonials": [
-      {
-        "url": "https://images.pexels.com/photos/26872232/pexels-photo-26872232.jpeg",
-        "description": "Avatar for Testimonial 1 - Confident professional"
-      },
-      {
-        "url": "https://images.pexels.com/photos/12931653/pexels-photo-12931653.jpeg",
-        "description": "Avatar for Testimonial 2 - Serious professional"
-      },
-      {
-        "url": "https://images.pexels.com/photos/14589344/pexels-photo-14589344.jpeg",
-        "description": "Avatar for Testimonial 3 - Business professional"
-      }
-    ]
-  },
-  "instructions_to_main_agent": [
-    "DO NOT USE TAILWIND CSS. The project uses MUI v5 and `sx` styling. Do not install or configure Tailwind.",
-    "Configure a custom MUI Theme (`createTheme`) mapping these typography and color rules to `theme.palette` and `theme.typography`.",
-    "Implement the Use Cases section strictly as a Bento Grid composed of MUI components acting as mini-UI mockups. NO STOCK PHOTOS. NO EXCEPTIONS.",
-    "For the fee calculator, write custom React state logic linked to a Slider and dynamically style the height/width of comparison bars to make the impact obvious.",
-    "Ensure the layout is perfectly responsive using MUI's `xs`, `sm`, `md`, `lg` breakpoints in `sx`."
-  ],
-  "UNIVERSAL_GUIDELINES_FOR_MAIN_AGENT": [
-    "You tend to converge toward generic outputs. Break that habit. Use the specified 'Unbounded' and 'IBM Plex Mono' fonts.",
-    "Apply 'Swiss & High-Contrast' design principles: dense data, crisp 1px borders, and striking neon accents against obsidian or pure white.",
-    "Never use AI assistant emojis. Use professional, monochromatic SVG icons (e.g., from MUI Icons).",
-    "Every section must feel highly deliberate and 'institutional' yet technically advanced.",
-    "Add `data-testid` to everything functional."
-  ]
+  "component_path": "/app/Components",
+  "instructions_to_main_agent": "1. Use Next.js Pages router (.js files). 2. Use MUI + styled-components. Extend the MUI theme (`theme.palette`) to support the dark (#0A0A0B) and light themes matching the 'Swiss/editorial' vibe. 3. Build a CreatorProfile page component that takes a `handle` prop. 4. Refactor the existing DonationCampaign component to include a live progress bar, stats, supporters list, and dynamic donation options. 5. Do not use generic MUI shadows; use crisp borders and glassmorphism. 6. Integrate `data-testid` on all buttons and inputs. 7. For mono-accent texts (stats, percentages), use `fontFamily: 'monospace'` or a loaded mono font in MUI typography variants.",
+  "UNIVERSAL GUIDELINES FOR MAIN AGENT": "Avoid generic centered layouts and simplistic gradients. Create depth through layered design elements with z-index hierarchy. Use glass-morphism effects with backdrop filters (12-24px blur). NEVER apply universal transitions (transition: all). Use specific transitions. Ensure the 'App' container is not center-aligned to preserve reading flow. Always use modern button styles (pill-shaped or sharp with interaction animations). DO NOT use AI emoji characters for icons. Use Phosphor Icons or MUI Icons. Provide micro-animations for hover states."
 }
