@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import React, { createContext, useContext, useState, useEffect, useLayoutEffect, useMemo, useCallback, useRef } from 'react';
 
 type ThemeMode = 'light' | 'dark';
 
@@ -11,6 +11,11 @@ interface ThemeContextType {
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+
+// Apply theme side-effects BEFORE the browser paints on the client (prevents a
+// one-frame background flash on toggle); fall back to useEffect during SSR.
+const useIsomorphicLayoutEffect =
+  typeof window !== 'undefined' ? useLayoutEffect : useEffect;
 
 /** Read the OS / device preference. Falls back to 'light' during SSR. */
 function getSystemPreference(): ThemeMode {
@@ -75,7 +80,7 @@ export const ThemeProvider: React.FC<{
   }, []);
 
   // ── 2. Keep data-theme attribute in sync so CSS always matches ──
-  useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     if (typeof document !== 'undefined') {
       document.documentElement.dataset.theme = mode;
       document.documentElement.style.colorScheme = mode;

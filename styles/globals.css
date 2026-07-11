@@ -91,6 +91,8 @@ body {
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
   -webkit-tap-highlight-color: transparent;
+  /* Smooth the root background when the theme toggles (no hard blink) */
+  transition: background-color 0.2s ease;
 }
 
 /* iOS safe area support */

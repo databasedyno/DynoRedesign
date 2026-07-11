@@ -298,6 +298,11 @@ const CryptoTransfer = ({
   // Track if we're in partial payment completion mode
   const [isPartialPaymentMode, setIsPartialPaymentMode] = useState(false);
   const isPartialPaymentModeRef = useRef(false);
+  // Monotonic request id — only the latest coin/network selection's response is applied
+  const requestSeqRef = useRef(0);
+  // Targets (e.g. "USDT-TRC20", "ETH") currently being fetched — blocks duplicate
+  // concurrent calls so the same address is never reserved twice.
+  const inFlightTargetsRef = useRef<Set<string>>(new Set());
   const [remainingPaymentInfo, setRemainingPaymentInfo] = useState<{
     remainingAmount: number;
     remainingAmountUsd: number;
@@ -611,14 +616,22 @@ const CryptoTransfer = ({
     cryptoValue: string,
     network: "TRC20" | "ERC20" | "POLYGON" | "XRPL" = "TRC20"
   ) => {
+    // This is what you display or send to backend
+    const displayCurrency =
+      cryptoValue === "USDT" ? `USDT-${network}`
+      : cryptoValue === "RLUSD" ? `RLUSD-${network}`
+      : cryptoValue;
+    // Dedupe identical concurrent requests → never reserve the same address twice
+    if (inFlightTargetsRef.current.has(displayCurrency)) return;
+    inFlightTargetsRef.current.add(displayCurrency);
+    // Latest-request-wins: a superseded selection's response is discarded below
+    const seq = ++requestSeqRef.current;
     try {
       setLoading(true);
-
-      // This is what you display or send to backend
-      const displayCurrency =
-        cryptoValue === "USDT" ? `USDT-${network}` 
-        : cryptoValue === "RLUSD" ? `RLUSD-${network}`
-        : cryptoValue;
+      // Reflect the new selection instantly + clear the previous chain's
+      // address/QR so a stale (wrong-chain) address is never shown mid-switch.
+      setSelectedCrypto(cryptoValue);
+      setCryptoDetails({ qr_code: "", address: "", hash: "", memo: "" });
 
       // This is the actual currency key used in rateData
       const baseCurrency =
@@ -685,6 +698,9 @@ const CryptoTransfer = ({
         }
       }
 
+      // Discard if a newer selection superseded this request while rates were fetching
+      if (seq !== requestSeqRef.current) return;
+
       const findRate = rateData?.find(
         (item: any) => item.currency === baseCurrency
       );
@@ -695,14 +711,11 @@ const CryptoTransfer = ({
       // Guard: If rate data is unavailable after retries, abort cleanly
       if (!findRate || (!findRate.total_amount && !findRate.amount)) {
         dispatch({ type: TOAST_SHOW, payload: { message: "Unable to fetch conversion rate. Please try again.", severity: "error" } });
-        setLoading(false);
-        setLoadingStep(null);
         return;
       }
 
       setCurrencyRates(rateData || undefined);
       setSelectedCurrency(findRate);
-      setSelectedCrypto(cryptoValue);
 
       // Create payment
       setLoadingStep('payment');
@@ -721,6 +734,9 @@ const CryptoTransfer = ({
       });
 
       const result = submitResponse?.data?.data;
+
+      // Discard if superseded during payment creation (never show a stale address)
+      if (seq !== requestSeqRef.current) return;
 
       if (result?.redirect) {
         window.location.replace(result.redirect);
@@ -758,8 +774,12 @@ const CryptoTransfer = ({
       const message = e?.response?.data?.message ?? e.message;
       dispatch({ type: TOAST_SHOW, payload: { message, severity: "error" } });
     } finally {
-      setLoading(false);
-      setLoadingStep(null);
+      inFlightTargetsRef.current.delete(displayCurrency);
+      // Only the latest request owns the loading UI
+      if (seq === requestSeqRef.current) {
+        setLoading(false);
+        setLoadingStep(null);
+      }
     }
   };
 
@@ -1956,7 +1976,9 @@ const CryptoTransfer = ({
                     textOverflow="ellipsis"
                     whiteSpace="nowrap"
                   >
-                    {cryptoDetails?.address}
+                    {loading
+                      ? t('crypto.generatingAddress', { defaultValue: 'Generating address…' })
+                      : cryptoDetails?.address}
                   </Typography>
                   <Tooltip title={t('common.copy')}>
                     <IconButton
