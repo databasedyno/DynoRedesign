@@ -10,7 +10,7 @@ import json
 import time
 
 # Configuration
-BASE_URL = "https://fast-launch-38.preview.emergentagent.com"
+BASE_URL = "https://cross-device-verify.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 # Test credentials

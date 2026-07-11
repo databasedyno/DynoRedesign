@@ -5,7 +5,7 @@
 
 const { chromium } = require('playwright');
 
-const PREVIEW_URL = 'https://fast-launch-38.preview.emergentagent.com';
+const PREVIEW_URL = 'https://cross-device-verify.preview.emergentagent.com';
 
 async function testGISIntegration() {
   console.log('='.repeat(80));
