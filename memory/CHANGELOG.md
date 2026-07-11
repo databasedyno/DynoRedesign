@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-07-11 (session 27f) — Testimonials redesigned (metric-led, Stripe-style credibility)
+
+User feedback: the testimonial section "looked common." Researched Stripe's approach (no quote-cards; they use logos + aggregate metrics + product-as-proof). User chose to KEEP testimonials but make them credible (option 3b).
+- Rewrote `Components/Page/Home/TestimonialsV2.tsx`: **removed 5-star rows and stock-photo avatars** (fake headshots hurt trust on a payments site). Each card now **leads with a hard outcome number in monospace** (`0.8%` processing fee, `0` chargebacks, `30` countries) + uppercase mono label, a divider, the quote, then a **monogram** (initials, lime ring) attribution + chain pill. Featured card content vertically centered.
+- Copy: added `testimonial{1,2,3}MetricLabel` keys to `landing.json` (6 locales); fixed stale "12 chains" → "15+ chains" in the 2nd quote across all 6 locales (brand consistency).
+- Verified via screenshot (light mode); uses `swiss` tokens so dark mode inherits (accentText = lime in dark). Standalone build passed + restarted.
+- Note: quotes remain placeholder/anonymous (user has no publishable logos/hard metrics yet). If real customer logos or volume/uptime figures become available, a Stripe-style "by the numbers" + logo band would be the stronger next step.
+
 ## 2026-07-11 (session 27e) — Dark-mode verify, network testids, /system-status + /payment i18n
 
 **Dark-mode checkout (investigation, NO code change):** Reproduced with the real pay-header theme toggle — body → `#060606`, full card dark, lime accents legible. Confirmed WORKING. Prior "stays light" report was a test artifact (Pay3 header is ink-colored in light mode by design; wrong control was clicked).

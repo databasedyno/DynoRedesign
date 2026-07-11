@@ -1,13 +1,13 @@
 import React, { memo } from 'react';
 import { Box, Typography } from '@mui/material';
-import { Star } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import SwissSectionHead from './SwissSectionHead';
 import { FONT_BODY, FONT_HERO, FONT_TECH, SwissTokens, useSwiss } from './swiss';
 
 /**
- * TestimonialsV2 — editorial treatment (Swiss redesign). One commanding
- * featured quote plus two supporting quotes; no carousel.
+ * TestimonialsV2 — metric-led editorial proof (Swiss redesign, 2026-07).
+ * No star rows, no stock-photo avatars. Each card leads with a hard outcome
+ * number (monospace) tied to the quote, with a monogram attribution.
  */
 
 interface Testimonial {
@@ -17,7 +17,8 @@ interface Testimonial {
   industry: string;
   quoteKey: string;
   chain: string;
-  avatar: string;
+  metric: string;
+  metricLabelKey: string;
 }
 
 const QUOTES: Testimonial[] = [
@@ -28,7 +29,8 @@ const QUOTES: Testimonial[] = [
     industry: 'E-commerce · Portugal',
     chain: 'USDT-TRC20',
     quoteKey: 'testimonial1Quote',
-    avatar: 'https://images.pexels.com/photos/26872232/pexels-photo-26872232.jpeg?auto=compress&cs=tinysrgb&w=160&h=160&fit=crop',
+    metric: '0.8%',
+    metricLabelKey: 'testimonial1MetricLabel',
   },
   {
     name: 'David Kimani',
@@ -37,7 +39,8 @@ const QUOTES: Testimonial[] = [
     industry: 'SaaS · Kenya',
     chain: 'USDT-ERC20',
     quoteKey: 'testimonial2Quote',
-    avatar: 'https://images.pexels.com/photos/12931653/pexels-photo-12931653.jpeg?auto=compress&cs=tinysrgb&w=160&h=160&fit=crop',
+    metric: '0',
+    metricLabelKey: 'testimonial2MetricLabel',
   },
   {
     name: 'Sofia Chen',
@@ -46,36 +49,99 @@ const QUOTES: Testimonial[] = [
     industry: 'Marketplace · Singapore',
     chain: 'USDC-Polygon',
     quoteKey: 'testimonial3Quote',
-    avatar: 'https://images.pexels.com/photos/14589344/pexels-photo-14589344.jpeg?auto=compress&cs=tinysrgb&w=160&h=160&fit=crop',
+    metric: '30',
+    metricLabelKey: 'testimonial3MetricLabel',
   },
 ];
 
-const Attribution: React.FC<{ t: Testimonial; s: SwissTokens; size?: number }> = ({ t, s, size = 44 }) => (
+const initials = (name: string) =>
+  name
+    .split(' ')
+    .map((w) => w[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
+
+const Monogram: React.FC<{ name: string; s: SwissTokens; size?: number }> = ({ name, s, size = 40 }) => (
+  <Box
+    aria-hidden
+    sx={{
+      width: size,
+      height: size,
+      borderRadius: '50%',
+      flexShrink: 0,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: s.accentSoft,
+      color: s.accentText,
+      border: `1.5px solid ${s.accent}`,
+      fontFamily: FONT_HERO,
+      fontWeight: 600,
+      fontSize: Math.round(size * 0.34),
+      letterSpacing: '0.02em',
+    }}
+  >
+    {initials(name)}
+  </Box>
+);
+
+const Metric: React.FC<{ value: string; label: string; s: SwissTokens; big?: boolean }> = ({ value, label, s, big }) => (
+  <Box>
+    <Typography
+      sx={{
+        fontFamily: FONT_TECH,
+        fontWeight: 600,
+        fontSize: big ? { xs: 38, md: 52 } : { xs: 30, md: 34 },
+        lineHeight: 1,
+        letterSpacing: '-0.03em',
+        color: s.accentText,
+        fontVariantNumeric: 'tabular-nums',
+      }}
+    >
+      {value}
+    </Typography>
+    <Typography
+      sx={{
+        fontFamily: FONT_TECH,
+        fontSize: 11,
+        letterSpacing: '0.1em',
+        textTransform: 'uppercase',
+        color: s.sub,
+        mt: 1,
+      }}
+    >
+      {label}
+    </Typography>
+  </Box>
+);
+
+const Attribution: React.FC<{ t: Testimonial; s: SwissTokens; size?: number }> = ({ t, s, size = 40 }) => (
   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-    <Box
-      component="img"
-      src={t.avatar}
-      alt={t.name}
-      loading="lazy"
-      sx={{ width: size, height: size, borderRadius: '50%', objectFit: 'cover', border: `1px solid ${s.lineStrong}`, flexShrink: 0 }}
-    />
+    <Monogram name={t.name} s={s} size={size} />
     <Box sx={{ flex: 1, minWidth: 0 }}>
       <Typography sx={{ fontFamily: FONT_BODY, fontSize: 14, fontWeight: 600, color: s.txt, lineHeight: 1.25 }}>{t.name}</Typography>
       <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11, color: s.sub, lineHeight: 1.5 }}>
         {t.role} · {t.company} · {t.industry}
       </Typography>
     </Box>
-    <Typography component="span" sx={{ fontFamily: FONT_TECH, fontSize: 10, letterSpacing: '0.08em', px: 1, py: 0.35, borderRadius: '6px', border: `1px solid ${s.dark ? 'rgba(204,255,0,0.3)' : 'rgba(90,107,0,0.3)'}`, color: s.accentText, whiteSpace: 'nowrap', flexShrink: 0 }}>
+    <Typography
+      component="span"
+      sx={{
+        fontFamily: FONT_TECH,
+        fontSize: 10,
+        letterSpacing: '0.08em',
+        px: 1,
+        py: 0.35,
+        borderRadius: '6px',
+        border: `1px solid ${s.dark ? 'rgba(204,255,0,0.3)' : 'rgba(90,107,0,0.3)'}`,
+        color: s.accentText,
+        whiteSpace: 'nowrap',
+        flexShrink: 0,
+      }}
+    >
       {t.chain}
     </Typography>
-  </Box>
-);
-
-const Stars: React.FC<{ s: SwissTokens }> = ({ s }) => (
-  <Box sx={{ display: 'flex', gap: 0.4 }}>
-    {Array.from({ length: 5 }).map((_, i) => (
-      <Star key={i} sx={{ fontSize: 15, color: s.accentText }} />
-    ))}
   </Box>
 );
 
@@ -91,6 +157,10 @@ const cardBase = (s: SwissTokens) => ({
   '&:hover': { transform: 'translateY(-3px)', borderColor: s.dark ? 'rgba(204,255,0,0.3)' : 'rgba(10,10,10,0.22)' },
 });
 
+const Divider: React.FC<{ s: SwissTokens }> = ({ s }) => (
+  <Box sx={{ height: '1px', width: '100%', backgroundColor: s.line }} />
+);
+
 const TestimonialsV2: React.FC = () => {
   const s = useSwiss();
   const { t } = useTranslation('landing');
@@ -101,20 +171,24 @@ const TestimonialsV2: React.FC = () => {
       <SwissSectionHead num="04" eyebrow={t('testimonialsEyebrow')} title={t('testimonialsHeading')} />
 
       <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '7fr 5fr' }, gap: { xs: 2, md: 2.5 }, alignItems: 'stretch' }}>
-        {/* Featured — commanding editorial quote */}
+        {/* Featured — outcome number leads */}
         <Box data-testid="testimonial-featured" sx={cardBase(s)}>
-          <Stars s={s} />
-          <Typography sx={{ fontFamily: FONT_HERO, fontWeight: 300, fontSize: { xs: 17, md: 21 }, lineHeight: 1.6, letterSpacing: '-0.01em', color: s.txt, flex: 1 }}>
-            {'\u201C'}{t(featured.quoteKey)}{'\u201D'}
-          </Typography>
-          <Attribution t={featured} s={s} size={52} />
+          <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 2.5 }}>
+            <Metric value={featured.metric} label={t(featured.metricLabelKey)} s={s} big />
+            <Divider s={s} />
+            <Typography sx={{ fontFamily: FONT_HERO, fontWeight: 300, fontSize: { xs: 17, md: 21 }, lineHeight: 1.6, letterSpacing: '-0.01em', color: s.txt }}>
+              {'\u201C'}{t(featured.quoteKey)}{'\u201D'}
+            </Typography>
+          </Box>
+          <Attribution t={featured} s={s} size={48} />
         </Box>
 
         {/* Supporting quotes */}
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: { xs: 2, md: 2.5 } }}>
           {rest.map((q, i) => (
             <Box key={q.name} data-testid={`testimonial-card-${i + 1}`} sx={{ ...cardBase(s), flex: 1 }}>
-              <Stars s={s} />
+              <Metric value={q.metric} label={t(q.metricLabelKey)} s={s} />
+              <Divider s={s} />
               <Typography sx={{ fontFamily: FONT_BODY, fontSize: 14, lineHeight: 1.65, color: s.txt, flex: 1 }}>
                 {'\u201C'}{t(q.quoteKey)}{'\u201D'}
               </Typography>
