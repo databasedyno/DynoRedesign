@@ -17,6 +17,9 @@ paymentRouter.post("/encrypt-payload", walletController.encryptPayload);
 
 paymentRouter.post("/getData", paymentRateLimiter, paymentController.getData);
 
+// Public creator vanity page profile (dynopay.com/{handle} → SSR fetch)
+paymentRouter.get("/creator/:handle", paymentRateLimiter, paymentController.getCreatorProfile);
+
 // Donation campaigns: public endpoint for a donor to start a contribution
 // (spawns a child payment session; checkout continues with the returned ref)
 paymentRouter.post("/startDonation", paymentRateLimiter, paymentController.startDonation);

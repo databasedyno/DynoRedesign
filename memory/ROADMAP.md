@@ -1,3 +1,17 @@
+# CURRENT PRIORITIES (2026-07-11, session 27) — top of stack
+
+DONE this session (preview): login-bounce fix (withAuth retry), Google stay-on-page popup, Profile→Settings merge, Help refresh + chat CTA + quick-reply chips, branded favicon (ink+lime), site OG card, "15+ chains", "Dynotech" footer, SEO heading fix, donation/crowdfunding checkout redesign, **Creator vanity pages `dynopay.com/{handle}`** (migration on LIVE DB + endpoints + SSR page + Settings claim UI + dynamic OG). See CHANGELOG.
+
+NEXT (user-requested order after creator):
+- P0 STANDARD /pay checkout polish — make the regular payment checkout match landing-page quality (order summary, coin grid, trust signals). File: pages/pay/index.tsx (+ Pay3Components).
+- P1 Landing page refresh — surface donations/crowdfunding/creator pages; keep clean.
+- P1 Dynamic link previews for shared payment/donation links — SSR the /pay page's OG tags (crawlers don't run JS). Creator pages already have dynamic OG.
+
+REMINDER: login-bounce fix is PREVIEW-only until the user deploys to production.
+
+---
+
+
 ## 2026-07-07 — Feature A (dashboard bento reskin) — Phase 1: DARK MODE DONE ✅ (tested), light-mode + residual-blue cleanup REMAINING
 - Created styles/appTheme.ts (appThemeDark/appThemeLight) = createTheme(themeDark/theme, bento palette) — cyber-lime accent, void/frost canvas; re-declared custom MuiButton variants (rounded/pills/bluepill) with accent; set BOTH primary & secondary to the accent (old theme used one blue for both, so many dashboard elements read `secondary`). Wired into _app.tsx `default` (client) layout case. Fixed hardcoded blues in Components/Page/Wallet/index.tsx (→ palette tokens).
 - Testing agent (read-only, JWT): DARK MODE PASS — lime dominant (dashboard 124 lime / 18 blue, wallet 211/19, pay-links 68/17, profile 78/17), renders, no console errors. NewSidebar/dashboard widgets already palette-driven → now lime.

@@ -1797,3 +1797,88 @@ export const uploadCampaignImage = async (
     handleControllerError(res, e, apiLogger, {});
   }
 };
+
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CREATOR VANITY PAGE — public profile at dynopay.com/{handle}
+// Returns the creator's public info + their active donation campaigns and
+// reusable payment links. No auth (crawler-friendly for the SSR page).
+// ═══════════════════════════════════════════════════════════════════════════
+export const getCreatorProfile = async (req: express.Request, res: express.Response) => {
+  try {
+    const handle = String(req.params.handle || "").trim().toLowerCase();
+    if (!handle) return errorResponseHelper(res, 400, "Handle is required");
+
+    const creator = (await sequelize.query(
+      `SELECT user_id, name, photo, bio, handle, creator_page_enabled
+       FROM tbl_user
+       WHERE LOWER(handle) = :handle AND creator_page_enabled = true
+       LIMIT 1`,
+      { replacements: { handle }, type: QueryTypes.SELECT }
+    )) as Array<{ user_id: number; name: string; photo: string | null; bio: string | null; handle: string; creator_page_enabled: boolean }>;
+
+    if (!creator.length) {
+      return errorResponseHelper(res, 404, "Creator page not found");
+    }
+    const c = creator[0];
+
+    const rows = await paymentLinkModel.findAll({
+      where: {
+        user_id: c.user_id,
+        parent_link_id: null,
+        [Op.or]: [{ link_type: "donation" }, { payment_mode: "createLink" }],
+      },
+      order: [["createdAt", "DESC"]],
+      limit: 30,
+    });
+
+    const now = Date.now();
+    const links: Array<Record<string, unknown>> = [];
+    for (const r of rows) {
+      const d = r.dataValues as Record<string, any>;
+      if (d.expires_at && new Date(d.expires_at).getTime() < now) continue;
+      const isDonation = d.link_type === "donation";
+      const currency = d.base_currency || "USD";
+      let raised = 0, supporters = 0, progress: number | null = null, closed = false;
+      if (isDonation) {
+        const agg = await getDonationAggregates(d.link_id);
+        raised = agg.raised_amount;
+        supporters = agg.supporters_count;
+        if (d.goal_amount && Number(d.goal_amount) > 0) {
+          progress = Math.min(100, Math.round((raised / Number(d.goal_amount)) * 100));
+          closed = Boolean(d.auto_close_at_goal) && raised >= Number(d.goal_amount);
+        }
+      }
+      links.push({
+        type: isDonation ? "donation" : "link",
+        link_id: d.link_id,
+        title: d.title || d.description || (isDonation ? "Support this campaign" : "Payment link"),
+        description: d.description || null,
+        image: d.campaign_image || null,
+        amount: isDonation ? null : Number(d.base_amount || 0),
+        currency,
+        goal_amount: d.goal_amount ? Number(d.goal_amount) : null,
+        raised_amount: raised,
+        supporters_count: supporters,
+        progress_percent: progress,
+        closed,
+        url: d.payment_link || null,
+      });
+    }
+
+    // Donation campaigns first, then reusable links
+    links.sort((a, b) => (a.type === "donation" ? -1 : 1) - (b.type === "donation" ? -1 : 1));
+
+    return successResponseHelper(res, 200, "Creator profile retrieved", {
+      creator: {
+        name: c.name || c.handle,
+        handle: c.handle,
+        bio: c.bio || null,
+        photo: c.photo && !String(c.photo).includes("user_image.png") ? c.photo : null,
+      },
+      links,
+    });
+  } catch (e) {
+    handleControllerError(res, e, apiLogger, {});
+  }
+};

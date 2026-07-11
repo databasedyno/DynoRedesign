@@ -1,5 +1,24 @@
 # Changelog
 
+## 2026-07-11 (session 27c) — Creator vanity pages (dynopay.com/{handle})
+
+**DB (LIVE prod, additive migration — user approved):** `backend/migrations/addCreatorHandle.ts` added `handle` VARCHAR(50), `bio` VARCHAR(500), `creator_page_enabled` BOOLEAN to `tbl_user` + partial unique index `idx_tbl_user_handle_lower` on `LOWER(handle)`. Idempotent (`IF NOT EXISTS`). Model updated (`userModel.ts`). Verified columns exist.
+
+**Backend endpoints:**
+- Auth'd: `GET /api/user/creator/check-handle?handle=x` + `PUT /api/user/creator/profile` (userController `checkHandle`/`updateCreatorProfile`). Validation: 3–30 chars `^[a-z0-9][a-z0-9_-]{2,29}$`, lowercase, RESERVED_HANDLES guard (auth/admin/pay/fees/blog/etc.), case-insensitive uniqueness. Clears `profile:{id}` Redis cache on save. Routes in `userRouter.ts`.
+- Public: `GET /api/pay/creator/:handle` (paymentLinkController `getCreatorProfile`, mounted on public `paymentRouter`). Returns `{creator:{name,handle,bio,photo}, links:[...]}` — user's donation campaigns (with raised/supporters/progress via `getDonationAggregates`) + reusable `createLink` links, expired filtered out, donations first.
+- `getProfile` already returns handle/bio/creator_page_enabled (spreads dataValues).
+
+**Frontend:**
+- `pages/[handle].tsx` — root SSR catch-all, `getServerSideProps` fetches `${NEXT_PUBLIC_BASE_URL}/api/pay/creator/{handle}` → notFound on 404. `layout='home'` (public; default layout is auth-gated `client`). Dynamic per-creator OG/Twitter meta (og:type=profile) with `key` dedupe.
+- `Components/Page/Creator/CreatorProfile.tsx` — avatar (lime ring), name, @handle (mono), bio, featured donation "Support" card (progress + CTA), link cards grid, empty state, "Powered by Dynopay".
+- `Components/Page/Creator/CreatorPageSettings.tsx` — Settings → new "Creator page" section: handle input (dynopay.com/ prefix + debounced availability check + tick/cross), bio, publish toggle, live URL banner (copy + view). Fetches profile via `UserAction(USER_PROFILE_FETCH)` (raw action doesn't trigger saga — saga watches USER_INIT+crudType). Seeds only when `profile.user_id` present (empty `{}` default was seeding blank).
+- `_app.tsx` OG/Twitter meta now all have `key`s so per-page (creator/SEO) Head overrides dedupe (fixed duplicate og:title/og:type).
+
+**Verified:** migration + columns; all 3 endpoints via curl (check→claim→public); `/hostbay` SSR 200 + single OG tags + renders (empty-state); unknown handle → 404; existing routes (/fees,/settings) intact; settings section renders + seeds handle "hostbay" (Playwright + minted JWT — prod login is OTP-gated). NOTE: set test user hostbay@moxx.co handle="hostbay", page enabled, on LIVE DB → public at /hostbay.
+
+**Still pending (user order after creator = 1,2,3):** 1) standard /pay checkout polish, 2) landing refresh, 3) dynamic OG for shared pay/donation links. Login-bounce fix still PREVIEW-only (deploy to go live).
+
 ## 2026-07-11 (session 27b) — Brand assets, chat chips, donation checkout redesign, copy fixes
 
 **Branding / SEO**

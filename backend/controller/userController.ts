@@ -3834,6 +3834,109 @@ const flagLogin = async (req: express.Request, res: express.Response) => {
   }
 };
 
+// ── Creator vanity page (dynopay.com/{handle}) ──
+// Handles reserved so a user can't shadow an app route.
+const RESERVED_HANDLES = new Set([
+  "auth", "admin", "dashboard", "pay", "payment", "payments", "fees", "blog", "docs",
+  "documentation", "help-support", "help", "support", "system-status", "status",
+  "privacy-policy", "privacy", "terms-conditions", "terms", "aml-policy", "legal",
+  "settings", "profile", "reset-password", "api", "public", "static", "assets",
+  "accept-crypto-payments-in", "for", "create-pay-link", "about", "contact", "login",
+  "register", "signup", "signin", "logout", "home", "index", "app", "www", "pricing",
+  "qa", "sitemap", "robots", "favicon", "og", "images", "checkout", "invoice", "invoices",
+  "wallet", "wallets", "company", "companies", "user", "users", "me", "new", "edit",
+  "creator", "creators", "explore", "discover",
+]);
+const HANDLE_RE = /^[a-z0-9][a-z0-9_-]{2,29}$/;
+
+const normalizeHandle = (h: string) => String(h || "").trim().toLowerCase();
+
+const validateHandle = (h: string): string | null => {
+  if (!h) return "Handle is required";
+  if (h.length < 3 || h.length > 30) return "Handle must be 3–30 characters";
+  if (!HANDLE_RE.test(h)) return "Use lowercase letters, numbers, hyphens or underscores (must start with a letter or number)";
+  if (RESERVED_HANDLES.has(h)) return "This handle is reserved";
+  return null;
+};
+
+/** GET /api/user/creator/check-handle?handle=xxx */
+const checkHandle = async (req: express.Request, res: express.Response) => {
+  const userData = jwt.decode(res.locals.token) as IUserType;
+  try {
+    const handle = normalizeHandle(req.query.handle as string);
+    const err = validateHandle(handle);
+    if (err) return successResponseHelper(res, 200, "checked", { available: false, reason: err });
+
+    const existing = await userModel.findOne({
+      where: sequelize.where(sequelize.fn("LOWER", sequelize.col("handle")), handle),
+      attributes: ["user_id"],
+    });
+    const taken = existing && existing.dataValues.user_id !== userData.user_id;
+    return successResponseHelper(res, 200, "checked", {
+      available: !taken,
+      reason: taken ? "This handle is already taken" : null,
+    });
+  } catch (e) {
+    handleControllerError(res, e, userLogger);
+  }
+};
+
+/** PUT /api/user/creator/profile  { handle, bio, creator_page_enabled } */
+const updateCreatorProfile = async (req: express.Request, res: express.Response) => {
+  const userData = jwt.decode(res.locals.token) as IUserType;
+  try {
+    const { handle: rawHandle, bio, creator_page_enabled } = req.body as {
+      handle?: string; bio?: string; creator_page_enabled?: boolean;
+    };
+    const updates: Record<string, unknown> = {};
+
+    if (rawHandle !== undefined) {
+      const handle = normalizeHandle(rawHandle);
+      const err = validateHandle(handle);
+      if (err) return errorResponseHelper(res, 400, err);
+      const existing = await userModel.findOne({
+        where: sequelize.where(sequelize.fn("LOWER", sequelize.col("handle")), handle),
+        attributes: ["user_id"],
+      });
+      if (existing && existing.dataValues.user_id !== userData.user_id) {
+        return errorResponseHelper(res, 409, "This handle is already taken");
+      }
+      updates.handle = handle;
+    }
+
+    if (bio !== undefined) {
+      updates.bio = String(bio || "").slice(0, 500);
+    }
+    if (creator_page_enabled !== undefined) {
+      updates.creator_page_enabled = Boolean(creator_page_enabled);
+    }
+
+    // Can't enable the page without a handle
+    if (updates.creator_page_enabled === true) {
+      const cur = await userModel.findOne({ where: { user_id: userData.user_id }, attributes: ["handle"] });
+      if (!updates.handle && !cur?.dataValues?.handle) {
+        return errorResponseHelper(res, 400, "Choose a handle before publishing your page");
+      }
+    }
+
+    if (Object.keys(updates).length === 0) {
+      return errorResponseHelper(res, 400, "Nothing to update");
+    }
+
+    await userModel.update(updates, { where: { user_id: userData.user_id } });
+    await deleteRedisItem(`profile:${userData.user_id}`);
+
+    const fresh = await userModel.findOne({
+      where: { user_id: userData.user_id },
+      attributes: ["handle", "bio", "creator_page_enabled"],
+    });
+    return successResponseHelper(res, 200, "Creator page updated", fresh?.dataValues || updates);
+  } catch (e) {
+    handleControllerError(res, e, userLogger);
+  }
+};
+
+
 export default {
   registerUser,
   registerEmailStep1,
@@ -3880,4 +3983,6 @@ export default {
   setPasswordWithOtp,
   getLoginActivity,
   flagLogin,
+  checkHandle,
+  updateCreatorProfile,
 };

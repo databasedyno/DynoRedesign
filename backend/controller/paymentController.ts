@@ -11,6 +11,7 @@ import {
   deletePaymentLink,
   startDonation,
   uploadCampaignImage,
+  getCreatorProfile,
 } from "./payment/paymentLinkController";
 import {
   getNetworkFees,
@@ -2171,6 +2172,7 @@ export default {
   createPaymentLink,
   startDonation,
   uploadCampaignImage,
+  getCreatorProfile,
   cryptoVerification,
   checkingUSDT,
   sweepNativeAdminFees,

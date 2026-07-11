@@ -8,6 +8,7 @@ import {
   VpnKeyRounded,
   NotificationsRounded,
   AddRounded,
+  StarRounded,
 } from "@mui/icons-material";
 import { useRouter } from "next/router";
 import Head from "next/head";
@@ -17,6 +18,7 @@ import { useTranslation } from "react-i18next";
 import ProfilePage from "@/Components/Page/Profile/ProfilePage";
 import ApiKeysPage from "@/Components/Page/API/ApiKeysPage";
 import NotificationPage from "@/Components/Page/Notification/NotificationPage";
+import CreatorPageSettings from "@/Components/Page/Creator/CreatorPageSettings";
 import CompanySettingsDialog from "@/Components/UI/CompanySettingsDialog";
 import CreateCompanyModal from "@/Components/UI/OnboardingFlow/CreateCompanyModal";
 import CustomButton from "@/Components/UI/Buttons";
@@ -29,6 +31,7 @@ import { ICompany, pageProps, rootReducer } from "@/utils/types";
 
 type SectionKey =
   | "profile"
+  | "creator"
   | "company"
   | "payments"
   | "webhooks"
@@ -37,6 +40,7 @@ type SectionKey =
 
 const SECTION_KEYS: SectionKey[] = [
   "profile",
+  "creator",
   "company",
   "payments",
   "webhooks",
@@ -298,6 +302,12 @@ const SettingsPage = ({
         icon: <PersonRounded sx={{ fontSize: 19 }} />,
       },
       {
+        key: "creator" as SectionKey,
+        label: t("settingsPage.creator", { defaultValue: "Creator page" }),
+        description: t("settingsPage.creatorDesc", { defaultValue: "Your public dynopay.com/handle page — bio, links & donations." }),
+        icon: <StarRounded sx={{ fontSize: 19 }} />,
+      },
+      {
         key: "company" as SectionKey,
         label: t("settingsPage.company"),
         description: t("settingsPage.companyDesc"),
@@ -474,6 +484,7 @@ const SettingsPage = ({
           </Box>
 
           {active === "profile" && <ProfileSection />}
+          {active === "creator" && <CreatorPageSettings />}
           {active === "company" && (
             <CompanyConfigSection visibleSections={["company"]} allowAdd />
           )}

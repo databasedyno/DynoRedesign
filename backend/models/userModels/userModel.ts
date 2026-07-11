@@ -166,6 +166,23 @@ const userModel = sequelize.define(
       defaultValue: "en",
       comment: "Merchant's preferred language for localized emails",
     },
+    // ── Creator vanity page (dynopay.com/{handle}) ──
+    handle: {
+      type: DataTypes.STRING(50),
+      allowNull: true,
+      comment: "Public vanity handle for the creator page (unique, case-insensitive)",
+    },
+    bio: {
+      type: DataTypes.STRING(500),
+      allowNull: true,
+      comment: "Short creator bio shown on the public vanity page",
+    },
+    creator_page_enabled: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: true,
+      comment: "Whether the public creator page is live",
+    },
   },
   {
     tableName: "tbl_user",

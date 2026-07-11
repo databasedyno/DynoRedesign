@@ -73,6 +73,10 @@ userRouter.post("/verifyAddPhone", authMiddleware, otpRateLimiter, userControlle
 userRouter.post("/profile/request-password-otp", authMiddleware, otpRateLimiter, userController.requestPasswordOtp);
 userRouter.post("/profile/set-password", authMiddleware, otpRateLimiter, userController.setPasswordWithOtp);
 
+// Creator vanity page (dynopay.com/{handle})
+userRouter.get("/creator/check-handle", authMiddleware, userController.checkHandle);
+userRouter.put("/creator/profile", authMiddleware, userController.updateCreatorProfile);
+
 // Login activity (requires auth)
 userRouter.get("/login-activity", authMiddleware, userController.getLoginActivity);
 

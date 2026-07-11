@@ -459,9 +459,9 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
         {isPrivatePage && <meta name="robots" content="noindex, nofollow" />}
 
         {/* ─── Open Graph ─── */}
-        <meta property="og:type" content={pathname === "/" ? "website" : "article"} />
-        <meta property="og:title" content={pageTitle} />
-        <meta property="og:description" content={metaDescription} />
+        <meta key="og:type" property="og:type" content={pathname === "/" ? "website" : "article"} />
+        <meta key="og:title" property="og:title" content={pageTitle} />
+        <meta key="og:description" property="og:description" content={metaDescription} />
         <meta key="og:url" property="og:url" content={canonicalUrl} />
         <meta key="og:image" property="og:image" content={OG_IMAGE} />
         <meta key="og:image:width" property="og:image:width" content="1200" />
@@ -471,8 +471,8 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
 
         {/* ─── Twitter Cards ─── */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={pageTitle} />
-        <meta name="twitter:description" content={metaDescription} />
+        <meta key="twitter:title" name="twitter:title" content={pageTitle} />
+        <meta key="twitter:description" name="twitter:description" content={metaDescription} />
         <meta key="twitter:image" name="twitter:image" content={OG_IMAGE} />
         <meta name="twitter:site" content="@Dynopaycom" />
 
