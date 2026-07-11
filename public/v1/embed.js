@@ -6,15 +6,37 @@
  *  the `client_secret`; this SDK only renders it in an iframe. Order fulfillment
  *  must rely on WEBHOOKS (X-DynoPay-Signature), not the browser success event.
  *
- *  Usage (a) inline:
+ *  ─── (a) Embedded Checkout — merchant server creates the session ───
+ *  Inline:
  *    const checkout = await Dynopay.initEmbeddedCheckout({
  *      fetchClientSecret: () => fetch('/create-session').then(r=>r.json()).then(d=>d.client_secret),
  *      onComplete: (paymentId) => {},
  *    });
  *    checkout.mount('#dynopay-checkout');
  *
- *  Usage (a) modal:
+ *  Modal:
  *    Dynopay.openCheckout({ fetchClientSecret, onComplete });
+ *
+ *  ─── (c) Buy Button — merchant server NOT required ───
+ *  <script src="https://checkout.dynopay.com/v1/embed.js"></script>
+ *  <dynopay-buy-button
+ *      publishable-key="pk_live_…"
+ *      amount="49"
+ *      currency="USD"
+ *      label="Pay with crypto"
+ *      mode="modal"
+ *      redirect-uri="https://shop.com/thanks">
+ *  </dynopay-buy-button>
+ *
+ *  Attributes:
+ *    publishable-key  (required)   pk_live_… or pk_test_… — safe to expose
+ *    amount           (required)   numeric, min 5, ≤ the pk's max_amount
+ *    currency         (optional)   restrict to one crypto: BTC / ETH / USDT-TRC20 …
+ *    label            (optional)   button text (default "Pay with crypto")
+ *    mode             (optional)   "modal" (default) | "redirect" | "inline"
+ *    theme            (optional)   "dark" | "light" — controls native button style only
+ *    redirect-uri     (optional)   URL to send customer to after payment
+ *    meta             (optional)   JSON string echoed back in webhooks
  */
 (function () {
   'use strict';
@@ -199,7 +221,167 @@
         window.location.href = checkoutUrl(cs, false);
       });
     },
+
+    // (c) Buy Button click handler — hits the PUBLIC endpoint with the pk header
+    // and then either opens the modal / inline embed / redirects. Exposed so
+    // advanced merchants can wire their own custom button element to this flow.
+    createSessionWithPk: function (opts) {
+      opts = opts || {};
+      var pk = opts.publishableKey;
+      if (!pk) return Promise.reject(new Error('Dynopay: publishableKey is required'));
+      var body = {
+        amount: opts.amount,
+      };
+      if (opts.currency)    body.currency = opts.currency;
+      if (opts.redirectUri) body.redirect_uri = opts.redirectUri;
+      if (opts.meta)        body.meta_data = opts.meta;
+      return fetch(ORIGIN + '/api/embed/public/session', {
+        method: 'POST',
+        mode: 'cors',
+        credentials: 'omit',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-publishable-key': pk,
+          'x-dynopay-source': 'buy-button',
+        },
+        body: JSON.stringify(body),
+      }).then(function (r) {
+        return r.json().then(function (d) {
+          if (!r.ok || !d || !d.success) {
+            var msg = (d && d.message) || ('Session creation failed (' + r.status + ')');
+            throw new Error(msg);
+          }
+          return d.data.client_secret;
+        });
+      });
+    },
   };
+
+  // ─── (c) <dynopay-buy-button> custom element ────────────────────────────
+  // Rendered as a plain <button> with Dynopay styling. On click it hits the
+  // public session endpoint using the pk header, then opens the checkout in
+  // the requested mode ("modal" | "redirect" | "inline"). This is the
+  // no-code path for merchants who don't want a server integration.
+  function readAttrs(el) {
+    return {
+      publishableKey: el.getAttribute('publishable-key') || '',
+      amount:         Number(el.getAttribute('amount')),
+      currency:       el.getAttribute('currency') || undefined,
+      label:          el.getAttribute('label') || 'Pay with crypto',
+      mode:           (el.getAttribute('mode') || 'modal').toLowerCase(),
+      theme:          (el.getAttribute('theme') || 'dark').toLowerCase(),
+      redirectUri:    el.getAttribute('redirect-uri') || undefined,
+      meta:           (function (raw) {
+        if (!raw) return undefined;
+        try { return JSON.parse(raw); } catch (e) { return undefined; }
+      })(el.getAttribute('meta')),
+    };
+  }
+
+  function styleButton(btn, theme) {
+    var dark = theme !== 'light';
+    var bg   = dark ? '#0b0b0b'  : '#ffffff';
+    var fg   = dark ? '#ffffff'  : '#0b0b0b';
+    var bd   = dark ? '#2a2a2a'  : '#e5e7eb';
+    var accent = '#CCFF00';
+    btn.style.cssText = [
+      'appearance:none',
+      'font: 500 15px/1 -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif',
+      'display:inline-flex', 'align-items:center', 'gap:10px',
+      'padding:12px 20px',
+      'border:1px solid ' + bd,
+      'border-radius:12px',
+      'background:' + bg,
+      'color:' + fg,
+      'cursor:pointer',
+      'transition:transform 80ms ease,box-shadow 200ms ease,border-color 200ms ease',
+      'box-shadow:0 1px 2px rgba(0,0,0,0.04)',
+    ].join(';');
+    btn.onmouseenter = function () { btn.style.borderColor = accent; };
+    btn.onmouseleave = function () { btn.style.borderColor = bd; };
+    btn.onmousedown  = function () { btn.style.transform = 'scale(0.98)'; };
+    btn.onmouseup    = function () { btn.style.transform = 'scale(1)'; };
+  }
+
+  var DYNO_ICON = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 7l8 5 8-5v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M4 7l8 5 8-5" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>';
+
+  function BuyButtonElement() {
+    return Reflect.construct(HTMLElement, [], BuyButtonElement);
+  }
+  BuyButtonElement.prototype = Object.create(HTMLElement.prototype);
+  BuyButtonElement.prototype.constructor = BuyButtonElement;
+
+  BuyButtonElement.prototype.connectedCallback = function () {
+    var self = this;
+    var attrs = readAttrs(this);
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.setAttribute('data-dynopay-buy-button', '');
+    styleButton(btn, attrs.theme);
+    btn.innerHTML = DYNO_ICON + '<span>' + (attrs.label || 'Pay with crypto') + '</span>';
+
+    if (!attrs.publishableKey || !attrs.amount || !(attrs.amount >= 5)) {
+      btn.disabled = true;
+      btn.title = 'dynopay-buy-button: missing publishable-key or amount ≥ 5';
+      btn.style.opacity = '0.5';
+      btn.style.cursor = 'not-allowed';
+    }
+
+    btn.addEventListener('click', function () {
+      if (btn.disabled) return;
+      var originalHtml = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<span>Loading…</span>';
+      Dynopay.createSessionWithPk({
+        publishableKey: attrs.publishableKey,
+        amount:         attrs.amount,
+        currency:       attrs.currency,
+        redirectUri:    attrs.redirectUri,
+        meta:           attrs.meta,
+      }).then(function (cs) {
+        btn.disabled = false;
+        btn.innerHTML = originalHtml;
+        var onComplete = function (paymentId) {
+          self.dispatchEvent(new CustomEvent('dynopay:complete', { detail: { paymentId: paymentId }, bubbles: true }));
+        };
+        var onError = function (e) {
+          self.dispatchEvent(new CustomEvent('dynopay:error', { detail: { message: (e && e.message) || String(e) }, bubbles: true }));
+        };
+        if (attrs.mode === 'redirect') {
+          Dynopay.redirectToCheckout({ clientSecret: cs });
+        } else if (attrs.mode === 'inline') {
+          // Insert an inline iframe right after the button.
+          var host = document.createElement('div');
+          host.setAttribute('data-dynopay-inline', '');
+          host.style.cssText = 'max-width:460px;margin-top:12px;';
+          self.parentNode.insertBefore(host, self.nextSibling);
+          Dynopay.initEmbeddedCheckout({
+            clientSecret: cs, onComplete: onComplete, onError: onError,
+          }).then(function (chk) { chk.mount(host); });
+        } else {
+          // default: modal
+          Dynopay.openCheckout({ clientSecret: cs, onComplete: onComplete, onError: onError });
+        }
+      }).catch(function (err) {
+        btn.disabled = false;
+        btn.innerHTML = originalHtml;
+        self.dispatchEvent(new CustomEvent('dynopay:error', { detail: { message: err.message || 'Session error' }, bubbles: true }));
+        // Also render a tiny inline error so integrators see what happened
+        var msg = document.createElement('div');
+        msg.textContent = 'Payment error: ' + (err.message || 'unknown');
+        msg.style.cssText = 'color:#dc2626;font-size:12px;margin-top:6px;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;';
+        self.appendChild(msg);
+        setTimeout(function () { if (msg.parentNode) msg.parentNode.removeChild(msg); }, 6000);
+      });
+    });
+
+    this.innerHTML = '';
+    this.appendChild(btn);
+  };
+
+  if (window.customElements && !window.customElements.get('dynopay-buy-button')) {
+    try { window.customElements.define('dynopay-buy-button', BuyButtonElement); } catch (e) { /* older browsers */ }
+  }
 
   window.Dynopay = Dynopay;
 })();

@@ -25,6 +25,21 @@
   <div id="status" data-testid="embed-status"></div>
   <div id="dynopay-checkout" data-testid="embed-inline-container"></div>
 
+  <hr style="margin:32px 0;border:0;border-top:1px solid #eee" />
+
+  <h2 style="font-size:18px;">Phase 2 — Buy Button (no merchant server needed)</h2>
+  <p style="font-size:13px;color:#666">
+    Renders <code>&lt;dynopay-buy-button&gt;</code> as a native button.
+    Attributes accepted:
+    <code>publishable-key</code> (pk_live_/pk_test_),
+    <code>amount</code>, <code>currency</code>, <code>label</code>,
+    <code>mode="modal|redirect|inline"</code>, <code>theme="dark|light"</code>.
+    Pass a real pk via <code>?pk=pk_test_xxx</code> in the URL and it will render below.
+  </p>
+
+  <div id="bb-slot" data-testid="buy-button-slot" style="margin:16px 0;"></div>
+  <div id="bb-status" data-testid="buy-button-status" style="font-size:13px;color:#555;min-height:18px;"></div>
+
   <script>
     var params = new URLSearchParams(location.search);
     var CS = params.get('cs');
@@ -55,6 +70,25 @@
         onError: function (e) { log('Error: ' + e.message); },
       });
     });
+    // Buy Button — must run AFTER /v1/embed.js defines the custom element
+    (function () {
+      var pk = params.get('pk');
+      var slot = document.getElementById('bb-slot');
+      var st = document.getElementById('bb-status');
+      if (!pk) { st.textContent = 'Tip: add ?pk=pk_test_xxx (and ?cs=… for the inline demo above) to try the Buy Button.'; return; }
+      var btn = document.createElement('dynopay-buy-button');
+      btn.setAttribute('publishable-key', pk);
+      btn.setAttribute('amount', params.get('amount') || '15');
+      var mode = params.get('mode') || 'modal';
+      btn.setAttribute('mode', mode);
+      if (params.get('currency')) btn.setAttribute('currency', params.get('currency'));
+      if (params.get('label')) btn.setAttribute('label', params.get('label'));
+      if (params.get('theme')) btn.setAttribute('theme', params.get('theme'));
+      btn.setAttribute('data-testid', 'buy-button');
+      slot.appendChild(btn);
+      btn.addEventListener('dynopay:complete', function (e) { st.textContent = 'Buy Button complete: ' + (e.detail.paymentId || '(webhook is source of truth)'); });
+      btn.addEventListener('dynopay:error',    function (e) { st.textContent = 'Buy Button error: ' + e.detail.message; });
+    })();
   </script>
 </body>
 </html>

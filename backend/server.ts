@@ -192,6 +192,14 @@ app.use(helmet({
 }));
 // Preflight handler — reuse the same CORS config so OPTIONS responses
 // respect the same origin whitelist as actual requests.
+//
+// EXCEPTION: /api/embed/public/* is called cross-origin from arbitrary merchant
+// pages (Buy Button on shop.com etc.). The per-key CORS handler inside that
+// router handles OPTIONS itself, reflecting the Origin so the browser preflight
+// succeeds. Mount BEFORE the wildcard OPTIONS handler so it wins for its path.
+import { publishableKeyRouter, embedPublicRouter } from "./routes/publishableKeyRouter";
+app.use("/api/embed/public", embedPublicRouter);
+
 app.options("*", cors({
   origin: corsOriginHandler,
   credentials: true,
@@ -256,6 +264,11 @@ app.use("/api/v1", router);
 // Diagnostics routes (admin-only — mounted at /api/diagnostics via K8s ingress)
 import diagnosticsRouter from "./routes/diagnosticsRouter";
 app.use("/api/diagnostics", diagnosticsRouter);
+
+// Publishable Keys — dashboard CRUD (JWT). The public /api/embed/public route
+// is mounted earlier (before the wildcard OPTIONS handler) so cross-origin
+// merchant preflights don't get intercepted by the global CORS handler.
+app.use("/api/publishable-keys", publishableKeyRouter);
 
 // Health check endpoint for Railway
 app.get("/health", async (_req: express.Request, res: express.Response) => {

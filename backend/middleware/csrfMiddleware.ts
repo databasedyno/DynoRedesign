@@ -120,6 +120,13 @@ export const csrfProtection = (req: Request, res: Response, next: NextFunction):
     return next();
   }
 
+  // Skip if PUBLISHABLE key authentication (Buy Button — cross-origin browser
+  // calls that can never carry a CSRF cookie). The pk itself acts as the
+  // capability token; origin allow-listing + amount cap enforce the security.
+  if (req.headers["x-publishable-key"]) {
+    return next();
+  }
+
   // For cookie-based auth — verify CSRF token
   const cookieToken = req.cookies?.[CSRF_COOKIE_NAME];
   const headerToken = req.headers[CSRF_HEADER_NAME] as string;

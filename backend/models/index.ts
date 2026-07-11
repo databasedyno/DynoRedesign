@@ -51,6 +51,9 @@ import onboardingEventModel from "./onboardingEventModel";
 // Login Activity
 import loginActivityModel from "./loginActivityModel";
 
+// Publishable Keys (Phase 2 — Buy Button)
+import publishableKeyModel from "./publishableKeyModel";
+
 // USDT Pool System models (legacy - to be deprecated)
 import {
   usdtPoolAddressModel,
@@ -133,4 +136,6 @@ export {
   onboardingEventModel,
   // Login Activity
   loginActivityModel,
+  // Publishable Keys (Phase 2 — Buy Button)
+  publishableKeyModel,
 };

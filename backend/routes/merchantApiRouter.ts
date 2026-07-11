@@ -1180,3 +1180,8 @@ router.get("/getSupportedCurrency", apiKeyOnlyMiddleware, async (req, res) => {
 });
 
 export default router;
+
+// Re-export internal helpers so the Phase 2 public embed router (which needs
+// to build the SAME redis session payload used by /embed/session) can reuse
+// them without duplicating logic.
+export { getAvailableCurrencies, findOrRecreateCustomer };

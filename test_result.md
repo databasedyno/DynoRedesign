@@ -1,3 +1,96 @@
+## Session 21d: Phase 2 (Buy Button + Publishable Key) — BACKEND TEST REQUEST (2026-07-11)
+
+### WHAT WAS BUILT (Sub-phases 2A + 2B)
+Introduces a browser-safe publishable key (`pk_live_…` / `pk_test_…`) and a Buy Button custom element,
+letting merchants embed crypto payments in HTML WITHOUT a merchant server. Full defense-in-depth:
+domain allow-list, per-key amount cap (set at creation — no silent default), currency allow-list,
+per-key rate limit.
+
+**New backend surface:**
+- Table `tbl_publishable_key` (auto-synced) — 19 columns incl. `key_hash` (SHA-256 lookup index),
+  `allowed_domains` (JSON), `max_amount` (float), `allowed_currencies` (JSON, nullable), `status`
+  (active/inactive/revoked), `rate_limit_per_minute` (default 30), usage stats.
+- `POST/GET/PATCH/DELETE /api/publishable-keys` (JWT auth) — dashboard CRUD.
+- `POST /api/embed/public/session` (pk auth + Origin) — browser-callable session creator.
+  Reuses the existing `/embed/session` Redis payload shape so `/pay?d=…&embed=1` renders identically.
+- Middleware `validatePublishableKey` (`middleware/publishableKeyMiddleware.ts`):
+  1. sha256 lookup, 2. status check, 3. Origin/Referer match against `allowed_domains` (exact +
+  `*.subdomain` wildcards), 4. per-key rate limit via Redis (30/min default), 5. usage stats bump.
+- Middleware `publishablePublicCors` — reflects the request Origin so cross-origin merchant browser
+  calls work; the actual POST re-validates the Origin against the pk's allow-list. Mounted BEFORE
+  the wildcard `app.options("*",…)` in `server.ts` so preflight from merchant sites reaches it.
+- CSRF middleware: added `x-publishable-key` to the "skip" list (same treatment as `x-api-key`).
+
+**New frontend surface:**
+- `/v1/embed.js` — extended with a `<dynopay-buy-button>` custom element and a `Dynopay.createSessionWithPk`
+  helper. Attributes: `publishable-key`, `amount`, `currency?`, `label?`, `mode="modal|redirect|inline"?`,
+  `theme="dark|light"?`, `redirect-uri?`, `meta?`. On click → POST public/session → open modal / inline
+  / redirect. Emits `dynopay:complete` / `dynopay:error` custom events.
+- `/embed-test.html` — Phase 2 section: renders a real `<dynopay-buy-button>` when
+  `?pk=pk_test_xxx` is provided.
+
+**Files changed / added:**
+- ADD `backend/models/publishableKeyModel.ts`
+- ADD `backend/middleware/publishableKeyMiddleware.ts`
+- ADD `backend/controller/publishableKeyController.ts`
+- ADD `backend/routes/publishableKeyRouter.ts`
+- ADD `backend/tests/verify_publishable_key.ts` (16-assertion verification)
+- MOD `backend/models/index.ts` (register publishableKeyModel)
+- MOD `backend/routes/merchantApiRouter.ts` (export getAvailableCurrencies + findOrRecreateCustomer)
+- MOD `backend/server.ts` (mount embedPublicRouter EARLY, publishableKeyRouter later)
+- MOD `backend/middleware/csrfMiddleware.ts` (skip on `x-publishable-key`)
+- MOD `public/v1/embed.js` (Buy Button custom element)
+- MOD `public/embed-test.html` (Buy Button demo block)
+
+### BACKEND TEST REQUEST
+Run the 16-assertion verification script — it exercises the entire surface end-to-end against the
+running preview backend on internal port 3300:
+```
+cd /app/backend && npx ts-node --transpile-only tests/verify_publishable_key.ts
+```
+Expected: `RESULTS: 16/16 passed`, exit 0.
+
+Assertion coverage:
+- T1  create pk (JWT) — happy path returns 200 with a `pk_live_…`/`pk_test_…` starting key
+- T2  create pk — empty & junk `allowed_domains` → 400
+- T3  create pk — missing `max_amount` → 400 with helpful message
+- T4  create pk — `max_amount` < 5 → 400
+- T5  create pk — invalid `environment` value → 400
+- T6  list pks (JWT) → array with ≥1 entry
+- T7  `/api/embed/public/session` — happy path with correct Origin → 200 with `client_secret`
+- T8  bogus Origin (not in allow-list) → 403
+- T9  amount > `max_amount` → 400 (URL-friendly message about using the SECRET key server-side)
+- T10 unknown currency → 400 with the allowed list
+- T11 wildcard `*.shop.example.com` matches `www.shop.example.com` AND `checkout.shop.example.com` → 200
+- T12 rate limit — 32 rapid requests → ≥1 × 429 (default limit is 30/min)
+- T13 revoke pk (PATCH status='revoked' via DELETE) → next call rejected 401
+- T14 CSRF middleware skips `x-publishable-key` — implicitly proven by T7–T11 succeeding without any csrf-token
+
+Also confirm the running backend is still healthy after these code changes:
+- `curl -s http://localhost:8001/health` → 200 with database=connected redis=connected tatum=CLOSED
+- `curl -s http://localhost:3300/health` → same
+- Startup logs include `tbl_publishable_key ready` (see `/var/log/supervisor/backend.out.log`)
+- No new errors in `/var/log/supervisor/backend.err.log` since 10:10 UTC 07-11
+
+**HOW THE DB IS AFFECTED**: the script inserts (and then revokes) publishable keys against
+`tbl_publishable_key`. It also creates one Redis session per public-session call (60min TTL). No
+other tables are touched. If a leftover active pk from a previous test run blocks T1, the script
+auto-revokes it and retries — this is normal.
+
+**LEFTOVER STATE ACCEPTABLE**: after the run there will be 2–3 pk rows in `tbl_publishable_key`
+for whatever `company_id` the script picked (one from T1, one active leftover, both revoked at T13).
+This is fine — they're marked `status='revoked'` and can't be re-used.
+
+Report:
+- The 16/16 assertion count + final RESULTS block
+- The `/health` outputs for :8001 and :3300
+- Any new errors in the backend logs (grep for `PublishableKey|publishable`)
+- Confirmation that the SEC-critical assertions (T8 bogus Origin, T9 amount cap, T11 wildcard,
+  T12 rate limit, T13 revoke) all pass.
+
+---
+
+
 ## Session 21b: Multi-Chain Fee Wallet Monitor — BACKEND TEST REQUEST (2026-07-11)
 
 ### FOLLOW-UP TO SESSION 21
