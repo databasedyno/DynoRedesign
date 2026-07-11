@@ -1,5 +1,19 @@
 # Changelog
 
+## 2026-07-11 (session 27e) — Dark-mode verify, network testids, /system-status + /payment i18n
+
+**Dark-mode checkout (investigation, NO code change):** Reproduced with the real pay-header theme toggle — body → `#060606`, full card dark, lime accents legible. Confirmed WORKING. Prior "stays light" report was a test artifact (Pay3 header is ink-colored in light mode by design; wrong control was clicked).
+
+**Network tile testids:** `cryptoTransfer.tsx` network tiles (USDT + RLUSD blocks) now expose `data-testid="network-tile-{TRC20|ERC20|POLYGON|XRPL}"` for E2E.
+
+**i18n — /system-status + /payment/* result screens:**
+- `pages/system-status.tsx`: `getStatusLabel()` now returns `t()` (operational/degraded/outage/partialOutage/unknown); uptime legend labels ("Operational/Degraded/No Data") + "Collecting data" now translated.
+- Added keys `degraded, outage, partialOutage, unknown, noData, collectingData` to `apiStatus.json` in all 6 locales.
+- `pages/payment/verify.tsx`: hardcoded "Verifying...." → `t("verifyingPayment")`; added `verifyingPayment` to `common.json` in all 6 locales.
+- Verified `payment/success.tsx` + `payment/failed.tsx` already fully translated (keys present in all 6 locales) — no change needed.
+- **Verified (screenshots):** EN + ES `/system-status` — ES shows "Todos los Sistemas Operativos", per-service "Operativo", legend "Operativo/Degradado/Sin datos", "Recopilando datos". Build passes + restarted.
+- Note: Recent-incident card content + service names are dynamic backend data (`/status/*`) and stay English — out of i18n scope. `pages/payment/index.tsx` (legacy standard-payment method labels: Card/Bank Transfer/etc.) still hardcoded — deferred.
+
 ## 2026-07-11 (session 27d) — Landing refresh (creator vanity mockup) + /pay checkout lime polish
 
 **Landing — surface Creator vanity pages** (`Components/Page/Home/UseCasesBento.tsx`)

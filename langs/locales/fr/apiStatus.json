@@ -22,5 +22,11 @@
   "incident2Description": "Pic de latence bref résolu en 15 minutes.",
   "resolved": "Résolu",
   "noRecentIncidents": "Aucun incident récent. Tous les systèmes fonctionnent normalement.",
-  "autoRefresh60": "Actualisation automatique toutes les 60 secondes"
+  "autoRefresh60": "Actualisation automatique toutes les 60 secondes",
+  "degraded": "Dégradé",
+  "outage": "Panne",
+  "partialOutage": "Panne partielle",
+  "unknown": "Inconnu",
+  "noData": "Aucune donnée",
+  "collectingData": "Collecte des données"
 }

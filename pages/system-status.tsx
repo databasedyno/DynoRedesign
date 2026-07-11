@@ -135,15 +135,15 @@ const StatusPage = () => {
   const getStatusLabel = (status: string) => {
     switch (status) {
       case "operational":
-        return "Operational";
+        return t("operational");
       case "degraded":
-        return "Degraded";
+        return t("degraded", { defaultValue: "Degraded" });
       case "outage":
-        return "Outage";
+        return t("outage", { defaultValue: "Outage" });
       case "partial_outage":
-        return "Partial Outage";
+        return t("partialOutage", { defaultValue: "Partial Outage" });
       default:
-        return "Unknown";
+        return t("unknown", { defaultValue: "Unknown" });
     }
   };
 
@@ -464,7 +464,7 @@ const StatusPage = () => {
                   backgroundColor: "#22C55E",
                 }}
               />
-              <TypographyTime>Operational</TypographyTime>
+              <TypographyTime>{t("operational")}</TypographyTime>
             </Box>
             <Box sx={{ display: "flex", gap: 0.5, alignItems: "center" }}>
               <Box
@@ -475,7 +475,7 @@ const StatusPage = () => {
                   backgroundColor: "#F59E0B",
                 }}
               />
-              <TypographyTime>Degraded</TypographyTime>
+              <TypographyTime>{t("degraded", { defaultValue: "Degraded" })}</TypographyTime>
             </Box>
             <Box sx={{ display: "flex", gap: 0.5, alignItems: "center" }}>
               <Box
@@ -486,7 +486,7 @@ const StatusPage = () => {
                   backgroundColor: "#E5E7EB",
                 }}
               />
-              <TypographyTime>No Data</TypographyTime>
+              <TypographyTime>{t("noData", { defaultValue: "No Data" })}</TypographyTime>
             </Box>
           </Box>
           <TypographyTime>{t("today")}</TypographyTime>

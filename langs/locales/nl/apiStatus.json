@@ -22,5 +22,11 @@
   "incident2Description": "Korte latentiepiek binnen 15 minuten opgelost.",
   "resolved": "Opgelost",
   "noRecentIncidents": "Geen recente incidenten. Alle systemen draaien soepel.",
-  "autoRefresh60": "Vernieuwt automatisch elke 60 seconden"
+  "autoRefresh60": "Vernieuwt automatisch elke 60 seconden",
+  "degraded": "Verminderd",
+  "outage": "Storing",
+  "partialOutage": "Gedeeltelijke storing",
+  "unknown": "Onbekend",
+  "noData": "Geen gegevens",
+  "collectingData": "Gegevens verzamelen"
 }

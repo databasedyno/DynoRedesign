@@ -6,7 +6,9 @@ NEXT / BACKLOG:
 - 🔴 DEPLOY: login-bounce fix + ALL session-27 UI changes are PREVIEW-only until the user deploys to production.
 - ✅ Dark-mode checkout: VERIFIED WORKING (session 27e). Toggling the real pay-header theme switch flips the whole checkout to dark (body → #060606, card dark, lime accents legible). The earlier "body stays light" report was a test artifact (the Pay3 header is ink-colored in LIGHT mode by design; tester clicked the wrong control). No fix needed.
 - ✅ Network tiles now expose `data-testid="network-tile-{TRC20|ERC20|POLYGON|XRPL}"` (both USDT + RLUSD blocks) for E2E. (session 27e)
-- 🟢 Public-page design refresh (fees ALREADY Swiss-done 19b; blog/docs/legal SectionTitle done, bodies still need a pass) + i18n backlog (documentation ~150 strings, blog content, system-status). Confirm priority with user.
+- 🟢 Public-page design refresh: DONE/verified — fees, documentation, system-status all on Swiss/lime theme.
+- ✅ i18n /system-status + /payment/* result screens DONE (session 27e): status labels + legend + "Collecting data" translated (6 locales); verify.tsx "Verifying payment..." translated; success/failed already translated. Verified EN+ES.
+- 🟡 i18n remaining: `/documentation` (~150 strings), `/blog` (UI chrome + article content), and `pages/payment/index.tsx` legacy method labels (Card/Bank Transfer/Bank Account/Mobile Money/Crypto). Recent-incident content on /system-status is backend data (not i18n).
 
 ---
 

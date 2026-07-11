@@ -456,6 +456,7 @@
   "transactionIdLabel": "ID da transação",
   "transactionReferenceLabel": "Referência da transação",
   "returnHome": "Voltar ao início",
+  "verifyingPayment": "A verificar pagamento...",
   "tryAgain": "Tentar novamente",
   "paymentFailed": "Falha no pagamento",
   "scanQrPayWallet": "Escaneie o código QR para pagar diretamente nesta carteira",

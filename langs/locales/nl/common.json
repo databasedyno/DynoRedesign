@@ -456,6 +456,7 @@
   "transactionIdLabel": "Transactie-ID",
   "transactionReferenceLabel": "Transactiereferentie",
   "returnHome": "Terug naar home",
+  "verifyingPayment": "Betaling verifiëren...",
   "tryAgain": "Opnieuw proberen",
   "paymentFailed": "Betaling mislukt",
   "scanQrPayWallet": "Scan de QR-code om rechtstreeks naar deze wallet te betalen",

@@ -22,5 +22,11 @@
   "incident2Description": "Pico breve de latencia resuelto en 15 minutos.",
   "resolved": "Resuelto",
   "noRecentIncidents": "Sin incidentes recientes. Todos los sistemas funcionan con normalidad.",
-  "autoRefresh60": "Se actualiza automáticamente cada 60 segundos"
+  "autoRefresh60": "Se actualiza automáticamente cada 60 segundos",
+  "degraded": "Degradado",
+  "outage": "Interrupción",
+  "partialOutage": "Interrupción parcial",
+  "unknown": "Desconocido",
+  "noData": "Sin datos",
+  "collectingData": "Recopilando datos"
 }

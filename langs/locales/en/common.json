@@ -456,6 +456,7 @@
   "transactionIdLabel": "Transaction ID",
   "transactionReferenceLabel": "Transaction Reference",
   "returnHome": "Return Home",
+  "verifyingPayment": "Verifying payment...",
   "tryAgain": "Try Again",
   "paymentFailed": "Payment Failed",
   "scanQrPayWallet": "Scan QR code to pay directly to this wallet",

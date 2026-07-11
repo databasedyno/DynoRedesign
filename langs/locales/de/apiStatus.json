@@ -22,5 +22,11 @@
   "incident2Description": "Kurzer Latenzanstieg innerhalb von 15 Minuten behoben.",
   "resolved": "Behoben",
   "noRecentIncidents": "Keine aktuellen Vorfälle. Alle Systeme laufen reibungslos.",
-  "autoRefresh60": "Aktualisiert sich automatisch alle 60 Sekunden"
+  "autoRefresh60": "Aktualisiert sich automatisch alle 60 Sekunden",
+  "degraded": "Beeinträchtigt",
+  "outage": "Ausfall",
+  "partialOutage": "Teilausfall",
+  "unknown": "Unbekannt",
+  "noData": "Keine Daten",
+  "collectingData": "Daten werden erfasst"
 }
