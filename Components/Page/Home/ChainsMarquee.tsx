@@ -59,7 +59,7 @@ const ChainsMarquee: React.FC = () => {
     <Box key={dup} aria-hidden={dup === 1} sx={{ display: "flex", alignItems: "center", flexShrink: 0 }}>
       <Box sx={{ display: "flex", alignItems: "center", gap: 1.25, px: { xs: 2.5, md: 4 }, whiteSpace: "nowrap", flexShrink: 0 }}>
         <Typography sx={{ fontFamily: FONT_TECH, fontSize: 13, fontWeight: 500, letterSpacing: "0.16em", textTransform: "uppercase", color: s.accentText }}>
-          13 chains · one integration
+          15+ chains · one integration
         </Typography>
         <Typography aria-hidden sx={{ fontFamily: FONT_TECH, fontSize: 13, color: s.faint, pl: { xs: 2.5, md: 4 } }}>/</Typography>
       </Box>

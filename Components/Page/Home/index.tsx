@@ -17,7 +17,7 @@ import { HomeWrapper } from "./styled";
  *
  * Structure:
  *   1. HeroSwiss           — left-aligned Unbounded type + live settlement terminal
- *   2. ChainsMarquee       — mono marquee of the 13 settlement chains
+ *   2. ChainsMarquee       — mono marquee of the 15+ settlement chains
  *   3. ProductShowcase     — animated product story (checkout → settlement → API)
  *   4. StatWall            — 4 massive numbers ($0 / 0.5% / <5min / 13)
  *   5. FeeCalculator       — vertical-bar cost comparison (01 / Pricing)

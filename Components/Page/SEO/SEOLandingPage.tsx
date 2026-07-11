@@ -288,7 +288,7 @@ const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages =
         <HomeSectionTitle
           type="small"
           badgeText="Why Dynopay"
-          title="Everything you need to "
+          title="Everything you need to start accepting crypto"
           highlightText="start accepting crypto"
           subtitle="Non-custodial by design. You keep the wallet, we handle the checkout."
           headingAs="h2"
@@ -372,7 +372,7 @@ const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages =
         <HomeSectionTitle
           type="small"
           badgeText="How it works"
-          title="Live in "
+          title="Live in under 10 minutes"
           highlightText="under 10 minutes"
           subtitle="No engineers required. If you can copy-paste a wallet address, you can accept crypto."
           headingAs="h2"

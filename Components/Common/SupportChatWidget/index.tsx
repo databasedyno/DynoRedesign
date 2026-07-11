@@ -106,6 +106,15 @@ const formatTime = (iso?: string): string => {
 const GREETING =
   "Hi, I'm Emily — your Dynopay support assistant. Ask me anything about fees, supported coins, payment links, wallets or our API. You can also attach a screenshot and I'll take a look. Need a person? Hit the headset icon above to reach human support.";
 
+// One-tap starter questions shown under the greeting so first-time visitors get
+// value instantly (and are more likely to engage / convert).
+const QUICK_REPLIES = [
+  "How are fees calculated?",
+  "Which coins are supported?",
+  "How do payment links work?",
+  "How do payouts & settlement work?",
+];
+
 interface SupportChatWidgetProps {
   layout?: "home" | "client";
 }
@@ -189,13 +198,13 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
     return () => { cancelled = true; };
   }, [open, historyLoaded, sessionId]);
 
-  const send = useCallback(async () => {
-    const text = input.trim();
-    const attachment = pendingAttachment;
+  const send = useCallback(async (overrideText?: string) => {
+    const text = (typeof overrideText === "string" ? overrideText : input).trim();
+    const attachment = typeof overrideText === "string" ? null : pendingAttachment;
     if ((!text && !attachment) || sending || !sessionId || uploading) return;
     if (text.length > MAX_CHARS) return;
 
-    setInput("");
+    if (typeof overrideText !== "string") setInput("");
     setPendingAttachment(null);
     setEmojiOpen(false);
     setUploadError("");
@@ -585,6 +594,42 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
                 </Box>
               );
             })}
+
+            {/* One-tap starter questions — only while the greeting is the sole message */}
+            {messages.length === 0 && !escalateOpen && (
+              <Box
+                data-testid="support-chat-quick-replies"
+                sx={{ display: "flex", flexWrap: "wrap", gap: 0.75, alignSelf: "flex-start", mt: 0.25 }}
+              >
+                {QUICK_REPLIES.map((q) => (
+                  <Box
+                    key={q}
+                    component="button"
+                    type="button"
+                    data-testid={`support-chat-quick-reply-${q.slice(0, 12).replace(/[^a-z]/gi, "-").toLowerCase()}`}
+                    onClick={() => void send(q)}
+                    disabled={sending || !sessionId}
+                    sx={{
+                      cursor: "pointer",
+                      fontFamily: "var(--font-sans)",
+                      fontSize: 12.5,
+                      fontWeight: 500,
+                      color: theme.palette.text.primary,
+                      background: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)",
+                      border: `1px solid ${panelBorder}`,
+                      borderRadius: "999px",
+                      px: 1.4,
+                      py: 0.7,
+                      transition: "background-color 0.15s ease, border-color 0.15s ease",
+                      "&:hover": { background: isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.05)", borderColor: theme.palette.text.disabled },
+                      "&:disabled": { opacity: 0.5, cursor: "default" },
+                    }}
+                  >
+                    {q}
+                  </Box>
+                ))}
+              </Box>
+            )}
 
             {sending && (
               <Box sx={{ alignSelf: "flex-start", display: "flex", gap: 0.6, alignItems: "center", px: 1.5, py: 1.2, borderRadius: "14px 14px 14px 4px", background: assistantBubbleBg }}>

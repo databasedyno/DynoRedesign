@@ -13,7 +13,7 @@ const STATS: Stat[] = [
   { value: "$0", labelKey: "statSetupLabel", testId: "stat-setup" },
   { value: "0.5%", labelKey: "statFeeLabel", testId: "stat-fee" },
   { value: "<5min", labelKey: "statSettlementLabel", testId: "stat-settlement" },
-  { value: "13", labelKey: "statChainsLabel", testId: "stat-chains" },
+  { value: "15+", labelKey: "statChainsLabel", testId: "stat-chains" },
 ];
 
 const StatWall: React.FC = () => {

@@ -50,7 +50,7 @@ interface TermLine {
 
 const TERMINAL_LINES: TermLine[] = [
   { text: "$ dynopay listen --wallet TXk4…9fQ2mAhR", tone: "cmd" },
-  { text: "  watching 13 chains for incoming payments…", tone: "dim" },
+  { text: "  watching 15+ chains for incoming payments…", tone: "dim" },
   { text: "→ payment_detected    250.00 USDT · TRC-20", tone: "blue" },
   { text: "✓ confirmed           block 61,204,117 · 4.2s", tone: "volt" },
   { text: "✓ forwarded_to_wallet TXk4…9fQ2mAhR · fee 0.7%", tone: "volt" },

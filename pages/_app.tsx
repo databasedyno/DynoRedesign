@@ -200,7 +200,8 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
   }, [i18n.language]);
 
   const SITE_URL = "https://dynopay.com";
-  const OG_IMAGE = `${SITE_URL}/dynopay-favicon.png`;
+  const OG_IMAGE = `${SITE_URL}/og/dynopay-og.png`;
+  const LOGO_IMAGE = `${SITE_URL}/favicon-512.png`;
   const SUPPORTED_LANGS = ["en", "pt", "fr", "es", "de", "nl"];
 
   // ─── Private routes that should NOT be indexed ───
@@ -296,7 +297,7 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
       "@type": "Organization",
       "name": "Dynopay",
       "url": SITE_URL,
-      "logo": OG_IMAGE,
+      "logo": LOGO_IMAGE,
       "description": "Dynopay is a cryptocurrency payment gateway that enables businesses to accept Bitcoin, Ethereum, and stablecoins. Payments are forwarded instantly to the merchant's own wallet — as the original crypto, or auto-converted to USDT or USDC if enabled.",
       "foundingDate": "2024",
       "sameAs": [
@@ -462,7 +463,9 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
         <meta property="og:title" content={pageTitle} />
         <meta property="og:description" content={metaDescription} />
         <meta key="og:url" property="og:url" content={canonicalUrl} />
-        <meta property="og:image" content={OG_IMAGE} />
+        <meta key="og:image" property="og:image" content={OG_IMAGE} />
+        <meta key="og:image:width" property="og:image:width" content="1200" />
+        <meta key="og:image:height" property="og:image:height" content="630" />
         <meta property="og:site_name" content="Dynopay" />
         <meta property="og:locale" content={i18n.language || "en"} />
 
@@ -470,7 +473,7 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={pageTitle} />
         <meta name="twitter:description" content={metaDescription} />
-        <meta name="twitter:image" content={OG_IMAGE} />
+        <meta key="twitter:image" name="twitter:image" content={OG_IMAGE} />
         <meta name="twitter:site" content="@Dynopaycom" />
 
         {/* ─── hreflang tags for i18n ─── */}
