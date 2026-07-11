@@ -1,5 +1,6 @@
 import Header from '@/Components/Page/Pay3Components/header';
 import Footer from '@/Components/UI/Footer';
+import EmbedBridge from '@/Components/Common/EmbedBridge';
 import { useThemeMode } from '@/contexts/ThemeContext';
 import { Box, useTheme } from '@mui/material';
 import React from 'react';
@@ -65,6 +66,7 @@ export default function Pay3Layout({
             />
 
             {!embed && <Header darkMode={isDark} toggleDarkMode={toggleTheme} />}
+            {embed && <EmbedBridge />}
             <Box
                 component="main"
                 sx={{

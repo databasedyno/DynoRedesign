@@ -551,6 +551,129 @@ router.post("/createPayment", legacyApiAuthMiddleware, async (req, res) => {
 });
 
 // ============================================================
+// POST /api/user/embed/session
+// Create an EMBEDDED checkout session for Dynopay Embedded Checkout (embed.js).
+// Auth: SECRET api key (x-api-key) — call this from your SERVER only.
+// Returns a payment-method-agnostic shape. The `client_secret` is an opaque
+// handle loaded by embed.js in an iframe (it is NOT the api key). Reuses the
+// exact hosted-checkout flow (pathType "createPayment") so the /pay page renders
+// identically; only creates a Redis session (no address is reserved yet).
+// ============================================================
+router.post("/embed/session", legacyApiAuthMiddleware, async (req, res) => {
+  try {
+    const userData = res.locals.user;
+    const data = res.locals.apiKeyData;
+
+    const {
+      amount,
+      redirect_uri,
+      meta_data,
+      fee_payer,
+      callback_url,
+      webhook_url,
+      accepted_currencies,
+      allowed_origins,
+    } = req.body;
+
+    if (!amount || amount < 5) {
+      return res.status(400).json({
+        success: false,
+        message: "Amount must be greater than or equal to 5",
+      });
+    }
+
+    const allConfiguredCurrencies = await getAvailableCurrencies(data.adm_id, data.company_id);
+
+    if (allConfiguredCurrencies.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "No crypto wallet configured. Please add at least one crypto wallet address before creating a payment.",
+      });
+    }
+
+    let effectiveAvailableCurrencies = allConfiguredCurrencies;
+
+    if (accepted_currencies && Array.isArray(accepted_currencies) && accepted_currencies.length > 0) {
+      const requestedCurrencies = accepted_currencies.map((c: string) => c.toUpperCase().trim());
+      const unconfiguredCurrencies = requestedCurrencies.filter((c: string) => !allConfiguredCurrencies.includes(c));
+      if (unconfiguredCurrencies.length > 0) {
+        return res.status(400).json({
+          success: false,
+          message: `No wallet configured for: ${unconfiguredCurrencies.join(', ')}. Available currencies: ${allConfiguredCurrencies.join(', ')}`,
+        });
+      }
+      effectiveAvailableCurrencies = requestedCurrencies;
+    }
+
+    const customerData = await findOrRecreateCustomer(
+      userData.id, userData.email, data.company_id, data.base_currency || 'USD'
+    );
+
+    const effectiveWebhookUrl = webhook_url || data.webhook_url || null;
+    const effectiveWebhookSecret = data.webhook_secret || null;
+
+    // Normalize merchant origins (stored for future frame-ancestors enforcement).
+    let normalizedOrigins: string[] | null = null;
+    if (Array.isArray(allowed_origins) && allowed_origins.length > 0) {
+      normalizedOrigins = allowed_origins
+        .map((o: string) => { try { return new URL(o).origin; } catch { return null; } })
+        .filter((o): o is string => !!o);
+    }
+
+    const redisPayload = {
+      customer_id: customerData.customer_id,
+      company_id: data.company_id,
+      adm_id: data.adm_id,
+      base_currency: data.base_currency || 'USD',
+      base_amount: amount,
+      amount: amount,
+      redirect_uri: redirect_uri || null,
+      pathType: "createPayment",
+      fee_payer: fee_payer || 'company',
+      available_currencies: effectiveAvailableCurrencies,
+      all_configured_currencies: allConfiguredCurrencies,
+      webhook_url: effectiveWebhookUrl,
+      webhook_secret: effectiveWebhookSecret,
+      callback_url: callback_url || null,
+      ui_mode: 'embedded',
+      allowed_origins: normalizedOrigins,
+      ...(meta_data && { meta_data: JSON.stringify(meta_data) }),
+    };
+
+    const transactionId = Crypto.randomBytes(24).toString("hex");
+    await setRedisItem("customer-" + transactionId, redisPayload);
+
+    const checkoutUrl = process.env.CHECKOUT_URL || process.env.NEXT_PUBLIC_BASE_URL || 'https://checkout.dynopay.com';
+    const client_secret = transactionId;
+    const checkout_url = checkoutUrl + "/pay?d=" + transactionId + "&embed=1";
+    const expires_at = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+
+    apiLogger.info(`[MerchantAPI] embed/session - Company: ${data.company_id}, Amount: ${amount}`);
+
+    return res.status(200).json({
+      success: true,
+      message: "Embedded checkout session created",
+      data: {
+        client_secret,
+        checkout_url,
+        expires_at,
+        ui_mode: 'embedded',
+        fee_payer: redisPayload.fee_payer,
+        payment_methods: [
+          { type: 'crypto', currencies: effectiveAvailableCurrencies },
+        ],
+      },
+    });
+  } catch (error) {
+    apiLogger.error("[MerchantAPI] embed/session error:", error);
+    return res.status(500).json({
+      success: false,
+      message: error instanceof Error ? error.message : "Internal server error",
+    });
+  }
+});
+
+// ============================================================
 // POST /api/user/addFunds
 // Add funds to customer wallet (returns redirect URL)
 // ============================================================

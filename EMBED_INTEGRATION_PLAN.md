@@ -205,15 +205,15 @@ app.post('/create-dynopay-session', async (req, res) => {
 
 ---
 
-## 10. Open decisions (need product input)
+## 10. Decisions (LOCKED — Stripe-way defaults, 2026-07-10)
 
-1. **embed.js host/domain** — serve from `checkout.dynopay.com` (recommended) vs a CDN path? On preview it's the preview origin.
-2. **Buy Button model** — pre-created button objects (Stripe-style, has a `button-id`) vs inline `amount` attribute only? (Recommend: support both.)
-3. **Publishable key scope** — one publishable key per company, or per secret key? Domain allow-list mandatory before a `pk` can be used?
-4. **Fulfillment trust** — confirm merchants must rely on **webhooks** (not the browser `success` event) for order fulfillment (document loudly).
-5. **Status delivery for (b)** — polling vs SSE/websocket? (Recommend polling first, SSE later.)
-6. **Theming** — how much appearance customization for (b)/(c) in v1?
-7. **Fees/limits** — do embed sessions inherit the same fee tiers + min/max amounts as hosted checkout?
+1. **embed.js host** — serve from the **checkout origin** (`CHECKOUT_URL`/`NEXT_PUBLIC_BASE_URL`; on preview = preview origin), **versioned** (`/v1/embed.js`). Merchants load it directly; not self-hosted. (Stripe: `js.stripe.com/v3/`.)
+2. **Buy Button model** — **pre-created button objects** with a `button-id` (amount/currencies defined server-side in dashboard) are the primary path (Stripe does only this, to prevent price tampering). We MAY *also* allow an inline `amount` attr for convenience, but button-id is canonical.
+3. **Publishable key** — **one `pk_live_`/`pk_test_` per company** (account-wide, like Stripe). Because our crypto `pk` can trigger address generation (more powerful than a card `pk`), it is **domain-locked + amount-capped by default** (stricter than Stripe needs). Domain allow-list required before a `pk` is usable.
+4. **Fulfillment trust** — **webhooks only** (`payment.succeeded`), never the browser `success` event. Documented loudly. (Matches Stripe.)
+5. **Status delivery for (b)** — **polling first** (`GET …/intent/:id/status`), SSE later. (Crypto is async, so unlike Stripe we DO surface live "confirming…" status in the client — but truth is still the webhook.)
+6. **Theming** — Elements (b) gets an **`appearance` API** (theme + variables: accent/radius/dark). (a)/(c) ship light theming (dark mode + accent) in v1.
+7. **Fees/limits** — embed sessions **inherit the existing hosted-checkout fee tiers + min/max amounts**. No embed-specific fee. Fees modeled **per-method** so card tiers can differ later.
 
 ---
 

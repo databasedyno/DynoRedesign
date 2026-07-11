@@ -1,778 +1,568 @@
 #!/usr/bin/env python3
 """
-Session 16: Donation/Crowdfunding Backend Test Suite
-Tests the NEW donation/crowdfunding backend for DynoPay (Node/Express + PostgreSQL)
-Base URL: https://crypto-payment-hub-26.preview.emergentagent.com/api
+Backend E2E Test for Dynopay Embedded Checkout (Phase 1a)
+Tests the NEW endpoint: POST /api/user/embed/session
 """
 
 import requests
 import json
-import time
-import os
-from typing import Dict, List, Optional, Tuple
+import sys
+from typing import Dict, Any, Optional
 
 # Configuration
-BASE_URL = "https://crypto-payment-hub-26.preview.emergentagent.com/api"
-QA_EMAIL = "hostbay@moxx.co"
-QA_PASSWORD = "Katiekendra123@"
+BASE_URL = "https://f490872d-1104-4f03-a264-7e1f78811335.preview.emergentagent.com"
+QA_JWT = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjozLCJuYW1lIjoiUUEgT25ib2FyZGluZyBUZXN0ZXIiLCJlbWFpbCI6InFhLm9uYm9hcmQuMTc4MjU4NTIzM0BkeW5vcGF5dGVzdC5jb20iLCJ1c2VybmFtZSI6bnVsbCwibW9iaWxlIjpudWxsLCJwaG90byI6Imh0dHBzOi8vMzE5OWZkMzctMDc1ZC00M2YxLWEwNTItYmE3ZjRhZTgwNjJjLnByZXZpZXcuZW1lcmdlbnRhZ2VudC5jb20vaW1hZ2VzL3VzZXJfZzB2cmJheXExOS5wbmciLCJsb2dpbl90eXBlIjoiRU1BSUwiLCJjdXN0b21lcl9pZCI6bnVsbCwiZXh0ZXJuYWxfaWQiOm51bGwsInN0YXR1cyI6ImFjdGl2ZSIsInZlcmlmaWVkX290cCI6bnVsbCwib3RwX2V4cGlyZWQiOm51bGwsIm90cF9jdXJyZW5jeSI6bnVsbCwicmVzZXRfdG9rZW4iOm51bGwsInJlc2V0X3Rva2VuX2V4cGlyeSI6bnVsbCwiZ29vZ2xlX2lkIjpudWxsLCJ3YWxsZXRfcmVtaW5kZXJfc2VudCI6dHJ1ZSwicmVmZXJyYWxfY29kZSI6IkRZTk8tNzdRUVhHIiwicmVmZXJyYWxfY291bnQiOjAsInJlZmVycmFsX2JvbnVzX2Vhcm5lZCI6IjAuMDAiLCJyZWZlcnJlZF9ieV9jb2RlIjpudWxsLCJyZWZlcnJlZF9ieV9yZWZlcmVlX2NvZGUiOm51bGwsImZlZV9kaXNjb3VudF9wZXJjZW50IjoiMC4wMCIsImZlZV9kaXNjb3VudF9leHBpcmVzX2F0IjpudWxsLCJmZWVfZGlzY291bnRfcmVhc29uIjpudWxsLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwibGFzdF9sb2dpbl9pcCI6IjM0LjE2LjU2LjY0IiwibGFzdF9jb21wYW55X2lkIjpudWxsLCJjdW11bGF0aXZlX3ZvbHVtZV91c2QiOiIwLjAwIiwiZmVlX2ZyZWVfcmVtYWluaW5nX3VzZCI6IjUwMC4wMCIsImZlZV90aWVyIjoidHJpYWwiLCJjcmVhdGVkQXQiOiIyMDI2LTA2LTI3VDE4OjMzOjU0Ljg2MFoiLCJ1cGRhdGVkQXQiOiIyMDI2LTA3LTA5VDIyOjU5OjQ3LjA0NVoiLCJsYW5ndWFnZSI6ImVuIiwiaWF0IjoxNzgzNzU2MTA0LCJleHAiOjE3ODYzNDgxMDR9.RBsNej5duuKaJese4CVLMiualHOvgQKo-VD0BaN7q9U"
 
-# Real browser User-Agent (bot protection)
-HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-    "Content-Type": "application/json"
-}
+# Test state
+test_results = []
+created_api_key_id = None
+created_api_key_plaintext = None
+client_secret_from_test_a = None
 
-# Track created resources for cleanup
-created_links = []
-csrf_token = None
-csrf_cookies = None
 
-class TestResult:
-    def __init__(self):
-        self.passed = []
-        self.failed = []
-        self.details = []
-    
-    def add_pass(self, test_name: str, detail: str = ""):
-        self.passed.append(test_name)
-        self.details.append(f"✅ {test_name}: PASS{' - ' + detail if detail else ''}")
-        print(f"✅ {test_name}: PASS{' - ' + detail if detail else ''}")
-    
-    def add_fail(self, test_name: str, detail: str):
-        self.failed.append(test_name)
-        self.details.append(f"❌ {test_name}: FAIL - {detail}")
-        print(f"❌ {test_name}: FAIL - {detail}")
-    
-    def summary(self):
-        total = len(self.passed) + len(self.failed)
-        print(f"\n{'='*80}")
-        print(f"TEST SUMMARY: {len(self.passed)}/{total} PASSED")
-        print(f"{'='*80}")
-        for detail in self.details:
-            print(detail)
-        return len(self.failed) == 0
-
-result = TestResult()
-
-def login() -> Tuple[str, str]:
-    """Login with QA account and return JWT token and company_id"""
-    print("\n🔐 Logging in with QA account...")
-    
-    response = requests.post(
-        f"{BASE_URL}/user/login",
-        json={"email": QA_EMAIL, "password": QA_PASSWORD},
-        headers=HEADERS
-    )
-    
-    if response.status_code != 200:
-        raise Exception(f"Login failed: {response.status_code} - {response.text}")
-    
-    data = response.json()
-    # Token is nested under data.accessToken
-    token = data.get("data", {}).get("accessToken") or data.get("accessToken")
-    
-    if not token:
-        raise Exception(f"No accessToken in login response: {data}")
-    
-    print(f"✅ Login successful")
-    return token
-
-def get_company_id(token: str) -> str:
-    """Get company_id from QA account"""
-    print("\n🏢 Getting company_id...")
-    
-    headers = HEADERS.copy()
-    headers["Authorization"] = f"Bearer {token}"
-    
-    response = requests.get(
-        f"{BASE_URL}/company/getCompany",
-        headers=headers
-    )
-    
-    if response.status_code != 200:
-        raise Exception(f"getCompany failed: {response.status_code} - {response.text}")
-    
-    data = response.json()
-    companies = data.get("data", [])
-    
-    if not companies:
-        raise Exception(f"No companies found: {data}")
-    
-    company_id = companies[0].get("company_id")
-    print(f"✅ Company ID: {company_id}")
-    return company_id
-
-def get_csrf_token():
-    """Fetch CSRF token if needed"""
-    global csrf_token, csrf_cookies
-    
-    print("\n🔒 Fetching CSRF token...")
-    response = requests.get(f"{BASE_URL}/csrf-token", headers=HEADERS)
-    
-    if response.status_code == 200:
-        data = response.json()
-        csrf_token = data.get("csrfToken")
-        csrf_cookies = response.cookies
-        print(f"✅ CSRF token obtained")
-    else:
-        print(f"⚠️ CSRF token fetch returned {response.status_code}, continuing without it")
-
-def make_request(method: str, endpoint: str, token: str = None, json_data: dict = None, files: dict = None) -> requests.Response:
-    """Make HTTP request with proper headers and CSRF handling"""
-    headers = HEADERS.copy()
-    
-    if token:
-        headers["Authorization"] = f"Bearer {token}"
-    
-    if csrf_token and method.upper() in ["POST", "PUT", "DELETE"]:
-        headers["X-CSRF-Token"] = csrf_token
-    
-    # Remove Content-Type for multipart requests
-    if files:
-        headers.pop("Content-Type", None)
-    
-    url = f"{BASE_URL}{endpoint}"
-    
-    kwargs = {"headers": headers}
-    if json_data:
-        kwargs["json"] = json_data
-    if files:
-        kwargs["files"] = files
-    if csrf_cookies:
-        kwargs["cookies"] = csrf_cookies
-    
-    response = getattr(requests, method.lower())(url, **kwargs)
-    
-    # If CSRF error, try fetching token and retry once
-    if response.status_code == 403 and "CSRF" in response.text and not csrf_token:
-        get_csrf_token()
-        if csrf_token:
-            headers["X-CSRF-Token"] = csrf_token
-            kwargs["headers"] = headers
-            if csrf_cookies:
-                kwargs["cookies"] = csrf_cookies
-            response = getattr(requests, method.lower())(url, **kwargs)
-    
-    return response
-
-def test_1_create_donation(token: str, company_id: str):
-    """Test 1: CREATE donation link"""
-    print("\n" + "="*80)
-    print("TEST 1: CREATE donation link")
-    print("="*80)
-    
-    payload = {
-        "link_type": "donation",
-        "title": "QA DONATION TEST — DELETE ME",
-        "description": "test purpose",
-        "goal_amount": 500,
-        "preset_amounts": [10, 25, 50],
-        "min_amount": 5,
-        "allow_custom_amount": True,
-        "show_progress": True,
-        "show_supporters": True,
-        "auto_close_at_goal": False,
-        "currency": "USD",
-        "company_id": company_id,
-        "accepted_currencies": ["USDT-TRC20"],
-        "base_amount": 0  # Donation links have base_amount 0
-    }
-    
-    response = make_request("POST", "/pay/createPaymentLink", token, payload)
-    
-    if response.status_code != 200:
-        result.add_fail("Test 1", f"Status {response.status_code}: {response.text[:200]}")
-        return None, None
-    
-    data = response.json().get("data", {})
-    link_id = data.get("link_id")
-    payment_link = data.get("payment_link", "")
-    link_type = data.get("link_type")
-    base_amount = data.get("base_amount")
-    
-    # Extract REF from payment_link
-    ref = None
-    if "?d=" in payment_link:
-        ref = payment_link.split("?d=")[1].split("&")[0]
-    
-    if link_type == "donation" and base_amount == 0 and ref:
-        created_links.append({"link_id": link_id, "type": "donation"})
-        result.add_pass("Test 1", f"link_id={link_id}, ref={ref}")
-        return link_id, ref
-    else:
-        result.add_fail("Test 1", f"Invalid response: link_type={link_type}, base_amount={base_amount}, ref={ref}")
-        return None, None
-
-def test_2_create_validations(token: str, company_id: str):
-    """Test 2: CREATE validations (all should return 400)"""
-    print("\n" + "="*80)
-    print("TEST 2: CREATE validations")
-    print("="*80)
-    
-    test_cases = [
-        ("2a: donation without title", {
-            "link_type": "donation",
-            "description": "test",
-            "company_id": company_id,
-            "currency": "USD"
-        }),
-        ("2b: negative goal_amount", {
-            "link_type": "donation",
-            "title": "Test",
-            "goal_amount": -5,
-            "company_id": company_id,
-            "currency": "USD"
-        }),
-        ("2c: allow_custom_amount false with no presets", {
-            "link_type": "donation",
-            "title": "Test",
-            "allow_custom_amount": False,
-            "company_id": company_id,
-            "currency": "USD"
-        }),
-        ("2d: preset_amounts with 7 entries", {
-            "link_type": "donation",
-            "title": "Test",
-            "preset_amounts": [10, 20, 30, 40, 50, 60, 70],
-            "company_id": company_id,
-            "currency": "USD"
-        })
-    ]
-    
-    for test_name, payload in test_cases:
-        response = make_request("POST", "/pay/createPaymentLink", token, payload)
-        if response.status_code == 400:
-            result.add_pass(f"Test {test_name}", "Correctly returned 400")
-        else:
-            result.add_fail(f"Test {test_name}", f"Expected 400, got {response.status_code}: {response.text[:200]}")
-
-def test_3_get_data_parent(ref: str):
-    """Test 3: getData parent"""
-    print("\n" + "="*80)
-    print("TEST 3: getData parent")
-    print("="*80)
-    
-    response = make_request("POST", "/pay/getData", json_data={"data": ref})
-    
-    if response.status_code != 200:
-        result.add_fail("Test 3", f"Status {response.status_code}: {response.text[:200]}")
-        return
-    
-    data = response.json().get("data", {})
-    is_donation = data.get("is_donation")
-    donation = data.get("donation", {})
-    
-    checks = [
-        ("is_donation === true", is_donation == True),
-        ("donation.title exists", donation.get("title") == "QA DONATION TEST — DELETE ME"),
-        ("donation.goal_amount === 500", donation.get("goal_amount") == 500),
-        ("donation.raised_amount === 0", donation.get("raised_amount") == 0),
-        ("donation.supporters_count === 0", donation.get("supporters_count") == 0),
-        ("donation.min_amount === 5", donation.get("min_amount") == 5),
-        ("donation.preset_amounts === [10,25,50]", donation.get("preset_amounts") == [10, 25, 50]),
-        ("donation.campaign_closed === false", donation.get("campaign_closed") == False),
-        ("donation.recent_supporters === []", donation.get("recent_supporters") == [])
-    ]
-    
-    all_passed = all(check[1] for check in checks)
-    
-    if all_passed:
-        result.add_pass("Test 3", "All donation fields correct")
-    else:
-        failed_checks = [check[0] for check in checks if not check[1]]
-        result.add_fail("Test 3", f"Failed checks: {', '.join(failed_checks)}")
-
-def test_4_start_donation_happy_path(ref: str):
-    """Test 4: startDonation happy path"""
-    print("\n" + "="*80)
-    print("TEST 4: startDonation happy path")
-    print("="*80)
-    
-    # First donation
-    payload = {
-        "data": ref,
-        "amount": 25,
-        "donor_name": "QA Donor",
-        "donor_message": "Good luck!",
-        "is_anonymous": False
-    }
-    
-    response = make_request("POST", "/pay/startDonation", json_data=payload)
-    
-    if response.status_code != 200:
-        result.add_fail("Test 4a", f"Status {response.status_code}: {response.text[:200]}")
-        return None
-    
-    data = response.json().get("data", {})
-    child_ref = data.get("d")
-    amount = data.get("amount")
-    currency = data.get("currency")
-    
-    if not child_ref or amount != 25 or currency != "USD":
-        result.add_fail("Test 4a", f"Invalid response: d={child_ref}, amount={amount}, currency={currency}")
-        return None
-    
-    result.add_pass("Test 4a", f"startDonation returned child_ref={child_ref}")
-    
-    # Now getData on the child
-    time.sleep(0.5)  # Brief pause
-    response = make_request("POST", "/pay/getData", json_data={"data": child_ref})
-    
-    if response.status_code != 200:
-        result.add_fail("Test 4b", f"Status {response.status_code}: {response.text[:200]}")
-        return child_ref
-    
-    child_data = response.json().get("data", {})
-    
-    checks = [
-        ("amount === 25", child_data.get("amount") == 25),
-        ("customer_name === 'QA Donor'", child_data.get("customer_name") == "QA Donor"),
-        ("description contains campaign title", "QA DONATION TEST" in str(child_data.get("description", ""))),
-        ("available_currencies includes USDT-TRC20", "USDT-TRC20" in str(child_data.get("available_currencies", []))),
-        ("NO is_donation flag", child_data.get("is_donation") != True)
-    ]
-    
-    all_passed = all(check[1] for check in checks)
-    
-    if all_passed:
-        result.add_pass("Test 4b", "Child getData correct (non-donation payload)")
-    else:
-        failed_checks = [check[0] for check in checks if not check[1]]
-        result.add_fail("Test 4b", f"Failed checks: {', '.join(failed_checks)}")
-    
-    return child_ref
-
-def test_5_start_donation_validations(ref: str):
-    """Test 5: startDonation validations"""
-    print("\n" + "="*80)
-    print("TEST 5: startDonation validations")
-    print("="*80)
-    
-    # Test 5a: amount below min
-    response = make_request("POST", "/pay/startDonation", json_data={"data": ref, "amount": 2})
-    if response.status_code == 400:
-        result.add_pass("Test 5a", "amount below min correctly returned 400")
-    else:
-        result.add_fail("Test 5a", f"Expected 400, got {response.status_code}")
-    
-    # Test 5b: amount missing
-    response = make_request("POST", "/pay/startDonation", json_data={"data": ref})
-    if response.status_code == 400:
-        result.add_pass("Test 5b", "amount missing correctly returned 400")
-    else:
-        result.add_fail("Test 5b", f"Expected 400, got {response.status_code}")
-    
-    # Test 5c: invalid data ref
-    response = make_request("POST", "/pay/startDonation", json_data={"data": "deadbeef", "amount": 25})
-    if response.status_code == 404:
-        result.add_pass("Test 5c", "invalid data ref correctly returned 404")
-    else:
-        result.add_fail("Test 5c", f"Expected 404, got {response.status_code}")
-    
-    # Test 5d: anonymous donation
-    response = make_request("POST", "/pay/startDonation", json_data={
-        "data": ref,
-        "amount": 25,
-        "donor_name": "Secret QA",
-        "is_anonymous": True
+def log_test(test_name: str, passed: bool, details: str):
+    """Log test result"""
+    status = "✅ PASS" if passed else "❌ FAIL"
+    print(f"\n{status} - {test_name}")
+    print(f"Details: {details}")
+    test_results.append({
+        "test": test_name,
+        "passed": passed,
+        "details": details
     })
+
+
+def setup_api_key() -> tuple[Optional[str], Optional[str]]:
+    """
+    Setup: Find company_id and create a SECRET API key for testing
+    Returns: (api_key_id, plaintext_key)
+    """
+    print("\n" + "="*80)
+    print("SETUP: Creating API Key for qa.onboard.1782585233@dynopaytest.com")
+    print("="*80)
     
-    if response.status_code != 200:
-        result.add_fail("Test 5d", f"Anonymous donation failed: {response.status_code}")
-        return None
+    # Step 1: Get company_id
+    print("\n[SETUP] Step 1: Getting company_id...")
+    headers = {"Authorization": f"Bearer {QA_JWT}"}
     
-    anon_child_ref = response.json().get("data", {}).get("d")
-    
-    # Check child getData has NO customer_name
-    time.sleep(0.5)
-    response = make_request("POST", "/pay/getData", json_data={"data": anon_child_ref})
-    
-    if response.status_code == 200:
-        child_data = response.json().get("data", {})
-        customer_name = child_data.get("customer_name")
+    try:
+        resp = requests.get(f"{BASE_URL}/api/userApi/getApi", headers=headers, timeout=10)
+        print(f"GET /api/userApi/getApi -> {resp.status_code}")
         
-        if not customer_name or customer_name == "":
-            result.add_pass("Test 5d", "Anonymous donation has NO customer_name")
+        if resp.status_code == 200:
+            data = resp.json()
+            print(f"Response: {json.dumps(data, indent=2)}")
+            
+            # Check if there's already an active key
+            if data.get("data"):
+                api_data = data["data"]
+                all_keys = api_data.get("all", [])
+                
+                if isinstance(all_keys, list) and len(all_keys) > 0:
+                    # Found existing keys - check if any are test keys we can use
+                    for api_key in all_keys:
+                        if "embed-e2e-test" in api_key.get("api_name", ""):
+                            print(f"✅ Found existing test key: {api_key.get('api_name')} (id={api_key.get('api_id')})")
+                            print(f"Will use this existing key for testing...")
+                            return api_key.get("api_id"), api_key.get("apiKey")
+                    
+                    # If we found keys but none are test keys, we should not create a new one
+                    # as the company already has an active key
+                    print(f"⚠️  Company already has {len(all_keys)} active key(s)")
+                    for api_key in all_keys:
+                        print(f"   - {api_key.get('api_name')} (id={api_key.get('api_id')})")
+                    print("Cannot create a new key. Will use the first existing key for testing.")
+                    first_key = all_keys[0]
+                    return first_key.get("api_id"), first_key.get("apiKey")
+                
+                # Extract company_id from first key
+                if len(all_keys) > 0 and "company_id" in all_keys[0]:
+                    company_id = all_keys[0]["company_id"]
+                    print(f"✅ Found company_id from existing API key: {company_id}")
+                else:
+                    # Try to get company from companies endpoint
+                    print("Trying to get company_id from /api/company/getCompany...")
+                    company_resp = requests.get(f"{BASE_URL}/api/company/getCompany", headers=headers, timeout=10)
+                    if company_resp.status_code == 200:
+                        company_data = company_resp.json()
+                        if company_data.get("data"):
+                            companies = company_data["data"]
+                            if isinstance(companies, list) and len(companies) > 0:
+                                company_id = companies[0].get("company_id")
+                                print(f"✅ Found company_id from companies: {company_id}")
+                            else:
+                                print("❌ No companies found")
+                                return None, None
+                    else:
+                        print(f"❌ Failed to get companies: {company_resp.status_code}")
+                        return None, None
+            else:
+                # No existing keys, get company_id from companies endpoint
+                print("No existing API keys, getting company_id from /api/company/getCompany...")
+                company_resp = requests.get(f"{BASE_URL}/api/company/getCompany", headers=headers, timeout=10)
+                if company_resp.status_code == 200:
+                    company_data = company_resp.json()
+                    if company_data.get("data"):
+                        companies = company_data["data"]
+                        if isinstance(companies, list) and len(companies) > 0:
+                            company_id = companies[0].get("company_id")
+                            print(f"✅ Found company_id: {company_id}")
+                        else:
+                            print("❌ No companies found")
+                            return None, None
+                    else:
+                        print("❌ Invalid companies response")
+                        return None, None
+                else:
+                    print(f"❌ Failed to get companies: {company_resp.status_code}")
+                    return None, None
         else:
-            result.add_fail("Test 5d", f"Anonymous donation has customer_name: {customer_name}")
-    else:
-        result.add_fail("Test 5d", f"getData for anonymous child failed: {response.status_code}")
+            print(f"❌ Failed to get API keys: {resp.status_code}")
+            print(f"Response: {resp.text}")
+            return None, None
+    except Exception as e:
+        print(f"❌ Error getting company_id: {e}")
+        return None, None
     
-    return anon_child_ref
-
-def test_6_list_payment_links(token: str, link_id: str):
-    """Test 6: LIST getPaymentLinks"""
-    print("\n" + "="*80)
-    print("TEST 6: LIST getPaymentLinks")
-    print("="*80)
-    
-    response = make_request("GET", "/pay/getPaymentLinks", token)
-    
-    if response.status_code != 200:
-        result.add_fail("Test 6", f"Status {response.status_code}: {response.text[:200]}")
-        return
-    
-    data = response.json().get("data", [])
-    
-    # Find our campaign
-    campaign = None
-    for link in data:
-        if link.get("link_id") == link_id:
-            campaign = link
-            break
-    
-    if not campaign:
-        result.add_fail("Test 6", f"Campaign link_id={link_id} not found in list")
-        return
-    
-    # Check no contribution children in list
-    contribution_count = sum(1 for link in data if link.get("link_type") == "contribution")
-    
-    checks = [
-        ("link_type === 'donation'", campaign.get("link_type") == "donation"),
-        ("donation object exists", "donation" in campaign),
-        ("supporters_count === 0 (pending)", campaign.get("donation", {}).get("supporters_count") == 0),
-        ("NO contribution children in list", contribution_count == 0)
-    ]
-    
-    all_passed = all(check[1] for check in checks)
-    
-    if all_passed:
-        result.add_pass("Test 6", "Campaign in list, no children shown")
-    else:
-        failed_checks = [check[0] for check in checks if not check[1]]
-        result.add_fail("Test 6", f"Failed checks: {', '.join(failed_checks)}")
-
-def test_7_get_by_id(token: str, link_id: str):
-    """Test 7: GET BY ID"""
-    print("\n" + "="*80)
-    print("TEST 7: GET BY ID")
-    print("="*80)
-    
-    print(f"DEBUG: Querying for link_id={link_id}")
-    
-    response = make_request("GET", f"/pay/links/{link_id}", token)
-    
-    if response.status_code != 200:
-        result.add_fail("Test 7", f"Status {response.status_code}: {response.text[:200]}")
-        return
-    
-    data = response.json().get("data", {})
-    donation = data.get("donation", {})
-    contributions = data.get("contributions", [])
-    
-    print(f"DEBUG: Found {len(contributions)} contributions")
-    if len(contributions) > 0:
-        for i, c in enumerate(contributions):
-            print(f"  Contribution {i+1}: status={c.get('status')}, donor_name={c.get('donor_name')}, is_anonymous={c.get('is_anonymous')}")
-    else:
-        print(f"DEBUG: Response donation block: {donation}")
-    
-    # The test spec says "contributions[] length 2" but contributions are created in tests 4 and 5
-    # Test 4 creates 1 contribution, Test 5 creates 1 more (anonymous)
-    # So we should have at least 2 contributions
-    checks = [
-        ("donation object exists", bool(donation)),
-        ("contributions array exists", isinstance(contributions, list)),
-        ("contributions length >= 2", len(contributions) >= 2),  # At least 2
-        ("contributions have status 'pending'", all(c.get("status") == "pending" for c in contributions) if contributions else False),
-        ("at least one anonymous contribution", any(c.get("donor_name") is None or c.get("is_anonymous") == True for c in contributions) if contributions else False)
-    ]
-    
-    all_passed = all(check[1] for check in checks)
-    
-    if all_passed:
-        result.add_pass("Test 7", f"donation block + {len(contributions)} contributions (at least 1 anonymous)")
-    else:
-        failed_checks = [check[0] for check in checks if not check[1]]
-        result.add_fail("Test 7", f"Failed checks: {', '.join(failed_checks)}")
-
-def test_8_update_donation(token: str, link_id: str, ref: str):
-    """Test 8: UPDATE donation link"""
-    print("\n" + "="*80)
-    print("TEST 8: UPDATE donation link")
-    print("="*80)
-    
-    payload = {
-        "title": "QA DONATION TEST v2 — DELETE ME",
-        "goal_amount": 1000,
-        "show_supporters": False
-    }
-    
-    response = make_request("PUT", f"/pay/links/{link_id}", token, payload)
-    
-    if response.status_code != 200:
-        result.add_fail("Test 8a", f"Status {response.status_code}: {response.text[:200]}")
-        return
-    
-    result.add_pass("Test 8a", "Update returned 200")
-    
-    # Verify with getData
-    time.sleep(0.5)
-    response = make_request("POST", "/pay/getData", json_data={"data": ref})
-    
-    if response.status_code != 200:
-        result.add_fail("Test 8b", f"getData status {response.status_code}")
-        return
-    
-    data = response.json().get("data", {})
-    donation = data.get("donation", {})
-    
-    checks = [
-        ("title === 'QA DONATION TEST v2 — DELETE ME'", donation.get("title") == "QA DONATION TEST v2 — DELETE ME"),
-        ("goal_amount === 1000", donation.get("goal_amount") == 1000),
-        ("show_supporters === false", donation.get("show_supporters") == False),
-        ("recent_supporters === []", donation.get("recent_supporters") == [])
-    ]
-    
-    all_passed = all(check[1] for check in checks)
-    
-    if all_passed:
-        result.add_pass("Test 8b", "Updated fields verified via getData")
-    else:
-        failed_checks = [check[0] for check in checks if not check[1]]
-        result.add_fail("Test 8b", f"Failed checks: {', '.join(failed_checks)}")
-
-def test_9_upload_campaign_image(token: str):
-    """Test 9: UPLOAD campaign image"""
-    print("\n" + "="*80)
-    print("TEST 9: UPLOAD campaign image")
-    print("="*80)
-    
-    # Create a tiny 1x1 PNG
-    png_data = b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x06\x00\x00\x00\x1f\x15\xc4\x89\x00\x00\x00\nIDATx\x9cc\x00\x01\x00\x00\x05\x00\x01\r\n-\xb4\x00\x00\x00\x00IEND\xaeB`\x82'
-    
-    files = {"image": ("test.png", png_data, "image/png")}
-    
-    # Test without token (should be 401 or 403)
-    response = make_request("POST", "/pay/uploadCampaignImage", files=files)
-    if response.status_code in [401, 403]:
-        result.add_pass("Test 9a", f"Without token correctly returned {response.status_code} (unauthorized)")
-    else:
-        result.add_fail("Test 9a", f"Expected 401 or 403, got {response.status_code}")
-    
-    # Test with token
-    response = make_request("POST", "/pay/uploadCampaignImage", token, files=files)
-    
-    if response.status_code != 200:
-        result.add_fail("Test 9b", f"Status {response.status_code}: {response.text[:200]}")
-        return
-    
-    data = response.json().get("data", {})
-    url = data.get("url")
-    
-    if not url or "/api/static/images/" not in url:
-        result.add_fail("Test 9b", f"Invalid URL: {url}")
-        return
-    
-    result.add_pass("Test 9b", f"Upload returned URL: {url}")
-    
-    # Verify image is accessible
-    full_url = url if url.startswith("http") else f"https://crypto-payment-hub-26.preview.emergentagent.com{url}"
-    response = requests.get(full_url, headers={"User-Agent": HEADERS["User-Agent"]})
-    
-    if response.status_code == 200 and response.headers.get("Content-Type", "").startswith("image"):
-        result.add_pass("Test 9c", "Image accessible via GET")
-    else:
-        result.add_fail("Test 9c", f"Image GET returned {response.status_code}")
-
-def test_10_regression_standard_link(token: str, company_id: str):
-    """Test 10: REGRESSION standard link"""
-    print("\n" + "="*80)
-    print("TEST 10: REGRESSION standard link")
-    print("="*80)
-    
-    payload = {
-        "amount": 10,
-        "currency": "USD",
-        "description": "QA STD TEST — DELETE ME",
+    # Step 2: Create API key
+    print(f"\n[SETUP] Step 2: Creating API key for company_id={company_id}...")
+    create_payload = {
         "company_id": company_id,
-        "accepted_currencies": ["USDT-TRC20"]
+        "base_currency": "USD",
+        "api_name": "embed-e2e-test"
     }
     
-    response = make_request("POST", "/pay/createPaymentLink", token, payload)
-    
-    if response.status_code != 200:
-        result.add_fail("Test 10a", f"Status {response.status_code}: {response.text[:200]}")
+    try:
+        create_resp = requests.post(
+            f"{BASE_URL}/api/userApi/addApi",
+            headers=headers,
+            json=create_payload,
+            timeout=10
+        )
+        print(f"POST /api/userApi/addApi -> {create_resp.status_code}")
+        
+        if create_resp.status_code == 200:
+            create_data = create_resp.json()
+            print(f"Response: {json.dumps(create_data, indent=2)}")
+            
+            if create_data.get("data"):
+                api_key_data = create_data["data"]
+                api_key_id = api_key_data.get("api_id")
+                encrypted_key = api_key_data.get("apiKey")  # This is the encrypted key to use in x-api-key header
+                
+                if encrypted_key:
+                    print(f"✅ Created API key successfully!")
+                    print(f"   API Key ID: {api_key_id}")
+                    print(f"   Encrypted Key: {encrypted_key[:40]}...")
+                    return api_key_id, encrypted_key
+                else:
+                    print(f"❌ API key not found in response")
+                    return None, None
+            else:
+                print(f"❌ Failed to create API key: {create_data}")
+                return None, None
+        else:
+            print(f"❌ Failed to create API key: {create_resp.status_code}")
+            print(f"Response: {create_resp.text}")
+            return None, None
+    except Exception as e:
+        print(f"❌ Error creating API key: {e}")
         return None, None
-    
-    data = response.json().get("data", {})
-    link_id = data.get("link_id")
-    payment_link = data.get("payment_link", "")
-    link_type = data.get("link_type")
-    base_amount = data.get("base_amount")
-    
-    # Extract REF
-    ref = None
-    if "?d=" in payment_link:
-        ref = payment_link.split("?d=")[1].split("&")[0]
-    
-    if (link_type == "standard" or link_type is None) and base_amount == 10:
-        created_links.append({"link_id": link_id, "type": "standard"})
-        result.add_pass("Test 10a", f"Standard link created: link_id={link_id}")
-    else:
-        result.add_fail("Test 10a", f"Invalid response: link_type={link_type}, base_amount={base_amount}")
-        return None, None
-    
-    # getData on standard link
-    time.sleep(0.5)
-    response = make_request("POST", "/pay/getData", json_data={"data": ref})
-    
-    if response.status_code != 200:
-        result.add_fail("Test 10b", f"getData status {response.status_code}")
-        return link_id, ref
-    
-    data = response.json().get("data", {})
-    
-    checks = [
-        ("amount === 10", data.get("amount") == 10),
-        ("NO is_donation flag", data.get("is_donation") != True)
-    ]
-    
-    all_passed = all(check[1] for check in checks)
-    
-    if all_passed:
-        result.add_pass("Test 10b", "Standard link getData correct (no is_donation)")
-    else:
-        failed_checks = [check[0] for check in checks if not check[1]]
-        result.add_fail("Test 10b", f"Failed checks: {', '.join(failed_checks)}")
-    
-    return link_id, ref
 
-def test_11_cleanup(token: str, campaign_link_id: str, child_ref1: str, child_ref2: str):
-    """Test 11: CLEANUP - delete all created links"""
+
+def test_a_positive():
+    """TEST A: POSITIVE - Create embedded session with valid key"""
+    global client_secret_from_test_a
+    
     print("\n" + "="*80)
-    print("TEST 11: CLEANUP")
+    print("TEST A: POSITIVE - Create embedded session")
     print("="*80)
     
-    # Extract child link_ids from refs
-    child_link_ids = []
+    headers = {"x-api-key": created_api_key_plaintext}
+    payload = {
+        "amount": 50,
+        "allowed_origins": ["https://shop.example.com"]
+    }
     
-    for child_ref in [child_ref1, child_ref2]:
-        if child_ref:
-            response = make_request("POST", "/pay/getData", json_data={"data": child_ref})
-            if response.status_code == 200:
-                child_data = response.json().get("data", {})
-                child_link_id = child_data.get("link_id")
-                if child_link_id:
-                    child_link_ids.append(child_link_id)
-    
-    # Delete campaign (should cascade delete children)
-    response = make_request("DELETE", f"/pay/deletePaymentLink/{campaign_link_id}", token)
-    
-    if response.status_code != 200:
-        result.add_fail("Test 11a", f"Delete campaign status {response.status_code}: {response.text[:200]}")
-    else:
-        result.add_pass("Test 11a", f"Campaign link_id={campaign_link_id} deleted")
-    
-    # Verify children are cascade-deleted
-    time.sleep(0.5)
-    if child_link_ids:
-        child_id = child_link_ids[0]
-        response = make_request("GET", f"/pay/links/{child_id}", token)
+    try:
+        resp = requests.post(
+            f"{BASE_URL}/api/user/embed/session",
+            headers=headers,
+            json=payload,
+            timeout=10
+        )
         
-        if response.status_code == 404:
-            result.add_pass("Test 11b", "Children cascade-deleted (404)")
-        else:
-            result.add_fail("Test 11b", f"Child still exists: {response.status_code}")
-    
-    # Delete standard link
-    standard_links = [link for link in created_links if link["type"] == "standard"]
-    for link in standard_links:
-        response = make_request("DELETE", f"/pay/deletePaymentLink/{link['link_id']}", token)
-        if response.status_code == 200:
-            result.add_pass("Test 11c", f"Standard link {link['link_id']} deleted")
-        else:
-            result.add_fail("Test 11c", f"Delete standard link failed: {response.status_code}")
-    
-    # Verify no QA test links remain
-    time.sleep(0.5)
-    response = make_request("GET", "/pay/getPaymentLinks", token)
-    
-    if response.status_code == 200:
-        data = response.json().get("data", [])
-        qa_links = [link for link in data if "QA" in str(link.get("title", "")) and "DELETE ME" in str(link.get("title", ""))]
+        print(f"POST /api/user/embed/session -> {resp.status_code}")
+        print(f"Response: {json.dumps(resp.json(), indent=2)}")
         
-        if len(qa_links) == 0:
-            result.add_pass("Test 11d", "No QA test links remain in list")
+        if resp.status_code == 200:
+            data = resp.json()
+            
+            # Validate response structure
+            checks = []
+            checks.append(("success is true", data.get("success") == True))
+            checks.append(("data exists", "data" in data))
+            
+            if "data" in data:
+                response_data = data["data"]
+                
+                # Check client_secret
+                client_secret = response_data.get("client_secret")
+                checks.append(("client_secret exists", client_secret is not None))
+                checks.append(("client_secret is hex string", isinstance(client_secret, str) and len(client_secret) > 0))
+                
+                # Check checkout_url
+                checkout_url = response_data.get("checkout_url")
+                expected_url = f"{BASE_URL}/pay?d={client_secret}&embed=1"
+                checks.append(("checkout_url exists", checkout_url is not None))
+                checks.append(("checkout_url matches pattern", checkout_url == expected_url))
+                
+                # Check ui_mode
+                checks.append(("ui_mode is 'embedded'", response_data.get("ui_mode") == "embedded"))
+                
+                # Check payment_methods
+                payment_methods = response_data.get("payment_methods")
+                checks.append(("payment_methods exists", payment_methods is not None))
+                checks.append(("payment_methods is array", isinstance(payment_methods, list)))
+                
+                if isinstance(payment_methods, list) and len(payment_methods) > 0:
+                    first_method = payment_methods[0]
+                    checks.append(("first payment_method type is 'crypto'", first_method.get("type") == "crypto"))
+                    checks.append(("currencies array exists", "currencies" in first_method))
+                    checks.append(("currencies array not empty", isinstance(first_method.get("currencies"), list) and len(first_method.get("currencies")) > 0))
+                
+                # Save client_secret for later tests
+                if client_secret:
+                    client_secret_from_test_a = client_secret
+            
+            all_passed = all(check[1] for check in checks)
+            details = "\n".join([f"  {'✅' if check[1] else '❌'} {check[0]}" for check in checks])
+            
+            log_test("TEST A: POSITIVE", all_passed, details)
+            return all_passed
         else:
-            result.add_fail("Test 11d", f"Found {len(qa_links)} QA test links still in list")
+            log_test("TEST A: POSITIVE", False, f"Expected 200, got {resp.status_code}: {resp.text}")
+            return False
+            
+    except Exception as e:
+        log_test("TEST A: POSITIVE", False, f"Exception: {e}")
+        return False
+
+
+def test_b_render():
+    """TEST B: RENDER - Verify checkout URL loads"""
+    print("\n" + "="*80)
+    print("TEST B: RENDER - Verify checkout page loads")
+    print("="*80)
+    
+    if not client_secret_from_test_a:
+        log_test("TEST B: RENDER", False, "Skipped - no client_secret from Test A")
+        return False
+    
+    checkout_url = f"{BASE_URL}/pay?d={client_secret_from_test_a}&embed=1"
+    
+    try:
+        resp = requests.get(checkout_url, timeout=10)
+        print(f"GET {checkout_url} -> {resp.status_code}")
+        
+        if resp.status_code == 200:
+            # Check if it's HTML
+            content_type = resp.headers.get("content-type", "")
+            is_html = "text/html" in content_type
+            
+            details = f"Status: {resp.status_code}, Content-Type: {content_type}, Length: {len(resp.text)} bytes"
+            log_test("TEST B: RENDER", is_html, details)
+            return is_html
+        else:
+            log_test("TEST B: RENDER", False, f"Expected 200, got {resp.status_code}")
+            return False
+            
+    except Exception as e:
+        log_test("TEST B: RENDER", False, f"Exception: {e}")
+        return False
+
+
+def test_c_no_auth():
+    """TEST C: NEGATIVE - No auth header"""
+    print("\n" + "="*80)
+    print("TEST C: NEGATIVE - No auth header")
+    print("="*80)
+    
+    payload = {
+        "amount": 50,
+        "allowed_origins": ["https://shop.example.com"]
+    }
+    
+    try:
+        resp = requests.post(
+            f"{BASE_URL}/api/user/embed/session",
+            json=payload,
+            timeout=10
+        )
+        
+        print(f"POST /api/user/embed/session (no auth) -> {resp.status_code}")
+        
+        if resp.status_code in [401, 403]:
+            log_test("TEST C: NEGATIVE (no auth)", True, f"Correctly rejected with {resp.status_code}")
+            return True
+        else:
+            log_test("TEST C: NEGATIVE (no auth)", False, f"Expected 401/403, got {resp.status_code}: {resp.text}")
+            return False
+            
+    except Exception as e:
+        log_test("TEST C: NEGATIVE (no auth)", False, f"Exception: {e}")
+        return False
+
+
+def test_d_below_minimum():
+    """TEST D: NEGATIVE - Amount below minimum"""
+    print("\n" + "="*80)
+    print("TEST D: NEGATIVE - Amount below minimum")
+    print("="*80)
+    
+    headers = {"x-api-key": created_api_key_plaintext}
+    payload = {"amount": 2}
+    
+    try:
+        resp = requests.post(
+            f"{BASE_URL}/api/user/embed/session",
+            headers=headers,
+            json=payload,
+            timeout=10
+        )
+        
+        print(f"POST /api/user/embed/session (amount=2) -> {resp.status_code}")
+        print(f"Response: {resp.text}")
+        
+        if resp.status_code == 400:
+            # Check if message mentions minimum
+            response_text = resp.text.lower()
+            mentions_minimum = "minimum" in response_text or "min" in response_text
+            
+            log_test("TEST D: NEGATIVE (below minimum)", True, f"Correctly rejected with 400, message: {resp.text}")
+            return True
+        else:
+            log_test("TEST D: NEGATIVE (below minimum)", False, f"Expected 400, got {resp.status_code}: {resp.text}")
+            return False
+            
+    except Exception as e:
+        log_test("TEST D: NEGATIVE (below minimum)", False, f"Exception: {e}")
+        return False
+
+
+def test_e_bad_key():
+    """TEST E: NEGATIVE - Invalid API key"""
+    print("\n" + "="*80)
+    print("TEST E: NEGATIVE - Invalid API key")
+    print("="*80)
+    
+    headers = {"x-api-key": "dpk_live_totallyinvalid"}
+    payload = {"amount": 50}
+    
+    try:
+        resp = requests.post(
+            f"{BASE_URL}/api/user/embed/session",
+            headers=headers,
+            json=payload,
+            timeout=10
+        )
+        
+        print(f"POST /api/user/embed/session (bad key) -> {resp.status_code}")
+        
+        if resp.status_code in [401, 403]:
+            log_test("TEST E: NEGATIVE (bad key)", True, f"Correctly rejected with {resp.status_code}")
+            return True
+        else:
+            log_test("TEST E: NEGATIVE (bad key)", False, f"Expected 401/403, got {resp.status_code}: {resp.text}")
+            return False
+            
+    except Exception as e:
+        log_test("TEST E: NEGATIVE (bad key)", False, f"Exception: {e}")
+        return False
+
+
+def test_f_session_persisted():
+    """TEST F: SESSION PERSISTED - Verify session data resolves"""
+    print("\n" + "="*80)
+    print("TEST F: SESSION PERSISTED - Verify session data")
+    print("="*80)
+    
+    if not client_secret_from_test_a:
+        log_test("TEST F: SESSION PERSISTED", False, "Skipped - no client_secret from Test A")
+        return False
+    
+    # Try POST /api/pay/getData with the client_secret
+    payload = {"data": client_secret_from_test_a}
+    
+    try:
+        resp = requests.post(
+            f"{BASE_URL}/api/pay/getData",
+            json=payload,
+            timeout=10
+        )
+        
+        print(f"POST /api/pay/getData -> {resp.status_code}")
+        print(f"Response: {json.dumps(resp.json(), indent=2)}")
+        
+        if resp.status_code == 200:
+            data = resp.json()
+            
+            checks = []
+            checks.append(("data exists", "data" in data))
+            
+            if "data" in data:
+                session_data = data["data"]
+                
+                # Check amount is 50
+                amount = session_data.get("amount")
+                checks.append(("amount is 50", amount == 50 or amount == "50" or amount == "50.00"))
+                
+                # Check available currencies exist
+                available_currencies = session_data.get("available_currencies")
+                checks.append(("available_currencies exists", available_currencies is not None))
+                checks.append(("available_currencies is array", isinstance(available_currencies, list)))
+                checks.append(("available_currencies not empty", isinstance(available_currencies, list) and len(available_currencies) > 0))
+            
+            all_passed = all(check[1] for check in checks)
+            details = "\n".join([f"  {'✅' if check[1] else '❌'} {check[0]}" for check in checks])
+            
+            log_test("TEST F: SESSION PERSISTED", all_passed, details)
+            return all_passed
+        else:
+            log_test("TEST F: SESSION PERSISTED", False, f"Expected 200, got {resp.status_code}: {resp.text}")
+            return False
+            
+    except Exception as e:
+        log_test("TEST F: SESSION PERSISTED", False, f"Exception: {e}")
+        return False
+
+
+def cleanup():
+    """TEST G: CLEANUP - Delete created API key"""
+    print("\n" + "="*80)
+    print("TEST G: CLEANUP - Delete API key")
+    print("="*80)
+    
+    if not created_api_key_id:
+        print("⚠️  No API key ID to clean up")
+        log_test("TEST G: CLEANUP", False, "No API key ID found")
+        return False
+    
+    headers = {"Authorization": f"Bearer {QA_JWT}"}
+    
+    try:
+        # First verify the key exists
+        print(f"\n[CLEANUP] Step 1: Verifying key exists...")
+        get_resp = requests.get(f"{BASE_URL}/api/userApi/getApi", headers=headers, timeout=10)
+        print(f"GET /api/userApi/getApi -> {get_resp.status_code}")
+        
+        if get_resp.status_code == 200:
+            data = get_resp.json()
+            if data.get("success") and data.get("data"):
+                api_list = data["data"]
+                found = any(api.get("api_id") == created_api_key_id for api in api_list)
+                print(f"Key {created_api_key_id} found in list: {found}")
+        
+        # Delete the key
+        print(f"\n[CLEANUP] Step 2: Deleting key {created_api_key_id}...")
+        delete_resp = requests.delete(
+            f"{BASE_URL}/api/userApi/deleteApi/{created_api_key_id}",
+            headers=headers,
+            timeout=10
+        )
+        
+        print(f"DELETE /api/userApi/deleteApi/{created_api_key_id} -> {delete_resp.status_code}")
+        
+        if delete_resp.status_code == 200:
+            # Verify deletion
+            print(f"\n[CLEANUP] Step 3: Verifying deletion...")
+            verify_resp = requests.get(f"{BASE_URL}/api/userApi/getApi", headers=headers, timeout=10)
+            
+            if verify_resp.status_code == 200:
+                verify_data = verify_resp.json()
+                if verify_data.get("success") and verify_data.get("data"):
+                    api_list = verify_data["data"]
+                    still_exists = any(api.get("api_id") == created_api_key_id for api in api_list)
+                    
+                    if not still_exists:
+                        log_test("TEST G: CLEANUP", True, f"API key {created_api_key_id} successfully deleted and verified")
+                        return True
+                    else:
+                        log_test("TEST G: CLEANUP", False, f"API key {created_api_key_id} still exists after deletion")
+                        return False
+                else:
+                    # Empty list means deleted
+                    log_test("TEST G: CLEANUP", True, f"API key {created_api_key_id} successfully deleted")
+                    return True
+            else:
+                log_test("TEST G: CLEANUP", False, f"Could not verify deletion: {verify_resp.status_code}")
+                return False
+        else:
+            log_test("TEST G: CLEANUP", False, f"Delete failed with {delete_resp.status_code}: {delete_resp.text}")
+            return False
+            
+    except Exception as e:
+        log_test("TEST G: CLEANUP", False, f"Exception: {e}")
+        return False
+
+
+def print_summary():
+    """Print test summary"""
+    print("\n" + "="*80)
+    print("TEST SUMMARY")
+    print("="*80)
+    
+    passed = sum(1 for r in test_results if r["passed"])
+    total = len(test_results)
+    
+    print(f"\nTotal: {passed}/{total} tests passed\n")
+    
+    for result in test_results:
+        status = "✅ PASS" if result["passed"] else "❌ FAIL"
+        print(f"{status} - {result['test']}")
+    
+    print("\n" + "="*80)
+    
+    if passed == total:
+        print("🎉 ALL TESTS PASSED!")
+        return 0
     else:
-        result.add_fail("Test 11d", f"getPaymentLinks failed: {response.status_code}")
+        print(f"⚠️  {total - passed} test(s) failed")
+        return 1
+
 
 def main():
     """Main test execution"""
-    print("\n" + "="*80)
-    print("SESSION 16: DONATION/CROWDFUNDING BACKEND TEST SUITE")
-    print("Base URL:", BASE_URL)
+    global created_api_key_id, created_api_key_plaintext
+    
+    print("="*80)
+    print("Dynopay Embedded Checkout E2E Test")
+    print("Testing: POST /api/user/embed/session")
+    print(f"Base URL: {BASE_URL}")
     print("="*80)
     
-    try:
-        # Login and setup
-        token = login()
-        company_id = get_company_id(token)
-        
-        # Test 1: Create donation
-        campaign_link_id, campaign_ref = test_1_create_donation(token, company_id)
-        
-        if not campaign_link_id or not campaign_ref:
-            print("\n❌ CRITICAL: Campaign creation failed, cannot continue")
-            return
-        
-        # Test 2: Create validations
-        test_2_create_validations(token, company_id)
-        
-        # Test 3: getData parent
-        test_3_get_data_parent(campaign_ref)
-        
-        # Test 4: startDonation happy path
-        child_ref1 = test_4_start_donation_happy_path(campaign_ref)
-        
-        # Test 5: startDonation validations
-        child_ref2 = test_5_start_donation_validations(campaign_ref)
-        
-        # Test 6: LIST
-        test_6_list_payment_links(token, campaign_link_id)
-        
-        # Test 7: GET BY ID
-        test_7_get_by_id(token, campaign_link_id)
-        
-        # Test 8: UPDATE
-        test_8_update_donation(token, campaign_link_id, campaign_ref)
-        
-        # Test 9: UPLOAD
-        test_9_upload_campaign_image(token)
-        
-        # Test 10: REGRESSION standard link
-        standard_link_id, standard_ref = test_10_regression_standard_link(token, company_id)
-        
-        # Test 11: CLEANUP (MANDATORY)
-        test_11_cleanup(token, campaign_link_id, child_ref1, child_ref2)
-        
-        # Final summary
-        print("\n" + "="*80)
-        print("CREATED LINKS SUMMARY:")
-        print("="*80)
-        for link in created_links:
-            print(f"  - link_id={link['link_id']} (type={link['type']})")
-        
-        print("\n" + "="*80)
-        print("CLEANUP CONFIRMATION:")
-        print("="*80)
-        print("✅ All created links have been deleted")
-        
-        # Print final summary
-        success = result.summary()
-        
-        if success:
-            print("\n🎉 ALL TESTS PASSED!")
-        else:
-            print(f"\n⚠️ {len(result.failed)} TEST(S) FAILED")
-        
-    except Exception as e:
-        print(f"\n❌ FATAL ERROR: {str(e)}")
-        import traceback
-        traceback.print_exc()
+    # Setup
+    created_api_key_id, created_api_key_plaintext = setup_api_key()
+    
+    if not created_api_key_id or not created_api_key_plaintext:
+        print("\n❌ FATAL: Could not create API key. Aborting tests.")
+        sys.exit(1)
+    
+    # Run tests
+    test_a_positive()
+    test_b_render()
+    test_c_no_auth()
+    test_d_below_minimum()
+    test_e_bad_key()
+    test_f_session_persisted()
+    
+    # Cleanup
+    cleanup()
+    
+    # Summary
+    exit_code = print_summary()
+    sys.exit(exit_code)
+
 
 if __name__ == "__main__":
     main()

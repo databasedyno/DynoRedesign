@@ -1,3 +1,41 @@
+## Session 20c: Embeddable Checkout — Phase 1 (a) Embedded Checkout — BACKEND TEST REQUEST (2026-07-10)
+
+### CONTEXT / WHAT WAS BUILT (Phase 1a of /app/EMBED_INTEGRATION_PLAN.md)
+Stripe-style **Embedded Checkout** (iframe) for crypto, method-agnostic by design.
+- NEW backend route: `POST /api/user/embed/session` (auth: SECRET api key `x-api-key`, via legacyApiAuthMiddleware).
+  Mirrors `createPayment` (reuses getAvailableCurrencies/findOrRecreateCustomer/setRedisItem, pathType="createPayment"),
+  but stores `ui_mode:'embedded'` + `allowed_origins`, and returns a method-agnostic shape:
+  `{ success, data:{ client_secret, checkout_url (=/pay?d=<cs>&embed=1), expires_at, ui_mode, fee_payer,
+     payment_methods:[{type:'crypto', currencies:[...]}] } }`.
+  NOTE: creating a session only writes a Redis key `customer-<id>` — it does NOT reserve a crypto address or move money.
+- NEW frontend SDK served at `/v1/embed.js` (window.Dynopay: initEmbeddedCheckout / openCheckout / redirectToCheckout).
+- `/pay?...&embed=1` now renders in embedded mode (Pay3Layout embed → hides header/footer) + EmbedBridge posts
+  postMessage events (dynopay:ready / resize / success / redirect) to the parent iframe.
+- Test merchant page: `/embed-test.html?cs=<client_secret>`.
+
+### BACKEND TEST REQUEST — preview https://f490872d-1104-4f03-a264-7e1f78811335.preview.emergentagent.com
+LIVE prod DB — MUST clean up. Do NOT touch hostbay's live API key (never regenerate a real merchant's key).
+Use QA account `qa.onboard.1782585233@dynopaytest.com` (JWT via `node /app/scripts/mint_ux_tokens.js`) which has a
+company + 1 wallet.
+
+Steps:
+1. AUTH: get qa.onboard JWT.
+2. Find its company_id (GET /api/userApi/getApi, or the account's companies list).
+3. Create a SECRET api key: `POST /api/userApi/addApi` (JWT) body `{ company_id, base_currency:"USD", api_name:"embed-e2e-test" }`.
+   Capture the plaintext key (dpk_live_… / dpk_test_…) from the create response. (If the company already has an active key,
+   note it and use the DELETE endpoint to remove that test key first, or create for a company without a key — do NOT
+   regenerate any key that looks like a real integration.)
+4. POSITIVE: `POST /api/user/embed/session` with header `x-api-key: <key>` body `{ amount: 50, allowed_origins:["https://shop.example.com"] }`.
+   Assert 200 + `data.client_secret` (hex string), `data.checkout_url` ends with `/pay?d=<client_secret>&embed=1`,
+   `data.payment_methods[0].type === 'crypto'` with a non-empty `currencies` array, `data.ui_mode === 'embedded'`.
+5. RENDER: HTTP GET the returned `checkout_url` → expect 200 (page renders).
+6. NEGATIVE: (a) no `x-api-key` → 401/403; (b) `amount: 2` (below min 5) → 400; (c) invalid `x-api-key` → 401/403.
+7. Confirm the Redis session exists by GET-ing the checkout data the page uses: `POST /api/pay/getData` with body `{ query_data: <client_secret> }` (or the field the /pay page uses) → should return the session amount 50 + available currencies. (Discover the exact getData field/route if needed.)
+8. CLEANUP: DELETE the created api key: `DELETE /api/userApi/deleteApi/:id` (find id via GET /api/userApi/getApi).
+Report PASS/FAIL per step with evidence (status codes + response bodies). Confirm cleanup done.
+
+---
+
 ## Session 20b: Brand casing DynoPay→Dynopay (end-to-end) + similar-overflow hardening — FRONTEND TEST REQUEST (2026-07-10)
 
 ### CONTEXT / CHANGES

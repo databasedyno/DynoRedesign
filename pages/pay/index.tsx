@@ -817,13 +817,41 @@ const Payment = () => {
 
   const isOpen = Boolean(anchorEl)
 
+  // ─── Embedded (iframe) checkout bridge ────────────────────────────
+  // When rendered inside the Dynopay Embedded Checkout iframe (via embed.js),
+  // notify the parent window when the payment completes so it can react /
+  // redirect. The webhook remains the source of truth for fulfillment.
+  const isEmbed =
+    router?.query?.embed === '1' ||
+    (typeof router?.asPath === 'string' && /[?&]embed=1(?:&|$)/.test(router.asPath));
+
+  useEffect(() => {
+    if (!isEmbed) return;
+    if (typeof window === 'undefined' || window.parent === window.self) return;
+    if (!(isSuccess || alreadyPaid)) return;
+    try {
+      window.parent.postMessage(
+        { source: 'dynopay', v: 1, type: 'dynopay:success', paymentId: linkId || null },
+        '*'
+      );
+      if (redirectUrl) {
+        window.parent.postMessage(
+          { source: 'dynopay', v: 1, type: 'dynopay:redirect', url: redirectUrl },
+          '*'
+        );
+      }
+    } catch {
+      /* ignore */
+    }
+  }, [isEmbed, isSuccess, alreadyPaid, redirectUrl, linkId]);
+
   // ─── Initial fetch gate ───────────────────────────────────────────
   // Show a neutral loader until pay/getData resolves. Rendering the checkout
   // form here caused paid links to flash the old checkout (with a dust/zero
   // amount) for a few seconds before the success card appeared.
   if (initialLoading) {
     return (
-      <Pay3Layout>
+      <Pay3Layout embed={isEmbed}>
         <Box
           display='flex'
           flexDirection='column'
@@ -860,7 +888,7 @@ const Payment = () => {
       : cryptoStr || fiatStr || '';
 
     return (
-      <Pay3Layout>
+      <Pay3Layout embed={isEmbed}>
         <Box>
           <Box>
             <ProgressBar activeStep={2} />
@@ -888,7 +916,7 @@ const Payment = () => {
   // own payment session begins).
   if (donationData) {
     return (
-      <Pay3Layout>
+      <Pay3Layout embed={isEmbed}>
         <DonationCampaign
           donation={donationData}
           merchant={merchantInfo || null}
@@ -900,7 +928,7 @@ const Payment = () => {
   }
 
   return (
-    <Pay3Layout>
+    <Pay3Layout embed={isEmbed}>
       <Box>
         <Box>
           <ProgressBar activeStep={activeStep} />
