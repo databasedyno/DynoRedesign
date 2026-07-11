@@ -1,4 +1,5 @@
 import unAuthorizedHelper from "@/helpers/unAutorizedHelper";
+import { setAuthNotice } from "@/helpers/authNotice";
 import axios from "axios";
 
 const apiBaseUrl = (process.env.NEXT_PUBLIC_BASE_URL || "").replace(/\/+$/, "");
@@ -66,7 +67,10 @@ axiosBaseApi.interceptors.response.use(
 
     // Skip auth redirect for public pages (homepage, checkout, fees, etc.) — visitors are not logged in
     const isCheckoutPage = typeof window !== "undefined" && window.location.pathname.startsWith("/pay");
-    const isPublicPage = typeof window !== "undefined" && ["/", "/fees", "/terms-conditions", "/privacy-policy", "/aml-policy", "/system-status", "/documentation"].includes(window.location.pathname);
+    const isPublicPage = typeof window !== "undefined" && (
+      ["/", "/fees", "/terms-conditions", "/privacy-policy", "/aml-policy", "/system-status", "/documentation", "/blog"].includes(window.location.pathname) ||
+      ["/help-support", "/blog/", "/for/", "/accept-crypto-payments-in/"].some((p) => window.location.pathname.startsWith(p))
+    );
     const hasToken = typeof window !== "undefined" && !!localStorage.getItem("token");
 
     if (error.response?.status === 401 && !isAuthEndpoint(originalRequest?.url || "")) {
@@ -80,6 +84,7 @@ axiosBaseApi.interceptors.response.use(
         localStorage.removeItem("token");
         localStorage.removeItem("refreshToken");
         delete axiosBaseApi.defaults.headers.common.Authorization;
+        setAuthNotice("session_expired");
         window.location.href = "/auth/login";
         return Promise.reject(error);
       }
@@ -111,6 +116,7 @@ axiosBaseApi.interceptors.response.use(
         isRefreshing = false;
         localStorage.removeItem("token");
         delete axiosBaseApi.defaults.headers.common.Authorization;
+        setAuthNotice("session_expired");
         window.location.href = "/auth/login";
         return Promise.reject(error);
       }
@@ -143,6 +149,7 @@ axiosBaseApi.interceptors.response.use(
         localStorage.removeItem("token");
         localStorage.removeItem("refreshToken");
         delete axiosBaseApi.defaults.headers.common.Authorization;
+        setAuthNotice("session_expired");
         window.location.href = "/auth/login";
         return Promise.reject(refreshError);
       } finally {

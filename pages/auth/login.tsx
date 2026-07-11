@@ -24,6 +24,7 @@ import {
 } from "@/Containers/Login/styled";
 import useIsMobile from "@/hooks/useIsMobile";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
+import { takeAuthNotice } from "@/helpers/authNotice";
 import {
   USER_API_ERROR,
   USER_CONFIRM_CODE,
@@ -66,6 +67,37 @@ export default function Login() {
   const dispatch = useDispatch();
   const router = useRouter();
   const userState = useSelector((state: rootReducer) => state.userReducer);
+
+  // If the user was sent back here because their session timed out (or a
+  // password-reset link was invalid), tell them why instead of silently
+  // showing the login form. The notice is set right before the redirect and
+  // consumed once here.
+  useEffect(() => {
+    const notice = takeAuthNotice();
+    if (!notice) return;
+    if (notice === "session_expired") {
+      dispatch({
+        type: TOAST_SHOW,
+        payload: {
+          message: t("sessionTimedOut", {
+            defaultValue: "Your session has timed out. Please sign in again.",
+          }),
+          severity: "warning",
+        },
+      });
+    } else if (notice === "reset_invalid") {
+      dispatch({
+        type: TOAST_SHOW,
+        payload: {
+          message: t("resetLinkInvalid", {
+            defaultValue:
+              "This password reset link is invalid or has expired. Please request a new one.",
+          }),
+          severity: "error",
+        },
+      });
+    }
+  }, []);
 
   // Email check state
   const [emailInput, setEmailInput] = useState("");

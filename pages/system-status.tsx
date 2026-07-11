@@ -413,17 +413,29 @@ const StatusPage = () => {
           }}
         >
           <TypographyTitle>{t("ninetyDayUptime")}</TypographyTitle>
-          {uptimeData && (
-            <Typography
-              sx={{
-                fontSize: "14px",
-                fontFamily: "var(--font-sans)",
-                color: getStatusColor("operational"),
-              }}
-            >
-              {uptimeData.uptime_percentage}%
-            </Typography>
-          )}
+          {uptimeData && (() => {
+            const s = uptimeData.summary;
+            const daysWithData = s
+              ? s.operational_days + s.degraded_days + s.outage_days
+              : 0;
+            // A "90-day uptime %" is only meaningful once we have enough history.
+            // With only a few days of data, a low figure (e.g. 62.5%) is misleading
+            // and contradicts the "All Systems Operational" banner.
+            const enoughData = daysWithData >= 30;
+            return (
+              <Typography
+                sx={{
+                  fontSize: "14px",
+                  fontFamily: "var(--font-sans)",
+                  color: enoughData ? getStatusColor("operational") : "#8A8F98",
+                }}
+              >
+                {enoughData
+                  ? `${uptimeData.uptime_percentage}%`
+                  : t("collectingData", { defaultValue: "Collecting data" })}
+              </Typography>
+            );
+          })()}
         </Box>
 
         {loading ? (

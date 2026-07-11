@@ -40,7 +40,7 @@
   "section6Footer": "Je kunt op elk moment verzoeken om verwijdering van je account.",
   "section7Title": "7. Jouw rechten",
   "section7Desc": "Afhankelijk van je regio kun je verzoeken om:",
-  "section7Footer": "Neem voor elk verzoek contact met ons op via {{SUPPORT_EMAIL}}.",
+  "section7Footer": "Neem voor elk verzoek contact met ons op via hi@dynopay.com.",
   "section8Title": "8. Links van derden",
   "section8Desc": "Onze Dienst kan links of integraties met tools van derden bevatten.",
   "section8Footer": "Wij zijn niet verantwoordelijk voor hun privacypraktijken.",
@@ -49,7 +49,7 @@
   "section9Footer": "Wijzigingen worden van kracht zodra ze op onze website zijn gepubliceerd.",
   "section10Title": "10. Contact",
   "section10Desc": "Als je vragen hebt, bereik ons dan via:",
-  "section10Footer": "{{SUPPORT_EMAIL}}",
+  "section10Footer": "hi@dynopay.com",
   "section1Info": [
     {
       "title": "Accountgegevens:",

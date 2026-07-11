@@ -9,6 +9,7 @@ import { AuthContainer, CardWrapper } from "@/Containers/Login/styled";
 import useIsMobile from "@/hooks/useIsMobile";
 import { UserAction } from "@/Redux/Actions";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
+import { setAuthNotice } from "@/helpers/authNotice";
 import { USER_RESET_PASSWORD } from "@/Redux/Actions/UserAction";
 import { theme } from "@/styles/theme";
 import { rootReducer } from "@/utils/types";
@@ -131,6 +132,7 @@ const ResetPasswordPage = () => {
     if (!router.isReady) return;
 
     if (!token || !email) {
+      setAuthNotice("reset_invalid");
       router.replace("/auth/login");
     } else {
       setAllowed(true);

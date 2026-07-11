@@ -2,7 +2,7 @@ export const amlPolicy = [
   {
     title: "1. Purpose of the Policy",
     description:
-      "Our goal is to ensure that {{PRODUCT_NAME}} is not used to facilitate illegal financial activity. We follow international AML standards and apply reasonable risk-based measures across our platform.",
+      "Our goal is to ensure that Dynopay is not used to facilitate illegal financial activity. We follow international AML standards and apply reasonable risk-based measures across our platform.",
     bulletPoints: [],
     footer:
       "",

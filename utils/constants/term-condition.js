@@ -145,7 +145,7 @@ export const terms = [
   {
     title: "12. Intellectual Property",
     description1:
-      "All Service content, UI elements, branding, and code belong to {{PRODUCT_NAME}}.",
+      "All Service content, UI elements, branding, and code belong to Dynopay.",
     description2: "",
     bulletPoints: [],
     footer:
@@ -167,7 +167,7 @@ export const terms = [
     title: "14. Indemnification",
     description1: "",
     description2:
-      "You agree to indemnify and hold {{PRODUCT_NAME}} harmless from any claims, losses, liabilities, or expenses arising from:",
+      "You agree to indemnify and hold Dynopay harmless from any claims, losses, liabilities, or expenses arising from:",
     bulletPoints: [
       "Your misuse of the Service",
       "Your violation of the law",
