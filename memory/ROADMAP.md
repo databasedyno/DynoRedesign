@@ -1,13 +1,12 @@
 # CURRENT PRIORITIES (2026-07-11, session 27) — top of stack
 
-DONE this session (preview): login-bounce fix (withAuth retry), Google stay-on-page popup, Profile→Settings merge, Help refresh + chat CTA + quick-reply chips, branded favicon (ink+lime), site OG card, "15+ chains", "Dynotech" footer, SEO heading fix, donation/crowdfunding checkout redesign, **Creator vanity pages `dynopay.com/{handle}`** (migration on LIVE DB + endpoints + SSR page + Settings claim UI + dynamic OG). See CHANGELOG.
+DONE this session (preview): login-bounce fix (withAuth retry), Google stay-on-page popup, Profile→Settings merge, Help refresh + chat CTA + quick-reply chips, branded favicon (ink+lime), site OG card, "15+ chains", "Dynotech" footer, SEO heading fix, donation/crowdfunding checkout redesign, **Creator vanity pages `dynopay.com/{handle}`** (migration on LIVE DB + endpoints + SSR page + Settings claim UI + dynamic OG), dynamic OG for shared /pay links, **landing refresh (creator vanity mockup)**, **standard /pay checkout lime polish + UX (low-fee hint, tap-to-copy address, trust strip)**. See CHANGELOG.
 
-NEXT (user-requested order after creator):
-- P0 STANDARD /pay checkout polish — make the regular payment checkout match landing-page quality (order summary, coin grid, trust signals). File: pages/pay/index.tsx (+ Pay3Components).
-- P1 Landing page refresh — surface donations/crowdfunding/creator pages; keep clean.
-- P1 Dynamic link previews for shared payment/donation links — SSR the /pay page's OG tags (crawlers don't run JS). Creator pages already have dynamic OG.
-
-REMINDER: login-bounce fix is PREVIEW-only until the user deploys to production.
+NEXT / BACKLOG:
+- 🔴 DEPLOY: login-bounce fix + ALL session-27 UI changes are PREVIEW-only until the user deploys to production.
+- ✅ Dark-mode checkout: VERIFIED WORKING (session 27e). Toggling the real pay-header theme switch flips the whole checkout to dark (body → #060606, card dark, lime accents legible). The earlier "body stays light" report was a test artifact (the Pay3 header is ink-colored in LIGHT mode by design; tester clicked the wrong control). No fix needed.
+- ✅ Network tiles now expose `data-testid="network-tile-{TRC20|ERC20|POLYGON|XRPL}"` (both USDT + RLUSD blocks) for E2E. (session 27e)
+- 🟢 Public-page design refresh (fees ALREADY Swiss-done 19b; blog/docs/legal SectionTitle done, bodies still need a pass) + i18n backlog (documentation ~150 strings, blog content, system-status). Confirm priority with user.
 
 ---
 

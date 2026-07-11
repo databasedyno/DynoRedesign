@@ -1,5 +1,25 @@
 # Changelog
 
+## 2026-07-11 (session 27d) — Landing refresh (creator vanity mockup) + /pay checkout lime polish
+
+**Landing — surface Creator vanity pages** (`Components/Page/Home/UseCasesBento.tsx`)
+- Replaced the old `MockPayLink` ("dynopay.me/ava-designs · one-time payment · $12") with new `MockCreatorPage`: avatar (lime ring, "A") + "Ava Designs" + "3 links · 128 supporters", a `dynopay.com/ava-designs` URL pill (lime handle), and a lime "Support my work →" CTA. Surfaces the new creator feature on the "Digital creators" use-case card.
+- Copy updated in all 6 locales (`langs/locales/*/landing.json`): `useCase2Tag` "Wallet stats" → "Creator page"; `useCase2Description` → "Claim your own dynopay.com/handle and get paid with tips, donations and one-tap links."
+
+**Standard /pay checkout — visual + UX polish (matches landing/donation)**
+- Rebranded selection + primary CTA accents to brand lime `#CCFF00` (ink `#0A0A0B` text), matching landing & donation. Green (`#10B981/#12B76A`) kept ONLY for payment-detected/confirmed success states.
+  - `pages/pay/index.tsx`: step-0 "Pay with Cryptocurrency" CTA → lime.
+  - `Components/Page/Pay3Components/cryptoTransfer.tsx`: added ACCENT/ON_ACCENT/ACCENT_SOFT consts; coin tile + USDT/RLUSD network tile selected states → lime.
+  - `pages/pay/demo.tsx`: mock step-0 CTA → lime (landing TryItNow embed + standalone consistency). Success/confirm buttons left green.
+- Functional UX (additive, no payment/rate/polling logic changed):
+  - (a) Low-fee hint under USDT networks: "TRC-20 usually has the lowest network fees." (`data-testid="lowfee-hint"`).
+  - (c) Address row is now tap-to-copy (`data-testid="copy-address-row"`, hover lime border) + existing copy buttons kept.
+  - (b/d) Trust strip below the QR/address card (`data-testid="checkout-trust-strip"`): "Funds go directly to the merchant · amount locked until the timer ends" (new keys `crypto.lowestFeeHint`, `crypto.trustNote` use defaultValue fallback).
+
+**Verified:** full `next build` (standalone) passes + restarted. testing_agent (frontend, iteration_26.json) = 100%, 0 console errors on landing & /pay/demo. Evidence: creators "Support my work" btn rgb(204,255,0)/text rgb(10,10,10); demo CTA lime "Pay with Cryptocurrency"; real crypto screen (verified via temp `/pay/crypto-preview`, since removed): USDT tile lime border+bg, lowfee-hint renders; donations bar lime; dark-mode landing OK.
+
+**Observation (pre-existing, NOT this task):** `/pay/demo` (and likely the real /pay checkout) page body stays light when the header theme toggle is switched to dark — MUI theme for the pay route may not follow the toggle. Lime CTAs stay legible. Flagged for a future dark-mode-checkout pass if desired.
+
 ## 2026-07-11 (session 27c) — Creator vanity pages (dynopay.com/{handle})
 
 **DB (LIVE prod, additive migration — user approved):** `backend/migrations/addCreatorHandle.ts` added `handle` VARCHAR(50), `bio` VARCHAR(500), `creator_page_enabled` BOOLEAN to `tbl_user` + partial unique index `idx_tbl_user_handle_lower` on `LOWER(handle)`. Idempotent (`IF NOT EXISTS`). Model updated (`userModel.ts`). Verified columns exist.

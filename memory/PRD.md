@@ -5,6 +5,12 @@ USDT-TRC20 payment gateway platform. Users can create companies, wallets, paymen
 
 ## What's Been Implemented
 
+### 2026-07-11 — Session 27d — Landing refresh (creator vanity mockup) + /pay checkout lime polish
+- Landing "Digital creators" use-case card now shows a Creator vanity-page mockup (avatar + `dynopay.com/ava-designs` + "Support my work"); copy updated in all 6 locales (`useCase2Tag`→"Creator page"). File: `Components/Page/Home/UseCasesBento.tsx`.
+- Standard /pay checkout polished to match landing/donation: selection + primary CTA rebranded to brand lime `#CCFF00`/ink (green kept only for success states); added low-fee network hint, tap-to-copy address row, and a trust strip. Files: `pages/pay/index.tsx`, `Components/Page/Pay3Components/cryptoTransfer.tsx`, `pages/pay/demo.tsx`.
+- Verified via full standalone build + testing_agent (iteration_26.json, frontend 100%, 0 console errors). Full detail in `memory/CHANGELOG.md` (session 27d). Pre-existing note: /pay page body does not follow the header dark-mode toggle (flagged in ROADMAP).
+
+
 ### 2026-07-11 — Session 24 — Embeddable Checkout Phase 3(b) "Elements Inline Widget" — BACKEND + SDK COMPLETE + BACKEND-TESTED 17/17
 
 Previous Session 23 built Elements endpoints + tests, but the container was recreated and the uncommitted work was lost. Session 24 rebuilds the feature from scratch based on `EMBED_INTEGRATION_PLAN.md §7`. Now committed.

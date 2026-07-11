@@ -1749,6 +1749,7 @@ const CryptoTransfer = ({
                 <Typography
                   key={net}
                   component="button"
+                  data-testid={`network-tile-${net}`}
                   border={`1.5px solid ${selectedNetwork === net ? ACCENT : theme.palette.border.main}`}
                   padding="7px 16px"
                   fontSize="13px"
@@ -1825,6 +1826,7 @@ const CryptoTransfer = ({
                 <Typography
                   key={net}
                   component="button"
+                  data-testid={`network-tile-${net}`}
                   border={`1.5px solid ${selectedNetwork === net ? ACCENT : theme.palette.border.main}`}
                   padding="7px 16px"
                   fontSize="13px"
