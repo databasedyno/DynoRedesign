@@ -467,6 +467,50 @@ const ENDPOINTS: Endpoint[] = [
 }`,
   },
   {
+    id: "embed-session",
+    method: "POST",
+    path: "/embed/session",
+    title: "Create Embedded Checkout Session",
+    description:
+      "Create a session for the Dynopay Embedded Checkout (iframe on your page). Call this from your SERVER — the returned `client_secret` is safe to hand to the browser; your API key is NOT. Load embed.js (from your checkout origin) and pass the client_secret to `Dynopay.initEmbeddedCheckout({fetchClientSecret})` to mount the checkout inline, or `Dynopay.openCheckout(...)` to open it as a centered modal. Always verify final payment status via the payment.succeeded webhook — the browser onComplete event is UX only.",
+    auth: "api-key",
+    headers: [
+      { name: "x-api-key", value: "your_api_key", description: "Your Dynopay API key (SECRET — never send to the browser)" },
+      { name: "Content-Type", value: "application/json", description: "" },
+    ],
+    body: [
+      { name: "amount", type: "number", required: true, description: "Payment amount in your base currency (min 5)" },
+      { name: "redirect_uri", type: "string", required: false, description: "URL to send the customer after successful payment" },
+      { name: "accepted_currencies", type: "string[]", required: false, description: 'Limit accepted cryptos, e.g. ["USDT-TRC20","BTC"]. Must be a subset of your configured wallet currencies.' },
+      { name: "fee_payer", type: "string", required: false, description: '"company" (default) or "customer"' },
+      { name: "webhook_url", type: "string", required: false, description: "Per-session webhook URL override (otherwise uses the key's default)" },
+      { name: "callback_url", type: "string", required: false, description: "Legacy webhook alias" },
+      { name: "meta_data", type: "object", required: false, description: "Custom metadata echoed back in webhooks" },
+      { name: "allowed_origins", type: "string[]", required: false, description: 'Domains permitted to iframe this session, e.g. ["https://shop.com"]' },
+    ],
+    requestExample: `{
+  "amount": 50.00,
+  "redirect_uri": "https://shop.com/thanks",
+  "webhook_url": "https://shop.com/webhooks/dynopay",
+  "allowed_origins": ["https://shop.com"],
+  "meta_data": { "order_id": "ORD-12345" }
+}`,
+    responseExample: `{
+  "success": true,
+  "message": "Embedded checkout session created",
+  "data": {
+    "client_secret": "a1b2c3d4...",
+    "checkout_url": "https://checkout.dynopay.com/pay?d=a1b2c3d4...&embed=1",
+    "expires_at":  "2026-07-11T10:37:00.000Z",
+    "ui_mode": "embedded",
+    "fee_payer": "company",
+    "payment_methods": [
+      { "type": "crypto", "currencies": ["USDT-TRC20","BTC","ETH"] }
+    ]
+  }
+}`,
+  },
+  {
     id: "crypto-payment",
     method: "POST",
     path: "/cryptoPayment",
@@ -744,6 +788,7 @@ const SECTIONS: Section[] = [
   { id: "authentication", title: "Authentication", icon: <ShieldOutlinedIcon /> },
   { id: "customers", title: "Customers", icon: <PersonAddAlt1Icon />, endpoints: ["create-user"] },
   { id: "payments", title: "Payments", icon: <PaymentIcon />, endpoints: ["create-payment", "crypto-payment"] },
+  { id: "embed", title: "Embedded Checkout", icon: <CodeIcon />, endpoints: ["embed-session"] },
   { id: "wallets", title: "Wallets", icon: <AccountBalanceWalletIcon />, endpoints: ["add-funds", "use-wallet", "get-balance"] },
   { id: "transactions", title: "Transactions", icon: <ReceiptLongIcon />, endpoints: ["get-transactions", "get-single-transaction", "get-crypto-transaction"] },
   { id: "currencies", title: "Currencies", icon: <CurrencyExchangeIcon />, endpoints: ["get-supported-currency"] },

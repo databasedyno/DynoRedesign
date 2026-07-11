@@ -220,13 +220,15 @@ app.post('/create-dynopay-session', async (req, res) => {
 ## 11. Progress tracker
 
 - [~] **Phase 0 — Foundations**: embed.js host ✅ (`/v1/embed.js`), embeddable route ✅ (reused `/pay?...&embed=1`), postMessage ✅ (EmbedBridge: ready/resize/success/redirect), session store ✅ (Redis `customer-<id>`). ⬜ dynamic `frame-ancestors` per allowed_origins (DEFERRED — origins are now stored on the session; enforcement is a follow-up. Frontend currently sets no X-Frame-Options, so framing already works).
-- [~] **Phase 1 — (a) Embedded Checkout**: backend `POST /api/user/embed/session` ✅ (BACKEND-TESTED 7/7, Session 20c), `GET /pay?...&embed=1` embedded render ✅, `embed.js` `initEmbeddedCheckout`/`openCheckout`(modal)/`redirectToCheckout` ✅, merchant test page `/embed-test.html` ✅. ⬜ Dashboard "Embed" snippet UI. ⬜ Frontend iframe-mount test (needs user go-ahead).
+- [x] **Phase 1 — (a) Embedded Checkout**: backend `POST /api/user/embed/session` ✅ (BACKEND-TESTED 7/7, Session 20c), `GET /pay?...&embed=1` embedded render ✅, `embed.js` `initEmbeddedCheckout`/`openCheckout`(modal)/`redirectToCheckout` ✅, merchant test page `/embed-test.html` ✅, Dashboard "Embed" snippet UI ✅ (FRONTEND-TESTED PART 1 8/8), live iframe embed inline + modal ✅ (FRONTEND-TESTED PART 2 15/15). ✅ Docs added: markdown guide (`DEVELOPER_INTEGRATION_GUIDE.md` §Embedded Checkout — architecture + session API + inline/modal/redirect examples + React example + security checklist + postMessage table) + in-app `/documentation` page (new "Embedded Checkout" section with `POST /embed/session` endpoint card).
 - [ ] Phase 2 — (c) Buy Button (publishable key + web component + dashboard + tests)
 - [ ] Phase 3 — (b) Elements inline widget (intent APIs + elements SDK + status + tests)
-- [ ] Docs updated (guide + /documentation)
+- [x] Docs updated (guide + /documentation — completed 2026-07-11)
 - [ ] Final end-to-end test on a real merchant test page
 
 **Session 20c (2026-07-10) delivered:** backend embed-session endpoint (method-agnostic), `/v1/embed.js` SDK, `/pay` embed mode + `EmbedBridge`, `/embed-test.html`. Backend verified 7/7. Files: `backend/routes/merchantApiRouter.ts` (route), `public/v1/embed.js`, `public/embed-test.html`, `Components/Common/EmbedBridge.tsx`, `Components/Layout/Pay3Layout.tsx`, `pages/pay/index.tsx`.
+
+**Session 21c (2026-07-11) delivered:** Phase 1(a) docs. Files: `DEVELOPER_INTEGRATION_GUIDE.md` (+229 lines, new "Embedded Checkout" section between "Common Integration Patterns" and "Customer Wallet System" + TOC entry), `pages/documentation.tsx` (new API_ENDPOINTS entry `embed-session` + new SECTIONS entry `{id:"embed", title:"Embedded Checkout", endpoints:["embed-session"]}`). Next.js build clean; /documentation renders the new section via the existing SECTIONS-driven loop. **Phase 1(a) — Embedded Checkout — is now feature-complete.** Ready to pick up Phase 2 (Buy Button + publishable key).
 
 ---
 

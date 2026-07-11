@@ -6,6 +6,7 @@ Welcome to the Dynopay API! This guide will help you integrate crypto payments a
 - [Quick Start](#quick-start)
 - [Userless Payment (Simplified)](#userless-payment-simplified)
 - [Common Integration Patterns](#common-integration-patterns)
+- [Embedded Checkout (iframe on your page)](#embedded-checkout-iframe-on-your-page)
 - [Customer Wallet System](#customer-wallet-system)
 - [Best Practices](#best-practices)
 - [FAQ](#faq)
@@ -393,6 +394,235 @@ async function createDirectPayment(amount, crypto = 'BTC') {
 ```
 
 ---
+
+## Embedded Checkout (iframe on your page)
+
+> **Keep customers on your site.** Instead of redirecting to `checkout.dynopay.com`, mount the Dynopay checkout as an **iframe** directly inside your page (inline) or as a **centered modal**. Same crypto flow, same currencies, same webhooks — different presentation.
+
+Think of it like Stripe's **Embedded Checkout**: your server creates a session, your browser gets back a short-lived **`client_secret`**, and our tiny SDK (`embed.js`) renders it in a resizeable iframe.
+
+### Architecture at a glance
+
+```
+Merchant site                       Merchant server                Dynopay
+─────────────                       ────────────────               ─────────────
+  <script src=CHECKOUT/v1/embed.js>
+  Dynopay.initEmbeddedCheckout({
+    fetchClientSecret ──────────▶  POST /api/user/embed/session
+                                   headers: x-api-key: dpk_live_…  ────▶  Dynopay
+                                   body:    { amount, ... }              creates
+                                   ◀───────── { client_secret, ... }     session
+  })
+  checkout.mount('#dynopay-checkout')
+  │
+  └── iframe ── CHECKOUT/pay?d=<client_secret>&embed=1 ──▶ Dynopay
+                                                         renders checkout
+                     ◀── postMessage events (ready/resize/success/redirect)
+```
+
+**Two things you MUST know:**
+1. Your **secret key** (`dpk_live_…` / `dpk_test_…`) **stays on your server**. The browser only ever sees the opaque `client_secret`.
+2. **Trust webhooks, not the browser event.** Confirm every payment via the `payment.succeeded` webhook (`X-DynoPay-Signature`). The in-browser `onComplete` callback is a UX signal — never a fulfillment trigger.
+
+---
+
+### 1. Create the session (server-side)
+
+**Endpoint:** `POST /api/user/embed/session`
+**Auth:** header `x-api-key: <your secret key>`
+
+**Request body:**
+
+| Field | Type | Required | Notes |
+|-------|------|----------|-------|
+| `amount` | number | ✅ | In your API key's base currency (USD/EUR/GBP/etc). Minimum **5**. |
+| `accepted_currencies` | string[] | | Filter which cryptos the customer can pick, e.g. `["USDT-TRC20","BTC"]`. Must be a subset of what you've configured on your wallets — mismatches return a helpful 400. Omit → all configured. |
+| `redirect_uri` | string | | Where to send the customer after success. |
+| `webhook_url` | string | | Per-session override; else the key's default `webhook_url` is used. |
+| `callback_url` | string | | Legacy webhook alias. |
+| `fee_payer` | `"company"` \| `"customer"` | | Who covers the network fee. Default `"company"`. |
+| `meta_data` | object | | Free-form JSON, echoed back in webhooks. |
+| `allowed_origins` | string[] | | Domains permitted to iframe this session (e.g. `["https://shop.com"]`). Stored on the session for future frame-ancestors enforcement. |
+
+**Response `200`:**
+```json
+{
+  "success": true,
+  "message": "Embedded checkout session created",
+  "data": {
+    "client_secret": "a1b2c3…",
+    "checkout_url": "https://checkout.dynopay.com/pay?d=…&embed=1",
+    "expires_at":  "2026-07-11T10:37:00.000Z",
+    "ui_mode": "embedded",
+    "fee_payer": "company",
+    "payment_methods": [
+      { "type": "crypto", "currencies": ["USDT-TRC20","BTC","ETH"] }
+    ]
+  }
+}
+```
+
+Notes: `client_secret` is an opaque 48-char handle (NOT your API key). `expires_at` is ~60 minutes from creation.
+
+**Node.js example (Express):**
+```js
+// POST /create-dynopay-session on YOUR server
+app.post('/create-dynopay-session', async (req, res) => {
+  const r = await fetch('https://api.dynopay.com/api/user/embed/session', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': process.env.DYNOPAY_API_KEY  // dpk_live_… — never send to the browser
+    },
+    body: JSON.stringify({
+      amount: 50,
+      redirect_uri: 'https://shop.com/thanks',
+      webhook_url:  'https://shop.com/webhooks/dynopay',
+      allowed_origins: ['https://shop.com'],
+      meta_data: { order_id: req.body.order_id }
+    })
+  });
+  const { data } = await r.json();
+  res.json({ client_secret: data.client_secret });
+});
+```
+
+---
+
+### 2. Mount the checkout (browser)
+
+Load the SDK once per page:
+
+```html
+<script src="https://checkout.dynopay.com/v1/embed.js"></script>
+```
+
+The SDK exposes a global `window.Dynopay`. It's ~7 KB, has no runtime deps, and is safe to load with `defer`.
+
+#### 2a. Inline embed
+
+```html
+<div id="dynopay-checkout" style="max-width:460px;margin:auto;"></div>
+
+<script>
+  const checkout = await Dynopay.initEmbeddedCheckout({
+    fetchClientSecret: () =>
+      fetch('/create-dynopay-session', { method: 'POST' })
+        .then(r => r.json())
+        .then(d => d.client_secret),
+    onReady:    ()          => console.log('checkout ready'),
+    onComplete: (paymentId) => console.log('paid — verify via webhook', paymentId),
+    onError:    (err)       => console.error(err),
+  });
+
+  checkout.mount('#dynopay-checkout');
+  // checkout.destroy();  // when you unmount
+</script>
+```
+
+The iframe **auto-resizes** as the customer moves through the flow (currency → address/QR → success) via `dynopay:resize` postMessage events. Minimum height 540px.
+
+#### 2b. Modal / overlay
+
+```js
+const modal = Dynopay.openCheckout({
+  fetchClientSecret: () => fetch('/create-dynopay-session', { method: 'POST' })
+    .then(r => r.json()).then(d => d.client_secret),
+  onComplete: (paymentId) => modal.close(),
+});
+// modal.close();  // programmatic close (or click × / overlay)
+```
+
+The overlay dims the page, centers a panel, and provides a close button — nothing else needed on your side.
+
+#### 2c. Full-page fallback
+
+If a browser blocks iframes (rare), fall back to the classic redirect:
+
+```js
+Dynopay.redirectToCheckout({
+  fetchClientSecret: () => fetch('/create-dynopay-session', { method: 'POST' })
+    .then(r => r.json()).then(d => d.client_secret),
+});
+// → navigates the top window to https://checkout.dynopay.com/pay?d=<cs>
+```
+
+---
+
+### 3. postMessage events (advanced)
+
+If you need finer control, listen for the underlying events yourself (the SDK already handles the common ones):
+
+| Event | Direction | Payload |
+|-------|-----------|---------|
+| `dynopay:ready` | iframe → parent | — |
+| `dynopay:resize` | iframe → parent | `{ height: number }` |
+| `dynopay:success` | iframe → parent | `{ paymentId?: string }` (UX only — verify via webhook) |
+| `dynopay:redirect` | iframe → parent | `{ url: string }` — SDK will navigate the top window |
+| `dynopay:close` | iframe → parent | — |
+
+Every message has `source: 'dynopay'` — filter on that before trusting.
+
+---
+
+### 4. React example
+
+```tsx
+import { useEffect, useRef } from 'react';
+
+export function DynopayCheckout({ amount }: { amount: number }) {
+  const boxRef = useRef<HTMLDivElement>(null);
+  const instRef = useRef<any>(null);
+
+  useEffect(() => {
+    (async () => {
+      await new Promise<void>((resolve) => {
+        if ((window as any).Dynopay) return resolve();
+        const s = document.createElement('script');
+        s.src = 'https://checkout.dynopay.com/v1/embed.js';
+        s.onload = () => resolve();
+        document.head.appendChild(s);
+      });
+
+      instRef.current = await (window as any).Dynopay.initEmbeddedCheckout({
+        fetchClientSecret: () =>
+          fetch('/api/dynopay/session', {
+            method: 'POST',
+            body: JSON.stringify({ amount }),
+            headers: { 'Content-Type': 'application/json' },
+          }).then(r => r.json()).then(d => d.client_secret),
+        onComplete: () => { /* show your own "thank you" — webhook confirms fulfillment */ },
+      });
+      instRef.current.mount(boxRef.current!);
+    })();
+
+    return () => instRef.current?.destroy();
+  }, [amount]);
+
+  return <div ref={boxRef} style={{ maxWidth: 460, margin: 'auto' }} />;
+}
+```
+
+---
+
+### 5. Security checklist
+
+- Secret key stays server-side — the browser only sees `client_secret`.
+- `client_secret` is opaque, single checkout, expires in ~60 minutes.
+- Pass `allowed_origins: ["https://your-domain.com"]` on the server to record which sites may host this session (used for future CSP `frame-ancestors` enforcement).
+- Confirm payments via the **`payment.succeeded` webhook** (`X-DynoPay-Signature`). Never trust the browser `onComplete` for fulfillment.
+- The iframe is served from your Dynopay checkout origin — CSP on YOUR page must allow `frame-src https://checkout.dynopay.com` (or your preview origin).
+- `redirect_uri` is where the checkout sends the customer after success; keep it on your own domain.
+
+---
+
+### 6. Testing tip
+
+A ready-to-open test harness is served alongside the SDK at `/embed-test.html` (same origin as `embed.js`). Open it, paste a `client_secret` from your session, and click **Mount inline checkout** or **Open modal checkout** to sanity-check your setup end to end. Your dashboard's **Developer Keys** page also renders copy-paste snippets for your specific origin.
+
+---
+
+
 
 ## Customer Wallet System
 
