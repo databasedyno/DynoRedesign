@@ -2053,4 +2053,92 @@ const confirmPayment = async (req: express.Request, res: express.Response) => {
 };
 
 
-export { getData, Crypto, createCryptoPayment, confirmPayment };
+// ═══════════════════════════════════════════════════════════════════════════
+// getPaymentMeta — lightweight, READ-ONLY metadata for a checkout link, used by
+// the /pay page's getServerSideProps to render dynamic OG/link-preview tags
+// (social crawlers don't run JS). No Redis writes, no reservations.
+// GET /api/pay/meta?d=<session-key>
+// ═══════════════════════════════════════════════════════════════════════════
+const getPaymentMeta = async (req: express.Request, res: express.Response) => {
+  try {
+    const data = String(req.query.d || req.query.data || "").trim();
+    if (!data) return errorResponseHelper(res, 400, "Payment reference is required");
+
+    const item = (await getRedisItem("customer-" + data)) as Record<string, any> | null;
+    if (!item || Object.keys(item).length === 0) {
+      return errorResponseHelper(res, 404, "Payment link not found or expired");
+    }
+
+    // Merchant / company
+    let merchantName: string | null = null;
+    let merchantLogo: string | null = null;
+    if (item.company_id) {
+      try {
+        const company = await companyModel.findByPk(item.company_id);
+        if (company) {
+          const cd = (company as { dataValues: Record<string, any> }).dataValues;
+          merchantName = cd.company_name ? String(cd.company_name) : null;
+          merchantLogo = cd.photo ? String(cd.photo) : null;
+        }
+      } catch {
+        /* ignore */
+      }
+    }
+
+    const isDonation = item.link_type === "donation";
+    const amount = Number(item.base_amount || item.amount || 0);
+    const currency = String(item.base_currency || "USD");
+
+    if (isDonation && item.link_id) {
+      const [parentRow] = (await sequelize.query(
+        `SELECT title, description, goal_amount, campaign_image, base_currency
+         FROM tbl_payment_link WHERE link_id = :id AND link_type = 'donation'`,
+        { replacements: { id: item.link_id }, type: QueryTypes.SELECT }
+      )) as Array<Record<string, any>>;
+      const agg = parentRow ? await getDonationAggregates(Number(item.link_id)) : { raised_amount: 0, supporters_count: 0 };
+      const goal = parentRow?.goal_amount != null ? Number(parentRow.goal_amount) : null;
+      const cur = String(parentRow?.base_currency || currency);
+      const title = (parentRow?.title as string) || "Support this campaign";
+      const raisedStr = `${agg.raised_amount.toLocaleString()} ${cur}`;
+      return successResponseHelper(res, 200, "Payment meta", {
+        type: "donation",
+        title,
+        description:
+          (parentRow?.description as string) ||
+          `Help fund "${title}"${merchantName ? ` by ${merchantName}` : ""} — donate with crypto via Dynopay.`,
+        image: (parentRow?.campaign_image as string) || merchantLogo || null,
+        merchant_name: merchantName,
+        currency: cur,
+        goal_amount: goal,
+        raised_amount: agg.raised_amount,
+        supporters_count: agg.supporters_count,
+        progress_percent: goal && goal > 0 ? Math.min(100, Math.round((agg.raised_amount / goal) * 100)) : null,
+        summary: goal ? `${raisedStr} raised of ${goal.toLocaleString()} ${cur} goal` : `${raisedStr} raised`,
+      });
+    }
+
+    // Standard payment link
+    const prettyAmount = amount > 0 ? `${amount.toLocaleString()} ${currency}` : null;
+    const title = prettyAmount
+      ? `Pay ${prettyAmount}${merchantName ? ` to ${merchantName}` : ""}`
+      : merchantName
+        ? `Pay ${merchantName}`
+        : "Complete your payment";
+    return successResponseHelper(res, 200, "Payment meta", {
+      type: "standard",
+      title,
+      description:
+        (item.description as string) ||
+        `Secure crypto payment${merchantName ? ` to ${merchantName}` : ""} — pay with Bitcoin, Ethereum, USDT and more via Dynopay.`,
+      image: merchantLogo || null,
+      merchant_name: merchantName,
+      amount: amount || null,
+      currency,
+    });
+  } catch (e) {
+    const message = e instanceof Error ? e.message : "Unable to load payment meta";
+    errorResponseHelper(res, 500, message);
+  }
+};
+
+export { getData, getPaymentMeta, Crypto, createCryptoPayment, confirmPayment };

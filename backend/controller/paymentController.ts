@@ -95,7 +95,7 @@ import { PaymentState, toRedisStatus } from "../services/paymentStateMachine";
 
 import { calculateTaxForCheckout } from "./payment/taxService";
 import { settleCryptoTransaction, verifyCryptoPayment, cryptoVerification } from "./payment/cryptoSettlement";
-import { getData, Crypto, createCryptoPayment, confirmPayment } from "./payment/cryptoCheckout";
+import { getData, getPaymentMeta, Crypto, createCryptoPayment, confirmPayment } from "./payment/cryptoCheckout";
 
 
 import { getLinkAccessToken, getAccessToken } from "./payment/paymentTokens";
@@ -2173,6 +2173,7 @@ export default {
   startDonation,
   uploadCampaignImage,
   getCreatorProfile,
+  getPaymentMeta,
   cryptoVerification,
   checkingUSDT,
   sweepNativeAdminFees,

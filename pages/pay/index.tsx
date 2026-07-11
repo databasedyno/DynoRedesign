@@ -32,6 +32,8 @@ import { useDispatch } from 'react-redux'
 import { walletState } from '../../utils/types/paymentTypes'
 
 import { useRouter } from 'next/router'
+import Head from 'next/head'
+import { GetServerSideProps } from 'next'
 import { TOAST_SHOW } from '@/Redux/Actions/ToastAction'
 import jwt from 'jsonwebtoken'
 import ProgressBar from '@/Components/UI/ProgressBar'
@@ -1592,4 +1594,70 @@ const Payment = () => {
   )
 }
 
-export default paymentAuth(Payment)
+const PaymentGuarded = paymentAuth(Payment)
+
+interface PayOgMeta {
+  title: string
+  description: string
+  image: string | null
+  summary?: string | null
+}
+
+// Wrap with dynamic OG/link-preview tags rendered server-side so crawlers
+// (WhatsApp, X, Slack, iMessage…) show the actual payment/campaign details.
+const PayRoute = ({ ogMeta, siteUrl }: { ogMeta: PayOgMeta | null; siteUrl: string }) => {
+  const defaultImg = `${siteUrl}/og/dynopay-og.png`
+  return (
+    <>
+      {ogMeta && (
+        <Head>
+          <title>{`${ogMeta.title} · Dynopay`}</title>
+          <meta name="description" content={ogMeta.description} />
+          <meta key="og:title" property="og:title" content={ogMeta.title} />
+          <meta key="og:description" property="og:description" content={ogMeta.description} />
+          <meta key="og:image" property="og:image" content={ogMeta.image || defaultImg} />
+          <meta key="og:type" property="og:type" content="website" />
+          <meta key="twitter:title" name="twitter:title" content={ogMeta.title} />
+          <meta key="twitter:description" name="twitter:description" content={ogMeta.description} />
+          <meta key="twitter:image" name="twitter:image" content={ogMeta.image || defaultImg} />
+          <meta name="robots" content="noindex" />
+        </Head>
+      )}
+      <PaymentGuarded />
+    </>
+  )
+}
+
+export const getServerSideProps: GetServerSideProps = async (ctx) => {
+  const d = String(ctx.query?.d || '')
+  const base = (process.env.NEXT_PUBLIC_BASE_URL || '').replace(/\/+$/, '')
+  let ogMeta: PayOgMeta | null = null
+  if (d) {
+    try {
+      const controller = new AbortController()
+      const timer = setTimeout(() => controller.abort(), 2500)
+      const r = await fetch(`${base}/api/pay/meta?d=${encodeURIComponent(d)}`, {
+        headers: { Accept: 'application/json' },
+        signal: controller.signal,
+      })
+      clearTimeout(timer)
+      if (r.ok) {
+        const j = await r.json()
+        const m = j?.data
+        if (m?.title) {
+          ogMeta = {
+            title: m.title,
+            description: m.summary ? `${m.description} — ${m.summary}` : m.description,
+            image: m.image || null,
+            summary: m.summary || null,
+          }
+        }
+      }
+    } catch {
+      /* fall back to default OG */
+    }
+  }
+  return { props: { ogMeta, siteUrl: base } }
+}
+
+export default PayRoute
