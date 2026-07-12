@@ -1,102 +1,219 @@
-# Auto API-Key Provisioning — Full Implementation Spec
+# Auto API-Key Provisioning — Execution-Ready Plan
 
-> Status: **PLANNED — not yet implemented** (as of 2026-06, Session 33 fork)
-> Owner task (P0): "Implement fully" — auto-provision API credentials for merchants.
-> This document is the single source of truth so any agent can pick this up and finish it.
-
----
-
-## 1. Objective (user-agreed UX)
-
-Reduce onboarding friction for merchants integrating the Dynopay gateway:
-
-| Trigger | Action | Key type |
-|---|---|---|
-| **New company created** (`POST /api/company/addCompany`) | Auto-mint a **restricted TEST key** | `dpk_test_` (environment=`development`) |
-| **First wallet configured** for a company — either manually added (`verifyOtp`) OR copied via Wallet-Reuse (`copyWalletAddresses`) | Auto-mint a **LIVE key** (only if the company has no active live key yet) | `dpk_live_` (environment=`production`) |
-| Reveal / rotate / regenerate / change permissions / delete | **Stay 100% manual** (destructive/sensitive) | — |
-
-Net effect: a merchant always has a sandbox key immediately, and their live key
-"unlocks" predictably the moment they can actually receive funds (they have a wallet).
+> **Status:** PLANNED · not yet implemented (session-33 fork carry-over)
+> **Priority:** P0 · Only remaining "Implement fully" item
+> **Owner:** next agent picking this up
+> **Env verified:** setup done on preview `https://40b4ff19-5dd6-4c10-9148-72e7af6c58cf.preview.emergentagent.com` (backend :3300 healthy, frontend :3000 200, csrf 200, login 401 bad-creds, Railway PG + Redis + Tatum connected, background_jobs.eligible=false — see §Environment).
 
 ---
 
-## 2. Current state of the code (what already exists)
+## 0. TL;DR (what we're building)
 
-### Backend
-- **`backend/models/apiModels/apiModel.ts`** (table `tbl_api`) — fields relevant here:
-  - `company_id`, `user_id`, `api_name`, `apiKey` (encrypted TEXT), `adminToken`, `admin_token`
-  - `environment` ENUM(`production`,`development`) default `production`
-  - `status` ENUM(`active`,`inactive`,`revoked`) default `active`
-  - `base_currency` default `USD`
-  - `permissions` TEXT default `["payments","transactions","webhooks","wallets"]`
-  - `test_mode_restrictions` TEXT default `{"max_amount":100,"allowed_currencies":["BTC","ETH","USDT-TRC20"]}`
-  - rate limits (`rate_limit_per_minute` 60, `_hour` 3600, `_day` 100000)
+Two auto-provisioning triggers on the API-keys table `tbl_api`:
 
-- **`backend/controller/apiController.ts`**
-  - `addApi()` (manual create) — builds `keyData = {base_currency, company_id, adm_id, env}`,
-    prefix `dpk_live_` (prod) / `dpk_test_` (dev), `apiKey = encrypt(keyString, API_SECRET)`.
-    Creates a `customerModel` + `customerWalletModel` + customer access token + admin JWT.
-    Dev keys get `test_mode_restrictions = {max_amount:100, allowed_currencies:[BTC,ETH,USDT-TRC20,TRX,LTC], sandbox_mode:true}`.
-    - ⚠️ **Hard rule at lines ~147-162: "Only 1 active API key per company (regardless of environment)."**
-      Returns 400 if any active key already exists.
-    - Prod keys require `walletCount >= 1` (line ~123-139).
-    - Currency-sync logic (lines ~80-109) DOES already contemplate a company having both a
-      prod key and a dev key simultaneously (`existingProdKey` + `existingDevKey`) — i.e. the
-      "1 key" rule at 147-162 contradicts the sync design and is the blocker to relax.
-  - `getApi()` — returns `{ all, grouped:{production[],development[]}, total, production_count, development_count }`,
-    ordered `environment ASC, createdAt DESC`. Masks the key via `maskApiKey()`.
+| Trigger | Result |
+|---|---|
+| `POST /api/company/addCompany` succeeds | Mint a restricted **`dpk_test_`** key (env=`development`, sandbox limits) |
+| Merchant's **first wallet** appears on the company — via `verifyOtp` OR `copyWalletAddresses` | Mint a **`dpk_live_`** key (env=`production`), only if no live key exists yet |
 
-- **`backend/controller/walletController.ts`**
-  - `verifyOtp()` (lines ~3098-3183) — **ALREADY auto-creates a `dpk_live_` key** after a wallet is
-    verified, BUT guarded by `if (!existingApiKey)` where `existingApiKey` = any active key for the
-    company (any environment). Builds the key inline (does NOT call `addApi`), env=`production`,
-    base_currency `USD`, `test_mode_restrictions: null`, creates customer + tokens. Sets
-    `auto_api_key_created` in the response.
-  - `copyWalletAddresses()` (lines ~4628-4729) — Wallet-Reuse endpoint. Copies wallets from source
-    company → target company. **Does NOT create any API key.**
-  - Imports available at top: `encrypt`, `generateApiKeyName`, `crypto`, `jwt`, `apiModel`,
-    `customerModel`, `customerWalletModel`, `companyModel`, `userWalletModel`, `validateCompanyOwnership`.
-
-### Frontend
-- **`pages/developer-keys.tsx`** — thin wrapper. Shows a "Create" button ONLY when
-  `apiState.apiList.length === 0` (comment says "max 1 key per company"). Renders `<ApiKeysPage/>`.
-- **`Components/Page/API/ApiKeysPage.tsx`** — already renders TWO sections via i18n keys
-  `keys.production` (line ~1085) and `keys.development` (line ~1093), plus Publishable Keys,
-  Buy Buttons, Embedded Checkout, Elements cards. So the grouped prod/dev display is already built.
+Reveal / rotate / regenerate / permissions / delete stay **100% manual** (destructive/sensitive).
+Net effect: sandbox key at signup + live key unlocks the moment the merchant can receive funds.
 
 ---
 
-## 3. The design conflict + resolution (DECISION REQUIRED / DEFAULT CHOSEN)
+## 1. Execution phases (do in order)
 
-**Conflict:** The requested UX requires a company to hold **2 keys at once** (1 test + 1 live).
-But `verifyOtp`'s auto-live logic only fires when there is **no active key of any kind**, and
-`addApi` enforces **only 1 active key per company**. If we mint a test key at company creation,
-the live key will NEVER auto-create.
+### Phase A — Backend (do first, ship together)
+- [ ] **A1. Relax dedupe in `apiController.addApi`** → per-(company, environment) instead of "1 per company". *(§3.1)*
+- [ ] **A2. Extract `ensureLiveApiKey(company_id, user_id, userData)` helper** in `walletController.ts` from the existing `verifyOtp` block. *(§3.2)*
+- [ ] **A3. Fix `verifyOtp` live-key guard** → look for `environment: 'production'` only (not "any active"). Call the helper. *(§3.2)*
+- [ ] **A4. Call the helper in `copyWalletAddresses`** after `invalidateWalletCache`. *(§3.3)*
+- [ ] **A5. Add auto `dpk_test_` key in `companyController.addCompany`** — non-fatal try/catch after `companyModel.create`. *(§3.4)*
+- [ ] **A6. Backend testing_agent** — run full spec in §5. Do **NOT** touch `hostbay@moxx.co`; use QA accounts.
 
-**Resolution (DEFAULT — pending user confirmation, recommended = allow coexistence):**
-Allow **exactly 1 active TEST key + 1 active LIVE key per company**. Concretely:
-1. In `verifyOtp` and `copyWalletAddresses`, the live-key guard becomes:
-   *"create a `dpk_live_` key only if the company has no active key with `environment='production'`"*
-   (ignore the test key when deciding).
-2. In `apiController.addApi`, relax the "only 1 active key per company" rule to
-   **"only 1 active key per (company, environment) pair"** — so a merchant can still manually add
-   the other-environment key if an auto one is missing, but cannot duplicate within an environment.
-   Keep the currency-sync logic intact (it already assumes prod+dev coexist).
+### Phase B — Frontend (after backend green)
+- [ ] **B1. `pages/developer-keys.tsx`** — remove "hide Create when apiList.length===0"; make it per-environment. *(§3.5)*
+- [ ] **B2. `Components/Page/API/ApiKeysPage.tsx`** — add "🔒 Live key activates after adding/reusing a wallet" hint in the Production section when `production_count === 0`; add "Auto-created · Sandbox" badge on the test key row + one-line summary of `test_mode_restrictions`. *(§3.5)*
+- [ ] **B3. i18n** — add `keys.liveUnlockHint`, `keys.testAutoCreatedBadge`, `keys.sandboxLimits` in all 6 locales (en/es/fr/de/nl/pt). Use `t(k, { defaultValue: "…" })` pattern (Session 33's F3 lesson).
+- [ ] **B4. `next build` (from `/app`) + `sudo supervisorctl restart frontend`.**
+- [ ] **B5. ASK the user before running frontend testing_agent** (per DEV_WORKFLOW step 7).
 
-> If the user instead chooses "only ever 1 key" (option 1b), then: skip the company-creation test
-> key entirely OR have the live-key creation REPLACE (revoke) the test key on first wallet. Do NOT
-> implement both auto-creations under a 1-key regime — they will fight each other.
+### Phase C — Enhancement (optional, do after A + B ship)
+- [ ] **C1. "Try your first payment" cURL card** on `/developer-keys` (test env). See §7.
 
 ---
 
-## 4. Implementation steps
+## 2. Design decision (default chosen)
 
-### 4.1 Backend — auto TEST key on company creation
-**File:** `backend/controller/companyController.ts` → inside `addCompany()`, AFTER
-`companyModel.create(...)` returns `resData` (~line 246) and BEFORE/around the email block.
+**Coexistence:** allow **1 active TEST key + 1 active LIVE key per company**.
+This is the DEFAULT. Rationale:
+- The currency-sync logic in `apiController` (~lines 80-109) already contemplates a company having BOTH `existingProdKey` and `existingDevKey`.
+- The "only 1 active key per company" rule at `apiController.ts:147-162` is the blocker to relax.
 
-Add a non-fatal `try/catch` (mirror the email dedup pattern — never fail company creation):
+**Alternative (1b) — "only ever 1 key":** skip company-creation test key entirely OR have the live-key creation *revoke* the test key on first wallet. Do NOT implement both auto-creations under a 1-key regime — they will fight each other. **This alt is not recommended.**
+
+**Auto TEST key `base_currency`:** `USD` (matches live key default).
+
+---
+
+## 3. Implementation details (code-ready)
+
+### 3.1 `backend/controller/apiController.ts` — relax dedupe
+Line ~147-162, inside `addApi()`:
+
+```ts
+// BEFORE (lines 149-154):
+const existingApiKey = await apiModel.findOne({
+  where: { company_id, status: 'active' },
+});
+
+// AFTER — per-(company, environment):
+const existingApiKey = await apiModel.findOne({
+  where: { company_id, environment, status: 'active' },
+});
+
+// BEFORE (line ~160):
+`This company already has an active API key (${existingApiKey.dataValues.base_currency} ${existingApiKey.dataValues.environment}). Use "Regenerate" ...`
+
+// AFTER:
+`This company already has an active ${environment} API key. Use "Regenerate" to get a new key, or disable the existing one first.`
+```
+
+Keep the prod `walletCount >= 1` check + currency-sync logic unchanged.
+
+---
+
+### 3.2 `backend/controller/walletController.ts` — extract `ensureLiveApiKey` + fix guard
+
+**New module-private helper** (drop above `verifyOtp` ~line 2948):
+
+```ts
+/**
+ * Ensures the company has an active `dpk_live_` API key.
+ * Non-fatal: returns false + logs a warning if creation fails.
+ * Guards on environment='production' only (allows a test key to coexist).
+ */
+async function ensureLiveApiKey(
+  company_id: number,
+  user_id: number,
+  userEmail: string,
+  companyName?: string,
+  companyEmail?: string,
+): Promise<boolean> {
+  try {
+    const existing = await apiModel.findOne({
+      where: { company_id, environment: 'production', status: 'active' },
+    });
+    if (existing) return false;
+
+    const defaultCurrency = 'USD';
+    const keyData = { base_currency: defaultCurrency, company_id, adm_id: user_id, env: 'production' };
+    const keyString = 'dpk_live_' + 'DYNOPAY_USER_API-' + JSON.stringify(keyData);
+    const apiKey = encrypt(keyString, process.env.API_SECRET);
+
+    const name = companyName || 'Company';
+    const email = companyEmail || userEmail;
+    const createdCustomer = await customerModel.create({
+      id: crypto.randomUUID(),
+      customer_name: name + ' admin',
+      email, mobile: email,
+      company_id,
+    });
+    await customerWalletModel.create({
+      id: crypto.randomUUID(),
+      customer_id: createdCustomer.dataValues.customer_id,
+      wallet_type: defaultCurrency,
+    });
+
+    const secret = process.env.ACCESS_TOKEN_SECRET;
+    const customerToken = jwt.sign(
+      { customer_id: createdCustomer.dataValues.customer_id }, secret, { expiresIn: '30d' }
+    );
+    const adminToken = jwt.sign(
+      { api_id: null, company_id, user_id, type: 'admin_token', environment: 'production' },
+      secret, { expiresIn: '30d' }
+    );
+
+    await apiModel.create({
+      company_id, base_currency: defaultCurrency, apiKey, user_id,
+      adminToken: customerToken, admin_token: adminToken, withdrawal_whitelist: null,
+      api_name: generateApiKeyName(),
+      permissions: JSON.stringify(['payments','transactions','webhooks','wallets']),
+      environment: 'production', status: 'active',
+      test_mode_restrictions: null,
+      request_count: 0,
+      rate_limit_per_minute: 60, rate_limit_per_hour: 3600, rate_limit_per_day: 100000,
+    });
+    walletLogger.info(`[ensureLiveApiKey] ✅ Auto-created LIVE API key for company ${company_id}`);
+    return true;
+  } catch (err) {
+    walletLogger.warn(`[ensureLiveApiKey] ⚠️ skipped: ${getErrorMessage(err)}`);
+    return false;
+  }
+}
+```
+
+**Replace `verifyOtp` block at lines 3098-3183** (~85 lines) with a single call:
+
+```ts
+// Invalidate wallet cache so getWallet returns fresh data
+await invalidateWalletCache(user_id);
+
+// AUTO-CREATE LIVE API KEY (if company has no active production key)
+const autoApiKeyCreated = await ensureLiveApiKey(
+  company_id, user_id, userData.email,
+  companyData?.dataValues.company_name,
+  companyData?.dataValues.email,
+);
+
+successResponseHelper(res, 200, "OTP verified successfully!", {
+  verified: true, wallet_name, company_id,
+  auto_api_key_created: autoApiKeyCreated,
+});
+```
+
+---
+
+### 3.3 `backend/controller/walletController.ts` — `copyWalletAddresses` (~line 4713)
+
+After `await invalidateWalletCache(user_id);`, before the success response:
+
+```ts
+// AUTO-CREATE LIVE API KEY if target company just got its first wallet(s)
+let autoLiveKeyCreated = false;
+// Only trigger if target company now has ≥1 wallet (copied or pre-existing)
+if (copied.length > 0 || skipped.length > 0) {
+  const target = await companyModel.findOne({
+    where: { company_id: target_company_id, user_id },
+    attributes: ['company_id', 'company_name', 'email'],
+  });
+  autoLiveKeyCreated = await ensureLiveApiKey(
+    target_company_id, user_id, userData.email,
+    target?.dataValues.company_name,
+    target?.dataValues.email,
+  );
+}
+// include in response:
+// { ..., auto_live_key_created: autoLiveKeyCreated }
+```
+
+**Guard rationale:** `copyWalletAddresses` may skip 0 copies (all currencies pre-existed) — but if `skipped.length > 0` the wallets DO exist, so the live-key trigger is still correct.
+
+---
+
+### 3.4 `backend/controller/companyController.ts` — auto TEST key on `addCompany`
+
+**New imports at top** (add to existing imports):
+```ts
+import { encrypt, generateApiKeyName } from '../helper';
+import crypto from 'crypto';
+import { apiModel, customerModel, customerWalletModel } from '../models';
+// `jwt` already imported
+```
+*(Check exact export paths; the existing files use `../helper` for `encrypt` and `generateApiKeyName`.)*
+
+**Insert after `companyModel.create(...)` returns `resData`** (line 246), before the email dedup block (line 269):
+
 ```ts
 // AUTO-PROVISION restricted TEST key for the new company (non-fatal)
 try {
@@ -105,242 +222,214 @@ try {
     where: { company_id: newCompanyId, environment: 'development', status: 'active' },
   });
   if (!existingTestKey) {
-    const baseCurrency = 'USD'; // DEFAULT (see §3 Q2)
+    const baseCurrency = 'USD';
     const keyData = { base_currency: baseCurrency, company_id: newCompanyId, adm_id: userData.user_id, env: 'development' };
     const apiKey = encrypt('dpk_test_' + 'DYNOPAY_USER_API-' + JSON.stringify(keyData), process.env.API_SECRET);
 
     const companyName = data.company_name || 'Company';
     const companyEmail = data.email || userData.email;
     const createdCustomer = await customerModel.create({
-      id: crypto.randomUUID(), customer_name: companyName + ' admin',
-      email: companyEmail, mobile: companyEmail, company_id: newCompanyId,
+      id: crypto.randomUUID(),
+      customer_name: companyName + ' admin',
+      email: companyEmail, mobile: companyEmail,
+      company_id: newCompanyId,
     });
     await customerWalletModel.create({
-      id: crypto.randomUUID(), customer_id: createdCustomer.dataValues.customer_id, wallet_type: baseCurrency,
+      id: crypto.randomUUID(),
+      customer_id: createdCustomer.dataValues.customer_id,
+      wallet_type: baseCurrency,
     });
     const secret = process.env.ACCESS_TOKEN_SECRET;
     const customerToken = jwt.sign({ customer_id: createdCustomer.dataValues.customer_id }, secret, { expiresIn: '30d' });
-    const adminToken = jwt.sign({ api_id: null, company_id: newCompanyId, user_id: userData.user_id, type: 'admin_token', environment: 'development' }, secret, { expiresIn: '30d' });
+    const adminToken = jwt.sign(
+      { api_id: null, company_id: newCompanyId, user_id: userData.user_id, type: 'admin_token', environment: 'development' },
+      secret, { expiresIn: '30d' },
+    );
 
     await apiModel.create({
       company_id: newCompanyId, base_currency: baseCurrency, apiKey, user_id: userData.user_id,
       adminToken: customerToken, admin_token: adminToken, withdrawal_whitelist: null,
-      api_name: generateApiKeyName(), permissions: JSON.stringify(['payments','transactions','webhooks','wallets']),
+      api_name: generateApiKeyName(),
+      permissions: JSON.stringify(['payments','transactions','webhooks','wallets']),
       environment: 'development', status: 'active',
-      test_mode_restrictions: JSON.stringify({ max_amount: 100, allowed_currencies: ['BTC','ETH','USDT-TRC20','TRX','LTC'], sandbox_mode: true }),
+      test_mode_restrictions: JSON.stringify({
+        max_amount: 100,
+        allowed_currencies: ['BTC','ETH','USDT-TRC20','TRX','LTC'],
+        sandbox_mode: true,
+      }),
       request_count: 0, rate_limit_per_minute: 60, rate_limit_per_hour: 3600, rate_limit_per_day: 100000,
     });
-    companyLogger.info(`[addCompany] Auto-created TEST key for company ${newCompanyId}`, { user_id: userData.user_id });
+    companyLogger.info(`[addCompany] ✅ Auto-created TEST key for company ${newCompanyId}`, { user_id: userData.user_id });
   }
 } catch (apiKeyErr) {
-  companyLogger.warn(`[addCompany] Auto TEST key creation skipped: ${getErrorMessage(apiKeyErr)}`, { user_id: userData.user_id });
+  companyLogger.warn(
+    `[addCompany] ⚠️ Auto TEST key creation skipped: ${getErrorMessage(apiKeyErr)}`,
+    { user_id: userData.user_id },
+  );
 }
 ```
-**New imports needed in companyController.ts:** `encrypt` (from `../helper`), `generateApiKeyName`
-(from `../helper`), `crypto`, `apiModel`, `customerModel`, `customerWalletModel` (from `../models`).
-(`jwt` is already imported.)
 
-### 4.2 Backend — fix LIVE key guard in `verifyOtp`
-**File:** `backend/controller/walletController.ts` (~line 3101).
-Change the guard from "any active key" to "any active **production** key":
-```ts
-const existingApiKey = await apiModel.findOne({
-  where: { company_id, environment: 'production', status: 'active' },
-});
-```
-Everything else in that block already mints a correct `dpk_live_` key. No other change.
-
-### 4.3 Backend — auto LIVE key in `copyWalletAddresses`
-**File:** `backend/controller/walletController.ts` (~after line 4713 `invalidateWalletCache`, before the
-success response). Only when at least one wallet now exists on the target company AND there's no active
-production key. Factor the live-key block from `verifyOtp` into a reusable helper to avoid duplication:
-
-**Recommended:** extract a module-private helper `ensureLiveApiKey(company_id, user_id, userData)` that
-runs the exact block currently inlined in `verifyOtp` (guard on production key, mint `dpk_live_`), and
-call it from BOTH `verifyOtp` and `copyWalletAddresses`. Return a boolean `created`.
-
-```ts
-// in copyWalletAddresses, after invalidateWalletCache(user_id):
-let autoLiveKeyCreated = false;
-if (copied.length > 0) {
-  autoLiveKeyCreated = await ensureLiveApiKey(target_company_id, user_id, userData);
-}
-// include auto_live_key_created: autoLiveKeyCreated in the success payload
-```
-Guard note: `copyWalletAddresses` may copy 0 wallets (all already existed). Only trigger when the
-target company actually has ≥1 wallet — safest is to re-count `userWalletModel` for the target, or
-rely on `copied.length > 0 || existingCurrencies.size > 0`.
-
-### 4.4 Backend — relax the manual "1 key per company" rule
-**File:** `backend/controller/apiController.ts` (~line 149-162, inside `addApi`).
-Change the duplicate check to be per-environment:
-```ts
-const existingApiKey = await apiModel.findOne({
-  where: { company_id, environment, status: 'active' },
-});
-if (existingApiKey) {
-  return errorResponseHelper(res, 400,
-    `This company already has an active ${environment} API key. Use "Regenerate" or disable it first.`);
-}
-```
-(Keep the prod `walletCount >= 1` check and currency-sync logic unchanged.)
-
-### 4.5 Frontend — Developer Keys page messaging + Create button logic
-**Files:** `pages/developer-keys.tsx`, `Components/Page/API/ApiKeysPage.tsx`.
-- The "Create" button currently hides when ANY key exists. Update so it reflects per-environment:
-  - If no LIVE key yet → show a subtle "Live key unlocks after you add or reuse a wallet" hint
-    (info banner in the Production section) instead of a Create CTA.
-  - If no TEST key (edge: legacy companies) → allow manual create as today.
-- Add an info banner in the Production/Live section when `production_count === 0`:
-  > "🔒 Your live key activates automatically once you add (or reuse) your first wallet."
-- Development/Test section: badge it "Auto-created · Sandbox" with the `test_mode_restrictions`
-  summary (max $100, sandbox currencies).
-- Keep reveal/rotate/regenerate/permissions buttons exactly as-is (manual).
-- i18n: add keys under `apiScreen` namespace (all 6 locales en/es/fr/de/nl/pt), e.g.
-  `keys.liveUnlockHint`, `keys.testAutoCreatedBadge`, `keys.sandboxLimits`.
+**MUST be non-fatal** — never fail company creation because of a key mint issue.
 
 ---
 
-## 5. Edge cases / idempotency
-- **Idempotent:** every auto-create is guarded by an existence check on `(company_id, environment, status='active')`. Re-running is safe.
-- **Non-fatal:** all auto-create blocks are wrapped in `try/catch` and must NEVER fail the parent
-  operation (company creation / OTP verify / wallet copy). Log a warning and continue.
-- **Legacy companies** (created before this feature) won't have a test key — the manual Create path
-  still works for them (per-environment rule).
-- **Wallet copy of 0 wallets** (all currencies already existed) → do NOT create a live key unless the
-  target already has ≥1 wallet (it will, since they existed) — decide: safest is trigger when target
-  wallet count ≥ 1.
-- **customerModel/customerWalletModel** rows are created per key (mirrors existing `addApi` behavior) —
-  acceptable; they are the "API admin" pseudo-customer.
+### 3.5 Frontend — Developer Keys page
+
+Files: `pages/developer-keys.tsx`, `Components/Page/API/ApiKeysPage.tsx`.
+
+- **Create-button logic:** currently hides when ANY key exists. Change to:
+  - Show "Regenerate/manage" (existing) for the environment(s) that have a key.
+  - Show a subtle *info banner* — not a Create CTA — for the missing environment(s).
+- **Production section info banner** (when `production_count === 0`):
+  > 🔒 *Your live key activates automatically once you add (or reuse) your first wallet.*
+- **Development/Test section:** badge the row "Auto-created · Sandbox" + one-line summary reading from `test_mode_restrictions`:
+  > *Max $100 · BTC / ETH / USDT-TRC20 · sandbox mode*
+- **Reveal / rotate / regenerate / permissions / delete** stay exactly as-is (manual, destructive).
+- **i18n keys** (all 6 locales, use `defaultValue`):
+  - `keys.liveUnlockHint` — "Your live key activates automatically once you add (or reuse) your first wallet."
+  - `keys.testAutoCreatedBadge` — "Auto-created · Sandbox"
+  - `keys.sandboxLimits` — "Max ${max} · {currencies} · sandbox mode"
 
 ---
 
-## 6. Test plan
-### Backend (`testing_agent`, LIVE prod DB — USE QA ACCOUNTS ONLY)
-Use `qa.empty.1782626169@dynopaytest.com / QaEmpty#2026` (no company) and
-`qa.onboard.1782585233@dynopaytest.com / QaOnboard#2026`. **NEVER create junk on `hostbay@moxx.co`.**
-1. Create a new company (QA) → assert a `dpk_test_` key exists (`environment=development`, `test_mode_restrictions` set), and NO live key yet.
-2. Add + verify a wallet (or copy wallets) for that company → assert a `dpk_live_` key now exists (`environment=production`), test key still present → **1 test + 1 live**.
-3. Re-run wallet add/copy → assert NO duplicate live key (idempotent).
-4. `GET getApi` → `production_count=1, development_count=1, total=2`.
-5. `addApi` manual create of a 2nd production key → 400 (per-env dedupe). Manual create of the missing environment when one is absent → 200.
-6. Company creation still succeeds even if key mint fails (simulate by temporary bad API_SECRET — optional/skip on prod).
-### Frontend (`testing_agent`, frontend only)
-7. New QA company → `/developer-keys` shows Test key (auto badge) + "live unlocks after wallet" hint, no live key.
-8. After wallet add → live key row appears; hint gone.
-9. Reveal/rotate/permissions buttons still present & manual.
-10. Mobile 390 + desktop 1440, no overflow.
+## 4. Files touched (summary)
 
-**Cleanup:** delete any QA companies/keys created during testing.
-
----
-
-## 7. Open questions (from planning ask_human — DEFAULTS applied in this doc)
-1. **Coexistence (1 test + 1 live)?** DEFAULT = YES (allow). [confirm]
-2. **Auto TEST key base currency?** DEFAULT = USD. [confirm]
-3. **Run deferred frontend test of F1/F5/F10/F22 + Wallet Reuse UI this session?** [pending]
-4. **Clean 6 orphan `processing` journal rows in LIVE DB now?** DEFAULT = NO (needs explicit prod-write approval). [pending]
-
----
-
-## 8. Safety notes (⚠️ LIVE production environment)
-- Backend connects to the user's **LIVE Railway PostgreSQL + Redis**. Keep `.env` overrides:
-  `NODE_ENV=production`, `WORKER_ROLE=secondary`, `ENABLE_BACKGROUND_JOBS=false`. Do NOT remove.
-- API-key rows are additive & reversible (can be revoked). No on-chain / fund movement involved.
-- For any test that WRITES (company/wallet/key create), use QA accounts only. Never touch `hostbay@moxx.co`.
-- This repo IS the deployed repo (`databasedyno/DynoRedesign @ New-Onboarding2`); changes go live only
-  after the user pushes via "Save to GitHub" → DigitalOcean autodeploy.
-
----
-
-## 9. Files to change (summary)
 | File | Change |
 |---|---|
-| `backend/controller/companyController.ts` | + auto `dpk_test_` in `addCompany`; new imports |
-| `backend/controller/walletController.ts` | fix `verifyOtp` live guard (prod-only); + `ensureLiveApiKey` helper; call it in `copyWalletAddresses` |
-| `backend/controller/apiController.ts` | relax dedupe to per-(company,environment) |
-| `pages/developer-keys.tsx` | Create-button logic per-environment |
-| `Components/Page/API/ApiKeysPage.tsx` | live-unlock hint + test-auto badge + sandbox limits copy |
-| i18n `apiScreen` (×6 locales) | new keys: `keys.liveUnlockHint`, `keys.testAutoCreatedBadge`, `keys.sandboxLimits` |
+| `backend/controller/apiController.ts` | Relax dedupe to per-(company, environment) *(§3.1)* |
+| `backend/controller/walletController.ts` | Extract `ensureLiveApiKey`, refactor `verifyOtp`, call from `copyWalletAddresses` *(§3.2, §3.3)* |
+| `backend/controller/companyController.ts` | Add non-fatal test-key mint after `companyModel.create` *(§3.4)* |
+| `pages/developer-keys.tsx` | Per-environment Create logic *(§3.5)* |
+| `Components/Page/API/ApiKeysPage.tsx` | Live-unlock hint + sandbox badge + limits copy *(§3.5)* |
+| `langs/{en,es,fr,de,nl,pt}/apiScreen.json` (or the correct locale files under `/app/langs/**`) | Add 3 new i18n keys *(§3.5)* |
 
-
----
-
-## 10. Session context / where we are (fork handoff)
-Completed earlier in this session (do NOT redo):
-- 4 UX frontend bugs fixed: **F1** (chat FAB occlusion), **F5** (stacked onboarding modals),
-  **F10** (creator empty-state CTA), **F22** (dark-mode watermark opacity). ⚠️ Frontend test NOT run.
-- Production DO log audit: **no stuck customer funds** (only a logging false-positive). Do NOT run
-  any on-chain recovery.
-- Reconciliation fixes: `services/reconciliation.ts` (idempotency guard),
-  `services/volumeTierReconciliation.ts` (`updated_at` → `updatedAt`),
-  `services/feeWalletMonitor.ts` (TRX thresholds lowered).
-- Wallet-Reuse feature: `GET /api/wallet/reusable-wallets` + `POST /api/wallet/copyWalletAddresses`
-  built + **backend-tested 8/8**. Frontend `WalletReuseSelector` + `AddWalletModal` built, **UI test NOT run**.
-
-This doc's feature (auto API-key provisioning) is the **only remaining P0** from "Implement fully".
-
-## 11. Proposed plan (as presented to user, awaiting "go")
-1. 🟢 `companyController.addCompany` → auto-mint restricted `dpk_test_` (env=development, test_mode_restrictions), non-fatal. (§4.1)
-2. 🟢 `walletController.verifyOtp` → change guard so `dpk_live_` mints when no active **production** key exists. (§4.2)
-3. 🟢 `walletController.copyWalletAddresses` → mint `dpk_live_` if target company's first wallet & no live key. (§4.3)
-4. 🟢 `apiController.addApi` → relax "1 key/company" to per-(company,environment). (§4.4)
-5. 🟢 Frontend `/developer-keys` → "Test key ready · Live key unlocks after adding/reusing a wallet"; reflect both states; destructive actions stay manual. (§4.5)
-6. ✅ Test via `testing_agent` (backend key provisioning + frontend Developer Keys states). (§6)
-
-## 12. Still-deferred / pending items (not part of P0 unless user asks)
-- 🟡 Frontend verification of F1/F5/F10/F22 + WalletReuseSelector UI (never tested).
-- 🔴 Cleanup of 6 orphan `processing` journal rows in the LIVE DB — needs explicit prod-write approval.
-- 🟢 (Backlog) "merchant webhook failing" auto-alert feature — proposed, not started.
-- 🟢 (Backlog) Merchant email/notification audit log table.
-
-## 13. Confirmation choices presented to user (decisions gating implementation)
-**Q1 — Coexistence:** a company can hold BOTH a test key and a live key?
-  - a. Yes, allow 1 test + 1 live  ← **DEFAULT / recommended**
-  - b. No — only ever 1 key; test key replaced by live key on first wallet
-**Q2 — Auto TEST key base currency:**
-  - a. USD  ← **DEFAULT / recommended**
-  - b. Something else (specify)
-**Q3 — Also run deferred frontend testing (F1/F5/F10/F22 + Wallet Reuse UI) this session?**
-  - a. Yes, include it
-  - b. No, focus only on API-key provisioning
-**Q4 — Clean the 6 orphan `processing` rows in the LIVE DB now?**
-  - a. Yes (explicit prod-write approval)
-  - b. No / leave them  ← **DEFAULT**
-
-> Implementation starts once the user replies "go" (defaults a/a/?/b) or overrides specific choices.
-
-## 14. Test credentials & environment quick-ref
-- Preview URLs (both live): `https://8d0200cf-65f6-4dfd-a2d1-85d5a5960c0f.preview.emergentagent.com`
-  and `https://merchant-gateway-33.preview.emergentagent.com` (frontend `.env` `REACT_APP_BACKEND_URL`).
-- QA accounts (LIVE DB): `qa.empty.1782626169@dynopaytest.com / QaEmpty#2026` (no company — ideal for
-  the company-creation → test-key flow); `qa.onboard.1782585233@dynopaytest.com / QaOnboard#2026`.
-- Data-rich (READ-only, never write): `hostbay@moxx.co / Katiekendra123@`.
-- Backend = Node/Express via Python proxy (`:8001` → `:3300`); edit `.ts` under `/app/backend`.
-  Frontend = Next.js standalone; after FE code changes run `next build` + `supervisorctl restart frontend`.
-
+**No DB migrations required.** `tbl_api.environment` ENUM already includes both `production` and `development`.
 
 ---
 
-## 15. Proposed enhancement (post-implementation, conversion-focused)
-**"Test your first payment" one-line cURL on the Developer Keys page.**
+## 5. Test plan
 
-Since a merchant now gets a sandbox (`dpk_test_`) key the instant they sign up, would you like a
-one-line "Test your first payment" cURL snippet auto-shown on the Developer Keys page (prefilled with
-their test key)? It converts far more devs to a first successful API call.
+### 5.1 Backend (via `deep_testing_backend_v2`)
 
-Sketch:
-- Render a "Try your first payment" card in the Development/Test section of `/developer-keys`
-  once a `dpk_test_` key exists.
-- Prefill the merchant's actual (revealed-on-demand or masked) test key into a copy-paste cURL, e.g.:
+Use **QA accounts only** (LIVE Railway Postgres — never touch `hostbay@moxx.co`):
+- `qa.empty.1782626169@dynopaytest.com / QaEmpty#2026` (no company — ideal for company-creation flow)
+- `qa.onboard.1782585233@dynopaytest.com / QaOnboard#2026`
+
+Assertions (each with SQL check against `tbl_api`):
+1. **Company create → test key auto** — `POST /api/company/addCompany` succeeds; then `SELECT * FROM tbl_api WHERE company_id=? AND environment='development' AND status='active'` returns exactly 1 row; `test_mode_restrictions` JSON has `max_amount:100, sandbox_mode:true`; NO row with `environment='production'` yet.
+2. **First wallet → live key auto** — verify OTP for a new wallet on that company → `SELECT ... environment='production' AND status='active'` returns exactly 1; the test key still present → **1 test + 1 live**.
+3. **Idempotency** — re-run OTP verify OR wallet copy → still exactly 1 live key (no duplicates).
+4. **`getApi` response** — `production_count=1, development_count=1, total=2`, `grouped.production` & `grouped.development` both non-empty.
+5. **Manual add — dedupe per-env** — `POST /api/api/addApi` with `environment='production'` → 400 (duplicate). Change to `environment='development'` on a company that has NO test key → 200 (allowed). Change to `'production'` on a company that has NO live key AND has ≥1 wallet → 200 (allowed).
+6. **Wallet copy → live auto** — QA account already has wallet(s); create a fresh company; `POST /api/wallet/copyWalletAddresses` from source → target; assert live key now exists on target and `auto_live_key_created: true` in response body.
+7. **Non-fatal** — `addCompany` must still return 200 even if the auto-key block throws (harder to simulate; skip on prod).
+
+### 5.2 Frontend (via `auto_frontend_testing_agent`, **ONLY after user says "yes"**)
+8. Fresh QA company → `/developer-keys` shows Test key row with "Auto-created · Sandbox" badge + limits summary; Production section shows the info banner (no Create button).
+9. After wallet add → live key row appears in Production; banner gone; both rows present simultaneously.
+10. Reveal / rotate / regenerate / permissions / delete buttons still present, still manual, still work.
+11. Mobile 390 + desktop 1440 → no overflow, badges/tooltips readable.
+
+### 5.3 Cleanup
+Delete every QA test company + its keys after the test run (destructive — via API endpoints, no direct DB writes).
+
+---
+
+## 6. Environment (verified this session)
+
+- **Preview URL:** `https://40b4ff19-5dd6-4c10-9148-72e7af6c58cf.preview.emergentagent.com` (=`preview_endpoint`)
+- **Internal:** backend Node/TS on :3300 (proxied by Python uvicorn on :8001); frontend Next.js standalone on :3000
+- **DB:** Railway PostgreSQL (LIVE PROD) `roundhouse.proxy.rlwy.net:23599 railway`
+- **Redis:** Railway `nozomi.proxy.rlwy.net:15794` (LIVE PROD)
+- **Safety overrides in `.env`:** `NODE_ENV=production`, `WORKER_ROLE=secondary`, `ENABLE_BACKGROUND_JOBS=false` — verified `/health` returns `background_jobs.eligible=false`.
+- **Health check results:** internal :8001 `/health` = 200 (DB+Redis+Tatum connected, 9 cached prices, circuit CLOSED); frontend :3000 `/` = 200; external `/`, `/api/csrf-token`, `/auth/login`, `/api/user/login` (bad creds → 401) all pass; login page contains `google-login-btn` + `github-login-btn` + "Continue with Google/GitHub".
+- **Expected quirks (do not treat as regressions):** Binance geo-blocked (WS 451) → CoinGecko/Tatum fallback; `sshpass` not installed → SSH tunnel manager disabled.
+- **Deployment target (post-implementation):** DigitalOcean App Platform, app `dynopay` (id `f86b27dc-feb0-4a44-a4e9-ebd2053e0468`), repo `databasedyno/DynoRedesign` branch `New-Onboarding2`, autodeploy on push. This preview repo IS the deployed repo — changes go live after "Save to GitHub".
+
+---
+
+## 7. Enhancement (optional, post-implementation)
+
+**"Try your first payment" cURL card** on `/developer-keys` (development section):
+- Renders once a `dpk_test_` key exists on the merchant's company.
+- Prefills the (masked) test key in a copy-paste cURL:
   ```bash
   curl -X POST https://dynopay.com/api/user/createPayment \
     -H "x-api-key: dpk_test_<MERCHANT_TEST_KEY>" \
     -H "Content-Type: application/json" \
     -d '{"amount": 5, "currency": "USDT-TRC20"}'
   ```
-- Show the sample `201 Created` response inline; link to the full docs.
-- Rationale: removes the "what do I even call first?" friction → faster time-to-first-successful-call,
-  higher activation/conversion. Keep the destructive reveal action manual (only inject the key after
-  an explicit "reveal" click, otherwise use the masked value + a "reveal to copy" affordance).
-- Status: NOT STARTED — proposed to user; implement only after the core auto-provisioning ships.
+- Reveal-to-copy: the actual key only appears after an explicit "Reveal" click, then re-mask.
+- Show the sample `201 Created` response body inline; link to `/documentation`.
+- **Rationale:** first-successful-API-call is the strongest activation signal; removing "what do I even call?" friction lifts conversion.
+- **Status:** Not started. Propose after core auto-provisioning ships + backend tests pass.
+
+---
+
+## 8. Rollback / safety
+
+- **Every write is idempotent:** the auto-mint blocks all check for an existing active key on the same `(company_id, environment)` before creating.
+- **Every write is non-fatal:** wrapped in `try/catch`; parent operation (`addCompany` / `verifyOtp` / `copyWalletAddresses`) always returns its normal response even if key mint throws.
+- **API keys are additive & reversible** in `tbl_api` (revoke via `status='revoked'`). No on-chain funds involved, no destructive DB ops.
+- **Legacy companies** without a test key can still manually create one (per-env dedupe permits it).
+- **If we need to revert:** simply revert the 3 backend files + 2 frontend files. Existing auto-created rows can be marked `status='revoked'` via `apiController.revokeApi`. No schema change to roll back.
+
+---
+
+## 9. Open questions (defaults chosen — override at kickoff)
+
+| Q | Default | Alternatives |
+|---|---|---|
+| Coexistence (1 test + 1 live per company)? | **Yes** | Only-1-key (revoke test on live mint) |
+| Auto TEST key `base_currency`? | **USD** | EUR / GBP / other |
+| Also verify deferred frontend items (F1/F5/F10/F22 + WalletReuseSelector) this session? | Pending user | Skip — focus on API-key provisioning only |
+| Clean 6 orphan `processing` journal rows in the LIVE DB? | **No** (needs explicit prod-write approval) | Yes — one-off DB write |
+
+---
+
+## 10. Deferred / not part of P0
+
+- 🟡 Frontend verification of Session-30 UX fixes F1/F5/F10/F22 + WalletReuseSelector UI — never tested.
+- 🔴 Cleanup of 6 orphan `processing` journal rows in the LIVE DB — needs explicit prod-write approval.
+- 🟢 (Backlog) "merchant webhook failing" auto-alert feature — proposed, not started.
+- 🟢 (Backlog) Merchant email/notification audit log table.
+- 🟢 (Backlog / §7) "Try your first payment" cURL activation card.
+
+---
+
+## 11. Session context (fork handoff)
+
+**Completed by earlier sessions — do NOT redo:**
+- Session 30-33 UX fixes (F1/F2/F3/F4/F5/F7/F10/F12/F15/F16/F17/F22) — shipped, verified 7/7 pass in Session 33.
+- Session 32 backend fixes: `services/reconciliation.ts` idempotency guard; `services/volumeTierReconciliation.ts` (`updated_at` → `updatedAt`).
+- Wallet-Reuse feature backend (8/8 tests) + `WalletReuseSelector` + `AddWalletModal` UI — UI test not yet run.
+
+**This document's feature is the ONLY REMAINING P0 from "Implement fully".**
+
+---
+
+## 12. How to run the plan
+
+```bash
+# From /app root:
+
+# 1. Backend edits (Phase A, §3.1–§3.4) — use search_replace for existing files
+#    Restart backend after edits:
+sudo supervisorctl restart backend
+tail -f /var/log/supervisor/backend.out.log
+
+# 2. Backend testing_agent (§5.1):
+#    → invoke deep_testing_backend_v2 with the assertions in §5.1 (must use QA accounts)
+
+# 3. Frontend edits (Phase B, §3.5) — search_replace + i18n
+cd /app && node_modules/.bin/next build   # ~90–120s
+sudo supervisorctl restart frontend
+
+# 4. ASK user before running frontend testing_agent (§5.2)
+
+# 5. "Save to GitHub" → DO auto-deploys to dynopay.com
+```
+
+---
+
+*Last refreshed: session 34 (fork continuation) · env verified green · plan is execution-ready.*

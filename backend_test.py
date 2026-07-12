@@ -16,7 +16,7 @@ import subprocess
 from typing import Dict, Any, Optional, List
 
 # Base URL from frontend .env
-BASE_URL = "https://merchant-gateway-33.preview.emergentagent.com"
+BASE_URL = "https://cred-provisioner.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 # Test credentials

@@ -3,7 +3,7 @@
  * Tests B, C, D: API endpoint testing with authentication
  */
 
-const BASE_URL = 'https://merchant-gateway-33.preview.emergentagent.com/api';
+const BASE_URL = 'https://cred-provisioner.preview.emergentagent.com/api';
 const TEST_EMAIL = 'hostbay@moxx.co';
 const TEST_PASSWORD = 'Katiekendra123@';
 
