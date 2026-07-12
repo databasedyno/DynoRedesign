@@ -9,7 +9,7 @@ import axios from 'axios';
 import * as fs from 'fs';
 import * as path from 'path';
 
-const API_BASE = 'https://fast-launch-40.preview.emergentagent.com/api';
+const API_BASE = 'https://multi-chain-api-1.preview.emergentagent.com/api';
 
 interface TestResult {
   test: string;
