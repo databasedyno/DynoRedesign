@@ -986,9 +986,34 @@ const CopyButton = memo(({ text }: { text: string }) => {
     navigator.clipboard.writeText(text).then(done).catch(done);
   }, [text]);
   return (
-    <CopyBtn onClick={handleCopy} style={copied ? { background: "rgba(34,197,94,0.2)", borderColor: "#22C55E" } : undefined}>
-      {copied ? <><CheckIcon sx={{ fontSize: 12 }} /> Copied</> : <><ContentCopyIcon sx={{ fontSize: 12 }} /> Copy</>}
-    </CopyBtn>
+    <>
+      <CopyBtn
+        onClick={handleCopy}
+        aria-label={copied ? "Copied to clipboard" : "Copy code to clipboard"}
+        aria-live="off"
+        style={copied ? { background: "rgba(34,197,94,0.2)", borderColor: "#22C55E" } : undefined}
+      >
+        {copied ? <><CheckIcon sx={{ fontSize: 12 }} /> Copied</> : <><ContentCopyIcon sx={{ fontSize: 12 }} /> Copy</>}
+      </CopyBtn>
+      {/* F15: screen-reader-only live region announces copy success */}
+      <span
+        role="status"
+        aria-live="polite"
+        style={{
+          position: "absolute",
+          width: 1,
+          height: 1,
+          padding: 0,
+          margin: -1,
+          overflow: "hidden",
+          clip: "rect(0,0,0,0)",
+          whiteSpace: "nowrap",
+          border: 0,
+        }}
+      >
+        {copied ? "Copied to clipboard" : ""}
+      </span>
+    </>
   );
 });
 CopyButton.displayName = "CopyButton";

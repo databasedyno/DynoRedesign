@@ -143,7 +143,10 @@ const CreatorProfile = ({ creator, links }: { creator: CreatorData; links: Creat
         )}
 
         {/* ── Header ── */}
-        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', mb: 4, px: { xs: 2, sm: 3 }, pt: { xs: 3, sm: 0 } }}>
+        {/* F10: On mobile without a cover image, the header sits flush with
+            the fixed navbar which clips the avatar. Add generous top padding
+            to guarantee ~64px clearance below any sticky header. */}
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', mb: 4, px: { xs: 2, sm: 3 }, pt: { xs: creator.cover_image ? 3 : 6, sm: 0 } }}>
           <Box
             data-testid='creator-avatar'
             sx={{
@@ -287,15 +290,28 @@ const CreatorProfile = ({ creator, links }: { creator: CreatorData; links: Creat
         {links.length === 0 && (
           <Box
             data-testid='creator-empty'
-            sx={{ textAlign: 'center', py: 5, borderRadius: '18px', border: `1px dashed ${border}`, backgroundColor: surface }}
+            sx={{ textAlign: 'center', py: 5, px: 3, borderRadius: '18px', border: `1px dashed ${border}`, backgroundColor: surface }}
           >
             <Icon icon='mdi:sparkles-outline' width={30} color={theme.palette.text.secondary} />
             <Typography fontSize={15} fontWeight={600} color={theme.palette.text.primary} mt={1}>
               Nothing here yet
             </Typography>
-            <Typography fontSize={13} color={theme.palette.text.secondary} mt={0.5}>
+            <Typography fontSize={13} color={theme.palette.text.secondary} mt={0.5} mb={2}>
               {creator.name.split(' ')[0]} hasn&apos;t published any links yet — check back soon.
             </Typography>
+            {/* F10: give visitors a fallback action so this isn't a dead end */}
+            <Button
+              disableElevation
+              variant='outlined'
+              onClick={() => { if (typeof window !== 'undefined') window.location.href = '/' }}
+              sx={{
+                mt: 1, px: 3, py: 1.1, borderRadius: '10px', textTransform: 'none',
+                fontWeight: 700, fontSize: 13.5, borderColor: LIME, color: theme.palette.text.primary,
+                '&:hover': { borderColor: LIME, backgroundColor: limeTint },
+              }}
+            >
+              Explore Dynopay creators →
+            </Button>
           </Box>
         )}
 

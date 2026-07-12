@@ -28,6 +28,7 @@ const TitleDescription: React.FC<TitleDescriptionProps> = ({
   title,
   description,
   align = "left",
+  titleVariant,
   sx,
 }) => {
   const isMobile = useIsMobile("sm");
@@ -46,7 +47,11 @@ const TitleDescription: React.FC<TitleDescriptionProps> = ({
     >
       {title ? (
         <Typography
-          component="div"
+          /* F16: promote the auth screen title to a semantic h1 by default
+             (was: div). Login / register / secure-account etc. previously
+             had no h1 which failed WCAG page-heading semantics. Callers can
+             still override via `titleVariant` if they use it as a subtitle. */
+          component={(titleVariant as any) || "h1"}
           sx={{
             fontSize: "19px",
             fontFamily: "var(--font-hero), var(--font-sans)",
@@ -54,6 +59,7 @@ const TitleDescription: React.FC<TitleDescriptionProps> = ({
             color: "text.primary",
             lineHeight: "1.25",
             letterSpacing: "-0.01em",
+            m: 0,
             ...(isMobile && { fontSize: "18px" }),
           }}
         >

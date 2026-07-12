@@ -278,7 +278,16 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
 
   const formatCurrency = (amount: number, currency?: string) => {
     const curr = currency || baseCurrency;
-    return getCurrencySymbol(curr, amount.toFixed(2));
+    const formatted = amount.toFixed(2);
+    // F12: If a well-known symbol matches (USD/EUR/GBP/etc.), prefix with the
+    // symbol. Otherwise (crypto codes like USDT-TRC20, BTC, ETH…) render as
+    // "0.68 USDT-TRC20" so the amount is never ambiguous.
+    const withSymbol = getCurrencySymbol(curr, formatted);
+    if (withSymbol === formatted) {
+      // No symbol matched — append currency code for clarity.
+      return `${formatted} ${curr}`;
+    }
+    return withSymbol;
   };
 
   const formatDate = (dateStr: string) => {
@@ -557,9 +566,14 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                                   color: muiTheme.palette.text.primary,
                                 }}
                               >
+                                {/* F12: `total_usd` is a fiat USD amount — format
+                                    it with the base fiat currency (USD/EUR/etc.),
+                                    NOT the crypto currency the invoice was paid
+                                    in. This eliminates the "0.68"/"0.00" with no
+                                    currency indicator. */}
                                 {formatCurrency(
                                   parseFloat(String(inv.total_usd)),
-                                  inv.crypto_currency
+                                  "USD"
                                 )}
                               </Typography>
                             </TableCell>

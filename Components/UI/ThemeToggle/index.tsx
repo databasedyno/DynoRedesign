@@ -22,6 +22,10 @@ const ThemeToggle: React.FC<ThemeToggleProps> = ({ size = "medium", sx }) => {
         sx={{
           color: isDark ? "#FFD54F" : "#676768",
           transition: "all 0.3s ease",
+          // F13: enforce 44x44 minimum touch target (WCAG 2.5.5 / iOS HIG).
+          // The icon inside stays visually the same via padding.
+          minWidth: 44,
+          minHeight: 44,
           "&:hover": {
             backgroundColor: isDark ? "rgba(255, 213, 79, 0.1)" : "rgba(0, 4, 255, 0.06)",
             transform: "rotate(30deg)",

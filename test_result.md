@@ -1,3 +1,116 @@
+## Session 30: UX Audit Fix Batch — Multiple P0/P1/P2 findings (2026-07-12)
+
+### Context
+User requested "fix all" issues from the UX audit report (24 severity-ranked findings F1–F24). This session implements a substantial batch focused on the highest-impact items across P0/P1/P2 tiers.
+
+### What was fixed (files changed)
+
+**F1 — Chat FAB occlusion (P0)** — `Components/Common/SupportChatWidget/index.tsx`
+- Added MutationObserver watching for open MUI `.MuiDialog-root` / `.MuiModal-root`. When one is open, FAB + panel are hidden. Also honors `<body data-dyno-suppress-chat="1">` for explicit suppression.
+- Raised mobile FAB bottom offset from 88px → 108px so it no longer overlaps "View all" / row status regions.
+
+**F2 — Focus-visible rings (P0)** — `styles/globals.css`
+- Added global `:focus-visible` rules with cyber-lime ring (dark) / near-black ring (light), applied to `MuiButtonBase-root`, `MuiIconButton-root`, `MuiButton-root`, `MuiChip-root`, `MuiTab-root`, `MuiListItemButton-root`, `a`, `button`, `input`, `textarea`, `select`, `[role]`, `[tabindex]`.
+- Uses `!important` to override any inline `outline: none`. Only paints for keyboard focus (`:focus-visible`), not mouse click.
+
+**F3 — Pay-links row action labels (P0)** — `Components/Page/Payment-link/PaymentLinksTable.tsx`
+- Wrapped Copy / View / Edit / Delete `CopyButton`s in both mobile card + desktop table variants with `<Tooltip>` + `aria-label`.
+- Bumped mobile touch target from 28×28 → 32×32 (icon size 12→14).
+- Tooltip keys: `copyLinkTooltip` / `viewLinkTooltip` / `editLinkTooltip` / `deleteLinkTooltip` / `viewTransactionsTooltip` (with English fallbacks).
+
+**F4 — API failure vs empty state (P0)** — `Redux/Reducers/companyReducer.ts` + `pages/create-pay-link.tsx`
+- Added `fetchError: boolean` to `companyReducer` state. Set true on `COMPANY_API_ERROR`, cleared on `COMPANY_INIT` (retry) and successful `COMPANY_FETCH`.
+- `pages/create-pay-link.tsx` renders a distinct "Couldn't load your account" retry banner instead of the "Create Your Company" onboarding gate when `fetched && fetchError && !hasCompany`.
+
+**F5 — Stacked onboarding modals (P1)** — `Components/Modals/FeeFreeWelcomeModal.tsx`
+- MutationObserver defers the celebration modal until any OTHER MUI Dialog closes. Prevents stacking on top of the company/wallet onboarding wizard.
+
+**F7 — Dashboard metric semantics (P1)** — `Components/Page/Dashboard/HeroMetrics.tsx`
+- Removed the `changePercent` prop from the "Lifetime Volume" tile — cumulative metrics cannot decline.
+- When `showDelta` is false (value=0) AND no `meta` is set, the dangling "vs yesterday" label is now suppressed.
+
+**F10 — Public creator page (P1)** — `Components/Page/Creator/CreatorProfile.tsx`
+- Increased mobile top padding from `pt: xs:3` → `pt: xs:6` when there's no cover image (avatar was clipped under fixed header).
+- Empty-links state gets a fallback "Explore Dynopay creators →" outlined button (not a dead-end).
+
+**F12 — Invoice currency (P1)** — `pages/invoices.tsx`
+- `formatCurrency` now appends the currency code as a suffix when no symbol matches ("0.68 USDT-TRC20" instead of a bare "0.68").
+- Total column now uses `"USD"` (matches the `total_usd` field) instead of `inv.crypto_currency`, so totals always render as fiat.
+
+**F15 — Docs Copy button feedback (P2)** — `pages/documentation.tsx`
+- Added `aria-label` (toggles between "Copy code to clipboard" / "Copied to clipboard").
+- Added a visually-hidden `role="status" aria-live="polite"` span that announces "Copied to clipboard" to screen readers.
+
+**F16 — H1 semantics on auth pages (P2)** — `Components/UI/AuthLayout/TitleDescription/index.tsx`
+- Default `component="div"` → `component="h1"` (was: no h1 on login/register/reset-password/secure-account). Callers can override via `titleVariant` prop.
+
+**F17/F13 — Touch-target minimums (P2)** — `Components/UI/ThemeToggle/index.tsx`
+- Enforced `minWidth: 44, minHeight: 44` on the theme toggle IconButton (WCAG 2.5.5).
+
+**F22 — Dark-mode sidebar watermark (P2)** — `Components/Layout/ReferralAndKnowledge/index.tsx`
+- The `BGOverlay` decorative PNG now uses `opacity: 0.18` + `mixBlendMode: screen` in dark mode (was: fully opaque light PNG on dark canvas — looked like a glitch).
+- Empty `alt=""` on the decorative image.
+
+### Not fixed this session (deferred)
+- F6 (notification grouping) — bigger backend + UX refactor.
+- F8 (create-pay-link preview fidelity) — needs shared style constants.
+- F9 (customers page segment tabs) — new filter UI.
+- F11 (donation-demo hydration) — needs SSR/client divergence trace.
+- F14 (checkout micro-typography) — many small pt-adjustments.
+- F17 (unlabeled inputs) — inventory pass.
+- F18 (in-app header logo) — logo asset swap.
+- F19 (fee narrative) — copy audit.
+- F20 (referral hierarchy) — layout decision.
+- F21 (pay-links table columns) — table restructure.
+- F23 (settings friction) — self-serve name edit + typography.
+- F24 (help center title/search) — help layout rework.
+
+### Verification
+- `next build` PASS (all routes, 436 kB shared JS).
+- Internal `:3000 /`, `/auth/login`, `/pay-links`, `/documentation` → 200.
+- All fixes are additive/backward-compatible.
+
+### backend
+  - task: "UX audit fixes — backend touched only via Redux reducer (fetchError flag)"
+    implemented: true
+    working: "NA"
+    file: "Redux/Reducers/companyReducer.ts"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "companyReducer now tracks fetchError so pages can distinguish API failures from empty lists. No API contract changes; purely client-side reducer additive change."
+
+### frontend
+  - task: "UX Audit P0/P1/P2 fixes (F1, F2, F3, F4, F5, F7, F10, F12, F13, F15, F16, F22)"
+    implemented: true
+    working: false
+    file: "Components/Common/SupportChatWidget/index.tsx, styles/globals.css, Components/Page/Payment-link/PaymentLinksTable.tsx, Redux/Reducers/companyReducer.ts, pages/create-pay-link.tsx, Components/Modals/FeeFreeWelcomeModal.tsx, Components/Page/Dashboard/HeroMetrics.tsx, Components/Page/Creator/CreatorProfile.tsx, pages/invoices.tsx, pages/documentation.tsx, Components/UI/AuthLayout/TitleDescription/index.tsx, Components/UI/ThemeToggle/index.tsx, Components/Layout/ReferralAndKnowledge/index.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Batch fixes for 12 of the 24 UX audit findings. Awaiting frontend testing_agent verification of: (1) chat FAB hides when Dialog is open + is repositioned above bottom nav on mobile, (2) keyboard focus rings visible on login form email/Continue/Google/GitHub, (3) pay-links row action buttons have tooltip + aria-label on hover/keyboard, (4) create-pay-link shows retry banner when API errors instead of the Create Company gate, (5) FeeFreeWelcomeModal defers while onboarding Dialog is open, (6) Lifetime Volume tile shows no delta chip; $0 tiles show no dangling 'vs yesterday' label, (7) Creator public page mobile has ~48px top clearance for avatar (no cover), (8) empty creator page has 'Explore Dynopay creators' fallback CTA, (9) invoice totals show currency code, (10) docs Copy button has aria-label + screen-reader announcement on copy, (11) login page title renders as h1, (12) theme toggle is 44×44 minimum, (13) sidebar referral watermark is dim in dark mode."
+      - working: false
+        agent: "testing"
+        comment: "UX AUDIT FIX TESTING COMPLETE (2026-07-12). Tested 12 fixes across Mobile 390×844 and Desktop 1440×900. RESULTS: 8 PASS, 4 FAIL. CRITICAL FAILURES: (1) F1 - Chat FAB overlaps 'View all' link on dashboard mobile despite correct bottom positioning (108px). (2) F5 - Stacked modals: Both FeeFreeWelcomeModal and CreateCompanyModal visible simultaneously on qa.empty dashboard (2 dialogs stacked). (3) F22 - Sidebar referral watermark in dark mode has opacity 1.0 (should be ≤0.2 per spec). (4) F10 - 'Explore Dynopay creators' button exists in code but test selector issue (minor). PASSES: F2 (focus rings 2px visible), F7 (Lifetime Volume no delta), F12 (invoices show $ sign), F13 (theme toggle 44×44), F15 (docs copy aria-label + screen reader), F16 (H1 semantics on auth pages), F10 (avatar 48px clearance). F3 (pay-links tooltips) could not be fully tested due to empty state. F4 (API failure banner) not testable as API working normally. See screenshots in .screenshots/ directory."
+
+### test_plan
+  current_focus:
+    - "Fix F1 Chat FAB overlap issue"
+    - "Fix F5 Stacked modals issue"
+    - "Fix F22 Sidebar watermark opacity in dark mode"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+---
+
+
 ## Session 25: Phase 3(b) — Elements Dashboard UI + Docs + SDK Polish ✅ COMPLETE (2026-07-11)
 
 ### Context
@@ -110,6 +223,8 @@ Phase 3E (real USDT-TRC20 E2E payment) intentionally deferred per user — will 
 ### agent_communication
   - agent: "testing"
     message: "RESPONSIVE LAYOUT AUDIT COMPLETE (2026-07-11 15:33 UTC). Tested Dynopay app at 3 viewports (Mobile 390x844, Tablet 768x1024, Desktop 1440x900) across 5 public pages. RESULTS: 3/15 tests PASS (all Desktop), 12/15 tests ISSUE. CRITICAL FINDINGS: (1) All pages have horizontal overflow on Mobile & Tablet - MuiBox/Drawer/marquee components extending beyond viewport. (2) Login page has overlapping elements on all viewports. (3) Desktop performs acceptably (Fees/Docs/Blog PASS). AUTHENTICATED PAGES: Could not test - login uses multi-step verification (email code or password selection) that automation couldn't complete. This is acceptable per review constraints. RECOMMENDATION: Main agent should fix responsive CSS - add max-width:100vw and overflow-x:hidden to container components, constrain Drawer width on mobile, fix marquee bounds on landing page, review login form spacing. Screenshots captured for all 15 tests in .screenshots/ directory. Console shows benign errors (CDN, fonts, tracking) - no critical JS errors. See detailed breakdown in new task 'Responsive layout fixes'."
+  - agent: "testing"
+    message: "UX AUDIT FIX TESTING COMPLETE (2026-07-12 01:55 UTC). Tested 12 UX fixes at Mobile 390×844 and Desktop 1440×900. RESULTS: 8 PASS / 4 FAIL. CRITICAL FAILURES REQUIRING FIXES: (1) F1 - Chat FAB overlaps 'View all' link on dashboard mobile (FAB positioned correctly at 108px bottom, but still overlaps transaction list links). (2) F5 - Stacked modals: FeeFreeWelcomeModal and CreateCompanyModal both visible simultaneously on qa.empty dashboard (MutationObserver deferral not working). (3) F22 - Sidebar referral watermark opacity is 1.0 in dark mode (should be 0.18 per code). PASSES: F2 (keyboard focus rings 2px visible on login), F7 (Lifetime Volume tile has no delta chip), F12 (invoices show $ sign), F13 (theme toggle 44×44), F15 (docs copy button has aria-label + screen reader status), F16 (H1 semantics correct on auth pages), F10 (creator avatar 48px clearance). PARTIAL: F3 (pay-links empty state, could not test tooltips), F4 (API working, could not test error banner). RECOMMENDATION: Fix F1 FAB z-index/positioning logic, F5 modal stacking MutationObserver, F22 watermark opacity application in dark mode."
 
 ---
 

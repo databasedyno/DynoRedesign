@@ -370,8 +370,37 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
   const assistantBubbleBg = isDark ? "rgba(255,255,255,0.07)" : "#F2F3F5";
   const userBubbleBg = isDark ? LIME : INK;
   const userBubbleColor = isDark ? INK : "#FFFFFF";
-  // Keep clear of the in-app floating mobile nav pill
-  const fabBottom = layout === "client" ? { xs: 88, md: 24 } : { xs: 20, md: 24 };
+  // Keep clear of the in-app floating mobile nav pill.
+  // F1: On mobile in the client shell, lift the FAB further so it no longer
+  // occludes the last ~20px of "Create Company" / "View all" / row action
+  // regions. Sits above the bottom tab bar with breathing room.
+  const fabBottom = layout === "client" ? { xs: 108, md: 24 } : { xs: 24, md: 24 };
+
+  // F1: Hide the floating FAB while any blocking MUI Dialog / Modal is open
+  // (onboarding wizard, promo, delete confirms, etc.). We watch for the
+  // MUI backdrop element in the DOM; body also gets `overflow: hidden` when
+  // a Dialog opens which makes this a reliable signal. Also allow explicit
+  // suppression via a `data-dyno-suppress-chat="1"` attribute on <body>.
+  const [suppressed, setSuppressed] = useState<boolean>(false);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const check = () => {
+      try {
+        const body = document.body;
+        const explicit = body?.getAttribute("data-dyno-suppress-chat") === "1";
+        const hasDialog = !!document.querySelector(
+          '.MuiDialog-root:not([aria-hidden="true"]), .MuiModal-root:not([aria-hidden="true"])'
+        );
+        setSuppressed(explicit || hasDialog);
+      } catch {
+        setSuppressed(false);
+      }
+    };
+    check();
+    const obs = new MutationObserver(check);
+    obs.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["aria-hidden", "data-dyno-suppress-chat"] });
+    return () => obs.disconnect();
+  }, []);
 
   const inputSx = {
     width: "100%",
@@ -414,7 +443,7 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
   return (
     <>
       {/* ── Floating panel ── */}
-      {open && (
+      {open && !suppressed && (
         <Box
           data-testid="support-chat-panel"
           sx={{
@@ -858,6 +887,7 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
       )}
 
       {/* ── Floating launcher button ── */}
+      {!suppressed && (
       <Tooltip title={open ? "Close support chat" : "Chat with support"}>
         <IconButton
           data-testid="support-chat-button"
@@ -882,6 +912,7 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
           {open ? <CloseRoundedIcon sx={{ fontSize: 26 }} /> : <ChatRoundedIcon sx={{ fontSize: 26 }} />}
         </IconButton>
       </Tooltip>
+      )}
     </>
   );
 };

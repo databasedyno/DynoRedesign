@@ -34,6 +34,10 @@ const CreatePaymentLink = ({ setPageName, setPageDescription }: pageProps) => {
   const hasCompany = companyState.companyList?.length > 0;
   const hasWallet = walletState.walletList?.length > 0;
   const setupComplete = hasCompany && hasWallet;
+  // F4: track fetch error separately so we can show a retry banner instead
+  // of the "Create your first company" onboarding gate when the API failed.
+  const companyFetchError = (companyState as any).fetchError === true;
+  const companyFetched = (companyState as any).fetched === true;
 
   // Inline modal state — keep the user on /create-pay-link
   const [companyModalOpen, setCompanyModalOpen] = useState(false);
@@ -115,6 +119,78 @@ const CreatePaymentLink = ({ setPageName, setPageDescription }: pageProps) => {
             disabled={false}
             setPageName={setPageName}
           />
+        </Box>
+      ) : companyFetched && companyFetchError && !hasCompany ? (
+        /* F4: API failed while fetching companies. Show a retry banner
+           instead of the misleading "Create Your Company" onboarding gate
+           (which suggested the merchant's account was wiped). */
+        <Box
+          data-testid="payment-link-fetch-error"
+          sx={{
+            maxWidth: "600px",
+            mx: "auto",
+            mt: isMobile ? 4 : 8,
+            px: 3,
+            textAlign: "center",
+          }}
+        >
+          <Box
+            sx={{
+              width: 64,
+              height: 64,
+              borderRadius: "16px",
+              backgroundColor: theme.palette.error.main + "22",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              mx: "auto",
+              mb: 2.5,
+            }}
+          >
+            <BusinessRounded sx={{ fontSize: 32, color: theme.palette.error.main }} />
+          </Box>
+          <Typography
+            sx={{
+              fontSize: isMobile ? "18px" : "22px",
+              fontFamily: "var(--font-sans)",
+              fontWeight: 600,
+              color: theme.palette.text.primary,
+              mb: 1,
+            }}
+          >
+            Couldn&apos;t load your account
+          </Typography>
+          <Typography
+            sx={{
+              fontSize: isMobile ? "13px" : "15px",
+              fontFamily: "var(--font-sans)",
+              fontWeight: 500,
+              color: theme.palette.text.secondary,
+              mb: 3,
+              lineHeight: 1.5,
+            }}
+          >
+            The request to load your companies didn&apos;t come back. Your data is safe — this is a
+            temporary issue with the connection. Try again in a moment.
+          </Typography>
+          <Box
+            component="button"
+            onClick={() => dispatch(CompanyAction(COMPANY_FETCH))}
+            sx={{
+              px: 4,
+              py: 1.5,
+              borderRadius: "10px",
+              border: "none",
+              cursor: "pointer",
+              fontFamily: "var(--font-sans)",
+              fontWeight: 700,
+              fontSize: 14,
+              backgroundColor: theme.palette.primary.main,
+              color: theme.palette.primary.contrastText,
+            }}
+          >
+            Retry
+          </Box>
         </Box>
       ) : (
         <Box

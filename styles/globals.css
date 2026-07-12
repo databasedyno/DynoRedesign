@@ -411,3 +411,51 @@ html[data-theme="light"] {
     animation: none;
   }
 }
+
+
+/* ── Global keyboard focus rings (WCAG 2.4.7) ─────────────────────────────
+   Many MUI components suppress the default outline for aesthetics; add a
+   visible cyber-lime focus indicator that only appears for keyboard-driven
+   focus (`:focus-visible`) so mouse clicks stay clean. Applies to all
+   interactive elements everywhere. */
+:root {
+  --dyno-focus-ring: #CCFF00;
+  --dyno-focus-ring-shadow: 0 0 0 2px rgba(204, 255, 0, 0.35);
+}
+html[data-theme="light"] {
+  --dyno-focus-ring: #0A0A0A;
+  --dyno-focus-ring-shadow: 0 0 0 2px rgba(10, 10, 10, 0.25);
+}
+
+:focus-visible {
+  outline: 2px solid var(--dyno-focus-ring) !important;
+  outline-offset: 2px !important;
+  border-radius: 4px;
+}
+/* MUI Buttons/IconButtons: MUI resets outline to none in some variants,
+   so also add a box-shadow ring which paints even when outline is stripped. */
+.MuiButtonBase-root:focus-visible,
+.MuiIconButton-root:focus-visible,
+.MuiButton-root:focus-visible,
+.MuiChip-root:focus-visible,
+.MuiTab-root:focus-visible,
+.MuiListItemButton-root:focus-visible,
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+[role="button"]:focus-visible,
+[role="link"]:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--dyno-focus-ring) !important;
+  outline-offset: 2px !important;
+  box-shadow: var(--dyno-focus-ring-shadow) !important;
+}
+
+/* Do NOT paint the ring for mouse-focus (default browser behaviour); the
+   `:focus-visible` heuristic already covers this, but keep pointer clicks
+   quiet on outlined text inputs. */
+.MuiOutlinedInput-root:focus-visible {
+  outline: none !important;
+}

@@ -438,40 +438,70 @@ const PaymentLinksTable = ({
                     </Typography>
                     <Box sx={{ display: "flex", gap: "6px" }}>
                       {row.status !== "expired" && (
-                        <CopyButton onClick={() => handleCopy(row.paymentUrl)} sx={{ width: 28, height: 28, minWidth: 28, p: "5px" }}>
-                          <Image src={CopyIcon} alt="Copy" width={12} height={12} draggable={false} className="themed-icon-primary" />
-                        </CopyButton>
+                        <Tooltip title={t("copyLinkTooltip") || "Copy link"} arrow>
+                          <CopyButton
+                            aria-label={t("copyLinkTooltip") || "Copy link"}
+                            onClick={() => handleCopy(row.paymentUrl)}
+                            sx={{ width: 32, height: 32, minWidth: 32, p: "6px" }}
+                          >
+                            <Image src={CopyIcon} alt="" width={14} height={14} draggable={false} className="themed-icon-primary" />
+                          </CopyButton>
+                        </Tooltip>
                       )}
-                      <CopyButton
-                        onClick={() => {
+                      <Tooltip
+                        title={
                           row.status === "expired"
-                            ? router.push(`/pay-links/${row?.id}`)
+                            ? (t("editLinkTooltip") || "Edit link")
                             : row.status === "paid" || row.status === "completed"
-                              ? router.push(`/transactions`)
-                              : handleViewModelOpen(row);
-                        }}
-                        sx={{ width: 28, height: 28, minWidth: 28, p: "5px", borderColor: theme.palette.text.primary }}
+                              ? (t("viewTransactionsTooltip") || "View transactions")
+                              : (t("viewLinkTooltip") || "View details")
+                        }
+                        arrow
                       >
-                        <Image src={EyeIcon} alt="View" width={12} height={12} draggable={false} className="themed-icon" />
-                      </CopyButton>
-                      {row.status !== "expired" && row.status !== "paid" && row.status !== "completed" && (
                         <CopyButton
-                          onClick={() => router.push(`/pay-links/${row?.id}`)}
-                          sx={{ width: 28, height: 28, minWidth: 28, p: "5px", borderColor: theme.palette.text.primary }}
+                          aria-label={
+                            row.status === "expired"
+                              ? (t("editLinkTooltip") || "Edit link")
+                              : row.status === "paid" || row.status === "completed"
+                                ? (t("viewTransactionsTooltip") || "View transactions")
+                                : (t("viewLinkTooltip") || "View details")
+                          }
+                          onClick={() => {
+                            row.status === "expired"
+                              ? router.push(`/pay-links/${row?.id}`)
+                              : row.status === "paid" || row.status === "completed"
+                                ? router.push(`/transactions`)
+                                : handleViewModelOpen(row);
+                          }}
+                          sx={{ width: 32, height: 32, minWidth: 32, p: "6px", borderColor: theme.palette.text.primary }}
                         >
-                          <Image src={EditIcon} alt="Edit" width={12} height={12} draggable={false} className="themed-icon" />
+                          <Image src={EyeIcon} alt="" width={14} height={14} draggable={false} className="themed-icon" />
                         </CopyButton>
+                      </Tooltip>
+                      {row.status !== "expired" && row.status !== "paid" && row.status !== "completed" && (
+                        <Tooltip title={t("editLinkTooltip") || "Edit link"} arrow>
+                          <CopyButton
+                            aria-label={t("editLinkTooltip") || "Edit link"}
+                            onClick={() => router.push(`/pay-links/${row?.id}`)}
+                            sx={{ width: 32, height: 32, minWidth: 32, p: "6px", borderColor: theme.palette.text.primary }}
+                          >
+                            <Image src={EditIcon} alt="" width={14} height={14} draggable={false} className="themed-icon" />
+                          </CopyButton>
+                        </Tooltip>
                       )}
                       {row.status !== "expired" && row.status !== "paid" && row.status !== "completed" && (
-                        <CopyButton
-                          onClick={() => {
-                            setDeleteModel(true);
-                            setDeletId(row.id);
-                          }}
-                          sx={{ width: 28, height: 28, minWidth: 28, p: "5px", borderColor: theme.palette.error.main }}
-                        >
-                          <Image src={TrashIcon} alt="Delete" width={12} height={12} draggable={false} style={{ filter: "brightness(0) saturate(100%) invert(27%) sepia(86%) saturate(5000%) hue-rotate(355deg) brightness(97%) contrast(120%)" }} />
-                        </CopyButton>
+                        <Tooltip title={t("deleteLinkTooltip") || "Delete link"} arrow>
+                          <CopyButton
+                            aria-label={t("deleteLinkTooltip") || "Delete link"}
+                            onClick={() => {
+                              setDeleteModel(true);
+                              setDeletId(row.id);
+                            }}
+                            sx={{ width: 32, height: 32, minWidth: 32, p: "6px", borderColor: theme.palette.error.main }}
+                          >
+                            <Image src={TrashIcon} alt="" width={14} height={14} draggable={false} style={{ filter: "brightness(0) saturate(100%) invert(27%) sepia(86%) saturate(5000%) hue-rotate(355deg) brightness(97%) contrast(120%)" }} />
+                          </CopyButton>
+                        </Tooltip>
                       )}
                     </Box>
                   </Box>
@@ -647,45 +677,44 @@ const PaymentLinksTable = ({
                         }}
                       >
                       {row.status !== "expired" && (
-                        <CopyButton onClick={() => handleCopy(row.paymentUrl)}>
-                          <Image
-                            src={CopyIcon}
-                            alt="Copy Icon"
-                            width={isMobile ? 12 : 14}
-                            height={isMobile ? 12 : 14}
-                            draggable={false}
-                            className="themed-icon-primary"
-                          />
-                        </CopyButton>
+                        <Tooltip title={t("copyLinkTooltip") || "Copy link"} arrow>
+                          <CopyButton aria-label={t("copyLinkTooltip") || "Copy link"} onClick={() => handleCopy(row.paymentUrl)}>
+                            <Image
+                              src={CopyIcon}
+                              alt=""
+                              width={isMobile ? 12 : 14}
+                              height={isMobile ? 12 : 14}
+                              draggable={false}
+                              className="themed-icon-primary"
+                            />
+                          </CopyButton>
+                        </Tooltip>
                       )}
-                      <CopyButton
-                        onClick={() => {
+                      <Tooltip
+                        title={
                           row.status === "expired"
-                            ? router.push(`/pay-links/${row?.id}`)
+                            ? (t("editLinkTooltip") || "Edit link")
                             : row.status === "paid" || row.status === "completed"
-                              ? router.push(`/transactions`)
-                              : handleViewModelOpen(row);
-                        }}
-                        sx={{
-                          borderColor: theme.palette.text.primary,
-                          "&:hover": {
-                            backgroundColor: "transparent",
-                            boxShadow: "none",
-                          },
-                        }}
+                              ? (t("viewTransactionsTooltip") || "View transactions")
+                              : (t("viewLinkTooltip") || "View details")
+                        }
+                        arrow
                       >
-                        <Image
-                          src={EyeIcon}
-                          alt="Eye Icon"
-                          width={isMobile ? 12 : 20}
-                          height={isMobile ? 12 : 14}
-                          draggable={false}
-                          className="themed-icon"
-                        />
-                      </CopyButton>
-                      {row.status !== "expired" && row.status !== "paid" && row.status !== "completed" && (
                         <CopyButton
-                          onClick={() => router.push(`/pay-links/${row?.id}`)}
+                          aria-label={
+                            row.status === "expired"
+                              ? (t("editLinkTooltip") || "Edit link")
+                              : row.status === "paid" || row.status === "completed"
+                                ? (t("viewTransactionsTooltip") || "View transactions")
+                                : (t("viewLinkTooltip") || "View details")
+                          }
+                          onClick={() => {
+                            row.status === "expired"
+                              ? router.push(`/pay-links/${row?.id}`)
+                              : row.status === "paid" || row.status === "completed"
+                                ? router.push(`/transactions`)
+                                : handleViewModelOpen(row);
+                          }}
                           sx={{
                             borderColor: theme.palette.text.primary,
                             "&:hover": {
@@ -695,40 +724,67 @@ const PaymentLinksTable = ({
                           }}
                         >
                           <Image
-                            src={EditIcon}
-                            alt="Edit Icon"
+                            src={EyeIcon}
+                            alt=""
                             width={isMobile ? 12 : 20}
-                            height={isMobile ? 12 : 16}
+                            height={isMobile ? 12 : 14}
                             draggable={false}
                             className="themed-icon"
                           />
                         </CopyButton>
+                      </Tooltip>
+                      {row.status !== "expired" && row.status !== "paid" && row.status !== "completed" && (
+                        <Tooltip title={t("editLinkTooltip") || "Edit link"} arrow>
+                          <CopyButton
+                            aria-label={t("editLinkTooltip") || "Edit link"}
+                            onClick={() => router.push(`/pay-links/${row?.id}`)}
+                            sx={{
+                              borderColor: theme.palette.text.primary,
+                              "&:hover": {
+                                backgroundColor: "transparent",
+                                boxShadow: "none",
+                              },
+                            }}
+                          >
+                            <Image
+                              src={EditIcon}
+                              alt=""
+                              width={isMobile ? 12 : 20}
+                              height={isMobile ? 12 : 16}
+                              draggable={false}
+                              className="themed-icon"
+                            />
+                          </CopyButton>
+                        </Tooltip>
                       )}
                       {row.status !== "expired" && row.status !== "paid" && row.status !== "completed" && (
-                        <CopyButton
-                          onClick={() => {
-                            setDeleteModel(true);
-                            setDeletId(row.id);
-                          }}
-                          sx={{
-                            borderColor: theme.palette.text.primary,
-                            "&:hover": {
-                              backgroundColor: "transparent",
-                              boxShadow: "none",
-                            },
-                          }}
-                        >
-                          <Image
-                            src={TrashIcon}
-                            alt="Trash Icon"
-                            width={isMobile ? 12 : 20}
-                            height={isMobile ? 12 : 16}
-                            draggable={false}
-                            style={{
-                              filter: "brightness(0) saturate(100%) invert(27%) sepia(86%) saturate(5000%) hue-rotate(355deg) brightness(97%) contrast(120%)",
+                        <Tooltip title={t("deleteLinkTooltip") || "Delete link"} arrow>
+                          <CopyButton
+                            aria-label={t("deleteLinkTooltip") || "Delete link"}
+                            onClick={() => {
+                              setDeleteModel(true);
+                              setDeletId(row.id);
                             }}
-                          />
-                        </CopyButton>
+                            sx={{
+                              borderColor: theme.palette.text.primary,
+                              "&:hover": {
+                                backgroundColor: "transparent",
+                                boxShadow: "none",
+                              },
+                            }}
+                          >
+                            <Image
+                              src={TrashIcon}
+                              alt=""
+                              width={isMobile ? 12 : 20}
+                              height={isMobile ? 12 : 16}
+                              draggable={false}
+                              style={{
+                                filter: "brightness(0) saturate(100%) invert(27%) sepia(86%) saturate(5000%) hue-rotate(355deg) brightness(97%) contrast(120%)",
+                              }}
+                            />
+                          </CopyButton>
+                        </Tooltip>
                       )}
                       </Box>
                     </TableBodyCell>

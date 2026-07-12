@@ -38,6 +38,10 @@ const companyInitialState: ICompanyReducer = {
   companyList: [],
   loading: false,
   fetched: false,
+  // F4: distinguish "not yet fetched" from "fetch failed" so pages can render
+  // a retry banner instead of the empty/onboarding gate when the network is
+  // flaky or the API is rate-limited.
+  fetchError: false as boolean,
   taxValidation: null,
   selectedCompanyId: null,
   // Field-hinted error from the most recent addCompany failure.
@@ -55,6 +59,8 @@ const companyReducer = (state = companyInitialState, action: ReducerAction) => {
       return {
         ...state,
         loading: true,
+        // F4: reset fetchError when a new fetch is in progress
+        fetchError: false,
         // Clear stale field-hinted errors when a new attempt starts
         createError: null,
         createErrorField: null,
@@ -116,6 +122,7 @@ const companyReducer = (state = companyInitialState, action: ReducerAction) => {
         ...state,
         loading: false,
         fetched: true,
+        fetchError: false,
         companyList: payload,
         selectedCompanyId: selected,
       };
@@ -145,6 +152,9 @@ const companyReducer = (state = companyInitialState, action: ReducerAction) => {
         ...state,
         loading: false,
         fetched: true,
+        // F4: mark fetchError so UIs can distinguish an API failure from a
+        // genuinely empty list. If we already have data cached, keep it.
+        fetchError: true,
       };
 
     case COMPANY_CREATE_ERROR:

@@ -180,11 +180,17 @@ const ReferralAndKnowledge = ({ isMobile }: { isMobile: boolean }) => {
             width: "100%",
             height: "100%",
             userSelect: "none",
+            // F22: The BG overlay is a light logo watermark PNG. On dark
+            // sidebar backgrounds it reads as a rendering glitch. Dim + blend
+            // it so it becomes a subtle texture rather than a bright patch.
+            opacity: (t) => (t.palette.mode === "dark" ? 0.18 : 0.55),
+            mixBlendMode: (t) => (t.palette.mode === "dark" ? "screen" : "normal") as any,
+            pointerEvents: "none",
           }}
         >
           <Image
             src={BGOverlay}
-            alt="BG Overlay"
+            alt=""
             width={82}
             height={100}
             draggable={false}

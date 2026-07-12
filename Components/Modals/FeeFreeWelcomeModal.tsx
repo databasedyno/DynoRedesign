@@ -163,6 +163,35 @@ const FeeFreeWelcomeModal: React.FC = () => {
     router.push("/create-pay-link");
   };
 
+  // F5: Prevent stacking with the "Create Your Company" onboarding wizard
+  // (or any other blocking Dialog). If a MUI Dialog is already open when this
+  // modal wants to show itself, wait for that Dialog to close before opening.
+  // Keeps the celebration modal on-screen but sequences it AFTER onboarding.
+  useEffect(() => {
+    if (typeof window === "undefined" || !open) return;
+    const other = () =>
+      Array.from(
+        document.querySelectorAll<HTMLElement>(
+          '.MuiDialog-root:not([aria-hidden="true"])'
+        )
+      ).filter((n) => !n.querySelector('[data-testid="fee-free-welcome-modal"]'));
+
+    // If another Dialog is open at mount, hide until it's gone.
+    if (other().length > 0) {
+      const prevOpen = open;
+      setOpen(false);
+      const obs = new MutationObserver(() => {
+        if (other().length === 0) {
+          // Another modal closed — safe to show the celebration now.
+          setOpen(prevOpen);
+          obs.disconnect();
+        }
+      });
+      obs.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["aria-hidden"] });
+      return () => obs.disconnect();
+    }
+  }, [open]);
+
   // Belt-and-suspenders: even if `open` somehow got set true, refuse to render
   // when there's nothing left in the trial. Guards against any future code path
   // that flips `open` without re-checking the balance.

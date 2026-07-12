@@ -257,16 +257,21 @@ const Tile: React.FC<TileProps> = ({
         ) : (
           <>
             {showDelta && <DeltaChip change={changePercent as number} />}
-            <Typography
-              sx={{
-                fontFamily: "var(--font-sans)",
-                fontSize: isMobile ? "11px" : "12px",
-                color: theme.palette.text.secondary,
-                lineHeight: 1.3,
-              }}
-            >
-              {meta || changeLabel}
-            </Typography>
+            {/* F7: only render the trailing label when a delta chip is shown
+                OR meta is explicitly set. Otherwise a dangling "vs yesterday"
+                remains next to a $0 value with no delta chip in front of it. */}
+            {(showDelta || meta) && (
+              <Typography
+                sx={{
+                  fontFamily: "var(--font-sans)",
+                  fontSize: isMobile ? "11px" : "12px",
+                  color: theme.palette.text.secondary,
+                  lineHeight: 1.3,
+                }}
+              >
+                {meta || changeLabel}
+              </Typography>
+            )}
           </>
         )}
       </Box>
@@ -324,7 +329,10 @@ const HeroMetrics: React.FC<HeroMetricsProps> = ({
           testId="hero-tile-total-volume"
           label={t("heroLifetimeVolume")}
           value={totalVolumeFormatted || `${currencySymbol}0.00`}
-          changePercent={volumeChangePercent}
+          /* F7: "Lifetime Volume" is a cumulative metric — it cannot decline
+             month-over-month. Suppress the misleading delta chip here. If a
+             month-over-month comparison is needed, add a separate "Volume
+             this month" tile with its own delta. */
           changeLabel={t("vsLastMonth")}
           icon={<TrendingUpRounded sx={{ fontSize: 18 }} />}
           loading={loading}
