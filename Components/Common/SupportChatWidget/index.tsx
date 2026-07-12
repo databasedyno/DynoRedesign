@@ -402,6 +402,95 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
     return () => obs.disconnect();
   }, []);
 
+  // F1: A fixed bottom-right launcher inevitably overlaps bottom-right page
+  // content at some scroll offsets (e.g. the Recent Transactions "View all"
+  // link on the mobile dashboard). Rather than occlude a tappable control, we
+  // detect — on small screens only — whether an interactive element sits
+  // directly beneath the FAB and, if so, get out of the way (hide) until the
+  // area is clear again. Desktop keeps the launcher always visible (ample
+  // margins; the audit only flagged mobile).
+  const [occluding, setOccluding] = useState(false);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const FAB_SIZE = 56;
+    const rightPx = 16;
+    const bottomPx = layout === "client" ? 108 : 24;
+    let raf = 0;
+
+    const insideChat = (node: Element | null): boolean => {
+      let el: Element | null = node;
+      while (el) {
+        const tid = el.getAttribute?.("data-testid");
+        if (tid === "support-chat-button" || tid === "support-chat-panel") return true;
+        el = el.parentElement;
+      }
+      return false;
+    };
+    const isInteractive = (node: Element | null): boolean => {
+      let el: Element | null = node;
+      let hops = 0;
+      while (el && hops < 6) {
+        const tag = el.tagName;
+        if (tag === "A" && (el as HTMLAnchorElement).getAttribute("href")) return true;
+        if (tag === "BUTTON" && !(el as HTMLButtonElement).disabled) return true;
+        const role = el.getAttribute?.("role");
+        if (role === "button" || role === "link" || role === "tab") return true;
+        el = el.parentElement;
+        hops++;
+      }
+      return false;
+    };
+
+    const check = () => {
+      raf = 0;
+      try {
+        if (window.innerWidth > 900 || open) {
+          setOccluding(false);
+          return;
+        }
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+        const cx = vw - rightPx - FAB_SIZE / 2;
+        const top = vh - bottomPx - FAB_SIZE;
+        const bottom = vh - bottomPx;
+        const samples: Array<[number, number]> = [
+          [cx, (top + bottom) / 2],
+          [cx, top + 8],
+          [cx, bottom - 8],
+        ];
+        let hit = false;
+        for (const [x, y] of samples) {
+          const stack = document.elementsFromPoint(x, y);
+          for (const node of stack) {
+            if (insideChat(node)) continue; // ignore the FAB / panel themselves
+            // First non-chat element in the z-stack = what's directly beneath.
+            if (isInteractive(node)) hit = true;
+            break;
+          }
+          if (hit) break;
+        }
+        setOccluding(hit);
+      } catch {
+        setOccluding(false);
+      }
+    };
+    const schedule = () => {
+      if (raf) return;
+      raf = window.requestAnimationFrame(check);
+    };
+    schedule();
+    window.addEventListener("scroll", schedule, { passive: true, capture: true });
+    window.addEventListener("resize", schedule);
+    const obs = new MutationObserver(schedule);
+    obs.observe(document.body, { childList: true, subtree: true });
+    return () => {
+      window.removeEventListener("scroll", schedule, { capture: true } as any);
+      window.removeEventListener("resize", schedule);
+      obs.disconnect();
+      if (raf) window.cancelAnimationFrame(raf);
+    };
+  }, [open, layout]);
+
   const inputSx = {
     width: "100%",
     fontFamily: "var(--font-sans)",
@@ -887,7 +976,7 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
       )}
 
       {/* ── Floating launcher button ── */}
-      {!suppressed && (
+      {!suppressed && !occluding && (
       <Tooltip title={open ? "Close support chat" : "Chat with support"}>
         <IconButton
           data-testid="support-chat-button"

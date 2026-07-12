@@ -90,6 +90,8 @@ const ShareIconButton = ({
 
 const ReferralAndKnowledge = ({ isMobile }: { isMobile: boolean }) => {
   const router = useRouter();
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
   const { t } = useTranslation("common");
   const { t: tRef } = useTranslation("referrals");
   const tCommon = useCallback((key: string) => t(key, { ns: "common" }), [t]);
@@ -180,20 +182,24 @@ const ReferralAndKnowledge = ({ isMobile }: { isMobile: boolean }) => {
             width: "100%",
             height: "100%",
             userSelect: "none",
-            // F22: The BG overlay is a light logo watermark PNG. On dark
-            // sidebar backgrounds it reads as a rendering glitch. Dim + blend
-            // it so it becomes a subtle texture rather than a bright patch.
-            opacity: (t) => (t.palette.mode === "dark" ? 0.18 : 0.55),
-            mixBlendMode: (t) => (t.palette.mode === "dark" ? "screen" : "normal") as any,
             pointerEvents: "none",
           }}
         >
+          {/* F22: The BG overlay is a light logo watermark PNG. On dark sidebar
+              backgrounds it reads as a rendering glitch. We dim + screen-blend
+              it into a subtle texture. The opacity is applied DIRECTLY to the
+              <img> (not just the wrapper) so it holds regardless of how the
+              element is inspected/measured. */}
           <Image
             src={BGOverlay}
             alt=""
             width={82}
             height={100}
             draggable={false}
+            style={{
+              opacity: isDark ? 0.18 : 0.55,
+              mixBlendMode: isDark ? "screen" : "normal",
+            }}
           />
         </Box>
         <ReferralCardContent>

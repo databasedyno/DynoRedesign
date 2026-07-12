@@ -86,11 +86,11 @@ User requested "fix all" issues from the UX audit report (24 severity-ranked fin
 ### frontend
   - task: "UX Audit P0/P1/P2 fixes (F1, F2, F3, F4, F5, F7, F10, F12, F13, F15, F16, F22)"
     implemented: true
-    working: false
+    working: "NA"
     file: "Components/Common/SupportChatWidget/index.tsx, styles/globals.css, Components/Page/Payment-link/PaymentLinksTable.tsx, Redux/Reducers/companyReducer.ts, pages/create-pay-link.tsx, Components/Modals/FeeFreeWelcomeModal.tsx, Components/Page/Dashboard/HeroMetrics.tsx, Components/Page/Creator/CreatorProfile.tsx, pages/invoices.tsx, pages/documentation.tsx, Components/UI/AuthLayout/TitleDescription/index.tsx, Components/UI/ThemeToggle/index.tsx, Components/Layout/ReferralAndKnowledge/index.tsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
@@ -98,12 +98,16 @@ User requested "fix all" issues from the UX audit report (24 severity-ranked fin
       - working: false
         agent: "testing"
         comment: "UX AUDIT FIX TESTING COMPLETE (2026-07-12). Tested 12 fixes across Mobile 390×844 and Desktop 1440×900. RESULTS: 8 PASS, 4 FAIL. CRITICAL FAILURES: (1) F1 - Chat FAB overlaps 'View all' link on dashboard mobile despite correct bottom positioning (108px). (2) F5 - Stacked modals: Both FeeFreeWelcomeModal and CreateCompanyModal visible simultaneously on qa.empty dashboard (2 dialogs stacked). (3) F22 - Sidebar referral watermark in dark mode has opacity 1.0 (should be ≤0.2 per spec). (4) F10 - 'Explore Dynopay creators' button exists in code but test selector issue (minor). PASSES: F2 (focus rings 2px visible), F7 (Lifetime Volume no delta), F12 (invoices show $ sign), F13 (theme toggle 44×44), F15 (docs copy aria-label + screen reader), F16 (H1 semantics on auth pages), F10 (avatar 48px clearance). F3 (pay-links tooltips) could not be fully tested due to empty state. F4 (API failure banner) not testable as API working normally. See screenshots in .screenshots/ directory."
+      - working: "NA"
+        agent: "main"
+        comment: "SESSION 31 RE-FIX of the 4 remaining failures (rebuilt via `next build`, standalone, BUILD_EXIT=0). (F1) Components/Common/SupportChatWidget/index.tsx — added collision-aware auto-hide: on small screens (<=900px) a rAF-throttled scroll/resize/MutationObserver samples 3 points (center + top-edge + bottom-edge) inside the FAB rect via document.elementsFromPoint; if the element DIRECTLY beneath the FAB (first non-chat node in the z-stack) is an <a href>/<button:not disabled>/[role=button|link|tab], the FAB unmounts (`!suppressed && !occluding`) so it never occludes a tappable control (e.g. Recent Transactions 'View all'), reappearing once the area is clear. Forced off while chat panel open or on desktop. (F5) Components/Modals/FeeFreeWelcomeModal.tsx — replaced the fragile ONE-SHOT deferral (only checked when `open` flipped → race let both stack) with a CONTINUOUS gate: an always-on MutationObserver tracks whether any OTHER `.MuiDialog-root:not([aria-hidden=true])` (excluding the fee-free modal itself) is present; render guard now `if (!open || otherDialogOpen) return null`, so the celebration is always sequenced AFTER the Create Company / Add Wallet onboarding dialogs. (F22) Components/Layout/ReferralAndKnowledge/index.tsx — opacity (0.18 dark / 0.55 light) + mixBlendMode(screen dark) now applied DIRECTLY to the <img> via style={{}} (was only on the wrapper Box, so element-level measurement read 1.0). Wrapper Box neutralized to avoid double-dim. (F10) Components/Page/Creator/CreatorProfile.tsx — added data-testid='creator-explore-cta' to the empty-state 'Explore Dynopay creators' button for reliable detection (was a selector/arrow-char artifact). Please re-test F1, F5, F22, F10 (Mobile 390×844 + Desktop 1440×900). QA logins in test_credentials.md: hostbay@moxx.co/Katiekendra123@ (data-rich, has recent txns → best for F1), qa.empty.1782626169@dynopaytest.com/QaEmpty#2026 (fresh onboarding → best for F5)."
 
 ### test_plan
   current_focus:
-    - "Fix F1 Chat FAB overlap issue"
-    - "Fix F5 Stacked modals issue"
-    - "Fix F22 Sidebar watermark opacity in dark mode"
+    - "Re-test F1 Chat FAB overlap (collision-aware auto-hide)"
+    - "Re-test F5 Stacked modals (continuous dialog gate)"
+    - "Re-test F22 Sidebar watermark opacity in dark mode (dimmed on <img>)"
+    - "Re-test F10 Explore Dynopay creators CTA (data-testid=creator-explore-cta)"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"

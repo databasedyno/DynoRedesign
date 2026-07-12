@@ -163,39 +163,39 @@ const FeeFreeWelcomeModal: React.FC = () => {
     router.push("/create-pay-link");
   };
 
-  // F5: Prevent stacking with the "Create Your Company" onboarding wizard
-  // (or any other blocking Dialog). If a MUI Dialog is already open when this
-  // modal wants to show itself, wait for that Dialog to close before opening.
-  // Keeps the celebration modal on-screen but sequences it AFTER onboarding.
+  // F5: Prevent stacking with the onboarding wizard (Create Company / Add
+  // Wallet) or ANY other blocking Dialog. The previous implementation checked
+  // only ONCE — the moment `open` flipped true — so if this celebration
+  // modal's fee-free fetch resolved BEFORE the onboarding Dialog mounted, both
+  // ended up stacked on screen. We now CONTINUOUSLY track whether another
+  // Dialog is present and gate rendering on it, re-evaluating on every relevant
+  // DOM mutation. The celebration is therefore always sequenced AFTER onboarding.
+  const [otherDialogOpen, setOtherDialogOpen] = useState(false);
   useEffect(() => {
-    if (typeof window === "undefined" || !open) return;
-    const other = () =>
+    if (typeof window === "undefined") return;
+    const hasOther = () =>
       Array.from(
         document.querySelectorAll<HTMLElement>(
           '.MuiDialog-root:not([aria-hidden="true"])'
         )
-      ).filter((n) => !n.querySelector('[data-testid="fee-free-welcome-modal"]'));
-
-    // If another Dialog is open at mount, hide until it's gone.
-    if (other().length > 0) {
-      const prevOpen = open;
-      setOpen(false);
-      const obs = new MutationObserver(() => {
-        if (other().length === 0) {
-          // Another modal closed — safe to show the celebration now.
-          setOpen(prevOpen);
-          obs.disconnect();
-        }
-      });
-      obs.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["aria-hidden"] });
-      return () => obs.disconnect();
-    }
-  }, [open]);
+      ).some((n) => !n.querySelector('[data-testid="fee-free-welcome-modal"]'));
+    const check = () => setOtherDialogOpen(hasOther());
+    check();
+    const obs = new MutationObserver(check);
+    obs.observe(document.body, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["aria-hidden"],
+    });
+    return () => obs.disconnect();
+  }, []);
 
   // Belt-and-suspenders: even if `open` somehow got set true, refuse to render
   // when there's nothing left in the trial. Guards against any future code path
-  // that flips `open` without re-checking the balance.
-  if (!open) return null;
+  // that flips `open` without re-checking the balance. Also hidden while any
+  // other blocking Dialog is open (F5 — no stacked modals).
+  if (!open || otherDialogOpen) return null;
   if (remaining <= 0) return null;
 
   const dark = theme.palette.mode === "dark";

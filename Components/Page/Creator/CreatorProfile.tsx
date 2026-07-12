@@ -301,6 +301,7 @@ const CreatorProfile = ({ creator, links }: { creator: CreatorData; links: Creat
             </Typography>
             {/* F10: give visitors a fallback action so this isn't a dead end */}
             <Button
+              data-testid="creator-explore-cta"
               disableElevation
               variant='outlined'
               onClick={() => { if (typeof window !== 'undefined') window.location.href = '/' }}
