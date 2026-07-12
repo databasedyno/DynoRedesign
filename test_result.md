@@ -110,6 +110,22 @@ User requested "fix all" issues from the UX audit report (24 severity-ranked fin
         agent: "main"
         comment: "companyReducer now tracks fetchError so pages can distinguish API failures from empty lists. No API contract changes; purely client-side reducer additive change."
 
+  - task: "Wallet reuse across companies — new endpoints (Session 32)"
+    implemented: true
+    working: true
+    file: "backend/controller/walletController.ts, backend/routes/walletRouter.ts"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Added 2 endpoints so a merchant creating a new company can reuse wallets from an existing company. (1) GET /api/wallet/reusable-wallets?exclude_company_id=<id> → 200 { data: [ { company_id, company_name, wallet_count, wallets:[{currency,label,wallet_name,wallet_address_preview}] } ] }. Reads SOURCE OF TRUTH = tbl_user_wallet (userWalletModel), grouped by company, excludes the target company; masks addresses (****last4). Verified live with hostbay: returns company 1 (13 wallets). (2) POST /api/wallet/copyWalletAddresses { source_company_id, target_company_id, currencies?[] } → copies selected wallets to target as INDEPENDENT copies (amount=0), creates in userWalletModel + mirrors to userWalletAddressModel, SKIPS currencies already on target (idempotent), invalidates wallet cache. Validates ownership of BOTH companies (403), same-company (400), missing params (400), empty source (404). No OTP (reusing own saved addresses). TEST NOTE: use QA test accounts (qa.empty.1782626169@dynopaytest.com / QaEmpty#2026, qa.onboard.1782585233@dynopaytest.com / QaOnboard#2026) for copy WRITE tests — do NOT create junk companies on the real hostbay@moxx.co account. Backend connects to LIVE prod DB. Also fixed feeWalletMonitor TRX thresholds (warn 100->60, crit 50->30, healthy 200->120) — settlement never defers at 94 TRX (only <5 TRX per cryptoSettlement.ts:2034); the 94 TRX WARNING was just an over-eager monitor alert."
+      - working: true
+        agent: "testing"
+        comment: "BACKEND TESTING COMPLETE (2026-07-12). Tested 2 new wallet reuse endpoints with 8 test scenarios. RESULTS: 8/8 PASS. ENDPOINT 1 - GET /api/wallet/reusable-wallets: (T1) WITHOUT exclude_company_id returns company_id=1 with 13 wallets, all addresses correctly masked (****XXXX format). (T2) WITH exclude_company_id=1 correctly excludes company 1 from results. (T3) WITHOUT Authorization header correctly returns 401 Unauthorized. ENDPOINT 2 - POST /api/wallet/copyWalletAddresses: (T4) Empty body correctly returns 400 with 'source_company_id and target_company_id are required' message. (T5) Same source/target company correctly returns 400 with 'must be different' message. (T6) Unowned target company correctly returns 403 Forbidden. (T7) Happy path: Successfully copied 1 wallet from company A (id=2) to company B (id=4) using QA account qa.onboard.1782585233@dynopaytest.com. Verified wallet appears in target company via GET /api/wallet/getWallet. Addresses properly masked in response. (T8) Idempotency: Second copy call correctly skipped 1 already-existing currency with reason 'already exists on target company'. All validation, authorization, masking, and idempotency logic working correctly. Test used LIVE production database with QA test accounts as specified. Created test company (id=4) for QA account during testing. Test file: /app/backend_test.py."
+
+
 ### frontend
   - task: "UX Audit P0/P1/P2 fixes (F1, F2, F3, F4, F5, F7, F10, F12, F13, F15, F16, F22)"
     implemented: true

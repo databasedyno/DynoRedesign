@@ -2695,7 +2695,7 @@ const getUserAnalytics = async (
     const paymentSuccessRates = await sequelize.query(
       `select count(*) filter (where status='successful') as successful_payments,
       count(*) filter (where status = 'failed') as failed_payments,
-	  count(*) filter (where status = 'pending') as pending_payments
+          count(*) filter (where status = 'pending') as pending_payments
     from tbl_user_transaction ut ${where}`,
       {
         type: QueryTypes.SELECT,
@@ -2707,10 +2707,10 @@ const getUserAnalytics = async (
     const tempTrends: unknown[] = await sequelize.query(
       `select 
         to_char("createdAt", 'Month') as month_name,
-		extract(month from "createdAt") as month,
+                extract(month from "createdAt") as month,
         count(*) as invoice_count, 
         sum(base_amount) as amount,
-		base_currency
+                base_currency
       from tbl_user_transaction ut
       where ${where && `extract(year from ut."createdAt")=${safeYear} and`
       } ut.user_id=${safeUserId}${companyFilterSQL}
@@ -4554,6 +4554,181 @@ const encryptPayload = async (req: express.Request, res: express.Response) => {
   }
 };
 
+/**
+ * GET /api/wallet/reusable-wallets?exclude_company_id=123
+ * Returns the caller's OTHER companies that have at least one saved wallet,
+ * each with its wallet list (masked addresses). Powers the "Reuse wallets from
+ * an existing company" selector shown during new-company onboarding and on the
+ * Wallets page. Read-only; no OTP.
+ */
+const getReusableWallets = async (req: express.Request, res: express.Response) => {
+  const userData = jwt.decode(res.locals.token) as IUserType;
+  try {
+    const user_id = userData.user_id;
+    const excludeCompanyId = req.query.exclude_company_id;
+
+    // tbl_user_wallet (userWalletModel) is the authoritative, displayed set of
+    // a merchant's configured wallets per company. (tbl_user_addresses is a
+    // secondary address book that isn't always populated for older accounts.)
+    const wallets = await userWalletModel.findAll({
+      where: { user_id },
+      order: [["company_id", "ASC"]],
+    });
+
+    const companies = await companyModel.findAll({
+      where: { user_id },
+      attributes: ["company_id", "company_name"],
+    });
+    const nameMap = new Map<number, string>();
+    companies.forEach((c: { dataValues: { company_id: number; company_name: string } }) =>
+      nameMap.set(Number(c.dataValues.company_id), c.dataValues.company_name)
+    );
+
+    // Group wallets by company, skipping the excluded (target) company.
+    const grouped = new Map<number, Array<Record<string, unknown>>>();
+    for (const w of wallets) {
+      const cid = w.dataValues.company_id;
+      if (cid === null || cid === undefined) continue;
+      if (excludeCompanyId && String(cid) === String(excludeCompanyId)) continue;
+      if (!grouped.has(cid)) grouped.set(cid, []);
+      const addr: string = w.dataValues.wallet_address || "";
+      grouped.get(cid)!.push({
+        currency: w.dataValues.wallet_type,
+        label: w.dataValues.wallet_name,
+        wallet_name: w.dataValues.wallet_name,
+        wallet_address_preview: addr.length >= 4 ? `****${addr.slice(-4)}` : addr,
+      });
+    }
+
+    const result = Array.from(grouped.entries()).map(([cid, list]) => ({
+      company_id: cid,
+      company_name: nameMap.get(Number(cid)) || `Company #${cid}`,
+      wallet_count: list.length,
+      wallets: list,
+    }));
+
+    const message =
+      result.length === 0
+        ? "No other companies with saved wallets to reuse."
+        : `Found ${result.length} compan${result.length === 1 ? "y" : "ies"} with reusable wallets`;
+    successResponseHelper(res, 200, message, result);
+  } catch (e) {
+    handleControllerError(res, e, walletLogger, { user_id: userData.user_id, email: userData.email });
+  }
+};
+
+/**
+ * POST /api/wallet/copyWalletAddresses
+ * Body: { source_company_id, target_company_id, currencies?: string[] }
+ * Copies the source company's saved wallet addresses to the target company as
+ * INDEPENDENT copies (same address, fresh balance/stats). Idempotent: skips any
+ * currency the target company already has. No OTP — the merchant is reusing
+ * their own, already-saved addresses.
+ */
+const copyWalletAddresses = async (req: express.Request, res: express.Response) => {
+  const userData = jwt.decode(res.locals.token) as IUserType;
+  try {
+    const user_id = userData.user_id;
+    const { source_company_id, target_company_id, currencies } = req.body;
+
+    if (!source_company_id || !target_company_id) {
+      return errorResponseHelper(res, 400, "source_company_id and target_company_id are required.");
+    }
+    if (String(source_company_id) === String(target_company_id)) {
+      return errorResponseHelper(res, 400, "Source and target company must be different.");
+    }
+
+    // Ownership checks for BOTH companies (each sends its own 403 on failure).
+    const sourceCompany = await validateCompanyOwnership(res, source_company_id, user_id);
+    if (!sourceCompany) return;
+    const targetCompany = await validateCompanyOwnership(res, target_company_id, user_id);
+    if (!targetCompany) return;
+
+    const sourceWallets = await userWalletModel.findAll({
+      where: { user_id, company_id: source_company_id },
+    });
+    if (sourceWallets.length === 0) {
+      return errorResponseHelper(res, 404, "The selected company has no saved wallets to copy.");
+    }
+
+    const wanted: string[] | null =
+      Array.isArray(currencies) && currencies.length > 0 ? currencies.map((c: string) => String(c)) : null;
+
+    const existingTarget = await userWalletModel.findAll({
+      where: { user_id, company_id: target_company_id },
+      attributes: ["wallet_type"],
+    });
+    const existingCurrencies = new Set(
+      existingTarget.map((w: { dataValues: { wallet_type: string } }) => w.dataValues.wallet_type)
+    );
+
+    const copied: Array<{ currency: string; wallet_address_preview: string }> = [];
+    const skipped: Array<{ currency: string; reason: string }> = [];
+
+    for (const w of sourceWallets) {
+      const currency = w.dataValues.wallet_type;
+      const wallet_address = w.dataValues.wallet_address;
+      const currency_type = w.dataValues.currency_type || "CRYPTO";
+      const wallet_name = w.dataValues.wallet_name;
+      const label = wallet_name;
+
+      if (wanted && !wanted.includes(currency)) continue;
+      if (existingCurrencies.has(currency)) {
+        skipped.push({ currency, reason: "already exists on target company" });
+        continue;
+      }
+
+      // Primary record: userWalletModel (dashboard/wallet page) with fresh balance.
+      await userWalletModel.create({
+        user_id,
+        company_id: target_company_id,
+        wallet_name: wallet_name || generateWalletName(),
+        amount: 0,
+        wallet_type: currency,
+        wallet_address,
+        currency_type,
+      });
+
+      // Secondary record: address book (kept consistent with addWalletAddress).
+      try {
+        await userWalletAddressModel.create({
+          wallet_address,
+          currency,
+          label: label ?? currency,
+          user_id,
+          company_id: target_company_id,
+          wallet_name: wallet_name || generateWalletName(),
+        });
+      } catch (addrErr) {
+        walletLogger.warn(
+          `[copyWalletAddresses] address-book mirror failed for ${currency} (non-fatal): ${(addrErr as Error).message}`
+        );
+      }
+
+      const addr = wallet_address || "";
+      copied.push({ currency, wallet_address_preview: addr.length >= 4 ? `****${addr.slice(-4)}` : addr });
+      existingCurrencies.add(currency); // guard against duplicate source rows
+    }
+
+    await invalidateWalletCache(user_id);
+
+    walletLogger.info(
+      `[copyWalletAddresses] Copied ${copied.length} wallet(s) from company ${source_company_id} -> ${target_company_id} for user ${user_id} (skipped ${skipped.length})`
+    );
+
+    const srcName = (sourceCompany as { company_name?: string }).company_name || `Company #${source_company_id}`;
+    const message =
+      copied.length === 0
+        ? "No wallets copied — all selected currencies already exist on this company."
+        : `${copied.length} wallet${copied.length === 1 ? "" : "s"} copied from ${srcName}.`;
+
+    successResponseHelper(res, 200, message, { copied, skipped, source_company_name: srcName });
+  } catch (e) {
+    handleControllerError(res, e, walletLogger, { user_id: userData.user_id, email: userData.email });
+  }
+};
+
+
 export default {
   getWallet,
   addFunds,
@@ -4592,4 +4767,7 @@ export default {
   sendDeletePaymentWalletOTP,
   deletePaymentWalletWithOTP,
   encryptPayload,
+  // New: reuse wallets across companies
+  getReusableWallets,
+  copyWalletAddresses,
 };

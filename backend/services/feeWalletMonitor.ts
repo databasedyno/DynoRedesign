@@ -48,9 +48,9 @@ const CHAIN_CONFIGS: ChainConfig[] = [
     chain: 'TRX',
     displayName: 'TRX',
     address: process.env.TRX_FEE_WALLET || '',
-    criticalThreshold: Number(process.env.TRX_FEE_WALLET_CRITICAL || 50),
-    warningThreshold: Number(process.env.TRX_FEE_WALLET_WARNING || 100),
-    healthyThreshold: Number(process.env.TRX_FEE_WALLET_HEALTHY || 200),
+    criticalThreshold: Number(process.env.TRX_FEE_WALLET_CRITICAL || 30),
+    warningThreshold: Number(process.env.TRX_FEE_WALLET_WARNING || 60),
+    healthyThreshold: Number(process.env.TRX_FEE_WALLET_HEALTHY || 120),
     supportsStaking: true,
   },
   {

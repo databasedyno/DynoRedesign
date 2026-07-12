@@ -11,6 +11,9 @@ const walletRouter = express.Router();
 // READ - Get wallet addresses (No OTP required)
 walletRouter.get("/getWallet", walletController.getWallet);
 walletRouter.get("/getWalletAddresses", walletController.getWalletAddresses);
+// Reuse wallets across companies (new-company onboarding + Wallets page)
+walletRouter.get("/reusable-wallets", walletController.getReusableWallets);
+walletRouter.post("/copyWalletAddresses", walletController.copyWalletAddresses);
 
 // CREATE - Add wallet address (2-step OTP flow)
 // Step 1: Validate address and send OTP

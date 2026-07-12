@@ -6,6 +6,7 @@ import CustomButton from "@/Components/UI/Buttons";
 import CryptocurrencySelector from "@/Components/UI/CryptocurrencySelector";
 import OtpDialog from "@/Components/UI/OtpDialog";
 import PopupModal from "@/Components/UI/PopupModal";
+import WalletReuseSelector from "@/Components/UI/WalletReuseSelector";
 import useIsMobile from "@/hooks/useIsMobile";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { UserAction } from "@/Redux/Actions";
@@ -659,6 +660,17 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
           </Box>
         ) : (
         <>
+        {!editMode && (
+          <WalletReuseSelector
+            targetCompanyId={companyId}
+            onCopied={(n) => {
+              if (n > 0) {
+                setWalletsAdded((p) => p + n);
+                onWalletAdded?.();
+              }
+            }}
+          />
+        )}
         <Typography
           sx={{
             fontSize: isMobile ? "13px" : "15px",
