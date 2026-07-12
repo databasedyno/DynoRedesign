@@ -1,3 +1,28 @@
+## Session 33: UX re-fix verification (F1/F2/F3/F4/F5/F10/F22) + 2 bug fixes (2026-06)
+
+### Context
+User asked whether the previously-reported UX issues were actually fixed (F1 mobile chat-FAB occlusion, F2 login focus rings, F3 unlabeled pay-links actions, F4 API-failure false onboarding gate). Session 31 had re-fixed F1/F5/F10/F22 but never re-tested. Ran frontend testing_agent (iteration_28.json).
+
+### Result: 7/7 PASS
+- F1 ✅ chat FAB auto-hides/repositions on mobile — 'View all' link is topmost hit target (not the FAB).
+- F2 ✅ 2px focus-visible ring on login controls (keyboard only).
+- F3 ✅ pay-links row actions have aria-label + tooltip (desktop + mobile).
+- F4 ✅ forced /api/company** 500 → 'Couldn't load your account' + Retry banner shown; onboarding gate NOT shown.
+- F5 ✅ only 1 MUI dialog visible on fresh qa.empty dashboard (FeeFreeWelcomeModal deferred).
+- F10 ✅ creator public page has data-testid=creator-explore-cta; avatar clearance OK.
+- F22 ✅ dark-mode sidebar watermark <img> computed opacity=0.18 + mixBlendMode=screen.
+
+### Two bugs found by testing_agent + FIXED this session
+1. MEDIUM — `AutoAwesomeRounded is not defined` runtime ReferenceError on dashboard. Root cause: `Components/Page/Dashboard/EmptyStatePanel.tsx` used the icon (line ~121) without importing it. FIX: added `AutoAwesomeRounded` to the `@mui/icons-material` import block. VERIFIED: dashboard reloads with 0 AutoAwesome refs / 0 ReferenceError in console.
+2. LOW — F3 aria-label/tooltip showed raw i18n keys ('copyLinkTooltip' etc.) because `t(key) || "fallback"` never falls back (t returns the key). FIX: `Components/Page/Payment-link/PaymentLinksTable.tsx` — all 5 tooltip strings changed to `t(key, { defaultValue: "..." })` (self-heals across all 6 locales). VERIFIED via `next build` PASS + frontend restart 200.
+
+### Verification
+- `next build` standalone PASS (436 kB shared JS); frontend restarted, external / = 200.
+- Report: /app/test_reports/iteration_28.json. retest_needed=false.
+
+---
+
+
 ## Session 32: Production payment audit + backend bug fixes (2026-07-12)
 
 ### Context

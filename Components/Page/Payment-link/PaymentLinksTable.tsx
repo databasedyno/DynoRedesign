@@ -438,9 +438,9 @@ const PaymentLinksTable = ({
                     </Typography>
                     <Box sx={{ display: "flex", gap: "6px" }}>
                       {row.status !== "expired" && (
-                        <Tooltip title={t("copyLinkTooltip") || "Copy link"} arrow>
+                        <Tooltip title={t("copyLinkTooltip", { defaultValue: "Copy link" })} arrow>
                           <CopyButton
-                            aria-label={t("copyLinkTooltip") || "Copy link"}
+                            aria-label={t("copyLinkTooltip", { defaultValue: "Copy link" })}
                             onClick={() => handleCopy(row.paymentUrl)}
                             sx={{ width: 32, height: 32, minWidth: 32, p: "6px" }}
                           >
@@ -451,20 +451,20 @@ const PaymentLinksTable = ({
                       <Tooltip
                         title={
                           row.status === "expired"
-                            ? (t("editLinkTooltip") || "Edit link")
+                            ? (t("editLinkTooltip", { defaultValue: "Edit link" }))
                             : row.status === "paid" || row.status === "completed"
-                              ? (t("viewTransactionsTooltip") || "View transactions")
-                              : (t("viewLinkTooltip") || "View details")
+                              ? (t("viewTransactionsTooltip", { defaultValue: "View transactions" }))
+                              : (t("viewLinkTooltip", { defaultValue: "View details" }))
                         }
                         arrow
                       >
                         <CopyButton
                           aria-label={
                             row.status === "expired"
-                              ? (t("editLinkTooltip") || "Edit link")
+                              ? (t("editLinkTooltip", { defaultValue: "Edit link" }))
                               : row.status === "paid" || row.status === "completed"
-                                ? (t("viewTransactionsTooltip") || "View transactions")
-                                : (t("viewLinkTooltip") || "View details")
+                                ? (t("viewTransactionsTooltip", { defaultValue: "View transactions" }))
+                                : (t("viewLinkTooltip", { defaultValue: "View details" }))
                           }
                           onClick={() => {
                             row.status === "expired"
@@ -479,9 +479,9 @@ const PaymentLinksTable = ({
                         </CopyButton>
                       </Tooltip>
                       {row.status !== "expired" && row.status !== "paid" && row.status !== "completed" && (
-                        <Tooltip title={t("editLinkTooltip") || "Edit link"} arrow>
+                        <Tooltip title={t("editLinkTooltip", { defaultValue: "Edit link" })} arrow>
                           <CopyButton
-                            aria-label={t("editLinkTooltip") || "Edit link"}
+                            aria-label={t("editLinkTooltip", { defaultValue: "Edit link" })}
                             onClick={() => router.push(`/pay-links/${row?.id}`)}
                             sx={{ width: 32, height: 32, minWidth: 32, p: "6px", borderColor: theme.palette.text.primary }}
                           >
@@ -490,9 +490,9 @@ const PaymentLinksTable = ({
                         </Tooltip>
                       )}
                       {row.status !== "expired" && row.status !== "paid" && row.status !== "completed" && (
-                        <Tooltip title={t("deleteLinkTooltip") || "Delete link"} arrow>
+                        <Tooltip title={t("deleteLinkTooltip", { defaultValue: "Delete link" })} arrow>
                           <CopyButton
-                            aria-label={t("deleteLinkTooltip") || "Delete link"}
+                            aria-label={t("deleteLinkTooltip", { defaultValue: "Delete link" })}
                             onClick={() => {
                               setDeleteModel(true);
                               setDeletId(row.id);
@@ -677,8 +677,8 @@ const PaymentLinksTable = ({
                         }}
                       >
                       {row.status !== "expired" && (
-                        <Tooltip title={t("copyLinkTooltip") || "Copy link"} arrow>
-                          <CopyButton aria-label={t("copyLinkTooltip") || "Copy link"} onClick={() => handleCopy(row.paymentUrl)}>
+                        <Tooltip title={t("copyLinkTooltip", { defaultValue: "Copy link" })} arrow>
+                          <CopyButton aria-label={t("copyLinkTooltip", { defaultValue: "Copy link" })} onClick={() => handleCopy(row.paymentUrl)}>
                             <Image
                               src={CopyIcon}
                               alt=""
@@ -693,20 +693,20 @@ const PaymentLinksTable = ({
                       <Tooltip
                         title={
                           row.status === "expired"
-                            ? (t("editLinkTooltip") || "Edit link")
+                            ? (t("editLinkTooltip", { defaultValue: "Edit link" }))
                             : row.status === "paid" || row.status === "completed"
-                              ? (t("viewTransactionsTooltip") || "View transactions")
-                              : (t("viewLinkTooltip") || "View details")
+                              ? (t("viewTransactionsTooltip", { defaultValue: "View transactions" }))
+                              : (t("viewLinkTooltip", { defaultValue: "View details" }))
                         }
                         arrow
                       >
                         <CopyButton
                           aria-label={
                             row.status === "expired"
-                              ? (t("editLinkTooltip") || "Edit link")
+                              ? (t("editLinkTooltip", { defaultValue: "Edit link" }))
                               : row.status === "paid" || row.status === "completed"
-                                ? (t("viewTransactionsTooltip") || "View transactions")
-                                : (t("viewLinkTooltip") || "View details")
+                                ? (t("viewTransactionsTooltip", { defaultValue: "View transactions" }))
+                                : (t("viewLinkTooltip", { defaultValue: "View details" }))
                           }
                           onClick={() => {
                             row.status === "expired"
@@ -734,9 +734,9 @@ const PaymentLinksTable = ({
                         </CopyButton>
                       </Tooltip>
                       {row.status !== "expired" && row.status !== "paid" && row.status !== "completed" && (
-                        <Tooltip title={t("editLinkTooltip") || "Edit link"} arrow>
+                        <Tooltip title={t("editLinkTooltip", { defaultValue: "Edit link" })} arrow>
                           <CopyButton
-                            aria-label={t("editLinkTooltip") || "Edit link"}
+                            aria-label={t("editLinkTooltip", { defaultValue: "Edit link" })}
                             onClick={() => router.push(`/pay-links/${row?.id}`)}
                             sx={{
                               borderColor: theme.palette.text.primary,
@@ -758,9 +758,9 @@ const PaymentLinksTable = ({
                         </Tooltip>
                       )}
                       {row.status !== "expired" && row.status !== "paid" && row.status !== "completed" && (
-                        <Tooltip title={t("deleteLinkTooltip") || "Delete link"} arrow>
+                        <Tooltip title={t("deleteLinkTooltip", { defaultValue: "Delete link" })} arrow>
                           <CopyButton
-                            aria-label={t("deleteLinkTooltip") || "Delete link"}
+                            aria-label={t("deleteLinkTooltip", { defaultValue: "Delete link" })}
                             onClick={() => {
                               setDeleteModel(true);
                               setDeletId(row.id);

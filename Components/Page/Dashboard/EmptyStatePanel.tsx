@@ -2,6 +2,7 @@ import CustomButton from "@/Components/UI/Buttons";
 import useIsMobile from "@/hooks/useIsMobile";
 import {
   ArrowOutward,
+  AutoAwesomeRounded,
   PlayCircleFilledRounded,
   RocketLaunchRounded,
 } from "@mui/icons-material";
