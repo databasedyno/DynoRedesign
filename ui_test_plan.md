@@ -4,7 +4,7 @@
 - **Email**: nomadly@moxx.co
 - **Password**: Katiekendra123@
 - **Company**: Nomadly1
-- **Pod URL**: https://cred-provisioner.preview.emergentagent.com
+- **Pod URL**: https://secure-pay-40.preview.emergentagent.com
 
 ---
 
