@@ -17,7 +17,7 @@ import os
 import re
 import subprocess
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://instant-checkout-47.preview.emergentagent.com').rstrip('/')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://merchant-gateway-33.preview.emergentagent.com').rstrip('/')
 
 
 class TestBackendHealth:
