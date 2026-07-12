@@ -1,0 +1,62 @@
+{
+  "summary": "Session-31 UX re-fix verification (F1, F2, F3, F4, F5, F10, F22) via injected JWT + Playwright DOM/hit-test assertions on preview host 8d0200cf. ALL 7 CHECKS PASS.",
+  "results": {
+    "F1_dashboard_chat_fab_occlusion_mobile": {
+      "status": "PASS",
+      "measurement": "At 390x844 on /dashboard as hostbay@moxx.co, elementsFromPoint at 'View all' link center (306, 446) returned <P>'View all' as topmost hit (topIsLinkOrAncestor=true). Chat FAB is auto-hidden/repositioned (fabRect y=680, well below the 'View all' link at y=446 in Recent Transactions).",
+      "screenshot": "/app/.screenshots/f1_dashboard_mobile.jpg"
+    },
+    "F2_login_focus_visible": {
+      "status": "PASS",
+      "measurement": "Keyboard Tab navigation on /auth/login produces outline: 2px solid rgb(10,10,10) + boxShadow rgba(10,10,10,0.25) 0 0 0 2px on focused control (from :focus-visible in globals.css)."
+    },
+    "F3_paylinks_tooltip_aria": {
+      "status": "PASS",
+      "measurement": "/pay-links desktop table (hostbay, 4 rows) — every row action button exposes aria-label (copyLinkTooltip / viewLinkTooltip / editLinkTooltip / deleteLinkTooltip / viewTransactionsTooltip). 10+ labeled buttons detected in first 3 rows. NOTE: aria-label values are the i18n KEYS (e.g. 'copyLinkTooltip') rather than the translated strings — screen readers will read the key literally. Minor i18n issue, still meets accessible-name requirement.",
+      "screenshot": "/app/.screenshots/f3_paylinks_desktop.jpg"
+    },
+    "F4_create_paylink_company_fetch_failure": {
+      "status": "PASS",
+      "measurement": "With Playwright route interception forcing /api/company** to 500, /create-pay-link renders 'Couldn't load your account' banner + 'Retry' button. 'Create Your Company' onboarding gate is NOT shown (hasCreateCompanyGate=false, hasRetryBanner=true).",
+      "screenshot": "/app/.screenshots/f4_create_paylink_error.jpg"
+    },
+    "F5_onboarding_no_stacked_dialogs": {
+      "status": "PASS",
+      "measurement": "Fresh account qa.empty.1782626169@dynopaytest.com /dashboard → 9 .MuiDialog-root total, only 1 visible (Create Your Company). FeeFreeWelcomeModal is correctly deferred (render-guarded by otherDialogOpen).",
+      "screenshot": "/app/.screenshots/f5_onboarding_dialogs.jpg"
+    },
+    "F10_creator_public_page": {
+      "status": "PASS",
+      "measurement": "/hostbay at 390x844: element with data-testid='creator-explore-cta' present with text 'Explore Dynopay creators →'."
+    },
+    "F22_sidebar_watermark_dark_mode": {
+      "status": "PASS",
+      "measurement": "Dark mode (theme-mode=dark) sidebar ReferralAndKnowledge <img> (bg-overlay.png) has computed opacity=0.18 and mixBlendMode='screen' applied directly on the <img>."
+    }
+  },
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "PaymentLinksTable row action buttons", "issue": "aria-label uses raw i18n key names ('copyLinkTooltip', 'viewLinkTooltip', etc.) instead of translated strings — screen readers will announce the key literally. Wrap with t() in Components/Page/Payment-link/PaymentLinksTable.tsx (~L441-457).", "selector": "button[aria-label='copyLinkTooltip']", "priority": "LOW"},
+      {"component": "Dashboard runtime error", "issue": "Uncaught ReferenceError: AutoAwesomeRounded is not defined in dashboard chunk. Caught by ErrorBoundary but indicates a missing MUI icon import. Not blocking F1 verification but should be fixed.", "selector": "dashboard-66d00d7951c3e2e4.js", "priority": "MEDIUM"}
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [".screenshots/f1_dashboard_mobile.jpg", ".screenshots/f3_paylinks_desktop.jpg", ".screenshots/f4_create_paylink_error.jpg", ".screenshots/f5_onboarding_dialogs.jpg"],
+  "action_items": [
+    "OPTIONAL: Wrap row-action aria-label values in t() so screen readers announce translated text instead of raw i18n keys.",
+    "MEDIUM: Fix missing 'AutoAwesomeRounded' import in dashboard bundle (caught by ErrorBoundary but pollutes console)."
+  ],
+  "critical_code_review_comments": [
+    "F1 fix pattern (elementsFromPoint sampling + auto-unmount) works reliably; verified topmost hit at target link center is the link itself.",
+    "F4 retry banner text and lack of onboarding gate confirmed via forced 500 on /api/company** intercept — safe client-side simulation, no live DB writes.",
+    "F5 MutationObserver-based dialog gate correctly keeps welcome modal deferred; only 1 visible dialog even after full dashboard load."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (frontend-only)", "frontend": "100% (7/7)"},
+  "seed_data_creation": "None. Read-only verification with pre-minted JWTs from /app/scripts/ux_tokens.json. No companies/wallets/pay-links/payments created.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Session-31 re-fixes (F1 collision-aware FAB, F5 continuous dialog gate, F22 opacity-on-<img>, F10 data-testid) all verified. F3 aria-labels present but use raw i18n keys — minor a11y issue for main agent. Dashboard has an 'AutoAwesomeRounded is not defined' runtime error caught by ErrorBoundary; check ChatBubble/support widget imports. Preview host = 8d0200cf-65f6-4dfd-a2d1-85d5a5960c0f.preview.emergentagent.com. Use tokens from /app/scripts/ux_tokens.json (localStorage 'token'). Dark mode = localStorage 'theme-mode'=dark."
+}
