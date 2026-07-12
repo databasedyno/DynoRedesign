@@ -26,6 +26,9 @@ interface InvoiceData {
   crypto_currency: string;
   payment_terms: string;
   transaction_id: number;
+  // Session 36 v2 fields — optional so legacy v1 callers still type-check.
+  transaction_amount?: number | string;
+  invoice_version?: string;
 }
 
 /**

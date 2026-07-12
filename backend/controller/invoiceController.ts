@@ -14,9 +14,206 @@ import { userTransactionModel, companyModel, userModel } from "../models";
 import { apiLogger } from "../utils/loggers";
 import { generateInvoicePDF } from "../services/pdfService";
 import { sendInvoiceGeneratedEmail } from "../services/emailService";
-import { getFeeTiers, getTransactionFeePercent } from "../utils/feeConfigUtils";
+import { getFeeTiers, getTransactionFeePercent, FeeTier } from "../utils/feeConfigUtils";
 import { getCompanyBaseCurrency, getCurrencySymbol, convertToFiat } from "../utils/currencyUtils";
 import { EU_COUNTRIES, FALLBACK_TAX_RATES } from "../utils/taxData";
+
+/**
+ * Resolve the flat (fixed) fee for a USD amount from the configured fee tiers.
+ *
+ * The fee tiers (FEE_TIER_*_MIN/MAX) are ALWAYS denominated in USD. Callers
+ * MUST pass a USD amount here — never a raw `base_amount` which may be in a
+ * crypto currency (e.g. 0.00058 BTC), because that would fall below the lowest
+ * tier and silently return $0.00.
+ *
+ * Matching strategy (mirrors feeService.findMatchingTier so the invoice fixed
+ * fee equals what the merchant was actually charged):
+ *   1. Exact tier match (min <= amount <= max).
+ *   2. Gap / out-of-range fallback: the highest tier whose `min` <= amount
+ *      (handles amounts that land between two tiers, e.g. $100.50 in the gap
+ *      between tier1 max=100 and tier2 min=101).
+ *   3. If the amount is below every tier minimum, use the lowest tier.
+ * Returns 0 only for non-positive amounts or when no tiers are configured.
+ */
+const resolveFixedFee = (tiers: FeeTier[], usdAmount: number): number => {
+  if (!tiers.length || !(usdAmount > 0)) return 0;
+
+  const exact = tiers.find(
+    (t) => usdAmount >= t.min && (t.max === null || usdAmount <= t.max)
+  );
+  if (exact) return exact.fixed;
+
+  const sorted = [...tiers].sort((a, b) => a.min - b.min);
+  const belowOrEqual = [...sorted].reverse().find((t) => usdAmount >= t.min);
+  return (belowOrEqual || sorted[0]).fixed;
+};
+
+interface InvoiceFigures {
+  usdAmount: number;
+  baseCurrency: string;
+  transactionFeePercent: number;
+  fixedFeeUSD: number;
+  transactionFeeUSD: number;
+  vatRate: number;
+  vatAmountUSD: number;
+  preferredCurrency: string;
+  displayCurrency: string;
+  displayBaseAmount: number;
+  displayFixedFee: number;
+  displayTransactionFee: number;
+  displayVatAmount: number;
+  displayServiceFee: number;
+  unitPrice: number;
+  totalAmount: number;
+}
+
+/**
+ * Compute all monetary figures for a completed transaction's invoice.
+ *
+ * Shared by `autoGenerateInvoice` (which persists the result) and the
+ * read-only preview endpoint (which does NOT persist or send email).
+ * Performs NO database writes.
+ *
+ * All fee math is done in USD (the fee-tier currency) and only the final
+ * display figures are converted USD → the company's preferred currency.
+ */
+const computeInvoiceFigures = async (
+  txData: Record<string, any>,
+  companyData: Record<string, any>,
+  companyId: number | string
+): Promise<InvoiceFigures> => {
+  // ── Determine the transaction's USD value ─────────────────────────────
+  // CRITICAL: `base_amount` is denominated in the transaction's
+  // `base_currency`, which is very often a CRYPTO (e.g. 0.00058 BTC for a
+  // ~$37 payment). The fee tiers (FEE_TIER_*_MIN/MAX) are defined in USD, so
+  // the tier lookup MUST use the USD value — never the raw crypto
+  // `base_amount`, otherwise a 0.00058 BTC amount falls below the lowest
+  // tier (min=$1) and the fixed fee silently collapses to $0.00.
+  const baseAmount = parseFloat(txData.base_amount || 0);
+  const baseCurrency = txData.base_currency || "USD";
+
+  // Canonical USD amount used for ALL fee math.
+  let usdAmount = parseFloat(txData.usd_value || 0);
+  if (!(usdAmount > 0)) {
+    // usd_value missing/zero — best-effort convert base_amount → USD.
+    if (baseCurrency === "USD") {
+      usdAmount = baseAmount;
+    } else {
+      try {
+        const conv = await convertToFiat(baseCurrency, "USD", baseAmount);
+        usdAmount = conv?.amount || baseAmount;
+      } catch {
+        usdAmount = baseAmount;
+      }
+    }
+    apiLogger.info(`[Invoice] usd_value missing, derived USD amount: ${usdAmount}`);
+  }
+
+  const transactionFeePercent = getTransactionFeePercent();
+  const feeTiers = getFeeTiers();
+
+  // Fixed fee via USD tier lookup, WITH a gap/out-of-range fallback (see
+  // resolveFixedFee) so the invoice fixed fee always matches what the
+  // merchant was actually charged (the $1 fixed fee is bundled into the tx
+  // `transaction_fee`). Both the crypto `base_amount` bug and the tier-gap
+  // bug previously produced fixed_fee = $0.00 here.
+  const fixedFeeUSD = resolveFixedFee(feeTiers, usdAmount);
+  const transactionFeeUSD = (usdAmount * transactionFeePercent) / 100;
+
+  // Calculate VAT (if applicable) — computed in USD, on Dynopay's SERVICE
+  // revenue (fixed + %fee), unless INVOICE_VAT_ON_GROSS=true (legacy mode).
+  let vatRate = 0;
+  let vatAmountUSD = 0;
+
+  if (companyData.vat_verified && companyData.country) {
+    // VAT applies to EU countries
+    if (EU_COUNTRIES.includes(companyData.country)) {
+      // Get VAT rate from tbl_tax_rate dynamically
+      try {
+        const taxRate = await taxRateModel.findOne({
+          where: { country_code: companyData.country },
+        });
+
+        if (taxRate) {
+          const taxData = taxRate.dataValues;
+          vatRate = parseFloat(taxData.standard_rate || 0);
+          apiLogger.info(`VAT rate for ${companyData.country}: ${vatRate}% (from tbl_tax_rate)`);
+        } else {
+          // Use per-country FALLBACK_TAX_RATES instead of a hard-coded 23%
+          // for the whole EU (23% is Portugal's rate — DE=19, HU=27, LU=17…).
+          vatRate = FALLBACK_TAX_RATES[companyData.country] ?? 23;
+          apiLogger.info(`Using fallback VAT rate for ${companyData.country}: ${vatRate}% (per-country FALLBACK_TAX_RATES)`);
+        }
+      } catch (error) {
+        apiLogger.error("Error fetching VAT rate:", error);
+        vatRate = FALLBACK_TAX_RATES[companyData.country] ?? 23;
+      }
+
+      // VAT is applied on the SERVICE FEE (Dynopay's revenue = fixed_fee +
+      // %fee), NOT the transaction amount that merely passes through the
+      // platform. Legacy gross behavior via INVOICE_VAT_ON_GROSS=true.
+      const vatBaseUSD =
+        process.env.INVOICE_VAT_ON_GROSS === "true"
+          ? usdAmount
+          : fixedFeeUSD + transactionFeeUSD;
+      vatAmountUSD = (vatBaseUSD * vatRate) / 100;
+    }
+  }
+
+  // Get company's preferred display currency and convert FROM USD (the
+  // canonical fee currency) → preferred. The fixed fee is a flat USD amount,
+  // so it must be scaled by the USD→preferred rate — NOT the crypto→fiat
+  // rate (which previously would have exploded a $1 fee by ~64000×).
+  const preferredCurrency = await getCompanyBaseCurrency(companyId);
+
+  let rate = 1;
+  let displayCurrency = "USD";
+  if (preferredCurrency && preferredCurrency !== "USD") {
+    try {
+      const result = await convertToFiat("USD", preferredCurrency, 1);
+      if (result && result.amount) {
+        rate = result.amount;
+        displayCurrency = preferredCurrency;
+      }
+    } catch (convErr) {
+      apiLogger.warn(
+        `[Invoice] Currency conversion USD→${preferredCurrency} failed, using USD amounts`
+      );
+    }
+  }
+
+  const displayBaseAmount = usdAmount * rate;
+  const displayFixedFee = fixedFeeUSD * rate;
+  const displayTransactionFee = transactionFeeUSD * rate;
+  const displayVatAmount = vatAmountUSD * rate;
+
+  // v2 SEMANTICS:
+  //   transaction_amount = the GROSS transaction amount (context, not summed)
+  //   unit_price         = Dynopay's SERVICE REVENUE = fixed_fee + %fee
+  //   total_usd          = unit_price + vat_amount (proper service-invoice math)
+  const displayServiceFee = displayFixedFee + displayTransactionFee;
+  const unitPrice = displayServiceFee;
+  const totalAmount = displayServiceFee + displayVatAmount;
+
+  return {
+    usdAmount,
+    baseCurrency,
+    transactionFeePercent,
+    fixedFeeUSD,
+    transactionFeeUSD,
+    vatRate,
+    vatAmountUSD,
+    preferredCurrency,
+    displayCurrency,
+    displayBaseAmount,
+    displayFixedFee,
+    displayTransactionFee,
+    displayVatAmount,
+    displayServiceFee,
+    unitPrice,
+    totalAmount,
+  };
+};
 
 /**
  * Shared sanitizer for invoice rows exposed via the public API.
@@ -34,8 +231,8 @@ import { EU_COUNTRIES, FALLBACK_TAX_RATES } from "../utils/taxData";
  */
 const sanitizeInvoice = (invoiceData: Record<string, unknown>) => {
   const version = (invoiceData.invoice_version as string) || "v1";
-  const fixedFee = parseFloat((invoiceData.fixed_fee as string | number) || "0") || 0;
-  const unitPrice = parseFloat((invoiceData.unit_price as string | number) || "0") || 0;
+  const fixedFee = parseFloat(String(invoiceData.fixed_fee ?? "0")) || 0;
+  const unitPrice = parseFloat(String(invoiceData.unit_price ?? "0")) || 0;
   const processingFee = version === "v2" ? unitPrice : fixedFee;
 
   return {
@@ -164,120 +361,18 @@ export const autoGenerateInvoice = async (
       .filter(Boolean)
       .join("\n");
 
-    // Calculate fees using centralized fee configuration
-    // Use base_amount as primary, fall back to usd_value if base_amount is 0/null
-    let baseAmount = parseFloat(txData.base_amount || 0);
-    if (baseAmount === 0 || isNaN(baseAmount)) {
-      baseAmount = parseFloat(txData.usd_value || 0);
-      apiLogger.info(`[Invoice] base_amount was 0, using usd_value: ${baseAmount}`);
-    }
-    const baseCurrency = txData.base_currency || 'USD';
-    const transactionFeePercent = getTransactionFeePercent();
-    const feeTiers = getFeeTiers();
-
-    // Find applicable fee tier based on amount
-    const amount = baseAmount;
-    let fixedFee = 0;
-
-    for (const tier of feeTiers) {
-      if (amount >= tier.min && (tier.max === null || amount <= tier.max)) {
-        fixedFee = tier.fixed;
-        break;
-      }
-    }
-
-    // FIX (BUG A): compute the percentage transaction fee amount so it's
-    // included in the invoice total. Previously only `fixedFee` was added,
-    // producing an invoice whose Total Amount != sum of line items in the
-    // PDF (which DOES render Transaction Fee % correctly). See pdfService.
-    const transactionFeeAmount = (baseAmount * transactionFeePercent) / 100;
-
-    // Calculate VAT (if applicable)
-    let vatRate = 0;
-    let vatAmount = 0;
-
-    if (companyData.vat_verified && companyData.country) {
-      // VAT applies to EU countries
-      if (EU_COUNTRIES.includes(companyData.country)) {
-        // Get VAT rate from tbl_tax_rate dynamically
-        try {
-          const taxRate = await taxRateModel.findOne({
-            where: { country_code: companyData.country },
-          });
-
-          if (taxRate) {
-            const taxData = taxRate.dataValues;
-            vatRate = parseFloat(taxData.standard_rate || 0);
-            apiLogger.info(`VAT rate for ${companyData.country}: ${vatRate}% (from tbl_tax_rate)`);
-          } else {
-            // FIX (BUG B): use per-country FALLBACK_TAX_RATES instead of a
-            // hard-coded 23% for the whole EU. 23% is Portugal's rate — DE=19,
-            // HU=27, LU=17, IE=23, etc. so a flat 23% is wrong for most.
-            vatRate = FALLBACK_TAX_RATES[companyData.country] ?? 23;
-            apiLogger.info(`Using fallback VAT rate for ${companyData.country}: ${vatRate}% (per-country FALLBACK_TAX_RATES)`);
-          }
-        } catch (error) {
-          apiLogger.error("Error fetching VAT rate:", error);
-          vatRate = FALLBACK_TAX_RATES[companyData.country] ?? 23;
-        }
-
-        // FIX (BUG A cont.): VAT is applied on the SERVICE FEE (Dynopay's
-        // revenue = fixed_fee + transaction_fee_percent), NOT the transaction
-        // amount that merely passes through Dynopay's platform. Previously
-        // this was `baseAmount * vatRate / 100` which produced VAT of $23 on
-        // a $100 transaction — 8× too high because Dynopay only earned $2.50.
-        // Keep a legacy fallback mode via env for backward-compat if needed.
-        const vatBase =
-          process.env.INVOICE_VAT_ON_GROSS === "true"
-            ? baseAmount
-            : (fixedFee + transactionFeeAmount);
-        vatAmount = (vatBase * vatRate) / 100;
-      }
-    }
-
-    // Get company's preferred display currency
-    const preferredCurrency = await getCompanyBaseCurrency(companyId);
-
-    // FIX (BUG D): convert FROM the transaction's actual base_currency, not
-    // hard-coded 'USD'. Previously a EUR transaction rendered on a merchant
-    // whose preferred currency is GBP was multiplied by USD→GBP instead of
-    // EUR→GBP, silently corrupting displayed amounts.
-    let displayBaseAmount = baseAmount;
-    let displayFixedFee = fixedFee;
-    let displayTransactionFee = transactionFeeAmount;
-    let displayVatAmount = vatAmount;
-    let displayCurrency = baseCurrency;
-
-    if (preferredCurrency && preferredCurrency !== baseCurrency) {
-      try {
-        const result = await convertToFiat(baseCurrency, preferredCurrency, 1);
-        if (result && result.amount) {
-          const rate = result.amount;
-          displayBaseAmount = baseAmount * rate;
-          displayFixedFee = fixedFee * rate;
-          displayTransactionFee = transactionFeeAmount * rate;
-          displayVatAmount = vatAmount * rate;
-          displayCurrency = preferredCurrency;
-        }
-      } catch (convErr) {
-        apiLogger.warn(
-          `[Invoice] Currency conversion ${baseCurrency}→${preferredCurrency} failed, using base amounts`
-        );
-      }
-    }
-
-    // Calculate totals in preferred currency
-    // FIX (BUG A): include the percentage transaction fee in the total so
-    // v2 SEMANTICS (session 36 cleanup):
-    //   transaction_amount = the GROSS transaction amount (context, not summed)
-    //   unit_price         = Dynopay's SERVICE REVENUE = fixed_fee + %fee
-    //   total_usd          = unit_price + vat_amount (proper service-invoice math)
-    //
-    // Legacy v1 kept unit_price == transaction amount and summed everything
-    // (base + fees + vat) into total_usd. We now write v2 rows going forward.
-    const displayServiceFee = displayFixedFee + displayTransactionFee;
-    const unitPrice = displayServiceFee;
-    const totalAmount = displayServiceFee + displayVatAmount;
+    // Calculate all monetary figures (fees, VAT, currency conversion).
+    // Shared with the read-only preview endpoint via computeInvoiceFigures.
+    const {
+      transactionFeePercent,
+      vatRate,
+      preferredCurrency,
+      displayBaseAmount,
+      displayFixedFee,
+      displayVatAmount,
+      unitPrice,
+      totalAmount,
+    } = await computeInvoiceFigures(txData, companyData, companyId);
 
     // Generate invoice number
     const invoiceNumber = await generateInvoiceNumber();
@@ -416,6 +511,71 @@ const getTransactionInvoice = async (
   } catch (e) {
 
       handleControllerError(res, e, apiLogger);
+  }
+};
+
+/**
+ * READ-ONLY invoice figures preview for a completed transaction.
+ *
+ * Computes fees / VAT / currency EXACTLY like autoGenerateInvoice (via the
+ * shared computeInvoiceFigures) but does NOT persist an invoice row and does
+ * NOT send email. Safe to call repeatedly on live data. Enables verifying the
+ * fixed-fee fix (crypto base_amount + tier-gap) without triggering a payment.
+ *
+ * GET /api/transactions/:id/invoice-preview
+ */
+const previewTransactionInvoice = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  const userData = jwt.decode(res.locals.token) as IUserType;
+  const { id } = req.params;
+
+  try {
+    // Verify ownership (merchant can only preview their own transactions).
+    const transaction = await userTransactionModel.findOne({
+      where: { transaction_id: id, user_id: userData.user_id },
+    });
+    if (!transaction) {
+      return errorResponseHelper(res, 404, "Transaction not found");
+    }
+
+    const txData = transaction.dataValues;
+    if (!txData.company_id) {
+      return errorResponseHelper(res, 400, "Transaction has no associated company");
+    }
+
+    const company = await companyModel.findOne({
+      where: { company_id: txData.company_id },
+    });
+    if (!company) {
+      return errorResponseHelper(res, 404, "Company not found");
+    }
+
+    const fig = await computeInvoiceFigures(
+      txData,
+      company.dataValues,
+      txData.company_id
+    );
+
+    return successResponseHelper(res, 200, "Invoice preview computed", {
+      transaction_id: parseInt(id),
+      base_currency: fig.baseCurrency,
+      usd_value: fig.usdAmount,
+      display_currency: fig.displayCurrency,
+      // Service-invoice figures (in display currency):
+      transaction_amount: fig.displayBaseAmount,
+      fixed_fee: fig.displayFixedFee,
+      transaction_fee_percent: fig.transactionFeePercent,
+      transaction_fee_amount: fig.displayTransactionFee,
+      unit_price: fig.unitPrice,
+      vat_rate: fig.vatRate,
+      vat_amount: fig.displayVatAmount,
+      total_usd: fig.totalAmount,
+      invoice_version: "v2",
+    });
+  } catch (e) {
+    handleControllerError(res, e, apiLogger);
   }
 };
 
@@ -923,6 +1083,7 @@ const exportTaxReportCSV = async (
 
 export default {
   getTransactionInvoice,
+  previewTransactionInvoice,
   getAllInvoices,
   getInvoiceById,
   autoGenerateInvoice,

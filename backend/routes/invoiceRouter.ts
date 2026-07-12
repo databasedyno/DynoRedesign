@@ -11,6 +11,14 @@ invoiceRouter.get(
   invoiceController.getTransactionInvoice
 );
 
+// READ-ONLY: preview computed invoice figures for a transaction (no persist,
+// no email). Used to verify fee/VAT math without triggering invoice creation.
+invoiceRouter.get(
+  "/transactions/:id/invoice-preview",
+  authMiddleware,
+  invoiceController.previewTransactionInvoice
+);
+
 // Get all invoices for user
 invoiceRouter.get(
   "/invoices",
