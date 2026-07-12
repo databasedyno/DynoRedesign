@@ -185,6 +185,32 @@ export const generateInvoicePDF = (invoiceData: InvoiceData): PDFKit.PDFDocument
   let yPosition = tableTop + 30;
   const numUnitPrice = typeof invoiceData.unit_price === 'string' ? parseFloat(invoiceData.unit_price) || 0 : invoiceData.unit_price;
   const numQuantity = typeof invoiceData.quantity === 'string' ? parseInt(invoiceData.quantity) || 1 : invoiceData.quantity;
+
+  // Session 36 v2 invoices carry the gross transaction amount as a separate
+  // field so we can render it as a small INFORMATIONAL context row above
+  // the actual service-fee line item — legally clearer + easier to reconcile.
+  const isV2 = invoiceData.invoice_version === "v2";
+  const numTxAmount = typeof invoiceData.transaction_amount === "string"
+    ? (parseFloat(invoiceData.transaction_amount) || 0)
+    : (invoiceData.transaction_amount || 0);
+
+  if (isV2 && numTxAmount > 0) {
+    // Context row: "Underlying transaction (not billed): $X.XX"
+    doc
+      .fontSize(9)
+      .font("Helvetica-Oblique")
+      .fillColor("#888888")
+      .text(
+        `Underlying transaction (context, not billed): ${formatCurrency(numTxAmount)}`,
+        50,
+        yPosition,
+        { width: 500 }
+      )
+      .fillColor("#000000")
+      .font("Helvetica");
+    yPosition += 20;
+  }
+
   doc
     .fontSize(9)
     .font("Helvetica")
@@ -211,7 +237,9 @@ export const generateInvoicePDF = (invoiceData: InvoiceData): PDFKit.PDFDocument
   // --- Processing Fee Row (Transaction Fee) ---
   const numTxFeePercent = typeof invoiceData.transaction_fee_percent === 'string' ? parseFloat(invoiceData.transaction_fee_percent) || 0 : invoiceData.transaction_fee_percent;
   const numFixedFee = typeof invoiceData.fixed_fee === 'string' ? parseFloat(invoiceData.fixed_fee) || 0 : invoiceData.fixed_fee;
-  if (numTxFeePercent > 0 || numFixedFee > 0) {
+  // v2: the Transaction Fee row would double-count — unit_price IS the fee.
+  // Keep the breakdown row only for legacy v1 invoices.
+  if (!isV2 && (numTxFeePercent > 0 || numFixedFee > 0)) {
     const txFeeAmount = numTxFeePercent > 0 
       ? (numUnitPrice * numTxFeePercent) / 100 
       : 0;
@@ -230,6 +258,27 @@ export const generateInvoicePDF = (invoiceData: InvoiceData): PDFKit.PDFDocument
         { width: 90, align: "right" }
       );
     yPosition += 20;
+  } else if (isV2 && (numTxFeePercent > 0 || numFixedFee > 0)) {
+    // v2: show the fee breakdown as a small greyed subtitle beneath the
+    // line item (fixed + % component) so the merchant sees what's inside
+    // their "processing service" line — but with NO amount in the money
+    // column, since it's already summed into unit_price.
+    const txFeeAmount = numTxFeePercent > 0
+      ? (numTxAmount * numTxFeePercent) / 100
+      : 0;
+    doc
+      .fontSize(8)
+      .font("Helvetica-Oblique")
+      .fillColor("#888888")
+      .text(
+        `  = Fixed ${formatCurrency(numFixedFee)} + ${numTxFeePercent}% of ${formatCurrency(numTxAmount)} (${formatCurrency(txFeeAmount)})`,
+        50,
+        yPosition,
+        { width: 400 }
+      )
+      .font("Helvetica")
+      .fillColor("#000000");
+    yPosition += 18;
   }
 
   // --- Blockchain Buffer Row ---
@@ -255,7 +304,13 @@ export const generateInvoicePDF = (invoiceData: InvoiceData): PDFKit.PDFDocument
   yPosition += 15;
   const numDisplayAmount = typeof displayAmount === 'string' ? parseFloat(displayAmount) || 0 : displayAmount;
   const numVatAmount = typeof invoiceData.vat_amount === 'string' ? parseFloat(invoiceData.vat_amount) || 0 : invoiceData.vat_amount;
-  const subtotal = numDisplayAmount - numVatAmount;
+  // v2: subtotal = unit_price × qty (the service fee itself). v1 legacy math
+  // used total_usd − vat which was internally inconsistent when total_usd
+  // didn't include the % fee (pre-session-36 rows). Both branches now
+  // produce a subtotal that matches the visible line items.
+  const subtotal = isV2
+    ? numUnitPrice * numQuantity
+    : numDisplayAmount - numVatAmount;
   doc
     .strokeColor("#CCCCCC")
     .moveTo(360, yPosition)

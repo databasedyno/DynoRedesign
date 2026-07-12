@@ -19,6 +19,59 @@ import { getCompanyBaseCurrency, getCurrencySymbol, convertToFiat } from "../uti
 import { EU_COUNTRIES, FALLBACK_TAX_RATES } from "../utils/taxData";
 
 /**
+ * Shared sanitizer for invoice rows exposed via the public API.
+ *
+ * Hides the internal fee-breakdown fields (`fixed_fee`,
+ * `transaction_fee_percent`, `blockchain_buffer_percent`) — the merchant
+ * only needs to see a single `processing_fee` total. Also exposes v2
+ * fields (`transaction_amount`, `invoice_version`) so the UI can render
+ * the gross transaction amount as context alongside the service fee.
+ *
+ * For v2 rows (`invoice_version === "v2"`), `processing_fee` is the
+ * ACTUAL service revenue = `unit_price` = `fixed_fee + txFeeAmount`.
+ * For legacy v1 rows, `processing_fee` is just `fixed_fee` (best-effort;
+ * they never had `txFeeAmount` broken out).
+ */
+const sanitizeInvoice = (invoiceData: Record<string, unknown>) => {
+  const version = (invoiceData.invoice_version as string) || "v1";
+  const fixedFee = parseFloat((invoiceData.fixed_fee as string | number) || "0") || 0;
+  const unitPrice = parseFloat((invoiceData.unit_price as string | number) || "0") || 0;
+  const processingFee = version === "v2" ? unitPrice : fixedFee;
+
+  return {
+    invoice_id: invoiceData.invoice_id,
+    invoice_number: invoiceData.invoice_number,
+    transaction_id: invoiceData.transaction_id,
+    company_id: invoiceData.company_id,
+    provider_name: invoiceData.provider_name,
+    provider_address: invoiceData.provider_address,
+    // FIX (BUG E): model field is `provider_vat_id`, not `provider_tax_id`.
+    provider_vat_id: invoiceData.provider_vat_id,
+    customer_name: invoiceData.customer_name,
+    customer_address: invoiceData.customer_address,
+    customer_tax_id: invoiceData.customer_tax_id,
+    description: invoiceData.description,
+    // For v2: unit_price is Dynopay's service revenue (fixed + %fee).
+    // For v1: unit_price is the gross transaction amount (legacy).
+    unit_price: invoiceData.unit_price,
+    quantity: invoiceData.quantity,
+    // v2 context — the underlying transaction amount (null on v1 rows).
+    transaction_amount: invoiceData.transaction_amount ?? null,
+    invoice_version: version,
+    vat_rate: invoiceData.vat_rate,
+    vat_amount: invoiceData.vat_amount,
+    processing_fee: parseFloat(processingFee.toFixed(2)),
+    total_usd: invoiceData.total_usd,
+    total_crypto: invoiceData.total_crypto,
+    crypto_currency: invoiceData.crypto_currency,
+    payment_terms: invoiceData.payment_terms,
+    invoice_date: invoiceData.invoice_date,
+    status: invoiceData.status,
+    createdAt: invoiceData.createdAt,
+  };
+};
+
+/**
  * Generate invoice number
  * Format: INV-YYYYMMDD-XXXXX
  */
@@ -215,13 +268,16 @@ export const autoGenerateInvoice = async (
 
     // Calculate totals in preferred currency
     // FIX (BUG A): include the percentage transaction fee in the total so
-    // Total Amount == sum of line items rendered by pdfService.
-    const unitPrice = displayBaseAmount;
-    const totalAmount =
-      displayBaseAmount +
-      displayFixedFee +
-      displayTransactionFee +
-      displayVatAmount;
+    // v2 SEMANTICS (session 36 cleanup):
+    //   transaction_amount = the GROSS transaction amount (context, not summed)
+    //   unit_price         = Dynopay's SERVICE REVENUE = fixed_fee + %fee
+    //   total_usd          = unit_price + vat_amount (proper service-invoice math)
+    //
+    // Legacy v1 kept unit_price == transaction amount and summed everything
+    // (base + fees + vat) into total_usd. We now write v2 rows going forward.
+    const displayServiceFee = displayFixedFee + displayTransactionFee;
+    const unitPrice = displayServiceFee;
+    const totalAmount = displayServiceFee + displayVatAmount;
 
     // Generate invoice number
     const invoiceNumber = await generateInvoiceNumber();
@@ -243,6 +299,10 @@ export const autoGenerateInvoice = async (
       fixed_fee: displayFixedFee,
       transaction_fee_percent: transactionFeePercent,
       blockchain_buffer_percent: 0,
+      // v2 additions: expose the underlying tx amount + tag the semantics
+      // so the PDF/API can render it as an informational context row.
+      transaction_amount: displayBaseAmount,
+      invoice_version: "v2",
       total_usd: totalAmount,
       total_crypto: parseFloat(txData.crypto_amount || 0) || totalAmount,
       crypto_currency: txData.crypto_currency || preferredCurrency,
@@ -415,7 +475,13 @@ const getAllInvoices = async (
       order: [["invoice_date", "DESC"]],
     });
 
-    const invoices = rows.map((invoice: { dataValues: Record<string, unknown> }) => (invoice as unknown as { dataValues: Record<string, unknown> }).dataValues);
+    const invoices = rows.map((row: { dataValues: Record<string, unknown> }) => {
+      const raw = (row as unknown as { dataValues: Record<string, unknown> }).dataValues;
+      // FIX (BUG F): sanitize list items to match `getInvoiceById`. Previously
+      // this returned full `dataValues` — leaking internal fee-breakdown
+      // fields (`fixed_fee`, `transaction_fee_percent`, `blockchain_buffer_percent`).
+      return sanitizeInvoice(raw);
+    });
 
     successResponseHelper(res, 200, "Invoices retrieved successfully", {
       invoices,
@@ -466,35 +532,10 @@ const getInvoiceById = async (
       return errorResponseHelper(res, 403, "Access denied");
     }
 
-    // Sanitize response - hide internal fee breakdown details
-    const sanitizedInvoice = {
-      invoice_id: invoiceData.invoice_id,
-      invoice_number: invoiceData.invoice_number,
-      transaction_id: invoiceData.transaction_id,
-      company_id: invoiceData.company_id,
-      provider_name: invoiceData.provider_name,
-      provider_address: invoiceData.provider_address,
-      // FIX (BUG E): model field is `provider_vat_id`, not `provider_tax_id`
-      // — the old key silently returned undefined so the VAT ID never showed.
-      provider_vat_id: invoiceData.provider_vat_id,
-      customer_name: invoiceData.customer_name,
-      customer_address: invoiceData.customer_address,
-      customer_tax_id: invoiceData.customer_tax_id,
-      description: invoiceData.description,
-      unit_price: invoiceData.unit_price,
-      quantity: invoiceData.quantity,
-      vat_rate: invoiceData.vat_rate,
-      vat_amount: invoiceData.vat_amount,
-      // Only show total processing fee, not breakdown
-      processing_fee: parseFloat((parseFloat(invoiceData.fixed_fee || 0)).toFixed(2)),
-      total_usd: invoiceData.total_usd,
-      total_crypto: invoiceData.total_crypto,
-      crypto_currency: invoiceData.crypto_currency,
-      payment_terms: invoiceData.payment_terms,
-      invoice_date: invoiceData.invoice_date,
-      status: invoiceData.status,
-      createdAt: invoiceData.createdAt,
-    };
+    // Sanitize response — hide internal fee breakdown details. Uses the
+    // shared `sanitizeInvoice` helper so `getAllInvoices` returns the same
+    // shape and never leaks internal fee fields (BUG F).
+    const sanitizedInvoice = sanitizeInvoice(invoiceData);
 
     successResponseHelper(
       res,

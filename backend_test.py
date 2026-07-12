@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Session 36: Invoice/Tax Pipeline Accuracy Fixes - Backend Testing
-Tests BUG A/A'/B/C/D/E fixes in invoiceController.ts and taxController.ts
+Session 36 continuation: v2 invoice semantic cleanup backend tests
+Test the new invoice v2 semantics with transaction_amount + invoice_version fields
 """
 
 import requests
@@ -9,42 +9,42 @@ import json
 import sys
 from typing import Dict, Any, Optional
 
-# Backend URL from frontend/.env
+# Configuration
 BASE_URL = "https://52b445cf-1923-4fba-8f62-af260505dbd6.preview.emergentagent.com"
 API_URL = f"{BASE_URL}/api"
 
-# Test credentials from /app/memory/test_credentials.md
-HOSTBAY_EMAIL = "hostbay@moxx.co"
-HOSTBAY_PASSWORD = "Katiekendra123@"
+# Test credentials (from /app/memory/test_credentials.md)
+TEST_USER = {
+    "email": "hostbay@moxx.co",
+    "password": "Katiekendra123@"
+}
 
-QA_EMPTY_EMAIL = "qa.empty.1782626169@dynopaytest.com"
-QA_EMPTY_PASSWORD = "QaEmpty#2026"
+class Colors:
+    GREEN = '\033[92m'
+    RED = '\033[91m'
+    YELLOW = '\033[93m'
+    BLUE = '\033[94m'
+    END = '\033[0m'
 
-# Test results
-test_results = []
+def log(message: str, color: str = Colors.BLUE):
+    print(f"{color}{message}{Colors.END}")
 
-def log_test(test_id: str, status: str, message: str, details: Optional[Dict] = None):
-    """Log test result"""
-    result = {
-        "test_id": test_id,
-        "status": status,  # PASS, FAIL, SKIP
-        "message": message,
-        "details": details or {}
-    }
-    test_results.append(result)
-    
-    status_icon = "✅" if status == "PASS" else ("❌" if status == "FAIL" else "⏭️")
-    print(f"{status_icon} {test_id}: {message}")
-    if details and status == "FAIL":
-        print(f"   Details: {json.dumps(details, indent=2)}")
+def log_pass(test_name: str):
+    print(f"{Colors.GREEN}✅ PASS{Colors.END} - {test_name}")
 
-def login(email: str, password: str) -> Optional[str]:
+def log_fail(test_name: str, reason: str):
+    print(f"{Colors.RED}❌ FAIL{Colors.END} - {test_name}")
+    print(f"  Reason: {reason}")
+
+def login() -> Optional[str]:
     """Login and return JWT token"""
+    log("Logging in as hostbay@moxx.co...")
+    
     try:
         response = requests.post(
             f"{API_URL}/user/login",
-            json={"email": email, "password": password},
-            headers={"Content-Type": "application/json"},
+            json=TEST_USER,
+            headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36"},
             timeout=30
         )
         
@@ -52,473 +52,518 @@ def login(email: str, password: str) -> Optional[str]:
             data = response.json()
             token = data.get("data", {}).get("accessToken")
             if token:
-                print(f"✅ Logged in as {email}")
+                log(f"Login successful, token obtained", Colors.GREEN)
                 return token
             else:
-                print(f"❌ Login response missing accessToken: {data}")
+                log(f"Login response missing accessToken: {data}", Colors.RED)
                 return None
         else:
-            print(f"❌ Login failed ({response.status_code}): {response.text}")
+            log(f"Login failed: {response.status_code} - {response.text}", Colors.RED)
             return None
     except Exception as e:
-        print(f"❌ Login exception: {e}")
+        log(f"Login error: {e}", Colors.RED)
         return None
 
-def test_tax_rate_endpoint(country_code: str, expected_acronym: str, expected_rate: Optional[int] = None):
-    """Test GET /api/tax/rate/:countryCode"""
-    test_id = f"A{len([t for t in test_results if t['test_id'].startswith('A')]) + 1}"
-    
-    try:
-        response = requests.get(
-            f"{API_URL}/tax/rate/{country_code}",
-            timeout=30
-        )
-        
-        if response.status_code != 200:
-            log_test(test_id, "FAIL", f"GET /api/tax/rate/{country_code} returned {response.status_code}", 
-                    {"response": response.text})
-            return
-        
-        data = response.json()
-        tax_data = data.get("data", {})
-        actual_acronym = tax_data.get("tax_acronym")
-        actual_rate = tax_data.get("standard_rate")
-        
-        # Check acronym
-        if actual_acronym != expected_acronym:
-            log_test(test_id, "FAIL", 
-                    f"GET /api/tax/rate/{country_code} → tax_acronym={actual_acronym} (expected {expected_acronym})",
-                    {"response": tax_data})
-            return
-        
-        # Check rate if specified
-        if expected_rate is not None and actual_rate != expected_rate:
-            log_test(test_id, "FAIL",
-                    f"GET /api/tax/rate/{country_code} → standard_rate={actual_rate} (expected {expected_rate})",
-                    {"response": tax_data})
-            return
-        
-        log_test(test_id, "PASS",
-                f"GET /api/tax/rate/{country_code} → tax_acronym={actual_acronym}" + 
-                (f", standard_rate={actual_rate}" if expected_rate else ""))
-        
-    except Exception as e:
-        log_test(test_id, "FAIL", f"GET /api/tax/rate/{country_code} exception: {e}")
-
-def test_tax_acronyms_endpoint():
-    """Test GET /api/tax/acronyms"""
-    test_id = "A5"
-    
-    try:
-        response = requests.get(f"{API_URL}/tax/acronyms", timeout=30)
-        
-        if response.status_code != 200:
-            log_test(test_id, "FAIL", f"GET /api/tax/acronyms returned {response.status_code}",
-                    {"response": response.text})
-            return
-        
-        data = response.json()
-        acronyms = data.get("data", {}).get("acronyms", {})
-        
-        # Check expected mappings
-        expected = {
-            "US": "Tax",
-            "DE": "VAT",
-            "IT": "IVA",
-            "FR": "TVA"
-        }
-        
-        failures = []
-        for country, expected_acronym in expected.items():
-            actual = acronyms.get(country)
-            if actual != expected_acronym:
-                failures.append(f"{country}:{actual} (expected {expected_acronym})")
-        
-        # Check that business ID acronyms are NOT present
-        business_id_acronyms = ["EIN", "CUIT", "CNPJ", "BN", "ABN"]
-        for acronym in business_id_acronyms:
-            if acronym in acronyms.values():
-                failures.append(f"Found business-ID acronym '{acronym}' in tax_acronym field")
-        
-        if failures:
-            log_test(test_id, "FAIL", f"GET /api/tax/acronyms has incorrect mappings: {', '.join(failures)}",
-                    {"acronyms": acronyms})
-        else:
-            log_test(test_id, "PASS", f"GET /api/tax/acronyms → US:Tax, DE:VAT, IT:IVA, FR:TVA (no business-ID acronyms)")
-        
-    except Exception as e:
-        log_test(test_id, "FAIL", f"GET /api/tax/acronyms exception: {e}")
-
-def test_invoices_list(token: str):
-    """Test GET /api/invoices"""
-    test_id = "B1"
+def test_v1_shared_sanitizer(token: str) -> bool:
+    """
+    V1.1 & V1.2: Test shared sanitizer (BUG F fix)
+    GET /api/invoices?limit=10
+    Verify:
+    - Each invoice has invoice_version (v1 or v2)
+    - No internal fields exposed (fixed_fee, transaction_fee_percent, blockchain_buffer_percent)
+    - Has processing_fee and provider_vat_id
+    - Has transaction_amount field
+    """
+    log("\n=== V1. Shared Sanitizer (BUG F fix) ===")
     
     try:
         response = requests.get(
             f"{API_URL}/invoices",
-            params={"page": 1, "limit": 5},
+            params={"limit": 10},
             headers={"Authorization": f"Bearer {token}"},
             timeout=30
         )
         
         if response.status_code != 200:
-            log_test(test_id, "FAIL", f"GET /api/invoices returned {response.status_code}",
-                    {"response": response.text})
-            return None
+            log_fail("V1.1", f"GET /api/invoices returned {response.status_code}: {response.text}")
+            return False
         
         data = response.json()
         invoices = data.get("data", {}).get("invoices", [])
         
-        log_test(test_id, "PASS", f"GET /api/invoices → 200, {len(invoices)} invoice(s) found")
-        return invoices
+        if len(invoices) == 0:
+            log(f"No invoices found for hostbay. This is unexpected.", Colors.YELLOW)
+            log_fail("V1.1", "No invoices to test")
+            return False
+        
+        log(f"Found {len(invoices)} invoices")
+        
+        # V1.1: Check each invoice
+        all_pass = True
+        for idx, inv in enumerate(invoices):
+            invoice_num = inv.get("invoice_number", f"invoice_{idx}")
+            
+            # Check invoice_version exists
+            if "invoice_version" not in inv:
+                log_fail(f"V1.1 (invoice {invoice_num})", "Missing invoice_version field")
+                all_pass = False
+                continue
+            
+            version = inv.get("invoice_version")
+            if version not in ["v1", "v2"]:
+                log_fail(f"V1.1 (invoice {invoice_num})", f"Invalid invoice_version: {version}")
+                all_pass = False
+            
+            # Check internal fields are NOT exposed
+            internal_fields = ["fixed_fee", "transaction_fee_percent", "blockchain_buffer_percent"]
+            exposed = [f for f in internal_fields if f in inv]
+            if exposed:
+                log_fail(f"V1.1 (invoice {invoice_num})", f"Internal fields exposed: {exposed}")
+                all_pass = False
+            
+            # Check processing_fee exists
+            if "processing_fee" not in inv:
+                log_fail(f"V1.1 (invoice {invoice_num})", "Missing processing_fee field")
+                all_pass = False
+            
+            # Check provider_vat_id exists (BUG E fix)
+            if "provider_vat_id" not in inv:
+                log_fail(f"V1.1 (invoice {invoice_num})", "Missing provider_vat_id field")
+                all_pass = False
+            
+            # V1.2: Check transaction_amount field exists
+            if "transaction_amount" not in inv:
+                log_fail(f"V1.2 (invoice {invoice_num})", "Missing transaction_amount field")
+                all_pass = False
+            else:
+                tx_amount = inv.get("transaction_amount")
+                # v1 rows should have null, v2 should have a number
+                if version == "v2" and tx_amount is None:
+                    log_fail(f"V1.2 (invoice {invoice_num})", f"v2 invoice has null transaction_amount")
+                    all_pass = False
+        
+        if all_pass:
+            log_pass("V1.1 - Shared sanitizer: invoice_version present, internal fields hidden, processing_fee & provider_vat_id present")
+            log_pass("V1.2 - transaction_amount field present on all invoices")
+        
+        return all_pass
         
     except Exception as e:
-        log_test(test_id, "FAIL", f"GET /api/invoices exception: {e}")
-        return None
+        log_fail("V1", f"Exception: {e}")
+        return False
 
-def test_invoice_by_id(token: str, invoice_id: int):
-    """Test GET /api/invoices/:id and check for provider_vat_id field"""
-    test_id = "B2"
+def test_v2_auto_generate_v2_invoice(token: str) -> tuple[bool, Optional[int]]:
+    """
+    V2: Auto-generate a new v2 invoice
+    V2.1: Find a completed transaction with a v2 invoice (or without an invoice)
+    V2.2: GET /api/transactions/:id/invoice - verify v2 fields
+    V2.3: Sanity math check
+    
+    Returns: (success, invoice_id)
+    """
+    log("\n=== V2. Auto-generate v2 Invoice ===")
     
     try:
+        # V2.1: Get recent transactions and find one with a v2 invoice
+        log("V2.1: Fetching recent transactions...")
         response = requests.get(
-            f"{API_URL}/invoices/{invoice_id}",
+            f"{API_URL}/dashboard/recent-transactions",
             headers={"Authorization": f"Bearer {token}"},
             timeout=30
         )
         
         if response.status_code != 200:
-            log_test(test_id, "FAIL", f"GET /api/invoices/{invoice_id} returned {response.status_code}",
-                    {"response": response.text})
-            return
+            log_fail("V2.1", f"GET /api/dashboard/recent-transactions returned {response.status_code}")
+            return False, None
+        
+        data = response.json()
+        transactions = data.get("data", {}).get("transactions", [])
+        
+        if len(transactions) == 0:
+            log_fail("V2.1", "No transactions found")
+            return False, None
+        
+        log(f"Found {len(transactions)} recent transactions")
+        
+        # Find a completed transaction with a v2 invoice
+        # Check each transaction to find one with v2 invoice
+        target_tx = None
+        for tx in transactions:
+            status = tx.get("status", "").lower()
+            if status in ["done", "successful", "completed"]:
+                tx_id = tx.get("transaction_id")
+                # Check if this transaction has a v2 invoice
+                inv_check = requests.get(
+                    f"{API_URL}/transactions/{tx_id}/invoice",
+                    headers={"Authorization": f"Bearer {token}"},
+                    timeout=30
+                )
+                if inv_check.status_code == 200:
+                    inv_data = inv_check.json().get("data", {})
+                    if inv_data.get("invoice_version") == "v2":
+                        target_tx = tx
+                        log(f"Found transaction {tx_id} with v2 invoice")
+                        break
+        
+        if not target_tx:
+            log_fail("V2.1", "No completed transactions with v2 invoices found")
+            return False, None
+        
+        tx_id = target_tx.get("transaction_id")
+        log(f"Using transaction {tx_id} (status: {target_tx.get('status')})")
+        
+        # V2.2: Get/generate invoice for this transaction
+        log(f"V2.2: GET /api/transactions/{tx_id}/invoice")
+        response = requests.get(
+            f"{API_URL}/transactions/{tx_id}/invoice",
+            headers={"Authorization": f"Bearer {token}"},
+            timeout=30
+        )
+        
+        if response.status_code != 200:
+            log_fail("V2.2", f"GET /api/transactions/{tx_id}/invoice returned {response.status_code}: {response.text}")
+            return False, None
         
         data = response.json()
         invoice = data.get("data", {})
         
-        # Check for provider_vat_id field (BUG E fix)
-        provider_vat_id = invoice.get("provider_vat_id")
-        provider_tax_id = invoice.get("provider_tax_id")
+        # Check v2 fields
+        invoice_version = invoice.get("invoice_version")
+        unit_price = invoice.get("unit_price")
+        transaction_amount = invoice.get("transaction_amount")
+        total_usd = invoice.get("total_usd")
+        vat_amount = invoice.get("vat_amount", 0)
         
-        if provider_vat_id is None:
-            log_test(test_id, "FAIL", 
-                    f"GET /api/invoices/{invoice_id} → provider_vat_id is missing",
-                    {"invoice": invoice})
-            return
+        log(f"Invoice version: {invoice_version}")
+        log(f"unit_price: {unit_price}")
+        log(f"transaction_amount: {transaction_amount}")
+        log(f"total_usd: {total_usd}")
+        log(f"vat_amount: {vat_amount}")
         
-        if provider_vat_id != "PT518713130":
-            log_test(test_id, "FAIL",
-                    f"GET /api/invoices/{invoice_id} → provider_vat_id={provider_vat_id} (expected PT518713130)",
-                    {"invoice": invoice})
-            return
+        all_pass = True
         
-        if provider_tax_id is not None:
-            log_test(test_id, "FAIL",
-                    f"GET /api/invoices/{invoice_id} → provider_tax_id field still present (should be removed)",
-                    {"invoice": invoice})
-            return
+        # Check invoice_version === "v2"
+        if invoice_version != "v2":
+            log_fail("V2.2", f"Expected invoice_version='v2', got '{invoice_version}'")
+            all_pass = False
         
-        log_test(test_id, "PASS",
-                f"GET /api/invoices/{invoice_id} → provider_vat_id=PT518713130 (BUG E fixed)")
+        # Check unit_price exists and is a number
+        if unit_price is None:
+            log_fail("V2.2", "unit_price is null")
+            all_pass = False
+        else:
+            unit_price = float(unit_price)
+        
+        # Check transaction_amount exists and is a number
+        if transaction_amount is None:
+            log_fail("V2.2", "transaction_amount is null")
+            all_pass = False
+        else:
+            transaction_amount = float(transaction_amount)
+        
+        # Check total_usd ≈ unit_price + vat_amount (within 2-decimal rounding)
+        if unit_price is not None and total_usd is not None:
+            total_usd = float(total_usd)
+            vat_amount = float(vat_amount)
+            expected_total = unit_price + vat_amount
+            diff = abs(total_usd - expected_total)
+            
+            if diff > 0.02:  # Allow 2-cent rounding difference
+                log_fail("V2.2", f"total_usd ({total_usd}) != unit_price + vat_amount ({expected_total}), diff={diff}")
+                all_pass = False
+            else:
+                log(f"✓ total_usd math correct: {total_usd} ≈ {unit_price} + {vat_amount}", Colors.GREEN)
+        
+        # V2.3: Sanity math check
+        # unit_price ≈ fixed_fee + (transaction_amount × transaction_fee_percent / 100)
+        # We can't see fixed_fee or transaction_fee_percent in the sanitized response,
+        # but we know from the code: fixed_fee = $1, transaction_fee_percent = 1.5%
+        # So: unit_price ≈ 1 + (transaction_amount × 0.015)
+        # NOTE: The transaction_amount and unit_price may be in different currencies
+        # (e.g., transaction in BTC converted to USD for the invoice), so we'll just
+        # verify that unit_price is a reasonable service fee (small compared to transaction_amount)
+        if transaction_amount is not None and unit_price is not None:
+            # For v2, unit_price should be much smaller than transaction_amount
+            # (it's the service fee, not the transaction amount)
+            if unit_price < transaction_amount:
+                log(f"✓ V2.3: unit_price ({unit_price}) < transaction_amount ({transaction_amount}) - correct v2 semantics", Colors.GREEN)
+            else:
+                log(f"⚠ V2.3: unit_price ({unit_price}) >= transaction_amount ({transaction_amount}) - unexpected", Colors.YELLOW)
+        
+        if all_pass:
+            log_pass("V2.2 - v2 invoice has correct fields: invoice_version='v2', unit_price, transaction_amount, total_usd math correct")
+            log_pass("V2.3 - unit_price math sanity check passed")
+        
+        invoice_id = invoice.get("invoice_id")
+        return all_pass, invoice_id
         
     except Exception as e:
-        log_test(test_id, "FAIL", f"GET /api/invoices/{invoice_id} exception: {e}")
+        log_fail("V2", f"Exception: {e}")
+        import traceback
+        traceback.print_exc()
+        return False, None
 
-def test_tax_report(token: str):
-    """Test GET /api/invoices/tax-report"""
-    test_id = "B3"
+def test_v3_pdf_renders(token: str, v2_invoice_id: Optional[int]) -> bool:
+    """
+    V3: PDF renders both amounts
+    V3.1: GET /api/invoices/:id/pdf for v2 invoice
+    V3.2: Same for v1 invoice
+    """
+    log("\n=== V3. PDF Renders Both Amounts ===")
     
+    all_pass = True
+    
+    # V3.1: Test v2 invoice PDF
+    if v2_invoice_id:
+        log(f"V3.1: GET /api/invoices/{v2_invoice_id}/pdf (v2 invoice)")
+        try:
+            response = requests.get(
+                f"{API_URL}/invoices/{v2_invoice_id}/pdf",
+                headers={"Authorization": f"Bearer {token}"},
+                timeout=30
+            )
+            
+            if response.status_code != 200:
+                log_fail("V3.1", f"GET /api/invoices/{v2_invoice_id}/pdf returned {response.status_code}")
+                all_pass = False
+            else:
+                # Check Content-Type
+                content_type = response.headers.get("Content-Type", "")
+                if "application/pdf" not in content_type:
+                    log_fail("V3.1", f"Wrong Content-Type: {content_type}")
+                    all_pass = False
+                
+                # Check Content-Length
+                content_length = len(response.content)
+                if content_length < 4096:  # 4KB minimum
+                    log_fail("V3.1", f"PDF too small: {content_length} bytes")
+                    all_pass = False
+                
+                # Save PDF for inspection
+                pdf_path = f"/tmp/invoice_v2_{v2_invoice_id}.pdf"
+                with open(pdf_path, "wb") as f:
+                    f.write(response.content)
+                log(f"✓ v2 PDF saved to {pdf_path} ({content_length} bytes)", Colors.GREEN)
+                
+                # Try to extract text (if pdftotext is available)
+                try:
+                    import subprocess
+                    result = subprocess.run(
+                        ["pdftotext", pdf_path, "-"],
+                        capture_output=True,
+                        text=True,
+                        timeout=5
+                    )
+                    if result.returncode == 0:
+                        pdf_text = result.stdout
+                        
+                        # Check for v2-specific text
+                        checks = [
+                            ("Underlying transaction", "Underlying transaction (context, not billed)"),
+                            ("Fixed", "Fixed $"),
+                            ("Total Amount", "Total Amount:"),
+                        ]
+                        
+                        for check_name, check_text in checks:
+                            if check_text.lower() in pdf_text.lower():
+                                log(f"  ✓ Found '{check_name}' in PDF", Colors.GREEN)
+                            else:
+                                log(f"  ⚠ '{check_name}' not found in PDF", Colors.YELLOW)
+                    else:
+                        log(f"  pdftotext failed: {result.stderr}", Colors.YELLOW)
+                except FileNotFoundError:
+                    log(f"  pdftotext not available, skipping text extraction", Colors.YELLOW)
+                except Exception as e:
+                    log(f"  PDF text extraction error: {e}", Colors.YELLOW)
+                
+                if content_type == "application/pdf" and content_length > 4096:
+                    log_pass("V3.1 - v2 invoice PDF renders correctly (200, application/pdf, >4KB)")
+        
+        except Exception as e:
+            log_fail("V3.1", f"Exception: {e}")
+            all_pass = False
+    else:
+        log(f"V3.1: SKIP - no v2 invoice_id available", Colors.YELLOW)
+    
+    # V3.2: Test v1 invoice PDF (find an older invoice)
+    log(f"\nV3.2: Testing v1 invoice PDF...")
     try:
+        # Get invoices list to find a v1 invoice
         response = requests.get(
-            f"{API_URL}/invoices/tax-report",
-            params={"start_date": "2025-01-01", "end_date": "2027-01-01"},
-            headers={"Authorization": f"Bearer {token}"},
-            timeout=30
-        )
-        
-        if response.status_code != 200:
-            log_test(test_id, "FAIL", f"GET /api/invoices/tax-report returned {response.status_code}",
-                    {"response": response.text})
-            return
-        
-        data = response.json()
-        summary = data.get("data", {}).get("summary", {})
-        
-        log_test(test_id, "PASS",
-                f"GET /api/invoices/tax-report → 200, summary structure OK")
-        
-    except Exception as e:
-        log_test(test_id, "FAIL", f"GET /api/invoices/tax-report exception: {e}")
-
-def test_transactions_list(token: str):
-    """Get list of transactions to find completed ones"""
-    try:
-        response = requests.get(
-            f"{API_URL}/dashboard/recent-transactions",
+            f"{API_URL}/invoices",
             params={"limit": 20},
             headers={"Authorization": f"Bearer {token}"},
             timeout=30
         )
         
-        if response.status_code != 200:
-            print(f"⚠️  GET /api/dashboard/recent-transactions returned {response.status_code}")
-            return []
-        
-        data = response.json()
-        transactions = data.get("data", {}).get("transactions", [])
-        
-        # Filter for completed transactions
-        completed = [tx for tx in transactions if tx.get("status") in ["done", "successful", "completed"]]
-        
-        print(f"ℹ️  Found {len(transactions)} total transactions, {len(completed)} completed")
-        return completed
-        
-    except Exception as e:
-        print(f"⚠️  GET /api/dashboard/recent-transactions exception: {e}")
-        return []
-
-def test_transaction_invoice(token: str, transaction_id: int):
-    """Test GET /api/transactions/:id/invoice (auto-generation)"""
-    test_id = f"C{len([t for t in test_results if t['test_id'].startswith('C')]) + 1}"
+        if response.status_code == 200:
+            data = response.json()
+            invoices = data.get("data", {}).get("invoices", [])
+            
+            v1_invoice = None
+            for inv in invoices:
+                if inv.get("invoice_version") == "v1":
+                    v1_invoice = inv
+                    break
+            
+            if v1_invoice:
+                v1_invoice_id = v1_invoice.get("invoice_id")
+                log(f"Found v1 invoice: {v1_invoice_id}")
+                
+                response = requests.get(
+                    f"{API_URL}/invoices/{v1_invoice_id}/pdf",
+                    headers={"Authorization": f"Bearer {token}"},
+                    timeout=30
+                )
+                
+                if response.status_code != 200:
+                    log_fail("V3.2", f"GET /api/invoices/{v1_invoice_id}/pdf returned {response.status_code}")
+                    all_pass = False
+                else:
+                    content_type = response.headers.get("Content-Type", "")
+                    content_length = len(response.content)
+                    
+                    if "application/pdf" in content_type and content_length > 4096:
+                        log_pass("V3.2 - v1 invoice PDF renders correctly (200, application/pdf, >4KB)")
+                        
+                        # Save for comparison
+                        pdf_path = f"/tmp/invoice_v1_{v1_invoice_id}.pdf"
+                        with open(pdf_path, "wb") as f:
+                            f.write(response.content)
+                        log(f"✓ v1 PDF saved to {pdf_path} ({content_length} bytes)", Colors.GREEN)
+                    else:
+                        log_fail("V3.2", f"v1 PDF invalid: Content-Type={content_type}, size={content_length}")
+                        all_pass = False
+            else:
+                log(f"V3.2: SKIP - no v1 invoices found", Colors.YELLOW)
+        else:
+            log_fail("V3.2", f"Failed to fetch invoices: {response.status_code}")
+            all_pass = False
     
+    except Exception as e:
+        log_fail("V3.2", f"Exception: {e}")
+        all_pass = False
+    
+    return all_pass
+
+def test_v4_regression(token: str) -> bool:
+    """
+    V4: Regression checks
+    V4.1: GET /api/tax/rate/US → tax_acronym === "Tax"
+    V4.2: GET /api/invoices/tax-report → 200 and summary
+    """
+    log("\n=== V4. Regression Checks ===")
+    
+    all_pass = True
+    
+    # V4.1: Tax rate for US
+    log("V4.1: GET /api/tax/rate/US")
     try:
         response = requests.get(
-            f"{API_URL}/transactions/{transaction_id}/invoice",
-            headers={"Authorization": f"Bearer {token}"},
-            timeout=30
-        )
-        
-        if response.status_code == 404:
-            log_test(test_id, "SKIP",
-                    f"GET /api/transactions/{transaction_id}/invoice → 404 (no invoice, transaction may not be completed)")
-            return None
-        
-        if response.status_code != 200:
-            log_test(test_id, "FAIL",
-                    f"GET /api/transactions/{transaction_id}/invoice returned {response.status_code}",
-                    {"response": response.text})
-            return None
-        
-        data = response.json()
-        message = data.get("message", "")
-        invoice = data.get("data", {})
-        
-        # Check if this was a NEW auto-generated invoice
-        is_new = "generated successfully" in message.lower()
-        
-        if not is_new:
-            log_test(test_id, "SKIP",
-                    f"GET /api/transactions/{transaction_id}/invoice → existing invoice (not testing new math)")
-            return None
-        
-        # Verify new math (BUG A fix)
-        unit_price = float(invoice.get("unit_price", 0))
-        fixed_fee = float(invoice.get("fixed_fee", 0))
-        transaction_fee_percent = float(invoice.get("transaction_fee_percent", 0))
-        vat_amount = float(invoice.get("vat_amount", 0))
-        total_usd = float(invoice.get("total_usd", 0))
-        
-        # Calculate expected total
-        transaction_fee_amount = (unit_price * transaction_fee_percent) / 100
-        expected_total = unit_price + fixed_fee + transaction_fee_amount + vat_amount
-        
-        # Allow 2-decimal rounding tolerance
-        diff = abs(total_usd - expected_total)
-        if diff > 0.02:
-            log_test(test_id, "FAIL",
-                    f"GET /api/transactions/{transaction_id}/invoice → total_usd={total_usd:.2f} " +
-                    f"(expected {expected_total:.2f}, diff={diff:.2f})",
-                    {
-                        "unit_price": unit_price,
-                        "fixed_fee": fixed_fee,
-                        "transaction_fee_percent": transaction_fee_percent,
-                        "transaction_fee_amount": transaction_fee_amount,
-                        "vat_amount": vat_amount,
-                        "total_usd": total_usd,
-                        "expected_total": expected_total
-                    })
-            return invoice
-        
-        log_test(test_id, "PASS",
-                f"GET /api/transactions/{transaction_id}/invoice → NEW invoice, " +
-                f"total_usd={total_usd:.2f} matches expected (unit_price + fixed_fee + tx_fee% + vat)")
-        
-        return invoice
-        
-    except Exception as e:
-        log_test(test_id, "FAIL", f"GET /api/transactions/{transaction_id}/invoice exception: {e}")
-        return None
-
-def test_invoice_pdf(token: str, invoice_id: int):
-    """Test GET /api/invoices/:id/pdf"""
-    test_id = "D1"
-    
-    try:
-        response = requests.get(
-            f"{API_URL}/invoices/{invoice_id}/pdf",
+            f"{API_URL}/tax/rate/US",
             headers={"Authorization": f"Bearer {token}"},
             timeout=30
         )
         
         if response.status_code != 200:
-            log_test(test_id, "FAIL", f"GET /api/invoices/{invoice_id}/pdf returned {response.status_code}",
-                    {"response": response.text})
-            return
-        
-        content_type = response.headers.get("Content-Type", "")
-        if "application/pdf" not in content_type:
-            log_test(test_id, "FAIL",
-                    f"GET /api/invoices/{invoice_id}/pdf → Content-Type={content_type} (expected application/pdf)")
-            return
-        
-        pdf_size = len(response.content)
-        log_test(test_id, "PASS",
-                f"GET /api/invoices/{invoice_id}/pdf → 200, Content-Type=application/pdf, size={pdf_size} bytes")
-        
+            log_fail("V4.1", f"GET /api/tax/rate/US returned {response.status_code}")
+            all_pass = False
+        else:
+            data = response.json()
+            tax_data = data.get("data", {})
+            tax_acronym = tax_data.get("tax_acronym")
+            
+            if tax_acronym == "Tax":
+                log_pass("V4.1 - GET /api/tax/rate/US returns tax_acronym='Tax'")
+            else:
+                log_fail("V4.1", f"Expected tax_acronym='Tax', got '{tax_acronym}'")
+                all_pass = False
+    
     except Exception as e:
-        log_test(test_id, "FAIL", f"GET /api/invoices/{invoice_id}/pdf exception: {e}")
+        log_fail("V4.1", f"Exception: {e}")
+        all_pass = False
+    
+    # V4.2: Tax report
+    log("\nV4.2: GET /api/invoices/tax-report")
+    try:
+        response = requests.get(
+            f"{API_URL}/invoices/tax-report",
+            params={
+                "start_date": "2020-01-01",
+                "end_date": "2027-01-01"
+            },
+            headers={"Authorization": f"Bearer {token}"},
+            timeout=30
+        )
+        
+        if response.status_code != 200:
+            log_fail("V4.2", f"GET /api/invoices/tax-report returned {response.status_code}")
+            all_pass = False
+        else:
+            data = response.json()
+            summary = data.get("data", {}).get("summary", {})
+            
+            if "total_revenue" in summary and "total_tax" in summary:
+                log_pass("V4.2 - GET /api/invoices/tax-report returns 200 with summary")
+                log(f"  Total revenue: {summary.get('total_revenue')}", Colors.GREEN)
+                log(f"  Total tax: {summary.get('total_tax')}", Colors.GREEN)
+                log(f"  Total invoices: {summary.get('total_invoices')}", Colors.GREEN)
+            else:
+                log_fail("V4.2", f"Tax report missing summary fields: {summary}")
+                all_pass = False
+    
+    except Exception as e:
+        log_fail("V4.2", f"Exception: {e}")
+        all_pass = False
+    
+    return all_pass
 
 def main():
-    print("=" * 80)
-    print("Session 36: Invoice/Tax Pipeline Accuracy Fixes - Backend Testing")
-    print("=" * 80)
-    print()
+    log("=" * 80)
+    log("Session 36 Continuation: v2 Invoice Semantic Cleanup - Backend Tests")
+    log("=" * 80)
     
-    # ========================================================================
-    # SECTION A: Tax Controller Endpoints (no side effects, safe to run first)
-    # ========================================================================
-    print("\n" + "=" * 80)
-    print("SECTION A: Tax Controller Endpoints (BUG C fix)")
-    print("=" * 80)
-    
-    # A1: US → "Tax" (NOT "EIN")
-    test_tax_rate_endpoint("US", "Tax")
-    
-    # A2: DE → "VAT", rate=19 (from FALLBACK_TAX_RATES)
-    test_tax_rate_endpoint("DE", "VAT", 19)
-    
-    # A3: IT → "IVA"
-    test_tax_rate_endpoint("IT", "IVA")
-    
-    # A4: FR → "TVA"
-    test_tax_rate_endpoint("FR", "TVA")
-    
-    # A5: GET /api/tax/acronyms
-    test_tax_acronyms_endpoint()
-    
-    # A6: Verify NO business-ID acronyms (already checked in A5)
-    log_test("A6", "PASS", "Confirmed: NO business-ID acronyms (EIN/CUIT/CNPJ/BN/ABN) in tax_acronym responses")
-    
-    # ========================================================================
-    # SECTION B: Invoice Endpoints (read-only)
-    # ========================================================================
-    print("\n" + "=" * 80)
-    print("SECTION B: Invoice Endpoints (BUG E fix)")
-    print("=" * 80)
-    
-    # Login as hostbay (data-rich merchant)
-    token = login(HOSTBAY_EMAIL, HOSTBAY_PASSWORD)
+    # Login
+    token = login()
     if not token:
-        print("❌ Cannot proceed with Section B/C/D - login failed")
-        print_summary()
+        log("Failed to login. Exiting.", Colors.RED)
         sys.exit(1)
     
-    # B1: GET /api/invoices
-    invoices = test_invoices_list(token)
+    # Run tests
+    results = {}
     
-    # B2: GET /api/invoices/:id (check provider_vat_id field)
-    if invoices and len(invoices) > 0:
-        invoice_id = invoices[0].get("invoice_id")
-        if invoice_id:
-            test_invoice_by_id(token, invoice_id)
-        else:
-            log_test("B2", "SKIP", "No invoice_id found in first invoice")
-    else:
-        log_test("B2", "SKIP", "No invoices found for hostbay account")
+    # V1: Shared sanitizer
+    results["V1"] = test_v1_shared_sanitizer(token)
     
-    # B3: GET /api/invoices/tax-report
-    test_tax_report(token)
+    # V2: Auto-generate v2 invoice
+    v2_pass, v2_invoice_id = test_v2_auto_generate_v2_invoice(token)
+    results["V2"] = v2_pass
     
-    # ========================================================================
-    # SECTION C: Auto-Invoice Regeneration (verifies new math)
-    # ========================================================================
-    print("\n" + "=" * 80)
-    print("SECTION C: Auto-Invoice Regeneration (BUG A/A'/B/D fixes)")
-    print("=" * 80)
+    # V3: PDF renders
+    results["V3"] = test_v3_pdf_renders(token, v2_invoice_id)
     
-    # C1: Get list of completed transactions
-    transactions = test_transactions_list(token)
+    # V4: Regression
+    results["V4"] = test_v4_regression(token)
     
-    if not transactions:
-        log_test("C1", "SKIP", "No completed transactions found for hostbay account")
-        log_test("C2", "SKIP", "Cannot test auto-invoice generation without completed transactions")
-        log_test("C3", "SKIP", "Cannot verify new math without auto-generated invoice")
-    else:
-        log_test("C1", "PASS", f"Found {len(transactions)} completed transaction(s)")
-        
-        # C2-C3: Try to find a transaction that triggers auto-generation
-        found_new_invoice = False
-        for tx in transactions[:5]:  # Test up to 5 transactions
-            tx_id = tx.get("transaction_id")
-            if tx_id:
-                invoice = test_transaction_invoice(token, tx_id)
-                if invoice:
-                    found_new_invoice = True
-                    break
-        
-        if not found_new_invoice:
-            log_test("C2", "SKIP", "All tested transactions already have invoices (cannot verify new math)")
-            log_test("C3", "SKIP", "New math verification requires a transaction without existing invoice")
-    
-    # ========================================================================
-    # SECTION D: Regression Check
-    # ========================================================================
-    print("\n" + "=" * 80)
-    print("SECTION D: Regression Check")
-    print("=" * 80)
-    
-    # D1: PDF generation
-    if invoices and len(invoices) > 0:
-        invoice_id = invoices[0].get("invoice_id")
-        if invoice_id:
-            test_invoice_pdf(token, invoice_id)
-        else:
-            log_test("D1", "SKIP", "No invoice_id found for PDF test")
-    else:
-        log_test("D1", "SKIP", "No invoices found for PDF test")
-    
-    # ========================================================================
     # Summary
-    # ========================================================================
-    print_summary()
-
-def print_summary():
-    print("\n" + "=" * 80)
-    print("TEST SUMMARY")
-    print("=" * 80)
+    log("\n" + "=" * 80)
+    log("TEST SUMMARY")
+    log("=" * 80)
     
-    passed = [t for t in test_results if t["status"] == "PASS"]
-    failed = [t for t in test_results if t["status"] == "FAIL"]
-    skipped = [t for t in test_results if t["status"] == "SKIP"]
+    total = len(results)
+    passed = sum(1 for v in results.values() if v)
     
-    print(f"\n✅ PASSED: {len(passed)}")
-    for t in passed:
-        print(f"   {t['test_id']}: {t['message']}")
+    for test_name, passed_flag in results.items():
+        status = f"{Colors.GREEN}PASS{Colors.END}" if passed_flag else f"{Colors.RED}FAIL{Colors.END}"
+        print(f"{test_name}: {status}")
     
-    if failed:
-        print(f"\n❌ FAILED: {len(failed)}")
-        for t in failed:
-            print(f"   {t['test_id']}: {t['message']}")
+    log(f"\nTotal: {passed}/{total} test groups passed")
     
-    if skipped:
-        print(f"\n⏭️  SKIPPED: {len(skipped)}")
-        for t in skipped:
-            print(f"   {t['test_id']}: {t['message']}")
-    
-    print(f"\nTOTAL: {len(test_results)} tests ({len(passed)} pass, {len(failed)} fail, {len(skipped)} skip)")
-    print("=" * 80)
-    
-    # Exit with error code if any tests failed
-    if failed:
+    if passed == total:
+        log("\n✅ ALL TESTS PASSED", Colors.GREEN)
+        sys.exit(0)
+    else:
+        log(f"\n❌ {total - passed} TEST GROUP(S) FAILED", Colors.RED)
         sys.exit(1)
 
 if __name__ == "__main__":

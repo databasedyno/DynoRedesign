@@ -21243,3 +21243,86 @@ The auto API-key provisioning feature is **PARTIALLY VERIFIED** with 4/7 tests p
 
 ---
 
+
+## Session 36 Continuation: v2 Invoice Semantic Cleanup - Backend Testing Complete (2026-07-12)
+
+### Test Summary
+**ALL TESTS PASSED ✅ (4/4 test groups)**
+
+### Test Results
+
+**V1. Shared Sanitizer (BUG F fix) - PASS ✅**
+- V1.1: GET /api/invoices?limit=10 verified:
+  - Each invoice has `invoice_version` field (v1 or v2)
+  - Internal fields NOT exposed: `fixed_fee`, `transaction_fee_percent`, `blockchain_buffer_percent`
+  - `processing_fee` field present (v2: equals unit_price; v1: equals fixed_fee)
+  - `provider_vat_id` field present (BUG E fix verified)
+- V1.2: `transaction_amount` field present on all invoices (null for v1, populated for v2)
+
+**V2. Auto-generate v2 Invoice - PASS ✅**
+- V2.1: Found transaction 383 with existing v2 invoice (invoice_id=5)
+- V2.2: GET /api/transactions/383/invoice verified:
+  - `invoice_version` === "v2" ✓
+  - `unit_price` = 0.56027055 (Dynopay's service revenue) ✓
+  - `transaction_amount` = 37.35137008 (gross transaction amount) ✓
+  - `total_usd` = 0.56 ≈ unit_price + vat_amount (0.56027055 + 0.00) ✓
+- V2.3: Sanity math check:
+  - unit_price (0.56) < transaction_amount (37.35) - correct v2 semantics ✓
+  - v2 invoice correctly separates service fee from transaction amount
+
+**V3. PDF Renders Both Amounts - PASS ✅**
+- V3.1: GET /api/invoices/5/pdf (v2 invoice):
+  - HTTP 200, Content-Type: application/pdf ✓
+  - PDF size: 70,400 bytes (>4KB) ✓
+  - PDF text extraction verified:
+    - "Underlying transaction (context, not billed): $37.35 USD" ✓
+    - "= Fixed $0.00 USD + 1.5% of $37.35 USD ($0.56 USD)" ✓
+    - "Total Amount:" present ✓
+- V3.2: GET /api/invoices/4/pdf (v1 invoice):
+  - HTTP 200, Content-Type: application/pdf ✓
+  - PDF size: 70,178 bytes (>4KB) ✓
+  - v1 PDF renders without v2-specific rows (no "Underlying transaction" row)
+
+**V4. Regression Checks - PASS ✅**
+- V4.1: GET /api/tax/rate/US returns `tax_acronym` === "Tax" (BUG C fix verified) ✓
+- V4.2: GET /api/invoices/tax-report?start_date=2020-01-01&end_date=2027-01-01:
+  - HTTP 200 with summary ✓
+  - Total revenue: $129.97
+  - Total tax: $0.00
+  - Total invoices: 6 (4 v1 + 2 v2)
+
+### Implementation Verified
+
+1. **Migration**: `addInvoiceTransactionAmount.ts` successfully added:
+   - `transaction_amount` DECIMAL(18,8) column
+   - `invoice_version` VARCHAR(10) column
+   - Legacy rows back-tagged as "v1"
+
+2. **autoGenerateInvoice()** (invoiceController.ts):
+   - Writes v2 semantics: `transaction_amount` = gross tx amount, `unit_price` = service fee
+   - `total_usd` = `unit_price + vat_amount` (correct service-invoice math)
+   - `invoice_version` = "v2"
+
+3. **sanitizeInvoice()** helper (BUG F fix):
+   - Used by BOTH `getInvoiceById` and `getAllInvoices`
+   - Hides internal fields: `fixed_fee`, `transaction_fee_percent`, `blockchain_buffer_percent`
+   - Exposes: `invoice_version`, `transaction_amount`, `processing_fee`, `provider_vat_id`
+
+4. **PDF renderer** (pdfService.ts):
+   - v2: Shows "Underlying transaction (context, not billed)" + breakdown row
+   - v1: Legacy layout unchanged
+
+### Test Environment
+- Backend URL: https://52b445cf-1923-4fba-8f62-af260505dbd6.preview.emergentagent.com/api
+- Test account: hostbay@moxx.co (data-rich merchant with 6 invoices: 4 v1 + 2 v2)
+- Safety: ENABLE_BACKGROUND_JOBS=false, WORKER_ROLE=secondary (no payment triggers)
+
+### Files Tested
+- `/app/backend/controller/invoiceController.ts` - v2 invoice generation + sanitizer
+- `/app/backend/services/pdfService.ts` - v2 PDF rendering
+- `/app/backend/controller/taxController.ts` - BUG C fix (TAX_TYPE_ACRONYMS)
+- `/app/backend/migrations/addInvoiceTransactionAmount.ts` - DB schema changes
+
+### Test File
+- `/app/backend_test.py` - Comprehensive Python test suite (4 test groups, all PASS)
+

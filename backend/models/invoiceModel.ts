@@ -74,6 +74,20 @@ const invoiceModel = sequelize.define(
     blockchain_buffer_percent: {
       type: DataTypes.DECIMAL(5, 2),
     },
+    // v2 (session 36): the gross transaction amount this invoice relates to.
+    // Kept separate from unit_price so unit_price can represent the actual
+    // service revenue (fixed_fee + transaction_fee_amount). Nullable — legacy
+    // v1 rows have unit_price == transaction amount and NULL here.
+    transaction_amount: {
+      type: DataTypes.DECIMAL(18, 8),
+      allowNull: true,
+    },
+    // "v1" legacy (unit_price == tx amount) OR "v2" service-invoice
+    // (unit_price == service fee). Renderer branches on this.
+    invoice_version: {
+      type: DataTypes.STRING(10),
+      allowNull: true,
+    },
     // Totals
     // Note: total_usd stores the total in the company's preferred currency (not necessarily USD)
     // The actual currency is indicated by crypto_currency field
