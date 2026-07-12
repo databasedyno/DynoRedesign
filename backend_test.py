@@ -10,7 +10,7 @@ import sys
 from typing import Dict, Any, Optional
 
 # Configuration
-BASE_URL = "https://52b445cf-1923-4fba-8f62-af260505dbd6.preview.emergentagent.com"
+BASE_URL = "https://crypto-checkout-39.preview.emergentagent.com"
 API_URL = f"{BASE_URL}/api"
 
 # Test credentials (from /app/memory/test_credentials.md)
