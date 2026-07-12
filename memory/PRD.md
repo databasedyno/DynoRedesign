@@ -5,6 +5,22 @@ USDT-TRC20 payment gateway platform. Users can create companies, wallets, paymen
 
 ## What's Been Implemented
 
+### 2026-07-12 — Session 29 — Full UX usability audit (all devices) + simulated user research — REPORT-ONLY (no code changes)
+**User request:** "conduct UX usability audit based on all device types and report; conduct user research and testing to understand user needs and pain points and report." User choices: full end-to-end coverage (public + logged-in + checkout), simulated persona research, two markdown reports, **report only + recommendations — DO NOT FIX yet**.
+**Method:** 75 instrumented page loads (25 pages × mobile 390/tablet 768/desktop 1440, own Node Playwright at /pw-browsers) checking overflow/touch-targets/tiny-text/labels/alt/h1/console+hydration errors; ~30 screenshots reviewed light+dark; dark-mode pass (localStorage key `theme-mode`); testing_agent ran 7 persona task flows (iteration_27.json) incl. coordinate-verified tap-interception probes; QA pay-link 32 "QA UX AUDIT DELETE ME" created + DELETED (live DB clean).
+**Deliverables:** `/app/memory/UX_AUDIT_REPORT.md` (24 severity-ranked findings F1–F24 + device matrix + quick wins) and `/app/memory/USER_RESEARCH_REPORT.md` (6 personas, 7 task flows all completed, needs synthesis, prioritized recs).
+**Top P0 findings (NOT yet fixed — awaiting user prioritization):**
+- F1 chat FAB occludes "Create Company" CTA / "View all" / txn status region at 390px (coordinate-verified tap interception)
+- F2 no visible keyboard focus rings on login form (likely global MUI override; WCAG 2.4.7)
+- F3 /pay-links row actions are unlabeled 14–20px icon buttons (copy-link undiscoverable; WCAG 4.1.2)
+- F4 API-failure states render as EMPTY states (rate-limited create-pay-link showed onboarding gate to a merchant WITH company; broken img icons; no retry)
+- P1s: stacked first-run modals (company wizard + $500 promo), 573-unread notification fatigue, "Lifetime volume ↓68.2%" impossible-delta label, preview CTA ≠ checkout CTA color, Customers page swamped by $0 synthetic rows, creator public page mobile avatar clipped under header + dead-end empty state, donation-demo hydration errors #418/423/425 (desktop+tablet only, NOT mobile).
+**False positives ruled out:** docs "something went wrong" = API error-code content; docs curl/node/python tabs DO swap content (verified after testing-agent flag); zero horizontal overflow anywhere (confirms session 26).
+**Positives:** 0px overflow on all 75 combos, checkout+auth+dark-mode strong, all 7 persona tasks completable, loads < ~4s on production build.
+Artifacts: /tmp/uxaudit/ (screenshots + results.json), /app/test_reports/iteration_27.json.
+
+### 2026-07-12 — Session 29 — Fresh container re-provisioned ✅ (see test_credentials.md session-29 entry for full detail)
+
 ### 2026-07-11 — Session 28-cont — Creator page: flagship discovery + full feature expansion
 **Problem:** the Creator vanity page (dynopay.com/{handle}) had full backend + settings UI + public SSR page, and was heavily marketed on the landing, but had **zero discovery inside the app** (no sidebar link, no dashboard card, no header). Confirmed via grep across every layout/nav file. Users had to hunt in `/settings → Creator page` (6th item).
 
