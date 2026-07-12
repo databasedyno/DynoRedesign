@@ -25,12 +25,20 @@ import { QueryTypes } from "sequelize";
 import sequelize from "../utils/dbInstance";
 import { decrypt } from "../helper/encryption";
 
+interface TestModeRestrictions {
+  max_amount?: number;
+  allowed_currencies?: string[];
+  sandbox_mode?: boolean;
+}
+
 interface ApiKeyData {
   company_id: number;
   adm_id: number;
   base_currency: string;
   webhook_url?: string;
   webhook_secret?: string;
+  environment?: "production" | "development";
+  test_mode_restrictions?: TestModeRestrictions | null;
 }
 
 interface CustomerJwtPayload {
@@ -79,22 +87,54 @@ const validateApiKey = async (apiKey: string): Promise<ApiKeyData | null> => {
       return null;
     }
     
-    // Fetch current base_currency + webhook config from DB (source of truth)
-    // The encrypted key payload may have stale values if settings were updated after key creation
-    const dbApiData = await sequelize.query<{ base_currency: string; webhook_url: string | null; webhook_secret: string | null }>(
-      `SELECT base_currency, webhook_url, webhook_secret FROM tbl_api WHERE company_id=$1 AND user_id=$2 AND "apiKey"=$3 LIMIT 1`,
+    // Fetch current base_currency + webhook config + environment + test_mode_restrictions
+    // from DB (source of truth). The encrypted key payload may have stale values if
+    // settings were updated after key creation.
+    const dbApiData = await sequelize.query<{
+      base_currency: string;
+      webhook_url: string | null;
+      webhook_secret: string | null;
+      environment: "production" | "development" | null;
+      test_mode_restrictions: string | Record<string, unknown> | null;
+    }>(
+      `SELECT base_currency, webhook_url, webhook_secret, environment, test_mode_restrictions
+         FROM tbl_api
+        WHERE company_id=$1 AND user_id=$2 AND "apiKey"=$3 AND status='active'
+        LIMIT 1`,
       {
         bind: [company_id, adm_id, apiKey],
-        type: QueryTypes.SELECT
+        type: QueryTypes.SELECT,
       }
     );
-    
-    if (dbApiData.length > 0) {
-      apiData.base_currency = dbApiData[0].base_currency || apiData.base_currency;
-      if (dbApiData[0].webhook_url) apiData.webhook_url = dbApiData[0].webhook_url;
-      if (dbApiData[0].webhook_secret) apiData.webhook_secret = dbApiData[0].webhook_secret;
+
+    if (dbApiData.length === 0) {
+      // Key was revoked/deleted OR user_id/company mismatch → treat as invalid.
+      apiLogger.info(
+        `[LegacyAuth] API key not found or revoked (company ${company_id})`
+      );
+      return null;
     }
-    
+
+    apiData.base_currency = dbApiData[0].base_currency || apiData.base_currency;
+    if (dbApiData[0].webhook_url) apiData.webhook_url = dbApiData[0].webhook_url;
+    if (dbApiData[0].webhook_secret) apiData.webhook_secret = dbApiData[0].webhook_secret;
+    apiData.environment = dbApiData[0].environment || "production";
+
+    // Parse test_mode_restrictions (Postgres JSONB may return as object OR string
+    // depending on the driver setting; handle both defensively).
+    const raw = dbApiData[0].test_mode_restrictions;
+    if (raw) {
+      if (typeof raw === "string") {
+        try {
+          apiData.test_mode_restrictions = JSON.parse(raw) as TestModeRestrictions;
+        } catch {
+          apiData.test_mode_restrictions = null;
+        }
+      } else if (typeof raw === "object") {
+        apiData.test_mode_restrictions = raw as TestModeRestrictions;
+      }
+    }
+
     return apiData;
   } catch (error) {
     apiLogger.error("[LegacyAuth] API key validation error:", error);
@@ -211,6 +251,73 @@ const generateCustomerToken = (customer: CustomerRecord): string => {
 };
 
 /**
+ * Enforces sandbox restrictions on a request when the calling API key is a
+ * dpk_test_ (environment='development') key with test_mode_restrictions.sandbox_mode=true.
+ *
+ * Restrictions checked (all optional in the JSON blob):
+ *  - `max_amount` — rejects when body/query has `amount` or `base_amount` > max.
+ *  - `allowed_currencies` — rejects when body has `currency`/`wallet_type` outside
+ *    the list, OR when `accepted_currencies` array contains any disallowed value.
+ *
+ * Live (`dpk_live_`) keys skip enforcement entirely. Test keys with `sandbox_mode:false`
+ * (or no restrictions blob) also skip. Returns null when OK, or an error string when rejected.
+ */
+const checkSandboxRestrictions = (
+  req: express.Request,
+  apiKeyData: ApiKeyData
+): string | null => {
+  if (apiKeyData.environment !== "development") return null;
+  const r = apiKeyData.test_mode_restrictions;
+  if (!r || !r.sandbox_mode) return null;
+
+  // Amount check — pull from body first, then query. Common field names.
+  const rawAmount =
+    (req.body && (req.body.amount ?? req.body.base_amount)) ??
+    (req.query && (req.query.amount ?? req.query.base_amount));
+  if (rawAmount !== undefined && rawAmount !== null && rawAmount !== "") {
+    const numAmount = Number(rawAmount);
+    if (
+      Number.isFinite(numAmount) &&
+      typeof r.max_amount === "number" &&
+      numAmount > r.max_amount
+    ) {
+      return `Sandbox key limit exceeded: amount ${numAmount} > max_amount ${r.max_amount}. Sandbox keys are capped for safety — use a live (dpk_live_) key for production amounts.`;
+    }
+  }
+
+  // Currency check — accept upper-case allow-list from the blob.
+  if (Array.isArray(r.allowed_currencies) && r.allowed_currencies.length > 0) {
+    const allowed = new Set(
+      r.allowed_currencies.map((c) => String(c).toUpperCase())
+    );
+    const single =
+      (req.body && (req.body.currency || req.body.wallet_type)) ||
+      (req.query && (req.query.currency || req.query.wallet_type));
+    if (typeof single === "string" && !allowed.has(single.toUpperCase())) {
+      return `Sandbox key limit: currency "${single}" is not in the allowed list. Allowed: ${Array.from(
+        allowed
+      ).join(", ")}. Use a live (dpk_live_) key to unlock more currencies.`;
+    }
+    const list = req.body && req.body.accepted_currencies;
+    if (Array.isArray(list)) {
+      const bad = list.filter(
+        (c: unknown) =>
+          typeof c === "string" && !allowed.has(String(c).toUpperCase())
+      );
+      if (bad.length > 0) {
+        return `Sandbox key limit: accepted_currencies contains disallowed value(s) [${bad.join(
+          ", "
+        )}]. Allowed: ${Array.from(allowed).join(
+          ", "
+        )}. Use a live (dpk_live_) key to unlock more currencies.`;
+      }
+    }
+  }
+
+  return null;
+};
+
+/**
  * Legacy API Authentication Middleware
  * 
  * Supports both OLD and NEW authentication flows:
@@ -243,7 +350,23 @@ const legacyApiAuthMiddleware = async (
     
     // Store API key data for later use
     res.locals.apiKeyData = apiKeyData;
-    
+    res.locals.apiEnvironment = apiKeyData.environment || "production";
+    res.locals.testMode = apiKeyData.environment === "development";
+    res.locals.testModeRestrictions = apiKeyData.test_mode_restrictions || null;
+
+    // Enforce sandbox restrictions on dpk_test_ keys (no-op for live keys).
+    const sandboxError = checkSandboxRestrictions(req, apiKeyData);
+    if (sandboxError) {
+      apiLogger.info(
+        `[LegacyAuth] Sandbox restriction violation on company ${apiKeyData.company_id}: ${sandboxError}`
+      );
+      return res.status(400).json({
+        success: false,
+        code: "sandbox_restriction",
+        message: sandboxError,
+      });
+    }
+
     // Step 2: Check Authorization header
     const authHeader = req.headers["authorization"];
     const token = authHeader?.split(" ")[1];

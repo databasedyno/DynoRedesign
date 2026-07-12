@@ -79,6 +79,90 @@ Deleted all test rows via API: `DELETE /api/userApi/deleteApi/{...}` + `DELETE /
 ---
 
 
+## Session 34 (cont'd): Sandbox enforcement + regenerate/toggle/revoke hardening (2026-07-12)
+
+### Gap discovered
+While reviewing "does the sandbox system actually work end-to-end?", I found that `test_mode_restrictions` was **stored but never enforced anywhere in the request path**. The middleware `legacyApiAuthMiddleware` only validated the key was formatted correctly + the company existed, and did NOT read `environment` or `test_mode_restrictions`. This meant a dpk_test_ key could freely process $10,000 payments and use any currency — the "sandbox" was a label with no teeth.
+
+Additionally, two pre-existing bugs were found in `apiController.regenerateApiKey`:
+- The regenerated key was missing its `dpk_test_` / `dpk_live_` prefix (used `"DYNOPAY_USER_API-"` alone) — so regenerated keys looked structurally different from newly-created keys, potentially breaking prefix-based routing on downstream systems.
+- `keyType = existingApi.dataValues.status === 'production' ? 'production' : 'development'` — checking `status` (values: 'active'/'inactive'/'revoked') against 'production' → always false → all regeneration emails always said "development" regardless of the actual key environment.
+
+### Backend code changes (session 34, second wave)
+
+1. **`backend/middleware/legacyApiAuthMiddleware.ts`** —
+   - Extended `ApiKeyData` interface with `environment` + `test_mode_restrictions`.
+   - Extended `validateApiKey`'s DB SELECT to include `environment, test_mode_restrictions` AND now filters `status='active'` (previously it accepted revoked keys because it only validated company existence — a security fix).
+   - Added `checkSandboxRestrictions(req, apiKeyData)` helper that enforces `max_amount` on `amount`/`base_amount` (body or query) and `allowed_currencies` on `currency`/`wallet_type`/`accepted_currencies`.
+   - Middleware now calls the helper right after key validation and returns 400 with `code: "sandbox_restriction"` + a descriptive message pointing users to switch to a live key.
+   - Attaches `res.locals.apiEnvironment`, `res.locals.testMode`, `res.locals.testModeRestrictions` for downstream endpoints.
+
+2. **`backend/controller/apiController.ts`** —
+   - Fixed `regenerateApiKey`: reads `existingApi.dataValues.environment`, prefixes the new key with `dpk_test_` or `dpk_live_` accordingly, and puts `env: environment` inside the JSON payload for parity with new-key creation.
+   - Fixed the `keyType` computation in the notification-email code path to read `environment` (not `status`).
+
+### Formal Verification (21/21 PASS ✅) — 2026-07-12
+
+Comprehensive backend testing via `backend_test.py` against LIVE Railway Postgres + Redis using QA account `qa.empty.1782626169@dynopaytest.com`. All 21 assertions from the formal review request passed.
+
+**Setup & Auto-Provisioning:**
+- ✅ **A1** Company creation returns `auto_test_key_created: true`
+- ✅ Test key found: `environment='development'`, `status='active'`, `test_mode_restrictions={max_amount:100, allowed_currencies:[BTC,ETH,USDT-TRC20,TRX,LTC], sandbox_mode:true}`
+- ✅ Live key created successfully via `POST /api/userApi/addApi` with `environment:'production'`
+
+**Sandbox Enforcement (dpk_test_ key):**
+- ✅ **A4** Amount $50 + BTC → **200** (payment link generated)
+- ✅ **A5** Amount $150 → **400** `code:"sandbox_restriction"`, message contains "exceeded" AND "max_amount 100"
+- ✅ **A6** Currency XRP → **400** `code:"sandbox_restriction"`, message contains "XRP" AND "not in the allowed list"
+- ✅ **A7** Amount $100 (boundary, equal to max_amount) → **200** (strict `>` check)
+- ✅ **A8** Mixed currencies [BTC, XRP, ETH] → **400** `code:"sandbox_restriction"`, message names "XRP"
+
+**Live Key Parity (dpk_live_ key - no restrictions):**
+- ✅ **A9** Amount $10,000 → **200** (unrestricted)
+- ✅ **A10** Amount $500 → **200** (unrestricted)
+
+**Regenerate:**
+- ✅ **A11** `POST /api/userApi/regenerateApi/{test_api_id}` → **200**, new key differs from old, `environment='development'` preserved in DB
+- ✅ **A12** New test key still enforces sandbox: amount $150 → **400** `sandbox_restriction`
+- ✅ **A13** Old (pre-regen) test key → **403** "Invalid API key" (validateApiKey filters `status='active' AND apiKey=?`)
+
+**Toggle Status:**
+- ✅ **A14** `PUT /api/userApi/toggleStatus/{live_api_id}` body `{status:"inactive"}` → **200**, response `data.status === "inactive"`
+- ✅ **A15** Inactive live key → **403** "Invalid API key"
+- ✅ **A16** `PUT /api/userApi/toggleStatus/{live_api_id}` body `{status:"active"}` → **200**
+
+**Revoke:**
+- ✅ **A17** `POST /api/userApi/revoke/{live_api_id}` body `{reason:"formal-test"}` → **200**, response `data.status === "revoked"` + `data.revoked_at` timestamp present
+- ✅ **A18** Revoked live key → **403** "Invalid API key"
+- ✅ **A19** `PUT /api/userApi/toggleStatus/{live_api_id}` body `{status:"active"}` → **400** with message containing "Cannot change status of a revoked"
+
+**Regression (Earlier Feature):**
+- ✅ **A20** Per-env manual dedupe: `POST /api/userApi/addApi` body `{company_id, base_currency:"USD", environment:"development"}` (with auto test key present) → **400** with error mentioning "already has an active development API key"
+- ✅ **A21** `POST /api/wallet/copyWalletAddresses` on fresh target company → response `auto_live_key_created: true`. Second call → `auto_live_key_created: false` (idempotency)
+
+**Additional Verification:**
+- ✅ **A23** Publishable keys unaffected (on different table `tbl_publishable_key` — sandbox middleware only affects `tbl_api`)
+- ✅ **A24** GET endpoints work with sandbox key: `GET /api/user/getBalance` → **200**, `GET /api/user/getTransactions` → **200** (no false-positive rejection)
+
+### Cleanup
+All test data removed: `DELETE /api/userApi/deleteApi/{17,18}` + `DELETE /api/company/deleteCompany/{10,11}` all returned success. Verified via `GET /api/company/getCompany` → 0 companies remaining. LIVE Railway DB restored to pre-session state.
+
+### Files touched
+- `/app/backend/middleware/legacyApiAuthMiddleware.ts`
+- `/app/backend/controller/apiController.ts`
+- `/app/backend_test.py` (comprehensive test suite)
+
+### Status
+- ✅ **21/21 backend assertions PASS** — Sandbox enforcement, regenerate prefix preservation, toggle/revoke, and regression checks all working correctly
+- ✅ All test data cleaned up (0 companies remaining on QA account)
+- ✅ No regressions from earlier 7-test run (T5 per-env dedupe + T6 copyWalletAddresses auto-mint both verified)
+
+### Next
+- Full frontend `auto_frontend_testing_agent` sweep (mobile 390, dark mode, i18n ES/PT, regression on the rest of `/developer-keys`).
+
+---
+
+
 
 ## Session 33: UX re-fix verification (F1/F2/F3/F4/F5/F10/F22) + 2 bug fixes (2026-06)
 

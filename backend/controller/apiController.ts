@@ -722,15 +722,21 @@ const regenerateApiKey = async (req: express.Request, res: express.Response) => 
       return errorResponseHelper(res, 404, "API key not found");
     }
 
-    // Generate new API key
+    // Generate new API key — preserve environment prefix (dpk_test_ / dpk_live_)
+    // so that the regenerated key retains the same sandbox vs live semantics.
+    const envRaw = existingApi.dataValues.environment;
+    const environment: "production" | "development" =
+      envRaw === "development" ? "development" : "production";
     const keyData = {
       base_currency: existingApi.dataValues.base_currency,
       company_id: existingApi.dataValues.company_id,
       adm_id: userData.user_id,
+      env: environment,
       regenerated_at: new Date().toISOString(),
     };
 
-    const keyString = "DYNOPAY_USER_API-" + JSON.stringify(keyData);
+    const keyPrefix = environment === "development" ? "dpk_test_" : "dpk_live_";
+    const keyString = keyPrefix + "DYNOPAY_USER_API-" + JSON.stringify(keyData);
     const newApiKey = encrypt(keyString, process.env.API_SECRET);
 
     await apiModel.update(
@@ -744,7 +750,8 @@ const regenerateApiKey = async (req: express.Request, res: express.Response) => 
       const now = new Date();
       const date = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
       const time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
-      const keyType = existingApi.dataValues.status === 'production' ? 'production' : 'development';
+      // Use environment (production/development), NOT status (active/revoked).
+      const keyType = environment === "production" ? "production" : "development";
       await sendApiKeyCreatedEmail(
         userData.email,
         userData.name || 'User',
