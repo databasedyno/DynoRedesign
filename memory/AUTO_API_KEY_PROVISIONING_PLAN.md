@@ -318,3 +318,29 @@ This doc's feature (auto API-key provisioning) is the **only remaining P0** from
 - Data-rich (READ-only, never write): `hostbay@moxx.co / Katiekendra123@`.
 - Backend = Node/Express via Python proxy (`:8001` → `:3300`); edit `.ts` under `/app/backend`.
   Frontend = Next.js standalone; after FE code changes run `next build` + `supervisorctl restart frontend`.
+
+
+---
+
+## 15. Proposed enhancement (post-implementation, conversion-focused)
+**"Test your first payment" one-line cURL on the Developer Keys page.**
+
+Since a merchant now gets a sandbox (`dpk_test_`) key the instant they sign up, would you like a
+one-line "Test your first payment" cURL snippet auto-shown on the Developer Keys page (prefilled with
+their test key)? It converts far more devs to a first successful API call.
+
+Sketch:
+- Render a "Try your first payment" card in the Development/Test section of `/developer-keys`
+  once a `dpk_test_` key exists.
+- Prefill the merchant's actual (revealed-on-demand or masked) test key into a copy-paste cURL, e.g.:
+  ```bash
+  curl -X POST https://dynopay.com/api/user/createPayment \
+    -H "x-api-key: dpk_test_<MERCHANT_TEST_KEY>" \
+    -H "Content-Type: application/json" \
+    -d '{"amount": 5, "currency": "USDT-TRC20"}'
+  ```
+- Show the sample `201 Created` response inline; link to the full docs.
+- Rationale: removes the "what do I even call first?" friction → faster time-to-first-successful-call,
+  higher activation/conversion. Keep the destructive reveal action manual (only inject the key after
+  an explicit "reveal" click, otherwise use the masked value + a "reveal to copy" affordance).
+- Status: NOT STARTED — proposed to user; implement only after the core auto-provisioning ships.
