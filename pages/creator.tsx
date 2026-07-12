@@ -1,6 +1,7 @@
 import Head from "next/head";
+import { useRouter } from "next/router";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Box, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { Box, Button, Typography, useMediaQuery, useTheme } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
@@ -19,6 +20,7 @@ interface Stats {
 
 const CreatorPageRoute = ({ setPageName, setPageDescription }: pageProps) => {
   const theme = useTheme();
+  const router = useRouter();
   const isDesktop = useMediaQuery(theme.breakpoints.up("lg"));
   const { t } = useTranslation(["dashboardLayout", "common"]);
   const profile = useSelector((s: rootReducer) => (s as any).userReducer.profile) as any;
@@ -158,6 +160,58 @@ const CreatorPageRoute = ({ setPageName, setPageDescription }: pageProps) => {
             ))}
           </Box>
         )}
+
+        {/* Buy-me-a-coffee / donation CTA — bridges the Creator page with the
+            donation link type so tips feel like a first-class Creator feature. */}
+        <Box
+          data-testid="creator-donation-cta"
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 1.75,
+            p: { xs: 1.75, sm: 2.25 },
+            mb: 3,
+            borderRadius: "14px",
+            border: `1px solid ${theme.palette.mode === "dark" ? "rgba(204,255,0,0.30)" : "rgba(160,190,0,0.45)"}`,
+            backgroundColor: theme.palette.mode === "dark" ? "rgba(204,255,0,0.07)" : "rgba(204,255,0,0.13)",
+            flexWrap: "wrap",
+          }}
+        >
+          <Box
+            sx={{
+              width: 44, height: 44, borderRadius: "12px", flexShrink: 0,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              backgroundColor: "#CCFF00",
+            }}
+          >
+            <Icon icon="mdi:coffee-outline" width={24} color="#0A0A0B" />
+          </Box>
+          <Box sx={{ flex: "1 1 260px", minWidth: 0 }}>
+            <Typography fontSize={15} fontWeight={800} color={theme.palette.text.primary}>
+              {t("creatorDonationCtaTitle", { defaultValue: "Collect tips & donations", ns: "dashboardLayout" })}
+            </Typography>
+            <Typography fontSize={13} color={theme.palette.text.secondary} mt={0.25}>
+              {t("creatorDonationCtaSubtitle", {
+                defaultValue: "Create a \u201cBuy me a coffee\u201d / donation link \u2014 it\u2019s featured at the top of your creator page.",
+                ns: "dashboardLayout",
+              })}
+            </Typography>
+          </Box>
+          <Button
+            data-testid="creator-donation-cta-btn"
+            disableElevation
+            variant="contained"
+            onClick={() => router.push("/create-pay-link?type=donation")}
+            sx={{
+              px: 2.25, py: 1.1, borderRadius: "10px", textTransform: "none",
+              fontWeight: 800, fontSize: 13.5, whiteSpace: "nowrap",
+              backgroundColor: "#CCFF00", color: "#0A0A0B",
+              "&:hover": { backgroundColor: "#CCFF00", filter: "brightness(1.05)" },
+            }}
+          >
+            {t("creatorDonationCtaButton", { defaultValue: "Create donation link", ns: "dashboardLayout" })}
+          </Button>
+        </Box>
 
         {/* Two-column: form (left) + live preview (right, sticky, desktop only) */}
         <Box sx={{ display: "flex", gap: 3, alignItems: "flex-start", flexWrap: "wrap" }}>

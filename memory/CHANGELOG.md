@@ -1,5 +1,20 @@
 # Changelog
 
+## 2026-07-12 (session 35) — Bridge Creator page ↔ donation / "Buy me a coffee"
+
+**Problem (user report):** "I can't find donate button or buy me coffee option with swift crypto payment option on create page" — user's mental model is that donations/tips are a **Creator** feature. The donation link type + full DonationSettings (goal, presets = quick tip amounts, campaign image) already existed on `/create-pay-link`, and a donation link auto-becomes the "Featured tip box" on the public creator page (`CreatorProfile.tsx` L69). BUT the two were disconnected in the UX: `CreatorLivePreview` literally says "Create a donation link and it will feature at the top of your page" with **no button to do so**, and `/create-pay-link` had no way to deep-link into the donation type.
+
+**Shipped (frontend-only, no backend/DB changes; safe for the LIVE prod DB):**
+- `Components/Page/CreatePaymentLink/index.tsx`:
+  - New effect: `/create-pay-link?type=donation` (also `?kind=donation` / `?template=donation`) preselects the Donation link kind (one-shot ref-guarded, create-mode only). This ALSO fixes the pre-existing `EmptyDataModel` "Accept a donation" chip (`?template=donation&amount=10`) which previously opened a *standard* link titled "Donation".
+  - Added a creator-association hint banner (☕, lime-tinted, `data-testid="donation-creator-hint"`) shown when linkKind==='donation' in create mode: if the merchant has a handle → "featured at the top of your creator page {url}"; else → "Publish a creator page…" + a `Set up your creator page →` CTA (`data-testid="donation-creator-hint-cta"`) → `/creator`. Reads `state.userReducer.profile.handle` + `NEXT_PUBLIC_BASE_URL`.
+- `pages/creator.tsx`: added a prominent "Collect tips & donations" CTA card (`data-testid="creator-donation-cta"` + button `creator-donation-cta-btn`) between the stat tiles and the form/preview columns → deep-links to `/create-pay-link?type=donation`. Imported `useRouter` + MUI `Button`.
+- i18n via `t(key, { defaultValue })` fallback pattern (no locale files edited — English fallback works across all 6 locales).
+
+**Verification:** eslint clean on both files; `next build` standalone PASS (type-checked, 69s, 436 kB shared JS); frontend restarted; external `/create-pay-link?type=donation` + `/creator` = 200. Full logged-in flow (CTA → deep-link → donation preselected + hint) pending frontend testing_agent (awaiting user approval — authed SPA won't hydrate via simple token injection).
+
+
+
 ## 2026-07-11 (session 28-cont) — Creator page: flagship discovery + full feature expansion
 
 **Problem:** The Creator vanity page (dynopay.com/{handle}) was fully built (backend + settings UI + public /{handle} SSR page) and heavily marketed on the landing, but had **zero discovery inside the app** — no sidebar link, no dashboard card, no header entry. The only way to find it was `/settings → left rail → Creator page`. Confirmed via grep across every layout/nav file.

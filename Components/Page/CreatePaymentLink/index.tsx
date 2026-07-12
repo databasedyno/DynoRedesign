@@ -957,6 +957,12 @@ const CreatePaymentLinkPage = ({
   // Dynamically compute which wallets are not set up based on actual wallet data
   const walletList = useSelector((state: any) => state.walletReducer?.walletList ?? []);
   const companyListForBanner = useSelector((state: any) => state?.companyReducer?.companyList ?? []);
+  // Creator profile — used to show where a donation link will surface publicly.
+  const creatorProfile = useSelector((state: any) => state?.userReducer?.profile) as any;
+  const creatorHandle: string = creatorProfile?.handle || "";
+  const creatorPublicUrl = creatorHandle
+    ? `${(process.env.NEXT_PUBLIC_BASE_URL || "").replace(/\/+$/, "")}/${creatorHandle}`.replace(/^https?:\/\//, "")
+    : "";
   const walletNotSetUp = useMemo(() => {
     const configuredTypes = new Set(
       walletList
@@ -1035,6 +1041,22 @@ const CreatePaymentLinkPage = ({
       description: templateDescs[template] || prev.description,
     }));
   }, [router.isReady, router.query.template, router.query.amount, hasPaymentLinkData, tPaymentLink]);
+
+  // Deep-link support: /create-pay-link?type=donation (or ?kind=donation, or
+  // ?template=donation) preselects the Donation / "Buy me a coffee" kind. Used
+  // by the Creator-page CTAs so tips/donations feel like a Creator feature.
+  const hasAppliedKindRef = useRef(false);
+  useEffect(() => {
+    if (hasAppliedKindRef.current) return;
+    if (hasPaymentLinkData) return;
+    if (!router.isReady) return;
+    const qType = String(router.query.type || router.query.kind || "").toLowerCase();
+    const qTemplate = String(router.query.template || "").toLowerCase();
+    if (qType === "donation" || qTemplate === "donation") {
+      hasAppliedKindRef.current = true;
+      setLinkKind("donation");
+    }
+  }, [router.isReady, router.query.type, router.query.kind, router.query.template, hasPaymentLinkData]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -1203,6 +1225,48 @@ const CreatePaymentLinkPage = ({
           disabled={hasPaymentLinkData || disabled}
           isMobile={isMobile}
         />
+
+        {/* Creator-page association hint — makes it clear a donation link is the
+            "Buy me a coffee" tip box that surfaces on the merchant's creator page. */}
+        {linkKind === "donation" && !hasPaymentLinkData && (
+          <Box
+            data-testid="donation-creator-hint"
+            sx={{
+              display: "flex",
+              alignItems: "flex-start",
+              gap: 1.25,
+              p: "12px 14px",
+              mb: 2,
+              borderRadius: "10px",
+              border: `1px solid ${theme.palette.mode === "dark" ? "rgba(204,255,0,0.32)" : "rgba(160,190,0,0.45)"}`,
+              backgroundColor: theme.palette.mode === "dark" ? "rgba(204,255,0,0.08)" : "rgba(204,255,0,0.14)",
+            }}
+          >
+            <Typography sx={{ fontSize: 16, lineHeight: 1.2 }} aria-hidden>&#9749;</Typography>
+            <Box sx={{ flex: 1, minWidth: 0 }}>
+              <Typography sx={{ fontSize: 13, fontWeight: 700, color: theme.palette.text.primary, fontFamily: "var(--font-sans)", lineHeight: 1.4 }}>
+                {tPaymentLink("donationCreatorHintTitle", { defaultValue: "This becomes your \u201cBuy me a coffee\u201d tip box" })}
+              </Typography>
+              <Typography sx={{ fontSize: 12.5, color: theme.palette.text.secondary, fontFamily: "var(--font-sans)", lineHeight: 1.5, mt: 0.25 }}>
+                {creatorHandle
+                  ? tPaymentLink("donationCreatorHintLive", { defaultValue: "It will be featured at the top of your creator page {{url}}.", url: creatorPublicUrl })
+                  : tPaymentLink("donationCreatorHintNoHandle", { defaultValue: "Publish a creator page to feature it as your public tip jar." })}
+              </Typography>
+              {!creatorHandle && (
+                <Box
+                  role="button"
+                  tabIndex={0}
+                  data-testid="donation-creator-hint-cta"
+                  onClick={() => router.push("/creator")}
+                  onKeyDown={(e: React.KeyboardEvent) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); router.push("/creator"); } }}
+                  sx={{ display: "inline-flex", alignItems: "center", gap: 0.5, mt: 0.75, cursor: "pointer", fontSize: 12.5, fontWeight: 700, color: theme.palette.primary.main, "&:hover": { textDecoration: "underline" }, userSelect: "none" }}
+                >
+                  {tPaymentLink("donationCreatorHintSetup", { defaultValue: "Set up your creator page \u2192" })}
+                </Box>
+              )}
+            </Box>
+          </Box>
+        )}
 
         {(
           <TabContentContainer
