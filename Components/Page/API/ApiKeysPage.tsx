@@ -1009,6 +1009,293 @@ export function DynopayCryptoElement({ amount = 5 }: { amount?: number }) {
   );
 };
 
+/* ------------------------------------------------------------------ */
+/* "Try your first payment" cURL activation card (Phase C)            */
+/* Renders only when a sandbox (dpk_test_) key exists. Reveal-to-copy */
+/* — the key is masked in the DOM until the merchant clicks "Show".   */
+/* ------------------------------------------------------------------ */
+const TryFirstPaymentCard = ({
+  onCopy,
+  docsUrl,
+  testKey,
+}: {
+  onCopy: (v: string) => void;
+  docsUrl: string;
+  testKey: string;
+}) => {
+  const theme = useTheme();
+  const { t } = useTranslation("apiScreen");
+  const [revealed, setRevealed] = useState(false);
+
+  const baseUrl =
+    (process.env.NEXT_PUBLIC_BASE_URL as string) ||
+    (typeof window !== "undefined" ? window.location.origin : "https://dynopay.com");
+
+  // Masked display (safe for screenshots, sharing, screen-recordings)
+  const maskedKey = testKey
+    ? testKey.slice(0, 12) + "•".repeat(Math.max(0, testKey.length - 16)) + testKey.slice(-4)
+    : "dpk_test_••••••••••";
+
+  const displayedKey = revealed ? testKey : maskedKey;
+
+  // The visible snippet always shows the masked key (unless revealed).
+  // Copy button copies the REAL key so the cURL works out of the box.
+  const buildCurl = (key: string) =>
+    `curl -X POST ${baseUrl}/api/user/createPayment \\
+  -H "x-api-key: ${key}" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "amount": 5,
+    "redirect_uri": "${baseUrl}/dashboard"
+  }'`;
+
+  const displayedSnippet = buildCurl(displayedKey);
+  const copyableSnippet = buildCurl(testKey);
+
+  const sampleResponse =
+`HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "success": true,
+  "message": "Link Generated!",
+  "data": {
+    "redirect_url": "https://checkout.dynopay.com/pay?d=abc123...",
+    "fee_payer": "company",
+    "available_currencies": ["USDT-TRC20", "BTC", "ETH"],
+    "webhook_url": "not configured"
+  }
+}`;
+
+  return (
+    <Box
+      data-testid="try-first-payment-card"
+      sx={{
+        border: `1px solid ${theme.palette.border.main}`,
+        borderRadius: "12px",
+        background: theme.palette.background.paper,
+        p: { xs: 2, sm: 2.5 },
+        position: "relative",
+        overflow: "hidden",
+      }}
+    >
+      {/* Subtle sparkle accent stripe */}
+      <Box
+        sx={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 3,
+          background: `linear-gradient(90deg, ${theme.palette.primary.main} 0%, transparent 100%)`,
+        }}
+      />
+
+      <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
+        <Typography
+          sx={{
+            fontSize: 18,
+            fontWeight: 700,
+            color: theme.palette.text.primary,
+            fontFamily: "var(--font-sans)",
+          }}
+        >
+          {t("keys.tryFirstPaymentTitle", {
+            defaultValue: "Try your first payment",
+          })}
+        </Typography>
+        <Box
+          component="span"
+          sx={{
+            fontSize: 10.5,
+            fontWeight: 700,
+            letterSpacing: 0.5,
+            px: 1,
+            py: 0.3,
+            borderRadius: "6px",
+            bgcolor: theme.palette.primary.main,
+            color: "#0b0b0b",
+          }}
+        >
+          {t("keys.tryFirstPaymentBadge", { defaultValue: "SANDBOX · cURL" })}
+        </Box>
+      </Box>
+
+      <Typography sx={{ mt: 0.5, fontSize: 14, color: theme.palette.text.secondary }}>
+        {t("keys.tryFirstPaymentSubtitle", {
+          defaultValue:
+            "Fastest way to feel Dynopay. Copy-paste this into your terminal — it uses your sandbox key and creates a $5 test checkout link.",
+        })}
+      </Typography>
+
+      {/* Reveal toggle */}
+      <Box
+        sx={{
+          mt: 2,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          flexWrap: "wrap",
+          gap: 1,
+        }}
+      >
+        <Typography
+          sx={{
+            fontSize: 12,
+            fontWeight: 700,
+            letterSpacing: 0.4,
+            textTransform: "uppercase",
+            color: theme.palette.text.secondary,
+          }}
+        >
+          {t("keys.tryFirstPaymentSnippetLabel", { defaultValue: "cURL — POST /api/user/createPayment" })}
+        </Typography>
+
+        <Box
+          component="button"
+          type="button"
+          data-testid="try-first-payment-reveal"
+          onClick={() => setRevealed((v) => !v)}
+          sx={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 0.5,
+            border: `1px solid ${theme.palette.border.main}`,
+            background: "transparent",
+            color: theme.palette.text.secondary,
+            borderRadius: "6px",
+            px: 1,
+            py: 0.4,
+            cursor: "pointer",
+            fontSize: 12,
+            fontFamily: "var(--font-sans)",
+            "&:hover": { color: theme.palette.text.primary },
+          }}
+        >
+          <Image src={EyeIcon.src} alt="Reveal" width={14} height={14} />
+          {revealed
+            ? t("keys.tryFirstPaymentHide", { defaultValue: "Hide key" })
+            : t("keys.tryFirstPaymentReveal", { defaultValue: "Show key" })}
+        </Box>
+      </Box>
+
+      <Box sx={{ mt: 0.75, position: "relative" }}>
+        <Box
+          component="pre"
+          data-testid="try-first-payment-snippet"
+          sx={{
+            m: 0,
+            p: 1.5,
+            borderRadius: "8px",
+            overflowX: "auto",
+            background: theme.palette.mode === "dark" ? "rgba(255,255,255,0.04)" : "#0b0b0b",
+            color: theme.palette.mode === "dark" ? "#d6f7c2" : "#e6e6e6",
+            fontSize: 12.5,
+            lineHeight: 1.6,
+            fontFamily: "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            whiteSpace: "pre",
+            border: `1px solid ${theme.palette.border.main}`,
+          }}
+        >
+          {displayedSnippet}
+        </Box>
+        <Box
+          component="button"
+          type="button"
+          data-testid="try-first-payment-copy"
+          onClick={() => onCopy(copyableSnippet)}
+          sx={{
+            position: "absolute",
+            top: 8,
+            right: 8,
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 0.5,
+            border: `1px solid ${theme.palette.border.main}`,
+            background: theme.palette.mode === "dark" ? "rgba(0,0,0,0.35)" : "rgba(255,255,255,0.08)",
+            color: theme.palette.mode === "dark" ? "#e6e6e6" : "#f0f0f0",
+            borderRadius: "6px",
+            px: 1,
+            py: 0.4,
+            cursor: "pointer",
+            fontSize: 12,
+            fontFamily: "var(--font-sans)",
+            "&:hover": {
+              background: theme.palette.mode === "dark" ? "rgba(255,255,255,0.06)" : "rgba(255,255,255,0.14)",
+            },
+          }}
+          aria-label={t("keys.tryFirstPaymentCopyAria", { defaultValue: "Copy cURL command with your real test key" })}
+        >
+          <Image src={CopyIcon.src} alt="Copy" width={14} height={14} />
+          {t("keys.tryFirstPaymentCopyLabel", { defaultValue: "Copy cURL" })}
+        </Box>
+      </Box>
+
+      {/* Sample response */}
+      <Box sx={{ mt: 2 }}>
+        <Typography
+          sx={{
+            fontSize: 12,
+            fontWeight: 700,
+            letterSpacing: 0.4,
+            textTransform: "uppercase",
+            color: theme.palette.text.secondary,
+            mb: 0.5,
+          }}
+        >
+          {t("keys.tryFirstPaymentResponseLabel", { defaultValue: "You should see" })}
+        </Typography>
+        <Box
+          component="pre"
+          data-testid="try-first-payment-response"
+          sx={{
+            m: 0,
+            p: 1.5,
+            borderRadius: "8px",
+            overflowX: "auto",
+            background: theme.palette.mode === "dark" ? "rgba(255,255,255,0.02)" : "#f6f6f6",
+            color: theme.palette.text.primary,
+            fontSize: 12.5,
+            lineHeight: 1.6,
+            fontFamily: "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+            whiteSpace: "pre",
+            border: `1px solid ${theme.palette.border.main}`,
+          }}
+        >
+          {sampleResponse}
+        </Box>
+      </Box>
+
+      <Box sx={{ mt: 2, display: "flex", flexWrap: "wrap", gap: 1.25, alignItems: "center" }}>
+        <CustomButton
+          label={t("keys.tryFirstPaymentDocsBtn", { defaultValue: "Open full API docs" })}
+          endIcon={<ArrowOutwardIcon sx={{ fontSize: 16 }} />}
+          variant="outlined"
+          sx={{
+            borderColor: theme.palette.primary.main,
+            color: theme.palette.primary.main,
+            "&:hover": {
+              background: theme.palette.mode === "dark" ? "rgba(204,255,0,0.08)" : "#f0f5ff",
+              borderColor: theme.palette.primary.main,
+            },
+          }}
+          onClick={() =>
+            docsUrl && window.open(docsUrl, "_blank", "noopener,noreferrer")
+          }
+        />
+        <Typography
+          sx={{ fontSize: 12, color: theme.palette.text.secondary }}
+        >
+          {t("keys.tryFirstPaymentFooterHint", {
+            defaultValue:
+              "The redirect_url is a hosted checkout page — open it in a browser to complete the test payment.",
+          })}
+        </Typography>
+      </Box>
+    </Box>
+  );
+};
+
 const ApiKeysPage = ({
   openCreate: openCreateProp,
   setOpenCreate: setOpenCreateProp,
@@ -1339,6 +1626,41 @@ const ApiKeysPage = ({
       >
         <ElementsWidgetCard onCopy={handleCopy} docsUrl={docsUrl} />
       </Box>
+
+      {(() => {
+        // Phase C: "Try your first payment" cURL card.
+        // Only mount when a real sandbox (dpk_test_) key exists so the copy
+        // button produces a working command out of the box.
+        const list: IApi[] = Array.isArray(apiState?.apiList) ? apiState.apiList : [];
+        const sandboxKey = list.find((k: any) => {
+          if (k?.environment !== "development" || k?.status !== "active") return false;
+          const raw = (k as { test_mode_restrictions?: unknown }).test_mode_restrictions;
+          let parsed: any = null;
+          if (typeof raw === "string") {
+            try { parsed = JSON.parse(raw); } catch { parsed = null; }
+          } else if (raw && typeof raw === "object") {
+            parsed = raw;
+          }
+          return !!parsed?.sandbox_mode;
+        });
+        if (!sandboxKey) return null;
+        return (
+          <Box
+            sx={{
+              mb: isMobile ? 2 : 2.5,
+              opacity: 0,
+              animation: "fadeSlideIn 0.5s ease forwards",
+              ...itemAnimation,
+            }}
+          >
+            <TryFirstPaymentCard
+              onCopy={handleCopy}
+              docsUrl={docsUrl}
+              testKey={(sandboxKey as any)?.apiKey || ""}
+            />
+          </Box>
+        );
+      })()}
 
       <Box
         sx={{

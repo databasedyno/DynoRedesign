@@ -76,6 +76,17 @@
   "keys": {
     "liveUnlockHint": "Votre clé en direct s'active automatiquement dès que vous ajoutez (ou réutilisez) votre premier portefeuille sur cette entreprise.",
     "testAutoCreatedBadge": "Créée automatiquement · Sandbox",
-    "sandboxLimits": "Max ${{max}} · {{currencies}} · mode sandbox"
+    "sandboxLimits": "Max ${{max}} · {{currencies}} · mode sandbox",
+    "tryFirstPaymentTitle": "Essayez votre premier paiement",
+    "tryFirstPaymentBadge": "SANDBOX · cURL",
+    "tryFirstPaymentSubtitle": "Le moyen le plus rapide de découvrir Dynopay. Copiez-collez ceci dans votre terminal — cela utilise votre clé sandbox et crée un lien de paiement de test de 5 $.",
+    "tryFirstPaymentSnippetLabel": "cURL — POST /api/user/createPayment",
+    "tryFirstPaymentReveal": "Afficher la clé",
+    "tryFirstPaymentHide": "Masquer la clé",
+    "tryFirstPaymentCopyLabel": "Copier le cURL",
+    "tryFirstPaymentCopyAria": "Copier la commande cURL avec votre vraie clé de test",
+    "tryFirstPaymentResponseLabel": "Vous devriez voir",
+    "tryFirstPaymentDocsBtn": "Ouvrir la documentation API",
+    "tryFirstPaymentFooterHint": "L'URL redirect_url est une page de paiement hébergée — ouvrez-la dans un navigateur pour terminer le paiement de test."
   }
 }

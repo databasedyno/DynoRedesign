@@ -76,6 +76,17 @@
   "keys": {
     "liveUnlockHint": "Your live key activates automatically once you add (or reuse) your first wallet on this company.",
     "testAutoCreatedBadge": "Auto-created · Sandbox",
-    "sandboxLimits": "Max ${{max}} · {{currencies}} · sandbox mode"
+    "sandboxLimits": "Max ${{max}} · {{currencies}} · sandbox mode",
+    "tryFirstPaymentTitle": "Try your first payment",
+    "tryFirstPaymentBadge": "SANDBOX · cURL",
+    "tryFirstPaymentSubtitle": "Fastest way to feel Dynopay. Copy-paste this into your terminal — it uses your sandbox key and creates a $5 test checkout link.",
+    "tryFirstPaymentSnippetLabel": "cURL — POST /api/user/createPayment",
+    "tryFirstPaymentReveal": "Show key",
+    "tryFirstPaymentHide": "Hide key",
+    "tryFirstPaymentCopyLabel": "Copy cURL",
+    "tryFirstPaymentCopyAria": "Copy cURL command with your real test key",
+    "tryFirstPaymentResponseLabel": "You should see",
+    "tryFirstPaymentDocsBtn": "Open full API docs",
+    "tryFirstPaymentFooterHint": "The redirect_url is a hosted checkout page — open it in a browser to complete the test payment."
   }
 }

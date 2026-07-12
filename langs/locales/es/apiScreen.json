@@ -76,6 +76,17 @@
   "keys": {
     "liveUnlockHint": "Tu clave en vivo se activa automáticamente cuando añades (o reutilizas) tu primera billetera en esta empresa.",
     "testAutoCreatedBadge": "Creada automáticamente · Sandbox",
-    "sandboxLimits": "Máx ${{max}} · {{currencies}} · modo sandbox"
+    "sandboxLimits": "Máx ${{max}} · {{currencies}} · modo sandbox",
+    "tryFirstPaymentTitle": "Prueba tu primer pago",
+    "tryFirstPaymentBadge": "SANDBOX · cURL",
+    "tryFirstPaymentSubtitle": "La forma más rápida de conocer Dynopay. Copia y pega esto en tu terminal — usa tu clave sandbox y crea un enlace de pago de prueba de $5.",
+    "tryFirstPaymentSnippetLabel": "cURL — POST /api/user/createPayment",
+    "tryFirstPaymentReveal": "Mostrar clave",
+    "tryFirstPaymentHide": "Ocultar clave",
+    "tryFirstPaymentCopyLabel": "Copiar cURL",
+    "tryFirstPaymentCopyAria": "Copiar comando cURL con tu clave de prueba real",
+    "tryFirstPaymentResponseLabel": "Deberías ver",
+    "tryFirstPaymentDocsBtn": "Abrir documentación de la API",
+    "tryFirstPaymentFooterHint": "El redirect_url es una página de pago alojada — ábrelo en un navegador para completar el pago de prueba."
   }
 }

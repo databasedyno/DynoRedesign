@@ -16,7 +16,7 @@ import { generateInvoicePDF } from "../services/pdfService";
 import { sendInvoiceGeneratedEmail } from "../services/emailService";
 import { getFeeTiers, getTransactionFeePercent } from "../utils/feeConfigUtils";
 import { getCompanyBaseCurrency, getCurrencySymbol, convertToFiat } from "../utils/currencyUtils";
-import { EU_COUNTRIES } from "../utils/taxData";
+import { EU_COUNTRIES, FALLBACK_TAX_RATES } from "../utils/taxData";
 
 /**
  * Generate invoice number
@@ -133,6 +133,12 @@ export const autoGenerateInvoice = async (
       }
     }
 
+    // FIX (BUG A): compute the percentage transaction fee amount so it's
+    // included in the invoice total. Previously only `fixedFee` was added,
+    // producing an invoice whose Total Amount != sum of line items in the
+    // PDF (which DOES render Transaction Fee % correctly). See pdfService.
+    const transactionFeeAmount = (baseAmount * transactionFeePercent) / 100;
+
     // Calculate VAT (if applicable)
     let vatRate = 0;
     let vatAmount = 0;
@@ -149,46 +155,73 @@ export const autoGenerateInvoice = async (
           if (taxRate) {
             const taxData = taxRate.dataValues;
             vatRate = parseFloat(taxData.standard_rate || 0);
-            apiLogger.info(`VAT rate for ${companyData.country}: ${vatRate}%`);
+            apiLogger.info(`VAT rate for ${companyData.country}: ${vatRate}% (from tbl_tax_rate)`);
           } else {
-            // Fallback to default rate if not in database
-            vatRate = 23; // Default EU VAT rate
-            apiLogger.info(`Using default VAT rate for ${companyData.country}: ${vatRate}%`);
+            // FIX (BUG B): use per-country FALLBACK_TAX_RATES instead of a
+            // hard-coded 23% for the whole EU. 23% is Portugal's rate — DE=19,
+            // HU=27, LU=17, IE=23, etc. so a flat 23% is wrong for most.
+            vatRate = FALLBACK_TAX_RATES[companyData.country] ?? 23;
+            apiLogger.info(`Using fallback VAT rate for ${companyData.country}: ${vatRate}% (per-country FALLBACK_TAX_RATES)`);
           }
         } catch (error) {
           apiLogger.error("Error fetching VAT rate:", error);
-          vatRate = 23; // Fallback
+          vatRate = FALLBACK_TAX_RATES[companyData.country] ?? 23;
         }
 
-        vatAmount = (baseAmount * vatRate) / 100;
+        // FIX (BUG A cont.): VAT is applied on the SERVICE FEE (Dynopay's
+        // revenue = fixed_fee + transaction_fee_percent), NOT the transaction
+        // amount that merely passes through Dynopay's platform. Previously
+        // this was `baseAmount * vatRate / 100` which produced VAT of $23 on
+        // a $100 transaction — 8× too high because Dynopay only earned $2.50.
+        // Keep a legacy fallback mode via env for backward-compat if needed.
+        const vatBase =
+          process.env.INVOICE_VAT_ON_GROSS === "true"
+            ? baseAmount
+            : (fixedFee + transactionFeeAmount);
+        vatAmount = (vatBase * vatRate) / 100;
       }
     }
 
     // Get company's preferred display currency
     const preferredCurrency = await getCompanyBaseCurrency(companyId);
-    
-    // Convert amounts to preferred currency if not USD
+
+    // FIX (BUG D): convert FROM the transaction's actual base_currency, not
+    // hard-coded 'USD'. Previously a EUR transaction rendered on a merchant
+    // whose preferred currency is GBP was multiplied by USD→GBP instead of
+    // EUR→GBP, silently corrupting displayed amounts.
     let displayBaseAmount = baseAmount;
     let displayFixedFee = fixedFee;
+    let displayTransactionFee = transactionFeeAmount;
     let displayVatAmount = vatAmount;
-    
-    if (preferredCurrency !== 'USD' && preferredCurrency !== (txData.base_currency || 'USD')) {
+    let displayCurrency = baseCurrency;
+
+    if (preferredCurrency && preferredCurrency !== baseCurrency) {
       try {
-        const result = await convertToFiat('USD', preferredCurrency, 1);
-        if (result.amount) {
+        const result = await convertToFiat(baseCurrency, preferredCurrency, 1);
+        if (result && result.amount) {
           const rate = result.amount;
           displayBaseAmount = baseAmount * rate;
           displayFixedFee = fixedFee * rate;
+          displayTransactionFee = transactionFeeAmount * rate;
           displayVatAmount = vatAmount * rate;
+          displayCurrency = preferredCurrency;
         }
       } catch (convErr) {
-        apiLogger.warn(`[Invoice] Currency conversion to ${preferredCurrency} failed, using base amounts`);
+        apiLogger.warn(
+          `[Invoice] Currency conversion ${baseCurrency}→${preferredCurrency} failed, using base amounts`
+        );
       }
     }
 
     // Calculate totals in preferred currency
+    // FIX (BUG A): include the percentage transaction fee in the total so
+    // Total Amount == sum of line items rendered by pdfService.
     const unitPrice = displayBaseAmount;
-    const totalAmount = displayBaseAmount + displayFixedFee + displayVatAmount;
+    const totalAmount =
+      displayBaseAmount +
+      displayFixedFee +
+      displayTransactionFee +
+      displayVatAmount;
 
     // Generate invoice number
     const invoiceNumber = await generateInvoiceNumber();
@@ -441,7 +474,9 @@ const getInvoiceById = async (
       company_id: invoiceData.company_id,
       provider_name: invoiceData.provider_name,
       provider_address: invoiceData.provider_address,
-      provider_tax_id: invoiceData.provider_tax_id,
+      // FIX (BUG E): model field is `provider_vat_id`, not `provider_tax_id`
+      // — the old key silently returned undefined so the VAT ID never showed.
+      provider_vat_id: invoiceData.provider_vat_id,
       customer_name: invoiceData.customer_name,
       customer_address: invoiceData.customer_address,
       customer_tax_id: invoiceData.customer_tax_id,
@@ -451,7 +486,7 @@ const getInvoiceById = async (
       vat_rate: invoiceData.vat_rate,
       vat_amount: invoiceData.vat_amount,
       // Only show total processing fee, not breakdown
-      processing_fee: parseFloat((invoiceData.fixed_fee || 0).toFixed(2)),
+      processing_fee: parseFloat((parseFloat(invoiceData.fixed_fee || 0)).toFixed(2)),
       total_usd: invoiceData.total_usd,
       total_crypto: invoiceData.total_crypto,
       crypto_currency: invoiceData.crypto_currency,

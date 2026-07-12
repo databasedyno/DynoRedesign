@@ -76,6 +76,17 @@
   "keys": {
     "liveUnlockHint": "Uw live-sleutel wordt automatisch geactiveerd zodra u uw eerste wallet aan dit bedrijf toevoegt (of hergebruikt).",
     "testAutoCreatedBadge": "Automatisch aangemaakt · Sandbox",
-    "sandboxLimits": "Max ${{max}} · {{currencies}} · sandbox-modus"
+    "sandboxLimits": "Max ${{max}} · {{currencies}} · sandbox-modus",
+    "tryFirstPaymentTitle": "Probeer uw eerste betaling",
+    "tryFirstPaymentBadge": "SANDBOX · cURL",
+    "tryFirstPaymentSubtitle": "De snelste manier om Dynopay te ervaren. Kopieer en plak dit in uw terminal — het gebruikt uw sandbox-sleutel en maakt een $5-testcheckout-link aan.",
+    "tryFirstPaymentSnippetLabel": "cURL — POST /api/user/createPayment",
+    "tryFirstPaymentReveal": "Sleutel tonen",
+    "tryFirstPaymentHide": "Sleutel verbergen",
+    "tryFirstPaymentCopyLabel": "cURL kopiëren",
+    "tryFirstPaymentCopyAria": "cURL-commando kopiëren met uw echte testsleutel",
+    "tryFirstPaymentResponseLabel": "U zou moeten zien",
+    "tryFirstPaymentDocsBtn": "Volledige API-documentatie openen",
+    "tryFirstPaymentFooterHint": "De redirect_url is een gehoste checkout-pagina — open deze in een browser om de testbetaling te voltooien."
   }
 }

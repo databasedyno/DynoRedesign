@@ -76,6 +76,17 @@
   "keys": {
     "liveUnlockHint": "Sua chave em produção é ativada automaticamente assim que você adiciona (ou reutiliza) a primeira carteira nesta empresa.",
     "testAutoCreatedBadge": "Criada automaticamente · Sandbox",
-    "sandboxLimits": "Máx ${{max}} · {{currencies}} · modo sandbox"
+    "sandboxLimits": "Máx ${{max}} · {{currencies}} · modo sandbox",
+    "tryFirstPaymentTitle": "Experimente seu primeiro pagamento",
+    "tryFirstPaymentBadge": "SANDBOX · cURL",
+    "tryFirstPaymentSubtitle": "A forma mais rápida de conhecer a Dynopay. Copie e cole isto no seu terminal — usa sua chave sandbox e cria um link de checkout de teste de $5.",
+    "tryFirstPaymentSnippetLabel": "cURL — POST /api/user/createPayment",
+    "tryFirstPaymentReveal": "Mostrar chave",
+    "tryFirstPaymentHide": "Ocultar chave",
+    "tryFirstPaymentCopyLabel": "Copiar cURL",
+    "tryFirstPaymentCopyAria": "Copiar comando cURL com sua chave de teste real",
+    "tryFirstPaymentResponseLabel": "Você deverá ver",
+    "tryFirstPaymentDocsBtn": "Abrir documentação completa da API",
+    "tryFirstPaymentFooterHint": "O redirect_url é uma página de checkout hospedada — abra-a em um navegador para concluir o pagamento de teste."
   }
 }

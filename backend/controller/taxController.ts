@@ -16,8 +16,11 @@ import {
   EU_COUNTRIES,
 } from "../utils/taxData";
 
-// Use TAX_ID_ACRONYMS for tax ID validation, TAX_TYPE_ACRONYMS for rate display
-const TAX_ACRONYMS = TAX_ID_ACRONYMS;
+// FIX (BUG C): use TAX_TYPE_ACRONYMS (VAT/IVA/GST/Tax) for RATE display, not
+// TAX_ID_ACRONYMS (VAT/EIN/CUIT/GST) which is for the business tax-ID field.
+// Previously US returned "EIN" for a tax-RATE lookup, AR returned "CUIT" —
+// neither is a valid tax-type label.
+const TAX_ACRONYMS = TAX_TYPE_ACRONYMS;
 
 const TAX_DATA_API_URL = process.env.TAX_DATA_API_URL || "https://api.apilayer.com/tax_data";
 const TAX_DATA_API_KEY = process.env.TAX_DATA_API_KEY;
@@ -83,7 +86,7 @@ const getTaxRate = async (req: express.Request, res: express.Response) => {
       }
     }
 
-    // Step 3: Use fallback data if API fails
+    // Step 3: Use fallback data if API fails OR returns null/0
     const taxAcronym = TAX_ACRONYMS[upperCountryCode] || "TAX";
     const countryName = COUNTRY_NAMES[upperCountryCode] || upperCountryCode;
     
@@ -92,9 +95,17 @@ const getTaxRate = async (req: express.Request, res: express.Response) => {
     let source = "fallback";
 
     if (apiSuccess && apiData) {
-      standardRate = Number(apiData.standard_rate || apiData.rate || 0);
-      reducedRates = apiData.reduced_rates || null;
-      source = "api";
+      const apiRate = Number(apiData.standard_rate || apiData.rate || 0);
+      // Only use API data if it returned a valid non-zero rate
+      if (apiRate > 0) {
+        standardRate = apiRate;
+        reducedRates = apiData.reduced_rates || null;
+        source = "api";
+      } else if (FALLBACK_VAT_RATES[upperCountryCode] !== undefined) {
+        // API returned 0/null, use fallback
+        standardRate = FALLBACK_VAT_RATES[upperCountryCode];
+        source = "fallback";
+      }
     } else if (FALLBACK_VAT_RATES[upperCountryCode] !== undefined) {
       standardRate = FALLBACK_VAT_RATES[upperCountryCode];
       source = "fallback";
