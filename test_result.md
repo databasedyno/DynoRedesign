@@ -1,3 +1,30 @@
+## Session 32: Production payment audit + backend bug fixes (2026-07-12)
+
+### Context
+User reported "anomalies around received payments" on the LIVE production deploy and asked to (a) analyze DigitalOcean logs for the last 12h of payments/emails/anomalies, (b) fix all identified bugs, (c) "forward any payment not forwarded". Investigated via DO API RUN logs (~6.8h, pod redeployed 02:08 UTC) + READ-ONLY queries against the live Railway Postgres + on-chain balance checks via Tatum.
+
+### Key findings (evidence-backed)
+- **No payment needs forwarding.** All 6 payments that looked "stuck in processing" in `tbl_payment_journal` were matched by exact `incoming_tx_hash` to `tbl_user_transaction` rows with status `successful`/`completed` AND an `outgoing_tx_hash` (merchant credited + settled). All 6 deposit addresses are empty (dust only) on-chain → funds already swept/forwarded. The "stuck processing" rows are ORPHAN journal entries created when the reconciliation cron re-scans already-settled historical payments and opens a `payment_detected→processing` entry that never closes (settlement correctly skipped). False-positive logging bug, not lost money.
+- **Real live bug**: `services/volumeTierReconciliation.ts:90` used `updated_at = NOW()` but `tbl_user`'s column is `updatedAt` (camelCase) → nightly (03:00 UTC) fee-tier reconciliation crashed for every user (`column "updated_at" of relation "tbl_user" does not exist`).
+- Operational (not code): TRX fee wallet low (94.28 TRX) → risks future TRC20 gas funding; ERC20 admin-fee sweeps deferred as "unprofitable" (dust); merchant webhook 404 was a MISCONFIGURED SECONDARY endpoint (merchant's primary endpoint returned 200 — they WERE notified).
+
+### Backend fixes applied (this workspace = deployed repo databasedyno/DynoRedesign @ New-Onboarding2)
+1. `services/volumeTierReconciliation.ts` — `updated_at` → `"updatedAt"` (surgical). Verified `tbl_user.updatedAt` exists.
+2. `services/reconciliation.ts` — added an IDEMPOTENCY GUARD in Strategy 1 (`reconcileStuckPayments`) and Strategy 4 (`reconcileFailedStatePayments`): before re-queueing, `SELECT 1 FROM tbl_user_transaction WHERE incoming_tx_hash=:txid AND status IN ('successful','completed')`; if found, mark Redis completed + skip. Stops the orphan "processing" journal rows + wasted settlement attempts. Exact SQL validated read-only (settled tx→1 row, unknown→0).
+
+### Validation
+- Both files pass TS transpile (no syntax errors). Backend restarts healthy (db/redis connected, `background_jobs.eligible=false`).
+- NOTE: these are CRON/background-service changes that are DISABLED on this secondary preview instance (`WORKER_ROLE=secondary`, `ENABLE_BACKGROUND_JOBS=false`), so they cannot be functionally exercised here — they take effect on the production leader after "Save to GitHub" deploy. NOT sent to deep_testing_backend_v2 (no reachable code path on this instance; core API health confirmed unaffected).
+- NO writes were made to the production DB. NO on-chain fund movement (none needed).
+
+### Not done (needs user decision — financial/live)
+- Cleaning the 6 existing orphan `tbl_payment_journal` `processing` rows (cosmetic; requires a live DB write).
+- Topping up the TRX fee wallet (operational).
+- Merchant "webhook endpoint failing" alert feature (enhancement).
+
+---
+
+
 ## Session 30: UX Audit Fix Batch — Multiple P0/P1/P2 findings (2026-07-12)
 
 ### Context

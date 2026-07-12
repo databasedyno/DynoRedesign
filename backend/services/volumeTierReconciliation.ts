@@ -87,7 +87,7 @@ export const reconcileVolumeTiers = async (): Promise<{
     try {
       await sequelize.query(
         `UPDATE tbl_user
-           SET fee_tier = :tier, updated_at = NOW()
+           SET fee_tier = :tier, "updatedAt" = NOW()
          WHERE user_id = :userId`,
         {
           replacements: { tier: target.name, userId: user.user_id },

@@ -158,6 +158,23 @@ async function reconcileStuckPayments(): Promise<number> {
         if (isStuck) {
           webhookLogs.info(`[Reconciliation] Found stuck payment: ${key}, status=${data.status}, txId=${data.txId}`);
 
+          // Idempotency: skip if this incoming tx is already settled in the ledger.
+          try {
+            const { default: sequelize } = await import("../utils/dbInstance");
+            const { QueryTypes } = await import("sequelize");
+            const already = (await sequelize.query(
+              `SELECT 1 FROM tbl_user_transaction
+               WHERE incoming_tx_hash = :txid AND status IN ('successful','completed') LIMIT 1`,
+              { replacements: { txid: data.txId }, type: QueryTypes.SELECT }
+            )) as unknown[];
+            if (Array.isArray(already) && already.length > 0) {
+              webhookLogs.info(`[Reconciliation] Skipping stuck payment ${key} — already settled in tbl_user_transaction (tx=${data.txId})`);
+              continue;
+            }
+          } catch (dbErr) {
+            webhookLogs.warn(`[Reconciliation] Stuck-payment idempotency check failed (non-fatal): ${(dbErr as Error).message}`);
+          }
+
           await enqueueWebhook({
             payload: {
               address: key.replace("crypto-", "").replace(":json", ""),
@@ -342,6 +359,37 @@ async function reconcileFailedStatePayments(): Promise<number> {
         }
 
         const address = key.replace("crypto-", "").replace(":json", "");
+
+        // ── IDEMPOTENCY GUARD (fixes orphan "processing" journal rows) ──
+        // If this incoming tx already has a SETTLED merchant record, the
+        // payment is done. Re-queueing it was re-opening a
+        // payment_detected→processing journal entry that never closed (the
+        // false "stuck payment" signal) and wasting settlement attempts.
+        try {
+          const { default: sequelize } = await import("../utils/dbInstance");
+          const { QueryTypes } = await import("sequelize");
+          const already = (await sequelize.query(
+            `SELECT 1 FROM tbl_user_transaction
+             WHERE incoming_tx_hash = :txid AND status IN ('successful','completed') LIMIT 1`,
+            { replacements: { txid: data.txId }, type: QueryTypes.SELECT }
+          )) as unknown[];
+          if (Array.isArray(already) && already.length > 0) {
+            const baseKey2 = key.endsWith(":json") ? key.slice(0, -5) : key;
+            await setRedisItem(baseKey2, {
+              ...data,
+              status: "completed",
+              reconciledAt: new Date().toISOString(),
+              reconciledFrom: "already_settled_db",
+            });
+            webhookLogs.info(
+              `[Reconciliation] Strategy 4: Skipping ${address} — already settled in tbl_user_transaction (tx=${data.txId})`
+            );
+            skippedPermanent++;
+            continue;
+          }
+        } catch (dbErr) {
+          webhookLogs.warn(`[Reconciliation] Strategy 4: DB idempotency check failed (non-fatal): ${(dbErr as Error).message}`);
+        }
         
         // ── AUTO-RECOVERY: Before re-queueing, check if the settlement already
         // completed on-chain. This prevents the infinite reconciliation loop where
