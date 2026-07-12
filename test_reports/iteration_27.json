@@ -1,0 +1,48 @@
+{
+  "summary": "UX usability audit across 7 personas on mobile (390x844) and desktop (1440x900). Verified: (a) FAB/CTA overlap at mobile 390 on /dashboard (Create Company button AND 'View all' button), (b) live-preview CTA color mismatch (green vs real checkout black — NOT blue as prior automated report claimed), (c) NO hydration errors reproduced on /pay/donation-demo at 390x844, (d) icon-only pay-links row actions lack labels/tooltips, (e) login form inputs+buttons lack visible keyboard focus indicators. Successfully created + DELETED the QA UX AUDIT DELETE ME pay-link (ID 32) — live-DB cleanup confirmed via toast.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "SupportChatWidget (FAB) on /dashboard mobile", "issue": "The lime FAB (bottom-right, x=318-374, y=700-756) horizontally overlaps the LAST ~20px of the black 'Create Company' CTA inside the auto-opened onboarding modal at 390x844 (create btn spans x=52-338, y=709.8-741.8). Center of the CTA is still tappable via elementFromPoint, but the right edge is fully covered — sighted users perceive an ugly overlap and thumb-taps on the right side land on the FAB.", "selector": "[data-testid='support-chat-button']", "priority": "HIGH"},
+      {"component": "SupportChatWidget FAB on /dashboard mobile", "issue": "FAB overlaps the 'View all' link inside the Recent-Transactions card (View all rect x=255-357, y=718.9-750.9; FAB at x=318-374). ~39px horizontal + ~32px vertical overlap. Center still clickable; right side is under the FAB.", "selector": "button:has-text('View all')", "priority": "HIGH"},
+      {"component": "SupportChatWidget FAB on /transactions mobile", "issue": "With FAB temporarily hidden, the element behind (x=346,y=728) is a transaction card body containing 'BTC / Settled / 0.00060649 BTC / $37.41'. The FAB visually overlaps the right edge status/amount region of a transaction row. Right-side taps on that row land on the FAB.", "selector": "[data-testid='support-chat-button']", "priority": "MEDIUM"},
+      {"component": "LivePreviewPanel on /create-pay-link (desktop)", "issue": "Preview 'Pay with Cryptocurrency' CTA renders GREEN (~rgb(30,180,30) / vivid green), NOT blue as prior automated report claimed AND NOT the lime #CCFF00 the audit note references. The real /pay/demo checkout renders the same CTA as BLACK with white text in the visible screenshot. Three surfaces (preview, real checkout, brand-guide) do not agree on CTA color — preview mismatches whatever the real checkout is.", "selector": "LIVE PREVIEW panel button", "priority": "MEDIUM"},
+      {"component": "PayLinks table row actions (/pay-links)", "issue": "Row actions are 4 icon-only buttons (copy, eye/view, edit, trash) with NO aria-label, NO title/tooltip, and NO visible text. Icons are 14–20px. Users cannot discover what each icon does without hovering or trial-and-error. Failing WCAG 4.1.2 (Name, Role, Value).", "selector": ".mui-19s87f6, .mui-1bifcxr", "priority": "HIGH"},
+      {"component": "/auth/login keyboard focus indicators", "issue": "Tabbing through the login form: email input, Continue submit button, 'Continue with Google', 'Continue with GitHub' ALL report focusVisible=False (outline-style:none, no boxShadow ring). Only the header 'A' link and the 'EN' language selector show a real focus outline. Fails WCAG 2.4.7 (Focus Visible).", "selector": "input[type='email'], button[type='submit'], .google-login-btn, .github-login-btn", "priority": "HIGH"},
+      {"component": "Empty-account onboarding on /dashboard mobile", "issue": "TWO onboarding modals are stacked: (1) 'Create Your Company' + (2) '$500 FEE-FREE — You're in!'. When user clicks 'I'll do this later' on modal 1, modal 2 appears on top — but 'Create Your Company' text still visible in innerText because modal 1 lives in DOM behind modal 2. Confusing double-modal experience for a first-time user; the fee-free promo would be better as a toast/banner instead of a blocking modal.", "selector": ".MuiDialog-root", "priority": "MEDIUM"}
+    ],
+    "integration_issues": [
+      {"flow": "Documentation language tabs", "issue": "Clicking data-testid gs-lang-curl / gs-lang-node / gs-lang-python did NOT visibly change the captured code samples in the DOM (my scoped query kept returning bash/curl content). Needs manual verification by main agent — the tabs might change content only inside the Getting Started section which my query didn't scope. Buttons themselves are present and clickable.", "affected_selectors": ["[data-testid='gs-lang-curl']", "[data-testid='gs-lang-node']", "[data-testid='gs-lang-python']"]},
+      {"flow": "Documentation copy-code button feedback", "issue": "After clicking a Copy button on a code block, the button text stayed 'Copy' (no 'Copied!' text swap). Feedback may be non-textual (icon animation or toast) which is not visible to screen-reader/keyboard-only users.", "affected_selectors": ["button:has-text('Copy')"]},
+      {"flow": "/pay-links Actions column labeling", "issue": "Icon buttons have no aria-label / title. Copy-link action specifically is a small (14x14) icon button and users typically expect a labeled 'Copy link' pill.", "affected_selectors": ["button[class*='19s87f6']"]}
+    ],
+    "design_issues": [
+      {"screen": "/dashboard mobile 390x844", "issues": ["Lime FAB visually collides with modal Create Company CTA + Recent Transactions 'View all' link. Consider hiding/relocating the FAB when a blocking modal is open, or moving it further above the bottom nav (y<650) on mobile."]},
+      {"screen": "/documentation desktop", "issues": ["Sidebar search only shows 1 filtered section for 'webhook' — good. However there is no clear 'no results' state hint for terms that match nothing (not tested but worth checking)."]},
+      {"screen": "Live Preview panel", "issues": ["Preview CTA color diverges from the actual /pay/demo checkout button color. Preview should be a faithful mock of the real checkout so merchants can trust what they see."]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Fix FAB z-index/positioning on mobile: hide or move the SupportChatWidget FAB when a blocking modal is open (Create Company / $500 FEE-FREE) OR raise the FAB above the bottom nav zone but avoid content near y=700 on 390-wide viewports.",
+    "Add aria-label + title (tooltip) to /pay-links row action icon buttons (Copy Link, View, Edit, Delete). Consider making Copy-Link a text-labelled pill for discoverability.",
+    "Add visible focus outline/ring on /auth/login form: email input, Continue submit, and both SSO buttons (currently outline-style:none). Match WCAG 2.4.7.",
+    "Reconcile 'Pay with Cryptocurrency' CTA color across LivePreviewPanel and real /pay/demo checkout — pick one brand color (lime #CCFF00 per brand notes) and apply everywhere.",
+    "Merge the double onboarding modal on /dashboard for empty accounts (Create Company + $500 fee-free) — the promo should be a non-blocking banner/toast, not a second modal stacked on the first.",
+    "Verify main-agent claim about hydration errors #418/#423/#425 on /pay/donation-demo — I saw ZERO React hydration errors on mobile 390x844. Recheck on desktop/tablet if the claim originates from there.",
+    "Verify documentation language tabs (curl/node/python) actually swap code content — my automated capture returned identical snippets across the three tabs."
+  ],
+  "critical_code_review_comments": [
+    "SupportChatWidget: Add prop-driven suppression (e.g., disable/hide when a Dialog is open) — global fixed FABs regularly cause tap-interception bugs.",
+    "PayLinks table row buttons should follow MUI IconButton best-practice: <IconButton aria-label='Copy link'><CopyIcon/></IconButton> plus MUI <Tooltip title='Copy link'>.",
+    "Login form: MUI TextField and Button should not have outline:none in the global override — visible focus is required for accessibility. Recommend using theme.components.MuiButton.styleOverrides.root.'&:focus-visible' outline: 2px solid #CCFF00."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped)", "frontend": "task-completion 100% (all 7 persona flows executed); usability issues logged as observations"},
+  "test_credentials": "JWTs from /app/scripts/ux_tokens.json (hostbay + qa.empty). Injected via localStorage.setItem('token', <JWT>) then navigation.",
+  "seed_data_creation": "Created payment link 32 (QA UX AUDIT DELETE ME, $10, hostbay) — DELETED at end of Persona 2 (toast confirmation: 'Payment link deleted successfully'). Zero residue in live DB.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "This was a UX audit, NOT bug-fix verification. All 7 persona flows completed. Key confirmed items: (1) FAB overlaps 'Create Company' + 'View all' at 390x844 — highest-impact issue; (2) Live-preview CTA is GREEN not lime (differs from prior 'blue' claim); (3) NO React hydration #418/#423/#425 on donation-demo mobile — recheck on desktop/tablet; (4) icon-only buttons in /pay-links row lack accessibility labels; (5) login form has NO visible keyboard focus rings. Live-DB cleanup: pay link 32 deleted. No orphan test data.",
+  "rca of the issue": "N/A — audit-only session, no bugs fixed by testing agent."
+}
