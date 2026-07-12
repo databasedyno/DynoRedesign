@@ -395,6 +395,7 @@ Delete every QA test company + its keys after the test run (destructive — via 
 - 🟢 (Backlog) "merchant webhook failing" auto-alert feature — proposed, not started.
 - 🟢 (Backlog) Merchant email/notification audit log table.
 - 🟢 (Backlog / §7) "Try your first payment" cURL activation card.
+- 🟢 (Backlog / Session 34 follow-up) **Enforce sandbox restrictions on the direct-wallet-add path.** `POST /api/wallet/addWalletAddress` currently creates a wallet without going through `legacyApiAuthMiddleware`, so `test_mode_restrictions.max_amount` / `allowed_currencies` do not apply on that endpoint. `verifyOtp` is the OTP-gated flow that DOES call `ensureLiveApiKey` and inherits enforcement transitively. Consider either (a) route `addWalletAddress` through the same auth middleware and gate wallet creation on sandbox-key allowlists, or (b) explicitly deprecate `addWalletAddress` in favor of the `validateWalletAddress → verifyOtp` flow for merchant-API callers. Low priority — the sandbox key still cannot create *payments* over the limits (that's enforced at the payment endpoint), so this is a defense-in-depth gap, not an exploit path.
 
 ---
 
