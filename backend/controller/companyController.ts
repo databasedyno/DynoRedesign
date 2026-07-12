@@ -1,6 +1,8 @@
 import express from "express";
 import {
+  encrypt,
   errorResponseHelper,
+  generateApiKeyName,
   getErrorMessage,
   successResponseHelper,
 } from "../helper";
@@ -8,12 +10,13 @@ import { handleControllerError } from "../helper/controllerErrorHandler";
 import { formatAmountForDisplay, getCurrencyInfo, COMPANY_CURRENCY_QUERY, convertToFiat, getCompanyBaseCurrency } from "../utils/currencyUtils";
 import jwt from "jsonwebtoken";
 import { IUserType } from "../utils/types";
-import { companyModel, userModel, stablecoinConversionModel, userWalletModel } from "../models";
+import { apiModel, companyModel, customerModel, customerWalletModel, userModel, stablecoinConversionModel, userWalletModel } from "../models";
 import { companyLogger } from "../utils/loggers";
 import sequelize from "../utils/dbInstance";
 import { QueryTypes, Op } from "sequelize";
 import { sendCompanyProfileCreatedEmail, sendCompanyContactWelcomeEmail, sendCompanyProfileUpdatedEmail } from "../services/emailService";
 import { deleteRedisItem, getRedisItem, setRedisItem, setRedisTTL } from "../utils/redisInstance";
+import crypto from "crypto";
 
 import axios from "axios";
 import { toConversionDisplayStatus } from "../services/paymentStateMachine";
@@ -249,6 +252,99 @@ const addCompany = async (req: express.Request, res: express.Response) => {
       photo,
     });
 
+    // AUTO-PROVISION restricted TEST key for the new company (non-fatal, idempotent).
+    // Creates a `dpk_test_` (environment='development') key with sandbox restrictions
+    // (max_amount $100, curated currencies, sandbox_mode) so the merchant has a
+    // sandbox key immediately at signup. The LIVE (`dpk_live_`) key auto-mints
+    // separately from `verifyOtp` / `copyWalletAddresses` when the merchant
+    // adds/reuses their first wallet. NEVER fails company creation.
+    let auto_test_key_created = false;
+    try {
+      const newCompanyId = resData.dataValues.company_id;
+      const existingTestKey = await apiModel.findOne({
+        where: { company_id: newCompanyId, environment: 'development', status: 'active' },
+      });
+      if (!existingTestKey) {
+        const baseCurrency = 'USD';
+        const keyData = {
+          base_currency: baseCurrency,
+          company_id: newCompanyId,
+          adm_id: userData.user_id,
+          env: 'development',
+        };
+        const keyString = 'dpk_test_' + 'DYNOPAY_USER_API-' + JSON.stringify(keyData);
+        const apiKey = encrypt(keyString, process.env.API_SECRET);
+
+        const companyName = data.company_name || 'Company';
+        const companyEmail = data.email || userData.email;
+
+        const createdCustomer = await customerModel.create({
+          id: crypto.randomUUID(),
+          customer_name: companyName + ' admin',
+          email: companyEmail,
+          mobile: companyEmail,
+          company_id: newCompanyId,
+        });
+        await customerWalletModel.create({
+          id: crypto.randomUUID(),
+          customer_id: createdCustomer.dataValues.customer_id,
+          wallet_type: baseCurrency,
+        });
+
+        const secret = process.env.ACCESS_TOKEN_SECRET;
+        const customerToken = jwt.sign(
+          { customer_id: createdCustomer.dataValues.customer_id },
+          secret,
+          { expiresIn: '30d' },
+        );
+        const adminToken = jwt.sign(
+          {
+            api_id: null,
+            company_id: newCompanyId,
+            user_id: userData.user_id,
+            type: 'admin_token',
+            environment: 'development',
+          },
+          secret,
+          { expiresIn: '30d' },
+        );
+
+        await apiModel.create({
+          company_id: newCompanyId,
+          base_currency: baseCurrency,
+          apiKey,
+          user_id: userData.user_id,
+          adminToken: customerToken,
+          admin_token: adminToken,
+          withdrawal_whitelist: null,
+          api_name: generateApiKeyName(),
+          permissions: JSON.stringify(['payments', 'transactions', 'webhooks', 'wallets']),
+          environment: 'development',
+          status: 'active',
+          test_mode_restrictions: JSON.stringify({
+            max_amount: 100,
+            allowed_currencies: ['BTC', 'ETH', 'USDT-TRC20', 'TRX', 'LTC'],
+            sandbox_mode: true,
+          }),
+          request_count: 0,
+          rate_limit_per_minute: 60,
+          rate_limit_per_hour: 3600,
+          rate_limit_per_day: 100000,
+        });
+        auto_test_key_created = true;
+        companyLogger.info(
+          `[addCompany] ✅ Auto-created TEST (dpk_test_) key for company ${newCompanyId}`,
+          { user_id: userData.user_id },
+        );
+      }
+    } catch (apiKeyErr) {
+      // NEVER fail company creation because of key mint failure.
+      companyLogger.warn(
+        `[addCompany] ⚠️ Auto TEST key creation skipped: ${getErrorMessage(apiKeyErr)}`,
+        { user_id: userData.user_id },
+      );
+    }
+
     // Update user profile with first_name + last_name if provided
     // (Simplified registration creates accounts without names — names are collected here)
     const firstName = req.body.first_name || data.first_name;
@@ -330,6 +426,7 @@ const addCompany = async (req: express.Request, res: express.Response) => {
     const responseData = {
       ...resData.dataValues,
       tax_validation: taxValidation || { note: "No TAX ID provided" },
+      auto_test_key_created,
     };
 
     successResponseHelper(res, 200, "Company added successfully!", responseData);

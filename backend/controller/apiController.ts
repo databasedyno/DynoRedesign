@@ -144,11 +144,14 @@ const addApi = async (req: express.Request, res: express.Response) => {
 
     const apiKey = encrypt(keyString, process.env.API_SECRET);
 
-    // Enforce: Only 1 API key per company (regardless of environment)
-    // A company cannot have more than 1 active key due to the currency system
+    // Enforce: Only 1 active API key per (company, environment) pair.
+    // A company may hold BOTH a production and a development key simultaneously
+    // (auto-provisioning requires this). Duplicates within the same environment
+    // must go through "Regenerate" or an explicit disable of the existing key.
     const existingApiKey = await apiModel.findOne({
       where: {
         company_id,
+        environment,
         status: 'active',
       },
     });
@@ -157,7 +160,7 @@ const addApi = async (req: express.Request, res: express.Response) => {
       return errorResponseHelper(
         res,
         400,
-        `This company already has an active API key (${existingApiKey.dataValues.base_currency} ${existingApiKey.dataValues.environment}). Use "Regenerate" to get a new key, or disable the existing one first.`
+        `This company already has an active ${environment} API key. Use "Regenerate" to get a new key, or disable the existing one first.`
       );
     }
     

@@ -2945,6 +2945,85 @@ const validateWallet = async (
   }
 };
 
+/**
+ * Ensures the given company has an active LIVE (dpk_live_) API key.
+ * - Guards on environment='production' only, so a coexisting TEST key does not block creation.
+ * - Non-fatal: returns false + logs a warning if creation fails.
+ * - Idempotent: safe to call multiple times for the same company.
+ *
+ * @returns true if a new live key was created; false if one already existed OR creation was skipped.
+ */
+async function ensureLiveApiKey(
+  company_id: number,
+  user_id: number,
+  userEmail: string,
+  companyName?: string | null,
+  companyEmail?: string | null,
+): Promise<boolean> {
+  try {
+    const existing = await apiModel.findOne({
+      where: { company_id, environment: 'production', status: 'active' },
+    });
+    if (existing) return false;
+
+    const defaultCurrency = 'USD';
+    const keyData = { base_currency: defaultCurrency, company_id, adm_id: user_id, env: 'production' };
+    const keyString = 'dpk_live_' + 'DYNOPAY_USER_API-' + JSON.stringify(keyData);
+    const apiKey = encrypt(keyString, process.env.API_SECRET);
+
+    const name = companyName || 'Company';
+    const email = companyEmail || userEmail;
+    const createdCustomer = await customerModel.create({
+      id: crypto.randomUUID(),
+      customer_name: name + ' admin',
+      email,
+      mobile: email,
+      company_id,
+    });
+    await customerWalletModel.create({
+      id: crypto.randomUUID(),
+      customer_id: createdCustomer.dataValues.customer_id,
+      wallet_type: defaultCurrency,
+    });
+
+    const secret = process.env.ACCESS_TOKEN_SECRET;
+    const customerToken = jwt.sign(
+      { customer_id: createdCustomer.dataValues.customer_id },
+      secret,
+      { expiresIn: '30d' },
+    );
+    const adminToken = jwt.sign(
+      { api_id: null, company_id, user_id, type: 'admin_token', environment: 'production' },
+      secret,
+      { expiresIn: '30d' },
+    );
+
+    await apiModel.create({
+      company_id,
+      base_currency: defaultCurrency,
+      apiKey,
+      user_id,
+      adminToken: customerToken,
+      admin_token: adminToken,
+      withdrawal_whitelist: null,
+      api_name: generateApiKeyName(),
+      permissions: JSON.stringify(['payments', 'transactions', 'webhooks', 'wallets']),
+      environment: 'production',
+      status: 'active',
+      test_mode_restrictions: null,
+      request_count: 0,
+      rate_limit_per_minute: 60,
+      rate_limit_per_hour: 3600,
+      rate_limit_per_day: 100000,
+    });
+    walletLogger.info(`[ensureLiveApiKey] ✅ Auto-created LIVE API key for company ${company_id}`);
+    return true;
+  } catch (err) {
+    walletLogger.warn(`[ensureLiveApiKey] ⚠️ Auto LIVE key creation skipped: ${getErrorMessage(err)}`);
+    return false;
+  }
+}
+
 const verifyOtp = async (req: express.Request, res: express.Response) => {
   const userData = jwt.decode(res.locals.token) as IUserType;
   try {
@@ -3095,92 +3174,16 @@ const verifyOtp = async (req: express.Request, res: express.Response) => {
     // Invalidate wallet cache so getWallet returns fresh data
     await invalidateWalletCache(user_id);
 
-    // AUTO-CREATE API KEY: If company doesn't have an active API key, create one in USD
-    let autoApiKeyCreated = false;
-    try {
-      const existingApiKey = await apiModel.findOne({
-        where: {
-          company_id,
-          status: 'active',
-        },
-      });
-
-      if (!existingApiKey) {
-        const defaultCurrency = 'USD';
-        const keyData = {
-          base_currency: defaultCurrency,
-          company_id,
-          adm_id: user_id,
-          env: 'production',
-        };
-        const keyPrefix = 'dpk_live_';
-        const keyString = keyPrefix + "DYNOPAY_USER_API-" + JSON.stringify(keyData);
-        const apiKey = encrypt(keyString, process.env.API_SECRET);
-
-        // Create customer for API key
-        const companyName = companyData?.dataValues.company_name || 'Company';
-        const companyEmail = companyData?.dataValues.email || userData.email;
-
-        const createdCustomer = await customerModel.create({
-          id: crypto.randomUUID(),
-          customer_name: companyName + " admin",
-          email: companyEmail,
-          mobile: companyEmail,
-          company_id: company_id,
-        });
-
-        await customerWalletModel.create({
-          id: crypto.randomUUID(),
-          customer_id: createdCustomer.dataValues.customer_id,
-          wallet_type: defaultCurrency,
-        });
-
-        // Generate access token for the customer
-        const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET;
-        const customerAccessToken = jwt.sign(
-          { customer_id: createdCustomer.dataValues.customer_id },
-          accessTokenSecret,
-          { expiresIn: '30d' }
-        );
-
-        // Generate admin token
-        const adminTokenPayload = {
-          api_id: null,
-          company_id,
-          user_id,
-          type: 'admin_token',
-          environment: 'production',
-        };
-        const adminToken = jwt.sign(adminTokenPayload, accessTokenSecret, { expiresIn: '30d' });
-
-        const defaultPermissions = ["payments", "transactions", "webhooks", "wallets"];
-
-        await apiModel.create({
-          company_id,
-          base_currency: defaultCurrency,
-          apiKey,
-          user_id,
-          adminToken: customerAccessToken,
-          admin_token: adminToken,
-          withdrawal_whitelist: null,
-          api_name: generateApiKeyName(),
-          permissions: JSON.stringify(defaultPermissions),
-          environment: 'production',
-          status: 'active',
-          test_mode_restrictions: null,
-          request_count: 0,
-          rate_limit_per_minute: 60,
-          rate_limit_per_hour: 3600,
-          rate_limit_per_day: 100000,
-        });
-
-        autoApiKeyCreated = true;
-        walletLogger.info(`[verifyOtp] ✅ Auto-created USD API key for company ${company_id} after first wallet setup`);
-      }
-    } catch (apiKeyError) {
-      // Log but don't fail wallet verification
-      walletLogger.warn(`[verifyOtp] ⚠️ Auto API key creation skipped: ${getErrorMessage(apiKeyError)}`);
-    }
+    // AUTO-CREATE LIVE API KEY (if company has no active production key).
+    // Non-fatal: helper wraps its own try/catch. Idempotent guard on environment='production'
+    // means a coexisting TEST key does NOT block live-key creation.
+    const autoApiKeyCreated = await ensureLiveApiKey(
+      company_id,
+      user_id,
+      userData.email,
+      companyData?.dataValues.company_name,
+      companyData?.dataValues.email,
+    );
 
     successResponseHelper(res, 200, "OTP verified successfully!", {
       verified: true,
@@ -4716,13 +4719,34 @@ const copyWalletAddresses = async (req: express.Request, res: express.Response) 
       `[copyWalletAddresses] Copied ${copied.length} wallet(s) from company ${source_company_id} -> ${target_company_id} for user ${user_id} (skipped ${skipped.length})`
     );
 
+    // AUTO-CREATE LIVE API KEY on the target company if it now has ≥1 wallet
+    // (freshly copied OR pre-existing) and doesn't yet have an active production key.
+    // Non-fatal + idempotent (helper wraps its own try/catch and guards on env='production').
+    let auto_live_key_created = false;
+    if (copied.length > 0 || existingCurrencies.size > 0) {
+      const targetName = (targetCompany as { company_name?: string; email?: string }).company_name;
+      const targetEmail = (targetCompany as { company_name?: string; email?: string }).email;
+      auto_live_key_created = await ensureLiveApiKey(
+        Number(target_company_id),
+        Number(user_id),
+        userData.email,
+        targetName,
+        targetEmail,
+      );
+    }
+
     const srcName = (sourceCompany as { company_name?: string }).company_name || `Company #${source_company_id}`;
     const message =
       copied.length === 0
         ? "No wallets copied — all selected currencies already exist on this company."
         : `${copied.length} wallet${copied.length === 1 ? "" : "s"} copied from ${srcName}.`;
 
-    successResponseHelper(res, 200, message, { copied, skipped, source_company_name: srcName });
+    successResponseHelper(res, 200, message, {
+      copied,
+      skipped,
+      source_company_name: srcName,
+      auto_live_key_created,
+    });
   } catch (e) {
     handleControllerError(res, e, walletLogger, { user_id: userData.user_id, email: userData.email });
   }
