@@ -70,14 +70,15 @@ interface InvoiceFigures {
 /**
  * Compute all monetary figures for a completed transaction's invoice.
  *
- * Shared by `autoGenerateInvoice` (which persists the result) and the
- * read-only preview endpoint (which does NOT persist or send email).
+ * Shared by `autoGenerateInvoice` (which persists the result), the read-only
+ * preview endpoint, and the historical backfill script (scripts/
+ * backfill_invoice_fees.ts) — so all three paths use IDENTICAL math.
  * Performs NO database writes.
  *
  * All fee math is done in USD (the fee-tier currency) and only the final
  * display figures are converted USD → the company's preferred currency.
  */
-const computeInvoiceFigures = async (
+export const computeInvoiceFigures = async (
   txData: Record<string, any>,
   companyData: Record<string, any>,
   companyId: number | string
