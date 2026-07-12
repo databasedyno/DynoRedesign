@@ -11,7 +11,11 @@
 - `pages/creator.tsx`: added a prominent "Collect tips & donations" CTA card (`data-testid="creator-donation-cta"` + button `creator-donation-cta-btn`) between the stat tiles and the form/preview columns → deep-links to `/create-pay-link?type=donation`. Imported `useRouter` + MUI `Button`.
 - i18n via `t(key, { defaultValue })` fallback pattern (no locale files edited — English fallback works across all 6 locales).
 
-**Verification:** eslint clean on both files; `next build` standalone PASS (type-checked, 69s, 436 kB shared JS); frontend restarted; external `/create-pay-link?type=donation` + `/creator` = 200. Full logged-in flow (CTA → deep-link → donation preselected + hint) pending frontend testing_agent (awaiting user approval — authed SPA won't hydrate via simple token injection).
+**Also fixed in this session (stale audit P1s that were still genuinely open):**
+- **F8 — create-pay-link live-preview fidelity** (`Components/UI/pay-link/LivePreviewPanel.tsx`): both preview CTA buttons ("Donate" + "Cryptocurrency") were green `#10B981`, but the real checkout CTA is lime-on-ink. Changed them to `theme.palette.primary.main` bg + `#0A0A0B` text so the preview matches what customers actually see. (`acceptedCount` was already wired to the real selected-currency count — no change needed.)
+- **F11 — React hydration errors (#418/#425) on the donation checkout** (`Components/Page/Pay3Components/donationCampaign.tsx`): `timeAgo()` in the supporters wall calls `Date.now()` during render, so SSR (server clock) and client hydration (client clock) produced different "Xm ago" text → hydration mismatch (desktop/tablet only, where the 2-col supporters wall renders). Fix: added a `mounted` flag (set in a mount effect) and gate the relative-time `<Typography>` on `mounted` so SSR and first client paint agree, then the time fills in client-side. **Verified via own Playwright (headless_shell 1208): /pay/donation-demo now reports 0 console errors, 0 hydration errors** (was throwing #418/#425 before).
+
+**Verification (donation↔creator bridge):** eslint clean on both files; `next build` standalone PASS (type-checked, 69s, 436 kB shared JS); frontend restarted; external `/create-pay-link?type=donation` + `/creator` = 200. Full logged-in flow (CTA → deep-link → donation preselected + hint) pending frontend testing_agent (awaiting user approval — authed SPA won't hydrate via simple token injection).
 
 
 

@@ -97,6 +97,11 @@ const DonationCampaign = ({ donation, merchant, submitting, onDonate }: Donation
   const [isAnonymous, setIsAnonymous] = useState<boolean>(false)
   const [amountError, setAmountError] = useState<string>('')
   const [barValue, setBarValue] = useState(0) // animate progress on mount
+  // Relative "time ago" labels depend on the current clock, which differs
+  // between the SSR render and client hydration → React hydration mismatch
+  // (#418/#425). Render them only after mount so SSR and first client paint
+  // agree. (F11)
+  const [mounted, setMounted] = useState(false)
 
   const fmt = (n: number) => `${symbol}${formatWithSeparators(n, currency)}`
 
@@ -116,6 +121,8 @@ const DonationCampaign = ({ donation, merchant, submitting, onDonate }: Donation
     const id = setTimeout(() => setBarValue(target), 120)
     return () => clearTimeout(id)
   }, [progressPct])
+
+  useEffect(() => { setMounted(true) }, [])
 
   const effectiveAmount = useMemo(() => {
     if (selectedPreset != null) return selectedPreset
@@ -435,7 +442,7 @@ const DonationCampaign = ({ donation, merchant, submitting, onDonate }: Donation
                     {s.message}
                   </Typography>
                 )}
-                {s.at && (
+                {s.at && mounted && (
                   <Typography fontSize={11} fontFamily={MONO} color={theme.palette.text.disabled} mt={0.25}>
                     {timeAgo(s.at)}
                   </Typography>
