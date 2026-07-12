@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-07-12 (session 35) — Share-sheet on public creator page /{handle}  [option (b)]
+
+**Feature:** Added a social share bar to the public creator page so creators/visitors can spread a tip-jar/donation page (virality is core to a creator product).
+- `Components/Page/Creator/CreatorProfile.tsx`: new "SHARE THIS PAGE" bar (`data-testid="creator-share"`) with circular buttons — **Copy link** (`creator-share-copy`, shows check + "Link copied!" state via `helpers/copyToClipboard`), **X/Twitter**, **WhatsApp**, **Telegram**, **Facebook** (each `creator-share-{key}`, intent/share URLs, open in new tab), plus a **native Web Share** button (`creator-share-native`) rendered only after mount when `navigator.share` exists (gated to avoid SSR/client hydration mismatch). Canonical share URL built from new optional `siteUrl` prop (falls back to `window.location.href`). Icons via existing `@iconify/react` `mdi:*` pattern; `shareBtnSx()` is a plain sx-returning helper (not a nested component).
+- `pages/[handle].tsx`: passes `siteUrl` into `CreatorProfile`.
+
+**Verification:** eslint clean (the only warning is the PRE-EXISTING `LinkCard` nested-component at what's now L125 — untouched, ships in prod, doesn't fail build); `next build` PASS; `/hostbay` = 200 with all 5 share testids SSR'd; own Playwright confirms Iconify API 200 + 5 svg paths rendered + **0 console/0 hydration errors**; proper-timed screenshot shows all icons. NOTE: the built-in screenshot tool sometimes captures the icons blank because Iconify fetches glyphs async from the CDN after first paint — this is a screenshot-timing artifact only; real browsers (and DOM inspection) render them fine. This is the app-wide icon pattern (57 mdi usages), not new.
+
+
 ## 2026-07-12 (session 35) — Bridge Creator page ↔ donation / "Buy me a coffee"
 
 **Problem (user report):** "I can't find donate button or buy me coffee option with swift crypto payment option on create page" — user's mental model is that donations/tips are a **Creator** feature. The donation link type + full DonationSettings (goal, presets = quick tip amounts, campaign image) already existed on `/create-pay-link`, and a donation link auto-becomes the "Featured tip box" on the public creator page (`CreatorProfile.tsx` L69). BUT the two were disconnected in the UX: `CreatorLivePreview` literally says "Create a donation link and it will feature at the top of your page" with **no button to do so**, and `/create-pay-link` had no way to deep-link into the donation type.

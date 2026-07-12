@@ -1,8 +1,9 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Box, Button, LinearProgress, Typography, useTheme } from '@mui/material'
 import { Icon } from '@iconify/react'
 import Logo from '@/assets/Icons/Logo'
 import { formatWithSeparators, getCurrencySymbolFromFormat } from '@/utils/currencyFormat'
+import copyToClipboard from '@/helpers/copyToClipboard'
 
 const MONO = 'ui-monospace, "Roboto Mono", "JetBrains Mono", SFMono-Regular, Menlo, monospace'
 const LIME = '#CCFF00'
@@ -59,7 +60,7 @@ const socialHref = (platform: string, raw: string): string => {
 const fmt = (n: number, currency: string) =>
   `${getCurrencySymbolFromFormat(currency)}${formatWithSeparators(n, currency)}`
 
-const CreatorProfile = ({ creator, links }: { creator: CreatorData; links: CreatorLink[] }) => {
+const CreatorProfile = ({ creator, links, siteUrl }: { creator: CreatorData; links: CreatorLink[]; siteUrl?: string }) => {
   const theme = useTheme()
   const isDark = theme.palette.mode === 'dark'
   const border = theme.palette.divider
@@ -69,6 +70,53 @@ const CreatorProfile = ({ creator, links }: { creator: CreatorData; links: Creat
   const featured = links.find((l) => l.type === 'donation' && !l.closed) || null
   const rest = links.filter((l) => l !== featured)
   const initial = (creator.name || creator.handle || '?').charAt(0).toUpperCase()
+
+  // ── Share sheet ────────────────────────────────────────────────
+  const [copied, setCopied] = useState(false)
+  const [canNativeShare, setCanNativeShare] = useState(false)
+  useEffect(() => {
+    setCanNativeShare(typeof navigator !== 'undefined' && typeof (navigator as any).share === 'function')
+  }, [])
+  const shareUrl = siteUrl
+    ? `${siteUrl.replace(/\/+$/, '')}/${creator.handle}`
+    : typeof window !== 'undefined'
+      ? window.location.href
+      : `/${creator.handle}`
+  const shareText = `Support ${creator.name} on Dynopay`
+  const handleCopy = async () => {
+    const ok = await copyToClipboard(shareUrl)
+    if (ok) {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1800)
+    }
+  }
+  const handleNativeShare = async () => {
+    try {
+      await (navigator as any).share({ title: shareText, text: shareText, url: shareUrl })
+    } catch {
+      /* user cancelled or unsupported — ignore */
+    }
+  }
+  const SHARE_TARGETS: Array<{ key: string; icon: string; label: string; href: string }> = [
+    { key: 'x', icon: 'mdi:twitter', label: 'Share on X', href: `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}` },
+    { key: 'whatsapp', icon: 'mdi:whatsapp', label: 'Share on WhatsApp', href: `https://wa.me/?text=${encodeURIComponent(`${shareText} ${shareUrl}`)}` },
+    { key: 'telegram', icon: 'mdi:telegram', label: 'Share on Telegram', href: `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}` },
+    { key: 'facebook', icon: 'mdi:facebook', label: 'Share on Facebook', href: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}` },
+  ]
+  const shareBtnSx = (active: boolean) => ({
+    width: 40,
+    height: 40,
+    borderRadius: '50%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    border: `1px solid ${active ? LIME : border}`,
+    backgroundColor: active ? limeTint : surface,
+    color: active ? (isDark ? LIME : '#0A0A0B') : theme.palette.text.primary,
+    cursor: 'pointer',
+    transition: 'border-color 160ms ease, transform 160ms ease',
+    '&:hover': { borderColor: LIME, transform: 'translateY(-1px)' },
+  })
 
   const go = (url: string | null) => {
     if (url && typeof window !== 'undefined') window.location.href = url
@@ -216,6 +264,53 @@ const CreatorProfile = ({ creator, links }: { creator: CreatorData; links: Creat
         </Box>
 
         <Box sx={{ px: { xs: 2, sm: 3 } }}>
+        {/* ── Share sheet ── */}
+        <Box data-testid='creator-share' sx={{ mb: 3 }}>
+          <Typography sx={{ fontFamily: MONO, fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: theme.palette.text.secondary, mb: 1, textAlign: 'center' }}>
+            {copied ? 'Link copied!' : 'Share this page'}
+          </Typography>
+          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', justifyContent: 'center' }}>
+            <Box
+              role='button'
+              tabIndex={0}
+              data-testid='creator-share-copy'
+              aria-label={copied ? 'Link copied' : 'Copy link'}
+              onClick={handleCopy}
+              onKeyDown={(e: React.KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleCopy() } }}
+              sx={shareBtnSx(copied)}
+            >
+              <Icon icon={copied ? 'mdi:check' : 'mdi:link-variant'} width={18} />
+            </Box>
+            {canNativeShare && (
+              <Box
+                role='button'
+                tabIndex={0}
+                data-testid='creator-share-native'
+                aria-label='Share'
+                onClick={handleNativeShare}
+                onKeyDown={(e: React.KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleNativeShare() } }}
+                sx={shareBtnSx(false)}
+              >
+                <Icon icon='mdi:share-variant' width={18} />
+              </Box>
+            )}
+            {SHARE_TARGETS.map((s) => (
+              <Box
+                key={s.key}
+                component='a'
+                href={s.href}
+                target='_blank'
+                rel='noopener noreferrer'
+                data-testid={`creator-share-${s.key}`}
+                aria-label={s.label}
+                sx={{ ...shareBtnSx(false), textDecoration: 'none' }}
+              >
+                <Icon icon={s.icon} width={18} />
+              </Box>
+            ))}
+          </Box>
+        </Box>
+
         {/* ── Featured donation / tip box ── */}
         {featured && (
           <Box

@@ -31,7 +31,7 @@ const CreatorPage = ({ creator, links, siteUrl }: CreatorPageProps) => {
         <meta key='twitter:title' name='twitter:title' content={title} />
         <meta key='twitter:description' name='twitter:description' content={description} />
       </Head>
-      <CreatorProfile creator={creator} links={links} />
+      <CreatorProfile creator={creator} links={links} siteUrl={siteUrl} />
     </>
   )
 }
