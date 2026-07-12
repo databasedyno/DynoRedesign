@@ -72,5 +72,10 @@
     "generate": "Générer la Clé",
     "done": "Terminé"
   },
-  "apiKeyTitle": "Clé API {{currency}}"
+  "apiKeyTitle": "Clé API {{currency}}",
+  "keys": {
+    "liveUnlockHint": "Votre clé en direct s'active automatiquement dès que vous ajoutez (ou réutilisez) votre premier portefeuille sur cette entreprise.",
+    "testAutoCreatedBadge": "Créée automatiquement · Sandbox",
+    "sandboxLimits": "Max ${{max}} · {{currencies}} · mode sandbox"
+  }
 }

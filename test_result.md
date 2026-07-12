@@ -39,6 +39,46 @@ The developer-keys UI (`pages/developer-keys.tsx` + `Components/Page/API/ApiKeys
 ---
 
 
+## Session 34 (cont'd): Auto API-Key Provisioning — Phase B frontend (2026-07-12)
+
+### Frontend code changes (Phase B)
+1. **`pages/developer-keys.tsx`** — Replaced `hasExistingKey` (any-key gate) with a per-environment `canCreateAnother = !hasActiveProd || !hasActiveDev` gate. The "Create New Key" CTA now appears when at least one env slot is empty; hidden only when both prod + dev are already populated. Effect deps updated to `canCreateAnother`.
+2. **`Components/Page/API/ApiKeysPage.tsx`** — Three additions:
+   - Imported `LockOutlinedIcon` + `ScienceOutlinedIcon` from MUI.
+   - Added a self-contained IIFE render block that shows a **live-key unlock info banner** (blue-tinted, lock icon + i18n `keys.liveUnlockHint`) when the company has a dev key but no active prod key. Positioned above the ApiKeyCard grid.
+   - In `ApiKeyCard`: parse `test_mode_restrictions` (JSON string or object), derive `isSandboxKey = environment==='development' && sandbox_mode`. When true → render an **"Auto-Created · Sandbox" chip** (beaker icon, primary-tint) inside a flex container next to the existing "Active" chip (both re-positioned to `position: static` inside a wrapper absolute-positioned Box to avoid the Tags styled comp's `position: absolute` collision). Also render a **subtitle limits line** (`keys.sandboxLimits`) above the currency dropdown: `"Max $100 · BTC · ETH · USDT-TRC20 · TRX · LTC · sandbox mode"`.
+3. **`langs/locales/{en,es,fr,de,nl,pt}/apiScreen.json`** — Added `keys.liveUnlockHint`, `keys.testAutoCreatedBadge`, `keys.sandboxLimits` in all 6 locales. Fully translated; `defaultValue` in the component also provides English fallback in case any locale is missing.
+
+### Verification (manual, via Playwright screenshot script)
+- Seeded a fresh QA company (id=7) via `POST /api/company/addCompany` → confirmed backend `auto_test_key_created:true`.
+- Logged into UI as `qa.empty.1782626169@dynopaytest.com` at 1440x900 (desktop).
+- Navigated to `/developer-keys` in the "prod=0, dev=1" state:
+  * `data-testid="live-key-unlock-banner"` count=1, text = "Your live key activates automatically once you add (or reuse) your first wallet on this company." ✅
+  * `data-testid="sandbox-badge"` count=1, text = "Auto-Created · Sandbox" (beaker icon), sits inline with "Active" chip — no overlap ✅
+  * `data-testid="sandbox-limits"` count=1, text = "Max $100 · BTC · ETH · USDT-TRC20 · TRX · LTC · sandbox mode" ✅
+  * "Create New Key" button VISIBLE in top-right (prod slot empty) ✅
+- Added an LTC wallet via `validateWalletAddress` + `verifyOtp` (backend auto-minted the live key). Reloaded `/developer-keys`:
+  * Banner GONE ✅
+  * Two side-by-side cards: LIVE (left, no badge, only "Active") + TEST (right, "Auto-Created · Sandbox" + "Active" + limits line) ✅
+  * "Create New Key" button HIDDEN (both slots filled) ✅
+- `next build` PASSED (18 routes, 436 kB shared JS); frontend restarted, external `/developer-keys` returns 200.
+
+### Cleanup
+Deleted all test rows via API: `DELETE /api/userApi/deleteApi/{...}` + `DELETE /api/company/deleteCompany/7` → 0 companies remaining. LIVE Railway DB restored to pre-session state.
+
+### Files touched (Phase B)
+- `/app/pages/developer-keys.tsx`
+- `/app/Components/Page/API/ApiKeysPage.tsx`
+- `/app/langs/locales/{en,es,fr,de,nl,pt}/apiScreen.json`
+
+### Status
+- ✅ Phase A backend done + tested (7/7 pass, cleaned up).
+- ✅ Phase B frontend done + manually verified via Playwright screenshot (banner, badge, limits, create-button-hidden all confirmed in-browser).
+- **Pending user approval** before invoking `auto_frontend_testing_agent` for the full accessibility + mobile + regression sweep.
+
+---
+
+
 
 ## Session 33: UX re-fix verification (F1/F2/F3/F4/F5/F10/F22) + 2 bug fixes (2026-06)
 

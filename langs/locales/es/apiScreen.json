@@ -72,5 +72,10 @@
     "generate": "Generar Clave",
     "done": "Hecho"
   },
-  "apiKeyTitle": "Clave API {{currency}}"
+  "apiKeyTitle": "Clave API {{currency}}",
+  "keys": {
+    "liveUnlockHint": "Tu clave en vivo se activa automáticamente cuando añades (o reutilizas) tu primera billetera en esta empresa.",
+    "testAutoCreatedBadge": "Creada automáticamente · Sandbox",
+    "sandboxLimits": "Máx ${{max}} · {{currencies}} · modo sandbox"
+  }
 }

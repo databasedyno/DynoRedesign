@@ -6,6 +6,8 @@ import { useDispatch, useSelector } from "react-redux";
 import axiosBaseApi from "@/axiosConfig";
 
 import ArrowOutwardIcon from "@mui/icons-material/ArrowOutward";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import ScienceOutlinedIcon from "@mui/icons-material/ScienceOutlined";
 
 import CustomButton from "@/Components/UI/Buttons";
 import PanelCard from "@/Components/UI/PanelCard";
@@ -214,6 +216,37 @@ const ApiKeyCard = ({ title, apiRow, onCopy, onDelete, onRegenerate, onToggleSta
   const createdAt =
     apiRow?.created_at || apiRow?.createdAt || apiRow?.createdOn || "";
 
+  // Derive sandbox metadata for auto-created development keys.
+  // test_mode_restrictions may arrive as a JSON string (raw DB value) or an object (parsed by getApi).
+  const isDev =
+    (apiRow as { environment?: string })?.environment === "development";
+  const rawRestrictions = (apiRow as { test_mode_restrictions?: unknown })
+    ?.test_mode_restrictions;
+  let sandboxRestrictions: {
+    max_amount?: number;
+    allowed_currencies?: string[];
+    sandbox_mode?: boolean;
+  } | null = null;
+  if (rawRestrictions) {
+    if (typeof rawRestrictions === "string") {
+      try {
+        sandboxRestrictions = JSON.parse(rawRestrictions);
+      } catch {
+        sandboxRestrictions = null;
+      }
+    } else if (typeof rawRestrictions === "object") {
+      sandboxRestrictions = rawRestrictions as typeof sandboxRestrictions;
+    }
+  }
+  const isSandboxKey = isDev && !!sandboxRestrictions?.sandbox_mode;
+  const sandboxLimitsLine = isSandboxKey
+    ? t("keys.sandboxLimits", {
+        defaultValue: "Max ${{max}} · {{currencies}} · sandbox mode",
+        max: sandboxRestrictions?.max_amount ?? 100,
+        currencies: (sandboxRestrictions?.allowed_currencies || []).join(" · "),
+      })
+    : "";
+
   const displayApiKey = showApiKey
     ? apiKey
     : apiKey
@@ -235,12 +268,69 @@ const ApiKeyCard = ({ title, apiRow, onCopy, onDelete, onRegenerate, onToggleSta
       headerPadding={theme.spacing(2.5, 2.5, 0, 2.5)}
       headerActionLayout="inline"
       headerAction={
-        <Tags>
-          <CheckCircleRoundedIcon sx={{ fontSize: 16 }} /> {t("status.active")}
-        </Tags>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 0.75,
+            flexWrap: "wrap",
+            justifyContent: "flex-end",
+            position: "absolute",
+            top: 12,
+            right: 12,
+            zIndex: 1,
+            // Override the absolute positioning on the child Tags so they sit inline in this flex row
+            "& > .MuiTypography-root": {
+              position: "static",
+              top: "auto",
+              right: "auto",
+            },
+          }}
+        >
+          {isSandboxKey && (
+            <Tags
+              data-testid="sandbox-badge"
+              sx={{
+                background:
+                  theme.palette.mode === "dark"
+                    ? "rgba(106,123,255,0.16)"
+                    : "rgba(106,123,255,0.10)",
+                color: theme.palette.primary.main,
+                border: `1px solid ${theme.palette.primary.main}33`,
+                whiteSpace: "nowrap",
+              }}
+              aria-label={t("keys.testAutoCreatedBadge", {
+                defaultValue: "Auto-created · Sandbox",
+              })}
+            >
+              <ScienceOutlinedIcon sx={{ fontSize: 16 }} />
+              {t("keys.testAutoCreatedBadge", {
+                defaultValue: "Auto-created · Sandbox",
+              })}
+            </Tags>
+          )}
+          <Tags sx={{ whiteSpace: "nowrap" }}>
+            <CheckCircleRoundedIcon sx={{ fontSize: 16 }} /> {t("status.active")}
+          </Tags>
+        </Box>
       }
       sx={{ height: "100%", borderRadius: "14px" }}
     >
+      {isSandboxKey && sandboxLimitsLine && (
+        <Typography
+          data-testid="sandbox-limits"
+          sx={{
+            fontSize: 12,
+            lineHeight: 1.5,
+            color: theme.palette.text.secondary,
+            fontFamily: "var(--font-sans), sans-serif",
+            mt: -0.5,
+            mb: 1,
+          }}
+        >
+          {sandboxLimitsLine}
+        </Typography>
+      )}
       <ApiKeyCardSubTitle>
         {t("currency.baseCurrency")}
         <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.5, ml: 0.5 }}>
@@ -1100,6 +1190,63 @@ const ApiKeysPage = ({
           <ApiDocumentationCard docsUrl={docsUrl} />
         </Grid>
       </Grid> */}
+      {(() => {
+        // Show a subtle info banner when the merchant has a test key but no
+        // active production key — the live key auto-unlocks after adding or
+        // reusing a wallet on this company.
+        const list: IApi[] = Array.isArray(apiState?.apiList) ? apiState.apiList : [];
+        const hasProd = list.some(
+          (k) => (k as { environment?: string })?.environment === "production" && k?.status === "active",
+        );
+        const hasDev = list.some(
+          (k) => (k as { environment?: string })?.environment === "development" && k?.status === "active",
+        );
+        if (!hasProd && hasDev) {
+          return (
+            <Box
+              data-testid="live-key-unlock-banner"
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1.25,
+                p: isMobile ? "12px 14px" : "12px 18px",
+                mb: isMobile ? 2 : 2.5,
+                borderRadius: "10px",
+                border: `1px solid ${theme.palette.primary.main}33`,
+                background:
+                  theme.palette.mode === "dark"
+                    ? "rgba(106,123,255,0.10)"
+                    : "rgba(106,123,255,0.06)",
+                opacity: 0,
+                animation: "fadeSlideIn 0.5s ease forwards",
+                ...itemAnimation,
+              }}
+            >
+              <LockOutlinedIcon
+                sx={{
+                  fontSize: 20,
+                  color: theme.palette.primary.main,
+                  flexShrink: 0,
+                }}
+              />
+              <Typography
+                sx={{
+                  fontSize: isMobile ? 13 : 14,
+                  lineHeight: 1.5,
+                  color: theme.palette.text.primary,
+                  fontFamily: "var(--font-sans), sans-serif",
+                }}
+              >
+                {t("keys.liveUnlockHint", {
+                  defaultValue:
+                    "Your live key activates automatically once you add (or reuse) your first wallet on this company.",
+                })}
+              </Typography>
+            </Box>
+          );
+        }
+        return null;
+      })()}
       <Grid
         container
         spacing={2.5}

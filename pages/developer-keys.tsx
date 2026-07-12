@@ -23,7 +23,17 @@ const APIs = ({
 
   const [openCreate, setOpenCreate] = useState(false);
   const apiState = useSelector((state: any) => state?.apiReducer);
-  const hasExistingKey = Array.isArray(apiState?.apiList) && apiState.apiList.length > 0;
+  const apiList: any[] = Array.isArray(apiState?.apiList) ? apiState.apiList : [];
+  // Per-environment slots. Auto-provisioning gives every company a test key at
+  // signup and a live key on first wallet — but if the user revokes one of them,
+  // they should be able to mint that environment's key back manually.
+  const hasActiveProd = apiList.some(
+    (k) => k?.environment === "production" && k?.status === "active",
+  );
+  const hasActiveDev = apiList.some(
+    (k) => k?.environment === "development" && k?.status === "active",
+  );
+  const canCreateAnother = !hasActiveProd || !hasActiveDev;
 
   useEffect(() => {
     if (setPageName && setPageDescription) {
@@ -39,8 +49,9 @@ const APIs = ({
 
   useEffect(() => {
     if (!setPageAction) return;
-    // Only show "Create" button if no API key exists (max 1 key per company)
-    if (hasExistingKey) {
+    // Show "Create" only when at least one environment slot (prod/dev) is empty.
+    // Both slots filled → hide (per-environment dedupe enforced by backend anyway).
+    if (!canCreateAnother) {
       setPageAction(null);
     } else {
       setPageAction(
@@ -59,7 +70,7 @@ const APIs = ({
       );
     }
     return () => setPageAction(null);
-  }, [setPageAction, tApi, isMobile, hasExistingKey]);
+  }, [setPageAction, tApi, isMobile, canCreateAnother]);
 
   return (
     <>

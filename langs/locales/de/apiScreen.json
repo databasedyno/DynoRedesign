@@ -72,5 +72,10 @@
     "generate": "Schlüssel generieren",
     "done": "Fertig"
   },
-  "apiKeyTitle": "{{currency}} API-Schlüssel"
+  "apiKeyTitle": "{{currency}} API-Schlüssel",
+  "keys": {
+    "liveUnlockHint": "Ihr Live-Schlüssel wird automatisch aktiviert, sobald Sie Ihre erste Wallet für dieses Unternehmen hinzufügen (oder wiederverwenden).",
+    "testAutoCreatedBadge": "Automatisch erstellt · Sandbox",
+    "sandboxLimits": "Max ${{max}} · {{currencies}} · Sandbox-Modus"
+  }
 }

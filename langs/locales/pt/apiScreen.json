@@ -72,5 +72,10 @@
     "generate": "Gerar chave",
     "done": "Feito"
   },
-  "apiKeyTitle": "Chave de API {{currency}}"
+  "apiKeyTitle": "Chave de API {{currency}}",
+  "keys": {
+    "liveUnlockHint": "Sua chave em produção é ativada automaticamente assim que você adiciona (ou reutiliza) a primeira carteira nesta empresa.",
+    "testAutoCreatedBadge": "Criada automaticamente · Sandbox",
+    "sandboxLimits": "Máx ${{max}} · {{currencies}} · modo sandbox"
+  }
 }

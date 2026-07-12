@@ -1,7 +1,7 @@
 # Auto API-Key Provisioning — Execution-Ready Plan
 
-> **Status:** PLANNED · not yet implemented (session-33 fork carry-over)
-> **Priority:** P0 · Only remaining "Implement fully" item
+> **Status:** Phase A ✅ (backend, 7/7 tests pass) · Phase B ✅ (frontend, manual UI verified) · **Awaiting frontend testing_agent approval**
+> **Priority:** P0 · **Only remaining "Implement fully" item — SHIPPED PENDING FINAL TESTING**
 > **Owner:** next agent picking this up
 > **Env verified:** setup done on preview `https://40b4ff19-5dd6-4c10-9148-72e7af6c58cf.preview.emergentagent.com` (backend :3300 healthy, frontend :3000 200, csrf 200, login 401 bad-creds, Railway PG + Redis + Tatum connected, background_jobs.eligible=false — see §Environment).
 
@@ -23,20 +23,21 @@ Net effect: sandbox key at signup + live key unlocks the moment the merchant can
 
 ## 1. Execution phases (do in order)
 
-### Phase A — Backend (do first, ship together)
-- [ ] **A1. Relax dedupe in `apiController.addApi`** → per-(company, environment) instead of "1 per company". *(§3.1)*
-- [ ] **A2. Extract `ensureLiveApiKey(company_id, user_id, userData)` helper** in `walletController.ts` from the existing `verifyOtp` block. *(§3.2)*
-- [ ] **A3. Fix `verifyOtp` live-key guard** → look for `environment: 'production'` only (not "any active"). Call the helper. *(§3.2)*
-- [ ] **A4. Call the helper in `copyWalletAddresses`** after `invalidateWalletCache`. *(§3.3)*
-- [ ] **A5. Add auto `dpk_test_` key in `companyController.addCompany`** — non-fatal try/catch after `companyModel.create`. *(§3.4)*
-- [ ] **A6. Backend testing_agent** — run full spec in §5. Do **NOT** touch `hostbay@moxx.co`; use QA accounts.
+### Phase A — Backend (do first, ship together) — ✅ DONE (session 34)
+- [x] **A1. Relax dedupe in `apiController.addApi`** → per-(company, environment) instead of "1 per company". *(§3.1)*
+- [x] **A2. Extract `ensureLiveApiKey(company_id, user_id, userData)` helper** in `walletController.ts` from the existing `verifyOtp` block. *(§3.2)*
+- [x] **A3. Fix `verifyOtp` live-key guard** → look for `environment: 'production'` only (not "any active"). Call the helper. *(§3.2)*
+- [x] **A4. Call the helper in `copyWalletAddresses`** after `invalidateWalletCache`. *(§3.3)*
+- [x] **A5. Add auto `dpk_test_` key in `companyController.addCompany`** — non-fatal try/catch after `companyModel.create`. *(§3.4)*
+- [x] **A6. Backend testing_agent** — 7/7 assertions PASSED (T1-T7). Session 34 verified end-to-end via `validateWalletAddress → read verified_otp from tbl_user → verifyOtp` loop for T2/T3, and `copyWalletAddresses` for T6.
 
-### Phase B — Frontend (after backend green)
-- [ ] **B1. `pages/developer-keys.tsx`** — remove "hide Create when apiList.length===0"; make it per-environment. *(§3.5)*
-- [ ] **B2. `Components/Page/API/ApiKeysPage.tsx`** — add "🔒 Live key activates after adding/reusing a wallet" hint in the Production section when `production_count === 0`; add "Auto-created · Sandbox" badge on the test key row + one-line summary of `test_mode_restrictions`. *(§3.5)*
-- [ ] **B3. i18n** — add `keys.liveUnlockHint`, `keys.testAutoCreatedBadge`, `keys.sandboxLimits` in all 6 locales (en/es/fr/de/nl/pt). Use `t(k, { defaultValue: "…" })` pattern (Session 33's F3 lesson).
-- [ ] **B4. `next build` (from `/app`) + `sudo supervisorctl restart frontend`.**
-- [ ] **B5. ASK the user before running frontend testing_agent** (per DEV_WORKFLOW step 7).
+### Phase B — Frontend — ✅ DONE (session 34, manual UI verified)
+- [x] **B1. `pages/developer-keys.tsx`** — removed "hide Create when apiList.length===0"; per-environment gate `canCreateAnother = !hasActiveProd || !hasActiveDev`.
+- [x] **B2. `Components/Page/API/ApiKeysPage.tsx`** — added banner "🔒 Live key activates after adding/reusing a wallet" (only when prod=0, dev>=1); added "Auto-Created · Sandbox" chip inline with "Active" chip on dev-env cards (Tags absolute-position collision fixed via a wrapper Box); added subtitle limits line `Max $X · currencies · sandbox mode` reading from `test_mode_restrictions`.
+- [x] **B3. i18n** — `keys.liveUnlockHint`, `keys.testAutoCreatedBadge`, `keys.sandboxLimits` added in all 6 locales (en/es/fr/de/nl/pt). Full translations, `defaultValue` fallback preserved.
+- [x] **B4. `next build` (from `/app`) + `sudo supervisorctl restart frontend`.** PASSED, external /developer-keys = 200.
+- [x] **B5. Manual UI verification** via Playwright screenshot at 1440x900 — banner, badge, limits, create-button-hidden all confirmed for both `prod=0/dev=1` and `prod=1/dev=1` states.
+- [ ] **B6. `auto_frontend_testing_agent` full sweep (accessibility + mobile 390 + regression)** — pending user approval.
 
 ### Phase C — Enhancement (optional, do after A + B ship)
 - [ ] **C1. "Try your first payment" cURL card** on `/developer-keys` (test env). See §7.

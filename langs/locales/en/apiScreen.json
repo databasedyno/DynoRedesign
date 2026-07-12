@@ -72,5 +72,10 @@
     "generate": "Generate Key",
     "done": "Done"
   },
-  "apiKeyTitle": "{{currency}} API Key"
+  "apiKeyTitle": "{{currency}} API Key",
+  "keys": {
+    "liveUnlockHint": "Your live key activates automatically once you add (or reuse) your first wallet on this company.",
+    "testAutoCreatedBadge": "Auto-created · Sandbox",
+    "sandboxLimits": "Max ${{max}} · {{currencies}} · sandbox mode"
+  }
 }
