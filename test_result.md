@@ -1,3 +1,36 @@
+## Session 35: Creator/Donation UX batch — FRONTEND TEST REQUESTED (2026-07-12)
+
+### Preview URL
+https://bd251826-361d-4dcd-8134-9495baf74e48.preview.emergentagent.com
+
+### Test credentials (from /app/memory/test_credentials.md)
+- Data-rich (has company+wallet, HAS claimed creator handle "hostbay"): hostbay@moxx.co / Katiekendra123@
+- Empty merchant (NO company/wallet, has NOT claimed a creator handle): qa.empty.1782626169@dynopaytest.com / QaEmpty#2026
+
+### What changed this session (all frontend-only; backend/live-DB untouched)
+1. Donation ↔ Creator bridge:
+   - /creator now has a "Collect tips & donations" CTA card (data-testid="creator-donation-cta", button "creator-donation-cta-btn") → deep-links to /create-pay-link?type=donation
+   - /create-pay-link?type=donation pre-selects the Donation link type (data-testid link-type-donation aria-pressed=true)
+   - Donation form shows a creator-association hint (data-testid="donation-creator-hint"); if no handle it shows a "Set up your creator page" CTA (data-testid="donation-creator-hint-cta")
+   - The "Accept a donation" quick-start chip now opens the donation type (was standard)
+2. F8 — create-pay-link LIVE PREVIEW CTA buttons now lime-on-ink (match real checkout), not green.
+3. F11 — /pay/donation-demo hydration errors fixed (supporter "time ago" rendered after mount). PUBLIC page.
+4. Share-sheet on public creator page /{handle} (data-testid="creator-share"): Copy link (creator-share-copy), X (creator-share-x), WhatsApp (creator-share-whatsapp), Telegram (creator-share-telegram), Facebook (creator-share-facebook), + native share on supported browsers (creator-share-native). PUBLIC page — test on /hostbay.
+5. First-run creator coach-mark (data-testid="creator-tour-popper") anchored to the sidebar "Creator page" NEW pill (sidebar-new-creator). Shows ONCE (localStorage "dyno_creator_tour_seen"), desktop only, ONLY for merchants who have NOT claimed a handle. Buttons: "Set it up" (creator-tour-cta → /creator) and "Maybe later" (creator-tour-dismiss). Should appear for qa.empty (unclaimed) but NOT hostbay (claimed).
+
+### What to verify (FRONTEND)
+- [hostbay] Login → sidebar → /creator shows the "Collect tips & donations" CTA → clicking it lands on /create-pay-link with Donation type preselected + donation-creator-hint visible. Coach-mark should NOT appear (already claimed).
+- [qa.empty] Login (desktop) → first visit shows the creator coach-mark popper anchored to the NEW pill; "Maybe later" dismisses it and it does not reappear on reload. "Set it up" navigates to /creator.
+- [public, no login] /hostbay → share bar renders with all 5 icon buttons; Copy shows "Link copied!" state; social buttons have correct share hrefs (new tab). NOTE: Iconify glyphs load async from CDN — allow a couple seconds before asserting icons are visible.
+- [public, no login] /pay/donation-demo → no React hydration/console errors (#418/#425); supporters "time ago" labels appear.
+- Regression: login/auth, dashboard, create-pay-link standard flow still work.
+
+### NOTE
+Do NOT trigger real payments/settlements — backend runs with ENABLE_BACKGROUND_JOBS=false, WORKER_ROLE=secondary against the LIVE prod DB.
+
+---
+
+
 ## Session 34: Auto API-Key Provisioning — Phase A backend implementation (2026-07-12)
 
 ### Context

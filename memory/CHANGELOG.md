@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-07-12 (session 35) — First-run creator onboarding coach-mark  [option (d)]
+
+**Feature:** A one-time coach-mark that points at the sidebar "Creator page" NEW pill for merchants who haven't claimed a handle yet — nudges them to set up their tip/donation link-in-bio.
+- `Components/Layout/NewSidebar/index.tsx`: MUI `Popper` + `ClickAwayListener` + `Fade` coach-mark (`data-testid="creator-tour-popper"`) anchored to the creator NEW pill (callback ref on the `sidebar-new-creator` Box). Title "New: your creator page", body about claiming a handle for tips/donations, buttons **"Maybe later"** (`creator-tour-dismiss`) and **"Set it up"** (`creator-tour-cta` → `/creator`). Gated by: desktop only + profile loaded + `!hasClaimedCreator` + localStorage `dyno_creator_tour_seen` not set (dismiss/setup persists the flag so it shows once). 900ms delay so the anchor is measured. `AutoAwesomeRounded` sparkle icon (already imported).
+- Shows for unclaimed merchants (e.g. qa.empty); correctly does NOT show for claimed merchants (e.g. hostbay).
+
+**Verification:** eslint clean; `next build` PASS (70s); frontend restarted; `/dashboard` + all routes 200. In-browser logged-in verification pending frontend testing agent.
+
+
 ## 2026-07-12 (session 35) — Share-sheet on public creator page /{handle}  [option (b)]
 
 **Feature:** Added a social share bar to the public creator page so creators/visitors can spread a tip-jar/donation page (virality is core to a creator product).

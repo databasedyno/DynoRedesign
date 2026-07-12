@@ -5,11 +5,11 @@ import AddIcon from "@mui/icons-material/Add";
 import AutoAwesomeRounded from "@mui/icons-material/AutoAwesomeRounded";
 import GroupAddRounded from "@mui/icons-material/GroupAddRounded";
 import SettingsRounded from "@mui/icons-material/SettingsRounded";
-import { Box, Divider, Tooltip, useTheme } from "@mui/material";
+import { Box, Button, ClickAwayListener, Divider, Fade, Popper, Tooltip, useTheme } from "@mui/material";
 import { useRouter } from "next/router";
 import { useSelector } from "react-redux";
 import { rootReducer } from "@/utils/types";
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import ReferralAndKnowledge from "../ReferralAndKnowledge";
 import {
@@ -46,6 +46,44 @@ const NewSidebar = () => {
   const hasClaimedCreator = Boolean(
     userState?.profile?.handle && userState?.profile?.creator_page_enabled,
   );
+
+  // ── First-run creator-page coach-mark (option d) ──────────────
+  // Shown once (localStorage-gated), only for merchants who haven't claimed a
+  // handle yet, anchored to the sidebar "New" pill. Waits until the profile is
+  // loaded so it never flashes for users who already have a creator page.
+  const CREATOR_TOUR_KEY = "dyno_creator_tour_seen";
+  const creatorPillRef = useRef<HTMLElement | null>(null);
+  const [tourAnchor, setTourAnchor] = useState<HTMLElement | null>(null);
+  const [showTour, setShowTour] = useState(false);
+  const profileLoaded = Boolean(userState?.profile);
+  useEffect(() => {
+    if (isMobile || !profileLoaded || hasClaimedCreator) return;
+    if (typeof window === "undefined") return;
+    try {
+      if (window.localStorage.getItem(CREATOR_TOUR_KEY)) return;
+    } catch {
+      return;
+    }
+    const id = setTimeout(() => {
+      if (creatorPillRef.current) {
+        setTourAnchor(creatorPillRef.current);
+        setShowTour(true);
+      }
+    }, 900);
+    return () => clearTimeout(id);
+  }, [isMobile, profileLoaded, hasClaimedCreator]);
+  const dismissTour = useCallback(() => {
+    setShowTour(false);
+    try {
+      window.localStorage.setItem(CREATOR_TOUR_KEY, "1");
+    } catch {
+      /* storage unavailable — ignore */
+    }
+  }, []);
+  const startCreatorSetup = useCallback(() => {
+    dismissTour();
+    router.push("/creator");
+  }, [dismissTour, router]);
 
   // Prefetch all menu routes for instant navigation
   useEffect(() => {
@@ -193,6 +231,9 @@ const NewSidebar = () => {
                     {item.isNew && !isMobile && (
                       <Box
                         component="span"
+                        ref={(el: HTMLElement | null) => {
+                          if (item.icon === "creator") creatorPillRef.current = el;
+                        }}
                         data-testid={`sidebar-new-${item.icon}`}
                         sx={{
                           ml: 0.75,
@@ -237,6 +278,66 @@ const NewSidebar = () => {
       </Menu>
       {/* Referral and Knowledge Base Section */}
       <ReferralAndKnowledge isMobile={isMobile} />
+
+      {/* First-run creator-page coach-mark (option d) */}
+      <Popper
+        open={showTour && Boolean(tourAnchor)}
+        anchorEl={tourAnchor}
+        placement="right"
+        transition
+        modifiers={[{ name: "offset", options: { offset: [0, 14] } }]}
+        style={{ zIndex: 1400 }}
+        data-testid="creator-tour-popper"
+      >
+        {({ TransitionProps }) => (
+          <Fade {...TransitionProps} timeout={220}>
+            <Box>
+              <ClickAwayListener onClickAway={dismissTour}>
+                <Box
+                  sx={{
+                    width: 272,
+                    p: 2,
+                    borderRadius: "14px",
+                    backgroundColor: theme.palette.background.paper,
+                    border: `1px solid ${theme.palette.divider}`,
+                    boxShadow: "0 12px 40px rgba(0,0,0,0.28)",
+                  }}
+                >
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.75 }}>
+                    <AutoAwesomeRounded sx={{ fontSize: 18, color: "#CCFF00" }} />
+                    <Box sx={{ fontSize: 14, fontWeight: 800, color: theme.palette.text.primary, fontFamily: "var(--font-sans)" }}>
+                      {t("creatorTourTitle", { defaultValue: "New: your creator page" })}
+                    </Box>
+                  </Box>
+                  <Box sx={{ fontSize: 12.5, color: theme.palette.text.secondary, fontFamily: "var(--font-sans)", lineHeight: 1.55, mb: 1.5 }}>
+                    {t("creatorTourBody", { defaultValue: "Claim your handle to get a shareable link-in-bio page for tips & donations \u2014 your public \u201cBuy me a coffee\u201d." })}
+                  </Box>
+                  <Box sx={{ display: "flex", gap: 1, justifyContent: "flex-end" }}>
+                    <Button
+                      onClick={dismissTour}
+                      size="small"
+                      data-testid="creator-tour-dismiss"
+                      sx={{ textTransform: "none", fontWeight: 700, fontSize: 12.5, color: theme.palette.text.secondary, minWidth: 0, px: 1 }}
+                    >
+                      {t("creatorTourDismiss", { defaultValue: "Maybe later" })}
+                    </Button>
+                    <Button
+                      onClick={startCreatorSetup}
+                      disableElevation
+                      variant="contained"
+                      size="small"
+                      data-testid="creator-tour-cta"
+                      sx={{ textTransform: "none", fontWeight: 800, fontSize: 12.5, borderRadius: "8px", backgroundColor: "#CCFF00", color: "#0A0A0B", "&:hover": { backgroundColor: "#CCFF00", filter: "brightness(1.05)" } }}
+                    >
+                      {t("creatorTourCta", { defaultValue: "Set it up" })}
+                    </Button>
+                  </Box>
+                </Box>
+              </ClickAwayListener>
+            </Box>
+          </Fade>
+        )}
+      </Popper>
     </SidebarWrapper>
   );
 };
