@@ -262,3 +262,59 @@ Use `qa.empty.1782626169@dynopaytest.com / QaEmpty#2026` (no company) and
 | `pages/developer-keys.tsx` | Create-button logic per-environment |
 | `Components/Page/API/ApiKeysPage.tsx` | live-unlock hint + test-auto badge + sandbox limits copy |
 | i18n `apiScreen` (×6 locales) | new keys: `keys.liveUnlockHint`, `keys.testAutoCreatedBadge`, `keys.sandboxLimits` |
+
+
+---
+
+## 10. Session context / where we are (fork handoff)
+Completed earlier in this session (do NOT redo):
+- 4 UX frontend bugs fixed: **F1** (chat FAB occlusion), **F5** (stacked onboarding modals),
+  **F10** (creator empty-state CTA), **F22** (dark-mode watermark opacity). ⚠️ Frontend test NOT run.
+- Production DO log audit: **no stuck customer funds** (only a logging false-positive). Do NOT run
+  any on-chain recovery.
+- Reconciliation fixes: `services/reconciliation.ts` (idempotency guard),
+  `services/volumeTierReconciliation.ts` (`updated_at` → `updatedAt`),
+  `services/feeWalletMonitor.ts` (TRX thresholds lowered).
+- Wallet-Reuse feature: `GET /api/wallet/reusable-wallets` + `POST /api/wallet/copyWalletAddresses`
+  built + **backend-tested 8/8**. Frontend `WalletReuseSelector` + `AddWalletModal` built, **UI test NOT run**.
+
+This doc's feature (auto API-key provisioning) is the **only remaining P0** from "Implement fully".
+
+## 11. Proposed plan (as presented to user, awaiting "go")
+1. 🟢 `companyController.addCompany` → auto-mint restricted `dpk_test_` (env=development, test_mode_restrictions), non-fatal. (§4.1)
+2. 🟢 `walletController.verifyOtp` → change guard so `dpk_live_` mints when no active **production** key exists. (§4.2)
+3. 🟢 `walletController.copyWalletAddresses` → mint `dpk_live_` if target company's first wallet & no live key. (§4.3)
+4. 🟢 `apiController.addApi` → relax "1 key/company" to per-(company,environment). (§4.4)
+5. 🟢 Frontend `/developer-keys` → "Test key ready · Live key unlocks after adding/reusing a wallet"; reflect both states; destructive actions stay manual. (§4.5)
+6. ✅ Test via `testing_agent` (backend key provisioning + frontend Developer Keys states). (§6)
+
+## 12. Still-deferred / pending items (not part of P0 unless user asks)
+- 🟡 Frontend verification of F1/F5/F10/F22 + WalletReuseSelector UI (never tested).
+- 🔴 Cleanup of 6 orphan `processing` journal rows in the LIVE DB — needs explicit prod-write approval.
+- 🟢 (Backlog) "merchant webhook failing" auto-alert feature — proposed, not started.
+- 🟢 (Backlog) Merchant email/notification audit log table.
+
+## 13. Confirmation choices presented to user (decisions gating implementation)
+**Q1 — Coexistence:** a company can hold BOTH a test key and a live key?
+  - a. Yes, allow 1 test + 1 live  ← **DEFAULT / recommended**
+  - b. No — only ever 1 key; test key replaced by live key on first wallet
+**Q2 — Auto TEST key base currency:**
+  - a. USD  ← **DEFAULT / recommended**
+  - b. Something else (specify)
+**Q3 — Also run deferred frontend testing (F1/F5/F10/F22 + Wallet Reuse UI) this session?**
+  - a. Yes, include it
+  - b. No, focus only on API-key provisioning
+**Q4 — Clean the 6 orphan `processing` rows in the LIVE DB now?**
+  - a. Yes (explicit prod-write approval)
+  - b. No / leave them  ← **DEFAULT**
+
+> Implementation starts once the user replies "go" (defaults a/a/?/b) or overrides specific choices.
+
+## 14. Test credentials & environment quick-ref
+- Preview URLs (both live): `https://8d0200cf-65f6-4dfd-a2d1-85d5a5960c0f.preview.emergentagent.com`
+  and `https://merchant-gateway-33.preview.emergentagent.com` (frontend `.env` `REACT_APP_BACKEND_URL`).
+- QA accounts (LIVE DB): `qa.empty.1782626169@dynopaytest.com / QaEmpty#2026` (no company — ideal for
+  the company-creation → test-key flow); `qa.onboard.1782585233@dynopaytest.com / QaOnboard#2026`.
+- Data-rich (READ-only, never write): `hostbay@moxx.co / Katiekendra123@`.
+- Backend = Node/Express via Python proxy (`:8001` → `:3300`); edit `.ts` under `/app/backend`.
+  Frontend = Next.js standalone; after FE code changes run `next build` + `supervisorctl restart frontend`.
