@@ -10,7 +10,7 @@ import json
 import time
 
 # Configuration
-BASE_URL = "https://do-fix-issue.preview.emergentagent.com"
+BASE_URL = "https://crypto-payment-fix-8.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 # Test credentials
