@@ -6,7 +6,9 @@
     "dev": "rimraf .next && next dev --turbo",
     "build": "next build",
     "start": "next start",
-    "lint": "tsc --noEmit && eslint . --ext .ts,.tsx"
+    "lint": "tsc --noEmit && eslint . --ext .ts,.tsx",
+    "preflight": "sh scripts/preflight-tsc.sh --force",
+    "prepare": "husky || true"
   },
   "dependencies": {
     "@emotion/cache": "^11.14.0",
@@ -63,6 +65,7 @@
     "@types/react-dom": "^18",
     "eslint": "^8",
     "eslint-config-next": "14.2.4",
+    "husky": "^9.1.7",
     "node-fetch": "2",
     "playwright": "^1.61.1",
     "rimraf": "^5.0.0",

@@ -1,5 +1,20 @@
 # Changelog
 
+## 2026-07-13 — Pre-push TypeScript gate + DigitalOcean deploy fix
+
+**🔴 Fixed:** DigitalOcean auto-deploys had been failing 5× in a row (~37 min of wasted build time). Root cause: 8 `TS2339` errors in `backend/controller/payment/cryptoCheckout.ts` — the inline `RedisPaymentItem` interface was missing four donation-flow fields (`parent_link_id`, `donor_name`, `donor_message`, `is_anonymous`) that the code was already reading from the Redis session. Added the four optional fields; DO deploy `943e303e` went **ACTIVE** at 13:52 UTC.
+
+**🟢 New:** Pre-push TypeScript gate so this class of error can never eat a DO build again.
+- `scripts/preflight-tsc.sh` — shared entry point. In hook-mode it inspects staged files and only runs when `backend/**/*.ts`, `backend/tsconfig.json`, `backend/package.json`, or `backend/yarn.lock` are staged (typical frontend-only commits pay <1s). With `--force` it always runs `cd backend && tsc --noEmit` (~15–18s). Prints a loud, actionable failure message with the `--no-verify` bypass instruction.
+- `.husky/pre-commit` + Husky v9 (added to root `devDependencies`) — fires the preflight on every `git commit`. E2E verified: intentionally regressed the fix and confirmed Husky blocks the commit (exit 1, `husky - pre-commit script failed (code 1)`, broken commit absent from `git log`).
+- `.github/workflows/preflight.yml` — CI backstop. Fires on push/PR to `New-Onboarding2` and `main` when `backend/**` changes; runs the same `tsc --noEmit`. Catches the case where the hook is bypassed with `--no-verify` or a fresh clone pushes without running `yarn install`.
+- `yarn preflight` — added as a script for manual invocation.
+- Also refreshed `backend/yarn.lock` — was missing `openai@^6.46.0` (declared in `backend/package.json` but not resolved in the lockfile), which was making DO's Stage 3 `yarn install --frozen-lockfile` fall back to a slower plain `yarn install`. Now clean; should shave ~50s off future backend dep-install steps.
+
+**Impact estimate:** each caught failure saves ~7½ min of DO build minutes. Today alone this would have caught 5 pushes = ~37 min. Ongoing cost: 0–18s per commit (0s when only frontend changes).
+
+
+
 ## 2026-07-12 (session 35) — First-run creator onboarding coach-mark  [option (d)]
 
 **Feature:** A one-time coach-mark that points at the sidebar "Creator page" NEW pill for merchants who haven't claimed a handle yet — nudges them to set up their tip/donation link-in-bio.

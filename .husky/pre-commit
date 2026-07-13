@@ -1,0 +1,9 @@
+# Husky pre-commit hook — see scripts/preflight-tsc.sh for rationale.
+# This runs on every `git commit` unless bypassed with --no-verify.
+#
+# Fast path: skips entirely when no backend TS/config files are staged
+# (typical frontend-only commits pay <1s). Full run <20s on cold cache.
+#
+# Husky v9 auto-runs hooks; no sourcing required.
+
+sh scripts/preflight-tsc.sh

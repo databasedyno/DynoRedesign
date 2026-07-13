@@ -1,0 +1,62 @@
+name: Preflight — Backend TypeScript
+
+# Belt-and-braces companion to the local Husky pre-commit hook
+# (scripts/preflight-tsc.sh). If someone bypasses the hook with
+# `git commit --no-verify` or pushes from a fresh clone without
+# running `yarn install` (which is what activates Husky), this
+# GitHub Action still catches the exact same errors and marks the
+# commit as failed — before DigitalOcean burns ~7½ min on it.
+#
+# Runs in <60s on a warm cache (yarn cache + node_modules cache).
+# Runs in ~2m on a cold cache. Either way, orders of magnitude
+# faster than a failed DO build.
+
+on:
+  push:
+    branches:
+      - New-Onboarding2
+      - main
+    paths:
+      - "backend/**"
+      - ".github/workflows/preflight.yml"
+      - "scripts/preflight-tsc.sh"
+  pull_request:
+    branches:
+      - New-Onboarding2
+      - main
+    paths:
+      - "backend/**"
+      - ".github/workflows/preflight.yml"
+      - "scripts/preflight-tsc.sh"
+  workflow_dispatch: {}
+
+concurrency:
+  # Cancel superseded runs — matches DO's "supersede" behavior on rapid pushes.
+  group: preflight-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend-tsc:
+    name: backend tsc --noEmit
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "yarn"
+          cache-dependency-path: backend/yarn.lock
+
+      - name: Install backend deps
+        working-directory: backend
+        run: |
+          yarn install --ignore-engines --production=false --frozen-lockfile \
+            || yarn install --ignore-engines --production=false
+
+      - name: Run tsc --noEmit
+        working-directory: backend
+        run: ./node_modules/.bin/tsc --noEmit
