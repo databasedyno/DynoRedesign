@@ -18,6 +18,7 @@ import { getErrorMessage, sendAdminFeeSweepEmail } from "../../helper";
 import { sendPaymentReceivedEmail } from "../../helper/sendEmail";
 import { normalizeLang } from "../../utils/emailI18n";
 import { convertToUSD, convertToFiat, getCompanyBaseCurrency } from "../../utils/currencyUtils";
+import { buildPaymentReceivedDisplay } from "../../utils/paymentAmountDisplay";
 import { getRedisItem, setRedisItem, setRedisTTL, setRedisItemWithTTL } from "../../utils/redisInstance";
 import {
   getAccountResources,
@@ -1040,24 +1041,19 @@ export const sweepPoolAddress = async (tempAddressId: number): Promise<unknown> 
                 const dateStr = txCreatedAt.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
                 const timeStr = txCreatedAt.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 
-                // Issue #6: show fiat (merchant base currency) as primary, crypto as secondary
-                let mrpAmount = merchantAmount.toString();
-                let mrpCurrency = walletType;
-                let mrpCryptoAmount: string | undefined;
-                let mrpCryptoCurrency: string | undefined;
-                try {
-                  const baseCurrency = await getCompanyBaseCurrency(companyData?.company_id);
-                  const usd = await convertToUSD(walletType, Number(merchantAmount));
-                  if (usd && usd > 0 && !Number.isNaN(usd)) {
-                    const fiat = baseCurrency === 'USD' ? usd : (await convertToFiat('USD', baseCurrency, usd)).amount;
-                    if (fiat && fiat > 0 && !Number.isNaN(fiat)) {
-                      mrpAmount = fiat.toFixed(2);
-                      mrpCurrency = baseCurrency;
-                      mrpCryptoAmount = Number(merchantAmount).toString();
-                      mrpCryptoCurrency = walletType;
-                    }
-                  }
-                } catch { /* fall back to crypto-primary */ }
+                // Issue #6: show fiat (merchant base currency) as primary,
+                // crypto as secondary. Uses the shared helper so the fiat
+                // figure is derived crypto→USD→merchant currency and never
+                // falls back to rendering a crypto amount as the fiat number.
+                const mrpDisplay = await buildPaymentReceivedDisplay({
+                  companyId: companyData?.company_id,
+                  cryptoAmount: Number(merchantAmount),
+                  cryptoCurrency: walletType,
+                });
+                const mrpAmount = mrpDisplay.fiatAmount;
+                const mrpCurrency = mrpDisplay.fiatCurrency;
+                const mrpCryptoAmount = mrpDisplay.cryptoAmount;
+                const mrpCryptoCurrency = mrpDisplay.cryptoCurrency;
 
                 await sendPaymentReceivedEmail(
                   userData.email,

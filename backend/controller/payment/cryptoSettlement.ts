@@ -38,6 +38,7 @@ import {
 } from "../../models";
 import { createNotification, NOTIFICATION_TYPES } from "../notificationController";
 import { formatCryptoAmount } from "../../utils/currencyUtils";
+import { buildPaymentReceivedDisplay } from "../../utils/paymentAmountDisplay";
 import {
   sendPartialPaymentNotification,
 } from "../../services/pendingPaymentService";
@@ -2766,21 +2767,23 @@ const cryptoVerification = async (address, webhook = true, overrideRedisKey?: st
             ? `${tempCurrency} → ${autoConvertTargetCurrency}`
             : tempCurrency;
 
-          let mrPrimaryAmount: string;
-          let mrPrimaryCurrency: string;
-          let mrCryptoAmount: string | undefined;
-          let mrCryptoCurrency: string | undefined;
-          if (receivedBaseAmount != null && Number(receivedBaseAmount) > 0) {
-            mrPrimaryAmount = Number(receivedBaseAmount).toFixed(2);
-            mrPrimaryCurrency = receivedBaseCurrency;
-            mrCryptoAmount = cryptoReceivedStr;
-            mrCryptoCurrency = cryptoCurrencyLabel;
-          } else {
-            mrPrimaryAmount = emailAmount;
-            mrPrimaryCurrency = autoConvertEnabled
-              ? `${tempCurrency} (converting to ${autoConvertTargetCurrency})`
-              : tempCurrency;
-          }
+          // Always render a FIAT amount (merchant currency) as primary and the
+          // crypto received as secondary. Derives the fiat figure from the fiat
+          // request when available, else the tx USD value, else crypto→USD — so
+          // it can never fall back to showing a crypto amount (or the flat fee)
+          // as the fiat number. See utils/paymentAmountDisplay.ts.
+          const mrDisplay = await buildPaymentReceivedDisplay({
+            companyId: company_data?.company_id,
+            cryptoAmount: cryptoReceivedStr,
+            cryptoCurrency: tempCurrency, // RAW code for crypto→USD conversion
+            cryptoDisplayCurrency: cryptoCurrencyLabel, // e.g. "ETH → USDT"
+            knownFiatAmount: receivedBaseAmount, // last-resort only
+            knownFiatCurrency: receivedBaseCurrency,
+          });
+          const mrPrimaryAmount = mrDisplay.fiatAmount;
+          const mrPrimaryCurrency = mrDisplay.fiatCurrency;
+          const mrCryptoAmount = mrDisplay.cryptoAmount;
+          const mrCryptoCurrency = mrDisplay.cryptoCurrency;
 
           await sendPaymentReceivedEmail(
             userData?.email,

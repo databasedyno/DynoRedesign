@@ -19,6 +19,14 @@ invoiceRouter.get(
   invoiceController.previewTransactionInvoice
 );
 
+// READ-ONLY: preview the "Payment Received" email amounts for a transaction
+// (no email sent). Verifies the fiat/crypto figures shown to the merchant.
+invoiceRouter.get(
+  "/transactions/:id/payment-email-preview",
+  authMiddleware,
+  invoiceController.previewPaymentReceivedEmail
+);
+
 // Get all invoices for user
 invoiceRouter.get(
   "/invoices",

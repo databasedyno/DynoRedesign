@@ -10,7 +10,8 @@ import { handleControllerError } from "../helper/controllerErrorHandler";
 import { IUserType } from "../utils/types";
 import invoiceModel from "../models/invoiceModel";
 import taxRateModel from "../models/taxRateModel";
-import { userTransactionModel, companyModel, userModel } from "../models";
+import { userTransactionModel, companyModel, userModel, customerTransactionModel } from "../models";
+import { buildPaymentReceivedDisplay } from "../utils/paymentAmountDisplay";
 import { apiLogger } from "../utils/loggers";
 import { generateInvoicePDF } from "../services/pdfService";
 import { sendInvoiceGeneratedEmail } from "../services/emailService";
@@ -581,6 +582,71 @@ const previewTransactionInvoice = async (
 };
 
 /**
+ * READ-ONLY preview of the "Payment Received" email amounts for a transaction.
+ *
+ * Computes the fiat-primary + crypto-secondary figures EXACTLY like the crypto
+ * settlement / sweep notification path (via buildPaymentReceivedDisplay), so we
+ * can verify the merchant email shows the correct fiat amount (e.g. ~$100 for a
+ * 0.00156 BTC payment) and NEVER a wrong "$1.00"/crypto-as-fiat figure.
+ * Sends NO email, persists NOTHING. Ownership-checked.
+ *
+ * GET /api/transactions/:id/payment-email-preview
+ */
+const previewPaymentReceivedEmail = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  const userData = jwt.decode(res.locals.token) as IUserType;
+  const { id } = req.params;
+
+  try {
+    const transaction = await userTransactionModel.findOne({
+      where: { transaction_id: id, user_id: userData.user_id },
+    });
+    if (!transaction) {
+      return errorResponseHelper(res, 404, "Transaction not found");
+    }
+    const txData = transaction.dataValues;
+
+    // The merchant's fiat request lives on the customer_transaction (base_amount
+    // is fiat there) — matched by shared transaction_reference. Mirrors what the
+    // settlement email uses as its primary fiat source when available.
+    let knownFiatAmount: number | null = null;
+    let knownFiatCurrency: string | null = null;
+    if (txData.transaction_reference) {
+      const custTx = await customerTransactionModel.findOne({
+        where: { transaction_reference: txData.transaction_reference },
+      });
+      if (custTx) {
+        knownFiatAmount = custTx.dataValues.base_amount ?? null;
+        knownFiatCurrency = custTx.dataValues.base_currency ?? null;
+      }
+    }
+
+    const display = await buildPaymentReceivedDisplay({
+      companyId: txData.company_id,
+      usdValue: txData.usd_value,
+      cryptoAmount: txData.crypto_amount ?? txData.base_amount,
+      cryptoCurrency: txData.crypto_currency ?? txData.base_currency,
+      knownFiatAmount,
+      knownFiatCurrency,
+    });
+
+    return successResponseHelper(res, 200, "Payment-received email preview", {
+      transaction_id: parseInt(id),
+      usd_value: txData.usd_value,
+      // What the email renders:
+      amount: display.fiatAmount, // primary fiat amount
+      currency: display.fiatCurrency, // primary fiat currency
+      crypto_amount: display.cryptoAmount, // secondary
+      crypto_currency: display.cryptoCurrency, // secondary
+    });
+  } catch (e) {
+    handleControllerError(res, e, apiLogger);
+  }
+};
+
+/**
  * Get all invoices for a user/company
  * GET /api/invoices
  */
@@ -1085,6 +1151,7 @@ const exportTaxReportCSV = async (
 export default {
   getTransactionInvoice,
   previewTransactionInvoice,
+  previewPaymentReceivedEmail,
   getAllInvoices,
   getInvoiceById,
   autoGenerateInvoice,

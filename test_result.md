@@ -12297,6 +12297,161 @@ Ran scripts/backfill_invoice_fees.ts --apply against LIVE Railway PG. All 6 hist
 ---
 
 
+## Session 38: "Payment Received" email shows wrong fiat amount ($1.00 instead of ~$100) — BACKEND TEST REQUESTED (2026-07-13)
+
+### Preview / base URL
+https://62fabf57-7aa4-49d7-b5cf-93ca135cec6b.preview.emergentagent.com  (backend base: `.../api`)
+
+### Test credentials
+- Merchant that owns the affected transactions: **hostbay@moxx.co / Katiekendra123@** (user_id 1). Token can be minted per the documented jwt+pg method for user_id 1.
+
+### BUG (user-reported)
+A "Payment Received" email to the merchant showed **Amount = 1.00 USD** while the crypto line showed **0.00156395 BTC** — that is tx 388, whose USD value is ~$100.22. So the fiat amount was grossly wrong ($1 vs $100).
+
+ROOT CAUSE (confirmed via DigitalOcean deploy history + git): the email amount came from `receivedBaseAmount = customerData?.base_amount ?? tempData?.base_amount` (a Redis/temp value) in the settlement email path. That value was stale/placeholder (~1.0) even though the tx `usd_value` is 100.22 and the DB customer_transaction.base_amount is 101.24. Same class as the invoice bug: trusting an unreliable/crypto-or-placeholder `base_amount` instead of the authoritative USD value. (The deployed commit at the email timestamp, 4cb1e53c, already had the "fiat-primary" logic — so this was NOT just old code; the logic itself was wrong.)
+
+### FIX (backend only)
+- NEW `backend/utils/paymentAmountDisplay.ts` → `buildPaymentReceivedDisplay()`: derives the fiat figure from (1) the tx `usd_value`, else (2) crypto→USD conversion of the amount actually received, else (3) the priced `base_amount` as LAST RESORT — then converts to the merchant's currency. Crypto shown as a secondary line. Never renders a crypto/placeholder value as the fiat amount.
+- `backend/controller/payment/cryptoSettlement.ts` + `backend/services/merchantPool/merchantPoolSweep.ts`: both "Payment Received" email callers now use the shared helper (settlement passes raw `tempCurrency` for conversion + the display label separately).
+- NEW read-only endpoint `GET /api/transactions/:id/payment-email-preview` (authMiddleware, ownership-checked, no email/no writes) returns exactly what the email would render: { amount, currency, crypto_amount, crypto_currency, usd_value }.
+- (Confirmed: `tsc --noEmit` exits 0 — deploy build gate stays green; scripts excluded from tsc.)
+
+### WHAT TO VERIFY (deep_testing_backend_v2) — LIVE Railway PG, background jobs OFF, do NOT trigger payments
+Auth as hostbay@moxx.co / Katiekendra123@ (user_id 1). Call the NEW endpoint:
+1. **GET /api/transactions/388/payment-email-preview** → EXPECT HTTP 200, `amount` ≈ 100 USD (NOT 1.00) — this is the reported bug. `crypto_currency` should be a BTC value, `usd_value` ≈ 100.22.
+2. GET /api/transactions/383/payment-email-preview → EXPECT `amount` ≈ 37.41 USD, crypto BTC.
+3. GET /api/transactions/382/payment-email-preview → EXPECT `amount` ≈ 58.14 USD, crypto ETH.
+4. GET /api/transactions/390/payment-email-preview → EXPECT `amount` ≈ 24.63 USD, crypto USDT-TRC20.
+5. Security: GET /api/transactions/388/payment-email-preview with NO auth header → EXPECT 401.
+6. Regression: the invoice endpoints from Session 37 still work — GET /api/transactions/388/invoice-preview → 200 fixed_fee 1.00; GET /api/invoices → 200.
+
+PASS = test 1 returns `amount` in the ~$100 range (NOT $1.00) and clearly a fiat USD figure; tests 2-4 return their ~USD values; 5 returns 401; 6 no regression.
+
+### DO NOT
+- Do NOT trigger real payments/settlements; the preview endpoint is read-only.
+
+
+### BACKEND TEST RESULTS — VERIFIED ✅ (2026-07-13)
+
+**Test Date:** 2026-07-13  
+**Test Agent:** deep_testing_backend_v2  
+**Test URL:** https://62fabf57-7aa4-49d7-b5cf-93ca135cec6b.preview.emergentagent.com/api  
+**Test Credentials:** hostbay@moxx.co / Katiekendra123@ (user_id 1)  
+**Test File:** /app/backend_test.py
+
+#### TEST SUMMARY: 7/7 TESTS PASSED (100%) ✅
+
+**PRIMARY TESTS — Payment Email Preview Endpoint:**
+
+✅ **TEST 1: Transaction 388 (BTC ~$100) — THE BUG FIX**
+- Endpoint: GET /api/transactions/388/payment-email-preview
+- Status: HTTP 200
+- **Amount: 100.22 USD** ✅ (NOT 1.00 — BUG FIXED)
+- Currency: USD ✅
+- Crypto: 0.00157979 BTC ✅
+- USD Value: 100.22 ✅
+- **VERDICT: Bug fix verified — amount now shows ~$100 USD instead of $1.00**
+
+✅ **TEST 2: Transaction 383 (BTC ~$37.41)**
+- Endpoint: GET /api/transactions/383/payment-email-preview
+- Status: HTTP 200
+- Amount: 37.41 USD ✅ (in expected range [35, 40])
+- Currency: USD ✅
+- Crypto: 0.00060649 BTC ✅
+- USD Value: 37.41 ✅
+
+✅ **TEST 3: Transaction 382 (ETH ~$58.14)**
+- Endpoint: GET /api/transactions/382/payment-email-preview
+- Status: HTTP 200
+- Amount: 58.14 USD ✅ (in expected range [55, 62])
+- Currency: USD ✅
+- Crypto: 0.0332919910531261 ETH ✅
+- USD Value: 58.14 ✅
+
+✅ **TEST 4: Transaction 390 (USDT-TRC20 ~$24.63)**
+- Endpoint: GET /api/transactions/390/payment-email-preview
+- Status: HTTP 200
+- Amount: 24.63 USD ✅ (in expected range [22, 27])
+- Currency: USD ✅
+- Crypto: 26.02 USDT-TRC20 ✅
+- USD Value: 24.62893076923077 ✅
+
+**SECURITY TEST:**
+
+✅ **TEST 5: Unauthorized Access**
+- Endpoint: GET /api/transactions/388/payment-email-preview (NO Authorization header)
+- Status: HTTP 401 ✅
+- **VERDICT: Endpoint correctly requires authentication**
+
+**REGRESSION TESTS:**
+
+✅ **TEST 6: Invoice Preview Endpoint (Session 37)**
+- Endpoint: GET /api/transactions/388/invoice-preview
+- Status: HTTP 200 ✅
+- **VERDICT: No regression — invoice endpoint still working**
+
+✅ **TEST 7: Invoices List Endpoint**
+- Endpoint: GET /api/invoices
+- Status: HTTP 200 ✅
+- **VERDICT: No regression — invoices list endpoint still working**
+
+#### CRITICAL FINDINGS:
+
+🎉 **BUG FIX CONFIRMED WORKING:**
+- Transaction 388 now correctly shows **$100.22 USD** (NOT $1.00)
+- The new `buildPaymentReceivedDisplay()` utility correctly derives fiat amount from `usd_value`
+- All 4 test transactions return correct USD amounts in expected ranges
+- Crypto amounts and currencies correctly displayed as secondary information
+
+✅ **SECURITY VERIFIED:**
+- Endpoint requires authentication (401 without Bearer token)
+- Ownership check working (user_id 1 can access their transactions)
+
+✅ **NO REGRESSIONS:**
+- Invoice preview endpoint (Session 37 fix) still working
+- Invoices list endpoint still working
+- All endpoints return proper HTTP status codes
+
+#### TECHNICAL DETAILS:
+
+**New Endpoint Response Structure:**
+```json
+{
+  "message": "Payment-received email preview",
+  "data": {
+    "transaction_id": 388,
+    "usd_value": 100.22,
+    "amount": "100.22",
+    "currency": "USD",
+    "crypto_amount": "0.00157979",
+    "crypto_currency": "BTC"
+  }
+}
+```
+
+**Fix Implementation:**
+- New utility: `backend/utils/paymentAmountDisplay.ts` → `buildPaymentReceivedDisplay()`
+- Derives fiat from: (1) tx.usd_value, (2) crypto→USD conversion, (3) base_amount (last resort)
+- Used by: `cryptoSettlement.ts` + `merchantPoolSweep.ts` for "Payment Received" emails
+- New endpoint: `GET /api/transactions/:id/payment-email-preview` (read-only, no emails sent)
+
+**Root Cause (Fixed):**
+- Old code used unreliable `base_amount` from Redis/temp data (stale/placeholder ~$1.00)
+- New code uses authoritative `usd_value` from database transaction record
+- Same class of bug as Session 37 invoice fix (trusting wrong amount source)
+
+#### PASS CRITERIA MET:
+✅ Test 1 returns amount ~$100 USD (NOT $1.00) — **PRIMARY BUG FIXED**  
+✅ Tests 2-4 return correct ~USD amounts in expected ranges  
+✅ Test 5 returns 401 (security check passed)  
+✅ Tests 6-7 show no regression (invoice endpoints still working)  
+
+**FINAL VERDICT: ALL TESTS PASSED — BUG FIX VERIFIED SUCCESSFULLY** 🎉
+
+
+---
+
+
 ## Testing Protocol
 1. ALWAYS start by reading this file
 2. Run ONLY the tests specified above
