@@ -87,10 +87,14 @@ export default function MyDocument({ emotionStyleTags }: MyDocumentProps) {
             __html: `
 (function(){
   try {
+    // Session 44 UX change (2026-07-13): default is LIGHT for every first-time
+    // visitor. OS "prefers-color-scheme: dark" is IGNORED — a dark-OS user
+    // gets light on first visit and can toggle to dark once, which then
+    // persists in localStorage forever. Rationale: consistent brand across
+    // the checkout / dashboard / marketing surfaces and industry norm for
+    // financial UIs.
     var saved = localStorage.getItem('theme-mode');
-    var mode = (saved === 'light' || saved === 'dark')
-      ? saved
-      : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    var mode = (saved === 'light' || saved === 'dark') ? saved : 'light';
     document.documentElement.dataset.theme = mode;
     document.documentElement.style.colorScheme = mode;
     document.documentElement.style.backgroundColor = mode === 'light' ? '#F2F3F8' : '#0B0D17';

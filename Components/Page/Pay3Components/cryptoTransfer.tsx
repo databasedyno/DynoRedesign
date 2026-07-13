@@ -872,27 +872,30 @@ const CryptoTransfer = ({
     return `${mins}:${secs}`;
   };
 
+  /**
+   * Format the crypto amount displayed on the checkout page.
+   *
+   * Delegates to the shared `formatCryptoAmount` helper in
+   * `utils/currencyFormat.ts` — which:
+   *   • recognises every supported crypto (BTC/ETH/USDC/USDT/RLUSD/XRP/SOL/…)
+   *     including chain-suffixed variants (USDT-TRC20, RLUSD-XRPL, …),
+   *   • uses up to 8 decimals of precision (never loses on-chain amount detail),
+   *   • trims trailing zeros so a whole 25 renders as "25", not "25.000000".
+   *
+   * Session 44 bug fix (2026-07-13): the previous local implementation hard-
+   * coded `.toFixed(6)` for every crypto — so 25 USDC rendered as
+   * "25.000000 USDC" on the checkout, and the same padding happened for USDT,
+   * RLUSD, BTC (as "0.001000") etc. The single source of truth now lives in
+   * the shared helper — do NOT re-add crypto lists here.
+   */
   function formatAmount(amount: any, currency: string): string {
-    const lowerCurrency = currency?.toLowerCase();
-
-    // All crypto currencies (including stablecoins pegged to fiat)
-    // Stablecoins need 6 decimals to show exact blockchain amounts
-    const cryptoCurrencies = new Set([
-      "btc", "eth", "usdc", "bnb", "matic", "sol", "xrp", "polygon",
-      "ltc", "doge", "bch", "trx", "usdt", "rlusd",
-      "usdt-trc20", "usdt-erc20", "usdc-erc20", "rlusd-xrpl",
-    ]);
-    const fiatCurrencies = new Set(["usd", "eur", "inr", "gbp", "ngn", "kes", "zar", "cad", "aud"]);
-
-    if (cryptoCurrencies.has(lowerCurrency)) {
-      return amount?.toFixed(6);
-    }
-
-    if (fiatCurrencies.has(lowerCurrency)) {
-      return amount?.toFixed(2);
-    }
-
-    return amount?.toString();
+    if (amount === undefined || amount === null || amount === '') return '0';
+    const num = typeof amount === 'number' ? amount : Number(amount);
+    if (!isFinite(num)) return '0';
+    // Non-crypto (fiat) fallback goes through formatCryptoAmount too — it
+    // routes to formatWithSeparators(2dp) internally for anything not on
+    // the crypto list.
+    return formatCryptoAmount(num, currency || '');
   }
 
   useEffect(() => {

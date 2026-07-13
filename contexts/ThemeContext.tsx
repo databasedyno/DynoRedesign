@@ -17,10 +17,22 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 const useIsomorphicLayoutEffect =
   typeof window !== 'undefined' ? useLayoutEffect : useEffect;
 
-/** Read the OS / device preference. Falls back to 'light' during SSR. */
+/**
+ * Return the app's default theme mode.
+ *
+ * Session 44 UX change (2026-07-13): the OS `prefers-color-scheme` is
+ * intentionally ignored. Every first-time visitor gets LIGHT. A dark-OS user
+ * can toggle to dark once via the header button and localStorage remembers
+ * that choice forever. This keeps the DynoPay brand consistent across
+ * checkout / dashboard / marketing / receipt surfaces and matches how
+ * Stripe / PayPal / Square / Wise present themselves.
+ *
+ * The function keeps the name `getSystemPreference` (rather than being
+ * inlined) so that if we ever expose an "Auto — follow OS" option in the
+ * future, we can flip this one function back on without touching call sites.
+ */
 function getSystemPreference(): ThemeMode {
-  if (typeof window === 'undefined') return 'light';
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  return 'light';
 }
 
 /** Persist the theme to a cookie so the server can read it on the next
@@ -90,19 +102,13 @@ export const ThemeProvider: React.FC<{
   }, [mode]);
 
   // ── 3. Listen for real-time OS theme changes ──
+  //     Session 44: neutralised. The OS preference is intentionally ignored,
+  //     so we no longer flip the app theme when the OS switches. The user's
+  //     manual toggle is the single source of truth. Kept as a no-op stub in
+  //     case we introduce an explicit "Auto — follow OS" mode later.
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-
-    const handleChange = (e: MediaQueryListEvent) => {
-      if (!userOverrideRef.current) {
-        setMode(e.matches ? 'dark' : 'light');
-      }
-    };
-
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
+    // intentionally empty — see comment above
+    return;
   }, []);
 
   // ── 4. Manual toggle (overrides system preference) ──

@@ -558,17 +558,16 @@ App.getInitialProps = async (appContext: AppContext) => {
   const match = /(?:^|;\s*)theme-mode=(light|dark)/.exec(cookieHeader || "");
   const cookieValue = match ? (match[1] as "light" | "dark") : null;
 
-  // 3. Resolve: cookie (explicit choice) > client hint (OS) > default light.
-  //    The cookie is refreshed on every load by the blocking script in
-  //    _document.tsx to reflect the user's resolved preference
-  //    (manual choice via localStorage, else OS preference). It therefore
-  //    captures an EXPLICIT theme selection, which must win over the raw OS
-  //    `Sec-CH-Prefers-Color-Scheme` hint. Otherwise a user on a dark OS who
-  //    picked Light gets a dark SSR first paint that flips to light after
-  //    hydration (the reported "dark flash then white" bug). The client hint
-  //    is only used as a fallback for a brand-new Chromium visitor who has no
-  //    cookie yet.
+  // 3. Resolve: cookie (explicit choice, refreshed on every load by the
+  //    _document.tsx blocking script) > default 'light'.
+  //    Session 44 UX change (2026-07-13): the OS `Sec-CH-Prefers-Color-Scheme`
+  //    client hint is intentionally IGNORED. A dark-OS first-time visitor
+  //    should see LIGHT (the app default for consistent brand across checkout /
+  //    dashboard / marketing surfaces). If they toggle to dark, the cookie is
+  //    written by the blocking script and wins on all future requests.
+  //    (`normalizedHint` above is still read for potential future analytics
+  //    logging but no longer feeds the mode decision — do NOT put it back in.)
   const initialThemeMode: "light" | "dark" =
-    cookieValue || normalizedHint || "light";
+    cookieValue || "light";
   return { ...appProps, initialThemeMode };
 };
