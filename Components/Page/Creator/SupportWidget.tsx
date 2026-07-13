@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Box, Button, CircularProgress, Typography, useTheme } from '@mui/material'
 import { Icon } from '@iconify/react'
 import { formatWithSeparators, getCurrencySymbolFromFormat } from '@/utils/currencyFormat'
+import InlineTipCheckout from './InlineTipCheckout'
 
 const MONO = 'ui-monospace, "Roboto Mono", "JetBrains Mono", SFMono-Regular, Menlo, monospace'
 const LIME = '#CCFF00'
@@ -31,10 +32,12 @@ const SupportWidget = ({
   handle,
   creatorName,
   widget,
+  siteUrl,
 }: {
   handle: string
   creatorName: string
   widget: SupportWidgetData
+  siteUrl?: string
 }) => {
   const theme = useTheme()
   const isDark = theme.palette.mode === 'dark'
@@ -60,6 +63,11 @@ const SupportWidget = ({
   const [anon, setAnon] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  // Inline checkout state — Session 42: replaces the /pay redirect so the
+  // donor completes the tip without leaving the creator page.
+  const [phase, setPhase] = useState<'form' | 'checkout'>('form')
+  const [paymentRef, setPaymentRef] = useState<string>('')
 
   const amount = selected === 'custom' ? parseFloat(customAmount || '0') : selected
   const valid = Number.isFinite(amount) && amount >= min
@@ -124,13 +132,33 @@ const SupportWidget = ({
         setLoading(false)
         return
       }
-      if (typeof window !== 'undefined') {
-        window.location.href = `/pay?d=${encodeURIComponent(d)}`
+      // Session 42: keep the donor on the creator page and complete the
+      // tip inline. If NEXT_PUBLIC_INLINE_TIP_CHECKOUT=false the widget
+      // falls back to the pre-Session-42 full-page redirect (safety valve).
+      const inlineDisabled = process.env.NEXT_PUBLIC_INLINE_TIP_CHECKOUT === 'false'
+      if (inlineDisabled) {
+        if (typeof window !== 'undefined') {
+          window.location.href = `/pay?d=${encodeURIComponent(d)}`
+        }
+        return
       }
+      setPaymentRef(String(d))
+      setPhase('checkout')
+      setLoading(false)
     } catch {
       setError('Network error. Please try again.')
       setLoading(false)
     }
+  }
+
+  const resetToForm = () => {
+    setPhase('form')
+    setPaymentRef('')
+    // Reset form state for a fresh tip
+    setSelected(presets[0] ?? 'custom')
+    setCustomAmount('')
+    setError(null)
+    setLoading(false)
   }
 
   const hasStats = widget.show_supporters && (widget.supporters_count > 0 || widget.raised_amount > 0)
@@ -178,6 +206,23 @@ const SupportWidget = ({
         </Typography>
       )}
 
+      {/* Session 42: inline crypto checkout replaces the /pay redirect */}
+      {phase === 'checkout' && paymentRef && (
+        <Box sx={{ mt: 2 }}>
+          <InlineTipCheckout
+            d={paymentRef}
+            handle={handle}
+            creatorName={creatorName}
+            style={widget.style}
+            siteUrl={siteUrl || (typeof window !== 'undefined' ? window.location.href : '')}
+            onNewTip={resetToForm}
+            onCancel={resetToForm}
+          />
+        </Box>
+      )}
+
+      {phase === 'form' && (
+      <>
       {/* Preset amount chips */}
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 2 }} data-testid="support-widget-presets">
         {presets.slice(0, 5).map((p) => (
@@ -347,6 +392,8 @@ const SupportWidget = ({
       <Typography fontSize={11} color={theme.palette.text.secondary} textAlign="center" mt={1}>
         Secure crypto checkout · no account needed
       </Typography>
+      </>
+      )}
     </Box>
   )
 }

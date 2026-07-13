@@ -1,3 +1,122 @@
+## Session 42: Inline Tip Checkout on `/{handle}` + underpayment/overpayment handling (2026-07-13)
+
+### Preview URL
+https://739e10ac-66d9-4412-a904-3fe48b7bf763.preview.emergentagent.com
+
+### Test credentials (from /app/memory/test_credentials.md)
+- Data-rich (company_id=1 + wallets + CLAIMED creator handle "hostbay", widget enabled from Session 41): hostbay@moxx.co / Katiekendra123@
+- Empty merchant (NO company/wallet): qa.empty.1782626169@dynopaytest.com / QaEmpty#2026
+
+### User request
+Fresh container (no .env, no node_modules). Provisioned env from user-supplied creds, then implemented the **partially-implemented "inline tip checkout"** feature described in `/app/memory/INLINE_TIP_CHECKOUT_SPEC.md`. Two product decisions the user gave (asked before coding):
+- **Q1 (underpayment)** → **(a)** show remaining amount to send to SAME address + grace-period timer + keep polling.
+- **Q2 (overpayment)** → **(b)** treat as a bigger tip (no refund message).
+
+### What changed this session
+
+**Backend: ZERO functional changes.** All backend endpoints reused as-is from Sessions 38/40/41. (A one-line debug log was added to `paymentController.ts` while diagnosing a `paymentType` casing bug and IMMEDIATELY removed after — the file is byte-identical to session-41 state on disk.)
+
+**Frontend (3 files):**
+- **NEW** `Components/Page/Creator/InlineTipCheckout.tsx` (1032 LOC, self-contained). Runs a finite state machine `loading_meta → currency_select → creating_payment → awaiting_payment → {confirmed | underpaid | expired | failed}` using raw `fetch` calls (not axiosBaseApi) with an EXPLICIT `Authorization: Bearer <session-token>` header — never touches localStorage, so a merchant visitor's own JWT is not accidentally sent to customer endpoints. Reuses `POST /api/pay/getData`, `/api/pay/getCurrencyRates`, `/api/pay/encrypt-payload`, `/api/pay/addPayment`, `/api/pay/verifyCryptoPayment` (10s polling). Overpaid (per Q2b) is coalesced with confirmed → success card, no refund copy. Underpaid (per Q1a) renders a compact "Send X more to same address" card + grace timer + keeps polling. Dark/light aware. Timer + status pill in lime. 20 new `inline-tip-*` testids.
+- **CHANGED** `Components/Page/Creator/SupportWidget.tsx` — replaces `window.location.href = /pay?d=…` with `setPhase('checkout') + setPaymentRef(d)`, mounts `<InlineTipCheckout />` inline. Added `siteUrl` prop, `phase` state, `resetToForm()` handler. Safety valve: `NEXT_PUBLIC_INLINE_TIP_CHECKOUT=false` falls back to the pre-session-42 full-page redirect.
+- **CHANGED** `Components/Page/Creator/CreatorProfile.tsx` — passes canonical `{siteUrl}/{handle}` to SupportWidget for share buttons.
+
+**Spec:** `/app/memory/INLINE_TIP_CHECKOUT_SPEC.md` (created this session — user's original spec was lost with container).
+
+**Environment setup:** Fresh yarn installs at `/app` (100s) + `/app/backend` (64s). Wrote `/app/backend/.env`, `/app/.env`, `/app/frontend/.env` from user's supplied creds. Safety overrides applied: `NODE_ENV=production`, `WORKER_ROLE=secondary`, **`ENABLE_BACKGROUND_JOBS=false`** (user's env had `true`, overridden for preview). Preview URL set on FRONTEND_URL/SERVER_URL/NEXTAUTH_URL/NEXT_PUBLIC_BASE_URL + CORS_ALLOWED_ORIGINS. NEXTAUTH_SECRET regenerated (user placeholder was literal `"openssl rand -base64 32"`). Fixed `EXT_PUBLIC_ENABLE_GITHUB_AUTH` typo → `NEXT_PUBLIC_ENABLE_GITHUB_AUTH`.
+
+**Build + verify state:**
+- `next build` standalone OK (70s, 440 kB shared JS, `/[handle]` up from ~10 kB to 17 kB — the new InlineTipCheckout code).
+- Frontend + backend restarted cleanly.
+- Health: `/health` = 200 (database=connected, redis=connected, tatum operational CLOSED).
+- External `/`, `/hostbay`, `/api/pay/creator/hostbay` = 200.
+
+**In-browser manual verification (own Playwright, desktop 1440×900 + mobile 390×844, light + dark):**
+- ✅ Widget renders identically to Session 41 on first load. Presets $3/$5/$10/$25/Custom.
+- ✅ Click `$5` → fill name/message → click `Buy $5.00` → widget EXPANDS in place (no page navigation). "Pick a crypto to pay $5.00" + 13 crypto chips rendered (USDT-TRC20, Litecoin, Tron, Solana, XRP, Polygon, USDT-Polygon, Bitcoin Cash, Dogecoin, USDT-ERC20, Ethereum, Bitcoin, RLUSD).
+- ✅ Click Litecoin → shows "Send 0.11534025 LTC · 14:57 timer · ≈ $5.00 — Litecoin · address `LheicHPci…WFanj` in mono + Copy + Show QR code toggle · lime "Waiting for payment · auto-updates every 10s" status pill · "← Change amount" and "Prefer full page? →" links".
+- ✅ Show QR → base64 PNG QR code renders correctly.
+- ✅ Click Bitcoin: BTC address renders correctly, timer + status pill + copy button + Show QR all work.
+- ✅ Click "← Change amount" → resets to the amount picker form (state cleared).
+- ✅ Dark mode: correct colors, contrast, lime accents preserved.
+- ✅ Mobile 390: currency picker collapses to 2-column grid, all chips readable, no horizontal overflow.
+- ✅ Bug found + fixed during test: `paymentType` was `'crypto'` (lowercase) but backend expects `'CRYPTO'` — corrected.
+
+**Auth safety verified:** The InlineTipCheckout uses `fetch()` with the session JWT from `/pay/getData` as an explicit `Authorization: Bearer` header. localStorage is NEVER touched. Tested with hostbay's own merchant session (`hostbay@moxx.co` logged in in another tab) — the tip flow still works correctly and does NOT clobber their session.
+
+**LIVE DB cleanup (mandatory):**
+- 7 test contribution rows deleted (donors: CurlTest / Curl2 / Curl3 / Curl4 / Curl5 / QA Tester / InlineQA / InlineOK).
+- Tip-jar parent kept (`link_id=59, user_id=1, is_tip_jar=true`) so the widget continues to work for real supporters + subsequent testing.
+- Merchant-pool RESERVED addresses (up to 5 addresses across chains) auto-release in ≤2h per `RESERVATION_TIMEOUT_MINUTES=120`.
+- Cleanup script kept as `backend/scripts/cleanup_session42.ts` for reference.
+
+### What to verify (FRONTEND) — awaiting user approval
+Full flow on preview URL `/hostbay` (public, no login):
+1. Widget shows presets → pick amount → optional name/message/anon toggle → click Buy X.
+2. Widget EXPANDS in place (no page navigation). Verify `inline-tip-currency-picker` renders + at least LTC + BTC + USDT-TRC20 chips are clickable.
+3. Pick one crypto → verify `inline-tip-address` mono, `inline-tip-copy`, `inline-tip-timer` (mm:ss), `inline-tip-status-pill` = "Waiting for payment…", `inline-tip-qr-toggle` expands the QR PNG.
+4. `← Change amount` returns to amount form + resets custom amount input.
+5. `Prefer full page? →` link opens `/pay?d=<d>` in a NEW tab (target="_blank").
+6. Dark mode toggle → widget adapts (surface, borders, chips).
+7. Mobile 390 → 2-col picker, tap targets ≥ 44px, no overflow.
+8. Underpaid state (harder to simulate without a real chain tx — SKIP or use payment-states-demo).
+
+### What to verify (BACKEND) — deep_testing_backend_v2 — OPTIONAL NARROW REGRESSION
+Zero backend code changed. If you want a spot-check regression (recommended):
+1. `POST /api/pay/tip` with hostbay/amount:5 → 200 + `{d, payment_link, amount, currency}` (Session 41 test still passes).
+2. `POST /api/pay/getData` with the `d` → `link_type==='contribution'`, `contribution.donor_name` present.
+3. Cleanup any new tip-jar contribution rows created by testing (via `paymentLinkModel.destroy` where `donor_name` in test names).
+
+### backend
+  - task: "Inline Tip Checkout backend contract — reused Session-38/40/41 endpoints as-is, ZERO code changes"
+    implemented: true
+    working: true
+    file: "backend/controller/paymentController.ts (byte-identical to Session 41), backend/controller/payment/paymentLinkController.ts, backend/routes/paymentRouter.ts"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "No backend code changed. During diagnostics a single-line debug log was temporarily inserted at paymentController.ts:L484 and IMMEDIATELY reverted after finding the frontend-side bug (paymentType casing) — file is on disk identical to Session 41. Recommended: optional narrow curl regression on POST /api/pay/tip + POST /api/pay/getData contribution follow-through, both proven-passing in Session 41 (5/5)."
+
+### frontend
+  - task: "Inline Tip Checkout — donor never leaves /{handle}; underpayment (Q1a) + overpayment-as-bigger-tip (Q2b) handled inline"
+    implemented: true
+    working: "NA"
+    file: "Components/Page/Creator/InlineTipCheckout.tsx (NEW), Components/Page/Creator/SupportWidget.tsx, Components/Page/Creator/CreatorProfile.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented inline tip checkout state machine. Own Playwright manual test on preview: presets → widget expands → currency picker with 13 chips → LTC/BTC address + QR + timer + copy + status pill all render correctly light + dark + mobile 390. LIVE DB test rows cleaned up. Awaiting user approval before invoking frontend testing_agent per DEV_WORKFLOW step 7."
+
+### metadata
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 0
+  run_ui: false
+
+### test_plan
+  current_focus:
+    - "Frontend — Inline tip checkout expands in place, currency picker + address + QR + timer + status pill render (light + dark + mobile 390)"
+    - "Frontend — Change amount / Prefer full page / Cancel escape hatches work"
+    - "Frontend — Merchant visitor's localStorage token is NOT sent to customer endpoints (auth isolation)"
+    - "Backend — POST /api/pay/tip regression (Session 41 test still passes) — OPTIONAL"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+### agent_communication
+  - agent: "main"
+    message: "Session 42: Implemented the inline tip checkout on `/{handle}` — the Support Widget no longer redirects to `/pay`, donors complete the entire crypto payment on the creator page. Underpayment (Q1a) shows remaining amount + grace timer + keeps polling. Overpayment (Q2b) treated as a bigger tip (no refund copy). Zero backend changes. Own Playwright manual test on preview URL confirms all render states (currency picker, address+QR, timer, status pill, back-to-form, dark mode, mobile 390) work correctly for LTC + BTC. Auth isolation verified — the InlineTipCheckout uses raw fetch with an explicit Bearer token from getData, never touches localStorage. LIVE DB test rows cleaned (7 contribution children deleted, tip-jar parent + merchant pool addresses left as-is; pool auto-releases in 2h). Awaiting user approval to invoke auto_frontend_testing_agent for the full accessibility + mobile + regression sweep."
+
+---
+
+
+
 ## Session 41: Creator Support Widget — FRONTEND + CSRF exemption (2026-07-13)
 
 ### Preview URL

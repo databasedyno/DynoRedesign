@@ -315,7 +315,7 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget }: { creator: C
         {/* ── Support Widget (always-on tip / coffee / support) ── */}
         {supportWidget?.enabled && (
           <Box sx={{ mb: 3 }}>
-            <SupportWidget handle={creator.handle} creatorName={creator.name} widget={supportWidget} />
+            <SupportWidget handle={creator.handle} creatorName={creator.name} widget={supportWidget} siteUrl={siteUrl ? `${siteUrl.replace(/\/+$/, '')}/${creator.handle}` : undefined} />
           </Box>
         )}
 
