@@ -12291,6 +12291,9 @@ PASS = fixed_fee is $1.00 (not $0.00) for the crypto txs 383/382/388 via invoice
 - Do NOT create real payments/settlements. The preview endpoint is read-only; use it (and existing GET endpoints) only.
 - Do NOT delete or mutate any live rows.
 
+### BACKFILL APPLIED (2026-07-13, user-approved)
+Ran scripts/backfill_invoice_fees.ts --apply against LIVE Railway PG. All 6 historical invoices regenerated to the correct v2 service-fee model: fixed_fee 0.00→1.00 where wrong, unit_price/total_usd/transaction_amount recomputed USD-canonically, invoice_version→v2. Backup of OLD values saved to scripts/backfill_invoice_fees_backup_2026-07-13T00-41-08-380Z.json (rollback source). Re-run dry-run = 0/6 changes (idempotent). Verified stored rows + GET /api/invoices/5 (INV-...00003) now returns v2, unit_price 1.56115, total_usd 1.56. Note: the 4 legacy v1 invoices had their totals change materially (e.g. INV-...00001 $26→$1.37) — this was explicitly approved by the user.
+
 ---
 
 

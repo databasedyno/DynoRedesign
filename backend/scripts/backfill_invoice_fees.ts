@@ -44,19 +44,26 @@ const APPLY = process.argv.includes("--apply");
 const idArg = process.argv.find((a) => a.startsWith("--id="));
 const ONLY_ID = idArg ? parseInt(idArg.split("=")[1], 10) : null;
 
-// Fields we recompute + the fig property each maps to.
-const FIELD_MAP: Array<{ col: string; fig: string }> = [
-  { col: "fixed_fee", fig: "displayFixedFee" },
-  { col: "transaction_fee_percent", fig: "transactionFeePercent" },
-  { col: "unit_price", fig: "unitPrice" },
-  { col: "vat_rate", fig: "vatRate" },
-  { col: "vat_amount", fig: "displayVatAmount" },
-  { col: "total_usd", fig: "totalAmount" },
-  { col: "transaction_amount", fig: "displayBaseAmount" },
+// Fields we recompute + the fig property each maps to + the DB column scale
+// (so idempotency comparison rounds to the same precision the column stores).
+const FIELD_MAP: Array<{ col: string; fig: string; scale: number }> = [
+  { col: "fixed_fee", fig: "displayFixedFee", scale: 2 },
+  { col: "transaction_fee_percent", fig: "transactionFeePercent", scale: 2 },
+  { col: "unit_price", fig: "unitPrice", scale: 8 },
+  { col: "vat_rate", fig: "vatRate", scale: 2 },
+  { col: "vat_amount", fig: "displayVatAmount", scale: 2 },
+  { col: "total_usd", fig: "totalAmount", scale: 2 },
+  { col: "transaction_amount", fig: "displayBaseAmount", scale: 8 },
 ];
 
-const r6 = (v: any): number => Math.round((parseFloat(v ?? 0) || 0) * 1e6) / 1e6;
-const differs = (a: any, b: any): boolean => Math.abs(r6(a) - r6(b)) > 1e-6;
+const roundTo = (v: any, scale: number): number => {
+  const f = 10 ** scale;
+  return Math.round((parseFloat(v ?? 0) || 0) * f) / f;
+};
+const r6 = (v: any): number => roundTo(v, 6);
+// Two values differ only if they disagree at the column's stored precision.
+const differs = (a: any, b: any, scale: number): boolean =>
+  roundTo(a, scale) !== roundTo(b, scale);
 
 async function main() {
   console.log("\n🧾 Invoice Fee Backfill / Regeneration");
@@ -120,10 +127,10 @@ async function main() {
     const newVals: Record<string, any> = { invoice_version: "v2" };
     let changed = inv.invoice_version !== "v2";
 
-    for (const { col, fig: figKey } of FIELD_MAP) {
+    for (const { col, fig: figKey, scale } of FIELD_MAP) {
       oldVals[col] = inv[col];
       newVals[col] = fig[figKey];
-      if (differs(inv[col], fig[figKey])) changed = true;
+      if (differs(inv[col], fig[figKey], scale)) changed = true;
     }
 
     const fxWarning = fig.displayCurrency !== "USD";
@@ -146,8 +153,8 @@ async function main() {
       console.log(`   ⚠️  display currency = ${fig.displayCurrency} — figures re-based at CURRENT FX (not invoice-date FX).`);
     }
     console.log(`   version:  ${oldVals.invoice_version}  →  ${newVals.invoice_version}`);
-    for (const { col } of FIELD_MAP) {
-      if (differs(oldVals[col], newVals[col])) {
+    for (const { col, scale } of FIELD_MAP) {
+      if (differs(oldVals[col], newVals[col], scale)) {
         console.log(`   ${col.padEnd(24)} ${String(r6(oldVals[col])).padStart(14)}  →  ${String(r6(newVals[col])).padStart(14)}`);
       }
     }
