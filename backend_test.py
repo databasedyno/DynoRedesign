@@ -10,7 +10,7 @@ import json
 import sys
 
 # Preview URL from test_credentials.md
-BASE_URL = "https://bed99c67-8a99-4b36-9449-ef8ed6ff6e5b.preview.emergentagent.com"
+BASE_URL = "https://multi-chain-checkout-1.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 # Test credentials from test_credentials.md
