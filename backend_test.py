@@ -10,7 +10,7 @@ import json
 import sys
 
 # Base URL from review request
-BASE_URL = "https://62fabf57-7aa4-49d7-b5cf-93ca135cec6b.preview.emergentagent.com/api"
+BASE_URL = "https://dynopay-preview-6.preview.emergentagent.com/api"
 
 # Test credentials
 TEST_EMAIL = "hostbay@moxx.co"
