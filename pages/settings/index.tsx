@@ -18,6 +18,7 @@ import ProfilePage from "@/Components/Page/Profile/ProfilePage";
 import ApiKeysPage from "@/Components/Page/API/ApiKeysPage";
 import NotificationPage from "@/Components/Page/Notification/NotificationPage";
 import CompanySettingsDialog from "@/Components/UI/CompanySettingsDialog";
+import DisplayCurrencySelector from "@/Components/UI/DisplayCurrencySelector";
 import CreateCompanyModal from "@/Components/UI/OnboardingFlow/CreateCompanyModal";
 import CustomButton from "@/Components/UI/Buttons";
 import useIsMobile from "@/hooks/useIsMobile";
@@ -83,9 +84,11 @@ const ProfileSection = () => {
 const CompanyConfigSection = ({
   visibleSections,
   allowAdd,
+  showDisplayCurrency,
 }: {
   visibleSections: Array<"company" | "crypto" | "webhook" | "payment">;
   allowAdd?: boolean;
+  showDisplayCurrency?: boolean;
 }) => {
   const dispatch = useDispatch();
   const theme = useTheme();
@@ -217,6 +220,10 @@ const CompanyConfigSection = ({
           />
         )}
       </Box>
+
+      {showDisplayCurrency && selectedId && (
+        <DisplayCurrencySelector companyId={selectedId} />
+      )}
 
       {selectedCompany && (
         <CompanySettingsDialog
@@ -488,7 +495,7 @@ const SettingsPage = ({
             <CompanyConfigSection visibleSections={["company"]} allowAdd />
           )}
           {active === "payments" && (
-            <CompanyConfigSection visibleSections={["crypto", "payment"]} />
+            <CompanyConfigSection visibleSections={["crypto", "payment"]} showDisplayCurrency />
           )}
           {active === "webhooks" && (
             <CompanyConfigSection visibleSections={["webhook"]} />

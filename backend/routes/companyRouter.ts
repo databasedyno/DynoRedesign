@@ -51,4 +51,8 @@ companyRouter.post("/conversion/:conversionId/retry", authMiddleware, companyCon
 // Fee-Free Trial Status (user-based)
 companyRouter.get("/fee-free-status", authMiddleware, companyController.getFeeFreeStatus);
 
+// Dashboard Display Currency (presentation-only, decoupled from API-key pricing)
+companyRouter.get("/display-currency/:id", authMiddleware, companyOwnershipMiddleware, companyController.getDisplayCurrency);
+companyRouter.patch("/display-currency/:id", authMiddleware, companyOwnershipMiddleware, companyController.updateDisplayCurrency);
+
 export default companyRouter;

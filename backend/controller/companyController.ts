@@ -7,7 +7,7 @@ import {
   successResponseHelper,
 } from "../helper";
 import { handleControllerError } from "../helper/controllerErrorHandler";
-import { formatAmountForDisplay, getCurrencyInfo, COMPANY_CURRENCY_QUERY, convertToFiat, getCompanyDisplayCurrency } from "../utils/currencyUtils";
+import { formatAmountForDisplay, getCurrencyInfo, COMPANY_CURRENCY_QUERY, convertToFiat, getCompanyDisplayCurrency, SUPPORTED_DISPLAY_CURRENCIES, isSupportedDisplayCurrency } from "../utils/currencyUtils";
 import jwt from "jsonwebtoken";
 import { IUserType } from "../utils/types";
 import { apiModel, companyModel, customerModel, customerWalletModel, userModel, stablecoinConversionModel, userWalletModel } from "../models";
@@ -1848,6 +1848,84 @@ const getFeeFreeStatus = async (req: express.Request, res: express.Response) => 
   }
 };
 
+// ── Dashboard Display Currency (Session 39) ─────────────────────────────────
+// Presentation-only merchant preference, decoupled from the API-key pricing
+// base_currency. Never affects stored data, payment pricing, invoices, exports,
+// or webhooks. See /app/DISPLAY_CURRENCY_IMPLEMENTATION.md.
+
+/**
+ * GET /api/company/display-currency/:id
+ * Returns the company's resolved dashboard display currency + the supported list.
+ */
+const getDisplayCurrency = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  const userData = jwt.decode(res.locals.token) as IUserType;
+  const { id } = req.params;
+  try {
+    const current = await getCompanyDisplayCurrency(id);
+    const supported = SUPPORTED_DISPLAY_CURRENCIES.map((code) => getCurrencyInfo(code));
+    return successResponseHelper(res, 200, "Display currency retrieved", {
+      display_currency: current,
+      currency_info: getCurrencyInfo(current),
+      supported,
+    });
+  } catch (e) {
+    const errorMessage = getErrorMessage(e);
+    companyLogger.error(errorMessage, { user_id: userData?.user_id }, new Error(e));
+    errorResponseHelper(res, 500, errorMessage);
+  }
+};
+
+/**
+ * PATCH /api/company/display-currency/:id
+ * Body: { display_currency: 'EUR' }. Validates against the supported list
+ * (400 otherwise) and persists it as a DISPLAY-ONLY preference.
+ */
+const updateDisplayCurrency = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  const userData = jwt.decode(res.locals.token) as IUserType;
+  const { id } = req.params;
+  const cur = String(req.body?.display_currency || "").toUpperCase();
+
+  try {
+    if (!isSupportedDisplayCurrency(cur)) {
+      return errorResponseHelper(
+        res,
+        400,
+        `display_currency must be one of: ${SUPPORTED_DISPLAY_CURRENCIES.join(", ")}`
+      );
+    }
+
+    // Ownership is enforced by companyOwnershipMiddleware; re-verify defensively.
+    const company = await companyModel.findOne({
+      where: { company_id: id, user_id: userData.user_id },
+    });
+    if (!company) {
+      return errorResponseHelper(res, 404, "Company not found");
+    }
+
+    await sequelize.query(
+      `UPDATE tbl_company SET display_currency = :cur WHERE company_id = :id`,
+      { replacements: { cur, id }, type: QueryTypes.UPDATE }
+    );
+
+    companyLogger.info(`[DisplayCurrency] Company ${id} display_currency set to ${cur}`);
+
+    return successResponseHelper(res, 200, "Display currency updated", {
+      display_currency: cur,
+      currency_info: getCurrencyInfo(cur),
+    });
+  } catch (e) {
+    const errorMessage = getErrorMessage(e);
+    companyLogger.error(errorMessage, { user_id: userData?.user_id }, new Error(e));
+    errorResponseHelper(res, 500, errorMessage);
+  }
+};
+
 export default {
   addCompany,
   getCompany,
@@ -1868,4 +1946,6 @@ export default {
   getConversionDetail,
   retryConversion,
   getFeeFreeStatus,
+  getDisplayCurrency,
+  updateDisplayCurrency,
 };
