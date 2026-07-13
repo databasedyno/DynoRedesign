@@ -3881,16 +3881,30 @@ const checkHandle = async (req: express.Request, res: express.Response) => {
   }
 };
 
-/** PUT /api/user/creator/profile  { handle, bio, creator_page_enabled, cover_image, social_links } */
+/** PUT /api/user/creator/profile  { handle, bio, creator_page_enabled, cover_image, social_links, support_widget_* } */
 const updateCreatorProfile = async (req: express.Request, res: express.Response) => {
   const userData = jwt.decode(res.locals.token) as IUserType;
   try {
-    const { handle: rawHandle, bio, creator_page_enabled, cover_image, social_links } = req.body as {
+    const {
+      handle: rawHandle, bio, creator_page_enabled, cover_image, social_links,
+      support_widget_enabled, support_widget_style, support_widget_label,
+      support_widget_preset_amounts, support_widget_currency, support_widget_min_amount,
+      support_widget_allow_message, support_widget_thanks_message, support_widget_show_supporters,
+    } = req.body as {
       handle?: string;
       bio?: string;
       creator_page_enabled?: boolean;
       cover_image?: string | null;
       social_links?: Record<string, string> | null;
+      support_widget_enabled?: boolean;
+      support_widget_style?: string;
+      support_widget_label?: string | null;
+      support_widget_preset_amounts?: unknown;
+      support_widget_currency?: string;
+      support_widget_min_amount?: number | string;
+      support_widget_allow_message?: boolean;
+      support_widget_thanks_message?: string | null;
+      support_widget_show_supporters?: boolean;
     };
     const updates: Record<string, unknown> = {};
 
@@ -3951,6 +3965,64 @@ const updateCreatorProfile = async (req: express.Request, res: express.Response)
       updates.social_links = cleaned;
     }
 
+    // ── Support Widget (Tip / Buy-me-a-coffee) — creator-exclusive ──
+    if (support_widget_enabled !== undefined) {
+      updates.support_widget_enabled = Boolean(support_widget_enabled);
+    }
+    if (support_widget_style !== undefined) {
+      const style = String(support_widget_style || "").trim().toLowerCase();
+      if (!["coffee", "tip", "support"].includes(style)) {
+        return errorResponseHelper(res, 400, "Invalid widget style. Choose coffee, tip, or support.");
+      }
+      updates.support_widget_style = style;
+    }
+    if (support_widget_label !== undefined) {
+      updates.support_widget_label = support_widget_label ? String(support_widget_label).trim().slice(0, 80) : null;
+    }
+    if (support_widget_preset_amounts !== undefined) {
+      let arr: unknown = support_widget_preset_amounts;
+      if (typeof arr === "string") {
+        arr = arr.split(",").map((s) => s.trim()).filter(Boolean);
+      }
+      if (!Array.isArray(arr)) {
+        return errorResponseHelper(res, 400, "Preset amounts must be a list of numbers.");
+      }
+      const nums = (arr as unknown[])
+        .map((v) => Number(v))
+        .filter((n) => Number.isFinite(n) && n > 0)
+        .map((n) => Math.round(n * 100) / 100);
+      if (nums.length > 5) {
+        return errorResponseHelper(res, 400, "You can set at most 5 preset amounts.");
+      }
+      // De-dupe while preserving order
+      updates.support_widget_preset_amounts = [...new Set(nums)];
+    }
+    if (support_widget_currency !== undefined) {
+      const cur = String(support_widget_currency || "").trim().toUpperCase();
+      if (!/^[A-Z]{3}$/.test(cur)) {
+        return errorResponseHelper(res, 400, "Invalid currency code.");
+      }
+      updates.support_widget_currency = cur;
+    }
+    if (support_widget_min_amount !== undefined) {
+      const min = Number(support_widget_min_amount);
+      if (!Number.isFinite(min) || min <= 0 || min > 1000000) {
+        return errorResponseHelper(res, 400, "Minimum amount must be a positive number.");
+      }
+      updates.support_widget_min_amount = Math.round(min * 100) / 100;
+    }
+    if (support_widget_allow_message !== undefined) {
+      updates.support_widget_allow_message = Boolean(support_widget_allow_message);
+    }
+    if (support_widget_thanks_message !== undefined) {
+      updates.support_widget_thanks_message = support_widget_thanks_message
+        ? String(support_widget_thanks_message).trim().slice(0, 280)
+        : null;
+    }
+    if (support_widget_show_supporters !== undefined) {
+      updates.support_widget_show_supporters = Boolean(support_widget_show_supporters);
+    }
+
     // Can't enable the page without a handle
     if (updates.creator_page_enabled === true) {
       const cur = await userModel.findOne({ where: { user_id: userData.user_id }, attributes: ["handle"] });
@@ -3968,7 +4040,12 @@ const updateCreatorProfile = async (req: express.Request, res: express.Response)
 
     const fresh = await userModel.findOne({
       where: { user_id: userData.user_id },
-      attributes: ["handle", "bio", "creator_page_enabled", "cover_image", "social_links"],
+      attributes: [
+        "handle", "bio", "creator_page_enabled", "cover_image", "social_links",
+        "support_widget_enabled", "support_widget_style", "support_widget_label",
+        "support_widget_preset_amounts", "support_widget_currency", "support_widget_min_amount",
+        "support_widget_allow_message", "support_widget_thanks_message", "support_widget_show_supporters",
+      ],
     });
     return successResponseHelper(res, 200, "Creator page updated", fresh?.dataValues || updates);
   } catch (e) {

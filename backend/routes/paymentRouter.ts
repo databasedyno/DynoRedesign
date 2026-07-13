@@ -27,6 +27,10 @@ paymentRouter.get("/creator/:handle", paymentRateLimiter, paymentController.getC
 // (spawns a child payment session; checkout continues with the returned ref)
 paymentRouter.post("/startDonation", paymentRateLimiter, paymentController.startDonation);
 
+// Creator Support Widget: public endpoint for a supporter to start a tip / coffee
+// (lazily creates the creator's hidden tip-jar parent, spawns a contribution child)
+paymentRouter.post("/tip", paymentRateLimiter, paymentController.startTip);
+
 // Campaign cover image upload (merchant dashboard, authenticated)
 paymentRouter.post(
   "/uploadCampaignImage",

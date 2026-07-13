@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Session 38: Payment Checkout Relevance — Donation-Flavored Copy Backend Tests
-Tests the new contribution block in POST /api/pay/getData response.
+Session 40: Creator Support Widget (Tip / Buy-me-a-coffee) Backend Tests
+Tests the new support_widget_* fields, POST /api/pay/tip, and tip-jar exclusion logic.
 """
 
 import requests
@@ -10,28 +10,47 @@ import sys
 import time
 from typing import Dict, Any, Optional, List
 
-# Preview URL from test_credentials.md
-BASE_URL = "https://crypto-payment-hub-27.preview.emergentagent.com"
+# Preview URL from test_result.md Session 40
+BASE_URL = "https://86e7ba10-df55-4649-b06f-88da6c8f2a67.preview.emergentagent.com"
 API_URL = f"{BASE_URL}/api"
 
-# Test credentials (hostbay - has company + wallet)
+# Test credentials (hostbay - has company + wallet + claimed creator handle "hostbay")
 TEST_EMAIL = "hostbay@moxx.co"
 TEST_PASSWORD = "Katiekendra123@"
 
 # Track created resources for cleanup
-created_links: List[int] = []
+created_tip_jar_id: Optional[int] = None
+created_contribution_ids: List[int] = []
 test_results = []
+
+# Use a session to maintain cookies (for CSRF)
+session = requests.Session()
 
 def log(msg: str, level: str = "INFO"):
     """Log test messages"""
     print(f"[{level}] {msg}")
 
+def get_csrf_token() -> Optional[str]:
+    """Get CSRF token for public endpoints"""
+    try:
+        resp = session.get(f"{API_URL}/csrf-token")
+        if resp.status_code == 200:
+            data = resp.json()
+            token = data.get("csrf_token")  # Fixed: key is csrf_token not csrfToken
+            if token:
+                log(f"✓ CSRF token obtained: {token[:20]}...")
+                return token
+        log(f"Failed to get CSRF token: {resp.status_code}", "WARN")
+        return None
+    except Exception as e:
+        log(f"Error getting CSRF token: {e}", "WARN")
+        return None
+
 def login() -> Optional[str]:
     """Login and return JWT token"""
-    log("Using pre-minted JWT token for hostbay@moxx.co (from mint_ux_tokens.js)...")
+    log("Using pre-minted JWT token for hostbay@moxx.co...")
     
-    # Use pre-minted 30-day JWT token from mint_ux_tokens.js
-    # This bypasses OTP flow for automated testing
+    # Use pre-minted 30-day JWT token (from mint_ux_tokens.js)
     token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJuYW1lIjoiSG9zdEJheSIsImVtYWlsIjoiaG9zdGJheUBtb3h4LmNvIiwidXNlcm5hbWUiOm51bGwsIm1vYmlsZSI6bnVsbCwicGhvdG8iOiJpbWFnZXMvdXNlcl9pbWFnZS5wbmciLCJsb2dpbl90eXBlIjoiRU1BSUwiLCJjdXN0b21lcl9pZCI6bnVsbCwiZXh0ZXJuYWxfaWQiOm51bGwsInN0YXR1cyI6ImFjdGl2ZSIsInZlcmlmaWVkX290cCI6bnVsbCwib3RwX2V4cGlyZWQiOm51bGwsIm90cF9jdXJyZW5jeSI6bnVsbCwicmVzZXRfdG9rZW4iOm51bGwsInJlc2V0X3Rva2VuX2V4cGlyeSI6bnVsbCwiZ29vZ2xlX2lkIjpudWxsLCJ3YWxsZXRfcmVtaW5kZXJfc2VudCI6dHJ1ZSwicmVmZXJyYWxfY29kZSI6IkRZTk8tOVhWUFVZIiwicmVmZXJyYWxfY291bnQiOjAsInJlZmVycmFsX2JvbnVzX2Vhcm5lZCI6IjAuMDAiLCJyZWZlcnJlZF9ieV9jb2RlIjpudWxsLCJyZWZlcnJlZF9ieV9yZWZlcmVlX2NvZGUiOm51bGwsImZlZV9kaXNjb3VudF9wZXJjZW50IjoiMC4wMCIsImZlZV9kaXNjb3VudF9leHBpcmVzX2F0IjpudWxsLCJmZWVfZGlzY291bnRfcmVhc29uIjpudWxsLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwibGFzdF9sb2dpbl9pcCI6IjEwNC4xOTguMjE0LjIyMyIsImxhc3RfY29tcGFueV9pZCI6bnVsbCwiY3VtdWxhdGl2ZV92b2x1bWVfdXNkIjoiMTgzODkuNzIiLCJmZWVfZnJlZV9yZW1haW5pbmdfdXNkIjoiMC4wMCIsImZlZV90aWVyIjoiZ3Jvd3RoIiwiY3JlYXRlZEF0IjoiMjAyNi0wNC0xOFQxODoxOToxMS44ODdaIiwidXBkYXRlZEF0IjoiMjAyNi0wNy0xM1QwMzowMDowMS40NjBaIiwibGFuZ3VhZ2UiOiJlbiIsImhhbmRsZSI6Imhvc3RiYXkiLCJiaW8iOiJCdWlsZGluZyB0aGUgZnV0dXJlIG9mIGNyeXB0byBwYXltZW50cy4gU3VwcG9ydCBteSB3b3JrIGJlbG93ISIsImNyZWF0b3JfcGFnZV9lbmFibGVkIjp0cnVlLCJjb3Zlcl9pbWFnZSI6bnVsbCwic29jaWFsX2xpbmtzIjp7fSwiaWF0IjoxNzgzOTMxMDQ4LCJleHAiOjE3ODY1MjMwNDh9.UqpXlx0Lxbm6Sd9VwewBu6jm5h2lp3NFMkheN0lmGUY"
     
     log("✓ JWT token loaded")
@@ -59,605 +78,692 @@ def get_company_id(token: str) -> Optional[int]:
     log(f"Using company_id: {company_id}")
     return company_id
 
-def create_standard_link(token: str, company_id: int) -> Optional[Dict[str, Any]]:
-    """T1: Create a standard payment link"""
-    log("\n=== T1: Creating STANDARD payment link ===")
+# ═══════════════════════════════════════════════════════════════════════════
+# TEST SCENARIO 1: PUT /api/user/creator/profile - support_widget_* validation
+# ═══════════════════════════════════════════════════════════════════════════
+
+def test_configure_widget_happy_path(token: str) -> bool:
+    """T1: Configure support widget with valid fields → 200"""
+    log("\n=== T1: Configure support widget (happy path) ===")
     
     payload = {
+        "support_widget_enabled": True,
+        "support_widget_style": "coffee",
+        "support_widget_preset_amounts": [3, 5, 10, 25],
+        "support_widget_currency": "USD",
+        "support_widget_min_amount": 1,
+        "support_widget_allow_message": True,
+        "support_widget_show_supporters": True,
+        "support_widget_thanks_message": "Thanks so much!"
+    }
+    
+    resp = requests.put(
+        f"{API_URL}/user/creator/profile",
+        json=payload,
+        headers={"Authorization": f"Bearer {token}"}
+    )
+    
+    if resp.status_code != 200:
+        log(f"❌ T1 FAIL: Expected 200, got {resp.status_code}: {resp.text}", "ERROR")
+        return False
+    
+    data = resp.json().get("data", {})
+    
+    # Verify all fields are echoed back
+    checks = [
+        (data.get("support_widget_enabled") == True, "support_widget_enabled"),
+        (data.get("support_widget_style") == "coffee", "support_widget_style"),
+        (data.get("support_widget_currency") == "USD", "support_widget_currency"),
+        (data.get("support_widget_min_amount") == 1, "support_widget_min_amount"),
+        (data.get("support_widget_allow_message") == True, "support_widget_allow_message"),
+        (data.get("support_widget_show_supporters") == True, "support_widget_show_supporters"),
+        (data.get("support_widget_thanks_message") == "Thanks so much!", "support_widget_thanks_message"),
+    ]
+    
+    # Check preset_amounts (could be array or string)
+    presets = data.get("support_widget_preset_amounts")
+    if isinstance(presets, list):
+        checks.append((presets == [3, 5, 10, 25], "support_widget_preset_amounts (array)"))
+    elif isinstance(presets, str):
+        checks.append((presets == "3,5,10,25", "support_widget_preset_amounts (string)"))
+    else:
+        checks.append((False, "support_widget_preset_amounts (unknown type)"))
+    
+    # min_amount might be returned as float (1.0) instead of int (1)
+    min_amt = data.get("support_widget_min_amount")
+    if min_amt is not None:
+        checks[3] = (float(min_amt) == 1.0, "support_widget_min_amount")
+    
+    failed = [name for passed, name in checks if not passed]
+    if failed:
+        log(f"❌ T1 FAIL: Fields not echoed correctly: {', '.join(failed)}", "ERROR")
+        log(f"   Response data: {json.dumps(data, indent=2)}")
+        return False
+    
+    log("✅ T1 PASS: Widget configured successfully, all fields echoed")
+    return True
+
+def test_configure_widget_invalid_style(token: str) -> bool:
+    """T2: Invalid style → 400"""
+    log("\n=== T2: Configure widget with invalid style ===")
+    
+    payload = {
+        "support_widget_enabled": True,
+        "support_widget_style": "xyz"  # Invalid
+    }
+    
+    resp = requests.put(
+        f"{API_URL}/user/creator/profile",
+        json=payload,
+        headers={"Authorization": f"Bearer {token}"}
+    )
+    
+    if resp.status_code != 400:
+        log(f"❌ T2 FAIL: Expected 400, got {resp.status_code}", "ERROR")
+        return False
+    
+    log("✅ T2 PASS: Invalid style rejected with 400")
+    return True
+
+def test_configure_widget_too_many_presets(token: str) -> bool:
+    """T3: More than 5 preset amounts → 400"""
+    log("\n=== T3: Configure widget with >5 preset amounts ===")
+    
+    payload = {
+        "support_widget_enabled": True,
+        "support_widget_preset_amounts": [1, 2, 3, 4, 5, 6]  # 6 items
+    }
+    
+    resp = requests.put(
+        f"{API_URL}/user/creator/profile",
+        json=payload,
+        headers={"Authorization": f"Bearer {token}"}
+    )
+    
+    if resp.status_code != 400:
+        log(f"❌ T3 FAIL: Expected 400, got {resp.status_code}", "ERROR")
+        return False
+    
+    log("✅ T3 PASS: Too many presets rejected with 400")
+    return True
+
+def test_configure_widget_invalid_min_amount(token: str) -> bool:
+    """T4: min_amount <= 0 → 400"""
+    log("\n=== T4: Configure widget with min_amount=0 ===")
+    
+    payload = {
+        "support_widget_enabled": True,
+        "support_widget_min_amount": 0
+    }
+    
+    resp = requests.put(
+        f"{API_URL}/user/creator/profile",
+        json=payload,
+        headers={"Authorization": f"Bearer {token}"}
+    )
+    
+    if resp.status_code != 400:
+        log(f"❌ T4 FAIL: Expected 400, got {resp.status_code}", "ERROR")
+        return False
+    
+    log("✅ T4 PASS: min_amount=0 rejected with 400")
+    return True
+
+def test_configure_widget_invalid_currency(token: str) -> bool:
+    """T5: Invalid currency (not 3-letter code) → 400"""
+    log("\n=== T5: Configure widget with invalid currency ===")
+    
+    payload = {
+        "support_widget_enabled": True,
+        "support_widget_currency": "US"  # Only 2 letters
+    }
+    
+    resp = requests.put(
+        f"{API_URL}/user/creator/profile",
+        json=payload,
+        headers={"Authorization": f"Bearer {token}"}
+    )
+    
+    if resp.status_code != 400:
+        log(f"❌ T5 FAIL: Expected 400, got {resp.status_code}", "ERROR")
+        return False
+    
+    log("✅ T5 PASS: Invalid currency rejected with 400")
+    return True
+
+# ═══════════════════════════════════════════════════════════════════════════
+# TEST SCENARIO 2: GET /api/pay/creator/:handle - support_widget + donations excluded
+# ═══════════════════════════════════════════════════════════════════════════
+
+def test_creator_profile_with_widget() -> bool:
+    """T6: GET /api/pay/creator/hostbay returns support_widget object"""
+    log("\n=== T6: GET /api/pay/creator/hostbay (widget enabled) ===")
+    
+    resp = requests.get(f"{API_URL}/pay/creator/hostbay")
+    
+    if resp.status_code != 200:
+        log(f"❌ T6 FAIL: Expected 200, got {resp.status_code}: {resp.text}", "ERROR")
+        return False
+    
+    data = resp.json().get("data", {})
+    support_widget = data.get("support_widget")
+    
+    if not support_widget:
+        log("❌ T6 FAIL: support_widget is null or missing", "ERROR")
+        return False
+    
+    # Verify widget structure
+    checks = [
+        (support_widget.get("enabled") == True, "enabled"),
+        (support_widget.get("style") == "coffee", "style"),
+        (support_widget.get("currency") == "USD", "currency"),
+        (support_widget.get("min_amount") == 1, "min_amount"),
+        (support_widget.get("allow_message") == True, "allow_message"),
+        (support_widget.get("show_supporters") == True, "show_supporters"),
+        (isinstance(support_widget.get("preset_amounts"), list), "preset_amounts is list"),
+    ]
+    
+    failed = [name for passed, name in checks if not passed]
+    if failed:
+        log(f"❌ T6 FAIL: Widget fields incorrect: {', '.join(failed)}", "ERROR")
+        return False
+    
+    # Check that links[] has ZERO items with type==="donation"
+    links = data.get("links", [])
+    donation_links = [l for l in links if l.get("type") == "donation"]
+    if donation_links:
+        log(f"❌ T6 FAIL: Found {len(donation_links)} donation links in links[] (should be 0)", "ERROR")
+        return False
+    
+    log("✅ T6 PASS: support_widget present, donations excluded from links[]")
+    return True
+
+def test_creator_profile_widget_disabled(token: str) -> bool:
+    """T7: Disable widget → support_widget is null"""
+    log("\n=== T7: Disable widget, verify support_widget=null ===")
+    
+    # Disable widget
+    resp = requests.put(
+        f"{API_URL}/user/creator/profile",
+        json={"support_widget_enabled": False},
+        headers={"Authorization": f"Bearer {token}"}
+    )
+    
+    if resp.status_code != 200:
+        log(f"❌ T7 FAIL: Failed to disable widget: {resp.status_code}", "ERROR")
+        return False
+    
+    # Check creator profile
+    resp = requests.get(f"{API_URL}/pay/creator/hostbay")
+    
+    if resp.status_code != 200:
+        log(f"❌ T7 FAIL: Expected 200, got {resp.status_code}", "ERROR")
+        return False
+    
+    data = resp.json().get("data", {})
+    support_widget = data.get("support_widget")
+    
+    if support_widget is not None:
+        log(f"❌ T7 FAIL: support_widget should be null, got: {support_widget}", "ERROR")
+        return False
+    
+    log("✅ T7 PASS: Widget disabled, support_widget=null")
+    
+    # Re-enable for subsequent tests
+    requests.put(
+        f"{API_URL}/user/creator/profile",
+        json={"support_widget_enabled": True},
+        headers={"Authorization": f"Bearer {token}"}
+    )
+    
+    return True
+
+# ═══════════════════════════════════════════════════════════════════════════
+# TEST SCENARIO 3: POST /api/pay/tip - happy path + getData
+# ═══════════════════════════════════════════════════════════════════════════
+
+def test_tip_happy_path(csrf_token: Optional[str]) -> Dict[str, Any]:
+    """T8: POST /api/pay/tip happy path → 200 + getData returns contribution"""
+    log("\n=== T8: POST /api/pay/tip (happy path) ===")
+    
+    payload = {
+        "handle": "hostbay",
         "amount": 5,
-        "base_currency": "USD",
-        "description": "QA standard link - Session 38",
-        "accepted_currencies": ["BTC", "ETH", "USDT-TRC20", "LTC"],
-        "company_id": company_id
+        "donor_name": "QA Tipper",
+        "donor_message": "Love your work!",
+        "is_anonymous": False
     }
     
-    resp = requests.post(
-        f"{API_URL}/pay/createPaymentLink",
-        json=payload,
+    headers = {}
+    if csrf_token:
+        headers["x-csrf-token"] = csrf_token
+    
+    resp = session.post(f"{API_URL}/pay/tip", json=payload, headers=headers)
+    
+    if resp.status_code != 200:
+        log(f"❌ T8 FAIL: Expected 200, got {resp.status_code}: {resp.text}", "ERROR")
+        return {}
+    
+    data = resp.json().get("data", {})
+    
+    # Verify response structure
+    checks = [
+        ("d" in data, "d (uniqueRef)"),
+        ("payment_link" in data, "payment_link"),
+        (data.get("amount") == 5, "amount"),
+        (data.get("currency") == "USD", "currency"),
+    ]
+    
+    failed = [name for passed, name in checks if not passed]
+    if failed:
+        log(f"❌ T8 FAIL: Response fields incorrect: {', '.join(failed)}", "ERROR")
+        return {}
+    
+    log(f"✅ T8 PASS: Tip started, d={data['d']}")
+    
+    # Now call getData to verify contribution block
+    child_ref = data["d"]
+    getData_resp = session.post(
+        f"{API_URL}/pay/getData",
+        json={"data": child_ref, "language": "en"}
+    )
+    
+    if getData_resp.status_code != 200:
+        log(f"❌ T8 FAIL: getData returned {getData_resp.status_code}", "ERROR")
+        return {}
+    
+    getData_data = getData_resp.json().get("data", {})
+    
+    # Verify link_type === "contribution"
+    if getData_data.get("link_type") != "contribution":
+        log(f"❌ T8 FAIL: link_type should be 'contribution', got '{getData_data.get('link_type')}'", "ERROR")
+        return {}
+    
+    # Verify contribution block
+    contribution = getData_data.get("contribution")
+    if not contribution:
+        log("❌ T8 FAIL: contribution block missing", "ERROR")
+        return {}
+    
+    contrib_checks = [
+        (contribution.get("campaign_title") in ["Buy me a coffee", "Thanks so much!"], "campaign_title"),
+        (contribution.get("donor_name") == "QA Tipper", "donor_name"),
+        (contribution.get("donor_message") == "Love your work!", "donor_message"),
+        (contribution.get("is_anonymous") == False, "is_anonymous"),
+    ]
+    
+    failed_contrib = [name for passed, name in contrib_checks if not passed]
+    if failed_contrib:
+        log(f"❌ T8 FAIL: Contribution fields incorrect: {', '.join(failed_contrib)}", "ERROR")
+        log(f"   contribution block: {json.dumps(contribution, indent=2)}")
+        return {}
+    
+    log("✅ T8 PASS: getData returns link_type='contribution' with correct donor info")
+    
+    return data
+
+# ═══════════════════════════════════════════════════════════════════════════
+# TEST SCENARIO 4: Tip jar hidden from merchant list + creator page
+# ═══════════════════════════════════════════════════════════════════════════
+
+def test_tip_jar_hidden(token: str, company_id: int) -> bool:
+    """T9: Verify tip jar (is_tip_jar=true) is hidden from getPaymentLinks and creator page"""
+    log("\n=== T9: Verify tip jar is hidden ===")
+    
+    # Check merchant list
+    resp = requests.get(
+        f"{API_URL}/pay/getPaymentLinks?company_id={company_id}",
         headers={"Authorization": f"Bearer {token}"}
     )
     
     if resp.status_code != 200:
-        log(f"Failed to create standard link: {resp.status_code} {resp.text}", "ERROR")
-        return None
+        log(f"❌ T9 FAIL: getPaymentLinks returned {resp.status_code}", "ERROR")
+        return False
     
-    data = resp.json().get("data", {})
-    link_id = data.get("link_id")
-    payment_link = data.get("payment_link", "")
+    data = resp.json().get("data", [])
     
-    # Extract uniqueRef from payment_link URL
-    import re
-    match = re.search(r'[?&]d=([a-f0-9]+)', payment_link)
-    unique_ref = match.group(1) if match else None
+    # Check if any link has is_tip_jar=true or title contains "Buy me a coffee"
+    tip_jars = [l for l in data if l.get("is_tip_jar") == True or "coffee" in str(l.get("title", "")).lower()]
+    if tip_jars:
+        log(f"❌ T9 FAIL: Found tip jar in merchant list: {tip_jars}", "ERROR")
+        return False
     
-    if link_id:
-        created_links.append(link_id)
+    log("✅ T9 PASS (part 1): Tip jar not in merchant getPaymentLinks")
     
-    log(f"✓ Standard link created: link_id={link_id}, ref={unique_ref}")
-    return {"link_id": link_id, "unique_ref": unique_ref, "payment_link": payment_link}
-
-def create_donation_campaign(token: str, company_id: int, title: str, goal: int, show_progress: bool = True, show_supporters: bool = True) -> Optional[Dict[str, Any]]:
-    """Create a donation campaign"""
-    log(f"\n=== Creating DONATION campaign: {title} ===")
-    
-    payload = {
-        "link_type": "donation",
-        "title": title,
-        "description": f"Backend test campaign - {title}",
-        "goal_amount": goal,
-        "min_amount": 1,
-        "preset_amounts": [5, 10, 25],
-        "allow_custom_amount": True,
-        "show_progress": show_progress,
-        "show_supporters": show_supporters,
-        "base_currency": "USD",
-        "accepted_currencies": ["BTC", "LTC", "DOGE"],
-        "company_id": company_id
-    }
-    
-    resp = requests.post(
-        f"{API_URL}/pay/createPaymentLink",
-        json=payload,
-        headers={"Authorization": f"Bearer {token}"}
-    )
+    # Check creator page
+    resp = requests.get(f"{API_URL}/pay/creator/hostbay")
     
     if resp.status_code != 200:
-        log(f"Failed to create donation campaign: {resp.status_code} {resp.text}", "ERROR")
-        return None
+        log(f"❌ T9 FAIL: creator page returned {resp.status_code}", "ERROR")
+        return False
     
     data = resp.json().get("data", {})
-    link_id = data.get("link_id")
-    payment_link = data.get("payment_link", "")
+    links = data.get("links", [])
     
-    # Extract uniqueRef
-    import re
-    match = re.search(r'[?&]d=([a-f0-9]+)', payment_link)
-    unique_ref = match.group(1) if match else None
+    # Check if any link is a donation (tip jar is a donation with is_tip_jar=true)
+    donation_links = [l for l in links if l.get("type") == "donation"]
+    if donation_links:
+        log(f"❌ T9 FAIL: Found donation links on creator page: {donation_links}", "ERROR")
+        return False
     
-    if link_id:
-        created_links.append(link_id)
-    
-    log(f"✓ Donation campaign created: link_id={link_id}, ref={unique_ref}")
-    return {"link_id": link_id, "unique_ref": unique_ref, "payment_link": payment_link}
+    log("✅ T9 PASS (part 2): Tip jar not in creator page links[]")
+    return True
 
-def start_donation(unique_ref: str, amount: float, donor_name: str, donor_message: str, is_anonymous: bool = False) -> Optional[Dict[str, Any]]:
-    """Start a contribution (child link) from a donation campaign"""
-    log(f"\n=== Starting contribution: ${amount} by {donor_name if not is_anonymous else 'Anonymous'} ===")
+# ═══════════════════════════════════════════════════════════════════════════
+# TEST SCENARIO 5: Tip validation (amount=0, unknown handle, anonymous)
+# ═══════════════════════════════════════════════════════════════════════════
+
+def test_tip_validation_amount_zero(csrf_token: Optional[str]) -> bool:
+    """T10: amount=0 → 400"""
+    log("\n=== T10: Tip with amount=0 ===")
     
     payload = {
-        "data": unique_ref,
-        "amount": amount,
-        "donor_name": donor_name,
-        "donor_message": donor_message,
-        "is_anonymous": is_anonymous
+        "handle": "hostbay",
+        "amount": 0,
+        "donor_name": "QA Tipper"
     }
     
-    resp = requests.post(
-        f"{API_URL}/pay/startDonation",
-        json=payload
-    )
+    headers = {}
+    if csrf_token:
+        headers["x-csrf-token"] = csrf_token
+    
+    resp = session.post(f"{API_URL}/pay/tip", json=payload, headers=headers)
+    
+    if resp.status_code != 400:
+        log(f"❌ T10 FAIL: Expected 400, got {resp.status_code}", "ERROR")
+        return False
+    
+    log("✅ T10 PASS: amount=0 rejected with 400")
+    return True
+
+def test_tip_validation_unknown_handle(csrf_token: Optional[str]) -> bool:
+    """T11: unknown handle → 404"""
+    log("\n=== T11: Tip with unknown handle ===")
+    
+    payload = {
+        "handle": "nope_xyz_12345",
+        "amount": 5,
+        "donor_name": "QA Tipper"
+    }
+    
+    headers = {}
+    if csrf_token:
+        headers["x-csrf-token"] = csrf_token
+    
+    resp = session.post(f"{API_URL}/pay/tip", json=payload, headers=headers)
+    
+    if resp.status_code != 404:
+        log(f"❌ T11 FAIL: Expected 404, got {resp.status_code}", "ERROR")
+        return False
+    
+    log("✅ T11 PASS: Unknown handle rejected with 404")
+    return True
+
+def test_tip_anonymous(csrf_token: Optional[str]) -> bool:
+    """T12: Anonymous tip → getData returns is_anonymous=true"""
+    log("\n=== T12: Anonymous tip ===")
+    
+    payload = {
+        "handle": "hostbay",
+        "amount": 3,
+        "donor_name": "Anonymous Donor",
+        "donor_message": "Keep up the great work!",
+        "is_anonymous": True
+    }
+    
+    headers = {}
+    if csrf_token:
+        headers["x-csrf-token"] = csrf_token
+    
+    resp = session.post(f"{API_URL}/pay/tip", json=payload, headers=headers)
     
     if resp.status_code != 200:
-        log(f"Failed to start donation: {resp.status_code} {resp.text}", "ERROR")
-        return None
+        log(f"❌ T12 FAIL: Expected 200, got {resp.status_code}: {resp.text}", "ERROR")
+        return False
     
     data = resp.json().get("data", {})
     child_ref = data.get("d")
     
-    log(f"✓ Contribution started: child_ref={child_ref}")
-    return {"child_ref": child_ref, "amount": data.get("amount"), "currency": data.get("currency")}
+    if not child_ref:
+        log("❌ T12 FAIL: No 'd' in response", "ERROR")
+        return False
+    
+    # Call getData
+    getData_resp = session.post(
+        f"{API_URL}/pay/getData",
+        json={"data": child_ref, "language": "en"}
+    )
+    
+    if getData_resp.status_code != 200:
+        log(f"❌ T12 FAIL: getData returned {getData_resp.status_code}", "ERROR")
+        return False
+    
+    getData_data = getData_resp.json().get("data", {})
+    contribution = getData_data.get("contribution")
+    
+    if not contribution:
+        log("❌ T12 FAIL: contribution block missing", "ERROR")
+        return False
+    
+    if contribution.get("is_anonymous") != True:
+        log(f"❌ T12 FAIL: is_anonymous should be true, got {contribution.get('is_anonymous')}", "ERROR")
+        return False
+    
+    log("✅ T12 PASS: Anonymous tip, getData returns is_anonymous=true")
+    return True
 
-def get_data(unique_ref: str, language: str = "en") -> Optional[Dict[str, Any]]:
-    """Call POST /api/pay/getData"""
-    payload = {
-        "data": unique_ref,
-        "language": language
+# ═══════════════════════════════════════════════════════════════════════════
+# TEST SCENARIO 6: Tip jar reuse (second tip uses same parent)
+# ═══════════════════════════════════════════════════════════════════════════
+
+def test_tip_jar_reuse(csrf_token: Optional[str]) -> bool:
+    """T13: Second tip reuses the same tip-jar parent"""
+    log("\n=== T13: Tip jar reuse (second tip) ===")
+    
+    headers = {}
+    if csrf_token:
+        headers["x-csrf-token"] = csrf_token
+    
+    # First tip
+    payload1 = {
+        "handle": "hostbay",
+        "amount": 5,
+        "donor_name": "First Tipper"
     }
     
-    resp = requests.post(
+    resp1 = session.post(f"{API_URL}/pay/tip", json=payload1, headers=headers)
+    
+    if resp1.status_code != 200:
+        log(f"❌ T13 FAIL: First tip failed: {resp1.status_code}", "ERROR")
+        return False
+    
+    data1 = resp1.json().get("data", {})
+    child_ref1 = data1.get("d")
+    
+    # Get parent_link_id from first tip
+    getData1_resp = session.post(
         f"{API_URL}/pay/getData",
-        json=payload
+        json={"data": child_ref1, "language": "en"}
     )
     
-    if resp.status_code != 200:
-        log(f"getData failed: {resp.status_code} {resp.text}", "ERROR")
-        return None
+    if getData1_resp.status_code != 200:
+        log(f"❌ T13 FAIL: getData for first tip failed", "ERROR")
+        return False
     
-    return resp.json().get("data", {})
+    getData1_data = getData1_resp.json().get("data", {})
+    contribution1 = getData1_data.get("contribution")
+    parent_link_id1 = contribution1.get("parent_link_id") if contribution1 else None
+    
+    if not parent_link_id1:
+        log("❌ T13 FAIL: No parent_link_id in first tip contribution", "ERROR")
+        return False
+    
+    log(f"First tip parent_link_id: {parent_link_id1}")
+    
+    # Second tip
+    time.sleep(1)  # Small delay
+    payload2 = {
+        "handle": "hostbay",
+        "amount": 10,
+        "donor_name": "Second Tipper"
+    }
+    
+    resp2 = session.post(f"{API_URL}/pay/tip", json=payload2, headers=headers)
+    
+    if resp2.status_code != 200:
+        log(f"❌ T13 FAIL: Second tip failed: {resp2.status_code}", "ERROR")
+        return False
+    
+    data2 = resp2.json().get("data", {})
+    child_ref2 = data2.get("d")
+    
+    # Get parent_link_id from second tip
+    getData2_resp = session.post(
+        f"{API_URL}/pay/getData",
+        json={"data": child_ref2, "language": "en"}
+    )
+    
+    if getData2_resp.status_code != 200:
+        log(f"❌ T13 FAIL: getData for second tip failed", "ERROR")
+        return False
+    
+    getData2_data = getData2_resp.json().get("data", {})
+    contribution2 = getData2_data.get("contribution")
+    parent_link_id2 = contribution2.get("parent_link_id") if contribution2 else None
+    
+    if not parent_link_id2:
+        log("❌ T13 FAIL: No parent_link_id in second tip contribution", "ERROR")
+        return False
+    
+    log(f"Second tip parent_link_id: {parent_link_id2}")
+    
+    # Verify they're the same
+    if parent_link_id1 != parent_link_id2:
+        log(f"❌ T13 FAIL: parent_link_id mismatch: {parent_link_id1} != {parent_link_id2}", "ERROR")
+        return False
+    
+    log("✅ T13 PASS: Second tip reuses same tip-jar parent")
+    
+    # Store for cleanup
+    global created_tip_jar_id
+    created_tip_jar_id = parent_link_id1
+    
+    return True
 
-def delete_link(token: str, link_id: int) -> bool:
-    """Delete a payment link"""
-    resp = requests.delete(
-        f"{API_URL}/pay/deletePaymentLink/{link_id}",
+# ═══════════════════════════════════════════════════════════════════════════
+# CLEANUP
+# ═══════════════════════════════════════════════════════════════════════════
+
+def cleanup(token: str):
+    """Clean up test data from LIVE Railway DB"""
+    log("\n=== CLEANUP ===")
+    
+    # Note: We need to delete tip-jar parent + contribution children
+    # The backend doesn't expose a direct DELETE endpoint for payment links by link_id
+    # We'll need to use the deletePaymentLink endpoint if available
+    
+    if created_tip_jar_id:
+        log(f"Attempting to delete tip-jar parent (link_id={created_tip_jar_id})...")
+        resp = requests.delete(
+            f"{API_URL}/pay/deletePaymentLink/{created_tip_jar_id}",
+            headers={"Authorization": f"Bearer {token}"}
+        )
+        if resp.status_code == 200:
+            log(f"✓ Deleted tip-jar parent {created_tip_jar_id}")
+        else:
+            log(f"⚠ Failed to delete tip-jar parent {created_tip_jar_id}: {resp.status_code}", "WARN")
+    
+    # Optionally disable the widget
+    log("Setting support_widget_enabled back to false...")
+    resp = requests.put(
+        f"{API_URL}/user/creator/profile",
+        json={"support_widget_enabled": False},
         headers={"Authorization": f"Bearer {token}"}
     )
-    
     if resp.status_code == 200:
-        log(f"✓ Deleted link {link_id}")
-        return True
+        log("✓ Widget disabled")
     else:
-        log(f"Failed to delete link {link_id}: {resp.status_code}", "WARN")
-        return False
+        log(f"⚠ Failed to disable widget: {resp.status_code}", "WARN")
+    
+    log("Cleanup complete (note: contribution children may remain if parent delete didn't cascade)")
 
-def assert_field(data: Dict, field: str, expected: Any, test_name: str):
-    """Assert a field value and record result"""
-    actual = data.get(field)
-    passed = actual == expected
-    
-    if not passed:
-        log(f"  ✗ {test_name}: {field} = {actual}, expected {expected}", "ERROR")
-        test_results.append({"test": test_name, "field": field, "passed": False, "actual": actual, "expected": expected})
-    else:
-        log(f"  ✓ {test_name}: {field} = {actual}")
-        test_results.append({"test": test_name, "field": field, "passed": True})
-    
-    return passed
+# ═══════════════════════════════════════════════════════════════════════════
+# MAIN
+# ═══════════════════════════════════════════════════════════════════════════
 
-def assert_field_exists(data: Dict, field: str, test_name: str):
-    """Assert a field exists"""
-    exists = field in data
-    
-    if not exists:
-        log(f"  ✗ {test_name}: {field} is MISSING", "ERROR")
-        test_results.append({"test": test_name, "field": field, "passed": False, "actual": "MISSING"})
-    else:
-        log(f"  ✓ {test_name}: {field} exists = {data[field]}")
-        test_results.append({"test": test_name, "field": field, "passed": True})
-    
-    return exists
-
-def assert_field_absent(data: Dict, field: str, test_name: str):
-    """Assert a field is absent"""
-    absent = field not in data
-    
-    if not absent:
-        log(f"  ✗ {test_name}: {field} should be ABSENT but found = {data[field]}", "ERROR")
-        test_results.append({"test": test_name, "field": field, "passed": False, "actual": data[field], "expected": "ABSENT"})
-    else:
-        log(f"  ✓ {test_name}: {field} is correctly ABSENT")
-        test_results.append({"test": test_name, "field": field, "passed": True})
-    
-    return absent
-
-def assert_field_type(data: Dict, field: str, expected_type: type, test_name: str):
-    """Assert a field type"""
-    if field not in data:
-        log(f"  ✗ {test_name}: {field} is MISSING", "ERROR")
-        test_results.append({"test": test_name, "field": field, "passed": False, "actual": "MISSING"})
-        return False
-    
-    actual = data[field]
-    passed = isinstance(actual, expected_type) or (expected_type == int and isinstance(actual, float) and actual == int(actual))
-    
-    if not passed:
-        log(f"  ✗ {test_name}: {field} type = {type(actual).__name__}, expected {expected_type.__name__}", "ERROR")
-        test_results.append({"test": test_name, "field": field, "passed": False, "actual": type(actual).__name__, "expected": expected_type.__name__})
-    else:
-        log(f"  ✓ {test_name}: {field} type = {expected_type.__name__}")
-        test_results.append({"test": test_name, "field": field, "passed": True})
-    
-    return passed
-
-def run_tests():
-    """Run all test scenarios"""
+def main():
     log("=" * 80)
-    log("Session 38: Payment Checkout Relevance Backend Tests")
+    log("Session 40: Creator Support Widget Backend Tests")
     log("=" * 80)
     
     # Login
     token = login()
     if not token:
-        log("Cannot proceed without authentication token", "ERROR")
-        log("Note: Automated OTP retrieval not implemented. Use mint_ux_tokens.js for testing.", "INFO")
-        return False
+        log("Failed to login", "ERROR")
+        sys.exit(1)
     
     # Get company_id
     company_id = get_company_id(token)
     if not company_id:
-        log("Cannot proceed without company_id", "ERROR")
-        return False
+        log("Failed to get company_id", "ERROR")
+        sys.exit(1)
     
-    try:
-        # T1: Standard link getData
-        log("\n" + "=" * 80)
-        log("T1: GET STANDARD link's checkout data")
-        log("=" * 80)
-        
-        standard_link = create_standard_link(token, company_id)
-        if not standard_link:
-            log("T1 FAILED: Could not create standard link", "ERROR")
-        else:
-            data = get_data(standard_link["unique_ref"])
-            if data:
-                # Assert link_type is "standard" or absent
-                link_type = data.get("link_type")
-                if link_type in ["standard", None]:
-                    log(f"  ✓ T1: link_type = {link_type} (acceptable)")
-                    test_results.append({"test": "T1", "field": "link_type", "passed": True})
-                else:
-                    log(f"  ✗ T1: link_type = {link_type}, expected 'standard' or absent", "ERROR")
-                    test_results.append({"test": "T1", "field": "link_type", "passed": False})
-                
-                # Assert contribution is ABSENT
-                assert_field_absent(data, "contribution", "T1")
-                
-                # Assert is_donation is falsy
-                is_donation = data.get("is_donation")
-                if not is_donation:
-                    log(f"  ✓ T1: is_donation = {is_donation} (falsy)")
-                    test_results.append({"test": "T1", "field": "is_donation", "passed": True})
-                else:
-                    log(f"  ✗ T1: is_donation = {is_donation}, expected falsy", "ERROR")
-                    test_results.append({"test": "T1", "field": "is_donation", "passed": False})
-                
-                # Assert existing fields present
-                for field in ["amount", "base_currency", "token", "merchant", "fee_info", "expiry", "available_currencies"]:
-                    assert_field_exists(data, field, "T1")
-        
-        # T2: Donation parent getData
-        log("\n" + "=" * 80)
-        log("T2: GET DONATION PARENT campaign's checkout data")
-        log("=" * 80)
-        
-        parent_campaign = create_donation_campaign(token, company_id, "QA Donation Test", 100)
-        if not parent_campaign:
-            log("T2 FAILED: Could not create donation campaign", "ERROR")
-        else:
-            data = get_data(parent_campaign["unique_ref"])
-            if data:
-                # Assert is_donation === true
-                assert_field(data, "is_donation", True, "T2")
-                
-                # Assert donation object present
-                assert_field_exists(data, "donation", "T2")
-                
-                if "donation" in data:
-                    donation = data["donation"]
-                    assert_field(donation, "title", "QA Donation Test", "T2")
-                    assert_field(donation, "goal_amount", 100, "T2")
-                
-                # Assert contribution is ABSENT (this is parent, not child)
-                assert_field_absent(data, "contribution", "T2")
-                
-                # link_type may be "donation" or absent (both acceptable per spec)
-                link_type = data.get("link_type")
-                if link_type in ["donation", None]:
-                    log(f"  ✓ T2: link_type = {link_type} (acceptable)")
-                    test_results.append({"test": "T2", "field": "link_type", "passed": True})
-                else:
-                    log(f"  ✗ T2: link_type = {link_type}, expected 'donation' or absent", "ERROR")
-                    test_results.append({"test": "T2", "field": "link_type", "passed": False})
-        
-        # T3: DONATION → CONTRIBUTION happy path (CORE TEST)
-        log("\n" + "=" * 80)
-        log("T3: DONATION → CONTRIBUTION happy path (CORE TEST)")
-        log("=" * 80)
-        
-        if parent_campaign:
-            contribution = start_donation(
-                parent_campaign["unique_ref"],
-                10,
-                "QA Donor",
-                "Great cause!",
-                False
-            )
-            
-            if not contribution:
-                log("T3 FAILED: Could not start contribution", "ERROR")
-            else:
-                # This is the CORE assertion - fetch child's checkout data
-                data = get_data(contribution["child_ref"])
-                if data:
-                    # CORE ASSERTION: link_type === "contribution"
-                    assert_field(data, "link_type", "contribution", "T3")
-                    
-                    # CORE ASSERTION: contribution object present
-                    if assert_field_exists(data, "contribution", "T3"):
-                        contrib = data["contribution"]
-                        
-                        # Assert all contribution fields
-                        assert_field_type(contrib, "parent_link_id", int, "T3")
-                        assert_field(contrib, "campaign_title", "QA Donation Test", "T3")
-                        assert_field(contrib, "campaign_description", "Backend test campaign - QA Donation Test", "T3")
-                        assert_field(contrib, "campaign_currency", "USD", "T3")
-                        
-                        # campaign_pay_url should be non-empty string
-                        if assert_field_exists(contrib, "campaign_pay_url", "T3"):
-                            if isinstance(contrib["campaign_pay_url"], str) and len(contrib["campaign_pay_url"]) > 0:
-                                log(f"  ✓ T3: campaign_pay_url is non-empty string")
-                                test_results.append({"test": "T3", "field": "campaign_pay_url", "passed": True})
-                            else:
-                                log(f"  ✗ T3: campaign_pay_url is empty or not string", "ERROR")
-                                test_results.append({"test": "T3", "field": "campaign_pay_url", "passed": False})
-                        
-                        assert_field(contrib, "goal_amount", 100, "T3")
-                        
-                        # raised_amount should be number >= 0
-                        if assert_field_exists(contrib, "raised_amount", "T3"):
-                            raised = contrib["raised_amount"]
-                            if isinstance(raised, (int, float)) and raised >= 0:
-                                log(f"  ✓ T3: raised_amount = {raised} (number >= 0)")
-                                test_results.append({"test": "T3", "field": "raised_amount", "passed": True})
-                            else:
-                                log(f"  ✗ T3: raised_amount = {raised}, expected number >= 0", "ERROR")
-                                test_results.append({"test": "T3", "field": "raised_amount", "passed": False})
-                        
-                        # supporters_count should be number >= 0
-                        if assert_field_exists(contrib, "supporters_count", "T3"):
-                            count = contrib["supporters_count"]
-                            if isinstance(count, (int, float)) and count >= 0:
-                                log(f"  ✓ T3: supporters_count = {count} (number >= 0)")
-                                test_results.append({"test": "T3", "field": "supporters_count", "passed": True})
-                            else:
-                                log(f"  ✗ T3: supporters_count = {count}, expected number >= 0", "ERROR")
-                                test_results.append({"test": "T3", "field": "supporters_count", "passed": False})
-                        
-                        # progress_percent should be 0-100 or null
-                        if assert_field_exists(contrib, "progress_percent", "T3"):
-                            progress = contrib["progress_percent"]
-                            if progress is None or (isinstance(progress, (int, float)) and 0 <= progress <= 100):
-                                log(f"  ✓ T3: progress_percent = {progress} (0-100 or null)")
-                                test_results.append({"test": "T3", "field": "progress_percent", "passed": True})
-                            else:
-                                log(f"  ✗ T3: progress_percent = {progress}, expected 0-100 or null", "ERROR")
-                                test_results.append({"test": "T3", "field": "progress_percent", "passed": False})
-                        
-                        assert_field(contrib, "show_progress", True, "T3")
-                        assert_field(contrib, "show_supporters", True, "T3")
-                        assert_field(contrib, "donor_name", "QA Donor", "T3")
-                        assert_field(contrib, "donor_message", "Great cause!", "T3")
-                        assert_field(contrib, "is_anonymous", False, "T3")
-                    
-                    # Assert is_donation is falsy (this is child, not parent)
-                    is_donation = data.get("is_donation")
-                    if not is_donation:
-                        log(f"  ✓ T3: is_donation = {is_donation} (falsy)")
-                        test_results.append({"test": "T3", "field": "is_donation", "passed": True})
-                    else:
-                        log(f"  ✗ T3: is_donation = {is_donation}, expected falsy", "ERROR")
-                        test_results.append({"test": "T3", "field": "is_donation", "passed": False})
-        
-        # T4: Contribution with anonymous donor
-        log("\n" + "=" * 80)
-        log("T4: Contribution with anonymous donor")
-        log("=" * 80)
-        
-        if parent_campaign:
-            anon_contribution = start_donation(
-                parent_campaign["unique_ref"],
-                5,
-                "Should Not Show",
-                "Anon msg",
-                True
-            )
-            
-            if not anon_contribution:
-                log("T4 FAILED: Could not start anonymous contribution", "ERROR")
-            else:
-                data = get_data(anon_contribution["child_ref"])
-                if data and "contribution" in data:
-                    contrib = data["contribution"]
-                    assert_field(contrib, "is_anonymous", True, "T4")
-                    
-                    # donor_name behavior: backend may return the name OR null when anonymous
-                    # Both are acceptable per spec - frontend uses is_anonymous flag to suppress display
-                    donor_name = contrib.get("donor_name")
-                    if donor_name is None:
-                        log(f"  ✓ T4: donor_name = null (backend nullifies for anonymous)")
-                        test_results.append({"test": "T4", "field": "donor_name", "passed": True})
-                    else:
-                        log(f"  ✓ T4: donor_name = {donor_name} (backend stores but is_anonymous=true signals frontend to suppress)")
-                        test_results.append({"test": "T4", "field": "donor_name", "passed": True})
-        
-        # T5: Contribution when merchant hid progress
-        log("\n" + "=" * 80)
-        log("T5: Contribution when merchant hid progress")
-        log("=" * 80)
-        
-        hidden_campaign = create_donation_campaign(
-            token, company_id, "QA Hidden Progress", 200, 
-            show_progress=False, show_supporters=False
-        )
-        
-        if not hidden_campaign:
-            log("T5 FAILED: Could not create hidden progress campaign", "ERROR")
-        else:
-            hidden_contribution = start_donation(
-                hidden_campaign["unique_ref"],
-                15,
-                "Hidden Donor",
-                "Hidden message",
-                False
-            )
-            
-            if not hidden_contribution:
-                log("T5 FAILED: Could not start contribution", "ERROR")
-            else:
-                data = get_data(hidden_contribution["child_ref"])
-                if data and "contribution" in data:
-                    contrib = data["contribution"]
-                    assert_field(contrib, "show_progress", False, "T5")
-                    assert_field(contrib, "show_supporters", False, "T5")
-                    
-                    # raised_amount should be null when show_progress=false
-                    raised = contrib.get("raised_amount")
-                    if raised is None:
-                        log(f"  ✓ T5: raised_amount = null (show_progress=false)")
-                        test_results.append({"test": "T5", "field": "raised_amount", "passed": True})
-                    else:
-                        log(f"  ✗ T5: raised_amount = {raised}, expected null", "ERROR")
-                        test_results.append({"test": "T5", "field": "raised_amount", "passed": False})
-                    
-                    # supporters_count should be null when show_supporters=false
-                    count = contrib.get("supporters_count")
-                    if count is None:
-                        log(f"  ✓ T5: supporters_count = null (show_supporters=false)")
-                        test_results.append({"test": "T5", "field": "supporters_count", "passed": True})
-                    else:
-                        log(f"  ✗ T5: supporters_count = {count}, expected null", "ERROR")
-                        test_results.append({"test": "T5", "field": "supporters_count", "passed": False})
-                    
-                    # progress_percent should be null
-                    progress = contrib.get("progress_percent")
-                    if progress is None:
-                        log(f"  ✓ T5: progress_percent = null")
-                        test_results.append({"test": "T5", "field": "progress_percent", "passed": True})
-                    else:
-                        log(f"  ✗ T5: progress_percent = {progress}, expected null", "ERROR")
-                        test_results.append({"test": "T5", "field": "progress_percent", "passed": False})
-                    
-                    # goal_amount should still be present (always returned)
-                    assert_field(contrib, "goal_amount", 200, "T5")
-        
-        # T6: Backward-compat regression
-        log("\n" + "=" * 80)
-        log("T6: Backward-compat regression: existing createLink flows unchanged")
-        log("=" * 80)
-        
-        # Re-check T1's standard link
-        if standard_link:
-            data = get_data(standard_link["unique_ref"])
-            if data:
-                # Verify all old fields still present
-                old_fields = ["fee_info", "expiry", "available_currencies", "amount", "base_currency", "token", "merchant"]
-                all_present = True
-                for field in old_fields:
-                    if field not in data:
-                        log(f"  ✗ T6: {field} is MISSING from standard link", "ERROR")
-                        test_results.append({"test": "T6", "field": field, "passed": False})
-                        all_present = False
-                    else:
-                        log(f"  ✓ T6: {field} still present")
-                        test_results.append({"test": "T6", "field": field, "passed": True})
-                
-                if all_present:
-                    log("  ✓ T6: All old fields still present in standard link")
-        
-        # Re-check T2's donation parent
-        if parent_campaign:
-            data = get_data(parent_campaign["unique_ref"])
-            if data:
-                # Verify donation parent still renders correctly
-                if data.get("is_donation") and "donation" in data:
-                    log("  ✓ T6: Donation parent still renders correctly (is_donation:true, donation:{...})")
-                    test_results.append({"test": "T6", "field": "donation_parent", "passed": True})
-                else:
-                    log("  ✗ T6: Donation parent broken", "ERROR")
-                    test_results.append({"test": "T6", "field": "donation_parent", "passed": False})
-        
-        # T7: Robustness - parent campaign deleted while child exists
-        log("\n" + "=" * 80)
-        log("T7: Robustness: parent campaign deleted while child exists")
-        log("=" * 80)
-        
-        # Create a new campaign and contribution for this test
-        orphan_campaign = create_donation_campaign(token, company_id, "QA Orphan Test", 50)
-        if orphan_campaign:
-            orphan_contribution = start_donation(
-                orphan_campaign["unique_ref"],
-                7,
-                "Orphan Donor",
-                "Will be orphaned",
-                False
-            )
-            
-            if orphan_contribution:
-                # Delete the parent
-                parent_link_id = orphan_campaign["link_id"]
-                log(f"Deleting parent campaign {parent_link_id}...")
-                delete_link(token, parent_link_id)
-                
-                # Try to fetch child's getData
-                log("Fetching orphan child's getData...")
-                data = get_data(orphan_contribution["child_ref"])
-                
-                if data:
-                    # Response should be 200 (NOT 500)
-                    log("  ✓ T7: Response 200 (no crash)")
-                    test_results.append({"test": "T7", "field": "no_crash", "passed": True})
-                    
-                    # Either contribution is absent OR present with null-ish campaign fields
-                    if "contribution" not in data:
-                        log("  ✓ T7: contribution block absent (acceptable)")
-                        test_results.append({"test": "T7", "field": "contribution_handling", "passed": True})
-                    else:
-                        contrib = data["contribution"]
-                        # Check if campaign fields are null-ish
-                        campaign_title = contrib.get("campaign_title")
-                        if campaign_title is None or campaign_title == "":
-                            log("  ✓ T7: contribution present with null-ish campaign fields (acceptable)")
-                            test_results.append({"test": "T7", "field": "contribution_handling", "passed": True})
-                        else:
-                            log(f"  ⚠ T7: contribution present with campaign_title={campaign_title} (unexpected but not crash)")
-                            test_results.append({"test": "T7", "field": "contribution_handling", "passed": True})
-                    
-                    # Child's own fields should still work
-                    child_fields_ok = True
-                    for field in ["amount", "base_currency", "token", "available_currencies"]:
-                        if field not in data:
-                            log(f"  ✗ T7: {field} missing from orphan child", "ERROR")
-                            test_results.append({"test": "T7", "field": f"child_{field}", "passed": False})
-                            child_fields_ok = False
-                    
-                    if child_fields_ok:
-                        log("  ✓ T7: Child's own fields still work (customer can complete payment)")
-                        test_results.append({"test": "T7", "field": "child_fields", "passed": True})
-                else:
-                    log("  ✗ T7: getData returned None (crash or error)", "ERROR")
-                    test_results.append({"test": "T7", "field": "no_crash", "passed": False})
-        
-    finally:
-        # Cleanup
-        log("\n" + "=" * 80)
-        log("CLEANUP: Deleting test payment links")
-        log("=" * 80)
-        
-        for link_id in created_links:
-            delete_link(token, link_id)
-        
-        log(f"Cleanup complete. Deleted {len(created_links)} links.")
+    # Get CSRF token for public endpoints
+    csrf_token = get_csrf_token()
+    if not csrf_token:
+        log("Warning: No CSRF token obtained, tip tests may fail", "WARN")
+    
+    # Run tests
+    results = []
+    
+    # Scenario 1: Widget configuration
+    results.append(("T1: Configure widget (happy path)", test_configure_widget_happy_path(token)))
+    results.append(("T2: Invalid style", test_configure_widget_invalid_style(token)))
+    results.append(("T3: Too many presets", test_configure_widget_too_many_presets(token)))
+    results.append(("T4: Invalid min_amount", test_configure_widget_invalid_min_amount(token)))
+    results.append(("T5: Invalid currency", test_configure_widget_invalid_currency(token)))
+    
+    # Scenario 2: Creator profile
+    results.append(("T6: Creator profile with widget", test_creator_profile_with_widget()))
+    results.append(("T7: Widget disabled → null", test_creator_profile_widget_disabled(token)))
+    
+    # Scenario 3: Tip happy path
+    results.append(("T8: Tip happy path + getData", bool(test_tip_happy_path(csrf_token))))
+    
+    # Scenario 4: Tip jar hidden
+    results.append(("T9: Tip jar hidden", test_tip_jar_hidden(token, company_id)))
+    
+    # Scenario 5: Tip validation
+    results.append(("T10: Tip amount=0", test_tip_validation_amount_zero(csrf_token)))
+    results.append(("T11: Tip unknown handle", test_tip_validation_unknown_handle(csrf_token)))
+    results.append(("T12: Tip anonymous", test_tip_anonymous(csrf_token)))
+    
+    # Scenario 6: Tip jar reuse
+    results.append(("T13: Tip jar reuse", test_tip_jar_reuse(csrf_token)))
+    
+    # Cleanup
+    cleanup(token)
     
     # Summary
     log("\n" + "=" * 80)
     log("TEST SUMMARY")
     log("=" * 80)
     
-    total = len(test_results)
-    passed = sum(1 for r in test_results if r["passed"])
-    failed = total - passed
+    passed = sum(1 for _, result in results if result)
+    total = len(results)
     
-    log(f"Total assertions: {total}")
-    log(f"Passed: {passed}")
-    log(f"Failed: {failed}")
+    for name, result in results:
+        status = "✅ PASS" if result else "❌ FAIL"
+        log(f"{status}: {name}")
     
-    if failed > 0:
-        log("\nFailed assertions:")
-        for r in test_results:
-            if not r["passed"]:
-                log(f"  - {r['test']}: {r['field']}", "ERROR")
+    log(f"\nTotal: {passed}/{total} tests passed")
     
-    return failed == 0
+    if passed == total:
+        log("\n🎉 ALL TESTS PASSED!", "INFO")
+        sys.exit(0)
+    else:
+        log(f"\n⚠️  {total - passed} test(s) failed", "ERROR")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    success = run_tests()
-    sys.exit(0 if success else 1)
+    main()

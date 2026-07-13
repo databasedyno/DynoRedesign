@@ -10,6 +10,7 @@ import {
   updatePaymentLink,
   deletePaymentLink,
   startDonation,
+  startTip,
   uploadCampaignImage,
   getCreatorProfile,
 } from "./payment/paymentLinkController";
@@ -2171,6 +2172,7 @@ export default {
   deletePaymentLink,
   createPaymentLink,
   startDonation,
+  startTip,
   uploadCampaignImage,
   getCreatorProfile,
   getPaymentMeta,

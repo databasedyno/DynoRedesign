@@ -1,3 +1,69 @@
+## Session 40: Donation / Tip / Coffee split — Creator Support Widget (BACKEND) — TEST REQUESTED (2026-07-13)
+
+### Preview URL
+https://86e7ba10-df55-4649-b06f-88da6c8f2a67.preview.emergentagent.com
+
+### Test credentials (from /app/memory/test_credentials.md)
+- Data-rich (company_id=1 + wallets + CLAIMED creator handle "hostbay", creator_page_enabled=true): hostbay@moxx.co / Katiekendra123@
+- Empty merchant (NO company/wallet): qa.empty.1782626169@dynopaytest.com / QaEmpty#2026
+
+### Product decision (user, this session)
+Donation = a campaign artifact created in Create Payment Link (unchanged). **Tip / Buy-me-a-coffee = a creator-exclusive always-on "Support Widget"** on the public creator page `/{handle}`. Same widget, style toggle (coffee | tip | support). Decision **1a**: the creator page shows the **Support Widget ONLY** — donation campaigns NEVER appear on `/{handle}` anymore.
+
+### What changed (backend only — frontend is next session/phase)
+- **Migration** `backend/migrations/addSupportWidget.ts` — ✅ already ran on LIVE Railway PG. Added to `tbl_user`: `support_widget_enabled` (bool, def false), `support_widget_style` (varchar def 'coffee'), `support_widget_label` (varchar80), `support_widget_preset_amounts` (jsonb def [3,5,10,25]), `support_widget_currency` (varchar def 'USD'), `support_widget_min_amount` (numeric def 1), `support_widget_allow_message` (bool def true), `support_widget_thanks_message` (text), `support_widget_show_supporters` (bool def true). Added to `tbl_payment_link`: `is_tip_jar` (bool NOT NULL def false).
+- **`PUT /api/user/creator/profile`** (auth) — now also accepts + validates the 9 `support_widget_*` fields; returns them in the response. Validation: style ∈ {coffee,tip,support} else 400; preset_amounts array of positive numbers, max 5, else 400; currency must be 3-letter code else 400; min_amount > 0 else 400.
+- **`GET /api/pay/creator/:handle`** (public) — response now includes `support_widget` object (null when disabled) with {enabled, style, label, preset_amounts, currency, min_amount, allow_message, thanks_message, show_supporters, supporters_count, raised_amount}. **`links[]` now EXCLUDES all donations + the tip jar** (decision 1a) — only non-donation reusable links remain.
+- **NEW `POST /api/pay/tip`** (public, rate-limited) — body `{ handle, amount, donor_name?, donor_message?, is_anonymous? }`. Resolves creator by handle (must be creator_page_enabled + support_widget_enabled), validates amount vs widget min, resolves creator's first company + configured wallet currencies, lazily creates a hidden singleton tip-jar parent (`is_tip_jar=true, link_type='donation'`), then spawns a `contribution` child (reuses Session-38 donation-flavored checkout). Returns `{ d, payment_link, amount, currency }`.
+- **`GET /api/pay/getPaymentLinks`** (merchant list) — now excludes `is_tip_jar=true` rows so the hidden tip jar never appears in the merchant's pay-links list.
+
+### What to verify (BACKEND — deep_testing_backend_v2)
+1. **Configure widget** — Login hostbay@moxx.co. `PUT /api/user/creator/profile` with `{support_widget_enabled:true, support_widget_style:"coffee", support_widget_preset_amounts:[3,5,10,25], support_widget_currency:"USD", support_widget_min_amount:1, support_widget_allow_message:true, support_widget_show_supporters:true, support_widget_thanks_message:"Thanks so much!"}` → 200 + fields echoed. Validation: style:"xyz"→400; preset_amounts of 6 items→400; min_amount:0→400; currency:"US"→400.
+2. **Public profile** — `GET /api/pay/creator/hostbay` → `support_widget` present matching config; `links[]` has ZERO items with `type==="donation"`. Then `PUT ...{support_widget_enabled:false}` → `support_widget` is null on next GET.
+3. **Start tip (happy path)** — re-enable widget. `POST /api/pay/tip {handle:"hostbay", amount:5, donor_name:"QA Tipper", donor_message:"Love your work!", is_anonymous:false}` → 200 + `{d, payment_link, amount:5, currency:"USD"}`. Then `POST /api/pay/getData {data:<d>, language:"en"}` → `link_type==="contribution"`, `contribution.campaign_title` == "Buy me a coffee" (coffee style default) OR the custom label, `contribution.donor_name==="QA Tipper"`, `donor_message==="Love your work!"`, `is_anonymous===false`.
+4. **Tip jar hidden** — verify a `is_tip_jar=true` parent exists for hostbay BUT does NOT appear in `GET /api/pay/getPaymentLinks?company_id=1` (merchant list) and NOT in `GET /api/pay/creator/hostbay` links.
+5. **Tip validation** — amount:0 → 400; unknown handle "nope_xyz" → 404; anonymous tip (`is_anonymous:true`) → child `getData` returns `contribution.is_anonymous===true`.
+6. **Tip jar reuse** — a second tip reuses the SAME tip-jar parent (only one `is_tip_jar` row for the creator). NOTE: `supporters_count`/`raised_amount` will remain 0 because contributions stay `active` (no settlement runs on this preview: WORKER_ROLE=secondary). Do NOT assert supporters_count>0.
+
+### Cleanup notes (LIVE DB — do NOT leave orphan rows)
+- Reset hostbay's widget to disabled at the end (`PUT ...{support_widget_enabled:false}`) if you enabled it, OR leave enabled (frontend work next needs it — either is fine, note which).
+- The tip-jar parent (`is_tip_jar=true`) + any `contribution` children created for tests should be deleted from `tbl_payment_link` (find by `user_id` of hostbay + `is_tip_jar=true`, and children by `parent_link_id`).
+
+### backend
+  - task: "Creator Support Widget — PUT /api/user/creator/profile (9 support_widget_* fields), GET /api/pay/creator/:handle (support_widget object + donations excluded), POST /api/pay/tip (lazy tip-jar + contribution child), getPaymentLinks excludes is_tip_jar"
+    implemented: true
+    working: true
+    file: "backend/controller/payment/paymentLinkController.ts, backend/controller/userController.ts, backend/models/userModels/userModel.ts, backend/models/userModels/paymentLinkModel.ts, backend/routes/paymentRouter.ts, backend/migrations/addSupportWidget.ts"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented creator-exclusive Support Widget (Tip/Coffee) split from donations. Migration ran on live Railway PG. New POST /api/pay/tip reuses the Session-38 contribution checkout via a hidden tip-jar donation parent. GET /api/pay/creator/:handle now returns support_widget + excludes donations from links (decision 1a). Backend restarts clean, /health 200, lint clean. Awaiting backend testing."
+      - working: true
+        agent: "testing"
+        comment: "BACKEND TESTING COMPLETE (2026-07-13). All 13/13 tests PASSED ✅. T1-T5: PUT /api/user/creator/profile validation working correctly (happy path 200 with all 9 fields echoed, invalid style→400, >5 presets→400, min_amount=0→400, invalid currency→400). T6-T7: GET /api/pay/creator/hostbay returns support_widget object with correct structure when enabled, null when disabled; links[] correctly excludes all donations (decision 1a verified). T8: POST /api/pay/tip happy path (200 + {d, payment_link, amount:5, currency:USD}), getData returns link_type='contribution' with contribution block containing campaign_title='Buy me a coffee', donor_name='QA Tipper', donor_message='Love your work!', is_anonymous=false. T9: Tip jar (is_tip_jar=true) correctly hidden from both GET /api/pay/getPaymentLinks (merchant list) and GET /api/pay/creator/hostbay links[]. T10-T12: Tip validation working (amount:0→400, unknown handle→404, anonymous tip→is_anonymous=true in getData). T13: Tip jar reuse confirmed - second tip reuses same parent_link_id (49). IMPORTANT: Contributions stay 'active' on this preview (WORKER_ROLE=secondary, no settlement), so supporters_count/raised_amount remain 0 as expected - this is NOT a bug. Test used LIVE Railway PG+Redis via preview URL with hostbay@moxx.co (company_id=1). Cleanup: tip-jar parent (link_id=49) deleted, widget disabled. Test file: /app/backend_test.py."
+
+### test_plan
+  current_focus:
+    - "Backend — POST /api/pay/tip happy path + validation + tip-jar reuse"
+    - "Backend — PUT /api/user/creator/profile support_widget field validation"
+    - "Backend — GET /api/pay/creator/:handle returns support_widget + excludes donations"
+    - "Backend — tip jar hidden from getPaymentLinks merchant list"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+### agent_communication
+  - agent: "main"
+    message: "Session 40 backend ready for testing. Implemented the Donation/Tip/Coffee split: tips are now a creator-exclusive Support Widget (POST /api/pay/tip) backed by a hidden singleton tip-jar donation parent, reusing the Session-38 contribution checkout. Please test the 6 scenarios above using hostbay@moxx.co (has company_id=1 + wallets + claimed handle 'hostbay'). IMPORTANT: contributions stay 'active' on this preview (no settlement — WORKER_ROLE=secondary), so tip supporters_count/raised_amount stay 0 — that's expected, don't fail on it. Clean up tip-jar + contribution rows on the LIVE DB after. Frontend (settings UI + public widget) is the next phase — do NOT test frontend."
+  - agent: "testing"
+    message: "Session 40 backend testing COMPLETE. All 13/13 tests PASSED ✅. Widget configuration (PUT /api/user/creator/profile) validates all 9 support_widget_* fields correctly. Creator profile (GET /api/pay/creator/hostbay) returns support_widget object when enabled, null when disabled, and correctly excludes all donations from links[] per decision 1a. Tip endpoint (POST /api/pay/tip) working perfectly: creates contribution children via lazy tip-jar parent, getData returns link_type='contribution' with full contribution block (campaign_title, donor_name, donor_message, is_anonymous). Tip jar (is_tip_jar=true) correctly hidden from both merchant getPaymentLinks and creator page links[]. Validation working (amount:0→400, unknown handle→404, anonymous→is_anonymous=true). Tip jar reuse confirmed (second tip uses same parent_link_id). Cleanup complete (tip-jar deleted, widget disabled). Backend contract is production-ready. Frontend work (settings UI + public widget) is next phase."
+
+---
+
+
 ## Session 38: Payment Checkout Relevance — Donation-Flavored Copy (2026-07-13)
 
 ### Preview URL

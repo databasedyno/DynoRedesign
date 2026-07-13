@@ -194,6 +194,59 @@ const userModel = sequelize.define(
       defaultValue: {},
       comment: "Creator's social handles: {twitter, instagram, youtube, tiktok, website}",
     },
+    // ── Support Widget (creator-exclusive Tip / Buy-me-a-coffee) ──
+    support_widget_enabled: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: true,
+      comment: "Master toggle for the always-on tip/coffee widget on the creator page",
+    },
+    support_widget_style: {
+      type: DataTypes.STRING(20),
+      defaultValue: "coffee",
+      allowNull: true,
+      comment: "Widget vocabulary/icon: 'coffee' | 'tip' | 'support'",
+    },
+    support_widget_label: {
+      type: DataTypes.STRING(80),
+      allowNull: true,
+      comment: "Custom heading override (else style-derived default)",
+    },
+    support_widget_preset_amounts: {
+      type: DataTypes.JSONB,
+      allowNull: true,
+      defaultValue: [3, 5, 10, 25],
+      comment: "Suggested amount chips (max 5)",
+    },
+    support_widget_currency: {
+      type: DataTypes.STRING(10),
+      defaultValue: "USD",
+      allowNull: true,
+      comment: "Display + settle currency for tips",
+    },
+    support_widget_min_amount: {
+      type: DataTypes.DECIMAL(10, 2),
+      defaultValue: 1,
+      allowNull: true,
+      comment: "Minimum custom tip amount",
+    },
+    support_widget_allow_message: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+      allowNull: true,
+      comment: "Show supporter message input in the widget",
+    },
+    support_widget_thanks_message: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      comment: "Custom post-tip thank-you copy",
+    },
+    support_widget_show_supporters: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+      allowNull: true,
+      comment: "Show lifetime supporters count on the widget",
+    },
   },
   {
     tableName: "tbl_user",

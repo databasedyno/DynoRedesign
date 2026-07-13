@@ -801,6 +801,7 @@ export const getPaymentLinks = async (req: express.Request, res: express.Respons
     const whereClause: Record<string, unknown> = {
       user_id: userData.user_id,
       parent_link_id: null,
+      is_tip_jar: false,
     };
     
     if (company_id) {
@@ -1771,6 +1772,206 @@ export const startDonation = async (
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
+// START TIP — creator-exclusive "Buy me a coffee" / tip / support flow.
+// Public (no auth). Resolves the creator by handle, validates the amount against
+// the creator's Support Widget config, lazily creates a hidden singleton "tip jar"
+// donation parent (is_tip_jar=true) if needed, then spawns a 'contribution' child
+// so the tip reuses the entire donation-flavored crypto checkout (Session 38).
+// ═══════════════════════════════════════════════════════════════════════════
+export const startTip = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  try {
+    const { handle: rawHandle, amount, donor_name, donor_message, is_anonymous } = req.body;
+    const handle = String(rawHandle || "").trim().toLowerCase();
+    if (!handle) {
+      return errorResponseHelper(res, 400, "Creator handle is required");
+    }
+
+    // Resolve the creator + widget config
+    const creator = await userModel.findOne({
+      where: sequelize.where(sequelize.fn("LOWER", sequelize.col("handle")), handle),
+      attributes: [
+        "user_id", "name", "handle", "creator_page_enabled",
+        "support_widget_enabled", "support_widget_style", "support_widget_label",
+        "support_widget_preset_amounts", "support_widget_currency", "support_widget_min_amount",
+        "support_widget_allow_message", "support_widget_thanks_message", "support_widget_show_supporters",
+      ],
+    });
+    if (!creator || !creator.dataValues.creator_page_enabled || !creator.dataValues.support_widget_enabled) {
+      return errorResponseHelper(res, 404, "This creator isn't accepting tips right now.");
+    }
+    const u = creator.dataValues as Record<string, any>;
+
+    // ── Amount validation ──
+    const rawAmt = Number(amount);
+    if (!Number.isFinite(rawAmt) || rawAmt <= 0) {
+      return errorResponseHelper(res, 400, "Please enter a valid amount.");
+    }
+    const amt = Math.round(rawAmt * 100) / 100;
+    const minAmt = Number(u.support_widget_min_amount) > 0 ? Number(u.support_widget_min_amount) : 1;
+    const widgetCurrency = String(u.support_widget_currency || "USD").toUpperCase();
+    if (amt < minAmt) {
+      return errorResponseHelper(res, 400, `Minimum is ${minAmt} ${widgetCurrency}.`);
+    }
+    if (amt > 999999999) {
+      return errorResponseHelper(res, 400, "Amount is too large.");
+    }
+
+    // Resolve the creator's company (first/primary)
+    const company = await companyModel.findOne({
+      where: { user_id: u.user_id },
+      order: [["company_id", "ASC"]],
+    });
+    if (!company) {
+      return errorResponseHelper(res, 400, "This creator isn't set up to receive payments yet.");
+    }
+    const company_id = company.dataValues.company_id;
+
+    // Configured wallet currencies for that company
+    const cryptoTypes = ['BTC', 'ETH', 'LTC', 'DOGE', 'TRX', 'BCH', 'USDT-TRC20', 'USDT-ERC20', 'USDC-ERC20', 'SOL', 'XRP', 'RLUSD', 'RLUSD-ERC20', 'POLYGON', 'USDT-POLYGON'];
+    const wallets = await userWalletModel.findAll({
+      where: {
+        user_id: u.user_id,
+        company_id,
+        wallet_type: { [Op.in]: cryptoTypes },
+        wallet_address: { [Op.not]: null },
+      },
+      attributes: ["wallet_type"],
+    });
+    if (!wallets.length) {
+      return errorResponseHelper(res, 400, "This creator hasn't configured a payout wallet yet.");
+    }
+    const allConfiguredCurrencies = [...new Set(wallets.map((w) => (w.dataValues as { wallet_type: string }).wallet_type))];
+
+    // ── Donor fields (sanitized) ──
+    const dName = donor_name ? String(donor_name).trim().slice(0, 100) : null;
+    const allowMsg = u.support_widget_allow_message !== false;
+    const dMsg = (allowMsg && donor_message) ? String(donor_message).trim().slice(0, 280) : null;
+    const anon = Boolean(is_anonymous);
+
+    // Style-derived default title
+    const STYLE_TITLES: Record<string, string> = { coffee: "Buy me a coffee", tip: "Send a tip", support: "Support me" };
+    const jarTitle = (u.support_widget_label && String(u.support_widget_label).trim())
+      || STYLE_TITLES[String(u.support_widget_style || "coffee")]
+      || "Support me";
+
+    let presetsArr: number[] = [];
+    if (Array.isArray(u.support_widget_preset_amounts)) {
+      presetsArr = (u.support_widget_preset_amounts as unknown[]).map((v) => Number(v)).filter((n) => Number.isFinite(n) && n > 0);
+    }
+    const presetsCsv = presetsArr.length ? presetsArr.join(",") : null;
+
+    // Creator page URL (used as "back to campaign" target on the success screen)
+    const creatorPageUrl = (process.env.FRONTEND_URL || process.env.SERVER_URL || "").trim().replace(/\/$/, "") + "/" + u.handle;
+
+    // ── Find or lazily create the hidden singleton tip-jar parent ──
+    let tipJar = await paymentLinkModel.findOne({
+      where: { user_id: u.user_id, is_tip_jar: true, parent_link_id: null },
+    });
+    if (!tipJar) {
+      tipJar = await paymentLinkModel.create({
+        transaction_id: crypto.randomUUID(),
+        email: null,
+        allowedModes: "crypto",
+        base_amount: 0,
+        base_currency: widgetCurrency,
+        user_id: u.user_id,
+        adm_id: u.user_id,
+        company_id,
+        payment_link: creatorPageUrl,
+        description: jarTitle,
+        expires_at: null,
+        fee_payer: "company",
+        apply_tax: false,
+        accepted_currencies: null, // null = all configured
+        customer_name: null,
+        link_type: "donation",
+        is_tip_jar: true,
+        title: jarTitle,
+        goal_amount: null,
+        preset_amounts: presetsCsv,
+        min_amount: minAmt,
+        allow_custom_amount: true,
+        show_progress: false,
+        show_supporters: u.support_widget_show_supporters !== false,
+        auto_close_at_goal: false,
+        campaign_image: null,
+      });
+    } else {
+      // Keep the jar in sync with the latest widget config (best-effort)
+      await paymentLinkModel.update(
+        {
+          title: jarTitle,
+          description: jarTitle,
+          base_currency: widgetCurrency,
+          min_amount: minAmt,
+          preset_amounts: presetsCsv,
+          payment_link: creatorPageUrl,
+          show_supporters: u.support_widget_show_supporters !== false,
+        },
+        { where: { link_id: tipJar.dataValues.link_id } }
+      );
+    }
+    const p = tipJar.dataValues as Record<string, any>;
+
+    // ── Create the contribution child (mirrors startDonation) ──
+    const uniqueRef = crypto.randomBytes(24).toString("hex");
+    const childPayload = {
+      transaction_id: crypto.randomUUID(),
+      email: null,
+      allowedModes: "crypto",
+      base_amount: amt,
+      base_currency: widgetCurrency,
+      user_id: u.user_id,
+      adm_id: u.user_id,
+      company_id,
+      payment_link: (process.env.CHECKOUT_URL || "").trim().replace(/\/$/, "") + "/pay?d=" + uniqueRef,
+      description: jarTitle,
+      expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      callback_url: null,
+      redirect_url: null,
+      webhook_url: null,
+      fee_payer: "company",
+      apply_tax: false,
+      accepted_currencies: null,
+      customer_name: anon ? null : dName,
+      link_type: "contribution",
+      parent_link_id: p.link_id,
+      donor_name: dName,
+      donor_message: dMsg,
+      is_anonymous: anon,
+    };
+
+    const child = await paymentLinkModel.create(childPayload);
+
+    const redisPayload = {
+      ...childPayload,
+      pathType: "createLink",
+      link_id: child.dataValues.link_id,
+      available_currencies: allConfiguredCurrencies,
+      all_configured_currencies: allConfiguredCurrencies,
+      createdAt: new Date().toISOString(),
+    };
+    await setRedisItem("customer-" + uniqueRef, redisPayload);
+
+    cronLogger.info(
+      `[startTip] Tip ${child.dataValues.link_id} (${amt} ${widgetCurrency}) for creator @${handle} via jar ${p.link_id}${dName ? ` by ${anon ? "anonymous" : dName}` : ""}`
+    );
+
+    return successResponseHelper(res, 200, "Tip started", {
+      d: uniqueRef,
+      payment_link: childPayload.payment_link,
+      amount: amt,
+      currency: widgetCurrency,
+    });
+  } catch (e) {
+    handleControllerError(res, e, apiLogger, {});
+  }
+};
+
+// ═══════════════════════════════════════════════════════════════════════════
 // CAMPAIGN COVER IMAGE UPLOAD (authenticated, uses shared uploadImage multer)
 // Returns an absolute URL served through /api/static/images (works behind
 // both the preview ingress and the production nginx, mirroring company logos).
@@ -1810,7 +2011,10 @@ export const getCreatorProfile = async (req: express.Request, res: express.Respo
     if (!handle) return errorResponseHelper(res, 400, "Handle is required");
 
     const creator = (await sequelize.query(
-      `SELECT user_id, name, photo, bio, handle, creator_page_enabled, cover_image, social_links
+      `SELECT user_id, name, photo, bio, handle, creator_page_enabled, cover_image, social_links,
+              support_widget_enabled, support_widget_style, support_widget_label,
+              support_widget_preset_amounts, support_widget_currency, support_widget_min_amount,
+              support_widget_allow_message, support_widget_thanks_message, support_widget_show_supporters
        FROM tbl_user
        WHERE LOWER(handle) = :handle AND creator_page_enabled = true
        LIMIT 1`,
@@ -1824,6 +2028,15 @@ export const getCreatorProfile = async (req: express.Request, res: express.Respo
       creator_page_enabled: boolean;
       cover_image: string | null;
       social_links: Record<string, string> | null;
+      support_widget_enabled: boolean | null;
+      support_widget_style: string | null;
+      support_widget_label: string | null;
+      support_widget_preset_amounts: unknown;
+      support_widget_currency: string | null;
+      support_widget_min_amount: number | string | null;
+      support_widget_allow_message: boolean | null;
+      support_widget_thanks_message: string | null;
+      support_widget_show_supporters: boolean | null;
     }>;
 
     if (!creator.length) {
@@ -1846,7 +2059,11 @@ export const getCreatorProfile = async (req: express.Request, res: express.Respo
     for (const r of rows) {
       const d = r.dataValues as Record<string, any>;
       if (d.expires_at && new Date(d.expires_at).getTime() < now) continue;
-      const isDonation = d.link_type === "donation";
+      // Decision (Session 40): the creator page shows the Support Widget ONLY.
+      // Donation campaigns (incl. the hidden tip-jar parent) never surface here —
+      // they live purely as shareable/embeddable payment links.
+      if (d.link_type === "donation" || d.is_tip_jar) continue;
+      const isDonation = false;
       const currency = d.base_currency || "USD";
       let raised = 0, supporters = 0, progress: number | null = null, closed = false;
       if (isDonation) {
@@ -1878,6 +2095,56 @@ export const getCreatorProfile = async (req: express.Request, res: express.Respo
     // Donation campaigns first, then reusable links
     links.sort((a, b) => (a.type === "donation" ? -1 : 1) - (b.type === "donation" ? -1 : 1));
 
+    // ── Support Widget (Tip / Buy-me-a-coffee) — creator-exclusive ──
+    let supportWidget: Record<string, unknown> | null = null;
+    if (c.support_widget_enabled) {
+      let presets: number[] = [];
+      const rawPresets = c.support_widget_preset_amounts;
+      if (Array.isArray(rawPresets)) {
+        presets = (rawPresets as unknown[]).map((v) => Number(v)).filter((n) => Number.isFinite(n) && n > 0);
+      } else if (typeof rawPresets === "string" && rawPresets) {
+        try {
+          const parsed = JSON.parse(rawPresets);
+          if (Array.isArray(parsed)) presets = parsed.map((v: unknown) => Number(v)).filter((n: number) => Number.isFinite(n) && n > 0);
+        } catch {
+          presets = String(rawPresets).split(",").map((s) => Number(s.trim())).filter((n) => Number.isFinite(n) && n > 0);
+        }
+      }
+      if (presets.length === 0) presets = [3, 5, 10, 25];
+
+      const showSupporters = c.support_widget_show_supporters !== false;
+      let supportersCount: number | null = null;
+      let raisedAmount: number | null = null;
+      if (showSupporters) {
+        const jar = await paymentLinkModel.findOne({
+          where: { user_id: c.user_id, is_tip_jar: true, parent_link_id: null },
+          attributes: ["link_id"],
+        });
+        if (jar) {
+          const agg = await getDonationAggregates(jar.dataValues.link_id);
+          supportersCount = agg.supporters_count;
+          raisedAmount = agg.raised_amount;
+        } else {
+          supportersCount = 0;
+          raisedAmount = 0;
+        }
+      }
+
+      supportWidget = {
+        enabled: true,
+        style: c.support_widget_style || "coffee",
+        label: c.support_widget_label || null,
+        preset_amounts: presets,
+        currency: (c.support_widget_currency || "USD").toUpperCase(),
+        min_amount: Number(c.support_widget_min_amount) > 0 ? Number(c.support_widget_min_amount) : 1,
+        allow_message: c.support_widget_allow_message !== false,
+        thanks_message: c.support_widget_thanks_message || null,
+        show_supporters: showSupporters,
+        supporters_count: supportersCount,
+        raised_amount: raisedAmount,
+      };
+    }
+
     // Best-effort visit counter (redis). Fire-and-forget: never let this fail the SSR fetch.
     try {
       const ymd = new Date().toISOString().slice(0, 10);
@@ -1897,6 +2164,7 @@ export const getCreatorProfile = async (req: express.Request, res: express.Respo
         cover_image: c.cover_image || null,
         social_links: (c.social_links && typeof c.social_links === "object") ? c.social_links : {},
       },
+      support_widget: supportWidget,
       links,
     });
   } catch (e) {

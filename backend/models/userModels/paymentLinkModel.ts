@@ -230,6 +230,13 @@ const paymentLinkModel = sequelize.define(
       defaultValue: false,
       allowNull: true,
     },
+    // Marks the hidden singleton "tip jar" donation parent per creator (Support Widget).
+    // Excluded from merchant pay-links lists and the public creator page campaign list.
+    is_tip_jar: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: false,
+    },
   },
   {
     tableName: "tbl_payment_link",
