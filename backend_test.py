@@ -11,7 +11,7 @@ import time
 from typing import Dict, Any, Optional, List
 
 # Preview URL from test_result.md Session 40
-BASE_URL = "https://86e7ba10-df55-4649-b06f-88da6c8f2a67.preview.emergentagent.com"
+BASE_URL = "https://payment-gateway-602.preview.emergentagent.com"
 API_URL = f"{BASE_URL}/api"
 
 # Test credentials (hostbay - has company + wallet + claimed creator handle "hostbay")

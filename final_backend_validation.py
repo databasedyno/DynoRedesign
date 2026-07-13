@@ -8,7 +8,7 @@ import requests
 import json
 import sys
 
-BACKEND_URL = "https://crypto-payment-hub-27.preview.emergentagent.com"
+BACKEND_URL = "https://payment-gateway-602.preview.emergentagent.com"
 
 def final_validation_tests():
     """Final validation of all review request requirements"""

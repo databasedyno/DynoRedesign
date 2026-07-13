@@ -3,7 +3,7 @@
 DynoPay Backend API Testing Script - Review Request Specific
 Tests the exact endpoints mentioned in the review request after checkout crypto selection fixes:
 
-Target URL: https://crypto-payment-hub-27.preview.emergentagent.com/api
+Target URL: https://payment-gateway-602.preview.emergentagent.com/api
 
 Test these endpoints:
 1. GET /api/ — Health check (should return 200 with status: "operational")
@@ -21,7 +21,7 @@ import json
 from datetime import datetime
 
 # Target API base URL
-BASE_URL = "https://crypto-payment-hub-27.preview.emergentagent.com/api"
+BASE_URL = "https://payment-gateway-602.preview.emergentagent.com/api"
 
 def test_review_request_endpoints():
     """Test the exact endpoints specified in the review request"""
