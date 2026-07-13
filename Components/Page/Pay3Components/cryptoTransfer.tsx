@@ -111,6 +111,25 @@ interface CryptoTransferProps {
   email?: string;
   transactionId?: string;
   customerName?: string;
+  // Contribution context — donation-flavored success card when present
+  linkType?: string;
+  contributionInfo?: {
+    parent_link_id?: number | string | null;
+    campaign_title?: string | null;
+    campaign_description?: string | null;
+    campaign_image?: string | null;
+    campaign_currency?: string | null;
+    campaign_pay_url?: string | null;
+    goal_amount?: number | null;
+    raised_amount?: number | null;
+    supporters_count?: number | null;
+    progress_percent?: number | null;
+    show_progress?: boolean;
+    show_supporters?: boolean;
+    donor_name?: string | null;
+    donor_message?: string | null;
+    is_anonymous?: boolean;
+  } | null;
 }
 
 // Cache duration for rate prefetching
@@ -211,6 +230,8 @@ const CryptoTransfer = ({
   email,
   transactionId,
   customerName,
+  linkType,
+  contributionInfo,
 }: CryptoTransferProps) => {
   const { t } = useTranslation('common');
   const theme = useTheme();
@@ -1337,6 +1358,8 @@ const CryptoTransfer = ({
         amount={amountDisplay}
         email={email}
         customerName={customerName}
+        linkType={linkType}
+        contributionInfo={contributionInfo}
       />
     );
   }

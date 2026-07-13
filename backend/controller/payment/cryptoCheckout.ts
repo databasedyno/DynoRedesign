@@ -550,7 +550,60 @@ const getData = async (req: express.Request, res: express.Response) => {
     // Normalize USDC-ERC20 → USDC for checkout frontend compatibility
     // Checkout only has "USDC" in its cryptoOptions (no network selection for USDC)
     availableCurrenciesList = [...new Set(availableCurrenciesList.map(c => c === 'USDC-ERC20' ? 'USDC' : c))];
-    
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // CONTRIBUTION → parent-campaign lookup. When this Redis session belongs to
+    // a `contribution` child link (spawned by /pay/startDonation from a
+    // donation campaign), fetch the parent's title / goal / progress so the
+    // checkout stepper + success card can render donation-flavored copy
+    // ("Complete your donation" / "Thank you for your donation" / progress
+    // bar / share campaign, etc.). Non-fatal — falls back to standard copy
+    // on any failure.
+    // ═══════════════════════════════════════════════════════════════════════
+    let contributionInfo: Record<string, unknown> | null = null;
+    if (item.link_type === "contribution" && item.parent_link_id) {
+      try {
+        const [parentRow] = (await sequelize.query(
+          `SELECT title, description, goal_amount, campaign_image, base_currency, show_progress, show_supporters, payment_link
+           FROM tbl_payment_link WHERE link_id = :id AND link_type = 'donation'`,
+          { replacements: { id: item.parent_link_id }, type: QueryTypes.SELECT }
+        )) as Array<Record<string, unknown>>;
+        if (parentRow) {
+          const agg = await getDonationAggregates(Number(item.parent_link_id));
+          const goal =
+            parentRow.goal_amount != null ? Number(parentRow.goal_amount) : null;
+          const showProgress = parentRow.show_progress !== false;
+          const showSupporters = parentRow.show_supporters !== false;
+          contributionInfo = {
+            parent_link_id: item.parent_link_id,
+            campaign_title: (parentRow.title as string) || null,
+            campaign_description: (parentRow.description as string) || null,
+            campaign_image: (parentRow.campaign_image as string) || null,
+            campaign_currency:
+              (parentRow.base_currency as string) || item.base_currency || "USD",
+            campaign_pay_url: (parentRow.payment_link as string) || null,
+            goal_amount: goal,
+            raised_amount: showProgress ? agg.raised_amount : null,
+            supporters_count: showSupporters ? agg.supporters_count : null,
+            progress_percent:
+              showProgress && goal && goal > 0
+                ? Math.min(100, Math.round((agg.raised_amount / goal) * 100))
+                : null,
+            show_progress: showProgress,
+            show_supporters: showSupporters,
+            donor_name: (item.donor_name as string) || null,
+            donor_message: (item.donor_message as string) || null,
+            is_anonymous: item.is_anonymous === true,
+          };
+        }
+      } catch (e) {
+        cronLogger.warn(
+          `[getData] Failed to fetch contribution parent info for link ${item.parent_link_id}:`,
+          e
+        );
+      }
+    }
+
     if (item.pathType === "createLink") {
       payload = {
         amount: amount, // Use the converted number instead of item.base_amount
@@ -619,6 +672,12 @@ const getData = async (req: express.Request, res: express.Response) => {
         // ── Donation campaign block (multi-use links; checkout renders the
         //    campaign view and calls /pay/startDonation to begin a payment) ──
         ...(donationInfo && { is_donation: true, donation: donationInfo }),
+        // ── Link type — enables donation-flavored copy on the checkout &
+        //    success screens for contribution child links ──
+        link_type: (item.link_type as string) || "standard",
+        // ── Contribution block — parent campaign info + donor context for
+        //    donation-flavored copy throughout the child link's checkout ──
+        ...(contributionInfo && { contribution: contributionInfo }),
       };
     } else {
       // Validate customer_id exists before calling getAccessToken

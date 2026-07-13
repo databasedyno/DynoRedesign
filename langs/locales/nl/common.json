@@ -49,7 +49,12 @@
     "secureTransfer": "Veilige bankoverschrijving met automatische bevestiging. U hoeft ons niet te informeren!",
     "madePayment": "Ik heb de betaling gedaan",
     "noAccountToCopy": "Geen rekeningnummer om te kopiëren.",
-    "paymentNotVerified": "Betaling niet geverifieerd."
+    "paymentNotVerified": "Betaling niet geverifieerd.",
+    "titleContribution": "Voltooi je donatie",
+    "subtitleContribution": "steun {{campaign}} met crypto. Elke bijdrage helpt.",
+    "subtitleContributionDefault": "steun deze campagne met crypto. Elke bijdrage helpt.",
+    "donationDetails": "Donatiedetails",
+    "donateWithCrypto": "Doneer met crypto"
   },
   "crypto": {
     "title": "Cryptovaluta",
@@ -148,7 +153,19 @@
     "cryptoReceived": "Crypto Ontvangen",
     "transferExpected": "Overschrijving Verwacht",
     "paymentConfirmed": "Uw betaling is bevestigd.",
-    "transferPending": "Als u de overschrijving heeft voltooid, is geen verdere actie nodig. We bevestigen uw betaling zodra deze binnenkomt."
+    "transferPending": "Als u de overschrijving heeft voltooid, is geen verdere actie nodig. We bevestigen uw betaling zodra deze binnenkomt.",
+    "donationThanks": "Bedankt voor je donatie!",
+    "donationThanksName": "Bedankt voor je donatie, {{name}}!",
+    "donatedToCampaign": "Je hebt {{amount}} gedoneerd aan {{campaign}}.",
+    "donatedAmount": "Je hebt {{amount}} gedoneerd. Elke bijdrage helpt.",
+    "donationConfirmed": "Je donatie is ontvangen.",
+    "donorMessageLabel": "Jouw bericht",
+    "campaignProgress": "Voortgang van de campagne",
+    "campaignRaised": "{{raised}} van {{goal}} {{currency}} opgehaald",
+    "campaignSupportersCount": "{{count}} supporters",
+    "shareCampaign": "Deel deze campagne",
+    "backToCampaign": "Terug naar campagne",
+    "donationShareText": "Ik heb net gedoneerd aan {{campaign}} op Dynopay — doe je mee?"
   },
   "currency": {
     "USD": "Amerikaanse Dollar (USD)",

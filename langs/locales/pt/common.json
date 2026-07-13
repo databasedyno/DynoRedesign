@@ -70,7 +70,12 @@
     "secureTransfer": "Transferência bancária segura com confirmação automática. Não precisa nos avisar!",
     "madePayment": "Efetuei o pagamento",
     "noAccountToCopy": "Nenhum número de conta para copiar.",
-    "paymentNotVerified": "Pagamento não verificado."
+    "paymentNotVerified": "Pagamento não verificado.",
+    "titleContribution": "Conclua a sua doação",
+    "subtitleContribution": "apoie {{campaign}} com cripto. Cada contribuição ajuda.",
+    "subtitleContributionDefault": "apoie esta campanha com cripto. Cada contribuição ajuda.",
+    "donationDetails": "Detalhes da doação",
+    "donateWithCrypto": "Doar com cripto"
   },
   "crypto": {
     "title": "Criptomoeda",
@@ -169,7 +174,19 @@
     "cryptoReceived": "Cripto Recebida",
     "transferExpected": "Transferência Esperada",
     "paymentConfirmed": "O seu pagamento foi confirmado.",
-    "transferPending": "Se completou a transferência, não é necessária mais nenhuma ação. Confirmaremos o seu pagamento assim que chegar."
+    "transferPending": "Se completou a transferência, não é necessária mais nenhuma ação. Confirmaremos o seu pagamento assim que chegar.",
+    "donationThanks": "Obrigado pela sua doação!",
+    "donationThanksName": "Obrigado pela sua doação, {{name}}!",
+    "donatedToCampaign": "Doou {{amount}} para {{campaign}}.",
+    "donatedAmount": "Doou {{amount}}. Cada contribuição ajuda.",
+    "donationConfirmed": "A sua doação foi recebida.",
+    "donorMessageLabel": "A sua mensagem",
+    "campaignProgress": "Progresso da campanha",
+    "campaignRaised": "{{raised}} de {{goal}} {{currency}} arrecadados",
+    "campaignSupportersCount": "{{count}} apoiantes",
+    "shareCampaign": "Partilhar esta campanha",
+    "backToCampaign": "Voltar à campanha",
+    "donationShareText": "Acabei de doar para {{campaign}} no Dynopay — junte-se a mim!"
   },
   "currency": {
     "USD": "Dólar Americano (USD)",

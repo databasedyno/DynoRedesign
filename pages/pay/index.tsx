@@ -304,6 +304,32 @@ const Payment = () => {
   const [countdown, setCountdown] = useState<string>('')
   const [copySnackbar, setCopySnackbar] = useState(false)
 
+  // ── Contribution-aware state (donation child link). When this checkout
+  //    session was spawned from a donation campaign via /pay/startDonation,
+  //    linkType='contribution' and contributionInfo carries parent-campaign
+  //    context (title, goal, progress, donor name/message). Used to swap
+  //    generic "Complete your payment" copy for donation-flavored copy on the
+  //    checkout title/subtitle/button and success card. ──
+  const [linkType, setLinkType] = useState<string>('standard')
+  const [contributionInfo, setContributionInfo] = useState<{
+    parent_link_id?: number | string | null
+    campaign_title?: string | null
+    campaign_description?: string | null
+    campaign_image?: string | null
+    campaign_currency?: string | null
+    campaign_pay_url?: string | null
+    goal_amount?: number | null
+    raised_amount?: number | null
+    supporters_count?: number | null
+    progress_percent?: number | null
+    show_progress?: boolean
+    show_supporters?: boolean
+    donor_name?: string | null
+    donor_message?: string | null
+    is_anonymous?: boolean
+  } | null>(null)
+  const isContribution = linkType === 'contribution' && !!contributionInfo
+
   // Incomplete payment state
   const [incompletePayment, setIncompletePayment] = useState<{
     exists: boolean;
@@ -521,6 +547,12 @@ const Payment = () => {
       setDescription(data.description || '')
       setOrderReference(data.order_reference || '')
       setCustomerName(data.customer_name || '')
+
+      // Capture contribution context (donation child link). When present,
+      // the checkout will render donation-flavored copy instead of generic
+      // "Complete your payment" strings.
+      setLinkType(String(data.link_type || 'standard'))
+      setContributionInfo(data.contribution || null)
       
       if (data.fee_info) {
         setFeeInfo({
@@ -801,16 +833,33 @@ const Payment = () => {
   // Total amount should be the sum of converted values (subtotal + tax + fee if customer pays)
   const totalAmount = subtotalAmount + taxAmount + (feeInfo?.fee_payer === 'customer' ? processingFee : 0)
 
-  // Get context-aware title
+  // Get context-aware title (donation-flavored for contribution links)
   const getTitle = () => {
+    if (isContribution) {
+      return t('checkout.titleContribution', {
+        defaultValue: 'Complete your donation',
+      })
+    }
     if (description) return t('checkout.title')
     if (merchantInfo?.name) return t('checkout.titleComplete')
     return t('checkout.titleCheckout')
   }
 
-  // Get subtitle with merchant name and customer personalization
+  // Get subtitle with merchant/campaign name and customer personalization
   const getSubtitle = () => {
     const greeting = customerName ? `Hi ${customerName}, ` : ''
+    if (isContribution) {
+      const campaign = contributionInfo?.campaign_title || merchantInfo?.name || ''
+      if (campaign) {
+        return greeting + t('checkout.subtitleContribution', {
+          campaign,
+          defaultValue: `support ${campaign} with crypto. Every contribution helps.`,
+        })
+      }
+      return greeting + t('checkout.subtitleContributionDefault', {
+        defaultValue: 'support this campaign with crypto. Every contribution helps.',
+      })
+    }
     if (merchantInfo?.name) {
       return greeting + t('checkout.subtitle', { merchant: merchantInfo.name }).replace(/^Complete/, 'complete')
     }
@@ -832,10 +881,24 @@ const Payment = () => {
     if (typeof window === 'undefined' || window.parent === window.self) return;
     if (!(isSuccess || alreadyPaid)) return;
     try {
-      window.parent.postMessage(
-        { source: 'dynopay', v: 1, type: 'dynopay:success', paymentId: linkId || null },
-        '*'
-      );
+      // Base success signal (webhook remains the source of truth)
+      const successMsg: Record<string, unknown> = {
+        source: 'dynopay',
+        v: 1,
+        type: 'dynopay:success',
+        paymentId: linkId || null,
+      };
+      // Enrich for donation contributions so the parent iframe can update
+      // any campaign progress UI without another round-trip.
+      if (isContribution && contributionInfo) {
+        successMsg.linkType = 'contribution';
+        successMsg.parent_link_id = contributionInfo.parent_link_id ?? null;
+        successMsg.campaign_title = contributionInfo.campaign_title ?? null;
+        successMsg.amount = walletState?.amount ?? null;
+        successMsg.currency = walletState?.currency ?? null;
+        successMsg.progress_percent = contributionInfo.progress_percent ?? null;
+      }
+      window.parent.postMessage(successMsg, '*');
       if (redirectUrl) {
         window.parent.postMessage(
           { source: 'dynopay', v: 1, type: 'dynopay:redirect', url: redirectUrl },
@@ -845,7 +908,7 @@ const Payment = () => {
     } catch {
       /* ignore */
     }
-  }, [isEmbed, isSuccess, alreadyPaid, redirectUrl, linkId]);
+  }, [isEmbed, isSuccess, alreadyPaid, redirectUrl, linkId, isContribution, contributionInfo, walletState]);
 
   // ─── Initial fetch gate ───────────────────────────────────────────
   // Show a neutral loader until pay/getData resolves. Rendering the checkout
@@ -905,6 +968,8 @@ const Payment = () => {
               email={tokenData?.email}
               customerName={customerName}
               paidAt={alreadyPaid.paid_at}
+              linkType={linkType}
+              contributionInfo={contributionInfo}
             />
           </Box>
         </Box>
@@ -1088,7 +1153,9 @@ const Payment = () => {
                       letterSpacing={0.5}
                       mb={1}
                     >
-                      {t('checkout.orderDetails')}
+                      {isContribution
+                        ? t('checkout.donationDetails', { defaultValue: 'Donation Details' })
+                        : t('checkout.orderDetails')}
                     </Typography>
                     
                     {description && (
@@ -1509,7 +1576,9 @@ const Payment = () => {
                         },
                       }}
                     >
-                      {t('checkout.cryptocurrency')}
+                      {isContribution
+                        ? t('checkout.donateWithCrypto', { defaultValue: 'Donate with crypto' })
+                        : t('checkout.cryptocurrency')}
                     </Button>
                   </Box>
                 </Box>
@@ -1565,6 +1634,8 @@ const Payment = () => {
                 email={tokenData?.email}
                 transactionId={linkId}
                 customerName={customerName}
+                linkType={linkType}
+                contributionInfo={contributionInfo}
               />
             )
           ) : activeStep === 2 ? (
@@ -1578,6 +1649,8 @@ const Payment = () => {
               amount={`${formatWithSeparators(Number(totalAmount), displayCurrency)} ${displayCurrency}`}
               email={tokenData?.email}
               customerName={customerName}
+              linkType={linkType}
+              contributionInfo={contributionInfo}
             />
           ) : null}
         </Box>

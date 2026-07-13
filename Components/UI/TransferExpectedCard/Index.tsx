@@ -30,6 +30,30 @@ interface TransferExpectedCardProps {
    *  the success card shows a small "Paid X days ago (Mon DD, YYYY)" line
    *  under the amount. Helps merchants disambiguate revisits of the same link. */
   paidAt?: string | null
+  /** Link type — 'standard' | 'donation' | 'contribution'. When 'contribution',
+   *  the success card renders donation-flavored copy ("Thank you for your
+   *  donation!" / "You donated $X to {campaign}") and reveals the donor
+   *  message + campaign progress + share/back-to-campaign CTAs. */
+  linkType?: string
+  /** Contribution context — parent campaign info + donor message. Only used
+   *  when linkType==='contribution'. */
+  contributionInfo?: {
+    parent_link_id?: number | string | null
+    campaign_title?: string | null
+    campaign_description?: string | null
+    campaign_image?: string | null
+    campaign_currency?: string | null
+    campaign_pay_url?: string | null
+    goal_amount?: number | null
+    raised_amount?: number | null
+    supporters_count?: number | null
+    progress_percent?: number | null
+    show_progress?: boolean
+    show_supporters?: boolean
+    donor_name?: string | null
+    donor_message?: string | null
+    is_anonymous?: boolean
+  } | null
 }
 
 export default function TransferExpectedCard({
@@ -43,6 +67,8 @@ export default function TransferExpectedCard({
   email,
   customerName,
   paidAt,
+  linkType,
+  contributionInfo,
 }: TransferExpectedCardProps) {
   const theme = useTheme()
   const isDark = theme.palette.mode === 'dark'
@@ -288,9 +314,15 @@ export default function TransferExpectedCard({
               
               data-testid="success-title"
             >
-              {customerName 
-                ? t('success.paymentSuccessfulName', { name: customerName, defaultValue: `Payment Successful, ${customerName}!` })
-                : t('success.paymentSuccessful')
+              {linkType === 'contribution'
+                ? (customerName
+                    ? t('success.donationThanksName', { name: customerName, defaultValue: `Thank you for your donation, ${customerName}!` })
+                    : t('success.donationThanks', { defaultValue: 'Thank you for your donation!' })
+                  )
+                : (customerName
+                    ? t('success.paymentSuccessfulName', { name: customerName, defaultValue: `Payment Successful, ${customerName}!` })
+                    : t('success.paymentSuccessful')
+                  )
               }
             </Typography>
 
@@ -301,13 +333,143 @@ export default function TransferExpectedCard({
               mb={paidAtFormatted ? 1 : 3}
               
             >
-              {merchantName && amount
+              {linkType === 'contribution' && contributionInfo
+                ? (amount && contributionInfo.campaign_title
+                    ? t('success.donatedToCampaign', {
+                        amount,
+                        campaign: contributionInfo.campaign_title,
+                        defaultValue: `You donated ${amount} to ${contributionInfo.campaign_title}.`,
+                      })
+                    : amount
+                    ? t('success.donatedAmount', {
+                        amount,
+                        defaultValue: `You donated ${amount}. Every contribution helps.`,
+                      })
+                    : t('success.donationConfirmed', {
+                        defaultValue: 'Your donation has been received.',
+                      })
+                  )
+                : merchantName && amount
                 ? t('success.paidTo', { amount, merchant: merchantName })
                 : amount
                 ? t('success.paidAmount', { amount })
                 : t('success.paymentConfirmed')
               }
             </Typography>
+
+            {/* Donation extras — donor message (if not anonymous), campaign
+                progress (if merchant enabled show_progress), and share/back
+                CTAs. Only rendered for contribution links. */}
+            {linkType === 'contribution' && contributionInfo && (
+              <Box
+                data-testid="donation-success-extras"
+                sx={{
+                  mb: 3,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 1.5,
+                }}
+              >
+                {/* Donor message — shown when the donor left one and did NOT
+                    tick "donate anonymously" */}
+                {!contributionInfo.is_anonymous && contributionInfo.donor_message ? (
+                  <Box
+                    data-testid="donation-donor-message"
+                    sx={{
+                      textAlign: 'left',
+                      p: 1.5,
+                      borderRadius: '10px',
+                      border: `1px solid ${isDark ? theme.palette.divider : '#E9ECF2'}`,
+                      bgcolor: isDark ? 'rgba(255,255,255,0.02)' : '#FAFBFF',
+                    }}
+                  >
+                    <Typography
+                      fontSize={11}
+                      fontWeight={600}
+                      color={isDark ? theme.palette.text.secondary : '#666'}
+                      letterSpacing={0.4}
+                      textTransform='uppercase'
+                      mb={0.5}
+                    >
+                      {t('success.donorMessageLabel', { defaultValue: 'Your message' })}
+                    </Typography>
+                    <Typography
+                      fontSize={13.5}
+                      fontStyle='italic'
+                      color={theme.palette.text.primary}
+                      sx={{ lineHeight: 1.5 }}
+                    >
+                      &ldquo;{contributionInfo.donor_message}&rdquo;
+                    </Typography>
+                  </Box>
+                ) : null}
+
+                {/* Campaign progress — merchant-controlled via show_progress */}
+                {contributionInfo.show_progress &&
+                contributionInfo.progress_percent != null &&
+                contributionInfo.goal_amount != null ? (
+                  <Box
+                    data-testid="donation-campaign-progress"
+                    sx={{
+                      textAlign: 'left',
+                      p: 1.5,
+                      borderRadius: '10px',
+                      border: `1px solid ${isDark ? 'rgba(204,255,0,0.25)' : 'rgba(10,10,10,0.08)'}`,
+                      bgcolor: isDark ? 'rgba(204,255,0,0.06)' : 'rgba(204,255,0,0.10)',
+                    }}
+                  >
+                    <Box display='flex' alignItems='center' justifyContent='space-between' mb={0.75}>
+                      <Typography
+                        fontSize={11.5}
+                        fontWeight={700}
+                        color={isDark ? '#CCFF00' : theme.palette.text.primary}
+                        letterSpacing={0.3}
+                        textTransform='uppercase'
+                      >
+                        {t('success.campaignProgress', { defaultValue: 'Campaign progress' })}
+                      </Typography>
+                      <Typography fontSize={12} fontWeight={700} color={theme.palette.text.primary}>
+                        {contributionInfo.progress_percent}%
+                      </Typography>
+                    </Box>
+                    <Box
+                      sx={{
+                        width: '100%',
+                        height: 6,
+                        borderRadius: 999,
+                        bgcolor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(10,10,10,0.08)',
+                        overflow: 'hidden',
+                        mb: 0.75,
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          width: `${contributionInfo.progress_percent}%`,
+                          height: '100%',
+                          borderRadius: 999,
+                          bgcolor: '#CCFF00',
+                          transition: 'width 400ms ease-out',
+                        }}
+                      />
+                    </Box>
+                    <Typography fontSize={11.5} color={theme.palette.text.secondary}>
+                      {t('success.campaignRaised', {
+                        raised: (contributionInfo.raised_amount ?? 0).toLocaleString(),
+                        goal: (contributionInfo.goal_amount ?? 0).toLocaleString(),
+                        currency: contributionInfo.campaign_currency || 'USD',
+                        defaultValue: `${(contributionInfo.raised_amount ?? 0).toLocaleString()} of ${(contributionInfo.goal_amount ?? 0).toLocaleString()} ${contributionInfo.campaign_currency || 'USD'} raised`,
+                      })}
+                      {contributionInfo.show_supporters && contributionInfo.supporters_count
+                        ? ` · ${t('success.campaignSupportersCount', {
+                            count: contributionInfo.supporters_count,
+                            defaultValue: `${contributionInfo.supporters_count} supporter${contributionInfo.supporters_count === 1 ? '' : 's'}`,
+                          })}`
+                        : ''}
+                    </Typography>
+                  </Box>
+                ) : null}
+              </Box>
+            )}
 
             {/* Paid-at timestamp — appears only when `paidAt` prop is set.
                 Used on the "already-paid revisit" success card so merchants
@@ -484,6 +646,79 @@ export default function TransferExpectedCard({
                 >
                   {t('success.clickIfNotRedirected')}
                 </Typography>
+              </Box>
+            ) : linkType === 'contribution' && contributionInfo ? (
+              // Donation success — offer Share campaign + Back to campaign
+              // as first-class actions. Skip the generic "Done" button — a
+              // completed donation is a moment to encourage advocacy, not
+              // a modal to dismiss.
+              <Box display='flex' flexDirection='column' gap={1.25}>
+                <Button
+                  fullWidth
+                  variant='contained'
+                  data-testid="donation-share-btn"
+                  onClick={async () => {
+                    const url = contributionInfo?.campaign_pay_url || (typeof window !== 'undefined' ? window.location.href : '');
+                    const campaign = contributionInfo?.campaign_title || 'this campaign';
+                    const shareText = t('success.donationShareText', {
+                      campaign,
+                      defaultValue: `I just donated to ${campaign} on Dynopay — join me!`,
+                    });
+                    try {
+                      if (typeof navigator !== 'undefined' && (navigator as any).share) {
+                        await (navigator as any).share({ title: campaign, text: shareText, url });
+                        return;
+                      }
+                    } catch { /* user cancelled */ }
+                    // Fallback → clipboard
+                    try {
+                      await navigator.clipboard.writeText(`${shareText} ${url}`.trim());
+                      setCopySnackbar(true);
+                    } catch { /* ignore */ }
+                  }}
+                  startIcon={<Icon icon="mdi:share-variant" width={18} />}
+                  sx={{
+                    backgroundColor: theme.palette.primary.main,
+                    color: theme.palette.primary.contrastText,
+                    textTransform: 'none',
+                    borderRadius: 30,
+                    py: 1.75,
+                    fontSize: '15px',
+                    fontWeight: 600,
+                    '&:hover': {
+                      backgroundColor: (theme.palette.primary as any).hover || theme.palette.primary.dark
+                    }
+                  }}
+                >
+                  {t('success.shareCampaign', { defaultValue: 'Share this campaign' })}
+                </Button>
+                {contributionInfo?.campaign_pay_url ? (
+                  <Button
+                    fullWidth
+                    variant='outlined'
+                    data-testid="donation-back-btn"
+                    onClick={() => {
+                      const url = contributionInfo?.campaign_pay_url;
+                      if (url) window.location.href = url;
+                    }}
+                    startIcon={<Icon icon="mdi:arrow-left" width={18} />}
+                    sx={{
+                      textTransform: 'none',
+                      borderRadius: 30,
+                      py: 1.5,
+                      fontSize: '14px',
+                      fontWeight: 600,
+                      borderColor: isDark ? 'rgba(255,255,255,0.24)' : 'rgba(10,10,10,0.16)',
+                      color: theme.palette.text.primary,
+                      '&:hover': {
+                        borderColor: theme.palette.primary.main,
+                        bgcolor: isDark ? 'rgba(204,255,0,0.06)' : 'rgba(204,255,0,0.10)',
+                      },
+                    }}
+                  >
+                    {t('success.backToCampaign', { defaultValue: 'Back to campaign' })}
+                  </Button>
+                ) : null}
               </Box>
             ) : (
               // Without redirect: Show "Done" button
