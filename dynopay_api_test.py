@@ -10,7 +10,7 @@ import sys
 from datetime import datetime
 
 # Configuration
-BASE_URL = "https://multi-chain-checkout-1.preview.emergentagent.com/api"
+BASE_URL = "https://do-fix-issue.preview.emergentagent.com/api"
 TIMEOUT = 30
 
 def log_test(test_name, status, details=""):

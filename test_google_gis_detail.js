@@ -5,7 +5,7 @@
 
 const { chromium } = require('playwright');
 
-const PREVIEW_URL = 'https://multi-chain-checkout-1.preview.emergentagent.com';
+const PREVIEW_URL = 'https://do-fix-issue.preview.emergentagent.com';
 
 async function testGISIntegration() {
   console.log('='.repeat(80));

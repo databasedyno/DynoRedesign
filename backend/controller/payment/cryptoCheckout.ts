@@ -127,6 +127,14 @@ const getData = async (req: express.Request, res: express.Response) => {
       customer_name?: string;  // Optional customer name
       language?: string;  // Customer's preferred language captured at checkout
       link_type?: string;  // 'standard' | 'donation' (campaign parent) | 'contribution'
+      // ── Contribution (donation child) fields ─────────────────────────────
+      // Populated on Redis sessions spawned from a donation campaign (child
+      // 'contribution' link). Used by getData() to render donation-flavored
+      // copy on the checkout / success screens.
+      parent_link_id?: number | string | null;
+      donor_name?: string | null;
+      donor_message?: string | null;
+      is_anonymous?: boolean | null;
     }
 
     const item = await getRedisItem("customer-" + data) as RedisPaymentItem | null;
