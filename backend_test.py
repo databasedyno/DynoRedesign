@@ -11,7 +11,7 @@ import time
 from typing import Dict, Any, Optional, List
 
 # Preview URL from test_credentials.md
-BASE_URL = "https://a7db9ec0-f8b8-422b-bb1a-ffbc8423c473.preview.emergentagent.com"
+BASE_URL = "https://crypto-payment-hub-27.preview.emergentagent.com"
 API_URL = f"{BASE_URL}/api"
 
 # Test credentials (hostbay - has company + wallet)
