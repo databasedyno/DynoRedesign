@@ -22,6 +22,14 @@ export const SUPPORTED_BASE_CURRENCIES = [
   'AED',  // UAE Dirham
 ];
 
+// Supported CURATED display currencies for the merchant dashboard (Session 39).
+// Distinct from SUPPORTED_BASE_CURRENCIES (API-key pricing currencies). This is
+// a presentation preference only — it never affects stored data or pricing.
+export const SUPPORTED_DISPLAY_CURRENCIES = ['USD', 'EUR', 'GBP', 'NGN', 'CAD', 'AUD'];
+
+export const isSupportedDisplayCurrency = (c?: string | null): boolean =>
+  !!c && SUPPORTED_DISPLAY_CURRENCIES.includes(String(c).toUpperCase());
+
 // Currency symbols mapping
 const CURRENCY_SYMBOLS: Record<string, string> = {
   // Supported Base Currencies
@@ -136,6 +144,7 @@ import currencyConvert from "../helper/currencyConvert";
 import { QueryTypes } from "sequelize";
 import sequelizeInstance from "./dbInstance";
 import { log } from "./loggers";
+import { getRedisItem, setRedisItemWithTTL } from "./redisInstance";
 
 /**
  * Get a company's preferred base currency from their API key config.
@@ -153,6 +162,86 @@ export const getCompanyBaseCurrency = async (companyId: number | string | null |
     log(`[getCompanyBaseCurrency] Query failed for company ${companyId}, defaulting to USD`, 'warn');
     return 'USD';
   }
+};
+
+/**
+ * Get a company's DASHBOARD DISPLAY currency (Session 39).
+ *
+ * This is a presentation-only preference, decoupled from the API key's pricing
+ * `base_currency`. Resolution order:
+ *   1. tbl_company.display_currency (if a supported display currency)
+ *   2. legacy API-key base_currency (clamped to supported) — safety fallback
+ *   3. 'USD'
+ * NEVER affects stored data or payment pricing — display conversions only.
+ */
+export const getCompanyDisplayCurrency = async (
+  companyId: number | string | null | undefined
+): Promise<string> => {
+  if (!companyId) return 'USD';
+  try {
+    const rows = (await sequelizeInstance.query(
+      `SELECT display_currency FROM tbl_company WHERE company_id = :companyId LIMIT 1`,
+      { replacements: { companyId }, type: QueryTypes.SELECT }
+    )) as Array<{ display_currency: string | null }>;
+    const pref = rows.length > 0 ? rows[0].display_currency : null;
+    if (isSupportedDisplayCurrency(pref)) return String(pref).toUpperCase();
+  } catch (err) {
+    log(`[getCompanyDisplayCurrency] Query failed for company ${companyId}`, 'warn');
+  }
+  // Fallback to the legacy API-key currency (clamped), else USD.
+  try {
+    const base = await getCompanyBaseCurrency(companyId);
+    if (isSupportedDisplayCurrency(base)) return String(base).toUpperCase();
+  } catch {
+    /* ignore */
+  }
+  return 'USD';
+};
+
+/**
+ * Cached USD → target-fiat rate (Redis, ~10 min TTL). Keeps the dashboard fast
+ * and avoids burning FX-provider quota per request. Returns 1 on total failure
+ * (i.e. amounts shown unconverted) rather than throwing.
+ */
+export const getUsdToFiatRate = async (target: string): Promise<number> => {
+  const cur = String(target || 'USD').toUpperCase();
+  if (cur === 'USD') return 1;
+  const key = `fxrate:USD:${cur}`;
+  try {
+    const cached = await getRedisItem(key);
+    if (cached && Number(cached.rate) > 0) return Number(cached.rate);
+  } catch {
+    /* cache miss / error → fetch live */
+  }
+  try {
+    const { amount } = await convertToFiat('USD', cur, 1);
+    const rate = Number(amount) || 0;
+    if (rate > 0) {
+      try {
+        await setRedisItemWithTTL(key, { rate }, 600);
+      } catch {
+        /* non-fatal */
+      }
+      return rate;
+    }
+  } catch (err) {
+    log(`[getUsdToFiatRate] USD→${cur} conversion failed, using rate 1`, 'warn');
+  }
+  return 1;
+};
+
+/**
+ * Convert a USD amount into the merchant's display currency (cached rate).
+ * Returns the USD amount unchanged if target is USD or conversion is unavailable.
+ */
+export const convertUsdForDisplay = async (
+  usd: number,
+  target: string
+): Promise<number> => {
+  const cur = String(target || 'USD').toUpperCase();
+  if (!usd || cur === 'USD') return usd || 0;
+  const rate = await getUsdToFiatRate(cur);
+  return usd * rate;
 };
 
 /**

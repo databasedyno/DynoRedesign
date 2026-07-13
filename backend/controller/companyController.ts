@@ -7,7 +7,7 @@ import {
   successResponseHelper,
 } from "../helper";
 import { handleControllerError } from "../helper/controllerErrorHandler";
-import { formatAmountForDisplay, getCurrencyInfo, COMPANY_CURRENCY_QUERY, convertToFiat, getCompanyBaseCurrency } from "../utils/currencyUtils";
+import { formatAmountForDisplay, getCurrencyInfo, COMPANY_CURRENCY_QUERY, convertToFiat, getCompanyDisplayCurrency } from "../utils/currencyUtils";
 import jwt from "jsonwebtoken";
 import { IUserType } from "../utils/types";
 import { apiModel, companyModel, customerModel, customerWalletModel, userModel, stablecoinConversionModel, userWalletModel } from "../models";
@@ -761,7 +761,7 @@ const getTransactions = async (req: express.Request, res: express.Response) => {
     const id = req.params.id;
 
     // Get company's preferred currency
-    const preferredCurrency = await getCompanyBaseCurrency(id);
+    const preferredCurrency = await getCompanyDisplayCurrency(id);
 
     const resData = await sequelize.query(
       `
