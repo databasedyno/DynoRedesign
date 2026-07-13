@@ -121,9 +121,10 @@ Focus areas — the `pay/getData` contract is the ONLY backend surface that chan
 
 ### test_plan
   current_focus:
-    - "Backend: pay/getData contribution response contract (link_type + contribution block)"
-    - "End-to-end donation → contribution → getData → donation-flavored copy visible on child checkout"
-    - "Backward-compat: standard links & donation-parent links unchanged"
+    - "Frontend UI — donation-flavored copy on contribution checkout (title / subtitle / order-details header / pay button)"
+    - "Frontend UI — donation success card (donor message reveal, campaign progress bar, share/back CTAs)"
+    - "Frontend UI — Auto-API-Key provisioning `/developer-keys` — accessibility, mobile 390, regression"
+    - "Backward-compat: standard payment link checkout unchanged"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
