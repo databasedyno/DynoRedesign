@@ -1,5 +1,14 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
+# Defensive: never track any path whose name starts with '--' or '-'.
+# Reason: many shell commands (dash, git, coreutils) interpret leading '--' as
+# an end-of-options marker and leading '-' as a flag, which breaks scripts that
+# pass filenames as bare arguments (see 2026-07-13 push failure: `sh: 0:
+# Illegal option --` caused by an accidental './--version' directory left
+# behind by `husky --version` misinterpreting its arg as a target path).
+/--*
+/-*
+
 # IDE and editors
 .idea/
 .vscode/

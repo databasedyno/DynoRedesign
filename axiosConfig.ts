@@ -65,17 +65,34 @@ axiosBaseApi.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // Skip auth redirect for public pages (homepage, checkout, fees, etc.) — visitors are not logged in
-    const isCheckoutPage = typeof window !== "undefined" && window.location.pathname.startsWith("/pay");
+    // Skip auth redirect for public pages (homepage, checkout, fees, etc.) — visitors are not logged in.
+    //
+    // IMPORTANT (Session 43 bug fix, 2026-07-13): the checkout / payment surfaces are treated as
+    // "never redirect to /auth/login" regardless of whether a token exists in localStorage. A
+    // merchant previewing their own paylink (token in LS on the checkout subdomain) used to get
+    // bounced to /auth/login mid-checkout when any incidental API call returned 401 (e.g. the old
+    // LanguageSwitcher firing PUT /user/profile from /pay?d=…). Public checkout must be a hard
+    // boundary — customers on this page must never see a merchant login screen.
+    const pathname = typeof window !== "undefined" ? (window.location.pathname || "") : "";
+    const isCheckoutPage =
+      pathname === "/pay" ||
+      pathname.startsWith("/pay/") ||
+      pathname.startsWith("/pay-links/") ||
+      pathname.startsWith("/payment");
     const isPublicPage = typeof window !== "undefined" && (
-      ["/", "/fees", "/terms-conditions", "/privacy-policy", "/aml-policy", "/system-status", "/documentation", "/blog"].includes(window.location.pathname) ||
-      ["/help-support", "/blog/", "/for/", "/accept-crypto-payments-in/"].some((p) => window.location.pathname.startsWith(p))
+      ["/", "/fees", "/terms-conditions", "/privacy-policy", "/aml-policy", "/system-status", "/documentation", "/blog"].includes(pathname) ||
+      ["/help-support", "/blog/", "/for/", "/accept-crypto-payments-in/"].some((p) => pathname.startsWith(p))
     );
     const hasToken = typeof window !== "undefined" && !!localStorage.getItem("token");
 
     if (error.response?.status === 401 && !isAuthEndpoint(originalRequest?.url || "")) {
-      // On public/checkout pages without a token, don't redirect — just reject the error
-      if ((isCheckoutPage || isPublicPage) && !hasToken) {
+      // Checkout / payment surfaces: HARD boundary — never redirect, never clear session.
+      // The caller (a component on the pay page) gets the 401 rejection and can handle it locally.
+      if (isCheckoutPage) {
+        return Promise.reject(error);
+      }
+      // Other public pages: only exempt when unauthenticated.
+      if (isPublicPage && !hasToken) {
         return Promise.reject(error);
       }
 
@@ -179,7 +196,10 @@ axiosBaseApi.interceptors.response.use(
           typeof window !== "undefined"
             ? localStorage.getItem("token")
             : null;
-        if (token) {
+        // Checkout / payment surfaces: same hard boundary as the 401 branch above.
+        // Never call unAuthorizedHelper (which nukes the session + Router.replace("/auth/login"))
+        // from a public checkout page — visitors must never be dumped onto a merchant login.
+        if (token && !isCheckoutPage) {
           unAuthorizedHelper(error);
         }
       }
