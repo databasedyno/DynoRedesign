@@ -63,6 +63,7 @@ const EXEMPT_PATHS = [
   // before any auth token is available. Protected by their own auth middleware after getData.
   "/api/pay/getData",
   "/api/pay/startDonation",
+  "/api/pay/tip",
   "/api/pay/calculateFees",
   "/api/pay/calculate-payment",
   "/api/pay/network-fees",

@@ -18,6 +18,12 @@ const SOCIAL_ICONS: Record<string, string> = {
   website: "mdi:web",
 };
 
+const SW_STYLE_META: Record<string, { title: string; icon: string }> = {
+  coffee: { title: "Buy me a coffee", icon: "mdi:coffee" },
+  tip: { title: "Send a tip", icon: "mdi:hand-coin" },
+  support: { title: "Support me", icon: "mdi:heart" },
+};
+
 interface Props {
   state: CreatorFormState;
 }
@@ -43,6 +49,13 @@ const CreatorLivePreview: React.FC<Props> = ({ state }) => {
 
   const limeTint = isDark ? "rgba(204,255,0,0.10)" : "rgba(204,255,0,0.16)";
   const surface = isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)";
+
+  // Support widget preview data
+  const swEnabled = Boolean(state.swEnabled);
+  const swMeta = SW_STYLE_META[state.swStyle || "coffee"] || SW_STYLE_META.coffee;
+  const swTitle = (state.swLabel && state.swLabel.trim()) || swMeta.title;
+  const swPresets = Array.isArray(state.swPresets) && state.swPresets.length ? state.swPresets : [3, 5, 10, 25];
+  const swSym = (state.swCurrency || "USD") === "EUR" ? "€" : (state.swCurrency || "USD") === "GBP" ? "£" : "$";
 
   return (
     <Box
@@ -138,7 +151,46 @@ const CreatorLivePreview: React.FC<Props> = ({ state }) => {
           </Box>
         )}
 
-        {/* Sample featured card (dimmed hint) */}
+        {/* Support widget preview (when enabled) */}
+        {swEnabled && (
+          <Box
+            data-testid="preview-support-widget"
+            sx={{
+              mt: 2.5, p: 1.75, borderRadius: "12px", border: `1px solid ${LIME}`,
+              backgroundColor: limeTint, textAlign: "left",
+            }}
+          >
+            <Box sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
+              <Box sx={{ width: 26, height: 26, borderRadius: "8px", backgroundColor: LIME, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <Icon icon={swMeta.icon} width={15} color={INK} />
+              </Box>
+              <Typography fontWeight={800} fontSize={14} color={theme.palette.text.primary} noWrap>
+                {swTitle}
+              </Typography>
+            </Box>
+            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.6, mt: 1.25 }}>
+              {swPresets.slice(0, 5).map((p) => (
+                <Box
+                  key={p}
+                  sx={{
+                    px: 1, py: 0.5, borderRadius: "8px", border: `1px solid ${border}`,
+                    backgroundColor: surface, fontFamily: MONO, fontSize: 12, fontWeight: 700, color: theme.palette.text.primary,
+                  }}
+                >
+                  {swSym}{p}
+                </Box>
+              ))}
+            </Box>
+            <Box sx={{ mt: 1.25, py: 0.8, borderRadius: "8px", backgroundColor: LIME, textAlign: "center" }}>
+              <Typography sx={{ fontSize: 12.5, fontWeight: 800, color: INK }}>
+                {swTitle}
+              </Typography>
+            </Box>
+          </Box>
+        )}
+
+        {/* Sample featured card (dimmed hint) — only when the support widget is off */}
+        {!swEnabled && (
         <Box
           sx={{
             mt: 2.5, p: 1.75, borderRadius: "12px", border: `1px solid ${LIME}`,
@@ -167,6 +219,7 @@ const CreatorLivePreview: React.FC<Props> = ({ state }) => {
             <Typography sx={{ fontSize: 12.5, fontWeight: 800, color: INK }}>Support this campaign</Typography>
           </Box>
         </Box>
+        )}
 
         {/* Sample link */}
         <Box

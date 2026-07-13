@@ -15,7 +15,27 @@ export interface CreatorFormState {
   enabled: boolean;
   coverImage: string | null;
   socialLinks: Record<string, string>;
+  // Support Widget (always-on tip / coffee / support box on the public page)
+  swEnabled: boolean;
+  swStyle: SupportStyle;
+  swLabel: string;
+  swPresets: number[];
+  swCurrency: string;
+  swMinAmount: number;
+  swAllowMessage: boolean;
+  swThanks: string;
+  swShowSupporters: boolean;
 }
+
+type SupportStyle = "coffee" | "tip" | "support";
+
+const SUPPORT_STYLES: { key: SupportStyle; label: string; icon: string; sample: string }[] = [
+  { key: "coffee", label: "Buy me a coffee", icon: "mdi:coffee", sample: "Buy me a coffee" },
+  { key: "tip", label: "Send a tip", icon: "mdi:hand-coin", sample: "Send a tip" },
+  { key: "support", label: "Support me", icon: "mdi:heart", sample: "Support me" },
+];
+
+const SUPPORT_CURRENCIES = ["USD", "EUR", "GBP", "CAD", "AUD", "JPY", "INR", "NGN", "ZAR", "BRL"];
 
 interface Props {
   /** Notified on every form change so the live preview outside can mirror. */
@@ -46,6 +66,17 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
   const [coverImage, setCoverImage] = useState<string | null>(null);
   const [socialLinks, setSocialLinks] = useState<Record<string, string>>({});
   const [uploadingCover, setUploadingCover] = useState(false);
+  // ── Support Widget state ──
+  const [swEnabled, setSwEnabled] = useState(false);
+  const [swStyle, setSwStyle] = useState<SupportStyle>("coffee");
+  const [swLabel, setSwLabel] = useState("");
+  const [swPresets, setSwPresets] = useState<number[]>([3, 5, 10, 25]);
+  const [swPresetDraft, setSwPresetDraft] = useState("");
+  const [swCurrency, setSwCurrency] = useState("USD");
+  const [swMinAmount, setSwMinAmount] = useState(1);
+  const [swAllowMessage, setSwAllowMessage] = useState(true);
+  const [swThanks, setSwThanks] = useState("");
+  const [swShowSupporters, setSwShowSupporters] = useState(true);
   const [seeded, setSeeded] = useState(false);
   const [checking, setChecking] = useState(false);
   const [availability, setAvailability] = useState<{ available: boolean; reason: string | null } | null>(null);
@@ -69,14 +100,35 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
       setSocialLinks(
         (profile.social_links && typeof profile.social_links === "object") ? profile.social_links : {},
       );
+      // Support Widget seed
+      setSwEnabled(Boolean(profile.support_widget_enabled));
+      setSwStyle(
+        ["coffee", "tip", "support"].includes(profile.support_widget_style)
+          ? profile.support_widget_style
+          : "coffee",
+      );
+      setSwLabel(profile.support_widget_label || "");
+      setSwPresets(
+        Array.isArray(profile.support_widget_preset_amounts) && profile.support_widget_preset_amounts.length
+          ? profile.support_widget_preset_amounts.map((n: unknown) => Number(n)).filter((n: number) => Number.isFinite(n) && n > 0)
+          : [3, 5, 10, 25],
+      );
+      setSwCurrency(profile.support_widget_currency || "USD");
+      setSwMinAmount(Number(profile.support_widget_min_amount) > 0 ? Number(profile.support_widget_min_amount) : 1);
+      setSwAllowMessage(profile.support_widget_allow_message !== false);
+      setSwThanks(profile.support_widget_thanks_message || "");
+      setSwShowSupporters(profile.support_widget_show_supporters !== false);
       setSeeded(true);
     }
   }, [profile, seeded]);
 
   // Broadcast form state to parent (for the live preview)
   useEffect(() => {
-    onChange?.({ handle, bio, enabled, coverImage, socialLinks });
-  }, [handle, bio, enabled, coverImage, socialLinks, onChange]);
+    onChange?.({
+      handle, bio, enabled, coverImage, socialLinks,
+      swEnabled, swStyle, swLabel, swPresets, swCurrency, swMinAmount, swAllowMessage, swThanks, swShowSupporters,
+    });
+  }, [handle, bio, enabled, coverImage, socialLinks, swEnabled, swStyle, swLabel, swPresets, swCurrency, swMinAmount, swAllowMessage, swThanks, swShowSupporters, onChange]);
 
   const savedHandle = profile?.handle || "";
   const formatError = useMemo(() => {
@@ -114,18 +166,37 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
     return true;
   }, [socialLinks, profile?.social_links]);
 
+  const savedPresets = useMemo(() => {
+    const p = profile?.support_widget_preset_amounts;
+    return Array.isArray(p) && p.length ? p.map((n: unknown) => Number(n)) : [3, 5, 10, 25];
+  }, [profile?.support_widget_preset_amounts]);
+
+  const supportWidgetChanged = useMemo(() => (
+    swEnabled !== Boolean(profile?.support_widget_enabled) ||
+    swStyle !== (profile?.support_widget_style || "coffee") ||
+    swLabel !== (profile?.support_widget_label || "") ||
+    JSON.stringify(swPresets) !== JSON.stringify(savedPresets) ||
+    swCurrency !== (profile?.support_widget_currency || "USD") ||
+    Number(swMinAmount) !== (Number(profile?.support_widget_min_amount) > 0 ? Number(profile?.support_widget_min_amount) : 1) ||
+    swAllowMessage !== (profile?.support_widget_allow_message !== false) ||
+    swThanks !== (profile?.support_widget_thanks_message || "") ||
+    swShowSupporters !== (profile?.support_widget_show_supporters !== false)
+  ), [swEnabled, swStyle, swLabel, swPresets, swCurrency, swMinAmount, swAllowMessage, swThanks, swShowSupporters, savedPresets, profile]);
+
   const canSave =
     seeded &&
     !saving &&
     !!handle &&
     !formatError &&
+    swPresets.length > 0 &&
     (handle === savedHandle || availability?.available === true) &&
     (
       handle !== savedHandle ||
       bio !== (profile?.bio || "") ||
       enabled !== Boolean(profile?.creator_page_enabled) ||
       (coverImage || null) !== (profile?.cover_image || null) ||
-      !socialsEqualSaved
+      !socialsEqualSaved ||
+      supportWidgetChanged
     );
 
   const handleSave = async () => {
@@ -138,6 +209,15 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
         creator_page_enabled: enabled,
         cover_image: coverImage,
         social_links: socialLinks,
+        support_widget_enabled: swEnabled,
+        support_widget_style: swStyle,
+        support_widget_label: swLabel.trim() || null,
+        support_widget_preset_amounts: swPresets,
+        support_widget_currency: swCurrency.trim().toUpperCase(),
+        support_widget_min_amount: Number(swMinAmount) > 0 ? Number(swMinAmount) : 1,
+        support_widget_allow_message: swAllowMessage,
+        support_widget_thanks_message: swThanks.trim() || null,
+        support_widget_show_supporters: swShowSupporters,
       });
       dispatch({ type: TOAST_SHOW, payload: { message: "Creator page saved" } });
       dispatch(UserAction(USER_PROFILE_FETCH));
@@ -358,6 +438,208 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
             </Box>
           ))}
         </Box>
+      </Box>
+
+      {/* ── Support Widget ── */}
+      <Box sx={{ borderRadius: "12px", border: `1px solid ${border}`, p: 2 }} data-testid="support-widget-settings">
+        <Box sx={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 2 }}>
+          <Box sx={{ pr: 1 }}>
+            <Typography fontSize={14} fontWeight={700} color={theme.palette.text.primary}>Support widget</Typography>
+            <Typography fontSize={12.5} color={theme.palette.text.secondary} mt={0.25}>
+              An always-on “Buy me a coffee” / tip box at the top of your page. Supporters pick an amount and pay with crypto — no account needed.
+            </Typography>
+          </Box>
+          <Switch
+            checked={swEnabled}
+            onChange={(e) => setSwEnabled(e.target.checked)}
+            data-testid="support-widget-enabled-switch"
+            sx={{ "& .Mui-checked": { color: theme.palette.primary.main }, "& .Mui-checked + .MuiSwitch-track": { backgroundColor: theme.palette.primary.main } }}
+          />
+        </Box>
+
+        {swEnabled && (
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5, mt: 2.5, pt: 2.5, borderTop: `1px solid ${border}` }}>
+            {/* Style */}
+            <Box>
+              <Typography sx={labelSx}>Style</Typography>
+              <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(3, 1fr)" }, gap: 1 }}>
+                {SUPPORT_STYLES.map((s) => {
+                  const active = swStyle === s.key;
+                  return (
+                    <Box
+                      key={s.key}
+                      role="button"
+                      tabIndex={0}
+                      data-testid={`support-style-${s.key}`}
+                      onClick={() => setSwStyle(s.key)}
+                      onKeyDown={(e: React.KeyboardEvent) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setSwStyle(s.key); } }}
+                      sx={{
+                        display: "flex", alignItems: "center", gap: 1, p: 1.25, borderRadius: "10px", cursor: "pointer",
+                        border: `1.5px solid ${active ? theme.palette.primary.main : border}`,
+                        backgroundColor: active ? (theme.palette.mode === "dark" ? "rgba(204,255,0,0.08)" : "rgba(204,255,0,0.12)") : theme.palette.background.default,
+                        transition: "border-color 140ms ease",
+                      }}
+                    >
+                      <Icon icon={s.icon} width={20} color={theme.palette.text.primary} />
+                      <Typography fontSize={12.5} fontWeight={600} color={theme.palette.text.primary}>{s.label}</Typography>
+                    </Box>
+                  );
+                })}
+              </Box>
+            </Box>
+
+            {/* Custom label */}
+            <Box>
+              <Typography sx={labelSx}>Custom label <Typography component="span" fontSize={11.5} color={theme.palette.text.disabled} fontWeight={400}>(optional)</Typography></Typography>
+              <Box
+                component="input"
+                data-testid="support-widget-label"
+                value={swLabel}
+                maxLength={80}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSwLabel(e.target.value)}
+                placeholder={SUPPORT_STYLES.find((s) => s.key === swStyle)?.sample || "Support me"}
+                sx={inputSx}
+              />
+            </Box>
+
+            {/* Preset amounts */}
+            <Box>
+              <Typography sx={labelSx}>Preset amounts <Typography component="span" fontSize={11.5} color={theme.palette.text.disabled} fontWeight={400}>(up to 5)</Typography></Typography>
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mb: 1 }} data-testid="support-preset-chips">
+                {swPresets.map((p) => (
+                  <Box
+                    key={p}
+                    sx={{
+                      display: "flex", alignItems: "center", gap: 0.5, px: 1.25, py: 0.6, borderRadius: "999px",
+                      border: `1px solid ${border}`, backgroundColor: theme.palette.background.default,
+                      fontFamily: "ui-monospace, monospace", fontSize: 13, fontWeight: 700, color: theme.palette.text.primary,
+                    }}
+                  >
+                    {p}
+                    <Box
+                      role="button"
+                      tabIndex={0}
+                      aria-label={`Remove ${p}`}
+                      data-testid={`support-preset-remove-${p}`}
+                      onClick={() => setSwPresets((prev) => prev.filter((x) => x !== p))}
+                      onKeyDown={(e: React.KeyboardEvent) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setSwPresets((prev) => prev.filter((x) => x !== p)); } }}
+                      sx={{ display: "flex", cursor: "pointer", color: theme.palette.text.secondary, "&:hover": { color: theme.palette.error.main } }}
+                    >
+                      <Icon icon="mdi:close" width={14} />
+                    </Box>
+                  </Box>
+                ))}
+              </Box>
+              {swPresets.length < 5 && (
+                <Box sx={{ display: "flex", gap: 1 }}>
+                  <Box
+                    component="input"
+                    type="number"
+                    data-testid="support-preset-input"
+                    value={swPresetDraft}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSwPresetDraft(e.target.value)}
+                    onKeyDown={(e: React.KeyboardEvent) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        const n = parseFloat(swPresetDraft);
+                        if (Number.isFinite(n) && n > 0 && !swPresets.includes(n) && swPresets.length < 5) {
+                          setSwPresets((prev) => [...prev, n].sort((a, b) => a - b));
+                          setSwPresetDraft("");
+                        }
+                      }
+                    }}
+                    placeholder="e.g. 5"
+                    sx={{ ...inputSx, maxWidth: 140 }}
+                  />
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    data-testid="support-preset-add"
+                    onClick={() => {
+                      const n = parseFloat(swPresetDraft);
+                      if (Number.isFinite(n) && n > 0 && !swPresets.includes(n) && swPresets.length < 5) {
+                        setSwPresets((prev) => [...prev, n].sort((a, b) => a - b));
+                        setSwPresetDraft("");
+                      }
+                    }}
+                    sx={{ textTransform: "none", fontSize: 12.5, borderRadius: "10px" }}
+                  >
+                    Add
+                  </Button>
+                </Box>
+              )}
+              {swPresets.length === 0 && (
+                <Typography fontSize={11.5} color={theme.palette.error.main} mt={0.5}>Add at least one preset amount.</Typography>
+              )}
+            </Box>
+
+            {/* Currency + Min amount */}
+            <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 2 }}>
+              <Box>
+                <Typography sx={labelSx}>Currency</Typography>
+                <Box
+                  component="select"
+                  data-testid="support-widget-currency"
+                  value={swCurrency}
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSwCurrency(e.target.value)}
+                  sx={{ ...inputSx, appearance: "auto" }}
+                >
+                  {SUPPORT_CURRENCIES.map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </Box>
+              </Box>
+              <Box>
+                <Typography sx={labelSx}>Minimum amount</Typography>
+                <Box
+                  component="input"
+                  type="number"
+                  data-testid="support-widget-min"
+                  value={swMinAmount}
+                  min={0.01}
+                  step="any"
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSwMinAmount(Number(e.target.value))}
+                  sx={inputSx}
+                />
+              </Box>
+            </Box>
+
+            {/* Thanks message */}
+            <Box>
+              <Typography sx={labelSx}>Welcome / thank-you message <Typography component="span" fontSize={11.5} color={theme.palette.text.disabled} fontWeight={400}>(optional)</Typography></Typography>
+              <Box
+                component="textarea"
+                rows={2}
+                maxLength={280}
+                data-testid="support-widget-thanks"
+                value={swThanks}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setSwThanks(e.target.value)}
+                placeholder="e.g. Thanks for keeping the coffee flowing! ☕"
+                sx={{ ...inputSx, resize: "vertical", minHeight: 60, display: "block" }}
+              />
+            </Box>
+
+            {/* Toggles */}
+            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <Typography fontSize={13.5} color={theme.palette.text.primary}>Let supporters leave a message</Typography>
+              <Switch
+                checked={swAllowMessage}
+                onChange={(e) => setSwAllowMessage(e.target.checked)}
+                data-testid="support-widget-allow-message"
+                sx={{ "& .Mui-checked": { color: theme.palette.primary.main }, "& .Mui-checked + .MuiSwitch-track": { backgroundColor: theme.palette.primary.main } }}
+              />
+            </Box>
+            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <Typography fontSize={13.5} color={theme.palette.text.primary}>Show supporter count &amp; total raised</Typography>
+              <Switch
+                checked={swShowSupporters}
+                onChange={(e) => setSwShowSupporters(e.target.checked)}
+                data-testid="support-widget-show-supporters"
+                sx={{ "& .Mui-checked": { color: theme.palette.primary.main }, "& .Mui-checked + .MuiSwitch-track": { backgroundColor: theme.palette.primary.main } }}
+              />
+            </Box>
+          </Box>
+        )}
       </Box>
 
       {/* Enable toggle */}

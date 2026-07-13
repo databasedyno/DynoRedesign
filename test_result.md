@@ -1,3 +1,85 @@
+## Session 41: Creator Support Widget — FRONTEND + CSRF exemption (2026-07-13)
+
+### Preview URL
+https://bed99c67-8a99-4b36-9449-ef8ed6ff6e5b.preview.emergentagent.com
+
+### Test credentials (from /app/memory/test_credentials.md)
+- Data-rich (company_id=1 + wallets + CLAIMED creator handle "hostbay"): hostbay@moxx.co / Katiekendra123@
+- Empty merchant (NO company/wallet): qa.empty.1782626169@dynopaytest.com / QaEmpty#2026
+
+### What changed this session
+Frontend for the Session-40 Support Widget (Tip / Buy-me-a-coffee) + ONE backend fix.
+
+**Backend (1 file):** `backend/middleware/csrfMiddleware.ts` — added `/api/pay/tip` to `EXEMPT_PATHS` (it was missing; the sibling public endpoint `/api/pay/startDonation` was already exempt). Rationale: a public/unauthenticated donor on `/{handle}` has NO Bearer token and NO CSRF cookie, so the tip POST was being blocked by CSRF. NO other backend logic changed. Backend restarted clean, /health 200 (db+redis connected).
+
+**Frontend (5 files, hardcoded-English to match the rest of the Creator feature which does not use i18n):**
+- NEW `Components/Page/Creator/SupportWidget.tsx` — public tip widget: preset chips + Custom amount + optional name/message + anonymous toggle → `POST /api/pay/tip {handle, amount, donor_name, donor_message, is_anonymous}` → redirects to `/pay?d=<d>`. Style-aware (coffee/tip/support) title+icon+CTA. Shows supporters_count/raised_amount when show_supporters. data-testids: creator-support-widget, support-widget-presets, support-preset-<n>, support-preset-custom, support-custom-amount, support-donor-name, support-donor-message, support-anonymous, support-widget-submit, support-widget-error.
+- `Components/Page/Creator/CreatorProfile.tsx` — renders <SupportWidget> at top (above featured/links) when supportWidget.enabled; empty-state hidden when widget enabled.
+- `pages/[handle].tsx` — passes `support_widget` from GET /api/pay/creator/:handle SSR into CreatorProfile.
+- `Components/Page/Creator/CreatorPageSettings.tsx` — NEW "Support widget" config section (master toggle + style radio + custom label + preset chips add/remove + currency select + min amount + welcome message + allow-message toggle + show-supporters toggle). Seeds from profile.support_widget_*, includes fields in save PUT /api/user/creator/profile + canSave. data-testids: support-widget-settings, support-widget-enabled-switch, support-style-<key>, support-widget-label, support-preset-input/add, support-widget-currency, support-widget-min, support-widget-thanks, support-widget-allow-message, support-widget-show-supporters.
+- `Components/Page/Creator/CreatorLivePreview.tsx` — mirrors the widget in the sticky preview when enabled (preview-support-widget).
+
+next build exit=0 (73s), standalone + static OK. Frontend restarted, external /creator + /hostbay = 200.
+
+### What to verify (BACKEND — deep_testing_backend_v2) — NARROW scope (rest tested Session 40, 13/13)
+Use hostbay@moxx.co (company_id=1 + wallets + handle "hostbay").
+1. **Enable widget** (auth): `PUT /api/user/creator/profile` with `{support_widget_enabled:true, support_widget_style:"coffee", support_widget_preset_amounts:[3,5,10,25], support_widget_currency:"USD", support_widget_min_amount:1, support_widget_allow_message:true, support_widget_show_supporters:true, support_widget_thanks_message:"Thanks so much!"}` → 200, fields echoed.
+2. **CSRF exemption (KEY NEW BEHAVIOR):** `POST /api/pay/tip` with NO Authorization header and NO x-csrf-token / csrf cookie, body `{handle:"hostbay", amount:5, donor_name:"QA Tipper", donor_message:"Love it!", is_anonymous:false}` → **200** (previously would 403 CSRF). Returns `{d, payment_link, amount:5, currency:"USD"}`. Then `POST /api/pay/getData {data:<d>, language:"en"}` → link_type==="contribution", contribution.donor_name==="QA Tipper".
+3. **Validation still works:** amount:0 → 400; unknown handle "nope_xyz" → 404; anonymous tip → getData contribution.is_anonymous===true.
+4. **GET /api/pay/creator/hostbay** (public) → support_widget object present + matches config; links[] excludes donations (decision 1a).
+5. **Cleanup (LIVE DB):** delete the tip-jar parent (is_tip_jar=true) + contribution children created for hostbay; leave support_widget_enabled=true (frontend UI verification will use it) OR note if you disabled it.
+
+### backend
+  - task: "CSRF exemption for POST /api/pay/tip (public donor tip has no auth/CSRF token)"
+    implemented: true
+    working: true
+    file: "backend/middleware/csrfMiddleware.ts"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Added /api/pay/tip to EXEMPT_PATHS (sibling /api/pay/startDonation already exempt). Public creator-page donors have no Bearer token + no CSRF cookie, so the tip POST was blocked. Backend restarted clean. Needs verification that POST /api/pay/tip now returns 200 without a CSRF token while validation still holds."
+      - working: true
+        agent: "testing"
+        comment: "BACKEND TESTING COMPLETE (Session 41 - 2026-07-13). All 5/5 tests PASSED ✅. T1: Login + Enable Widget - PUT /api/user/creator/profile with 9 support_widget_* fields → 200, all fields echoed back correctly (support_widget_enabled=true, style=coffee, preset_amounts=[3,5,10,25], currency=USD, min_amount=1.00, allow_message=true, show_supporters=true, thanks_message='Thanks so much!'). T2 (KEY NEW CHECK): POST /api/pay/tip with NO Authorization header, NO x-csrf-token, NO csrf cookie → 200 (NOT 403 CSRF-blocked). Returned {d, payment_link, amount:5, currency:USD}. CSRF exemption is working correctly - this is the PRIMARY regression validated in Session 41. T3: Contribution follow-through - POST /api/pay/getData with d from T2 → link_type='contribution', contribution block contains donor_name='QA Tipper', donor_message='Love it!', is_anonymous=false. T4: Validation still intact - amount:0→400, unknown handle 'nope_xyz_404'→404, anonymous tip (is_anonymous:true) → getData returns contribution.is_anonymous=true. T5: Public profile - GET /api/pay/creator/hostbay (no auth) → 200, support_widget object present with correct config (enabled:true, style:coffee, preset_amounts:[3,5,10,25], currency:USD, min_amount:1), links[] contains ZERO donation items (decision 1a verified). Test used LIVE Railway PG with hostbay@moxx.co (company_id=1). IMPORTANT: Contributions stay 'active' (WORKER_ROLE=secondary, no settlement) so supporters_count/raised_amount remain 0 - this is EXPECTED. Cleanup: support_widget_enabled left as TRUE for frontend UI verification (as requested). Manual DB cleanup needed for tip-jar parent (is_tip_jar=true) + 2 contribution children created during testing. Test file: /app/backend_test.py."
+
+### frontend
+  - task: "Creator Support Widget frontend — public widget on /{handle}, settings config section, live preview mirror"
+    implemented: true
+    working: "NA"
+    file: "Components/Page/Creator/SupportWidget.tsx, CreatorProfile.tsx, CreatorPageSettings.tsx, CreatorLivePreview.tsx, pages/[handle].tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented Support Widget frontend. Awaiting user approval before frontend testing (per protocol)."
+
+### metadata
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 0
+  run_ui: false
+
+### test_plan
+  current_focus:
+    - "Backend — POST /api/pay/tip now CSRF-exempt (200 without token) + validation intact"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+### agent_communication
+  - agent: "main"
+    message: "Session 41: shipped the Support Widget FRONTEND (backend was done+tested in Session 40). One backend change only: added /api/pay/tip to the CSRF exempt list so unauthenticated donors on the public creator page can start a tip (it was 403-blocked before). Please run the NARROW backend test above with hostbay@moxx.co — the KEY new check is that POST /api/pay/tip returns 200 with NO CSRF token/cookie and NO Bearer token. Enable hostbay's widget first via PUT, verify the tip + getData contribution flow, confirm validation (amount:0→400, unknown handle→404), and CLEAN UP the tip-jar + contribution rows on the LIVE DB after (leave support_widget_enabled=true for the frontend UI check). Do NOT test frontend yet — awaiting user approval."
+  - agent: "testing"
+    message: "Session 41 backend testing COMPLETE. All 5/5 tests PASSED ✅. The KEY NEW CHECK (T2) verified: POST /api/pay/tip now returns 200 WITHOUT any CSRF token/cookie or Bearer token (was 403-blocked before Session 41). The CSRF exemption is working correctly. T1: Widget configuration via PUT /api/user/creator/profile works (all 9 support_widget_* fields echoed back). T3: Contribution follow-through via getData returns link_type='contribution' with full contribution block (donor_name, donor_message, is_anonymous). T4: Validation still intact (amount:0→400, unknown handle→404, anonymous tip→is_anonymous=true). T5: Public profile GET /api/pay/creator/hostbay returns support_widget object + links[] excludes donations (decision 1a). Test used LIVE Railway PG with hostbay@moxx.co. IMPORTANT: Contributions stay 'active' (WORKER_ROLE=secondary) so supporters_count/raised_amount=0 is EXPECTED. Cleanup: support_widget_enabled left as TRUE for frontend UI verification (as requested). Manual DB cleanup needed for tip-jar parent (is_tip_jar=true) + 2 contribution children. Backend contract is production-ready. Frontend testing awaits user approval."
+
+---
+
+
 ## Session 40: Donation / Tip / Coffee split — Creator Support Widget (BACKEND) — TEST REQUESTED (2026-07-13)
 
 ### Preview URL

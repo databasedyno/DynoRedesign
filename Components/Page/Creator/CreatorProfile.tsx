@@ -4,6 +4,7 @@ import { Icon } from '@iconify/react'
 import Logo from '@/assets/Icons/Logo'
 import { formatWithSeparators, getCurrencySymbolFromFormat } from '@/utils/currencyFormat'
 import copyToClipboard from '@/helpers/copyToClipboard'
+import SupportWidget, { SupportWidgetData } from './SupportWidget'
 
 const MONO = 'ui-monospace, "Roboto Mono", "JetBrains Mono", SFMono-Regular, Menlo, monospace'
 const LIME = '#CCFF00'
@@ -60,7 +61,7 @@ const socialHref = (platform: string, raw: string): string => {
 const fmt = (n: number, currency: string) =>
   `${getCurrencySymbolFromFormat(currency)}${formatWithSeparators(n, currency)}`
 
-const CreatorProfile = ({ creator, links, siteUrl }: { creator: CreatorData; links: CreatorLink[]; siteUrl?: string }) => {
+const CreatorProfile = ({ creator, links, siteUrl, supportWidget }: { creator: CreatorData; links: CreatorLink[]; siteUrl?: string; supportWidget?: SupportWidgetData | null }) => {
   const theme = useTheme()
   const isDark = theme.palette.mode === 'dark'
   const border = theme.palette.divider
@@ -311,6 +312,13 @@ const CreatorProfile = ({ creator, links, siteUrl }: { creator: CreatorData; lin
           </Box>
         </Box>
 
+        {/* ── Support Widget (always-on tip / coffee / support) ── */}
+        {supportWidget?.enabled && (
+          <Box sx={{ mb: 3 }}>
+            <SupportWidget handle={creator.handle} creatorName={creator.name} widget={supportWidget} />
+          </Box>
+        )}
+
         {/* ── Featured donation / tip box ── */}
         {featured && (
           <Box
@@ -382,7 +390,7 @@ const CreatorProfile = ({ creator, links, siteUrl }: { creator: CreatorData; lin
         )}
 
         {/* ── Empty state ── */}
-        {links.length === 0 && (
+        {links.length === 0 && !supportWidget?.enabled && (
           <Box
             data-testid='creator-empty'
             sx={{ textAlign: 'center', py: 5, px: 3, borderRadius: '18px', border: `1px dashed ${border}`, backgroundColor: surface }}

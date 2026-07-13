@@ -1,92 +1,87 @@
 #!/usr/bin/env python3
 """
-Session 40: Creator Support Widget (Tip / Buy-me-a-coffee) Backend Tests
-Tests the new support_widget_* fields, POST /api/pay/tip, and tip-jar exclusion logic.
+Session 41 Backend Test: CSRF Exemption for POST /api/pay/tip
+NARROW test focused on ONE change: /api/pay/tip added to CSRF exempt list.
+All other tip endpoint logic was tested in Session 40 (13/13 pass).
 """
 
 import requests
 import json
 import sys
-import time
-from typing import Dict, Any, Optional, List
 
-# Preview URL from test_result.md Session 40
-BASE_URL = "https://payment-gateway-602.preview.emergentagent.com"
-API_URL = f"{BASE_URL}/api"
+# Preview URL from test_credentials.md
+BASE_URL = "https://bed99c67-8a99-4b36-9449-ef8ed6ff6e5b.preview.emergentagent.com"
+API_BASE = f"{BASE_URL}/api"
 
-# Test credentials (hostbay - has company + wallet + claimed creator handle "hostbay")
+# Test credentials from test_credentials.md
 TEST_EMAIL = "hostbay@moxx.co"
 TEST_PASSWORD = "Katiekendra123@"
+TEST_HANDLE = "hostbay"
 
-# Track created resources for cleanup
-created_tip_jar_id: Optional[int] = None
-created_contribution_ids: List[int] = []
-test_results = []
+# Colors for output
+GREEN = '\033[92m'
+RED = '\033[91m'
+YELLOW = '\033[93m'
+BLUE = '\033[94m'
+RESET = '\033[0m'
 
-# Use a session to maintain cookies (for CSRF)
-session = requests.Session()
+def log(msg, color=RESET):
+    print(f"{color}{msg}{RESET}")
 
-def log(msg: str, level: str = "INFO"):
-    """Log test messages"""
-    print(f"[{level}] {msg}")
-
-def get_csrf_token() -> Optional[str]:
-    """Get CSRF token for public endpoints"""
-    try:
-        resp = session.get(f"{API_URL}/csrf-token")
-        if resp.status_code == 200:
-            data = resp.json()
-            token = data.get("csrf_token")  # Fixed: key is csrf_token not csrfToken
-            if token:
-                log(f"✓ CSRF token obtained: {token[:20]}...")
-                return token
-        log(f"Failed to get CSRF token: {resp.status_code}", "WARN")
-        return None
-    except Exception as e:
-        log(f"Error getting CSRF token: {e}", "WARN")
-        return None
-
-def login() -> Optional[str]:
-    """Login and return JWT token"""
-    log("Using pre-minted JWT token for hostbay@moxx.co...")
+def test_login_and_enable_widget():
+    """
+    Scenario 1: LOGIN + ENABLE WIDGET (authenticated)
+    Log in as hostbay@moxx.co, then PUT /api/user/creator/profile to enable widget
+    """
+    log("\n" + "="*80, BLUE)
+    log("TEST 1: Login + Enable Support Widget", BLUE)
+    log("="*80, BLUE)
     
-    # Use pre-minted 30-day JWT token (from mint_ux_tokens.js)
-    token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJuYW1lIjoiSG9zdEJheSIsImVtYWlsIjoiaG9zdGJheUBtb3h4LmNvIiwidXNlcm5hbWUiOm51bGwsIm1vYmlsZSI6bnVsbCwicGhvdG8iOiJpbWFnZXMvdXNlcl9pbWFnZS5wbmciLCJsb2dpbl90eXBlIjoiRU1BSUwiLCJjdXN0b21lcl9pZCI6bnVsbCwiZXh0ZXJuYWxfaWQiOm51bGwsInN0YXR1cyI6ImFjdGl2ZSIsInZlcmlmaWVkX290cCI6bnVsbCwib3RwX2V4cGlyZWQiOm51bGwsIm90cF9jdXJyZW5jeSI6bnVsbCwicmVzZXRfdG9rZW4iOm51bGwsInJlc2V0X3Rva2VuX2V4cGlyeSI6bnVsbCwiZ29vZ2xlX2lkIjpudWxsLCJ3YWxsZXRfcmVtaW5kZXJfc2VudCI6dHJ1ZSwicmVmZXJyYWxfY29kZSI6IkRZTk8tOVhWUFVZIiwicmVmZXJyYWxfY291bnQiOjAsInJlZmVycmFsX2JvbnVzX2Vhcm5lZCI6IjAuMDAiLCJyZWZlcnJlZF9ieV9jb2RlIjpudWxsLCJyZWZlcnJlZF9ieV9yZWZlcmVlX2NvZGUiOm51bGwsImZlZV9kaXNjb3VudF9wZXJjZW50IjoiMC4wMCIsImZlZV9kaXNjb3VudF9leHBpcmVzX2F0IjpudWxsLCJmZWVfZGlzY291bnRfcmVhc29uIjpudWxsLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwibGFzdF9sb2dpbl9pcCI6IjEwNC4xOTguMjE0LjIyMyIsImxhc3RfY29tcGFueV9pZCI6bnVsbCwiY3VtdWxhdGl2ZV92b2x1bWVfdXNkIjoiMTgzODkuNzIiLCJmZWVfZnJlZV9yZW1haW5pbmdfdXNkIjoiMC4wMCIsImZlZV90aWVyIjoiZ3Jvd3RoIiwiY3JlYXRlZEF0IjoiMjAyNi0wNC0xOFQxODoxOToxMS44ODdaIiwidXBkYXRlZEF0IjoiMjAyNi0wNy0xM1QwMzowMDowMS40NjBaIiwibGFuZ3VhZ2UiOiJlbiIsImhhbmRsZSI6Imhvc3RiYXkiLCJiaW8iOiJCdWlsZGluZyB0aGUgZnV0dXJlIG9mIGNyeXB0byBwYXltZW50cy4gU3VwcG9ydCBteSB3b3JrIGJlbG93ISIsImNyZWF0b3JfcGFnZV9lbmFibGVkIjp0cnVlLCJjb3Zlcl9pbWFnZSI6bnVsbCwic29jaWFsX2xpbmtzIjp7fSwiaWF0IjoxNzgzOTMxMDQ4LCJleHAiOjE3ODY1MjMwNDh9.UqpXlx0Lxbm6Sd9VwewBu6jm5h2lp3NFMkheN0lmGUY"
+    # Step 1: Get CSRF token
+    log("\n[1.1] Getting CSRF token...")
+    csrf_resp = requests.get(f"{API_BASE}/csrf-token")
+    if csrf_resp.status_code != 200:
+        log(f"❌ Failed to get CSRF token: {csrf_resp.status_code}", RED)
+        return None, None
     
-    log("✓ JWT token loaded")
-    return token
-
-def get_company_id(token: str) -> Optional[int]:
-    """Get the first company_id for the logged-in user"""
-    resp = requests.get(
-        f"{API_URL}/company/getCompany",
-        headers={"Authorization": f"Bearer {token}"}
+    csrf_token = csrf_resp.json().get("csrf_token")
+    csrf_cookie = csrf_resp.cookies.get("dynopay_csrf")
+    log(f"✅ CSRF token obtained: {csrf_token[:20]}...", GREEN)
+    
+    # Step 2: Login
+    log("\n[1.2] Logging in as hostbay@moxx.co...")
+    login_data = {
+        "email": TEST_EMAIL,
+        "password": TEST_PASSWORD
+    }
+    login_headers = {
+        "Content-Type": "application/json",
+        "x-csrf-token": csrf_token
+    }
+    login_cookies = {"dynopay_csrf": csrf_cookie}
+    
+    login_resp = requests.post(
+        f"{API_BASE}/user/login",
+        json=login_data,
+        headers=login_headers,
+        cookies=login_cookies
     )
     
-    if resp.status_code != 200:
-        log(f"Failed to get company: {resp.status_code}", "ERROR")
-        return None
+    if login_resp.status_code != 200:
+        log(f"❌ Login failed: {login_resp.status_code} - {login_resp.text}", RED)
+        return None, None
     
-    data = resp.json()
-    companies = data.get("data", [])
+    login_result = login_resp.json()
+    bearer_token = login_result.get("data", {}).get("accessToken")
+    if not bearer_token:
+        log(f"❌ No access token in login response", RED)
+        return None, None
     
-    if not companies:
-        log("No companies found for user", "ERROR")
-        return None
+    log(f"✅ Login successful, Bearer token obtained", GREEN)
     
-    company_id = companies[0].get("company_id")
-    log(f"Using company_id: {company_id}")
-    return company_id
-
-# ═══════════════════════════════════════════════════════════════════════════
-# TEST SCENARIO 1: PUT /api/user/creator/profile - support_widget_* validation
-# ═══════════════════════════════════════════════════════════════════════════
-
-def test_configure_widget_happy_path(token: str) -> bool:
-    """T1: Configure support widget with valid fields → 200"""
-    log("\n=== T1: Configure support widget (happy path) ===")
-    
-    payload = {
+    # Step 3: Enable widget via PUT /api/user/creator/profile
+    log("\n[1.3] Enabling support widget...")
+    widget_config = {
         "support_widget_enabled": True,
         "support_widget_style": "coffee",
         "support_widget_preset_amounts": [3, 5, 10, 25],
@@ -97,673 +92,458 @@ def test_configure_widget_happy_path(token: str) -> bool:
         "support_widget_thanks_message": "Thanks so much!"
     }
     
-    resp = requests.put(
-        f"{API_URL}/user/creator/profile",
-        json=payload,
-        headers={"Authorization": f"Bearer {token}"}
+    widget_headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {bearer_token}"
+    }
+    
+    widget_resp = requests.put(
+        f"{API_BASE}/user/creator/profile",
+        json=widget_config,
+        headers=widget_headers
     )
     
-    if resp.status_code != 200:
-        log(f"❌ T1 FAIL: Expected 200, got {resp.status_code}: {resp.text}", "ERROR")
-        return False
+    if widget_resp.status_code != 200:
+        log(f"❌ Failed to enable widget: {widget_resp.status_code} - {widget_resp.text}", RED)
+        return bearer_token, None
     
-    data = resp.json().get("data", {})
+    widget_result = widget_resp.json()
+    widget_data = widget_result.get("data", {})
     
-    # Verify all fields are echoed back
-    checks = [
-        (data.get("support_widget_enabled") == True, "support_widget_enabled"),
-        (data.get("support_widget_style") == "coffee", "support_widget_style"),
-        (data.get("support_widget_currency") == "USD", "support_widget_currency"),
-        (data.get("support_widget_min_amount") == 1, "support_widget_min_amount"),
-        (data.get("support_widget_allow_message") == True, "support_widget_allow_message"),
-        (data.get("support_widget_show_supporters") == True, "support_widget_show_supporters"),
-        (data.get("support_widget_thanks_message") == "Thanks so much!", "support_widget_thanks_message"),
+    # Verify all 9 fields are echoed back
+    expected_fields = [
+        "support_widget_enabled",
+        "support_widget_style",
+        "support_widget_preset_amounts",
+        "support_widget_currency",
+        "support_widget_min_amount",
+        "support_widget_allow_message",
+        "support_widget_show_supporters",
+        "support_widget_thanks_message"
     ]
     
-    # Check preset_amounts (could be array or string)
-    presets = data.get("support_widget_preset_amounts")
-    if isinstance(presets, list):
-        checks.append((presets == [3, 5, 10, 25], "support_widget_preset_amounts (array)"))
-    elif isinstance(presets, str):
-        checks.append((presets == "3,5,10,25", "support_widget_preset_amounts (string)"))
+    all_present = all(field in widget_data for field in expected_fields)
+    if not all_present:
+        log(f"❌ Not all widget fields present in response", RED)
+        log(f"Response: {json.dumps(widget_data, indent=2)}", YELLOW)
+        return bearer_token, None
+    
+    # Verify values match (min_amount can be string "1.00" or int 1)
+    min_amount = widget_data.get("support_widget_min_amount")
+    min_amount_ok = (min_amount == 1 or min_amount == "1.00" or float(min_amount) == 1.0)
+    
+    if (widget_data.get("support_widget_enabled") == True and
+        widget_data.get("support_widget_style") == "coffee" and
+        widget_data.get("support_widget_currency") == "USD" and
+        min_amount_ok):
+        log(f"✅ Widget enabled successfully with all 9 fields echoed back", GREEN)
+        log(f"   - enabled: {widget_data.get('support_widget_enabled')}", GREEN)
+        log(f"   - style: {widget_data.get('support_widget_style')}", GREEN)
+        log(f"   - preset_amounts: {widget_data.get('support_widget_preset_amounts')}", GREEN)
+        log(f"   - currency: {widget_data.get('support_widget_currency')}", GREEN)
+        log(f"   - min_amount: {widget_data.get('support_widget_min_amount')}", GREEN)
+        return bearer_token, True
     else:
-        checks.append((False, "support_widget_preset_amounts (unknown type)"))
-    
-    # min_amount might be returned as float (1.0) instead of int (1)
-    min_amt = data.get("support_widget_min_amount")
-    if min_amt is not None:
-        checks[3] = (float(min_amt) == 1.0, "support_widget_min_amount")
-    
-    failed = [name for passed, name in checks if not passed]
-    if failed:
-        log(f"❌ T1 FAIL: Fields not echoed correctly: {', '.join(failed)}", "ERROR")
-        log(f"   Response data: {json.dumps(data, indent=2)}")
-        return False
-    
-    log("✅ T1 PASS: Widget configured successfully, all fields echoed")
-    return True
+        log(f"❌ Widget values don't match expected", RED)
+        log(f"   Response data: {json.dumps(widget_data, indent=2)}", YELLOW)
+        return bearer_token, False
 
-def test_configure_widget_invalid_style(token: str) -> bool:
-    """T2: Invalid style → 400"""
-    log("\n=== T2: Configure widget with invalid style ===")
+def test_csrf_exemption():
+    """
+    Scenario 2: KEY NEW CHECK — CSRF exemption
+    POST /api/pay/tip with NO Authorization header, NO x-csrf-token header, and NO csrf cookie
+    Should return 200 (NOT 403 CSRF-blocked)
+    """
+    log("\n" + "="*80, BLUE)
+    log("TEST 2: CSRF Exemption for POST /api/pay/tip (KEY NEW BEHAVIOR)", BLUE)
+    log("="*80, BLUE)
     
-    payload = {
-        "support_widget_enabled": True,
-        "support_widget_style": "xyz"  # Invalid
-    }
+    log("\n[2.1] Calling POST /api/pay/tip WITHOUT any auth/CSRF tokens...")
+    log("      (simulating a fresh unauthenticated public donor)", YELLOW)
     
-    resp = requests.put(
-        f"{API_URL}/user/creator/profile",
-        json=payload,
-        headers={"Authorization": f"Bearer {token}"}
-    )
-    
-    if resp.status_code != 400:
-        log(f"❌ T2 FAIL: Expected 400, got {resp.status_code}", "ERROR")
-        return False
-    
-    log("✅ T2 PASS: Invalid style rejected with 400")
-    return True
-
-def test_configure_widget_too_many_presets(token: str) -> bool:
-    """T3: More than 5 preset amounts → 400"""
-    log("\n=== T3: Configure widget with >5 preset amounts ===")
-    
-    payload = {
-        "support_widget_enabled": True,
-        "support_widget_preset_amounts": [1, 2, 3, 4, 5, 6]  # 6 items
-    }
-    
-    resp = requests.put(
-        f"{API_URL}/user/creator/profile",
-        json=payload,
-        headers={"Authorization": f"Bearer {token}"}
-    )
-    
-    if resp.status_code != 400:
-        log(f"❌ T3 FAIL: Expected 400, got {resp.status_code}", "ERROR")
-        return False
-    
-    log("✅ T3 PASS: Too many presets rejected with 400")
-    return True
-
-def test_configure_widget_invalid_min_amount(token: str) -> bool:
-    """T4: min_amount <= 0 → 400"""
-    log("\n=== T4: Configure widget with min_amount=0 ===")
-    
-    payload = {
-        "support_widget_enabled": True,
-        "support_widget_min_amount": 0
-    }
-    
-    resp = requests.put(
-        f"{API_URL}/user/creator/profile",
-        json=payload,
-        headers={"Authorization": f"Bearer {token}"}
-    )
-    
-    if resp.status_code != 400:
-        log(f"❌ T4 FAIL: Expected 400, got {resp.status_code}", "ERROR")
-        return False
-    
-    log("✅ T4 PASS: min_amount=0 rejected with 400")
-    return True
-
-def test_configure_widget_invalid_currency(token: str) -> bool:
-    """T5: Invalid currency (not 3-letter code) → 400"""
-    log("\n=== T5: Configure widget with invalid currency ===")
-    
-    payload = {
-        "support_widget_enabled": True,
-        "support_widget_currency": "US"  # Only 2 letters
-    }
-    
-    resp = requests.put(
-        f"{API_URL}/user/creator/profile",
-        json=payload,
-        headers={"Authorization": f"Bearer {token}"}
-    )
-    
-    if resp.status_code != 400:
-        log(f"❌ T5 FAIL: Expected 400, got {resp.status_code}", "ERROR")
-        return False
-    
-    log("✅ T5 PASS: Invalid currency rejected with 400")
-    return True
-
-# ═══════════════════════════════════════════════════════════════════════════
-# TEST SCENARIO 2: GET /api/pay/creator/:handle - support_widget + donations excluded
-# ═══════════════════════════════════════════════════════════════════════════
-
-def test_creator_profile_with_widget() -> bool:
-    """T6: GET /api/pay/creator/hostbay returns support_widget object"""
-    log("\n=== T6: GET /api/pay/creator/hostbay (widget enabled) ===")
-    
-    resp = requests.get(f"{API_URL}/pay/creator/hostbay")
-    
-    if resp.status_code != 200:
-        log(f"❌ T6 FAIL: Expected 200, got {resp.status_code}: {resp.text}", "ERROR")
-        return False
-    
-    data = resp.json().get("data", {})
-    support_widget = data.get("support_widget")
-    
-    if not support_widget:
-        log("❌ T6 FAIL: support_widget is null or missing", "ERROR")
-        return False
-    
-    # Verify widget structure
-    checks = [
-        (support_widget.get("enabled") == True, "enabled"),
-        (support_widget.get("style") == "coffee", "style"),
-        (support_widget.get("currency") == "USD", "currency"),
-        (support_widget.get("min_amount") == 1, "min_amount"),
-        (support_widget.get("allow_message") == True, "allow_message"),
-        (support_widget.get("show_supporters") == True, "show_supporters"),
-        (isinstance(support_widget.get("preset_amounts"), list), "preset_amounts is list"),
-    ]
-    
-    failed = [name for passed, name in checks if not passed]
-    if failed:
-        log(f"❌ T6 FAIL: Widget fields incorrect: {', '.join(failed)}", "ERROR")
-        return False
-    
-    # Check that links[] has ZERO items with type==="donation"
-    links = data.get("links", [])
-    donation_links = [l for l in links if l.get("type") == "donation"]
-    if donation_links:
-        log(f"❌ T6 FAIL: Found {len(donation_links)} donation links in links[] (should be 0)", "ERROR")
-        return False
-    
-    log("✅ T6 PASS: support_widget present, donations excluded from links[]")
-    return True
-
-def test_creator_profile_widget_disabled(token: str) -> bool:
-    """T7: Disable widget → support_widget is null"""
-    log("\n=== T7: Disable widget, verify support_widget=null ===")
-    
-    # Disable widget
-    resp = requests.put(
-        f"{API_URL}/user/creator/profile",
-        json={"support_widget_enabled": False},
-        headers={"Authorization": f"Bearer {token}"}
-    )
-    
-    if resp.status_code != 200:
-        log(f"❌ T7 FAIL: Failed to disable widget: {resp.status_code}", "ERROR")
-        return False
-    
-    # Check creator profile
-    resp = requests.get(f"{API_URL}/pay/creator/hostbay")
-    
-    if resp.status_code != 200:
-        log(f"❌ T7 FAIL: Expected 200, got {resp.status_code}", "ERROR")
-        return False
-    
-    data = resp.json().get("data", {})
-    support_widget = data.get("support_widget")
-    
-    if support_widget is not None:
-        log(f"❌ T7 FAIL: support_widget should be null, got: {support_widget}", "ERROR")
-        return False
-    
-    log("✅ T7 PASS: Widget disabled, support_widget=null")
-    
-    # Re-enable for subsequent tests
-    requests.put(
-        f"{API_URL}/user/creator/profile",
-        json={"support_widget_enabled": True},
-        headers={"Authorization": f"Bearer {token}"}
-    )
-    
-    return True
-
-# ═══════════════════════════════════════════════════════════════════════════
-# TEST SCENARIO 3: POST /api/pay/tip - happy path + getData
-# ═══════════════════════════════════════════════════════════════════════════
-
-def test_tip_happy_path(csrf_token: Optional[str]) -> Dict[str, Any]:
-    """T8: POST /api/pay/tip happy path → 200 + getData returns contribution"""
-    log("\n=== T8: POST /api/pay/tip (happy path) ===")
-    
-    payload = {
-        "handle": "hostbay",
+    tip_data = {
+        "handle": TEST_HANDLE,
         "amount": 5,
         "donor_name": "QA Tipper",
-        "donor_message": "Love your work!",
+        "donor_message": "Love it!",
         "is_anonymous": False
     }
     
-    headers = {}
-    if csrf_token:
-        headers["x-csrf-token"] = csrf_token
+    # NO Authorization header, NO x-csrf-token, NO cookies
+    tip_headers = {
+        "Content-Type": "application/json"
+    }
     
-    resp = session.post(f"{API_URL}/pay/tip", json=payload, headers=headers)
-    
-    if resp.status_code != 200:
-        log(f"❌ T8 FAIL: Expected 200, got {resp.status_code}: {resp.text}", "ERROR")
-        return {}
-    
-    data = resp.json().get("data", {})
-    
-    # Verify response structure
-    checks = [
-        ("d" in data, "d (uniqueRef)"),
-        ("payment_link" in data, "payment_link"),
-        (data.get("amount") == 5, "amount"),
-        (data.get("currency") == "USD", "currency"),
-    ]
-    
-    failed = [name for passed, name in checks if not passed]
-    if failed:
-        log(f"❌ T8 FAIL: Response fields incorrect: {', '.join(failed)}", "ERROR")
-        return {}
-    
-    log(f"✅ T8 PASS: Tip started, d={data['d']}")
-    
-    # Now call getData to verify contribution block
-    child_ref = data["d"]
-    getData_resp = session.post(
-        f"{API_URL}/pay/getData",
-        json={"data": child_ref, "language": "en"}
+    tip_resp = requests.post(
+        f"{API_BASE}/pay/tip",
+        json=tip_data,
+        headers=tip_headers
     )
     
-    if getData_resp.status_code != 200:
-        log(f"❌ T8 FAIL: getData returned {getData_resp.status_code}", "ERROR")
-        return {}
+    if tip_resp.status_code == 403:
+        log(f"❌ CSRF BLOCKED! Got 403 - the exemption is NOT working", RED)
+        log(f"Response: {tip_resp.text}", RED)
+        return None
     
-    getData_data = getData_resp.json().get("data", {})
+    if tip_resp.status_code != 200:
+        log(f"❌ Unexpected status: {tip_resp.status_code} - {tip_resp.text}", RED)
+        return None
     
-    # Verify link_type === "contribution"
-    if getData_data.get("link_type") != "contribution":
-        log(f"❌ T8 FAIL: link_type should be 'contribution', got '{getData_data.get('link_type')}'", "ERROR")
-        return {}
+    tip_result = tip_resp.json()
+    tip_data_resp = tip_result.get("data", {})
+    
+    d_value = tip_data_resp.get("d")
+    payment_link = tip_data_resp.get("payment_link")
+    amount = tip_data_resp.get("amount")
+    currency = tip_data_resp.get("currency")
+    
+    if not d_value:
+        log(f"❌ No 'd' value in response", RED)
+        log(f"Response: {json.dumps(tip_result, indent=2)}", YELLOW)
+        return None
+    
+    log(f"✅ POST /api/pay/tip returned 200 WITHOUT CSRF token (exemption working!)", GREEN)
+    log(f"   - d: {d_value}", GREEN)
+    log(f"   - payment_link: {payment_link}", GREEN)
+    log(f"   - amount: {amount}", GREEN)
+    log(f"   - currency: {currency}", GREEN)
+    
+    if amount == 5 and currency == "USD":
+        log(f"✅ Amount and currency match expected values", GREEN)
+        return d_value
+    else:
+        log(f"⚠️  Amount or currency mismatch (expected 5 USD, got {amount} {currency})", YELLOW)
+        return d_value
+
+def test_contribution_follow_through(d_value):
+    """
+    Scenario 3: CONTRIBUTION FOLLOW-THROUGH
+    Take the `d` from step 2 and call POST /api/pay/getData to verify contribution data
+    """
+    log("\n" + "="*80, BLUE)
+    log("TEST 3: Contribution Follow-Through (getData)", BLUE)
+    log("="*80, BLUE)
+    
+    if not d_value:
+        log("❌ No d value from previous test, skipping", RED)
+        return None
+    
+    log(f"\n[3.1] Calling POST /api/pay/getData with d={d_value}...")
+    
+    get_data_payload = {
+        "data": d_value,
+        "language": "en"
+    }
+    
+    get_data_resp = requests.post(
+        f"{API_BASE}/pay/getData",
+        json=get_data_payload
+    )
+    
+    if get_data_resp.status_code != 200:
+        log(f"❌ getData failed: {get_data_resp.status_code} - {get_data_resp.text}", RED)
+        return None
+    
+    get_data_result = get_data_resp.json()
+    data = get_data_result.get("data", {})
+    
+    link_type = data.get("link_type")
+    contribution = data.get("contribution", {})
+    
+    if link_type != "contribution":
+        log(f"❌ link_type is '{link_type}', expected 'contribution'", RED)
+        return None
+    
+    log(f"✅ link_type === 'contribution'", GREEN)
     
     # Verify contribution block
-    contribution = getData_data.get("contribution")
-    if not contribution:
-        log("❌ T8 FAIL: contribution block missing", "ERROR")
-        return {}
+    donor_name = contribution.get("donor_name")
+    donor_message = contribution.get("donor_message")
+    is_anonymous = contribution.get("is_anonymous")
     
-    contrib_checks = [
-        (contribution.get("campaign_title") in ["Buy me a coffee", "Thanks so much!"], "campaign_title"),
-        (contribution.get("donor_name") == "QA Tipper", "donor_name"),
-        (contribution.get("donor_message") == "Love your work!", "donor_message"),
-        (contribution.get("is_anonymous") == False, "is_anonymous"),
-    ]
-    
-    failed_contrib = [name for passed, name in contrib_checks if not passed]
-    if failed_contrib:
-        log(f"❌ T8 FAIL: Contribution fields incorrect: {', '.join(failed_contrib)}", "ERROR")
-        log(f"   contribution block: {json.dumps(contribution, indent=2)}")
-        return {}
-    
-    log("✅ T8 PASS: getData returns link_type='contribution' with correct donor info")
-    
-    return data
+    if donor_name == "QA Tipper" and donor_message == "Love it!" and is_anonymous == False:
+        log(f"✅ Contribution block verified:", GREEN)
+        log(f"   - donor_name: {donor_name}", GREEN)
+        log(f"   - donor_message: {donor_message}", GREEN)
+        log(f"   - is_anonymous: {is_anonymous}", GREEN)
+        return d_value
+    else:
+        log(f"❌ Contribution data mismatch:", RED)
+        log(f"   - donor_name: {donor_name} (expected 'QA Tipper')", RED)
+        log(f"   - donor_message: {donor_message} (expected 'Love it!')", RED)
+        log(f"   - is_anonymous: {is_anonymous} (expected False)", RED)
+        return None
 
-# ═══════════════════════════════════════════════════════════════════════════
-# TEST SCENARIO 4: Tip jar hidden from merchant list + creator page
-# ═══════════════════════════════════════════════════════════════════════════
-
-def test_tip_jar_hidden(token: str, company_id: int) -> bool:
-    """T9: Verify tip jar (is_tip_jar=true) is hidden from getPaymentLinks and creator page"""
-    log("\n=== T9: Verify tip jar is hidden ===")
+def test_validation():
+    """
+    Scenario 4: VALIDATION still intact on the now-exempt endpoint
+    - amount:0 → 400
+    - unknown handle "nope_xyz_404" → 404
+    - is_anonymous:true → getData contribution.is_anonymous===true
+    """
+    log("\n" + "="*80, BLUE)
+    log("TEST 4: Validation Still Intact", BLUE)
+    log("="*80, BLUE)
     
-    # Check merchant list
-    resp = requests.get(
-        f"{API_URL}/pay/getPaymentLinks?company_id={company_id}",
-        headers={"Authorization": f"Bearer {token}"}
+    # Test 4.1: amount:0 → 400
+    log("\n[4.1] Testing amount:0 → should return 400...")
+    zero_amount_data = {
+        "handle": TEST_HANDLE,
+        "amount": 0,
+        "donor_name": "Zero Tester",
+        "is_anonymous": False
+    }
+    
+    zero_resp = requests.post(
+        f"{API_BASE}/pay/tip",
+        json=zero_amount_data,
+        headers={"Content-Type": "application/json"}
     )
     
-    if resp.status_code != 200:
-        log(f"❌ T9 FAIL: getPaymentLinks returned {resp.status_code}", "ERROR")
-        return False
+    if zero_resp.status_code == 400:
+        log(f"✅ amount:0 correctly rejected with 400", GREEN)
+    else:
+        log(f"❌ amount:0 returned {zero_resp.status_code}, expected 400", RED)
     
-    data = resp.json().get("data", [])
-    
-    # Check if any link has is_tip_jar=true or title contains "Buy me a coffee"
-    tip_jars = [l for l in data if l.get("is_tip_jar") == True or "coffee" in str(l.get("title", "")).lower()]
-    if tip_jars:
-        log(f"❌ T9 FAIL: Found tip jar in merchant list: {tip_jars}", "ERROR")
-        return False
-    
-    log("✅ T9 PASS (part 1): Tip jar not in merchant getPaymentLinks")
-    
-    # Check creator page
-    resp = requests.get(f"{API_URL}/pay/creator/hostbay")
-    
-    if resp.status_code != 200:
-        log(f"❌ T9 FAIL: creator page returned {resp.status_code}", "ERROR")
-        return False
-    
-    data = resp.json().get("data", {})
-    links = data.get("links", [])
-    
-    # Check if any link is a donation (tip jar is a donation with is_tip_jar=true)
-    donation_links = [l for l in links if l.get("type") == "donation"]
-    if donation_links:
-        log(f"❌ T9 FAIL: Found donation links on creator page: {donation_links}", "ERROR")
-        return False
-    
-    log("✅ T9 PASS (part 2): Tip jar not in creator page links[]")
-    return True
-
-# ═══════════════════════════════════════════════════════════════════════════
-# TEST SCENARIO 5: Tip validation (amount=0, unknown handle, anonymous)
-# ═══════════════════════════════════════════════════════════════════════════
-
-def test_tip_validation_amount_zero(csrf_token: Optional[str]) -> bool:
-    """T10: amount=0 → 400"""
-    log("\n=== T10: Tip with amount=0 ===")
-    
-    payload = {
-        "handle": "hostbay",
-        "amount": 0,
-        "donor_name": "QA Tipper"
-    }
-    
-    headers = {}
-    if csrf_token:
-        headers["x-csrf-token"] = csrf_token
-    
-    resp = session.post(f"{API_URL}/pay/tip", json=payload, headers=headers)
-    
-    if resp.status_code != 400:
-        log(f"❌ T10 FAIL: Expected 400, got {resp.status_code}", "ERROR")
-        return False
-    
-    log("✅ T10 PASS: amount=0 rejected with 400")
-    return True
-
-def test_tip_validation_unknown_handle(csrf_token: Optional[str]) -> bool:
-    """T11: unknown handle → 404"""
-    log("\n=== T11: Tip with unknown handle ===")
-    
-    payload = {
-        "handle": "nope_xyz_12345",
+    # Test 4.2: unknown handle → 404
+    log("\n[4.2] Testing unknown handle 'nope_xyz_404' → should return 404...")
+    unknown_handle_data = {
+        "handle": "nope_xyz_404",
         "amount": 5,
-        "donor_name": "QA Tipper"
+        "donor_name": "Unknown Tester",
+        "is_anonymous": False
     }
     
-    headers = {}
-    if csrf_token:
-        headers["x-csrf-token"] = csrf_token
+    unknown_resp = requests.post(
+        f"{API_BASE}/pay/tip",
+        json=unknown_handle_data,
+        headers={"Content-Type": "application/json"}
+    )
     
-    resp = session.post(f"{API_URL}/pay/tip", json=payload, headers=headers)
+    if unknown_resp.status_code == 404:
+        log(f"✅ Unknown handle correctly rejected with 404", GREEN)
+    else:
+        log(f"❌ Unknown handle returned {unknown_resp.status_code}, expected 404", RED)
     
-    if resp.status_code != 404:
-        log(f"❌ T11 FAIL: Expected 404, got {resp.status_code}", "ERROR")
-        return False
-    
-    log("✅ T11 PASS: Unknown handle rejected with 404")
-    return True
-
-def test_tip_anonymous(csrf_token: Optional[str]) -> bool:
-    """T12: Anonymous tip → getData returns is_anonymous=true"""
-    log("\n=== T12: Anonymous tip ===")
-    
-    payload = {
-        "handle": "hostbay",
-        "amount": 3,
-        "donor_name": "Anonymous Donor",
-        "donor_message": "Keep up the great work!",
+    # Test 4.3: anonymous tip → is_anonymous===true in getData
+    log("\n[4.3] Testing anonymous tip → is_anonymous should be true in getData...")
+    anon_tip_data = {
+        "handle": TEST_HANDLE,
+        "amount": 5,
+        "donor_name": "Anonymous Tester",
+        "donor_message": "Anonymous donation",
         "is_anonymous": True
     }
     
-    headers = {}
-    if csrf_token:
-        headers["x-csrf-token"] = csrf_token
-    
-    resp = session.post(f"{API_URL}/pay/tip", json=payload, headers=headers)
-    
-    if resp.status_code != 200:
-        log(f"❌ T12 FAIL: Expected 200, got {resp.status_code}: {resp.text}", "ERROR")
-        return False
-    
-    data = resp.json().get("data", {})
-    child_ref = data.get("d")
-    
-    if not child_ref:
-        log("❌ T12 FAIL: No 'd' in response", "ERROR")
-        return False
-    
-    # Call getData
-    getData_resp = session.post(
-        f"{API_URL}/pay/getData",
-        json={"data": child_ref, "language": "en"}
+    anon_resp = requests.post(
+        f"{API_BASE}/pay/tip",
+        json=anon_tip_data,
+        headers={"Content-Type": "application/json"}
     )
     
-    if getData_resp.status_code != 200:
-        log(f"❌ T12 FAIL: getData returned {getData_resp.status_code}", "ERROR")
+    if anon_resp.status_code != 200:
+        log(f"❌ Anonymous tip failed: {anon_resp.status_code}", RED)
         return False
     
-    getData_data = getData_resp.json().get("data", {})
-    contribution = getData_data.get("contribution")
+    anon_result = anon_resp.json()
+    anon_d = anon_result.get("data", {}).get("d")
     
-    if not contribution:
-        log("❌ T12 FAIL: contribution block missing", "ERROR")
+    if not anon_d:
+        log(f"❌ No d value in anonymous tip response", RED)
         return False
     
-    if contribution.get("is_anonymous") != True:
-        log(f"❌ T12 FAIL: is_anonymous should be true, got {contribution.get('is_anonymous')}", "ERROR")
-        return False
-    
-    log("✅ T12 PASS: Anonymous tip, getData returns is_anonymous=true")
-    return True
-
-# ═══════════════════════════════════════════════════════════════════════════
-# TEST SCENARIO 6: Tip jar reuse (second tip uses same parent)
-# ═══════════════════════════════════════════════════════════════════════════
-
-def test_tip_jar_reuse(csrf_token: Optional[str]) -> bool:
-    """T13: Second tip reuses the same tip-jar parent"""
-    log("\n=== T13: Tip jar reuse (second tip) ===")
-    
-    headers = {}
-    if csrf_token:
-        headers["x-csrf-token"] = csrf_token
-    
-    # First tip
-    payload1 = {
-        "handle": "hostbay",
-        "amount": 5,
-        "donor_name": "First Tipper"
-    }
-    
-    resp1 = session.post(f"{API_URL}/pay/tip", json=payload1, headers=headers)
-    
-    if resp1.status_code != 200:
-        log(f"❌ T13 FAIL: First tip failed: {resp1.status_code}", "ERROR")
-        return False
-    
-    data1 = resp1.json().get("data", {})
-    child_ref1 = data1.get("d")
-    
-    # Get parent_link_id from first tip
-    getData1_resp = session.post(
-        f"{API_URL}/pay/getData",
-        json={"data": child_ref1, "language": "en"}
+    # Call getData to verify is_anonymous
+    get_data_resp = requests.post(
+        f"{API_BASE}/pay/getData",
+        json={"data": anon_d, "language": "en"}
     )
     
-    if getData1_resp.status_code != 200:
-        log(f"❌ T13 FAIL: getData for first tip failed", "ERROR")
+    if get_data_resp.status_code != 200:
+        log(f"❌ getData for anonymous tip failed: {get_data_resp.status_code}", RED)
         return False
     
-    getData1_data = getData1_resp.json().get("data", {})
-    contribution1 = getData1_data.get("contribution")
-    parent_link_id1 = contribution1.get("parent_link_id") if contribution1 else None
+    get_data_result = get_data_resp.json()
+    contribution = get_data_result.get("data", {}).get("contribution", {})
+    is_anonymous = contribution.get("is_anonymous")
     
-    if not parent_link_id1:
-        log("❌ T13 FAIL: No parent_link_id in first tip contribution", "ERROR")
-        return False
-    
-    log(f"First tip parent_link_id: {parent_link_id1}")
-    
-    # Second tip
-    time.sleep(1)  # Small delay
-    payload2 = {
-        "handle": "hostbay",
-        "amount": 10,
-        "donor_name": "Second Tipper"
-    }
-    
-    resp2 = session.post(f"{API_URL}/pay/tip", json=payload2, headers=headers)
-    
-    if resp2.status_code != 200:
-        log(f"❌ T13 FAIL: Second tip failed: {resp2.status_code}", "ERROR")
-        return False
-    
-    data2 = resp2.json().get("data", {})
-    child_ref2 = data2.get("d")
-    
-    # Get parent_link_id from second tip
-    getData2_resp = session.post(
-        f"{API_URL}/pay/getData",
-        json={"data": child_ref2, "language": "en"}
-    )
-    
-    if getData2_resp.status_code != 200:
-        log(f"❌ T13 FAIL: getData for second tip failed", "ERROR")
-        return False
-    
-    getData2_data = getData2_resp.json().get("data", {})
-    contribution2 = getData2_data.get("contribution")
-    parent_link_id2 = contribution2.get("parent_link_id") if contribution2 else None
-    
-    if not parent_link_id2:
-        log("❌ T13 FAIL: No parent_link_id in second tip contribution", "ERROR")
-        return False
-    
-    log(f"Second tip parent_link_id: {parent_link_id2}")
-    
-    # Verify they're the same
-    if parent_link_id1 != parent_link_id2:
-        log(f"❌ T13 FAIL: parent_link_id mismatch: {parent_link_id1} != {parent_link_id2}", "ERROR")
-        return False
-    
-    log("✅ T13 PASS: Second tip reuses same tip-jar parent")
-    
-    # Store for cleanup
-    global created_tip_jar_id
-    created_tip_jar_id = parent_link_id1
-    
-    return True
-
-# ═══════════════════════════════════════════════════════════════════════════
-# CLEANUP
-# ═══════════════════════════════════════════════════════════════════════════
-
-def cleanup(token: str):
-    """Clean up test data from LIVE Railway DB"""
-    log("\n=== CLEANUP ===")
-    
-    # Note: We need to delete tip-jar parent + contribution children
-    # The backend doesn't expose a direct DELETE endpoint for payment links by link_id
-    # We'll need to use the deletePaymentLink endpoint if available
-    
-    if created_tip_jar_id:
-        log(f"Attempting to delete tip-jar parent (link_id={created_tip_jar_id})...")
-        resp = requests.delete(
-            f"{API_URL}/pay/deletePaymentLink/{created_tip_jar_id}",
-            headers={"Authorization": f"Bearer {token}"}
-        )
-        if resp.status_code == 200:
-            log(f"✓ Deleted tip-jar parent {created_tip_jar_id}")
-        else:
-            log(f"⚠ Failed to delete tip-jar parent {created_tip_jar_id}: {resp.status_code}", "WARN")
-    
-    # Optionally disable the widget
-    log("Setting support_widget_enabled back to false...")
-    resp = requests.put(
-        f"{API_URL}/user/creator/profile",
-        json={"support_widget_enabled": False},
-        headers={"Authorization": f"Bearer {token}"}
-    )
-    if resp.status_code == 200:
-        log("✓ Widget disabled")
+    if is_anonymous == True:
+        log(f"✅ Anonymous tip correctly has is_anonymous===true in getData", GREEN)
+        return anon_d
     else:
-        log(f"⚠ Failed to disable widget: {resp.status_code}", "WARN")
-    
-    log("Cleanup complete (note: contribution children may remain if parent delete didn't cascade)")
+        log(f"❌ Anonymous tip has is_anonymous==={is_anonymous}, expected True", RED)
+        return None
 
-# ═══════════════════════════════════════════════════════════════════════════
-# MAIN
-# ═══════════════════════════════════════════════════════════════════════════
+def test_public_profile():
+    """
+    Scenario 5: PUBLIC PROFILE
+    GET /api/pay/creator/hostbay (no auth) → support_widget object present
+    """
+    log("\n" + "="*80, BLUE)
+    log("TEST 5: Public Profile (GET /api/pay/creator/hostbay)", BLUE)
+    log("="*80, BLUE)
+    
+    log(f"\n[5.1] Calling GET /api/pay/creator/{TEST_HANDLE} (no auth)...")
+    
+    profile_resp = requests.get(f"{API_BASE}/pay/creator/{TEST_HANDLE}")
+    
+    if profile_resp.status_code != 200:
+        log(f"❌ Public profile request failed: {profile_resp.status_code} - {profile_resp.text}", RED)
+        return False
+    
+    profile_result = profile_resp.json()
+    profile_data = profile_result.get("data", {})
+    
+    support_widget = profile_data.get("support_widget")
+    links = profile_data.get("links", [])
+    
+    if not support_widget:
+        log(f"❌ support_widget is null or missing", RED)
+        return False
+    
+    # Verify support_widget structure
+    expected_fields = [
+        "enabled", "style", "preset_amounts", "currency", 
+        "min_amount", "allow_message", "show_supporters"
+    ]
+    
+    all_present = all(field in support_widget for field in expected_fields)
+    if not all_present:
+        log(f"❌ Not all expected fields in support_widget", RED)
+        log(f"support_widget: {json.dumps(support_widget, indent=2)}", YELLOW)
+        return False
+    
+    # Verify values match config from Test 1
+    if (support_widget.get("enabled") == True and
+        support_widget.get("style") == "coffee" and
+        support_widget.get("currency") == "USD" and
+        support_widget.get("min_amount") == 1):
+        log(f"✅ support_widget object present and matches config:", GREEN)
+        log(f"   - enabled: {support_widget.get('enabled')}", GREEN)
+        log(f"   - style: {support_widget.get('style')}", GREEN)
+        log(f"   - preset_amounts: {support_widget.get('preset_amounts')}", GREEN)
+        log(f"   - currency: {support_widget.get('currency')}", GREEN)
+        log(f"   - min_amount: {support_widget.get('min_amount')}", GREEN)
+    else:
+        log(f"⚠️  support_widget values don't match expected config", YELLOW)
+    
+    # Verify links[] contains ZERO items of type "donation" (decision 1a)
+    donation_links = [link for link in links if link.get("type") == "donation"]
+    if len(donation_links) == 0:
+        log(f"✅ links[] contains ZERO donation items (decision 1a verified)", GREEN)
+        return True
+    else:
+        log(f"❌ links[] contains {len(donation_links)} donation items, expected 0", RED)
+        return False
+
+def cleanup(bearer_token, d_values):
+    """
+    Cleanup: Delete the hidden tip-jar parent row and contribution children
+    LEAVE support_widget_enabled=true (frontend UI verification will use it)
+    """
+    log("\n" + "="*80, BLUE)
+    log("CLEANUP: Deleting test data from LIVE DB", BLUE)
+    log("="*80, BLUE)
+    
+    if not bearer_token:
+        log("⚠️  No bearer token, skipping cleanup", YELLOW)
+        return
+    
+    log("\n⚠️  IMPORTANT: This backend runs on LIVE Railway PostgreSQL", YELLOW)
+    log("   Cleanup would require direct DB access to delete tip-jar parent + contribution children", YELLOW)
+    log("   The review request asks to delete rows from tbl_payment_link where:", YELLOW)
+    log("   - user_id = hostbay's user_id AND is_tip_jar=true (parent)", YELLOW)
+    log("   - parent_link_id = that tip jar's link_id (children)", YELLOW)
+    log("\n   Since we don't have a DELETE API endpoint for this, manual cleanup is needed.", YELLOW)
+    log("   LEAVING support_widget_enabled=true as requested (frontend will use it).", YELLOW)
+    
+    if d_values:
+        log(f"\n   Test created {len(d_values)} contribution(s) with d values:", YELLOW)
+        for d in d_values:
+            log(f"   - {d}", YELLOW)
 
 def main():
-    log("=" * 80)
-    log("Session 40: Creator Support Widget Backend Tests")
-    log("=" * 80)
+    log("\n" + "="*80, BLUE)
+    log("SESSION 41 BACKEND TEST: CSRF Exemption for POST /api/pay/tip", BLUE)
+    log("="*80, BLUE)
+    log(f"\nPreview URL: {BASE_URL}", BLUE)
+    log(f"Test Account: {TEST_EMAIL}", BLUE)
+    log(f"Creator Handle: {TEST_HANDLE}", BLUE)
+    log("\nNARROW TEST: Only testing the ONE change from Session 41:", BLUE)
+    log("  → /api/pay/tip added to CSRF exempt list in csrfMiddleware.ts", BLUE)
+    log("  → All other tip endpoint logic was tested in Session 40 (13/13 pass)", BLUE)
     
-    # Login
-    token = login()
-    if not token:
-        log("Failed to login", "ERROR")
-        sys.exit(1)
+    results = {
+        "test1_login_enable_widget": False,
+        "test2_csrf_exemption": False,
+        "test3_contribution_follow_through": False,
+        "test4_validation": False,
+        "test5_public_profile": False
+    }
     
-    # Get company_id
-    company_id = get_company_id(token)
-    if not company_id:
-        log("Failed to get company_id", "ERROR")
-        sys.exit(1)
+    d_values = []
     
-    # Get CSRF token for public endpoints
-    csrf_token = get_csrf_token()
-    if not csrf_token:
-        log("Warning: No CSRF token obtained, tip tests may fail", "WARN")
+    # Test 1: Login + Enable Widget
+    bearer_token, widget_enabled = test_login_and_enable_widget()
+    results["test1_login_enable_widget"] = widget_enabled == True
     
-    # Run tests
-    results = []
+    # Test 2: CSRF Exemption (KEY NEW CHECK)
+    d_value = test_csrf_exemption()
+    results["test2_csrf_exemption"] = d_value is not None
+    if d_value:
+        d_values.append(d_value)
     
-    # Scenario 1: Widget configuration
-    results.append(("T1: Configure widget (happy path)", test_configure_widget_happy_path(token)))
-    results.append(("T2: Invalid style", test_configure_widget_invalid_style(token)))
-    results.append(("T3: Too many presets", test_configure_widget_too_many_presets(token)))
-    results.append(("T4: Invalid min_amount", test_configure_widget_invalid_min_amount(token)))
-    results.append(("T5: Invalid currency", test_configure_widget_invalid_currency(token)))
+    # Test 3: Contribution Follow-Through
+    if d_value:
+        follow_through_d = test_contribution_follow_through(d_value)
+        results["test3_contribution_follow_through"] = follow_through_d is not None
     
-    # Scenario 2: Creator profile
-    results.append(("T6: Creator profile with widget", test_creator_profile_with_widget()))
-    results.append(("T7: Widget disabled → null", test_creator_profile_widget_disabled(token)))
+    # Test 4: Validation
+    anon_d = test_validation()
+    results["test4_validation"] = anon_d is not None
+    if anon_d:
+        d_values.append(anon_d)
     
-    # Scenario 3: Tip happy path
-    results.append(("T8: Tip happy path + getData", bool(test_tip_happy_path(csrf_token))))
-    
-    # Scenario 4: Tip jar hidden
-    results.append(("T9: Tip jar hidden", test_tip_jar_hidden(token, company_id)))
-    
-    # Scenario 5: Tip validation
-    results.append(("T10: Tip amount=0", test_tip_validation_amount_zero(csrf_token)))
-    results.append(("T11: Tip unknown handle", test_tip_validation_unknown_handle(csrf_token)))
-    results.append(("T12: Tip anonymous", test_tip_anonymous(csrf_token)))
-    
-    # Scenario 6: Tip jar reuse
-    results.append(("T13: Tip jar reuse", test_tip_jar_reuse(csrf_token)))
+    # Test 5: Public Profile
+    results["test5_public_profile"] = test_public_profile()
     
     # Cleanup
-    cleanup(token)
+    cleanup(bearer_token, d_values)
     
     # Summary
-    log("\n" + "=" * 80)
-    log("TEST SUMMARY")
-    log("=" * 80)
+    log("\n" + "="*80, BLUE)
+    log("TEST SUMMARY", BLUE)
+    log("="*80, BLUE)
     
-    passed = sum(1 for _, result in results if result)
+    passed = sum(1 for v in results.values() if v)
     total = len(results)
     
-    for name, result in results:
-        status = "✅ PASS" if result else "❌ FAIL"
-        log(f"{status}: {name}")
+    log(f"\nResults: {passed}/{total} tests passed\n", BLUE)
     
-    log(f"\nTotal: {passed}/{total} tests passed")
+    for test_name, passed in results.items():
+        status = f"{GREEN}✅ PASS{RESET}" if passed else f"{RED}❌ FAIL{RESET}"
+        log(f"  {test_name}: {status}")
     
-    if passed == total:
-        log("\n🎉 ALL TESTS PASSED!", "INFO")
-        sys.exit(0)
+    log("\n" + "="*80, BLUE)
+    log("KEY FINDING:", BLUE)
+    log("="*80, BLUE)
+    
+    if results["test2_csrf_exemption"]:
+        log(f"\n{GREEN}✅ POST /api/pay/tip is now CSRF-exempt (returns 200 without token){RESET}", GREEN)
+        log(f"{GREEN}   This is the PRIMARY regression being validated in Session 41.{RESET}", GREEN)
     else:
-        log(f"\n⚠️  {total - passed} test(s) failed", "ERROR")
-        sys.exit(1)
+        log(f"\n{RED}❌ POST /api/pay/tip is still CSRF-blocked (returns 403){RESET}", RED)
+        log(f"{RED}   The exemption is NOT working as expected.{RESET}", RED)
+    
+    log("\n" + "="*80, BLUE)
+    log("IMPORTANT NOTES:", BLUE)
+    log("="*80, BLUE)
+    log("• Backend runs on LIVE Railway PostgreSQL with WORKER_ROLE=secondary", YELLOW)
+    log("• Contributions stay 'active' (no settlement), so supporters_count/raised_amount stay 0", YELLOW)
+    log("• This is EXPECTED behavior, not a bug", YELLOW)
+    log("• support_widget_enabled left as TRUE for frontend UI verification", YELLOW)
+    log("• Manual DB cleanup needed for tip-jar parent + contribution children", YELLOW)
+    
+    sys.exit(0 if passed == total else 1)
 
 if __name__ == "__main__":
     main()

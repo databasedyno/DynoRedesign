@@ -2,14 +2,16 @@ import React from 'react'
 import Head from 'next/head'
 import { GetServerSideProps } from 'next'
 import CreatorProfile, { CreatorData, CreatorLink } from '@/Components/Page/Creator/CreatorProfile'
+import { SupportWidgetData } from '@/Components/Page/Creator/SupportWidget'
 
 interface CreatorPageProps {
   creator: CreatorData
   links: CreatorLink[]
   siteUrl: string
+  supportWidget: SupportWidgetData | null
 }
 
-const CreatorPage = ({ creator, links, siteUrl }: CreatorPageProps) => {
+const CreatorPage = ({ creator, links, siteUrl, supportWidget }: CreatorPageProps) => {
   const title = `${creator.name} (@${creator.handle}) · Dynopay`
   const description =
     creator.bio || `Support ${creator.name} with crypto — donate or pay securely via Dynopay.`
@@ -31,7 +33,7 @@ const CreatorPage = ({ creator, links, siteUrl }: CreatorPageProps) => {
         <meta key='twitter:title' name='twitter:title' content={title} />
         <meta key='twitter:description' name='twitter:description' content={description} />
       </Head>
-      <CreatorProfile creator={creator} links={links} siteUrl={siteUrl} />
+      <CreatorProfile creator={creator} links={links} siteUrl={siteUrl} supportWidget={supportWidget} />
     </>
   )
 }
@@ -55,6 +57,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
         creator: data.creator,
         links: Array.isArray(data.links) ? data.links : [],
         siteUrl: base,
+        supportWidget: data.support_widget || null,
       },
     }
   } catch {
