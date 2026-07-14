@@ -20,6 +20,21 @@ import * as orderCtrl from "../controller/product/orderController";
 
 const productRouter = express.Router();
 
+// ── Feature flag guard (spec §13) ─────────────────────────────────────
+// When NEXT_PUBLIC_ENABLE_PRODUCT_CATALOG=false, every catalog route returns
+// 404 so the surface can be killed instantly without a code deploy. We read
+// the same env var the frontend consults so both layers stay in sync.
+productRouter.use((req, res, next) => {
+  const enabled =
+    String(process.env.NEXT_PUBLIC_ENABLE_PRODUCT_CATALOG ?? "true").toLowerCase() !== "false";
+  if (!enabled) {
+    return res
+      .status(404)
+      .json({ statusCode: 404, message: "Product Catalog is not enabled." });
+  }
+  next();
+});
+
 // ── Merchant CRUD (authenticated) ─────────────────────────────────────
 productRouter.get("/products", authMiddleware, productCtrl.listProducts);
 productRouter.post("/products", authMiddleware, productCtrl.createProduct);
@@ -46,6 +61,11 @@ productRouter.delete("/products/:productId/assets/:assetId", authMiddleware, pro
 
 // Orders for one product
 productRouter.get("/products/:productId/orders", authMiddleware, productCtrl.listProductOrders);
+
+// Merchant refund flow (spec §7.6) — POST /api/products/orders/:orderId/refund
+// Two-step: body.final=false → 'refund_requested', body.final=true → 'refunded'.
+// Idempotent, restocks on request, emails buyer on final.
+productRouter.post("/products/orders/:orderId/refund", authMiddleware, orderCtrl.refundOrder);
 
 // ── Public shop (rate-limited) ────────────────────────────────────────
 productRouter.get("/shop/:handle", paymentRateLimiter, shopCtrl.getShopByHandle);

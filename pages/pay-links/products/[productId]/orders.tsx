@@ -1,14 +1,24 @@
 /**
  * Merchant view of orders for a single product.
  * Route: /pay-links/products/[productId]/orders
+ *
+ * Features (Phase 1):
+ *  - List every order that includes this product
+ *  - Filter by payment status
+ *  - Refund flow (spec §7.6): two-step "Request refund" → "Mark refunded"
+ *    both call POST /api/products/orders/:orderId/refund, differ by
+ *    body.final. Restock toggle re-inserts stock when checked.
  */
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/router";
 import {
   Box, Typography, Stack, Chip, LinearProgress, Alert, IconButton,
+  Dialog, DialogTitle, DialogContent, DialogActions, TextField,
+  FormControlLabel, Checkbox, Button, Snackbar,
 } from "@mui/material";
 import ArrowBackRounded from "@mui/icons-material/ArrowBackRounded";
 import OpenInNewRounded from "@mui/icons-material/OpenInNewRounded";
+import ReplayRounded from "@mui/icons-material/ReplayRounded";
 import PanelCard from "@/Components/UI/PanelCard";
 import { pageProps } from "@/utils/types";
 import axiosBaseApi from "@/axiosConfig";
@@ -29,6 +39,7 @@ const STATUS_COLORS: Record<string, { bg: string; fg: string }> = {
   paid: { bg: "#DCFCE7", fg: "#166534" },
   pending: { bg: "#FEF3C7", fg: "#92400E" },
   expired: { bg: "#E5E7EB", fg: "#4B5563" },
+  refund_requested: { bg: "#FEE2E2", fg: "#991B1B" },
   refunded: { bg: "#FEE2E2", fg: "#991B1B" },
 };
 
@@ -38,6 +49,12 @@ const ProductOrdersPage = ({ setPageName, setPageDescription, setPageAction }: p
   const [rows, setRows] = useState<OrderRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [refundTarget, setRefundTarget] = useState<OrderRow | null>(null);
+  const [refundReason, setRefundReason] = useState("");
+  const [refundRestock, setRefundRestock] = useState(true);
+  const [refundFinal, setRefundFinal] = useState(false);
+  const [refunding, setRefunding] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
 
   useEffect(() => {
     if (!setPageName || !setPageDescription) return;
@@ -56,7 +73,7 @@ const ProductOrdersPage = ({ setPageName, setPageDescription, setPageAction }: p
     return () => setPageAction(null);
   }, [setPageAction, router]);
 
-  useEffect(() => {
+  const loadOrders = useCallback(() => {
     if (!Number.isFinite(productId)) return;
     setLoading(true);
     setError(null);
@@ -66,6 +83,47 @@ const ProductOrdersPage = ({ setPageName, setPageDescription, setPageAction }: p
       .catch((e) => setError(e?.response?.data?.message || "Failed to load orders"))
       .finally(() => setLoading(false));
   }, [productId]);
+
+  useEffect(() => {
+    loadOrders();
+  }, [loadOrders]);
+
+  const openRefund = (order: OrderRow) => {
+    // Default: paid → refund_requested (final=false, restock=true)
+    // refund_requested → refunded (final=true, restock=false since already restocked)
+    const isRequested = order.payment_status === "refund_requested";
+    setRefundTarget(order);
+    setRefundReason("");
+    setRefundRestock(!isRequested); // only restock on first pass
+    setRefundFinal(isRequested);    // second pass = mark final
+  };
+
+  const submitRefund = async () => {
+    if (!refundTarget) return;
+    setRefunding(true);
+    try {
+      const resp = await axiosBaseApi.post(
+        `products/orders/${refundTarget.order_id}/refund`,
+        {
+          reason: refundReason || undefined,
+          restock: refundRestock,
+          final: refundFinal,
+        }
+      );
+      const nextStatus = resp?.data?.data?.payment_status || "refund_requested";
+      setToast(
+        nextStatus === "refunded"
+          ? "Refund finalized. Buyer emailed."
+          : "Refund requested. Confirm off-chain, then mark final."
+      );
+      setRefundTarget(null);
+      loadOrders();
+    } catch (e: any) {
+      setToast(e?.response?.data?.message || "Refund failed");
+    } finally {
+      setRefunding(false);
+    }
+  };
 
   if (!Number.isFinite(productId)) return null;
 
@@ -82,6 +140,8 @@ const ProductOrdersPage = ({ setPageName, setPageDescription, setPageAction }: p
             <Stack spacing={1}>
               {rows.map((o) => {
                 const sc = STATUS_COLORS[o.payment_status] || STATUS_COLORS.pending;
+                const canRefund =
+                  o.payment_status === "paid" || o.payment_status === "refund_requested";
                 return (
                   <Stack
                     key={o.order_id}
@@ -104,10 +164,24 @@ const ProductOrdersPage = ({ setPageName, setPageDescription, setPageAction }: p
                     </Typography>
                     <Chip
                       size="small"
-                      label={o.payment_status.toUpperCase()}
+                      label={o.payment_status.replace(/_/g, " ").toUpperCase()}
                       sx={{ bgcolor: sc.bg, color: sc.fg, fontWeight: 700 }}
                       data-testid={`product-order-status-${o.order_id}`}
                     />
+                    {canRefund && (
+                      <IconButton
+                        size="small"
+                        onClick={() => openRefund(o)}
+                        title={
+                          o.payment_status === "refund_requested"
+                            ? "Mark refund final"
+                            : "Refund this order"
+                        }
+                        data-testid={`product-order-refund-${o.order_id}`}
+                      >
+                        <ReplayRounded fontSize="small" />
+                      </IconButton>
+                    )}
                     <IconButton
                       size="small"
                       onClick={() => window.open(`/order/${o.public_ref}`, "_blank")}
@@ -123,6 +197,92 @@ const ProductOrdersPage = ({ setPageName, setPageDescription, setPageAction }: p
           )}
         </PanelCard>
       )}
+
+      {/* Refund dialog */}
+      <Dialog
+        open={!!refundTarget}
+        onClose={() => setRefundTarget(null)}
+        fullWidth
+        maxWidth="sm"
+        data-testid="refund-dialog"
+      >
+        <DialogTitle>
+          {refundFinal ? "Mark refund final" : "Request refund"}
+        </DialogTitle>
+        <DialogContent>
+          <Stack spacing={2} sx={{ pt: 1 }}>
+            <Alert severity="info" sx={{ fontSize: 13 }}>
+              Crypto refunds are handled off-chain — you send the funds back
+              from your own wallet. This flow only updates DynoPay's records
+              and notifies the buyer.
+            </Alert>
+            <TextField
+              label="Reason (shown to buyer)"
+              multiline
+              rows={3}
+              value={refundReason}
+              onChange={(e) => setRefundReason(e.target.value)}
+              inputProps={{ maxLength: 500, "data-testid": "refund-reason-input" }}
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={refundRestock}
+                  onChange={(e) => setRefundRestock(e.target.checked)}
+                  disabled={refundFinal && refundTarget?.payment_status === "refund_requested"}
+                  data-testid="refund-restock-checkbox"
+                />
+              }
+              label="Return items to stock"
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={refundFinal}
+                  onChange={(e) => setRefundFinal(e.target.checked)}
+                  data-testid="refund-final-checkbox"
+                />
+              }
+              label={
+                refundTarget?.payment_status === "refund_requested"
+                  ? "I've sent the crypto back — mark refund as final"
+                  : "Skip 'requested' step and mark refund as final now"
+              }
+            />
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => setRefundTarget(null)}
+            disabled={refunding}
+            data-testid="refund-cancel-btn"
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={submitRefund}
+            disabled={refunding}
+            data-testid="refund-submit-btn"
+          >
+            {refunding
+              ? "Working…"
+              : refundFinal
+                ? "Mark refunded"
+                : "Request refund"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Snackbar
+        open={!!toast}
+        autoHideDuration={4000}
+        onClose={() => setToast(null)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        message={toast || ""}
+        data-testid="refund-toast"
+      />
     </Box>
   );
 };

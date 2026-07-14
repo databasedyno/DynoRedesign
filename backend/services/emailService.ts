@@ -3297,6 +3297,156 @@ export const sendOrderReceiptMerchantEmail = async (
   }
 };
 
+/**
+ * Template — buyer order EXPIRED.
+ * Sent when a `payment_status='pending'` cart order passes its payment-link
+ * expires_at without settling. The `cron_expire_cart_orders` job triggers
+ * this so buyers know why their download links never arrived. Includes a
+ * "restart your order" link back to the shop.
+ */
+export const sendOrderExpiredEmail = async (
+  buyerEmail: string,
+  buyerName: string,
+  order: any,
+  items: any[],
+  shopUrl: string
+) => {
+  try {
+    const name = buyerName || "there";
+    const shortRef = String(order.public_ref || "").slice(0, 8).toUpperCase();
+    const subject = `Your order ${shortRef} was not completed — Dynopay`;
+    const itemsTable = renderOrderItemsTable(order, items, { includeDeliveryLinks: false });
+
+    const message = `
+      ${p(`It looks like your recent order was not paid before the checkout window closed, so we've released it and returned the items to the shop's stock.`)}
+      ${infoBox(`Order reference: <strong style="font-family:monospace;">${esc(order.public_ref)}</strong>`)}
+      ${itemsTable}
+      ${p(`If this was intentional — no worries. If you still want these items, you can start a fresh cart:`)}
+      ${p(`<a href="${esc(shopUrl)}" style="color:#10b981;font-weight:600;">Return to the shop →</a>`)}
+    `;
+
+    const html = dynoPayGreetingTemplate(name, message, `Order not completed`, false);
+    await mailTransporter({ to: buyerEmail, name, subject, body: html });
+    apiLogger.info(`[email] sent order expired to ${buyerEmail} for order ${order.order_id}`);
+  } catch (e) {
+    captureError(e, "email", { extraContext: "sendOrderExpiredEmail", buyerEmail } as any);
+  }
+};
+
+/**
+ * Template — buyer order REFUNDED.
+ * Sent when a merchant clicks "Mark refunded" on an order in their dashboard.
+ * Crypto refunds are handled off-chain — this email is the confirmation.
+ */
+export const sendOrderRefundedEmail = async (
+  buyerEmail: string,
+  buyerName: string,
+  order: any,
+  items: any[],
+  reason: string | null,
+  orderPublicUrl: string
+) => {
+  try {
+    const name = buyerName || "there";
+    const shortRef = String(order.public_ref || "").slice(0, 8).toUpperCase();
+    const subject = `Refund confirmed for order ${shortRef} — Dynopay`;
+    const itemsTable = renderOrderItemsTable(order, items, { includeDeliveryLinks: false });
+    const reasonBlock = reason
+      ? infoBox(`<strong>Merchant note:</strong> ${esc(reason)}`)
+      : "";
+
+    const message = `
+      ${p(`Your recent order has been refunded by the merchant. Depending on the network, the crypto refund may take a few blocks to appear in your wallet.`)}
+      ${infoBox(`Order reference: <strong style="font-family:monospace;">${esc(order.public_ref)}</strong>`)}
+      ${reasonBlock}
+      ${itemsTable}
+      ${p(`<a href="${esc(orderPublicUrl)}" style="color:#10b981;font-weight:600;">View order status →</a>`)}
+    `;
+
+    const html = dynoPayGreetingTemplate(name, message, `Refund confirmed`, false);
+    await mailTransporter({ to: buyerEmail, name, subject, body: html });
+    apiLogger.info(`[email] sent refund confirmation to ${buyerEmail} for order ${order.order_id}`);
+  } catch (e) {
+    captureError(e, "email", { extraContext: "sendOrderRefundedEmail", buyerEmail } as any);
+  }
+};
+
+/**
+ * Template — buyer order SHIPPED (physical goods, Phase 2 hook).
+ * Sent when a merchant marks a physical line item as shipped and enters a
+ * tracking number + carrier. The route to trigger this is not wired in Phase 1
+ * (physical checkout isn't shipped yet) but the template is present so Phase 2
+ * only needs to call it.
+ */
+export const sendOrderShippedEmail = async (
+  buyerEmail: string,
+  buyerName: string,
+  order: any,
+  trackingInfo: { carrier?: string; tracking_number?: string; estimated_delivery?: string },
+  orderPublicUrl: string
+) => {
+  try {
+    const name = buyerName || "there";
+    const shortRef = String(order.public_ref || "").slice(0, 8).toUpperCase();
+    const subject = `Your order ${shortRef} has shipped — Dynopay`;
+
+    const trackingBlock = infoBox(`
+      <strong>Tracking details</strong><br/>
+      ${trackingInfo.carrier ? `Carrier: ${esc(trackingInfo.carrier)}<br/>` : ""}
+      ${trackingInfo.tracking_number ? `Tracking #: <span style="font-family:monospace;">${esc(trackingInfo.tracking_number)}</span><br/>` : ""}
+      ${trackingInfo.estimated_delivery ? `Estimated delivery: ${esc(trackingInfo.estimated_delivery)}` : ""}
+    `);
+
+    const message = `
+      ${p(`Great news — your order is on its way!`)}
+      ${infoBox(`Order reference: <strong style="font-family:monospace;">${esc(order.public_ref)}</strong>`)}
+      ${trackingBlock}
+      ${p(`<a href="${esc(orderPublicUrl)}" style="color:#10b981;font-weight:600;">View order details →</a>`)}
+    `;
+
+    const html = dynoPayGreetingTemplate(name, message, `Order shipped`, false);
+    await mailTransporter({ to: buyerEmail, name, subject, body: html });
+    apiLogger.info(`[email] sent order shipped to ${buyerEmail} for order ${order.order_id}`);
+  } catch (e) {
+    captureError(e, "email", { extraContext: "sendOrderShippedEmail", buyerEmail } as any);
+  }
+};
+
+/**
+ * Template — digital download REMINDER (6h before signed URL expiry).
+ * Scheduled by the same cron that expires carts — it scans paid orders with
+ * digital line items whose token expiry is < 6h out and sends a "refresh your
+ * download" nudge. Buyer can hit the resend-download endpoint to get fresh
+ * 24h URLs without waiting for their old link to die.
+ */
+export const sendDigitalDownloadReminderEmail = async (
+  buyerEmail: string,
+  buyerName: string,
+  order: any,
+  items: any[],
+  orderPublicUrl: string
+) => {
+  try {
+    const name = buyerName || "there";
+    const shortRef = String(order.public_ref || "").slice(0, 8).toUpperCase();
+    const subject = `Reminder — your download links expire soon (order ${shortRef})`;
+    const itemsTable = renderOrderItemsTable(order, items, { includeDeliveryLinks: false });
+
+    const message = `
+      ${p(`Just a heads-up — the secure download links from your recent order will expire in the next few hours.`)}
+      ${p(`If you still need the files, tap the button below to refresh them. Refreshed links are valid for another 24 hours.`)}
+      ${itemsTable}
+      ${p(`<a href="${esc(orderPublicUrl)}" style="color:#10b981;font-weight:600;">Refresh download links →</a>`)}
+    `;
+
+    const html = dynoPayGreetingTemplate(name, message, `Your downloads expire soon`, false);
+    await mailTransporter({ to: buyerEmail, name, subject, body: html });
+    apiLogger.info(`[email] sent download reminder to ${buyerEmail} for order ${order.order_id}`);
+  } catch (e) {
+    captureError(e, "email", { extraContext: "sendDigitalDownloadReminderEmail", buyerEmail } as any);
+  }
+};
+
 // ============================================================
 // SECTION 14: EMAIL EXPORTS
 // ============================================================
@@ -3383,4 +3533,8 @@ export default {
   // Product Catalog (Phase 1)
   sendOrderReceiptEmail,
   sendOrderReceiptMerchantEmail,
+  sendOrderExpiredEmail,
+  sendOrderRefundedEmail,
+  sendOrderShippedEmail,
+  sendDigitalDownloadReminderEmail,
 };

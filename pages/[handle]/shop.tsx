@@ -129,6 +129,13 @@ const ShopPage: NextPageWithLayout<ShopPageProps> = ({ merchant, products, siteU
 (ShopPage as unknown as { layout: string }).layout = "home";
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
+  // Feature flag (spec §13): kill-switch for the entire Product Catalog surface.
+  // When NEXT_PUBLIC_ENABLE_PRODUCT_CATALOG=false, /{handle}/shop returns 404.
+  if (
+    String(process.env.NEXT_PUBLIC_ENABLE_PRODUCT_CATALOG ?? "true").toLowerCase() === "false"
+  ) {
+    return { notFound: true };
+  }
   const handle = String(ctx.params?.handle || "").toLowerCase();
   const base = (process.env.NEXT_PUBLIC_BASE_URL || "").replace(/\/+$/, "");
   try {

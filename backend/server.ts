@@ -47,6 +47,9 @@ import { getAllFeeRates, getFeeRates } from "./services/feeRateService";
 import { captureError, startErrorMonitoring, stopErrorMonitoring, getMonitoringStats, flushErrorDigest, sendErrorDigest } from "./services/errorMonitoringService";
 import { startLeaderElection, stopLeaderElection, isLeader, getInstanceId } from "./utils/leaderElection";
 import * as merchantPoolService from "./services/merchantPoolService";
+import { sweepExpiredCartOrders } from "./services/orderExpiryService";
+import { logStorageStrategyOnStartup } from "./services/gcsAssetService";
+import { UPLOAD_ROOT as PRODUCT_UPLOAD_ROOT } from "./middleware/uploadProductAsset";
 
 // ============================================
 // RAILWAY LOGGING FIX: Disable output buffering
@@ -790,6 +793,30 @@ leaderCron.schedule("*/30 * * * *", async () => {
   }
 });
 
+// Product Catalog (Phase 1) — Cart-order expiry sweep.
+// Every 5 minutes: mark abandoned pending carts as expired + restore stock +
+// send buyer-side reminder emails for digital orders whose download links
+// are about to expire. See services/orderExpiryService.ts for details.
+// SPEC: /app/memory/PRODUCT_CATALOG_SPEC.md §7.5
+leaderCron.schedule("*/5 * * * *", async () => {
+  const lockAcquired = await acquireLock("cron:expireCartOrders", 240, 1, 100, true);
+  if (!lockAcquired) return;
+  try {
+    const stats = await sweepExpiredCartOrders();
+    if (stats.expired > 0 || stats.reminders > 0 || stats.errors > 0) {
+      log(
+        `Cron: expireCartOrders — expired=${stats.expired}, reminders=${stats.reminders}, errors=${stats.errors}`,
+        "info"
+      );
+    }
+  } catch (err) {
+    log(`Cron: expireCartOrders failed: ${(err as Error).message}`, "error");
+    captureError(err as Error, "cron", { extraContext: "expireCartOrders" });
+  } finally {
+    await releaseLock("cron:expireCartOrders");
+  }
+});
+
 // TATUM CREDIT OPTIMIZATION: Reduced from */15 to hourly — fee balance doesn't change rapidly
 leaderCron.schedule("0 * * * *", async function () {
   const lockAcquired = await acquireLock("cron:checkFeeBalance", 300, 1, 100, true);
@@ -1178,6 +1205,14 @@ const startServer = async () => {
     log('Connecting to PostgreSQL...', 'info');
     await sequelize.authenticate();
     log('PostgreSQL Connection has been established successfully.', 'info');
+
+    // Product Catalog storage strategy sanity log (spec §9)
+    try {
+      logStorageStrategyOnStartup(PRODUCT_UPLOAD_ROOT);
+    } catch (e: any) {
+      // Non-fatal: never let a diagnostic log block startup.
+      log(`[storage] strategy log failed: ${e?.message || e}`, "warn");
+    }
     
     // Sync Merchant Pool models (per-merchant system for ALL chains including USDT)
     // OPTIMIZED: Use alter:true only in development — production should use migrations

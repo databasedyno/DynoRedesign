@@ -1023,9 +1023,11 @@ const Payment = () => {
     cleanCheckoutFlag &&
     typeof router.query.d === 'string' &&
     // Eligible types: `standard` (regular payment link), `payment` (older
-    // alias), and `contribution` (per-donor child of a crowdfunding parent).
+    // alias), `contribution` (per-donor child of a crowdfunding parent), and
+    // `cart` (Product Catalog Phase 1 — buyer-facing multi-item order that
+    // reuses CleanCheckoutV2 for crypto selection + QR + confirmations).
     // `donation` parents are handled by the DonationCampaign branch above.
-    (linkType === 'standard' || linkType === 'payment' || linkType === 'contribution' || !linkType);
+    (linkType === 'standard' || linkType === 'payment' || linkType === 'contribution' || linkType === 'cart' || !linkType);
   if (cleanCheckoutEligible) {
     return (
       <Pay3Layout embed={isEmbed}>

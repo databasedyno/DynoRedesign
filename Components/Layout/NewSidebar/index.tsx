@@ -109,7 +109,11 @@ const NewSidebar = () => {
       label: t("sidebarSectionPayments"),
       items: [
         { label: t("payLinks"), icon: "payment-links", path: "/pay-links", plus: true },
-        { label: t("products", { defaultValue: "Products" }), icon: "invoices", path: "/pay-links/products" },
+        // Product Catalog nav item — gated by feature flag (spec §13). When
+        // NEXT_PUBLIC_ENABLE_PRODUCT_CATALOG=false, hide the entry entirely.
+        ...(String(process.env.NEXT_PUBLIC_ENABLE_PRODUCT_CATALOG ?? "true").toLowerCase() !== "false"
+          ? [{ label: t("products", { defaultValue: "Products" }), icon: "invoices", path: "/pay-links/products" }]
+          : []),
         { label: t("creatorPage", { defaultValue: "Creator page" }), icon: "creator", path: "/creator", isNew: !hasClaimedCreator },
         { label: t("wallets"), icon: "wallets", path: "/wallet" },
         { label: t("customers"), icon: "customers", path: "/customers" },

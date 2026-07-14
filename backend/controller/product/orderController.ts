@@ -18,6 +18,7 @@ import {
   productAssetModel,
   userModel,
 } from "../../models";
+import productModel from "../../models/userModels/productModel";
 import {
   successResponseHelper,
   errorResponseHelper,
@@ -29,7 +30,11 @@ import {
 } from "../../services/orderFulfillmentService";
 import { UPLOAD_ROOT } from "../../middleware/uploadProductAsset";
 import crypto from "crypto";
-import { sendOrderReceiptEmail } from "../../services/emailService";
+import sequelize from "../../utils/dbInstance";
+import {
+  sendOrderReceiptEmail,
+  sendOrderRefundedEmail,
+} from "../../services/emailService";
 
 export const getOrderByPublicRef = async (
   req: express.Request,
@@ -282,5 +287,147 @@ export const testMarkPaid = async (
   } catch (e: any) {
     apiLogger.error("[orderController] testMarkPaid:", e?.message || e);
     return errorResponseHelper(res, 500, e?.message || "Test mark failed");
+  }
+};
+
+/**
+ * MERCHANT — mark an order as refund_requested or refunded.
+ *
+ * Route: POST /api/products/orders/:orderId/refund
+ * Auth: authMiddleware (merchant JWT)
+ * Body: {
+ *   reason?: string,            // shown to buyer in email
+ *   restock?: boolean,          // if true, re-increment stock for line items
+ *   final?: boolean,            // false = 'refund_requested', true = 'refunded'
+ * }
+ *
+ * Crypto refunds are OFF-CHAIN (spec §7.6): merchant refunds via their own
+ * wallet, then hits this endpoint. Two-step so the merchant dashboard can
+ * flag "processing" then "done".
+ *
+ * Ownership guard: `res.locals.user.user_id` must match the order's
+ * `merchant_user_id`. Idempotent — hitting `final=true` twice is safe.
+ */
+export const refundOrder = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  try {
+    const uid = Number((res.locals as any)?.user?.user_id);
+    if (!uid) return errorResponseHelper(res, 401, "Authentication required.");
+
+    const orderId = Number(req.params.orderId);
+    if (!Number.isFinite(orderId)) {
+      return errorResponseHelper(res, 400, "Invalid order id");
+    }
+
+    const order: any = await productOrderModel.findByPk(orderId);
+    if (!order) return errorResponseHelper(res, 404, "Order not found.");
+    if (Number(order.dataValues.merchant_user_id) !== uid) {
+      return errorResponseHelper(res, 403, "You are not the merchant of this order.");
+    }
+
+    const currentStatus = String(order.dataValues.payment_status || "");
+    if (currentStatus === "refunded") {
+      return errorResponseHelper(res, 400, "Order is already refunded.");
+    }
+    if (currentStatus !== "paid" && currentStatus !== "refund_requested") {
+      return errorResponseHelper(
+        res,
+        400,
+        `Cannot refund an order in status '${currentStatus}'. Only paid orders can be refunded.`
+      );
+    }
+
+    const body = req.body || {};
+    const reason = body.reason ? String(body.reason).slice(0, 500) : null;
+    const final = !!body.final;
+    const restock = body.restock === true;
+
+    const t = await sequelize.transaction();
+    let itemRows: any[] = [];
+    try {
+      itemRows = await productOrderItemModel.findAll({
+        where: { order_id: orderId },
+        transaction: t,
+        lock: t.LOCK.UPDATE,
+      });
+
+      if (restock && currentStatus !== "refund_requested") {
+        // Only restore stock once — if already `refund_requested`, this pass
+        // is just flipping to `refunded` and stock was already returned.
+        for (const raw of itemRows) {
+          const iv: any = (raw as any).dataValues;
+          const qty = Number(iv.quantity) || 0;
+          if (qty <= 0) continue;
+          if (iv.variant_id) {
+            await sequelize.query(
+              `UPDATE tbl_product_variant
+               SET stock_count = COALESCE(stock_count, 0) + :qty, "updatedAt" = NOW()
+               WHERE variant_id = :vid AND stock_count IS NOT NULL`,
+              { replacements: { qty, vid: iv.variant_id }, transaction: t } as any
+            );
+          } else if (iv.product_id) {
+            await sequelize.query(
+              `UPDATE tbl_product
+               SET base_stock = COALESCE(base_stock, 0) + :qty, "updatedAt" = NOW()
+               WHERE product_id = :pid AND base_stock IS NOT NULL`,
+              { replacements: { qty, pid: iv.product_id }, transaction: t } as any
+            );
+          }
+          // Roll back sold_count denorm too (only when going straight to final)
+          if (final) {
+            await sequelize.query(
+              `UPDATE tbl_product
+               SET sold_count = GREATEST(COALESCE(sold_count, 0) - :qty, 0), "updatedAt" = NOW()
+               WHERE product_id = :pid`,
+              { replacements: { qty, pid: iv.product_id }, transaction: t } as any
+            );
+          }
+        }
+      }
+
+      const nextStatus = final ? "refunded" : "refund_requested";
+      await order.update({ payment_status: nextStatus }, { transaction: t });
+      await t.commit();
+    } catch (txErr) {
+      try {
+        await t.rollback();
+      } catch {}
+      throw txErr;
+    }
+
+    // Best-effort email — outside the tx.
+    try {
+      if (final) {
+        const serverBaseUrl = (
+          process.env.SERVER_URL ||
+          process.env.FRONTEND_URL ||
+          ""
+        ).replace(/\/+$/, "");
+        const orderPublicUrl = `${serverBaseUrl}/order/${order.dataValues.public_ref}`;
+        await sendOrderRefundedEmail(
+          order.dataValues.buyer_email,
+          order.dataValues.buyer_name || "",
+          order.dataValues,
+          itemRows.map((r: any) => r.dataValues),
+          reason,
+          orderPublicUrl
+        );
+      }
+    } catch (emailErr: any) {
+      apiLogger.warn(
+        `[orderController] refund email for order ${orderId} failed: ${emailErr?.message || emailErr}`
+      );
+    }
+
+    return successResponseHelper(res, 200, "Refund status updated.", {
+      order_id: orderId,
+      payment_status: final ? "refunded" : "refund_requested",
+      restocked: restock,
+    });
+  } catch (e: any) {
+    apiLogger.error("[orderController] refundOrder:", e?.message || e);
+    return errorResponseHelper(res, 500, e?.message || "Refund failed");
   }
 };
