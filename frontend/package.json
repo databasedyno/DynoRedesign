@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start": "cd /app && rm -rf .next/standalone/public && mkdir -p .next/standalone/public && cp -a /app/public/. .next/standalone/public/ && ln -sfn /app/.next/static .next/standalone/.next/static && ln -sfn /app/.env .next/standalone/.env && NODE_OPTIONS=--max-old-space-size=1536 HOSTNAME=0.0.0.0 PORT=3000 node .next/standalone/server.js",
+    "start": "cd /app && NODE_OPTIONS=--max-old-space-size=2048 HOSTNAME=0.0.0.0 PORT=3000 node_modules/.bin/next dev -p 3000 -H 0.0.0.0",
     "build": "cd /app && node_modules/.bin/next build",
     "dev": "cd /app && node_modules/.bin/next dev -p 3000 -H 0.0.0.0"
   }

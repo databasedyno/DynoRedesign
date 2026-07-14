@@ -28,6 +28,9 @@ import {
 import sequelize from "../../utils/dbInstance";
 import { Op } from "sequelize";
 import jwt from "jsonwebtoken";
+// Product Catalog (Phase 1) — cart-order settlement fan-out
+import { handleCartPaymentSettled } from "../../services/orderFulfillmentService";
+import { productOrderModel } from "../../models";
 import { normalizeLang, resolveCustomerLanguage } from "../../utils/emailI18n";
 import {
   adminFeeModel,
@@ -2618,6 +2621,40 @@ const cryptoVerification = async (address, webhook = true, overrideRedisKey?: st
 
         }
 
+        // Product Catalog (Phase 1) — fan-out for cart orders.
+        // Detects `link_type='cart'` payment links and triggers digital
+        // fulfillment + receipt emails. Idempotent: handleCartPaymentSettled
+        // early-returns on already-paid orders, so webhook retries are safe.
+        let __cartOrderIdForFanout: number | null = null;
+        try {
+          const linkType = customerData?.link_type || tempData?.link_type;
+          if (linkType === "cart") {
+            const linkRow: any = linkTransactionId
+              ? await paymentLinkModel.findOne({
+                  where: { transaction_id: linkTransactionId },
+                  transaction,
+                })
+              : null;
+            const linkId = linkRow?.dataValues?.link_id;
+            if (linkId) {
+              const orderRow: any = await productOrderModel.findOne({
+                where: { payment_link_id: linkId },
+                transaction,
+              });
+              if (orderRow) {
+                __cartOrderIdForFanout = Number(orderRow.dataValues.order_id);
+                cronLogger.info(
+                  `[cryptoVerification] cart order ${__cartOrderIdForFanout} detected for link ${linkId} — fan-out queued (post-commit)`
+                );
+              }
+            }
+          }
+        } catch (cartLookupErr: any) {
+          cronLogger.warn(
+            `[cryptoVerification] cart-order lookup failed: ${cartLookupErr?.message || cartLookupErr}`
+          );
+        }
+
         // FIX: Also update customer transaction status to match payment link status
         if (customerPayload?.id) {
           cronLogger.info(`[cryptoVerification] Updating customer transaction ${customerPayload.id} status to successful`);
@@ -2643,6 +2680,28 @@ const cryptoVerification = async (address, webhook = true, overrideRedisKey?: st
         
         transactionFinished = true;
         await transaction.commit();
+
+        // Product Catalog (Phase 1) — trigger cart fulfillment after commit
+        if (__cartOrderIdForFanout) {
+          setImmediate(async () => {
+            try {
+              await handleCartPaymentSettled(__cartOrderIdForFanout as number, {
+                crypto_amount: totalAmountReceived,
+                crypto_currency: tempCurrency,
+                crypto_network:
+                  (tempData as any)?.chain ||
+                  (tempData as any)?.network ||
+                  undefined,
+              });
+            } catch (fanoutErr: any) {
+              cronLogger.error(
+                `[cryptoVerification] cart fan-out failed for order ${__cartOrderIdForFanout}: ${
+                  fanoutErr?.message || fanoutErr
+                }`
+              );
+            }
+          });
+        }
         
         // PHASE 12: Clear incomplete_payment and active_crypto_address from customer Redis key on successful completion
         const customerRef = tempData.ref;

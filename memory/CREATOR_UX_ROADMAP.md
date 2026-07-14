@@ -3,7 +3,7 @@
 **Status:** Living document. Update as items ship.  
 **Created:** Session 38 (2026-07-13)  
 **Owner:** Main agent (Dynopay)  
-**Preview URL (this session):** https://dynopay-checkout.preview.emergentagent.com
+**Preview URL (this session):** https://product-shop-158.preview.emergentagent.com
 
 ---
 

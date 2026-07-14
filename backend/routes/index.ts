@@ -19,6 +19,7 @@ import knowledgeBaseRouter from "./knowledgeBaseRouter";
 import supportChatRouter from "./supportChatRouter";
 import merchantApiRouter from "./merchantApiRouter";
 import trackRouter from "./trackRouter";
+import productRouter from "./productRouter";
 
 import {
   authMiddleware,
@@ -360,6 +361,7 @@ router.use("/support", supportChatRouter); // AI support chat (public, rate-limi
 router.use("/events", eventsRouter); // SSE real-time events
 router.use("/track", trackRouter); // Visitor tracking (public, rate-limited)
 router.use("/admin/analytics", analyticsRouter); // Admin analytics (revenue, cohorts, funnels)
+router.use("/", productRouter); // Product Catalog (Phase 1): /products, /shop, /cart, /checkout, /order
 router.use("/", invoiceRouter); // Invoice routes (transactions/:id/invoice, invoices, invoices/:id)
 
 router.post("/webhook", webhookRateLimiter, flutterwaveWebHook);

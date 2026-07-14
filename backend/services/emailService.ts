@@ -3118,6 +3118,188 @@ export const sendNewVisitorAdminEmail = async (visitorData: {
 // ============================================================
 // SECTION 13: DEFAULT EXPORT
 // ============================================================
+// SECTION 13: PRODUCT CATALOG EMAILS (Phase 1)
+// ============================================================
+
+/**
+ * Format a cents integer to a currency-symbol prefixed string.
+ * (e.g. 1250 in USD -> "$12.50 USD")
+ */
+const formatCents = (cents: number | string | null | undefined, currency: string = "USD"): string => {
+  const amount = Number(cents || 0) / 100;
+  const symbol = getCurrencySymbol(currency);
+  return `${symbol}${amount.toFixed(2)} ${currency}`;
+};
+
+/**
+ * Escape untrusted strings for embedding in HTML email bodies.
+ */
+const esc = (s: string | null | undefined): string => {
+  if (s == null) return "";
+  return String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+};
+
+/**
+ * Render the shared order line-items table used by both receipt templates.
+ */
+function renderOrderItemsTable(
+  order: any,
+  items: any[],
+  opts: { includeDeliveryLinks: boolean }
+): string {
+  const currency = order.currency || "USD";
+  const rows = items
+    .map((it: any) => {
+      const snap = it.product_snapshot || {};
+      const vSnap = it.variant_snapshot;
+      const attrText = vSnap && vSnap.attributes
+        ? Object.entries(vSnap.attributes).map(([k, v]) => `${esc(k)}: ${esc(String(v))}`).join(", ")
+        : "";
+      const productLine = `<strong>${esc(snap.title || "Item")}</strong>${attrText ? ` <span style="color:#6b7280;font-size:13px;"> (${attrText})</span>` : ""}`;
+      let deliveryHtml = "";
+      if (opts.includeDeliveryLinks && it.delivered_payload) {
+        const dp = it.delivered_payload;
+        if (Array.isArray(dp.asset_deliveries) && dp.asset_deliveries.length > 0) {
+          deliveryHtml = `<div style="margin-top:6px;">` +
+            dp.asset_deliveries.map((a: any) =>
+              `<a href="${esc(a.download_url)}" style="color:#10b981;font-weight:600;text-decoration:none;">⬇ Download ${esc(a.filename)}</a>`
+            ).join("<br/>") +
+            `</div>`;
+        } else if (dp.license_key) {
+          deliveryHtml = `<div style="margin-top:6px;font-family:monospace;background:#f3f4f6;padding:6px 8px;border-radius:6px;font-size:13px;">License key: ${esc(dp.license_key)}</div>`;
+        } else if (dp.access_url) {
+          deliveryHtml = `<div style="margin-top:6px;"><a href="${esc(dp.access_url)}" style="color:#10b981;font-weight:600;">Access your purchase →</a></div>`;
+        } else if (dp.calendar_url) {
+          deliveryHtml = `<div style="margin-top:6px;"><a href="${esc(dp.calendar_url)}" style="color:#10b981;font-weight:600;">Book your session →</a></div>`;
+        }
+      }
+      return `
+        <tr>
+          <td style="padding:12px;border-bottom:1px solid #e5e7eb;">
+            ${productLine}
+            ${deliveryHtml}
+          </td>
+          <td style="padding:12px;text-align:center;border-bottom:1px solid #e5e7eb;">${it.quantity}</td>
+          <td style="padding:12px;text-align:right;border-bottom:1px solid #e5e7eb;font-family:monospace;">${formatCents(it.line_total_cents, currency)}</td>
+        </tr>`;
+    })
+    .join("");
+
+  const totals = `
+    <tr><td style="padding:8px 12px;text-align:right;color:#6b7280;">Subtotal</td><td colspan="2" style="padding:8px 12px;text-align:right;font-family:monospace;">${formatCents(order.subtotal_cents, currency)}</td></tr>
+    ${Number(order.shipping_cents) > 0 ? `<tr><td style="padding:8px 12px;text-align:right;color:#6b7280;">Shipping</td><td colspan="2" style="padding:8px 12px;text-align:right;font-family:monospace;">${formatCents(order.shipping_cents, currency)}</td></tr>` : ""}
+    ${Number(order.tax_cents) > 0 ? `<tr><td style="padding:8px 12px;text-align:right;color:#6b7280;">Tax</td><td colspan="2" style="padding:8px 12px;text-align:right;font-family:monospace;">${formatCents(order.tax_cents, currency)}</td></tr>` : ""}
+    <tr><td style="padding:12px;text-align:right;font-weight:700;border-top:2px solid #111827;">Total</td><td colspan="2" style="padding:12px;text-align:right;font-family:monospace;font-weight:700;border-top:2px solid #111827;">${formatCents(order.total_cents, currency)}</td></tr>
+  `;
+
+  return `
+    <table style="width:100%;border-collapse:collapse;margin:16px 0;background:#ffffff;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;">
+      <thead>
+        <tr style="background:#f9fafb;">
+          <th style="padding:12px;text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:0.05em;color:#6b7280;">Product</th>
+          <th style="padding:12px;text-align:center;font-size:12px;text-transform:uppercase;letter-spacing:0.05em;color:#6b7280;">Qty</th>
+          <th style="padding:12px;text-align:right;font-size:12px;text-transform:uppercase;letter-spacing:0.05em;color:#6b7280;">Amount</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+      <tfoot>${totals}</tfoot>
+    </table>`;
+}
+
+/**
+ * Template — buyer order receipt (post-payment).
+ * Sent to the customer once a cart order transitions to `paid`.
+ */
+export const sendOrderReceiptEmail = async (
+  buyerEmail: string,
+  buyerName: string,
+  order: any,
+  items: any[],
+  orderPublicUrl: string
+) => {
+  try {
+    const name = buyerName || "there";
+    const shortRef = String(order.public_ref || "").slice(0, 8).toUpperCase();
+    const subject = `Your order ${shortRef} is confirmed — Dynopay`;
+
+    const itemsTable = renderOrderItemsTable(order, items, { includeDeliveryLinks: true });
+    const hasDigital = items.some((i: any) => (i.product_snapshot?.product_type || "digital") === "digital");
+    const hasPhysical = items.some((i: any) => i.product_snapshot?.product_type === "physical");
+
+    const message = `
+      ${p(`Thanks for your purchase! Your payment has been received and your order is confirmed.`)}
+      ${infoBox(`Order reference: <strong style="font-family:monospace;">${esc(order.public_ref)}</strong>`)}
+      ${itemsTable}
+      ${hasDigital ? p(`Download links above are valid for 24 hours. Need a fresh link? <a href="${esc(orderPublicUrl)}" style="color:#10b981;">Open your order page</a>.`) : ""}
+      ${hasPhysical ? p(`Your merchant will email a tracking number once your items ship.`) : ""}
+      ${p(`<a href="${esc(orderPublicUrl)}" style="color:#10b981;font-weight:600;">View order details →</a>`)}
+    `;
+
+    const html = dynoPayGreetingTemplate(name, message, `Order confirmed`, false);
+    await mailTransporter({ to: buyerEmail, name, subject, body: html });
+    apiLogger.info(`[email] sent order receipt to ${buyerEmail} for order ${order.order_id}`);
+  } catch (e) {
+    captureError(e, "email", { extraContext: "sendOrderReceiptEmail", buyerEmail } as any);
+  }
+};
+
+/**
+ * Template — merchant sale notification (post-payment).
+ * Sent to the merchant once a cart order transitions to `paid`.
+ */
+export const sendOrderReceiptMerchantEmail = async (
+  merchantEmail: string,
+  merchantName: string,
+  order: any,
+  items: any[],
+  orderPublicUrl: string
+) => {
+  try {
+    const name = merchantName || "there";
+    const shortRef = String(order.public_ref || "").slice(0, 8).toUpperCase();
+    const subject = `New sale — ${formatCents(order.total_cents, order.currency || "USD")} — Dynopay`;
+    const itemsTable = renderOrderItemsTable(order, items, { includeDeliveryLinks: false });
+
+    const buyerBlock = infoBox(`
+      <strong>Buyer</strong><br/>
+      ${esc(order.buyer_name || "(no name)")}<br/>
+      ${esc(order.buyer_email)}
+      ${order.buyer_phone ? `<br/>${esc(order.buyer_phone)}` : ""}
+    `);
+
+    const shippingBlock = order.shipping_address
+      ? infoBox(`
+        <strong>Shipping address</strong><br/>
+        ${esc(order.shipping_address.line1 || "")}${order.shipping_address.line2 ? `<br/>${esc(order.shipping_address.line2)}` : ""}<br/>
+        ${esc(order.shipping_address.city || "")}, ${esc(order.shipping_address.region || "")} ${esc(order.shipping_address.postal_code || "")}<br/>
+        ${esc(order.shipping_address.country_code || "")}
+      `)
+      : "";
+
+    const message = `
+      ${p(`You just made a new sale! Order <strong style="font-family:monospace;">${esc(shortRef)}</strong> has been paid in full and settled to your wallet.`)}
+      ${buyerBlock}
+      ${shippingBlock}
+      ${itemsTable}
+      ${p(`<a href="${esc(orderPublicUrl)}" style="color:#10b981;font-weight:600;">Open in dashboard →</a>`)}
+    `;
+
+    const html = dynoPayGreetingTemplate(name, message, `You just made a sale`, false);
+    await mailTransporter({ to: merchantEmail, name, subject, body: html });
+    apiLogger.info(`[email] sent merchant sale notification to ${merchantEmail} for order ${order.order_id}`);
+  } catch (e) {
+    captureError(e, "email", { extraContext: "sendOrderReceiptMerchantEmail", merchantEmail } as any);
+  }
+};
+
+// ============================================================
+// SECTION 14: EMAIL EXPORTS
+// ============================================================
 
 export default {
   // Template helpers
@@ -3198,4 +3380,7 @@ export default {
   sendNewVisitorAdminEmail,
   // Volume-based fee tier
   sendVolumeTierUpgradeEmail,
+  // Product Catalog (Phase 1)
+  sendOrderReceiptEmail,
+  sendOrderReceiptMerchantEmail,
 };

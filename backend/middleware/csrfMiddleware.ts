@@ -75,6 +75,12 @@ const EXEMPT_PATHS = [
   // Sandbox playground endpoint — public, rate-limited, returns ephemeral in-memory
   // stub responses (never touches DB). Used by the homepage curl snippet.
   "/api/public/sandbox",
+  // Product Catalog (Phase 1) — public cart / checkout / order-status endpoints.
+  // Same rationale as `/api/pay/getData`: buyers hit these anonymously before
+  // any session token exists. Rate-limited via paymentRateLimiter.
+  "/api/cart",
+  "/api/checkout",
+  "/api/order/",
 ];
 
 /**

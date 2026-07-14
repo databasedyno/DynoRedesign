@@ -123,7 +123,7 @@ class TestProfileAPI:
         assert isinstance(data['has_password'], bool), f"has_password should be boolean, got {type(data['has_password'])}"
         
         # For our test user, has_password should be True
-        assert data['has_password'] == True, "Test user should have has_password=True"
+        assert data['has_password'], "Test user should have has_password=True"
         
         print(f"✓ Profile has_password: {data['has_password']}")
         print(f"✓ Profile email: {data.get('email')}")

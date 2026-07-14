@@ -19,6 +19,12 @@ import {
   userWalletModel,
   userWalletAddressModel,
   userExchangeModel,
+  // Product Catalog (Phase 1)
+  productModel,
+  productVariantModel,
+  productAssetModel,
+  productOrderModel,
+  productOrderItemModel,
 } from "./userModels";
 
 // Phase 1: New models
@@ -143,4 +149,12 @@ export {
   publishableKeyModel,
   // Buy Buttons (Phase 2D)
   buyButtonModel,
+  // Product Catalog (Phase 1)
+  productModel,
+  productVariantModel,
+  productAssetModel,
+  productOrderModel,
+  productOrderItemModel,
 };
+
+// (Duplicate import removed after Product Catalog additions)

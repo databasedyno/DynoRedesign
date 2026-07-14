@@ -106,33 +106,45 @@ def monitor_services():
             start_node_backend()
 
 # Lightweight reverse proxy
-async def proxy_request(scope, receive, send):
-    """Lightweight HTTP proxy to Node.js backend."""
-    global HTTP_CLIENT
-    
-    # Build full path with query string
+def _build_forward_path(scope):
+    """Combine ASGI path + query string into a single URL suffix."""
     path = scope.get('path', '/')
     query = scope.get('query_string', b'')
     if query:
         path = f"{path}?{query.decode()}"
-    
-    # Get headers (exclude hop-by-hop headers)
+    return path
+
+
+def _extract_forward_headers(scope):
+    """Return a dict of headers to forward, dropping hop-by-hop ones."""
     headers = {}
     for name, value in scope.get('headers', []):
         name_str = name.decode().lower()
         if name_str not in ('host', 'content-length', 'transfer-encoding'):
             headers[name_str] = value.decode()
-    
-    # Get body
+    return headers
+
+
+async def _read_request_body(receive):
+    """Accumulate the full ASGI request body."""
     body = b''
     while True:
         message = await receive()
         body += message.get('body', b'')
         if not message.get('more_body', False):
             break
-    
+    return body
+
+
+async def proxy_request(scope, receive, send):
+    """Lightweight HTTP proxy to Node.js backend."""
+    global HTTP_CLIENT
+
+    path = _build_forward_path(scope)
+    headers = _extract_forward_headers(scope)
+    body = await _read_request_body(receive)
     method = scope.get('method', 'GET')
-    
+
     try:
         # Forward to Node.js
         response = await HTTP_CLIENT.request(

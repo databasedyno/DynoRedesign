@@ -10,7 +10,7 @@ import json
 import sys
 
 # Preview URL from test_credentials.md
-BASE_URL = "https://dynopay-checkout.preview.emergentagent.com"
+BASE_URL = "https://product-shop-158.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 # Test credentials from test_credentials.md

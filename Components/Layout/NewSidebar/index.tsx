@@ -109,6 +109,7 @@ const NewSidebar = () => {
       label: t("sidebarSectionPayments"),
       items: [
         { label: t("payLinks"), icon: "payment-links", path: "/pay-links", plus: true },
+        { label: t("products", { defaultValue: "Products" }), icon: "invoices", path: "/pay-links/products" },
         { label: t("creatorPage", { defaultValue: "Creator page" }), icon: "creator", path: "/creator", isNew: !hasClaimedCreator },
         { label: t("wallets"), icon: "wallets", path: "/wallet" },
         { label: t("customers"), icon: "customers", path: "/customers" },
@@ -127,7 +128,15 @@ const NewSidebar = () => {
 
   const isActiveRoute = (path: string) => {
     if (path === "/") return router.pathname === "/";
-    return router.pathname.startsWith(path);
+    // Session 47: with nested /pay-links/products, both `/pay-links` and
+    // `/pay-links/products` used to highlight together via startsWith.
+    // Match at path-segment boundary only so parent/child items don't both
+    // light up.
+    const p = router.pathname;
+    if (p === path) return true;
+    // Special-case /pay-links: NOT active when inside /pay-links/products
+    if (path === "/pay-links" && p.startsWith("/pay-links/products")) return false;
+    return p.startsWith(path + "/");
   };
 
   const iconColor = (isActive: boolean) =>
