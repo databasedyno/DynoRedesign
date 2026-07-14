@@ -165,5 +165,20 @@
   "createDonation": "Create crowdfunding",
   "createDonationTitle": "Create Crowdfunding",
   "donationSuccessfullyCreated": "Donation created",
-  "shareDonationToStartCollecting": "Share it to start collecting donations"
+  "shareDonationToStartCollecting": "Share it to start collecting donations",
+  "productQuickSell": {
+    "title": "Sell a product from your store",
+    "hint": "Auto-fills amount, currency, description & image — or just fill in manually below.",
+    "pick": "Pick product",
+    "selectedHint": "Amount & description auto-filled — you can still edit them below.",
+    "change": "Change",
+    "remove": "Remove product",
+    "close": "Close",
+    "dialogTitle": "Pick a product from your store",
+    "searchPlaceholder": "Search by name…",
+    "noResults": "No products match your search",
+    "noneLive": "No live products yet",
+    "noneHint": "Publish products in Store → Products, then come back to pick one.",
+    "currentBadge": "· current"
+  }
 }

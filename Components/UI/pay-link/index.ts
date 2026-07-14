@@ -10,3 +10,5 @@ export { default as PostPaymentSettings } from "./PostPaymentSettings";
 export { default as LinkTypeSelector } from "./LinkTypeSelector";
 export { default as DonationSettingsSection } from "./DonationSettingsSection";
 export { default as LivePreviewPanel } from "./LivePreviewPanel";
+export { default as ProductQuickSell } from "./ProductQuickSell";
+export type { PickedProduct } from "./ProductQuickSell";

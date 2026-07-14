@@ -40,9 +40,11 @@ import {
   PaymentLinkHeader,
   PaymentSettingsBasic,
   PostPaymentSettings,
+  ProductQuickSell,
   TaxSection,
 } from "@/Components/UI/pay-link";
 import type { LinkKind } from "@/Components/UI/pay-link/LinkTypeSelector";
+import type { PickedProduct } from "@/Components/UI/pay-link";
 import type {
   DonationSettingsState,
   DonationErrors,
@@ -320,6 +322,40 @@ const CreatePaymentLinkPage = ({
       ? "donation"
       : "standard"
   );
+
+  // ── Quick-sell product picker (session 49 round 3 — option "b") ─────
+  // Optional shortcut: merchant picks one of their live store products →
+  // amount, currency, description auto-fill on the standard link form.
+  // NOT stored server-side; the link is created as a plain 'standard' link.
+  // Hidden in edit mode and for donation link_type.
+  const [pickedProduct, setPickedProduct] = useState<PickedProduct | null>(null);
+  const handlePickProduct = useCallback((p: PickedProduct) => {
+    setPickedProduct(p);
+    // Auto-fill fields — merchant can still edit any of these afterwards.
+    setPaymentSettings((prev) => ({
+      ...prev,
+      value: p.amount,
+      currency: p.currency,
+      description: p.description,
+    }));
+    setPaymentSettingsTouched((prev) => ({
+      ...prev,
+      value: true,
+      currency: true,
+      description: true,
+    }));
+    setPaymentSettingsErrors((prev) => ({
+      ...prev,
+      value: "",
+      currency: "",
+      description: "",
+    }));
+  }, []);
+  const handleClearProduct = useCallback(() => {
+    setPickedProduct(null);
+    // Leave the form fields as they are — merchant likely wants to keep the
+    // last-typed values (Option "3a": fully editable after picking).
+  }, []);
 
   // Keep the page/tab title aligned with the selected link kind while CREATING
   // (in edit mode the parent route owns its own header). Only runs when the
@@ -1341,6 +1377,19 @@ const CreatePaymentLinkPage = ({
                   gap: { xs: "12px", md: 3 },
                 }}
               >
+                <Box sx={{ flex: 1, minWidth: 0 }}>
+                  {/* Quick-sell product picker (session 49 round 3) —
+                      only in CREATE mode + standard link_type. Hidden in
+                      edit mode because we don't want to imply the link is
+                      "linked" to a product (it's just a form shortcut). */}
+                  {!hasPaymentLinkData && (
+                    <ProductQuickSell
+                      picked={pickedProduct}
+                      onPick={handlePickProduct}
+                      onClear={handleClearProduct}
+                      isMobile={isMobile}
+                    />
+                  )}
                 <PaymentSettingsBasic
                   isMobile={isMobile}
                   tPaymentLink={tPaymentLink}
@@ -1366,6 +1415,7 @@ const CreatePaymentLinkPage = ({
                   expireAnchorEl={expireAnchorEl}
                   expireTriggerRef={expireTriggerRef}
                 />
+                </Box>
                 <Box sx={{ flex: 1 }}>
                   <DescriptionSection
                     isMobile={isMobile}

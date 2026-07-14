@@ -165,5 +165,20 @@
   "createDonation": "Donatie aanmaken",
   "createDonationTitle": "Donatie aanmaken",
   "donationSuccessfullyCreated": "Donatie aangemaakt",
-  "shareDonationToStartCollecting": "Deel het om donaties te ontvangen"
+  "shareDonationToStartCollecting": "Deel het om donaties te ontvangen",
+  "productQuickSell": {
+    "title": "Verkoop een product uit je winkel",
+    "hint": "Vult automatisch bedrag, valuta, beschrijving en afbeelding in — of vul het hieronder handmatig in.",
+    "pick": "Kies product",
+    "selectedHint": "Bedrag en beschrijving automatisch ingevuld — je kunt ze hieronder nog aanpassen.",
+    "change": "Wijzigen",
+    "remove": "Product verwijderen",
+    "close": "Sluiten",
+    "dialogTitle": "Kies een product uit je winkel",
+    "searchPlaceholder": "Zoek op naam…",
+    "noResults": "Geen producten gevonden",
+    "noneLive": "Nog geen live producten",
+    "noneHint": "Publiceer producten in Winkel → Producten en kom dan terug om er een te kiezen.",
+    "currentBadge": "· huidige"
+  }
 }
