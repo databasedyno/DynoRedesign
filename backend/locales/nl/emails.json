@@ -407,6 +407,17 @@
       "outro": "Deel deze link met uw klant om de betaling te ontvangen.",
       "cta": "Betaallink openen"
     },
+    "crowdfundingCreated": {
+      "subject": "Uw crowdfundingcampagne is live — {{title}}",
+      "heading": "Crowdfundingcampagne live",
+      "intro": "Uw crowdfundingcampagne is klaar om bijdragen te ontvangen.",
+      "outro": "Deel de campagnepagina met uw community om bijdragen te verzamelen. U kunt de voortgang volgen in uw dashboard.",
+      "cta": "Campagne bekijken",
+      "labelCampaign": "Campagne",
+      "labelGoal": "Doel",
+      "labelNoGoal": "Open (geen doel)",
+      "labelLink": "Campagnelink"
+    },
     "kycRequired": {
       "subject": "Verificatie vereist - volume van {{symbol}}{{threshold}} bereikt",
       "heading": "Verificatie vereist",
@@ -528,5 +539,29 @@
       "heading": "Wekelijks omzettingsrapport",
       "intro": "Hier is uw wekelijkse rapport voor automatische omzetting voor <strong>{{companyName}}</strong>."
     }
+  },
+  "contributor": {
+    "crowdfundingUpdate": {
+      "subject": "{{title}} — update van {{campaign}}",
+      "friend": "vriend",
+      "intro": "De organisator van <strong>{{campaign}}</strong> heeft zojuist een update geplaatst.",
+      "outro": "Bedankt voor je steun aan deze campagne. Je ontvangt deze e-mail omdat je eerder hebt bijgedragen.",
+      "heading": "Nieuwe update van {{campaign}}",
+      "cta": "Campagne bekijken"
+    }
+  },
+  "contributionReceived": {
+    "subject": "Je hebt zojuist een bijdrage ontvangen — {{amount}} {{currency}}",
+    "heading": "Nieuwe bijdrage ontvangen",
+    "intro": "Iemand heeft zojuist <strong>{{campaignName}}</strong> gesteund — hier zijn de details.",
+    "outro": "De volledige donateurslijst vind je in het dashboard van je campagne.",
+    "cta": "Campagne bekijken"
+  },
+  "contributionThankYou": {
+    "subject": "Bedankt voor je bijdrage aan {{campaignName}}",
+    "heading": "Bedankt dat je {{campaignName}} steunt",
+    "intro": "Je bijdrage aan <strong>{{campaignName}}</strong> is zojuist binnengekomen — bedankt voor je steun.",
+    "outro": "De organisator kan je campagne-updates sturen zodat je ziet waar je steun naartoe gaat.",
+    "contact": "Vragen? Beantwoord deze e-mail en de organisator van {{campaignName}} reageert."
   }
 }

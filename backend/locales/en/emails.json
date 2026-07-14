@@ -407,6 +407,17 @@
       "outro": "Share this link with your customer to receive payment.",
       "cta": "Open Payment Link"
     },
+    "crowdfundingCreated": {
+      "subject": "Your crowdfunding campaign is live — {{title}}",
+      "heading": "Crowdfunding Campaign Live",
+      "intro": "Your crowdfunding campaign is ready to accept contributions.",
+      "outro": "Share the campaign page with your community to start collecting contributions. You can track progress from your dashboard.",
+      "cta": "View Campaign",
+      "labelCampaign": "Campaign",
+      "labelGoal": "Goal",
+      "labelNoGoal": "Open-ended (no goal)",
+      "labelLink": "Campaign link"
+    },
     "kycRequired": {
       "subject": "Verification required - {{symbol}}{{threshold}} volume reached",
       "heading": "Verification Required",
@@ -528,5 +539,29 @@
       "heading": "Weekly Conversion Report",
       "intro": "Here's your weekly auto-conversion report for <strong>{{companyName}}</strong>."
     }
+  },
+  "contributor": {
+    "crowdfundingUpdate": {
+      "subject": "{{title}} — update from {{campaign}}",
+      "friend": "friend",
+      "intro": "The organizer of <strong>{{campaign}}</strong> just posted a new update.",
+      "outro": "Thank you for supporting this campaign. You're receiving this because you previously contributed.",
+      "heading": "New update from {{campaign}}",
+      "cta": "View campaign"
+    }
+  },
+  "contributionReceived": {
+    "subject": "You just received a contribution — {{amount}} {{currency}}",
+    "heading": "New contribution received",
+    "intro": "Someone just supported <strong>{{campaignName}}</strong> — here are the details.",
+    "outro": "You'll find the full donor list in your campaign dashboard.",
+    "cta": "View campaign"
+  },
+  "contributionThankYou": {
+    "subject": "Thank you for contributing to {{campaignName}}",
+    "heading": "Thank you for supporting {{campaignName}}",
+    "intro": "Your contribution to <strong>{{campaignName}}</strong> just landed — thank you for supporting this campaign.",
+    "outro": "The organizer may email you campaign updates so you can see where your support is going.",
+    "contact": "Questions? Reply to this email and the organizer of {{campaignName}} will get back to you."
   }
 }

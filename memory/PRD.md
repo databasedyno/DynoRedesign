@@ -3,6 +3,61 @@
 ## Problem Statement
 USDT-TRC20 payment gateway platform. Users can create companies, wallets, payment links, and accept crypto payments. The platform supports OTP-based authentication, profile management, login activity monitoring, and comprehensive dark/light mode theming.
 
+
+### 2026-07-14 — Session 45 (contd.) — Country-Aware Landing Prices — ✅ COMPLETE
+Added `useLocalPrice()` hook that converts landing showcase amounts to the visitor's local currency using a static rate table (rounded, not live FX — this is marketing copy). Applied to `CrowdfundingShowcase` (campaign goal, raised amount, all 3 tier chips, update text) + `CreatorShowcase` (3 tip preset chips) + `FeeStrip` (Stripe/PayPal flat fees).
+- **New hook** `/app/hooks/useLocalPrice.ts` (~110 lines): reads visitor country via existing `useCountry()` → maps ISO-2 to a currency preset. Supports **USD (default), EUR (20 EU codes), GBP, INR (with lakh formatting), AUD, CAD, JPY, MXN, BRL, ZAR, NGN**. Handles zero-decimal currencies (JPY), Indian thousand-grouping (`8,30,000`), and "clean tier" snapping for small ceremonial amounts (e.g. `$5 → €5 / ₹500 / A$8 / R$25`) so copy still reads well.
+- **i18n interpolation**: added `{{goal}}` / `{{raised}}` vars to `crowdfundingShowcase.mockGoal` + `mockUpdateTitle`, and `{{flat}}` to `feeStrip.col2Value` + `col3Value`, across all 6 locales. Component passes the localized string into `t()`.
+- **Verified live**: DE visitor sees `€1.840 raised of €9.200 goal` with EU decimal notation. IN visitor sees `₹1.7L raised of ₹8.3L goal` with lakh formatting + fee strip `2.9% + ₹25 / 3.49% + ₹41`. US visitor sees the original `$2,000 of $10,000 goal`. No layout shift.
+- `tsc --noEmit -p .` clean, `next build` clean.
+
+
+
+### 2026-07-14 — Session 45 (contd.) — Landing Copy Pass 2: Full i18n + Dead File Cleanup — ✅ COMPLETE
+- **All 5 remaining locales translated** — added the ~55 new/changed keys (`heroCleanEyebrow`, `heroSwiss*`, `heroCleanSubtitle`, `heroTrust*`, `heroStat*`, `doors.*`, `crowdfundingShowcase.*`, `creatorShowcase.*`, `feeStrip.*`, `showcase.title/subtitle`, `finalCta*`, refreshed `faq5/7/8`) to `es/fr/de/nl/pt`. Each locale is now 220 keys — parity with English. Deep-merged into existing files via python (no keys clobbered).
+- **Native-language hero verified** across all 5:
+  - ES: *"Cobra en cripto."* / *"Vende productos. Lanza una campaña. Dale propina a un creador."*
+  - FR: *"Encaissez en crypto."* / *"Vendez des produits. Lancez une campagne. Soutenez un créateur."*
+  - DE: *"Kassiere in Krypto."* / *"Verkaufe Produkte. Starte eine Kampagne. Trinkgeld für Creator."*
+  - NL: *"Word betaald in crypto."* / *"Verkoop producten. Start een campagne. Tip een creator."*
+  - PT: *"Receba em cripto."* / *"Venda produtos. Lance uma campanha. Dê gorjeta a um criador."*
+- **Currency-aware price hints**: EUR examples in FR/DE/NL, USD in ES/PT (Latin-American default), preserved `{{country}}` and `{{campaign}}` interpolations everywhere.
+- **Dead files removed**: deleted `Components/Page/Home/FeeCalculator.tsx` and `Components/Page/Home/ComparisonTable.tsx` (replaced by `FeeStrip.tsx` in previous turn — no other imports referenced them).
+- **Verified**: `next build` clean, Spanish preview page loads at 200, `es/fr/de/nl/pt` JSON files all validated for key presence.
+
+
+
+### 2026-07-14 — Session 45 (contd.) — Landing Page Copy Revamp (English) — ✅ SHIPPED
+User asked for landing copy consistent with the latest product. Pass 1 = English end-to-end; Pass 2 (other 5 locales) is scheduled next.
+- **New hero positioning**: "Get paid in crypto. / Sell products. Run a campaign. Tip a creator." Subtitle: "One dashboard, three payment surfaces — checkout, crowdfunding, and creator tips. Every dollar settles straight to your wallet in minutes." CTA: "Start free". Stats relabelled to `SIGN-UPS · CHAINS · AVG SETTLE`. Trust line: "Live in {{country}} · No monthly fee".
+- **New section — AudienceDoors** (`Components/Page/Home/AudienceDoors.tsx`, ~180 lines): 3 doors right under the hero — **Merchants → Sell for crypto**, **Fundraisers → Run a campaign**, **Creators → Get tipped** — each with its own accent color (blue/lime/pink), icon glyph, kicker/title/description, and CTA that anchor-scrolls to the matching showcase further down.
+- **New section — CrowdfundingShowcase** (`CrowdfundingShowcase.tsx`, ~250 lines): dedicated "Not just a donation button. **A full campaign page.**" section with 4 feature bullets (story/gallery/countdown, reward tiers, updates that email supporters, donor wall + replies) + a mock campaign card showing goal bar (20% raised, 41 supporters), 3 tier chips ($5/$25/$100) and an "Update · emailed to 41 supporters" pill.
+- **New section — CreatorShowcase** (`CreatorShowcase.tsx`, ~210 lines): "Your own tipping page — dynopay.com/@you" with checkmark bullets + a mock creator page (avatar, `@ada` handle, bio, three preset tip amounts $5/$10/$25, `Send a tip · USDT` button, "Direct to wallet · no signup" caption).
+- **Killed** FeeCalculator and ComparisonTable, replaced by **FeeStrip** (`FeeStrip.tsx`, ~200 lines): compact 3-column band showing `Dynopay 0.5%–1.5%` (with a "YOU" pill) vs `Stripe 2.9% + $0.30` vs `PayPal 3.49% + $0.49`, plus "See full pricing" pill CTA. Preserves `#fee-calculator` id so hero's "See fees ↓" still anchors correctly.
+- **FAQ** — updated q5 (removed obsolete "$500 fee-free" phrasing), refreshed q7 to reflect crowdfunding-as-first-class-product, and **added q8** for creator page tips.
+- **Home layout** re-ordered: Hero → AudienceDoors → ChainsMarquee → ProductShowcase → **CrowdfundingShowcase** → **CreatorShowcase** → StatWall → CoreValueProps → UseCasesBento → **FeeStrip** → ComplianceLogoStrip → TestimonialsV2 → FAQ → FinalCTA.
+- **i18n safety**: `fallbackLng: "en"` is already set in `/app/i18n.js`, so `es/fr/de/nl/pt` visitors will see English for the new keys until Pass 2 translates them — no broken keys in the UI.
+- **Verified live** on `/` (screenshots captured for hero, doors, crowdfunding, creator, fee strip) — `tsc --noEmit -p .` clean; `next build` clean; all 5 new sections mount with correct data-testids.
+
+
+
+### 2026-07-14 — Session 45 (contd.) — Phase 3.3 P1: Contribution Receipt Email Branching — ✅ COMPLETE
+Fixed the last deferred item from Session 44: when a completed transaction settles on a `link_type='contribution'` row, both the **merchant receipt** and the **donor receipt** now render contribution-flavored copy (subject + heading + intro + outro) instead of the generic "Payment received" / "Your payment to X" templates.
+- **i18n**: Added `contributionReceived.*` (merchant) and `contributionThankYou.*` (donor) namespaces to all 6 locales (`en, es, fr, de, nl, pt`). Merchant: "You just received a contribution — 25.00 USD" / "New contribution received". Donor: "Thank you for contributing to <Campaign>" / "Thank you for supporting <Campaign>".
+- **Templates** (`services/emailService.ts`): both `sendPaymentReceivedEmail` and `sendCustomerPaymentConfirmationEmail` got an **additive** optional trailing param `campaignName?: string`. When present, the subject/heading/intro/outro/CTA switch to the `contribution*` locale keys via a single `isContribution` bool inside the template — no new email functions, no new mailer wrapper, zero breakage for existing standard-payment callers.
+- **Settlement wiring** (`controller/payment/cryptoSettlement.ts` line ~2738): after `userData` load, added a small parent-lookup block that fires ONLY when `customerData.link_type === 'contribution' && parent_link_id`. It queries `paymentLinkModel.findOne({link_id: parent_link_id}, attributes: ['title','description'])`, extracts the title, and passes it as `campaignName` to both email calls. Failure is soft-logged (`cronLogger.warn`) — falls back to standard copy.
+- **Verified**: `test_email_branching.ts` (in `/app/backend/tests/`) prints subject+heading strings for standard vs contribution across all 6 locales — all 12 pairs distinct and semantically correct. `tsc --noEmit -p .` clean; other `sendPaymentReceivedEmail` callers (`merchantPoolSweep`, `testRouter`) unaffected because the new param is optional trailing.
+
+
+
+### 2026-07-14 — Session 45 — UX Revamp Phase 3.3: Merchant Editor UI + Update Fan-out — ✅ COMPLETE (self-tested, curl + screenshot)
+Completed the last two P0 items from Phase 3.3 of the crowdfunding UX revamp.
+- **i18n**: Added `contributor.crowdfundingUpdate.{subject,friend,intro,outro,heading,cta}` across all 6 locales (`en, es, fr, de, nl, pt`) — the shape `sendCrowdfundingUpdateEmail` in `services/emailService.ts` already expected.
+- **Backend fan-out** (`controller/payment/crowdfundingController.ts`): `createUpdate` now spawns a fire-and-forget `fanOutUpdateEmail(...)` when `notify_contributors=true`. It selects `DISTINCT ON (LOWER(email))` from `tbl_payment_link` where `parent_link_id=:pid AND link_type='contribution' AND status='completed' AND email <> ''`, then `Promise.allSettled`s `sendCrowdfundingUpdateEmail` for each donor. Never blocks the 201; ok/fail counts logged.
+- **Merchant editor UI** (`Components/UI/pay-link/CampaignManager.tsx`, ~575 lines): two-tab card (`Reward tiers · N | Updates · N`) mounted inside `Components/Page/CreatePaymentLink/index.tsx` and shown only when `linkKind==='donation' && hasPaymentLinkData && paymentSettings.linkId`. Full CRUD for tiers (title / min / description) and updates (title / body_md) with an inline **"Email all contributors"** toggle on new updates. Optimistic-free — each save re-fetches. All controls have data-testids (`cm-tab-tiers`, `cm-tab-updates`, `cm-tier-*`, `cm-update-*`).
+- **Verified live**: `POST /pay/campaign/77/tiers` → 201 tier_id=6; `POST /pay/campaign/77/updates {notify_contributors:true}` → 201 update_id=5, log `[fanOutUpdateEmail] update_id=5 no contributors to notify` (campaign has 0 completed donors so nothing to send — code path executed correctly, non-blocking); `DELETE /pay/tier/6` + `DELETE /pay/update/5` clean up. Screenshot on `/pay-links/77` shows both tabs (5 tiers + 3 updates from Session 44 seed) rendering and matching design.
+
+
 ## What's Been Implemented
 
 ### 2026-07-13 — Session 39 — Dashboard Display Currency (decoupled from API key) — ✅ COMPLETE + VERIFIED (testing_agent 100% BE + FE, iteration_29.json)

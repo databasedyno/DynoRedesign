@@ -39,7 +39,7 @@ const LinkTypeSelector = ({ value, onChange, disabled, isMobile }: LinkTypeSelec
     {
       kind: "donation",
       icon: "mdi:hand-heart-outline",
-      label: t("linkTypeDonation", { defaultValue: "Donation / Crowdfunding" }),
+      label: t("linkTypeDonation", { defaultValue: "Crowdfunding" }),
       hint: t("linkTypeDonationHint", { defaultValue: "Collect contributions toward a goal — donors choose the amount." }),
       accent: green,
     },

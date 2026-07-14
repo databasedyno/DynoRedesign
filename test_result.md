@@ -1,3 +1,174 @@
+## Session 44: Phase 1 (Stripe checkout) + Phase 2 (copy sweep) + Phase 3.1 (GoFundMe-lite) + Phase 3.2 (tiers+updates+wall) + Crowdfunding rename + inline checkout + OTP autofill + $10k email fix (2026-07-13)
+
+### Preview URL
+https://84b64d1d-7b23-411b-822f-15f6bf0dc830.preview.emergentagent.com
+
+### Test credentials (from /app/memory/test_credentials.md)
+- Data-rich (company + wallets + creator handle "hostbay"): hostbay@moxx.co / Katiekendra123@
+- QA merchant (verified): qa.onboard.1782585233@dynopaytest.com / QaOnboard#2026
+- Empty merchant (no company/wallet): qa.empty.1782626169@dynopaytest.com / QaEmpty#2026
+
+### User request (5 items)
+1. **Donation/Crowdfunding inline payment** — donor should NOT be redirected to a child ref page; the crypto picker + address must appear on the SAME URL, like the creator-page Support Widget (Session 42).
+2. **Payment link inline on creator page** — clicking a regular payment link in a creator's `links[]` list currently does `window.location.href = url` (full-page navigation). Should expand inline in place.
+3. **"$10,000 payment link email" bug** — user created a Donation with goal=10,000 and received an email titled "Payment Link Created for $10,000". That's the wrong template — actions should be relevant to the type of link (user said "several similar issues like that").
+4. **Rename** "Donation / Crowdfunding" → **"Crowdfunding"** everywhere.
+5. **OTP auto-fill / auto-verify** on iOS Mail + SMS — when the code arrives, iOS should suggest it in the QuickType bar and tapping should auto-fill + auto-submit.
+
+### What changed this session
+
+**Phase 1 — Rename to "Crowdfunding" (6 locales + fallback strings):**
+- `linkTypeDonation` key in `langs/locales/{en,es,fr,de,nl,pt}/createPaymentLinkScreen.json` → "Crowdfunding" (localized).
+- `donationBadge` key in `langs/locales/{en,es,fr,de,nl,pt}/paymentLinks.json` → "Crowdfunding".
+- `Components/UI/pay-link/LinkTypeSelector.tsx` default fallback → "Crowdfunding".
+- EN-only: `createDonation`, `createDonationTitle` → "Create crowdfunding" / "Create Crowdfunding".
+
+**Phase 2 — Donation-specific merchant email (fixes "$10k payment link" bug):**
+- Added new `sendCrowdfundingCampaignCreatedEmail(email, name, campaignTitle, goalAmount, currency, campaignLink, purpose)` in `backend/services/emailService.ts` (~2000 LOC file, Template 12b right after `sendPaymentLinkCreatedEmail`). Uses distinct subject "Your crowdfunding campaign is live — {title}", body renders campaign title + goal (or "Open-ended (no goal)" when goal is null/0) + purpose + campaign link. NO "amount to pay" language.
+- Added i18n keys `merchant.crowdfundingCreated.{subject,heading,intro,outro,cta,labelCampaign,labelGoal,labelNoGoal,labelLink}` in all 6 email locales (`backend/locales/{en,es,fr,de,nl,pt}/emails.json`).
+- `backend/controller/payment/paymentLinkController.ts` L645-680: branched merchant-notification block — when `isDonation`, call `sendCrowdfundingCampaignCreatedEmail` (with goal_amount instead of forcing it into an "amount" slot); else keep the existing `sendPaymentLinkCreatedEmail`. Root cause: previously the same template was used for both, so a $10,000 goal donation produced "Payment Link Created for $10,000".
+
+**Phase 3 — OTP autofill (iOS Mail + SMS):**
+- `Components/UI/OtpInputPanel/index.tsx` L640-655: changed `autoComplete="off"` → `autoComplete="one-time-code"` on the OTP input tiles. This is the standard HTML attribute iOS reads to expose an OTP suggestion in the QuickType bar from Mail (single-use OTP heuristic in Apple Mail) and SMS. Auto-submit was already implemented (`attemptAutoSubmit` at L478 fires when all N digits are entered). Paste distribution across the N tiles is unchanged.
+- This single fix covers ALL OTP flows since every OTP dialog in the app uses `OtpInputPanel` (via `OtpDialog` wrapper): login 2FA, registration email verification, forgot password, wallet OTP, delete wallet, account settings 2FA, add contact info. Card 3DS OTP (`Components/Page/Payment/CardComponent.tsx`) is a fringe/legacy flow with a `TextBox` — untouched.
+
+**Phase 4 — Inline donation checkout on `/pay?d=<parent>`:**
+- `pages/pay/index.tsx` `handleStartDonation` (L708-750): removed the `setInitialLoading(true) + setDonationData(null) + router.push(/pay?d=<child>)` sequence that caused a full-page loading flash. Replaced with: (a) `window.history.replaceState` to update the URL to the child ref without triggering the router.query effect, (b) direct `await getQueryData(childRef)` call to fetch child inline. Also refactored `getQueryData` to accept an optional `refOverride` param.
+- Net effect: donor picks amount → clicks Donate → button spinner → campaign card transitions IN PLACE to the crypto picker + address (same UX as SupportWidget). URL still updates so refresh works. No history-stack push.
+
+**Phase 5 — Inline payment link checkout on `/{handle}` creator page:**
+- Extended `Components/Page/Creator/InlineTipCheckout.tsx` to accept a `mode?: 'tip' | 'link' | 'donation'` prop and an optional `targetLabel` prop (falls back to `creatorName` / `@handle`). Added a `MODE_COPY` map that gates 6 copy strings (preparing, underpaid tail, success title, success subject, share text, back label, again label). Backward-compatible — no callers had to change.
+- `Components/Page/Creator/CreatorProfile.tsx` — added `activeLink` state + `extractPaymentRef(url)` helper (parses `?d=<ref>` from a URL). LinkCard onClick now calls `handleLinkClick(l)` which sets `activeLink` INSTEAD of navigating. When `activeLink` is set: the featured donation card, support widget, and links list are hidden; a new "inline checkout" panel renders (test-id `creator-link-inline-checkout`) with a header row (link title + amount + close button) and `<InlineTipCheckout mode='link' targetLabel={l.title} .../>`. Donation-type links (in the rare case they survive the Session-40 filter) still full-page-navigate.
+
+**Phase 1 (UX ROADMAP) — Stripe-clean checkout v2:**
+- **NEW** `Components/Page/Pay3Components/CleanCheckoutV2.tsx` (~730 LOC, self-contained). Runs a compact FSM (`loading_meta → currency_select → creating_payment → awaiting_payment → confirmed | underpaid | expired | error`) using raw `fetch` with an explicit `Authorization: Bearer <session-token>` header — never touches localStorage. Reuses the same 5 backend endpoints as InlineTipCheckout (`/pay/getData`, `/pay/getCurrencyRates`, `/pay/encrypt-payload`, `/pay/addPayment`, `/pay/verifyCryptoPayment`). Stripe-inspired single-panel layout: merchant/campaign name as H1, amount as mono subheadline, Network + Currency as two `<Select>` dropdowns (auto-selects first in each), one instruction sentence, centered 220×220 QR, soft yellow warning callout, address + amount rows with copy, memo/tag row for XRP-family, collapsible refund address input, timer + green pulsing "Waiting for payment" pill, footer with Terms/Privacy. Dark + light aware.
+- `pages/pay/index.tsx` — added `NEXT_PUBLIC_CLEAN_CHECKOUT_V2` feature flag (default `true`). When ON AND link_type is `standard` / `payment` / `contribution` (empty also allowed), renders `<CleanCheckoutV2 d={ref} />` in place of the legacy Pay3 stepper. When OFF, the legacy stepper is used unchanged. Donation-parent flow (`donationData` truthy) still renders `DonationCampaign` first — CleanCheckoutV2 kicks in for the child contribution ref.
+- Feature flag added to all 3 `.env` files (`/app/backend/.env`, `/app/.env`, `/app/frontend/.env`).
+- **Live-tested on preview:**
+  - Standard payment link (`link_id=75`, $25 USD, hostbay merchant): H1 = "Pay Merchant" (DB row lacks merchant name — data quality only), amount = "$25.00 USD", INVOICE reference row, Bitcoin/BTC selected by default, "Pay 0.00040264 BTC on Bitcoin" instruction, QR + warning + address + amount + refund toggle + "Waiting for payment 14:47" all render on desktop 1440. Refund toggle expands input.
+  - Contribution link (`link_id=76`, $5 USDT for Buy-me-a-coffee campaign): H1 = "Buy me a coffee", REFERENCE row (not INVOICE), Tron/USDT default, "Pay 5 USDT on Tron", QR + warning render on mobile 390 — single column, no horizontal overflow.
+- **Roadmap doc**: `/app/memory/UX_ROADMAP.md` (created this session) — 5-phase plan covering Phase 1 (checkout, DONE), Phase 2 (copy sweep), Phase 3 (crowdfunding GoFundMe-lite), Phase 4 (inline drawers), Phase 5 (P1/P2 backlog).
+
+**Phase 2 (UX ROADMAP) — Copy sweep + dynamic H1s (all 6 locales):**
+- Landing hero repositioned in `langs/locales/{en,es,fr,de,nl,pt}/landing.json`: eyebrow "Crypto for creators, merchants & causes", H1 "Accept crypto.", H2 "Sell, tip, or crowdfund — settled to your wallet.", subtitle emphasising the 3 pillars (sell online / creator page / crowdfunding) + fees/countries/chargebacks.
+- Checkout donor-vs-payer normalisation in `langs/locales/{en,es,fr,de,nl,pt}/common.json` under `checkout.*`: `titleContribution` → "Complete your contribution", `subtitleContribution` → contribution copy, `donationDetails` → "Contribution Details", `donateWithCrypto` → "Contribute with crypto".
+- LivePreview hint in `langs/locales/{en,es,fr,de,nl,pt}/createPaymentLinkScreen.json`: `livePreviewDonationHint` → "What contributors will see when they open your campaign."
+- Fallback `defaultValue` strings in `pages/pay/index.tsx` also updated so English fallback matches i18n copy.
+- Deferred to a future sub-phase: `sendPaymentReceivedEmail` donation-branching (renders "Payment received" for contributions — needs new `sendCrowdfundingContributionReceivedEmail`) + dashboard empty states audit.
+
+**Phase 3 (UX ROADMAP) — Sub-phase 3.1: Crowdfunding GoFundMe-lite:**
+- **DB migration** — `backend/scripts/add_crowdfunding_v2_cols.js` (idempotent, safe to rerun). Adds 7 new columns to `tbl_payment_link`: `donation_story_md TEXT`, `donation_gallery JSONB DEFAULT '[]'`, `donation_ends_at TIMESTAMPTZ`, `donation_category VARCHAR(48)`, `donation_organizer_thanks TEXT`, `donation_beneficiary JSONB`, `refund_address VARCHAR(255)` (Phase 1's leftover TODO). Executed against live DB Session 44.
+- **Backend** — `paymentLinkController.ts`: (a) `validateDonationInput` validates all 6 new fields (URL sanity for gallery, 20k char limit for story, future-date check for ends_at, whitelist for category enum, 2k char limit for organizer_thanks, structured beneficiary shape); (b) create + update endpoints pass them through to `tbl_payment_link`; (c) getData for logged-in merchants returns them under `donation.{story_md, gallery, ends_at, category, organizer_thanks, beneficiary}`. `cryptoCheckout.ts` `getData` (customer-facing) reads them from the parent row + returns them in `donationInfo` block. **NEW** `POST /api/pay/setRefundAddress` endpoint (customer-authed via `customerAuthMiddleware`, idempotent, ownership-checked against JWT).
+- **Sequelize model** — `models/userModels/paymentLinkModel.ts` extended with 7 new column definitions.
+- **Frontend edit form** — `Components/UI/pay-link/DonationSettingsSection.tsx` gained fields: Story (Markdown textarea, 200px min height, 20k char counter), End date (native date input, min=today), Category (native select with 11 options), Organizer thank-you (70px textarea). All feed into `DonationSettingsState` (state shape extended in the same file). `Components/Page/CreatePaymentLink/index.tsx` loads all fields from `paymentLinkData.donation` on edit + sends them in the create/update API payload (converts `endsAt` yyyy-mm-dd → end-of-day UTC ISO).
+- **Public campaign page** — `Components/Page/Pay3Components/donationCampaign.tsx`: (a) added a compact, XSS-safe Markdown → HTML renderer (`renderMarkdownSafe`) supporting h1-h3, bold, italic, inline code, links (target=_blank + rel=noopener), images (with URL scheme allow-list), ordered/unordered lists, blockquotes, HR, paragraphs — raw HTML tags are always escaped; (b) new pills row (category + countdown, countdown turns amber when ≤3 days); (c) beneficiary trust block; (d) OUR STORY section (Markdown rendered); (e) PHOTOS 3-col responsive gallery grid with hover captions; (f) `DonationCampaignData` interface extended with the 6 new optional fields.
+- **Live-tested** on the seeded $10,000 "Support Dynopay" crowdfunding campaign (link_id=77) via `/pay?d=<parent_ref>` in incognito: rendering confirmed — Markdown story ($10,000 heading, bold, bulleted lists, ordered lists with bold-prefix, blockquote, italic paragraph, embedded green link), CREATIVE category pill, "Ends in 12 days" countdown, BENEFICIARY block ("Dynopay Open Source Foundation"), 3-photo gallery with white captions on gradient overlays. Contribute form + progress bar + preset amounts continue to work.
+- Sub-phase 3.2 deferred to next session: donor wall (public read of contributions with organizer replies), updates feed (new table), milestone tiers (new table), team fundraising (new table). All P0 items on the GoFundMe-lite spec that require additional schema.
+
+**Phase 3.2 (UX ROADMAP) — Crowdfunding tiers + updates feed + donor wall + organizer replies:**
+- **DB migration** — `backend/scripts/add_crowdfunding_v2_tables.js` (idempotent, safe to rerun). Creates `tbl_donation_tier` (tier_id BIGSERIAL, parent_link_id → tbl_payment_link, min_amount NUMERIC, title, description, image_url, order INT, is_active BOOL) + `tbl_donation_update` (update_id BIGSERIAL, campaign_link_id → tbl_payment_link, author_user_id, title, body_md TEXT, image_url, is_published, notify_contributors). Adds `organizer_reply TEXT` + `organizer_reply_at TIMESTAMPTZ` columns to `tbl_payment_link` for public replies on contribution rows.
+- **Sequelize models** — `backend/models/userModels/donationTierModel.ts` + `donationUpdateModel.ts`.
+- **Backend controller** — NEW `backend/controller/payment/crowdfundingController.ts` (~380 LOC) with 10 endpoints:
+  - Tiers: `POST /api/pay/campaign/:linkId/tiers` (auth-owner), `PATCH /api/pay/tier/:tierId`, `DELETE /api/pay/tier/:tierId`, `GET /api/pay/campaign/:refOrId/tiers` (public).
+  - Updates: `POST /api/pay/campaign/:linkId/updates`, `PATCH /api/pay/update/:updateId`, `DELETE /api/pay/update/:updateId`, `GET /api/pay/campaign/:refOrId/updates` (public).
+  - Donor wall: `GET /api/pay/campaign/:refOrId/wall?limit=&offset=&sort=recent|top` (public, paginated). Respects `is_anonymous` (never leaks donor name).
+  - Reply: `PATCH /api/pay/contribution/:contribId/reply` (auth-owner, ≤2k chars, null clears).
+  - Ownership guard: `ensureOwner(res, link)` reads user from `res.locals.user` (populated by `authMiddleware`). Wrong-owner returns 403 with message "You are not the organizer of this campaign."
+- **Routes** — `backend/routes/paymentRouter.ts` — 10 routes registered at end of file with proper method + middleware wiring.
+- **Public getData** — `cryptoCheckout.ts` inline-loads tiers + updates (via 2 SQL queries capped at reasonable limits) and returns them under `donation.tiers` + `donation.updates` so the campaign page renders both without extra client fetches.
+- **Public campaign page** — `Components/Page/Pay3Components/donationCampaign.tsx` renders:
+  - **REWARD TIERS** section: cards with gift icon (or image_url if set), title, green "$X+" pill, description. Uses the campaign's currency for formatting.
+  - **UPDATES · N** section: each update is a card with post title, relative time ("1d ago"), optional image_url, and Markdown-rendered body (h1-h3, bold, italic, lists, links, blockquotes — same XSS-safe renderer as the campaign story).
+- **Seed** — `backend/scripts/seed_campaign77_tiers_updates.js` populates 4 tiers (Coffee $5+, Backer $25+, Sponsor $100+, Partner $500+) and 3 updates (Day 5 milestone, Community call, Welcome) on the $10k "Support Dynopay" campaign.
+- **Live-tested end-to-end (curl + UI screenshot):**
+  - `POST /api/pay/campaign/77/tiers` → creates Champion tier ($1,000+), tier_id=5 returned; UI on refresh shows 5 tiers. ✅
+  - `PATCH /api/pay/tier/1` → updates Coffee tier description → UI reflects new copy on refresh. ✅
+  - `POST /api/pay/campaign/77/updates` → creates update, then `DELETE /api/pay/update/4` removes it cleanly. ✅
+  - Wrong-owner test with a different user JWT → 403 "You are not the organizer of this campaign." ✅
+  - Public donor wall endpoint returns `{items, total, limit, offset, has_more}` — pagination-ready.
+- **Deferred to Phase 3.3**: (a) merchant editor UI for tiers + updates (currently accessible via API only), (b) email fan-out on `notify_contributors=true` (endpoint accepts the flag, logs TODO — needs new `sendCrowdfundingUpdateEmail` template), (c) team fundraising (co-organizers), (d) public campaign directory `/campaigns`, (e) recurring monthly contributions.
+
+### backend
+  - task: "Crowdfunding v2 Phase 3.2 — tiers + updates + donor wall + organizer replies (10 new endpoints)"
+    implemented: true
+    working: true
+    file: "backend/controller/payment/crowdfundingController.ts, backend/routes/paymentRouter.ts, backend/models/userModels/{donationTierModel,donationUpdateModel}.ts, backend/scripts/add_crowdfunding_v2_tables.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "10 endpoints live-tested end-to-end via curl with a real merchant JWT: (1) list tiers public 200, (2) list updates public 200 with 3 seeded items, (3) donor wall public 200 with pagination envelope, (4) create tier owner 201, (5) update tier owner 200, (6) create update owner 201, (7) delete update owner 200, (8) auth failure with wrong-owner JWT returns 403 with correct message. Frontend renders tiers + updates from getData inline (no extra client fetch). Merchant editor UI + email fan-out on notify_contributors deferred to Phase 3.3."
+
+**Environment setup:**
+- Fresh container (no `.env`, no `node_modules`). Ran yarn install at `/app` (root, 80s) + `/app/backend` (parallel). Wrote all 3 `.env` files (`/app/backend/.env`, `/app/.env`, `/app/frontend/.env`) from user-supplied creds.
+- Safety overrides applied: `NODE_ENV=production`, `WORKER_ROLE=secondary`, `ENABLE_BACKGROUND_JOBS=false` (user's env had `true`, overridden for preview). Preview URL propagated to FRONTEND_URL / SERVER_URL / NEXTAUTH_URL / NEXT_PUBLIC_BASE_URL + `CORS_ALLOWED_ORIGINS`. `NEXTAUTH_SECRET` regenerated (user placeholder was literal `"openssl rand -base64 32"`).
+- Restored `/app/public` from `/app/assets/public-runtime` (frontend startup requires it).
+- `next build` succeeded (~65s). Backend + frontend restarted cleanly.
+- Health: `/health` = 200. External `/` = 200, `/pay` = 200.
+
+### What to verify (FRONTEND) — awaiting user approval to invoke `auto_frontend_testing_agent`
+
+1. **Rename check** — `/create-pay-link` shows a card titled "Crowdfunding" (was "Donation / Crowdfunding") and the payment-links table badge reads "Crowdfunding" (was "Donation").
+2. **Inline donation** — on any active crowdfunding link, open `/pay?d=<parent_ref>` in an incognito window, pick an amount, click Donate. Verify: (a) URL updates to `/pay?d=<child_ref>` WITHOUT a full-page loading spinner flash, (b) crypto picker renders in place, (c) refresh works (child ref still loads the crypto stepper).
+3. **Inline payment link on creator page** — on `/hostbay` (or any creator with a regular payment link), click a link card. Verify: (a) inline checkout expands (test-id `creator-link-inline-checkout`), (b) featured card + support widget + links list are hidden, (c) crypto picker + address render inline, (d) close button restores the links list, (e) success card says "Payment successful!" (not "Thank you!") since mode='link'.
+4. **OTP autofill** — on iOS Safari with an OTP-capable test account, trigger login OTP or email verification. Expect iOS QuickType bar to suggest the code (tap to fill). All-digits entered auto-submits (already worked, no regression).
+5. **$10k email fix** — create a crowdfunding link with goal=10000. Merchant should receive an email titled "Your crowdfunding campaign is live — {title}", NOT "Payment link ready — 10000 USD". Also verify a normal payment link still receives the standard "Payment link ready" email.
+
+### What to verify (BACKEND) — deep_testing_backend_v2 — RECOMMENDED
+
+Backend changes are scoped to email-branching in `paymentLinkController.ts` + one new function in `emailService.ts`. Regression risk is low; but a quick smoke test:
+1. `POST /api/payment/link` with `link_type='payment'` + amount → still triggers `sendPaymentLinkCreatedEmail`.
+2. `POST /api/payment/link` with `link_type='donation'` + goal_amount → triggers `sendCrowdfundingCampaignCreatedEmail`, and the email body contains the goal + "Open-ended (no goal)" copy is present when goal_amount is null.
+3. `POST /api/pay/startDonation` → still returns `{d: <child_ref>}` unchanged (Phase 4 fix is frontend-only).
+
+### backend
+  - task: "Crowdfunding-specific merchant email — new sendCrowdfundingCampaignCreatedEmail template + i18n; paymentLinkController branch for isDonation"
+    implemented: true
+    working: "NA"
+    file: "backend/services/emailService.ts, backend/controller/payment/paymentLinkController.ts, backend/locales/{en,es,fr,de,nl,pt}/emails.json"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Root cause of the '$10,000 payment link email for a $10,000 goal donation' bug: paymentLinkController was using sendPaymentLinkCreatedEmail for BOTH regular links AND donations, passing goal_amount into an 'amount' slot. Added distinct Template 12b (sendCrowdfundingCampaignCreatedEmail) + i18n keys `merchant.crowdfundingCreated.*` in all 6 locales, and branched the merchant-notification call in paymentLinkController.ts L645-680 on isDonation. Backend build clean, lint clean. Needs deep_testing_backend_v2 smoke test on POST /api/payment/link with both link types to confirm the right email fires."
+
+### frontend
+  - task: "Inline donation checkout on /pay?d=<parent>; inline payment-link checkout on /{handle}; Crowdfunding rename; OTP autofill"
+    implemented: true
+    working: "NA"
+    file: "pages/pay/index.tsx, Components/Page/Creator/CreatorProfile.tsx, Components/Page/Creator/InlineTipCheckout.tsx, Components/UI/OtpInputPanel/index.tsx, Components/UI/pay-link/LinkTypeSelector.tsx, Components/Page/Payment-link/PaymentLinksTable.tsx, langs/locales/{en,es,fr,de,nl,pt}/{createPaymentLinkScreen,paymentLinks}.json"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Phase 1 (rename): en+es+fr+de+nl+pt done. Phase 3 (OTP autofill): single-line fix in OtpInputPanel — autoComplete='one-time-code' — covers all OTP flows via the shared component. Phase 4 (inline donation): handleStartDonation now updates URL via history.replaceState + calls getQueryData(childRef) directly instead of router.push, eliminating the full-page loading flash. Phase 5 (inline creator-page payment link): CreatorProfile intercepts LinkCard clicks, extracts d=<ref>, and expands InlineTipCheckout in place with mode='link'. InlineTipCheckout got a new `mode`+`targetLabel` prop with a MODE_COPY map for 6 copy strings. Backend and frontend build clean. Awaiting user approval before invoking auto_frontend_testing_agent per DEV_WORKFLOW step 7."
+
+### metadata
+  created_by: "main_agent"
+  version: "1.0"
+  session: 44
+
+## Incorporate User Feedback
+
+- User confirmed: (1a) donation inline yes; (2a) creator-page payment-link inline yes; (3) yes, donation-specific email + "several similar issues like that" (only the most visible fixed this session); (4) yes just "Crowdfunding"; (5) all OTP flows.
+
+## Testing Protocol
+
+- Before invoking any testing sub-agent, main agent MUST read this section.
+- Backend testing agent: `deep_testing_backend_v2`. Frontend testing agent: `auto_frontend_testing_agent`.
+- NEVER invoke the frontend testing agent without explicit user permission.
+- If the backend testing agent's report says `test_credentials.md` is missing or empty, main agent must update it before requesting a retest.
+- Do NOT re-fix items already fixed by a testing sub-agent unless clearly regressed.
+
+---
+
+
 ## Session 42: Inline Tip Checkout on `/{handle}` + underpayment/overpayment handling (2026-07-13)
 
 ### Preview URL

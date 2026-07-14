@@ -46,6 +46,16 @@ paymentRouter.post(
   paymentController.addPayment
 );
 
+// Refund address (Phase 1 — CleanCheckoutV2)
+// Customer supplies a refund destination in case they send the wrong asset.
+// Requires the customer session JWT that /pay/getData handed out.
+paymentRouter.post(
+  "/setRefundAddress",
+  paymentRateLimiter,
+  customerAuthMiddleware,
+  paymentController.setRefundAddress
+);
+
 paymentRouter.post(
   "/createCryptoPayment",
   paymentRateLimiter,
@@ -162,5 +172,28 @@ paymentRouter.get(
   authMiddleware,
   paymentController.getCompanyConfiguredCurrencies
 );
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CROWDFUNDING V2 — Phase 3.2 (tiers + updates + donor wall + replies)
+// ═══════════════════════════════════════════════════════════════════════════
+import * as crowdfunding from "../controller/payment/crowdfundingController";
+
+// Tiers — merchant CRUD (owner-only, authMiddleware) + public list (no auth)
+paymentRouter.post("/campaign/:linkId/tiers", authMiddleware, crowdfunding.createTier);
+paymentRouter.patch("/tier/:tierId", authMiddleware, crowdfunding.updateTier);
+paymentRouter.delete("/tier/:tierId", authMiddleware, crowdfunding.deleteTier);
+paymentRouter.get("/campaign/:refOrId/tiers", crowdfunding.listTiers);
+
+// Updates feed — merchant CRUD + public list
+paymentRouter.post("/campaign/:linkId/updates", authMiddleware, crowdfunding.createUpdate);
+paymentRouter.patch("/update/:updateId", authMiddleware, crowdfunding.updateUpdate);
+paymentRouter.delete("/update/:updateId", authMiddleware, crowdfunding.deleteUpdate);
+paymentRouter.get("/campaign/:refOrId/updates", crowdfunding.listUpdates);
+
+// Donor wall — public paginated feed of contributions
+paymentRouter.get("/campaign/:refOrId/wall", crowdfunding.getDonorWall);
+
+// Organizer reply on a specific contribution row
+paymentRouter.patch("/contribution/:contribId/reply", authMiddleware, crowdfunding.setContributionReply);
 
 export default paymentRouter;

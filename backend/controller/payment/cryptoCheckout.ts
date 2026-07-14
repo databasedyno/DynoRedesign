@@ -364,7 +364,9 @@ const getData = async (req: express.Request, res: express.Response) => {
       try {
         const [parentRow] = (await sequelize.query(
           `SELECT title, description, goal_amount, preset_amounts, min_amount, allow_custom_amount,
-                  show_progress, show_supporters, auto_close_at_goal, campaign_image, base_currency, expires_at
+                  show_progress, show_supporters, auto_close_at_goal, campaign_image, base_currency, expires_at,
+                  donation_story_md, donation_gallery, donation_ends_at, donation_category,
+                  donation_organizer_thanks, donation_beneficiary
            FROM tbl_payment_link WHERE link_id = :id AND link_type = 'donation'`,
           { replacements: { id: item.link_id }, type: QueryTypes.SELECT }
         )) as Array<Record<string, unknown>>;
@@ -383,6 +385,26 @@ const getData = async (req: express.Request, res: express.Response) => {
         const recentSupporters = showSupporters
           ? await getRecentSupporters(Number(item.link_id))
           : [];
+
+        // ── Crowdfunding v2 (Phase 3.2): tiers + updates loaded inline ──
+        // Both are small (typical: <10 rows) — batch here to avoid two extra
+        // round-trips from the client on public campaign pages.
+        const tiers = (await sequelize.query(
+          `SELECT tier_id, min_amount, title, description, image_url, "order"
+           FROM tbl_donation_tier
+           WHERE parent_link_id = :id AND is_active = TRUE
+           ORDER BY "order" ASC, tier_id ASC`,
+          { replacements: { id: item.link_id }, type: QueryTypes.SELECT }
+        )) as Array<Record<string, unknown>>;
+
+        const updates = (await sequelize.query(
+          `SELECT update_id, title, body_md, image_url, "createdAt"
+           FROM tbl_donation_update
+           WHERE campaign_link_id = :id AND is_published = TRUE
+           ORDER BY "createdAt" DESC
+           LIMIT 10`,
+          { replacements: { id: item.link_id }, type: QueryTypes.SELECT }
+        )) as Array<Record<string, unknown>>;
 
         donationInfo = {
           title: parentRow.title || null,
@@ -404,6 +426,28 @@ const getData = async (req: express.Request, res: express.Response) => {
           campaign_closed: goalReached || campaignExpired,
           closed_reason: goalReached ? 'goal_reached' : campaignExpired ? 'expired' : null,
           recent_supporters: recentSupporters,
+          // ── Crowdfunding v2 (Phase 3 — GoFundMe-lite) ──
+          story_md: (parentRow.donation_story_md as string) || null,
+          gallery: Array.isArray(parentRow.donation_gallery) ? parentRow.donation_gallery : [],
+          ends_at: parentRow.donation_ends_at || null,
+          category: (parentRow.donation_category as string) || null,
+          organizer_thanks: (parentRow.donation_organizer_thanks as string) || null,
+          beneficiary: parentRow.donation_beneficiary || null,
+          // Phase 3.2: tiers + updates (loaded inline; typically <10 rows each)
+          tiers: tiers.map((t) => ({
+            tier_id: Number(t.tier_id),
+            min_amount: Number(t.min_amount),
+            title: t.title,
+            description: t.description || null,
+            image_url: t.image_url || null,
+          })),
+          updates: updates.map((u) => ({
+            update_id: Number(u.update_id),
+            title: u.title,
+            body_md: u.body_md,
+            image_url: u.image_url || null,
+            created_at: u.createdAt,
+          })),
         };
       } catch (donationErr) {
         cronLogger.error('[getData] Failed to load donation campaign data:', donationErr);

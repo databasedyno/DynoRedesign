@@ -5,6 +5,7 @@ import Logo from '@/assets/Icons/Logo'
 import { formatWithSeparators, getCurrencySymbolFromFormat } from '@/utils/currencyFormat'
 import copyToClipboard from '@/helpers/copyToClipboard'
 import SupportWidget, { SupportWidgetData } from './SupportWidget'
+import InlineTipCheckout from './InlineTipCheckout'
 
 const MONO = 'ui-monospace, "Roboto Mono", "JetBrains Mono", SFMono-Regular, Menlo, monospace'
 const LIME = '#CCFF00'
@@ -123,13 +124,57 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget }: { creator: C
     if (url && typeof window !== 'undefined') window.location.href = url
   }
 
+  // ── Inline checkout state (Phase 5) ─────────────────────────────
+  // When a payment link is clicked in the creator page, we don't navigate
+  // away — we expand an inline crypto checkout in place (same pattern as
+  // the SupportWidget). The URL stays at the creator page, and cancel
+  // returns to the links list.
+  const [activeLink, setActiveLink] = useState<CreatorLink | null>(null)
+  // Extract the payment ref `d=<xxx>` from an absolute or relative URL. If
+  // the URL is unparseable (or doesn't carry a d= param) we fall back to a
+  // full-page navigation for that link so we never break the flow.
+  const extractPaymentRef = (url: string | null): string | null => {
+    if (!url) return null
+    try {
+      const u = new URL(url, typeof window !== 'undefined' ? window.location.origin : 'http://localhost')
+      const d = u.searchParams.get('d')
+      return d && d.length > 0 ? d : null
+    } catch {
+      return null
+    }
+  }
+  const handleLinkClick = (l: CreatorLink) => {
+    // Donations still route to /pay?d=<parent> (donation campaign page).
+    // The inline expansion in the creator page is scoped to REGULAR
+    // payment links per user request; donation inline checkout is on the
+    // /pay page itself (Phase 4).
+    if (l.type === 'donation') {
+      go(l.url)
+      return
+    }
+    const ref = extractPaymentRef(l.url)
+    if (!ref) {
+      go(l.url)
+      return
+    }
+    setActiveLink(l)
+    // Scroll to the inline checkout so it's visible on smaller viewports.
+    if (typeof window !== 'undefined') {
+      requestAnimationFrame(() => {
+        const el = document.querySelector('[data-testid="creator-link-inline-checkout"]')
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      })
+    }
+  }
+  const closeInlineCheckout = () => setActiveLink(null)
+
   const LinkCard = ({ l }: { l: CreatorLink }) => (
     <Box
       role='button'
       tabIndex={0}
       data-testid={`creator-link-${l.link_id}`}
-      onClick={() => go(l.url)}
-      onKeyDown={(e: React.KeyboardEvent) => { if (e.key === 'Enter') go(l.url) }}
+      onClick={() => handleLinkClick(l)}
+      onKeyDown={(e: React.KeyboardEvent) => { if (e.key === 'Enter') handleLinkClick(l) }}
       sx={{
         cursor: 'pointer',
         display: 'flex',
@@ -313,14 +358,14 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget }: { creator: C
         </Box>
 
         {/* ── Support Widget (always-on tip / coffee / support) ── */}
-        {supportWidget?.enabled && (
+        {supportWidget?.enabled && !activeLink && (
           <Box sx={{ mb: 3 }}>
             <SupportWidget handle={creator.handle} creatorName={creator.name} widget={supportWidget} siteUrl={siteUrl ? `${siteUrl.replace(/\/+$/, '')}/${creator.handle}` : undefined} />
           </Box>
         )}
 
         {/* ── Featured donation / tip box ── */}
-        {featured && (
+        {featured && !activeLink && (
           <Box
             data-testid='creator-featured'
             sx={{
@@ -383,11 +428,80 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget }: { creator: C
         )}
 
         {/* ── Links ── */}
-        {rest.length > 0 && (
+        {rest.length > 0 && !activeLink && (
           <Box display='flex' flexDirection='column' gap={1.5} data-testid='creator-links'>
             {rest.map((l) => <LinkCard key={l.link_id} l={l} />)}
           </Box>
         )}
+
+        {/* ── Inline payment checkout (Phase 5) ── */}
+        {activeLink && (() => {
+          const ref = extractPaymentRef(activeLink.url)
+          if (!ref) return null
+          return (
+            <Box
+              data-testid='creator-link-inline-checkout'
+              sx={{
+                borderRadius: '20px',
+                border: `1px solid ${border}`,
+                backgroundColor: theme.palette.background.paper,
+                p: { xs: 2, sm: 2.5 },
+              }}
+            >
+              {/* Header row: link title + close */}
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, mb: 2 }}>
+                <Box
+                  sx={{
+                    width: 42, height: 42, borderRadius: '10px', flexShrink: 0, overflow: 'hidden',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    backgroundColor: limeTint,
+                  }}
+                >
+                  {activeLink.image ? (
+                    <Box component='img' src={activeLink.image} alt='' sx={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  ) : (
+                    <Icon icon='mdi:link-variant' width={20} color={isDark ? LIME : '#0A0A0B'} />
+                  )}
+                </Box>
+                <Box flex={1} minWidth={0}>
+                  <Typography fontWeight={700} fontSize={15} color={theme.palette.text.primary} noWrap>
+                    {activeLink.title}
+                  </Typography>
+                  <Typography fontSize={12} color={theme.palette.text.secondary} noWrap>
+                    {activeLink.amount ? fmt(activeLink.amount, activeLink.currency) : (activeLink.description || 'Payment link')}
+                  </Typography>
+                </Box>
+                <Box
+                  component='button'
+                  data-testid='creator-link-inline-close'
+                  onClick={closeInlineCheckout}
+                  aria-label='Close inline checkout'
+                  sx={{
+                    width: 34, height: 34, borderRadius: '50%',
+                    border: `1px solid ${border}`, backgroundColor: surface,
+                    color: theme.palette.text.secondary, cursor: 'pointer', flexShrink: 0,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    '&:hover': { borderColor: LIME, color: theme.palette.text.primary },
+                  }}
+                >
+                  <Icon icon='mdi:close' width={16} />
+                </Box>
+              </Box>
+
+              <InlineTipCheckout
+                d={ref}
+                handle={creator.handle}
+                creatorName={creator.name}
+                style='support'
+                siteUrl={shareUrl}
+                mode='link'
+                targetLabel={activeLink.title}
+                onCancel={closeInlineCheckout}
+                onNewTip={closeInlineCheckout}
+              />
+            </Box>
+          )
+        })()}
 
         {/* ── Empty state ── */}
         {links.length === 0 && !supportWidget?.enabled && (

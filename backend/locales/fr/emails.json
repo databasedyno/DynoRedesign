@@ -407,6 +407,17 @@
       "outro": "Partagez ce lien avec votre client pour recevoir le paiement.",
       "cta": "Ouvrir le lien de paiement"
     },
+    "crowdfundingCreated": {
+      "subject": "Votre campagne de crowdfunding est en ligne — {{title}}",
+      "heading": "Campagne de crowdfunding en ligne",
+      "intro": "Votre campagne de crowdfunding est prête à recevoir des contributions.",
+      "outro": "Partagez la page de la campagne avec votre communauté pour commencer à collecter des contributions. Vous pouvez suivre les progrès depuis votre tableau de bord.",
+      "cta": "Voir la campagne",
+      "labelCampaign": "Campagne",
+      "labelGoal": "Objectif",
+      "labelNoGoal": "Ouvert (sans objectif)",
+      "labelLink": "Lien de la campagne"
+    },
     "kycRequired": {
       "subject": "Vérification requise - volume de {{symbol}}{{threshold}} atteint",
       "heading": "Vérification requise",
@@ -528,5 +539,29 @@
       "heading": "Rapport hebdomadaire de conversions",
       "intro": "Voici votre rapport hebdomadaire de conversion automatique pour <strong>{{companyName}}</strong>."
     }
+  },
+  "contributor": {
+    "crowdfundingUpdate": {
+      "subject": "{{title}} — nouvelle de {{campaign}}",
+      "friend": "ami",
+      "intro": "L'organisateur de <strong>{{campaign}}</strong> vient de publier une mise à jour.",
+      "outro": "Merci de soutenir cette campagne. Vous recevez ce message parce que vous avez déjà contribué.",
+      "heading": "Nouvelle mise à jour de {{campaign}}",
+      "cta": "Voir la campagne"
+    }
+  },
+  "contributionReceived": {
+    "subject": "Vous avez reçu une contribution — {{amount}} {{currency}}",
+    "heading": "Nouvelle contribution reçue",
+    "intro": "Quelqu'un vient de soutenir <strong>{{campaignName}}</strong> — voici les détails.",
+    "outro": "La liste complète des donateurs se trouve dans le tableau de bord de votre campagne.",
+    "cta": "Voir la campagne"
+  },
+  "contributionThankYou": {
+    "subject": "Merci d'avoir contribué à {{campaignName}}",
+    "heading": "Merci de soutenir {{campaignName}}",
+    "intro": "Votre contribution à <strong>{{campaignName}}</strong> vient d'être reçue — merci de soutenir cette campagne.",
+    "outro": "L'organisateur peut vous envoyer des mises à jour pour que vous voyiez à quoi sert votre soutien.",
+    "contact": "Des questions ? Répondez à cet e-mail et l'organisateur de {{campaignName}} vous répondra."
   }
 }

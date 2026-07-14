@@ -407,6 +407,17 @@
       "outro": "Comparta este enlace con su cliente para recibir el pago.",
       "cta": "Abrir enlace de pago"
     },
+    "crowdfundingCreated": {
+      "subject": "Tu campaña de crowdfunding está activa — {{title}}",
+      "heading": "Campaña de crowdfunding activa",
+      "intro": "Tu campaña de crowdfunding está lista para recibir contribuciones.",
+      "outro": "Comparte la página de la campaña con tu comunidad para comenzar a recibir contribuciones. Puedes seguir el progreso desde tu panel.",
+      "cta": "Ver campaña",
+      "labelCampaign": "Campaña",
+      "labelGoal": "Meta",
+      "labelNoGoal": "Abierta (sin meta)",
+      "labelLink": "Enlace de la campaña"
+    },
     "kycRequired": {
       "subject": "Verificación requerida: volumen de {{symbol}}{{threshold}} alcanzado",
       "heading": "Verificación requerida",
@@ -528,5 +539,29 @@
       "heading": "Informe semanal de conversiones",
       "intro": "Aquí tiene su informe semanal de conversión automática para <strong>{{companyName}}</strong>."
     }
+  },
+  "contributor": {
+    "crowdfundingUpdate": {
+      "subject": "{{title}} — novedad de {{campaign}}",
+      "friend": "amigo",
+      "intro": "El organizador de <strong>{{campaign}}</strong> acaba de publicar una novedad.",
+      "outro": "Gracias por apoyar esta campaña. Recibes este correo porque hiciste una contribución.",
+      "heading": "Nueva novedad de {{campaign}}",
+      "cta": "Ver campaña"
+    }
+  },
+  "contributionReceived": {
+    "subject": "Recibiste una contribución — {{amount}} {{currency}}",
+    "heading": "Nueva contribución recibida",
+    "intro": "Alguien acaba de apoyar <strong>{{campaignName}}</strong> — aquí están los detalles.",
+    "outro": "Verás la lista completa de donantes en el panel de tu campaña.",
+    "cta": "Ver campaña"
+  },
+  "contributionThankYou": {
+    "subject": "Gracias por contribuir a {{campaignName}}",
+    "heading": "Gracias por apoyar {{campaignName}}",
+    "intro": "Tu contribución a <strong>{{campaignName}}</strong> acaba de llegar — gracias por apoyar esta campaña.",
+    "outro": "El organizador puede enviarte novedades de la campaña para que veas a dónde va tu apoyo.",
+    "contact": "¿Preguntas? Responde a este correo y el organizador de {{campaignName}} te contestará."
   }
 }

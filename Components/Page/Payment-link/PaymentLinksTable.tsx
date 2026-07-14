@@ -204,7 +204,7 @@ const PaymentLinksTable = ({
         flexShrink: 0,
       }}
     >
-      {t("donationBadge", { defaultValue: "Donation" })}
+      {t("donationBadge", { defaultValue: "Crowdfunding" })}
     </Box>
   );
 

@@ -407,6 +407,17 @@
       "outro": "Teilen Sie diesen Link mit Ihrem Kunden, um die Zahlung zu erhalten.",
       "cta": "Zahlungslink öffnen"
     },
+    "crowdfundingCreated": {
+      "subject": "Ihre Crowdfunding-Kampagne ist live — {{title}}",
+      "heading": "Crowdfunding-Kampagne live",
+      "intro": "Ihre Crowdfunding-Kampagne ist bereit, Beiträge zu empfangen.",
+      "outro": "Teilen Sie die Kampagnenseite mit Ihrer Community, um Beiträge zu sammeln. Sie können den Fortschritt in Ihrem Dashboard verfolgen.",
+      "cta": "Kampagne ansehen",
+      "labelCampaign": "Kampagne",
+      "labelGoal": "Ziel",
+      "labelNoGoal": "Offen (kein Ziel)",
+      "labelLink": "Kampagnenlink"
+    },
     "kycRequired": {
       "subject": "Verifizierung erforderlich - Volumen von {{symbol}}{{threshold}} erreicht",
       "heading": "Verifizierung erforderlich",
@@ -528,5 +539,29 @@
       "heading": "Wöchentlicher Umwandlungsbericht",
       "intro": "Hier ist Ihr wöchentlicher Bericht zur automatischen Umwandlung für <strong>{{companyName}}</strong>."
     }
+  },
+  "contributor": {
+    "crowdfundingUpdate": {
+      "subject": "{{title}} — Update von {{campaign}}",
+      "friend": "Freund",
+      "intro": "Der Organisator von <strong>{{campaign}}</strong> hat gerade ein Update veröffentlicht.",
+      "outro": "Danke, dass du diese Kampagne unterstützt. Du erhältst diese E-Mail, weil du bereits beigetragen hast.",
+      "heading": "Neues Update von {{campaign}}",
+      "cta": "Kampagne ansehen"
+    }
+  },
+  "contributionReceived": {
+    "subject": "Du hast einen Beitrag erhalten — {{amount}} {{currency}}",
+    "heading": "Neuer Beitrag erhalten",
+    "intro": "Jemand hat gerade <strong>{{campaignName}}</strong> unterstützt — hier sind die Details.",
+    "outro": "Die vollständige Spenderliste findest du im Dashboard deiner Kampagne.",
+    "cta": "Kampagne ansehen"
+  },
+  "contributionThankYou": {
+    "subject": "Danke für deinen Beitrag zu {{campaignName}}",
+    "heading": "Danke, dass du {{campaignName}} unterstützt",
+    "intro": "Dein Beitrag zu <strong>{{campaignName}}</strong> ist gerade eingetroffen — danke für deine Unterstützung.",
+    "outro": "Der Organisator kann dir Kampagnen-Updates schicken, damit du siehst, wohin deine Unterstützung fließt.",
+    "contact": "Fragen? Antworte auf diese E-Mail und der Organisator von {{campaignName}} meldet sich."
   }
 }

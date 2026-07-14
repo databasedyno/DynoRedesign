@@ -47,6 +47,7 @@ import type {
   DonationSettingsState,
   DonationErrors,
 } from "@/Components/UI/pay-link/DonationSettingsSection";
+import CampaignManager from "@/Components/UI/pay-link/CampaignManager";
 import axiosBaseApi from "@/axiosConfig";
 import SaveChangeModel from "@/Components/UI/pay-link/SaveChangeModel";
 import {
@@ -347,6 +348,12 @@ const CreatePaymentLinkPage = ({
       showSupporters: don?.show_supporters !== false,
       autoCloseAtGoal: Boolean(don?.auto_close_at_goal),
       campaignImage: don?.campaign_image || null,
+      // Crowdfunding v2 (Phase 3)
+      storyMd: (don as any)?.story_md || "",
+      endsAt: (don as any)?.ends_at ? String((don as any).ends_at).slice(0, 10) : "",
+      category: (don as any)?.category || "",
+      organizerThanks: (don as any)?.organizer_thanks || "",
+      gallery: Array.isArray((don as any)?.gallery) ? (don as any).gallery : [],
     };
   });
   const [donationErrors, setDonationErrors] = useState<DonationErrors>({});
@@ -467,6 +474,12 @@ const CreatePaymentLinkPage = ({
           showSupporters: don.show_supporters !== false,
           autoCloseAtGoal: Boolean(don.auto_close_at_goal),
           campaignImage: don.campaign_image || null,
+          // Crowdfunding v2 (Phase 3)
+          storyMd: (don as any).story_md || "",
+          endsAt: (don as any).ends_at ? String((don as any).ends_at).slice(0, 10) : "",
+          category: (don as any).category || "",
+          organizerThanks: (don as any).organizer_thanks || "",
+          gallery: Array.isArray((don as any).gallery) ? (don as any).gallery : [],
         });
       }
     }
@@ -667,6 +680,16 @@ const CreatePaymentLinkPage = ({
             show_supporters: donationSettings.showSupporters,
             auto_close_at_goal: donationSettings.autoCloseAtGoal,
             campaign_image: donationSettings.campaignImage,
+            // Crowdfunding v2 (Phase 3 — GoFundMe-lite)
+            donation_story_md: donationSettings.storyMd?.trim() || null,
+            donation_gallery: donationSettings.gallery || [],
+            // endsAt input is a date (yyyy-mm-dd); send as ISO end-of-day UTC so
+            // the countdown renders the whole day.
+            donation_ends_at: donationSettings.endsAt
+              ? new Date(`${donationSettings.endsAt}T23:59:59Z`).toISOString()
+              : null,
+            donation_category: donationSettings.category || null,
+            donation_organizer_thanks: donationSettings.organizerThanks?.trim() || null,
             expire: paymentSettings.expire === "no" ? "No" : paymentSettings.expire,
             fee_payer: paymentSettings.blockchainFees,
             accepted_currencies: paymentSettings.acceptedCryptoCurrency,
@@ -1355,6 +1378,15 @@ const CreatePaymentLinkPage = ({
                   />
                 </Box>
               </Box>
+              )}
+
+              {/* CampaignManager — tiers + updates editor. Only shown when
+                  editing an existing donation campaign (needs a saved link_id). */}
+              {linkKind === "donation" && hasPaymentLinkData && paymentSettings.linkId && (
+                <CampaignManager
+                  linkId={paymentSettings.linkId}
+                  currency={paymentSettings.currency}
+                />
               )}
 
               <Box

@@ -50,11 +50,11 @@
     "madePayment": "Ich habe die Zahlung getätigt",
     "noAccountToCopy": "Keine Kontonummer zum Kopieren.",
     "paymentNotVerified": "Zahlung nicht verifiziert.",
-    "titleContribution": "Schließe deine Spende ab",
-    "subtitleContribution": "unterstütze {{campaign}} mit Krypto. Jeder Beitrag hilft.",
-    "subtitleContributionDefault": "unterstütze diese Kampagne mit Krypto. Jeder Beitrag hilft.",
-    "donationDetails": "Spendendetails",
-    "donateWithCrypto": "Mit Krypto spenden"
+    "titleContribution": "Beitrag abschließen",
+    "subtitleContribution": "Unterstütze {{campaign}} mit Krypto. Jeder Beitrag bringt die Kampagne näher ans Ziel.",
+    "subtitleContributionDefault": "Unterstütze diese Kampagne mit Krypto. Jeder Beitrag zählt.",
+    "donationDetails": "Beitragsdetails",
+    "donateWithCrypto": "Mit Krypto beitragen"
   },
   "crypto": {
     "title": "Kryptowährung",

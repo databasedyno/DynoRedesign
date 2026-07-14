@@ -1080,15 +1080,23 @@ export const sendPaymentReceivedEmail = async (
   time?: string,
   lang: string = 'en',
   cryptoAmount?: string,
-  cryptoCurrency?: string
+  cryptoCurrency?: string,
+  campaignName?: string
 ) => {
   try {
     const L = normalizeLang(lang);
-    const subject = t('paymentReceived.subject', L, { amount, currency });
+    const isContribution = !!(campaignName && campaignName.trim());
+    const subject = isContribution
+      ? t('contributionReceived.subject', L, { amount, currency, campaignName })
+      : t('paymentReceived.subject', L, { amount, currency });
     const dateTimeStr = date && time ? `${date} at ${time}` : new Date().toLocaleString(L === 'en' ? 'en-GB' : L);
 
     const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
-    ${p(t('paymentReceived.intro', L, { companyName }))}
+    ${p(
+      isContribution
+        ? t('contributionReceived.intro', L, { campaignName })
+        : t('paymentReceived.intro', L, { companyName })
+    )}
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         ${dataRow(t('labels.amount', L), `<strong>${amount} ${currency}</strong>`)}
@@ -1098,11 +1106,21 @@ export const sendPaymentReceivedEmail = async (
         ${dataRow(t('labels.transactionId', L), `<span style="font-size: 12px; font-family: monospace;">${transactionId}</span>`, true)}
       </table>
     `, '#22c55e')}
-    ${p(t('paymentReceived.outro', L))}`;
+    ${p(
+      isContribution
+        ? t('contributionReceived.outro', L)
+        : t('paymentReceived.outro', L)
+    )}`;
 
-    const html = dynoPayEmailTemplate(t('paymentReceived.heading', L), content, true, t('paymentReceived.cta', L), `${FRONTEND_BASE_URL}/transactions`);
+    const html = dynoPayEmailTemplate(
+      isContribution ? t('contributionReceived.heading', L) : t('paymentReceived.heading', L),
+      content,
+      true,
+      isContribution ? t('contributionReceived.cta', L) : t('paymentReceived.cta', L),
+      `${FRONTEND_BASE_URL}/transactions`
+    );
     await mailTransporter({ to: email, name, subject, body: html });
-    apiLogger.info(`Payment received email sent to ${email}`);
+    apiLogger.info(`${isContribution ? 'Contribution' : 'Payment'} received email sent to ${email}`);
   } catch (e) {
     captureError(e, 'email', { extraContext: 'sendPaymentReceivedEmail' });
   }
@@ -1441,12 +1459,16 @@ export const sendCustomerPaymentConfirmationEmail = async (
   cryptoAmount?: string,
   cryptoCurrency?: string,
   transactionReference?: string,
-  lang: string = 'en'
+  lang: string = 'en',
+  campaignName?: string
 ) => {
   try {
     const L = normalizeLang(lang);
     const displayName = customerName || customerEmail.split('@')[0];
-    const subject = t('customerPaymentConfirmation.subject', L, { companyName });
+    const isContribution = !!(campaignName && campaignName.trim());
+    const subject = isContribution
+      ? t('contributionThankYou.subject', L, { campaignName })
+      : t('customerPaymentConfirmation.subject', L, { companyName });
 
     let pdfAttachment: { name: string; content: string; contentType: string } | undefined;
     try {
@@ -1481,7 +1503,11 @@ export const sendCustomerPaymentConfirmationEmail = async (
     }
 
     const content = `${p(t('common.greeting', L, { name: displayName }))}
-    ${p(t('customerPaymentConfirmation.intro', L, { companyName }))}
+    ${p(
+      isContribution
+        ? t('contributionThankYou.intro', L, { campaignName })
+        : t('customerPaymentConfirmation.intro', L, { companyName })
+    )}
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         ${dataRow(t('labels.status', L), statusBadge(t('statusLabels.complete', L), 'success'))}
@@ -1494,10 +1520,20 @@ export const sendCustomerPaymentConfirmationEmail = async (
       </table>
     `, '#22c55e')}
     ${pdfAttachment ? p(t('customerPaymentConfirmation.pdfAttached', L)) : ''}
-    ${p(t('customerPaymentConfirmation.contact', L, { companyName }))}
+    ${p(
+      isContribution
+        ? t('contributionThankYou.contact', L, { campaignName })
+        : t('customerPaymentConfirmation.contact', L, { companyName })
+    )}
+    ${isContribution ? p(t('contributionThankYou.outro', L)) : ''}
     ${p(`<span style="font-size: 13px; color: #6b7280;">${t('common.securedBy', L)}</span>`)}`;
 
-    const html = dynoPayEmailTemplate(t('customerPaymentConfirmation.heading', L), content);
+    const html = dynoPayEmailTemplate(
+      isContribution
+        ? t('contributionThankYou.heading', L, { campaignName })
+        : t('customerPaymentConfirmation.heading', L),
+      content
+    );
     await mailTransporter({ to: customerEmail, name: displayName, subject, body: html, attachments: pdfAttachment ? [pdfAttachment] : undefined });
     apiLogger.info(`[Email] Customer payment confirmation sent to ${customerEmail} for ${amount} ${currency}${pdfAttachment ? ' with PDF receipt' : ''}`);
   } catch (e) {
@@ -2010,6 +2046,138 @@ export const sendPaymentLinkCreatedEmail = async (
     apiLogger.info(`Payment link created email sent to ${email}`);
   } catch (e) {
     apiLogger.error("Payment link created email error:", e);
+  }
+};
+
+/**
+ * Template 12b: Crowdfunding Campaign Created (merchant notification)
+ *
+ * Distinct from `sendPaymentLinkCreatedEmail` — a donation/crowdfunding
+ * campaign is NOT a single-amount payment request. The email must reference
+ * the campaign title + goal (or "open-ended" when no goal), not an "amount to
+ * be paid" (which used to say "Payment Link Created for $10,000" for a $10k
+ * goal — that was misleading and got flagged as inconsistent by the user).
+ */
+export const sendCrowdfundingCampaignCreatedEmail = async (
+  email: string,
+  name: string,
+  campaignTitle: string,
+  goalAmount: number | null,
+  currency: string,
+  campaignLink: string,
+  purpose: string | null,
+  lang?: string
+) => {
+  try {
+    const L = await resolveEmailLang(lang, email);
+    const safeTitle = campaignTitle || 'Crowdfunding campaign';
+    const subject = t('merchant.crowdfundingCreated.subject', L, { title: safeTitle });
+
+    let shortDisplayUrl = campaignLink;
+    try {
+      const url = new URL(campaignLink);
+      const pathParts = url.pathname + url.search;
+      if (pathParts.length > 20) {
+        const lastChars = pathParts.slice(-8);
+        shortDisplayUrl = `${url.host}/pay/...${lastChars}`;
+      }
+    } catch {
+      // Keep original if URL parsing fails
+    }
+
+    const goalDisplay = (goalAmount && goalAmount > 0)
+      ? `<strong>${getCurrencySymbol(currency)}${Number(goalAmount).toLocaleString(undefined, { maximumFractionDigits: 2 })} ${currency}</strong>`
+      : t('merchant.crowdfundingCreated.labelNoGoal', L);
+
+    const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
+    ${p(t('merchant.crowdfundingCreated.intro', L))}
+    ${infoBox(`
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+        ${dataRow(t('merchant.crowdfundingCreated.labelCampaign', L), `<strong>${safeTitle}</strong>`)}
+        ${dataRow(t('merchant.crowdfundingCreated.labelGoal', L), goalDisplay)}
+        ${purpose ? dataRow(t('labels.description', L), purpose) : ''}
+        ${dataRow(t('merchant.crowdfundingCreated.labelLink', L), `<a href="${campaignLink}" style="color: #0a0a0a; text-decoration: none;">${shortDisplayUrl}</a>`, true)}
+      </table>
+    `)}
+    ${p(t('merchant.crowdfundingCreated.outro', L))}`;
+
+    const html = dynoPayEmailTemplate(t('merchant.crowdfundingCreated.heading', L), content, true, t('merchant.crowdfundingCreated.cta', L), campaignLink);
+    await mailTransporter({ to: email, name, subject, body: html });
+    apiLogger.info(`Crowdfunding campaign created email sent to ${email}`);
+  } catch (e) {
+    apiLogger.error("Crowdfunding campaign created email error:", e);
+  }
+};
+
+/**
+ * Template 12c: Crowdfunding Campaign Update (contributor notification)
+ *
+ * Sent to a past contributor when the organizer publishes a new update with
+ * `notify_contributors=true`. Uses the campaign title + update title/body
+ * (Markdown body pre-rendered to plain text for the email — we don't render
+ * Markdown in emails to keep the templates cross-client compatible).
+ *
+ * Anonymous contributors still receive the email (the anonymity flag hides
+ * the donor's name from the PUBLIC wall, not from the merchant's contact
+ * capture — the email column is populated for all completed contributions).
+ * Contributors who never entered an email are silently skipped by the caller.
+ */
+export const sendCrowdfundingUpdateEmail = async (
+  email: string,
+  name: string,
+  campaignTitle: string,
+  updateTitle: string,
+  updateBodyMd: string,
+  campaignLink: string,
+  lang?: string
+) => {
+  try {
+    const L = await resolveEmailLang(lang, email);
+    const safeCampaign = campaignTitle || 'the campaign';
+    const safeUpdateTitle = updateTitle || 'Campaign update';
+    const subject = t('contributor.crowdfundingUpdate.subject', L, {
+      title: safeUpdateTitle, campaign: safeCampaign,
+    });
+
+    // Strip Markdown for email body — email clients don't reliably render
+    // custom Markdown → HTML. We keep line breaks + bullet dashes for
+    // readability.
+    const stripped = String(updateBodyMd || '')
+      .replace(/^#{1,6}\s*/gm, '')
+      .replace(/\*\*(.+?)\*\*/g, '$1')
+      .replace(/(^|[^*])\*(.+?)\*/g, '$1$2')
+      .replace(/`([^`]+)`/g, '$1')
+      .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '$1 ($2)')
+      .replace(/^>\s?/gm, '')
+      .replace(/^---+$/gm, '—')
+      .trim();
+    // Escape HTML then re-wrap paragraphs on double newlines.
+    const escape = (s: string) => s
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const paragraphs = escape(stripped)
+      .split(/\n{2,}/)
+      .map((para) => `<p style="margin:0 0 16px 0; line-height:1.6;">${para.replace(/\n/g, '<br/>')}</p>`)
+      .join('');
+
+    const content = `${p(t('common.greeting', L, { name: name || t('contributor.crowdfundingUpdate.friend', L) }))}
+    ${p(t('contributor.crowdfundingUpdate.intro', L, { campaign: safeCampaign }))}
+    ${infoBox(`
+      <h2 style="margin:0 0 12px 0; font-size:19px; font-weight:800; color:#0a0a0a;">${escape(safeUpdateTitle)}</h2>
+      ${paragraphs}
+    `)}
+    ${p(t('contributor.crowdfundingUpdate.outro', L))}`;
+
+    const html = dynoPayEmailTemplate(
+      t('contributor.crowdfundingUpdate.heading', L, { campaign: safeCampaign }),
+      content,
+      true,
+      t('contributor.crowdfundingUpdate.cta', L),
+      campaignLink
+    );
+    await mailTransporter({ to: email, name, subject, body: html });
+    apiLogger.info(`Crowdfunding update email sent to ${email}`);
+  } catch (e) {
+    apiLogger.error("Crowdfunding update email error:", e);
   }
 };
 
@@ -3004,6 +3172,7 @@ export default {
   sendWeeklyConversionSummaryEmail,
   // Marketing & Reminders
   sendPaymentLinkCreatedEmail,
+  sendCrowdfundingCampaignCreatedEmail,
   sendPaymentExpiringEmail,
   sendRefereeCodeReminderEmail,
   sendPaymentLinkReminderEmail,

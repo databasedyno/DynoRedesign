@@ -2734,6 +2734,30 @@ const cryptoVerification = async (address, webhook = true, overrideRedisKey?: st
           })
         )?.dataValues;
 
+        // Contribution branching (Phase 3.3 P1): if this transaction is a
+        // donation contribution, look up the parent campaign name so the merchant
+        // and donor receipt emails are contribution-flavored instead of the
+        // standard "Payment received" / "Your payment to X" copy.
+        let campaignName: string | undefined = undefined;
+        try {
+          const parentLinkId = customerData?.parent_link_id || tempData?.parent_link_id;
+          const linkType = customerData?.link_type || tempData?.link_type;
+          if (linkType === "contribution" && parentLinkId) {
+            const parent = await paymentLinkModel.findOne({
+              where: { link_id: parentLinkId },
+              attributes: ["title", "description"],
+            });
+            const raw = (parent?.dataValues?.title || parent?.dataValues?.description || "")
+              .toString()
+              .trim();
+            if (raw && raw.toLowerCase() !== "no description") campaignName = raw;
+          }
+        } catch (e) {
+          cronLogger.warn(
+            `[cryptoVerification] campaign name lookup failed for tx=${transactionId}: ${(e as Error)?.message}`
+          );
+        }
+
         // RACE CONDITION FIX: Check if payment received email already sent for this transaction
         const paymentReceivedEmailKey = `payment-received-email-${transactionId}`;
         const paymentReceivedEmailSent = await getRedisItem(paymentReceivedEmailKey);
@@ -2796,7 +2820,8 @@ const cryptoVerification = async (address, webhook = true, overrideRedisKey?: st
             paymentTimeStr,          // time
             normalizeLang((userData as { language?: string })?.language), // merchant language
             mrCryptoAmount,          // crypto amount received (secondary)
-            mrCryptoCurrency         // crypto currency (secondary, e.g. "ETH → USDT")
+            mrCryptoCurrency,        // crypto currency (secondary, e.g. "ETH → USDT")
+            campaignName             // Phase 3.3 P1: when set, sends contribution-flavored copy
           );
         }
 
@@ -2881,7 +2906,8 @@ const cryptoVerification = async (address, webhook = true, overrideRedisKey?: st
                   transactionLang: (customerPayload as { language?: string })?.language,
                   checkoutLang: customerData?.language || tempData?.language,
                   merchantLang: (userData as { language?: string })?.language,
-                }) // customer language
+                }), // customer language
+                campaignName // Phase 3.3 P1: when set, sends "Thank you for supporting" copy
               );
               cronLogger.info(`[cryptoVerification] Customer payment confirmation email sent to ${customerEmail} with PDF receipt`);
             }

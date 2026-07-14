@@ -26,6 +26,17 @@ export interface DonationSettingsState {
   showSupporters: boolean;
   autoCloseAtGoal: boolean;
   campaignImage: string | null;
+  // ── Crowdfunding v2 (Phase 3 — GoFundMe-lite) ──
+  /** Rich Markdown campaign body — replaces plain description for donation pages. */
+  storyMd: string;
+  /** Optional campaign end date (ISO local string yyyy-mm-dd or empty). */
+  endsAt: string;
+  /** Taxonomy: medical | community | creative | emergency | education | animal | environment | memorial | sports | faith | other. Empty = uncategorised. */
+  category: string;
+  /** Custom thank-you message shown post-contribution + as auto-email intro. */
+  organizerThanks: string;
+  /** Supporting photos (URLs) — up to 12. Cover stays in `campaignImage`. */
+  gallery: Array<{ url: string; caption?: string }>;
 }
 
 export interface DonationErrors {
@@ -33,6 +44,10 @@ export interface DonationErrors {
   goalAmount?: string;
   minAmount?: string;
   presets?: string;
+  storyMd?: string;
+  endsAt?: string;
+  category?: string;
+  organizerThanks?: string;
 }
 
 interface DonationSettingsSectionProps {
@@ -578,6 +593,199 @@ const DonationSettingsSection = ({
             })}
           </Box>
         </Box>
+      </Box>
+
+      {/* ── Crowdfunding v2 (Phase 3 — GoFundMe-lite) ── */}
+      {/* Story (rich Markdown) */}
+      <Box>
+        <Typography
+          sx={{
+            fontFamily: "var(--font-sans)",
+            fontSize: 13.5,
+            fontWeight: 600,
+            color: theme.palette.text.primary,
+            mb: 0.5,
+          }}
+        >
+          {t("donationStoryLabel", { defaultValue: "Campaign story" })}
+        </Typography>
+        <Typography
+          sx={{
+            fontFamily: "var(--font-sans)",
+            fontSize: 12,
+            color: theme.palette.text.secondary,
+            mb: 1,
+          }}
+        >
+          {t("donationStoryHint", { defaultValue: "Tell your story: who this is for, why it matters, and how funds will be used. Markdown supported. Photos in the gallery below add trust." })}
+        </Typography>
+        <Box
+          component="textarea"
+          data-testid="donation-story"
+          placeholder={t("donationStoryPlaceholder", { defaultValue: "## Our story\n\nWrite something that will inspire people to contribute…\n\n**Where your contribution goes:**\n- Item 1\n- Item 2" })}
+          value={settings.storyMd}
+          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
+            if (errors.storyMd) clearError("storyMd");
+            onChange({ storyMd: e.target.value });
+          }}
+          sx={{
+            width: "100%",
+            minHeight: 200,
+            resize: "vertical",
+            p: 1.5,
+            borderRadius: "10px",
+            border: `1px solid ${errors.storyMd ? theme.palette.error.main : theme.palette.border.main}`,
+            outline: "none",
+            fontFamily: "var(--font-sans)",
+            fontSize: 14,
+            lineHeight: 1.55,
+            color: theme.palette.text.primary,
+            backgroundColor: theme.palette.background.paper,
+            transition: "border-color 120ms ease",
+            "&:focus": { borderColor: green },
+          }}
+        />
+        <Typography
+          sx={{
+            fontFamily: "var(--font-sans)",
+            fontSize: 11,
+            color: theme.palette.text.secondary,
+            mt: 0.5,
+            textAlign: "right",
+          }}
+        >
+          {settings.storyMd.length}/20,000
+        </Typography>
+      </Box>
+
+      {/* End date + Category (side-by-side on desktop, stacked on mobile) */}
+      <Box sx={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 2 }}>
+        <Box>
+          <Typography
+            sx={{
+              fontFamily: "var(--font-sans)",
+              fontSize: 13.5,
+              fontWeight: 600,
+              color: theme.palette.text.primary,
+              mb: 0.5,
+            }}
+          >
+            {t("donationEndsAtLabel", { defaultValue: "Campaign end date" })}
+          </Typography>
+          <Typography sx={{ fontSize: 12, color: theme.palette.text.secondary, mb: 1 }}>
+            {t("donationEndsAtHint", { defaultValue: "Optional. Shows a countdown; you can still keep accepting contributions after." })}
+          </Typography>
+          <Box
+            component="input"
+            type="date"
+            data-testid="donation-ends-at"
+            value={settings.endsAt}
+            min={new Date().toISOString().slice(0, 10)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+              if (errors.endsAt) clearError("endsAt");
+              onChange({ endsAt: e.target.value });
+            }}
+            sx={{
+              width: "100%",
+              p: 1.25,
+              borderRadius: "10px",
+              border: `1px solid ${errors.endsAt ? theme.palette.error.main : theme.palette.border.main}`,
+              outline: "none",
+              fontFamily: "var(--font-sans)",
+              fontSize: 14,
+              color: theme.palette.text.primary,
+              backgroundColor: theme.palette.background.paper,
+              "&:focus": { borderColor: green },
+            }}
+          />
+        </Box>
+        <Box>
+          <Typography
+            sx={{
+              fontFamily: "var(--font-sans)",
+              fontSize: 13.5,
+              fontWeight: 600,
+              color: theme.palette.text.primary,
+              mb: 0.5,
+            }}
+          >
+            {t("donationCategoryLabel", { defaultValue: "Category" })}
+          </Typography>
+          <Typography sx={{ fontSize: 12, color: theme.palette.text.secondary, mb: 1 }}>
+            {t("donationCategoryHint", { defaultValue: "Helps contributors find your campaign in the directory." })}
+          </Typography>
+          <Box
+            component="select"
+            data-testid="donation-category"
+            value={settings.category}
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => onChange({ category: e.target.value })}
+            sx={{
+              width: "100%",
+              p: 1.25,
+              borderRadius: "10px",
+              border: `1px solid ${theme.palette.border.main}`,
+              outline: "none",
+              fontFamily: "var(--font-sans)",
+              fontSize: 14,
+              color: theme.palette.text.primary,
+              backgroundColor: theme.palette.background.paper,
+              "&:focus": { borderColor: green },
+            }}
+          >
+            <option value="">{t("donationCategoryNone", { defaultValue: "Uncategorised" })}</option>
+            <option value="medical">Medical</option>
+            <option value="community">Community</option>
+            <option value="creative">Creative</option>
+            <option value="emergency">Emergency</option>
+            <option value="education">Education</option>
+            <option value="animal">Animal</option>
+            <option value="environment">Environment</option>
+            <option value="memorial">Memorial</option>
+            <option value="sports">Sports</option>
+            <option value="faith">Faith</option>
+            <option value="other">Other</option>
+          </Box>
+        </Box>
+      </Box>
+
+      {/* Organizer thank-you message */}
+      <Box>
+        <Typography
+          sx={{
+            fontFamily: "var(--font-sans)",
+            fontSize: 13.5,
+            fontWeight: 600,
+            color: theme.palette.text.primary,
+            mb: 0.5,
+          }}
+        >
+          {t("donationOrganizerThanksLabel", { defaultValue: "Thank-you message (optional)" })}
+        </Typography>
+        <Typography sx={{ fontSize: 12, color: theme.palette.text.secondary, mb: 1 }}>
+          {t("donationOrganizerThanksHint", { defaultValue: "Shown to contributors right after their payment succeeds, and used as the intro of the auto-thank-you email." })}
+        </Typography>
+        <Box
+          component="textarea"
+          data-testid="donation-organizer-thanks"
+          placeholder={t("donationOrganizerThanksPlaceholder", { defaultValue: "Thank you so much for supporting {campaign}! Your contribution means the world to us." })}
+          value={settings.organizerThanks}
+          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => onChange({ organizerThanks: e.target.value })}
+          sx={{
+            width: "100%",
+            minHeight: 70,
+            resize: "vertical",
+            p: 1.5,
+            borderRadius: "10px",
+            border: `1px solid ${theme.palette.border.main}`,
+            outline: "none",
+            fontFamily: "var(--font-sans)",
+            fontSize: 14,
+            lineHeight: 1.55,
+            color: theme.palette.text.primary,
+            backgroundColor: theme.palette.background.paper,
+            "&:focus": { borderColor: green },
+          }}
+        />
       </Box>
 
       {/* Display toggles */}

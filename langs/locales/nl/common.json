@@ -50,11 +50,11 @@
     "madePayment": "Ik heb de betaling gedaan",
     "noAccountToCopy": "Geen rekeningnummer om te kopiëren.",
     "paymentNotVerified": "Betaling niet geverifieerd.",
-    "titleContribution": "Voltooi je donatie",
-    "subtitleContribution": "steun {{campaign}} met crypto. Elke bijdrage helpt.",
-    "subtitleContributionDefault": "steun deze campagne met crypto. Elke bijdrage helpt.",
-    "donationDetails": "Donatiedetails",
-    "donateWithCrypto": "Doneer met crypto"
+    "titleContribution": "Voltooi je bijdrage",
+    "subtitleContribution": "Draag bij aan {{campaign}} met crypto. Elke bijdrage brengt de campagne dichter bij het doel.",
+    "subtitleContributionDefault": "Draag bij aan deze campagne met crypto. Elke bijdrage telt.",
+    "donationDetails": "Bijdragedetails",
+    "donateWithCrypto": "Bijdragen met crypto"
   },
   "crypto": {
     "title": "Cryptovaluta",

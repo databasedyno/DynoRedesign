@@ -71,11 +71,11 @@
     "madePayment": "J'ai effectué le paiement",
     "noAccountToCopy": "Aucun numéro de compte à copier.",
     "paymentNotVerified": "Paiement non vérifié.",
-    "titleContribution": "Finalisez votre don",
-    "subtitleContribution": "soutenez {{campaign}} avec de la crypto. Chaque contribution compte.",
-    "subtitleContributionDefault": "soutenez cette campagne avec de la crypto. Chaque contribution compte.",
-    "donationDetails": "Détails du don",
-    "donateWithCrypto": "Faire un don en crypto"
+    "titleContribution": "Finalisez votre contribution",
+    "subtitleContribution": "Contribuez à {{campaign}} avec de la crypto. Chaque contribution rapproche la campagne de son objectif.",
+    "subtitleContributionDefault": "Contribuez à cette campagne avec de la crypto. Chaque contribution compte.",
+    "donationDetails": "Détails de la contribution",
+    "donateWithCrypto": "Contribuer en crypto"
   },
   "crypto": {
     "title": "Cryptomonnaie",

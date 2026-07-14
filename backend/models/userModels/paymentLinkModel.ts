@@ -216,6 +216,52 @@ const paymentLinkModel = sequelize.define(
       type: DataTypes.STRING(512),
       allowNull: true,
     },
+    // ── Crowdfunding v2 fields (Phase 3 — GoFundMe-lite) ────────────────
+    // Rich Markdown campaign story rendered on the public campaign page.
+    // NULL / empty = falls back to the plain `description` field.
+    donation_story_md: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    // Photo gallery — JSONB array of { url, caption?, order? }. Cover image
+    // stays in `campaign_image`; gallery is additional supporting photos.
+    donation_gallery: {
+      type: DataTypes.JSONB,
+      defaultValue: [],
+      allowNull: true,
+    },
+    // Optional campaign end date. Renders a countdown pill on the public page.
+    donation_ends_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    // Category taxonomy (medical | community | creative | emergency |
+    // education | animal | environment | other). Powers the public directory.
+    donation_category: {
+      type: DataTypes.STRING(48),
+      allowNull: true,
+    },
+    // Custom thank-you message shown on the post-contribution success card
+    // and used as the intro of the auto-thank-you email to the contributor.
+    donation_organizer_thanks: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    // Beneficiary transparency — { name, description }. Renders as a trust
+    // block on the campaign page when the organizer is raising funds for a
+    // third party (person or org).
+    donation_beneficiary: {
+      type: DataTypes.JSONB,
+      allowNull: true,
+    },
+    // ── Refund address (CleanCheckoutV2 — Phase 1) ─────────────────────
+    // Set by the customer on the checkout page when they want a refund
+    // address for wrong-asset/wrong-network mistakes. Never used to send
+    // to unless the merchant explicitly triggers a refund flow.
+    refund_address: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+    },
     // ── Contribution (child row) fields ──────────────────────────────────
     donor_name: {
       type: DataTypes.STRING(255),

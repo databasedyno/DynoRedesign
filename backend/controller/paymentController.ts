@@ -13,6 +13,7 @@ import {
   startTip,
   uploadCampaignImage,
   getCreatorProfile,
+  setRefundAddress,
 } from "./payment/paymentLinkController";
 import {
   getNetworkFees,
@@ -2175,6 +2176,7 @@ export default {
   startTip,
   uploadCampaignImage,
   getCreatorProfile,
+  setRefundAddress,
   getPaymentMeta,
   cryptoVerification,
   checkingUSDT,

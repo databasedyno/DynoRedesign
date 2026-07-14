@@ -641,7 +641,7 @@ const OtpInputPanel: React.FC<OtpInputPanelProps> = ({
                             loading,
                           );
                         }}
-                        autoComplete="off"
+                        autoComplete="one-time-code"
                         error={hasError}
                         success={Boolean(hasValue && !hasError)}
                         fullWidth

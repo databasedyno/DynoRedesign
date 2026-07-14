@@ -177,6 +177,84 @@ const validateDonationInput = (
     }
   }
 
+  // ── Crowdfunding v2 fields (Phase 3 — GoFundMe-lite) ──────────────
+  if (input.donation_story_md !== undefined) {
+    if (input.donation_story_md === null || input.donation_story_md === "") {
+      fields.donation_story_md = null;
+    } else {
+      const s = String(input.donation_story_md);
+      if (s.length > 20000) return { error: "donation_story_md is too long (max 20,000 characters).", fields };
+      fields.donation_story_md = s;
+    }
+  }
+  if (input.donation_gallery !== undefined) {
+    if (input.donation_gallery === null) {
+      fields.donation_gallery = [];
+    } else if (Array.isArray(input.donation_gallery)) {
+      if (input.donation_gallery.length > 12) {
+        return { error: "donation_gallery supports at most 12 photos.", fields };
+      }
+      const clean = [];
+      for (const item of input.donation_gallery) {
+        if (!item || typeof item !== "object") continue;
+        const url = String((item as any).url || "").trim();
+        if (!url) continue;
+        if (url.length > 512) return { error: "gallery item URL is too long (max 512 chars).", fields };
+        if (!/^(https?:\/\/|\/)/i.test(url)) return { error: "gallery item URL must be a valid URL.", fields };
+        const caption = (item as any).caption ? String((item as any).caption).slice(0, 240) : undefined;
+        clean.push({ url, ...(caption ? { caption } : {}) });
+      }
+      fields.donation_gallery = clean;
+    } else {
+      return { error: "donation_gallery must be an array.", fields };
+    }
+  }
+  if (input.donation_ends_at !== undefined) {
+    if (input.donation_ends_at === null || input.donation_ends_at === "") {
+      fields.donation_ends_at = null;
+    } else {
+      const d = new Date(String(input.donation_ends_at));
+      if (isNaN(d.getTime())) return { error: "donation_ends_at must be a valid ISO date.", fields };
+      // Must be in the future
+      if (d.getTime() <= Date.now()) return { error: "donation_ends_at must be in the future.", fields };
+      fields.donation_ends_at = d;
+    }
+  }
+  if (input.donation_category !== undefined) {
+    if (input.donation_category === null || input.donation_category === "") {
+      fields.donation_category = null;
+    } else {
+      const cat = String(input.donation_category).trim().toLowerCase();
+      const allowed = ["medical", "community", "creative", "emergency", "education", "animal", "environment", "memorial", "sports", "faith", "other"];
+      if (!allowed.includes(cat)) {
+        return { error: `donation_category must be one of: ${allowed.join(", ")}.`, fields };
+      }
+      fields.donation_category = cat;
+    }
+  }
+  if (input.donation_organizer_thanks !== undefined) {
+    if (input.donation_organizer_thanks === null || input.donation_organizer_thanks === "") {
+      fields.donation_organizer_thanks = null;
+    } else {
+      const s = String(input.donation_organizer_thanks);
+      if (s.length > 2000) return { error: "donation_organizer_thanks is too long (max 2,000 characters).", fields };
+      fields.donation_organizer_thanks = s;
+    }
+  }
+  if (input.donation_beneficiary !== undefined) {
+    if (input.donation_beneficiary === null) {
+      fields.donation_beneficiary = null;
+    } else if (typeof input.donation_beneficiary === "object" && input.donation_beneficiary !== null) {
+      const b: any = input.donation_beneficiary;
+      const name = b.name ? String(b.name).slice(0, 200) : "";
+      const description = b.description ? String(b.description).slice(0, 1000) : "";
+      if (!name) return { error: "donation_beneficiary.name is required when donation_beneficiary is provided.", fields };
+      fields.donation_beneficiary = { name, ...(description ? { description } : {}) };
+    } else {
+      return { error: "donation_beneficiary must be an object with { name, description? }.", fields };
+    }
+  }
+
   return { fields };
 };
 
@@ -244,7 +322,24 @@ export const createPaymentLink = async (
   try {
     if (isDonation) {
       const donationCheck = validateDonationInput(
-        { title, goal_amount, preset_amounts, min_amount, allow_custom_amount, show_progress, show_supporters, auto_close_at_goal, campaign_image },
+        {
+          title,
+          goal_amount,
+          preset_amounts,
+          min_amount,
+          allow_custom_amount,
+          show_progress,
+          show_supporters,
+          auto_close_at_goal,
+          campaign_image,
+          // ── Crowdfunding v2 fields (Phase 3) ──────────────
+          donation_story_md: (req.body as any).donation_story_md,
+          donation_gallery: (req.body as any).donation_gallery,
+          donation_ends_at: (req.body as any).donation_ends_at,
+          donation_category: (req.body as any).donation_category,
+          donation_organizer_thanks: (req.body as any).donation_organizer_thanks,
+          donation_beneficiary: (req.body as any).donation_beneficiary,
+        },
         { partial: false }
       );
       if (donationCheck.error) {
@@ -551,6 +646,13 @@ export const createPaymentLink = async (
         show_supporters: donationFields.show_supporters !== undefined ? donationFields.show_supporters : true,
         auto_close_at_goal: donationFields.auto_close_at_goal !== undefined ? donationFields.auto_close_at_goal : false,
         campaign_image: donationFields.campaign_image ?? null,
+        // Crowdfunding v2 (Phase 3 — GoFundMe-lite)
+        donation_story_md: donationFields.donation_story_md ?? null,
+        donation_gallery: donationFields.donation_gallery ?? [],
+        donation_ends_at: donationFields.donation_ends_at ?? null,
+        donation_category: donationFields.donation_category ?? null,
+        donation_organizer_thanks: donationFields.donation_organizer_thanks ?? null,
+        donation_beneficiary: donationFields.donation_beneficiary ?? null,
       }),
     };
 
@@ -643,24 +745,37 @@ ${refereeCodeSection}
     }
     
     // Send payment link created notification to merchant
+    // For donation/crowdfunding campaigns, use a distinct email template
+    // (a $10,000 goal on a crowdfunding campaign is NOT a $10,000 payment
+    // request — that mismatch was flagged as inconsistent by users).
     try {
       const user = await userModel.findByPk(userData.user_id);
       if (user && user.dataValues.email) {
-        const { sendPaymentLinkCreatedEmail } = await import("../../services/emailService");
-        await sendPaymentLinkCreatedEmail(
-          user.dataValues.email,
-          user.dataValues.name || 'Merchant',
-          isDonation
-            ? String(donationFields.goal_amount ?? 0)
-            : normalizedAmount.toString(),
-          normalizedCurrency,
-          payload.payment_link,
-          isDonation
-            ? `Donation campaign: ${donationFields.title}`
-            : (description || 'No description provided'),
-          expires_at ? new Date(expires_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }) : null
-        );
-        cronLogger.info(`[PaymentLink] Merchant notification sent to ${user.dataValues.email}`);
+        if (isDonation) {
+          const { sendCrowdfundingCampaignCreatedEmail } = await import("../../services/emailService");
+          await sendCrowdfundingCampaignCreatedEmail(
+            user.dataValues.email,
+            user.dataValues.name || 'Merchant',
+            String(donationFields.title || 'Crowdfunding campaign'),
+            (donationFields.goal_amount as number | null) ?? null,
+            normalizedCurrency,
+            payload.payment_link,
+            description || null
+          );
+          cronLogger.info(`[PaymentLink] Crowdfunding campaign notification sent to ${user.dataValues.email}`);
+        } else {
+          const { sendPaymentLinkCreatedEmail } = await import("../../services/emailService");
+          await sendPaymentLinkCreatedEmail(
+            user.dataValues.email,
+            user.dataValues.name || 'Merchant',
+            normalizedAmount.toString(),
+            normalizedCurrency,
+            payload.payment_link,
+            description || 'No description provided',
+            expires_at ? new Date(expires_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }) : null
+          );
+          cronLogger.info(`[PaymentLink] Merchant notification sent to ${user.dataValues.email}`);
+        }
       }
     } catch (merchantEmailError) {
       cronLogger.error("[PaymentLink] Failed to send merchant notification:", merchantEmailError);
@@ -854,6 +969,13 @@ export const getPaymentLinks = async (req: express.Request, res: express.Respons
       show_supporters?: boolean;
       auto_close_at_goal?: boolean;
       campaign_image?: string;
+      // Crowdfunding v2 (Phase 3) fields
+      donation_story_md?: string | null;
+      donation_gallery?: string[] | string | null;
+      donation_ends_at?: Date | string | null;
+      donation_category?: string | null;
+      donation_organizer_thanks?: string | null;
+      donation_beneficiary?: string | null;
     }
 
     // ── Donation aggregates (raised amount + supporter count per campaign) ──
@@ -984,6 +1106,13 @@ export const getPaymentLinks = async (req: express.Request, res: express.Respons
             show_supporters: linkData.show_supporters !== false,
             auto_close_at_goal: Boolean(linkData.auto_close_at_goal),
             campaign_image: linkData.campaign_image || null,
+            // Crowdfunding v2 (Phase 3)
+            story_md: linkData.donation_story_md || null,
+            gallery: Array.isArray(linkData.donation_gallery) ? linkData.donation_gallery : [],
+            ends_at: linkData.donation_ends_at || null,
+            category: linkData.donation_category || null,
+            organizer_thanks: linkData.donation_organizer_thanks || null,
+            beneficiary: linkData.donation_beneficiary || null,
           },
         }),
       };
@@ -1154,6 +1283,13 @@ export const getPaymentLinkById = async (req: express.Request, res: express.Resp
         show_supporters: linkData.show_supporters !== false,
         auto_close_at_goal: Boolean(linkData.auto_close_at_goal),
         campaign_image: linkData.campaign_image || null,
+        // Crowdfunding v2 (Phase 3 — GoFundMe-lite)
+        story_md: linkData.donation_story_md || null,
+        gallery: Array.isArray(linkData.donation_gallery) ? linkData.donation_gallery : [],
+        ends_at: linkData.donation_ends_at || null,
+        category: linkData.donation_category || null,
+        organizer_thanks: linkData.donation_organizer_thanks || null,
+        beneficiary: linkData.donation_beneficiary || null,
         contributions,
       };
     }
@@ -1196,6 +1332,13 @@ export const updatePaymentLink = async (req: express.Request, res: express.Respo
     show_supporters,
     auto_close_at_goal,
     campaign_image,
+    // ── Crowdfunding v2 (Phase 3 — GoFundMe-lite) ──
+    donation_story_md,
+    donation_gallery,
+    donation_ends_at,
+    donation_category,
+    donation_organizer_thanks,
+    donation_beneficiary,
   } = req.body;
   
   try {
@@ -1380,6 +1523,13 @@ export const updatePaymentLink = async (req: express.Request, res: express.Respo
       if (show_supporters !== undefined) donationInput.show_supporters = show_supporters;
       if (auto_close_at_goal !== undefined) donationInput.auto_close_at_goal = auto_close_at_goal;
       if (campaign_image !== undefined) donationInput.campaign_image = campaign_image;
+      // Crowdfunding v2 (Phase 3)
+      if (donation_story_md !== undefined) donationInput.donation_story_md = donation_story_md;
+      if (donation_gallery !== undefined) donationInput.donation_gallery = donation_gallery;
+      if (donation_ends_at !== undefined) donationInput.donation_ends_at = donation_ends_at;
+      if (donation_category !== undefined) donationInput.donation_category = donation_category;
+      if (donation_organizer_thanks !== undefined) donationInput.donation_organizer_thanks = donation_organizer_thanks;
+      if (donation_beneficiary !== undefined) donationInput.donation_beneficiary = donation_beneficiary;
 
       if (Object.keys(donationInput).length > 0) {
         const donationCheck = validateDonationInput(donationInput, { partial: true });
@@ -1999,6 +2149,58 @@ export const uploadCampaignImage = async (
   }
 };
 
+// ═══════════════════════════════════════════════════════════════════════════
+// SET REFUND ADDRESS — CleanCheckoutV2 (Phase 1)
+// Public endpoint called by the customer on the checkout page when they
+// want to register a refund address for wrong-asset/wrong-network mistakes.
+// Requires the customer session JWT that /pay/getData handed out.
+// Idempotent: overwrites any previous value. Best-effort — refund still
+// needs manual approval by the merchant.
+// ═══════════════════════════════════════════════════════════════════════════
+export const setRefundAddress = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  try {
+    const { data, refund_address } = req.body || {};
+    if (!data || typeof data !== "string") {
+      return errorResponseHelper(res, 400, "Missing payment reference.");
+    }
+    const raw = String(refund_address || "").trim();
+    if (!raw) {
+      return errorResponseHelper(res, 400, "Refund address is required.");
+    }
+    if (raw.length > 255) {
+      return errorResponseHelper(res, 400, "Refund address is too long (max 255 characters).");
+    }
+    // Basic sanity — reject obvious junk like spaces / control chars.
+    if (/\s/.test(raw)) {
+      return errorResponseHelper(res, 400, "Refund address must not contain whitespace.");
+    }
+
+    // Ownership check: the session JWT's user_id must match the payment link's user_id.
+    // The customerAuthMiddleware only validates the JWT — we still need to
+    // ensure the ref they're modifying belongs to the same session, otherwise
+    // a captured token would let anyone poke at any link's refund address.
+    const authUser = (req as express.Request & { user?: { user_id?: number } }).user;
+    const link = await paymentLinkModel.findOne({
+      where: { payment_link: { [Op.like]: `%d=${data}%` } as any },
+    });
+    if (!link) {
+      return errorResponseHelper(res, 404, "Payment link not found.");
+    }
+    if (authUser?.user_id && Number(authUser.user_id) !== Number(link.dataValues.user_id)) {
+      // Session token belongs to a different merchant → block.
+      return errorResponseHelper(res, 403, "Not authorized to modify this payment link.");
+    }
+
+    await link.update({ refund_address: raw });
+    apiLogger.info(`[setRefundAddress] link_id=${link.dataValues.link_id} refund_address set`);
+    return successResponseHelper(res, 200, "Refund address saved.", { link_id: link.dataValues.link_id });
+  } catch (e) {
+    handleControllerError(res, e, apiLogger, {});
+  }
+};
 
 // ═══════════════════════════════════════════════════════════════════════════
 // CREATOR VANITY PAGE — public profile at dynopay.com/{handle}

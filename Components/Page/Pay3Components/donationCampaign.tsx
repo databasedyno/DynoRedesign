@@ -26,6 +26,89 @@ import {
   getCurrencySymbolFromFormat,
 } from '@/utils/currencyFormat'
 
+/**
+ * Minimal, XSS-safe Markdown → HTML renderer for the campaign story.
+ *
+ * Supports: headings (#, ##, ###), bold (`**`), italic (`*`), inline code
+ * (`` ` ``), links (`[text](url)`), unordered lists (`- `), ordered lists
+ * (`1. `), blockquotes (`> `), paragraphs (empty-line separated),
+ * horizontal rules (`---`), and inline images (`![alt](url)`).
+ *
+ * Everything else is HTML-escaped. Raw HTML tags in the source are
+ * ALWAYS neutralised — a defence-in-depth against a compromised author
+ * or a bug in the sanitizer.
+ */
+function renderMarkdownSafe(src: string): string {
+  if (!src) return ''
+  const escape = (s: string) =>
+    s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+  // Sanitize URL — only allow http(s), mailto, and absolute paths.
+  const safeUrl = (u: string) => {
+    const url = String(u || '').trim()
+    if (/^(https?:|mailto:|\/)/i.test(url)) return escape(url)
+    return '#'
+  }
+  // Apply inline formatting to an ALREADY-ESCAPED string. Order matters:
+  // images → links → inline-code → bold → italic. Bold BEFORE italic so
+  // `**foo**` isn't mis-parsed as italic-star-italic.
+  const inline = (escaped: string): string => {
+    let p = escaped
+    p = p.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_m, alt, u) => `<img src="${safeUrl(u)}" alt="${escape(alt)}"/>`)
+    p = p.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_m, tx, u) => `<a href="${safeUrl(u)}" target="_blank" rel="noopener noreferrer">${escape(tx)}</a>`)
+    p = p.replace(/`([^`]+)`/g, (_m, code) => `<code>${escape(code)}</code>`)
+    p = p.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+    p = p.replace(/(^|[^*])\*([^*]+)\*/g, '$1<em>$2</em>')
+    return p
+  }
+
+  const lines = src.replace(/\r\n/g, '\n').split('\n')
+  const out: string[] = []
+  let inList: 'ul' | 'ol' | null = null
+  let paraBuf: string[] = []
+  const flushPara = () => {
+    if (paraBuf.length === 0) return
+    out.push(`<p>${inline(paraBuf.join(' '))}</p>`)
+    paraBuf = []
+  }
+  const closeList = () => {
+    if (inList) { out.push(`</${inList}>`); inList = null }
+  }
+
+  for (const raw of lines) {
+    const line = raw.trim()
+    // Blank → flush paragraph, close list
+    if (line === '') { flushPara(); closeList(); continue }
+    // Horizontal rule
+    if (/^---+$/.test(line)) { flushPara(); closeList(); out.push('<hr/>'); continue }
+    // Headings — apply inline formatting to the escaped heading text
+    let m
+    if ((m = /^###\s+(.*)$/.exec(line))) { flushPara(); closeList(); out.push(`<h3>${inline(escape(m[1]))}</h3>`); continue }
+    if ((m = /^##\s+(.*)$/.exec(line)))  { flushPara(); closeList(); out.push(`<h2>${inline(escape(m[1]))}</h2>`); continue }
+    if ((m = /^#\s+(.*)$/.exec(line)))   { flushPara(); closeList(); out.push(`<h1>${inline(escape(m[1]))}</h1>`); continue }
+    // Blockquote
+    if ((m = /^>\s+(.*)$/.exec(line)))   { flushPara(); closeList(); out.push(`<blockquote>${inline(escape(m[1]))}</blockquote>`); continue }
+    // Ordered list
+    if ((m = /^\d+\.\s+(.*)$/.exec(line))) {
+      flushPara()
+      if (inList !== 'ol') { closeList(); out.push('<ol>'); inList = 'ol' }
+      out.push(`<li>${inline(escape(m[1]))}</li>`)
+      continue
+    }
+    // Unordered list
+    if ((m = /^[-*+]\s+(.*)$/.exec(line))) {
+      flushPara()
+      if (inList !== 'ul') { closeList(); out.push('<ul>'); inList = 'ul' }
+      out.push(`<li>${inline(escape(m[1]))}</li>`)
+      continue
+    }
+    // Paragraph line — accumulate; inline processing runs when the paragraph flushes.
+    paraBuf.push(escape(line))
+  }
+  flushPara()
+  closeList()
+  return out.join('\n')
+}
+
 export interface DonationCampaignData {
   title: string | null
   purpose: string | null
@@ -49,6 +132,16 @@ export interface DonationCampaignData {
     currency: string
     at: string
   }>
+  // ── Crowdfunding v2 (Phase 3 — GoFundMe-lite) ──
+  story_md?: string | null
+  gallery?: Array<{ url: string; caption?: string }>
+  ends_at?: string | null
+  category?: string | null
+  organizer_thanks?: string | null
+  beneficiary?: { name: string; description?: string } | null
+  // Phase 3.2
+  tiers?: Array<{ tier_id: number; min_amount: number; title: string; description?: string | null; image_url?: string | null }>
+  updates?: Array<{ update_id: number; title: string; body_md: string; image_url?: string | null; created_at: string }>
 }
 
 interface DonationCampaignProps {
@@ -540,6 +633,81 @@ const DonationCampaign = ({ donation, merchant, submitting, onDonate }: Donation
             </Typography>
           )}
 
+          {/* ── Crowdfunding v2 pills: category + countdown ── */}
+          {(donation.category || donation.ends_at) && (
+            <Box mt={1.5} display='flex' flexWrap='wrap' gap={0.75} data-testid='donation-v2-pills'>
+              {donation.category && (
+                <Box
+                  sx={{
+                    display: 'inline-flex', alignItems: 'center', gap: 0.5,
+                    px: 1, py: 0.35, borderRadius: '999px',
+                    fontSize: 11.5, fontWeight: 700, letterSpacing: '0.02em', textTransform: 'uppercase',
+                    color: theme.palette.text.primary,
+                    backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)',
+                    border: `1px solid ${theme.palette.divider}`,
+                  }}
+                  data-testid='donation-category-pill'
+                >
+                  <Icon icon='mdi:tag-outline' width={13} />
+                  {donation.category}
+                </Box>
+              )}
+              {donation.ends_at && (() => {
+                const endDate = new Date(donation.ends_at)
+                const now = Date.now()
+                const msLeft = endDate.getTime() - now
+                if (isNaN(endDate.getTime()) || msLeft <= 0) return null
+                const daysLeft = Math.ceil(msLeft / (1000 * 60 * 60 * 24))
+                const hoursLeft = Math.ceil(msLeft / (1000 * 60 * 60))
+                const label = daysLeft > 1 ? `Ends in ${daysLeft} days` : hoursLeft > 1 ? `Ends in ${hoursLeft} hours` : 'Ends soon'
+                const urgent = daysLeft <= 3
+                return (
+                  <Box
+                    sx={{
+                      display: 'inline-flex', alignItems: 'center', gap: 0.5,
+                      px: 1, py: 0.35, borderRadius: '999px',
+                      fontSize: 11.5, fontWeight: 700, letterSpacing: '0.02em',
+                      color: urgent ? '#B45309' : theme.palette.text.primary,
+                      backgroundColor: urgent
+                        ? (theme.palette.mode === 'dark' ? 'rgba(245,158,11,0.15)' : '#FEF3C7')
+                        : (theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'),
+                      border: `1px solid ${urgent ? '#F59E0B' : theme.palette.divider}`,
+                    }}
+                    data-testid='donation-countdown-pill'
+                  >
+                    <Icon icon='mdi:timer-outline' width={13} />
+                    {label}
+                  </Box>
+                )
+              })()}
+            </Box>
+          )}
+
+          {/* ── Beneficiary block (trust signal — separate from organizer) ── */}
+          {donation.beneficiary?.name && (
+            <Box
+              mt={2}
+              sx={{
+                p: 1.5, borderRadius: '10px',
+                border: `1px solid ${theme.palette.divider}`,
+                backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)',
+              }}
+              data-testid='donation-beneficiary'
+            >
+              <Typography sx={{ fontSize: 11.5, fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase', color: theme.palette.text.secondary, mb: 0.5 }}>
+                Beneficiary
+              </Typography>
+              <Typography fontSize={14} fontWeight={700} color={theme.palette.text.primary}>
+                {donation.beneficiary.name}
+              </Typography>
+              {donation.beneficiary.description && (
+                <Typography fontSize={13} color={theme.palette.text.secondary} sx={{ whiteSpace: 'pre-line', mt: 0.5 }}>
+                  {donation.beneficiary.description}
+                </Typography>
+              )}
+            </Box>
+          )}
+
           {/* Progress + stats */}
           {donation.show_progress && (
             <Box mt={2.5} data-testid='donation-progress'>
@@ -612,7 +780,7 @@ const DonationCampaign = ({ donation, merchant, submitting, onDonate }: Donation
             </Box>
           )}
 
-          {/* ── Two-column: story/supporters (left) + donate form (right) ── */}
+          {/* ── Two-column: story/gallery/supporters (left) + donate form (right) ── */}
           {!donation.campaign_closed && (
             <Box
               mt={3}
@@ -623,12 +791,233 @@ const DonationCampaign = ({ donation, merchant, submitting, onDonate }: Donation
                 alignItems: 'flex-start',
               }}
             >
-              {supportersWall && (
-                <Box sx={{ flex: { md: '1.25 1 0' }, width: '100%', minWidth: 0 }}>
-                  {supportersWall}
-                </Box>
-              )}
-              <Box sx={{ flex: { md: '1 1 0' }, width: '100%', minWidth: 0, maxWidth: { md: supportersWall ? 400 : 460 }, mx: { md: supportersWall ? 0 : 'auto' } }}>
+              <Box sx={{ flex: { md: '1.25 1 0' }, width: '100%', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+                {/* Story (Markdown → HTML via a minimal safe renderer) */}
+                {donation.story_md && (
+                  <Box data-testid='donation-story'>
+                    <Typography component='span' sx={overlineSx}>
+                      {t('donation.story', { defaultValue: 'Our story' })}
+                    </Typography>
+                    <Box
+                      sx={{
+                        color: theme.palette.text.primary,
+                        fontSize: 14.5,
+                        lineHeight: 1.7,
+                        '& h1, & h2, & h3': { fontWeight: 800, letterSpacing: '-0.01em', mt: 1.5, mb: 1 },
+                        '& h1': { fontSize: 22 },
+                        '& h2': { fontSize: 19 },
+                        '& h3': { fontSize: 17 },
+                        '& p': { mb: 1.5, whiteSpace: 'pre-wrap' },
+                        '& ul, & ol': { pl: 3, mb: 1.5 },
+                        '& li': { mb: 0.5 },
+                        '& a': { color: accent, textDecoration: 'underline' },
+                        '& strong': { fontWeight: 700 },
+                        '& em': { fontStyle: 'italic' },
+                        '& img': { maxWidth: '100%', borderRadius: '10px', my: 1 },
+                        '& blockquote': {
+                          borderLeft: `3px solid ${accent}`,
+                          pl: 2, ml: 0, my: 1.5,
+                          color: theme.palette.text.secondary,
+                          fontStyle: 'italic',
+                        },
+                        '& code': {
+                          fontFamily: MONO, fontSize: 13,
+                          backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)',
+                          px: 0.5, borderRadius: '4px',
+                        },
+                      }}
+                      // Minimal, safe Markdown → HTML — headings, bold, italic, links, lists,
+                      // paragraphs. Rejects raw HTML tags to avoid XSS.
+                      dangerouslySetInnerHTML={{ __html: renderMarkdownSafe(donation.story_md) }}
+                    />
+                  </Box>
+                )}
+
+                {/* Gallery — supporting photos */}
+                {donation.gallery && donation.gallery.length > 0 && (
+                  <Box data-testid='donation-gallery'>
+                    <Typography component='span' sx={overlineSx}>
+                      {t('donation.gallery', { defaultValue: 'Photos' })}
+                    </Typography>
+                    <Box
+                      sx={{
+                        display: 'grid',
+                        gridTemplateColumns: { xs: 'repeat(2, 1fr)', sm: 'repeat(3, 1fr)' },
+                        gap: 1,
+                      }}
+                    >
+                      {donation.gallery.slice(0, 12).map((photo, idx) => (
+                        <Box
+                          key={`${photo.url}-${idx}`}
+                          data-testid={`donation-gallery-item-${idx}`}
+                          sx={{
+                            position: 'relative',
+                            borderRadius: '10px',
+                            overflow: 'hidden',
+                            aspectRatio: '1 / 1',
+                            border: `1px solid ${border}`,
+                            backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)',
+                          }}
+                        >
+                          <Box
+                            component='img'
+                            src={photo.url}
+                            alt={photo.caption || ''}
+                            sx={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                            onError={(e: React.SyntheticEvent<HTMLImageElement>) => { (e.target as HTMLImageElement).style.display = 'none' }}
+                          />
+                          {photo.caption && (
+                            <Box
+                              sx={{
+                                position: 'absolute', bottom: 0, left: 0, right: 0,
+                                px: 1, py: 0.5,
+                                background: 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.6) 100%)',
+                                color: '#FFFFFF', fontSize: 11, fontWeight: 600,
+                              }}
+                            >
+                              {photo.caption}
+                            </Box>
+                          )}
+                        </Box>
+                      ))}
+                    </Box>
+                  </Box>
+                )}
+
+                {/* Tiers — milestone rewards (Phase 3.2) */}
+                {donation.tiers && donation.tiers.length > 0 && (
+                  <Box data-testid='donation-tiers'>
+                    <Typography component='span' sx={overlineSx}>
+                      {t('donation.tiers', { defaultValue: 'Reward tiers' })}
+                    </Typography>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                      {donation.tiers.map((tier) => (
+                        <Box
+                          key={tier.tier_id}
+                          data-testid={`donation-tier-${tier.tier_id}`}
+                          sx={{
+                            display: 'flex', alignItems: 'flex-start', gap: 1.25,
+                            p: 1.5, borderRadius: '10px',
+                            border: `1px solid ${border}`,
+                            backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.015)',
+                          }}
+                        >
+                          {tier.image_url ? (
+                            <Box
+                              component='img'
+                              src={tier.image_url}
+                              alt=''
+                              sx={{
+                                width: 56, height: 56, borderRadius: '8px', objectFit: 'cover',
+                                flexShrink: 0, border: `1px solid ${border}`,
+                              }}
+                              onError={(e: React.SyntheticEvent<HTMLImageElement>) => { (e.target as HTMLImageElement).style.display = 'none' }}
+                            />
+                          ) : (
+                            <Box
+                              sx={{
+                                width: 56, height: 56, borderRadius: '8px', flexShrink: 0,
+                                backgroundColor: accent + '22',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              }}
+                            >
+                              <Icon icon='mdi:gift-outline' width={26} color={accent} />
+                            </Box>
+                          )}
+                          <Box flex={1} minWidth={0}>
+                            <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 0.75, flexWrap: 'wrap', mb: 0.25 }}>
+                              <Typography fontWeight={800} fontSize={15} color={theme.palette.text.primary}>
+                                {tier.title}
+                              </Typography>
+                              <Typography
+                                sx={{
+                                  fontSize: 12, fontWeight: 700, letterSpacing: '0.02em', color: accent,
+                                }}
+                              >
+                                {getCurrencySymbolFromFormat(donation.currency)}{formatWithSeparators(tier.min_amount, donation.currency)}+
+                              </Typography>
+                            </Box>
+                            {tier.description && (
+                              <Typography fontSize={13} color={theme.palette.text.secondary} sx={{ whiteSpace: 'pre-line' }}>
+                                {tier.description}
+                              </Typography>
+                            )}
+                          </Box>
+                        </Box>
+                      ))}
+                    </Box>
+                  </Box>
+                )}
+
+                {/* Updates feed — organizer posts (Phase 3.2) */}
+                {donation.updates && donation.updates.length > 0 && (
+                  <Box data-testid='donation-updates'>
+                    <Typography component='span' sx={overlineSx}>
+                      {t('donation.updates', { defaultValue: 'Updates' })}
+                      {' '}
+                      <Box component='span' sx={{ color: theme.palette.text.secondary, fontWeight: 600 }}>
+                        · {donation.updates.length}
+                      </Box>
+                    </Typography>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                      {donation.updates.map((upd) => (
+                        <Box
+                          key={upd.update_id}
+                          data-testid={`donation-update-${upd.update_id}`}
+                          sx={{
+                            p: 1.75, borderRadius: '10px',
+                            border: `1px solid ${border}`,
+                            backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.015)',
+                          }}
+                        >
+                          <Typography fontWeight={800} fontSize={15.5} color={theme.palette.text.primary}>
+                            {upd.title}
+                          </Typography>
+                          <Typography fontSize={11.5} color={theme.palette.text.secondary} sx={{ mt: 0.25, mb: 1 }}>
+                            {timeAgo(upd.created_at)}
+                          </Typography>
+                          {upd.image_url && (
+                            <Box
+                              component='img'
+                              src={upd.image_url}
+                              alt=''
+                              sx={{ width: '100%', borderRadius: '8px', mb: 1, maxHeight: 320, objectFit: 'cover' }}
+                              onError={(e: React.SyntheticEvent<HTMLImageElement>) => { (e.target as HTMLImageElement).style.display = 'none' }}
+                            />
+                          )}
+                          <Box
+                            sx={{
+                              color: theme.palette.text.primary,
+                              fontSize: 13.5,
+                              lineHeight: 1.6,
+                              '& h1, & h2, & h3': { fontWeight: 800, letterSpacing: '-0.01em', mt: 1, mb: 0.5 },
+                              '& h1': { fontSize: 17 },
+                              '& h2': { fontSize: 15 },
+                              '& h3': { fontSize: 14 },
+                              '& p': { mb: 1, whiteSpace: 'pre-wrap' },
+                              '& ul, & ol': { pl: 2.5, mb: 1 },
+                              '& li': { mb: 0.35 },
+                              '& a': { color: accent, textDecoration: 'underline' },
+                              '& strong': { fontWeight: 700 },
+                              '& em': { fontStyle: 'italic' },
+                              '& blockquote': {
+                                borderLeft: `3px solid ${accent}`,
+                                pl: 1.5, ml: 0, my: 1,
+                                color: theme.palette.text.secondary,
+                                fontStyle: 'italic',
+                              },
+                            }}
+                            dangerouslySetInnerHTML={{ __html: renderMarkdownSafe(upd.body_md) }}
+                          />
+                        </Box>
+                      ))}
+                    </Box>
+                  </Box>
+                )}
+
+                {supportersWall}
+              </Box>
+              <Box sx={{ flex: { md: '1 1 0' }, width: '100%', minWidth: 0, maxWidth: { md: 400 }, mx: { md: 0 } }}>
                 {donateForm}
               </Box>
             </Box>

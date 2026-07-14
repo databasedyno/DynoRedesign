@@ -46,6 +46,7 @@ import Logo from '@/assets/Icons/Logo'
 import CryptoTransfer from '@/Components/Page/Pay3Components/cryptoTransfer'
 import BankTransferCompo from '@/Components/Page/Pay3Components/bankTransferCompo'
 import DonationCampaign, { DonationCampaignData } from '@/Components/Page/Pay3Components/donationCampaign'
+import CleanCheckoutV2 from '@/Components/Page/Pay3Components/CleanCheckoutV2'
 import Pay3Layout from '@/Components/Layout/Pay3Layout'
 import Image from 'next/image'
 // Flag icon imports - International
@@ -433,9 +434,9 @@ const Payment = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.isReady, router.query])
 
-  const getQueryData = async () => {
+  const getQueryData = async (refOverride?: string) => {
     try {
-      const query_data = router.query.d
+      const query_data = refOverride || router.query.d
       
       // Clear any stale token from previous payment sessions
       // This prevents configured-currencies and other calls from using a wrong JWT
@@ -698,8 +699,12 @@ const Payment = () => {
   }
 
   // ─── Donation: start a contribution ────────────────────────────────
-  // Spawns a per-donor payment session on the backend, then navigates to the
-  // returned child reference — from there the regular checkout flow runs.
+  // Spawns a per-donor payment session on the backend and loads the child
+  // payment inline — the donor stays on the same page (same URL updated
+  // via shallow replace so refresh still works). This is the "inline like
+  // creator page" behavior the user requested: no full-page loading flash,
+  // no navigation stack push, campaign context transitions to the crypto
+  // stepper in place.
   const handleStartDonation = async (payload: {
     amount: number
     donor_name?: string
@@ -718,11 +723,22 @@ const Payment = () => {
       // Fresh payment session — clear any persisted stepper state
       sessionStorage.removeItem('payment_active_step')
       sessionStorage.removeItem('payment_transfer_method')
-      setInitialLoading(true)
-      setDonationData(null)
-      // push (not replace) so the browser Back button returns to the campaign
-      router.push(`/pay?d=${childRef}`)
-      // getQueryData re-runs via the router.query effect and renders checkout
+      // Update URL to the child ref WITHOUT triggering the router.query
+      // effect (which would re-fetch getData via getQueryData). We do the
+      // fetch manually below to keep the DonationCampaign visible during
+      // the transition instead of showing a full-page loading spinner.
+      if (typeof window !== 'undefined' && window.history?.replaceState) {
+        try {
+          window.history.replaceState({ ...(window.history.state || {}) }, '', `/pay?d=${childRef}`)
+        } catch (_) {
+          // ignore — fallback: URL stays at parent
+        }
+      }
+      // Load the child payment session inline
+      await getQueryData(String(childRef))
+      // Explicit reset: getQueryData already clears donationData on child load,
+      // but we also reset the submitting flag here in case of edge cases.
+      setDonateSubmitting(false)
     } catch (e: any) {
       const message =
         e?.response?.data?.message ||
@@ -833,11 +849,11 @@ const Payment = () => {
   // Total amount should be the sum of converted values (subtotal + tax + fee if customer pays)
   const totalAmount = subtotalAmount + taxAmount + (feeInfo?.fee_payer === 'customer' ? processingFee : 0)
 
-  // Get context-aware title (donation-flavored for contribution links)
+  // Get context-aware title (contribution-flavored for crowdfunding child links)
   const getTitle = () => {
     if (isContribution) {
       return t('checkout.titleContribution', {
-        defaultValue: 'Complete your donation',
+        defaultValue: 'Complete your contribution',
       })
     }
     if (description) return t('checkout.title')
@@ -853,11 +869,11 @@ const Payment = () => {
       if (campaign) {
         return greeting + t('checkout.subtitleContribution', {
           campaign,
-          defaultValue: `support ${campaign} with crypto. Every contribution helps.`,
+          defaultValue: `Contribute to ${campaign} with crypto. Every contribution moves the campaign closer to its goal.`,
         })
       }
       return greeting + t('checkout.subtitleContributionDefault', {
-        defaultValue: 'support this campaign with crypto. Every contribution helps.',
+        defaultValue: 'Contribute to this campaign with crypto. Every contribution counts.',
       })
     }
     if (merchantInfo?.name) {
@@ -990,6 +1006,30 @@ const Payment = () => {
           submitting={donateSubmitting}
           onDonate={handleStartDonation}
         />
+      </Pay3Layout>
+    );
+  }
+
+  // ─── Stripe-clean checkout v2 (feature-flagged) ──────────────────
+  // When the flag is on AND this is a payment link OR a donation
+  // contribution (child ref), render the new single-panel Stripe-style
+  // checkout in place of the legacy stepper. See
+  // `/app/memory/UX_ROADMAP.md` Phase 1 for full design context.
+  //
+  // Fallback: setting `NEXT_PUBLIC_CLEAN_CHECKOUT_V2=false` at build time
+  // brings back the legacy stepper for the entire /pay route.
+  const cleanCheckoutFlag = String(process.env.NEXT_PUBLIC_CLEAN_CHECKOUT_V2 || 'true').toLowerCase() !== 'false';
+  const cleanCheckoutEligible =
+    cleanCheckoutFlag &&
+    typeof router.query.d === 'string' &&
+    // Eligible types: `standard` (regular payment link), `payment` (older
+    // alias), and `contribution` (per-donor child of a crowdfunding parent).
+    // `donation` parents are handled by the DonationCampaign branch above.
+    (linkType === 'standard' || linkType === 'payment' || linkType === 'contribution' || !linkType);
+  if (cleanCheckoutEligible) {
+    return (
+      <Pay3Layout embed={isEmbed}>
+        <CleanCheckoutV2 d={String(router.query.d)} />
       </Pay3Layout>
     );
   }
@@ -1154,7 +1194,7 @@ const Payment = () => {
                       mb={1}
                     >
                       {isContribution
-                        ? t('checkout.donationDetails', { defaultValue: 'Donation Details' })
+                        ? t('checkout.donationDetails', { defaultValue: 'Contribution Details' })
                         : t('checkout.orderDetails')}
                     </Typography>
                     
@@ -1577,7 +1617,7 @@ const Payment = () => {
                       }}
                     >
                       {isContribution
-                        ? t('checkout.donateWithCrypto', { defaultValue: 'Donate with crypto' })
+                        ? t('checkout.donateWithCrypto', { defaultValue: 'Contribute with crypto' })
                         : t('checkout.cryptocurrency')}
                     </Button>
                   </Box>

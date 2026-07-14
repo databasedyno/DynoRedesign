@@ -81,6 +81,50 @@ const STYLE_META: Record<string, { title: string; icon: string; cta: string; suc
   support: { title: 'Support me', icon: 'mdi:heart', cta: 'Support', successVerb: 'supported' },
 }
 
+// Mode-specific labels. 'tip' is the original creator-page behavior. 'link'
+// is used when this component is mounted inline for a REGULAR payment link
+// (no donor/creator concept — merchant + amount only). 'donation' is used
+// when it's an inline checkout for a donation contribution (child link).
+type InlineMode = 'tip' | 'link' | 'donation'
+
+const MODE_COPY: Record<InlineMode, {
+  preparing: string
+  underpaidTail: string
+  successTitle: (donorName: string, isAnon: boolean) => string
+  successSubject: (creatorOrMerchantOrCampaign: string, verb: string) => string
+  shareText: (target: string, verb: string, url: string) => string
+  backLabel: (target: string) => string
+  againLabel: string
+}> = {
+  tip: {
+    preparing: 'Preparing your tip…',
+    underpaidTail: 'more to the same address to complete your tip.',
+    successTitle: (donorName, isAnon) => `Thank you${!isAnon && donorName ? `, ${donorName}` : ''}!`,
+    successSubject: (creator, verb) => `You ${verb} ${creator}`,
+    shareText: (target, verb, url) => `I just ${verb} ${target}! ${url}`,
+    backLabel: (target) => `Back to ${target}`,
+    againLabel: 'Send another tip',
+  },
+  link: {
+    preparing: 'Preparing your payment…',
+    underpaidTail: 'more to the same address to complete your payment.',
+    successTitle: () => 'Payment successful!',
+    successSubject: (merchant) => `Paid to ${merchant}`,
+    shareText: (target, _verb, url) => `Just paid ${target} on Dynopay. ${url}`,
+    backLabel: (target) => `Back to ${target}`,
+    againLabel: 'New payment',
+  },
+  donation: {
+    preparing: 'Preparing your donation…',
+    underpaidTail: 'more to the same address to complete your donation.',
+    successTitle: (donorName, isAnon) => `Thank you${!isAnon && donorName ? `, ${donorName}` : ''}!`,
+    successSubject: (campaign) => `You supported ${campaign}`,
+    shareText: (target, _verb, url) => `I just supported ${target}. ${url}`,
+    backLabel: (target) => `Back to ${target}`,
+    againLabel: 'Donate again',
+  },
+}
+
 // Popular chain groups (kept simple — matches the payment router's supported list)
 const CRYPTO_INFO: Record<string, { label: string; icon: string; iconColor?: string; symbol: string; network?: string }> = {
   BTC: { label: 'Bitcoin', icon: 'cryptocurrency-color:btc', symbol: 'BTC' },
@@ -139,6 +183,13 @@ interface InlineTipCheckoutProps {
   siteUrl: string
   onNewTip: () => void
   onCancel: () => void
+  /** Copy mode. Default 'tip' (original creator-page behavior). Use 'link'
+   *  for a regular payment-link inline checkout on the creator page, or
+   *  'donation' for a donation contribution inline checkout. */
+  mode?: InlineMode
+  /** Optional label shown in place of the creator handle (e.g. the link
+   *  title or campaign title). Falls back to creatorName / @handle. */
+  targetLabel?: string
 }
 
 const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
@@ -149,6 +200,8 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
   siteUrl,
   onNewTip,
   onCancel,
+  mode = 'tip',
+  targetLabel,
 }) => {
   const theme = useTheme()
   const isDark = theme.palette.mode === 'dark'
@@ -158,6 +211,10 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
   const warnTint = isDark ? 'rgba(255,190,50,0.10)' : 'rgba(255,190,50,0.18)'
   const errTint = isDark ? 'rgba(255,80,80,0.10)' : 'rgba(255,80,80,0.14)'
   const meta = STYLE_META[style] || STYLE_META.coffee
+  const modeCopy = MODE_COPY[mode] || MODE_COPY.tip
+  // Effective label used in success/share/back copy: prefer explicit
+  // targetLabel (e.g. link title), then creatorName, then @handle.
+  const effectiveTarget = targetLabel || creatorName || `@${handle}`
 
   const [phase, setPhase] = useState<Phase>('loading_meta')
   const [errorMsg, setErrorMsg] = useState<string>('')
@@ -451,7 +508,7 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
       <Box data-testid="inline-tip-loading" sx={{ py: 5, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1.5 }}>
         <CircularProgress size={26} />
         <Typography fontSize={13} color={theme.palette.text.secondary}>
-          Preparing your tip…
+          {modeCopy.preparing}
         </Typography>
       </Box>
     )
@@ -493,7 +550,7 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
           {formatWithSeparators(meta_.amount, meta_.base_currency)}
         </Typography>
         <Typography fontSize={12.5} color={theme.palette.text.secondary} mt={0.5}>
-          {creatorName ? `${creatorName} accepts:` : 'This creator accepts:'}
+          {creatorName ? `${creatorName} accepts:` : (mode === 'link' ? 'This merchant accepts:' : 'This creator accepts:')}
         </Typography>
         <Box
           data-testid="inline-tip-currency-picker"
@@ -723,7 +780,7 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
           <strong data-testid="inline-tip-underpaid-remaining">
             {formatCryptoAmount(partial.remainingAmount, cryptoInfo.crypto_base)} {cryptoInfo.crypto_base}
           </strong>{' '}
-          more to the same address to complete your tip.
+          more to the same address to complete your {mode === 'link' ? 'payment' : mode === 'donation' ? 'donation' : 'tip'}.
         </Typography>
 
         {/* Address row */}
@@ -801,7 +858,7 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
   // ─── CONFIRMED (also handles overpaid → per Q2b treat as success) ────
   if (phase === 'confirmed' && confirmedAmount && meta_) {
     const shareUrl = siteUrl
-    const shareText = `I just ${meta.successVerb} ${creatorName || `@${handle}`}! ${shareUrl}`
+    const shareText = modeCopy.shareText(effectiveTarget, meta.successVerb, shareUrl)
     const showDonorMsg = !isAnon && donorMessage && donorMessage.trim().length > 0
     return (
       <Box data-testid="inline-tip-success">
@@ -821,11 +878,12 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
             <Icon icon="mdi:check-bold" width={30} color={INK} />
           </Box>
           <Typography fontWeight={800} fontSize={19} color={theme.palette.text.primary}>
-            Thank you{!isAnon && donorName ? `, ${donorName}` : ''}!
+            {modeCopy.successTitle(donorName, isAnon)}
           </Typography>
           <Typography fontSize={13} color={theme.palette.text.secondary} mt={0.5}>
-            You {meta.successVerb} {creatorName || `@${handle}`} — {sym}
-            {formatWithSeparators(confirmedAmount.fiat || meta_.amount, confirmedAmount.fiatCurrency || meta_.base_currency)}.
+            {mode === 'tip'
+              ? `You ${meta.successVerb} ${effectiveTarget} — ${sym}${formatWithSeparators(confirmedAmount.fiat || meta_.amount, confirmedAmount.fiatCurrency || meta_.base_currency)}.`
+              : `${modeCopy.successSubject(effectiveTarget, meta.successVerb)} — ${sym}${formatWithSeparators(confirmedAmount.fiat || meta_.amount, confirmedAmount.fiatCurrency || meta_.base_currency)}.`}
           </Typography>
           <Typography sx={{ fontFamily: MONO, fontSize: 12, color: theme.palette.text.secondary, mt: 0.5 }}>
             {formatCryptoAmount(confirmedAmount.crypto, cryptoInfo?.crypto_base || 'BTC')}{' '}
@@ -949,7 +1007,7 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
             onClick={onCancel}
             sx={{ textTransform: 'none', borderRadius: '10px', fontWeight: 700, fontSize: 13.5 }}
           >
-            Back to @{handle}
+            {modeCopy.backLabel(mode === 'tip' ? `@${handle}` : (creatorName || `@${handle}`))}
           </Button>
           <Button
             fullWidth
@@ -967,7 +1025,7 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
               '&:hover': { backgroundColor: LIME, filter: 'brightness(1.05)' },
             }}
           >
-            Send another tip
+            {modeCopy.againLabel}
           </Button>
         </Box>
       </Box>

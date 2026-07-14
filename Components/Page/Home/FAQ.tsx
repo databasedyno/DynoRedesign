@@ -12,6 +12,7 @@ const FAQ_KEYS: { qKey: string; aKey: string }[] = [
   { qKey: "faq5Q", aKey: "faq5A" },
   { qKey: "faq6Q", aKey: "faq6A" },
   { qKey: "faq7Q", aKey: "faq7A" },
+  { qKey: "faq8Q", aKey: "faq8A" },
 ];
 
 const FAQ: React.FC = () => {

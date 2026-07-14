@@ -100,7 +100,7 @@
   "youReceive": "You receive",
   "linkTypeStandard": "Payment link",
   "linkTypeStandardHint": "Request a fixed amount for a product, invoice or service.",
-  "linkTypeDonation": "Donation / Crowdfunding",
+  "linkTypeDonation": "Crowdfunding",
   "linkTypeDonationHint": "Collect contributions toward a goal — donors choose the amount.",
   "donationTitleLabel": "Campaign title",
   "donationTitlePlaceholder": "e.g. Help us build the community garden",
@@ -143,7 +143,7 @@
   "advancedOptionsHintDonation": "Webhooks, redirect URL",
   "advancedOptionsHintFull": "Customer email, tax, webhooks",
   "livePreview": "Live preview",
-  "livePreviewDonationHint": "What donors will see when they open your link.",
+  "livePreviewDonationHint": "What contributors will see when they open your campaign.",
   "livePreviewStandardHint": "What your customer will see when they open your link.",
   "previewUntitledCampaign": "Your campaign title",
   "previewRaisedOfGoal": "raised of {{goal}} goal",
@@ -162,8 +162,8 @@
   "previewSecure": "Secure payment by Dynopay",
   "advancedOptions": "Advanced options",
   "advancedOptionsHint": "Customer email, tax",
-  "createDonation": "Create donation",
-  "createDonationTitle": "Create Donation",
+  "createDonation": "Create crowdfunding",
+  "createDonationTitle": "Create Crowdfunding",
   "donationSuccessfullyCreated": "Donation created",
   "shareDonationToStartCollecting": "Share it to start collecting donations"
 }

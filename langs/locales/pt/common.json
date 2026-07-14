@@ -71,11 +71,11 @@
     "madePayment": "Efetuei o pagamento",
     "noAccountToCopy": "Nenhum número de conta para copiar.",
     "paymentNotVerified": "Pagamento não verificado.",
-    "titleContribution": "Conclua a sua doação",
-    "subtitleContribution": "apoie {{campaign}} com cripto. Cada contribuição ajuda.",
-    "subtitleContributionDefault": "apoie esta campanha com cripto. Cada contribuição ajuda.",
-    "donationDetails": "Detalhes da doação",
-    "donateWithCrypto": "Doar com cripto"
+    "titleContribution": "Conclua a sua contribuição",
+    "subtitleContribution": "Contribua para {{campaign}} com cripto. Cada contribuição aproxima a campanha da meta.",
+    "subtitleContributionDefault": "Contribua para esta campanha com cripto. Cada contribuição conta.",
+    "donationDetails": "Detalhes da contribuição",
+    "donateWithCrypto": "Contribuir com cripto"
   },
   "crypto": {
     "title": "Criptomoeda",
