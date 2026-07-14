@@ -1,10 +1,13 @@
 import AddIcon from "@mui/icons-material/Add";
 import ArrowOutwardIcon from "@mui/icons-material/ArrowOutward";
+import AutoAwesomeRounded from "@mui/icons-material/AutoAwesomeRounded";
 import ErrorIcon from "@mui/icons-material/Error";
 import HelpOutlineRounded from "@mui/icons-material/HelpOutlineRounded";
+import Inventory2Rounded from "@mui/icons-material/Inventory2Rounded";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import LanguageIcon from "@mui/icons-material/Language";
+import SettingsRounded from "@mui/icons-material/SettingsRounded";
 import { Box, useTheme } from "@mui/material";
 import Image from "next/image";
 import { useRouter } from "next/router";
@@ -59,6 +62,22 @@ const MobileNavigationBar = () => {
   const companyFetched = companyState?.fetched;
   const showCompanyWarning = companyFetched && !hasCompany;
   const showWalletWarning = walletWarning && hasCompany;
+
+  // ── Creator-page discoverability (mobile/tablet nav parity with desktop sidebar) ──
+  // Show a small "NEW" dot on the Account/More trigger when the user hasn't
+  // claimed a creator page yet. Once they've enabled it + set a handle the
+  // dot disappears, matching the desktop sidebar's `isNew` behavior.
+  const userState = useSelector((state: any) => state.userReducer);
+  const hasClaimedCreator = Boolean(
+    userState?.profile?.handle && userState?.profile?.creator_page_enabled,
+  );
+  const profileLoaded = Boolean(userState?.profile);
+  // Only show the indicator to signed-in users whose profile has loaded and
+  // who genuinely haven't claimed yet — avoids a "phantom NEW" flash on page
+  // load or for logged-out state.
+  const showCreatorNewDot = profileLoaded && !hasClaimedCreator;
+  const isProductCatalogEnabled =
+    String(process.env.NEXT_PUBLIC_ENABLE_PRODUCT_CATALOG ?? "true").toLowerCase() !== "false";
 
   useEffect(() => {
     const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
@@ -128,7 +147,34 @@ const MobileNavigationBar = () => {
   ];
 
   // Second row items (expanded) - shown when expanded
+  // UX-2026-07-14: Added Creator page (Session 40+) and Products (Session 47)
+  // so mobile/tablet users can reach the new revenue streams. Previously
+  // these were desktop-only via the NewSidebar which only mounts at ≥lg
+  // (1200px), leaving tablets + phones with no way to navigate to them.
   const secondRowItems = [
+    {
+      label: t("creatorPage", { defaultValue: "Creator page" }),
+      icon: "creator",
+      path: "/creator",
+      id: "creator",
+      isNew: !hasClaimedCreator,
+    },
+    ...(isProductCatalogEnabled
+      ? [
+          {
+            label: t("products", { defaultValue: "Products" }),
+            icon: "products",
+            path: "/pay-links/products",
+            id: "products",
+          },
+        ]
+      : []),
+    {
+      label: t("payLinks"),
+      icon: "payment-links",
+      path: "/pay-links",
+      id: "pay-links",
+    },
     {
       label: t("invoicesTax"),
       icon: "invoices",
@@ -141,17 +187,11 @@ const MobileNavigationBar = () => {
       path: "/customers",
       id: "customers",
     },
-    {
-      label: t("payLinks"),
-      icon: "payment-links",
-      path: "/pay-links",
-      id: "pay-links",
-    },
-    { label: t("api"), icon: "api", path: "/developer-keys", id: "api" },
   ];
 
   // Third row items (expanded) - additional nav items
   const thirdRowItems = [
+    { label: t("api"), icon: "api", path: "/developer-keys", id: "api" },
     {
       label: t("referrals"),
       icon: "referrals",
@@ -163,6 +203,12 @@ const MobileNavigationBar = () => {
       icon: "notifications",
       path: "/notifications",
       id: "notifications",
+    },
+    {
+      label: t("settings", { defaultValue: "Settings" }),
+      icon: "settings",
+      path: "/settings",
+      id: "settings",
     },
     { label: t("language"), icon: "language", path: null, id: "language" },
     {
@@ -268,13 +314,21 @@ const MobileNavigationBar = () => {
                   "customers",
                 ];
                 const useSidebarIcon = supportedIcons.includes(item.icon);
+                // Show a subtle NEW dot on the Account/More trigger while
+                // the drawer is COLLAPSED and the user hasn't discovered the
+                // new features hiding inside (creator page unclaimed).
+                const showAccountNewDot =
+                  item.id === "more" && !isExpanded && showCreatorNewDot;
                 return (
                   <NavItem
                     key={item.id}
                     active={active}
                     onClick={() => handleNavClick(item)}
                   >
-                    <IconButton active={active || isCreate}>
+                    <IconButton
+                      active={active || isCreate}
+                      sx={{ position: "relative" }}
+                    >
                       {useSidebarIcon ? (
                         <SidebarIcon
                           name={item.icon}
@@ -287,6 +341,23 @@ const MobileNavigationBar = () => {
                         />
                       ) : (
                         renderIcon(item.icon, active, isCreate)
+                      )}
+                      {showAccountNewDot && (
+                        <Box
+                          data-testid="mobile-nav-account-new-dot"
+                          aria-label="New features available"
+                          sx={{
+                            position: "absolute",
+                            top: -2,
+                            right: -4,
+                            width: 8,
+                            height: 8,
+                            borderRadius: "50%",
+                            backgroundColor: "#CCFF00",
+                            border: `2px solid ${theme.palette.background.default || "#FFFFFF"}`,
+                            boxShadow: "0 0 6px rgba(204,255,0,0.7)",
+                          }}
+                        />
                       )}
                     </IconButton>
                     <NavLabel active={active}>{item.label}</NavLabel>
@@ -301,6 +372,21 @@ const MobileNavigationBar = () => {
                 {secondRowItems.map((item) => {
                   const active = isActiveRoute(item.path);
                   const isCreate = item.id === "create";
+                  const supportedIcons = [
+                    "dashboard",
+                    "transactions",
+                    "wallets",
+                    "api",
+                    "notifications",
+                    "payment-links",
+                    "referrals",
+                    "invoices",
+                    "customers",
+                  ];
+                  const useSidebarIcon = supportedIcons.includes(item.icon);
+                  const iconColor = active
+                    ? theme.palette.primary.main
+                    : theme.palette.text.primary;
 
                   return (
                     <NavItem
@@ -308,16 +394,44 @@ const MobileNavigationBar = () => {
                       active={active}
                       onClick={() => handleNavClick(item)}
                     >
-                      <IconButton active={active || isCreate}>
-                        <SidebarIcon
-                          name={item.icon}
-                          size={16}
-                          color={
-                            active
-                              ? theme.palette.primary.main
-                              : theme.palette.text.primary
-                          }
-                        />
+                      <IconButton
+                        active={active || isCreate}
+                        sx={{ position: "relative" }}
+                      >
+                        {useSidebarIcon ? (
+                          <SidebarIcon
+                            name={item.icon}
+                            size={16}
+                            color={iconColor}
+                          />
+                        ) : item.icon === "creator" ? (
+                          <AutoAwesomeRounded
+                            sx={{ fontSize: 18, color: iconColor }}
+                          />
+                        ) : item.icon === "products" ? (
+                          <Inventory2Rounded
+                            sx={{ fontSize: 18, color: iconColor }}
+                          />
+                        ) : (
+                          renderIcon(item.icon, active, isCreate)
+                        )}
+                        {(item as any).isNew && (
+                          <Box
+                            data-testid={`mobile-nav-new-dot-${item.id}`}
+                            aria-label="New feature"
+                            sx={{
+                              position: "absolute",
+                              top: -2,
+                              right: -4,
+                              width: 8,
+                              height: 8,
+                              borderRadius: "50%",
+                              backgroundColor: "#CCFF00",
+                              border: `2px solid ${theme.palette.background.default || "#FFFFFF"}`,
+                              boxShadow: "0 0 6px rgba(204,255,0,0.7)",
+                            }}
+                          />
+                        )}
                       </IconButton>
                       <NavLabel active={active}>{item.label}</NavLabel>
                     </NavItem>
@@ -360,6 +474,15 @@ const MobileNavigationBar = () => {
                           <HelpOutlineRounded
                             sx={{
                               fontSize: 20,
+                              color: active
+                                ? theme.palette.primary.main
+                                : theme.palette.text.primary,
+                            }}
+                          />
+                        ) : item.icon === "settings" ? (
+                          <SettingsRounded
+                            sx={{
+                              fontSize: 18,
                               color: active
                                 ? theme.palette.primary.main
                                 : theme.palette.text.primary,

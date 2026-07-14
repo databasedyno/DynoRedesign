@@ -1,6 +1,24 @@
 import { menuItem } from "../types";
 import { DateRange } from "./dashboard";
 
+export type TransactionSourceType =
+  | "payment_link"
+  | "contribution"
+  | "tip"
+  | "product"
+  | "direct";
+
+export interface TransactionSource {
+  type: TransactionSourceType;
+  title: string | null;
+  ref: string | number | null;
+  link_id: number | null;
+  link_type: string | null;
+  parent_link_id: number | null;
+  order_id: number | null;
+  order_ref: string | null;
+}
+
 export interface ExtendedTransaction {
   id: string;
   crypto: string;
@@ -28,6 +46,8 @@ export interface ExtendedTransaction {
   autoConverted?: boolean;
   autoConvertTarget?: string;
   autoConvertDisplayStatus?: string;
+  // Session 48: source metadata for the "Source" column + filter chips
+  source?: TransactionSource;
 }
 
 export interface ICustomerTransactions {
@@ -47,6 +67,7 @@ export interface ICustomerTransactions {
   email: string;
   company_name: string;
   company_id: number;
+  source?: TransactionSource;
 }
 
 export interface TransactionDetailsModalProps {
@@ -63,7 +84,9 @@ export interface TransactionsTopBarProps {
   onSearch?: (searchTerm: string) => void;
   onDateRangeChange?: (dateRange: DateRange) => void;
   onWalletChange?: (wallet: string) => void;
+  onSourceChange?: (source: TransactionSourceType | "all") => void;
   onExport?: () => void;
+  initialSource?: TransactionSourceType | "all";
 }
 
 export interface RowsPerPageSelectorProps {

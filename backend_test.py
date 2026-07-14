@@ -1,549 +1,502 @@
 #!/usr/bin/env python3
 """
-Session 41 Backend Test: CSRF Exemption for POST /api/pay/tip
-NARROW test focused on ONE change: /api/pay/tip added to CSRF exempt list.
-All other tip endpoint logic was tested in Session 40 (13/13 pass).
+Session 48 Backend Regression Test — NARROW scope
+Only ONE backend endpoint changed: getTransactions in /app/backend/controller/companyController.ts
+The SQL was extended with 3 new LEFT JOINs to add a canonical `source` object to each transaction row.
+
+Test credentials:
+- Merchant: hostbay@moxx.co / Katiekendra123@ (user_id=1, company_id=1)
+- Preview URL: https://d053b132-1524-4c79-bbbb-8d16df49fb02.preview.emergentagent.com
+
+5 assertions:
+1. Auth + endpoint reachable (with CSRF token flow)
+2. source shape on every row (KEY new behavior)
+3. Type distribution — semantic correctness
+4. No regressions on existing fields
+5. Backward-compat quick smoke on unrelated endpoints
 """
 
 import requests
 import json
 import sys
+from typing import Dict, Any, List
 
-# Preview URL from test_credentials.md
-BASE_URL = "https://credential-deploy.preview.emergentagent.com"
-API_BASE = f"{BASE_URL}/api"
+# Configuration
+BASE_URL = "https://d053b132-1524-4c79-bbbb-8d16df49fb02.preview.emergentagent.com"
+API_URL = f"{BASE_URL}/api"
 
-# Test credentials from test_credentials.md
-TEST_EMAIL = "hostbay@moxx.co"
-TEST_PASSWORD = "Katiekendra123@"
-TEST_HANDLE = "hostbay"
+# Test credentials
+MERCHANT_EMAIL = "hostbay@moxx.co"
+MERCHANT_PASSWORD = "Katiekendra123@"
+COMPANY_ID = 1
 
-# Colors for output
-GREEN = '\033[92m'
-RED = '\033[91m'
-YELLOW = '\033[93m'
-BLUE = '\033[94m'
-RESET = '\033[0m'
+# Valid source types
+VALID_SOURCE_TYPES = {"payment_link", "contribution", "tip", "product", "direct"}
 
-def log(msg, color=RESET):
-    print(f"{color}{msg}{RESET}")
+# Test results
+test_results = []
 
-def test_login_and_enable_widget():
+
+def log_test(test_name: str, passed: bool, message: str):
+    """Log test result"""
+    status = "✅ PASS" if passed else "❌ FAIL"
+    result = f"{status} - {test_name}: {message}"
+    print(result)
+    test_results.append({"test": test_name, "passed": passed, "message": message})
+
+
+def test_1_auth_and_endpoint():
     """
-    Scenario 1: LOGIN + ENABLE WIDGET (authenticated)
-    Log in as hostbay@moxx.co, then PUT /api/user/creator/profile to enable widget
+    Test 1: Auth + endpoint reachable
+    - GET /api/csrf-token to get CSRF token
+    - POST /api/user/login with CSRF token to get JWT
+    - GET /api/company/getTransactions/1 with JWT
+    - Verify response envelope structure
     """
-    log("\n" + "="*80, BLUE)
-    log("TEST 1: Login + Enable Support Widget", BLUE)
-    log("="*80, BLUE)
+    print("\n" + "="*80)
+    print("TEST 1: Auth + endpoint reachable")
+    print("="*80)
     
-    # Step 1: Get CSRF token
-    log("\n[1.1] Getting CSRF token...")
-    csrf_resp = requests.get(f"{API_BASE}/csrf-token")
-    if csrf_resp.status_code != 200:
-        log(f"❌ Failed to get CSRF token: {csrf_resp.status_code}", RED)
+    try:
+        # Step 1: Get CSRF token
+        print("\n[1.1] Getting CSRF token...")
+        session = requests.Session()
+        csrf_response = session.get(f"{API_URL}/csrf-token")
+        
+        if csrf_response.status_code != 200:
+            log_test("T1.1 - CSRF token", False, f"Failed to get CSRF token: {csrf_response.status_code}")
+            return None, None
+        
+        csrf_data = csrf_response.json()
+        csrf_token = csrf_data.get("csrf_token") or csrf_data.get("csrfToken")
+        
+        if not csrf_token:
+            log_test("T1.1 - CSRF token", False, f"CSRF token not found in response: {csrf_data}")
+            return None, None
+        
+        print(f"✓ CSRF token obtained: {csrf_token[:20]}...")
+        log_test("T1.1 - CSRF token", True, "CSRF token obtained successfully")
+        
+        # Step 2: Login with CSRF token
+        print("\n[1.2] Logging in with CSRF token...")
+        login_payload = {
+            "email": MERCHANT_EMAIL,
+            "password": MERCHANT_PASSWORD
+        }
+        
+        login_response = session.post(
+            f"{API_URL}/user/login",
+            json=login_payload,
+            headers={
+                "x-csrf-token": csrf_token,
+                "Content-Type": "application/json"
+            }
+        )
+        
+        if login_response.status_code != 200:
+            log_test("T1.2 - Login", False, f"Login failed: {login_response.status_code} - {login_response.text[:200]}")
+            return None, None
+        
+        login_data = login_response.json()
+        jwt_token = login_data.get("data", {}).get("accessToken") or login_data.get("data", {}).get("token")
+        
+        if not jwt_token:
+            log_test("T1.2 - Login", False, f"JWT token not found in login response. Keys: {list(login_data.get('data', {}).keys())}")
+            return None, None
+        
+        print(f"✓ Login successful, JWT obtained: {jwt_token[:30]}...")
+        log_test("T1.2 - Login", True, "Login successful, JWT obtained")
+        
+        # Step 3: Get transactions
+        print("\n[1.3] Getting transactions...")
+        transactions_response = session.get(
+            f"{API_URL}/company/getTransactions/{COMPANY_ID}",
+            headers={
+                "Authorization": f"Bearer {jwt_token}",
+                "Content-Type": "application/json"
+            }
+        )
+        
+        if transactions_response.status_code != 200:
+            log_test("T1.3 - Get transactions", False, f"Failed to get transactions: {transactions_response.status_code}")
+            return None, None
+        
+        print(f"✓ Transactions endpoint returned 200")
+        log_test("T1.3 - Get transactions", True, "Transactions endpoint returned 200")
+        
+        # Step 4: Verify response envelope
+        print("\n[1.4] Verifying response envelope...")
+        response_data = transactions_response.json()
+        
+        # Check top-level structure (status field is optional, HTTP status code is what matters)
+        if "message" not in response_data:
+            log_test("T1.4 - Response envelope", False, "Missing 'message' field in response")
+            return None, None
+        
+        if "data" not in response_data:
+            log_test("T1.4 - Response envelope", False, "Missing 'data' field in response")
+            return None, None
+        
+        data = response_data.get("data", {})
+        
+        # Check data structure
+        if "transactions" not in data:
+            log_test("T1.4 - Response envelope", False, "Missing 'transactions' field in data")
+            return None, None
+        
+        if "currency" not in data:
+            log_test("T1.4 - Response envelope", False, "Missing 'currency' field in data")
+            return None, None
+        
+        if "currency_info" not in data:
+            log_test("T1.4 - Response envelope", False, "Missing 'currency_info' field in data")
+            return None, None
+        
+        transactions = data.get("transactions", [])
+        currency = data.get("currency")
+        currency_info = data.get("currency_info", {})
+        
+        print(f"✓ Response envelope valid:")
+        print(f"  - HTTP status: {transactions_response.status_code}")
+        print(f"  - message: {response_data.get('message')}")
+        print(f"  - transactions count: {len(transactions)}")
+        print(f"  - currency: {currency}")
+        print(f"  - currency_info keys: {list(currency_info.keys())}")
+        
+        log_test("T1.4 - Response envelope", True, f"Response envelope valid with {len(transactions)} transactions")
+        
+        return jwt_token, transactions
+        
+    except Exception as e:
+        log_test("T1 - Auth and endpoint", False, f"Exception: {str(e)}")
         return None, None
-    
-    csrf_token = csrf_resp.json().get("csrf_token")
-    csrf_cookie = csrf_resp.cookies.get("dynopay_csrf")
-    log(f"✅ CSRF token obtained: {csrf_token[:20]}...", GREEN)
-    
-    # Step 2: Login
-    log("\n[1.2] Logging in as hostbay@moxx.co...")
-    login_data = {
-        "email": TEST_EMAIL,
-        "password": TEST_PASSWORD
-    }
-    login_headers = {
-        "Content-Type": "application/json",
-        "x-csrf-token": csrf_token
-    }
-    login_cookies = {"dynopay_csrf": csrf_cookie}
-    
-    login_resp = requests.post(
-        f"{API_BASE}/user/login",
-        json=login_data,
-        headers=login_headers,
-        cookies=login_cookies
-    )
-    
-    if login_resp.status_code != 200:
-        log(f"❌ Login failed: {login_resp.status_code} - {login_resp.text}", RED)
-        return None, None
-    
-    login_result = login_resp.json()
-    bearer_token = login_result.get("data", {}).get("accessToken")
-    if not bearer_token:
-        log(f"❌ No access token in login response", RED)
-        return None, None
-    
-    log(f"✅ Login successful, Bearer token obtained", GREEN)
-    
-    # Step 3: Enable widget via PUT /api/user/creator/profile
-    log("\n[1.3] Enabling support widget...")
-    widget_config = {
-        "support_widget_enabled": True,
-        "support_widget_style": "coffee",
-        "support_widget_preset_amounts": [3, 5, 10, 25],
-        "support_widget_currency": "USD",
-        "support_widget_min_amount": 1,
-        "support_widget_allow_message": True,
-        "support_widget_show_supporters": True,
-        "support_widget_thanks_message": "Thanks so much!"
-    }
-    
-    widget_headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {bearer_token}"
-    }
-    
-    widget_resp = requests.put(
-        f"{API_BASE}/user/creator/profile",
-        json=widget_config,
-        headers=widget_headers
-    )
-    
-    if widget_resp.status_code != 200:
-        log(f"❌ Failed to enable widget: {widget_resp.status_code} - {widget_resp.text}", RED)
-        return bearer_token, None
-    
-    widget_result = widget_resp.json()
-    widget_data = widget_result.get("data", {})
-    
-    # Verify all 9 fields are echoed back
-    expected_fields = [
-        "support_widget_enabled",
-        "support_widget_style",
-        "support_widget_preset_amounts",
-        "support_widget_currency",
-        "support_widget_min_amount",
-        "support_widget_allow_message",
-        "support_widget_show_supporters",
-        "support_widget_thanks_message"
-    ]
-    
-    all_present = all(field in widget_data for field in expected_fields)
-    if not all_present:
-        log(f"❌ Not all widget fields present in response", RED)
-        log(f"Response: {json.dumps(widget_data, indent=2)}", YELLOW)
-        return bearer_token, None
-    
-    # Verify values match (min_amount can be string "1.00" or int 1)
-    min_amount = widget_data.get("support_widget_min_amount")
-    min_amount_ok = (min_amount == 1 or min_amount == "1.00" or float(min_amount) == 1.0)
-    
-    if (widget_data.get("support_widget_enabled") == True and
-        widget_data.get("support_widget_style") == "coffee" and
-        widget_data.get("support_widget_currency") == "USD" and
-        min_amount_ok):
-        log(f"✅ Widget enabled successfully with all 9 fields echoed back", GREEN)
-        log(f"   - enabled: {widget_data.get('support_widget_enabled')}", GREEN)
-        log(f"   - style: {widget_data.get('support_widget_style')}", GREEN)
-        log(f"   - preset_amounts: {widget_data.get('support_widget_preset_amounts')}", GREEN)
-        log(f"   - currency: {widget_data.get('support_widget_currency')}", GREEN)
-        log(f"   - min_amount: {widget_data.get('support_widget_min_amount')}", GREEN)
-        return bearer_token, True
-    else:
-        log(f"❌ Widget values don't match expected", RED)
-        log(f"   Response data: {json.dumps(widget_data, indent=2)}", YELLOW)
-        return bearer_token, False
 
-def test_csrf_exemption():
-    """
-    Scenario 2: KEY NEW CHECK — CSRF exemption
-    POST /api/pay/tip with NO Authorization header, NO x-csrf-token header, and NO csrf cookie
-    Should return 200 (NOT 403 CSRF-blocked)
-    """
-    log("\n" + "="*80, BLUE)
-    log("TEST 2: CSRF Exemption for POST /api/pay/tip (KEY NEW BEHAVIOR)", BLUE)
-    log("="*80, BLUE)
-    
-    log("\n[2.1] Calling POST /api/pay/tip WITHOUT any auth/CSRF tokens...")
-    log("      (simulating a fresh unauthenticated public donor)", YELLOW)
-    
-    tip_data = {
-        "handle": TEST_HANDLE,
-        "amount": 5,
-        "donor_name": "QA Tipper",
-        "donor_message": "Love it!",
-        "is_anonymous": False
-    }
-    
-    # NO Authorization header, NO x-csrf-token, NO cookies
-    tip_headers = {
-        "Content-Type": "application/json"
-    }
-    
-    tip_resp = requests.post(
-        f"{API_BASE}/pay/tip",
-        json=tip_data,
-        headers=tip_headers
-    )
-    
-    if tip_resp.status_code == 403:
-        log(f"❌ CSRF BLOCKED! Got 403 - the exemption is NOT working", RED)
-        log(f"Response: {tip_resp.text}", RED)
-        return None
-    
-    if tip_resp.status_code != 200:
-        log(f"❌ Unexpected status: {tip_resp.status_code} - {tip_resp.text}", RED)
-        return None
-    
-    tip_result = tip_resp.json()
-    tip_data_resp = tip_result.get("data", {})
-    
-    d_value = tip_data_resp.get("d")
-    payment_link = tip_data_resp.get("payment_link")
-    amount = tip_data_resp.get("amount")
-    currency = tip_data_resp.get("currency")
-    
-    if not d_value:
-        log(f"❌ No 'd' value in response", RED)
-        log(f"Response: {json.dumps(tip_result, indent=2)}", YELLOW)
-        return None
-    
-    log(f"✅ POST /api/pay/tip returned 200 WITHOUT CSRF token (exemption working!)", GREEN)
-    log(f"   - d: {d_value}", GREEN)
-    log(f"   - payment_link: {payment_link}", GREEN)
-    log(f"   - amount: {amount}", GREEN)
-    log(f"   - currency: {currency}", GREEN)
-    
-    if amount == 5 and currency == "USD":
-        log(f"✅ Amount and currency match expected values", GREEN)
-        return d_value
-    else:
-        log(f"⚠️  Amount or currency mismatch (expected 5 USD, got {amount} {currency})", YELLOW)
-        return d_value
 
-def test_contribution_follow_through(d_value):
+def test_2_source_shape(transactions: List[Dict[str, Any]]):
     """
-    Scenario 3: CONTRIBUTION FOLLOW-THROUGH
-    Take the `d` from step 2 and call POST /api/pay/getData to verify contribution data
+    Test 2: source shape on every row (KEY new behavior)
+    - Iterate response.data.transactions[]
+    - Assert EVERY row has a `source` object with keys: type, title, ref, link_id, link_type, parent_link_id, order_id, order_ref
+    - Assert `source.type` is one of the 5 valid values: payment_link, contribution, tip, product, direct
     """
-    log("\n" + "="*80, BLUE)
-    log("TEST 3: Contribution Follow-Through (getData)", BLUE)
-    log("="*80, BLUE)
+    print("\n" + "="*80)
+    print("TEST 2: source shape on every row (KEY new behavior)")
+    print("="*80)
     
-    if not d_value:
-        log("❌ No d value from previous test, skipping", RED)
-        return None
-    
-    log(f"\n[3.1] Calling POST /api/pay/getData with d={d_value}...")
-    
-    get_data_payload = {
-        "data": d_value,
-        "language": "en"
-    }
-    
-    get_data_resp = requests.post(
-        f"{API_BASE}/pay/getData",
-        json=get_data_payload
-    )
-    
-    if get_data_resp.status_code != 200:
-        log(f"❌ getData failed: {get_data_resp.status_code} - {get_data_resp.text}", RED)
-        return None
-    
-    get_data_result = get_data_resp.json()
-    data = get_data_result.get("data", {})
-    
-    link_type = data.get("link_type")
-    contribution = data.get("contribution", {})
-    
-    if link_type != "contribution":
-        log(f"❌ link_type is '{link_type}', expected 'contribution'", RED)
-        return None
-    
-    log(f"✅ link_type === 'contribution'", GREEN)
-    
-    # Verify contribution block
-    donor_name = contribution.get("donor_name")
-    donor_message = contribution.get("donor_message")
-    is_anonymous = contribution.get("is_anonymous")
-    
-    if donor_name == "QA Tipper" and donor_message == "Love it!" and is_anonymous == False:
-        log(f"✅ Contribution block verified:", GREEN)
-        log(f"   - donor_name: {donor_name}", GREEN)
-        log(f"   - donor_message: {donor_message}", GREEN)
-        log(f"   - is_anonymous: {is_anonymous}", GREEN)
-        return d_value
-    else:
-        log(f"❌ Contribution data mismatch:", RED)
-        log(f"   - donor_name: {donor_name} (expected 'QA Tipper')", RED)
-        log(f"   - donor_message: {donor_message} (expected 'Love it!')", RED)
-        log(f"   - is_anonymous: {is_anonymous} (expected False)", RED)
-        return None
-
-def test_validation():
-    """
-    Scenario 4: VALIDATION still intact on the now-exempt endpoint
-    - amount:0 → 400
-    - unknown handle "nope_xyz_404" → 404
-    - is_anonymous:true → getData contribution.is_anonymous===true
-    """
-    log("\n" + "="*80, BLUE)
-    log("TEST 4: Validation Still Intact", BLUE)
-    log("="*80, BLUE)
-    
-    # Test 4.1: amount:0 → 400
-    log("\n[4.1] Testing amount:0 → should return 400...")
-    zero_amount_data = {
-        "handle": TEST_HANDLE,
-        "amount": 0,
-        "donor_name": "Zero Tester",
-        "is_anonymous": False
-    }
-    
-    zero_resp = requests.post(
-        f"{API_BASE}/pay/tip",
-        json=zero_amount_data,
-        headers={"Content-Type": "application/json"}
-    )
-    
-    if zero_resp.status_code == 400:
-        log(f"✅ amount:0 correctly rejected with 400", GREEN)
-    else:
-        log(f"❌ amount:0 returned {zero_resp.status_code}, expected 400", RED)
-    
-    # Test 4.2: unknown handle → 404
-    log("\n[4.2] Testing unknown handle 'nope_xyz_404' → should return 404...")
-    unknown_handle_data = {
-        "handle": "nope_xyz_404",
-        "amount": 5,
-        "donor_name": "Unknown Tester",
-        "is_anonymous": False
-    }
-    
-    unknown_resp = requests.post(
-        f"{API_BASE}/pay/tip",
-        json=unknown_handle_data,
-        headers={"Content-Type": "application/json"}
-    )
-    
-    if unknown_resp.status_code == 404:
-        log(f"✅ Unknown handle correctly rejected with 404", GREEN)
-    else:
-        log(f"❌ Unknown handle returned {unknown_resp.status_code}, expected 404", RED)
-    
-    # Test 4.3: anonymous tip → is_anonymous===true in getData
-    log("\n[4.3] Testing anonymous tip → is_anonymous should be true in getData...")
-    anon_tip_data = {
-        "handle": TEST_HANDLE,
-        "amount": 5,
-        "donor_name": "Anonymous Tester",
-        "donor_message": "Anonymous donation",
-        "is_anonymous": True
-    }
-    
-    anon_resp = requests.post(
-        f"{API_BASE}/pay/tip",
-        json=anon_tip_data,
-        headers={"Content-Type": "application/json"}
-    )
-    
-    if anon_resp.status_code != 200:
-        log(f"❌ Anonymous tip failed: {anon_resp.status_code}", RED)
-        return False
-    
-    anon_result = anon_resp.json()
-    anon_d = anon_result.get("data", {}).get("d")
-    
-    if not anon_d:
-        log(f"❌ No d value in anonymous tip response", RED)
-        return False
-    
-    # Call getData to verify is_anonymous
-    get_data_resp = requests.post(
-        f"{API_BASE}/pay/getData",
-        json={"data": anon_d, "language": "en"}
-    )
-    
-    if get_data_resp.status_code != 200:
-        log(f"❌ getData for anonymous tip failed: {get_data_resp.status_code}", RED)
-        return False
-    
-    get_data_result = get_data_resp.json()
-    contribution = get_data_result.get("data", {}).get("contribution", {})
-    is_anonymous = contribution.get("is_anonymous")
-    
-    if is_anonymous == True:
-        log(f"✅ Anonymous tip correctly has is_anonymous===true in getData", GREEN)
-        return anon_d
-    else:
-        log(f"❌ Anonymous tip has is_anonymous==={is_anonymous}, expected True", RED)
-        return None
-
-def test_public_profile():
-    """
-    Scenario 5: PUBLIC PROFILE
-    GET /api/pay/creator/hostbay (no auth) → support_widget object present
-    """
-    log("\n" + "="*80, BLUE)
-    log("TEST 5: Public Profile (GET /api/pay/creator/hostbay)", BLUE)
-    log("="*80, BLUE)
-    
-    log(f"\n[5.1] Calling GET /api/pay/creator/{TEST_HANDLE} (no auth)...")
-    
-    profile_resp = requests.get(f"{API_BASE}/pay/creator/{TEST_HANDLE}")
-    
-    if profile_resp.status_code != 200:
-        log(f"❌ Public profile request failed: {profile_resp.status_code} - {profile_resp.text}", RED)
-        return False
-    
-    profile_result = profile_resp.json()
-    profile_data = profile_result.get("data", {})
-    
-    support_widget = profile_data.get("support_widget")
-    links = profile_data.get("links", [])
-    
-    if not support_widget:
-        log(f"❌ support_widget is null or missing", RED)
-        return False
-    
-    # Verify support_widget structure
-    expected_fields = [
-        "enabled", "style", "preset_amounts", "currency", 
-        "min_amount", "allow_message", "show_supporters"
-    ]
-    
-    all_present = all(field in support_widget for field in expected_fields)
-    if not all_present:
-        log(f"❌ Not all expected fields in support_widget", RED)
-        log(f"support_widget: {json.dumps(support_widget, indent=2)}", YELLOW)
-        return False
-    
-    # Verify values match config from Test 1
-    if (support_widget.get("enabled") == True and
-        support_widget.get("style") == "coffee" and
-        support_widget.get("currency") == "USD" and
-        support_widget.get("min_amount") == 1):
-        log(f"✅ support_widget object present and matches config:", GREEN)
-        log(f"   - enabled: {support_widget.get('enabled')}", GREEN)
-        log(f"   - style: {support_widget.get('style')}", GREEN)
-        log(f"   - preset_amounts: {support_widget.get('preset_amounts')}", GREEN)
-        log(f"   - currency: {support_widget.get('currency')}", GREEN)
-        log(f"   - min_amount: {support_widget.get('min_amount')}", GREEN)
-    else:
-        log(f"⚠️  support_widget values don't match expected config", YELLOW)
-    
-    # Verify links[] contains ZERO items of type "donation" (decision 1a)
-    donation_links = [link for link in links if link.get("type") == "donation"]
-    if len(donation_links) == 0:
-        log(f"✅ links[] contains ZERO donation items (decision 1a verified)", GREEN)
-        return True
-    else:
-        log(f"❌ links[] contains {len(donation_links)} donation items, expected 0", RED)
-        return False
-
-def cleanup(bearer_token, d_values):
-    """
-    Cleanup: Delete the hidden tip-jar parent row and contribution children
-    LEAVE support_widget_enabled=true (frontend UI verification will use it)
-    """
-    log("\n" + "="*80, BLUE)
-    log("CLEANUP: Deleting test data from LIVE DB", BLUE)
-    log("="*80, BLUE)
-    
-    if not bearer_token:
-        log("⚠️  No bearer token, skipping cleanup", YELLOW)
+    if not transactions:
+        log_test("T2 - Source shape", False, "No transactions to test")
         return
     
-    log("\n⚠️  IMPORTANT: This backend runs on LIVE Railway PostgreSQL", YELLOW)
-    log("   Cleanup would require direct DB access to delete tip-jar parent + contribution children", YELLOW)
-    log("   The review request asks to delete rows from tbl_payment_link where:", YELLOW)
-    log("   - user_id = hostbay's user_id AND is_tip_jar=true (parent)", YELLOW)
-    log("   - parent_link_id = that tip jar's link_id (children)", YELLOW)
-    log("\n   Since we don't have a DELETE API endpoint for this, manual cleanup is needed.", YELLOW)
-    log("   LEAVING support_widget_enabled=true as requested (frontend will use it).", YELLOW)
+    print(f"\n[2.1] Checking source object on {len(transactions)} transactions...")
     
-    if d_values:
-        log(f"\n   Test created {len(d_values)} contribution(s) with d values:", YELLOW)
-        for d in d_values:
-            log(f"   - {d}", YELLOW)
+    required_keys = {"type", "title", "ref", "link_id", "link_type", "parent_link_id", "order_id", "order_ref"}
+    failed_rows = []
+    invalid_types = []
+    
+    for idx, txn in enumerate(transactions):
+        # Check if source exists
+        if "source" not in txn:
+            failed_rows.append(f"Row {idx}: Missing 'source' object")
+            continue
+        
+        source = txn.get("source", {})
+        
+        # Check all required keys exist
+        missing_keys = required_keys - set(source.keys())
+        if missing_keys:
+            failed_rows.append(f"Row {idx}: Missing keys in source: {missing_keys}")
+            continue
+        
+        # Check source.type is valid
+        source_type = source.get("type")
+        if source_type not in VALID_SOURCE_TYPES:
+            invalid_types.append(f"Row {idx}: Invalid source.type '{source_type}' (expected one of {VALID_SOURCE_TYPES})")
+    
+    if failed_rows:
+        print(f"\n❌ Found {len(failed_rows)} rows with missing/invalid source:")
+        for error in failed_rows[:5]:  # Show first 5 errors
+            print(f"  - {error}")
+        log_test("T2.1 - Source object presence", False, f"{len(failed_rows)} rows missing source or keys")
+        return
+    
+    print(f"✓ All {len(transactions)} rows have complete source object with all required keys")
+    log_test("T2.1 - Source object presence", True, f"All {len(transactions)} rows have complete source object")
+    
+    if invalid_types:
+        print(f"\n❌ Found {len(invalid_types)} rows with invalid source.type:")
+        for error in invalid_types[:5]:
+            print(f"  - {error}")
+        log_test("T2.2 - Source type validity", False, f"{len(invalid_types)} rows have invalid source.type")
+        return
+    
+    print(f"✓ All {len(transactions)} rows have valid source.type")
+    log_test("T2.2 - Source type validity", True, f"All {len(transactions)} rows have valid source.type")
+    
+    # Show sample source objects
+    print("\n[2.3] Sample source objects:")
+    for idx, txn in enumerate(transactions[:3]):
+        source = txn.get("source", {})
+        print(f"\n  Transaction {idx + 1}:")
+        print(f"    - type: {source.get('type')}")
+        print(f"    - title: {source.get('title')}")
+        print(f"    - ref: {source.get('ref')}")
+        print(f"    - link_id: {source.get('link_id')}")
+        print(f"    - link_type: {source.get('link_type')}")
+        print(f"    - parent_link_id: {source.get('parent_link_id')}")
+        print(f"    - order_id: {source.get('order_id')}")
+        print(f"    - order_ref: {source.get('order_ref')}")
 
-def main():
-    log("\n" + "="*80, BLUE)
-    log("SESSION 41 BACKEND TEST: CSRF Exemption for POST /api/pay/tip", BLUE)
-    log("="*80, BLUE)
-    log(f"\nPreview URL: {BASE_URL}", BLUE)
-    log(f"Test Account: {TEST_EMAIL}", BLUE)
-    log(f"Creator Handle: {TEST_HANDLE}", BLUE)
-    log("\nNARROW TEST: Only testing the ONE change from Session 41:", BLUE)
-    log("  → /api/pay/tip added to CSRF exempt list in csrfMiddleware.ts", BLUE)
-    log("  → All other tip endpoint logic was tested in Session 40 (13/13 pass)", BLUE)
+
+def test_3_type_distribution(transactions: List[Dict[str, Any]]):
+    """
+    Test 3: Type distribution — semantic correctness
+    - Group all rows by source.type and report count per type
+    - For source.type='tip': assert source.parent_link_id is not null
+    - For source.type='contribution': assert source.parent_link_id is not null
+    - For source.type='product': assert source.order_id is not null
+    - For source.type='payment_link': assert source.link_id is not null
+    - For source.type='direct': it's OK for link_id/order_id to be null
+    """
+    print("\n" + "="*80)
+    print("TEST 3: Type distribution — semantic correctness")
+    print("="*80)
     
-    results = {
-        "test1_login_enable_widget": False,
-        "test2_csrf_exemption": False,
-        "test3_contribution_follow_through": False,
-        "test4_validation": False,
-        "test5_public_profile": False
+    if not transactions:
+        log_test("T3 - Type distribution", False, "No transactions to test")
+        return
+    
+    # Group by type
+    type_counts = {}
+    type_violations = []
+    
+    for idx, txn in enumerate(transactions):
+        source = txn.get("source", {})
+        source_type = source.get("type")
+        
+        # Count
+        type_counts[source_type] = type_counts.get(source_type, 0) + 1
+        
+        # Semantic checks
+        if source_type == "tip":
+            if source.get("parent_link_id") is None:
+                type_violations.append(f"Row {idx}: type='tip' but parent_link_id is null")
+        
+        elif source_type == "contribution":
+            if source.get("parent_link_id") is None:
+                type_violations.append(f"Row {idx}: type='contribution' but parent_link_id is null")
+        
+        elif source_type == "product":
+            if source.get("order_id") is None:
+                type_violations.append(f"Row {idx}: type='product' but order_id is null")
+        
+        elif source_type == "payment_link":
+            if source.get("link_id") is None:
+                type_violations.append(f"Row {idx}: type='payment_link' but link_id is null")
+        
+        # For 'direct', no checks needed (link_id/order_id can be null)
+    
+    # Report distribution
+    print("\n[3.1] Type distribution histogram:")
+    for source_type in sorted(type_counts.keys()):
+        count = type_counts[source_type]
+        percentage = (count / len(transactions)) * 100
+        print(f"  - {source_type:15s}: {count:4d} ({percentage:5.1f}%)")
+    
+    log_test("T3.1 - Type distribution", True, f"Distribution: {dict(type_counts)}")
+    
+    # Report violations
+    if type_violations:
+        print(f"\n❌ Found {len(type_violations)} semantic violations:")
+        for error in type_violations[:10]:  # Show first 10
+            print(f"  - {error}")
+        log_test("T3.2 - Semantic correctness", False, f"{len(type_violations)} violations found")
+        
+        # Show offending row details
+        if type_violations:
+            print("\n[3.3] Sample offending row:")
+            # Extract row index from first violation
+            first_violation = type_violations[0]
+            row_idx = int(first_violation.split("Row ")[1].split(":")[0])
+            offending_txn = transactions[row_idx]
+            print(f"  Transaction ID: {offending_txn.get('id')}")
+            print(f"  Source: {json.dumps(offending_txn.get('source'), indent=4)}")
+    else:
+        print(f"\n✓ All {len(transactions)} rows pass semantic correctness checks")
+        log_test("T3.2 - Semantic correctness", True, f"All {len(transactions)} rows semantically correct")
+
+
+def test_4_no_regressions(transactions: List[Dict[str, Any]]):
+    """
+    Test 4: No regressions on existing fields
+    - Pick 3 random rows
+    - Assert they still have: id, base_amount, base_currency, crypto_currency, crypto_amount, 
+      usd_value, status, createdAt, customer_name, display_amount, display_currency, 
+      amount_display, auto_converted, auto_convert
+    """
+    print("\n" + "="*80)
+    print("TEST 4: No regressions on existing fields")
+    print("="*80)
+    
+    if not transactions:
+        log_test("T4 - No regressions", False, "No transactions to test")
+        return
+    
+    # Required fields
+    required_fields = {
+        "id", "base_amount", "base_currency", "crypto_currency", "crypto_amount",
+        "usd_value", "status", "createdAt", "customer_name", "display_amount",
+        "display_currency", "amount_display", "auto_converted", "auto_convert"
     }
     
-    d_values = []
+    # Pick up to 3 transactions
+    sample_size = min(3, len(transactions))
+    sample_transactions = transactions[:sample_size]
     
-    # Test 1: Login + Enable Widget
-    bearer_token, widget_enabled = test_login_and_enable_widget()
-    results["test1_login_enable_widget"] = widget_enabled == True
+    print(f"\n[4.1] Checking {sample_size} sample transactions for required fields...")
     
-    # Test 2: CSRF Exemption (KEY NEW CHECK)
-    d_value = test_csrf_exemption()
-    results["test2_csrf_exemption"] = d_value is not None
-    if d_value:
-        d_values.append(d_value)
+    all_passed = True
+    for idx, txn in enumerate(sample_transactions):
+        missing_fields = required_fields - set(txn.keys())
+        
+        if missing_fields:
+            print(f"\n❌ Transaction {idx + 1} (id={txn.get('id')}) missing fields: {missing_fields}")
+            all_passed = False
+        else:
+            print(f"\n✓ Transaction {idx + 1} (id={txn.get('id')}) has all required fields")
+            print(f"  - id: {txn.get('id')}")
+            print(f"  - base_amount: {txn.get('base_amount')} {txn.get('base_currency')}")
+            print(f"  - crypto: {txn.get('crypto_amount')} {txn.get('crypto_currency')}")
+            print(f"  - usd_value: {txn.get('usd_value')}")
+            print(f"  - status: {txn.get('status')}")
+            print(f"  - createdAt: {txn.get('createdAt')}")
+            print(f"  - customer_name: {txn.get('customer_name')}")
+            print(f"  - display: {txn.get('amount_display')} ({txn.get('display_amount')} {txn.get('display_currency')})")
+            print(f"  - auto_converted: {txn.get('auto_converted')}")
+            print(f"  - auto_convert: {'present' if txn.get('auto_convert') else 'null'}")
     
-    # Test 3: Contribution Follow-Through
-    if d_value:
-        follow_through_d = test_contribution_follow_through(d_value)
-        results["test3_contribution_follow_through"] = follow_through_d is not None
-    
-    # Test 4: Validation
-    anon_d = test_validation()
-    results["test4_validation"] = anon_d is not None
-    if anon_d:
-        d_values.append(anon_d)
-    
-    # Test 5: Public Profile
-    results["test5_public_profile"] = test_public_profile()
-    
-    # Cleanup
-    cleanup(bearer_token, d_values)
-    
-    # Summary
-    log("\n" + "="*80, BLUE)
-    log("TEST SUMMARY", BLUE)
-    log("="*80, BLUE)
-    
-    passed = sum(1 for v in results.values() if v)
-    total = len(results)
-    
-    log(f"\nResults: {passed}/{total} tests passed\n", BLUE)
-    
-    for test_name, passed in results.items():
-        status = f"{GREEN}✅ PASS{RESET}" if passed else f"{RED}❌ FAIL{RESET}"
-        log(f"  {test_name}: {status}")
-    
-    log("\n" + "="*80, BLUE)
-    log("KEY FINDING:", BLUE)
-    log("="*80, BLUE)
-    
-    if results["test2_csrf_exemption"]:
-        log(f"\n{GREEN}✅ POST /api/pay/tip is now CSRF-exempt (returns 200 without token){RESET}", GREEN)
-        log(f"{GREEN}   This is the PRIMARY regression being validated in Session 41.{RESET}", GREEN)
+    if all_passed:
+        log_test("T4 - No regressions", True, f"All {sample_size} sample transactions have required fields")
     else:
-        log(f"\n{RED}❌ POST /api/pay/tip is still CSRF-blocked (returns 403){RESET}", RED)
-        log(f"{RED}   The exemption is NOT working as expected.{RESET}", RED)
+        log_test("T4 - No regressions", False, "Some transactions missing required fields")
+
+
+def test_5_backward_compat(jwt_token: str):
+    """
+    Test 5: Backward-compat quick smoke on unrelated endpoints
+    - GET /api/user/profile → still returns 200
+    - GET /api/status/uptime → 200 with uptime data
+    """
+    print("\n" + "="*80)
+    print("TEST 5: Backward-compat quick smoke on unrelated endpoints")
+    print("="*80)
     
-    log("\n" + "="*80, BLUE)
-    log("IMPORTANT NOTES:", BLUE)
-    log("="*80, BLUE)
-    log("• Backend runs on LIVE Railway PostgreSQL with WORKER_ROLE=secondary", YELLOW)
-    log("• Contributions stay 'active' (no settlement), so supporters_count/raised_amount stay 0", YELLOW)
-    log("• This is EXPECTED behavior, not a bug", YELLOW)
-    log("• support_widget_enabled left as TRUE for frontend UI verification", YELLOW)
-    log("• Manual DB cleanup needed for tip-jar parent + contribution children", YELLOW)
+    try:
+        # Test 5.1: GET /api/user/profile
+        print("\n[5.1] Testing GET /api/user/profile...")
+        session = requests.Session()
+        profile_response = session.get(
+            f"{API_URL}/user/profile",
+            headers={
+                "Authorization": f"Bearer {jwt_token}",
+                "Content-Type": "application/json"
+            }
+        )
+        
+        if profile_response.status_code == 200:
+            print(f"✓ GET /api/user/profile returned 200")
+            log_test("T5.1 - /api/user/profile", True, "Endpoint returned 200")
+        else:
+            print(f"❌ GET /api/user/profile returned {profile_response.status_code}")
+            log_test("T5.1 - /api/user/profile", False, f"Endpoint returned {profile_response.status_code}")
+        
+        # Test 5.2: GET /api/status/uptime
+        print("\n[5.2] Testing GET /api/status/uptime...")
+        uptime_response = requests.get(f"{API_URL}/status/uptime")
+        
+        if uptime_response.status_code != 200:
+            print(f"❌ GET /api/status/uptime returned {uptime_response.status_code}")
+            log_test("T5.2 - /api/status/uptime", False, f"Endpoint returned {uptime_response.status_code}")
+            return
+        
+        uptime_data = uptime_response.json()
+        print(f"✓ GET /api/status/uptime returned 200")
+        
+        # Check uptime data structure
+        if "data" in uptime_data:
+            data = uptime_data.get("data", {})
+            print(f"  - uptime_percentage: {data.get('uptime_percentage')}%")
+            print(f"  - period_days: {data.get('period_days')}")
+            log_test("T5.2 - /api/status/uptime", True, "Endpoint returned 200 with uptime data")
+        else:
+            log_test("T5.2 - /api/status/uptime", False, "Missing 'data' field in response")
+        
+    except Exception as e:
+        log_test("T5 - Backward compat", False, f"Exception: {str(e)}")
+
+
+def main():
+    """Run all tests"""
+    print("\n" + "="*80)
+    print("SESSION 48 BACKEND REGRESSION TEST — NARROW SCOPE")
+    print("="*80)
+    print(f"Base URL: {BASE_URL}")
+    print(f"Merchant: {MERCHANT_EMAIL}")
+    print(f"Company ID: {COMPANY_ID}")
+    print("="*80)
     
-    sys.exit(0 if passed == total else 1)
+    # Test 1: Auth and endpoint
+    jwt_token, transactions = test_1_auth_and_endpoint()
+    
+    if not jwt_token or transactions is None:
+        print("\n❌ Test 1 failed, cannot proceed with remaining tests")
+        print_summary()
+        sys.exit(1)
+    
+    # Test 2: Source shape
+    test_2_source_shape(transactions)
+    
+    # Test 3: Type distribution
+    test_3_type_distribution(transactions)
+    
+    # Test 4: No regressions
+    test_4_no_regressions(transactions)
+    
+    # Test 5: Backward compat
+    test_5_backward_compat(jwt_token)
+    
+    # Print summary
+    print_summary()
+
+
+def print_summary():
+    """Print test summary"""
+    print("\n" + "="*80)
+    print("TEST SUMMARY")
+    print("="*80)
+    
+    passed = sum(1 for r in test_results if r["passed"])
+    failed = sum(1 for r in test_results if not r["passed"])
+    total = len(test_results)
+    
+    print(f"\nTotal tests: {total}")
+    print(f"Passed: {passed} ✅")
+    print(f"Failed: {failed} ❌")
+    
+    if failed > 0:
+        print("\nFailed tests:")
+        for result in test_results:
+            if not result["passed"]:
+                print(f"  ❌ {result['test']}: {result['message']}")
+    
+    print("\n" + "="*80)
+    
+    if failed == 0:
+        print("✅ ALL TESTS PASSED")
+        sys.exit(0)
+    else:
+        print("❌ SOME TESTS FAILED")
+        sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

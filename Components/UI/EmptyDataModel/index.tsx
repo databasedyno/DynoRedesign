@@ -225,6 +225,93 @@ const EmptyDataModel = ({ pageName, onAddWallet }: EmptyDataModelProps) => {
                     </Box>
                 )}
 
+                {/* Session 48: Transactions empty state now surfaces the 3
+                    revenue streams a merchant can enable — Creator page,
+                    Products, Crowdfunding — so an empty ledger becomes an
+                    invitation to activate a stream instead of a dead end. */}
+                {pageName === "transactions" && (
+                    <Box
+                        sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            gap: 1.25,
+                            mt: -0.5,
+                            maxWidth: 520,
+                            width: "100%",
+                            px: 2,
+                        }}
+                    >
+                        <Typography
+                            sx={{
+                                fontFamily: "var(--font-sans)",
+                                fontSize: isMobile ? "12px" : "13px",
+                                color: theme.palette.text.secondary,
+                                mb: 0.5,
+                            }}
+                        >
+                            {t("EmptyTransactionsExplore", {
+                                defaultValue: "Explore other ways to earn",
+                            })}
+                        </Typography>
+                        <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", justifyContent: "center" }}>
+                            {[
+                                {
+                                    key: "creator",
+                                    label: t("EmptyTxChipCreator", { defaultValue: "Creator page" }),
+                                    href: "/creator",
+                                },
+                                {
+                                    key: "products",
+                                    label: t("EmptyTxChipProducts", { defaultValue: "Sell products" }),
+                                    href: "/pay-links/products",
+                                },
+                                {
+                                    key: "crowdfund",
+                                    label: t("EmptyTxChipCrowdfund", { defaultValue: "Crowdfund a cause" }),
+                                    href: "/create-pay-link?template=donation&amount=10",
+                                },
+                            ].map((chip) => (
+                                <Box
+                                    key={chip.key}
+                                    role="button"
+                                    tabIndex={0}
+                                    onClick={() => router.push(chip.href)}
+                                    onKeyDown={(e: React.KeyboardEvent) => {
+                                        if (e.key === "Enter" || e.key === " ") {
+                                            e.preventDefault();
+                                            router.push(chip.href);
+                                        }
+                                    }}
+                                    sx={{
+                                        cursor: "pointer",
+                                        border: `1px solid ${theme.palette.border.main}`,
+                                        borderRadius: 999,
+                                        padding: isMobile ? "6px 12px" : "8px 14px",
+                                        fontFamily: "var(--font-sans)",
+                                        fontSize: isMobile ? 12 : 13,
+                                        color: theme.palette.text.primary,
+                                        backgroundColor: theme.palette.background.paper,
+                                        transition:
+                                            "border-color 120ms ease, background-color 120ms ease, transform 120ms ease",
+                                        userSelect: "none",
+                                        "&:hover": {
+                                            borderColor: theme.palette.primary.main,
+                                            backgroundColor: theme.palette.action.hover,
+                                        },
+                                        "&:focus-visible": {
+                                            outline: `2px solid ${theme.palette.primary.main}`,
+                                            outlineOffset: 2,
+                                        },
+                                    }}
+                                >
+                                    {chip.label}
+                                </Box>
+                            ))}
+                        </Box>
+                    </Box>
+                )}
+
                 {pageName === "wallet" && (
                     <MuiLink
                         href="https://www.dynopay.com/help-support/what-is-a-payout-wallet"

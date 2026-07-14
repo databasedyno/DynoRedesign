@@ -229,6 +229,14 @@ const NewSidebar = () => {
                         textAlign: "center",
                         lineHeight: 1.2,
                         fontFamily: isActive ? "var(--font-sans)" : "var(--font-sans)",
+                        // Ensure long labels don't push trailing badges (NEW pill,
+                        // + button) out of the visible sidebar area on narrow
+                        // clamp widths (265-324px).
+                        minWidth: 0,
+                        flex: "0 1 auto",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
                         [theme.breakpoints.down("md")]: {
                           fontSize: "11px",
                           whiteSpace: "nowrap",
@@ -262,6 +270,7 @@ const NewSidebar = () => {
                           color: "#0A0A0B",
                           lineHeight: 1.4,
                           alignSelf: "center",
+                          flexShrink: 0,
                         }}
                       >
                         {t("newBadge", { defaultValue: "New" })}

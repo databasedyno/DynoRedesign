@@ -8,11 +8,20 @@ import WalletIcon from "@/assets/Icons/wallet-icon.svg";
 import useIsMobile from "@/hooks/useIsMobile";
 import { ALLCRYPTOCURRENCIES } from "@/hooks/useWalletData";
 import { DateRange } from "@/utils/types/dashboard";
-import { TransactionsTopBarProps } from "@/utils/types/transaction";
+import {
+  TransactionSourceType,
+  TransactionsTopBarProps,
+} from "@/utils/types/transaction";
+import AutoAwesomeRounded from "@mui/icons-material/AutoAwesomeRounded";
 import CheckIcon from "@mui/icons-material/Check";
+import DonutSmallRounded from "@mui/icons-material/DonutSmallRounded";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import FavoriteRounded from "@mui/icons-material/FavoriteRounded";
+import Inventory2Rounded from "@mui/icons-material/Inventory2Rounded";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import LinkRounded from "@mui/icons-material/LinkRounded";
+import PublicRounded from "@mui/icons-material/PublicRounded";
 import { Box, Typography, useTheme } from "@mui/material";
 import { format } from "date-fns";
 import Image from "next/image";
@@ -32,6 +41,8 @@ import {
   FiltersContainer,
   SearchContainer,
   SearchIconButton,
+  SourceChip,
+  SourceChipsRow,
   TransactionsTopBarContainer,
   WalletDropdownContainer,
   WalletListItem,
@@ -42,15 +53,17 @@ const TransactionsTopBar: React.FC<TransactionsTopBarProps & { initialWallet?: s
   onSearch,
   onDateRangeChange,
   onWalletChange,
+  onSourceChange,
   onExport,
   initialWallet,
+  initialSource,
 }) => {
   const theme = useTheme();
   const isMobile = useIsMobile("md");
   const isLgMobile = useIsMobile("lg");
   const { t } = useTranslation("transactions");
   const tTransactions = useCallback(
-    (key: string) => t(key, { ns: "transactions" }),
+    (key: string, options?: any) => t(key, { ns: "transactions", ...options }),
     [t],
   );
   const datePickerRef = useRef<DatePickerRef>(null);
@@ -62,6 +75,9 @@ const TransactionsTopBar: React.FC<TransactionsTopBarProps & { initialWallet?: s
     endDate: null,
   });
   const [selectedWallet, setSelectedWallet] = useState(initialWallet || "all");
+  const [selectedSource, setSelectedSource] = useState<TransactionSourceType | "all">(
+    initialSource || "all",
+  );
   const [walletMenuAnchor, setWalletMenuAnchor] = useState<null | HTMLElement>(
     null,
   );
@@ -72,6 +88,60 @@ const TransactionsTopBar: React.FC<TransactionsTopBarProps & { initialWallet?: s
       setSelectedWallet(initialWallet);
     }
   }, [initialWallet]);
+
+  useEffect(() => {
+    if (initialSource && initialSource !== selectedSource) {
+      setSelectedSource(initialSource);
+    }
+  }, [initialSource]);
+
+  const handleSourceChange = (value: TransactionSourceType | "all") => {
+    setSelectedSource(value);
+    onSourceChange?.(value);
+  };
+
+  // Source filter chips — the 5 revenue streams Dynopay now supports.
+  // Icons chosen to match the sidebar / feature entrypoints so the mental
+  // model transfers ("Tips" = ✨, "Products" = 📦, etc.).
+  const sourceChips: Array<{
+    value: TransactionSourceType | "all";
+    label: string;
+    icon: React.ReactNode;
+  }> = useMemo(() => {
+    const iconSize = 15;
+    return [
+      {
+        value: "all",
+        label: tTransactions("sourceAll", { defaultValue: "All" }),
+        icon: <PublicRounded sx={{ fontSize: iconSize }} />,
+      },
+      {
+        value: "payment_link",
+        label: tTransactions("sourcePaymentLinks", { defaultValue: "Payment links" }),
+        icon: <LinkRounded sx={{ fontSize: iconSize }} />,
+      },
+      {
+        value: "contribution",
+        label: tTransactions("sourceContributions", { defaultValue: "Contributions" }),
+        icon: <FavoriteRounded sx={{ fontSize: iconSize }} />,
+      },
+      {
+        value: "tip",
+        label: tTransactions("sourceTips", { defaultValue: "Tips" }),
+        icon: <AutoAwesomeRounded sx={{ fontSize: iconSize }} />,
+      },
+      {
+        value: "product",
+        label: tTransactions("sourceProducts", { defaultValue: "Product orders" }),
+        icon: <Inventory2Rounded sx={{ fontSize: iconSize }} />,
+      },
+      {
+        value: "direct",
+        label: tTransactions("sourceDirect", { defaultValue: "Direct" }),
+        icon: <DonutSmallRounded sx={{ fontSize: iconSize }} />,
+      },
+    ];
+  }, [tTransactions]);
 
 
   const handleSearch = () => {
@@ -180,6 +250,34 @@ const TransactionsTopBar: React.FC<TransactionsTopBarProps & { initialWallet?: s
 
   return (
     <TransactionsTopBarContainer sx={{ px: { xs: "16px", md: "0px" } }}>
+      {/* Source filter chips — added Session 48 UX. Lets the merchant slice
+          transactions by revenue source (payment link / contribution / tip /
+          product order / direct). Horizontal scroll on mobile. */}
+      <SourceChipsRow
+        role="tablist"
+        aria-label={tTransactions("sourceFilterLabel", {
+          defaultValue: "Filter by transaction source",
+        }) as string}
+        data-testid="transactions-source-chips"
+      >
+        {sourceChips.map((chip) => {
+          const isSelected = selectedSource === chip.value;
+          return (
+            <SourceChip
+              key={chip.value}
+              role="tab"
+              aria-selected={isSelected}
+              data-testid={`transactions-source-chip-${chip.value}`}
+              selected={isSelected}
+              onClick={() => handleSourceChange(chip.value)}
+            >
+              {chip.icon}
+              <span className="chip-label">{chip.label}</span>
+            </SourceChip>
+          );
+        })}
+      </SourceChipsRow>
+
       <SearchContainer>
         <InputField
           inputHeight={isMobile ? "32px" : "40px"}

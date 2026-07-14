@@ -684,3 +684,163 @@ export const DatePickerTriggerButton = styled(Button)(({ theme }) => ({
     "& .date-text": { fontSize: "13px" },
   },
 }));
+
+
+/* ─────────────────────────────────────────────────────────────────────────
+ * Source filter chips (Session 48) — segmented control that slices
+ * transactions by revenue source: payment links / contributions / tips /
+ * product orders / direct payments. Horizontal scroll on mobile so long
+ * localized labels never wrap.
+ * ────────────────────────────────────────────────────────────────────── */
+export const SourceChipsRow = styled(Box)(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
+  gap: "8px",
+  overflowX: "auto",
+  overflowY: "hidden",
+  scrollbarWidth: "none",
+  msOverflowStyle: "none",
+  "&::-webkit-scrollbar": { display: "none" },
+  paddingBottom: "4px",
+  marginBottom: "12px",
+  [theme.breakpoints.down("md")]: {
+    marginBottom: "8px",
+    paddingLeft: "0px",
+    paddingRight: "0px",
+  },
+}));
+
+export const SourceChip = styled(Button, {
+  shouldForwardProp: (prop) => prop !== "selected",
+})<{ selected?: boolean }>(({ selected, theme }) => ({
+  display: "inline-flex",
+  alignItems: "center",
+  gap: "6px",
+  padding: "6px 12px",
+  minHeight: "32px",
+  height: "32px",
+  flexShrink: 0,
+  borderRadius: "999px",
+  border: `1px solid ${
+    selected ? theme.palette.primary.main : theme.palette.border.main
+  }`,
+  backgroundColor: selected
+    ? theme.palette.primary.main
+    : theme.palette.background.paper,
+  color: selected
+    ? theme.palette.primary.contrastText
+    : theme.palette.text.primary,
+  fontFamily: "var(--font-sans)",
+  fontWeight: selected ? 700 : 500,
+  fontSize: "13px",
+  lineHeight: 1.2,
+  letterSpacing: "0.01em",
+  textTransform: "none",
+  cursor: "pointer",
+  whiteSpace: "nowrap",
+  transition:
+    "background 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.1s ease",
+  boxShadow: selected
+    ? theme.palette.mode === "dark"
+      ? "0 2px 10px rgba(204,255,0,0.28)"
+      : "0 2px 10px rgba(10,10,10,0.18)"
+    : "none",
+  "& .chip-label": {
+    display: "inline-block",
+  },
+  "&:hover": {
+    backgroundColor: selected
+      ? theme.palette.primary.main
+      : theme.palette.secondary.main,
+  },
+  "&:active": {
+    transform: "scale(0.97)",
+  },
+  [theme.breakpoints.down("md")]: {
+    padding: "4px 10px",
+    minHeight: "28px",
+    height: "28px",
+    fontSize: "12px",
+  },
+}));
+
+/* ─────────────────────────────────────────────────────────────────────────
+ * Source badge (Session 48) — compact pill shown inline in each transaction
+ * row (ID cell on desktop / top-of-card on mobile) so merchants can identify
+ * where a transaction came from at a glance without opening the detail modal.
+ * ────────────────────────────────────────────────────────────────────── */
+export const SourceBadge = styled(Box, {
+  shouldForwardProp: (prop) => prop !== "sourceType",
+})<{ sourceType?: string }>(({ sourceType, theme }) => {
+  const palettes: Record<
+    string,
+    { bg: string; fg: string; border: string; darkBg: string; darkFg: string }
+  > = {
+    payment_link: {
+      bg: "#EFF6FF",
+      fg: "#1D4ED8",
+      border: "#BFDBFE",
+      darkBg: "rgba(59,130,246,0.15)",
+      darkFg: "#93C5FD",
+    },
+    contribution: {
+      bg: "#FDF2F8",
+      fg: "#BE185D",
+      border: "#FBCFE8",
+      darkBg: "rgba(236,72,153,0.14)",
+      darkFg: "#F9A8D4",
+    },
+    tip: {
+      bg: "#FEFCE8",
+      fg: "#854D0E",
+      border: "#FEF08A",
+      darkBg: "rgba(234,179,8,0.18)",
+      darkFg: "#FDE047",
+    },
+    product: {
+      bg: "#F0FDF4",
+      fg: "#15803D",
+      border: "#BBF7D0",
+      darkBg: "rgba(34,197,94,0.16)",
+      darkFg: "#86EFAC",
+    },
+    direct: {
+      bg: theme.palette.mode === "dark" ? "rgba(255,255,255,0.05)" : "#F3F4F6",
+      fg: theme.palette.text.secondary as string,
+      border:
+        theme.palette.mode === "dark" ? "rgba(255,255,255,0.10)" : "#E5E7EB",
+      darkBg: "rgba(255,255,255,0.05)",
+      darkFg: theme.palette.text.secondary as string,
+    },
+  };
+  const key = sourceType && palettes[sourceType] ? sourceType : "direct";
+  const p = palettes[key];
+  const isDark = theme.palette.mode === "dark";
+  return {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "4px",
+    padding: "2px 8px",
+    borderRadius: "999px",
+    fontFamily: "var(--font-sans)",
+    fontSize: "10.5px",
+    fontWeight: 700,
+    letterSpacing: "0.02em",
+    lineHeight: 1.4,
+    backgroundColor: isDark ? p.darkBg : p.bg,
+    color: isDark ? p.darkFg : p.fg,
+    border: `1px solid ${p.border}`,
+    whiteSpace: "nowrap",
+    maxWidth: "100%",
+    overflow: "hidden",
+    "& svg": {
+      flexShrink: 0,
+    },
+    "& .badge-title": {
+      maxWidth: "22ch",
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+      whiteSpace: "nowrap",
+    },
+  };
+});

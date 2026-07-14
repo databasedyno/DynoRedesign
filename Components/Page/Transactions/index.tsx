@@ -3,7 +3,11 @@ import { TransactionAction } from "@/Redux/Actions";
 import { TRANSACTION_FETCH, TRANSACTION_EXPORT } from "@/Redux/Actions/TransactionAction";
 import { ICustomerTransactions, rootReducer } from "@/utils/types";
 import { DateRange } from "@/utils/types/dashboard";
-import { ExtendedTransaction } from "@/utils/types/transaction";
+import {
+  ExtendedTransaction,
+  TransactionSource,
+  TransactionSourceType,
+} from "@/utils/types/transaction";
 import { Box, CircularProgress, Dialog, IconButton, Typography, useTheme } from "@mui/material";
 import { CheckCircleRounded, CloseRounded } from "@mui/icons-material";
 import confetti from "canvas-confetti";
@@ -52,6 +56,9 @@ const TransactionPage = () => {
     endDate: null,
   });
   const [selectedWallet, setSelectedWallet] = useState("all");
+  const [selectedSource, setSelectedSource] = useState<TransactionSourceType | "all">(
+    "all",
+  );
 
   // Read wallet filter from query parameter (e.g., /transactions?wallet=ETH)
   useEffect(() => {
@@ -63,6 +70,29 @@ const TransactionPage = () => {
       }
     }
   }, [router.isReady, router.query.wallet]);
+
+  // Read source filter from query parameter (e.g., /transactions?source=tips).
+  // Alias 'tips' -> 'tip' and 'orders'/'products' -> 'product' for readable
+  // deep-links from feature pages (Phase 3 cross-links).
+  useEffect(() => {
+    if (!router.isReady || !router.query.source) return;
+    const raw = String(router.query.source).toLowerCase();
+    const mapped: TransactionSourceType | "all" | null =
+      raw === "all"
+        ? "all"
+        : raw === "tips" || raw === "tip"
+          ? "tip"
+          : raw === "orders" || raw === "products" || raw === "product"
+            ? "product"
+            : raw === "contributions" || raw === "contribution"
+              ? "contribution"
+              : raw === "payment_link" || raw === "payment-links" || raw === "payment_links"
+                ? "payment_link"
+                : raw === "direct"
+                  ? "direct"
+                  : null;
+    if (mapped) setSelectedSource(mapped);
+  }, [router.isReady, router.query.source]);
 
   const transactionState = useSelector(
     (state: rootReducer) => state.transactionReducer,
@@ -173,6 +203,13 @@ const TransactionPage = () => {
           }
         }
 
+        // Source-type filter (Session 48)
+        if (selectedSource !== "all") {
+          const itemSource = (item as any).source as TransactionSource | undefined;
+          const itemType = itemSource?.type || "direct";
+          if (itemType !== selectedSource) return false;
+        }
+
         if (dateRange.startDate && dateRange.endDate && item.createdAt) {
           try {
             const transactionDate = parseISO(item.createdAt);
@@ -276,12 +313,15 @@ const TransactionPage = () => {
           autoConverted,
           autoConvertTarget,
           autoConvertDisplayStatus,
+          // Session 48: source metadata for the UX (filter chips + row badge)
+          source: (item as any).source as TransactionSource | undefined,
         };
       });
   }, [
     transactionState.customers_transactions,
     searchTerm,
     selectedWallet,
+    selectedSource,
     dateRange.startDate,
     dateRange.endDate,
   ]);
@@ -296,6 +336,20 @@ const TransactionPage = () => {
 
   const handleWalletChange = (wallet: string) => {
     setSelectedWallet(wallet);
+  };
+
+  const handleSourceChange = (source: TransactionSourceType | "all") => {
+    setSelectedSource(source);
+    // Keep URL in sync so deep-links from feature pages work + so filter
+    // survives a page reload / back-nav.
+    const query: Record<string, string> = { ...(router.query as any) };
+    if (source === "all") delete query.source;
+    else query.source = source;
+    router.replace(
+      { pathname: router.pathname, query },
+      undefined,
+      { shallow: true },
+    );
   };
 
   const handleExport = () => {
@@ -346,8 +400,10 @@ const TransactionPage = () => {
         onSearch={handleSearch}
         onDateRangeChange={handleDateRangeChange}
         onWalletChange={handleWalletChange}
+        onSourceChange={handleSourceChange}
         onExport={handleExport}
         initialWallet={selectedWallet}
+        initialSource={selectedSource}
       />
       <TransactionsTable transactions={processedTransactions} rowsPerPage={10} />
 

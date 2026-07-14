@@ -10,7 +10,12 @@ import XRPIcon from "@/assets/cryptocurrency/XRP-icon.svg";
 import PolygonIcon from "@/assets/cryptocurrency/Polygon-icon.svg";
 import RLUSDIcon from "@/assets/cryptocurrency/RLUSD-icon.svg";
 import { ArrowOutward as ArrowOutwardIcon } from "@mui/icons-material";
-import { Box, Typography, useTheme } from "@mui/material";
+import AutoAwesomeRounded from "@mui/icons-material/AutoAwesomeRounded";
+import DonutSmallRounded from "@mui/icons-material/DonutSmallRounded";
+import FavoriteRounded from "@mui/icons-material/FavoriteRounded";
+import Inventory2Rounded from "@mui/icons-material/Inventory2Rounded";
+import LinkRounded from "@mui/icons-material/LinkRounded";
+import { Box, Tooltip, Typography, useTheme } from "@mui/material";
 import Image from "next/image";
 import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -44,6 +49,7 @@ import { Text } from "../CreatePaymentLink/styled";
 import {
   CryptoIconChip,
   MobileNavigationButtons,
+  SourceBadge,
   StatusBadge,
   StatusIconWrapper,
   StatusText,
@@ -117,6 +123,67 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
       case "failed":
         return <Image src={WrongIcon} alt="incorrect" draggable={false} />;
     }
+  };
+
+  /** Session 48: compact "Source" chip attached to each transaction row.
+   *  5 sources: payment_link / contribution / tip / product / direct.
+   *  Each has a distinct icon + tinted background so users can eyeball
+   *  what a transaction is without opening the detail modal. */
+  const renderSourceBadge = (
+    source?: ExtendedTransaction["source"],
+    opts?: { compact?: boolean; withTitle?: boolean },
+  ) => {
+    const type = source?.type || "direct";
+    const showTitle = !!opts?.withTitle && !!source?.title;
+    const iconSize = opts?.compact ? 11 : 12;
+    const icon =
+      type === "payment_link" ? (
+        <LinkRounded sx={{ fontSize: iconSize }} />
+      ) : type === "contribution" ? (
+        <FavoriteRounded sx={{ fontSize: iconSize }} />
+      ) : type === "tip" ? (
+        <AutoAwesomeRounded sx={{ fontSize: iconSize }} />
+      ) : type === "product" ? (
+        <Inventory2Rounded sx={{ fontSize: iconSize }} />
+      ) : (
+        <DonutSmallRounded sx={{ fontSize: iconSize }} />
+      );
+    const typeLabels: Record<string, string> = {
+      payment_link: tTransactions("sourcePaymentLinkShort", { defaultValue: "Link" }),
+      contribution: tTransactions("sourceContributionShort", {
+        defaultValue: "Contribution",
+      }),
+      tip: tTransactions("sourceTipShort", { defaultValue: "Tip" }),
+      product: tTransactions("sourceProductShort", { defaultValue: "Product" }),
+      direct: tTransactions("sourceDirectShort", { defaultValue: "Direct" }),
+    };
+    const label = typeLabels[type] || typeLabels.direct;
+    const badge = (
+      <SourceBadge
+        sourceType={type}
+        data-testid={`tx-source-badge-${type}`}
+        aria-label={`Source: ${label}${source?.title ? " · " + source.title : ""}`}
+      >
+        {icon}
+        <span>{label}</span>
+        {showTitle && source?.title && (
+          <>
+            <span aria-hidden="true" style={{ opacity: 0.5, margin: "0 2px" }}>
+              ·
+            </span>
+            <span className="badge-title">{source.title}</span>
+          </>
+        )}
+      </SourceBadge>
+    );
+    if (source?.title) {
+      return (
+        <Tooltip title={`${label} · ${source.title}`} placement="top" arrow>
+          {badge}
+        </Tooltip>
+      );
+    }
+    return badge;
   };
 
   const handleRowsPerPageChange = (value: number) => {
@@ -254,6 +321,13 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
               "&:active": { bgcolor: theme.palette.secondary.main },
             }}
           >
+            {/* Source badge — session 48. Sits above the crypto row so the
+                merchant sees the revenue origin first. */}
+            {transaction.source && (
+              <Box sx={{ mb: 1 }}>
+                {renderSourceBadge(transaction.source, { withTitle: true, compact: true })}
+              </Box>
+            )}
             {/* Top row: Crypto + Status */}
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1.25 }}>
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -376,7 +450,30 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                   }}
                 >
                   <TransactionsTableCell>
-                    {transaction.id}
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "6px",
+                        minWidth: 0,
+                      }}
+                    >
+                      {renderSourceBadge(transaction.source, { withTitle: true })}
+                      <Typography
+                        component="span"
+                        sx={{
+                          fontFamily: "var(--font-sans)",
+                          fontSize: "13px",
+                          color: theme.palette.text.secondary,
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                          maxWidth: "22ch",
+                        }}
+                      >
+                        {transaction.id}
+                      </Typography>
+                    </Box>
                   </TransactionsTableCell>
 
                   <TransactionsTableCell>

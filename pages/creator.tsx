@@ -134,30 +134,98 @@ const CreatorPageRoute = ({ setPageName, setPageDescription }: pageProps) => {
 
         {/* Stat tiles (only meaningful once handle is claimed) */}
         {hasHandle && (
-          <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr 1fr 1fr" }, gap: 1.5, mb: 3 }}>
-            {statTiles.map((s) => (
-              <Box
-                key={s.label}
-                data-testid={`creator-stat-${s.icon.replace(/[^a-z]/gi, "")}`}
-                sx={{
-                  p: { xs: 1.5, sm: 2 },
-                  borderRadius: "14px",
-                  border: `1px solid ${theme.palette.divider}`,
-                  backgroundColor: theme.palette.background.paper,
-                  display: "flex", flexDirection: "column", gap: 0.5,
-                }}
-              >
-                <Box sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
-                  <Icon icon={s.icon} width={14} color={theme.palette.text.secondary} />
-                  <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 10.5, fontWeight: 700, letterSpacing: "0.09em", textTransform: "uppercase", color: theme.palette.text.secondary }}>
-                    {s.label}
+          <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr 1fr 1fr" }, gap: 1.5, mb: 1.25 }}>
+            {statTiles.map((s) => {
+              const isSupportersTile = s.icon === "mdi:heart-outline";
+              const clickable = isSupportersTile;
+              return (
+                <Box
+                  key={s.label}
+                  data-testid={`creator-stat-${s.icon.replace(/[^a-z]/gi, "")}`}
+                  onClick={
+                    clickable
+                      ? () => router.push("/transactions?source=tip")
+                      : undefined
+                  }
+                  role={clickable ? "button" : undefined}
+                  tabIndex={clickable ? 0 : undefined}
+                  onKeyDown={
+                    clickable
+                      ? (e: React.KeyboardEvent) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            router.push("/transactions?source=tip");
+                          }
+                        }
+                      : undefined
+                  }
+                  sx={{
+                    p: { xs: 1.5, sm: 2 },
+                    borderRadius: "14px",
+                    border: `1px solid ${theme.palette.divider}`,
+                    backgroundColor: theme.palette.background.paper,
+                    display: "flex", flexDirection: "column", gap: 0.5,
+                    cursor: clickable ? "pointer" : "default",
+                    transition:
+                      "border-color 120ms ease, background-color 120ms ease, transform 120ms ease",
+                    "&:hover": clickable
+                      ? {
+                          borderColor: theme.palette.primary.main,
+                          backgroundColor: theme.palette.action.hover,
+                        }
+                      : undefined,
+                    "&:focus-visible": clickable
+                      ? {
+                          outline: `2px solid ${theme.palette.primary.main}`,
+                          outlineOffset: 2,
+                        }
+                      : undefined,
+                  }}
+                >
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
+                    <Icon icon={s.icon} width={14} color={theme.palette.text.secondary} />
+                    <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 10.5, fontWeight: 700, letterSpacing: "0.09em", textTransform: "uppercase", color: theme.palette.text.secondary }}>
+                      {s.label}
+                    </Typography>
+                  </Box>
+                  <Typography sx={{ fontFamily: "ui-monospace, monospace", fontSize: { xs: 20, sm: 24 }, fontWeight: 800, color: theme.palette.text.primary, letterSpacing: "-0.02em", lineHeight: 1.1 }}>
+                    {s.value}
                   </Typography>
                 </Box>
-                <Typography sx={{ fontFamily: "ui-monospace, monospace", fontSize: { xs: 20, sm: 24 }, fontWeight: 800, color: theme.palette.text.primary, letterSpacing: "-0.02em", lineHeight: 1.1 }}>
-                  {s.value}
-                </Typography>
-              </Box>
-            ))}
+              );
+            })}
+          </Box>
+        )}
+
+        {/* Cross-link to transaction ledger filtered by tips */}
+        {hasHandle && (
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "flex-end",
+              mb: 3,
+            }}
+          >
+            <Typography
+              component="a"
+              onClick={(e: React.MouseEvent) => {
+                e.preventDefault();
+                router.push("/transactions?source=tip");
+              }}
+              href="/transactions?source=tip"
+              data-testid="creator-view-tips-link"
+              sx={{
+                fontFamily: "var(--font-sans)",
+                fontSize: 13,
+                fontWeight: 600,
+                color: theme.palette.primary.main,
+                textDecoration: "none",
+                cursor: "pointer",
+                "&:hover": { textDecoration: "underline" },
+              }}
+            >
+              {t("creatorViewTips", { defaultValue: "View tip transactions →", ns: "dashboardLayout" })}
+            </Typography>
           </Box>
         )}
 

@@ -775,11 +775,26 @@ const getTransactions = async (req: express.Request, res: express.Response) => {
         sc.target_amount as auto_convert_target_amount,
         sc.settlement_chain as auto_convert_settlement_chain,
         sc.conversion_rate as auto_convert_rate,
-        sc.completed_at as auto_convert_completed_at
+        sc.completed_at as auto_convert_completed_at,
+        -- Source metadata (payment link / contribution / tip / product order)
+        pl.link_id           as source_link_id,
+        pl.link_type         as source_link_type,
+        pl.title             as source_link_title,
+        pl.parent_link_id    as source_parent_link_id,
+        pl.is_tip_jar        as source_is_tip_jar,
+        parent_pl.title      as source_parent_title,
+        parent_pl.is_tip_jar as source_parent_is_tip_jar,
+        po.order_id          as source_order_id,
+        po.public_ref        as source_order_ref
       from tbl_user_transaction ut 
       join tbl_customer c on c.customer_id=ut.customer_id
       join tbl_company cm on cm.company_id=c.company_id
       left join tbl_stablecoin_conversion sc on sc.transaction_id=ut.transaction_id
+      -- Session 48: source join — resolves each transaction back to its parent
+      -- payment link (payment link, contribution/tip, or cart-order link).
+      left join tbl_payment_link pl on pl.transaction_id = ut.id
+      left join tbl_payment_link parent_pl on parent_pl.link_id = pl.parent_link_id
+      left join tbl_product_order po on po.payment_link_id = pl.link_id
       where c.company_id=:company_id`,
       { type: QueryTypes.SELECT, replacements: { company_id: parseInt(id as string, 10) } }
     );
@@ -817,6 +832,15 @@ const getTransactions = async (req: express.Request, res: express.Response) => {
         auto_convert_settlement_chain,
         auto_convert_rate,
         auto_convert_completed_at,
+        source_link_id,
+        source_link_type,
+        source_link_title,
+        source_parent_link_id,
+        source_is_tip_jar,
+        source_parent_title,
+        source_parent_is_tip_jar,
+        source_order_id,
+        source_order_ref,
         ...rest
       } = x;
       const baseAmount = Number(rest.base_amount || 0);
@@ -833,11 +857,49 @@ const getTransactions = async (req: express.Request, res: express.Response) => {
         displayAmount = Math.round(baseAmount * rate * 100) / 100;
       }
 
+      // ── Derive `source` — a single tagged field the UI can filter on ────
+      // Session 48 UX: transactions can now come from any of 5 sources;
+      // expose one canonical shape so the frontend doesn't need to
+      // pattern-match on multiple raw columns.
+      let sourceType: "payment_link" | "contribution" | "tip" | "product" | "direct" = "direct";
+      let sourceTitle: string | null = null;
+      let sourceRef: string | number | null = null;
+      if (source_order_id) {
+        sourceType = "product";
+        sourceTitle = source_link_title ? String(source_link_title) : "Product order";
+        sourceRef = String(source_order_ref || source_order_id);
+      } else if (source_link_type === "contribution") {
+        if (source_parent_is_tip_jar) {
+          sourceType = "tip";
+          // Tips: title falls back to the customer/company as identifier
+          sourceTitle = source_parent_title ? String(source_parent_title) : "Tip";
+        } else {
+          sourceType = "contribution";
+          sourceTitle = source_parent_title ? String(source_parent_title) : "Contribution";
+        }
+        sourceRef = source_parent_link_id ? Number(source_parent_link_id) : (source_link_id ? Number(source_link_id) : null);
+      } else if (source_link_id) {
+        sourceType = "payment_link";
+        sourceTitle = source_link_title ? String(source_link_title) : null;
+        sourceRef = Number(source_link_id);
+      }
+
       return {
         ...rest,
         display_amount: displayAmount,
         display_currency: preferredCurrency,
         amount_display: formatAmountForDisplay(displayAmount, preferredCurrency),
+        // Source metadata for the transactions UX (filter + column badge)
+        source: {
+          type: sourceType,
+          title: sourceTitle,
+          ref: sourceRef,
+          link_id: source_link_id ? Number(source_link_id) : null,
+          link_type: source_link_type ? String(source_link_type) : null,
+          parent_link_id: source_parent_link_id ? Number(source_parent_link_id) : null,
+          order_id: source_order_id ? Number(source_order_id) : null,
+          order_ref: source_order_ref ? String(source_order_ref) : null,
+        },
         // Auto-stablecoin conversion indicator
         auto_converted: !!auto_convert_id,
         auto_convert: auto_convert_id

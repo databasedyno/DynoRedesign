@@ -58,14 +58,37 @@ const ProductsList = ({ setPageName, setPageDescription, setPageAction }: pagePr
   useEffect(() => {
     if (!setPageAction) return;
     setPageAction(
-      <CustomButton
-        label="New product"
-        variant="primary"
-        size="medium"
-        endIcon={<AddRounded sx={{ fontSize: 18 }} />}
-        onClick={() => router.push("/pay-links/products/new")}
-        data-testid="products-new-btn"
-      />
+      <Stack direction="row" spacing={1.5} sx={{ alignItems: "center" }}>
+        <Typography
+          component="a"
+          href="/transactions?source=product"
+          onClick={(e) => {
+            e.preventDefault();
+            router.push("/transactions?source=product");
+          }}
+          data-testid="products-view-orders-link"
+          sx={{
+            fontFamily: "var(--font-sans)",
+            fontSize: 13,
+            fontWeight: 600,
+            color: (t: any) => t.palette.text.primary,
+            textDecoration: "none",
+            cursor: "pointer",
+            display: { xs: "none", sm: "inline" },
+            "&:hover": { textDecoration: "underline" },
+          }}
+        >
+          View product orders →
+        </Typography>
+        <CustomButton
+          label="New product"
+          variant="primary"
+          size="medium"
+          endIcon={<AddRounded sx={{ fontSize: 18 }} />}
+          onClick={() => router.push("/pay-links/products/new")}
+          data-testid="products-new-btn"
+        />
+      </Stack>
     );
     return () => setPageAction(null);
   }, [setPageAction, router]);
