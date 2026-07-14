@@ -4,6 +4,33 @@
 USDT-TRC20 payment gateway platform. Users can create companies, wallets, payment links, and accept crypto payments. The platform supports OTP-based authentication, profile management, login activity monitoring, and comprehensive dark/light mode theming.
 
 
+### 2026-07-14 — Session 46 — Landing page: developers are no longer silent — ✅ SHIPPED
+User: "our landing page copy is too silent for developers." Correct diagnosis — devs were slide 3 of a rotating carousel (`ProductShowcase`) and nothing else: not on `AudienceDoors` (3 doors: merchants/fundraisers/creators), not on the hero (`HeroSwiss` is the mounted one, not the dev-forward `HeroV2` which is dead code), no dedicated showcase like Crowdfunding + Creators had, and the interactive playground (`TryItNow`) was removed from the landing in Session 14. User picked **Large scope** (b+c), position **right after CreatorShowcase**, lead promise **"Integrate in ~10 minutes." + "15+ chains, one API."**, i18n **full pass across 6 locales**.
+
+Shipped in this session (frontend-only, no backend/DB changes; safe for the LIVE prod DB):
+
+- **4th "Developers" door on `AudienceDoors.tsx`**: added `developer` to the `Door` union + DOORS array (accent `#7CB1FF`, glyph `◭`, href `#developer-showcase`, testid `audience-door-developer`). Grid changed from `{xs: "1fr", md: "repeat(3, 1fr)"}` → `{xs: "1fr", sm: "repeat(2, 1fr)", lg: "repeat(4, 1fr)"}` (2×2 on tablet, single-row on desktop). Zero regression to the 3 existing doors.
+
+- **NEW `DeveloperShowcase.tsx`** (~380 LOC, mirror of `CreatorShowcase` structure). LEFT side is a bespoke IDE window — window chrome ("POST /api/public/sandbox/payment-links" title + COPY button that puts the cURL on the clipboard), animated request body (8-line cURL against the real live sandbox endpoint the `TryItNow` panel also uses), lime `201 CREATED · ~180 ms` status band, animated response JSON, and footer strip "IDEMPOTENT · SANDBOX · NO SIGNUP · 15+ CHAINS · ONE API". RIGHT side has eyebrow `[ FOR DEVELOPERS ]`, H2 `Integrate in ~10 minutes.`, big tail line `15+ chains. One API. No smart contracts.`, 4-bullet feature list (REST+webhooks, TS/Node SDK, public sandbox key, drop-in checkout/Elements/Buy Buttons), primary CTA `Read the docs →` (/documentation), secondary `Try it live ↓` that smooth-scrolls to `#try-it-now`. Testids: `developer-showcase`, `developer-mock-ide`, `developer-mock-copy`, `developer-showcase-cta`, `developer-showcase-cta-secondary`.
+
+- **Restored `TryItNow` playground on the landing** (was mounted here before Session 14 removed it, then Session 26 moved a slimmer variant into `/documentation`). Kept the existing component untouched — its i18n keys were already in all 6 locales. Wrapped with a leading `<div id="try-it-now" aria-hidden />` so the "Try it live ↓" secondary CTA anchor-scrolls cleanly.
+
+- **`Home/index.tsx` order updated** (see JSDoc block at top): Hero → AudienceDoors → Chains → ProductShowcase → Crowdfunding → Creator → **DeveloperShowcase** → **TryItNow** → StatWall → CoreValueProps → UseCasesBento → FeeStrip → Compliance → Testimonials → FAQ → FinalCTA. Devs now get **two consecutive dedicated sections** in the middle of the page, right where attention peaks after seeing the audience doors + product deep-dives.
+
+- **i18n — full 6-locale pass** via `scripts/i18n_add_developer_showcase.py` (idempotent, deep-merges without clobbering existing polished translations). New keys per locale: `doors.developer.{kicker,title,desc,cta}` + `developerShowcase.{eyebrow,title,titleTail,subtitle,feature1..4,cta,ctaSecondary,mockCaption,copied}` = 15 keys × 6 = 90 new translations. Updated `doors.subtitle` in all 6 locales to include "developers" in the audience enumeration (script preserved 3 previously-polished translations by matching-old-default; the remaining 3 got a manual force-update after log inspection).
+
+**Verified** (own Playwright, real container preview + LIVE prod backend):
+- AudienceDoors: 4 doors present with distinct accents; developer door reads `[◭ DEVELOPERS · Ship in an afternoon]`.
+- DeveloperShowcase mounts with `id="developer-showcase"` — heading = `"Integrate in ~10 minutes."`, mock IDE renders cURL + `201 CREATED · ~180 ms` band + response JSON.
+- Section order verified via `getBoundingClientRect`: `hero=65, audience-doors=751, crowdfunding=2332, creator=3081, **developer=3666**, **try-it-now=4363**` — order is correct.
+- i18n Spanish pass: heading `"Integra en ~10 minutos."`, tail `"15+ cadenas. Una API. Sin smart contracts."`, subtitle in perfect Spanish, doors labeled `COMERCIANTES / RECAUDADORES / CREADORES / DESARROLLADORES`, CTAs `Leer los docs` + `Prueba en vivo ↓`.
+- `next build` clean (450 KB shared JS, +3 KB from the new component), `eslint` clean, both frontend restart + external HTTP 200 confirmed.
+- Screenshots captured (light mode, 1440×900): audience doors row, developer showcase in-context, TryItNow (restored) in-context, ES locale developer showcase.
+
+**Micro-copy note (deferred, non-blocking)**: The `AudienceDoors` H2 still reads *"Three surfaces. One wallet."* — technically correct (there ARE three payment surfaces: checkout, crowdfunding, tips — devs INTEGRATE those surfaces, they're not a 4th surface), but with 4 doors below it, some visitors may parse it as a mismatch. Change to `"One wallet. Every audience."` or similar is a 6-locale translation touch — flagged for user decision.
+
+
+
 ### 2026-07-14 — Session 45 (contd.) — DigitalOcean Deployment Diagnosis + Preemptive TS Fix — ✅ RESOLVED
 User reported "digitalocean deployment appear stucked" and shared a DO API token. Investigation via `api.digitalocean.com`:
 - **App**: `dynopay` (id `f86b27dc-feb0-…`) in `ams` region, GitHub-connected to `databasedyno/DynoRedesign` branch `New-Onboarding2`, `deploy_on_push=true`.

@@ -16,7 +16,7 @@ import { FONT_BODY, FONT_HERO, FONT_TECH, useSwiss } from "./swiss";
 const EASE = [0.16, 1, 0.3, 1] as const;
 
 interface Door {
-  key: "merchant" | "campaign" | "creator";
+  key: "merchant" | "campaign" | "creator" | "developer";
   href: string;
   accent: string;
   iconGlyph: string;
@@ -26,6 +26,7 @@ const DOORS: Door[] = [
   { key: "merchant", href: "#product-showcase-section", accent: "#3B82F6", iconGlyph: "◈" },
   { key: "campaign", href: "#crowdfunding-showcase", accent: "#CCFF00", iconGlyph: "◉" },
   { key: "creator", href: "#creator-showcase", accent: "#F472B6", iconGlyph: "◎" },
+  { key: "developer", href: "#developer-showcase", accent: "#7CB1FF", iconGlyph: "◭" },
 ];
 
 const AudienceDoors: React.FC = () => {
@@ -96,7 +97,7 @@ const AudienceDoors: React.FC = () => {
         <Box
           sx={{
             display: "grid",
-            gridTemplateColumns: { xs: "1fr", md: "repeat(3, 1fr)" },
+            gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", lg: "repeat(4, 1fr)" },
             gap: { xs: 2, md: 2.5 },
           }}
         >

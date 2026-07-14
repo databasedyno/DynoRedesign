@@ -227,7 +227,7 @@
   "doors": {
     "eyebrow": "Para quem é isso?",
     "title": "Três superfícies. Uma carteira.",
-    "subtitle": "Escolha sua porta — comerciantes, campanhas, criadores. Todas compartilham os mesmos trilhos cripto.",
+    "subtitle": "Escolha sua porta — comerciantes, campanhas, criadores, desenvolvedores. Todos compartilham os mesmos trilhos cripto.",
     "merchant": {
       "kicker": "Comerciantes",
       "title": "Venda por cripto",
@@ -245,6 +245,12 @@
       "title": "Receba gorjetas",
       "desc": "Reserve dynopay.com/@voce e receba gorjetas com um toque em qualquer moeda. Direto na sua carteira. Sem intermediário.",
       "cta": "Ver página de criador"
+    },
+    "developer": {
+      "kicker": "Desenvolvedores",
+      "title": "No ar em uma tarde",
+      "desc": "REST, webhooks, embeds e checkout pronto — uma API para 15+ redes. Chave sandbox é pública.",
+      "cta": "Ver a API"
     }
   },
   "crowdfundingShowcase": {
@@ -301,5 +307,19 @@
     "cta": "Ver preços completos"
   },
   "faq8Q": "Posso receber gorjetas como criador?",
-  "faq8A": "Sim. Reserve seu @usuario em dynopay.com/@voce e compartilhe. Fãs podem enviar gorjetas com um toque em 13+ moedas — sem cadastro, sem redirecionamento, sem intermediário. Cada gorjeta vai direto à sua carteira."
+  "faq8A": "Sim. Reserve seu @usuario em dynopay.com/@voce e compartilhe. Fãs podem enviar gorjetas com um toque em 13+ moedas — sem cadastro, sem redirecionamento, sem intermediário. Cada gorjeta vai direto à sua carteira.",
+  "developerShowcase": {
+    "eyebrow": "Para desenvolvedores",
+    "title": "Integre em ~10 minutos.",
+    "titleTail": "15+ redes. Uma API. Sem smart contracts.",
+    "subtitle": "Coloque um checkout cripto no ar em uma tarde. REST + webhooks, idempotente em tudo, assinado com HMAC-SHA256, e uma chave sandbox que você pode copiar agora — as mesmas primitivas que já conhece do Stripe, para dinheiro on-chain.",
+    "feature1": "REST + webhooks · chaves de idempotência · assinado com HMAC-SHA256",
+    "feature2": "SDK TypeScript / Node · exemplos em Python · spec OpenAPI",
+    "feature3": "Chave sandbox pública — sem cadastro para testar, sem cartão",
+    "feature4": "Checkout embutido, widgets Elements, Buy Buttons — escolha sua superfície",
+    "cta": "Ler a documentação",
+    "ctaSecondary": "Testar ao vivo",
+    "mockCaption": "// SANDBOX PÚBLICO · TESTE SEM CONTA",
+    "copied": "cURL copiado"
+  }
 }

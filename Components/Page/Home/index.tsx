@@ -5,6 +5,8 @@ import ChainsMarquee from "./ChainsMarquee";
 import ProductShowcase from "./ProductShowcase";
 import CrowdfundingShowcase from "./CrowdfundingShowcase";
 import CreatorShowcase from "./CreatorShowcase";
+import DeveloperShowcase from "./DeveloperShowcase";
+import TryItNow from "./TryItNow";
 import StatWall from "./StatWall";
 import FeeStrip from "./FeeStrip";
 import CoreValueProps from "./CoreValueProps";
@@ -19,20 +21,22 @@ import { HomeWrapper } from "./styled";
  * HomePage — "Three surfaces, one wallet" (2026-07-14 revision).
  *
  * Order:
- *   1. HeroSwiss             — new positioning ("Get paid in crypto. Sell / campaign / tip")
- *   2. AudienceDoors         — three "who is this for" doors (Merchants · Fundraisers · Creators)
- *   3. ChainsMarquee         — mono marquee of the 15+ settlement chains
- *   4. ProductShowcase       — animated product story (checkout → settlement → API)
- *   5. CrowdfundingShowcase  — dedicated section: story + tiers + updates + donor wall
- *   6. CreatorShowcase       — dedicated section: @handle + tips + inline checkout
- *   7. StatWall              — four massive product numbers
- *   8. CoreValueProps        — three flat cards, volt top-border
- *   9. UseCasesBento         — product-forward bento grid
- *  10. FeeStrip              — compact 3-column fee band (replaces FeeCalculator + ComparisonTable)
- *  11. ComplianceLogoStrip   — inverted obsidian trust band
- *  12. TestimonialsV2        — editorial quotes
- *  13. FAQ                   — borderline accordion
- *  14. FinalCTA              — obsidian band
+ *   1. HeroSwiss              — positioning + settlement terminal
+ *   2. AudienceDoors          — four "who is this for" doors (Merchants · Fundraisers · Creators · Developers)
+ *   3. ChainsMarquee          — mono marquee of the 15+ settlement chains
+ *   4. ProductShowcase        — animated product story (checkout → settlement → API)
+ *   5. CrowdfundingShowcase   — dedicated section: story + tiers + updates + donor wall
+ *   6. CreatorShowcase        — dedicated section: @handle + tips + inline checkout
+ *   7. DeveloperShowcase      — dedicated section: mock IDE (cURL + 201) + integrate in ~10 min
+ *   8. TryItNow (#try-it-now) — interactive playground: live checkout iframe + copy-paste sandbox curl
+ *   9. StatWall               — four massive product numbers
+ *  10. CoreValueProps         — three flat cards, volt top-border
+ *  11. UseCasesBento          — product-forward bento grid
+ *  12. FeeStrip               — compact 3-column fee band
+ *  13. ComplianceLogoStrip    — inverted obsidian trust band
+ *  14. TestimonialsV2         — editorial quotes
+ *  15. FAQ                    — borderline accordion
+ *  16. FinalCTA               — obsidian band
  */
 const HomePage: FC = () => {
   useEffect(() => {
@@ -60,6 +64,9 @@ const HomePage: FC = () => {
       <ProductShowcase />
       <CrowdfundingShowcase />
       <CreatorShowcase />
+      <DeveloperShowcase />
+      <div id="try-it-now" aria-hidden />
+      <TryItNow />
       <StatWall />
       <CoreValueProps />
       <UseCasesBento />

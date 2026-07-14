@@ -227,7 +227,7 @@
   "doors": {
     "eyebrow": "À qui s'adresse-t-il ?",
     "title": "Trois surfaces. Un portefeuille.",
-    "subtitle": "Choisissez votre porte — commerçants, campagnes, créateurs. Toutes partagent les mêmes rails crypto.",
+    "subtitle": "Choisissez votre porte — commerçants, campagnes, créateurs, développeurs. Tous partagent les mêmes rails crypto.",
     "merchant": {
       "kicker": "Commerçants",
       "title": "Vendez en crypto",
@@ -245,6 +245,12 @@
       "title": "Recevez des pourboires",
       "desc": "Réservez dynopay.com/@vous et recevez des pourboires en un clic dans n'importe quelle crypto. Directement dans votre portefeuille. Sans intermédiaire.",
       "cta": "Voir la page créateur"
+    },
+    "developer": {
+      "kicker": "Développeurs",
+      "title": "Intégrez en un après-midi",
+      "desc": "REST, webhooks, intégrations et checkout clé en main — une API pour 15+ chaînes. La clé sandbox est publique.",
+      "cta": "Voir l’API"
     }
   },
   "crowdfundingShowcase": {
@@ -301,5 +307,19 @@
     "cta": "Voir tous les tarifs"
   },
   "faq8Q": "Puis-je recevoir des pourboires en tant que créateur ?",
-  "faq8A": "Oui. Réservez votre @pseudo sur dynopay.com/@vous et partagez-le. Vos fans peuvent envoyer des pourboires en un clic dans 13+ cryptos — sans inscription, sans redirection, sans intermédiaire. Chaque pourboire va directement à votre portefeuille."
+  "faq8A": "Oui. Réservez votre @pseudo sur dynopay.com/@vous et partagez-le. Vos fans peuvent envoyer des pourboires en un clic dans 13+ cryptos — sans inscription, sans redirection, sans intermédiaire. Chaque pourboire va directement à votre portefeuille.",
+  "developerShowcase": {
+    "eyebrow": "Pour les développeurs",
+    "title": "Intégrez en ~10 minutes.",
+    "titleTail": "15+ chaînes. Une API. Pas de smart contracts.",
+    "subtitle": "Lancez un checkout crypto en un après-midi. REST + webhooks, idempotence partout, signature HMAC-SHA256, et une clé sandbox à copier maintenant — les mêmes primitives que Stripe, pour l’argent on-chain.",
+    "feature1": "REST + webhooks · clés d’idempotence · signés en HMAC-SHA256",
+    "feature2": "SDK TypeScript / Node · exemples Python · spécification OpenAPI",
+    "feature3": "Clé sandbox publique — pas d’inscription pour tester, pas de CB",
+    "feature4": "Checkout intégré, widgets Elements, boutons d’achat — à vous de choisir",
+    "cta": "Lire la doc",
+    "ctaSecondary": "Essayez en direct",
+    "mockCaption": "// SANDBOX PUBLIC · ESSAYEZ SANS COMPTE",
+    "copied": "cURL copié"
+  }
 }

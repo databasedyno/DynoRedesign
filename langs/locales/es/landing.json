@@ -227,7 +227,7 @@
   "doors": {
     "eyebrow": "¿Para quién es esto?",
     "title": "Tres superficies. Una billetera.",
-    "subtitle": "Elige tu puerta — comerciantes, campañas, creadores. Todas comparten los mismos raíles cripto.",
+    "subtitle": "Elige tu puerta — comerciantes, campañas, creadores, desarrolladores. Todos comparten los mismos raíles cripto.",
     "merchant": {
       "kicker": "Comerciantes",
       "title": "Vende por cripto",
@@ -245,6 +245,12 @@
       "title": "Recibe propinas",
       "desc": "Reclama dynopay.com/@tu y recibe propinas con un toque en cualquier moneda. Directo a tu billetera. Sin intermediarios.",
       "cta": "Ver página de creador"
+    },
+    "developer": {
+      "kicker": "Desarrolladores",
+      "title": "Integra en una tarde",
+      "desc": "REST, webhooks, embeds y checkout listo para usar — una API para 15+ cadenas. La clave sandbox es pública.",
+      "cta": "Ver la API"
     }
   },
   "crowdfundingShowcase": {
@@ -301,5 +307,19 @@
     "cta": "Ver precios completos"
   },
   "faq8Q": "¿Puedo recibir propinas como creador?",
-  "faq8A": "Sí. Reclama tu @usuario en dynopay.com/@tu y compártelo. Tus seguidores pueden enviar propinas con un toque en 13+ monedas — sin registro, sin redirección, sin intermediarios. Cada propina va directa a tu billetera."
+  "faq8A": "Sí. Reclama tu @usuario en dynopay.com/@tu y compártelo. Tus seguidores pueden enviar propinas con un toque en 13+ monedas — sin registro, sin redirección, sin intermediarios. Cada propina va directa a tu billetera.",
+  "developerShowcase": {
+    "eyebrow": "Para desarrolladores",
+    "title": "Integra en ~10 minutos.",
+    "titleTail": "15+ cadenas. Una API. Sin smart contracts.",
+    "subtitle": "Lanza un checkout en cripto en una tarde. REST + webhooks, idempotente en todo, firmado con HMAC-SHA256, y una clave sandbox que puedes copiar ahora mismo — las primitivas que ya conoces de Stripe, pero para dinero on-chain.",
+    "feature1": "REST + webhooks · claves de idempotencia · firmado con HMAC-SHA256",
+    "feature2": "SDK TypeScript / Node · ejemplos en Python · especificación OpenAPI",
+    "feature3": "Clave sandbox pública — sin registro para probar, sin tarjeta",
+    "feature4": "Checkout embebido, widgets Elements, botones de compra — elige tu superficie",
+    "cta": "Leer los docs",
+    "ctaSecondary": "Prueba en vivo",
+    "mockCaption": "// SANDBOX PÚBLICO · PRUEBA SIN CUENTA",
+    "copied": "cURL copiado"
+  }
 }

@@ -227,7 +227,7 @@
   "doors": {
     "eyebrow": "Voor wie is dit?",
     "title": "Drie oppervlakken. Eén wallet.",
-    "subtitle": "Kies je deur — merchants, campagnes, creators. Ze delen allemaal dezelfde crypto-rails.",
+    "subtitle": "Kies je deur — merchants, campagnes, creators, developers. Ze delen allemaal dezelfde crypto-rails.",
     "merchant": {
       "kicker": "Merchants",
       "title": "Verkoop voor crypto",
@@ -245,6 +245,12 @@
       "title": "Ontvang tips",
       "desc": "Claim dynopay.com/@jij en ontvang met één tik tips in elke coin. Direct naar je wallet. Geen tussenpersoon.",
       "cta": "Bekijk creator-pagina"
+    },
+    "developer": {
+      "kicker": "Developers",
+      "title": "Klaar in één middag",
+      "desc": "REST, webhooks, embeds en kant-en-klare checkout — één API voor 15+ chains. Sandbox-sleutel is publiek.",
+      "cta": "Bekijk de API"
     }
   },
   "crowdfundingShowcase": {
@@ -301,5 +307,19 @@
     "cta": "Bekijk volledige prijzen"
   },
   "faq8Q": "Kan ik als creator tips ontvangen?",
-  "faq8A": "Ja. Claim je @handle op dynopay.com/@jij en deel hem. Fans kunnen met één tik tips versturen in 13+ coins — geen aanmelding, geen redirect, geen tussenpersoon. Elke tip gaat direct naar je wallet."
+  "faq8A": "Ja. Claim je @handle op dynopay.com/@jij en deel hem. Fans kunnen met één tik tips versturen in 13+ coins — geen aanmelding, geen redirect, geen tussenpersoon. Elke tip gaat direct naar je wallet.",
+  "developerShowcase": {
+    "eyebrow": "Voor developers",
+    "title": "Integreer in ~10 minuten.",
+    "titleTail": "15+ chains. Eén API. Geen smart contracts.",
+    "subtitle": "Lever een crypto-checkout in één middag op. REST + webhooks, overal idempotent, ondertekend met HMAC-SHA256, en een sandbox-sleutel die je nu kunt kopiëren — dezelfde primitieven als Stripe, maar dan voor on-chain geld.",
+    "feature1": "REST + webhooks · idempotency-keys · HMAC-SHA256-ondertekend",
+    "feature2": "TypeScript- / Node-SDK · Python-voorbeelden · OpenAPI-spec",
+    "feature3": "Sandbox-sleutel is publiek — geen account, geen creditcard",
+    "feature4": "Embedded checkout, Elements-widgets, Buy Buttons — kies zelf",
+    "cta": "Lees de docs",
+    "ctaSecondary": "Probeer live",
+    "mockCaption": "// PUBLIEKE SANDBOX · PROBEER ZONDER ACCOUNT",
+    "copied": "cURL gekopieerd"
+  }
 }

@@ -227,7 +227,7 @@
   "doors": {
     "eyebrow": "Für wen ist das?",
     "title": "Drei Flächen. Eine Wallet.",
-    "subtitle": "Wähle deine Tür — Händler, Kampagnen, Creator. Alle teilen sich dieselben Krypto-Schienen.",
+    "subtitle": "Wähle deine Tür — Händler, Kampagnen, Creator, Entwickler. Alle nutzen dieselben Krypto-Schienen.",
     "merchant": {
       "kicker": "Händler",
       "title": "Verkaufe in Krypto",
@@ -245,6 +245,12 @@
       "title": "Erhalte Trinkgeld",
       "desc": "Sichere dir dynopay.com/@du und erhalte Trinkgelder mit einem Tipp in jeder Krypto. Direkt in deine Wallet. Kein Mittelsmann.",
       "cta": "Creator-Seite ansehen"
+    },
+    "developer": {
+      "kicker": "Entwickler",
+      "title": "In einem Nachmittag live",
+      "desc": "REST, Webhooks, Embeds und fertiges Checkout — eine API für 15+ Chains. Sandbox-Key ist öffentlich.",
+      "cta": "Zur API"
     }
   },
   "crowdfundingShowcase": {
@@ -301,5 +307,19 @@
     "cta": "Alle Preise ansehen"
   },
   "faq8Q": "Kann ich als Creator Trinkgelder erhalten?",
-  "faq8A": "Ja. Sichere dir deinen @Handle auf dynopay.com/@du und teile ihn. Deine Fans können mit einem Tipp Trinkgelder in 13+ Coins senden — ohne Registrierung, ohne Umleitung, ohne Mittelsmann. Jedes Trinkgeld geht direkt in deine Wallet."
+  "faq8A": "Ja. Sichere dir deinen @Handle auf dynopay.com/@du und teile ihn. Deine Fans können mit einem Tipp Trinkgelder in 13+ Coins senden — ohne Registrierung, ohne Umleitung, ohne Mittelsmann. Jedes Trinkgeld geht direkt in deine Wallet.",
+  "developerShowcase": {
+    "eyebrow": "Für Entwickler",
+    "title": "Integriert in ~10 Minuten.",
+    "titleTail": "15+ Chains. Eine API. Keine Smart Contracts.",
+    "subtitle": "Bring ein Crypto-Checkout an einem Nachmittag live. REST + Webhooks, überall idempotent, HMAC-SHA256-signiert, und einen Sandbox-Key, den du sofort kopieren kannst — dieselben Primitiven wie Stripe, nur für On-Chain-Geld.",
+    "feature1": "REST + Webhooks · Idempotency-Keys · HMAC-SHA256-signiert",
+    "feature2": "TypeScript- / Node-SDK · Python-Beispiele · OpenAPI-Spec",
+    "feature3": "Sandbox-Key ist öffentlich — kein Konto, keine Kreditkarte",
+    "feature4": "Embedded Checkout, Elements-Widgets, Buy Buttons — such dir aus",
+    "cta": "Zur Doku",
+    "ctaSecondary": "Live testen",
+    "mockCaption": "// ÖFFENTLICHE SANDBOX · OHNE KONTO TESTEN",
+    "copied": "cURL kopiert"
+  }
 }

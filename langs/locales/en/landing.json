@@ -227,7 +227,7 @@
   "doors": {
     "eyebrow": "Who's this for?",
     "title": "Three surfaces. One wallet.",
-    "subtitle": "Pick your door — merchants, campaigns, creators. They all share the same crypto rails.",
+    "subtitle": "Pick your door — merchants, campaigns, creators, developers. They all share the same crypto rails.",
     "merchant": {
       "kicker": "Merchants",
       "title": "Sell for crypto",
@@ -245,6 +245,12 @@
       "title": "Get tipped",
       "desc": "Claim dynopay.com/@you and take one-tap tips in any coin. Direct-to-wallet. No middleman.",
       "cta": "See creator page"
+    },
+    "developer": {
+      "kicker": "Developers",
+      "title": "Ship in an afternoon",
+      "desc": "REST, webhooks, embeds and drop-in checkout — one API for 15+ chains. Sandbox key is public.",
+      "cta": "See the API"
     }
   },
   "crowdfundingShowcase": {
@@ -301,5 +307,19 @@
     "cta": "See full pricing"
   },
   "faq8Q": "Can I get tips as a creator?",
-  "faq8A": "Yes. Claim your @handle at dynopay.com/@you and share it. Fans can send one-tap tips in 13+ coins — no signup, no redirect, no middleman. Every tip goes direct to your wallet."
+  "faq8A": "Yes. Claim your @handle at dynopay.com/@you and share it. Fans can send one-tap tips in 13+ coins — no signup, no redirect, no middleman. Every tip goes direct to your wallet.",
+  "developerShowcase": {
+    "eyebrow": "For developers",
+    "title": "Integrate in ~10 minutes.",
+    "titleTail": "15+ chains. One API. No smart contracts.",
+    "subtitle": "Ship a crypto checkout in an afternoon. REST + webhooks, idempotent everywhere, signed with HMAC-SHA256, and a sandbox key you can copy right now — the same primitives you already know from Stripe, but for on-chain money.",
+    "feature1": "REST + webhooks · idempotency keys · signed with HMAC-SHA256",
+    "feature2": "TypeScript / Node SDK · Python examples · OpenAPI spec",
+    "feature3": "Sandbox key is public — no signup to play, no CC to test",
+    "feature4": "Drop-in checkout, Elements widgets, Buy Buttons — pick your surface",
+    "cta": "Read the docs",
+    "ctaSecondary": "Try it live",
+    "mockCaption": "// PUBLIC SANDBOX · TRY WITHOUT AN ACCOUNT",
+    "copied": "cURL copied"
+  }
 }
