@@ -199,6 +199,40 @@ export const getCompanyDisplayCurrency = async (
 };
 
 /**
+ * Get a USER's dashboard DISPLAY currency (Doc-3 workstream E).
+ *
+ * Full resolution chain for per-user display preferences:
+ *   1. tbl_user.display_currency  (user's personal pick — Doc 3 §E)
+ *   2. tbl_company.display_currency  (company default — Session 39)
+ *   3. legacy API-key base_currency (clamped to supported)
+ *   4. 'USD'
+ *
+ * When companyId is null/undefined, only steps (1) and (4) apply.
+ * NEVER affects pricing or stored data — display only.
+ */
+export const getUserDisplayCurrency = async (
+  userId: number | string | null | undefined,
+  companyId: number | string | null | undefined
+): Promise<string> => {
+  if (userId) {
+    try {
+      const rows = (await sequelizeInstance.query(
+        `SELECT display_currency FROM tbl_user WHERE user_id = :userId LIMIT 1`,
+        { replacements: { userId }, type: QueryTypes.SELECT }
+      )) as Array<{ display_currency: string | null }>;
+      const pref = rows.length > 0 ? rows[0].display_currency : null;
+      if (isSupportedDisplayCurrency(pref)) return String(pref).toUpperCase();
+    } catch (err) {
+      log(`[getUserDisplayCurrency] Query failed for user ${userId}`, 'warn');
+    }
+  }
+  // Fall through to company preference (which itself falls through to key
+  // base_currency then USD).
+  if (companyId) return getCompanyDisplayCurrency(companyId);
+  return 'USD';
+};
+
+/**
  * Cached USD → target-fiat rate (Redis, ~10 min TTL). Keeps the dashboard fast
  * and avoids burning FX-provider quota per request. Returns 1 on total failure
  * (i.e. amounts shown unconverted) rather than throwing.

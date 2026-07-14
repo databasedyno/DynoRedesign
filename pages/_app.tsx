@@ -46,6 +46,7 @@ import LanguageBootstrap from "@/helpers/LanguageBootstrap";
 import store from "@/store";
 import ErrorBoundary from "@/Components/ErrorBoundary";
 import { ThemeProvider as AppThemeProvider, useThemeMode } from "@/contexts/ThemeContext";
+import { CartProvider } from "@/contexts/CartContext";
 import IdleTimeoutManager from "@/Components/UI/IdleTimeoutManager";
 import RouteTransitionLoader from "@/Components/Common/RouteTransitionLoader";
 import { createEmotionCache } from "@/utils/createEmotionCache";
@@ -516,7 +517,13 @@ export default function App({
           <LanguageBootstrap />
           <SessionProvider session={props.pageProps.session} refetchInterval={0} refetchOnWindowFocus={false}>
             <AppThemeProvider initialMode={initialThemeMode}>
-              <AppInner {...(props as AppPropsWithLayout)} />
+              {/* CartProvider — Product Catalog Phase 1 (spec §6.3). Wraps the
+                  whole app so useCart() hits the real context (not the
+                  standalone-localStorage fallback), enabling cross-tab sync
+                  and single source of truth for the buyer cart badge. */}
+              <CartProvider>
+                <AppInner {...(props as AppPropsWithLayout)} />
+              </CartProvider>
             </AppThemeProvider>
           </SessionProvider>
         </Provider>

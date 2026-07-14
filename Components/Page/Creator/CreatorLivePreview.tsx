@@ -39,7 +39,10 @@ const CreatorLivePreview: React.FC<Props> = ({ state }) => {
   const border = theme.palette.divider;
   const profile = useSelector((s: rootReducer) => (s as any).userReducer.profile) as any;
 
-  const name = profile?.name || state.handle || "Your name";
+  // Prefer the in-form draft name (if the user is editing it live) over the
+  // last-saved profile.name. Falls back to handle → "Your name" as before.
+  const draftName = (state as any).name as string | undefined;
+  const name = (draftName && draftName.trim()) || profile?.name || state.handle || "Your name";
   const handle = state.handle || "yourname";
   const bio = state.bio || null;
   const photo = profile?.photo && !String(profile.photo).includes("user_image.png") ? profile.photo : null;

@@ -41,6 +41,9 @@ const ProductsList = ({ setPageName, setPageDescription, setPageAction }: pagePr
   const [items, setItems] = useState<ProductRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [categories, setCategories] = useState<string[]>([]);
+  const [hasUncategorized, setHasUncategorized] = useState(false);
   const [q, setQ] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const [merchantHandle, setMerchantHandle] = useState<string | null>(null);
@@ -73,6 +76,9 @@ const ProductsList = ({ setPageName, setPageDescription, setPageAction }: pagePr
     setError(null);
     const params = new URLSearchParams();
     if (statusFilter !== "all") params.set("status", statusFilter);
+    if (categoryFilter !== "all") {
+      params.set("category", categoryFilter === "__uncategorized__" ? "" : categoryFilter);
+    }
     if (q.trim()) params.set("q", q.trim());
     axiosBaseApi
       .get(`products?${params.toString()}`)
@@ -86,7 +92,21 @@ const ProductsList = ({ setPageName, setPageDescription, setPageAction }: pagePr
       })
       .finally(() => !cancelled && setLoading(false));
     return () => { cancelled = true; };
-  }, [statusFilter, q]);
+  }, [statusFilter, categoryFilter, q]);
+
+  // Best-effort fetch of merchant's distinct categories for the filter dropdown
+  useEffect(() => {
+    let cancelled = false;
+    axiosBaseApi
+      .get("products/categories")
+      .then((r) => {
+        if (cancelled) return;
+        setCategories(r.data?.data?.categories || []);
+        setHasUncategorized(Boolean(r.data?.data?.has_uncategorized));
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
 
   // Best-effort fetch of merchant handle for a "View shop" quick-link
   useEffect(() => {

@@ -84,6 +84,10 @@ userRouter.post(
 );
 userRouter.get("/creator/stats", authMiddleware, userController.getCreatorStats);
 
+// Per-user display-currency (Doc-3 workstream E)
+userRouter.get("/display-currency", authMiddleware, userController.getUserDisplayCurrency);
+userRouter.patch("/display-currency", authMiddleware, userController.updateUserDisplayCurrency);
+
 // Login activity (requires auth)
 userRouter.get("/login-activity", authMiddleware, userController.getLoginActivity);
 

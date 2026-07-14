@@ -7,7 +7,7 @@ import {
   successResponseHelper,
 } from "../helper";
 import { handleControllerError } from "../helper/controllerErrorHandler";
-import { formatAmountForDisplay, getCurrencyInfo, COMPANY_CURRENCY_QUERY, convertToFiat, getCompanyDisplayCurrency, SUPPORTED_DISPLAY_CURRENCIES, isSupportedDisplayCurrency } from "../utils/currencyUtils";
+import { formatAmountForDisplay, getCurrencyInfo, COMPANY_CURRENCY_QUERY, convertToFiat, getCompanyDisplayCurrency, getUserDisplayCurrency, SUPPORTED_DISPLAY_CURRENCIES, isSupportedDisplayCurrency } from "../utils/currencyUtils";
 import jwt from "jsonwebtoken";
 import { IUserType } from "../utils/types";
 import { apiModel, companyModel, customerModel, customerWalletModel, userModel, stablecoinConversionModel, userWalletModel } from "../models";
@@ -760,8 +760,8 @@ const getTransactions = async (req: express.Request, res: express.Response) => {
   try {
     const id = req.params.id;
 
-    // Get company's preferred currency
-    const preferredCurrency = await getCompanyDisplayCurrency(id);
+    // Preferred currency: user override > company default > 'USD' (Doc-3 §E)
+    const preferredCurrency = await getUserDisplayCurrency(userData?.user_id, id);
 
     const resData = await sequelize.query(
       `

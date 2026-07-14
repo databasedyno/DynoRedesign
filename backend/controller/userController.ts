@@ -3886,12 +3886,13 @@ const updateCreatorProfile = async (req: express.Request, res: express.Response)
   const userData = jwt.decode(res.locals.token) as IUserType;
   try {
     const {
-      handle: rawHandle, bio, creator_page_enabled, cover_image, social_links,
+      handle: rawHandle, name: rawName, bio, creator_page_enabled, cover_image, social_links,
       support_widget_enabled, support_widget_style, support_widget_label,
       support_widget_preset_amounts, support_widget_currency, support_widget_min_amount,
       support_widget_allow_message, support_widget_thanks_message, support_widget_show_supporters,
     } = req.body as {
       handle?: string;
+      name?: string | null;
       bio?: string;
       creator_page_enabled?: boolean;
       cover_image?: string | null;
@@ -3920,6 +3921,22 @@ const updateCreatorProfile = async (req: express.Request, res: express.Response)
         return errorResponseHelper(res, 409, "This handle is already taken");
       }
       updates.handle = handle;
+    }
+
+    // Display name (spec Doc-3 §C). Distinct from handle — shown as the
+    // header on the public /{handle} page and in receipt emails. Empty
+    // string / null clears the override (creator falls back to handle).
+    if (rawName !== undefined) {
+      if (rawName === null || rawName === "") {
+        updates.name = null;
+      } else {
+        const trimmed = String(rawName).trim().slice(0, 80);
+        if (trimmed.length < 1) {
+          updates.name = null;
+        } else {
+          updates.name = trimmed;
+        }
+      }
     }
 
     if (bio !== undefined) {
@@ -4041,7 +4058,7 @@ const updateCreatorProfile = async (req: express.Request, res: express.Response)
     const fresh = await userModel.findOne({
       where: { user_id: userData.user_id },
       attributes: [
-        "handle", "bio", "creator_page_enabled", "cover_image", "social_links",
+        "handle", "name", "bio", "creator_page_enabled", "cover_image", "social_links",
         "support_widget_enabled", "support_widget_style", "support_widget_label",
         "support_widget_preset_amounts", "support_widget_currency", "support_widget_min_amount",
         "support_widget_allow_message", "support_widget_thanks_message", "support_widget_show_supporters",
@@ -4141,6 +4158,111 @@ const getCreatorStats = async (req: express.Request, res: express.Response) => {
   }
 };
 
+/**
+ * GET /api/user/display-currency (Doc-3 workstream E)
+ * Returns the caller's RESOLVED display currency + supported picker options.
+ * Resolution: tbl_user.display_currency → tbl_company.display_currency → USD.
+ * `source` in the response tells the UI which layer won (`user`|`company`|`default`).
+ */
+const getUserDisplayCurrency = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  const userData = jwt.decode(res.locals.token) as IUserType;
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const cu = require("../utils/currencyUtils");
+    // Read raw override to answer "source"
+    const rawRows = (await sequelize.query(
+      `SELECT display_currency FROM tbl_user WHERE user_id = :uid LIMIT 1`,
+      { replacements: { uid: userData.user_id }, type: QueryTypes.SELECT }
+    )) as Array<{ display_currency: string | null }>;
+    const userOverride = rawRows.length ? rawRows[0].display_currency : null;
+    const companyIdForResolve =
+      ((userData as any)?.last_company_id ?? userData?.company_id) || null;
+    const resolved: string = await cu.getUserDisplayCurrency(
+      userData.user_id,
+      companyIdForResolve
+    );
+    const supported = (cu.SUPPORTED_DISPLAY_CURRENCIES as string[]).map((code: string) => cu.getCurrencyInfo(code));
+    const source: "user" | "company" | "default" = userOverride
+      ? "user"
+      : companyIdForResolve
+        ? "company"
+        : "default";
+    return successResponseHelper(res, 200, "Display currency retrieved", {
+      display_currency: resolved,
+      user_override: userOverride,
+      source,
+      currency_info: cu.getCurrencyInfo(resolved),
+      supported,
+    });
+  } catch (e) {
+    userLogger.error(getErrorMessage(e), { user_id: userData?.user_id }, new Error(e as any));
+    return errorResponseHelper(res, 500, getErrorMessage(e));
+  }
+};
+
+/**
+ * PATCH /api/user/display-currency
+ * Body: { display_currency: 'EUR' } to set, or { display_currency: null } to
+ * clear the override (falls back to company preference). Validates against
+ * the same supported list as company-level.
+ */
+const updateUserDisplayCurrency = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  const userData = jwt.decode(res.locals.token) as IUserType;
+  const rawCur = req.body?.display_currency;
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const cu = require("../utils/currencyUtils");
+
+    // Allow explicit null / "" to clear the override.
+    let nextValue: string | null = null;
+    if (rawCur !== null && rawCur !== undefined && rawCur !== "") {
+      const cur = String(rawCur).toUpperCase();
+      if (!cu.isSupportedDisplayCurrency(cur)) {
+        return errorResponseHelper(
+          res,
+          400,
+          `display_currency must be one of: ${cu.SUPPORTED_DISPLAY_CURRENCIES.join(", ")}`
+        );
+      }
+      nextValue = cur;
+    }
+
+    await sequelize.query(
+      `UPDATE tbl_user SET display_currency = :cur WHERE user_id = :uid`,
+      {
+        replacements: { cur: nextValue, uid: userData.user_id },
+        type: QueryTypes.UPDATE,
+      }
+    );
+
+    userLogger.info(
+      `[DisplayCurrency] User ${userData.user_id} display_currency set to ${nextValue || "NULL (inherit)"}`
+    );
+
+    const companyIdForResolve2 =
+      ((userData as any)?.last_company_id ?? userData?.company_id) || null;
+    const resolved: string = await cu.getUserDisplayCurrency(
+      userData.user_id,
+      companyIdForResolve2
+    );
+    return successResponseHelper(res, 200, "Display currency updated", {
+      display_currency: resolved,
+      user_override: nextValue,
+      source: nextValue ? "user" : companyIdForResolve2 ? "company" : "default",
+      currency_info: cu.getCurrencyInfo(resolved),
+    });
+  } catch (e) {
+    userLogger.error(getErrorMessage(e), { user_id: userData?.user_id }, new Error(e as any));
+    return errorResponseHelper(res, 500, getErrorMessage(e));
+  }
+};
+
 
 
 export default {
@@ -4193,4 +4315,6 @@ export default {
   updateCreatorProfile,
   uploadCoverImage,
   getCreatorStats,
+  getUserDisplayCurrency,
+  updateUserDisplayCurrency,
 };

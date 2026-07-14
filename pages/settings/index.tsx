@@ -19,6 +19,7 @@ import ApiKeysPage from "@/Components/Page/API/ApiKeysPage";
 import NotificationPage from "@/Components/Page/Notification/NotificationPage";
 import CompanySettingsDialog from "@/Components/UI/CompanySettingsDialog";
 import DisplayCurrencySelector from "@/Components/UI/DisplayCurrencySelector";
+import UserDisplayCurrencySelector from "@/Components/UI/UserDisplayCurrencySelector";
 import CreateCompanyModal from "@/Components/UI/OnboardingFlow/CreateCompanyModal";
 import CustomButton from "@/Components/UI/Buttons";
 import useIsMobile from "@/hooks/useIsMobile";
@@ -222,7 +223,10 @@ const CompanyConfigSection = ({
       </Box>
 
       {showDisplayCurrency && selectedId && (
-        <DisplayCurrencySelector companyId={selectedId} />
+        <>
+          <UserDisplayCurrencySelector />
+          <DisplayCurrencySelector companyId={selectedId} />
+        </>
       )}
 
       {selectedCompany && (

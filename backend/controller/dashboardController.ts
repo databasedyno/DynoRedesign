@@ -13,7 +13,7 @@ import { userTransactionModel, userWalletModel, companyModel } from "../models";
 import { validateCompanyOwnership } from "../utils/validateCompanyOwnership";
 import sequelize from "../utils/dbInstance";
 import { getRedisItem, setRedisItem, setRedisTTL } from "../utils/redisInstance";
-import { getCurrencySymbol, getCurrencyInfo, formatAmountForDisplay, COMPANY_CURRENCY_QUERY, convertToFiat, getCompanyDisplayCurrency } from "../utils/currencyUtils";
+import { getCurrencySymbol, getCurrencyInfo, formatAmountForDisplay, COMPANY_CURRENCY_QUERY, convertToFiat, getUserDisplayCurrency } from "../utils/currencyUtils";
 import { getVolumeTiers } from "../utils/volumeTierUtils";
 
 /**
@@ -129,7 +129,7 @@ const getDashboard = async (req: express.Request, res: express.Response) => {
     // Get company's preferred currency
     let preferredCurrency = "USD";
     if (company_id) {
-      preferredCurrency = await getCompanyDisplayCurrency(company_id as string);
+      preferredCurrency = await getUserDisplayCurrency(userId, company_id as string);
       if (preferredCurrency !== 'USD') {
         apiLogger.info(`[Dashboard] Using currency ${preferredCurrency} for company ${company_id}`);
       }
@@ -335,7 +335,7 @@ const getChartData = async (req: express.Request, res: express.Response) => {
     // Get company preferred currency
     let preferredCurrency = "USD";
     if (company_id) {
-      preferredCurrency = await getCompanyDisplayCurrency(company_id as string);
+      preferredCurrency = await getUserDisplayCurrency(userId, company_id as string);
     }
 
     // Check cache first (120 second TTL for chart data)
@@ -580,7 +580,7 @@ const getFeeTiers = async (req: express.Request, res: express.Response) => {
     let conversionRate = 1;
     
     if (company_id) {
-      preferredCurrency = await getCompanyDisplayCurrency(company_id as string);
+      preferredCurrency = await getUserDisplayCurrency(userId, company_id as string);
     }
 
     // Calculate user's ALL-TIME cumulative transaction volume (in USD)

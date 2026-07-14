@@ -32,7 +32,7 @@ import {
 import { handleControllerError, handleControllerErrorReturn } from "../helper/controllerErrorHandler";
 import { parseSortAndPagination } from "../helper/queryHelpers";
 import { incrementAdminFee, incrementUserWallet } from "../helper/walletHelpers";
-import { formatAmountForDisplay, getCurrencyInfo, COMPANY_CURRENCY_QUERY, convertToUSD, convertToFiat, convertToMultiple, getCompanyDisplayCurrency } from "../utils/currencyUtils";
+import { formatAmountForDisplay, getCurrencyInfo, COMPANY_CURRENCY_QUERY, convertToUSD, convertToFiat, convertToMultiple, getUserDisplayCurrency } from "../utils/currencyUtils";
 import crypto from "crypto";
 
 // HTML escape utility to prevent XSS in email templates
@@ -161,7 +161,7 @@ const getWallet = async (req: express.Request, res: express.Response) => {
     if (company_id) {
       const companyData = await validateCompanyOwnership(res, company_id as string, userData.user_id);
       if (!companyData) return; // 403 already sent
-      preferredCurrency = await getCompanyDisplayCurrency(company_id as string);
+      preferredCurrency = await getUserDisplayCurrency(userData?.user_id, company_id as string);
     }
     
     // Check cache first (120 second TTL) - include currency in cache key
@@ -332,7 +332,7 @@ const getWalletTransactions = async (
     let conversionRate = 1;
     
     if (company_id) {
-      preferredCurrency = await getCompanyDisplayCurrency(company_id as string);
+      preferredCurrency = await getUserDisplayCurrency(userData?.user_id, company_id as string);
     }
     
     // Get conversion rate if not USD
@@ -2649,7 +2649,7 @@ const getUserAnalytics = async (
     } = req.body;
 
     // Get company's preferred currency for analytics display
-    const preferredCurrency = await getCompanyDisplayCurrency(company_id);
+    const preferredCurrency = await getUserDisplayCurrency(userData?.user_id, company_id);
 
     // Build company filter for SQL queries (both tbl_user_transaction and tbl_user_temp_address have company_id)
     const safeCompanyId = company_id ? parseInt(company_id) : null;
@@ -4311,7 +4311,7 @@ const exportTransactions = async (req: express.Request, res: express.Response) =
     );
 
     // Get company's preferred currency for the value column
-    const preferredCurrency = await getCompanyDisplayCurrency(company_id);
+    const preferredCurrency = await getUserDisplayCurrency(userData?.user_id, company_id);
     let fiatConversionRate = 1;
     if (preferredCurrency !== 'USD') {
       try {

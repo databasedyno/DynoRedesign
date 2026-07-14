@@ -21,6 +21,13 @@ const userModel = sequelize.define(
     username: {
       type: DataTypes.STRING,
     },
+    // Per-user override for dashboard display currency (Doc-3 workstream E).
+    // NULL = fall through to tbl_company.display_currency, which itself
+    // falls through to the API-key base_currency, then 'USD'.
+    display_currency: {
+      type: DataTypes.STRING(3),
+      allowNull: true,
+    },
     password: {
       type: DataTypes.STRING,
     },

@@ -100,6 +100,48 @@ function sanitizeGallery(v: any): Array<{ url: string; alt?: string }> {
 
 // ---------- List / Get / Create / Update / Delete ----------
 
+/**
+ * List distinct categories this merchant has used across their catalog.
+ * Powers the merchant-side category filter dropdown (Doc-1 P2).
+ * Returns { categories: string[] }, sorted alphabetically, plus a
+ * `has_uncategorized` flag so the UI can offer an "Uncategorized" chip.
+ */
+export const listMyCategories = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  try {
+    const uid = ownerId(res);
+    if (!uid) return errorResponseHelper(res, 401, "Authentication required.");
+
+    const seq = productModel.sequelize!;
+    const rows: any[] = await seq.query(
+      `SELECT DISTINCT category
+       FROM tbl_product
+       WHERE merchant_user_id = :uid AND deleted_at IS NULL
+       ORDER BY category NULLS FIRST`,
+      {
+        replacements: { uid },
+        type: (seq as any).QueryTypes?.SELECT || undefined,
+      }
+    ) as any;
+
+    const list = Array.isArray(rows) ? rows : (rows as any)[0] || [];
+    const categories = list
+      .map((r: any) => (r?.category ? String(r.category).trim() : null))
+      .filter((c: string | null) => Boolean(c)) as string[];
+    const has_uncategorized = list.some((r: any) => !r?.category);
+
+    return successResponseHelper(res, 200, "Categories fetched.", {
+      categories,
+      has_uncategorized,
+    });
+  } catch (e: any) {
+    apiLogger.error("[productController] listMyCategories:", e?.message || e);
+    return errorResponseHelper(res, 500, e?.message || "List categories failed");
+  }
+};
+
 export const listProducts = async (
   req: express.Request,
   res: express.Response
@@ -111,6 +153,9 @@ export const listProducts = async (
     const type = req.query.type as string | undefined;
     const status = req.query.status as string | undefined;
     const q = req.query.q as string | undefined;
+    // Category filter (Doc-1 P2). Free-form string on tbl_product.category;
+    // an empty string filters "uncategorized only" (categpry IS NULL).
+    const categoryRaw = req.query.category;
     const limit = Math.min(Number(req.query.limit) || 50, 100);
     const offset = Math.max(Number(req.query.offset) || 0, 0);
 
@@ -118,6 +163,14 @@ export const listProducts = async (
     if (type && VALID_PRODUCT_TYPES.has(type)) where.product_type = type;
     if (status && VALID_STATUSES.has(status)) where.status = status;
     if (q) where.title = { [Op.iLike]: `%${q}%` };
+    if (typeof categoryRaw === "string") {
+      const trimmed = categoryRaw.trim();
+      if (trimmed === "" || trimmed === "__uncategorized__") {
+        where.category = null;
+      } else {
+        where.category = trimmed.slice(0, 64);
+      }
+    }
 
     const { rows, count } = await productModel.findAndCountAll({
       where,
@@ -526,6 +579,27 @@ export const uploadAsset = async (
 
     const file = (req as any).file as Express.Multer.File | undefined;
     if (!file) return errorResponseHelper(res, 400, "No file uploaded.");
+
+    // Magic-byte sniff (spec §10). Extension check happens in multer's
+    // fileFilter; this catches attacker-renamed executables that slipped
+    // past. If the first bytes match a known-dangerous signature (PE, ELF,
+    // Mach-O, class file, shell shebang, .lnk), we delete the file and 400.
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const { magicSniff } = require("../../utils/fileMagicCheck");
+      const hit: string | null = await magicSniff(file.path);
+      if (hit) {
+        try { fs.unlinkSync(file.path); } catch { /* best-effort */ }
+        return errorResponseHelper(
+          res,
+          400,
+          `File contents match '${hit}' — this format is blocked for security. Please upload it inside a ZIP if it's genuinely part of your product.`
+        );
+      }
+    } catch (sniffErr: any) {
+      apiLogger.warn(`[uploadAsset] magic sniff failed: ${sniffErr?.message || sniffErr}`);
+      // Fall-open: don't block uploads on a sniff error (log-only).
+    }
 
     // Compute sha256 for integrity
     const hash = crypto.createHash("sha256");

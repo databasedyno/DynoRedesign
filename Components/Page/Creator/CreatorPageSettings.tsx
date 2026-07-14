@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Box, Button, CircularProgress, Switch, Typography, useTheme } from "@mui/material";
+import { Box, Button, CircularProgress, Switch, Typography, useTheme, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { useDispatch, useSelector } from "react-redux";
 import axiosBaseApi from "@/axiosConfig";
@@ -61,6 +61,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
   const border = theme.palette.divider;
 
   const [handle, setHandle] = useState("");
+  const [name, setName] = useState("");
   const [bio, setBio] = useState("");
   const [enabled, setEnabled] = useState(false);
   const [coverImage, setCoverImage] = useState<string | null>(null);
@@ -82,8 +83,12 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
   const [availability, setAvailability] = useState<{ available: boolean; reason: string | null } | null>(null);
   const [saving, setSaving] = useState(false);
   const [copied, setCopied] = useState(false);
+  // Change-warning modal for handle edits (spec §C — Doc 3)
+  const [handleWarnOpen, setHandleWarnOpen] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const coverFileRef = useRef<HTMLInputElement>(null);
+  const handleInputRef = useRef<HTMLInputElement>(null);
+  const nameInputRef = useRef<HTMLInputElement>(null);
 
   // Ensure the profile is loaded even when landing directly on this page
   useEffect(() => {
@@ -94,6 +99,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
   useEffect(() => {
     if (profile?.user_id && !seeded) {
       setHandle(profile.handle || "");
+      setName(profile.name || "");
       setBio(profile.bio || "");
       setEnabled(Boolean(profile.creator_page_enabled));
       setCoverImage(profile.cover_image || null);
@@ -127,8 +133,10 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
     onChange?.({
       handle, bio, enabled, coverImage, socialLinks,
       swEnabled, swStyle, swLabel, swPresets, swCurrency, swMinAmount, swAllowMessage, swThanks, swShowSupporters,
-    });
-  }, [handle, bio, enabled, coverImage, socialLinks, swEnabled, swStyle, swLabel, swPresets, swCurrency, swMinAmount, swAllowMessage, swThanks, swShowSupporters, onChange]);
+      // @ts-expect-error — name is passed through for the live-preview header
+      name,
+    } as any);
+  }, [handle, name, bio, enabled, coverImage, socialLinks, swEnabled, swStyle, swLabel, swPresets, swCurrency, swMinAmount, swAllowMessage, swThanks, swShowSupporters, onChange]);
 
   const savedHandle = profile?.handle || "";
   const formatError = useMemo(() => {
@@ -192,6 +200,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
     (handle === savedHandle || availability?.available === true) &&
     (
       handle !== savedHandle ||
+      name !== (profile?.name || "") ||
       bio !== (profile?.bio || "") ||
       enabled !== Boolean(profile?.creator_page_enabled) ||
       (coverImage || null) !== (profile?.cover_image || null) ||
@@ -199,12 +208,25 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
       supportWidgetChanged
     );
 
-  const handleSave = async () => {
+  // If the user changed their handle, open the change-warning modal first
+  // so they explicitly acknowledge that old-URL shares will break. Fall
+  // through to persistProfile() when there's no change or they confirmed.
+  const handleSaveClick = () => {
     if (!canSave) return;
+    if (handle !== savedHandle && savedHandle) {
+      setHandleWarnOpen(true);
+      return;
+    }
+    void persistProfile();
+  };
+
+  const persistProfile = async () => {
+    setHandleWarnOpen(false);
     setSaving(true);
     try {
       await axiosBaseApi.put("/user/creator/profile", {
         handle: handle.trim().toLowerCase(),
+        name: name.trim() || null,
         bio,
         creator_page_enabled: enabled,
         cover_image: coverImage,
@@ -227,6 +249,10 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
       setSaving(false);
     }
   };
+
+  // Legacy hook kept for external callers (never used internally now); routes
+  // through the warning gate too.
+  const handleSave = handleSaveClick;
 
   const publicUrl = savedHandle ? `${siteUrl}/${savedHandle}` : "";
   const prettyUrl = savedHandle ? `${siteUrl.replace(/^https?:\/\//, "")}/${savedHandle}` : "";
@@ -296,6 +322,19 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
             </Typography>
           </Box>
           <Box display="flex" gap={1}>
+            <Button
+              size="small"
+              onClick={() => {
+                handleInputRef.current?.focus();
+                handleInputRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+              }}
+              data-testid="creator-edit-handle-btn"
+              startIcon={<Icon icon="mdi:pencil-outline" width={15} />}
+              sx={{ textTransform: "none", fontSize: 12.5, color: theme.palette.text.primary }}
+              title="Edit your handle"
+            >
+              Edit
+            </Button>
             <Button size="small" onClick={copyUrl} data-testid="creator-copy-url" startIcon={<Icon icon={copied ? "mdi:check" : "mdi:content-copy"} width={16} />} sx={{ textTransform: "none", fontSize: 12.5, color: theme.palette.text.primary }}>
               {copied ? "Copied" : "Copy"}
             </Button>
@@ -368,6 +407,23 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
         </Button>
       </Box>
 
+      {/* Display name (shown as the header on your public /{handle} page) */}
+      <Box>
+        <Typography sx={labelSx}>Display name <Typography component="span" fontSize={11.5} color={theme.palette.text.disabled} fontWeight={400}>(shown at the top of your public page)</Typography></Typography>
+        <Box
+          component="input"
+          ref={nameInputRef}
+          data-testid="creator-name-input"
+          value={name}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value.slice(0, 80))}
+          placeholder="Alice Cooper"
+          sx={inputSx}
+        />
+        <Typography fontSize={11.5} color={theme.palette.text.secondary} mt={0.5}>
+          Buyers see this above your handle. Leave blank to use your handle as the name.
+        </Typography>
+      </Box>
+
       {/* Handle */}
       <Box>
         <Typography sx={labelSx}>Handle</Typography>
@@ -377,6 +433,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
           </Box>
           <Box
             component="input"
+            ref={handleInputRef}
             data-testid="creator-handle-input"
             value={handle}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setHandle(e.target.value.toLowerCase().replace(/\s/g, ""))}
@@ -663,6 +720,56 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
           {saving ? <CircularProgress size={18} sx={{ color: "#fff" }} /> : "Save changes"}
         </Button>
       </Box>
+
+      {/* Handle change-warning modal (spec Doc-3 §C). Only opens when the
+          merchant is about to persist a NEW handle (and they had one saved
+          already). Cancel → keep editing; Continue → persistProfile(). */}
+      <Dialog
+        open={handleWarnOpen}
+        onClose={() => setHandleWarnOpen(false)}
+        maxWidth="xs"
+        fullWidth
+        data-testid="handle-change-warning"
+      >
+        <DialogTitle sx={{ fontWeight: 700 }}>Change your handle?</DialogTitle>
+        <DialogContent>
+          <Typography fontSize={13.5} color={theme.palette.text.secondary} sx={{ mb: 1.5 }}>
+            You're about to change your public URL from{" "}
+            <Box component="span" sx={{ fontFamily: "ui-monospace, monospace" }}>
+              {siteUrl.replace(/^https?:\/\//, "")}/{savedHandle}
+            </Box>{" "}
+            to{" "}
+            <Box component="span" sx={{ fontFamily: "ui-monospace, monospace", fontWeight: 700 }}>
+              {siteUrl.replace(/^https?:\/\//, "")}/{handle}
+            </Box>
+            .
+          </Typography>
+          <Typography fontSize={13} color={theme.palette.warning.main}>
+            Any existing shared links, QR codes, or social bios pointing at
+            the old URL will stop working. Nobody will be redirected — they'll
+            just see a 404.
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2 }}>
+          <Button
+            onClick={() => setHandleWarnOpen(false)}
+            data-testid="handle-warning-cancel"
+            sx={{ textTransform: "none" }}
+          >
+            Keep old handle
+          </Button>
+          <Button
+            variant="contained"
+            color="warning"
+            onClick={persistProfile}
+            disabled={saving}
+            data-testid="handle-warning-confirm"
+            sx={{ textTransform: "none", fontWeight: 700 }}
+          >
+            {saving ? "Saving…" : "Change my handle"}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

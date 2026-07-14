@@ -37,6 +37,7 @@ productRouter.use((req, res, next) => {
 
 // ── Merchant CRUD (authenticated) ─────────────────────────────────────
 productRouter.get("/products", authMiddleware, productCtrl.listProducts);
+productRouter.get("/products/categories", authMiddleware, productCtrl.listMyCategories);
 productRouter.post("/products", authMiddleware, productCtrl.createProduct);
 productRouter.get("/products/orders/all", authMiddleware, productCtrl.listAllOrders);
 productRouter.get("/products/:productId", authMiddleware, productCtrl.getProduct);
