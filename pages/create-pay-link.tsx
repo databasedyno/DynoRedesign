@@ -38,6 +38,12 @@ const CreatePaymentLink = ({ setPageName, setPageDescription }: pageProps) => {
   // of the "Create your first company" onboarding gate when the API failed.
   const companyFetchError = (companyState as any).fetchError === true;
   const companyFetched = (companyState as any).fetched === true;
+  // S50 UX-fix: also track wallet-fetched status so we don't flash the
+  // "Add a Payout Wallet" setup guard for ~1-3s while the wallet API is
+  // still in-flight on a fresh page reload. Both flags must be true before
+  // we can conclude "this merchant genuinely has no wallets".
+  const walletFetched = (walletState as any).fetched === true;
+  const dataStillLoading = !companyFetched || !walletFetched;
 
   // Inline modal state — keep the user on /create-pay-link
   const [companyModalOpen, setCompanyModalOpen] = useState(false);
@@ -191,6 +197,51 @@ const CreatePaymentLink = ({ setPageName, setPageDescription }: pageProps) => {
           >
             Retry
           </Box>
+        </Box>
+      ) : dataStillLoading ? (
+        /* S50 UX-fix: hostbay + other data-rich merchants land on this page
+           and briefly saw the "Add a Payout Wallet" setup guard for ~1-3s
+           while the wallet API call was still in-flight. Show a soft loading
+           state instead so the guard doesn't flash misleadingly. Once
+           company + wallet fetches settle (either success OR error), we fall
+           through to the setup-guard / retry-banner / form branches. */
+        <Box
+          data-testid="payment-link-setup-loading"
+          sx={{
+            maxWidth: "600px",
+            mx: "auto",
+            mt: isMobile ? 4 : 8,
+            px: 3,
+            textAlign: "center",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 2,
+          }}
+        >
+          <Box
+            sx={{
+              width: 40,
+              height: 40,
+              borderRadius: "50%",
+              border: `3px solid ${theme.palette.border.main}`,
+              borderTopColor: theme.palette.primary.main,
+              animation: "cpl-spin 0.8s linear infinite",
+              "@keyframes cpl-spin": {
+                to: { transform: "rotate(360deg)" },
+              },
+            }}
+          />
+          <Typography
+            sx={{
+              fontSize: isMobile ? "13px" : "14px",
+              fontFamily: "var(--font-sans)",
+              fontWeight: 500,
+              color: theme.palette.text.secondary,
+            }}
+          >
+            {tCreatePaymentLink("loadingAccount", "Loading your account...")}
+          </Typography>
         </Box>
       ) : (
         <Box
