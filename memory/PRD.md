@@ -4,6 +4,22 @@
 USDT-TRC20 payment gateway platform. Users can create companies, wallets, payment links, and accept crypto payments. The platform supports OTP-based authentication, profile management, login activity monitoring, and comprehensive dark/light mode theming.
 
 
+### 2026-07-14 — Session 45 (contd.) — DigitalOcean Deployment Diagnosis + Preemptive TS Fix — ✅ RESOLVED
+User reported "digitalocean deployment appear stucked" and shared a DO API token. Investigation via `api.digitalocean.com`:
+- **App**: `dynopay` (id `f86b27dc-feb0-…`) in `ams` region, GitHub-connected to `databasedyno/DynoRedesign` branch `New-Onboarding2`, `deploy_on_push=true`.
+- **Diagnosis**: ACTIVE deploy `b534eac5` (manual, 2026-07-14T02:52:44Z → completed 03:01:16Z) is on commit `164712b3c68f9bda626c9868d86919241afa4e5d` — **exactly matches GitHub HEAD** (verified via public `/repos/.../commits/New-Onboarding2` API). The deployment is **NOT stuck**; it's on the latest commit and healthy.
+- **Prior ERROR builds (3 of them: `b4c8a6b6`, `686b5f52`, `31167f1f` on 2026-07-13)** all failed at the `yarn build → tsc` step with `TS2339: Property 'parent_link_id'|'donor_name'|'donor_message'|'is_anonymous' does not exist on type 'RedisPaymentItem'` — those were fixed in commit `164712b` (interface augmented in `cryptoCheckout.ts`).
+- **Preemptive fix (this session)**: `yarn tsc --noEmit -p .` on the CURRENT /app tree still surfaced **8 more strict-mode errors** in `controller/payment/paymentLinkController.ts` (Phase 3.1 columns `donation_story_md`, `donation_gallery`, `donation_ends_at`, `donation_category`, `donation_organizer_thanks`, `donation_beneficiary` were spread onto the response literal without being declared on the local `PaymentLinkData` interface, plus a `Decimal → number|null` cast on `donationFields.goal_amount` line 760). Would have hit DO the moment Session 45 code was pushed. Fixed by augmenting the interface + explicit `(donationFields.goal_amount as number | null) ?? null` cast.
+- **Verification (testing_agent_v3_fork iteration 30)**: `yarn tsc --noEmit -p .` from `/app/backend` = **0 errors** in ~8.7s. `GET /api/pay/getPaymentLinks` returns 200 with donation link_id=77 including all 6 crowdfunding v2 keys (`story_md`, `gallery[3]`, `ends_at`, `category='creative'`, `organizer_thanks`, `beneficiary`). Phase 3.3 regression endpoints (`/pay/campaign/77/tiers` → 5 tiers, `/updates` → 3 updates) unchanged. `success_rate.backend=100%`, `retest_needed=false`.
+- **Fresh DO redeploy triggered**: manual force_build id `551a9f1a-d18b-4645-aea9-96abe7fb14a7` — currently phase=BUILDING (progressing cleanly, 0 errors). Not strictly necessary but confirms the pipeline is healthy.
+
+**Testing agent code-review notes for follow-up (non-blocking)**:
+- `paymentLinkController.ts` is 2376 lines — recommend splitting into feature modules.
+- Local inline `PaymentLinkData` interface duplicates the Sequelize model — should export/share instead.
+- The `as number | null` cast on line 760 is a type-assertion band-aid — a proper narrowing (`typeof x === 'number' ? x : null`) would be strict-mode ideal.
+
+
+
 ### 2026-07-14 — Session 45 (contd.) — Country-Aware Landing Prices — ✅ COMPLETE
 Added `useLocalPrice()` hook that converts landing showcase amounts to the visitor's local currency using a static rate table (rounded, not live FX — this is marketing copy). Applied to `CrowdfundingShowcase` (campaign goal, raised amount, all 3 tier chips, update text) + `CreatorShowcase` (3 tip preset chips) + `FeeStrip` (Stripe/PayPal flat fees).
 - **New hook** `/app/hooks/useLocalPrice.ts` (~110 lines): reads visitor country via existing `useCountry()` → maps ISO-2 to a currency preset. Supports **USD (default), EUR (20 EU codes), GBP, INR (with lakh formatting), AUD, CAD, JPY, MXN, BRL, ZAR, NGN**. Handles zero-decimal currencies (JPY), Indian thousand-grouping (`8,30,000`), and "clean tier" snapping for small ceremonial amounts (e.g. `$5 → €5 / ₹500 / A$8 / R$25`) so copy still reads well.
