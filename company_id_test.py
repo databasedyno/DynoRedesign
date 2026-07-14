@@ -16,7 +16,7 @@ import os
 from typing import Dict, Any, Optional
 
 # Backend URL from frontend/.env
-BACKEND_URL = "https://multi-chain-checkout-2.preview.emergentagent.com"
+BACKEND_URL = "https://multi-coin.preview.emergentagent.com"
 
 class CompanyIdTester:
     def __init__(self):

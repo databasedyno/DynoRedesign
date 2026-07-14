@@ -11,7 +11,7 @@ import time
 from typing import Dict, Any, Optional
 
 # Backend URL from environment
-BACKEND_URL = "https://fa7fae5a-23b5-40b4-b640-8d93552b99f2.preview.emergentagent.com"
+BACKEND_URL = "https://multi-coin.preview.emergentagent.com"
 API_BASE = f"{BACKEND_URL}/api"
 
 # Test credentials from /app/memory/test_credentials.md
