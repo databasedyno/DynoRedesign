@@ -757,26 +757,81 @@ const finalizeLogin = async (
     userLogger.error(`${logPrefix} Failed to record login activity: ${activityError.message}`);
   }
 
-  // Send login notification email (every login)
+  // Send login notification email — gated by bot-UA filter + per-fingerprint throttle
+  // Rationale: preview/CI containers & automated tests hit /api/user/login with real
+  // creds thousands of times, spamming the merchant's inbox. We now:
+  //   1. Skip the email entirely for automation user-agents (curl, python-requests,
+  //      HeadlessChrome, node/, wget, PostmanRuntime, axios/, etc.).
+  //   2. Dedup by fingerprint = user_id + ipAddress + browser + os for 15 min in Redis.
+  //   3. Respect optional per-user preference `notify_new_device_only` — when true,
+  //      only send when the (ip, device, browser, os) tuple has never been seen for
+  //      this user (i.e. genuinely new device).
   try {
     if (userData.dataValues.email) {
-      const { sendLoginNotificationEmail } = await import("../services/emailService");
-      const now = new Date();
-      const date = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
-      const time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
-      // Fire and forget — don't block the login response
-      sendLoginNotificationEmail(
-        userData.dataValues.email,
-        userData.dataValues.name || 'User',
-        ipAddress,
-        device,
-        browser,
-        os,
-        location,
-        date,
-        time,
-        securityToken
-      ).catch(err => userLogger.error(`${logPrefix} Login notification email failed:`, err));
+      const uaLower = (userAgent || '').toLowerCase();
+      const BOT_UA_PATTERNS = [
+        'curl/', 'python-requests', 'python-urllib', 'headlesschrome', 'phantomjs',
+        'node-fetch', 'node/', 'wget/', 'go-http-client', 'axios/', 'postmanruntime',
+        'insomnia/', 'okhttp/', 'apache-httpclient', 'java/', 'libwww-perl',
+        'lighthouse', 'monitor', 'uptime', 'bot', 'spider', 'crawler'
+      ];
+      const isBotUA = BOT_UA_PATTERNS.some(p => uaLower.includes(p));
+      // Localhost / internal IPs are always synthetic — never email for them.
+      const isInternalIp = ipAddress === '::1' || ipAddress === '127.0.0.1' || ipAddress === '::ffff:127.0.0.1' || ipAddress.startsWith('10.') || ipAddress.startsWith('192.168.') || ipAddress === 'Unknown';
+
+      if (isBotUA || isInternalIp) {
+        userLogger.info(`${logPrefix} Skipping login-notification email — ua="${userAgent.substring(0,80)}" ip=${ipAddress} (bot=${isBotUA} internal=${isInternalIp})`);
+      } else {
+        // Fingerprint per (user, ip, browser, os) — case-insensitive.
+        const fp = `${userData.dataValues.user_id}|${ipAddress}|${(browser||'').toLowerCase()}|${(os||'').toLowerCase()}`;
+        const fpHash = crypto.createHash('sha256').update(fp).digest('hex').substring(0, 24);
+        const throttleKey = `login-notif:${userData.dataValues.user_id}:${fpHash}`;
+        const throttled = await getRedisItem(throttleKey);
+
+        // Optional preference: only email when the (ip, browser, os) tuple is genuinely new.
+        // Default = false (email every distinct fingerprint per 15 min).
+        let shouldSend = !throttled;
+        try {
+          const prefs = await notificationPreferencesModel.findOne({ where: { user_id: userData.dataValues.user_id } });
+          const prefsData = (prefs?.dataValues || {}) as { notify_new_device_only?: boolean };
+          if (prefsData.notify_new_device_only === true) {
+            // Look up the seen-device key (30-day TTL) — only send if unseen.
+            const seenKey = `login-notif-seen:${userData.dataValues.user_id}:${fpHash}`;
+            const seen = await getRedisItem(seenKey);
+            shouldSend = !seen;
+            if (shouldSend) {
+              await setRedisItemWithTTL(seenKey, { at: new Date().toISOString() }, 30 * 24 * 60 * 60);
+            }
+          }
+        } catch (_prefErr) {
+          // Prefs lookup failure is non-fatal — fall through to default throttle.
+        }
+
+        if (!shouldSend) {
+          userLogger.info(`${logPrefix} Skipping login-notification email — throttled (fp=${fpHash}) or already-known device`);
+        } else {
+          // Record throttle marker (15 min TTL)
+          await setRedisItemWithTTL(throttleKey, { at: new Date().toISOString() }, 15 * 60);
+
+          const { sendLoginNotificationEmail } = await import("../services/emailService");
+          const now = new Date();
+          const date = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
+          const time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+          // Fire and forget — don't block the login response
+          sendLoginNotificationEmail(
+            userData.dataValues.email,
+            userData.dataValues.name || 'User',
+            ipAddress,
+            device,
+            browser,
+            os,
+            location,
+            date,
+            time,
+            securityToken
+          ).catch(err => userLogger.error(`${logPrefix} Login notification email failed:`, err));
+        }
+      }
     }
   } catch (emailError) {
     userLogger.error(`${logPrefix} Failed to send login notification:`, emailError);

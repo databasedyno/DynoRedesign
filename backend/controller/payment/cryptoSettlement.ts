@@ -2471,6 +2471,24 @@ const cryptoVerification = async (address, webhook = true, overrideRedisKey?: st
         if (userAmountToSend > 0) {
           await incrementUserWallet(walletData.dataValues.wallet_id, Number(userAmountToSend), transaction);
 
+          // Session 49 fix: capture actual confirmation count from the chain at
+          // settlement time. Previously every completed row showed confirmations=0
+          // in the DB because we never updated the counter after payment_pending.
+          // Non-fatal — if tatum times out we still persist required_confirmations
+          // as a floor since we know that threshold was satisfied to reach this
+          // branch of the state machine.
+          let finalConfirmations: number | null = null;
+          try {
+            if (transactionId && typeof transactionId === 'string') {
+              const confCheck = await tatumApi.getTransactionConfirmations(transactionId, tempCurrency);
+              if (confCheck && typeof confCheck.confirmations === 'number') {
+                finalConfirmations = confCheck.confirmations;
+              }
+            }
+          } catch (confErr) {
+            cronLogger.warn(`[cryptoVerification] Could not fetch final confirmations for tx=${transactionId}: ${(confErr as Error)?.message}`);
+          }
+
           const userPayload = {
             wallet_id: walletData.dataValues.wallet_id,
             user_id: customerData.adm_id,
@@ -2491,6 +2509,9 @@ const cryptoVerification = async (address, webhook = true, overrideRedisKey?: st
             crypto_amount: Number(totalAmountReceived),
             crypto_currency: tempCurrency,
             transaction_fee: Number(adminAmountToSend),
+            // Session 49 fix: persist actual confirmation count so merchants can
+            // see the real number in the dashboard (was stuck at 0 previously).
+            ...(finalConfirmations !== null ? { confirmations: finalConfirmations } : {}),
           };
 
           // FIX: Use user_tx_id for user transaction updates (separate from payment_id which is for payment link)
@@ -2832,7 +2853,32 @@ const cryptoVerification = async (address, webhook = true, overrideRedisKey?: st
           
           // Send email notification for payment received
           const companyName = company_data?.company_name ?? "";
-          const paymentDateTime = new Date();
+          // Bug fix (session 49): use the actual on-chain payment detection time
+          // (tbl_user_transaction.createdAt) instead of `new Date()`. Previously the
+          // email showed "paid at 13:54" when the customer actually paid at 13:49 —
+          // because this handler runs 5 minutes later, after N-block confirmation
+          // + sweep. Falls back to `new Date()` only when the row lookup fails.
+          let paymentDateTime: Date = new Date();
+          try {
+            const utxIdCandidate =
+              (tempData as any)?.user_tx_id ||
+              (tempData as any)?.unique_tx_id ||
+              (tempData as any)?.payment_id ||
+              customerPayload?.id;
+            if (utxIdCandidate) {
+              const utxRow = await userTransactionModel.findOne({
+                where: { id: utxIdCandidate },
+                attributes: ['createdAt'],
+              });
+              const utxCreatedAt = (utxRow as any)?.dataValues?.createdAt || (utxRow as any)?.createdAt;
+              if (utxCreatedAt) {
+                paymentDateTime = new Date(utxCreatedAt);
+                cronLogger.info(`[cryptoVerification] Using tx createdAt=${paymentDateTime.toISOString()} as payment-received email timestamp (email would previously show current time = ${new Date().toISOString()})`);
+              }
+            }
+          } catch (tsErr) {
+            cronLogger.warn(`[cryptoVerification] Failed to resolve payment timestamp for tx=${transactionId}: ${(tsErr as Error)?.message} — falling back to current time`);
+          }
           const paymentDateStr = paymentDateTime.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
           const paymentTimeStr = paymentDateTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
           

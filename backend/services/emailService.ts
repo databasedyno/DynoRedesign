@@ -10,6 +10,21 @@ import { baseEmailTemplate, getCurrencySymbol, infoBox, dataRow, statusBadge, p,
 const FRONTEND_BASE_URL = (process.env.FRONTEND_URL || 'https://dynopay.com').replace(/\/$/, '');
 
 /**
+ * Escape untrusted strings for embedding in HTML email bodies.
+ * (Defined near the top so all email helpers can use it — original definition
+ * at ~line 3186 remains as a no-op re-declaration guard.)
+ */
+const escapeHtml = (s: string | null | undefined): string => {
+  if (s == null) return "";
+  return String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+};
+
+/**
  * Dynopay Unified Email Service
  * Single source of truth for all email notifications
  * Provider: Brevo
@@ -1581,6 +1596,55 @@ export const sendLargeTransactionAlertEmail = async (
   }
 };
 
+/**
+ * Webhook Auto-Disabled Alert (session 49)
+ *
+ * Fired when the circuit-breaker in utils/webhookRetry.ts trips after N
+ * consecutive DLQ hits on the same (company, webhook_url) inside a 24h
+ * rolling window. Tells the merchant their endpoint is broken, quotes the
+ * last error, and links to the webhook settings so they can fix and
+ * re-enable it.
+ */
+export const sendWebhookDisabledEmail = async (
+  email: string,
+  name: string,
+  companyName: string,
+  webhookUrl: string,
+  eventType: string,
+  lastError: string,
+  failureCount: number,
+  lang?: string
+) => {
+  try {
+    const L = await resolveEmailLang(lang, email);
+    const subject = `⚠️ Webhook auto-disabled for ${companyName || 'your company'} — Dynopay`;
+    const displayUrl = String(webhookUrl || '').length > 80 ? String(webhookUrl).substring(0, 77) + '…' : String(webhookUrl || '(none)');
+
+    const message = `
+      ${p(name ? `Hey ${escapeHtml(name)},` : `Hey there,`)}
+      ${p(`We had to temporarily <strong>disable webhook delivery</strong> for <strong>${escapeHtml(companyName || 'your company')}</strong> because your endpoint has failed <strong>${failureCount} consecutive delivery attempts</strong> in the past 24 hours.`)}
+      ${infoBox(`
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+          ${dataRow('Endpoint', `<span style="font-family:monospace;font-size:13px;">${escapeHtml(displayUrl)}</span>`)}
+          ${dataRow('Last event type', escapeHtml(eventType || 'unknown'))}
+          ${dataRow('Last error', `<span style="font-family:monospace;font-size:12px;">${escapeHtml(lastError)}</span>`)}
+          ${dataRow('Consecutive failures', String(failureCount), true)}
+        </table>
+      `, '#f59e0b')}
+      ${p(`<strong>What you need to do:</strong>`)}
+      ${p(`1. Verify the URL is correct and reachable from the public internet.<br>2. Confirm your endpoint returns HTTP 2xx within 10 seconds.<br>3. Re-enable delivery from the <a href="${escapeHtml(FRONTEND_BASE_URL)}/settings/webhooks" style="color:#10b981;font-weight:600;">webhook settings page</a>.`)}
+      ${p(`No payments were lost — every attempt was captured in your <a href="${escapeHtml(FRONTEND_BASE_URL)}/settings/webhooks" style="color:#10b981;">webhook delivery log</a> and can be re-fired once your endpoint is healthy again.`)}
+      ${p(`If you don't recognize this endpoint or believe this is a mistake, please reply to this email and we'll investigate immediately.`)}
+    `;
+
+    const html = dynoPayGreetingTemplate(name || 'there', message, `Webhook auto-disabled`, false);
+    await mailTransporter({ to: email, name, subject, body: html });
+    apiLogger.info(`[Email] Webhook auto-disabled alert sent to ${email} (company="${companyName}" url="${displayUrl}" failures=${failureCount})`);
+  } catch (e) {
+    apiLogger.error("sendWebhookDisabledEmail error:", e);
+  }
+};
+
 // ============================================================
 // SECTION 7: ADMIN EMAILS
 // ============================================================
@@ -3133,16 +3197,10 @@ const formatCents = (cents: number | string | null | undefined, currency: string
 
 /**
  * Escape untrusted strings for embedding in HTML email bodies.
+ * (kept as an alias to escapeHtml for backward compatibility with existing
+ * order/product-catalog templates below that already reference `esc()`.)
  */
-const esc = (s: string | null | undefined): string => {
-  if (s == null) return "";
-  return String(s)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-};
+const esc = escapeHtml;
 
 /**
  * Render the shared order line-items table used by both receipt templates.
@@ -3496,6 +3554,7 @@ export default {
   sendPaymentFailedEmail,
   sendCustomerPaymentConfirmationEmail,
   sendLargeTransactionAlertEmail,
+  sendWebhookDisabledEmail,
   // Admin
   sendAdminFeeReceivedEmail,
   sendAdminFeeSweepEmail,

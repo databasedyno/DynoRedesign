@@ -712,6 +712,43 @@ const deleteCompany = async (req: express.Request, res: express.Response) => {
       return errorResponseHelper(res, 404, "Company not found");
     }
     
+    // Prevent deleting the ONLY company — user must always have at least one
+    const remainingCount = await companyModel.count({ where: { user_id: userData.user_id } });
+    if (remainingCount <= 1) {
+      return errorResponseHelper(res, 400, "Cannot delete your only company. Add another company first, then delete this one.");
+    }
+    
+    // Revoke all API keys for this company BEFORE deletion. Rationale: a dpk_live_
+    // key attached to a deleted company would otherwise remain valid indefinitely
+    // (the FK is ON DELETE CASCADE but rows go away silently — we want an
+    // explicit "revoked" audit trail and to invalidate any Redis-cached tokens).
+    let revokedApiIds: number[] = [];
+    try {
+      const { apiModel } = await import("../models");
+      const apis = await apiModel.findAll({ where: { company_id } });
+      for (const api of apis) {
+        const apiId = (api as any).dataValues.api_id;
+        const adminToken = (api as any).dataValues.adminToken || (api as any).dataValues.admin_token;
+        revokedApiIds.push(apiId);
+        // Mark revoked (still exists until cascade fires below)
+        await apiModel.update(
+          { status: 'revoked' } as any,
+          { where: { api_id: apiId } }
+        );
+        // Invalidate any Redis-cached auth for this token
+        if (adminToken) {
+          try {
+            await deleteRedisItem(`api-token-${adminToken}`);
+            await deleteRedisItem(`api-key-${adminToken}`);
+          } catch (_e) { /* non-fatal */ }
+        }
+      }
+      companyLogger.info(`Revoked ${revokedApiIds.length} API keys for company ${company_id}: [${revokedApiIds.join(', ')}]`);
+    } catch (apiErr) {
+      companyLogger.warn(`Failed to revoke API keys for company ${company_id}: ${getErrorMessage(apiErr)}`);
+      // Continue — FK cascade will still remove the rows
+    }
+    
     // Clean up Redis entries for company's payment links
     try {
       const { paymentLinkModel } = await import("../models");
@@ -740,15 +777,56 @@ const deleteCompany = async (req: express.Request, res: express.Response) => {
       // Continue with deletion even if Redis cleanup fails
     }
     
-    // Delete the company
-    const resData = await companyModel.destroy({
+    // Purge auto-provisioned customer rows (created by addCompany for the API key
+    // sandbox). Note: legitimate customers who transacted via this company's payment
+    // links have transaction rows; those are protected by tbl_user_transaction's
+    // ON DELETE SET NULL on customer_id (see FK audit). But the two auto-provision
+    // customer rows created at company creation time have no transactions and would
+    // otherwise be orphaned.
+    try {
+      const { customerModel } = await import("../models");
+      const orphanCustomers = await sequelize.query(
+        `SELECT c.customer_id FROM tbl_customer c
+         WHERE c.company_id = :cid
+           AND NOT EXISTS (
+             SELECT 1 FROM tbl_user_transaction ut WHERE ut.customer_id = c.customer_id
+           )
+           AND NOT EXISTS (
+             SELECT 1 FROM tbl_customer_transaction ct WHERE ct.customer_id = c.customer_id
+           )`,
+        { replacements: { cid: company_id }, type: QueryTypes.SELECT }
+      );
+      const orphanIds = (orphanCustomers as Array<{ customer_id: string | number }>).map(r => r.customer_id);
+      if (orphanIds.length > 0) {
+        await customerModel.destroy({ where: { customer_id: orphanIds } });
+        companyLogger.info(`Deleted ${orphanIds.length} orphan customer rows for company ${company_id}`);
+      }
+    } catch (custErr) {
+      companyLogger.warn(`Failed to prune orphan customers for company ${company_id}: ${getErrorMessage(custErr)}`);
+    }
+    
+    // Delete the company (CASCADE will remove tbl_api, tbl_api_usage_log,
+    // remaining tbl_customer, tbl_buy_button, tbl_publishable_key, tbl_plan;
+    // SET NULL on tbl_invoice, tbl_payment_link, tbl_user_transaction,
+    // tbl_user_wallet, tbl_notification, tbl_notification_preferences).
+    const rowsDeleted = await companyModel.destroy({
       where: {
         user_id: userData.user_id,
         company_id,
       },
     });
     
-    successResponseHelper(res, 200, "Company deleted successfully!", resData);
+    // Bug fix: previously we returned 200 "Company deleted successfully!" even when
+    // destroy() affected 0 rows (silent failure — UI showed success while the record
+    // remained in the DB). Now return 500 with the diagnostic so the caller knows
+    // to retry or investigate.
+    if (rowsDeleted === 0) {
+      companyLogger.error(`companyModel.destroy affected 0 rows for company_id=${company_id} user_id=${userData.user_id} — record may be locked by an FK constraint`);
+      return errorResponseHelper(res, 500, "Delete failed — company still exists after operation. Contact support if this persists.");
+    }
+    
+    companyLogger.info(`Company ${company_id} deleted successfully by user ${userData.user_id} (revoked ${revokedApiIds.length} API keys)`);
+    return successResponseHelper(res, 200, "Company deleted successfully!", { rowsDeleted, revokedApiIds });
   } catch (e) {
 
       handleControllerError(res, e, companyLogger, { user_id: userData.user_id, email: userData.email });
@@ -1098,7 +1176,8 @@ const getWebhookSettings = async (req: express.Request, res: express.Response) =
     const company_id = req.params.id;
 
     const [result] = await sequelize.query(
-      `SELECT webhook_url, webhook_secret FROM tbl_company WHERE company_id = :company_id AND user_id = :user_id`,
+      `SELECT webhook_url, webhook_secret, webhook_disabled, webhook_disabled_at, webhook_disabled_reason
+         FROM tbl_company WHERE company_id = :company_id AND user_id = :user_id`,
       {
         replacements: { company_id, user_id: userData.user_id },
         type: QueryTypes.SELECT,
@@ -1111,19 +1190,78 @@ const getWebhookSettings = async (req: express.Request, res: express.Response) =
 
     // Raw sequelize.query with QueryTypes.SELECT returns plain objects (not model instances)
     // Access properties directly — .dataValues is only available on Sequelize model instances
-    const companyData = (Array.isArray(result) ? result[0] : result) as { webhook_url?: string; webhook_secret?: string };
+    const companyData = (Array.isArray(result) ? result[0] : result) as {
+      webhook_url?: string;
+      webhook_secret?: string;
+      webhook_disabled?: boolean;
+      webhook_disabled_at?: string | Date | null;
+      webhook_disabled_reason?: string | null;
+    };
     
     successResponseHelper(res, 200, "Webhook settings retrieved", {
       company_id,
       webhook_url: companyData?.webhook_url || null,
       webhook_secret_set: !!companyData?.webhook_secret,
       webhook_secret_preview: companyData?.webhook_secret ? '***' + companyData.webhook_secret.slice(-8) : null,
+      // Session 49: circuit-breaker state so dashboard can surface a re-enable CTA
+      webhook_disabled: !!companyData?.webhook_disabled,
+      webhook_disabled_at: companyData?.webhook_disabled_at || null,
+      webhook_disabled_reason: companyData?.webhook_disabled_reason || null,
     });
 
   } catch (e) {
 
 
       handleControllerError(res, e, companyLogger, { user_id: userData.user_id, email: userData.email });
+  }
+};
+
+/**
+ * Re-enable a webhook URL that was auto-disabled by the circuit breaker.
+ * Also clears the Redis-side per-URL 404 disable key so the next payment
+ * actually attempts delivery again.
+ * POST /api/company/webhook-reenable/:id
+ */
+const reenableWebhook = async (req: express.Request, res: express.Response) => {
+  const userData = jwt.decode(res.locals.token) as IUserType;
+  try {
+    const company_id = req.params.id;
+
+    // Fetch current state + URL so we can also clear its Redis dedup keys
+    const rows = await sequelize.query<{ webhook_url?: string; webhook_disabled?: boolean }>(
+      `SELECT webhook_url, webhook_disabled FROM tbl_company WHERE company_id = :company_id AND user_id = :user_id LIMIT 1`,
+      { replacements: { company_id, user_id: userData.user_id }, type: QueryTypes.SELECT }
+    );
+    const row = (Array.isArray(rows) ? rows[0] : rows) as { webhook_url?: string; webhook_disabled?: boolean } | undefined;
+    if (!row) {
+      return errorResponseHelper(res, 404, "Company not found or unauthorized");
+    }
+
+    // Clear DB flag (idempotent)
+    await sequelize.query(
+      `UPDATE tbl_company
+          SET webhook_disabled = FALSE,
+              webhook_disabled_at = NULL,
+              webhook_disabled_reason = NULL
+        WHERE company_id = :company_id AND user_id = :user_id`,
+      { replacements: { company_id, user_id: userData.user_id } }
+    );
+
+    // Clear Redis 404-counter & per-URL disable key so the next call retries fresh
+    if (row.webhook_url) {
+      try {
+        await deleteRedisItem(`webhook-404-failures:${row.webhook_url}`);
+        await deleteRedisItem(`webhook-disabled:${row.webhook_url}`);
+        // Also clear the circuit-breaker counter used by utils/webhookRetry.ts DLQ path
+        const urlHash = crypto.createHash('sha256').update(row.webhook_url).digest('hex').substring(0, 16);
+        await deleteRedisItem(`webhook:cb:${company_id}:${urlHash}`);
+      } catch (_e) { /* non-fatal */ }
+    }
+
+    companyLogger.info(`Webhook re-enabled for company_id=${company_id} by user_id=${userData.user_id} (was_disabled=${row.webhook_disabled})`);
+    return successResponseHelper(res, 200, "Webhook delivery re-enabled", { company_id, was_disabled: !!row.webhook_disabled });
+  } catch (e) {
+    handleControllerError(res, e, companyLogger, { user_id: userData.user_id, email: userData.email });
   }
 };
 
@@ -1998,6 +2136,7 @@ export default {
   validateTaxId,
   updateWebhookSettings,
   getWebhookSettings,
+  reenableWebhook,
   testWebhook,
   getWebhookHistory,
   getWebhookDetail,

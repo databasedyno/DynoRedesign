@@ -128,6 +128,26 @@ const callMerchantWebhook = async (customerData: Record<string, unknown>, eventD
     let callbackUrl = null;
     let webhookSecret = null;
     let companyId = customerData?.company_id;
+
+    // Session 49: DB-level circuit-breaker guard. If the company's
+    // webhook_disabled flag is set (by the DLQ-driven auto-disable in
+    // utils/webhookRetry.ts or by the 404 threshold below), skip webhook
+    // delivery entirely — merchant must re-enable via dashboard.
+    if (companyId) {
+      try {
+        const [companyGuard] = await sequelize.query(
+          `SELECT webhook_disabled, webhook_disabled_reason FROM tbl_company WHERE company_id = :cid LIMIT 1`,
+          { replacements: { cid: companyId }, type: QueryTypes.SELECT }
+        );
+        if (companyGuard && companyGuard.webhook_disabled === true) {
+          webhookLogs.warn(`[callMerchantWebhook] ⛔ Skipping — webhook_disabled=true on company_id=${companyId} (reason: ${companyGuard.webhook_disabled_reason || 'unknown'})`);
+          return { success: false, error: `Webhook delivery disabled for this company. Re-enable via dashboard settings.` };
+        }
+      } catch (guardErr) {
+        // Non-fatal — if guard read fails, proceed with delivery attempt
+        webhookLogs.warn(`[callMerchantWebhook] Webhook_disabled guard read failed for company_id=${companyId}: ${(guardErr as Error).message}`);
+      }
+    }
     
     // First, check if webhook_url was passed directly with the payment (e.g. merchant crypto payment API stores it in Redis)
     if (customerData?.webhook_url) {
@@ -365,7 +385,7 @@ const callUrlWithPayload = async (
               await setRedisItemWithTTL(failKey, { count: newCount, lastFailedAt: new Date().toISOString(), url }, 86400);
 
               if (newCount >= MAX_CONSECUTIVE_404_FAILURES) {
-                // Auto-disable this URL
+                // Auto-disable this URL (Redis - fast path for concurrent workers)
                 const disabledKey = `webhook-disabled:${url}`;
                 await setRedisItemWithTTL(disabledKey, {
                   disabled: true,
@@ -380,6 +400,64 @@ const callUrlWithPayload = async (
                   `Company ${companyId} will NOT receive ${urlType} notifications until the URL is fixed. ` +
                   `URL will be re-enabled automatically in 24 hours or when merchant updates their webhook URL.`
                 );
+
+                // Session 49: Persist to DB so the guard at the top of
+                // callMerchantWebhook picks it up (and dashboard can surface it),
+                // then email the merchant so they know their endpoint is broken.
+                if (companyId) {
+                  try {
+                    const sequelize = require('../utils/dbInstance').default;
+                    const [existing] = await sequelize.query(
+                      `SELECT webhook_disabled FROM tbl_company WHERE company_id = :cid LIMIT 1`,
+                      { replacements: { cid: companyId }, type: QueryTypes.SELECT }
+                    );
+                    if (existing && !existing.webhook_disabled) {
+                      const disableReason = `Auto-disabled: ${newCount} consecutive HTTP 404 responses from ${url.substring(0, 200)}`;
+                      await sequelize.query(
+                        `UPDATE tbl_company
+                            SET webhook_disabled = TRUE,
+                                webhook_disabled_at = CURRENT_TIMESTAMP,
+                                webhook_disabled_reason = :reason
+                          WHERE company_id = :cid`,
+                        { replacements: { cid: companyId, reason: disableReason } }
+                      );
+                      webhookLogs.error(`[callMerchantWebhook] 🚨 Set tbl_company.webhook_disabled=TRUE for company_id=${companyId}`);
+
+                      // Send merchant alert email (best-effort, non-blocking)
+                      try {
+                        const [ownerRows] = await sequelize.query(
+                          `SELECT u.email, u.name, c.company_name, u.language
+                             FROM tbl_user u
+                             JOIN tbl_company c ON c.user_id = u.user_id
+                            WHERE c.company_id = :cid LIMIT 1`,
+                          { replacements: { cid: companyId }, type: QueryTypes.SELECT }
+                        );
+                        const owner = ownerRows as { email?: string; name?: string; company_name?: string; language?: string } | undefined;
+                        if (owner?.email) {
+                          const emailSvc = require('../services/emailService');
+                          const sendFn = emailSvc.sendWebhookDisabledEmail || emailSvc.default?.sendWebhookDisabledEmail;
+                          if (typeof sendFn === 'function') {
+                            await sendFn(
+                              owner.email,
+                              owner.name || 'Merchant',
+                              owner.company_name || 'your company',
+                              url,
+                              String(eventData.event || urlType),
+                              `HTTP 404 — endpoint returned Not Found for ${newCount} consecutive attempts`,
+                              newCount,
+                              owner.language
+                            );
+                            webhookLogs.info(`[callMerchantWebhook] 📧 Sent webhook-disabled alert email to ${owner.email}`);
+                          }
+                        }
+                      } catch (mailErr) {
+                        webhookLogs.warn(`[callMerchantWebhook] Failed to send webhook-disabled email: ${(mailErr as Error).message}`);
+                      }
+                    }
+                  } catch (dbErr) {
+                    webhookLogs.warn(`[callMerchantWebhook] Failed to persist webhook_disabled on tbl_company: ${(dbErr as Error).message}`);
+                  }
+                }
               } else {
                 webhookLogs.error(
                   `[callMerchantWebhook] 🚨 ALERT: Webhook URL "${url}" returned 404 (${newCount}/${MAX_CONSECUTIVE_404_FAILURES} before auto-disable). ` +

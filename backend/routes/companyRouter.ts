@@ -32,6 +32,7 @@ companyRouter.post("/validateTaxId", authMiddleware, companyController.validateT
 // Webhook configuration endpoints
 companyRouter.put("/webhook-settings/:id", authMiddleware, companyOwnershipMiddleware, companyController.updateWebhookSettings);
 companyRouter.get("/webhook-settings/:id", authMiddleware, companyOwnershipMiddleware, companyController.getWebhookSettings);
+companyRouter.post("/webhook-reenable/:id", authMiddleware, companyOwnershipMiddleware, companyController.reenableWebhook);
 companyRouter.post("/webhook-test/:id", authMiddleware, companyOwnershipMiddleware, companyController.testWebhook);
 
 // Webhook history and stats endpoints

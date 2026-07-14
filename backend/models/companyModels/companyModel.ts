@@ -78,6 +78,26 @@ const companyModel = sequelize.define(
       allowNull: true,
       comment: "Secret key for webhook signature verification",
     },
+    // Session 49: Circuit breaker for repeatedly-failing merchant webhook URLs.
+    // Auto-set to true after N consecutive DLQ failures (see utils/webhookRetry.ts).
+    // The merchant receives a warning email and can re-enable via the dashboard
+    // (POST /api/company/:id/webhook/reenable) after fixing their endpoint.
+    webhook_disabled: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+      comment: "When true, no payment webhooks will be dispatched to webhook_url until re-enabled",
+    },
+    webhook_disabled_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      comment: "Timestamp when webhook_url was auto-disabled by circuit breaker",
+    },
+    webhook_disabled_reason: {
+      type: DataTypes.STRING(500),
+      allowNull: true,
+      comment: "Reason webhook was disabled (e.g., '3 consecutive failures — HTTP 404')",
+    },
     // Payment settings
     overpayment_threshold_usd: {
       type: DataTypes.DECIMAL(10, 2),

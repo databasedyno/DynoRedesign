@@ -120,6 +120,81 @@ const moveToDeadLetterQueue = async (
     `[WebhookRetry] Webhook ${webhookData.webhookId} moved to DLQ after ${DEFAULT_RETRY_CONFIG.maxRetries} failed attempts. ` +
     `URL: ${webhookData.url}, Error: ${finalError}`
   );
+
+  // Session 49: Circuit-breaker. Track per-(company, URL) DLQ hits over a
+  // rolling 24h window; after 3 hits, auto-disable the webhook_url on the
+  // company and email the merchant. This prevents indefinite spam of failed
+  // deliveries when a merchant's endpoint is misconfigured or truncated.
+  try {
+    // Use a URL hash to keep the Redis key short & avoid special chars.
+    const crypto = require('crypto');
+    const urlHash = crypto.createHash('sha256').update(webhookData.url).digest('hex').substring(0, 16);
+    const cbKey = `webhook:cb:${webhookData.companyId}:${urlHash}`;
+    const existing = (await getRedisItem(cbKey)) || { count: 0, firstAt: Date.now() };
+    existing.count = (existing.count || 0) + 1;
+    existing.lastError = finalError;
+    existing.lastUrl = webhookData.url;
+    existing.lastAt = Date.now();
+    await setRedisItem(cbKey, existing);
+    await setRedisTTL(cbKey, 86400); // 24h rolling window
+
+    const DISABLE_THRESHOLD = 3;
+    if (existing.count >= DISABLE_THRESHOLD) {
+      const sequelize = require('./dbInstance').default;
+      // Only disable if not already disabled — idempotent
+      const [rows] = await sequelize.query(
+        `SELECT webhook_disabled, email, "user_id" FROM tbl_company WHERE company_id = :cid LIMIT 1`,
+        { replacements: { cid: webhookData.companyId } }
+      );
+      const row = (rows as Array<{ webhook_disabled: boolean; email: string | null; user_id: number }>)[0];
+      if (row && !row.webhook_disabled) {
+        const reason = `Circuit breaker: ${existing.count} consecutive DLQ hits in 24h — last error: ${String(finalError).substring(0, 300)}`;
+        await sequelize.query(
+          `UPDATE tbl_company
+             SET webhook_disabled = TRUE,
+                 webhook_disabled_at = CURRENT_TIMESTAMP,
+                 webhook_disabled_reason = :reason
+           WHERE company_id = :cid`,
+          { replacements: { cid: webhookData.companyId, reason } }
+        );
+        webhookLogs.error(`[WebhookRetry] 🚨 Circuit breaker TRIPPED — auto-disabled webhook_url for company_id=${webhookData.companyId} (url=${webhookData.url}). Reason: ${reason}`);
+
+        // Send merchant alert email (best-effort, non-blocking)
+        try {
+          const [ownerRows] = await sequelize.query(
+            `SELECT u.email, u.name, c.company_name, u.language
+               FROM tbl_user u
+               JOIN tbl_company c ON c.user_id = u.user_id
+              WHERE c.company_id = :cid LIMIT 1`,
+            { replacements: { cid: webhookData.companyId } }
+          );
+          const owner = (ownerRows as Array<{ email: string | null; name: string | null; company_name: string | null; language: string | null }>)[0];
+          if (owner?.email) {
+            const emailService = require('../services/emailService');
+            const sendFn = emailService.sendWebhookDisabledEmail || emailService.default?.sendWebhookDisabledEmail;
+            if (typeof sendFn === 'function') {
+              await sendFn(
+                owner.email,
+                owner.name || 'Merchant',
+                owner.company_name || 'your company',
+                webhookData.url,
+                webhookData.eventType,
+                String(finalError).substring(0, 300),
+                existing.count
+              );
+              webhookLogs.info(`[WebhookRetry] 📧 Sent webhook-disabled alert email to ${owner.email}`);
+            } else {
+              webhookLogs.warn(`[WebhookRetry] sendWebhookDisabledEmail not exported from emailService — falling back to generic email`);
+            }
+          }
+        } catch (mailErr) {
+          webhookLogs.warn(`[WebhookRetry] Failed to send webhook-disabled alert email: ${(mailErr as Error).message}`);
+        }
+      }
+    }
+  } catch (cbErr) {
+    webhookLogs.warn(`[WebhookRetry] Circuit breaker bookkeeping failed (non-critical): ${(cbErr as Error).message}`);
+  }
 };
 
 /**

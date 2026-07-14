@@ -1,3 +1,118 @@
+## Session 49: 2 anomalies found in DO logs + LIVE Railway PG — 5 fixes shipped (2026-07-14)
+
+### Preview URL
+https://fa7fae5a-23b5-40b4-b640-8d93552b99f2.preview.emergentagent.com
+
+### Test credentials (from /app/memory/test_credentials.md)
+- Merchant: hostbay@moxx.co / Katiekendra123@ (user_id=1, LIVE Railway PG; has claimed creator handle "hostbay")
+
+### User request (2 issues + 2-item ask)
+
+1. **"Continue getting login emails on hostbay@moxx.co even though I created a 2nd company & then deleted it"** — user suspected the deleted company was leaving a residual session that re-triggered the login flow. Actually root cause was entirely different (see findings below).
+2. **"$50 payment link paid with 50 USDT but email arrived several minutes late — plus other anomalies"** — please review logs.
+3. Access DO app logs via token `dop_v1_5e254f5a…` and detect other anomalies.
+
+### Investigation approach
+
+- **DO API RUN logs**: only the CURRENT active deployment (`e78f1f1f-2387-47b5-9cac-df2316ca9d61`, started 16:31:04) returns actual runtime lines; all 16 SUPERSEDED deployments in the 24-h window return `""` (DO doesn't retain past-deployment RUN logs). `RUN_RESTARTED` type hangs indefinitely (empty stream, connection stays open).
+- **Direct LIVE Railway PG queries**: since this pod's `.env` is provisioned with the same `DATABASE_URL` (`roundhouse.proxy.rlwy.net:23599/railway`), we can read the exact rows the DO backend writes. Same for Redis (`nozomi.proxy.rlwy.net:15794`). This became the primary evidence source.
+
+### Findings
+
+**Issue 1 — Phantom login emails — ROOT CAUSE = automated preview sessions**
+
+- `tbl_login_activities` for `user_id=1` in the last 7 days: **249 rows**, top offenders:
+  - `34.16.56.64` = **47 hits** — UAs: `curl/7.88.1`, `python-requests/2.32.3`, `HeadlessChrome/145`, `node`
+  - `104.198.214.223` = **33 hits** — verified as **this container's own outbound egress** (`curl ifconfig.me` returned exactly this IP) — UAs: same profile
+  - `34.170.12.145` = **28 hits** — same profile (Emergent GCP us-central1)
+  - `::ffff:127.0.0.1` = **14 hits** — same container calling itself in tests
+  - User's real IPs (Portugal `2001:8a0:*`, Indianapolis `2607:740:*`, `104.243.215.13`) = 3–10 each — real Safari/Chrome
+- Between 16:26:21 and 16:28:10 UTC (~90 seconds before this fresh container's own supervisor came up at 16:31), a previous Emergent preview container fired 8 successful logins from `104.198.214.223`.
+- Every login triggers `sendLoginNotificationEmail` in `finalizeLogin()` (`userController.ts:768`) with no throttle / dedup / UA filter.
+- **The "second company deleted" was a red herring**: `company_id=13` (name="Host", email="baby@ao.com", created 15:26:27) **was NEVER actually deleted from the DB**. The record still existed at investigation time with 2 orphan customers (customer_id=160, 161) and 2 **still-active** auto-provisioned API keys — including a **production dpk_live_ key `Ruby-56` (api_id=24)**. Delete may have failed silently: current `deleteCompany` returned 200 "Company deleted successfully!" even when `companyModel.destroy()` affected 0 rows.
+
+**Issue 2 — `$50 USDT payment received email` arrived ~5 min late**
+
+Traced tx_id=**393** (net $48.50 / gross $50 USD, paid 50 USDT-TRC20):
+- Customer paid on-chain (tbl_user_transaction row created): 2026-07-13T13:49:17.935Z
+- `payment_pending` notification: 13:53:58.426Z (+4m 41s)
+- Status flipped `active → successful`: 13:54:25.926Z (+5m 8s)
+- `payment_received` notification: 13:54:30.304Z (+5m 12s)
+
+Bug A: `cryptoSettlement.ts:2835` used `const paymentDateTime = new Date();` (i.e., "now" when the sweep-handler runs) instead of the actual on-chain detection timestamp — email showed "paid at 13:54" for a customer who paid at 13:49. Sweep-recovery in `merchantPoolSweep.ts:1040` was already using the correct `latestPoolTx.created_at` — inconsistent behavior between paths.
+
+Bug B: Every "successful" row in `tbl_user_transaction` had `confirmations=0 / required_confirmations=6` — the counter was never updated even after the tx finalized. Dashboard "12 of 6 confirmations" display was thus wrong for all `successful` rows.
+
+**Other anomalies detected**
+
+- **USDT-ERC20 completions are extremely slow**: 3 recent Ethereum completions (tx 375, 377, 360) all took **115 – 134 minutes** while USDT-TRC20 finishes in 2–5 min. Status = `completed` (vs TRC20's `successful`) and `confirmations=12/6` — so ETH does update confirmations, but sits in a "waiting" state for 2h. Worth deeper investigation but not fixed this session.
+- **Failed webhook deliveries** (past 7 days): 2 deliveries to `https://lockbaynewfix-production.up.railway.app/we…` returning **HTTP 404** for `payment.pending` and `payment.confirmed` events. URL appears truncated (ends in `/we`) — merchant's webhook is misconfigured.
+
+### Fixes shipped (5 items — a, c, d, e, f per user's approval; skipped b = credential rotation)
+
+**Fix (a) — Stop the login-email spam** in `controller/userController.ts` `finalizeLogin`:
+- Skip the email entirely for automation UAs: `curl/`, `python-requests`, `python-urllib`, `headlesschrome`, `phantomjs`, `node-fetch`, `node/`, `wget/`, `go-http-client`, `axios/`, `postmanruntime`, `insomnia/`, `okhttp/`, `apache-httpclient`, `java/`, `libwww-perl`, `lighthouse`, `monitor`, `uptime`, `bot`, `spider`, `crawler`.
+- Skip for internal IPs: `::1`, `127.0.0.1`, `::ffff:127.0.0.1`, `10.*`, `192.168.*`, `Unknown`.
+- Throttle by fingerprint = SHA-256(user_id|ip|browser|os) → 24-char hash → Redis key `login-notif:{uid}:{fp}` with 15-min TTL. When throttled, skip email and log the fingerprint hash.
+- Optional per-user preference `notify_new_device_only` (new `BOOLEAN` col on `tbl_notification_preferences`, default `FALSE`, ALTER'd on prod DB). When enabled, only sends email when the (ip, browser, os) tuple is genuinely new — tracked via Redis `login-notif-seen:{uid}:{fp}` with 30-day TTL.
+
+VERIFIED: `curl -H "User-Agent: curl/7.88.1"` login → HTTP 200 + log line `Skipping login-notification email — ua="curl/7.88.1" ip=104.198.214.223 (bot=true internal=false)`. Chrome UA login → email sent once, subsequent logins within 15 min → log line `Skipping login-notification email — throttled (fp=0551ea67ef0429e09cc96b85) or already-known device`.
+
+**Fix (c) — `deleteCompany` in `controller/companyController.ts`**:
+- Preflight: block deletion when user has only 1 company (returns 400 "Cannot delete your only company").
+- Cascade-revoke all `tbl_api` rows for the company (sets `status='revoked'`, wipes Redis `api-token-*` / `api-key-*` caches) BEFORE the FK-CASCADE takes them away — audit trail preserved.
+- Prune orphan auto-provisioned `tbl_customer` rows (customers created at company-creation time with no downstream tx history — the two `Ruby-56 admin` / `Onyx-67 admin` style rows).
+- Return 500 with explicit message when `destroy()` affects 0 rows (was silent 200).
+- Include `{ rowsDeleted, revokedApiIds }` in success response so the frontend can toast a real summary.
+
+MANUAL DB CLEANUP RUN THIS SESSION: `company_id=13` fully purged — revoked `api_id=23` (Onyx-67, dev) and `api_id=24` (Ruby-56, prod), deleted `customer_id=160 & 161`, deleted the company row, reset `user.last_company_id` from `13 → 1`.
+
+**Fix (d) — payment-received email timestamp** in `controller/payment/cryptoSettlement.ts` (around line 2835):
+- Query `userTransactionModel.findOne({where: {id: tempData.user_tx_id||tempData.unique_tx_id||tempData.payment_id||customerPayload.id}, attributes:['createdAt']})` to fetch the actual on-chain detection time.
+- Use that `createdAt` as `paymentDateTime`; falls back to `new Date()` only when the lookup fails (with a warn log identifying the tx).
+- Adds an info log `Using tx createdAt=X as payment-received email timestamp (email would previously show current time = Y)` — makes the fix auditable in DO run logs.
+
+**Fix (e) — `confirmations` counter** in the same file (userPayload block right before `userTransactionModel.update`):
+- Call `tatumApi.getTransactionConfirmations(transactionId, tempCurrency)` at settlement time.
+- Persist `confirmations: finalConfirmations` into the row when the tatum call succeeds; skip the field (leaves whatever value the row had) on tatum failure — no downgrade of good data.
+
+**Fix (f) — webhook circuit-breaker + merchant alert**:
+- New columns on `tbl_company` (added directly via `ALTER TABLE ADD COLUMN IF NOT EXISTS` on prod PG):
+  - `webhook_disabled BOOLEAN NOT NULL DEFAULT FALSE`
+  - `webhook_disabled_at TIMESTAMPTZ`
+  - `webhook_disabled_reason VARCHAR(500)`
+- Sequelize model `companyModel.ts` extended with the same three fields (matching types/comments).
+- DB-level guard at the top of `webhooks/index.ts` `callMerchantWebhook`: reads `webhook_disabled` and short-circuits with an error before hitting the network when the flag is set.
+- Existing Redis-based `MAX_CONSECUTIVE_404_FAILURES` disable in `callUrlWithPayload` now also **UPDATE**s `tbl_company.webhook_disabled=TRUE` and sends a new `sendWebhookDisabledEmail` (see below).
+- Mirror path in `utils/webhookRetry.ts` `moveToDeadLetterQueue`: tracks a per-(company_id, URL-sha256-16char) hit counter in Redis with 24-h rolling TTL; after 3 DLQ hits, sets the same DB flag and sends the same email.
+- New email `sendWebhookDisabledEmail(email, name, companyName, webhookUrl, eventType, lastError, failureCount, lang?)` in `services/emailService.ts` — uses shared `dynoPayGreetingTemplate`, quotes the last error, shows the endpoint (URL-truncated to 80 chars for readability), and CTAs to `/settings/webhooks`. Registered in the `default {}` export.
+- HTML-escape helper `esc()` (originally defined ~line 3186 of emailService.ts) was moved to a top-of-file `escapeHtml()` so it's available for the new template (with `const esc = escapeHtml` alias left at the original position for backward-compat).
+- New route `POST /api/company/webhook-reenable/:id` (`companyRouter.ts`) protected by `authMiddleware` + `companyOwnershipMiddleware`, wired to new `companyController.reenableWebhook` — clears DB flag + clears Redis `webhook-404-failures:{url}`, `webhook-disabled:{url}`, and `webhook:cb:{cid}:{urlhash}` keys.
+- `getWebhookSettings` response now includes `webhook_disabled` / `webhook_disabled_at` / `webhook_disabled_reason` so the dashboard can surface a "webhook auto-disabled — click to re-enable" banner.
+
+VERIFIED: `POST /api/company/webhook-reenable/1` returns HTTP 403 CSRF (route registered), `/health` internal=healthy (DB+Redis), external `/`, `/auth/login`, `/api/pay/creator/hostbay` all 200.
+
+### Files touched
+- `/app/backend/controller/userController.ts` (login throttle + bot filter)
+- `/app/backend/controller/companyController.ts` (deleteCompany hardening + reenableWebhook + getWebhookSettings extra fields)
+- `/app/backend/controller/payment/cryptoSettlement.ts` (payment-received timestamp + confirmations counter)
+- `/app/backend/services/emailService.ts` (sendWebhookDisabledEmail + escapeHtml lift)
+- `/app/backend/utils/webhookRetry.ts` (DLQ circuit-breaker + DB flag)
+- `/app/backend/webhooks/index.ts` (DB guard at delivery time + enhanced 404-threshold auto-disable)
+- `/app/backend/models/companyModels/companyModel.ts` (3 new webhook_disabled* columns)
+- `/app/backend/models/notificationPreferencesModel.ts` (notify_new_device_only column)
+- `/app/backend/routes/companyRouter.ts` (webhook-reenable route)
+
+### Direct prod DB writes this session
+- `ALTER TABLE tbl_company ADD COLUMN webhook_disabled/webhook_disabled_at/webhook_disabled_reason`
+- `ALTER TABLE tbl_notification_preferences ADD COLUMN notify_new_device_only BOOLEAN DEFAULT FALSE`
+- Purged company_id=13 (see Fix c above)
+
+### Deployment note
+Backend running on THIS preview container is the ONE that has the fixes. To ship these changes to DO production (`dynopay-app`), the user needs to push to GitHub (via Emergent "Save to Github" flow) and DO will auto-redeploy the app. Until that happens, DO production still runs the old code — the DB-level fixes (deleted company_id=13, new columns) are already live because they were run directly against Railway PG.
+
+---
+
 ## Session 48: Menu + Transactions UX overhaul — Creator on mobile/tablet + Source filter + cross-links (2026-07-14)
 
 ### Preview URL

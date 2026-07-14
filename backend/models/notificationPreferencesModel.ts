@@ -49,6 +49,13 @@ const notificationPreferencesModel = sequelize.define(
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
+    // When true: only email on genuinely new (unseen) device fingerprints.
+    // When false (default): email every fingerprint per 15-min throttle window.
+    // Set to true if you want to silence routine repeat logins from the same browser/IP.
+    notify_new_device_only: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
     // Delivery channels
     email_notifications: {
       type: DataTypes.BOOLEAN,
