@@ -1,3 +1,45 @@
+## Session 50: End-to-End UI Audit + env URL fix (2026-07-14)
+
+### Preview URL
+https://36129da5-c7cb-40ba-ac09-96f112df813c.preview.emergentagent.com
+
+### Test credentials (from /app/memory/test_credentials.md)
+- Data-rich merchant: hostbay@moxx.co / Katiekendra123@ (user_id=1, LIVE Railway PG)
+- Empty merchant: qa.empty.1782626169@dynopaytest.com / QaEmpty#2026
+
+### User request
+"Log in and perform an end-to-end UI test of all reachable functionality for the authenticated user." Full mission scope: map app areas, test happy path + validation + boundary + empty/error/loading/stale/duplicate submission + session timeout + unauthorized access + responsive at mobile/tablet/desktop.
+
+### Fresh-container env-provisioning done in prior turn
+Fresh container (node_modules + all 3 .env missing on boot). Ran root `yarn install` + backend `yarn install`. Wrote `/app/backend/.env`, `/app/.env.local`, `/app/frontend/.env` with user-supplied creds.
+
+**INITIAL ENV MISTAKE (now fixed):** In the initial env write, `NEXT_PUBLIC_BASE_URL=""` (empty) was set and `NEXTAUTH_URL=https://dynopay.com` was kept. Both caused P0 breakage:
+
+1. **`NEXT_PUBLIC_BASE_URL=""` broke ALL server-side `getServerSideProps` fetches.** Multiple pages use `const base = process.env.NEXT_PUBLIC_BASE_URL; fetch(\`${base}/api/...\`)` — when `base` is empty, Node.js `fetch("/api/...")` fails with an `Invalid URL` error, and the page returns `{ notFound: true }`. Affected: `/[handle]` (creator page → `/hostbay`), `/[handle]/shop` (`/hostbay/shop`), `/[handle]/p/[slug]` (product page), `/[handle]/cart`, `/[handle]/checkout`, `/order/[publicRef]`, `/pay`, `/creator`.
+2. **`NEXTAUTH_URL=https://dynopay.com` broke NextAuth session validation** for the preview URL. Browser at preview URL, but NextAuth thinks it's serving from `dynopay.com` → session cookies / callback URL validation fail → client-side `[next-auth][error][CLIENT_FETCH_ERROR] Failed to fetch /api/auth/session` → app treats user as unauthenticated on some auth-gated pages and re-redirects to login.
+
+### Fix applied (2 lines of .env, no code changes)
+- `/app/.env.local`: `NEXT_PUBLIC_BASE_URL` empty → preview URL; `NEXTAUTH_URL` dynopay.com → preview URL; `FRONTEND_URL` and `SERVER_URL` dynopay.com → preview URL (so getServerSideProps-generated share URLs point to the preview correctly in this preview context).
+- `/app/backend/.env`: mirror of the above (backend server.ts reads these for CORS + email/webhook URLs).
+- Restarted frontend + backend. Verified externally:
+  - `/hostbay`: was HTTP 404 → now HTTP 200
+  - `/hostbay/shop`: was HTTP 404 → now HTTP 200
+  - `/api/auth/session`: `{"user":null}` HTTP 200 (was CLIENT_FETCH_ERROR)
+  - `/api/pay/creator/hostbay`: HTTP 200 returning `{creator: {name: "Lek Na", handle: "hostbay"}}`
+
+### Bugs found in first E2E pass (before fix) — status
+- **BUG-1 `/hostbay` 404** — FIXED by env fix, ready for re-test
+- **BUG-2 `/hostbay/shop` 404** — FIXED by env fix, ready for re-test
+- **BUG-3 Session not persisting** — LIKELY FIXED by NEXTAUTH_URL fix, ready for re-test
+- **BUG-4 ProductQuickSell not rendering** — LIKELY a cascade from BUG-3; ready for re-test
+- **BUG-5 Pay-links list empty** — LIKELY a cascade from BUG-3; ready for re-test
+- **BUG-6 Developer-keys empty + no Create button** — LIKELY a cascade from BUG-3; ready for re-test
+
+### Next step
+Delegate to frontend testing agent (`auto_frontend_testing_agent`) to re-verify all 6 bugs are gone AND continue the P0 → P1 → P2 sweep that was blocked earlier.
+
+---
+
 ## Session 49 Round 3: ProductQuickSell "Import from Store" Feature Verification (2026-07-14)
 
 ### Preview URL
