@@ -10,7 +10,7 @@ import json
 import time
 
 # Configuration
-BASE_URL = "https://coin-checkout-5.preview.emergentagent.com"
+BASE_URL = "https://setup-wizard-192.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 # Test credentials

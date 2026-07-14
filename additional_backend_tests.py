@@ -8,7 +8,7 @@ import requests
 import json
 import sys
 
-BACKEND_URL = "https://coin-checkout-5.preview.emergentagent.com"
+BACKEND_URL = "https://setup-wizard-192.preview.emergentagent.com"
 
 def test_additional_scenarios():
     """Test additional scenarios and edge cases"""
