@@ -5,7 +5,7 @@ import json
 import requests
 import pytest
 
-BASE_URL = "https://setup-wizard-192.preview.emergentagent.com"
+BASE_URL = "https://product-spec-preview.preview.emergentagent.com"
 LOGIN_EMAIL = "hostbay@moxx.co"
 LOGIN_PASSWORD = "Katiekendra123@"
 CAMPAIGN_LINK_ID = 77

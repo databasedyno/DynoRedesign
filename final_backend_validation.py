@@ -8,7 +8,7 @@ import requests
 import json
 import sys
 
-BACKEND_URL = "https://setup-wizard-192.preview.emergentagent.com"
+BACKEND_URL = "https://product-spec-preview.preview.emergentagent.com"
 
 def final_validation_tests():
     """Final validation of all review request requirements"""

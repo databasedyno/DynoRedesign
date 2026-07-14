@@ -5,7 +5,7 @@
 
 const { chromium } = require('playwright');
 
-const PREVIEW_URL = 'https://setup-wizard-192.preview.emergentagent.com';
+const PREVIEW_URL = 'https://product-spec-preview.preview.emergentagent.com';
 
 async function testGISIntegration() {
   console.log('='.repeat(80));
