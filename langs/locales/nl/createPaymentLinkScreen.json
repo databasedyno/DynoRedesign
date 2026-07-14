@@ -179,6 +179,7 @@
     "noResults": "Geen producten gevonden",
     "noneLive": "Nog geen live producten",
     "noneHint": "Publiceer producten in Winkel → Producten en kom dan terug om er een te kiezen.",
-    "currentBadge": "· huidige"
+    "currentBadge": "· huidige",
+    "variantLabel": "Variant"
   }
 }

@@ -356,6 +356,19 @@ const CreatePaymentLinkPage = ({
     // Leave the form fields as they are — merchant likely wants to keep the
     // last-typed values (Option "3a": fully editable after picking).
   }, []);
+  // Called when the merchant changes the variant sub-dropdown after picking.
+  // ProductQuickSell computes the new amount (variant.price_cents × qty) and
+  // we mirror it into paymentSettings + update selected_variant_id on the
+  // picked-product state so the dropdown shows the new choice.
+  const handleVariantChange = useCallback(
+    (variantId: number | string, amount: string) => {
+      setPickedProduct((prev) => (prev ? { ...prev, selected_variant_id: variantId, amount } : prev));
+      setPaymentSettings((prev) => ({ ...prev, value: amount }));
+      setPaymentSettingsTouched((prev) => ({ ...prev, value: true }));
+      setPaymentSettingsErrors((prev) => ({ ...prev, value: "" }));
+    },
+    []
+  );
 
   // Keep the page/tab title aligned with the selected link kind while CREATING
   // (in edit mode the parent route owns its own header). Only runs when the
@@ -1067,9 +1080,104 @@ const CreatePaymentLinkPage = ({
     setPaymentSettings((prev) => ({ ...prev, acceptedCryptoCurrency: preselect }));
   }, [walletList, hasPaymentLinkData, paymentSettings.acceptedCryptoCurrency]);
 
+  // Deep-link support: /create-pay-link?product_id=X&qty=N (session 49 round 3
+  // follow-up) — merchant clicks "Quick sell" on the Products list, we jump
+  // to the pay-link create form with the product pre-picked and the amount
+  // pre-multiplied by qty. Amount/currency/description stay fully editable
+  // (option 3a). We only fetch once; hasAppliedProductRef guards against
+  // re-runs after router.query mutation on Next router state changes.
+  const router = useRouter();
+  const hasAppliedProductRef = useRef(false);
+  useEffect(() => {
+    if (hasAppliedProductRef.current) return;
+    if (hasPaymentLinkData) return;
+    if (!router.isReady) return;
+    const productIdRaw = router.query.product_id;
+    if (!productIdRaw) return;
+    const productId = Array.isArray(productIdRaw) ? productIdRaw[0] : productIdRaw;
+    const qtyRaw = router.query.qty;
+    const qty = Math.max(1, Math.floor(Number(Array.isArray(qtyRaw) ? qtyRaw[0] : qtyRaw) || 1));
+    hasAppliedProductRef.current = true;
+
+    (async () => {
+      try {
+        const res = await import("@/axiosConfig").then((m) => m.default.get(`/products/${productId}`));
+        const product = res?.data?.data?.product;
+        const variants = (res?.data?.data?.variants || []).filter(
+          (v: { is_active?: boolean }) => v.is_active !== false
+        );
+        if (!product) return;
+
+        // Choose default variant = cheapest active (matches ProductQuickSell behaviour).
+        let selectedVariantId: number | string | null = null;
+        let unitCents = Number(product.base_price_cents) || 0;
+        if (product.has_variants && variants.length > 0) {
+          const sorted = [...variants].sort(
+            (a, b) => Number(a.price_cents) - Number(b.price_cents)
+          );
+          selectedVariantId = sorted[0].variant_id;
+          unitCents = Number(sorted[0].price_cents) || 0;
+        }
+        const amountCents = unitCents * qty;
+        const amountDec = (amountCents / 100).toFixed(2);
+        const stripMd = (md: string | null | undefined): string => {
+          if (!md) return "";
+          return String(md)
+            .replace(/```[\s\S]*?```/g, "")
+            .replace(/`([^`]+)`/g, "$1")
+            .replace(/!\[[^\]]*\]\([^)]+\)/g, "")
+            .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+            .replace(/^#{1,6}\s+/gm, "")
+            .replace(/(\*\*|__)(.*?)\1/g, "$2")
+            .replace(/(\*|_)(.*?)\1/g, "$2")
+            .replace(/^>\s+/gm, "")
+            .replace(/^[\-*+]\s+/gm, "• ")
+            .replace(/\n{3,}/g, "\n\n")
+            .trim();
+        };
+        const rawDesc = stripMd(product.description_md || product.subtitle || "").slice(0, 500);
+        const qtyPrefix = qty > 1 ? `${qty}× ${product.title} — ` : "";
+        const description = qtyPrefix + (rawDesc || product.title);
+
+        setPickedProduct({
+          product_id: product.product_id,
+          title: product.title,
+          amount: amountDec,
+          currency: product.currency || "USD",
+          description,
+          cover_image_url: product.cover_image_url || null,
+          product_type: product.product_type,
+          variants: product.has_variants ? variants : undefined,
+          selected_variant_id: selectedVariantId,
+          qty,
+        });
+        setPaymentSettings((prev) => ({
+          ...prev,
+          value: amountDec,
+          currency: product.currency || prev.currency,
+          description,
+        }));
+        setPaymentSettingsTouched((prev) => ({
+          ...prev,
+          value: true,
+          currency: true,
+          description: true,
+        }));
+        setPaymentSettingsErrors((prev) => ({
+          ...prev,
+          value: "",
+          currency: "",
+          description: "",
+        }));
+      } catch (e) {
+        // Silently skip on 404 / 403 — merchant just sees an empty picker.
+        console.warn("[CreatePaymentLink] Failed to load product for deep-link:", e);
+      }
+    })();
+  }, [router.isReady, router.query.product_id, router.query.qty, hasPaymentLinkData]);
+
   // UX-2026-07-08: apply query-string template presets when arriving via
   // empty-state chips (e.g. /create-pay-link?template=invoice&amount=500).
-  const router = useRouter();
   const hasAppliedTemplateRef = useRef(false);
   useEffect(() => {
     if (hasAppliedTemplateRef.current) return;
@@ -1387,6 +1495,7 @@ const CreatePaymentLinkPage = ({
                       picked={pickedProduct}
                       onPick={handlePickProduct}
                       onClear={handleClearProduct}
+                      onVariantChange={handleVariantChange}
                       isMobile={isMobile}
                     />
                   )}

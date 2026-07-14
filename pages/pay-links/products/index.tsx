@@ -13,6 +13,7 @@ import EditRounded from "@mui/icons-material/EditRounded";
 import ReceiptLongRounded from "@mui/icons-material/ReceiptLongRounded";
 import LaunchRounded from "@mui/icons-material/LaunchRounded";
 import DeleteOutlineRounded from "@mui/icons-material/DeleteOutlineRounded";
+import BoltRounded from "@mui/icons-material/BoltRounded";
 import PanelCard from "@/Components/UI/PanelCard";
 import CustomButton from "@/Components/UI/Buttons";
 import { pageProps } from "@/utils/types";
@@ -255,6 +256,25 @@ const ProductsList = ({ setPageName, setPageDescription, setPageAction }: pagePr
                     >
                       <EditRounded fontSize="small" />
                     </IconButton>
+                    {p.status === "live" && (
+                      <IconButton
+                        size="small"
+                        onClick={() =>
+                          router.push({
+                            pathname: "/create-pay-link",
+                            query: { product_id: p.product_id, qty: 1 },
+                          })
+                        }
+                        title="Quick sell — create a payment link pre-filled with this product"
+                        data-testid={`product-row-quicksell-${p.product_id}`}
+                        sx={{
+                          color: "#10B981",
+                          "&:hover": { bgcolor: "rgba(16, 185, 129, 0.08)" },
+                        }}
+                      >
+                        <BoltRounded fontSize="small" />
+                      </IconButton>
+                    )}
                     <IconButton
                       size="small"
                       onClick={() => router.push(`/pay-links/products/${p.product_id}/orders`)}

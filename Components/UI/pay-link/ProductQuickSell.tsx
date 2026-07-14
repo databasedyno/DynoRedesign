@@ -26,6 +26,8 @@ import {
   Divider,
   IconButton,
   InputAdornment,
+  MenuItem,
+  Select,
   TextField,
   Typography,
   useTheme,
@@ -46,6 +48,20 @@ interface ProductSummary {
   status: string;
   product_type: string;
   slug: string;
+  /** Sequelize returns this — flag for whether the picker should load variants. */
+  has_variants?: boolean;
+  category?: string | null;
+}
+
+/** Variant shape returned by GET /api/products/:id. Only the fields we render. */
+export interface ProductVariant {
+  variant_id: number | string;
+  sku?: string | null;
+  attributes?: Record<string, string | number> | null;
+  price_cents: number;
+  stock_count?: number | null;
+  is_active: boolean;
+  image_url?: string | null;
 }
 
 export interface PickedProduct {
@@ -56,6 +72,12 @@ export interface PickedProduct {
   description: string; // truncated to 500 chars (matches server validation)
   cover_image_url: string | null;
   product_type: string;
+  /** Variants returned alongside the product (only populated when has_variants=true). */
+  variants?: ProductVariant[];
+  /** Currently selected variant_id (only meaningful when variants is non-empty). */
+  selected_variant_id?: number | string | null;
+  /** Optional quantity multiplier — used when deep-linked via ?qty=N. Default 1. */
+  qty?: number;
 }
 
 interface ProductQuickSellProps {
@@ -63,6 +85,13 @@ interface ProductQuickSellProps {
   picked: PickedProduct | null;
   onPick: (p: PickedProduct) => void;
   onClear: () => void;
+  /**
+   * Called when the user changes the selected variant after picking. The
+   * parent should update the amount field to reflect the new variant's price
+   * (multiplied by qty when set). Not called on initial pick — the auto-fill
+   * is handled by onPick.
+   */
+  onVariantChange?: (variantId: number | string, amount: string) => void;
   /** Hide the whole section (edit mode / non-standard link kinds). */
   disabled?: boolean;
   isMobile?: boolean;
@@ -103,6 +132,7 @@ const ProductQuickSell: React.FC<ProductQuickSellProps> = ({
   picked,
   onPick,
   onClear,
+  onVariantChange,
   disabled,
   isMobile,
 }) => {
@@ -151,21 +181,86 @@ const ProductQuickSell: React.FC<ProductQuickSellProps> = ({
     });
   }, [products, query]);
 
-  const handleSelect = (p: ProductSummary) => {
-    const amountDec = ((Number(p.base_price_cents) || 0) / 100).toFixed(2);
-    const desc = mdToPlain(p.description_md || p.subtitle || "").slice(0, 500);
-    onPick({
-      product_id: p.product_id,
-      title: p.title,
-      amount: amountDec,
-      currency: p.currency || "USD",
-      description: desc || p.title,
-      cover_image_url: p.cover_image_url || null,
-      product_type: p.product_type,
-    });
-    setPickerOpen(false);
-    setQuery("");
-  };
+  const handleSelect = useCallback(
+    async (p: ProductSummary) => {
+      // If this product has variants, fetch them so we can show the sub-dropdown.
+      // Otherwise just auto-fill from the base price and finish immediately.
+      let variants: ProductVariant[] | undefined;
+      let selectedVariantId: number | string | null = null;
+      let amountCents = Number(p.base_price_cents) || 0;
+
+      if (p.has_variants) {
+        try {
+          const res = await axiosBaseApi.get(`/products/${p.product_id}`);
+          const raw: ProductVariant[] = res?.data?.data?.variants || [];
+          variants = raw
+            .filter((v) => v.is_active !== false)
+            .sort((a, b) => Number(a.price_cents) - Number(b.price_cents));
+          if (variants.length > 0) {
+            // Default to the cheapest variant so the amount is sensible on pick.
+            const v0 = variants[0];
+            selectedVariantId = v0.variant_id;
+            amountCents = Number(v0.price_cents) || 0;
+          }
+        } catch (e) {
+          // Non-fatal — fall back to base_price and no variant selector shown.
+          // (Common cause: product has has_variants=true but zero rows exist.)
+          console.warn("[ProductQuickSell] Failed to load variants:", e);
+        }
+      }
+
+      const amountDec = (amountCents / 100).toFixed(2);
+      const desc = mdToPlain(p.description_md || p.subtitle || "").slice(0, 500);
+      onPick({
+        product_id: p.product_id,
+        title: p.title,
+        amount: amountDec,
+        currency: p.currency || "USD",
+        description: desc || p.title,
+        cover_image_url: p.cover_image_url || null,
+        product_type: p.product_type,
+        variants,
+        selected_variant_id: selectedVariantId,
+      });
+      setPickerOpen(false);
+      setQuery("");
+    },
+    [onPick]
+  );
+
+  // Variant sub-dropdown handler — recompute the amount using variant price × qty.
+  const handleVariantChange = useCallback(
+    (variantId: number | string) => {
+      if (!picked || !picked.variants) return;
+      const v = picked.variants.find((x) => String(x.variant_id) === String(variantId));
+      if (!v) return;
+      const qty = Math.max(1, Number(picked.qty) || 1);
+      const amountDec = ((Number(v.price_cents) || 0) * qty / 100).toFixed(2);
+      if (onVariantChange) {
+        onVariantChange(variantId, amountDec);
+      }
+    },
+    [picked, onVariantChange]
+  );
+
+  // Format a variant's human label from attribute map + optional stock hint.
+  // Example: "L / Black — $25.00" or "Standard — $10.00 (5 left)"
+  const variantLabel = useCallback(
+    (v: ProductVariant, currency: string): string => {
+      const attrs = v.attributes || {};
+      const attrParts = Object.values(attrs)
+        .filter((x) => x !== null && x !== undefined && x !== "")
+        .map((x) => String(x));
+      const label = attrParts.length > 0 ? attrParts.join(" / ") : v.sku || "Default";
+      const price = formatMoney(Number(v.price_cents) || 0, currency);
+      const stockHint =
+        v.stock_count !== null && v.stock_count !== undefined && Number(v.stock_count) <= 5
+          ? ` (${v.stock_count} left)`
+          : "";
+      return `${label} — ${price}${stockHint}`;
+    },
+    []
+  );
 
   if (disabled) return null;
 
@@ -174,99 +269,167 @@ const ProductQuickSell: React.FC<ProductQuickSellProps> = ({
 
   // ── Selected state ────────────────────────────────────────────────
   if (picked) {
+    const showVariantSelect = Array.isArray(picked.variants) && picked.variants.length > 0;
     return (
       <Box
         data-testid="product-quick-sell-selected"
         mb={2}
         sx={{
           display: "flex",
+          flexDirection: "column",
           gap: 1.5,
-          alignItems: "center",
           p: isMobile ? "10px 12px" : "12px 14px",
           borderRadius: "12px",
           border: `1.5px solid ${accent}`,
           backgroundColor: isDark ? `${accent}1F` : `${accent}0D`,
         }}
       >
-        {picked.cover_image_url ? (
-          <Box
-            component="img"
-            src={picked.cover_image_url}
-            alt=""
+        <Box sx={{ display: "flex", gap: 1.5, alignItems: "center" }}>
+          {picked.cover_image_url ? (
+            <Box
+              component="img"
+              src={picked.cover_image_url}
+              alt=""
+              sx={{
+                width: 44,
+                height: 44,
+                borderRadius: "8px",
+                objectFit: "cover",
+                flexShrink: 0,
+                backgroundColor: theme.palette.action.hover,
+              }}
+            />
+          ) : (
+            <Box
+              sx={{
+                width: 44,
+                height: 44,
+                borderRadius: "8px",
+                flexShrink: 0,
+                backgroundColor: accent,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#fff",
+              }}
+            >
+              <Icon icon="mdi:package-variant-closed" width={22} />
+            </Box>
+          )}
+          <Box flex={1} minWidth={0}>
+            <Typography
+              fontSize={13}
+              fontWeight={700}
+              color={theme.palette.text.primary}
+              fontFamily="var(--font-sans)"
+              noWrap
+              title={picked.title}
+            >
+              {picked.title}
+              {picked.qty && picked.qty > 1 ? (
+                <Typography
+                  component="span"
+                  sx={{
+                    ml: 1,
+                    fontSize: 12,
+                    fontWeight: 600,
+                    color: accent,
+                    fontFamily: "var(--font-sans)",
+                  }}
+                >
+                  × {picked.qty}
+                </Typography>
+              ) : null}
+            </Typography>
+            <Typography
+              fontSize={12}
+              color={theme.palette.text.secondary}
+              fontFamily="var(--font-sans)"
+              lineHeight={1.4}
+              mt={0.25}
+            >
+              {t("productQuickSell.selectedHint", {
+                defaultValue: "Amount & description auto-filled — you can still edit them below.",
+              })}
+            </Typography>
+          </Box>
+          <Button
+            size="small"
+            variant="text"
+            startIcon={<Icon icon="mdi:swap-horizontal" width={16} />}
+            onClick={() => setPickerOpen(true)}
             sx={{
-              width: 44,
-              height: 44,
-              borderRadius: "8px",
-              objectFit: "cover",
-              flexShrink: 0,
-              backgroundColor: theme.palette.action.hover,
-            }}
-          />
-        ) : (
-          <Box
-            sx={{
-              width: 44,
-              height: 44,
-              borderRadius: "8px",
-              flexShrink: 0,
-              backgroundColor: accent,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "#fff",
+              color: theme.palette.text.primary,
+              fontFamily: "var(--font-sans)",
+              fontWeight: 600,
+              textTransform: "none",
+              fontSize: 12,
+              minWidth: 0,
+              px: 1,
             }}
           >
-            <Icon icon="mdi:package-variant-closed" width={22} />
+            {t("productQuickSell.change", { defaultValue: "Change" })}
+          </Button>
+          <IconButton
+            size="small"
+            onClick={onClear}
+            aria-label={t("productQuickSell.remove", { defaultValue: "Remove product" }) as string}
+            sx={{ color: theme.palette.text.secondary }}
+          >
+            <Icon icon="mdi:close" width={18} />
+          </IconButton>
+        </Box>
+
+        {/* Variant sub-dropdown — shown only when the picked product had
+            has_variants=true AND we successfully loaded ≥1 active variant. */}
+        {showVariantSelect && (
+          <Box
+            sx={{ display: "flex", alignItems: "center", gap: 1.5, pl: 0.25 }}
+            data-testid="product-quick-sell-variant-row"
+          >
+            <Typography
+              fontSize={12}
+              fontWeight={600}
+              color={theme.palette.text.secondary}
+              fontFamily="var(--font-sans)"
+              sx={{ minWidth: 60 }}
+            >
+              {t("productQuickSell.variantLabel", { defaultValue: "Variant" })}
+            </Typography>
+            <Select
+              size="small"
+              value={String(picked.selected_variant_id || (picked.variants && picked.variants[0]?.variant_id) || "")}
+              onChange={(e) => handleVariantChange(e.target.value)}
+              data-testid="product-quick-sell-variant-select"
+              fullWidth
+              sx={{
+                fontFamily: "var(--font-sans)",
+                fontSize: 13,
+                backgroundColor: theme.palette.background.paper,
+              }}
+              MenuProps={{
+                PaperProps: {
+                  sx: { maxHeight: 320 },
+                },
+              }}
+            >
+              {picked.variants!.map((v) => (
+                <MenuItem
+                  key={v.variant_id}
+                  value={String(v.variant_id)}
+                  disabled={v.stock_count !== null && v.stock_count !== undefined && Number(v.stock_count) === 0}
+                  data-testid={`product-quick-sell-variant-option-${v.variant_id}`}
+                  sx={{ fontFamily: "var(--font-sans)", fontSize: 13 }}
+                >
+                  {variantLabel(v, picked.currency)}
+                  {v.stock_count !== null && v.stock_count !== undefined && Number(v.stock_count) === 0
+                    ? " — sold out"
+                    : ""}
+                </MenuItem>
+              ))}
+            </Select>
           </Box>
         )}
-        <Box flex={1} minWidth={0}>
-          <Typography
-            fontSize={13}
-            fontWeight={700}
-            color={theme.palette.text.primary}
-            fontFamily="var(--font-sans)"
-            noWrap
-            title={picked.title}
-          >
-            {picked.title}
-          </Typography>
-          <Typography
-            fontSize={12}
-            color={theme.palette.text.secondary}
-            fontFamily="var(--font-sans)"
-            lineHeight={1.4}
-            mt={0.25}
-          >
-            {t("productQuickSell.selectedHint", {
-              defaultValue: "Amount & description auto-filled — you can still edit them below.",
-            })}
-          </Typography>
-        </Box>
-        <Button
-          size="small"
-          variant="text"
-          startIcon={<Icon icon="mdi:swap-horizontal" width={16} />}
-          onClick={() => setPickerOpen(true)}
-          sx={{
-            color: theme.palette.text.primary,
-            fontFamily: "var(--font-sans)",
-            fontWeight: 600,
-            textTransform: "none",
-            fontSize: 12,
-            minWidth: 0,
-            px: 1,
-          }}
-        >
-          {t("productQuickSell.change", { defaultValue: "Change" })}
-        </Button>
-        <IconButton
-          size="small"
-          onClick={onClear}
-          aria-label={t("productQuickSell.remove", { defaultValue: "Remove product" }) as string}
-          sx={{ color: theme.palette.text.secondary }}
-        >
-          <Icon icon="mdi:close" width={18} />
-        </IconButton>
         {pickerOpen && (
           <PickerDialog
             open

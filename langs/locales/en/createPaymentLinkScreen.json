@@ -179,6 +179,7 @@
     "noResults": "No products match your search",
     "noneLive": "No live products yet",
     "noneHint": "Publish products in Store → Products, then come back to pick one.",
-    "currentBadge": "· current"
+    "currentBadge": "· current",
+    "variantLabel": "Variant"
   }
 }
