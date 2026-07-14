@@ -3,7 +3,7 @@
 > **Status:** Phase A ✅ (backend, 7/7 tests pass) · Phase B ✅ (frontend, manual UI verified) · **Awaiting frontend testing_agent approval**
 > **Priority:** P0 · **Only remaining "Implement fully" item — SHIPPED PENDING FINAL TESTING**
 > **Owner:** next agent picking this up
-> **Env verified:** setup done on preview `https://product-shop-158.preview.emergentagent.com` (backend :3300 healthy, frontend :3000 200, csrf 200, login 401 bad-creds, Railway PG + Redis + Tatum connected, background_jobs.eligible=false — see §Environment).
+> **Env verified:** setup done on preview `https://credential-deploy.preview.emergentagent.com` (backend :3300 healthy, frontend :3000 200, csrf 200, login 401 bad-creds, Railway PG + Redis + Tatum connected, background_jobs.eligible=false — see §Environment).
 
 ---
 
@@ -338,7 +338,7 @@ Delete every QA test company + its keys after the test run (destructive — via 
 
 ## 6. Environment (verified this session)
 
-- **Preview URL:** `https://product-shop-158.preview.emergentagent.com` (=`preview_endpoint`)
+- **Preview URL:** `https://credential-deploy.preview.emergentagent.com` (=`preview_endpoint`)
 - **Internal:** backend Node/TS on :3300 (proxied by Python uvicorn on :8001); frontend Next.js standalone on :3000
 - **DB:** Railway PostgreSQL (LIVE PROD) `roundhouse.proxy.rlwy.net:23599 railway`
 - **Redis:** Railway `nozomi.proxy.rlwy.net:15794` (LIVE PROD)

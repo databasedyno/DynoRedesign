@@ -10,7 +10,7 @@ import redis
 import sys
 import time
 
-BASE_URL = "https://product-shop-158.preview.emergentagent.com/api"
+BASE_URL = "https://credential-deploy.preview.emergentagent.com/api"
 REDIS_URL = "redis://default:HAEMJseUAdqAjpiICURxlefSoSYXKEUg@nozomi.proxy.rlwy.net:15794"
 
 HEADERS = {
