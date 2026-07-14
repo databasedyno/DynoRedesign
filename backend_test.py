@@ -6,7 +6,7 @@ The SQL was extended with 3 new LEFT JOINs to add a canonical `source` object to
 
 Test credentials:
 - Merchant: hostbay@moxx.co / Katiekendra123@ (user_id=1, company_id=1)
-- Preview URL: https://d053b132-1524-4c79-bbbb-8d16df49fb02.preview.emergentagent.com
+- Preview URL: https://multi-chain-checkout-2.preview.emergentagent.com
 
 5 assertions:
 1. Auth + endpoint reachable (with CSRF token flow)
@@ -22,7 +22,7 @@ import sys
 from typing import Dict, Any, List
 
 # Configuration
-BASE_URL = "https://d053b132-1524-4c79-bbbb-8d16df49fb02.preview.emergentagent.com"
+BASE_URL = "https://multi-chain-checkout-2.preview.emergentagent.com"
 API_URL = f"{BASE_URL}/api"
 
 # Test credentials
