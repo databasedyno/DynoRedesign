@@ -153,6 +153,10 @@ const HeroSwiss: React.FC = () => {
     document.getElementById("fee-calculator")?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, []);
 
+  const goDeveloper = useCallback(() => {
+    document.getElementById("developer-showcase")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
+
   const trustLine =
     country?.country && country?.flag
       ? `${country.flag} ${t("heroTrustCountry", { country: country.country })}`
@@ -320,6 +324,27 @@ const HeroSwiss: React.FC = () => {
               }}
             >
               {t("heroSwissCtaSecondary")} ↓
+            </Box>
+            <Box
+              component="button"
+              type="button"
+              onClick={goDeveloper}
+              data-testid="hero-cta-developers"
+              sx={{
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                fontFamily: FONT_TECH,
+                fontSize: 13,
+                letterSpacing: "0.06em",
+                color: s.sub,
+                px: 1,
+                py: 1.5,
+                transition: "color 0.2s ease",
+                "&:hover": { color: "#7CB1FF" },
+              }}
+            >
+              {t("heroForDevsCta", { defaultValue: "For developers" })} ↓
             </Box>
           </Box>
 

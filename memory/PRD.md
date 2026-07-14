@@ -29,6 +29,12 @@ Shipped in this session (frontend-only, no backend/DB changes; safe for the LIVE
 
 **Micro-copy note (deferred, non-blocking)**: The `AudienceDoors` H2 still reads *"Three surfaces. One wallet."* — technically correct (there ARE three payment surfaces: checkout, crowdfunding, tips — devs INTEGRATE those surfaces, they're not a 4th surface), but with 4 doors below it, some visitors may parse it as a mismatch. Change to `"One wallet. Every audience."` or similar is a 6-locale translation touch — flagged for user decision.
 
+**Follow-up (same session)**: user chose to do the H2 fix + a dev nod on the hero.
+- `doors.title` updated to `"One wallet. Every audience."` in all 6 locales (`en/es/fr/de/nl/pt`) — no more "three surfaces" mismatch with 4 doors.
+- `HeroSwiss.tsx` — added a tertiary `For developers ↓` CTA (testid `hero-cta-developers`) in the CTA row, cyan `#7CB1FF` on hover, click smooth-scrolls to `#developer-showcase` via new `goDeveloper()` callback. New i18n key `heroForDevsCta` added × 6 locales.
+- `heroStatChains` label updated in all 6 locales: `Chains` → `Chains · 1 API` (compact dev credibility without adding a 4th stat that would crowd the layout).
+- Verified live: hero stat renders `15+ · CHAINS · 1 API`, `For developers ↓` link present + scroll-target lands at 0px, doors H2 = `One wallet. Every audience.`. `next build` clean, frontend restart, external HTTP 200.
+
 
 
 ### 2026-07-14 — Session 45 (contd.) — DigitalOcean Deployment Diagnosis + Preemptive TS Fix — ✅ RESOLVED

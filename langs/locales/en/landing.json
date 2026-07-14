@@ -207,7 +207,7 @@
     "next": "Next slide"
   },
   "heroStatBusinesses": "Sign-ups",
-  "heroStatChains": "Chains",
+  "heroStatChains": "Chains · 1 API",
   "heroStatSettlement": "Avg settle",
   "useCase5Title": "Donations & Crowdfunding",
   "useCase5Description": "Goal-based campaigns with live progress that turn one-time givers into repeat supporters.",
@@ -226,7 +226,7 @@
   "finalCtaSwissTitle2": "Dynopay is instant — for anyone who takes payment.",
   "doors": {
     "eyebrow": "Who's this for?",
-    "title": "Three surfaces. One wallet.",
+    "title": "One wallet. Every audience.",
     "subtitle": "Pick your door — merchants, campaigns, creators, developers. They all share the same crypto rails.",
     "merchant": {
       "kicker": "Merchants",
@@ -321,5 +321,6 @@
     "ctaSecondary": "Try it live",
     "mockCaption": "// PUBLIC SANDBOX · TRY WITHOUT AN ACCOUNT",
     "copied": "cURL copied"
-  }
+  },
+  "heroForDevsCta": "For developers"
 }

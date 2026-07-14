@@ -207,7 +207,7 @@
     "next": "Siguiente diapositiva"
   },
   "heroStatBusinesses": "Registros",
-  "heroStatChains": "Cadenas",
+  "heroStatChains": "Cadenas · 1 API",
   "heroStatSettlement": "Liquidación media",
   "useCase5Title": "Donaciones y Crowdfunding",
   "useCase5Description": "Campañas con meta y progreso en vivo que convierten a donantes puntuales en habituales.",
@@ -226,7 +226,7 @@
   "finalCtaSwissTitle2": "Dynopay es instantáneo — para cualquiera que cobre.",
   "doors": {
     "eyebrow": "¿Para quién es esto?",
-    "title": "Tres superficies. Una billetera.",
+    "title": "Una wallet. Para cada audiencia.",
     "subtitle": "Elige tu puerta — comerciantes, campañas, creadores, desarrolladores. Todos comparten los mismos raíles cripto.",
     "merchant": {
       "kicker": "Comerciantes",
@@ -321,5 +321,6 @@
     "ctaSecondary": "Prueba en vivo",
     "mockCaption": "// SANDBOX PÚBLICO · PRUEBA SIN CUENTA",
     "copied": "cURL copiado"
-  }
+  },
+  "heroForDevsCta": "Para devs"
 }

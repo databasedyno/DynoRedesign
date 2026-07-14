@@ -207,7 +207,7 @@
     "next": "Volgende dia"
   },
   "heroStatBusinesses": "Aanmeldingen",
-  "heroStatChains": "Chains",
+  "heroStatChains": "Chains · 1 API",
   "heroStatSettlement": "Gem. afwikkeling",
   "useCase5Title": "Donaties & Crowdfunding",
   "useCase5Description": "Doelgerichte campagnes met live voortgang die eenmalige gevers omzetten in vaste supporters.",
@@ -226,7 +226,7 @@
   "finalCtaSwissTitle2": "Dynopay is direct — voor iedereen die betaald wordt.",
   "doors": {
     "eyebrow": "Voor wie is dit?",
-    "title": "Drie oppervlakken. Eén wallet.",
+    "title": "Één wallet. Elk publiek.",
     "subtitle": "Kies je deur — merchants, campagnes, creators, developers. Ze delen allemaal dezelfde crypto-rails.",
     "merchant": {
       "kicker": "Merchants",
@@ -321,5 +321,6 @@
     "ctaSecondary": "Probeer live",
     "mockCaption": "// PUBLIEKE SANDBOX · PROBEER ZONDER ACCOUNT",
     "copied": "cURL gekopieerd"
-  }
+  },
+  "heroForDevsCta": "Voor devs"
 }
