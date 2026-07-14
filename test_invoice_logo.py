@@ -10,7 +10,7 @@ import redis
 import sys
 import time
 
-BASE_URL = "https://multi-coin.preview.emergentagent.com/api"
+BASE_URL = "https://multi-chain-settle.preview.emergentagent.com/api"
 REDIS_URL = "redis://default:HAEMJseUAdqAjpiICURxlefSoSYXKEUg@nozomi.proxy.rlwy.net:15794"
 
 HEADERS = {

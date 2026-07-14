@@ -17,7 +17,7 @@ import os
 import re
 import subprocess
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://multi-coin.preview.emergentagent.com').rstrip('/')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://multi-chain-settle.preview.emergentagent.com').rstrip('/')
 
 
 class TestBackendHealth:
