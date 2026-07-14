@@ -28,12 +28,17 @@ Fresh container (node_modules + all 3 .env missing on boot). Ran root `yarn inst
   - `/api/pay/creator/hostbay`: HTTP 200 returning `{creator: {name: "Lek Na", handle: "hostbay"}}`
 
 ### Bugs found in first E2E pass (before fix) — status
-- **BUG-1 `/hostbay` 404** — FIXED by env fix, ready for re-test
-- **BUG-2 `/hostbay/shop` 404** — FIXED by env fix, ready for re-test
-- **BUG-3 Session not persisting** — LIKELY FIXED by NEXTAUTH_URL fix, ready for re-test
-- **BUG-4 ProductQuickSell not rendering** — LIKELY a cascade from BUG-3; ready for re-test
-- **BUG-5 Pay-links list empty** — LIKELY a cascade from BUG-3; ready for re-test
-- **BUG-6 Developer-keys empty + no Create button** — LIKELY a cascade from BUG-3; ready for re-test
+- **BUG-1 `/hostbay` 404** — ✅ **FIXED & VERIFIED by testing agent** (Phase A verify run)
+- **BUG-2 `/hostbay/shop` 404** — ✅ **FIXED & VERIFIED**
+- **BUG-3 Session not persisting** — ✅ **FIXED & VERIFIED** (login, then nav dashboard→transactions→pay-links→create-pay-link→developer-keys with no re-redirect to /auth/login and no CLIENT_FETCH_ERROR in console)
+- **BUG-4 ProductQuickSell not rendering** — ✅ **FIXED & VERIFIED** (was cascade from BUG-3)
+- **BUG-5 Pay-links list empty** — ✅ **FIXED & VERIFIED** (list now shows 8 rows for hostbay: link IDs 83/81/77/75/31/28/2/1)
+- **BUG-6 Developer-keys empty + no Create button** — ✅ **FIXED & VERIFIED** (USD API Key section + "Create New Key +" button visible)
+
+### Files changed this session
+- `/app/.env.local` (frontend env)
+- `/app/backend/.env` (backend env)
+NO CODE CHANGES.
 
 ### Next step
 Delegate to frontend testing agent (`auto_frontend_testing_agent`) to re-verify all 6 bugs are gone AND continue the P0 → P1 → P2 sweep that was blocked earlier.
