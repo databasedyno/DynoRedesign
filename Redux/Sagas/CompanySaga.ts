@@ -151,11 +151,19 @@ export function* deleteCompany(payload: any): unknown {
       data: { data, message },
     } = yield call(axios.delete, "company/deleteCompany/" + id);
 
+    // Session 49 fix: was hardcoded severity: "error" even on success. Backend
+    // now returns 200 + descriptive message with { rowsDeleted, revokedApiIds }
+    // on success and 500 on silent-destroy-failure; 400 on last-company guard.
+    // Success toast should be success-styled.
+    const revokedApiIds = (data && (data as { revokedApiIds?: number[] }).revokedApiIds) || [];
+    const successMessage = revokedApiIds.length > 0
+      ? `${message} (${revokedApiIds.length} API key${revokedApiIds.length > 1 ? 's' : ''} revoked)`
+      : message;
     yield put({
       type: TOAST_SHOW,
       payload: {
-        message: message,
-        severity: "error",
+        message: successMessage,
+        severity: "success",
       },
     });
     yield put({
@@ -174,6 +182,10 @@ export function* deleteCompany(payload: any): unknown {
     yield put({
       type: COMPANY_API_ERROR,
     });
+    // Session 49 fix: re-fetch company list so the UI recovers from any
+    // stale optimistic removal — ensures the ghost "deleted but still in DB"
+    // company reappears in the sidebar/dropdown until user actually retries.
+    yield put({ type: COMPANY_FETCH });
   }
 }
 

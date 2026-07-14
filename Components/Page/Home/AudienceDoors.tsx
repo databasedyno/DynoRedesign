@@ -19,14 +19,25 @@ interface Door {
   key: "merchant" | "campaign" | "creator" | "developer";
   href: string;
   accent: string;
+  /**
+   * Session 49 fix: iPhone/light-mode readability. `accent` is a vibrant brand
+   * color used for icons/borders/hover — but 3 of 4 accents fail WCAG AA
+   * contrast on white text backgrounds (lime `#CCFF00` = 1.36:1, pink
+   * `#F472B6` = 3.13:1, light blue `#7CB1FF` = 2.72:1 — all below the 4.5:1
+   * threshold for normal text). This split lets us keep the vibrant accent
+   * for decoration while forcing the CTA link text to a color that's readable
+   * in BOTH light and dark modes.
+   */
+  ctaLight: string;
+  ctaDark: string;
   iconGlyph: string;
 }
 
 const DOORS: Door[] = [
-  { key: "merchant", href: "#product-showcase-section", accent: "#3B82F6", iconGlyph: "◈" },
-  { key: "campaign", href: "#crowdfunding-showcase", accent: "#CCFF00", iconGlyph: "◉" },
-  { key: "creator", href: "#creator-showcase", accent: "#F472B6", iconGlyph: "◎" },
-  { key: "developer", href: "#developer-showcase", accent: "#7CB1FF", iconGlyph: "◭" },
+  { key: "merchant",  href: "#product-showcase-section", accent: "#3B82F6", ctaLight: "#2563EB", ctaDark: "#93C5FD", iconGlyph: "◈" },
+  { key: "campaign",  href: "#crowdfunding-showcase",   accent: "#CCFF00", ctaLight: "#5A6B00", ctaDark: "#CCFF00", iconGlyph: "◉" },
+  { key: "creator",   href: "#creator-showcase",        accent: "#F472B6", ctaLight: "#B03A76", ctaDark: "#F9A8D4", iconGlyph: "◎" },
+  { key: "developer", href: "#developer-showcase",      accent: "#7CB1FF", ctaLight: "#2563EB", ctaDark: "#93C5FD", iconGlyph: "◭" },
 ];
 
 const AudienceDoors: React.FC = () => {
@@ -192,7 +203,9 @@ const AudienceDoors: React.FC = () => {
                     fontFamily: FONT_BODY,
                     fontSize: 14,
                     fontWeight: 600,
-                    color: door.accent,
+                    // Session 49 fix: theme-aware CTA color for WCAG AA contrast
+                    // (see interface Door doc above for original contrast failures).
+                    color: s.dark ? door.ctaDark : door.ctaLight,
                   }}
                 >
                   {t(`doors.${door.key}.cta`)}
