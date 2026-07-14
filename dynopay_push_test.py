@@ -31,7 +31,7 @@ import os
 from typing import Dict, Any, Optional
 
 # Backend URL from frontend/.env
-BACKEND_URL = "https://crypto-payment-fix-8.preview.emergentagent.com"
+BACKEND_URL = "https://coin-checkout-5.preview.emergentagent.com"
 
 class DynoPayPushTester:
     def __init__(self):

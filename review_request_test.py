@@ -10,7 +10,7 @@ import sys
 from datetime import datetime
 
 # Configuration
-BASE_URL = "https://crypto-payment-fix-8.preview.emergentagent.com/api"
+BASE_URL = "https://coin-checkout-5.preview.emergentagent.com/api"
 TIMEOUT = 30
 
 def log_test(test_name, status, details=""):
