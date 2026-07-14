@@ -1,26 +1,32 @@
 #!/usr/bin/env bash
 # =============================================================================
-#  preflight-tsc.sh — Fail-fast local backend TypeScript build gate
+#  preflight-tsc.sh — Backend TypeScript build gate (warn-in-hook, fail-in-CI)
 # -----------------------------------------------------------------------------
 #  Why this exists
 #    On 2026-07-13 the DigitalOcean deploy pipeline burned ~37 min of build
 #    minutes on 5 back-to-back push builds that all failed at the very same
 #    `tsc` compile step (missing fields on the inline RedisPaymentItem
-#    interface in backend/controller/payment/cryptoCheckout.ts). Each failure
-#    took ~7½ min to surface — a delta that a 15-second local `tsc --noEmit`
-#    would have caught before the push ever happened.
+#    interface in backend/controller/payment/cryptoCheckout.ts). A 15-second
+#    local `tsc --noEmit` would have caught it before the push happened.
 #
-#  What this does
-#    1. If invoked from a git hook (or with no args), inspect the staged files
-#       and skip when no backend TypeScript / package / tsconfig files changed.
-#       This keeps typical frontend-only commits <1 s.
-#    2. Otherwise (or with --force), run `tsc --noEmit` inside /backend.
-#    3. Auto-install backend/node_modules on first invocation.
-#    4. Fail loudly with a clear message + how to bypass (NOT recommended).
+#  Design (2026-07-14 update — session 47)
+#    Original behavior BLOCKED every git commit that had a backend TS error.
+#    Problem: the Emergent "Save to GitHub" flow uses `git commit` under the
+#    hood, so a broken backend TS file made "Save to GitHub" silently fail —
+#    the button click just did nothing from the user's perspective. Fix:
+#
+#    - When invoked as a HOOK (no --force flag): WARN only (exit 0).
+#      Errors are printed loudly so the developer sees them, but the commit
+#      is allowed through. Save-to-GitHub keeps working. The .github
+#      workflow (preflight.yml) still catches the error server-side.
+#    - When invoked with --force (yarn preflight / CI): HARD FAIL (exit 1).
+#      This is what `yarn preflight` and the CI workflow call. Deploy
+#      pipelines and manual "please gate my push" runs still get strict
+#      enforcement.
 #
 #  Usage
-#    ./scripts/preflight-tsc.sh              # hook-mode: skip if no BE changes
-#    ./scripts/preflight-tsc.sh --force      # always run (used by CI + `yarn preflight`)
+#    ./scripts/preflight-tsc.sh              # hook-mode: warn only, never blocks
+#    ./scripts/preflight-tsc.sh --force      # strict: fails on any TS error
 # =============================================================================
 
 set -eu
@@ -59,8 +65,13 @@ if [ ! -x backend/node_modules/.bin/tsc ]; then
   if ! (cd backend && yarn install --ignore-engines --production=false --frozen-lockfile >/tmp/preflight-yarn.log 2>&1); then
     echo "[preflight-tsc]   frozen-lockfile install failed, retrying without --frozen-lockfile..."
     (cd backend && yarn install --ignore-engines --production=false >/tmp/preflight-yarn.log 2>&1) || {
-      echo "[preflight-tsc] ❌ yarn install failed. Last 20 lines:"
+      echo "[preflight-tsc] yarn install failed. Last 20 lines:"
       tail -20 /tmp/preflight-yarn.log
+      # In hook mode, don't block on install failures either.
+      if [ "$FORCE" -ne 1 ]; then
+        echo "[preflight-tsc] (hook mode: WARN only — commit allowed)"
+        exit 0
+      fi
       exit 1
     }
   fi
@@ -74,18 +85,30 @@ START_TS=$(date +%s)
 
 if (cd backend && ./node_modules/.bin/tsc --noEmit); then
   ELAPSED=$(( $(date +%s) - START_TS ))
-  echo "[preflight-tsc] ✅ Backend TS OK (${ELAPSED}s) — safe to push."
+  echo "[preflight-tsc] Backend TS OK (${ELAPSED}s) — safe to push."
   exit 0
 else
   ELAPSED=$(( $(date +%s) - START_TS ))
-  echo ""
-  echo "[preflight-tsc] ❌ Backend TypeScript errors above (${ELAPSED}s spent)."
-  echo "[preflight-tsc]"
-  echo "[preflight-tsc]    FIX the errors before committing."
-  echo "[preflight-tsc]    This exact class of error costs ~7½ min per failed build on DigitalOcean."
-  echo "[preflight-tsc]"
-  echo "[preflight-tsc]    Bypass (NOT recommended, will break prod deploy):"
-  echo "[preflight-tsc]       git commit --no-verify"
-  echo "[preflight-tsc]"
-  exit 1
+  if [ "$FORCE" -eq 1 ]; then
+    # Strict mode (CI / `yarn preflight`) — fail hard.
+    echo ""
+    echo "[preflight-tsc] Backend TypeScript errors above (${ELAPSED}s spent)."
+    echo "[preflight-tsc]"
+    echo "[preflight-tsc]    FIX the errors before deploying."
+    echo "[preflight-tsc]    This exact class of error costs ~7.5 min per failed build on DigitalOcean."
+    echo "[preflight-tsc]"
+    exit 1
+  else
+    # Hook mode — WARN only, do not block the commit. Save to GitHub stays green.
+    echo ""
+    echo "[preflight-tsc] WARNING: Backend TypeScript errors above (${ELAPSED}s spent)."
+    echo "[preflight-tsc]"
+    echo "[preflight-tsc]   Commit allowed (hook is warn-only as of session 47)."
+    echo "[preflight-tsc]   Please fix ASAP — GitHub Actions preflight.yml AND the"
+    echo "[preflight-tsc]   DigitalOcean deploy will fail on these errors."
+    echo "[preflight-tsc]"
+    echo "[preflight-tsc]   Run \`yarn preflight\` to see the strict pass/fail."
+    echo "[preflight-tsc]"
+    exit 0
+  fi
 fi
