@@ -742,6 +742,55 @@ Backend changes are scoped to email-branching in `paymentLinkController.ts` + on
 
 ---
 
+## Session 51: BUGFIX — company first/last name clobbering account name + merchant emails (2026-07-15)
+
+### Preview URL
+https://5a08d09d-24f7-4f72-942d-454f2d1c9727.preview.emergentagent.com
+
+### Test credentials (from /app/memory/test_credentials.md)
+- Merchant (data-rich): hostbay@moxx.co / Katiekendra123@ (user_id=1, LIVE Railway PG; account name now corrected to "hostbay")
+
+### User problem statement (bug)
+"After onboarding a user creates a company and inputs first name and last name. This name is OVERRIDDEN when a second company is created with a new first/last name. Emails to the merchant stopped carrying 'hostbay' because the name was updated." User approved fix: **Solution A + B**, set account user_id=1 name → "hostbay", keep the name fields on 2nd+ company (feed the per-company contact), SEO rewrite is a SEPARATE later task.
+
+### Root cause
+`backend/controller/companyController.ts` `addCompany` ran `userModel.update({ name })` on EVERY company creation → the global `tbl_user.name` (used as the greeting in merchant emails) got clobbered by the 2nd company's form name.
+
+### Fix implemented (backend only)
+1. **Migration** `backend/scripts/add_company_contact_name.js` (RAN against LIVE Railway PG, exit 0): added nullable `tbl_company.contact_first_name` + `contact_last_name`; one-off `UPDATE tbl_user SET name='hostbay' WHERE user_id=1`.
+2. **Model** `models/companyModels/companyModel.ts`: added `contact_first_name` / `contact_last_name`.
+3. **addCompany**: stores the form first/last name on the NEW company row (contact_*); only seeds `user.name` when the account has NO name yet (first-time) — never overwrites afterward.
+4. **updateCompany**: maps incoming `first_name`/`last_name` → `contact_first_name`/`contact_last_name`; never touches `user.name`.
+5. **Emails** greet by the per-company contact (fallback to `user.name`): `controller/payment/cryptoSettlement.ts` (payment-received) + `services/conversionService.ts` (auto-convert payout + weekly summary).
+- backend `tsc --noEmit` = clean; backend restarted healthy (database=connected, redis=connected).
+
+### backend
+  - task: "Company creation no longer overwrites the account holder's name; per-company contact name stored + used in merchant emails"
+    implemented: true
+    working: "NA"
+    file: "backend/controller/companyController.ts, models/companyModels/companyModel.ts, controller/payment/cryptoSettlement.ts, services/conversionService.ts"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Fix implemented + migration run on live DB. Needs backend testing agent verification of the exact reported bug."
+
+### What to verify (BACKEND) — deep_testing_backend_v2
+Auth: POST /api/user/login (CSRF token from GET /api/csrf-token; header x-csrf-token). Use a FRESH throwaway registered merchant if possible (to avoid polluting hostbay); otherwise use hostbay and DELETE any temp companies created (DELETE /api/company/:id).
+Core assertions (THE bug):
+1. Create Company A via POST /api/company/addCompany with first_name="Alice", last_name="Anderson" → GET /api/user/profile name should become "Alice Anderson" (only because the account had no name yet — for a fresh account).
+2. Create Company B with first_name="Bob", last_name="Brown" → GET /api/user/profile name MUST still be "Alice Anderson" (NOT overwritten). ← primary regression check.
+3. GET /api/company (getCompany) → Company A row has contact_first_name="Alice"/contact_last_name="Anderson"; Company B row has contact_first_name="Bob"/contact_last_name="Brown".
+4. updateCompany on Company B with first_name="Carol", last_name="Clark" → Company B contact fields update to Carol/Clark; account name STILL unchanged.
+5. Cleanup: delete any test companies created (and note if a throwaway user was registered).
+NOTE: DB is LIVE production Railway PG — keep test data minimal and clean up.
+
+---
+
+
+
 
 ## Session 42: Inline Tip Checkout on `/{handle}` + underpayment/overpayment handling (2026-07-13)
 

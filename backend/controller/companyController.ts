@@ -246,10 +246,22 @@ const addCompany = async (req: express.Request, res: express.Response) => {
       );
     }
     
+    // Per-company contact person (Solution B): capture the first/last name from the
+    // company-create form and persist it ON THE COMPANY ROW — NOT on the shared
+    // account-level user.name. This is what stops a 2nd company from clobbering the
+    // name used in the 1st company's merchant emails.
+    const contactFirstName = (req.body.first_name ?? data.first_name ?? "").toString().trim() || null;
+    const contactLastName = (req.body.last_name ?? data.last_name ?? "").toString().trim() || null;
+    // Strip raw first_name/last_name so they don't leak into the model spread.
+    delete data.first_name;
+    delete data.last_name;
+
     const resData = await companyModel.create({
       ...data,
       user_id: userData.user_id,
       photo,
+      contact_first_name: contactFirstName,
+      contact_last_name: contactLastName,
     });
 
     // AUTO-PROVISION restricted TEST key for the new company (non-fatal, idempotent).
@@ -345,18 +357,31 @@ const addCompany = async (req: express.Request, res: express.Response) => {
       );
     }
 
-    // Update user profile with first_name + last_name if provided
-    // (Simplified registration creates accounts without names — names are collected here)
-    const firstName = req.body.first_name || data.first_name;
-    const lastName = req.body.last_name || data.last_name;
-    if (firstName || lastName) {
-      const fullName = [firstName, lastName].filter(Boolean).join(" ").trim();
-      if (fullName) {
+    // Capture the account holder's display name ONCE (first company only).
+    // Bug fix: previously this ran on EVERY company creation, so creating a 2nd
+    // company with a different first/last name overwrote user.name and broke the
+    // greeting in the 1st company's merchant emails. The per-company contact name
+    // now lives on tbl_company (contact_first_name/last_name); user.name is only
+    // seeded here when the account has no name yet, and is otherwise never touched
+    // (users can still edit it explicitly from the Profile page).
+    const contactFullName = [contactFirstName, contactLastName].filter(Boolean).join(" ").trim();
+    if (contactFullName) {
+      const currentUser = await userModel.findOne({
+        where: { user_id: userData.user_id },
+        attributes: ["name"],
+      });
+      const existingName = (currentUser?.dataValues?.name || "").trim();
+      if (!existingName) {
         await userModel.update(
-          { name: fullName },
+          { name: contactFullName },
           { where: { user_id: userData.user_id } }
         );
-        companyLogger.info(`Updated user profile name: "${fullName}"`, { user_id: userData.user_id });
+        companyLogger.info(`Set account name for the first time: "${contactFullName}"`, { user_id: userData.user_id });
+      } else {
+        companyLogger.info(
+          `Account name already set ("${existingName}") — leaving unchanged; per-company contact stored on company ${resData.dataValues.company_id}`,
+          { user_id: userData.user_id }
+        );
       }
     }
 
@@ -475,6 +500,19 @@ const updateCompany = async (req: express.Request, res: express.Response) => {
       return errorResponseHelper(res, 400, "No data provided for update");
     }
     
+    // Map incoming first_name/last_name onto the per-company contact columns
+    // (Solution B). updateCompany NEVER touches the account-level user.name.
+    if (data.first_name !== undefined || data.last_name !== undefined) {
+      if (data.first_name !== undefined) {
+        data.contact_first_name = (data.first_name ?? "").toString().trim() || null;
+      }
+      if (data.last_name !== undefined) {
+        data.contact_last_name = (data.last_name ?? "").toString().trim() || null;
+      }
+      delete data.first_name;
+      delete data.last_name;
+    }
+
     const company_id = req.params.id;
     
     // Validate VAT country matches company country if both are provided

@@ -145,6 +145,20 @@ const companyModel = sequelize.define(
       allowNull: true,
       comment: "Blockchain network for stablecoin withdrawal: ERC20, TRC20, POLYGON, BEP20, SOL",
     },
+    // Per-company contact person (Solution B). Decoupled from the account-level
+    // user.name so operating multiple companies no longer clobbers the name shown
+    // in another company's merchant emails. Captured from the company-create form
+    // (first_name / last_name) and editable via updateCompany.
+    contact_first_name: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+      comment: "Contact person first name for THIS company (used in merchant emails). Independent of the account holder's user.name.",
+    },
+    contact_last_name: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+      comment: "Contact person last name for THIS company.",
+    },
   },
   {
     tableName: "tbl_company",

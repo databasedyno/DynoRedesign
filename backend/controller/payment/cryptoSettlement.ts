@@ -2853,6 +2853,14 @@ const cryptoVerification = async (address, webhook = true, overrideRedisKey?: st
           
           // Send email notification for payment received
           const companyName = company_data?.company_name ?? "";
+          // Solution B: greet by THIS company's contact person so multi-company
+          // merchants get the right identity in each company's emails. Falls back
+          // to the account-level user.name when no per-company contact is set.
+          const merchantContactName =
+            [company_data?.contact_first_name, company_data?.contact_last_name]
+              .filter(Boolean)
+              .join(" ")
+              .trim() || userData?.name || "";
           // Bug fix (session 49): use the actual on-chain payment detection time
           // (tbl_user_transaction.createdAt) instead of `new Date()`. Previously the
           // email showed "paid at 13:54" when the customer actually paid at 13:49 —
@@ -2916,7 +2924,7 @@ const cryptoVerification = async (address, webhook = true, overrideRedisKey?: st
 
           await sendPaymentReceivedEmail(
             userData?.email,
-            userData?.name,
+            merchantContactName,
             mrPrimaryAmount,         // fiat amount (merchant currency)
             mrPrimaryCurrency,       // fiat currency (e.g. USD)
             companyName,             // companyName

@@ -1,640 +1,588 @@
 #!/usr/bin/env python3
 """
-Session 49 Backend Testing - 5 Fixes Verification
-Tests login throttle, deleteCompany hardening, webhook circuit-breaker
+Backend test for DynoPay company name bug fix verification.
+
+Bug: Creating a company wrote the company-form's first/last name into the account holder's 
+GLOBAL `tbl_user.name` on EVERY company creation. So creating a SECOND company with a 
+different first/last name OVERWROTE the account name.
+
+Fix: (A) Account `user.name` is only seeded the FIRST time (when empty) and NEVER overwritten 
+by later company creation; (B) Each company now stores its own `contact_first_name` / 
+`contact_last_name` (new columns on tbl_company).
 """
 
 import requests
 import json
-import sys
 import time
-from typing import Dict, Any, Optional
+from datetime import datetime
 
-# Backend URL from environment
-BACKEND_URL = "https://dynopay-setup.preview.emergentagent.com"
-API_BASE = f"{BACKEND_URL}/api"
+# Base URL
+BASE_URL = "https://5a08d09d-24f7-4f72-942d-454f2d1c9727.preview.emergentagent.com"
 
-# Test credentials from /app/memory/test_credentials.md
-TEST_USER = {
-    "email": "hostbay@moxx.co",
-    "password": "Katiekendra123@"
-}
+# Test configuration
+USE_FRESH_USER = True  # Try to register a fresh user first
+FALLBACK_EMAIL = "hostbay@moxx.co"
+FALLBACK_PASSWORD = "Katiekendra123@"
 
-class Colors:
-    GREEN = '\033[92m'
-    RED = '\033[91m'
-    YELLOW = '\033[93m'
-    BLUE = '\033[94m'
-    END = '\033[0m'
+# Session state
+session = requests.Session()
+csrf_token = None
+jwt_token = None
+test_companies = []  # Track companies to delete
 
-def log(msg: str, color: str = Colors.BLUE):
-    print(f"{color}{msg}{Colors.END}")
 
-def log_success(msg: str):
-    print(f"{Colors.GREEN}✅ {msg}{Colors.END}")
+def log(msg):
+    """Print timestamped log message."""
+    print(f"[{datetime.now().strftime('%H:%M:%S')}] {msg}")
 
-def log_error(msg: str):
-    print(f"{Colors.RED}❌ {msg}{Colors.END}")
 
-def log_warning(msg: str):
-    print(f"{Colors.YELLOW}⚠️  {msg}{Colors.END}")
+def get_csrf_token():
+    """Get CSRF token."""
+    global csrf_token
+    log("Getting CSRF token...")
+    resp = session.get(f"{BASE_URL}/api/csrf-token")
+    resp.raise_for_status()
+    data = resp.json()
+    csrf_token = data.get("csrf_token") or data.get("csrfToken")
+    log(f"✓ CSRF token obtained: {csrf_token[:20]}...")
+    return csrf_token
 
-def get_csrf_token() -> Optional[str]:
-    """Get CSRF token from the API"""
+
+def register_user():
+    """Try to register a fresh throwaway user."""
+    timestamp = int(time.time())
+    email = f"qa.namebug.{timestamp}@dynopaytest.com"
+    password = "QaNameBug#2026"
+    name = ""  # Start with empty name to test first-time seeding
+    
+    log(f"Attempting to register fresh user: {email} (with empty name)")
+    
+    # Get fresh CSRF token
+    get_csrf_token()
+    
+    payload = {
+        "email": email,
+        "password": password,
+        "name": name
+    }
+    
+    headers = {
+        "Content-Type": "application/json",
+        "x-csrf-token": csrf_token
+    }
+    
     try:
-        resp = requests.get(f"{API_BASE}/csrf-token", timeout=10)
-        if resp.status_code == 200:
-            data = resp.json()
-            token = data.get("csrf_token") or data.get("csrfToken") or data.get("data", {}).get("csrf_token")
-            if token:
-                log_success(f"CSRF token obtained: {token[:20]}...")
-                return token
-            else:
-                log_error(f"CSRF token not found in response: {data}")
-                return None
-        else:
-            log_error(f"Failed to get CSRF token: {resp.status_code}")
-            return None
-    except Exception as e:
-        log_error(f"Exception getting CSRF token: {e}")
-        return None
-
-def login_user(email: str, password: str, user_agent: str = None, csrf_token: str = None) -> Optional[Dict[str, Any]]:
-    """Login and return session data"""
-    try:
-        headers = {
-            "Content-Type": "application/json"
-        }
-        if user_agent:
-            headers["User-Agent"] = user_agent
-        if csrf_token:
-            headers["X-CSRF-Token"] = csrf_token
-        
-        payload = {
-            "email": email,
-            "password": password
-        }
-        
-        resp = requests.post(
-            f"{API_BASE}/user/login",
+        resp = session.post(
+            f"{BASE_URL}/api/user/registerUser",
             json=payload,
-            headers=headers,
-            timeout=15
+            headers=headers
         )
         
-        if resp.status_code == 200:
-            data = resp.json()
-            # Handle both response formats: direct accessToken or nested in data
-            if data.get("accessToken"):
-                return data
-            elif data.get("data", {}).get("accessToken"):
-                return data.get("data")
-            else:
-                log_error(f"Login response missing accessToken: {data}")
-                return None
+        if resp.status_code == 200 or resp.status_code == 201:
+            log(f"✓ Registration successful for {email}")
+            return email, password
         else:
-            log_error(f"Login failed: {resp.status_code} - {resp.text[:200]}")
-            return None
+            log(f"✗ Registration failed: {resp.status_code} - {resp.text[:200]}")
+            return None, None
     except Exception as e:
-        log_error(f"Exception during login: {e}")
-        return None
+        log(f"✗ Registration error: {e}")
+        return None, None
 
-def test_health_check():
-    """Test 1: Health check"""
-    log("\n" + "="*80)
-    log("TEST 1: Health Check", Colors.BLUE)
-    log("="*80)
-    
-    try:
-        resp = requests.get(f"{BACKEND_URL}/health", timeout=10)
-        if resp.status_code == 200:
-            data = resp.json()
-            log_success(f"Health check passed: {json.dumps(data, indent=2)}")
-            return True
-        else:
-            log_error(f"Health check failed: {resp.status_code}")
-            return False
-    except Exception as e:
-        log_error(f"Health check exception: {e}")
-        return False
 
-def test_fix_a_bot_ua_filter():
-    """Test Fix A: Login with bot User-Agent should return 200 but skip email"""
-    log("\n" + "="*80)
-    log("TEST 2: Fix A - Bot UA Filter (curl User-Agent)", Colors.BLUE)
-    log("="*80)
+def login(email, password):
+    """Login and get JWT token."""
+    global jwt_token
     
-    # Get CSRF token first
-    csrf_token = get_csrf_token()
+    log(f"Logging in as {email}...")
     
-    # Test 1: Login with curl UA
-    log("\n[Test 2.1] Login with curl/7.88.1 User-Agent")
-    session1 = login_user(
-        TEST_USER["email"],
-        TEST_USER["password"],
-        user_agent="curl/7.88.1",
-        csrf_token=csrf_token
+    # Get fresh CSRF token
+    get_csrf_token()
+    
+    payload = {
+        "email": email,
+        "password": password
+    }
+    
+    headers = {
+        "Content-Type": "application/json",
+        "x-csrf-token": csrf_token
+    }
+    
+    resp = session.post(
+        f"{BASE_URL}/api/user/login",
+        json=payload,
+        headers=headers
     )
     
-    if session1 and session1.get("accessToken"):
-        log_success("Login with curl UA returned 200 with valid session")
-        
-        # Test 2: Second login within 15 min with same UA
-        log("\n[Test 2.2] Second login with curl UA (should also return 200)")
-        time.sleep(2)
-        session2 = login_user(
-            TEST_USER["email"],
-            TEST_USER["password"],
-            user_agent="curl/7.88.1",
-            csrf_token=csrf_token
-        )
-        
-        if session2 and session2.get("accessToken"):
-            log_success("Second login with curl UA also returned 200")
-            return True
-        else:
-            log_error("Second login with curl UA failed")
-            return False
-    else:
-        log_error("First login with curl UA failed")
+    if resp.status_code != 200:
+        log(f"✗ Login failed: {resp.status_code} - {resp.text[:200]}")
         return False
-
-def test_fix_a_normal_ua():
-    """Test Fix A: Login with normal browser UA"""
-    log("\n" + "="*80)
-    log("TEST 3: Fix A - Normal Browser UA Throttle", Colors.BLUE)
-    log("="*80)
     
-    csrf_token = get_csrf_token()
-    
-    # Test 1: Login with normal browser UA
-    log("\n[Test 3.1] Login with normal browser User-Agent")
-    browser_ua = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0 Safari/537.36"
-    session1 = login_user(
-        TEST_USER["email"],
-        TEST_USER["password"],
-        user_agent=browser_ua,
-        csrf_token=csrf_token
+    data = resp.json()
+    # Try multiple possible locations for the token
+    jwt_token = (
+        data.get("data", {}).get("accessToken") or
+        data.get("data", {}).get("token") or 
+        data.get("token") or 
+        data.get("accessToken")
     )
     
-    if session1 and session1.get("accessToken"):
-        log_success("Login with browser UA returned 200")
-        
-        # Test 2: Second login within 15 min (should throttle email but still return 200)
-        log("\n[Test 3.2] Second login with same browser UA within 15 min")
-        time.sleep(2)
-        session2 = login_user(
-            TEST_USER["email"],
-            TEST_USER["password"],
-            user_agent=browser_ua,
-            csrf_token=csrf_token
-        )
-        
-        if session2 and session2.get("accessToken"):
-            log_success("Second login with browser UA also returned 200 (email throttled)")
-            return True
-        else:
-            log_error("Second login with browser UA failed")
-            return False
+    if not jwt_token:
+        log(f"✗ No JWT token in response")
+        log(f"Response data: {json.dumps(data)[:500]}")
+        return False
+    
+    log(f"✓ Login successful, JWT: {jwt_token[:30]}...")
+    return True
+
+
+def get_profile():
+    """Get user profile to check account name."""
+    log("Getting user profile...")
+    
+    headers = {
+        "Authorization": f"Bearer {jwt_token}",
+        "x-csrf-token": csrf_token
+    }
+    
+    resp = session.get(
+        f"{BASE_URL}/api/user/profile",
+        headers=headers
+    )
+    
+    if resp.status_code != 200:
+        log(f"✗ Profile fetch failed: {resp.status_code} - {resp.text[:200]}")
+        return None
+    
+    data = resp.json()
+    profile = data.get("data") or data
+    name = profile.get("name") or ""
+    
+    log(f"✓ Profile name: '{name}'")
+    return name
+
+
+def create_company(company_name, email, first_name, last_name):
+    """Create a company with given details."""
+    log(f"Creating company: {company_name} (contact: {first_name} {last_name})...")
+    
+    # Get fresh CSRF token
+    get_csrf_token()
+    
+    payload = {
+        "company_name": company_name,
+        "email": email,
+        "first_name": first_name,
+        "last_name": last_name
+    }
+    
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {jwt_token}",
+        "x-csrf-token": csrf_token
+    }
+    
+    resp = session.post(
+        f"{BASE_URL}/api/company/addCompany",
+        json=payload,
+        headers=headers
+    )
+    
+    if resp.status_code not in [200, 201]:
+        log(f"✗ Company creation failed: {resp.status_code} - {resp.text[:300]}")
+        return None
+    
+    data = resp.json()
+    company = data.get("data") or data.get("company") or data
+    company_id = company.get("company_id") or company.get("id")
+    
+    if company_id:
+        test_companies.append(company_id)
+        log(f"✓ Company created: ID={company_id}")
     else:
-        log_error("First login with browser UA failed")
-        return False
+        log(f"⚠ Company created but no ID found in response: {json.dumps(data)[:200]}")
+    
+    return company_id
 
-def test_fix_a_invalid_credentials():
-    """Test Fix A: Login with invalid credentials should still return 401"""
-    log("\n" + "="*80)
-    log("TEST 4: Fix A - Invalid Credentials (should return 401)", Colors.BLUE)
-    log("="*80)
-    
-    csrf_token = get_csrf_token()
-    
-    try:
-        headers = {
-            "Content-Type": "application/json",
-            "User-Agent": "curl/7.88.1"
-        }
-        if csrf_token:
-            headers["X-CSRF-Token"] = csrf_token
-        
-        payload = {
-            "email": TEST_USER["email"],
-            "password": "WrongPassword123!"
-        }
-        
-        resp = requests.post(
-            f"{API_BASE}/user/login",
-            json=payload,
-            headers=headers,
-            timeout=15
-        )
-        
-        if resp.status_code == 401:
-            log_success("Invalid credentials correctly returned 401")
-            return True
-        else:
-            log_error(f"Invalid credentials returned unexpected status: {resp.status_code}")
-            return False
-    except Exception as e:
-        log_error(f"Exception testing invalid credentials: {e}")
-        return False
 
-def test_fix_c_delete_only_company():
-    """Test Fix C: DELETE company when user has only 1 company should return 400"""
-    log("\n" + "="*80)
-    log("TEST 5: Fix C - Delete Only Company (should return 400)", Colors.BLUE)
-    log("="*80)
+def get_companies():
+    """Get list of companies."""
+    log("Getting company list...")
     
-    # Login first
-    csrf_token = get_csrf_token()
-    session = login_user(TEST_USER["email"], TEST_USER["password"], csrf_token=csrf_token)
+    headers = {
+        "Authorization": f"Bearer {jwt_token}",
+        "x-csrf-token": csrf_token
+    }
     
-    if not session or not session.get("accessToken"):
-        log_error("Failed to login for delete company test")
-        return False
+    resp = session.get(
+        f"{BASE_URL}/api/company/getCompany",
+        headers=headers
+    )
     
-    token = session["accessToken"]
+    if resp.status_code != 200:
+        log(f"✗ Company list fetch failed: {resp.status_code} - {resp.text[:200]}")
+        return []
     
-    # CRITICAL: This test should return 400 WITHOUT deleting the company
-    # Company ID 1 is hostbay's only company
-    log("\n[Test 5.1] Attempting to DELETE company_id=1 (hostbay's only company)")
-    log_warning("SAFETY CHECK: This should return 400 WITHOUT deleting the company")
+    data = resp.json()
+    companies = data.get("data") or data.get("companies") or []
     
-    try:
-        headers = {
-            "Authorization": f"Bearer {token}",
-            "Content-Type": "application/json"
-        }
-        if csrf_token:
-            headers["X-CSRF-Token"] = csrf_token
-        
-        resp = requests.delete(
-            f"{API_BASE}/company/deleteCompany/1",
-            headers=headers,
-            timeout=15
-        )
-        
-        if resp.status_code == 400:
-            data = resp.json()
-            message = data.get("message", "")
-            if "only company" in message.lower():
-                log_success(f"Correctly returned 400: {message}")
-                
-                # Verify company still exists
-                log("\n[Test 5.2] Verifying company_id=1 still exists")
-                get_resp = requests.get(
-                    f"{API_BASE}/company/getCompany",
-                    headers=headers,
-                    timeout=15
-                )
-                
-                if get_resp.status_code == 200:
-                    companies = get_resp.json().get("data", [])
-                    if any(c.get("company_id") == 1 for c in companies):
-                        log_success("Company_id=1 still exists (not deleted)")
-                        return True
-                    else:
-                        log_error("Company_id=1 was deleted! TEST FAILED")
-                        return False
-                else:
-                    log_warning(f"Could not verify company existence: {get_resp.status_code}")
-                    return True  # Still pass if we got 400
-            else:
-                log_error(f"Got 400 but wrong message: {message}")
-                return False
-        elif resp.status_code == 200:
-            log_error("DELETE returned 200 - company may have been deleted! TEST FAILED")
-            return False
-        else:
-            log_error(f"DELETE returned unexpected status: {resp.status_code} - {resp.text[:200]}")
-            return False
-    except Exception as e:
-        log_error(f"Exception testing delete company: {e}")
-        return False
+    log(f"✓ Found {len(companies)} companies")
+    return companies
 
-def test_fix_c_delete_nonexistent():
-    """Test Fix C: DELETE non-existent company should return 404"""
-    log("\n" + "="*80)
-    log("TEST 6: Fix C - Delete Non-existent Company (should return 404)", Colors.BLUE)
-    log("="*80)
-    
-    csrf_token = get_csrf_token()
-    session = login_user(TEST_USER["email"], TEST_USER["password"], csrf_token=csrf_token)
-    
-    if not session or not session.get("accessToken"):
-        log_error("Failed to login for delete non-existent company test")
-        return False
-    
-    token = session["accessToken"]
-    
-    try:
-        headers = {
-            "Authorization": f"Bearer {token}",
-            "Content-Type": "application/json"
-        }
-        if csrf_token:
-            headers["X-CSRF-Token"] = csrf_token
-        
-        resp = requests.delete(
-            f"{API_BASE}/company/deleteCompany/99999",
-            headers=headers,
-            timeout=15
-        )
-        
-        if resp.status_code == 404:
-            log_success("Non-existent company correctly returned 404")
-            return True
-        else:
-            log_error(f"Non-existent company returned unexpected status: {resp.status_code}")
-            return False
-    except Exception as e:
-        log_error(f"Exception testing delete non-existent company: {e}")
-        return False
 
-def test_fix_f_webhook_settings():
-    """Test Fix F: GET webhook settings should return new fields"""
-    log("\n" + "="*80)
-    log("TEST 7: Fix F - Webhook Settings (new fields)", Colors.BLUE)
-    log("="*80)
+def update_company(company_id, first_name, last_name, company_name=None):
+    """Update company contact details."""
+    log(f"Updating company {company_id} to: {first_name} {last_name}...")
     
-    csrf_token = get_csrf_token()
-    session = login_user(TEST_USER["email"], TEST_USER["password"], csrf_token=csrf_token)
+    # Get fresh CSRF token
+    get_csrf_token()
     
-    if not session or not session.get("accessToken"):
-        log_error("Failed to login for webhook settings test")
+    payload = {
+        "first_name": first_name,
+        "last_name": last_name
+    }
+    
+    # Add company_name if provided to ensure we have valid update data
+    if company_name:
+        payload["company_name"] = company_name
+    
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {jwt_token}",
+        "x-csrf-token": csrf_token
+    }
+    
+    resp = session.put(
+        f"{BASE_URL}/api/company/updateCompany/{company_id}",
+        json=payload,
+        headers=headers
+    )
+    
+    if resp.status_code != 200:
+        log(f"✗ Company update failed: {resp.status_code} - {resp.text[:200]}")
         return False
     
-    token = session["accessToken"]
-    
-    try:
-        headers = {
-            "Authorization": f"Bearer {token}",
-            "Content-Type": "application/json"
-        }
-        
-        resp = requests.get(
-            f"{API_BASE}/company/webhook-settings/1",
-            headers=headers,
-            timeout=15
-        )
-        
-        if resp.status_code == 200:
-            data = resp.json().get("data", {})
-            
-            # Check for new fields
-            required_fields = ["webhook_disabled", "webhook_disabled_at", "webhook_disabled_reason"]
-            missing_fields = [f for f in required_fields if f not in data]
-            
-            if not missing_fields:
-                log_success(f"Webhook settings returned all new fields: {json.dumps(data, indent=2)}")
-                log(f"  webhook_disabled: {data.get('webhook_disabled')}")
-                log(f"  webhook_disabled_at: {data.get('webhook_disabled_at')}")
-                log(f"  webhook_disabled_reason: {data.get('webhook_disabled_reason')}")
-                return True
-            else:
-                log_error(f"Missing fields in webhook settings: {missing_fields}")
-                return False
-        else:
-            log_error(f"Webhook settings returned unexpected status: {resp.status_code}")
-            return False
-    except Exception as e:
-        log_error(f"Exception testing webhook settings: {e}")
-        return False
+    log(f"✓ Company updated")
+    return True
 
-def test_fix_f_webhook_reenable_with_csrf():
-    """Test Fix F: POST webhook-reenable with CSRF should return 200"""
-    log("\n" + "="*80)
-    log("TEST 8: Fix F - Webhook Re-enable WITH CSRF", Colors.BLUE)
-    log("="*80)
-    
-    csrf_token = get_csrf_token()
-    session = login_user(TEST_USER["email"], TEST_USER["password"], csrf_token=csrf_token)
-    
-    if not session or not session.get("accessToken"):
-        log_error("Failed to login for webhook re-enable test")
-        return False
-    
-    token = session["accessToken"]
-    
-    try:
-        headers = {
-            "Authorization": f"Bearer {token}",
-            "Content-Type": "application/json"
-        }
-        if csrf_token:
-            headers["X-CSRF-Token"] = csrf_token
-        
-        resp = requests.post(
-            f"{API_BASE}/company/webhook-reenable/1",
-            headers=headers,
-            json={},
-            timeout=15
-        )
-        
-        if resp.status_code == 200:
-            data = resp.json().get("data", {})
-            log_success(f"Webhook re-enable with CSRF returned 200: {json.dumps(data, indent=2)}")
-            return True
-        else:
-            log_error(f"Webhook re-enable with CSRF returned unexpected status: {resp.status_code} - {resp.text[:200]}")
-            return False
-    except Exception as e:
-        log_error(f"Exception testing webhook re-enable with CSRF: {e}")
-        return False
 
-def test_fix_f_webhook_reenable_without_csrf():
-    """Test Fix F: POST webhook-reenable WITHOUT CSRF should return 403"""
-    log("\n" + "="*80)
-    log("TEST 9: Fix F - Webhook Re-enable WITHOUT CSRF (should return 403)", Colors.BLUE)
-    log("="*80)
+def delete_company(company_id):
+    """Delete a company."""
+    log(f"Deleting company {company_id}...")
     
-    csrf_token = get_csrf_token()
-    session = login_user(TEST_USER["email"], TEST_USER["password"], csrf_token=csrf_token)
+    # Get fresh CSRF token
+    get_csrf_token()
     
-    if not session or not session.get("accessToken"):
-        log_error("Failed to login for webhook re-enable without CSRF test")
+    headers = {
+        "Authorization": f"Bearer {jwt_token}",
+        "x-csrf-token": csrf_token
+    }
+    
+    resp = session.delete(
+        f"{BASE_URL}/api/company/deleteCompany/{company_id}",
+        headers=headers
+    )
+    
+    if resp.status_code != 200:
+        log(f"✗ Company deletion failed: {resp.status_code} - {resp.text[:200]}")
         return False
     
-    token = session["accessToken"]
-    
-    try:
-        headers = {
-            "Authorization": f"Bearer {token}",
-            "Content-Type": "application/json"
-            # Intentionally NOT including X-CSRF-Token
-        }
-        
-        resp = requests.post(
-            f"{API_BASE}/company/webhook-reenable/1",
-            headers=headers,
-            json={},
-            timeout=15
-        )
-        
-        if resp.status_code == 403:
-            log_success("Webhook re-enable without CSRF correctly returned 403")
-            return True
-        else:
-            log_error(f"Webhook re-enable without CSRF returned unexpected status: {resp.status_code}")
-            return False
-    except Exception as e:
-        log_error(f"Exception testing webhook re-enable without CSRF: {e}")
-        return False
+    log(f"✓ Company deleted")
+    return True
 
-def test_fix_f_webhook_reenable_without_auth():
-    """Test Fix F: POST webhook-reenable WITHOUT auth should return 401"""
-    log("\n" + "="*80)
-    log("TEST 10: Fix F - Webhook Re-enable WITHOUT Auth (should return 401)", Colors.BLUE)
-    log("="*80)
-    
-    csrf_token = get_csrf_token()
-    
-    try:
-        headers = {
-            "Content-Type": "application/json"
-            # Intentionally NOT including Authorization
-        }
-        if csrf_token:
-            headers["X-CSRF-Token"] = csrf_token
-        
-        resp = requests.post(
-            f"{API_BASE}/company/webhook-reenable/1",
-            headers=headers,
-            json={},
-            timeout=15
-        )
-        
-        if resp.status_code == 401:
-            log_success("Webhook re-enable without auth correctly returned 401")
-            return True
-        else:
-            log_error(f"Webhook re-enable without auth returned unexpected status: {resp.status_code}")
-            return False
-    except Exception as e:
-        log_error(f"Exception testing webhook re-enable without auth: {e}")
-        return False
 
-def test_smoke_tests():
-    """Test 11: General smoke tests"""
-    log("\n" + "="*80)
-    log("TEST 11: General Smoke Tests", Colors.BLUE)
-    log("="*80)
+def cleanup():
+    """Delete all test companies."""
+    if not test_companies:
+        log("No test companies to clean up")
+        return
     
-    all_passed = True
+    log(f"\n{'='*60}")
+    log("CLEANUP: Deleting test companies...")
+    log(f"{'='*60}")
     
-    # Test 1: /health
-    log("\n[Test 11.1] GET /health")
-    try:
-        resp = requests.get(f"{BACKEND_URL}/health", timeout=10)
-        if resp.status_code == 200:
-            log_success("/health returned 200")
-        else:
-            log_error(f"/health returned {resp.status_code}")
-            all_passed = False
-    except Exception as e:
-        log_error(f"/health exception: {e}")
-        all_passed = False
+    for company_id in test_companies:
+        try:
+            delete_company(company_id)
+        except Exception as e:
+            log(f"✗ Error deleting company {company_id}: {e}")
+
+
+def run_tests():
+    """Run the bug verification tests."""
+    log(f"\n{'='*60}")
+    log("DYNOPAY COMPANY NAME BUG FIX VERIFICATION")
+    log(f"{'='*60}\n")
     
-    # Test 2: /api/pay/creator/hostbay
-    log("\n[Test 11.2] GET /api/pay/creator/hostbay")
-    try:
-        resp = requests.get(f"{API_BASE}/pay/creator/hostbay", timeout=10)
-        if resp.status_code == 200:
-            log_success("/api/pay/creator/hostbay returned 200")
-        else:
-            log_error(f"/api/pay/creator/hostbay returned {resp.status_code}")
-            all_passed = False
-    except Exception as e:
-        log_error(f"/api/pay/creator/hostbay exception: {e}")
-        all_passed = False
+    # Step 1: Setup - Register or use fallback
+    email, password = None, None
     
-    # Test 3: /api/csrf-token
-    log("\n[Test 11.3] GET /api/csrf-token")
-    csrf = get_csrf_token()
-    if csrf:
-        log_success("/api/csrf-token returned valid token")
+    if USE_FRESH_USER:
+        email, password = register_user()
+    
+    if not email:
+        log(f"Using fallback account: {FALLBACK_EMAIL}")
+        email = FALLBACK_EMAIL
+        password = FALLBACK_PASSWORD
+    
+    # Step 2: Login
+    if not login(email, password):
+        log("\n✗ FATAL: Login failed, cannot continue")
+        return False
+    
+    # Step 3: Record initial account name (name0)
+    log(f"\n{'='*60}")
+    log("TEST STEP 1: Record initial account name")
+    log(f"{'='*60}")
+    
+    name0 = get_profile()
+    if name0 is None:
+        log("✗ FATAL: Could not get initial profile")
+        return False
+    
+    log(f"✓ Initial account name (name0): '{name0}'")
+    
+    # Step 4: Create Company A
+    log(f"\n{'='*60}")
+    log("TEST STEP 2: Create Company A (Alice Anderson)")
+    log(f"{'='*60}")
+    
+    timestamp = int(time.time())
+    company_a_id = create_company(
+        company_name=f"QA Alpha {timestamp}",
+        email=f"qa.alpha.{timestamp}@dynopaytest.com",
+        first_name="Alice",
+        last_name="Anderson"
+    )
+    
+    if not company_a_id:
+        log("✗ FATAL: Could not create Company A")
+        cleanup()
+        return False
+    
+    # Step 5: Check account name after Company A
+    log(f"\n{'='*60}")
+    log("TEST STEP 3: Check account name after Company A")
+    log(f"{'='*60}")
+    
+    nameAfterA = get_profile()
+    if nameAfterA is None:
+        log("✗ FATAL: Could not get profile after Company A")
+        cleanup()
+        return False
+    
+    log(f"✓ Account name after Company A (nameAfterA): '{nameAfterA}'")
+    
+    # For fresh account, name should now be "Alice Anderson"
+    # For hostbay, name should remain "hostbay" or original name
+    if name0 == "":
+        expected_after_a = "Alice Anderson"
+        if nameAfterA != expected_after_a:
+            log(f"⚠ WARNING: Fresh account name should be '{expected_after_a}' but got '{nameAfterA}'")
     else:
-        log_error("/api/csrf-token failed")
-        all_passed = False
+        log(f"✓ Existing account - name remains: '{nameAfterA}'")
     
-    # Test 4: Login with correct credentials
-    log("\n[Test 11.4] POST /api/user/login with correct credentials")
-    session = login_user(TEST_USER["email"], TEST_USER["password"], csrf_token=csrf)
-    if session and session.get("accessToken"):
-        log_success("Login with correct credentials returned 200 with tokens")
+    # Step 6: Create Company B
+    log(f"\n{'='*60}")
+    log("TEST STEP 4: Create Company B (Bob Brown)")
+    log(f"{'='*60}")
+    
+    company_b_id = create_company(
+        company_name=f"QA Bravo {timestamp}",
+        email=f"qa.bravo.{timestamp}@dynopaytest.com",
+        first_name="Bob",
+        last_name="Brown"
+    )
+    
+    if not company_b_id:
+        log("✗ FATAL: Could not create Company B")
+        cleanup()
+        return False
+    
+    # Step 7: PRIMARY ASSERTION - Check account name after Company B
+    log(f"\n{'='*60}")
+    log("TEST STEP 5: PRIMARY ASSERTION - Account name after Company B")
+    log(f"{'='*60}")
+    
+    nameAfterB = get_profile()
+    if nameAfterB is None:
+        log("✗ FATAL: Could not get profile after Company B")
+        cleanup()
+        return False
+    
+    log(f"✓ Account name after Company B (nameAfterB): '{nameAfterB}'")
+    
+    # PRIMARY ASSERTION: nameAfterB MUST EQUAL nameAfterA
+    log(f"\n{'*'*60}")
+    log("PRIMARY ASSERTION CHECK:")
+    log(f"  nameAfterA: '{nameAfterA}'")
+    log(f"  nameAfterB: '{nameAfterB}'")
+    log(f"  Expected: nameAfterB == nameAfterA")
+    
+    if nameAfterB == nameAfterA:
+        log(f"✅ PASS: Account name unchanged after creating Company B")
+        primary_pass = True
     else:
-        log_error("Login with correct credentials failed")
-        all_passed = False
+        log(f"❌ FAIL: Account name changed from '{nameAfterA}' to '{nameAfterB}'")
+        log(f"❌ BUG NOT FIXED: Creating Company B overwrote the account name!")
+        primary_pass = False
+    log(f"{'*'*60}\n")
     
-    # Test 5: Login with wrong password
-    log("\n[Test 11.5] POST /api/user/login with wrong password")
-    try:
-        headers = {"Content-Type": "application/json"}
-        if csrf:
-            headers["X-CSRF-Token"] = csrf
+    # Step 8: Verify company contact fields
+    log(f"\n{'='*60}")
+    log("TEST STEP 6: Verify company contact fields")
+    log(f"{'='*60}")
+    
+    companies = get_companies()
+    
+    company_a = None
+    company_b = None
+    
+    for company in companies:
+        cid = company.get("company_id") or company.get("id")
+        if cid == company_a_id:
+            company_a = company
+        elif cid == company_b_id:
+            company_b = company
+    
+    contact_fields_pass = True
+    
+    company_b_name = None  # Store for later update
+    
+    if company_a:
+        a_first = company_a.get("contact_first_name", "")
+        a_last = company_a.get("contact_last_name", "")
+        log(f"Company A contact: first_name='{a_first}', last_name='{a_last}'")
         
-        resp = requests.post(
-            f"{API_BASE}/user/login",
-            json={"email": TEST_USER["email"], "password": "WrongPassword123!"},
-            headers=headers,
-            timeout=15
-        )
-        if resp.status_code == 401:
-            log_success("Login with wrong password correctly returned 401")
+        if a_first == "Alice" and a_last == "Anderson":
+            log(f"✅ PASS: Company A has correct contact fields")
         else:
-            log_error(f"Login with wrong password returned {resp.status_code}")
-            all_passed = False
-    except Exception as e:
-        log_error(f"Login with wrong password exception: {e}")
-        all_passed = False
-    
-    return all_passed
-
-def main():
-    log("\n" + "="*80)
-    log("SESSION 49 BACKEND TESTING - 5 FIXES VERIFICATION", Colors.BLUE)
-    log("="*80)
-    log(f"Backend URL: {BACKEND_URL}")
-    log(f"Test User: {TEST_USER['email']}")
-    log("="*80)
-    
-    results = {}
-    
-    # Run all tests
-    results["Test 1: Health Check"] = test_health_check()
-    results["Test 2: Fix A - Bot UA Filter"] = test_fix_a_bot_ua_filter()
-    results["Test 3: Fix A - Normal UA Throttle"] = test_fix_a_normal_ua()
-    results["Test 4: Fix A - Invalid Credentials"] = test_fix_a_invalid_credentials()
-    results["Test 5: Fix C - Delete Only Company"] = test_fix_c_delete_only_company()
-    results["Test 6: Fix C - Delete Non-existent"] = test_fix_c_delete_nonexistent()
-    results["Test 7: Fix F - Webhook Settings"] = test_fix_f_webhook_settings()
-    results["Test 8: Fix F - Webhook Re-enable WITH CSRF"] = test_fix_f_webhook_reenable_with_csrf()
-    results["Test 9: Fix F - Webhook Re-enable WITHOUT CSRF"] = test_fix_f_webhook_reenable_without_csrf()
-    results["Test 10: Fix F - Webhook Re-enable WITHOUT Auth"] = test_fix_f_webhook_reenable_without_auth()
-    results["Test 11: General Smoke Tests"] = test_smoke_tests()
-    
-    # Summary
-    log("\n" + "="*80)
-    log("TEST SUMMARY", Colors.BLUE)
-    log("="*80)
-    
-    passed = sum(1 for v in results.values() if v)
-    total = len(results)
-    
-    for test_name, result in results.items():
-        if result:
-            log_success(f"{test_name}: PASSED")
-        else:
-            log_error(f"{test_name}: FAILED")
-    
-    log("\n" + "="*80)
-    if passed == total:
-        log_success(f"ALL TESTS PASSED: {passed}/{total}")
-        log("="*80)
-        return 0
+            log(f"❌ FAIL: Company A contact fields incorrect (expected Alice Anderson)")
+            contact_fields_pass = False
     else:
-        log_error(f"SOME TESTS FAILED: {passed}/{total} passed")
-        log("="*80)
-        return 1
+        log(f"✗ WARNING: Could not find Company A in list")
+        contact_fields_pass = False
+    
+    if company_b:
+        b_first = company_b.get("contact_first_name", "")
+        b_last = company_b.get("contact_last_name", "")
+        company_b_name = company_b.get("company_name")  # Store for update
+        log(f"Company B contact: first_name='{b_first}', last_name='{b_last}'")
+        
+        if b_first == "Bob" and b_last == "Brown":
+            log(f"✅ PASS: Company B has correct contact fields")
+        else:
+            log(f"❌ FAIL: Company B contact fields incorrect (expected Bob Brown)")
+            contact_fields_pass = False
+    else:
+        log(f"✗ WARNING: Could not find Company B in list")
+        contact_fields_pass = False
+    
+    # Step 9: Update Company B
+    log(f"\n{'='*60}")
+    log("TEST STEP 7: Update Company B (Carol Clark)")
+    log(f"{'='*60}")
+    
+    if not update_company(company_b_id, "Carol", "Clark", company_b_name):
+        log("✗ WARNING: Could not update Company B")
+    
+    # Step 10: Verify updated contact fields
+    log(f"\n{'='*60}")
+    log("TEST STEP 8: Verify updated Company B contact fields")
+    log(f"{'='*60}")
+    
+    companies = get_companies()
+    company_b_updated = None
+    
+    for company in companies:
+        cid = company.get("company_id") or company.get("id")
+        if cid == company_b_id:
+            company_b_updated = company
+            break
+    
+    update_pass = True
+    
+    if company_b_updated:
+        b_first = company_b_updated.get("contact_first_name", "")
+        b_last = company_b_updated.get("contact_last_name", "")
+        log(f"Company B updated contact: first_name='{b_first}', last_name='{b_last}'")
+        
+        if b_first == "Carol" and b_last == "Clark":
+            log(f"✅ PASS: Company B contact fields updated correctly")
+        else:
+            log(f"❌ FAIL: Company B contact fields not updated (expected Carol Clark)")
+            update_pass = False
+    else:
+        log(f"✗ WARNING: Could not find Company B after update")
+        update_pass = False
+    
+    # Step 11: Verify account name still unchanged after update
+    log(f"\n{'='*60}")
+    log("TEST STEP 9: Verify account name unchanged after update")
+    log(f"{'='*60}")
+    
+    nameAfterUpdate = get_profile()
+    if nameAfterUpdate is None:
+        log("✗ WARNING: Could not get profile after update")
+    else:
+        log(f"✓ Account name after update: '{nameAfterUpdate}'")
+        
+        if nameAfterUpdate == nameAfterB:
+            log(f"✅ PASS: Account name unchanged after Company B update")
+        else:
+            log(f"❌ FAIL: Account name changed from '{nameAfterB}' to '{nameAfterUpdate}' after update")
+            update_pass = False
+    
+    # Cleanup
+    cleanup()
+    
+    # Final summary
+    log(f"\n{'='*60}")
+    log("FINAL TEST SUMMARY")
+    log(f"{'='*60}")
+    
+    log(f"Test account: {email}")
+    log(f"Initial name (name0): '{name0}'")
+    log(f"Name after Company A: '{nameAfterA}'")
+    log(f"Name after Company B: '{nameAfterB}'")
+    log(f"Name after update: '{nameAfterUpdate}'")
+    log("")
+    
+    all_pass = primary_pass and contact_fields_pass and update_pass
+    
+    if primary_pass:
+        log("✅ PRIMARY ASSERTION: PASS - Account name not overwritten by second company")
+    else:
+        log("❌ PRIMARY ASSERTION: FAIL - Account name was overwritten")
+    
+    if contact_fields_pass:
+        log("✅ CONTACT FIELDS: PASS - Companies store their own contact names")
+    else:
+        log("❌ CONTACT FIELDS: FAIL - Contact fields incorrect")
+    
+    if update_pass:
+        log("✅ UPDATE TEST: PASS - Update doesn't affect account name")
+    else:
+        log("❌ UPDATE TEST: FAIL - Update test failed")
+    
+    log("")
+    if all_pass:
+        log("🎉 ALL TESTS PASSED - BUG FIX VERIFIED")
+    else:
+        log("⚠️  SOME TESTS FAILED - BUG MAY NOT BE FULLY FIXED")
+    
+    log(f"{'='*60}\n")
+    
+    return all_pass
+
 
 if __name__ == "__main__":
-    sys.exit(main())
+    try:
+        success = run_tests()
+        exit(0 if success else 1)
+    except Exception as e:
+        log(f"\n✗ FATAL ERROR: {e}")
+        import traceback
+        traceback.print_exc()
+        cleanup()
+        exit(1)

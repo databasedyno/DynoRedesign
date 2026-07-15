@@ -524,7 +524,7 @@ const sendConversionPayoutNotification = async (data: any, withdrawalTxHash: str
 
   await sendAutoConversionPayoutEmail(
     user.email,
-    user.name || "Merchant",
+    [company?.contact_first_name, company?.contact_last_name].filter(Boolean).join(" ").trim() || user.name || "Merchant",
     company?.company_name || "Your Company",
     {
       sourceCurrency: data.source_currency,
@@ -980,7 +980,7 @@ export const sendWeeklyConversionSummaries = async (): Promise<number> => {
 
       await sendWeeklyConversionSummaryEmail(
         user.email,
-        user.name || "Merchant",
+        [company?.contact_first_name, company?.contact_last_name].filter(Boolean).join(" ").trim() || user.name || "Merchant",
         company?.company_name || "Your Company",
         {
           periodStart: startDate.toISOString().split("T")[0],
