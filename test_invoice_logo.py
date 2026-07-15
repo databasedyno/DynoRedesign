@@ -10,7 +10,7 @@ import redis
 import sys
 import time
 
-BASE_URL = "https://crypto-checkout-40.preview.emergentagent.com/api"
+BASE_URL = "https://multi-chain-checkout-3.preview.emergentagent.com/api"
 REDIS_URL = "redis://default:HAEMJseUAdqAjpiICURxlefSoSYXKEUg@nozomi.proxy.rlwy.net:15794"
 
 HEADERS = {
