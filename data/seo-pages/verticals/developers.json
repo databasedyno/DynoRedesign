@@ -1,0 +1,55 @@
+{
+  "meta_title": "Crypto Payments API for Developers | Dynopay",
+  "meta_description": "Integrate Bitcoin, Ethereum, Solana, and 15+ chains with one REST API. Non-custodial, webhooks, SDKs, and sandbox included. Start building in minutes.",
+  "h1": "Crypto Payments API: Accept BTC, ETH, SOL, and 15+ chains",
+  "subheading": "One REST API to integrate non-custodial crypto payments. No smart contracts to write, no custody headaches—funds go directly to your wallet.",
+  "intro_paragraph": "Most crypto payment integrations force you to write and audit smart contracts, manage multiple chain connections, or trust a third party with custody. Dynopay gives you a single REST API covering Bitcoin, Ethereum, Solana, Polygon, Tron, XRP Ledger, and more—with webhooks, official SDKs, and a sandbox for testing. Your customers pay in crypto, and funds arrive directly in your wallet. You stay non-custodial, and your integration stays simple.",
+  "features": [
+    {
+      "title": "One API, 15+ chains",
+      "description": "Support Bitcoin, Ethereum, USDT, USDC, Solana, XRP, and more without managing separate nodes or writing contracts. Add new chains as Dynopay ships them—no code changes required on your end."
+    },
+    {
+      "title": "Non-custodial by design",
+      "description": "Payments settle directly to your wallet address. Dynopay never holds, freezes, or controls your funds. You own the keys, you own the money—no withdrawal delays or account limits."
+    },
+    {
+      "title": "Webhooks and sandbox environment",
+      "description": "Listen for payment confirmations, refunds, and status changes via webhooks. Test every integration scenario with sandbox mode and test API keys before you go live."
+    }
+  ],
+  "how_it_works": [
+    "Sign up, verify your email, and add your payout wallet address—takes under five minutes.",
+    "Grab your API key from the dashboard and call the payments endpoint to create a charge.",
+    "Listen for webhook events when payments confirm, then fulfill the order or unlock content programmatically."
+  ],
+  "faqs": [
+    {
+      "question": "Which cryptocurrencies does the Dynopay API support?",
+      "answer": "Bitcoin, Litecoin, Bitcoin Cash, Dogecoin, Ethereum (plus USDT, USDC, and RLUSD on ERC-20), Polygon (MATIC and USDT), Tron (TRX and USDT-TRC20), Solana, and XRP Ledger (XRP and RLUSD). All chains accessible through one API endpoint."
+    },
+    {
+      "question": "Do I need to write smart contracts to accept payments?",
+      "answer": "No. Dynopay monitors on-chain transactions for you. You create a charge via API, display the payment address to your user, and receive a webhook when funds confirm. No Solidity, no audits, no gas optimization required."
+    },
+    {
+      "question": "What are the API fees and transaction costs?",
+      "answer": "Dynopay charges 1.5% per successful transaction plus a small fixed fee: one dollar for orders under one hundred dollars, scaling to one dollar for orders under one thousand. No monthly fees, no setup costs, no hidden charges."
+    },
+    {
+      "question": "How long does API integration take?",
+      "answer": "Most developers create a test charge in under ten minutes. The REST API uses standard JSON, webhooks follow a predictable schema, and official SDKs are available for Node.js, Python, and PHP. Sandbox mode lets you test end-to-end before going live."
+    },
+    {
+      "question": "Do you hold funds or require KYC for API users?",
+      "answer": "Dynopay is non-custodial—payments go directly to the wallet address you specify. No KYC is required to receive crypto. KYC applies only if you choose to use a fiat off-ramp in certain jurisdictions, which is optional."
+    }
+  ],
+  "cta_headline": "Start building with the Dynopay API",
+  "cta_body": "Generate your API keys and create a test charge in under ten minutes. No monthly fees, no custody, no contracts to write.",
+  "_generated_at": "2026-07-15T09:13:53.319910Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "developers",
+  "_display_name": "Developers & Builders"
+}

@@ -80,11 +80,53 @@ VERTICALS = [
     {"slug": "digital-downloads", "name": "Digital Downloads & Course Sellers"},
 ]
 
+# Audience pages — the 4 first-class DynoPay audiences. These render at
+# /for/{slug} (stored with _kind="vertical" so the existing verticals system,
+# sitemap and cross-links pick them up) but use an audience-tailored prompt so
+# the copy matches the exact product surface each audience uses.
+AUDIENCES = [
+    {
+        "slug": "merchants",
+        "name": "Merchants & Online Sellers",
+        "angle": "sell products and services and get paid in crypto",
+        "keyword": "accept crypto payments for your store",
+        "surface": "Hosted checkout, no-code payment links, and a full storefront. Every payment settles straight to the merchant's own wallet, with optional auto-conversion to USDT/USDC.",
+    },
+    {
+        "slug": "creators",
+        "name": "Creators & Streamers",
+        "angle": "get tipped and take fan support in crypto",
+        "keyword": "accept crypto tips as a creator",
+        "surface": "A personal tip page at dynopay.com/@handle. Fans support the creator in one tap with no signup required; funds go directly to the creator's own wallet.",
+    },
+    {
+        "slug": "fundraisers",
+        "name": "Fundraisers & Nonprofits",
+        "angle": "run crowdfunding campaigns and collect donations in crypto",
+        "keyword": "crypto crowdfunding and donations",
+        "surface": "A full campaign page with a funding goal, reward tiers, a progress bar, and updates that email supporters. Raise from anyone, anywhere, with funds settling to the organizer's own wallet.",
+    },
+    {
+        "slug": "developers",
+        "name": "Developers & Builders",
+        "angle": "integrate crypto payments programmatically",
+        "keyword": "crypto payments API",
+        "surface": "A REST API, webhooks, official SDKs, a drop-in checkout widget, and a sandbox with test keys. 15+ chains behind one API — no smart contracts to write or audit.",
+    },
+]
+
 # Facts about DynoPay the model MUST use verbatim (so it doesn't hallucinate
 # fees or supported chains). Keep this in sync with the real product.
 DYNOPAY_FACTS = """
-DynoPay is a non-custodial cryptocurrency payment gateway. Merchants receive
-funds DIRECTLY in their own wallet — DynoPay never holds customer funds.
+DynoPay is a non-custodial crypto commerce platform. Merchants, creators,
+fundraisers, and developers all receive funds DIRECTLY in their own wallet —
+DynoPay never holds customer funds.
+
+DynoPay is more than a checkout: businesses sell products (hosted checkout,
+payment links, storefront), creators collect tips (a personal page at
+dynopay.com/@handle), and organizers run crowdfunding campaigns (goal, reward
+tiers, updates) — all in crypto — and developers can integrate any of it via a
+REST API, webhooks, and SDKs.
 
 Supported chains and assets (verified):
 - Bitcoin (BTC), Litecoin (LTC), Bitcoin Cash (BCH), Dogecoin (DOGE)
@@ -184,6 +226,30 @@ regulatory approval that isn't documented.
 """.strip()
 
 
+def prompt_for_audience(a: dict) -> str:
+    return f"""
+You are writing a landing page for DynoPay, targeting {a['name']} who want to
+{a['angle']}.
+
+Primary keyword: "{a['keyword']}"
+
+DYNOPAY FACTS (use these — do not invent features or fees):
+{DYNOPAY_FACTS}
+
+THE EXACT PRODUCT SURFACE THIS AUDIENCE USES (center the page on this):
+{a['surface']}
+
+Write directly to this specific audience — speak to their real goals and the
+exact DynoPay surface above, not generic "accept payments" copy. Concrete,
+benefit-first, no fluff, no buzzwords like "revolutionary" / "cutting-edge" /
+"seamless" / "unlock". Use active voice. Do not promise regulatory approval
+that isn't documented. The FAQs must be questions THIS audience would actually
+type into Google.
+
+{SCHEMA_HINT}
+""".strip()
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Helpers
 # ─────────────────────────────────────────────────────────────────────────────
@@ -235,8 +301,13 @@ async def _call_claude(prompt: str, session_id: str, api_key: str) -> str:
 
 
 async def _generate_one(kind: str, entry: dict, api_key: str) -> dict:
-    """kind: 'country' | 'vertical'"""
-    prompt = prompt_for_country(entry) if kind == "country" else prompt_for_vertical(entry)
+    """kind: 'country' | 'vertical' | 'audience'"""
+    if kind == "country":
+        prompt = prompt_for_country(entry)
+    elif kind == "audience":
+        prompt = prompt_for_audience(entry)
+    else:
+        prompt = prompt_for_vertical(entry)
     session_id = f"seo-{kind}-{entry['slug']}-{uuid.uuid4().hex[:8]}"
 
     last_err = ""
@@ -317,6 +388,10 @@ async def _run():
         if only_kind and (only_kind != "vertical" or only_slug != v["slug"]):
             continue
         jobs.append(("vertical", v))
+    for a in AUDIENCES:
+        if only_kind and (only_kind != "audience" or only_slug != a["slug"]):
+            continue
+        jobs.append(("audience", a))
 
     print(f"→ {len(jobs)} candidate page(s) using {MODEL_PROVIDER}/{MODEL_NAME}")
 
@@ -341,7 +416,7 @@ async def _run():
 
         payload["_generated_at"] = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
         payload["_model"] = f"{MODEL_PROVIDER}/{MODEL_NAME}"
-        payload["_kind"] = kind
+        payload["_kind"] = "vertical" if kind == "audience" else kind
         payload["_slug"] = entry["slug"]
         payload["_display_name"] = entry["name"]
         if kind == "country":

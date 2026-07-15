@@ -1,0 +1,55 @@
+{
+  "meta_title": "Accept Crypto Payments for Your Store | Dynopay",
+  "meta_description": "Accept crypto payments for your store with hosted checkout, payment links, and storefront. Funds settle directly to your wallet. 1.5% flat fee. Start now.",
+  "h1": "Accept crypto payments for your store with hosted checkout and payment links",
+  "subheading": "Sell products, collect crypto, and receive funds directly in your own wallet—no custody risk, no monthly fees, live in under 10 minutes.",
+  "intro_paragraph": "Dynopay gives online sellers a complete crypto commerce toolkit: hosted checkout pages, no-code payment links, and a full storefront to sell products in Bitcoin, Ethereum, Solana, stablecoins, and 15+ other assets. Every payment settles straight to your wallet—Dynopay never holds your funds. You pay 1.5% per transaction with no monthly or setup fees, and you can go live in under 10 minutes with just an email and one payout wallet address.",
+  "features": [
+    {
+      "title": "Funds settle to your wallet",
+      "description": "Every sale deposits crypto directly into the wallet you control. Dynopay never takes custody, so you maintain full ownership and can withdraw, hold, or convert on your own terms."
+    },
+    {
+      "title": "Hosted checkout and payment links",
+      "description": "Generate a shareable payment link in seconds or embed a checkout widget on your site. No coding required. Customers pay in their preferred crypto, and you receive it instantly."
+    },
+    {
+      "title": "Accept 15+ coins and stablecoins",
+      "description": "Take payments in Bitcoin, Ethereum, Solana, USDT, USDC, RLUSD, and more across six blockchains. Optional auto-conversion to stablecoins lets you avoid volatility while staying in crypto."
+    }
+  ],
+  "how_it_works": [
+    "Sign up with your email, verify, create a company profile, and add your crypto wallet address.",
+    "Create a payment link or storefront product, set your price, and share the link with customers.",
+    "Customer pays in crypto; funds arrive in your wallet within minutes. You keep 98.5% after the platform fee."
+  ],
+  "faqs": [
+    {
+      "question": "What fees does Dynopay charge to accept crypto payments?",
+      "answer": "Dynopay charges a flat 1.5% platform fee per successful transaction, plus a small fixed component: one dollar for orders under one hundred dollars, scaling to one dollar for orders under one thousand dollars. No monthly fees, no setup fees, no hidden costs."
+    },
+    {
+      "question": "Which cryptocurrencies can I accept with Dynopay?",
+      "answer": "You can accept Bitcoin, Litecoin, Bitcoin Cash, Dogecoin, Ethereum, USDT and USDC on Ethereum and Polygon, RLUSD on Ethereum and XRP Ledger, Tron, Solana, XRP, and Polygon MATIC. All payments settle directly to your wallet."
+    },
+    {
+      "question": "Do I need to give Dynopay control of my crypto?",
+      "answer": "No. Dynopay is non-custodial. You provide a wallet address during setup, and every payment goes straight there. Dynopay never holds, controls, or has access to your funds at any point in the transaction."
+    },
+    {
+      "question": "How long does it take to start accepting crypto payments?",
+      "answer": "Most merchants go live in under 10 minutes. Sign up, verify your email, create a company profile, add one payout wallet address, then generate a payment link or add the checkout widget to your site."
+    },
+    {
+      "question": "Can I accept crypto payments from customers anywhere in the world?",
+      "answer": "Yes. Dynopay has no country restrictions for receiving crypto payments. Your customers can pay from anywhere. KYC requirements apply only if you choose to use a fiat off-ramp service in certain jurisdictions."
+    }
+  ],
+  "cta_headline": "Start accepting crypto payments in 10 minutes",
+  "cta_body": "Sign up, add your wallet, and create your first payment link today. No monthly fees, no setup costs, funds go directly to you.",
+  "_generated_at": "2026-07-15T09:12:33.162866Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "merchants",
+  "_display_name": "Merchants & Online Sellers"
+}

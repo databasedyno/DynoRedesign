@@ -288,8 +288,8 @@ const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages =
         <HomeSectionTitle
           type="small"
           badgeText="Why Dynopay"
-          title="Everything you need to start accepting crypto"
-          highlightText="start accepting crypto"
+          title="Everything you need to get paid in crypto"
+          highlightText="get paid in crypto"
           subtitle="Non-custodial by design. You keep the wallet, we handle the checkout."
           headingAs="h2"
           sx={{ maxWidth: "100%" }}

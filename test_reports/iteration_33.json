@@ -1,0 +1,21 @@
+{
+  "summary": "Frontend-only QA of 4 new SEO audience pages (/for/merchants, /for/creators, /for/fundraisers, /for/developers). All 6 test criteria pass: HTTP 200, audience-specific H1/CTA/keywords, broadened marketing copy ('Everything you need to get paid in crypto', 'Everything people ask before signing up.', 'More ways to get paid in crypto'), working cross-links to other /for/* pages, correct '| Dynopay' brand casing in <title>, and og:image path /og/vertical-creators.png returns HTTP 200 on the preview origin.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Note (informational, not a bug): og:image meta content is emitted as the absolute production URL (https://dynopay.com/og/vertical-<slug>.png) via SITE_ORIGIN. This is expected for SEO; the file itself is also served correctly on the preview origin (HTTP 200 verified for /og/vertical-creators.png)."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped)", "frontend": "100%"},
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Verified per-page: /for/merchants (H1 'Accept crypto payments for your store...', CTA/keywords store/checkout/payment link OK); /for/creators (H1 'Accept crypto tips as a creator...', hero CTA 'Create your tip page in minutes' OK); /for/fundraisers (H1 mentions crowdfunding+donations, keywords crowdfunding/donation/campaign present); /for/developers (H1 'Crypto Payments API...', CTA 'Start building with the Dynopay API'). H2s on each page include the broadened copy. Titles all end with '| Dynopay' (correct casing, no 'DynoPay'). Related-links section navigation confirmed: /for/creators -> /for/gaming (HTTP 200, title 'Crypto Payments for Gaming & iGaming | Dynopay'). og:image PNG served OK on preview.",
+  "rca of the issue": "N/A - no issues found."
+}
