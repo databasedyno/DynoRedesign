@@ -4,7 +4,7 @@ DynoPay Session Management Backend Test
 Session 55: 7-day login + session list is_current flag + session revoke
 
 Test account: hostbay@moxx.co / Katiekendra123@
-Preview URL: https://793a7a9b-7b96-4ded-bb82-8fc8382c51bb.preview.emergentagent.com
+Preview URL: https://payment-gateway-dev-8.preview.emergentagent.com
 """
 
 import requests
@@ -14,7 +14,7 @@ import time
 from typing import Dict, Any, Optional
 
 # Configuration
-BASE_URL = "https://793a7a9b-7b96-4ded-bb82-8fc8382c51bb.preview.emergentagent.com"
+BASE_URL = "https://payment-gateway-dev-8.preview.emergentagent.com"
 API_URL = f"{BASE_URL}/api"
 EMAIL = "hostbay@moxx.co"
 PASSWORD = "Katiekendra123@"
