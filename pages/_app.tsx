@@ -43,6 +43,7 @@ import { SessionProvider } from "next-auth/react";
 import { Provider } from "react-redux";
 
 import LanguageBootstrap from "@/helpers/LanguageBootstrap";
+import { enforceSessionPersistence } from "@/helpers/authPersistence";
 import store from "@/store";
 import ErrorBoundary from "@/Components/ErrorBoundary";
 import { ThemeProvider as AppThemeProvider, useThemeMode } from "@/contexts/ThemeContext";
@@ -59,6 +60,14 @@ import { appThemeLight, appThemeDark } from "@/styles/appTheme";
 
 // Client-side emotion cache shared across the whole app (created once).
 const clientSideEmotionCache = createEmotionCache();
+
+// Enforce "session-only" (Remember-me unchecked) login expiry as early as possible on
+// the client — this runs once when the _app module first loads, BEFORE any component
+// (incl. the withAuth HOC) reads the token, so an expired session-only login can't
+// briefly render an authenticated page or fire API calls with a stale token.
+if (typeof window !== "undefined") {
+  enforceSessionPersistence();
+}
 
 // ─── Dynamic imports: each layout only loads when its route is hit ───
 const HomeLayout = dynamic(() => import("@/Containers/Home"), {
@@ -144,6 +153,7 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
   useEffect(() => {
     const check = () => {
       try {
+        enforceSessionPersistence();
         setIsAuthed(!!localStorage.getItem("token"));
       } catch {
         setIsAuthed(false);

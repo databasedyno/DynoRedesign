@@ -209,15 +209,27 @@ export const rotateRefreshToken = async (
 };
 
 /**
- * Get all active sessions for a user
+ * Get all active sessions for a user.
+ * When `currentTokenSuffix` (the last 32 chars of the caller's access token) is
+ * provided, each session is tagged with `is_current` so the UI can mark "This device".
+ * The stored session_token is used only for the match and is never returned.
  */
-export const getUserSessions = async (userId: number): Promise<Record<string, unknown>[]> => {
+export const getUserSessions = async (
+  userId: number,
+  currentTokenSuffix?: string | null
+): Promise<Record<string, unknown>[]> => {
   const sessions = await UserSession.findAll({
     where: { user_id: userId, is_active: true },
-    attributes: ["session_id", "ip_address", "device_type", "device_name", "browser", "os", "location", "last_activity", "created_at"],
+    attributes: ["session_id", "session_token", "ip_address", "device_type", "device_name", "browser", "os", "location", "last_activity", "created_at", "expires_at"],
     order: [["last_activity", "DESC"]],
   });
-  return sessions.map((s) => s.dataValues as unknown as Record<string, unknown>);
+  return sessions.map((s) => {
+    const { session_token, ...rest } = s.dataValues as unknown as Record<string, unknown>;
+    return {
+      ...rest,
+      is_current: currentTokenSuffix ? session_token === currentTokenSuffix : false,
+    };
+  });
 };
 
 /**

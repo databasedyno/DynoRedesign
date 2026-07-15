@@ -42,6 +42,7 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import {
   Box,
+  Checkbox,
   Divider,
   FormControlLabel,
   RadioGroup,
@@ -155,6 +156,9 @@ export default function Login() {
   const [phoneLoginOtpCountdown, setPhoneLoginOtpCountdown] = useState(0);
   const [phoneLoginOtpError, setPhoneLoginOtpError] = useState("");
   const [phoneLoginOtpTouched, setPhoneLoginOtpTouched] = useState(false);
+
+  // Remember-me: keep signed in for 7 days (default) vs. session-only (until browser closes)
+  const [rememberMe, setRememberMe] = useState(true);
 
   // Forgot password state
   const [forgotPasswordDialogOpen, setForgotPasswordDialogOpen] =
@@ -450,6 +454,7 @@ export default function Login() {
       UserAction(USER_VERIFY_LOGIN_OTP, {
         login_otp_session: userState.loginOtpSession,
         otp,
+        remember: rememberMe,
       })
     );
   };
@@ -750,7 +755,7 @@ export default function Login() {
         return;
       }
 
-      dispatch(UserAction(USER_LOGIN, { email: verifiedEmail, password }));
+      dispatch(UserAction(USER_LOGIN, { email: verifiedEmail, password, remember: rememberMe }));
     } else if (loginMethod === "email") {
       if (!emailOtpSent) {
         dispatch({
@@ -1782,8 +1787,37 @@ export default function Login() {
                 </RadioGroup>
               </Box>
 
-              {/* Forgot Password — always visible */}
-              <Box sx={{ mt: 1, textAlign: "start" }}>
+              {/* Keep me signed in + Forgot Password — always visible */}
+              <Box
+                sx={{
+                  mt: 1,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: 1,
+                  flexWrap: "wrap",
+                }}
+              >
+                <FormControlLabel
+                  data-testid="remember-me-toggle"
+                  control={
+                    <Checkbox
+                      size="small"
+                      checked={rememberMe}
+                      onChange={(e) => setRememberMe(e.target.checked)}
+                      sx={{ py: 0, color: theme.palette.text.secondary }}
+                    />
+                  }
+                  label={t("keepMeSignedIn")}
+                  sx={{
+                    m: 0,
+                    "& .MuiFormControlLabel-label": {
+                      fontSize: "13px",
+                      color: theme.palette.text.secondary,
+                      fontFamily: "var(--font-sans)",
+                    },
+                  }}
+                />
                 <Typography
                   component="span"
                   sx={{

@@ -18,6 +18,7 @@ import {
   USER_VERIFY_LOGIN_OTP,
   USER_RESEND_LOGIN_OTP,
 } from "../Actions/UserAction";
+import { applyPersistence } from "@/helpers/authPersistence";
 
 const userInitialState = {
   email: "",
@@ -52,6 +53,8 @@ const userReducer = (state = userInitialState, action: ReducerAction) => {
       if (payload.refreshToken) {
         localStorage.setItem("refreshToken", payload.refreshToken);
       }
+      // Remember-me: default to persistent unless the login form explicitly opted out.
+      applyPersistence(payload.remember !== false);
       // Persist last company from backend to localStorage for cross-session persistence
       if (payload.last_company_id) {
         localStorage.setItem("last_company_id", String(payload.last_company_id));

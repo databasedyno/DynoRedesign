@@ -126,7 +126,7 @@ export function* userLogin(payload: any): unknown {
     });
     yield put({
       type: USER_LOGIN,
-      payload: { ...data.userData, accessToken: data.accessToken, refreshToken: data.refreshToken },
+      payload: { ...data.userData, accessToken: data.accessToken, refreshToken: data.refreshToken, remember: payload?.remember },
     });
   } catch (e: any) {
     const message = e.response?.data?.message ?? e.message ?? "Login failed";
@@ -173,7 +173,7 @@ export function* verifyLoginOTP(payload: any): unknown {
     });
     yield put({
       type: USER_LOGIN,
-      payload: { ...data.userData, accessToken: data.accessToken, refreshToken: data.refreshToken },
+      payload: { ...data.userData, accessToken: data.accessToken, refreshToken: data.refreshToken, remember: payload?.remember },
     });
   } catch (e: any) {
     const message = e.response?.data?.message ?? e.message ?? "OTP verification failed";

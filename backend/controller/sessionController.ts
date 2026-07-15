@@ -57,7 +57,11 @@ const refreshToken = async (req: express.Request, res: express.Response) => {
 const listSessions = async (req: express.Request, res: express.Response) => {
   try {
     const userData = res.locals.user as IUserType;
-    const sessions = await getUserSessions(userData.user_id);
+    // Identify the caller's own session so the UI can label "This device".
+    const authHeader = (req.headers.authorization as string) || "";
+    const rawToken = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
+    const currentTokenSuffix = rawToken ? rawToken.slice(-32) : null;
+    const sessions = await getUserSessions(userData.user_id, currentTokenSuffix);
 
     successResponseHelper(res, 200, "Active sessions retrieved", {
       sessions,

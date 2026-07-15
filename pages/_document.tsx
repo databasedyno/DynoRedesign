@@ -17,11 +17,17 @@ export default function MyDocument({ emotionStyleTags }: MyDocumentProps) {
   return (
     <Html>
       <Head>
-        {/* Favicon (v2 = dark mark; ?v bump forces browsers/mobiles to drop the cached blue icon) */}
-        <link rel="icon" href="/favicon.ico?v=2" sizes="any" />
-        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=2" />
-        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png?v=2" />
-        <link rel="apple-touch-icon" href="/dynopay-favicon.png?v=2" />
+        {/* Favicon — adaptive dark/light so the mark never disappears on dark browser
+            themes. SVG self-switches via prefers-color-scheme; PNG media links cover
+            browsers without SVG-favicon support; .ico is the final fallback.
+            v3 bump forces browsers/mobiles to drop the cached blue (and v2 dark) icon. */}
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=3" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=3" media="(prefers-color-scheme: light)" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png?v=3" media="(prefers-color-scheme: light)" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32-light.png?v=3" media="(prefers-color-scheme: dark)" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16-light.png?v=3" media="(prefers-color-scheme: dark)" />
+        <link rel="icon" href="/favicon.ico?v=3" sizes="any" />
+        <link rel="apple-touch-icon" href="/dynopay-favicon.png?v=3" />
         {/* iOS safe area and mobile optimization — viewport is set via next.config or _app */}
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
