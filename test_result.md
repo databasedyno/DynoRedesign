@@ -45,8 +45,14 @@ Auth: POST /api/user/login (CSRF token from GET /api/csrf-token; header x-csrf-t
 5. Negative: DELETE /api/user/sessions/:id with a bogus id → 404. GET/DELETE without Bearer → 401.
 NOTE: DB is LIVE production Railway PG. Revoking hostbay's OWN stale sessions is acceptable (they were mostly created by prior API/curl checks). Keep it to hostbay's account only; do not touch other users.
 
-### Do NOT test frontend yet — awaiting user approval for auto_frontend_testing_agent.
-(Frontend added this session: adaptive favicon links in pages/_document.tsx + favicon.svg/light PNGs; Components/Page/Profile/ActiveSessions.tsx wired into ProfilePage; helpers/authPersistence.ts + Remember-me checkbox in pages/auth/login.tsx + wiring in userReducer/UserSaga/_app.tsx.)
+### What to verify (FRONTEND) — auto_frontend_testing_agent
+Preview: https://793a7a9b-7b96-4ded-bb82-8fc8382c51bb.preview.emergentagent.com. Login: hostbay@moxx.co / Katiekendra123@ (multi-step: enter email → Continue → password field + "Keep me signed in for 7 days" checkbox + login). Password login succeeds without OTP for this account.
+1. REMEMBER-ME: On /auth/login, after entering the email + Continue, the password view shows a checkbox "Keep me signed in for 7 days" (data-testid="remember-me-toggle"), CHECKED by default. Log in with it checked → lands on dashboard. Verify localStorage has token AND auth_persistent="1". (Optional) log out, log in with it UNCHECKED → localStorage auth_persistent="0" and sessionStorage auth_alive="1".
+2. SESSION MANAGER: Navigate to /settings. An "Active devices" panel (PanelCard) lists sessions; exactly one row shows a green "This device" chip (data-testid="session-current-..."). Non-current rows have a "Sign out" button (data-testid="session-signout-<id>"); clicking one removes that row (200). If >1 other device exists, a "Sign out all others" button (data-testid="sign-out-all-others") revokes the rest, leaving only the current device.
+3. TIP BOX BANNER: On /creator, the top banner reads "Collect tips" with a "Set up tips" button (data-testid="creator-donation-cta-btn") — NOT "donation". Clicking it must NOT navigate away to /create-pay-link; instead it enables + scrolls to the Support Widget section (data-testid="support-widget-settings", id="support-widget") on the SAME page, and the enable switch (data-testid="support-widget-enabled-switch") becomes ON.
+4. TIP PRESETS: In that Support Widget section, a "Preset amounts (up to 5)" editor exists (data-testid="support-preset-chips" + "support-preset-input"); a creator can add/remove suggested amounts.
+5. COPY CHECK: No "donation"/"donations" wording remains in the creator dashboard banner or the "creator benefits" card; landing page use-case says "tips ... one-tap links" (no "donations").
+Constraints: LIVE prod DB. Operate only on hostbay's own account. Report pass/fail per numbered item with observed evidence.
 
 ### agent_communication
   - agent: "main"
