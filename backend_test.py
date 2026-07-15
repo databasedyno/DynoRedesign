@@ -8,7 +8,7 @@ persists contact_first_name and contact_last_name when individual top-level
 fields (first_name, last_name) are sent as multipart/form-data or url-encoded
 (Format 3), NOT wrapped in a JSON `data` object.
 
-Base URL: https://5a08d09d-24f7-4f72-942d-454f2d1c9727.preview.emergentagent.com
+Base URL: https://blockchain-gateway-14.preview.emergentagent.com
 Auth: GET /api/csrf-token → POST /api/user/login → JWT Bearer token
 Test account: hostbay@moxx.co / Katiekendra123@
 """
@@ -20,7 +20,7 @@ import sys
 from typing import Dict, Any, Optional
 
 # Configuration
-BASE_URL = "https://5a08d09d-24f7-4f72-942d-454f2d1c9727.preview.emergentagent.com"
+BASE_URL = "https://blockchain-gateway-14.preview.emergentagent.com"
 TEST_EMAIL = "hostbay@moxx.co"
 TEST_PASSWORD = "Katiekendra123@"
 
