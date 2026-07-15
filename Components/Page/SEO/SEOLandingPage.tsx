@@ -66,7 +66,7 @@ const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages =
       name: "Dynopay",
       url: SITE_ORIGIN,
       description:
-        "Non-custodial cryptocurrency payment gateway. Accept BTC, ETH, USDT and 12+ assets directly to your wallet.",
+        "Non-custodial crypto commerce platform. Sell products, collect tips, run crowdfunding campaigns, and accept BTC, ETH, USDT and 12+ assets directly to your wallet.",
     },
   };
 
@@ -454,7 +454,7 @@ const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages =
           badgeText="FAQ"
           title="Frequently "
           highlightText="asked questions"
-          subtitle="Everything merchants ask before signing up."
+          subtitle="Everything people ask before signing up."
           headingAs="h2"
           sx={{ maxWidth: "100%" }}
         />
@@ -529,9 +529,9 @@ const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages =
           <HomeSectionTitle
             type="small"
             badgeText="Explore more"
-            title="More guides for crypto merchants"
-            highlightText="crypto merchants"
-            subtitle="See how businesses like yours use Dynopay to accept crypto payments."
+            title="More ways to get paid in crypto"
+            highlightText="get paid in crypto"
+            subtitle="See how sellers, creators, and fundraisers use Dynopay to get paid in crypto."
             headingAs="h2"
             sx={{ maxWidth: "100%" }}
           />

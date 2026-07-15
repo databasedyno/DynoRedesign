@@ -492,6 +492,7 @@ const ProductShowcase: React.FC = () => {
   return (
     <Box
       component="section"
+      id="product-showcase-section"
       aria-label="Product showcase"
       data-testid="product-showcase-section"
       sx={{ px: { xs: 2, sm: 4 }, py: { xs: 4, sm: 7 } }}
