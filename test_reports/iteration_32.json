@@ -1,0 +1,62 @@
+{
+  "summary": "6-locale QA of tabbed hero + document titles on landing page (logged out). 4/6 locales fully PASS (en, fr, de, nl). ES and PT: hero H1, tabs, tab-switch CTAs, and native line2 all correct — but document <title> uses a LONGER tagline in pageTitles.json than the H1 (heroSwissTitle1) in landing.json, causing a title/H1 mismatch vs the spec.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {
+        "flow": "i18n document title (ES)",
+        "issue": "ES home <title> is 'Vende, recibe propinas y recauda fondos — en cripto · Dynopay' but expected 'Vende, recibe propinas, recauda — en cripto · Dynopay' (which matches the H1 heroSwissTitle1 in landing.json). pageTitles.json/home_title for ES uses a longer, different tagline than the hero H1.",
+        "affected_selectors": ["document.title", "#hero-heading"]
+      },
+      {
+        "flow": "i18n document title (PT)",
+        "issue": "PT home <title> is 'Venda, receba gorjetas e arrecade fundos — em cripto · Dynopay' but expected 'Venda, receba gorjetas, arrecade — em cripto · Dynopay' (matches PT H1 heroSwissTitle1). pageTitles.json/home_title for PT uses a longer tagline than the hero H1.",
+        "affected_selectors": ["document.title", "#hero-heading"]
+      }
+    ],
+    "design_issues": []
+  },
+  "verified_pass": {
+    "en": {"title": "Sell, tip, fundraise — in crypto · Dynopay", "tabs": ["Merchants","Creators","Fundraisers","Developers"], "cta_developer": "Read the docs", "cta_merchant": "Start selling", "line2_dev": "Integrate crypto in ~10 minutes."},
+    "fr": {"title": "Vendez, encaissez des pourboires, collectez — en crypto · Dynopay", "tabs": ["Commerçants","Créateurs","Collecteurs","Développeurs"], "cta_developer": "Lire les docs", "cta_merchant": "Commencer à vendre", "line2_dev": "Intégrez la crypto en ~10 minutes."},
+    "de": {"title": "Verkaufen, Trinkgeld, Fundraising — in Krypto · Dynopay", "tabs": ["Händler","Creator","Fundraiser","Entwickler"], "cta_developer": "Docs lesen", "cta_merchant": "Verkauf starten", "line2_dev": "Integriere Krypto in ~10 Minuten."},
+    "nl": {"title": "Verkopen, fooien, doneren — in crypto · Dynopay", "tabs": ["Verkopers","Creators","Fondsenwervers","Ontwikkelaars"], "cta_developer": "Lees de docs", "cta_merchant": "Begin met verkopen", "line2_dev": "Integreer crypto in ~10 minuten."}
+  },
+  "partial_pass_title_mismatch": {
+    "es": {
+      "title_actual": "Vende, recibe propinas y recauda fondos — en cripto · Dynopay",
+      "title_expected": "Vende, recibe propinas, recauda — en cripto · Dynopay",
+      "h1_actual_line1": "Vende, recibe propinas, recauda — en cripto.",
+      "tabs": ["Comerciantes","Creadores","Recaudadores","Desarrolladores"],
+      "cta_developer": "Leer los docs (OK)",
+      "cta_merchant": "Empieza a vender (OK)",
+      "line2_dev": "Integra cripto en ~10 minutos. (OK)"
+    },
+    "pt": {
+      "title_actual": "Venda, receba gorjetas e arrecade fundos — em cripto · Dynopay",
+      "title_expected": "Venda, receba gorjetas, arrecade — em cripto · Dynopay",
+      "h1_actual_line1": "Venda, receba gorjetas, arrecade — em cripto.",
+      "tabs": ["Comerciantes","Criadores","Arrecadadores","Desenvolvedores"],
+      "cta_developer": "Leia os docs (OK)",
+      "cta_merchant": "Comece a vender (OK)",
+      "line2_dev": "Integre cripto em ~10 minutos. (OK)"
+    }
+  },
+  "raw_i18n_keys_visible": "None found in any of the 6 locales (checked body for 'heroAudience.', 'heroTabs.', 'heroSwissTitle').",
+  "test_report_links": [],
+  "action_items": [
+    "Update langs/locales/es/pageTitles.json home_title (and any default_title mirroring it) to 'Vende, recibe propinas, recauda — en cripto' so the ' · Dynopay' suffix yields the expected title matching heroSwissTitle1.",
+    "Update langs/locales/pt/pageTitles.json home_title to 'Venda, receba gorjetas, arrecade — em cripto' to match PT heroSwissTitle1."
+  ],
+  "critical_code_review_comments": [
+    "Duplication of source-of-truth: the home tagline lives in BOTH landing.json/heroSwissTitle1 AND pageTitles.json/home_title. They drifted for ES and PT. Consider deriving the document title from a single key (or importing heroSwissTitle1 into the title composition) to prevent future drift."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped)", "frontend": "4/6 locales fully pass; 2/6 (es, pt) have document-title mismatch only — hero H1, tabs, tab-switch CTAs and line2 all pass natively."},
+  "seed_data_creation": "None.",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "After fixing es/pt pageTitles.json home_title values, re-run the same locale sweep. Use page.add_init_script to set localStorage 'lang' and 'lang_manual'='true' BEFORE goto, wait_until='domcontentloaded', wait ~2.5s for i18n. Use a fresh browser context per locale. All other locales already verified this run.",
+  "rca of the issue": "pages/_app.tsx (or equivalent Head/title code) resolves the document title via useTranslation('pageTitles') → t('home_title') + ' · Dynopay'. For es and pt, langs/locales/{es,pt}/pageTitles.json home_title contains a LONGER tagline ('...y recauda fondos...' / '...e arrecade fundos...') than the corresponding landing.json/heroSwissTitle1 short form ('...recauda...' / '...arrecade...'). Fix: edit those two pageTitles.json entries to the short form matching heroSwissTitle1. Reproduce: open /?, set localStorage.lang='es' (or 'pt'), reload, inspect document.title vs #hero-heading first line."
+}
