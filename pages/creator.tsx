@@ -31,7 +31,7 @@ const CreatorPageRoute = ({ setPageName, setPageDescription }: pageProps) => {
     setPageName?.(t("creatorPage", { defaultValue: "Creator page", ns: "dashboardLayout" }));
     setPageDescription?.(
       t("creatorPageDescription", {
-        defaultValue: "Your public dynopay.com/handle — a single link for donations, tips and payments.",
+        defaultValue: "Your public dynopay.com/handle — a single link for tips and payments.",
         ns: "dashboardLayout",
       }),
     );
@@ -256,11 +256,11 @@ const CreatorPageRoute = ({ setPageName, setPageDescription }: pageProps) => {
           </Box>
           <Box sx={{ flex: "1 1 260px", minWidth: 0 }}>
             <Typography fontSize={15} fontWeight={800} color={theme.palette.text.primary}>
-              {t("creatorDonationCtaTitle", { defaultValue: "Collect tips & donations", ns: "dashboardLayout" })}
+              {t("creatorDonationCtaTitle", { defaultValue: "Collect tips", ns: "dashboardLayout" })}
             </Typography>
             <Typography fontSize={13} color={theme.palette.text.secondary} mt={0.25}>
               {t("creatorDonationCtaSubtitle", {
-                defaultValue: "Create a \u201cBuy me a coffee\u201d / donation link \u2014 it\u2019s featured at the top of your creator page.",
+                defaultValue: "Create a \u201cBuy me a coffee\u201d tip link \u2014 it\u2019s featured at the top of your creator page.",
                 ns: "dashboardLayout",
               })}
             </Typography>
@@ -277,7 +277,7 @@ const CreatorPageRoute = ({ setPageName, setPageDescription }: pageProps) => {
               "&:hover": { backgroundColor: "#CCFF00", filter: "brightness(1.05)" },
             }}
           >
-            {t("creatorDonationCtaButton", { defaultValue: "Create donation link", ns: "dashboardLayout" })}
+            {t("creatorDonationCtaButton", { defaultValue: "Create tip link", ns: "dashboardLayout" })}
           </Button>
         </Box>
 

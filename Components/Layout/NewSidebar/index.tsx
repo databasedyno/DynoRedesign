@@ -362,7 +362,7 @@ const NewSidebar = () => {
                     </Box>
                   </Box>
                   <Box sx={{ fontSize: 12.5, color: theme.palette.text.secondary, fontFamily: "var(--font-sans)", lineHeight: 1.55, mb: 1.5 }}>
-                    {t("creatorTourBody", { defaultValue: "Claim your handle to get a shareable link-in-bio page for tips & donations \u2014 your public \u201cBuy me a coffee\u201d." })}
+                    {t("creatorTourBody", { defaultValue: "Claim your handle to get a shareable link-in-bio page for tips \u2014 your public \u201cBuy me a coffee\u201d." })}
                   </Box>
                   <Box sx={{ display: "flex", gap: 1, justifyContent: "flex-end" }}>
                     <Button

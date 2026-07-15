@@ -208,7 +208,7 @@ const CreatorPageCard: React.FC = () => {
   return (
     <PanelCard
       title={t("creatorCardClaimTitle", { defaultValue: "Claim your creator page" })}
-      subTitle={t("creatorCardClaimSubtitle", { defaultValue: "One link for donations, tips & payments." })}
+      subTitle={t("creatorCardClaimSubtitle", { defaultValue: "One link for tips & payments." })}
       showHeaderBorder={false}
       headerPadding={theme.spacing(2.5, 2.5, 0, 2.5)}
       bodyPadding={theme.spacing(1.5, 2.5, 2.5, 2.5)}
@@ -230,7 +230,7 @@ const CreatorPageCard: React.FC = () => {
 
         <Box sx={{ display: "flex", flexDirection: "column", gap: 0.6 }}>
           {[
-            { icon: "mdi:heart-outline", label: t("creatorBenefit1", { defaultValue: "Collect tips & donations" }) },
+            { icon: "mdi:heart-outline", label: t("creatorBenefit1", { defaultValue: "Collect tips" }) },
             { icon: "mdi:link-variant", label: t("creatorBenefit2", { defaultValue: "One link for all your pay links" }) },
             { icon: "mdi:share-variant", label: t("creatorBenefit3", { defaultValue: "Share on socials in one tap" }) },
           ].map((b) => (
