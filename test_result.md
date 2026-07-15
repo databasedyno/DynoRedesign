@@ -767,15 +767,18 @@ https://5a08d09d-24f7-4f72-942d-454f2d1c9727.preview.emergentagent.com
 ### backend
   - task: "Company creation no longer overwrites the account holder's name; per-company contact name stored + used in merchant emails"
     implemented: true
-    working: "NA"
-    file: "backend/controller/companyController.ts, models/companyModels/companyModel.ts, controller/payment/cryptoSettlement.ts, services/conversionService.ts"
+    working: true
+    file: "backend/controller/companyController.ts, models/companyModels/companyModel.ts, controller/payment/cryptoSettlement.ts, services/conversionService.ts, backend/middleware/companyMiddleware.ts"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Fix implemented + migration run on live DB. Needs backend testing agent verification of the exact reported bug."
+      - working: true
+        agent: "testing"
+        comment: "NARROW RE-TEST (round 2) COMPLETE — ALL TESTS PASSED ✅. Verified companyMiddleware fix: the middleware's hasData check now correctly includes first_name and last_name fields (lines 21-25 in companyMiddleware.ts). PRIMARY TEST: PUT /api/company/updateCompany with ONLY first_name='Erin', last_name='Evans' (Format 3, multipart/form-data) → 200 response (NOT 400 'No data provided'), fields persisted correctly to contact_first_name/contact_last_name. MIXED UPDATE TEST: PUT with company_name + first_name + last_name → 200, all fields persisted. ACCOUNT NAME TEST: user.name remained 'hostbay' throughout all operations (never clobbered). CLEANUP: Both test companies deleted successfully. Test file: /app/backend_test.py + /app/backend_test_mixed.py. DB: LIVE Railway PG."
 
 ### What to verify (BACKEND) — deep_testing_backend_v2
 Auth: POST /api/user/login (CSRF token from GET /api/csrf-token; header x-csrf-token). Use a FRESH throwaway registered merchant if possible (to avoid polluting hostbay); otherwise use hostbay and DELETE any temp companies created (DELETE /api/company/:id).
@@ -786,6 +789,41 @@ Core assertions (THE bug):
 4. updateCompany on Company B with first_name="Carol", last_name="Clark" → Company B contact fields update to Carol/Clark; account name STILL unchanged.
 5. Cleanup: delete any test companies created (and note if a throwaway user was registered).
 NOTE: DB is LIVE production Railway PG — keep test data minimal and clean up.
+
+### NARROW RE-TEST (Round 2) — Middleware Fix Verification (2026-07-15)
+
+**Context:** After initial testing, a blocker was discovered: `companyMiddleware` was rejecting update requests whose body contained ONLY `first_name`/`last_name` fields. The middleware's `hasData` check omitted these fields, causing 400 "No data provided for update." errors.
+
+**Fix Applied:** `backend/middleware/companyMiddleware.ts` lines 21-25 — added `req.body.first_name || req.body.last_name` to the `hasData` check.
+
+**Test Execution (2026-07-15):**
+
+**Test 1: PRIMARY — Contact-only update (Format 3)**
+- Login: hostbay@moxx.co → JWT obtained, account name captured: "hostbay"
+- Create: POST /api/company/addCompany with company_name="QA UpdFix {ts}", email="qa.updfix.{ts}@dynopaytest.com", first_name="Dan", last_name="Davis" → company_id=28 created
+- Verify: GET /api/company/getCompany → contact_first_name="Dan", contact_last_name="Davis" ✓
+- **PRIMARY UPDATE:** PUT /api/company/updateCompany/28 with ONLY first_name="Erin", last_name="Evans" (multipart/form-data, no JSON wrapper)
+  - Response: **200 "Company updated successfully!"** (NOT 400) ✅
+  - Verify: GET /api/company/getCompany → contact_first_name="Erin", contact_last_name="Evans" ✓
+- Account name check: GET /api/user/profile → name="hostbay" (unchanged) ✓
+- Cleanup: DELETE /api/company/deleteCompany/28 → 200 ✓
+
+**Test 2: MIXED — Company name + contact fields (Format 3)**
+- Create: POST /api/company/addCompany with company_name="QA UpdFix2 {ts}", email="qa.updfix2.{ts}@dynopaytest.com", first_name="Dan", last_name="Davis" → company_id=29 created
+- **MIXED UPDATE:** PUT /api/company/updateCompany/29 with company_name="QA UpdFix2b {ts}", first_name="Fran", last_name="Fisher" (multipart/form-data)
+  - Response: **200 "Company updated successfully!"** ✅
+  - Verify: GET /api/company/getCompany → company_name="QA UpdFix2b {ts}", contact_first_name="Fran", contact_last_name="Fisher" ✓
+- Cleanup: DELETE /api/company/deleteCompany/29 → 200 ✓
+
+**Test Results:**
+✅ **Step 3 (PRIMARY):** Contact-only update now returns 200 and persists correctly
+✅ **Step 4 (MIXED):** Mixed update (company_name + first_name + last_name) works correctly
+✅ **Step 5 (ACCOUNT NAME):** Account name unchanged throughout all operations
+✅ **Step 6 (CLEANUP):** Both test companies deleted successfully
+
+**Middleware Fix Confirmed:** The `hasData` check in `companyMiddleware.ts` now correctly includes `first_name` and `last_name` fields, allowing Format 3 updates with contact-only fields to pass validation.
+
+**Test Files:** `/app/backend_test.py` (primary test), `/app/backend_test_mixed.py` (mixed update test)
 
 ---
 

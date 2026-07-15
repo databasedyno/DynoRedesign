@@ -21,7 +21,8 @@ const companyMiddleware = (
     const hasData = req.body.data || req.body.company_name || req.body.email || 
                     req.body.mobile || req.body.website || req.body.address_line1 ||
                     req.body.city || req.body.state || req.body.country || 
-                    req.body.zip_code || req.body.vat_number;
+                    req.body.zip_code || req.body.vat_number ||
+                    req.body.first_name || req.body.last_name;
     
     if (!hasData) {
       return res.status(400).json({ message: "No data provided for update." });
