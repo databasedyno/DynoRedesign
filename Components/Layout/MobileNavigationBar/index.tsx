@@ -397,6 +397,7 @@ const MobileNavigationBar = () => {
                       key={item.id}
                       active={active}
                       onClick={() => handleNavClick(item)}
+                      sx={(item as any).soon ? { opacity: 0.55 } : undefined}
                     >
                       <IconButton
                         active={active || isCreate}
