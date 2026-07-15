@@ -7,14 +7,13 @@
  * the page then continues with the regular crypto checkout flow using the
  * returned child payment reference.
  */
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import {
   Box,
   Button,
   Checkbox,
   CircularProgress,
   FormControlLabel,
-  LinearProgress,
   Typography,
   useTheme,
 } from '@mui/material'
@@ -25,6 +24,13 @@ import {
   formatWithSeparators,
   getCurrencySymbolFromFormat,
 } from '@/utils/currencyFormat'
+import {
+  GoalProgressBar,
+  CountdownPill,
+  RewardTierShelf,
+  DonorWallV2,
+  CampaignShareTray,
+} from './campaign'
 
 /**
  * Minimal, XSS-safe Markdown → HTML renderer for the campaign story.
@@ -189,12 +195,13 @@ const DonationCampaign = ({ donation, merchant, submitting, onDonate }: Donation
   const [donorMessage, setDonorMessage] = useState<string>('')
   const [isAnonymous, setIsAnonymous] = useState<boolean>(false)
   const [amountError, setAmountError] = useState<string>('')
-  const [barValue, setBarValue] = useState(0) // animate progress on mount
   // Relative "time ago" labels depend on the current clock, which differs
   // between the SSR render and client hydration → React hydration mismatch
   // (#418/#425). Render them only after mount so SSR and first client paint
   // agree. (F11)
   const [mounted, setMounted] = useState(false)
+  // Ref to the donate form card so tier "Pledge" CTAs can scroll it into view.
+  const donateFormRef = useRef<HTMLDivElement | null>(null)
 
   const fmt = (n: number) => `${symbol}${formatWithSeparators(n, currency)}`
 
@@ -208,12 +215,6 @@ const DonationCampaign = ({ donation, merchant, submitting, onDonate }: Donation
   const hasGoal = donation.goal_amount != null && donation.goal_amount > 0
   const goalReached = donation.closed_reason === 'goal_reached' ||
     (hasGoal && donation.raised_amount >= (donation.goal_amount as number))
-
-  useEffect(() => {
-    const target = Math.min(100, progressPct ?? 0)
-    const id = setTimeout(() => setBarValue(target), 120)
-    return () => clearTimeout(id)
-  }, [progressPct])
 
   useEffect(() => { setMounted(true) }, [])
 
@@ -264,6 +265,22 @@ const DonationCampaign = ({ donation, merchant, submitting, onDonate }: Donation
     })
   }
 
+  /**
+   * When a donor clicks "Pledge $X" on a reward tier we set the amount
+   * (as a custom amount so the user can adjust upward if they want) and
+   * smooth-scroll the donate form into view. We use scrollIntoView instead
+   * of jumping anchors so the transition feels natural on mobile.
+   */
+  const handlePledgeTier = (tier: { min_amount: number }) => {
+    setSelectedPreset(null)
+    setCustomAmount(String(tier.min_amount))
+    setAmountError('')
+    // Wait one tick so React has committed the amount before we scroll.
+    setTimeout(() => {
+      donateFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }, 60)
+  }
+
   const inputSx = {
     width: '100%',
     padding: '12px 14px',
@@ -303,6 +320,7 @@ const DonationCampaign = ({ donation, merchant, submitting, onDonate }: Donation
   // ── Amount + donor form (right column / mobile top) ──
   const donateForm = (
     <Box
+      ref={donateFormRef}
       data-testid='donation-form-card'
       sx={{
         borderRadius: '18px',
@@ -493,59 +511,14 @@ const DonationCampaign = ({ donation, merchant, submitting, onDonate }: Donation
 
   // ── Supporters wall ──
   const supportersWall = donation.show_supporters && donation.recent_supporters?.length > 0 ? (
-    <Box data-testid='donation-supporter-wall'>
-      <Typography component='span' sx={overlineSx}>
-        {t('donation.recentSupporters', { defaultValue: 'Recent supporters' })}
-      </Typography>
-      <Box display='flex' flexDirection='column' gap={1}>
-        {donation.recent_supporters.slice(0, 12).map((s, i) => {
-          const displayName = s.name || t('donation.anonymous', { defaultValue: 'Anonymous' })
-          return (
-            <Box
-              key={`${s.at}-${i}`}
-              display='flex'
-              alignItems='flex-start'
-              gap={1.25}
-              p={1.5}
-              borderRadius='14px'
-              sx={{ border: `1px solid ${border}`, backgroundColor: surfaceGlass, textAlign: 'left' }}
-            >
-              <Box
-                sx={{
-                  width: 34, height: 34, borderRadius: '50%', flexShrink: 0,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  backgroundColor: limeTint, color: theme.palette.text.primary,
-                  fontFamily: MONO, fontSize: 14, fontWeight: 700,
-                }}
-              >
-                {s.name ? s.name.charAt(0).toUpperCase() : <Icon icon='mdi:heart' width={15} color={accent} />}
-              </Box>
-              <Box flex={1} minWidth={0}>
-                <Box display='flex' alignItems='baseline' justifyContent='space-between' gap={1}>
-                  <Typography fontSize={13.5} fontWeight={600} color={theme.palette.text.primary} noWrap>
-                    {displayName}
-                  </Typography>
-                  <Typography fontSize={13} fontWeight={700} fontFamily={MONO} color={theme.palette.text.primary} sx={{ flexShrink: 0 }}>
-                    {getCurrencySymbolFromFormat(s.currency || currency)}
-                    {formatWithSeparators(s.amount, s.currency || currency)}
-                  </Typography>
-                </Box>
-                {s.message && (
-                  <Typography fontSize={12.5} color={theme.palette.text.secondary} mt={0.25} sx={{ wordBreak: 'break-word' }}>
-                    {s.message}
-                  </Typography>
-                )}
-                {s.at && mounted && (
-                  <Typography fontSize={11} fontFamily={MONO} color={theme.palette.text.disabled} mt={0.25}>
-                    {timeAgo(s.at)}
-                  </Typography>
-                )}
-              </Box>
-            </Box>
-          )
-        })}
-      </Box>
-    </Box>
+    <DonorWallV2
+      supporters={donation.recent_supporters as any}
+      defaultCurrency={currency}
+      formatWithSeparators={(n, ccy) => formatWithSeparators(n, ccy || currency)}
+      getCurrencySymbolFromFormat={getCurrencySymbolFromFormat}
+      anonymousLabel={t('donation.anonymous', { defaultValue: 'Anonymous' }) as string}
+      headerLabel={t('donation.recentSupporters', { defaultValue: 'Recent supporters' }) as string}
+    />
   ) : null
 
   return (
@@ -652,34 +625,7 @@ const DonationCampaign = ({ donation, merchant, submitting, onDonate }: Donation
                   {donation.category}
                 </Box>
               )}
-              {donation.ends_at && (() => {
-                const endDate = new Date(donation.ends_at)
-                const now = Date.now()
-                const msLeft = endDate.getTime() - now
-                if (isNaN(endDate.getTime()) || msLeft <= 0) return null
-                const daysLeft = Math.ceil(msLeft / (1000 * 60 * 60 * 24))
-                const hoursLeft = Math.ceil(msLeft / (1000 * 60 * 60))
-                const label = daysLeft > 1 ? `Ends in ${daysLeft} days` : hoursLeft > 1 ? `Ends in ${hoursLeft} hours` : 'Ends soon'
-                const urgent = daysLeft <= 3
-                return (
-                  <Box
-                    sx={{
-                      display: 'inline-flex', alignItems: 'center', gap: 0.5,
-                      px: 1, py: 0.35, borderRadius: '999px',
-                      fontSize: 11.5, fontWeight: 700, letterSpacing: '0.02em',
-                      color: urgent ? '#B45309' : theme.palette.text.primary,
-                      backgroundColor: urgent
-                        ? (theme.palette.mode === 'dark' ? 'rgba(245,158,11,0.15)' : '#FEF3C7')
-                        : (theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'),
-                      border: `1px solid ${urgent ? '#F59E0B' : theme.palette.divider}`,
-                    }}
-                    data-testid='donation-countdown-pill'
-                  >
-                    <Icon icon='mdi:timer-outline' width={13} />
-                    {label}
-                  </Box>
-                )
-              })()}
+              {donation.ends_at && <CountdownPill endsAt={donation.ends_at} />}
             </Box>
           )}
 
@@ -711,40 +657,29 @@ const DonationCampaign = ({ donation, merchant, submitting, onDonate }: Donation
           {/* Progress + stats */}
           {donation.show_progress && (
             <Box mt={2.5} data-testid='donation-progress'>
-              <Box display='flex' alignItems='flex-end' justifyContent='space-between' gap={2} flexWrap='wrap'>
+              {hasGoal ? (
+                <GoalProgressBar
+                  percent={progressPct ?? 0}
+                  raised={donation.raised_amount}
+                  goal={donation.goal_amount as number}
+                  formatCurrency={fmt}
+                  raisedLabel={
+                    t('donation.raisedOfGoal', {
+                      defaultValue: `raised of ${fmt(donation.goal_amount as number)} goal`,
+                      goal: fmt(donation.goal_amount as number),
+                    }) as string
+                  }
+                  goalReached={goalReached}
+                />
+              ) : (
                 <Box>
                   <Typography sx={{ fontFamily: MONO, fontWeight: 800, fontSize: { xs: 26, sm: 32 }, lineHeight: 1, color: theme.palette.text.primary }}>
                     {fmt(donation.raised_amount)}
                   </Typography>
                   <Typography fontSize={13} color={theme.palette.text.secondary} mt={0.75}>
-                    {hasGoal
-                      ? t('donation.raisedOfGoal', { defaultValue: `raised of ${fmt(donation.goal_amount as number)} goal`, goal: fmt(donation.goal_amount as number) })
-                      : t('donation.raised', { defaultValue: 'raised' })}
+                    {t('donation.raised', { defaultValue: 'raised' })}
                   </Typography>
                 </Box>
-                {progressPct != null && hasGoal && (
-                  <Box
-                    sx={{
-                      px: 1.5, py: 0.6, borderRadius: '999px',
-                      backgroundColor: accent, color: onAccent,
-                      fontFamily: MONO, fontWeight: 800, fontSize: 13, lineHeight: 1,
-                    }}
-                  >
-                    {t('donation.percentFunded', { defaultValue: `${progressPct}% funded`, percent: progressPct })}
-                  </Box>
-                )}
-              </Box>
-
-              {hasGoal && (
-                <LinearProgress
-                  variant='determinate'
-                  value={barValue}
-                  sx={{
-                    mt: 1.5, height: 10, borderRadius: 999,
-                    backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.07)',
-                    '& .MuiLinearProgress-bar': { backgroundColor: accent, borderRadius: 999, transition: 'transform 900ms cubic-bezier(0.16,1,0.3,1)' },
-                  }}
-                />
               )}
 
               <Box display='flex' gap={{ xs: 3, sm: 5 }} mt={2} flexWrap='wrap'>
@@ -756,6 +691,22 @@ const DonationCampaign = ({ donation, merchant, submitting, onDonate }: Donation
                   <Stat value={fmt(Math.max(0, (donation.goal_amount as number) - donation.raised_amount))} label={t('donation.toGo', { defaultValue: 'to go' })} />
                 )}
               </Box>
+
+              {/* Share tray — small, restrained, sits below the stats.
+                  Gated on `mounted` (not typeof window) so SSR + first client
+                  render both output the same empty container → no hydration
+                  mismatch — the tray then fades in after hydration. */}
+              {mounted && (
+                <Box mt={2} display='flex' alignItems='center' gap={1} flexWrap='wrap' data-testid='donation-share-row'>
+                  <Typography fontSize={11.5} color={theme.palette.text.disabled} sx={{ fontFamily: MONO, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+                    Share
+                  </Typography>
+                  <CampaignShareTray
+                    title={donation.title || 'this campaign'}
+                    url={window.location.href}
+                  />
+                </Box>
+              )}
             </Box>
           )}
 
@@ -884,69 +835,14 @@ const DonationCampaign = ({ donation, merchant, submitting, onDonate }: Donation
                   </Box>
                 )}
 
-                {/* Tiers — milestone rewards (Phase 3.2) */}
+                {/* Tiers — milestone rewards (Phase 3.2, redesigned Phase B) */}
                 {donation.tiers && donation.tiers.length > 0 && (
-                  <Box data-testid='donation-tiers'>
-                    <Typography component='span' sx={overlineSx}>
-                      {t('donation.tiers', { defaultValue: 'Reward tiers' })}
-                    </Typography>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                      {donation.tiers.map((tier) => (
-                        <Box
-                          key={tier.tier_id}
-                          data-testid={`donation-tier-${tier.tier_id}`}
-                          sx={{
-                            display: 'flex', alignItems: 'flex-start', gap: 1.25,
-                            p: 1.5, borderRadius: '10px',
-                            border: `1px solid ${border}`,
-                            backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.015)',
-                          }}
-                        >
-                          {tier.image_url ? (
-                            <Box
-                              component='img'
-                              src={tier.image_url}
-                              alt=''
-                              sx={{
-                                width: 56, height: 56, borderRadius: '8px', objectFit: 'cover',
-                                flexShrink: 0, border: `1px solid ${border}`,
-                              }}
-                              onError={(e: React.SyntheticEvent<HTMLImageElement>) => { (e.target as HTMLImageElement).style.display = 'none' }}
-                            />
-                          ) : (
-                            <Box
-                              sx={{
-                                width: 56, height: 56, borderRadius: '8px', flexShrink: 0,
-                                backgroundColor: accent + '22',
-                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                              }}
-                            >
-                              <Icon icon='mdi:gift-outline' width={26} color={accent} />
-                            </Box>
-                          )}
-                          <Box flex={1} minWidth={0}>
-                            <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 0.75, flexWrap: 'wrap', mb: 0.25 }}>
-                              <Typography fontWeight={800} fontSize={15} color={theme.palette.text.primary}>
-                                {tier.title}
-                              </Typography>
-                              <Typography
-                                sx={{
-                                  fontSize: 12, fontWeight: 700, letterSpacing: '0.02em', color: accent,
-                                }}
-                              >
-                                {getCurrencySymbolFromFormat(donation.currency)}{formatWithSeparators(tier.min_amount, donation.currency)}+
-                              </Typography>
-                            </Box>
-                            {tier.description && (
-                              <Typography fontSize={13} color={theme.palette.text.secondary} sx={{ whiteSpace: 'pre-line' }}>
-                                {tier.description}
-                              </Typography>
-                            )}
-                          </Box>
-                        </Box>
-                      ))}
-                    </Box>
-                  </Box>
+                  <RewardTierShelf
+                    tiers={donation.tiers}
+                    currencySymbol={symbol}
+                    formatAmount={(n) => formatWithSeparators(n, currency)}
+                    onPledge={handlePledgeTier}
+                  />
                 )}
 
                 {/* Updates feed — organizer posts (Phase 3.2) */}

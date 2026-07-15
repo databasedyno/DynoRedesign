@@ -101,17 +101,23 @@ Missing on product page:
 - Lighthouse mobile perf ≥ 85 (no heavy client JS)
 - Dark mode: no white flashes, all text WCAG-AA
 
-### PHASE B — Crowdfunding polish (queued)
+### PHASE B — Crowdfunding polish (**shipped — session 50**)
 
-1. Redesigned goal bar (milestone flags + gradient + floating % pill + goal-reached celebration state)
-2. Reward-tier shelf: horizontal scroll, snap-align, sticky "Pledge $X" per card, "SOLD OUT / N left" chip, "Most popular" flag on top tier
-3. Countdown urgency states (green / amber / red per timeframe) + pulse
-4. Donor wall v2: avatars (initials fallback), city + flag, "just now / N min ago", top-3 medal ribbon
-5. Updates: author avatar + timeago + optional reaction hearts (`♥ 12`)
-6. Confetti animation on successful donation completion (canvas-confetti, 2.5s)
-7. Share tray: X / Threads / WhatsApp / LinkedIn / Copy link — with pre-composed message
-8. Embed widget: `<iframe src=".../embed/campaign/:id"?>` snippet on organizer dashboard
-9. "N others viewing" — Redis-backed realtime counter with 30s TTL
+**Delivered:**
+- ✅ Redesigned **goal bar** (`GoalProgressBar.tsx`, 205 LOC): milestone tick marks + labels (0/25/50/75/100), lime→green gradient fill, animated shimmer ribbon on leading edge, floating "N% funded" pill (turns emerald 🏆 pulse when goal reached).
+- ✅ **Reward tier shelf** (`RewardTierShelf.tsx`, 289 LOC): horizontal snap-scroll with ← → buttons, "★ Most popular" ribbon on middle tier, sticky "Pledge $X" CTA per card. Clicking a pledge autofills the amount + smooth-scrolls to the donate form.
+- ✅ **Countdown urgency** (`CountdownPill.tsx`, 130 LOC): 4 severity states — calm-green >7 d, notice-amber 3-7 d, urgent-orange <3 d, critical-red pulsing <24 h. Re-ticks every 60 s while visible.
+- ✅ **Donor wall v2** (`DonorWallV2.tsx`, 218 LOC): deterministic-hue colored avatar circles, 🥇 🥈 🥉 medal ribbons on top-3 donors by amount (with lime-tinted card tint), "just now / 5m ago / 3h ago / 2d ago" relative times, messages rendered in italic quotes.
+- ✅ **Share tray** (`CampaignShareTray.tsx`, 175 LOC): X / Threads / WhatsApp / LinkedIn / Copy link with pre-composed message. Renders under progress stats.
+- ⏭ Confetti on donation completion — deferred to Phase D (canvas-confetti already in package.json).
+- ⏭ Embed widget iframe — deferred (needs a new /embed/campaign/:id route).
+- ⏭ "N others viewing" realtime counter — deferred (needs Redis wiring).
+
+**Files added:**  `Components/Page/Pay3Components/campaign/{GoalProgressBar,CountdownPill,RewardTierShelf,DonorWallV2,CampaignShareTray,index}.{tsx,ts}` — total ~1,020 LOC across 6 files.
+
+**Files modified:**  `Components/Page/Pay3Components/donationCampaign.tsx` — 4 surgical `search_replace` edits: imports, ref for scroll-to-donate, `handlePledgeTier` handler, then swapping the inline JSX for the 5 new child components + share tray. Removed the unused `barValue` state and its `useEffect` (now owned by GoalProgressBar).
+
+**Verified:**  `/pay/donation-demo` renders all new components on light + dark, no hydration mismatch, no console errors. Screenshots: `/tmp/campaign_v2_top.png`, `/tmp/campaign_v2_middle.png`, `/tmp/campaign_dark_goalreached.png` (celebration state with emerald bar + 🏆 pulse pill).
 
 ### PHASE C — Product detail glow-up (queued)
 
