@@ -905,8 +905,8 @@ const getTransactions = async (req: express.Request, res: express.Response) => {
         po.order_id          as source_order_id,
         po.public_ref        as source_order_ref
       from tbl_user_transaction ut 
-      join tbl_customer c on c.customer_id=ut.customer_id
-      join tbl_company cm on cm.company_id=c.company_id
+      left join tbl_customer c on c.customer_id=ut.customer_id
+      left join tbl_company cm on cm.company_id = coalesce(c.company_id, ut.company_id)
       left join tbl_stablecoin_conversion sc on sc.transaction_id=ut.transaction_id
       -- Session 54 fix: the payment link and the user transaction live in
       -- SEPARATE id spaces. pl.transaction_id is a payment-intent UUID that is
@@ -927,7 +927,13 @@ const getTransactions = async (req: express.Request, res: express.Response) => {
         and ut.transaction_reference is not null and ut.transaction_reference <> ''
       left join tbl_payment_link parent_pl on parent_pl.link_id = pl.parent_link_id
       left join tbl_product_order po on po.payment_link_id = pl.link_id
-      where c.company_id=:company_id`,
+      -- Session 54 fix (Bug E): filter by the transaction's OWNING company
+      -- (coalesce customer's company, else ut.company_id). Previously the
+      -- INNER JOIN to tbl_customer plus c.company_id = :company_id silently
+      -- dropped every payment that had no customer record -- which is exactly
+      -- how settled payment-link payments (CREDIT/CRYPTO, customer_id NULL) are
+      -- stored, so completed payment links never appeared in the list at all.
+      where coalesce(c.company_id, ut.company_id) = :company_id`,
       { type: QueryTypes.SELECT, replacements: { company_id: parseInt(id as string, 10) } }
     );
 
