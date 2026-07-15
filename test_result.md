@@ -1,3 +1,91 @@
+## Session 53: Payment link form UX overhaul + fill 2 missing merchant editors (2026-07-15)
+
+### User asks
+1. Feature audit — do we actually have the marketing homepage claims: (a) Story·gallery·countdown, (b) Reward tiers, (c) Updates that email supporters?
+2. The create/edit form is too long. Can we get the same features/results with a shorter form?
+
+### Feature audit (honest findings)
+
+**✅ Fully working end-to-end (backend + editor + public campaign page):**
+- Story (Markdown up to 20k chars), goal bar, countdown (4 severity states re-tick every 60s)
+- Reward tiers — full CRUD via `CampaignManager.tsx` (653 LOC, 2 tabs) on the pay-link edit page; rendered as `RewardTierShelf` with ★ Most popular ribbon + sticky "Pledge $X" CTA on public page
+- Updates that email supporters — `fanOutUpdateEmail` in `crowdfundingController.ts` → `sendCrowdfundingUpdateEmail` templated email (recipient language)
+
+**⚠️ Backend + public display work but NO merchant editor UI (marketing claim didn't match reality):**
+- Photo gallery (up to 12) — validation + public rendering existed but no way for merchants to add/remove photos except direct DB writes
+- Beneficiary block ("Who receives the funds") — same story; only reachable via API
+
+**🔧 Redundant fields making the form feel long:**
+- "Purpose/story" 500-char blurb duplicated the rich `donation_story_md`
+- "Campaign ends" dropdown (No/24h/7d/30d) duplicated the specific `donation_ends_at` date picker
+
+### Fix — full "Option A" pass
+Delivered in one session, ~700 LOC net across 2 files:
+
+#### 1. Restructure DonationSettingsSection into 3 sections
+- **Essentials** (always visible, ~5 controls): Title · Goal + currency · Minimum donation · Suggested amounts · End date · Blockchain fees
+- **Story & media** (collapsible `<details>`, auto-opens if data exists): Cover image · Campaign story (Markdown) · **NEW: Photo gallery editor**
+- **More details** (collapsible `<details>`, auto-opens if data exists): Category · Thank-you message · **NEW: Beneficiary editor** · Display toggles (progress/supporters/custom/auto-close)
+- Sections carry a "Filled" badge when they have content — helps users know what's already configured without expanding
+
+#### 2. Photo gallery editor (fills gap #1)
+- Grid preview of existing photos with per-photo remove button
+- Add-photo form: URL + optional caption (max 240 chars) + Add button
+- Client-side validation: URL must start with `http(s)://` or `/`, max 512 chars, deduped, max 12 photos
+- Inline error message for validation failures + counter `N/12` in section header
+- Broken-image fallback: hides broken photos via `onError`
+- Wired to existing DB column `donation_gallery` JSONB (backend already accepts + renders)
+
+#### 3. Beneficiary editor (fills gap #2)
+- Name input (200 chars) + description textarea (1000 chars, optional)
+- Only submitted if `name` is non-empty (empty state → `donation_beneficiary: null` in payload)
+- Wired to existing DB column `donation_beneficiary` JSONB
+- Round-trips correctly: edited beneficiary reloads on the next edit visit
+
+#### 4. Consolidated redundant fields
+- Removed the old 500-char "Purpose/story" textarea (data was overlapping with `storyMd`)
+- Removed the old "Campaign ends" dropdown (data was overlapping with `endsAt` date picker) — new form uses `<input type="date">` with `min={today}` so past dates can't be picked
+- Save payload for donation links now sends `description: null` (was `paymentSettings.description` — stale) and `expire: "No"` by default (campaign lifecycle is driven by `donation_ends_at`, not the generic `expire`)
+
+#### 5. Standard payment link edit mode — Advanced accordion cleanup
+- Previously edit mode duplicated `PostPaymentSettings` OUTSIDE the "Advanced options" accordion, so callback/redirect/webhook URL fields were always visible — negating the accordion.
+- Session 53 moved edit-mode `PostPaymentSettings` INSIDE the Advanced accordion (matching create mode). Now the form is short by default for both modes.
+
+### Files changed
+- `/app/Components/UI/pay-link/DonationSettingsSection.tsx` — full rewrite (~1150 LOC) with 3-section layout + Gallery editor + Beneficiary editor + CollapsibleSection module-level component
+- `/app/Components/Page/CreatePaymentLink/index.tsx` — state (add `beneficiary`), 2× load-useEffect (add beneficiary hydration), save payload (add `donation_beneficiary`, force `description: null` + `expire: "No"` for donations), remove obsolete props from `<DonationSettingsSection>`, move edit-mode `PostPaymentSettings` inside Advanced accordion
+
+### Verification (own Playwright, LIVE Railway PG)
+
+**Test 1: Edit existing crowdfunding link 77 (has story + gallery + beneficiary)**
+- ✅ Essentials fields (title, goal, min, presets, end date, fee payer) all visible
+- ✅ Story & media section AUTO-OPENED (existing content detected) with "Filled" badge
+- ✅ More details section AUTO-OPENED with "Filled" badge
+- ✅ Gallery grid rendered 1 existing photo with remove button
+- ✅ Beneficiary name+description pre-filled with `Dynopay Open Source Foundation` / `Non-profit steward of the Dynopay project.`
+- ✅ Old redundant fields (`donation-expire-select`, old purpose textarea) GONE
+- ✅ Save PUT 200 → redirect to /pay-links. Request payload verified: `donation_beneficiary: {name, description}` round-trips, `donation_gallery: [1 photo]` preserved, `donation_story_md` preserved (20k Markdown intact), `donation_ends_at: 2026-07-25T23:59:59.000Z` from new date picker, `accepted_currencies: 13 canonical values` (session 52 fix still holds)
+
+**Test 2: New crowdfunding campaign (empty state)**
+- ✅ Only 5 essential fields visible + 2 collapsed sections + Advanced accordion (all closed)
+- ✅ Full-page height ~900px (fits in one viewport — vs. ~1600px previously)
+- ✅ Live Preview panel updates in real-time as user types
+- ✅ Gallery add flow works via UI: filled URL + caption → clicked "Add photo" → 1 item appeared in grid
+- ✅ Beneficiary fill works: filled name + description → onChange handler set `beneficiary: {name, description}` in state
+
+**Test 3: Standard payment link edit (link 87)**
+- ✅ Advanced accordion CLOSED by default (was open before)
+- ✅ Callback / Redirect / Webhook URL fields hidden behind accordion (were duplicated below before)
+- ✅ Opening Advanced reveals all 5 fields (Customer email, Tax, Callback URL, Redirect URL, Webhook URL) — no regression
+
+### Deployment note
+Fix is on local preview. Push to Github triggers DO auto-redeploy of dynopay.com.
+
+Screenshots: `/tmp/edit77_new_layout_full.jpg`, `/tmp/new_campaign_interacted.jpg`, `/tmp/standard_link_default.jpg`, `/tmp/standard_link_advanced_open.jpg`.
+
+---
+
+
 ## Session 52: Bug Fix — Editing donation/crowdfunding link fails with HTTP 400 (2026-07-15)
 
 ### User report

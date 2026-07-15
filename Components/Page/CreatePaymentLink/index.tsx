@@ -403,6 +403,15 @@ const CreatePaymentLinkPage = ({
       category: (don as any)?.category || "",
       organizerThanks: (don as any)?.organizer_thanks || "",
       gallery: Array.isArray((don as any)?.gallery) ? (don as any).gallery : [],
+      // Session 53: expose beneficiary as editable field (data was already round-tripped
+      // through the API and rendered on the public page, but had no merchant UI).
+      beneficiary:
+        (don as any)?.beneficiary && typeof (don as any).beneficiary === "object"
+          ? {
+              name: (don as any).beneficiary.name || "",
+              description: (don as any).beneficiary.description || undefined,
+            }
+          : null,
     };
   });
   const [donationErrors, setDonationErrors] = useState<DonationErrors>({});
@@ -529,6 +538,14 @@ const CreatePaymentLinkPage = ({
           category: (don as any).category || "",
           organizerThanks: (don as any).organizer_thanks || "",
           gallery: Array.isArray((don as any).gallery) ? (don as any).gallery : [],
+          // Session 53: beneficiary now editable in the UI
+          beneficiary:
+            (don as any).beneficiary && typeof (don as any).beneficiary === "object"
+              ? {
+                  name: (don as any).beneficiary.name || "",
+                  description: (don as any).beneficiary.description || undefined,
+                }
+              : null,
         });
       }
     }
@@ -715,7 +732,11 @@ const CreatePaymentLinkPage = ({
         ? {
             link_type: "donation",
             title: donationSettings.title.trim(),
-            description: paymentSettings.description,
+            // Session 53: dropped the old `purpose/description` blurb for donation
+            // links — the rich `donation_story_md` supersedes it as the public
+            // campaign body. Backend still accepts `description` for standard
+            // links; keep it explicitly null for donations to avoid stale data.
+            description: null,
             currency: paymentSettings.currency,
             goal_amount: donationSettings.goalAmount
               ? parseFloat(donationSettings.goalAmount)
@@ -739,7 +760,21 @@ const CreatePaymentLinkPage = ({
               : null,
             donation_category: donationSettings.category || null,
             donation_organizer_thanks: donationSettings.organizerThanks?.trim() || null,
-            expire: paymentSettings.expire === "no" ? "No" : paymentSettings.expire,
+            // Session 53: beneficiary — send only if the user filled at least the name.
+            donation_beneficiary:
+              donationSettings.beneficiary && donationSettings.beneficiary.name?.trim()
+                ? {
+                    name: donationSettings.beneficiary.name.trim(),
+                    ...(donationSettings.beneficiary.description?.trim()
+                      ? { description: donationSettings.beneficiary.description.trim() }
+                      : {}),
+                  }
+                : null,
+            // Session 53: dropped the "Campaign ends" dropdown (No/24h/7d/30d)
+            // in favour of the specific `donation_ends_at` date picker. Donation
+            // links now default `expire: "No"` — the campaign end date drives
+            // countdown/lifecycle. Existing links keep whatever expire was set.
+            expire: paymentSettings.expire === "no" ? "No" : (paymentSettings.expire || "No"),
             fee_payer: paymentSettings.blockchainFees,
             accepted_currencies: paymentSettings.acceptedCryptoCurrency,
             redirect_url: postPaymentSettings.redirectUrl,
@@ -1467,11 +1502,6 @@ const CreatePaymentLinkPage = ({
                   currency={paymentSettings.currency}
                   currencies={currencies}
                   onCurrencyChange={(c) => handleCurrencySelect(c)}
-                  purpose={paymentSettings.description}
-                  onPurposeChange={(v) => handlePaymentSettingsChange("description", v)}
-                  purposeError={paymentSettingsErrors.description}
-                  expire={paymentSettings.expire}
-                  onExpireChange={(v) => handlePaymentSettingsChange("expire", v)}
                   feePayer={blockchainFees}
                   onFeePayerChange={handleBlockchainFeesChange}
                   onUploadImage={handleUploadCampaignImage}
@@ -1737,50 +1767,35 @@ const CreatePaymentLinkPage = ({
                   )}
 
                   {/* Post-payment settings (webhook / redirect / callback URLs)
-                      live here for NEW links — the old second tab is gone. Edit
-                      mode keeps its dedicated inline section below. */}
-                  {!hasPaymentLinkData && (
-                    <>
-                      {linkKind !== "donation" && (
-                        <Box
-                          sx={{
-                            height: "1px",
-                            backgroundColor: theme.palette.border.main,
-                          }}
-                        />
-                      )}
-                      <Box sx={{ py: 1 }}>
-                        <PostPaymentSettings
-                          hasPaymentLinkData={hasPaymentLinkData}
-                          isMobile={isMobile}
-                          tPaymentLink={tPaymentLink}
-                          postPaymentSettings={postPaymentSettings}
-                          handleChange={handlePostPaymentSettingsChange}
-                        />
-                      </Box>
-                    </>
-                  )}
+                      live INSIDE the Advanced accordion for BOTH create and edit
+                      modes (session 53) — previously edit mode duplicated them
+                      OUTSIDE the accordion, forcing users to scroll past 3 URL
+                      fields every visit even when they never customise them. */}
+                  <>
+                    {linkKind !== "donation" && (
+                      <Box
+                        sx={{
+                          height: "1px",
+                          backgroundColor: theme.palette.border.main,
+                        }}
+                      />
+                    )}
+                    <Box sx={{ py: 1 }}>
+                      <PostPaymentSettings
+                        hasPaymentLinkData={hasPaymentLinkData}
+                        isMobile={isMobile}
+                        tPaymentLink={tPaymentLink}
+                        postPaymentSettings={postPaymentSettings}
+                        handleChange={handlePostPaymentSettingsChange}
+                      />
+                    </Box>
+                  </>
                 </Box>
               </Box>
 
-              {hasPaymentLinkData && (
-                <Box
-                  sx={{
-                    height: "1px",
-                    backgroundColor: theme.palette.border.main,
-                  }}
-                />
-              )}
-
-              {hasPaymentLinkData && (
-                <PostPaymentSettings
-                  hasPaymentLinkData={hasPaymentLinkData}
-                  isMobile={isMobile}
-                  tPaymentLink={tPaymentLink}
-                  postPaymentSettings={postPaymentSettings}
-                  handleChange={handlePostPaymentSettingsChange}
-                />
-              )}
+              {/* Session 53: removed the duplicate outside-accordion PostPaymentSettings
+                  for edit mode — everything is now inside the Advanced options
+                  accordion above so the form is short by default. */}
             </TabContentContainer>
 
             {feePreview && linkKind === "standard" && (

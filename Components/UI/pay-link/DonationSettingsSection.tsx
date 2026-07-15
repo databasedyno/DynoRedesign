@@ -1,7 +1,22 @@
 /**
  * DonationSettingsSection — campaign form for donation / crowdfunding links.
  * Replaces PaymentSettingsBasic + DescriptionSection when the merchant picks
- * the "Donation / Crowdfunding" link type on the create-pay-link page.
+ * the "Crowdfunding" link type on the create-pay-link page.
+ *
+ * Session 53 (2026-07-15) restructured the form into 3 sections for a
+ * dramatically shorter default view:
+ *   • Essentials         — ALWAYS visible (title, goal+currency, minimum,
+ *                          suggested amounts, end date, blockchain fees).
+ *   • Story & media      — Collapsible. Rich Markdown story + cover image +
+ *                          photo gallery (up to 12 photos — NEW UI, session 53).
+ *   • More details       — Collapsible. Category, minimum donation, thank-you
+ *                          message, beneficiary (NEW UI, session 53), display
+ *                          toggles (progress / supporters / custom / auto-close).
+ *
+ * Removed in session 53 (redundant fields):
+ *   • Old "Purpose / story" 500-char blurb — replaced by rich `storyMd`.
+ *   • Old "Campaign ends" dropdown (No/24h/7d/30d) — replaced by the
+ *     specific `endsAt` date picker which is more precise.
  */
 import React, { useRef, useState } from "react";
 import {
@@ -15,6 +30,11 @@ import {
 } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { useTranslation } from "react-i18next";
+
+export interface DonationBeneficiary {
+  name: string;
+  description?: string;
+}
 
 export interface DonationSettingsState {
   title: string;
@@ -37,6 +57,8 @@ export interface DonationSettingsState {
   organizerThanks: string;
   /** Supporting photos (URLs) — up to 12. Cover stays in `campaignImage`. */
   gallery: Array<{ url: string; caption?: string }>;
+  /** Optional beneficiary block ("Who receives the funds"). Session 53 exposed this in the UI. */
+  beneficiary: DonationBeneficiary | null;
 }
 
 export interface DonationErrors {
@@ -48,6 +70,8 @@ export interface DonationErrors {
   endsAt?: string;
   category?: string;
   organizerThanks?: string;
+  gallery?: string;
+  beneficiary?: string;
 }
 
 interface DonationSettingsSectionProps {
@@ -59,11 +83,6 @@ interface DonationSettingsSectionProps {
   currency: string;
   currencies: string[];
   onCurrencyChange: (c: string) => void;
-  purpose: string;
-  onPurposeChange: (v: string) => void;
-  purposeError?: string;
-  expire: string;
-  onExpireChange: (v: string) => void;
   feePayer: string;
   onFeePayerChange: (v: string) => void;
   onUploadImage: (file: File) => void;
@@ -71,6 +90,106 @@ interface DonationSettingsSectionProps {
 }
 
 const MAX_PRESETS = 6;
+const MAX_GALLERY_PHOTOS = 12;
+
+// ── Collapsible section wrapper (session 53) ──
+// Defined at MODULE level (not inside DonationSettingsSection) so React
+// doesn't tear down its subtree on every parent re-render. See ESLint rule
+// react/no-unstable-nested-components.
+const CollapsibleSection = ({
+  title,
+  hint,
+  children,
+  defaultOpen = false,
+  testid,
+  badge,
+  theme,
+  isDark,
+}: {
+  title: string;
+  hint?: string;
+  children: React.ReactNode;
+  defaultOpen?: boolean;
+  testid?: string;
+  badge?: string;
+  theme: any;
+  isDark: boolean;
+}) => {
+  const green = "#10B981";
+  return (
+    <Box
+      component="details"
+      data-testid={testid}
+      // NOTE: React doesn't reliably control `open` on <details> (browser owns it),
+      // so we use `defaultOpen` for initial state only. Users toggle via clicks.
+      {...(defaultOpen ? { open: true } : {})}
+      sx={{
+        border: `1px solid ${theme.palette.border.main}`,
+        borderRadius: "12px",
+        overflow: "hidden",
+        "&[open] > summary::after": { transform: "rotate(180deg)" },
+        "& > summary::-webkit-details-marker": { display: "none" },
+      }}
+    >
+      <Box
+        component="summary"
+        sx={{
+          px: 2,
+          py: 1.5,
+          cursor: "pointer",
+          listStyle: "none",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          userSelect: "none",
+          "&:hover": { backgroundColor: theme.palette.action.hover },
+          "&::after": {
+            content: "'▾'",
+            display: "inline-block",
+            transition: "transform 180ms ease",
+            fontSize: 14,
+            color: theme.palette.text.secondary,
+            marginLeft: 8,
+          },
+        }}
+      >
+        <Box sx={{ flex: 1, minWidth: 0 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
+            <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: 600, color: theme.palette.text.primary }}>
+              {title}
+            </Typography>
+            {badge && (
+              <Box
+                sx={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  px: 0.75,
+                  py: 0.125,
+                  borderRadius: "6px",
+                  fontSize: 11,
+                  fontFamily: "var(--font-sans)",
+                  fontWeight: 600,
+                  backgroundColor: isDark ? "rgba(16,185,129,0.2)" : "rgba(16,185,129,0.12)",
+                  color: green,
+                }}
+              >
+                {badge}
+              </Box>
+            )}
+          </Box>
+          {hint && (
+            <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 12, color: theme.palette.text.secondary, mt: 0.25 }}>
+              {hint}
+            </Typography>
+          )}
+        </Box>
+      </Box>
+      <Box sx={{ borderTop: `1px solid ${theme.palette.border.main}`, p: 2, display: "flex", flexDirection: "column", gap: 2.25 }}>
+        {children}
+      </Box>
+    </Box>
+  );
+};
 
 const DonationSettingsSection = ({
   isMobile,
@@ -81,11 +200,6 @@ const DonationSettingsSection = ({
   currency,
   currencies,
   onCurrencyChange,
-  purpose,
-  onPurposeChange,
-  purposeError,
-  expire,
-  onExpireChange,
   feePayer,
   onFeePayerChange,
   onUploadImage,
@@ -98,16 +212,10 @@ const DonationSettingsSection = ({
 
   const [presetInput, setPresetInput] = useState("");
   const [currencyAnchor, setCurrencyAnchor] = useState<null | HTMLElement>(null);
-  const [expireAnchor, setExpireAnchor] = useState<null | HTMLElement>(null);
+  const [galleryUrlDraft, setGalleryUrlDraft] = useState("");
+  const [galleryCaptionDraft, setGalleryCaptionDraft] = useState("");
+  const [galleryError, setGalleryError] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-
-  const expireOptions: Array<{ value: string; label: string }> = [
-    { value: "no", label: t("donationEndNever", { defaultValue: "No end date" }) },
-    { value: "24h", label: t("donationEnd24h", { defaultValue: "Ends in 24 hours" }) },
-    { value: "7d", label: t("donationEnd7d", { defaultValue: "Ends in 7 days" }) },
-    { value: "30d", label: t("donationEnd30d", { defaultValue: "Ends in 30 days" }) },
-  ];
-  const expireLabel = expireOptions.find((o) => o.value === (expire || "no"))?.label || expireOptions[0].label;
 
   const labelSx = {
     fontSize: "14px",
@@ -183,6 +291,60 @@ const DonationSettingsSection = ({
     onChange({ presets: settings.presets.filter((p) => p !== n) });
   };
 
+  // ── Gallery helpers (session 53 — new UI) ──
+  const addGalleryPhoto = () => {
+    setGalleryError("");
+    const url = galleryUrlDraft.trim();
+    if (!url) {
+      setGalleryError(t("donationGalleryEmptyUrl", { defaultValue: "Enter a photo URL first." }));
+      return;
+    }
+    if (!/^(https?:\/\/|\/)/i.test(url)) {
+      setGalleryError(t("donationGalleryInvalidUrl", { defaultValue: "URL must start with http(s):// or / (for hosted assets)." }));
+      return;
+    }
+    if (url.length > 512) {
+      setGalleryError(t("donationGalleryUrlTooLong", { defaultValue: "URL is too long (max 512 chars)." }));
+      return;
+    }
+    if (settings.gallery.length >= MAX_GALLERY_PHOTOS) {
+      setGalleryError(t("donationGalleryMaxReached", { defaultValue: `Maximum ${MAX_GALLERY_PHOTOS} photos allowed.` }));
+      return;
+    }
+    // Duplicate URL check
+    if (settings.gallery.some((p) => p.url === url)) {
+      setGalleryError(t("donationGalleryDuplicate", { defaultValue: "This photo is already in the gallery." }));
+      return;
+    }
+    const caption = galleryCaptionDraft.trim().slice(0, 240);
+    const next = [...settings.gallery, { url, ...(caption ? { caption } : {}) }];
+    onChange({ gallery: next });
+    setGalleryUrlDraft("");
+    setGalleryCaptionDraft("");
+    if (errors.gallery) clearError("gallery");
+  };
+  const removeGalleryPhoto = (idx: number) => {
+    onChange({ gallery: settings.gallery.filter((_, i) => i !== idx) });
+  };
+
+  // ── Beneficiary helpers (session 53 — new UI) ──
+  const updateBeneficiary = (patch: Partial<DonationBeneficiary>) => {
+    const current = settings.beneficiary || { name: "", description: "" };
+    const nextName = patch.name !== undefined ? patch.name : (current.name || "");
+    const nextDesc = patch.description !== undefined ? patch.description : (current.description || "");
+    if (!nextName.trim() && !nextDesc.trim()) {
+      onChange({ beneficiary: null });
+    } else {
+      onChange({
+        beneficiary: {
+          name: nextName,
+          ...(nextDesc.trim() ? { description: nextDesc } : {}),
+        },
+      });
+    }
+    if (errors.beneficiary) clearError("beneficiary");
+  };
+
   const toggleRow = (
     labelKey: string,
     labelDefault: string,
@@ -209,8 +371,24 @@ const DonationSettingsSection = ({
     </Box>
   );
 
+  // ── Collapsible section wrapper is defined at module level (see top of file). ──
+
+  // Determine which optional sections have data so the summary hints stay accurate
+  const storyHasContent = Boolean(settings.storyMd?.trim() || settings.campaignImage || (settings.gallery && settings.gallery.length > 0));
+  const detailsHasContent = Boolean(
+    settings.category ||
+      settings.organizerThanks?.trim() ||
+      (settings.beneficiary && (settings.beneficiary.name?.trim() || settings.beneficiary.description?.trim())) ||
+      !settings.showProgress ||
+      !settings.showSupporters ||
+      !settings.allowCustom ||
+      settings.autoCloseAtGoal
+  );
+
   return (
     <Box display="flex" flexDirection="column" gap={2.25} data-testid="donation-settings-section">
+      {/* ══════════ ESSENTIALS (always visible) ══════════ */}
+
       {/* Campaign title */}
       <Box>
         <Typography sx={labelSx}>
@@ -233,28 +411,7 @@ const DonationSettingsSection = ({
         {errors.title && <Typography sx={errorSx}>{errors.title}</Typography>}
       </Box>
 
-      {/* Purpose / story */}
-      <Box>
-        <Typography sx={labelSx}>
-          {t("donationPurposeLabel", { defaultValue: "Purpose / story" })}{" "}
-          <Typography component="span" sx={{ ...hintSx, display: "inline" }}>
-            ({t("optional", { defaultValue: "Optional" })})
-          </Typography>
-        </Typography>
-        <Box
-          component="textarea"
-          rows={3}
-          maxLength={500}
-          data-testid="donation-purpose-input"
-          value={purpose}
-          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => onPurposeChange(e.target.value)}
-          placeholder={t("donationPurposePlaceholder", { defaultValue: "Tell donors what you are raising funds for and why it matters…" })}
-          sx={{ ...inputSx(Boolean(purposeError)), resize: "vertical", minHeight: 76, display: "block" }}
-        />
-        {purposeError && <Typography sx={errorSx}>{purposeError}</Typography>}
-      </Box>
-
-      {/* Goal + currency / minimum */}
+      {/* Goal amount + currency / minimum */}
       <Box display="grid" gridTemplateColumns={{ xs: "1fr", sm: "1fr 1fr" }} gap={2}>
         <Box>
           <Typography sx={labelSx}>{t("donationGoalLabel", { defaultValue: "Goal amount" })}</Typography>
@@ -420,131 +577,34 @@ const DonationSettingsSection = ({
         {errors.presets && <Typography sx={errorSx}>{errors.presets}</Typography>}
       </Box>
 
-      {/* Cover image */}
-      <Box>
-        <Typography sx={labelSx}>
-          {t("donationImageLabel", { defaultValue: "Cover image" })}{" "}
-          <Typography component="span" sx={{ ...hintSx, display: "inline" }}>
-            ({t("optional", { defaultValue: "Optional" })})
-          </Typography>
-        </Typography>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/png,image/jpeg,image/webp,image/gif"
-          style={{ display: "none" }}
-          data-testid="donation-image-file-input"
-          onChange={(e) => {
-            const f = e.target.files?.[0];
-            if (f) onUploadImage(f);
-            e.target.value = "";
-          }}
-        />
-        {settings.campaignImage ? (
-          <Box
-            position="relative"
-            borderRadius="12px"
-            overflow="hidden"
-            border={`1px solid ${theme.palette.border.main}`}
-            data-testid="donation-image-preview"
-          >
-            <Box
-              component="img"
-              src={settings.campaignImage}
-              alt="Campaign cover"
-              sx={{ width: "100%", height: 140, objectFit: "cover", display: "block" }}
-            />
-            <Box
-              role="button"
-              data-testid="donation-image-remove"
-              onClick={() => onChange({ campaignImage: null })}
-              sx={{
-                position: "absolute",
-                top: 8,
-                right: 8,
-                width: 28,
-                height: 28,
-                borderRadius: "8px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                cursor: "pointer",
-                backgroundColor: "rgba(0,0,0,0.55)",
-                color: "#fff",
-                "&:hover": { backgroundColor: "rgba(0,0,0,0.75)" },
-              }}
-            >
-              <Icon icon="mdi:trash-can-outline" width={16} />
-            </Box>
-          </Box>
-        ) : (
-          <Box
-            role="button"
-            tabIndex={0}
-            data-testid="donation-image-upload"
-            onClick={() => !imageUploading && fileInputRef.current?.click()}
-            onKeyDown={(e: React.KeyboardEvent) => {
-              if ((e.key === "Enter" || e.key === " ") && !imageUploading) {
-                e.preventDefault();
-                fileInputRef.current?.click();
-              }
-            }}
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 0.75,
-              py: 2.5,
-              borderRadius: "12px",
-              border: `1.5px dashed ${theme.palette.border.main}`,
-              cursor: imageUploading ? "default" : "pointer",
-              color: theme.palette.text.secondary,
-              "&:hover": imageUploading ? {} : { borderColor: green, color: green },
-              transition: "all 140ms ease",
-            }}
-          >
-            {imageUploading ? (
-              <CircularProgress size={22} sx={{ color: green }} />
-            ) : (
-              <Icon icon="mdi:image-plus-outline" width={24} />
-            )}
-            <Typography sx={{ ...hintSx, fontWeight: 500 }}>
-              {imageUploading
-                ? t("donationImageUploading", { defaultValue: "Uploading…" })
-                : t("donationImageCta", { defaultValue: "Click to upload (PNG, JPG, WEBP — max 10MB)" })}
-            </Typography>
-          </Box>
-        )}
-      </Box>
-
-      {/* Campaign end + blockchain fees */}
+      {/* End date + blockchain fees (2-col on desktop, stacked on mobile) */}
       <Box display="grid" gridTemplateColumns={{ xs: "1fr", sm: "1fr 1fr" }} gap={2}>
         <Box>
-          <Typography sx={labelSx}>{t("donationEndLabel", { defaultValue: "Campaign ends" })}</Typography>
+          <Typography sx={labelSx}>
+            {t("donationEndsAtLabel", { defaultValue: "Campaign end date" })}{" "}
+            <Typography component="span" sx={{ ...hintSx, display: "inline" }}>
+              ({t("optional", { defaultValue: "Optional" })})
+            </Typography>
+          </Typography>
           <Box
-            data-testid="donation-expire-select"
-            onClick={(e: React.MouseEvent<HTMLElement>) => setExpireAnchor(e.currentTarget)}
-            sx={selectTriggerSx}
-          >
-            <span>{expireLabel}</span>
-            <Icon icon="mdi:chevron-down" width={16} />
-          </Box>
-          <Menu anchorEl={expireAnchor} open={Boolean(expireAnchor)} onClose={() => setExpireAnchor(null)}>
-            {expireOptions.map((o) => (
-              <MenuItem
-                key={o.value}
-                selected={o.value === (expire || "no")}
-                onClick={() => {
-                  onExpireChange(o.value);
-                  setExpireAnchor(null);
-                }}
-                sx={{ fontSize: 14, fontFamily: "var(--font-sans)" }}
-              >
-                {o.label}
-              </MenuItem>
-            ))}
-          </Menu>
+            component="input"
+            type="date"
+            data-testid="donation-ends-at"
+            value={settings.endsAt}
+            min={new Date().toISOString().slice(0, 10)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+              if (errors.endsAt) clearError("endsAt");
+              onChange({ endsAt: e.target.value });
+            }}
+            sx={inputSx(Boolean(errors.endsAt))}
+          />
+          {errors.endsAt ? (
+            <Typography sx={errorSx}>{errors.endsAt}</Typography>
+          ) : (
+            <Typography sx={{ ...hintSx, mt: "4px" }}>
+              {t("donationEndsAtHint2", { defaultValue: "Shows a countdown. Leave empty for open-ended." })}
+            </Typography>
+          )}
         </Box>
         <Box>
           <Typography sx={labelSx}>{t("blockchainFees", { defaultValue: "Blockchain fees" })}</Typography>
@@ -595,123 +655,337 @@ const DonationSettingsSection = ({
         </Box>
       </Box>
 
-      {/* ── Crowdfunding v2 (Phase 3 — GoFundMe-lite) ── */}
-      {/* Story (rich Markdown) */}
-      <Box>
-        <Typography
-          sx={{
-            fontFamily: "var(--font-sans)",
-            fontSize: 13.5,
-            fontWeight: 600,
-            color: theme.palette.text.primary,
-            mb: 0.5,
-          }}
-        >
-          {t("donationStoryLabel", { defaultValue: "Campaign story" })}
-        </Typography>
-        <Typography
-          sx={{
-            fontFamily: "var(--font-sans)",
-            fontSize: 12,
-            color: theme.palette.text.secondary,
-            mb: 1,
-          }}
-        >
-          {t("donationStoryHint", { defaultValue: "Tell your story: who this is for, why it matters, and how funds will be used. Markdown supported. Photos in the gallery below add trust." })}
-        </Typography>
-        <Box
-          component="textarea"
-          data-testid="donation-story"
-          placeholder={t("donationStoryPlaceholder", { defaultValue: "## Our story\n\nWrite something that will inspire people to contribute…\n\n**Where your contribution goes:**\n- Item 1\n- Item 2" })}
-          value={settings.storyMd}
-          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
-            if (errors.storyMd) clearError("storyMd");
-            onChange({ storyMd: e.target.value });
-          }}
-          sx={{
-            width: "100%",
-            minHeight: 200,
-            resize: "vertical",
-            p: 1.5,
-            borderRadius: "10px",
-            border: `1px solid ${errors.storyMd ? theme.palette.error.main : theme.palette.border.main}`,
-            outline: "none",
-            fontFamily: "var(--font-sans)",
-            fontSize: 14,
-            lineHeight: 1.55,
-            color: theme.palette.text.primary,
-            backgroundColor: theme.palette.background.paper,
-            transition: "border-color 120ms ease",
-            "&:focus": { borderColor: green },
-          }}
-        />
-        <Typography
-          sx={{
-            fontFamily: "var(--font-sans)",
-            fontSize: 11,
-            color: theme.palette.text.secondary,
-            mt: 0.5,
-            textAlign: "right",
-          }}
-        >
-          {settings.storyMd.length}/20,000
-        </Typography>
-      </Box>
-
-      {/* End date + Category (side-by-side on desktop, stacked on mobile) */}
-      <Box sx={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 2 }}>
+      {/* ══════════ SECTION: Story & Media (collapsible) ══════════ */}
+      <CollapsibleSection
+        title={t("donationSectionStoryMedia", { defaultValue: "Story & media" })}
+        hint={t("donationSectionStoryMediaHint", { defaultValue: "Rich Markdown story, cover image, and up to 12 gallery photos" })}
+        testid="donation-section-story-media"
+        defaultOpen={storyHasContent}
+        badge={storyHasContent ? t("filled", { defaultValue: "Filled" }) : undefined}
+        theme={theme}
+        isDark={isDark}
+      >
+        {/* Cover image */}
         <Box>
-          <Typography
-            sx={{
-              fontFamily: "var(--font-sans)",
-              fontSize: 13.5,
-              fontWeight: 600,
-              color: theme.palette.text.primary,
-              mb: 0.5,
-            }}
-          >
-            {t("donationEndsAtLabel", { defaultValue: "Campaign end date" })}
+          <Typography sx={labelSx}>
+            {t("donationImageLabel", { defaultValue: "Cover image" })}{" "}
+            <Typography component="span" sx={{ ...hintSx, display: "inline" }}>
+              ({t("optional", { defaultValue: "Optional" })})
+            </Typography>
           </Typography>
-          <Typography sx={{ fontSize: 12, color: theme.palette.text.secondary, mb: 1 }}>
-            {t("donationEndsAtHint", { defaultValue: "Optional. Shows a countdown; you can still keep accepting contributions after." })}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/png,image/jpeg,image/webp,image/gif"
+            style={{ display: "none" }}
+            data-testid="donation-image-file-input"
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (f) onUploadImage(f);
+              e.target.value = "";
+            }}
+          />
+          {settings.campaignImage ? (
+            <Box
+              position="relative"
+              borderRadius="12px"
+              overflow="hidden"
+              border={`1px solid ${theme.palette.border.main}`}
+              data-testid="donation-image-preview"
+            >
+              <Box
+                component="img"
+                src={settings.campaignImage}
+                alt="Campaign cover"
+                sx={{ width: "100%", height: 140, objectFit: "cover", display: "block" }}
+              />
+              <Box
+                role="button"
+                data-testid="donation-image-remove"
+                onClick={() => onChange({ campaignImage: null })}
+                sx={{
+                  position: "absolute",
+                  top: 8,
+                  right: 8,
+                  width: 28,
+                  height: 28,
+                  borderRadius: "8px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  cursor: "pointer",
+                  backgroundColor: "rgba(0,0,0,0.55)",
+                  color: "#fff",
+                  "&:hover": { backgroundColor: "rgba(0,0,0,0.75)" },
+                }}
+              >
+                <Icon icon="mdi:trash-can-outline" width={16} />
+              </Box>
+            </Box>
+          ) : (
+            <Box
+              role="button"
+              tabIndex={0}
+              data-testid="donation-image-upload"
+              onClick={() => !imageUploading && fileInputRef.current?.click()}
+              onKeyDown={(e: React.KeyboardEvent) => {
+                if ((e.key === "Enter" || e.key === " ") && !imageUploading) {
+                  e.preventDefault();
+                  fileInputRef.current?.click();
+                }
+              }}
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 0.75,
+                py: 2.5,
+                borderRadius: "12px",
+                border: `1.5px dashed ${theme.palette.border.main}`,
+                cursor: imageUploading ? "default" : "pointer",
+                color: theme.palette.text.secondary,
+                "&:hover": imageUploading ? {} : { borderColor: green, color: green },
+                transition: "all 140ms ease",
+              }}
+            >
+              {imageUploading ? (
+                <CircularProgress size={22} sx={{ color: green }} />
+              ) : (
+                <Icon icon="mdi:image-plus-outline" width={24} />
+              )}
+              <Typography sx={{ ...hintSx, fontWeight: 500 }}>
+                {imageUploading
+                  ? t("donationImageUploading", { defaultValue: "Uploading…" })
+                  : t("donationImageCta", { defaultValue: "Click to upload (PNG, JPG, WEBP — max 10MB)" })}
+              </Typography>
+            </Box>
+          )}
+        </Box>
+
+        {/* Campaign story (Markdown) */}
+        <Box>
+          <Typography sx={labelSx}>
+            {t("donationStoryLabel", { defaultValue: "Campaign story" })}
+          </Typography>
+          <Typography sx={{ ...hintSx, mb: 1 }}>
+            {t("donationStoryHint", { defaultValue: "Tell your story: who this is for, why it matters, and how funds will be used. Markdown supported (headings, **bold**, lists, links)." })}
           </Typography>
           <Box
-            component="input"
-            type="date"
-            data-testid="donation-ends-at"
-            value={settings.endsAt}
-            min={new Date().toISOString().slice(0, 10)}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              if (errors.endsAt) clearError("endsAt");
-              onChange({ endsAt: e.target.value });
+            component="textarea"
+            data-testid="donation-story"
+            placeholder={t("donationStoryPlaceholder", { defaultValue: "## Our story\n\nWrite something that will inspire people to contribute…\n\n**Where your contribution goes:**\n- Item 1\n- Item 2" })}
+            value={settings.storyMd}
+            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
+              if (errors.storyMd) clearError("storyMd");
+              onChange({ storyMd: e.target.value });
             }}
             sx={{
               width: "100%",
-              p: 1.25,
+              minHeight: 200,
+              resize: "vertical",
+              p: 1.5,
               borderRadius: "10px",
-              border: `1px solid ${errors.endsAt ? theme.palette.error.main : theme.palette.border.main}`,
+              border: `1px solid ${errors.storyMd ? theme.palette.error.main : theme.palette.border.main}`,
               outline: "none",
               fontFamily: "var(--font-sans)",
               fontSize: 14,
+              lineHeight: 1.55,
               color: theme.palette.text.primary,
               backgroundColor: theme.palette.background.paper,
+              transition: "border-color 120ms ease",
               "&:focus": { borderColor: green },
             }}
           />
+          <Box sx={{ display: "flex", justifyContent: "space-between", mt: 0.5 }}>
+            {errors.storyMd ? (
+              <Typography sx={errorSx}>{errors.storyMd}</Typography>
+            ) : (
+              <Box />
+            )}
+            <Typography sx={{ ...hintSx, fontSize: 11 }}>{settings.storyMd.length}/20,000</Typography>
+          </Box>
         </Box>
+
+        {/* Gallery (NEW — session 53) */}
         <Box>
-          <Typography
-            sx={{
-              fontFamily: "var(--font-sans)",
-              fontSize: 13.5,
-              fontWeight: 600,
-              color: theme.palette.text.primary,
-              mb: 0.5,
-            }}
-          >
-            {t("donationCategoryLabel", { defaultValue: "Category" })}
+          <Typography sx={labelSx}>
+            {t("donationGalleryLabel", { defaultValue: "Photo gallery" })}{" "}
+            <Typography component="span" sx={{ ...hintSx, display: "inline" }}>
+              ({settings.gallery.length}/{MAX_GALLERY_PHOTOS})
+            </Typography>
           </Typography>
-          <Typography sx={{ fontSize: 12, color: theme.palette.text.secondary, mb: 1 }}>
+          <Typography sx={{ ...hintSx, mb: 1 }}>
+            {t("donationGalleryHint", { defaultValue: "Add up to 12 photos with optional captions. Shown as a grid on your public campaign page below the story." })}
+          </Typography>
+
+          {/* Existing photos grid */}
+          {settings.gallery.length > 0 && (
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: { xs: "repeat(2, 1fr)", sm: "repeat(3, 1fr)" },
+                gap: 1.25,
+                mb: 1.5,
+              }}
+              data-testid="donation-gallery-grid"
+            >
+              {settings.gallery.map((p, idx) => (
+                <Box
+                  key={`${p.url}-${idx}`}
+                  sx={{
+                    position: "relative",
+                    borderRadius: "10px",
+                    overflow: "hidden",
+                    border: `1px solid ${theme.palette.border.main}`,
+                    backgroundColor: theme.palette.background.paper,
+                  }}
+                  data-testid={`donation-gallery-item-${idx}`}
+                >
+                  <Box
+                    component="img"
+                    src={p.url}
+                    alt={p.caption || `Photo ${idx + 1}`}
+                    sx={{ width: "100%", height: 90, objectFit: "cover", display: "block" }}
+                    onError={(e: any) => {
+                      // Broken URL fallback
+                      e.currentTarget.style.display = "none";
+                    }}
+                  />
+                  {p.caption && (
+                    <Typography
+                      sx={{
+                        fontSize: 11,
+                        fontFamily: "var(--font-sans)",
+                        color: theme.palette.text.secondary,
+                        p: 0.75,
+                        borderTop: `1px solid ${theme.palette.border.main}`,
+                        textOverflow: "ellipsis",
+                        overflow: "hidden",
+                        whiteSpace: "nowrap",
+                      }}
+                      title={p.caption}
+                    >
+                      {p.caption}
+                    </Typography>
+                  )}
+                  <Box
+                    role="button"
+                    aria-label={`Remove photo ${idx + 1}`}
+                    data-testid={`donation-gallery-remove-${idx}`}
+                    onClick={() => removeGalleryPhoto(idx)}
+                    sx={{
+                      position: "absolute",
+                      top: 4,
+                      right: 4,
+                      width: 24,
+                      height: 24,
+                      borderRadius: "6px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      cursor: "pointer",
+                      backgroundColor: "rgba(0,0,0,0.6)",
+                      color: "#fff",
+                      "&:hover": { backgroundColor: "rgba(0,0,0,0.8)" },
+                    }}
+                  >
+                    <Icon icon="mdi:close" width={14} />
+                  </Box>
+                </Box>
+              ))}
+            </Box>
+          )}
+
+          {/* Add photo form */}
+          {settings.gallery.length < MAX_GALLERY_PHOTOS && (
+            <Box display="flex" flexDirection="column" gap={1}>
+              <Box display="flex" gap={1} flexDirection={{ xs: "column", sm: "row" }}>
+                <Box
+                  component="input"
+                  type="url"
+                  data-testid="donation-gallery-url-input"
+                  value={galleryUrlDraft}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    setGalleryUrlDraft(e.target.value);
+                    if (galleryError) setGalleryError("");
+                  }}
+                  onKeyDown={(e: React.KeyboardEvent) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      addGalleryPhoto();
+                    }
+                  }}
+                  placeholder={t("donationGalleryUrlPlaceholder", { defaultValue: "https://example.com/photo.jpg" })}
+                  sx={{ ...inputSx(Boolean(galleryError)), flex: 2 }}
+                />
+                <Box
+                  component="input"
+                  type="text"
+                  data-testid="donation-gallery-caption-input"
+                  value={galleryCaptionDraft}
+                  maxLength={240}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setGalleryCaptionDraft(e.target.value)}
+                  onKeyDown={(e: React.KeyboardEvent) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      addGalleryPhoto();
+                    }
+                  }}
+                  placeholder={t("donationGalleryCaptionPlaceholder", { defaultValue: "Caption (optional)" })}
+                  sx={{ ...inputSx(false), flex: 1 }}
+                />
+                <Box
+                  role="button"
+                  tabIndex={0}
+                  data-testid="donation-gallery-add"
+                  onClick={addGalleryPhoto}
+                  onKeyDown={(e: React.KeyboardEvent) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      addGalleryPhoto();
+                    }
+                  }}
+                  sx={{
+                    ...selectTriggerSx,
+                    justifyContent: "center",
+                    minWidth: 108,
+                    flexShrink: 0,
+                    fontWeight: 600,
+                    borderColor: green,
+                    color: green,
+                  }}
+                >
+                  <Icon icon="mdi:plus" width={16} />
+                  {t("donationGalleryAdd", { defaultValue: "Add photo" })}
+                </Box>
+              </Box>
+              {galleryError && <Typography sx={errorSx}>{galleryError}</Typography>}
+              {errors.gallery && !galleryError && <Typography sx={errorSx}>{errors.gallery}</Typography>}
+            </Box>
+          )}
+          {settings.gallery.length >= MAX_GALLERY_PHOTOS && (
+            <Typography sx={{ ...hintSx, mt: 1, fontStyle: "italic" }}>
+              {t("donationGalleryFull", { defaultValue: `Gallery is full (${MAX_GALLERY_PHOTOS}/${MAX_GALLERY_PHOTOS}). Remove a photo to add another.` })}
+            </Typography>
+          )}
+        </Box>
+      </CollapsibleSection>
+
+      {/* ══════════ SECTION: More details (collapsible) ══════════ */}
+      <CollapsibleSection
+        title={t("donationSectionDetails", { defaultValue: "More details" })}
+        hint={t("donationSectionDetailsHint", { defaultValue: "Category, thank-you message, beneficiary, and display options" })}
+        testid="donation-section-details"
+        defaultOpen={detailsHasContent}
+        badge={detailsHasContent ? t("filled", { defaultValue: "Filled" }) : undefined}
+        theme={theme}
+        isDark={isDark}
+      >
+        {/* Category */}
+        <Box>
+          <Typography sx={labelSx}>{t("donationCategoryLabel", { defaultValue: "Category" })}</Typography>
+          <Typography sx={{ ...hintSx, mb: 1 }}>
             {t("donationCategoryHint", { defaultValue: "Helps contributors find your campaign in the directory." })}
           </Typography>
           <Box
@@ -719,18 +993,7 @@ const DonationSettingsSection = ({
             data-testid="donation-category"
             value={settings.category}
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) => onChange({ category: e.target.value })}
-            sx={{
-              width: "100%",
-              p: 1.25,
-              borderRadius: "10px",
-              border: `1px solid ${theme.palette.border.main}`,
-              outline: "none",
-              fontFamily: "var(--font-sans)",
-              fontSize: 14,
-              color: theme.palette.text.primary,
-              backgroundColor: theme.palette.background.paper,
-              "&:focus": { borderColor: green },
-            }}
+            sx={inputSx(false)}
           >
             <option value="">{t("donationCategoryNone", { defaultValue: "Uncategorised" })}</option>
             <option value="medical">Medical</option>
@@ -746,95 +1009,144 @@ const DonationSettingsSection = ({
             <option value="other">Other</option>
           </Box>
         </Box>
-      </Box>
 
-      {/* Organizer thank-you message */}
-      <Box>
-        <Typography
-          sx={{
-            fontFamily: "var(--font-sans)",
-            fontSize: 13.5,
-            fontWeight: 600,
-            color: theme.palette.text.primary,
-            mb: 0.5,
-          }}
-        >
-          {t("donationOrganizerThanksLabel", { defaultValue: "Thank-you message (optional)" })}
-        </Typography>
-        <Typography sx={{ fontSize: 12, color: theme.palette.text.secondary, mb: 1 }}>
-          {t("donationOrganizerThanksHint", { defaultValue: "Shown to contributors right after their payment succeeds, and used as the intro of the auto-thank-you email." })}
-        </Typography>
-        <Box
-          component="textarea"
-          data-testid="donation-organizer-thanks"
-          placeholder={t("donationOrganizerThanksPlaceholder", { defaultValue: "Thank you so much for supporting {campaign}! Your contribution means the world to us." })}
-          value={settings.organizerThanks}
-          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => onChange({ organizerThanks: e.target.value })}
-          sx={{
-            width: "100%",
-            minHeight: 70,
-            resize: "vertical",
-            p: 1.5,
-            borderRadius: "10px",
-            border: `1px solid ${theme.palette.border.main}`,
-            outline: "none",
-            fontFamily: "var(--font-sans)",
-            fontSize: 14,
-            lineHeight: 1.55,
-            color: theme.palette.text.primary,
-            backgroundColor: theme.palette.background.paper,
-            "&:focus": { borderColor: green },
-          }}
-        />
-      </Box>
+        {/* Organizer thank-you message */}
+        <Box>
+          <Typography sx={labelSx}>
+            {t("donationOrganizerThanksLabel", { defaultValue: "Thank-you message" })}{" "}
+            <Typography component="span" sx={{ ...hintSx, display: "inline" }}>
+              ({t("optional", { defaultValue: "Optional" })})
+            </Typography>
+          </Typography>
+          <Typography sx={{ ...hintSx, mb: 1 }}>
+            {t("donationOrganizerThanksHint", { defaultValue: "Shown to contributors right after their payment succeeds, and used as the intro of the auto-thank-you email." })}
+          </Typography>
+          <Box
+            component="textarea"
+            data-testid="donation-organizer-thanks"
+            placeholder={t("donationOrganizerThanksPlaceholder", { defaultValue: "Thank you so much for supporting our campaign! Your contribution means the world to us." })}
+            value={settings.organizerThanks}
+            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => onChange({ organizerThanks: e.target.value })}
+            sx={{
+              width: "100%",
+              minHeight: 70,
+              resize: "vertical",
+              p: 1.5,
+              borderRadius: "10px",
+              border: `1px solid ${theme.palette.border.main}`,
+              outline: "none",
+              fontFamily: "var(--font-sans)",
+              fontSize: 14,
+              lineHeight: 1.55,
+              color: theme.palette.text.primary,
+              backgroundColor: theme.palette.background.paper,
+              "&:focus": { borderColor: green },
+            }}
+          />
+        </Box>
 
-      {/* Display toggles */}
-      <Box
-        sx={{
-          border: `1px solid ${theme.palette.border.main}`,
-          borderRadius: "12px",
-          px: 2,
-          py: 0.5,
-          "& > div + div": { borderTop: `1px solid ${theme.palette.border.main}` },
-        }}
-      >
-        {toggleRow(
-          "donationToggleProgress",
-          "Show progress bar",
-          "donationToggleProgressHint",
-          "Raised amount and % toward goal on the donation page.",
-          settings.showProgress,
-          (v) => onChange({ showProgress: v }),
-          "donation-toggle-progress"
-        )}
-        {toggleRow(
-          "donationToggleSupporters",
-          "Show recent supporters",
-          "donationToggleSupportersHint",
-          "Public wall with donor names and messages.",
-          settings.showSupporters,
-          (v) => onChange({ showSupporters: v }),
-          "donation-toggle-supporters"
-        )}
-        {toggleRow(
-          "donationToggleCustom",
-          "Allow custom amounts",
-          "donationToggleCustomHint",
-          "Donors can type any amount above the minimum.",
-          settings.allowCustom,
-          (v) => onChange({ allowCustom: v }),
-          "donation-toggle-custom"
-        )}
-        {toggleRow(
-          "donationToggleAutoClose",
-          "Auto-close at goal",
-          "donationToggleAutoCloseHint",
-          "Stop accepting donations once the goal is reached.",
-          settings.autoCloseAtGoal,
-          (v) => onChange({ autoCloseAtGoal: v }),
-          "donation-toggle-autoclose"
-        )}
-      </Box>
+        {/* Beneficiary (NEW — session 53) */}
+        <Box>
+          <Typography sx={labelSx}>
+            {t("donationBeneficiaryLabel", { defaultValue: "Beneficiary" })}{" "}
+            <Typography component="span" sx={{ ...hintSx, display: "inline" }}>
+              ({t("optional", { defaultValue: "Optional" })})
+            </Typography>
+          </Typography>
+          <Typography sx={{ ...hintSx, mb: 1 }}>
+            {t("donationBeneficiaryHint", { defaultValue: "Who receives the funds? Shown on the public page for trust — e.g. a charity, non-profit, or the person you are raising money for." })}
+          </Typography>
+          <Box display="flex" flexDirection="column" gap={1}>
+            <Box
+              component="input"
+              type="text"
+              maxLength={200}
+              data-testid="donation-beneficiary-name"
+              value={settings.beneficiary?.name || ""}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateBeneficiary({ name: e.target.value })}
+              placeholder={t("donationBeneficiaryNamePlaceholder", { defaultValue: "Beneficiary name (e.g. Community Garden Foundation)" })}
+              sx={inputSx(Boolean(errors.beneficiary))}
+            />
+            <Box
+              component="textarea"
+              maxLength={1000}
+              data-testid="donation-beneficiary-description"
+              value={settings.beneficiary?.description || ""}
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => updateBeneficiary({ description: e.target.value })}
+              placeholder={t("donationBeneficiaryDescPlaceholder", { defaultValue: "Short description (optional) — how they will use the funds" })}
+              sx={{
+                width: "100%",
+                minHeight: 60,
+                resize: "vertical",
+                p: 1.5,
+                borderRadius: "10px",
+                border: `1px solid ${theme.palette.border.main}`,
+                outline: "none",
+                fontFamily: "var(--font-sans)",
+                fontSize: 14,
+                lineHeight: 1.55,
+                color: theme.palette.text.primary,
+                backgroundColor: theme.palette.background.paper,
+                "&:focus": { borderColor: green },
+              }}
+            />
+          </Box>
+          {errors.beneficiary && <Typography sx={errorSx}>{errors.beneficiary}</Typography>}
+        </Box>
+
+        {/* Display toggles */}
+        <Box>
+          <Typography sx={{ ...labelSx, mb: 1 }}>
+            {t("donationDisplayOptionsLabel", { defaultValue: "Display options" })}
+          </Typography>
+          <Box
+            sx={{
+              border: `1px solid ${theme.palette.border.main}`,
+              borderRadius: "12px",
+              px: 2,
+              py: 0.5,
+              "& > div + div": { borderTop: `1px solid ${theme.palette.border.main}` },
+            }}
+          >
+            {toggleRow(
+              "donationToggleProgress",
+              "Show progress bar",
+              "donationToggleProgressHint",
+              "Raised amount and % toward goal on the donation page.",
+              settings.showProgress,
+              (v) => onChange({ showProgress: v }),
+              "donation-toggle-progress"
+            )}
+            {toggleRow(
+              "donationToggleSupporters",
+              "Show recent supporters",
+              "donationToggleSupportersHint",
+              "Public wall with donor names and messages.",
+              settings.showSupporters,
+              (v) => onChange({ showSupporters: v }),
+              "donation-toggle-supporters"
+            )}
+            {toggleRow(
+              "donationToggleCustom",
+              "Allow custom amounts",
+              "donationToggleCustomHint",
+              "Donors can type any amount above the minimum.",
+              settings.allowCustom,
+              (v) => onChange({ allowCustom: v }),
+              "donation-toggle-custom"
+            )}
+            {toggleRow(
+              "donationToggleAutoClose",
+              "Auto-close at goal",
+              "donationToggleAutoCloseHint",
+              "Stop accepting donations once the goal is reached.",
+              settings.autoCloseAtGoal,
+              (v) => onChange({ autoCloseAtGoal: v }),
+              "donation-toggle-autoclose"
+            )}
+          </Box>
+        </Box>
+      </CollapsibleSection>
     </Box>
   );
 };
