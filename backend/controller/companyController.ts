@@ -480,7 +480,7 @@ const updateCompany = async (req: express.Request, res: express.Response) => {
     // Format 3: Individual form fields (NEW - Swagger UI friendly)
     else if (req.body.company_name || req.body.email || req.body.mobile || req.body.website || 
              req.body.address_line1 || req.body.city || req.body.state || req.body.country || 
-             req.body.zip_code || req.body.vat_number) {
+             req.body.zip_code || req.body.vat_number || req.body.first_name || req.body.last_name) {
       data = {
         company_name: req.body.company_name,
         email: req.body.email,
@@ -493,6 +493,8 @@ const updateCompany = async (req: express.Request, res: express.Response) => {
         country: req.body.country,
         zip_code: req.body.zip_code,
         vat_number: req.body.vat_number,
+        first_name: req.body.first_name,
+        last_name: req.body.last_name,
       };
       // Remove undefined fields
       Object.keys(data).forEach(key => data[key] === undefined && delete data[key]);

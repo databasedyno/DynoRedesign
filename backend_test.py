@@ -1,588 +1,429 @@
 #!/usr/bin/env python3
 """
-Backend test for DynoPay company name bug fix verification.
+DynoPay API Backend Test - Format 3 Company Update Fix Verification
+Session 51 - 2026-07-15
 
-Bug: Creating a company wrote the company-form's first/last name into the account holder's 
-GLOBAL `tbl_user.name` on EVERY company creation. So creating a SECOND company with a 
-different first/last name OVERWROTE the account name.
+NARROW RE-TEST: Verify that PUT /api/company/updateCompany/:id now correctly
+persists contact_first_name and contact_last_name when individual top-level
+fields (first_name, last_name) are sent as multipart/form-data or url-encoded
+(Format 3), NOT wrapped in a JSON `data` object.
 
-Fix: (A) Account `user.name` is only seeded the FIRST time (when empty) and NEVER overwritten 
-by later company creation; (B) Each company now stores its own `contact_first_name` / 
-`contact_last_name` (new columns on tbl_company).
+Base URL: https://5a08d09d-24f7-4f72-942d-454f2d1c9727.preview.emergentagent.com
+Auth: GET /api/csrf-token → POST /api/user/login → JWT Bearer token
+Test account: hostbay@moxx.co / Katiekendra123@
 """
 
 import requests
 import json
 import time
-from datetime import datetime
+import sys
+from typing import Dict, Any, Optional
 
-# Base URL
+# Configuration
 BASE_URL = "https://5a08d09d-24f7-4f72-942d-454f2d1c9727.preview.emergentagent.com"
+TEST_EMAIL = "hostbay@moxx.co"
+TEST_PASSWORD = "Katiekendra123@"
 
-# Test configuration
-USE_FRESH_USER = True  # Try to register a fresh user first
-FALLBACK_EMAIL = "hostbay@moxx.co"
-FALLBACK_PASSWORD = "Katiekendra123@"
+class Colors:
+    GREEN = '\033[92m'
+    RED = '\033[91m'
+    YELLOW = '\033[93m'
+    BLUE = '\033[94m'
+    RESET = '\033[0m'
+    BOLD = '\033[1m'
 
-# Session state
-session = requests.Session()
-csrf_token = None
-jwt_token = None
-test_companies = []  # Track companies to delete
+def log(msg: str, color: str = Colors.RESET):
+    print(f"{color}{msg}{Colors.RESET}")
 
+def log_success(msg: str):
+    log(f"✅ {msg}", Colors.GREEN)
 
-def log(msg):
-    """Print timestamped log message."""
-    print(f"[{datetime.now().strftime('%H:%M:%S')}] {msg}")
+def log_error(msg: str):
+    log(f"❌ {msg}", Colors.RED)
 
+def log_info(msg: str):
+    log(f"ℹ️  {msg}", Colors.BLUE)
 
-def get_csrf_token():
-    """Get CSRF token."""
-    global csrf_token
-    log("Getting CSRF token...")
-    resp = session.get(f"{BASE_URL}/api/csrf-token")
-    resp.raise_for_status()
-    data = resp.json()
-    csrf_token = data.get("csrf_token") or data.get("csrfToken")
-    log(f"✓ CSRF token obtained: {csrf_token[:20]}...")
-    return csrf_token
+def log_warning(msg: str):
+    log(f"⚠️  {msg}", Colors.YELLOW)
 
+class DynoPayAPITest:
+    def __init__(self):
+        self.session = requests.Session()
+        self.csrf_token: Optional[str] = None
+        self.jwt_token: Optional[str] = None
+        self.account_name: Optional[str] = None
+        self.test_company_id: Optional[int] = None
+        self.test_results = []
 
-def register_user():
-    """Try to register a fresh throwaway user."""
-    timestamp = int(time.time())
-    email = f"qa.namebug.{timestamp}@dynopaytest.com"
-    password = "QaNameBug#2026"
-    name = ""  # Start with empty name to test first-time seeding
-    
-    log(f"Attempting to register fresh user: {email} (with empty name)")
-    
-    # Get fresh CSRF token
-    get_csrf_token()
-    
-    payload = {
-        "email": email,
-        "password": password,
-        "name": name
-    }
-    
-    headers = {
-        "Content-Type": "application/json",
-        "x-csrf-token": csrf_token
-    }
-    
-    try:
-        resp = session.post(
-            f"{BASE_URL}/api/user/registerUser",
-            json=payload,
-            headers=headers
-        )
-        
-        if resp.status_code == 200 or resp.status_code == 201:
-            log(f"✓ Registration successful for {email}")
-            return email, password
-        else:
-            log(f"✗ Registration failed: {resp.status_code} - {resp.text[:200]}")
-            return None, None
-    except Exception as e:
-        log(f"✗ Registration error: {e}")
-        return None, None
-
-
-def login(email, password):
-    """Login and get JWT token."""
-    global jwt_token
-    
-    log(f"Logging in as {email}...")
-    
-    # Get fresh CSRF token
-    get_csrf_token()
-    
-    payload = {
-        "email": email,
-        "password": password
-    }
-    
-    headers = {
-        "Content-Type": "application/json",
-        "x-csrf-token": csrf_token
-    }
-    
-    resp = session.post(
-        f"{BASE_URL}/api/user/login",
-        json=payload,
-        headers=headers
-    )
-    
-    if resp.status_code != 200:
-        log(f"✗ Login failed: {resp.status_code} - {resp.text[:200]}")
-        return False
-    
-    data = resp.json()
-    # Try multiple possible locations for the token
-    jwt_token = (
-        data.get("data", {}).get("accessToken") or
-        data.get("data", {}).get("token") or 
-        data.get("token") or 
-        data.get("accessToken")
-    )
-    
-    if not jwt_token:
-        log(f"✗ No JWT token in response")
-        log(f"Response data: {json.dumps(data)[:500]}")
-        return False
-    
-    log(f"✓ Login successful, JWT: {jwt_token[:30]}...")
-    return True
-
-
-def get_profile():
-    """Get user profile to check account name."""
-    log("Getting user profile...")
-    
-    headers = {
-        "Authorization": f"Bearer {jwt_token}",
-        "x-csrf-token": csrf_token
-    }
-    
-    resp = session.get(
-        f"{BASE_URL}/api/user/profile",
-        headers=headers
-    )
-    
-    if resp.status_code != 200:
-        log(f"✗ Profile fetch failed: {resp.status_code} - {resp.text[:200]}")
-        return None
-    
-    data = resp.json()
-    profile = data.get("data") or data
-    name = profile.get("name") or ""
-    
-    log(f"✓ Profile name: '{name}'")
-    return name
-
-
-def create_company(company_name, email, first_name, last_name):
-    """Create a company with given details."""
-    log(f"Creating company: {company_name} (contact: {first_name} {last_name})...")
-    
-    # Get fresh CSRF token
-    get_csrf_token()
-    
-    payload = {
-        "company_name": company_name,
-        "email": email,
-        "first_name": first_name,
-        "last_name": last_name
-    }
-    
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {jwt_token}",
-        "x-csrf-token": csrf_token
-    }
-    
-    resp = session.post(
-        f"{BASE_URL}/api/company/addCompany",
-        json=payload,
-        headers=headers
-    )
-    
-    if resp.status_code not in [200, 201]:
-        log(f"✗ Company creation failed: {resp.status_code} - {resp.text[:300]}")
-        return None
-    
-    data = resp.json()
-    company = data.get("data") or data.get("company") or data
-    company_id = company.get("company_id") or company.get("id")
-    
-    if company_id:
-        test_companies.append(company_id)
-        log(f"✓ Company created: ID={company_id}")
-    else:
-        log(f"⚠ Company created but no ID found in response: {json.dumps(data)[:200]}")
-    
-    return company_id
-
-
-def get_companies():
-    """Get list of companies."""
-    log("Getting company list...")
-    
-    headers = {
-        "Authorization": f"Bearer {jwt_token}",
-        "x-csrf-token": csrf_token
-    }
-    
-    resp = session.get(
-        f"{BASE_URL}/api/company/getCompany",
-        headers=headers
-    )
-    
-    if resp.status_code != 200:
-        log(f"✗ Company list fetch failed: {resp.status_code} - {resp.text[:200]}")
-        return []
-    
-    data = resp.json()
-    companies = data.get("data") or data.get("companies") or []
-    
-    log(f"✓ Found {len(companies)} companies")
-    return companies
-
-
-def update_company(company_id, first_name, last_name, company_name=None):
-    """Update company contact details."""
-    log(f"Updating company {company_id} to: {first_name} {last_name}...")
-    
-    # Get fresh CSRF token
-    get_csrf_token()
-    
-    payload = {
-        "first_name": first_name,
-        "last_name": last_name
-    }
-    
-    # Add company_name if provided to ensure we have valid update data
-    if company_name:
-        payload["company_name"] = company_name
-    
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {jwt_token}",
-        "x-csrf-token": csrf_token
-    }
-    
-    resp = session.put(
-        f"{BASE_URL}/api/company/updateCompany/{company_id}",
-        json=payload,
-        headers=headers
-    )
-    
-    if resp.status_code != 200:
-        log(f"✗ Company update failed: {resp.status_code} - {resp.text[:200]}")
-        return False
-    
-    log(f"✓ Company updated")
-    return True
-
-
-def delete_company(company_id):
-    """Delete a company."""
-    log(f"Deleting company {company_id}...")
-    
-    # Get fresh CSRF token
-    get_csrf_token()
-    
-    headers = {
-        "Authorization": f"Bearer {jwt_token}",
-        "x-csrf-token": csrf_token
-    }
-    
-    resp = session.delete(
-        f"{BASE_URL}/api/company/deleteCompany/{company_id}",
-        headers=headers
-    )
-    
-    if resp.status_code != 200:
-        log(f"✗ Company deletion failed: {resp.status_code} - {resp.text[:200]}")
-        return False
-    
-    log(f"✓ Company deleted")
-    return True
-
-
-def cleanup():
-    """Delete all test companies."""
-    if not test_companies:
-        log("No test companies to clean up")
-        return
-    
-    log(f"\n{'='*60}")
-    log("CLEANUP: Deleting test companies...")
-    log(f"{'='*60}")
-    
-    for company_id in test_companies:
+    def get_csrf_token(self) -> bool:
+        """Step 1: Get CSRF token"""
+        log_info("Step 1: Getting CSRF token...")
         try:
-            delete_company(company_id)
+            resp = self.session.get(f"{BASE_URL}/api/csrf-token", timeout=15)
+            if resp.status_code != 200:
+                log_error(f"CSRF token request failed: {resp.status_code}")
+                return False
+            
+            data = resp.json()
+            self.csrf_token = data.get("csrf_token")
+            if not self.csrf_token:
+                log_error("No csrf_token in response")
+                return False
+            
+            log_success(f"CSRF token obtained: {self.csrf_token[:20]}...")
+            return True
         except Exception as e:
-            log(f"✗ Error deleting company {company_id}: {e}")
+            log_error(f"CSRF token request exception: {e}")
+            return False
 
+    def login(self) -> bool:
+        """Step 2: Login and get JWT"""
+        log_info("Step 2: Logging in as hostbay...")
+        try:
+            headers = {
+                "x-csrf-token": self.csrf_token,
+                "Content-Type": "application/json"
+            }
+            payload = {
+                "email": TEST_EMAIL,
+                "password": TEST_PASSWORD
+            }
+            
+            resp = self.session.post(
+                f"{BASE_URL}/api/user/login",
+                json=payload,
+                headers=headers,
+                timeout=15
+            )
+            
+            if resp.status_code != 200:
+                log_error(f"Login failed: {resp.status_code} - {resp.text[:200]}")
+                return False
+            
+            data = resp.json()
+            self.jwt_token = data.get("data", {}).get("accessToken")
+            if not self.jwt_token:
+                log_error("No accessToken in login response")
+                return False
+            
+            log_success(f"Login successful, JWT: {self.jwt_token[:30]}...")
+            return True
+        except Exception as e:
+            log_error(f"Login exception: {e}")
+            return False
 
-def run_tests():
-    """Run the bug verification tests."""
-    log(f"\n{'='*60}")
-    log("DYNOPAY COMPANY NAME BUG FIX VERIFICATION")
-    log(f"{'='*60}\n")
-    
-    # Step 1: Setup - Register or use fallback
-    email, password = None, None
-    
-    if USE_FRESH_USER:
-        email, password = register_user()
-    
-    if not email:
-        log(f"Using fallback account: {FALLBACK_EMAIL}")
-        email = FALLBACK_EMAIL
-        password = FALLBACK_PASSWORD
-    
-    # Step 2: Login
-    if not login(email, password):
-        log("\n✗ FATAL: Login failed, cannot continue")
-        return False
-    
-    # Step 3: Record initial account name (name0)
-    log(f"\n{'='*60}")
-    log("TEST STEP 1: Record initial account name")
-    log(f"{'='*60}")
-    
-    name0 = get_profile()
-    if name0 is None:
-        log("✗ FATAL: Could not get initial profile")
-        return False
-    
-    log(f"✓ Initial account name (name0): '{name0}'")
-    
-    # Step 4: Create Company A
-    log(f"\n{'='*60}")
-    log("TEST STEP 2: Create Company A (Alice Anderson)")
-    log(f"{'='*60}")
-    
-    timestamp = int(time.time())
-    company_a_id = create_company(
-        company_name=f"QA Alpha {timestamp}",
-        email=f"qa.alpha.{timestamp}@dynopaytest.com",
-        first_name="Alice",
-        last_name="Anderson"
-    )
-    
-    if not company_a_id:
-        log("✗ FATAL: Could not create Company A")
-        cleanup()
-        return False
-    
-    # Step 5: Check account name after Company A
-    log(f"\n{'='*60}")
-    log("TEST STEP 3: Check account name after Company A")
-    log(f"{'='*60}")
-    
-    nameAfterA = get_profile()
-    if nameAfterA is None:
-        log("✗ FATAL: Could not get profile after Company A")
-        cleanup()
-        return False
-    
-    log(f"✓ Account name after Company A (nameAfterA): '{nameAfterA}'")
-    
-    # For fresh account, name should now be "Alice Anderson"
-    # For hostbay, name should remain "hostbay" or original name
-    if name0 == "":
-        expected_after_a = "Alice Anderson"
-        if nameAfterA != expected_after_a:
-            log(f"⚠ WARNING: Fresh account name should be '{expected_after_a}' but got '{nameAfterA}'")
-    else:
-        log(f"✓ Existing account - name remains: '{nameAfterA}'")
-    
-    # Step 6: Create Company B
-    log(f"\n{'='*60}")
-    log("TEST STEP 4: Create Company B (Bob Brown)")
-    log(f"{'='*60}")
-    
-    company_b_id = create_company(
-        company_name=f"QA Bravo {timestamp}",
-        email=f"qa.bravo.{timestamp}@dynopaytest.com",
-        first_name="Bob",
-        last_name="Brown"
-    )
-    
-    if not company_b_id:
-        log("✗ FATAL: Could not create Company B")
-        cleanup()
-        return False
-    
-    # Step 7: PRIMARY ASSERTION - Check account name after Company B
-    log(f"\n{'='*60}")
-    log("TEST STEP 5: PRIMARY ASSERTION - Account name after Company B")
-    log(f"{'='*60}")
-    
-    nameAfterB = get_profile()
-    if nameAfterB is None:
-        log("✗ FATAL: Could not get profile after Company B")
-        cleanup()
-        return False
-    
-    log(f"✓ Account name after Company B (nameAfterB): '{nameAfterB}'")
-    
-    # PRIMARY ASSERTION: nameAfterB MUST EQUAL nameAfterA
-    log(f"\n{'*'*60}")
-    log("PRIMARY ASSERTION CHECK:")
-    log(f"  nameAfterA: '{nameAfterA}'")
-    log(f"  nameAfterB: '{nameAfterB}'")
-    log(f"  Expected: nameAfterB == nameAfterA")
-    
-    if nameAfterB == nameAfterA:
-        log(f"✅ PASS: Account name unchanged after creating Company B")
-        primary_pass = True
-    else:
-        log(f"❌ FAIL: Account name changed from '{nameAfterA}' to '{nameAfterB}'")
-        log(f"❌ BUG NOT FIXED: Creating Company B overwrote the account name!")
-        primary_pass = False
-    log(f"{'*'*60}\n")
-    
-    # Step 8: Verify company contact fields
-    log(f"\n{'='*60}")
-    log("TEST STEP 6: Verify company contact fields")
-    log(f"{'='*60}")
-    
-    companies = get_companies()
-    
-    company_a = None
-    company_b = None
-    
-    for company in companies:
-        cid = company.get("company_id") or company.get("id")
-        if cid == company_a_id:
-            company_a = company
-        elif cid == company_b_id:
-            company_b = company
-    
-    contact_fields_pass = True
-    
-    company_b_name = None  # Store for later update
-    
-    if company_a:
-        a_first = company_a.get("contact_first_name", "")
-        a_last = company_a.get("contact_last_name", "")
-        log(f"Company A contact: first_name='{a_first}', last_name='{a_last}'")
-        
-        if a_first == "Alice" and a_last == "Anderson":
-            log(f"✅ PASS: Company A has correct contact fields")
-        else:
-            log(f"❌ FAIL: Company A contact fields incorrect (expected Alice Anderson)")
-            contact_fields_pass = False
-    else:
-        log(f"✗ WARNING: Could not find Company A in list")
-        contact_fields_pass = False
-    
-    if company_b:
-        b_first = company_b.get("contact_first_name", "")
-        b_last = company_b.get("contact_last_name", "")
-        company_b_name = company_b.get("company_name")  # Store for update
-        log(f"Company B contact: first_name='{b_first}', last_name='{b_last}'")
-        
-        if b_first == "Bob" and b_last == "Brown":
-            log(f"✅ PASS: Company B has correct contact fields")
-        else:
-            log(f"❌ FAIL: Company B contact fields incorrect (expected Bob Brown)")
-            contact_fields_pass = False
-    else:
-        log(f"✗ WARNING: Could not find Company B in list")
-        contact_fields_pass = False
-    
-    # Step 9: Update Company B
-    log(f"\n{'='*60}")
-    log("TEST STEP 7: Update Company B (Carol Clark)")
-    log(f"{'='*60}")
-    
-    if not update_company(company_b_id, "Carol", "Clark", company_b_name):
-        log("✗ WARNING: Could not update Company B")
-    
-    # Step 10: Verify updated contact fields
-    log(f"\n{'='*60}")
-    log("TEST STEP 8: Verify updated Company B contact fields")
-    log(f"{'='*60}")
-    
-    companies = get_companies()
-    company_b_updated = None
-    
-    for company in companies:
-        cid = company.get("company_id") or company.get("id")
-        if cid == company_b_id:
-            company_b_updated = company
-            break
-    
-    update_pass = True
-    
-    if company_b_updated:
-        b_first = company_b_updated.get("contact_first_name", "")
-        b_last = company_b_updated.get("contact_last_name", "")
-        log(f"Company B updated contact: first_name='{b_first}', last_name='{b_last}'")
-        
-        if b_first == "Carol" and b_last == "Clark":
-            log(f"✅ PASS: Company B contact fields updated correctly")
-        else:
-            log(f"❌ FAIL: Company B contact fields not updated (expected Carol Clark)")
-            update_pass = False
-    else:
-        log(f"✗ WARNING: Could not find Company B after update")
-        update_pass = False
-    
-    # Step 11: Verify account name still unchanged after update
-    log(f"\n{'='*60}")
-    log("TEST STEP 9: Verify account name unchanged after update")
-    log(f"{'='*60}")
-    
-    nameAfterUpdate = get_profile()
-    if nameAfterUpdate is None:
-        log("✗ WARNING: Could not get profile after update")
-    else:
-        log(f"✓ Account name after update: '{nameAfterUpdate}'")
-        
-        if nameAfterUpdate == nameAfterB:
-            log(f"✅ PASS: Account name unchanged after Company B update")
-        else:
-            log(f"❌ FAIL: Account name changed from '{nameAfterB}' to '{nameAfterUpdate}' after update")
-            update_pass = False
-    
-    # Cleanup
-    cleanup()
-    
-    # Final summary
-    log(f"\n{'='*60}")
-    log("FINAL TEST SUMMARY")
-    log(f"{'='*60}")
-    
-    log(f"Test account: {email}")
-    log(f"Initial name (name0): '{name0}'")
-    log(f"Name after Company A: '{nameAfterA}'")
-    log(f"Name after Company B: '{nameAfterB}'")
-    log(f"Name after update: '{nameAfterUpdate}'")
-    log("")
-    
-    all_pass = primary_pass and contact_fields_pass and update_pass
-    
-    if primary_pass:
-        log("✅ PRIMARY ASSERTION: PASS - Account name not overwritten by second company")
-    else:
-        log("❌ PRIMARY ASSERTION: FAIL - Account name was overwritten")
-    
-    if contact_fields_pass:
-        log("✅ CONTACT FIELDS: PASS - Companies store their own contact names")
-    else:
-        log("❌ CONTACT FIELDS: FAIL - Contact fields incorrect")
-    
-    if update_pass:
-        log("✅ UPDATE TEST: PASS - Update doesn't affect account name")
-    else:
-        log("❌ UPDATE TEST: FAIL - Update test failed")
-    
-    log("")
-    if all_pass:
-        log("🎉 ALL TESTS PASSED - BUG FIX VERIFIED")
-    else:
-        log("⚠️  SOME TESTS FAILED - BUG MAY NOT BE FULLY FIXED")
-    
-    log(f"{'='*60}\n")
-    
-    return all_pass
+    def get_profile(self) -> bool:
+        """Get user profile to capture account name"""
+        log_info("Getting user profile to capture account name...")
+        try:
+            headers = {
+                "Authorization": f"Bearer {self.jwt_token}",
+                "x-csrf-token": self.csrf_token
+            }
+            
+            resp = self.session.get(
+                f"{BASE_URL}/api/user/profile",
+                headers=headers,
+                timeout=15
+            )
+            
+            if resp.status_code != 200:
+                log_error(f"Profile request failed: {resp.status_code}")
+                return False
+            
+            data = resp.json()
+            profile = data.get("data", {})
+            self.account_name = profile.get("name", "")
+            log_success(f"Account name: '{self.account_name}'")
+            return True
+        except Exception as e:
+            log_error(f"Profile request exception: {e}")
+            return False
 
+    def create_test_company(self) -> bool:
+        """Step 3: Create throwaway company with Format 3 (individual fields)"""
+        log_info("Step 3: Creating test company with Format 3 (individual fields)...")
+        
+        timestamp = int(time.time())
+        company_name = f"QA UpdFix {timestamp}"
+        email = f"qa.updfix.{timestamp}@dynopaytest.com"
+        
+        try:
+            headers = {
+                "Authorization": f"Bearer {self.jwt_token}",
+                "x-csrf-token": self.csrf_token
+            }
+            
+            # Format 3: Individual top-level fields (multipart/form-data)
+            data = {
+                "company_name": company_name,
+                "email": email,
+                "first_name": "Dan",
+                "last_name": "Davis"
+            }
+            
+            resp = self.session.post(
+                f"{BASE_URL}/api/company/addCompany",
+                data=data,  # multipart/form-data
+                headers=headers,
+                timeout=15
+            )
+            
+            if resp.status_code != 200:
+                log_error(f"Company creation failed: {resp.status_code} - {resp.text[:300]}")
+                return False
+            
+            result = resp.json()
+            company_data = result.get("data", {})
+            self.test_company_id = company_data.get("company_id")
+            
+            if not self.test_company_id:
+                log_error("No company_id in response")
+                return False
+            
+            log_success(f"Test company created: ID={self.test_company_id}, name='{company_name}'")
+            
+            # Verify initial contact fields
+            contact_first = company_data.get("contact_first_name")
+            contact_last = company_data.get("contact_last_name")
+            
+            if contact_first == "Dan" and contact_last == "Davis":
+                log_success(f"Initial contact fields correct: first='{contact_first}', last='{contact_last}'")
+                return True
+            else:
+                log_error(f"Initial contact fields WRONG: first='{contact_first}', last='{contact_last}'")
+                return False
+                
+        except Exception as e:
+            log_error(f"Company creation exception: {e}")
+            return False
+
+    def verify_company_contact_fields(self, expected_first: str, expected_last: str) -> bool:
+        """Verify company contact fields via GET /api/company/getCompany"""
+        log_info(f"Verifying contact fields (expecting first='{expected_first}', last='{expected_last}')...")
+        
+        try:
+            headers = {
+                "Authorization": f"Bearer {self.jwt_token}",
+                "x-csrf-token": self.csrf_token
+            }
+            
+            resp = self.session.get(
+                f"{BASE_URL}/api/company/getCompany",
+                headers=headers,
+                timeout=15
+            )
+            
+            if resp.status_code != 200:
+                log_error(f"Get company failed: {resp.status_code}")
+                return False
+            
+            result = resp.json()
+            companies = result.get("data", [])
+            
+            # Find our test company
+            test_company = None
+            for company in companies:
+                if company.get("company_id") == self.test_company_id:
+                    test_company = company
+                    break
+            
+            if not test_company:
+                log_error(f"Test company {self.test_company_id} not found in response")
+                return False
+            
+            actual_first = test_company.get("contact_first_name")
+            actual_last = test_company.get("contact_last_name")
+            
+            log_info(f"Actual contact fields: first='{actual_first}', last='{actual_last}'")
+            
+            if actual_first == expected_first and actual_last == expected_last:
+                log_success(f"Contact fields match expected values ✓")
+                return True
+            else:
+                log_error(f"Contact fields MISMATCH: expected ('{expected_first}', '{expected_last}'), got ('{actual_first}', '{actual_last}')")
+                return False
+                
+        except Exception as e:
+            log_error(f"Verify company exception: {e}")
+            return False
+
+    def update_company_format3(self) -> bool:
+        """Step 4: PRIMARY TEST - Update company with Format 3 (individual fields)"""
+        log_info("Step 4: PRIMARY TEST - Updating company with Format 3 (first_name='Erin', last_name='Evans')...")
+        
+        try:
+            headers = {
+                "Authorization": f"Bearer {self.jwt_token}",
+                "x-csrf-token": self.csrf_token
+            }
+            
+            # Format 3: Individual top-level fields sent as multipart/form-data
+            # Using files={} forces multipart/form-data encoding
+            data = {
+                "first_name": "Erin",
+                "last_name": "Evans"
+            }
+            
+            resp = self.session.put(
+                f"{BASE_URL}/api/company/updateCompany/{self.test_company_id}",
+                data=data,
+                files={},  # Force multipart/form-data encoding
+                headers=headers,
+                timeout=15
+            )
+            
+            if resp.status_code != 200:
+                log_error(f"Company update failed: {resp.status_code} - {resp.text[:300]}")
+                return False
+            
+            result = resp.json()
+            log_success(f"Company update returned 200: {result.get('message', '')}")
+            
+            # Now verify the fields were actually persisted
+            return self.verify_company_contact_fields("Erin", "Evans")
+                
+        except Exception as e:
+            log_error(f"Company update exception: {e}")
+            return False
+
+    def verify_account_name_unchanged(self) -> bool:
+        """Step 5: Verify account name is still unchanged"""
+        log_info("Step 5: Verifying account name is unchanged...")
+        
+        try:
+            headers = {
+                "Authorization": f"Bearer {self.jwt_token}",
+                "x-csrf-token": self.csrf_token
+            }
+            
+            resp = self.session.get(
+                f"{BASE_URL}/api/user/profile",
+                headers=headers,
+                timeout=15
+            )
+            
+            if resp.status_code != 200:
+                log_error(f"Profile request failed: {resp.status_code}")
+                return False
+            
+            data = resp.json()
+            profile = data.get("data", {})
+            current_name = profile.get("name", "")
+            
+            if current_name == self.account_name:
+                log_success(f"Account name unchanged: '{current_name}' ✓")
+                return True
+            else:
+                log_error(f"Account name CHANGED: was '{self.account_name}', now '{current_name}'")
+                return False
+                
+        except Exception as e:
+            log_error(f"Account name verification exception: {e}")
+            return False
+
+    def cleanup_test_company(self) -> bool:
+        """Step 6: Delete test company"""
+        log_info("Step 6: Cleaning up - deleting test company...")
+        
+        if not self.test_company_id:
+            log_warning("No test company to delete")
+            return True
+        
+        try:
+            headers = {
+                "Authorization": f"Bearer {self.jwt_token}",
+                "x-csrf-token": self.csrf_token
+            }
+            
+            resp = self.session.delete(
+                f"{BASE_URL}/api/company/deleteCompany/{self.test_company_id}",
+                headers=headers,
+                timeout=15
+            )
+            
+            if resp.status_code == 200:
+                log_success(f"Test company {self.test_company_id} deleted successfully")
+                return True
+            elif resp.status_code == 400:
+                # Might be the only company
+                log_warning(f"Cannot delete (might be only company): {resp.text[:200]}")
+                return True
+            else:
+                log_error(f"Delete failed: {resp.status_code} - {resp.text[:200]}")
+                return False
+                
+        except Exception as e:
+            log_error(f"Cleanup exception: {e}")
+            return False
+
+    def run_test(self) -> bool:
+        """Run the complete test sequence"""
+        log(f"\n{Colors.BOLD}{'='*80}{Colors.RESET}")
+        log(f"{Colors.BOLD}DynoPay Format 3 Company Update Fix - Narrow Re-Test{Colors.RESET}")
+        log(f"{Colors.BOLD}{'='*80}{Colors.RESET}\n")
+        
+        # Step 1: Get CSRF token
+        if not self.get_csrf_token():
+            return False
+        
+        # Step 2: Login
+        if not self.login():
+            return False
+        
+        # Get initial account name
+        if not self.get_profile():
+            return False
+        
+        # Step 3: Create test company with Format 3
+        if not self.create_test_company():
+            return False
+        
+        # Step 4: PRIMARY TEST - Update with Format 3
+        format3_success = self.update_company_format3()
+        
+        # Step 5: Verify account name unchanged
+        account_name_ok = self.verify_account_name_unchanged()
+        
+        # Step 6: Cleanup
+        cleanup_ok = self.cleanup_test_company()
+        
+        # Final report
+        log(f"\n{Colors.BOLD}{'='*80}{Colors.RESET}")
+        log(f"{Colors.BOLD}TEST RESULTS{Colors.RESET}")
+        log(f"{Colors.BOLD}{'='*80}{Colors.RESET}\n")
+        
+        if format3_success:
+            log_success("PRIMARY ASSERTION: Format 3 update now persists contact fields ✓")
+        else:
+            log_error("PRIMARY ASSERTION: Format 3 update FAILED to persist contact fields ✗")
+        
+        if account_name_ok:
+            log_success("SECONDARY ASSERTION: Account name unchanged ✓")
+        else:
+            log_error("SECONDARY ASSERTION: Account name was modified ✗")
+        
+        if cleanup_ok:
+            log_success("CLEANUP: Test company deleted ✓")
+        else:
+            log_warning("CLEANUP: Test company may still exist (manual cleanup needed)")
+        
+        overall_pass = format3_success and account_name_ok
+        
+        log(f"\n{Colors.BOLD}{'='*80}{Colors.RESET}")
+        if overall_pass:
+            log(f"{Colors.BOLD}{Colors.GREEN}OVERALL: PASS ✅{Colors.RESET}")
+        else:
+            log(f"{Colors.BOLD}{Colors.RED}OVERALL: FAIL ❌{Colors.RESET}")
+        log(f"{Colors.BOLD}{'='*80}{Colors.RESET}\n")
+        
+        return overall_pass
+
+def main():
+    test = DynoPayAPITest()
+    success = test.run_test()
+    sys.exit(0 if success else 1)
 
 if __name__ == "__main__":
-    try:
-        success = run_tests()
-        exit(0 if success else 1)
-    except Exception as e:
-        log(f"\n✗ FATAL ERROR: {e}")
-        import traceback
-        traceback.print_exc()
-        cleanup()
-        exit(1)
+    main()
