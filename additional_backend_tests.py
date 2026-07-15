@@ -8,7 +8,7 @@ import requests
 import json
 import sys
 
-BACKEND_URL = "https://blockchain-gateway-14.preview.emergentagent.com"
+BACKEND_URL = "https://crypto-checkout-40.preview.emergentagent.com"
 
 def test_additional_scenarios():
     """Test additional scenarios and edge cases"""
