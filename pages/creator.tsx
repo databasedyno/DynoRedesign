@@ -260,7 +260,7 @@ const CreatorPageRoute = ({ setPageName, setPageDescription }: pageProps) => {
             </Typography>
             <Typography fontSize={13} color={theme.palette.text.secondary} mt={0.25}>
               {t("creatorDonationCtaSubtitle", {
-                defaultValue: "Create a \u201cBuy me a coffee\u201d tip link \u2014 it\u2019s featured at the top of your creator page.",
+                defaultValue: "Turn on your \u201cBuy me a coffee\u201d tip box \u2014 it appears at the top of your creator page.",
                 ns: "dashboardLayout",
               })}
             </Typography>
@@ -269,7 +269,11 @@ const CreatorPageRoute = ({ setPageName, setPageDescription }: pageProps) => {
             data-testid="creator-donation-cta-btn"
             disableElevation
             variant="contained"
-            onClick={() => router.push("/create-pay-link?type=donation")}
+            onClick={() => {
+              if (typeof window !== "undefined") {
+                window.dispatchEvent(new CustomEvent("dynopay:open-tip-setup"));
+              }
+            }}
             sx={{
               px: 2.25, py: 1.1, borderRadius: "10px", textTransform: "none",
               fontWeight: 800, fontSize: 13.5, whiteSpace: "nowrap",
@@ -277,7 +281,7 @@ const CreatorPageRoute = ({ setPageName, setPageDescription }: pageProps) => {
               "&:hover": { backgroundColor: "#CCFF00", filter: "brightness(1.05)" },
             }}
           >
-            {t("creatorDonationCtaButton", { defaultValue: "Create tip link", ns: "dashboardLayout" })}
+            {t("creatorDonationCtaButton", { defaultValue: "Set up tips", ns: "dashboardLayout" })}
           </Button>
         </Box>
 

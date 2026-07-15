@@ -138,6 +138,21 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
     } as any);
   }, [handle, name, bio, enabled, coverImage, socialLinks, swEnabled, swStyle, swLabel, swPresets, swCurrency, swMinAmount, swAllowMessage, swThanks, swShowSupporters, onChange]);
 
+  // Open + reveal the tip box (Support Widget) when the dashboard "Set up tips" CTA fires.
+  useEffect(() => {
+    const open = () => {
+      setSwEnabled(true);
+      requestAnimationFrame(() => {
+        document
+          .getElementById("support-widget")
+          ?.scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+    };
+    window.addEventListener("dynopay:open-tip-setup", open);
+    return () => window.removeEventListener("dynopay:open-tip-setup", open);
+  }, []);
+
+
   const savedHandle = profile?.handle || "";
   const formatError = useMemo(() => {
     if (!handle) return null;
@@ -498,7 +513,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
       </Box>
 
       {/* ── Support Widget ── */}
-      <Box sx={{ borderRadius: "12px", border: `1px solid ${border}`, p: 2 }} data-testid="support-widget-settings">
+      <Box id="support-widget" sx={{ borderRadius: "12px", border: `1px solid ${border}`, p: 2 }} data-testid="support-widget-settings">
         <Box sx={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 2 }}>
           <Box sx={{ pr: 1 }}>
             <Typography fontSize={14} fontWeight={700} color={theme.palette.text.primary}>Support widget</Typography>

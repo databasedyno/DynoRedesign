@@ -78,7 +78,7 @@
   "useCase1Description": "A simple crypto checkout for your e-commerce shop.",
   "useCase1Tag": "Payment links",
   "useCase2Title": "Digital creators",
-  "useCase2Description": "Claim your own dynopay.com/handle and get paid with tips, donations and one-tap links.",
+  "useCase2Description": "Claim your own dynopay.com/handle and get paid with tips and one-tap links.",
   "useCase2Tag": "Creator page",
   "useCase3Title": "Subscriptions & SaaS",
   "useCase3Description": "Automated callbacks and an API for recurring payments.",
