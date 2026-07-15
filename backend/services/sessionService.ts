@@ -15,8 +15,15 @@ import sequelize from "../utils/dbInstance";
 import { QueryTypes } from "sequelize";
 
 // Configuration
-const ACCESS_TOKEN_EXPIRY = process.env.ACCESS_TOKEN_EXPIRY || "1h";
-const REFRESH_TOKEN_EXPIRY_DAYS = parseInt(process.env.REFRESH_TOKEN_EXPIRY_DAYS || "30", 10);
+// Login persistence = 7 days. The access token itself lasts 7 days so a user
+// stays logged in for a full week even without a refresh round-trip; the refresh
+// token window matches, so the session is a clean, predictable 7-day lifetime.
+// Both are env-overridable (ACCESS_TOKEN_EXPIRY_SECONDS / REFRESH_TOKEN_EXPIRY_DAYS).
+const ACCESS_TOKEN_EXPIRY_SECONDS = parseInt(
+  process.env.ACCESS_TOKEN_EXPIRY_SECONDS || String(7 * 24 * 60 * 60),
+  10
+); // default 7 days
+const REFRESH_TOKEN_EXPIRY_DAYS = parseInt(process.env.REFRESH_TOKEN_EXPIRY_DAYS || "7", 10);
 const MAX_CONCURRENT_SESSIONS = parseInt(process.env.MAX_CONCURRENT_SESSIONS || "10", 10);
 
 /**
@@ -66,7 +73,7 @@ export const createSession = async (
   const { password, telegram_id, ...userData } = user;
 
   // Generate tokens
-  const accessToken = jwt.sign(userData, tokenSecret, { expiresIn: "1h" } as jwt.SignOptions);
+  const accessToken = jwt.sign(userData, tokenSecret, { expiresIn: ACCESS_TOKEN_EXPIRY_SECONDS } as jwt.SignOptions);
   const refreshToken = generateRefreshToken();
 
   // Parse request info
@@ -137,7 +144,7 @@ export const createSession = async (
   return {
     accessToken,
     refreshToken,
-    expiresIn: 3600, // 1 hour in seconds
+    expiresIn: ACCESS_TOKEN_EXPIRY_SECONDS, // 7 days in seconds
     session_id: session.session_id,
   };
 };
@@ -181,7 +188,7 @@ export const rotateRefreshToken = async (
   const { password, telegram_id, ...userData } = users[0];
 
   // Generate new tokens
-  const newAccessToken = jwt.sign(userData, tokenSecret, { expiresIn: "1h" } as jwt.SignOptions);
+  const newAccessToken = jwt.sign(userData, tokenSecret, { expiresIn: ACCESS_TOKEN_EXPIRY_SECONDS } as jwt.SignOptions);
   const newRefreshToken = generateRefreshToken();
   const hashedNewRefreshToken = crypto.createHash("sha256").update(newRefreshToken).digest("hex");
 
@@ -197,7 +204,7 @@ export const rotateRefreshToken = async (
   return {
     accessToken: newAccessToken,
     refreshToken: newRefreshToken,
-    expiresIn: 3600,
+    expiresIn: ACCESS_TOKEN_EXPIRY_SECONDS,
   };
 };
 

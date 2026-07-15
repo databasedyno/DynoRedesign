@@ -1105,7 +1105,7 @@ const getAccessToken = async (id: number) => {
 
   if (tokenSecret) {
     const accessToken = jwt.sign(userData, tokenSecret, {
-      expiresIn: "30d",
+      expiresIn: "7d", // align auto-login (register / mobile-verify) with 7-day login persistence
     });
     const resData = { userData, accessToken };
     return resData;
