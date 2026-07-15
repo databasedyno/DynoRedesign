@@ -103,13 +103,18 @@ export function* PaymentLinkSaga(action: PaymentLinkSagaAction): Generator<any, 
             onSuccess();
           }
         } else {
-          yield put({ type: PAYLINK_ERROR });
+          // Session 52: dispatch field-hinted error (same treatment as CREATE)
+          // so the CreatePaymentLink edit page can surface the message inline
+          // next to the offending field (payment settings / post-payment tab).
+          const rawMsg = response?.data?.message || "Failed to update payment link";
+          const mapped = mapBackendErrorToField(rawMsg, paymentLinkKeywordMap);
+          yield put({
+            type: PAYLINK_CREATE_ERROR,
+            payload: { message: mapped.friendly, field: mapped.field },
+          });
           yield put({
             type: TOAST_SHOW,
-            payload: {
-              message: response?.data?.message || "Failed to update payment link",
-              severity: "error",
-            },
+            payload: { message: rawMsg, severity: "error" },
           });
         }
         break;
@@ -173,9 +178,12 @@ export function* PaymentLinkSaga(action: PaymentLinkSagaAction): Generator<any, 
   } catch (error: any) {
     console.error("PaymentLinkSaga error:", error);
     const message = error?.response?.data?.message ?? error?.message ?? "Payment link operation failed";
-    // For CREATE failures, dispatch field-hinted error so the UI can show it
-    // inline on the offending field (in addition to the toast).
-    if (crudType === PAYLINK_CREATE) {
+    // Session 52: for BOTH CREATE and UPDATE failures, dispatch a field-hinted
+    // error so the UI can show it inline on the offending field (in addition
+    // to the toast). Uses the same PAYLINK_CREATE_ERROR action + reducer state
+    // (createError/createErrorField/createErrorNonce) — the CreatePaymentLink
+    // page is shared between create and edit modes and consumes the same hint.
+    if (crudType === PAYLINK_CREATE || crudType === PAYLINK_UPDATE) {
       const mapped = mapBackendErrorToField(message, paymentLinkKeywordMap);
       yield put({
         type: PAYLINK_CREATE_ERROR,

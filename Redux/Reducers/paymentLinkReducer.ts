@@ -85,6 +85,14 @@ const paymentLinkReducer = (
           createError: null,
           createErrorField: null,
         }),
+        // Session 52: same for UPDATE — the edit page reuses createError/
+        // createErrorField/createErrorNonce for its inline field-hinted error
+        // surfacing (see CreatePaymentLink useEffect on createErrorNonce). Clear
+        // any stale hint on a fresh save attempt.
+        ...((action as any).crudType === PAYLINK_UPDATE && {
+          createError: null,
+          createErrorField: null,
+        }),
       };
 
     case PAYLINK_FETCH:

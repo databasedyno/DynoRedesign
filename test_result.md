@@ -22,22 +22,45 @@ This broke the round-trip because:
    ```
    Reproduced locally against LIVE Railway PG with a hand-crafted PUT payload — got the exact same 260-byte body, confirming the root cause.
 
-### Fix (frontend-only, 1 file, ~10 LOC)
-`/app/pages/pay-links/[slug]/index.tsx`: dropped the `.toLowerCase().replace(/-/g,"_")` transformation and normalized to `.trim().toUpperCase()` instead. Fallback array `["btc","eth","ltc","doge","usdt_trc20"]` also promoted to canonical format `["BTC","ETH","LTC","DOGE","USDT-TRC20"]`. Added an explanatory comment referencing the session 47 root cause.
+### Fix Part 1 — data (frontend-only, 1 file, ~10 LOC)
+`/app/pages/pay-links/[slug]/index.tsx`: dropped the `.toLowerCase().replace(/-/g,"_")` transformation and normalized to `.trim().toUpperCase()` instead. Fallback array `["btc","eth","ltc","doge","usdt_trc20"]` also promoted to canonical format `["BTC","ETH","LTC","DOGE","USDT-TRC20"]`. Added an explanatory comment referencing the session 52 root cause.
+
+### Fix Part 2 — surface the actual backend error (Redux Saga UX)
+Even though the primary bug is fixed, the previous UX would show a generic "Failed to update payment link" toast when the backend returned an unexpected error. Extended the field-hinted error surfacing (previously only wired for CREATE) to also cover UPDATE:
+
+- `/app/Redux/Sagas/PaymentLinkSaga.ts`:
+  - PAYLINK_UPDATE `else` branch now maps the backend message via `mapBackendErrorToField` and dispatches `PAYLINK_CREATE_ERROR` with the field hint (reuses same reducer state — the CreatePaymentLink form is shared between create+edit modes).
+  - `catch` block: extended `crudType === PAYLINK_CREATE` gate to also include `PAYLINK_UPDATE` so thrown 4xx errors from axios also flow through field-hinted routing.
+- `/app/Redux/Reducers/paymentLinkReducer.ts`: PAYLINK_INIT branch now clears `createError`/`createErrorField` on a fresh PAYLINK_UPDATE attempt (previously only cleared for CREATE — stale hints would linger on retry).
+- `/app/Redux/Sagas/helpers/mapBackendErrorToField.ts`: expanded `paymentLinkKeywordMap` to catch `invalid currency`, `goal_amount`, `min_amount`, `preset_amounts`, `story_md`, `organizer_thanks`, `no wallet configured`, `wallet configured` — messages emitted by `updatePaymentLink` + `validateDonationInput` that previously fell through to the "generic" bucket.
+
+Net effect: the toast now shows the **exact** backend validation message (e.g., "Invalid cryptocurrency types: FAKE-COIN-XYZ. Valid options: ..."), the correct tab auto-switches on the edit page, and the error clears on the next save attempt.
 
 ### Verification (own Playwright, end-to-end, LIVE Railway PG)
+
+**Happy path (regression):**
 1. Logged in as `hostbay@moxx.co` (2-step email → Password radio → password).
 2. Navigated to `/pay-links/77` — Edit Crowdfunding page loaded with campaign form + Live Preview panel.
 3. Verified 13 crypto tiles show as SELECTED (green ✓) — previously all appeared unselected.
-4. Clicked "Save changes" → confirm dialog appeared → clicked "Save Change".
+4. Clicked "Save changes" → confirm dialog → "Save Change".
 5. Network monitor captured: **PUT /api/pay/links/77 → HTTP 200** with `accepted_currencies: ['BTC','ETH','LTC','USDT-TRC20','USDT-ERC20','TRX','DOGE','BCH','USDC-ERC20','SOL','XRP','POLYGON','USDT-POLYGON']`.
 6. Response: `{"message":"Payment link updated successfully","data":{...}}`.
 7. User navigated back to `/pay-links` list (Session 14d onSuccess behavior).
 
-Screenshots: `/tmp/edit77_loaded.jpg`, `/tmp/edit77_result.jpg`.
+**Negative path (Fix Part 2 verification):**
+1. Injected a Playwright request interceptor that appends `FAKE-COIN-XYZ` to the accepted_currencies array.
+2. Save flow triggered → PUT 400 with body `Invalid cryptocurrency types: FAKE-COIN-XYZ. Valid options: BTC, ETH, LTC, DOGE, TRX, BCH, USDT-TRC20, USDT-ERC20, USDC-ERC20, SOL, XRP, RLUSD, RLUSD-ERC20, POLYGON, USDT-POLYGON`.
+3. Screenshot `/tmp/edit77_toast_visible.jpg` confirms the toast displays the FULL backend message verbatim — NOT the generic "Failed to update payment link" fallback.
+4. Page stayed on `/pay-links/77` (no redirect on failure — correct).
+5. Tab 0 (Payment settings) remained active with the crypto tiles section visible — correct for `accepted_currencies` field hint routing.
+
+Screenshots: `/tmp/edit77_loaded.jpg`, `/tmp/edit77_result.jpg` (happy path), `/tmp/edit77_toast_visible.jpg` (negative path).
 
 ### Files changed
-- `/app/pages/pay-links/[slug]/index.tsx` (2 edits, ~15 LOC — remove buggy toLowerCase+replace transform + capitalize fallback array)
+- `/app/pages/pay-links/[slug]/index.tsx` (~15 LOC — fix data transform bug)
+- `/app/Redux/Sagas/PaymentLinkSaga.ts` (2 edits — field-hinted UPDATE errors)
+- `/app/Redux/Reducers/paymentLinkReducer.ts` (1 edit — clear state on PAYLINK_UPDATE init)
+- `/app/Redux/Sagas/helpers/mapBackendErrorToField.ts` (1 edit — expanded keyword map)
 
 ### Deployment note
 Fix is in local preview only. To ship to DO production (`dynopay.com`), user needs to push via "Save to Github" — DO auto-redeploys from main branch. Until then, dynopay.com/pay-links/{id} edit-save will continue to fail.

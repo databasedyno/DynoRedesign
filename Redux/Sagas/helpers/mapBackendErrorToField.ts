@@ -69,13 +69,15 @@ export type PaymentLinkField =
   | "kyc";
 
 export const paymentLinkKeywordMap: FieldMatchRule<PaymentLinkField>[] = [
-  { field: "value", keywords: ["amount is required", "amount must be", "amount "] },
+  { field: "value", keywords: ["amount is required", "amount must be", "amount ", "goal_amount", "min_amount", "preset_amounts"] },
+  { field: "currency", keywords: ["invalid currency", "invalid base_currency", "base_currency"] },
+  { field: "description", keywords: ["description", "story_md", "organizer_thanks"] },
   { field: "expire", keywords: ["expire"] },
   { field: "customer_email", keywords: ["email format", "valid email"] },
   { field: "webhook_url", keywords: ["webhook_url", "webhook url"] },
   { field: "redirect_url", keywords: ["redirect_url", "redirect url"] },
   { field: "callback_url", keywords: ["callback_url", "callback url"] },
-  { field: "accepted_currencies", keywords: ["payment mode", "cryptocurrency", "accepted_currencies"] },
+  { field: "accepted_currencies", keywords: ["payment mode", "cryptocurrency", "accepted_currencies", "no wallet configured", "wallet configured"] },
   { field: "company_id", keywords: ["company_id", "company does not belong", "invalid company"] },
   { field: "kyc", keywords: ["kyc_required", "kyc verification"] },
 ];
