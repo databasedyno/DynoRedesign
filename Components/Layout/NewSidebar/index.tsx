@@ -116,7 +116,7 @@ const NewSidebar = () => {
           : []),
         { label: t("creatorPage", { defaultValue: "Creator page" }), icon: "creator", path: "/creator", isNew: !hasClaimedCreator },
         { label: t("wallets"), icon: "wallets", path: "/wallet" },
-        { label: t("customers"), icon: "customers", path: "/customers" },
+        { label: t("customers"), icon: "customers", path: "/customers", soon: true },
       ],
     },
     {
@@ -174,7 +174,11 @@ const NewSidebar = () => {
                   <MenuItem
                     key={item.path}
                     active={isActive}
-                    onClick={() => router.push(item.path)}
+                    onClick={() => {
+                      if ((item as any).soon) return;
+                      router.push(item.path);
+                    }}
+                    sx={(item as any).soon ? { opacity: 0.6, cursor: "default" } : undefined}
                   >
                     <IconBox active={isActive} sx={{ position: "relative" }}>
                       {item.icon === "referrals" ? (
@@ -274,6 +278,32 @@ const NewSidebar = () => {
                         }}
                       >
                         {t("newBadge", { defaultValue: "New" })}
+                      </Box>
+                    )}
+
+                    {(item as any).soon && !isMobile && (
+                      <Box
+                        component="span"
+                        data-testid={`sidebar-soon-${item.icon}`}
+                        sx={{
+                          ml: 0.75,
+                          px: 0.75,
+                          py: 0.15,
+                          borderRadius: 999,
+                          fontSize: 9.5,
+                          fontWeight: 800,
+                          letterSpacing: "0.06em",
+                          textTransform: "uppercase",
+                          fontFamily: "var(--font-sans)",
+                          backgroundColor:
+                            theme.palette.mode === "dark" ? "rgba(255,255,255,0.12)" : "rgba(10,10,10,0.08)",
+                          color: theme.palette.text.secondary,
+                          lineHeight: 1.4,
+                          alignSelf: "center",
+                          flexShrink: 0,
+                        }}
+                      >
+                        {t("soonBadge", { defaultValue: "Soon" })}
                       </Box>
                     )}
 

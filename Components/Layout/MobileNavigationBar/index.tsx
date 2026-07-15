@@ -186,6 +186,7 @@ const MobileNavigationBar = () => {
       icon: "customers",
       path: "/customers",
       id: "customers",
+      soon: true,
     },
   ];
 
@@ -228,6 +229,7 @@ const MobileNavigationBar = () => {
   const handleNavClick = (
     item: (typeof firstRowItems)[0] | (typeof secondRowItems)[0] | (typeof thirdRowItems)[0],
   ) => {
+    if ((item as any).soon) return;
     if (item.id === "more") {
       setIsExpanded(!isExpanded);
     } else if (item.path) {
@@ -384,9 +386,11 @@ const MobileNavigationBar = () => {
                     "customers",
                   ];
                   const useSidebarIcon = supportedIcons.includes(item.icon);
-                  const iconColor = active
-                    ? theme.palette.primary.main
-                    : theme.palette.text.primary;
+                  const iconColor = (item as any).soon
+                    ? theme.palette.text.disabled
+                    : active
+                      ? theme.palette.primary.main
+                      : theme.palette.text.primary;
 
                   return (
                     <NavItem
@@ -431,6 +435,32 @@ const MobileNavigationBar = () => {
                               boxShadow: "0 0 6px rgba(204,255,0,0.7)",
                             }}
                           />
+                        )}
+                        {(item as any).soon && (
+                          <Box
+                            data-testid={`mobile-nav-soon-${item.id}`}
+                            aria-label="Coming soon"
+                            sx={{
+                              position: "absolute",
+                              top: -8,
+                              right: -14,
+                              px: 0.5,
+                              py: "1px",
+                              borderRadius: 999,
+                              fontSize: 7.5,
+                              fontWeight: 800,
+                              letterSpacing: "0.03em",
+                              textTransform: "uppercase",
+                              lineHeight: 1.3,
+                              fontFamily: "var(--font-sans)",
+                              backgroundColor:
+                                theme.palette.mode === "dark" ? "rgba(255,255,255,0.16)" : "rgba(10,10,10,0.12)",
+                              color: theme.palette.text.secondary,
+                              border: `1.5px solid ${theme.palette.background.default || "#FFFFFF"}`,
+                            }}
+                          >
+                            Soon
+                          </Box>
                         )}
                       </IconButton>
                       <NavLabel active={active}>{item.label}</NavLabel>

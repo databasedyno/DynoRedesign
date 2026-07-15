@@ -34,7 +34,7 @@ export const authThemeDark = createTheme(themeDark, {
       contrastText: "#FFFFFF",
     },
     background: { default: "#060606", paper: "rgba(255,255,255,0.05)" },
-    text: { primary: "#FFFFFF", secondary: "#9CA3AF", disabled: "#86868F" },
+    text: { primary: "#FFFFFF", secondary: "#C9C9D1", disabled: "#86868F" },
     divider: "rgba(255,255,255,0.10)",
     border: {
       main: "rgba(255,255,255,0.14)",
@@ -101,7 +101,7 @@ export const authThemeLight = createTheme(theme, {
       contrastText: "#FFFFFF",
     },
     background: { default: "#EEF1F6", paper: "rgba(255,255,255,0.72)" },
-    text: { primary: "#0A0A0A", secondary: "#52525B", disabled: "#73737C" },
+    text: { primary: "#0A0A0A", secondary: "#3F3F46", disabled: "#73737C" },
     divider: "rgba(10,10,10,0.10)",
     border: {
       main: "rgba(10,10,10,0.12)",
