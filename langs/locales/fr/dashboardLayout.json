@@ -111,6 +111,8 @@
   "profile": "Profil",
   "protectRevenueFromVolatility": "Protégez vos revenus de la volatilité crypto",
   "receivedWhen": "Reçu {{when}}",
+  "awaitingWhen": "Paiement en attente · {{when}}",
+  "createdWhen": "Créé {{when}}",
   "recentActivitySubtitle": "Dernière activité sur votre compte",
   "recentTransactions": "Transactions récentes",
   "referrals": "Référents",

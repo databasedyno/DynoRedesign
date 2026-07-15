@@ -111,6 +111,8 @@
   "profile": "Profiel",
   "protectRevenueFromVolatility": "Bescherm inkomsten tegen crypto-volatiliteit",
   "receivedWhen": "Ontvangen {{when}}",
+  "awaitingWhen": "Wacht op betaling · {{when}}",
+  "createdWhen": "Aangemaakt {{when}}",
   "recentActivitySubtitle": "Laatste activiteit op je account",
   "recentTransactions": "Recente transacties",
   "referrals": "Verwijzingen",

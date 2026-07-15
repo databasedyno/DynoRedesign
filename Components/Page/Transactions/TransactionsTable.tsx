@@ -17,6 +17,7 @@ import Inventory2Rounded from "@mui/icons-material/Inventory2Rounded";
 import LinkRounded from "@mui/icons-material/LinkRounded";
 import { Box, Tooltip, Typography, useTheme } from "@mui/material";
 import Image from "next/image";
+import { useRouter } from "next/router";
 import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -69,6 +70,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
 }) => {
   const theme = useTheme();
   const dispatch = useDispatch();
+  const router = useRouter();
   const { t } = useTranslation("transactions");
   const tTransactions = useCallback(
     (key: string, options?: any): string => {
@@ -200,9 +202,43 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
     }
   };
 
+  // Session 54 fix (Bug A): deep-link support. When the dashboard "recent
+  // transactions" widget (or any feature page) links to
+  // /transactions?tx=<id>, auto-open the details modal for that transaction
+  // instead of just dumping the user on the list. `handledTxParam` guards
+  // against reopening after the user closes it.
+  const [handledTxParam, setHandledTxParam] = useState<string | null>(null);
+  useEffect(() => {
+    if (!router.isReady) return;
+    const txId = router.query.tx ? String(router.query.tx) : null;
+    if (!txId) {
+      if (handledTxParam !== null) setHandledTxParam(null);
+      return;
+    }
+    if (txId === handledTxParam) return;
+    const match = transactions.find((tx) => String(tx.id) === txId);
+    if (match) {
+      setSelectedTransaction(match);
+      setModalOpen(true);
+      setHandledTxParam(txId);
+      if (match.id) {
+        dispatch(TransactionAction(TRANSACTION_DETAIL_FETCH, { id: match.id }));
+      }
+    }
+  }, [router.isReady, router.query.tx, transactions, handledTxParam, dispatch]);
+
   const handleCloseModal = () => {
     setModalOpen(false);
     setSelectedTransaction(null);
+    // Strip the ?tx= param on close so the URL is clean and the effect above
+    // won't reopen the modal.
+    if (router.query.tx) {
+      const nextQuery = { ...router.query };
+      delete nextQuery.tx;
+      router.replace({ pathname: router.pathname, query: nextQuery }, undefined, {
+        shallow: true,
+      });
+    }
   };
 
   const HeaderData = [

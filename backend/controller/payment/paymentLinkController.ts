@@ -1314,6 +1314,10 @@ export const updatePaymentLink = async (req: express.Request, res: express.Respo
     email,
     base_amount,
     base_currency,
+    amount,               // Session 54: dashboard create/edit form sends `amount`
+    currency,             // and `currency`; accept as aliases for base_amount/
+                          // base_currency so standard-link amount/currency edits
+                          // actually persist (previously silently ignored).
     allowedModes,
     fee_payer,
     apply_tax,
@@ -1374,15 +1378,21 @@ export const updatePaymentLink = async (req: express.Request, res: express.Respo
       updateData.email = email;
     }
     
-    if (base_amount !== undefined && existingLink.dataValues.link_type !== 'donation') {
-      const amount = Number(base_amount);
-      if (isNaN(amount) || amount <= 0) {
+    // Session 54 fix: accept both `base_amount` (REST API clients) and `amount`
+    // (dashboard create/edit form) as the amount field. Previously only
+    // base_amount was read, so editing a standard link's amount from the
+    // dashboard silently did nothing (returned 200 but amount unchanged).
+    const effectiveBaseAmount = base_amount !== undefined ? base_amount : amount;
+    if (effectiveBaseAmount !== undefined && existingLink.dataValues.link_type !== 'donation') {
+      const amountNum = Number(effectiveBaseAmount);
+      if (isNaN(amountNum) || amountNum <= 0) {
         return errorResponseHelper(res, 400, "Invalid amount. Must be a positive number.");
       }
-      updateData.base_amount = amount;
+      updateData.base_amount = amountNum;
     }
     
-    if (base_currency !== undefined) {
+    const effectiveBaseCurrency = base_currency !== undefined ? base_currency : currency;
+    if (effectiveBaseCurrency !== undefined) {
       const validCurrencies = [
         // Major International
         'USD', 'EUR', 'GBP', 'AUD', 'CAD', 'CHF', 'CNY', 'JPY', 'HKD', 'NZD', 'SGD',
@@ -1392,10 +1402,10 @@ export const updatePaymentLink = async (req: express.Request, res: express.Respo
         'NGN', 'ZAR', 'KES', 'GHS', 'TZS', 'XAF', 'XOF', 'EGP', 'MAD',
         'UGX', 'RWF', 'ETB', 'ZMW', 'BWP', 'MUR', 'AOA', 'MZN', 'CDF'
       ];
-      if (!validCurrencies.includes(base_currency.toUpperCase())) {
+      if (!validCurrencies.includes(String(effectiveBaseCurrency).toUpperCase())) {
         return errorResponseHelper(res, 400, `Invalid currency. Valid options: ${validCurrencies.join(', ')}`);
       }
-      updateData.base_currency = base_currency.toUpperCase();
+      updateData.base_currency = String(effectiveBaseCurrency).toUpperCase();
     }
     
     if (allowedModes !== undefined) {

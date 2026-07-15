@@ -111,6 +111,8 @@
   "profile": "Perfil",
   "protectRevenueFromVolatility": "Proteger ingresos de la volatilidad cripto",
   "receivedWhen": "Recibido {{when}}",
+  "awaitingWhen": "Pago pendiente · {{when}}",
+  "createdWhen": "Creado {{when}}",
   "recentActivitySubtitle": "Última actividad en tu cuenta",
   "recentTransactions": "Transacciones recientes",
   "referrals": "Referencias",

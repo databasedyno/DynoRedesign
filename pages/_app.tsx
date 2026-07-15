@@ -136,6 +136,24 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
   const [pageWarning, setPageWarning] = useState<ReactNode | null>(null);
   const [pageHeaderSx, setPageHeaderSx] = useState<SxProps<Theme> | null>(null);
 
+  // Session 54 fix (Bug C): detect login state on the client so dual-purpose
+  // pages (help-support) can render inside the authenticated app shell for
+  // logged-in merchants instead of the public marketing shell (which made them
+  // look logged out). Auth token lives in localStorage under "token".
+  const [isAuthed, setIsAuthed] = useState(false);
+  useEffect(() => {
+    const check = () => {
+      try {
+        setIsAuthed(!!localStorage.getItem("token"));
+      } catch {
+        setIsAuthed(false);
+      }
+    };
+    check();
+    window.addEventListener("storage", check);
+    return () => window.removeEventListener("storage", check);
+  }, [pathname]);
+
   // -----------------------------
   // Layout Resolver
   // -----------------------------
@@ -157,11 +175,19 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
     if (
       homePaths.has(pathname) ||
       pathname.startsWith("/blog/") ||
-      pathname.startsWith("/help-support") ||
       pathname.startsWith("/accept-crypto-payments-in/") ||
       pathname.startsWith("/for/")
     ) {
       return "home";
+    }
+
+    // Session 54 fix (Bug C): /help-support is dual-purpose — public marketing
+    // when logged out, but logged-in merchants should see it inside the
+    // authenticated app shell (sidebar/topbar) instead of the marketing shell,
+    // which made them appear logged out. The "client" layout also width-
+    // constrains the content, fixing the desktop overflow.
+    if (pathname.startsWith("/help-support")) {
+      return isAuthed ? "client" : "home";
     }
 
     if (
@@ -185,7 +211,7 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
     }
 
     return "client";
-  }, [Component.layout, pathname]);
+  }, [Component.layout, pathname, isAuthed]);
 
   // -----------------------------
   // Page Titles & Meta

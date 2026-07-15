@@ -239,7 +239,11 @@ const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
               //   1. `payment_link` source → "Payment link"
               //   2. `legacy_api` or `checkout` source, or legacy internal id → "API payment"
               //   3. real customer email → show email
-              //   4. nothing to show → "Received {when}" (existing fallback)
+              //   4. nothing to show → status-aware time label. Session 54 fix:
+              //      previously ALWAYS showed "Received {when}", which is
+              //      misleading for unpaid/pending transactions. Now only paid
+              //      transactions say "Received"; pending say "Awaiting payment"
+              //      and failed/other say "Created".
               let secondaryLabel: string;
               if (source === "payment_link") {
                 secondaryLabel = t("paymentLinkLabel");
@@ -247,8 +251,16 @@ const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
                 secondaryLabel = t("apiPaymentLabel");
               } else if (email) {
                 secondaryLabel = email;
+              } else if (when) {
+                const isPaid = ["confirmed", "completed", "settled", "success", "successful", "paid"].includes(status);
+                const isPendingState = ["pending", "waiting", "unconfirmed", "processing"].includes(status);
+                secondaryLabel = isPaid
+                  ? t("receivedWhen", { when })
+                  : isPendingState
+                    ? t("awaitingWhen", { when })
+                    : t("createdWhen", { when });
               } else {
-                secondaryLabel = when ? t("receivedWhen", { when }) : "";
+                secondaryLabel = "";
               }
               return (
                 <Box
@@ -267,7 +279,13 @@ const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
                       backgroundColor: theme.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "#FAFBFD",
                     },
                   }}
-                  onClick={() => router.push("/transactions")}
+                  onClick={() =>
+                    router.push(
+                      tx.id
+                        ? `/transactions?tx=${encodeURIComponent(String(tx.id))}`
+                        : "/transactions"
+                    )
+                  }
                 >
                   <Box
                     sx={{

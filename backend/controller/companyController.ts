@@ -908,9 +908,23 @@ const getTransactions = async (req: express.Request, res: express.Response) => {
       join tbl_customer c on c.customer_id=ut.customer_id
       join tbl_company cm on cm.company_id=c.company_id
       left join tbl_stablecoin_conversion sc on sc.transaction_id=ut.transaction_id
-      -- Session 48: source join — resolves each transaction back to its parent
-      -- payment link (payment link, contribution/tip, or cart-order link).
-      left join tbl_payment_link pl on pl.transaction_id = ut.id
+      -- Session 54 fix: the payment link and the user transaction live in
+      -- SEPARATE id spaces. pl.transaction_id is a payment-intent UUID that is
+      -- NOT tbl_user_transaction.id, so the old session-48 join
+      -- (pl.transaction_id = ut.id) matched 0 rows and source tagging never
+      -- worked (payment-link / contribution / tip / product filters were all
+      -- empty). The real bridge written at settlement is the blockchain
+      -- settlement reference stored on BOTH tables (transaction_reference).
+      -- DISTINCT ON dedups per reference so a ut row is never multiplied even
+      -- if two links ever shared a reference.
+      left join (
+        select distinct on (transaction_reference)
+          transaction_reference, link_id, link_type, title, parent_link_id, is_tip_jar
+        from tbl_payment_link
+        where transaction_reference is not null and transaction_reference <> ''
+        order by transaction_reference, link_id desc
+      ) pl on pl.transaction_reference = ut.transaction_reference
+        and ut.transaction_reference is not null and ut.transaction_reference <> ''
       left join tbl_payment_link parent_pl on parent_pl.link_id = pl.parent_link_id
       left join tbl_product_order po on po.payment_link_id = pl.link_id
       where c.company_id=:company_id`,

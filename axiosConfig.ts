@@ -15,7 +15,20 @@ const axiosBaseApi = axios.create({
 // Auth endpoints that should NOT send Authorization headers
 const AUTH_ENDPOINTS = ["user/login", "user/register", "user/checkEmail", "user/forgot", "user/reset", "user/confirmOTP", "user/generateOTP"];
 
-const isAuthEndpoint = (url: string) => AUTH_ENDPOINTS.some((ep) => url.includes(ep));
+// Session 54 fix (Bug D): match on the path (query stripped) and treat
+// "user/login" as an EXACT match. Previously `url.includes("user/login")`
+// also matched authenticated routes like "user/login-activity" and
+// "user/login-history", stripping their Authorization header → 401 → the
+// Login Activity panel always showed "No login activity recorded yet".
+// Register/forgot/reset intentionally keep substring matching so their
+// hyphenated variants (user/forgot-password, user/reset-password,
+// user/registerEmail, …) are still recognised as pre-auth endpoints.
+const isAuthEndpoint = (url: string) => {
+  const path = (url || "").split("?")[0].replace(/^\/+/, "");
+  return AUTH_ENDPOINTS.some((ep) =>
+    ep === "user/login" ? path === "user/login" : path.includes(ep)
+  );
+};
 
 // --- Token Refresh State ---
 let isRefreshing = false;
