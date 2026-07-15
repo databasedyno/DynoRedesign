@@ -24,12 +24,12 @@ const BlogPage = () => {
   return (
     <>
       <Head>
-        <title>Dynopay Blog — Crypto Payment Insights for Merchants</title>
+        <title>Blog — Crypto commerce insights · Dynopay</title>
         <meta
           name="description"
-          content="Learn how to accept crypto payments, reduce fees, protect revenue with stablecoin settlement, and grow your business with cryptocurrency."
+          content="Guides and strategies for selling, tipping, and fundraising in crypto — reduce fees, settle to stablecoins, and grow with cryptocurrency payments."
         />
-        <meta property="og:title" content="Dynopay Blog — Crypto Payment Insights" />
+        <meta property="og:title" content="Blog — Crypto commerce insights · Dynopay" />
         <meta
           property="og:description"
           content="Guides, strategies, and insights for merchants accepting cryptocurrency payments."

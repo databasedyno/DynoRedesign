@@ -214,7 +214,7 @@
   "useCase5Tag": "Spenden",
   "faq7Q": "Kann ich eine Crowdfunding-Kampagne starten?",
   "faq7A": "Ja — Crowdfunding ist ein vollwertiges Produkt. Erzähle deine Story mit Markdown + Fotos, setze ein Ziel, füge Belohnungsstufen hinzu, poste Updates, die alle Spender per E-Mail erreichen. Eine Seite im GoFundMe-Stil, angetrieben von Krypto-Schienen.",
-  "heroSwissTitle1": "Kassiere in Krypto.",
+  "heroSwissTitle1": "Verkaufen, Trinkgeld, Fundraising — in Krypto.",
   "heroSwissTitle2": "Verkaufe Produkte. Starte eine Kampagne. Trinkgeld für Creator.",
   "heroSwissCtaSecondary": "Gebühren ansehen",
   "statWallEyebrow": "Zahlen & Fakten",
@@ -322,5 +322,33 @@
     "mockCaption": "// ÖFFENTLICHE SANDBOX · OHNE KONTO TESTEN",
     "copied": "cURL kopiert"
   },
-  "heroForDevsCta": "Für Entwickler"
+  "heroForDevsCta": "Für Entwickler",
+  "heroTabs": {
+    "merchant": "Händler",
+    "creator": "Creator",
+    "campaign": "Fundraiser",
+    "developer": "Entwickler"
+  },
+  "heroAudience": {
+    "merchant": {
+      "title2": "Verkaufe Produkte für Krypto.",
+      "subtitle": "Starte einen Checkout, Zahlungslinks oder einen kompletten Shop. Jede Zahlung landet direkt in deiner Wallet.",
+      "cta": "Verkauf starten"
+    },
+    "creator": {
+      "title2": "Erhalte Trinkgeld in Krypto.",
+      "subtitle": "Deine eigene Trinkgeld-Seite auf dynopay.com/@du. Fans unterstützen dich mit einem Tippen — das Geld geht direkt in deine Wallet, ohne Anmeldung für sie.",
+      "cta": "Seite sichern"
+    },
+    "campaign": {
+      "title2": "Finanziere dein Anliegen in Krypto.",
+      "subtitle": "Starte eine komplette Kampagnenseite — Ziel, Belohnungsstufen und Updates, die deine Unterstützer per E-Mail erreichen. Sammle von überall.",
+      "cta": "Kampagne starten"
+    },
+    "developer": {
+      "title2": "Integriere Krypto in ~10 Minuten.",
+      "subtitle": "REST-API, Webhooks, SDKs und Drop-in-Checkout. 15+ Chains, eine API, keine Smart Contracts.",
+      "cta": "Docs lesen"
+    }
+  }
 }

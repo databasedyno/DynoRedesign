@@ -214,7 +214,7 @@
   "useCase5Tag": "Donaciones",
   "faq7Q": "¿Puedo lanzar una campaña de crowdfunding?",
   "faq7A": "Sí — el crowdfunding es un producto de primer nivel. Cuenta tu historia con Markdown y fotos, fija una meta, añade niveles de recompensa y publica novedades que envían email a cada colaborador. Es una página estilo GoFundMe con raíles cripto.",
-  "heroSwissTitle1": "Cobra en cripto.",
+  "heroSwissTitle1": "Vende, recibe propinas, recauda — en cripto.",
   "heroSwissTitle2": "Vende productos. Lanza una campaña. Dale propina a un creador.",
   "heroSwissCtaSecondary": "Ver comisiones",
   "statWallEyebrow": "En cifras",
@@ -322,5 +322,33 @@
     "mockCaption": "// SANDBOX PÚBLICO · PRUEBA SIN CUENTA",
     "copied": "cURL copiado"
   },
-  "heroForDevsCta": "Para devs"
+  "heroForDevsCta": "Para devs",
+  "heroTabs": {
+    "merchant": "Comerciantes",
+    "creator": "Creadores",
+    "campaign": "Recaudadores",
+    "developer": "Desarrolladores"
+  },
+  "heroAudience": {
+    "merchant": {
+      "title2": "Vende productos por cripto.",
+      "subtitle": "Crea un checkout, enlaces de pago o una tienda completa. Cada pago se liquida directo a tu billetera.",
+      "cta": "Empieza a vender"
+    },
+    "creator": {
+      "title2": "Recibe propinas en cripto.",
+      "subtitle": "Tu propia página de propinas en dynopay.com/@tú. Tus fans te apoyan con un toque — el dinero va directo a tu billetera, sin registro para ellos.",
+      "cta": "Reclama tu página"
+    },
+    "campaign": {
+      "title2": "Financia tu causa en cripto.",
+      "subtitle": "Lanza una página de campaña completa — meta, niveles de recompensa y novedades que llegan por correo a tus donantes. Recauda de cualquiera, en cualquier lugar.",
+      "cta": "Inicia una campaña"
+    },
+    "developer": {
+      "title2": "Integra cripto en ~10 minutos.",
+      "subtitle": "API REST, webhooks, SDKs y checkout listo para usar. Más de 15 cadenas, una sola API, sin smart contracts.",
+      "cta": "Leer los docs"
+    }
+  }
 }

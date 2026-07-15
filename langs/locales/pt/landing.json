@@ -214,7 +214,7 @@
   "useCase5Tag": "Doações",
   "faq7Q": "Posso rodar uma campanha de crowdfunding?",
   "faq7A": "Sim — crowdfunding é um produto de primeira linha. Conte sua história com Markdown + fotos, defina uma meta, adicione níveis de recompensa, publique novidades que chegam por e-mail a cada contribuinte. É uma página estilo GoFundMe, sobre trilhos cripto.",
-  "heroSwissTitle1": "Receba em cripto.",
+  "heroSwissTitle1": "Venda, receba gorjetas, arrecade — em cripto.",
   "heroSwissTitle2": "Venda produtos. Lance uma campanha. Dê gorjeta a um criador.",
   "heroSwissCtaSecondary": "Ver tarifas",
   "statWallEyebrow": "Em números",
@@ -322,5 +322,33 @@
     "mockCaption": "// SANDBOX PÚBLICO · TESTE SEM CONTA",
     "copied": "cURL copiado"
   },
-  "heroForDevsCta": "Para devs"
+  "heroForDevsCta": "Para devs",
+  "heroTabs": {
+    "merchant": "Comerciantes",
+    "creator": "Criadores",
+    "campaign": "Arrecadadores",
+    "developer": "Desenvolvedores"
+  },
+  "heroAudience": {
+    "merchant": {
+      "title2": "Venda produtos por cripto.",
+      "subtitle": "Crie um checkout, links de pagamento ou uma loja completa. Cada pagamento cai direto na sua carteira.",
+      "cta": "Comece a vender"
+    },
+    "creator": {
+      "title2": "Receba gorjetas em cripto.",
+      "subtitle": "Sua própria página de gorjetas em dynopay.com/@você. Os fãs apoiam você com um toque — o dinheiro vai direto para sua carteira, sem cadastro para eles.",
+      "cta": "Garanta sua página"
+    },
+    "campaign": {
+      "title2": "Financie sua causa em cripto.",
+      "subtitle": "Lance uma página de campanha completa — meta, níveis de recompensa e novidades que chegam por e-mail aos seus apoiadores. Arrecade de qualquer pessoa, em qualquer lugar.",
+      "cta": "Inicie uma campanha"
+    },
+    "developer": {
+      "title2": "Integre cripto em ~10 minutos.",
+      "subtitle": "API REST, webhooks, SDKs e checkout pronto. Mais de 15 redes, uma API, sem smart contracts.",
+      "cta": "Leia os docs"
+    }
+  }
 }

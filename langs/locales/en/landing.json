@@ -214,7 +214,7 @@
   "useCase5Tag": "Donations",
   "faq7Q": "Can I run a crowdfunding campaign?",
   "faq7A": "Yes — crowdfunding is a first-class product. Tell your story with Markdown + photos, set a goal, add reward tiers, post updates that email every past contributor. It's a GoFundMe-style page, powered by crypto rails.",
-  "heroSwissTitle1": "Get paid in crypto.",
+  "heroSwissTitle1": "Sell, tip, fundraise — in crypto.",
   "heroSwissTitle2": "Sell products. Run a campaign. Tip a creator.",
   "heroSwissCtaSecondary": "See fees",
   "statWallEyebrow": "By the numbers",
@@ -322,5 +322,33 @@
     "mockCaption": "// PUBLIC SANDBOX · TRY WITHOUT AN ACCOUNT",
     "copied": "cURL copied"
   },
-  "heroForDevsCta": "For developers"
+  "heroForDevsCta": "For developers",
+  "heroTabs": {
+    "merchant": "Merchants",
+    "creator": "Creators",
+    "campaign": "Fundraisers",
+    "developer": "Developers"
+  },
+  "heroAudience": {
+    "merchant": {
+      "title2": "Sell products for crypto.",
+      "subtitle": "Spin up a hosted checkout, payment links, or a full storefront. Every payment settles straight to your wallet.",
+      "cta": "Start selling"
+    },
+    "creator": {
+      "title2": "Get tipped in crypto.",
+      "subtitle": "Your own tip page at dynopay.com/@you. Fans support you in one tap — funds go straight to your wallet, no signup for them.",
+      "cta": "Claim your page"
+    },
+    "campaign": {
+      "title2": "Fund your cause in crypto.",
+      "subtitle": "Launch a full campaign page — goal, reward tiers, and updates that email your supporters. Raise from anyone, anywhere.",
+      "cta": "Start a campaign"
+    },
+    "developer": {
+      "title2": "Integrate crypto in ~10 minutes.",
+      "subtitle": "REST API, webhooks, SDKs and drop-in checkout. 15+ chains, one API, no smart contracts.",
+      "cta": "Read the docs"
+    }
+  }
 }

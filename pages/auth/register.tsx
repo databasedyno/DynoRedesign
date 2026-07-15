@@ -419,7 +419,7 @@ const Register = () => {
   return (
     <>
       <Head>
-        <title>Create Account | Dynopay</title>
+        <title>Create your free account · Dynopay</title>
       </Head>
       <AuthPageBackground>
         {/* Top bar: Language + Theme (desktop ≥lg only — below lg the in-card

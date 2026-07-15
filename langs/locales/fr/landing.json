@@ -214,7 +214,7 @@
   "useCase5Tag": "Dons",
   "faq7Q": "Puis-je lancer une campagne de crowdfunding ?",
   "faq7A": "Oui — le crowdfunding est un produit à part entière. Racontez votre histoire en Markdown + photos, fixez un objectif, ajoutez des paliers de récompense, publiez des mises à jour qui envoient un e-mail à chaque contributeur. C'est une page façon GoFundMe, propulsée par des rails crypto.",
-  "heroSwissTitle1": "Encaissez en crypto.",
+  "heroSwissTitle1": "Vendez, encaissez des pourboires, collectez — en crypto.",
   "heroSwissTitle2": "Vendez des produits. Lancez une campagne. Soutenez un créateur.",
   "heroSwissCtaSecondary": "Voir les frais",
   "statWallEyebrow": "En chiffres",
@@ -322,5 +322,33 @@
     "mockCaption": "// SANDBOX PUBLIC · ESSAYEZ SANS COMPTE",
     "copied": "cURL copié"
   },
-  "heroForDevsCta": "Pour les devs"
+  "heroForDevsCta": "Pour les devs",
+  "heroTabs": {
+    "merchant": "Commerçants",
+    "creator": "Créateurs",
+    "campaign": "Collecteurs",
+    "developer": "Développeurs"
+  },
+  "heroAudience": {
+    "merchant": {
+      "title2": "Vendez des produits en crypto.",
+      "subtitle": "Lancez un checkout hébergé, des liens de paiement ou une boutique complète. Chaque paiement arrive directement dans votre portefeuille.",
+      "cta": "Commencer à vendre"
+    },
+    "creator": {
+      "title2": "Recevez des pourboires en crypto.",
+      "subtitle": "Votre propre page de pourboires sur dynopay.com/@vous. Vos fans vous soutiennent en un clic — l'argent arrive direct dans votre portefeuille, sans inscription pour eux.",
+      "cta": "Réclamez votre page"
+    },
+    "campaign": {
+      "title2": "Financez votre cause en crypto.",
+      "subtitle": "Lancez une page de campagne complète — objectif, paliers de récompense et actualités envoyées par e-mail à vos soutiens. Collectez auprès de tous, partout.",
+      "cta": "Lancer une campagne"
+    },
+    "developer": {
+      "title2": "Intégrez la crypto en ~10 minutes.",
+      "subtitle": "API REST, webhooks, SDK et checkout prêt à l'emploi. 15+ chaînes, une seule API, sans smart contracts.",
+      "cta": "Lire les docs"
+    }
+  }
 }

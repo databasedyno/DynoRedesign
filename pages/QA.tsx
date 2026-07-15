@@ -1575,7 +1575,7 @@ const QAPage = () => {
   return (
     <>
       <Head>
-        <title>QA Test Plan — DynoPay</title>
+        <title>QA Test Plan · Dynopay</title>
         <meta name="robots" content="noindex, nofollow" />
       </Head>
       <PageWrapper>

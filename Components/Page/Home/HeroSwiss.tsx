@@ -3,7 +3,7 @@ import { Box, Typography } from "@mui/material";
 import { ArrowForward } from "@mui/icons-material";
 import { useRouter } from "next/router";
 import { useTranslation } from "react-i18next";
-import { motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import useCountry from "@/hooks/useCountry";
 import { FONT_BODY, FONT_HERO, FONT_TECH, useSwiss } from "./swiss";
 
@@ -137,6 +137,22 @@ const TerminalWindow: React.FC<{ reduced: boolean }> = ({ reduced }) => {
   );
 };
 
+type AudienceKey = "merchant" | "creator" | "campaign" | "developer";
+
+interface Audience {
+  key: AudienceKey;
+  accent: string;
+  href: string;
+}
+
+// Audience tabs — order + accents mirror AudienceDoors (Merchants · Creators · Fundraisers · Developers).
+const AUDIENCES: Audience[] = [
+  { key: "merchant", accent: "#3B82F6", href: "/auth/register?ref=hero_merchant" },
+  { key: "creator", accent: "#F472B6", href: "/auth/register?ref=hero_creator" },
+  { key: "campaign", accent: "#CCFF00", href: "/auth/register?ref=hero_fundraiser" },
+  { key: "developer", accent: "#7CB1FF", href: "/documentation" },
+];
+
 const HeroSwiss: React.FC = () => {
   const s = useSwiss();
   const router = useRouter();
@@ -145,16 +161,15 @@ const HeroSwiss: React.FC = () => {
   const prefersReduced = useReducedMotion();
   const reduced = !!prefersReduced;
 
+  const [active, setActive] = useState<AudienceKey>("merchant");
+  const activeAudience = AUDIENCES.find((a) => a.key === active) || AUDIENCES[0];
+
   const goPrimary = useCallback(() => {
-    router.push("/auth/register?ref=hero_swiss");
-  }, [router]);
+    router.push(activeAudience.href);
+  }, [router, activeAudience.href]);
 
   const goCalculator = useCallback(() => {
     document.getElementById("fee-calculator")?.scrollIntoView({ behavior: "smooth", block: "start" });
-  }, []);
-
-  const goDeveloper = useCallback(() => {
-    document.getElementById("developer-showcase")?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, []);
 
   const trustLine =
@@ -225,6 +240,49 @@ const HeroSwiss: React.FC = () => {
             </Typography>
           </motion.div>
 
+          <Box
+            component={motion.div}
+            variants={item}
+            data-testid="hero-audience-tabs"
+            role="tablist"
+            aria-label={t("doors.eyebrow", { defaultValue: "Who's this for?" })}
+            sx={{ display: "flex", flexWrap: "wrap", gap: { xs: 2, md: 3 }, mb: 3 }}
+          >
+            {AUDIENCES.map((a) => {
+              const isActive = a.key === active;
+              return (
+                <Box
+                  key={a.key}
+                  component="button"
+                  type="button"
+                  role="tab"
+                  aria-selected={isActive}
+                  data-testid={`hero-tab-${a.key}`}
+                  onClick={() => setActive(a.key)}
+                  sx={{
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    p: 0,
+                    pb: 0.75,
+                    fontFamily: FONT_TECH,
+                    fontSize: { xs: 11.5, md: 12.5 },
+                    letterSpacing: "0.14em",
+                    textTransform: "uppercase",
+                    color: isActive ? s.txt : s.faint,
+                    fontWeight: isActive ? 600 : 500,
+                    borderBottom: "2px solid",
+                    borderColor: isActive ? a.accent : "transparent",
+                    transition: "color 0.2s ease, border-color 0.2s ease",
+                    "&:hover": { color: isActive ? s.txt : s.sub },
+                  }}
+                >
+                  {t(`heroTabs.${a.key}`, { defaultValue: a.key })}
+                </Box>
+              );
+            })}
+          </Box>
+
           <Typography id="hero-heading" component={motion.h1} variants={item} sx={{ m: 0 }}>
             <Box
               component="span"
@@ -251,10 +309,23 @@ const HeroSwiss: React.FC = () => {
                 letterSpacing: "-0.02em",
                 color: s.txt,
                 mt: 1.25,
+                minHeight: { xs: 62, sm: 86, md: 100 },
               }}
             >
-              {t("heroSwissTitle2")}
-              <Box component="span" sx={{ color: s.accentText, ml: 0.75, animation: reduced ? "none" : "swiss-blink 1.1s step-end infinite" }}>▮</Box>
+              <AnimatePresence mode="wait" initial={false}>
+                <Box
+                  key={active}
+                  component={motion.span}
+                  initial={reduced ? { opacity: 1 } : { opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={reduced ? { opacity: 1 } : { opacity: 0, y: -8 }}
+                  transition={{ duration: 0.28, ease: EASE }}
+                  sx={{ display: "inline" }}
+                >
+                  {t(`heroAudience.${active}.title2`, { defaultValue: "" })}
+                </Box>
+              </AnimatePresence>
+              <Box component="span" sx={{ color: activeAudience.accent, ml: 0.75, animation: reduced ? "none" : "swiss-blink 1.1s step-end infinite" }}>▮</Box>
             </Box>
           </Typography>
 
@@ -269,9 +340,22 @@ const HeroSwiss: React.FC = () => {
               maxWidth: 560,
               mt: 3,
               mb: 4.5,
+              minHeight: { xs: 80, md: 56 },
             }}
           >
-            {t("heroCleanSubtitle")}
+            <AnimatePresence mode="wait" initial={false}>
+              <Box
+                key={active}
+                component={motion.span}
+                initial={reduced ? { opacity: 1 } : { opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={reduced ? { opacity: 1 } : { opacity: 0 }}
+                transition={{ duration: 0.22, ease: EASE }}
+                sx={{ display: "block" }}
+              >
+                {t(`heroAudience.${active}.subtitle`, { defaultValue: t("heroCleanSubtitle") })}
+              </Box>
+            </AnimatePresence>
           </Typography>
 
           <Box component={motion.div} variants={item} sx={{ display: "flex", gap: 2, alignItems: "center", flexWrap: "wrap", mb: 5 }}>
@@ -302,7 +386,7 @@ const HeroSwiss: React.FC = () => {
                 },
               }}
             >
-              {t("startAcceptingCrypto")} <ArrowForward sx={{ fontSize: 17 }} />
+              {t(`heroAudience.${active}.cta`, { defaultValue: t("startAcceptingCrypto") })} <ArrowForward sx={{ fontSize: 17 }} />
             </Box>
             <Box
               component="button"
@@ -324,27 +408,6 @@ const HeroSwiss: React.FC = () => {
               }}
             >
               {t("heroSwissCtaSecondary")} ↓
-            </Box>
-            <Box
-              component="button"
-              type="button"
-              onClick={goDeveloper}
-              data-testid="hero-cta-developers"
-              sx={{
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-                fontFamily: FONT_TECH,
-                fontSize: 13,
-                letterSpacing: "0.06em",
-                color: s.sub,
-                px: 1,
-                py: 1.5,
-                transition: "color 0.2s ease",
-                "&:hover": { color: "#7CB1FF" },
-              }}
-            >
-              {t("heroForDevsCta", { defaultValue: "For developers" })} ↓
             </Box>
           </Box>
 

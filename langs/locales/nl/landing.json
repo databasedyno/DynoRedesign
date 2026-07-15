@@ -214,7 +214,7 @@
   "useCase5Tag": "Donaties",
   "faq7Q": "Kan ik een crowdfundingcampagne starten?",
   "faq7A": "Ja — crowdfunding is een volwaardig product. Vertel je verhaal met Markdown + foto's, stel een doel in, voeg beloningsniveaus toe, plaats updates die elke eerdere donateur per e-mail bereiken. Een pagina in GoFundMe-stijl, aangedreven door crypto-rails.",
-  "heroSwissTitle1": "Word betaald in crypto.",
+  "heroSwissTitle1": "Verkopen, fooien, doneren — in crypto.",
   "heroSwissTitle2": "Verkoop producten. Start een campagne. Tip een creator.",
   "heroSwissCtaSecondary": "Bekijk tarieven",
   "statWallEyebrow": "In cijfers",
@@ -322,5 +322,33 @@
     "mockCaption": "// PUBLIEKE SANDBOX · PROBEER ZONDER ACCOUNT",
     "copied": "cURL gekopieerd"
   },
-  "heroForDevsCta": "Voor devs"
+  "heroForDevsCta": "Voor devs",
+  "heroTabs": {
+    "merchant": "Verkopers",
+    "creator": "Creators",
+    "campaign": "Fondsenwervers",
+    "developer": "Ontwikkelaars"
+  },
+  "heroAudience": {
+    "merchant": {
+      "title2": "Verkoop producten voor crypto.",
+      "subtitle": "Zet een checkout, betaallinks of een complete winkel op. Elke betaling komt direct in je wallet.",
+      "cta": "Begin met verkopen"
+    },
+    "creator": {
+      "title2": "Ontvang fooien in crypto.",
+      "subtitle": "Je eigen fooienpagina op dynopay.com/@jij. Fans steunen je met één tik — het geld gaat direct naar je wallet, zonder aanmelding voor hen.",
+      "cta": "Claim je pagina"
+    },
+    "campaign": {
+      "title2": "Financier je doel in crypto.",
+      "subtitle": "Start een volledige campagnepagina — doel, beloningsniveaus en updates die je supporters per e-mail bereiken. Werf van iedereen, overal.",
+      "cta": "Start een campagne"
+    },
+    "developer": {
+      "title2": "Integreer crypto in ~10 minuten.",
+      "subtitle": "REST-API, webhooks, SDK's en kant-en-klare checkout. 15+ chains, één API, geen smart contracts.",
+      "cta": "Lees de docs"
+    }
+  }
 }

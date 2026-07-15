@@ -1,5 +1,13 @@
 # DynoPay - Payment Gateway PRD
 
+### 2026-07-15 — Session 51 — SEO/positioning rewrite: 4-audience tagline + tabbed hero + `· Dynopay` suffix — ✅ SHIPPED (self-verified, screenshots + curl, EN+DE)
+Repositioned the product away from the false "merchant-only Cryptocurrency Payment Gateway" framing to the real 4-audience story (Merchants · Creators · Fundraisers · Developers) with the tagline **"Sell, tip, fundraise — in crypto."**. Frontend/i18n ONLY — no backend/DB changes; user_id=1 name "hostbay" untouched.
+- **Task 1 — SEO JSON (P0):** rewrote `de`, `nl`, `fr` `pageTitles.json` natively (previous session had already done `en`/`es`/`pt`). All 6 locales now use the 4-audience positioning + standardized `· Dynopay` suffix (dropped all `| Dynopay`). Verified 0 `| Dynopay` remnants; DE home title renders `Verkaufen, Trinkgeld, Fundraising — in Krypto · Dynopay`.
+- **Task 2 — Tabbed hero (P0):** `Components/Page/Home/HeroSwiss.tsx` now has 4 interactive audience tabs (testids `hero-tab-{merchant|creator|campaign|developer}`, container `hero-audience-tabs`). Fixed H1 line1 = tagline; line2 + subtitle + primary-CTA swap per tab with a framer-motion `AnimatePresence` fade. Developer tab CTA → `/documentation`; others → `/auth/register?ref=hero_{audience}`. Removed the now-redundant "For developers ↓" tertiary link. New i18n keys `heroTabs.*` + `heroAudience.{key}.{title2,subtitle,cta}` + updated `heroSwissTitle1` across all 6 locales via `scripts/i18n_add_hero_tabs.py`.
+- **Task 3 — Inline `<title>` suffix (P1):** normalized to `· Dynopay` — `pages/auth/register.tsx` ("Create your free account · Dynopay"), `pages/blog/index.tsx` ("Blog — Crypto commerce insights · Dynopay" + broadened desc/og), `pages/blog/[slug].tsx` (`{post.title} · Dynopay Blog`), `pages/QA.tsx` ("QA Test Plan · Dynopay", also fixed DynoPay→Dynopay casing). Dynamic shop/product/creator/pay/cart/checkout/order titles were already `· Dynopay` — left as-is.
+- **Verified live:** tab switching swaps content correctly (Developers → "Integrate crypto in ~10 minutes." / "Read the docs"; Fundraisers → "Fund your cause in crypto." / "Start a campaign"); EN+DE titles + hero copy render natively; `next dev` hot-reload picked up all changes; external `/`, `/blog`, `/auth/register`, `/fees` = 200 with correct titles.
+
+
 ## Problem Statement
 USDT-TRC20 payment gateway platform. Users can create companies, wallets, payment links, and accept crypto payments. The platform supports OTP-based authentication, profile management, login activity monitoring, and comprehensive dark/light mode theming.
 
