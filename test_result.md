@@ -1,3 +1,50 @@
+## Session 52: Bug Fix — Editing donation/crowdfunding link fails with HTTP 400 (2026-07-15)
+
+### User report
+On production dynopay.com, user hostbay@moxx.co edited crowdfunding link 77 ("Support Dynopay") and got an error on Save. Provided DO API token for log inspection.
+
+### Investigation
+Fetched DO app logs (app `f86b27dc-feb0-4a44-a4e9-ebd2053e0468`, active deploy `e30d8ba9`). Two `PUT /api/pay/links/77` returned **HTTP 400, 260 bytes** at 10:33:37 and 10:35:21. Backend logs only show status codes (no response body), so response envelope was reconstructed and matched exactly.
+
+### Root cause
+`/app/pages/pay-links/[slug]/index.tsx` lines 38-40 (edit-page GET loader) transformed the backend's canonical `accepted_currencies` values by lowercasing AND replacing `-` with `_`:
+```ts
+cryptoCurrencies = d.accepted_currencies.map((c: string) =>
+  c.toLowerCase().replace(/-/g, "_")   // BUG: USDT-TRC20 → usdt_trc20
+);
+```
+This broke the round-trip because:
+1. **Backend** (`paymentLinkController.ts` line 1366) validates against `['BTC', 'ETH', 'LTC', 'DOGE', 'TRX', 'BCH', 'USDT-TRC20', 'USDT-ERC20', 'USDC-ERC20', 'SOL', 'XRP', 'RLUSD', 'RLUSD-ERC20', 'POLYGON', 'USDT-POLYGON']` — **uppercase with dashes**.
+2. **UI checkboxes** (`CreatePaymentLink/index.tsx` ALL_CRYPTO_ITEMS labels + `CryptoItemCard.tsx` line 73 `.includes(item.label)`) use the same canonical format.
+3. The edit loader's underscored/lowercase output (`"usdt_trc20"`, `"usdc_erc20"`, `"usdt_polygon"`, `"usdt_erc20"`) matches NEITHER. Result: every crypto tile appeared unchecked on edit AND when Save was clicked, the values were sent as-is, uppercased to `USDT_TRC20`, then rejected by validation as unknown crypto types. Response body was exactly 260 bytes:
+   ```
+   {"success":false,"message":"Invalid cryptocurrency types: USDT_TRC20, USDT_ERC20, USDC_ERC20, USDT_POLYGON. Valid options: BTC, ETH, LTC, DOGE, TRX, BCH, USDT-TRC20, USDT-ERC20, USDC-ERC20, SOL, XRP, RLUSD, RLUSD-ERC20, POLYGON, USDT-POLYGON","statusCode":400}
+   ```
+   Reproduced locally against LIVE Railway PG with a hand-crafted PUT payload — got the exact same 260-byte body, confirming the root cause.
+
+### Fix (frontend-only, 1 file, ~10 LOC)
+`/app/pages/pay-links/[slug]/index.tsx`: dropped the `.toLowerCase().replace(/-/g,"_")` transformation and normalized to `.trim().toUpperCase()` instead. Fallback array `["btc","eth","ltc","doge","usdt_trc20"]` also promoted to canonical format `["BTC","ETH","LTC","DOGE","USDT-TRC20"]`. Added an explanatory comment referencing the session 47 root cause.
+
+### Verification (own Playwright, end-to-end, LIVE Railway PG)
+1. Logged in as `hostbay@moxx.co` (2-step email → Password radio → password).
+2. Navigated to `/pay-links/77` — Edit Crowdfunding page loaded with campaign form + Live Preview panel.
+3. Verified 13 crypto tiles show as SELECTED (green ✓) — previously all appeared unselected.
+4. Clicked "Save changes" → confirm dialog appeared → clicked "Save Change".
+5. Network monitor captured: **PUT /api/pay/links/77 → HTTP 200** with `accepted_currencies: ['BTC','ETH','LTC','USDT-TRC20','USDT-ERC20','TRX','DOGE','BCH','USDC-ERC20','SOL','XRP','POLYGON','USDT-POLYGON']`.
+6. Response: `{"message":"Payment link updated successfully","data":{...}}`.
+7. User navigated back to `/pay-links` list (Session 14d onSuccess behavior).
+
+Screenshots: `/tmp/edit77_loaded.jpg`, `/tmp/edit77_result.jpg`.
+
+### Files changed
+- `/app/pages/pay-links/[slug]/index.tsx` (2 edits, ~15 LOC — remove buggy toLowerCase+replace transform + capitalize fallback array)
+
+### Deployment note
+Fix is in local preview only. To ship to DO production (`dynopay.com`), user needs to push via "Save to Github" — DO auto-redeploys from main branch. Until then, dynopay.com/pay-links/{id} edit-save will continue to fail.
+
+---
+
+
 ## Session 50: End-to-End UI Audit + env URL fix (2026-07-14)
 
 ### Preview URL

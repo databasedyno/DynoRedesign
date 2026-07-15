@@ -32,16 +32,22 @@ export default function EditPaymentLink() {
         const response = await axiosBaseApi.get(`/pay/links/${slug}`);
         const d = response?.data?.data;
         if (d) {
-          // Handle accepted_currencies - could be array or comma-separated string
+          // Handle accepted_currencies - could be array or comma-separated string.
+          // Keep the canonical wallet_type format (uppercase, dashes — e.g., "USDT-TRC20")
+          // so the values match ALL_CRYPTO_ITEMS.label in CreatePaymentLink AND the
+          // backend cryptoTypes validation. Session 47 bug: `.toLowerCase().replace(/-/g,"_")`
+          // silently broke edit → save because "USDT_TRC20" is NOT in the backend's
+          // valid list ("USDT-TRC20"), returning HTTP 400 "Invalid cryptocurrency types".
           let cryptoCurrencies: string[] = [];
           if (Array.isArray(d.accepted_currencies)) {
-            cryptoCurrencies = d.accepted_currencies.map((c: string) =>
-              c.toLowerCase().replace(/-/g, "_")
-            );
+            cryptoCurrencies = d.accepted_currencies
+              .map((c: string) => (typeof c === "string" ? c.trim().toUpperCase() : ""))
+              .filter(Boolean);
           } else if (typeof d.accepted_currencies === "string" && d.accepted_currencies) {
             cryptoCurrencies = d.accepted_currencies
               .split(",")
-              .map((c: string) => c.trim().toLowerCase().replace(/-/g, "_"));
+              .map((c: string) => c.trim().toUpperCase())
+              .filter(Boolean);
           }
 
           setPaymentLinkData({
@@ -55,7 +61,7 @@ export default function EditPaymentLink() {
             blockchainFees: d.fee_payer === "company" ? "company" : "customer",
             acceptedCryptoCurrency: cryptoCurrencies.length
               ? cryptoCurrencies
-              : ["btc", "eth", "ltc", "doge", "usdt_trc20"],
+              : ["BTC", "ETH", "LTC", "DOGE", "USDT-TRC20"],
             payment_url: d.payment_link ?? "",
             redirect_url: d.redirect_url ?? "",
             webhook_url: d.webhook_url ?? "",
