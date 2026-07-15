@@ -4,7 +4,7 @@
 - **Email**: nomadly@moxx.co
 - **Password**: Katiekendra123@
 - **Company**: Nomadly1
-- **Pod URL**: https://multi-chain-settle.preview.emergentagent.com
+- **Pod URL**: https://dynopay-setup.preview.emergentagent.com
 
 ---
 
