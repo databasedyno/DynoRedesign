@@ -2220,7 +2220,7 @@ export const setRefundAddress = async (
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
-// CREATOR VANITY PAGE — public profile at dynopay.com/{handle}
+// CREATOR VANITY PAGE — public profile at dynopay.me/{handle}
 // Returns the creator's public info + their active donation campaigns and
 // reusable payment links. No auth (crawler-friendly for the SSR page).
 // ═══════════════════════════════════════════════════════════════════════════

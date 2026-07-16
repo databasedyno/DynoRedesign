@@ -20,7 +20,7 @@ paymentRouter.post("/getData", paymentRateLimiter, paymentController.getData);
 // Read-only checkout metadata for SSR link previews (OG tags)
 paymentRouter.get("/meta", paymentRateLimiter, paymentController.getPaymentMeta);
 
-// Public creator vanity page profile (dynopay.com/{handle} → SSR fetch)
+// Public creator vanity page profile (dynopay.me/{handle} → SSR fetch)
 paymentRouter.get("/creator/:handle", paymentRateLimiter, paymentController.getCreatorProfile);
 
 // Donation campaigns: public endpoint for a donor to start a contribution

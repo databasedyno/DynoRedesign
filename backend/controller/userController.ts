@@ -3889,7 +3889,7 @@ const flagLogin = async (req: express.Request, res: express.Response) => {
   }
 };
 
-// ── Creator vanity page (dynopay.com/{handle}) ──
+// ── Creator vanity page (dynopay.me/{handle}) ──
 // Handles reserved so a user can't shadow an app route.
 const RESERVED_HANDLES = new Set([
   "auth", "admin", "dashboard", "pay", "payment", "payments", "fees", "blog", "docs",

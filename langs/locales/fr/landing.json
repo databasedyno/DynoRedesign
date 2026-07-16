@@ -78,7 +78,7 @@
   "useCase1Description": "Un paiement crypto simple pour votre boutique en ligne.",
   "useCase1Tag": "Liens de paiement",
   "useCase2Title": "Créateurs de contenu",
-  "useCase2Description": "Réservez votre dynopay.com/pseudo et soyez payé via pourboires et liens en un clic.",
+  "useCase2Description": "Réservez votre dynopay.me/pseudo et soyez payé via pourboires et liens en un clic.",
   "useCase2Tag": "Page créateur",
   "useCase3Title": "Abonnements et SaaS",
   "useCase3Description": "Des callbacks automatiques et une API pour les paiements récurrents.",
@@ -243,7 +243,7 @@
     "creator": {
       "kicker": "Créateurs",
       "title": "Recevez des pourboires",
-      "desc": "Réservez dynopay.com/@vous et recevez des pourboires en un clic dans n'importe quelle crypto. Directement dans votre portefeuille. Sans intermédiaire.",
+      "desc": "Réservez dynopay.me/@vous et recevez des pourboires en un clic dans n'importe quelle crypto. Directement dans votre portefeuille. Sans intermédiaire.",
       "cta": "Voir la page créateur"
     },
     "developer": {
@@ -278,7 +278,7 @@
   },
   "creatorShowcase": {
     "eyebrow": "Page créateur",
-    "title": "Votre page de pourboires — dynopay.com/@vous",
+    "title": "Votre page de pourboires — dynopay.me/@vous",
     "subtitle": "Bio, réseaux, pourboires en un clic dans n'importe quelle crypto. Aucune inscription pour vos fans. Chaque pourboire arrive dans votre portefeuille en quelques minutes.",
     "feature1": "Réservez votre @pseudo",
     "feature2": "Montants prédéfinis + montant libre",
@@ -308,7 +308,7 @@
     "cta": "Voir tous les tarifs"
   },
   "faq8Q": "Puis-je recevoir des pourboires en tant que créateur ?",
-  "faq8A": "Oui. Réservez votre @pseudo sur dynopay.com/@vous et partagez-le. Vos fans peuvent envoyer des pourboires en un clic dans 13+ cryptos — sans inscription, sans redirection, sans intermédiaire. Chaque pourboire va directement à votre portefeuille.",
+  "faq8A": "Oui. Réservez votre @pseudo sur dynopay.me/@vous et partagez-le. Vos fans peuvent envoyer des pourboires en un clic dans 13+ cryptos — sans inscription, sans redirection, sans intermédiaire. Chaque pourboire va directement à votre portefeuille.",
   "developerShowcase": {
     "eyebrow": "Pour les développeurs",
     "title": "Intégrez en ~10 minutes.",
@@ -338,7 +338,7 @@
     },
     "creator": {
       "title2": "Recevez des pourboires en crypto.",
-      "subtitle": "Votre propre page de pourboires sur dynopay.com/@vous. Vos fans vous soutiennent en un clic — l'argent arrive direct dans votre portefeuille, sans inscription pour eux.",
+      "subtitle": "Votre propre page de pourboires sur dynopay.me/@vous. Vos fans vous soutiennent en un clic — l'argent arrive direct dans votre portefeuille, sans inscription pour eux.",
       "cta": "Réclamez votre page"
     },
     "campaign": {

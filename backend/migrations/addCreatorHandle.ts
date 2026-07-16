@@ -1,7 +1,7 @@
 import sequelize from '../utils/dbInstance';
 
 // Additive, idempotent migration for the Creator Vanity Page feature.
-// Adds a public handle (dynopay.com/{handle}), a short bio, and an enable flag.
+// Adds a public handle (dynopay.me/{handle}), a short bio, and an enable flag.
 async function addCreatorHandle() {
   try {
     await sequelize.query(`ALTER TABLE tbl_user ADD COLUMN IF NOT EXISTS handle VARCHAR(50)`);

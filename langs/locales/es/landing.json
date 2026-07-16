@@ -78,7 +78,7 @@
   "useCase1Description": "Un checkout en cripto sencillo para tu tienda online.",
   "useCase1Tag": "Enlaces de pago",
   "useCase2Title": "Creadores digitales",
-  "useCase2Description": "Reclama tu dynopay.com/usuario y cobra con propinas y enlaces de un toque.",
+  "useCase2Description": "Reclama tu dynopay.me/usuario y cobra con propinas y enlaces de un toque.",
   "useCase2Tag": "Página de creador",
   "useCase3Title": "Suscripciones y SaaS",
   "useCase3Description": "Callbacks automáticos y una API para pagos recurrentes.",
@@ -243,7 +243,7 @@
     "creator": {
       "kicker": "Creadores",
       "title": "Recibe propinas",
-      "desc": "Reclama dynopay.com/@tu y recibe propinas con un toque en cualquier moneda. Directo a tu billetera. Sin intermediarios.",
+      "desc": "Reclama dynopay.me/@tu y recibe propinas con un toque en cualquier moneda. Directo a tu billetera. Sin intermediarios.",
       "cta": "Ver página de creador"
     },
     "developer": {
@@ -278,7 +278,7 @@
   },
   "creatorShowcase": {
     "eyebrow": "Página de creador",
-    "title": "Tu propia página de propinas — dynopay.com/@tu",
+    "title": "Tu propia página de propinas — dynopay.me/@tu",
     "subtitle": "Biografía, redes, propinas con un toque en cualquier moneda. Sin registro para tus seguidores. Cada propina llega a tu billetera en minutos.",
     "feature1": "Reclama tu @usuario",
     "feature2": "Importes de propina predefinidos + importe libre",
@@ -308,7 +308,7 @@
     "cta": "Ver precios completos"
   },
   "faq8Q": "¿Puedo recibir propinas como creador?",
-  "faq8A": "Sí. Reclama tu @usuario en dynopay.com/@tu y compártelo. Tus seguidores pueden enviar propinas con un toque en 13+ monedas — sin registro, sin redirección, sin intermediarios. Cada propina va directa a tu billetera.",
+  "faq8A": "Sí. Reclama tu @usuario en dynopay.me/@tu y compártelo. Tus seguidores pueden enviar propinas con un toque en 13+ monedas — sin registro, sin redirección, sin intermediarios. Cada propina va directa a tu billetera.",
   "developerShowcase": {
     "eyebrow": "Para desarrolladores",
     "title": "Integra en ~10 minutos.",
@@ -338,7 +338,7 @@
     },
     "creator": {
       "title2": "Recibe propinas en cripto.",
-      "subtitle": "Tu propia página de propinas en dynopay.com/@tú. Tus fans te apoyan con un toque — el dinero va directo a tu billetera, sin registro para ellos.",
+      "subtitle": "Tu propia página de propinas en dynopay.me/@tú. Tus fans te apoyan con un toque — el dinero va directo a tu billetera, sin registro para ellos.",
       "cta": "Reclama tu página"
     },
     "campaign": {

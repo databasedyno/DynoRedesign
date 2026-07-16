@@ -78,7 +78,7 @@
   "useCase1Description": "Um checkout em cripto simples para sua loja virtual.",
   "useCase1Tag": "Links de pagamento",
   "useCase2Title": "Criadores de conteúdo",
-  "useCase2Description": "Reivindique o seu dynopay.com/utilizador e receba com gorjetas e links de um toque.",
+  "useCase2Description": "Reivindique o seu dynopay.me/utilizador e receba com gorjetas e links de um toque.",
   "useCase2Tag": "Página de criador",
   "useCase3Title": "Assinaturas e SaaS",
   "useCase3Description": "Callbacks automáticos e uma API para pagamentos recorrentes.",
@@ -243,7 +243,7 @@
     "creator": {
       "kicker": "Criadores",
       "title": "Receba gorjetas",
-      "desc": "Reserve dynopay.com/@voce e receba gorjetas com um toque em qualquer moeda. Direto na sua carteira. Sem intermediário.",
+      "desc": "Reserve dynopay.me/@voce e receba gorjetas com um toque em qualquer moeda. Direto na sua carteira. Sem intermediário.",
       "cta": "Ver página de criador"
     },
     "developer": {
@@ -278,7 +278,7 @@
   },
   "creatorShowcase": {
     "eyebrow": "Página de criador",
-    "title": "Sua própria página de gorjetas — dynopay.com/@voce",
+    "title": "Sua própria página de gorjetas — dynopay.me/@voce",
     "subtitle": "Bio, redes, gorjetas com um toque em qualquer moeda. Sem cadastro para seus fãs. Cada gorjeta cai na sua carteira em minutos.",
     "feature1": "Reserve seu @usuario",
     "feature2": "Valores predefinidos + valor livre",
@@ -308,7 +308,7 @@
     "cta": "Ver preços completos"
   },
   "faq8Q": "Posso receber gorjetas como criador?",
-  "faq8A": "Sim. Reserve seu @usuario em dynopay.com/@voce e compartilhe. Fãs podem enviar gorjetas com um toque em 13+ moedas — sem cadastro, sem redirecionamento, sem intermediário. Cada gorjeta vai direto à sua carteira.",
+  "faq8A": "Sim. Reserve seu @usuario em dynopay.me/@voce e compartilhe. Fãs podem enviar gorjetas com um toque em 13+ moedas — sem cadastro, sem redirecionamento, sem intermediário. Cada gorjeta vai direto à sua carteira.",
   "developerShowcase": {
     "eyebrow": "Para desenvolvedores",
     "title": "Integre em ~10 minutos.",
@@ -338,7 +338,7 @@
     },
     "creator": {
       "title2": "Receba gorjetas em cripto.",
-      "subtitle": "Sua própria página de gorjetas em dynopay.com/@você. Os fãs apoiam você com um toque — o dinheiro vai direto para sua carteira, sem cadastro para eles.",
+      "subtitle": "Sua própria página de gorjetas em dynopay.me/@você. Os fãs apoiam você com um toque — o dinheiro vai direto para sua carteira, sem cadastro para eles.",
       "cta": "Garanta sua página"
     },
     "campaign": {

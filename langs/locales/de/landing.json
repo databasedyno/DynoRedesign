@@ -78,7 +78,7 @@
   "useCase1Description": "Ein einfacher Krypto-Checkout für Ihren Online-Shop.",
   "useCase1Tag": "Zahlungslinks",
   "useCase2Title": "Digitale Creator",
-  "useCase2Description": "Sichere dir dein dynopay.com/name und werde per Trinkgeld und Ein-Klick-Links bezahlt.",
+  "useCase2Description": "Sichere dir dein dynopay.me/name und werde per Trinkgeld und Ein-Klick-Links bezahlt.",
   "useCase2Tag": "Creator-Seite",
   "useCase3Title": "Abos und SaaS",
   "useCase3Description": "Automatische Callbacks und eine API für wiederkehrende Zahlungen.",
@@ -243,7 +243,7 @@
     "creator": {
       "kicker": "Creator",
       "title": "Erhalte Trinkgeld",
-      "desc": "Sichere dir dynopay.com/@du und erhalte Trinkgelder mit einem Tipp in jeder Krypto. Direkt in deine Wallet. Kein Mittelsmann.",
+      "desc": "Sichere dir dynopay.me/@du und erhalte Trinkgelder mit einem Tipp in jeder Krypto. Direkt in deine Wallet. Kein Mittelsmann.",
       "cta": "Creator-Seite ansehen"
     },
     "developer": {
@@ -278,7 +278,7 @@
   },
   "creatorShowcase": {
     "eyebrow": "Creator-Seite",
-    "title": "Deine eigene Trinkgeld-Seite — dynopay.com/@du",
+    "title": "Deine eigene Trinkgeld-Seite — dynopay.me/@du",
     "subtitle": "Bio, Socials, Trinkgeld mit einem Tipp in jeder Krypto. Keine Registrierung für deine Fans. Jedes Trinkgeld landet in Minuten in deiner Wallet.",
     "feature1": "Sichere dir deinen @Handle",
     "feature2": "Vorgegebene Trinkgeld-Beträge + freier Betrag",
@@ -308,7 +308,7 @@
     "cta": "Alle Preise ansehen"
   },
   "faq8Q": "Kann ich als Creator Trinkgelder erhalten?",
-  "faq8A": "Ja. Sichere dir deinen @Handle auf dynopay.com/@du und teile ihn. Deine Fans können mit einem Tipp Trinkgelder in 13+ Coins senden — ohne Registrierung, ohne Umleitung, ohne Mittelsmann. Jedes Trinkgeld geht direkt in deine Wallet.",
+  "faq8A": "Ja. Sichere dir deinen @Handle auf dynopay.me/@du und teile ihn. Deine Fans können mit einem Tipp Trinkgelder in 13+ Coins senden — ohne Registrierung, ohne Umleitung, ohne Mittelsmann. Jedes Trinkgeld geht direkt in deine Wallet.",
   "developerShowcase": {
     "eyebrow": "Für Entwickler",
     "title": "Integriert in ~10 Minuten.",
@@ -338,7 +338,7 @@
     },
     "creator": {
       "title2": "Erhalte Trinkgeld in Krypto.",
-      "subtitle": "Deine eigene Trinkgeld-Seite auf dynopay.com/@du. Fans unterstützen dich mit einem Tippen — das Geld geht direkt in deine Wallet, ohne Anmeldung für sie.",
+      "subtitle": "Deine eigene Trinkgeld-Seite auf dynopay.me/@du. Fans unterstützen dich mit einem Tippen — das Geld geht direkt in deine Wallet, ohne Anmeldung für sie.",
       "cta": "Seite sichern"
     },
     "campaign": {

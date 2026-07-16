@@ -78,7 +78,7 @@
   "useCase1Description": "A simple crypto checkout for your e-commerce shop.",
   "useCase1Tag": "Payment links",
   "useCase2Title": "Digital creators",
-  "useCase2Description": "Claim your own dynopay.com/handle and get paid with tips and one-tap links.",
+  "useCase2Description": "Claim your own dynopay.me/handle and get paid with tips and one-tap links.",
   "useCase2Tag": "Creator page",
   "useCase3Title": "Subscriptions & SaaS",
   "useCase3Description": "Automated callbacks and an API for recurring payments.",
@@ -243,7 +243,7 @@
     "creator": {
       "kicker": "Creators",
       "title": "Get tipped",
-      "desc": "Claim dynopay.com/@you and take one-tap tips in any coin. Direct-to-wallet. No middleman.",
+      "desc": "Claim dynopay.me/@you and take one-tap tips in any coin. Direct-to-wallet. No middleman.",
       "cta": "See creator page"
     },
     "developer": {
@@ -278,7 +278,7 @@
   },
   "creatorShowcase": {
     "eyebrow": "Creator page",
-    "title": "Your own tipping page — dynopay.com/@you",
+    "title": "Your own tipping page — dynopay.me/@you",
     "subtitle": "Bio, socials, one-tap tips in any coin. No signup for your fans. Every tip lands in your wallet within minutes.",
     "feature1": "Claim your @handle",
     "feature2": "Preset tip amounts + custom amount",
@@ -308,7 +308,7 @@
     "cta": "See full pricing"
   },
   "faq8Q": "Can I get tips as a creator?",
-  "faq8A": "Yes. Claim your @handle at dynopay.com/@you and share it. Fans can send one-tap tips in 13+ coins — no signup, no redirect, no middleman. Every tip goes direct to your wallet.",
+  "faq8A": "Yes. Claim your @handle at dynopay.me/@you and share it. Fans can send one-tap tips in 13+ coins — no signup, no redirect, no middleman. Every tip goes direct to your wallet.",
   "developerShowcase": {
     "eyebrow": "For developers",
     "title": "Integrate in ~10 minutes.",
@@ -338,7 +338,7 @@
     },
     "creator": {
       "title2": "Get tipped in crypto.",
-      "subtitle": "Your own tip page at dynopay.com/@you. Fans support you in one tap — funds go straight to your wallet, no signup for them.",
+      "subtitle": "Your own tip page at dynopay.me/@you. Fans support you in one tap — funds go straight to your wallet, no signup for them.",
       "cta": "Claim your page"
     },
     "campaign": {

@@ -1,4 +1,5 @@
 import PanelCard from "@/Components/UI/PanelCard";
+import { prettyCreatorUrl } from "@/helpers/creatorUrl";
 import Head from "next/head";
 import { Box, Typography, useMediaQuery, useTheme, Drawer, IconButton } from "@mui/material";
 import { Icon } from "@iconify/react";
@@ -1072,9 +1073,7 @@ const CreatePaymentLinkPage = ({
   // Creator profile — used to show where a donation link will surface publicly.
   const creatorProfile = useSelector((state: any) => state?.userReducer?.profile) as any;
   const creatorHandle: string = creatorProfile?.handle || "";
-  const creatorPublicUrl = creatorHandle
-    ? `${(process.env.NEXT_PUBLIC_BASE_URL || "").replace(/\/+$/, "")}/${creatorHandle}`.replace(/^https?:\/\//, "")
-    : "";
+  const creatorPublicUrl = prettyCreatorUrl(creatorHandle);
   const walletNotSetUp = useMemo(() => {
     const configuredTypes = new Set(
       walletList

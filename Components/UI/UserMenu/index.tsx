@@ -4,6 +4,7 @@ import { MenuItemRow, UserName, UserTrigger } from "./styled";
 
 import LogoutIcon from "@/assets/Icons/logout-icon.svg";
 import { getInitials } from "@/helpers";
+import { buildCreatorUrl } from "@/helpers/creatorUrl";
 import useIsMobile from "@/hooks/useIsMobile";
 import useTokenData from "@/hooks/useTokenData";
 import useWindow from "@/hooks/useWindow";
@@ -35,8 +36,7 @@ export default function UserMenu() {
   // Show "View my creator page" only once the user has claimed a handle AND published.
   const profile = useSelector((s: rootReducer) => (s as any).userReducer.profile) as any;
   const creatorHandle = profile?.handle && profile?.creator_page_enabled ? String(profile.handle) : "";
-  const siteUrl = (process.env.NEXT_PUBLIC_BASE_URL || "").replace(/\/+$/, "");
-  const creatorPublicUrl = creatorHandle ? `${siteUrl}/${creatorHandle}` : "";
+  const creatorPublicUrl = buildCreatorUrl(creatorHandle);
 
   const wrapperRef = useRef<HTMLDivElement>(null);
 

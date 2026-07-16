@@ -1,3 +1,18 @@
+## Session 59 (cont.) — dynopay.me added to DigitalOcean + all creator copy switched to dynopay.me (2026-07-16)
+
+### DigitalOcean
+- Created DNS zone `dynopay.me` via DO API (POST /v2/domains). Nameservers to set at the registrar: ns1.digitalocean.com, ns2.digitalocean.com, ns3.digitalocean.com.
+- NOTE: zone only has NS/SOA so far. To actually serve creator pages, user must (1) point registrar NS to the 3 above, and (2) add A/CNAME records in DO pointing dynopay.me → the app host (IP/target not provided, so not added).
+
+### All creator copy → dynopay.me (audit + fixes beyond the code helper from previous step)
+- i18n locale JSON (the strings actually rendered, which override code defaultValues): replaced `dynopay.com/` → `dynopay.me/` in `langs/locales/{en,es,pt,de,nl,fr}/dashboardLayout.json` (creatorPageDescription) and `.../landing.json` (useCase2Description, hero/faq tipping copy: dynopay.com/@you|@tu|@voce|@du|@jij|@vous|handle|name|usuario|utilizador|pseudo|naam). 36 strings, JSON validated.
+- Components switched to `@/helpers/creatorUrl`: `Components/UI/UserMenu/index.tsx` (creatorPublicUrl → buildCreatorUrl) and `Components/Page/CreatePaymentLink/index.tsx` (creatorPublicUrl → prettyCreatorUrl).
+- Backend code comments mentioning `dynopay.com/{handle}` updated to `dynopay.me/{handle}` in userModel.ts, userController.ts, paymentLinkController.ts, paymentRouter.ts, userRouter.ts, addCreatorHandle.ts.
+- Verified: home page renders `dynopay.me/@you` + `dynopay.me/handle`, ZERO creator-context `dynopay.com` remain (frontend). Remaining `dynopay.com` are non-creator (support/hi emails, API-doc/checkout/blog examples) and left intact by design. Lint clean; frontend restarted healthy.
+
+---
+
+
 ## Session 59 (cont.) — Creator page access URL now uses branded domain dynopay.me (2026-07-16)
 
 ### Request

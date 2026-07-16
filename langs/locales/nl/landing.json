@@ -78,7 +78,7 @@
   "useCase1Description": "Een eenvoudige crypto-checkout voor uw webshop.",
   "useCase1Tag": "Betaallinks",
   "useCase2Title": "Digitale makers",
-  "useCase2Description": "Claim je eigen dynopay.com/naam en word betaald met fooien en één-tik-links.",
+  "useCase2Description": "Claim je eigen dynopay.me/naam en word betaald met fooien en één-tik-links.",
   "useCase2Tag": "Creatorpagina",
   "useCase3Title": "Abonnementen en SaaS",
   "useCase3Description": "Automatische callbacks en een API voor terugkerende betalingen.",
@@ -243,7 +243,7 @@
     "creator": {
       "kicker": "Creators",
       "title": "Ontvang tips",
-      "desc": "Claim dynopay.com/@jij en ontvang met één tik tips in elke coin. Direct naar je wallet. Geen tussenpersoon.",
+      "desc": "Claim dynopay.me/@jij en ontvang met één tik tips in elke coin. Direct naar je wallet. Geen tussenpersoon.",
       "cta": "Bekijk creator-pagina"
     },
     "developer": {
@@ -278,7 +278,7 @@
   },
   "creatorShowcase": {
     "eyebrow": "Creator-pagina",
-    "title": "Jouw eigen tip-pagina — dynopay.com/@jij",
+    "title": "Jouw eigen tip-pagina — dynopay.me/@jij",
     "subtitle": "Bio, socials, one-tap tips in elke coin. Geen aanmelding voor je fans. Elke tip landt binnen minuten in je wallet.",
     "feature1": "Claim je @handle",
     "feature2": "Vaste tipbedragen + eigen bedrag",
@@ -308,7 +308,7 @@
     "cta": "Bekijk volledige prijzen"
   },
   "faq8Q": "Kan ik als creator tips ontvangen?",
-  "faq8A": "Ja. Claim je @handle op dynopay.com/@jij en deel hem. Fans kunnen met één tik tips versturen in 13+ coins — geen aanmelding, geen redirect, geen tussenpersoon. Elke tip gaat direct naar je wallet.",
+  "faq8A": "Ja. Claim je @handle op dynopay.me/@jij en deel hem. Fans kunnen met één tik tips versturen in 13+ coins — geen aanmelding, geen redirect, geen tussenpersoon. Elke tip gaat direct naar je wallet.",
   "developerShowcase": {
     "eyebrow": "Voor developers",
     "title": "Integreer in ~10 minuten.",
@@ -338,7 +338,7 @@
     },
     "creator": {
       "title2": "Ontvang fooien in crypto.",
-      "subtitle": "Je eigen fooienpagina op dynopay.com/@jij. Fans steunen je met één tik — het geld gaat direct naar je wallet, zonder aanmelding voor hen.",
+      "subtitle": "Je eigen fooienpagina op dynopay.me/@jij. Fans steunen je met één tik — het geld gaat direct naar je wallet, zonder aanmelding voor hen.",
       "cta": "Claim je pagina"
     },
     "campaign": {
