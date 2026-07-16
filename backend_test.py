@@ -10,7 +10,7 @@ import sys
 from typing import Dict, Any, List
 
 # Base URL from preview environment
-BASE_URL = "https://43772e84-4776-4512-8b4e-06f252495273.preview.emergentagent.com/api"
+BASE_URL = "https://crypto-payment-hub-29.preview.emergentagent.com/api"
 
 # Test credentials from /app/memory/test_credentials.md
 TEST_EMAIL = "hostbay@moxx.co"

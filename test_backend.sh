@@ -4,7 +4,7 @@
 # Tests: Email button render, CTA routes, sweep module, core API, checkout data
 # SAFETY: READ-ONLY tests only. No mutations, no emails, no sweeps.
 
-API_BASE="https://crypto-payment-hub-28.preview.emergentagent.com/api"
+API_BASE="https://crypto-payment-hub-29.preview.emergentagent.com/api"
 
 echo "╔════════════════════════════════════════════════════════════╗"
 echo "║  Backend Test Suite - 4-Issue Fix Batch (session 10b)     ║"
