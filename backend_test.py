@@ -4,7 +4,7 @@ DynoPay Session Management Backend Test
 Session 55: 7-day login + session list is_current flag + session revoke
 
 Test account: hostbay@moxx.co / Katiekendra123@
-Preview URL: https://blockchain-gateway-15.preview.emergentagent.com
+Preview URL: https://merchant-settlement.preview.emergentagent.com
 """
 
 import requests
@@ -14,7 +14,7 @@ import time
 from typing import Dict, Any, Optional
 
 # Configuration
-BASE_URL = "https://blockchain-gateway-15.preview.emergentagent.com"
+BASE_URL = "https://merchant-settlement.preview.emergentagent.com"
 API_URL = f"{BASE_URL}/api"
 EMAIL = "hostbay@moxx.co"
 PASSWORD = "Katiekendra123@"
