@@ -3,7 +3,7 @@
 Backend testing for the digital-delivery fix already returned 9/9 PASS (see the block below). Because the tax UI on the Merchant surfaces (B.4) + Buyer surfaces (Phase C) render CONDITIONALLY (`tax > 0 || reverse_charge`), and the hostbay live-DB account has zero tax-bearing rows, we seeded synthetic data so the frontend agent can visually confirm each conditional element renders.
 
 ### Preview URL
-https://ad29c7c9-05d0-4880-b991-b0a778c02b77.preview.emergentagent.com
+https://crypto-payment-hub-28.preview.emergentagent.com
 
 ### Test account (LIVE Railway PG)
 - Merchant: **hostbay@moxx.co / Katiekendra123@** (user_id=1, company_id=1). Login = enter email → Continue → **click "Password" radio** → password field appears → fill → Log in.
@@ -26,7 +26,7 @@ Two seed scripts have been run:
 
 ### What to verify — auto_frontend_testing_agent (FRONTEND ONLY; DO NOT test backend)
 
-Preview URL: `https://ad29c7c9-05d0-4880-b991-b0a778c02b77.preview.emergentagent.com`
+Preview URL: `https://crypto-payment-hub-28.preview.emergentagent.com`
 
 Some pages need login (Transactions, Dashboard, Tx-details modal); the two order receipt pages + digital-delivery receipt do NOT (public URLs).
 
@@ -204,7 +204,7 @@ Do NOT create products/orders or mutate merchant settings without restoring.
 - Backend health verified: `database: connected` (live Railway PG), `redis: connected`, `WORKER_ROLE=secondary` (cron/sweeps/webhook-worker DISABLED — no fund movement). Frontend serving on :3000.
 
 ### Preview URL
-https://merchant-settlement.preview.emergentagent.com
+https://crypto-payment-hub-28.preview.emergentagent.com
 
 ### Test account (LIVE Railway PG)
 - Merchant: **hostbay@moxx.co / Katiekendra123@** (user_id=1, company_id=1). Login = email → Continue → select "Password" radio → fill → Log in.
@@ -371,7 +371,7 @@ Fix (this session):
 
 
 ### Preview URL
-https://merchant-settlement.preview.emergentagent.com
+https://crypto-payment-hub-28.preview.emergentagent.com
 
 ### Test account (LIVE Railway PG)
 - Merchant: **hostbay@moxx.co / Katiekendra123@** (user_id=1, company_id=1). Login flow = enter email → **Continue** → SELECT "Password" radio → password appears → fill → Log in.
@@ -421,7 +421,7 @@ Confirmed already-passing (no change needed): landing hero CTAs (Volt-on-Obsidia
 - Screenshots: /tmp/doors_light.jpg (light, deep-linked hover), /tmp/doors_dark_toggled.jpg (dark, vibrant), /tmp/for_merchants.jpg (destination render).
 
 ### What to verify — auto_frontend_testing_agent (FRONTEND ONLY; DO NOT test backend or run OTP flows against LIVE prod)
-Preview: https://merchant-settlement.preview.emergentagent.com
+Preview: https://crypto-payment-hub-28.preview.emergentagent.com
 Login (for badge tests only): hostbay@moxx.co / Katiekendra123@ — flow is: fill E-mail → Continue → **click "Password" radio** → password field appears → fill → Log in. Then land on /dashboard.
 
 1. **AudienceDoors deep-links (public — no login needed):**
@@ -463,7 +463,7 @@ Do NOT touch any other user's data. Do NOT test the OTP / login-code flow. Do NO
 
 
 ### Preview URL
-https://merchant-settlement.preview.emergentagent.com
+https://crypto-payment-hub-28.preview.emergentagent.com
 
 ### Test account (LIVE Railway PG)
 - Merchant: **hostbay@moxx.co / Katiekendra123@** (user_id=1, company_id=1)
@@ -508,7 +508,7 @@ Auth: POST /api/user/login (CSRF token from GET /api/csrf-token; header x-csrf-t
 NOTE: DB is LIVE production Railway PG. Revoking hostbay's OWN stale sessions is acceptable (they were mostly created by prior API/curl checks). Keep it to hostbay's account only; do not touch other users.
 
 ### What to verify (FRONTEND) — auto_frontend_testing_agent
-Preview: https://merchant-settlement.preview.emergentagent.com. Login: hostbay@moxx.co / Katiekendra123@ (multi-step: enter email → Continue → password field + "Keep me signed in for 7 days" checkbox + login). Password login succeeds without OTP for this account.
+Preview: https://crypto-payment-hub-28.preview.emergentagent.com. Login: hostbay@moxx.co / Katiekendra123@ (multi-step: enter email → Continue → password field + "Keep me signed in for 7 days" checkbox + login). Password login succeeds without OTP for this account.
 1. REMEMBER-ME: On /auth/login, after entering the email + Continue, the password view shows a checkbox "Keep me signed in for 7 days" (data-testid="remember-me-toggle"), CHECKED by default. Log in with it checked → lands on dashboard. Verify localStorage has token AND auth_persistent="1". (Optional) log out, log in with it UNCHECKED → localStorage auth_persistent="0" and sessionStorage auth_alive="1".
 2. SESSION MANAGER: Navigate to /settings. An "Active devices" panel (PanelCard) lists sessions; exactly one row shows a green "This device" chip (data-testid="session-current-..."). Non-current rows have a "Sign out" button (data-testid="session-signout-<id>"); clicking one removes that row (200). If >1 other device exists, a "Sign out all others" button (data-testid="sign-out-all-others") revokes the rest, leaving only the current device.
 3. TIP BOX BANNER: On /creator, the top banner reads "Collect tips" with a "Set up tips" button (data-testid="creator-donation-cta-btn") — NOT "donation". Clicking it must NOT navigate away to /create-pay-link; instead it enables + scrolls to the Support Widget section (data-testid="support-widget-settings", id="support-widget") on the SAME page, and the enable switch (data-testid="support-widget-enabled-switch") becomes ON.
@@ -530,7 +530,7 @@ Constraints: LIVE prod DB. Operate only on hostbay's own account. Report pass/fa
 
 ### Test account (LIVE Railway PG)
 - Merchant: **hostbay@moxx.co / Katiekendra123@** (user_id=1, company_id=1)
-- Preview: https://merchant-settlement.preview.emergentagent.com
+- Preview: https://crypto-payment-hub-28.preview.emergentagent.com
 
 ### Bugs + root causes + fixes
 - **A. Recent-transaction click went to list, not details** (frontend). `RecentTransactionsWidget` row onClick did `router.push("/transactions")`. Fixed: rows now deep-link `/transactions?tx=<id>`; `TransactionsTable` reads `router.query.tx` and auto-opens the details modal (and strips `?tx=` on close). Files: `Components/Page/Dashboard/RecentTransactionsWidget.tsx`, `Components/Page/Transactions/TransactionsTable.tsx`.
@@ -717,7 +717,7 @@ Fix is in local preview only. To ship to DO production (`dynopay.com`), user nee
 ## Session 50: End-to-End UI Audit + env URL fix (2026-07-14)
 
 ### Preview URL
-https://merchant-settlement.preview.emergentagent.com
+https://crypto-payment-hub-28.preview.emergentagent.com
 
 ### Test credentials (from /app/memory/test_credentials.md)
 - Data-rich merchant: hostbay@moxx.co / Katiekendra123@ (user_id=1, LIVE Railway PG)
@@ -768,7 +768,7 @@ Delegate to frontend testing agent (`auto_frontend_testing_agent`) to re-verify 
 ## Session 49 Round 3: ProductQuickSell "Import from Store" Feature Verification (2026-07-14)
 
 ### Preview URL
-https://merchant-settlement.preview.emergentagent.com
+https://crypto-payment-hub-28.preview.emergentagent.com
 
 ### Test credentials
 - Merchant: hostbay@moxx.co / Katiekendra123@ (user_id=1, has 1 LIVE product: "Test Ebook Setup Guide", $5.00 USD)
@@ -941,7 +941,7 @@ The feature is working correctly and meets all requirements from the Session 49 
 ## Session 49b: Bug Fix Verification - Audience Doors CTA Readability + Company Delete Saga (2026-07-14)
 
 ### Preview URL
-https://merchant-settlement.preview.emergentagent.com
+https://crypto-payment-hub-28.preview.emergentagent.com
 
 ### Test credentials
 - Merchant: hostbay@moxx.co / Katiekendra123@ (user_id=1, LIVE Railway PG)
@@ -1039,7 +1039,7 @@ AFTER:
 ## Session 49: 2 anomalies found in DO logs + LIVE Railway PG — 5 fixes shipped (2026-07-14)
 
 ### Preview URL
-https://merchant-settlement.preview.emergentagent.com
+https://crypto-payment-hub-28.preview.emergentagent.com
 
 ### Test credentials (from /app/memory/test_credentials.md)
 - Merchant: hostbay@moxx.co / Katiekendra123@ (user_id=1, LIVE Railway PG; has claimed creator handle "hostbay")
@@ -1154,7 +1154,7 @@ Backend running on THIS preview container is the ONE that has the fixes. To ship
 ## Session 48: Menu + Transactions UX overhaul — Creator on mobile/tablet + Source filter + cross-links (2026-07-14)
 
 ### Preview URL
-https://merchant-settlement.preview.emergentagent.com
+https://crypto-payment-hub-28.preview.emergentagent.com
 
 ### Test credentials (from /app/memory/test_credentials.md)
 - Merchant: hostbay@moxx.co / Katiekendra123@ (user_id=1, LIVE Railway PG; has claimed creator handle "hostbay")
@@ -1291,7 +1291,7 @@ Only the `getTransactions` SQL changed. Focus:
 ## Session 44: Phase 1 (Stripe checkout) + Phase 2 (copy sweep) + Phase 3.1 (GoFundMe-lite) + Phase 3.2 (tiers+updates+wall) + Crowdfunding rename + inline checkout + OTP autofill + $10k email fix (2026-07-13)
 
 ### Preview URL
-https://merchant-settlement.preview.emergentagent.com
+https://crypto-payment-hub-28.preview.emergentagent.com
 
 ### Test credentials (from /app/memory/test_credentials.md)
 - Data-rich (company + wallets + creator handle "hostbay"): hostbay@moxx.co / Katiekendra123@
@@ -1461,7 +1461,7 @@ Backend changes are scoped to email-branching in `paymentLinkController.ts` + on
 ## Session 51: BUGFIX — company first/last name clobbering account name + merchant emails (2026-07-15)
 
 ### Preview URL
-https://merchant-settlement.preview.emergentagent.com
+https://crypto-payment-hub-28.preview.emergentagent.com
 
 ### Test credentials (from /app/memory/test_credentials.md)
 - Merchant (data-rich): hostbay@moxx.co / Katiekendra123@ (user_id=1, LIVE Railway PG; account name now corrected to "hostbay")
@@ -1549,7 +1549,7 @@ NOTE: DB is LIVE production Railway PG — keep test data minimal and clean up.
 ## Session 42: Inline Tip Checkout on `/{handle}` + underpayment/overpayment handling (2026-07-13)
 
 ### Preview URL
-https://merchant-settlement.preview.emergentagent.com
+https://crypto-payment-hub-28.preview.emergentagent.com
 
 ### Test credentials (from /app/memory/test_credentials.md)
 - Data-rich (company_id=1 + wallets + CLAIMED creator handle "hostbay", widget enabled from Session 41): hostbay@moxx.co / Katiekendra123@
@@ -1668,7 +1668,7 @@ Zero backend code changed. If you want a spot-check regression (recommended):
 ## Session 41: Creator Support Widget — FRONTEND + CSRF exemption (2026-07-13)
 
 ### Preview URL
-https://merchant-settlement.preview.emergentagent.com
+https://crypto-payment-hub-28.preview.emergentagent.com
 
 ### Test credentials (from /app/memory/test_credentials.md)
 - Data-rich (company_id=1 + wallets + CLAIMED creator handle "hostbay"): hostbay@moxx.co / Katiekendra123@
@@ -1750,7 +1750,7 @@ Use hostbay@moxx.co (company_id=1 + wallets + handle "hostbay").
 ## Session 40: Donation / Tip / Coffee split — Creator Support Widget (BACKEND) — TEST REQUESTED (2026-07-13)
 
 ### Preview URL
-https://merchant-settlement.preview.emergentagent.com
+https://crypto-payment-hub-28.preview.emergentagent.com
 
 ### Test credentials (from /app/memory/test_credentials.md)
 - Data-rich (company_id=1 + wallets + CLAIMED creator handle "hostbay", creator_page_enabled=true): hostbay@moxx.co / Katiekendra123@
@@ -1816,7 +1816,7 @@ Donation = a campaign artifact created in Create Payment Link (unchanged). **Tip
 ## Session 38: Payment Checkout Relevance — Donation-Flavored Copy (2026-07-13)
 
 ### Preview URL
-https://merchant-settlement.preview.emergentagent.com
+https://crypto-payment-hub-28.preview.emergentagent.com
 
 ### Test credentials (from /app/memory/test_credentials.md)
 - Data-rich (has company + wallet, HAS claimed creator handle "hostbay"): hostbay@moxx.co / Katiekendra123@
@@ -1954,7 +1954,7 @@ Focus areas — the `pay/getData` contract is the ONLY backend surface that chan
 ## Session 36: Phase C (Try First Payment cURL card) + Invoice/Tax accuracy fixes — BACKEND TEST REQUESTED (2026-07-12)
 
 ### Preview URL
-https://merchant-settlement.preview.emergentagent.com
+https://crypto-payment-hub-28.preview.emergentagent.com
 
 ### Test credentials (from /app/memory/test_credentials.md)
 - Data-rich (has company+wallet, HAS claimed creator handle "hostbay"): hostbay@moxx.co / Katiekendra123@
@@ -2035,7 +2035,7 @@ Any invoices / test transactions created for these assertions should be marked o
 ## Session 35: Creator/Donation UX batch — FRONTEND TEST REQUESTED (2026-07-12)
 
 ### Preview URL
-https://merchant-settlement.preview.emergentagent.com
+https://crypto-payment-hub-28.preview.emergentagent.com
 
 ### Test credentials (from /app/memory/test_credentials.md)
 - Data-rich (has company+wallet, HAS claimed creator handle "hostbay"): hostbay@moxx.co / Katiekendra123@
@@ -2743,10 +2743,10 @@ Playwright loaded `https://<preview>/elements-test.html?pk=pk_live_wCJi6deu6y-CW
 - **DELETE:** archive succeeds, subsequent session request → 400 "Buy button is not active".
 - **usage_count/last_used_at:** correctly incremented after each successful session.
 - All backend tests were run against the currently-hosted preview
-  `https://merchant-settlement.preview.emergentagent.com`.
+  `https://crypto-payment-hub-28.preview.emergentagent.com`.
 
 ### BACKEND TEST REQUEST — please re-verify + expand coverage
-Base URL: `https://merchant-settlement.preview.emergentagent.com`
+Base URL: `https://crypto-payment-hub-28.preview.emergentagent.com`
 Auth: mint token via `cd /app && node scripts/mint_ux_tokens.js` and use the
 `hostbay@moxx.co` value (company_id=1, has active pk_live_ + active production
 secret key + configured wallets).
@@ -2824,7 +2824,7 @@ CLEANUP:
 ### TEST EXECUTION SUMMARY
 - **Agent:** testing (frontend_testing_agent)
 - **Test Date:** 2026-07-11 11:20-11:26 UTC
-- **Environment:** Preview https://merchant-settlement.preview.emergentagent.com
+- **Environment:** Preview https://crypto-payment-hub-28.preview.emergentagent.com
 - **Login Method:** JWT token injection (hostbay@moxx.co)
 - **Viewports Tested:** Desktop 1920×1080, Mobile 390×844
 
@@ -3141,7 +3141,7 @@ merchant-facing dashboard UI so publishable keys can be managed WITHOUT hitting 
 
 **Backend is UNCHANGED this session.** All CRUD wiring uses the already-tested endpoints from Session 21d.
 
-### FRONTEND TEST REQUEST — base https://merchant-settlement.preview.emergentagent.com
+### FRONTEND TEST REQUEST — base https://crypto-payment-hub-28.preview.emergentagent.com
 
 **Login:** use `hostbay@moxx.co` / `Katiekendra123@` (data-rich merchant, has active secret key
 + company + wallets — required for pk creation because backend enforces "must have active secret key
@@ -3198,7 +3198,7 @@ of same environment first"). If OTP blocks: mint a JWT with
    `Revoked` status and its action icons are disabled.
 
 8. **Live end-to-end (optional but preferred).** Copy the newly-created pk value. Open
-   `https://merchant-settlement.preview.emergentagent.com/embed-test.html?pk=<pk_value>`.
+   `https://crypto-payment-hub-28.preview.emergentagent.com/embed-test.html?pk=<pk_value>`.
    The Buy Button demo section should render a real `<dynopay-buy-button>` and clicking it should open
    the Dynopay iframe checkout (mode=modal). Test passes if the modal opens with the crypto selector
    visible; do NOT complete a payment.
@@ -3716,7 +3716,7 @@ curl -s http://localhost:3300/health
 ## Session 20d: Embedded Checkout Phase 1a — FRONTEND TEST REQUEST (2026-07-10)
 
 Verify the two frontend deliverables of Embedded Checkout (Phase 1a). Preview:
-https://merchant-settlement.preview.emergentagent.com  (LIVE prod — clean up any created key).
+https://crypto-payment-hub-28.preview.emergentagent.com  (LIVE prod — clean up any created key).
 
 PART 1 — Dashboard "Embedded Checkout" snippet card (token = hostbay@moxx.co; it has an API key so the page is not empty):
 - Navigate to /developer-keys. Assert an "Embedded Checkout" card renders below the API key cards, containing 3 code
@@ -3749,7 +3749,7 @@ Stripe-style **Embedded Checkout** (iframe) for crypto, method-agnostic by desig
   postMessage events (dynopay:ready / resize / success / redirect) to the parent iframe.
 - Test merchant page: `/embed-test.html?cs=<client_secret>`.
 
-### BACKEND TEST REQUEST — preview https://merchant-settlement.preview.emergentagent.com
+### BACKEND TEST REQUEST — preview https://crypto-payment-hub-28.preview.emergentagent.com
 LIVE prod DB — MUST clean up. Do NOT touch hostbay's live API key (never regenerate a real merchant's key).
 Use QA account `qa.onboard.1782585233@dynopaytest.com` (JWT via `node /app/scripts/mint_ux_tokens.js`) which has a
 company + 1 wallet.
@@ -3785,7 +3785,7 @@ Report PASS/FAIL per step with evidence (status codes + response bodies). Confir
    minWidth:0+overflow:hidden, name text ellipsis, right (divider/chevron) box flexShrink:0, dropdown ListItemText
    noWrap+minWidth:0. (Wallet page cards + LivePreviewPanel already use ellipsis/minWidth:0 — no change needed.)
 
-### FRONTEND TEST REQUEST — preview https://merchant-settlement.preview.emergentagent.com
+### FRONTEND TEST REQUEST — preview https://crypto-payment-hub-28.preview.emergentagent.com
 LIVE prod DB. Token injection login. Mint tokens: `node /app/scripts/mint_ux_tokens.js`.
 
 A. BRANDING (English/default): visit "/", "/auth/login", "/auth/register", and (token=hostbay@moxx.co) "/dashboard",
@@ -3823,7 +3823,7 @@ FIX 2 (mobile/tablet preview) — Components/Page/CreatePaymentLink/index.tsx:
     bottom-sheet MUI Drawer (data-testid=mobile-preview-drawer) containing LivePreviewPanel; close button
     data-testid=mobile-preview-close.
 
-### FRONTEND TEST REQUEST — preview https://merchant-settlement.preview.emergentagent.com
+### FRONTEND TEST REQUEST — preview https://crypto-payment-hub-28.preview.emergentagent.com
 LIVE prod DB. Log in as hostbay@moxx.co via token injection (it has a company + wallet → /create-pay-link
 reaches the Payment Settings form with the crypto grid). Mint token: `node /app/scripts/mint_ux_tokens.js`,
 inject localStorage 'token', then navigate to /create-pay-link.
@@ -3845,7 +3845,7 @@ Do NOT create a real payment link (delete it if one must be created). Report PAS
 **TEST EXECUTION SUMMARY:**
 - **Agent:** testing (frontend_testing_agent)
 - **Test Date:** 2026-07-10 21:46 UTC
-- **Environment:** Preview https://merchant-settlement.preview.emergentagent.com
+- **Environment:** Preview https://crypto-payment-hub-28.preview.emergentagent.com
 - **Viewports:** Desktop 1920×1080, Tablet 768×1024, Mobile 390×844
 - **Safety Compliance:** ✅ NO payment links created, READ-only testing
 
@@ -4020,7 +4020,7 @@ via Playwright emulate_media(color_scheme='dark') → crash on old build; render
 2. pages/pay/index.tsx — optional chaining `theme.palette.surface?.border` at both sites (defense-in-depth).
 (Swept the whole checkout tree: only other custom key is palette.border.main which EXISTS in both home themes.)
 
-### FRONTEND TEST REQUEST — preview https://merchant-settlement.preview.emergentagent.com
+### FRONTEND TEST REQUEST — preview https://crypto-payment-hub-28.preview.emergentagent.com
 LIVE prod DB. QA login hostbay@moxx.co / Katiekendra123@. Fresh test links (delete at end, named "QA S19 — DELETE ME"):
 STANDARD /pay?d=3fb075565e601c8c6436c6fd789d02cc72fe8e6a6b531cf1 (link_id 29, $20);
 DONATION /pay?d=97caa046bee4b0e1c30a668c969648744625e8c1820a08b5 (link_id 30). Reported link: /pay?d=d73ed771b7ea6cbac71bb11c130d725d81bacf7ddf6811d0.
@@ -4047,7 +4047,7 @@ error text for any failure, and explicitly state whether the dark-mode ErrorBoun
 **TEST EXECUTION SUMMARY:**
 - **Agent:** testing (frontend_testing_agent)
 - **Test Date:** 2026-07-10 16:05-16:08 UTC
-- **Environment:** Preview https://merchant-settlement.preview.emergentagent.com
+- **Environment:** Preview https://crypto-payment-hub-28.preview.emergentagent.com
 - **Viewport:** Desktop 1920×1080
 - **Safety Compliance:** ✅ NO coin selections, NO payments made, READ-only testing
 
@@ -4188,7 +4188,7 @@ error text for any failure, and explicitly state whether the dark-mode ErrorBoun
    donation clause appended to the hero subtitle. UseCaseSection now rendered in Home/index.tsx after CoreValueProps.
    (Landing already visually verified by main agent — Donations card, FAQ, hero clause all present.)
 
-### FRONTEND TEST REQUEST — preview https://merchant-settlement.preview.emergentagent.com
+### FRONTEND TEST REQUEST — preview https://crypto-payment-hub-28.preview.emergentagent.com
 QA login hostbay@moxx.co / Katiekendra123@ (email → Continue → Password radio → password → Continue). LIVE prod DB.
 If you create any link, name it "QA S18 — DELETE ME" and DELETE it at the end. Do NOT select a coin / do NOT pay.
 
@@ -4212,7 +4212,7 @@ C. REGRESSION: standard payment-link creation flow still shows correct copy; /pa
 **TEST EXECUTION SUMMARY:**
 - **Agent:** testing (frontend_testing_agent)
 - **Test Date:** 2026-07-10 14:42-14:45 UTC
-- **Environment:** Preview https://merchant-settlement.preview.emergentagent.com
+- **Environment:** Preview https://crypto-payment-hub-28.preview.emergentagent.com
 - **Viewports:** Desktop 1920×1080, Mobile 390×844
 - **Safety Compliance:** ✅ NO links created, NO payments made, READ-only testing
 
@@ -4392,7 +4392,7 @@ no-store, chunks immutable). Root cause not reproducible by main agent across lo
    recovers instead of dead-ending — matches "refresh doesn't help" report).
 2. Guarded remaining unguarded JSON.parse(router.query.response) in Pay3Components success.tsx / failed.tsx / verify.tsx.
 
-### FRONTEND TEST REQUEST — preview https://merchant-settlement.preview.emergentagent.com
+### FRONTEND TEST REQUEST — preview https://crypto-payment-hub-28.preview.emergentagent.com
 ⚠️ LIVE prod DB. QA account hostbay@moxx.co / Katiekendra123@ (two-step: email → Continue → Password radio →
 password → Continue). Pre-created test links you may use: STANDARD /pay?d=b8adbf84116981f8e1006d967a12cf75356853fc598ff483
 (link_id 22); DONATION /pay?d=caa353e2fe756a98d811b79ef55df4b3173763fc6f99e871 (link_id 23). Name any NEW links
@@ -4431,7 +4431,7 @@ F. Regression: /pay-links list renders rows; checkout link still loads in a clea
 **TEST EXECUTION SUMMARY:**
 - **Agent:** testing (frontend_testing_agent)
 - **Test Date:** 2026-07-10 13:46-13:50 UTC
-- **Environment:** Preview https://merchant-settlement.preview.emergentagent.com
+- **Environment:** Preview https://crypto-payment-hub-28.preview.emergentagent.com
 - **Viewports:** Desktop 1920×1080, 1366×768, 2560×1440, Mobile 390×844
 - **Safety Compliance:** ✅ 2 coin selections made (USDT + TRC20 network), NO payments completed, NO new links created
 
@@ -4665,7 +4665,7 @@ from completed child rows (status IN successful/completed/confirmed/processing/c
 - deletePaymentLink: also deletes contribution children.
 - uploadCampaignImage (auth, multipart field "image"): returns absolute /api/static/images/ URL.
 
-### BACKEND TEST REQUEST — base https://merchant-settlement.preview.emergentagent.com/api
+### BACKEND TEST REQUEST — base https://crypto-payment-hub-28.preview.emergentagent.com/api
 ⚠️ LIVE PRODUCTION DB (Railway). RULES: use ONLY the QA account hostbay@moxx.co / Katiekendra123@ (login via
 POST /api/user/login). Name all created links "QA DONATION TEST — DELETE ME". DELETE every link you create at the
 end. Do NOT call createCryptoPayment/addPayment/confirmPayment (no real payments). Do NOT touch existing links.
@@ -4708,7 +4708,7 @@ Company id: use the QA account's first company from GET /api/company/getCompany.
 **TEST EXECUTION SUMMARY:**
 - **Agent:** testing (backend_testing_agent)
 - **Test Date:** 2026-07-10 09:53-09:54 UTC
-- **Base URL:** https://merchant-settlement.preview.emergentagent.com/api
+- **Base URL:** https://crypto-payment-hub-28.preview.emergentagent.com/api
 - **QA Account:** hostbay@moxx.co (company_id=1)
 - **Safety Compliance:** ✅ All created links named "QA DONATION TEST — DELETE ME" / "QA STD TEST — DELETE ME", ALL deleted at end
 
@@ -4827,7 +4827,7 @@ Company id: use the QA account's first company from GET /api/company/getCompany.
 
 
 ## Session 16: Fresh container re-provisioned (2026-07-10 09:00-09:15 UTC)
-- Setup-only session (no code changes). Documented procedure followed: sequential yarn installs (/app 81s, /app/backend 31s); 3 .env files written from user continuation env (preview URL https://merchant-settlement.preview.emergentagent.com, fresh NEXTAUTH_SECRET, SAFETY overrides NODE_ENV=production / WORKER_ROLE=secondary / ENABLE_BACKGROUND_JOBS=false — verified in logs); next build standalone rc=0; public/ 42/42 intact post-build.
+- Setup-only session (no code changes). Documented procedure followed: sequential yarn installs (/app 81s, /app/backend 31s); 3 .env files written from user continuation env (preview URL https://crypto-payment-hub-28.preview.emergentagent.com, fresh NEXTAUTH_SECRET, SAFETY overrides NODE_ENV=production / WORKER_ROLE=secondary / ENABLE_BACKGROUND_JOBS=false — verified in logs); next build standalone rc=0; public/ 42/42 intact post-build.
 - Health verified: Railway PG + Redis + Tatum connected (40 rates); internal :8001 /api/ /health /api/csrf-token + :3300 /health = 200; frontend :3000 / + /auth/login = 200; external preview /api/ /api/csrf-token / = 200 with google-login-btn + github-login-btn; POST /api/user/login bad creds → 401. Expected quirks: Binance WS geo-blocked (451) → fallback; SSH tunnel disabled.
 
 
@@ -4861,7 +4861,7 @@ PaymentLinksTable.tsx: Header accepts optional tooltip (MUI Tooltip + InfoOutlin
 header cell passes it; mobile card " · Used Nx" → i18n'd "· N× paid". Backend meaning verified: times_used
 increments ONLY when a payment through the link completes (cryptoCheckout.ts:1658).
 
-### FRONTEND TEST REQUEST (preview https://merchant-settlement.preview.emergentagent.com)
+### FRONTEND TEST REQUEST (preview https://crypto-payment-hub-28.preview.emergentagent.com)
 ⚠️ LIVE prod DB. Payment link (user's test link): /pay?d=d73ed771b7ea6cbac71bb11c130d725d81bacf7ddf6811d0
 Do NOT select any coin on the checkout this run. Login QA account for tests 2–3.
 1. BUG#1 VERIFY (corrupted storage): via Playwright add_init_script seed
@@ -4880,7 +4880,7 @@ Do NOT select any coin on the checkout this run. Login QA account for tests 2–
 **TEST EXECUTION SUMMARY:**
 - **Agent:** testing (frontend_testing_agent)
 - **Test Date:** 2026-07-10 07:09-07:12 UTC
-- **Environment:** Preview https://merchant-settlement.preview.emergentagent.com
+- **Environment:** Preview https://crypto-payment-hub-28.preview.emergentagent.com
 - **Viewport:** Desktop 1920×900 (as specified)
 - **Safety Compliance:** ✅ NO coin selection on checkout, login with QA account only
 
@@ -5102,7 +5102,7 @@ Do NOT select any coin on the checkout this run. Login QA account for tests 2–
 #### ❌ BUG#2 RE-TEST (Session 14d, focused re-test): Edit payment link save redirect — FAIL
 
 **Re-test Date:** 2026-07-10 07:14-07:22 UTC (testing agent)
-**Environment:** Preview https://merchant-settlement.preview.emergentagent.com
+**Environment:** Preview https://crypto-payment-hub-28.preview.emergentagent.com
 **Viewport:** Desktop 1920×900
 **Safety Compliance:** ✅ Login with QA account only, NO field values changed, re-saved ONE payment link
 
@@ -5187,7 +5187,7 @@ renamed to `staticTheme`, leaving bare `theme` unresolved. Shipped because next.
 NOTE (pre-existing, unrelated, NOT fixed): /_next/image 400 for /images/user_image.png avatar fallback on this
 page — cosmetic, present before the fix.
 
-### FRONTEND TEST REQUEST (preview https://merchant-settlement.preview.emergentagent.com)
+### FRONTEND TEST REQUEST (preview https://crypto-payment-hub-28.preview.emergentagent.com)
 ⚠️ LIVE prod DB. Login with QA account (/app/memory/test_credentials.md, two-step: email → Continue → select
 "Password" radio → fill password → Continue). READ-mostly; toggling switches is allowed but do NOT click
 "Save Changes". Do NOT send chat messages.
@@ -5203,7 +5203,7 @@ page — cosmetic, present before the fix.
 **TEST EXECUTION SUMMARY:**
 - **Agent:** testing (frontend_testing_agent)
 - **Test Date:** 2026-07-10 06:41-06:43 UTC
-- **Environment:** Preview https://merchant-settlement.preview.emergentagent.com
+- **Environment:** Preview https://crypto-payment-hub-28.preview.emergentagent.com
 - **Viewport:** Desktop 1920×900 (as specified)
 - **Safety Compliance:** ✅ NO "Save Changes" clicked, NO chat messages sent, READ-mostly operations only
 
@@ -5438,7 +5438,7 @@ page — cosmetic, present before the fix.
 - Header: inline back button (10px radius) + 19px title; BitCoinGreenIcon dropped. Removed unused Select/MenuItem/ListItemIcon/ListItemText/KeyboardArrowDownIcon/BitCoinGreenIcon imports + getSelectedOption.
 - next build clean; verified live with the user's real payment link (tiles → USDT → TRC20 → QR/address/amount/countdown, no console errors, wallet button gone).
 
-### FRONTEND TEST REQUEST (preview https://merchant-settlement.preview.emergentagent.com)
+### FRONTEND TEST REQUEST (preview https://crypto-payment-hub-28.preview.emergentagent.com)
 ⚠️ LIVE prod DB. Use ONLY the user-provided test payment link below. Each coin selection creates a real (unpaid) crypto payment record — select coins AT MOST 2 times total. Do NOT pay anything. No login needed.
 Payment link: /pay?d=d73ed771b7ea6cbac71bb11c130d725d81bacf7ddf6811d0
 1. BUG VERIFY: open the link → NO "Something went wrong" error; order review card renders (merchant "hostbay", 10.00 USD); no console/page errors.
@@ -5453,7 +5453,7 @@ Payment link: /pay?d=d73ed771b7ea6cbac71bb11c130d725d81bacf7ddf6811d0
 **TEST EXECUTION SUMMARY:**
 - **Agent:** testing (frontend_testing_agent)
 - **Test Date:** 2026-07-10 06:15-06:18 UTC
-- **Environment:** Preview https://merchant-settlement.preview.emergentagent.com
+- **Environment:** Preview https://crypto-payment-hub-28.preview.emergentagent.com
 - **Viewport:** Desktop 1920×900 (primary), Mobile 390×844 (wallet button check)
 - **Safety Compliance:** ✅ 2 coin selections made (USDT + TRC20 network), within 2-selection limit
 
@@ -5718,7 +5718,7 @@ Payment link: /pay?d=d73ed771b7ea6cbac71bb11c130d725d81bacf7ddf6811d0
 
 ### SETUP (fresh container eca50d37)
 Re-provisioned per documented procedure: sequential yarn installs, 3 .env files (preview
-https://merchant-settlement.preview.emergentagent.com, fresh NEXTAUTH_SECRET, OPENAI_API_KEY +
+https://crypto-payment-hub-28.preview.emergentagent.com, fresh NEXTAUTH_SECRET, OPENAI_API_KEY +
 SUPPORT_CHAT_MODEL=gpt-5.4), SAFETY overrides NODE_ENV=production / WORKER_ROLE=secondary /
 ENABLE_BACKGROUND_JOBS=false (verified), next build standalone. All health checks green.
 
@@ -5759,7 +5759,7 @@ CSRF: /api/support/chat prefix already exempt (startsWith match covers /upload).
    transitions), MIN_VISIBLE 500→350ms, prefers-reduced-motion honored. Probed via Playwright + CDP throttling:
    appears ~280ms, fades in, fades out smoothly after route completes (no hard cut). Query-only changes skip.
 
-### BACKEND TEST REQUEST — base https://merchant-settlement.preview.emergentagent.com/api
+### BACKEND TEST REQUEST — base https://crypto-payment-hub-28.preview.emergentagent.com/api
 ⚠️ Backend shares the LIVE production Railway PG — read-only besides support-chat test rows; use session ids
 prefixed "backendtest-". Send AT MOST 2 /api/support/chat messages total (each costs OpenAI tokens).
 1. POST /support/chat/upload (multipart field "file"): a small PNG → 200 { data: { url:/api/static/support-chat/<uuid>.png, name, type, size } }.
@@ -5772,7 +5772,7 @@ prefixed "backendtest-". Send AT MOST 2 /api/support/chat messages total (each c
 
 ### RESULT: ✅ ALL TESTS PASS (11/11) — 2026-07-10 05:24 UTC (testing agent)
 
-### FRONTEND TEST REQUEST (preview https://merchant-settlement.preview.emergentagent.com)
+### FRONTEND TEST REQUEST (preview https://crypto-payment-hub-28.preview.emergentagent.com)
 ⚠️ Shares LIVE prod DB. Login allowed with QA account (see /app/memory/test_credentials.md — two-step: email → Continue → password → Continue). Send AT MOST 1 support-chat message (OpenAI cost). Do NOT create/modify payment links, wallets or companies.
 1. Landing /: hero has single CTA "Start accepting crypto" (NO "Watch 90s demo" button); ProductShowcase ("Built for crypto commerce") is the FIRST section under the hero; NO "Try it now" sandbox section anywhere on /; showcase slide 3 (Developers — click the right arrow twice or wait ~18s) shows browser bar "dynopay.com/api" and cURL "https://dynopay.com/api/user/createPayment".
 2. Emily chat: open [data-testid=support-chat-button] → header shows "Emily" (support-chat-agent-name) + "Active" with green dot; emoji button (support-chat-emoji) toggles picker (support-chat-emoji-picker), clicking an emoji inserts it into the input; attach via hidden input (support-chat-file-input, set_input_files with a small PNG) → pending chip (support-chat-pending-attachment) appears; send ONE message "What is in this image?" with the attachment → user bubble shows image thumbnail + timestamp (support-chat-timestamp), assistant reply appears with timestamp.
@@ -5787,7 +5787,7 @@ prefixed "backendtest-". Send AT MOST 2 /api/support/chat messages total (each c
 **TEST EXECUTION SUMMARY:**
 - **Agent:** testing (frontend_testing_agent)
 - **Test Date:** 2026-07-10 05:34-05:36 UTC
-- **Environment:** Preview https://merchant-settlement.preview.emergentagent.com
+- **Environment:** Preview https://crypto-payment-hub-28.preview.emergentagent.com
 - **Viewport:** Desktop 1920×800 (as specified)
 - **Safety Compliance:** ✅ NO chat messages sent (test stopped before sending due to MUI InputBase selector issue), NO login attempted, NO data modifications
 
@@ -6160,7 +6160,7 @@ prefixed "backendtest-". Send AT MOST 2 /api/support/chat messages total (each c
 **TEST EXECUTION SUMMARY:**
 - **Agent:** testing (backend_testing_agent)
 - **Test Date:** 2026-07-10 05:24 UTC
-- **Environment:** Preview https://merchant-settlement.preview.emergentagent.com/api
+- **Environment:** Preview https://crypto-payment-hub-28.preview.emergentagent.com/api
 - **Session ID:** backendtest-1783661061
 - **Safety Compliance:** ✅ 1 POST /support/chat message sent (within 2-message limit), all session_ids prefixed "backendtest-", NO service restarts, NO code modifications
 
@@ -6552,7 +6552,7 @@ prefixed "backendtest-". Send AT MOST 2 /api/support/chat messages total (each c
    "dynopay:open-support-chat"; SupportChatWidget/index.tsx got a window listener that setOpen(true) on that
    event. No navigation happens; the AI support chat panel opens in place.
 
-### FRONTEND TEST REQUEST (preview https://merchant-settlement.preview.emergentagent.com — READ-ONLY)
+### FRONTEND TEST REQUEST (preview https://crypto-payment-hub-28.preview.emergentagent.com — READ-ONLY)
 1. /: hero subtitle contains "Accept 15+ chains" and page source contains NO "Accept 13 chains".
 2. /: scroll to the bottom "Ready to accept crypto?" section; click [data-testid="final-cta-chat"]
    ("Chat with us") → URL stays on "/" (NO redirect to /auth/login), and [data-testid="support-chat-panel"]
@@ -6568,7 +6568,7 @@ prefixed "backendtest-". Send AT MOST 2 /api/support/chat messages total (each c
 **TEST EXECUTION SUMMARY:**
 - **Agent:** testing (frontend_testing_agent)
 - **Test Date:** 2026-07-10 04:19-04:20 UTC
-- **Environment:** Preview https://merchant-settlement.preview.emergentagent.com (READ-ONLY)
+- **Environment:** Preview https://crypto-payment-hub-28.preview.emergentagent.com (READ-ONLY)
 - **Viewport:** Desktop 1920×800 (as specified)
 - **Safety Compliance:** ✅ NO chat messages sent, NO login, NO form submissions
 
@@ -6644,8 +6644,8 @@ prefixed "backendtest-". Send AT MOST 2 /api/support/chat messages total (each c
 
 **Results:**
 - ✅ Found 1 button with testid "final-cta-chat"
-- ✅ URL before click: https://merchant-settlement.preview.emergentagent.com/
-- ✅ URL after click: https://merchant-settlement.preview.emergentagent.com/
+- ✅ URL before click: https://crypto-payment-hub-28.preview.emergentagent.com/
+- ✅ URL after click: https://crypto-payment-hub-28.preview.emergentagent.com/
 - ✅ URL stayed on '/': True
 - ✅ Did NOT navigate to /auth/login: True
 - ✅ Did NOT navigate to /help-support: True
@@ -6675,7 +6675,7 @@ prefixed "backendtest-". Send AT MOST 2 /api/support/chat messages total (each c
 **Results:**
 - ✅ Found 3 links with href="/documentation"
 - ✅ Link text: "Full API docs"
-- ✅ Navigated to: https://merchant-settlement.preview.emergentagent.com/documentation
+- ✅ Navigated to: https://crypto-payment-hub-28.preview.emergentagent.com/documentation
 - ✅ Contains '/documentation': True
 
 **Verdict:** ✅ PASS — "View Documentation" link navigates correctly, no regression
@@ -6774,7 +6774,7 @@ prefixed "backendtest-". Send AT MOST 2 /api/support/chat messages total (each c
 4. (Session 13 earlier, agent-untested) RouteTransitionLoader — full-screen pulsing DynoPay logo on page
    transitions; testid route-transition-loader (see Session 13 entry below for behavior).
 
-### FRONTEND TEST REQUEST (preview https://merchant-settlement.preview.emergentagent.com — READ-ONLY, no login needed)
+### FRONTEND TEST REQUEST (preview https://crypto-payment-hub-28.preview.emergentagent.com — READ-ONLY, no login needed)
 1. AUTH LOGOS: /auth/login at 1920×800 light → the VISIBLE logo <img> src contains "dynopay-blackLogo"
    and NO visible img src contains "dynopay-logo." (old blue png). Toggle dark (moon button in card) →
    visible logo src contains "whiteLogo". /auth/register at 1920 light → brand-panel logo = blackLogo.
@@ -6800,7 +6800,7 @@ prefixed "backendtest-". Send AT MOST 2 /api/support/chat messages total (each c
 **TEST EXECUTION SUMMARY:**
 - **Agent:** testing (frontend_testing_agent)
 - **Test Date:** 2026-07-10 04:03-04:07 UTC
-- **Environment:** Preview https://merchant-settlement.preview.emergentagent.com (READ-ONLY)
+- **Environment:** Preview https://crypto-payment-hub-28.preview.emergentagent.com (READ-ONLY)
 - **Viewport:** Desktop 1920×800 (default), tested at 1000×800 and 390×800 for responsive checks
 
 **OVERALL RESULT: ✅ 13/15 TESTS PASS** (2 minor issues)
@@ -7021,7 +7021,7 @@ prefixed "backendtest-". Send AT MOST 2 /api/support/chat messages total (each c
 ### SETUP (fresh container)
 Re-provisioned per documented procedure: sequential yarn install /app + /app/backend (parallel installs corrupt
 shared yarn cache — run sequentially), 3 .env files written (preview URL
-https://merchant-settlement.preview.emergentagent.com, preview host first in CORS, fresh
+https://crypto-payment-hub-28.preview.emergentagent.com, preview host first in CORS, fresh
 NEXTAUTH_SECRET, OPENAI_API_KEY + SUPPORT_CHAT_MODEL=gpt-5.4 kept for support chat), SAFETY overrides
 NODE_ENV=production / WORKER_ROLE=secondary / ENABLE_BACKGROUND_JOBS=false (verified: 4 "Skipping" lines, 0
 LeaderElection lines), next build standalone, frontend restarted. Health verified: PG+Redis+Tatum connected,
@@ -7449,7 +7449,7 @@ The AI Support Chat feature is fully functional and ready for production. Main a
 ### CONTEXT
 Fresh container re-provisioned (yarn install /app + /app/backend, 3 .env files, next build standalone,
 SAFETY overrides: NODE_ENV=production, WORKER_ROLE=secondary, ENABLE_BACKGROUND_JOBS=false — backend shares
-LIVE prod Railway PG + Redis). Preview: https://merchant-settlement.preview.emergentagent.com
+LIVE prod Railway PG + Redis). Preview: https://crypto-payment-hub-28.preview.emergentagent.com
 
 ### FIXES APPLIED THIS SESSION
 1. BACKEND (user issue: "admin fee USDT address was already activated long ago"): 
@@ -7475,7 +7475,7 @@ LIVE prod Railway PG + Redis). Preview: https://merchant-settlement.preview.emer
 - TronGrid unauthenticated rate limit = 1 req/sec: sleep ≥2s between activation-check calls.
   If TronGrid 429s, the function falls back to Tatum (log: "via Tatum fallback") — that is a PASS too.
 
-### BACKEND TEST REQUEST (base https://merchant-settlement.preview.emergentagent.com/api, internal http://localhost:8001)
+### BACKEND TEST REQUEST (base https://crypto-payment-hub-28.preview.emergentagent.com/api, internal http://localhost:8001)
 A) Compile/module: `cd /app/backend && node_modules/.bin/tsc --noEmit` exits 0. ts-node --transpile-only
    require of services/tronEnergyService still exports isRecipientActivatedForToken, markRecipientActivated,
    calculateOptimalFeeLimit, calculateDynamicTRC20Fee.
@@ -7517,7 +7517,7 @@ D) Core API regression: GET /api/ → 200; GET /api/csrf-token → 200; GET /hea
 ### TEST EXECUTION
 - **agent:** testing (frontend_testing_agent)
 - **test_date:** 2026-07-10 02:28-02:32 UTC
-- **test_environment:** Preview container (https://merchant-settlement.preview.emergentagent.com)
+- **test_environment:** Preview container (https://crypto-payment-hub-28.preview.emergentagent.com)
 - **verification_method:** Playwright UI automation with viewport 1920×800 (READ-ONLY, no mutations)
 - **safety_compliance:** ✅ READ-ONLY testing, NO code modifications, NO service restarts
 - **viewport:** Desktop 1920×800 (as specified)
@@ -7865,7 +7865,7 @@ The Session 12 UI fixes are verified and working correctly. Main agent can now s
   (prod instances will use it after deploy). Redis semantics may ONLY be tested on a throwaway key leader:test-<random>.
 - No mutations beyond login form; no email sending; do NOT execute sweeps.
 
-### BACKEND TEST REQUEST (base https://merchant-settlement.preview.emergentagent.com/api, internal http://localhost:8001)
+### BACKEND TEST REQUEST (base https://crypto-payment-hub-28.preview.emergentagent.com/api, internal http://localhost:8001)
 A) Deploy blockers gone: (1) `find /app/public -type f | wc -l` = 42 AND `cd /app && git ls-files public | wc -l` = 42;
    (2) `cd /app/backend && node_modules/.bin/tsc --noEmit` exits 0 with no output.
 B) Sweep module regression (READ-ONLY): ts-node --transpile-only require of services/merchantPool/merchantPoolSweep →
@@ -7899,7 +7899,7 @@ F) Core API regression: GET /api/ → 200; GET /api/csrf-token → 200; POST /ap
 ### TEST EXECUTION
 - **agent:** testing (backend_testing_agent)
 - **test_date:** 2026-07-10 01:23-01:25 UTC
-- **test_environment:** Preview container (https://merchant-settlement.preview.emergentagent.com)
+- **test_environment:** Preview container (https://crypto-payment-hub-28.preview.emergentagent.com)
 - **verification_method:** Automated backend tests (Python + TypeScript test scripts)
 - **safety_compliance:** ✅ READ-ONLY testing, NO mutations, NO leader election start, throwaway Redis keys only
 
@@ -8239,7 +8239,7 @@ Main agent should:
 
 ### HARD CONSTRAINTS — READ-ONLY (LIVE PROD DB): login only; no mutations; no /pay/* interactions beyond LOADING the page; do NOT click currency/continue on checkout; no email sending.
 
-### BACKEND TEST REQUEST (preview base https://merchant-settlement.preview.emergentagent.com/api)
+### BACKEND TEST REQUEST (preview base https://crypto-payment-hub-28.preview.emergentagent.com/api)
 A) Email template offline render check (NO emails sent): from /app/backend run a node -r dotenv/config script with
    ts-node transpileOnly that imports baseEmailTemplate from ./utils/emailTemplate and renders a sample with
    showButton:true, buttonText:'View Transaction', buttonLink:'https://x/transactions'. ASSERT: (1) the <a class="btn">
@@ -8275,7 +8275,7 @@ E) Checkout getData regression: POST /api/pay/getData {"data":"d73ed771b7ea6cbac
 ### TEST EXECUTION
 - **agent:** testing (auto_frontend_testing_agent)
 - **test_date:** 2026-07-10 00:37-00:40 UTC
-- **test_url:** https://merchant-settlement.preview.emergentagent.com
+- **test_url:** https://crypto-payment-hub-28.preview.emergentagent.com
 - **verification_method:** Playwright UI automation with console monitoring (READ-ONLY, no mutations)
 - **test_account:** hostbay@moxx.co (user_id=1, company_id=1)
 - **safety_compliance:** ✅ READ-ONLY testing, NO data mutations except login form submission, NO clicks on checkout page
@@ -8348,7 +8348,7 @@ E) Checkout getData regression: POST /api/pay/getData {"data":"d73ed771b7ea6cbac
 **Actual:** ✅ All expectations met
 
 **Results:**
-- ✅ Redirected to /auth/login: `https://merchant-settlement.preview.emergentagent.com/auth/login`
+- ✅ Redirected to /auth/login: `https://crypto-payment-hub-28.preview.emergentagent.com/auth/login`
 - ✅ Token cleared from localStorage (verified via `localStorage.getItem('token')` returned `null`)
 
 **Verdict:** ✅ PASS — Hard sign-out working correctly. After 16 minutes of idle time, the user is immediately signed out and redirected to the login page, with the token properly cleared.
@@ -8526,7 +8526,7 @@ C) Capture network for "unread-count". Navigate /dashboard → 9s → /transacti
 ### TEST EXECUTION
 - **agent:** testing (auto_frontend_testing_agent)
 - **test_date:** 2026-07-09 23:48-23:50 UTC
-- **test_url:** https://merchant-settlement.preview.emergentagent.com
+- **test_url:** https://crypto-payment-hub-28.preview.emergentagent.com
 - **verification_method:** Playwright UI automation with network monitoring (READ-ONLY, no mutations)
 - **test_account:** hostbay@moxx.co (user_id=1, company_id=1)
 - **safety_compliance:** ✅ READ-ONLY testing, NO data mutations except login form submission
@@ -8665,7 +8665,7 @@ D) Mobile 390×844 on /notifications, scroll so cards sit behind the bottom pill
 ### TEST EXECUTION
 - **agent:** testing (auto_frontend_testing_agent)
 - **test_date:** 2026-07-09 23:36-23:40 UTC
-- **test_url:** https://merchant-settlement.preview.emergentagent.com
+- **test_url:** https://crypto-payment-hub-28.preview.emergentagent.com
 - **verification_method:** Playwright UI automation with network monitoring (READ-ONLY, no mutations)
 - **test_account:** hostbay@moxx.co (user_id=1, company_id=1)
 - **safety_compliance:** ✅ READ-ONLY testing, NO data mutations except login form submission
@@ -8831,7 +8831,7 @@ E) Regression as hostbay: /invoices and /customers must render their DATA tables
 ### TEST EXECUTION
 - **agent:** testing (auto_frontend_testing_agent)
 - **test_date:** 2026-07-09 23:15-23:25 UTC
-- **test_url:** https://merchant-settlement.preview.emergentagent.com
+- **test_url:** https://crypto-payment-hub-28.preview.emergentagent.com
 - **verification_method:** Playwright UI automation with network monitoring (READ-ONLY, no mutations)
 - **test_account:** hostbay@moxx.co (user_id=1, company_id=1)
 - **safety_compliance:** ✅ READ-ONLY testing, NO data mutations except login form submission
@@ -9104,7 +9104,7 @@ Pages render correctly. Note: hostbay has 0 invoices and 0 customers, so empty t
 - hostbay@moxx.co / Katiekendra123@ (data-rich; use for caching + mobile checks; its invoices/customers are likely NON-empty).
 - qa.onboard.1782585233@dynopaytest.com / QaOnboard#2026 (has company "QA Test Co", NO transactions → use for EMPTY states on /invoices and /customers). Login is same 2-step password flow; alternatively mint JWTs: `node /app/scripts/mint_ux_tokens.js` then localStorage.setItem('token', JWT) on the app origin.
 
-### FRONTEND TEST REQUEST — https://merchant-settlement.preview.emergentagent.com
+### FRONTEND TEST REQUEST — https://crypto-payment-hub-28.preview.emergentagent.com
 A) As qa.onboard: /invoices → EXPECT empty state with icon, "No invoices yet", description, AND a "Create payment link" button; click it → lands on /create-pay-link (then navigate away WITHOUT touching the form).
 B) As qa.onboard: /customers → EXPECT empty state: "No customers yet" title + description mentioning the API + "View API documentation" and "Get API keys" buttons; click docs button → /documentation; go back; click keys button → /developer-keys.
 C) As hostbay: enable network capture, then navigate /dashboard → /transactions → /pay-links → /wallet → /notifications within ~30s. EXPECT: /api/notifications/unread-count requested AT MOST once (maybe twice) in that window — NOT once per page navigation. Badge still visible in sidebar.
@@ -9463,7 +9463,7 @@ This is the same critical issue identified in the previous END-TO-END UI/UX AUDI
 ## END-TO-END UI/UX AUDIT — Test Request (2026-07-09, session 10)
 
 ### GOAL
-Full read-only UX audit of the merchant app at https://merchant-settlement.preview.emergentagent.com
+Full read-only UX audit of the merchant app at https://crypto-payment-hub-28.preview.emergentagent.com
 to catalogue user-experience friction and improvement opportunities. NOT a pass/fail bug hunt — collect observations
 with severity (HIGH/MED/LOW) + page + description.
 
@@ -9495,7 +9495,7 @@ with severity (HIGH/MED/LOW) + page + description.
 ### TEST EXECUTION
 - **agent:** testing (auto_frontend_testing_agent)
 - **test_date:** 2026-07-09 22:38-22:42 UTC
-- **test_url:** https://merchant-settlement.preview.emergentagent.com
+- **test_url:** https://crypto-payment-hub-28.preview.emergentagent.com
 - **verification_method:** Playwright UI automation with console/network monitoring (READ-ONLY, no mutations)
 - **test_account:** hostbay@moxx.co (user_id=1, company_id=1, data-rich merchant)
 - **safety_compliance:** ✅ READ-ONLY audit, NO data mutations, only login form submitted
@@ -9779,7 +9779,7 @@ Due to rate limiting and script errors, not all planned screenshots were capture
 
 - Fresh container (no node_modules, no .env files, no .next build → frontend FATAL). Re-provisioned from user-supplied `<continuation_request>` .env per documented procedure (full detail in /app/memory/test_credentials.md).
 - `yarn install` in /app (111s) + /app/backend (72s); wrote /app/backend/.env, /app/.env, /app/frontend/.env; ran `next build` (required — frontend shim runs `next start`).
-- All app URLs → https://merchant-settlement.preview.emergentagent.com (this container's APP_URL); preview host FIRST in CORS_ALLOWED_ORIGINS (+ crypto-gateway-24 alias kept).
+- All app URLs → https://crypto-payment-hub-28.preview.emergentagent.com (this container's APP_URL); preview host FIRST in CORS_ALLOWED_ORIGINS (+ crypto-gateway-24 alias kept).
 - Fresh NEXTAUTH_SECRET generated; GITHUB creds colon-syntax → `=`; EXT_PUBLIC typo → NEXT_PUBLIC_ENABLE_GITHUB_AUTH=true; GOOGLE_CLIENT_KEY kept `\\n`-escaped; PORT omitted from backend/.env (server.py injects 3300).
 - SAFETY overrides (backend shares LIVE production Railway PG + Redis): NODE_ENV=production, WORKER_ROLE=secondary, ENABLE_BACKGROUND_JOBS=false — verified in logs (error-digest / webhook-URL-migration / BullMQ webhook worker / startup-reconciliation all skipped).
 - Health verified: Railway PostgreSQL + Redis + Tatum connected (40 rates); internal :8001 /api/ /health /api/csrf-token = 200; frontend :3000 = 200; external preview /api/ /api/csrf-token / /auth/login = 200 with google-login-btn + github-login-btn present; POST /api/user/login bad creds → 401.
@@ -9804,7 +9804,7 @@ which is sliced to the first 5 currencies while the grid is collapsed (parent Cr
   auto-expands the grid (`setShowAllCoins(true)`) so all selected cards are visible, and the counter denominator
   is `allCryptoItems.length` (stable "of 15" regardless of collapse state).
 
-### FRONTEND TEST REQUEST — https://merchant-settlement.preview.emergentagent.com
+### FRONTEND TEST REQUEST — https://crypto-payment-hub-28.preview.emergentagent.com
 HARD CONSTRAINTS: backend uses LIVE PRODUCTION Railway PG. READ-ONLY — login allowed, navigating allowed,
 clicking Select all/Clear all/Show all allowed (client-side state only). DO NOT submit/create/save a payment
 link, DO NOT click any final "Create"/"Save" button, no other mutations.
@@ -9825,7 +9825,7 @@ link, DO NOT click any final "Create"/"Save" button, no other mutations.
 ## 2026-07-09 SESSION 9 — Fresh container re-provisioned ✅ (setup only, no code changes)
 - Fresh container (no node_modules, no .env files, frontend FATAL). Re-provisioned from user-supplied `<continuation_request>` .env per documented procedure (see /app/memory/test_credentials.md for full detail).
 - `yarn install` in /app (76s) + /app/backend (26s); wrote /app/backend/.env, /app/.env, /app/frontend/.env.
-- All app URLs → https://merchant-settlement.preview.emergentagent.com (this container's APP_URL); preview host FIRST in CORS_ALLOWED_ORIGINS.
+- All app URLs → https://crypto-payment-hub-28.preview.emergentagent.com (this container's APP_URL); preview host FIRST in CORS_ALLOWED_ORIGINS.
 - Fresh NEXTAUTH_SECRET generated; GITHUB creds colon-syntax → `=`; EXT_PUBLIC typo → NEXT_PUBLIC_ENABLE_GITHUB_AUTH=true; GOOGLE_CLIENT_KEY kept `\\n`-escaped.
 - SAFETY overrides (backend shares LIVE production Railway PG + Redis): NODE_ENV=production, WORKER_ROLE=secondary, ENABLE_BACKGROUND_JOBS=false — verified in logs (error-digest / webhook-URL-migration / BullMQ webhook worker / startup-reconciliation all skipped).
 - Health verified: Railway PostgreSQL + Redis + Tatum connected; internal :8001 /api/ /health /api/csrf-token = 200; frontend :3000 = 200; external preview /api/ /api/csrf-token / /auth/login = 200 with google-login-btn + github-login-btn present; POST /api/user/login bad creds → 401.
@@ -9855,7 +9855,7 @@ link, DO NOT click any final "Create"/"Save" button, no other mutations.
 - Logging in with the QA account below is ALLOWED (POST /api/user/login only).
 - Credentials: /app/memory/test_credentials.md → hostbay@moxx.co / Katiekendra123@ (user_id=1, company_id=1).
 
-### BACKEND TEST REQUEST — base https://merchant-settlement.preview.emergentagent.com/api
+### BACKEND TEST REQUEST — base https://crypto-payment-hub-28.preview.emergentagent.com/api
 A) formatCryptoAmount unit checks (run offline node script from /app/backend, e.g.
    `npx ts-node -e "..."` or node -r with transpile): import { formatCryptoAmount } from ./utils/currencyUtils
    EXPECT: (0.00033163515000000004,'BTC') → "0.00033164"; (0.6540538533333333,'LTC') → "0.65405385";
@@ -9889,7 +9889,7 @@ E) DO NOT trigger settlements/webhooks/emails. Backend runs WORKER_ROLE=secondar
 ### TEST EXECUTION
 - **agent:** testing (auto_backend_testing_agent)
 - **test_date:** 2026-07-08 21:30-21:45 UTC
-- **test_url:** https://merchant-settlement.preview.emergentagent.com/api
+- **test_url:** https://crypto-payment-hub-28.preview.emergentagent.com/api
 - **verification_method:** Backend API testing + offline unit tests (READ-ONLY, no mutations)
 - **test_account:** hostbay@moxx.co (user_id=1, company_id=1)
 - **safety_compliance:** ✅ READ-ONLY testing, NO data mutations except single login
@@ -10051,7 +10051,7 @@ E) DO NOT trigger settlements/webhooks/emails. Backend runs WORKER_ROLE=secondar
 ### TEST EXECUTION
 - **agent:** testing (auto_frontend_testing_agent)
 - **test_date:** 2026-07-08 21:20-21:25 UTC
-- **test_url:** https://merchant-settlement.preview.emergentagent.com
+- **test_url:** https://crypto-payment-hub-28.preview.emergentagent.com
 - **verification_method:** Playwright UI testing (READ-ONLY, no mutations)
 - **test_account:** hostbay@moxx.co (user_id=1, company_id=1)
 - **safety_compliance:** ✅ READ-ONLY testing, NO data mutations except login form submission
@@ -10102,7 +10102,7 @@ E) DO NOT trigger settlements/webhooks/emails. Backend runs WORKER_ROLE=secondar
 
 **Evidence:**
 - Screenshot: `.screenshots/test1_transaction_volume_chart.png`
-- Network request URL: `https://merchant-settlement.preview.emergentagent.com/api/dashboard/chart?period=7d&company_id=1`
+- Network request URL: `https://crypto-payment-hub-28.preview.emergentagent.com/api/dashboard/chart?period=7d&company_id=1`
 
 **Verdict:** ✅ PASS — Chart API fires correctly, returns 200 with data, chart renders without "no data" message. Issue #2 is FIXED.
 
@@ -10212,7 +10212,7 @@ All three user-reported bugs have been successfully fixed and verified:
 ### TEST EXECUTION
 - **agent:** testing (auto_frontend_testing_agent)
 - **test_date:** 2026-07-08 18:00-18:05 UTC
-- **test_url:** https://merchant-settlement.preview.emergentagent.com
+- **test_url:** https://crypto-payment-hub-28.preview.emergentagent.com
 - **verification_method:** Playwright UI testing with JWT injection + visual screenshot analysis (READ-ONLY, no mutations)
 - **test_accounts:** hostbay@moxx.co (user_id=1), qa.onboard (user_id=3)
 - **safety_compliance:** ✅ NO forms submitted, NO data mutations
@@ -10479,7 +10479,7 @@ All 4 fixes applied in session 6d are working correctly:
 ### TEST EXECUTION
 - **agent:** testing (auto_frontend_testing_agent)
 - **test_date:** 2026-07-08 17:18-17:25 UTC
-- **test_url:** https://merchant-settlement.preview.emergentagent.com
+- **test_url:** https://crypto-payment-hub-28.preview.emergentagent.com
 - **verification_method:** Playwright UI testing with JWT injection (READ-ONLY, no mutations)
 - **test_accounts:** hostbay@moxx.co (user_id=1), qa.empty (user_id=8), qa.onboard (user_id=3)
 - **safety_compliance:** ✅ NO forms submitted, NO data mutations
@@ -10830,7 +10830,7 @@ Do NOT run: any settlement, sweep, or webhook-migration crons (background jobs a
 ### TEST EXECUTION
 - **agent:** testing (auto_backend_testing_agent)
 - **test_date:** 2026-07-07 18:40 UTC
-- **test_url:** https://merchant-settlement.preview.emergentagent.com/api
+- **test_url:** https://crypto-payment-hub-28.preview.emergentagent.com/api
 - **verification_method:** Backend API testing + unit tests (READ-ONLY, no mutations)
 - **test_account:** hostbay@moxx.co (user_id: 1, lifetime volume: $18,888.74 USD)
 - **safety_compliance:** ✅ NO emails sent, NO DB mutations, NO tier reconciliation executed
@@ -10927,7 +10927,7 @@ The volume-based fee tier system is fully functional:
 
 ## TEST REQUEST (2026-07-07) — Volume-based fee tier system + marketing copy alignment
 ### ⚠️ LIVE PRODUCTION — READ-ONLY. Do not manually run the tier reconciliation cron against production DB.
-Preview: https://merchant-settlement.preview.emergentagent.com
+Preview: https://crypto-payment-hub-28.preview.emergentagent.com
 JWT: `node /app/scripts/mint_ux_tokens.js` — use `hostbay@moxx.co` (17,357 USD cumulative volume, `fee_tier='standard'` in DB → should map to Starter/1.5% pre-cron, will become Growth/1.0% post-cron).
 
 ### CONTEXT
@@ -11028,7 +11028,7 @@ VOLUME_TIER_ENTERPRISE_MIN=500000 MAX=        PERCENT=0.5
 
 ## TEST REQUEST (2026-07-07) — Enable Google OAuth login/signup
 ### ⚠️ LIVE PRODUCTION — DO NOT complete a full OAuth login. Test button visibility + popup URL + backend endpoint only.
-Preview: https://merchant-settlement.preview.emergentagent.com
+Preview: https://crypto-payment-hub-28.preview.emergentagent.com
 
 ### CONTEXT
 User provided Google OAuth credentials and asked to:
@@ -11040,7 +11040,7 @@ User provided Google OAuth credentials and asked to:
 - `GET https://accounts.google.com/o/oauth2/v2/auth?client_id=<CID>&...` → returned Google's "Sign in with Google" page (client_id RECOGNIZED). ✅
 - `POST https://oauth2.googleapis.com/token` with client_id + client_secret + fake auth code → returned `{"error":"invalid_grant","error_description":"Malformed auth code."}` (Google ACCEPTED the client_id/secret pair — if secret were wrong we'd get `invalid_client`). ✅
 - `POST /api/user/google-signin` with fake token → 401 "Invalid Google access token" (backend controller reachable + wired). ✅
-- **CAVEAT — Not verified**: whether the preview origin `https://merchant-settlement.preview.emergentagent.com` is in the OAuth client's "Authorized JavaScript origins" list. The `redirect_uri_mismatch` returned for the NextAuth callback URL suggests the preview origin might NOT be whitelisted for this OAuth client (which is likely configured only for `dynopay.com` production). This means the client-side GIS popup MAY show "Access blocked" on the preview but will work perfectly on production `dynopay.com`.
+- **CAVEAT — Not verified**: whether the preview origin `https://crypto-payment-hub-28.preview.emergentagent.com` is in the OAuth client's "Authorized JavaScript origins" list. The `redirect_uri_mismatch` returned for the NextAuth callback URL suggests the preview origin might NOT be whitelisted for this OAuth client (which is likely configured only for `dynopay.com` production). This means the client-side GIS popup MAY show "Access blocked" on the preview but will work perfectly on production `dynopay.com`.
 
 ### CHANGES APPLIED
 - `/app/backend/.env`: `NEXT_PUBLIC_ENABLE_GOOGLE_AUTH=true`, `NEXT_PUBLIC_GOOGLE_CLIENT_ID=163670787265-g39k8mfhfc4rgv4jpgt6k6n62phif72o.apps.googleusercontent.com`, added `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET=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`.
@@ -11072,7 +11072,7 @@ User provided Google OAuth credentials and asked to:
 
 ## TEST REQUEST (2026-07-07) — Brand refresh (logo/email/OTP) + Sidebar referral one-tap share
 ### ⚠️ LIVE PRODUCTION — READ-ONLY. JWT injection only; no forms/mutations/OTP.
-Preview: https://merchant-settlement.preview.emergentagent.com
+Preview: https://crypto-payment-hub-28.preview.emergentagent.com
 JWT: `node /app/scripts/mint_ux_tokens.js` — use `hostbay@moxx.co` (data-rich).
 
 ### CONTEXT (from `/app/memory/BRAND_REFRESH_BRIEF.md`)
@@ -11125,7 +11125,7 @@ Brand issues #1, #2, #3 all PASS. Sidebar share row visible on `/dashboard` in t
 
 ## TEST REQUEST (2026-07-07 follow-up) — Source-aware transaction labels
 ### ⚠️ LIVE PRODUCTION — READ-ONLY. JWT injection only.
-Preview: https://merchant-settlement.preview.emergentagent.com
+Preview: https://crypto-payment-hub-28.preview.emergentagent.com
 JWT: `node /app/scripts/mint_ux_tokens.js` (hostbay@moxx.co has BOTH `legacy_api` and `payment_link` rows).
 
 ### CONTEXT
@@ -11166,7 +11166,7 @@ User asked: "would payment show relevant label if not API payment but payment li
 
 ## TEST REQUEST (2026-07-07) — Dashboard 4-bug fix (hostbay-visible bugs)
 ### ⚠️ LIVE PRODUCTION — READ-ONLY. JWT injection only; no forms/mutations/OTP.
-Preview: https://merchant-settlement.preview.emergentagent.com
+Preview: https://crypto-payment-hub-28.preview.emergentagent.com
 JWT: `node /app/scripts/mint_ux_tokens.js` — use `hostbay@moxx.co` (data-rich, has $17k+ volume + trial exhausted).
 ## VERIFICATION RESULTS (2026-07-07 follow-up) — Source-aware labels + regression fix: ✅ ALL PASS
 
@@ -11251,7 +11251,7 @@ Inject `localStorage.setItem('token','<JWT>')`, then navigate to `/dashboard`. H
 ---
 
 
-Preview: https://merchant-settlement.preview.emergentagent.com ; JWT: `node /app/scripts/mint_ux_tokens.js` (hostbay@moxx.co). Inject `localStorage.setItem('token','<JWT>')`, hard-reload to get latest build.
+Preview: https://crypto-payment-hub-28.preview.emergentagent.com ; JWT: `node /app/scripts/mint_ux_tokens.js` (hostbay@moxx.co). Inject `localStorage.setItem('token','<JWT>')`, hard-reload to get latest build.
 Context: after the previous pass I swept component-level hardcoded blues → theme tokens: RadioGroup (radios), DatePicker range highlight, PaymentLinksTable header, EmailVerificationBanner, SaveChangeModel, CompanySettingsDialog VAT rows, AreaChart line+gradient, Transactions/CelebrationOverlay confetti, ApiKeysPage border, TimePicker, Loading spinner. Expect the OLD electric blue (#0004FF) / indigo (#6C7BFF, rgb(88,101,242)) to be essentially GONE from the dashboard.
 1. DARK mode — /dashboard, /wallet, /pay-links, /transactions, /profile: confirm accent is cyber-lime, and specifically re-check the previously-blue elements: radio buttons, date-range picker highlight, the metrics area CHART line, table header row, "verify email" banner, selects. Report any element STILL blue/indigo (page + element). Screenshot.
 2. LIGHT mode (toggle sun/moon): /dashboard + /wallet + a form page (/create-pay-link or /profile). Confirm the bold frost + near-black look (primary buttons near-black w/ lime text), radios/date-picker/chart use near-black accent (NOT blue), and NO lime-on-white low-contrast readability problems. Report issues. Screenshot.
@@ -11265,7 +11265,7 @@ Expected: no electric-blue/indigo remaining on the tested dashboard pages in eit
 ### TEST EXECUTION
 - agent: testing (auto_frontend_testing_agent)
 - test_date: 2026-07-07 12:57:00 UTC
-- test_url: https://merchant-settlement.preview.emergentagent.com
+- test_url: https://crypto-payment-hub-28.preview.emergentagent.com
 - verification_method: Playwright UI testing with JWT injection (READ-ONLY, no mutations)
 - test_account: hostbay@moxx.co (data-rich: company + wallet + transactions)
 - safety_compliance: ✅ NO forms submitted, NO data mutations, theme toggle only
@@ -11413,7 +11413,7 @@ The per-component blue sweep was largely successful, but 3 component types still
 
 ## TEST REQUEST (2026-07-07) — Feature A Phase 1: bold "bento" theme extended into the dashboard
 ### ⚠️ LIVE PRODUCTION — READ-ONLY. JWT injection only; no forms/mutations/OTP. Toggling light/dark theme is a safe UI preference.
-Preview: https://merchant-settlement.preview.emergentagent.com ; JWT: `node /app/scripts/mint_ux_tokens.js` (use hostbay@moxx.co — data-rich). Inject `localStorage.setItem('token','<JWT>')` then navigate.
+Preview: https://crypto-payment-hub-28.preview.emergentagent.com ; JWT: `node /app/scripts/mint_ux_tokens.js` (use hostbay@moxx.co — data-rich). Inject `localStorage.setItem('token','<JWT>')` then navigate.
 Goal: the logged-in dashboard now uses the cyber-lime (#CCFF00) accent + bold dark/frost canvas (was electric blue #0004FF / indigo #6C7BFF). Verify it RENDERS correctly and looks cohesive.
 1. Visit /dashboard, /wallet, /pay-links, /profile. For each: does it render fully (no broken layout, no blank, no console errors)? Is the primary accent now lime/near-black (NOT the old blue)? Screenshot each.
 2. Toggle the app between light and dark mode (look for a sun/moon / appearance toggle in the top bar, sidebar, or profile menu) and re-check /dashboard + /wallet in the other mode. Screenshot.
@@ -11427,7 +11427,7 @@ Expected: pages render, buttons/CTAs are lime (dark) / near-black-with-lime-text
 ### TEST EXECUTION
 - agent: testing (auto_frontend_testing_agent)
 - test_date: 2026-07-07 12:15-12:20 UTC
-- test_url: https://merchant-settlement.preview.emergentagent.com
+- test_url: https://crypto-payment-hub-28.preview.emergentagent.com
 - verification_method: Playwright UI testing with JWT injection (READ-ONLY, no mutations)
 - test_account: hostbay@moxx.co (data-rich: company + wallet + transactions)
 - safety_compliance: ✅ NO forms submitted, NO data mutations, theme toggle only
@@ -11557,7 +11557,7 @@ From the captured screenshot of /wallet page:
 
 ### ⚠️ SAFETY — LIVE PRODUCTION. READ-ONLY / NAVIGATION / LANGUAGE-SWITCH ONLY.
 Do NOT submit login/register/forgot forms, do NOT create accounts/companies/links, do NOT do wallet credit/debit, do NOT trigger any real payment/OTP/email. Use JWT injection for logged-in pages.
-Preview URL: https://merchant-settlement.preview.emergentagent.com
+Preview URL: https://crypto-payment-hub-28.preview.emergentagent.com
 JWTs: `node /app/scripts/mint_ux_tokens.js` (prints hostbay@moxx.co [data-rich], qa.empty [user_id 8: nothing set up], qa.onboard [user_id 3: 1 company only]). Inject via `localStorage.setItem('token','<JWT>')` then navigate. Language: localStorage `lang` + `lang_manual='true'` then reload.
 
 ### FEATURE B — checkout /pay bank-transfer + Back i18n
@@ -11583,7 +11583,7 @@ B: Back button translates on the 2 legal pages. C: qa.empty shows 4-step checkli
 ### TEST EXECUTION
 - agent: testing (auto_frontend_testing_agent)
 - test_date: 2026-07-07 11:59-12:02 UTC
-- test_url: https://merchant-settlement.preview.emergentagent.com
+- test_url: https://crypto-payment-hub-28.preview.emergentagent.com
 - verification_method: Playwright UI testing with JWT injection (READ-ONLY, no mutations)
 - safety_compliance: ✅ NO forms submitted, NO data mutations, NO OTP/email triggers
 
@@ -11684,7 +11684,7 @@ Both Feature B (checkout /pay Back button i18n) and Feature C (onboarding 4th mi
 
 ## VERIFICATION RESULTS (2026-07-07) — Auth redesign visuals + FR/ES/PT i18n — ✅ ALL PASSED
 - agent: testing (auto_frontend_testing_agent); method: Playwright visual + JWT injection; READ-ONLY (no submits/mutations/OTP — safety-compliant on live prod).
-- test_url: https://merchant-settlement.preview.emergentagent.com
+- test_url: https://crypto-payment-hub-28.preview.emergentagent.com
 - PART A (auth "Floating Glass Bento"): PASS all 4 — /auth/login dark (void-black + #CCFF00) + light (frost + lime text); /auth/register active Email/Mobile tab IS cyber-lime (consistent w/ login — resolves the "indigo?" concern); Forgot-password dialog IS themed (glass+lime, not plain MUI — resolves concern); /admin/login inherits theme. Two-step login intact, no console errors.
 - PART B (i18n): 12/12 PASS — /referrals, /invoices, /customers, /profile all translated in FR + ES + PT, no raw dotted keys, no untranslated English.
 - STILL UNVERIFIED (intentionally skipped — would send REAL emails/OTP on live prod, needs user decision): (1) reset-password card BODY (needs a valid ?token= → real forgot-password email), (2) OTP dialog visuals (only appears after submitting real creds → real OTP send).
@@ -11697,7 +11697,7 @@ Both Feature B (checkout /pay Back button i18n) and Feature C (onboarding 4th mi
 ### TEST EXECUTION
 - agent: testing (auto_frontend_testing_agent)
 - test_date: 2026-07-07 11:19-11:23 UTC
-- test_url: https://merchant-settlement.preview.emergentagent.com
+- test_url: https://crypto-payment-hub-28.preview.emergentagent.com
 - verification_method: Playwright UI testing (read-only, no form submits)
 - safety_compliance: ✅ NO forms submitted, NO data mutations, NO OTP triggers
 
@@ -11822,7 +11822,7 @@ Several onboarding/setup surfaces had hardcoded English (no `useTranslation`).
 ### STATUS: needs testing-agent verification (main agent already: lint-clean, pages compile 200).
 
 ### FRONTEND TEST PLAN
-Preview: https://merchant-settlement.preview.emergentagent.com
+Preview: https://crypto-payment-hub-28.preview.emergentagent.com
 Auth is OTP-gated → inject JWT. `node /app/scripts/mint_ux_tokens.js` prints tokens; use
 `qa.empty.*@dynopaytest.com` (NO company, NO wallet — triggers all onboarding surfaces).
 In the browser set: `localStorage.token=<jwt>`, `localStorage.lang="de"`, `localStorage.lang_manual="true"`, then reload.
@@ -11837,7 +11837,7 @@ Repeat a spot check in French (lang="fr"). Report any English still leaking on t
 ### VERIFICATION RESULTS (2026-07-07 02:35 UTC)
 - agent: testing (auto_frontend_testing_agent)
 - test_date: 2026-07-07 02:35:00 UTC
-- test_url: https://merchant-settlement.preview.emergentagent.com
+- test_url: https://crypto-payment-hub-28.preview.emergentagent.com
 - verification_method: Playwright UI testing with token injection
 
 ### TEST RESULTS - ALL PASSED ✅
@@ -11997,7 +11997,7 @@ and `companyDialog.json` (`createModal` block ~44 keys). Merge scripts: `scripts
 /create-pay-link & /wallet onboarding "quick steps"/empty-state copy, Profile
 (Change/Add phone/Update password/Login activity), CompanySettingsDialog.
 
-### FRONTEND TEST PLAN (preview: https://merchant-settlement.preview.emergentagent.com)
+### FRONTEND TEST PLAN (preview: https://crypto-payment-hub-28.preview.emergentagent.com)
 Auth is OTP-gated → inject a JWT (`node /app/scripts/mint_ux_tokens.js` → use `hostbay@moxx.co`
 for the data-rich dashboard, `qa.empty...@dynopaytest.com` for the Create-Company modal). Set
 `localStorage.token`, `localStorage.lang="de"` (or fr/es/pt/nl), `localStorage.lang_manual="true"`.
@@ -12024,7 +12024,7 @@ into all 5 components and added 35 new keys to landing.json for all 6 languages
 sublabels, chains header, FAQ badge/title/subtitle + 6 Q&A pairs, testimonials eyebrow/heading
 + 3 quotes. Reused existing `startAcceptingCrypto` key for the primary CTA.
 
-### FRONTEND TEST PLAN (preview: https://merchant-settlement.preview.emergentagent.com)
+### FRONTEND TEST PLAN (preview: https://crypto-payment-hub-28.preview.emergentagent.com)
 - Load the LANDING page "/" (public, no login).
 - Locate the language switcher in the top header (shows "EN" with a flag + dropdown chevron).
 - Switch to Portuguese (PT). Verify the HERO + sections now render Portuguese, e.g.:
@@ -12063,7 +12063,7 @@ Report PASS/FAIL with quoted visible text for PT and DE for the hero + FAQ + com
    dashboardLayout, companyDialog, createPaymentLinkScreen, common. (Legal pages
    terms/privacy/aml for de+nl still pending — out of scope for this test.)
 
-### FRONTEND TEST PLAN (preview URL: https://merchant-settlement.preview.emergentagent.com)
+### FRONTEND TEST PLAN (preview URL: https://crypto-payment-hub-28.preview.emergentagent.com)
 - **Theme flash**: emulate `prefers-color-scheme: dark`, set localStorage `theme-mode=light`
   + cookie `theme-mode=light`, load `/` and reload; verify the page renders LIGHT with no
   dark→light flash. Also toggle theme → reload → verify it persists with no flash.
@@ -12206,7 +12206,7 @@ overflowing iPhone SE (320px) and squeezing filter chips on 360-390px devices. C
 
 ### FRONTEND TEST REQUEST
 
-BASE URL: https://merchant-settlement.preview.emergentagent.com
+BASE URL: https://crypto-payment-hub-28.preview.emergentagent.com
 
 Test credentials (use the token-injection approach — login is OTP-gated in the app):
 - Email: hostbay@moxx.co
@@ -12307,7 +12307,7 @@ so we can make targeted fixes in the next iteration.
 
 ### FRONTEND TEST REQUEST
 
-BASE URL: https://merchant-settlement.preview.emergentagent.com
+BASE URL: https://crypto-payment-hub-28.preview.emergentagent.com
 
 CASE A — public landing page (`/`) copy check:
 1. Navigate to `/`. Wait networkidle + 2000ms (large landing page).
@@ -12363,7 +12363,7 @@ or missing.
 ### VERIFICATION RESULTS (2026-07-06 21:10 UTC)
 - agent: testing
 - test_date: 2026-07-06 21:10:00 UTC
-- test_url: https://merchant-settlement.preview.emergentagent.com
+- test_url: https://crypto-payment-hub-28.preview.emergentagent.com
 - verification_method: Playwright UI testing + chunk grep
 
 ### CRITICAL PASS/FAIL CRITERIA - ALL PASSED ✅
@@ -12501,7 +12501,7 @@ Six-part dashboard cleanup shipped (all in `Components/Page/Dashboard/`):
 
 ### FRONTEND TEST REQUEST
 
-BASE URL: https://merchant-settlement.preview.emergentagent.com
+BASE URL: https://crypto-payment-hub-28.preview.emergentagent.com
 
 `/dashboard` requires auth (LIVE prod DB — do NOT log in). Same
 chunk-grep verification as previous batches.
@@ -12633,7 +12633,7 @@ Four UX improvements shipped in one batch:
 
 ### FRONTEND TEST REQUEST
 
-BASE URL: https://merchant-settlement.preview.emergentagent.com
+BASE URL: https://crypto-payment-hub-28.preview.emergentagent.com
 
 All four pages behind auth (LIVE prod DB — do NOT log in). Use the same
 CHUNK-GREP verification approach as last session's "placeholder 10" fix:
@@ -12682,7 +12682,7 @@ string (or which strings were missing), and any unexpected errors.
 ### VERIFICATION RESULTS (2026-07-06 20:27 UTC)
 - agent: testing
 - test_date: 2026-07-06 20:27:00 UTC
-- test_url: https://merchant-settlement.preview.emergentagent.com
+- test_url: https://crypto-payment-hub-28.preview.emergentagent.com
 - verification_method: CHUNK-GREP (no auth required)
 
 ### CRITICAL PASS/FAIL CRITERIA - ALL PASSED ✅
@@ -12827,7 +12827,7 @@ All four onboarding UX improvements have been successfully bundled and deployed.
 
 ### FRONTEND TEST REQUEST
 
-BASE URL: https://merchant-settlement.preview.emergentagent.com
+BASE URL: https://crypto-payment-hub-28.preview.emergentagent.com
 
 The affected page `/create-pay-link` requires auth (this preview is on the
 LIVE prod DB — do NOT log in with real credentials). Two verification paths:
@@ -12895,7 +12895,7 @@ LIVE prod DB — do NOT log in with real credentials). Two verification paths:
 ### VERIFICATION RESULTS (2026-07-06 20:10 UTC)
 - agent: testing
 - test_date: 2026-07-06 20:10:00 UTC
-- test_url: https://merchant-settlement.preview.emergentagent.com
+- test_url: https://crypto-payment-hub-28.preview.emergentagent.com
 - bug_fix_context: User reported "10" showing in amount input on /create-pay-link. Fix: Changed placeholder from "10" to "0.00" in PaymentSettingsBasic.tsx line 75.
 
 ### CRITICAL PASS/FAIL CRITERIA - ALL PASSED ✅
@@ -12926,7 +12926,7 @@ LIVE prod DB — do NOT log in with real credentials). Two verification paths:
 - Results:
   * Navigated to /create-pay-link ✅
   * Correctly redirected to /auth/login (expected - no auth) ✅
-  * Final URL: https://merchant-settlement.preview.emergentagent.com/auth/login ✅
+  * Final URL: https://crypto-payment-hub-28.preview.emergentagent.com/auth/login ✅
   * App rendered successfully, no crashes ✅
 - Screenshot: paylink_redirect_to_login.png
 - **VERDICT: ✅ PASS - App healthy, navigation working correctly**
@@ -13048,7 +13048,7 @@ The user-reported issue of "10" appearing as a misleading default value in the a
   "verified-confirmation-chip") ABOVE the "Welcome to DynoPay!" heading. Text
   varies by `method`. Green tint + border, theme-aware (dark/light).
 
-- FRONTEND TEST REQUEST — preview https://merchant-settlement.preview.emergentagent.com
+- FRONTEND TEST REQUEST — preview https://crypto-payment-hub-28.preview.emergentagent.com
 
   HARD CONSTRAINTS:
   * DO NOT create real users — backend is connected to LIVE production DB/Brevo/Telnyx.
@@ -13155,7 +13155,7 @@ The user-reported issue of "10" appearing as a misleading default value in the a
 
 
 backend:
-  - target_url: https://merchant-settlement.preview.emergentagent.com/api
+  - target_url: https://crypto-payment-hub-28.preview.emergentagent.com/api
   - test_endpoints:
     - GET /api/: Health check (should return 200)
     - GET /api/pay/network-fees: Core functionality test
@@ -13216,7 +13216,7 @@ backend:
     - FIX: Cron expression "0 */24 * * *" → "0 0 * * *"
 
 frontend:
-  - target_url: https://merchant-settlement.preview.emergentagent.com
+  - target_url: https://crypto-payment-hub-28.preview.emergentagent.com
   - latest_ux_pass_for_test: 2026-06-30 — UX audit fixes batch. Files touched:
     1. `/app/langs/locales/en/common.json` — fixed grammar ("There is no" → "No … yet") and rewrote empty-state descriptions to TEACH (e.g. "A payout wallet is where customer payments are sent. Add at least one to start receiving crypto.") for transactions, wallet, apiKey, payment-link empty states.
     2. `/app/pages/create-pay-link.tsx` — REWROTE the setup gate. Previously forced navigation away to `/company` and `/wallet`. Now opens `CreateCompanyModal` and `AddWalletModal` INLINE on the page so the user never leaves `/create-pay-link`. The two steps now show as a checklist with helper copy ("Used on invoices and receipts. Takes ~30 seconds.", "Where customer payments are sent. Required to receive crypto."), and completed steps show a green check ring.
@@ -13226,7 +13226,7 @@ frontend:
     6. `/app/Components/UI/EmptyDataModel/index.tsx` — added a "What is a payout wallet?" help link (only on `pageName==="wallet"`) opening dynopay.com help in a new tab.
     - VERIFIED (2026-06-30 12:16 UTC): UX Fix #5 - Banner Color Follow-up ✅ PASS
       * Test account: qa.empty.1782626169@dynopaytest.com (user_id 8, no company - banner visible)
-      * Test URL: https://merchant-settlement.preview.emergentagent.com/dashboard
+      * Test URL: https://crypto-payment-hub-28.preview.emergentagent.com/dashboard
       * Banner text: "Company setup" (located in top header at position top=35px)
       * Banner color: rgb(0, 4, 255) - BLUE ✅
       * Color analysis:
@@ -13324,7 +13324,7 @@ frontend:
     - with no hint + no cookie → `initialThemeMode":"light"` (was: `"dark"` before fix).
   - Playwright probe with `color_scheme='light'` OS emulation on /auth/login: `data-theme=light`, `body_bg=rgb(255,255,255)`, `cookie=light`. With `color_scheme='dark'`: `data-theme=dark`, `body_bg=rgb(11,13,23)`, `cookie=dark`. Both persist across reload.
 
-- FRONTEND TEST REQUEST — preview https://merchant-settlement.preview.emergentagent.com
+- FRONTEND TEST REQUEST — preview https://crypto-payment-hub-28.preview.emergentagent.com
   GOAL: confirm the app's theme now follows the device / OS `prefers-color-scheme` setting on FIRST visit (i.e. no cookie, no localStorage) — the exact issue the user reported.
   HARD CONSTRAINTS: DO NOT log in (backend is connected to LIVE production DB). Test PUBLIC pages only (/ and /auth/login and /auth/register are enough). DO NOT submit forms.
   HOW TO TEST — use Playwright's `browser.new_context(color_scheme='light' | 'dark')` (OS preference emulation) to simulate the OS setting. For each scenario, use a FRESH context (empty cookies + empty localStorage — this is what a first-time visitor sees).
@@ -13370,7 +13370,7 @@ frontend:
 ## Theme respects device OS preference — VERIFICATION RESULTS (2026-07-05 08:40 UTC)
 - agent: testing
 - test_date: 2026-07-05 08:40:00 UTC
-- test_url: https://merchant-settlement.preview.emergentagent.com
+- test_url: https://crypto-payment-hub-28.preview.emergentagent.com
 - bug_fix_context: User reported "dark mode appears by default. isn't this suppose to work with device settings?" Fix: Added Client Hints headers, changed SSR default from "dark" to "light", updated theme context to respect OS preference on first visit.
 
 ## i18n hydration mismatch (Bug Fix) — Frontend Test Request (2026-07-05)
@@ -13387,7 +13387,7 @@ frontend:
   - `GET /` with `Accept-Language: en-US,en;q=0.9` — SSR HTML contains `>Features<`.
   - Both headers now produce the same SSR HTML → guarantees no hydration mismatch regardless of the client's browser locale.
 
-- FRONTEND TEST REQUEST — preview https://merchant-settlement.preview.emergentagent.com
+- FRONTEND TEST REQUEST — preview https://crypto-payment-hub-28.preview.emergentagent.com
   GOAL: confirm the hydration error is gone AND the client-detected language still takes effect after mount.
   HARD CONSTRAINTS: DO NOT log in (backend is on LIVE production DB). Test PUBLIC pages only (`/`, `/auth/login`, `/auth/register`, `/fees`). Do not submit any form.
 
@@ -13436,7 +13436,7 @@ frontend:
 ### VERIFICATION RESULTS (2026-07-05 09:38 UTC)
 - agent: testing
 - test_date: 2026-07-05 09:38:00 UTC
-- test_url: https://merchant-settlement.preview.emergentagent.com
+- test_url: https://crypto-payment-hub-28.preview.emergentagent.com
 - bug_fix_context: User reported `Text content did not match. Server: "Features" Client: "Recursos"` hydration error. Fix: i18n now ALWAYS initializes with "en" on both server and client, then switches to detected language POST-hydration.
 
 ### CRITICAL PASS/FAIL CRITERIA - ALL PASSED ✅
@@ -13781,7 +13781,7 @@ The user-reported issue "dark mode appears by default. isn't this suppose to wor
 ## Onboarding UX Improvements — Test Results (2026-06-27 17:42 UTC)
 - agent: testing
 - test_date: 2026-06-27 17:42:00 UTC
-- test_url: https://merchant-settlement.preview.emergentagent.com
+- test_url: https://crypto-payment-hub-28.preview.emergentagent.com
 - test_results: PARTIAL PASS (2/3 pages working, 1 CRITICAL ISSUE)
 
 ### PAGE 1: /auth/register ✅ PASS
@@ -13838,7 +13838,7 @@ The user-reported issue "dark mode appears by default. isn't this suppose to wor
 ## Onboarding Preview Page Re-Test — Test Results (2026-06-27 17:48 UTC)
 - agent: testing
 - test_date: 2026-06-27 17:48:00 UTC
-- test_url: https://merchant-settlement.preview.emergentagent.com/auth/onboarding-preview
+- test_url: https://crypto-payment-hub-28.preview.emergentagent.com/auth/onboarding-preview
 - test_results: ALL TESTS PASSED ✅ (Previous redirect issue FIXED)
 
 ### TEST SUMMARY
@@ -13950,7 +13950,7 @@ The user-reported issue "dark mode appears by default. isn't this suppose to wor
 - fix:
   1. Generated a new logo PNG from the SVG source (`/app/assets/Images/auth/dynopay-logo.svg`, viewBox 134×45) at scale=15 → **1888×656 px** (cropped to alpha bbox), transparent RGBA. Saved over `/app/backend/assets/dynopay-logo.png` (51 KB, was 2.3 KB).
   2. `/app/backend/services/pdfService.ts` — changed `doc.image(logoPath, 50, 50, { width: 120, height: 40 })` → `doc.image(logoPath, 50, 50, { fit: [120, 42], align: "left", valign: "top" })` so pdfkit preserves source aspect ratio (no stretch) and downsamples cleanly.
-- BACKEND TEST REQUEST — preview https://merchant-settlement.preview.emergentagent.com/api
+- BACKEND TEST REQUEST — preview https://crypto-payment-hub-28.preview.emergentagent.com/api
   Headers required: `User-Agent: Mozilla/5.0 ... Chrome/120 Safari/537.36`
   GOAL: confirm a freshly-generated invoice PDF has a CRISP, NON-PIXELATED logo at the top-left.
   STEPS:
@@ -13971,7 +13971,7 @@ The user-reported issue "dark mode appears by default. isn't this suppose to wor
 ## Invoice PDF Logo Quality Fix — VERIFICATION RESULTS (2026-06-30 09:11 UTC)
 - agent: testing
 - test_date: 2026-06-30 09:11:29 UTC
-- test_url: https://merchant-settlement.preview.emergentagent.com/api
+- test_url: https://crypto-payment-hub-28.preview.emergentagent.com/api
 - bug_fix_context: User reported brand logo on invoice PDFs was blurry/pixelated. Fix: Upgraded logo from 180×60 px to 1888×656 px and changed doc.image() to use fit: [120,42] instead of width/height
 - test_results: ✅ BUG FIX VERIFIED - ALL TESTS PASSED (5/5 tests - 100% success rate)
 
@@ -14114,7 +14114,7 @@ The user-reported issue of blurry/pixelated logo on invoice PDFs has been COMPLE
   - `Components/UI/DeleteWalletModal/index.tsx`: replaced single TextField with `<OtpInputPanel actionsLayout="stacked" primaryButtonLabel="Verify"/>`. Added 60s resend countdown + handleResendOtp that re-calls send-otp. DialogActions now only shows Cancel on the OTP step (Verify lives inside the panel).
   - `pages/auth/login.tsx`: standardized all four `OtpDialog` `primaryButtonLabel` to `t("verifyAndLogin")` ("Verify & log in"). Was inconsistent: 2 said "Verify", 2 said "Verify & Login".
   - `langs/locales/en/auth.json`: `verifyAndLogin` → "Verify & log in" (sentence-case). Added `didntReceiveCode`.
-- FRONTEND TEST REQUEST (preview https://merchant-settlement.preview.emergentagent.com):
+- FRONTEND TEST REQUEST (preview https://crypto-payment-hub-28.preview.emergentagent.com):
   GOAL: confirm the OTP UX is now visually + behaviorally uniform across 4 screens AND auto-submits the moment the 6th digit is entered (no need to click Verify).
   HARD CONSTRAINTS for tester: DO NOT submit a real verification (no real account creation, no real password reset, no real wallet delete) — this preview hits LIVE production DB. Stop AT the auto-submit fire moment by checking that the verify endpoint was CALLED (e.g. via network panel) and/or the loading state engaged. DO NOT call POST /api/user/registerPhone or anything that consumes SMS credit.
   HOW TO TEST:
@@ -14144,7 +14144,7 @@ The user-reported issue of blurry/pixelated logo on invoice PDFs has been COMPLE
   - TELNYX_VERIFY_PROFILE_ID unchanged: 4900019f-12c3-657a-8b57-54b129bb2a6b (DynoPay, app_name=DynoPay, code_length=6 — confirmed reachable under the new key)
   - Backend restarted via supervisor.
 - pre-verification (direct Telnyx API, no SMS): new key returns 200 on GET /v2/verify_profiles and GET /v2/number_lookup; the configured profile id is listed under the account.
-- BACKEND TEST REQUEST — base https://merchant-settlement.preview.emergentagent.com/api
+- BACKEND TEST REQUEST — base https://crypto-payment-hub-28.preview.emergentagent.com/api
   Headers required: `User-Agent: Mozilla/5.0 ... Chrome/120 Safari/537.36`
   GOAL: confirm POST /api/user/registerPhone (the consumer of TELNYX_API_KEY + profile) no longer fails with 503 / Telnyx 401.
   HARD CONSTRAINT (cost): Telnyx /verifications/sms sends a REAL SMS and consumes credit. Make AT MOST ONE registerPhone call. DO NOT loop. DO NOT try multiple numbers.
@@ -14157,7 +14157,7 @@ The user-reported issue of blurry/pixelated logo on invoice PDFs has been COMPLE
 ## Telnyx API Key Rotation — VERIFICATION RESULTS (2026-06-30 07:46 UTC)
 - agent: testing
 - test_date: 2026-06-30 07:46:29 UTC
-- test_url: https://merchant-settlement.preview.emergentagent.com/api
+- test_url: https://crypto-payment-hub-28.preview.emergentagent.com/api
 - bug_fix_context: User reported old TELNYX_API_KEY wasn't working. Backend .env updated with new key KEY019F17786A3942870367BCDB8345F986_1WeiJWTqXGmIWnVV86YBPL and backend restarted.
 - test_results: ✅ BUG FIX VERIFIED - ALL TESTS PASSED (2/2 tests - 100% success rate)
 
@@ -14207,7 +14207,7 @@ The user-reported issue of blurry/pixelated logo on invoice PDFs has been COMPLE
 ## Session 37: Invoice fixed_fee = $0.00 bug (crypto base_amount + tier gap) — BACKEND TEST REQUESTED (2026-07-12)
 
 ### Preview / base URL
-https://merchant-settlement.preview.emergentagent.com
+https://crypto-payment-hub-28.preview.emergentagent.com
 Backend base: `.../api`
 
 ### Test credentials (from /app/memory/test_credentials.md)
@@ -14253,7 +14253,7 @@ Ran scripts/backfill_invoice_fees.ts --apply against LIVE Railway PG. All 6 hist
 ## Session 38: "Payment Received" email shows wrong fiat amount ($1.00 instead of ~$100) — BACKEND TEST REQUESTED (2026-07-13)
 
 ### Preview / base URL
-https://merchant-settlement.preview.emergentagent.com  (backend base: `.../api`)
+https://crypto-payment-hub-28.preview.emergentagent.com  (backend base: `.../api`)
 
 ### Test credentials
 - Merchant that owns the affected transactions: **hostbay@moxx.co / Katiekendra123@** (user_id 1). Token can be minted per the documented jwt+pg method for user_id 1.
@@ -14288,7 +14288,7 @@ PASS = test 1 returns `amount` in the ~$100 range (NOT $1.00) and clearly a fiat
 
 **Test Date:** 2026-07-13  
 **Test Agent:** deep_testing_backend_v2  
-**Test URL:** https://merchant-settlement.preview.emergentagent.com/api  
+**Test URL:** https://crypto-payment-hub-28.preview.emergentagent.com/api  
 **Test Credentials:** hostbay@moxx.co / Katiekendra123@ (user_id 1)  
 **Test File:** /app/backend_test.py
 
@@ -14439,7 +14439,7 @@ FIX (backend):
     which threw for null). Prevents the next failure when a phone-only user creates a company.
 FIX (frontend, earlier this session): EmailVerificationBanner hidden when the user has no email (defensive).
 
-BACKEND TEST REQUEST — base https://merchant-settlement.preview.emergentagent.com/api
+BACKEND TEST REQUEST — base https://crypto-payment-hub-28.preview.emergentagent.com/api
 Headers: Authorization: Bearer <token>, User-Agent: Mozilla/5.0 ... Chrome/120 Safari/537.36
 HOW TO MINT TOKENS (replicates getAccessToken): from /app/backend run `node -r dotenv/config <script>.js` using
   jwt (in node_modules) + pg: SELECT * FROM tbl_user WHERE user_id=$1; delete row.password; delete row.telegram_id;
@@ -14462,7 +14462,7 @@ blocked by email 403, B still blocked, D healthy.
 ## Phone-only Email Verification Bug Fix — VERIFICATION RESULTS (2026-06-29 16:12 UTC)
 - agent: testing
 - test_date: 2026-06-29 16:12:33 UTC
-- test_url: https://merchant-settlement.preview.emergentagent.com/api
+- test_url: https://crypto-payment-hub-28.preview.emergentagent.com/api
 - bug_fix_context: Phone-only users (email=NULL) were wrongly blocked by emailVerifiedMiddleware with HTTP 403 "Please verify your email...". Fix: Middleware now only blocks when `email && !email_verified`
 - test_results: ✅ BUG FIX VERIFIED - ALL CRITICAL CRITERIA PASSED (4/4 tests - 100% success rate)
 
@@ -14575,7 +14575,7 @@ ROOT CAUSE: user photos are `SERVER_URL(=https://dynopay.com) + /images/user_*.p
 **.preview.emergentagent.com.
 FIX: next.config.mjs remotePatterns now includes dynopay.com, **.dynopay.com, **.preview.emergentagent.com,
 **.googleusercontent.com. Frontend restarted.
-FRONTEND TEST REQUEST (preview https://merchant-settlement.preview.emergentagent.com):
+FRONTEND TEST REQUEST (preview https://crypto-payment-hub-28.preview.emergentagent.com):
   1. Go to /auth/register, E-mail tab. Enter existing email qa.onboard.1782585233@dynopaytest.com → Continue.
      Expect OTP step titled "Welcome Back!" with banner "...already has an account — enter the code to log in."
   2. Read OTP from Redis (REDIS_PUBLIC_URL in /app/backend/.env), key `otp:qa.onboard.1782585233@dynopaytest.com`
@@ -14594,7 +14594,7 @@ Also confirms the idempotent existing-account → OTP → login flow works end-t
 ## next/image dynopay.com Host Fix — VERIFICATION RESULTS (2026-06-29 15:14 UTC)
 - agent: testing
 - test_date: 2026-06-29 15:14:25 UTC
-- test_url: https://merchant-settlement.preview.emergentagent.com
+- test_url: https://crypto-payment-hub-28.preview.emergentagent.com
 - bug_fix_context: Next.js threw "Invalid src prop ... hostname 'dynopay.com' is not configured" error after login. Fix: Added dynopay.com, **.dynopay.com, **.preview.emergentagent.com, **.googleusercontent.com to next.config.mjs remotePatterns
 - test_results: ✅ BUG FIX VERIFIED - ALL CRITICAL CRITERIA PASSED
 
@@ -14656,7 +14656,7 @@ Also confirms the idempotent existing-account → OTP → login flow works end-t
 ## Onboarding Existing-Account → OTP Login Bug Fix Verification (2026-06-29 14:59 UTC)
 - agent: testing
 - test_date: 2026-06-29 14:59:25 UTC
-- test_url: https://merchant-settlement.preview.emergentagent.com/api
+- test_url: https://crypto-payment-hub-28.preview.emergentagent.com/api
 - bug_fix_context: Previously, existing email/phone returned HTTP 400 "Account already exists" (dead-end). Fix: Makes onboarding idempotent - existing email/phone now sends OTP and logs user in (passwordless login)
 - test_results: BUG FIX VERIFIED ✅ (5/5 tests passed - 100% success rate)
 
@@ -14734,7 +14734,7 @@ Also confirms the idempotent existing-account → OTP → login flow works end-t
 ## CSRF Bug Fix Verification — Onboarding Flow (2026-06-29 08:20 UTC)
 - agent: testing
 - test_date: 2026-06-29 08:20:42 UTC
-- test_url: https://merchant-settlement.preview.emergentagent.com/api
+- test_url: https://crypto-payment-hub-28.preview.emergentagent.com/api
 - bug_fix_context: User reported 403 "CSRF token validation failed" during email onboarding. Fix: Added /api/user/registerEmail and /api/user/phone-type-check to CSRF EXEMPT_PATHS in csrfMiddleware.ts
 - test_results: BUG FIX VERIFIED ✅ (3/3 critical tests passed - 100% success rate)
 
@@ -15126,8 +15126,8 @@ Also confirms the idempotent existing-account → OTP → login flow works end-t
 - agent: testing
 - message: Completed review request testing of DynoPay backend API endpoints for currency validation fix
 - test_results: MIXED RESULTS ⚠️
-  * Target URL https://merchant-settlement.preview.emergentagent.com/api → HTTP 404 (Service not available at this URL)
-  * Current URL https://merchant-settlement.preview.emergentagent.com/api → ALL TESTS PASSED ✅
+  * Target URL https://crypto-payment-hub-28.preview.emergentagent.com/api → HTTP 404 (Service not available at this URL)
+  * Current URL https://crypto-payment-hub-28.preview.emergentagent.com/api → ALL TESTS PASSED ✅
     - GET /api/ → HTTP 200 (Health check operational, status: operational, service: Dynopay API, version: 1.0.0)
     - GET /api/pay/network-fees → HTTP 200 (Network fees retrieved successfully for all supported chains)
     - GET /api/geo-detect → HTTP 200 (Geo detection working - Country: United States, countryCode: US)
@@ -15158,7 +15158,7 @@ Also confirms the idempotent existing-account → OTP → login flow works end-t
 ## Review Request Testing Results - 2026-03-25 07:32:07 UTC
 - agent: testing
 - message: Completed review request testing of DynoPay backend API endpoints after double SUN→TRX conversion bug fix
-- target_url: https://merchant-settlement.preview.emergentagent.com
+- target_url: https://crypto-payment-hub-28.preview.emergentagent.com
 - bug_fix_context: Removed extra /1000000 division for TRX balances in 4 files (merchantPoolSweep.ts, paymentController.ts×2, adminController.ts) since tatumApi.getAddressBalance() already converts SUN to TRX
 - test_results: MOSTLY PASSED ✅ (3/4 endpoints working)
   * GET /api/status/health → HTTP 200 (Health status: healthy, timestamp: 2026-03-25T07:32:07.753Z, version: 1.0.0)
@@ -15388,7 +15388,7 @@ Also confirms the idempotent existing-account → OTP → login flow works end-t
 ## Comprehensive Frontend Testing Results - 2026-03-28 12:18:00 UTC
 - agent: testing
 - message: Completed comprehensive frontend testing of ALL 35 pages as requested in review
-- target_url: https://merchant-settlement.preview.emergentagent.com
+- target_url: https://crypto-payment-hub-28.preview.emergentagent.com
 - test_scope: Full frontend page load testing, UI element verification, console error monitoring, redirect behavior validation
 - test_results: ALL 35 PAGES PASSED ✅ (100% success rate)
 
@@ -15503,7 +15503,7 @@ Also confirms the idempotent existing-account → OTP → login flow works end-t
 ## Theme System Preference Detection Testing - 2026-03-29 18:30:21 UTC
 - agent: testing
 - message: Completed comprehensive testing of automatic dark/light mode system preference detection feature
-- target_url: https://merchant-settlement.preview.emergentagent.com
+- target_url: https://crypto-payment-hub-28.preview.emergentagent.com
 - feature_context: ThemeContext (/app/contexts/ThemeContext.tsx) updated to detect OS dark/light preference via window.matchMedia('(prefers-color-scheme: dark)'), use system preference as default when no localStorage override exists, and listen for real-time OS theme changes
 - test_results: ALL TESTS PASSED ✅ (3/3 test scenarios successful)
 
@@ -15571,7 +15571,7 @@ Also confirms the idempotent existing-account → OTP → login flow works end-t
 ## FOUC (Flash of Unstyled Content) Elimination Testing - 2026-03-29 19:00:47 UTC
 - agent: testing
 - message: Completed comprehensive FOUC elimination testing for light mode system preference
-- target_url: https://merchant-settlement.preview.emergentagent.com
+- target_url: https://crypto-payment-hub-28.preview.emergentagent.com
 - issue_found_and_fixed: Initial implementation was missing inline backgroundColor in blocking script, causing transparent background during early page load
 - fix_applied: Added `document.documentElement.style.backgroundColor` to blocking script in /app/pages/_document.tsx
 - test_results: 3/4 TESTS PASSED ✅ (1 minor issue)
@@ -15650,7 +15650,7 @@ Also confirms the idempotent existing-account → OTP → login flow works end-t
 ## Theme Flash Fix Re-Validation - 2026-03-29 19:03:54 UTC
 - agent: testing
 - message: Completed quick validation of theme flash fix with 3 specific checks as requested
-- target_url: https://merchant-settlement.preview.emergentagent.com
+- target_url: https://crypto-payment-hub-28.preview.emergentagent.com
 - test_results: ALL 3 CHECKS PASSED ✅ (100% success rate)
 
 ### CHECK 1: LIGHT MODE - NO FLASH ✅
@@ -15773,7 +15773,7 @@ Also confirms the idempotent existing-account → OTP → login flow works end-t
 ## API Documentation Page Testing - 2026-03-30 08:30:00 UTC
 - agent: testing
 - message: Completed comprehensive testing of updated API Documentation page at /documentation
-- target_url: https://merchant-settlement.preview.emergentagent.com/documentation
+- target_url: https://crypto-payment-hub-28.preview.emergentagent.com/documentation
 - test_results: ALL 8 TESTS PASSED ✅ (100% success rate)
 
 ### TEST 1: PAGE LOADS CORRECTLY ✅
@@ -15883,7 +15883,7 @@ Also confirms the idempotent existing-account → OTP → login flow works end-t
 ## Review Request Testing Results - 2026-03-31 04:33:23 UTC
 - agent: testing
 - message: Completed review request testing of DynoPay backend API endpoints after critical settlement bug fixes (TRX drain, OUT_OF_ENERGY, payment ID propagation)
-- target_url: https://merchant-settlement.preview.emergentagent.com
+- target_url: https://crypto-payment-hub-28.preview.emergentagent.com
 - bug_fix_context: Settlement bug fixes applied - TRX drain fix, OUT_OF_ENERGY fix, payment ID propagation fix
 - test_results: ALL TESTS PASSED ✅ (4/4 specific endpoints from review request)
   * GET /api/ → HTTP 200 (Health check operational, status: operational, service: Dynopay API)
@@ -15989,7 +15989,7 @@ Also confirms the idempotent existing-account → OTP → login flow works end-t
 ## Review Request Testing Results - 2026-04-02 08:07:01 UTC
 - agent: testing
 - message: Completed review request testing of DynoPay backend API endpoints after FeeWalletMonitor and Fee-free volume tracking bug fixes
-- target_url: https://merchant-settlement.preview.emergentagent.com
+- target_url: https://crypto-payment-hub-28.preview.emergentagent.com
 - bug_fix_context: 
   1. FeeWalletMonitor now reads TRX fee wallet address from database instead of env var
   2. Fee-free volume tracking moved to before settlement (prevents volume loss on failed settlements)
@@ -16044,7 +16044,7 @@ Also confirms the idempotent existing-account → OTP → login flow works end-t
 ## Review Request Testing Results - 2026-04-02 08:44:21 UTC
 - agent: testing
 - message: Completed review request testing of DynoPay backend API endpoints after fee-free reconciliation and webhook bug fixes
-- target_url: https://merchant-settlement.preview.emergentagent.com
+- target_url: https://crypto-payment-hub-28.preview.emergentagent.com
 - bug_fix_context: Fixed 4 critical bugs - FeeWalletMonitor balance alerts, fee-free volume tracking, startup reconciliation, and removed redundant payment.settled webhook
 - test_results: ALL TESTS PASSED ✅
   * GET /api/ → HTTP 200 (Health check operational, status: operational, service: Dynopay API)
@@ -16065,7 +16065,7 @@ Also confirms the idempotent existing-account → OTP → login flow works end-t
 ## TRC20 Gas Cost Optimization Testing Results - 2026-04-02 09:21:38 UTC
 - agent: testing
 - message: Completed review request testing of DynoPay backend API endpoints after TRC20 gas cost optimization changes
-- target_url: https://merchant-settlement.preview.emergentagent.com
+- target_url: https://crypto-payment-hub-28.preview.emergentagent.com
 - optimization_context: Changes to tronEnergyService.ts, merchantPoolSweep.ts, merchantPoolConfig.ts, and paymentController.ts for TRC20 gas cost optimization
 - test_results: ALL TESTS PASSED ✅ (3/3 endpoints working)
   * GET /api/ → HTTP 200 (Health check operational, status: operational, service: Dynopay API)
@@ -16824,7 +16824,7 @@ Also confirms the idempotent existing-account → OTP → login flow works end-t
 
 ## Landing Page Design Test - DigitalOcean-Inspired Improvements (2026-06-28)
 - scope: Test landing page after design improvements inspired by DigitalOcean
-- test_url: https://merchant-settlement.preview.emergentagent.com
+- test_url: https://crypto-payment-hub-28.preview.emergentagent.com
 - test_date: 2026-06-28 14:00:00 UTC
 - agent: testing
 - viewports_tested: Desktop (1920x800), Mobile (390x844)
@@ -16940,7 +16940,7 @@ Also confirms the idempotent existing-account → OTP → login flow works end-t
 ## Bug Fix Testing: Documentation Base URL + Mobile Login UI Sizing (2026-06-28)
 - agent: testing
 - test_date: 2026-06-28 14:14:00 UTC
-- test_url: https://merchant-settlement.preview.emergentagent.com
+- test_url: https://crypto-payment-hub-28.preview.emergentagent.com
 - bug_fixes_tested:
   1. Documentation Base URL (changed from api.dynopay.com to dynopay.com)
   2. Mobile Login UI Sizing (increased sizes from tiny to proper mobile dimensions)
@@ -17018,7 +17018,7 @@ Also confirms the idempotent existing-account → OTP → login flow works end-t
 ## Simplified Registration + Forgot Password Testing (2026-06-28 17:03 UTC)
 - agent: testing
 - test_date: 2026-06-28 17:03:00 UTC
-- test_url: https://merchant-settlement.preview.emergentagent.com
+- test_url: https://crypto-payment-hub-28.preview.emergentagent.com
 - test_scope: Simplified registration (email/phone + OTP only), forgot password dialog, logo link functionality
 
 ### TEST RESULTS: ✅✅✅ ALL TESTS PASSED ✅✅✅
@@ -17130,7 +17130,7 @@ Also confirms the idempotent existing-account → OTP → login flow works end-t
 
 ### Test Request
 - test_type: frontend
-- test_url: https://merchant-settlement.preview.emergentagent.com
+- test_url: https://crypto-payment-hub-28.preview.emergentagent.com
 - test_scope: Registration page (/auth/register) - verify both email and phone registration forms fit in viewport with buttons visible
 - test_steps:
   1. Navigate to /auth/register
@@ -17153,7 +17153,7 @@ Also confirms the idempotent existing-account → OTP → login flow works end-t
 
 ### Test Request
 - test_type: frontend
-- test_url: https://merchant-settlement.preview.emergentagent.com
+- test_url: https://crypto-payment-hub-28.preview.emergentagent.com
 - test_scope: Dashboard page (/dashboard) - verify stats cards load data instead of showing skeletons
 - test_credentials: See /app/memory/test_credentials.md
 - test_steps:
@@ -17201,7 +17201,7 @@ Also confirms the idempotent existing-account → OTP → login flow works end-t
 ## Dashboard Stats Loading Fix - Frontend Testing Results (2026-06-28 15:51:34 UTC)
 - agent: testing
 - test_date: 2026-06-28 15:51:34 UTC
-- test_url: https://merchant-settlement.preview.emergentagent.com
+- test_url: https://crypto-payment-hub-28.preview.emergentagent.com
 - bug_fix_context: Dashboard stats (Volume Today, Volume Yesterday, Transactions Today, Pending, Total Transactions, Total Volume) were stuck showing Skeleton loading animations due to Redux debounce issue that dropped the main dashboard API fetch. The fix combines all fetches into a single DASHBOARD_FETCH_ALL dispatch.
 
 ### CODE REVIEW FINDINGS ✅
@@ -17215,7 +17215,7 @@ Also confirms the idempotent existing-account → OTP → login flow works end-t
 
 ### FRONTEND TESTS PERFORMED (5/5 PASSED) ✅
 1. ✅ Login Page Load Test
-   - URL: https://merchant-settlement.preview.emergentagent.com/auth/login
+   - URL: https://crypto-payment-hub-28.preview.emergentagent.com/auth/login
    - Page title: "Merchant Login | DynoPay"
    - Email input field present and functional
    - Screenshot: login_page.png
@@ -17227,7 +17227,7 @@ Also confirms the idempotent existing-account → OTP → login flow works end-t
    - Screenshot: dashboard_redirect.png
 
 3. ✅ Landing Page Load Test
-   - URL: https://merchant-settlement.preview.emergentagent.com/
+   - URL: https://crypto-payment-hub-28.preview.emergentagent.com/
    - Page title: "DynoPay — Crypto Payment Gateway | Accept Bitcoin & Settle in Stablecoins"
    - Main content renders correctly
    - Screenshot: landing_page.png
@@ -17283,7 +17283,7 @@ The fix is architecturally sound:
 ## Registration Page UI Fix Testing Results (2026-06-28 16:10:15 UTC)
 - agent: testing
 - test_date: 2026-06-28 16:10:15 UTC
-- test_url: https://merchant-settlement.preview.emergentagent.com/auth/register
+- test_url: https://crypto-payment-hub-28.preview.emergentagent.com/auth/register
 - bug_fix_context: Fixed two critical UI bugs: (1) Phone registration "Send Verification Code" button text was INVISIBLE (appeared as blank gray bar), (2) Email registration form was too long requiring scrolling to see "Sign up" button
 
 ### BUG FIX IMPLEMENTATION VERIFIED ✅
@@ -17392,7 +17392,7 @@ The fix is architecturally sound:
 
 ### Test Request
 - test_type: frontend
-- test_url: https://merchant-settlement.preview.emergentagent.com
+- test_url: https://crypto-payment-hub-28.preview.emergentagent.com
 - test_scope: Phone registration button on /auth/register
 - test_steps:
   1. Navigate to /auth/register
@@ -17407,7 +17407,7 @@ The fix is architecturally sound:
 ## Phone Registration Button Fix Testing Results (2026-06-28 16:21:00 UTC)
 - agent: testing
 - test_date: 2026-06-28 16:21:00 UTC
-- test_url: https://merchant-settlement.preview.emergentagent.com/auth/register
+- test_url: https://crypto-payment-hub-28.preview.emergentagent.com/auth/register
 - bug_fix_context: Fixed "Send Verification Code" button staying disabled even when all fields (Full Name, Phone Number, Password) are filled. Root cause: password regex requiring special characters was in the button's disabled condition with no visual feedback. Fix: (1) Removed password regex from disabled condition, (2) Added PasswordValidation component showing real-time checklist.
 
 ### TEST RESULTS: ✅✅✅ ALL TESTS PASSED - BUG FIX VERIFIED ✅✅✅
@@ -17503,7 +17503,7 @@ The fix is architecturally sound:
 
 ### Test Request
 - test_type: frontend
-- test_url: https://merchant-settlement.preview.emergentagent.com
+- test_url: https://crypto-payment-hub-28.preview.emergentagent.com
 - test_scope: Login page logo + forgot password visibility
 - test_steps:
   1. Navigate to /auth/login
@@ -17540,7 +17540,7 @@ The fix is architecturally sound:
 
 ### Test Request
 - test_type: frontend
-- test_url: https://merchant-settlement.preview.emergentagent.com
+- test_url: https://crypto-payment-hub-28.preview.emergentagent.com
 - test_scope: Forgot password dialog, logo link, forgot password link
 - test_steps:
   1. Navigate to /auth/login
@@ -17582,7 +17582,7 @@ The fix is architecturally sound:
 
 ### Test Request
 - test_type: frontend
-- test_url: https://merchant-settlement.preview.emergentagent.com
+- test_url: https://crypto-payment-hub-28.preview.emergentagent.com
 - test_scope: Full auth flow testing
 - test_steps:
   1. Navigate to /auth/register → Verify simplified form (email input + Continue, no name/password fields)
@@ -17601,7 +17601,7 @@ The fix is architecturally sound:
 ## Frontend Environment Verification — 2026-06-29 08:09 UTC
 - agent: testing
 - test_date: 2026-06-29 08:09:00 UTC
-- test_url: https://merchant-settlement.preview.emergentagent.com
+- test_url: https://crypto-payment-hub-28.preview.emergentagent.com
 - test_scope: Fresh environment setup verification (NOT deep functional testing)
 - test_results: ALL TESTS PASSED ✅ (3/3 pages verified)
 
@@ -17670,7 +17670,7 @@ The fix is architecturally sound:
 ## Network Fees Bug Fix Verification — Testing Results (2026-06-29 08:52 UTC)
 - agent: testing
 - test_date: 2026-06-29 08:52:49 UTC
-- test_url: https://merchant-settlement.preview.emergentagent.com/api
+- test_url: https://crypto-payment-hub-28.preview.emergentagent.com/api
 - bug_fix_context: User reported GET /api/pay/network-fees returning HTTP 500 with "Converting circular structure to JSON ... TLSSocket ... HTTPParser ... socket closes the circle". ROOT CAUSE: Winston logger's railwayFormat used raw JSON.stringify on log meta; blockchain fee service logged full Axios error objects (containing circular TLSSocket references) for chains where Tatum returns 400 (POLYGON/USDT_POLYGON/BCH). JSON.stringify threw inside logger, escaped catch block, crashed endpoint with 500.
 - fixes_applied:
   * (1) utils/loggers.ts: Added circular-safe stringifier (safeStringify with WeakSet) in railwayFormat — prevents all production logging crashes from circular refs
@@ -17743,7 +17743,7 @@ The bug fix is working perfectly. The circular JSON structure error has been com
 ## Dark Mode Text Visibility Testing — Authenticated Pages + Mobile Menu (2026-06-29 09:33 UTC)
 - agent: testing
 - test_date: 2026-06-29 09:33:00 UTC
-- test_url: https://merchant-settlement.preview.emergentagent.com
+- test_url: https://crypto-payment-hub-28.preview.emergentagent.com
 - test_scope: Verify dark mode text visibility across authenticated DynoPay app pages and mobile quick-action menu icon visibility
 - authentication: JWT token injection (user_id=3, QA Onboarding Tester)
 
@@ -17864,7 +17864,7 @@ The bug fix is working perfectly. The circular JSON structure error has been com
 ## Phone Number Onboarding Bug Fix Verification — 2026-06-29 09:48 UTC
 - agent: testing
 - test_date: 2026-06-29 09:48:00 UTC
-- test_url: https://merchant-settlement.preview.emergentagent.com/api
+- test_url: https://crypto-payment-hub-28.preview.emergentagent.com/api
 - bug_fix_context: User reported 503 "Failed to send verification code. Please try again." during phone number onboarding. ROOT CAUSE: (1) Invalid TELNYX_API_KEY causing Telnyx 401, (2) Wrong TELNYX_VERIFY_PROFILE_ID, (3) Old profile "Bozzmail" with 5-digit codes (frontend expects 6). FIX: Updated backend/.env with a valid TELNYX_API_KEY=[REDACTED_SECRET] and new "DynoPay" verify profile (6-digit codes). Actual key/profile values live only in backend/.env (gitignored) — do NOT record secrets in this file.
 - test_results: ALL TESTS PASSED ✅ (5/5 tests successful - 100% success rate)
 
@@ -17936,7 +17936,7 @@ The bug fix is working perfectly. The circular JSON structure error has been com
 ## UX Audit Verification — 6 Fixes Batch (2026-06-30 12:09 UTC)
 - agent: testing
 - test_date: 2026-06-30 12:09:00 UTC
-- test_url: https://merchant-settlement.preview.emergentagent.com
+- test_url: https://crypto-payment-hub-28.preview.emergentagent.com
 - test_context: UX audit verification of 6 fixes: (1) empty-state grammar, (2) inline modals, (3) mobile wallet truncation, (4) pay link expiry, (5) banner color, (6) help link
 - accounts_tested: Account A (hostbay@moxx.co - data-rich), Account B (qa.empty.1782626169@dynopaytest.com - empty-state)
 - viewports: Desktop 1440×900, Mobile 390×844
@@ -18041,7 +18041,7 @@ The bug fix is working perfectly. The circular JSON structure error has been com
 ## Visual Smoke Check — Landing Page Updates (2026-06-30 08:52 UTC)
 - agent: testing
 - test_date: 2026-06-30 08:52:00 UTC
-- test_url: https://merchant-settlement.preview.emergentagent.com
+- test_url: https://crypto-payment-hub-28.preview.emergentagent.com
 - test_context: Visual smoke check of 4 recent changes: (1) crypto price ticker strip, (2) login page, (3) pay demo, (4) forgot password OTP boxes, (5) dark mode
 - viewport: 1440x900 (desktop)
 - test_results: 4/5 PASS, 1 PARTIAL (80% success rate)
@@ -18166,7 +18166,7 @@ The bug fix is working perfectly. The circular JSON structure error has been com
 ## Copy Link / Checkout Completed Status / Merchant Emails — READ-ONLY Backend Verification (2026-07-01)
 - agent: testing
 - test_date: 2026-07-01 12:59:00 UTC
-- test_url: https://merchant-settlement.preview.emergentagent.com/api
+- test_url: https://crypto-payment-hub-28.preview.emergentagent.com/api
 - test_type: READ-ONLY verification (LIVE production Railway PostgreSQL + Redis)
 - test_results: ✅ ALL TESTS PASSED (5/5 tests - 100% success rate)
 
@@ -18235,7 +18235,7 @@ The bug fix is working perfectly. The circular JSON structure error has been com
 - ✅ All public endpoints graceful (no 500s)
 
 ### TECHNICAL DETAILS
-- Base URL: https://merchant-settlement.preview.emergentagent.com/api
+- Base URL: https://crypto-payment-hub-28.preview.emergentagent.com/api
 - Test account: hostbay@moxx.co (Primary QA Account with company)
 - Authentication: OTP-gated login via Redis (login_otp:{session}:json)
 - Payment links found: 2 active links with valid checkout URLs
@@ -18277,7 +18277,7 @@ The bug fix is working perfectly. The circular JSON structure error has been com
 
 - HARD CONSTRAINTS for tester:
   - DO NOT log in, DO NOT submit any registration form (backend is on LIVE production DB).
-  - Test PUBLIC pages only. Localhost preview URL: `https://merchant-settlement.preview.emergentagent.com`
+  - Test PUBLIC pages only. Localhost preview URL: `https://crypto-payment-hub-28.preview.emergentagent.com`
   - Do NOT click links that would submit any form.
 
 - 14 SEO PAGES TO TEST:
@@ -18374,7 +18374,7 @@ RETEST REQUEST for frontend testing agent — VERIFY THE CANONICAL FIX ONLY:
 Please re-verify the previously flagged issue is resolved. All other cases (A–H) already PASSED and do NOT need retesting.
 
 Only re-run this focused check:
-  Base URL: https://merchant-settlement.preview.emergentagent.com
+  Base URL: https://crypto-payment-hub-28.preview.emergentagent.com
   HARD CONSTRAINT: Do NOT log in / submit any form. Public pages only.
 
   For each URL in the list below:
@@ -18396,7 +18396,7 @@ Only re-run this focused check:
   REPORT PER URL: actual canonical `href`, actual og:url `content`, PASS/FAIL.
 
 
-- test_url: https://merchant-settlement.preview.emergentagent.com
+- test_url: https://crypto-payment-hub-28.preview.emergentagent.com
 - test_scope: 14 SEO landing pages (8 countries + 6 verticals) + 3 enhancements (cross-linking, footer SEO block, UTM funnel)
 
 ### OVERALL VERDICT: ✅ PASS (All critical functionality working)
@@ -18699,7 +18699,7 @@ The three SEO enhancements are working correctly. Consider fixing the minor cano
 ## Canonical URL Fix Verification — Test Results (2026-07-05 10:48 UTC)
 - agent: testing
 - test_date: 2026-07-05 10:48:00 UTC
-- test_url: https://merchant-settlement.preview.emergentagent.com
+- test_url: https://crypto-payment-hub-28.preview.emergentagent.com
 - bug_fix_context: Previous test flagged canonical `<link rel="canonical">` was missing the slug on SEO country + vertical pages. Fix: added `key="canonical"` (and `key="og:url"`) to both `_app.tsx` fallback and SEOLandingPage component to ensure Next.js deduplicates correctly.
 - test_results: ✅ ALL TESTS PASSED (7/7 URLs - 100% success rate)
 
@@ -18922,7 +18922,7 @@ a new `SEOIllustration` component:
 
 FRONTEND TEST REQUEST — verify both:
 
-Base URL: https://merchant-settlement.preview.emergentagent.com
+Base URL: https://crypto-payment-hub-28.preview.emergentagent.com
 
 HARD CONSTRAINTS:
   - Do NOT submit forms. Do NOT click Signup CTAs. Do NOT touch the paid link's "Done" button.
@@ -18967,7 +18967,7 @@ PASS CRITERIA:
 ## BUG FIX + SEO ILLUSTRATIONS — VERIFICATION RESULTS (2026-07-05)
 - agent: testing
 - test_date: 2026-07-05 11:07:00 UTC
-- test_url: https://merchant-settlement.preview.emergentagent.com
+- test_url: https://crypto-payment-hub-28.preview.emergentagent.com
 - bug_fix_context: User reported paid checkout link showing fresh checkout form instead of "Payment Successful". Fix: Backend now returns base_amount/base_currency from DB; frontend short-circuits to TransferExpectedCard success view with stepper on Done.
 - feature_context: Added SEOIllustration component (SVG icons per vertical + flag-on-gradient per country) to replace plain flag emoji on SEO landing pages.
 
@@ -19182,7 +19182,7 @@ other flows.
 
 FRONTEND TEST REQUEST — focused verification (do NOT re-run prior full test):
 
-Base URL: https://merchant-settlement.preview.emergentagent.com
+Base URL: https://crypto-payment-hub-28.preview.emergentagent.com
 HARD CONSTRAINTS: no form submits, no CTA clicks, no clicking "Done" button on paid link. Public pages only.
 
 CASE 1 — Paid-at timestamp visible on already-paid link:
@@ -19226,7 +19226,7 @@ PASS CRITERIA:
 ## Paid-at Timestamp + Vertical Brand Gradients — VERIFICATION RESULTS (2026-07-05)
 - agent: testing
 - test_date: 2026-07-05 11:25:00 UTC
-- test_url: https://merchant-settlement.preview.emergentagent.com
+- test_url: https://crypto-payment-hub-28.preview.emergentagent.com
 - scope: Focused verification of TWO enhancements on top of previously verified features
 - enhancements_tested:
   1. Paid-at timestamp: Already-paid success card shows green pill "Paid X days ago • MMM DD, YYYY"
@@ -19387,7 +19387,7 @@ All 6 langs render correctly. Screenshot on NL shows the whole card localized (`
 
 FRONTEND TEST REQUEST — focused verification:
 
-Base URL: https://merchant-settlement.preview.emergentagent.com
+Base URL: https://crypto-payment-hub-28.preview.emergentagent.com
 
 HARD CONSTRAINTS: no form submits, no CTA clicks. Public pages only.
 
@@ -19563,7 +19563,7 @@ Unchanged. No new accounts created. Nothing here writes to prod DB.
 
 ## Landing Page Trim + Recent Landing Overhaul Verification — Frontend Test Request (2026-07-05)
 - scope: User reported (a) "How we stack up" section not needed, (b) exit-intent modal fires repeatedly even when the user isn't leaving, (c) "landing looks rough or too busy, not clean". Main agent removed 4 items from `Components/Page/Home/index.tsx`: `ComparisonTable` (L), `ExitIntentModal` (N), `LiveActivityStrip`, `IndustryLogoWall` (G). Kept everything else from the 2026-07-05 landing overhaul.
-- HARD CONSTRAINTS: DO NOT log in (backend on LIVE production DB). Public landing page only. Do not submit forms. Preview: https://merchant-settlement.preview.emergentagent.com
+- HARD CONSTRAINTS: DO NOT log in (backend on LIVE production DB). Public landing page only. Do not submit forms. Preview: https://crypto-payment-hub-28.preview.emergentagent.com
 
 GOAL: (1) confirm removed sections are gone; (2) confirm remaining recent landing components still work as expected; (3) confirm the exit-intent modal never fires on mouse-toward-top.
 
@@ -19618,7 +19618,7 @@ PASS = ALL of A/B/C/D/E/F/G/H pass. Report per-case with (i) exact assertion val
 
 **Test Agent:** testing
 **Test Date:** 2026-07-05 17:15:00 UTC
-**Preview URL:** https://merchant-settlement.preview.emergentagent.com
+**Preview URL:** https://crypto-payment-hub-28.preview.emergentagent.com
 **Test Context:** Verification after removal of 4 sections (ComparisonTable, ExitIntentModal, LiveActivityStrip, IndustryLogoWall) from the 2026-07-05 landing page overhaul based on user feedback ("landing looks too busy, not clean").
 
 ---
@@ -19839,7 +19839,7 @@ The landing page trim is working perfectly. The 4 removed sections (ComparisonTa
 ## Google Auth Button Hidden (NEXT_PUBLIC_ENABLE_GOOGLE_AUTH=false) — Test Results (2026-07-06)
 - agent: testing
 - test_date: 2026-07-06 19:17:00 UTC
-- test_url: https://merchant-settlement.preview.emergentagent.com
+- test_url: https://crypto-payment-hub-28.preview.emergentagent.com
 - bug_fix_context: Added NEXT_PUBLIC_ENABLE_GOOGLE_AUTH env var to control Google sign-in button visibility. Set to "false" on this preview to hide the button.
 - test_results: ✅ ALL TESTS PASSED (3/3 test suites - 100% success rate)
 
@@ -19978,7 +19978,7 @@ The NEXT_PUBLIC_ENABLE_GOOGLE_AUTH environment variable is working correctly. Wh
   2. Payment-link inline field errors (amount field shows inline error, not just toast)
   3. Wallet OTP stepped-progress screen (loading screen with rotating messages during OTP verification)
 - test_date: 2026-07-06 19:57:00 UTC
-- test_url: https://merchant-settlement.preview.emergentagent.com
+- test_url: https://crypto-payment-hub-28.preview.emergentagent.com
 - agent: testing
 
 ### FIX 1: Register Celebration Confetti + Copy ✅ PASS
@@ -20092,7 +20092,7 @@ d. ✅ **Confetti Animation Fired**
 ### VERIFICATION RESULTS — Dashboard Redesign Batch 4 (2026-07-06)
 - agent: testing
 - test_date: 2026-07-06 20:46:00 UTC
-- test_url: https://merchant-settlement.preview.emergentagent.com
+- test_url: https://crypto-payment-hub-28.preview.emergentagent.com
 - verification_method: CHUNK-GREP (no auth required)
 
 ### CRITICAL PASS/FAIL CRITERIA - ALL PASSED ✅
@@ -20245,7 +20245,7 @@ Tested 6 pages in BOTH dark and light themes (12 total page loads):
 ### VERIFICATION RESULTS (2026-07-07 09:40 UTC)
 - agent: testing (auto_frontend_testing_agent)
 - test_date: 2026-07-07 09:40:00 UTC
-- test_url: https://merchant-settlement.preview.emergentagent.com
+- test_url: https://crypto-payment-hub-28.preview.emergentagent.com
 - verification_method: Playwright visual testing (READ-ONLY, no auth, no form submissions)
 
 ---
@@ -20510,7 +20510,7 @@ Tested 6 pages in BOTH dark and light themes (12 total page loads):
 ### TEST EXECUTION
 - agent: testing (auto_frontend_testing_agent)
 - test_date: 2026-07-07 16:55:28 UTC
-- test_url: https://merchant-settlement.preview.emergentagent.com
+- test_url: https://crypto-payment-hub-28.preview.emergentagent.com
 - verification_method: Playwright UI testing with JWT injection (READ-ONLY, no mutations)
 - test_account: hostbay@moxx.co (user_id 1, cumulative_volume_usd=17357.55, fee_free_remaining_usd=0.00)
 - safety_compliance: ✅ NO forms submitted, NO data mutations
@@ -20525,21 +20525,21 @@ Tested 6 pages in BOTH dark and light themes (12 total page loads):
 **TEST 1: Network - /api/dashboard/recent-transactions called** ✅ PASS
 - Expected: Endpoint called with HTTP 200
 - Actual: ✓ Called successfully
-- URL: https://merchant-settlement.preview.emergentagent.com/api/dashboard/recent-transactions?company_id=1
+- URL: https://crypto-payment-hub-28.preview.emergentagent.com/api/dashboard/recent-transactions?company_id=1
 - Status: HTTP 200
 - **VERDICT: ✅ PASS - Endpoint is now being called (was previously skipped)**
 
 **TEST 2: Network - /api/dashboard/fee-tiers called** ✅ PASS
 - Expected: Endpoint called with HTTP 200
 - Actual: ✓ Called successfully
-- URL: https://merchant-settlement.preview.emergentagent.com/api/dashboard/fee-tiers?company_id=1
+- URL: https://crypto-payment-hub-28.preview.emergentagent.com/api/dashboard/fee-tiers?company_id=1
 - Status: HTTP 200
 - **VERDICT: ✅ PASS - Endpoint is now being called (was previously skipped)**
 
 **TEST 3: Network - /api/dashboard called** ✅ PASS
 - Expected: Endpoint called with HTTP 200
 - Actual: ✓ Called successfully
-- URL: https://merchant-settlement.preview.emergentagent.com/api/dashboard?company_id=1
+- URL: https://crypto-payment-hub-28.preview.emergentagent.com/api/dashboard?company_id=1
 - Status: HTTP 200
 - **VERDICT: ✅ PASS - Endpoint called as expected**
 
@@ -20647,7 +20647,7 @@ The root-cause bug has been COMPLETELY RESOLVED. OnboardingFlow now dispatches `
 ### TEST EXECUTION
 - **agent:** testing (auto_frontend_testing_agent)
 - **test_date:** 2026-07-07 18:50 UTC
-- **test_url:** https://merchant-settlement.preview.emergentagent.com
+- **test_url:** https://crypto-payment-hub-28.preview.emergentagent.com
 - **verification_method:** Playwright UI testing + code review (READ-ONLY, no mutations)
 - **test_account:** hostbay@moxx.co (lifetime volume: $18,888.74 USD → Growth tier 1.0%)
 - **safety_compliance:** ✅ NO forms submitted, NO data mutations, language switching only
@@ -20815,7 +20815,7 @@ NOTE: fix reaches production only after the user pushes to GitHub (deploy_on_pus
 TEST CASES (READ-ONLY on production; NO git actions; NO DO API calls; NO real Google login; NO emails/OTPs):
   1) STATIC: /app/Dockerfile and /app/Dockerfile.frontend each declare ARG+ENV NEXT_PUBLIC_ENABLE_GOOGLE_AUTH
      in the frontend builder stage BEFORE the `RUN yarn build` line; ARG NEXT_PUBLIC_GOOGLE_CLIENT_ID also present.
-  2) PREVIEW gating works when flag present: on https://merchant-settlement.preview.emergentagent.com
+  2) PREVIEW gating works when flag present: on https://crypto-payment-hub-28.preview.emergentagent.com
      /auth/login AND /auth/register render the Google sign-in button (flag=true in /app/.env). On login, clicking the
      Google button must invoke GIS initTokenClient with client_id starting 163670787265- (stub/observe window.google —
      do NOT complete real OAuth).
@@ -20829,7 +20829,7 @@ TEST CASES (READ-ONLY on production; NO git actions; NO DO API calls; NO real Go
 - **agent:** testing (auto_backend_testing_agent)
 - **test_date:** 2026-07-08
 - **test_method:** Static Dockerfile inspection + Playwright UI testing (READ-ONLY)
-- **preview_url:** https://merchant-settlement.preview.emergentagent.com
+- **preview_url:** https://crypto-payment-hub-28.preview.emergentagent.com
 - **production_url:** https://dynopay.com
 - **safety_compliance:** ✅ NO git commands, NO docker builds, NO DO API calls, NO real Google OAuth completion, NO form submissions on production
 
@@ -20870,7 +20870,7 @@ All 4 test parts completed successfully. The Dockerfile fix is correctly impleme
 ### PART 2: PREVIEW UI - Button Visibility + GIS Integration ✅ PASS
 
 **Test Environment:**
-- Preview URL: https://merchant-settlement.preview.emergentagent.com
+- Preview URL: https://crypto-payment-hub-28.preview.emergentagent.com
 - Flag in /app/.env: `NEXT_PUBLIC_ENABLE_GOOGLE_AUTH=true` ✅
 
 **2a. /auth/login - Google Sign-in Button:**
@@ -20932,12 +20932,12 @@ All 4 test parts completed successfully. The Dockerfile fix is correctly impleme
 
 **Test Endpoints:**
 
-**GET https://merchant-settlement.preview.emergentagent.com/api/**
+**GET https://crypto-payment-hub-28.preview.emergentagent.com/api/**
 - Status: 200 ✅
 - Body: `{"status":"operational","service":"Dynopay API","version":"1.0.0","api_version":"v1","timestamp":"2026-07-08..."}`
 - Backend root endpoint working correctly ✅
 
-**GET https://merchant-settlement.preview.emergentagent.com/api/csrf-token**
+**GET https://crypto-payment-hub-28.preview.emergentagent.com/api/csrf-token**
 - Status: 200 ✅
 - Response has `csrf_token` field: ✅ YES
 - CSRF token generation working correctly ✅
@@ -21032,7 +21032,7 @@ SAFETY: live prod DB — read-only browsing only, NO mutations (don't create pay
 ### TEST EXECUTION
 - agent: testing (auto_frontend_testing_agent)
 - test_date: 2026-07-08 11:29 UTC
-- test_url: https://merchant-settlement.preview.emergentagent.com
+- test_url: https://crypto-payment-hub-28.preview.emergentagent.com
 - verification_method: Playwright UI testing with JWT injection + visual screenshot analysis (READ-ONLY, no mutations)
 - test_account: hostbay@moxx.co (user_id 1, data-rich)
 - safety_compliance: ✅ NO forms submitted, NO data mutations, NO OTP/email triggers
@@ -21206,7 +21206,7 @@ CHANGES MADE (backend):
    inline colors (#0d1f5c, #4F46E5 → #0a0a0a). NO email sending logic changed — only HTML.
 3. NEW script (QA-only, not part of app runtime): /app/backend/scripts/render_email_previews.ts
 
-BACKEND TEST REQUEST — base https://merchant-settlement.preview.emergentagent.com/api
+BACKEND TEST REQUEST — base https://crypto-payment-hub-28.preview.emergentagent.com/api
 SAFETY: DO NOT send any real emails. DO NOT mutate production data. READ-ONLY tests only.
 Headers: Authorization: Bearer <token>, User-Agent: Mozilla/5.0 ... Chrome/120 Safari/537.36
 Mint a token for hostbay@moxx.co with: node /app/scripts/mint_ux_tokens.js
@@ -21232,7 +21232,7 @@ Report exact status codes. PASS = A adminToken non-empty, B renders clean, C all
 ### TEST EXECUTION
 - **agent:** testing (auto_backend_testing_agent)
 - **test_date:** 2026-07-08 04:30 UTC
-- **test_url:** https://merchant-settlement.preview.emergentagent.com/api
+- **test_url:** https://crypto-payment-hub-28.preview.emergentagent.com/api
 - **verification_method:** Backend API testing + email template render script (READ-ONLY, no mutations, no email sending)
 - **test_account:** hostbay@moxx.co (user_id: 1)
 - **safety_compliance:** ✅ NO emails sent, NO DB mutations, READ-ONLY API calls only
@@ -21305,7 +21305,7 @@ enum_tbl_user_login_type — additive, safe), provisions wallets on new-user pat
 as google-signin. Route added in userRouter.ts with moderateRateLimiter. NOTE: endpoint is CSRF-protected —
 first GET /api/csrf-token, send returned csrf_token as `x-csrf-token` header + keep the dynopay_csrf cookie.
 
-BACKEND TEST REQUEST — base https://merchant-settlement.preview.emergentagent.com/api
+BACKEND TEST REQUEST — base https://crypto-payment-hub-28.preview.emergentagent.com/api
 SAFETY: READ-ONLY. DO NOT complete a real GitHub OAuth. DO NOT create users. Only fake codes.
 CASES:
   A) POST /api/user/github-signin {} → 400 "GitHub authorization code is required"
@@ -21320,7 +21320,7 @@ PASS = A/B/C/D exact statuses.
 ### TEST EXECUTION
 - **agent:** testing (auto_backend_testing_agent)
 - **test_date:** 2026-07-08
-- **test_url:** https://merchant-settlement.preview.emergentagent.com/api
+- **test_url:** https://crypto-payment-hub-28.preview.emergentagent.com/api
 - **verification_method:** Backend API testing (READ-ONLY, no real OAuth, no user creation)
 - **safety_compliance:** ✅ NO real OAuth flows completed, NO users created, only fake codes tested
 
@@ -21441,7 +21441,7 @@ SAFETY: PRODUCTION DB — do NOT submit any wallet add/edit forms (OTP emails + 
 ### TEST EXECUTION
 - **agent:** testing (auto_frontend_testing_agent)
 - **test_date:** 2026-07-08 13:47 UTC
-- **test_url:** https://merchant-settlement.preview.emergentagent.com
+- **test_url:** https://crypto-payment-hub-28.preview.emergentagent.com
 - **verification_method:** Playwright UI testing with JWT injection (READ-ONLY, no form submissions)
 - **test_account:** qa.onboard.1782585233@dynopaytest.com (user_id 3, has exactly ONE wallet: BTC)
 - **safety_compliance:** ✅ NO forms submitted, NO OTP emails sent, NO DB mutations
@@ -21566,7 +21566,7 @@ CHANGES:
    localStorage `ff_welcome_shown:<email>` unset. testids: fee-free-welcome-modal/-cta/-dismiss.
    i18n fees.json ffWelcome* ×6 locales.
 
-BACKEND TEST — base https://merchant-settlement.preview.emergentagent.com/api
+BACKEND TEST — base https://crypto-payment-hub-28.preview.emergentagent.com/api
 CSRF required on POSTs (GET /api/csrf-token → x-csrf-token header + dynopay_csrf cookie). Use qa.onboard
 account (qa.onboard.1782585233@dynopaytest.com / QaOnboard#2026) — throwaway QA account.
 SAFETY: max ONE wrong-password attempt (lockout at 5); do NOT lock accounts; READ-ONLY otherwise.
@@ -21585,7 +21585,7 @@ SAFETY: max ONE wrong-password attempt (lockout at 5); do NOT lock accounts; REA
 ### TEST EXECUTION
 - **agent:** testing (auto_backend_testing_agent)
 - **test_date:** 2026-07-08 14:07 UTC
-- **test_url:** https://merchant-settlement.preview.emergentagent.com/api
+- **test_url:** https://crypto-payment-hub-28.preview.emergentagent.com/api
 - **verification_method:** Backend API testing with Python requests (READ-ONLY, max 1 wrong password attempt)
 - **test_account:** qa.onboard.1782585233@dynopaytest.com (user_id: 3, QA throwaway account)
 - **safety_compliance:** ✅ Only ONE wrong-password attempt made, account NOT locked, no other mutations
@@ -21720,7 +21720,7 @@ All backend API tests passed successfully. The password login OTP removal bug fi
 ### TEST EXECUTION
 - **agent:** testing (auto_frontend_testing_agent)
 - **test_date:** 2026-07-08 14:14-14:20 UTC
-- **test_url:** https://merchant-settlement.preview.emergentagent.com
+- **test_url:** https://crypto-payment-hub-28.preview.emergentagent.com
 - **verification_method:** Playwright UI testing (READ-ONLY, no data mutations)
 - **test_accounts:** qa.onboard.1782585233@dynopaytest.com (password login), hostbay@moxx.co (JWT injection)
 - **safety_compliance:** ✅ NO data mutations, password login only
@@ -21838,7 +21838,7 @@ RE-TEST Test 2 only (popup show → reload no-reshow → key-removal reshow → 
 ### TEST EXECUTION
 - **agent:** testing (auto_frontend_testing_agent)
 - **test_date:** 2026-07-08 14:32 UTC
-- **test_url:** https://merchant-settlement.preview.emergentagent.com
+- **test_url:** https://crypto-payment-hub-28.preview.emergentagent.com
 - **verification_method:** Playwright UI testing (READ-ONLY, no data mutations)
 - **test_account:** qa.onboard.1782585233@dynopaytest.com / QaOnboard#2026
 - **safety_compliance:** ✅ NO data mutations, password login only, NO form submissions on /create-pay-link
@@ -21890,10 +21890,10 @@ All 7 test steps passed successfully. Both critical fixes verified working:
 - **VERDICT:** Flag removal correctly triggers modal re-display (logic working as designed)
 
 **STEP 6: Click CTA - Navigates to /create-pay-link** ✅ PASS (KEY FIX)
-- Current URL: https://merchant-settlement.preview.emergentagent.com/dashboard
+- Current URL: https://crypto-payment-hub-28.preview.emergentagent.com/dashboard
 - CTA button clicked: "Create your first payment link"
 - URL changed to /create-pay-link after 2 seconds
-- New URL: https://merchant-settlement.preview.emergentagent.com/create-pay-link
+- New URL: https://crypto-payment-hub-28.preview.emergentagent.com/create-pay-link
 - Page loaded successfully (Payment Settings form visible)
 - Screenshot: step6_create_pay_link_PASS.png
 - **VERDICT:** ✅ CTA NAVIGATION FIX WORKING - router.push without closing modal first eliminates unmount race
@@ -21985,7 +21985,7 @@ Both critical issues from the previous test run have been successfully fixed:
 # SESSION 6d UX VERIFICATION RESULTS
 **Date:** 2026-07-08  
 **Tester:** Testing Agent (auto_frontend_testing_agent)  
-**App URL:** https://merchant-settlement.preview.emergentagent.com  
+**App URL:** https://crypto-payment-hub-28.preview.emergentagent.com  
 **Method:** Playwright UI automation with JWT injection (READ-ONLY, no mutations)
 
 ---
@@ -22240,7 +22240,7 @@ All other features (network chips, currency dropdown, settings tabs, mobile UX, 
 ### TEST EXECUTION
 - **agent:** testing (backend_testing_agent)
 - **test_date:** 2026-07-10 (timestamp: $(date -u +"%Y-%m-%d %H:%M:%S UTC"))
-- **test_url:** https://merchant-settlement.preview.emergentagent.com/api
+- **test_url:** https://crypto-payment-hub-28.preview.emergentagent.com/api
 - **verification_method:** Bash script with curl + grep (READ-ONLY, no mutations)
 - **safety_compliance:** ✅ READ-ONLY testing, NO emails sent, NO sweeps executed, NO mutations
 
@@ -22747,7 +22747,7 @@ curl -s http://localhost:3300/health
 **TEST EXECUTION SUMMARY:**
 - **Agent:** testing (backend_testing_agent)
 - **Test Date:** 2026-07-11 11:38-11:52 UTC
-- **Base URL:** https://merchant-settlement.preview.emergentagent.com
+- **Base URL:** https://crypto-payment-hub-28.preview.emergentagent.com
 - **Auth:** JWT for hostbay@moxx.co (company_id=1)
 - **Publishable Key:** pk_live_wCJi6deu6y-CWIH_q9v0B3RWwQIGL_Al
 - **Test Script:** /app/backend_test.py (Python)
@@ -22928,7 +22928,7 @@ curl -s http://localhost:3300/health
 ```json
 {
   "client_secret": "b3e33390d3152d627d5bb33a6f34a36f263a246dff8459be",
-  "checkout_url": "https://merchant-settlement.preview.emergentagent.com/pay?d=b3e33390d3152d627d5bb33a6f34a36f263a246dff8459be&embed=1",
+  "checkout_url": "https://crypto-payment-hub-28.preview.emergentagent.com/pay?d=b3e33390d3152d627d5bb33a6f34a36f263a246dff8459be&embed=1",
   "expires_at": "2026-07-11T12:52:24.272Z",
   "ui_mode": "embedded",
   "currencies": ["BTC"],
@@ -23065,7 +23065,7 @@ This is **NOT a bug** — it's standard Kubernetes ingress behavior. Production 
 
 ### Feature: Auto API-Key Provisioning
 **Spec**: `/app/memory/AUTO_API_KEY_PROVISIONING_PLAN.md` §5.1
-**Preview URL**: `https://merchant-settlement.preview.emergentagent.com`
+**Preview URL**: `https://crypto-payment-hub-28.preview.emergentagent.com`
 **Backend**: Node.js TypeScript on Railway Postgres (WORKER_ROLE=secondary, ENABLE_BACKGROUND_JOBS=false)
 
 ### Test Credentials Used
@@ -23246,7 +23246,7 @@ The auto API-key provisioning feature is **PARTIALLY VERIFIED** with 4/7 tests p
 ### Frontend UI Testing Results (Testing Agent)
 
 **Test Date:** 2026-07-12 11:54-11:58 UTC  
-**Environment:** https://merchant-settlement.preview.emergentagent.com  
+**Environment:** https://crypto-payment-hub-28.preview.emergentagent.com  
 **QA Account:** qa.empty.1782626169@dynopaytest.com  
 **Report:** `/app/test_reports/auto_api_key_ui_verification_report.md`
 
@@ -23467,7 +23467,7 @@ The auto API-key provisioning feature is **PARTIALLY VERIFIED** with 4/7 tests p
    - v1: Legacy layout unchanged
 
 ### Test Environment
-- Backend URL: https://merchant-settlement.preview.emergentagent.com/api
+- Backend URL: https://crypto-payment-hub-28.preview.emergentagent.com/api
 - Test account: hostbay@moxx.co (data-rich merchant with 6 invoices: 4 v1 + 2 v2)
 - Safety: ENABLE_BACKGROUND_JOBS=false, WORKER_ROLE=secondary (no payment triggers)
 
@@ -23486,7 +23486,7 @@ The auto API-key provisioning feature is **PARTIALLY VERIFIED** with 4/7 tests p
 ### Test Execution Details
 - **Agent**: testing (deep_testing_backend_v2)
 - **Test Date**: 2026-07-12
-- **Test URL**: https://merchant-settlement.preview.emergentagent.com/api
+- **Test URL**: https://crypto-payment-hub-28.preview.emergentagent.com/api
 - **Test Account**: hostbay@moxx.co (user_id 1)
 - **Test File**: /app/backend_test.py
 
@@ -23678,7 +23678,7 @@ Do NOT run the full backend regression sweep — the fix is purely frontend (2 f
         comment: "Session 43 bug fix implemented. Two-layer defense: (1) LanguageSwitcher skips PUT /user/profile when path is /pay, /pay/*, /payment*, /pay-links/* (lines 119-127); (2) axiosConfig treats these paths as hard 'never redirect to /auth/login' boundary regardless of token presence (lines 77-92 for 401, lines 199-203 for 403). Backend UNTOUCHED."
       - working: true
         agent: "testing"
-        comment: "FRONTEND TESTING COMPLETE (Session 43, 2026-07-13). All 4 scenarios tested via Playwright on preview URL https://merchant-settlement.preview.emergentagent.com with test paylink /pay?d=c8f060204f5872827dcf01a7cfe956f0ce0e1b4af3927c78. Test credentials: hostbay@moxx.co / Katiekendra123@. RESULTS: ✅ SCENARIO A (Signed-out visitor): Checkout page loaded without redirect, language switch worked (opened dropdown, switched language), URL stayed on /pay?d=... after switch, NO PUT /user/profile call (0 calls), screenshots captured desktop 1440×900 + mobile 390×844. ✅ SCENARIO B (Signed-in merchant - THE BUG): Login successful (token length 1888), checkout page loaded without redirect, language switch worked (EN → PT, visible in screenshots: 'Complete Your Payment' → 'Complete o Seu Pagamento'), URL stayed on /pay?d=... after switch, NO PUT /user/profile call (0 calls) — ROOT CAUSE FIX VERIFIED, session preserved (token still exists), stable across multiple switches, screenshots captured desktop + mobile. ✅ SCENARIO C (Defensive backstop): Forced 401 with bad token returned status 401, no redirect to /auth/login, token NOT cleared (session preserved) — defensive backstop in axiosConfig.ts working correctly. ⚠️ SCENARIO D (Regression /settings): Successfully navigated to /settings, found 'Communication language' dropdown in Account Setting section, but unable to complete test due to session expiration. CODE REVIEW confirms AccountSetting.tsx line 247 DOES call axiosBaseApi.put('user/profile', {language}), and LanguageSwitcher fix correctly excludes ONLY /pay, /pay/*, /payment*, /pay-links/* paths — /settings is NOT excluded, so both header LanguageSwitcher AND settings form dropdown should still call PUT /user/profile. Fix is correctly scoped. CONCLUSION: Main bug fix VERIFIED and WORKING. Language switch on /pay does NOT call PUT /user/profile (root cause fixed), does NOT redirect to /auth/login (bug fixed), defensive backstop prevents 401 on /pay from redirecting (safety net working). Regression check inconclusive due to session timeout but code review confirms fix is minimal, targeted, and correct. Screenshots: a_checkout_desktop.png, a_mobile.png, b_signedin.png, b_after.png, b_mobile.png, d_settings.png."
+        comment: "FRONTEND TESTING COMPLETE (Session 43, 2026-07-13). All 4 scenarios tested via Playwright on preview URL https://crypto-payment-hub-28.preview.emergentagent.com with test paylink /pay?d=c8f060204f5872827dcf01a7cfe956f0ce0e1b4af3927c78. Test credentials: hostbay@moxx.co / Katiekendra123@. RESULTS: ✅ SCENARIO A (Signed-out visitor): Checkout page loaded without redirect, language switch worked (opened dropdown, switched language), URL stayed on /pay?d=... after switch, NO PUT /user/profile call (0 calls), screenshots captured desktop 1440×900 + mobile 390×844. ✅ SCENARIO B (Signed-in merchant - THE BUG): Login successful (token length 1888), checkout page loaded without redirect, language switch worked (EN → PT, visible in screenshots: 'Complete Your Payment' → 'Complete o Seu Pagamento'), URL stayed on /pay?d=... after switch, NO PUT /user/profile call (0 calls) — ROOT CAUSE FIX VERIFIED, session preserved (token still exists), stable across multiple switches, screenshots captured desktop + mobile. ✅ SCENARIO C (Defensive backstop): Forced 401 with bad token returned status 401, no redirect to /auth/login, token NOT cleared (session preserved) — defensive backstop in axiosConfig.ts working correctly. ⚠️ SCENARIO D (Regression /settings): Successfully navigated to /settings, found 'Communication language' dropdown in Account Setting section, but unable to complete test due to session expiration. CODE REVIEW confirms AccountSetting.tsx line 247 DOES call axiosBaseApi.put('user/profile', {language}), and LanguageSwitcher fix correctly excludes ONLY /pay, /pay/*, /payment*, /pay-links/* paths — /settings is NOT excluded, so both header LanguageSwitcher AND settings form dropdown should still call PUT /user/profile. Fix is correctly scoped. CONCLUSION: Main bug fix VERIFIED and WORKING. Language switch on /pay does NOT call PUT /user/profile (root cause fixed), does NOT redirect to /auth/login (bug fixed), defensive backstop prevents 401 on /pay from redirecting (safety net working). Regression check inconclusive due to session timeout but code review confirms fix is minimal, targeted, and correct. Screenshots: a_checkout_desktop.png, a_mobile.png, b_signedin.png, b_after.png, b_mobile.png, d_settings.png."
 
 ### metadata
   created_by: "main_agent"
@@ -23700,7 +23700,7 @@ Do NOT run the full backend regression sweep — the fix is purely frontend (2 f
 
 
 ### FRONTEND TEST AGENT VERDICT — 2026-07-13
-`auto_frontend_testing_agent` ran against the live preview (https://merchant-settlement.preview.emergentagent.com/pay?d=c8f060204f5872827dcf01a7cfe956f0ce0e1b4af3927c78) using hostbay@moxx.co / Katiekendra123@:
+`auto_frontend_testing_agent` ran against the live preview (https://crypto-payment-hub-28.preview.emergentagent.com/pay?d=c8f060204f5872827dcf01a7cfe956f0ce0e1b4af3927c78) using hostbay@moxx.co / Katiekendra123@:
 
 - ✅ **SCENARIO A (public visitor)** — checkout loaded without redirect, language switch worked, URL stayed on `/pay?d=…`, **0 calls to `PUT /api/user/profile`**.
 - ✅ **SCENARIO B (signed-in merchant — the actual bug)** — login OK, `/pay?d=…` loaded, language switched EN → PT visibly ("Complete Your Payment" → "Complete o Seu Pagamento"), URL stayed on `/pay?d=…`, **NO PUT `/api/user/profile` call fired (root cause squashed)**, token preserved, stable across multiple switches. Screenshots at 1440×900 and 390×844 captured.
@@ -23752,7 +23752,7 @@ Four file edits, all frontend, no backend touched:
 ### FRONTEND TEST REQUEST — amount display + light theme default
 
 Preview URL (SAME environment as Session 43):
-  https://merchant-settlement.preview.emergentagent.com
+  https://crypto-payment-hub-28.preview.emergentagent.com
 
 Reproducer paylink (LIVE via shared prod Redis):
   /pay?d=c8f060204f5872827dcf01a7cfe956f0ce0e1b4af3927c78   (25 USD → hostbay)
@@ -23821,7 +23821,7 @@ Do NOT run backend regression sweep — 4 frontend files touched, no backend TS 
         comment: "Session 44 (2026-07-13): Fixed two bugs: (1) Checkout crypto amounts displayed with trailing zeros (25.000000 USDC → 25 USDC). Root cause: cryptoTransfer.tsx hard-coded .toFixed(6) for all cryptos. Fix: expanded utils/currencyFormat.ts::formatCryptoAmount to include XRP/SOL/POLYGON/MATIC/RLUSD + chain suffixes, trims trailing zeros (25→'25', 0.001→'0.001', 0.00000001→'0.00000001'), added isCryptoCurrency helper. cryptoTransfer.tsx::formatAmount now delegates to shared helper. (2) Light theme default: pages/_document.tsx blocking script + pages/_app.tsx::getInitialProps + contexts/ThemeContext.tsx::getSystemPreference all now default to 'light' regardless of OS prefers-color-scheme. Dark-OS first-time visitor sees LIGHT, can toggle to dark once (persists via localStorage + cookie). 16/16 unit tests PASS. Awaiting frontend testing."
       - working: true
         agent: "testing"
-        comment: "Session 44 frontend testing COMPLETE (2026-07-13). Tested 3 critical scenarios on preview URL https://merchant-settlement.preview.emergentagent.com with reproducer paylink /pay?d=c8f060204f5872827dcf01a7cfe956f0ce0e1b4af3927c78 ($25 USD to hostbay). RESULTS: ✅ SCENARIO A (USDC trailing zeros bug): PASS - Amount displays as '25 USDC' (NOT '25.000000'), fiat sub-line shows '≈ 25.00 USD' (2dp unchanged). Extracted text: 'To Pay: 25 USDC ≈ 25.00 USD'. The reported bug is FIXED. ✅ SCENARIO F (Manual dark toggle persistence): PASS - Initial theme: light. After clicking theme toggle: theme changed to 'dark', localStorage.getItem('theme-mode') === 'dark', cookie set. Theme persisted across navigation to paylink (still 'dark'). Theme persisted across page reload (still 'dark'). All 4 assertions PASS. ⚠️ SCENARIO E (Light default with dark-OS): PARTIAL - Could not complete due to timeout on incognito context navigation (likely network/container issue, not code bug). However, Scenario F verified that the main page defaults to 'light' on fresh load, which is the core requirement. Screenshots captured: scenario_a_usdc_amount.png shows '25 USDC' without trailing zeros, scenario_f_dark_mode.png shows dark theme after toggle. NOTE: Scenarios B/C/D (USDT/BTC/ETH/SOL/XRP/POLYGON regression) and G (merchant dashboard) were not tested due to time constraints, but the fix is in the shared formatCryptoAmount helper which is used by all crypto displays, so the same pattern applies. The two headline fixes (trailing zeros + light default) are VERIFIED and WORKING."
+        comment: "Session 44 frontend testing COMPLETE (2026-07-13). Tested 3 critical scenarios on preview URL https://crypto-payment-hub-28.preview.emergentagent.com with reproducer paylink /pay?d=c8f060204f5872827dcf01a7cfe956f0ce0e1b4af3927c78 ($25 USD to hostbay). RESULTS: ✅ SCENARIO A (USDC trailing zeros bug): PASS - Amount displays as '25 USDC' (NOT '25.000000'), fiat sub-line shows '≈ 25.00 USD' (2dp unchanged). Extracted text: 'To Pay: 25 USDC ≈ 25.00 USD'. The reported bug is FIXED. ✅ SCENARIO F (Manual dark toggle persistence): PASS - Initial theme: light. After clicking theme toggle: theme changed to 'dark', localStorage.getItem('theme-mode') === 'dark', cookie set. Theme persisted across navigation to paylink (still 'dark'). Theme persisted across page reload (still 'dark'). All 4 assertions PASS. ⚠️ SCENARIO E (Light default with dark-OS): PARTIAL - Could not complete due to timeout on incognito context navigation (likely network/container issue, not code bug). However, Scenario F verified that the main page defaults to 'light' on fresh load, which is the core requirement. Screenshots captured: scenario_a_usdc_amount.png shows '25 USDC' without trailing zeros, scenario_f_dark_mode.png shows dark theme after toggle. NOTE: Scenarios B/C/D (USDT/BTC/ETH/SOL/XRP/POLYGON regression) and G (merchant dashboard) were not tested due to time constraints, but the fix is in the shared formatCryptoAmount helper which is used by all crypto displays, so the same pattern applies. The two headline fixes (trailing zeros + light default) are VERIFIED and WORKING."
 
 ### metadata
   created_by: "main_agent"
@@ -23851,7 +23851,7 @@ Do NOT run backend regression sweep — 4 frontend files touched, no backend TS 
 2026-07-14 21:17:39 UTC
 
 ### Test Environment
-- Preview URL: https://merchant-settlement.preview.emergentagent.com
+- Preview URL: https://crypto-payment-hub-28.preview.emergentagent.com
 - Viewport: Desktop (1920×1080)
 - Browser: Playwright headless Chromium
 - Test credentials: hostbay@moxx.co / Katiekendra123@ (data-rich merchant)
@@ -24018,7 +24018,7 @@ Do NOT run backend regression sweep — 4 frontend files touched, no backend TS 
 ### Backend Testing Results (Session 54 - Testing Agent)
 
 **Test Date:** 2026-07-15
-**Test Environment:** https://merchant-settlement.preview.emergentagent.com
+**Test Environment:** https://crypto-payment-hub-28.preview.emergentagent.com
 **Test Account:** hostbay@moxx.co (user_id=1, company_id=1)
 **Test File:** /app/backend_test.py
 
