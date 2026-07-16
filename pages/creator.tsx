@@ -10,6 +10,7 @@ import { pageProps, rootReducer } from "@/utils/types";
 import CreatorPageSettings, { CreatorFormState } from "@/Components/Page/Creator/CreatorPageSettings";
 import CreatorLivePreview from "@/Components/Page/Creator/CreatorLivePreview";
 import PanelCard from "@/Components/UI/PanelCard";
+import { buildCreatorUrl, prettyCreatorDomain } from "@/helpers/creatorUrl";
 
 interface Stats {
   total_visits: number;
@@ -24,14 +25,13 @@ const CreatorPageRoute = ({ setPageName, setPageDescription }: pageProps) => {
   const isDesktop = useMediaQuery(theme.breakpoints.up("lg"));
   const { t } = useTranslation(["dashboardLayout", "common"]);
   const profile = useSelector((s: rootReducer) => (s as any).userReducer.profile) as any;
-  const siteUrl = (process.env.NEXT_PUBLIC_BASE_URL || "").replace(/\/+$/, "");
-  const publicUrl = profile?.handle ? `${siteUrl}/${profile.handle}` : "";
+  const publicUrl = buildCreatorUrl(profile?.handle);
 
   useEffect(() => {
     setPageName?.(t("creatorPage", { defaultValue: "Creator page", ns: "dashboardLayout" }));
     setPageDescription?.(
       t("creatorPageDescription", {
-        defaultValue: "Your public dynopay.com/handle — a single link for tips and payments.",
+        defaultValue: `Your public ${prettyCreatorDomain()}/handle — a single link for tips and payments.`,
         ns: "dashboardLayout",
       }),
     );

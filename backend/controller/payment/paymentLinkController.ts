@@ -2029,8 +2029,9 @@ export const startTip = async (
     }
     const presetsCsv = presetsArr.length ? presetsArr.join(",") : null;
 
-    // Creator page URL (used as "back to campaign" target on the success screen)
-    const creatorPageUrl = (process.env.FRONTEND_URL || process.env.SERVER_URL || "").trim().replace(/\/$/, "") + "/" + u.handle;
+    // Creator page URL (used as "back to campaign" target on the success screen).
+    // Prefer the branded creator domain (CREATOR_BASE_URL, e.g. dynopay.me).
+    const creatorPageUrl = (process.env.CREATOR_BASE_URL || process.env.FRONTEND_URL || process.env.SERVER_URL || "").trim().replace(/\/$/, "") + "/" + u.handle;
 
     // ── Find or lazily create the hidden singleton tip-jar parent ──
     let tipJar = await paymentLinkModel.findOne({

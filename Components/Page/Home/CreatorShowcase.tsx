@@ -6,6 +6,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { FONT_BODY, FONT_HERO, FONT_TECH, useSwiss } from "./swiss";
 import useLocalPrice from "@/hooks/useLocalPrice";
+import { prettyCreatorDomain } from "@/helpers/creatorUrl";
 
 /**
  * CreatorShowcase — dedicated section for the creator page product.
@@ -100,7 +101,7 @@ const CreatorShowcase: React.FC = () => {
               Ada Ekwuazi
             </Typography>
             <Typography sx={{ fontFamily: FONT_TECH, fontSize: 12.5, color: pink, mb: 1.5 }}>
-              dynopay.com/{t("creatorShowcase.mockHandle")}
+              {prettyCreatorDomain()}/{t("creatorShowcase.mockHandle")}
             </Typography>
             <Typography sx={{ fontFamily: FONT_BODY, fontSize: 13.5, color: s.sub, lineHeight: 1.55, mb: 2.5 }}>
               {t("creatorShowcase.mockBio")}

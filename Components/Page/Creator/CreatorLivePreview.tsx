@@ -4,6 +4,7 @@ import { Icon } from "@iconify/react";
 import { useSelector } from "react-redux";
 import { rootReducer } from "@/utils/types";
 import type { CreatorFormState } from "./CreatorPageSettings";
+import { prettyCreatorDomain } from "@/helpers/creatorUrl";
 import Logo from "@/assets/Icons/Logo";
 
 const MONO = 'ui-monospace, "Roboto Mono", "JetBrains Mono", SFMono-Regular, Menlo, monospace';
@@ -88,7 +89,7 @@ const CreatorLivePreview: React.FC<Props> = ({ state }) => {
           <Box sx={{ width: 8, height: 8, borderRadius: "50%", backgroundColor: "#28C840" }} />
         </Box>
         <Typography sx={{ fontFamily: MONO, fontSize: 11.5, color: theme.palette.text.secondary, ml: 1 }}>
-          dynopay.com/{handle}
+          {prettyCreatorDomain()}/{handle}
         </Typography>
       </Box>
 

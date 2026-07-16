@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next";
 import axiosBaseApi from "@/axiosConfig";
 import PanelCard from "@/Components/UI/PanelCard";
 import { rootReducer } from "@/utils/types";
+import { buildCreatorUrl, prettyCreatorUrl, prettyCreatorDomain } from "@/helpers/creatorUrl";
 
 const MONO = 'ui-monospace, "Roboto Mono", "JetBrains Mono", SFMono-Regular, Menlo, monospace';
 const LIME = "#CCFF00";
@@ -15,7 +16,7 @@ const INK = "#0A0A0B";
 /**
  * Dashboard right-column card that surfaces the Creator page feature.
  * Three states, based on `profile.handle` + `profile.creator_page_enabled`:
- *   1. No handle          → "Claim your dynopay.com/handle" (empty-state CTA)
+ *   1. No handle          → "Claim your dynopay.me/handle" (empty-state CTA)
  *   2. Handle, not live   → "Turn on your public page" (publish nudge)
  *   3. Live               → URL + Copy + View + tiny visit/supporters stats
  */
@@ -25,11 +26,11 @@ const CreatorPageCard: React.FC = () => {
   const { t } = useTranslation("dashboardLayout");
   const profile = useSelector((s: rootReducer) => (s as any).userReducer.profile) as any;
 
-  const siteUrl = (process.env.NEXT_PUBLIC_BASE_URL || "").replace(/\/+$/, "");
+  const siteUrl = prettyCreatorDomain();
   const handle = profile?.handle || "";
   const published = Boolean(profile?.creator_page_enabled);
-  const publicUrl = handle ? `${siteUrl}/${handle}` : "";
-  const prettyUrl = handle ? `${siteUrl.replace(/^https?:\/\//, "")}/${handle}` : "";
+  const publicUrl = buildCreatorUrl(handle);
+  const prettyUrl = prettyCreatorUrl(handle);
 
   const [visits, setVisits] = useState<number | null>(null);
   const [weekVisits, setWeekVisits] = useState<number | null>(null);

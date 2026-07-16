@@ -3,6 +3,7 @@ import Head from 'next/head'
 import { GetServerSideProps } from 'next'
 import CreatorProfile, { CreatorData, CreatorLink } from '@/Components/Page/Creator/CreatorProfile'
 import { SupportWidgetData } from '@/Components/Page/Creator/SupportWidget'
+import { getCreatorBaseUrl } from '@/helpers/creatorUrl'
 
 interface CreatorPageProps {
   creator: CreatorData
@@ -43,7 +44,10 @@ const CreatorPage = ({ creator, links, siteUrl, supportWidget }: CreatorPageProp
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const handle = String(ctx.params?.handle || '').toLowerCase()
-  const base = (process.env.NEXT_PUBLIC_BASE_URL || '').replace(/\/+$/, '')
+  // Server-side fetch base: prefer an internal API URL (set in preview where
+  // NEXT_PUBLIC_BASE_URL is empty), then the public app URL. This is used ONLY
+  // to reach the backend during SSR — the shareable creator URL is separate.
+  const base = (process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_SERVER_URL || '').replace(/\/+$/, '')
   try {
     const r = await fetch(`${base}/api/pay/creator/${encodeURIComponent(handle)}`, {
       headers: { Accept: 'application/json' },
@@ -56,7 +60,10 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       props: {
         creator: data.creator,
         links: Array.isArray(data.links) ? data.links : [],
-        siteUrl: base,
+        // Public creator pages are shared under the branded creator domain
+        // (NEXT_PUBLIC_CREATOR_BASE_URL, e.g. dynopay.me); the API fetch above
+        // still uses the app/internal base URL.
+        siteUrl: getCreatorBaseUrl() || (process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_SERVER_URL || '').replace(/\/+$/, ''),
         supportWidget: data.support_widget || null,
       },
     }

@@ -6,6 +6,7 @@ import axiosBaseApi from "@/axiosConfig";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { USER_PROFILE_FETCH, UserAction } from "@/Redux/Actions/UserAction";
 import { rootReducer } from "@/utils/types";
+import { getCreatorBaseUrl } from "@/helpers/creatorUrl";
 
 const HANDLE_RE = /^[a-z0-9][a-z0-9_-]{2,29}$/;
 
@@ -57,7 +58,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
   const dispatch = useDispatch();
   const profile = useSelector((s: rootReducer) => (s as any).userReducer.profile) as any;
 
-  const siteUrl = (process.env.NEXT_PUBLIC_BASE_URL || "").replace(/\/+$/, "");
+  const siteUrl = getCreatorBaseUrl();
   const border = theme.palette.divider;
 
   const [handle, setHandle] = useState("");
