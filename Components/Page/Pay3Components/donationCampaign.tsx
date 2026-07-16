@@ -8,6 +8,7 @@
  * returned child payment reference.
  */
 import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import {
   Box,
   Button,
@@ -522,7 +523,7 @@ const DonationCampaign = ({ donation, merchant, submitting, onDonate }: Donation
   ) : null
 
   return (
-    <Box display='flex' justifyContent='center' px={{ xs: 1.5, sm: 2 }} py={{ xs: 1, sm: 2 }} width='100%'>
+    <Box display='flex' justifyContent='center' px={{ xs: 1.5, sm: 2 }} pt={{ xs: 1, sm: 2 }} pb={{ xs: '104px', sm: '104px', md: 2 }} width='100%'>
       <Box
         data-testid='donation-campaign-card'
         sx={{
@@ -925,6 +926,69 @@ const DonationCampaign = ({ donation, merchant, submitting, onDonate }: Donation
           )}
         </Box>
       </Box>
+
+      {/* ── Mobile sticky Donate bar (app-like) — portal to body so it stays
+          pinned to the viewport regardless of any transformed ancestor. ── */}
+      {mounted && !donation.campaign_closed && createPortal(
+        <Box
+          data-testid='donation-sticky-cta'
+          sx={{
+            position: 'fixed',
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 1300,
+            display: { xs: 'block', md: 'none' },
+            px: 2,
+            pt: 1.25,
+            pb: 'calc(env(safe-area-inset-bottom, 0px) + 10px)',
+            backgroundColor: isDark ? 'rgba(12,12,14,0.92)' : 'rgba(255,255,255,0.94)',
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)',
+            borderTop: `1px solid ${border}`,
+            boxShadow: '0 -8px 24px rgba(0,0,0,0.18)',
+          }}
+        >
+          <Button
+            fullWidth
+            disableElevation
+            variant='contained'
+            data-testid='donation-sticky-donate-btn'
+            disabled={submitting}
+            onClick={() => {
+              if (canDonate) {
+                handleDonate()
+              } else {
+                donateFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+              }
+            }}
+            sx={{
+              minHeight: 52,
+              borderRadius: '999px',
+              textTransform: 'none',
+              fontSize: 16,
+              fontWeight: 800,
+              backgroundColor: accent,
+              color: onAccent,
+              '&:hover': { backgroundColor: accent, filter: 'brightness(1.05)' },
+              '&:active': { transform: 'scale(0.99)' },
+              '&.Mui-disabled': {
+                backgroundColor: isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.12)',
+                color: theme.palette.text.disabled,
+              },
+            }}
+          >
+            {submitting ? (
+              <CircularProgress size={20} sx={{ color: onAccent }} />
+            ) : effectiveAmount != null && effectiveAmount > 0 ? (
+              t('donation.donateAmount', { defaultValue: `Donate ${fmt(effectiveAmount)}`, amount: fmt(effectiveAmount) })
+            ) : (
+              t('donation.donate', { defaultValue: 'Donate' })
+            )}
+          </Button>
+        </Box>,
+        document.body,
+      )}
     </Box>
   )
 }

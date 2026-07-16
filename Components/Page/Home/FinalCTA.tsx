@@ -86,7 +86,7 @@ const FinalCTA: React.FC = () => {
           {t("finalCtaSubtitle")}
         </Typography>
 
-        <Box sx={{ display: "flex", justifyContent: "center", gap: 2, flexWrap: "wrap", mb: 4 }}>
+        <Box sx={{ display: "flex", justifyContent: "center", gap: 2, flexWrap: "wrap", mt: { xs: 5, md: 6 }, mb: 4 }}>
           <Box
             component="button"
             type="button"
@@ -96,21 +96,26 @@ const FinalCTA: React.FC = () => {
               display: "inline-flex",
               alignItems: "center",
               gap: 1,
-              px: 3.5,
-              py: 1.7,
-              borderRadius: "10px",
+              px: 4,
+              py: 1.9,
+              borderRadius: "999px",
               border: "none",
               cursor: "pointer",
               backgroundColor: "#CCFF00",
               color: "#0A0A0A",
               fontFamily: FONT_BODY,
-              fontWeight: 600,
-              fontSize: 15.5,
-              transition: "transform 0.2s ease, box-shadow 0.2s ease",
-              "&:hover": { transform: "translate(-2px, -2px)", boxShadow: "4px 4px 0 rgba(204,255,0,0.35)" },
+              fontWeight: 700,
+              fontSize: 16,
+              boxShadow: "0 10px 30px -10px rgba(204,255,0,0.5)",
+              transition: "transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease",
+              "&:hover": {
+                transform: "translateY(-2px)",
+                filter: "brightness(1.03)",
+                boxShadow: "0 16px 40px -12px rgba(204,255,0,0.6)",
+              },
             }}
           >
-            {t("startAcceptingCrypto")} <ArrowForward sx={{ fontSize: 17 }} />
+            {t("startAcceptingCrypto")} <ArrowForward sx={{ fontSize: 18 }} />
           </Box>
           <Box
             component="button"
@@ -120,16 +125,16 @@ const FinalCTA: React.FC = () => {
             sx={{
               display: "inline-flex",
               alignItems: "center",
-              px: 3.5,
-              py: 1.7,
-              borderRadius: "10px",
-              border: "1px solid rgba(255,255,255,0.25)",
+              px: 3.75,
+              py: 1.85,
+              borderRadius: "999px",
+              border: "1.5px solid rgba(255,255,255,0.25)",
               cursor: "pointer",
               backgroundColor: "transparent",
               color: "#F5F5F5",
               fontFamily: FONT_BODY,
-              fontWeight: 500,
-              fontSize: 15.5,
+              fontWeight: 600,
+              fontSize: 15,
               transition: "border-color 0.2s ease, background-color 0.2s ease",
               "&:hover": { borderColor: "rgba(255,255,255,0.55)", backgroundColor: "rgba(255,255,255,0.05)" },
             }}

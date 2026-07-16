@@ -732,6 +732,8 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
             }}
             sx={{
               borderRadius: '8px',
+              minHeight: 46,
+              '& .MuiSelect-select': { paddingTop: '11px', paddingBottom: '11px' },
               '& .MuiOutlinedInput-notchedOutline': { borderColor: border },
               '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: muted },
             }}
@@ -768,6 +770,8 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
             }}
             sx={{
               borderRadius: '8px',
+              minHeight: 46,
+              '& .MuiSelect-select': { paddingTop: '11px', paddingBottom: '11px' },
               '& .MuiOutlinedInput-notchedOutline': { borderColor: border },
               '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: muted },
             }}
@@ -857,10 +861,10 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
               data-testid="clean-checkout-copy-address"
               onClick={() => doCopy(cryptoInfo.address, 'addr')}
               sx={{
-                background: 'none', border: `1px solid ${border}`, borderRadius: '6px',
-                px: 1, py: 0.5, cursor: 'pointer', color: theme.palette.text.primary,
-                fontSize: 11.5, fontWeight: 600, flexShrink: 0,
-                display: 'flex', alignItems: 'center', gap: 0.35,
+                background: 'none', border: `1px solid ${border}`, borderRadius: '8px',
+                px: 1.5, py: 0.9, minHeight: 40, cursor: 'pointer', color: theme.palette.text.primary,
+                fontSize: 12, fontWeight: 600, flexShrink: 0,
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.35,
               }}
             >
               <Icon icon={copiedFlag === 'addr' ? 'mdi:check' : 'mdi:content-copy'} width={12} />
@@ -891,10 +895,10 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
               data-testid="clean-checkout-copy-amount"
               onClick={() => doCopy(formatCryptoAmount(cryptoInfo.expected_amount, cryptoInfo.crypto_base), 'amt')}
               sx={{
-                background: 'none', border: `1px solid ${border}`, borderRadius: '6px',
-                px: 1, py: 0.5, cursor: 'pointer', color: theme.palette.text.primary,
-                fontSize: 11.5, fontWeight: 600, flexShrink: 0,
-                display: 'flex', alignItems: 'center', gap: 0.35,
+                background: 'none', border: `1px solid ${border}`, borderRadius: '8px',
+                px: 1.5, py: 0.9, minHeight: 40, cursor: 'pointer', color: theme.palette.text.primary,
+                fontSize: 12, fontWeight: 600, flexShrink: 0,
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.35,
               }}
             >
               <Icon icon={copiedFlag === 'amt' ? 'mdi:check' : 'mdi:content-copy'} width={12} />
@@ -924,10 +928,10 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
               component="button"
               onClick={() => doCopy(cryptoInfo.memo, 'amt')}
               sx={{
-                background: 'none', border: `1px solid ${border}`, borderRadius: '6px',
-                px: 1, py: 0.5, cursor: 'pointer', color: theme.palette.text.primary,
-                fontSize: 11.5, fontWeight: 600, flexShrink: 0,
-                display: 'flex', alignItems: 'center', gap: 0.35,
+                background: 'none', border: `1px solid ${border}`, borderRadius: '8px',
+                px: 1.5, py: 0.9, minHeight: 40, cursor: 'pointer', color: theme.palette.text.primary,
+                fontSize: 12, fontWeight: 600, flexShrink: 0,
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.35,
               }}
             >
               <Icon icon="mdi:content-copy" width={12} /> Copy

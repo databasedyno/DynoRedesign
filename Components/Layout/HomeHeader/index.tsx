@@ -297,8 +297,8 @@ const HomeHeader = memo(function HomeHeader() {
                 showIcon={false}
                 navigateTo="/auth/register"
                 sx={{
-                  borderRadius: "8px",
-                  padding: "10px 18px",
+                  borderRadius: "999px",
+                  padding: "10px 22px",
                   minWidth: "108px",
                   fontSize: "16px",
                 }}

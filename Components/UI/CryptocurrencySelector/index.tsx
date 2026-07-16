@@ -301,13 +301,18 @@ const CryptocurrencySelector: React.FC<CryptocurrencySelectorProps> = ({
                     letterSpacing: "0",
                     background:
                       crypto.code === value
-                        ? theme.palette.primary.light
+                        ? theme.palette.mode === "dark"
+                          ? "rgba(204,255,0,0.14)"
+                          : "rgba(10,10,10,0.05)"
                         : "transparent",
                     "&.Mui-disabled": {
                       opacity: 0.45,
                     },
                     "&:hover": {
-                      background: theme.palette.primary.light,
+                      background:
+                        theme.palette.mode === "dark"
+                          ? "rgba(204,255,0,0.14)"
+                          : "rgba(10,10,10,0.05)",
                     },
                   }}
                 >

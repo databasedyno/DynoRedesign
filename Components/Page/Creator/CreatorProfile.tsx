@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { Box, Button, LinearProgress, Typography, useTheme } from '@mui/material'
 import { Icon } from '@iconify/react'
 import Logo from '@/assets/Icons/Logo'
@@ -119,6 +120,9 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget }: { creator: C
   // ── Share sheet ────────────────────────────────────────────────
   const [copied, setCopied] = useState(false)
   const [canNativeShare, setCanNativeShare] = useState(false)
+  // Portal-mount guard for the mobile sticky Support bar (SSR-safe).
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
   useEffect(() => {
     setCanNativeShare(typeof navigator !== 'undefined' && typeof (navigator as any).share === 'function')
   }, [])
@@ -261,7 +265,7 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget }: { creator: C
   )
 
   return (
-    <Box sx={{ minHeight: '70vh', display: 'flex', justifyContent: 'center', px: { xs: 0, sm: 3 }, py: { xs: 0, sm: 4 } }}>
+    <Box sx={{ minHeight: '70vh', display: 'flex', justifyContent: 'center', px: { xs: 0, sm: 3 }, pt: { xs: 0, sm: 4 }, pb: { xs: '104px', sm: 4 } }}>
       <Box sx={{ width: '100%', maxWidth: 620 }}>
         {/* ── Cover / hero image (optional) ── */}
         {(creator.cover_image || hasCustomCover) && (
@@ -400,7 +404,7 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget }: { creator: C
 
         {/* ── Support Widget (always-on tip / coffee / support) ── */}
         {supportWidget?.enabled && !activeLink && (
-          <Box sx={{ mb: 3 }}>
+          <Box data-testid='creator-support-section' sx={{ mb: 3 }}>
             <SupportWidget handle={creator.handle} creatorName={creator.name} widget={supportWidget} siteUrl={siteUrl ? `${siteUrl.replace(/\/+$/, '')}/${creator.handle}` : undefined} />
           </Box>
         )}
@@ -582,6 +586,62 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget }: { creator: C
         </Box>
         </Box>
       </Box>
+
+      {/* ── Mobile sticky Support bar (app-like) — portal to body, pinned to
+          the viewport. Scrolls to the featured campaign / support widget. ── */}
+      {mounted && !activeLink && (featured || supportWidget?.enabled) && createPortal(
+        <Box
+          data-testid='creator-sticky-cta'
+          sx={{
+            position: 'fixed',
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 1300,
+            display: { xs: 'block', md: 'none' },
+            px: 2,
+            pt: 1.25,
+            pb: 'calc(env(safe-area-inset-bottom, 0px) + 10px)',
+            backgroundColor: isDark ? 'rgba(12,12,14,0.92)' : 'rgba(255,255,255,0.94)',
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)',
+            borderTop: `1px solid ${border}`,
+            boxShadow: '0 -8px 24px rgba(0,0,0,0.18)',
+          }}
+        >
+          <Button
+            fullWidth
+            disableElevation
+            variant='contained'
+            data-testid='creator-sticky-support-btn'
+            onClick={() => {
+              const sel = featured
+                ? '[data-testid="creator-featured"]'
+                : '[data-testid="creator-support-section"]'
+              const el = typeof document !== 'undefined' ? document.querySelector(sel) : null
+              if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+              } else if (featured) {
+                go(featured.url)
+              }
+            }}
+            sx={{
+              minHeight: 52,
+              borderRadius: '999px',
+              textTransform: 'none',
+              fontSize: 16,
+              fontWeight: 800,
+              backgroundColor: accent,
+              color: INK,
+              '&:hover': { backgroundColor: accent, filter: 'brightness(1.05)' },
+              '&:active': { transform: 'scale(0.99)' },
+            }}
+          >
+            Support {creator.name.split(' ')[0]}
+          </Button>
+        </Box>,
+        document.body,
+      )}
     </Box>
   )
 }

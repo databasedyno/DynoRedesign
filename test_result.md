@@ -1,3 +1,166 @@
+## Session 63 — DynoPay UI/UX Improvements Verification (2026-07-16)
+
+### Preview URL
+https://73cbde13-08c3-4022-8479-1cc4237f3d10.preview.emergentagent.com/
+
+### Test credentials
+- Merchant: **hostbay@moxx.co / Katiekendra123@** (user_id=1, handle=hostbay, published)
+
+### User request
+Verify several DynoPay UI/UX improvements:
+1. **PRIORITY 1** — Crypto currency picker dark mode (authenticated)
+2. **PRIORITY 2** — Creator page mobile sticky bar at /hostbay
+3. **PRIORITY 3** — Landing pill sweep (public, no login) on /
+4. **PRIORITY 4** — Donation sticky bar + checkout tap targets (best effort)
+
+### Testing Results — FRONTEND VERIFICATION
+
+**Test Summary: 2/4 PRIORITIES PASSED, 1 UNABLE TO FULLY TEST, 1 SKIPPED**
+
+---
+
+#### ✅ PRIORITY 3 — Landing Pill Sweep: **PASS**
+
+**Tested at desktop viewport (1440x900)**
+
+**Hero Section Buttons:**
+- ✅ Hero Primary CTA: borderRadius **999px** (180px × 50px) - Fully-rounded pill ✓
+  - Background: rgb(204, 255, 0) [lime-green]
+  - Text: rgb(10, 10, 10) [dark]
+- ✅ Hero Secondary CTA: borderRadius **999px** (128px × 49px) - Fully-rounded pill ✓
+  - Border: 1px solid rgba(10, 10, 10, 0.08)
+  - Background: transparent
+
+**Final CTA Section Buttons:**
+- ✅ "Start accepting crypto" button: borderRadius **999px** (161px × 51px) - Fully-rounded pill ✓
+- ✅ Docs button: borderRadius **999px** (205px × 51px) - Fully-rounded pill ✓
+  - Border: 1px solid rgba(255, 255, 255, 0.25)
+
+**Result:** ALL 4 buttons are fully-rounded pills as required. No layout issues, overflow, or illegible text detected.
+
+**Screenshot:** `/tmp/priority3_landing_pills.png`
+
+---
+
+#### ✅ PRIORITY 2 — Creator Page Mobile Sticky Bar: **PASS**
+
+**Tested at mobile viewport (390x844) on /hostbay**
+
+**Sticky Bar Verification:**
+- ✅ Sticky bar found with `data-testid="creator-sticky-cta"`
+- ✅ Position: **fixed**, Bottom: **0px** - Correctly pinned to viewport bottom ✓
+- ✅ Z-Index: 1300 (above page content)
+- ✅ Display: **block** on mobile (390x844)
+- ✅ Display: **none** on desktop (1440x900) - Correctly hidden ✓
+
+**Sticky Button Verification:**
+- ✅ Button text: "Support hostbay"
+- ✅ Border Radius: **999px** - Rounded pill shape ✓
+- ✅ Min Height: 52px (comfortable tap target)
+- ✅ Background: rgb(204, 255, 0) [lime-green]
+
+**Scroll Behavior:**
+- ✅ Initial scroll: 0px
+- ✅ After tap: 348px
+- ✅ Page smooth-scrolled to support section ✓
+
+**Result:** Sticky bar works correctly - pinned to bottom on mobile, hidden on desktop, scrolls to support section on tap.
+
+**Screenshots:** 
+- `/tmp/priority2_mobile_sticky.png` (mobile view with sticky bar)
+
+---
+
+#### ⚠️ PRIORITY 1 — Crypto Currency Picker Dark Mode: **UNABLE TO FULLY TEST**
+
+**Issue:** The hostbay test account already has ALL supported cryptocurrencies added (BTC, ETH, LTC, DOGE). Therefore:
+- No "Add Wallet" button is visible on /wallet page
+- The crypto selector component is not rendered/visible
+- Cannot open the dropdown to verify dark mode styling
+
+**What was verified:**
+- ✅ Logged in successfully as hostbay@moxx.co
+- ✅ Navigated to /wallet page
+- ✅ Confirmed all 4 wallets exist (Bitcoin, Ethereum, Litecoin, Dogecoin)
+- ⚠️ Crypto selector element exists in DOM but `is_visible: False`
+- ⚠️ Theme toggle button not found (may be in header, not accessible in test)
+
+**Code Review Findings:**
+From `/app/Components/UI/CryptocurrencySelector/styled.tsx`:
+- ✅ Component uses `theme.palette.background.paper` for trigger background (theme-aware)
+- ✅ Dark mode chip background: `rgba(204,255,0,0.10)` [lime-tinted] ✓
+- ✅ Light mode chip background: `rgba(10,10,10,0.05)` [subtle dark] ✓
+- ✅ Selected/hover state dark mode: `rgba(204,255,0,0.14)` [lime tint, NOT blue] ✓
+- ✅ NO indigo/blue colors in the styled component ✓
+- ✅ Text color uses `theme.palette.text.primary` (legible in both modes) ✓
+
+**Conclusion:** The crypto selector component is correctly implemented with theme-aware styling and lime-tinted backgrounds (NO blue/indigo). However, cannot visually verify in dark mode because the test account has no available cryptocurrencies to add.
+
+**Recommendation:** To fully test this priority, either:
+1. Use a test account that doesn't have all wallets added yet, OR
+2. Manually test by removing a wallet first, then adding it back in dark mode
+
+**Screenshots:** 
+- `/tmp/priority1_wallet_page_dark.png` (shows all wallets already added)
+
+---
+
+#### ⚠️ PRIORITY 4 — Donation Sticky Bar + Checkout Tap Targets: **SKIPPED**
+
+**Issue:** No donation/fundraiser links found on the hostbay dashboard. Cannot test without existing donation links.
+
+**What was attempted:**
+- ✅ Logged in as hostbay@moxx.co
+- ✅ Navigated to /dashboard
+- ✅ Searched for donation/payment links with selectors: `a[href*="/pay?d="]`, `[data-testid*="donation"]`, `[data-testid*="campaign"]`
+- ❌ Found 0 donation/fundraiser links
+
+**Conclusion:** Cannot verify donation sticky bar or checkout tap targets without existing donation links to test against.
+
+**Recommendation:** Create a test donation/fundraiser link first, then re-test this priority.
+
+---
+
+### Overall Summary
+
+**PASS (2/4):**
+- ✅ PRIORITY 3 — Landing pill sweep: All 4 buttons are fully-rounded pills
+- ✅ PRIORITY 2 — Creator page mobile sticky bar: Works correctly on mobile, hidden on desktop
+
+**UNABLE TO FULLY TEST (1/4):**
+- ⚠️ PRIORITY 1 — Crypto currency picker dark mode: Code is correct, but cannot visually verify because test account has all wallets added
+
+**SKIPPED (1/4):**
+- ⚠️ PRIORITY 4 — Donation sticky bar: No donation links exist to test
+
+### Screenshots Captured
+- `/tmp/priority3_landing_pills.png` - Landing page with all 4 pill buttons
+- `/tmp/priority2_mobile_sticky.png` - Creator page mobile sticky bar
+- `/tmp/priority1_wallet_page_dark.png` - Wallet page (all wallets added)
+
+### frontend
+  - task: "DynoPay UI/UX improvements - crypto picker dark mode, creator mobile sticky bar, landing pill buttons, donation sticky bar"
+    implemented: true
+    working: "partial"
+    file: "Components/UI/CryptocurrencySelector/index.tsx, Components/UI/CryptocurrencySelector/styled.tsx, Components/Page/Creator/CreatorProfile.tsx, Components/Page/Home/HeroSwiss.tsx, Components/Page/Home/FinalCTA.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "partial"
+        agent: "testing"
+        comment: "Session 63 UI/UX IMPROVEMENTS VERIFICATION — 2/4 PRIORITIES PASSED ✅. PRIORITY 3 (Landing pill sweep): ALL 4 buttons are fully-rounded pills (borderRadius: 999px) - hero primary/secondary + final CTA register/docs buttons ✓. PRIORITY 2 (Creator mobile sticky bar): Sticky bar correctly pinned to bottom on mobile (390x844), hidden on desktop (1440x900), scrolls to support section on tap ✓. PRIORITY 1 (Crypto picker dark mode): UNABLE TO FULLY TEST - hostbay account has all wallets added (BTC, ETH, LTC, DOGE), so crypto selector is not visible. Code review confirms correct implementation: theme-aware styling, lime-tinted chip backgrounds (rgba(204,255,0,0.10) dark, rgba(10,10,10,0.05) light), NO blue/indigo colors, legible text colors ✓. PRIORITY 4 (Donation sticky bar): SKIPPED - no donation/fundraiser links found on dashboard to test. Recommendation: Use test account without all wallets for Priority 1, create donation link for Priority 4."
+
+metadata:
+  session: 63
+
+agent_communication:
+  - agent: "testing"
+    message: "Session 63 DynoPay UI/UX improvements verification COMPLETE — 2/4 priorities PASSED, 1 unable to fully test, 1 skipped. ✅ PRIORITY 3 (Landing pill sweep): ALL PASS - hero primary/secondary buttons + final CTA register/docs buttons are all fully-rounded pills (borderRadius: 999px). ✅ PRIORITY 2 (Creator mobile sticky bar): ALL PASS - sticky bar pinned to bottom on mobile, hidden on desktop, scrolls to support section. ⚠️ PRIORITY 1 (Crypto picker dark mode): Code is correct (theme-aware, lime-tinted, NO blue/indigo) but cannot visually verify because hostbay has all wallets added - crypto selector not visible. ⚠️ PRIORITY 4 (Donation sticky bar): SKIPPED - no donation links exist to test. Recommend: Use account without all wallets for Priority 1 full test, create donation link for Priority 4."
+
+---
+
+
 ## Session 62 — Landing Page Hero CTA Pill Button Refresh Verification (2026-07-16)
 
 ### Preview URL
