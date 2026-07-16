@@ -552,12 +552,36 @@ const getAllTransactions = async (
         sc.target_amount as auto_convert_target_amount,
         sc.settlement_chain as auto_convert_settlement_chain,
         sc.conversion_rate as auto_convert_rate,
-        sc.completed_at as auto_convert_completed_at
+        sc.completed_at as auto_convert_completed_at,
+        -- Source metadata (payment link / contribution / tip / product order)
+        pl.link_id           as source_link_id,
+        pl.link_type         as source_link_type,
+        pl.title             as source_link_title,
+        pl.parent_link_id    as source_parent_link_id,
+        pl.is_tip_jar        as source_is_tip_jar,
+        parent_pl.title      as source_parent_title,
+        parent_pl.is_tip_jar as source_parent_is_tip_jar,
+        po.order_id          as source_order_id,
+        po.public_ref        as source_order_ref
       FROM tbl_user_transaction ut 
       LEFT JOIN tbl_customer c ON c.customer_id=ut.customer_id
       LEFT JOIN tbl_company cm ON cm.company_id=c.company_id
       LEFT JOIN tbl_user_wallet uw ON uw.wallet_id=ut.wallet_id
       LEFT JOIN tbl_stablecoin_conversion sc ON sc.transaction_id=ut.transaction_id
+      -- Bridge tbl_user_transaction -> tbl_payment_link via the shared settlement
+      -- reference (transaction_reference lives on BOTH tables). DISTINCT ON dedups
+      -- per reference. Mirrors companyController.getTransactions (Session 54 fix)
+      -- so the /transactions page source filter (payment_link/tip/product/…) works.
+      LEFT JOIN (
+        SELECT DISTINCT ON (transaction_reference)
+          transaction_reference, link_id, link_type, title, parent_link_id, is_tip_jar
+        FROM tbl_payment_link
+        WHERE transaction_reference IS NOT NULL AND transaction_reference <> ''
+        ORDER BY transaction_reference, link_id DESC
+      ) pl ON pl.transaction_reference = ut.transaction_reference
+        AND ut.transaction_reference IS NOT NULL AND ut.transaction_reference <> ''
+      LEFT JOIN tbl_payment_link parent_pl ON parent_pl.link_id = pl.parent_link_id
+      LEFT JOIN tbl_product_order po ON po.payment_link_id = pl.link_id
       WHERE ${whereConditions}
       ORDER BY ${sort.safeColumn} ${sort.safeSortType}`;
     if (sort.offset !== undefined && sort.limit) {
@@ -595,6 +619,15 @@ const getAllTransactions = async (
         auto_convert_settlement_chain,
         auto_convert_rate,
         auto_convert_completed_at,
+        source_link_id,
+        source_link_type,
+        source_link_title,
+        source_parent_link_id,
+        source_is_tip_jar,
+        source_parent_title,
+        source_parent_is_tip_jar,
+        source_order_id,
+        source_order_ref,
         ...rest
       } = x;
 
@@ -621,8 +654,46 @@ const getAllTransactions = async (
         }
       }
 
+      // ── Derive `source` — tagged field the UI filters on (payment_link /
+      // contribution / tip / product / direct). Mirrors companyController.getTransactions
+      // so the /transactions page (which calls THIS endpoint via wallet/getAllTransactions)
+      // can filter by source. Previously absent → every row defaulted to "direct" and the
+      // payment-link / tip / product filters returned zero rows.
+      let sourceType: "payment_link" | "contribution" | "tip" | "product" | "direct" = "direct";
+      let sourceTitle: string | null = null;
+      let sourceRef: string | number | null = null;
+      if (source_order_id) {
+        sourceType = "product";
+        sourceTitle = source_link_title ? String(source_link_title) : "Product order";
+        sourceRef = String(source_order_ref || source_order_id);
+      } else if (source_link_type === "contribution") {
+        if (source_parent_is_tip_jar) {
+          sourceType = "tip";
+          sourceTitle = source_parent_title ? String(source_parent_title) : "Tip";
+        } else {
+          sourceType = "contribution";
+          sourceTitle = source_parent_title ? String(source_parent_title) : "Contribution";
+        }
+        sourceRef = source_parent_link_id ? Number(source_parent_link_id) : (source_link_id ? Number(source_link_id) : null);
+      } else if (source_link_id) {
+        sourceType = "payment_link";
+        sourceTitle = source_link_title ? String(source_link_title) : null;
+        sourceRef = Number(source_link_id);
+      }
+
       return {
         ...rest,
+        // Source metadata for the transactions UX (filter chips + row badge)
+        source: {
+          type: sourceType,
+          title: sourceTitle,
+          ref: sourceRef,
+          link_id: source_link_id ? Number(source_link_id) : null,
+          link_type: source_link_type ? String(source_link_type) : null,
+          parent_link_id: source_parent_link_id ? Number(source_parent_link_id) : null,
+          order_id: source_order_id ? Number(source_order_id) : null,
+          order_ref: source_order_ref ? String(source_order_ref) : null,
+        },
         // Format for UI
         transaction_id_display: x.id || `TX${x.transaction_id}`,
         crypto: x.crypto_currency || x.base_currency,

@@ -1,3 +1,54 @@
+## Session 59 — Transactions payment-link filter fix + hostbay test-data cleanup (2026-07-16)
+
+### Preview URL
+https://43772e84-4776-4512-8b4e-06f252495273.preview.emergentagent.com
+
+### Test credentials (from /app/memory/test_credentials.md)
+- Merchant (data-rich): **hostbay@moxx.co / Katiekendra123@** (user_id=1, company_id=1, LIVE Railway PG)
+
+### User requests
+1. Clean up the test transactions on hostbay@moxx.co account.
+2. Payment-link filter under Transactions shows no results despite a payment-link transaction existing on hostbay.
+3. (hostbay credentials already in the test file — used them.)
+
+### Task 1 — Cleanup (DONE, verified via DB inspection)
+- Deleted 2 synthetic `tbl_user_transaction` rows (TESTTAX-A €119, TESTTAX-B €200) via `scripts/seed_test_tax_data.js cleanup`.
+- Deleted 3 synthetic `tbl_product_order` rows (+items): order 6 (testtaxA), 7 (testtaxB), 8 (testfiledlv) via the two seed cleanup scripts.
+- Reset hostbay's seeded fake tax settings (`merchant_vat_id=DE999888777 / country=DE / default_apply_tax=true`) back to NULL/NULL/false (`scripts/reset_hostbay_tax.js`) — the /tmp backup was lost on pod reinit so cleanup's auto-restore was a no-op.
+- Post-cleanup inspection: hostbay txns 423→421, TEST markers = 0, test product_orders = 0, merchant_vat_id = null.
+
+### Task 2 — Payment-link filter bug (ROOT CAUSE + FIX)
+- ROOT CAUSE: `/transactions` page (Redux TransactionSaga → `POST wallet/getAllTransactions` → `walletController.getAllTransactions`) never attached a `source` object. The client-side source filter (Components/Page/Transactions/index.tsx) reads `item.source.type` and defaults missing → `"direct"`, so filtering by `payment_link` (also tip/product/contribution) returned ZERO rows. The correct source-tagging logic existed ONLY in `companyController.getTransactions` (a different endpoint the page does NOT call).
+- FIX (backend only): ported the source-tagging into `backend/controller/walletController.ts` `getAllTransactions` — added the payment-link JOINs (bridge on shared `transaction_reference`, DISTINCT ON dedup; parent_pl for tip/contribution; tbl_product_order for product) + the `source` object on each returned row. Mirrors companyController (Session 54 fix).
+- VERIFIED via real authenticated API (main agent, curl round-trip: CSRF → login hostbay → POST /api/wallet/getAllTransactions): 421 rows now ALL carry a `source` object; `source.type` breakdown = { direct: 418, payment_link: 3 }; the 3 payment-link txns tag correctly (link_id 83/2/1). Frontend sends no pagination → all rows returned → client filter will surface the 3 payment-link rows.
+
+### backend
+  - task: "Transactions payment-link (source) filter — walletController.getAllTransactions now attaches source.type so /transactions source chips filter correctly"
+    implemented: true
+    working: true
+    file: "backend/controller/walletController.ts"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Ported source-tagging from companyController.getTransactions into walletController.getAllTransactions. Verified via authenticated curl: getAllTransactions returns source on all 421 hostbay rows; 3 rows tagged type=payment_link (link_id 83/2/1). Needs independent backend-agent confirmation."
+      - working: true
+        agent: "testing"
+        comment: "Session 59 backend testing COMPLETE — ALL 4/4 tests PASSED ✅. Test 1 (Source objects): All 421 transactions have valid source.type field (payment_link, contribution, tip, product, direct) ✓. Test 2 (Payment link transactions): Found exactly 3 payment_link transactions with link_ids [1, 2, 83] as expected ✓. Test 3 (Cleanup verification): NO test data (testtax-* or TESTTAX-*) found in any transaction id or reference ✓. Test 4 (Regression check): Response includes pagination + self_transactions fields, direct transactions are dominant (418/421 = 99%) ✓. The bug fix is working correctly - walletController.getAllTransactions now properly attaches source objects to all transactions, enabling the frontend source filter to work. Test file: /app/backend_test.py."
+
+### What to verify (BACKEND) — deep_testing_backend_v2
+Auth: GET /api/csrf-token (header x-csrf-token) → POST /api/user/login {email:"hostbay@moxx.co", password:"Katiekendra123@"} → Bearer accessToken.
+1. POST /api/wallet/getAllTransactions {"page":1,"rowsPerPage":500} → 200. Assert EVERY item in data.customers_transactions has a `source` object with a `type` in {payment_link,contribution,tip,product,direct}.
+2. Assert at least 3 rows have source.type === "payment_link" (link_id present: 83, 2, 1). This is the reported bug.
+3. Assert NO row's id starts with "testtax-" and NO transaction_reference starts with "TESTTAX-" (Task-1 cleanup check).
+4. Regression: response still returns pagination + self_transactions; direct-source rows still present (~418).
+NOTE: LIVE production Railway PG — READ-ONLY assertions only, do NOT create/delete rows.
+
+---
+
+
 ## Session 58 (cont.) — Tax UI + Digital-Delivery visual verification seed (2026-07-16)
 
 Backend testing for the digital-delivery fix already returned 9/9 PASS (see the block below). Because the tax UI on the Merchant surfaces (B.4) + Buyer surfaces (Phase C) render CONDITIONALLY (`tax > 0 || reverse_charge`), and the hostbay live-DB account has zero tax-bearing rows, we seeded synthetic data so the frontend agent can visually confirm each conditional element renders.
@@ -23839,6 +23890,9 @@ Do NOT run backend regression sweep — 4 frontend files touched, no backend TS 
 ### agent_communication
   - agent: "testing"
     message: "Session 44 testing COMPLETE. The two headline fixes are VERIFIED: (1) USDC trailing zeros bug FIXED - checkout displays '25 USDC' not '25.000000 USDC', fiat sub-line '≈ 25.00 USD' unchanged. (2) Light theme default WORKING - app defaults to light on fresh load, manual dark toggle persists across navigation and reload (localStorage + cookie). Tested on live preview URL with reproducer paylink. Screenshots confirm both fixes. Minor: Scenario E (dark-OS emulation in incognito) timed out due to network/container issue, but Scenario F verified the core light-default behavior. Scenarios B/C/D/G (USDT/BTC/ETH/SOL/XRP/POLYGON regression + merchant dashboard) not tested due to time, but the fix is in the shared formatCryptoAmount helper used by all crypto displays. Both reported bugs are RESOLVED and production-ready."
+  - agent: "testing"
+    message: "Session 59 backend testing COMPLETE — ALL 4/4 tests PASSED ✅. Verified the payment-link filter bug fix in walletController.getAllTransactions. Test 1 (Source objects): All 421 transactions have valid source.type field (payment_link, contribution, tip, product, direct) ✓. Test 2 (Payment link transactions): Found exactly 3 payment_link transactions with link_ids [1, 2, 83] as expected - this is the core bug fix ✓. Test 3 (Cleanup verification): NO test data (testtax-* or TESTTAX-*) found in any transaction id or reference - cleanup successful ✓. Test 4 (Regression check): Response includes pagination + self_transactions fields, direct transactions are dominant (418/421 = 99%) ✓. The bug fix is working correctly - walletController.getAllTransactions now properly attaches source objects to all transactions, enabling the frontend /transactions source filter to work. Test file: /app/backend_test.py. Base URL: https://43772e84-4776-4512-8b4e-06f252495273.preview.emergentagent.com/api. Database: LIVE Railway PostgreSQL (READ-ONLY assertions only)."
+
 
 ---
 
