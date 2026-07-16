@@ -1,3 +1,19 @@
+## Session 57 — FRONTEND VERIFICATION RESULTS (2026-07-16)
+
+VERIFIED LOGIN RECIPE (works): /auth/login → fill `input[type=email]`=hostbay@moxx.co → click `button:has-text('Continue')` → click `[data-testid='login-method-password']` → fill `input[type=password]`=Katiekendra123@ → click `button:has-text('Continue')` → lands /dashboard. Settings sub-sections deep-linkable via `/settings?section=tax`.
+
+- ✅ **Settings → Tax**: FULLY verified end-to-end on LIVE DB. Initial (apply OFF, empty). Country Autocomplete returns many countries (Germany 🇩🇪, Japan 🇯🇵). Enabling "Charge tax" enables the inclusive toggle. VAT `DE123456789` shows green valid icon. Save→toast→**persisted after reload** (apply ON, DE, DE123456789). **Restored** to original (OFF, empty) — live merchant config left unchanged.
+- ✅ **Product editor Tax panel** (`/pay-links/products/new`): `product-tax-category-select` + `product-tax-override-select` render; selecting "Tax exempt" disables the override (False→True).
+- ✅ **Transactions**: "VAT / Tax" column header renders; "Tax collected" strip correctly hidden (no tax-bearing txns for this account). 
+- ✅ **Backend** (deep_testing_backend_v2): tax-settings GET/PATCH+restore, quote-tax (400 empty cart), dashboard `tax_collected` object, order merchant `vat_id` — all pass.
+- ⚠️ Payment-link tax-inclusive toggle: code-verified + compiles + data-testid present, but not driven live (create-pay-link is a multi-step wizard; Tax step not on initial view). Low risk.
+- ⚠️ Checkout/cart VAT line, order receipt breakdown, dashboard "Tax collected" chip, tx-modal tax row: code-verified + compile; render CONDITIONALLY (need tax-bearing data / EU jurisdiction), so correctly hidden for the current $0-tax test account. Not driven live.
+
+All 8 routes compile clean; backend boots clean (WORKER_ROLE=secondary).
+
+---
+
+
 ## Session 57 (cont.): B.4 + Phase C tax UI shipped (2026-07-16)
 
 ### B.4 — Dashboard + Transactions (FRONTEND + small BACKEND aggregate)
