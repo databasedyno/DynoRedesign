@@ -3945,6 +3945,7 @@ const updateCreatorProfile = async (req: express.Request, res: express.Response)
       support_widget_enabled, support_widget_style, support_widget_label,
       support_widget_preset_amounts, support_widget_currency, support_widget_min_amount,
       support_widget_allow_message, support_widget_thanks_message, support_widget_show_supporters,
+      theme_accent_color, theme_cover_style, theme_cover_gradient,
     } = req.body as {
       handle?: string;
       name?: string | null;
@@ -3961,6 +3962,9 @@ const updateCreatorProfile = async (req: express.Request, res: express.Response)
       support_widget_allow_message?: boolean;
       support_widget_thanks_message?: string | null;
       support_widget_show_supporters?: boolean;
+      theme_accent_color?: string | null;
+      theme_cover_style?: string | null;
+      theme_cover_gradient?: string | null;
     };
     const updates: Record<string, unknown> = {};
 
@@ -4095,6 +4099,47 @@ const updateCreatorProfile = async (req: express.Request, res: express.Response)
       updates.support_widget_show_supporters = Boolean(support_widget_show_supporters);
     }
 
+    // ── Custom Creator Theme (Session 60) ──
+    // Accent color: 3, 4, 6, or 8-char hex (#RGB / #RGBA / #RRGGBB / #RRGGBBAA), null clears
+    if (theme_accent_color !== undefined) {
+      if (theme_accent_color === null || theme_accent_color === "") {
+        updates.theme_accent_color = null;
+      } else {
+        const c = String(theme_accent_color).trim();
+        if (!/^#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(c)) {
+          return errorResponseHelper(res, 400, "Invalid accent color (must be a hex like #CCFF00)");
+        }
+        updates.theme_accent_color = c.toUpperCase();
+      }
+    }
+    // Cover style: allowlisted enum
+    if (theme_cover_style !== undefined) {
+      if (theme_cover_style === null || theme_cover_style === "") {
+        updates.theme_cover_style = null;
+      } else {
+        const s = String(theme_cover_style).trim().toLowerCase();
+        if (!["solid", "gradient", "image", "pattern"].includes(s)) {
+          return errorResponseHelper(res, 400, "Invalid cover style. Choose solid, gradient, image, or pattern.");
+        }
+        updates.theme_cover_style = s;
+      }
+    }
+    // Gradient: preset key OR custom "hex1,hex2" pair (max 60 chars)
+    if (theme_cover_gradient !== undefined) {
+      if (theme_cover_gradient === null || theme_cover_gradient === "") {
+        updates.theme_cover_gradient = null;
+      } else {
+        const g = String(theme_cover_gradient).trim().toLowerCase();
+        const PRESETS = ["sunset", "ocean", "forest", "twilight", "midnight", "candy"];
+        const isPreset = PRESETS.includes(g);
+        const isCustom = /^#[0-9a-f]{6},#[0-9a-f]{6}$/i.test(g);
+        if (!isPreset && !isCustom) {
+          return errorResponseHelper(res, 400, "Invalid gradient. Choose a preset or provide '#RRGGBB,#RRGGBB'.");
+        }
+        updates.theme_cover_gradient = g.slice(0, 60);
+      }
+    }
+
     // Can't enable the page without a handle
     if (updates.creator_page_enabled === true) {
       const cur = await userModel.findOne({ where: { user_id: userData.user_id }, attributes: ["handle"] });
@@ -4117,6 +4162,7 @@ const updateCreatorProfile = async (req: express.Request, res: express.Response)
         "support_widget_enabled", "support_widget_style", "support_widget_label",
         "support_widget_preset_amounts", "support_widget_currency", "support_widget_min_amount",
         "support_widget_allow_message", "support_widget_thanks_message", "support_widget_show_supporters",
+        "theme_accent_color", "theme_cover_style", "theme_cover_gradient",
       ],
     });
     return successResponseHelper(res, 200, "Creator page updated", fresh?.dataValues || updates);
@@ -4161,6 +4207,8 @@ const getCreatorStats = async (req: express.Request, res: express.Response) => {
         total_visits: 0,
         this_week_visits: 0,
         supporters_count: 0,
+        top_referrers: [],
+        daily_visits: [],
         has_handle: false,
       });
     }
@@ -4174,16 +4222,40 @@ const getCreatorStats = async (req: express.Request, res: express.Response) => {
 
     // This week: sum last 7 daily buckets
     let weekVisits = 0;
+    // Daily visits for last 14 days (oldest first, for sparkline)
+    const dailyVisits: Array<{ date: string; count: number }> = [];
     try {
       const now = Date.now();
-      const daily = await Promise.all(
+      const daily7 = await Promise.all(
         Array.from({ length: 7 }, (_, i) => {
           const d = new Date(now - i * 86400000);
           const ymd = d.toISOString().slice(0, 10);
           return redis.get(`creator-visits:${handle}:day:${ymd}`);
         })
       );
-      weekVisits = daily.reduce((a: number, b) => a + Number(b || 0), 0);
+      weekVisits = daily7.reduce((a: number, b) => a + Number(b || 0), 0);
+
+      const daily14 = await Promise.all(
+        Array.from({ length: 14 }, (_, i) => {
+          // i=13 → 13 days ago, i=0 → today  (build oldest-first)
+          const d = new Date(now - (13 - i) * 86400000);
+          const ymd = d.toISOString().slice(0, 10);
+          return redis.get(`creator-visits:${handle}:day:${ymd}`).then((v) => ({ ymd, v }));
+        })
+      );
+      daily14.forEach(({ ymd, v }) => dailyVisits.push({ date: ymd, count: Number(v || 0) }));
+    } catch { /* best-effort */ }
+
+    // Top referrers (Session 60) — Redis hash: field=domain, value=clicks
+    const topReferrers: Array<{ domain: string; clicks: number }> = [];
+    try {
+      const refs = await redis.hGetAll(`creator-referrers:${handle}`);
+      const entries = Object.entries(refs || {}).map(([domain, v]) => ({
+        domain,
+        clicks: Number(v || 0),
+      }));
+      entries.sort((a, b) => b.clicks - a.clicks);
+      topReferrers.push(...entries.slice(0, 5));
     } catch { /* best-effort */ }
 
     // Supporters count: distinct customers on this user's completed donation contributions
@@ -4206,6 +4278,8 @@ const getCreatorStats = async (req: express.Request, res: express.Response) => {
       total_visits: totalVisits,
       this_week_visits: weekVisits,
       supporters_count: supportersCount,
+      top_referrers: topReferrers,
+      daily_visits: dailyVisits,
       has_handle: true,
     });
   } catch (e) {

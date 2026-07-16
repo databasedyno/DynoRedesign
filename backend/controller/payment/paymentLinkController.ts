@@ -2233,7 +2233,8 @@ export const getCreatorProfile = async (req: express.Request, res: express.Respo
       `SELECT user_id, name, photo, bio, handle, creator_page_enabled, cover_image, social_links,
               support_widget_enabled, support_widget_style, support_widget_label,
               support_widget_preset_amounts, support_widget_currency, support_widget_min_amount,
-              support_widget_allow_message, support_widget_thanks_message, support_widget_show_supporters
+              support_widget_allow_message, support_widget_thanks_message, support_widget_show_supporters,
+              theme_accent_color, theme_cover_style, theme_cover_gradient
        FROM tbl_user
        WHERE LOWER(handle) = :handle AND creator_page_enabled = true
        LIMIT 1`,
@@ -2256,6 +2257,9 @@ export const getCreatorProfile = async (req: express.Request, res: express.Respo
       support_widget_allow_message: boolean | null;
       support_widget_thanks_message: string | null;
       support_widget_show_supporters: boolean | null;
+      theme_accent_color: string | null;
+      theme_cover_style: string | null;
+      theme_cover_gradient: string | null;
     }>;
 
     if (!creator.length) {
@@ -2372,6 +2376,37 @@ export const getCreatorProfile = async (req: express.Request, res: express.Respo
       redis.incr(`creator-visits:${handle}:day:${ymd}`)
         .then(() => redis.expire(`creator-visits:${handle}:day:${ymd}`, 60 * 60 * 24 * 32))
         .catch(() => { /* noop */ });
+
+      // ── Referrer tracking (Session 60) ──
+      // Extract domain from Referer header, skip self / empty / same-host.
+      const rawReferer = String(req.headers["referer"] || req.headers["referrer"] || "").trim();
+      if (rawReferer) {
+        try {
+          const u = new URL(rawReferer);
+          const host = u.hostname.toLowerCase();
+          const selfHosts = new Set([
+            "dynopay.me",
+            "dynopay.com",
+            "checkout.dynopay.com",
+            "www.dynopay.com",
+            "www.dynopay.me",
+          ]);
+          if (host && !selfHosts.has(host)) {
+            // Strip common tracking noise; keep bare eTLD+something (best-effort)
+            const domain = host.replace(/^www\./, "").slice(0, 80);
+            redis
+              .hIncrBy(`creator-referrers:${handle}`, domain, 1)
+              .then(() => redis.expire(`creator-referrers:${handle}`, 60 * 60 * 24 * 90))
+              .catch(() => { /* noop */ });
+          }
+        } catch { /* invalid URL — ignore */ }
+      } else {
+        // "direct" bucket for no-referrer visits (typed URL, mobile app, dark-social)
+        redis
+          .hIncrBy(`creator-referrers:${handle}`, "(direct)", 1)
+          .then(() => redis.expire(`creator-referrers:${handle}`, 60 * 60 * 24 * 90))
+          .catch(() => { /* noop */ });
+      }
     } catch { /* noop */ }
 
     return successResponseHelper(res, 200, "Creator profile retrieved", {
@@ -2382,6 +2417,11 @@ export const getCreatorProfile = async (req: express.Request, res: express.Respo
         photo: c.photo && !String(c.photo).includes("user_image.png") ? c.photo : null,
         cover_image: c.cover_image || null,
         social_links: (c.social_links && typeof c.social_links === "object") ? c.social_links : {},
+        theme: {
+          accent_color: c.theme_accent_color || null,
+          cover_style: c.theme_cover_style || null,
+          cover_gradient: c.theme_cover_gradient || null,
+        },
       },
       support_widget: supportWidget,
       links,

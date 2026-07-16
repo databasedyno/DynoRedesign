@@ -34,6 +34,11 @@ export interface CreatorData {
   photo: string | null
   cover_image?: string | null
   social_links?: Record<string, string> | null
+  theme?: {
+    accent_color?: string | null
+    cover_style?: string | null
+    cover_gradient?: string | null
+  } | null
 }
 
 const SOCIAL_ICONS: Record<string, string> = {
@@ -67,7 +72,45 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget }: { creator: C
   const isDark = theme.palette.mode === 'dark'
   const border = theme.palette.divider
   const surface = isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)'
-  const limeTint = isDark ? 'rgba(204,255,0,0.10)' : 'rgba(204,255,0,0.16)'
+
+  // ── Custom theme (Session 60) ──
+  // Falls back to the DynoPay Lime when the creator hasn't customized.
+  const accent = creator.theme?.accent_color || LIME
+  const coverStyle = creator.theme?.cover_style || (creator.cover_image ? 'image' : 'solid')
+  const coverGradient = creator.theme?.cover_gradient || 'sunset'
+  const limeTint = isDark
+    ? `${accent}1A`  // ~10% alpha
+    : `${accent}29`  // ~16% alpha
+
+  // Preset gradients (mirror of CreatorThemePicker.GRADIENT_PRESETS)
+  const GRADIENTS: Record<string, string> = {
+    sunset:   '#FF7A45 0%, #FF3D9A 100%',
+    ocean:    '#00E5FF 0%, #7C3AED 100%',
+    forest:   '#0FCFA0 0%, #14532D 100%',
+    twilight: '#4C1D95 0%, #0EA5E9 100%',
+    midnight: '#0F172A 0%, #6366F1 100%',
+    candy:    '#FCD34D 0%, #FF3D9A 100%',
+  }
+  const coverBackground = (() => {
+    if (coverStyle === 'image' && creator.cover_image) {
+      return `url(${creator.cover_image}) center/cover no-repeat`
+    }
+    if (coverStyle === 'gradient') {
+      const stops = GRADIENTS[coverGradient]
+      if (stops) return `linear-gradient(135deg, ${stops})`
+      if (/^#[0-9a-f]{6},#[0-9a-f]{6}$/i.test(coverGradient)) {
+        const [a, b] = coverGradient.split(',')
+        return `linear-gradient(135deg, ${a} 0%, ${b} 100%)`
+      }
+      return `linear-gradient(135deg, ${accent} 0%, #0A0A0B 100%)`
+    }
+    if (coverStyle === 'pattern') {
+      return `${accent}18 radial-gradient(${accent}44 1px, transparent 1px) 0 0/16px 16px`
+    }
+    // solid (or fallback)
+    return `linear-gradient(135deg, ${accent}22 0%, ${accent}66 100%)`
+  })()
+  const hasCustomCover = coverStyle !== 'solid' || creator.theme?.accent_color != null
 
   const featured = links.find((l) => l.type === 'donation' && !l.closed) || null
   const rest = links.filter((l) => l !== featured)
@@ -112,12 +155,12 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget }: { creator: C
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    border: `1px solid ${active ? LIME : border}`,
+    border: `1px solid ${active ? accent : border}`,
     backgroundColor: active ? limeTint : surface,
-    color: active ? (isDark ? LIME : '#0A0A0B') : theme.palette.text.primary,
+    color: active ? (isDark ? accent : '#0A0A0B') : theme.palette.text.primary,
     cursor: 'pointer',
     transition: 'border-color 160ms ease, transform 160ms ease',
-    '&:hover': { borderColor: LIME, transform: 'translateY(-1px)' },
+    '&:hover': { borderColor: accent, transform: 'translateY(-1px)' },
   })
 
   const go = (url: string | null) => {
@@ -185,7 +228,7 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget }: { creator: C
         border: `1px solid ${border}`,
         backgroundColor: surface,
         transition: 'border-color 160ms ease, transform 160ms ease',
-        '&:hover': { borderColor: LIME, transform: 'translateY(-2px)' },
+        '&:hover': { borderColor: accent, transform: 'translateY(-2px)' },
       }}
     >
       <Box
@@ -198,7 +241,7 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget }: { creator: C
         {l.image ? (
           <Box component='img' src={l.image} alt='' sx={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         ) : (
-          <Icon icon={l.type === 'donation' ? 'mdi:heart' : 'mdi:link-variant'} width={22} color={isDark ? LIME : '#0A0A0B'} />
+          <Icon icon={l.type === 'donation' ? 'mdi:heart' : 'mdi:link-variant'} width={22} color={isDark ? accent : '#0A0A0B'} />
         )}
       </Box>
       <Box flex={1} minWidth={0}>
@@ -221,16 +264,14 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget }: { creator: C
     <Box sx={{ minHeight: '70vh', display: 'flex', justifyContent: 'center', px: { xs: 0, sm: 3 }, py: { xs: 0, sm: 4 } }}>
       <Box sx={{ width: '100%', maxWidth: 620 }}>
         {/* ── Cover / hero image (optional) ── */}
-        {creator.cover_image && (
+        {(creator.cover_image || hasCustomCover) && (
           <Box
             data-testid='creator-cover'
             sx={{
               height: { xs: 140, sm: 180 },
               borderRadius: { xs: 0, sm: '20px' },
               overflow: 'hidden',
-              backgroundImage: `url(${creator.cover_image})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
+              background: coverBackground,
               mb: { xs: 0, sm: -6 },
             }}
           />
@@ -240,15 +281,15 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget }: { creator: C
         {/* F10: On mobile without a cover image, the header sits flush with
             the fixed navbar which clips the avatar. Add generous top padding
             to guarantee ~64px clearance below any sticky header. */}
-        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', mb: 4, px: { xs: 2, sm: 3 }, pt: { xs: creator.cover_image ? 3 : 6, sm: 0 } }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', mb: 4, px: { xs: 2, sm: 3 }, pt: { xs: (creator.cover_image || hasCustomCover) ? 3 : 6, sm: 0 } }}>
           <Box
             data-testid='creator-avatar'
             sx={{
               width: 104, height: 104, borderRadius: '50%', overflow: 'hidden',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              backgroundColor: creator.cover_image ? theme.palette.background.paper : limeTint,
-              border: `3px solid ${LIME}`,
-              boxShadow: isDark ? '0 10px 40px rgba(204,255,0,0.12)' : '0 10px 30px rgba(10,10,10,0.10)',
+              backgroundColor: (creator.cover_image || hasCustomCover) ? theme.palette.background.paper : limeTint,
+              border: `3px solid ${accent}`,
+              boxShadow: isDark ? `0 10px 40px ${accent}1F` : '0 10px 30px rgba(10,10,10,0.10)',
               position: 'relative',
               zIndex: 1,
             }}
@@ -297,7 +338,7 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget }: { creator: C
                       color: theme.palette.text.primary,
                       transition: 'border-color 160ms ease, transform 160ms ease',
                       textDecoration: 'none',
-                      '&:hover': { borderColor: LIME, transform: 'translateY(-1px)' },
+                      '&:hover': { borderColor: accent, transform: 'translateY(-1px)' },
                     }}
                     aria-label={platform}
                   >
@@ -369,7 +410,7 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget }: { creator: C
           <Box
             data-testid='creator-featured'
             sx={{
-              borderRadius: '20px', border: `1px solid ${LIME}`, p: { xs: 2.5, sm: 3 }, mb: 3,
+              borderRadius: '20px', border: `1px solid ${accent}`, p: { xs: 2.5, sm: 3 }, mb: 3,
               backgroundColor: limeTint,
             }}
           >
@@ -403,7 +444,7 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget }: { creator: C
                 sx={{
                   mt: 1.25, height: 9, borderRadius: 999,
                   backgroundColor: isDark ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.08)',
-                  '& .MuiLinearProgress-bar': { backgroundColor: LIME, borderRadius: 999 },
+                  '& .MuiLinearProgress-bar': { backgroundColor: accent, borderRadius: 999 },
                 }}
               />
             )}
@@ -418,8 +459,8 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget }: { creator: C
               onClick={() => go(featured.url)}
               sx={{
                 mt: 2, py: 1.4, borderRadius: '12px', textTransform: 'none',
-                fontWeight: 800, fontSize: 15.5, backgroundColor: LIME, color: INK,
-                '&:hover': { backgroundColor: LIME, filter: 'brightness(1.05)' },
+                fontWeight: 800, fontSize: 15.5, backgroundColor: accent, color: INK,
+                '&:hover': { backgroundColor: accent, filter: 'brightness(1.05)' },
               }}
             >
               Support this campaign
@@ -460,7 +501,7 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget }: { creator: C
                   {activeLink.image ? (
                     <Box component='img' src={activeLink.image} alt='' sx={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   ) : (
-                    <Icon icon='mdi:link-variant' width={20} color={isDark ? LIME : '#0A0A0B'} />
+                    <Icon icon='mdi:link-variant' width={20} color={isDark ? accent : '#0A0A0B'} />
                   )}
                 </Box>
                 <Box flex={1} minWidth={0}>
@@ -481,7 +522,7 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget }: { creator: C
                     border: `1px solid ${border}`, backgroundColor: surface,
                     color: theme.palette.text.secondary, cursor: 'pointer', flexShrink: 0,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    '&:hover': { borderColor: LIME, color: theme.palette.text.primary },
+                    '&:hover': { borderColor: accent, color: theme.palette.text.primary },
                   }}
                 >
                   <Icon icon='mdi:close' width={16} />
@@ -524,8 +565,8 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget }: { creator: C
               onClick={() => { if (typeof window !== 'undefined') window.location.href = '/' }}
               sx={{
                 mt: 1, px: 3, py: 1.1, borderRadius: '10px', textTransform: 'none',
-                fontWeight: 700, fontSize: 13.5, borderColor: LIME, color: theme.palette.text.primary,
-                '&:hover': { borderColor: LIME, backgroundColor: limeTint },
+                fontWeight: 700, fontSize: 13.5, borderColor: accent, color: theme.palette.text.primary,
+                '&:hover': { borderColor: accent, backgroundColor: limeTint },
               }}
             >
               Explore Dynopay creators →

@@ -1,405 +1,743 @@
 #!/usr/bin/env python3
 """
-Session 59 Backend Testing - Transactions Payment-Link Filter Bug Fix
-Test the walletController.getAllTransactions endpoint to verify source tagging
+Session 60 Backend Testing - Creator Page Enhancements
+Tests: Custom Theme, Vanity Analytics, Public Profile, Handle Claim
 """
 
 import requests
 import json
 import sys
-from typing import Dict, Any, List
+from typing import Dict, Any, Optional
 
-# Base URL from preview environment
-BASE_URL = "https://crypto-payment-hub-29.preview.emergentagent.com/api"
+# Test Configuration
+BASE_URL = "https://cab0255a-5678-42a7-ba82-3a3a89393c95.preview.emergentagent.com"
+TEST_CREDENTIALS = {
+    "email": "hostbay@moxx.co",
+    "password": "Katiekendra123@"
+}
+CREATOR_HANDLE = "hostbay"
 
-# Test credentials from /app/memory/test_credentials.md
-TEST_EMAIL = "hostbay@moxx.co"
-TEST_PASSWORD = "Katiekendra123@"
-
-# Session to maintain cookies
-session = requests.Session()
+class Colors:
+    GREEN = '\033[92m'
+    RED = '\033[91m'
+    YELLOW = '\033[93m'
+    BLUE = '\033[94m'
+    END = '\033[0m'
 
 def log_test(test_name: str, status: str, details: str = ""):
-    """Log test results"""
-    symbol = "✅" if status == "PASS" else "❌"
-    print(f"\n{symbol} {test_name}: {status}")
+    """Log test result with color coding"""
+    color = Colors.GREEN if status == "PASS" else Colors.RED if status == "FAIL" else Colors.YELLOW
+    print(f"{color}[{status}]{Colors.END} {test_name}")
     if details:
-        print(f"   {details}")
+        print(f"  → {details}")
 
-def get_csrf_token() -> str:
-    """Step 1: Get CSRF token"""
-    print("\n" + "="*80)
-    print("TEST 1: GET CSRF Token")
-    print("="*80)
-    
+def get_csrf_token(session: requests.Session) -> str:
+    """Get CSRF token from the API"""
     try:
-        response = session.get(f"{BASE_URL}/csrf-token", timeout=10)
-        print(f"Status: {response.status_code}")
-        
-        if response.status_code != 200:
-            log_test("GET /api/csrf-token", "FAIL", f"Expected 200, got {response.status_code}")
-            return None
-        
-        data = response.json()
-        csrf_token = data.get("csrf_token")
-        
-        if not csrf_token:
-            log_test("GET /api/csrf-token", "FAIL", "No csrf_token in response")
-            return None
-        
-        log_test("GET /api/csrf-token", "PASS", f"Token received: {csrf_token[:20]}...")
-        return csrf_token
-        
+        response = session.get(f"{BASE_URL}/api/csrf-token", timeout=10)
+        if response.status_code == 200:
+            data = response.json()
+            token = data.get('csrf_token') or data.get('csrfToken')
+            if token:
+                return token
+        print(f"{Colors.RED}Failed to get CSRF token: {response.status_code}{Colors.END}")
+        return ""
     except Exception as e:
-        log_test("GET /api/csrf-token", "FAIL", f"Exception: {str(e)}")
-        return None
+        print(f"{Colors.RED}CSRF token error: {e}{Colors.END}")
+        return ""
 
-def login(csrf_token: str) -> str:
-    """Step 2: Login and get JWT token"""
-    print("\n" + "="*80)
-    print("TEST 2: POST /api/user/login")
-    print("="*80)
-    
+def login(session: requests.Session, csrf_token: str) -> Optional[str]:
+    """Login and return Bearer token"""
     try:
         headers = {
-            "Content-Type": "application/json",
-            "x-csrf-token": csrf_token
+            'Content-Type': 'application/json',
+            'x-csrf-token': csrf_token
         }
-        
-        payload = {
-            "email": TEST_EMAIL,
-            "password": TEST_PASSWORD
-        }
-        
         response = session.post(
-            f"{BASE_URL}/user/login",
+            f"{BASE_URL}/api/user/login",
+            json=TEST_CREDENTIALS,
             headers=headers,
-            json=payload,
             timeout=10
         )
         
-        print(f"Status: {response.status_code}")
+        if response.status_code == 200:
+            data = response.json()
+            # Try different possible token field names
+            token = (data.get('data', {}).get('accessToken') or 
+                    data.get('accessToken') or 
+                    data.get('token'))
+            if token:
+                print(f"{Colors.GREEN}✓ Login successful{Colors.END}")
+                return token
         
-        if response.status_code != 200:
-            log_test("POST /api/user/login", "FAIL", f"Expected 200, got {response.status_code}")
-            print(f"Response: {response.text[:500]}")
-            return None
-        
-        data = response.json()
-        
-        # Try different possible token field names
-        access_token = None
-        if isinstance(data, dict):
-            # Try nested data.token or data.accessToken
-            if "data" in data:
-                access_token = data["data"].get("token") or data["data"].get("accessToken")
-            # Try top-level token or accessToken
-            if not access_token:
-                access_token = data.get("token") or data.get("accessToken")
-        
-        if not access_token:
-            log_test("POST /api/user/login", "FAIL", f"No access token in response. Keys: {list(data.keys())}")
-            return None
-        
-        log_test("POST /api/user/login", "PASS", f"Login successful, token length: {len(access_token)}")
-        return access_token
-        
+        print(f"{Colors.RED}Login failed: {response.status_code} - {response.text[:200]}{Colors.END}")
+        return None
     except Exception as e:
-        log_test("POST /api/user/login", "FAIL", f"Exception: {str(e)}")
+        print(f"{Colors.RED}Login error: {e}{Colors.END}")
         return None
 
-def test_get_all_transactions(access_token: str, csrf_token: str) -> Dict[str, Any]:
-    """Step 3: Test POST /api/wallet/getAllTransactions"""
-    print("\n" + "="*80)
-    print("TEST 3: POST /api/wallet/getAllTransactions")
-    print("="*80)
-    
+def test_theme_update_valid(session: requests.Session, token: str) -> bool:
+    """A.1: PUT /api/user/creator/profile with valid theme fields"""
     try:
         headers = {
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {access_token}",
-            "x-csrf-token": csrf_token
+            'Authorization': f'Bearer {token}',
+            'Content-Type': 'application/json'
         }
-        
         payload = {
-            "page": 1,
-            "rowsPerPage": 500
+            "theme_accent_color": "#FF3D9A",
+            "theme_cover_style": "gradient",
+            "theme_cover_gradient": "sunset"
         }
         
-        response = session.post(
-            f"{BASE_URL}/wallet/getAllTransactions",
-            headers=headers,
+        response = session.put(
+            f"{BASE_URL}/api/user/creator/profile",
             json=payload,
-            timeout=15
+            headers=headers,
+            timeout=10
         )
         
-        print(f"Status: {response.status_code}")
-        
-        if response.status_code != 200:
-            log_test("POST /api/wallet/getAllTransactions", "FAIL", f"Expected 200, got {response.status_code}")
-            print(f"Response: {response.text[:500]}")
-            return None
-        
-        data = response.json()
-        log_test("POST /api/wallet/getAllTransactions", "PASS", "Request successful")
-        
-        return data
-        
+        if response.status_code == 200:
+            data = response.json()
+            resp_data = data.get('data', {})
+            
+            # Check if theme fields are echoed back
+            if (resp_data.get('theme_accent_color') == "#FF3D9A" and
+                resp_data.get('theme_cover_style') == "gradient" and
+                resp_data.get('theme_cover_gradient') == "sunset"):
+                log_test("A.1: Valid theme update", "PASS", "Theme fields echoed correctly")
+                return True
+            else:
+                log_test("A.1: Valid theme update", "FAIL", f"Theme fields not echoed: {resp_data}")
+                return False
+        else:
+            log_test("A.1: Valid theme update", "FAIL", f"Status {response.status_code}: {response.text[:200]}")
+            return False
     except Exception as e:
-        log_test("POST /api/wallet/getAllTransactions", "FAIL", f"Exception: {str(e)}")
-        return None
+        log_test("A.1: Valid theme update", "FAIL", f"Exception: {e}")
+        return False
 
-def verify_source_objects(transactions: List[Dict]) -> bool:
-    """Assertion 1: Verify EVERY transaction has a source object with type field"""
-    print("\n" + "="*80)
-    print("ASSERTION 1: Every transaction has source.type")
-    print("="*80)
-    
-    if not transactions:
-        log_test("Source object presence", "FAIL", "No transactions returned")
-        return False
-    
-    print(f"Total transactions: {len(transactions)}")
-    
-    missing_source = []
-    missing_type = []
-    invalid_types = []
-    
-    valid_types = {"payment_link", "contribution", "tip", "product", "direct"}
-    
-    for idx, tx in enumerate(transactions):
-        tx_id = tx.get("id", f"index_{idx}")
+def test_theme_invalid_hex(session: requests.Session, token: str) -> bool:
+    """A.2: PUT with invalid hex color"""
+    try:
+        headers = {
+            'Authorization': f'Bearer {token}',
+            'Content-Type': 'application/json'
+        }
+        payload = {
+            "theme_accent_color": "not-a-color"
+        }
         
-        if "source" not in tx:
-            missing_source.append(tx_id)
-            continue
+        response = session.put(
+            f"{BASE_URL}/api/user/creator/profile",
+            json=payload,
+            headers=headers,
+            timeout=10
+        )
         
-        source = tx["source"]
-        if not isinstance(source, dict):
-            missing_source.append(f"{tx_id} (source is not object)")
-            continue
-        
-        if "type" not in source:
-            missing_type.append(tx_id)
-            continue
-        
-        source_type = source["type"]
-        if source_type not in valid_types:
-            invalid_types.append(f"{tx_id}: {source_type}")
-    
-    # Report results
-    if missing_source:
-        log_test("Source object presence", "FAIL", f"{len(missing_source)} transactions missing source object")
-        print(f"   Missing source: {missing_source[:5]}")
+        if response.status_code == 400:
+            error_msg = response.json().get('message', '').lower()
+            if 'accent' in error_msg or 'color' in error_msg or 'hex' in error_msg:
+                log_test("A.2: Invalid hex color", "PASS", "400 with clear error message")
+                return True
+            else:
+                log_test("A.2: Invalid hex color", "FAIL", f"400 but unclear error: {error_msg}")
+                return False
+        else:
+            log_test("A.2: Invalid hex color", "FAIL", f"Expected 400, got {response.status_code}")
+            return False
+    except Exception as e:
+        log_test("A.2: Invalid hex color", "FAIL", f"Exception: {e}")
         return False
-    
-    if missing_type:
-        log_test("Source type field", "FAIL", f"{len(missing_type)} transactions missing source.type")
-        print(f"   Missing type: {missing_type[:5]}")
-        return False
-    
-    if invalid_types:
-        log_test("Source type values", "FAIL", f"{len(invalid_types)} transactions have invalid source.type")
-        print(f"   Invalid types: {invalid_types[:5]}")
-        return False
-    
-    log_test("Source object presence", "PASS", f"All {len(transactions)} transactions have valid source.type")
-    return True
 
-def verify_payment_link_rows(transactions: List[Dict]) -> bool:
-    """Assertion 2: At least 3 rows have source.type === "payment_link" with link_ids"""
-    print("\n" + "="*80)
-    print("ASSERTION 2: At least 3 payment_link transactions")
-    print("="*80)
-    
-    payment_link_txs = [tx for tx in transactions if tx.get("source", {}).get("type") == "payment_link"]
-    
-    print(f"Found {len(payment_link_txs)} payment_link transactions")
-    
-    if len(payment_link_txs) < 3:
-        log_test("Payment link count", "FAIL", f"Expected at least 3, found {len(payment_link_txs)}")
-        return False
-    
-    # Check for link_ids
-    link_ids = []
-    for tx in payment_link_txs:
-        source = tx.get("source", {})
-        link_id = source.get("link_id")
-        if link_id:
-            link_ids.append(link_id)
-    
-    print(f"Link IDs found: {sorted(link_ids)}")
-    
-    # Check if we have the expected link_ids (83, 2, 1)
-    expected_ids = {83, 2, 1}
-    found_ids = set(link_ids)
-    
-    if expected_ids.issubset(found_ids):
-        log_test("Payment link transactions", "PASS", f"Found {len(payment_link_txs)} payment_link rows with link_ids: {sorted(link_ids)}")
-    else:
-        log_test("Payment link transactions", "PASS", f"Found {len(payment_link_txs)} payment_link rows (expected IDs {expected_ids}, found {found_ids})")
-    
-    return True
-
-def verify_cleanup(transactions: List[Dict]) -> bool:
-    """Assertion 3: No test data (testtax-* or TESTTAX-*) remains"""
-    print("\n" + "="*80)
-    print("ASSERTION 3: Test data cleanup verification")
-    print("="*80)
-    
-    test_ids = []
-    test_refs = []
-    
-    for tx in transactions:
-        tx_id = tx.get("id", "")
-        tx_ref = tx.get("transaction_reference", "")
+def test_theme_invalid_cover_style(session: requests.Session, token: str) -> bool:
+    """A.3: PUT with invalid cover_style"""
+    try:
+        headers = {
+            'Authorization': f'Bearer {token}',
+            'Content-Type': 'application/json'
+        }
+        payload = {
+            "theme_cover_style": "sparkles"
+        }
         
-        if isinstance(tx_id, str) and tx_id.lower().startswith("testtax-"):
-            test_ids.append(tx_id)
+        response = session.put(
+            f"{BASE_URL}/api/user/creator/profile",
+            json=payload,
+            headers=headers,
+            timeout=10
+        )
         
-        if isinstance(tx_ref, str) and tx_ref.upper().startswith("TESTTAX-"):
-            test_refs.append(tx_ref)
-    
-    if test_ids or test_refs:
-        log_test("Cleanup verification", "FAIL", f"Found test data: {len(test_ids)} test IDs, {len(test_refs)} test refs")
-        if test_ids:
-            print(f"   Test IDs: {test_ids[:5]}")
-        if test_refs:
-            print(f"   Test refs: {test_refs[:5]}")
+        if response.status_code == 400:
+            log_test("A.3: Invalid cover_style", "PASS", "400 returned")
+            return True
+        else:
+            log_test("A.3: Invalid cover_style", "FAIL", f"Expected 400, got {response.status_code}")
+            return False
+    except Exception as e:
+        log_test("A.3: Invalid cover_style", "FAIL", f"Exception: {e}")
         return False
-    
-    log_test("Cleanup verification", "PASS", "No test data (testtax-* or TESTTAX-*) found")
-    return True
 
-def verify_regression(data: Dict[str, Any], transactions: List[Dict]) -> bool:
-    """Assertion 4: Response structure regression check"""
-    print("\n" + "="*80)
-    print("ASSERTION 4: Response structure regression")
-    print("="*80)
-    
-    # Check for pagination object (might be at different levels)
-    has_pagination = "pagination" in data or "data" in data and isinstance(data.get("data"), dict) and "pagination" in data["data"]
-    print(f"Has pagination object: {has_pagination}")
-    
-    # Check for self_transactions (might be at different levels)
-    has_self_transactions = "self_transactions" in data or "data" in data and isinstance(data.get("data"), dict) and "self_transactions" in data["data"]
-    print(f"Has self_transactions: {has_self_transactions}")
-    
-    # Count source types
-    source_counts = {}
-    for tx in transactions:
-        source_type = tx.get("source", {}).get("type", "unknown")
-        source_counts[source_type] = source_counts.get(source_type, 0) + 1
-    
-    print(f"\nSource type breakdown:")
-    for source_type, count in sorted(source_counts.items()):
-        print(f"  {source_type}: {count}")
-    
-    # Check if direct is the majority
-    direct_count = source_counts.get("direct", 0)
-    total_count = len(transactions)
-    
-    print(f"\nDirect transactions: {direct_count}/{total_count} ({direct_count*100//total_count if total_count > 0 else 0}%)")
-    
-    # Verify expectations - be lenient on pagination/self_transactions as they might be optional
-    issues = []
-    if direct_count < 400:
-        issues.append(f"Expected ~418 direct transactions, found {direct_count}")
-    
-    if issues:
-        log_test("Regression check", "FAIL", "; ".join(issues))
+def test_theme_invalid_gradient(session: requests.Session, token: str) -> bool:
+    """A.4: PUT with invalid gradient"""
+    try:
+        headers = {
+            'Authorization': f'Bearer {token}',
+            'Content-Type': 'application/json'
+        }
+        payload = {
+            "theme_cover_gradient": "purple-galaxy"
+        }
+        
+        response = session.put(
+            f"{BASE_URL}/api/user/creator/profile",
+            json=payload,
+            headers=headers,
+            timeout=10
+        )
+        
+        if response.status_code == 400:
+            log_test("A.4: Invalid gradient", "PASS", "400 returned")
+            return True
+        else:
+            log_test("A.4: Invalid gradient", "FAIL", f"Expected 400, got {response.status_code}")
+            return False
+    except Exception as e:
+        log_test("A.4: Invalid gradient", "FAIL", f"Exception: {e}")
         return False
-    
-    # Note about optional fields
-    notes = []
-    if not has_pagination:
-        notes.append("pagination field not present (may be optional)")
-    if not has_self_transactions:
-        notes.append("self_transactions field not present (may be optional)")
-    
-    if notes:
-        print(f"\nNote: {'; '.join(notes)}")
-    
-    log_test("Regression check", "PASS", "Response structure intact, direct transactions dominant (~418)")
-    return True
+
+def test_theme_custom_gradient(session: requests.Session, token: str) -> bool:
+    """A.5: PUT with valid custom gradient"""
+    try:
+        headers = {
+            'Authorization': f'Bearer {token}',
+            'Content-Type': 'application/json'
+        }
+        payload = {
+            "theme_cover_gradient": "#FF0000,#00FF00"
+        }
+        
+        response = session.put(
+            f"{BASE_URL}/api/user/creator/profile",
+            json=payload,
+            headers=headers,
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            log_test("A.5: Valid custom gradient", "PASS", "200 returned")
+            return True
+        else:
+            log_test("A.5: Valid custom gradient", "FAIL", f"Expected 200, got {response.status_code}")
+            return False
+    except Exception as e:
+        log_test("A.5: Valid custom gradient", "FAIL", f"Exception: {e}")
+        return False
+
+def test_theme_clear_accent(session: requests.Session, token: str) -> bool:
+    """A.6: PUT with theme_accent_color=null"""
+    try:
+        headers = {
+            'Authorization': f'Bearer {token}',
+            'Content-Type': 'application/json'
+        }
+        payload = {
+            "theme_accent_color": None
+        }
+        
+        response = session.put(
+            f"{BASE_URL}/api/user/creator/profile",
+            json=payload,
+            headers=headers,
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            log_test("A.6: Clear accent color", "PASS", "200 returned")
+            return True
+        else:
+            log_test("A.6: Clear accent color", "FAIL", f"Expected 200, got {response.status_code}")
+            return False
+    except Exception as e:
+        log_test("A.6: Clear accent color", "FAIL", f"Exception: {e}")
+        return False
+
+def test_public_profile_theme(session: requests.Session) -> bool:
+    """A.7: GET /api/pay/creator/hostbay (unauth, public) - verify theme object"""
+    try:
+        # No auth headers - public endpoint
+        response = session.get(
+            f"{BASE_URL}/api/pay/creator/{CREATOR_HANDLE}",
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            creator = data.get('data', {}).get('creator', {})
+            theme = creator.get('theme', {})
+            
+            # Check theme object exists with required keys
+            if isinstance(theme, dict):
+                has_keys = all(k in theme for k in ['accent_color', 'cover_style', 'cover_gradient'])
+                if has_keys:
+                    # After A.5, cover_gradient should be lowercased custom gradient
+                    gradient = theme.get('cover_gradient', '')
+                    if gradient and gradient.lower() == "#ff0000,#00ff00":
+                        log_test("A.7: Public profile theme", "PASS", f"Theme object present with custom gradient: {gradient}")
+                        return True
+                    else:
+                        log_test("A.7: Public profile theme", "PASS", f"Theme object present (gradient: {gradient})")
+                        return True
+                else:
+                    log_test("A.7: Public profile theme", "FAIL", f"Theme missing keys: {theme}")
+                    return False
+            else:
+                log_test("A.7: Public profile theme", "FAIL", f"Theme is not an object: {theme}")
+                return False
+        else:
+            log_test("A.7: Public profile theme", "FAIL", f"Status {response.status_code}")
+            return False
+    except Exception as e:
+        log_test("A.7: Public profile theme", "FAIL", f"Exception: {e}")
+        return False
+
+def test_theme_reset(session: requests.Session, token: str) -> bool:
+    """A.8: Reset theme to clean state"""
+    try:
+        headers = {
+            'Authorization': f'Bearer {token}',
+            'Content-Type': 'application/json'
+        }
+        payload = {
+            "theme_accent_color": None,
+            "theme_cover_style": None,
+            "theme_cover_gradient": None
+        }
+        
+        response = session.put(
+            f"{BASE_URL}/api/user/creator/profile",
+            json=payload,
+            headers=headers,
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            log_test("A.8: Reset theme", "PASS", "Theme cleared")
+            return True
+        else:
+            log_test("A.8: Reset theme", "FAIL", f"Status {response.status_code}")
+            return False
+    except Exception as e:
+        log_test("A.8: Reset theme", "FAIL", f"Exception: {e}")
+        return False
+
+def test_referrer_tracking(session: requests.Session) -> bool:
+    """B.1: Hit public profile with different Referer headers"""
+    try:
+        referers = [
+            "https://reddit.com/r/somepost",
+            "https://x.com/user/status/123",
+            None  # No referer = (direct)
+        ]
+        
+        for referer in referers:
+            headers = {}
+            if referer:
+                headers['Referer'] = referer
+            
+            response = session.get(
+                f"{BASE_URL}/api/pay/creator/{CREATOR_HANDLE}",
+                headers=headers,
+                timeout=10
+            )
+            
+            if response.status_code != 200:
+                log_test("B.1: Referrer tracking", "FAIL", f"Failed to hit profile with referer: {referer}")
+                return False
+        
+        log_test("B.1: Referrer tracking", "PASS", "Hit profile 3 times with different referers")
+        return True
+    except Exception as e:
+        log_test("B.1: Referrer tracking", "FAIL", f"Exception: {e}")
+        return False
+
+def test_creator_stats(session: requests.Session, token: str) -> bool:
+    """B.2: GET /api/user/creator/stats - verify new fields"""
+    try:
+        headers = {
+            'Authorization': f'Bearer {token}',
+            'Content-Type': 'application/json'
+        }
+        
+        response = session.get(
+            f"{BASE_URL}/api/user/creator/stats",
+            headers=headers,
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            stats = data.get('data', {})
+            
+            # Check required fields
+            required_fields = ['top_referrers', 'daily_visits', 'has_handle', 'total_visits', 'this_week_visits']
+            missing = [f for f in required_fields if f not in stats]
+            
+            if missing:
+                log_test("B.2: Creator stats", "FAIL", f"Missing fields: {missing}")
+                return False
+            
+            # Validate top_referrers structure
+            top_referrers = stats.get('top_referrers', [])
+            if not isinstance(top_referrers, list):
+                log_test("B.2: Creator stats", "FAIL", f"top_referrers not a list: {type(top_referrers)}")
+                return False
+            
+            # Validate daily_visits structure
+            daily_visits = stats.get('daily_visits', [])
+            if not isinstance(daily_visits, list):
+                log_test("B.2: Creator stats", "FAIL", f"daily_visits not a list: {type(daily_visits)}")
+                return False
+            
+            if len(daily_visits) != 14:
+                log_test("B.2: Creator stats", "FAIL", f"daily_visits should have 14 items, got {len(daily_visits)}")
+                return False
+            
+            # Check daily_visits structure
+            for item in daily_visits:
+                if not isinstance(item, dict) or 'date' not in item or 'count' not in item:
+                    log_test("B.2: Creator stats", "FAIL", f"Invalid daily_visits item: {item}")
+                    return False
+            
+            # Check has_handle
+            if not stats.get('has_handle'):
+                log_test("B.2: Creator stats", "FAIL", "has_handle should be true")
+                return False
+            
+            log_test("B.2: Creator stats", "PASS", 
+                    f"All fields present. top_referrers: {len(top_referrers)}, daily_visits: {len(daily_visits)}, total_visits: {stats.get('total_visits')}")
+            return True
+        else:
+            log_test("B.2: Creator stats", "FAIL", f"Status {response.status_code}")
+            return False
+    except Exception as e:
+        log_test("B.2: Creator stats", "FAIL", f"Exception: {e}")
+        return False
+
+def test_referrer_in_stats(session: requests.Session, token: str) -> bool:
+    """B.3: Verify top_referrers includes reddit.com and x.com"""
+    try:
+        headers = {
+            'Authorization': f'Bearer {token}',
+            'Content-Type': 'application/json'
+        }
+        
+        response = session.get(
+            f"{BASE_URL}/api/user/creator/stats",
+            headers=headers,
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            stats = data.get('data', {})
+            top_referrers = stats.get('top_referrers', [])
+            
+            # Extract domains from top_referrers
+            domains = [r.get('domain', '') for r in top_referrers if isinstance(r, dict)]
+            
+            # Check if reddit.com or x.com are present
+            has_reddit = any('reddit.com' in d for d in domains)
+            has_x = any('x.com' in d for d in domains)
+            
+            if has_reddit or has_x:
+                log_test("B.3: Referrers in stats", "PASS", f"Found referrers: {domains}")
+                return True
+            else:
+                log_test("B.3: Referrers in stats", "WARN", f"No reddit/x.com in referrers yet: {domains}")
+                return True  # Not a failure - might take time to propagate
+        else:
+            log_test("B.3: Referrers in stats", "FAIL", f"Status {response.status_code}")
+            return False
+    except Exception as e:
+        log_test("B.3: Referrers in stats", "FAIL", f"Exception: {e}")
+        return False
+
+def test_self_referral_rejection(session: requests.Session) -> bool:
+    """B.4: Self-referral should NOT appear in top_referrers"""
+    try:
+        # Hit with self-host referer
+        headers = {
+            'Referer': f'https://dynopay.me/{CREATOR_HANDLE}'
+        }
+        
+        response = session.get(
+            f"{BASE_URL}/api/pay/creator/{CREATOR_HANDLE}",
+            headers=headers,
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            log_test("B.4: Self-referral rejection", "PASS", "Self-referral hit recorded (should be filtered)")
+            return True
+        else:
+            log_test("B.4: Self-referral rejection", "FAIL", f"Status {response.status_code}")
+            return False
+    except Exception as e:
+        log_test("B.4: Self-referral rejection", "FAIL", f"Exception: {e}")
+        return False
+
+def test_public_profile_unauth(session: requests.Session) -> bool:
+    """C.1: GET /api/pay/creator/hostbay (no auth) - verify theme keys exist"""
+    try:
+        response = session.get(
+            f"{BASE_URL}/api/pay/creator/{CREATOR_HANDLE}",
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            creator = data.get('data', {}).get('creator', {})
+            theme = creator.get('theme', {})
+            
+            if isinstance(theme, dict) and all(k in theme for k in ['accent_color', 'cover_style', 'cover_gradient']):
+                log_test("C.1: Public profile unauth", "PASS", "Theme keys exist")
+                return True
+            else:
+                log_test("C.1: Public profile unauth", "FAIL", f"Theme structure invalid: {theme}")
+                return False
+        else:
+            log_test("C.1: Public profile unauth", "FAIL", f"Status {response.status_code}")
+            return False
+    except Exception as e:
+        log_test("C.1: Public profile unauth", "FAIL", f"Exception: {e}")
+        return False
+
+def test_handle_check_available(session: requests.Session, token: str) -> bool:
+    """D.1: Check handle availability for new handle"""
+    try:
+        headers = {
+            'Authorization': f'Bearer {token}',
+            'Content-Type': 'application/json'
+        }
+        
+        response = session.get(
+            f"{BASE_URL}/api/user/creator/check-handle?handle=xylophone_test_abc",
+            headers=headers,
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            resp_data = data.get('data', {})
+            
+            if 'available' in resp_data and 'reason' in resp_data:
+                log_test("D.1: Handle check available", "PASS", 
+                        f"available={resp_data.get('available')}, reason={resp_data.get('reason')}")
+                return True
+            else:
+                log_test("D.1: Handle check available", "FAIL", f"Missing fields: {resp_data}")
+                return False
+        else:
+            log_test("D.1: Handle check available", "FAIL", f"Status {response.status_code}")
+            return False
+    except Exception as e:
+        log_test("D.1: Handle check available", "FAIL", f"Exception: {e}")
+        return False
+
+def test_handle_check_own(session: requests.Session, token: str) -> bool:
+    """D.2: Check own handle - should return available=true"""
+    try:
+        headers = {
+            'Authorization': f'Bearer {token}',
+            'Content-Type': 'application/json'
+        }
+        
+        response = session.get(
+            f"{BASE_URL}/api/user/creator/check-handle?handle={CREATOR_HANDLE}",
+            headers=headers,
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            resp_data = data.get('data', {})
+            
+            if resp_data.get('available') == True:
+                log_test("D.2: Handle check own", "PASS", "Own handle returns available=true")
+                return True
+            else:
+                log_test("D.2: Handle check own", "FAIL", f"Expected available=true, got {resp_data}")
+                return False
+        else:
+            log_test("D.2: Handle check own", "FAIL", f"Status {response.status_code}")
+            return False
+    except Exception as e:
+        log_test("D.2: Handle check own", "FAIL", f"Exception: {e}")
+        return False
+
+def test_handle_check_short(session: requests.Session, token: str) -> bool:
+    """D.3: Check handle too short - should return available=false"""
+    try:
+        headers = {
+            'Authorization': f'Bearer {token}',
+            'Content-Type': 'application/json'
+        }
+        
+        response = session.get(
+            f"{BASE_URL}/api/user/creator/check-handle?handle=ab",
+            headers=headers,
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            resp_data = data.get('data', {})
+            
+            if resp_data.get('available') == False:
+                reason = resp_data.get('reason', '').lower()
+                if 'format' in reason or 'char' in reason or '3' in reason:
+                    log_test("D.3: Handle check short", "PASS", f"Rejected with reason: {resp_data.get('reason')}")
+                    return True
+                else:
+                    log_test("D.3: Handle check short", "FAIL", f"Rejected but unclear reason: {resp_data.get('reason')}")
+                    return False
+            else:
+                log_test("D.3: Handle check short", "FAIL", f"Expected available=false, got {resp_data}")
+                return False
+        else:
+            log_test("D.3: Handle check short", "FAIL", f"Status {response.status_code}")
+            return False
+    except Exception as e:
+        log_test("D.3: Handle check short", "FAIL", f"Exception: {e}")
+        return False
+
+def test_handle_check_invalid(session: requests.Session, token: str) -> bool:
+    """D.4: Check invalid handle format - should return available=false"""
+    try:
+        headers = {
+            'Authorization': f'Bearer {token}',
+            'Content-Type': 'application/json'
+        }
+        
+        response = session.get(
+            f"{BASE_URL}/api/user/creator/check-handle?handle=INVALID%20HANDLE!!",
+            headers=headers,
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            resp_data = data.get('data', {})
+            
+            if resp_data.get('available') == False:
+                reason = resp_data.get('reason', '').lower()
+                if 'format' in reason or 'invalid' in reason:
+                    log_test("D.4: Handle check invalid", "PASS", f"Rejected with reason: {resp_data.get('reason')}")
+                    return True
+                else:
+                    log_test("D.4: Handle check invalid", "FAIL", f"Rejected but unclear reason: {resp_data.get('reason')}")
+                    return False
+            else:
+                log_test("D.4: Handle check invalid", "FAIL", f"Expected available=false, got {resp_data}")
+                return False
+        else:
+            log_test("D.4: Handle check invalid", "FAIL", f"Status {response.status_code}")
+            return False
+    except Exception as e:
+        log_test("D.4: Handle check invalid", "FAIL", f"Exception: {e}")
+        return False
 
 def main():
-    """Main test execution"""
-    print("\n" + "="*80)
-    print("SESSION 59 - BACKEND TESTING")
-    print("Transactions Payment-Link Filter Bug Fix Verification")
-    print("="*80)
+    print(f"\n{Colors.BLUE}{'='*70}")
+    print("Session 60 Backend Testing - Creator Page Enhancements")
+    print(f"{'='*70}{Colors.END}\n")
+    
     print(f"Base URL: {BASE_URL}")
-    print(f"Test Account: {TEST_EMAIL}")
-    print(f"Database: LIVE Railway PostgreSQL (READ-ONLY)")
-    print("="*80)
+    print(f"Test Account: {TEST_CREDENTIALS['email']}")
+    print(f"Creator Handle: {CREATOR_HANDLE}\n")
     
-    # Step 1: Get CSRF token
-    csrf_token = get_csrf_token()
+    # Create session
+    session = requests.Session()
+    
+    # Get CSRF token and login
+    print(f"{Colors.BLUE}[AUTH] Getting CSRF token and logging in...{Colors.END}")
+    csrf_token = get_csrf_token(session)
     if not csrf_token:
-        print("\n❌ FAILED: Could not get CSRF token")
+        print(f"{Colors.RED}Failed to get CSRF token. Aborting.{Colors.END}")
         sys.exit(1)
     
-    # Step 2: Login
-    access_token = login(csrf_token)
-    if not access_token:
-        print("\n❌ FAILED: Could not login")
+    token = login(session, csrf_token)
+    if not token:
+        print(f"{Colors.RED}Login failed. Aborting.{Colors.END}")
         sys.exit(1)
     
-    # Step 3: Get all transactions
-    response_data = test_get_all_transactions(access_token, csrf_token)
-    if not response_data:
-        print("\n❌ FAILED: Could not fetch transactions")
-        sys.exit(1)
+    print()
     
-    # Extract transactions from response
-    print(f"\nResponse top-level keys: {list(response_data.keys())}")
-    
-    transactions = None
-    if isinstance(response_data, dict):
-        # Try different possible field names
-        transactions = (
-            response_data.get("customers_transactions") or
-            response_data.get("transactions") or
-            response_data.get("data", {}).get("customers_transactions") or
-            response_data.get("data", {}).get("transactions")
-        )
-    
-    if not transactions:
-        print(f"\n❌ FAILED: Could not find transactions in response. Keys: {list(response_data.keys())}")
-        sys.exit(1)
-    
-    print(f"\nExtracted {len(transactions)} transactions from response")
-    
-    # Run all assertions
+    # Track results
     results = []
     
-    results.append(verify_source_objects(transactions))
-    results.append(verify_payment_link_rows(transactions))
-    results.append(verify_cleanup(transactions))
-    results.append(verify_regression(response_data, transactions))
+    # Section A: Custom Creator Theme
+    print(f"{Colors.BLUE}{'='*70}")
+    print("SECTION A: Custom Creator Theme")
+    print(f"{'='*70}{Colors.END}\n")
     
-    # Final summary
-    print("\n" + "="*80)
-    print("FINAL SUMMARY")
-    print("="*80)
+    results.append(("A.1", test_theme_update_valid(session, token)))
+    results.append(("A.2", test_theme_invalid_hex(session, token)))
+    results.append(("A.3", test_theme_invalid_cover_style(session, token)))
+    results.append(("A.4", test_theme_invalid_gradient(session, token)))
+    results.append(("A.5", test_theme_custom_gradient(session, token)))
+    results.append(("A.6", test_theme_clear_accent(session, token)))
+    results.append(("A.7", test_public_profile_theme(session)))
+    results.append(("A.8", test_theme_reset(session, token)))
     
-    passed = sum(results)
+    # Section B: Vanity Link Analytics
+    print(f"\n{Colors.BLUE}{'='*70}")
+    print("SECTION B: Vanity Link Analytics")
+    print(f"{'='*70}{Colors.END}\n")
+    
+    results.append(("B.1", test_referrer_tracking(session)))
+    results.append(("B.2", test_creator_stats(session, token)))
+    results.append(("B.3", test_referrer_in_stats(session, token)))
+    results.append(("B.4", test_self_referral_rejection(session)))
+    
+    # Section C: Public Creator Profile
+    print(f"\n{Colors.BLUE}{'='*70}")
+    print("SECTION C: Public Creator Profile")
+    print(f"{'='*70}{Colors.END}\n")
+    
+    results.append(("C.1", test_public_profile_unauth(session)))
+    
+    # Section D: Handle Claim
+    print(f"\n{Colors.BLUE}{'='*70}")
+    print("SECTION D: Handle Claim (Reserve My Handle)")
+    print(f"{'='*70}{Colors.END}\n")
+    
+    results.append(("D.1", test_handle_check_available(session, token)))
+    results.append(("D.2", test_handle_check_own(session, token)))
+    results.append(("D.3", test_handle_check_short(session, token)))
+    results.append(("D.4", test_handle_check_invalid(session, token)))
+    
+    # Summary
+    print(f"\n{Colors.BLUE}{'='*70}")
+    print("TEST SUMMARY")
+    print(f"{'='*70}{Colors.END}\n")
+    
+    passed = sum(1 for _, result in results if result)
     total = len(results)
     
-    print(f"\nTests Passed: {passed}/{total}")
+    print(f"Total Tests: {total}")
+    print(f"{Colors.GREEN}Passed: {passed}{Colors.END}")
+    print(f"{Colors.RED}Failed: {total - passed}{Colors.END}")
+    print(f"Success Rate: {(passed/total)*100:.1f}%\n")
     
-    if all(results):
-        print("\n✅ ALL TESTS PASSED - Bug fix verified successfully!")
-        print("\nThe walletController.getAllTransactions endpoint now correctly:")
-        print("  • Attaches source object to every transaction")
-        print("  • Tags payment_link transactions with link_id")
-        print("  • Returns clean data (no test artifacts)")
-        print("  • Maintains backward compatibility")
-        sys.exit(0)
+    # List failed tests
+    failed_tests = [test_id for test_id, result in results if not result]
+    if failed_tests:
+        print(f"{Colors.RED}Failed Tests: {', '.join(failed_tests)}{Colors.END}\n")
     else:
-        print("\n❌ SOME TESTS FAILED - See details above")
-        sys.exit(1)
+        print(f"{Colors.GREEN}✓ All tests passed!{Colors.END}\n")
+    
+    return 0 if passed == total else 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

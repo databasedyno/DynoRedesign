@@ -277,6 +277,22 @@ const userModel = sequelize.define(
       allowNull: true,
       comment: "Show lifetime supporters count on the widget",
     },
+    // ── Custom Creator Theme (Session 60) ──
+    theme_accent_color: {
+      type: DataTypes.STRING(9),
+      allowNull: true,
+      comment: "CSS color (hex, e.g. '#CCFF00') used as page accent — buttons, links, highlights",
+    },
+    theme_cover_style: {
+      type: DataTypes.STRING(20),
+      allowNull: true,
+      comment: "Cover style: 'solid' | 'gradient' | 'image' | 'pattern'",
+    },
+    theme_cover_gradient: {
+      type: DataTypes.STRING(60),
+      allowNull: true,
+      comment: "Gradient preset key ('sunset','ocean','forest','twilight','midnight','candy') or custom 'hex1,hex2'",
+    },
   },
   {
     tableName: "tbl_user",

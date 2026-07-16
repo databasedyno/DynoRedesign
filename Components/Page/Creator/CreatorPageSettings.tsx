@@ -7,6 +7,8 @@ import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { USER_PROFILE_FETCH, UserAction } from "@/Redux/Actions/UserAction";
 import { rootReducer } from "@/utils/types";
 import { getCreatorBaseUrl } from "@/helpers/creatorUrl";
+import CreatorThemePicker, { CreatorTheme, CoverStyle } from "@/Components/Page/Creator/CreatorThemePicker";
+import HandleQrCode from "@/Components/Page/Creator/HandleQrCode";
 
 const HANDLE_RE = /^[a-z0-9][a-z0-9_-]{2,29}$/;
 
@@ -68,6 +70,11 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
   const [coverImage, setCoverImage] = useState<string | null>(null);
   const [socialLinks, setSocialLinks] = useState<Record<string, string>>({});
   const [uploadingCover, setUploadingCover] = useState(false);
+  // ── Custom Creator Theme state (Session 60) ──
+  const [themeAccent, setThemeAccent] = useState<string | null>(null);
+  const [themeCoverStyle, setThemeCoverStyle] = useState<CoverStyle | null>(null);
+  const [themeCoverGradient, setThemeCoverGradient] = useState<string | null>(null);
+  const [qrOpen, setQrOpen] = useState(false);
   // ── Support Widget state ──
   const [swEnabled, setSwEnabled] = useState(false);
   const [swStyle, setSwStyle] = useState<SupportStyle>("coffee");
@@ -125,6 +132,10 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
       setSwAllowMessage(profile.support_widget_allow_message !== false);
       setSwThanks(profile.support_widget_thanks_message || "");
       setSwShowSupporters(profile.support_widget_show_supporters !== false);
+      // Theme (Session 60)
+      setThemeAccent(profile.theme_accent_color || null);
+      setThemeCoverStyle((profile.theme_cover_style as CoverStyle) || null);
+      setThemeCoverGradient(profile.theme_cover_gradient || null);
       setSeeded(true);
     }
   }, [profile, seeded]);
@@ -134,7 +145,6 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
     onChange?.({
       handle, bio, enabled, coverImage, socialLinks,
       swEnabled, swStyle, swLabel, swPresets, swCurrency, swMinAmount, swAllowMessage, swThanks, swShowSupporters,
-      // @ts-expect-error — name is passed through for the live-preview header
       name,
     } as any);
   }, [handle, name, bio, enabled, coverImage, socialLinks, swEnabled, swStyle, swLabel, swPresets, swCurrency, swMinAmount, swAllowMessage, swThanks, swShowSupporters, onChange]);
@@ -207,6 +217,12 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
     swShowSupporters !== (profile?.support_widget_show_supporters !== false)
   ), [swEnabled, swStyle, swLabel, swPresets, swCurrency, swMinAmount, swAllowMessage, swThanks, swShowSupporters, savedPresets, profile]);
 
+  const themeChanged = useMemo(() => (
+    (themeAccent || null) !== (profile?.theme_accent_color || null) ||
+    (themeCoverStyle || null) !== (profile?.theme_cover_style || null) ||
+    (themeCoverGradient || null) !== (profile?.theme_cover_gradient || null)
+  ), [themeAccent, themeCoverStyle, themeCoverGradient, profile]);
+
   const canSave =
     seeded &&
     !saving &&
@@ -221,7 +237,8 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
       enabled !== Boolean(profile?.creator_page_enabled) ||
       (coverImage || null) !== (profile?.cover_image || null) ||
       !socialsEqualSaved ||
-      supportWidgetChanged
+      supportWidgetChanged ||
+      themeChanged
     );
 
   // If the user changed their handle, open the change-warning modal first
@@ -256,6 +273,9 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
         support_widget_allow_message: swAllowMessage,
         support_widget_thanks_message: swThanks.trim() || null,
         support_widget_show_supporters: swShowSupporters,
+        theme_accent_color: themeAccent,
+        theme_cover_style: themeCoverStyle,
+        theme_cover_gradient: themeCoverGradient,
       });
       dispatch({ type: TOAST_SHOW, payload: { message: "Creator page saved" } });
       dispatch(UserAction(USER_PROFILE_FETCH));
@@ -337,7 +357,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
               {prettyUrl}
             </Typography>
           </Box>
-          <Box display="flex" gap={1}>
+          <Box display="flex" gap={1} flexWrap="wrap">
             <Button
               size="small"
               onClick={() => {
@@ -354,12 +374,77 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
             <Button size="small" onClick={copyUrl} data-testid="creator-copy-url" startIcon={<Icon icon={copied ? "mdi:check" : "mdi:content-copy"} width={16} />} sx={{ textTransform: "none", fontSize: 12.5, color: theme.palette.text.primary }}>
               {copied ? "Copied" : "Copy"}
             </Button>
+            <Button
+              size="small"
+              onClick={() => setQrOpen(true)}
+              data-testid="creator-qr-btn"
+              startIcon={<Icon icon="mdi:qrcode" width={16} />}
+              sx={{ textTransform: "none", fontSize: 12.5, color: theme.palette.text.primary }}
+              title="Show QR code"
+            >
+              QR
+            </Button>
             <Button size="small" href={publicUrl} target="_blank" rel="noopener" data-testid="creator-view-page" endIcon={<Icon icon="mdi:open-in-new" width={15} />} sx={{ textTransform: "none", fontSize: 12.5, color: theme.palette.primary.main }}>
               View
             </Button>
           </Box>
         </Box>
       )}
+
+      {/* Custom Theme (Session 60) */}
+      <Box
+        sx={{
+          p: 2.5, borderRadius: "14px", border: `1px solid ${border}`,
+          backgroundColor: theme.palette.background.paper,
+        }}
+        data-testid="creator-theme-section"
+      >
+        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
+          <Box>
+            <Typography sx={{ fontSize: 15, fontWeight: 700, color: theme.palette.text.primary }}>
+              Page theme
+            </Typography>
+            <Typography sx={{ fontSize: 12.5, color: theme.palette.text.secondary, mt: 0.25 }}>
+              Colors and cover style for your dynopay.me page — make it feel on-brand.
+            </Typography>
+          </Box>
+          <Icon icon="mdi:palette-swatch-outline" width={24} color={theme.palette.text.secondary} />
+        </Box>
+        <CreatorThemePicker
+          value={{ accentColor: themeAccent, coverStyle: themeCoverStyle, coverGradient: themeCoverGradient }}
+          onChange={(next) => {
+            setThemeAccent(next.accentColor);
+            setThemeCoverStyle(next.coverStyle);
+            setThemeCoverGradient(next.coverGradient);
+          }}
+          hasCoverImage={Boolean(coverImage)}
+        />
+      </Box>
+
+      {/* QR Code Dialog */}
+      <Dialog
+        open={qrOpen}
+        onClose={() => setQrOpen(false)}
+        maxWidth="xs"
+        fullWidth
+        PaperProps={{ sx: { borderRadius: "16px" } }}
+        data-testid="creator-qr-dialog"
+      >
+        <DialogTitle sx={{ pb: 1, display: "flex", alignItems: "center", gap: 1 }}>
+          <Icon icon="mdi:qrcode-scan" width={20} />
+          Your QR code
+        </DialogTitle>
+        <DialogContent sx={{ pt: 1 }}>
+          <HandleQrCode
+            handle={savedHandle}
+            size="full"
+            accentColor={themeAccent || "#CCFF00"}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setQrOpen(false)} sx={{ textTransform: "none" }}>Close</Button>
+        </DialogActions>
+      </Dialog>
 
       {/* Cover image */}
       <Box>

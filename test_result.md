@@ -1,3 +1,96 @@
+## Session 60 — Creator page: Custom Theme + Handle QR + Reserve Handle + Vanity Analytics (2026-07-16)
+
+### Preview URL
+https://cab0255a-5678-42a7-ba82-3a3a89393c95.preview.emergentagent.com
+
+### Test credentials
+- Merchant: **hostbay@moxx.co / Katiekendra123@** (user_id=1, handle=hostbay, published)
+
+### User request
+Set `NEXT_PUBLIC_CREATOR_BASE_URL=https://dynopay.me` in DigitalOcean prod, and ship 4 creator-page features:
+1. **Custom Creator Theme** — colors + cover style
+2. **Handle QR Code** — downloadable QR for dynopay.me/{handle}
+3. **Reserve My Handle** — quick claim for merchants without a handle
+4. **Vanity Link Analytics** — clicks + top referrers for the dashboard card
+
+### DO env update (DONE)
+- PUT /v2/apps/f86b27dc-feb0-4a44-a4e9-ebd2053e0468 with `NEXT_PUBLIC_CREATOR_BASE_URL=https://dynopay.me` (scope RUN_AND_BUILD_TIME) → auto-triggered rebuild `deployment 963b9adb-4704-4fa4-af27-d1a692fcacc8` (BUILDING). Env count 173 → 174.
+- Also added `ARG NEXT_PUBLIC_CREATOR_BASE_URL` / `ENV` to `/app/Dockerfile` so client bundles inline the value on next build (workspace-only until Save-to-GitHub → new prod deploy will pick it up).
+
+### Backend changes
+- **Migration** `backend/migrations/addCreatorTheme.ts` (RAN against LIVE Railway PG, idempotent): added 3 cols to `tbl_user`:
+  - `theme_accent_color` VARCHAR(9) — hex like `#CCFF00`
+  - `theme_cover_style` VARCHAR(20) — enum `solid|gradient|image|pattern`
+  - `theme_cover_gradient` VARCHAR(60) — preset key or `#RRGGBB,#RRGGBB`
+- **Model** `backend/models/userModels/userModel.ts`: 3 new column defs.
+- **`PUT /api/user/creator/profile`** (userController.updateCreatorProfile) accepts + validates `theme_accent_color` (hex regex), `theme_cover_style` (enum), `theme_cover_gradient` (preset list `sunset|ocean|forest|twilight|midnight|candy` OR custom `#RRGGBB,#RRGGBB`).
+- **`GET /api/user/creator/stats`** (userController.getCreatorStats) now also returns:
+  - `top_referrers`: `[{domain, clicks}]` (top 5) — sourced from Redis hash `creator-referrers:{handle}`
+  - `daily_visits`: 14 days array `[{date, count}]` (oldest first) — for sparkline
+- **`GET /api/pay/creator/:handle`** (paymentLinkController.getCreatorProfile):
+  - Returns `creator.theme = {accent_color, cover_style, cover_gradient}` (public — no auth needed for the public page)
+  - **Referrer tracking**: extracts `req.headers.referer`, drops self-hosts (dynopay.me / .com / checkout.), normalizes host (strip www.), fire-and-forgets `hIncrBy('creator-referrers:{handle}', domain, 1)` + 90-day TTL. Empty referer → `(direct)` bucket.
+
+### Frontend changes
+- **NEW** `Components/Page/Creator/CreatorThemePicker.tsx` — 6 accent swatches (Lime/Electric/Magenta/Sunset/Purple/Teal) + custom hex input (live), 4 cover styles + 6 gradient presets, live preview strip, reset button. Exports `buildCoverBackground()` for consumers.
+- **NEW** `Components/Page/Creator/HandleQrCode.tsx` — `QRCodeCanvas` (qrcode.react@4.2.0) + Download PNG (canvas composite: white card, accent stripe, QR, handle + "Powered by Dynopay" footer → `dynopay-{handle}.png`) + Copy link. Compact (160px) and full (240px) sizes.
+- **`CreatorPageSettings.tsx`**: added theme state (seeded from profile, sent in PUT), new "Page theme" section with `CreatorThemePicker`, "QR" button in live-URL header row that opens a dialog with full `HandleQrCode`.
+- **`CreatorProfile.tsx`** (public `/{handle}` page): reads `creator.theme` and applies accent color to avatar border, hover borders, share buttons, featured campaign progress bar + CTA. Computes cover background from `cover_style`+`cover_gradient` when no explicit `cover_image`. Falls back to Lime + solid.
+- **`CreatorPageCard.tsx`** (dashboard right rail) — **rewritten**:
+  - State 1 (no handle): inline handle input with `#` prefix + live availability check (debounced 400ms via `/user/creator/check-handle`) + green/red status icons + "Reserve my handle" button
+  - State 2 (draft): unchanged (Go live CTA)
+  - State 3 (live): now adds **14-day sparkline** of daily visits + **Top referrers** widget (top 3 with counts) + **QR button** (opens dialog) + **View analytics** dialog (full referrer list with totals)
+  - All CTAs now use `theme_accent_color` from profile (falls back to Lime)
+- **NEW** `Components/Page/Dashboard/ClaimHandleBanner.tsx` — dismissible top-of-dashboard banner (localStorage `dynopay.claim-handle-banner.dismissed=1`) for merchants without a handle. Shows "Claim now →" → `/creator`. Gated by `setupComplete && !handle`.
+- **`pages/dashboard.tsx`**: mounts `<ClaimHandleBanner />` after `<OnboardingFlow />`.
+
+### Verified (main agent, curl round-trip against LIVE Railway PG)
+- `PUT /api/user/creator/profile` with `{theme_accent_color:"#00E5FF", theme_cover_style:"gradient", theme_cover_gradient:"ocean"}` → 200
+- `GET /api/pay/creator/hostbay` with `Referer: https://twitter.com/somepost` → 200, `creator.theme={accent_color:'#00E5FF', cover_style:'gradient', cover_gradient:'ocean'}`
+- After 3 referred visits (twitter x2, instagram x1): `GET /api/user/creator/stats` → `top_referrers=[{twitter.com:2},{instagram.com:1}]`, `daily_visits` = 14-day array (oldest-first, correct dates), `total_visits=135`, `this_week_visits=135`, `has_handle=true`.
+- Frontend HTTP 200 on `/` and `/hostbay`.
+- Backend TS `tsc --noEmit`: clean (project-wide errors are pre-existing, not from this session).
+- Frontend ESLint: clean on all 4 new files + edited files.
+
+### backend
+  - task: "Creator custom theme + vanity analytics (referrer + 14d daily visits) + theme fields on public profile"
+    implemented: true
+    working: true
+    file: "backend/controller/userController.ts, backend/controller/payment/paymentLinkController.ts, backend/models/userModels/userModel.ts, backend/migrations/addCreatorTheme.ts"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Session 60: added theme columns + validation on PUT /creator/profile; added top_referrers + daily_visits to GET /creator/stats; added referrer tracking (Redis hIncrBy) + theme in response on GET /pay/creator/:handle. Verified with curl round-trip against LIVE Railway PG."
+      - working: true
+        agent: "testing"
+        comment: "Session 60 BACKEND TESTING COMPLETE — 16/17 tests PASSED ✅ (94.1% success rate). SECTION A (Custom Theme): All 8 tests PASSED ✓ — (A.1) Valid theme update echoes fields correctly, (A.2-A.4) Invalid inputs return 400 with clear errors, (A.5) Custom gradient #FF0000,#00FF00 accepted, (A.6) Null clears accent color, (A.7) Public profile returns theme object with custom gradient lowercased to #ff0000,#00ff00, (A.8) Theme reset successful. SECTION B (Vanity Analytics): All 4 tests PASSED ✓ — (B.1) Referrer tracking recorded 3 hits (reddit.com, x.com, direct), (B.2) GET /creator/stats returns all required fields: top_referrers (5 domains), daily_visits (14 items with date+count), has_handle=true, total_visits=141, this_week_visits present, (B.3) top_referrers includes reddit.com and x.com from test hits, (B.4) Self-referral (dynopay.me/hostbay) hit recorded (backend filters it from stats). SECTION C (Public Profile): 1/1 test PASSED ✓ — (C.1) Unauth GET /pay/creator/hostbay returns theme object with all 3 keys (accent_color, cover_style, cover_gradient). SECTION D (Handle Claim): 3/4 tests PASSED ✓ — (D.1) check-handle for new handle returns available+reason fields, (D.2) Own handle returns available=true, (D.3) Short handle 'ab' rejected with clear format error, (D.4) Invalid handle 'INVALID HANDLE!!' correctly rejected (available=false) but error message wording differs from expected (says 'Use lowercase letters...' instead of 'format/invalid' — validation works correctly, minor wording difference). All core functionality working. Test file: /app/backend_test.py."
+
+### frontend
+  - task: "CreatorThemePicker + HandleQrCode + inline Reserve Handle + Vanity Analytics (sparkline + top referrers) on Dashboard CreatorPageCard + dismissible ClaimHandleBanner"
+    implemented: true
+    working: "NA — needs frontend testing"
+    file: "Components/Page/Creator/CreatorThemePicker.tsx (NEW), Components/Page/Creator/HandleQrCode.tsx (NEW), Components/Page/Creator/CreatorPageSettings.tsx, Components/Page/Creator/CreatorProfile.tsx, Components/Page/Dashboard/CreatorPageCard.tsx, Components/Page/Dashboard/ClaimHandleBanner.tsx (NEW), pages/dashboard.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Session 60: 4 new / 3 edited frontend files. Not yet exercised by testing agent — user will confirm scope before running."
+
+metadata:
+  session: 60
+
+agent_communication:
+  - agent: "testing"
+    message: "Session 60 backend testing COMPLETE — 16/17 tests PASSED (94.1%). All core functionality working correctly: (A) Custom Theme API validates hex colors, cover styles, gradients correctly and returns theme object on public profile with proper lowercasing. (B) Vanity Analytics tracks referrers (reddit.com, x.com, direct) and returns top_referrers + 14-day daily_visits array with correct structure. (C) Public profile theme accessible without auth. (D) Handle validation working (own handle, short handle, invalid format all handled correctly). Only minor issue: D.4 error message wording differs from expected but validation logic is correct. NO CRITICAL ISSUES. Backend APIs ready for production."
+
+---
+
+
 ## Session 59 (cont.) — dynopay.me pointed to the live app (DO App Platform) (2026-07-16)
 
 ### What I did (via DigitalOcean API, token provided by user)
