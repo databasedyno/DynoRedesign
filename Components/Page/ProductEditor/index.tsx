@@ -33,6 +33,12 @@ interface Variant {
   price_cents: number;
   stock_count: number | null;
   is_active: boolean;
+  image_url?: string | null;
+}
+
+interface GalleryItem {
+  url: string;
+  alt?: string;
 }
 
 interface ProductRow {
@@ -46,11 +52,17 @@ interface ProductRow {
   base_price_cents: number;
   currency: string;
   cover_image_url?: string;
+  gallery_images?: GalleryItem[];
   has_variants?: boolean;
   base_stock?: number | null;
   digital_delivery_type?: "url" | "file" | "license_key" | null;
   digital_delivery_payload?: any;
 }
+
+// Backend cap = 10 items (see sanitizeGallery in productController.ts)
+const MAX_GALLERY_ITEMS = 10;
+const MAX_IMAGE_BYTES = 10 * 1024 * 1024; // 10 MB, matches uploadImage multer limit
+const IMAGE_ACCEPT = "image/jpeg,image/png,image/gif,image/webp,image/svg+xml";
 
 interface Asset {
   asset_id: number;
@@ -79,6 +91,19 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
   const [uploading, setUploading] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Image-upload state (cover + gallery + per-variant). Uses the shared
+  // /api/pay/uploadCampaignImage endpoint (multer, 10 MB max, jpg/png/gif/
+  // webp/svg) which returns an absolute URL served via /api/static/images/.
+  const [coverUploading, setCoverUploading] = useState<boolean>(false);
+  const coverImgInputRef = useRef<HTMLInputElement>(null);
+  const [galleryUploading, setGalleryUploading] = useState<boolean>(false);
+  const galleryImgInputRef = useRef<HTMLInputElement>(null);
+  const [galleryAltDraft, setGalleryAltDraft] = useState<string>("");
+  const [galleryUrlDraft, setGalleryUrlDraft] = useState<string>("");
+  const [variantImgUploadIdx, setVariantImgUploadIdx] = useState<number | null>(null);
+  const variantImgInputRef = useRef<HTMLInputElement>(null);
+  const [variantImgTargetIdx, setVariantImgTargetIdx] = useState<number | null>(null);
+
   // Local form state
   const [title, setTitle] = useState("");
   const [subtitle, setSubtitle] = useState("");
@@ -86,6 +111,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
   const [priceDollars, setPriceDollars] = useState<string>("");
   const [currency, setCurrency] = useState<string>("USD");
   const [coverUrl, setCoverUrl] = useState<string>("");
+  const [gallery, setGallery] = useState<GalleryItem[]>([]);
   const [deliveryType, setDeliveryType] = useState<"url" | "file" | "license_key">("url");
   const [accessUrl, setAccessUrl] = useState<string>("");
   const [hasVariants, setHasVariants] = useState<boolean>(false);
@@ -108,6 +134,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
             price_cents: Number(v.price_cents) || 0,
             stock_count: v.stock_count == null ? null : Number(v.stock_count),
             is_active: v.is_active !== false,
+            image_url: v.image_url || null,
           }))
         );
         setTitle(p.title || "");
@@ -116,6 +143,13 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
         setPriceDollars(((p.base_price_cents || 0) / 100).toString());
         setCurrency(p.currency || "USD");
         setCoverUrl(p.cover_image_url || "");
+        setGallery(
+          Array.isArray(p.gallery_images)
+            ? p.gallery_images
+                .filter((g) => g && typeof g.url === "string" && g.url.trim())
+                .map((g) => ({ url: String(g.url), alt: g.alt ? String(g.alt) : undefined }))
+            : []
+        );
         setDeliveryType((p.digital_delivery_type as any) || "url");
         setAccessUrl(p.digital_delivery_payload?.access_url || "");
         setHasVariants(!!p.has_variants);
@@ -136,6 +170,13 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
   }, [priceDollars]);
 
   const buildPayload = () => {
+    const cleanGallery = gallery
+      .filter((g) => g && typeof g.url === "string" && g.url.trim())
+      .map((g) => ({
+        url: g.url.trim().slice(0, 512),
+        alt: g.alt ? g.alt.trim().slice(0, 240) : undefined,
+      }))
+      .slice(0, MAX_GALLERY_ITEMS);
     const payload: any = {
       title: title.trim(),
       subtitle: subtitle.trim() || undefined,
@@ -143,6 +184,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
       base_price_cents: priceCents,
       currency,
       cover_image_url: coverUrl.trim() || undefined,
+      gallery_images: cleanGallery,
       product_type: "digital",
       has_variants: hasVariants,
       base_stock: hasVariants
@@ -221,6 +263,162 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
     }
   };
 
+  // ── Image upload helper (cover / gallery / variant) ──────────────────
+  // Uses /api/pay/uploadCampaignImage — the shared image-upload endpoint
+  // (multer, 10 MB max, jpg/png/gif/webp/svg). Returns absolute URL served
+  // via /api/static/images. Draft doesn't need to be saved first because
+  // this endpoint only needs auth (not product_id).
+  const uploadImageFile = async (file: File): Promise<string | null> => {
+    if (!file) return null;
+    if (file.size > MAX_IMAGE_BYTES) {
+      setToast({ text: "Image is too large (max 10 MB).", kind: "err" });
+      return null;
+    }
+    if (!file.type.startsWith("image/")) {
+      setToast({ text: "Only image files are allowed.", kind: "err" });
+      return null;
+    }
+    try {
+      const fd = new FormData();
+      fd.append("image", file);
+      const r = await axiosBaseApi.post("/pay/uploadCampaignImage", fd, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      const url: string | undefined = r?.data?.data?.url;
+      if (!url) throw new Error("No URL returned from upload.");
+      return url;
+    } catch (err: any) {
+      setToast({
+        text: err?.response?.data?.message || err?.message || "Image upload failed.",
+        kind: "err",
+      });
+      return null;
+    }
+  };
+
+  const onCoverImgChosen = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (coverImgInputRef.current) coverImgInputRef.current.value = "";
+    if (!file) return;
+    setCoverUploading(true);
+    const url = await uploadImageFile(file);
+    setCoverUploading(false);
+    if (url) {
+      setCoverUrl(url);
+      setToast({ text: "Cover image uploaded.", kind: "ok" });
+    }
+  };
+
+  const onGalleryImgChosen = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (galleryImgInputRef.current) galleryImgInputRef.current.value = "";
+    if (!file) return;
+    if (gallery.length >= MAX_GALLERY_ITEMS) {
+      setToast({ text: `Gallery is full (max ${MAX_GALLERY_ITEMS} images).`, kind: "err" });
+      return;
+    }
+    setGalleryUploading(true);
+    const url = await uploadImageFile(file);
+    setGalleryUploading(false);
+    if (url) {
+      setGallery((prev) => [
+        ...prev,
+        { url, alt: galleryAltDraft.trim() || undefined },
+      ].slice(0, MAX_GALLERY_ITEMS));
+      setGalleryAltDraft("");
+      setToast({ text: "Gallery image added.", kind: "ok" });
+    }
+  };
+
+  const addGalleryFromUrl = () => {
+    const url = galleryUrlDraft.trim();
+    if (!url) {
+      setToast({ text: "Enter an image URL.", kind: "err" });
+      return;
+    }
+    if (!/^(https?:\/\/|\/)/i.test(url)) {
+      setToast({ text: "URL must start with http(s):// or /", kind: "err" });
+      return;
+    }
+    if (url.length > 512) {
+      setToast({ text: "URL is too long (max 512 chars).", kind: "err" });
+      return;
+    }
+    if (gallery.some((g) => g.url === url)) {
+      setToast({ text: "That image is already in the gallery.", kind: "err" });
+      return;
+    }
+    if (gallery.length >= MAX_GALLERY_ITEMS) {
+      setToast({ text: `Gallery is full (max ${MAX_GALLERY_ITEMS} images).`, kind: "err" });
+      return;
+    }
+    setGallery((prev) => [
+      ...prev,
+      { url, alt: galleryAltDraft.trim() || undefined },
+    ]);
+    setGalleryUrlDraft("");
+    setGalleryAltDraft("");
+  };
+
+  const removeGalleryAt = (idx: number) => {
+    setGallery((prev) => prev.filter((_, i) => i !== idx));
+  };
+
+  const onVariantImgClick = (idx: number) => {
+    setVariantImgTargetIdx(idx);
+    // trigger the shared variant image file input
+    setTimeout(() => variantImgInputRef.current?.click(), 0);
+  };
+
+  const onVariantImgChosen = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    const idx = variantImgTargetIdx;
+    if (variantImgInputRef.current) variantImgInputRef.current.value = "";
+    setVariantImgTargetIdx(null);
+    if (!file || idx == null) return;
+    setVariantImgUploadIdx(idx);
+    const url = await uploadImageFile(file);
+    setVariantImgUploadIdx(null);
+    if (!url) return;
+    setVariants((prev) => prev.map((x, i) => (i === idx ? { ...x, image_url: url } : x)));
+    // If the row already exists on the server, persist immediately so the
+    // uploaded image survives page reloads even without hitting Save.
+    const row = variants[idx];
+    if (product && row?.variant_id) {
+      try {
+        await axiosBaseApi.patch(
+          `products/${product.product_id}/variants/${row.variant_id}`,
+          { image_url: url }
+        );
+      } catch (err: any) {
+        setToast({
+          text: err?.response?.data?.message || "Failed to save variant image.",
+          kind: "err",
+        });
+        return;
+      }
+    }
+    setToast({ text: "Variant image uploaded.", kind: "ok" });
+  };
+
+  const removeVariantImage = async (idx: number) => {
+    const row = variants[idx];
+    setVariants((prev) => prev.map((x, i) => (i === idx ? { ...x, image_url: null } : x)));
+    if (product && row?.variant_id) {
+      try {
+        await axiosBaseApi.patch(
+          `products/${product.product_id}/variants/${row.variant_id}`,
+          { image_url: null }
+        );
+      } catch (err: any) {
+        setToast({
+          text: err?.response?.data?.message || "Failed to clear variant image.",
+          kind: "err",
+        });
+      }
+    }
+  };
+
   const onUploadClick = () => fileInputRef.current?.click();
 
   const onFileChosen = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -294,6 +492,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
           price_cents: Number(row.price_cents) || 0,
           stock_count: row.stock_count,
           is_active: row.is_active,
+          image_url: row.image_url ?? null,
         }
       );
       setToast({ text: "Variant saved.", kind: "ok" });
@@ -380,12 +579,201 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
             onChange={(e) => setDescription(e.target.value)}
             inputProps={{ "data-testid": "product-description-input" }}
           />
-          <TextField
-            label="Cover image URL (optional, https://…)"
-            fullWidth value={coverUrl}
-            onChange={(e) => setCoverUrl(e.target.value)}
-            inputProps={{ "data-testid": "product-cover-input" }}
-          />
+          {/* Cover image: URL field + Upload button + preview */}
+          <Stack spacing={1}>
+            <Typography variant="body2" sx={{ fontWeight: 600 }}>
+              Cover image
+            </Typography>
+            <Stack direction={{ xs: "column", sm: "row" }} spacing={1} alignItems={{ sm: "flex-start" }}>
+              <TextField
+                label="Image URL (optional, https://…)"
+                fullWidth
+                value={coverUrl}
+                onChange={(e) => setCoverUrl(e.target.value)}
+                inputProps={{ "data-testid": "product-cover-input", maxLength: 512 }}
+                sx={{ flex: 1 }}
+              />
+              <input
+                ref={coverImgInputRef}
+                type="file"
+                hidden
+                accept={IMAGE_ACCEPT}
+                onChange={onCoverImgChosen}
+                data-testid="product-cover-file-input"
+              />
+              <CustomButton
+                label={coverUploading ? "Uploading…" : "Upload image"}
+                variant="outlined"
+                startIcon={<CloudUploadRounded />}
+                onClick={() => coverImgInputRef.current?.click()}
+                disabled={coverUploading}
+                loading={coverUploading}
+                data-testid="product-cover-upload-btn"
+              />
+              {coverUrl && (
+                <IconButton
+                  size="small"
+                  aria-label="Remove cover image"
+                  onClick={() => setCoverUrl("")}
+                  data-testid="product-cover-clear-btn"
+                  sx={{ alignSelf: { sm: "center" } }}
+                >
+                  <DeleteOutlineRounded fontSize="small" />
+                </IconButton>
+              )}
+            </Stack>
+            {coverUrl && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <Box
+                sx={{
+                  mt: 1,
+                  width: 160,
+                  height: 100,
+                  borderRadius: 1.5,
+                  overflow: "hidden",
+                  border: `1px solid ${theme.palette.divider}`,
+                  background: theme.palette.action.hover,
+                }}
+                data-testid="product-cover-preview"
+              >
+                <img
+                  src={coverUrl}
+                  alt="Cover preview"
+                  style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).style.visibility = "hidden";
+                  }}
+                />
+              </Box>
+            )}
+            <Typography variant="caption" color="text.secondary">
+              JPG, PNG, GIF, WebP or SVG. Max 10 MB. Uploaded images are served over the app CDN.
+            </Typography>
+          </Stack>
+
+          {/* Photo gallery — max MAX_GALLERY_ITEMS additional images shown on the product page */}
+          <Stack spacing={1} data-testid="product-gallery-section">
+            <Stack direction="row" alignItems="center" justifyContent="space-between">
+              <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                Photo gallery (optional)
+              </Typography>
+              <Chip
+                size="small"
+                label={`${gallery.length}/${MAX_GALLERY_ITEMS}`}
+                data-testid="product-gallery-count"
+              />
+            </Stack>
+            {gallery.length > 0 && (
+              <Box
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: { xs: "repeat(3, 1fr)", sm: "repeat(4, 1fr)", md: "repeat(5, 1fr)" },
+                  gap: 1,
+                }}
+                data-testid="product-gallery-grid"
+              >
+                {gallery.map((g, idx) => (
+                  <Box
+                    key={`${g.url}-${idx}`}
+                    sx={{
+                      position: "relative",
+                      aspectRatio: "1 / 1",
+                      borderRadius: 1.5,
+                      overflow: "hidden",
+                      border: `1px solid ${theme.palette.divider}`,
+                      background: theme.palette.action.hover,
+                    }}
+                    data-testid={`product-gallery-item-${idx}`}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={g.url}
+                      alt={g.alt || `Gallery image ${idx + 1}`}
+                      style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                      onError={(e) => {
+                        (e.currentTarget as HTMLImageElement).style.visibility = "hidden";
+                      }}
+                    />
+                    <IconButton
+                      size="small"
+                      onClick={() => removeGalleryAt(idx)}
+                      data-testid={`product-gallery-remove-${idx}`}
+                      aria-label="Remove gallery image"
+                      sx={{
+                        position: "absolute",
+                        top: 4,
+                        right: 4,
+                        background: "rgba(0,0,0,0.55)",
+                        color: "#fff",
+                        "&:hover": { background: "rgba(0,0,0,0.75)" },
+                      }}
+                    >
+                      <DeleteOutlineRounded fontSize="small" />
+                    </IconButton>
+                  </Box>
+                ))}
+              </Box>
+            )}
+
+            {gallery.length < MAX_GALLERY_ITEMS && (
+              <Stack spacing={1} sx={{ p: 1.5, border: `1px dashed ${theme.palette.divider}`, borderRadius: 1.5 }}>
+                <Stack direction={{ xs: "column", sm: "row" }} spacing={1}>
+                  <TextField
+                    label="Image URL"
+                    placeholder="https://…"
+                    fullWidth
+                    size="small"
+                    value={galleryUrlDraft}
+                    onChange={(e) => setGalleryUrlDraft(e.target.value)}
+                    inputProps={{ "data-testid": "product-gallery-url-input", maxLength: 512 }}
+                    sx={{ flex: 2 }}
+                  />
+                  <TextField
+                    label="Alt text (optional)"
+                    placeholder="Describe the image"
+                    fullWidth
+                    size="small"
+                    value={galleryAltDraft}
+                    onChange={(e) => setGalleryAltDraft(e.target.value)}
+                    inputProps={{ "data-testid": "product-gallery-alt-input", maxLength: 240 }}
+                    sx={{ flex: 2 }}
+                  />
+                </Stack>
+                <Stack direction={{ xs: "column", sm: "row" }} spacing={1}>
+                  <CustomButton
+                    label="Add from URL"
+                    variant="outlined"
+                    size="small"
+                    startIcon={<AddRounded />}
+                    onClick={addGalleryFromUrl}
+                    disabled={galleryUploading}
+                    data-testid="product-gallery-add-url-btn"
+                  />
+                  <input
+                    ref={galleryImgInputRef}
+                    type="file"
+                    hidden
+                    accept={IMAGE_ACCEPT}
+                    onChange={onGalleryImgChosen}
+                    data-testid="product-gallery-file-input"
+                  />
+                  <CustomButton
+                    label={galleryUploading ? "Uploading…" : "Upload from device"}
+                    variant="outlined"
+                    size="small"
+                    startIcon={<CloudUploadRounded />}
+                    onClick={() => galleryImgInputRef.current?.click()}
+                    disabled={galleryUploading}
+                    loading={galleryUploading}
+                    data-testid="product-gallery-upload-btn"
+                  />
+                </Stack>
+                <Typography variant="caption" color="text.secondary">
+                  Max 10 MB per image, up to {MAX_GALLERY_ITEMS} images total.
+                </Typography>
+              </Stack>
+            )}
+          </Stack>
 
           <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
             <TextField
@@ -537,6 +925,15 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
         headerActionLayout="inline"
       >
         <Stack spacing={1}>
+          {/* Shared hidden file input reused for whichever variant row triggered the upload */}
+          <input
+            ref={variantImgInputRef}
+            type="file"
+            hidden
+            accept={IMAGE_ACCEPT}
+            onChange={onVariantImgChosen}
+            data-testid="product-variant-file-input"
+          />
           <Stack direction="row" alignItems="center" spacing={1}>
             <Switch
               checked={hasVariants}
@@ -562,6 +959,71 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
               sx={{ p: 1, border: `1px solid ${theme.palette.divider}`, borderRadius: 1 }}
               data-testid={`product-variant-row-${idx}`}
             >
+              {/* Variant image thumbnail + upload */}
+              <Stack alignItems="center" spacing={0.5} sx={{ width: 68 }} data-testid={`product-variant-image-${idx}`}>
+                {v.image_url ? (
+                  <Box
+                    sx={{
+                      position: "relative",
+                      width: 56,
+                      height: 56,
+                      borderRadius: 1,
+                      overflow: "hidden",
+                      border: `1px solid ${theme.palette.divider}`,
+                    }}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={v.image_url}
+                      alt={`${v.title} image`}
+                      style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                      onError={(e) => {
+                        (e.currentTarget as HTMLImageElement).style.visibility = "hidden";
+                      }}
+                    />
+                    <IconButton
+                      size="small"
+                      onClick={() => removeVariantImage(idx)}
+                      aria-label="Remove variant image"
+                      data-testid={`product-variant-image-remove-${idx}`}
+                      sx={{
+                        position: "absolute",
+                        top: -6,
+                        right: -6,
+                        background: theme.palette.background.paper,
+                        border: `1px solid ${theme.palette.divider}`,
+                        p: "2px",
+                      }}
+                    >
+                      <DeleteOutlineRounded sx={{ fontSize: 14 }} />
+                    </IconButton>
+                  </Box>
+                ) : (
+                  <Box
+                    sx={{
+                      width: 56,
+                      height: 56,
+                      borderRadius: 1,
+                      border: `1px dashed ${theme.palette.divider}`,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: theme.palette.text.disabled,
+                    }}
+                  >
+                    <CloudUploadRounded sx={{ fontSize: 20 }} />
+                  </Box>
+                )}
+                <CustomButton
+                  label={variantImgUploadIdx === idx ? "…" : v.image_url ? "Change" : "Add"}
+                  variant="text"
+                  size="small"
+                  onClick={() => onVariantImgClick(idx)}
+                  disabled={variantImgUploadIdx !== null}
+                  data-testid={`product-variant-image-upload-${idx}`}
+                  sx={{ minWidth: 0, px: 0.5, fontSize: 11 }}
+                />
+              </Stack>
               <TextField
                 label="Title"
                 value={v.title}
