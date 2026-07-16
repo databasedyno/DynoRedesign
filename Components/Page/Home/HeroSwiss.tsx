@@ -368,25 +368,30 @@ const HeroSwiss: React.FC = () => {
                 display: "inline-flex",
                 alignItems: "center",
                 gap: 1,
-                px: 3.25,
-                py: 1.6,
-                borderRadius: "10px",
+                px: 4,
+                py: 1.9,
+                borderRadius: "999px",
                 border: "none",
                 cursor: "pointer",
                 backgroundColor: s.accent,
                 color: "#0A0A0A",
                 fontFamily: FONT_BODY,
-                fontWeight: 600,
-                fontSize: 15.5,
-                transition: "transform 0.2s ease, box-shadow 0.2s ease",
-                boxShadow: "0 0 0 0 transparent",
+                fontWeight: 700,
+                fontSize: 16,
+                boxShadow: s.dark
+                  ? "0 10px 30px -10px rgba(204,255,0,0.5)"
+                  : "0 10px 30px -12px rgba(10,10,10,0.45)",
+                transition: "transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease",
                 "&:hover": {
-                  transform: "translate(-2px, -2px)",
-                  boxShadow: s.dark ? "4px 4px 0 rgba(204,255,0,0.35)" : "4px 4px 0 #0A0A0A",
+                  transform: "translateY(-2px)",
+                  filter: "brightness(1.03)",
+                  boxShadow: s.dark
+                    ? "0 16px 40px -12px rgba(204,255,0,0.6)"
+                    : "0 16px 40px -12px rgba(10,10,10,0.55)",
                 },
               }}
             >
-              {t(`heroAudience.${active}.cta`, { defaultValue: t("startAcceptingCrypto") })} <ArrowForward sx={{ fontSize: 17 }} />
+              {t(`heroAudience.${active}.cta`, { defaultValue: t("startAcceptingCrypto") })} <ArrowForward sx={{ fontSize: 18 }} />
             </Box>
             <Box
               component="button"
@@ -394,17 +399,25 @@ const HeroSwiss: React.FC = () => {
               onClick={goCalculator}
               data-testid="hero-cta-secondary"
               sx={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 0.75,
+                px: 3.25,
+                py: 1.75,
+                borderRadius: "999px",
+                border: `1.5px solid ${s.line}`,
                 background: "none",
-                border: "none",
                 cursor: "pointer",
-                fontFamily: FONT_TECH,
-                fontSize: 13,
-                letterSpacing: "0.06em",
-                color: s.sub,
-                px: 1,
-                py: 1.5,
-                transition: "color 0.2s ease",
-                "&:hover": { color: s.accentText },
+                fontFamily: FONT_BODY,
+                fontWeight: 600,
+                fontSize: 15,
+                color: s.txt,
+                transition: "border-color 0.2s ease, color 0.2s ease, background 0.2s ease",
+                "&:hover": {
+                  borderColor: s.accent,
+                  color: s.accentText,
+                  background: s.dark ? "rgba(204,255,0,0.06)" : "rgba(10,10,10,0.03)",
+                },
               }}
             >
               {t("heroSwissCtaSecondary")} ↓

@@ -244,6 +244,51 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
     }
   }, [])
 
+  // ─── Celebration: confetti burst when payment / contribution confirms ──
+  // Fires exactly once (ref-guarded) the moment the checkout reaches the
+  // 'confirmed' phase — covers both standard crypto payments AND donation
+  // contributions (both land on this success view). On-brand palette
+  // (lime + white + ink) and fully skipped for reduced-motion users.
+  // canvas-confetti is loaded lazily so it never touches the SSR bundle.
+  const confettiFiredRef = useRef(false)
+  useEffect(() => {
+    if (phase !== 'confirmed' || confettiFiredRef.current) return
+    if (typeof window === 'undefined') return
+    const prefersReduced =
+      window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches
+    if (prefersReduced) return
+    confettiFiredRef.current = true
+    let cancelled = false
+    void import('canvas-confetti')
+      .then((mod) => {
+        if (cancelled) return
+        const confetti = mod.default
+        const colors = ['#CCFF00', '#B4E600', '#EAFFA3', '#FFFFFF', '#0A0A0B']
+        const fire = (particleRatio: number, opts: Record<string, unknown>) => {
+          confetti({
+            origin: { y: 0.7 },
+            colors,
+            disableForReducedMotion: true,
+            zIndex: 2000,
+            particleCount: Math.floor(200 * particleRatio),
+            ...opts,
+          })
+        }
+        // Staggered multi-burst — lively but tasteful.
+        fire(0.25, { spread: 26, startVelocity: 55 })
+        fire(0.2, { spread: 60 })
+        fire(0.35, { spread: 100, decay: 0.91, scalar: 0.9 })
+        fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2 })
+        fire(0.1, { spread: 120, startVelocity: 45 })
+      })
+      .catch(() => {
+        /* confetti is non-critical — ignore load failures */
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [phase])
+
   // ─── Step 1: fetch meta via /pay/getData ──────────────────────────
   useEffect(() => {
     let cancelled = false
