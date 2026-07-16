@@ -13,6 +13,8 @@ import {
 } from "@mui/material";
 import LaunchRounded from "@mui/icons-material/LaunchRounded";
 import ContentCopyRounded from "@mui/icons-material/ContentCopyRounded";
+import DownloadRounded from "@mui/icons-material/DownloadRounded";
+import RefreshRounded from "@mui/icons-material/RefreshRounded";
 import { NextPageWithLayout } from "@/pages/_app";
 
 interface OrderItem {
@@ -73,6 +75,8 @@ const OrderStatusPage: NextPageWithLayout<OrderPageProps> = ({ order: initialOrd
   const [order, setOrder] = useState<Order | null>(initialOrder);
   const [polling, setPolling] = useState<boolean>(initialOrder?.payment_status === "pending");
   const [copiedId, setCopiedId] = useState<number | null>(null);
+  const [resending, setResending] = useState<boolean>(false);
+  const [resendMsg, setResendMsg] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
 
   // Poll while pending — max 20 minutes at 6s
   useEffect(() => {
@@ -167,28 +171,76 @@ const OrderStatusPage: NextPageWithLayout<OrderPageProps> = ({ order: initialOrd
         </Stack>
       );
     }
-    if (t === "file" && Array.isArray(d.downloads)) {
+    if (t === "file") {
+      // Backend `orderFulfillmentService` writes `asset_deliveries` (canonical).
+      // Older / manual seeds may use `downloads`. Support both shapes.
+      const raw: any[] = Array.isArray(d.asset_deliveries)
+        ? d.asset_deliveries
+        : Array.isArray(d.downloads)
+        ? d.downloads
+        : [];
+      if (raw.length > 0) {
+        const files = raw.map((a: any) => ({
+          url: a.download_url || a.url,
+          filename: a.filename || a.name || "Download",
+          expires_at: a.expires_at || null,
+        })).filter((f: any) => f.url);
+        // Earliest expiry across all links (they're minted with the same TTL,
+        // but we take the min to be safe).
+        const expiresAt = files
+          .map((f) => (f.expires_at ? Date.parse(f.expires_at) : NaN))
+          .filter((n) => Number.isFinite(n))
+          .sort((a, b) => a - b)[0];
+        const expired = expiresAt ? Date.now() > expiresAt : false;
+        return (
+          <Stack spacing={0.75}>
+            {files.map((f, idx) => (
+              <Button
+                key={idx}
+                size="small"
+                variant="outlined"
+                startIcon={<DownloadRounded />}
+                onClick={() => window.open(f.url, "_blank", "noopener,noreferrer")}
+                disabled={expired}
+                sx={{ textTransform: "none", alignSelf: "flex-start" }}
+                data-testid={`order-item-download-${item.order_item_id}-${idx}`}
+              >
+                {expired ? `Expired — ${f.filename}` : `Download ${f.filename}`}
+              </Button>
+            ))}
+            {expiresAt && !expired && (
+              <Typography variant="caption" color="text.secondary" data-testid={`order-item-expires-${item.order_item_id}`}>
+                Links expire {new Date(expiresAt).toLocaleString()}
+              </Typography>
+            )}
+            {expired && (
+              <Typography variant="caption" color="warning.main" data-testid={`order-item-expired-${item.order_item_id}`}>
+                Links have expired — click "Resend download links" below to get fresh ones.
+              </Typography>
+            )}
+          </Stack>
+        );
+      }
+    }
+    if (t === "service" && d.calendar_url) {
       return (
-        <Stack spacing={0.5}>
-          {d.downloads.map((f: any, idx: number) => (
-            <Button
-              key={idx}
-              size="small"
-              variant="outlined"
-              startIcon={<LaunchRounded />}
-              onClick={() => window.open(f.url, "_blank", "noopener,noreferrer")}
-              sx={{ textTransform: "none", alignSelf: "flex-start" }}
-              data-testid={`order-item-download-${item.order_item_id}-${idx}`}
-            >
-              Download {f.filename}
-            </Button>
-          ))}
-          {d.expires_at && (
-            <Typography variant="caption" color="text.secondary">
-              Links expire {new Date(d.expires_at).toLocaleString()}
-            </Typography>
-          )}
-        </Stack>
+        <Button
+          size="small"
+          variant="outlined"
+          startIcon={<LaunchRounded />}
+          onClick={() => window.open(d.calendar_url, "_blank", "noopener,noreferrer")}
+          sx={{ textTransform: "none" }}
+          data-testid={`order-item-calendar-${item.order_item_id}`}
+        >
+          Book your session
+        </Button>
+      );
+    }
+    if (d.note) {
+      return (
+        <Typography variant="caption" color="text.secondary" data-testid={`order-item-note-${item.order_item_id}`}>
+          {d.note}
+        </Typography>
       );
     }
     return (
@@ -196,6 +248,54 @@ const OrderStatusPage: NextPageWithLayout<OrderPageProps> = ({ order: initialOrd
         Delivery in progress — check your email.
       </Typography>
     );
+  };
+
+  // Whether any line item has downloadable files (asset_deliveries).
+  const hasFileDeliveries =
+    order.payment_status === "paid" &&
+    Array.isArray(order.items) &&
+    order.items.some((it) => {
+      const dp = (it as any).delivered_payload || {};
+      return (
+        (Array.isArray(dp.asset_deliveries) && dp.asset_deliveries.length > 0) ||
+        (Array.isArray(dp.downloads) && dp.downloads.length > 0)
+      );
+    });
+
+  const handleResendLinks = async () => {
+    if (!order || resending) return;
+    setResending(true);
+    setResendMsg(null);
+    try {
+      const base = (process.env.NEXT_PUBLIC_BASE_URL || "").replace(/\/+$/, "");
+      const r = await fetch(
+        `${base}/api/order/${encodeURIComponent(order.public_ref)}/resend-download`,
+        { method: "POST", headers: { "Content-Type": "application/json" } }
+      );
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) {
+        setResendMsg({ kind: "err", text: j?.message || "Failed to resend links." });
+      } else {
+        // Refetch the order to pull refreshed asset_deliveries
+        try {
+          const rr = await fetch(`${base}/api/order/${encodeURIComponent(order.public_ref)}`);
+          if (rr.ok) {
+            const jj = await rr.json();
+            const raw = jj?.data;
+            const o: Order = raw && raw.order
+              ? { ...raw.order, items: raw.items || raw.order.items || [], merchant: raw.merchant || null }
+              : raw;
+            if (o) setOrder(o);
+          }
+        } catch { /* ignore */ }
+        setResendMsg({ kind: "ok", text: "Fresh download links generated and emailed to you." });
+      }
+    } catch (e: any) {
+      setResendMsg({ kind: "err", text: e?.message || "Failed to resend links." });
+    } finally {
+      setResending(false);
+      setTimeout(() => setResendMsg(null), 5000);
+    }
   };
 
   return (
@@ -264,6 +364,42 @@ const OrderStatusPage: NextPageWithLayout<OrderPageProps> = ({ order: initialOrd
             </Stack>
           ))}
         </Stack>
+
+        {hasFileDeliveries && (
+          <Stack
+            direction={{ xs: "column", sm: "row" }}
+            spacing={1.5}
+            alignItems={{ sm: "center" }}
+            sx={{ mt: 2 }}
+            data-testid="order-resend-links-row"
+          >
+            <Button
+              variant="outlined"
+              size="small"
+              startIcon={<RefreshRounded />}
+              onClick={handleResendLinks}
+              disabled={resending}
+              sx={{ textTransform: "none" }}
+              data-testid="order-resend-links-btn"
+            >
+              {resending ? "Sending…" : "Resend download links"}
+            </Button>
+            {resendMsg && (
+              <Typography
+                variant="caption"
+                color={resendMsg.kind === "ok" ? "success.main" : "error.main"}
+                data-testid="order-resend-links-msg"
+              >
+                {resendMsg.text}
+              </Typography>
+            )}
+            {!resendMsg && (
+              <Typography variant="caption" color="text.secondary">
+                Links expire after 24 h. Resend fresh links to your email.
+              </Typography>
+            )}
+          </Stack>
+        )}
 
         <Divider sx={{ my: 3 }} />
         <Stack spacing={1}>
