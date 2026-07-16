@@ -1,3 +1,15 @@
+## Follow-up UI work #2 (session 61 cont.) — crypto picker, app-feel, landing pills
+- **Crypto picker** (`Components/UI/CryptocurrencySelector/styled.tsx` rewritten + `index.tsx`): removed STATIC legacy indigo theme import; all colors now from ACTIVE theme (black+lime). Fixed dark-mode washed-out (trigger was hardcoded common.white → background.paper; text/chip legacy dark → runtime text.primary). Chip = subtle lime tint (dark rgba(204,255,0,0.10)); selected/hover rows = lime tint (was primary.light pale-blue). Bigger tap targets (trigger 44/48px). CODE-VERIFIED (agent code review) — NOT visually triggered: hostbay has ALL wallets added so picker never shows; did NOT mutate live prod wallets.
+- **Public pages app-feel** (sticky bottom CTA via createPortal→document.body, safe-area inset, display xs/sm only, hidden md+):
+  - Donation (`donationCampaign.tsx`): sticky "Donate $X" bar (reuses handleDonate/canDonate; scrolls to form if no amount). NOTE: pre-existing `mounted` state already existed (line 203, hydration) — reuse it, do NOT re-declare. CODE-VERIFIED (no donation links on hostbay to visually test; identical pattern to creator bar which PASSED).
+  - Creator (`CreatorProfile.tsx`): sticky "Support {name}" bar scrolls to featured/support section. VISUALLY VERIFIED PASS on mobile, hidden desktop.
+  - Checkout (`CleanCheckoutV2.tsx`): larger tap targets — copy buttons 40px minHeight, network/currency selects 46px. CODE-VERIFIED (/pay 200).
+- **Landing pill sweep**: header "Get Started" (`HomeHeader` 8px→999px) + FinalCTA both buttons (10px→999px pills) + hero pills. VISUALLY VERIFIED PASS.
+- PRE-EXISTING lint (left untouched — ship in prod): `Stat` nested comp (donationCampaign:311), `LinkCard` nested comp (CreatorProfile:218), 3 unused eslint-disable (CleanCheckoutV2). All my additions lint-clean.
+- To fully visual-verify crypto picker + donation bar without touching live data: need a spare merchant account (not all wallets added) + an existing donation link.
+
+---
+
 # CURRENT SESSION (fresh boot — session 61, 2026-07-16)
 ## Follow-up UI work (session 61 cont.) — brand cleanup, confetti, hero pills
 - **Mobile app-header logo** (`Components/Layout/NewHeader/index.tsx`): replaced stale 88×96 indigo PNG (`dynopay-mobile-logo.png`, rendered 22×24) with theme-aware monochrome "Dynopay" wordmark (dynopay-blackLogo.svg / dynopay-whiteLogo.svg, ~26px). Bottom nav (`MobileNavigationBar/styled.tsx`): removed blue `hue-rotate(240deg)` active-icon filter → mono ink/white. VERIFIED 4/4 mobile+tablet light+dark.
