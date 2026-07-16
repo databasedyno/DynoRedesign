@@ -10,7 +10,7 @@ import sys
 from typing import Dict, Any, Optional
 
 # Test Configuration
-BASE_URL = "https://cab0255a-5678-42a7-ba82-3a3a89393c95.preview.emergentagent.com"
+BASE_URL = "https://crypto-gateway-25.preview.emergentagent.com"
 TEST_CREDENTIALS = {
     "email": "hostbay@moxx.co",
     "password": "Katiekendra123@"
