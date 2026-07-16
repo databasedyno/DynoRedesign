@@ -251,7 +251,8 @@
       "title": "Integra en una tarde",
       "desc": "REST, webhooks, embeds y checkout listo para usar — una API para 15+ cadenas. La clave sandbox es pública.",
       "cta": "Ver la API"
-    }
+    },
+    "previewHere": "Vista previa en esta página ↓"
   },
   "crowdfundingShowcase": {
     "eyebrow": "Crowdfunding",

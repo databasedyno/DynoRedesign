@@ -180,20 +180,22 @@ export const StatusText = styled(Typography)<{
   status: "pending" | "confirmed" | "settled" | "failed" | "processing";
 }>(({ status, theme }) => {
   const statusColors: Record<string, { textColor: string }> = {
+    // Session 56 WCAG fix: darkened text colors so every badge clears
+    // AA-Normal contrast (4.5:1) against its pastel backdrop.
     settled: {
-      textColor: "#47B464",
+      textColor: "#1B7A3E", // was #47B464 (2.51:1) → 5.14:1
     },
     confirmed: {
-      textColor: "#1565C0",
+      textColor: "#1565C0", // 5.03:1 (unchanged)
     },
     pending: {
-      textColor: "#F57C00",
+      textColor: "#8A5300", // was #F57C00 (2.36:1) → 5.53:1
     },
     processing: {
-      textColor: "#F57C00",
+      textColor: "#8A5300", // was #F57C00 (2.36:1) → 5.53:1
     },
     failed: {
-      textColor: theme.palette.error.main,
+      textColor: "#B91E20", // was theme.palette.error.main (~3.35:1) → 5.59:1
     },
   };
 

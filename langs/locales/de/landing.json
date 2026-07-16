@@ -251,7 +251,8 @@
       "title": "In einem Nachmittag live",
       "desc": "REST, Webhooks, Embeds und fertiges Checkout — eine API für 15+ Chains. Sandbox-Key ist öffentlich.",
       "cta": "Zur API"
-    }
+    },
+    "previewHere": "Vorschau auf dieser Seite ↓"
   },
   "crowdfundingShowcase": {
     "eyebrow": "Crowdfunding",

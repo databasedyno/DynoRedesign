@@ -1,4 +1,96 @@
-## Session 55: 7-day login + Session Manager + Remember-me + adaptive favicon (2026-07-15)
+## Session 56: AudienceDoors → `/for/{audience}` deep-link + WCAG contrast sweep (2026-07-15)
+
+### Preview URL
+https://13a6e6fa-9a3d-4599-8acd-da12e0a983cd.preview.emergentagent.com
+
+### Test account (LIVE Railway PG)
+- Merchant: **hostbay@moxx.co / Katiekendra123@** (user_id=1, company_id=1). Login flow = enter email → **Continue** → SELECT "Password" radio → password appears → fill → Log in.
+
+### User asks (this session)
+1. Wire homepage `AudienceDoors` (Merchants/Creators/Fundraisers/Developers) to also deep-link into `/for/{audience}` so the landing page funnels each visitor to a conversion-optimized, crawlable sub-page.
+2. Do a WCAG contrast sweep of primary CTAs + badge colors on both light & dark themes.
+
+### What changed
+
+**Item 1 — Deep-linking AudienceDoors**
+- `Components/Page/Home/AudienceDoors.tsx`
+  - `Door` interface gained `page` (canonical `/for/{slug}` for the SEO landing page) and `anchor` (the existing on-page `#showcase` for in-page discovery).
+  - Each card is now rendered with `component={NextLink}` → a real crawlable `<a href="/for/merchants|creators|fundraisers|developers">`.
+  - New secondary "Preview on this page ↓" link (`data-testid="audience-door-preview-<key>"`) sits below the primary CTA. Click / Enter / Space calls `scrollToAnchor` and calls `e.preventDefault() + e.stopPropagation()` so the parent card link does NOT fire.
+  - Added `:focus-visible` outline ring (theme-aware; volt on dark, indigo on light).
+- `langs/locales/{en,es,pt,fr,de,nl}/landing.json`: new `doors.previewHere` translation.
+
+**Item 2 — WCAG contrast sweep (both themes)**
+Built /tmp/wcag_audit.py enumerating every primary-CTA + badge + door-icon color pair and their computed sRGB contrast ratios. Failing cases fixed:
+
+| Location | Before | After | Ratio (after) |
+|---|---|---|---|
+| Checkout dark theme primary btn (`theme.ts:603` — `darkTheme`) | `#6C7BFF` bg / `#fff` text = **3.55:1** ⚠️ | `#5A63F0` bg / `#fff` text | **4.69:1** ✅ AA |
+| Checkout dark theme `border.focus` + `secondary.main` | `#6C7BFF` | `#5A63F0` | (aligned) |
+| App dark theme (`theme.ts:649` — `themeDark`) primary contrast | `#CCFF00` bg / `#fff` text = **1.41:1** ❌ | `#CCFF00` bg / `#060606` text | **17.4:1** ✅ AAA |
+| Tx status badge `settled` text (`Transactions/styled.tsx` + `TransactionDetailsModal.styled.tsx`) | `#47B464` on `#EAFFF0` = **2.51:1** ❌ | `#1B7A3E` | **5.14:1** ✅ AA |
+| Tx status badge `pending` / `processing` text | `#F7931A` / `#F57C00` on `#FFEDD7` = **2.01–2.36:1** ❌ | `#8A5300` | **5.53:1** ✅ AA |
+| Tx status badge `failed` text | `#E8484A` on `#FFEBE5` = **3.35:1** ⚠️ | `#B91E20` | **5.59:1** ✅ AA |
+| AudienceDoors icon (light theme) — campaign lime `#CCFF00` | 1.18:1 UI ❌ | `iconLight: #6B7D00` (dark olive) | **4.61:1** ✅ UI |
+| AudienceDoors icon (light theme) — creator pink `#F472B6` | 2.65:1 UI ❌ | `iconLight: #C24070` (deeper pink) | **4.93:1** ✅ UI |
+| AudienceDoors icon (light theme) — developer light-blue `#7CB1FF` | 2.19:1 UI ❌ | `iconLight: #0284C7` (sky-600) | **4.10:1** ✅ UI |
+| AudienceDoors icon (dark theme) | (all pass) | unchanged (vibrant brand accents kept as `iconDark`) | 5.13 – 16.05:1 ✅ |
+
+Confirmed already-passing (no change needed): landing hero CTAs (Volt-on-Obsidian = 17.35:1), Featured/Trending ribbons on Shop cards (5.94 – 18.76:1), Type chips Digital/Physical/Service on both themes (5.17 – 16.85:1), Sandbox chip (5.96:1), Live chip (4.88:1), Door CTA text (session 49 fix still holds — all 5.17 – 16.05:1).
+
+### Files touched
+- `Components/Page/Home/AudienceDoors.tsx` (deep-links + iconLight/iconDark split + preview link + focus-ring)
+- `styles/theme.ts` (`darkTheme` primary `#6C7BFF` → `#5A63F0`, `themeDark` `contrastText: #fff` → `#060606`)
+- `Components/Page/Transactions/styled.tsx` (`StatusText` palette)
+- `Components/Page/Transactions/TransactionDetailsModal.styled.tsx` (`StatusText` palette)
+- `langs/locales/{en,es,pt,fr,de,nl}/landing.json` (added `doors.previewHere`)
+
+### Self-verification
+- `tsc --noEmit` clean for all changed files (pre-existing errors elsewhere are unchanged).
+- Frontend Playwright: (1) all 4 doors resolved to `<a href="/for/{merchants|creators|fundraisers|developers}">`; (2) clicking `audience-door-preview-merchant` stayed on `/`; (3) clicking `audience-door-merchant` navigated to `/for/merchants`; (4) `/for/{merchants|creators|fundraisers|developers}` all return HTTP 200; (5) dark-mode toggle switches body bg to `rgb(6,6,6)` and icons render vibrant lime `rgb(204,255,0)` / pink `rgb(244,114,182)` / light-blue `rgb(124,177,255)` while CTA text is `#93C5FD` / `#CCFF00` / `#F9A8D4` — all AAA on `#111`.
+- Screenshots: /tmp/doors_light.jpg (light, deep-linked hover), /tmp/doors_dark_toggled.jpg (dark, vibrant), /tmp/for_merchants.jpg (destination render).
+
+### What to verify — auto_frontend_testing_agent (FRONTEND ONLY; DO NOT test backend or run OTP flows against LIVE prod)
+Preview: https://13a6e6fa-9a3d-4599-8acd-da12e0a983cd.preview.emergentagent.com
+Login (for badge tests only): hostbay@moxx.co / Katiekendra123@ — flow is: fill E-mail → Continue → **click "Password" radio** → password field appears → fill → Log in. Then land on /dashboard.
+
+1. **AudienceDoors deep-links (public — no login needed):**
+   - On `/`, scroll to `[data-testid="audience-doors"]`.
+   - Assert each of `audience-door-merchant`, `audience-door-campaign`, `audience-door-creator`, `audience-door-developer` is an `<a>` element with the exact `href`s `/for/merchants`, `/for/fundraisers`, `/for/creators`, `/for/developers`.
+   - Click `audience-door-preview-merchant` — URL must stay on `/` (NO navigation). It should scroll toward `#product-showcase-section`.
+   - Reload, click `audience-door-merchant` (card body away from the preview link) — URL must become `/for/merchants` and page renders with a non-empty `h1`.
+   - Repeat the card-click flow for all 4 doors (each lands on the right `/for/*` page with `200`).
+
+2. **AudienceDoors icon contrast — light theme (public):**
+   - Read computed `color` on the first inner `<div>` of each card:
+     - merchant: `rgb(59, 130, 246)`
+     - campaign: `rgb(107, 125, 0)`
+     - creator: `rgb(194, 64, 112)`
+     - developer: `rgb(2, 132, 199)`
+   - Take a screenshot at 1440×900 for visual sign-off.
+
+3. **AudienceDoors icon + CTA contrast — dark theme (public):**
+   - Click `[data-testid="theme-toggle-button"]` in the header to switch to dark.
+   - Assert `getComputedStyle(document.body).backgroundColor` is a near-black (rgb sum &lt; 30).
+   - Icon colors should be the vibrant brand palette: merchant `rgb(59, 130, 246)`, campaign `rgb(204, 255, 0)`, creator `rgb(244, 114, 182)`, developer `rgb(124, 177, 255)`.
+   - CTA text colors: merchant `rgb(147, 197, 253)`, campaign `rgb(204, 255, 0)`, creator `rgb(249, 168, 212)`, developer `rgb(147, 197, 253)`.
+
+4. **Transaction status badge colors (login required):**
+   - Log in as hostbay via the flow above → `/transactions`.
+   - Wait for the table to render at least one row.
+   - Read computed `color` of any element whose text starts with "settled/confirmed/pending/processing/failed" (case-insensitive).
+   - Assert: settled → `rgb(27, 122, 62)` (`#1B7A3E`); confirmed → `rgb(21, 101, 192)` (`#1565C0`); pending / processing → `rgb(138, 83, 0)` (`#8A5300`); failed → `rgb(185, 30, 32)` (`#B91E20`).
+   - Take a screenshot of the transactions table showing at least one badge for the report.
+
+5. **Non-regression — Transactions table interactions still work:**
+   - Click a row → the transaction details modal opens (does NOT go back to the list). This is a Session 54 fix regression check.
+   - The status pill inside the modal uses the NEW palette (same colors as row).
+
+Do NOT touch any other user's data. Do NOT test the OTP / login-code flow. Do NOT create/delete records. All checks are read-only visual/DOM assertions except the login itself.
+
+---
+
+
 
 ### Preview URL
 https://payment-gateway-dev-8.preview.emergentagent.com

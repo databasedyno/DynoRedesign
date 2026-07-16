@@ -600,12 +600,12 @@ export const darkTheme = createTheme({
   palette: {
     mode: "dark",
     common: { black: "#242428", white: "#fff" },
-    primary: { main: "#6C7BFF", dark: "#4A5AE8", light: "#8E9AFF", contrastText: "#fff" },
-    secondary: { main: "#6C7BFF", dark: "#4A5AE8", light: "#8E9AFF" },
+    primary: { main: "#5A63F0", dark: "#4A5AE8", light: "#8E9AFF", contrastText: "#fff" },
+    secondary: { main: "#5A63F0", dark: "#4A5AE8", light: "#8E9AFF" },
     text: { primary: "#FFFFFF", secondary: "#B0B8FF" },
     background: { default: "#0d0d1a", paper: "#1a1a2e" },
     surface: { main: "#0d0d1a", paper: "#1a1a2e", border: "#2a2a4a" },
-    border: { main: "#2a2a4a", focus: "#6C7BFF", success: "#10B981", error: "#E8484A" },
+    border: { main: "#2a2a4a", focus: "#5A63F0", success: "#10B981", error: "#E8484A" },
   },
   typography: {
     fontFamily: "var(--font-sans), 'Manrope', sans-serif",
@@ -650,7 +650,9 @@ export const themeDark = createTheme({
       main: "#CCFF00",
       dark: "#FFFFFF",
       light: "#1A1F3D",
-      contrastText: "#fff",
+      // Session 56 WCAG fix: white on lime = 1.4:1 (catastrophic). Near-black
+      // on lime = 17.4:1 (AAA). Aligns with appThemeDark's contrastText.
+      contrastText: "#060606",
     },
     secondary: {
       main: "#141625",

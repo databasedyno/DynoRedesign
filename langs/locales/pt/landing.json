@@ -251,7 +251,8 @@
       "title": "No ar em uma tarde",
       "desc": "REST, webhooks, embeds e checkout pronto — uma API para 15+ redes. Chave sandbox é pública.",
       "cta": "Ver a API"
-    }
+    },
+    "previewHere": "Ver nesta página ↓"
   },
   "crowdfundingShowcase": {
     "eyebrow": "Crowdfunding",

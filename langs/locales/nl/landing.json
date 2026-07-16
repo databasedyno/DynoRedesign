@@ -251,7 +251,8 @@
       "title": "Klaar in één middag",
       "desc": "REST, webhooks, embeds en kant-en-klare checkout — één API voor 15+ chains. Sandbox-sleutel is publiek.",
       "cta": "Bekijk de API"
-    }
+    },
+    "previewHere": "Bekijk op deze pagina ↓"
   },
   "crowdfundingShowcase": {
     "eyebrow": "Crowdfunding",

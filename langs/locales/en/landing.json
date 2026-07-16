@@ -251,7 +251,8 @@
       "title": "Ship in an afternoon",
       "desc": "REST, webhooks, embeds and drop-in checkout — one API for 15+ chains. Sandbox key is public.",
       "cta": "See the API"
-    }
+    },
+    "previewHere": "Preview on this page ↓"
   },
   "crowdfundingShowcase": {
     "eyebrow": "Crowdfunding",
