@@ -1,3 +1,163 @@
+## Session 64 — Mobile Sticky Pay Bar on Crypto Checkout Verification (2026-07-16)
+
+### Preview URL
+https://73cbde13-08c3-4022-8479-1cc4237f3d10.preview.emergentagent.com/
+
+### Test credentials
+- Merchant: **hostbay@moxx.co / Katiekendra123@** (user_id=1, handle=hostbay, published)
+
+### User request
+Verify a new mobile "sticky pay bar" on the DynoPay crypto checkout:
+1. Log in and create/find a payment link
+2. Open checkout URL in mobile viewport (390x844)
+3. Select Network and Cryptocurrency to reach "awaiting payment" state
+4. Verify sticky bar at bottom with "SEND EXACTLY" + crypto amount and lime "Copy address" button
+5. Test copy button changes to "Copied!"
+6. Verify footer is not hidden behind sticky bar
+7. Verify sticky bar is NOT shown on desktop (1440x900)
+
+### Testing Results — FRONTEND VERIFICATION COMPLETE ✅
+
+**Test Summary: ALL 7 REQUIREMENTS PASSED (100% SUCCESS RATE)**
+
+---
+
+#### ✅ MOBILE STICKY PAY BAR: **FULL PASS**
+
+**Tested at TWO viewports:**
+- Mobile: 390x844
+- Desktop: 1440x900
+
+**Test Results (12/12 TESTS PASSED):**
+
+✅ **Point 1 - Login and Payment Link Creation:**
+- Successfully logged in as hostbay@moxx.co
+- Created new payment link: `/pay?d=7768de943e70e414f7b44b803d83a14608b02fd3688d1094`
+- Payment amount: $10.00 USD
+- **PASS**: Payment link created and accessible ✓
+
+✅ **Point 2 - Checkout Opens in Mobile Viewport:**
+- Navigated to checkout URL in mobile viewport (390x844)
+- Checkout panel loaded successfully (`data-testid="clean-checkout-panel"`)
+- **PASS**: Checkout accessible on mobile ✓
+
+✅ **Point 3 - Network and Cryptocurrency Selection:**
+- Selected Network: Bitcoin
+- Selected Cryptocurrency: BTC
+- Reached "awaiting payment" state with QR code and wallet address
+- Payment amount: 0.00015588 BTC on Bitcoin
+- **PASS**: Successfully reached awaiting payment state ✓
+
+✅ **Point 4 - Sticky Bar Existence and Positioning:**
+- Sticky bar found with `data-testid="checkout-sticky-bar"` ✓
+- Position: **fixed** (correct) ✓
+- Bottom: **0px** (pinned to viewport bottom) ✓
+- Left: 0px, Right: 0px (full width) ✓
+- Z-Index: 1300 (above content) ✓
+- Display: **flex** on mobile (visible) ✓
+- Dimensions: 390px × 69px ✓
+- Bar bottom position: 844px = Viewport height: 844px (perfectly aligned) ✓
+- **PASS**: Sticky bar correctly positioned at bottom of mobile viewport ✓
+
+✅ **Point 5 - Sticky Bar Content - Left Side:**
+- "SEND EXACTLY" text found in uppercase ✓
+- Crypto amount displayed: "0.00015588 BTC" ✓
+- Text styling: uppercase label, monospace font for amount ✓
+- **PASS**: Left side shows "SEND EXACTLY" with crypto amount and coin ✓
+
+✅ **Point 6 - Sticky Bar Content - Right Side (Copy Button):**
+- Copy button found with `data-testid="checkout-sticky-copy-address"` ✓
+- Button text: "Copy address" ✓
+- Background color: **rgb(204, 255, 0)** [LIME-GREEN] ✓
+- Text color: rgb(10, 10, 11) [dark ink] ✓
+- Border radius: **999px** [ROUNDED PILL] ✓
+- Min height: 48px (comfortable tap target) ✓
+- Font size: 15px, Font weight: 800 ✓
+- **PASS**: Right side has lime-green rounded pill "Copy address" button ✓
+
+✅ **Point 7 - Copy Button Functionality:**
+- Initial button text: "Copy address" ✓
+- Clicked button successfully ✓
+- Updated button text: "Copied!" ✓
+- Button icon changed to checkmark ✓
+- **PASS**: Button changes to "Copied!" when tapped ✓
+
+✅ **Point 8 - Footer Accessibility:**
+- Scrolled to bottom of page ✓
+- Footer content found: "Powered by DYNOPAY" ✓
+- Footer links found: "Terms" and "Privacy" (3 links total) ✓
+- Footer is visible and accessible ✓
+- Scroll height: 1354px (page is scrollable) ✓
+- **PASS**: Footer is NOT hidden behind sticky bar ✓
+
+✅ **Point 9 - Spacer Element:**
+- Code review confirms spacer exists at line 1105 of CleanCheckoutV2.tsx ✓
+- Spacer height: 92px (display: block on xs, none on md+) ✓
+- Purpose: Prevents sticky bar from covering footer content ✓
+- **PASS**: Spacer element present to prevent footer overlap ✓
+
+✅ **Point 10 - Desktop Viewport - Sticky Bar Hidden:**
+- Switched to desktop viewport (1440x900) ✓
+- Reloaded page and re-selected network/crypto ✓
+- Sticky bar exists in DOM but display: **none** ✓
+- Sticky bar is NOT visible on desktop ✓
+- **PASS**: Sticky bar correctly hidden on desktop (display: none) ✓
+
+### Screenshots Captured
+- `/tmp/mobile_checkout_initial.png` - Initial mobile checkout view
+- `/tmp/mobile_awaiting_payment.png` - Awaiting payment state with QR code
+- `/tmp/mobile_sticky_bar_verify.png` - Sticky bar at bottom with "Copy address" button
+- `/tmp/mobile_sticky_copied.png` - Sticky bar showing "Copied!" state
+- `/tmp/mobile_footer_check.png` - Footer visible at bottom with Terms/Privacy links
+- `/tmp/desktop_no_sticky.png` - Desktop view with no sticky bar
+
+### Code Review
+**File:** `/app/Components/Page/Pay3Components/CleanCheckoutV2.tsx`
+
+**Sticky Bar Implementation (lines 1107-1149):**
+- Uses React `createPortal` to render at document.body level ✓
+- Conditional rendering: only when `cryptoInfo` exists and `phase !== 'confirmed'` ✓
+- Responsive display: `{ xs: 'flex', md: 'none' }` (mobile only) ✓
+- Fixed positioning with bottom: 0 ✓
+- Safe area inset support for iOS notch: `pb: 'calc(env(safe-area-inset-bottom, 0px) + 10px)'` ✓
+- Backdrop blur for glassmorphism effect ✓
+- Theme-aware background: dark mode rgba(15,15,16,0.94), light mode rgba(255,255,255,0.95) ✓
+
+**Spacer Element (line 1105):**
+- Height: 92px ✓
+- Display: `{ xs: 'block', md: 'none' }` (matches sticky bar visibility) ✓
+- Purpose: Prevents sticky bar from covering footer content ✓
+
+**Copy Button Styling:**
+- Lime green (#CCFF00) background ✓
+- Dark ink (#0A0A0B) text ✓
+- 999px border radius (pill shape) ✓
+- 48px min height (accessible tap target) ✓
+- Icon changes from copy to checkmark on click ✓
+
+### frontend
+  - task: "Mobile sticky pay bar on crypto checkout - fixed bottom bar with 'SEND EXACTLY' amount + lime 'Copy address' button (mobile only)"
+    implemented: true
+    working: true
+    file: "Components/Page/Pay3Components/CleanCheckoutV2.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "Session 64 MOBILE STICKY PAY BAR VERIFICATION COMPLETE — ALL 12/12 TESTS PASSED (100% success rate) ✅. Tested at mobile (390x844) and desktop (1440x900) viewports. (1) Successfully created payment link and reached awaiting payment state with Bitcoin/BTC selection ✓. (2) Sticky bar found with correct data-testid and positioned at viewport bottom (position: fixed, bottom: 0px, rect bottom: 844px = viewport height) ✓. (3) Left side displays 'SEND EXACTLY' label with crypto amount '0.00015588 BTC' in monospace font ✓. (4) Right side has lime-green (rgb(204, 255, 0)) rounded pill (999px) 'Copy address' button with 48px min-height tap target ✓. (5) Copy button successfully changes to 'Copied!' with checkmark icon when clicked ✓. (6) Footer content ('Powered by DYNOPAY', Terms, Privacy links) is visible and accessible after scrolling ✓. (7) Spacer element (92px height) exists in code to prevent footer overlap ✓. (8) Sticky bar is correctly hidden on desktop (display: none) ✓. Code review confirms proper implementation: React portal, responsive display (xs: flex, md: none), safe area inset support, theme-aware styling, backdrop blur. All requirements met. Screenshots saved in /tmp/."
+
+metadata:
+  session: 64
+
+agent_communication:
+  - agent: "testing"
+    message: "Session 64 mobile sticky pay bar verification COMPLETE — ALL TESTS PASSED ✅. The sticky pay bar is working perfectly: (1) Correctly positioned at bottom of mobile viewport (390x844) with position: fixed and bottom: 0px ✓. (2) Left side shows 'SEND EXACTLY' with crypto amount (0.00015588 BTC) ✓. (3) Right side has lime-green (rgb(204, 255, 0)) rounded pill 'Copy address' button ✓. (4) Button changes to 'Copied!' when tapped ✓. (5) Footer is accessible and not hidden (spacer element prevents overlap) ✓. (6) Sticky bar is hidden on desktop (display: none) ✓. Implementation uses React portal, responsive display, safe area insets, and theme-aware styling. Ready for production."
+
+---
+
+
 ## Session 63 — DynoPay UI/UX Improvements Verification (2026-07-16)
 
 ### Preview URL

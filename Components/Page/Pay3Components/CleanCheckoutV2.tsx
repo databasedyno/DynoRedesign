@@ -38,6 +38,7 @@
  */
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import {
   Alert,
   Box,
@@ -223,6 +224,8 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
   const [cryptoInfo, setCryptoInfo] = useState<CryptoInfo | null>(null)
   const [timeLeft, setTimeLeft] = useState<number>(0)
   const [copiedFlag, setCopiedFlag] = useState<'addr' | 'amt' | ''>('')
+  const [portalReady, setPortalReady] = useState(false)
+  const [shareCopied, setShareCopied] = useState(false)
   const [showRefundInput, setShowRefundInput] = useState<boolean>(false)
   const [refundAddress, setRefundAddress] = useState<string>('')
   const [confirmedAmount, setConfirmedAmount] = useState<{
@@ -540,6 +543,36 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
     ? (campaignTitle || `Support ${merchantName}`)
     : `Pay ${merchantName}`
 
+  // Portal-mount guard for the mobile sticky pay bar (SSR-safe).
+  useEffect(() => setPortalReady(true), [])
+
+  // Share the checkout/campaign link — Web Share API with clipboard fallback.
+  // Helps a happy buyer/contributor pull more people in ("I just supported …").
+  const handleShare = async () => {
+    const url = typeof window !== 'undefined' ? window.location.href : ''
+    const who = isContribution ? campaignTitle || merchantName : merchantName
+    const title = isContribution
+      ? `I just supported ${who}`
+      : `I just paid ${who} with crypto`
+    const text = isContribution
+      ? `${title} on DynoPay — join me and chip in!`
+      : `${title} on DynoPay.`
+    try {
+      const nav = typeof navigator !== 'undefined' ? (navigator as Navigator) : null
+      if (nav && typeof nav.share === 'function') {
+        await nav.share({ title, text, url })
+        return
+      }
+    } catch {
+      /* user dismissed the share sheet or it failed → fall through to copy */
+    }
+    const ok = await copyToClipboard(url ? `${text} ${url}` : text)
+    if (ok) {
+      setShareCopied(true)
+      setTimeout(() => setShareCopied(false), 2000)
+    }
+  }
+
   // Fiat amount formatted using the same helper as the rest of the app
   const fiatSymbol = meta_ ? getCurrencySymbolFromFormat(meta_.base_currency) : '$'
   const fiatAmount = meta_ ? formatWithSeparators(Number(meta_.amount || 0), meta_.base_currency) : '0.00'
@@ -601,6 +634,51 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
           <Typography sx={{ fontFamily: MONO, fontSize: 12.5, color: muted, mt: 0.5 }}>
             {formatCryptoAmount(confirmedAmount.crypto, cryptoInfo?.crypto_base || 'BTC')} {cryptoInfo?.crypto_base}
           </Typography>
+        </Box>
+
+        {/* ── Share card — turn a happy buyer/contributor into a promoter ── */}
+        <Box
+          data-testid="clean-checkout-share"
+          sx={{
+            mt: 1,
+            p: 2,
+            borderRadius: '12px',
+            border: `1px solid ${border}`,
+            backgroundColor: isDark ? 'rgba(204,255,0,0.06)' : 'rgba(10,10,10,0.03)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 1.25,
+          }}
+        >
+          <Typography fontSize={13} color={muted} textAlign="center">
+            {isContribution
+              ? `Help ${campaignTitle || merchantName} reach more people`
+              : 'Enjoyed paying with crypto? Spread the word'}
+          </Typography>
+          <Button
+            fullWidth
+            variant="contained"
+            disableElevation
+            data-testid="clean-checkout-share-btn"
+            onClick={handleShare}
+            startIcon={<Icon icon={shareCopied ? 'mdi:check' : 'mdi:share-variant'} width={20} />}
+            sx={{
+              backgroundColor: LIME,
+              color: INK,
+              textTransform: 'none',
+              borderRadius: '999px',
+              fontWeight: 800,
+              fontSize: 15,
+              minHeight: 48,
+              '&:hover': { backgroundColor: LIME, filter: 'brightness(1.05)' },
+            }}
+          >
+            {shareCopied
+              ? 'Link copied!'
+              : isContribution
+                ? 'Share this fundraiser'
+                : 'Share DynoPay'}
+          </Button>
         </Box>
       </PanelShell>
     )
@@ -1022,6 +1100,53 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
           </a>
         </Box>
       </Box>
+
+      {/* Spacer so the mobile sticky pay bar never covers the footer/content */}
+      {cryptoInfo && <Box sx={{ display: { xs: 'block', md: 'none' }, height: 92 }} />}
+
+      {/* ── Mobile sticky pay bar — amount + copy-address always in thumb reach ── */}
+      {portalReady && cryptoInfo && phase !== 'confirmed' && createPortal(
+        <Box
+          data-testid="checkout-sticky-bar"
+          sx={{
+            position: 'fixed', left: 0, right: 0, bottom: 0, zIndex: 1300,
+            display: { xs: 'flex', md: 'none' },
+            alignItems: 'center', gap: 1.25,
+            px: 2, pt: 1.25,
+            pb: 'calc(env(safe-area-inset-bottom, 0px) + 10px)',
+            backgroundColor: isDark ? 'rgba(15,15,16,0.94)' : 'rgba(255,255,255,0.95)',
+            backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
+            borderTop: `1px solid ${border}`,
+            boxShadow: '0 -8px 24px rgba(0,0,0,0.18)',
+          }}
+        >
+          <Box sx={{ minWidth: 0, flexShrink: 1 }}>
+            <Typography sx={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.04em', color: muted, textTransform: 'uppercase', lineHeight: 1 }}>
+              Send exactly
+            </Typography>
+            <Typography sx={{ fontFamily: MONO, fontSize: 15, fontWeight: 700, color: theme.palette.text.primary, lineHeight: 1.25, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              {formatCryptoAmount(cryptoInfo.expected_amount, cryptoInfo.crypto_base)} {cryptoInfo.crypto_base}
+            </Typography>
+          </Box>
+          <Button
+            data-testid="checkout-sticky-copy-address"
+            onClick={() => doCopy(cryptoInfo.address, 'addr')}
+            disableElevation
+            variant="contained"
+            startIcon={<Icon icon={copiedFlag === 'addr' ? 'mdi:check' : 'mdi:content-copy'} width={18} />}
+            sx={{
+              flex: 1, minHeight: 48, borderRadius: '999px', textTransform: 'none',
+              fontSize: 15, fontWeight: 800, backgroundColor: LIME, color: INK,
+              whiteSpace: 'nowrap',
+              '&:hover': { backgroundColor: LIME, filter: 'brightness(1.05)' },
+              '&:active': { transform: 'scale(0.99)' },
+            }}
+          >
+            {copiedFlag === 'addr' ? 'Copied!' : 'Copy address'}
+          </Button>
+        </Box>,
+        document.body,
+      )}
     </PanelShell>
   )
 }
