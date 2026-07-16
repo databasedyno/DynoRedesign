@@ -74,6 +74,7 @@ productRouter.get("/shop/:handle/products/:slug", paymentRateLimiter, shopCtrl.g
 
 // ── Cart / Checkout (public, rate-limited) ────────────────────────────
 productRouter.post("/cart", paymentRateLimiter, cartCtrl.validateCartApi);
+productRouter.post("/cart/quote-tax", paymentRateLimiter, cartCtrl.quoteTax);
 productRouter.post("/checkout", paymentRateLimiter, cartCtrl.startCheckout);
 
 // ── Order status + digital download (public, rate-limited) ────────────

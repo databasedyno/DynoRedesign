@@ -132,6 +132,27 @@ const productModel = sequelize.define(
       type: DataTypes.DATE,
       allowNull: true,
     },
+    /**
+     * Tax category — drives jurisdiction rules at checkout:
+     *   - 'digital'   : downloadable software/ebook/etc. (customer-IP location)
+     *   - 'physical'  : shipped goods (shipping-address location)
+     *   - 'service'   : consultation/course (customer-IP location)
+     *   - 'exempt'    : product does not attract tax regardless of merchant setting
+     */
+    tax_category: {
+      type: DataTypes.STRING(20),
+      allowNull: false,
+      defaultValue: "digital",
+      comment: "digital | physical | service | exempt",
+    },
+    /**
+     * Per-product override for `apply_tax`. NULL = inherit merchant default
+     * (`tbl_user.default_apply_tax`). Set explicitly to TRUE/FALSE to force.
+     */
+    apply_tax_override: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+    },
   },
   {
     tableName: "tbl_product",

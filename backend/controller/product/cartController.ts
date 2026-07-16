@@ -10,6 +10,13 @@
  *                         CleanCheckoutV2.
  *
  * Stock is decremented in the same transaction as the order row (spec §7.5).
+ *
+ * Session 57: Tax collection at cart checkout — resolves effective
+ * apply_tax from merchant defaults + per-product override, computes tax
+ * against the buyer's jurisdiction (physical goods → shipping country;
+ * digital/service → customer IP), supports EU B2B reverse-charge when a
+ * valid VAT ID is supplied, and persists all tax fields on the order row
+ * for accounting.
  */
 import express from "express";
 import crypto from "crypto";
@@ -28,6 +35,8 @@ import {
   errorResponseHelper,
 } from "../../helper";
 import { apiLogger } from "../../utils/loggers";
+import { calculateTax } from "../payment/taxService";
+import { getClientIP, getCountryFromIP, getCountryFromTimezone } from "../../utils/geolocation";
 
 type CartItemIn = {
   product_id: number | string;
@@ -166,12 +175,17 @@ async function validateCart(
       quantity: Number(it.quantity),
       unit_price_cents: unitPrice,
       line_total_cents: lineTotal,
+      // Tax metadata carried through so startCheckout can compute per-item
+      // taxable base (exempt items don't contribute to the taxable subtotal).
+      tax_category: product.tax_category || "digital",
+      apply_tax_override: product.apply_tax_override == null ? null : Boolean(product.apply_tax_override),
       product_snapshot: {
         title: product.title,
         slug: product.slug,
         cover_image_url: product.cover_image_url,
         product_type: product.product_type,
         digital_delivery_type: product.digital_delivery_type,
+        tax_category: product.tax_category || "digital",
       },
       variant_snapshot: variant
         ? {
@@ -297,6 +311,112 @@ export const startCheckout = async (
     }
 
     // ---------- Atomic order + stock decrement + payment link ----------
+    // ── Resolve merchant tax settings (session 57) ──────────────────
+    const mv = merchant.dataValues;
+    const merchantCountry: string | null = mv.merchant_country_code
+      ? String(mv.merchant_country_code).toUpperCase()
+      : null;
+    const merchantDefaultApplyTax: boolean = !!mv.default_apply_tax;
+    const merchantDefaultTaxInclusive: boolean = !!mv.default_tax_inclusive;
+
+    // Determine effective apply_tax:
+    //   - If ANY item has apply_tax_override === true → tax on
+    //   - Else if EVERY non-exempt item has apply_tax_override === false → tax off
+    //   - Else → merchant default
+    const items = validated.normalized;
+    const anyOverrideOn = items.some((it) => it.apply_tax_override === true);
+    const nonExempt = items.filter((it) => it.tax_category !== "exempt");
+    const allOverrideOff =
+      nonExempt.length > 0 && nonExempt.every((it) => it.apply_tax_override === false);
+    let effectiveApplyTax = merchantDefaultApplyTax;
+    if (anyOverrideOn) effectiveApplyTax = true;
+    else if (allOverrideOff) effectiveApplyTax = false;
+
+    // Taxable subtotal = sum of line totals where category != 'exempt'
+    // AND where per-item override doesn't explicitly disable tax.
+    const taxableSubtotalCents = items
+      .filter(
+        (it) =>
+          it.tax_category !== "exempt" &&
+          it.apply_tax_override !== false
+      )
+      .reduce((s, it) => s + Number(it.line_total_cents), 0);
+
+    // ── Resolve tax jurisdiction ─────────────────────────────────────
+    // Physical goods: use shipping-address country. Digital/service/mixed:
+    // use IP-detected country. Cart-wide: pick the FIRST physical item's
+    // shipping country if any item is physical, else fall back to IP/timezone.
+    const clientIP = getClientIP(req);
+    const timezone: string | null = body.timezone ? String(body.timezone) : null;
+    const isPrivateIP =
+      clientIP === "127.0.0.1" ||
+      clientIP === "localhost" ||
+      clientIP.startsWith("192.168.") ||
+      clientIP.startsWith("10.") ||
+      clientIP.startsWith("172.") ||
+      clientIP === "::1";
+
+    let taxCountryCode: string | null = null;
+    let taxCountrySource: string = "unknown";
+    if (validated.hasPhysical && body.shipping_address?.country_code) {
+      taxCountryCode = String(body.shipping_address.country_code).toUpperCase();
+      taxCountrySource = "shipping_address";
+    } else if (timezone && isPrivateIP) {
+      const g = getCountryFromTimezone(timezone);
+      if (g?.country_code) {
+        taxCountryCode = g.country_code.toUpperCase();
+        taxCountrySource = "timezone";
+      }
+    } else {
+      const g = await getCountryFromIP(clientIP, req.headers);
+      if (g?.country_code) {
+        taxCountryCode = g.country_code.toUpperCase();
+        taxCountrySource = "ip";
+      } else if (timezone) {
+        const gt = getCountryFromTimezone(timezone);
+        if (gt?.country_code) {
+          taxCountryCode = gt.country_code.toUpperCase();
+          taxCountrySource = "timezone";
+        }
+      }
+    }
+
+    // ── Compute tax if enabled ─────────────────────────────────────
+    let taxCents = 0;
+    let taxRateApplied: number | null = null;
+    let taxLabelApplied: string | null = null;
+    let reverseCharge = false;
+    const customerVatId: string = body.customer_vat_id ? String(body.customer_vat_id).trim().slice(0, 32) : "";
+    const taxInclusive: boolean = merchantDefaultTaxInclusive; // merchant-level; cart doesn't have a per-link toggle yet
+
+    if (effectiveApplyTax && taxableSubtotalCents > 0 && taxCountryCode) {
+      const taxCategoryForCalc: "digital" | "physical" | "service" | "exempt" = validated.hasPhysical
+        ? "physical"
+        : "digital";
+      const calc = await calculateTax({
+        countryCode: taxCountryCode,
+        amount: taxableSubtotalCents / 100,
+        currency: validated.currency,
+        taxInclusive,
+        taxCategory: taxCategoryForCalc,
+        merchantCountry: merchantCountry || undefined,
+        customerVatId: customerVatId || undefined,
+      });
+      if (calc) {
+        taxCents = Math.round(calc.tax_amount * 100);
+        taxRateApplied = calc.tax_rate;
+        taxLabelApplied = calc.tax_acronym;
+        reverseCharge = !!calc.reverse_charge;
+        apiLogger.info(
+          `[cartCheckout] Tax ${effectiveApplyTax ? "ON" : "OFF"}: country=${taxCountryCode}(${taxCountrySource}) rate=${taxRateApplied}% cents=${taxCents} reverse_charge=${reverseCharge} inclusive=${taxInclusive} category=${taxCategoryForCalc}`
+        );
+      }
+    } else {
+      apiLogger.info(
+        `[cartCheckout] Tax skipped: apply=${effectiveApplyTax} taxableSubtotalCents=${taxableSubtotalCents} country=${taxCountryCode}`
+      );
+    }
+
     const t = await sequelize.transaction();
     try {
       // 1. Stock decrement per line-item (only when stock is tracked)
@@ -338,8 +458,14 @@ export const startCheckout = async (
       const publicRef = crypto.randomBytes(12).toString("hex"); // 24 hex
       const currency = validated.currency;
       const subtotalCents = validated.subtotal_cents;
-      // MVP: no computed shipping/tax
-      const totalCents = subtotalCents;
+      // If tax is inclusive, the "subtotal" in accounting terms is smaller
+      // than the summed line totals. We keep subtotal_cents = sum of line
+      // totals (what buyer sees + line-item consistency) and record the
+      // tax_cents / total_cents accordingly.
+      //   - Tax-exclusive: total = subtotal + tax
+      //   - Tax-inclusive: total = subtotal (buyer sees the same figure;
+      //                    tax_cents is embedded within, computed by calc)
+      const totalCents = taxInclusive ? subtotalCents : subtotalCents + taxCents;
 
       const order: any = await productOrderModel.create(
         {
@@ -351,7 +477,13 @@ export const startCheckout = async (
           shipping_address: body.shipping_address || null,
           subtotal_cents: subtotalCents,
           shipping_cents: 0,
-          tax_cents: 0,
+          tax_cents: taxCents,
+          tax_rate: taxRateApplied,
+          tax_label: taxLabelApplied,
+          tax_country_code: taxCountryCode,
+          customer_vat_id: customerVatId || null,
+          reverse_charge: reverseCharge,
+          tax_inclusive: taxInclusive,
           total_cents: totalCents,
           currency,
           payment_status: "pending",
@@ -398,6 +530,11 @@ export const startCheckout = async (
           title: `Order ${shortRef}`,
           customer_name: buyer.name ? String(buyer.name).slice(0, 160) : null,
           expires_at: new Date(Date.now() + 60 * 60 * 1000), // 60 min
+          // Snapshot tax flags so downstream settlement code knows what was
+          // collected (mainly for cryptoSettlement to persist tax_amount /
+          // tax_rate on tbl_user_transaction).
+          apply_tax: effectiveApplyTax && taxCents > 0,
+          tax_inclusive: taxInclusive,
           // Reuse the merchant's default company + wallet via linkMiddleware chain
           // (in a background enrichment step). For MVP we leave company_id null;
           // the payment webhook + settlement code already tolerates that path.
@@ -418,6 +555,13 @@ export const startCheckout = async (
         payment_ref: paymentRef,
         checkout_url: paymentLinkUrl,
         subtotal_cents: subtotalCents,
+        tax_cents: taxCents,
+        tax_rate: taxRateApplied,
+        tax_label: taxLabelApplied,
+        tax_country_code: taxCountryCode,
+        tax_inclusive: taxInclusive,
+        reverse_charge: reverseCharge,
+        customer_vat_id: customerVatId || null,
         total_cents: totalCents,
         currency,
       });
@@ -440,5 +584,157 @@ export const startCheckout = async (
   } catch (e: any) {
     apiLogger.error("[cartController] startCheckout:", e?.message || e);
     return errorResponseHelper(res, 500, e?.message || "Checkout failed");
+  }
+};
+
+
+/**
+ * POST /api/cart/quote-tax
+ * Body: {
+ *   merchant_handle? | merchant_user_id?,
+ *   items: [{ product_id, variant_id?, quantity }],
+ *   shipping_address?: { country_code, ... },
+ *   customer_vat_id?: string,
+ *   timezone?: string
+ * }
+ * Returns a live tax quote WITHOUT creating an order or reserving stock.
+ * Powers the checkout page's tax preview + VAT ID re-validate flow.
+ */
+export const quoteTax = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  try {
+    const body = req.body || {};
+    const itemsIn = cleanCartItems(body.items);
+    if (itemsIn.length === 0) return errorResponseHelper(res, 400, "Cart is empty.");
+
+    let merchant: any = null;
+    if (body.merchant_handle) {
+      merchant = await userModel.findOne({
+        where: { handle: String(body.merchant_handle) } as any,
+      });
+    } else if (body.merchant_user_id) {
+      merchant = await userModel.findByPk(Number(body.merchant_user_id));
+    } else {
+      const anyProduct: any = await productModel.findOne({
+        where: { product_id: Number(itemsIn[0].product_id) },
+      });
+      if (anyProduct) {
+        merchant = await userModel.findByPk(Number(anyProduct.dataValues.merchant_user_id));
+      }
+    }
+    if (!merchant) return errorResponseHelper(res, 400, "Merchant not found.");
+    const merchantUserId = Number(merchant.dataValues.user_id);
+
+    const validated = await validateCart(merchantUserId, itemsIn);
+    if (validated.hasError) {
+      return errorResponseHelper(res, 400, `Cart validation failed: ${validated.warnings.join("; ")}`);
+    }
+
+    const mv = merchant.dataValues;
+    const merchantCountry: string | null = mv.merchant_country_code
+      ? String(mv.merchant_country_code).toUpperCase()
+      : null;
+    const merchantDefaultApplyTax: boolean = !!mv.default_apply_tax;
+    const merchantDefaultTaxInclusive: boolean = !!mv.default_tax_inclusive;
+
+    const items = validated.normalized;
+    const anyOverrideOn = items.some((it: any) => it.apply_tax_override === true);
+    const nonExempt = items.filter((it: any) => it.tax_category !== "exempt");
+    const allOverrideOff =
+      nonExempt.length > 0 && nonExempt.every((it: any) => it.apply_tax_override === false);
+    let effectiveApplyTax = merchantDefaultApplyTax;
+    if (anyOverrideOn) effectiveApplyTax = true;
+    else if (allOverrideOff) effectiveApplyTax = false;
+
+    const taxableSubtotalCents = items
+      .filter((it: any) => it.tax_category !== "exempt" && it.apply_tax_override !== false)
+      .reduce((s: number, it: any) => s + Number(it.line_total_cents), 0);
+
+    // Resolve country
+    const clientIP = getClientIP(req);
+    const timezone: string | null = body.timezone ? String(body.timezone) : null;
+    const isPrivateIP =
+      clientIP === "127.0.0.1" ||
+      clientIP === "localhost" ||
+      clientIP.startsWith("192.168.") ||
+      clientIP.startsWith("10.") ||
+      clientIP.startsWith("172.") ||
+      clientIP === "::1";
+    let taxCountryCode: string | null = null;
+    let taxCountrySource = "unknown";
+    if (validated.hasPhysical && body.shipping_address?.country_code) {
+      taxCountryCode = String(body.shipping_address.country_code).toUpperCase();
+      taxCountrySource = "shipping_address";
+    } else if (timezone && isPrivateIP) {
+      const g = getCountryFromTimezone(timezone);
+      if (g?.country_code) { taxCountryCode = g.country_code.toUpperCase(); taxCountrySource = "timezone"; }
+    } else {
+      const g = await getCountryFromIP(clientIP, req.headers);
+      if (g?.country_code) { taxCountryCode = g.country_code.toUpperCase(); taxCountrySource = "ip"; }
+      else if (timezone) {
+        const gt = getCountryFromTimezone(timezone);
+        if (gt?.country_code) { taxCountryCode = gt.country_code.toUpperCase(); taxCountrySource = "timezone"; }
+      }
+    }
+
+    const customerVatId: string = body.customer_vat_id
+      ? String(body.customer_vat_id).trim().slice(0, 32)
+      : "";
+    const taxInclusive: boolean = merchantDefaultTaxInclusive;
+
+    const subtotalCents = validated.subtotal_cents;
+    let quote: any = {
+      apply_tax: effectiveApplyTax,
+      tax_country_code: taxCountryCode,
+      tax_country_source: taxCountrySource,
+      tax_rate: 0,
+      tax_label: null as string | null,
+      tax_cents: 0,
+      tax_inclusive: taxInclusive,
+      reverse_charge: false,
+      customer_vat_id: customerVatId || null,
+      customer_vat_id_valid: false,
+      exempt_reason: null as string | null,
+      merchant_country_code: merchantCountry,
+      subtotal_cents: subtotalCents,
+      taxable_subtotal_cents: taxableSubtotalCents,
+      total_cents: subtotalCents,
+      currency: validated.currency,
+    };
+
+    if (effectiveApplyTax && taxableSubtotalCents > 0 && taxCountryCode) {
+      const taxCategoryForCalc: "digital" | "physical" | "service" | "exempt" = validated.hasPhysical
+        ? "physical"
+        : "digital";
+      const calc = await calculateTax({
+        countryCode: taxCountryCode,
+        amount: taxableSubtotalCents / 100,
+        currency: validated.currency,
+        taxInclusive,
+        taxCategory: taxCategoryForCalc,
+        merchantCountry: merchantCountry || undefined,
+        customerVatId: customerVatId || undefined,
+      });
+      if (calc) {
+        const taxCents = Math.round(calc.tax_amount * 100);
+        quote = {
+          ...quote,
+          tax_rate: calc.tax_rate,
+          tax_label: calc.tax_acronym,
+          tax_cents: taxCents,
+          reverse_charge: !!calc.reverse_charge,
+          customer_vat_id_valid: !!calc.customer_vat_id_valid,
+          exempt_reason: calc.exempt_reason || null,
+          total_cents: taxInclusive ? subtotalCents : subtotalCents + taxCents,
+        };
+      }
+    }
+
+    return successResponseHelper(res, 200, "Tax quoted.", quote);
+  } catch (e: any) {
+    apiLogger.error("[cartController] quoteTax:", e?.message || e);
+    return errorResponseHelper(res, 500, e?.message || "Tax quote failed");
   }
 };

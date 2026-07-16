@@ -291,6 +291,7 @@ export const createPaymentLink = async (
     fee_payer,        // Who pays blockchain fees: 'customer' or 'company'
     company_id,       // Phase 10 Fix: Accept company_id for multi-tenant isolation
     apply_tax,        // Tax toggle: calculate tax based on customer location (default: false)
+    tax_inclusive,    // NEW: price already includes tax (retail model) vs added on top (B2B model)
     accepted_currencies, // Array of crypto types to accept (e.g., ['BTC', 'ETH', 'USDT-TRC20'])
     // Fixed tax parameters (alternative to apply_tax location-based)
     // tax_percentage and tax_name removed - not used in this function
@@ -632,6 +633,7 @@ export const createPaymentLink = async (
       webhook_url: webhook_url || null,
       fee_payer: fee_payer || 'company',  // Default: company pays fees (existing behavior)
       apply_tax: isDonation ? false : (apply_tax || false),  // Donations never collect sales tax
+      tax_inclusive: isDonation ? false : (tax_inclusive === true),  // Only meaningful when apply_tax=true; donations never
       accepted_currencies: acceptedCurrenciesString,  // Store merchant's selected currencies (null = all)
       customer_name: name || null,  // Optional customer name for payment link
       // ── Donation campaign fields (only set for donation links) ──
@@ -1321,6 +1323,7 @@ export const updatePaymentLink = async (req: express.Request, res: express.Respo
     allowedModes,
     fee_payer,
     apply_tax,
+    tax_inclusive,       // NEW: retail (true) vs B2B (false) pricing display
     accepted_currencies,  // Array of crypto types to accept
     callback_url, 
     redirect_url, 
@@ -1433,6 +1436,9 @@ export const updatePaymentLink = async (req: express.Request, res: express.Respo
     
     if (apply_tax !== undefined) {
       updateData.apply_tax = Boolean(apply_tax);
+    }
+    if (tax_inclusive !== undefined) {
+      updateData.tax_inclusive = Boolean(tax_inclusive);
     }
     
     // Handle accepted_currencies update

@@ -2512,6 +2512,21 @@ const cryptoVerification = async (address, webhook = true, overrideRedisKey?: st
             // Session 49 fix: persist actual confirmation count so merchants can
             // see the real number in the dashboard (was stuck at 0 previously).
             ...(finalConfirmations !== null ? { confirmations: finalConfirmations } : {}),
+            // ── Session 57: persist tax context so merchants can reconcile ──
+            // Tax info was computed + cached by getData in cryptoCheckout.ts
+            // (see `_cached_tax_info` on customerData) OR came in via the
+            // cart's synthetic payment link. We stamp it here so the
+            // merchant's transactions list shows "of which VAT: X".
+            ...(customerData?._cached_tax_info
+              ? {
+                  tax_amount: Number(customerData._cached_tax_info.tax_amount) || 0,
+                  tax_rate: customerData._cached_tax_info.tax_rate ?? null,
+                  tax_label: customerData._cached_tax_info.tax_acronym || null,
+                  tax_country_code: customerData._cached_tax_info.country_code || null,
+                  customer_vat_id: customerData._cached_tax_info.customer_vat_id || null,
+                  reverse_charge: !!customerData._cached_tax_info.reverse_charge,
+                }
+              : {}),
           };
 
           // FIX: Use user_tx_id for user transaction updates (separate from payment_id which is for payment link)

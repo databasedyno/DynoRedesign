@@ -4318,6 +4318,103 @@ const updateUserDisplayCurrency = async (
   }
 };
 
+// ═════════════════════════════════════════════════════════════════════════
+// MERCHANT TAX SETTINGS — Session 57
+// ═════════════════════════════════════════════════════════════════════════
+// GET  /api/user/tax-settings   → current merchant defaults
+// PATCH /api/user/tax-settings  → update any subset of the four fields
+//   default_apply_tax, default_tax_inclusive, merchant_country_code,
+//   merchant_vat_id
+// Applied as defaults for new payment links + all store cart checkouts.
+// Per-link `apply_tax` / `tax_inclusive` + per-product `apply_tax_override`
+// still take precedence.
+const getMerchantTaxSettings = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  const userData = (res.locals as any).user;
+  try {
+    if (!userData?.user_id) {
+      return errorResponseHelper(res, 401, "Authentication required.");
+    }
+    const user: any = await userModel.findByPk(Number(userData.user_id), {
+      attributes: [
+        "user_id",
+        "default_apply_tax",
+        "default_tax_inclusive",
+        "merchant_country_code",
+        "merchant_vat_id",
+      ],
+    });
+    if (!user) return errorResponseHelper(res, 404, "User not found.");
+    return successResponseHelper(res, 200, "Tax settings fetched.", {
+      default_apply_tax: !!user.dataValues.default_apply_tax,
+      default_tax_inclusive: !!user.dataValues.default_tax_inclusive,
+      merchant_country_code: user.dataValues.merchant_country_code || null,
+      merchant_vat_id: user.dataValues.merchant_vat_id || null,
+    });
+  } catch (e) {
+    userLogger.error(getErrorMessage(e), { user_id: userData?.user_id }, new Error(e as any));
+    return errorResponseHelper(res, 500, getErrorMessage(e));
+  }
+};
+
+const updateMerchantTaxSettings = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  const userData = (res.locals as any).user;
+  try {
+    if (!userData?.user_id) {
+      return errorResponseHelper(res, 401, "Authentication required.");
+    }
+    const body = req.body || {};
+    const patch: any = {};
+    if (typeof body.default_apply_tax === "boolean") {
+      patch.default_apply_tax = body.default_apply_tax;
+    }
+    if (typeof body.default_tax_inclusive === "boolean") {
+      patch.default_tax_inclusive = body.default_tax_inclusive;
+    }
+    if (typeof body.merchant_country_code === "string") {
+      const cc = body.merchant_country_code.trim().toUpperCase();
+      if (cc && !/^[A-Z]{2}$/.test(cc)) {
+        return errorResponseHelper(res, 400, "merchant_country_code must be a 2-letter ISO code.");
+      }
+      patch.merchant_country_code = cc || null;
+    } else if (body.merchant_country_code === null) {
+      patch.merchant_country_code = null;
+    }
+    if (typeof body.merchant_vat_id === "string") {
+      const v = body.merchant_vat_id.trim().slice(0, 32);
+      patch.merchant_vat_id = v || null;
+    } else if (body.merchant_vat_id === null) {
+      patch.merchant_vat_id = null;
+    }
+    if (Object.keys(patch).length === 0) {
+      return errorResponseHelper(res, 400, "No settings provided to update.");
+    }
+    await userModel.update(patch, { where: { user_id: Number(userData.user_id) } });
+    const user: any = await userModel.findByPk(Number(userData.user_id), {
+      attributes: [
+        "default_apply_tax",
+        "default_tax_inclusive",
+        "merchant_country_code",
+        "merchant_vat_id",
+      ],
+    });
+    return successResponseHelper(res, 200, "Tax settings updated.", {
+      default_apply_tax: !!user.dataValues.default_apply_tax,
+      default_tax_inclusive: !!user.dataValues.default_tax_inclusive,
+      merchant_country_code: user.dataValues.merchant_country_code || null,
+      merchant_vat_id: user.dataValues.merchant_vat_id || null,
+    });
+  } catch (e) {
+    userLogger.error(getErrorMessage(e), { user_id: userData?.user_id }, new Error(e as any));
+    return errorResponseHelper(res, 500, getErrorMessage(e));
+  }
+};
+
 
 
 export default {
@@ -4372,4 +4469,6 @@ export default {
   getCreatorStats,
   getUserDisplayCurrency,
   updateUserDisplayCurrency,
+  getMerchantTaxSettings,
+  updateMerchantTaxSettings,
 };

@@ -135,6 +135,33 @@ const userTransactionModel = sequelize.define(
       onUpdate: "CASCADE",
       onDelete: "SET NULL",
     },
+    // ── Tax fields (persisted at settlement for accounting + reporting) ──
+    tax_amount: {
+      type: DataTypes.DECIMAL(20, 8),
+      allowNull: true,
+      comment: "Tax collected in base currency (matches transaction currency)",
+    },
+    tax_rate: {
+      type: DataTypes.DECIMAL(5, 2),
+      allowNull: true,
+    },
+    tax_label: {
+      type: DataTypes.STRING(20),
+      allowNull: true,
+    },
+    tax_country_code: {
+      type: DataTypes.STRING(2),
+      allowNull: true,
+    },
+    customer_vat_id: {
+      type: DataTypes.STRING(32),
+      allowNull: true,
+    },
+    reverse_charge: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
   },
   {
     tableName: "tbl_user_transaction",

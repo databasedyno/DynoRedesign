@@ -280,6 +280,17 @@ function pickProductPayload(body: any) {
   }
   if (typeof body.service_calendar_url === "string") out.service_calendar_url = body.service_calendar_url.slice(0, 1024);
 
+  // ── Tax fields (session 57) ────────────────────────────────────
+  const VALID_TAX_CATEGORIES = new Set(["digital", "physical", "service", "exempt"]);
+  if (typeof body.tax_category === "string" && VALID_TAX_CATEGORIES.has(body.tax_category)) {
+    out.tax_category = body.tax_category;
+  }
+  if (body.apply_tax_override === true || body.apply_tax_override === false) {
+    out.apply_tax_override = body.apply_tax_override;
+  } else if (body.apply_tax_override === null) {
+    out.apply_tax_override = null;
+  }
+
   return out;
 }
 

@@ -173,6 +173,29 @@ const userModel = sequelize.define(
       defaultValue: "en",
       comment: "Merchant's preferred language for localized emails",
     },
+    // ── Tax settings (merchant defaults; per-link/per-product can override) ──
+    default_apply_tax: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+      comment: "Merchant-level default: automatically collect sales tax on new payment links + store checkout",
+    },
+    default_tax_inclusive: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+      comment: "Merchant-level default: prices INCLUDE tax (retail model). If false, tax is added on top (B2B model)",
+    },
+    merchant_country_code: {
+      type: DataTypes.STRING(2),
+      allowNull: true,
+      comment: "Merchant's ISO 3166-1 alpha-2 country code — used as VAT jurisdiction. Falls back to company.country if unset",
+    },
+    merchant_vat_id: {
+      type: DataTypes.STRING(32),
+      allowNull: true,
+      comment: "Merchant's own VAT / GST / tax registration number, shown on receipts",
+    },
     // ── Creator vanity page (dynopay.com/{handle}) ──
     handle: {
       type: DataTypes.STRING(50),

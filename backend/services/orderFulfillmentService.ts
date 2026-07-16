@@ -264,6 +264,55 @@ export async function handleCartPaymentSettled(
         : {}),
     });
 
+    // ── Session 57: reconcile tax fields onto the settlement transaction ──
+    // For cart orders, tax was computed at checkout-creation time based on
+    // shipping address / IP + merchant defaults; cryptoSettlement's
+    // `_cached_tax_info` path may not have fired (or picked a different
+    // country from the buyer's IP). Copy the AUTHORITATIVE order-row tax
+    // fields onto tbl_user_transaction so the merchant's dashboard shows
+    // the exact tax collected.
+    try {
+      if (Number(order.dataValues.tax_cents) > 0 || order.dataValues.reverse_charge) {
+        const linkId = order.dataValues.payment_link_id;
+        if (linkId) {
+          const { paymentLinkModel, userTransactionModel } = await import("../models");
+          const link: any = await paymentLinkModel.findByPk(linkId);
+          if (link && link.dataValues.transaction_reference) {
+            const currencyMultiplier =
+              String(order.dataValues.currency || "USD").toUpperCase() === "USD" ||
+              String(order.dataValues.currency || "").length === 3
+                ? 100
+                : 100; // cents-based currency (all our fiat)
+            const taxAmountBase =
+              Number(order.dataValues.tax_cents) / currencyMultiplier;
+            const updated = await userTransactionModel.update(
+              {
+                tax_amount: taxAmountBase,
+                tax_rate: order.dataValues.tax_rate ?? null,
+                tax_label: order.dataValues.tax_label || null,
+                tax_country_code: order.dataValues.tax_country_code || null,
+                customer_vat_id: order.dataValues.customer_vat_id || null,
+                reverse_charge: !!order.dataValues.reverse_charge,
+              },
+              {
+                where: {
+                  transaction_reference: link.dataValues.transaction_reference,
+                },
+              }
+            );
+            apiLogger.info(
+              `[fulfillment] tax reconciled for order ${orderId} → ${updated[0]} tx rows (tax=${taxAmountBase} ${order.dataValues.currency}, reverse_charge=${order.dataValues.reverse_charge})`
+            );
+          }
+        }
+      }
+    } catch (reconErr: any) {
+      // Non-fatal — fulfillment continues either way
+      apiLogger.warn(
+        `[fulfillment] tax reconciliation failed for order ${orderId}: ${reconErr?.message || reconErr}`
+      );
+    }
+
     // Fan out per-line-item fulfillment
     const items = await productOrderItemModel.findAll({
       where: { order_id: orderId },

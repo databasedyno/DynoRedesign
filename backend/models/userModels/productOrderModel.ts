@@ -68,6 +68,41 @@ const productOrderModel = sequelize.define(
       allowNull: false,
       defaultValue: 0,
     },
+    // Rate applied to compute tax_cents (percentage, e.g. 20.00 = 20%).
+    // Persisted so a merchant's later rate change doesn't retroactively
+    // rewrite historic order tax.
+    tax_rate: {
+      type: DataTypes.DECIMAL(5, 2),
+      allowNull: true,
+    },
+    tax_label: {
+      type: DataTypes.STRING(20),
+      allowNull: true,
+      comment: "VAT / GST / Sales Tax / etc — jurisdictional label shown to buyer",
+    },
+    tax_country_code: {
+      type: DataTypes.STRING(2),
+      allowNull: true,
+      comment: "ISO 3166-1 alpha-2 country whose rate was applied",
+    },
+    // Buyer-supplied VAT number (B2B EU reverse-charge). Persisted so the
+    // merchant can prove the reverse-charge basis on their VAT return.
+    customer_vat_id: {
+      type: DataTypes.STRING(32),
+      allowNull: true,
+    },
+    reverse_charge: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+      comment: "True if EU B2B reverse-charge applied (buyer supplied valid cross-border VAT ID) — no tax collected",
+    },
+    // Snapshot of the link's tax_inclusive flag at checkout time
+    tax_inclusive: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
     total_cents: {
       type: DataTypes.BIGINT,
       allowNull: false,

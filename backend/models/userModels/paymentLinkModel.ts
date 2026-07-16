@@ -115,6 +115,13 @@ const paymentLinkModel = sequelize.define(
       defaultValue: false,
       allowNull: false,
     },
+    // Whether the displayed price INCLUDES tax (retail model, common in EU/UK)
+    // or tax is added on TOP of it (B2B model, common in US)
+    tax_inclusive: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: false,
+    },
     // Accepted cryptocurrencies for this payment link
     // If null/empty, all configured wallets are available
     // Format: comma-separated string e.g., "BTC,ETH,USDT-TRC20"

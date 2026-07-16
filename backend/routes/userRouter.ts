@@ -88,6 +88,10 @@ userRouter.get("/creator/stats", authMiddleware, userController.getCreatorStats)
 userRouter.get("/display-currency", authMiddleware, userController.getUserDisplayCurrency);
 userRouter.patch("/display-currency", authMiddleware, userController.updateUserDisplayCurrency);
 
+// Merchant tax settings (Session 57)
+userRouter.get("/tax-settings", authMiddleware, userController.getMerchantTaxSettings);
+userRouter.patch("/tax-settings", authMiddleware, userController.updateMerchantTaxSettings);
+
 // Login activity (requires auth)
 userRouter.get("/login-activity", authMiddleware, userController.getLoginActivity);
 
