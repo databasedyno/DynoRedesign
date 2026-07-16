@@ -10,6 +10,7 @@ const WARNING_AT_MS = IDLE_TIMEOUT_MS - WARNING_BEFORE_MS; // 13 minutes
 const COUNTDOWN_TICK_MS = 1000;
 const ACTIVITY_PERSIST_THROTTLE_MS = 5000;     // write localStorage at most every 5s
 const LAST_ACTIVITY_KEY = "last_activity_ts";
+const PERSIST_KEY = "auth_persistent"; // must match helpers/authPersistence.ts
 
 // Events that count as "user activity"
 const ACTIVITY_EVENTS: (keyof WindowEventMap)[] = [
@@ -201,7 +202,29 @@ const IdleTimeoutManager: React.FC = () => {
   useEffect(() => {
     const pathname = router.pathname;
     const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-    const shouldBeActive = !!token && !isPublicPath(pathname);
+    // Session 56 fix: honour the "Keep me signed in for 7 days" preference.
+    // The backend issues a 7-day JWT (see sessionService.ts) and the login
+    // form's Remember-me checkbox defaults to CHECKED. When the user opts
+    // for a persistent session, forcing a hard sign-out after 15 min of
+    // idle activity contradicts the promise on the login screen — users
+    // report they "get signed out after leaving the tab open overnight"
+    // even though they asked to stay signed in for a week.
+    //
+    // Behaviour:
+    //   * remember-me ON  (auth_persistent === "1" or missing): idle
+    //     timeout is DISABLED. Session lives for the full 7-day JWT window.
+    //     `enforceSessionPersistence()` (helpers/authPersistence.ts) still
+    //     clears the token if the actual JWT expires, and the 401 flow in
+    //     axiosConfig.ts handles genuine backend revocation.
+    //   * remember-me OFF (auth_persistent === "0"): idle timeout stays
+    //     ON as before — matches the "session-only" contract.
+    let rememberMe = true;
+    try {
+      rememberMe = localStorage.getItem(PERSIST_KEY) !== "0";
+    } catch {
+      /* private mode — assume remember-me on */
+    }
+    const shouldBeActive = !!token && !isPublicPath(pathname) && !rememberMe;
     isActiveRef.current = shouldBeActive;
 
     if (!shouldBeActive) {

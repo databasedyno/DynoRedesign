@@ -1,4 +1,73 @@
-## Session 56: AudienceDoors → `/for/{audience}` deep-link + WCAG contrast sweep (2026-07-15)
+## Session 56b: Real root-cause for tx deep-link + 7-day persistence bug (2026-07-15)
+
+### What the user reported
+1. Item #4 from the earlier list ("clicking a recent transaction from dashboard opens the details modal") is **still broken** on production.
+2. 7-day login persistence promised by Session 55 **doesn't hold** — users get signed out well before 7 days.
+3. Provided DO API token to inspect production logs.
+
+### DO log inspection (app `f86b27dc-feb0-4a44-a4e9-ebd2053e0468`, deploy `ffb352c3` on `New-Onboarding2 @ ffb7218`)
+- Production login POST /api/user/login returns `expiresIn=604800`, JWT `exp-iat = 604800s = 7.00 days` ✅ (backend is honouring the 7-day contract; **the frontend was killing the session first**).
+- Observed request chain at 2026-07-16 00:19:53 → 00:20:08 UTC:
+  1. `POST /api/user/login` 200 (from `/auth/login`)
+  2. `GET /api/dashboard/recent-transactions?company_id=1` 200 (from `/dashboard`)
+  3. User clicks a recent tx → URL becomes `/transactions?tx=9b8965a8-248d-4e5b-b065-5c5d29330dde`
+  4. `POST /api/wallet/getAllTransactions` 200
+  5. User remains on `.../transactions?tx=<UUID>` for 4+ min — the details modal **never opens** (row-referer never changes; only unrelated notifications polling continues).
+- Zero 401s in the whole 6-hour window → the backend is NOT the one signing anyone out.
+
+### Root cause #1 — item #4 (deep-linked details modal never opens)
+`tbl_user_transaction` schema is **REVERSED from convention** (verified in `backend/models/userModels/userTransactionModel.ts`):
+- `transaction_id` = **INTEGER autoIncrement PK**
+- `id`             = **STRING (UUID)** — e.g. `9b8965a8-248d-4e5b-b065-5c5d29330dde`
+
+Consequences:
+- `Components/Page/Transactions/index.tsx:241` maps every row's public `id` field to `String(item.transaction_id || item.id)` — i.e. the numeric PK — before feeding it to `TransactionsTable`.
+- `TransactionsTable.tsx:219` matches `String(tx.id) === txId` — but `tx.id` there is the NUMERIC PK, not the UUID.
+- `Components/Page/Dashboard/RecentTransactionsWidget.tsx:288` (before this session) built the deep-link from `tx.id` — which for that widget's payload is the RAW backend `id` field → the UUID.
+- Result: numeric ≠ UUID → `find` returns undefined → modal never opens → user is stuck on the list, exactly as reported.
+
+Session 54's fix (add `?tx=` deep-link + `useEffect` matcher) was implemented but the two sides were reading DIFFERENT id spaces.
+
+Fix (this session):
+- `RecentTransactionsWidget.tsx`
+  - `RecentTx` interface: added explicit `transaction_id?: string | number` and a paragraph documenting the reversed schema.
+  - Row `onClick`: `const routeId = (tx as any).transaction_id ?? tx.id;` then `?tx=${routeId}` — so the widget now emits the SAME numeric PK the transactions list matches against. The backend already selects `ut.transaction_id` alongside `ut.id` in `/api/dashboard/recent-transactions` (dashboardController.ts:686-687), so no backend change needed.
+
+### Root cause #2 — 7-day login persistence not honoured
+`Components/UI/IdleTimeoutManager/index.tsx` unconditionally force-signs-out after **15 minutes of inactivity** — regardless of the 7-day JWT.
+- Line 7: `const IDLE_TIMEOUT_MS = 15 * 60 * 1000;`
+- Line 164: on any authenticated page mount, if `Date.now() - lastActivityRef.current >= IDLE_TIMEOUT_MS`, calls `forceSignOut()` (line 119-131) which `localStorage.removeItem("token"/"refreshToken")` and `window.location.href = "/auth/login"`.
+- Seed value comes from a persisted `last_activity_ts` in localStorage — so even reopening the tab the next morning triggers immediate sign-out.
+
+This completely defeats the Session 55 "Keep me signed in for 7 days" checkbox (which defaults to CHECKED — so the promise is universal).
+
+Fix (this session):
+- `IdleTimeoutManager/index.tsx` now reads `localStorage.getItem("auth_persistent")` (the flag written by `helpers/authPersistence.ts` when the user opted into a persistent session, default = "1"). When `auth_persistent !== "0"` the idle timer is **disabled** — `isActiveRef.current = false`, `clearTimers()`, no event listeners attached. The genuine 7-day JWT expiry + backend revocation flow in `axiosConfig.ts` still enforce a real session end.
+- Session-only users (unchecked Remember-me → `auth_persistent="0"`) keep the 15-min idle logout as before — matches the "session-only" contract literally.
+
+### Files touched
+- `Components/Page/Dashboard/RecentTransactionsWidget.tsx` (RecentTx interface docs + `transaction_id` in onClick)
+- `Components/UI/IdleTimeoutManager/index.tsx` (respect `auth_persistent` flag; disable idle logout for persistent sessions)
+
+### Verification plan (frontend — needs your OK before running auto agent)
+1. **Deep-link tx modal**:
+   - Log in as hostbay@moxx.co / Katiekendra123@ (fill E-mail → Continue → **click "Password" radio** → password field appears → fill → Log in).
+   - On `/dashboard`, wait for the "Recent transactions" widget to render.
+   - Read the `href` computed for each row's click handler (or spy `router.push`): must now include a NUMERIC id like `?tx=12345`, NOT a UUID.
+   - Click any recent tx → URL becomes `/transactions?tx=<numeric>` AND the details modal opens (matches an item in the list, no more silent no-match).
+   - Close modal → URL param stripped, list stays visible.
+2. **7-day session**:
+   - Fresh login with Remember-me CHECKED (default) → localStorage.auth_persistent must be `"1"`.
+   - Wait ≥16 minutes without touching the page (or set `localStorage.setItem('last_activity_ts', String(Date.now() - 16*60*1000))` and reload). Confirm the idle-timeout warning modal does NOT appear and the token is NOT removed. The user should still be authenticated.
+   - Uncheck Remember-me and log in → `auth_persistent="0"` → the same 16-min test should trigger the idle warning modal / auto sign-out as before (proves the strict path still works).
+
+### Other 6 items from the earlier list — code review confirms they ARE in the deployed source
+- Items #3, #5, #6, #7, #8 (session 54 A-F) verified in the current codebase. DO logs show no 401s and no server-side failures for those flows.
+- Session 56 items #1 (AudienceDoors deep-linking) + #2 (WCAG contrast sweep) also live in the source tree — production still runs the old build until Save-to-GitHub.
+
+---
+
+
 
 ### Preview URL
 https://13a6e6fa-9a3d-4599-8acd-da12e0a983cd.preview.emergentagent.com

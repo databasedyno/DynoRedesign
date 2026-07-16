@@ -19,7 +19,17 @@ import CustomButton from "@/Components/UI/Buttons";
  */
 
 interface RecentTx {
+  /**
+   * ⚠️ tbl_user_transaction schema is REVERSED from convention:
+   *   * `id`             → STRING UUID (e.g. `9b8965a8-…`)
+   *   * `transaction_id` → INTEGER autoIncrement PK
+   * The transactions LIST page (`/transactions`) maps every row's `id`
+   * to `transaction_id` (numeric PK) in `processedTransactions`, so the
+   * dashboard deep-link MUST use `transaction_id` too — otherwise the
+   * `?tx=<numeric>` cannot match anything and the details modal never opens.
+   */
   id?: string | number;
+  transaction_id?: string | number;
   status?: string;
   base_amount?: number | string;
   amount?: number | string;
@@ -279,13 +289,20 @@ const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
                       backgroundColor: theme.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "#FAFBFD",
                     },
                   }}
-                  onClick={() =>
+                  onClick={() => {
+                    // Deep-link id-space MUST match what /transactions
+                    // uses. `processedTransactions` maps each row's
+                    // `id` field to `transaction_id` (numeric PK),
+                    // so we must pass the same numeric PK here — the
+                    // UUID-shaped `tx.id` from tbl_user_transaction will
+                    // NEVER match on the list side. See RecentTx doc.
+                    const routeId = (tx as any).transaction_id ?? tx.id;
                     router.push(
-                      tx.id
-                        ? `/transactions?tx=${encodeURIComponent(String(tx.id))}`
+                      routeId
+                        ? `/transactions?tx=${encodeURIComponent(String(routeId))}`
                         : "/transactions"
-                    )
-                  }
+                    );
+                  }}
                 >
                   <Box
                     sx={{
