@@ -10,7 +10,7 @@ import redis
 import sys
 import time
 
-BASE_URL = "https://payment-gateway-dev-8.preview.emergentagent.com/api"
+BASE_URL = "https://multi-chain-pay-5.preview.emergentagent.com/api"
 REDIS_URL = "redis://default:HAEMJseUAdqAjpiICURxlefSoSYXKEUg@nozomi.proxy.rlwy.net:15794"
 
 HEADERS = {

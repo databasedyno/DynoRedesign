@@ -7,7 +7,7 @@ import requests
 import json
 import time
 
-BACKEND_URL = "https://payment-gateway-dev-8.preview.emergentagent.com"
+BACKEND_URL = "https://multi-chain-pay-5.preview.emergentagent.com"
 API_BASE = f"{BACKEND_URL}/api"
 
 TEST_USER = {

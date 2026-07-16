@@ -10,7 +10,7 @@ import json
 import time
 
 # Configuration
-BASE_URL = "https://payment-gateway-dev-8.preview.emergentagent.com"
+BASE_URL = "https://multi-chain-pay-5.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 # Test credentials
