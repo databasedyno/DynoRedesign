@@ -1,4 +1,16 @@
 # CURRENT SESSION (fresh boot — session 61, 2026-07-16)
+## Follow-up UI work (session 61 cont.) — brand cleanup, confetti, hero pills
+- **Mobile app-header logo** (`Components/Layout/NewHeader/index.tsx`): replaced stale 88×96 indigo PNG (`dynopay-mobile-logo.png`, rendered 22×24) with theme-aware monochrome "Dynopay" wordmark (dynopay-blackLogo.svg / dynopay-whiteLogo.svg, ~26px). Bottom nav (`MobileNavigationBar/styled.tsx`): removed blue `hue-rotate(240deg)` active-icon filter → mono ink/white. VERIFIED 4/4 mobile+tablet light+dark.
+- **Checkout brand audit**: crypto checkout = `CleanCheckoutV2` (flag NEXT_PUBLIC_CLEAN_CHECKOUT_V2=true), already 100% black+lime (LIME=#CCFF00 INK=#0A0A0B, mono Logo, lime success circle). Donation + creator pages use `homeTheme` (primary black+lime). ONLY blue in checkout was BANK TRANSFER (`bankTransferCompo.tsx` #5865F2/#2D3282) — EXCLUDED per user ("only crypto flow"). homeTheme.secondary.main is #5865F2 blurple but not used on crypto buyer path. NO recolor needed for crypto flow.
+- **Payment confetti** (`CleanCheckoutV2.tsx` ~line 246): ref-guarded useEffect fires canvas-confetti@1.9.4 (already installed) once when phase==='confirmed' (covers crypto payments AND donation contributions). On-brand palette [#CCFF00,#B4E600,#EAFFA3,#FFF,#0A0A0B], multi-burst, prefers-reduced-motion skip, lazy import (no SSR). /pay & /pay/demo compile 200.
+- **Landing hero CTAs** (`Components/Page/Home/HeroSwiss.tsx`): both hero CTAs now big rounded PILLS (borderRadius 999px) — primary = lime solid pill w/ arrow + shadow lift; secondary = outlined bordered pill (was plain text). VERIFIED 11/12 (only miss = test-env router navigation quirk, code correct).
+- Homepage is a mature 16-section SEO landing (HeroSwiss, AudienceDoors, ...FAQ, FinalCTA) — did NOT rebuild (destructive); did focused hero CTA polish per user intent.
+- NO backend changes. All frontend hot-reloaded.
+
+---
+
+# PRIOR SESSION 61 (env provisioning — see below)
+(fresh boot — session 61, 2026-07-16)
 - **Preview URL**: https://73cbde13-08c3-4022-8479-1cc4237f3d10.preview.emergentagent.com (also reachable via https://crypto-gateway-25.preview.emergentagent.com — both 200, both route to this pod)
 - **Frontend**: :3000 (next dev via /app/frontend `yarn start` bridge → `cd /app`), **Backend**: :8001 uvicorn proxy → :3300 (ts-node --transpile-only server.ts). Health: OK
 - **Merchant test account** (LIVE Railway PG): **hostbay@moxx.co / Katiekendra123@** (user_id=1, name=hostbay, creator handle "hostbay")
