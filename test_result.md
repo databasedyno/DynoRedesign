@@ -1,3 +1,17 @@
+## Session 59 (cont.) — bug c (order-receipt hydration) fixed + bug d (search) not-a-bug (2026-07-16)
+
+### (c) FIXED — React hydration mismatch on /order/[publicRef]
+- ROOT CAUSE: line 213 rendered `new Date(expiresAt).toLocaleString()` with no locale/timeZone. Page is SSR (getServerSideProps), so server (Node/UTC ICU) and client (browser locale/TZ) produced different strings → hydration mismatch (server "2026-07-17 1:09:50 PM" vs client "7/17/2026, 1:09:50 PM").
+- FIX (pages/order/[publicRef].tsx): added a `mounted` gate (useState+useEffect) + `formatExpiry()` — SSR/first client paint renders a deterministic UTC string ("… UTC"), then post-hydration swaps to the visitor's local `toLocaleString()`. Added `suppressHydrationWarning` on the Typography as belt-and-suspenders. Lint clean. (Cannot re-demo live because the test order data was deleted in Task 1; fix applies to all real orders.)
+
+### (d) NOT A BUG — Transactions search input
+- Frontend testing agent (logged in as hostbay, real browser) confirmed the search input is VISIBLE + EDITABLE at desktop (bbox w=369px) and mobile (w=318px); typing + Enter filters. pointer-events auto, nothing overlaps. The prior "not visible/editable" report was a false positive (that session self-reported 15-min idle-logout issues). No code change made.
+- Also re-verified live: source chips work — Payment links → 3 rows, Direct/All work. Confirms the Session-59 backend source fix end-to-end.
+- Minor non-blocking warnings noted for later (NOT fixed, not requested): React DOM-nesting `<p>` inside `<p>` in TransactionsTable.tsx; a Next/Image aspect-ratio warning.
+
+---
+
+
 ## Session 59 — Transactions payment-link filter fix + hostbay test-data cleanup (2026-07-16)
 
 ### Preview URL
