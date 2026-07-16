@@ -1,3 +1,99 @@
+## Session 58 (cont.) — Tax UI + Digital-Delivery visual verification seed (2026-07-16)
+
+Backend testing for the digital-delivery fix already returned 9/9 PASS (see the block below). Because the tax UI on the Merchant surfaces (B.4) + Buyer surfaces (Phase C) render CONDITIONALLY (`tax > 0 || reverse_charge`), and the hostbay live-DB account has zero tax-bearing rows, we seeded synthetic data so the frontend agent can visually confirm each conditional element renders.
+
+### Preview URL
+https://ad29c7c9-05d0-4880-b991-b0a778c02b77.preview.emergentagent.com
+
+### Test account (LIVE Railway PG)
+- Merchant: **hostbay@moxx.co / Katiekendra123@** (user_id=1, company_id=1). Login = enter email → Continue → **click "Password" radio** → password field appears → fill → Log in.
+
+### Seed data currently in DB (temporary — will be cleaned up post-test)
+Two seed scripts have been run:
+
+**1) `/app/backend/scripts/seed_test_file_order.js seed`** (Session 58 digital-delivery fix)
+- One paid file-type order: `public_ref='testfiledlved50f52c77bdd0ad'`, order_id=8, order_item_id=8. Contains 2 asset_deliveries with 24 h expiry: `sample-ebook-chapter-1.pdf`, `bonus-worksheet.pdf`. Total $19.99 USD. `merchant_user_id=1` (hostbay), `buyer_email='testing-agent@dynopay.test'`, `product_id=999` (synthetic, does NOT exist in `tbl_product`).
+- Receipt page: `/order/testfiledlved50f52c77bdd0ad`
+
+**2) `/app/backend/scripts/seed_test_tax_data.js seed`** (Session 58 tax UI verification)
+- Order A — DE B2C 19% VAT: `public_ref='testtaxA2f6cf12ecfba'`, order_id=6. `subtotal_cents=10000`, `tax_cents=1900`, `total_cents=11900`, `tax_rate=19`, `tax_label='VAT'`, `tax_country_code='DE'`, `reverse_charge=false`, `currency='EUR'`. product_snapshot uses `digital_delivery_type='url'` with `access_url='https://example.com/de-b2c-test-access'`.
+- Order B — EU B2B Reverse-Charge: `public_ref='testtaxB5d6ebdbd63d5'`, order_id=7. `subtotal_cents=20000`, `tax_cents=0`, `total_cents=20000`, `customer_vat_id='DE123456789'`, `reverse_charge=true`, `currency='EUR'`.
+- Two `tbl_user_transaction` rows (company_id=1, user_id=1, status='successful') that will surface on hostbay's Dashboard + Transactions list:
+  - Tx A: `tax_amount=19.00`, `tax_rate=19`, `tax_label='VAT'`, `tax_country_code='DE'`, `reverse_charge=false`, base_amount=119 EUR, tx.id begins `testtax-`, ref begins `TESTTAX-A`. createdAt = yesterday.
+  - Tx B: `tax_amount=0`, `reverse_charge=true`, `customer_vat_id='DE123456789'`, base_amount=200 EUR, tx.id begins `testtax-`, ref begins `TESTTAX-B`. createdAt = 2 days ago.
+- Temporarily set on `tbl_user WHERE user_id=1` (hostbay): `merchant_vat_id='DE999888777'`, `merchant_country_code='DE'`, `default_apply_tax=true`. Original values backed up at `/tmp/tax_seed_backup.json` and restored on cleanup.
+- Dashboard Redis cache (`dashboard:1:*`) was empty before seeding — new tax data should appear immediately on next dashboard fetch.
+
+### What to verify — auto_frontend_testing_agent (FRONTEND ONLY; DO NOT test backend)
+
+Preview URL: `https://ad29c7c9-05d0-4880-b991-b0a778c02b77.preview.emergentagent.com`
+
+Some pages need login (Transactions, Dashboard, Tx-details modal); the two order receipt pages + digital-delivery receipt do NOT (public URLs).
+
+**Part 1 — Digital-delivery fix (Session 58, PUBLIC url)**
+1. Navigate to `/order/testfiledlved50f52c77bdd0ad`. Wait for content.
+2. Assert `data-testid="order-page"` present. Assert `data-testid="order-status-chip"` text contains "PAID".
+3. Assert `data-testid="order-paid-notice"` visible with text "Payment received!"
+4. Assert **TWO** download buttons: `data-testid="order-item-download-8-0"` (labelled "Download sample-ebook-chapter-1.pdf") and `order-item-download-8-1` (labelled "Download bonus-worksheet.pdf").
+5. Assert `data-testid="order-item-expires-8"` present with text starting "Links expire".
+6. Assert `data-testid="order-resend-links-btn"` visible (labelled "Resend download links"). Do NOT click (it will consume rate-limit; backend testing already exercised this).
+7. Screenshot for the report (`/tmp/digital_delivery_receipt.png`, 1440×900).
+
+**Part 2 — DE B2C VAT receipt (Session 57 Phase C, PUBLIC url)**
+1. Navigate to `/order/testtaxA2f6cf12ecfba`.
+2. Assert `data-testid="order-status-chip"` shows "PAID".
+3. Assert `data-testid="order-subtotal"` renders (something like "€100.00").
+4. Assert `data-testid="order-tax"` renders VAT amount (visible text like "€19.00"). The label near it should contain "VAT" AND "19" (percent).
+5. Assert `data-testid="order-total"` renders total "€119.00".
+6. Assert "Merchant VAT ID:" text is present AND "DE999888777" appears (bolded).
+7. Assert `data-testid="order-reverse-charge-notice"` is NOT present (this is the B2C flow, not reverse-charge).
+8. Screenshot `/tmp/receipt_de_b2c.png`.
+
+**Part 3 — EU B2B Reverse-Charge receipt (Session 57 Phase C, PUBLIC url)**
+1. Navigate to `/order/testtaxB5d6ebdbd63d5`.
+2. Assert `data-testid="order-status-chip"` shows "PAID".
+3. Assert `data-testid="order-tax"` present, tax amount = "€0.00", label contains "VAT" AND "Reverse-charge".
+4. Assert `data-testid="order-reverse-charge-notice"` visible, text contains "reverse-charged" and "EU B2B".
+5. Assert "Customer VAT ID:" present AND "DE123456789" appears.
+6. Assert "Merchant VAT ID:" present AND "DE999888777" appears.
+7. Assert `data-testid="order-total"` renders "€200.00".
+8. Screenshot `/tmp/receipt_reverse_charge.png`.
+
+**Part 4 — Dashboard "Tax collected" chip (Session 57 B.4, LOGIN required)**
+Login (multi-step): navigate to `/auth/login` → fill `input[type=email]`=`hostbay@moxx.co` → click `button:has-text('Continue')` → click `[data-testid='login-method-password']` → fill `input[type=password]`=`Katiekendra123@` → click `button:has-text('Continue')` → wait for URL to become `/dashboard`.
+1. On `/dashboard`, wait for `[data-testid="dashboard-tax-collected"]` to appear (it renders only when `stats.taxCollected > 0`).
+2. Assert the chip text mentions "Tax collected (all-time)" and a formatted amount that includes "19" (EUR 19.00 from seed tx A).
+3. Screenshot `/tmp/dashboard_tax_chip.png`.
+
+**Part 5 — Transactions list VAT/Tax column + Tax-collected running total (Session 57 B.4, LOGIN required)**
+1. Navigate to `/transactions`. Wait for at least one row to render.
+2. Assert the desktop table header includes a column labelled "VAT / Tax" (or the mobile card view shows "incl. VAT" rows — depends on viewport). Use viewport 1440×900 to force desktop layout.
+3. Find the row for the DE B2C tax tx: the reference begins with `TESTTAX-A` (backend joins transactions to source metadata — the row's ID/reference is visible). Its VAT/Tax cell should render "incl. VAT 19.00 (19%)" (or similar containing "19.00" AND "19%").
+4. Find the row for the Reverse-Charge tx: reference begins `TESTTAX-B`. Its VAT/Tax cell should render "Reverse-charged" (or "reverse-charge") — not a numeric amount.
+5. Assert a "Tax collected" running-total strip is visible above the table (`Tax collected` label + amount).
+6. Screenshot `/tmp/transactions_vat_column.png`.
+
+**Part 6 — Transaction details modal tax row (Session 57 B.4, LOGIN required)**
+1. Still on `/transactions`, click the row for the DE B2C tax tx (`TESTTAX-A...`). Modal should open.
+2. Assert the modal renders a Tax row with label "VAT (19%)" and amount "19.00" (or similar containing "19" for both %-sign context and amount).
+3. Close the modal (Esc or close btn). Click the Reverse-Charge tx row (`TESTTAX-B...`). Modal opens.
+4. Assert the modal renders a Tax row labelled "Reverse-charge" (0% or reverse-charge notice, no numeric amount).
+5. Assert the modal shows a "Customer VAT ID" row with value "DE123456789".
+6. Screenshot `/tmp/tx_modal_tax.png` + `/tmp/tx_modal_reverse_charge.png`.
+
+**Constraints:**
+- LIVE prod DB. Only touch hostbay's own data. Do NOT create/delete records or navigate away from the specified checks.
+- Report pass/fail per numbered item with observed evidence (DOM asserts + screenshots).
+- Do NOT click "Resend download links" — backend already verified.
+- Login flow must EXACTLY match: email → Continue → click "Password" radio → password → Continue.
+
+### Cleanup after test — main agent will run:
+- `node /app/backend/scripts/seed_test_file_order.js cleanup`
+- `node /app/backend/scripts/seed_test_tax_data.js cleanup` (also restores hostbay's merchant_vat_id/country_code from `/tmp/tax_seed_backup.json`)
+
+---
+
+
 ## Session 58 — Digital Delivery Fix (2026-07-16)
 
 ### Bug reported by user
