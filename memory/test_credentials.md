@@ -10,6 +10,13 @@
 
 ---
 
+## Follow-up UI work #3 (session 61 cont.) — checkout sticky bar + share card
+- **Checkout sticky pay bar** (`CleanCheckoutV2.tsx`): mobile-only fixed bottom bar via createPortal→document.body. Shows "SEND EXACTLY {amount} {COIN}" (from cryptoInfo.expected_amount) + lime "Copy address" pill (reuses doCopy(address,'addr') + copiedFlag → "Copied!"). Gated `portalReady && cryptoInfo && phase!=='confirmed'`; 92px mobile spacer before footer prevents overlap; hidden md+. Added `portalReady` state (distinct from existing mountedRef). VISUALLY VERIFIED 12/12 PASS (created $10 payment link, selected BTC, address screen reached).
+- **Share card** (`CleanCheckoutV2.tsx` success/confirmed screen): "Share this fundraiser"/"Share DynoPay" lime pill → handleShare uses navigator.share (Web Share API) with clipboard fallback (copyToClipboard). Message: contribution → "I just supported {campaignTitle||merchantName} … join me and chip in!"; payment → "I just paid {merchantName} with crypto". CODE-VERIFIED only (confirmed phase needs a real on-chain payment to visually trigger).
+- Added `import { createPortal } from 'react-dom'` to CleanCheckoutV2. Pre-existing 3 unused-eslint-disable warnings remain (untouched). /pay 200, lint clean (aside from pre-existing).
+
+---
+
 # CURRENT SESSION (fresh boot — session 61, 2026-07-16)
 ## Follow-up UI work (session 61 cont.) — brand cleanup, confetti, hero pills
 - **Mobile app-header logo** (`Components/Layout/NewHeader/index.tsx`): replaced stale 88×96 indigo PNG (`dynopay-mobile-logo.png`, rendered 22×24) with theme-aware monochrome "Dynopay" wordmark (dynopay-blackLogo.svg / dynopay-whiteLogo.svg, ~26px). Bottom nav (`MobileNavigationBar/styled.tsx`): removed blue `hue-rotate(240deg)` active-icon filter → mono ink/white. VERIFIED 4/4 mobile+tablet light+dark.
