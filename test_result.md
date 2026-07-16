@@ -1,3 +1,18 @@
+## Session 59 (cont.) — dynopay.me pointed to the live app (DO App Platform) (2026-07-16)
+
+### What I did (via DigitalOcean API, token provided by user)
+- Discovered the app is on DO App Platform: app "dynopay" id f86b27dc-feb0-4a44-a4e9-ebd2053e0468, default_ingress dynopay-bcibf.ondigitalocean.app, live_domain dynopay.com, domains=[dynopay.com PRIMARY, checkout.dynopay.com ALIAS]. (checkout.dynopay.com CNAME → the app confirmed this.)
+- Added `dynopay.me` as an ALIAS domain to that app spec (PUT /v2/apps/{id}, exact spec + one appended domain; in_progress_deployment=None → domain-only change, no rebuild, zero-downtime). dynopay.com/checkout stayed ACTIVE.
+- DO auto-created apex A/AAAA records in the dynopay.me zone (162.159.140.98, 172.66.0.96, IPv6) — same App Platform edge as dynopay.com. NS delegation to DO propagated; Let's Encrypt cert issued.
+- VERIFIED: https://dynopay.me/hostbay → HTTP 200, valid cert (ssl_verify=0), renders creator page (<title>hostbay (@hostbay) · Dynopay</title>). https://dynopay.me/ → 200.
+
+### IMPORTANT — remaining step is a PRODUCTION DEPLOY (not done by me)
+- The live page canonical/share still shows dynopay.com/hostbay because the PRODUCTION DO app runs the OLD code. All the "use dynopay.me" code changes (helper + locales + components) are in THIS workspace only.
+- To show branded dynopay.me URLs on the live site: (1) user deploys workspace code to prod (Save to GitHub → DO auto-deploy), and (2) set env `NEXT_PUBLIC_CREATOR_BASE_URL=https://dynopay.me` in the DO app spec BEFORE the build (NEXT_PUBLIC_ vars are inlined at build time). I can set that env via API at deploy time (it triggers a prod rebuild, so do it together with the code deploy).
+
+---
+
+
 ## Session 59 (cont.) — dynopay.me added to DigitalOcean + all creator copy switched to dynopay.me (2026-07-16)
 
 ### DigitalOcean
