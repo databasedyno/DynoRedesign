@@ -1,6 +1,5 @@
 import Logo from "@/assets/Icons/home/dynopay-blackLogo.svg";
 import LogoDark from "@/assets/Icons/home/dynopay-whiteLogo.svg";
-import MobileLogo from "@/assets/Images/auth/dynopay-mobile-logo.png";
 import CompanySelector from "@/Components/UI/CompanySelector";
 import LanguageSwitcher from "@/Components/UI/LanguageSwitcher";
 import ThemeToggle from "@/Components/UI/ThemeToggle";
@@ -97,18 +96,26 @@ const NewHeader = () => {
         </LogoContainer>
 
         <Box
+          onClick={() => router.push("/dashboard")}
           sx={{
             display: { xs: "flex", lg: "none" },
-            justifyContent: "center",
+            alignItems: "center",
+            cursor: "pointer",
+            pl: 0.5,
           }}
         >
+          {/* Mobile/tablet app-header brand: theme-aware monochrome Dynopay
+              wordmark (black in light, white in dark). Replaces the old tiny
+              88×96 indigo PNG that rendered at 22×24 and clashed with the
+              black + lime brand. */}
           <Image
-            onClick={() => router.push("/dashboard")}
-            src={MobileLogo}
-            alt="logo"
-            width={22}
-            height={24}
+            src={muiTheme.palette.mode === "dark" ? LogoDark : Logo}
+            alt="Dynopay"
+            width={114}
+            height={39}
             draggable={false}
+            priority
+            style={{ width: "auto", height: "26px" }}
           />
         </Box>
       </Box>

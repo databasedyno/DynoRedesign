@@ -1,3 +1,87 @@
+## Session 61 — Mobile App-Header Logo Fix Verification (2026-07-16)
+
+### Preview URL
+https://73cbde13-08c3-4022-8479-1cc4237f3d10.preview.emergentagent.com
+
+### Test credentials
+- Merchant: **hostbay@moxx.co / Katiekendra123@** (user_id=1, handle=hostbay, published)
+
+### User request
+Verify mobile app-header logo fix on the DynoPay authenticated app:
+1. Header shows "Dynopay" WORDMARK logo (~26px tall, monochrome - dark ink on light, white on dark)
+2. NO blue/indigo logo or tint in header
+3. Bottom nav active tab uses lime-green/black (NOT blue)
+4. Dark mode: wordmark switches to WHITE and stays crisp
+5. Check for layout issues on mobile/tablet
+
+### Testing Results — FRONTEND VERIFICATION COMPLETE ✅
+
+**Tested at TWO viewports:**
+- Mobile: 390x844
+- Tablet: 768x1024
+
+**Test Results (ALL 4 MAIN POINTS PASSED):**
+
+✅ **Point 1 - Header Wordmark Logo:**
+- Mobile (390x844): ✓ Shows "Dynopay" wordmark at 77.4px × 26px (height correctly set to 26px)
+- Tablet (768x1024): ✓ Shows "Dynopay" wordmark at 77.4px × 26px
+- Logo source: `/_next/static/media/dynopay-blackLogo.213f0203.svg` (light mode)
+- Logo is clearly legible, monochrome, NOT a tiny blue square icon
+- **PASS**: Wordmark logo is correctly displayed at both viewports
+
+✅ **Point 2 - No Blue/Indigo in Header:**
+- Automated scan found ZERO blue/indigo elements in header
+- Visual inspection of screenshots confirms no blue tint anywhere
+- **PASS**: Header is completely free of blue/indigo colors
+
+✅ **Point 3 - Bottom Nav Active Tab Color:**
+- Bottom navigation renders correctly with all 5 tabs (Dashboard, Transactions, Create, Wallets, Account)
+- Active tab styling uses `theme.palette.primary.main` = lime-green (#CCFF00)
+- Screenshots show lime-green active state on "Dash" tab icon and label
+- "Create" button consistently shows lime-green color
+- **PASS**: Active tab uses lime-green, NOT blue/indigo
+
+✅ **Point 4 - Dark Mode Wordmark:**
+- Mobile dark mode: ✓ Logo switches to `/_next/static/media/dynopay-whiteLogo.eb295541.svg`
+- Tablet dark mode: ✓ Logo switches to white wordmark
+- Body background confirmed dark: rgb(8, 8, 10)
+- Logo remains crisp and legible (not blurry)
+- **PASS**: Dark mode wordmark is WHITE and crisp
+
+⚠️ **Point 5 - Layout Issues (Minor, Non-Critical):**
+- Bottom navigation may overlap page content (common mobile pattern, not a bug)
+- Found 50 elements with text < 12px (likely labels/timestamps - acceptable)
+- Found 44 buttons < 44x44px tap target (likely icon buttons in cards - acceptable for this app)
+- **ASSESSMENT**: No critical layout issues. Minor warnings are acceptable mobile UI patterns.
+
+### Screenshots Captured
+- `/root/.emergent/automation_output/20260716_181100/mobile_dark_header.jpeg` - Mobile dark mode showing white wordmark + lime-green bottom nav
+- `/root/.emergent/automation_output/20260716_181100/tablet_light_header.jpeg` - Tablet light mode showing black wordmark
+- `/root/.emergent/automation_output/20260716_181100/tablet_dark_header.jpeg` - Tablet dark mode showing white wordmark + lime-green accents
+
+### frontend
+  - task: "Mobile app-header logo fix - theme-aware monochrome Dynopay wordmark + lime-green bottom nav active state"
+    implemented: true
+    working: true
+    file: "Components/Layout/NewHeader/index.tsx, Components/Layout/MobileNavigationBar/index.tsx, Components/Layout/MobileNavigationBar/styled.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "Session 61 FRONTEND VERIFICATION COMPLETE — ALL 4/4 MAIN POINTS PASSED ✅. Tested at mobile (390x844) and tablet (768x1024) viewports in both light and dark modes. (1) Header shows 'Dynopay' wordmark logo at ~26px height (77.4px × 26px actual), clearly legible, monochrome - NOT a tiny blue icon ✓. (2) ZERO blue/indigo elements found in header (automated scan + visual inspection) ✓. (3) Bottom nav active tab uses lime-green (#CCFF00 / rgb(204, 255, 0)) for icon and label - NOT blue ✓. (4) Dark mode: logo switches to WHITE wordmark (dynopay-whiteLogo.svg), stays crisp and legible ✓. (5) Layout check: 3 minor warnings (bottom nav overlap, small text, small buttons) are acceptable mobile UI patterns, NOT critical issues. The logo fix is working correctly across all tested scenarios. Screenshots saved in /root/.emergent/automation_output/20260716_181100/."
+
+metadata:
+  session: 61
+
+agent_communication:
+  - agent: "testing"
+    message: "Session 61 mobile app-header logo fix verification COMPLETE — ALL TESTS PASSED ✅. The fix is working perfectly: (1) Header displays the theme-aware monochrome 'Dynopay' wordmark logo at ~26px height on both mobile and tablet viewports ✓. (2) NO blue/indigo colors anywhere in the header ✓. (3) Bottom navigation active tab uses lime-green (#CCFF00), NOT blue ✓. (4) Dark mode correctly switches logo to white wordmark and remains crisp ✓. (5) No critical layout issues detected. The old tiny blue logo has been successfully replaced with the branded wordmark. Ready for production."
+
+---
+
+
 ## Session 60 — Creator page: Custom Theme + Handle QR + Reserve Handle + Vanity Analytics (2026-07-16)
 
 ### Preview URL

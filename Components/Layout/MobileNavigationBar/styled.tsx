@@ -94,9 +94,11 @@ export const IconButton = styled(Box, {
         : "0 2px 4px rgba(0, 0, 0, 0.1)",
     transition: "all 0.2s ease",
     "& img": {
-      filter: active
-        ? "brightness(0) saturate(100%) invert(13%) sepia(94%) saturate(7151%) hue-rotate(240deg) brightness(101%) contrast(150%)"
-        : theme.palette.mode === "dark"
+      // Brand-consistent monochrome treatment (no indigo). Active state is
+      // conveyed by the IconButton background tint + NavLabel color, so the
+      // icon itself stays mono: near-white in dark, ink-black in light.
+      filter:
+        theme.palette.mode === "dark"
           ? "brightness(0) saturate(100%) invert(85%) sepia(0%) saturate(0%) brightness(105%) contrast(85%)"
           : "brightness(0) saturate(100%) invert(0%)",
     },
