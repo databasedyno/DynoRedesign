@@ -315,6 +315,13 @@ const TransactionPage = () => {
           autoConvertDisplayStatus,
           // Session 48: source metadata for the UX (filter chips + row badge)
           source: (item as any).source as TransactionSource | undefined,
+          // Session 57: tax fields (persisted on tbl_user_transaction at settlement)
+          taxAmount: Number((item as any).tax_amount) || 0,
+          taxRate: (item as any).tax_rate != null ? Number((item as any).tax_rate) : undefined,
+          taxLabel: (item as any).tax_label || undefined,
+          taxCountryCode: (item as any).tax_country_code || undefined,
+          customerVatId: (item as any).customer_vat_id || undefined,
+          reverseCharge: (item as any).reverse_charge === true || (item as any).reverse_charge === "true",
         };
       });
   }, [
@@ -325,6 +332,20 @@ const TransactionPage = () => {
     dateRange.startDate,
     dateRange.endDate,
   ]);
+
+  // Session 57: "Tax collected" running total across the currently-filtered rows.
+  const taxSummary = useMemo(() => {
+    let total = 0;
+    let count = 0;
+    for (const tx of processedTransactions) {
+      const amt = Number(tx.taxAmount) || 0;
+      if (amt > 0) {
+        total += amt;
+        count += 1;
+      }
+    }
+    return { total, count };
+  }, [processedTransactions]);
 
   const handleSearch = (term: string) => {
     setSearchTerm(term);
@@ -405,6 +426,32 @@ const TransactionPage = () => {
         initialWallet={selectedWallet}
         initialSource={selectedSource}
       />
+      {taxSummary.total > 0 && (
+        <Box
+          data-testid="tax-collected-summary"
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 1,
+            alignSelf: "flex-start",
+            px: 1.75,
+            py: 1,
+            borderRadius: "10px",
+            border: `1px solid ${theme.palette.border?.main || theme.palette.divider}`,
+            backgroundColor: theme.palette.primary.light,
+          }}
+        >
+          <Typography sx={{ fontSize: "12.5px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary }}>
+            Tax collected
+          </Typography>
+          <Typography sx={{ fontSize: "14px", fontFamily: "var(--font-sans)", fontWeight: 700, color: theme.palette.text.primary }}>
+            {taxSummary.total.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </Typography>
+          <Typography sx={{ fontSize: "11.5px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary }}>
+            {`across ${taxSummary.count} ${taxSummary.count === 1 ? "payment" : "payments"}`}
+          </Typography>
+        </Box>
+      )}
       <TransactionsTable transactions={processedTransactions} rowsPerPage={10} />
 
       {/* First-payment celebration modal — one-time per company. */}

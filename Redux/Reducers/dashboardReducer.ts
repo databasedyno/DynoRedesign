@@ -19,6 +19,8 @@ export interface DashboardState {
     activeWallets: number;
     transactionChange: number;
     volumeChange: number;
+    taxCollected?: number;
+    taxCollectedFormatted?: string | null;
     todaySummary?: {
       volumeToday: number;
       volumeTodayFormatted: string;

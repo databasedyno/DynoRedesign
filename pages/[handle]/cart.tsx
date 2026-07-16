@@ -51,6 +51,14 @@ const CartPage: NextPageWithLayout = () => {
   const [normalized, setNormalized] = useState<NormalizedLine[]>([]);
   const [subtotalCents, setSubtotalCents] = useState<number>(0);
   const [currency, setCurrency] = useState<string>("USD");
+  const [quote, setQuote] = useState<any | null>(null);
+  const timezone = React.useMemo(() => {
+    try {
+      return Intl.DateTimeFormat().resolvedOptions().timeZone || null;
+    } catch {
+      return null;
+    }
+  }, []);
 
   useEffect(() => {
     if (!handle || items.length === 0) {
@@ -90,6 +98,42 @@ const CartPage: NextPageWithLayout = () => {
       .finally(() => setLoading(false));
     // Re-run when local items change (stringify for equality)
   }, [handle, JSON.stringify(items)]);
+
+  // Session 57: estimated tax preview (based on buyer's timezone jurisdiction).
+  useEffect(() => {
+    if (!handle || items.length === 0) {
+      setQuote(null);
+      return;
+    }
+    const base = (process.env.NEXT_PUBLIC_BASE_URL || "").replace(/\/+$/, "");
+    let cancelled = false;
+    const tid = setTimeout(() => {
+      fetch(`${base}/api/cart/quote-tax`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          merchant_handle: handle,
+          items: items.map((i) => ({
+            product_id: i.product_id,
+            variant_id: i.variant_id,
+            quantity: i.quantity,
+          })),
+          timezone,
+        }),
+      })
+        .then(async (r) => (r.ok ? r.json() : null))
+        .then((j) => {
+          if (!cancelled) setQuote(j?.data || null);
+        })
+        .catch(() => {
+          if (!cancelled) setQuote(null);
+        });
+    }, 400);
+    return () => {
+      cancelled = true;
+      clearTimeout(tid);
+    };
+  }, [handle, JSON.stringify(items), timezone]);
 
   const updateQty = (line: NormalizedLine, delta: number) => {
     const next = Math.max(0, (line.quantity || 0) + delta);
@@ -179,6 +223,16 @@ const CartPage: NextPageWithLayout = () => {
                 <Typography variant="h5" sx={{ fontWeight: 700, fontVariantNumeric: "tabular-nums" }} data-testid="cart-subtotal">
                   {formatPrice(subtotalCents, currency)}
                 </Typography>
+                {quote?.apply_tax && Number(quote?.tax_cents) > 0 && (
+                  <>
+                    <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 0.5 }} data-testid="cart-est-tax">
+                      {`+ est. ${quote?.tax_label || "VAT"}${quote?.tax_rate != null ? ` (${Number(quote?.tax_rate)}%)` : ""}: ${formatPrice(Number(quote?.tax_cents) || 0, quote?.currency || currency)}`}
+                    </Typography>
+                    <Typography variant="body2" sx={{ fontWeight: 600, fontVariantNumeric: "tabular-nums" }} data-testid="cart-est-total">
+                      {`Est. total: ${formatPrice(Number(quote?.total_cents ?? subtotalCents), quote?.currency || currency)}`}
+                    </Typography>
+                  </>
+                )}
               </Box>
               <Button
                 variant="outlined"

@@ -312,6 +312,32 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
                 <TitleLabel>{tTransactions("usdValue")}</TitleLabel>
                 <TitleValue>{transaction.usdValue}</TitleValue>
               </DetailRow>
+              {transaction.reverseCharge ? (
+                <DetailRow>
+                  <TitleLabel>Tax</TitleLabel>
+                  <TitleValue>Reverse-charge (0%)</TitleValue>
+                </DetailRow>
+              ) : Number(transaction.taxAmount) > 0 ? (
+                <DetailRow>
+                  <TitleLabel>
+                    {`${transaction.taxLabel || "VAT"}${
+                      transaction.taxRate != null ? ` (${Number(transaction.taxRate)}%)` : ""
+                    }`}
+                  </TitleLabel>
+                  <TitleValue>
+                    {Number(transaction.taxAmount).toLocaleString("en-US", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </TitleValue>
+                </DetailRow>
+              ) : null}
+              {transaction.customerVatId && (
+                <DetailRow>
+                  <TitleLabel>Customer VAT ID</TitleLabel>
+                  <TitleValue>{transaction.customerVatId}</TitleValue>
+                </DetailRow>
+              )}
               {(Number(transaction.fees) > 0 || (transaction.feesBreakdown && (transaction.feesBreakdown.platform > 0 || transaction.feesBreakdown.blockchain > 0))) && (
                 <>
                   <DetailRow>

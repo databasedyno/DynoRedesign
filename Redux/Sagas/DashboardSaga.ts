@@ -42,6 +42,8 @@ function* fetchDashboardStats(payload: any) {
           transactionChange: apiData.total_transactions?.change_percent ?? 0,
           volumeChange: apiData.total_volume?.change_percent ?? 0,
           pendingTransactions: apiData.pending_transactions?.count ?? 0,
+          taxCollected: apiData.tax_collected?.amount ?? 0,
+          taxCollectedFormatted: apiData.tax_collected?.amount_formatted ?? null,
           activeWalletsList: apiData.active_wallets?.wallets ?? [],
           feeTier: apiData.fee_tier ?? null,
           todaySummary: apiData.today_summary ? {

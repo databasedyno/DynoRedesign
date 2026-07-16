@@ -496,6 +496,29 @@ const DashboardLeftSection = () => {
         />
       )}
 
+      {!showEmptyState && Number(stats.taxCollected) > 0 && (
+        <Box
+          data-testid="dashboard-tax-collected"
+          sx={{
+            display: "inline-flex",
+            alignItems: "baseline",
+            gap: 1,
+            mt: 1.5,
+            px: 1.75,
+            py: 1,
+            borderRadius: "10px",
+            border: (t) => `1px solid ${t.palette.divider}`,
+          }}
+        >
+          <Typography sx={{ fontSize: 12.5, color: "text.secondary", fontFamily: "var(--font-sans)" }}>
+            Tax collected (all-time)
+          </Typography>
+          <Typography sx={{ fontSize: 15, fontWeight: 700, color: "text.primary", fontFamily: "var(--font-sans)" }}>
+            {stats.taxCollectedFormatted || String(stats.taxCollected)}
+          </Typography>
+        </Box>
+      )}
+
       {/* Recent transactions — trust/retention signal. Renders empty-state
           copy internally when the list is empty. */}
       <RecentTransactionsWidget

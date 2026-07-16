@@ -38,6 +38,16 @@ const CheckoutPage: NextPageWithLayout = () => {
   const [subtotalCents, setSubtotalCents] = useState<number>(0);
   const [currency, setCurrency] = useState<string>("USD");
   const [lines, setLines] = useState<any[]>([]);
+  const [vatId, setVatId] = useState("");
+  const [quote, setQuote] = useState<any | null>(null);
+
+  const timezone = useMemo(() => {
+    try {
+      return Intl.DateTimeFormat().resolvedOptions().timeZone || null;
+    } catch {
+      return null;
+    }
+  }, []);
 
   const emailValid = useMemo(() => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email), [email]);
   const base = (process.env.NEXT_PUBLIC_BASE_URL || "").replace(/\/+$/, "");
@@ -78,6 +88,42 @@ const CheckoutPage: NextPageWithLayout = () => {
       .finally(() => setValidating(false));
   }, [handle, JSON.stringify(items), base]);
 
+  // Session 57: live tax preview — recompute on cart or VAT-ID change (debounced).
+  useEffect(() => {
+    if (!handle || items.length === 0) {
+      setQuote(null);
+      return;
+    }
+    let cancelled = false;
+    const tid = setTimeout(() => {
+      fetch(`${base}/api/cart/quote-tax`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          merchant_handle: handle,
+          items: items.map((i) => ({
+            product_id: i.product_id,
+            variant_id: i.variant_id,
+            quantity: i.quantity,
+          })),
+          customer_vat_id: vatId.trim() || undefined,
+          timezone,
+        }),
+      })
+        .then(async (r) => (r.ok ? r.json() : null))
+        .then((j) => {
+          if (!cancelled) setQuote(j?.data || null);
+        })
+        .catch(() => {
+          if (!cancelled) setQuote(null);
+        });
+    }, 450);
+    return () => {
+      cancelled = true;
+      clearTimeout(tid);
+    };
+  }, [handle, JSON.stringify(items), base, vatId, timezone]);
+
   const submit = async () => {
     setError(null);
     if (!emailValid) { setError("Enter a valid email address."); return; }
@@ -95,6 +141,8 @@ const CheckoutPage: NextPageWithLayout = () => {
             quantity: i.quantity,
           })),
           buyer: { email: email.trim(), name: name.trim() || undefined },
+          customer_vat_id: vatId.trim() || undefined,
+          timezone,
         }),
       });
       const j = await r.json();
@@ -153,6 +201,21 @@ const CheckoutPage: NextPageWithLayout = () => {
             onChange={(e) => setName(e.target.value)}
             inputProps={{ "data-testid": "checkout-name-input" }}
           />
+          <TextField
+            label="VAT ID (optional)"
+            fullWidth
+            value={vatId}
+            onChange={(e) => setVatId(e.target.value.toUpperCase())}
+            inputProps={{ "data-testid": "checkout-vat-input" }}
+            placeholder="e.g. DE123456789"
+            helperText={
+              quote?.reverse_charge
+                ? "✓ Valid EU VAT ID — reverse-charge applies, no VAT will be charged."
+                : vatId.trim() && quote && quote.customer_vat_id_valid === false
+                ? "This VAT ID couldn't be validated — standard tax will apply."
+                : "Businesses in the EU can enter a VAT ID for reverse-charge."
+            }
+          />
         </Stack>
 
         <Divider sx={{ my: 3 }} />
@@ -168,12 +231,37 @@ const CheckoutPage: NextPageWithLayout = () => {
             </Stack>
           ))}
           <Divider sx={{ my: 1 }} />
+          {quote?.apply_tax && (Number(quote?.tax_cents) > 0 || quote?.reverse_charge) && (
+            <>
+              <Stack direction="row" justifyContent="space-between">
+                <Typography variant="body2" color="text.secondary">Subtotal</Typography>
+                <Typography variant="body2" sx={{ fontVariantNumeric: "tabular-nums" }} data-testid="checkout-subtotal">
+                  {formatPrice(Number(quote?.subtotal_cents ?? subtotalCents), quote?.currency || currency)}
+                </Typography>
+              </Stack>
+              <Stack direction="row" justifyContent="space-between">
+                <Typography variant="body2" color="text.secondary">
+                  {quote?.reverse_charge
+                    ? `${quote?.tax_label || "VAT"} — Reverse-charge`
+                    : `${quote?.tax_label || "VAT"}${quote?.tax_rate != null ? ` (${Number(quote?.tax_rate)}%)` : ""}${quote?.tax_inclusive ? " · incl." : ""}`}
+                </Typography>
+                <Typography variant="body2" sx={{ fontVariantNumeric: "tabular-nums" }} data-testid="checkout-tax">
+                  {formatPrice(quote?.reverse_charge ? 0 : Number(quote?.tax_cents) || 0, quote?.currency || currency)}
+                </Typography>
+              </Stack>
+            </>
+          )}
           <Stack direction="row" justifyContent="space-between">
             <Typography sx={{ fontWeight: 700 }}>Total</Typography>
             <Typography sx={{ fontWeight: 800, fontVariantNumeric: "tabular-nums" }} data-testid="checkout-total">
-              {formatPrice(subtotalCents, currency)}
+              {formatPrice(Number(quote?.total_cents ?? subtotalCents), quote?.currency || currency)}
             </Typography>
           </Stack>
+          {quote?.reverse_charge && (
+            <Typography variant="caption" color="text.secondary" data-testid="checkout-reverse-charge-notice">
+              EU B2B reverse-charge: no VAT charged. You must account for VAT in your own member state.
+            </Typography>
+          )}
         </Stack>
 
         <Button

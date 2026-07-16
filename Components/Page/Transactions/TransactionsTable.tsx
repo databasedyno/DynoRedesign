@@ -263,6 +263,11 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
       icon: CurrencyIcon,
     },
     {
+      label: tTransactions("vat", { defaultValue: "VAT / Tax" }),
+      key: "vat",
+      icon: CurrencyIcon,
+    },
+    {
       label: tTransactions("dateTime"),
       key: "dateTime",
       icon: TimeIcon,
@@ -401,6 +406,15 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                 {formatUsd(transaction.usdValue)}
               </Typography>
             </Box>
+            {(transaction.reverseCharge || Number(transaction.taxAmount) > 0) && (
+              <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 0.75 }}>
+                <Typography sx={{ fontSize: "11px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary }}>
+                  {transaction.reverseCharge
+                    ? tTransactions("reverseCharge", { defaultValue: "Reverse-charge" })
+                    : `${tTransactions("vatShort", { defaultValue: "incl. VAT" })} ${Number(transaction.taxAmount).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}${transaction.taxRate != null ? ` (${Number(transaction.taxRate)}%)` : ""}`}
+                </Typography>
+              </Box>
+            )}
             {/* Bottom row: ID + Date */}
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <Typography sx={{ fontSize: "11px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary, maxWidth: "50%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
@@ -568,6 +582,41 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
 
                   <TransactionsTableCell>
                     {formatUsd(transaction.usdValue)}
+                  </TransactionsTableCell>
+
+                  <TransactionsTableCell>
+                    {transaction.reverseCharge ? (
+                      <Typography
+                        component="span"
+                        sx={{
+                          fontFamily: "var(--font-sans)",
+                          fontSize: "12px",
+                          fontWeight: 600,
+                          color: theme.palette.text.secondary,
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {tTransactions("reverseCharge", { defaultValue: "Reverse-charge" })}
+                      </Typography>
+                    ) : Number(transaction.taxAmount) > 0 ? (
+                      <Box sx={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
+                        <Typography
+                          component="span"
+                          sx={{ fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 600, color: theme.palette.text.primary }}
+                        >
+                          {Number(transaction.taxAmount).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </Typography>
+                        <Typography
+                          component="span"
+                          sx={{ fontFamily: "var(--font-sans)", fontSize: "11px", color: theme.palette.text.secondary }}
+                        >
+                          {(transaction.taxLabel || "VAT")}
+                          {transaction.taxRate != null ? ` ${Number(transaction.taxRate)}%` : ""}
+                        </Typography>
+                      </Box>
+                    ) : (
+                      <Typography component="span" sx={{ color: theme.palette.text.disabled }}>—</Typography>
+                    )}
                   </TransactionsTableCell>
 
                   <TransactionsTableCell>

@@ -48,6 +48,13 @@ export interface ExtendedTransaction {
   autoConvertDisplayStatus?: string;
   // Session 48: source metadata for the "Source" column + filter chips
   source?: TransactionSource;
+  // Session 57: tax fields (persisted at settlement) for VAT column + details
+  taxAmount?: number;
+  taxRate?: number;
+  taxLabel?: string;
+  taxCountryCode?: string;
+  customerVatId?: string;
+  reverseCharge?: boolean;
 }
 
 export interface ICustomerTransactions {

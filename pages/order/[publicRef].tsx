@@ -40,7 +40,17 @@ interface Order {
   buyer_email: string;
   buyer_name?: string;
   items: OrderItem[];
+  // Session 57: tax breakdown
+  shipping_cents?: number;
+  tax_cents?: number;
+  tax_rate?: number | string;
+  tax_label?: string | null;
+  tax_country_code?: string | null;
+  customer_vat_id?: string | null;
+  reverse_charge?: boolean;
+  tax_inclusive?: boolean;
 }
+interface Merchant { handle?: string; name?: string; vat_id?: string | null }
 interface OrderPageProps { order: Order | null; siteUrl: string }
 
 function formatPrice(cents: number, ccy: string): string {
@@ -79,7 +89,10 @@ const OrderStatusPage: NextPageWithLayout<OrderPageProps> = ({ order: initialOrd
         const r = await fetch(`${base}/api/order/${encodeURIComponent(order.public_ref)}`);
         if (r.ok) {
           const j = await r.json();
-          const o: Order = j?.data;
+          const raw = j?.data;
+          const o: Order = raw && raw.order
+            ? { ...raw.order, items: raw.items || raw.order.items || [], merchant: raw.merchant || null }
+            : raw;
           if (o && !cancelled) {
             setOrder(o);
             if (o.payment_status !== "pending") { setPolling(false); return; }
@@ -253,12 +266,69 @@ const OrderStatusPage: NextPageWithLayout<OrderPageProps> = ({ order: initialOrd
         </Stack>
 
         <Divider sx={{ my: 3 }} />
-        <Stack direction="row" justifyContent="space-between">
-          <Typography sx={{ fontWeight: 700 }}>Total paid</Typography>
-          <Typography sx={{ fontWeight: 800, fontVariantNumeric: "tabular-nums" }} data-testid="order-total">
-            {formatPrice(order.total_cents, order.currency)}
-          </Typography>
+        <Stack spacing={1}>
+          {(Number(order.tax_cents) > 0 || order.reverse_charge || Number(order.shipping_cents) > 0) && (
+            <Stack direction="row" justifyContent="space-between">
+              <Typography variant="body2" color="text.secondary">Subtotal</Typography>
+              <Typography variant="body2" sx={{ fontVariantNumeric: "tabular-nums" }} data-testid="order-subtotal">
+                {formatPrice(order.subtotal_cents, order.currency)}
+              </Typography>
+            </Stack>
+          )}
+          {Number(order.shipping_cents) > 0 && (
+            <Stack direction="row" justifyContent="space-between">
+              <Typography variant="body2" color="text.secondary">Shipping</Typography>
+              <Typography variant="body2" sx={{ fontVariantNumeric: "tabular-nums" }}>
+                {formatPrice(Number(order.shipping_cents), order.currency)}
+              </Typography>
+            </Stack>
+          )}
+          {order.reverse_charge ? (
+            <Stack direction="row" justifyContent="space-between">
+              <Typography variant="body2" color="text.secondary">
+                {`${order.tax_label || "VAT"} — Reverse-charge`}
+              </Typography>
+              <Typography variant="body2" sx={{ fontVariantNumeric: "tabular-nums" }} data-testid="order-tax">
+                {formatPrice(0, order.currency)}
+              </Typography>
+            </Stack>
+          ) : Number(order.tax_cents) > 0 ? (
+            <Stack direction="row" justifyContent="space-between">
+              <Typography variant="body2" color="text.secondary">
+                {`${order.tax_label || "VAT"}${order.tax_rate != null ? ` (${Number(order.tax_rate)}%)` : ""}${order.tax_inclusive ? " · incl." : ""}`}
+              </Typography>
+              <Typography variant="body2" sx={{ fontVariantNumeric: "tabular-nums" }} data-testid="order-tax">
+                {formatPrice(Number(order.tax_cents), order.currency)}
+              </Typography>
+            </Stack>
+          ) : null}
+          <Stack direction="row" justifyContent="space-between" sx={{ pt: 0.5 }}>
+            <Typography sx={{ fontWeight: 700 }}>Total paid</Typography>
+            <Typography sx={{ fontWeight: 800, fontVariantNumeric: "tabular-nums" }} data-testid="order-total">
+              {formatPrice(order.total_cents, order.currency)}
+            </Typography>
+          </Stack>
         </Stack>
+
+        {order.reverse_charge && (
+          <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 1.5 }} data-testid="order-reverse-charge-notice">
+            VAT reverse-charged to the customer under EU B2B rules (0% VAT charged). The customer accounts for VAT in their member state.
+          </Typography>
+        )}
+        {(order.customer_vat_id || order.merchant?.vat_id) && (
+          <Stack spacing={0.25} sx={{ mt: 1.5 }}>
+            {order.merchant?.vat_id && (
+              <Typography variant="caption" color="text.secondary">
+                Merchant VAT ID: <b>{order.merchant.vat_id}</b>
+              </Typography>
+            )}
+            {order.customer_vat_id && (
+              <Typography variant="caption" color="text.secondary">
+                Customer VAT ID: <b>{order.customer_vat_id}</b>
+              </Typography>
+            )}
+          </Stack>
+        )}
         <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 2 }}>
           Receipt sent to <b>{order.buyer_email}</b>
         </Typography>
@@ -278,7 +348,15 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     });
     if (!r.ok) return { props: { order: null, siteUrl: base } };
     const json = await r.json();
-    return { props: { order: json?.data || null, siteUrl: base } };
+    const raw = json?.data || null;
+    // Normalize: backend returns { order, items, merchant }; older/demo shapes
+    // return a flat order. Support both so the receipt always renders.
+    const normalized = raw
+      ? raw.order
+        ? { ...raw.order, items: raw.items || raw.order.items || [], merchant: raw.merchant || null }
+        : raw
+      : null;
+    return { props: { order: normalized, siteUrl: base } };
   } catch {
     return { props: { order: null, siteUrl: base } };
   }

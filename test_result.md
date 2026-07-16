@@ -1,3 +1,31 @@
+## Session 57 (cont.): B.4 + Phase C tax UI shipped (2026-07-16)
+
+### B.4 — Dashboard + Transactions (FRONTEND + small BACKEND aggregate)
+- **Transactions list** (`Components/Page/Transactions/*`): added a **"VAT / Tax" column** (desktop grid expanded 6→7 cols in `styled.tsx`; mobile cards show an "incl. VAT" line) + a **"Tax collected" running total** strip above the table (sums `taxAmount` across filtered rows). Tax fields now mapped from the API row (`tax_amount`, `tax_rate`, `tax_label`, `reverse_charge`, `customer_vat_id`) in `index.tsx` and typed on `ExtendedTransaction`.
+- **Transaction Details modal** (`TransactionDetailsModal.tsx`): added a tax row (VAT + rate → amount, or "Reverse-charge (0%)") + Customer VAT ID row.
+- **Dashboard** (`DashboardLeftSection.tsx`): "Tax collected (all-time)" chip below HeroMetrics.
+  - BACKEND: `dashboardController.ts` volume query now also returns `total_tax` + `current_month_tax`; response gains `tax_collected {amount, amount_formatted, current_month, current_month_formatted, currency}`. Mapped through `DashboardSaga.ts` → `stats.taxCollected/taxCollectedFormatted` (+ `dashboardReducer` type). NOTE: dashboard response is Redis-cached for 120s — new field appears after cache refresh.
+
+### Phase C — Buyer + reporting (FRONTEND + small BACKEND field)
+- **Checkout** (`pages/[handle]/checkout.tsx`): VAT-ID input (auto-uppercases), debounced live `POST /api/cart/quote-tax` (sends `customer_vat_id` + `timezone`), tax line in the total breakdown, reverse-charge notice; `customer_vat_id` + `timezone` now sent to `POST /api/checkout`.
+- **Cart** (`pages/[handle]/cart.tsx`): estimated-tax preview via `quote-tax` (timezone-based) — shows "+ est. VAT" and "Est. total".
+- **Order receipt** (`pages/order/[publicRef].tsx`): subtotal + tax (or reverse-charge) + total breakdown, reverse-charge notice, merchant + customer VAT IDs. Also normalized the SSR/poll data shape to handle `{order, items, merchant}` wrapper (was reading it flat).
+  - BACKEND: `orderController.getOrderByPublicRef` merchant object now includes `vat_id` (from `merchant_vat_id`).
+
+### Build status
+- All changed routes compile clean: /settings, /create-pay-link, /pay-links/products/[id]/edit, /transactions, /[handle]/cart, /[handle]/checkout, /order/[publicRef], /dashboard. No new lint errors. Backend restarted, boots clean (no TSError), DB+Redis connected, WORKER_ROLE=secondary.
+
+### What to verify (BACKEND) — deep_testing_backend_v2 (conservative on LIVE prod)
+1. Login hostbay@moxx.co → `GET /api/dashboard` (or the dashboard-stats route in routes/dashboardRouter.ts) returns `tax_collected` object in `data` (may need ~120s for cache to refresh; if stale, note it).
+2. `POST /api/cart/quote-tax` still returns 400 for empty items (already verified in prior run) — confirm route healthy.
+3. (Optional) If any paid product order exists for the merchant, `GET /api/order/:publicRef` `data.merchant` now includes `vat_id`.
+Do NOT create products/orders or mutate merchant settings without restoring.
+
+### Frontend testing: still awaiting user approval.
+
+---
+
+
 ## Session 57: Env setup on fresh pod + Phase B tax-config UI (2026-07-16)
 
 ### Environment setup (this session)

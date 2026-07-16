@@ -176,7 +176,9 @@ const getDashboard = async (req: express.Request, res: express.Response) => {
         COALESCE(SUM(${USD_FALLBACK_EXPR}) FILTER (WHERE ut."createdAt" >= :startOfMonth), 0) as current_month_usd_value,
         COALESCE(SUM(${USD_FALLBACK_EXPR}) FILTER (WHERE ut."createdAt" >= :startOfLastMonth AND ut."createdAt" <= :endOfLastMonth), 0) as last_month_usd_value,
         COALESCE(SUM(${USD_FALLBACK_EXPR}) FILTER (WHERE ut."createdAt" >= :startOfToday AND ut.status IN ('successful', 'done', 'completed')), 0) as today_usd_value,
-        COALESCE(SUM(${USD_FALLBACK_EXPR}) FILTER (WHERE ut."createdAt" >= :startOfYesterday AND ut."createdAt" < :startOfToday AND ut.status IN ('successful', 'done', 'completed')), 0) as yesterday_usd_value
+        COALESCE(SUM(${USD_FALLBACK_EXPR}) FILTER (WHERE ut."createdAt" >= :startOfYesterday AND ut."createdAt" < :startOfToday AND ut.status IN ('successful', 'done', 'completed')), 0) as yesterday_usd_value,
+        COALESCE(SUM(ut.tax_amount) FILTER (WHERE ut.status IN ('successful', 'done', 'completed')), 0) as total_tax,
+        COALESCE(SUM(ut.tax_amount) FILTER (WHERE ut."createdAt" >= :startOfMonth AND ut.status IN ('successful', 'done', 'completed')), 0) as current_month_tax
       FROM tbl_user_transaction ut
       ${companyJoin}
       WHERE ut.user_id = :userId ${companyFilter}
@@ -235,6 +237,9 @@ const getDashboard = async (req: express.Request, res: express.Response) => {
     let lastVolumeUSD = parseFloat(String(volumeRow.last_month_usd_value || '0'));
     let todayVolumeUSD = parseFloat(String(volumeRow.today_usd_value || '0'));
     let yesterdayVolumeUSD = parseFloat(String(volumeRow.yesterday_usd_value || '0'));
+    // Session 57: tax collected (stored in transaction currency; best-effort glance figure)
+    const totalTaxCollected = Math.round(parseFloat(String(volumeRow.total_tax || '0')) * 100) / 100;
+    const currentMonthTaxCollected = Math.round(parseFloat(String(volumeRow.current_month_tax || '0')) * 100) / 100;
     
     totalVolumeUSD = Math.round(totalVolumeUSD * 100) / 100;
     currentVolumeUSD = Math.round(currentVolumeUSD * 100) / 100;
@@ -299,6 +304,13 @@ const getDashboard = async (req: express.Request, res: express.Response) => {
       },
       pending_transactions: {
         count: pendingCount,
+      },
+      tax_collected: {
+        amount: totalTaxCollected,
+        amount_formatted: formatAmountForDisplay(totalTaxCollected, preferredCurrency).display_value,
+        current_month: currentMonthTaxCollected,
+        current_month_formatted: formatAmountForDisplay(currentMonthTaxCollected, preferredCurrency).display_value,
+        currency: preferredCurrency,
       },
       active_wallets: {
         count: activeWallets.length,

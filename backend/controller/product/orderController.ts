@@ -77,6 +77,7 @@ export const getOrderByPublicRef = async (
               merchant.dataValues.name ||
               merchant.dataValues.username ||
               merchant.dataValues.handle,
+            vat_id: merchant.dataValues.merchant_vat_id || null,
           }
         : null,
     });

@@ -25,7 +25,7 @@ export const TransactionsTableContainer = styled(Box)(({ theme }) => ({
 export const TransactionsTableHeader = styled(Box)(({ theme }) => ({
   width: "100%",
   display: "grid",
-  gridTemplateColumns: "repeat(6, minmax(0, 1fr))",
+  gridTemplateColumns: "repeat(7, minmax(0, 1fr))",
   gridAutoColumns: "minmax(0, 1fr)",
   alignItems: "center",
   padding: "19px 20px",
@@ -128,7 +128,7 @@ export const TransactionsTableBody = styled(Box)(({ theme }) => ({
 export const TransactionsTableRow = styled(Box)(({ theme }) => ({
   width: "100%",
   display: "grid",
-  gridTemplateColumns: "repeat(6, minmax(0, 1fr))",
+  gridTemplateColumns: "repeat(7, minmax(0, 1fr))",
   gridAutoColumns: "minmax(0, 1fr)",
   alignItems: "center",
   padding: "11px 0",
