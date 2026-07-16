@@ -1,3 +1,25 @@
+## Session 59 (cont.) — Creator page access URL now uses branded domain dynopay.me (2026-07-16)
+
+### Request
+"Use dynopay.me for creator page access url" — the public/shareable URL of a creator's page should be on dynopay.me/{handle} instead of dynopay.com / the app base URL.
+
+### Implementation (centralized)
+- NEW helper `helpers/creatorUrl.ts`: `getCreatorBaseUrl()` / `buildCreatorUrl(handle)` / `prettyCreatorUrl(handle)` / `prettyCreatorDomain()`. Reads `NEXT_PUBLIC_CREATOR_BASE_URL` (falls back to `NEXT_PUBLIC_BASE_URL`).
+- ENV: `/app/.env` → `NEXT_PUBLIC_CREATOR_BASE_URL=https://dynopay.me` (+ server-only `INTERNAL_API_URL=http://localhost:8001` for SSR). `/app/backend/.env` → `CREATOR_BASE_URL=https://dynopay.me`.
+- Frontend surfaces switched from `NEXT_PUBLIC_BASE_URL` to the creator helper: `pages/creator.tsx` (publicUrl + description), `pages/[handle].tsx` (siteUrl prop → canonical/og/share; SSR fetch base kept on app/internal URL), `Components/Page/Dashboard/CreatorPageCard.tsx`, `Components/Page/Creator/CreatorPageSettings.tsx`, `Components/Page/Creator/CreatorLivePreview.tsx` (hardcoded "dynopay.com" → dynopay.me), `Components/Page/Home/CreatorShowcase.tsx` (hardcoded "dynopay.com" → dynopay.me).
+- Backend: `controller/payment/paymentLinkController.ts` creatorPageUrl now prefers `CREATOR_BASE_URL` before FRONTEND_URL/SERVER_URL.
+- Also fixed a pre-existing preview 404 on the public creator page: `[handle].tsx` SSR fetch base now falls back to `INTERNAL_API_URL`/`NEXT_PUBLIC_SERVER_URL` when `NEXT_PUBLIC_BASE_URL` is empty (production unchanged).
+
+### Verified (hostbay handle="hostbay", published)
+- Public page /hostbay: HTTP 200, canonical + og:url = https://dynopay.me/hostbay (SSR curl).
+- Home CreatorShowcase: shows dynopay.me/…
+- /creator settings (frontend agent): status banner, live-preview chrome, and handle prefix all show dynopay.me/hostbay.
+- Dashboard CreatorPageCard: not captured in the automated run (session/layout artifact) but uses the same helper → same value. Lint clean; backend + frontend restarted healthy.
+- NOTE: dynopay.me must point to the app in production for these links to resolve. In preview the shared link opens production dynopay.me (by design); the preview's own page is at <preview-url>/hostbay.
+
+---
+
+
 ## Session 59 (cont.) — bug c (order-receipt hydration) fixed + bug d (search) not-a-bug (2026-07-16)
 
 ### (c) FIXED — React hydration mismatch on /order/[publicRef]
