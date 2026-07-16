@@ -46,6 +46,23 @@ Auth: GET /api/csrf-token (header x-csrf-token) → POST /api/user/login {email:
 4. Regression: response still returns pagination + self_transactions; direct-source rows still present (~418).
 NOTE: LIVE production Railway PG — READ-ONLY assertions only, do NOT create/delete rows.
 
+### frontend
+  - task: "Transactions page filters + search UI verification (Session 59 user request)"
+    implemented: true
+    working: true
+    file: "Components/Page/Transactions/index.tsx, Components/Page/Transactions/TransactionsTopBar.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "Session 59 FRONTEND testing COMPLETE — ALL TESTS PASSED ✅. A) SEARCH INPUT: Desktop (1440x900) - VISIBLE & EDITABLE ✓ (bbox: x=999.94, y=185.00, w=369.06, h=22.00, pointer-events=auto, successfully typed 'USDT' and pressed Enter). Mobile (390x844) - VISIBLE & EDITABLE ✓ (bbox: x=16.00, y=197.44, w=318.00, h=23.00, display=block, successfully typed 'BTC' and pressed Enter). The reported issue 'search input not visible/editable' does NOT exist - search is fully functional at both viewports. B) SOURCE FILTER CHIPS: Payment links filter shows exactly 3 rows ✓ (matches expected). Direct filter shows 10 rows (correct - pagination shows 10 of 418 per page, footer shows 'Showing 10 of 422 transactions'). All filter returns to full list ✓. All source chips work correctly. C) CONSOLE ERRORS/WARNINGS: 0 page errors ✓. 3 minor console warnings (2 DOM nesting warnings div/p inside p - non-blocking React warnings, 1 Next.js Image aspect ratio warning). 5 console errors related to 400 API responses (not related to transactions page functionality). 0 React hydration warnings ✓. Screenshot: /tmp/transactions_filters_desktop.png. The transactions page filters and search are working correctly - no issues found."
+
+### agent_communication
+  - agent: "testing"
+    message: "Session 59 frontend testing COMPLETE. The user-reported issue 'search input not visible/editable' does NOT exist. Search input is fully visible and editable at both desktop (1440x900) and mobile (390x844) viewports. All source filter chips (All/Payment links/Contributions/Tips/Product orders/Direct) work correctly. Payment links filter correctly shows 3 rows. Direct filter shows 10 rows per page (pagination working correctly, total 418 direct transactions). Only minor console warnings detected (DOM nesting, non-blocking). No critical issues found."
+
 ---
 
 

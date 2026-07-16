@@ -77,6 +77,16 @@ const OrderStatusPage: NextPageWithLayout<OrderPageProps> = ({ order: initialOrd
   const [copiedId, setCopiedId] = useState<number | null>(null);
   const [resending, setResending] = useState<boolean>(false);
   const [resendMsg, setResendMsg] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
+  // Gate locale/timezone-dependent date rendering to the client to avoid SSR
+  // hydration mismatches (server runs in UTC/Node ICU, client in the user's locale).
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  // SSR + first client paint: deterministic UTC string (identical on both sides).
+  // After mount: the user's local formatted time. The swap happens post-hydration.
+  const formatExpiry = (ms: number) =>
+    mounted
+      ? new Date(ms).toLocaleString()
+      : `${new Date(ms).toLocaleString("en-US", { timeZone: "UTC", hour12: true })} UTC`;
 
   // Poll while pending — max 20 minutes at 6s
   useEffect(() => {
@@ -209,8 +219,8 @@ const OrderStatusPage: NextPageWithLayout<OrderPageProps> = ({ order: initialOrd
               </Button>
             ))}
             {expiresAt && !expired && (
-              <Typography variant="caption" color="text.secondary" data-testid={`order-item-expires-${item.order_item_id}`}>
-                Links expire {new Date(expiresAt).toLocaleString()}
+              <Typography variant="caption" color="text.secondary" data-testid={`order-item-expires-${item.order_item_id}`} suppressHydrationWarning>
+                Links expire {formatExpiry(expiresAt)}
               </Typography>
             )}
             {expired && (
