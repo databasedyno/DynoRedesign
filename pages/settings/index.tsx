@@ -8,6 +8,7 @@ import {
   VpnKeyRounded,
   NotificationsRounded,
   AddRounded,
+  ReceiptLongRounded,
 } from "@mui/icons-material";
 import { useRouter } from "next/router";
 import Head from "next/head";
@@ -17,6 +18,7 @@ import { useTranslation } from "react-i18next";
 import ProfilePage from "@/Components/Page/Profile/ProfilePage";
 import ApiKeysPage from "@/Components/Page/API/ApiKeysPage";
 import NotificationPage from "@/Components/Page/Notification/NotificationPage";
+import TaxSettingsSection from "@/Components/Page/Settings/TaxSettingsSection";
 import CompanySettingsDialog from "@/Components/UI/CompanySettingsDialog";
 import DisplayCurrencySelector from "@/Components/UI/DisplayCurrencySelector";
 import UserDisplayCurrencySelector from "@/Components/UI/UserDisplayCurrencySelector";
@@ -33,6 +35,7 @@ type SectionKey =
   | "profile"
   | "company"
   | "payments"
+  | "tax"
   | "webhooks"
   | "api-keys"
   | "notifications";
@@ -41,6 +44,7 @@ const SECTION_KEYS: SectionKey[] = [
   "profile",
   "company",
   "payments",
+  "tax",
   "webhooks",
   "api-keys",
   "notifications",
@@ -321,6 +325,14 @@ const SettingsPage = ({
         icon: <CurrencyExchangeRounded sx={{ fontSize: 19 }} />,
       },
       {
+        key: "tax" as SectionKey,
+        label: t("settingsPage.tax", { defaultValue: "Tax" }),
+        description: t("settingsPage.taxDesc", {
+          defaultValue: "Default VAT/tax behavior for checkouts and payment links.",
+        }),
+        icon: <ReceiptLongRounded sx={{ fontSize: 19 }} />,
+      },
+      {
         key: "webhooks" as SectionKey,
         label: t("settingsPage.webhooks"),
         description: t("settingsPage.webhooksDesc"),
@@ -501,6 +513,7 @@ const SettingsPage = ({
           {active === "payments" && (
             <CompanyConfigSection visibleSections={["crypto", "payment"]} showDisplayCurrency />
           )}
+          {active === "tax" && <TaxSettingsSection />}
           {active === "webhooks" && (
             <CompanyConfigSection visibleSections={["webhook"]} />
           )}

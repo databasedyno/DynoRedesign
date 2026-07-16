@@ -57,6 +57,8 @@ interface ProductRow {
   base_stock?: number | null;
   digital_delivery_type?: "url" | "file" | "license_key" | null;
   digital_delivery_payload?: any;
+  tax_category?: "digital" | "physical" | "service" | "exempt";
+  apply_tax_override?: boolean | null;
 }
 
 // Backend cap = 10 items (see sanitizeGallery in productController.ts)
@@ -116,6 +118,8 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
   const [accessUrl, setAccessUrl] = useState<string>("");
   const [hasVariants, setHasVariants] = useState<boolean>(false);
   const [baseStock, setBaseStock] = useState<string>("");
+  const [taxCategory, setTaxCategory] = useState<"digital" | "physical" | "service" | "exempt">("digital");
+  const [applyTaxOverride, setApplyTaxOverride] = useState<"inherit" | "on" | "off">("inherit");
 
   useEffect(() => {
     if (mode !== "edit" || !productId) return;
@@ -154,6 +158,14 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
         setAccessUrl(p.digital_delivery_payload?.access_url || "");
         setHasVariants(!!p.has_variants);
         setBaseStock(p.base_stock == null ? "" : String(p.base_stock));
+        setTaxCategory((p.tax_category as any) || "digital");
+        setApplyTaxOverride(
+          p.apply_tax_override === true
+            ? "on"
+            : p.apply_tax_override === false
+            ? "off"
+            : "inherit"
+        );
         if (Array.isArray(p.digital_delivery_payload?.keys)) {
           setLicenseKeysText(p.digital_delivery_payload.keys.join("\n"));
         }
@@ -193,6 +205,9 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
         ? null
         : Math.max(0, Math.floor(Number(baseStock) || 0)),
       digital_delivery_type: deliveryType,
+      tax_category: taxCategory,
+      apply_tax_override:
+        applyTaxOverride === "on" ? true : applyTaxOverride === "off" ? false : null,
     };
     if (deliveryType === "url") {
       payload.digital_delivery_payload = { access_url: accessUrl.trim() };
@@ -905,6 +920,54 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
               </Stack>
             </Stack>
           )}
+        </Stack>
+      </PanelCard>
+
+      <PanelCard title="Tax">
+        <Stack spacing={2}>
+          <FormControl fullWidth>
+            <InputLabel id="tax-category-label">Tax category</InputLabel>
+            <Select
+              labelId="tax-category-label"
+              label="Tax category"
+              value={taxCategory}
+              onChange={(e) => setTaxCategory(String(e.target.value) as any)}
+              inputProps={{ "data-testid": "product-tax-category-select" }}
+            >
+              <MenuItem value="digital" data-testid="product-tax-category-opt-digital">Digital goods / services</MenuItem>
+              <MenuItem value="physical" data-testid="product-tax-category-opt-physical">Physical goods</MenuItem>
+              <MenuItem value="service" data-testid="product-tax-category-opt-service">Service</MenuItem>
+              <MenuItem value="exempt" data-testid="product-tax-category-opt-exempt">Tax exempt</MenuItem>
+            </Select>
+            <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
+              {taxCategory === "exempt"
+                ? "This product is always sold tax-free, regardless of your tax settings."
+                : taxCategory === "physical"
+                ? "Physical goods use the buyer's shipping-address country for the tax jurisdiction."
+                : "Digital goods / services use the buyer's detected location for the tax jurisdiction."}
+            </Typography>
+          </FormControl>
+
+          <FormControl fullWidth>
+            <InputLabel id="tax-override-label">Charge tax on this product</InputLabel>
+            <Select
+              labelId="tax-override-label"
+              label="Charge tax on this product"
+              value={applyTaxOverride}
+              onChange={(e) => setApplyTaxOverride(String(e.target.value) as any)}
+              inputProps={{ "data-testid": "product-tax-override-select" }}
+              disabled={taxCategory === "exempt"}
+            >
+              <MenuItem value="inherit" data-testid="product-tax-override-opt-inherit">Inherit merchant default</MenuItem>
+              <MenuItem value="on" data-testid="product-tax-override-opt-on">Always charge tax</MenuItem>
+              <MenuItem value="off" data-testid="product-tax-override-opt-off">Never charge tax</MenuItem>
+            </Select>
+            <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
+              {taxCategory === "exempt"
+                ? "Overrides don't apply to tax-exempt products."
+                : "Overrides your merchant-level default from Settings → Tax for this product only."}
+            </Typography>
+          </FormControl>
         </Stack>
       </PanelCard>
 

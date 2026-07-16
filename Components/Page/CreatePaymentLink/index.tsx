@@ -231,6 +231,9 @@ const CreatePaymentLinkPage = ({
   const [includeTax, setIncludeTax] = useState<boolean>(
     disabled ? true : false,
   );
+  const [taxInclusive, setTaxInclusive] = useState<boolean>(
+    hasPaymentLinkData ? !!(paymentLinkData as any).tax_inclusive : false,
+  );
   const [showAllCoins, setShowAllCoins] = useState(false);
   const MIN_WIDTH = 390;
   const MAX_WIDTH = 900;
@@ -794,6 +797,7 @@ const CreatePaymentLinkPage = ({
             webhook_url: postPaymentSettings.webhookUrl,
             callback_url: postPaymentSettings.callbackUrl,
             apply_tax: includeTax,
+            tax_inclusive: includeTax ? taxInclusive : false,
             company_id: selectedCompanyId,
           };
 
@@ -844,6 +848,7 @@ const CreatePaymentLinkPage = ({
       setPostPaymentSettings({ callbackUrl: "", redirectUrl: "", webhookUrl: "" });
       setCustomerEmail("");
       setIncludeTax(false);
+      setTaxInclusive(false);
       setPaymentLink("");
       setDirectPayAddress(null);
       setDirectPayQrCode(null);
@@ -1761,6 +1766,8 @@ const CreatePaymentLinkPage = ({
                     tPaymentLink={tPaymentLink}
                     includeTax={includeTax}
                     setIncludeTax={setIncludeTax}
+                    taxInclusive={taxInclusive}
+                    setTaxInclusive={setTaxInclusive}
                     currentLng={currentLng}
                   />
                   </>

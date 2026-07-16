@@ -139,6 +139,8 @@ export interface TaxSectionProps {
   includeTax: boolean;
   setIncludeTax: React.Dispatch<React.SetStateAction<boolean>>;
   currentLng: string;
+  taxInclusive?: boolean;
+  setTaxInclusive?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export interface CryptoItemCardProps {

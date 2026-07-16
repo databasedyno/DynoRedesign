@@ -14,6 +14,8 @@ const TaxSection: React.FC<TaxSectionProps> = ({
   includeTax,
   setIncludeTax,
   currentLng,
+  taxInclusive = false,
+  setTaxInclusive,
 }) => (
   <>
     <Box
@@ -88,6 +90,53 @@ const TaxSection: React.FC<TaxSectionProps> = ({
           </Text>
         </Box>
       </Box>
+
+      {includeTax && setTaxInclusive ? (
+        <Box
+          sx={{
+            width: { xs: "100%", sm: "324px", md: "300px" },
+            maxWidth: "100%",
+            minHeight: "49px",
+            border: `1px solid ${theme.palette.border.main}`,
+            borderRadius: "6px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "8px",
+            padding: "8px 8px 8px 14px",
+          }}
+          data-testid="paylink-tax-inclusive-row"
+        >
+          <Box sx={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+            <Text sx={{ fontSize: "13px", color: theme.palette.text.primary }}>
+              Prices include tax
+            </Text>
+            <Text sx={{ fontSize: "11px", color: theme.palette.text.secondary }}>
+              Back out VAT from the price instead of adding on top
+            </Text>
+          </Box>
+          <Box sx={{ display: "flex", gap: "12px", alignItems: "center" }}>
+            <CustomSwitch
+              checked={taxInclusive}
+              onChange={(e, checked) => setTaxInclusive(checked)}
+              sx={{
+                "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
+                  backgroundColor: theme.palette.primary.main,
+                },
+              }}
+            />
+            <Text
+              sx={{
+                width: currentLng === "en" ? "23px" : "59px",
+                fontSize: "13px",
+                color: theme.palette.text.primary,
+              }}
+            >
+              {taxInclusive ? tPaymentLink("on") : tPaymentLink("off")}
+            </Text>
+          </Box>
+        </Box>
+      ) : null}
 
       {includeTax ? (
         <Box
