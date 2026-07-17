@@ -1,3 +1,20 @@
+# CURRENT SESSION (fresh boot — session 66, 2026-07-17) — ENV PROVISIONING
+
+- **Preview URL**: https://85ee2a7c-2c6f-4dea-9666-7d7562054af8.preview.emergentagent.com (200 on /api/csrf-token, /auth/login, /). Included in CORS_ALLOWED_ORIGINS.
+- **Merchant test account** (LIVE Railway PG): **hostbay@moxx.co / Katiekendra123@** (user_id=1, name=hostbay, handle=hostbay, referral DYNO-9XVPUY, fee_tier=growth, cumulative_volume=$19,150.23).
+- **Admin email** (env ADMIN_EMAIL): moxxcompany@gmail.com
+- On boot: root + backend node_modules + all 4 .env MISSING; frontend + backend supervisor FATAL. Ran root yarn (120s exit=0) + backend yarn (83s exit=0) in parallel.
+- **Sharp arm64 fix**: backend crash-loop on start due to sharp@0.35.3 missing arm64 libvips-cpp.so.8.18.3. Downgraded to sharp@0.34.4 (yarn add --force sharp@0.34.4) → installs @img/sharp-linux-arm64 + @img/sharp-linuxmusl-arm64 native binaries. Verified: `node -e "require('sharp')"` OK, vips 8.17.2. Backend then started cleanly.
+- 4 IDENTICAL .env written (/app/.env, /app/.env.local, /app/backend/.env, /app/frontend/.env — md5=adc5d41d58dd722d311af2d92cdc9c59, 177 lines). Transformations: all app URLs (SERVER_URL/FRONTEND_URL/CHECKOUT_URL/NEXTAUTH_URL/NEXT_PUBLIC_BASE_URL/NEXT_PUBLIC_SERVER_URL/REACT_APP_BACKEND_URL) → 85ee2a7c preview URL; INTERNAL_BACKEND_URL=http://localhost:3300; CORS = 85ee2a7c preview + dynopay.com + checkout.dynopay.com; DATABASE_URL constructed from parts (postgresql://postgres:...@roundhouse.proxy.rlwy.net:23599/railway); REDIS_PUBLIC_URL as-is (nozomi.proxy.rlwy.net:15794); GOOGLE_CLIENT_KEY single-line \n-escaped double-quoted (27 \n seqs, normalizePrivateKey handles); fixed EXT_PUBLIC→NEXT_PUBLIC_ENABLE_GITHUB_AUTH typo + deduped repeated google/github flags; OPENAI_API_KEY + SUPPORT_CHAT_MODEL=gpt-5.4; product-catalog/inline-tip/clean-checkout-v2/google-auth/github-auth flags = true; PORT omitted (server.py injects 3300 for ts-node --transpile-only server.ts).
+- Fresh NEXTAUTH_SECRET generated (session-local; user paste was literal broken "openssl rand -base64 32"): F60kfc3KLmLOVQGoKhVnd3apicr4Xf8vi3Y6whPuT0U=
+- SAFETY OVERRIDES applied (LIVE prod DB+Redis shared with production): NODE_ENV=production, WORKER_ROLE=secondary, ENABLE_BACKGROUND_JOBS=false (user env had =true) → verified /health background_jobs.eligible=false, is_leader=false (NO sweeps/cron/webhook fan-out against prod).
+- Verified: internal :8001/health=200 (database=connected, redis=connected, tatum CLOSED 0 failures, tatum operational=true), internal :8001/api/csrf-token=200, external / =200, /auth/login=200, /api/csrf-token=200 (csrf len 64). REAL LOGIN: POST /api/user/login (hostbay@moxx.co / Katiekendra123@ + CSRF round-trip) → HTTP 200 "Login Successful!" user_id=1 handle=hostbay against LIVE Railway PG; accessToken=1932 chars.
+- Expected quirks: Binance geo-blocked (WS 451/1006, proxy also fails since SSH tunnel disabled — sshpass absent) → CoinGecko/Tatum fallback. ONE CODE-ADJACENT CHANGE (sharp version bump in package.json + lockfile, no logic changes).
+
+---
+
+
+
 # CURRENT SESSION (fresh boot — session 65, 2026-07-17) — ENV PROVISIONING
 
 - **Preview URL**: https://blockchain-processor.preview.emergentagent.com (friendly alias; raw host https://0bd89da8-328b-476a-ac9c-b74a466656c0.preview.emergentagent.com also routes to this pod — both 200 on /api/csrf-token). Both hosts included in CORS_ALLOWED_ORIGINS.
