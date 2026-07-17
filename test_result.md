@@ -65,6 +65,80 @@ If manual testing is not feasible, the main agent could:
 - Merchant: `hostbay@moxx.co / Katiekendra123@` (user_id=1, LIVE Railway PG)
 - Login verified working via API (curl test passed)
 
+### TESTING AGENT VERIFICATION (RETRY - 2026-07-17)
+
+**Test Status:** ❌ **PRIMARY TEST FAILED** — Fix is insufficient, FAB still overlaps last transaction
+
+**Test Environment:**
+- Successfully logged in using the EXACT multi-step UI flow (email → Continue → select Password → fill password → Enter)
+- Tested on mobile viewport (390x844)
+- All regression tests passed
+
+**Test Results:**
+
+❌ **PRIMARY TEST (Mobile /transactions FAB overlap): FAIL**
+- **FAB position:** top=680.0px, bottom=736.0px (56px tall, positioned at bottom: 108px)
+- **Last transaction card:** top=613.4px, bottom=764.2px (150.8px tall)
+- **Vertical overlap:** 56.0px (FAB completely overlaps the bottom portion of the last transaction)
+- **Horizontal overlap:** 56.0px
+- **Scroll container padding-bottom:** 180px ✓ (correctly applied in code)
+- **Issue:** Despite the 180px padding being applied, the last transaction card extends from 613.4px to 764.2px, which means it extends 84.2px BELOW the FAB's top edge (680px)
+
+✅ **REGRESSION A (Mobile nav pill visible): PASS**
+- Mobile nav rect: top=758.4px, bottom=836px, height=77.6px
+- Nav pill is visible and correctly positioned at the bottom
+
+✅ **REGRESSION B (Desktop no huge whitespace): PASS**
+- Desktop scroll container padding-bottom: 16px (minimal, as expected)
+- No excessive whitespace on desktop
+
+✅ **REGRESSION C (Mobile /dashboard "View all" not covered): PASS**
+- "View all" rect: top=429.6px, bottom=461.6px
+- FAB rect: top=680px, bottom=736px
+- No overlap detected (gap of 218.4px)
+
+**Root Cause Analysis:**
+
+The fix applied (180px padding-bottom) is **mathematically correct** based on the FAB position calculation:
+- FAB bottom: 108px from viewport bottom
+- FAB height: 56px
+- FAB top: 108 + 56 = 164px from viewport bottom
+- Padding needed: 164 + 16 (breathing room) = 180px ✓
+
+However, the **actual measured overlap** shows:
+- Viewport height: 844px
+- FAB top: 680px from top (= 844 - 164 = 680px ✓)
+- Last transaction bottom: 764.2px from top
+- **Overlap: 764.2 - 680 = 84.2px**
+
+The issue is that the padding-bottom creates space BELOW the content, but when scrolled to the bottom, the last transaction card still extends into the FAB area. The padding should be **larger** to account for the full area that needs to be kept clear.
+
+**Recommended Fix:**
+
+Increase the mobile padding-bottom from 180px to **240px** or **260px**:
+- Current: 180px clears up to 664px from top (844 - 180)
+- Needed: Content should end before 680px (FAB top)
+- With 240px: Content ends at 604px (844 - 240) → 76px gap to FAB ✓
+- With 260px: Content ends at 584px (844 - 260) → 96px gap to FAB (more breathing room) ✓
+
+**File to modify:** `/app/Containers/Client/index.tsx` line 149
+```diff
+- pb: { xs: "calc(180px + env(safe-area-inset-bottom, 0px))", lg: 0 },
++ pb: { xs: "calc(240px + env(safe-area-inset-bottom, 0px))", lg: 0 },
+```
+
+Or for more breathing room:
+```diff
+- pb: { xs: "calc(180px + env(safe-area-inset-bottom, 0px))", lg: 0 },
++ pb: { xs: "calc(260px + env(safe-area-inset-bottom, 0px))", lg: 0 },
+```
+
+**Screenshots:**
+- `/tmp/mobile_txn_bottom.png` - Shows FAB overlapping last transaction (ID 428)
+- `/tmp/mobile_txn_final.png` - Detailed view of overlap
+- `/tmp/desktop_txn_bottom.png` - Desktop view (no issues)
+- `/tmp/mobile_dash_viewall.png` - Dashboard "View all" (no overlap)
+
 ---
 
 
