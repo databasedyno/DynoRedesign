@@ -1,3 +1,48 @@
+## Session 74 — Prod BTC stuck-tx diagnosis + fee floor fix (2026-07-17)
+
+### User report
+"Both payments received in the last 2 hours did not settle completely — the $17 settled and not the $50." User provided DO API token to inspect prod logs.
+
+### Investigation (DigitalOcean prod app `f86b27dc-feb0-4a44-a4e9-ebd2053e0468`, active deployment `9669b0ac`, and LIVE Railway PG)
+- Pulled `dynoredesign` RUN logs via `/v2/apps/{id}/components/dynoredesign/logs?type=RUN` (400 lines, deployment started 20:26 UTC — logs before that were on the previous pod).
+- Queried `tbl_user_transaction` for hostbay's last 3h → found 2 real completed payments + 1 pending link:
+  1. **USDT-ERC20 $16.82** (tx=`cb8fa358-cfe6-4a53-9076-362599ea43e9`) — status=`successful`, incoming `0xccfbcef6fd637d…` + outgoing `0x42a32283fb8ba6…`. Journal reached `payment_completed` at 20:01:22.
+  2. **BTC $48.38** (tx=`3321b3cd-6743-4a23-9a1a-8149cb05560a`) — status=`successful`, incoming `682fb8cce8e93d16…` + outgoing `d242834b676489ef…`. Journal reached `payment_completed` at 20:16:26.
+- Verified both settlements on-chain:
+  - USDT outgoing (`0x42a32283fb8ba6…`, block 25554668) — 1 ERC-20 Transfer: **17.993243 USDT → merchant** `0x9a7221b5…` ✅ CONFIRMED.
+  - BTC outgoing (`d242834b6764…`) via blockstream.info — **STILL UNCONFIRMED IN MEMPOOL** after 30+ min. Single output 77567 sats → merchant `1JH5TnZzjYTf…`. Fee: **407 sat / 112 vB = 3.63 sat/vB**. Sequence = `0xffffffff` (**NOT RBF-signaled** — cannot fee-bump).
+  - mempool.space `/api/v1/fees/recommended`: `hourFee=4, halfHourFee=5, fastestFee=6 sat/vB` — **the settlement TX fee is BELOW the current network hourFee**.
+
+### Root cause
+`tatumApi.feeEstimation("BTC", …)` returned `fees.fast = 0.00000407 BTC` (≈407 sats total, ≈3.63 sat/vB effective). The settlement code in `cryptoSettlement.ts` used that verbatim → tx broadcast at a fee rate the current mempool won't clear promptly. Tatum SDK also does not signal RBF, so the stuck tx cannot be replaced with a higher-fee tx. Result: DB flips to `payout_complete` after broadcast, but merchant does not see funds until on-chain confirmation.
+
+The USDT $17 settled because ETH gas price was well above network minimum (block 25554668 mined 20:01, ~1 min after broadcast). The BTC $50 is stuck because its BTC fee rate is too low.
+
+Same-wallet consolidation for hostbay (admin wallet `process.env.BTC = 1JH5TnZzjYTf…` == merchant wallet) is a separate cosmetic quirk (admin fee "merged" into merchant output). Not the bug that caused non-settlement.
+
+### Fix applied
+File: `/app/backend/apis/tatumApi.ts` (function `feeEstimation`, BTC/LTC/DOGE branch)
+- After Tatum returns `{slow, medium, fast}` for `currency === "BTC"`, call `https://mempool.space/api/v1/fees/recommended` (5s timeout) and compute `minFeeSats = ceil(halfHourFee × 200 vB)`.
+- If `fees.fast` < that floor, override `fees.fast` (and `fees.medium` when applicable) to the mempool.space floor. Log a warning with the before/after values.
+- Non-blocking: if mempool.space call fails (timeout/network), we keep Tatum's estimate and log a warning — no throw.
+- Scope: BTC only (LTC/DOGE don't use mempool.space endpoint; can be extended later).
+
+### Current stuck tx (out of scope for code change)
+The stuck `d242834b6764…` cannot be RBF-bumped (sequence 0xffffffff). Recovery options:
+- **Wait** — with the mempool at fastestFee=6 sat/vB the tx may still be mined within a few hours to a day (fee is only ~10% below hourFee).
+- **CPFP** — merchant spends the pending 77567-sat UTXO in a new high-fee tx that pulls the parent in. Requires merchant's private key operation on the receiving wallet.
+
+The code fix prevents FUTURE BTC settlements from repeating this failure.
+
+### Files changed
+- `/app/backend/apis/tatumApi.ts` — added mempool.space fee-floor guard in `feeEstimation` for `currency === "BTC"` (only additive; no removed behavior). Backend restarted cleanly, `/health = 200`, database + redis + Tatum all connected.
+
+### Next step
+Call deep_testing_backend_v2 to verify the fee-floor guard is exercised on BTC fee estimation and doesn't break other chains' fee paths.
+
+---
+
+
 ## Session 73 — COMPREHENSIVE MOBILE UX/QA AUDIT (2026-07-17)
 
 ### User Request

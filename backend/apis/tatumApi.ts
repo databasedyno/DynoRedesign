@@ -1095,6 +1095,58 @@ const feeEstimation = async (
       fromAddress: [fromAddress],
       to: [{ address: toAddress, value: Number(amount) }],
     });
+
+    // ── STUCK-TX GUARD (2026-07-17): BTC fee floor from mempool.space ────────────
+    // Tatum's fee estimator has occasionally returned fees BELOW the current
+    // network `hourFee`, causing settlement TXs to sit unconfirmed in the mempool
+    // for hours/days. Concrete incident (2026-07-17): a $50 BTC settlement was
+    // broadcast at 3.63 sat/vB when the network hourFee was 4 sat/vB — the tx
+    // (d242834b676489eff…) remained unconfirmed 30+ min after broadcast and
+    // could not be RBF-bumped (Tatum SDK does not signal RBF).
+    //
+    // Fix: query mempool.space's recommended fees and enforce a floor on
+    // `fast`/`medium` so we always outbid the "hour" tier.
+    if (currency === "BTC") {
+      try {
+        const mempoolRes = await axios.get(
+          "https://mempool.space/api/v1/fees/recommended",
+          { timeout: 5000 }
+        );
+        const halfHourFee: number = Number(mempoolRes?.data?.halfHourFee ?? 0);
+        const hourFee: number = Number(mempoolRes?.data?.hourFee ?? 0);
+        // Prefer halfHourFee (~30-min target); fall back to hourFee.
+        const targetSatPerVB: number = halfHourFee > 0 ? halfHourFee : hourFee;
+        if (targetSatPerVB > 0) {
+          // Estimated worst-case vsize for a P2WPKH sweep (1-in, up to 2-out): ~200 vB.
+          // Overestimating vsize is safe — it just adds a small fee cushion.
+          const ESTIMATED_VSIZE = 200;
+          const minFeeSats = Math.ceil(targetSatPerVB * ESTIMATED_VSIZE);
+          const minFeeBtc = minFeeSats / 1e8;
+
+          const tatumFastBtc = Number(fees?.fast ?? 0);
+          const tatumMediumBtc = Number(fees?.medium ?? 0);
+          if (tatumFastBtc < minFeeBtc) {
+            cronLogger.warn(
+              `[feeEstimation] 🚨 BTC Tatum fast=${tatumFastBtc} BTC (${Math.round(
+                tatumFastBtc * 1e8
+              )} sat) is BELOW mempool.space target ${targetSatPerVB} sat/vB × ${ESTIMATED_VSIZE} vB = ${minFeeSats} sat — flooring to ${minFeeBtc} BTC to prevent stuck settlement.`
+            );
+            (fees as { fast?: string | number }).fast = minFeeBtc.toFixed(8);
+            if (tatumMediumBtc < minFeeBtc) {
+              (fees as { medium?: string | number }).medium = minFeeBtc.toFixed(8);
+            }
+          } else {
+            cronLogger.info(
+              `[feeEstimation] BTC Tatum fast=${tatumFastBtc} BTC ≥ mempool.space floor ${minFeeBtc} BTC (${targetSatPerVB} sat/vB × ${ESTIMATED_VSIZE} vB) — using Tatum estimate.`
+            );
+          }
+        }
+      } catch (mempoolErr) {
+        cronLogger.warn(
+          `[feeEstimation] ⚠️ mempool.space fee lookup failed, using Tatum estimate as-is: ${(mempoolErr as Error).message}`
+        );
+      }
+    }
   } else if (["ETH", "BSC", "USDT-ERC20", "USDC-ERC20", "RLUSD-ERC20"].indexOf(currency) !== -1) {
     const isERC20 = currency === "USDT-ERC20" || currency === "USDC-ERC20" || currency === "RLUSD-ERC20";
     const localAmount: number = Number(amount);
