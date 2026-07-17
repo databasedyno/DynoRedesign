@@ -512,7 +512,12 @@ export async function processWebhookJob(data: WebhookJobData): Promise<void> {
             paymentId: items.payment_id || `addr-${address}`,
             txId: payload.txId,
             address,
-            currency: webhookAsset,
+            // FIX (2026-07-17): `currency` column is VARCHAR(20). webhookAsset is a
+            // 42-char contract hex (e.g. 0xdac17f958d2ee523a2206206994597c13d831ec7),
+            // which overflows and previously threw `value too long for type
+            // character varying(20)`. Use the merchant-facing symbol (max 20 chars)
+            // and keep the raw contract in metadata for auditability.
+            currency: (expectedCurrency || 'unknown').slice(0, 20),
             event: 'spam_token_rejected',
             fromState: items.status || 'unknown',
             toState: items.status || 'unknown',
@@ -570,21 +575,14 @@ export async function processWebhookJob(data: WebhookJobData): Promise<void> {
     }
 
     // ── RELIABILITY: Journal payment detection to PostgreSQL ──
-    try {
-      const { journalStateTransition } = require("./paymentReliability");
-      await journalStateTransition({
-        paymentId: items.payment_id || items.ref || `addr-${address}`,
-        txId: payload.txId,
-        address,
-        currency: items?.currency || payload.asset || 'unknown',
-        event: 'payment_detected',
-        fromState: items.status || 'unknown',
-        toState: 'processing',
-        amount: Number(payload.amount),
-        companyId: Number(items?.company_id || queryCompanyId) || null,
-        metadata: { source: data.source, expectedAmount: items.amount },
-      });
-    } catch (_journalErr) { /* non-blocking */ }
+    // FIX (2026-07-17): DEFER this journal until AFTER amount + terminal-state guards
+    // pass. Previously we journaled `payment_detected` here unconditionally, so
+    // 0-value dust attacks (spam Transfer(from=temp, value=0)) or duplicate webhooks
+    // for an already-settled payment would REGRESS its journal state from
+    // `successful` back to `processing`, making a fully-settled payment look
+    // "stuck" to the merchant. The journal write is now performed once the
+    // webhook has passed the amount validation and status idempotency checks
+    // (see below, right before the settlement flow starts).
 
     // ── 5. Amount validation ──────────────────────────────────────────────────
     const incomingAmount = Number(payload.amount);
@@ -603,6 +601,26 @@ export async function processWebhookJob(data: WebhookJobData): Promise<void> {
       webhookLogs.info("[WebhookProcessor] Payment already successful, ignoring for tx:", payload.txId);
       return;
     }
+
+    // ── RELIABILITY (deferred from earlier): Journal payment_detected ──
+    // Now that amount is > 0 AND the payment is not already terminal, it is safe
+    // to record `payment_detected` in the durable journal. Doing this earlier
+    // caused dust/duplicate webhooks to regress the state of settled payments.
+    try {
+      const { journalStateTransition } = require("./paymentReliability");
+      await journalStateTransition({
+        paymentId: items.payment_id || items.ref || `addr-${address}`,
+        txId: payload.txId,
+        address,
+        currency: items?.currency || payload.asset || 'unknown',
+        event: 'payment_detected',
+        fromState: items.status || 'unknown',
+        toState: 'processing',
+        amount: incomingAmount,
+        companyId: Number(items?.company_id || queryCompanyId) || null,
+        metadata: { source: data.source, expectedAmount: items.amount },
+      });
+    } catch (_journalErr) { /* non-blocking */ }
 
     // ── 6b. Failed payment recovery ──────────────────────────────────────────
     // When a previous attempt set txId but failed settlement (e.g., UTXO fee mismatch,
