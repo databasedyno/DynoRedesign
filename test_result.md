@@ -1,3 +1,29 @@
+## Session 66 — Cover upload UX (drag-drop + lime cover) + admin error-email spam (2026-07-17)
+
+### Environment
+- Preview: https://blockchain-processor.preview.emergentagent.com (LIVE Railway prod DB — do NOT persist test data unnecessarily)
+- Merchant test creds: **hostbay@moxx.co / Katiekendra123@** (user_id=1, handle=hostbay). Creator settings route: /creator
+
+### User-reported bugs + root causes
+1. **Drag-and-drop image not uploading (just opens the file).** Root cause: the cover-preview box in `Components/Page/Creator/CreatorPageSettings.tsx` had NO onDrop/onDragOver handlers → browser default (open file) fired.
+2. **After "Upload image", the uploaded image doesn't show — shows lime green.** Root cause: uploading set `coverImage` but NOT the page `cover_style`. The public page `CreatorProfile.tsx` renders the banner only when `cover_style === 'image'`; with the default "Solid" style it shows the lime accent gradient (accent defaults to #CCFF00), hiding the uploaded image. (The upload endpoint itself works — verified via authenticated screenshot: live-preview showed the image; only public-page style gating was wrong.)
+3. **Admin flooded with error emails.** Root cause: `backend/services/errorMonitoringService.ts` sends an IMMEDIATE alert email for EVERY high/critical error with NO dedup/throttle → a burst of the same recurring error = one email each.
+
+### Fixes implemented (frontend + backend)
+- **CreatorPageSettings.tsx (frontend, hot-reloaded):** refactored upload into shared `uploadCoverFile(file)`; on success now also `setThemeCoverStyle("image")` so the banner shows on the public page. Added drag-and-drop (`onDragOver/onDragEnter/onDragLeave/onDrop` with preventDefault + drag highlight) + click-to-upload on the preview box; updated placeholder to "Drag & drop an image here, or click to upload". Remove button now stopPropagation. Lint clean (2 pre-existing unescaped-apostrophe errors at lines 881/893 are NOT mine).
+- **errorMonitoringService.ts (backend, needs Save-to-GitHub to deploy):** added per-fingerprint immediate-alert cooldown (1h) — at most ONE real-time email per unique error per hour; duplicates still roll into the 15-min digest (no lost visibility).
+- (Prior session 65: directEvmTransfer.ts RPC fix also pending Save-to-GitHub — reduces a major error-email source too.)
+
+### What to verify (FRONTEND — auto_frontend_testing_agent) — PREVIEW /creator, do NOT click Save (avoid persisting to shared prod DB)
+Login as hostbay@moxx.co / Katiekendra123@ → go to /creator.
+1. **Drag-drop:** drag an image file onto the "Cover image" box → it should UPLOAD (spinner then image), NOT open the file in a new tab. Box should highlight while dragging.
+2. **Auto cover-style:** after upload, the "Cover style" selector should auto-switch to "Image" (previously stayed "Solid"), and the settings cover box + right-side Live Preview should show the uploaded image (NOT a lime/yellow gradient).
+3. **Click upload still works** via the "Upload image"/"Replace image" button.
+Do NOT click "Save creator page" (keeps hostbay's live cover unchanged). Report PASS/FAIL for drag-drop upload, cover-style auto-switch, and image rendering.
+
+---
+
+
 ## Session 65 — Prod bug fixes: dynopay.me CORS + EVM RPC spam (2026-07-17)
 
 ### Environment

@@ -184,6 +184,30 @@ const extractErrorDetails = (error: unknown): {
  * @param component - Where the error originated
  * @param options - Additional context for reproduction
  */
+
+// ─── Immediate-alert de-duplication ──────────────────────────────────────────
+// Without this, EVERY high/critical error sends its own real-time email, so a
+// burst of the same recurring error (e.g. repeated RPC/payment failures) floods
+// the admin inbox. We now send at most ONE immediate alert per unique error
+// fingerprint within a cooldown window. The error is still buffered for the
+// 15-minute digest, so nothing is lost — duplicates just roll up there.
+const IMMEDIATE_ALERT_COOLDOWN_MS = 60 * 60 * 1000; // 1 hour per unique fingerprint
+const lastImmediateAlertAt = new Map<string, number>();
+
+const shouldSendImmediate = (fingerprint: string): boolean => {
+  const now = Date.now();
+  const last = lastImmediateAlertAt.get(fingerprint) || 0;
+  if (now - last < IMMEDIATE_ALERT_COOLDOWN_MS) return false;
+  lastImmediateAlertAt.set(fingerprint, now);
+  // Bound memory: prune expired entries once the map grows large
+  if (lastImmediateAlertAt.size > 500) {
+    for (const [fp, ts] of lastImmediateAlertAt) {
+      if (now - ts > IMMEDIATE_ALERT_COOLDOWN_MS) lastImmediateAlertAt.delete(fp);
+    }
+  }
+  return true;
+};
+
 export const captureError = (
   error: unknown,
   component: ErrorComponent,
@@ -243,6 +267,12 @@ export const captureError = (
       if (immediateAlertInFlight && component === "email") {
         cronLogger.warn(
           `[ErrorMonitor] Suppressing nested email immediate-alert (provider outage suspected) — error buffered for digest`
+        );
+      } else if (!shouldSendImmediate(entry.fingerprint)) {
+        // Same error already alerted within the cooldown window — skip the
+        // duplicate real-time email; it still rolls up in the 15-min digest.
+        cronLogger.warn(
+          `[ErrorMonitor] Immediate alert throttled (duplicate within cooldown) — buffered for digest: ${entry.message.substring(0, 80)}`
         );
       } else {
         sendImmediateAlert(entry).catch((e) => {

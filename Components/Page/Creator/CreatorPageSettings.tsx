@@ -68,6 +68,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
   const [bio, setBio] = useState("");
   const [enabled, setEnabled] = useState(false);
   const [coverImage, setCoverImage] = useState<string | null>(null);
+  const [coverDragActive, setCoverDragActive] = useState(false);
   const [socialLinks, setSocialLinks] = useState<Record<string, string>>({});
   const [uploadingCover, setUploadingCover] = useState(false);
   // ── Custom Creator Theme state (Session 60) ──
@@ -300,9 +301,16 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
     setTimeout(() => setCopied(false), 1800);
   };
 
-  const onCoverFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  // Shared cover uploader — used by the file <input>, the "Upload image"
+  // button, and drag-and-drop. On success it also flips the page cover style
+  // to "image" so the uploaded banner actually renders on the public page
+  // (a "solid"/"gradient" style would otherwise hide it behind a lime cover).
+  const uploadCoverFile = async (file?: File | null) => {
     if (!file) return;
+    if (!file.type || !file.type.startsWith("image/")) {
+      dispatch({ type: TOAST_SHOW, payload: { message: "Please choose an image file (JPEG, PNG, GIF, WebP or SVG)", severity: "error" } });
+      return;
+    }
     if (file.size > 10 * 1024 * 1024) {
       dispatch({ type: TOAST_SHOW, payload: { message: "Image must be under 10 MB", severity: "error" } });
       return;
@@ -315,13 +323,39 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
         headers: { "Content-Type": "multipart/form-data" },
       });
       const url = r?.data?.data?.url;
-      if (url) setCoverImage(url);
+      if (url) {
+        setCoverImage(url);
+        setThemeCoverStyle("image");
+      }
     } catch (err: any) {
       dispatch({ type: TOAST_SHOW, payload: { message: err?.response?.data?.message || "Upload failed", severity: "error" } });
     } finally {
       setUploadingCover(false);
       if (coverFileRef.current) coverFileRef.current.value = "";
     }
+  };
+
+  const onCoverFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    void uploadCoverFile(e.target.files?.[0]);
+  };
+
+  // Drag-and-drop — preventDefault stops the browser from just opening the
+  // dropped image in a new tab; instead we upload it.
+  const onCoverDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!coverDragActive) setCoverDragActive(true);
+  };
+  const onCoverDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setCoverDragActive(false);
+  };
+  const onCoverDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setCoverDragActive(false);
+    void uploadCoverFile(e.dataTransfer?.files?.[0]);
   };
 
   const inputSx = {
@@ -451,13 +485,20 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
         <Typography sx={labelSx}>Cover image <Typography component="span" fontSize={11.5} color={theme.palette.text.disabled} fontWeight={400}>(optional, recommended 1200×400)</Typography></Typography>
         <Box
           data-testid="creator-cover-preview"
+          onClick={() => { if (!uploadingCover) coverFileRef.current?.click(); }}
+          onDragOver={onCoverDragOver}
+          onDragEnter={onCoverDragOver}
+          onDragLeave={onCoverDragLeave}
+          onDrop={onCoverDrop}
           sx={{
             position: "relative",
             width: "100%",
             aspectRatio: "3 / 1",
             borderRadius: "14px",
-            border: `1px dashed ${border}`,
+            border: `${coverDragActive ? 2 : 1}px dashed ${coverDragActive ? theme.palette.primary.main : border}`,
             overflow: "hidden",
+            cursor: uploadingCover ? "default" : "pointer",
+            transition: "border-color .15s ease",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -468,9 +509,11 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
           }}
         >
           {!coverImage && !uploadingCover && (
-            <Box sx={{ textAlign: "center", color: theme.palette.text.secondary, px: 2 }}>
+            <Box sx={{ textAlign: "center", color: theme.palette.text.secondary, px: 2, pointerEvents: "none" }}>
               <Icon icon="mdi:image-plus-outline" width={26} />
-              <Typography fontSize={12.5} mt={0.5}>Upload a banner (up to 10 MB)</Typography>
+              <Typography fontSize={12.5} mt={0.5}>
+                {coverDragActive ? "Drop image to upload" : "Drag & drop an image here, or click to upload (up to 10 MB)"}
+              </Typography>
             </Box>
           )}
           {uploadingCover && <CircularProgress size={22} />}
@@ -480,7 +523,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
                 size="small"
                 variant="contained"
                 data-testid="creator-cover-remove"
-                onClick={() => setCoverImage(null)}
+                onClick={(e: React.MouseEvent) => { e.stopPropagation(); setCoverImage(null); }}
                 sx={{ textTransform: "none", fontSize: 11.5, minWidth: 0, py: 0.4, px: 1, backgroundColor: "rgba(0,0,0,0.65)", color: "#fff", "&:hover": { backgroundColor: "rgba(0,0,0,0.8)" } }}
               >
                 Remove
