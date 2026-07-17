@@ -138,11 +138,15 @@ const ClientLayout = ({
                   overflowX: "hidden",
                   display: "flex",
                   flexDirection: "column",
-                  // Mobile: clear the fixed bottom nav pill (~74px tall incl. its
-                  // own offset) PLUS the device safe-area inset so the last row of
-                  // any page (e.g. transactions table / pagination footer) is never
-                  // hidden behind the floating nav. Desktop has no bottom nav.
-                  pb: { xs: "calc(96px + env(safe-area-inset-bottom, 0px))", lg: 0 },
+                  // Mobile: clear (a) the fixed bottom nav pill (~74px tall incl.
+                  // its own offset) AND (b) the "Emily" support-chat FAB that
+                  // sits above the nav in client layout (bottom 108px + 56px tall
+                  // = top edge ~164px above viewport bottom). Without this, the
+                  // bottom-right area of the last visible row on any list-heavy
+                  // page (e.g. /transactions Pending badge + timestamp) gets
+                  // occluded by the FAB. 180px = 164 (FAB top) + 16 breathing.
+                  // Plus safe-area inset for notched devices. Desktop has no bottom nav/FAB clash.
+                  pb: { xs: "calc(180px + env(safe-area-inset-bottom, 0px))", lg: 0 },
                 }}
               >
                 {(pageName || pageDescription) && (

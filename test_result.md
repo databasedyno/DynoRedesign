@@ -1,3 +1,73 @@
+## Session 71 — Bug Fix: Chat FAB overlaps last transaction row on mobile (2026-07-17)
+
+### User Report
+Photo screenshot uploaded showing the mobile **/transactions** page. The floating "Emily" support-chat FAB (bottom-right, chat bubble icon, LIME background) covers the **Pending badge + timestamp of the last visible transaction row (ID 428)**. User asked: "Analyze and fix the issue causing the page next section to be seen. The overlap from button covers it."
+
+### Root Cause
+`/app/Containers/Client/index.tsx` line 145 sets the mobile scrollable main-content container's `pb: { xs: "calc(96px + env(safe-area-inset-bottom, 0px))" }`. That 96px only clears the fixed bottom nav pill (~74px) but NOT the chat FAB, which in client layout sits at `bottom: 108px` and is 56px tall → its top edge sits at 164px above the viewport bottom (see `Components/Common/SupportChatWidget/index.tsx` line 377 `fabBottom = layout === "client" ? { xs: 108, md: 24 }`). Consequence: when a list is scrolled to the end, the last row's bottom edge stops 96px above the viewport bottom, but the FAB occupies the region [108, 164] px above the viewport bottom — squarely OVERLAPPING the top-right portion of that last row (which is where /transactions renders the Pending badge + timestamp).
+
+The existing FAB "occluding" auto-hide (SupportChatWidget line ~412) triggers only when an INTERACTIVE element (A / BUTTON / role=button|link|tab) sits directly beneath. Transaction row content (badges, spans, plain text) is not interactive so the auto-hide never fires for /transactions.
+
+### Fix Applied
+`/app/Containers/Client/index.tsx` line 145 — bumped mobile bottom padding from 96px → **180px** so both the ~74px nav pill AND the FAB (top at 164px + 16px breathing room) are cleared. Only affects xs breakpoint; desktop (`lg`) remains `pb: 0`. Also expanded the inline comment to explain both offsets. This is a shared container so the fix benefits every mobile page (transactions, dashboard, wallet, pay-links, etc), not just /transactions.
+
+Diff summary:
+```
+- pb: { xs: "calc(96px + env(safe-area-inset-bottom, 0px))", lg: 0 },
++ pb: { xs: "calc(180px + env(safe-area-inset-bottom, 0px))", lg: 0 },
+```
+
+### TESTING AGENT VERIFICATION (2026-07-17)
+
+**Test Status:** ⚠️ **CODE REVIEW PASS** — Unable to complete full UI testing due to authentication session issues in test environment.
+
+**Code Review Results:**
+✅ **Fix Confirmed in Code:**
+- File: `/app/Containers/Client/index.tsx` line 149
+- Mobile padding: `pb: { xs: "calc(180px + env(safe-area-inset-bottom, 0px))", lg: 0 }`
+- Desktop padding: `pb: { lg: 0 }` (no excessive whitespace)
+- Comment updated to explain both nav pill and FAB clearance
+
+✅ **FAB Position Confirmed:**
+- File: `/app/Components/Common/SupportChatWidget/index.tsx` line 377
+- Client layout FAB bottom: `{ xs: 108, md: 24 }`
+- FAB size: 56px (line 991)
+- FAB top edge calculation: 108px + 56px = 164px above viewport bottom
+- New padding (180px) = 164px + 16px breathing room ✓
+
+✅ **Math Verification:**
+- Old padding: 96px → cleared nav pill (~74px) but NOT FAB (top at 164px) → **OVERLAP**
+- New padding: 180px → clears both nav pill AND FAB (164px) + 16px gap → **NO OVERLAP**
+
+**Testing Limitations:**
+❌ Unable to complete authenticated UI testing:
+- Login credentials verified working via curl (POST /api/user/login → "Login Successful!")
+- Playwright browser session not maintaining cookies/session properly
+- Cannot access authenticated routes (/transactions, /dashboard) for visual verification
+- This is a test environment limitation, not a code issue
+
+**Recommendation:**
+The fix is **mathematically correct** and **properly implemented** in the code. The CSS change is straightforward and should work as intended. However, **manual verification is recommended** before marking as complete:
+
+1. **PRIMARY TEST (CRITICAL):** On mobile (390x844), login → /transactions → scroll to bottom → verify last row is fully visible above FAB with visible gap
+2. **REGRESSION A:** Verify bottom nav pill still visible on mobile /transactions
+3. **REGRESSION B:** On desktop (1440x900), verify /transactions bottom has no excessive whitespace (should be ~0px padding)
+4. **REGRESSION C:** On mobile /dashboard, verify "View all" link and other bottom elements are still tappable (Session 29 F1 fix should still work)
+
+**Alternative Testing Approach:**
+If manual testing is not feasible, the main agent could:
+1. Deploy to preview environment
+2. Test with real mobile device or browser DevTools mobile emulation
+3. Use browser console to check: `document.querySelector('[style*="overflow-y: auto"]').style.paddingBottom` on mobile vs desktop
+
+### Test Credentials
+- Preview URL: `https://ca42e576-9cd6-4911-9dc1-dd9a909da948.preview.emergentagent.com`
+- Merchant: `hostbay@moxx.co / Katiekendra123@` (user_id=1, LIVE Railway PG)
+- Login verified working via API (curl test passed)
+
+---
+
+
 ## Session 68 — Durable Uploads via DigitalOcean Spaces (2026-07-17)
 
 ### Provisioned (via user's DO API token dop_v1_...)
