@@ -88,35 +88,49 @@ function getRpcUrls(chain: "ETH" | "POLYGON"): string[] {
   const tatumKey = process.env.TATUM_KEY || process.env.TATUM_SECRET_KEY || "";
 
   if (chain === "POLYGON") {
-    const urls = [];
-    urls.push("https://polygon-rpc.com");
+    // NOTE: https://polygon-rpc.com now returns HTTP 401 "API key disabled /
+    // tenant disabled" for anonymous requests, which broke provider network
+    // detection. Lead with reachable public nodes; keep Tatum as authed fallback.
+    const urls = [
+      "https://polygon-bor-rpc.publicnode.com",
+      "https://polygon.drpc.org",
+    ];
     if (tatumKey) urls.push(`https://api.tatum.io/v3/polygon/web3/${tatumKey}`);
     return urls;
   }
 
-  // Ethereum - Use public RPC first for better reliability
-  const urls = [];
-  urls.push("https://eth.llamarpc.com");
-  urls.push("https://ethereum-rpc.publicnode.com");
+  // Ethereum — https://eth.llamarpc.com started returning HTTP 521 (server
+  // down), which stalled network detection. Lead with reliable public nodes.
+  const urls = [
+    "https://ethereum-rpc.publicnode.com",
+    "https://eth.drpc.org",
+  ];
   if (tatumKey) urls.push(`https://api.tatum.io/v3/ethereum/web3/${tatumKey}`);
   return urls;
 }
 
 // ─── Provider Factory ──────────────────────────────────────────────────────────
 
-function createProvider(rpcUrl: string): ethers.JsonRpcProvider {
+function createProvider(rpcUrl: string, chain: "ETH" | "POLYGON"): ethers.JsonRpcProvider {
+  // Pin the network explicitly (ETH=1, POLYGON=137) so ethers NEVER runs its
+  // own eth_chainId "network detection". Detecting against a dead/unauthorized
+  // endpoint is what produced the noisy log loop:
+  //   "JsonRpcProvider failed to detect network and cannot start up; retry in 1s"
+  // With an explicit staticNetwork the provider fails fast on an unreachable RPC
+  // and the caller falls through to the next endpoint in getRpcUrls().
+  const network = ethers.Network.from(chain === "POLYGON" ? 137 : 1);
   // Tatum proxy needs API key in header too for some endpoints
   const tatumKey = process.env.TATUM_KEY || process.env.TATUM_SECRET_KEY || "";
   if (rpcUrl.includes("tatum.io") && tatumKey) {
     const fetchReq = new ethers.FetchRequest(rpcUrl);
     fetchReq.setHeader("x-api-key", tatumKey);
     fetchReq.timeout = 15000;
-    return new ethers.JsonRpcProvider(fetchReq, undefined, {
-      staticNetwork: true,
+    return new ethers.JsonRpcProvider(fetchReq, network, {
+      staticNetwork: network,
     });
   }
-  return new ethers.JsonRpcProvider(rpcUrl, undefined, {
-    staticNetwork: true,
+  return new ethers.JsonRpcProvider(rpcUrl, network, {
+    staticNetwork: network,
   });
 }
 
@@ -178,7 +192,7 @@ export async function directEvmSweep(params: {
     const rpcLabel = rpcUrl.substring(0, 50) + (rpcUrl.length > 50 ? "..." : "");
     try {
       cronLogger.info(`${LOG_PREFIX} Attempting via ${rpcLabel}`);
-      const provider = createProvider(rpcUrl);
+      const provider = createProvider(rpcUrl, config.chain);
       const wallet = new ethers.Wallet(params.privateKey, provider);
 
       // 1. Get nonce (use 'pending' to account for in-flight TXs)
