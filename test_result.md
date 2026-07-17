@@ -18,8 +18,12 @@ Used the automated frontend testing agent (Playwright browser automation) — it
 - Next arrow at y=598 (fully in viewport 0–844); topmost element at its center IS the arrow (not occluded); FAB at y=680 (54px below, no overlap).
 - Tapping NEXT advanced cards (ETH→BTC, ids 418/417/416), 2nd tap → page 3, PREVIOUS goes back. No console errors.
 
-### OPEN / related finding (NOT yet fixed — pending user go-ahead)
-- `PaymentLinksTable.tsx`: pagination `TableFooter` is rendered ONLY in the desktop branch (`isMobile ? cards : <container+footer>`), so on MOBILE /pay-links there is NO pagination control at all (mobile users can't page past the first N links). Needs a separate fix (render pagination on mobile + same FAB clearance). Customers/Invoices tables not yet audited.
+### OPEN / related finding — RESOLVED (session 72, option a)
+- `PaymentLinksTable.tsx`: pagination footer was rendered ONLY in the desktop branch → mobile had NO pager. FIX: added a compact mobile pager (RowsPerPageSelector + MobileNavigationButtons, same page/setPage/rows handlers as desktop) inside the mobile branch fragment + a 180px FAB/nav clearance spacer. Desktop branch untouched (no regression). Verified mobile: pager renders ("Showing 13 of 13 links"), Next arrow y=602 in viewport, not occluded, FAB 50px below.
+- `Customers/index.tsx`: added `{isMobile && totalPages > 1 && <Box height 96px/>}` after the MUI `<Pagination>` for FAB/nav clearance. Verified mobile: 24 customers, pagination [1,2] visible (688–720px), not occluded, functional (page 2 → 20→4).
+- `invoices.tsx`: added `{isMobile && totalInvoices > 20 && <Box height 96px/>}` after the list PanelCard. Verified mobile: renders cleanly (6 invoices, <20 so pager hidden as expected; spacer applies when >20).
+- NOTE: earlier testing-agent "FAIL" on pay-links/transactions was a FALSE ALARM — the agent scrolled the window instead of the nested `overflow:auto` container, and checked the spacer via inline style (MUI `sx` → CSS class). Re-run with the correct nested-container scroll → BOTH PASS.
+
 
 ---
 
