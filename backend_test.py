@@ -9,7 +9,7 @@ import json
 from typing import Dict, List, Tuple
 
 # Backend base URL
-BACKEND_URL = "https://fast-onboard-3.preview.emergentagent.com"
+BACKEND_URL = "https://crypto-payment-hub-30.preview.emergentagent.com"
 
 def test_cors_preflight(origin: str, endpoint: str = "/api/csrf-token") -> Tuple[bool, str, Dict]:
     """
@@ -63,7 +63,7 @@ def main():
         (2, "https://checkout.dynopay.com", "ALLOWED", "Subdomain of trusted base (in explicit list)"),
         (3, "https://api.dynopay.com", "ALLOWED", "***KEY TEST*** Subdomain NOT in explicit list (guardrail auto-includes)"),
         (4, "https://random-sub.dynopay.com", "ALLOWED", "Any subdomain of trusted base"),
-        (5, "https://fast-onboard-3.preview.emergentagent.com", "ALLOWED", "Preview pattern"),
+        (5, "https://crypto-payment-hub-30.preview.emergentagent.com", "ALLOWED", "Preview pattern"),
         (6, "https://evil-attacker-site.com", "BLOCKED", "Untrusted origin"),
         (7, "https://dynopay.com.evil.com", "BLOCKED", "Lookalike suffix attack"),
     ]
