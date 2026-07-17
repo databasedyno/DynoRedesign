@@ -11,7 +11,7 @@ from typing import Dict, Any, Optional
 
 class DynoPayStructureTester:
     def __init__(self):
-        self.backend_url = "https://crypto-payment-hub-30.preview.emergentagent.com"
+        self.backend_url = "https://blockchain-processor-1.preview.emergentagent.com"
         self.session = requests.Session()
         self.test_results = {
             'health_check_working': False,
