@@ -23,6 +23,7 @@ import { generateQRCodeWithLogo } from "../../utils/qrCodeWithLogo";
 import * as merchantPoolService from "../../services/merchantPoolService";
 import { getCryptoRedisKey } from "../../services/merchantPool/merchantPoolConfig";
 import { PaymentState, parseState } from "../../services/paymentStateMachine";
+import { finalizeUploadedImage } from "../../services/objectStorage";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // DONATION / CROWDFUNDING HELPERS
@@ -2153,7 +2154,7 @@ export const uploadCampaignImage = async (
       return errorResponseHelper(res, 400, "No image uploaded.");
     }
     const serverUrl = (process.env.SERVER_URL || "").trim().replace(/\/$/, "");
-    const url = `${serverUrl}/api/static/images/${file.filename}`;
+    const url = await finalizeUploadedImage(file, serverUrl);
     apiLogger.info(`[uploadCampaignImage] uploaded: ${file.filename} (${file.mimetype}, ${file.size}b)`);
     return successResponseHelper(res, 200, "Image uploaded", {
       url,

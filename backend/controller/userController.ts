@@ -28,6 +28,7 @@ import { userLogger } from "../utils/loggers";
 import { getRedisItem, setRedisItem, setRedisTTL, deleteRedisItem, setRedisItemWithTTL, redis } from "../utils/redisInstance";
 import { isAccountLocked, recordFailedAttempt, clearFailedAttempts } from "../services/accountLockoutService";
 import { createSession } from "../services/sessionService";
+import { finalizeUploadedImage } from "../services/objectStorage";
 import { is2FARequired } from "../services/twoFactorService";
 import { normalizeLang } from "../utils/emailI18n";
 
@@ -4179,7 +4180,7 @@ const uploadCoverImage = async (req: express.Request, res: express.Response) => 
       return errorResponseHelper(res, 400, "No image uploaded.");
     }
     const serverUrl = (process.env.SERVER_URL || "").trim().replace(/\/$/, "");
-    const url = `${serverUrl}/api/static/images/${file.filename}`;
+    const url = await finalizeUploadedImage(file, serverUrl);
     userLogger.info(`[uploadCoverImage] uploaded: ${file.filename} (${file.mimetype}, ${file.size}b)`);
     return successResponseHelper(res, 200, "Cover image uploaded", {
       url,
