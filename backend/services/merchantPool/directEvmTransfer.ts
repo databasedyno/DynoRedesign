@@ -84,7 +84,7 @@ const ERC20_IFACE = new ethers.Interface([
 
 // ─── RPC Endpoints ─────────────────────────────────────────────────────────────
 
-function getRpcUrls(chain: "ETH" | "POLYGON"): string[] {
+export function getRpcUrls(chain: "ETH" | "POLYGON"): string[] {
   const tatumKey = process.env.TATUM_KEY || process.env.TATUM_SECRET_KEY || "";
 
   if (chain === "POLYGON") {

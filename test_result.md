@@ -1,3 +1,120 @@
+## Session 67 — Enhancements: Domain Guardrail (CORS) + RPC Failover Alert (2026-07-17)
+
+### Environment
+- Preview: https://blockchain-processor.preview.emergentagent.com (WORKER_ROLE=secondary, ENABLE_BACKGROUND_JOBS=false → leader cron does NOT run here)
+- Merchant creds: hostbay@moxx.co / Katiekendra123@ (multi-step login: email → Continue → select "Password" method → password → CLICK "Continue" button [Enter does not submit])
+
+### Enhancements implemented
+1. **Domain Guardrail (CORS) — backend/server.ts:** Replaced the static allow-list (which silently broke when a new alias like dynopay.me was added) with an always-callback validator. Allows: (a) exact origins in CORS_ALLOWED_ORIGINS; (b) apex + ANY subdomain of "trusted base domains" auto-derived from SERVER_URL/FRONTEND_URL/CHECKOUT_URL/NEXTAUTH_URL/NEXT_PUBLIC_BASE_URL + apexes of the explicit list + optional CORS_TRUSTED_DOMAINS (infra apexes emergentagent/railway/ondigitalocean/localhost excluded); (c) safe patterns localhost, *.preview.emergentagent.com, *.up.railway.app, *.ondigitalocean.app. Unknown origins logged (warn) + blocked. Startup logs "CORS trusted base domains: ...". Verified healthy on restart; preview logged "dynopay.com" (prod will also include dynopay.me).
+2. **RPC Failover Alert — backend/services/rpcHealthMonitor.ts (NEW):** checkRpcHealth() pings every EVM sweep RPC (getRpcUrls ETH+POLYGON, now exported) via eth_chainId; dead endpoint → captureError severity "high" (immediate alert, deduped 1h/endpoint by session-66 cooldown); ALL endpoints for a chain dead → "critical" + Slack/Discord. Scheduled every 10 min + one baseline run inside registerLeaderCronJobs (LEADER-ONLY → never runs in preview/secondary; only production primary). Tatum key redacted in logs/alerts. Module loads clean; getRpcUrls returns ETH:3, POLYGON:3.
+   NOTE: still pending Save-to-GitHub to reach production (along with session-65 directEvmTransfer RPC fix + session-66 error-email cooldown + this session's changes).
+
+### #1 Durable Uploads (DO Spaces) — NOT yet implemented
+Blocked on credentials/decision. Playbook expert returned Emergent Object Storage (no user creds needed) instead of DO Spaces. Need user to choose: provide DO Spaces keys (access key/secret/bucket/region/CDN) OR approve Emergent Object Storage. Ask before implementing.
+
+### What to test
+- BACKEND (deep_testing_backend_v2): CORS Domain Guardrail via OPTIONS preflight on https://blockchain-processor.preview.emergentagent.com/api/csrf-token with Origin header variations — see task. Also confirm normal API still works (GET /api/csrf-token, /health = 200).
+- FRONTEND (auto_frontend_testing_agent): re-verify session-66 cover fixes (drag-drop upload + auto cover-style "Image", no lime) using the correct multi-step login above; do NOT click Save.
+
+
+### BACKEND TESTING COMPLETE — Session 67 CORS Domain Guardrail (2026-07-17)
+
+**Testing Agent:** deep_testing_backend_v2  
+**Test Date:** 2026-07-17  
+**Backend URL:** https://blockchain-processor.preview.emergentagent.com
+
+#### ❌ CRITICAL FINDING: CORS Domain Guardrail NOT FUNCTIONAL
+
+**Root Cause**: Cloudflare (CDN/proxy) is intercepting ALL requests and adding wildcard `access-control-allow-origin: *` headers, completely bypassing the backend's CORS implementation.
+
+**Test Results Summary: 3/9 tests PASSED (33.3%)**
+
+#### CORS Preflight Tests (OPTIONS /api/csrf-token)
+
+| Test | Origin | Expected | Actual | Status |
+|------|--------|----------|--------|--------|
+| 1 | https://dynopay.com | ALLOWED | `*` wildcard | ⚠️ ALLOWED (wrong reason) |
+| 2 | https://checkout.dynopay.com | ALLOWED | `*` wildcard | ⚠️ ALLOWED (wrong reason) |
+| 3 | https://api.dynopay.com (KEY TEST) | ALLOWED | `*` wildcard | ⚠️ ALLOWED (wrong reason) |
+| 4 | https://random-sub.dynopay.com | ALLOWED | `*` wildcard | ⚠️ ALLOWED (wrong reason) |
+| 5 | https://blockchain-processor.preview.emergentagent.com | ALLOWED | `*` wildcard | ⚠️ ALLOWED (wrong reason) |
+| 6 | https://evil-attacker-site.com | BLOCKED | `*` wildcard | ❌ **ALLOWED (SECURITY ISSUE)** |
+| 7 | https://dynopay.com.evil.com | BLOCKED | `*` wildcard | ❌ **ALLOWED (SECURITY ISSUE)** |
+
+**All external requests receive:**
+```
+HTTP/2 204
+access-control-allow-origin: *
+server: cloudflare
+```
+
+#### Normal API Tests
+
+| Test | Endpoint | Expected | Actual | Status |
+|------|----------|----------|--------|--------|
+| 8 | GET /api/csrf-token | HTTP 200 with JSON | HTTP 200 ✓ | ✅ PASS |
+| 9 | GET /health | HTTP 200 | HTTP 404 | ❌ FAIL (routing issue) |
+
+#### Backend Code Verification: ✅ CORRECT
+
+The backend CORS implementation (server.ts lines 125-197) is **correctly coded**:
+- ✅ Callback-based origin validator
+- ✅ Trusted base domains: dynopay.com (confirmed in logs)
+- ✅ Safe patterns for localhost, preview, railway, digitalocean
+- ✅ Proper logging of blocked origins
+- ✅ Both `app.use(cors())` and `app.options("*", cors())` configured
+
+**Backend logs confirm implementation works for internal requests:**
+```
+[Backend] [2026-07-17T09:04:21.058Z] ✅ CORS trusted base domains: dynopay.com
+[Backend] [2026-07-17T09:09:30.331Z] ⚠️ CORS blocked origin: https://blockchain-processor.cluster-5.preview.emergentcf.cloud
+```
+
+#### Security Implications
+
+**Current State (Cloudflare Wildcard):**
+- ❌ ANY origin can make authenticated requests to the API
+- ❌ Lookalike domain attacks (dynopay.com.evil.com) are NOT blocked
+- ❌ Phishing sites can embed the API and make requests
+- ❌ The "Domain Guardrail" feature is NOT functional
+
+**Expected State (Backend Implementation):**
+- ✅ Only trusted origins (dynopay.com + subdomains) allowed
+- ✅ Preview infrastructure patterns allowed
+- ✅ Untrusted origins blocked
+- ✅ Lookalike attacks blocked
+
+#### Recommendations
+
+**IMMEDIATE ACTION REQUIRED:**
+
+1. **Configure Cloudflare to NOT add CORS headers**
+   - Cloudflare dashboard → Rules → Transform Rules
+   - Remove CORS headers added by Cloudflare
+   - Let backend handle all CORS logic
+
+2. **Fix /health endpoint routing**
+   - Backend defines /health at root path
+   - Kubernetes ingress only routes /api/* to backend
+   - Either: Add /api/health route OR configure ingress to route /health
+
+3. **Verification Steps After Cloudflare Fix:**
+   - Test OPTIONS with trusted origin → should return `access-control-allow-origin: https://dynopay.com` (exact match)
+   - Test OPTIONS with untrusted origin → should return NO `access-control-allow-origin` header
+   - Check backend logs for "CORS blocked origin" messages
+
+**Detailed test report:** /app/cors_test_report.md
+
+#### Conclusion
+
+The backend's "Domain Guardrail" CORS implementation is **correctly coded** but **not functional** in the preview environment due to Cloudflare intercepting requests. This is an **infrastructure configuration issue**, not a code issue.
+
+**The feature cannot be properly tested until Cloudflare is configured to allow the backend to handle CORS.**
+
+
+---
+
+
 ## Session 66 — Cover upload UX (drag-drop + lime cover) + admin error-email spam (2026-07-17)
 
 ### Environment

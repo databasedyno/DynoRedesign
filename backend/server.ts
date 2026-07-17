@@ -46,6 +46,7 @@ import { startTunnelManager } from "./services/sshTunnelManager";
 import { getAllFeeRates, getFeeRates } from "./services/feeRateService";
 import { captureError, startErrorMonitoring, stopErrorMonitoring, getMonitoringStats, flushErrorDigest, sendErrorDigest } from "./services/errorMonitoringService";
 import { startLeaderElection, stopLeaderElection, isLeader, getInstanceId } from "./utils/leaderElection";
+import { checkRpcHealth } from "./services/rpcHealthMonitor";
 import * as merchantPoolService from "./services/merchantPoolService";
 import { sweepExpiredCartOrders } from "./services/orderExpiryService";
 import { logStorageStrategyOnStartup } from "./services/gcsAssetService";
@@ -121,34 +122,72 @@ const port = process.env.PORT || 3300;
 // Trust proxy — required behind K8s/Nginx so req.ip returns real client IP (critical for rate limiters)
 app.set('trust proxy', 1);
 
-// CORS Configuration — builds allowed origins from env vars
-// Priority: CORS_ALLOWED_ORIGINS explicit list > auto-build from FRONTEND_URL + CHECKOUT_URL > dynamic origin matching
-const allowedOrigins: string[] | null = process.env.CORS_ALLOWED_ORIGINS
-  ? process.env.CORS_ALLOWED_ORIGINS.split(',').map(o => o.trim()).filter(Boolean)
-  : [process.env.FRONTEND_URL, process.env.CHECKOUT_URL].filter(Boolean).length > 0
-    ? [process.env.FRONTEND_URL, process.env.CHECKOUT_URL, 'http://localhost:3000'].filter(Boolean) as string[]
-    : null; // null = dynamic origin validation (see below)
+// ─── CORS Configuration (Domain Guardrail) ───────────────────────────────────
+// A fixed allow-list silently breaks payments the moment a new alias domain is
+// added (e.g. dynopay.me). So we ALWAYS validate via a callback that allows:
+//   1. Any origin explicitly listed in CORS_ALLOWED_ORIGINS
+//   2. The apex OR any subdomain of a "trusted base domain". Trusted base
+//      domains are auto-derived from the app's own configured URLs (SERVER_URL /
+//      FRONTEND_URL / CHECKOUT_URL / NEXTAUTH_URL / NEXT_PUBLIC_BASE_URL) + the
+//      apexes of the explicit list + optional CORS_TRUSTED_DOMAINS. So adding a
+//      new DigitalOcean alias domain never breaks CORS again.
+//   3. Standard safe infra patterns: localhost, *.preview.emergentagent.com,
+//      *.up.railway.app, *.ondigitalocean.app
+const explicitOrigins = (process.env.CORS_ALLOWED_ORIGINS || '')
+  .split(',').map(o => o.trim()).filter(Boolean);
+const explicitOriginSet = new Set(explicitOrigins);
 
-// When no explicit origins are configured, use a callback that validates
-// the origin against known patterns instead of wide-open '*'
-const corsOriginHandler = allowedOrigins && allowedOrigins.length > 0
-  ? allowedOrigins
-  : (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-      // Allow requests with no origin (server-to-server, mobile apps, etc.)
-      if (!origin) return callback(null, true);
-      // Allow known safe patterns: localhost, dynopay.com, preview domains, railway
-      const safePatterns = [
-        /^https?:\/\/localhost(:\d+)?$/,
-        /^https?:\/\/(.*\.)?dynopay\.com$/,
-        /^https:\/\/.*\.preview\.emergentagent\.com$/,
-        /^https:\/\/.*\.up\.railway\.app$/,
-      ];
-      if (safePatterns.some(p => p.test(origin))) {
-        return callback(null, true);
-      }
-      // Block unknown origins
-      callback(new Error(`CORS: Origin ${origin} not allowed`));
-    };
+// Extract the registrable apex (last two labels, e.g. "dynopay.me") from a URL/host.
+const apexOf = (value?: string | null): string | null => {
+  if (!value) return null;
+  try {
+    const raw = value.includes('://') ? new URL(value).hostname : value.trim().replace(/^\*?\.?/, '').split('/')[0];
+    const cleaned = raw.replace(/^www\./, '').toLowerCase();
+    const parts = cleaned.split('.').filter(Boolean);
+    if (parts.length < 2) return null;
+    return parts.slice(-2).join('.');
+  } catch {
+    return null;
+  }
+};
+
+// Infra apexes that must NOT be turned into wildcard rules (handled by safePatterns).
+const INFRA_APEXES = ['emergentagent.com', 'railway.app', 'ondigitalocean.app', 'localhost'];
+const trustedBaseDomains = new Set<string>();
+[
+  process.env.SERVER_URL,
+  process.env.FRONTEND_URL,
+  process.env.CHECKOUT_URL,
+  process.env.NEXTAUTH_URL,
+  process.env.NEXT_PUBLIC_BASE_URL,
+  process.env.NEXT_PUBLIC_SERVER_URL,
+  ...explicitOrigins,
+  ...((process.env.CORS_TRUSTED_DOMAINS || '').split(',')),
+].forEach((v) => {
+  const apex = apexOf(v);
+  if (apex && !INFRA_APEXES.includes(apex)) trustedBaseDomains.add(apex);
+});
+log(`CORS trusted base domains: ${[...trustedBaseDomains].join(', ') || '(none)'}`, 'info');
+
+const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const safePatterns: RegExp[] = [
+  /^https?:\/\/localhost(:\d+)?$/,
+  /^https:\/\/.*\.preview\.emergentagent\.com$/,
+  /^https:\/\/.*\.up\.railway\.app$/,
+  /^https:\/\/.*\.ondigitalocean\.app$/,
+  ...[...trustedBaseDomains].map((d) => new RegExp(`^https?:\\/\\/(.*\\.)?${escapeRe(d)}$`)),
+];
+
+const corsOriginHandler = (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+  // Allow non-browser / same-origin requests (no Origin header)
+  if (!origin) return callback(null, true);
+  if (explicitOriginSet.has(origin)) return callback(null, true);
+  if (safePatterns.some((p) => p.test(origin))) return callback(null, true);
+  // Unknown origin — block. Log at warn (not captureError) to avoid digest spam
+  // from bots probing with random origins.
+  log(`CORS blocked origin: ${origin}`, 'warn');
+  callback(new Error(`CORS: Origin ${origin} not allowed`));
+};
 
 app.use(cors({
   origin: corsOriginHandler,
@@ -753,6 +792,14 @@ function registerLeaderCronJobs() {
   }
   cronJobsRegistered = true;
   log(`✅ CRON JOBS ENABLED — WORKER_ROLE=${workerRole}, leader=${getInstanceId()}, environment=${isProduction ? 'production' : 'dev'}`, "info");
+
+  // RPC Failover Alert — ping every EVM sweep RPC endpoint and alert the moment
+  // one goes dead (deduped 1h/endpoint via error-monitor cooldown). Run once now
+  // for an immediate baseline, then every 10 minutes.
+  checkRpcHealth().catch(() => { /* never throws, but guard anyway */ });
+  leaderCron.schedule("*/10 * * * *", async function () {
+    await checkRpcHealth();
+  });
 
 // OPTIMIZED: Reduced from */30 to every 2h — legacy system, rarely has pending addresses
 leaderCron.schedule("0 */2 * * *", async function () {
