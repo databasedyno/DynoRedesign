@@ -92,7 +92,15 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
   const endIndex = startIndex + rowsPerPage;
   const currentTransactions = transactions.slice(startIndex, endIndex);
 
+  // TEMP DIAGNOSTIC (session 72) — remove after root-cause confirmed
+  console.log(
+    `[PAGDBG][render] currentPage=${currentPage} totalPages=${totalPages} txLen=${transactions.length} firstId=${transactions[startIndex]?.id ?? "n/a"}`,
+  );
+
   useEffect(() => {
+    console.log(
+      `[PAGDBG][reset-effect FIRED] transactions ref changed → setCurrentPage(1). txLen=${transactions.length} firstId=${transactions[0]?.id ?? "n/a"}`,
+    );
     setCurrentPage(1);
   }, [transactions]);
 
@@ -721,7 +729,10 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                 />
               }
               disabled={currentPage === totalPages || isDataEmpty}
-              onClick={() => setCurrentPage((prev) => prev + 1)}
+              onClick={() => {
+                console.log(`[PAGDBG][desktop NEXT click] currentPage ${currentPage} → ${currentPage + 1}`);
+                setCurrentPage((prev) => prev + 1);
+              }}
             />
 
             {/* Mobile Nav */}
