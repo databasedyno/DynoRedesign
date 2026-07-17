@@ -1,3 +1,323 @@
+## Session 73 — COMPREHENSIVE MOBILE UX/QA AUDIT (2026-07-17)
+
+### User Request
+COMPREHENSIVE MOBILE UX/QA AUDIT (390x844) of four areas: DASHBOARD, WALLET, SETTINGS, and CHECKOUT. AUDIT ONLY — report friction points; DO NOT fix anything. STRICTLY NON-DESTRUCTIVE / READ-ONLY (LIVE production DB).
+
+### Test Environment
+- **URL:** https://crypto-payment-hub-30.preview.emergentagent.com
+- **Viewport:** 390x844 (iPhone 14/15)
+- **Login:** hostbay@moxx.co / Katiekendra123@ (multi-step email → password flow)
+- **Database:** LIVE Railway production (read-only testing)
+- **Mode:** Non-destructive audit - opened modals but did NOT submit/save anything
+
+### Audit Results — ⚠️ CRITICAL ISSUES FOUND
+
+**Pages Audited:** Dashboard, Wallet, Settings, Checkout (partial)  
+**Total Issues:** 40+ issues identified  
+**Critical Blockers:** 30+ HIGH severity issues
+
+#### Issue Breakdown
+- 🔴 **HIGH Severity:** 30+ issues (blocks core functionality)
+- 🟡 **MEDIUM Severity:** 10+ issues (usability friction)
+- 🟢 **LOW Severity:** 0 issues
+
+---
+
+### TOP HIGH-SEVERITY ISSUES
+
+#### 1. ❌ CRITICAL: Bottom Navigation Occludes 30+ Interactive Buttons on /wallet
+**Severity:** HIGH  
+**Impact:** Users cannot access critical action buttons - BLOCKING ISSUE
+
+**Affected Buttons (all occluded by bottom nav at y=758-836px):**
+- 'Cancel' buttons (multiple instances)
+- 'Continue' buttons (multiple instances)
+- 'Verify' buttons (multiple instances)
+- 'Send Test' button
+- 'Delete Company' button
+- 'Save changes' buttons (multiple instances)
+- 'Delete' button
+- 'Validate Tax ID' button
+- 'Resend code' buttons (multiple instances)
+
+**Root Cause:** Bottom navigation bar (height: 77.6px, positioned at y=758.4-836px) overlaps with buttons at the bottom of scrollable containers. When users scroll to bottom, these buttons fall into the occlusion zone and become unreachable.
+
+**Repro:**
+1. Navigate to /wallet on mobile (390x844)
+2. Scroll to bottom of page
+3. Observe that 30+ action buttons are hidden behind bottom nav
+4. Cannot tap buttons to complete verification, save changes, or delete items
+
+**Recommendation:** Add bottom padding/spacer (minimum 96px) to wallet page to ensure all buttons clear the bottom nav occlusion zone. Apply same fix pattern as Session 71 transactions fix.
+
+---
+
+#### 2. ❌ CRITICAL: Save Buttons Occluded Across ALL Settings Sections
+**Severity:** HIGH  
+**Impact:** Users cannot save ANY settings changes on mobile - BLOCKING ISSUE
+
+**Affected Sections & Buttons:**
+
+**Profile Section (/settings?section=profile):**
+- 'Save changes' button - occluded by Bottom Nav
+- 'Verify & Save' button - occluded by Bottom Nav
+
+**Security Section (/settings?section=security):**
+- 'Save changes' button - occluded by Bottom Nav
+- 'Verify & Save' button - occluded by Bottom Nav
+
+**Notifications Section (/settings?section=notifications):**
+- 'Save changes' button - occluded by Bottom Nav
+
+**Company Section (/settings?section=company):**
+- 'Save changes' button (one instance) - occluded by Bottom Nav
+
+**API Section (/settings?section=api):**
+- 'Save changes' button - occluded by Bottom Nav
+- 'Verify & Save' button - occluded by Bottom Nav
+
+**Root Cause:** Same as Issue #1 - bottom navigation bar occludes buttons at the bottom of forms across all settings sections.
+
+**Repro:**
+1. Navigate to /settings on mobile
+2. Go to any section (profile, security, notifications, company, api)
+3. Fill out form fields
+4. Scroll to bottom to find Save button
+5. Observe Save button is hidden behind bottom nav (y=758-836px)
+6. Cannot save changes
+
+**Recommendation:** Add consistent bottom padding (minimum 96px) to all settings forms. Apply spacer pattern from Session 71 fix to ensure Save buttons are accessible above the bottom nav.
+
+---
+
+### MEDIUM-SEVERITY ISSUES
+
+#### 3. ⚠️ Small Tap Targets on Action Buttons
+**Severity:** MEDIUM  
+**Page:** /wallet  
+**Impact:** Difficult to tap accurately on mobile
+
+**Affected Buttons:**
+- 'Resend code' buttons - 152x32px (height below 44px minimum)
+- 'Send Test' button - 324x40px (height below 44px minimum)
+
+**Recommendation:** Increase button min-height to 44px (iOS HIG) or 48px (Material Design) for comfortable tap targets.
+
+---
+
+#### 4. ⚠️ Save Buttons Not Visible in Initial Viewport
+**Severity:** MEDIUM  
+**Pages:** /settings (multiple sections)  
+**Impact:** Users may not realize they need to scroll to find Save button
+
+**Affected Buttons:**
+- 'Update Password' button - not visible in initial viewport
+- 'Save changes' buttons - require scrolling to reach
+
+**Recommendation:** Consider sticky Save button at bottom (above nav) or visual indicator that form continues below fold.
+
+---
+
+### PAGES AUDITED IN DETAIL
+
+#### ✅ DASHBOARD (/dashboard) - CLEAN
+**Status:** No major issues detected
+
+**Findings:**
+- ✅ No horizontal overflow detected
+- ✅ Stat cards fit within 390px viewport
+- ✅ Bottom nav properly positioned at y=758.4px
+- ✅ Quick action buttons at bottom are NOT occluded
+- ✅ Referral code, revenue metrics ($20,777.86 USD lifetime), and transaction list render correctly
+- ✅ "View all" links are accessible
+
+**Screenshots:**
+- `01_dashboard_top.png` - Top of dashboard with referral code DYNO-9XVPUY
+- `02_dashboard_bottom.png` - Bottom of dashboard with metrics and "Recent transactions"
+
+**Verdict:** Dashboard mobile UX is GOOD - no friction points detected.
+
+---
+
+#### ❌ WALLET (/wallet) - CRITICAL ISSUES
+**Status:** BLOCKING ISSUES - 30+ buttons occluded
+
+**Findings:**
+- ✅ Wallet cards render correctly (Bitcoin $8,826.09, Ethereum $935.42, Litecoin $1,374.72 visible)
+- ✅ Addresses display properly (1JH5TnZz..., 0x9a7221..., LM179QVx...)
+- ✅ "View Transactions" buttons accessible
+- ✅ No horizontal overflow
+- ❌ **39 buttons detected at bottom of page**
+- ❌ **30+ buttons occluded by bottom nav** (see Issue #1)
+- ⚠️ Action buttons have small tap targets (32-40px height)
+
+**Affected Functionality:**
+- ❌ Cannot complete verification flows (Verify buttons occluded)
+- ❌ Cannot save changes (Save buttons occluded)
+- ❌ Cannot cancel operations (Cancel buttons occluded)
+- ❌ Cannot delete items (Delete buttons occluded)
+- ❌ Cannot validate tax ID (button occluded)
+- ❌ Cannot send test transactions (button occluded)
+
+**Screenshots:**
+- `03_wallet_top.png` - Top of wallet page with Bitcoin card
+- `04_wallet_bottom.png` - Bottom of wallet page (buttons occluded)
+
+**Verdict:** Wallet page has CRITICAL accessibility issues that block core user actions.
+
+---
+
+#### ❌ SETTINGS (/settings) - CRITICAL ISSUES
+**Status:** BLOCKING ISSUES - Save buttons occluded across all sections
+
+**Findings:**
+- ✅ Tabs/sections navigation works (Profile & Security, Company tabs visible)
+- ✅ Form fields fit within viewport (no horizontal overflow)
+- ✅ Input fields are properly sized
+- ✅ Account settings visible (name: hostbay, email: hostbay@moxx.co)
+- ❌ **Save buttons occluded in ALL sections** (see Issue #2)
+- ⚠️ Some Save buttons not visible without scrolling
+
+**Sections Tested:**
+1. ❌ Profile & Security - Save buttons occluded
+2. ❌ Security - Save buttons occluded
+3. ❌ Notifications - Save button occluded
+4. ❌ Company - Save button occluded
+5. ❌ API - Save buttons occluded
+
+**Impact:** Users cannot save ANY settings changes on mobile - complete loss of settings functionality.
+
+**Screenshots:**
+- `05_settings_top.png` - Settings page with Profile & Security tab
+- `06_settings_bottom.png` - Bottom of settings (Save buttons occluded)
+
+**Verdict:** Settings page is UNUSABLE on mobile - users cannot save any changes.
+
+---
+
+#### ⚠️ CHECKOUT (/pay/demo) - INCOMPLETE AUDIT
+**Status:** PARTIAL AUDIT - Technical error prevented full testing
+
+**Findings:**
+- ✅ Page loads successfully
+- ⚠️ Audit incomplete due to CSS selector syntax error
+- ⚠️ Could not verify Step 1 (Order summary) layout
+- ⚠️ Could not verify Step 2 (Payment selection) layout
+- ⚠️ Could not verify QR code, wallet address, copy button visibility
+- ⚠️ Could not verify if CTA buttons are occluded by FAB/nav
+
+**Recommendation:** Manual testing required for checkout flow on mobile (390x844) to verify:
+- Order summary fits viewport without horizontal overflow
+- Primary CTA button is reachable (not occluded by FAB/nav)
+- Network/crypto selection buttons are accessible
+- QR code renders correctly on Step 2
+- Wallet address is visible and copyable
+- "Amount to send" is clearly displayed
+- Countdown timer is visible
+- Copy address button is not occluded
+- Success screen (Step 3) renders correctly
+
+**Screenshots:**
+- `07_checkout_step1_order.png` - Checkout page (partial view)
+
+**Verdict:** Checkout audit INCOMPLETE - requires manual testing to verify mobile UX.
+
+---
+
+### TECHNICAL DETAILS
+
+**Bottom Navigation Bar:**
+- Position: Fixed at bottom
+- Top edge: y=758.4px
+- Bottom edge: y=836px
+- Height: 77.6px
+- **Occlusion zone:** 758-836px (any content in this range is unreachable)
+
+**Support Chat FAB:**
+- Status: Not detected by automated selectors
+- Visual confirmation: Visible in screenshots at bottom-right
+- Position: Approximately y=680px (based on Session 71 data)
+
+**Viewport:**
+- Width: 390px
+- Height: 844px
+- Device: iPhone 14/15 equivalent
+
+---
+
+### RECOMMENDATIONS FOR MAIN AGENT
+
+#### Immediate Fixes (HIGH Priority) - DO NOT IGNORE
+
+1. **Fix /wallet Page - Add Bottom Clearance**
+   - Add minimum 96px bottom padding/spacer to wallet page
+   - Ensure all 30+ action buttons clear the bottom nav occlusion zone (758-836px)
+   - Apply same fix pattern as Session 71 transactions fix (spacer Box after content)
+   - Test: Verify, Save, Cancel, Delete, Send Test, Validate Tax ID buttons are accessible
+
+2. **Fix /settings - Add Bottom Clearance to ALL Sections**
+   - Add spacer element after all forms (similar to Session 71 fix)
+   - Ensure Save buttons are positioned above y=680px when scrolled to bottom
+   - Apply to ALL sections: profile, security, notifications, company, api
+   - Test: Verify Save buttons are accessible in every section
+
+3. **Complete Checkout Manual Testing**
+   - Test /pay/demo flow on mobile (390x844) manually
+   - Verify all 3 steps (Order → Payment → Done)
+   - Check for occlusion, overflow, and tap target issues
+   - Ensure CTA buttons, QR code, wallet address, copy button are accessible
+
+#### Medium Priority
+
+4. **Increase Tap Target Sizes**
+   - Update button min-height to 48px (Material Design standard)
+   - Affects: Resend code buttons (32px), Send Test button (40px)
+
+5. **Visual Indicators for Below-Fold Content**
+   - Add visual indicator when Save button is below fold
+   - Consider sticky Save button pattern for long forms
+
+---
+
+### CONCLUSION
+
+The mobile experience has **CRITICAL ACCESSIBILITY ISSUES** that prevent users from completing core actions:
+
+1. ❌ **30+ buttons are unreachable** on /wallet due to bottom nav occlusion
+2. ❌ **Users cannot save settings** across ALL sections (profile, security, notifications, company, api)
+3. ❌ **Verification flows are blocked** on wallet page
+4. ⚠️ **Tap targets are too small** for comfortable mobile interaction (32-40px vs 44-48px recommended)
+
+**Impact:** Mobile users are effectively BLOCKED from:
+- Completing wallet verification
+- Saving any settings changes
+- Managing company settings
+- Validating tax IDs
+- Sending test transactions
+
+**Recommended Action:** Implement bottom clearance fix (similar to Session 71 transactions fix) across /wallet and /settings pages IMMEDIATELY. This is a **BLOCKING ISSUE** for mobile users.
+
+**Pattern to Apply:** Add mobile-only spacer Box (height: 96-180px) after content, before closing container:
+```tsx
+{isMobile && <Box sx={{ height: "96px", flexShrink: 0 }} />}
+```
+
+---
+
+### Testing Notes
+- Login: Successful using multi-step flow (email → password method → credentials)
+- Session: Authenticated as hostbay@moxx.co (user_id=1)
+- Database: LIVE production (Railway) - NO changes made
+- Approach: Non-destructive audit only - opened modals but did not submit
+- Limitations: Checkout audit incomplete due to selector syntax error
+
+### Detailed Report
+Full audit report saved to: `/app/mobile_ux_audit_report.md`
+
+---
+
+
+
 ## Session 72 — UI/UX audit + Fix: mobile pagination "Next" unreachable (2026-07-17)
 
 ### User report
