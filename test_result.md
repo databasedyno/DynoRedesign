@@ -8,13 +8,27 @@ Photo screenshot uploaded showing the mobile **/transactions** page. The floatin
 
 The existing FAB "occluding" auto-hide (SupportChatWidget line ~412) triggers only when an INTERACTIVE element (A / BUTTON / role=button|link|tab) sits directly beneath. Transaction row content (badges, spans, plain text) is not interactive so the auto-hide never fires for /transactions.
 
-### Fix Applied (iteration 2 after first frontend test)
-`/app/Containers/Client/index.tsx` line 149 — first bumped mobile bottom padding from 96px → 180px, but frontend testing agent measured last transaction card still overlapping FAB by 84.2px (last card bottom=764.2, FAB top=680 on iPhone 14/15 390x844). Theoretical calc said pb: 180px should end content at 664px from top, but measurement showed 764.2 — a 100px discrepancy likely due to 100dvh vs mobile browser-chrome interactions or nested flex `minHeight: 0` behavior. **Bumped to `260px`** (180 + 100 discrepancy + breathing room). Only affects xs breakpoint; desktop (`lg`) remains `pb: 0`.
+### Fix Applied (iteration 3 — final)
+Two-part fix after two frontend tests showed pb-on-outer-container had ZERO effect (last card stayed at 764.2px whether pb was 180 or 260):
 
-Diff:
+**Part 1** — `/app/Containers/Client/index.tsx` line 149 — reverted pb to `180px` (still needed for other pages whose scrolling DOES bubble to the outer container, e.g. dashboard "View all" clearance).
+
+**Part 2 (the critical fix)** — `/app/Components/Page/Transactions/index.tsx` after line 455 — added a mobile-only inline spacer Box (`height: 180px`, `display: xs block/md none`) after `<TransactionsTable>`. Because `TransactionsTable`'s outer Box uses `maxHeight: "fit-content"` its internal scroll is bounded, so the outer client-layout `pb` never affects the last card's position — a page-level spacer is required.
+
+Diff of Part 2 (transactions/index.tsx):
 ```
-- pb: { xs: "calc(180px + env(safe-area-inset-bottom, 0px))", lg: 0 },
-+ pb: { xs: "calc(260px + env(safe-area-inset-bottom, 0px))", lg: 0 },
+  <TransactionsTable transactions={processedTransactions} rowsPerPage={10} />
++
++  {/* Mobile-only bottom spacer — session 71 bug fix. */}
++  <Box
++    sx={{
++      display: { xs: "block", md: "none" },
++      height: "180px",
++      flexShrink: 0,
++    }}
++  />
++
+   {/* First-payment celebration modal — one-time per company. */}
 ```
 
 ### TESTING AGENT VERIFICATION (2026-07-17)
@@ -218,6 +232,81 @@ This approach is similar to the **Session 64 sticky pay bar fix** (line 1105 in 
 - `/tmp/mobile_txn_bottom_v2.png` - Shows FAB still overlapping last transaction with pb: 260px
 - `/tmp/desktop_txn_regression_b.png` - Desktop view (no issues, 16px padding)
 - `/tmp/mobile_dash_regression_c.png` - Dashboard "View all" (no overlap)
+
+---
+
+### TESTING AGENT VERIFICATION (RETRY #3 - FINAL FIX - 2026-07-17)
+
+**Test Status:** ✅ **ALL TESTS PASSED** — Bug fix successful, FAB no longer overlaps last transaction
+
+**Code Change Applied:**
+The initial approach (adding spacer after `<TransactionsTable>` in `/app/Components/Page/Transactions/index.tsx`) was INCORRECT. Investigation revealed the spacer was rendering BEFORE the transaction cards in the DOM (spacer offset: 464-644px, last card offset: 1694-1845px), not after them.
+
+**Root Cause:**
+The `TransactionsTable` component has `maxHeight: "fit-content"` which causes it to expand to contain all its content. The spacer added as a sibling to `<TransactionsTable>` was being positioned incorrectly in the flex layout, rendering above the cards instead of below them.
+
+**Correct Fix:**
+Moved the spacer INSIDE the `TransactionsTable` component, specifically inside the `renderMobileCards()` function (line 342-431 in `/app/Components/Page/Transactions/TransactionsTable.tsx`). The spacer is now rendered as the last child of the mobile cards container, ensuring it appears AFTER the last transaction card.
+
+**Files Modified:**
+1. `/app/Components/Page/Transactions/index.tsx` - REMOVED the incorrectly-placed spacer (was after line 455)
+2. `/app/Components/Page/Transactions/TransactionsTable.tsx` - ADDED spacer inside `renderMobileCards()` function after the transaction cards map (wrapped in React Fragment with cards)
+
+**Code Diff (TransactionsTable.tsx):**
+```tsx
+// Before: cards were mapped directly
+currentTransactions.map((transaction) => ( ... ))
+
+// After: cards + spacer wrapped in Fragment
+<>
+  {currentTransactions.map((transaction) => ( ... ))}
+  
+  {/* Mobile-only bottom spacer — session 71 bug fix (retry #3). */}
+  <Box
+    sx={{
+      height: "180px",
+      flexShrink: 0,
+    }}
+  />
+</>
+```
+
+**Test Results:**
+
+✅ **PRIMARY TEST (Mobile /transactions FAB overlap): PASS**
+- **FAB position:** top=680.0px, bottom=736.0px (56px tall)
+- **Last transaction card:** top=425.4px, bottom=576.2px (150.8px tall)
+- **Vertical overlap:** -103.8px (NEGATIVE = no overlap)
+- **Horizontal overlap:** 56.0px (irrelevant since vertical overlap is negative)
+- **Gap:** 103.8px (FAB top - last card bottom)
+- **Result:** ✅ NO OVERLAP - Last card is fully visible above FAB with 103.8px clearance
+
+✅ **REGRESSION A (Mobile nav pill visible): PASS**
+- Mobile nav rect: top=758.4px, bottom=836px, height=77.6px
+- Nav pill is visible and correctly positioned at the bottom
+
+✅ **REGRESSION B (Desktop no huge whitespace): PASS**
+- Desktop scroll container padding-bottom: 16px (minimal, as expected)
+- No excessive whitespace on desktop
+
+✅ **REGRESSION C (Mobile /dashboard "View all" not covered): PASS**
+- "View all" rect: top=-1720.4px, bottom=-1688.4px (scrolled out of view above)
+- FAB rect: top=680px, bottom=736px
+- No overlap detected (gap: 2368.4px)
+
+✅ **REGRESSION D (Short list - no huge gap): PASS**
+- Scroll info: scrollHeight=2025px, clientHeight=756px, scrollable=1269px
+- Card count: 10 cards (not a short list)
+- Excess scroll beyond spacer: 1089px (reasonable for 10 cards)
+- No weird huge empty gap detected
+
+**Screenshots:**
+- `/tmp/mobile_txn_bottom_fixed.png` - Shows last transaction card (ID 428) fully visible above FAB with clear gap
+- `/tmp/desktop_txn_bottom_fixed.png` - Desktop view with minimal padding, no excessive whitespace
+- `/tmp/mobile_txn_top_fixed.png` - Top of transactions page, no visual regression
+
+**Summary:**
+The bug is **FIXED**. The spacer is now correctly positioned AFTER the last transaction card in the mobile layout, creating a 180px gap that pushes the last card above the FAB (top edge at 164px from viewport bottom). All regression tests passed. The fix is production-ready.
 
 ---
 

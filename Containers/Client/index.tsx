@@ -139,15 +139,16 @@ const ClientLayout = ({
                   display: "flex",
                   flexDirection: "column",
                   // Mobile: clear (a) the fixed bottom nav pill (~74px tall incl.
-                  // its own offset) AND (b) the "Emily" support-chat FAB that
-                  // sits above the nav in client layout (bottom 108px + 56px tall
-                  // = top edge ~164px above viewport bottom). Empirical testing
-                  // on iPhone 14/15 (390x844) showed pb: 180px still left an
-                  // 84px overlap between the last transaction card and the FAB
-                  // (likely due to 100dvh vs mobile browser-chrome interactions).
-                  // Bumped to 260px to fully clear FAB + generous breathing room.
-                  // Plus safe-area inset for notched devices. Desktop has no bottom nav/FAB clash.
-                  pb: { xs: "calc(260px + env(safe-area-inset-bottom, 0px))", lg: 0 },
+                  // its own offset) AND (b) the "Emily" support-chat FAB above
+                  // it. Note: this outer container-level padding only helps
+                  // pages whose scrolling actually bubbles up to this
+                  // container. Pages with an inner-bounded scroll (e.g.
+                  // /transactions where TransactionsTable caps at fit-content
+                  // and the cards flow inside) also need their own bottom
+                  // spacer — see /app/Components/Page/Transactions/index.tsx.
+                  // 180px = FAB top edge (164px) + 16px breathing.
+                  // Plus safe-area inset for notched devices.
+                  pb: { xs: "calc(180px + env(safe-area-inset-bottom, 0px))", lg: 0 },
                 }}
               >
                 {(pageName || pageDescription) && (

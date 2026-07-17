@@ -348,84 +348,99 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
           </Typography>
         </Box>
       ) : (
-        currentTransactions.map((transaction) => (
-          <Box
-            key={transaction.id}
-            onClick={() => handleRowClick(transaction)}
-            sx={{
-              p: 2,
-              borderRadius: "12px",
-              border: `1px solid ${theme.palette.border.main}`,
-              bgcolor: theme.palette.background.paper,
-              cursor: "pointer",
-              transition: "background 0.15s",
-              "&:active": { bgcolor: theme.palette.secondary.main },
-            }}
-          >
-            {/* Source badge — session 48. Sits above the crypto row so the
-                merchant sees the revenue origin first. */}
-            {transaction.source && (
-              <Box sx={{ mb: 1 }}>
-                {renderSourceBadge(transaction.source, { withTitle: true, compact: true })}
+        <>
+          {currentTransactions.map((transaction) => (
+            <Box
+              key={transaction.id}
+              onClick={() => handleRowClick(transaction)}
+              sx={{
+                p: 2,
+                borderRadius: "12px",
+                border: `1px solid ${theme.palette.border.main}`,
+                bgcolor: theme.palette.background.paper,
+                cursor: "pointer",
+                transition: "background 0.15s",
+                "&:active": { bgcolor: theme.palette.secondary.main },
+              }}
+            >
+              {/* Source badge — session 48. Sits above the crypto row so the
+                  merchant sees the revenue origin first. */}
+              {transaction.source && (
+                <Box sx={{ mb: 1 }}>
+                  {renderSourceBadge(transaction.source, { withTitle: true, compact: true })}
+                </Box>
+              )}
+              {/* Top row: Crypto + Status */}
+              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1.25 }}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <Image
+                    src={getCryptoIcon(transaction.crypto)}
+                    alt={transaction.crypto}
+                    width={24}
+                    height={24}
+                    draggable={false}
+                  />
+                  <Typography sx={{ fontSize: "15px", fontFamily: "var(--font-sans)", fontWeight: 600, color: theme.palette.text.primary }}>
+                    {transaction.crypto}
+                  </Typography>
+                </Box>
+                <StatusBadge status={transaction.status}>
+                  <StatusIconWrapper status={transaction.status}>
+                    {getStatusIcon(transaction.status)}
+                  </StatusIconWrapper>
+                  <StatusText status={transaction.status}>
+                    {tTransactions(transaction.status)}
+                    {transaction.autoConverted && transaction.status === "settled" && (
+                      <Typography component="span" sx={{ fontSize: "10px", fontFamily: "var(--font-sans)", color: "#1565C0", ml: 0.5 }}>
+                        · Converted
+                      </Typography>
+                    )}
+                  </StatusText>
+                </StatusBadge>
               </Box>
-            )}
-            {/* Top row: Crypto + Status */}
-            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1.25 }}>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <Image
-                  src={getCryptoIcon(transaction.crypto)}
-                  alt={transaction.crypto}
-                  width={24}
-                  height={24}
-                  draggable={false}
-                />
-                <Typography sx={{ fontSize: "15px", fontFamily: "var(--font-sans)", fontWeight: 600, color: theme.palette.text.primary }}>
-                  {transaction.crypto}
+              {/* Middle row: Amount + USD */}
+              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", mb: 0.75 }}>
+                <Typography sx={{ fontSize: "16px", fontFamily: "var(--font-sans)", fontWeight: 700, color: theme.palette.text.primary }}>
+                  {formatAmount(transaction.amount)}
+                </Typography>
+                <Typography sx={{ fontSize: "14px", fontFamily: "var(--font-sans)", fontWeight: 500, color: theme.palette.primary.main }}>
+                  {formatUsd(transaction.usdValue)}
                 </Typography>
               </Box>
-              <StatusBadge status={transaction.status}>
-                <StatusIconWrapper status={transaction.status}>
-                  {getStatusIcon(transaction.status)}
-                </StatusIconWrapper>
-                <StatusText status={transaction.status}>
-                  {tTransactions(transaction.status)}
-                  {transaction.autoConverted && transaction.status === "settled" && (
-                    <Typography component="span" sx={{ fontSize: "10px", fontFamily: "var(--font-sans)", color: "#1565C0", ml: 0.5 }}>
-                      · Converted
-                    </Typography>
-                  )}
-                </StatusText>
-              </StatusBadge>
-            </Box>
-            {/* Middle row: Amount + USD */}
-            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", mb: 0.75 }}>
-              <Typography sx={{ fontSize: "16px", fontFamily: "var(--font-sans)", fontWeight: 700, color: theme.palette.text.primary }}>
-                {formatAmount(transaction.amount)}
-              </Typography>
-              <Typography sx={{ fontSize: "14px", fontFamily: "var(--font-sans)", fontWeight: 500, color: theme.palette.primary.main }}>
-                {formatUsd(transaction.usdValue)}
-              </Typography>
-            </Box>
-            {(transaction.reverseCharge || Number(transaction.taxAmount) > 0) && (
-              <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 0.75 }}>
+              {(transaction.reverseCharge || Number(transaction.taxAmount) > 0) && (
+                <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 0.75 }}>
+                  <Typography sx={{ fontSize: "11px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary }}>
+                    {transaction.reverseCharge
+                      ? tTransactions("reverseCharge", { defaultValue: "Reverse-charge" })
+                      : `${tTransactions("vatShort", { defaultValue: "incl. VAT" })} ${Number(transaction.taxAmount).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}${transaction.taxRate != null ? ` (${Number(transaction.taxRate)}%)` : ""}`}
+                  </Typography>
+                </Box>
+              )}
+              {/* Bottom row: ID + Date */}
+              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <Typography sx={{ fontSize: "11px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary, maxWidth: "50%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  {transaction.id}
+                </Typography>
                 <Typography sx={{ fontSize: "11px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary }}>
-                  {transaction.reverseCharge
-                    ? tTransactions("reverseCharge", { defaultValue: "Reverse-charge" })
-                    : `${tTransactions("vatShort", { defaultValue: "incl. VAT" })} ${Number(transaction.taxAmount).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}${transaction.taxRate != null ? ` (${Number(transaction.taxRate)}%)` : ""}`}
+                  {transaction.dateTime}
                 </Typography>
               </Box>
-            )}
-            {/* Bottom row: ID + Date */}
-            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <Typography sx={{ fontSize: "11px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary, maxWidth: "50%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                {transaction.id}
-              </Typography>
-              <Typography sx={{ fontSize: "11px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary }}>
-                {transaction.dateTime}
-              </Typography>
             </Box>
-          </Box>
-        ))
+          ))}
+          
+          {/* Mobile-only bottom spacer — session 71 bug fix (retry #3).
+              Clears the "Emily" support-chat FAB (bottom 108px + 56px tall
+              = top edge ~164px above viewport bottom). Without this spacer
+              the last transaction card's Pending badge + timestamp get
+              occluded by the FAB on mobile. Height = FAB top (164px) + 16px
+              breathing room. */}
+          <Box
+            sx={{
+              height: "180px",
+              flexShrink: 0,
+            }}
+          />
+        </>
       )}
     </Box>
   );
