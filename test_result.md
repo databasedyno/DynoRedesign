@@ -25395,3 +25395,75 @@ test_priority: "high_first"
 ### agent_communication
   - agent: "main"
     message: "Session 69: Fixed two UI/UX bugs. (1) Mobile bottom-nav overlap — increased mobile bottom padding on the shared client scroll container to clear the fixed nav pill + safe-area inset. (2) Dark-mode invisible text on /create-pay-link — root cause was components importing the STATIC @/styles/theme (text.primary hardcoded #18181B) instead of runtime useTheme(); migrated CryptoSelection/CryptoItemCard/TaxSection/PaymentLinkHeader/PostPaymentSettings/ActionButtons/PaymentLinkSuccessModal + CreatePaymentLink styled ExpireText to useTheme(); also fixed disabled-button white-on-lightgrey text. Self-verified with a DOM contrast scanner (create-pay-link 14 invisible→0; app-wide sweep clean). Please verify both bugs on mobile (Bug 1) and dark mode (Bug 2) per the test request above. Frontend-only changes, backend untouched."
+
+### TESTING AGENT VERIFICATION — Session 69 BUG 1 (2026-07-17)
+
+**Test Date:** 2026-07-17
+**Preview URL:** https://2838f30c-f8f2-4cd0-8ee6-9f6d96e43beb.preview.emergentagent.com
+**Test Account:** hostbay@moxx.co / Katiekendra123@ (434 transactions)
+**Viewport:** Mobile 390x844
+
+#### ❌ BUG 1 STILL EXISTS: Mobile Bottom-Nav Overlap
+
+**Test Method:**
+1. Set mobile viewport 390x844 BEFORE navigation
+2. Programmatic login using provided script
+3. Navigate to /transactions
+4. Wait for transaction data to load ("Showing 10 of 434 transactions")
+5. Find scrollable container (inner div with overflow-y: auto)
+6. Scroll to bottom (scrollTop = scrollHeight)
+7. Measure geometric positions using getBoundingClientRect()
+
+**GEOMETRIC MEASUREMENTS (/transactions):**
+```
+Viewport height: 844px
+Bottom Navigation top: 758.41px
+Pagination Footer bottom: 806.16px
+Last Transaction Card bottom: 764.16px
+```
+
+**ASSERTIONS:**
+- ❌ **FAIL**: Pagination footer is COVERED by bottom nav
+  - Footer bottom (806.16px) > Nav top (758.41px)
+  - **Overlap: 47.75px**
+  
+- ❌ **FAIL**: Last transaction card is COVERED by bottom nav
+  - Last card bottom (764.16px) > Nav top (758.41px)
+  - **Overlap: 5.75px**
+
+**REGRESSION TEST (/referrals):**
+```
+Bottom Navigation top: 758.41px
+Last content bottom: 896.95px
+```
+- ❌ **FAIL**: Content is COVERED by bottom nav
+  - **Overlap: 138.55px**
+
+**ROOT CAUSE ANALYSIS:**
+
+The fix in `/app/Containers/Client/index.tsx` line 145 is present in the code:
+```typescript
+pb: { xs: "calc(96px + env(safe-area-inset-bottom, 0px))", lg: 0 }
+```
+
+However, the test revealed that the `NavigationBarContainer` is rendering with `position: static` instead of `position: fixed`, even though the styled component at `/app/Components/Layout/MobileNavigationBar/styled.tsx` line 5 clearly defines:
+```typescript
+position: "fixed"
+```
+
+**CRITICAL ISSUE:** The bottom navigation is NOT actually fixed to the viewport. The browser reports `position: static`, which means:
+1. The navigation scrolls with the page content instead of staying fixed at the bottom
+2. The increased padding (96px) pushes content down, but the nav itself is not in a fixed position
+3. When scrolling to the bottom, the nav appears at position 758.41px (not at the viewport bottom 844px)
+
+**EVIDENCE:**
+- Screenshots: `.screenshots/bug1_transactions_bottom.png`, `.screenshots/bug1_referrals_bottom.png`
+- Console logs: `/root/.emergent/automation_output/20260717_121428/console_20260717_121428.log`
+
+**CONCLUSION:**
+The padding fix alone is insufficient. The NavigationBarContainer must be truly `position: fixed` for the fix to work. There may be a CSS specificity issue, a theme override, or a rendering problem preventing the fixed positioning from being applied.
+
+
+  - agent: "testing"
+    message: "Session 69 BUG 1 VERIFICATION FAILED ❌. Mobile bottom-nav overlap STILL EXISTS on /transactions and /referrals. Geometric measurements show: (1) /transactions - pagination footer covered by 47.75px, last transaction card covered by 5.75px. (2) /referrals - last content covered by 138.55px. ROOT CAUSE: NavigationBarContainer is rendering with position:static instead of position:fixed (even though styled component defines position:fixed at line 5). The nav appears at 758.41px instead of being fixed at viewport bottom (844px). The padding fix (96px + safe-area-inset) is present in code but insufficient because the nav is not actually fixed. CRITICAL: Need to investigate why position:fixed is not being applied - possible CSS specificity issue, theme override, or rendering problem. The account has 434 transactions and the test properly waited for data load before measuring. Screenshots and console logs saved."
+
