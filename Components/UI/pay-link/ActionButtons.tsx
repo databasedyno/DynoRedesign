@@ -1,6 +1,6 @@
 import CustomButton from "@/Components/UI/Buttons";
-import { theme } from "@/styles/theme";
 import { ActionButtonsProps } from "@/utils/types/create-pay-link";
+import { useTheme } from "@mui/material";
 import { useRouter } from "next/router";
 import React from "react";
 
@@ -17,6 +17,7 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
   linkKind,
 }) => {
   const router = useRouter();
+  const theme = useTheme();
 
   // Create button label is context-aware: a donation campaign should not read
   // "Create Payment Link". Edit mode keeps the neutral "Save Changes".

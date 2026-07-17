@@ -1,5 +1,4 @@
 import CheckIcon from "@/assets/Icons/Check-icon.svg";
-import { theme } from "@/styles/theme";
 import { CryptoItemCardProps } from "@/utils/types/create-pay-link";
 import {Box, Grid, useMediaQuery, useTheme} from "@mui/material";
 import Image from "next/image";
@@ -24,6 +23,7 @@ const CryptoItemCard: React.FC<CryptoItemCardProps> = React.memo(
     isSmall,
   }) => {
     const router = useRouter();
+    const theme = useTheme();
 
     const handleSetUpWalletClick = (cryptocurrency: string) => {
       sessionStorage.setItem(

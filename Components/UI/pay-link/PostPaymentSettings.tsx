@@ -2,9 +2,8 @@ import { Text } from "@/Components/Page/CreatePaymentLink/styled";
 import InputField from "@/Components/UI/AuthLayout/InputFields";
 import CustomButton from "@/Components/UI/Buttons";
 import i18n from "@/i18n";
-import { theme } from "@/styles/theme";
 import { PostPaymentSettingsProps } from "@/utils/types/create-pay-link";
-import { Box } from "@mui/material";
+import { Box, useTheme } from "@mui/material";
 import React from "react";
 
 const PostPaymentSettings: React.FC<PostPaymentSettingsProps> = ({
@@ -19,6 +18,7 @@ const PostPaymentSettings: React.FC<PostPaymentSettingsProps> = ({
   createDisabled = false,
 }) => {
   const currentLang = i18n.language;
+  const theme = useTheme();
   return (
     <>
       <Box

@@ -203,7 +203,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
         ...(disabled && !loading && {
           backgroundColor: variant === "primary" ? "#B0BEC5" : theme.palette.background.paper,
           color:
-            variant === "primary" ? `${theme.palette.common.white} !important` : `${theme.palette.text.secondary} !important`,
+            variant === "primary" ? `#37474F !important` : `${theme.palette.text.secondary} !important`,
           border: `1px solid ${variant === "primary" ? "#B0BEC5" : theme.palette.text.secondary}`,
           cursor: "not-allowed",
           lineHeight: "1",

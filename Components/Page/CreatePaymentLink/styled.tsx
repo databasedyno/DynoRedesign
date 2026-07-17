@@ -1,4 +1,3 @@
-import { theme } from "@/styles/theme";
 import styledEmotion from "@emotion/styled";
 import { Box, IconButton, Switch, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
@@ -151,7 +150,7 @@ export const ExpireTrigger = styled(Box, {
 }));
 
 export const ExpireText = styledEmotion.span<{ isMobile?: boolean }>(
-  ({ isMobile }) => ({
+  ({ theme, isMobile }: any) => ({
     fontSize: isMobile ? "10px" : "13px",
     fontWeight: 500,
     fontFamily: "var(--font-sans)",

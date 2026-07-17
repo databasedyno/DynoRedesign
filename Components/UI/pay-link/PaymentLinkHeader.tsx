@@ -2,10 +2,9 @@ import FalseIcon from "@/assets/Icons/False.svg";
 import InfoIcon from "@/assets/Icons/info-icon.svg";
 import TransactionIcon from "@/assets/Icons/transaction-icon.svg";
 import TrueIcon from "@/assets/Icons/True.svg";
-import { theme } from "@/styles/theme";
 import { HourGlassIcon } from "@/utils/customIcons";
 import { PaymentLinkHeaderProps } from "@/utils/types/create-pay-link";
-import { Box } from "@mui/material";
+import { Box, useTheme } from "@mui/material";
 import Image from "next/image";
 import React from "react";
 import { Text } from "../../Page/CreatePaymentLink/styled";
@@ -14,7 +13,9 @@ import { StatusChip } from "../../Page/Payment-link/styled";
 const DisabledNotice: React.FC<{
   isMobile: boolean;
   tPaymentLink: (key: string) => string;
-}> = ({ isMobile, tPaymentLink }) => (
+}> = ({ isMobile, tPaymentLink }) => {
+  const theme = useTheme();
+  return (
   <Box
     sx={{
       border: `1px solid ${theme.palette.border.main}`,
@@ -46,7 +47,8 @@ const DisabledNotice: React.FC<{
       {tPaymentLink("paidWarning")}
     </Text>
   </Box>
-);
+  );
+};
 
 const PaymentLinkHeader: React.FC<PaymentLinkHeaderProps> = React.memo(
   ({
@@ -56,7 +58,9 @@ const PaymentLinkHeader: React.FC<PaymentLinkHeaderProps> = React.memo(
     isMobile,
     count,
     truncateByWords,
-  }) => (
+  }) => {
+    const theme = useTheme();
+    return (
     <>
       <Box
         sx={{
@@ -146,7 +150,8 @@ const PaymentLinkHeader: React.FC<PaymentLinkHeaderProps> = React.memo(
         }}
       />
     </>
-  ),
+    );
+  },
 );
 PaymentLinkHeader.displayName = "PaymentLinkHeader";
 

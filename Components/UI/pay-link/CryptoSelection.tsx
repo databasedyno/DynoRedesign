@@ -1,9 +1,8 @@
 import CheckIcon from "@/assets/Icons/Check-icon.svg";
 import SearchIcon from "@/assets/Icons/search-icon.svg";
 import InputField from "@/Components/UI/AuthLayout/InputFields";
-import { theme } from "@/styles/theme";
 import { CryptoSelectionProps } from "@/utils/types/create-pay-link";
-import { Box, Grid } from "@mui/material";
+import { Box, Grid, useTheme } from "@mui/material";
 import Image from "next/image";
 import React from "react";
 import { useTranslation } from "react-i18next";
@@ -30,6 +29,7 @@ const CryptoSelection: React.FC<CryptoSelectionProps> = ({
   setPaymentSettings,
 }) => {
   const { t } = useTranslation("createPaymentLinkScreen");
+  const theme = useTheme();
   return (
     <>
       <Box

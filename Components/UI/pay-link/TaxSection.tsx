@@ -1,8 +1,7 @@
 import TrueIcon from "@/assets/Icons/True.svg";
 import InfoIcon from "@/assets/Icons/info-icon.svg";
-import { theme } from "@/styles/theme";
 import { TaxSectionProps } from "@/utils/types/create-pay-link";
-import { Box } from "@mui/material";
+import { Box, useTheme } from "@mui/material";
 import Image from "next/image";
 import React from "react";
 import { Text } from "../../Page/CreatePaymentLink/styled";
@@ -16,7 +15,9 @@ const TaxSection: React.FC<TaxSectionProps> = ({
   currentLng,
   taxInclusive = false,
   setTaxInclusive,
-}) => (
+}) => {
+  const theme = useTheme();
+  return (
   <>
     <Box
       sx={{
@@ -240,6 +241,7 @@ const TaxSection: React.FC<TaxSectionProps> = ({
       )}
     </Box>
   </>
-);
+  );
+};
 
 export default TaxSection;

@@ -25345,3 +25345,53 @@ Do NOT run backend regression sweep — 4 frontend files touched, no backend TS 
 **Production Readiness:** Session 58 digital delivery fix is verified and working correctly. All critical paths tested successfully.
 
 **Note:** The seeded test order (testfiledlvf4b77fdaf1aa4c85) remains in the database. Main agent will run cleanup script: `node scripts/seed_test_file_order.js cleanup`
+
+---
+
+## Session 69 — UI/UX Bug Fixes: Mobile bottom-nav overlap + Dark-mode invisible text (2026-07-17)
+
+### USER REPORT (two distinct issues)
+1. **Mobile transactions table** — last row hidden behind the fixed bottom-nav / sticky element on mobile.
+2. **Dark-mode invisible text** — the payment-link creation page (/create-pay-link) has invisible text in dark mode; user asked for a sweep across the app for similar issues.
+
+### ROOT CAUSES
+1. **Bottom-nav overlap.** `Containers/Client/index.tsx` — the mobile scroll container (MAIN CONTENT box) had `pb: { xs: 10, lg: 0 }` (80px). The fixed nav pill's footprint from the viewport bottom is ~74px + `env(safe-area-inset-bottom)`, so 80px was too tight and fully covered on notched devices. Last row / pagination footer of any page hid behind the floating nav.
+2. **Static legacy theme import.** Multiple components imported the STATIC `theme` object from `@/styles/theme` (whose `text.primary` is hardcoded `#18181B`) instead of the runtime mode-aware theme via `useTheme()`. In dark mode this near-black text rendered on the dark surface (`#141417`) → contrast ~1.04 (invisible). Affected the create-pay-link "Accepted cryptocurrencies" + "Tax" sections (CryptoSelection, CryptoItemCard, TaxSection, PaymentLinkHeader, PostPaymentSettings, ActionButtons, PaymentLinkSuccessModal, CreatePaymentLink/styled ExpireText).
+
+### FIX (frontend only, no backend touched)
+1. `Containers/Client/index.tsx` — `pb: { xs: "calc(96px + env(safe-area-inset-bottom, 0px))", lg: 0 }`.
+2. Converted the above pay-link components from the static `@/styles/theme` import to the runtime `useTheme()` hook (palette-compatible; `text.primary` now `#FFFFFF` in dark mode).
+3. `Components/UI/Buttons/index.tsx` — disabled primary button text changed from white → `#37474F` on its `#B0BEC5` bg (contrast 1.91 → readable) — fixes "Create Payment Link" / "Send Verification Code" disabled-state legibility.
+
+### SELF-VERIFICATION (dev)
+- Built a DOM contrast scanner (WCAG luminance) run in dark mode. BEFORE: create-pay-link had 14 invisible items (contrast 1.04). AFTER: 0 invisible items on create-pay-link.
+- App-wide sweep (dashboard, wallet, transactions, invoices, notifications, referrals, pay-links) = 0 low-contrast text. Residual minor white-on-lime items (avatar initial, colored status badges) NOT fixed — flagged to user.
+- Lint clean on all changed files.
+
+### FRONTEND TEST REQUEST
+Preview: https://2838f30c-f8f2-4cd0-8ee6-9f6d96e43beb.preview.emergentagent.com
+Credentials: hostbay@moxx.co / Katiekendra123@ (in /app/memory/test_credentials.md)
+
+**BUG 1 — Mobile transactions last row not hidden by bottom nav.**
+- Mobile viewport (e.g. 390×844). Log in, go to /transactions.
+- Scroll to the very bottom of the transactions list. Assert the LAST transaction card AND the pagination footer ("Showing…", Previous/Next) are fully visible and NOT overlapped/covered by the floating bottom navigation pill.
+- Repeat the scroll-to-bottom check on /wallet and /dashboard (shared layout) — last content must clear the bottom nav.
+
+**BUG 2 — Dark-mode text visible on create-pay-link.**
+- Enable dark mode (localStorage theme-mode=dark or header toggle). Go to /create-pay-link.
+- Assert the "Accepted cryptocurrencies" heading, the crypto labels (Bitcoin, Ethereum, Litecoin, USDT, etc.), "Show All", "Clear All", "3 of N currencies selected", and the Tax section ("Include tax in total", "TAX", on/off) are all clearly VISIBLE (light text on dark) — none invisible/near-black.
+- Toggle the tax switch ON and confirm the tax info/example text is visible.
+- Assert the disabled "Create Payment Link" button label is readable.
+- Regression: switch to LIGHT mode and confirm the same page still renders all text correctly.
+
+### test_plan
+current_focus:
+  - "BUG 1: mobile transactions last row hidden by bottom nav (Containers/Client pb fix)"
+  - "BUG 2: dark-mode invisible text on /create-pay-link (static theme -> useTheme migration)"
+stuck_tasks: []
+test_all: false
+test_priority: "high_first"
+
+### agent_communication
+  - agent: "main"
+    message: "Session 69: Fixed two UI/UX bugs. (1) Mobile bottom-nav overlap — increased mobile bottom padding on the shared client scroll container to clear the fixed nav pill + safe-area inset. (2) Dark-mode invisible text on /create-pay-link — root cause was components importing the STATIC @/styles/theme (text.primary hardcoded #18181B) instead of runtime useTheme(); migrated CryptoSelection/CryptoItemCard/TaxSection/PaymentLinkHeader/PostPaymentSettings/ActionButtons/PaymentLinkSuccessModal + CreatePaymentLink styled ExpireText to useTheme(); also fixed disabled-button white-on-lightgrey text. Self-verified with a DOM contrast scanner (create-pay-link 14 invisible→0; app-wide sweep clean). Please verify both bugs on mobile (Bug 1) and dark mode (Bug 2) per the test request above. Frontend-only changes, backend untouched."

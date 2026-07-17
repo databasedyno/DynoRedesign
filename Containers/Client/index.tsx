@@ -138,7 +138,11 @@ const ClientLayout = ({
                   overflowX: "hidden",
                   display: "flex",
                   flexDirection: "column",
-                  pb: { xs: 10, lg: 0 },
+                  // Mobile: clear the fixed bottom nav pill (~74px tall incl. its
+                  // own offset) PLUS the device safe-area inset so the last row of
+                  // any page (e.g. transactions table / pagination footer) is never
+                  // hidden behind the floating nav. Desktop has no bottom nav.
+                  pb: { xs: "calc(96px + env(safe-area-inset-bottom, 0px))", lg: 0 },
                 }}
               >
                 {(pageName || pageDescription) && (

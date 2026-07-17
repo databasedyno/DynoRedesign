@@ -1,8 +1,7 @@
 import InputField from "@/Components/UI/AuthLayout/InputFields";
 import PopupModal from "@/Components/UI/PopupModal";
 import useIsMobile from "@/hooks/useIsMobile";
-import { theme } from "@/styles/theme";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, useTheme } from "@mui/material";
 import Image from "next/image";
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -73,6 +72,7 @@ const PaymentLinkSuccessModal: React.FC<PaymentLinkSuccessModalProps> = ({
   linkKind,
 }) => {
   const isMobile = useIsMobile("md");
+  const theme = useTheme();
   const { t } = useTranslation("createPaymentLinkScreen");
   const tPaymentLink = useCallback(
     (key: string): string => {
