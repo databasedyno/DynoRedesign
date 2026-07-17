@@ -377,6 +377,7 @@ const PaymentLinksTable = ({
       >
         {/* MOBILE: Card layout */}
         {isMobile ? (
+          <>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 1, px: 2 }}>
             {paginatedData.length === 0 ? (
               <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
@@ -509,6 +510,49 @@ const PaymentLinksTable = ({
               ))
             )}
           </Box>
+
+          {/* MOBILE pagination footer (session 72). The desktop pager lives
+              inside the table container below, which is NOT rendered on mobile,
+              so mobile needs its own pager. The 180px spacer lifts it clear of
+              the fixed support-chat FAB + bottom nav pill. */}
+          <TableFooter>
+            <RowsPerPageSelector
+              value={rows}
+              onChange={(value) => {
+                setRows(value);
+                setPage(0);
+              }}
+              menuItems={[
+                { value: 5, label: 5 },
+                { value: 10, label: 10 },
+                { value: 15, label: 15 },
+                { value: 20, label: 20 },
+              ]}
+            />
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <FooterText>
+                {t("showingLinks", { count: end, total: total })}
+              </FooterText>
+              <MobileNavigationButtons
+                onClick={() => setPage((p) => Math.max(p - 1, 0))}
+                disabled={page === 0}
+              >
+                <KeyboardArrowLeftRoundedIcon
+                  sx={{ height: "16px", width: "16px", color: "inherit" }}
+                />
+              </MobileNavigationButtons>
+              <MobileNavigationButtons
+                onClick={() => setPage((p) => p + 1)}
+                disabled={end >= total}
+              >
+                <KeyboardArrowRightRoundedIcon
+                  sx={{ height: "16px", width: "16px", color: "inherit" }}
+                />
+              </MobileNavigationButtons>
+            </Box>
+          </TableFooter>
+          <Box sx={{ height: "180px", flexShrink: 0 }} />
+          </>
         ) : (
         /* DESKTOP: Table layout */
         <TransactionsTableContainer>

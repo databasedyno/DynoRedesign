@@ -709,6 +709,10 @@ const CustomersPage: React.FC = () => {
         </Box>
       )}
 
+      {/* Mobile-only bottom clearance (session 72) so the pagination clears the
+          fixed support-chat FAB + bottom nav pill on mobile. */}
+      {isMobile && totalPages > 1 && <Box sx={{ height: "96px", flexShrink: 0 }} />}
+
       {/* Customer Detail Dialog */}
       <Dialog
         open={detailOpen}

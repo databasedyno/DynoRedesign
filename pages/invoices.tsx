@@ -636,6 +636,11 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                 </Box>
               )}
             </PanelCard>
+            {/* Mobile-only bottom clearance (session 72) so the pager clears the
+                fixed support-chat FAB + bottom nav pill on mobile. */}
+            {isMobile && totalInvoices > 20 && (
+              <Box sx={{ height: "96px", flexShrink: 0 }} />
+            )}
           </Box>
         )}
 

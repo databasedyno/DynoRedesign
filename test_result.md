@@ -1,3 +1,29 @@
+## Session 72 — UI/UX audit + Fix: mobile pagination "Next" unreachable (2026-07-17)
+
+### User report
+"Some table 'Next' button doesn't work when clicked, and the button is hidden on mobile because we couldn't scroll to the end." Also asked which AI tool can fully test UI/UX for usability.
+
+### Tooling answer
+Used the automated frontend testing agent (Playwright browser automation) — it drives a real browser, tests pagination/clicks at desktop + mobile viewports, detects occluded/overlapping controls via elementFromPoint, and captures console logs.
+
+### Investigation (ground truth via temp `[PAGDBG]` console logs)
+- DESKTOP /transactions pagination WORKS: click → currentPage 1→2→3, firstId 437→427→415, rows change; reset-effect fires only on data load, not on clicks. (Earlier "broken on desktop" verdict was a FALSE POSITIVE — the agent couldn't read row IDs and relied on the always-identical footer text "Showing 10 of 434".)
+- Real defect is MOBILE: the pagination footer/arrows were the bottom-most element, landing inside the fixed support-chat FAB (top edge ~164px above viewport bottom) + bottom-nav occlusion zone → Next arrow not reachable/tappable. Because `TransactionsTable` uses `maxHeight:"fit-content"`, the layout's container `pb` does NOT lift it (documented session 71) — an in-component spacer is required.
+
+### Fix (TransactionsTable.tsx)
+- MOVED the 180px mobile clearance spacer from BETWEEN the cards and the footer to AFTER the footer (`{isMobile && <Box height 180px/>}`), so the pagination row itself clears the FAB/nav. Added `mt:{xs:1}` on the footer wrapper for separation. Desktop unaffected (mobile-gated).
+- Removed temp debug logging.
+
+### Verification (testing agent, mobile 390x844) — PASS
+- Next arrow at y=598 (fully in viewport 0–844); topmost element at its center IS the arrow (not occluded); FAB at y=680 (54px below, no overlap).
+- Tapping NEXT advanced cards (ETH→BTC, ids 418/417/416), 2nd tap → page 3, PREVIOUS goes back. No console errors.
+
+### OPEN / related finding (NOT yet fixed — pending user go-ahead)
+- `PaymentLinksTable.tsx`: pagination `TableFooter` is rendered ONLY in the desktop branch (`isMobile ? cards : <container+footer>`), so on MOBILE /pay-links there is NO pagination control at all (mobile users can't page past the first N links). Needs a separate fix (render pagination on mobile + same FAB clearance). Customers/Invoices tables not yet audited.
+
+---
+
+
 ## Session 72 — Mobile Pagination Verification: NEXT arrow on /transactions (2026-07-17)
 
 ### User Request
