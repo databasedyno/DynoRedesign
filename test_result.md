@@ -25863,3 +25863,101 @@ The padding fix alone is insufficient. The NavigationBarContainer must be truly 
   - agent: "testing"
     message: "Session 69 BUG 1 VERIFICATION FAILED ❌. Mobile bottom-nav overlap STILL EXISTS on /transactions and /referrals. Geometric measurements show: (1) /transactions - pagination footer covered by 47.75px, last transaction card covered by 5.75px. (2) /referrals - last content covered by 138.55px. ROOT CAUSE: NavigationBarContainer is rendering with position:static instead of position:fixed (even though styled component defines position:fixed at line 5). The nav appears at 758.41px instead of being fixed at viewport bottom (844px). The padding fix (96px + safe-area-inset) is present in code but insufficient because the nav is not actually fixed. CRITICAL: Need to investigate why position:fixed is not being applied - possible CSS specificity issue, theme override, or rendering problem. The account has 434 transactions and the test properly waited for data load before measuring. Screenshots and console logs saved."
 
+
+
+
+---
+
+## Session 73 — Mobile Pagination Final Check: /customers and /invoices (2026-07-17)
+
+### User Request
+FINAL mobile check of TWO more pages: /customers and /invoices. Non-destructive, read-only testing (LIVE prod DB). Mobile viewport 390x844. Verify pagination controls are fully visible, NOT occluded by FAB or bottom nav, and functional.
+
+### Test Environment
+- **URL:** https://crypto-payment-hub-30.preview.emergentagent.com
+- **Viewport:** 390 x 844 (mobile)
+- **Login:** hostbay@moxx.co / Katiekendra123@ (multi-step email → password flow)
+- **Database:** LIVE Railway production (read-only testing)
+
+### Test Results
+
+#### ✅ /CUSTOMERS PAGE: **PASS**
+
+**Page Rendering:**
+- ✅ Page title: "Customers · Dynopay"
+- ✅ Total customers: 24 (20 per page)
+- ✅ Console errors: None (only minor unrelated asset loading errors)
+- ✅ Layout: No breakage, renders correctly
+
+**Pagination:**
+- ✅ **Pager present:** YES - MUI pagination with numbered pages [1, 2]
+- ✅ **Fully visible:** YES - After scrolling to bottom, pagination at top: 688.5px, bottom: 720.5px (fully within 0-844 viewport)
+- ✅ **NOT occluded:** YES - Element at center of pagination is "LI." (part of pagination component), no FAB found overlapping
+- ✅ **Functional:** YES - Clicking page 2 changed customer count from 20 to 4, showing different customers (first customer changed from "Recovered Customer" to "API payments")
+
+**Screenshots:**
+- `.screenshots/customers_top.png` - Initial page view with stats
+- `.screenshots/customers_scrolled.png` - Scrolled to bottom, pagination visible (page 1 selected)
+- `.screenshots/customers_after_page2.png` - After clicking page 2 (showing 4 customers on page 2)
+
+**VERDICT:** ✅ **PASS** - Page renders cleanly, pagination is fully visible within viewport (0-844), NOT occluded by FAB or bottom nav, and FUNCTIONAL (clicking page numbers changes the customer list correctly).
+
+---
+
+#### ✅ /INVOICES PAGE: **PASS**
+
+**Page Rendering:**
+- ✅ Page title: "Invoices & Tax Reports · Dynopay"
+- ✅ Total invoices: 6 (INV-20260712-00004, INV-20260712-00003, INV-20260712-00002, INV-20260712-00001, INV-20260630-00002, INV-20260630-00001)
+- ✅ Console errors: None (only minor unrelated asset loading errors)
+- ✅ Layout: No breakage, renders correctly
+
+**Pagination:**
+- ✅ **Pager present:** NO - No pagination controls found (expected behavior)
+- ✅ **Reason:** Only 6 invoices listed (< 20 threshold for pagination)
+- ✅ **Page renders fine:** YES - All 6 invoices visible in single page view
+
+**Screenshots:**
+- `.screenshots/invoices_final_top.png` - Full invoice list (6 invoices, no pagination)
+
+**VERDICT:** ✅ **PASS** - Page renders cleanly, single page of invoices (no pager needed since only 6 invoices < 20 threshold).
+
+---
+
+### Console Log Analysis
+
+**Errors found in console logs (NOT critical):**
+- Failed to load resource: user_image.png (400 error) - minor asset issue, not related to pagination
+- REQUEST FAILED: /cdn-cgi/rum (Cloudflare RUM) - minor, not related to pagination
+- REQUEST FAILED: /api/track/visitor - minor analytics issue, not related to pagination
+- Error: Abort fetching component for route: "/dashboard" - navigation-related, not critical
+- Failed to load resource: ExpendMore-Arrow.svg, united-states-flag.png - minor asset loading issues
+
+**None of these errors affect the /customers or /invoices pages rendering or pagination functionality.**
+
+---
+
+### Final Summary
+
+**BOTH PAGES PASS ✅ ✅**
+
+**✅ /CUSTOMERS:**
+- Renders correctly with 24 customers (20 per page)
+- MUI pagination with numbered pages [1, 2] is fully visible within viewport (688.5-720.5px, within 0-844)
+- Pagination NOT occluded by FAB or bottom nav
+- Pagination FUNCTIONAL - clicking page 2 changes customer list from 20 to 4 customers
+
+**✅ /INVOICES:**
+- Renders correctly with 6 invoices
+- No pagination present (expected - only 6 invoices < 20 threshold)
+- Single page view works correctly
+
+**No critical console errors or layout breakage on either page.**
+
+---
+
+### Testing Agent Communication
+
+  - agent: "testing"
+    message: "Session 73 FINAL MOBILE PAGINATION CHECK COMPLETE — BOTH PAGES PASS ✅✅. /CUSTOMERS: Page renders cleanly (24 customers, 20 per page), MUI pagination [1,2] fully visible within viewport (688.5-720.5px, within 0-844), NOT occluded by FAB/nav (element at center is pagination LI, no FAB overlap), FUNCTIONAL (page 2 click changed list from 20→4 customers). /INVOICES: Page renders cleanly (6 invoices), NO pagination present (expected, <20 threshold), single page view works correctly. Console: only minor unrelated asset errors (user_image.png 400, cdn-cgi/rum, analytics), NO critical errors affecting pagination. Screenshots saved. Both pages ready for production."
+
