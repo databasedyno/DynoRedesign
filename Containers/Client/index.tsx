@@ -141,12 +141,13 @@ const ClientLayout = ({
                   // Mobile: clear (a) the fixed bottom nav pill (~74px tall incl.
                   // its own offset) AND (b) the "Emily" support-chat FAB that
                   // sits above the nav in client layout (bottom 108px + 56px tall
-                  // = top edge ~164px above viewport bottom). Without this, the
-                  // bottom-right area of the last visible row on any list-heavy
-                  // page (e.g. /transactions Pending badge + timestamp) gets
-                  // occluded by the FAB. 180px = 164 (FAB top) + 16 breathing.
+                  // = top edge ~164px above viewport bottom). Empirical testing
+                  // on iPhone 14/15 (390x844) showed pb: 180px still left an
+                  // 84px overlap between the last transaction card and the FAB
+                  // (likely due to 100dvh vs mobile browser-chrome interactions).
+                  // Bumped to 260px to fully clear FAB + generous breathing room.
                   // Plus safe-area inset for notched devices. Desktop has no bottom nav/FAB clash.
-                  pb: { xs: "calc(180px + env(safe-area-inset-bottom, 0px))", lg: 0 },
+                  pb: { xs: "calc(260px + env(safe-area-inset-bottom, 0px))", lg: 0 },
                 }}
               >
                 {(pageName || pageDescription) && (

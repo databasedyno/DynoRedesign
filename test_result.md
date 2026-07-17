@@ -8,13 +8,13 @@ Photo screenshot uploaded showing the mobile **/transactions** page. The floatin
 
 The existing FAB "occluding" auto-hide (SupportChatWidget line ~412) triggers only when an INTERACTIVE element (A / BUTTON / role=button|link|tab) sits directly beneath. Transaction row content (badges, spans, plain text) is not interactive so the auto-hide never fires for /transactions.
 
-### Fix Applied
-`/app/Containers/Client/index.tsx` line 145 — bumped mobile bottom padding from 96px → **180px** so both the ~74px nav pill AND the FAB (top at 164px + 16px breathing room) are cleared. Only affects xs breakpoint; desktop (`lg`) remains `pb: 0`. Also expanded the inline comment to explain both offsets. This is a shared container so the fix benefits every mobile page (transactions, dashboard, wallet, pay-links, etc), not just /transactions.
+### Fix Applied (iteration 2 after first frontend test)
+`/app/Containers/Client/index.tsx` line 149 — first bumped mobile bottom padding from 96px → 180px, but frontend testing agent measured last transaction card still overlapping FAB by 84.2px (last card bottom=764.2, FAB top=680 on iPhone 14/15 390x844). Theoretical calc said pb: 180px should end content at 664px from top, but measurement showed 764.2 — a 100px discrepancy likely due to 100dvh vs mobile browser-chrome interactions or nested flex `minHeight: 0` behavior. **Bumped to `260px`** (180 + 100 discrepancy + breathing room). Only affects xs breakpoint; desktop (`lg`) remains `pb: 0`.
 
-Diff summary:
+Diff:
 ```
-- pb: { xs: "calc(96px + env(safe-area-inset-bottom, 0px))", lg: 0 },
-+ pb: { xs: "calc(180px + env(safe-area-inset-bottom, 0px))", lg: 0 },
+- pb: { xs: "calc(180px + env(safe-area-inset-bottom, 0px))", lg: 0 },
++ pb: { xs: "calc(260px + env(safe-area-inset-bottom, 0px))", lg: 0 },
 ```
 
 ### TESTING AGENT VERIFICATION (2026-07-17)
@@ -65,7 +65,7 @@ If manual testing is not feasible, the main agent could:
 - Merchant: `hostbay@moxx.co / Katiekendra123@` (user_id=1, LIVE Railway PG)
 - Login verified working via API (curl test passed)
 
-### TESTING AGENT VERIFICATION (RETRY - 2026-07-17)
+### TESTING AGENT VERIFICATION (RETRY #1 - 2026-07-17)
 
 **Test Status:** ❌ **PRIMARY TEST FAILED** — Fix is insufficient, FAB still overlaps last transaction
 
@@ -138,6 +138,86 @@ Or for more breathing room:
 - `/tmp/mobile_txn_final.png` - Detailed view of overlap
 - `/tmp/desktop_txn_bottom.png` - Desktop view (no issues)
 - `/tmp/mobile_dash_viewall.png` - Dashboard "View all" (no overlap)
+
+---
+
+### TESTING AGENT VERIFICATION (RETRY #2 - 2026-07-17)
+
+**Test Status:** ❌ **PRIMARY TEST STILL FAILED** — pb: 260px is INSUFFICIENT, overlap persists
+
+**Code Change Applied:**
+- `/app/Containers/Client/index.tsx` line 150: bumped pb from 180px → **260px** (added 80px)
+
+**Test Environment:**
+- Successfully logged in using the EXACT multi-step UI flow (email → Continue → select Password → fill password → Enter)
+- Tested on mobile viewport (390x844)
+- All regression tests passed
+
+**Test Results:**
+
+❌ **PRIMARY TEST (Mobile /transactions FAB overlap): FAIL**
+- **Scroll container padding-bottom:** 260px ✓ (correctly applied in code)
+- **FAB position:** top=680.0px, bottom=736.0px (56px tall, positioned at bottom: 108px)
+- **Last transaction card:** top=613.4px, bottom=764.2px (150.8px tall)
+- **Vertical overlap:** 56.0px (FAB still overlaps the bottom portion of the last transaction)
+- **Horizontal overlap:** 56.0px
+- **Gap needed:** Last card bottom (764.2px) - FAB top (680px) = **84.2px** additional clearance needed
+
+**CRITICAL FINDING:** Despite increasing pb from 180px to 260px (an 80px increase), the last transaction card bottom is STILL at 764.2px (same as before). This indicates that padding-bottom alone is NOT sufficient to prevent the overlap. The padding creates scrollable space below the content, but when scrolled to the bottom, the content still extends into the FAB area.
+
+✅ **REGRESSION A (Mobile nav pill visible): PASS**
+- Mobile nav rect: top=758.4px, bottom=836px, height=77.6px
+- Nav pill is visible and correctly positioned at the bottom
+
+✅ **REGRESSION B (Desktop no huge whitespace): PASS**
+- Desktop scroll container padding-bottom: 16px (minimal, as expected)
+- No excessive whitespace on desktop
+
+✅ **REGRESSION C (Mobile /dashboard "View all" not covered): PASS**
+- "View all" link found at top=700.6px
+- FAB found on dashboard
+- No overlap detected
+
+**Root Cause Analysis:**
+
+The fundamental issue is that **padding-bottom on the scroll container does NOT prevent content from being positioned in that padded area**. It only adds scrollable space below the content. When the user scrolls to the absolute bottom, the last transaction card can still extend into the region where the FAB is positioned.
+
+**Comparison with Previous Run:**
+- **Retry #1 (pb: 180px):** Last card bottom = 764.2px, FAB top = 680px, Overlap = 84.2px
+- **Retry #2 (pb: 260px):** Last card bottom = 764.2px, FAB top = 680px, Overlap = 84.2px
+- **Result:** NO CHANGE in card position despite 80px padding increase
+
+**Recommended Fix (Two Options):**
+
+**OPTION A (Quick Fix - Increase padding further):**
+Increase pb to **360px** (260 + 100):
+```diff
+- pb: { xs: "calc(260px + env(safe-area-inset-bottom, 0px))", lg: 0 },
++ pb: { xs: "calc(360px + env(safe-area-inset-bottom, 0px))", lg: 0 },
+```
+This may work, but it's not guaranteed since the previous 80px increase had no effect on card positioning.
+
+**OPTION B (Recommended - Add spacer element inside transactions page):**
+Add a spacer element at the bottom of `/app/Components/Page/Transactions/index.tsx` (after line 455, after `<TransactionsTable>`):
+```tsx
+<TransactionsTable transactions={processedTransactions} rowsPerPage={10} />
+
+{/* Mobile spacer to prevent FAB from covering last transaction */}
+<Box
+  sx={{
+    display: { xs: 'block', md: 'none' },
+    height: '180px', // FAB top edge (164px) + breathing room
+    flexShrink: 0,
+  }}
+/>
+```
+
+This approach is similar to the **Session 64 sticky pay bar fix** (line 1105 in CleanCheckoutV2.tsx), which successfully used a spacer element to prevent the sticky bar from covering footer content. A spacer element inside the page content is more reliable than padding on the scroll container.
+
+**Screenshots:**
+- `/tmp/mobile_txn_bottom_v2.png` - Shows FAB still overlapping last transaction with pb: 260px
+- `/tmp/desktop_txn_regression_b.png` - Desktop view (no issues, 16px padding)
+- `/tmp/mobile_dash_regression_c.png` - Dashboard "View all" (no overlap)
 
 ---
 
