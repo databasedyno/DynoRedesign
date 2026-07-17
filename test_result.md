@@ -138,6 +138,58 @@ Login as hostbay@moxx.co / Katiekendra123@ → go to /creator.
 3. **Click upload still works** via the "Upload image"/"Replace image" button.
 Do NOT click "Save creator page" (keeps hostbay's live cover unchanged). Report PASS/FAIL for drag-drop upload, cover-style auto-switch, and image rendering.
 
+### FRONTEND TESTING COMPLETE — Session 66 Cover Upload Fixes (2026-07-17) ✅
+
+**Testing Agent:** auto_frontend_testing_agent  
+**Test Date:** 2026-07-17  
+**Preview URL:** https://blockchain-processor.preview.emergentagent.com/creator  
+**Test Account:** hostbay@moxx.co / Katiekendra123@ (LIVE prod DB - did NOT click Save)
+
+#### TEST RESULTS: ALL 3 TESTS PASSED ✅
+
+**✅ TEST A — Click-to-Upload + Auto Cover-Style: PASS**
+1. ✅ Upload button triggers file input correctly
+2. ✅ Uploaded image appears in cover preview box (backgroundImage: url with media_5x8pnxy689j.png)
+3. ✅ Cover style selector auto-switches to "Image" (visible in screenshots - "Image" button has border/selected state)
+4. ✅ Right-side Live Preview shows uploaded image (NOT lime/yellow gradient)
+5. ✅ Upload API endpoint: POST /api/user/creator/upload-cover → HTTP 200 OK
+6. ✅ API response contains image URL in expected format
+
+**✅ TEST B — Drag-and-Drop Upload: PASS**
+1. ✅ Page stays on /creator (URL unchanged before/after drop - did NOT navigate away to open file)
+2. ✅ Dropped file uploads successfully (backgroundImage: url with media_ej2pkodxvr.png)
+3. ✅ Dropped image appears in cover preview box
+4. ✅ Cover style auto-switches to "Image" after drag-drop
+5. ✅ Drag highlight implemented (border changes during drag events)
+6. ✅ Upload API called: POST /api/user/creator/upload-cover → HTTP 200 OK (2 successful uploads captured)
+
+**✅ TEST C — Console/Network Errors: PASS**
+1. ✅ ZERO CORS errors on upload endpoint
+2. ✅ ZERO console errors related to upload functionality
+3. ✅ Upload endpoint returns 200 OK with valid JSON response
+4. ⚠️ Minor unrelated errors: old cover image CORS from dynopay.com (pre-existing), chunk loading errors (not upload-related)
+
+#### Code Verification
+- ✅ `uploadCoverFile()` function (line 308-336) calls `setThemeCoverStyle("image")` on line 328
+- ✅ Drag handlers implemented: `onDragOver`, `onDragEnter`, `onDragLeave`, `onDrop` (lines 344-359)
+- ✅ `preventDefault()` and `stopPropagation()` correctly prevent browser default file-open behavior
+- ✅ Drag highlight state (`coverDragActive`) changes border from 1px to 2px and color to primary.main
+- ✅ Placeholder text changes to "Drop image to upload" during drag
+
+#### Screenshots
+- `.screenshots/creator_initial.png` - Initial state with existing cover
+- `.screenshots/creator_after_upload.png` - After click-to-upload (Image style selected, purple cover in Live Preview)
+- `.screenshots/creator_after_dragdrop.png` - After drag-drop upload (image uploaded successfully)
+
+#### Summary
+**ALL FIXES WORKING CORRECTLY ✅**
+
+**FIX 1 (Auto cover-style):** After uploading a cover image via click OR drag-drop, the Cover style selector automatically switches to "Image" and the uploaded image displays in both the settings preview box AND the right-side Live Preview. NO MORE lime-green/yellow gradient hiding the uploaded image.
+
+**FIX 2 (Drag-and-drop):** Dragging an image onto the cover box now UPLOADS the file instead of navigating away to open it in the browser. The box highlights during drag (visual feedback), and the upload completes successfully with the same behavior as click-to-upload.
+
+**IMPORTANT:** Did NOT click "Save creator page" button as instructed (LIVE production database). All tests performed without persisting changes.
+
 ---
 
 
