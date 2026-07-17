@@ -92,15 +92,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
   const endIndex = startIndex + rowsPerPage;
   const currentTransactions = transactions.slice(startIndex, endIndex);
 
-  // TEMP DIAGNOSTIC (session 72) — remove after root-cause confirmed
-  console.log(
-    `[PAGDBG][render] currentPage=${currentPage} totalPages=${totalPages} txLen=${transactions.length} firstId=${transactions[startIndex]?.id ?? "n/a"}`,
-  );
-
   useEffect(() => {
-    console.log(
-      `[PAGDBG][reset-effect FIRED] transactions ref changed → setCurrentPage(1). txLen=${transactions.length} firstId=${transactions[0]?.id ?? "n/a"}`,
-    );
     setCurrentPage(1);
   }, [transactions]);
 
@@ -435,19 +427,6 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
               </Box>
             </Box>
           ))}
-          
-          {/* Mobile-only bottom spacer — session 71 bug fix (retry #3).
-              Clears the "Emily" support-chat FAB (bottom 108px + 56px tall
-              = top edge ~164px above viewport bottom). Without this spacer
-              the last transaction card's Pending badge + timestamp get
-              occluded by the FAB on mobile. Height = FAB top (164px) + 16px
-              breathing room. */}
-          <Box
-            sx={{
-              height: "180px",
-              flexShrink: 0,
-            }}
-          />
         </>
       )}
     </Box>
@@ -689,6 +668,9 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
           backgroundColor: theme.palette.background.paper,
           borderEndStartRadius: "14px",
           borderEndEndRadius: "14px",
+          // Small separation from the last card on mobile (the big FAB/nav
+          // clearance now lives in the spacer AFTER this footer — see below).
+          mt: { xs: 1, md: 0 },
         }}
       >
         <TransactionsTableFooter>
@@ -729,10 +711,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                 />
               }
               disabled={currentPage === totalPages || isDataEmpty}
-              onClick={() => {
-                console.log(`[PAGDBG][desktop NEXT click] currentPage ${currentPage} → ${currentPage + 1}`);
-                setCurrentPage((prev) => prev + 1);
-              }}
+              onClick={() => setCurrentPage((prev) => prev + 1)}
             />
 
             {/* Mobile Nav */}
@@ -756,6 +735,16 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
           </Box>
         </TransactionsTableFooter>
       </Box>
+
+      {/* Mobile-only bottom clearance (session 72 fix).
+          Placed AFTER the footer so the PAGINATION CONTROLS themselves clear
+          the fixed "Emily" support-chat FAB (top edge ~164px above viewport
+          bottom) + the bottom nav pill. On mobile the footer is the bottom-most
+          interactive row and, because this table uses maxHeight:"fit-content",
+          the layout's own container padding does NOT lift it (see session 71) —
+          an in-component spacer is required. 180px = FAB top (164px) + breathing.
+          This also clears the last card (which now sits above the footer). */}
+      {isMobile && <Box sx={{ height: "180px", flexShrink: 0 }} />}
 
       <TransactionDetailsModal
         open={modalOpen}

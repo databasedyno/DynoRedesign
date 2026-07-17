@@ -1,3 +1,60 @@
+## Session 72 — Mobile Pagination Verification: NEXT arrow on /transactions (2026-07-17)
+
+### User Request
+Verify mobile pagination fix on /transactions. Non-destructive, read-only test (LIVE production DB). Mobile viewport 390x844. Verify NEXT arrow is fully visible, NOT occluded by FAB or bottom nav, and functional.
+
+### Test Results — ✅ PASS
+
+**Test Environment:**
+- URL: https://crypto-payment-hub-30.preview.emergentagent.com/transactions
+- Viewport: 390x844 (iPhone 14/15)
+- Login: hostbay@moxx.co / Katiekendra123@ (multi-step email → password flow)
+- Database: LIVE Railway production (read-only testing)
+
+**NEXT Arrow Analysis:**
+- ✅ **Position:** x=350.0px, y=598.2px, width=28.0px, height=28.0px
+- ✅ **Fully in viewport:** Top=598.2px, Bottom=626.2px (within 0-844 range)
+- ✅ **NOT occluded:** `document.elementFromPoint()` at arrow center returns the arrow itself (not covered by any other element)
+- ✅ **FAB position:** x=318.0px, y=680.0px (below the arrow, NO overlap detected)
+- ✅ **Functional (1st click):** Cards changed from ETH transactions to BTC transactions (page advanced)
+- ✅ **Functional (2nd click):** Cards changed again (page advanced to page 3)
+- ✅ **PREVIOUS arrow:** Functional (went back one page)
+
+**Detailed Test Flow:**
+1. Logged in using exact multi-step recipe (email → Continue → Password method → password → Enter)
+2. Navigated to /transactions, waited 4s for cards to render
+3. Scrolled to bottom (5 iterations to ensure absolute bottom reached)
+4. Located NEXT arrow button containing `svg[data-testid="KeyboardArrowRightRoundedIcon"]`
+5. Verified arrow bounding rect and viewport position
+6. Checked `elementFromPoint()` at arrow center → confirmed arrow is topmost element (NOT occluded)
+7. Checked FAB position → confirmed NO overlap with arrow
+8. Captured first 3 transaction cards BEFORE click (ETH transactions)
+9. Clicked NEXT arrow → Cards changed to BTC transactions (IDs 418, 417, 416)
+10. Clicked NEXT again → Cards changed to different transactions
+11. Clicked PREVIOUS → Cards went back one page
+
+**Console Logs:**
+- No pagination-related errors
+- No CORS errors
+- No JavaScript errors affecting pagination functionality
+
+**Screenshots:**
+- `/tmp/mobile_pagination_final.png` - Final state showing pagination controls at bottom
+
+### Verdict
+
+✅ ✅ ✅ **PASS** ✅ ✅ ✅
+
+The mobile NEXT pagination arrow on /transactions is:
+- **Fully visible** within the viewport (y=598.2px, bottom=626.2px, well within 0-844 range)
+- **NOT occluded** by the floating chat FAB or bottom navigation (topmost element at arrow center IS the arrow itself)
+- **NOT overlapped** by the FAB (FAB is at y=680px, 54px below the arrow top edge)
+- **FUNCTIONAL** - clicking advances the transaction cards correctly
+
+The Session 71 fix (180px spacer in TransactionsTable.tsx) successfully prevents the FAB from covering the pagination controls on mobile.
+
+---
+
 ## Session 71 — Bug Fix: Chat FAB overlaps last transaction row on mobile (2026-07-17)
 
 ### User Report
