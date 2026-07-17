@@ -173,6 +173,8 @@ const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const safePatterns: RegExp[] = [
   /^https?:\/\/localhost(:\d+)?$/,
   /^https:\/\/.*\.preview\.emergentagent\.com$/,
+  /^https:\/\/.*\.preview\.emergentcf\.cloud$/,
+  /^https:\/\/.*\.emergentcf\.cloud$/,
   /^https:\/\/.*\.up\.railway\.app$/,
   /^https:\/\/.*\.ondigitalocean\.app$/,
   ...[...trustedBaseDomains].map((d) => new RegExp(`^https?:\\/\\/(.*\\.)?${escapeRe(d)}$`)),
