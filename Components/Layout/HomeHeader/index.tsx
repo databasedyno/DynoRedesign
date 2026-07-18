@@ -324,6 +324,7 @@ const HomeHeader = memo(function HomeHeader() {
 
           <MobileMenuButton
             aria-label="Toggle menu"
+            data-testid="mobile-menu-toggle"
             onClick={() => setMobileMenuOpen((prev) => !prev)}
           >
             {mobileMenuOpen ? <MenuCloseIcon /> : <MenuOpenIcon />}

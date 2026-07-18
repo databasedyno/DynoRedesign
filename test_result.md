@@ -9,6 +9,73 @@ On the HomeHeader MOBILE menu drawer (anchor right), the LanguageSwitcher dropdo
 ### Test scope (PUBLIC home page '/', NO login, NO DB writes — safe)
 Mobile viewport (~390px): open hamburger drawer → open language switcher → all 6 options ("EN - English" … "NL - Nederlands") fully visible within the viewport, NOT clipped on the left, selected item shows full "English" + check. Desktop header switcher still opens fully readable (verified via screenshot already).
 
+### TESTING AGENT VERIFICATION — Session 78b Language Switcher Dropdown Clipping Fix (2026-07-18)
+
+**Test Status:** ✅ **ALL TESTS PASSED (2/2)**
+
+**Test Environment:**
+- Preview URL: https://f3cb87f1-5f8d-495e-893f-d9d393494591.preview.emergentagent.com
+- Test Type: PUBLIC home page (NO login, NO DB writes)
+- Viewports: Mobile (390×844), Desktop (1440×900)
+
+**Verification Results:**
+
+✅ **TEST 1: MOBILE DRAWER (PRIMARY TEST) - PASS**
+- Mobile viewport: 390×844 (iPhone 14 Pro)
+- Successfully opened mobile hamburger menu drawer
+- Scrolled to bottom of drawer where language switcher is located
+- Clicked language trigger (data-testid="language-trigger")
+- Dropdown opened successfully (data-testid="language-dropdown")
+
+**Critical Measurements:**
+- **Dropdown left edge: 50.00px (>= -1)** ✅ NOT CLIPPED
+- **Dropdown right edge: 246.00px (<= 395px)** ✅ FULLY WITHIN VIEWPORT
+- **Dropdown width: 196.00px** ✅ CORRECT
+- **Dropdown position: LEFT-ALIGNED (left: 0)** ✅ FIX WORKING
+
+**Language Options Verification:**
+- ✅ EN - English: Fully readable (NOT "nglish")
+- ✅ PT - Português: Fully readable
+- ✅ FR - Français: Fully readable
+- ✅ ES - Español: Fully readable
+- ✅ DE - Deutsch: Fully readable
+- ✅ NL - Nederlands: Fully readable
+
+**Key Finding:** The dropdown correctly detected that right-alignment would clip off the left edge in the mobile drawer, so it flipped to LEFT-ALIGNMENT (left: 0), allowing the menu to grow rightward instead of leftward. This is the core fix working as designed.
+
+✅ **TEST 2: DESKTOP REGRESSION - PASS**
+- Desktop viewport: 1440×900
+- Clicked header language trigger (top-right corner)
+- Dropdown opened successfully
+
+**Critical Measurements:**
+- **Dropdown left edge: 876.00px (>= 0)** ✅ ON SCREEN
+- **Dropdown right edge: 1072.00px (<= 1440px)** ✅ WITHIN VIEWPORT
+- **Dropdown width: 196.00px** ✅ CORRECT
+- **Dropdown position: RIGHT-ALIGNED (right: 0)** ✅ CORRECT FOR DESKTOP
+
+**Language Options Verification:**
+- ✅ All 6 options (EN, PT, FR, ES, DE, NL) fully readable on desktop
+
+**Console Errors Analysis:**
+- Only 1 non-blocking error: next-auth session fetch error (expected on public page)
+- No JavaScript errors blocking functionality
+- No React hydration errors
+- No critical console errors
+
+**Screenshots:**
+- 01_mobile_home_initial.png - Mobile home page initial state
+- 02_mobile_drawer_open.png - Mobile drawer opened
+- 03_mobile_drawer_bottom.png - Scrolled to bottom of drawer (language switcher visible)
+- 05_mobile_dropdown_open.png - Dropdown open in mobile drawer (all options visible)
+- 06_mobile_test1_complete.png - Mobile test complete
+- 07_desktop_home_initial.png - Desktop home page initial state
+- 09_desktop_dropdown_open.png - Desktop dropdown open (all options visible)
+- 10_desktop_test2_complete.png - Desktop test complete
+
+**Summary:**
+The language switcher dropdown clipping fix is **WORKING PERFECTLY**. The viewport-aware alignment logic correctly detects when right-alignment would clip off the left edge and flips to left-alignment in the mobile drawer. Desktop behavior remains unchanged with right-alignment working correctly. All 6 language options are fully readable in both mobile and desktop contexts. The bug where "English" appeared as "nglish" is completely resolved.
+
 ---
 
 

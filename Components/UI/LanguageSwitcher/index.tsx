@@ -197,6 +197,7 @@ function LanguageSwitcher({ showBig = false }: Props) {
         tabIndex={0}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
+        data-testid="language-trigger"
         sx={{
           height: showBig ? 40 : isMobile ? 28 : 40,
           width: showBig ? 111 : isMobile ? 78 : 111,
@@ -232,6 +233,7 @@ function LanguageSwitcher({ showBig = false }: Props) {
 
       {isOpen && (
         <DropdownContainer
+          data-testid="language-dropdown"
           sx={{
             left: alignRight ? "auto" : 0,
             right: alignRight ? 0 : "auto",
@@ -281,6 +283,7 @@ function LanguageSwitcher({ showBig = false }: Props) {
                   tabIndex={0}
                   aria-selected={isSelected}
                   data-selected={isSelected ? "true" : "false"}
+                  data-testid={`language-option-${lng.code}`}
                   onClick={() => changeLang(lng.code)}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
