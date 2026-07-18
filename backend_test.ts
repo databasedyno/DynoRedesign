@@ -9,7 +9,7 @@ import axios from 'axios';
 import * as fs from 'fs';
 import * as path from 'path';
 
-const API_BASE = 'https://blockchain-processor-1.preview.emergentagent.com/api';
+const API_BASE = 'https://tokens-60.preview.emergentagent.com/api';
 
 interface TestResult {
   test: string;
