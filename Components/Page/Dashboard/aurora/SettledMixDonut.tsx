@@ -62,7 +62,10 @@ const SettledMixDonut: React.FC<Props> = ({ loading, recentTransactions }) => {
         color: SLICE_COLORS[4],
       });
     }
-    return rows;
+    // Drop slices that round to 0% — they add legend noise ("ETH 0% / BTC 0%")
+    // without being visible on the donut. Keep at least the largest slice.
+    const visible = rows.filter((r) => r.pct >= 1);
+    return visible.length > 0 ? visible : rows.slice(0, 1);
   }, [recentTransactions]);
 
   const isEmpty = !loading && data.length === 0;

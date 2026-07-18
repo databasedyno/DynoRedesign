@@ -6,8 +6,10 @@
 //   4. What needs my attention?        \u2192 AttentionCardsRow
 // Below fold: GettingStartedChecklist (< 30 day accounts) + RecentOrdersMiniTable.
 import ClaimHandleBanner from "@/Components/Page/Dashboard/ClaimHandleBanner";
+import CreatorPageCard from "@/Components/Page/Dashboard/CreatorPageCard";
 import AttentionCardsRow from "@/Components/Page/Dashboard/aurora/AttentionCardsRow";
 import AuroraKPIHero from "@/Components/Page/Dashboard/aurora/AuroraKPIHero";
+import FeeTierLevelCard from "@/Components/Page/Dashboard/aurora/FeeTierLevelCard";
 import GettingStartedChecklist from "@/Components/Page/Dashboard/aurora/GettingStartedChecklist";
 import LiveActivityFeed from "@/Components/Page/Dashboard/aurora/LiveActivityFeed";
 import RecentOrdersMiniTable from "@/Components/Page/Dashboard/aurora/RecentOrdersMiniTable";
@@ -152,6 +154,19 @@ export default function Home({
         <Box sx={{ mb: 2.5 }}>
           <AttentionCardsRow />
         </Box>
+
+        {/* ============================================================
+            AURORA FOLD 4 - Fee-tier level ladder + Creator analytics
+            (restored 2026-07-18 - dropped in the Aurora rewrite)
+            ============================================================ */}
+        <Grid container spacing={2.5} sx={{ mb: 2.5 }}>
+          <Grid item xs={12} lg={5}>
+            <FeeTierLevelCard />
+          </Grid>
+          <Grid item xs={12} lg={7}>
+            <CreatorPageCard />
+          </Grid>
+        </Grid>
 
         {/* ============================================================
             BELOW FOLD \u2014 Getting started (new users) + Recent orders
