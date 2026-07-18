@@ -1,3 +1,30 @@
+# CURRENT SESSION (fresh boot — session 74, 2026-07-18) — ENV + PROD DIAGNOSTICS
+
+- **Preview URL**: https://cc9c1522-b9cf-48b3-b947-1f56fdf04319.preview.emergentagent.com (200 on /, /auth/login, /api/csrf-token). FIRST in CORS_ALLOWED_ORIGINS.
+- **Merchant test account** (LIVE Railway PG): **hostbay@moxx.co / Katiekendra123@** (user_id=1, name=hostbay). BUT: login currently BROKEN (see prod bug below).
+- **Admin email** (env ADMIN_EMAIL): moxxcompany@gmail.com
+- On boot: fresh container — root + backend node_modules + all 4 .env MISSING; frontend supervisor FATAL. Ran root yarn (126s exit=0) + backend yarn (88s exit=0) in parallel. Backend + frontend supervisor RUNNING after .env write.
+- 4 IDENTICAL .env written (/app/.env, /app/.env.local, /app/backend/.env, /app/frontend/.env — md5=99913910505386f8af5c17ad1dc1c290, 225 lines). Transformations: all app URLs → cc9c1522 preview URL; INTERNAL_BACKEND_URL=http://localhost:3300; CORS = cc9c1522 preview FIRST + dynopay.com + checkout.dynopay.com; DATABASE_URL constructed from parts (postgresql://postgres:...@roundhouse.proxy.rlwy.net:23599/railway); REDIS_PUBLIC_URL as-is; GOOGLE_CLIENT_KEY single-line \n-escaped double-quoted; fixed EXT_PUBLIC→NEXT_PUBLIC_ENABLE_GITHUB_AUTH typo; OPENAI_API_KEY + SUPPORT_CHAT_MODEL=gpt-5.4; product-catalog/inline-tip/clean-checkout-v2/google-auth/github-auth flags = true; PORT omitted (server.py injects 3300 for ts-node --transpile-only server.ts).
+- Fresh NEXTAUTH_SECRET generated (user paste was literal broken "openssl rand -base64 32"): **8X8zN8fIpirbNQRIFBV8TrfZWS7LX0X8eNfvd390OAE=**
+- SAFETY OVERRIDES applied (LIVE prod DB+Redis shared): NODE_ENV=production / WORKER_ROLE=secondary / ENABLE_BACKGROUND_JOBS=false → verified in logs: "BACKGROUND JOBS DISABLED — cron jobs, webhook migration, and reconciliation will NOT run on this instance".
+- Verified: internal :8001/health=200, :8001/api/csrf-token=200, :3000/=200.
+
+## 🚨 PROD OUTAGE FOUND (Session 74) — dynopay.com login is BROKEN
+- **Symptom** user reported: "email no longer being sent to merchant and admin when payment is received"
+- **Real bug** (verified against LIVE prod DB + `https://dynopay.com/api/user/checkEmail?email=hostbay@moxx.co` → 500):
+  `column "display_currency" does not exist` — Sequelize userModel.findOne fails on ANY findOne without explicit `attributes:[]`.
+- **Root cause**: Model (`backend/models/userModels/userModel.ts` line 27, added 2026-07-14 commit 103913e1) declares `display_currency`, `handle`, `bio`, `creator_page_enabled`, `cover_image`, `social_links`, `support_widget_*`, `theme_*`. **Migration scripts `scripts/add_user_display_currency.js` + `scripts/add_company_display_currency.js` were written but NEVER RUN against Railway prod PG.**
+- **Verified missing** (`SELECT column_name FROM information_schema.columns WHERE table_name='tbl_user'`): tbl_user has only 35 cols — missing ALL of the above. tbl_company also missing `display_currency`.
+- **Impact confirmed live**: `GET /api/user/checkEmail` → 500 on `dynopay.com` (external prod). Login step-1 "Continue" button returns "Error verifying email. Please try again after some time" for every merchant.
+- **Payment received / admin fee emails DO still fire** on DO prod (Jul 17 21:28 → hostbay@moxx.co "Payment received 4.08 USD" + Jul 18 00:27 → hostbay@moxx.co "Payment received 24.79 USD" + Platform Fee emails to moxxcompany@gmail.com) — likely because cryptoVerification cron catches the userModel error and falls back to raw SQL for merchantContactName; more investigation pending.
+- **Brevo verification** (session 74): API key `xkeysib-0b9f...` valid, plan credits=0 (subscription 2026-07-07→2026-08-07 exhausted). Jul 17 spike = 4,497 emails (vs baseline ~50-100/day) driven by 15-min error-digest cron × POL Fee Wallet empty alerts × new visitor emails. 1 hardBounces reason: "Your account has insufficient credits" (2026-07-17 04:20). Gmail rate-limited DKIM domain `7776532.brevosend.com` (421-4.7.28 deferred).
+- **Mobile QA sweep** (session 74) BLOCKED by this same 500 — only `/pay/demo` + `/auth/login` were reachable. Need re-run after migration is applied.
+- **Prescribed fix** (safe, idempotent, additive-only): `cd /app/backend && node scripts/add_user_display_currency.js && node scripts/add_company_display_currency.js` — awaiting user GO. Also need Brevo credit top-up + tighten error-digest / POL-wallet-empty cooldown to prevent runaway send.
+- NO CODE CHANGES this session — pure env provisioning + diagnostics.
+
+---
+
+
 # CURRENT SESSION (fresh boot — session 73, 2026-07-17) — ENV PROVISIONING
 
 - **Preview URL**: https://tokens-60.preview.emergentagent.com (200 on /, /auth/login, /api/csrf-token). Included FIRST in CORS_ALLOWED_ORIGINS.
