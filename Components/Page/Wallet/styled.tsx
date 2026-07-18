@@ -19,14 +19,15 @@ export const HeaderIcon = styled(IconButton)(({ theme }) => ({
     width: 24,
   },
   [theme.breakpoints.down("md")]: {
-    width: 30,
-    height: 30,
+    // Session 74 P1: 44×44 to hit WCAG 2.5.5 tap-target minimum on mobile.
+    width: 44,
+    height: 44,
     "& img": {
-      height: 14,
-      width: 14,
+      height: 18,
+      width: 18,
     },
   },
-}));
+})); 
 
 export const WalletHeaderAction = styled(Box)(({ theme }) => ({
   display: "flex",
@@ -111,9 +112,10 @@ export const WalletCopyButton = styled(IconButton)(({ theme }) => ({
     transform: "scale(0.95)",
   },
   [theme.breakpoints.down("md")]: {
-    width: "32px",
-    height: "32px",
-    padding: "6px",
+    // Session 74 P1: 44×44 tap target (WCAG 2.5.5).
+    width: "44px",
+    height: "44px",
+    padding: "10px",
   },
 }));
 
@@ -151,8 +153,9 @@ export const WalletEditButton = styled(IconButton)(({ theme }) => ({
     backgroundColor: theme.palette.background.paper,
   },
   [theme.breakpoints.down("md")]: {
-    width: 32,
-    height: 32,
+    // Session 74 P1: 44×44 tap target (WCAG 2.5.5).
+    width: 44,
+    height: 44,
   },
 }));
 

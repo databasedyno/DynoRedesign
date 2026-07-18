@@ -609,8 +609,9 @@ const DashboardLeftSection = () => {
               }
               sx={{
                 padding: "8px",
-                width: isMobile ? "32px" : "40px",
-                height: isMobile ? "32px" : "40px",
+                // Session 74 P1: 44×44 tap target on mobile (WCAG 2.5.5).
+                width: isMobile ? "44px" : "40px",
+                height: isMobile ? "44px" : "40px",
                 "&:hover": { backgroundColor: theme.palette.action.hover },
               }}
             >
@@ -706,14 +707,16 @@ const DashboardLeftSection = () => {
             {hasMoreWallets && !showAllWallets && (
               <IconButton
                 onClick={() => setShowAllWallets(true)}
+                aria-label={tDashboard("showAllWallets", { defaultValue: "Show all wallets" })}
                 sx={{
-                  width: "30px",
-                  height: "30px",
+                  // Session 74 P1: 44×44 tap target on mobile (WCAG 2.5.5).
+                  width: { xs: "44px", md: "30px" },
+                  height: { xs: "44px", md: "30px" },
                   borderRadius: "999px",
                   background: theme.palette.secondary.light,
                   border: `1px solid ${theme.palette.border.main}`,
                   padding: 0,
-                  minWidth: "30px",
+                  minWidth: { xs: "44px", md: "30px" },
                   flexShrink: 0,
                   "&:hover": {
                     background: theme.palette.secondary.dark,
@@ -731,14 +734,16 @@ const DashboardLeftSection = () => {
             {showAllWallets && (
               <IconButton
                 onClick={() => setShowAllWallets(false)}
+                aria-label={tDashboard("hideAllWallets", { defaultValue: "Show fewer wallets" })}
                 sx={{
-                  width: "30px",
-                  height: "30px",
+                  // Session 74 P1: 44×44 tap target on mobile (WCAG 2.5.5).
+                  width: { xs: "44px", md: "30px" },
+                  height: { xs: "44px", md: "30px" },
                   borderRadius: "999px",
                   background: theme.palette.secondary.light,
                   border: `1px solid ${theme.palette.border.main}`,
                   padding: 0,
-                  minWidth: "30px",
+                  minWidth: { xs: "44px", md: "30px" },
                   flexShrink: 0,
                   "&:hover": {
                     background: theme.palette.secondary.dark,

@@ -404,18 +404,29 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
 
   // F1: A fixed bottom-right launcher inevitably overlaps bottom-right page
   // content at some scroll offsets (e.g. the Recent Transactions "View all"
-  // link on the mobile dashboard). Rather than occlude a tappable control, we
-  // detect — on small screens only — whether an interactive element sits
-  // directly beneath the FAB and, if so, get out of the way (hide) until the
-  // area is clear again. Desktop keeps the launcher always visible (ample
-  // margins; the audit only flagged mobile).
+  // link on the mobile dashboard, Settings save buttons). Rather than occlude
+  // a tappable control, we detect on small screens whether an interactive
+  // element sits directly beneath the FAB and, if so, smoothly slide the FAB
+  // off-screen until the area is clear again.
+  //
+  // Session 74 upgrade:
+  //   - sample 9 points (3×3 grid) across the FAB square instead of 3
+  //     verticals — catches wider CTAs that only overlap the left/right edges
+  //   - keep FAB in the DOM at all times but translate it off-screen with a
+  //     220ms CSS transition, so the launcher "tucks" instead of hard-hiding
+  //   - debounce the return-to-visible transition by 120ms so a fast scroll
+  //     over a button doesn't cause a jitter of appear/disappear
+  //   - also treat elements with `data-dyno-anchor="cta"` as blocking
+  //     (opt-in for Save / Continue / Update buttons that live near the FAB)
   const [occluding, setOccluding] = useState(false);
+  const occludingRef = useRef<boolean>(false);
   useEffect(() => {
     if (typeof window === "undefined") return;
     const FAB_SIZE = 56;
     const rightPx = 16;
     const bottomPx = layout === "client" ? 108 : 24;
     let raf = 0;
+    let clearTimer: ReturnType<typeof setTimeout> | null = null;
 
     const insideChat = (node: Element | null): boolean => {
       let el: Element | null = node;
@@ -435,43 +446,68 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
         if (tag === "BUTTON" && !(el as HTMLButtonElement).disabled) return true;
         const role = el.getAttribute?.("role");
         if (role === "button" || role === "link" || role === "tab") return true;
+        // Opt-in blocking: any element with data-dyno-anchor="cta" (Save,
+        // Continue, Update buttons that must never be overlapped).
+        if (el.getAttribute?.("data-dyno-anchor") === "cta") return true;
         el = el.parentElement;
         hops++;
       }
       return false;
     };
 
+    const applyOcclusion = (next: boolean) => {
+      if (next === occludingRef.current) return;
+      if (next === true) {
+        // Hide immediately (avoid tapping through)
+        if (clearTimer) { clearTimeout(clearTimer); clearTimer = null; }
+        occludingRef.current = true;
+        setOccluding(true);
+      } else {
+        // Return-to-visible: debounce 120ms so we don't flicker while a
+        // fast-scrolling button crosses the FAB region.
+        if (clearTimer) clearTimeout(clearTimer);
+        clearTimer = setTimeout(() => {
+          clearTimer = null;
+          occludingRef.current = false;
+          setOccluding(false);
+        }, 120);
+      }
+    };
+
     const check = () => {
       raf = 0;
       try {
         if (window.innerWidth > 900 || open) {
-          setOccluding(false);
+          applyOcclusion(false);
           return;
         }
         const vw = window.innerWidth;
         const vh = window.innerHeight;
-        const cx = vw - rightPx - FAB_SIZE / 2;
-        const top = vh - bottomPx - FAB_SIZE;
-        const bottom = vh - bottomPx;
-        const samples: Array<[number, number]> = [
-          [cx, (top + bottom) / 2],
-          [cx, top + 8],
-          [cx, bottom - 8],
-        ];
+        // FAB square bounding box in viewport
+        const leftEdge = vw - rightPx - FAB_SIZE;
+        const rightEdge = vw - rightPx;
+        const topEdge = vh - bottomPx - FAB_SIZE;
+        const bottomEdge = vh - bottomPx;
+        // 3×3 sample grid — corners + edges + center. Padded 6px inward so
+        // we don't pick up border pixels of adjacent tiles that happen to
+        // touch the FAB circle without being tappable.
+        const inset = 6;
+        const xs = [leftEdge + inset, (leftEdge + rightEdge) / 2, rightEdge - inset];
+        const ys = [topEdge + inset, (topEdge + bottomEdge) / 2, bottomEdge - inset];
         let hit = false;
-        for (const [x, y] of samples) {
-          const stack = document.elementsFromPoint(x, y);
-          for (const node of stack) {
-            if (insideChat(node)) continue; // ignore the FAB / panel themselves
-            // First non-chat element in the z-stack = what's directly beneath.
-            if (isInteractive(node)) hit = true;
-            break;
+        outer: for (const y of ys) {
+          for (const x of xs) {
+            const stack = document.elementsFromPoint(x, y);
+            for (const node of stack) {
+              if (insideChat(node)) continue;
+              if (isInteractive(node)) { hit = true; break outer; }
+              break; // first non-chat element = what's beneath; stop probing stack
+            }
           }
-          if (hit) break;
         }
-        setOccluding(hit);
+        applyOcclusion(hit);
       } catch {
-        setOccluding(false);
+        applyOcclusion(false);
       }
     };
     const schedule = () => {
@@ -488,6 +524,7 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
       window.removeEventListener("resize", schedule);
       obs.disconnect();
       if (raf) window.cancelAnimationFrame(raf);
+      if (clearTimer) clearTimeout(clearTimer);
     };
   }, [open, layout]);
 
@@ -764,7 +801,7 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
                   Talk to a human
                 </Typography>
                 <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 12, color: theme.palette.text.secondary }}>
-                  We'll email this conversation to our support team and reply to you by email.
+                  We&apos;ll email this conversation to our support team and reply to you by email.
                 </Typography>
                 <InputBase
                   data-testid="support-chat-escalate-email"
@@ -975,13 +1012,20 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
         </Box>
       )}
 
-      {/* ── Floating launcher button ── */}
-      {!suppressed && !occluding && (
+      {/* ── Floating launcher button ──
+          Session 74 P1-5: instead of removing the FAB from DOM when
+          occluding a CTA (jarring pop), we keep it mounted and translate it
+          off-screen with a 220ms transition. Result: FAB smoothly "tucks"
+          away as the user scrolls a Save/CTA button under it, and slides
+          back in once the button leaves the FAB region. */}
+      {!suppressed && (
       <Tooltip title={open ? "Close support chat" : "Chat with support"}>
         <IconButton
           data-testid="support-chat-button"
           onClick={() => setOpen((v) => !v)}
           aria-label={open ? "Close support chat" : "Open support chat"}
+          aria-hidden={occluding ? "true" : "false"}
+          tabIndex={occluding ? -1 : 0}
           sx={{
             position: "fixed",
             bottom: fabBottom,
@@ -994,8 +1038,13 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
             color: LIME,
             boxShadow: "0 8px 24px rgba(0,0,0,0.35)",
             border: isDark ? "1px solid rgba(255,255,255,0.14)" : "none",
-            transition: "transform 0.2s ease, background 0.2s ease",
-            "&:hover": { background: "#1C1C21", transform: "translateY(-2px)" },
+            // Smooth slide-out tuck when overlapping a CTA. transform is
+            // GPU-accelerated so the animation stays 60fps on scroll.
+            transform: occluding ? "translateX(96px) scale(0.9)" : "translateX(0) scale(1)",
+            opacity: occluding ? 0 : 1,
+            pointerEvents: occluding ? "none" : "auto",
+            transition: "transform 0.22s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.22s ease, background 0.2s ease",
+            "&:hover": { background: "#1C1C21", transform: occluding ? "translateX(96px) scale(0.9)" : "translateY(-2px)" },
           }}
         >
           {open ? <CloseRoundedIcon sx={{ fontSize: 26 }} /> : <ChatRoundedIcon sx={{ fontSize: 26 }} />}

@@ -564,6 +564,14 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: () => void }) => {
         companyId={selectedCompanyId}
         onDeleted={handleWalletDeleted}
       />
+
+      {/* Session 74 P1-4: mobile-only bottom spacer so the last wallet's
+          action row and the "Add wallet" button clear the ~80px bottom-nav
+          + 68px chat-FAB gutter. Desktop is 0-height (no impact). */}
+      <Box
+        data-testid="wallet-mobile-spacer"
+        sx={{ height: { xs: 180, md: 0 }, flexShrink: 0 }}
+      />
     </Box>
   );
 };

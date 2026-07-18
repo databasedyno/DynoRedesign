@@ -299,9 +299,10 @@ export const CopyButton = styled("button")(({ theme }) => ({
     transform: "scale(0.95)",
   },
   [theme.breakpoints.down("md")]: {
-    width: "32px",
-    height: "32px",
-    padding: "6px",
+    // Session 74 P1: 44×44 tap target on mobile (WCAG 2.5.5).
+    width: "44px",
+    height: "44px",
+    padding: "10px",
   },
 }));
 
@@ -326,8 +327,9 @@ export const ExplorerButton = styled("button")(({ theme }) => ({
     transform: "scale(0.95)",
   },
   [theme.breakpoints.down("md")]: {
-    width: "32px",
-    height: "32px",
+    // Session 74 P1: 44×44 tap target on mobile (WCAG 2.5.5).
+    width: "44px",
+    height: "44px",
     padding: "6px",
   },
 }));

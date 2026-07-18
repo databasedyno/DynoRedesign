@@ -1022,6 +1022,7 @@ export default function Login() {
             width={isMobile ? 120 : 114}
             height={isMobile ? 41 : 39}
             draggable={false}
+            priority
             onClick={() => router.push("/")}
             style={{ cursor: "pointer" }}
           />

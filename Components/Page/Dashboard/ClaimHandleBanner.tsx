@@ -123,7 +123,12 @@ const ClaimHandleBanner: React.FC = () => {
           onClick={dismiss}
           data-testid="claim-banner-dismiss"
           aria-label="Dismiss banner"
-          sx={{ color: theme.palette.text.secondary }}
+          sx={{
+            color: theme.palette.text.secondary,
+            // Session 74 P1: 44×44 tap target on mobile (WCAG 2.5.5).
+            width: { xs: 44, md: 32 },
+            height: { xs: 44, md: 32 },
+          }}
         >
           <Icon icon="mdi:close" width={18} />
         </IconButton>

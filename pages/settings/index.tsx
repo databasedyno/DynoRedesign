@@ -519,6 +519,15 @@ const SettingsPage = ({
           )}
           {active === "api-keys" && <ApiKeysSection />}
           {active === "notifications" && <NotificationPage />}
+
+          {/* Session 74 P0-1: mobile-only bottom spacer so Save/Update buttons
+              in each Settings section clear the ~80px bottom-nav + the 68px
+              chat-FAB gutter. Desktop is 0-height (no impact) because desktop
+              has no bottom-nav. Same pattern as the Session 71 TransactionsTable fix. */}
+          <Box
+            data-testid="settings-mobile-spacer"
+            sx={{ height: { xs: 180, md: 0 }, flexShrink: 0 }}
+          />
         </Box>
       </Box>
     </>

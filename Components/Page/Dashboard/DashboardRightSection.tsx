@@ -107,14 +107,16 @@ const DashboardRightSection = () => {
         headerSx={{ alignItems: "start" }}
         headerAction={
           <IconButton
+            aria-label={tDashboard?.("changeDisplayCurrency", { defaultValue: "Change display currency" }) || "Change display currency"}
             sx={{
               position: "absolute",
               right: "12px",
               top: "12px",
               backgroundColor: muiTheme.palette.mode === "dark" ? "rgba(255,255,255,0.12)" : "#E9ECF2",
               p: "8px",
-              width: isMobile ? 32 : 40,
-              height: isMobile ? 32 : 40,
+              // Session 74 P1: 44×44 tap target on mobile (WCAG 2.5.5).
+              width: isMobile ? 44 : 40,
+              height: isMobile ? 44 : 40,
               "&:hover": { backgroundColor: muiTheme.palette.mode === "dark" ? "rgba(255,255,255,0.2)" : "#D9DCE2" },
             }}
           >
