@@ -1,3 +1,45 @@
+# CURRENT SESSION (fresh boot — session 76, 2026-07-18) — ENV + AURORA REFRESH
+
+- **Preview URL**: https://421a3bbe-b69c-4bd4-9089-5a3fe7a9af17.preview.emergentagent.com (also reachable via alias https://multi-chain-checkout-4.preview.emergentagent.com — both 200 on /, /auth/login, /api/csrf-token). FIRST in CORS_ALLOWED_ORIGINS.
+- **Merchant test account** (LIVE Railway PG): **hostbay@moxx.co / Katiekendra123@** (user_id=1, name=hostbay, 440 lifetime txs, $20,880.60 volume, 4 coins mix USDT-TRC20 / USDT-ERC20 / ETH / BTC).
+- **Admin email** (env ADMIN_EMAIL): moxxcompany@gmail.com
+- **Login flow (3-step)**: Email → Continue → click "Password" radio → password → Continue. (There is ALSO an OAuth "Continue with Google" / "Continue with GitHub" pair — pick the FIRST plain "Continue" button, not the OAuth ones which are labeled "Continue with X".)
+- On boot: fresh container — root + backend node_modules + all 4 .env MISSING; frontend supervisor FATAL. Ran root yarn (120s exit=0) + backend yarn (82s exit=0) in parallel. sharp 0.34.5 pinned in package.json (arm64-safe).
+- Pod OOM'd once mid-session, reinit on larger machine → node_modules + all 4 .env PERSISTED. Fresh NEXTAUTH_SECRET: **oYlaJmxZckdjAIrRpXgIb+V5zZ8hyil98M+HehUglnQ=** (user paste had literal broken `"openssl rand -base64 32"`).
+- 4 IDENTICAL .env written (/app/.env, /app/.env.local, /app/backend/.env, /app/frontend/.env — md5=f2aa3a89e06cf8cc574515c31dbf3d4c, 228 lines). Transformations: all app URLs → 421a3bbe preview; INTERNAL_BACKEND_URL=http://localhost:3300; CORS = 421a3bbe FIRST + dynopay.com + checkout.dynopay.com; DATABASE_URL constructed from parts (postgresql://postgres:...@roundhouse.proxy.rlwy.net:23599/railway) so dbInstance.ts uses SSL branch (NODE_ENV=production + DB_SSL_REJECT_UNAUTHORIZED=false for Railway self-signed cert); REDIS_PUBLIC_URL+REDIS_URL as-is (nozomi.proxy.rlwy.net:15794); GOOGLE_CLIENT_KEY single-line \n-escaped double-quoted; fixed user's EXT_PUBLIC→NEXT_PUBLIC_ENABLE_GITHUB_AUTH typo; OPENAI_API_KEY + SUPPORT_CHAT_MODEL=gpt-5.4; product-catalog/inline-tip/clean-checkout-v2/google-auth/github-auth flags = true; PORT omitted (server.py injects 3300 for ts-node --transpile-only server.ts).
+- SAFETY OVERRIDES applied (LIVE prod Railway PG+Redis shared with production): NODE_ENV=production / WORKER_ROLE=secondary / ENABLE_BACKGROUND_JOBS=false (user env had =true) → verified /health background_jobs.eligible=false, is_leader=false (NO sweeps/cron/webhook fan-out against prod).
+- Verified: internal :8001/health = 200 (database=connected, redis=connected, tatum CLOSED 0 failures operational=true, 40 rates via Tatum), :8001/api/csrf-token = 200, :3000/ = 200. External / = 200, /auth/login = 200, /api/csrf-token = 200. REAL LOGIN: POST /api/user/login (hostbay@moxx.co / Katiekendra123@ + CSRF round-trip) → HTTP 200 "Login Successful!" user_id=1 name=hostbay against LIVE Railway PG; bad creds → 401.
+
+## AURORA v3 REFRESH (Session 76 code work, all frontend-only, no backend changes)
+Applied per user request "lets complete the pending improvement of design" from /app/DESIGN_PROPOSAL.md. Both surfaces = option (a) "apply all". LIVE Railway PG — user was told testing should be READ-ONLY.
+
+**Landing header** (Components/Layout/HomeHeader/index.tsx + styled.tsx):
+- Frosted glass background (rgba paper/obsidian at 78-85% alpha + backdrop-blur 14px + saturate 1.2)
+- 72px height (was 68), aurora underline on logo hover, aurora coral→violet nav underline (22px, scaleX transition on scroll-spy)
+- Coral CTA pill (#FF5B49) with 6px/20px rgba shadow + translateY(-1px) hover
+- Inline mono status pill "● ALL SYSTEMS NORMAL" (volt-lime dot, Plex Mono 10.5px, `.status-label` hidden on mobile)
+- Mobile drawer restyled to obsidian panel (#0B0B0F) with radial coral+violet blooms, Unbounded 22px nav items, coral drawer CTA + outlined sign-in secondary + `SOC 2 / GDPR / Non-custodial / ● Live` trust pills
+
+**Dashboard overview** (/app/pages/dashboard.tsx rewrite + 7 new files under /app/Components/Page/Dashboard/aurora/):
+Composition follows "Answer four questions in the fold" pattern:
+- Fold 1L: `<AuroraKPIHero>` — big Unbounded 40-72px aurora-gradient-text $20,880.60 + 440 payments + delta chip + 7-day sparkline (coral→violet→volt Recharts area chart)
+- Fold 1R: `<SettledMixDonut>` — coin-mix donut aggregating recentTransactions by crypto_currency (top 4 + Others), coral/violet/volt-ink/sky slices, Unbounded coin-count center label
+- Fold 2: `<LiveActivityFeed>` — full-width card with pulsing volt dot on LIVE·ACTIVITY eyebrow, CoinBadge rows with aurora ring (mask-composite CSS trick), StatusPill variants (settled=volt, confirming=sky, pending=mono, failed=coral), deep-link to /transactions?tx=<id>
+- Fold 3: `<AttentionCardsRow>` — up to 4 dismissible task cards (add company / add wallet / API key / claim @handle / create first link), auto-hides when zero tasks
+- Below fold L: `<GettingStartedChecklist>` — 5-step, gated on profile.createdAt <= 30 days, auto-hides for mature accounts (hostbay >> 30d so this is HIDDEN)
+- Below fold R: `<RecentOrdersMiniTable>` — 5-row grid with status pills, mobile collapses to 2 cols
+
+Added `fetchChartData("7d")` dispatch on mount so AuroraKPIHero sparkline has real data (previously this ran inside DashboardLeftSection).
+
+**Dead code kept on disk** (still available for other routes): DashboardLeftSection.tsx (856L), DashboardRightSection.tsx (314L), HeroMetrics, TodaySummaryStrip, FeeFreeWidget, FeeTierProgress, GrowPanel, CreatorPageCard, EmptyStatePanel, RecentTransactionsWidget, ConversionBanner. Dead-code sweep can be a follow-up.
+
+Files touched: 3 modified (HomeHeader/index.tsx, HomeHeader/styled.tsx, pages/dashboard.tsx), 7 new (aurora/{styled,AuroraKPIHero,SettledMixDonut,LiveActivityFeed,AttentionCardsRow,GettingStartedChecklist,RecentOrdersMiniTable}.tsx). Lint clean on all.
+
+Visually verified (my own screenshot pass): landing header shows frosted glass + coral CTA + mono status pill (light desktop 1440). Dashboard shows Unbounded $20,880.60 with aurora gradient + 4-coin donut + LIVE activity feed (light desktop 1440). Awaiting auto_frontend_testing_agent for dark mode + mobile 393 + focus states + regressions.
+
+---
+
+
 # CURRENT SESSION (fresh boot — session 75, 2026-07-18) — ENV PROVISIONING
 
 - **Preview URL**: https://multi-chain-checkout-4.preview.emergentagent.com (200 on /, /auth/login, /api/csrf-token). FIRST in CORS_ALLOWED_ORIGINS.

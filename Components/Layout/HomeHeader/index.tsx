@@ -4,9 +4,9 @@ import DynopayLogo from "@/assets/Icons/home/dynopay-blackLogo.svg";
 import DynopayWhiteLogo from "@/assets/Icons/home/dynopay-whiteLogo.svg";
 import LanguageSwitcher from "@/Components/UI/LanguageSwitcher";
 import ThemeToggle from "@/Components/UI/ThemeToggle";
-import SystemStatusPill from "@/Components/Common/SystemStatusPill";
 import useIsMobile from "@/hooks/useIsMobile";
-import { Button, useTheme } from "@mui/material";
+import { ArrowForwardRounded } from "@mui/icons-material";
+import { Box, Button, useTheme } from "@mui/material";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { memo, useCallback, useEffect, useRef, useState } from "react";
@@ -28,10 +28,13 @@ import {
   MobileMenuDrawer,
   MobileNavContent,
   MobileNavItem,
+  MobileTrustBadges,
   NavLinks,
   RightGroup,
+  StatusPillWrap,
   StyledGetStartedButton,
   StyledSignInButton,
+  TrustPill,
 } from "./styled";
 
 /* ================= TYPES ================= */
@@ -216,6 +219,7 @@ const HomeHeader = memo(function HomeHeader() {
     <FixedHeader
       sx={{
         transform: isHeaderVisible ? "translateY(0)" : "translateY(-100%)",
+        opacity: isHeaderVisible ? 1 : 0,
       }}
     >
       <HeaderContainer aria-label="Primary navigation">
@@ -245,23 +249,28 @@ const HomeHeader = memo(function HomeHeader() {
                   onClick={() => handleNav(item)}
                   sx={{
                     position: "relative",
-                    // Subtle underline for the currently-visible section
+                    // Aurora coral underline for the currently-visible section
                     "&::after": item.sectionId
                       ? {
                           content: '""',
                           position: "absolute",
                           left: "50%",
-                          bottom: 2,
+                          bottom: 4,
                           transform: `translateX(-50%) scaleX(${isActive ? 1 : 0})`,
                           transformOrigin: "center",
-                          width: 18,
+                          width: 22,
                           height: 2,
                           borderRadius: 2,
-                          bgcolor: "primary.main",
-                          transition: "transform 0.25s ease",
+                          background:
+                            "linear-gradient(90deg, #FF5B49 0%, #7C5CFF 100%)",
+                          transition: "transform 220ms cubic-bezier(0.16,1,0.3,1)",
                         }
                       : undefined,
-                    color: isActive ? "primary.main" : undefined,
+                    color: isActive
+                      ? (theme) =>
+                          theme.palette.mode === "dark" ? "#F5F5F5" : "#0A0A0A"
+                      : undefined,
+                    fontWeight: isActive ? 600 : 500,
                   }}
                 >
                   {t(item.translationKey)}
@@ -273,7 +282,12 @@ const HomeHeader = memo(function HomeHeader() {
 
         <RightGroup>
           <Actions>
-            {!isMobile && <SystemStatusPill />}
+            {!isMobile && (
+              <StatusPillWrap aria-label="System status">
+                <span className="dot" />
+                <span className="status-label">All systems normal</span>
+              </StatusPillWrap>
+            )}
 
             {!isMobile && (
               <DesktopLanguageWrapper>
@@ -297,10 +311,12 @@ const HomeHeader = memo(function HomeHeader() {
                 showIcon={false}
                 navigateTo="/auth/register"
                 sx={{
-                  borderRadius: "999px",
-                  padding: "10px 22px",
-                  minWidth: "108px",
-                  fontSize: "16px",
+                  borderRadius: "999px !important",
+                  padding: "10px 20px !important",
+                  minWidth: "120px",
+                  fontSize: "15px !important",
+                  fontFamily: "var(--font-body) !important",
+                  fontWeight: "600 !important",
                 }}
               />
             </StyledGetStartedButton>
@@ -332,10 +348,62 @@ const HomeHeader = memo(function HomeHeader() {
               </MobileNavItem>
             ))}
 
+            {/* Coral CTA inside the mobile drawer — matches Aurora hero */}
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 1.25, mt: 2.5 }}>
+              <Button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  void router.push("/auth/register");
+                }}
+                endIcon={<ArrowForwardRounded />}
+                sx={{
+                  background: "#FF5B49",
+                  color: "#FFFFFF",
+                  fontFamily: "var(--font-body)",
+                  fontSize: 15,
+                  fontWeight: 600,
+                  textTransform: "none",
+                  borderRadius: 999,
+                  padding: "12px 22px",
+                  height: 48,
+                  boxShadow: "0 8px 22px rgba(255,91,73,0.36)",
+                  "&:hover": { background: "#E33F2E" },
+                }}
+              >
+                {t("getStarted")}
+              </Button>
+              <Button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  void router.push("/auth/login");
+                }}
+                sx={{
+                  color: "#F5F5F5",
+                  fontFamily: "var(--font-body)",
+                  fontSize: 14,
+                  fontWeight: 500,
+                  textTransform: "none",
+                  borderRadius: 999,
+                  height: 44,
+                  border: "1px solid rgba(255,255,255,0.14)",
+                  "&:hover": { background: "rgba(255,255,255,0.06)" },
+                }}
+              >
+                {t("signIn")}
+              </Button>
+            </Box>
+
             <MobileLanguageWrapper>
               <LanguageSwitcher showBig={true} />
               <ThemeToggle size="small" sx={{ ml: 1 }} />
             </MobileLanguageWrapper>
+
+            <MobileTrustBadges>
+              <TrustPill>SOC 2</TrustPill>
+              <TrustPill>GDPR</TrustPill>
+              <TrustPill>Non-custodial</TrustPill>
+              <TrustPill>● Live</TrustPill>
+            </MobileTrustBadges>
           </MobileNavContent>
         </MobileDrawer>
       </MobileMenuDrawer>

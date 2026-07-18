@@ -1,56 +1,69 @@
+// Aurora v3 restyle (2026-07-18) — frosted glass, coral CTA, mono status pill,
+// obsidian mobile drawer, aurora underline. Tokens mirror theme.v3.ts.
 import { MenuRounded } from "@mui/icons-material";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import {
   Box,
   Button,
-  Divider,
   Drawer,
   IconButton,
   styled,
   Typography,
 } from "@mui/material";
 
-export const FixedHeader = styled("header")(({ theme }) => ({
-  position: "fixed",
-  // top shifts down by the sticky promo bar height (set via a CSS var by
-  // StickyPromoBar). When the promo bar is dismissed or absent, --dyno-promo-h
-  // is 0px so the header sits flush against the viewport top.
-  top: "var(--dyno-promo-h, 0px)",
-  left: 0,
-  right: 0,
-  zIndex: 1400,
-  backgroundColor: theme.palette.background.paper,
-  transition: "transform 0.3s ease-in-out, top 0.25s ease, background-color 0.3s ease",
-  width: "100%",
-}));
+// Aurora tokens (kept inline here to avoid pulling the whole theme.v3 into
+// the header — one source of truth is theme.v3.ts, we duplicate 4 constants).
+const CORAL = "#FF5B49";
+const CORAL_DEEP = "#E33F2E";
+const VIOLET = "#7C5CFF";
+const VOLT = "#CCFF00";
+const AURORA_GRADIENT =
+  "linear-gradient(90deg, #FF5B49 0%, #7C5CFF 55%, #4FD1FF 100%)";
+
+/* ================= HEADER SHELL ================= */
+
+export const FixedHeader = styled("header")(({ theme }) => {
+  const dark = theme.palette.mode === "dark";
+  return {
+    position: "fixed",
+    top: "var(--dyno-promo-h, 0px)",
+    left: 0,
+    right: 0,
+    zIndex: 1400,
+    // Frosted glass: paper (light) / obsidian (dark) at 78% alpha with blur.
+    backgroundColor: dark ? "rgba(11,11,15,0.72)" : "rgba(250,250,247,0.85)",
+    backdropFilter: "blur(14px) saturate(1.2)",
+    WebkitBackdropFilter: "blur(14px) saturate(1.2)",
+    borderBottom: `1px solid ${dark ? "rgba(255,255,255,0.08)" : "rgba(10,10,10,0.08)"}`,
+    // fade + slide on show/hide (was pure translate — felt jumpy)
+    transition:
+      "transform 320ms cubic-bezier(0.16,1,0.3,1), opacity 240ms ease, top 250ms ease, background-color 300ms ease",
+    width: "100%",
+  };
+});
 
 export const HeaderContainer = styled(Box)(({ theme }) => ({
-  height: 68,
-  padding: "0 16px",
+  height: 72, // was 68 — extra breathing room next to Unbounded hero types
+  padding: "0 20px",
   display: "flex",
   alignItems: "center",
   justifyContent: "space-between",
-  backgroundColor: theme.palette.background.paper,
   maxWidth: 1280,
   margin: "0 auto",
 
   [theme.breakpoints.down("md")]: {
+    height: 64,
     padding: "0 16px",
   },
-
-  ".logo": {
-    cursor: "pointer",
-    userSelect: "none",
-    [theme.breakpoints.down("md")]: {
-      width: "100px",
-      height: "auto",
-    },
-  },
 }));
 
-export const HeaderDivider = styled(Divider)(({ theme }) => ({
-  borderColor: theme.palette.border?.main || (theme.palette.mode === "dark" ? "#2A2D42" : "#E7E8EF"),
-}));
+// Bottom hairline divider — kept for consistency but rendered inside
+// FixedHeader as a border, so this component is a no-op transparent Box.
+export const HeaderDivider = styled(Box)({
+  height: 0,
+});
+
+/* ================= LEFT + LOGO ================= */
 
 export const ClickableLogo = styled(Button)({
   display: "inline-flex",
@@ -61,27 +74,51 @@ export const ClickableLogo = styled(Button)({
   border: "none",
   background: "transparent",
   padding: 0,
+  minWidth: "auto",
+  borderRadius: 8,
+  position: "relative",
+  transition: "opacity 200ms ease, transform 200ms ease",
+  // Aurora underline on hover
+  "&::after": {
+    content: '""',
+    position: "absolute",
+    left: 6,
+    right: 6,
+    bottom: 2,
+    height: 2,
+    borderRadius: 2,
+    background: AURORA_GRADIENT,
+    opacity: 0,
+    transform: "scaleX(0.6)",
+    transformOrigin: "left",
+    transition: "opacity 220ms ease, transform 220ms ease",
+  },
+  "&:hover": {
+    background: "transparent",
+    "&::after": {
+      opacity: 1,
+      transform: "scaleX(1)",
+    },
+  },
 });
 
 export const LeftGroup = styled(Box)({
   display: "flex",
   alignItems: "center",
-  gap: "100px",
+  gap: "72px",
 });
 
 export const RightGroup = styled(Box)({
   display: "flex",
   alignItems: "center",
-  gap: "12px",
+  gap: "10px",
 });
 
 export const NavLinks = styled("nav")(({ theme }) => ({
   display: "flex",
-  gap: 32,
-  letterSpacing: "0px",
-  fontFamily: "var(--font-sans)",
+  gap: 28,
+  fontFamily: "var(--font-body)",
   alignItems: "center",
-  justifyContent: "space-between",
 
   "@media (max-width: 1025px)": {
     display: "none",
@@ -89,95 +126,88 @@ export const NavLinks = styled("nav")(({ theme }) => ({
 
   button: {
     textTransform: "none",
-    fontSize: "16px",
-    fontWeight: 500,
-    lineHeight: "24px",
-    letterSpacing: "0px",
-    fontFamily: "var(--font-sans)",
-    color: theme.palette.text.secondary,
-    padding: "6px 4px",
-
-    "&:hover": {
-      background: "transparent",
-      color: theme.palette.primary.main,
-    },
-  },
-}));
-
-export const Actions = styled(Box)(({ theme }) => ({
-  display: "flex",
-  alignItems: "center",
-  gap: "14px",
-
-  ".signin": {
-    textTransform: "none",
     fontSize: "15px",
     fontWeight: 500,
-    color: theme.palette.text.primary,
     lineHeight: "22px",
-    fontFamily: "var(--font-sans)",
-    whiteSpace: "nowrap",
+    letterSpacing: "-0.005em",
+    fontFamily: "var(--font-body)",
+    color: theme.palette.mode === "dark" ? "rgba(255,255,255,0.72)" : "#3F3F46",
+    padding: "8px 4px",
+    borderRadius: 0,
+    transition: "color 200ms ease",
 
     "&:hover": {
       background: "transparent",
-      color: theme.palette.primary.main,
+      color: theme.palette.mode === "dark" ? "#F5F5F5" : "#0A0A0A",
     },
   },
 }));
 
-export const DesktopLanguageWrapper = styled(Box)({
-  marginRight: "8px",
+/* ================= RIGHT / ACTIONS ================= */
+
+export const Actions = styled(Box)(() => ({
   display: "flex",
   alignItems: "center",
-  "& .MuiButtonBase-root, & .MuiInputBase-root, & .MuiOutlinedInput-root": {},
+  gap: "10px",
+}));
+
+// Wrapper for the language switcher so we can hide on small viewports
+// without touching the inner component.
+export const DesktopLanguageWrapper = styled(Box)({
+  display: "flex",
+  alignItems: "center",
+  marginLeft: 4,
 });
 
 export const MobileLanguageWrapper = styled(Box)({
-  display: "none",
+  display: "flex",
   alignItems: "center",
-
-  "@media (max-width: 899px)": {
-    display: "flex",
-  },
+  gap: 8,
+  marginTop: "auto",
+  paddingTop: 24,
+  borderTop: "1px solid rgba(255,255,255,0.12)",
 });
+
+/* ================= MOBILE MENU ================= */
 
 export const MobileMenuButton = styled(IconButton)(() => ({
   display: "none",
-  padding: "5px 0px 0px 0px",
+  padding: "6px",
+  borderRadius: 10,
 
   "@media (max-width: 1025px)": {
-    display: "block",
+    display: "inline-flex",
   },
 }));
 
 export const MenuOpenIcon = styled(MenuRounded)(({ theme }) => ({
-  color: theme.palette.text.primary,
-  fontSize: 24,
+  color: theme.palette.mode === "dark" ? "#F5F5F5" : "#0A0A0A",
+  fontSize: 26,
 }));
 
 export const MenuCloseIcon = styled(CloseRoundedIcon)(({ theme }) => ({
-  color: theme.palette.text.primary,
-  fontSize: 24,
+  color: theme.palette.mode === "dark" ? "#F5F5F5" : "#0A0A0A",
+  fontSize: 26,
 }));
 
-export const MobileMenuDrawer = styled(Drawer)(({ theme }) => ({
+export const MobileMenuDrawer = styled(Drawer)(() => ({
   display: "none",
-  zIndex: 1200,
+  zIndex: 1500,
 
   "& .MuiDrawer-paper": {
     top: "64px !important",
     height: "calc(100vh - 64px) !important",
     width: "100%",
-    maxWidth: "320px",
+    maxWidth: "360px",
     backgroundColor: "transparent !important",
     boxShadow: "none !important",
     border: "none !important",
   },
 
   "& .MuiBackdrop-root": {
-    backgroundColor: theme.palette.mode === "dark" ? "#0B0D17CC" : "#FFFFFFCC",
-    backdropFilter: "blur(8px)",
-    WebkitBackdropFilter: "blur(8px)",
+    backgroundColor: "rgba(11,11,15,0.55)",
+    backdropFilter: "blur(10px)",
+    WebkitBackdropFilter: "blur(10px)",
   },
 
   "@media (max-width: 1025px)": {
@@ -185,61 +215,162 @@ export const MobileMenuDrawer = styled(Drawer)(({ theme }) => ({
   },
 }));
 
-export const MobileDrawer = styled(Box)(({ theme }) => ({
+// Aurora obsidian panel — the visual anchor of the mobile menu.
+export const MobileDrawer = styled(Box)(() => ({
   height: "100%",
-  backgroundColor: theme.palette.mode === "dark" ? "#0B0D17" : "transparent",
+  backgroundColor: "#0B0B0F", // obsidian, matches Aurora dark canvas
+  color: "#F5F5F5",
   display: "flex",
   flexDirection: "column",
   overflow: "hidden",
+  padding: "24px 20px",
+  // Subtle aurora bloom in the top-right corner (radial gradient).
+  backgroundImage:
+    "radial-gradient(circle at 90% -10%, rgba(255,91,73,0.20) 0%, rgba(11,11,15,0) 55%), radial-gradient(circle at -10% 100%, rgba(124,92,255,0.18) 0%, rgba(11,11,15,0) 55%)",
 }));
 
 export const MobileNavContent = styled(Box)({
-  marginTop: "51px",
-  padding: "0 16px",
   flex: 1,
   overflowY: "auto",
   display: "flex",
   flexDirection: "column",
-  gap: "36.29px",
-  alignItems: "flex-end",
+  gap: "8px",
+  alignItems: "stretch",
+  marginTop: 24,
 });
 
-export const MobileNavItem = styled(Typography)(({ theme }) => ({
-  fontSize: "16.5px",
-  fontWeight: 500,
-  lineHeight: "24px",
-  fontFamily: "var(--font-sans)",
-  color: theme.palette.text.secondary,
+export const MobileNavItem = styled(Typography)(() => ({
+  fontSize: "22px",
+  fontWeight: 600,
+  lineHeight: "30px",
+  fontFamily: "var(--font-hero)", // Unbounded, big presence
+  letterSpacing: "-0.01em",
+  color: "#F5F5F5",
   cursor: "pointer",
-  transition: "color 0.2s ease",
-  textAlign: "right",
+  transition: "color 200ms ease, transform 200ms ease",
+  textAlign: "left",
   userSelect: "none",
-  WebkitUserSelect: "none",
-  MozUserSelect: "none",
-  msUserSelect: "none",
-  outline: "none",
-  border: "none",
-  background: "transparent",
-  padding: 0,
-}));
+  padding: "12px 4px",
+  borderBottom: "1px solid rgba(255,255,255,0.06)",
 
-export const StyledSignInButton = styled(Button)(({ theme }) => ({
-  textTransform: "none",
-  fontSize: "16px",
-  fontWeight: 500,
-  lineHeight: "24px",
-  fontFamily: "var(--font-sans)",
-  color: theme.palette.text.primary,
-  whiteSpace: "nowrap",
-  padding: "6px 4px",
-
-  "&:hover": {
-    background: "transparent",
-    color: theme.palette.primary.main,
+  "&:hover, &:active": {
+    color: CORAL,
+    transform: "translateX(4px)",
   },
 }));
 
-export const StyledGetStartedButton = styled(Box)({
-  borderRadius: 8,
-  minWidth: 98,
+// New: trust badges row that sits at the bottom of the mobile drawer.
+export const MobileTrustBadges = styled(Box)({
+  display: "flex",
+  flexWrap: "wrap",
+  gap: 6,
+  paddingTop: 20,
+  paddingBottom: 8,
+  color: "rgba(245,245,245,0.6)",
+  fontFamily: "var(--font-tech)",
+  fontSize: 10,
+  letterSpacing: "0.14em",
+  textTransform: "uppercase",
 });
+
+export const TrustPill = styled(Box)({
+  display: "inline-flex",
+  alignItems: "center",
+  padding: "5px 10px",
+  border: "1px solid rgba(255,255,255,0.14)",
+  borderRadius: 999,
+  fontFamily: "var(--font-tech)",
+  fontSize: 10,
+  fontWeight: 500,
+  letterSpacing: "0.14em",
+  color: "rgba(245,245,245,0.7)",
+});
+
+/* ================= CTA BUTTONS ================= */
+
+// Sign-in ghost text button
+export const StyledSignInButton = styled(Button)(({ theme }) => ({
+  textTransform: "none",
+  fontSize: "15px",
+  fontWeight: 500,
+  lineHeight: "22px",
+  fontFamily: "var(--font-body)",
+  color: theme.palette.mode === "dark" ? "#F5F5F5" : "#0A0A0A",
+  whiteSpace: "nowrap",
+  padding: "8px 12px",
+  borderRadius: 999,
+  minWidth: 0,
+
+  "&:hover": {
+    background: theme.palette.mode === "dark" ? "rgba(255,255,255,0.06)" : "rgba(10,10,10,0.05)",
+    color: CORAL,
+  },
+}));
+
+// Aurora coral "Get started" pill — matches home hero.
+export const StyledGetStartedButton = styled(Box)({
+  borderRadius: 999,
+  // Wrapper for existing HomeButton — actual styling done via inline sx on
+  // HomeButton (see header index.tsx). Left as a Box for layout parity.
+  "& button, & a": {
+    background: CORAL,
+    color: "#FFFFFF",
+    fontFamily: "var(--font-body)",
+    fontWeight: 600,
+    borderRadius: "999px",
+    boxShadow:
+      "0 6px 20px rgba(255,91,73,0.28), 0 1px 0 rgba(255,255,255,0.15) inset",
+    transition:
+      "transform 180ms cubic-bezier(0.16,1,0.3,1), box-shadow 220ms ease, background 200ms ease",
+  },
+  "& button:hover, & a:hover": {
+    background: CORAL_DEEP,
+    transform: "translateY(-1px)",
+    boxShadow:
+      "0 10px 28px rgba(255,91,73,0.36), 0 1px 0 rgba(255,255,255,0.2) inset",
+  },
+  "& button:active, & a:active": {
+    transform: "translateY(0)",
+  },
+});
+
+/* ================= STATUS PILL ================= */
+
+export const StatusPillWrap = styled(Box)(({ theme }) => ({
+  display: "inline-flex",
+  alignItems: "center",
+  gap: 6,
+  padding: "5px 10px",
+  border: `1px solid ${
+    theme.palette.mode === "dark" ? "rgba(255,255,255,0.10)" : "rgba(10,10,10,0.08)"
+  }`,
+  borderRadius: 999,
+  fontFamily: "var(--font-tech)",
+  fontSize: 10.5,
+  fontWeight: 500,
+  letterSpacing: "0.14em",
+  textTransform: "uppercase",
+  color: theme.palette.mode === "dark" ? "rgba(255,255,255,0.72)" : "#3F3F46",
+  whiteSpace: "nowrap",
+  cursor: "default",
+
+  "& .dot": {
+    width: 6,
+    height: 6,
+    borderRadius: 999,
+    background: VOLT,
+    boxShadow: `0 0 0 3px rgba(204,255,0,0.22)`,
+    display: "inline-block",
+  },
+
+  // On mobile, hide the "ALL SYSTEMS NORMAL" label and just show the dot.
+  [theme.breakpoints.down("md")]: {
+    padding: "4px 8px",
+    "& .status-label": {
+      display: "none",
+    },
+  },
+}));
+
+// Legacy export (kept for backward compat if anything still imports it).
+export { AURORA_GRADIENT, CORAL, VIOLET, VOLT };

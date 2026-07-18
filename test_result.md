@@ -84,24 +84,92 @@ Please run against the preview URL above with credentials **hostbay@moxx.co / Ka
 - Do the same on `/pay-links` (mobile + desktop) — counter should follow the same "Showing X-Y of Z links" format and MOVE on each Next/Prev click.
 - Also verify the counter is correct on the LAST page (end value clamped to total, not overshooting).
 
+## Session 76 — Aurora v3 refresh: Landing header + Dashboard overview (2026-07-18)
+
+### Preview URL
+https://421a3bbe-b69c-4bd4-9089-5a3fe7a9af17.preview.emergentagent.com  (alias: multi-chain-checkout-4.preview.emergentagent.com)
+
+### Test credentials (from /app/memory/test_credentials.md)
+- Merchant (data-rich): **hostbay@moxx.co / Katiekendra123@** (user_id=1, LIVE Railway PG, 440 confirmed txs, $20,880.60 lifetime volume, 4 coins mix).
+- 3-STEP login flow: Email → Continue → click "Password" radio → password → Continue.
+
+### User request
+"lets complete the pending improvement of design" (from `/app/DESIGN_PROPOSAL.md`) — Dashboard overview page + landing page header. Told user I'd handle both = option (a) "apply all".
+
+### What was built (all frontend-only, no backend changes)
+
+**PART 1 — LANDING PAGE HEADER (`Components/Layout/HomeHeader/`)**
+- `index.tsx`: swapped `<SystemStatusPill>` for a new inline mono status pill (● ALL SYSTEMS NORMAL, volt-lime dot). Added ArrowForwardRounded icon. Added coral CTA + secondary sign-in inside the mobile drawer + mobile trust badges strip (SOC 2 / GDPR / Non-custodial / ● Live). Nav underline switched from solid `primary.main` to a coral→violet aurora gradient stroke (width 22px, `translateX + scaleX` transition). Show/hide-on-scroll now also fades opacity for smoother feel.
+- `styled.tsx`: full aurora rewrite. Frosted glass background (`rgba(250,250,247,0.85)` light / `rgba(11,11,15,0.72)` dark, `backdrop-filter: blur(14px) saturate(1.2)`), 72px header (68→72), aurora underline on logo hover, IBM Plex Body nav labels, coral `Get started` pill with `0 6px 20px rgba(255,91,73,0.28)` shadow + `translateY(-1px)` on hover. Mobile drawer is a full obsidian panel with radial aurora blooms in the corners, Unbounded 22px nav items, coral drawer CTAs, `MobileTrustBadges` row at bottom.
+
+**PART 2 — DASHBOARD OVERVIEW (`pages/dashboard.tsx` + `Components/Page/Dashboard/aurora/`)**
+Followed the "Answer four questions in the fold" pattern from DESIGN_PROPOSAL.md §4.2.
+
+New files (7):
+- `aurora/styled.tsx` — shared Aurora primitives: `SurfaceCard`, `Eyebrow` (Plex Mono 11px), `HeroNumber` (Unbounded 40-72px with aurora gradient text-fill), `CardTitle`, `Body`, `MonoLabel`, `DeltaChip` (positive=volt, negative=coral, neutral=mono), `CoralChip` (CTA pill), `VoltLink` (secondary link), `StatusPill` (settled/pending/confirming/failed), `CoinBadge` (36px circle with aurora ring via mask-composite trick). Tokens: CORAL #FF5B49, VIOLET #7C5CFF, SKY #4FD1FF, VOLT #CCFF00, VOLT_INK #5A6B00.
+- `aurora/AuroraKPIHero.tsx` — fold 1 left. Big Unbounded aurora-gradient number showing `stats.totalVolumeFormatted`, DeltaChip using `stats.volumeChange`, "vs last month" body copy, and a 7-day sparkline via Recharts (coral→violet→volt gradient stroke + coral→violet→transparent fill). Aurora radial-gradient bloom in the top-right corner. Uses `chartData` from useDashboardData.
+- `aurora/SettledMixDonut.tsx` — fold 1 right. Recharts donut breaking down `recentTransactions` by `crypto_currency` (top 4 + Others), coral/violet/volt-ink/sky slices. Center label shows coin count in Unbounded. Mono legend row underneath. Empty state = pale grey ring + "No payments yet" copy.
+- `aurora/LiveActivityFeed.tsx` — fold 2. Full-width card, mono `LIVE · ACTIVITY` eyebrow with pulsing volt dot animation, `See all →` VoltLink. Rows use CoinBadge + big Unbounded amount + mono chain/time metadata + StatusPill on the right. Framer Motion staggered entry (28ms per row). Whole row is `role=button` deep-linked to `/transactions?tx=<id>`. Empty state and skeleton loader baked in.
+- `aurora/AttentionCardsRow.tsx` — fold 3. Reads `companyReducer`, `walletReducer`, `userReducer` to compute up-to-4 dismissible tasks (add company / add wallet / API key / claim @handle / create first link). Each card has a coral icon chip, mono eyebrow, Unbounded title, body copy, and a CoralChip CTA that navigates to the fix. Auto-hides when zero tasks (no zombie empty state).
+- `aurora/GettingStartedChecklist.tsx` — below fold left. 5-step checklist gated on `profile.createdAt <= 30 days ago` AND `completedCount < 5`. Aurora gradient progress bar (coral→violet→volt) at top. Steps: business details / wallet / first payment link / @handle / invite team. Completed rows show line-through + volt check icon at 60% opacity. Auto-hides for mature accounts.
+- `aurora/RecentOrdersMiniTable.tsx` — below fold right. 5-row grid table (id / amount / crypto / status pill), StatusPill variants, clickable rows with focus-visible coral outline, mobile-collapse hides id + crypto columns.
+
+Rewrite: `pages/dashboard.tsx` (99 → 155 lines). Now composes AuroraKPIHero + SettledMixDonut side-by-side (lg 8/4 split), then LiveActivityFeed full-width, then AttentionCardsRow, then GettingStartedChecklist + RecentOrdersMiniTable side-by-side (lg 5/7). Retained OnboardingFlow, MobileReferralBanner, ClaimHandleBanner from prior version — no regression on those. Dispatches `fetchChartData("7d")` on mount so AuroraKPIHero sparkline has real data (previously DashboardLeftSection dispatched this).
+
+**DEAD CODE (not removed this session)**: `DashboardLeftSection.tsx` (856 lines), `DashboardRightSection.tsx` (314 lines), `HeroMetrics.tsx`, `TodaySummaryStrip.tsx`, `FeeFreeWidget.tsx`, `FeeTierProgress.tsx`, `GrowPanel.tsx`, `CreatorPageCard.tsx`, `EmptyStatePanel.tsx`, `RecentTransactionsWidget.tsx`, `ConversionBanner.tsx`. Left on disk in case any other route imports them; a dead-code sweep can happen in a follow-up.
+
+### Files changed this session
+Modified:
+- `Components/Layout/HomeHeader/index.tsx` — new status pill + mobile drawer CTAs + trust badges + aurora nav underline + opacity fade
+- `Components/Layout/HomeHeader/styled.tsx` — full Aurora rewrite (frosted glass, coral CTA, obsidian mobile panel)
+- `pages/dashboard.tsx` — new aurora composition
+
+New:
+- `Components/Page/Dashboard/aurora/styled.tsx`
+- `Components/Page/Dashboard/aurora/AuroraKPIHero.tsx`
+- `Components/Page/Dashboard/aurora/SettledMixDonut.tsx`
+- `Components/Page/Dashboard/aurora/LiveActivityFeed.tsx`
+- `Components/Page/Dashboard/aurora/AttentionCardsRow.tsx`
+- `Components/Page/Dashboard/aurora/GettingStartedChecklist.tsx`
+- `Components/Page/Dashboard/aurora/RecentOrdersMiniTable.tsx`
+
+### What to verify (FRONTEND) — auto_frontend_testing_agent
+Run against preview URL above. Login: 3-step (Email → Continue → click "Password" radio → password → Continue). LIVE Railway PG — READ-ONLY (no writes / payments / wallet edits / setting saves).
+
+**Landing header (unauthenticated `/`):**
+- Desktop 1440×900 light + dark: header is frosted glass (translucent, blur behind), height 72px, coral "Get started" pill visible on the right with shadow, mono `● ALL SYSTEMS NORMAL` chip between theme toggle and language switcher, nav items (Features / Fees / Documentation / Blog) render with aurora underline transitioning between them on click.
+- Mobile 393×852: header height 64px, hamburger visible, status pill collapses to just the volt dot. Tapping the hamburger opens the obsidian mobile drawer (`MobileDrawer` — dark bg, radial coral+violet blooms), Unbounded nav items, coral `Get started` + outlined `Sign in` buttons visible mid-drawer, `SOC 2 / GDPR / Non-custodial / ● Live` trust pills at the bottom.
+- Scroll-hide: header fades + slides up when scrolling down, reappears when scrolling up. Regression check.
+
+**Dashboard (`/dashboard`, logged in as hostbay):**
+- Desktop 1440×900 light: `data-testid="aurora-kpi-hero"` renders with `data-testid="aurora-kpi-value"` showing "$20,880.60 USD" (Unbounded, aurora gradient) and `data-testid="aurora-kpi-sparkline"` showing a coral→violet→volt gradient area chart.
+- `data-testid="aurora-settled-mix"` renders donut with "4 COINS" center label + legend showing USDT-TRC20 / USDT-ERC20 / ETH / BTC percentages.
+- `data-testid="aurora-activity-feed"` renders with pulsing volt dot on `LIVE · ACTIVITY` eyebrow, `data-testid="activity-see-all"` VoltLink navigates to /transactions, rows have `data-testid="activity-feed-row"` and are clickable.
+- `data-testid="aurora-attention-row"` shows 1-4 task cards (hostbay is fully set up so likely just "Create your first payment link" or "Claim your @handle" depending on state). Each card has coral icon chip + `data-testid="attention-card-<id>"`.
+- `data-testid="aurora-recent-orders"` renders a 5-row table with amount, chain, status pill.
+- `data-testid="aurora-getting-started"` auto-HIDES for hostbay (mature account >> 30 days old). Verify it's absent (this is correct behavior).
+- Mobile 393×852: all 4 folds stack vertically. AuroraKPIHero number scales down (36-48px). Donut renders. Activity rows are readable. Attention cards drop to 1-column.
+- Dark mode toggle: everything switches to obsidian bg (#0B0B0F) with light text. Aurora gradients + coral CTAs remain visible.
+
+**No-regression checks:**
+- Bottom nav on mobile still present.
+- OnboardingFlow modal still fires (has "Maybe later" + "Set it up" — dismiss with Maybe later to not persist state).
+- ClaimHandleBanner still renders at the top (hostbay has no handle claimed).
+- MobileReferralBanner still renders on mobile at the top.
+- "Create payment link" button in the topbar still works (deep-links to /create-pay-link).
+
 ### frontend
-  - task: "Mobile UX: scroll to top on route change, fix untranslated donation hint key, 44px tap targets on text CTAs, range-explicit pagination counter"
+  - task: "Aurora v3 refresh — landing page header (frosted glass, coral CTA, obsidian mobile drawer) + dashboard overview page (AuroraKPIHero + SettledMixDonut + LiveActivityFeed + AttentionCardsRow + GettingStartedChecklist + RecentOrdersMiniTable)"
     implemented: true
-    working: true
-    file: "Containers/Client/index.tsx, Components/Page/CreatePaymentLink/index.tsx, Components/UI/MobileReferralBanner/index.tsx, Components/Page/Dashboard/CreatorPageCard.tsx, Components/Page/Dashboard/EmptyStatePanel.tsx, Components/Page/Transactions/TransactionsTable.tsx, Components/Page/Payment-link/PaymentLinksTable.tsx, langs/locales/{en,pt,fr,es,de,nl}/{createPaymentLinkScreen,transactions,paymentLinks}.json"
+    working: "NA"
+    file: "Components/Layout/HomeHeader/index.tsx, Components/Layout/HomeHeader/styled.tsx, pages/dashboard.tsx, Components/Page/Dashboard/aurora/*.tsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
-        comment: "All 4 bugs fixed frontend-only. Awaiting auto_frontend_testing_agent verification per user protocol. Container: preview URL 1a4898a9-... — LIVE Railway PG shared with prod, so testing is READ-ONLY (no writes/payments/deletes)."
-      - working: "partial"
-        agent: "testing"
-        comment: "CODE REVIEW COMPLETE - All 4 bug fixes verified in code. AUTOMATED TESTING BLOCKED by authentication issues on preview environment (2-step login flow not completing in Playwright). Code analysis confirms: (1) Scroll-to-top: mainScrollRef + useEffect properly resets scrollTop=0 on routeChangeComplete. (2) i18n fix: tPaymentLink now passes options through correctly. (3) 44px tap targets: All text CTAs use minHeight:{xs:44px,md:auto} with proper padding. (4) Pagination: Counter uses explicit start/end range values. RECOMMENDATION: Main agent should manually verify on preview URL or request user confirmation, as automated E2E testing cannot proceed without working auth flow."
-      - working: true
-        agent: "testing"
-        comment: "E2E TESTING COMPLETE ✅ - All 4 bugs VERIFIED FIXED on preview (hostbay@moxx.co, LIVE Railway PG, READ-ONLY). Login: 3-step flow (Email → Choose Password method → Password) worked correctly. (1) Bug 1 - Scroll position: 4/4 PASS - All routes (Dashboard→Create, Transactions→Create, Pay-links→Wallet, Desktop) open at scrollTop=0. (2) Bug 2 - i18n key: PASS - Crowdfunding hint shows '☕This becomes your Buy me a coffee tip box', no untranslated keys. (3) Bug 3 - 44px tap targets: PASS - View Rewards button 110×44px (other elements conditionally rendered, not present on hostbay). (4) Bug 4 - Pagination: PASS - Transactions shows 'Showing 1-10 of 440' → Next → '11-20 of 440' → Previous → '1-10 of 440'; Pay-links 'Showing 1-10 of 13'; Desktop also correct. All fixes working as intended."
+        comment: "Session 76 Aurora refresh applied — landing header + dashboard overview redesigned per DESIGN_PROPOSAL.md. 2 files modified, 7 new aurora components created. All lint clean (eslint pass). Visual check via screenshot: landing header shows frosted-glass bg + coral CTA + mono status pill; dashboard shows Unbounded $20,880.60 with 440 payments + aurora sparkline + 4-coin donut + LIVE activity feed. Awaiting auto_frontend_testing_agent verification per user protocol. LIVE Railway PG — READ-ONLY testing only (no writes/payments/wallet edits/setting saves)."
 
 ## metadata
   created_by: "main_agent"
@@ -111,24 +179,22 @@ Please run against the preview URL above with credentials **hostbay@moxx.co / Ka
 
 ## test_plan
   current_focus:
-    - "Bug 1 — scroll-to-top on in-app route change (mobile + desktop)"
-    - "Bug 2 — donationCreatorHintTitle raw key no longer shown on Crowdfunding hint (renders translated copy)"
-    - "Bug 3 — WCAG 2.5.5: text-only '→' CTAs are 44×44 px on mobile"
-    - "Bug 4 — Pagination counter shows an actual range and updates on Next/Prev"
+    - "Landing header — frosted glass, coral CTA, aurora underline, mono status pill, obsidian mobile drawer + trust badges"
+    - "Dashboard AuroraKPIHero — Unbounded aurora-gradient number + sparkline + delta chip"
+    - "Dashboard SettledMixDonut — coin-mix donut + mono legend"
+    - "Dashboard LiveActivityFeed — pulsing volt dot, deep-link tx rows"
+    - "Dashboard AttentionCardsRow — dismissible task cards; auto-hides when zero"
+    - "Dashboard RecentOrdersMiniTable — 5-row status-pill table"
+    - "Dark mode + mobile viewport regression across all above"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
 ## agent_communication
   - agent: "main"
-    message: "Session 75 mobile UX bug fixes applied — 4 bugs, all frontend-only. See task entry above for exact files + reproduction steps. Preview URL: https://multi-chain-checkout-4.preview.emergentagent.com. Creds: hostbay@moxx.co / Katiekendra123@. LIVE Railway PG — READ-ONLY testing only (no writes / payments / deletes). Please verify each bug against the reproduction steps listed under 'What to verify (FRONTEND)'."
-  - agent: "testing"
-    message: "CODE REVIEW COMPLETE ✅ - All 4 bug fixes verified in source code. AUTOMATED E2E TESTING BLOCKED ❌ - Preview environment authentication flow not completing in Playwright (2-step login issue). CODE ANALYSIS FINDINGS: (1) Bug 1 (scroll-to-top): Properly implemented with mainScrollRef + useEffect resetting scrollTop=0 on routeChangeComplete. (2) Bug 2 (i18n key): tPaymentLink helper fixed to pass options through. (3) Bug 3 (44px tap targets): All text CTAs correctly use minHeight:{xs:44px,md:auto}. (4) Bug 4 (pagination): Counter properly uses start/end range values. RECOMMENDATION: Manual verification on preview URL required, or request user confirmation that fixes are working as expected."
-  - agent: "testing"
-    message: "E2E TESTING COMPLETE ✅✅✅ - All 4 mobile UX bugs VERIFIED FIXED on preview URL. Used CORRECT 3-step login flow (Email → Choose Password method → Password) which resolved previous auth blocker. Test account: hostbay@moxx.co on LIVE Railway PG (READ-ONLY). RESULTS: (1) Bug 1 - Scroll position: 4/4 PASS - Dashboard→Create, Transactions→Create, Pay-links→Wallet all open at scrollTop=0 on mobile (393×852) AND desktop (1440×900). (2) Bug 2 - i18n key: PASS - Crowdfunding hint card displays correct English text 'This becomes your Buy me a coffee tip box', no untranslated keys found. (3) Bug 3 - 44px tap targets: PASS - Mobile referral 'View Rewards →' button measures 110×44px (meets WCAG 2.5.5). Other conditionally-rendered elements (creator analytics/manage, empty-state CTAs) not present on hostbay account (expected). Desktop regression clean. (4) Bug 4 - Pagination counter: PASS - Transactions shows 'Showing 1-10 of 440' (range format), Next click updates to '11-20 of 440', Previous returns to '1-10 of 440'. Pay-links shows 'Showing 1-10 of 13'. Desktop also correct. ALL FIXES WORKING AS INTENDED. Ready for user acceptance."
+    message: "Session 76 Aurora v3 refresh applied. Landing header + dashboard overview redesigned to match /app/DESIGN_PROPOSAL.md. Preview: https://421a3bbe-b69c-4bd4-9089-5a3fe7a9af17.preview.emergentagent.com — creds hostbay@moxx.co / Katiekendra123@ (3-step login: Email → Continue → click Password radio → password → Continue). LIVE Railway PG — READ-ONLY testing (NO writes / payments / wallet edits / setting saves). Please verify each surface against the reproduction steps under 'What to verify (FRONTEND)'."
 
 ---
-
 
 
 ## Session 74 (cont.) — Mobile QA Sweep: Login Unblocked, Usability Issues Remain (2026-07-18)
