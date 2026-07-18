@@ -87,7 +87,7 @@ Please run against the preview URL above with credentials **hostbay@moxx.co / Ka
 ### frontend
   - task: "Mobile UX: scroll to top on route change, fix untranslated donation hint key, 44px tap targets on text CTAs, range-explicit pagination counter"
     implemented: true
-    working: "partial"
+    working: true
     file: "Containers/Client/index.tsx, Components/Page/CreatePaymentLink/index.tsx, Components/UI/MobileReferralBanner/index.tsx, Components/Page/Dashboard/CreatorPageCard.tsx, Components/Page/Dashboard/EmptyStatePanel.tsx, Components/Page/Transactions/TransactionsTable.tsx, Components/Page/Payment-link/PaymentLinksTable.tsx, langs/locales/{en,pt,fr,es,de,nl}/{createPaymentLinkScreen,transactions,paymentLinks}.json"
     stuck_count: 0
     priority: "high"
@@ -99,6 +99,9 @@ Please run against the preview URL above with credentials **hostbay@moxx.co / Ka
       - working: "partial"
         agent: "testing"
         comment: "CODE REVIEW COMPLETE - All 4 bug fixes verified in code. AUTOMATED TESTING BLOCKED by authentication issues on preview environment (2-step login flow not completing in Playwright). Code analysis confirms: (1) Scroll-to-top: mainScrollRef + useEffect properly resets scrollTop=0 on routeChangeComplete. (2) i18n fix: tPaymentLink now passes options through correctly. (3) 44px tap targets: All text CTAs use minHeight:{xs:44px,md:auto} with proper padding. (4) Pagination: Counter uses explicit start/end range values. RECOMMENDATION: Main agent should manually verify on preview URL or request user confirmation, as automated E2E testing cannot proceed without working auth flow."
+      - working: true
+        agent: "testing"
+        comment: "E2E TESTING COMPLETE ✅ - All 4 bugs VERIFIED FIXED on preview (hostbay@moxx.co, LIVE Railway PG, READ-ONLY). Login: 3-step flow (Email → Choose Password method → Password) worked correctly. (1) Bug 1 - Scroll position: 4/4 PASS - All routes (Dashboard→Create, Transactions→Create, Pay-links→Wallet, Desktop) open at scrollTop=0. (2) Bug 2 - i18n key: PASS - Crowdfunding hint shows '☕This becomes your Buy me a coffee tip box', no untranslated keys. (3) Bug 3 - 44px tap targets: PASS - View Rewards button 110×44px (other elements conditionally rendered, not present on hostbay). (4) Bug 4 - Pagination: PASS - Transactions shows 'Showing 1-10 of 440' → Next → '11-20 of 440' → Previous → '1-10 of 440'; Pay-links 'Showing 1-10 of 13'; Desktop also correct. All fixes working as intended."
 
 ## metadata
   created_by: "main_agent"
@@ -121,6 +124,8 @@ Please run against the preview URL above with credentials **hostbay@moxx.co / Ka
     message: "Session 75 mobile UX bug fixes applied — 4 bugs, all frontend-only. See task entry above for exact files + reproduction steps. Preview URL: https://1a4898a9-c9e4-4ed4-b444-5d2019bac4f1.preview.emergentagent.com. Creds: hostbay@moxx.co / Katiekendra123@. LIVE Railway PG — READ-ONLY testing only (no writes / payments / deletes). Please verify each bug against the reproduction steps listed under 'What to verify (FRONTEND)'."
   - agent: "testing"
     message: "CODE REVIEW COMPLETE ✅ - All 4 bug fixes verified in source code. AUTOMATED E2E TESTING BLOCKED ❌ - Preview environment authentication flow not completing in Playwright (2-step login issue). CODE ANALYSIS FINDINGS: (1) Bug 1 (scroll-to-top): Properly implemented with mainScrollRef + useEffect resetting scrollTop=0 on routeChangeComplete. (2) Bug 2 (i18n key): tPaymentLink helper fixed to pass options through. (3) Bug 3 (44px tap targets): All text CTAs correctly use minHeight:{xs:44px,md:auto}. (4) Bug 4 (pagination): Counter properly uses start/end range values. RECOMMENDATION: Manual verification on preview URL required, or request user confirmation that fixes are working as expected."
+  - agent: "testing"
+    message: "E2E TESTING COMPLETE ✅✅✅ - All 4 mobile UX bugs VERIFIED FIXED on preview URL. Used CORRECT 3-step login flow (Email → Choose Password method → Password) which resolved previous auth blocker. Test account: hostbay@moxx.co on LIVE Railway PG (READ-ONLY). RESULTS: (1) Bug 1 - Scroll position: 4/4 PASS - Dashboard→Create, Transactions→Create, Pay-links→Wallet all open at scrollTop=0 on mobile (393×852) AND desktop (1440×900). (2) Bug 2 - i18n key: PASS - Crowdfunding hint card displays correct English text 'This becomes your Buy me a coffee tip box', no untranslated keys found. (3) Bug 3 - 44px tap targets: PASS - Mobile referral 'View Rewards →' button measures 110×44px (meets WCAG 2.5.5). Other conditionally-rendered elements (creator analytics/manage, empty-state CTAs) not present on hostbay account (expected). Desktop regression clean. (4) Bug 4 - Pagination counter: PASS - Transactions shows 'Showing 1-10 of 440' (range format), Next click updates to '11-20 of 440', Previous returns to '1-10 of 440'. Pay-links shows 'Showing 1-10 of 13'. Desktop also correct. ALL FIXES WORKING AS INTENDED. Ready for user acceptance."
 
 ---
 
