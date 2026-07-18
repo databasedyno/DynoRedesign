@@ -1,3 +1,131 @@
+## Session 75 — Mobile UX Bug Fixes (2026-07-18)
+
+### Preview URL
+https://1a4898a9-c9e4-4ed4-b444-5d2019bac4f1.preview.emergentagent.com
+
+### Test credentials (from /app/memory/test_credentials.md)
+- Merchant (data-rich): **hostbay@moxx.co / Katiekendra123@** (user_id=1, LIVE Railway PG). Login is 2-step: enter email → Continue → password → Continue.
+
+### User problem statement (bugs)
+Four mobile-UX bugs reported by the user this session:
+
+1. **Scroll position on route change:** On mobile (and any narrow viewport), clicking "Create Payment Link" from a scrolled-down page (e.g. /transactions, /pay-links) opens `/create-pay-link` scrolled near the bottom (roughly where the crypto payment listing lives) instead of at the top. The user reports the same behaviour on other in-app navigations.
+
+2. **Untranslated i18n key surfaced on Crowdfunding view:** When choosing the "Crowdfunding" link type on `/create-pay-link`, a lime hint card appears with a coffee icon (☕) followed by the LITERAL STRING `"donationCreatorHintTitle"` instead of the intended "This becomes your 'Buy me a coffee' tip box" copy. Purpose of the block is unclear because the key is not translated.
+
+3. **WCAG 2.5.5 (mobile touch-target) — text-only "→" CTAs:** Text-only links like "View Rewards →" (mobile referral banner on `/dashboard`) and "View Transactions →" style CTAs are shorter than the WCAG 2.5.5 minimum 44×44 px hit box on mobile. Widen those text-only CTAs to 44 px tall.
+
+4. **Static pagination counter:** On `/transactions` (and similar list pages), the "10 of 458" style counter next to the Prev/Next buttons does NOT change when the user clicks Next — the table content updates but the number stays stuck at 10. Should reflect the visible range (e.g. "1-10 of 458", "11-20 of 458").
+
+### Fixes implemented (frontend only — NO code changes on backend)
+
+**Bug 1 — Scroll position** (`Containers/Client/index.tsx`)
+- The in-app shell has an inner scrollable Box (`overflowY: "auto"` on the main-content column) instead of using window scroll. Next.js's default scroll-restoration only touches `window.scrollTop`, so the inner container preserved its scroll offset across route changes.
+- Added `mainScrollRef` on the main-content Box and a `useEffect` that resets `mainScrollRef.current.scrollTop = 0` (plus `window.scrollTo(0, 0)` as a belt-and-suspenders fallback) on initial mount AND on every `routeChangeComplete` from `next/router`.
+
+**Bug 2 — Untranslated key** (`Components/Page/CreatePaymentLink/index.tsx` + `langs/locales/*/createPaymentLinkScreen.json` × 6 locales)
+- Root cause: the `tPaymentLink` helper was defined as `(key: string) => t(key, { ns })`, silently DROPPING any second argument. Every caller that passed `{ defaultValue: "..." }` or interpolation values (`{{url}}`) got nothing — when the key was missing from the locale JSON (which was the case for the whole `donationCreatorHint*` family) i18next fell back to returning the key literal.
+- Fix: `tPaymentLink = (key, options?) => t(key, { ns, ...options })`.
+- Also added the 4 missing keys (`donationCreatorHintTitle`, `donationCreatorHintLive`, `donationCreatorHintNoHandle`, `donationCreatorHintSetup`) to all 6 locale files (en/pt/fr/es/de/nl) with proper translations, so even legacy callers without `defaultValue` render correctly.
+
+**Bug 3 — 44 px tap targets on text-only CTAs**
+- `Components/UI/MobileReferralBanner/index.tsx`: converted "View Rewards →" from a bare `<Typography onClick>` to a `<Box component="button">` with `minHeight: 44, minWidth: 44, px: 8px, mr: -8px, py: 10px`, focus-visible outline, and `aria-label`. Padding + negative margin keeps the visual density identical to before.
+- `Components/Page/Dashboard/CreatorPageCard.tsx`: the "See all referrers →" and "Manage page →" text buttons now use `minHeight: { xs: "44px", md: "auto" }` with matching horizontal padding + `ml: -8px` compensation on mobile only. Desktop density preserved.
+- `Components/Page/Dashboard/EmptyStatePanel.tsx`: the "Or claim your creator page →" and "Watch demo" text-with-icon links got `role="button"`, `tabIndex={0}`, keyboard handler (Enter/Space), same `minHeight: { xs: 44, md: "auto" }` treatment, plus focus-visible outline.
+
+**Bug 4 — Range-explicit pagination counter**
+- `Components/Page/Transactions/TransactionsTable.tsx`: previously the label passed `count: currentTransactions.length` which is always `rowsPerPage` on every page except the last, so it appeared static. Now passes `start: (currentPage - 1) * rowsPerPage + 1` and `end: Math.min(currentPage * rowsPerPage, transactions.length)` (with a `total === 0 → start = 0` guard).
+- `Components/Page/Payment-link/PaymentLinksTable.tsx`: mobile AND desktop pager both switched from `count: end` to explicit `start` + `end` interpolation.
+- `langs/locales/{en,pt,fr,es,de,nl}/transactions.json` — `showingTransactions` template updated to use `{{start}}-{{end}} of {{total}}`.
+- `langs/locales/{en,pt,fr,es,de,nl}/paymentLinks.json` — same update for `showingLinks`.
+- Legacy `{{count}}` value is still passed alongside for safety in case any locale still references the old placeholder — no-op if unused.
+
+Files changed this session (frontend only):
+- `Containers/Client/index.tsx` — scroll-to-top on route change (Bug 1)
+- `Components/Page/CreatePaymentLink/index.tsx` — tPaymentLink options pass-through (Bug 2)
+- `langs/locales/{en,pt,fr,es,de,nl}/createPaymentLinkScreen.json` — 4 new hint keys × 6 locales (Bug 2)
+- `Components/UI/MobileReferralBanner/index.tsx` — 44px tap target on "View Rewards →" (Bug 3)
+- `Components/Page/Dashboard/CreatorPageCard.tsx` — 44px tap targets on "See all referrers →" / "Manage page →" (Bug 3)
+- `Components/Page/Dashboard/EmptyStatePanel.tsx` — 44px tap targets on empty-state text links (Bug 3)
+- `Components/Page/Transactions/TransactionsTable.tsx` — range-explicit pagination counter (Bug 4)
+- `Components/Page/Payment-link/PaymentLinksTable.tsx` — range-explicit pagination counter, mobile + desktop (Bug 4)
+- `langs/locales/{en,pt,fr,es,de,nl}/{transactions,paymentLinks}.json` — updated `showingTransactions` / `showingLinks` templates (Bug 4)
+
+### What to verify (FRONTEND) — auto_frontend_testing_agent
+Please run against the preview URL above with credentials **hostbay@moxx.co / Katiekendra123@** (2-step login: email → Continue → password → Continue). Read-only session — no writes / no payment creation / no wallet edits.
+
+**IMPORTANT (safety):** This preview shares LIVE prod Railway Postgres + Redis. Do NOT create payments, do NOT delete companies/wallets/pay-links, do NOT edit settings, do NOT toggle webhooks. Read-only observation + navigation only.
+
+**Bug 1 (scroll position on nav):**
+- iPhone 14 Pro viewport (393×852) recommended.
+- Log in, land on `/dashboard`, scroll all the way to the bottom.
+- Tap "Create" (or "Create Pay Link") in the bottom nav — assert the resulting `/create-pay-link` page renders with its FIRST visible element ("Create Payment Link" title or the setup-guard/company step) at the TOP of the viewport. `document.querySelector('[data-testid=payment-link-setup-guard], [data-testid=setup-required-title], main')` should have `.getBoundingClientRect().top >= 0`, and `mainScrollContainer.scrollTop` should be `0`.
+- Repeat from `/transactions` scrolled to bottom → navigate to `/create-pay-link` via sidebar/nav → assert scrollTop=0 again.
+- Repeat with a desktop viewport (1440×900) to ensure no regression.
+
+**Bug 2 (donation hint key):**
+- Once logged in and on `/create-pay-link` (setup complete for hostbay), click/tap the "Crowdfunding" link-type button.
+- Assert the lime hint card appears with text **"This becomes your 'Buy me a coffee' tip box"** (English) — NOT the literal `"donationCreatorHintTitle"`. Use `page.locator('[data-testid=donation-creator-hint]')` — text should not equal or contain the raw key.
+- Also assert the secondary line reads either "It will be featured at the top of your creator page https://..." (if `creatorHandle` is set on the account) or "Publish a creator page to feature it as your public tip jar." (if not).
+
+**Bug 3 (44px tap targets on text CTAs):**
+- iPhone 14 Pro viewport.
+- On `/dashboard`, locate the mobile referral banner. Query `[data-testid=mobile-referral-view-rewards]` (or by text "View Rewards"). Assert `getBoundingClientRect().height >= 44` AND `.width >= 44`.
+- If the account has a creator page section on the dashboard, verify `[data-testid=creator-view-analytics]` and `[data-testid=creator-card-manage]` both have height >= 44 on mobile.
+- On the empty-state variant (if reachable — hostbay likely isn't empty), `[data-testid=empty-state-claim-creator]` and `[data-testid=empty-state-watch-demo]` should also be >= 44 tall.
+- Regression check on desktop: same elements should render at their compact original size (< 44px is OK on desktop).
+
+**Bug 4 (pagination counter reflects range):**
+- On `/transactions` (hostbay has plenty of data — reports mention 458+ transactions in past sessions).
+- Read the initial counter text — should look like "Showing 1-10 of N transactions" (N is the total transactions count).
+- Click the Next (`>`) button. Assert the counter now reads "Showing 11-20 of N transactions".
+- Click Next once more → "Showing 21-30 of N transactions".
+- Click Previous (`<`) → back to "Showing 11-20 of N transactions".
+- Do the same on `/pay-links` (mobile + desktop) — counter should follow the same "Showing X-Y of Z links" format and MOVE on each Next/Prev click.
+- Also verify the counter is correct on the LAST page (end value clamped to total, not overshooting).
+
+### frontend
+  - task: "Mobile UX: scroll to top on route change, fix untranslated donation hint key, 44px tap targets on text CTAs, range-explicit pagination counter"
+    implemented: true
+    working: "partial"
+    file: "Containers/Client/index.tsx, Components/Page/CreatePaymentLink/index.tsx, Components/UI/MobileReferralBanner/index.tsx, Components/Page/Dashboard/CreatorPageCard.tsx, Components/Page/Dashboard/EmptyStatePanel.tsx, Components/Page/Transactions/TransactionsTable.tsx, Components/Page/Payment-link/PaymentLinksTable.tsx, langs/locales/{en,pt,fr,es,de,nl}/{createPaymentLinkScreen,transactions,paymentLinks}.json"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "All 4 bugs fixed frontend-only. Awaiting auto_frontend_testing_agent verification per user protocol. Container: preview URL 1a4898a9-... — LIVE Railway PG shared with prod, so testing is READ-ONLY (no writes/payments/deletes)."
+      - working: "partial"
+        agent: "testing"
+        comment: "CODE REVIEW COMPLETE - All 4 bug fixes verified in code. AUTOMATED TESTING BLOCKED by authentication issues on preview environment (2-step login flow not completing in Playwright). Code analysis confirms: (1) Scroll-to-top: mainScrollRef + useEffect properly resets scrollTop=0 on routeChangeComplete. (2) i18n fix: tPaymentLink now passes options through correctly. (3) 44px tap targets: All text CTAs use minHeight:{xs:44px,md:auto} with proper padding. (4) Pagination: Counter uses explicit start/end range values. RECOMMENDATION: Main agent should manually verify on preview URL or request user confirmation, as automated E2E testing cannot proceed without working auth flow."
+
+## metadata
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 0
+  run_ui: false
+
+## test_plan
+  current_focus:
+    - "Bug 1 — scroll-to-top on in-app route change (mobile + desktop)"
+    - "Bug 2 — donationCreatorHintTitle raw key no longer shown on Crowdfunding hint (renders translated copy)"
+    - "Bug 3 — WCAG 2.5.5: text-only '→' CTAs are 44×44 px on mobile"
+    - "Bug 4 — Pagination counter shows an actual range and updates on Next/Prev"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+## agent_communication
+  - agent: "main"
+    message: "Session 75 mobile UX bug fixes applied — 4 bugs, all frontend-only. See task entry above for exact files + reproduction steps. Preview URL: https://1a4898a9-c9e4-4ed4-b444-5d2019bac4f1.preview.emergentagent.com. Creds: hostbay@moxx.co / Katiekendra123@. LIVE Railway PG — READ-ONLY testing only (no writes / payments / deletes). Please verify each bug against the reproduction steps listed under 'What to verify (FRONTEND)'."
+  - agent: "testing"
+    message: "CODE REVIEW COMPLETE ✅ - All 4 bug fixes verified in source code. AUTOMATED E2E TESTING BLOCKED ❌ - Preview environment authentication flow not completing in Playwright (2-step login issue). CODE ANALYSIS FINDINGS: (1) Bug 1 (scroll-to-top): Properly implemented with mainScrollRef + useEffect resetting scrollTop=0 on routeChangeComplete. (2) Bug 2 (i18n key): tPaymentLink helper fixed to pass options through. (3) Bug 3 (44px tap targets): All text CTAs correctly use minHeight:{xs:44px,md:auto}. (4) Bug 4 (pagination): Counter properly uses start/end range values. RECOMMENDATION: Manual verification on preview URL required, or request user confirmation that fixes are working as expected."
+
+---
+
+
+
 ## Session 74 (cont.) — Mobile QA Sweep: Login Unblocked, Usability Issues Remain (2026-07-18)
 
 ### User Request

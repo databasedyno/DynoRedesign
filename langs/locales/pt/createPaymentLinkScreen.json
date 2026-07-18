@@ -165,5 +165,9 @@
   "createDonation": "Criar doação",
   "createDonationTitle": "Criar doação",
   "donationSuccessfullyCreated": "Doação criada",
-  "shareDonationToStartCollecting": "Compartilhe para começar a receber doações"
+  "shareDonationToStartCollecting": "Compartilhe para começar a receber doações",
+  "donationCreatorHintTitle": "Isto vira sua caixa de gorjetas \"Buy me a coffee\"",
+  "donationCreatorHintLive": "Será destacado no topo da sua página de criador {{url}}.",
+  "donationCreatorHintNoHandle": "Publique uma página de criador para destacá-la como seu pote de gorjetas público.",
+  "donationCreatorHintSetup": "Configurar sua página de criador →"
 }

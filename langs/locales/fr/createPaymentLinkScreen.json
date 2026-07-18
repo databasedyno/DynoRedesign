@@ -165,5 +165,9 @@
   "createDonation": "Créer un don",
   "createDonationTitle": "Créer un don",
   "donationSuccessfullyCreated": "Don créé",
-  "shareDonationToStartCollecting": "Partagez-le pour commencer à collecter des dons"
+  "shareDonationToStartCollecting": "Partagez-le pour commencer à collecter des dons",
+  "donationCreatorHintTitle": "Ceci devient votre boîte de pourboire « Buy me a coffee »",
+  "donationCreatorHintLive": "Elle sera mise en avant en haut de votre page créateur {{url}}.",
+  "donationCreatorHintNoHandle": "Publiez une page créateur pour la mettre en avant comme votre boîte à pourboires publique.",
+  "donationCreatorHintSetup": "Configurer votre page créateur →"
 }

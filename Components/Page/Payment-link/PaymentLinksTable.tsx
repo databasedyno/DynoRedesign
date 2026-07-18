@@ -531,7 +531,17 @@ const PaymentLinksTable = ({
             />
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <FooterText>
-                {t("showingLinks", { count: end, total: total })}
+                {/* Session 75 fix — show an explicit range so the counter
+                    actually changes each page click ("1-10 of 458" →
+                    "11-20 of 458"). Previously only `count: end` was passed
+                    so mobile users saw the offset climb in +10 increments
+                    with no indication of the starting row. */}
+                {t("showingLinks", {
+                  start: total === 0 ? 0 : start + 1,
+                  end: end,
+                  total: total,
+                  count: end,
+                })}
               </FooterText>
               <MobileNavigationButtons
                 onClick={() => setPage((p) => Math.max(p - 1, 0))}
@@ -854,9 +864,13 @@ const PaymentLinksTable = ({
             />
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <FooterText>
+                {/* Session 75 fix — desktop pager: same range-explicit format
+                    as mobile so both surfaces stay consistent. */}
                 {t("showingLinks", {
-                  count: end,
+                  start: total === 0 ? 0 : start + 1,
+                  end: end,
                   total: total,
+                  count: end,
                 })}
               </FooterText>
               <CustomButton

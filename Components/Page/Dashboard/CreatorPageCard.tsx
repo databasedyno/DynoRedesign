@@ -312,7 +312,21 @@ const CreatorPageCard: React.FC = () => {
                   variant="text"
                   onClick={() => setAnalyticsOpen(true)}
                   data-testid="creator-view-analytics"
-                  sx={{ textTransform: "none", fontSize: 11.5, alignSelf: "flex-start", p: 0, minWidth: 0, color: theme.palette.text.secondary, "&:hover": { color: theme.palette.primary.main, backgroundColor: "transparent" } }}
+                  sx={{
+                    textTransform: "none",
+                    fontSize: 11.5,
+                    alignSelf: "flex-start",
+                    p: 0,
+                    minWidth: 0,
+                    color: theme.palette.text.secondary,
+                    "&:hover": { color: theme.palette.primary.main, backgroundColor: "transparent" },
+                    // Session 75 P1 fix — WCAG 2.5.5: mobile-only 44px tap
+                    // target so text-only "→" CTAs are as reachable as icon
+                    // buttons. Desktop retains its compact typographic feel.
+                    minHeight: { xs: "44px", md: "auto" },
+                    px: { xs: "8px", md: 0 },
+                    ml: { xs: "-8px", md: 0 },
+                  }}
                 >
                   {t("creatorViewAnalytics", { defaultValue: "See all referrers →" })}
                 </Button>
@@ -325,7 +339,18 @@ const CreatorPageCard: React.FC = () => {
             variant="text"
             onClick={() => router.push("/creator")}
             data-testid="creator-card-manage"
-            sx={{ textTransform: "none", fontSize: 12, color: theme.palette.text.secondary, alignSelf: "flex-start", mt: 0.25, "&:hover": { color: theme.palette.primary.main } }}
+            sx={{
+              textTransform: "none",
+              fontSize: 12,
+              color: theme.palette.text.secondary,
+              alignSelf: "flex-start",
+              mt: 0.25,
+              "&:hover": { color: theme.palette.primary.main },
+              // Session 75 P1 fix — WCAG 2.5.5 mobile touch target.
+              minHeight: { xs: "44px", md: "auto" },
+              px: { xs: "8px", md: 0 },
+              ml: { xs: "-8px", md: 0 },
+            }}
           >
             {t("creatorCardManage", { defaultValue: "Manage page →" })}
           </Button>

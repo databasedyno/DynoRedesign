@@ -105,6 +105,8 @@ const EmptyStatePanel: React.FC<EmptyStatePanelProps> = ({
                 onClick={onCreateLink || (() => router.push("/create-pay-link"))}
               />
               <Box
+                role="button"
+                tabIndex={0}
                 sx={{
                   display: "inline-flex",
                   alignItems: "center",
@@ -114,14 +116,26 @@ const EmptyStatePanel: React.FC<EmptyStatePanelProps> = ({
                   fontFamily: "var(--font-sans)",
                   cursor: "pointer",
                   "&:hover": { color: theme.palette.primary.main },
+                  // Session 75 P1 fix — WCAG 2.5.5 tap target on mobile.
+                  minHeight: { xs: "44px", md: "auto" },
+                  px: { xs: "8px", md: 0 },
+                  ml: { xs: "-8px", md: 0 },
+                  "&:focus-visible": {
+                    outline: `2px solid ${theme.palette.primary.main}`,
+                    outlineOffset: "2px",
+                    borderRadius: "6px",
+                  },
                 }}
                 onClick={() => router.push("/creator")}
+                onKeyDown={(e: React.KeyboardEvent) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); router.push("/creator"); } }}
                 data-testid="empty-state-claim-creator"
               >
                 <AutoAwesomeRounded sx={{ fontSize: 18 }} />
                 {t("emptyClaimCreator", { defaultValue: "Or claim your creator page →" })}
               </Box>
               <Box
+                role="button"
+                tabIndex={0}
                 sx={{
                   display: "inline-flex",
                   alignItems: "center",
@@ -131,8 +145,18 @@ const EmptyStatePanel: React.FC<EmptyStatePanelProps> = ({
                   fontFamily: "var(--font-sans)",
                   cursor: "pointer",
                   "&:hover": { color: theme.palette.primary.main },
+                  // Session 75 P1 fix — WCAG 2.5.5 tap target on mobile.
+                  minHeight: { xs: "44px", md: "auto" },
+                  px: { xs: "8px", md: 0 },
+                  ml: { xs: "-8px", md: 0 },
+                  "&:focus-visible": {
+                    outline: `2px solid ${theme.palette.primary.main}`,
+                    outlineOffset: "2px",
+                    borderRadius: "6px",
+                  },
                 }}
                 onClick={() => router.push("/help/getting-started")}
+                onKeyDown={(e: React.KeyboardEvent) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); router.push("/help/getting-started"); } }}
                 data-testid="empty-state-watch-demo"
               >
                 <PlayCircleFilledRounded sx={{ fontSize: 20 }} />

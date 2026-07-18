@@ -21,7 +21,7 @@
   "failed": "Mislukt",
   "previous": "Vorige",
   "next": "Volgende",
-  "showingTransactions": "{{count}} van {{total}} transacties weergegeven",
+  "showingTransactions": "{{start}}-{{end}} van {{total}} transacties weergegeven",
   "rowsPerPage": "Rijen per pagina",
   "transactionDetails": "Transactiedetails",
   "amountDetails": "Bedragdetails",

@@ -93,8 +93,16 @@ const CreatePaymentLinkPage = ({
     dispatch(ApiAction(API_FETCH));
   }, [dispatch, selectedCompanyId]);
   const tPaymentLink = useCallback(
-    (key: string): string => {
-      const result = t(key, { ns: "createPaymentLinkScreen" });
+    (key: string, options?: any): string => {
+      // Session 75 bug fix: this wrapper previously accepted only `key` and
+      // silently DROPPED the second argument, so `defaultValue` fallbacks and
+      // interpolation values ({{url}}, {{amount}}, etc.) never reached i18next.
+      // When a translation key was missing from the locale file (e.g. the
+      // "donationCreatorHintTitle" family), i18next returned the KEY ITSELF —
+      // that's what surfaced the raw "donationCreatorHintTitle" text next to
+      // the coffee icon on the crowdfunding view. Pass options through so
+      // both defaultValue and interpolation values work as intended.
+      const result = t(key, { ns: "createPaymentLinkScreen", ...(options || {}) });
       return typeof result === "string" ? result : String(result);
     },
     [t],

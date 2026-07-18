@@ -21,7 +21,7 @@
   "failed": "Fracassado",
   "previous": "Anterior",
   "next": "Próximo",
-  "showingTransactions": "Exibindo {{count}} de {{total}} transações",
+  "showingTransactions": "Exibindo {{start}}-{{end}} de {{total}} transações",
   "rowsPerPage": "Linhas por página",
   "transactionDetails": "Detalhes da Transação",
   "amountDetails": "Detalhes do Valor",

@@ -682,9 +682,19 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
 
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <TransactionsTableFooterText>
+              {/* Session 75 fix — the counter used `currentTransactions.length`
+                  which is ALWAYS `rowsPerPage` (10) on non-last pages, so
+                  clicking "Next" changed the table but the "Showing 10 of 458"
+                  label stayed stuck at 10. Switch to an explicit range
+                  ({{start}}-{{end}}) so the numbers actually move as the user
+                  paginates. */}
               {tTransactions("showingTransactions", {
-                count: currentTransactions.length,
+                start: transactions.length === 0 ? 0 : (currentPage - 1) * rowsPerPage + 1,
+                end: Math.min(currentPage * rowsPerPage, transactions.length),
                 total: transactions.length,
+                // Legacy interpolation values kept in case any locale still
+                // references {{count}} — safe no-op if unused.
+                count: currentTransactions.length,
               })}
             </TransactionsTableFooterText>
 

@@ -165,5 +165,9 @@
   "createDonation": "Spende erstellen",
   "createDonationTitle": "Spende erstellen",
   "donationSuccessfullyCreated": "Spende erstellt",
-  "shareDonationToStartCollecting": "Teilen Sie ihn, um Spenden zu sammeln"
+  "shareDonationToStartCollecting": "Teilen Sie ihn, um Spenden zu sammeln",
+  "donationCreatorHintTitle": "Das wird deine \"Buy me a coffee\"-Trinkgeldbox",
+  "donationCreatorHintLive": "Sie wird oben auf deiner Creator-Seite {{url}} hervorgehoben.",
+  "donationCreatorHintNoHandle": "Veröffentliche eine Creator-Seite, um sie als öffentliches Trinkgeldglas zu zeigen.",
+  "donationCreatorHintSetup": "Creator-Seite einrichten →"
 }

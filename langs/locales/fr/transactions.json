@@ -21,7 +21,7 @@
   "failed": "échoué",
   "previous": "Précédent",
   "next": "Suivant",
-  "showingTransactions": "Affichage de {{count}} sur {{total}} transactions",
+  "showingTransactions": "Affichage de {{start}}-{{end}} sur {{total}} transactions",
   "rowsPerPage": "Lignes par page",
   "transactionDetails": "Détails de la Transaction",
   "amountDetails": "Détails du Montant",

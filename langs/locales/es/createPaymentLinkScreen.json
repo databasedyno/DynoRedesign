@@ -165,5 +165,9 @@
   "createDonation": "Crear donación",
   "createDonationTitle": "Crear donación",
   "donationSuccessfullyCreated": "Donación creada",
-  "shareDonationToStartCollecting": "Compártelo para empezar a recaudar donaciones"
+  "shareDonationToStartCollecting": "Compártelo para empezar a recaudar donaciones",
+  "donationCreatorHintTitle": "Esto se convierte en tu caja de propinas \"Buy me a coffee\"",
+  "donationCreatorHintLive": "Aparecerá destacado en la parte superior de tu página de creador {{url}}.",
+  "donationCreatorHintNoHandle": "Publica una página de creador para destacarla como tu bote de propinas público.",
+  "donationCreatorHintSetup": "Configura tu página de creador →"
 }

@@ -181,5 +181,9 @@
     "noneHint": "Publiceer producten in Winkel → Producten en kom dan terug om er een te kiezen.",
     "currentBadge": "· huidige",
     "variantLabel": "Variant"
-  }
+  },
+  "donationCreatorHintTitle": "Dit wordt jouw \"Buy me a coffee\"-fooienbox",
+  "donationCreatorHintLive": "Deze wordt bovenaan je creator-pagina {{url}} uitgelicht.",
+  "donationCreatorHintNoHandle": "Publiceer een creator-pagina om deze als publieke fooienpot uit te lichten.",
+  "donationCreatorHintSetup": "Creator-pagina instellen →"
 }

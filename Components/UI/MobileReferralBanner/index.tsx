@@ -78,18 +78,44 @@ const MobileReferralBanner: React.FC = () => {
             {t("yourReferralCode")}
           </Typography>
         </Box>
-        <Typography
+        <Box
+          component="button"
+          type="button"
           onClick={() => router.push("/referrals")}
+          data-testid="mobile-referral-view-rewards"
+          aria-label={t("viewRewards", { defaultValue: "View rewards" })}
           sx={{
+            // Session 75 P1 fix — WCAG 2.5.5 minimum touch target. This is a
+            // text-only CTA that used to be a bare Typography with only
+            // `cursor: pointer` (roughly 16px tall on mobile). Bump to a
+            // proper 44×44 hit box (visual density preserved via padding /
+            // negative margin so the label still hugs the row edge).
+            minHeight: "44px",
+            minWidth: "44px",
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "flex-end",
+            gap: "2px",
+            px: "8px",
+            py: "10px",
+            mr: "-8px",
+            border: "none",
+            background: "transparent",
+            cursor: "pointer",
             fontSize: "12px",
             fontFamily: "var(--font-sans)",
             color: theme.palette.primary.main,
-            cursor: "pointer",
+            textDecoration: "none",
             "&:hover": { textDecoration: "underline" },
+            "&:focus-visible": {
+              outline: `2px solid ${theme.palette.primary.main}`,
+              outlineOffset: "2px",
+              borderRadius: "6px",
+            },
           }}
         >
           View Rewards →
-        </Typography>
+        </Box>
       </Box>
 
       {/* Code + Actions */}

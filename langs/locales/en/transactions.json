@@ -25,7 +25,7 @@
   "settlement_failed": "failed",
   "previous": "Previous",
   "next": "Next",
-  "showingTransactions": "Showing {{count}} of {{total}} transactions",
+  "showingTransactions": "Showing {{start}}-{{end}} of {{total}} transactions",
   "rowsPerPage": "Rows per page",
   "transactionDetails": "Transaction Details",
   "amountDetails": "Amount Details",

@@ -36,6 +36,15 @@ const ClientLayout = ({
   const dispatch = useDispatch();
   const companyState = useSelector((state: rootReducer) => (state as any).companyReducer);
   const hasFetchedRef = useRef(false);
+  // Session 75 fix — inner scrollable container. The main-content Box below
+  // owns its own vertical scroll (`overflowY: "auto"`) instead of letting the
+  // window scroll, so Next.js's default scroll restoration (which only touches
+  // `window`) never resets it. Result: navigating from e.g. a scrolled-down
+  // /transactions or /pay-links (mobile listing) into /create-pay-link opened
+  // the target page halfway/near the bottom instead of at the top. We reset
+  // this container's scrollTop on every route change so every in-app page
+  // opens at the top on both mobile and desktop.
+  const mainScrollRef = useRef<HTMLDivElement | null>(null);
 
   // Fetch companies ONCE at the layout level — all in-app pages benefit
   useEffect(() => {
@@ -44,6 +53,29 @@ const ClientLayout = ({
       dispatch(CompanyAction(COMPANY_FETCH));
     }
   }, [dispatch, companyState?.fetched, companyState?.loading]);
+
+  // Session 75 fix — scroll the inner container back to top whenever the
+  // route path changes. `router.asPath` covers query-string-only nav too
+  // (e.g. /transactions?wallet=X from the Wallet page).
+  useEffect(() => {
+    const handleRouteChange = () => {
+      if (mainScrollRef.current) {
+        mainScrollRef.current.scrollTop = 0;
+      }
+      // Belt & suspenders — if any page ever falls back to window scroll,
+      // reset that too. `behavior: "auto"` (default) avoids a visible
+      // scroll-back animation on slow devices.
+      if (typeof window !== "undefined") {
+        window.scrollTo(0, 0);
+      }
+    };
+    // Fire on initial mount AND on subsequent route changes.
+    handleRouteChange();
+    router.events.on("routeChangeComplete", handleRouteChange);
+    return () => {
+      router.events.off("routeChangeComplete", handleRouteChange);
+    };
+  }, [router.events]);
   const ToastState = useSelector((state: rootReducer) => state.toastReducer);
   const isDashboard =
     router.pathname === "/dashboard" ||
@@ -130,6 +162,7 @@ const ClientLayout = ({
 
               {/* ================= MAIN CONTENT ================= */}
               <Box
+                ref={mainScrollRef}
                 sx={{
                   flex: 1,
                   minWidth: 0,

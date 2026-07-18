@@ -16,7 +16,7 @@
   "rowsPerPage": "Rijen per pagina",
   "previous": "Vorige",
   "next": "Volgende",
-  "showingLinks": "{{count}} van {{total}} links weergegeven",
+  "showingLinks": "{{start}}-{{end}} van {{total}} links weergegeven",
   "copy": "Kopiëren",
   "copiedToClipboard": "Gekopieerd naar klembord",
   "create": "Aanmaken",

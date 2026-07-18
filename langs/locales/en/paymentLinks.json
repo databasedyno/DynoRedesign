@@ -16,7 +16,7 @@
   "rowsPerPage": "Rows per page",
   "previous": "Previous",
   "next": "Next",
-  "showingLinks": "Showing {{count}} of {{total}} links",
+  "showingLinks": "Showing {{start}}-{{end}} of {{total}} links",
   "copy": "Copy",
   "copiedToClipboard": "Copied to clipboard",
   "create": "Create",

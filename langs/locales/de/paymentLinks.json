@@ -16,7 +16,7 @@
   "rowsPerPage": "Zeilen pro Seite",
   "previous": "Zurück",
   "next": "Weiter",
-  "showingLinks": "{{count}} von {{total}} Links angezeigt",
+  "showingLinks": "{{start}}-{{end}} von {{total}} Links angezeigt",
   "copy": "Kopieren",
   "copiedToClipboard": "In die Zwischenablage kopiert",
   "create": "Erstellen",
