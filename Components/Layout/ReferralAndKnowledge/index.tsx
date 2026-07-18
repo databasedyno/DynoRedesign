@@ -13,7 +13,7 @@ import {
   SidebarFooter,
 } from "@/Components/Layout/NewSidebar/styled";
 import Toast from "@/Components/UI/Toast";
-import { Box, Tooltip, useTheme } from "@mui/material";
+import { Box, Tooltip, useMediaQuery, useTheme } from "@mui/material";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -48,6 +48,7 @@ const ShareIconButton = ({
   children: React.ReactNode;
 }) => {
   const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   return (
     <Tooltip title={title} placement="top" arrow>
       <button
@@ -58,8 +59,9 @@ const ShareIconButton = ({
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          width: 32,
-          height: 32,
+          // Session 74 P1: 44×44 tap target on mobile (WCAG 2.5.5).
+          width: isMobile ? 44 : 32,
+          height: isMobile ? 44 : 32,
           padding: 0,
           borderRadius: 8,
           border: `1px solid ${theme.palette.border.main}`,
