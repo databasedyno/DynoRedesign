@@ -122,12 +122,8 @@ export default function Home({
           <Grid item xs={12} lg={8}>
             <AuroraKPIHero
               loading={loading}
-              totalVolumeFormatted={stats.totalVolumeFormatted}
-              totalVolume={stats.totalVolume}
-              volumeChangePercent={stats.volumeChange}
+              stats={stats}
               chartData={chartData}
-              transactionsCount={stats.totalTransactions}
-              currency={stats.currency}
             />
           </Grid>
           <Grid item xs={12} lg={4}>
