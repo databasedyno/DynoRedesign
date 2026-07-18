@@ -83,7 +83,12 @@ interface GroupedError {
 
 // ─── Configuration ───────────────────────────────────────────────────────────
 
-const DIGEST_INTERVAL_MS = 15 * 60 * 1000; // 15 minutes
+// Session 74: widened from 15 min → 60 min to stop admin-inbox spam once the
+// display_currency schema-drift SQL error was fixed. The digest was firing at
+// 4/hr × 24 = 96 emails/day just from repeating errors. 60 min keeps signal
+// (still fast enough to notice new prod issues) while capping worst-case at
+// 24 emails/day — dial higher if still too noisy.
+const DIGEST_INTERVAL_MS = 60 * 60 * 1000; // 60 minutes
 const MAX_BUFFER_SIZE = 500;                // prevent memory bloat
 const MAX_STACK_LENGTH = 1500;              // truncate stack traces
 const MAX_RESPONSE_LENGTH = 500;            // truncate response bodies
@@ -191,7 +196,12 @@ const extractErrorDetails = (error: unknown): {
 // the admin inbox. We now send at most ONE immediate alert per unique error
 // fingerprint within a cooldown window. The error is still buffered for the
 // 15-minute digest, so nothing is lost — duplicates just roll up there.
-const IMMEDIATE_ALERT_COOLDOWN_MS = 60 * 60 * 1000; // 1 hour per unique fingerprint
+// Session 74: widened from 1h → 6h per unique fingerprint. Combined with the
+// hourly digest above, one recurring error now generates at most:
+//   - 1 immediate alert per 6h  (=4/day)
+//   - 1 digest entry per hour   (=24/day, if error keeps recurring)
+// Down from the pre-fix rate of ~120/day per recurring error class.
+const IMMEDIATE_ALERT_COOLDOWN_MS = 6 * 60 * 60 * 1000; // 6 hours per unique fingerprint
 const lastImmediateAlertAt = new Map<string, number>();
 
 const shouldSendImmediate = (fingerprint: string): boolean => {
@@ -506,7 +516,7 @@ const formatDigestEmail = (errors: GroupedError[], totalRaw: number): string => 
         <!-- Footer -->
         <tr>
           <td style="padding:20px 32px;background:#f8fafc;border-top:1px solid #e5e7eb;font-size:12px;color:#9ca3af;text-align:center;">
-            Dynopay Error Monitor — Digest sent every 15 minutes when errors exist<br/>
+            Dynopay Error Monitor — Digest sent hourly when errors exist<br/>
             Server: ${process.env.SERVER_URL || "unknown"} | PID: ${process.pid}
           </td>
         </tr>
@@ -553,7 +563,7 @@ const formatImmediateAlertEmail = (entry: ErrorEntry): string => {
             <p style="color:#6b7280;font-size:13px;">Occurred at: ${entry.timestamp.toISOString().replace("T", " ").substring(0, 19)} UTC</p>
             ${details}
             <hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0;"/>
-            <p style="font-size:13px;color:#9ca3af;">This alert was sent immediately because it is a <strong>${entry.severity}</strong> severity error. A digest of all recent errors will follow in the next 15-minute cycle.</p>
+            <p style="font-size:13px;color:#9ca3af;">This alert was sent immediately because it is a <strong>${entry.severity}</strong> severity error. A digest of all recent errors will follow in the next hourly cycle.</p>
           </td>
         </tr>
         <tr>
@@ -611,7 +621,7 @@ export const sendErrorDigest = async (): Promise<void> => {
     if (highCount > 0) subjectParts.push(`${highCount} high`);
     const severitySummary = subjectParts.length > 0 ? ` (${subjectParts.join(", ")})` : "";
 
-    const subject = `🚨 Dynopay Error Digest — ${totalRaw} error${totalRaw !== 1 ? "s" : ""} in last 15 min${severitySummary}`;
+    const subject = `🚨 Dynopay Error Digest — ${totalRaw} error${totalRaw !== 1 ? "s" : ""} in last 60 min${severitySummary}`;
     const htmlBody = formatDigestEmail(digest, totalRaw);
 
     const transporter = await getMailTransporter();
@@ -739,7 +749,7 @@ export const startErrorMonitoring = (): void => {
     });
   }, DIGEST_INTERVAL_MS);
 
-  cronLogger.info(`[ErrorMonitor] ✅ Started — digest every 15 min to ${getAdminEmail() || "NO EMAIL CONFIGURED"}`);
+  cronLogger.info(`[ErrorMonitor] ✅ Started — digest every 60 min to ${getAdminEmail() || "NO EMAIL CONFIGURED"}`);
 };
 
 /**

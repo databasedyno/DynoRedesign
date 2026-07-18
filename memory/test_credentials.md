@@ -19,8 +19,12 @@
 - **Payment received / admin fee emails DO still fire** on DO prod (Jul 17 21:28 → hostbay@moxx.co "Payment received 4.08 USD" + Jul 18 00:27 → hostbay@moxx.co "Payment received 24.79 USD" + Platform Fee emails to moxxcompany@gmail.com) — likely because cryptoVerification cron catches the userModel error and falls back to raw SQL for merchantContactName; more investigation pending.
 - **Brevo verification** (session 74): API key `xkeysib-0b9f...` valid, plan credits=0 (subscription 2026-07-07→2026-08-07 exhausted). Jul 17 spike = 4,497 emails (vs baseline ~50-100/day) driven by 15-min error-digest cron × POL Fee Wallet empty alerts × new visitor emails. 1 hardBounces reason: "Your account has insufficient credits" (2026-07-17 04:20). Gmail rate-limited DKIM domain `7776532.brevosend.com` (421-4.7.28 deferred).
 - **Mobile QA sweep** (session 74) BLOCKED by this same 500 — only `/pay/demo` + `/auth/login` were reachable. Need re-run after migration is applied.
-- **Prescribed fix** (safe, idempotent, additive-only): `cd /app/backend && node scripts/add_user_display_currency.js && node scripts/add_company_display_currency.js` — awaiting user GO. Also need Brevo credit top-up + tighten error-digest / POL-wallet-empty cooldown to prevent runaway send.
-- NO CODE CHANGES this session — pure env provisioning + diagnostics.
+- **APPLIED FIX #1 — DB migration** (`scripts/session74_fix_schema_drift.js`, transactional): tbl_user +22 cols (display_currency, language, default_apply_tax, default_tax_inclusive, merchant_country_code, merchant_vat_id, handle, bio, creator_page_enabled, cover_image, social_links, support_widget_* × 9, theme_* × 3). tbl_company +6 cols (contact_first_name, contact_last_name, webhook_disabled, webhook_disabled_at, webhook_disabled_reason, display_currency) + backfill from api.base_currency clamped to supported list. Verified: `https://dynopay.com/api/user/checkEmail?email=hostbay@moxx.co` → 200 (was 500). tbl_user cols 35→58, tbl_company cols 28→34. Prod login unblocked immediately, no deploy needed.
+- **APPLIED FIX #2 — spam cooldowns** (needs DO deploy to take effect):
+  - `backend/services/errorMonitoringService.ts`: `DIGEST_INTERVAL_MS` 15 min → **60 min**; `IMMEDIATE_ALERT_COOLDOWN_MS` 1h → **6h**; updated 4 user-visible strings ("every 15 min" → "hourly / every 60 min").
+  - `backend/services/feeWalletMonitor.ts`: `ALERT_COOLDOWN_MS` 1h → **6h**. Escalation still bypasses (healthy→warning→critical→empty transitions fire immediately).
+- **Still TODO (user)**: (a) Brevo credit top-up (plan credits=0), (b) POL fee wallet top-up (chronic empty), (c) `git commit + push + deploy` on DO to activate the code cooldown changes.
+- Files modified: `backend/services/errorMonitoringService.ts`, `backend/services/feeWalletMonitor.ts`, `backend/scripts/session74_fix_schema_drift.js` (new).
 
 ---
 

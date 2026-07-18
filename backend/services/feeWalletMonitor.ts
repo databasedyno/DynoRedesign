@@ -29,7 +29,11 @@ const ALERT_EMAIL = process.env.ADMIN_EMAIL || process.env.BREVO_SENDER_EMAIL ||
 // Cooldown between alert emails for the SAME chain in the SAME status level.
 // Escalation (worse → worst) still bypasses this so a wallet going empty right
 // after a warning alert doesn't get suppressed.
-const ALERT_COOLDOWN_MS = 3600000; // 1 hour
+// Session 74: widened 1h → 6h. Chronic-empty wallets (e.g. POL fee wallet ran
+// dry Jul 15-17) were pumping 24 alerts/day per chain × multiple chains,
+// contributing to the Jul-17 Brevo spike (4497 emails). 6h keeps ops signal
+// while capping worst-case at 4 emails/chain/day even when nobody tops up.
+const ALERT_COOLDOWN_MS = 6 * 60 * 60 * 1000; // 6 hours
 
 interface ChainConfig {
   chain: string;          // canonical Tatum currency code (TRX/ETH/POLYGON)
