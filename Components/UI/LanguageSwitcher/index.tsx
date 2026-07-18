@@ -76,6 +76,23 @@ function LanguageSwitcher({ showBig = false }: Props) {
   const { i18n: i18nInstance } = useTranslation(); // Subscribe to language changes for re-render
 
   const [isOpen, setIsOpen] = useState<boolean>(false);
+  // Which side the 196px dropdown expands toward. Default right-aligned (menu
+  // grows left) — correct when the trigger sits near the right edge (headers).
+  // Recomputed on open: if right-alignment would clip off the LEFT viewport
+  // edge (e.g. the login page, where the switcher sits near the left), and
+  // left-alignment fits, flip to left-aligned so the menu grows right instead.
+  const [alignRight, setAlignRight] = useState<boolean>(true);
+
+  const computeAlign = useCallback(() => {
+    if (typeof window === "undefined") return;
+    const rect = wrapperRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const MENU_W = 196;
+    const PAD = 8;
+    const overflowsLeftWhenRightAligned = rect.right - MENU_W < PAD;
+    const fitsWhenLeftAligned = rect.left + MENU_W <= window.innerWidth - PAD;
+    setAlignRight(!(overflowsLeftWhenRightAligned && fitsWhenLeftAligned));
+  }, []);
 
   const current = i18nInstance.language || i18n.language || "en";
   const selected = useMemo<Language>(() => {
@@ -101,12 +118,12 @@ function LanguageSwitcher({ showBig = false }: Props) {
       try {
         const { loadLanguageAsync } = await import("@/i18n");
         await loadLanguageAsync(lng);
-      } catch {}
+      } catch { /* non-blocking: fall back to already-loaded bundle */ }
       i18n.changeLanguage(lng);
       try {
         localStorage.setItem("lang", lng);
         localStorage.setItem("lang_manual", "true"); // Mark as manual choice — prevents IP auto-override
-      } catch {}
+      } catch { /* localStorage unavailable (private mode) — ignore */ }
       // If a merchant is signed in, persist the choice so their emails match their UI language.
       // BUT — never fire this API from the public checkout / payment surfaces. On those pages the
       // "language" belongs to the customer's checkout session (stored client-side above), not to
@@ -126,7 +143,7 @@ function LanguageSwitcher({ showBig = false }: Props) {
             axiosBaseApi.put("user/profile", { language: lng }).catch(() => {});
           }
         }
-      } catch {}
+      } catch { /* profile sync is best-effort — ignore failures */ }
       close();
     },
     [close, current],
@@ -135,15 +152,17 @@ function LanguageSwitcher({ showBig = false }: Props) {
   const onTriggerClick = useCallback(
     (event: ReactMouseEvent<HTMLDivElement>) => {
       event.preventDefault();
+      computeAlign();
       toggle();
     },
-    [toggle],
+    [toggle, computeAlign],
   );
 
   const onKeyActivate = useCallback(
     (event: KeyboardEvent<HTMLDivElement>) => {
       if (event.key === "Enter" || event.key === " ") {
         event.preventDefault();
+        computeAlign();
         toggle();
         return;
       }
@@ -152,7 +171,7 @@ function LanguageSwitcher({ showBig = false }: Props) {
         close();
       }
     },
-    [close, toggle],
+    [close, toggle, computeAlign],
   );
 
   useEffect(() => {
@@ -212,7 +231,12 @@ function LanguageSwitcher({ showBig = false }: Props) {
       </TriggerBox>
 
       {isOpen && (
-        <DropdownContainer>
+        <DropdownContainer
+          sx={{
+            left: alignRight ? "auto" : 0,
+            right: alignRight ? 0 : "auto",
+          }}
+        >
           <DropdownHeader
             onClick={close}
             onKeyDown={onKeyActivate}

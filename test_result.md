@@ -1,3 +1,18 @@
+## Session 78b — Language switcher dropdown clipping (bug fix) (2026-07-18)
+
+### Bug
+On the HomeHeader MOBILE menu drawer (anchor right), the LanguageSwitcher dropdown (`DropdownContainer` position:absolute, right:0, width:196) expanded LEFTWARD past the drawer's left edge and got clipped → "English" rendered as "nglish".
+
+### Fix (frontend only)
+`Components/UI/LanguageSwitcher/index.tsx`: added viewport-aware `alignRight` state + `computeAlign()` (measures trigger rect on open). If right-alignment would clip off the left viewport edge and left-alignment fits, the 196px menu flips to `left:0` (grows right). Default stays right-aligned (headers/top-right unaffected). Also escaped 3 pre-existing empty catch blocks.
+
+### Test scope (PUBLIC home page '/', NO login, NO DB writes — safe)
+Mobile viewport (~390px): open hamburger drawer → open language switcher → all 6 options ("EN - English" … "NL - Nederlands") fully visible within the viewport, NOT clipped on the left, selected item shows full "English" + check. Desktop header switcher still opens fully readable (verified via screenshot already).
+
+---
+
+
+
 ## Session 78 — Creator handle-claim confirmation (bug fix) + hybrid dashboard (2026-07-18)
 
 ### Preview URL
