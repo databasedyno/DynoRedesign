@@ -257,9 +257,11 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
   const persistProfile = async () => {
     setHandleWarnOpen(false);
     setSaving(true);
+    const normalizedHandle = handle.trim().toLowerCase();
+    const isFirstReserve = !savedHandle && !!normalizedHandle;
     try {
       await axiosBaseApi.put("/user/creator/profile", {
-        handle: handle.trim().toLowerCase(),
+        handle: normalizedHandle,
         name: name.trim() || null,
         bio,
         creator_page_enabled: enabled,
@@ -278,7 +280,14 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
         theme_cover_style: themeCoverStyle,
         theme_cover_gradient: themeCoverGradient,
       });
-      dispatch({ type: TOAST_SHOW, payload: { message: "Creator page saved" } });
+      dispatch({
+        type: TOAST_SHOW,
+        payload: {
+          message: isFirstReserve
+            ? `Reserved! ${siteUrl.replace(/^https?:\/\//, "")}/${normalizedHandle} is yours 🎉`
+            : "Creator page saved",
+        },
+      });
       dispatch(UserAction(USER_PROFILE_FETCH));
     } catch (e: any) {
       dispatch({ type: TOAST_SHOW, payload: { message: e?.response?.data?.message || "Could not save", severity: "error" } });
@@ -386,7 +395,16 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
           }}
         >
           <Box sx={{ minWidth: 0 }}>
-            <Typography fontSize={11.5} color={theme.palette.text.secondary}>Your public page</Typography>
+            {profile?.creator_page_enabled ? (
+              <Typography fontSize={11.5} color={theme.palette.text.secondary}>Your public page</Typography>
+            ) : (
+              <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }} data-testid="creator-reserved-confirm">
+                <Icon icon="mdi:check-decagram" width={15} color="#22B573" />
+                <Typography fontSize={11.5} sx={{ fontWeight: 800, color: "#22B573" }}>
+                  Reserved — it&apos;s yours
+                </Typography>
+              </Box>
+            )}
             <Typography sx={{ fontFamily: "ui-monospace, monospace", fontSize: 14, fontWeight: 600, color: theme.palette.text.primary, wordBreak: "break-all" }}>
               {prettyUrl}
             </Typography>
@@ -878,7 +896,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
         <DialogTitle sx={{ fontWeight: 700 }}>Change your handle?</DialogTitle>
         <DialogContent>
           <Typography fontSize={13.5} color={theme.palette.text.secondary} sx={{ mb: 1.5 }}>
-            You're about to change your public URL from{" "}
+            You&apos;re about to change your public URL from{" "}
             <Box component="span" sx={{ fontFamily: "ui-monospace, monospace" }}>
               {siteUrl.replace(/^https?:\/\//, "")}/{savedHandle}
             </Box>{" "}
@@ -890,7 +908,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
           </Typography>
           <Typography fontSize={13} color={theme.palette.warning.main}>
             Any existing shared links, QR codes, or social bios pointing at
-            the old URL will stop working. Nobody will be redirected — they'll
+            the old URL will stop working. Nobody will be redirected — they&apos;ll
             just see a 404.
           </Typography>
         </DialogContent>

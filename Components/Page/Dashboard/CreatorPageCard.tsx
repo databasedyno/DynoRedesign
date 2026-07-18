@@ -58,6 +58,10 @@ const CreatorPageCard: React.FC = () => {
   const [claimChecking, setClaimChecking] = useState(false);
   const [claimAvail, setClaimAvail] = useState<{ available: boolean; reason: string | null } | null>(null);
   const [claiming, setClaiming] = useState(false);
+  // Persistent confirmation: the handle the user just reserved this session.
+  // Set immediately on a successful reserve so the "it's yours" confirmation
+  // shows even before the profile refetch lands (no reliance on refetch timing).
+  const [justReserved, setJustReserved] = useState<string | null>(null);
   const claimDebRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const claimFormatError = useMemo(() => {
@@ -117,12 +121,19 @@ const CreatorPageCard: React.FC = () => {
 
   const reserveHandle = async () => {
     if (!claimDraft || claimFormatError || claimAvail?.available !== true) return;
+    const reserved = claimDraft.trim().toLowerCase();
     setClaiming(true);
     try {
       await axiosBaseApi.put("/user/creator/profile", {
-        handle: claimDraft.trim().toLowerCase(),
+        handle: reserved,
       });
-      dispatch({ type: TOAST_SHOW, payload: { message: "Handle reserved! Time to publish 🎉" } });
+      // Show the persistent confirmation immediately (optimistic) so the user
+      // unmistakably knows the name is reserved — independent of the refetch.
+      setJustReserved(reserved);
+      dispatch({
+        type: TOAST_SHOW,
+        payload: { message: `Reserved! ${siteUrl}/${reserved} is yours 🎉` },
+      });
       dispatch(UserAction(USER_PROFILE_FETCH));
     } catch (e: any) {
       dispatch({ type: TOAST_SHOW, payload: { message: e?.response?.data?.message || "Could not reserve handle", severity: "error" } });
@@ -412,40 +423,75 @@ const CreatorPageCard: React.FC = () => {
     );
   }
 
-  // ── STATE 2: Has handle, NOT published (draft) ──────────────────────
-  if (handle && !published) {
+  // ── STATE 2: Handle reserved, NOT published yet ─────────────────────
+  // Uses `justReserved` as a fallback so the confirmation appears the instant
+  // a reserve succeeds, even before the profile refetch updates `handle`.
+  const reservedHandle = handle || justReserved || "";
+  if (reservedHandle && !published) {
+    const reservedPretty = prettyCreatorUrl(reservedHandle);
+    const reservedUrl = buildCreatorUrl(reservedHandle);
+    const copyReserved = () => {
+      if (!reservedUrl) return;
+      navigator.clipboard?.writeText(reservedUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1600);
+    };
     return (
       <PanelCard
-        title={t("creatorCardDraftTitle", { defaultValue: "Publish your creator page" })}
-        subTitle={t("creatorCardDraftSubtitle", { defaultValue: "Your handle is ready. Turn on the page to accept support." })}
+        title={t("creatorCardDraftTitle", { defaultValue: "Your handle is reserved" })}
+        subTitle={t("creatorCardDraftSubtitle", { defaultValue: "It's locked to your account. Publish to start accepting support." })}
         showHeaderBorder={false}
         headerPadding={theme.spacing(2.5, 2.5, 0, 2.5)}
         bodyPadding={theme.spacing(1.5, 2.5, 2.5, 2.5)}
       >
         <Box data-testid="creator-card-draft" sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+          {/* Persistent "reserved — it's yours" confirmation */}
           <Box
+            data-testid="creator-card-reserved-confirm"
             sx={{
-              display: "flex", alignItems: "center", gap: 1,
-              px: 1.5, py: 1.25, borderRadius: "10px",
-              backgroundColor: accentTint,
-              border: `1px solid ${border}`,
+              display: "flex", alignItems: "center", gap: 1.25,
+              px: 1.5, py: 1.5, borderRadius: "12px",
+              backgroundColor: isDark ? "rgba(46,204,113,0.12)" : "rgba(46,204,113,0.10)",
+              border: `1px solid ${isDark ? "rgba(46,204,113,0.35)" : "rgba(46,204,113,0.30)"}`,
             }}
           >
-            <Icon icon="mdi:link-variant-off" width={16} color={theme.palette.text.secondary} />
-            <Typography sx={{ fontFamily: MONO, fontSize: 12.5, fontWeight: 600, color: theme.palette.text.primary, flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-              {prettyUrl}
-            </Typography>
+            <Icon icon="mdi:check-decagram" width={26} color="#22B573" />
+            <Box sx={{ minWidth: 0, flex: 1 }}>
+              <Typography sx={{ fontSize: 13.5, fontWeight: 800, color: theme.palette.text.primary, lineHeight: 1.2 }}>
+                {t("creatorReservedTitle", { defaultValue: "Reserved — it's yours!" })}
+              </Typography>
+              <Typography
+                data-testid="creator-card-reserved-url"
+                sx={{ fontFamily: MONO, fontSize: 12.5, fontWeight: 700, color: theme.palette.text.secondary, mt: 0.25, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
+              >
+                {reservedPretty}
+              </Typography>
+            </Box>
           </Box>
-          <Button
-            variant="contained"
-            disableElevation
-            fullWidth
-            onClick={() => router.push("/creator")}
-            data-testid="creator-card-publish"
-            sx={{ textTransform: "none", fontWeight: 700, borderRadius: "10px", py: 1, fontSize: 13.5, backgroundColor: accentColor, color: INK, "&:hover": { backgroundColor: accentColor, filter: "brightness(1.05)" } }}
-          >
-            {t("creatorCardGoLive", { defaultValue: "Go live" })}
-          </Button>
+
+          {/* Copy + Go live */}
+          <Box sx={{ display: "flex", gap: 1 }}>
+            <Button
+              size="small"
+              variant="outlined"
+              onClick={copyReserved}
+              data-testid="creator-card-reserved-copy"
+              startIcon={<Icon icon={copied ? "mdi:check" : "mdi:content-copy"} width={15} />}
+              sx={{ textTransform: "none", fontSize: 12.5, fontWeight: 600, borderRadius: "10px", py: 0.85, minWidth: 108 }}
+            >
+              {copied ? t("creatorCardCopied", { defaultValue: "Copied!" }) : t("creatorCardCopyLink", { defaultValue: "Copy link" })}
+            </Button>
+            <Button
+              variant="contained"
+              disableElevation
+              fullWidth
+              onClick={() => router.push("/creator")}
+              data-testid="creator-card-publish"
+              sx={{ textTransform: "none", fontWeight: 700, borderRadius: "10px", py: 0.85, fontSize: 13.5, backgroundColor: accentColor, color: INK, "&:hover": { backgroundColor: accentColor, filter: "brightness(1.05)" } }}
+            >
+              {t("creatorCardGoLive", { defaultValue: "Publish page" })}
+            </Button>
+          </Box>
         </Box>
       </PanelCard>
     );

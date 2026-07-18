@@ -1,3 +1,98 @@
+## Session 78 — Creator handle-claim confirmation (bug fix) + hybrid dashboard (2026-07-18)
+
+### Preview URL
+https://f3cb87f1-5f8d-495e-893f-d9d393494591.preview.emergentagent.com
+
+### Test credentials
+- Merchant: **hostbay@moxx.co / Katiekendra123@** (user_id=1, LIVE Railway PG). 3-step login: email → Continue → click "Password" radio → password → Continue.
+- Baseline BEFORE this session: hostbay handle=NULL, creator_page_enabled=false (State 1 "claim"). Will be restored to this after testing via `node ../scripts/creator_handle_admin.js clear 1`.
+
+### User-reported bug
+"If a user enters a username and clicks claim, they should get clear confirmation the name is reserved." The reserve only showed a transient toast + a subtle state flip.
+
+### Fix (frontend only)
+- `Components/Page/Dashboard/CreatorPageCard.tsx`: added `justReserved` state (optimistic) so a persistent "Reserved — it's yours!" confirmation (data-testid `creator-card-reserved-confirm`, url `creator-card-reserved-url`) shows immediately after reserve — independent of profile-refetch timing. Added Copy-link (`creator-card-reserved-copy`) + Publish (`creator-card-publish`) buttons. Clearer toast.
+- `Components/Page/Creator/CreatorPageSettings.tsx`: URL banner now shows "Reserved — it's yours" (data-testid `creator-reserved-confirm`) when handle set but not published; clearer first-reserve toast. (Also escaped 2 pre-existing apostrophes.)
+- Hybrid dashboard (earlier this session): new today-led `AuroraKPIHero`, `FeeTierLevelCard`, richer `RecentOrdersMiniTable`, donut 0%-filter.
+
+### ⚠️ CRITICAL SAFETY FOR TESTING AGENT — LIVE PRODUCTION DB
+This preview is wired to the LIVE production Railway Postgres. The ONLY write permitted during testing is reserving ONE creator handle on hostbay (approved; main agent will release it after). DO NOT: create companies/wallets/payment-links, publish the creator page, change theme/bio/settings, or delete anything.
+
+### TESTING AGENT VERIFICATION — Session 78 Creator Handle-Claim Confirmation (2026-07-18)
+
+**Test Status:** ✅ **ALL VERIFICATION ITEMS PASSED (4/4)**
+
+**Test Environment:**
+- Preview URL: https://f3cb87f1-5f8d-495e-893f-d9d393494591.preview.emergentagent.com
+- Test Account: hostbay@moxx.co / Katiekendra123@ (user_id=1)
+- Database: LIVE Railway Production (READ-ONLY except for ONE handle reservation)
+- Reserved Handle: **qa490674**
+
+**Verification Results:**
+
+✅ **STEP 1: 3-Step Login (PASS)**
+- Successfully logged in using 3-step flow: email → Continue → Password radio → password → Continue
+- Landed on /dashboard without errors
+
+✅ **STEP 2: Handle Reservation from Dashboard Card (PASS)**
+- Located creator card with data-testid="creator-card-claim"
+- Entered unique handle "qa490674" into data-testid="creator-card-claim-input"
+- Availability check completed successfully (~1.5s)
+- Green "✓ Available — reserve it now!" message displayed
+- Clicked "Reserve my handle" button (data-testid="creator-card-reserve-cta")
+- Success toast "Reserved! ... is yours 🎉" appeared
+
+✅ **STEP 3: Persistent Confirmation on Dashboard (PASS)**
+- **data-testid="creator-card-reserved-confirm"**: ✅ VISIBLE
+  - Text: "Reserved — it's yours!" (contains both "Reserved" and "yours")
+- **data-testid="creator-card-reserved-url"**: ✅ VISIBLE
+  - Displays: "f3cb87f1-5f8d-495e-893f-d9d393494591.preview.emergentagent.com/qa490674"
+  - Contains the reserved handle "qa490674"
+- **data-testid="creator-card-reserved-copy"**: ✅ VISIBLE
+  - Button text: "Copy link"
+- **data-testid="creator-card-publish"**: ✅ VISIBLE
+  - Button text: "Go live"
+
+✅ **STEP 4: /creator Page Confirmation (PASS)**
+- Navigated to /creator page
+- **data-testid="creator-reserved-confirm"**: ✅ VISIBLE
+  - Text: "Reserved — it's yours" (contains both "Reserved" and "yours")
+- URL banner displays the reserved handle correctly
+
+✅ **STEP 5: Dashboard Regression (PASS)**
+- No red console errors blocking functionality
+- **data-testid="aurora-kpi-hero"**: ✅ VISIBLE (Today's revenue section)
+- **data-testid="aurora-fee-tier-level"**: ✅ VISIBLE (Fee tier ladder)
+- **data-testid="aurora-recent-orders"**: ✅ VISIBLE (Recent transactions list)
+
+**Console Errors Analysis:**
+- Minor non-blocking errors: CDN/RUM requests (ERR_ABORTED), font loading, next-auth session fetch
+- Recharts width/height warnings (cosmetic, does not affect functionality)
+- Failed user_image.png loads (400 status, cosmetic)
+- No critical JavaScript errors blocking user flows
+- No React hydration errors
+
+**Screenshots:**
+- 02_dashboard_before_reserve.png - Dashboard before reserving handle
+- 03_availability_check.png - Green availability confirmation
+- 07_dashboard_confirmation.png - Persistent confirmation box on dashboard
+- 09_creator_page_confirmation.png - Reserved confirmation on /creator page
+- 11_dashboard_regression.png - Dashboard regression check
+
+**Summary:**
+The creator handle-claim confirmation bug fix is **WORKING PERFECTLY**. All critical elements are present and functioning as designed:
+1. ✅ Persistent "Reserved — it's yours!" confirmation appears immediately after reservation
+2. ✅ Reserved URL is displayed with the correct handle
+3. ✅ "Copy link" and "Publish page" buttons are visible and accessible
+4. ✅ /creator page shows the reserved confirmation banner
+5. ✅ Dashboard hybrid components render correctly with no regressions
+
+The fix successfully addresses the user-reported issue: users now receive **clear, persistent confirmation** that their handle is reserved, independent of profile refetch timing. The optimistic `justReserved` state ensures the confirmation appears instantly.
+
+---
+
+
+
 ## Session 75 — Mobile UX Bug Fixes (2026-07-18)
 
 ### Preview URL
@@ -159,6 +254,18 @@ Run against preview URL above. Login: 3-step (Email → Continue → click "Pass
 - "Create payment link" button in the topbar still works (deep-links to /create-pay-link).
 
 ### frontend
+  - task: "Session 78 — Creator handle-claim confirmation bug fix (persistent 'Reserved — it's yours!' confirmation on dashboard card + /creator page)"
+    implemented: true
+    working: true
+    file: "Components/Page/Dashboard/CreatorPageCard.tsx, Components/Page/Creator/CreatorPageSettings.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ ALL TESTS PASSED (4/4). Reserved handle 'qa490674' successfully. Persistent confirmation box (data-testid='creator-card-reserved-confirm') displays immediately after reservation with 'Reserved — it's yours!' text, reserved URL (data-testid='creator-card-reserved-url'), Copy link button (data-testid='creator-card-reserved-copy'), and Publish page button (data-testid='creator-card-publish'). /creator page shows reserved confirmation banner (data-testid='creator-reserved-confirm'). Dashboard regression passed: aurora-kpi-hero, aurora-fee-tier-level, and aurora-recent-orders all render correctly. No critical console errors. The optimistic justReserved state ensures confirmation appears instantly, independent of profile refetch timing. Bug fix is WORKING PERFECTLY."
+
   - task: "Aurora v3 refresh — landing page header (frosted glass, coral CTA, obsidian mobile drawer) + dashboard overview page (AuroraKPIHero + SettledMixDonut + LiveActivityFeed + AttentionCardsRow + GettingStartedChecklist + RecentOrdersMiniTable)"
     implemented: true
     working: "NA"
@@ -179,18 +286,14 @@ Run against preview URL above. Login: 3-step (Email → Continue → click "Pass
 
 ## test_plan
   current_focus:
-    - "Landing header — frosted glass, coral CTA, aurora underline, mono status pill, obsidian mobile drawer + trust badges"
-    - "Dashboard AuroraKPIHero — Unbounded aurora-gradient number + sparkline + delta chip"
-    - "Dashboard SettledMixDonut — coin-mix donut + mono legend"
-    - "Dashboard LiveActivityFeed — pulsing volt dot, deep-link tx rows"
-    - "Dashboard AttentionCardsRow — dismissible task cards; auto-hides when zero"
-    - "Dashboard RecentOrdersMiniTable — 5-row status-pill table"
-    - "Dark mode + mobile viewport regression across all above"
+    - "Session 78 creator handle-claim confirmation — COMPLETED ✅"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
 ## agent_communication
+  - agent: "testing"
+    message: "Session 78 creator handle-claim confirmation bug fix VERIFIED ✅. All 4 test steps passed: (1) 3-step login successful, (2) Reserved handle 'qa490674' from dashboard card, (3) Persistent confirmation box visible with all required elements (reserved-confirm, reserved-url, reserved-copy, publish buttons), (4) /creator page shows reserved confirmation banner, (5) Dashboard regression passed (aurora components render correctly). The optimistic justReserved state works perfectly — confirmation appears instantly after reservation, independent of profile refetch timing. No critical console errors. Bug fix is production-ready."
   - agent: "main"
     message: "Session 76 Aurora v3 refresh applied. Landing header + dashboard overview redesigned to match /app/DESIGN_PROPOSAL.md. Preview: https://payment-hub-620.preview.emergentagent.com — creds hostbay@moxx.co / Katiekendra123@ (3-step login: Email → Continue → click Password radio → password → Continue). LIVE Railway PG — READ-ONLY testing (NO writes / payments / wallet edits / setting saves). Please verify each surface against the reproduction steps under 'What to verify (FRONTEND)'."
 
