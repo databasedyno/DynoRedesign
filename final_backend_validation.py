@@ -8,7 +8,7 @@ import requests
 import json
 import sys
 
-BACKEND_URL = "https://merchant-gateway-34.preview.emergentagent.com"
+BACKEND_URL = "https://multi-chain-checkout-4.preview.emergentagent.com"
 
 def final_validation_tests():
     """Final validation of all review request requirements"""
