@@ -150,7 +150,7 @@ const PaymentLinksMockup = () => (
 const MultiCurrencyMockup = () => (
   <MockBrowserChrome>
     <Box sx={{ display: "flex", gap: "10px", mb: "12px" }}>
-      <StatCard label="TOTAL BALANCE" value="$47.2K" accent="#fff" />
+      <StatCard label="IN YOUR WALLET" value="$47.2K" accent="#fff" />
       <StatCard label="CURRENCIES" value="6" accent="#c4b5fd" />
     </Box>
     <ListRow icon="₿" label="Bitcoin" value="0.812 BTC" sub="$38,420.50" color="rgba(247,147,26,0.25)" />

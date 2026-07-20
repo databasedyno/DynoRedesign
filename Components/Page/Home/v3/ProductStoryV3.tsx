@@ -235,7 +235,7 @@ const WalletMock: React.FC<{ accent: string }> = ({ accent }) => (
     <Box sx={{ display: "flex", alignItems: "end", justifyContent: "space-between" }}>
       <Box>
         <Typography sx={{ fontFamily: FONT_TECH, fontSize: 10.5, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.5)" }}>
-          Total balance
+          In your wallet
         </Typography>
         <Typography sx={{ fontFamily: FONT_HERO, fontWeight: 700, fontSize: { xs: 24, md: 28 }, letterSpacing: "-0.02em", color: "#F5F5F5", mt: 0.25 }}>
           $32,709.64
