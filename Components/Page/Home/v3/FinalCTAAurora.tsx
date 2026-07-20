@@ -2,7 +2,7 @@ import React, { memo } from "react";
 import { Box, Typography, Button } from "@mui/material";
 import { useRouter } from "next/router";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import { FONT_BODY, FONT_HERO, FONT_TECH, AURORA_GRADIENT, useAurora } from "./theme.v3";
+import { FONT_BODY, FONT_HERO, FONT_TECH, useAurora } from "./theme.v3";
 import { HeadlineXL } from "./styled.v3";
 
 const FinalCTAAurora: React.FC = () => {
@@ -24,7 +24,7 @@ const FinalCTAAurora: React.FC = () => {
             border: "1px solid rgba(255,255,255,0.10)",
           }}
         >
-          {/* Aurora blobs */}
+          {/* Single coral bloom (was two rainbow blobs) */}
           <Box
             aria-hidden
             sx={{
@@ -34,9 +34,9 @@ const FinalCTAAurora: React.FC = () => {
               width: 620,
               height: 620,
               borderRadius: "50%",
-              background: AURORA_GRADIENT,
-              filter: "blur(120px)",
-              opacity: 0.55,
+              background: "#FF5B49",
+              filter: "blur(140px)",
+              opacity: 0.32,
               pointerEvents: "none",
             }}
           />
@@ -49,9 +49,9 @@ const FinalCTAAurora: React.FC = () => {
               width: 520,
               height: 520,
               borderRadius: "50%",
-              background: "linear-gradient(135deg, #7C5CFF 0%, #4FD1FF 100%)",
-              filter: "blur(120px)",
-              opacity: 0.45,
+              background: "#FF5B49",
+              filter: "blur(140px)",
+              opacity: 0.20,
               pointerEvents: "none",
             }}
           />
@@ -77,7 +77,7 @@ const FinalCTAAurora: React.FC = () => {
             <HeadlineXL sx={{ color: "#F5F5F5", fontSize: { xs: 40, sm: 56, md: 76 }, mb: 3 }}>
               Get paid in
               <br />
-              <Box component="span" sx={{ background: AURORA_GRADIENT, WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent", WebkitTextFillColor: "transparent" }}>
+              <Box component="span" sx={{ color: "#FF5B49" }}>
                 crypto today.
               </Box>
             </HeadlineXL>
@@ -97,10 +97,10 @@ const FinalCTAAurora: React.FC = () => {
                   fontSize: 16,
                   fontWeight: 600,
                   textTransform: "none",
-                  color: "#0A0A0A",
-                  background: "#CCFF00",
-                  boxShadow: "0 12px 32px -12px rgba(204,255,0,0.6)",
-                  "&:hover": { background: "#B8E600" },
+                  color: "#FFFFFF",
+                  background: "#FF5B49",
+                  boxShadow: "0 12px 32px -12px rgba(255,91,73,0.6)",
+                  "&:hover": { background: "#E33F2E" },
                 }}
               >
                 Get started free

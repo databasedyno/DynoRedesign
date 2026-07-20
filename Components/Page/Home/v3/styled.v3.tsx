@@ -18,6 +18,8 @@ export const SectionShell = styled(Box)(({ theme }) => ({
 }));
 
 // Eyebrow — small monospace tag above section headings.
+// Minimal palette (2026-07-20): all decorative tone variants collapse to coral;
+// only `ink` (neutral grey) is preserved for occasional muted usage.
 export const Eyebrow = styled(Typography)<{ tone?: "coral" | "violet" | "volt" | "ink" }>(
   ({ tone = "coral" }) => ({
     fontFamily: FONT_TECH,
@@ -25,14 +27,7 @@ export const Eyebrow = styled(Typography)<{ tone?: "coral" | "violet" | "volt" |
     letterSpacing: "0.28em",
     textTransform: "uppercase",
     fontWeight: 500,
-    color:
-      tone === "coral"
-        ? "#FF5B49"
-        : tone === "violet"
-        ? "#7C5CFF"
-        : tone === "volt"
-        ? "#5A6B00"
-        : "#0A0A0A",
+    color: tone === "ink" ? "#71717A" : "#FF5B49",
   })
 );
 
@@ -70,11 +65,8 @@ export const Body = styled(Typography)(() => ({
   color: "#3F3F46",
 }));
 
-// Aurora ink — text with the aurora gradient fill.
+// Emphasis ink — was rainbow-gradient text ("Aurora"). Now a solid coral
+// statement for editorial minimalism (single-accent doctrine, 2026-07-20).
 export const AuroraInk = styled("span")(() => ({
-  background: "linear-gradient(135deg, #FF5B49 0%, #7C5CFF 55%, #4FD1FF 100%)",
-  WebkitBackgroundClip: "text",
-  backgroundClip: "text",
-  color: "transparent",
-  WebkitTextFillColor: "transparent",
+  color: "#FF5B49",
 }));

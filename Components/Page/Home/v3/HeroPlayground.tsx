@@ -5,7 +5,7 @@ import { useRouter } from "next/router";
 import ArrowForward from "@mui/icons-material/ArrowForward";
 import FavoriteRoundedIcon from "@mui/icons-material/FavoriteRounded";
 import BoltRoundedIcon from "@mui/icons-material/BoltRounded";
-import { AURORA_GRADIENT, FONT_BODY, FONT_HERO, FONT_TECH, useAurora, VOLT } from "./theme.v3";
+import { FONT_BODY, FONT_HERO, FONT_TECH, useAurora } from "./theme.v3";
 import { AuroraInk, HeadlineXL, Eyebrow, Body } from "./styled.v3";
 
 const SUGGESTED_HANDLES = ["alex", "maya", "lin", "jordan", "rae", "kai"];
@@ -41,7 +41,7 @@ const HeroPlayground: React.FC = () => {
         pb: { xs: 9, md: 14 },
       }}
     >
-      {/* Aurora orb behind hero */}
+      {/* Soft coral orb behind hero (minimal single-accent) */}
       <Box
         aria-hidden
         sx={{
@@ -51,9 +51,9 @@ const HeroPlayground: React.FC = () => {
           width: { xs: 620, md: 900 },
           height: { xs: 620, md: 900 },
           borderRadius: "50%",
-          background: AURORA_GRADIENT,
-          filter: "blur(120px)",
-          opacity: s.dark ? 0.35 : 0.28,
+          background: "#FF5B49",
+          filter: "blur(140px)",
+          opacity: s.dark ? 0.14 : 0.10,
           pointerEvents: "none",
         }}
       />
@@ -204,12 +204,12 @@ const HeroPlayground: React.FC = () => {
                 borderRadius: "28px",
                 background: "linear-gradient(180deg, #FFFFFF 0%, #FDFDFB 100%)",
                 border: `1px solid ${s.lineStrong}`,
-                boxShadow: "0 40px 80px -30px rgba(10,10,10,0.35), 0 12px 24px -14px rgba(124,92,255,0.35)",
+                boxShadow: "0 40px 80px -30px rgba(10,10,10,0.35), 0 12px 24px -14px rgba(255,91,73,0.25)",
                 p: 3.5,
                 overflow: "hidden",
               }}
             >
-              {/* Aurora corner */}
+              {/* Coral corner glow (was rainbow) */}
               <Box
                 aria-hidden
                 sx={{
@@ -219,9 +219,9 @@ const HeroPlayground: React.FC = () => {
                   width: 240,
                   height: 240,
                   borderRadius: "50%",
-                  background: AURORA_GRADIENT,
-                  filter: "blur(50px)",
-                  opacity: 0.55,
+                  background: "#FF5B49",
+                  filter: "blur(60px)",
+                  opacity: 0.22,
                 }}
               />
               <Box sx={{ position: "relative", zIndex: 1 }}>
@@ -232,7 +232,7 @@ const HeroPlayground: React.FC = () => {
                       width: 44,
                       height: 44,
                       borderRadius: "50%",
-                      background: AURORA_GRADIENT,
+                      background: "#0A0A0A",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
@@ -241,7 +241,7 @@ const HeroPlayground: React.FC = () => {
                       fontWeight: 700,
                       fontSize: 18,
                       border: "3px solid #fff",
-                      boxShadow: "0 6px 14px rgba(124,92,255,0.35)",
+                      boxShadow: "0 6px 14px rgba(10,10,10,0.25)",
                     }}
                   >
                     {(displayHandle[0] || "y").toUpperCase()}
@@ -373,7 +373,7 @@ const HeroPlayground: React.FC = () => {
               sx={{
                 display: "none",
                 background: "#0A0A0A",
-                color: VOLT,
+                color: "#F5F5F5",
                 fontFamily: FONT_TECH,
                 fontSize: 12,
                 fontWeight: 600,
@@ -391,7 +391,7 @@ const HeroPlayground: React.FC = () => {
                   width: 6,
                   height: 6,
                   borderRadius: "50%",
-                  background: VOLT,
+                  background: "#22C55E",
                 }}
               />
               +$25.00 · @rae · just now

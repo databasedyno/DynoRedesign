@@ -162,7 +162,7 @@ const SettlementMock: React.FC<{ accent: string }> = ({ accent }) => (
                 width: 26,
                 height: 26,
                 borderRadius: "50%",
-                background: `linear-gradient(135deg, ${accent}, #4FD1FF)`,
+                background: `linear-gradient(135deg, ${accent}, #E33F2E)`,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -280,7 +280,7 @@ const WalletMock: React.FC<{ accent: string }> = ({ accent }) => (
                   width: 22,
                   height: 22,
                   borderRadius: "50%",
-                  background: `linear-gradient(135deg, ${accent}, #4FD1FF)`,
+                  background: `linear-gradient(135deg, ${accent}, #E33F2E)`,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -333,8 +333,8 @@ const STEPS = [
     title: "We settle it your way.",
     body:
       "Keep the original coin, or auto-convert to USDT / USDC on any chain. Live Binance rates, on-chain in seconds, no manual conversion.",
-    accent: "#7C5CFF",
-    accentSoft: "rgba(124,92,255,0.10)",
+    accent: "#FF5B49",
+    accentSoft: "rgba(255,91,73,0.10)",
     urlBar: "dynopay.com/dashboard/transactions",
     Mock: SettlementMock,
   },
@@ -344,8 +344,8 @@ const STEPS = [
     title: "It lands in your wallet.",
     body:
       "Payout goes straight to the wallet address you control — not held by us. From 0.5% flat, no monthly, no chargebacks.",
-    accent: "#5A6B00",
-    accentSoft: "rgba(204,255,0,0.22)",
+    accent: "#FF5B49",
+    accentSoft: "rgba(255,91,73,0.10)",
     urlBar: "dynopay.com/wallets",
     Mock: WalletMock,
   },
@@ -429,7 +429,7 @@ const ProductStoryV3: React.FC = () => {
     <Box component="section" sx={{ background: s.bgAlt, py: { xs: 9, md: 14 } }}>
       <Box sx={{ maxWidth: 1280, mx: "auto", px: { xs: 3, md: 5 } }}>
         <Box sx={{ maxWidth: 720, mb: { xs: 6, md: 9 } }}>
-          <Eyebrow tone="violet" sx={{ mb: 2 }}>[ How it works ]</Eyebrow>
+          <Eyebrow sx={{ mb: 2 }}>[ How it works ]</Eyebrow>
           <HeadlineL sx={{ color: s.ink }}>Three steps. That&apos;s it.</HeadlineL>
           <Typography sx={{ fontFamily: FONT_BODY, color: s.ink2, mt: 2.5, fontSize: 17, lineHeight: 1.6 }}>
             No banking partner. No approval queue. No custody. Your buyer

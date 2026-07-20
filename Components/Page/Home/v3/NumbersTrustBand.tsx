@@ -20,9 +20,9 @@ interface Stat {
 
 const STATS: Stat[] = [
   { value: 42, suffix: "M+", prefix: "$", label: "Settled", sub: "Since launch", color: "#FF5B49" },
-  { value: 15, suffix: "+", label: "Chains", sub: "BTC, ETH, TRON, XRP, SOL", color: "#7C5CFF" },
-  { value: 0.5, suffix: "%", decimals: 1, label: "Lowest fee", sub: "At Enterprise volume", color: "#5A6B00" },
-  { value: 4.2, suffix: "s", decimals: 1, label: "Median settle", sub: "On-chain confirmation", color: "#4FD1FF" },
+  { value: 15, suffix: "+", label: "Chains", sub: "BTC, ETH, TRON, XRP, SOL", color: "#FF5B49" },
+  { value: 0.5, suffix: "%", decimals: 1, label: "Lowest fee", sub: "At Enterprise volume", color: "#FF5B49" },
+  { value: 4.2, suffix: "s", decimals: 1, label: "Median settle", sub: "On-chain confirmation", color: "#FF5B49" },
 ];
 
 const BADGES = [

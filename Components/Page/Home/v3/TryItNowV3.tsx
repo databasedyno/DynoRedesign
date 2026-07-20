@@ -70,16 +70,16 @@ const TryItNowV3: React.FC = () => {
           width: 500,
           height: 500,
           borderRadius: "50%",
-          background: "linear-gradient(135deg, #7C5CFF 0%, #4FD1FF 100%)",
-          filter: "blur(120px)",
-          opacity: 0.25,
+          background: "#FF5B49",
+          filter: "blur(140px)",
+          opacity: 0.14,
           pointerEvents: "none",
         }}
       />
 
       <Box sx={{ position: "relative", zIndex: 1, maxWidth: 1280, mx: "auto", px: { xs: 3, md: 5 } }}>
         <Box sx={{ maxWidth: 720, mb: { xs: 5, md: 8 } }}>
-          <Eyebrow tone="volt" sx={{ mb: 2, color: VOLT }}>[ Try it now · no signup ]</Eyebrow>
+          <Eyebrow sx={{ mb: 2, color: "#FF5B49" }}>[ Try it now · no signup ]</Eyebrow>
           <HeadlineL sx={{ color: "#F5F5F5" }}>
             Create your first
             <br />
@@ -229,16 +229,16 @@ const TryItNowV3: React.FC = () => {
           <Button
             href="/documentation"
             sx={{
-              color: VOLT,
+              color: "#FF5B49",
               fontFamily: FONT_BODY,
               fontSize: 14.5,
               fontWeight: 600,
               textTransform: "none",
               borderRadius: "999px",
-              border: `1px solid ${VOLT}66`,
+              border: "1px solid rgba(255,91,73,0.4)",
               px: 2.5,
               py: 1,
-              "&:hover": { background: "rgba(204,255,0,0.08)", borderColor: VOLT },
+              "&:hover": { background: "rgba(255,91,73,0.08)", borderColor: "#FF5B49" },
             }}
           >
             Read the docs →
