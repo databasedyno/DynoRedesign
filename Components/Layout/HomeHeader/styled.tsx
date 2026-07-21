@@ -13,12 +13,12 @@ import {
 
 // Aurora tokens (kept inline here to avoid pulling the whole theme.v3 into
 // the header — one source of truth is theme.v3.ts, we duplicate 4 constants).
-const CORAL = "#FF5B49";
-const CORAL_DEEP = "#E33F2E";
+const CORAL = "#4F46E5";
+const CORAL_DEEP = "#4338CA";
 const VIOLET = "#7C5CFF";
-const VOLT = "#CCFF00";
+const VOLT = "#22C55E";
 const AURORA_GRADIENT =
-  "linear-gradient(90deg, #FF5B49 0%, #7C5CFF 55%, #4FD1FF 100%)";
+  "linear-gradient(90deg, #4F46E5 0%, #7C5CFF 55%, #4FD1FF 100%)";
 
 /* ================= HEADER SHELL ================= */
 
@@ -226,7 +226,7 @@ export const MobileDrawer = styled(Box)(() => ({
   padding: "24px 20px",
   // Subtle aurora bloom in the top-right corner (radial gradient).
   backgroundImage:
-    "radial-gradient(circle at 90% -10%, rgba(255,91,73,0.20) 0%, rgba(11,11,15,0) 55%), radial-gradient(circle at -10% 100%, rgba(124,92,255,0.18) 0%, rgba(11,11,15,0) 55%)",
+    "radial-gradient(circle at 90% -10%, rgba(79, 70, 229,0.20) 0%, rgba(11,11,15,0) 55%), radial-gradient(circle at -10% 100%, rgba(124,92,255,0.18) 0%, rgba(11,11,15,0) 55%)",
 }));
 
 export const MobileNavContent = styled(Box)({
@@ -319,7 +319,7 @@ export const StyledGetStartedButton = styled(Box)({
     fontWeight: 600,
     borderRadius: "999px",
     boxShadow:
-      "0 6px 20px rgba(255,91,73,0.28), 0 1px 0 rgba(255,255,255,0.15) inset",
+      "0 6px 20px rgba(79, 70, 229,0.28), 0 1px 0 rgba(255,255,255,0.15) inset",
     transition:
       "transform 180ms cubic-bezier(0.16,1,0.3,1), box-shadow 220ms ease, background 200ms ease",
   },
@@ -327,7 +327,7 @@ export const StyledGetStartedButton = styled(Box)({
     background: CORAL_DEEP,
     transform: "translateY(-1px)",
     boxShadow:
-      "0 10px 28px rgba(255,91,73,0.36), 0 1px 0 rgba(255,255,255,0.2) inset",
+      "0 10px 28px rgba(79, 70, 229,0.36), 0 1px 0 rgba(255,255,255,0.2) inset",
   },
   "& button:active, & a:active": {
     transform: "translateY(0)",

@@ -11,7 +11,7 @@ const FinalCTAAurora: React.FC = () => {
   const router = useRouter();
 
   return (
-    <Box component="section" sx={{ background: s.bg, pt: { xs: 4, md: 6 }, pb: { xs: 8, md: 12 } }}>
+    <Box component="section" sx={{ background: s.bg, pt: { xs: 4, md: 6 }, pb: { xs: 12, md: 20 } }}>
       <Box sx={{ maxWidth: 1280, mx: "auto", px: { xs: 3, md: 5 } }}>
         <Box
           sx={{
@@ -20,7 +20,7 @@ const FinalCTAAurora: React.FC = () => {
             borderRadius: { xs: "24px", md: "32px" },
             background: "#0A0A0A",
             px: { xs: 3, md: 8 },
-            py: { xs: 7, md: 11 },
+            py: { xs: 9, md: 14 },
             textAlign: "center",
             border: "1px solid rgba(255,255,255,0.10)",
           }}
@@ -35,9 +35,9 @@ const FinalCTAAurora: React.FC = () => {
               width: 620,
               height: 620,
               borderRadius: "50%",
-              background: "#FF5B49",
+              background: "#4F46E5",
               filter: "blur(140px)",
-              opacity: 0.32,
+              opacity: 0.16,
               pointerEvents: "none",
             }}
           />
@@ -50,9 +50,9 @@ const FinalCTAAurora: React.FC = () => {
               width: 520,
               height: 520,
               borderRadius: "50%",
-              background: "#FF5B49",
+              background: "#4F46E5",
               filter: "blur(140px)",
-              opacity: 0.20,
+              opacity: 0.10,
               pointerEvents: "none",
             }}
           />
@@ -78,7 +78,7 @@ const FinalCTAAurora: React.FC = () => {
             <HeadlineXL sx={{ color: "#F5F5F5", fontSize: { xs: 40, sm: 56, md: 76 }, mb: 3 }}>
               Get paid in
               <br />
-              <Box component="span" sx={{ color: "#FF5B49" }}>
+              <Box component="span" sx={{ color: "#4F46E5" }}>
                 crypto today.
               </Box>
             </HeadlineXL>
@@ -96,12 +96,12 @@ const FinalCTAAurora: React.FC = () => {
                 px: 2,
                 py: 1,
                 borderRadius: "999px",
-                background: "rgba(255,91,73,0.16)",
-                border: "1px solid rgba(255,91,73,0.4)",
+                background: "rgba(79, 70, 229,0.16)",
+                border: "1px solid rgba(79, 70, 229,0.4)",
               }}
             >
-              <CardGiftcardRoundedIcon sx={{ fontSize: 18, color: "#FF7A6B" }} />
-              <Typography sx={{ fontFamily: FONT_BODY, fontSize: 14, fontWeight: 600, color: "#FFD1CA" }}>
+              <CardGiftcardRoundedIcon sx={{ fontSize: 18, color: "#6366F1" }} />
+              <Typography sx={{ fontFamily: FONT_BODY, fontSize: 14, fontWeight: 600, color: "#C7D2FE" }}>
                 New accounts: your first <b>$500</b> in volume is fee-free
               </Typography>
             </Box>
@@ -118,9 +118,9 @@ const FinalCTAAurora: React.FC = () => {
                   fontWeight: 600,
                   textTransform: "none",
                   color: "#FFFFFF",
-                  background: "#FF5B49",
-                  boxShadow: "0 12px 32px -12px rgba(255,91,73,0.6)",
-                  "&:hover": { background: "#E33F2E" },
+                  background: "#4F46E5",
+                  boxShadow: "0 12px 32px -12px rgba(79, 70, 229,0.6)",
+                  "&:hover": { background: "#4338CA" },
                 }}
               >
                 Get started free

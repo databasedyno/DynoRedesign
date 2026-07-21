@@ -162,7 +162,7 @@ const SettlementMock: React.FC<{ accent: string }> = ({ accent }) => (
                 width: 26,
                 height: 26,
                 borderRadius: "50%",
-                background: `linear-gradient(135deg, ${accent}, #E33F2E)`,
+                background: `linear-gradient(135deg, ${accent}, #4338CA)`,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -280,7 +280,7 @@ const WalletMock: React.FC<{ accent: string }> = ({ accent }) => (
                   width: 22,
                   height: 22,
                   borderRadius: "50%",
-                  background: `linear-gradient(135deg, ${accent}, #E33F2E)`,
+                  background: `linear-gradient(135deg, ${accent}, #4338CA)`,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -322,8 +322,8 @@ const STEPS = [
     title: "Someone pays you.",
     body:
       "Share a link, drop an inline checkout, or hit the API. Your buyer picks any of 15+ chains — BTC, ETH, USDC, USDT, XRP, TRON — and pays.",
-    accent: "#FF5B49",
-    accentSoft: "rgba(255,91,73,0.10)",
+    accent: "#4F46E5",
+    accentSoft: "rgba(79, 70, 229,0.10)",
     urlBar: "checkout.dynopay.com/pay_01HZ",
     Mock: CheckoutMock,
   },
@@ -333,8 +333,8 @@ const STEPS = [
     title: "We settle it your way.",
     body:
       "Keep the original coin, or auto-convert to USDT / USDC on any chain. Live Binance rates, on-chain in seconds, no manual conversion.",
-    accent: "#FF5B49",
-    accentSoft: "rgba(255,91,73,0.10)",
+    accent: "#4F46E5",
+    accentSoft: "rgba(79, 70, 229,0.10)",
     urlBar: "dynopay.com/dashboard/transactions",
     Mock: SettlementMock,
   },
@@ -344,8 +344,8 @@ const STEPS = [
     title: "It lands in your wallet.",
     body:
       "Payout goes straight to the wallet address you control — not held by us. From 0.5% flat, no monthly, no chargebacks.",
-    accent: "#FF5B49",
-    accentSoft: "rgba(255,91,73,0.10)",
+    accent: "#4F46E5",
+    accentSoft: "rgba(79, 70, 229,0.10)",
     urlBar: "dynopay.com/wallets",
     Mock: WalletMock,
   },
@@ -426,7 +426,7 @@ const ProductStoryV3: React.FC = () => {
   const reduced = useReducedMotion();
 
   return (
-    <Box component="section" sx={{ background: s.bgAlt, py: { xs: 9, md: 14 } }}>
+    <Box component="section" sx={{ background: s.bgAlt, py: { xs: 12, md: 20 } }}>
       <Box sx={{ maxWidth: 1280, mx: "auto", px: { xs: 3, md: 5 } }}>
         <Box sx={{ maxWidth: 720, mb: { xs: 6, md: 9 } }}>
           <Eyebrow sx={{ mb: 2 }}>[ How it works ]</Eyebrow>

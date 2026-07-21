@@ -27,7 +27,7 @@ export const Eyebrow = styled(Typography)<{ tone?: "coral" | "violet" | "volt" |
     letterSpacing: "0.28em",
     textTransform: "uppercase",
     fontWeight: 500,
-    color: tone === "ink" ? "#71717A" : "#FF5B49",
+    color: tone === "ink" ? "#71717A" : "#4F46E5",
   })
 );
 
@@ -68,5 +68,5 @@ export const Body = styled(Typography)(() => ({
 // Emphasis ink — was rainbow-gradient text ("Aurora"). Now a solid coral
 // statement for editorial minimalism (single-accent doctrine, 2026-07-20).
 export const AuroraInk = styled("span")(() => ({
-  color: "#FF5B49",
+  color: "#4F46E5",
 }));

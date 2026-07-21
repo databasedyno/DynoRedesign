@@ -262,7 +262,7 @@ const HomeHeader = memo(function HomeHeader() {
                           height: 2,
                           borderRadius: 2,
                           background:
-                            "linear-gradient(90deg, #FF5B49 0%, #7C5CFF 100%)",
+                            "linear-gradient(90deg, #4F46E5 0%, #7C5CFF 100%)",
                           transition: "transform 220ms cubic-bezier(0.16,1,0.3,1)",
                         }
                       : undefined,
@@ -358,7 +358,7 @@ const HomeHeader = memo(function HomeHeader() {
                 }}
                 endIcon={<ArrowForwardRounded />}
                 sx={{
-                  background: "#FF5B49",
+                  background: "#4F46E5",
                   color: "#FFFFFF",
                   fontFamily: "var(--font-body)",
                   fontSize: 15,
@@ -367,8 +367,8 @@ const HomeHeader = memo(function HomeHeader() {
                   borderRadius: 999,
                   padding: "12px 22px",
                   height: 48,
-                  boxShadow: "0 8px 22px rgba(255,91,73,0.36)",
-                  "&:hover": { background: "#E33F2E" },
+                  boxShadow: "0 8px 22px rgba(79, 70, 229,0.36)",
+                  "&:hover": { background: "#4338CA" },
                 }}
               >
                 {t("getStarted")}

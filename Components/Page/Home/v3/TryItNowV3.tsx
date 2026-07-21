@@ -45,7 +45,7 @@ const TryItNowV3: React.FC = () => {
         background: "#0A0A0A",
         position: "relative",
         overflow: "hidden",
-        py: { xs: 9, md: 14 },
+        py: { xs: 12, md: 20 },
       }}
     >
       <Box
@@ -56,6 +56,7 @@ const TryItNowV3: React.FC = () => {
           backgroundImage:
             "linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)",
           backgroundSize: "64px 64px",
+          display: "none",
           maskImage: "radial-gradient(ellipse 80% 70% at 50% 30%, black 30%, transparent 85%)",
           WebkitMaskImage: "radial-gradient(ellipse 80% 70% at 50% 30%, black 30%, transparent 85%)",
           pointerEvents: "none",
@@ -70,16 +71,16 @@ const TryItNowV3: React.FC = () => {
           width: 500,
           height: 500,
           borderRadius: "50%",
-          background: "#FF5B49",
+          background: "#4F46E5",
           filter: "blur(140px)",
-          opacity: 0.14,
+          opacity: 0.07,
           pointerEvents: "none",
         }}
       />
 
       <Box sx={{ position: "relative", zIndex: 1, maxWidth: 1280, mx: "auto", px: { xs: 3, md: 5 } }}>
         <Box sx={{ maxWidth: 720, mb: { xs: 5, md: 8 } }}>
-          <Eyebrow sx={{ mb: 2, color: "#FF5B49" }}>[ Try it now · no signup ]</Eyebrow>
+          <Eyebrow sx={{ mb: 2, color: "#4F46E5" }}>[ Try it now · no signup ]</Eyebrow>
           <HeadlineL sx={{ color: "#F5F5F5" }}>
             Create your first
             <br />
@@ -229,16 +230,16 @@ const TryItNowV3: React.FC = () => {
           <Button
             href="/documentation"
             sx={{
-              color: "#FF5B49",
+              color: "#4F46E5",
               fontFamily: FONT_BODY,
               fontSize: 14.5,
               fontWeight: 600,
               textTransform: "none",
               borderRadius: "999px",
-              border: "1px solid rgba(255,91,73,0.4)",
+              border: "1px solid rgba(79, 70, 229,0.4)",
               px: 2.5,
               py: 1,
-              "&:hover": { background: "rgba(255,91,73,0.08)", borderColor: "#FF5B49" },
+              "&:hover": { background: "rgba(79, 70, 229,0.08)", borderColor: "#4F46E5" },
             }}
           >
             Read the docs →

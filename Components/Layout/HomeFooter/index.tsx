@@ -236,7 +236,7 @@ const HomeFooter: FC = () => {
                 background: "rgba(255, 255, 255, 0.04)",
               }}
             >
-              <Box sx={{ width: 6, height: 6, borderRadius: "50%", background: "#CCFF00" }} />
+              <Box sx={{ width: 6, height: 6, borderRadius: "50%", background: "#22C55E" }} />
               <Typography
                 sx={{
                   color: "#FCFBF8",

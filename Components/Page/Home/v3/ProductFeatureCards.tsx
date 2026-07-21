@@ -69,7 +69,7 @@ const ProductFeatureCards: React.FC = () => {
   const router = useRouter();
 
   return (
-    <Box component="section" sx={{ background: s.bgAlt, py: { xs: 8, md: 12 } }}>
+    <Box component="section" sx={{ background: s.bgAlt, py: { xs: 12, md: 20 } }}>
       <Box sx={{ maxWidth: 1280, mx: "auto", px: { xs: 3, md: 5 } }}>
         <Box
           sx={{
@@ -78,7 +78,7 @@ const ProductFeatureCards: React.FC = () => {
             justifyContent: "space-between",
             flexWrap: "wrap",
             gap: 2,
-            mb: { xs: 5, md: 7 },
+            mb: { xs: 6, md: 9 },
           }}
         >
           <Box sx={{ maxWidth: 620 }}>
@@ -107,7 +107,7 @@ const ProductFeatureCards: React.FC = () => {
           sx={{
             display: "grid",
             gridTemplateColumns: { xs: "1fr", md: "1fr 1fr 1fr" },
-            gap: { xs: 2, md: 2.5 },
+            gap: { xs: 2.5, md: 3 },
           }}
         >
           {FEATURES.map((f, idx) => {
@@ -142,7 +142,7 @@ const ProductFeatureCards: React.FC = () => {
                     transition: "transform .35s cubic-bezier(.16,1,.3,1), box-shadow .35s ease, border-color .35s ease",
                     "&:hover": {
                       transform: "translateY(-4px)",
-                      boxShadow: "0 30px 60px -34px rgba(255,91,73,0.4)",
+                      boxShadow: "0 30px 60px -34px rgba(79, 70, 229,0.4)",
                       borderColor: s.lineStrong,
                     },
                     "&:hover .feat-cta-arrow": { transform: "translateX(4px)" },
@@ -173,9 +173,9 @@ const ProductFeatureCards: React.FC = () => {
                         width: 160,
                         height: 160,
                         borderRadius: "50%",
-                        background: "#FF5B49",
+                        background: "#4F46E5",
                         filter: "blur(48px)",
-                        opacity: 0.28,
+                        opacity: 0.15,
                       }}
                     />
                     <Box
@@ -185,12 +185,12 @@ const ProductFeatureCards: React.FC = () => {
                         width: 40,
                         height: 40,
                         borderRadius: "11px",
-                        background: "rgba(255,91,73,0.14)",
-                        border: "1px solid rgba(255,91,73,0.4)",
+                        background: "rgba(79, 70, 229,0.14)",
+                        border: "1px solid rgba(79, 70, 229,0.4)",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        color: "#FF7A6B",
+                        color: "#6366F1",
                       }}
                     >
                       <Icon sx={{ fontSize: 22 }} />
@@ -223,7 +223,7 @@ const ProductFeatureCards: React.FC = () => {
                       fontSize: 11.5,
                       letterSpacing: "0.22em",
                       textTransform: "uppercase",
-                      color: "#E33F2E",
+                      color: "#4338CA",
                       fontWeight: 500,
                       mb: 1.25,
                     }}
@@ -261,14 +261,14 @@ const ProductFeatureCards: React.FC = () => {
                         fontFamily: FONT_BODY,
                         fontSize: 14.5,
                         fontWeight: 600,
-                        color: "#FF5B49",
+                        color: "#4F46E5",
                       }}
                     >
                       {f.cta}
                     </Typography>
                     <ArrowForwardRoundedIcon
                       className="feat-cta-arrow"
-                      sx={{ fontSize: 17, color: "#FF5B49", transition: "transform .35s cubic-bezier(.16,1,.3,1)" }}
+                      sx={{ fontSize: 17, color: "#4F46E5", transition: "transform .35s cubic-bezier(.16,1,.3,1)" }}
                     />
                   </Box>
                 </Box>

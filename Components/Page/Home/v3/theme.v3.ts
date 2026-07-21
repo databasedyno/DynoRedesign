@@ -2,8 +2,8 @@ import { useTheme } from "@mui/material";
 
 // ─── Aurora theme tokens (2026-07 landing v3) ──────────────────────────────
 // Creator-first palette. Coral leads, violet supports, volt marks money.
-export const CORAL = "#FF5B49";
-export const CORAL_DEEP = "#E33F2E";
+export const CORAL = "#4F46E5";
+export const CORAL_DEEP = "#4338CA";
 export const VIOLET = "#7C5CFF";
 export const VIOLET_DEEP = "#5A3EFF";
 export const SKY = "#4FD1FF";
@@ -19,9 +19,9 @@ export const FONT_BODY = "var(--font-body)";
 export const FONT_TECH = "var(--font-tech)";
 
 export const AURORA_GRADIENT =
-  "linear-gradient(135deg, #FF5B49 0%, #7C5CFF 55%, #4FD1FF 100%)";
+  "linear-gradient(135deg, #4F46E5 0%, #7C5CFF 55%, #4FD1FF 100%)";
 export const AURORA_GRADIENT_SOFT =
-  "linear-gradient(135deg, rgba(255,91,73,0.14) 0%, rgba(124,92,255,0.14) 55%, rgba(79,209,255,0.14) 100%)";
+  "linear-gradient(135deg, rgba(79, 70, 229,0.14) 0%, rgba(124,92,255,0.14) 55%, rgba(79,209,255,0.14) 100%)";
 
 export interface AuroraTokens {
   dark: boolean;

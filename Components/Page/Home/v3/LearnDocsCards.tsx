@@ -58,9 +58,9 @@ const LearnDocsCards: React.FC = () => {
   const router = useRouter();
 
   return (
-    <Box component="section" sx={{ background: s.bg, py: { xs: 8, md: 12 } }}>
+    <Box component="section" sx={{ background: s.bg, py: { xs: 12, md: 20 } }}>
       <Box sx={{ maxWidth: 1280, mx: "auto", px: { xs: 3, md: 5 } }}>
-        <Box sx={{ maxWidth: 620, mb: { xs: 5, md: 7 } }}>
+        <Box sx={{ maxWidth: 620, mb: { xs: 6, md: 9 } }}>
           <Eyebrow sx={{ mb: 2 }}>[ Get up to speed ]</Eyebrow>
           <HeadlineL sx={{ color: s.ink }}>Start with the basics.</HeadlineL>
         </Box>
@@ -69,7 +69,7 @@ const LearnDocsCards: React.FC = () => {
           sx={{
             display: "grid",
             gridTemplateColumns: { xs: "1fr", md: "1fr 1fr 1fr" },
-            gap: { xs: 2, md: 2.5 },
+            gap: { xs: 2.5, md: 3 },
           }}
         >
           {CARDS.map((c, idx) => {
@@ -114,12 +114,12 @@ const LearnDocsCards: React.FC = () => {
                       width: 46,
                       height: 46,
                       borderRadius: "13px",
-                      background: s.dark ? "rgba(255,91,73,0.14)" : "rgba(255,91,73,0.09)",
-                      border: "1px solid rgba(255,91,73,0.32)",
+                      background: s.dark ? "rgba(79, 70, 229,0.14)" : "rgba(79, 70, 229,0.09)",
+                      border: "1px solid rgba(79, 70, 229,0.32)",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      color: "#FF5B49",
+                      color: "#4F46E5",
                       mb: 2.5,
                     }}
                   >

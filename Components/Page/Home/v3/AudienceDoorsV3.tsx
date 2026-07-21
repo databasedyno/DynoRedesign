@@ -19,8 +19,8 @@ const DOORS = [
     desc: "Hosted checkout, product catalog, invoices. Auto-convert or keep the original coin.",
     href: "/for/merchants",
     bg: "#FFFFFF",
-    accent: "#FF5B49",
-    accentDeep: "#E33F2E",
+    accent: "#4F46E5",
+    accentDeep: "#4338CA",
     ink: "#0A0A0A",
     stat: "1.5→  0.5%",
     statLabel: "fees as you grow",
@@ -33,8 +33,8 @@ const DOORS = [
     desc: "Goal bar, tiers, donor wall, updates. Every donation lands on-chain in your wallet.",
     href: "/for/fundraisers",
     bg: "#FFFFFF",
-    accent: "#FF5B49",
-    accentDeep: "#E33F2E",
+    accent: "#4F46E5",
+    accentDeep: "#4338CA",
     ink: "#0A0A0A",
     stat: "On-chain",
     statLabel: "transparent by default",
@@ -47,8 +47,8 @@ const DOORS = [
     desc: "Your own dynopay.me/@handle page, inline tip amounts, no chargebacks, instant payouts.",
     href: "/for/creators",
     bg: "#FFFFFF",
-    accent: "#FF5B49",
-    accentDeep: "#E33F2E",
+    accent: "#4F46E5",
+    accentDeep: "#4338CA",
     ink: "#0A0A0A",
     stat: "~4s",
     statLabel: "payout to wallet",
@@ -61,8 +61,8 @@ const DOORS = [
     desc: "REST API + webhooks, sandbox keys, first 201 in under 10 minutes.",
     href: "/documentation",
     bg: "#0A0A0A",
-    accent: "#FF5B49",
-    accentDeep: "#FF7A6B",
+    accent: "#4F46E5",
+    accentDeep: "#6366F1",
     ink: "#F5F5F5",
     stat: "~10 min",
     statLabel: "to your first 201",
@@ -74,9 +74,9 @@ const AudienceDoorsV3: React.FC = () => {
   const router = useRouter();
 
   return (
-    <Box component="section" sx={{ background: s.bg, py: { xs: 8, md: 12 } }}>
+    <Box component="section" sx={{ background: s.bg, py: { xs: 12, md: 20 } }}>
       <Box sx={{ maxWidth: 1280, mx: "auto", px: { xs: 3, md: 5 } }}>
-        <Box sx={{ display: "flex", alignItems: "end", justifyContent: "space-between", flexWrap: "wrap", gap: 2, mb: { xs: 5, md: 7 } }}>
+        <Box sx={{ display: "flex", alignItems: "end", justifyContent: "space-between", flexWrap: "wrap", gap: 2, mb: { xs: 6, md: 9 } }}>
           <Box sx={{ maxWidth: 620 }}>
             <Eyebrow sx={{ mb: 2 }}>[ Who is this for? ]</Eyebrow>
             <HeadlineL sx={{ color: s.ink }}>
@@ -95,7 +95,7 @@ const AudienceDoorsV3: React.FC = () => {
           sx={{
             display: "grid",
             gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr", lg: "1fr 1fr 1fr 1fr" },
-            gap: { xs: 2, md: 2.5 },
+            gap: { xs: 2.5, md: 3 },
           }}
         >
           {DOORS.map((d, idx) => {
@@ -149,7 +149,7 @@ const AudienceDoorsV3: React.FC = () => {
                       height: 240,
                       borderRadius: "50%",
                       background: d.accent,
-                      opacity: 0.14,
+                      opacity: 0.07,
                       filter: "blur(30px)",
                     }}
                   />
@@ -160,8 +160,8 @@ const AudienceDoorsV3: React.FC = () => {
                           width: 44,
                           height: 44,
                           borderRadius: "12px",
-                          background: d.bg === "#0A0A0A" ? "rgba(255,91,73,0.12)" : "#fff",
-                          border: `1px solid ${d.bg === "#0A0A0A" ? "rgba(255,91,73,0.35)" : "rgba(10,10,10,0.08)"}`,
+                          background: d.bg === "#0A0A0A" ? "rgba(79, 70, 229,0.12)" : "#fff",
+                          border: `1px solid ${d.bg === "#0A0A0A" ? "rgba(79, 70, 229,0.35)" : "rgba(10,10,10,0.08)"}`,
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
@@ -176,7 +176,7 @@ const AudienceDoorsV3: React.FC = () => {
                           width: 36,
                           height: 36,
                           borderRadius: "50%",
-                          background: d.bg === "#0A0A0A" ? "#FF5B49" : "#0A0A0A",
+                          background: d.bg === "#0A0A0A" ? "#4F46E5" : "#0A0A0A",
                           color: d.bg === "#0A0A0A" ? "#0A0A0A" : "#fff",
                           display: "flex",
                           alignItems: "center",

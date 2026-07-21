@@ -39,8 +39,8 @@ const HeroPlayground: React.FC = () => {
         position: "relative",
         overflow: "hidden",
         background: s.bg,
-        pt: { xs: 8, md: 12 },
-        pb: { xs: 9, md: 14 },
+        pt: { xs: 12, md: 18 },
+        pb: { xs: 12, md: 20 },
       }}
     >
       {/* Soft coral orb behind hero (minimal single-accent) */}
@@ -53,9 +53,9 @@ const HeroPlayground: React.FC = () => {
           width: { xs: 620, md: 900 },
           height: { xs: 620, md: 900 },
           borderRadius: "50%",
-          background: "#FF5B49",
+          background: "#4F46E5",
           filter: "blur(140px)",
-          opacity: s.dark ? 0.14 : 0.10,
+          opacity: s.dark ? 0.06 : 0.045,
           pointerEvents: "none",
         }}
       />
@@ -68,6 +68,7 @@ const HeroPlayground: React.FC = () => {
           pointerEvents: "none",
           backgroundImage: `linear-gradient(${s.line} 1px, transparent 1px), linear-gradient(90deg, ${s.line} 1px, transparent 1px)`,
           backgroundSize: "64px 64px",
+          display: "none",
           maskImage: "radial-gradient(ellipse 80% 60% at 50% 0%, black 40%, transparent 90%)",
           WebkitMaskImage: "radial-gradient(ellipse 80% 60% at 50% 0%, black 40%, transparent 90%)",
         }}
@@ -83,7 +84,7 @@ const HeroPlayground: React.FC = () => {
           display: "grid",
           gridTemplateColumns: { xs: "1fr", md: "1.15fr 1fr" },
           alignItems: "center",
-          gap: { xs: 6, md: 10 },
+          gap: { xs: 7, md: 12 },
         }}
       >
         {/* LEFT — copy */}
@@ -96,8 +97,8 @@ const HeroPlayground: React.FC = () => {
                 width: 6,
                 height: 6,
                 borderRadius: "50%",
-                background: "#FF5B49",
-                boxShadow: "0 0 0 4px rgba(255,91,73,0.18)",
+                background: "#4F46E5",
+                boxShadow: "0 0 0 4px rgba(79, 70, 229,0.18)",
               }}
             />
             Dynopay · Public beta
@@ -130,8 +131,8 @@ const HeroPlayground: React.FC = () => {
               gap: 1,
               transition: "border-color .2s ease, box-shadow .2s ease",
               "&:focus-within": {
-                borderColor: "#FF5B49",
-                boxShadow: "0 0 0 4px rgba(255,91,73,0.14)",
+                borderColor: "#4F46E5",
+                boxShadow: "0 0 0 4px rgba(79, 70, 229,0.14)",
               },
             }}
           >
@@ -195,17 +196,17 @@ const HeroPlayground: React.FC = () => {
               px: 1.75,
               py: 0.9,
               borderRadius: "999px",
-              background: s.dark ? "rgba(255,91,73,0.14)" : "rgba(255,91,73,0.09)",
-              border: "1px solid rgba(255,91,73,0.35)",
+              background: s.dark ? "rgba(79, 70, 229,0.14)" : "rgba(79, 70, 229,0.09)",
+              border: "1px solid rgba(79, 70, 229,0.35)",
             }}
           >
-            <CardGiftcardRoundedIcon sx={{ fontSize: 17, color: "#FF5B49" }} />
+            <CardGiftcardRoundedIcon sx={{ fontSize: 17, color: "#4F46E5" }} />
             <Typography
               sx={{
                 fontFamily: FONT_BODY,
                 fontSize: 13.5,
                 fontWeight: 600,
-                color: s.dark ? "#FF9186" : "#C0392B",
+                color: s.dark ? "#818CF8" : "#4338CA",
               }}
             >
               New accounts: your first <b>$500</b> in volume is fee-free
@@ -241,7 +242,7 @@ const HeroPlayground: React.FC = () => {
                 borderRadius: "28px",
                 background: "linear-gradient(180deg, #FFFFFF 0%, #FDFDFB 100%)",
                 border: `1px solid ${s.lineStrong}`,
-                boxShadow: "0 40px 80px -30px rgba(10,10,10,0.35), 0 12px 24px -14px rgba(255,91,73,0.25)",
+                boxShadow: "0 40px 80px -30px rgba(10,10,10,0.35), 0 12px 24px -14px rgba(79, 70, 229,0.25)",
                 p: 3.5,
                 overflow: "hidden",
               }}
@@ -256,9 +257,9 @@ const HeroPlayground: React.FC = () => {
                   width: 240,
                   height: 240,
                   borderRadius: "50%",
-                  background: "#FF5B49",
+                  background: "#4F46E5",
                   filter: "blur(60px)",
-                  opacity: 0.22,
+                  opacity: 0.10,
                 }}
               />
               <Box sx={{ position: "relative", zIndex: 1 }}>
@@ -345,9 +346,9 @@ const HeroPlayground: React.FC = () => {
                         px: 1.25,
                         py: 0.5,
                         borderRadius: "999px",
-                        border: `1px solid ${i === tipIdx ? "#FF5B49" : "rgba(10,10,10,0.10)"}`,
-                        background: i === tipIdx ? "rgba(255,91,73,0.10)" : "transparent",
-                        color: i === tipIdx ? "#E33F2E" : "#3F3F46",
+                        border: `1px solid ${i === tipIdx ? "#4F46E5" : "rgba(10,10,10,0.10)"}`,
+                        background: i === tipIdx ? "rgba(79, 70, 229,0.10)" : "transparent",
+                        color: i === tipIdx ? "#4338CA" : "#3F3F46",
                         fontFamily: FONT_TECH,
                         fontSize: 12.5,
                         fontWeight: 600,
@@ -372,11 +373,11 @@ const HeroPlayground: React.FC = () => {
                     fontSize: 15,
                     fontWeight: 600,
                     color: "#fff",
-                    background: "linear-gradient(135deg, #FF5B49 0%, #E33F2E 100%)",
-                    boxShadow: "0 10px 22px -8px rgba(255,91,73,0.55)",
+                    background: "linear-gradient(135deg, #4F46E5 0%, #4338CA 100%)",
+                    boxShadow: "0 10px 22px -8px rgba(79, 70, 229,0.55)",
                     "&:hover": {
-                      background: "linear-gradient(135deg, #FF6E5E 0%, #E33F2E 100%)",
-                      boxShadow: "0 12px 26px -8px rgba(255,91,73,0.7)",
+                      background: "linear-gradient(135deg, #6366F1 0%, #4338CA 100%)",
+                      boxShadow: "0 12px 26px -8px rgba(79, 70, 229,0.7)",
                     },
                   }}
                 >
