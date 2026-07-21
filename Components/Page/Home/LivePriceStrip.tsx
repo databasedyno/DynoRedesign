@@ -95,9 +95,16 @@ const LivePriceStrip: React.FC = () => {
   // start empty), so loaded → same height → zero layout shift.
   if (hidden) return null;
 
-  const isLoading = tickers.length === 0;
+  // While prices load, reserve the strip's height with an INVISIBLE spacer so
+  // it can't pop in and shove the page down (CLS) — without flashing an empty
+  // dark bar. Once data arrives the real strip fills the same 46px slot; if the
+  // feed is empty/unreachable the strip stays hidden (rare).
+  if (tickers.length === 0) {
+    return <Box aria-hidden sx={{ width: "100%", minHeight: 46 }} />;
+  }
+
   // Double the list so the marquee loops seamlessly
-  const loop = isLoading ? [] : [...tickers, ...tickers];
+  const loop = [...tickers, ...tickers];
 
   return (
     <Box
