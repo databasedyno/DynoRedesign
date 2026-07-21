@@ -368,8 +368,8 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
   const panelBg = isDark ? "#101014" : "#FFFFFF";
   const panelBorder = isDark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.10)";
   const assistantBubbleBg = isDark ? "rgba(255,255,255,0.07)" : "#F2F3F5";
-  const userBubbleBg = isDark ? LIME : INK;
-  const userBubbleColor = isDark ? INK : "#FFFFFF";
+  const userBubbleBg = isDark ? "#6366F1" : "#4F46E5";
+  const userBubbleColor = "#FFFFFF";
   // Keep clear of the in-app floating mobile nav pill.
   // F1: On mobile in the client shell, lift the FAB further so it no longer
   // occludes the last ~20px of "Create Company" / "View all" / row action
@@ -607,13 +607,13 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
                   width: 34,
                   height: 34,
                   borderRadius: "50%",
-                  background: LIME,
+                  background: "#4F46E5",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                 }}
               >
-                <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 15, fontWeight: 700, color: INK, lineHeight: 1 }}>
+                <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 15, fontWeight: 700, color: "#FFFFFF", lineHeight: 1 }}>
                   E
                 </Typography>
               </Box>
@@ -645,7 +645,7 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
                 size="small"
                 data-testid="support-chat-escalate"
                 onClick={() => setEscalateOpen((v) => !v)}
-                sx={{ color: escalateOpen ? LIME : "rgba(255,255,255,0.75)" }}
+                sx={{ color: escalateOpen ? "#818CF8" : "rgba(255,255,255,0.75)" }}
                 aria-label="Talk to a human"
               >
                 <SupportAgentRoundedIcon sx={{ fontSize: 20 }} />
@@ -834,8 +834,8 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
                     borderRadius: "10px",
                     padding: "9px 12px",
                     cursor: escalating ? "wait" : "pointer",
-                    background: INK,
-                    color: LIME,
+                    background: "#4F46E5",
+                    color: "#FFFFFF",
                     opacity: escalating ? 0.6 : 1,
                   }}
                 >
@@ -951,7 +951,7 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
                 data-testid="support-chat-emoji"
                 onClick={() => setEmojiOpen((v) => !v)}
                 aria-label="Insert emoji"
-                sx={{ ...composerIconSx, color: emojiOpen ? (isDark ? LIME : INK) : theme.palette.text.secondary }}
+                sx={{ ...composerIconSx, color: emojiOpen ? (isDark ? "#818CF8" : "#4F46E5") : theme.palette.text.secondary }}
               >
                 <SentimentSatisfiedAltRoundedIcon sx={{ fontSize: 20 }} />
               </IconButton>
@@ -999,10 +999,10 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
                 width: 40,
                 height: 40,
                 borderRadius: "10px",
-                background: INK,
-                color: LIME,
+                background: "#4F46E5",
+                color: "#FFFFFF",
                 flexShrink: 0,
-                "&:hover": { background: "#1C1C21" },
+                "&:hover": { background: "#4338CA" },
                 "&.Mui-disabled": { background: isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)", color: theme.palette.text.disabled },
               }}
             >
@@ -1034,8 +1034,8 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
             width: 56,
             height: 56,
             borderRadius: "50%",
-            background: INK,
-            color: LIME,
+            background: "#4F46E5",
+            color: "#FFFFFF",
             boxShadow: "0 8px 24px rgba(0,0,0,0.35)",
             border: isDark ? "1px solid rgba(255,255,255,0.14)" : "none",
             // Smooth slide-out tuck when overlapping a CTA. transform is
@@ -1044,7 +1044,7 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
             opacity: occluding ? 0 : 1,
             pointerEvents: occluding ? "none" : "auto",
             transition: "transform 0.22s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.22s ease, background 0.2s ease",
-            "&:hover": { background: "#1C1C21", transform: occluding ? "translateX(96px) scale(0.9)" : "translateY(-2px)" },
+            "&:hover": { background: "#4338CA", transform: occluding ? "translateX(96px) scale(0.9)" : "translateY(-2px)" },
           }}
         >
           {open ? <CloseRoundedIcon sx={{ fontSize: 26 }} /> : <ChatRoundedIcon sx={{ fontSize: 26 }} />}
