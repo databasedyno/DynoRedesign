@@ -765,7 +765,7 @@ const CustomersPage: React.FC = () => {
               </Box>
             </Box>
           ) : (
-            <Typography variant="h6" sx={{ fontWeight: 700, fontFamily: "var(--font-sans)" }}>
+            <Typography variant="h6" sx={{ fontWeight: 700, fontFamily: "var(--font-hero), var(--font-sans)" }}>
               {t("customers.customerDetails")}
             </Typography>
           )}
@@ -1033,7 +1033,7 @@ const CustomersPage: React.FC = () => {
             ) : (
               <RemoveIcon sx={{ color: "error.main" }} />
             )}
-            <Typography variant="h6" sx={{ fontWeight: 700, fontFamily: "var(--font-sans)" }}>
+            <Typography variant="h6" sx={{ fontWeight: 700, fontFamily: "var(--font-hero), var(--font-sans)" }}>
               {walletAction === "credit" ? t("customers.creditWallet") : t("customers.debitWallet")}
             </Typography>
           </Box>

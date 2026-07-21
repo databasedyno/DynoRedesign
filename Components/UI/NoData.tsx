@@ -26,7 +26,7 @@ const NoData = ({
         },
       }}
     >
-      <img src={NoDataImage.src} alt="no data" />
+      <img src={NoDataImage.src} width={NoDataImage.width} height={NoDataImage.height} alt="no data" loading="lazy" decoding="async" />
       <Typography fontWeight={500} fontSize={20} marginTop={2.5}>
         {customText ?? "No Data Available"}
       </Typography>

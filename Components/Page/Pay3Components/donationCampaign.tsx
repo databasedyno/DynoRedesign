@@ -60,7 +60,7 @@ function renderMarkdownSafe(src: string): string {
   // `**foo**` isn't mis-parsed as italic-star-italic.
   const inline = (escaped: string): string => {
     let p = escaped
-    p = p.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_m, alt, u) => `<img src="${safeUrl(u)}" alt="${escape(alt)}"/>`)
+    p = p.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_m, alt, u) => `<img src="${safeUrl(u)}" alt="${escape(alt)}" loading="lazy" decoding="async" style="max-width:100%;height:auto;"/>`)
     p = p.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_m, tx, u) => `<a href="${safeUrl(u)}" target="_blank" rel="noopener noreferrer">${escape(tx)}</a>`)
     p = p.replace(/`([^`]+)`/g, (_m, code) => `<code>${escape(code)}</code>`)
     p = p.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')

@@ -231,7 +231,7 @@ const ProductsList = ({ setPageName, setPageDescription, setPageAction }: pagePr
                     <Box sx={{ width: 48, height: 48, borderRadius: 1, bgcolor: "grey.100", overflow: "hidden", flexShrink: 0 }}>
                       {p.cover_image_url && (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={p.cover_image_url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                        <img src={p.cover_image_url} alt="" loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                       )}
                     </Box>
                     <Box sx={{ flex: 1, minWidth: 0 }}>

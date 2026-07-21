@@ -74,7 +74,13 @@ export const ThemeProvider: React.FC<{
 
   // ── On mount: reconcile with localStorage > system preference, and persist
   //    to the cookie so the NEXT SSR renders the correct theme. ──
-  useEffect(() => {
+  //    Runs in a LAYOUT effect (before the browser paints) so a dark-mode
+  //    visitor whose SSR fell back to light (e.g. cookie absent / stale while
+  //    localStorage says dark) never sees a one-frame LIGHT flash before dark.
+  //    The first client render still matches SSR (mode = initialMode) so there
+  //    is no hydration mismatch — the switch to the stored theme happens after
+  //    hydration commits but before paint.
+  useIsomorphicLayoutEffect(() => {
     let resolved: ThemeMode | null = null;
     try {
       const saved = localStorage.getItem('theme-mode') as ThemeMode;
@@ -88,7 +94,6 @@ export const ThemeProvider: React.FC<{
     if (!resolved) resolved = getSystemPreference();
     if (resolved !== mode) setMode(resolved);
     writeThemeCookie(resolved);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ── 2. Keep data-theme attribute in sync so CSS always matches ──

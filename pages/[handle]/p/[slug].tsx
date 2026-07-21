@@ -105,7 +105,7 @@ const ProductDetail: NextPageWithLayout<DetailProps> = ({ merchant, product, var
           <Box sx={{ bgcolor: "grey.100", aspectRatio: "1/1", borderRadius: 2, overflow: "hidden" }} data-testid="product-detail-image">
             {cover ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={cover} alt={product.title} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+              <img src={cover} alt={product.title} loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
             ) : (
               <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", color: "text.disabled", fontSize: 80 }}>◫</Box>
             )}

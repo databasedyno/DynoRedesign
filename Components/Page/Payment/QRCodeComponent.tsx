@@ -213,7 +213,7 @@ const QRCodeComponent = () => {
               }}
             >
               <Box sx={{ "& img": { maxHeight: "350px", width: "100%" } }}>
-                <img src={accountDetails?.qr_image} />
+                <img src={accountDetails?.qr_image} width={300} height={300} alt="Bank payment QR code" loading="eager" decoding="async" />
               </Box>
               <Typography textAlign={"center"}>
                 Scan the QR Code above on your Bank’s mobile app to complete the

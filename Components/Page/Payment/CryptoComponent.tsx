@@ -354,7 +354,7 @@ const CyrptoComponent = () => {
                         },
                       }}
                     >
-                      <img src={cryptoDetails?.qr_code} />
+                      <img src={cryptoDetails?.qr_code} width={300} height={300} alt="Payment QR code" loading="eager" decoding="async" />
                     </Box>
                     <Box sx={{ width: "100%" }}>
                       <TextBox

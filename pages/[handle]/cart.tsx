@@ -183,7 +183,7 @@ const CartPage: NextPageWithLayout = () => {
                   <Box sx={{ width: 72, height: 72, borderRadius: 1.5, bgcolor: "grey.100", overflow: "hidden", flexShrink: 0 }}>
                     {l.product_snapshot.cover_image_url && (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={l.product_snapshot.cover_image_url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                      <img src={l.product_snapshot.cover_image_url} alt="" loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                     )}
                   </Box>
                   <Box sx={{ flex: 1, minWidth: 0 }}>

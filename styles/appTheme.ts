@@ -20,6 +20,25 @@ import { AUTH_LIME } from "./authTheme";
 const LIME_HOVER = "#B4E600";
 
 /**
+ * Brand display font for IN-APP headings (2026-07-21 font sweep — option B).
+ * `var(--font-hero)` = self-hosted Unbounded (defined in _app.tsx). We apply it
+ * to the semantic heading variants h1–h6 only (18px+), i.e. page titles +
+ * section / card headers. Body text, subtitles, captions, overlines and table
+ * column headers deliberately stay on `var(--font-sans)` (Geist) so dense UI
+ * doesn't turn heavy. Scoped to the app/dashboard/admin theme only — the
+ * marketing (homeTheme) + auth themes are untouched.
+ */
+const HEADING_FONT = "var(--font-hero), var(--font-sans), system-ui, sans-serif";
+const headingTypography = {
+  h1: { fontFamily: HEADING_FONT },
+  h2: { fontFamily: HEADING_FONT },
+  h3: { fontFamily: HEADING_FONT },
+  h4: { fontFamily: HEADING_FONT },
+  h5: { fontFamily: HEADING_FONT },
+  h6: { fontFamily: HEADING_FONT },
+};
+
+/**
  * Re-declares the custom Button variants with an accent fill/outline so the
  * dashboard CTAs match the bento brand. Full style is included (not just color)
  * so it is correct whether MUI replaces or concatenates the `variants` array.
@@ -128,6 +147,7 @@ export const appThemeDark = createTheme(themeDark, {
       selected: "rgba(204,255,0,0.10)",
     },
   } as any,
+  typography: headingTypography,
   components: {
     MuiButton: { variants: buttonVariants(AUTH_LIME, "#060606", LIME_HOVER) },
   },
@@ -165,6 +185,7 @@ export const appThemeLight = createTheme(theme, {
       selected: "rgba(10,10,10,0.06)",
     },
   } as any,
+  typography: headingTypography,
   components: {
     MuiButton: { variants: buttonVariants("#0A0A0A", AUTH_LIME, "#1F1F1F") },
   },
