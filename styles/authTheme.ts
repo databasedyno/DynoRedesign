@@ -16,7 +16,25 @@ import { theme, themeDark } from "./theme";
 export const AUTH_LIME = "#CCFF00";
 const LIME_HOVER = "#B4E600";
 
+/**
+ * Brand display font for auth-screen headings (2026-07-21 consistency pass).
+ * `var(--font-hero)` = self-hosted Unbounded. The auth title (TitleDescription)
+ * and brand panel already use it explicitly; this theme-level override on the
+ * semantic heading variants h1–h6 catches any straggler headings so the whole
+ * /auth suite is consistent. Body/labels stay on var(--font-sans) (Geist).
+ */
+const HEADING_FONT = "var(--font-hero), var(--font-sans), system-ui, sans-serif";
+const headingTypography = {
+  h1: { fontFamily: HEADING_FONT },
+  h2: { fontFamily: HEADING_FONT },
+  h3: { fontFamily: HEADING_FONT },
+  h4: { fontFamily: HEADING_FONT },
+  h5: { fontFamily: HEADING_FONT },
+  h6: { fontFamily: HEADING_FONT },
+};
+
 export const authThemeDark = createTheme(themeDark, {
+  typography: headingTypography,
   palette: {
     mode: "dark",
     primary: {
@@ -85,6 +103,7 @@ export const authThemeDark = createTheme(themeDark, {
 });
 
 export const authThemeLight = createTheme(theme, {
+  typography: headingTypography,
   palette: {
     mode: "light",
     primary: {

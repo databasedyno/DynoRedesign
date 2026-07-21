@@ -15,6 +15,7 @@ import LaunchRounded from "@mui/icons-material/LaunchRounded";
 import DeleteOutlineRounded from "@mui/icons-material/DeleteOutlineRounded";
 import BoltRounded from "@mui/icons-material/BoltRounded";
 import PanelCard from "@/Components/UI/PanelCard";
+import ProductImage from "@/Components/UI/ProductImage";
 import CustomButton from "@/Components/UI/Buttons";
 import { pageProps } from "@/utils/types";
 import axiosBaseApi from "@/axiosConfig";
@@ -228,11 +229,8 @@ const ProductsList = ({ setPageName, setPageDescription, setPageAction }: pagePr
                     sx={{ p: 1.5, border: "1px solid #E5E7EB", borderRadius: 1.5, "&:hover": { bgcolor: "action.hover" } }}
                     data-testid={`product-row-${p.product_id}`}
                   >
-                    <Box sx={{ width: 48, height: 48, borderRadius: 1, bgcolor: "grey.100", overflow: "hidden", flexShrink: 0 }}>
-                      {p.cover_image_url && (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={p.cover_image_url} alt="" loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                      )}
+                    <Box sx={{ position: "relative", width: 48, height: 48, borderRadius: 1, bgcolor: "grey.100", overflow: "hidden", flexShrink: 0 }}>
+                      <ProductImage src={p.cover_image_url} alt="" sizes="48px" />
                     </Box>
                     <Box sx={{ flex: 1, minWidth: 0 }}>
                       <Typography sx={{ fontWeight: 600, whiteSpace: "nowrap", textOverflow: "ellipsis", overflow: "hidden" }}>

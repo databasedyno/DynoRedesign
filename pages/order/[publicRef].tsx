@@ -7,6 +7,7 @@
 import React, { useEffect, useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
+import ProductImage from "@/Components/UI/ProductImage";
 import { GetServerSideProps } from "next";
 import {
   Box, Container, Typography, Stack, Chip, Divider, Alert, Button, LinearProgress,
@@ -352,11 +353,8 @@ const OrderStatusPage: NextPageWithLayout<OrderPageProps> = ({ order: initialOrd
               sx={{ p: 2, border: "1px solid", borderColor: "divider", borderRadius: 2 }}
               data-testid={`order-item-${it.order_item_id}`}
             >
-              <Box sx={{ width: 72, height: 72, borderRadius: 1.5, bgcolor: "grey.100", overflow: "hidden", flexShrink: 0 }}>
-                {it.product_snapshot?.cover_image_url && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={it.product_snapshot.cover_image_url} alt="" loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                )}
+              <Box sx={{ position: "relative", width: 72, height: 72, borderRadius: 1.5, bgcolor: "grey.100", overflow: "hidden", flexShrink: 0 }}>
+                <ProductImage src={it.product_snapshot?.cover_image_url} alt="" sizes="72px" />
               </Box>
               <Box sx={{ flex: 1, minWidth: 0 }}>
                 <Typography sx={{ fontWeight: 600 }}>{it.product_snapshot?.title || `Product #${it.product_id}`}</Typography>

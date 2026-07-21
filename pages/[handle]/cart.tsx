@@ -7,6 +7,7 @@
 import React, { useEffect, useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
+import ProductImage from "@/Components/UI/ProductImage";
 import { useRouter } from "next/router";
 import {
   Box, Container, Typography, Stack, IconButton, Button, LinearProgress,
@@ -180,11 +181,8 @@ const CartPage: NextPageWithLayout = () => {
                   sx={{ p: 2, border: "1px solid", borderColor: "divider", borderRadius: 2 }}
                   data-testid={`cart-line-${l.product_id}-${l.variant_id || 0}`}
                 >
-                  <Box sx={{ width: 72, height: 72, borderRadius: 1.5, bgcolor: "grey.100", overflow: "hidden", flexShrink: 0 }}>
-                    {l.product_snapshot.cover_image_url && (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={l.product_snapshot.cover_image_url} alt="" loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                    )}
+                  <Box sx={{ position: "relative", width: 72, height: 72, borderRadius: 1.5, bgcolor: "grey.100", overflow: "hidden", flexShrink: 0 }}>
+                    <ProductImage src={l.product_snapshot.cover_image_url} alt="" sizes="72px" />
                   </Box>
                   <Box sx={{ flex: 1, minWidth: 0 }}>
                     <Typography sx={{ fontWeight: 600 }}>{l.product_snapshot.title}</Typography>

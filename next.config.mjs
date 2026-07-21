@@ -50,6 +50,15 @@ const nextConfig = {
         protocol: "https",
         hostname: "**.googleusercontent.com",
       },
+      // Merchant product/store cover images are user-provided and can live on
+      // ANY https host (own CDN, S3, Cloudinary, etc.), so allow the optimizer
+      // to fetch any https image. Non-https / relative / data-URI sources are
+      // rendered with a plain <img> fallback (see Components/UI/ProductImage),
+      // so this wildcard only ever handles genuine https URLs.
+      {
+        protocol: "https",
+        hostname: "**",
+      },
     ],
   },
 

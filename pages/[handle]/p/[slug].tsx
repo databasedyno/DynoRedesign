@@ -6,6 +6,7 @@
 import React, { useMemo, useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
+import ProductImage from "@/Components/UI/ProductImage";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import {
@@ -102,10 +103,9 @@ const ProductDetail: NextPageWithLayout<DetailProps> = ({ merchant, product, var
           </Link>
         </Typography>
         <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, gap: { xs: 3, md: 5 } }}>
-          <Box sx={{ bgcolor: "grey.100", aspectRatio: "1/1", borderRadius: 2, overflow: "hidden" }} data-testid="product-detail-image">
+          <Box sx={{ position: "relative", bgcolor: "grey.100", aspectRatio: "1/1", borderRadius: 2, overflow: "hidden" }} data-testid="product-detail-image">
             {cover ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={cover} alt={product.title} loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+              <ProductImage src={cover} alt={product.title} sizes="(max-width: 900px) 90vw, 45vw" />
             ) : (
               <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", color: "text.disabled", fontSize: 80 }}>◫</Box>
             )}

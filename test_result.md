@@ -1,3 +1,24 @@
+## Session 85 — POLISH: CLS (LivePriceStrip) + next/image storefront + auth-heading branding (2026-07-21)
+
+### Preview URL
+https://c84a4caf-f8e2-455e-819f-e091263461e4.preview.emergentagent.com
+
+### Changes (frontend only — NO backend/DB)
+1. **CLS polish (Task 1):** `Components/Page/Home/LivePriceStrip.tsx` — the strip used `return null` until its async `/api/public/tickers` fetch resolved, then popped in (~46px) and shoved the page down (main landing CLS source). Now: only `return null` on true failure (`hidden`); while loading it renders a FIXED-HEIGHT (`minHeight:46`, flex-centered) reserved bar; SSR renders the same reserved bar (tickers start empty) → loaded content fits within the reserved height → zero shift.
+2. **Storefront images → next/image (Task 2):** New reusable `Components/UI/ProductImage.tsx` — optimizes genuine `https://` cover URLs via `next/image` (`fill` + `sizes` + objectFit cover → AVIF/WebP + lazy) and falls back to a plain CLS-safe `<img>` for http/relative/data-URI sources (merchant covers are arbitrary, so this prevents the optimizer from throwing / breaking the live storefront). Wired into all 4 product-cover sites (`pages/pay-links/products/index.tsx` 48px, `pages/order/[publicRef].tsx` 72px, `pages/[handle]/cart.tsx` 72px, `pages/[handle]/p/[slug].tsx` responsive 90vw/45vw) — each container got `position:relative` for `fill`. `next.config.mjs` remotePatterns: added `{ protocol:"https", hostname:"**" }` so any https merchant image optimizes. **QR codes (`CryptoComponent`/`QRCodeComponent`) deliberately LEFT as raw `<img>`** (already CLS-safe w/ explicit dims from S84): their sources are dynamic/data-URI, must NOT be recompressed (scannability), and next/image would add throw-risk on the critical payment flow with ~zero byte benefit.
+3. **Auth-heading branding (Task 3):** `styles/authTheme.ts` — added `typography` h1–h6 → `var(--font-hero)` override to BOTH `authThemeDark` + `authThemeLight` (catches straggler auth headings). NOTE: the primary auth title (`Components/UI/AuthLayout/TitleDescription`) and the `AuthBrandPanel` (`FONT_DISPLAY`) already used `var(--font-hero)` before this session.
+
+Lint clean on all edited files. All routes compile (`/`, `/auth/login`, `/pay-links/products`, `/order/*`, `/[handle]/cart` → 200; a fake `/[handle]/p/[slug]` → 404 as expected). Lighthouse re-run in progress (was CLS 0.107 in S84; font-display audit already passing).
+
+### Test scope for testing agent (LIVE production DB — read-only)
+- **Task 1 (PUBLIC, primary):** on `/`, verify the live-price strip (thin dark band with scrolling BTC/ETH/… prices, sits just under the hero) reserves its height from first paint and does NOT cause the content below it to jump when prices load. Sample layout: screenshot right after load and ~2s later; the section below the strip must not shift down. Report whether any vertical jump occurs.
+- **Task 3 (PUBLIC):** on `/auth/login` AND `/auth/register`, confirm the page heading/title renders in the bold rounded Unbounded brand font; report computed font-family of the title (should contain "Unbounded"). Check both light + dark.
+- **Task 2 (AUTHENTICATED, read-only, STRICT — best-effort):** log in `hostbay@moxx.co` / `Katiekendra123@` (3-step: email→Continue→click Password radio→password→Continue). Go to Pay Links → Products list. If products with cover images exist, confirm thumbnails render correctly (optimized ones load via `/_next/image?url=...`). Also try the public storefront `/{merchant-handle}/shop` + a product detail page if discoverable. Confirm no broken images and no layout jump. ⚠️ DO NOT create/edit/delete/submit anything — production data. If no products exist, just report that (not a failure).
+- **Regression:** no NEW console errors (ignore next-auth /api/auth/session, Binance warnings, HMR, the benign "custom /_error without /404" build warning). Both light + dark render correctly.
+
+---
+
+
 ## Session 84 — ENHANCEMENTS: image CLS + brand-font sweep + theme-flash + perf (2026-07-21)
 
 ### Preview URL

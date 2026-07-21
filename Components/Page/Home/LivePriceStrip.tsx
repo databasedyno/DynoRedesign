@@ -88,16 +88,25 @@ const LivePriceStrip: React.FC = () => {
     };
   }, []);
 
-  if (hidden || tickers.length === 0) return null;
+  // Only bail out completely if the ticker endpoint actually failed. While the
+  // prices are still loading we keep a FIXED-HEIGHT placeholder bar so the strip
+  // never "pops in" and shoves the rest of the page down — that pop-in was the
+  // main source of landing-page CLS. SSR renders this same reserved bar (tickers
+  // start empty), so loaded → same height → zero layout shift.
+  if (hidden) return null;
 
+  const isLoading = tickers.length === 0;
   // Double the list so the marquee loops seamlessly
-  const loop = [...tickers, ...tickers];
+  const loop = isLoading ? [] : [...tickers, ...tickers];
 
   return (
     <Box
       sx={{
         position: "relative",
         width: "100%",
+        minHeight: 46,
+        display: "flex",
+        alignItems: "center",
         overflow: "hidden",
         background: isDark
           ? "linear-gradient(90deg, rgba(15,16,30,0.95) 0%, rgba(20,22,37,0.95) 100%)"
