@@ -18,17 +18,18 @@ import { createTheme } from "@mui/material";
  */
 
 export const HOME_LIME = "#CCFF00";
-const LIME_HOVER = "#B4E600";
+const LIME_HOVER = "#B4E600"; // retained for reference (marketing accent now indigo)
+void LIME_HOVER;
 
 export const homeTheme = createTheme({
   palette: {
     mode: "light",
     primary: {
-      main: "#0A0A0A",
-      dark: "#000000",
-      light: "rgba(10,10,10,0.06)",
-      contrastText: HOME_LIME,
-      hover: "#1F1F1F",
+      main: "#4F46E5",
+      dark: "#4338CA",
+      light: "rgba(79,70,229,0.08)",
+      contrastText: "#FFFFFF",
+      hover: "#4338CA",
     } as any,
     secondary: {
       main: "#5865F2",
@@ -75,11 +76,11 @@ export const homeThemeDark = createTheme({
   palette: {
     mode: "dark",
     primary: {
-      main: HOME_LIME,
-      dark: LIME_HOVER,
-      light: "rgba(204,255,0,0.14)",
-      contrastText: "#060606",
-      hover: LIME_HOVER,
+      main: "#6366F1",
+      dark: "#4F46E5",
+      light: "rgba(99,102,241,0.16)",
+      contrastText: "#FFFFFF",
+      hover: "#818CF8",
     } as any,
     secondary: {
       main: "#5865F2",
@@ -104,7 +105,7 @@ export const homeThemeDark = createTheme({
     divider: "rgba(255,255,255,0.10)",
     border: {
       main: "rgba(255,255,255,0.14)",
-      focus: HOME_LIME,
+      focus: "#6366F1",
     } as any,
     // Custom `surface` palette used by the checkout (pay) page — see light theme note.
     surface: {
@@ -114,7 +115,7 @@ export const homeThemeDark = createTheme({
     } as any,
     action: {
       hover: "rgba(255,255,255,0.06)",
-      selected: "rgba(204,255,0,0.10)",
+      selected: "rgba(99,102,241,0.12)",
     },
   },
 });

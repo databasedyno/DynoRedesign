@@ -3,7 +3,6 @@ import Facebook from "@/assets/Icons/home/Facebook.svg";
 import Instagram from "@/assets/Icons/home/instagram.svg";
 import LinkedIn from "@/assets/Icons/home/LinkeIn.svg";
 import X from "@/assets/Icons/home/X.svg";
-import useIsMobile from "@/hooks/useIsMobile";
 import Image, { StaticImageData } from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -12,17 +11,12 @@ import { useTranslation } from "react-i18next";
 import { Box, Typography } from "@mui/material";
 import {
   BottomSection,
-  ContentRow,
   CopyrightText,
-  DescriptionText,
   FooterContainer,
   FooterWrapper,
   LogoWrapper,
-  Navigation,
-  NavigationList,
   SocialItem,
   SocialsWrapper,
-  TopSection,
 } from "./styled";
 
 interface SocialItemType {
@@ -31,16 +25,14 @@ interface SocialItemType {
   readonly link: string;
 }
 
-interface RouteItemType {
-  readonly labelKey: string;
-  readonly link: string;
-  readonly external?: boolean;
-}
-
-interface SEOLinkItem {
+interface FooterLink {
   readonly label: string;
   readonly link: string;
-  readonly flag?: string;
+}
+
+interface FooterColumn {
+  readonly heading: string;
+  readonly links: readonly FooterLink[];
 }
 
 const SOCIALS: readonly SocialItemType[] = [
@@ -50,179 +42,146 @@ const SOCIALS: readonly SocialItemType[] = [
   { label: "Facebook", icon: Facebook, link: "https://www.facebook.com/dynopay" },
 ] as const;
 
-const ROUTES: readonly RouteItemType[] = [
-  { labelKey: "documentation", link: "/documentation" },
-  { labelKey: "footerTerms", link: "/terms-conditions" },
-  { labelKey: "footerPrivacy", link: "/privacy-policy" },
-  { labelKey: "footerApiStatus", link: "/system-status" },
-  { labelKey: "footerSupport", link: "/help-support" },
-] as const;
-
-/**
- * SEO landing pages surfaced in the footer to spread PageRank across every
- * public page. Keep in sync with /app/data/seo-pages/{countries,verticals}/*.json.
- */
-const SEO_VERTICALS: readonly SEOLinkItem[] = [
-  { label: "E-commerce", link: "/for/ecommerce" },
-  { label: "SaaS", link: "/for/saas" },
-  { label: "Freelancers", link: "/for/freelancers" },
-  { label: "Gaming", link: "/for/gaming" },
-  { label: "Remittance", link: "/for/remittance" },
-  { label: "Digital Downloads", link: "/for/digital-downloads" },
-] as const;
+const TRUST = ["Non-custodial", "15+ chains", "SOC 2 track", "GDPR / AML aligned", "No chargebacks"] as const;
 
 const HomeFooter: FC = () => {
   const router = useRouter();
-  const isMobile = useIsMobile("md");
   const { t } = useTranslation("landing");
 
-  const routeItems = useMemo(
-    () =>
-      ROUTES.map((item) =>
-        item.external ? (
-          <a
-            key={item.labelKey}
-            href={item.link}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ textDecoration: "none" }}
-          >
-            <Navigation>{t(item.labelKey)}</Navigation>
-          </a>
-        ) : (
-          <Link key={item.labelKey} href={item.link}>
-            <Navigation>{t(item.labelKey)}</Navigation>
-          </Link>
-        ),
-      ),
+  // Column model — keeps i18n keys where they already exist, plain labels for
+  // the SEO industry pages (kept in sync with /app/data/seo-pages/verticals).
+  const columns: readonly FooterColumn[] = useMemo(
+    () => [
+      {
+        heading: "Product",
+        links: [
+          { label: t("features"), link: "/#features" },
+          { label: t("headerFees"), link: "/fees" },
+          { label: t("documentation"), link: "/documentation" },
+          { label: t("footerApiStatus"), link: "/system-status" },
+        ],
+      },
+      {
+        heading: "Solutions",
+        links: [
+          { label: "E-commerce", link: "/for/ecommerce" },
+          { label: "SaaS", link: "/for/saas" },
+          { label: "Gaming", link: "/for/gaming" },
+          { label: "Freelancers", link: "/for/freelancers" },
+          { label: "Remittance", link: "/for/remittance" },
+          { label: "Digital Downloads", link: "/for/digital-downloads" },
+        ],
+      },
+      {
+        heading: "Company",
+        links: [
+          { label: t("blog"), link: "/blog" },
+          { label: t("footerSupport"), link: "/help-support" },
+          { label: t("footerTerms"), link: "/terms-conditions" },
+          { label: t("footerPrivacy"), link: "/privacy-policy" },
+        ],
+      },
+    ],
     [t],
   );
 
   const socialItems = useMemo(
     () =>
       SOCIALS.map((item) => (
-        <Link
-          key={item.label}
-          href={item.link}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+        <Link key={item.label} href={item.link} target="_blank" rel="noopener noreferrer" aria-label={item.label}>
           <SocialItem>
-            <Image src={item.icon} alt={item.label} width={20} height={20} className="themed-icon" />
+            <Image src={item.icon} alt={item.label} width={18} height={18} className="themed-icon" />
           </SocialItem>
         </Link>
       )),
     [],
   );
 
+  const linkSx = {
+    color: "rgba(255,255,255,0.62)",
+    fontSize: 14,
+    fontFamily: "var(--font-sans)",
+    textDecoration: "none",
+    width: "fit-content",
+    transition: "color 0.18s ease, transform 0.18s ease",
+    "&:hover": { color: "#A5B4FC", transform: "translateX(2px)" },
+  } as const;
+
+  const headingSx = {
+    color: "rgba(255,255,255,0.5)",
+    fontSize: 12,
+    fontWeight: 600,
+    fontFamily: "var(--font-tech), var(--font-sans)",
+    letterSpacing: "0.14em",
+    textTransform: "uppercase",
+    mb: 2.25,
+  } as const;
+
   return (
     <FooterWrapper>
       <FooterContainer>
-        <TopSection>
-          <LogoWrapper onClick={() => router.push("/")}>
-            <Image
-              src={Logo}
-              alt="Dynopay logo"
-              width={134}
-              height={45}
-              priority
-            />
-          </LogoWrapper>
-
-          <ContentRow>
-            <DescriptionText>
-              {t("footerDescription1")}
-              <br />
-              {t("footerDescription2")}
-            </DescriptionText>
-
-            <NavigationList>{routeItems}</NavigationList>
-          </ContentRow>
-        </TopSection>
-
-        {/* ── SEO link block (crawl depth + PageRank distribution) ────── */}
+        {/* ── Top: brand + link columns ─────────────────────────────── */}
         <Box
-          component="section"
-          data-testid="footer-seo-links"
-          aria-label="Industry guides"
           sx={{
-            mt: { xs: 4, md: 6 },
-            pt: { xs: 4, md: 5 },
-            pb: { xs: 3, md: 4 },
-            borderTop: "1px solid rgba(255, 255, 255, 0.1)",
             display: "grid",
-            gridTemplateColumns: "1fr",
-            gap: { xs: 3, md: 6 },
+            gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr", md: "1.7fr 1fr 1fr 1fr" },
+            gap: { xs: 5, md: 6 },
+            pb: { xs: 6, md: 8 },
           }}
         >
-          <Box>
+          {/* Brand */}
+          <Box sx={{ maxWidth: 340 }}>
+            <LogoWrapper onClick={() => router.push("/")}>
+              <Image src={Logo} alt="Dynopay logo" width={128} height={43} priority />
+            </LogoWrapper>
             <Typography
-              component="h3"
               sx={{
-                color: "#FFFFFF",
-                fontSize: 14,
-                fontWeight: 600,
+                mt: 2.5,
+                color: "rgba(255,255,255,0.58)",
+                fontSize: 14.5,
+                lineHeight: 1.6,
                 fontFamily: "var(--font-sans)",
-                letterSpacing: "0.05em",
-                textTransform: "uppercase",
-                opacity: 0.85,
-                mb: 2,
+                maxWidth: 320,
               }}
             >
-              {t('footerByIndustry')}
+              {t("footerDescription1")} {t("footerDescription2")}
             </Typography>
-            <Box
-              component="ul"
-              data-testid="footer-seo-verticals"
-              sx={{
-                listStyle: "none",
-                p: 0,
-                m: 0,
-                display: "grid",
-                gridTemplateColumns: { xs: "1fr 1fr", sm: "1fr 1fr 1fr" },
-                gap: { xs: 1.25, md: 1.5 },
-              }}
-            >
-              {SEO_VERTICALS.map((v) => (
-                <Box component="li" key={v.link} sx={{ display: "flex" }}>
-                  <Link href={v.link} passHref legacyBehavior>
-                    <Box
-                      component="a"
-                      data-testid={`footer-vertical-link-${v.link.split("/").pop()}`}
-                      sx={{
-                        color: "#FCFBF8",
-                        opacity: 0.75,
-                        fontSize: 13,
-                        fontFamily: "var(--font-sans)",
-                        textDecoration: "none",
-                        transition: "opacity 0.15s ease",
-                        "&:hover": { opacity: 1, textDecoration: "underline" },
-                      }}
-                    >
-                      {v.label}
+            <SocialsWrapper sx={{ mt: 3.5 }}>{socialItems}</SocialsWrapper>
+          </Box>
+
+          {/* Link columns */}
+          {columns.map((col) => (
+            <Box key={col.heading} component="nav" aria-label={col.heading}>
+              <Typography component="h3" sx={headingSx}>
+                {col.heading}
+              </Typography>
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+                {col.links.map((l) => (
+                  <Link key={l.link} href={l.link} passHref legacyBehavior>
+                    <Box component="a" sx={linkSx}>
+                      {l.label}
                     </Box>
                   </Link>
-                </Box>
-              ))}
+                ))}
+              </Box>
             </Box>
-          </Box>
+          ))}
         </Box>
 
-        {/* ── Trust / compliance signals (Coinbase-style legitimacy row) ── */}
+        {/* ── Trust / compliance signals ────────────────────────────── */}
         <Box
           data-testid="footer-trust-row"
           aria-label="Trust and compliance"
           sx={{
-            mt: { xs: 3, md: 4 },
-            pt: { xs: 3, md: 4 },
-            borderTop: "1px solid rgba(255, 255, 255, 0.1)",
+            pt: { xs: 4, md: 4 },
+            borderTop: "1px solid rgba(255,255,255,0.08)",
             display: "flex",
             flexWrap: "wrap",
             gap: { xs: 1, md: 1.25 },
             alignItems: "center",
           }}
         >
-          {["Non-custodial", "15+ chains", "SOC 2 track", "GDPR / AML aligned", "No chargebacks"].map((label) => (
+          {TRUST.map((label) => (
             <Box
               key={label}
               sx={{
@@ -232,29 +191,47 @@ const HomeFooter: FC = () => {
                 px: 1.5,
                 py: 0.6,
                 borderRadius: "999px",
-                border: "1px solid rgba(255, 255, 255, 0.14)",
-                background: "rgba(255, 255, 255, 0.04)",
+                border: "1px solid rgba(255,255,255,0.12)",
+                background: "rgba(255,255,255,0.03)",
               }}
             >
               <Box sx={{ width: 6, height: 6, borderRadius: "50%", background: "#22C55E" }} />
-              <Typography
-                sx={{
-                  color: "#FCFBF8",
-                  opacity: 0.82,
-                  fontSize: 12,
-                  fontFamily: "var(--font-sans)",
-                  letterSpacing: "0.02em",
-                }}
-              >
+              <Typography sx={{ color: "rgba(255,255,255,0.78)", fontSize: 12, fontFamily: "var(--font-sans)", letterSpacing: "0.02em" }}>
                 {label}
               </Typography>
             </Box>
           ))}
         </Box>
 
-        <BottomSection>
+        {/* ── Bottom bar ────────────────────────────────────────────── */}
+        <BottomSection sx={{ mt: { xs: 4, md: 5 } }}>
           <CopyrightText>{t("footerCopyright", { year: new Date().getFullYear() })}</CopyrightText>
-          <SocialsWrapper>{socialItems}</SocialsWrapper>
+          <Box
+            component={Link}
+            href="/system-status"
+            sx={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 1,
+              textDecoration: "none",
+              color: "rgba(255,255,255,0.6)",
+              fontSize: 13,
+              fontFamily: "var(--font-sans)",
+              transition: "color 0.18s ease",
+              "&:hover": { color: "rgba(255,255,255,0.9)" },
+            }}
+          >
+            <Box
+              sx={{
+                width: 7,
+                height: 7,
+                borderRadius: "50%",
+                background: "#22C55E",
+                boxShadow: "0 0 0 3px rgba(34,197,94,0.22)",
+              }}
+            />
+            All systems operational
+          </Box>
         </BottomSection>
       </FooterContainer>
     </FooterWrapper>

@@ -339,36 +339,54 @@ export const StyledGetStartedButton = styled(Box)({
 export const StatusPillWrap = styled(Box)(({ theme }) => ({
   display: "inline-flex",
   alignItems: "center",
-  gap: 6,
-  padding: "5px 10px",
+  gap: 7,
+  padding: "6px 12px",
   border: `1px solid ${
     theme.palette.mode === "dark" ? "rgba(255,255,255,0.10)" : "rgba(10,10,10,0.08)"
   }`,
+  background: theme.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "rgba(10,10,10,0.02)",
   borderRadius: 999,
-  fontFamily: "var(--font-tech)",
-  fontSize: 10.5,
+  fontFamily: "var(--font-body)",
+  fontSize: 12.5,
   fontWeight: 500,
-  letterSpacing: "0.14em",
-  textTransform: "uppercase",
-  color: theme.palette.mode === "dark" ? "rgba(255,255,255,0.72)" : "#3F3F46",
+  letterSpacing: "-0.005em",
+  color: theme.palette.mode === "dark" ? "rgba(255,255,255,0.72)" : "#52525B",
   whiteSpace: "nowrap",
   cursor: "default",
 
+  "@keyframes dynoStatusPulse": {
+    "0%": { boxShadow: "0 0 0 0 rgba(34,197,94,0.5)" },
+    "70%": { boxShadow: "0 0 0 5px rgba(34,197,94,0)" },
+    "100%": { boxShadow: "0 0 0 0 rgba(34,197,94,0)" },
+  },
   "& .dot": {
-    width: 6,
-    height: 6,
+    width: 7,
+    height: 7,
     borderRadius: 999,
     background: VOLT,
-    boxShadow: `0 0 0 3px rgba(204,255,0,0.22)`,
     display: "inline-block",
+    animation: "dynoStatusPulse 2.4s ease-out infinite",
   },
 
-  // On mobile, hide the "ALL SYSTEMS NORMAL" label and just show the dot.
+  // On mobile, hide the label and just show the dot.
   [theme.breakpoints.down("md")]: {
-    padding: "4px 8px",
+    padding: "5px 9px",
     "& .status-label": {
       display: "none",
     },
+  },
+}));
+
+// Thin vertical rule to group the utility actions (status/lang/theme) apart
+// from the auth actions (sign in / get started) — adds structure to the bar.
+export const ActionDivider = styled(Box)(({ theme }) => ({
+  width: 1,
+  height: 22,
+  margin: "0 4px",
+  flexShrink: 0,
+  background: theme.palette.mode === "dark" ? "rgba(255,255,255,0.12)" : "rgba(10,10,10,0.10)",
+  "@media (max-width: 900px)": {
+    display: "none",
   },
 }));
 

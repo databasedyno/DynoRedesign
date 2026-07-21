@@ -31,10 +31,10 @@ const Container = styled(Box)(({ theme }) => ({
 }));
 
 const TIERS = [
-  { name: "Starter", min: 0, max: 10000, pct: 1.5, accent: "#FF5B49", accentSoft: "rgba(255,91,73,0.10)" },
-  { name: "Growth", min: 10000, max: 100000, pct: 1.0, accent: "#7C5CFF", accentSoft: "rgba(124,92,255,0.10)" },
-  { name: "Scale", min: 100000, max: 500000, pct: 0.7, accent: "#4FD1FF", accentSoft: "rgba(79,209,255,0.14)" },
-  { name: "Enterprise", min: 500000, max: null, pct: 0.5, accent: "#5A6B00", accentSoft: "rgba(204,255,0,0.22)" },
+  { name: "Starter", min: 0, max: 10000, pct: 1.5, accent: "#6366F1", accentSoft: "rgba(99,102,241,0.10)" },
+  { name: "Growth", min: 10000, max: 100000, pct: 1.0, accent: "#4F46E5", accentSoft: "rgba(79,70,229,0.10)" },
+  { name: "Scale", min: 100000, max: 500000, pct: 0.7, accent: "#4338CA", accentSoft: "rgba(67,56,202,0.12)" },
+  { name: "Enterprise", min: 500000, max: null, pct: 0.5, accent: "#3730A3", accentSoft: "rgba(55,48,163,0.14)" },
 ];
 
 const getTier = (v: number) => {
@@ -94,7 +94,7 @@ const FeesPage = () => {
               borderRadius: "50%",
               background: AURORA_GRADIENT,
               filter: "blur(140px)",
-              opacity: s.dark ? 0.3 : 0.22,
+              opacity: s.dark ? 0.12 : 0.09,
               pointerEvents: "none",
             }}
           />
@@ -106,6 +106,7 @@ const FeesPage = () => {
               pointerEvents: "none",
               backgroundImage: `linear-gradient(${s.line} 1px, transparent 1px), linear-gradient(90deg, ${s.line} 1px, transparent 1px)`,
               backgroundSize: "64px 64px",
+              display: "none",
               maskImage: "radial-gradient(ellipse 90% 70% at 50% 10%, black 25%, transparent 80%)",
               WebkitMaskImage: "radial-gradient(ellipse 90% 70% at 50% 10%, black 25%, transparent 80%)",
             }}
@@ -134,9 +135,9 @@ const FeesPage = () => {
                   fontWeight: 600,
                   textTransform: "none",
                   color: "#fff",
-                  background: "#0A0A0A",
-                  boxShadow: "0 10px 24px -8px rgba(10,10,10,0.4)",
-                  "&:hover": { background: "#1F1F1F" },
+                  background: "#4F46E5",
+                  boxShadow: "0 10px 24px -8px rgba(79,70,229,0.4)",
+                  "&:hover": { background: "#4338CA" },
                 }}
               >
                 Calculate my fee
@@ -331,8 +332,8 @@ const FeesPage = () => {
                       fontWeight: 600,
                       textTransform: "none",
                       color: "#fff",
-                      background: "#0A0A0A",
-                      "&:hover": { background: "#1F1F1F" },
+                      background: "#4F46E5",
+                      "&:hover": { background: "#4338CA" },
                     }}
                   >
                     Start earning — free
@@ -362,8 +363,8 @@ const FeesPage = () => {
                 <Box key={idx} sx={{ display: "grid", gridTemplateColumns: { xs: "1.5fr 1fr 1fr", sm: "2fr 1fr 1fr" }, alignItems: "center", px: { xs: 2, sm: 3 }, py: 2, "&:not(:last-child)": { borderBottom: `1px solid ${s.line}` } }}>
                   <Typography sx={{ fontFamily: FONT_BODY, fontSize: 14.5, color: s.ink2 }}>{row.feature}</Typography>
                   <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 0.5 }}>
-                    {row.dynopay ? <CheckIcon sx={{ fontSize: 16, color: "#5A6B00" }} /> : <CloseIcon sx={{ fontSize: 16, color: "#5A6B00" }} />}
-                    <Typography sx={{ fontFamily: FONT_TECH, fontSize: 12.5, fontWeight: 600, color: "#5A6B00" }}>
+                    {row.dynopay ? <CheckIcon sx={{ fontSize: 16, color: s.dark ? "#818CF8" : "#4F46E5" }} /> : <CloseIcon sx={{ fontSize: 16, color: s.dark ? "#818CF8" : "#4F46E5" }} />}
+                    <Typography sx={{ fontFamily: FONT_TECH, fontSize: 12.5, fontWeight: 600, color: s.dark ? "#818CF8" : "#4F46E5" }}>
                       {row.dynoText}
                     </Typography>
                   </Box>
@@ -403,10 +404,10 @@ const FeesPage = () => {
                     flexDirection: "column",
                     gap: 1.5,
                     transition: "transform .3s ease, border-color .3s ease",
-                    "&:hover": { transform: "translateY(-2px)", borderColor: "#FF5B49" },
+                    "&:hover": { transform: "translateY(-2px)", borderColor: "#4F46E5" },
                   }}
                 >
-                  <ShieldOutlinedIcon sx={{ color: "#FF5B49", fontSize: 22 }} />
+                  <ShieldOutlinedIcon sx={{ color: "#4F46E5", fontSize: 22 }} />
                   <Typography sx={{ fontFamily: FONT_HERO, fontWeight: 700, fontSize: 18, color: s.ink, letterSpacing: "-0.01em" }}>{item.t}</Typography>
                   <Typography sx={{ fontFamily: FONT_BODY, fontSize: 14.5, color: s.ink2, lineHeight: 1.6 }}>{item.d}</Typography>
                 </Box>

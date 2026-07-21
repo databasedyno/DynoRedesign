@@ -14,6 +14,7 @@ import { useTranslation } from "react-i18next";
 import HomeButton from "../HomeButton";
 import {
   Actions,
+  ActionDivider,
   ClickableLogo,
   DesktopLanguageWrapper,
   FixedHeader,
@@ -296,6 +297,8 @@ const HomeHeader = memo(function HomeHeader() {
             )}
 
             <ThemeToggle size="small" />
+
+            {!isMobile && <ActionDivider />}
 
             <StyledSignInButton
               disableRipple
