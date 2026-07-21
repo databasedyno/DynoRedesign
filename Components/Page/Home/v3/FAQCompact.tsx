@@ -33,9 +33,9 @@ const FAQCompact: React.FC = () => {
   const [open, setOpen] = useState<number | null>(0);
 
   return (
-    <Box component="section" sx={{ background: s.bgAlt, py: { xs: 12, md: 20 } }}>
+    <Box component="section" sx={{ background: s.bgAlt, py: { xs: 14, md: 24 } }}>
       <Box sx={{ maxWidth: 960, mx: "auto", px: { xs: 3, md: 5 } }}>
-        <Box sx={{ mb: { xs: 6, md: 9 }, textAlign: "center" }}>
+        <Box sx={{ mb: { xs: 7, md: 11 }, textAlign: "center" }}>
           <Eyebrow tone="coral" sx={{ mb: 2 }}>[ Answers ]</Eyebrow>
           <HeadlineL sx={{ color: s.ink }}>Frequent questions.</HeadlineL>
         </Box>

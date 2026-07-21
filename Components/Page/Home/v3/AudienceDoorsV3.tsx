@@ -74,9 +74,9 @@ const AudienceDoorsV3: React.FC = () => {
   const router = useRouter();
 
   return (
-    <Box component="section" sx={{ background: s.bg, py: { xs: 12, md: 20 } }}>
+    <Box component="section" sx={{ background: s.bg, py: { xs: 14, md: 24 } }}>
       <Box sx={{ maxWidth: 1280, mx: "auto", px: { xs: 3, md: 5 } }}>
-        <Box sx={{ display: "flex", alignItems: "end", justifyContent: "space-between", flexWrap: "wrap", gap: 2, mb: { xs: 6, md: 9 } }}>
+        <Box sx={{ display: "flex", alignItems: "end", justifyContent: "space-between", flexWrap: "wrap", gap: 2, mb: { xs: 7, md: 11 } }}>
           <Box sx={{ maxWidth: 620 }}>
             <Eyebrow sx={{ mb: 2 }}>[ Who is this for? ]</Eyebrow>
             <HeadlineL sx={{ color: s.ink }}>

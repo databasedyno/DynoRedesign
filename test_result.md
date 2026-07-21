@@ -1,3 +1,109 @@
+## Session 81 — Landing "Coinbase-calm" refresh: indigo accent + whitespace + declutter + CONTRAST BUG FIX (2026-07-21)
+
+### Context
+User feedback on the home landing page ("/"): (1) "don't love the color" → wanted calmer, more neutral palette; (2) "white space is missing unlike coinbase" → wanted more air + fewer sections; (3) BUG: "several texts are not visible in light or dark mode".
+
+### Changes (frontend only, scoped to landing — checkout/dashboard/`/for/*` untouched; they use a separate near-black theme)
+1. **Color**: swapped lead accent coral `#FF5B49` → **soft indigo `#4F46E5`** used sparingly (CTAs, links, accent word, eyebrows, icon tiles, active states); neutral black/white/grey everywhere else. Recolored all 13 landing files (v3 sections + HomeHeader + HomeFooter). Lime `#CCFF00` status dots → operational green `#22C55E`.
+2. **Whitespace**: bumped section padding (desktop `py` up to 24, hero `pt 22 / pb 26`, final CTA `pb 26`), wider card gaps, larger heading margins; removed hero grid overlay; softened all decorative glow orbs (opacity ~0.045–0.16).
+3. **Declutter**: trimmed home stack 10 → 8 sections. Unwired (kept in-repo) `ProductStoryV3` (redundant w/ ProductFeatureCards) and `TryItNowV3` (dev-niche).
+4. **CONTRAST BUG FIX (root cause)**: `Components/Page/Home/v3/styled.v3.tsx` had hardcoded light-mode colors — `HeadlineXL`/`HeadlineL` = `#0A0A0A`, `Body` = `#3F3F46` — so un-overridden usages were invisible in DARK mode. Made them **theme-aware** (`theme.palette.text.primary/secondary`), and `Eyebrow`/`AuroraInk` brighten to `#818CF8` on dark. Also made indigo tag/CTA text in `ProductFeatureCards`/`LearnDocsCards` dark-aware (`s.dark ? "#818CF8" : ...`) so it isn't low-contrast on dark card surfaces.
+
+### Final landing order (8)
+Hero → LivePriceStrip → AudienceDoorsV3 → ProductFeatureCards → NumbersTrustBand → LearnDocsCards → FAQCompact → FinalCTAAurora.
+
+### Test scope (PUBLIC home page "/", NO login, NO DB writes — safe)
+**PRIMARY (bug):** Toggle between LIGHT and DARK mode (theme toggle in header, top-right). On EVERY section, confirm ALL text is clearly visible / adequate contrast in BOTH modes — no invisible (near-black-on-dark or white-on-white) or unreadably-low-contrast text. Report any element that fails, with section name + mode.
+**Secondary:** (a) Accent is indigo (not coral) across CTAs/links/eyebrows in both modes; (b) generous whitespace, page reads clean; (c) the two cut sections (ProductStory 3-step scroll, TryItNow cURL playground) are GONE; (d) hero "$500 fee-free" reward pill + live price ticker render; (e) footer trust row renders; (f) no console errors / no layout breakage; (g) mobile 390px: sections stack single-column, no horizontal overflow.
+
+### TESTING AGENT VERIFICATION — Session 81 Landing Page Contrast Bug Fix (2026-07-21)
+
+**Test Status:** ✅ **ALL TESTS PASSED - CONTRAST BUG FIXED**
+
+**Test Environment:**
+- Preview URL: https://6d962544-e4ae-4017-a0a6-1317b5ca67c1.preview.emergentagent.com/
+- Test Type: PUBLIC home page (NO login, NO DB writes)
+- Viewports: Desktop (1920×1080), Mobile (390×844)
+- Modes Tested: Light mode AND Dark mode
+
+**PRIMARY TEST RESULTS — CONTRAST BUG FIX:**
+
+✅ **LIGHT MODE - ALL TEXT CLEARLY VISIBLE (NO CONTRAST ISSUES)**
+- Hero section: Headline (black), accent "Every way" (indigo #4F46E5), body text (grey) - all clearly visible
+- Audience Doors: Section heading and card text - clearly visible
+- Product Feature Cards: Heading and card descriptions - clearly visible
+- Numbers & Trust Band: Big stats and compliance badges - clearly visible
+- Learn/Docs Cards: Section heading and card text - clearly visible
+- FAQ: Section heading and accordion items - clearly visible
+- Final CTA: Light text on dark background panel - clearly visible
+
+✅ **DARK MODE - ALL TEXT CLEARLY VISIBLE (NO CONTRAST ISSUES)**
+- Hero section: Headline (white/light), accent "Every way" (brightened indigo #818CF8) - clearly visible
+- Audience Doors: Section heading (light text) - clearly visible
+- Product Feature Cards: Heading (light text) - clearly visible
+- Numbers & Trust Band: Stats and badges (light text) - clearly visible
+- Learn/Docs Cards: Heading (light text) - clearly visible
+- FAQ: Heading (light text) - clearly visible
+- Final CTA: Light text on dark background - clearly visible
+- Background changed from light (rgb(238, 241, 246)) to dark (rgb(6, 6, 6)) ✅
+
+**SECONDARY TEST RESULTS:**
+
+✅ **(a) INDIGO ACCENT COLOR VERIFIED**
+- Detected 80 indigo-colored elements (#4F46E5 / rgb(79, 70, 229))
+- Detected 0 coral-colored elements (#FF5B49 / rgb(255, 91, 73))
+- Accent text "Every way" uses indigo in light mode, brightened indigo (#818CF8) in dark mode
+- CTAs, links, and eyebrows all use indigo accent
+- **NO CORAL REMNANTS FOUND**
+
+✅ **(b) GENEROUS WHITESPACE CONFIRMED**
+- Page has clean, airy feel with generous spacing between sections
+- Section padding increased as designed
+- No cramped sections observed
+
+✅ **(c) REMOVED SECTIONS VERIFIED GONE**
+- ProductStoryV3 (3-step scroll story): ✅ REMOVED (verified: no "Three steps", "Try it now" headings)
+- TryItNowV3 (cURL playground): ✅ REMOVED (verified: no cURL/201 pattern)
+- Page has exactly 8 `<section>` elements as expected
+- Note: Initial false positive on "Pay...Convert...Land" was from hero text "Get paid...auto-convert...land in wallet", NOT from removed section
+
+✅ **(d) KEY ELEMENTS RENDER CORRECTLY**
+- Hero "$500 fee-free" reward pill: ✅ PRESENT (color: rgb(67, 56, 202))
+- Final CTA "$500 fee-free" pill: ✅ PRESENT
+- Live crypto price ticker strip: ✅ PRESENT (BTC visible)
+- Final CTA dark background panel: ✅ PRESENT (rgb(10, 10, 10) dark panel)
+
+✅ **(e) FOOTER TRUST ROW / COMPLIANCE BADGES**
+- Found 17 compliance badge mentions across the page
+- Badges include: Non-custodial, SOC 2, GDPR, AML, 15+ chains
+- All clearly visible in both light and dark modes
+
+✅ **(f) NO CONSOLE ERRORS**
+- Total console messages: 10
+- Total console errors: 0
+- Critical errors (excluding next-auth): 0
+- Only expected next-auth session fetch errors (normal for public page)
+- No JavaScript errors blocking functionality
+- No React hydration errors
+
+✅ **(g) MOBILE VIEWPORT (390×844)**
+- No horizontal overflow: scrollWidth (390px) = clientWidth (390px) ✅
+- All sections stack to single column layout
+- Text remains clearly visible in mobile view
+- Page renders cleanly without layout breakage
+
+**Screenshots Captured:**
+- 20 screenshots total covering all 8 sections in light mode, dark mode, and mobile viewport
+- Light mode: 01-09 (hero, price strip, audience, product, numbers, learn, FAQ, final CTA)
+- Dark mode: 10-17 (all sections in dark mode)
+- Mobile: 18-20 (mobile layout verification)
+
+**Summary:**
+The Session 81 contrast bug fix is **WORKING PERFECTLY**. The root cause (hardcoded light-mode colors in styled.v3.tsx) has been successfully resolved by making HeadlineXL, HeadlineL, Body, Eyebrow, and AuroraInk components theme-aware. All text is now clearly visible with adequate contrast in BOTH light and dark modes across all 8 sections. The indigo accent color (#4F46E5) has completely replaced coral with no remnants. The page has generous whitespace, removed sections are gone, all key elements render correctly, and mobile layout works without overflow. **CONTRAST BUG FIXED - READY FOR PRODUCTION.**
+
+---
+
+
 ## Session 78b — Language switcher dropdown clipping (bug fix) (2026-07-18)
 
 ### Bug

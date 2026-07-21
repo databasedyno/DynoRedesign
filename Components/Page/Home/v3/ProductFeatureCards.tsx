@@ -69,7 +69,7 @@ const ProductFeatureCards: React.FC = () => {
   const router = useRouter();
 
   return (
-    <Box component="section" sx={{ background: s.bgAlt, py: { xs: 12, md: 20 } }}>
+    <Box component="section" sx={{ background: s.bgAlt, py: { xs: 14, md: 24 } }}>
       <Box sx={{ maxWidth: 1280, mx: "auto", px: { xs: 3, md: 5 } }}>
         <Box
           sx={{
@@ -78,7 +78,7 @@ const ProductFeatureCards: React.FC = () => {
             justifyContent: "space-between",
             flexWrap: "wrap",
             gap: 2,
-            mb: { xs: 6, md: 9 },
+            mb: { xs: 7, md: 11 },
           }}
         >
           <Box sx={{ maxWidth: 620 }}>
@@ -223,7 +223,7 @@ const ProductFeatureCards: React.FC = () => {
                       fontSize: 11.5,
                       letterSpacing: "0.22em",
                       textTransform: "uppercase",
-                      color: "#4338CA",
+                      color: s.dark ? "#818CF8" : "#4338CA",
                       fontWeight: 500,
                       mb: 1.25,
                     }}
@@ -261,14 +261,14 @@ const ProductFeatureCards: React.FC = () => {
                         fontFamily: FONT_BODY,
                         fontSize: 14.5,
                         fontWeight: 600,
-                        color: "#4F46E5",
+                        color: s.dark ? "#818CF8" : "#4F46E5",
                       }}
                     >
                       {f.cta}
                     </Typography>
                     <ArrowForwardRoundedIcon
                       className="feat-cta-arrow"
-                      sx={{ fontSize: 17, color: "#4F46E5", transition: "transform .35s cubic-bezier(.16,1,.3,1)" }}
+                      sx={{ fontSize: 17, color: s.dark ? "#818CF8" : "#4F46E5", transition: "transform .35s cubic-bezier(.16,1,.3,1)" }}
                     />
                   </Box>
                 </Box>

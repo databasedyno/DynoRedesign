@@ -58,9 +58,9 @@ const LearnDocsCards: React.FC = () => {
   const router = useRouter();
 
   return (
-    <Box component="section" sx={{ background: s.bg, py: { xs: 12, md: 20 } }}>
+    <Box component="section" sx={{ background: s.bg, py: { xs: 14, md: 24 } }}>
       <Box sx={{ maxWidth: 1280, mx: "auto", px: { xs: 3, md: 5 } }}>
-        <Box sx={{ maxWidth: 620, mb: { xs: 6, md: 9 } }}>
+        <Box sx={{ maxWidth: 620, mb: { xs: 7, md: 11 } }}>
           <Eyebrow sx={{ mb: 2 }}>[ Get up to speed ]</Eyebrow>
           <HeadlineL sx={{ color: s.ink }}>Start with the basics.</HeadlineL>
         </Box>
@@ -119,7 +119,7 @@ const LearnDocsCards: React.FC = () => {
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      color: "#4F46E5",
+                      color: s.dark ? "#818CF8" : "#4F46E5",
                       mb: 2.5,
                     }}
                   >

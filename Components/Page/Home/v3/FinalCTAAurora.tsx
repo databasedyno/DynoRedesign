@@ -11,7 +11,7 @@ const FinalCTAAurora: React.FC = () => {
   const router = useRouter();
 
   return (
-    <Box component="section" sx={{ background: s.bg, pt: { xs: 4, md: 6 }, pb: { xs: 12, md: 20 } }}>
+    <Box component="section" sx={{ background: s.bg, pt: { xs: 4, md: 6 }, pb: { xs: 16, md: 26 } }}>
       <Box sx={{ maxWidth: 1280, mx: "auto", px: { xs: 3, md: 5 } }}>
         <Box
           sx={{

@@ -39,8 +39,8 @@ const HeroPlayground: React.FC = () => {
         position: "relative",
         overflow: "hidden",
         background: s.bg,
-        pt: { xs: 12, md: 18 },
-        pb: { xs: 12, md: 20 },
+        pt: { xs: 14, md: 22 },
+        pb: { xs: 16, md: 26 },
       }}
     >
       {/* Soft coral orb behind hero (minimal single-accent) */}

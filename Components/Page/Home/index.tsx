@@ -2,9 +2,7 @@ import { FC, memo, useEffect } from "react";
 import HeroPlayground from "./v3/HeroPlayground";
 import LivePriceStrip from "./LivePriceStrip";
 import AudienceDoorsV3 from "./v3/AudienceDoorsV3";
-import ProductStoryV3 from "./v3/ProductStoryV3";
 import ProductFeatureCards from "./v3/ProductFeatureCards";
-import TryItNowV3 from "./v3/TryItNowV3";
 import NumbersTrustBand from "./v3/NumbersTrustBand";
 import LearnDocsCards from "./v3/LearnDocsCards";
 import FAQCompact from "./v3/FAQCompact";
@@ -19,17 +17,18 @@ import { HomeWrapper } from "./styled";
  * etc.) is retained in-repo but unwired from the stack below so it can be
  * A/B'd back on with a single import swap.
  *
- * Order (2026-07-21 — Coinbase-inspired refinements, additive):
- *   1. HeroPlayground        — monumental headline + $500 fee-free reward hook + live @handle card
- *   2. LivePriceStrip        — real-time BTC/ETH/… ticker (self-hides if no data) "this is live"
- *   3. AudienceDoorsV3       — four coloured doors (Merchants / Fundraisers / Creators / Developers)
- *   4. ProductStoryV3        — three-step scroll story (Pay → Convert → Land in wallet)
- *   5. ProductFeatureCards   — Coinbase-style "one idea per card" capability band (Checkout / Auto-convert / API)
- *   6. TryItNowV3            — dark obsidian playground: cURL + 201 response
- *   7. NumbersTrustBand      — four big stats + compliance badges (merges StatWall + Compliance)
- *   8. LearnDocsCards        — education band (Docs / Learn / Fees) — reduces newbie anxiety
- *   9. FAQCompact            — five real questions
- *  10. FinalCTAAurora        — aurora obsidian band; bookends the $500 fee-free offer from the hero
+ * Order (2026-07-21 — Coinbase-calm refinement: leaner + more whitespace + indigo accent):
+ *   1. HeroPlayground        — headline + $500 fee-free reward hook + live @handle card
+ *   2. LivePriceStrip        — real-time BTC/ETH/… ticker (self-hides if no data)
+ *   3. AudienceDoorsV3       — four doors (Merchants / Fundraisers / Creators / Developers)
+ *   4. ProductFeatureCards   — Coinbase-style "one idea per card" band (Checkout / Auto-convert / API)
+ *   5. NumbersTrustBand      — four big stats + compliance badges
+ *   6. LearnDocsCards        — education band (Docs / Learn / Fees)
+ *   7. FAQCompact            — five real questions
+ *   8. FinalCTAAurora        — dark close; bookends the $500 fee-free offer from the hero
+ *
+ * Trimmed from the stack (kept in-repo, unwired) for a cleaner, airier page:
+ * ProductStoryV3 (redundant with ProductFeatureCards) and TryItNowV3 (dev-niche → lives in /documentation).
  */
 const HomePage: FC = () => {
   useEffect(() => {
@@ -54,9 +53,7 @@ const HomePage: FC = () => {
       <HeroPlayground />
       <LivePriceStrip />
       <AudienceDoorsV3 />
-      <ProductStoryV3 />
       <ProductFeatureCards />
-      <TryItNowV3 />
       <NumbersTrustBand />
       <LearnDocsCards />
       <FAQCompact />
