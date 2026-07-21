@@ -194,8 +194,8 @@ const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages =
           maxWidth: 1000,
           mx: "auto",
           px: { xs: 2, md: 3 },
-          pt: { xs: 4, md: 7 },
-          pb: { xs: 5, md: 7 },
+          pt: { xs: 6, md: 10 },
+          pb: { xs: 6, md: 9 },
           textAlign: "center",
         }}
       >
@@ -282,7 +282,7 @@ const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages =
           maxWidth: 1200,
           mx: "auto",
           px: { xs: 2, md: 3 },
-          py: { xs: 5, md: 7 },
+          py: { xs: 7, md: 12 },
         }}
       >
         <HomeSectionTitle
@@ -366,7 +366,7 @@ const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages =
           maxWidth: 900,
           mx: "auto",
           px: { xs: 2, md: 3 },
-          py: { xs: 5, md: 7 },
+          py: { xs: 7, md: 12 },
         }}
       >
         <HomeSectionTitle
@@ -446,7 +446,7 @@ const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages =
           maxWidth: 900,
           mx: "auto",
           px: { xs: 2, md: 3 },
-          py: { xs: 5, md: 7 },
+          py: { xs: 7, md: 12 },
         }}
       >
         <HomeSectionTitle
@@ -523,7 +523,7 @@ const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages =
             maxWidth: 1200,
             mx: "auto",
             px: { xs: 2, md: 3 },
-            py: { xs: 5, md: 7 },
+            py: { xs: 7, md: 12 },
           }}
         >
           <HomeSectionTitle
@@ -623,7 +623,7 @@ const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages =
           maxWidth: 1000,
           mx: "auto",
           px: { xs: 2, md: 3 },
-          py: { xs: 6, md: 10 },
+          py: { xs: 8, md: 14 },
         }}
       >
         <Box

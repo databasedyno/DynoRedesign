@@ -1,0 +1,50 @@
+{
+  "summary": "Verified DynoPay marketing polish across / (header), mobile drawer, /fees, /documentation, /for/creators in BOTH light and dark modes at desktop (1920x800) and mobile (390x844). All 5 acceptance criteria pass. No blocking issues; two low-priority observations documented below.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {
+        "screen": "Desktop header 'Get started' pill — dark mode",
+        "issues": [
+          "Computed background of the pill in dark mode is rgb(67,56,202) = #4338CA (the CORAL_DEEP hover shade) instead of #4F46E5 (CORAL). Root cause: HomeButton uses theme.palette.primary.main (which is #4338CA in the dark palette). The outer StyledGetStartedButton wrapper sets `& button { background: CORAL }` but MUI's own class rule wins because it uses the emotion styled(Box)+theme selector chain. Visually it still looks identical purple and is flat / no shadow / no gloss, so this is COSMETIC only. If exact color parity across modes is intended, override to CORAL inside the primary variant of HomeButton for the dark theme (or set the styled wrapper selector with `&& button` to bump specificity). LIGHT mode is correct: rgb(79,70,229) = #4F46E5, hovers to rgb(67,56,202) = #4338CA."
+        ]
+      },
+      {
+        "screen": "Mobile drawer — dark mode :focus-visible ring",
+        "issues": [
+          "MuiDrawer-paper in dark mode still shows the stale lime `outline: rgb(204,255,0) solid 2px` and `boxShadow: rgba(204,255,0,0.35) 0 0 0 2px` ONLY when the drawer receives keyboard/programmatic focus. Does NOT appear on normal mouse click (verified with page.mouse.click). Low priority accessibility polish — a keyboard user opening the menu will see a lime ring instead of an indigo one. Search for global `:focus-visible` rule (likely in _app or theme.tsx) that colors focus outlines with the old brand lime and swap to indigo (#4F46E5 / rgba(129,140,248,0.35))."
+        ]
+      }
+    ]
+  },
+  "verification_results": {
+    "header_getstarted_light_desktop": {"status": "PASS", "bg": "rgb(79,70,229) = #4F46E5", "boxShadow": "none", "backgroundImage": "none (no gloss inset)", "borderRadius": "999px", "hover_bg": "rgb(67,56,202) = #4338CA", "hover_boxShadow": "none"},
+    "header_getstarted_dark_desktop": {"status": "PASS_WITH_NOTE", "bg": "rgb(67,56,202) = #4338CA", "boxShadow": "none", "backgroundImage": "none", "note": "Renders CORAL_DEEP instead of CORAL by default in dark mode (MUI primary.main override). Still flat & premium; see design_issues."},
+    "mobile_drawer_light": {"status": "PASS", "effective_bg": "rgb(255,255,255)", "nav_text_color": "rgb(10,10,10)", "trust_badge_color": "rgba(10,10,10,0.55)", "cta_bg": "rgb(79,70,229) #4F46E5", "cta_boxShadow": "none", "signin_color": "rgb(10,10,10)", "signin_border": "1px solid rgba(10,10,10,0.12)"},
+    "mobile_drawer_dark": {"status": "PASS", "effective_bg": "rgb(11,11,15)", "nav_text_color": "rgb(245,245,245)", "trust_badge_color": "rgba(245,245,245,0.7)", "cta_bg": "rgb(79,70,229) #4F46E5", "cta_boxShadow": "none", "signin_color": "rgb(245,245,245)", "signin_border": "1px solid rgba(255,255,255,0.14)"},
+    "fees_light": {"status": "PASS", "bodyBg": "rgb(238,241,246)", "hero_btn": "rgb(79,70,229) flat, boxShadow none", "text_legible": true},
+    "fees_dark": {"status": "PASS", "bodyBg": "rgb(6,6,6)", "hero_btn": "rgb(79,70,229) flat, boxShadow none", "text_legible": true, "accent_indigo_tint": "rgb(129,140,248)"},
+    "documentation_light": {"status": "PASS", "lime_color_count_on_page": 0, "hero_whitespace": "generous", "text_legible": true},
+    "documentation_dark": {"status": "PASS", "lime_color_count_on_page": 0, "learn_more_color": "rgb(129,140,248) indigo tint", "hero_whitespace": "generous", "text_legible": true, "note": "Confirmed no lime rgba(204,255,0,*) tints anywhere in /documentation dark palette"},
+    "for_creators_light": {"status": "PASS", "lime_count": 0, "sections_verified": ["hero","features grid","how-it-works","FAQ accordions","final CTA"], "text_legible": true, "generous_whitespace": true},
+    "for_creators_dark": {"status": "PASS", "lime_count": 0, "sections_verified": ["hero","features grid","how-it-works","FAQ accordions","final CTA"], "text_legible": true, "generous_whitespace": true}
+  },
+  "test_report_links": [],
+  "action_items": [
+    "(LOW / optional) Bump specificity in Components/Layout/HomeHeader/styled.tsx StyledGetStartedButton so the wrapper's `background: #4F46E5` wins over MUI primary.main in dark mode (change `& button, & a` -> `&& button, && a`), OR set MUI dark palette primary.main to #4F46E5 with .dark = #4338CA. Purely for exact-color parity with light mode.",
+    "(LOW / a11y) Replace the global `:focus-visible` lime outline/box-shadow (rgb(204,255,0) + rgba(204,255,0,0.35)) with an indigo focus ring so keyboard users on the mobile drawer / other focusable panels don't see the stale lime brand color."
+  ],
+  "critical_code_review_comments": [
+    "Components/UI/FeeCalculator/index.tsx still uses lime #CCFF00 heavily in DARK mode (fee readout text, chip bg/border, spinner, radial gradient). Review request scope only mandated indigo tints on /documentation and did not call out the fee calculator, so this was NOT flagged as a failure, but if the whole marketing palette is meant to be indigo now this file should be swept too (lines 119, 159, 160, 187, 344, 415).",
+    "Components/Layout/NewSidebar/*, Components/Layout/MobileNavigationBar/*, Components/Layout/Pay3Layout.tsx, Components/Common/SupportChatWidget/index.tsx also still contain #CCFF00 / rgba(204,255,0,*) values. These are AUTHENTICATED-app surfaces and out of scope for this marketing polish, but noting for future palette-consolidation work."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a", "frontend": "100% (5/5 acceptance criteria PASS)"},
+  "test_credentials": "None used — all pages under test are public marketing pages. No login performed.",
+  "seed_data_creation": "none",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Preview base URL = https://dynopay-preview-8.preview.emergentagent.com. Theme via localStorage 'theme-mode' = 'light' | 'dark' set via page.context.add_init_script BEFORE goto. Use wait_until='domcontentloaded' NOT 'networkidle' (there is a long-poll/session heartbeat that never idles) and then page.wait_for_timeout(4000-6000) for Next.js dev-mode compile. Mobile viewport 390x844 pushes the hamburger to x=418 (off-viewport) — dispatch the click with page.evaluate(\"document.querySelector('[data-testid=\\\"mobile-menu-toggle\\\"]').click()\") or use a slightly wider viewport (500x844). NOTE: JS .click() on the toggle triggers :focus-visible on the drawer and reveals a stale lime focus-ring; use page.mouse.click on the raw coords to observe the true user-facing state."
+}

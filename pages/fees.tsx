@@ -82,7 +82,7 @@ const FeesPage = () => {
 
       <PageWrapper sx={{ background: s.bg }}>
         {/* ===== HERO ===== */}
-        <Box sx={{ position: "relative", overflow: "hidden", pb: { xs: 6, md: 10 } }}>
+        <Box sx={{ position: "relative", overflow: "hidden", pb: { xs: 8, md: 12 } }}>
           <Box
             aria-hidden
             sx={{
@@ -112,7 +112,7 @@ const FeesPage = () => {
             }}
           />
           <Container sx={{ position: "relative", zIndex: 1 }}>
-            <Box sx={{ pt: { xs: 7, md: 12 }, pb: { xs: 5, md: 7 }, textAlign: "center" }}>
+            <Box sx={{ pt: { xs: 9, md: 16 }, pb: { xs: 6, md: 9 }, textAlign: "center" }}>
               <Eyebrow tone="coral" sx={{ mb: 3 }}>[ Fees · Simple, honest ]</Eyebrow>
               <HeadlineXL sx={{ color: s.ink, maxWidth: 1000, mx: "auto", mb: 3 }}>
                 One number to remember.
@@ -136,8 +136,10 @@ const FeesPage = () => {
                   textTransform: "none",
                   color: "#fff",
                   background: "#4F46E5",
-                  boxShadow: "0 10px 24px -8px rgba(79,70,229,0.4)",
-                  "&:hover": { background: "#4338CA" },
+                  boxShadow: "none",
+                  transition: "background-color 200ms ease, transform 150ms cubic-bezier(0.16,1,0.3,1)",
+                  "&:hover": { background: "#4338CA", boxShadow: "none" },
+                  "&:active": { transform: "scale(0.98)" },
                 }}
               >
                 Calculate my fee
@@ -148,7 +150,7 @@ const FeesPage = () => {
 
         {/* ===== TIER CARDS ===== */}
         <Container>
-          <Box component="section" sx={{ py: { xs: 6, md: 10 } }}>
+          <Box component="section" sx={{ py: { xs: 8, md: 14 } }}>
             <Box sx={{ mb: { xs: 5, md: 7 }, maxWidth: 620 }}>
               <Eyebrow tone="violet" sx={{ mb: 2 }}>[ 01 · Volume tiers ]</Eyebrow>
               <HeadlineL sx={{ color: s.ink }}>Four tiers. One number that shrinks.</HeadlineL>
@@ -226,7 +228,7 @@ const FeesPage = () => {
 
         {/* ===== FEE CALCULATOR ===== */}
         <Container>
-          <Box component="section" id="fee-calculator" sx={{ py: { xs: 6, md: 10 } }}>
+          <Box component="section" id="fee-calculator" sx={{ py: { xs: 8, md: 14 } }}>
             <Box sx={{ mb: { xs: 5, md: 7 }, maxWidth: 620 }}>
               <Eyebrow tone="coral" sx={{ mb: 2 }}>[ 02 · Calculator ]</Eyebrow>
               <HeadlineL sx={{ color: s.ink }}>Move the slider. See your fee.</HeadlineL>
@@ -346,7 +348,7 @@ const FeesPage = () => {
 
         {/* ===== COMPARISON ===== */}
         <Container>
-          <Box component="section" sx={{ py: { xs: 6, md: 10 } }}>
+          <Box component="section" sx={{ py: { xs: 8, md: 14 } }}>
             <Box sx={{ mb: { xs: 5, md: 7 }, maxWidth: 620 }}>
               <Eyebrow tone="violet" sx={{ mb: 2 }}>[ 03 · vs. Everyone else ]</Eyebrow>
               <HeadlineL sx={{ color: s.ink }}>What you don&apos;t pay for.</HeadlineL>
@@ -382,7 +384,7 @@ const FeesPage = () => {
 
         {/* ===== SECURITY ===== */}
         <Container>
-          <Box component="section" sx={{ py: { xs: 6, md: 10 } }}>
+          <Box component="section" sx={{ py: { xs: 8, md: 14 } }}>
             <Box sx={{ mb: { xs: 5, md: 6 }, maxWidth: 620 }}>
               <Eyebrow tone="coral" sx={{ mb: 2 }}>[ 04 · What we don&apos;t touch ]</Eyebrow>
               <HeadlineL sx={{ color: s.ink }}>Non-custodial by design.</HeadlineL>

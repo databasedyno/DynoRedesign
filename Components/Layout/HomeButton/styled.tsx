@@ -63,7 +63,7 @@ export const StyledHomeButton = styled(Button, {
             "&:hover": {
               backgroundColor:
                 (theme.palette.primary as any).hover || theme.palette.primary.dark,
-              boxShadow: isDark ? "0 0 26px rgba(204,255,0,0.35)" : "none",
+              boxShadow: "none",
 
               "& .MuiSvgIcon-root": {
                 animation: "none",
@@ -72,7 +72,8 @@ export const StyledHomeButton = styled(Button, {
             },
 
             "&:active": {
-              backgroundColor: theme.palette.primary.main,
+              backgroundColor: theme.palette.primary.dark,
+              transform: "scale(0.97)",
 
               "& .MuiSvgIcon-root": {
                 animation: "none",

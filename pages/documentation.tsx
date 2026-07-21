@@ -85,7 +85,7 @@ const ProductCard = styled(Box)(({ theme }) => {
       borderColor: dk ? "#818CF8" : "#4F46E5",
       transform: "translateY(-2px)",
       boxShadow: dk
-        ? "0 8px 32px rgba(204,255,0,0.15)"
+        ? "0 8px 32px rgba(129,140,248,0.15)"
         : "0 8px 32px rgba(10,10,10,0.08)",
     },
   };
@@ -100,7 +100,7 @@ const ProductIcon = styled(Box)(({ theme }) => {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    background: dk ? "rgba(204,255,0,0.1)" : "#0A0A0A0D",
+    background: dk ? "rgba(129,140,248,0.1)" : "#0A0A0A0D",
     color: dk ? "#818CF8" : "#4F46E5",
     marginBottom: "16px",
     "& svg": { fontSize: 24 },
@@ -140,11 +140,11 @@ const SidebarItem = styled(Box, {
     fontWeight: active ? 600 : 400,
     fontWeight: active ? 500 : 400,
     color: active ? (dk ? "#818CF8" : "#4F46E5") : theme.palette.text.secondary,
-    background: active ? (dk ? "rgba(204,255,0,0.1)" : "#0A0A0A08") : "transparent",
+    background: active ? (dk ? "rgba(129,140,248,0.1)" : "#0A0A0A08") : "transparent",
     cursor: "pointer",
     transition: "all 0.15s",
     "&:hover": {
-      background: dk ? "rgba(204,255,0,0.06)" : "#F8F9FC",
+      background: dk ? "rgba(129,140,248,0.06)" : "#F8F9FC",
       color: dk ? "#818CF8" : "#4F46E5",
     },
   };
@@ -176,7 +176,7 @@ const EndpointCardWrapper = styled(Box)(({ theme }) => {
     scrollMarginTop: "100px",
     "&:hover": {
       boxShadow: dk
-        ? "0 4px 20px rgba(204,255,0,0.08)"
+        ? "0 4px 20px rgba(129,140,248,0.08)"
         : "0 4px 20px rgba(10,10,10,0.04)",
     },
   };
@@ -193,11 +193,11 @@ const EndpointHeader = styled(Box, {
     padding: "16px 20px",
     cursor: "pointer",
     background: expanded
-      ? dk ? "rgba(204,255,0,0.04)" : "#FAFBFF"
+      ? dk ? "rgba(129,140,248,0.04)" : "#FAFBFF"
       : dk ? "rgba(255,255,255,0.045)" : "#FFFFFF",
     transition: "background 0.15s",
     "&:hover": {
-      background: dk ? "rgba(204,255,0,0.06)" : "#F5F7FF",
+      background: dk ? "rgba(129,140,248,0.06)" : "#F5F7FF",
     },
   };
 });
@@ -234,7 +234,7 @@ const AuthBadge = styled("span", {
     fontFamily: "var(--font-sans)",
     whiteSpace: "nowrap" as const,
     background: isPublishable
-      ? dk ? "rgba(204,255,0,0.15)" : "#F0FDD4"
+      ? dk ? "rgba(132,204,22,0.15)" : "#F0FDD4"
       : isApiOnly
         ? dk ? "rgba(29,78,216,0.15)" : "#DBEAFE"
         : isOptionalBearer
@@ -317,7 +317,7 @@ const StepNumber = styled(Box)(({ theme }) => {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    background: dk ? "rgba(204,255,0,0.15)" : "#0A0A0A",
+    background: dk ? "rgba(129,140,248,0.15)" : "#0A0A0A",
     color: "#FFFFFF",
     fontWeight: 700,
     fontSize: "15px",
@@ -356,7 +356,7 @@ const InfoBox = styled(Box)(({ theme }) => {
     padding: "20px",
     borderRadius: "14px",
     background: dk
-      ? "linear-gradient(135deg, rgba(204,255,0,0.06) 0%, rgba(109,40,217,0.06) 100%)"
+      ? "linear-gradient(135deg, rgba(129,140,248,0.06) 0%, rgba(109,40,217,0.06) 100%)"
       : "linear-gradient(135deg, #F0F5FF 0%, #F5F3FF 100%)",
     border: `1px solid ${dk ? "rgba(255,255,255,0.12)" : "rgba(10,10,10,0.10)"}`,
   };
@@ -1033,7 +1033,7 @@ const ParamTable = memo(({ title, params }: { title: string; params: { name: str
   const theme = useTheme();
   const dk = theme.palette.mode === "dark";
   const borderClr = dk ? "rgba(255,255,255,0.12)" : "rgba(10,10,10,0.10)";
-  const headBg = dk ? "rgba(204,255,0,0.04)" : "#F8F9FC";
+  const headBg = dk ? "rgba(129,140,248,0.04)" : "#F8F9FC";
   return (
     <Box sx={{ mb: 2.5 }}>
       <Typography sx={{ fontSize: 13, fontWeight: 600, fontFamily: "var(--font-hero), var(--font-sans)", color: "text.primary", mb: 1 }}>{title}</Typography>
@@ -1086,7 +1086,7 @@ const EndpointCard = memo(({ ep }: { ep: Endpoint }) => {
         <Box sx={{ px: 2.5, py: 2.5, borderTop: `1px solid ${dk ? "rgba(255,255,255,0.12)" : "rgba(10,10,10,0.10)"}` }}>
           <Typography sx={{ fontSize: 14, fontFamily: "var(--font-sans)", color: "text.secondary", mb: 2, lineHeight: 1.7 }}>{ep.description}</Typography>
           {/* Full production URL — so the correct host + /api prefix is visible where it matters */}
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2.5, px: 1.5, py: 1, borderRadius: "8px", background: dk ? "rgba(204,255,0,0.05)" : "#F5F6FA", border: `1px solid ${dk ? "rgba(255,255,255,0.10)" : "rgba(10,10,10,0.08)"}`, overflowX: "auto" }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2.5, px: 1.5, py: 1, borderRadius: "8px", background: dk ? "rgba(129,140,248,0.05)" : "#F5F6FA", border: `1px solid ${dk ? "rgba(255,255,255,0.10)" : "rgba(10,10,10,0.08)"}`, overflowX: "auto" }}>
             <Typography component="span" sx={{ fontSize: 11, fontWeight: 700, fontFamily: "var(--font-sans)", color: "text.secondary", flexShrink: 0 }}>{ep.method}</Typography>
             <Typography component="code" sx={{ fontFamily: "var(--font-tech), monospace", fontSize: 12.5, color: "text.primary", whiteSpace: "nowrap" }}>
               {`https://dynopay.com${ep.path.startsWith("/api/") ? ep.path : `${BASE_URL}${ep.path}`}`}
@@ -1170,7 +1170,7 @@ const DocumentationPage = () => {
   }, []);
 
   const borderClr = dk ? "rgba(255,255,255,0.12)" : "rgba(10,10,10,0.10)";
-  const headBg = dk ? "rgba(204,255,0,0.04)" : "#F8F9FC";
+  const headBg = dk ? "rgba(129,140,248,0.04)" : "#F8F9FC";
 
   const productCards = [
     { title: "Checkout Payments", desc: "Hosted payment page — redirect customers to complete crypto payments in a few clicks.", icon: <PaymentIcon />, section: "payments" },
@@ -1188,7 +1188,7 @@ const DocumentationPage = () => {
       <PageWrapper>
         {/* ===== HERO ===== */}
         <Container>
-          <section style={{ padding: isMobile ? "48px 0 32px" : "80px 0 48px" }}>
+          <section style={{ padding: isMobile ? "64px 0 40px" : "112px 0 64px" }}>
             <HomeSectionTitle
               type="large"
               badgeText="Developer Documentation"
@@ -1419,7 +1419,7 @@ const DocumentationPage = () => {
                         sx={{
                           cursor: "pointer",
                           border: `1px solid ${active ? (dk ? "#818CF8" : "#4F46E5") : borderClr}`,
-                          background: active ? (dk ? "rgba(204,255,0,0.12)" : "#0A0A0A") : "transparent",
+                          background: active ? (dk ? "rgba(129,140,248,0.12)" : "#0A0A0A") : "transparent",
                           color: active ? ("#FFFFFF") : "text.secondary",
                           fontFamily: "var(--font-sans)",
                           fontSize: 12.5,

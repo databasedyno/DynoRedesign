@@ -352,7 +352,7 @@ const HomeHeader = memo(function HomeHeader() {
               </MobileNavItem>
             ))}
 
-            {/* Coral CTA inside the mobile drawer — matches Aurora hero */}
+            {/* Flat indigo CTA inside the mobile drawer — matches header */}
             <Box sx={{ display: "flex", flexDirection: "column", gap: 1.25, mt: 2.5 }}>
               <Button
                 onClick={() => {
@@ -370,8 +370,10 @@ const HomeHeader = memo(function HomeHeader() {
                   borderRadius: 999,
                   padding: "12px 22px",
                   height: 48,
-                  boxShadow: "0 8px 22px rgba(79, 70, 229,0.36)",
-                  "&:hover": { background: "#4338CA" },
+                  boxShadow: "none",
+                  transition: "background-color 200ms ease, transform 150ms cubic-bezier(0.16,1,0.3,1)",
+                  "&:hover": { background: "#4338CA", boxShadow: "none" },
+                  "&:active": { transform: "scale(0.98)", background: "#4338CA" },
                 }}
               >
                 {t("getStarted")}
@@ -382,15 +384,19 @@ const HomeHeader = memo(function HomeHeader() {
                   void router.push("/auth/login");
                 }}
                 sx={{
-                  color: "#F5F5F5",
+                  color: isDark ? "#F5F5F5" : "#0A0A0A",
                   fontFamily: "var(--font-body)",
                   fontSize: 14,
                   fontWeight: 500,
                   textTransform: "none",
                   borderRadius: 999,
                   height: 44,
-                  border: "1px solid rgba(255,255,255,0.14)",
-                  "&:hover": { background: "rgba(255,255,255,0.06)" },
+                  border: `1px solid ${isDark ? "rgba(255,255,255,0.14)" : "rgba(10,10,10,0.12)"}`,
+                  transition: "background-color 200ms ease, border-color 200ms ease",
+                  "&:hover": {
+                    background: isDark ? "rgba(255,255,255,0.06)" : "rgba(10,10,10,0.04)",
+                    borderColor: "#4F46E5",
+                  },
                 }}
               >
                 {t("signIn")}

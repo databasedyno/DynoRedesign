@@ -159,14 +159,14 @@ export const DesktopLanguageWrapper = styled(Box)({
   marginLeft: 4,
 });
 
-export const MobileLanguageWrapper = styled(Box)({
+export const MobileLanguageWrapper = styled(Box)(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   gap: 8,
   marginTop: "auto",
   paddingTop: 24,
-  borderTop: "1px solid rgba(255,255,255,0.12)",
-});
+  borderTop: `1px solid ${theme.palette.mode === "dark" ? "rgba(255,255,255,0.12)" : "rgba(10,10,10,0.10)"}`,
+}));
 
 /* ================= MOBILE MENU ================= */
 
@@ -215,19 +215,24 @@ export const MobileMenuDrawer = styled(Drawer)(() => ({
   },
 }));
 
-// Aurora obsidian panel — the visual anchor of the mobile menu.
-export const MobileDrawer = styled(Box)(() => ({
-  height: "100%",
-  backgroundColor: "#0B0B0F", // obsidian, matches Aurora dark canvas
-  color: "#F5F5F5",
-  display: "flex",
-  flexDirection: "column",
-  overflow: "hidden",
-  padding: "24px 20px",
-  // Subtle aurora bloom in the top-right corner (radial gradient).
-  backgroundImage:
-    "radial-gradient(circle at 90% -10%, rgba(79, 70, 229,0.20) 0%, rgba(11,11,15,0) 55%), radial-gradient(circle at -10% 100%, rgba(124,92,255,0.18) 0%, rgba(11,11,15,0) 55%)",
-}));
+// Aurora obsidian panel (dark) / clean paper panel (light) — theme-aware so
+// the mobile menu matches the frosted header instead of always being dark.
+export const MobileDrawer = styled(Box)(({ theme }) => {
+  const dark = theme.palette.mode === "dark";
+  return {
+    height: "100%",
+    backgroundColor: dark ? "#0B0B0F" : "#FFFFFF",
+    color: dark ? "#F5F5F5" : "#0A0A0A",
+    display: "flex",
+    flexDirection: "column",
+    overflow: "hidden",
+    padding: "24px 20px",
+    // Subtle aurora bloom in the corners (dimmer in light mode).
+    backgroundImage: dark
+      ? "radial-gradient(circle at 90% -10%, rgba(79, 70, 229,0.20) 0%, rgba(11,11,15,0) 55%), radial-gradient(circle at -10% 100%, rgba(124,92,255,0.18) 0%, rgba(11,11,15,0) 55%)"
+      : "radial-gradient(circle at 92% -8%, rgba(79,70,229,0.07) 0%, rgba(255,255,255,0) 55%)",
+  };
+});
 
 export const MobileNavContent = styled(Box)({
   flex: 1,
@@ -239,51 +244,57 @@ export const MobileNavContent = styled(Box)({
   marginTop: 24,
 });
 
-export const MobileNavItem = styled(Typography)(() => ({
-  fontSize: "22px",
-  fontWeight: 600,
-  lineHeight: "30px",
-  fontFamily: "var(--font-hero)", // Unbounded, big presence
-  letterSpacing: "-0.01em",
-  color: "#F5F5F5",
-  cursor: "pointer",
-  transition: "color 200ms ease, transform 200ms ease",
-  textAlign: "left",
-  userSelect: "none",
-  padding: "12px 4px",
-  borderBottom: "1px solid rgba(255,255,255,0.06)",
+export const MobileNavItem = styled(Typography)(({ theme }) => {
+  const dark = theme.palette.mode === "dark";
+  return {
+    fontSize: "22px",
+    fontWeight: 600,
+    lineHeight: "30px",
+    fontFamily: "var(--font-hero)", // Unbounded, big presence
+    letterSpacing: "-0.01em",
+    color: dark ? "#F5F5F5" : "#0A0A0A",
+    cursor: "pointer",
+    transition: "color 200ms ease, transform 200ms ease",
+    textAlign: "left",
+    userSelect: "none",
+    padding: "12px 4px",
+    borderBottom: `1px solid ${dark ? "rgba(255,255,255,0.06)" : "rgba(10,10,10,0.08)"}`,
 
-  "&:hover, &:active": {
-    color: CORAL,
-    transform: "translateX(4px)",
-  },
-}));
+    "&:hover, &:active": {
+      color: CORAL,
+      transform: "translateX(4px)",
+    },
+  };
+});
 
 // New: trust badges row that sits at the bottom of the mobile drawer.
-export const MobileTrustBadges = styled(Box)({
+export const MobileTrustBadges = styled(Box)(({ theme }) => ({
   display: "flex",
   flexWrap: "wrap",
   gap: 6,
   paddingTop: 20,
   paddingBottom: 8,
-  color: "rgba(245,245,245,0.6)",
+  color: theme.palette.mode === "dark" ? "rgba(245,245,245,0.6)" : "rgba(10,10,10,0.5)",
   fontFamily: "var(--font-tech)",
   fontSize: 10,
   letterSpacing: "0.14em",
   textTransform: "uppercase",
-});
+}));
 
-export const TrustPill = styled(Box)({
-  display: "inline-flex",
-  alignItems: "center",
-  padding: "5px 10px",
-  border: "1px solid rgba(255,255,255,0.14)",
-  borderRadius: 999,
-  fontFamily: "var(--font-tech)",
-  fontSize: 10,
-  fontWeight: 500,
-  letterSpacing: "0.14em",
-  color: "rgba(245,245,245,0.7)",
+export const TrustPill = styled(Box)(({ theme }) => {
+  const dark = theme.palette.mode === "dark";
+  return {
+    display: "inline-flex",
+    alignItems: "center",
+    padding: "5px 10px",
+    border: `1px solid ${dark ? "rgba(255,255,255,0.14)" : "rgba(10,10,10,0.12)"}`,
+    borderRadius: 999,
+    fontFamily: "var(--font-tech)",
+    fontSize: 10,
+    fontWeight: 500,
+    letterSpacing: "0.14em",
+    color: dark ? "rgba(245,245,245,0.7)" : "rgba(10,10,10,0.55)",
+  };
 });
 
 /* ================= CTA BUTTONS ================= */
@@ -307,30 +318,28 @@ export const StyledSignInButton = styled(Button)(({ theme }) => ({
   },
 }));
 
-// Aurora coral "Get started" pill — matches home hero.
+// "Get started" pill — flat, premium, Coinbase-clean. No glossy inset
+// highlight, no heavy colored drop-shadow. Solid indigo that simply darkens
+// on hover and nudges down on press.
 export const StyledGetStartedButton = styled(Box)({
   borderRadius: 999,
-  // Wrapper for existing HomeButton — actual styling done via inline sx on
-  // HomeButton (see header index.tsx). Left as a Box for layout parity.
   "& button, & a": {
     background: CORAL,
     color: "#FFFFFF",
     fontFamily: "var(--font-body)",
     fontWeight: 600,
     borderRadius: "999px",
-    boxShadow:
-      "0 6px 20px rgba(79, 70, 229,0.28), 0 1px 0 rgba(255,255,255,0.15) inset",
+    boxShadow: "none",
     transition:
-      "transform 180ms cubic-bezier(0.16,1,0.3,1), box-shadow 220ms ease, background 200ms ease",
+      "background-color 200ms ease, transform 150ms cubic-bezier(0.16,1,0.3,1)",
   },
   "& button:hover, & a:hover": {
     background: CORAL_DEEP,
-    transform: "translateY(-1px)",
-    boxShadow:
-      "0 10px 28px rgba(79, 70, 229,0.36), 0 1px 0 rgba(255,255,255,0.2) inset",
+    boxShadow: "none",
   },
   "& button:active, & a:active": {
-    transform: "translateY(0)",
+    background: CORAL_DEEP,
+    transform: "scale(0.97)",
   },
 });
 
