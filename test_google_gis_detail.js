@@ -5,7 +5,7 @@
 
 const { chromium } = require('playwright');
 
-const PREVIEW_URL = 'https://payment-hub-622.preview.emergentagent.com';
+const PREVIEW_URL = 'https://dynopay-preview-8.preview.emergentagent.com';
 
 async function testGISIntegration() {
   console.log('='.repeat(80));
