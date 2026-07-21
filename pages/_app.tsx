@@ -27,6 +27,36 @@ const GeistMono = localFont({
   display: "optional",
 });
 
+// Swiss landing / dashboard display + body + mono faces.
+// FIX (2026-07-21): these were previously loaded via a <link> to Google Fonts
+// in _document.tsx with `display=swap`, which caused the reported FOUT — the
+// hero (and every `var(--font-hero)` heading, incl. the in-app dashboard)
+// first painted in the thin Geist fallback then "jumped" to bold Unbounded
+// when the network font arrived. Self-hosting via next/font (preloaded, same
+// origin) + `display: "optional"` eliminates the mid-paint swap: the font is
+// used only if it's ready within the ~100ms block window (near-guaranteed
+// thanks to preload + caching), otherwise the fallback is kept for the whole
+// paint — never a swap.
+import { Unbounded, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
+
+const UnboundedFont = Unbounded({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "800"],
+  display: "optional",
+});
+
+const PlexSans = IBM_Plex_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  display: "optional",
+});
+
+const PlexMono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  display: "optional",
+});
+
 import type { NextPage } from "next";
 import NextApp, { type AppProps, type AppContext } from "next/app";
 import { useRouter } from "next/router";
@@ -479,6 +509,9 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
             --font-sans: ${GeistSans.style.fontFamily}, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             --font-mono: ${GeistMono.style.fontFamily}, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
             --font-display: ${GeistSans.style.fontFamily}, -apple-system, sans-serif;
+            --font-hero: ${UnboundedFont.style.fontFamily}, ${GeistSans.style.fontFamily}, -apple-system, sans-serif;
+            --font-body: ${PlexSans.style.fontFamily}, ${GeistSans.style.fontFamily}, -apple-system, sans-serif;
+            --font-tech: ${PlexMono.style.fontFamily}, ${GeistMono.style.fontFamily}, ui-monospace, SFMono-Regular, Menlo, monospace;
           }
         `}</style>
         <title>{pageTitle}</title>

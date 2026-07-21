@@ -37,13 +37,11 @@ export default function MyDocument({ emotionStyleTags }: MyDocumentProps) {
             Legacy Manrope woffs kept in /public/fonts as fallback for any
             component that still references Manrope by name during hydration. */}
 
-        {/* Swiss landing display/body/mono fonts (Unbounded + IBM Plex) */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"
-          rel="stylesheet"
-        />
+        {/* Swiss landing display/body/mono fonts (Unbounded + IBM Plex) are now
+            self-hosted + preloaded via next/font/google in _app.tsx with
+            display:"optional" (no FOUT). The old Google Fonts <link> that used
+            &display=swap was removed on 2026-07-21 — it caused the hero/heading
+            font to swap in mid-paint (thin fallback → bold Unbounded). */}
 
         {/* Google Identity Services for client-side OAuth (bypasses NextAuth /api/auth/* K8s conflict) */}
         <script src="https://accounts.google.com/gsi/client" async defer></script>

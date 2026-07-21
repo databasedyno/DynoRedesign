@@ -1,3 +1,33 @@
+## Session 83 — BUGFIX: font FOUT (thin fallback → bold Unbounded swap) on every page + in-app (2026-07-21)
+
+### Preview URL
+https://c84a4caf-f8e2-455e-819f-e091263461e4.preview.emergentagent.com
+
+### User problem statement (bug)
+"Immediately the landing page loads, I get first smaller [thinner] text and then it changes to the bolder ones." Happens on refresh, on every page of the app, and in-app. Screenshots show the hero heading first in a thin sans (Geist fallback) then swapping to bold rounded Unbounded.
+
+### Root cause
+`Unbounded` (display / `--font-hero`), `IBM Plex Sans` (`--font-body`) and `IBM Plex Mono` (`--font-tech`) were loaded via a `<link>` to Google Fonts in `pages/_document.tsx` with `&display=swap`, and were NOT preloaded. On first paint the heading fell back to Geist (`--font-sans`), then Unbounded arrived over the network and swapped in → the visible thin→bold jump. Every `var(--font-hero)` consumer is affected (landing hero + headings, docs, blog, payment pages, AND the in-app dashboard aurora components). The existing `font-display: optional` in `globals.css` only covered the legacy self-hosted Manrope/Urbanist/Outfit faces — not these three. (Geist had already been fixed the same way earlier.)
+
+### Fix implemented (frontend only — no backend, no DB)
+1. `pages/_app.tsx`: load `Unbounded` + `IBM_Plex_Sans` + `IBM_Plex_Mono` via `next/font/google` with `display: "optional"` (self-hosted, preloaded, metric-matched fallback), mirroring the existing Geist `next/font/local` setup. Added `--font-hero`/`--font-body`/`--font-tech` to the `:root` `<style>` (single source of truth) resolving to the hashed next/font families → Geist → system.
+2. `styles/globals.css`: removed the old literal `:root { --font-hero:"Unbounded" … }` declarations (they reintroduced the swap; now defined only in `_app.tsx`).
+3. `pages/_document.tsx`: removed the Google Fonts preconnect + `&display=swap` stylesheet `<link>`.
+
+Verified at code level: served HTML `:root` now has `--font-hero: '__Unbounded_… , __Unbounded_Fallback_… , __GeistSans_… , …'`; 6 `<link rel=preload as=font>`; fonts self-hosted at `/_next/static/media/*.p.woff2`; no requests to fonts.googleapis.com / fonts.gstatic.com. Lint clean on `_app.tsx`.
+
+### Test scope (PUBLIC pages only — NO login, NO form submits, NO DB writes)
+This preview is on the LIVE production DB — do NOT log in or submit forms.
+1. **No external font requests**: on a COLD load (cache disabled) of `/`, capture all network requests and confirm ZERO requests to `fonts.googleapis.com` or `fonts.gstatic.com`. Font files must come from same-origin `/_next/static/media/*.woff2`.
+2. **No font swap / FOUT**: load `/` fresh, screenshot the hero heading ("Get paid in crypto / Every way you sell") at ~200ms and again at ~2.5s; the heading font/weight must be STABLE (no thin→bold jump). Report if any visible change occurs.
+3. **Correct font applied**: the hero heading's computed `font-family` should contain an `Unbounded` family (i.e. `--font-hero` resolved), and `document.fonts` should report the Unbounded face loaded.
+4. **Preload present**: `<head>` contains `<link rel="preload" as="font">` entries.
+5. **Other pages** (public, no login): repeat the cold-load + stability check on `/auth/login`, `/fees`, and `/documentation`. Confirm headings render (not blank) and no thin→bold swap.
+6. **Regression**: no new console errors (ignore next-auth `/api/auth/session` fetches and Binance/price warnings). Both light AND dark mode headings render correctly.
+
+---
+
+
 ## Session 82 — Extend indigo/contrast fix to marketing pages + MODERNIZE header & footer (2026-07-21)
 
 ### Changes (frontend only; marketing/home-layout + public checkout theme; in-app `appTheme` untouched)
