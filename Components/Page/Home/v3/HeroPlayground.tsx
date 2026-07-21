@@ -5,6 +5,8 @@ import { useRouter } from "next/router";
 import ArrowForward from "@mui/icons-material/ArrowForward";
 import FavoriteRoundedIcon from "@mui/icons-material/FavoriteRounded";
 import BoltRoundedIcon from "@mui/icons-material/BoltRounded";
+import CardGiftcardRoundedIcon from "@mui/icons-material/CardGiftcardRounded";
+import ShieldRoundedIcon from "@mui/icons-material/ShieldRounded";
 import { FONT_BODY, FONT_HERO, FONT_TECH, useAurora } from "./theme.v3";
 import { AuroraInk, HeadlineXL, Eyebrow, Body } from "./styled.v3";
 
@@ -183,9 +185,44 @@ const HeroPlayground: React.FC = () => {
             </Button>
           </Box>
 
-          <Box sx={{ display: "flex", alignItems: "center", gap: 3, mt: 3.5, flexWrap: "wrap" }}>
+          {/* Reward hook — the "$2,000 in crypto" equivalent (real feature: First $500 Fee-Free) */}
+          <Box
+            sx={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 1,
+              mt: 3,
+              px: 1.75,
+              py: 0.9,
+              borderRadius: "999px",
+              background: s.dark ? "rgba(255,91,73,0.14)" : "rgba(255,91,73,0.09)",
+              border: "1px solid rgba(255,91,73,0.35)",
+            }}
+          >
+            <CardGiftcardRoundedIcon sx={{ fontSize: 17, color: "#FF5B49" }} />
+            <Typography
+              sx={{
+                fontFamily: FONT_BODY,
+                fontSize: 13.5,
+                fontWeight: 600,
+                color: s.dark ? "#FF9186" : "#C0392B",
+              }}
+            >
+              New accounts: your first <b>$500</b> in volume is fee-free
+            </Typography>
+          </Box>
+
+          <Box sx={{ display: "flex", alignItems: "center", gap: 3, mt: 3, flexWrap: "wrap" }}>
             <Typography sx={{ fontFamily: FONT_TECH, fontSize: 12.5, color: s.ink3, letterSpacing: "0.12em", textTransform: "uppercase" }}>
               Free · No credit card · 15+ chains
+            </Typography>
+          </Box>
+
+          {/* Trust microcopy — legitimacy signals up front (Coinbase lesson) */}
+          <Box sx={{ display: "inline-flex", alignItems: "center", gap: 1, mt: 1.75 }}>
+            <ShieldRoundedIcon sx={{ fontSize: 14, color: s.ink3 }} />
+            <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11.5, color: s.ink3, letterSpacing: "0.1em" }}>
+              Non-custodial · SOC 2 track · GDPR / AML
             </Typography>
           </Box>
         </Box>

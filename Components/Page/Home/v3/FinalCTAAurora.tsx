@@ -2,6 +2,7 @@ import React, { memo } from "react";
 import { Box, Typography, Button } from "@mui/material";
 import { useRouter } from "next/router";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import CardGiftcardRoundedIcon from "@mui/icons-material/CardGiftcardRounded";
 import { FONT_BODY, FONT_HERO, FONT_TECH, useAurora } from "./theme.v3";
 import { HeadlineXL } from "./styled.v3";
 
@@ -81,10 +82,29 @@ const FinalCTAAurora: React.FC = () => {
                 crypto today.
               </Box>
             </HeadlineXL>
-            <Typography sx={{ fontFamily: FONT_BODY, color: "rgba(255,255,255,0.68)", fontSize: { xs: 16, md: 18 }, maxWidth: 520, mx: "auto", mb: 5, lineHeight: 1.55 }}>
+            <Typography sx={{ fontFamily: FONT_BODY, color: "rgba(255,255,255,0.68)", fontSize: { xs: 16, md: 18 }, maxWidth: 520, mx: "auto", mb: 3.5, lineHeight: 1.55 }}>
               Free to start. No card. Live in under 10 minutes. Bring your
               wallet, keep your money.
             </Typography>
+            {/* Reward hook — bookends the same $500 fee-free offer shown in the hero */}
+            <Box
+              sx={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 1,
+                mb: 4.5,
+                px: 2,
+                py: 1,
+                borderRadius: "999px",
+                background: "rgba(255,91,73,0.16)",
+                border: "1px solid rgba(255,91,73,0.4)",
+              }}
+            >
+              <CardGiftcardRoundedIcon sx={{ fontSize: 18, color: "#FF7A6B" }} />
+              <Typography sx={{ fontFamily: FONT_BODY, fontSize: 14, fontWeight: 600, color: "#FFD1CA" }}>
+                New accounts: your first <b>$500</b> in volume is fee-free
+              </Typography>
+            </Box>
             <Box sx={{ display: "flex", justifyContent: "center", flexWrap: "wrap", gap: 2 }}>
               <Button
                 onClick={() => router.push("/auth/register")}

@@ -208,6 +208,50 @@ const HomeFooter: FC = () => {
           </Box>
         </Box>
 
+        {/* ── Trust / compliance signals (Coinbase-style legitimacy row) ── */}
+        <Box
+          data-testid="footer-trust-row"
+          aria-label="Trust and compliance"
+          sx={{
+            mt: { xs: 3, md: 4 },
+            pt: { xs: 3, md: 4 },
+            borderTop: "1px solid rgba(255, 255, 255, 0.1)",
+            display: "flex",
+            flexWrap: "wrap",
+            gap: { xs: 1, md: 1.25 },
+            alignItems: "center",
+          }}
+        >
+          {["Non-custodial", "15+ chains", "SOC 2 track", "GDPR / AML aligned", "No chargebacks"].map((label) => (
+            <Box
+              key={label}
+              sx={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 0.75,
+                px: 1.5,
+                py: 0.6,
+                borderRadius: "999px",
+                border: "1px solid rgba(255, 255, 255, 0.14)",
+                background: "rgba(255, 255, 255, 0.04)",
+              }}
+            >
+              <Box sx={{ width: 6, height: 6, borderRadius: "50%", background: "#CCFF00" }} />
+              <Typography
+                sx={{
+                  color: "#FCFBF8",
+                  opacity: 0.82,
+                  fontSize: 12,
+                  fontFamily: "var(--font-sans)",
+                  letterSpacing: "0.02em",
+                }}
+              >
+                {label}
+              </Typography>
+            </Box>
+          ))}
+        </Box>
+
         <BottomSection>
           <CopyrightText>{t("footerCopyright", { year: new Date().getFullYear() })}</CopyrightText>
           <SocialsWrapper>{socialItems}</SocialsWrapper>
