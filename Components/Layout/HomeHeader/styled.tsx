@@ -323,7 +323,10 @@ export const StyledSignInButton = styled(Button)(({ theme }) => ({
 // on hover and nudges down on press.
 export const StyledGetStartedButton = styled(Box)({
   borderRadius: 999,
-  "& button, & a": {
+  // `&&` doubles the wrapper class to reliably outrank MUI's own
+  // primary.main rule in BOTH light and dark themes — keeps the pill an
+  // exact indigo (#4F46E5) that darkens to #4338CA on hover/press.
+  "&& button, && a": {
     background: CORAL,
     color: "#FFFFFF",
     fontFamily: "var(--font-body)",
@@ -333,11 +336,11 @@ export const StyledGetStartedButton = styled(Box)({
     transition:
       "background-color 200ms ease, transform 150ms cubic-bezier(0.16,1,0.3,1)",
   },
-  "& button:hover, & a:hover": {
+  "&& button:hover, && a:hover": {
     background: CORAL_DEEP,
     boxShadow: "none",
   },
-  "& button:active, & a:active": {
+  "&& button:active, && a:active": {
     background: CORAL_DEEP,
     transform: "scale(0.97)",
   },
