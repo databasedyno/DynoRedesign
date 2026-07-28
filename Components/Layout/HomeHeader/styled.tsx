@@ -312,6 +312,13 @@ export const StyledSignInButton = styled(Button)(({ theme }) => ({
   borderRadius: 999,
   minWidth: 0,
 
+  // Hide the inline auth CTAs once the hamburger appears (<1025px). They live
+  // inside the mobile drawer instead, so the header never gets crowded and the
+  // menu icon is never pushed off the right edge (iPhone 14 Pro Max report).
+  "@media (max-width: 1025px)": {
+    display: "none",
+  },
+
   "&:hover": {
     background: theme.palette.mode === "dark" ? "rgba(255,255,255,0.06)" : "rgba(10,10,10,0.05)",
     color: CORAL,
@@ -323,6 +330,11 @@ export const StyledSignInButton = styled(Button)(({ theme }) => ({
 // on hover and nudges down on press.
 export const StyledGetStartedButton = styled(Box)({
   borderRadius: 999,
+  // Hidden on mobile alongside the sign-in link (<1025px) — the primary CTA is
+  // surfaced inside the drawer, keeping room for the hamburger on phones.
+  "@media (max-width: 1025px)": {
+    display: "none",
+  },
   // `&&` doubles the wrapper class to reliably outrank MUI's own
   // primary.main rule in BOTH light and dark themes — keeps the pill an
   // exact indigo (#4F46E5) that darkens to #4338CA on hover/press.

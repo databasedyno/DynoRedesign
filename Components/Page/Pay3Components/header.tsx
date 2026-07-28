@@ -122,7 +122,7 @@ const Header = ({
         onClose={toggleDrawer}
         sx={{
           '& .MuiDrawer-paper': {
-            width: 240,
+            width: 300,
             p: 2,
             backgroundColor: theme.palette.background.paper,
           },

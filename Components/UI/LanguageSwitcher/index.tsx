@@ -89,9 +89,32 @@ function LanguageSwitcher({ showBig = false }: Props) {
     if (!rect) return;
     const MENU_W = 196;
     const PAD = 8;
-    const overflowsLeftWhenRightAligned = rect.right - MENU_W < PAD;
-    const fitsWhenLeftAligned = rect.left + MENU_W <= window.innerWidth - PAD;
-    setAlignRight(!(overflowsLeftWhenRightAligned && fitsWhenLeftAligned));
+    // Constrain the menu to the nearest ancestor that CLIPS overflow (e.g. a
+    // narrow right-anchored drawer on the checkout page). Previously we only
+    // checked the viewport edges, so a right-aligned menu could spill past the
+    // LEFT edge of a 240px drawer and get clipped by it — leaving only the last
+    // couple of letters of each language name visible (iPhone report 2026-07).
+    let leftBound = 0;
+    let rightBound = window.innerWidth;
+    let node: HTMLElement | null = wrapperRef.current?.parentElement ?? null;
+    while (node) {
+      const cs = window.getComputedStyle(node);
+      const ox = cs.overflowX;
+      if (ox === "hidden" || ox === "auto" || ox === "scroll") {
+        const b = node.getBoundingClientRect();
+        leftBound = Math.max(leftBound, b.left);
+        rightBound = Math.min(rightBound, b.right);
+        break; // nearest clipping ancestor is the binding constraint
+      }
+      node = node.parentElement;
+    }
+    // Right-aligned menu occupies [rect.right - MENU_W, rect.right].
+    const fitsRight = rect.right - MENU_W >= leftBound + PAD;
+    // Left-aligned menu occupies [rect.left, rect.left + MENU_W].
+    const fitsLeft = rect.left + MENU_W <= rightBound - PAD;
+    // Prefer right-alignment (header default); flip to left only when a
+    // right-aligned menu would clip AND a left-aligned one actually fits.
+    setAlignRight(fitsRight || !fitsLeft);
   }, []);
 
   const current = i18nInstance.language || i18n.language || "en";
