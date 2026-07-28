@@ -24,12 +24,60 @@ Total public-facing strings keyed and translated across 6 languages:
 - Creator: 14 keys × 6 langs = 84 translations
 - **Total: 168 unique English keys × 6 langs = 1,008 translated strings shipped**
 
-## NEXT (still confirmed, to be done)
-- `/order/[publicRef]` — palette + i18n (13 hardcoded strings, order confirmation)
+## SESSION 82 — Merchant Dashboard Repaint + Order Confirmation i18n (2026-07-28)
+
+### 8) Merchant Dashboard Repaint — full-app indigo migration (final piece of Option B)
+- **`styles/theme.ts`**: dark-mode `primary.main` migrated `#CCFF00` → `#4F46E5` (contrastText `#060606` → `#FFFFFF`, WCAG-safe 6.9:1). 7× `#CCFF00` + 1× `#CCFF0088` (0x88 alpha) + 1× `#CCFF0099` in dark-mode MUI component overrides (`rounded`, `pills`, `bluepill` button variants; `MuiSelect.outlined`) all swapped to indigo / `rgba(79,70,229,0.53)` / `rgba(79,70,229,0.6)`.
+- **`styles/globals.css`**: `--dyno-focus-ring: #CCFF00` → `#4F46E5`; matching shadow rgba updated. Global focus ring now indigo across every keyboard-focusable element.
+- **`styles/homeTheme.ts` + `styles/homeBento.ts`**: `HOME_LIME='#CCFF00'` const preserved for backward-compat but value flipped to indigo `#4F46E5`.
+- **`Components/Layout/NewSidebar/index.tsx`**: 3× hardcoded `"#CCFF00"` → `"#4F46E5"` on the aurora upsell button + hover state.
+- **`Components/Layout/MobileNavigationBar/index.tsx`**: 2× hardcoded `"#CCFF00"` → `"#4F46E5"`.
+- **`Components/Page/Dashboard/aurora/styled.tsx`**: introduced `INDIGO = "#4F46E5"` + `INDIGO_DEEP = "#4338CA"`. `AURORA_GRADIENT` first stop swapped `#FF5B49` → `#4F46E5` so dashboard hero + coin-badge rings match Landing v3. `AURORA_GRADIENT_SOFT` matched. `CoralChip` background/shadow → indigo tokens (name preserved for API stability). `CORAL='#FF5B49'` KEPT — now used only for semantic-negative (failed status pills, negative delta chips) so red-for-error remains universally readable.
+- **`Components/Page/Dashboard/CreatorPageCard.tsx` + `ClaimHandleBanner.tsx` + `aurora/LiveActivityFeed.tsx`**: 4× `#CCFF00` + rgba tints → indigo variants.
+- **Verification**: logged in as `hostbay@moxx.co / Katiekendra123@` — dashboard sidebar active pill, "Create payment link" CTA, "Today's Revenue" card hover state, KPI icons, and all button variants render aurora indigo. Only semantic pills (green "Paid", amber "Pending", red "Failed") retain their meaning colors as intended.
+
+### 9) Order Confirmation `/order/[publicRef]` — full i18n across 6 languages
+- Added `useTranslation("landing")` hook. Moved `STATUS_META` inside the component (renamed → `STATUS_COLORS` + `STATUS_LABELS`) so status pill labels resolve through i18n.
+- Renamed local shadowed variable `t` → `deliveryType` inside `renderDelivery` (was colliding with `useTranslation` return; fixed 4 usages).
+- Keyed 22 hardcoded strings under `landing.order.*`: notFound, label, 6 status labels, polling, paidNotice, item.qty/each/deliveryPending/openAccess/copy/copied/download/downloadExpired/linksExpireOn/linksExpiredCta/bookSession/deliveryInProgress, resend.sending/button/hint/ok/err, totals.subtotal/shipping/totalPaid, tax.vat/reverseCharge/reverseChargeNotice/merchantVatId/customerVatId, receiptSentTo. Interpolated keys (download, linksExpireOn) use `{{filename}}` / `{{when}}` placeholders.
+- **Palette**: Already correct — the page uses `layout: "home"` which now inherits aurora indigo through the palette work above.
+- **Verification**: `/order/DEMO123` in DE renders full aurora-indigo header ("Funktionen / Gebühren / Dokumentation / Blog / Alle Systeme normal / Anmelden / Loslegen") + translated error "Bestellung nicht gefunden." + fully-translated footer ("PRODUCT / SOLUTIONS / COMPANY" columns with "AGB / Datenschutzerklärung / API-Status").
+
+### 10) Session 82 grand-total i18n scale
+Hand-translated strings shipped across 6 languages:
+- Sign-in flow: 8 keys × 6 = 48
+- Landing v3: 137 keys × 6 = 822
+- Checkout: 9 keys × 6 = 54
+- Creator: 14 keys × 6 = 84
+- Order confirmation: 36 keys × 6 = 216
+- **TOTAL: 204 unique English keys × 6 languages = 1,224 translated strings**
+
+## NEXT (still confirmed, but LATER — not blocking)
 - `/for/*` SEO landings — i18n only (palette ~aligned)
-- Dashboard + all signed-in surfaces palette migration (Option B: full-app indigo)
-- Blog + content pages typography sweep
-- Housekeeping: rename `CORAL='#4F46E5'` in `Home/v3/theme.v3.ts` → `INDIGO`
+- Blog + content pages typography sweep (`/blog`, `/terms-conditions`, `/privacy-policy`, `/aml-policy`, `/QA`)
+- Housekeeping: rename `CORAL='#4F46E5'` in `Home/v3/theme.v3.ts` → `INDIGO` (kill collision with Dashboard's semantic `CORAL='#FF5B49'`)
+
+## FILES TOUCHED (session 82, everything)
+Backend: none.
+Frontend:
+- `pages/auth/login.tsx` (rewrite)
+- `pages/pay/{demo,index}.tsx` (indigo rgba swaps)
+- `pages/order/[publicRef].tsx` (i18n + STATUS_META refactor + `t` shadow fix)
+- `styles/{authTheme,theme,homeTheme,homeBento}.ts` (indigo palette; dark-mode primary lime → indigo)
+- `styles/globals.css` (focus ring lime → indigo)
+- `Containers/Login/styled.tsx` (aurora glass shell)
+- `Components/UI/AuthLayout/AuthBrandPanel.tsx` (indigo accent)
+- `Components/Layout/HomeHeader/index.tsx` + `HomeFooter/index.tsx` (status pill i18n)
+- `Components/Layout/Pay3Layout.tsx` (aurora orbs replace Swiss+volt glow)
+- `Components/Layout/NewSidebar/index.tsx` + `MobileNavigationBar/index.tsx` (aurora upsell → indigo)
+- `Components/Page/Home/v3/*.tsx` (9 files — i18n + t() calls)
+- `Components/Page/Pay3Components/{CleanCheckoutV2,cryptoTransfer,donationCampaign}.tsx` (LIME=indigo + i18n)
+- `Components/Page/Pay3Components/campaign/{GoalProgressBar,RewardTierShelf,DonorWallV2}.tsx` (indigo swaps)
+- `Components/Page/Creator/{CreatorProfile,InlineTipCheckout,SupportWidget,HandleQrCode,CreatorLivePreview,CreatorPageSettings}.tsx` (indigo + i18n)
+- `Components/Page/Dashboard/{CreatorPageCard,ClaimHandleBanner}.tsx` (LIME=indigo)
+- `Components/Page/Dashboard/aurora/{styled,LiveActivityFeed}.tsx` (INDIGO added, gradient starts indigo, CoralChip=indigo, CORAL kept semantic-negative only)
+- `langs/locales/{en,pt,es,fr,nl,de}/landing.json` (+196 keys: v3.* + checkout.* + creator.* + order.*)
+- `langs/locales/{en,pt,es,fr,nl,de}/auth.json` (+6 new sign-in keys)
 
 ## FILES TOUCHED (session 82, all changes)
 Backend: none.

@@ -585,5 +585,53 @@
       "claimFirst": "Sichere dir zuerst einen Handle, um deinen QR-Code zu generieren.",
       "printHint": "Druck ihn aus, füg ihn zu deinem Kanal-Banner hinzu oder kleb ihn auf Sticker. Jede Kamera scannt ihn direkt zu deiner Tip-Seite."
     }
+  },
+  "order": {
+    "notFound": "Bestellung nicht gefunden.",
+    "label": "Bestellung",
+    "status": {
+      "paid": "BEZAHLT",
+      "pending": "AUSSTEHEND",
+      "expired": "ABGELAUFEN",
+      "underpaid": "UNTERBEZAHLT",
+      "refunded": "ERSTATTET",
+      "refundRequested": "ERST. ANGEFR."
+    },
+    "polling": "Warte auf Zahlungsbestätigung — diese Seite aktualisiert sich automatisch.",
+    "paidNotice": "Zahlung eingegangen! Deine Artikel sind unten aufgeführt.",
+    "item": {
+      "qty": "Menge",
+      "each": "pro Stück",
+      "deliveryPending": "Zahlung ausstehend — die Lieferung wird freigegeben, sobald die Zahlung bestätigt ist.",
+      "openAccess": "Zugriffslink öffnen",
+      "copy": "Kopieren",
+      "copied": "Kopiert!",
+      "download": "{{filename}} herunterladen",
+      "downloadExpired": "Abgelaufen — {{filename}}",
+      "linksExpireOn": "Links laufen {{when}} ab",
+      "linksExpiredCta": "Links sind abgelaufen — klick unten auf \"Download-Links erneut senden\", um neue zu erhalten.",
+      "bookSession": "Buche deinen Termin",
+      "deliveryInProgress": "Lieferung unterwegs — prüf deine E-Mail."
+    },
+    "resend": {
+      "sending": "Wird gesendet…",
+      "button": "Download-Links erneut senden",
+      "hint": "Links laufen nach 24 Std. ab. Sende neue Links an deine E-Mail.",
+      "ok": "Neue Download-Links generiert und per E-Mail versandt.",
+      "err": "Erneutes Senden der Links fehlgeschlagen."
+    },
+    "totals": {
+      "subtotal": "Zwischensumme",
+      "shipping": "Versand",
+      "totalPaid": "Gezahlt insgesamt"
+    },
+    "tax": {
+      "vat": "MwSt.",
+      "reverseCharge": "Reverse-Charge",
+      "reverseChargeNotice": "MwSt. auf den Kunden umgekehrt gemäß EU-B2B-Regeln (0% MwSt. berechnet). Der Kunde führt die MwSt. in seinem Mitgliedstaat ab.",
+      "merchantVatId": "USt-IdNr. Händler:",
+      "customerVatId": "USt-IdNr. Kunde:"
+    },
+    "receiptSentTo": "Beleg gesendet an"
   }
 }

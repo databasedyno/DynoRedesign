@@ -585,5 +585,53 @@
       "claimFirst": "Réservez d'abord un pseudo pour générer votre QR code.",
       "printHint": "Imprimez-le, ajoutez-le à votre bannière ou collez-le sur des stickers. N'importe quelle caméra le scanne directement vers votre page de pourboires."
     }
+  },
+  "order": {
+    "notFound": "Commande introuvable.",
+    "label": "Commande",
+    "status": {
+      "paid": "PAYÉE",
+      "pending": "EN ATTENTE",
+      "expired": "EXPIRÉE",
+      "underpaid": "SOUS-PAYÉE",
+      "refunded": "REMBOURSÉE",
+      "refundRequested": "REMB. DEMANDÉ"
+    },
+    "polling": "En attente de confirmation du paiement — cette page se met à jour automatiquement.",
+    "paidNotice": "Paiement reçu ! Vos articles sont ci-dessous.",
+    "item": {
+      "qty": "Qté",
+      "each": "l'unité",
+      "deliveryPending": "Paiement en attente — la livraison se débloque dès la confirmation du paiement.",
+      "openAccess": "Ouvrir le lien d'accès",
+      "copy": "Copier",
+      "copied": "Copié !",
+      "download": "Télécharger {{filename}}",
+      "downloadExpired": "Expiré — {{filename}}",
+      "linksExpireOn": "Les liens expirent {{when}}",
+      "linksExpiredCta": "Les liens ont expiré — cliquez sur \"Renvoyer les liens de téléchargement\" ci-dessous pour en obtenir de nouveaux.",
+      "bookSession": "Réservez votre séance",
+      "deliveryInProgress": "Livraison en cours — vérifiez votre e-mail."
+    },
+    "resend": {
+      "sending": "Envoi…",
+      "button": "Renvoyer les liens de téléchargement",
+      "hint": "Les liens expirent après 24 h. Renvoyez de nouveaux liens par e-mail.",
+      "ok": "Nouveaux liens de téléchargement générés et envoyés par e-mail.",
+      "err": "Échec du renvoi des liens."
+    },
+    "totals": {
+      "subtotal": "Sous-total",
+      "shipping": "Livraison",
+      "totalPaid": "Total payé"
+    },
+    "tax": {
+      "vat": "TVA",
+      "reverseCharge": "Autoliquidation",
+      "reverseChargeNotice": "TVA autoliquidée par le client selon les règles B2B de l'UE (0% de TVA facturé). Le client est redevable de la TVA dans son État membre.",
+      "merchantVatId": "N° TVA du commerçant :",
+      "customerVatId": "N° TVA du client :"
+    },
+    "receiptSentTo": "Reçu envoyé à"
   }
 }

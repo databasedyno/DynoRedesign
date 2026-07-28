@@ -355,7 +355,7 @@ const MobileNavigationBar = () => {
                             width: 8,
                             height: 8,
                             borderRadius: "50%",
-                            backgroundColor: "#CCFF00",
+                            backgroundColor: "#4F46E5",
                             border: `2px solid ${theme.palette.background.default || "#FFFFFF"}`,
                             boxShadow: "0 0 6px rgba(204,255,0,0.7)",
                           }}
@@ -431,7 +431,7 @@ const MobileNavigationBar = () => {
                               width: 8,
                               height: 8,
                               borderRadius: "50%",
-                              backgroundColor: "#CCFF00",
+                              backgroundColor: "#4F46E5",
                               border: `2px solid ${theme.palette.background.default || "#FFFFFF"}`,
                               boxShadow: "0 0 6px rgba(204,255,0,0.7)",
                             }}

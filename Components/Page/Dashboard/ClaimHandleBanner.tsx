@@ -8,7 +8,8 @@ import { rootReducer } from "@/utils/types";
 import { prettyCreatorDomain } from "@/helpers/creatorUrl";
 
 const DISMISS_KEY = "dynopay.claim-handle-banner.dismissed";
-const LIME = "#CCFF00";
+// Session 82: LIME const preserves the name but now holds aurora indigo #4F46E5
+const LIME = "#4F46E5";
 const INK = "#0A0A0B";
 
 /**
@@ -51,7 +52,7 @@ const ClaimHandleBanner: React.FC = () => {
 
   const isDark = theme.palette.mode === "dark";
   const bg = isDark
-    ? "linear-gradient(90deg, rgba(204,255,0,0.12) 0%, rgba(0,229,255,0.10) 100%)"
+    ? "linear-gradient(90deg, rgba(79,70,229,0.12) 0%, rgba(0,229,255,0.10) 100%)"
     : "linear-gradient(90deg, rgba(204,255,0,0.22) 0%, rgba(0,229,255,0.16) 100%)";
 
   return (

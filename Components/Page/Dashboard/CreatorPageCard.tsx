@@ -14,7 +14,8 @@ import HandleQrCode from "@/Components/Page/Creator/HandleQrCode";
 import { Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
 
 const MONO = 'ui-monospace, "Roboto Mono", "JetBrains Mono", SFMono-Regular, Menlo, monospace';
-const LIME = "#CCFF00";
+// Session 82: LIME const preserves the name but now holds aurora indigo #4F46E5
+const LIME = "#4F46E5";
 const INK = "#0A0A0B";
 const HANDLE_RE = /^[a-z0-9][a-z0-9_-]{2,29}$/;
 

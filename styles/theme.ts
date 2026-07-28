@@ -647,12 +647,13 @@ export const themeDark = createTheme({
       error: "#E8484A",
     },
     primary: {
-      main: "#CCFF00",
-      dark: "#FFFFFF",
-      light: "#1A1F3D",
-      // Session 56 WCAG fix: white on lime = 1.4:1 (catastrophic). Near-black
-      // on lime = 17.4:1 (AAA). Aligns with appThemeDark's contrastText.
-      contrastText: "#060606",
+      main: "#4F46E5",
+      dark: "#4338CA",
+      light: "#EEF2FF",
+      // Session 82: migrated dark-mode primary lime → aurora indigo.
+      // White on indigo #4F46E5 = 6.9:1 (AAA large, AA small). Perfect
+      // contrast. Aligns with appThemeLight and Landing v3.
+      contrastText: "#FFFFFF",
     },
     secondary: {
       main: "#141625",
@@ -781,17 +782,17 @@ export const themeDark = createTheme({
             border: "1px solid",
             color: "#fff",
             padding: "12px 30px",
-            background: "#CCFF00",
+            background: "#4F46E5",
             fontWeight: 400,
             borderRadius: "50px",
             textTransform: "none",
             cursor: "pointer",
             "&:hover": {
-              color: "#CCFF00",
+              color: "#4F46E5",
               background: "#1a1a2e",
             },
             "&.Mui-disabled": {
-              background: "#CCFF0088",
+              background: "rgba(79,70,229,0.53)",
               color: "#fff",
               pointerEvents: "auto",
               cursor: "not-allowed",
@@ -832,13 +833,13 @@ export const themeDark = createTheme({
           style: {
             border: "1px solid",
             padding: "10px 30px",
-            color: "#CCFF00",
+            color: "#4F46E5",
             fontWeight: 600,
             borderRadius: "15px",
             fontSize: "16px",
             "&:hover": {
               color: "#fff",
-              background: "#CCFF00",
+              background: "#4F46E5",
             },
           },
         },
@@ -848,16 +849,16 @@ export const themeDark = createTheme({
             border: "1px solid",
             padding: "10px 30px",
             color: "#fff",
-            background: "#CCFF00",
+            background: "#4F46E5",
             fontWeight: 600,
             borderRadius: "15px",
             fontSize: "16px",
             "&:hover": {
-              color: "#CCFF00",
+              color: "#4F46E5",
               background: "#1a1a2e",
             },
             "&.Mui-disabled": {
-              background: "#CCFF0099",
+              background: "rgba(79,70,229,0.6)",
               color: "#fff",
             },
           },
@@ -899,7 +900,7 @@ export const themeDark = createTheme({
       },
       styleOverrides: {
         outlined: {
-          color: "#CCFF00",
+          color: "#4F46E5",
           padding: "10px 15px",
           borderRadius: "20px",
           border: "1px solid ",

@@ -585,5 +585,53 @@
       "claimFirst": "Reserve primeiro um nome para gerar o seu código QR.",
       "printHint": "Imprima-o, adicione ao banner do canal, ou cole em autocolantes. Qualquer câmara lê-o direto para a sua página de gorjetas."
     }
+  },
+  "order": {
+    "notFound": "Encomenda não encontrada.",
+    "label": "Encomenda",
+    "status": {
+      "paid": "PAGA",
+      "pending": "PENDENTE",
+      "expired": "EXPIRADA",
+      "underpaid": "SUBPAGA",
+      "refunded": "REEMBOLSADA",
+      "refundRequested": "REEMB. PEDIDO"
+    },
+    "polling": "A aguardar confirmação de pagamento — esta página atualiza-se automaticamente.",
+    "paidNotice": "Pagamento recebido! Os seus itens estão abaixo.",
+    "item": {
+      "qty": "Qtd",
+      "each": "cada",
+      "deliveryPending": "Pagamento pendente — a entrega desbloqueia assim que o pagamento for confirmado.",
+      "openAccess": "Abrir link de acesso",
+      "copy": "Copiar",
+      "copied": "Copiado!",
+      "download": "Descarregar {{filename}}",
+      "downloadExpired": "Expirado — {{filename}}",
+      "linksExpireOn": "Links expiram {{when}}",
+      "linksExpiredCta": "Os links expiraram — clique em \"Reenviar links de descarga\" abaixo para gerar novos.",
+      "bookSession": "Marcar a sua sessão",
+      "deliveryInProgress": "Entrega em curso — verifique o seu email."
+    },
+    "resend": {
+      "sending": "A enviar…",
+      "button": "Reenviar links de descarga",
+      "hint": "Os links expiram após 24 h. Reenvie novos links para o seu email.",
+      "ok": "Novos links de descarga gerados e enviados por email.",
+      "err": "Falha ao reenviar links."
+    },
+    "totals": {
+      "subtotal": "Subtotal",
+      "shipping": "Envio",
+      "totalPaid": "Total pago"
+    },
+    "tax": {
+      "vat": "IVA",
+      "reverseCharge": "Auto-liquidação",
+      "reverseChargeNotice": "IVA auto-liquidado ao cliente ao abrigo das regras B2B da UE (0% de IVA cobrado). O cliente responde pelo IVA no seu Estado-Membro.",
+      "merchantVatId": "NIF do comerciante:",
+      "customerVatId": "NIF do cliente:"
+    },
+    "receiptSentTo": "Recibo enviado para"
   }
 }

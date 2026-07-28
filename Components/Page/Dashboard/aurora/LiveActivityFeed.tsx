@@ -91,7 +91,7 @@ const LiveActivityFeed: React.FC<Props> = ({ loading, recentTransactions }) => {
               width: 8,
               height: 8,
               borderRadius: "50%",
-              background: "#CCFF00",
+              background: "#4F46E5",
               boxShadow: "0 0 0 3px rgba(204,255,0,0.22)",
               animation: "pulse 2.4s ease-in-out infinite",
               "@keyframes pulse": {

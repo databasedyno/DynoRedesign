@@ -418,8 +418,8 @@ html[data-theme="light"] {
    focus (`:focus-visible`) so mouse clicks stay clean. Applies to all
    interactive elements everywhere. */
 :root {
-  --dyno-focus-ring: #CCFF00;
-  --dyno-focus-ring-shadow: 0 0 0 2px rgba(204, 255, 0, 0.35);
+  --dyno-focus-ring: #4F46E5;
+  --dyno-focus-ring-shadow: 0 0 0 2px rgba(79, 70, 229, 0.35);
 }
 html[data-theme="light"] {
   --dyno-focus-ring: #0A0A0A;

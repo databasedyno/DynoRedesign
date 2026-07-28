@@ -585,5 +585,53 @@
       "claimFirst": "Reserva primero un nombre para generar tu código QR.",
       "printHint": "Imprímelo, añádelo al banner de tu canal, o pégalo en stickers. Cualquier cámara lo escanea directo a tu página de propinas."
     }
+  },
+  "order": {
+    "notFound": "Pedido no encontrado.",
+    "label": "Pedido",
+    "status": {
+      "paid": "PAGADO",
+      "pending": "PENDIENTE",
+      "expired": "EXPIRADO",
+      "underpaid": "INFRAPAGO",
+      "refunded": "REEMBOLSADO",
+      "refundRequested": "REEMB. SOLIC."
+    },
+    "polling": "Esperando confirmación de pago — esta página se actualiza automáticamente.",
+    "paidNotice": "¡Pago recibido! Tus artículos están abajo.",
+    "item": {
+      "qty": "Cant.",
+      "each": "cada uno",
+      "deliveryPending": "Pago pendiente — la entrega se desbloquea cuando el pago se confirme.",
+      "openAccess": "Abrir enlace de acceso",
+      "copy": "Copiar",
+      "copied": "¡Copiado!",
+      "download": "Descargar {{filename}}",
+      "downloadExpired": "Expirado — {{filename}}",
+      "linksExpireOn": "Los enlaces expiran {{when}}",
+      "linksExpiredCta": "Los enlaces han expirado — haz clic en \"Reenviar enlaces de descarga\" abajo para obtener nuevos.",
+      "bookSession": "Reserva tu sesión",
+      "deliveryInProgress": "Entrega en progreso — revisa tu correo."
+    },
+    "resend": {
+      "sending": "Enviando…",
+      "button": "Reenviar enlaces de descarga",
+      "hint": "Los enlaces expiran tras 24 h. Reenvía nuevos enlaces a tu correo.",
+      "ok": "Nuevos enlaces de descarga generados y enviados por correo.",
+      "err": "Error al reenviar los enlaces."
+    },
+    "totals": {
+      "subtotal": "Subtotal",
+      "shipping": "Envío",
+      "totalPaid": "Total pagado"
+    },
+    "tax": {
+      "vat": "IVA",
+      "reverseCharge": "Inversión del sujeto pasivo",
+      "reverseChargeNotice": "IVA con inversión del sujeto pasivo al cliente según las reglas B2B de la UE (0% de IVA aplicado). El cliente declara el IVA en su Estado miembro.",
+      "merchantVatId": "CIF/NIF del comercio:",
+      "customerVatId": "CIF/NIF del cliente:"
+    },
+    "receiptSentTo": "Recibo enviado a"
   }
 }

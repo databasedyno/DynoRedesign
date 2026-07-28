@@ -17,7 +17,9 @@ import { createTheme } from "@mui/material";
  * CustomButton / HomeButton with safe fallbacks.
  */
 
-export const HOME_LIME = "#CCFF00";
+// Session 82: HOME_LIME preserves its name for backward compat, but
+// the actual value is now aurora indigo #4F46E5 (Landing v3 canonical).
+export const HOME_LIME = "#4F46E5";
 const LIME_HOVER = "#B4E600"; // retained for reference (marketing accent now indigo)
 void LIME_HOVER;
 

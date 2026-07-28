@@ -3,10 +3,14 @@
  * Route: /order/[publicRef]
  * Shows payment status + digital delivery payloads (URL / download link /
  * license key) once payment is confirmed.
+ *
+ * Session 82 (2026-07-28): full i18n coverage across 6 languages
+ * (see `landing.json` → `order.*`). Design already inherits from the
+ * `layout: "home"` shell which now uses aurora indigo.
  */
 import React, { useEffect, useState } from "react";
 import Head from "next/head";
-import Link from "next/link";
+import { useTranslation } from "react-i18next";
 import ProductImage from "@/Components/UI/ProductImage";
 import { GetServerSideProps } from "next";
 import {
@@ -63,16 +67,26 @@ function formatPrice(cents: number, ccy: string): string {
   } catch { return `${n.toFixed(2)} ${ccy}`; }
 }
 
-const STATUS_META: Record<string, { label: string; bg: string; fg: string }> = {
-  paid:     { label: "PAID",     bg: "#DCFCE7", fg: "#166534" },
-  pending:  { label: "PENDING",  bg: "#FEF3C7", fg: "#92400E" },
-  expired:  { label: "EXPIRED",  bg: "#E5E7EB", fg: "#4B5563" },
-  underpaid:{ label: "UNDERPAID",bg: "#FDE68A", fg: "#78350F" },
-  refunded: { label: "REFUNDED", bg: "#FEE2E2", fg: "#991B1B" },
-  refund_requested: { label: "REFUND REQ", bg: "#FEE2E2", fg: "#991B1B" },
+// Status meta colors — labels are computed inside the component from i18n.
+const STATUS_COLORS: Record<string, { bg: string; fg: string }> = {
+  paid:     { bg: "#DCFCE7", fg: "#166534" },
+  pending:  { bg: "#FEF3C7", fg: "#92400E" },
+  expired:  { bg: "#E5E7EB", fg: "#4B5563" },
+  underpaid:{ bg: "#FDE68A", fg: "#78350F" },
+  refunded: { bg: "#FEE2E2", fg: "#991B1B" },
+  refund_requested: { bg: "#FEE2E2", fg: "#991B1B" },
 };
 
 const OrderStatusPage: NextPageWithLayout<OrderPageProps> = ({ order: initialOrder, siteUrl }) => {
+  const { t } = useTranslation("landing");
+  const STATUS_LABELS: Record<string, string> = {
+    paid: t("order.status.paid"),
+    pending: t("order.status.pending"),
+    expired: t("order.status.expired"),
+    underpaid: t("order.status.underpaid"),
+    refunded: t("order.status.refunded"),
+    refund_requested: t("order.status.refundRequested"),
+  };
   const [order, setOrder] = useState<Order | null>(initialOrder);
   const [polling, setPolling] = useState<boolean>(initialOrder?.payment_status === "pending");
   const [copiedId, setCopiedId] = useState<number | null>(null);
@@ -123,12 +137,13 @@ const OrderStatusPage: NextPageWithLayout<OrderPageProps> = ({ order: initialOrd
   if (!order) {
     return (
       <Container maxWidth="sm" sx={{ py: 8 }}>
-        <Alert severity="error" data-testid="order-not-found">Order not found.</Alert>
+        <Alert severity="error" data-testid="order-not-found">{t("order.notFound")}</Alert>
       </Container>
     );
   }
 
-  const sc = STATUS_META[order.payment_status] || STATUS_META.pending;
+  const sc = STATUS_COLORS[order.payment_status] || STATUS_COLORS.pending;
+  const scLabel = STATUS_LABELS[order.payment_status] || STATUS_LABELS.pending;
 
   const copyText = (text: string, itemId: number) => {
     if (!text) return;
@@ -143,13 +158,13 @@ const OrderStatusPage: NextPageWithLayout<OrderPageProps> = ({ order: initialOrd
     if (order.payment_status !== "paid") {
       return (
         <Typography variant="caption" color="text.secondary">
-          Payment pending — delivery unlocks once payment confirms.
+          {t("order.item.deliveryPending")}
         </Typography>
       );
     }
     const d = item.delivered_payload || {};
-    const t = item.product_snapshot?.digital_delivery_type;
-    if (t === "url" && d.access_url) {
+    const deliveryType = item.product_snapshot?.digital_delivery_type;
+    if (deliveryType === "url" && d.access_url) {
       return (
         <Button
           size="small"
@@ -159,11 +174,11 @@ const OrderStatusPage: NextPageWithLayout<OrderPageProps> = ({ order: initialOrd
           sx={{ textTransform: "none" }}
           data-testid={`order-item-access-${item.order_item_id}`}
         >
-          Open access link
+          {t("order.item.openAccess")}
         </Button>
       );
     }
-    if (t === "license_key" && d.license_key) {
+    if (deliveryType === "license_key" && d.license_key) {
       return (
         <Stack direction="row" spacing={1} alignItems="center">
           <Box sx={{ px: 1, py: 0.5, bgcolor: "grey.100", borderRadius: 1, fontFamily: "var(--font-mono)", fontSize: 13 }}>
@@ -177,12 +192,12 @@ const OrderStatusPage: NextPageWithLayout<OrderPageProps> = ({ order: initialOrd
             sx={{ textTransform: "none" }}
             data-testid={`order-item-copy-key-${item.order_item_id}`}
           >
-            {copiedId === item.order_item_id ? "Copied!" : "Copy"}
+            {copiedId === item.order_item_id ? t("order.item.copied") : t("order.item.copy")}
           </Button>
         </Stack>
       );
     }
-    if (t === "file") {
+    if (deliveryType === "file") {
       // Backend `orderFulfillmentService` writes `asset_deliveries` (canonical).
       // Older / manual seeds may use `downloads`. Support both shapes.
       const raw: any[] = Array.isArray(d.asset_deliveries)
@@ -216,24 +231,26 @@ const OrderStatusPage: NextPageWithLayout<OrderPageProps> = ({ order: initialOrd
                 sx={{ textTransform: "none", alignSelf: "flex-start" }}
                 data-testid={`order-item-download-${item.order_item_id}-${idx}`}
               >
-                {expired ? `Expired — ${f.filename}` : `Download ${f.filename}`}
+                {expired
+                  ? t("order.item.downloadExpired", { filename: f.filename })
+                  : t("order.item.download", { filename: f.filename })}
               </Button>
             ))}
             {expiresAt && !expired && (
               <Typography variant="caption" color="text.secondary" data-testid={`order-item-expires-${item.order_item_id}`} suppressHydrationWarning>
-                Links expire {formatExpiry(expiresAt)}
+                {t("order.item.linksExpireOn", { when: formatExpiry(expiresAt) })}
               </Typography>
             )}
             {expired && (
               <Typography variant="caption" color="warning.main" data-testid={`order-item-expired-${item.order_item_id}`}>
-                Links have expired — click "Resend download links" below to get fresh ones.
+                {t("order.item.linksExpiredCta")}
               </Typography>
             )}
           </Stack>
         );
       }
     }
-    if (t === "service" && d.calendar_url) {
+    if (deliveryType === "service" && d.calendar_url) {
       return (
         <Button
           size="small"
@@ -243,7 +260,7 @@ const OrderStatusPage: NextPageWithLayout<OrderPageProps> = ({ order: initialOrd
           sx={{ textTransform: "none" }}
           data-testid={`order-item-calendar-${item.order_item_id}`}
         >
-          Book your session
+          {t("order.item.bookSession")}
         </Button>
       );
     }
@@ -256,7 +273,7 @@ const OrderStatusPage: NextPageWithLayout<OrderPageProps> = ({ order: initialOrd
     }
     return (
       <Typography variant="caption" color="text.secondary" data-testid={`order-item-delivered-${item.order_item_id}`}>
-        Delivery in progress — check your email.
+        {t("order.item.deliveryInProgress")}
       </Typography>
     );
   };
@@ -285,7 +302,7 @@ const OrderStatusPage: NextPageWithLayout<OrderPageProps> = ({ order: initialOrd
       );
       const j = await r.json().catch(() => ({}));
       if (!r.ok) {
-        setResendMsg({ kind: "err", text: j?.message || "Failed to resend links." });
+        setResendMsg({ kind: "err", text: j?.message || t("order.resend.err") });
       } else {
         // Refetch the order to pull refreshed asset_deliveries
         try {
@@ -299,10 +316,10 @@ const OrderStatusPage: NextPageWithLayout<OrderPageProps> = ({ order: initialOrd
             if (o) setOrder(o);
           }
         } catch { /* ignore */ }
-        setResendMsg({ kind: "ok", text: "Fresh download links generated and emailed to you." });
+        setResendMsg({ kind: "ok", text: t("order.resend.ok") });
       }
     } catch (e: any) {
-      setResendMsg({ kind: "err", text: e?.message || "Failed to resend links." });
+      setResendMsg({ kind: "err", text: e?.message || t("order.resend.err") });
     } finally {
       setResending(false);
       setTimeout(() => setResendMsg(null), 5000);
@@ -318,13 +335,13 @@ const OrderStatusPage: NextPageWithLayout<OrderPageProps> = ({ order: initialOrd
       <Container maxWidth="md" sx={{ py: { xs: 3, md: 5 } }} data-testid="order-page">
         <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 3 }}>
           <Box sx={{ flex: 1 }}>
-            <Typography variant="body2" color="text.secondary">Order</Typography>
+            <Typography variant="body2" color="text.secondary">{t("order.label")}</Typography>
             <Typography variant="h5" sx={{ fontWeight: 700, fontFamily: "var(--font-mono)" }} data-testid="order-ref">
               #{order.public_ref.slice(0, 8).toUpperCase()}
             </Typography>
           </Box>
           <Chip
-            label={sc.label}
+            label={scLabel}
             sx={{ bgcolor: sc.bg, color: sc.fg, fontWeight: 700, fontSize: 14, height: 32, px: 1 }}
             data-testid="order-status-chip"
           />
@@ -332,14 +349,14 @@ const OrderStatusPage: NextPageWithLayout<OrderPageProps> = ({ order: initialOrd
 
         {polling && (
           <Alert severity="info" sx={{ mb: 2 }} data-testid="order-polling">
-            Waiting for payment confirmation — this page updates automatically.
+            {t("order.polling")}
             <LinearProgress sx={{ mt: 1 }} />
           </Alert>
         )}
 
         {order.payment_status === "paid" && (
           <Alert severity="success" sx={{ mb: 2 }} data-testid="order-paid-notice">
-            Payment received! Your items are below.
+            {t("order.paidNotice")}
           </Alert>
         )}
 
@@ -362,7 +379,7 @@ const OrderStatusPage: NextPageWithLayout<OrderPageProps> = ({ order: initialOrd
                   <Typography variant="caption" color="text.secondary">{it.variant_snapshot.attributes.title}</Typography>
                 )}
                 <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>
-                  Qty {it.quantity} · {formatPrice(it.unit_price_cents, order.currency)} each
+                  {t("order.item.qty")} {it.quantity} · {formatPrice(it.unit_price_cents, order.currency)} {t("order.item.each")}
                 </Typography>
                 <Box sx={{ mt: 1.5 }}>{renderDelivery(it)}</Box>
               </Box>
@@ -390,7 +407,7 @@ const OrderStatusPage: NextPageWithLayout<OrderPageProps> = ({ order: initialOrd
               sx={{ textTransform: "none" }}
               data-testid="order-resend-links-btn"
             >
-              {resending ? "Sending…" : "Resend download links"}
+              {resending ? t("order.resend.sending") : t("order.resend.button")}
             </Button>
             {resendMsg && (
               <Typography
@@ -403,7 +420,7 @@ const OrderStatusPage: NextPageWithLayout<OrderPageProps> = ({ order: initialOrd
             )}
             {!resendMsg && (
               <Typography variant="caption" color="text.secondary">
-                Links expire after 24 h. Resend fresh links to your email.
+                {t("order.resend.hint")}
               </Typography>
             )}
           </Stack>
@@ -413,7 +430,7 @@ const OrderStatusPage: NextPageWithLayout<OrderPageProps> = ({ order: initialOrd
         <Stack spacing={1}>
           {(Number(order.tax_cents) > 0 || order.reverse_charge || Number(order.shipping_cents) > 0) && (
             <Stack direction="row" justifyContent="space-between">
-              <Typography variant="body2" color="text.secondary">Subtotal</Typography>
+              <Typography variant="body2" color="text.secondary">{t("order.totals.subtotal")}</Typography>
               <Typography variant="body2" sx={{ fontVariantNumeric: "tabular-nums" }} data-testid="order-subtotal">
                 {formatPrice(order.subtotal_cents, order.currency)}
               </Typography>
@@ -421,7 +438,7 @@ const OrderStatusPage: NextPageWithLayout<OrderPageProps> = ({ order: initialOrd
           )}
           {Number(order.shipping_cents) > 0 && (
             <Stack direction="row" justifyContent="space-between">
-              <Typography variant="body2" color="text.secondary">Shipping</Typography>
+              <Typography variant="body2" color="text.secondary">{t("order.totals.shipping")}</Typography>
               <Typography variant="body2" sx={{ fontVariantNumeric: "tabular-nums" }}>
                 {formatPrice(Number(order.shipping_cents), order.currency)}
               </Typography>
@@ -430,7 +447,7 @@ const OrderStatusPage: NextPageWithLayout<OrderPageProps> = ({ order: initialOrd
           {order.reverse_charge ? (
             <Stack direction="row" justifyContent="space-between">
               <Typography variant="body2" color="text.secondary">
-                {`${order.tax_label || "VAT"} — Reverse-charge`}
+                {`${order.tax_label || t("order.tax.vat")} — ${t("order.tax.reverseCharge")}`}
               </Typography>
               <Typography variant="body2" sx={{ fontVariantNumeric: "tabular-nums" }} data-testid="order-tax">
                 {formatPrice(0, order.currency)}
@@ -439,7 +456,7 @@ const OrderStatusPage: NextPageWithLayout<OrderPageProps> = ({ order: initialOrd
           ) : Number(order.tax_cents) > 0 ? (
             <Stack direction="row" justifyContent="space-between">
               <Typography variant="body2" color="text.secondary">
-                {`${order.tax_label || "VAT"}${order.tax_rate != null ? ` (${Number(order.tax_rate)}%)` : ""}${order.tax_inclusive ? " · incl." : ""}`}
+                {`${order.tax_label || t("order.tax.vat")}${order.tax_rate != null ? ` (${Number(order.tax_rate)}%)` : ""}${order.tax_inclusive ? " · incl." : ""}`}
               </Typography>
               <Typography variant="body2" sx={{ fontVariantNumeric: "tabular-nums" }} data-testid="order-tax">
                 {formatPrice(Number(order.tax_cents), order.currency)}
@@ -447,7 +464,7 @@ const OrderStatusPage: NextPageWithLayout<OrderPageProps> = ({ order: initialOrd
             </Stack>
           ) : null}
           <Stack direction="row" justifyContent="space-between" sx={{ pt: 0.5 }}>
-            <Typography sx={{ fontWeight: 700 }}>Total paid</Typography>
+            <Typography sx={{ fontWeight: 700 }}>{t("order.totals.totalPaid")}</Typography>
             <Typography sx={{ fontWeight: 800, fontVariantNumeric: "tabular-nums" }} data-testid="order-total">
               {formatPrice(order.total_cents, order.currency)}
             </Typography>
@@ -456,25 +473,25 @@ const OrderStatusPage: NextPageWithLayout<OrderPageProps> = ({ order: initialOrd
 
         {order.reverse_charge && (
           <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 1.5 }} data-testid="order-reverse-charge-notice">
-            VAT reverse-charged to the customer under EU B2B rules (0% VAT charged). The customer accounts for VAT in their member state.
+            {t("order.tax.reverseChargeNotice")}
           </Typography>
         )}
         {(order.customer_vat_id || order.merchant?.vat_id) && (
           <Stack spacing={0.25} sx={{ mt: 1.5 }}>
             {order.merchant?.vat_id && (
               <Typography variant="caption" color="text.secondary">
-                Merchant VAT ID: <b>{order.merchant.vat_id}</b>
+                {t("order.tax.merchantVatId")} <b>{order.merchant.vat_id}</b>
               </Typography>
             )}
             {order.customer_vat_id && (
               <Typography variant="caption" color="text.secondary">
-                Customer VAT ID: <b>{order.customer_vat_id}</b>
+                {t("order.tax.customerVatId")} <b>{order.customer_vat_id}</b>
               </Typography>
             )}
           </Stack>
         )}
         <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 2 }}>
-          Receipt sent to <b>{order.buyer_email}</b>
+          {t("order.receiptSentTo")} <b>{order.buyer_email}</b>
         </Typography>
       </Container>
     </>

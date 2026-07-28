@@ -585,5 +585,53 @@
       "claimFirst": "Claim eerst een handle om je QR-code te genereren.",
       "printHint": "Print hem, zet hem op je kanaalbanner of plak hem op stickers. Elke camera scant hem direct naar je tip-pagina."
     }
+  },
+  "order": {
+    "notFound": "Bestelling niet gevonden.",
+    "label": "Bestelling",
+    "status": {
+      "paid": "BETAALD",
+      "pending": "IN AFWACHTING",
+      "expired": "VERLOPEN",
+      "underpaid": "ONDERBETAALD",
+      "refunded": "TERUGBETAALD",
+      "refundRequested": "TERUGBET. AANGEVR."
+    },
+    "polling": "Wacht op betalingsbevestiging — deze pagina wordt automatisch bijgewerkt.",
+    "paidNotice": "Betaling ontvangen! Je items staan hieronder.",
+    "item": {
+      "qty": "Aantal",
+      "each": "per stuk",
+      "deliveryPending": "Betaling in afwachting — levering ontgrendelt zodra de betaling bevestigd is.",
+      "openAccess": "Toegangslink openen",
+      "copy": "Kopiëren",
+      "copied": "Gekopieerd!",
+      "download": "Download {{filename}}",
+      "downloadExpired": "Verlopen — {{filename}}",
+      "linksExpireOn": "Links verlopen {{when}}",
+      "linksExpiredCta": "Links zijn verlopen — klik hieronder op \"Downloadlinks opnieuw verzenden\" om nieuwe te krijgen.",
+      "bookSession": "Boek je sessie",
+      "deliveryInProgress": "Levering onderweg — controleer je e-mail."
+    },
+    "resend": {
+      "sending": "Bezig met verzenden…",
+      "button": "Downloadlinks opnieuw verzenden",
+      "hint": "Links verlopen na 24 uur. Verzend nieuwe links naar je e-mail.",
+      "ok": "Nieuwe downloadlinks gegenereerd en per e-mail verzonden.",
+      "err": "Opnieuw verzenden van links mislukt."
+    },
+    "totals": {
+      "subtotal": "Subtotaal",
+      "shipping": "Verzending",
+      "totalPaid": "Totaal betaald"
+    },
+    "tax": {
+      "vat": "BTW",
+      "reverseCharge": "Verlegd",
+      "reverseChargeNotice": "BTW verlegd naar de klant volgens EU-B2B-regels (0% BTW in rekening gebracht). De klant draagt de BTW af in zijn lidstaat.",
+      "merchantVatId": "BTW-nummer verkoper:",
+      "customerVatId": "BTW-nummer klant:"
+    },
+    "receiptSentTo": "Bon verzonden naar"
   }
 }

@@ -1,17 +1,25 @@
 // Aurora dashboard primitives (2026-07-18) — shared building blocks for
 // the redesigned /dashboard overview. Tokens sync with theme.v3.ts.
+//
+// Session 82 (2026-07-28): AURORA_GRADIENT now starts with INDIGO (#4F46E5)
+// so the dashboard hero + coin-badge rings share the visual language of
+// Landing v3. CORAL (#FF5B49) is kept as the semantic "failure / negative
+// delta" color (red = error, universally understood) — never blended into
+// the primary aurora gradient.
 import { Box, Typography, styled } from "@mui/material";
 
-export const CORAL = "#FF5B49";
+export const INDIGO = "#4F46E5";       // aurora primary — matches Landing v3
+export const INDIGO_DEEP = "#4338CA";  // hover / deeper stop
+export const CORAL = "#FF5B49";        // semantic-negative only (fail, -delta)
 export const CORAL_DEEP = "#E33F2E";
 export const VIOLET = "#7C5CFF";
 export const SKY = "#4FD1FF";
-export const VOLT = "#CCFF00";
+export const VOLT = "#CCFF00";         // semantic-positive (settled, +delta, money)
 export const VOLT_INK = "#5A6B00";
 export const AURORA_GRADIENT =
-  "linear-gradient(135deg, #FF5B49 0%, #7C5CFF 55%, #4FD1FF 100%)";
+  "linear-gradient(135deg, #4F46E5 0%, #7C5CFF 55%, #4FD1FF 100%)";
 export const AURORA_GRADIENT_SOFT =
-  "linear-gradient(135deg, rgba(255,91,73,0.14) 0%, rgba(124,92,255,0.14) 55%, rgba(79,209,255,0.14) 100%)";
+  "linear-gradient(135deg, rgba(79,70,229,0.14) 0%, rgba(124,92,255,0.14) 55%, rgba(79,209,255,0.14) 100%)";
 
 // Base surface card. Uses 1px hairline border + subtle hover lift.
 export const SurfaceCard = styled(Box)(({ theme }) => {
@@ -130,26 +138,27 @@ export const DeltaChip = styled(Box, {
   };
 });
 
-// Coral CTA chip used across attention cards
+// Indigo CTA chip used across attention cards (Session 82: was coral;
+// now aligned with Landing v3's flat indigo pills).
 export const CoralChip = styled(Box)({
   display: "inline-flex",
   alignItems: "center",
   gap: 6,
   padding: "8px 14px",
   borderRadius: 999,
-  background: CORAL,
+  background: INDIGO,
   color: "#FFFFFF",
   fontFamily: "var(--font-body)",
   fontSize: 13,
   fontWeight: 600,
   cursor: "pointer",
-  boxShadow: "0 4px 12px rgba(255,91,73,0.28)",
+  boxShadow: "0 4px 12px rgba(79,70,229,0.28)",
   transition: "transform 180ms ease, box-shadow 220ms ease, background 200ms ease",
   minHeight: 36,
   "&:hover": {
-    background: CORAL_DEEP,
+    background: INDIGO_DEEP,
     transform: "translateY(-1px)",
-    boxShadow: "0 8px 18px rgba(255,91,73,0.36)",
+    boxShadow: "0 8px 18px rgba(79,70,229,0.36)",
   },
 });
 

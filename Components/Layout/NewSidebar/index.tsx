@@ -270,7 +270,7 @@ const NewSidebar = () => {
                           letterSpacing: "0.06em",
                           textTransform: "uppercase",
                           fontFamily: "var(--font-sans)",
-                          backgroundColor: "#CCFF00",
+                          backgroundColor: "#4F46E5",
                           color: "#0A0A0B",
                           lineHeight: 1.4,
                           alignSelf: "center",
@@ -356,7 +356,7 @@ const NewSidebar = () => {
                   }}
                 >
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.75 }}>
-                    <AutoAwesomeRounded sx={{ fontSize: 18, color: "#CCFF00" }} />
+                    <AutoAwesomeRounded sx={{ fontSize: 18, color: "#4F46E5" }} />
                     <Box sx={{ fontSize: 14, fontWeight: 800, color: theme.palette.text.primary, fontFamily: "var(--font-sans)" }}>
                       {t("creatorTourTitle", { defaultValue: "New: your creator page" })}
                     </Box>
@@ -379,7 +379,7 @@ const NewSidebar = () => {
                       variant="contained"
                       size="small"
                       data-testid="creator-tour-cta"
-                      sx={{ textTransform: "none", fontWeight: 800, fontSize: 12.5, borderRadius: "8px", backgroundColor: "#CCFF00", color: "#0A0A0B", "&:hover": { backgroundColor: "#CCFF00", filter: "brightness(1.05)" } }}
+                      sx={{ textTransform: "none", fontWeight: 800, fontSize: 12.5, borderRadius: "8px", backgroundColor: "#4F46E5", color: "#0A0A0B", "&:hover": { backgroundColor: "#4F46E5", filter: "brightness(1.08)" } }}
                     >
                       {t("creatorTourCta", { defaultValue: "Set it up" })}
                     </Button>

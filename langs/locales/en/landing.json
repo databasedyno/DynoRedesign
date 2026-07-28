@@ -585,5 +585,53 @@
       "claimFirst": "Claim a handle first to generate your QR code.",
       "printHint": "Print it, add to your channel banner, or slap it on stickers. Any camera scans it straight to your tip page."
     }
+  },
+  "order": {
+    "notFound": "Order not found.",
+    "label": "Order",
+    "status": {
+      "paid": "PAID",
+      "pending": "PENDING",
+      "expired": "EXPIRED",
+      "underpaid": "UNDERPAID",
+      "refunded": "REFUNDED",
+      "refundRequested": "REFUND REQ"
+    },
+    "polling": "Waiting for payment confirmation — this page updates automatically.",
+    "paidNotice": "Payment received! Your items are below.",
+    "item": {
+      "qty": "Qty",
+      "each": "each",
+      "deliveryPending": "Payment pending — delivery unlocks once payment confirms.",
+      "openAccess": "Open access link",
+      "copy": "Copy",
+      "copied": "Copied!",
+      "download": "Download {{filename}}",
+      "downloadExpired": "Expired — {{filename}}",
+      "linksExpireOn": "Links expire {{when}}",
+      "linksExpiredCta": "Links have expired — click \"Resend download links\" below to get fresh ones.",
+      "bookSession": "Book your session",
+      "deliveryInProgress": "Delivery in progress — check your email."
+    },
+    "resend": {
+      "sending": "Sending…",
+      "button": "Resend download links",
+      "hint": "Links expire after 24 h. Resend fresh links to your email.",
+      "ok": "Fresh download links generated and emailed to you.",
+      "err": "Failed to resend links."
+    },
+    "totals": {
+      "subtotal": "Subtotal",
+      "shipping": "Shipping",
+      "totalPaid": "Total paid"
+    },
+    "tax": {
+      "vat": "VAT",
+      "reverseCharge": "Reverse-charge",
+      "reverseChargeNotice": "VAT reverse-charged to the customer under EU B2B rules (0% VAT charged). The customer accounts for VAT in their member state.",
+      "merchantVatId": "Merchant VAT ID:",
+      "customerVatId": "Customer VAT ID:"
+    },
+    "receiptSentTo": "Receipt sent to"
   }
 }
