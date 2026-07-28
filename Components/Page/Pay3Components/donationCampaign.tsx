@@ -207,7 +207,7 @@ const DonationCampaign = ({ donation, merchant, submitting, onDonate }: Donation
   const fmt = (n: number) => `${symbol}${formatWithSeparators(n, currency)}`
 
   const accent = '#4F46E5' // aurora indigo — Landing v3 (Session 82 migration; was: #CCFF00 brand lime)
-  const onAccent = '#0A0A0B'
+  const onAccent = '#FFFFFF'
   const surfaceGlass = isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)'
   const border = theme.palette.border.main
   const limeTint = isDark ? 'rgba(79,70,229,0.10)' : 'rgba(79,70,229,0.16)'

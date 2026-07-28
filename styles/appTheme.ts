@@ -17,7 +17,7 @@ import { AUTH_LIME } from "./authTheme";
  * are untouched.
  */
 
-const LIME_HOVER = "#B4E600";
+const INDIGO_HOVER = "#6366F1";
 
 /**
  * Brand display font for IN-APP headings (2026-07-21 font sweep — option B).
@@ -120,10 +120,10 @@ export const appThemeDark = createTheme(themeDark, {
     mode: "dark",
     primary: {
       main: AUTH_LIME,
-      dark: LIME_HOVER,
-      light: "rgba(204,255,0,0.14)",
-      contrastText: "#060606",
-      hover: LIME_HOVER,
+      dark: INDIGO_HOVER,
+      light: "rgba(99,102,241,0.16)",
+      contrastText: "#FFFFFF",
+      hover: INDIGO_HOVER,
     } as any,
     secondary: {
       main: "#1E1E28",
@@ -144,12 +144,12 @@ export const appThemeDark = createTheme(themeDark, {
     error: { main: "#FF6B5D" },
     action: {
       hover: "rgba(255,255,255,0.06)",
-      selected: "rgba(204,255,0,0.10)",
+      selected: "rgba(99,102,241,0.12)",
     },
   } as any,
   typography: headingTypography,
   components: {
-    MuiButton: { variants: buttonVariants(AUTH_LIME, "#060606", LIME_HOVER) },
+    MuiButton: { variants: buttonVariants(AUTH_LIME, "#FFFFFF", INDIGO_HOVER) },
   },
 });
 
@@ -160,7 +160,7 @@ export const appThemeLight = createTheme(theme, {
       main: "#0A0A0A",
       dark: "#000000",
       light: "rgba(10,10,10,0.06)",
-      contrastText: AUTH_LIME,
+      contrastText: "#FFFFFF",
       hover: "#1F1F1F",
     } as any,
     secondary: {
@@ -187,6 +187,6 @@ export const appThemeLight = createTheme(theme, {
   } as any,
   typography: headingTypography,
   components: {
-    MuiButton: { variants: buttonVariants("#0A0A0A", AUTH_LIME, "#1F1F1F") },
+    MuiButton: { variants: buttonVariants("#0A0A0A", "#FFFFFF", "#1F1F1F") },
   },
 });

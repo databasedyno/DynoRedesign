@@ -405,7 +405,7 @@ const PaymentDemo = () => {
                       data-testid="crypto-payment-btn"
                       sx={{
                         backgroundColor: '#4F46E5',
-                        color: '#0A0A0B',
+                        color: '#FFFFFF',
                         textTransform: 'none',
                         borderRadius: '12px',
                         fontWeight: 800,

@@ -61,6 +61,10 @@ const MONO = 'ui-monospace, "Roboto Mono", "JetBrains Mono", SFMono-Regular, Men
 // Constant name stays "LIME" for minimal-diff safety; only the value changed.
 const LIME = '#4F46E5'
 const INK = '#0A0A0B'
+// Text/icon colour for content sitting ON the LIME (indigo) brand buttons.
+// Kept separate from INK (which is correct dark text on light surfaces) so
+// the indigo CTAs get legible WHITE text after the lime→indigo rebrand.
+const ON_BRAND = '#FFFFFF'
 
 /** Payload we hold in local state after `/pay/getData` resolves. */
 type Meta = {
@@ -627,7 +631,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
             }}
             data-testid="clean-checkout-success-icon"
           >
-            <Icon icon="mdi:check-bold" width={36} color={INK} />
+            <Icon icon="mdi:check-bold" width={36} color={ON_BRAND} />
           </Box>
           <Typography fontWeight={700} fontSize={22} letterSpacing="-0.5px" color={theme.palette.text.primary}>
             {isContribution ? 'Thank you for contributing!' : 'Payment successful'}
@@ -668,7 +672,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
             startIcon={<Icon icon={shareCopied ? 'mdi:check' : 'mdi:share-variant'} width={20} />}
             sx={{
               backgroundColor: LIME,
-              color: INK,
+              color: ON_BRAND,
               textTransform: 'none',
               borderRadius: '999px',
               fontWeight: 800,
@@ -714,7 +718,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
             // Trigger cascade: setSelectedCurrency will refire the effect.
           }}
           sx={{
-            backgroundColor: LIME, color: INK, textTransform: 'none',
+            backgroundColor: LIME, color: ON_BRAND, textTransform: 'none',
             borderRadius: '10px', fontWeight: 700, py: 1.2,
             '&:hover': { backgroundColor: LIME, filter: 'brightness(1.05)' },
           }}
@@ -1140,7 +1144,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
             startIcon={<Icon icon={copiedFlag === 'addr' ? 'mdi:check' : 'mdi:content-copy'} width={18} />}
             sx={{
               flex: 1, minHeight: 48, borderRadius: '999px', textTransform: 'none',
-              fontSize: 15, fontWeight: 800, backgroundColor: LIME, color: INK,
+              fontSize: 15, fontWeight: 800, backgroundColor: LIME, color: ON_BRAND,
               whiteSpace: 'nowrap',
               '&:hover': { backgroundColor: LIME, filter: 'brightness(1.05)' },
               '&:active': { transform: 'scale(0.99)' },

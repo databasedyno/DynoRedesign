@@ -241,7 +241,7 @@ const CryptoTransfer = ({
   // the landing page and donation checkout. Green (#10B981/#12B76A) is kept
   // ONLY for payment-detected/confirmed states (universal "success" signal).
   const ACCENT = '#4F46E5';
-  const ON_ACCENT = '#0A0A0B';
+  const ON_ACCENT = '#FFFFFF';
   const ACCENT_SOFT = isDark ? 'rgba(79,70,229,0.12)' : 'rgba(79,70,229,0.16)';
   const [selectedCrypto, setSelectedCrypto] = useState("");
   const [selectedNetwork, setSelectedNetwork] = useState<
