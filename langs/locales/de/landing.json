@@ -351,5 +351,194 @@
       "subtitle": "REST-API, Webhooks, SDKs und Drop-in-Checkout. 15+ Chains, eine API, keine Smart Contracts.",
       "cta": "Docs lesen"
     }
+  },
+  "v3": {
+    "hero": {
+      "eyebrow": "Dynopay · Öffentliche Beta",
+      "headline1": "Werde in Krypto bezahlt.",
+      "headlineHighlight": "Egal wie",
+      "headline2": "du verkaufst.",
+      "body": "Ein Wallet für Händler, Fundraiser, Creator und Entwickler. Tips, Shops, Kampagnen und API — beglichen in der Coin, die du willst, ab <b>0,5%</b> Gebühr.",
+      "claimBtn": "Sichern",
+      "chooseHandle": "Wähle deinen Creator-Handle",
+      "rewardBadge": "Neue Konten: deine ersten <b>$500</b> im Volumen sind gebührenfrei",
+      "bullets": "Kostenlos · Keine Kreditkarte · 15+ Chains",
+      "trustLine": "Non-custodial · SOC 2 in Vorbereitung · DSGVO / AML",
+      "livePill": "LIVE",
+      "sendTipLabel": "Tip senden",
+      "sendTipBtn": "Tip senden",
+      "metaSettle": "Landet in <b>deinem Wallet</b> in ~4s · Gebühr <b>1,5%</b>"
+    },
+    "story": {
+      "eyebrow": "[ So funktioniert's ]",
+      "headline": "Drei Schritte. Das war's.",
+      "body": "Kein Bankpartner. Keine Freigabewarteschlange. Keine Verwahrung. Dein Käufer zahlt, wir wickeln on-chain ab, das Geld landet in dem Wallet, das du bereits besitzt.",
+      "stepLabel": "Schritt",
+      "step1": {
+        "title": "Jemand bezahlt dich.",
+        "body": "Teile einen Link, integriere ein Inline-Checkout oder rufe die API auf. Dein Käufer wählt aus 15+ Chains — BTC, ETH, USDC, USDT, XRP, TRON — und zahlt."
+      },
+      "step2": {
+        "title": "Wir wickeln nach deinen Regeln ab.",
+        "body": "Behalte die Original-Coin oder konvertiere automatisch in USDT / USDC auf jeder Chain. Live-Binance-Kurse, on-chain in Sekunden, keine manuelle Umwandlung."
+      },
+      "step3": {
+        "title": "Es landet in deinem Wallet.",
+        "body": "Die Auszahlung geht direkt an die Wallet-Adresse, die du kontrollierst — nicht von uns verwahrt. Ab 0,5% pauschal, keine monatlichen Kosten, keine Chargebacks."
+      },
+      "mock": {
+        "awaitingPayment": "Warte auf Zahlung",
+        "sendUSDT": "USDT senden · TRC-20",
+        "openWallet": "Im Wallet öffnen",
+        "copyAddress": "Adresse kopieren",
+        "today": "Heute",
+        "autoConverted": "Auto-konvertiert",
+        "chainsActive": "aktiv",
+        "chainsLive": "live",
+        "thPayment": "Zahlung",
+        "thAmount": "Betrag",
+        "thSettle": "Abwicklung",
+        "thStatus": "Status",
+        "settled": "Abgewickelt",
+        "confirming": "Bestätige",
+        "inYourWallet": "In deinem Wallet",
+        "thisWeek": "diese Woche"
+      }
+    },
+    "numbers": {
+      "eyebrow": "[ Zahlen & Vertrauen ]",
+      "headline": "Kleine Gebühren. Große Bewegung.",
+      "body": "Non-custodial by design. Compliant by choice. Schnell, weil so geschrieben.",
+      "settledLabel": "Abgewickelt",
+      "settledSub": "Seit dem Start",
+      "chainsLabel": "Chains",
+      "chainsSub": "BTC, ETH, TRON, XRP, SOL",
+      "feeLabel": "Niedrigste Gebühr",
+      "feeSub": "Bei Enterprise-Volumen",
+      "settleLabel": "Median-Abwicklung",
+      "settleSub": "On-chain-Bestätigung",
+      "badgeSOC2": "SOC2 in Vorbereitung",
+      "badgeKYC": "KYC / AML",
+      "badgeGDPR": "DSGVO",
+      "badgeNonCustodial": "Non-custodial"
+    },
+    "features": {
+      "eyebrow": "[ Was drin ist ]",
+      "headline1": "Alles, was du brauchst",
+      "headline2": "um bezahlt zu werden.",
+      "body": "Eine Plattform, drei Wege zur Integration — ein gehostetes Checkout, automatische Abwicklung und eine saubere API. Nimm, was du brauchst, ignoriere den Rest.",
+      "checkout": {
+        "tag": "Checkout",
+        "title": "Ein Checkout, das jede Coin spricht.",
+        "desc": "Teile einen Link. Kunden zahlen in 15+ Chains — automatisch konvertiert in die Coin, die du wirklich behältst.",
+        "cta": "Checkout ansehen"
+      },
+      "convert": {
+        "tag": "Auto-Konvert",
+        "title": "Nimm volatil. Halte stabil.",
+        "desc": "Akzeptiere BTC oder ETH, wickle in USDT oder USDC in etwa vier Sekunden ab. Werde bezahlt ohne Kursschwankungen.",
+        "cta": "So funktioniert die Abwicklung"
+      },
+      "api": {
+        "tag": "Developer-API",
+        "title": "Krypto-Zahlungen, heute Nacht live.",
+        "desc": "REST + Webhooks, Sandbox-Keys und Copy-Paste-Snippets. Dein erster 201 landet in etwa zehn Minuten.",
+        "cta": "Docs lesen"
+      }
+    },
+    "tryit": {
+      "eyebrow": "[ Jetzt testen · ohne Registrierung ]",
+      "headline1": "Erstelle deine erste",
+      "headline2": "Zahlung in 30 Sekunden.",
+      "body": "Kopiere den cURL, füge ihn in dein Terminal ein, erhalte eine Live-Checkout-URL zurück. Sandbox-Key inklusive — keine Karte, keine Registrierung.",
+      "copyBtn": "Kopieren",
+      "copiedBtn": "Kopiert",
+      "responseHeader": "✓ 201 Created",
+      "footBullets": "REST + Webhooks · 15+ Chains · Erster 201 in ~10 Min",
+      "readDocs": "Docs lesen →"
+    },
+    "audience": {
+      "eyebrow": "[ Für wen ist das? ]",
+      "headline1": "Ein Wallet.",
+      "headline2": "Jedes Publikum.",
+      "body": "Wähle deine Tür — Händler, Kampagnen, Creator, Entwickler. Alle teilen die gleichen Krypto-Rails, das gleiche Wallet, die gleichen Gebühren.",
+      "merchants": {
+        "tag": "01 · Händler",
+        "title": "Verkaufe Produkte in Krypto.",
+        "desc": "Gehostetes Checkout, Produktkatalog, Rechnungen. Auto-konvertiere oder behalte die Original-Coin.",
+        "statLabel": "Gebühren, während du wächst"
+      },
+      "fundraisers": {
+        "tag": "02 · Fundraiser",
+        "title": "Führe Kampagnen, die finanzieren.",
+        "desc": "Ziel-Balken, Tiers, Spender-Wall, Updates. Jede Spende landet on-chain in deinem Wallet.",
+        "stat": "On-chain",
+        "statLabel": "transparent von Anfang an"
+      },
+      "creators": {
+        "tag": "03 · Creator",
+        "title": "Erhalte Tips von deinen Fans.",
+        "desc": "Deine eigene dynopay.me/@handle-Seite, Inline-Tip-Beträge, keine Chargebacks, sofortige Auszahlungen.",
+        "statLabel": "Auszahlung ans Wallet"
+      },
+      "developers": {
+        "tag": "04 · Entwickler",
+        "title": "Ship Krypto in einem Abend.",
+        "desc": "REST-API + Webhooks, Sandbox-Keys, erster 201 in unter 10 Minuten.",
+        "statLabel": "bis zu deinem ersten 201"
+      }
+    },
+    "finalcta": {
+      "eyebrow": "[ Wenn du bereit bist ]",
+      "headline1": "Werde bezahlt in",
+      "headline2": "Krypto heute.",
+      "body": "Kostenlos zum Start. Keine Karte. Live in unter 10 Minuten. Bring dein Wallet mit, behalte dein Geld.",
+      "rewardBadge": "Neue Konten: deine ersten <b>$500</b> im Volumen sind gebührenfrei",
+      "getStarted": "Kostenlos starten",
+      "readDocs": "Docs lesen",
+      "trustLine": "Non-custodial · 15+ Chains · SOC2 in Vorbereitung · DSGVO / AML"
+    },
+    "faq": {
+      "eyebrow": "[ Antworten ]",
+      "headline": "Häufige Fragen.",
+      "q1": "Muss ich Krypto besitzen, um es zu akzeptieren?",
+      "a1": "Nein. Käufer zahlen in 15+ unterstützten Coins, und Dynopay kann automatisch in USDC oder USDT konvertieren und in Sekunden auf dein Wallet abwickeln. Du berührst nie eine Krypto-Börse.",
+      "q2": "Wo landen die Mittel?",
+      "a2": "Direkt an einer Wallet-Adresse, die du kontrollierst — nicht von uns verwahrt. Dynopay ist non-custodial. Jede Abwicklung ist ein echter on-chain-Transfer an deine Adresse.",
+      "q3": "Was kostet es?",
+      "a3": "Zwischen 1,5% (Starter) und 0,5% (Enterprise), basierend auf 30-Tage-Volumen. Keine monatliche Gebühr, keine Setup-Gebühr, keine Chargebacks. Siehe die Gebühren-Seite für die vollständige Tier-Tabelle.",
+      "q4": "Wie schnell ist die Abwicklung?",
+      "a4": "Median 4,2 Sekunden für Stablecoin-Rails (TRC-20, ERC-20 L2s) und unter einer Minute für BTC/ETH-Mainnet-Bestätigungen bei unserer Schwelle. Dein Dashboard zeigt den Live-TX-Status.",
+      "q5": "Unterstützt ihr Fiat, Rückerstattungen oder Abos?",
+      "a5": "Du bekommst ein on-chain Äquivalent von allem: Rückerstattungen sind One-Click-Umkehrungen, Abos sind wiederkehrende Zahlungslinks, und das Checkout akzeptiert Apple Pay / Karte via Flutterwave als Fallback — automatisch auf dein Krypto-Wallet übertragen.",
+      "stillCurious": "Noch neugierig?",
+      "askUs": "Frag uns alles →"
+    },
+    "learn": {
+      "eyebrow": "[ In deinem Tempo ]",
+      "headline": "Beginn mit den Basics.",
+      "docs": {
+        "tag": "Entwickler",
+        "title": "Docs lesen",
+        "desc": "REST-API, Webhooks und SDKs mit Copy-Paste-Snippets. Von null zu deiner ersten Live-Zahlung in Minuten."
+      },
+      "guides": {
+        "tag": "Guides",
+        "title": "Lern die Basics",
+        "desc": "Deutschsprachige Guides zum Akzeptieren von Krypto, Auto-Konvertierung in Stablecoins und Non-custodial bleiben."
+      },
+      "fees": {
+        "tag": "Preise",
+        "title": "Gebühren ansehen",
+        "desc": "Von 1,5% bis 0,5% während du wächst. Keine monatliche Gebühr, keine Setup-Gebühr, keine Chargebacks — niemals."
+      },
+      "exploreBtn": "Entdecken"
+    },
+    "header": {
+      "systemsNormal": "Alle Systeme normal"
+    },
+    "footer": {
+      "systemsOperational": "Alle Systeme betriebsbereit"
+    }
   }
 }

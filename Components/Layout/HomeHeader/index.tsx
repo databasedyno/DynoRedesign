@@ -286,7 +286,7 @@ const HomeHeader = memo(function HomeHeader() {
             {!isMobile && (
               <StatusPillWrap aria-label="System status">
                 <span className="dot" />
-                <span className="status-label">All systems normal</span>
+                <span className="status-label">{t("v3.header.systemsNormal")}</span>
               </StatusPillWrap>
             )}
 

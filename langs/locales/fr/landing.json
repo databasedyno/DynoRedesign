@@ -351,5 +351,194 @@
       "subtitle": "API REST, webhooks, SDK et checkout prêt à l'emploi. 15+ chaînes, une seule API, sans smart contracts.",
       "cta": "Lire les docs"
     }
+  },
+  "v3": {
+    "hero": {
+      "eyebrow": "Dynopay · Bêta publique",
+      "headline1": "Encaissez en crypto.",
+      "headlineHighlight": "Peu importe",
+      "headline2": "ce que vous vendez.",
+      "body": "Un portefeuille pour marchands, collecteurs, créateurs et développeurs. Pourboires, boutiques, campagnes, API — réglé dans la crypto de votre choix, à partir de <b>0,5%</b> de frais.",
+      "claimBtn": "Réserver",
+      "chooseHandle": "Choisissez votre pseudo de créateur",
+      "rewardBadge": "Nouveaux comptes : vos premiers <b>500 $</b> en volume sont sans frais",
+      "bullets": "Gratuit · Sans carte · 15+ chaînes",
+      "trustLine": "Non-custodial · SOC 2 en cours · RGPD / AML",
+      "livePill": "EN DIRECT",
+      "sendTipLabel": "Envoyer un pourboire",
+      "sendTipBtn": "Envoyer",
+      "metaSettle": "Réglé sur <b>votre wallet</b> en ~4s · frais <b>1,5%</b>"
+    },
+    "story": {
+      "eyebrow": "[ Comment ça marche ]",
+      "headline": "Trois étapes. C'est tout.",
+      "body": "Pas de partenaire bancaire. Pas de file d'approbation. Pas de conservation. Votre acheteur paie, nous réglons on-chain, les fonds arrivent dans le wallet que vous possédez déjà.",
+      "stepLabel": "Étape",
+      "step1": {
+        "title": "Quelqu'un vous paie.",
+        "body": "Partagez un lien, intégrez un checkout inline ou appelez l'API. Votre acheteur choisit parmi 15+ chaînes — BTC, ETH, USDC, USDT, XRP, TRON — et paie."
+      },
+      "step2": {
+        "title": "On règle à votre façon.",
+        "body": "Gardez la crypto d'origine ou convertissez automatiquement en USDT / USDC sur n'importe quelle chaîne. Taux Binance en direct, on-chain en secondes, sans conversion manuelle."
+      },
+      "step3": {
+        "title": "Ça arrive dans votre wallet.",
+        "body": "Le paiement va directement à l'adresse du wallet que vous contrôlez — pas conservé par nous. À partir de 0,5% fixe, sans mensualité, sans rétrofacturation."
+      },
+      "mock": {
+        "awaitingPayment": "En attente de paiement",
+        "sendUSDT": "Envoyer USDT · TRC-20",
+        "openWallet": "Ouvrir dans le wallet",
+        "copyAddress": "Copier l'adresse",
+        "today": "Aujourd'hui",
+        "autoConverted": "Auto-converti",
+        "chainsActive": "actives",
+        "chainsLive": "en direct",
+        "thPayment": "Paiement",
+        "thAmount": "Montant",
+        "thSettle": "Régler",
+        "thStatus": "Statut",
+        "settled": "Réglé",
+        "confirming": "Confirmation",
+        "inYourWallet": "Dans votre wallet",
+        "thisWeek": "cette semaine"
+      }
+    },
+    "numbers": {
+      "eyebrow": "[ Chiffres & Confiance ]",
+      "headline": "Petits frais. Grand volume.",
+      "body": "Non-custodial par conception. Conforme par choix. Rapide parce que c'est écrit pour l'être.",
+      "settledLabel": "Réglé",
+      "settledSub": "Depuis le lancement",
+      "chainsLabel": "Chaînes",
+      "chainsSub": "BTC, ETH, TRON, XRP, SOL",
+      "feeLabel": "Frais les plus bas",
+      "feeSub": "En volume Enterprise",
+      "settleLabel": "Règlement médian",
+      "settleSub": "Confirmation on-chain",
+      "badgeSOC2": "SOC2 en cours",
+      "badgeKYC": "KYC / AML",
+      "badgeGDPR": "RGPD",
+      "badgeNonCustodial": "Non-custodial"
+    },
+    "features": {
+      "eyebrow": "[ Ce qu'il y a dedans ]",
+      "headline1": "Tout ce qu'il faut",
+      "headline2": "pour être payé.",
+      "body": "Une plateforme, trois façons de l'intégrer — un checkout hébergé, un règlement automatique et une API propre. Prenez ce qu'il vous faut, ignorez le reste.",
+      "checkout": {
+        "tag": "Checkout",
+        "title": "Un checkout qui parle toutes les cryptos.",
+        "desc": "Partagez un lien. Les clients paient sur 15+ chaînes — auto-converties dans la crypto que vous gardez vraiment.",
+        "cta": "Voir le checkout"
+      },
+      "convert": {
+        "tag": "Auto-conversion",
+        "title": "Acceptez le volatile. Gardez le stable.",
+        "desc": "Acceptez du BTC ou ETH, réglez en USDT ou USDC en environ quatre secondes. Payé sans les fluctuations.",
+        "cta": "Comment fonctionne le règlement"
+      },
+      "api": {
+        "tag": "API développeur",
+        "title": "Paiements crypto, livrés ce soir.",
+        "desc": "REST + webhooks, clés sandbox et snippets copier-coller. Votre premier 201 arrive en environ dix minutes.",
+        "cta": "Lire la doc"
+      }
+    },
+    "tryit": {
+      "eyebrow": "[ Essayez maintenant · sans inscription ]",
+      "headline1": "Créez votre premier",
+      "headline2": "paiement en 30 secondes.",
+      "body": "Copiez le cURL, collez-le dans votre terminal, recevez une URL de checkout en direct. Clé sandbox incluse — sans carte, sans inscription.",
+      "copyBtn": "Copier",
+      "copiedBtn": "Copié",
+      "responseHeader": "✓ 201 Créé",
+      "footBullets": "REST + Webhooks · 15+ chaînes · Premier 201 en ~10 min",
+      "readDocs": "Lire la doc →"
+    },
+    "audience": {
+      "eyebrow": "[ Pour qui ? ]",
+      "headline1": "Un wallet.",
+      "headline2": "Tous les publics.",
+      "body": "Choisissez votre porte — marchands, campagnes, créateurs, développeurs. Tous partagent les mêmes rails crypto, le même wallet, les mêmes frais.",
+      "merchants": {
+        "tag": "01 · Marchands",
+        "title": "Vendez en crypto.",
+        "desc": "Checkout hébergé, catalogue produits, factures. Auto-convertissez ou gardez la crypto d'origine.",
+        "statLabel": "frais qui baissent quand vous grandissez"
+      },
+      "fundraisers": {
+        "tag": "02 · Collectes",
+        "title": "Lancez des campagnes qui financent.",
+        "desc": "Barre d'objectif, paliers, mur de donateurs, mises à jour. Chaque don arrive on-chain dans votre wallet.",
+        "stat": "On-chain",
+        "statLabel": "transparent par défaut"
+      },
+      "creators": {
+        "tag": "03 · Créateurs",
+        "title": "Recevez des pourboires de vos fans.",
+        "desc": "Votre propre page dynopay.me/@pseudo, montants de pourboire en inline, sans rétrofacturation, paiements instantanés.",
+        "statLabel": "versement au wallet"
+      },
+      "developers": {
+        "tag": "04 · Développeurs",
+        "title": "Livrez du crypto en une soirée.",
+        "desc": "API REST + webhooks, clés sandbox, premier 201 en moins de 10 minutes.",
+        "statLabel": "jusqu'à votre premier 201"
+      }
+    },
+    "finalcta": {
+      "eyebrow": "[ Quand vous êtes prêt ]",
+      "headline1": "Encaissez en",
+      "headline2": "crypto aujourd'hui.",
+      "body": "Gratuit pour commencer. Sans carte. En ligne en moins de 10 minutes. Apportez votre wallet, gardez votre argent.",
+      "rewardBadge": "Nouveaux comptes : vos premiers <b>500 $</b> en volume sont sans frais",
+      "getStarted": "Commencer gratuitement",
+      "readDocs": "Lire la doc",
+      "trustLine": "Non-custodial · 15+ chaînes · SOC2 en cours · RGPD / AML"
+    },
+    "faq": {
+      "eyebrow": "[ Réponses ]",
+      "headline": "Questions fréquentes.",
+      "q1": "Faut-il détenir de la crypto pour en accepter ?",
+      "a1": "Non. Les acheteurs paient dans 15+ cryptos supportées, et Dynopay peut auto-convertir en USDC ou USDT et régler sur votre wallet en secondes. Vous ne touchez jamais à un exchange.",
+      "q2": "Où atterrissent les fonds ?",
+      "a2": "Directement à une adresse de wallet que vous contrôlez — pas gardée par nous. Dynopay est non-custodial. Chaque règlement est un vrai transfert on-chain à votre adresse.",
+      "q3": "Combien ça coûte ?",
+      "a3": "Entre 1,5% (Starter) et 0,5% (Enterprise), basé sur le volume à 30 jours. Sans mensualité, sans frais de configuration, sans rétrofacturation. Voir la page Tarifs pour le tableau complet.",
+      "q4": "Quelle est la vitesse de règlement ?",
+      "a4": "Médiane de 4,2 secondes pour les rails stablecoin (TRC-20, ERC-20 L2s) et moins d'une minute pour les confirmations BTC/ETH mainnet à notre seuil. Votre dashboard montre le statut TX en direct.",
+      "q5": "Vous gérez fiat, remboursements et abonnements ?",
+      "a5": "Vous avez l'équivalent on-chain de tout : remboursements en un clic, abonnements via liens de paiement récurrents, checkout accepte Apple Pay / carte via Flutterwave en secours — auto-basculé vers votre wallet crypto.",
+      "stillCurious": "Toujours curieux ?",
+      "askUs": "Posez-nous n'importe quelle question →"
+    },
+    "learn": {
+      "eyebrow": "[ À votre rythme ]",
+      "headline": "Commencez par les bases.",
+      "docs": {
+        "tag": "Développeurs",
+        "title": "Lire la doc",
+        "desc": "API REST, webhooks et SDKs avec snippets copier-coller. De zéro à votre premier paiement en direct en minutes."
+      },
+      "guides": {
+        "tag": "Guides",
+        "title": "Apprenez les bases",
+        "desc": "Guides en français clair sur accepter la crypto, auto-conversion en stablecoins et rester non-custodial."
+      },
+      "fees": {
+        "tag": "Tarifs",
+        "title": "Voir les tarifs",
+        "desc": "De 1,5% jusqu'à 0,5% à mesure que vous grandissez. Sans mensualité, sans frais de configuration, sans rétrofacturation — jamais."
+      },
+      "exploreBtn": "Explorer"
+    },
+    "header": {
+      "systemsNormal": "Tout fonctionne"
+    },
+    "footer": {
+      "systemsOperational": "Tous les systèmes opérationnels"
+    }
   }
 }

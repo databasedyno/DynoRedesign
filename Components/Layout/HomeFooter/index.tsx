@@ -230,7 +230,7 @@ const HomeFooter: FC = () => {
                 boxShadow: "0 0 0 3px rgba(34,197,94,0.22)",
               }}
             />
-            All systems operational
+            {t("v3.footer.systemsOperational")}
           </Box>
         </BottomSection>
       </FooterContainer>

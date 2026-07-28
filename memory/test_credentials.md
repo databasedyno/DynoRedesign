@@ -1,3 +1,58 @@
+# CURRENT SESSION (session 82 — 2026-07-28) — ENV + SIGN-IN REWRITE + LANDING i18n + AUTH PALETTE MIGRATION
+
+- **Preview URL**: https://aabae01c-e6d7-4ae5-b59c-9ddb93e262f9.preview.emergentagent.com. FIRST in CORS_ALLOWED_ORIGINS (+ tokens-70 alias + dynopay.com + checkout.dynopay.com). All 200 on /, /auth/login.
+- **Merchant test account** (LIVE Railway PG, UNCHANGED): **hostbay@moxx.co / Katiekendra123@** (user_id=1, name=hostbay). Real login verified HTTP 200 "Login Successful!"; bad creds → 401. NEW 2-step flow (session 82 rewrite): Email → Continue → Password (autofocused) → Sign in. Or click "Use a code instead →" for inline OTP (email default, SMS chip if mobile on file).
+- **Admin email** (env ADMIN_EMAIL): moxxcompany@gmail.com
+- On boot: fresh container — root + backend node_modules + all 4 .env MISSING; frontend supervisor FATAL. Ran root yarn + backend yarn in parallel (both exit=0). Frontend = `next dev`. 4 IDENTICAL .env written (md5=e50b2191c2aa42d163ef459180c32790, 177 lines). Fresh NEXTAUTH_SECRET: **Gx6a6iE6HPxfQXxT8tlPhQbD5sjFKCPGpMCMBWZwRTU=**. SAFETY OVERRIDES applied (ENABLE_BACKGROUND_JOBS=false, NODE_ENV=production, WORKER_ROLE=secondary).
+
+## SESSION 82 CODE CHANGES
+
+### 1) Sign-in rewrite — 2-screen adaptive + inline OTP + password default
+- `pages/auth/login.tsx` (2086 → 1935 lines): replaced Screen 2 render (post-`checkEmail`) with adaptive `useCodeMode` branch. Default `loginMethod` now `"password"` (was `"email"`); password field autofocused on Screen 2. New "Use a code instead →" secondary link swaps password field for inline `OtpInputPanel` with 2-chip Email/SMS toggle (SMS only if userState.mobile). "← Back to password" returns to Variant A. Removed 3 modal OtpDialog invocations for initial sign-in path (phone/email/sms). KEPT loginOtpRequired step-up 2FA modal + ForgotPasswordDialog modal.
+- `Components/UI/OtpInputPanel` reused as-is (already headless, auto-submits on 6-digits, supports resend + countdown).
+- Screen count: 2 screens, 0 dialogs on happy path. Password path 3 taps→2 taps. OTP path 5 taps→1-2 taps + auto-verify.
+- Added 8 new i18n keys per language for the new flow (signIn, useACodeInstead, backToPassword, sendingCode, codeSentTo, verificationCode, channelEmail, channelSMS) — seeded across en/pt/es/fr/nl/de.
+
+### 2) Auth palette migration — Cyber-lime #CCFF00 → Aurora Indigo #4F46E5
+- `styles/authTheme.ts`: `AUTH_LIME` renamed to `AUTH_INDIGO='#4F46E5'` (dark variant `#818CF8`). Light + dark theme primary now indigo. Secondary set to aurora violet `#7C5CFF`. Legacy `AUTH_LIME` re-export points at indigo so stragglers don't break.
+- `Containers/Login/styled.tsx`: aurora glass shell — indigo/violet radial orbs (was lime), background paper `#FAFAF7` / obsidian `#0B0B0F` (was `#EEF1F6` / `#060606`), same grain + animated mesh drift.
+- `Components/UI/AuthLayout/AuthBrandPanel.tsx`: `lime` variable → `accent`; brand pulse animation retargeted to indigo. Coin marquee bar untouched.
+- All auth surfaces (`/auth/login`, `/auth/register`, `/reset-password`, `/auth/secure-account`) now visually match Landing v3.
+
+### 3) Landing v3 i18n — full 6-language coverage (137 keys × 6 langs = 822 translations)
+- **Root cause**: All 10 v3 landing components (`HeroPlayground`, `ProductStoryV3`, `NumbersTrustBand`, `ProductFeatureCards`, `TryItNowV3`, `AudienceDoorsV3`, `FinalCTAAurora`, `FAQCompact`, `LearnDocsCards`) shipped in the 2026-07-18 Aurora refresh with ZERO `useTranslation` hooks — every string hardcoded English. Switching to DE/FR/PT/ES/NL only affected the header/footer nav; the whole hero + sections stayed English.
+- Seeded new `landing.v3.*` namespace across 6 language files (en/pt/es/fr/nl/de) with hand-translated marketing copy per user's Q1=(b) choice. 137 keys cover hero, product-story steps + mock strings, numbers/trust band stats + badges, product feature cards (3 features × tag/title/desc/cta), try-it-now block, audience doors (4 audiences × tag/title/desc/statLabel), final CTA, FAQ (5 Q/A pairs), learn/docs cards + header/footer status pills.
+- Added `useTranslation("landing")` hook to all 10 v3 components + patched every string to `t("v3.…")`. `<Trans>` used where inline `<b>` bold is needed (hero body, reward badges, meta line). All top-of-file `STATS`/`BADGES`/`FEATURES`/`STEPS`/`DOORS`/`FAQS`/`CARDS` constants moved inside components so `t()` can be called.
+- `Components/Layout/HomeHeader/index.tsx` + `HomeFooter/index.tsx`: status pills "All systems normal" / "All systems operational" now keyed to `landing.v3.header/footer.*`.
+- **Visual verification**: screenshotted EN, FR, DE, PT — every section (hero, story, numbers, features, audience, final CTA, FAQ) renders in the selected language. See /tmp/20_*.png through /tmp/26_*.png.
+
+### 4) i18n JSON housekeeping
+- Fixed my session-82 bug: 6 new auth.json keys were missing in pt/es/fr/nl/de (I only seeded EN). Backfilled all 5 languages via hand-translated additions (signIn, useACodeInstead, backToPassword, etc.).
+
+## NEXT (confirmed by user, still to do — per-surface: palette + i18n together)
+- `/pay/*` checkout (CleanCheckoutV2, cryptoTransfer, donationCampaign, success/failed/verify) — replace `LIME='#CCFF00'` with `useAurora()` indigo tokens; add missing i18n keys.
+- `/[handle]` creator public page (`CreatorProfile.tsx`, `InlineTipCheckout`, `SupportWidget`, `HandleQrCode`, `CreatorThemePicker`) — palette + i18n.
+- `/order/[publicRef]` — palette + i18n (13 hardcoded strings).
+- `/for/*` SEO landings — i18n only (palette ~aligned).
+- Dashboard + all signed-in surfaces palette migration (Option B: full-app indigo).
+- Blog + content pages typography sweep (`Eyebrow`/`HeadlineL`/`Body`/`SectionShell` from styled.v3).
+- Housekeeping: rename `CORAL='#4F46E5'` in `Home/v3/theme.v3.ts` → `INDIGO` (kill collision with Dashboard's `CORAL='#FF5B49'`).
+
+## FILES TOUCHED (session 82)
+Backend: none.
+Frontend:
+- `pages/auth/login.tsx` (rewrite)
+- `styles/authTheme.ts` (indigo palette)
+- `Containers/Login/styled.tsx` (aurora glass shell)
+- `Components/UI/AuthLayout/AuthBrandPanel.tsx` (indigo accent)
+- `Components/Layout/HomeHeader/index.tsx` (status pill i18n)
+- `Components/Layout/HomeFooter/index.tsx` (status pill i18n)
+- `Components/Page/Home/v3/*.tsx` (9 files — i18n + t() calls; useTranslation from react-i18next)
+- `langs/locales/{en,pt,es,fr,nl,de}/landing.json` (+137 keys under v3.*)
+- `langs/locales/{en,pt,es,fr,nl,de}/auth.json` (+6 new sign-in keys)
+
+---
+
 # CURRENT SESSION (fresh boot — 2026-07-21) — ENV PROVISIONING
 
 - **Preview URL**: https://tokens-70.preview.emergentagent.com (200 on /, /auth/login; /api/ operational). FIRST in CORS_ALLOWED_ORIGINS (+ dynopay.com + checkout.dynopay.com; server.ts safePatterns also auto-allow *.preview.emergentagent.com).

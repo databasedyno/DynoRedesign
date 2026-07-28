@@ -3,6 +3,7 @@ import { Box, Typography, Button } from "@mui/material";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import CheckIcon from "@mui/icons-material/Check";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { FONT_BODY, FONT_HERO, FONT_TECH, useAurora, VOLT } from "./theme.v3";
 import { Eyebrow, HeadlineL } from "./styled.v3";
 
@@ -21,6 +22,7 @@ const RESPONSE = `HTTP/1.1 201 Created
 
 const TryItNowV3: React.FC = () => {
   const s = useAurora();
+  const { t } = useTranslation("landing");
   const [copied, setCopied] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -80,15 +82,14 @@ const TryItNowV3: React.FC = () => {
 
       <Box sx={{ position: "relative", zIndex: 1, maxWidth: 1280, mx: "auto", px: { xs: 3, md: 5 } }}>
         <Box sx={{ maxWidth: 720, mb: { xs: 5, md: 8 } }}>
-          <Eyebrow sx={{ mb: 2, color: "#4F46E5" }}>[ Try it now · no signup ]</Eyebrow>
+          <Eyebrow sx={{ mb: 2, color: "#4F46E5" }}>{t("v3.tryit.eyebrow")}</Eyebrow>
           <HeadlineL sx={{ color: "#F5F5F5" }}>
-            Create your first
+            {t("v3.tryit.headline1")}
             <br />
-            payment in 30 seconds.
+            {t("v3.tryit.headline2")}
           </HeadlineL>
           <Typography sx={{ fontFamily: FONT_BODY, color: "rgba(255,255,255,0.68)", mt: 2.5, fontSize: 17, lineHeight: 1.6 }}>
-            Copy the cURL, paste in your terminal, get a live checkout URL back.
-            Sandbox key included — no card, no signup.
+            {t("v3.tryit.body")}
           </Typography>
         </Box>
 
@@ -141,7 +142,7 @@ const TryItNowV3: React.FC = () => {
                   "&:hover": { background: "rgba(255,255,255,0.06)" },
                 }}
               >
-                {copied ? "Copied" : "Copy"}
+                {copied ? t("v3.tryit.copiedBtn") : t("v3.tryit.copyBtn")}
               </Button>
             </Box>
             <Box
@@ -198,7 +199,7 @@ const TryItNowV3: React.FC = () => {
                 }}
               >
                 <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11.5, color: VOLT, letterSpacing: "0.14em", textTransform: "uppercase", fontWeight: 600 }}>
-                  ✓ 201 Created
+                  {t("v3.tryit.responseHeader")}
                 </Typography>
                 <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11, color: "rgba(255,255,255,0.45)" }}>
                   312ms
@@ -225,7 +226,7 @@ const TryItNowV3: React.FC = () => {
 
         <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", mt: 4, gap: 2 }}>
           <Typography sx={{ fontFamily: FONT_TECH, fontSize: 12.5, color: "rgba(255,255,255,0.55)", letterSpacing: "0.12em", textTransform: "uppercase" }}>
-            REST + Webhooks · 15+ chains · First 201 in ~10 min
+            {t("v3.tryit.footBullets")}
           </Typography>
           <Button
             href="/documentation"
@@ -242,7 +243,7 @@ const TryItNowV3: React.FC = () => {
               "&:hover": { background: "rgba(79, 70, 229,0.08)", borderColor: "#4F46E5" },
             }}
           >
-            Read the docs →
+            {t("v3.tryit.readDocs")}
           </Button>
         </Box>
       </Box>

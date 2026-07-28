@@ -351,5 +351,194 @@
       "subtitle": "API REST, webhooks, SDKs y checkout listo para usar. Más de 15 cadenas, una sola API, sin smart contracts.",
       "cta": "Leer los docs"
     }
+  },
+  "v3": {
+    "hero": {
+      "eyebrow": "Dynopay · Beta pública",
+      "headline1": "Cobra en cripto.",
+      "headlineHighlight": "De cualquier forma",
+      "headline2": "que vendas.",
+      "body": "Una sola cartera para comercios, campañas, creadores y desarrolladores. Propinas, tiendas, campañas y API — liquidado en la moneda que elijas, desde <b>0,5%</b> de comisión.",
+      "claimBtn": "Reservar",
+      "chooseHandle": "Elige tu nombre de creador",
+      "rewardBadge": "Cuentas nuevas: tus primeros <b>$500</b> en volumen sin comisión",
+      "bullets": "Gratis · Sin tarjeta · 15+ redes",
+      "trustLine": "Sin custodia · Vía SOC 2 · RGPD / AML",
+      "livePill": "EN VIVO",
+      "sendTipLabel": "Enviar propina",
+      "sendTipBtn": "Enviar propina",
+      "metaSettle": "Se liquida en <b>tu cartera</b> en ~4s · comisión <b>1,5%</b>"
+    },
+    "story": {
+      "eyebrow": "[ Cómo funciona ]",
+      "headline": "Tres pasos. Nada más.",
+      "body": "Sin banco intermediario. Sin cola de aprobación. Sin custodia. Tu comprador paga, nosotros liquidamos on-chain, los fondos llegan a la cartera que ya tienes.",
+      "stepLabel": "Paso",
+      "step1": {
+        "title": "Alguien te paga.",
+        "body": "Comparte un enlace, integra un checkout, o llama a la API. Tu comprador elige entre 15+ redes — BTC, ETH, USDC, USDT, XRP, TRON — y paga."
+      },
+      "step2": {
+        "title": "Nosotros liquidamos a tu manera.",
+        "body": "Mantén la moneda original o auto-convierte a USDT / USDC en cualquier red. Tipos en vivo de Binance, on-chain en segundos, sin conversión manual."
+      },
+      "step3": {
+        "title": "Llega a tu cartera.",
+        "body": "El pago va directamente a la dirección de la cartera que controlas — no la guardamos nosotros. Desde 0,5% plano, sin mensualidad, sin contracargos."
+      },
+      "mock": {
+        "awaitingPayment": "Esperando pago",
+        "sendUSDT": "Envía USDT · TRC-20",
+        "openWallet": "Abrir en cartera",
+        "copyAddress": "Copiar dirección",
+        "today": "Hoy",
+        "autoConverted": "Auto-convertido",
+        "chainsActive": "activas",
+        "chainsLive": "en vivo",
+        "thPayment": "Pago",
+        "thAmount": "Cantidad",
+        "thSettle": "Liquidar",
+        "thStatus": "Estado",
+        "settled": "Liquidado",
+        "confirming": "Confirmando",
+        "inYourWallet": "En tu cartera",
+        "thisWeek": "esta semana"
+      }
+    },
+    "numbers": {
+      "eyebrow": "[ Números y confianza ]",
+      "headline": "Comisiones bajas. Gran movimiento.",
+      "body": "Sin custodia por diseño. En conformidad por elección. Rápido porque está hecho para serlo.",
+      "settledLabel": "Liquidado",
+      "settledSub": "Desde el lanzamiento",
+      "chainsLabel": "Redes",
+      "chainsSub": "BTC, ETH, TRON, XRP, SOL",
+      "feeLabel": "Comisión más baja",
+      "feeSub": "En volumen Enterprise",
+      "settleLabel": "Liquidación media",
+      "settleSub": "Confirmación on-chain",
+      "badgeSOC2": "Vía SOC2",
+      "badgeKYC": "KYC / AML",
+      "badgeGDPR": "RGPD",
+      "badgeNonCustodial": "Sin custodia"
+    },
+    "features": {
+      "eyebrow": "[ Lo que hay dentro ]",
+      "headline1": "Todo lo que necesitas",
+      "headline2": "para cobrar.",
+      "body": "Una plataforma, tres formas de integrar — un checkout alojado, liquidación automática y una API limpia. Elige lo que necesites, ignora el resto.",
+      "checkout": {
+        "tag": "Checkout",
+        "title": "Un checkout que habla todas las monedas.",
+        "desc": "Comparte un enlace. Los clientes pagan en 15+ redes — auto-convertido a la moneda que realmente guardas.",
+        "cta": "Ver checkout"
+      },
+      "convert": {
+        "tag": "Auto-conversión",
+        "title": "Acepta volátil. Guarda estable.",
+        "desc": "Acepta BTC o ETH, liquida a USDT o USDC en unos cuatro segundos. Cobra sin oscilaciones de precio.",
+        "cta": "Cómo funciona la liquidación"
+      },
+      "api": {
+        "tag": "API para desarrolladores",
+        "title": "Pagos cripto, en producción esta noche.",
+        "desc": "REST + webhooks, claves de sandbox y snippets copy-paste. Tu primer 201 llega en unos diez minutos.",
+        "cta": "Leer la documentación"
+      }
+    },
+    "tryit": {
+      "eyebrow": "[ Pruébalo ahora · sin registro ]",
+      "headline1": "Crea tu primer",
+      "headline2": "pago en 30 segundos.",
+      "body": "Copia el cURL, pégalo en tu terminal, recibe una URL de checkout en vivo. Clave sandbox incluida — sin tarjeta, sin registro.",
+      "copyBtn": "Copiar",
+      "copiedBtn": "Copiado",
+      "responseHeader": "✓ 201 Creado",
+      "footBullets": "REST + Webhooks · 15+ redes · Primer 201 en ~10 min",
+      "readDocs": "Leer la documentación →"
+    },
+    "audience": {
+      "eyebrow": "[ ¿Para quién es esto? ]",
+      "headline1": "Una cartera.",
+      "headline2": "Todas las audiencias.",
+      "body": "Elige tu puerta — comercios, campañas, creadores, desarrolladores. Todos comparten los mismos raíles cripto, la misma cartera, las mismas comisiones.",
+      "merchants": {
+        "tag": "01 · Comercios",
+        "title": "Vende productos en cripto.",
+        "desc": "Checkout alojado, catálogo de productos, facturas. Auto-convierte o mantén la moneda original.",
+        "statLabel": "comisiones a medida que creces"
+      },
+      "fundraisers": {
+        "tag": "02 · Campañas",
+        "title": "Corre campañas que funcionan.",
+        "desc": "Barra de meta, niveles, muro de donantes, actualizaciones. Cada donación llega on-chain a tu cartera.",
+        "stat": "On-chain",
+        "statLabel": "transparente por defecto"
+      },
+      "creators": {
+        "tag": "03 · Creadores",
+        "title": "Recibe propinas de tus fans.",
+        "desc": "Tu propia página dynopay.me/@nombre, cantidades de propina inline, sin contracargos, pagos instantáneos.",
+        "statLabel": "pago a la cartera"
+      },
+      "developers": {
+        "tag": "04 · Desarrolladores",
+        "title": "Envía cripto en una noche.",
+        "desc": "API REST + webhooks, claves sandbox, primer 201 en menos de 10 minutos.",
+        "statLabel": "hasta tu primer 201"
+      }
+    },
+    "finalcta": {
+      "eyebrow": "[ Cuando estés listo ]",
+      "headline1": "Cobra en",
+      "headline2": "cripto hoy.",
+      "body": "Gratis para empezar. Sin tarjeta. En vivo en menos de 10 minutos. Trae tu cartera, guarda tu dinero.",
+      "rewardBadge": "Cuentas nuevas: tus primeros <b>$500</b> en volumen sin comisión",
+      "getStarted": "Empieza gratis",
+      "readDocs": "Leer la documentación",
+      "trustLine": "Sin custodia · 15+ redes · Vía SOC2 · RGPD / AML"
+    },
+    "faq": {
+      "eyebrow": "[ Respuestas ]",
+      "headline": "Preguntas frecuentes.",
+      "q1": "¿Necesito tener cripto para aceptarlo?",
+      "a1": "No. Los compradores pagan en 15+ monedas soportadas, y Dynopay puede auto-convertir a USDC o USDT y liquidar en tu cartera en segundos. Nunca tocas un exchange.",
+      "q2": "¿Dónde llegan los fondos?",
+      "a2": "Directamente a una dirección de cartera que tú controlas — no la guardamos nosotros. Dynopay es sin custodia. Cada liquidación es una transferencia on-chain real a tu dirección.",
+      "q3": "¿Cuánto cuesta?",
+      "a3": "Entre 1,5% (Starter) y 0,5% (Enterprise), según el volumen de 30 días. Sin mensualidad, sin comisión de setup, sin contracargos. Consulta la página de Comisiones para la tabla completa.",
+      "q4": "¿Cómo de rápida es la liquidación?",
+      "a4": "Mediana de 4,2 segundos para redes stablecoin (TRC-20, ERC-20 L2s) y menos de un minuto para confirmaciones BTC/ETH mainnet en nuestro umbral. Tu panel muestra el estado de la TX en vivo.",
+      "q5": "¿Soportáis fiat, reembolsos o suscripciones?",
+      "a5": "Tienes el equivalente on-chain de todo: los reembolsos son reversiones de un clic, las suscripciones son enlaces de pago recurrentes, y el checkout acepta Apple Pay / tarjeta vía Flutterwave como respaldo — auto-transferido a tu cartera cripto.",
+      "stillCurious": "¿Aún con dudas?",
+      "askUs": "Pregúntanos lo que quieras →"
+    },
+    "learn": {
+      "eyebrow": "[ A tu ritmo ]",
+      "headline": "Empieza por lo básico.",
+      "docs": {
+        "tag": "Desarrolladores",
+        "title": "Leer la documentación",
+        "desc": "API REST, webhooks y SDKs con snippets copy-paste. Desde cero a tu primer cargo en vivo en minutos."
+      },
+      "guides": {
+        "tag": "Guías",
+        "title": "Aprende lo básico",
+        "desc": "Guías en español claro sobre aceptar cripto, auto-conversión a stablecoins y quedarte sin custodia."
+      },
+      "fees": {
+        "tag": "Precios",
+        "title": "Ver las comisiones",
+        "desc": "Desde 1,5% hasta 0,5% a medida que creces. Sin mensualidad, sin comisión de setup, sin contracargos — nunca."
+      },
+      "exploreBtn": "Explorar"
+    },
+    "header": {
+      "systemsNormal": "Todo funciona"
+    },
+    "footer": {
+      "systemsOperational": "Todos los sistemas operativos"
+    }
   }
 }

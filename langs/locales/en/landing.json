@@ -351,5 +351,194 @@
       "subtitle": "REST API, webhooks, SDKs and drop-in checkout. 15+ chains, one API, no smart contracts.",
       "cta": "Read the docs"
     }
+  },
+  "v3": {
+    "hero": {
+      "eyebrow": "Dynopay · Public beta",
+      "headline1": "Get paid in crypto.",
+      "headlineHighlight": "Every way",
+      "headline2": "you sell.",
+      "body": "One wallet for merchants, fundraisers, creators and developers. Tips, storefronts, campaigns, and API — settled in the coin you want, from <b>0.5%</b> fee.",
+      "claimBtn": "Claim",
+      "chooseHandle": "Choose your creator handle",
+      "rewardBadge": "New accounts: your first <b>$500</b> in volume is fee-free",
+      "bullets": "Free · No credit card · 15+ chains",
+      "trustLine": "Non-custodial · SOC 2 track · GDPR / AML",
+      "livePill": "LIVE",
+      "sendTipLabel": "Send a tip",
+      "sendTipBtn": "Send tip",
+      "metaSettle": "Settles to <b>your wallet</b> in ~4s · fee <b>1.5%</b>"
+    },
+    "story": {
+      "eyebrow": "[ How it works ]",
+      "headline": "Three steps. That's it.",
+      "body": "No banking partner. No approval queue. No custody. Your buyer pays, we settle on-chain, funds land in the wallet you already own.",
+      "stepLabel": "Step",
+      "step1": {
+        "title": "Someone pays you.",
+        "body": "Share a link, drop an inline checkout, or hit the API. Your buyer picks any of 15+ chains — BTC, ETH, USDC, USDT, XRP, TRON — and pays."
+      },
+      "step2": {
+        "title": "We settle it your way.",
+        "body": "Keep the original coin, or auto-convert to USDT / USDC on any chain. Live Binance rates, on-chain in seconds, no manual conversion."
+      },
+      "step3": {
+        "title": "It lands in your wallet.",
+        "body": "Payout goes straight to the wallet address you control — not held by us. From 0.5% flat, no monthly, no chargebacks."
+      },
+      "mock": {
+        "awaitingPayment": "Awaiting payment",
+        "sendUSDT": "Send USDT · TRC-20",
+        "openWallet": "Open in wallet",
+        "copyAddress": "Copy address",
+        "today": "Today",
+        "autoConverted": "Auto-converted",
+        "chainsActive": "active",
+        "chainsLive": "live",
+        "thPayment": "Payment",
+        "thAmount": "Amount",
+        "thSettle": "Settle",
+        "thStatus": "Status",
+        "settled": "Settled",
+        "confirming": "Confirming",
+        "inYourWallet": "In your wallet",
+        "thisWeek": "this week"
+      }
+    },
+    "numbers": {
+      "eyebrow": "[ Numbers & Trust ]",
+      "headline": "Small fees. Big movement.",
+      "body": "Non-custodial by design. Compliant by choice. Fast because it's written to be.",
+      "settledLabel": "Settled",
+      "settledSub": "Since launch",
+      "chainsLabel": "Chains",
+      "chainsSub": "BTC, ETH, TRON, XRP, SOL",
+      "feeLabel": "Lowest fee",
+      "feeSub": "At Enterprise volume",
+      "settleLabel": "Median settle",
+      "settleSub": "On-chain confirmation",
+      "badgeSOC2": "SOC2 track",
+      "badgeKYC": "KYC / AML",
+      "badgeGDPR": "GDPR",
+      "badgeNonCustodial": "Non-custodial"
+    },
+    "features": {
+      "eyebrow": "[ What's inside ]",
+      "headline1": "Everything you need",
+      "headline2": "to get paid.",
+      "body": "One platform, three ways to plug in — a hosted checkout, automatic settlement, and a clean API. Pick what you need, ignore the rest.",
+      "checkout": {
+        "tag": "Checkout",
+        "title": "Checkout that speaks every coin.",
+        "desc": "Share one link. Customers pay in any of 15+ chains — auto-converted to the coin you actually keep.",
+        "cta": "See checkout"
+      },
+      "convert": {
+        "tag": "Auto-convert",
+        "title": "Take volatile. Keep stable.",
+        "desc": "Accept BTC or ETH, settle to USDT or USDC in about four seconds. Get paid without the price swing.",
+        "cta": "How settlement works"
+      },
+      "api": {
+        "tag": "Developer API",
+        "title": "Crypto payments, shipped tonight.",
+        "desc": "REST + webhooks, sandbox keys, and copy-paste snippets. Your first 201 lands in about ten minutes.",
+        "cta": "Read the docs"
+      }
+    },
+    "tryit": {
+      "eyebrow": "[ Try it now · no signup ]",
+      "headline1": "Create your first",
+      "headline2": "payment in 30 seconds.",
+      "body": "Copy the cURL, paste in your terminal, get a live checkout URL back. Sandbox key included — no card, no signup.",
+      "copyBtn": "Copy",
+      "copiedBtn": "Copied",
+      "responseHeader": "✓ 201 Created",
+      "footBullets": "REST + Webhooks · 15+ chains · First 201 in ~10 min",
+      "readDocs": "Read the docs →"
+    },
+    "audience": {
+      "eyebrow": "[ Who is this for? ]",
+      "headline1": "One wallet.",
+      "headline2": "Every audience.",
+      "body": "Pick your door — merchants, campaigns, creators, developers. All share the same crypto rails, the same wallet, the same fees.",
+      "merchants": {
+        "tag": "01 · Merchants",
+        "title": "Sell products in crypto.",
+        "desc": "Hosted checkout, product catalog, invoices. Auto-convert or keep the original coin.",
+        "statLabel": "fees as you grow"
+      },
+      "fundraisers": {
+        "tag": "02 · Fundraisers",
+        "title": "Run campaigns that fund.",
+        "desc": "Goal bar, tiers, donor wall, updates. Every donation lands on-chain in your wallet.",
+        "stat": "On-chain",
+        "statLabel": "transparent by default"
+      },
+      "creators": {
+        "tag": "03 · Creators",
+        "title": "Get tipped by your fans.",
+        "desc": "Your own dynopay.me/@handle page, inline tip amounts, no chargebacks, instant payouts.",
+        "statLabel": "payout to wallet"
+      },
+      "developers": {
+        "tag": "04 · Developers",
+        "title": "Ship crypto in an evening.",
+        "desc": "REST API + webhooks, sandbox keys, first 201 in under 10 minutes.",
+        "statLabel": "to your first 201"
+      }
+    },
+    "finalcta": {
+      "eyebrow": "[ Ready when you are ]",
+      "headline1": "Get paid in",
+      "headline2": "crypto today.",
+      "body": "Free to start. No card. Live in under 10 minutes. Bring your wallet, keep your money.",
+      "rewardBadge": "New accounts: your first <b>$500</b> in volume is fee-free",
+      "getStarted": "Get started free",
+      "readDocs": "Read the docs",
+      "trustLine": "Non-custodial · 15+ chains · SOC2 track · GDPR / AML"
+    },
+    "faq": {
+      "eyebrow": "[ Answers ]",
+      "headline": "Frequent questions.",
+      "q1": "Do I need to hold crypto to accept it?",
+      "a1": "Nope. Buyers pay in any of 15+ supported coins, and Dynopay can auto-convert to USDC or USDT and settle to your wallet in seconds. You never touch a crypto exchange.",
+      "q2": "Where do funds land?",
+      "a2": "Directly in a wallet address you control — not held by us. Dynopay is non-custodial. Every settlement is a real on-chain transfer to your address.",
+      "q3": "What does it cost?",
+      "a3": "Between 1.5% (Starter) and 0.5% (Enterprise), based on 30-day volume. No monthly fee, no setup fee, no chargebacks. See the Fees page for the full tier table.",
+      "q4": "How fast is settlement?",
+      "a4": "Median 4.2 seconds for stablecoin rails (TRC-20, ERC-20 L2s) and under a minute for BTC/ETH mainnet confirmations at our threshold. Your dashboard shows live TX status the entire way.",
+      "q5": "Do you support fiat, refunds, or subscriptions?",
+      "a5": "You get an on-chain equivalent of everything: refunds are one-click reversals, subscriptions are recurring payment links, and the checkout accepts Apple Pay / card via Flutterwave as a fallback — auto-swept to your crypto wallet.",
+      "stillCurious": "Still curious?",
+      "askUs": "Ask us anything →"
+    },
+    "learn": {
+      "eyebrow": "[ Get up to speed ]",
+      "headline": "Start with the basics.",
+      "docs": {
+        "tag": "Developers",
+        "title": "Read the docs",
+        "desc": "REST API, webhooks and SDKs with copy-paste snippets. Go from zero to your first live charge in minutes."
+      },
+      "guides": {
+        "tag": "Guides",
+        "title": "Learn the basics",
+        "desc": "Plain-English guides on accepting crypto, auto-converting to stablecoins, and staying non-custodial."
+      },
+      "fees": {
+        "tag": "Pricing",
+        "title": "See the fees",
+        "desc": "From 1.5% down to 0.5% as you grow. No monthly fee, no setup fee, no chargebacks — ever."
+      },
+      "exploreBtn": "Explore"
+    },
+    "header": {
+      "systemsNormal": "All systems normal"
+    },
+    "footer": {
+      "systemsOperational": "All systems operational"
+    }
   }
 }

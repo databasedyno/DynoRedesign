@@ -2,42 +2,29 @@ import React, { memo, useState } from "react";
 import { Box, Typography, Collapse } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
+import { useTranslation } from "react-i18next";
 import { FONT_BODY, FONT_HERO, FONT_TECH, useAurora } from "./theme.v3";
 import { Eyebrow, HeadlineL } from "./styled.v3";
 
-const FAQS: { q: string; a: string }[] = [
-  {
-    q: "Do I need to hold crypto to accept it?",
-    a: "Nope. Buyers pay in any of 15+ supported coins, and Dynopay can auto-convert to USDC or USDT and settle to your wallet in seconds. You never touch a crypto exchange.",
-  },
-  {
-    q: "Where do funds land?",
-    a: "Directly in a wallet address you control — not held by us. Dynopay is non-custodial. Every settlement is a real on-chain transfer to your address.",
-  },
-  {
-    q: "What does it cost?",
-    a: "Between 1.5% (Starter) and 0.5% (Enterprise), based on 30-day volume. No monthly fee, no setup fee, no chargebacks. See the Fees page for the full tier table.",
-  },
-  {
-    q: "How fast is settlement?",
-    a: "Median 4.2 seconds for stablecoin rails (TRC-20, ERC-20 L2s) and under a minute for BTC/ETH mainnet confirmations at our threshold. Your dashboard shows live TX status the entire way.",
-  },
-  {
-    q: "Do you support fiat, refunds, or subscriptions?",
-    a: "You get an on-chain equivalent of everything: refunds are one-click reversals, subscriptions are recurring payment links, and the checkout accepts Apple Pay / card via Flutterwave as a fallback — auto-swept to your crypto wallet.",
-  },
-];
-
 const FAQCompact: React.FC = () => {
   const s = useAurora();
+  const { t } = useTranslation("landing");
   const [open, setOpen] = useState<number | null>(0);
+
+  const FAQS: { q: string; a: string }[] = [
+    { q: t("v3.faq.q1"), a: t("v3.faq.a1") },
+    { q: t("v3.faq.q2"), a: t("v3.faq.a2") },
+    { q: t("v3.faq.q3"), a: t("v3.faq.a3") },
+    { q: t("v3.faq.q4"), a: t("v3.faq.a4") },
+    { q: t("v3.faq.q5"), a: t("v3.faq.a5") },
+  ];
 
   return (
     <Box component="section" sx={{ background: s.bgAlt, py: { xs: 14, md: 24 } }}>
       <Box sx={{ maxWidth: 960, mx: "auto", px: { xs: 3, md: 5 } }}>
         <Box sx={{ mb: { xs: 7, md: 11 }, textAlign: "center" }}>
-          <Eyebrow tone="coral" sx={{ mb: 2 }}>[ Answers ]</Eyebrow>
-          <HeadlineL sx={{ color: s.ink }}>Frequent questions.</HeadlineL>
+          <Eyebrow tone="coral" sx={{ mb: 2 }}>{t("v3.faq.eyebrow")}</Eyebrow>
+          <HeadlineL sx={{ color: s.ink }}>{t("v3.faq.headline")}</HeadlineL>
         </Box>
 
         <Box sx={{ border: `1px solid ${s.line}`, borderRadius: "20px", background: s.surface, overflow: "hidden" }}>
@@ -104,9 +91,9 @@ const FAQCompact: React.FC = () => {
 
         <Box sx={{ textAlign: "center", mt: 3.5 }}>
           <Typography sx={{ fontFamily: FONT_TECH, fontSize: 13, color: s.ink3, letterSpacing: "0.08em" }}>
-            Still curious? ·{" "}
+            {t("v3.faq.stillCurious")} ·{" "}
             <Box component="a" href="/help-support" sx={{ color: s.ink, fontWeight: 600, textDecoration: "none", borderBottom: `1px dashed ${s.lineStrong}`, "&:hover": { color: "#4F46E5", borderColor: "#4F46E5" } }}>
-              Ask us anything →
+              {t("v3.faq.askUs")}
             </Box>
           </Typography>
         </Box>

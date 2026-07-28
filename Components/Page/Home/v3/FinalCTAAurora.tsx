@@ -1,6 +1,7 @@
 import React, { memo } from "react";
 import { Box, Typography, Button } from "@mui/material";
 import { useRouter } from "next/router";
+import { useTranslation, Trans } from "react-i18next";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import CardGiftcardRoundedIcon from "@mui/icons-material/CardGiftcardRounded";
 import { FONT_BODY, FONT_HERO, FONT_TECH, useAurora } from "./theme.v3";
@@ -9,6 +10,7 @@ import { HeadlineXL } from "./styled.v3";
 const FinalCTAAurora: React.FC = () => {
   const s = useAurora();
   const router = useRouter();
+  const { t } = useTranslation("landing");
 
   return (
     <Box component="section" sx={{ background: s.bg, pt: { xs: 4, md: 6 }, pb: { xs: 16, md: 26 } }}>
@@ -73,18 +75,17 @@ const FinalCTAAurora: React.FC = () => {
 
           <Box sx={{ position: "relative", zIndex: 1 }}>
             <Typography sx={{ fontFamily: FONT_TECH, fontSize: 12, letterSpacing: "0.28em", textTransform: "uppercase", color: "rgba(255,255,255,0.65)", mb: 3, fontWeight: 500 }}>
-              [ Ready when you are ]
+              {t("v3.finalcta.eyebrow")}
             </Typography>
             <HeadlineXL sx={{ color: "#F5F5F5", fontSize: { xs: 40, sm: 56, md: 76 }, mb: 3 }}>
-              Get paid in
+              {t("v3.finalcta.headline1")}
               <br />
               <Box component="span" sx={{ color: "#4F46E5" }}>
-                crypto today.
+                {t("v3.finalcta.headline2")}
               </Box>
             </HeadlineXL>
             <Typography sx={{ fontFamily: FONT_BODY, color: "rgba(255,255,255,0.68)", fontSize: { xs: 16, md: 18 }, maxWidth: 520, mx: "auto", mb: 3.5, lineHeight: 1.55 }}>
-              Free to start. No card. Live in under 10 minutes. Bring your
-              wallet, keep your money.
+              {t("v3.finalcta.body")}
             </Typography>
             {/* Reward hook — bookends the same $500 fee-free offer shown in the hero */}
             <Box
@@ -102,7 +103,7 @@ const FinalCTAAurora: React.FC = () => {
             >
               <CardGiftcardRoundedIcon sx={{ fontSize: 18, color: "#6366F1" }} />
               <Typography sx={{ fontFamily: FONT_BODY, fontSize: 14, fontWeight: 600, color: "#C7D2FE" }}>
-                New accounts: your first <b>$500</b> in volume is fee-free
+                <Trans i18nKey="v3.finalcta.rewardBadge" ns="landing" components={{ b: <b /> }} />
               </Typography>
             </Box>
             <Box sx={{ display: "flex", justifyContent: "center", flexWrap: "wrap", gap: 2 }}>
@@ -123,7 +124,7 @@ const FinalCTAAurora: React.FC = () => {
                   "&:hover": { background: "#4338CA" },
                 }}
               >
-                Get started free
+                {t("v3.finalcta.getStarted")}
               </Button>
               <Button
                 href="/documentation"
@@ -140,11 +141,11 @@ const FinalCTAAurora: React.FC = () => {
                   "&:hover": { background: "rgba(255,255,255,0.06)", borderColor: "rgba(255,255,255,0.45)" },
                 }}
               >
-                Read the docs
+                {t("v3.finalcta.readDocs")}
               </Button>
             </Box>
             <Typography sx={{ fontFamily: FONT_TECH, fontSize: 12, letterSpacing: "0.12em", color: "rgba(255,255,255,0.4)", mt: 4 }}>
-              Non-custodial · 15+ chains · SOC2 track · GDPR / AML
+              {t("v3.finalcta.trustLine")}
             </Typography>
           </Box>
         </Box>

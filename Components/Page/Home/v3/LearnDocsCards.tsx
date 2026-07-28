@@ -2,6 +2,7 @@ import React, { memo } from "react";
 import { Box, Typography } from "@mui/material";
 import { useRouter } from "next/router";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
 import MenuBookRoundedIcon from "@mui/icons-material/MenuBookRounded";
 import SchoolRoundedIcon from "@mui/icons-material/SchoolRounded";
@@ -26,43 +27,23 @@ interface LearnCard {
   icon: React.ElementType;
 }
 
-const CARDS: LearnCard[] = [
-  {
-    key: "docs",
-    tag: "Developers",
-    title: "Read the docs",
-    desc: "REST API, webhooks and SDKs with copy-paste snippets. Go from zero to your first live charge in minutes.",
-    href: "/documentation",
-    icon: MenuBookRoundedIcon,
-  },
-  {
-    key: "learn",
-    tag: "Guides",
-    title: "Learn the basics",
-    desc: "Plain-English guides on accepting crypto, auto-converting to stablecoins, and staying non-custodial.",
-    href: "/blog",
-    icon: SchoolRoundedIcon,
-  },
-  {
-    key: "fees",
-    tag: "Pricing",
-    title: "See the fees",
-    desc: "From 1.5% down to 0.5% as you grow. No monthly fee, no setup fee, no chargebacks — ever.",
-    href: "/fees",
-    icon: PaymentsRoundedIcon,
-  },
-];
-
 const LearnDocsCards: React.FC = () => {
   const s = useAurora();
   const router = useRouter();
+  const { t } = useTranslation("landing");
+
+  const CARDS: LearnCard[] = [
+    { key: "docs", tag: t("v3.learn.docs.tag"), title: t("v3.learn.docs.title"), desc: t("v3.learn.docs.desc"), href: "/documentation", icon: MenuBookRoundedIcon },
+    { key: "learn", tag: t("v3.learn.guides.tag"), title: t("v3.learn.guides.title"), desc: t("v3.learn.guides.desc"), href: "/blog", icon: SchoolRoundedIcon },
+    { key: "fees", tag: t("v3.learn.fees.tag"), title: t("v3.learn.fees.title"), desc: t("v3.learn.fees.desc"), href: "/fees", icon: PaymentsRoundedIcon },
+  ];
 
   return (
     <Box component="section" sx={{ background: s.bg, py: { xs: 14, md: 24 } }}>
       <Box sx={{ maxWidth: 1280, mx: "auto", px: { xs: 3, md: 5 } }}>
         <Box sx={{ maxWidth: 620, mb: { xs: 7, md: 11 } }}>
-          <Eyebrow sx={{ mb: 2 }}>[ Get up to speed ]</Eyebrow>
-          <HeadlineL sx={{ color: s.ink }}>Start with the basics.</HeadlineL>
+          <Eyebrow sx={{ mb: 2 }}>{t("v3.learn.eyebrow")}</Eyebrow>
+          <HeadlineL sx={{ color: s.ink }}>{t("v3.learn.headline")}</HeadlineL>
         </Box>
 
         <Box
@@ -165,7 +146,7 @@ const LearnDocsCards: React.FC = () => {
                   </Typography>
                   <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.75 }}>
                     <Typography sx={{ fontFamily: FONT_BODY, fontSize: 14.5, fontWeight: 600, color: s.ink }}>
-                      Explore
+                      {t("v3.learn.exploreBtn")}
                     </Typography>
                     <ArrowForwardRoundedIcon
                       className="learn-arrow"

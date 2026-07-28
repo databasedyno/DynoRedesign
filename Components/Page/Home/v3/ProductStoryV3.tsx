@@ -1,6 +1,7 @@
 import React, { memo } from "react";
 import { Box, Typography } from "@mui/material";
 import { motion, useReducedMotion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import BoltIcon from "@mui/icons-material/Bolt";
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
 import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
@@ -25,7 +26,7 @@ const CheckoutMock: React.FC<{ accent: string }> = ({ accent }) => (
       <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.75, background: "rgba(34,197,94,0.12)", border: "1px solid rgba(34,197,94,0.4)", borderRadius: "999px", px: 1.25, py: 0.35 }}>
         <Box sx={{ width: 6, height: 6, borderRadius: "50%", background: "#22C55E" }} />
         <Typography sx={{ fontFamily: FONT_TECH, fontSize: 10.5, color: "#4ADE80", fontWeight: 600, letterSpacing: "0.06em" }}>
-          Awaiting payment
+          {t("v3.story.mock.awaitingPayment")}
         </Typography>
       </Box>
     </Box>
@@ -56,7 +57,7 @@ const CheckoutMock: React.FC<{ accent: string }> = ({ accent }) => (
     <Box sx={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 2, alignItems: "center", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "14px", p: 2, mt: 0.5 }}>
       <Box sx={{ minWidth: 0 }}>
         <Typography sx={{ fontFamily: FONT_TECH, fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(255,255,255,0.45)" }}>
-          Send USDT · TRC-20
+          {t("v3.story.mock.sendUSDT")}
         </Typography>
         <Typography sx={{ fontFamily: FONT_TECH, fontSize: 13, color: "#F5F5F5", mt: 0.75, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
           TTve8v6Y48…zgjLj6t
@@ -84,12 +85,12 @@ const CheckoutMock: React.FC<{ accent: string }> = ({ accent }) => (
     <Box sx={{ display: "flex", gap: 1, mt: "auto", pt: 1 }}>
       <Box sx={{ flex: 1, background: accent, borderRadius: "12px", py: 1.25, textAlign: "center" }}>
         <Typography sx={{ fontFamily: FONT_BODY, fontSize: 13.5, color: "#fff", fontWeight: 600 }}>
-          Open in wallet
+          {t("v3.story.mock.openWallet")}
         </Typography>
       </Box>
       <Box sx={{ flex: 1, background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.14)", borderRadius: "12px", py: 1.15, textAlign: "center" }}>
         <Typography sx={{ fontFamily: FONT_BODY, fontSize: 13.5, color: "#F5F5F5", fontWeight: 500 }}>
-          Copy address
+          {t("v3.story.mock.copyAddress")}
         </Typography>
       </Box>
     </Box>
@@ -98,9 +99,9 @@ const CheckoutMock: React.FC<{ accent: string }> = ({ accent }) => (
 
 // ─── Mock 2: Settlement / transactions list ───
 const TX_ROWS = [
-  { coin: "USDT", chain: "TRC-20", amount: "+250.00", usd: "$250.00", conv: "→ USDC", state: "Settled", stateTone: "ok" },
+  { coin: "USDT", chain: "TRC-20", amount: "+250.00", usd: "$250.00", conv: "→ USDC", state: t("v3.story.mock.settled"), stateTone: "ok" },
   { coin: "ETH", chain: "Mainnet", amount: "+0.1240", usd: "$412.06", conv: "→ USDC", state: "Settled", stateTone: "ok" },
-  { coin: "BTC", chain: "Mainnet", amount: "+0.0031", usd: "$198.00", conv: "keep BTC", state: "Confirming", stateTone: "pending" },
+  { coin: "BTC", chain: "Mainnet", amount: "+0.0031", usd: "$198.00", conv: "keep BTC", state: t("v3.story.mock.confirming"), stateTone: "pending" },
   { coin: "XRP", chain: "Mainnet", amount: "+120.00", usd: "$61.20", conv: "→ USDC", state: "Settled", stateTone: "ok" },
 ];
 
@@ -109,9 +110,9 @@ const SettlementMock: React.FC<{ accent: string }> = ({ accent }) => (
     {/* Summary strip */}
     <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 1.5 }}>
       {[
-        { label: "Today", value: "$921.26", trend: "+18%" },
-        { label: "Auto-converted", value: "$723.26", trend: "78%" },
-        { label: "Chains", value: "5 active", trend: "live" },
+        { label: t("v3.story.mock.today"), value: "$921.26", trend: "+18%" },
+        { label: t("v3.story.mock.autoConverted"), value: "$723.26", trend: "78%" },
+        { label: t("v3.story.mock.chainsLabelSummary", "Chains"), value: `5 ${t("v3.story.mock.chainsActive")}`, trend: t("v3.story.mock.chainsLive") },
       ].map((k, i) => (
         <Box key={k.label} sx={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "10px", p: 1.5 }}>
           <Typography sx={{ fontFamily: FONT_TECH, fontSize: 9.5, color: "rgba(255,255,255,0.5)", letterSpacing: "0.16em", textTransform: "uppercase" }}>
@@ -132,7 +133,7 @@ const SettlementMock: React.FC<{ accent: string }> = ({ accent }) => (
 
     {/* Table header */}
     <Box sx={{ display: "grid", gridTemplateColumns: "1.4fr 1fr 1fr 0.9fr", gap: 1, px: 1, mt: 0.5 }}>
-      {["Payment", "Amount", "Settle", "Status"].map((h) => (
+      {[t("v3.story.mock.thPayment"), t("v3.story.mock.thAmount"), t("v3.story.mock.thSettle"), t("v3.story.mock.thStatus")].map((h) => (
         <Typography key={h} sx={{ fontFamily: FONT_TECH, fontSize: 9.5, letterSpacing: "0.16em", textTransform: "uppercase", color: "rgba(255,255,255,0.45)", fontWeight: 600 }}>
           {h}
         </Typography>
@@ -235,7 +236,7 @@ const WalletMock: React.FC<{ accent: string }> = ({ accent }) => (
     <Box sx={{ display: "flex", alignItems: "end", justifyContent: "space-between" }}>
       <Box>
         <Typography sx={{ fontFamily: FONT_TECH, fontSize: 10.5, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.5)" }}>
-          In your wallet
+          {t("v3.story.mock.inYourWallet")}
         </Typography>
         <Typography sx={{ fontFamily: FONT_HERO, fontWeight: 700, fontSize: { xs: 24, md: 28 }, letterSpacing: "-0.02em", color: "#F5F5F5", mt: 0.25 }}>
           $32,709.64
@@ -244,7 +245,7 @@ const WalletMock: React.FC<{ accent: string }> = ({ accent }) => (
       <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.4, background: "rgba(34,197,94,0.12)", border: "1px solid rgba(34,197,94,0.35)", borderRadius: "999px", px: 1, py: 0.25 }}>
         <TrendingUpRoundedIcon sx={{ fontSize: 12, color: "#4ADE80" }} />
         <Typography sx={{ fontFamily: FONT_TECH, fontSize: 10.5, color: "#4ADE80", fontWeight: 700 }}>
-          +12.4% this week
+          +12.4% {t("v3.story.mock.thisWeek")}
         </Typography>
       </Box>
     </Box>
@@ -315,41 +316,6 @@ const WalletMock: React.FC<{ accent: string }> = ({ accent }) => (
   </Box>
 );
 
-const STEPS = [
-  {
-    n: "01",
-    icon: BoltIcon,
-    title: "Someone pays you.",
-    body:
-      "Share a link, drop an inline checkout, or hit the API. Your buyer picks any of 15+ chains — BTC, ETH, USDC, USDT, XRP, TRON — and pays.",
-    accent: "#4F46E5",
-    accentSoft: "rgba(79, 70, 229,0.10)",
-    urlBar: "checkout.dynopay.com/pay_01HZ",
-    Mock: CheckoutMock,
-  },
-  {
-    n: "02",
-    icon: SwapHorizIcon,
-    title: "We settle it your way.",
-    body:
-      "Keep the original coin, or auto-convert to USDT / USDC on any chain. Live Binance rates, on-chain in seconds, no manual conversion.",
-    accent: "#4F46E5",
-    accentSoft: "rgba(79, 70, 229,0.10)",
-    urlBar: "dynopay.com/dashboard/transactions",
-    Mock: SettlementMock,
-  },
-  {
-    n: "03",
-    icon: AccountBalanceWalletOutlinedIcon,
-    title: "It lands in your wallet.",
-    body:
-      "Payout goes straight to the wallet address you control — not held by us. From 0.5% flat, no monthly, no chargebacks.",
-    accent: "#4F46E5",
-    accentSoft: "rgba(79, 70, 229,0.10)",
-    urlBar: "dynopay.com/wallets",
-    Mock: WalletMock,
-  },
-];
 
 // Browser-chrome frame around the synthetic product mock.
 const BrowserFrame: React.FC<{ url: string; accent: string; children: React.ReactNode }> = ({ url, accent, children }) => (
@@ -423,18 +389,23 @@ const BrowserFrame: React.FC<{ url: string; accent: string; children: React.Reac
 
 const ProductStoryV3: React.FC = () => {
   const s = useAurora();
+  const { t } = useTranslation("landing");
   const reduced = useReducedMotion();
+
+  const STEPS = [
+    { n: "01", icon: BoltIcon, title: t("v3.story.step1.title"), body: t("v3.story.step1.body"), accent: "#4F46E5", accentSoft: "rgba(79, 70, 229,0.10)", urlBar: "checkout.dynopay.com/pay_01HZ", Mock: CheckoutMock },
+    { n: "02", icon: SwapHorizIcon, title: t("v3.story.step2.title"), body: t("v3.story.step2.body"), accent: "#4F46E5", accentSoft: "rgba(79, 70, 229,0.10)", urlBar: "dynopay.com/dashboard/transactions", Mock: SettlementMock },
+    { n: "03", icon: AccountBalanceWalletOutlinedIcon, title: t("v3.story.step3.title"), body: t("v3.story.step3.body"), accent: "#4F46E5", accentSoft: "rgba(79, 70, 229,0.10)", urlBar: "dynopay.com/wallets", Mock: WalletMock },
+  ];
 
   return (
     <Box component="section" sx={{ background: s.bgAlt, py: { xs: 12, md: 20 } }}>
       <Box sx={{ maxWidth: 1280, mx: "auto", px: { xs: 3, md: 5 } }}>
         <Box sx={{ maxWidth: 720, mb: { xs: 6, md: 9 } }}>
-          <Eyebrow sx={{ mb: 2 }}>[ How it works ]</Eyebrow>
-          <HeadlineL sx={{ color: s.ink }}>Three steps. That&apos;s it.</HeadlineL>
+          <Eyebrow sx={{ mb: 2 }}>{t("v3.story.eyebrow")}</Eyebrow>
+          <HeadlineL sx={{ color: s.ink }}>{t("v3.story.headline")}</HeadlineL>
           <Typography sx={{ fontFamily: FONT_BODY, color: s.ink2, mt: 2.5, fontSize: 17, lineHeight: 1.6 }}>
-            No banking partner. No approval queue. No custody. Your buyer
-            pays, we settle on-chain, funds land in the wallet you already
-            own.
+            {t("v3.story.body")}
           </Typography>
         </Box>
 
@@ -478,7 +449,7 @@ const ProductStoryV3: React.FC = () => {
                         <Icon sx={{ fontSize: 20 }} />
                       </Box>
                       <Typography sx={{ fontFamily: FONT_TECH, fontSize: 12, letterSpacing: "0.24em", textTransform: "uppercase", color: step.accent, fontWeight: 600 }}>
-                        Step {step.n}
+                        {t("v3.story.stepLabel")} {step.n}
                       </Typography>
                     </Box>
                     <Typography sx={{ fontFamily: FONT_HERO, fontWeight: 700, fontSize: { xs: 30, md: 44 }, letterSpacing: "-0.03em", lineHeight: 1.05, color: s.ink, mb: 2 }}>

@@ -351,5 +351,194 @@
       "subtitle": "REST-API, webhooks, SDK's en kant-en-klare checkout. 15+ chains, één API, geen smart contracts.",
       "cta": "Lees de docs"
     }
+  },
+  "v3": {
+    "hero": {
+      "eyebrow": "Dynopay · Publieke bèta",
+      "headline1": "Krijg betaald in crypto.",
+      "headlineHighlight": "Op elke manier",
+      "headline2": "die je verkoopt.",
+      "body": "Eén wallet voor merchants, fundraisers, creators en developers. Tips, webshops, campagnes, en API — vereffend in de coin die jij wilt, vanaf <b>0,5%</b> fee.",
+      "claimBtn": "Claim",
+      "chooseHandle": "Kies je creator-handle",
+      "rewardBadge": "Nieuwe accounts: je eerste <b>$500</b> aan volume is fee-free",
+      "bullets": "Gratis · Geen creditcard · 15+ chains",
+      "trustLine": "Non-custodial · SOC 2 in voorbereiding · GDPR / AML",
+      "livePill": "LIVE",
+      "sendTipLabel": "Stuur een tip",
+      "sendTipBtn": "Stuur tip",
+      "metaSettle": "Vereffent naar <b>je wallet</b> in ~4s · fee <b>1,5%</b>"
+    },
+    "story": {
+      "eyebrow": "[ Hoe het werkt ]",
+      "headline": "Drie stappen. Klaar.",
+      "body": "Geen bankpartner. Geen goedkeuringswachtrij. Geen custody. Je koper betaalt, wij vereffenen on-chain, het geld landt in de wallet die je al hebt.",
+      "stepLabel": "Stap",
+      "step1": {
+        "title": "Iemand betaalt je.",
+        "body": "Deel een link, plaats een inline checkout, of hit de API. Je koper kiest uit 15+ chains — BTC, ETH, USDC, USDT, XRP, TRON — en betaalt."
+      },
+      "step2": {
+        "title": "Wij vereffenen op jouw manier.",
+        "body": "Houd de originele coin of converteer automatisch naar USDT / USDC op elke chain. Live Binance-tarieven, on-chain in seconden, geen handmatige conversie."
+      },
+      "step3": {
+        "title": "Het landt in je wallet.",
+        "body": "De uitbetaling gaat direct naar het wallet-adres dat jij beheert — niet door ons gehouden. Vanaf 0,5% vast, geen maandelijkse kosten, geen chargebacks."
+      },
+      "mock": {
+        "awaitingPayment": "Wacht op betaling",
+        "sendUSDT": "Stuur USDT · TRC-20",
+        "openWallet": "Open in wallet",
+        "copyAddress": "Kopieer adres",
+        "today": "Vandaag",
+        "autoConverted": "Auto-geconverteerd",
+        "chainsActive": "actief",
+        "chainsLive": "live",
+        "thPayment": "Betaling",
+        "thAmount": "Bedrag",
+        "thSettle": "Vereffen",
+        "thStatus": "Status",
+        "settled": "Vereffend",
+        "confirming": "Bevestigen",
+        "inYourWallet": "In je wallet",
+        "thisWeek": "deze week"
+      }
+    },
+    "numbers": {
+      "eyebrow": "[ Cijfers & Vertrouwen ]",
+      "headline": "Kleine fees. Grote beweging.",
+      "body": "Non-custodial by design. Compliant by choice. Snel omdat het zo geschreven is.",
+      "settledLabel": "Vereffend",
+      "settledSub": "Sinds de lancering",
+      "chainsLabel": "Chains",
+      "chainsSub": "BTC, ETH, TRON, XRP, SOL",
+      "feeLabel": "Laagste fee",
+      "feeSub": "Bij Enterprise-volume",
+      "settleLabel": "Mediane vereffening",
+      "settleSub": "On-chain bevestiging",
+      "badgeSOC2": "SOC2 in voorbereiding",
+      "badgeKYC": "KYC / AML",
+      "badgeGDPR": "GDPR",
+      "badgeNonCustodial": "Non-custodial"
+    },
+    "features": {
+      "eyebrow": "[ Wat zit erin ]",
+      "headline1": "Alles wat je nodig hebt",
+      "headline2": "om betaald te worden.",
+      "body": "Eén platform, drie manieren om aan te sluiten — een hosted checkout, automatische vereffening en een schone API. Pak wat je nodig hebt, negeer de rest.",
+      "checkout": {
+        "tag": "Checkout",
+        "title": "Een checkout die elke coin spreekt.",
+        "desc": "Deel één link. Klanten betalen in 15+ chains — automatisch geconverteerd naar de coin die je écht houdt.",
+        "cta": "Bekijk checkout"
+      },
+      "convert": {
+        "tag": "Auto-convert",
+        "title": "Neem volatile. Houd stabiel.",
+        "desc": "Accepteer BTC of ETH, vereffen in USDT of USDC in ongeveer vier seconden. Betaald worden zonder de prijsschommeling.",
+        "cta": "Hoe vereffening werkt"
+      },
+      "api": {
+        "tag": "Developer API",
+        "title": "Crypto-betalingen, vanavond live.",
+        "desc": "REST + webhooks, sandbox-keys en copy-paste snippets. Je eerste 201 landt in zo'n tien minuten.",
+        "cta": "Lees de docs"
+      }
+    },
+    "tryit": {
+      "eyebrow": "[ Probeer nu · geen signup ]",
+      "headline1": "Maak je eerste",
+      "headline2": "betaling in 30 seconden.",
+      "body": "Kopieer de cURL, plak in je terminal, krijg een live checkout-URL terug. Sandbox-key inbegrepen — geen kaart, geen signup.",
+      "copyBtn": "Kopieer",
+      "copiedBtn": "Gekopieerd",
+      "responseHeader": "✓ 201 Created",
+      "footBullets": "REST + Webhooks · 15+ chains · Eerste 201 in ~10 min",
+      "readDocs": "Lees de docs →"
+    },
+    "audience": {
+      "eyebrow": "[ Voor wie is dit? ]",
+      "headline1": "Eén wallet.",
+      "headline2": "Elk publiek.",
+      "body": "Kies je deur — merchants, campagnes, creators, developers. Allemaal delen ze dezelfde crypto-rails, dezelfde wallet, dezelfde fees.",
+      "merchants": {
+        "tag": "01 · Merchants",
+        "title": "Verkoop producten in crypto.",
+        "desc": "Hosted checkout, productcatalogus, facturen. Auto-converteer of houd de originele coin.",
+        "statLabel": "fees terwijl je groeit"
+      },
+      "fundraisers": {
+        "tag": "02 · Fundraisers",
+        "title": "Draai campagnes die geld ophalen.",
+        "desc": "Doelbalk, tiers, donor wall, updates. Elke donatie landt on-chain in je wallet.",
+        "stat": "On-chain",
+        "statLabel": "transparant by default"
+      },
+      "creators": {
+        "tag": "03 · Creators",
+        "title": "Krijg tips van je fans.",
+        "desc": "Je eigen dynopay.me/@handle-pagina, inline tip-bedragen, geen chargebacks, directe uitbetalingen.",
+        "statLabel": "uitbetaling naar wallet"
+      },
+      "developers": {
+        "tag": "04 · Developers",
+        "title": "Ship crypto in één avond.",
+        "desc": "REST API + webhooks, sandbox-keys, eerste 201 in minder dan 10 minuten.",
+        "statLabel": "tot je eerste 201"
+      }
+    },
+    "finalcta": {
+      "eyebrow": "[ Als jij er klaar voor bent ]",
+      "headline1": "Krijg betaald in",
+      "headline2": "crypto vandaag.",
+      "body": "Gratis starten. Geen kaart. Live in minder dan 10 minuten. Breng je wallet mee, houd je geld.",
+      "rewardBadge": "Nieuwe accounts: je eerste <b>$500</b> aan volume is fee-free",
+      "getStarted": "Start gratis",
+      "readDocs": "Lees de docs",
+      "trustLine": "Non-custodial · 15+ chains · SOC2 in voorbereiding · GDPR / AML"
+    },
+    "faq": {
+      "eyebrow": "[ Antwoorden ]",
+      "headline": "Veelgestelde vragen.",
+      "q1": "Moet ik crypto bezitten om het te accepteren?",
+      "a1": "Nee. Kopers betalen in 15+ ondersteunde coins, en Dynopay kan automatisch converteren naar USDC of USDT en vereffenen op je wallet in seconden. Je raakt nooit een crypto-exchange aan.",
+      "q2": "Waar landen de fondsen?",
+      "a2": "Direct op een wallet-adres dat jij beheert — niet door ons gehouden. Dynopay is non-custodial. Elke vereffening is een echte on-chain transfer naar jouw adres.",
+      "q3": "Wat kost het?",
+      "a3": "Tussen 1,5% (Starter) en 0,5% (Enterprise), gebaseerd op 30-daags volume. Geen maandelijkse kosten, geen setup-fee, geen chargebacks. Zie de Tarieven-pagina voor de volledige tier-tabel.",
+      "q4": "Hoe snel is de vereffening?",
+      "a4": "Mediaan 4,2 seconden voor stablecoin-rails (TRC-20, ERC-20 L2s) en minder dan een minuut voor BTC/ETH mainnet-bevestigingen bij onze drempel. Je dashboard toont live TX-status.",
+      "q5": "Ondersteunen jullie fiat, refunds of abonnementen?",
+      "a5": "Je krijgt een on-chain equivalent van alles: refunds zijn one-click reversals, abonnementen zijn recurring betalingslinks, en de checkout accepteert Apple Pay / kaart via Flutterwave als fallback — automatisch overgeboekt naar je crypto-wallet.",
+      "stillCurious": "Nog steeds nieuwsgierig?",
+      "askUs": "Vraag ons wat je wilt →"
+    },
+    "learn": {
+      "eyebrow": "[ Op je eigen tempo ]",
+      "headline": "Begin bij het begin.",
+      "docs": {
+        "tag": "Developers",
+        "title": "Lees de docs",
+        "desc": "REST API, webhooks en SDKs met copy-paste snippets. Van nul naar je eerste live betaling in minuten."
+      },
+      "guides": {
+        "tag": "Guides",
+        "title": "Leer de basis",
+        "desc": "Nederlandstalige guides over crypto accepteren, auto-conversie naar stablecoins en non-custodial blijven."
+      },
+      "fees": {
+        "tag": "Prijzen",
+        "title": "Bekijk de fees",
+        "desc": "Van 1,5% tot 0,5% terwijl je groeit. Geen maandelijkse kosten, geen setup-fee, geen chargebacks — nooit."
+      },
+      "exploreBtn": "Ontdek"
+    },
+    "header": {
+      "systemsNormal": "Alles draait"
+    },
+    "footer": {
+      "systemsOperational": "Alle systemen operationeel"
+    }
   }
 }

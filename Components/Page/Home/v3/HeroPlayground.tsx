@@ -2,6 +2,7 @@ import React, { memo, useEffect, useState } from "react";
 import { Box, Typography, InputBase, Button } from "@mui/material";
 import { motion, useReducedMotion } from "framer-motion";
 import { useRouter } from "next/router";
+import { useTranslation, Trans } from "react-i18next";
 import ArrowForward from "@mui/icons-material/ArrowForward";
 import FavoriteRoundedIcon from "@mui/icons-material/FavoriteRounded";
 import BoltRoundedIcon from "@mui/icons-material/BoltRounded";
@@ -16,6 +17,7 @@ const TIP_AMOUNTS = ["$3", "$5", "$10", "$25", "$50", "$100"];
 const HeroPlayground: React.FC = () => {
   const s = useAurora();
   const router = useRouter();
+  const { t } = useTranslation("landing");
   const reduced = useReducedMotion();
   const [handle, setHandle] = useState("you");
   const [tipIdx, setTipIdx] = useState(0);
@@ -101,19 +103,21 @@ const HeroPlayground: React.FC = () => {
                 boxShadow: "0 0 0 4px rgba(79, 70, 229,0.18)",
               }}
             />
-            Dynopay · Public beta
+            {t("v3.hero.eyebrow")}
           </Eyebrow>
 
           <HeadlineXL sx={{ color: s.ink, mb: 3 }}>
-            Get paid in crypto.
+            {t("v3.hero.headline1")}
             <br />
-            <AuroraInk>Every way</AuroraInk> you sell.
+            <AuroraInk>{t("v3.hero.headlineHighlight")}</AuroraInk> {t("v3.hero.headline2")}
           </HeadlineXL>
 
           <Body sx={{ color: s.ink2, maxWidth: 540, mb: 4.5, fontSize: { xs: 16, md: 18 } }}>
-            One wallet for merchants, fundraisers, creators and developers.
-            Tips, storefronts, campaigns, and API — settled in the coin you
-            want, from <b style={{ color: s.ink }}>0.5% </b>fee.
+            <Trans
+              i18nKey="v3.hero.body"
+              ns="landing"
+              components={{ b: <b style={{ color: s.ink }} /> }}
+            />
           </Body>
 
           {/* Handle claim input */}
@@ -163,7 +167,7 @@ const HeroPlayground: React.FC = () => {
                 color: s.ink,
                 "& input::placeholder": { color: s.ink3, opacity: 1 },
               }}
-              inputProps={{ "aria-label": "Choose your creator handle" }}
+              inputProps={{ "aria-label": t("v3.hero.chooseHandle") }}
             />
             <Button
               onClick={() => router.push("/auth/register")}
@@ -182,7 +186,7 @@ const HeroPlayground: React.FC = () => {
                 "&:hover": { background: "#1F1F1F" },
               }}
             >
-              Claim
+              {t("v3.hero.claimBtn")}
             </Button>
           </Box>
 
@@ -209,13 +213,13 @@ const HeroPlayground: React.FC = () => {
                 color: s.dark ? "#818CF8" : "#4338CA",
               }}
             >
-              New accounts: your first <b>$500</b> in volume is fee-free
+              <Trans i18nKey="v3.hero.rewardBadge" ns="landing" components={{ b: <b /> }} />
             </Typography>
           </Box>
 
           <Box sx={{ display: "flex", alignItems: "center", gap: 3, mt: 3, flexWrap: "wrap" }}>
             <Typography sx={{ fontFamily: FONT_TECH, fontSize: 12.5, color: s.ink3, letterSpacing: "0.12em", textTransform: "uppercase" }}>
-              Free · No credit card · 15+ chains
+              {t("v3.hero.bullets")}
             </Typography>
           </Box>
 
@@ -223,7 +227,7 @@ const HeroPlayground: React.FC = () => {
           <Box sx={{ display: "inline-flex", alignItems: "center", gap: 1, mt: 1.75 }}>
             <ShieldRoundedIcon sx={{ fontSize: 14, color: s.ink3 }} />
             <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11.5, color: s.ink3, letterSpacing: "0.1em" }}>
-              Non-custodial · SOC 2 track · GDPR / AML
+              {t("v3.hero.trustLine")}
             </Typography>
           </Box>
         </Box>
@@ -314,14 +318,14 @@ const HeroPlayground: React.FC = () => {
                       }}
                     />
                     <Typography sx={{ fontFamily: FONT_TECH, fontSize: 10, color: "#166534", fontWeight: 600 }}>
-                      LIVE
+                      {t("v3.hero.livePill")}
                     </Typography>
                   </Box>
                 </Box>
 
                 {/* Amount ticker */}
                 <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11, letterSpacing: "0.18em", textTransform: "uppercase", color: "#71717A", mb: 1 }}>
-                  Send a tip
+                  {t("v3.hero.sendTipLabel")}
                 </Typography>
                 <Box sx={{ display: "flex", alignItems: "baseline", gap: 1, mb: 2.5 }}>
                   <motion.div
@@ -381,14 +385,14 @@ const HeroPlayground: React.FC = () => {
                     },
                   }}
                 >
-                  Send tip · {TIP_AMOUNTS[tipIdx]}
+                  {t("v3.hero.sendTipBtn")} · {TIP_AMOUNTS[tipIdx]}
                 </Button>
 
                 {/* Meta row */}
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mt: 2.5, pt: 2, borderTop: `1px dashed ${s.line}` }}>
                   <BoltRoundedIcon sx={{ fontSize: 15, color: "#5A6B00" }} />
                   <Typography sx={{ fontFamily: FONT_TECH, fontSize: 12, color: "#3F3F46" }}>
-                    Settles to <b>your wallet</b> in ~4s · fee <b>1.5%</b>
+                    <Trans i18nKey="v3.hero.metaSettle" ns="landing" components={{ b: <b /> }} />
                   </Typography>
                 </Box>
               </Box>

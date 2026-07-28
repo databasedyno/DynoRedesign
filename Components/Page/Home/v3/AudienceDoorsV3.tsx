@@ -7,87 +7,37 @@ import VolunteerActivismRoundedIcon from "@mui/icons-material/VolunteerActivismR
 import FavoriteBorderRoundedIcon from "@mui/icons-material/FavoriteBorderRounded";
 import TerminalRoundedIcon from "@mui/icons-material/TerminalRounded";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { FONT_BODY, FONT_HERO, FONT_TECH, useAurora } from "./theme.v3";
 import { Eyebrow, HeadlineL } from "./styled.v3";
 
-const DOORS = [
-  {
-    key: "merchant",
-    icon: StorefrontRoundedIcon,
-    tag: "01 · Merchants",
-    title: "Sell products in crypto.",
-    desc: "Hosted checkout, product catalog, invoices. Auto-convert or keep the original coin.",
-    href: "/for/merchants",
-    bg: "#FFFFFF",
-    accent: "#4F46E5",
-    accentDeep: "#4338CA",
-    ink: "#0A0A0A",
-    stat: "1.5→  0.5%",
-    statLabel: "fees as you grow",
-  },
-  {
-    key: "fundraiser",
-    icon: VolunteerActivismRoundedIcon,
-    tag: "02 · Fundraisers",
-    title: "Run campaigns that fund.",
-    desc: "Goal bar, tiers, donor wall, updates. Every donation lands on-chain in your wallet.",
-    href: "/for/fundraisers",
-    bg: "#FFFFFF",
-    accent: "#4F46E5",
-    accentDeep: "#4338CA",
-    ink: "#0A0A0A",
-    stat: "On-chain",
-    statLabel: "transparent by default",
-  },
-  {
-    key: "creator",
-    icon: FavoriteBorderRoundedIcon,
-    tag: "03 · Creators",
-    title: "Get tipped by your fans.",
-    desc: "Your own dynopay.me/@handle page, inline tip amounts, no chargebacks, instant payouts.",
-    href: "/for/creators",
-    bg: "#FFFFFF",
-    accent: "#4F46E5",
-    accentDeep: "#4338CA",
-    ink: "#0A0A0A",
-    stat: "~4s",
-    statLabel: "payout to wallet",
-  },
-  {
-    key: "developer",
-    icon: TerminalRoundedIcon,
-    tag: "04 · Developers",
-    title: "Ship crypto in an evening.",
-    desc: "REST API + webhooks, sandbox keys, first 201 in under 10 minutes.",
-    href: "/documentation",
-    bg: "#0A0A0A",
-    accent: "#4F46E5",
-    accentDeep: "#6366F1",
-    ink: "#F5F5F5",
-    stat: "~10 min",
-    statLabel: "to your first 201",
-  },
-];
 
 const AudienceDoorsV3: React.FC = () => {
   const s = useAurora();
   const router = useRouter();
+  const { t } = useTranslation("landing");
+
+  const DOORS = [
+    { key: "merchant", icon: StorefrontRoundedIcon, tag: t("v3.audience.merchants.tag"), title: t("v3.audience.merchants.title"), desc: t("v3.audience.merchants.desc"), href: "/for/merchants", bg: "#FFFFFF", accent: "#4F46E5", accentDeep: "#4338CA", ink: "#0A0A0A", stat: "1.5→  0.5%", statLabel: t("v3.audience.merchants.statLabel") },
+    { key: "fundraiser", icon: VolunteerActivismRoundedIcon, tag: t("v3.audience.fundraisers.tag"), title: t("v3.audience.fundraisers.title"), desc: t("v3.audience.fundraisers.desc"), href: "/for/fundraisers", bg: "#FFFFFF", accent: "#4F46E5", accentDeep: "#4338CA", ink: "#0A0A0A", stat: t("v3.audience.fundraisers.stat"), statLabel: t("v3.audience.fundraisers.statLabel") },
+    { key: "creator", icon: FavoriteBorderRoundedIcon, tag: t("v3.audience.creators.tag"), title: t("v3.audience.creators.title"), desc: t("v3.audience.creators.desc"), href: "/for/creators", bg: "#FFFFFF", accent: "#4F46E5", accentDeep: "#4338CA", ink: "#0A0A0A", stat: "~4s", statLabel: t("v3.audience.creators.statLabel") },
+    { key: "developer", icon: TerminalRoundedIcon, tag: t("v3.audience.developers.tag"), title: t("v3.audience.developers.title"), desc: t("v3.audience.developers.desc"), href: "/documentation", bg: "#0A0A0A", accent: "#4F46E5", accentDeep: "#6366F1", ink: "#F5F5F5", stat: "~10 min", statLabel: t("v3.audience.developers.statLabel") },
+  ];
 
   return (
     <Box component="section" sx={{ background: s.bg, py: { xs: 14, md: 24 } }}>
       <Box sx={{ maxWidth: 1280, mx: "auto", px: { xs: 3, md: 5 } }}>
         <Box sx={{ display: "flex", alignItems: "end", justifyContent: "space-between", flexWrap: "wrap", gap: 2, mb: { xs: 7, md: 11 } }}>
           <Box sx={{ maxWidth: 620 }}>
-            <Eyebrow sx={{ mb: 2 }}>[ Who is this for? ]</Eyebrow>
+            <Eyebrow sx={{ mb: 2 }}>{t("v3.audience.eyebrow")}</Eyebrow>
             <HeadlineL sx={{ color: s.ink }}>
-              One wallet.
+              {t("v3.audience.headline1")}
               <br />
-              Every audience.
+              {t("v3.audience.headline2")}
             </HeadlineL>
           </Box>
           <Typography sx={{ fontFamily: FONT_BODY, color: s.ink2, maxWidth: 380, fontSize: 16, lineHeight: 1.55 }}>
-            Pick your door — merchants, campaigns, creators, developers. All
-            share the same crypto rails, the same wallet, the same fees.
+            {t("v3.audience.body")}
           </Typography>
         </Box>
 

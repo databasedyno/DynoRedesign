@@ -2,6 +2,7 @@ import React, { memo } from "react";
 import { Box, Typography } from "@mui/material";
 import { useRouter } from "next/router";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
 import PointOfSaleRoundedIcon from "@mui/icons-material/PointOfSaleRounded";
 import SwapHorizRoundedIcon from "@mui/icons-material/SwapHorizRounded";
@@ -31,42 +32,43 @@ interface Feature {
   chips: string[];
 }
 
-const FEATURES: Feature[] = [
-  {
-    key: "checkout",
-    tag: "Checkout",
-    title: "Checkout that speaks every coin.",
-    desc: "Share one link. Customers pay in any of 15+ chains — auto-converted to the coin you actually keep.",
-    href: "/for/merchants",
-    cta: "See checkout",
-    icon: PointOfSaleRoundedIcon,
-    chips: ["BTC", "ETH", "USDT", "USDC", "SOL"],
-  },
-  {
-    key: "convert",
-    tag: "Auto-convert",
-    title: "Take volatile. Keep stable.",
-    desc: "Accept BTC or ETH, settle to USDT or USDC in about four seconds. Get paid without the price swing.",
-    href: "/fees",
-    cta: "How settlement works",
-    icon: SwapHorizRoundedIcon,
-    chips: ["ETH", "→", "USDC"],
-  },
-  {
-    key: "api",
-    tag: "Developer API",
-    title: "Crypto payments, shipped tonight.",
-    desc: "REST + webhooks, sandbox keys, and copy-paste snippets. Your first 201 lands in about ten minutes.",
-    href: "/documentation",
-    cta: "Read the docs",
-    icon: TerminalRoundedIcon,
-    chips: ["POST", "/v1/charges", "201"],
-  },
-];
-
 const ProductFeatureCards: React.FC = () => {
   const s = useAurora();
   const router = useRouter();
+  const { t } = useTranslation("landing");
+
+  const FEATURES: Feature[] = [
+    {
+      key: "checkout",
+      tag: t("v3.features.checkout.tag"),
+      title: t("v3.features.checkout.title"),
+      desc: t("v3.features.checkout.desc"),
+      href: "/for/merchants",
+      cta: t("v3.features.checkout.cta"),
+      icon: PointOfSaleRoundedIcon,
+      chips: ["BTC", "ETH", "USDT", "USDC", "SOL"],
+    },
+    {
+      key: "convert",
+      tag: t("v3.features.convert.tag"),
+      title: t("v3.features.convert.title"),
+      desc: t("v3.features.convert.desc"),
+      href: "/fees",
+      cta: t("v3.features.convert.cta"),
+      icon: SwapHorizRoundedIcon,
+      chips: ["ETH", "→", "USDC"],
+    },
+    {
+      key: "api",
+      tag: t("v3.features.api.tag"),
+      title: t("v3.features.api.title"),
+      desc: t("v3.features.api.desc"),
+      href: "/documentation",
+      cta: t("v3.features.api.cta"),
+      icon: TerminalRoundedIcon,
+      chips: ["POST", "/v1/charges", "201"],
+    },
+  ];
 
   return (
     <Box component="section" sx={{ background: s.bgAlt, py: { xs: 14, md: 24 } }}>
@@ -82,11 +84,11 @@ const ProductFeatureCards: React.FC = () => {
           }}
         >
           <Box sx={{ maxWidth: 620 }}>
-            <Eyebrow sx={{ mb: 2 }}>[ What&apos;s inside ]</Eyebrow>
+            <Eyebrow sx={{ mb: 2 }}>{t("v3.features.eyebrow")}</Eyebrow>
             <HeadlineL sx={{ color: s.ink }}>
-              Everything you need
+              {t("v3.features.headline1")}
               <br />
-              to get paid.
+              {t("v3.features.headline2")}
             </HeadlineL>
           </Box>
           <Typography
@@ -98,8 +100,7 @@ const ProductFeatureCards: React.FC = () => {
               lineHeight: 1.55,
             }}
           >
-            One platform, three ways to plug in — a hosted checkout, automatic
-            settlement, and a clean API. Pick what you need, ignore the rest.
+            {t("v3.features.body")}
           </Typography>
         </Box>
 

@@ -1,6 +1,7 @@
 import React, { memo, useEffect, useRef, useState } from "react";
 import { Box, Typography } from "@mui/material";
 import { motion, useInView } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import SecurityRoundedIcon from "@mui/icons-material/SecurityRounded";
 import VerifiedUserRoundedIcon from "@mui/icons-material/VerifiedUserRounded";
 import GavelRoundedIcon from "@mui/icons-material/GavelRounded";
@@ -17,20 +18,6 @@ interface Stat {
   sub: string;
   color: string;
 }
-
-const STATS: Stat[] = [
-  { value: 42, suffix: "M+", prefix: "$", label: "Settled", sub: "Since launch", color: "#4F46E5" },
-  { value: 15, suffix: "+", label: "Chains", sub: "BTC, ETH, TRON, XRP, SOL", color: "#4F46E5" },
-  { value: 0.5, suffix: "%", decimals: 1, label: "Lowest fee", sub: "At Enterprise volume", color: "#4F46E5" },
-  { value: 4.2, suffix: "s", decimals: 1, label: "Median settle", sub: "On-chain confirmation", color: "#4F46E5" },
-];
-
-const BADGES = [
-  { icon: SecurityRoundedIcon, label: "SOC2 track", ink: "#0A0A0A" },
-  { icon: VerifiedUserRoundedIcon, label: "KYC / AML", ink: "#0A0A0A" },
-  { icon: GavelRoundedIcon, label: "GDPR", ink: "#0A0A0A" },
-  { icon: PolicyRoundedIcon, label: "Non-custodial", ink: "#0A0A0A" },
-];
 
 const CountUp: React.FC<{ end: number; decimals?: number; delayMs?: number }> = ({ end, decimals = 0, delayMs = 200 }) => {
   const ref = useRef<HTMLSpanElement>(null);
@@ -71,20 +58,34 @@ const CountUp: React.FC<{ end: number; decimals?: number; delayMs?: number }> = 
 
 const NumbersTrustBand: React.FC = () => {
   const s = useAurora();
+  const { t } = useTranslation("landing");
+
+  const STATS: Stat[] = [
+    { value: 42, suffix: "M+", prefix: "$", label: t("v3.numbers.settledLabel"), sub: t("v3.numbers.settledSub"), color: "#4F46E5" },
+    { value: 15, suffix: "+", label: t("v3.numbers.chainsLabel"), sub: t("v3.numbers.chainsSub"), color: "#4F46E5" },
+    { value: 0.5, suffix: "%", decimals: 1, label: t("v3.numbers.feeLabel"), sub: t("v3.numbers.feeSub"), color: "#4F46E5" },
+    { value: 4.2, suffix: "s", decimals: 1, label: t("v3.numbers.settleLabel"), sub: t("v3.numbers.settleSub"), color: "#4F46E5" },
+  ];
+
+  const BADGES = [
+    { icon: SecurityRoundedIcon, label: t("v3.numbers.badgeSOC2"), ink: "#0A0A0A" },
+    { icon: VerifiedUserRoundedIcon, label: t("v3.numbers.badgeKYC"), ink: "#0A0A0A" },
+    { icon: GavelRoundedIcon, label: t("v3.numbers.badgeGDPR"), ink: "#0A0A0A" },
+    { icon: PolicyRoundedIcon, label: t("v3.numbers.badgeNonCustodial"), ink: "#0A0A0A" },
+  ];
 
   return (
     <Box component="section" sx={{ background: s.bg, py: { xs: 14, md: 24 } }}>
       <Box sx={{ maxWidth: 1280, mx: "auto", px: { xs: 3, md: 5 } }}>
         <Box sx={{ display: "flex", alignItems: "end", justifyContent: "space-between", flexWrap: "wrap", gap: 2, mb: { xs: 5, md: 8 } }}>
           <Box sx={{ maxWidth: 620 }}>
-            <Eyebrow sx={{ mb: 2 }}>[ Numbers &amp; Trust ]</Eyebrow>
+            <Eyebrow sx={{ mb: 2 }}>{t("v3.numbers.eyebrow")}</Eyebrow>
             <HeadlineL sx={{ color: s.ink }}>
-              Small fees. Big movement.
+              {t("v3.numbers.headline")}
             </HeadlineL>
           </Box>
           <Typography sx={{ fontFamily: FONT_BODY, color: s.ink2, maxWidth: 360, fontSize: 16, lineHeight: 1.55 }}>
-            Non-custodial by design. Compliant by choice. Fast because it’s
-            written to be.
+            {t("v3.numbers.body")}
           </Typography>
         </Box>
 
