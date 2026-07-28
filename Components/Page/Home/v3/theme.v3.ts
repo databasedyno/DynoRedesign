@@ -1,9 +1,16 @@
 import { useTheme } from "@mui/material";
 
 // ─── Aurora theme tokens (2026-07 landing v3) ──────────────────────────────
-// Creator-first palette. Coral leads, violet supports, volt marks money.
-export const CORAL = "#4F46E5";
-export const CORAL_DEEP = "#4338CA";
+// Creator-first palette. Indigo leads, violet supports, volt marks money.
+// NOTE: Historic `CORAL` name here always resolved to indigo (#4F46E5). Renamed
+// to `INDIGO` (2026-07-28) to stop colliding with Dashboard's semantic-negative
+// `CORAL = "#FF5B49"` (Components/Page/Dashboard/aurora/styled.tsx).
+export const INDIGO = "#4F46E5";
+export const INDIGO_DEEP = "#4338CA";
+// Back-compat aliases — kept so stragglers don't break during migration. Point
+// at INDIGO so semantics are correct even under the old name.
+export const CORAL = INDIGO;
+export const CORAL_DEEP = INDIGO_DEEP;
 export const VIOLET = "#7C5CFF";
 export const VIOLET_DEEP = "#5A3EFF";
 export const SKY = "#4FD1FF";
@@ -34,6 +41,8 @@ export interface AuroraTokens {
   ink3: string;
   line: string;
   lineStrong: string;
+  indigo: string;
+  /** @deprecated Alias for `indigo`. Kept for API back-compat. */
   coral: string;
   violet: string;
   volt: string;
@@ -56,7 +65,8 @@ export const useAurora = (): AuroraTokens => {
     ink3: dark ? "rgba(255,255,255,0.55)" : "#71717A",
     line: dark ? "rgba(255,255,255,0.08)" : "rgba(10,10,10,0.08)",
     lineStrong: dark ? "rgba(255,255,255,0.18)" : "rgba(10,10,10,0.16)",
-    coral: CORAL,
+    indigo: INDIGO,
+    coral: INDIGO, // deprecated alias
     violet: VIOLET,
     volt: VOLT,
     voltInk: dark ? VOLT : VOLT_INK,

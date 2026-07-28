@@ -20,8 +20,10 @@ export const SectionShell = styled(Box)(({ theme }) => ({
 // Eyebrow — small monospace tag above section headings.
 // Minimal palette: decorative tone variants collapse to the indigo accent;
 // only `ink` (neutral grey) is preserved for occasional muted usage.
-export const Eyebrow = styled(Typography)<{ tone?: "coral" | "violet" | "volt" | "ink" }>(
-  ({ tone = "coral", theme }) => ({
+// NOTE: `"coral"` is kept as an alias for `"indigo"` for API back-compat
+// (2026-07-28 rename — see theme.v3.ts).
+export const Eyebrow = styled(Typography)<{ tone?: "indigo" | "coral" | "violet" | "volt" | "ink" }>(
+  ({ tone = "indigo", theme }) => ({
     fontFamily: FONT_TECH,
     fontSize: 11,
     letterSpacing: "0.28em",
