@@ -66,6 +66,18 @@ const INK = '#0A0A0B'
 // the indigo CTAs get legible WHITE text after the lime→indigo rebrand.
 const ON_BRAND = '#FFFFFF'
 
+// ── Customer checkout preferences (per-device, mirrors the language switcher) ──
+// Remembers the coin/network a returning customer paid with last time so they
+// don't have to reselect. Stored client-side only (no server/profile write).
+const PREF_NET_KEY = 'checkout_pref_network'
+const PREF_CUR_KEY = 'checkout_pref_currency'
+const readCheckoutPref = (k: string): string => {
+  try { return typeof window !== 'undefined' ? localStorage.getItem(k) || '' : '' } catch { return '' }
+}
+const writeCheckoutPref = (k: string, v: string) => {
+  try { if (typeof window !== 'undefined' && v) localStorage.setItem(k, v) } catch { /* ignore */ }
+}
+
 /** Payload we hold in local state after `/pay/getData` resolves. */
 type Meta = {
   amount: number
@@ -363,14 +375,17 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [meta_, selectedNetwork])
 
-  // Auto-select the first network when meta loads
+  // Auto-select network when meta loads — prefer the customer's remembered
+  // choice (per-device) so a returning visitor lands on their usual coin.
   useEffect(() => {
     if (!meta_) return
     if (selectedNetwork) return
-    if (networks.length > 0) setSelectedNetwork(networks[0])
+    if (networks.length === 0) return
+    const saved = readCheckoutPref(PREF_NET_KEY)
+    setSelectedNetwork(saved && networks.includes(saved) ? saved : networks[0])
   }, [meta_, networks, selectedNetwork])
 
-  // Auto-select the first currency in the chosen network
+  // Auto-select the currency in the chosen network — prefer the remembered one
   useEffect(() => {
     if (!selectedNetwork) return
     if (currenciesInNetwork.length === 0) {
@@ -378,9 +393,18 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
       return
     }
     if (!currenciesInNetwork.includes(selectedCurrency)) {
-      setSelectedCurrency(currenciesInNetwork[0])
+      const saved = readCheckoutPref(PREF_CUR_KEY)
+      setSelectedCurrency(saved && currenciesInNetwork.includes(saved) ? saved : currenciesInNetwork[0])
     }
   }, [selectedNetwork, currenciesInNetwork, selectedCurrency])
+
+  // Persist the customer's chosen network + currency (per-device).
+  useEffect(() => {
+    if (selectedNetwork) writeCheckoutPref(PREF_NET_KEY, selectedNetwork)
+  }, [selectedNetwork])
+  useEffect(() => {
+    if (selectedCurrency) writeCheckoutPref(PREF_CUR_KEY, selectedCurrency)
+  }, [selectedCurrency])
 
   // ─── Step 2: reserve address via /pay/addPayment ──────────────────
   const reservePayment = useCallback(async (code: string) => {
@@ -887,23 +911,45 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
         </Typography>
       )}
 
-      {/* QR code */}
+      {/* QR code — crisp & responsive; tap the QR to copy the address */}
       {cryptoInfo?.qr_code && (
-        <Box
-          sx={{
-            display: 'flex', flexDirection: 'column', alignItems: 'center',
-            p: 2.5, mb: 2, borderRadius: '12px',
-            border: `1px solid ${border}`, backgroundColor: '#FFFFFF',
-          }}
-          data-testid="clean-checkout-qr-panel"
-        >
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 2 }}>
           <Box
-            component="img"
-            src={cryptoInfo.qr_code.startsWith('data:') ? cryptoInfo.qr_code : `data:image/png;base64,${cryptoInfo.qr_code}`}
-            alt="QR code"
-            sx={{ width: 220, height: 220, objectFit: 'contain' }}
-            data-testid="clean-checkout-qr-img"
-          />
+            component="button"
+            type="button"
+            onClick={() => doCopy(cryptoInfo.address, 'addr')}
+            aria-label="Tap to copy payment address"
+            data-testid="clean-checkout-qr-panel"
+            sx={{
+              p: 2, borderRadius: '16px',
+              border: `1px solid ${border}`, backgroundColor: '#FFFFFF',
+              boxShadow: '0 4px 22px rgba(0,0,0,0.08)',
+              width: '100%', maxWidth: 264, mx: 'auto', cursor: 'pointer',
+              display: 'flex', flexDirection: 'column', alignItems: 'center',
+              transition: 'transform .15s ease, box-shadow .15s ease',
+              '&:hover': { boxShadow: '0 6px 28px rgba(0,0,0,0.13)' },
+              '&:active': { transform: 'scale(0.98)' },
+            }}
+          >
+            <Box
+              component="img"
+              src={cryptoInfo.qr_code.startsWith('data:') ? cryptoInfo.qr_code : `data:image/png;base64,${cryptoInfo.qr_code}`}
+              alt="Payment QR code"
+              sx={{
+                width: '100%', maxWidth: 220, height: 'auto',
+                aspectRatio: '1 / 1', objectFit: 'contain',
+                imageRendering: 'pixelated', display: 'block',
+              }}
+              data-testid="clean-checkout-qr-img"
+            />
+          </Box>
+          <Typography
+            data-testid="clean-checkout-qr-hint"
+            sx={{ mt: 1, fontSize: 12, fontWeight: 600, color: copiedFlag === 'addr' ? LIME : muted, display: 'flex', alignItems: 'center', gap: 0.4 }}
+          >
+            <Icon icon={copiedFlag === 'addr' ? 'mdi:check-circle' : 'mdi:content-copy'} width={13} />
+            {copiedFlag === 'addr' ? 'Address copied' : 'Tap the QR to copy the address'}
+          </Typography>
         </Box>
       )}
 
