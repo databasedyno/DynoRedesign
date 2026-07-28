@@ -13,6 +13,7 @@ import ForgotPasswordDialog from "@/Components/UI/ForgotPasswordDialog";
 import LanguageSwitcher from "@/Components/UI/LanguageSwitcher";
 import ThemeToggle from "@/Components/UI/ThemeToggle";
 import OtpDialog from "@/Components/UI/OtpDialog";
+import OtpInputPanel from "@/Components/UI/OtpInputPanel";
 import CustomRadio from "@/Components/UI/RadioGroup";
 import AuthBrandPanel from "@/Components/UI/AuthLayout/AuthBrandPanel";
 import {
@@ -108,11 +109,23 @@ export default function Login() {
   const [emailCheckLoading, setEmailCheckLoading] = useState(false);
 
   // Login method state
-  const [loginMethod, setLoginMethod] = useState("email");
+  //
+  // Session 82 (2026-07-28): default is now "password" (was "email"). This
+  // matches Google / Coinbase / Stripe: the password field is the primary
+  // affordance for returning users. Users who prefer OTP flip via the tiny
+  // "Use a code instead →" link that shows below the password field — that
+  // sets `useCodeMode=true`, hides the password field, and shows the inline
+  // OtpInputPanel (email default; SMS chip appears if userState.mobile).
+  const [loginMethod, setLoginMethod] = useState("password");
   const [password, setPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [passwordTouched, setPasswordTouched] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  // NEW (session 82): when true, hide password field and show inline OTP
+  // block instead. Reset when the user clicks "Back to password".
+  const [useCodeMode, setUseCodeMode] = useState(false);
+  // NEW: reset key for OtpInputPanel so resending the code clears the boxes.
+  const [inlineOtpResetKey, setInlineOtpResetKey] = useState(0);
 
   // Email OTP state
   const [emailOtpSent, setEmailOtpSent] = useState(false);
@@ -837,7 +850,8 @@ export default function Login() {
     setEmailOtpSent(false);
     setEmailOtp("");
     setPassword("");
-    setLoginMethod("email");
+    setLoginMethod("password"); // Session 82: default to password on return
+    setUseCodeMode(false);
     setEmailOtpCountdown(0);
     setPasswordError("");
     setPasswordTouched(false);
@@ -1243,59 +1257,41 @@ export default function Login() {
               </Box>
             </Box>
 
-            <Box sx={{ marginTop: "16px" }}>
-              <Typography
-                sx={{
-                  textAlign: "start",
-                  fontSize: isMobile ? "13px" : "15px",
-                  fontFamily: "var(--font-sans)",
-                  lineHeight: "1.2",
-                  letterSpacing: 0,
-                  color: "text.secondary",
+            {/* Session 82: Inline OTP for phone login (was: modal dialog).
+                OtpInputPanel auto-sends on `showPhoneLoginOtp` change (see
+                handlePhoneCheck → handleSendPhoneLoginOtp), auto-verifies
+                on 6 digits, and shows its own resend/verify buttons. */}
+            <Box sx={{ marginTop: isMobile ? "16px" : "20px" }}>
+              <OtpInputPanel
+                contactInfo={"+" + verifiedPhone}
+                contactType="phone"
+                otpLength={6}
+                resendCodeLabel={t("resendCode")}
+                resendCodeCountdownLabel={(seconds) => `${t("codeIn")} ${seconds}s`}
+                primaryButtonLabel={t("verifyAndLogin")}
+                onResendCode={() => {
+                  setInlineOtpResetKey((k) => k + 1);
+                  handleSendPhoneLoginOtp();
                 }}
-              >
-                {t("otpSentToPhone")}
-              </Typography>
-            </Box>
-
-            {/* Resend OTP button */}
-            <Box sx={{ marginTop: "12px", display: "flex", justifyContent: "flex-end" }}>
-              <CustomButton
-                variant="secondary"
-                size="small"
-                disabled={phoneLoginOtpCountdown > 0 || userState.loading}
-                label={
-                  phoneLoginOtpCountdown > 0
-                    ? `${t("codeIn")} ${phoneLoginOtpCountdown}s`
-                    : t("resendCode")
+                onVerify={handlePhoneLoginOtpVerify}
+                onClearError={() => {
+                  setPhoneLoginOtpError("");
+                  setPhoneLoginOtpTouched(false);
+                }}
+                countdown={phoneLoginOtpCountdown}
+                loading={userState.loading}
+                error={
+                  phoneLoginOtpTouched && phoneLoginOtpError
+                    ? phoneLoginOtpError.includes(" ")
+                      ? phoneLoginOtpError
+                      : t(phoneLoginOtpError)
+                    : undefined
                 }
-                onClick={() => handleSendPhoneLoginOtp()}
-                sx={{ fontWeight: 500, padding: "8px 20px" }}
-              />
-            </Box>
-
-            <Box sx={{ marginTop: "16px" }}>
-              <CustomButton
-                label={t("continue")}
-                variant="primary"
-                size="medium"
-                fullWidth
-                disabled={userState.loading}
-                onClick={() => {
-                  if (!phoneLoginOtpSent) {
-                    dispatch({
-                      type: TOAST_SHOW,
-                      payload: { message: "Please wait for OTP to be sent", severity: "error" },
-                    });
-                    return;
-                  }
-                  setPhoneLoginOtpDialogOpen(true);
-                }}
-                hideLabelWhenLoading={true}
-                showSuccessAnimation={showSuccessAnimation}
-                showErrorAnimation={showErrorAnimation}
-                sx={{ fontWeight: 700 }}
-                endIcon={userState.loading ? <LoadingIcon size={20} /> : undefined}
+                showInfoChip={true}
+                showLabel={true}
+                showActions={true}
+                actionsLayout="row"
+                resetKey={inlineOtpResetKey}
               />
             </Box>
           </>
@@ -1433,496 +1429,411 @@ export default function Login() {
               />
             </Box>
 
-            <Box sx={{ marginTop: isMobile ? "12px" : "24px" }}>
-              <Typography
-                sx={{
-                  textAlign: "start",
-                  fontSize: isMobile ? "13px" : "15px",
-                  fontFamily: "var(--font-sans)",
-                  lineHeight: "1.2",
-                  letterSpacing: 0,
-                  color: "text.secondary",
-                }}
-              >
-                {t("chooseLoginMethod")}
-              </Typography>
+            {/* ────────────────────────────────────────────────────────────
+             *  ADAPTIVE SCREEN 2  (Session 82 — 2026-07-28)
+             *
+             *  Two variants driven by `useCodeMode`:
+             *    - FALSE (default): Password field autofocused, "Sign in"
+             *      button, "Use a code instead →" secondary link. This is
+             *      the ~90% path for returning users. Password is now the
+             *      DEFAULT (was: Email OTP), which is the biggest tap-count
+             *      win — one fewer click for every password login.
+             *    - TRUE: Password field collapses in place. Inline chip
+             *      toggle appears if a mobile is on file (Email code / SMS
+             *      ••••XX), then the inline `OtpInputPanel` (auto-submits
+             *      on 6th digit — no Continue button needed). "← Back to
+             *      password" link returns to Variant A.
+             *
+             *  No modal dialog opens for the initial sign-in. The step-up
+             *  2FA `OtpDialog` (userState.loginOtpRequired) is unchanged.
+             *  ─────────────────────────────────────────────────────────── */}
+            {!useCodeMode ? (
+              <>
+                {/* ── PASSWORD MODE (default) ────────────────────────── */}
+                <Box sx={{ marginTop: isMobile ? "16px" : "24px" }}>
+                  <InputField
+                    label={t("password")}
+                    name="password"
+                    id="password-inline"
+                    autoFocus
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                      if (passwordError) {
+                        setPasswordError("");
+                        setPasswordTouched(false);
+                      }
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && !userState.loading) {
+                        e.preventDefault();
+                        setLoginMethod("password");
+                        handleLoginSubmit();
+                      }
+                    }}
+                    placeholder={t("passwordPlaceHolder")}
+                    error={passwordTouched && !!passwordError}
+                    helperText={
+                      passwordTouched && passwordError
+                        ? passwordError.includes(" ")
+                          ? passwordError
+                          : t(passwordError)
+                        : ""
+                    }
+                    sideButton={true}
+                    sideButtonType="primary"
+                    sideButtonIcon={
+                      showPassword ? (
+                        <VisibilityOffIcon
+                          sx={{
+                            color: "text.secondary",
+                            height: "18px",
+                            width: "16px",
+                          }}
+                        />
+                      ) : (
+                        <VisibilityIcon
+                          sx={{
+                            color: "text.secondary",
+                            height: "18px",
+                            width: "16px",
+                          }}
+                        />
+                      )
+                    }
+                    sideButtonIconWidth={isMobile ? "14px" : "18px"}
+                    sideButtonIconHeight={isMobile ? "14px" : "18px"}
+                    onSideButtonClick={() => {
+                      setShowPassword(!showPassword);
+                    }}
+                    showPasswordToggle={true}
+                    data-testid="password-input"
+                  />
+                </Box>
 
-              {/* Login Method Selection */}
-              <Box sx={{ marginTop: "16px" }}>
-                <RadioGroup
-                  value={loginMethod}
-                  onChange={(e) => handleLoginMethodChange(e.target.value)}
+                {/* Keep me signed in + Forgot Password */}
+                <Box
                   sx={{
-                    "& .MuiFormControlLabel-label": {
-                      fontSize: isMobile ? "13px" : "15px",
-                      fontFamily: "var(--font-sans)",
-                      color: "text.primary",
-                      paddingLeft: "8px",
-                    },
+                    mt: 1.5,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: 1,
+                    flexWrap: "wrap",
                   }}
                 >
-                  {/* SMS Option - only show if user has a registered mobile number */}
-                  {userState.mobile && (
-                  <>
+                  <FormControlLabel
+                    data-testid="remember-me-toggle"
+                    control={
+                      <Checkbox
+                        size="small"
+                        checked={rememberMe}
+                        onChange={(e) => setRememberMe(e.target.checked)}
+                        sx={{ py: 0, color: theme.palette.text.secondary }}
+                      />
+                    }
+                    label={t("keepMeSignedIn")}
+                    sx={{
+                      m: 0,
+                      "& .MuiFormControlLabel-label": {
+                        fontSize: "13px",
+                        color: theme.palette.text.secondary,
+                        fontFamily: "var(--font-sans)",
+                      },
+                    }}
+                  />
+                  <Typography
+                    component="span"
+                    sx={{
+                      fontSize: "13px",
+                      color: theme.palette.primary.main,
+                      fontWeight: 500,
+                      cursor: "pointer",
+                      textDecoration: "underline",
+                      textUnderlineOffset: "2px",
+                      fontFamily: "var(--font-sans)",
+                    }}
+                    onClick={() => {
+                      setForgotPasswordDialogOpen(true);
+                    }}
+                  >
+                    {t("forgotYourPassword")}
+                  </Typography>
+                </Box>
+              </>
+            ) : (
+              <>
+                {/* ── CODE MODE ─────────────────────────────────────── */}
+                {/* Chip toggle appears only if a mobile is on file */}
+                {userState.mobile && (
                   <Box
                     sx={{
                       display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      width: "100%",
+                      marginTop: isMobile ? "16px" : "20px",
+                      gap: "8px",
                     }}
                   >
-                    <FormControlLabel
-                      value="sms"
-                      control={<CustomRadio />}
-                      label={t("sendVerificationCodeViaSms")}
-                      sx={{ margin: "0px", flex: 1, textAlign: "start" }}
-                    />
-
-                    {/* Get Code Button - Desktop */}
-                    {loginMethod === "sms" && !isMobile && !isOtpSent && (
-                      <CustomButton
-                        variant="secondary"
-                        size="medium"
-                        label={t("getCode")}
-                        onClick={handleSendSmsOtp}
-                        disabled={userState.loading}
-                        sx={{
-                          fontWeight: 500,
-                          padding: "8px 22.5px",
-                        }}
-                        endIcon={ArrowUpwardIcon}
-                      />
-                    )}
-
-                    {/* Resend Code Button - Desktop */}
-                    {loginMethod === "sms" && !isMobile && isOtpSent && (
-                      <CustomButton
-                        variant="secondary"
-                        disabled={smsOtpCountdown > 0 || userState.loading}
-                        size="medium"
-                        label={
-                          smsOtpCountdown > 0
-                            ? `${t("codeIn")} ${smsOtpCountdown}s`
-                            : t("resendCode")
-                        }
-                        onClick={handleSendSmsOtp}
-                        endIcon={
-                          smsOtpCountdown > 0 || userState.loading
-                            ? undefined
-                            : ArrowUpwardIcon
-                        }
-                        sx={{
-                          fontWeight: 500,
-                          padding: "11px 20px",
-                        }}
-                      />
-                    )}
-                  </Box>
-
-                  {/* Show mobile number if available from userState */}
-                  {loginMethod === "sms" && userState.mobile && (
-                    <Box sx={{ marginLeft: "32px" }}>
-                      <Typography
-                        sx={{
-                          textAlign: "start",
-                          fontSize: "12px",
-                          color: "text.secondary",
-                          fontFamily: "var(--font-sans)",
-                        }}
-                      >
-                        {t("codeWillBeSentTo")}
-                        {userState.mobile ? `••••${userState.mobile.slice(-4)}` : ""}
-                      </Typography>
-                    </Box>
-                  )}
-
-                  {/* Get Code Button - Mobile (when mobile is in userState) */}
-                  {loginMethod === "sms" &&
-                    isMobile &&
-                    !isOtpSent &&
-                    userState.mobile && (
-                      <Box sx={{ marginTop: "8px" }}>
-                        <CustomButton
-                          variant="secondary"
-                          size="small"
-                          label={t("getCode")}
-                          fullWidth
-                          disabled={userState.loading}
-                          onClick={handleSendSmsOtp}
-                          sx={{
-                            fontWeight: 500,
-                            padding: "8px 22.5px",
-                          }}
-                          endIcon={ArrowUpwardIcon}
-                        />
-                      </Box>
-                    )}
-
-                  {/* Resend Code Button - Mobile */}
-                  {loginMethod === "sms" && isMobile && isOtpSent && (
-                    <Box sx={{ marginTop: "8px" }}>
-                      <CustomButton
-                        variant="secondary"
-                        disabled={smsOtpCountdown > 0 || userState.loading}
-                        size="small"
-                        label={
-                          smsOtpCountdown > 0
-                            ? `${t("codeIn")} ${smsOtpCountdown}s`
-                            : t("resendCode")
-                        }
-                        fullWidth
-                        onClick={handleSendSmsOtp}
-                        endIcon={
-                          smsOtpCountdown > 0 || userState.loading
-                            ? undefined
-                            : ArrowUpwardIcon
-                        }
-                        sx={{
-                          height: "32px",
-                          fontSize: "13px",
-                          fontWeight: 500,
-                          padding: "8px 20px",
-                        }}
-                      />
-                    </Box>
-                  )}
-                  </>
-                  )}
-
-                  {/* Email Option */}
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      width: "100%",
-                      marginTop: "16px",
-                    }}
-                  >
-                    <FormControlLabel
-                      value="email"
-                      control={<CustomRadio />}
-                      label={t("sendVerificationCodeViaEmail")}
-                      sx={{
-                        margin: "0px",
-                        color: "text.primary",
-                        textAlign: "start",
-                        flex: 1,
-                      }}
-                    />
-                    {/* Get Code Button */}
-                    {loginMethod === "email" && !isMobile && !emailOtpSent && (
-                      <CustomButton
-                        variant="secondary"
-                        size="medium"
-                        label={t("getCode")}
-                        onClick={handleSendEmailOtp}
-                        disabled={userState.loading}
-                        sx={{
-                          fontWeight: 500,
-                          padding: "8px 22.5px",
-                        }}
-                        endIcon={ArrowUpwardIcon}
-                      />
-                    )}
-
-                    {/* Resend Code Button */}
-                    {loginMethod === "email" && !isMobile && emailOtpSent && (
-                      <CustomButton
-                        variant="secondary"
-                        disabled={
-                          (emailOtpDialogOpen && emailOtpCountdown > 0) ||
-                          userState.loading
-                        }
-                        size="medium"
-                        label={
-                          emailOtpCountdown > 0
-                            ? `${t("codeIn")} ${emailOtpCountdown}s`
-                            : t("resendCode")
-                        }
-                        onClick={handleSendEmailOtp}
-                        endIcon={
-                          emailOtpCountdown > 0 && emailOtpDialogOpen
-                            ? undefined
-                            : ArrowUpwardIcon
-                        }
-                        sx={{
-                          fontWeight: 500,
-                          padding: "11px 20px",
-                        }}
-                      />
-                    )}
-                  </Box>
-
-                  {/* Get Code Button - Mobile */}
-                  {loginMethod === "email" && isMobile && !emailOtpSent && (
-                    <Box sx={{ marginTop: "10px" }}>
-                      <CustomButton
-                        variant="secondary"
-                        size="small"
-                        label={t("getCode")}
-                        fullWidth
-                        disabled={userState.loading}
-                        onClick={handleSendEmailOtp}
-                        sx={{
-                          fontWeight: 500,
-                          padding: "8px 22.5px",
-                        }}
-                        endIcon={ArrowUpwardIcon}
-                      />
-                    </Box>
-                  )}
-
-                  {/* Resend Code Button - Mobile */}
-                  {loginMethod === "email" && isMobile && emailOtpSent && (
-                    <Box sx={{ marginTop: "16px" }}>
-                      <CustomButton
-                        variant="secondary"
-                        size="small"
-                        label={
-                          emailOtpCountdown > 0
-                            ? `${t("codeIn")} ${emailOtpCountdown}s`
-                            : t("resendCode")
-                        }
-                        fullWidth
-                        disabled={emailOtpCountdown > 0}
-                        endIcon={
-                          emailOtpCountdown > 0 ? undefined : ArrowUpwardIcon
-                        }
-                        onClick={handleSendEmailOtp}
-                        sx={{
-                          fontWeight: 500,
-                          padding: "8px 20px",
-                        }}
-                      />
-                    </Box>
-                  )}
-
-                  {/* Password Option */}
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      margin: "16px 0 0 0",
-                    }}
-                  >
-                    <FormControlLabel
-                      value="password"
-                      control={<CustomRadio />}
-                      label={t("password")}
-                      data-testid="login-method-password"
-                      sx={{ margin: "0px", color: "text.primary" }}
+                    <Box
                       onClick={() => {
-                        setLoginMethod("password");
-                        setTimeout(() => {
-                          const input = document.getElementById("password");
-                          input?.focus();
-                        }, 0);
+                        if (loginMethod !== "email") {
+                          setLoginMethod("email");
+                          setOtpError("");
+                          setEmailOtpError("");
+                          setInlineOtpResetKey((k) => k + 1);
+                          // Auto-send if not already in cooldown
+                          if (!emailOtpSent || emailOtpCountdown === 0) {
+                            handleSendEmailOtp();
+                          }
+                        }
                       }}
-                    />
-                  </Box>
-                  {/* Password Input Field */}
-                  {loginMethod === "password" && (
-                    <Box sx={{ marginTop: "10px" }}>
-                      <InputField
-                        name="password"
-                        type={showPassword ? "text" : "password"}
-                        value={password}
-                        onChange={(e) => {
-                          setPassword(e.target.value);
-                          if (passwordError) {
-                            setPasswordError("");
-                            setPasswordTouched(false);
-                          }
-                        }}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter" && !userState.loading) {
-                            e.preventDefault();
-                            handleLoginSubmit();
-                          }
-                        }}
-                        placeholder={t("passwordPlaceHolder")}
-                        error={
-                          loginMethod === "password" &&
-                          passwordTouched &&
-                          !!passwordError
-                        }
-                        helperText={
-                          loginMethod === "password" &&
-                          passwordTouched &&
-                          passwordError
-                            ? passwordError.includes(" ")
-                              ? passwordError
-                              : t(passwordError)
-                            : ""
-                        }
-                        sideButton={true}
-                        sideButtonType="primary"
-                        sideButtonIcon={
-                          showPassword ? (
-                            <VisibilityOffIcon
-                              sx={{
-                                color: "text.secondary",
-                                height: "18px",
-                                width: "16px",
-                              }}
-                            />
-                          ) : (
-                            <VisibilityIcon
-                              sx={{
-                                color: "text.secondary",
-                                height: "18px",
-                                width: "16px",
-                              }}
-                            />
-                          )
-                        }
-                        sideButtonIconWidth={isMobile ? "14px" : "18px"}
-                        sideButtonIconHeight={isMobile ? "14px" : "18px"}
-                        onSideButtonClick={() => {
-                          setShowPassword(!showPassword);
-                        }}
-                        showPasswordToggle={true}
-                      />
+                      data-testid="channel-chip-email"
+                      sx={{
+                        flex: 1,
+                        textAlign: "center",
+                        padding: "10px 12px",
+                        borderRadius: "10px",
+                        border: "1px solid",
+                        borderColor:
+                          loginMethod === "email"
+                            ? "primary.main"
+                            : "divider",
+                        background:
+                          loginMethod === "email"
+                            ? (t2: any) =>
+                                t2.palette.mode === "dark"
+                                  ? "rgba(129,140,248,0.12)"
+                                  : "rgba(79,70,229,0.08)"
+                            : "transparent",
+                        color:
+                          loginMethod === "email"
+                            ? "primary.main"
+                            : "text.secondary",
+                        cursor: "pointer",
+                        fontFamily: "var(--font-sans)",
+                        fontSize: "13px",
+                        fontWeight: loginMethod === "email" ? 600 : 500,
+                        transition: "all 0.2s ease",
+                      }}
+                    >
+                      {t("channelEmail")}
                     </Box>
-                  )}
-                </RadioGroup>
-              </Box>
+                    <Box
+                      onClick={() => {
+                        if (loginMethod !== "sms") {
+                          setLoginMethod("sms");
+                          setOtpError("");
+                          setEmailOtpError("");
+                          setInlineOtpResetKey((k) => k + 1);
+                          if (!isOtpSent || smsOtpCountdown === 0) {
+                            handleSendSmsOtp();
+                          }
+                        }
+                      }}
+                      data-testid="channel-chip-sms"
+                      sx={{
+                        flex: 1,
+                        textAlign: "center",
+                        padding: "10px 12px",
+                        borderRadius: "10px",
+                        border: "1px solid",
+                        borderColor:
+                          loginMethod === "sms"
+                            ? "primary.main"
+                            : "divider",
+                        background:
+                          loginMethod === "sms"
+                            ? (t2: any) =>
+                                t2.palette.mode === "dark"
+                                  ? "rgba(129,140,248,0.12)"
+                                  : "rgba(79,70,229,0.08)"
+                            : "transparent",
+                        color:
+                          loginMethod === "sms"
+                            ? "primary.main"
+                            : "text.secondary",
+                        cursor: "pointer",
+                        fontFamily: "var(--font-sans)",
+                        fontSize: "13px",
+                        fontWeight: loginMethod === "sms" ? 600 : 500,
+                        transition: "all 0.2s ease",
+                      }}
+                    >
+                      {`${t("channelSMS")} ••••${(userState.mobile || "").slice(-4)}`}
+                    </Box>
+                  </Box>
+                )}
 
-              {/* Keep me signed in + Forgot Password — always visible */}
-              <Box
-                sx={{
-                  mt: 1,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  gap: 1,
-                  flexWrap: "wrap",
-                }}
-              >
-                <FormControlLabel
-                  data-testid="remember-me-toggle"
-                  control={
-                    <Checkbox
-                      size="small"
-                      checked={rememberMe}
-                      onChange={(e) => setRememberMe(e.target.checked)}
-                      sx={{ py: 0, color: theme.palette.text.secondary }}
-                    />
-                  }
-                  label={t("keepMeSignedIn")}
-                  sx={{
-                    m: 0,
-                    "& .MuiFormControlLabel-label": {
+                {/* Inline OTP block — auto-sends on entering code mode
+                    (see handleUseCodeInstead), auto-verifies on 6 digits. */}
+                <Box sx={{ marginTop: isMobile ? "16px" : "20px" }}>
+                  <OtpInputPanel
+                    contactInfo={
+                      loginMethod === "sms"
+                        ? userState.mobile || ""
+                        : verifiedEmail
+                    }
+                    contactType={loginMethod === "sms" ? "phone" : "email"}
+                    otpLength={6}
+                    resendCodeLabel={t("resendCode")}
+                    resendCodeCountdownLabel={(seconds) =>
+                      `${t("codeIn")} ${seconds}s`
+                    }
+                    primaryButtonLabel={t("verifyAndLogin")}
+                    onResendCode={() => {
+                      setInlineOtpResetKey((k) => k + 1);
+                      if (loginMethod === "sms") {
+                        handleSendSmsOtp();
+                      } else {
+                        handleSendEmailOtp();
+                      }
+                    }}
+                    onVerify={(otpCode) => {
+                      if (loginMethod === "sms") {
+                        handleSmsOtpVerify(otpCode);
+                      } else {
+                        handleEmailOtpVerify(otpCode);
+                      }
+                    }}
+                    onClearError={() => {
+                      setEmailOtpError("");
+                      setEmailOtpTouched(false);
+                      setOtpError("");
+                      setOtpTouched(false);
+                    }}
+                    countdown={
+                      loginMethod === "sms"
+                        ? smsOtpCountdown
+                        : emailOtpCountdown
+                    }
+                    loading={userState.loading}
+                    error={
+                      loginMethod === "sms"
+                        ? otpTouched && otpError
+                          ? otpError.includes(" ")
+                            ? otpError
+                            : t(otpError)
+                          : undefined
+                        : emailOtpTouched && emailOtpError
+                        ? emailOtpError.includes(" ")
+                          ? emailOtpError
+                          : t(emailOtpError)
+                        : undefined
+                    }
+                    showInfoChip={true}
+                    showLabel={true}
+                    showActions={true}
+                    actionsLayout="row"
+                    resetKey={inlineOtpResetKey}
+                  />
+                </Box>
+
+                {/* Back-to-password link */}
+                <Box sx={{ mt: 2, display: "flex", justifyContent: "flex-start" }}>
+                  <Typography
+                    component="span"
+                    data-testid="back-to-password-link"
+                    sx={{
                       fontSize: "13px",
                       color: theme.palette.text.secondary,
+                      fontWeight: 500,
+                      cursor: "pointer",
                       fontFamily: "var(--font-sans)",
-                    },
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "4px",
+                      "&:hover": { color: theme.palette.primary.main },
+                    }}
+                    onClick={() => {
+                      setUseCodeMode(false);
+                      setLoginMethod("password");
+                      setEmailOtpError("");
+                      setOtpError("");
+                    }}
+                  >
+                    ← {t("backToPassword")}
+                  </Typography>
+                </Box>
+              </>
+            )}
+
+            {/* Continue / Sign-in button — password mode only (code mode
+                uses the inline OtpInputPanel's own Verify button). */}
+            {!useCodeMode && (
+              <Box sx={{ marginTop: "24px" }}>
+                <CustomButton
+                  label={t("signIn")}
+                  variant="primary"
+                  size="medium"
+                  fullWidth
+                  disabled={userState.loading}
+                  onClick={() => {
+                    setLoginMethod("password");
+                    handleLoginSubmit();
                   }}
+                  hideLabelWhenLoading={true}
+                  showSuccessAnimation={showSuccessAnimation}
+                  showErrorAnimation={showErrorAnimation}
+                  sx={{ fontWeight: 700 }}
+                  endIcon={
+                    userState.loading ? <LoadingIcon size={20} /> : undefined
+                  }
+                  data-testid="signin-submit-btn"
                 />
+              </Box>
+            )}
+
+            {/* "Use a code instead" secondary link (password mode only) */}
+            {!useCodeMode && (
+              <Box sx={{ mt: 1.75, display: "flex", justifyContent: "center" }}>
                 <Typography
                   component="span"
+                  data-testid="use-a-code-link"
                   sx={{
                     fontSize: "13px",
-                    color: theme.palette.primary.main,
+                    color: theme.palette.text.secondary,
                     fontWeight: 500,
                     cursor: "pointer",
-                    textDecoration: "underline",
-                    textUnderlineOffset: "2px",
                     fontFamily: "var(--font-sans)",
+                    "&:hover": {
+                      color: theme.palette.primary.main,
+                      textDecoration: "underline",
+                    },
                   }}
                   onClick={() => {
-                    setForgotPasswordDialogOpen(true);
+                    setUseCodeMode(true);
+                    // If SMS isn't available, force email
+                    if (!userState.mobile) setLoginMethod("email");
+                    else if (loginMethod !== "sms") setLoginMethod("email");
+                    setInlineOtpResetKey((k) => k + 1);
+                    // Auto-send code on entering code mode (respects cooldown)
+                    setTimeout(() => {
+                      if (loginMethod === "sms" && userState.mobile) {
+                        if (!isOtpSent || smsOtpCountdown === 0) {
+                          handleSendSmsOtp();
+                        }
+                      } else {
+                        if (!emailOtpSent || emailOtpCountdown === 0) {
+                          handleSendEmailOtp();
+                        }
+                      }
+                    }, 0);
                   }}
                 >
-                  {t("forgotYourPassword")}
+                  {t("useACodeInstead")} →
                 </Typography>
               </Box>
-            </Box>
-
-            {/* Continue Button - shown when login methods are visible */}
-            <Box sx={{ marginTop: "24px" }}>
-              <CustomButton
-                label={t("continue")}
-                variant="primary"
-                size="medium"
-                fullWidth
-                disabled={
-                  userState.loading &&
-                  !(
-                    (loginMethod === "email" && emailOtpDialogOpen) ||
-                    (loginMethod === "sms" && smsOtpDialogOpen)
-                  )
-                }
-                onClick={() => {
-                  handleLoginSubmit();
-                }}
-                hideLabelWhenLoading={true}
-                showSuccessAnimation={
-                  showSuccessAnimation &&
-                  !(
-                    (loginMethod === "email" && emailOtpDialogOpen) ||
-                    (loginMethod === "sms" && smsOtpDialogOpen)
-                  )
-                }
-                showErrorAnimation={
-                  showErrorAnimation &&
-                  !(
-                    (loginMethod === "email" && emailOtpDialogOpen) ||
-                    (loginMethod === "sms" && smsOtpDialogOpen)
-                  )
-                }
-                sx={{
-                  fontWeight: 700,
-                }}
-                endIcon={
-                  userState.loading &&
-                  !(
-                    (loginMethod === "email" && emailOtpDialogOpen) ||
-                    (loginMethod === "sms" && smsOtpDialogOpen)
-                  ) ? (
-                    <LoadingIcon size={20} />
-                  ) : undefined
-                }
-              />
-            </Box>
+            )}
           </>
         )}
         </>
         )}
 
-        {/* Phone Login OTP Dialog */}
-        {loginMode === "phone" && (
-          <OtpDialog
-            open={phoneLoginOtpDialogOpen}
-            onClose={() => setPhoneLoginOtpDialogOpen(false)}
-            title={t("smsVerification")}
-            subtitle={t("otpSentToPhone")}
-            contactInfo={"+" + verifiedPhone}
-            contactType="phone"
-            resendCodeLabel={t("resendCode")}
-            resendCodeCountdownLabel={(seconds) => `${t("codeIn")} ${seconds}s`}
-            primaryButtonLabel={t("verifyAndLogin")}
-            onResendCode={() => handleSendPhoneLoginOtp()}
-            onVerify={handlePhoneLoginOtpVerify}
-            onClearError={() => {
-              setPhoneLoginOtpError("");
-              setPhoneLoginOtpTouched(false);
-            }}
-            countdown={phoneLoginOtpCountdown}
-            loading={userState.loading}
-            preventClose={false}
-            error={
-              phoneLoginOtpTouched && phoneLoginOtpError
-                ? phoneLoginOtpError.includes(" ")
-                  ? phoneLoginOtpError
-                  : t(phoneLoginOtpError)
-                : undefined
-            }
-          />
-        )}
+        {/* NOTE (Session 82, 2026-07-28): Phone-login OTP dialog removed.
+            Inline OtpInputPanel above replaces the modal for the initial
+            sign-in flow. The step-up 2FA dialog (loginOtpRequired) below
+            is kept — it's genuinely a blocking prompt on top of an
+            already-authenticated context. */}
 
         {/* Social Login Section — hidden when NEXT_PUBLIC_ENABLE_GOOGLE_AUTH !== "true"
             AND NEXT_PUBLIC_ENABLE_GITHUB_AUTH !== "true". Wraps both the "or" divider
@@ -1976,73 +1887,10 @@ export default function Login() {
       </FormPanel>
     </SplitLayoutWrapper>
 
-      {/* Email OTP Dialog */}
-      {loginMethod === "email" && (
-        <OtpDialog
-          open={emailOtpDialogOpen}
-          onClose={() => {
-            setEmailOtpDialogOpen(false);
-          }}
-          title={t("emailVerification")}
-          subtitle={t("emailVerificationSubtitle")}
-          contactInfo={emailInput}
-          contactType="email"
-          resendCodeLabel={t("resendCode")}
-          resendCodeCountdownLabel={(seconds) => `${t("codeIn")} ${seconds}s`}
-          primaryButtonLabel={t("verifyAndLogin")}
-          onResendCode={handleSendEmailOtp}
-          onVerify={handleEmailOtpVerify}
-          onClearError={() => {
-            setEmailOtpError("");
-            setEmailOtpTouched(false);
-          }}
-          countdown={emailOtpCountdown}
-          loading={userState.loading}
-          preventClose={false}
-          error={
-            emailOtpTouched && emailOtpError
-              ? emailOtpError.includes(" ")
-                ? emailOtpError
-                : t(emailOtpError)
-              : undefined
-          }
-        />
-      )}
-
-      {/* SMS OTP Dialog */}
-      {loginMethod === "sms" && (
-        <OtpDialog
-          open={smsOtpDialogOpen}
-          onClose={() => {
-            setSmsOtpDialogOpen(false);
-          }}
-          title={t("smsVerification")}
-          subtitle={
-            t("smsVerificationSubtitle")
-          }
-          contactInfo={userState.mobile || mobile}
-          contactType="phone"
-          resendCodeLabel={t("resendCode")}
-          resendCodeCountdownLabel={(seconds) => `${t("codeIn")} ${seconds}s`}
-          primaryButtonLabel={t("verifyAndLogin")}
-          onResendCode={handleSendSmsOtp}
-          onVerify={handleSmsOtpVerify}
-          onClearError={() => {
-            setOtpError("");
-            setOtpTouched(false);
-          }}
-          countdown={smsOtpCountdown}
-          loading={userState.loading}
-          preventClose={false}
-          error={
-            otpTouched && otpError
-              ? otpError.includes(" ")
-                ? otpError
-                : t(otpError)
-              : undefined
-          }
-        />
-      )}
+      {/* NOTE (Session 82): Email + SMS OTP modal dialogs removed from the
+          initial sign-in flow. Inline OtpInputPanel above replaces both.
+          The step-up 2FA dialog (loginOtpRequired) below is kept — see
+          note further up. */}
 
       {/* Login OTP Dialog - shown after password validation */}
       <OtpDialog

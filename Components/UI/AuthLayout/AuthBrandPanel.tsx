@@ -28,7 +28,10 @@ const AuthBrandPanel = () => {
   const { t } = useTranslation("auth");
   const theme = useTheme();
   const dark = theme.palette.mode === "dark";
-  const lime = theme.palette.mode === "dark" ? "#CCFF00" : "#5A6B00";
+  // Aurora indigo — matches Landing v3 (was: cyber-lime #CCFF00).
+  const accent = dark ? "#818CF8" : "#4F46E5";
+  const accentSoft = dark ? "rgba(129,140,248,0.18)" : "rgba(79,70,229,0.12)";
+  const accentPulse = dark ? "rgba(129,140,248,0.55)" : "rgba(79,70,229,0.5)";
 
   const tileBg = dark ? "rgba(255,255,255,0.045)" : "rgba(255,255,255,0.6)";
   const tileBorder = dark ? "rgba(255,255,255,0.1)" : "rgba(10,10,10,0.08)";
@@ -93,7 +96,7 @@ const AuthBrandPanel = () => {
           }}
         >
           {t("brandHeadlineLine1")}{" "}
-          <Box component="span" sx={{ color: lime }}>
+          <Box component="span" sx={{ color: accent }}>
             {t("brandHeadlineLine2")}
           </Box>
         </Typography>
@@ -131,12 +134,12 @@ const AuthBrandPanel = () => {
               top: -70,
               right: -50,
               borderRadius: "50%",
-              background: `radial-gradient(circle, ${dark ? "rgba(204,255,0,0.18)" : "rgba(90,107,0,0.12)"} 0%, transparent 70%)`,
+              background: `radial-gradient(circle, ${accentSoft} 0%, transparent 70%)`,
               pointerEvents: "none",
             }}
           />
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <Box sx={{ width: 8, height: 8, borderRadius: "50%", background: lime, boxShadow: `0 0 12px ${lime}` }} />
+            <Box sx={{ width: 8, height: 8, borderRadius: "50%", background: accent, boxShadow: `0 0 12px ${accent}` }} />
             <Typography sx={{ fontFamily: FONT_MONO, fontSize: "11px", letterSpacing: "0.14em", textTransform: "uppercase", color: sub }}>
               {t("brandStatBusinessesLabel")}
             </Typography>
@@ -153,7 +156,7 @@ const AuthBrandPanel = () => {
 
         {/* Coins tile */}
         <Tile delay={0.12}>
-          <Typography sx={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: "28px", lineHeight: 1, color: lime }}>
+          <Typography sx={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: "28px", lineHeight: 1, color: accent }}>
             15+
           </Typography>
           <Typography sx={{ fontFamily: FONT_MONO, fontSize: "11px", letterSpacing: "0.14em", textTransform: "uppercase", color: sub, mt: 1 }}>
@@ -169,11 +172,11 @@ const AuthBrandPanel = () => {
                 width: 9,
                 height: 9,
                 borderRadius: "50%",
-                background: lime,
+                background: accent,
                 animation: "brandPulse 1.8s ease-in-out infinite",
                 "@keyframes brandPulse": {
-                  "0%, 100%": { boxShadow: `0 0 0 0 ${dark ? "rgba(204,255,0,0.55)" : "rgba(90,107,0,0.5)"}` },
-                  "50%": { boxShadow: `0 0 0 7px rgba(204,255,0,0)` },
+                  "0%, 100%": { boxShadow: `0 0 0 0 ${accentPulse}` },
+                  "50%": { boxShadow: `0 0 0 7px rgba(79,70,229,0)` },
                 },
               }}
             />

@@ -1,19 +1,24 @@
 import { Box, Card, styled } from "@mui/material";
 
 /* ─────────────────────────────────────────────────────────────
- * Dynopay Auth Shell — "Floating Glass Bento"
- * Void-black (dark) / frosty-silver (light) canvas with an animated
- * gradient mesh + fine grain, a floating glass form card, and a
- * bento marketing column. Colors are driven by the scoped authTheme.
+ * Dynopay Auth Shell — "Aurora Glass" (2026-07-28 indigo migration)
+ * Paper (light) / Obsidian (dark) canvas with soft indigo/violet aurora
+ * orbs + fine grain, a floating glass form card, and a bento marketing
+ * column. Palette matches Landing v3 so /auth feels like the same product
+ * the user just came from. Colors are driven by the scoped authTheme.
  * ───────────────────────────────────────────────────────────── */
 
 const GRAIN =
   "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")";
 
+/**
+ * Aurora mesh — two soft orbs (indigo at 14/18, violet at 84/88).
+ * Same visual language as HeroPlayground on the landing page.
+ */
 const meshBg = (dark: boolean) =>
   dark
-    ? "radial-gradient(42% 44% at 14% 18%, rgba(204,255,0,0.14) 0%, transparent 62%), radial-gradient(50% 50% at 84% 88%, rgba(204,255,0,0.07) 0%, transparent 62%)"
-    : "radial-gradient(42% 44% at 14% 18%, rgba(184,230,0,0.20) 0%, transparent 62%), radial-gradient(50% 50% at 84% 88%, rgba(184,230,0,0.10) 0%, transparent 62%)";
+    ? "radial-gradient(42% 44% at 14% 18%, rgba(129,140,248,0.20) 0%, transparent 62%), radial-gradient(50% 50% at 84% 88%, rgba(124,92,255,0.14) 0%, transparent 62%)"
+    : "radial-gradient(42% 44% at 14% 18%, rgba(79,70,229,0.14) 0%, transparent 62%), radial-gradient(50% 50% at 84% 88%, rgba(124,92,255,0.10) 0%, transparent 62%)";
 
 const gridBg = (dark: boolean) => {
   const line = dark ? "rgba(255,255,255,0.045)" : "rgba(10,10,10,0.045)";
@@ -33,7 +38,7 @@ export const AuthPageBackground = styled(Box)(({ theme }) => {
     padding: "40px 24px",
     boxSizing: "border-box",
     overflow: "hidden",
-    background: dark ? "#060606" : "#EEF1F6",
+    background: dark ? "#0B0B0F" : "#FAFAF7",
     backgroundImage: gridBg(dark),
     backgroundSize: "54px 54px",
     "&::before": {
@@ -147,7 +152,7 @@ export const AuthContainer = styled(Box)(({ theme }) => {
     padding: "48px 24px",
     boxSizing: "border-box",
     overflow: "hidden",
-    background: dark ? "#060606" : "#EEF1F6",
+    background: dark ? "#0B0B0F" : "#FAFAF7",
     backgroundImage: gridBg(dark),
     backgroundSize: "54px 54px",
     "&::before": {
@@ -206,7 +211,7 @@ export const ImageCenter = styled(Box)(() => ({
 
 /* ── Legacy exports (kept so older imports never break) ──────── */
 export const LoginWrapper = styled(Box)(({ theme }) => ({
-  background: theme.palette.mode === "dark" ? "#060606" : "#EEF1F6",
+  background: theme.palette.mode === "dark" ? "#0B0B0F" : "#FAFAF7",
   width: "100%",
   minHeight: "100dvh",
   position: "relative",

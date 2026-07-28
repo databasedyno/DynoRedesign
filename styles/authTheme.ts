@@ -2,19 +2,35 @@ import { createTheme } from "@mui/material";
 import { theme, themeDark } from "./theme";
 
 /**
- * Auth-suite theme — "Floating Glass Bento" (bold, Emergent-style).
+ * Auth-suite theme — "Aurora Glass" (2026-07-28 indigo migration).
+ *
  * Applied ONLY on the /auth/*, /reset-password and /admin/login routes
  * (see _app.tsx `activeTheme`), so the rest of the app is untouched.
  *
- * Dark  → void-black canvas + cyber-lime (#CCFF00) neon accent, glass surfaces.
- * Light → frosty silver canvas + bold near-black buttons with lime text.
+ * Migration note (Session 82):
+ *   Was:  cyber-lime (#CCFF00) neon accent, black CTA with lime text.
+ *   Now:  indigo (#4F46E5) — SAME palette as Landing v3 (Aurora), so the
+ *         sign-in / sign-up screens finally feel like the same product as
+ *         the marketing site the user just came from.
  *
- * We add a non-standard `primary.hover` token that CustomButton reads
- * (with a safe fallback) so the primary CTA hover matches the accent.
+ * Glass surfaces + backdrop-blur are preserved. Only the accent hue and CTA
+ * contrast rules change.
+ *
+ * We keep a non-standard `primary.hover` token that CustomButton reads (with
+ * a safe fallback) so the primary CTA hover matches the accent.
  */
 
-export const AUTH_LIME = "#CCFF00";
-const LIME_HOVER = "#B4E600";
+export const AUTH_INDIGO = "#4F46E5"; // Landing v3 canonical indigo
+export const AUTH_INDIGO_DARK = "#818CF8"; // dark-mode variant (softer, higher lightness)
+const INDIGO_HOVER_LIGHT = "#4338CA"; // slightly darker on hover in light mode
+const INDIGO_HOVER_DARK = "#6366F1"; // slightly darker on hover in dark mode
+
+/**
+ * Legacy export kept so any code that still imports `AUTH_LIME` doesn't
+ * break during the migration. Points at the new indigo so behavior is
+ * consistent even for stragglers.
+ */
+export const AUTH_LIME = AUTH_INDIGO;
 
 /**
  * Brand display font for auth-screen headings (2026-07-21 consistency pass).
@@ -38,25 +54,25 @@ export const authThemeDark = createTheme(themeDark, {
   palette: {
     mode: "dark",
     primary: {
-      main: AUTH_LIME,
-      dark: LIME_HOVER,
-      light: "rgba(204,255,0,0.14)",
-      contrastText: "#060606",
+      main: AUTH_INDIGO_DARK,
+      dark: INDIGO_HOVER_DARK,
+      light: "rgba(129,140,248,0.14)",
+      contrastText: "#FFFFFF",
       // custom token consumed by CustomButton (safe fallback elsewhere)
-      hover: LIME_HOVER,
+      hover: INDIGO_HOVER_DARK,
     } as any,
     secondary: {
-      main: "#5865F2",
-      dark: "#4650C7",
-      light: "rgba(88,101,242,0.16)",
+      main: "#7C5CFF", // aurora violet (matches Landing v3)
+      dark: "#6748E6",
+      light: "rgba(124,92,255,0.16)",
       contrastText: "#FFFFFF",
     },
-    background: { default: "#060606", paper: "rgba(255,255,255,0.05)" },
+    background: { default: "#0B0B0F", paper: "rgba(255,255,255,0.05)" },
     text: { primary: "#FFFFFF", secondary: "#C9C9D1", disabled: "#86868F" },
     divider: "rgba(255,255,255,0.10)",
     border: {
       main: "rgba(255,255,255,0.14)",
-      focus: AUTH_LIME,
+      focus: AUTH_INDIGO_DARK,
       success: "#00E676",
       error: "#FF6B5D",
     },
@@ -64,7 +80,7 @@ export const authThemeDark = createTheme(themeDark, {
     success: { main: "#0F2A1B", dark: "#00E676", light: "#0F2A1B" },
     action: {
       hover: "rgba(255,255,255,0.06)",
-      selected: "rgba(204,255,0,0.10)",
+      selected: "rgba(129,140,248,0.14)",
     },
   },
   components: {
@@ -107,31 +123,31 @@ export const authThemeLight = createTheme(theme, {
   palette: {
     mode: "light",
     primary: {
-      main: "#0A0A0A",
-      dark: "#000000",
-      light: "rgba(10,10,10,0.06)",
-      contrastText: AUTH_LIME,
-      hover: "#1F1F1F",
+      main: AUTH_INDIGO,
+      dark: INDIGO_HOVER_LIGHT,
+      light: "rgba(79,70,229,0.10)",
+      contrastText: "#FFFFFF",
+      hover: INDIGO_HOVER_LIGHT,
     } as any,
     secondary: {
-      main: "#5865F2",
-      dark: "#4650C7",
-      light: "rgba(88,101,242,0.12)",
+      main: "#7C5CFF", // aurora violet
+      dark: "#6748E6",
+      light: "rgba(124,92,255,0.12)",
       contrastText: "#FFFFFF",
     },
-    background: { default: "#EEF1F6", paper: "rgba(255,255,255,0.72)" },
+    background: { default: "#FAFAF7", paper: "rgba(255,255,255,0.72)" },
     text: { primary: "#0A0A0A", secondary: "#3F3F46", disabled: "#73737C" },
     divider: "rgba(10,10,10,0.10)",
     border: {
       main: "rgba(10,10,10,0.12)",
-      focus: "#0A0A0A",
+      focus: AUTH_INDIGO,
       success: "#00A651",
       error: "#E8484A",
     },
     error: { main: "#E8484A" },
     action: {
-      hover: "rgba(10,10,10,0.04)",
-      selected: "rgba(10,10,10,0.06)",
+      hover: "rgba(79,70,229,0.06)",
+      selected: "rgba(79,70,229,0.10)",
     },
   },
   components: {
