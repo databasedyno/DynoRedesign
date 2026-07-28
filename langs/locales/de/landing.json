@@ -633,5 +633,27 @@
       "customerVatId": "USt-IdNr. Kunde:"
     },
     "receiptSentTo": "Beleg gesendet an"
+  },
+  "seo": {
+    "home": "Startseite",
+    "industries": "Branchen",
+    "countries": "Länder",
+    "whyDynopayBadge": "Warum Dynopay",
+    "whyDynopayTitle": "Alles, was Sie brauchen, um in Krypto bezahlt zu werden",
+    "whyDynopayHighlight": "in Krypto bezahlt zu werden",
+    "whyDynopaySubtitle": "Non-Custodial per Design. Sie behalten die Wallet, wir übernehmen den Checkout.",
+    "howItWorksBadge": "So funktioniert es",
+    "howItWorksTitle": "In unter 10 Minuten live",
+    "howItWorksHighlight": "unter 10 Minuten",
+    "howItWorksSubtitle": "Keine Entwickler nötig. Wer eine Wallet-Adresse kopieren kann, kann Krypto akzeptieren.",
+    "faqBadge": "FAQ",
+    "faqTitle": "Häufig gestellte Fragen",
+    "faqHighlight": "Fragen",
+    "faqSubtitle": "Alles, was Leute vor der Anmeldung fragen.",
+    "exploreMoreBadge": "Mehr entdecken",
+    "exploreMoreTitle": "Weitere Wege, in Krypto bezahlt zu werden",
+    "exploreMoreSubtitle": "So nutzen Händler, Creator und Kampagnenveranstalter Dynopay, um in Krypto bezahlt zu werden.",
+    "relatedCountry": "Krypto in {{name}} akzeptieren",
+    "relatedVertical": "Krypto-Zahlungen für {{name}}"
   }
 }

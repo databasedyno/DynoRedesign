@@ -44,7 +44,7 @@ const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages =
   const ogImageUrl = `${SITE_ORIGIN}/og/${content._kind}-${content._slug}.png`;
 
   const breadcrumbLabel =
-    content._kind === "country" ? "Countries" : "Industries";
+    content._kind === "country" ? t('seo.countries') : t('seo.industries');
   const breadcrumbParentPath =
     content._kind === "country" ? "/accept-crypto-payments-in" : "/for";
 
@@ -171,7 +171,7 @@ const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages =
             href="/"
             sx={{ color: "inherit", textDecoration: "none", "&:hover": { textDecoration: "underline" } }}
           >
-            Home
+            {t('seo.home')}
           </Box>
           {" / "}
           <Box
@@ -287,10 +287,10 @@ const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages =
       >
         <HomeSectionTitle
           type="small"
-          badgeText="Why Dynopay"
-          title="Everything you need to get paid in crypto"
-          highlightText="get paid in crypto"
-          subtitle="Non-custodial by design. You keep the wallet, we handle the checkout."
+          badgeText={t('seo.whyDynopayBadge')}
+          title={t('seo.whyDynopayTitle')}
+          highlightText={t('seo.whyDynopayHighlight')}
+          subtitle={t('seo.whyDynopaySubtitle')}
           headingAs="h2"
           sx={{ maxWidth: "100%" }}
         />
@@ -320,7 +320,7 @@ const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages =
                         width: 40,
                         height: 40,
                         borderRadius: 2,
-                        bgcolor: isDark ? "rgba(120,120,220,0.15)" : "rgba(85,86,239,0.10)",
+                        bgcolor: isDark ? "rgba(129,140,248,0.15)" : "rgba(79,70,229,0.10)",
                         color: theme.palette.primary.main,
                         fontWeight: 700,
                         fontSize: 18,
@@ -371,10 +371,10 @@ const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages =
       >
         <HomeSectionTitle
           type="small"
-          badgeText="How it works"
-          title="Live in under 10 minutes"
-          highlightText="under 10 minutes"
-          subtitle="No engineers required. If you can copy-paste a wallet address, you can accept crypto."
+          badgeText={t('seo.howItWorksBadge')}
+          title={t('seo.howItWorksTitle')}
+          highlightText={t('seo.howItWorksHighlight')}
+          subtitle={t('seo.howItWorksSubtitle')}
           headingAs="h2"
           sx={{ maxWidth: "100%" }}
         />
@@ -451,10 +451,10 @@ const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages =
       >
         <HomeSectionTitle
           type="small"
-          badgeText="FAQ"
-          title="Frequently "
-          highlightText="asked questions"
-          subtitle="Everything people ask before signing up."
+          badgeText={t('seo.faqBadge')}
+          title={t('seo.faqTitle')}
+          highlightText={t('seo.faqHighlight')}
+          subtitle={t('seo.faqSubtitle')}
           headingAs="h2"
           sx={{ maxWidth: "100%" }}
         />
@@ -528,10 +528,10 @@ const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages =
         >
           <HomeSectionTitle
             type="small"
-            badgeText="Explore more"
-            title="More ways to get paid in crypto"
-            highlightText="get paid in crypto"
-            subtitle="See how sellers, creators, and fundraisers use Dynopay to get paid in crypto."
+            badgeText={t('seo.exploreMoreBadge')}
+            title={t('seo.exploreMoreTitle')}
+            highlightText={t('seo.whyDynopayHighlight')}
+            subtitle={t('seo.exploreMoreSubtitle')}
             headingAs="h2"
             sx={{ maxWidth: "100%" }}
           />
@@ -560,7 +560,7 @@ const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages =
                         "&:hover": {
                           borderColor: theme.palette.primary.main,
                           transform: "translateY(-2px)",
-                          bgcolor: isDark ? "rgba(120,120,220,0.08)" : "rgba(85,86,239,0.04)",
+                          bgcolor: isDark ? "rgba(129,140,248,0.08)" : "rgba(79,70,229,0.04)",
                         },
                       }}
                     >
@@ -589,8 +589,8 @@ const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages =
                           }}
                         >
                           {rp.kind === "country"
-                            ? `Accept crypto in ${rp.displayName}`
-                            : `Crypto payments for ${rp.displayName}`}
+                            ? t('seo.relatedCountry', { name: rp.displayName })
+                            : t('seo.relatedVertical', { name: rp.displayName })}
                         </Typography>
                       </Box>
                       <Typography

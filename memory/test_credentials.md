@@ -1,14 +1,66 @@
-# CURRENT SESSION (fresh boot — session 83, 2026-07-28) — ENV PROVISIONING
+# CURRENT SESSION (session 83, 2026-07-28) — ENV PROVISIONING + PALETTE HOUSEKEEPING + SEO i18n + BLOG/POLICY TYPOGRAPHY + AURORA DEAD-CODE SWEEP
 
-- **Preview URL**: https://a1dc5635-c9e4-4d32-ac0e-db4dd2356e3a.preview.emergentagent.com. FIRST in CORS_ALLOWED_ORIGINS (+ dynopay.com + checkout.dynopay.com). All 200 on /, /auth/login, /pay/demo, /hostbay, /api/csrf-token.
-- **Merchant test account** (LIVE Railway PG, UNCHANGED): **hostbay@moxx.co / Katiekendra123@** (user_id=1, name=hostbay, referral DYNO-9XVPUY). REAL login verified HTTP 200 "Login Successful!"; bad creds → HTTP 401 "Invalid email or password".
+- **Preview URL**: https://a1dc5635-c9e4-4d32-ac0e-db4dd2356e3a.preview.emergentagent.com. FIRST in CORS_ALLOWED_ORIGINS. All 200 on /, /auth/login, /pay/demo, /hostbay, /dashboard, /for/creators, /blog, /blog/{slug}, /terms-conditions, /privacy-policy, /aml-policy, /QA, /api/csrf-token.
+- **Merchant test account** (LIVE Railway PG, UNCHANGED): **hostbay@moxx.co / Katiekendra123@** (user_id=1, name=hostbay). REAL login verified HTTP 200 "Login Successful!"; bad creds → HTTP 401.
 - **Admin email** (env ADMIN_EMAIL): moxxcompany@gmail.com
-- On boot: fresh container — root + backend node_modules + all 4 .env MISSING; frontend supervisor FATAL, node backend crash-looping (no .env → DB fail). Ran root yarn (126.64s exit=0) + backend yarn (93.20s exit=0) in parallel. Frontend = `next dev` via /app/frontend bridge (`start` → cd /app && next dev -p 3000 -H 0.0.0.0; reads /app/.env* at runtime — no build).
-- 4 IDENTICAL .env written (/app/.env, /app/.env.local, /app/backend/.env, /app/frontend/.env — md5=44119973d82fe2e43fcef53ff14b55d5, 250 lines). Transformations: all app URLs (SERVER_URL/FRONTEND_URL/CHECKOUT_URL/NEXTAUTH_URL/NEXT_PUBLIC_BASE_URL/NEXT_PUBLIC_SERVER_URL/REACT_APP_BACKEND_URL) → a1dc5635 preview URL; INTERNAL_BACKEND_URL=http://localhost:3300; CORS = a1dc5635 preview FIRST + dynopay.com + checkout.dynopay.com; DATABASE_URL constructed from parts (postgresql://postgres:...@roundhouse.proxy.rlwy.net:23599/railway) → dbInstance.ts SSL branch (/railway in URL OR NODE_ENV=production → useSSL; DB_SSL_REJECT_UNAUTHORIZED=false for Railway self-signed cert); REDIS_PUBLIC_URL + REDIS_URL as-is (nozomi.proxy.rlwy.net:15794); GOOGLE_CLIENT_KEY single-line \n-escaped double-quoted (as user gave); fixed user's EXT_PUBLIC→NEXT_PUBLIC_ENABLE_GITHUB_AUTH typo; OPENAI_API_KEY + SUPPORT_CHAT_MODEL=gpt-5.4; product-catalog/inline-tip/clean-checkout-v2/google-auth/github-auth flags = true; PORT omitted for node (server.py injects 3300 for ts-node --transpile-only server.ts; frontend supervisor sets PORT=3000).
-- Fresh NEXTAUTH_SECRET generated (user paste had literal broken `"openssl rand -base64 32"`): **VqURfVrbKNlH2gJBOBxXVLLOMGQ40Ibt10MT+UJiEno=**
-- SAFETY OVERRIDES (LIVE prod Railway PG+Redis shared with production): NODE_ENV=production / WORKER_ROLE=secondary / **ENABLE_BACKGROUND_JOBS=false** (user env had =true) → verified /health background_jobs.eligible=false, is_leader=false; logs confirm "Skipping error digest / webhook URL migration / BullMQ webhook worker / startup reconciliation (background jobs disabled — secondary instance)". NO sweeps/cron/webhook fan-out against prod.
-- Verified: internal :3300/health = 200 (status=healthy, database=connected, redis=connected, tatum operational=true CLOSED 0 failures, cached_prices=9, 40 rates via Tatum in 2.87s), :8001/api/csrf-token = 200, :3000/ = 200. External / = 200, /auth/login = 200, /pay/demo = 200, /hostbay = 200, /api/csrf-token = 200 (len 64). REAL LOGIN: POST /api/user/login (hostbay@moxx.co / Katiekendra123@ + CSRF round-trip) → HTTP 200 "Login Successful!" user_id=1 name=hostbay against LIVE Railway PG; bad creds → HTTP 401 "Invalid email or password".
-- Expected quirks: Binance geo-blocked (WS 451/1006) → CoinGecko/Tatum fallback (works, cached prices); SSH SOCKS tunnel disabled (sshpass absent); webhook-crond supervisor RUNNING (pod-local cron daemon, unrelated to app). NO CODE CHANGES this session — pure env provisioning.
+- **NEXTAUTH_SECRET**: VqURfVrbKNlH2gJBOBxXVLLOMGQ40Ibt10MT+UJiEno=
+- SAFETY OVERRIDES (LIVE prod Railway PG+Redis shared): NODE_ENV=production / WORKER_ROLE=secondary / ENABLE_BACKGROUND_JOBS=false. /health confirms bg_jobs.eligible=false, is_leader=false, database=connected, redis=connected, tatum operational=true.
+
+## SESSION 83 CODE CHANGES (all 4 next-action items shipped in one pass)
+
+### 1) Palette Housekeeping — `CORAL` → `INDIGO` in Home/v3/theme.v3.ts
+- `Components/Page/Home/v3/theme.v3.ts`: `CORAL='#4F46E5'` renamed to `INDIGO='#4F46E5'` (same value, honest name). `CORAL_DEEP='#4338CA'` → `INDIGO_DEEP`. `AuroraTokens.coral: string` renamed → `indigo: string` (added `/** @deprecated */` back-compat alias `coral: string` so no consumer breaks). `useAurora()` return now emits both `indigo: INDIGO` and legacy `coral: INDIGO`. This kills the naming collision with Dashboard's semantic-negative `CORAL='#FF5B49'` (now the only `CORAL` symbol in the repo — see next item).
+- `Components/Page/Home/v3/styled.v3.tsx`: `Eyebrow` `tone` prop widened from `"coral" | "violet" | "volt" | "ink"` to `"indigo" | "coral" | "violet" | "volt" | "ink"`; default flipped `"coral"` → `"indigo"`. `"coral"` kept as an accepted value for API back-compat.
+- No downstream consumer changes needed (nobody was destructuring `.coral` from `useAurora()`; `Eyebrow tone="coral"` still valid).
+
+### 2) SEO /for/* — aurora indigo tint alignment + 6-language i18n (20 keys × 6 langs = 120 translations)
+- `Components/Page/SEO/SEOLandingPage.tsx` (only SEO surface with a page on disk — `/for/[vertical].tsx` renders it; the `country` branch is future-ready). Added `useTranslation('landing')` hook already present; keyed 17 previously-hardcoded English strings under `landing.seo.*`: `home`, `industries`, `countries` (breadcrumbs); `whyDynopayBadge/Title/Highlight/Subtitle` (features section); `howItWorksBadge/Title/Highlight/Subtitle` (steps section); `faqBadge/Title/Highlight/Subtitle` (FAQ); `exploreMoreBadge/Title/Subtitle` (related pages); `relatedCountry`, `relatedVertical` with `{{name}}` interpolation. **Also fixed a pre-existing FAQ heading bug**: title was `"Frequently "` (trailing space) + highlight `"asked questions"` — `HomeSectionTitle` splits `title` by `highlight`, so the highlight never rendered. Corrected to `"Frequently asked questions"` + `"asked questions"`.
+- Palette tints: `rgba(120,120,220,0.15|0.08)` (dark) → `rgba(129,140,248,...)` (aurora indigo `#818CF8`); `rgba(85,86,239,0.10|0.04)` (light) → `rgba(79,70,229,...)` (aurora indigo `#4F46E5`). Primary buttons already used `theme.palette.primary.main` = indigo (no change).
+- `langs/locales/{en,pt,es,fr,nl,de}/landing.json`: +20 keys each under `seo.*` (hand-translated).
+
+### 3) Blog + Policy + QA — v3 typography sweep
+- `Components/Page/Home/v3/styled.v3.tsx`: added new `HeadlineS` (24px 700 Unbounded, theme-aware primary text color) between `HeadlineL` and `Body` to give policy/QA sub-section titles a proper token.
+- `pages/terms-conditions.tsx` (148L → 84L): full rewrite. Removed `Typography` imports + hand-styled `fontFamily/fontSize/lineHeight` blocks. Now uses `HeadlineXL` for page title, `HeadlineS` for section titles, `Body` for descriptions + bullets. Line count dropped 43%.
+- `pages/privacy-policy.tsx` (174L → 89L): same treatment. Info-item sub-titles kept `<Body sx={{ fontWeight: 600 }}>` since they're plain-weight-boost within a body block, not true headings.
+- `pages/aml-policy.tsx` (148L → 79L): same treatment. `whiteSpace: "pre-line"` preserved on body paragraphs (some AML sections use line breaks).
+- `pages/blog/index.tsx` (269L → 227L): swapped the manual "BLOG" pill + big title + subtitle for `<Eyebrow>BLOG</Eyebrow>` + `<HeadlineL>Crypto Payment <AuroraInk>Insights</AuroraInk></HeadlineL>` + `<Body>{t('blogSubtitle')}</Body>`. Outer container is now `<SectionShell>`. Card hover ring: `rgba(204,255,0,0.30)` (leftover volt-lime) → `rgba(129,140,248,0.30)` (aurora indigo, dark) / `rgba(79,70,229,0.18)` (light).
+- `pages/blog/[slug].tsx`: post title (28/42px) → `<HeadlineL>`; `##` markdown → `<HeadlineS component="h2">`; `###` markdown → `<HeadlineS component="h3" sx={{ fontWeight: 600 }}>`; CTA card heading → `<HeadlineS>`. Also swapped `rgba(204,255,0,0.20)` CTA border and `rgba(204,255,0,0.3)` hover shadow to aurora-indigo equivalents.
+- `pages/QA.tsx`: internal-only `noindex,nofollow` page. Swept H1 (28/42px `OutfitSemibold`) → `<HeadlineL>` and subtitle → `<Body>`. Rest of the QA UI (accordions, step rows, wallet cards) is presentation-density typography, left untouched.
+
+### 4) Dead-Code Sweep — deleted 8 orphaned files
+- `Components/Page/Dashboard/aurora/` folder deleted entirely (8 files, ~55KB): `AttentionCardsRow.tsx`, `AuroraKPIHero.tsx`, `FeeTierLevelCard.tsx`, `GettingStartedChecklist.tsx`, `LiveActivityFeed.tsx`, `RecentOrdersMiniTable.tsx`, `SettledMixDonut.tsx`, `styled.tsx`.
+- **Rationale**: The session-76 aurora dashboard rewrite was later rolled back — `pages/dashboard.tsx` currently renders the pre-aurora `DashboardLeftSection` + `DashboardRightSection` (transitively bringing in `HeroMetrics`, `FeeFreeWidget`, `TodaySummaryStrip`, `RecentTransactionsWidget`, `EmptyStatePanel`, `ConversionBanner`, `GrowPanel`, `CreatorPageCard`, `FeeTierProgress` — all LIVE). Verified via `grep -rn "Dashboard/aurora"` that zero external code imported anything from `aurora/`. Confirmed with the user before deletion (they chose option "a").
+- **Also**: the semantic-negative `CORAL='#FF5B49'` constant lived only inside `Dashboard/aurora/styled.tsx`. With the folder gone, the CORAL collision at the Home/v3 level (item 1) is not just aliased-away — it's fully eliminated; the codebase has zero `CORAL` symbols now.
+
+## VERIFICATION MATRIX
+| Route | Status | Notes |
+|---|---|---|
+| `/` | 200 | Landing v3 unchanged |
+| `/auth/login` | 200 | Real login `hostbay@moxx.co / Katiekendra123@` → HTTP 200 |
+| `/dashboard` | 200 | Renders LiveDashboardLeft/Right (unchanged by aurora sweep) |
+| `/for/creators` | 200 | New indigo eyebrow + i18n headings + indigo tint icons |
+| `/blog` | 200 | Eyebrow/HeadlineL/Body typography sweep |
+| `/blog/{slug}` | 200 | HeadlineL post title, HeadlineS markdown h2/h3, indigo CTA border |
+| `/terms-conditions` | 200 | HeadlineXL + HeadlineS + Body |
+| `/privacy-policy` | 200 | Same treatment |
+| `/aml-policy` | 200 | Same treatment |
+| `/QA` | 200 | HeadlineL page title + Body subtitle (rest untouched) |
+| `/pay/demo`, `/hostbay` | 200 | Untouched, sanity |
+
+## FILES TOUCHED (session 83)
+Backend: none.
+Frontend (11 files modified, 8 deleted):
+- MODIFIED: `Components/Page/Home/v3/theme.v3.ts` (CORAL→INDIGO rename + back-compat aliases)
+- MODIFIED: `Components/Page/Home/v3/styled.v3.tsx` (Eyebrow tone widened; new HeadlineS token)
+- MODIFIED: `Components/Page/SEO/SEOLandingPage.tsx` (17 strings i18n + palette tint swaps)
+- MODIFIED: `pages/terms-conditions.tsx` (v3 typography rewrite)
+- MODIFIED: `pages/privacy-policy.tsx` (v3 typography rewrite)
+- MODIFIED: `pages/aml-policy.tsx` (v3 typography rewrite)
+- MODIFIED: `pages/blog/index.tsx` (Eyebrow/HeadlineL/Body sweep + indigo hover ring)
+- MODIFIED: `pages/blog/[slug].tsx` (HeadlineL/HeadlineS sweep + indigo CTA styling)
+- MODIFIED: `pages/QA.tsx` (HeadlineL + Body on the page header only)
+- MODIFIED: `langs/locales/{en,pt,es,fr,nl,de}/landing.json` (+20 keys × 6 langs = 120 translations under `seo.*`)
+- DELETED: `Components/Page/Dashboard/aurora/` (8 files, ~55KB orphaned since aurora dashboard rollback)
 
 ---
 

@@ -1,13 +1,19 @@
 import useIsMobile from "@/hooks/useIsMobile";
-import { Box, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 import React from "react";
 import { useTranslation } from "react-i18next";
+import {
+  Body,
+  HeadlineS,
+  HeadlineXL,
+} from "@/Components/Page/Home/v3/styled.v3";
 
 const SECTION_IDS = Array.from({ length: 10 }, (_, i) => `section${i + 1}`);
 
 const PrivacyPolicy = () => {
   const isMobile = useIsMobile("md");
   const { t } = useTranslation("privacyPolicy");
+
   return (
     <Box
       sx={{
@@ -18,25 +24,12 @@ const PrivacyPolicy = () => {
         pt: isMobile ? "100px" : "128px",
       }}
     >
-
-      {/* PRIVACY POLICY HEADING */}
-      <Typography
-        component="h1"
-        sx={{
-          fontSize: isMobile ? "45px" : "60px",
-          color: "text.primary",
-          fontWeight: isMobile ? 600 : 500,
-          textAlign: "center",
-          fontFamily: "var(--font-sans)",
-          lineHeight: "60px",
-          letterSpacing: 0,
-          mb: "15px",
-        }}
-      >
+      {/* PAGE TITLE — v3 HeadlineXL */}
+      <HeadlineXL component="h1" sx={{ textAlign: "center", mb: 3 }}>
         {t("privacyPolicyTitle")}
-      </Typography>
+      </HeadlineXL>
 
-      {/* PRIVACY POLICY DESCRIPTION */}
+      {/* SECTION CONTENT */}
       <Box
         sx={{
           display: "flex",
@@ -45,123 +38,45 @@ const PrivacyPolicy = () => {
           lineHeight: 1.5,
         }}
       >
-        <Typography
-          sx={{
-            fontSize: "18px",
-            color: "text.secondary",
-            fontWeight: 400,
-            fontFamily: "var(--font-sans)",
-            lineHeight: "28px",
-            letterSpacing: 0,
-          }}
-        >
-          {t("intro")}
-        </Typography>
+        <Body>{t("intro")}</Body>
 
-        {/* PRIVACY POLICY SECTIONS */}
         {SECTION_IDS.map((sectionId) => {
           const info = t(`${sectionId}Info`, { returnObjects: true }) as { title: string; details: string }[];
           const items = t(`${sectionId}Items`, { returnObjects: true }) as string[];
 
           return (
-            <Box key={sectionId}>
-              {/* SECTION HEADING */}
-              <Typography
-                sx={{
-                  fontSize: "18px",
-                  color: "text.secondary",
-                  fontWeight: 600,
-                  fontFamily: "var(--font-sans)",
-                  lineHeight: "28px",
-                  letterSpacing: 0,
-                }}
-              >
-                {t(`${sectionId}Title`)}
-              </Typography>
-              {/* SECTION DESCRIPTION */}
-              <Typography
-                sx={{
-                  fontSize: "18px",
-                  color: "text.secondary",
-                  fontWeight: 400,
-                  fontFamily: "var(--font-sans)",
-                  lineHeight: "28px",
-                  letterSpacing: 0,
-                }}
-              >
-                {t(`${sectionId}Desc`)}
-              </Typography>
+            <Box key={sectionId} sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+              {/* SECTION HEADING — v3 HeadlineS */}
+              <HeadlineS component="h2">{t(`${sectionId}Title`)}</HeadlineS>
 
-              {/* SECTION INFO */}
-              <Box sx={{ my: Array.isArray(info) && info.length > 0 ? "28px" : 0 }}>
-                {Array.isArray(info) &&
-                  info.length > 0 &&
-                  info.map((infoItem, infoIndex) => (
+              <Body>{t(`${sectionId}Desc`)}</Body>
+
+              {Array.isArray(info) && info.length > 0 && (
+                <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5, my: 1 }}>
+                  {info.map((infoItem, infoIndex) => (
                     <React.Fragment key={infoIndex}>
-                      {/* INFO HEADING */}
-                      <Typography
-                        sx={{
-                          fontSize: "18px",
-                          color: "text.secondary",
-                          fontWeight: 400,
-                          fontFamily: "var(--font-sans)",
-                          lineHeight: "28px",
-                          letterSpacing: 0,
-                        }}
-                      >
-                        {infoItem.title}
-                      </Typography>
-
-                      {/* INFO DESCRIPTION */}
-                      <Typography
-                        sx={{
-                          fontSize: "18px",
-                          color: "text.secondary",
-                          fontWeight: 400,
-                          fontFamily: "var(--font-sans)",
-                          lineHeight: "28px",
-                          letterSpacing: 0,
-                        }}
-                      >
-                        {infoItem.details}
-                      </Typography>
+                      <Body sx={{ fontWeight: 600 }}>{infoItem.title}</Body>
+                      <Body>{infoItem.details}</Body>
                     </React.Fragment>
-                  ))}
-              </Box>
-              {/* SECTION ITEMS */}
-              {Array.isArray(items) && items.length > 0 && (
-                <Box component="ul" sx={{ pl: "26px" }}>
-                  {items.map((item, itemIndex) => (
-                    <Box
-                      component="li"
-                      key={itemIndex}
-                      sx={{
-                        listStyle: "disc",
-                        fontSize: "18px",
-                        color: "text.secondary",
-                        fontWeight: 400,
-                        fontFamily: "var(--font-sans)",
-                        lineHeight: "28px",
-                        letterSpacing: 0,
-                      }}
-                    >
-                      {item}
-                    </Box>
                   ))}
                 </Box>
               )}
-              <Typography
-                sx={{
-                  fontSize: "18px",
-                  color: "text.secondary",
-                  fontWeight: 400,
-                  fontFamily: "var(--font-sans)",
-                  lineHeight: "28px",
-                  letterSpacing: 0,
-                }}
-              >
-                {t(`${sectionId}Footer`)}
-              </Typography>
+
+              {Array.isArray(items) && items.length > 0 && (
+                <Box component="ul" sx={{ pl: "26px", my: 0 }}>
+                  {items.map((item, itemIndex) => (
+                    <Body
+                      component="li"
+                      key={itemIndex}
+                      sx={{ listStyle: "disc", display: "list-item" }}
+                    >
+                      {item}
+                    </Body>
+                  ))}
+                </Box>
+              )}
+
+              <Body>{t(`${sectionId}Footer`)}</Body>
             </Box>
           );
         })}

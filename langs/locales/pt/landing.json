@@ -633,5 +633,27 @@
       "customerVatId": "NIF do cliente:"
     },
     "receiptSentTo": "Recibo enviado para"
+  },
+  "seo": {
+    "home": "Início",
+    "industries": "Setores",
+    "countries": "Países",
+    "whyDynopayBadge": "Porquê a Dynopay",
+    "whyDynopayTitle": "Tudo o que precisa para receber em cripto",
+    "whyDynopayHighlight": "receber em cripto",
+    "whyDynopaySubtitle": "Sem custódia por design. Você guarda a carteira, nós tratamos do checkout.",
+    "howItWorksBadge": "Como funciona",
+    "howItWorksTitle": "Ativo em menos de 10 minutos",
+    "howItWorksHighlight": "menos de 10 minutos",
+    "howItWorksSubtitle": "Sem engenheiros. Se sabe copiar e colar um endereço de carteira, sabe aceitar cripto.",
+    "faqBadge": "FAQ",
+    "faqTitle": "Perguntas frequentes",
+    "faqHighlight": "frequentes",
+    "faqSubtitle": "Tudo o que as pessoas perguntam antes de se inscrever.",
+    "exploreMoreBadge": "Explorar mais",
+    "exploreMoreTitle": "Mais formas de receber em cripto",
+    "exploreMoreSubtitle": "Veja como vendedores, criadores e organizadores de campanhas usam a Dynopay para receber em cripto.",
+    "relatedCountry": "Aceitar cripto em {{name}}",
+    "relatedVertical": "Pagamentos em cripto para {{name}}"
   }
 }

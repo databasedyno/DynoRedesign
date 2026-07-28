@@ -21,6 +21,10 @@ import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
 import ErrorIcon from "@mui/icons-material/Error";
 import SearchIcon from "@mui/icons-material/Search";
 import useIsMobile from "@/hooks/useIsMobile";
+import {
+  Body,
+  HeadlineL,
+} from "@/Components/Page/Home/v3/styled.v3";
 
 /* ==================== TYPES ==================== */
 type StepStatus = "pending" | "pass" | "fail";
@@ -1580,23 +1584,18 @@ const QAPage = () => {
       </Head>
       <PageWrapper>
         <Container>
-          {/* Header */}
+          {/* Header — v3 typography sweep */}
           <Box sx={{ textAlign: "center", mb: 5 }}>
-            <Typography
+            <HeadlineL
               component="h1"
-              sx={{
-                fontSize: isMobile ? 28 : 42,
-                fontFamily: "OutfitSemibold",
-                color: "text.primary",
-                mb: 1,
-              }}
+              sx={{ fontSize: { xs: 28, md: 42 }, mb: 1 }}
             >
               DynoPay QA Test Plan
-            </Typography>
-            <Typography sx={{ color: "text.secondary", fontSize: 15, mb: 3, maxWidth: 640, mx: "auto" }}>
+            </HeadlineL>
+            <Body sx={{ maxWidth: 640, mx: "auto", mb: 3 }}>
               Comprehensive step-by-step functionality tests covering all features.
               Click the circle to toggle each step: ⚪ Pending → ✅ Pass → ❌ Fail. Progress is saved in your browser.
-            </Typography>
+            </Body>
 
             {/* Progress bar */}
             <Box

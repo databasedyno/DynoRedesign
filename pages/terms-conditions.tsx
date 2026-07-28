@@ -1,7 +1,12 @@
 import useIsMobile from "@/hooks/useIsMobile";
-import { Box, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 import React from "react";
 import { useTranslation } from "react-i18next";
+import {
+  Body,
+  HeadlineS,
+  HeadlineXL,
+} from "@/Components/Page/Home/v3/styled.v3";
 
 const SECTION_IDS = Array.from({ length: 18 }, (_, i) => `section${i + 1}`);
 
@@ -15,28 +20,14 @@ const TermsConditions = () => {
         width: isMobile ? "100%" : 768,
         px: isMobile ? "15px" : 0,
         mx: "auto",
-        fontFamily: "var(--font-sans)",
         mb: isMobile ? "52px" : "93px",
         pt: isMobile ? "100px" : "128px",
       }}
     >
-
-      {/* SECTION TITLE */}
-      <Typography
-        component="h1"
-        sx={{
-          fontSize: isMobile ? "45px" : "60px",
-          color: "text.primary",
-          fontWeight: isMobile ? 600 : 500,
-          textAlign: "center",
-          fontFamily: "var(--font-sans)",
-          mb: "15px",
-          lineHeight: "60px",
-          letterSpacing: 0,
-        }}
-      >
+      {/* PAGE TITLE — v3 HeadlineXL */}
+      <HeadlineXL component="h1" sx={{ textAlign: "center", mb: 3 }}>
         {t("termsConditionsTitle")}
-      </Typography>
+      </HeadlineXL>
 
       {/* SECTION CONTENT */}
       <Box
@@ -54,89 +45,28 @@ const TermsConditions = () => {
           const bullets = t(`${sectionId}Bullets`, { returnObjects: true }) as string[];
 
           return (
-            <Box key={sectionId}>
-              {/* ITEM TITLE */}
-              <Typography
-                sx={{
-                  fontSize: "18px",
-                  color: "text.secondary",
-                  fontWeight: 600,
-                  fontFamily: "var(--font-sans)",
-                  lineHeight: "28px",
-                  letterSpacing: 0,
-                }}
-              >
-                {t(`${sectionId}Title`)}
-              </Typography>
+            <Box key={sectionId} sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+              {/* SECTION HEADING — v3 HeadlineS */}
+              <HeadlineS component="h2">{t(`${sectionId}Title`)}</HeadlineS>
 
-              {/* ITEM DESCRIPTION 1 */}
-              {desc1 && (
-                <Typography
-                  sx={{
-                    fontSize: "18px",
-                    color: "text.secondary",
-                    fontFamily: "var(--font-sans)",
-                    lineHeight: "28px",
-                    letterSpacing: 0,
-                  }}
-                >
-                  {desc1}
-                </Typography>
-              )}
+              {desc1 && <Body>{desc1}</Body>}
+              {desc2 && <Body>{desc2}</Body>}
 
-              {/* ITEM DESCRIPTION 2 */}
-              {desc2 && (
-                <Typography
-                  sx={{
-                    fontSize: "18px",
-                    color: "text.secondary",
-                    fontFamily: "var(--font-sans)",
-                    lineHeight: "28px",
-                    letterSpacing: 0,
-                  }}
-                >
-                  {desc2}
-                </Typography>
-              )}
-
-              {/* ITEM BULLET POINTS */}
               {Array.isArray(bullets) && bullets.length > 0 && (
-                <Box component="ul" sx={{ pl: "26px", my: "5px" }}>
+                <Box component="ul" sx={{ pl: "26px", my: 0 }}>
                   {bullets.map((point, pointIndex) => (
-                    <Box
+                    <Body
                       component="li"
                       key={pointIndex}
-                      sx={{
-                        listStyle: "disc",
-                        fontSize: "18px",
-                        color: "text.secondary",
-                        fontWeight: 400,
-                        fontFamily: "var(--font-sans)",
-                        lineHeight: "28px",
-                        letterSpacing: 0,
-                      }}
+                      sx={{ listStyle: "disc", display: "list-item" }}
                     >
                       {point}
-                    </Box>
+                    </Body>
                   ))}
                 </Box>
               )}
 
-              {/* ITEM FOOTER */}
-              {footer && (
-                <Typography
-                  sx={{
-                    fontSize: "18px",
-                    color: "text.secondary",
-                    fontWeight: 400,
-                    fontFamily: "var(--font-sans)",
-                    lineHeight: "28px",
-                    letterSpacing: 0,
-                  }}
-                >
-                  {footer}
-                </Typography>
-              )}
+              {footer && <Body>{footer}</Body>}
             </Box>
           );
         })}

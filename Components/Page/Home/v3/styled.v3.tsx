@@ -64,6 +64,17 @@ export const HeadlineL = styled(Typography)(({ theme }) => ({
   },
 }));
 
+// Sub-section headline — 24-28px. Used for policy page section titles,
+// blog post subheadings, QA category labels. Theme-aware.
+export const HeadlineS = styled(Typography)(({ theme }) => ({
+  fontFamily: FONT_HERO,
+  fontWeight: 700,
+  fontSize: "clamp(20px, 2vw, 24px)",
+  lineHeight: 1.2,
+  letterSpacing: "-0.015em",
+  color: theme.palette.text.primary,
+}));
+
 // Body copy in landing. Theme-aware secondary text.
 export const Body = styled(Typography)(({ theme }) => ({
   fontFamily: FONT_BODY,

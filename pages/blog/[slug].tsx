@@ -8,6 +8,11 @@ import useIsMobile from "@/hooks/useIsMobile";
 import type { GetStaticPaths, GetStaticProps } from "next";
 import { sanitizeHtml } from "@/utils/sanitizeHtml";
 import { useTranslation } from 'react-i18next';
+import {
+  Body,
+  HeadlineL,
+  HeadlineS,
+} from "@/Components/Page/Home/v3/styled.v3";
 
 const categoryColors: Record<string, string> = {
   "Integration Guide": "#5865F2",
@@ -279,39 +284,25 @@ const BlogPostPage = ({ slug }: BlogPostPageProps) => {
       // Headers
       if (line.startsWith("## ")) {
         elements.push(
-          <Typography
+          <HeadlineS
             key={`h2-${i}`}
-            sx={{
-              fontSize: isMobile ? "22px" : "28px",
-              fontFamily: "var(--font-hero), var(--font-sans)",
-              fontWeight: 700,
-              color: theme.palette.text.primary,
-              mt: 5,
-              mb: 2,
-              lineHeight: 1.3,
-            }}
+            component="h2"
+            sx={{ mt: 5, mb: 2, fontSize: { xs: 22, md: 28 } }}
           >
             {line.replace("## ", "")}
-          </Typography>
+          </HeadlineS>
         );
         continue;
       }
       if (line.startsWith("### ")) {
         elements.push(
-          <Typography
+          <HeadlineS
             key={`h3-${i}`}
-            sx={{
-              fontSize: isMobile ? "18px" : "22px",
-              fontFamily: "var(--font-hero), var(--font-sans)",
-              fontWeight: 600,
-              color: theme.palette.text.primary,
-              mt: 4,
-              mb: 1.5,
-              lineHeight: 1.3,
-            }}
+            component="h3"
+            sx={{ mt: 4, mb: 1.5, fontSize: { xs: 18, md: 22 }, fontWeight: 600 }}
           >
             {line.replace("### ", "")}
-          </Typography>
+          </HeadlineS>
         );
         continue;
       }
@@ -500,19 +491,17 @@ const BlogPostPage = ({ slug }: BlogPostPageProps) => {
           </Typography>
         </Box>
 
-        {/* Title */}
-        <Typography
+        {/* Title — v3 HeadlineL */}
+        <HeadlineL
+          component="h1"
           sx={{
-            fontSize: isMobile ? "28px" : "42px",
-            fontFamily: "var(--font-hero), var(--font-sans)",
-            fontWeight: 700,
-            color: theme.palette.text.primary,
+            fontSize: { xs: 28, md: 42 },
             lineHeight: 1.2,
             mb: 2,
           }}
         >
           {post.title}
-        </Typography>
+        </HeadlineL>
 
         {/* Author */}
         <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 4 }}>
@@ -582,20 +571,15 @@ const BlogPostPage = ({ slug }: BlogPostPageProps) => {
             bgcolor: isDark ? "rgba(255,255,255,0.045)" : "rgba(255,255,255,0.72)",
             backdropFilter: "blur(14px)",
             WebkitBackdropFilter: "blur(14px)",
-            border: `1px solid ${isDark ? "rgba(204,255,0,0.20)" : "rgba(10,10,10,0.10)"}`,
+            border: `1px solid ${isDark ? "rgba(129,140,248,0.20)" : "rgba(79,70,229,0.15)"}`,
           }}
         >
-          <Typography
-            sx={{
-              fontSize: isMobile ? "20px" : "24px",
-              fontFamily: "var(--font-hero), var(--font-sans)",
-              fontWeight: 700,
-              color: theme.palette.text.primary,
-              mb: 1.5,
-            }}
+          <HeadlineS
+            component="h2"
+            sx={{ fontSize: { xs: 20, md: 24 }, mb: 1.5 }}
           >
             {t('blogReadyCta')}
-          </Typography>
+          </HeadlineS>
           <Typography
             sx={{
               fontSize: "15px",
@@ -623,7 +607,7 @@ const BlogPostPage = ({ slug }: BlogPostPageProps) => {
               transition: "all 0.2s ease",
               "&:hover": {
                 transform: "translateY(-2px)",
-                boxShadow: isDark ? "0 8px 24px rgba(204,255,0,0.3)" : "0 8px 24px rgba(10,10,10,0.2)",
+                boxShadow: isDark ? "0 8px 24px rgba(129,140,248,0.3)" : "0 8px 24px rgba(79,70,229,0.25)",
               },
             }}
           >

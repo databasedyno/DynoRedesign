@@ -633,5 +633,27 @@
       "customerVatId": "BTW-nummer klant:"
     },
     "receiptSentTo": "Bon verzonden naar"
+  },
+  "seo": {
+    "home": "Home",
+    "industries": "Sectoren",
+    "countries": "Landen",
+    "whyDynopayBadge": "Waarom Dynopay",
+    "whyDynopayTitle": "Alles wat je nodig hebt om in crypto betaald te worden",
+    "whyDynopayHighlight": "in crypto betaald te worden",
+    "whyDynopaySubtitle": "Non-custodial by design. Jij bewaart de wallet, wij verzorgen de checkout.",
+    "howItWorksBadge": "Zo werkt het",
+    "howItWorksTitle": "Live binnen 10 minuten",
+    "howItWorksHighlight": "binnen 10 minuten",
+    "howItWorksSubtitle": "Geen ontwikkelaars nodig. Als je een wallet-adres kunt kopiëren, kun je crypto accepteren.",
+    "faqBadge": "FAQ",
+    "faqTitle": "Veelgestelde vragen",
+    "faqHighlight": "vragen",
+    "faqSubtitle": "Alles wat mensen vragen voordat ze zich aanmelden.",
+    "exploreMoreBadge": "Meer ontdekken",
+    "exploreMoreTitle": "Meer manieren om in crypto betaald te worden",
+    "exploreMoreSubtitle": "Bekijk hoe verkopers, creators en fundraisers Dynopay gebruiken om in crypto betaald te worden.",
+    "relatedCountry": "Accepteer crypto in {{name}}",
+    "relatedVertical": "Cryptobetalingen voor {{name}}"
   }
 }

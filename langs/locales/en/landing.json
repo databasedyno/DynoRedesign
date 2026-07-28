@@ -633,5 +633,27 @@
       "customerVatId": "Customer VAT ID:"
     },
     "receiptSentTo": "Receipt sent to"
+  },
+  "seo": {
+    "home": "Home",
+    "industries": "Industries",
+    "countries": "Countries",
+    "whyDynopayBadge": "Why Dynopay",
+    "whyDynopayTitle": "Everything you need to get paid in crypto",
+    "whyDynopayHighlight": "get paid in crypto",
+    "whyDynopaySubtitle": "Non-custodial by design. You keep the wallet, we handle the checkout.",
+    "howItWorksBadge": "How it works",
+    "howItWorksTitle": "Live in under 10 minutes",
+    "howItWorksHighlight": "under 10 minutes",
+    "howItWorksSubtitle": "No engineers required. If you can copy-paste a wallet address, you can accept crypto.",
+    "faqBadge": "FAQ",
+    "faqTitle": "Frequently asked questions",
+    "faqHighlight": "asked questions",
+    "faqSubtitle": "Everything people ask before signing up.",
+    "exploreMoreBadge": "Explore more",
+    "exploreMoreTitle": "More ways to get paid in crypto",
+    "exploreMoreSubtitle": "See how sellers, creators, and fundraisers use Dynopay to get paid in crypto.",
+    "relatedCountry": "Accept crypto in {{name}}",
+    "relatedVertical": "Crypto payments for {{name}}"
   }
 }

@@ -633,5 +633,27 @@
       "customerVatId": "N° TVA du client :"
     },
     "receiptSentTo": "Reçu envoyé à"
+  },
+  "seo": {
+    "home": "Accueil",
+    "industries": "Secteurs",
+    "countries": "Pays",
+    "whyDynopayBadge": "Pourquoi Dynopay",
+    "whyDynopayTitle": "Tout ce qu'il faut pour être payé en crypto",
+    "whyDynopayHighlight": "être payé en crypto",
+    "whyDynopaySubtitle": "Non-dépositaire par nature. Vous gardez le portefeuille, nous gérons le paiement.",
+    "howItWorksBadge": "Comment ça marche",
+    "howItWorksTitle": "Opérationnel en moins de 10 minutes",
+    "howItWorksHighlight": "moins de 10 minutes",
+    "howItWorksSubtitle": "Aucun développeur requis. Si vous savez copier-coller une adresse de portefeuille, vous pouvez accepter la crypto.",
+    "faqBadge": "FAQ",
+    "faqTitle": "Questions fréquentes",
+    "faqHighlight": "fréquentes",
+    "faqSubtitle": "Tout ce que les gens demandent avant de s'inscrire.",
+    "exploreMoreBadge": "Explorer plus",
+    "exploreMoreTitle": "D'autres façons d'être payé en crypto",
+    "exploreMoreSubtitle": "Voyez comment vendeurs, créateurs et porteurs de campagne utilisent Dynopay pour être payés en crypto.",
+    "relatedCountry": "Accepter la crypto en {{name}}",
+    "relatedVertical": "Paiements en crypto pour {{name}}"
   }
 }

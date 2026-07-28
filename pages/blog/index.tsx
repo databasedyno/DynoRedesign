@@ -5,6 +5,13 @@ import Head from "next/head";
 import { blogPosts } from "@/utils/blogData";
 import useIsMobile from "@/hooks/useIsMobile";
 import { useTranslation } from 'react-i18next';
+import {
+  AuroraInk,
+  Body,
+  Eyebrow,
+  HeadlineL,
+  SectionShell,
+} from "@/Components/Page/Home/v3/styled.v3";
 // HomeHeader is rendered by HomeLayout in _app.tsx
 
 const categoryColors: Record<string, string> = {
@@ -40,71 +47,23 @@ const BlogPage = () => {
 
       {/* HomeHeader is rendered by HomeLayout */}
 
-      <Box
+      <SectionShell
         sx={{
           pt: isMobile ? 12 : 16,
           pb: isMobile ? 6 : 10,
           px: isMobile ? 2 : 4,
-          maxWidth: 1280,
-          mx: "auto",
           minHeight: "100vh",
         }}
       >
-        {/* Header */}
+        {/* Header — v3 typography sweep */}
         <Box sx={{ textAlign: "center", mb: isMobile ? 5 : 8 }}>
-          <Box
-            sx={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 1,
-              px: 2,
-              py: 0.75,
-              borderRadius: "20px",
-              bgcolor: `${theme.palette.primary.main}0A`,
-              border: `1px solid ${theme.palette.primary.main}18`,
-              mb: 2,
-            }}
-          >
-            <Typography
-              sx={{
-                fontSize: "12px",
-                fontFamily: "var(--font-hero), var(--font-sans)",
-                fontWeight: 600,
-                color: theme.palette.primary.main,
-                textTransform: "uppercase",
-                letterSpacing: "1.5px",
-              }}
-            >
-              Blog
-            </Typography>
-          </Box>
-          <Typography
-            sx={{
-              fontSize: isMobile ? "32px" : "48px",
-              fontFamily: "var(--font-hero), var(--font-sans)",
-              fontWeight: 700,
-              color: theme.palette.text.primary,
-              lineHeight: 1.15,
-              mb: 2,
-            }}
-          >
-            Crypto Payment{" "}
-            <Box component="span" sx={{ color: theme.palette.primary.main }}>
-              Insights
-            </Box>
-          </Typography>
-          <Typography
-            sx={{
-              fontSize: isMobile ? "15px" : "18px",
-              fontFamily: "var(--font-sans)",
-              color: theme.palette.text.secondary,
-              maxWidth: 600,
-              mx: "auto",
-              lineHeight: 1.6,
-            }}
-          >
+          <Eyebrow sx={{ mb: 2, display: "inline-block" }}>Blog</Eyebrow>
+          <HeadlineL sx={{ mb: 2 }}>
+            Crypto Payment <AuroraInk>Insights</AuroraInk>
+          </HeadlineL>
+          <Body sx={{ maxWidth: 600, mx: "auto" }}>
             {t('blogSubtitle')}
-          </Typography>
+          </Body>
         </Box>
 
         {/* Blog grid */}
@@ -127,7 +86,7 @@ const BlogPage = () => {
                     transition: "all 0.3s ease",
                     "&:hover": {
                       transform: "translateY(-4px)",
-                      borderColor: isDark ? "rgba(204,255,0,0.30)" : "rgba(10,10,10,0.18)",
+                      borderColor: isDark ? "rgba(129,140,248,0.30)" : "rgba(79,70,229,0.18)",
                       boxShadow: isDark
                         ? "0 16px 48px rgba(0,0,0,0.4)"
                         : "0 16px 48px rgba(10,10,10,0.08)",
@@ -260,7 +219,7 @@ const BlogPage = () => {
             );
           })}
         </Grid>
-      </Box>
+      </SectionShell>
     </>
   );
 };
