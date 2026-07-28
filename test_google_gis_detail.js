@@ -5,7 +5,7 @@
 
 const { chromium } = require('playwright');
 
-const PREVIEW_URL = 'https://tokens-70.preview.emergentagent.com';
+const PREVIEW_URL = 'https://rapid-launch-hub.preview.emergentagent.com';
 
 async function testGISIntegration() {
   console.log('='.repeat(80));
