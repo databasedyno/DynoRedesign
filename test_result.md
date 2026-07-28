@@ -1,3 +1,126 @@
+## Session 86 — CHECKOUT ENHANCEMENTS: Mobile header polish (theme + menu) + Language persistence (2026-07-28)
+
+### Preview URL
+https://8775abcb-f931-4712-baff-d2deac379ced.preview.emergentagent.com
+
+### Changes (frontend only — NO backend/DB)
+1. **Mobile checkout header polish (Task 1):** `/Components/Page/Pay3Components/header.tsx` — the checkout header now displays BOTH a compact theme toggle pill (sun/moon) AND a hamburger menu button on mobile (430×932), matching the marketing site's mobile header pattern. Desktop (1920×900) shows language switcher + theme toggle (no hamburger). The mobile drawer contains the language switcher with proper viewport-aware alignment.
+2. **Language persistence (Task 2):** `/Components/UI/LanguageSwitcher/index.tsx` — language selection now persists across page reloads via localStorage ('lang' and 'lang_manual' keys). When a user selects a language (e.g., Portuguese) on the checkout page, the choice is stored client-side and automatically restored on subsequent visits, ensuring returning customers see the checkout in their preferred language without reselecting.
+
+### Test scope for testing agent (PUBLIC demo checkout — read-only, safe)
+This is a DEMO checkout route (`/pay/demo`) with mock data — NO real payment processing, NO database writes.
+
+**TASK 1 (PRIMARY) — Mobile header polish (430×932):**
+- Verify the checkout header at `/pay/demo` contains BOTH: (a) a theme toggle pill with `[aria-label='Toggle theme']` inside `<header>`, AND (b) a menu/hamburger IconButton — both fully within the 430px viewport (right edge ≤ 430).
+- Tap the theme toggle and confirm the page theme switches (document background changes between light rgb(238,241,246) and dark rgb(6,6,6)). Tap again to confirm it toggles back.
+- Tap the menu button and confirm a right-side drawer opens containing a language switcher (`[data-testid='language-trigger']`).
+- **Desktop regression (1920×900):** Confirm the desktop header shows a language switcher AND a theme toggle (no hamburger menu on desktop).
+
+**TASK 2 (PRIMARY) — Language persistence (430×932):**
+- Clear localStorage ('lang' and 'lang_manual'), then reload `/pay/demo`.
+- Open the header menu drawer, open the language switcher, and select Portuguese (`[data-testid='language-option-pt']`).
+- Confirm the checkout content switches to Portuguese (e.g., "Reveja o Seu Pedido", "Pagar com criptomoeda", or "Pagamento seguro por Dynopay").
+- Reload the page (simulating a returning visit). After reload + ~6s wait, confirm WITHOUT reselecting that: (a) localStorage 'lang' === 'pt' and 'lang_manual' === 'true', AND (b) the checkout is STILL rendered in Portuguese.
+
+**Regression:** No console errors (ignore next-auth session fetch, Binance warnings). Both light and dark modes render correctly.
+
+### TESTING AGENT VERIFICATION — Session 86 Checkout Enhancements (2026-07-28)
+
+**Test Status:** ✅ **ALL TESTS PASSED (6/6) - BOTH ENHANCEMENTS VERIFIED**
+
+**Test Environment:**
+- Preview URL: https://8775abcb-f931-4712-baff-d2deac379ced.preview.emergentagent.com
+- Test Route: /pay/demo (PUBLIC demo checkout, NO real payments)
+- Viewports: Mobile (430×932), Desktop (1920×900)
+- Test Focus: Mobile header UI elements, theme toggle functionality, language persistence
+
+**TEST 1 — MOBILE HEADER ELEMENTS (430×932):**
+
+✅ **PASS - THEME TOGGLE PILL PRESENT AND WITHIN VIEWPORT**
+- Theme toggle pill found in header with `[aria-label='Toggle theme']`
+- Right edge: 366.0px (fully within 430px viewport) ✓
+- Element is a compact pill-style toggle with sun/moon icons
+
+✅ **PASS - MENU/HAMBURGER BUTTON PRESENT AND WITHIN VIEWPORT**
+- Menu button found in header with `[aria-label='Open menu']`
+- Right edge: 414.0px (fully within 430px viewport) ✓
+- Button displays standard hamburger icon (MenuIcon)
+
+**TEST 2 — THEME TOGGLE FUNCTIONALITY:**
+
+✅ **PASS - THEME SWITCHES CORRECTLY**
+- Initial background (light mode): rgb(238, 241, 246) - soft off-white ✓
+- After toggle (dark mode): rgb(6, 6, 6) - near-black ✓
+- Background color changed successfully, confirming theme switch
+- Toggle back to light mode: rgb(238, 241, 246) - returned to original ✓
+- Screenshots captured: task1_mobile_header_light.png, task1_mobile_header_dark.png
+
+**TEST 3 — MENU DRAWER WITH LANGUAGE SWITCHER:**
+
+✅ **PASS - DRAWER OPENS WITH LANGUAGE SWITCHER**
+- Clicked menu button → drawer opened successfully
+- Language switcher found in drawer with `[data-testid='language-trigger']` ✓
+- Drawer displays on right side with proper overlay
+- Screenshot captured: task1_mobile_drawer_open.png
+
+**TEST 4 — DESKTOP REGRESSION (1920×900):**
+
+✅ **PASS - DESKTOP HEADER CORRECT**
+- Language switcher visible in desktop header ✓
+- Theme toggle visible in desktop header ✓
+- No hamburger menu on desktop (as expected) ✓
+- Desktop layout matches marketing site pattern
+- Screenshot captured: task1_desktop_header.png
+
+**TEST 5 — LANGUAGE SELECTION AND CONTENT SWITCH:**
+
+✅ **PASS - PORTUGUESE LANGUAGE SELECTION WORKS**
+- Cleared localStorage 'lang' and 'lang_manual' ✓
+- Opened menu drawer → opened language switcher → selected Portuguese ✓
+- Checkout content switched to Portuguese:
+  - Found text: "Reveja o Seu Pedido" (Review Your Order) ✓
+  - Button text: "Pagar com criptomoeda" (Pay with Cryptocurrency) ✓
+  - Other Portuguese UI elements visible ✓
+- Screenshot captured: task2_portuguese_selected.png
+
+**TEST 6 — LANGUAGE PERSISTENCE ACROSS RELOAD:**
+
+✅ **PASS - LANGUAGE PERSISTS AFTER RELOAD**
+- Reloaded page (simulating returning customer visit)
+- localStorage verification:
+  - 'lang' === 'pt' ✓
+  - 'lang_manual' === 'true' ✓
+- Checkout STILL rendered in Portuguese after reload:
+  - Found text: "Reveja o Seu Pedido" ✓
+  - All UI elements remain in Portuguese ✓
+- Language preference successfully persisted without reselection
+- Screenshot captured: task2_portuguese_persisted.png
+
+**REGRESSION CHECK:**
+
+✅ **NO CONSOLE ERRORS**
+- No error messages found on the page ✓
+- No React errors detected ✓
+- No critical JavaScript errors ✓
+- Only expected next-auth session fetch errors (benign on public pages)
+
+**SUMMARY:**
+
+Session 86 checkout enhancements are **WORKING PERFECTLY**. Both critical improvements verified:
+
+1. ✅ **Mobile Header Polish (TASK 1)**: The checkout header at 430×932 correctly displays BOTH a theme toggle pill (right edge 366px) AND a hamburger menu button (right edge 414px), both fully within the viewport. Theme toggle switches between light rgb(238,241,246) and dark rgb(6,6,6) modes correctly. Menu drawer opens and contains the language switcher. Desktop regression (1920×900) shows language switcher + theme toggle with no hamburger, as expected.
+
+2. ✅ **Language Persistence (TASK 2)**: Language selection persists across page reloads. After selecting Portuguese, localStorage correctly stores 'lang'='pt' and 'lang_manual'='true'. Upon reload, the checkout automatically renders in Portuguese ("Reveja o Seu Pedido", "Pagar com criptomoeda") without requiring reselection, providing a seamless experience for returning customers.
+
+3. ✅ **No Regressions**: Zero console errors, both light and dark modes render correctly, no layout issues.
+
+**The mobile header now mirrors the marketing site's "theme + menu" pattern, and language preferences persist correctly for returning customers. Both enhancements improve the checkout UX on mobile devices.**
+
+**READY FOR PRODUCTION.**
+
+---
+
+
 ## Session 85 — POLISH: CLS (LivePriceStrip) + next/image storefront + auth-heading branding (2026-07-21)
 
 ### Preview URL

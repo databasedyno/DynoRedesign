@@ -30,6 +30,58 @@ const Header = ({
 
   const toggleDrawer = () => setDrawerOpen(!drawerOpen);
 
+  // Compact theme toggle used in BOTH the desktop bar and the mobile bar so the
+  // checkout header mirrors the marketing site's "theme + menu" mobile layout.
+  const compactThemeToggle = (
+    <Box
+      onClick={toggleDarkMode}
+      role='button'
+      aria-label='Toggle theme'
+      sx={{
+        width: 60,
+        height: 30,
+        backgroundColor: 'rgba(255,255,255,0.2)',
+        borderRadius: 999,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        px: '3px',
+        cursor: 'pointer',
+        transition: 'all 0.3s ease',
+        flexShrink: 0,
+      }}
+    >
+      <Box
+        sx={{
+          width: 24,
+          height: 24,
+          backgroundColor: !darkMode ? '#fff' : 'transparent',
+          borderRadius: '50%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          transition: 'all 0.3s ease',
+        }}
+      >
+        <WbSunnyIcon sx={{ fontSize: 14, color: !darkMode ? '#0A0A0A' : 'rgba(255,255,255,0.5)' }} />
+      </Box>
+      <Box
+        sx={{
+          width: 24,
+          height: 24,
+          backgroundColor: darkMode ? '#fff' : 'transparent',
+          borderRadius: '50%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          transition: 'all 0.3s ease',
+        }}
+      >
+        <BedtimeIcon sx={{ fontSize: 14, color: darkMode ? '#0A0A0A' : 'rgba(255,255,255,0.5)' }} />
+      </Box>
+    </Box>
+  );
+
   return (
     <>
       <AppBar
@@ -57,59 +109,20 @@ const Header = ({
 
           {/* Right */}
           {isMobile ? (
-            <IconButton onClick={toggleDrawer} sx={{ color: 'white' }}>
-              <MenuIcon />
-            </IconButton>
+            <Stack direction='row' spacing={1} alignItems='center'>
+              {/* Clean mobile header: theme + menu only (matches marketing site) */}
+              {compactThemeToggle}
+              <IconButton onClick={toggleDrawer} sx={{ color: 'white', p: 1 }} aria-label='Open menu'>
+                <MenuIcon />
+              </IconButton>
+            </Stack>
           ) : (
             <Stack direction='row' spacing={2} alignItems='center'>
               {/* Language Switcher with flag icons */}
               <LanguageSwitcher />
 
               {/* Theme Toggle — compact */}
-              <Box
-                onClick={toggleDarkMode}
-                sx={{
-                  width: 60,
-                  height: 30,
-                  backgroundColor: 'rgba(255,255,255,0.2)',
-                  borderRadius: 999,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  px: '3px',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease',
-                }}
-              >
-                <Box
-                  sx={{
-                    width: 24,
-                    height: 24,
-                    backgroundColor: !darkMode ? '#fff' : 'transparent',
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    transition: 'all 0.3s ease',
-                  }}
-                >
-                  <WbSunnyIcon sx={{ fontSize: 14, color: !darkMode ? '#0A0A0A' : 'rgba(255,255,255,0.5)' }} />
-                </Box>
-                <Box
-                  sx={{
-                    width: 24,
-                    height: 24,
-                    backgroundColor: darkMode ? '#fff' : 'transparent',
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    transition: 'all 0.3s ease',
-                  }}
-                >
-                  <BedtimeIcon sx={{ fontSize: 14, color: darkMode ? '#0A0A0A' : 'rgba(255,255,255,0.5)' }} />
-                </Box>
-              </Box>
+              {compactThemeToggle}
             </Stack>
           )}
         </Toolbar>
