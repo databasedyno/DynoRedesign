@@ -1,11 +1,13 @@
 import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Box, Button, CircularProgress, Typography, useTheme } from '@mui/material'
 import { Icon } from '@iconify/react'
 import { formatWithSeparators, getCurrencySymbolFromFormat } from '@/utils/currencyFormat'
 import InlineTipCheckout from './InlineTipCheckout'
 
 const MONO = 'ui-monospace, "Roboto Mono", "JetBrains Mono", SFMono-Regular, Menlo, monospace'
-const LIME = '#CCFF00'
+// Aurora indigo — Landing v3 canonical accent (Session 82 migration).
+const LIME = '#4F46E5'
 const INK = '#0A0A0B'
 
 export interface SupportWidgetData {
@@ -39,10 +41,11 @@ const SupportWidget = ({
   widget: SupportWidgetData
   siteUrl?: string
 }) => {
+  const { t } = useTranslation('landing')
   const theme = useTheme()
   const isDark = theme.palette.mode === 'dark'
   const border = theme.palette.divider
-  const limeTint = isDark ? 'rgba(204,255,0,0.10)' : 'rgba(204,255,0,0.16)'
+  const limeTint = isDark ? 'rgba(79,70,229,0.10)' : 'rgba(79,70,229,0.16)'
   const surface = isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)'
 
   const meta = STYLE_META[widget.style] || STYLE_META.coffee
@@ -301,7 +304,7 @@ const SupportWidget = ({
           value={name}
           disabled={anon}
           onChange={(e) => setName(e.target.value)}
-          placeholder="Your name (optional)"
+          placeholder={t("creator.support.namePlaceholder")}
           style={{ ...fieldStyle, opacity: anon ? 0.5 : 1 }}
         />
       </Box>
@@ -351,7 +354,7 @@ const SupportWidget = ({
           {anon && <Icon icon="mdi:check" width={15} color={INK} />}
         </Box>
         <Typography fontSize={13} color={theme.palette.text.secondary}>
-          Make my support anonymous
+          {t('creator.support.anonymous')}
         </Typography>
       </Box>
 
@@ -390,7 +393,7 @@ const SupportWidget = ({
       </Button>
 
       <Typography fontSize={11} color={theme.palette.text.secondary} textAlign="center" mt={1}>
-        Secure crypto checkout · no account needed
+        {t("creator.support.trustLine")}
       </Typography>
       </>
       )}

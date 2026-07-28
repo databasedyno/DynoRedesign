@@ -540,5 +540,50 @@
     "footer": {
       "systemsOperational": "Alle systemen operationeel"
     }
+  },
+  "checkout": {
+    "expired": {
+      "title": "Betaalvenster verlopen",
+      "body": "Er is niet op tijd een betaling ontvangen. Er is niets afgeschreven.",
+      "startNew": "Nieuwe betaling starten"
+    },
+    "sendWarning": {
+      "line": "Verzenden van een ander asset dan"
+    },
+    "memoRequired": {
+      "label": "DESTINATION TAG / MEMO (VERPLICHT)"
+    },
+    "refund": {
+      "label": "Voorkeurs-terugbetaalmethode (optioneel)",
+      "help": "Als je het verkeerde asset stuurt of het verkeerde netwerk gebruikt, proberen we terug te betalen naar dit adres (minus netwerkkosten)."
+    },
+    "qrAlt": "QR-code voor betaling",
+    "bank": {
+      "companyName": "Dynopay Payments Ltd."
+    }
+  },
+  "creator": {
+    "card": {
+      "supportCampaign": "Steun deze campagne",
+      "emptyTitle": "Hier staat nog niets",
+      "exploreLink": "Ontdek Dynopay-creators →"
+    },
+    "inline": {
+      "preferFullPage": "Liever de volledige pagina? →",
+      "somethingWrong": "Er ging iets mis",
+      "includeMemo": "Voeg memo/tag toe:",
+      "waitingPayment": "Wacht op betaling · ververst automatisch elke 10s",
+      "partialReceived": "Gedeeltelijke betaling ontvangen",
+      "monitoringRemainder": "Bewaakt het restant…"
+    },
+    "support": {
+      "anonymous": "Maak mijn steun anoniem",
+      "trustLine": "Veilige crypto-checkout · geen account nodig",
+      "namePlaceholder": "Jouw naam (optioneel)"
+    },
+    "qr": {
+      "claimFirst": "Claim eerst een handle om je QR-code te genereren.",
+      "printHint": "Print hem, zet hem op je kanaalbanner of plak hem op stickers. Elke camera scant hem direct naar je tip-pagina."
+    }
   }
 }

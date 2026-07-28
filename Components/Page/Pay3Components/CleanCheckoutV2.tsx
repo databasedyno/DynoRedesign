@@ -39,6 +39,7 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
+import { useTranslation } from 'react-i18next'
 import {
   Alert,
   Box,
@@ -56,7 +57,9 @@ import { formatWithSeparators, getCurrencySymbolFromFormat } from '@/utils/curre
 
 // ─── Design tokens (Stripe-adjacent monochrome + lime accent) ────────────
 const MONO = 'ui-monospace, "Roboto Mono", "JetBrains Mono", SFMono-Regular, Menlo, monospace'
-const LIME = '#CCFF00'
+// Aurora indigo — Landing v3 canonical accent (Session 82 migration).
+// Constant name stays "LIME" for minimal-diff safety; only the value changed.
+const LIME = '#4F46E5'
 const INK = '#0A0A0B'
 
 /** Payload we hold in local state after `/pay/getData` resolves. */
@@ -204,6 +207,7 @@ interface CleanCheckoutV2Props {
 
 const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
   const theme = useTheme()
+  const { t } = useTranslation('landing')
   const isDark = theme.palette.mode === 'dark'
 
   // Design tokens resolved per-theme
@@ -644,7 +648,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
             p: 2,
             borderRadius: '12px',
             border: `1px solid ${border}`,
-            backgroundColor: isDark ? 'rgba(204,255,0,0.06)' : 'rgba(10,10,10,0.03)',
+            backgroundColor: isDark ? 'rgba(79,70,229,0.06)' : 'rgba(10,10,10,0.03)',
             display: 'flex',
             flexDirection: 'column',
             gap: 1.25,
@@ -691,10 +695,10 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
         <Box sx={{ p: 2.5, borderRadius: '10px', border: `1px solid ${border}`, backgroundColor: errBg, mb: 2 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <Icon icon="mdi:timer-off-outline" width={22} color={errFg} />
-            <Typography fontWeight={700} fontSize={15}>Payment window expired</Typography>
+            <Typography fontWeight={700} fontSize={15}>{t('checkout.expired.title')}</Typography>
           </Box>
           <Typography fontSize={13} color={muted} mt={0.5}>
-            No payment was received in time. Nothing was charged.
+            {t('checkout.expired.body')}
           </Typography>
         </Box>
         <Button
@@ -715,7 +719,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
             '&:hover': { backgroundColor: LIME, filter: 'brightness(1.05)' },
           }}
         >
-          Start a new payment
+          {t('checkout.expired.startNew')}
         </Button>
       </PanelShell>
     )
@@ -910,7 +914,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
         >
           <Icon icon="mdi:alert-outline" width={18} color={warnFg} style={{ flexShrink: 0, marginTop: 2 }} />
           <Typography sx={{ fontSize: 12.5, color: theme.palette.text.primary, lineHeight: 1.5 }}>
-            Sending any asset other than <strong>{cryptoInfo.crypto_base}</strong> or using any network other than <strong>{CRYPTO_INFO[cryptoInfo.crypto_display]?.networkLabel || cryptoInfo.network}</strong> will result in the permanent and irreversible loss of the funds.
+            {t('checkout.sendWarning.line')} <strong>{cryptoInfo.crypto_base}</strong> or using any network other than <strong>{CRYPTO_INFO[cryptoInfo.crypto_display]?.networkLabel || cryptoInfo.network}</strong> will result in the permanent and irreversible loss of the funds.
           </Typography>
         </Box>
       )}
@@ -990,7 +994,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
       {cryptoInfo?.memo && (
         <Box sx={{ mb: 2 }}>
           <Typography sx={{ fontSize: 11.5, fontWeight: 700, color: warnFg, mb: 0.5, letterSpacing: '0.02em' }}>
-            DESTINATION TAG / MEMO (REQUIRED)
+            {t('checkout.memoRequired.label')}
           </Typography>
           <Box
             sx={{
@@ -1032,11 +1036,11 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
             }}
           >
             <Icon icon={showRefundInput ? 'mdi:chevron-down' : 'mdi:chevron-right'} width={16} />
-            Preferred refund method (optional)
+            {t('checkout.refund.label')}
           </Box>
           <Collapse in={showRefundInput}>
             <Typography fontSize={12} color={muted} mt={1}>
-              If you send the wrong asset or use the wrong network, we&apos;ll try to refund to this address. Not all mistakes are recoverable.
+              {t('checkout.refund.help')}
             </Typography>
             <TextField
               fullWidth
@@ -1064,7 +1068,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
           <Box sx={{
             display: 'inline-flex', alignItems: 'center', gap: 0.5,
             px: 1, py: 0.5, borderRadius: '999px',
-            backgroundColor: isDark ? 'rgba(204,255,0,0.08)' : 'rgba(204,255,0,0.16)',
+            backgroundColor: isDark ? 'rgba(79,70,229,0.08)' : 'rgba(79,70,229,0.16)',
             border: `1px solid ${LIME}`,
           }}>
             <Box

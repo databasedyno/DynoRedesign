@@ -38,7 +38,7 @@ export default function RewardTierShelf({
 }: Props) {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
-  const accent = "#CCFF00";
+  const accent = "#4F46E5";
   const onAccent = "#0A0A0B";
   const border = theme.palette.divider;
   const scrollerRef = useRef<HTMLDivElement | null>(null);
@@ -145,8 +145,8 @@ export default function RewardTierShelf({
                 backgroundColor: isDark ? "rgba(255,255,255,0.02)" : "background.paper",
                 boxShadow: isPopular
                   ? isDark
-                    ? "0 8px 24px rgba(204,255,0,0.10)"
-                    : "0 8px 24px rgba(204,255,0,0.20)"
+                    ? "0 8px 24px rgba(79,70,229,0.10)"
+                    : "0 8px 24px rgba(79,70,229,0.20)"
                   : "none",
                 scrollSnapAlign: "start",
                 transition: "transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s",
@@ -218,7 +218,7 @@ export default function RewardTierShelf({
                       width: 56,
                       height: 56,
                       borderRadius: "50%",
-                      bgcolor: isDark ? "rgba(204,255,0,0.15)" : "rgba(204,255,0,0.22)",
+                      bgcolor: isDark ? "rgba(79,70,229,0.15)" : "rgba(79,70,229,0.22)",
                     }}
                   >
                     <Icon icon="mdi:gift-outline" width={32} color={accent} />

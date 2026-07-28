@@ -540,5 +540,50 @@
     "footer": {
       "systemsOperational": "Alle Systeme betriebsbereit"
     }
+  },
+  "checkout": {
+    "expired": {
+      "title": "Zahlungsfenster abgelaufen",
+      "body": "Es ist keine Zahlung rechtzeitig eingegangen. Es wurde nichts abgebucht.",
+      "startNew": "Neue Zahlung starten"
+    },
+    "sendWarning": {
+      "line": "Wenn du einen anderen Vermögenswert sendest als"
+    },
+    "memoRequired": {
+      "label": "DESTINATION TAG / MEMO (ERFORDERLICH)"
+    },
+    "refund": {
+      "label": "Bevorzugte Rückerstattungsmethode (optional)",
+      "help": "Wenn du den falschen Vermögenswert oder das falsche Netzwerk verwendest, versuchen wir, an diese Adresse zurückzuerstatten (abzüglich Netzwerkgebühren)."
+    },
+    "qrAlt": "Zahlungs-QR-Code",
+    "bank": {
+      "companyName": "Dynopay Payments Ltd."
+    }
+  },
+  "creator": {
+    "card": {
+      "supportCampaign": "Diese Kampagne unterstützen",
+      "emptyTitle": "Hier ist noch nichts",
+      "exploreLink": "Dynopay-Creator entdecken →"
+    },
+    "inline": {
+      "preferFullPage": "Lieber die volle Seite? →",
+      "somethingWrong": "Etwas ist schiefgelaufen",
+      "includeMemo": "Memo/Tag einfügen:",
+      "waitingPayment": "Warte auf Zahlung · aktualisiert alle 10s",
+      "partialReceived": "Teilzahlung erhalten",
+      "monitoringRemainder": "Überwache den Rest…"
+    },
+    "support": {
+      "anonymous": "Meine Unterstützung anonym machen",
+      "trustLine": "Sicheres Krypto-Checkout · kein Konto nötig",
+      "namePlaceholder": "Dein Name (optional)"
+    },
+    "qr": {
+      "claimFirst": "Sichere dir zuerst einen Handle, um deinen QR-Code zu generieren.",
+      "printHint": "Druck ihn aus, füg ihn zu deinem Kanal-Banner hinzu oder kleb ihn auf Sticker. Jede Kamera scannt ihn direkt zu deiner Tip-Seite."
+    }
   }
 }

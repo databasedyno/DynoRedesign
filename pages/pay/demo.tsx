@@ -231,7 +231,7 @@ const PaymentDemo = () => {
             <Box
               sx={{
                 height: '3px',
-                background: 'linear-gradient(90deg, #CCFF00 0%, #B4E600 55%, rgba(204,255,0,0.35) 100%)',
+                background: 'linear-gradient(90deg, #4F46E5 0%, #6366F1 55%, rgba(124,92,255,0.35) 100%)',
               }}
             />
 
@@ -378,7 +378,7 @@ const PaymentDemo = () => {
                       alignItems='center'
                       mb={1.5}
                       sx={{
-                        backgroundColor: isDark ? 'rgba(204,255,0,0.08)' : 'rgba(10,10,10,0.04)',
+                        backgroundColor: isDark ? 'rgba(79,70,229,0.08)' : 'rgba(10,10,10,0.04)',
                         borderRadius: '8px',
                         mx: -0.75,
                         px: 0.75,
@@ -404,7 +404,7 @@ const PaymentDemo = () => {
                       startIcon={<BitCoinGreenIcon width={7} />}
                       data-testid="crypto-payment-btn"
                       sx={{
-                        backgroundColor: '#CCFF00',
+                        backgroundColor: '#4F46E5',
                         color: '#0A0A0B',
                         textTransform: 'none',
                         borderRadius: '12px',
@@ -413,12 +413,12 @@ const PaymentDemo = () => {
                         fontSize: '14px',
                         minHeight: 46,
                         letterSpacing: '0.1px',
-                        boxShadow: '0 4px 14px rgba(204,255,0,0.28)',
+                        boxShadow: '0 4px 14px rgba(79,70,229,0.28)',
                         transition: 'filter 0.2s ease, box-shadow 0.2s ease',
                         '&:hover': {
-                          backgroundColor: '#CCFF00',
+                          backgroundColor: '#4F46E5',
                           filter: 'brightness(1.05)',
-                          boxShadow: '0 6px 20px rgba(204,255,0,0.4)',
+                          boxShadow: '0 6px 20px rgba(79,70,229,0.4)',
                         },
                       }}
                     >
@@ -596,7 +596,7 @@ const PaymentDemo = () => {
                       display: 'flex',
                       alignItems: 'center',
                       gap: 1.5,
-                      bgcolor: isDark ? 'rgba(204,255,0,0.08)' : 'rgba(10,10,10,0.04)',
+                      bgcolor: isDark ? 'rgba(79,70,229,0.08)' : 'rgba(10,10,10,0.04)',
                       mb: 1.5,
                     }}
                     data-testid="demo-awaiting-confirmation"

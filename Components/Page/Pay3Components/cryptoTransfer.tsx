@@ -240,9 +240,9 @@ const CryptoTransfer = ({
   // Brand accent (lime) — used for selection + primary affordances to match
   // the landing page and donation checkout. Green (#10B981/#12B76A) is kept
   // ONLY for payment-detected/confirmed states (universal "success" signal).
-  const ACCENT = '#CCFF00';
+  const ACCENT = '#4F46E5';
   const ON_ACCENT = '#0A0A0B';
-  const ACCENT_SOFT = isDark ? 'rgba(204,255,0,0.12)' : 'rgba(204,255,0,0.16)';
+  const ACCENT_SOFT = isDark ? 'rgba(79,70,229,0.12)' : 'rgba(79,70,229,0.16)';
   const [selectedCrypto, setSelectedCrypto] = useState("");
   const [selectedNetwork, setSelectedNetwork] = useState<
     "" | "TRC20" | "ERC20" | "POLYGON" | "XRPL"
@@ -1975,7 +1975,7 @@ const CryptoTransfer = ({
                       width={180}
                       height={180}
                       style={{ display: "block" }}
-                      alt="Payment QR Code"
+                      alt={t("checkout.qrAlt", { ns: "landing" })}
                     />
                   )}
                 </Box>

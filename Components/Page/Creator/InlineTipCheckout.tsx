@@ -15,13 +15,15 @@
  * Spec: /app/memory/INLINE_TIP_CHECKOUT_SPEC.md
  */
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Box, Button, CircularProgress, Typography, useTheme } from '@mui/material'
 import { Icon } from '@iconify/react'
 import { formatCryptoAmount, formatWithSeparators, getCurrencySymbolFromFormat } from '@/utils/currencyFormat'
 import copyToClipboard from '@/helpers/copyToClipboard'
 
 const MONO = 'ui-monospace, "Roboto Mono", "JetBrains Mono", SFMono-Regular, Menlo, monospace'
-const LIME = '#CCFF00'
+// Aurora indigo — Landing v3 canonical accent (Session 82 migration).
+const LIME = '#4F46E5'
 const INK = '#0A0A0B'
 
 type Phase =
@@ -203,11 +205,12 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
   mode = 'tip',
   targetLabel,
 }) => {
+  const { t } = useTranslation('landing')
   const theme = useTheme()
   const isDark = theme.palette.mode === 'dark'
   const border = theme.palette.divider
   const surface = isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)'
-  const limeTint = isDark ? 'rgba(204,255,0,0.10)' : 'rgba(204,255,0,0.16)'
+  const limeTint = isDark ? 'rgba(79,70,229,0.10)' : 'rgba(79,70,229,0.16)'
   const warnTint = isDark ? 'rgba(255,190,50,0.10)' : 'rgba(255,190,50,0.18)'
   const errTint = isDark ? 'rgba(255,80,80,0.10)' : 'rgba(255,80,80,0.14)'
   const meta = STYLE_META[style] || STYLE_META.coffee
@@ -497,7 +500,7 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
           textDecoration: 'underline',
         }}
       >
-        Prefer full page? →
+        {t("creator.inline.preferFullPage")}
       </Box>
     </Box>
   )
@@ -522,7 +525,7 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
         sx={{ p: 2.5, borderRadius: '14px', border: `1px solid ${border}`, backgroundColor: errTint }}
       >
         <Typography fontWeight={700} color={theme.palette.error.main} fontSize={14}>
-          Something went wrong
+          {t("creator.inline.somethingWrong")}
         </Typography>
         <Typography fontSize={13} color={theme.palette.text.secondary} mt={0.5}>
           {errorMsg || 'Please try again.'}
@@ -683,7 +686,7 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
         {cryptoInfo.memo && (
           <Box sx={{ mt: 1, p: 1, borderRadius: '8px', backgroundColor: warnTint }}>
             <Typography fontSize={11.5} color={theme.palette.text.primary}>
-              <strong>Include memo/tag:</strong>
+              <strong>{t("creator.inline.includeMemo")}</strong>
             </Typography>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.25 }}>
               <Typography sx={{ fontFamily: MONO, fontSize: 13, fontWeight: 700 }}>{cryptoInfo.memo}</Typography>
@@ -752,7 +755,7 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
         >
           <CircularProgress size={12} sx={{ color: INK }} />
           <Typography sx={{ fontSize: 12.5, fontWeight: 700 }}>
-            Waiting for payment · auto-updates every 10s
+            {t("creator.inline.waitingPayment")}
           </Typography>
         </Box>
 
@@ -772,7 +775,7 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.9 }}>
           <Icon icon="mdi:alert-circle-outline" width={20} color="#FF9900" />
           <Typography fontWeight={800} fontSize={15.5}>
-            Partial payment received
+            {t("creator.inline.partialReceived")}
           </Typography>
         </Box>
         <Typography fontSize={12.5} color={theme.palette.text.secondary} mt={0.5}>
@@ -847,7 +850,7 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
           }}
         >
           <CircularProgress size={10} sx={{ color: INK }} />
-          <Typography sx={{ fontSize: 11.5, fontWeight: 700 }}>Monitoring for the remainder…</Typography>
+          <Typography sx={{ fontSize: 11.5, fontWeight: 700 }}>{t("creator.inline.monitoringRemainder")}</Typography>
         </Box>
 
         {backLink('Change amount')}

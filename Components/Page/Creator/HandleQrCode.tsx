@@ -1,4 +1,5 @@
 import React, { useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Box, Button, Typography, useTheme } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { QRCodeCanvas } from "qrcode.react";
@@ -23,6 +24,7 @@ interface Props {
 }
 
 const HandleQrCode: React.FC<Props> = ({ handle, size = "full", accentColor }) => {
+  const { t } = useTranslation("landing");
   const theme = useTheme();
   const border = theme.palette.divider;
   const containerRef = useRef<HTMLDivElement>(null);
@@ -99,7 +101,7 @@ const HandleQrCode: React.FC<Props> = ({ handle, size = "full", accentColor }) =
           textAlign: "center", color: theme.palette.text.secondary, fontSize: 13,
         }}
       >
-        Claim a handle first to generate your QR code.
+        {t("creator.qr.claimFirst")}
       </Box>
     );
   }
@@ -181,7 +183,7 @@ const HandleQrCode: React.FC<Props> = ({ handle, size = "full", accentColor }) =
       </Box>
 
       <Typography sx={{ fontSize: 11.5, color: theme.palette.text.secondary, textAlign: "center", maxWidth: 280 }}>
-        Print it, add to your channel banner, or slap it on stickers. Any camera scans it straight to your page.
+        {t("creator.qr.printHint")}
       </Typography>
     </Box>
   );

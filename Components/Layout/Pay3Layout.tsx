@@ -32,7 +32,7 @@ export default function Pay3Layout({
                 overflow: 'hidden',
             }}
         >
-            {/* Swiss grid backdrop */}
+            {/* Swiss grid backdrop → aurora-tinted, kept subtle */}
             <Box
                 sx={{
                     position: 'absolute',
@@ -47,19 +47,36 @@ export default function Pay3Layout({
                     zIndex: 0,
                 }}
             />
-            {/* Subtle radial glow behind card */}
+            {/* Aurora indigo/violet orb behind card — session 82 migration
+                (was: volt-lime radial glow #CCFF00). Matches Landing v3. */}
             <Box
                 sx={{
                     position: 'absolute',
-                    top: '30%',
-                    left: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    width: '600px',
-                    height: '600px',
+                    top: '18%',
+                    left: '14%',
+                    width: '540px',
+                    height: '540px',
                     borderRadius: '50%',
                     background: isDark
-                        ? 'radial-gradient(circle, rgba(204,255,0,0.06) 0%, transparent 70%)'
-                        : 'radial-gradient(circle, rgba(204,255,0,0.10) 0%, transparent 70%)',
+                        ? 'radial-gradient(circle, rgba(129,140,248,0.10) 0%, transparent 65%)'
+                        : 'radial-gradient(circle, rgba(79,70,229,0.09) 0%, transparent 65%)',
+                    filter: 'blur(20px)',
+                    pointerEvents: 'none',
+                    zIndex: 0,
+                }}
+            />
+            <Box
+                sx={{
+                    position: 'absolute',
+                    bottom: '10%',
+                    right: '10%',
+                    width: '460px',
+                    height: '460px',
+                    borderRadius: '50%',
+                    background: isDark
+                        ? 'radial-gradient(circle, rgba(124,92,255,0.08) 0%, transparent 65%)'
+                        : 'radial-gradient(circle, rgba(124,92,255,0.07) 0%, transparent 65%)',
+                    filter: 'blur(20px)',
                     pointerEvents: 'none',
                     zIndex: 0,
                 }}

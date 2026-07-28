@@ -390,7 +390,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
         <Box
           sx={{
             p: 2, borderRadius: "14px", border: `1px solid ${border}`,
-            backgroundColor: theme.palette.mode === "dark" ? "rgba(204,255,0,0.06)" : "rgba(204,255,0,0.10)",
+            backgroundColor: theme.palette.mode === "dark" ? "rgba(79,70,229,0.06)" : "rgba(79,70,229,0.10)",
             display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1.5, flexWrap: "wrap",
           }}
         >
@@ -695,7 +695,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
                       sx={{
                         display: "flex", alignItems: "center", gap: 1, p: 1.25, borderRadius: "10px", cursor: "pointer",
                         border: `1.5px solid ${active ? theme.palette.primary.main : border}`,
-                        backgroundColor: active ? (theme.palette.mode === "dark" ? "rgba(204,255,0,0.08)" : "rgba(204,255,0,0.12)") : theme.palette.background.default,
+                        backgroundColor: active ? (theme.palette.mode === "dark" ? "rgba(79,70,229,0.08)" : "rgba(79,70,229,0.12)") : theme.palette.background.default,
                         transition: "border-color 140ms ease",
                       }}
                     >

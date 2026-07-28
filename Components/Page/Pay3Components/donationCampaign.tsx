@@ -206,11 +206,11 @@ const DonationCampaign = ({ donation, merchant, submitting, onDonate }: Donation
 
   const fmt = (n: number) => `${symbol}${formatWithSeparators(n, currency)}`
 
-  const accent = '#CCFF00' // brand lime (pay theme palette.primary is ink, not lime)
+  const accent = '#4F46E5' // aurora indigo — Landing v3 (Session 82 migration; was: #CCFF00 brand lime)
   const onAccent = '#0A0A0B'
   const surfaceGlass = isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)'
   const border = theme.palette.border.main
-  const limeTint = isDark ? 'rgba(204,255,0,0.10)' : 'rgba(204,255,0,0.16)'
+  const limeTint = isDark ? 'rgba(79,70,229,0.10)' : 'rgba(79,70,229,0.16)'
 
   const progressPct = donation.progress_percent
   const hasGoal = donation.goal_amount != null && donation.goal_amount > 0
@@ -554,7 +554,7 @@ const DonationCampaign = ({ donation, merchant, submitting, onDonate }: Donation
               sx={{
                 height: { xs: 120, sm: 150 },
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                background: `radial-gradient(120% 140% at 85% 0%, rgba(204,255,0,0.16) 0%, rgba(204,255,0,0) 55%), #0A0A0B`,
+                background: `radial-gradient(120% 140% at 85% 0%, rgba(79,70,229,0.16) 0%, rgba(79,70,229,0) 55%), #0A0A0B`,
               }}
             >
               <Logo width={44} height={52} />

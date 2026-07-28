@@ -76,8 +76,8 @@ export default function DonorWallV2({
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
-  const accent = "#CCFF00";
-  const limeTint = isDark ? "rgba(204,255,0,0.10)" : "rgba(204,255,0,0.16)";
+  const accent = "#4F46E5";
+  const limeTint = isDark ? "rgba(79,70,229,0.10)" : "rgba(79,70,229,0.16)";
   const border = theme.palette.divider;
   const surfaceGlass = isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)";
 
@@ -146,7 +146,7 @@ export default function DonorWallV2({
                 gap: 1.25,
                 p: 1.5,
                 borderRadius: "14px",
-                border: `1px solid ${medal ? "rgba(204,255,0,0.35)" : border}`,
+                border: `1px solid ${medal ? "rgba(79,70,229,0.35)" : border}`,
                 backgroundColor: medal ? limeTint : surfaceGlass,
                 textAlign: "left",
                 overflow: "hidden",

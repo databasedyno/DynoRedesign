@@ -1,4 +1,58 @@
-# CURRENT SESSION (session 82 — 2026-07-28) — ENV + SIGN-IN REWRITE + LANDING i18n + AUTH PALETTE MIGRATION
+# CURRENT SESSION (session 82 — 2026-07-28) — ENV + SIGN-IN REWRITE + LANDING i18n + AUTH PALETTE + CHECKOUT/CREATOR PALETTE+i18n
+
+- **Preview URL**: https://aabae01c-e6d7-4ae5-b59c-9ddb93e262f9.preview.emergentagent.com. FIRST in CORS_ALLOWED_ORIGINS (+ tokens-70 alias + dynopay.com + checkout.dynopay.com). All 200 on /, /auth/login, /pay/demo, /pay/donation-demo, /hostbay.
+- **Merchant test account** (LIVE Railway PG, UNCHANGED): **hostbay@moxx.co / Katiekendra123@** (user_id=1, name=hostbay). Real login verified HTTP 200. NEW 2-step flow: Email → Continue → Password autofocused → Sign in. "Use a code instead →" for inline OTP.
+- **Admin email** (env ADMIN_EMAIL): moxxcompany@gmail.com
+
+## SESSION 82 — Latest additions (Checkout + Creator palette + i18n)
+
+### 5) /pay/* checkout — palette (lime → indigo) + i18n (10 new keys × 6 langs)
+- **Palette**: Migrated `LIME='#CCFF00'` → `LIME='#4F46E5'` (constant name preserved for minimal-diff safety) in `CleanCheckoutV2.tsx`. `Pay3Layout.tsx` Swiss grid + volt-lime radial glow replaced with soft indigo/violet aurora orbs matching Landing v3. `pages/pay/demo.tsx`, `pages/pay/index.tsx`, `cryptoTransfer.tsx`, `donationCampaign.tsx` — 30+ `rgba(204,255,0,...)` → `rgba(79,70,229,...)` swaps (all alpha variants preserved). Campaign subdir (`GoalProgressBar.tsx`, `RewardTierShelf.tsx`, `DonorWallV2.tsx`) — 11 additional lime→indigo swaps. Progress bar gradient `#34D399 → success` (goalReached) unchanged; regular fill now `linear-gradient(90deg, #4F46E5 0%, #4338CA 100%)`.
+- **i18n**: Added `useTranslation('landing')` hook to `CleanCheckoutV2.tsx`. Keyed 7 hardcoded strings under `landing.checkout.*`: expired title/body/startNew, sendWarning line, memoRequired label, refund label + help. Fixed `alt="Payment QR Code"` in `cryptoTransfer.tsx` to `t("checkout.qrAlt")`.
+- **Verification**: /pay/demo in DE renders "Überprüfen Sie Ihre Bestellung" + "Mit Kryptowährung bezahlen" + indigo CTA button. /pay/donation-demo in FR renders indigo progress bar + "collectés sur un objectif de $25,000.00" + indigo "65% funded" pill.
+
+### 6) /[handle] creator public page — palette (default only) + i18n (13 new keys × 6 langs)
+- **Palette**: `CreatorProfile.tsx`, `InlineTipCheckout.tsx`, `SupportWidget.tsx`, `CreatorLivePreview.tsx`, `CreatorPageSettings.tsx` — all `LIME='#CCFF00'` constants → `'#4F46E5'`. All lime rgba tints → indigo rgba tints. **Creator custom theme override (`theme.accent_color`) preserved intact** — only the DEFAULT changes to indigo; creators who explicitly set a lime accent still see lime.
+- **i18n**: Added `useTranslation('landing')` hook to `CreatorProfile.tsx`, `InlineTipCheckout.tsx`, `SupportWidget.tsx`, `HandleQrCode.tsx`. Keyed 13 hardcoded strings under `landing.creator.*`: `card.supportCampaign/emptyTitle/exploreLink`, `inline.preferFullPage/somethingWrong/includeMemo/waitingPayment/partialReceived/monitoringRemainder`, `support.anonymous/trustLine/namePlaceholder`, `qr.claimFirst/printHint`.
+- **Verification**: `/hostbay` in PT renders "Tudo a funcionar" header pill, indigo "Buy $3.00" CTA, "O seu nome (opcional)" placeholder, "Tornar o meu apoio anónimo" checkbox, "Checkout cripto seguro · sem conta necessária" trust line.
+
+### 7) i18n scale summary (session 82)
+Total public-facing strings keyed and translated across 6 languages:
+- Sign-in flow: 8 keys × 6 langs = 48 translations
+- Landing v3: 137 keys × 6 langs = 822 translations
+- Checkout: 9 keys × 6 langs = 54 translations  
+- Creator: 14 keys × 6 langs = 84 translations
+- **Total: 168 unique English keys × 6 langs = 1,008 translated strings shipped**
+
+## NEXT (still confirmed, to be done)
+- `/order/[publicRef]` — palette + i18n (13 hardcoded strings, order confirmation)
+- `/for/*` SEO landings — i18n only (palette ~aligned)
+- Dashboard + all signed-in surfaces palette migration (Option B: full-app indigo)
+- Blog + content pages typography sweep
+- Housekeeping: rename `CORAL='#4F46E5'` in `Home/v3/theme.v3.ts` → `INDIGO`
+
+## FILES TOUCHED (session 82, all changes)
+Backend: none.
+Frontend:
+- `pages/auth/login.tsx` (rewrite)
+- `styles/authTheme.ts` (indigo palette)
+- `Containers/Login/styled.tsx` (aurora glass shell)
+- `Components/UI/AuthLayout/AuthBrandPanel.tsx` (indigo accent)
+- `Components/Layout/HomeHeader/index.tsx` + `HomeFooter/index.tsx` (status pill i18n)
+- `Components/Layout/Pay3Layout.tsx` (aurora orbs replace Swiss+volt glow)
+- `Components/Page/Home/v3/*.tsx` (9 files — i18n + t() calls)
+- `Components/Page/Pay3Components/CleanCheckoutV2.tsx` (LIME=indigo + i18n)
+- `Components/Page/Pay3Components/cryptoTransfer.tsx` (indigo swap + QR alt i18n)
+- `Components/Page/Pay3Components/donationCampaign.tsx` (indigo swaps)
+- `Components/Page/Pay3Components/campaign/{GoalProgressBar,RewardTierShelf,DonorWallV2}.tsx` (indigo swaps)
+- `Components/Page/Creator/{CreatorProfile,InlineTipCheckout,SupportWidget,HandleQrCode,CreatorLivePreview,CreatorPageSettings}.tsx` (indigo + i18n)
+- `pages/pay/demo.tsx`, `pages/pay/index.tsx` (indigo rgba swaps)
+- `langs/locales/{en,pt,es,fr,nl,de}/landing.json` (+160 keys: v3.* + checkout.* + creator.*)
+- `langs/locales/{en,pt,es,fr,nl,de}/auth.json` (+6 new sign-in keys)
+
+---
+
+# CURRENT SESSION (fresh boot — 2026-07-21) — ENV PROVISIONING
 
 - **Preview URL**: https://aabae01c-e6d7-4ae5-b59c-9ddb93e262f9.preview.emergentagent.com. FIRST in CORS_ALLOWED_ORIGINS (+ tokens-70 alias + dynopay.com + checkout.dynopay.com). All 200 on /, /auth/login.
 - **Merchant test account** (LIVE Railway PG, UNCHANGED): **hostbay@moxx.co / Katiekendra123@** (user_id=1, name=hostbay). Real login verified HTTP 200 "Login Successful!"; bad creds → 401. NEW 2-step flow (session 82 rewrite): Email → Continue → Password (autofocused) → Sign in. Or click "Use a code instead →" for inline OTP (email default, SMS chip if mobile on file).

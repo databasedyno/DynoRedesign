@@ -2,7 +2,7 @@
  * GoalProgressBar — the crowdfunding goal display.
  *
  * Improvements over the plain <LinearProgress>:
- *   • Gradient fill (lime → emerald when goalReached)
+ *   • Gradient fill (aurora indigo → emerald when goalReached; Session 82 migration)
  *   • Milestone tick marks at 25/50/75%, subtle when unreached, brighter when passed
  *   • Floating percentage pill that rides along the leading edge of the fill
  *   • Shimmer animation on the leading edge while in-progress
@@ -58,7 +58,7 @@ export default function GoalProgressBar({
     return () => clearTimeout(t);
   }, [target]);
 
-  const accent = "#CCFF00";
+  const accent = "#4F46E5";
   const accentDim = "#5a6b00";
   const success = "#10B981";
   const trackBg = isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.07)";
@@ -66,7 +66,7 @@ export default function GoalProgressBar({
   const pillFg = goalReached ? "#fff" : "#0A0A0B";
   const fillGradient = goalReached
     ? `linear-gradient(90deg, #34D399 0%, ${success} 100%)`
-    : `linear-gradient(90deg, ${accent} 0%, #A3D904 100%)`;
+    : `linear-gradient(90deg, ${accent} 0%, #4338CA 100%)`;
 
   return (
     <Box data-testid="goal-progress-bar" sx={{ width: "100%" }}>

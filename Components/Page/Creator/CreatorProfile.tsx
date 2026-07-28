@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { createPortal } from 'react-dom'
 import { Box, Button, LinearProgress, Typography, useTheme } from '@mui/material'
 import { Icon } from '@iconify/react'
@@ -9,7 +10,9 @@ import SupportWidget, { SupportWidgetData } from './SupportWidget'
 import InlineTipCheckout from './InlineTipCheckout'
 
 const MONO = 'ui-monospace, "Roboto Mono", "JetBrains Mono", SFMono-Regular, Menlo, monospace'
-const LIME = '#CCFF00'
+// Aurora indigo — Landing v3 canonical accent (Session 82 migration).
+// Only the DEFAULT accent; creators can still override via theme.accent_color.
+const LIME = '#4F46E5'
 const INK = '#0A0A0B'
 
 export interface CreatorLink {
@@ -69,6 +72,7 @@ const fmt = (n: number, currency: string) =>
   `${getCurrencySymbolFromFormat(currency)}${formatWithSeparators(n, currency)}`
 
 const CreatorProfile = ({ creator, links, siteUrl, supportWidget }: { creator: CreatorData; links: CreatorLink[]; siteUrl?: string; supportWidget?: SupportWidgetData | null }) => {
+  const { t } = useTranslation('landing')
   const theme = useTheme()
   const isDark = theme.palette.mode === 'dark'
   const border = theme.palette.divider
@@ -467,7 +471,7 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget }: { creator: C
                 '&:hover': { backgroundColor: accent, filter: 'brightness(1.05)' },
               }}
             >
-              Support this campaign
+              {t('creator.card.supportCampaign')}
             </Button>
           </Box>
         )}
@@ -556,7 +560,7 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget }: { creator: C
           >
             <Icon icon='mdi:sparkles-outline' width={30} color={theme.palette.text.secondary} />
             <Typography fontSize={15} fontWeight={600} color={theme.palette.text.primary} mt={1}>
-              Nothing here yet
+              {t("creator.card.emptyTitle")}
             </Typography>
             <Typography fontSize={13} color={theme.palette.text.secondary} mt={0.5} mb={2}>
               {creator.name.split(' ')[0]} hasn&apos;t published any links yet — check back soon.
@@ -573,7 +577,7 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget }: { creator: C
                 '&:hover': { borderColor: accent, backgroundColor: limeTint },
               }}
             >
-              Explore Dynopay creators →
+              {t("creator.card.exploreLink")}
             </Button>
           </Box>
         )}

@@ -540,5 +540,50 @@
     "footer": {
       "systemsOperational": "Tous les systèmes opérationnels"
     }
+  },
+  "checkout": {
+    "expired": {
+      "title": "Fenêtre de paiement expirée",
+      "body": "Aucun paiement n'a été reçu à temps. Rien n'a été prélevé.",
+      "startNew": "Lancer un nouveau paiement"
+    },
+    "sendWarning": {
+      "line": "Envoyer tout actif autre que"
+    },
+    "memoRequired": {
+      "label": "TAG DE DESTINATION / MEMO (OBLIGATOIRE)"
+    },
+    "refund": {
+      "label": "Méthode de remboursement préférée (facultatif)",
+      "help": "Si vous envoyez le mauvais actif ou utilisez le mauvais réseau, nous essaierons de rembourser à cette adresse (moins les frais réseau)."
+    },
+    "qrAlt": "QR code de paiement",
+    "bank": {
+      "companyName": "Dynopay Payments Ltd."
+    }
+  },
+  "creator": {
+    "card": {
+      "supportCampaign": "Soutenir cette campagne",
+      "emptyTitle": "Rien ici pour l'instant",
+      "exploreLink": "Découvrir les créateurs Dynopay →"
+    },
+    "inline": {
+      "preferFullPage": "Vous préférez la page complète ? →",
+      "somethingWrong": "Quelque chose s'est mal passé",
+      "includeMemo": "Inclure le memo/tag :",
+      "waitingPayment": "En attente du paiement · mise à jour toutes les 10s",
+      "partialReceived": "Paiement partiel reçu",
+      "monitoringRemainder": "Surveillance du reste…"
+    },
+    "support": {
+      "anonymous": "Rendre mon soutien anonyme",
+      "trustLine": "Checkout crypto sécurisé · sans compte",
+      "namePlaceholder": "Votre nom (facultatif)"
+    },
+    "qr": {
+      "claimFirst": "Réservez d'abord un pseudo pour générer votre QR code.",
+      "printHint": "Imprimez-le, ajoutez-le à votre bannière ou collez-le sur des stickers. N'importe quelle caméra le scanne directement vers votre page de pourboires."
+    }
   }
 }

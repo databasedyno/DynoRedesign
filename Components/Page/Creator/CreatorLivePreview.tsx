@@ -8,7 +8,8 @@ import { prettyCreatorDomain } from "@/helpers/creatorUrl";
 import Logo from "@/assets/Icons/Logo";
 
 const MONO = 'ui-monospace, "Roboto Mono", "JetBrains Mono", SFMono-Regular, Menlo, monospace';
-const LIME = "#CCFF00";
+// Aurora indigo — Landing v3 canonical accent (Session 82 migration).
+const LIME = "#4F46E5";
 const INK = "#0A0A0B";
 
 const SOCIAL_ICONS: Record<string, string> = {
@@ -51,7 +52,7 @@ const CreatorLivePreview: React.FC<Props> = ({ state }) => {
   const socials = Object.entries(state.socialLinks || {}).filter(([, v]) => Boolean(v));
   const initial = (name || handle || "?").charAt(0).toUpperCase();
 
-  const limeTint = isDark ? "rgba(204,255,0,0.10)" : "rgba(204,255,0,0.16)";
+  const limeTint = isDark ? "rgba(79,70,229,0.10)" : "rgba(79,70,229,0.16)";
   const surface = isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)";
 
   // Support widget preview data
