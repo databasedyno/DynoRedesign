@@ -27,6 +27,15 @@ NOTE: Merchant hostbay@moxx.co ALREADY has a handle, so the /creator prefill + p
 7. Sanity: input sanitization — typing "Hello.World!!" then claiming should carry a cleaned handle (lowercased, punctuation stripped, e.g. "helloworld").
 Report PASS/FAIL per assertion with the observed URL / banner text / localStorage value.
 
+### FRONTEND TESTING AGENT VERIFICATION — Session 89 (2026-07-29) — ✅ PASS (5/5)
+- Button claim "satoshitest": URL has handle=satoshitest&ref=hero_claim; banner [data-testid=reserved-handle-banner] shows "dynopay.me/@satoshitest"; localStorage["dynopay.claimedHandle"]="satoshitest". PASS.
+- Enter-key claim "creator_99": same assertions. PASS.
+- Negative (direct /auth/register, cleared storage): banner NOT present. PASS.
+- Sanitization "Hello.World!!" → "helloworld" (lowercased, punctuation stripped) in URL + banner + localStorage. PASS.
+- Mobile (iPhone 14 Pro Max 430x932): identical behavior, banner renders. PASS. No uncaught console errors.
+- (Not live-tested — needs a no-handle account: /creator claimDraft prefill + personalized ClaimHandleBanner; both share the same localStorage["dynopay.claimedHandle"] mechanism that IS verified above.)
+
+
 ### FRONTEND TESTING AGENT VERIFICATION — Session 89 (2026-07-29) — ✅ ALL TESTS PASSED
 
 **Test Status:** ✅ **COMPLETE SUCCESS - ALL 5 TESTS PASSED (5/5)**
