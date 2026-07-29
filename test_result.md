@@ -29,6 +29,15 @@ SAFETY: This hits the LIVE prod Railway DB. Do NOT complete/settle any real cryp
 4. Verify the API-key "available currencies" endpoint (getAvailableCurrencies) now returns all 21 currencies incl. the 7 new African ones, and that creating an API key with base_currency=KES (or another new one) passes validation (previously it would 400). Deactivate/delete any test key created.
 5. Clean up any test links/keys created. Report PASS/FAIL per item + the actual converted amounts observed.
 
+### BACKEND TESTING AGENT VERIFICATION — Session 88 (2026-07-29) — ✅ PASS
+- availableCurrencies now returns all 21 incl. the 7 new (KES/GHS/ZAR/XOF/XAF/EGP/MAD) with correct symbols. PASS.
+- NGN + all 7 new-currency payment links created OK; base_currency persisted; 9 test links created and ALL deleted (cleanup PASS).
+- Fiat→crypto conversion VERIFIED CORRECT via backend logs (authoritative): 10000 NGN→$7.33, 1000 KES→$7.74, 1000 GHS→$86.15, 1000 ZAR→$59.88, 1000 XOF→$1.74, 1000 XAF→$1.74, 1000 EGP→$19.78, 1000 MAD→$106.99. BTC/ETH per-currency rates fetched fine.
+- Agent's summary claim of "1000 USDT / BTC=0" was a RESPONSE-FIELD MISREAD (test links didn't enable BTC in accepted cryptos); logs prove conversions are accurate.
+- OPERATIONAL FYI (pre-existing, NOT from this change): FastForex API key has NO active subscription ("No active subscription…upgrade") → fiat→USD falls back to Tatum USDT-proxy, which works for all tested currencies. Consider renewing FastForex or confirming Tatum covers all 21 pairs.
+- No new 500 errors in these flows. Backend healthy (listening on 3300).
+
+
 
 ## Session 87 — CHECKOUT ENHANCEMENTS: QR Polish + Currency Persistence (2026-07-28)
 
