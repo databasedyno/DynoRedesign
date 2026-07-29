@@ -87,6 +87,9 @@ const HomeHeader = memo(function HomeHeader() {
 
   const lastScrollY = useRef<number>(0);
   const ticking = useRef<boolean>(false);
+  // Used by the mobile hamburger to de-dupe pointerup + synthesised click
+  // firing for the same tap on some Android Chrome versions.
+  const lastToggleTsRef = useRef<number>(0);
 
   /* ================= NAVIGATION ================= */
 
@@ -189,27 +192,33 @@ const HomeHeader = memo(function HomeHeader() {
 
   /* ================= SCROLL LOCK ================= */
 
+  // MOBILE FIX (2026-07-29 follow-up): the previous version set
+  // `document.documentElement.style.overflow = "hidden"` which, on real iOS
+  // Safari, can force a synchronous relayout that drops in-flight touch/click
+  // events (users see this as "the hamburger did nothing when I tapped it").
+  // We now scope the scroll lock to `<body>` only — sufficient to prevent
+  // background scroll behind the drawer, and safe for touch dispatch — and
+  // defer the write to the next frame so it never lands mid-click.
   useEffect(() => {
-    const html = document.documentElement;
     const body = document.body;
+    const html = document.documentElement;
 
     if (mobileMenuOpen) {
       const scrollBarWidth = window.innerWidth - html.clientWidth;
-
-      html.style.overflow = "hidden";
-      body.style.overflow = "hidden";
-      body.style.paddingRight = `${scrollBarWidth}px`;
-    } else {
-      html.style.overflow = "";
-      body.style.overflow = "";
-      body.style.paddingRight = "";
+      const rafId = requestAnimationFrame(() => {
+        body.style.overflow = "hidden";
+        body.style.paddingRight = `${scrollBarWidth}px`;
+      });
+      return () => {
+        cancelAnimationFrame(rafId);
+        body.style.overflow = "";
+        body.style.paddingRight = "";
+      };
     }
 
-    return () => {
-      html.style.overflow = "";
-      body.style.overflow = "";
-      body.style.paddingRight = "";
-    };
+    body.style.overflow = "";
+    body.style.paddingRight = "";
+    return undefined;
   }, [mobileMenuOpen]);
 
   /* ================= RENDER ================= */
@@ -328,8 +337,40 @@ const HomeHeader = memo(function HomeHeader() {
 
           <MobileMenuButton
             aria-label="Toggle menu"
+            aria-expanded={mobileMenuOpen}
             data-testid="mobile-menu-toggle"
-            onClick={() => setMobileMenuOpen((prev) => !prev)}
+            // MOBILE FIX (2026-07-29 follow-up): user reported the menu still
+            // didn't open on real iPhone / Firefox mobile / Chrome mobile even
+            // though the Chromium emulator worked. Real touch devices route
+            // through touchstart → touchend → synthesized-click. The
+            // synthesized-click can be swallowed (or arrive 300+ ms late)
+            // when: (a) the finger drifts a few px between touchstart and
+            // touchend, (b) iOS Safari's first-tap "focus establishment"
+            // consumes the click, or (c) another mount/hydration effect
+            // fires between touchstart and click and re-mounts the button.
+            //
+            // Switching to `onPointerUp` fires the toggle on touch-release
+            // directly, which is what mobile users experience as "instant"
+            // and which sidesteps all three of the above. We keep `onClick`
+            // as a fallback for keyboard activation and for the (rare) case
+            // where PointerEvents aren't dispatched (Firefox mobile ≤79).
+            //
+            // `handleToggle` is stable per-mount; `useRef` guards against a
+            // pointer up firing twice on some Android Chrome versions that
+            // emit both pointerup AND click for the same tap.
+            onPointerUp={(e) => {
+              // Only respond to primary button on mouse; touch always OK.
+              if (e.pointerType === "mouse" && e.button !== 0) return;
+              lastToggleTsRef.current = Date.now();
+              setMobileMenuOpen((prev) => !prev);
+            }}
+            onClick={() => {
+              // If a pointerup already toggled within the last 350 ms, skip
+              // the synthesised click. Otherwise (keyboard, or pointerup
+              // unsupported), toggle here.
+              if (Date.now() - lastToggleTsRef.current < 350) return;
+              setMobileMenuOpen((prev) => !prev);
+            }}
           >
             {mobileMenuOpen ? <MenuCloseIcon /> : <MenuOpenIcon />}
           </MobileMenuButton>
