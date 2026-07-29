@@ -12,7 +12,7 @@ from typing import Dict, Any, Optional
 
 # Configuration
 BACKEND_URL = "http://localhost:8001"
-PREVIEW_URL = "https://dynopay-preview-10.preview.emergentagent.com"
+PREVIEW_URL = "https://multi-chain-checkout-5.preview.emergentagent.com"
 TEST_EMAIL = "hostbay@moxx.co"
 TEST_PASSWORD = "Katiekendra123@"
 
