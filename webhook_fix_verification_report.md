@@ -247,7 +247,7 @@ metadata: { webhookAsset } // Raw contract preserved for audit
 
 ## Test Environment Details
 
-- **Preview URL:** https://multi-chain-checkout-5.preview.emergentagent.com
+- **Preview URL:** https://merchant-hub-611.preview.emergentagent.com
 - **Backend:** Internal :8001 (uvicorn proxy) → :3300 (ts-node server.ts)
 - **Database:** LIVE Railway Production (roundhouse.proxy.rlwy.net:23599)
 - **Redis:** LIVE Railway Production (nozomi.proxy.rlwy.net:15794)

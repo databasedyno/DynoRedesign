@@ -9,7 +9,7 @@ import axios from 'axios';
 import * as fs from 'fs';
 import * as path from 'path';
 
-const API_BASE = 'https://multi-chain-checkout-5.preview.emergentagent.com/api';
+const API_BASE = 'https://merchant-hub-611.preview.emergentagent.com/api';
 
 interface TestResult {
   test: string;

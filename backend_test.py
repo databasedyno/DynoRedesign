@@ -16,7 +16,7 @@ import time
 from typing import Dict, List, Optional, Tuple
 
 # Base URL from review request
-BASE_URL = "https://46ec93b1-1703-4bf5-91d5-029cedba6253.preview.emergentagent.com"
+BASE_URL = "https://merchant-hub-611.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 # Test credentials (NO 2FA)
