@@ -41,6 +41,14 @@ Report PASS/FAIL per item.
 ### FRONTEND test scope (Session 90) — hero reserve flow (public landing → register)
 Verify: (1) fresh unique handle → Claim navigates to /auth/register?handle=<h> with reservation banner + localStorage has dynopay.claimedHandle AND dynopay.claimedHandleToken; (2) owned handle "hostbay" → inline error [data-testid=hero-claim-error], no navigation; (3) hard-lock: reserve a random handle, then in a token-cleared context claim the SAME handle → "reserved by someone else" inline error, no navigation; (4) Enter key also claims; (5) no blocking console errors. Use random handles (real 1h Redis reservations); do NOT complete signup.
 
+### FRONTEND TESTING AGENT VERIFICATION — Session 90 — ✅ PASS (6/6)
+- Success (fresh handle, desktop): navigates to /auth/register?handle=<h>&ref=hero_claim; reservation banner shows "dynopay.me/@<h>"; localStorage has claimedHandle + claimedHandleToken (UUID = real Redis lock).
+- Taken "hostbay": inline error [data-testid=hero-claim-error] "This handle is already taken"; no navigation.
+- Hard-lock: 2nd visitor (token cleared) claiming a handle reserved by 1st visitor → "currently reserved by someone else"; no navigation.
+- Enter key: same reservation flow works.
+- Mobile (iPhone 14 Pro Max 430x932): identical success behavior.
+- No blocking console errors. FEATURE COMPLETE (backend 11/11 + frontend 6/6).
+
 ### FRONTEND TESTING AGENT VERIFICATION — Session 90 (2026-07-29) — ✅ PASS (6/6)
 **Test Status:** ✅ **ALL TESTS PASSED (6/6) - HERO CLAIM HANDLE RESERVATION FLOW WORKING PERFECTLY**
 
