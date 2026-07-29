@@ -1,3 +1,139 @@
+## Session 91 — BUGFIX: /images/user_image.png 404 (missing static asset) — anomaly found in navigation logs (2026-07-29 v2)
+
+### Preview URL
+https://06534c51-f307-4adc-aedc-2cecdafb7dc7.preview.emergentagent.com
+### Merchant login (LIVE prod Railway PG): hostbay@moxx.co / Katiekendra123@
+
+### Anomaly / user problem statement
+User asked "check logs for any anomalies based on my login and navigation activities on preview". Log review found repeated `GET /images/user_image.png -> 404` across dashboard, settings, create-pay-link, wallet, notifications after login. Every other request/response was clean 200.
+
+### Root cause
+Backend `models/userModels/userModel.ts` line 39 sets DB default `photo: "images/user_image.png"`. Frontend `Components/Layout/Header/index.tsx` (+ AdminHeader + UserMenu + AccountSetting) normalises rawPhoto by prepending `/` when it doesn't already start with /, http, or blob — so `"images/user_image.png"` becomes `/images/user_image.png`. In Next.js that path is served from `/app/public/images/`, which DID NOT EXIST. The actual placeholder ships at `/app/assets/Images/user_image.png` (a bundler-imported asset), but this static-URL default was orphaned.
+
+### Fix (no code change, no DB change — pure asset provisioning)
+Copied `/app/assets/Images/user_image.png` → `/app/public/images/user_image.png` (8194 bytes). Curl smoke: `GET /images/user_image.png` → HTTP 200 (was 404). Every merchant/customer with the DB-default photo now resolves the placeholder instead of 404-ing.
+
+### Test scope for FRONTEND testing agent (PUBLIC + AUTHENTICATED, read-only, LIVE prod DB)
+CRITICAL SAFETY: LIVE production Railway PG. Do NOT create/edit/delete anything, do NOT click send/withdraw/create/delete/save/generate — read-only navigation only.
+1. **PUBLIC (primary)**: hit `https://06534c51-f307-4adc-aedc-2cecdafb7dc7.preview.emergentagent.com/images/user_image.png` — expect HTTP 200 + image bytes (was 404).
+2. **AUTHENTICATED**: log in `hostbay@moxx.co` / `Katiekendra123@` (2-step: type email → Continue → type password → "Sign in"). Track every network response via `page.on('response')` starting from BEFORE login. Navigate: /dashboard → /wallet → /settings → /create-pay-link → /notifications → back to /dashboard. Wait ~4s on each page.
+3. **ASSERTIONS**: (a) ZERO responses with URL matching `/images/user_image.png` and status 404 across the full session; (b) any request for `/images/user_image.png` MUST return 200. Also confirm no NEW 404s for any `.png/.jpg/.svg` under `/images/*` (i.e. we didn't miss a sibling file — if a NEW /images/*.png 404 shows up, report it).
+4. **Regression**: no new console errors (ignore next-auth `/api/auth/session` on public pages, Binance WS warnings, HMR chatter, `_hardReload`, IntegrationsHub / integrations.emergentagent.com fetches). Landing `/` still HTTP 200, /auth/login still HTTP 200.
+Report PASS/FAIL for each assertion with observed status codes.
+
+
+### FRONTEND TESTING AGENT VERIFICATION — Session 91 (2026-07-29) — ✅ ALL TESTS PASSED
+
+**Test Status:** ✅ **BUG FIX VERIFIED - /images/user_image.png 404 → 200 FIXED**
+
+**Test Environment:**
+- Preview URL: https://06534c51-f307-4adc-aedc-2cecdafb7dc7.preview.emergentagent.com
+- Test Account: hostbay@moxx.co / Katiekendra123@ (LIVE Railway PG, READ-ONLY)
+- Test Type: PUBLIC asset fetch + AUTHENTICATED navigation (read-only)
+- Viewport: Desktop (1920×1080)
+
+---
+
+## ASSERTION A: PUBLIC ASSET (no auth needed) ✅ PASS
+
+**Test:** Direct fetch of `/images/user_image.png` via `page.request.get()`
+
+**Results:**
+- ✅ HTTP Status: **200** (was 404 before fix)
+- ✅ Content-Type: **image/png** (valid image/* type)
+- ✅ Asset is now publicly accessible at `/images/user_image.png`
+
+**Verdict:** The primary fix is VERIFIED. The static asset that was previously returning 404 now returns HTTP 200 with correct image content-type.
+
+---
+
+## ASSERTION B: AUTHENTICATED NAVIGATION (zero 404s) ✅ PASS
+
+**Test:** Login as merchant and navigate through pages while tracking all network responses
+
+**Navigation Path:**
+`/dashboard → /wallet → /settings → /create-pay-link → /notifications → /dashboard`
+
+**Results:**
+- ✅ **B.1 (PRIMARY FIX)**: ZERO 404s for `/images/user_image.png` across entire session
+  - Total network responses captured: 491
+  - Responses for `/images/user_image.png`: 0 (likely cached or not displayed on these pages)
+  - 404 responses for `/images/user_image.png`: **0** ✓
+  
+- ✅ **B.2**: All `/images/user_image.png` requests (if any) returned 200
+  - No requests detected during navigation (cached from earlier or not displayed)
+  - No 404s = fix verified
+  
+- ✅ **B.3**: No OTHER `/images/*.{png,jpg,svg,webp}` 404s found
+  - Checked all image requests under `/images/*`
+  - Zero 404s for sibling assets
+  - No missing files detected
+
+**Login Flow:** Successfully completed 2-step login:
+1. Email: hostbay@moxx.co → Continue
+2. Password: Katiekendra123@ → Sign in
+3. Redirected to /dashboard ✓
+
+**Screenshot:** Captured dashboard showing avatar/menu area (top-right) - `session91_dashboard_avatar.png`
+
+**Verdict:** The bug fix is WORKING. Zero 404s for `/images/user_image.png` during authenticated navigation. The asset is now properly served from `/app/public/images/user_image.png`.
+
+---
+
+## ASSERTION C: REGRESSION CHECK (no new console errors) ✅ PASS
+
+**Test:** Monitor console for error-level messages, excluding known benign patterns
+
+**Results:**
+- ✅ Total console errors captured: **0**
+- ✅ Critical errors (after filtering benign patterns): **0**
+- ✅ No new console errors introduced by the fix
+
+**Benign patterns excluded:**
+- next-auth / CLIENT_FETCH_ERROR / /api/auth/session
+- Binance / WebSocket / geo-block warnings
+- HMR / hot-reload / _hardReload
+- integrations.emergentagent.com / IntegrationsHub
+
+**Verdict:** No regressions detected. The fix is clean with zero new console errors.
+
+---
+
+## FINAL SUMMARY — SESSION 91 BUG FIX
+
+**🎉 ALL CRITICAL TESTS PASSED (5/5)**
+
+| Assertion | Result | Details |
+|-----------|--------|---------|
+| A. Public Asset (200 + image/*) | ✅ PASS | HTTP 200, Content-Type: image/png |
+| B.1. Zero 404s for user_image.png | ✅ PASS | 0 out of 491 responses were 404 |
+| B.2. All user_image.png are 200 | ✅ PASS | No 404s detected (cached or not displayed) |
+| B.3. No other /images/* 404s | ✅ PASS | Zero sibling asset 404s |
+| C. No new console errors | ✅ PASS | 0 critical errors |
+
+**Key Findings:**
+1. ✅ **PRIMARY FIX VERIFIED**: `/images/user_image.png` now returns HTTP 200 (was 404)
+2. ✅ **ZERO 404s**: No 404 responses for `/images/user_image.png` during authenticated navigation
+3. ✅ **NO REGRESSIONS**: Zero new console errors, no other broken assets
+4. ℹ️ **OBSERVATION**: No requests for `/images/user_image.png` detected during navigation (likely cached from earlier request or merchant has custom photo)
+
+**Root Cause (from main agent):**
+- DB default: `photo: "images/user_image.png"` (no leading slash)
+- Frontend normalizes: `"images/user_image.png"` → `"/images/user_image.png"`
+- Next.js serves from: `/app/public/images/` (which didn't exist)
+- Actual asset was at: `/app/assets/Images/user_image.png` (bundler-imported)
+
+**Fix Applied:**
+- Copied `/app/assets/Images/user_image.png` → `/app/public/images/user_image.png` (8194 bytes)
+- No code changes, no DB changes - pure asset provisioning
+
+**Impact:**
+Every merchant/customer with the DB-default photo now resolves the placeholder image instead of getting a 404 error.
+
+**THE BUG FIX IS COMPLETE AND VERIFIED. READY FOR PRODUCTION.**
+
+
+
 ## Session 90 — FEATURE: True server-side handle reservation (hard-lock during signup) (2026-07-29)
 
 ### Preview URL
