@@ -10,14 +10,18 @@ import CardGiftcardRoundedIcon from "@mui/icons-material/CardGiftcardRounded";
 import ShieldRoundedIcon from "@mui/icons-material/ShieldRounded";
 import { FONT_BODY, FONT_HERO, FONT_TECH, useAurora } from "./theme.v3";
 import { AuroraInk, HeadlineXL, Eyebrow, Body } from "./styled.v3";
+import useLocalPrice from "@/hooks/useLocalPrice";
 
 const SUGGESTED_HANDLES = ["alex", "maya", "lin", "jordan", "rae", "kai"];
-const TIP_AMOUNTS = ["$3", "$5", "$10", "$25", "$50", "$100"];
+const TIP_VALUES = [3, 5, 10, 25, 50, 100];
 
 const HeroPlayground: React.FC = () => {
   const s = useAurora();
   const router = useRouter();
   const { t } = useTranslation("landing");
+  // Country-aware ceremonial prices (PT → EUR, etc.) — restores the geo-pricing
+  // the pre-v3 landing had; v3 rewrite had hardcoded USD.
+  const { fmt, code } = useLocalPrice();
   const reduced = useReducedMotion();
   const [handle, setHandle] = useState("you");
   const [tipIdx, setTipIdx] = useState(0);
@@ -84,7 +88,7 @@ const HeroPlayground: React.FC = () => {
   useEffect(() => {
     if (reduced) return;
     const t = setInterval(() => {
-      setTipIdx((i) => (i + 1) % TIP_AMOUNTS.length);
+      setTipIdx((i) => (i + 1) % TIP_VALUES.length);
       setRotIdx((i) => (i + 1) % SUGGESTED_HANDLES.length);
     }, 2200);
     return () => clearInterval(t);
@@ -412,17 +416,17 @@ const HeroPlayground: React.FC = () => {
                     transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
                   >
                     <Typography sx={{ fontFamily: FONT_HERO, fontWeight: 700, fontSize: 44, color: "#0A0A0A", letterSpacing: "-0.03em", lineHeight: 1 }}>
-                      {TIP_AMOUNTS[tipIdx]}
+                      {fmt(TIP_VALUES[tipIdx])}
                     </Typography>
                   </motion.div>
-                  <Typography sx={{ fontFamily: FONT_TECH, fontSize: 13, color: "#71717A", fontWeight: 500 }}>USD → USDC</Typography>
+                  <Typography sx={{ fontFamily: FONT_TECH, fontSize: 13, color: "#71717A", fontWeight: 500 }}>{code} → USDC</Typography>
                 </Box>
 
                 {/* Chip row */}
                 <Box sx={{ display: "flex", gap: 0.75, mb: 2.5, flexWrap: "wrap" }}>
-                  {TIP_AMOUNTS.map((amt, i) => (
+                  {TIP_VALUES.map((val, i) => (
                     <Box
-                      key={amt}
+                      key={val}
                       sx={{
                         px: 1.25,
                         py: 0.5,
@@ -436,7 +440,7 @@ const HeroPlayground: React.FC = () => {
                         transition: "all .3s ease",
                       }}
                     >
-                      {amt}
+                      {fmt(val)}
                     </Box>
                   ))}
                 </Box>
@@ -462,7 +466,7 @@ const HeroPlayground: React.FC = () => {
                     },
                   }}
                 >
-                  {t("v3.hero.sendTipBtn")} · {TIP_AMOUNTS[tipIdx]}
+                  {t("v3.hero.sendTipBtn")} · {fmt(TIP_VALUES[tipIdx])}
                 </Button>
 
                 {/* Meta row */}
@@ -513,7 +517,7 @@ const HeroPlayground: React.FC = () => {
                   background: "#22C55E",
                 }}
               />
-              +$25.00 · @rae · just now
+              {`+${fmt(25)} · @rae · just now`}
             </Box>
           </motion.div>
         </Box>
