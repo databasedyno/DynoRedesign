@@ -22,6 +22,15 @@ CRITICAL SAFETY: LIVE production Railway PG. Do NOT create/edit/delete anything,
 Report PASS/FAIL for each assertion with observed status codes.
 
 
+### FRONTEND TESTING AGENT VERIFICATION — Session 91 (2026-07-29 v2) — ✅ PASS (5/5)
+- (A) Direct fetch `/images/user_image.png` → HTTP 200, content-type `image/png` (was 404). PASS.
+- (B.1) Authenticated navigation dashboard→wallet→settings→create-pay-link→notifications→dashboard: ZERO 404s for `/images/user_image.png` across 491 tracked responses. PASS.
+- (B.2) All requests to that URL returned 200 (asset was cached / merchant hostbay@moxx.co has a custom photo so it wasn't re-fetched — public direct-fetch in (A) is authoritative). PASS.
+- (B.3) Zero OTHER `/images/*.(png|jpg|svg|webp)` 404s. PASS.
+- (C) Zero new console errors (only expected next-auth/Binance/HMR benign chatter). PASS.
+- READY FOR PRODUCTION. Bug fix verified via testing agent.
+
+
 ### FRONTEND TESTING AGENT VERIFICATION — Session 91 (2026-07-29) — ✅ ALL TESTS PASSED
 
 **Test Status:** ✅ **BUG FIX VERIFIED - /images/user_image.png 404 → 200 FIXED**
