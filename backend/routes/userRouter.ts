@@ -75,6 +75,7 @@ userRouter.post("/profile/set-password", authMiddleware, otpRateLimiter, userCon
 
 // Creator vanity page (dynopay.me/{handle})
 userRouter.get("/creator/check-handle", authMiddleware, userController.checkHandle);
+userRouter.post("/creator/reserve-handle", strictRateLimiter, userController.reserveHandle);
 userRouter.put("/creator/profile", authMiddleware, userController.updateCreatorProfile);
 userRouter.post(
   "/creator/upload-cover",

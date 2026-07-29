@@ -3916,6 +3916,25 @@ const validateHandle = (h: string): string | null => {
 };
 
 /** GET /api/user/creator/check-handle?handle=xxx */
+// ─── Handle reservation (Redis-backed, TTL auto-expiry) ───────────────────────
+// A visitor can reserve a creator handle from the landing page BEFORE signing up.
+// We store an atomic Redis lock `reserve:handle:<handle>` -> <token> with a TTL,
+// so the name is hard-held while they finish onboarding (closes the race where
+// someone else could grab it mid-signup). The reservation is consumed & released
+// when the handle is finalised in updateCreatorProfile. TTL auto-expiry means an
+// abandoned signup frees the handle automatically — no cleanup job needed.
+const HANDLE_RESERVE_TTL_SECONDS = 60 * 60; // 1 hour (renewed on register + /creator)
+const handleReserveKey = (h: string) => `reserve:handle:${h}`;
+
+/** Is this handle already owned by a user other than `excludeUserId`? */
+const isHandleOwnedByUser = async (handle: string, excludeUserId?: number) => {
+  const existing = await userModel.findOne({
+    where: sequelize.where(sequelize.fn("LOWER", sequelize.col("handle")), handle),
+    attributes: ["user_id"],
+  });
+  return Boolean(existing && existing.dataValues.user_id !== excludeUserId);
+};
+
 const checkHandle = async (req: express.Request, res: express.Response) => {
   const userData = jwt.decode(res.locals.token) as IUserType;
   try {
@@ -3923,15 +3942,78 @@ const checkHandle = async (req: express.Request, res: express.Response) => {
     const err = validateHandle(handle);
     if (err) return successResponseHelper(res, 200, "checked", { available: false, reason: err });
 
-    const existing = await userModel.findOne({
-      where: sequelize.where(sequelize.fn("LOWER", sequelize.col("handle")), handle),
-      attributes: ["user_id"],
-    });
-    const taken = existing && existing.dataValues.user_id !== userData.user_id;
-    return successResponseHelper(res, 200, "checked", {
-      available: !taken,
-      reason: taken ? "This handle is already taken" : null,
-    });
+    if (await isHandleOwnedByUser(handle, userData.user_id)) {
+      return successResponseHelper(res, 200, "checked", { available: false, reason: "This handle is already taken" });
+    }
+
+    // Respect an active reservation unless it is held by this client's own token
+    // (passed as ?token=, e.g. a handle they reserved from the landing page).
+    const token = typeof req.query.token === "string" ? req.query.token : "";
+    let reserved = false;
+    try {
+      const holder = await redis.get(handleReserveKey(handle));
+      reserved = Boolean(holder && holder !== token);
+    } catch { /* Redis down → don't block availability */ }
+    if (reserved) {
+      return successResponseHelper(res, 200, "checked", { available: false, reason: "This handle is currently reserved" });
+    }
+    return successResponseHelper(res, 200, "checked", { available: true, reason: null });
+  } catch (e) {
+    handleControllerError(res, e, userLogger);
+  }
+};
+
+/**
+ * POST /api/user/creator/reserve-handle   { handle, token? }   (PUBLIC, rate-limited)
+ * Atomically reserves a handle for a short window and returns a reservation
+ * token the client keeps (localStorage) and later presents when finalising the
+ * claim. Re-posting with the same token renews the TTL.
+ */
+const reserveHandle = async (req: express.Request, res: express.Response) => {
+  try {
+    const handle = normalizeHandle(req.body?.handle as string);
+    const err = validateHandle(handle);
+    if (err) return successResponseHelper(res, 200, "checked", { reserved: false, available: false, reason: err });
+
+    if (await isHandleOwnedByUser(handle)) {
+      return successResponseHelper(res, 200, "checked", { reserved: false, available: false, reason: "This handle is already taken" });
+    }
+
+    const key = handleReserveKey(handle);
+    const providedToken = typeof req.body?.token === "string" && req.body.token ? String(req.body.token) : "";
+
+    let holder: string | null = null;
+    try {
+      holder = await redis.get(key);
+    } catch {
+      // Redis unavailable — degrade gracefully to a soft (un-reserved) response
+      // so the signup journey is never blocked by a cache outage.
+      return successResponseHelper(res, 200, "reserved", { reserved: false, available: true, token: providedToken || crypto.randomUUID(), handle, expiresIn: 0 });
+    }
+
+    // Renew our own reservation.
+    if (holder && providedToken && holder === providedToken) {
+      await redis.expire(key, HANDLE_RESERVE_TTL_SECONDS);
+      return successResponseHelper(res, 200, "reserved", { reserved: true, available: true, token: providedToken, handle, expiresIn: HANDLE_RESERVE_TTL_SECONDS });
+    }
+    // Held by someone else.
+    if (holder && holder !== providedToken) {
+      return successResponseHelper(res, 200, "checked", { reserved: false, available: false, reason: "This handle is currently reserved by someone else" });
+    }
+
+    // Free → acquire atomically (NX = only if absent).
+    const token = providedToken || crypto.randomUUID();
+    const result = await redis.set(key, token, { NX: true, EX: HANDLE_RESERVE_TTL_SECONDS });
+    if (result === "OK") {
+      return successResponseHelper(res, 200, "reserved", { reserved: true, available: true, token, handle, expiresIn: HANDLE_RESERVE_TTL_SECONDS });
+    }
+    // Lost the race between GET and SET NX — re-read the holder.
+    const finalHolder = await redis.get(key);
+    if (finalHolder && finalHolder === token) {
+      await redis.expire(key, HANDLE_RESERVE_TTL_SECONDS);
+      return successResponseHelper(res, 200, "reserved", { reserved: true, available: true, token, handle, expiresIn: HANDLE_RESERVE_TTL_SECONDS });
+    }
+    return successResponseHelper(res, 200, "checked", { reserved: false, available: false, reason: "This handle was just reserved by someone else" });
   } catch (e) {
     handleControllerError(res, e, userLogger);
   }
@@ -3968,18 +4050,30 @@ const updateCreatorProfile = async (req: express.Request, res: express.Response)
       theme_cover_gradient?: string | null;
     };
     const updates: Record<string, unknown> = {};
+    // Reservation key to release once the handle is successfully assigned.
+    let reservedKeyToRelease: string | null = null;
 
     if (rawHandle !== undefined) {
       const handle = normalizeHandle(rawHandle);
       const err = validateHandle(handle);
       if (err) return errorResponseHelper(res, 400, err);
-      const existing = await userModel.findOne({
-        where: sequelize.where(sequelize.fn("LOWER", sequelize.col("handle")), handle),
-        attributes: ["user_id"],
-      });
-      if (existing && existing.dataValues.user_id !== userData.user_id) {
+      if (await isHandleOwnedByUser(handle, userData.user_id)) {
         return errorResponseHelper(res, 409, "This handle is already taken");
       }
+      // Honour an active reservation held by a DIFFERENT visitor's token. The
+      // client presents its own token (from the landing-page claim) as
+      // `handle_reservation_token`; a matching/absent reservation is allowed.
+      const reserveKey = handleReserveKey(handle);
+      const token = typeof (req.body as { handle_reservation_token?: string })?.handle_reservation_token === "string"
+        ? (req.body as { handle_reservation_token?: string }).handle_reservation_token as string
+        : "";
+      try {
+        const holder = await redis.get(reserveKey);
+        if (holder && holder !== token) {
+          return errorResponseHelper(res, 409, "This handle is currently reserved by someone else");
+        }
+        if (holder) reservedKeyToRelease = reserveKey;
+      } catch { /* Redis down → proceed with the DB-level check only */ }
       updates.handle = handle;
     }
 
@@ -4155,6 +4249,10 @@ const updateCreatorProfile = async (req: express.Request, res: express.Response)
 
     await userModel.update(updates, { where: { user_id: userData.user_id } });
     await deleteRedisItem(`profile:${userData.user_id}`);
+    // Handle successfully assigned → release its reservation lock (if any).
+    if (reservedKeyToRelease) {
+      await redis.del(reservedKeyToRelease).catch(() => {});
+    }
 
     const fresh = await userModel.findOne({
       where: { user_id: userData.user_id },
@@ -4539,6 +4637,7 @@ export default {
   getLoginActivity,
   flagLogin,
   checkHandle,
+  reserveHandle,
   updateCreatorProfile,
   uploadCoverImage,
   getCreatorStats,

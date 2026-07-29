@@ -68,6 +68,10 @@ const EXEMPT_PATHS = [
   "/api/pay/calculate-payment",
   "/api/pay/network-fees",
   "/api/pay/encrypt-payload",
+  // Creator handle reservation — public, IP rate-limited. Called from the landing
+  // page before any auth/CSRF cookie exists; only creates a short-lived Redis lock
+  // (no user credentials/cookies involved), so there is no CSRF risk.
+  "/api/user/creator/reserve-handle",
   // Visitor tracking — public, rate-limited, fire-and-forget from landing page
   "/api/track/visitor",
   // Security: Flag suspicious login — public, uses one-time security token from email

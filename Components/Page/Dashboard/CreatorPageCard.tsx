@@ -124,7 +124,10 @@ const CreatorPageCard: React.FC = () => {
     setClaimChecking(true);
     claimDebRef.current = setTimeout(async () => {
       try {
-        const r = await axiosBaseApi.get(`/user/creator/check-handle?handle=${encodeURIComponent(h)}`);
+        const tok = (typeof window !== "undefined" && localStorage.getItem("dynopay.claimedHandleToken")) || "";
+        const r = await axiosBaseApi.get(
+          `/user/creator/check-handle?handle=${encodeURIComponent(h)}${tok ? `&token=${encodeURIComponent(tok)}` : ""}`,
+        );
         setClaimAvail(r?.data?.data || null);
       } catch {
         setClaimAvail(null);
@@ -140,15 +143,19 @@ const CreatorPageCard: React.FC = () => {
     const reserved = claimDraft.trim().toLowerCase();
     setClaiming(true);
     try {
+      const reservationToken =
+        (typeof window !== "undefined" && localStorage.getItem("dynopay.claimedHandleToken")) || undefined;
       await axiosBaseApi.put("/user/creator/profile", {
         handle: reserved,
+        handle_reservation_token: reservationToken,
       });
       // Show the persistent confirmation immediately (optimistic) so the user
       // unmistakably knows the name is reserved — independent of the refetch.
       setJustReserved(reserved);
       try {
-        // Landing-page claim fulfilled — clear the carried handle.
+        // Landing-page claim fulfilled — clear the carried handle + token.
         localStorage.removeItem("dynopay.claimedHandle");
+        localStorage.removeItem("dynopay.claimedHandleToken");
       } catch {
         /* ignore */
       }

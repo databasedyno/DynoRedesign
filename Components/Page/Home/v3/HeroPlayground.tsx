@@ -22,26 +22,62 @@ const HeroPlayground: React.FC = () => {
   const [handle, setHandle] = useState("you");
   const [tipIdx, setTipIdx] = useState(0);
   const [rotIdx, setRotIdx] = useState(0);
+  const [claimBusy, setClaimBusy] = useState(false);
+  const [claimError, setClaimError] = useState("");
 
-  // Carry the handle the visitor typed into the signup journey so it isn't lost.
-  // Persist to localStorage (survives OAuth/OTP redirects) AND pass as a query
-  // param, so the register screen can show it being reserved and the /creator
-  // claim input can be pre-filled — giving clear continuity end-to-end.
-  const goClaim = () => {
+  // Reserve the typed handle server-side (Redis TTL lock) so the name is HARD-held
+  // during signup, then carry it into the journey (localStorage + query param) so
+  // register shows it being reserved and /creator can pre-fill & finalise it.
+  const goClaim = async () => {
+    if (claimBusy) return;
     const clean = (handle === "you" ? "" : handle)
       .trim()
       .toLowerCase()
       .replace(/[^a-z0-9_-]/g, "")
       .slice(0, 30);
-    if (clean.length >= 3) {
+
+    // Nothing meaningful typed → just head to signup.
+    if (clean.length < 3) {
+      router.push("/auth/register?ref=hero_claim");
+      return;
+    }
+
+    const persistAndGo = (token?: string) => {
       try {
         localStorage.setItem("dynopay.claimedHandle", clean);
+        if (token) localStorage.setItem("dynopay.claimedHandleToken", token);
       } catch {
         /* private mode — the query param still carries the handle */
       }
       router.push(`/auth/register?ref=hero_claim&handle=${encodeURIComponent(clean)}`);
-    } else {
-      router.push("/auth/register?ref=hero_claim");
+    };
+
+    setClaimError("");
+    setClaimBusy(true);
+    try {
+      let existingToken: string | undefined;
+      try {
+        existingToken = localStorage.getItem("dynopay.claimedHandleToken") || undefined;
+      } catch {
+        existingToken = undefined;
+      }
+      const res = await fetch("/api/user/creator/reserve-handle", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ handle: clean, token: existingToken }),
+      });
+      const json = await res.json().catch(() => ({}));
+      const data = json?.data ?? json;
+      if (data?.reserved || data?.available) {
+        persistAndGo(data?.token);
+      } else {
+        setClaimError(data?.reason || "That handle isn't available — try another.");
+      }
+    } catch {
+      // Network/cache hiccup → soft carry-through so signup is never blocked.
+      persistAndGo();
+    } finally {
+      setClaimBusy(false);
     }
   };
 
@@ -196,6 +232,7 @@ const HeroPlayground: React.FC = () => {
             />
             <Button
               onClick={goClaim}
+              disabled={claimBusy}
               endIcon={<ArrowForward sx={{ fontSize: 16 }} />}
               sx={{
                 borderRadius: "999px",
@@ -214,6 +251,21 @@ const HeroPlayground: React.FC = () => {
               {t("v3.hero.claimBtn")}
             </Button>
           </Box>
+
+          {claimError && (
+            <Typography
+              data-testid="hero-claim-error"
+              sx={{
+                mt: 1.25,
+                ml: 2,
+                fontFamily: FONT_BODY,
+                fontSize: 13,
+                color: "#EF4444",
+              }}
+            >
+              {claimError}
+            </Typography>
+          )}
 
           {/* Reward hook — the "$2,000 in crypto" equivalent (real feature: First $500 Fee-Free) */}
           <Box

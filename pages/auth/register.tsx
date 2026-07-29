@@ -166,6 +166,28 @@ const Register = () => {
       if (clean.length >= 3) {
         setClaimedHandle(clean);
         localStorage.setItem("dynopay.claimedHandle", clean);
+        // Renew the server-side reservation so the handle stays HARD-held while
+        // the visitor finishes signing up (TTL refreshed on each renew).
+        const token = localStorage.getItem("dynopay.claimedHandleToken") || undefined;
+        fetch("/api/user/creator/reserve-handle", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ handle: clean, token }),
+        })
+          .then((r) => r.json())
+          .then((j) => {
+            const d = j?.data ?? j;
+            if (d?.token) {
+              try {
+                localStorage.setItem("dynopay.claimedHandleToken", d.token);
+              } catch {
+                /* ignore */
+              }
+            }
+          })
+          .catch(() => {
+            /* renewal is best-effort */
+          });
       }
     } catch {
       /* never break signup over a nice-to-have banner */

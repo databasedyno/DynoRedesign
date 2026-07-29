@@ -1,3 +1,38 @@
+## Session 90 — FEATURE: True server-side handle reservation (hard-lock during signup) (2026-07-29)
+
+### Preview URL
+https://46ec93b1-1703-4bf5-91d5-029cedba6253.preview.emergentagent.com
+### Merchant login (LIVE prod Railway PG): hostbay@moxx.co / Katiekendra123@
+
+### What / why
+Follow-up to Session 89. Previously the landing-page handle claim was a SOFT carry-through (name could be taken by someone else before finalizing at /creator). Now the handle is HARD-reserved server-side during signup.
+
+### Implementation (Redis-backed, NO Postgres schema change)
+Backend (userController.ts + userRouter.ts + csrfMiddleware.ts):
+- NEW public endpoint POST /api/user/creator/reserve-handle (strictRateLimiter, CSRF-exempt). Atomic Redis lock key `reserve:handle:<handle>` -> <token>, TTL 3600s (SET NX EX). Returns { reserved, available, token, handle, expiresIn }. Re-post with same token renews TTL. Owned-by-user → taken. Held by other token → reserved-by-someone-else. Redis down → graceful soft response.
+- checkHandle (authed) now reservation-aware: ?token= lets the owner see their own reserved handle as available; reserved-by-other → unavailable.
+- updateCreatorProfile (finalize) now validates `handle_reservation_token` in body: if the handle is reserved by a DIFFERENT token → 409; on success it releases (redis.del) the reservation.
+- csrfMiddleware EXEMPT_PATHS += /api/user/creator/reserve-handle.
+Frontend:
+- HeroPlayground goClaim(): async → POST reserve-handle; on success stores dynopay.claimedHandle + dynopay.claimedHandleToken and navigates to register; if taken/reserved shows inline error [data-testid=hero-claim-error]; network error → soft carry-through. Button disabled while busy.
+- register.tsx: on load, renews the reservation (POST reserve-handle with stored token) to extend the lock; stores refreshed token.
+- CreatorPageCard: passes token to check-handle (?token=) and sends handle_reservation_token in the PUT finalize; clears both localStorage keys on success.
+
+### Backend smoke tests (curl) — PASS
+- fresh reserve → reserved:true + token + expiresIn 3600
+- same handle no token → "reserved by someone else"
+- renew with matching token → reserved:true (TTL refreshed)
+- owned handle "hostbay" → "already taken"
+- too-short → validation error
+
+### Test scope for BACKEND testing agent — ⚠️ SAFETY CRITICAL
+The merchant hostbay@moxx.co ALREADY HAS a handle on the LIVE prod DB. DO NOT change/overwrite it. NEVER call PUT /api/user/creator/profile with a handle that would SUCCEED (that mutates the merchant's real handle). Only test the REJECT (409) path of finalize, which does not mutate.
+1. Public POST /api/user/creator/reserve-handle (no auth): (a) fresh unique handle → reserved:true + token; (b) same handle without token → available:false reserved-by-someone-else; (c) same handle WITH that token → reserved:true (renew); (d) a handle already owned by a user (e.g. "hostbay") → available:false "already taken"; (e) too-short/invalid → available:false with a validation reason. Confirm CSRF does NOT block it (no token/cookie sent).
+2. Login as merchant → GET /api/user/creator/check-handle?handle=<h>: (a) a handle you just reserved with token T under a DIFFERENT/omitted token → available:false; (b) same handle with ?token=T → available:true; (c) a random free handle → available:true.
+3. Finalize guard (REJECT path only): reserve a fresh handle "guardtest_<rand>" via the public endpoint (token T1). Then as the merchant call PUT /api/user/creator/profile with { handle: "guardtest_<rand>" } and NO token (or a wrong token) → EXPECT 409 (reserved by someone else). Then GET the merchant profile and CONFIRM the merchant's handle is UNCHANGED. DO NOT attempt the success path.
+Report PASS/FAIL per item.
+
+
 ## Session 89 — BUG FIX: landing "claim username" now carries through the signup journey (2026-07-29)
 
 ### Preview URL
