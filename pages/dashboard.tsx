@@ -1,6 +1,7 @@
 import DashboardLeftSection from "@/Components/Page/Dashboard/DashboardLeftSection";
 import DashboardRightSection from "@/Components/Page/Dashboard/DashboardRightSection";
 import ClaimHandleBanner from "@/Components/Page/Dashboard/ClaimHandleBanner";
+import AutoClaimHandle from "@/Components/Page/Dashboard/AutoClaimHandle";
 import CustomButton from "@/Components/UI/Buttons";
 import MobileReferralBanner from "@/Components/UI/MobileReferralBanner";
 import OnboardingFlow from "@/Components/UI/OnboardingFlow";
@@ -82,6 +83,7 @@ export default function Home({
 
       <main>
         <OnboardingFlow />
+        <AutoClaimHandle />
         {isMobile && <MobileReferralBanner />}
         {setupComplete && <ClaimHandleBanner />}
         <Grid container spacing={2.5}>
