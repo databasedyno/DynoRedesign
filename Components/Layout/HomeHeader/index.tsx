@@ -339,7 +339,8 @@ const HomeHeader = memo(function HomeHeader() {
         anchor="right"
         open={mobileMenuOpen}
         onClose={() => setMobileMenuOpen(false)}
-        ModalProps={{ keepMounted: true }}
+        transitionDuration={{ enter: 180, exit: 140 }}
+        ModalProps={{ keepMounted: true, disableScrollLock: true }}
       >
         <MobileDrawer>
           <MobileNavContent>

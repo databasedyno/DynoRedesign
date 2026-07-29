@@ -205,9 +205,17 @@ export const MobileMenuDrawer = styled(Drawer)(() => ({
   },
 
   "& .MuiBackdrop-root": {
-    backgroundColor: "rgba(11,11,15,0.55)",
-    backdropFilter: "blur(10px)",
-    WebkitBackdropFilter: "blur(10px)",
+    // Perf: a 10px full-screen backdrop-filter re-blurs the entire viewport on
+    // every animation frame, which caused visible tap latency / jank when
+    // opening the mobile menu on high-DPR phones (e.g. iPhone 14 Pro Max).
+    // A small 4px radius keeps the frosted feel at a fraction of the GPU cost;
+    // the slightly darker overlay preserves contrast.
+    backgroundColor: "rgba(11,11,15,0.6)",
+    backdropFilter: "blur(4px)",
+    WebkitBackdropFilter: "blur(4px)",
+    // Promote the backdrop to its own compositor layer so the blur is
+    // rasterised once instead of thrashing the main thread during the slide.
+    transform: "translateZ(0)",
   },
 
   "@media (max-width: 1025px)": {
