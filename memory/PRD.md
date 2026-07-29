@@ -9,6 +9,10 @@ Finished the last in-progress onboarding item: the creator handle a visitor rese
 - **Not e2e-tested**: the POSITIVE path (auto-claim actually firing) needs a handle-less authenticated account; none exists besides hostbay (has a handle) and creating/modifying a live-prod user is unsafe. Positive path is parity-verified (identical call to the proven-working manual reserve in `CreatorPageCard`).
 - Files: `Components/Page/Dashboard/AutoClaimHandle.tsx` (new), `pages/dashboard.tsx` (import + mount). Frontend-only, no backend/DB changes.
 
+### 2026-06 — Session 85 (enhancement) — Auto-claim delight moment (confetti + "page reserved" dialog) — ✅ SHIPPED (dialog visually self-verified)
+Upgraded the silent auto-claim into a celebratory onboarding moment to drive creator-page activation. On successful auto-claim, `AutoClaimHandle` now fires a two-burst brand-indigo confetti (`canvas-confetti`, same lib as register.tsx) and opens a MUI dialog: indigo party-popper badge, "Your creator page is reserved!", the reserved URL pill (`prettyCreatorUrl`), and a gradient **"Publish my page"** CTA → `/creator` (plus a "Maybe later" dismiss). Replaced the plain toast with this dialog. Test-ids: `auto-claim-celebration-dialog`, `auto-claim-url`, `auto-claim-publish-btn`, `auto-claim-later-btn`.
+- **Verified (self)**: temporarily defaulted the dialog open, logged in, screenshot confirms badge + heading + URL pill + Publish/Maybe-later CTAs render correctly; reverted the temporary default to `null`. tsc clean, no AutoClaimHandle errors.
+
 
 ### 2026-06 — Session 84 — Contrast Guardrail wired into Device Matrix Test — ✅ SHIPPED (self-verified, 40/40 checks + true/false-positive proof)
 Finished the last in-progress item: the `contrastAudit()` WCAG logic in `/app/tests/device-matrix.mjs` was defined but never invoked. Wired it into the sweep loop (`page.evaluate(contrastAudit, CONTRAST_HARD_FAIL)`) as a new per-page check `cta-contrast-guardrail` that HARD-FAILS (non-zero exit) any visible, enabled button whose label text drops below a 3:1 ratio against its gradient/alpha-aware background; sub-AA-but-legible labels are reported as warnings only.
