@@ -1,3 +1,19 @@
+# CURRENT SESSION (fresh boot — 2026-07-29) — ENV PROVISIONING (user asked "set up using below cred")
+
+- **Preview URL**: https://46ec93b1-1703-4bf5-91d5-029cedba6253.preview.emergentagent.com — set as NEXT_PUBLIC_BASE_URL + NEXTAUTH_URL (frontend) and added to CORS_ALLOWED_ORIGINS. Landing (/) 200, /auth/login 200, /dashboard 200 after login.
+- **Merchant test account** (LIVE Railway PG, UNCHANGED): **hostbay@moxx.co / Katiekendra123@** (user_id=1, name=hostbay). REAL login VERIFIED this session: POST /api/user/login → HTTP 200, "Session 531 created for user 1", "Login completed". Dashboard rendered live data (Lifetime Volume $23,503.66, 13 wallets, Growth fee tier). Login flow: Email → Continue → Password → "Sign in" (2-step). JWT auth (localStorage: token/refreshToken/auth_persistent) — domain-independent, so preview session persists.
+- **Admin email** (env ADMIN_EMAIL): moxxcompany@gmail.com (password unknown).
+- **NEXTAUTH_SECRET** (this session, in /app/.env.local): dynopay-preview-nextauth-secret-8f2c1a4b6d
+- On boot: fresh container — /app + /app/backend node_modules MISSING, all .env MISSING, frontend supervisor FATAL (next binary not found). Ran root yarn (had corrupt cache for math-intrinsics → `yarn cache clean math-intrinsics` fixed it) + backend yarn (both exit=0). Frontend = `next dev` via /app/frontend bridge. Backend = server.py uvicorn proxy 8001 → ts-node server.ts on 3300.
+- .env written: `/app/backend/.env` (full provided creds, KMS GOOGLE_CLIENT_KEY kept \\n-escaped — normalizePrivateKey handles it) + `/app/.env.local` (frontend NEXT_PUBLIC_* + next-auth vars, BASE_URL=preview).
+- **USER CHOICES THIS SESSION (differ from prior sessions' safety overrides)**: user explicitly chose to KEEP **ENABLE_BACKGROUND_JOBS=true** (prior sessions forced =false) AND connect to PRODUCTION Railway PG/Redis as-is. Backend app URLs (SERVER_URL/FRONTEND_URL/CHECKOUT_URL) kept as dynopay.com (only frontend NEXT_PUBLIC_BASE_URL → preview). SAFE because **WORKER_ROLE=secondary** → leader-election skips all fund-moving jobs (logs: "Skipping BullMQ webhook worker — secondary instance", "Skipping startup reconciliation", error digest, webhook migration). No sweeps/settlement run here.
+- DB connected WITHOUT a DATABASE_URL var (parts branch HOST/DB_PORT/DB_NAME/USER_NAME/PASSWORD + DB_SSL_REJECT_UNAUTHORIZED=false works — all tables synced OK).
+- Verified /api via same-origin browser fetch: /api/public/tickers 200 (live prices BTC $64,412), /api/geo-detect 200, /api/auth/session 200. NOTE: /health (no /api prefix) → 404 (routed to frontend; only /api/* reaches backend via K8s ingress).
+- Expected quirks (harmless): Binance geo-blocked (WS 451) → CoinGecko/Tatum price fallback works; SSH SOCKS tunnel disabled (sshpass absent); Google/GitHub OAuth won't complete in preview (redirect URIs registered for dynopay.com). webhook-crond supervisor FATAL = pod base-image cron daemon, unrelated to app. NO CODE CHANGES this session — pure env provisioning.
+
+---
+
+
 # CURRENT SESSION (session 83, 2026-07-28) — ENV PROVISIONING + PALETTE HOUSEKEEPING + SEO i18n + BLOG/POLICY TYPOGRAPHY + AURORA DEAD-CODE SWEEP
 
 - **Preview URL**: https://multi-chain-checkout-5.preview.emergentagent.com. FIRST in CORS_ALLOWED_ORIGINS. All 200 on /, /auth/login, /pay/demo, /hostbay, /dashboard, /for/creators, /blog, /blog/{slug}, /terms-conditions, /privacy-policy, /aml-policy, /QA, /api/csrf-token.
