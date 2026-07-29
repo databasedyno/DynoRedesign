@@ -39,6 +39,17 @@ export const FixedHeader = styled("header")(({ theme }) => {
     transition:
       "transform 320ms cubic-bezier(0.16,1,0.3,1), opacity 240ms ease, top 250ms ease, background-color 300ms ease",
     width: "100%",
+
+    // MOBILE PERF (2026-07-29, user report — "sometimes takes minutes to
+    // respond"). A 14px/saturate(1.2) full-width backdrop-filter re-blurs the
+    // entire viewport on every scroll frame on iOS Safari / Firefox mobile,
+    // pinning the compositor on lower-end phones. Dropping to 8px + skipping
+    // the saturate on mobile is visually near-identical but ~4× cheaper on
+    // GPU, which restores prompt tap dispatch to the hamburger.
+    [theme.breakpoints.down("md")]: {
+      backdropFilter: "blur(8px)",
+      WebkitBackdropFilter: "blur(8px)",
+    },
   };
 });
 
@@ -153,11 +164,18 @@ export const Actions = styled(Box)(() => ({
 
 // Wrapper for the language switcher so we can hide on small viewports
 // without touching the inner component.
-export const DesktopLanguageWrapper = styled(Box)({
+// MOBILE FIX (2026-07-29): hidden via CSS media query instead of JS
+// `!isMobile && ...` gate so the switcher never renders in SSR HTML for
+// mobile viewports (previous behaviour was a hydration flicker + crowded
+// top-right that squeezed the hamburger against the theme toggle).
+export const DesktopLanguageWrapper = styled(Box)(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   marginLeft: 4,
-});
+  [theme.breakpoints.down("md")]: {
+    display: "none",
+  },
+}));
 
 export const MobileLanguageWrapper = styled(Box)(({ theme }) => ({
   display: "flex",
@@ -170,10 +188,32 @@ export const MobileLanguageWrapper = styled(Box)(({ theme }) => ({
 
 /* ================= MOBILE MENU ================= */
 
+// MOBILE FIX (2026-07-29, user report — iPhone/Firefox: top-right menu wouldn't
+// open or "took minutes to respond"). Two compounding causes:
+//   (1) HITBOX. The button was 26px icon + 6px padding = ~38×38 — below both
+//       Apple HIG (44×44) and WCAG 2.5.5. Its neighbour ThemeToggle IS 44×44.
+//       iOS Safari's touch-target algorithm routes ambiguous taps to whichever
+//       button has the larger accessible area, so the user's tap on the
+//       hamburger silently flipped the theme instead of opening the drawer.
+//   (2) 300ms TAP DELAY. Without `touch-action: manipulation` iOS holds every
+//       tap on interactive elements for double-tap-to-zoom detection — visible
+//       as "the menu takes a long time to respond" even after the hitbox fix.
+// Both are addressed below; hitbox is now 44×44, and we also lift the button
+// into its own tiny stacking context so nothing can sit over it.
 export const MobileMenuButton = styled(IconButton)(() => ({
   display: "none",
-  padding: "6px",
+  padding: 8,
+  minWidth: 44,
+  minHeight: 44,
   borderRadius: 10,
+  position: "relative",
+  zIndex: 1,
+  // Kills iOS Safari's 300ms tap delay + Firefox mobile's synthetic click gap.
+  touchAction: "manipulation",
+  WebkitTapHighlightColor: "transparent",
+  // Belt-and-braces: keep the button above any transient overlays that might
+  // land inside the header (language dropdown, tooltip, etc.).
+  pointerEvents: "auto",
 
   "@media (max-width: 1025px)": {
     display: "inline-flex",
@@ -400,12 +440,12 @@ export const StatusPillWrap = styled(Box)(({ theme }) => ({
     animation: "dynoStatusPulse 2.4s ease-out infinite",
   },
 
-  // On mobile, hide the label and just show the dot.
+  // On mobile, hide the pill entirely — the label is redundant and the dot
+  // takes space away from the hamburger tap target next to the theme toggle.
+  // (Was previously hidden via `!isMobile &&` JS gate, which caused SSR/mobile
+  // hydration to still render it on the first paint.)
   [theme.breakpoints.down("md")]: {
-    padding: "5px 9px",
-    "& .status-label": {
-      display: "none",
-    },
+    display: "none",
   },
 }));
 

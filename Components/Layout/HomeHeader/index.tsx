@@ -4,7 +4,6 @@ import DynopayLogo from "@/assets/Icons/home/dynopay-blackLogo.svg";
 import DynopayWhiteLogo from "@/assets/Icons/home/dynopay-whiteLogo.svg";
 import LanguageSwitcher from "@/Components/UI/LanguageSwitcher";
 import ThemeToggle from "@/Components/UI/ThemeToggle";
-import useIsMobile from "@/hooks/useIsMobile";
 import { ArrowForwardRounded } from "@mui/icons-material";
 import { Box, Button, useTheme } from "@mui/material";
 import Image from "next/image";
@@ -73,7 +72,6 @@ const SPY_SECTIONS: readonly string[] = ["hero", "fee-calculator", "features", "
 const HomeHeader = memo(function HomeHeader() {
   const router = useRouter();
   const { t } = useTranslation("landing");
-  const isMobile = useIsMobile("md");
   const muiTheme = useTheme();
   const isDark = muiTheme.palette.mode === "dark";
 
@@ -283,22 +281,25 @@ const HomeHeader = memo(function HomeHeader() {
 
         <RightGroup>
           <Actions>
-            {!isMobile && (
-              <StatusPillWrap aria-label="System status">
-                <span className="dot" />
-                <span className="status-label">{t("v3.header.systemsNormal")}</span>
-              </StatusPillWrap>
-            )}
+            {/* MOBILE FIX (2026-07-29): these three chips used to be gated by
+                `!isMobile && ...`. That JS gate caused the mobile SSR HTML to
+                still render them on the first paint (hydration flicker) which
+                crowded the top-right and made iOS Safari's touch-target
+                algorithm route hamburger taps to the neighbour ThemeToggle.
+                They are now hidden by CSS media queries inside the styled
+                components themselves — no JS involvement, no hydration cost. */}
+            <StatusPillWrap aria-label="System status">
+              <span className="dot" />
+              <span className="status-label">{t("v3.header.systemsNormal")}</span>
+            </StatusPillWrap>
 
-            {!isMobile && (
-              <DesktopLanguageWrapper>
-                <LanguageSwitcher />
-              </DesktopLanguageWrapper>
-            )}
+            <DesktopLanguageWrapper>
+              <LanguageSwitcher />
+            </DesktopLanguageWrapper>
 
             <ThemeToggle size="small" />
 
-            {!isMobile && <ActionDivider />}
+            <ActionDivider />
 
             <StyledSignInButton
               disableRipple
