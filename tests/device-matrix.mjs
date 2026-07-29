@@ -46,6 +46,93 @@ const PAGES = [
   { name: "checkout", path: "/pay/demo" },
 ];
 
+// ── CTA CONTRAST GUARDRAIL ───────────────────────────────────────────────────
+// Any visible, enabled button whose LABEL text falls below this WCAG contrast
+// ratio (against its alpha-composited, gradient-aware background) HARD-FAILS the
+// sweep. 3:1 is the AA bar for large/bold UI text and reliably catches the
+// "dark-text-on-dark-CTA" regression (the invisible-CTA bug measured ~1.3:1)
+// without flagging the many legible-but-sub-4.5 secondary buttons (those warn).
+const CONTRAST_HARD_FAIL = 3.0;
+
+// Runs inside the browser. Returns { fails, warns } lists of button records.
+function contrastAudit(hardFail) {
+  const parseRGB = (s) => {
+    if (!s) return null;
+    const m = s.match(/rgba?\(([^)]+)\)/);
+    if (!m) return null;
+    const p = m[1].split(",").map((x) => parseFloat(x.trim()));
+    return { r: p[0] || 0, g: p[1] || 0, b: p[2] || 0, a: p.length > 3 ? p[3] : 1 };
+  };
+  const hexToRgb = (h) => {
+    h = h.replace("#", "");
+    if (h.length === 3) h = h.split("").map((c) => c + c).join("");
+    const n = parseInt(h.slice(0, 6), 16);
+    const a = h.length >= 8 ? parseInt(h.slice(6, 8), 16) / 255 : 1;
+    return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255, a };
+  };
+  const composite = (fg, bg) => {
+    const a = fg.a + bg.a * (1 - fg.a);
+    const bl = (f, b) => (a === 0 ? 0 : (f * fg.a + b * bg.a * (1 - fg.a)) / a);
+    return { r: bl(fg.r, bg.r), g: bl(fg.g, bg.g), b: bl(fg.b, bg.b), a };
+  };
+  const gradientColor = (img) => {
+    const cm = img.match(/rgba?\([^)]+\)|#[0-9a-fA-F]{3,8}/);
+    if (!cm) return null;
+    return cm[0].startsWith("#") ? hexToRgb(cm[0]) : parseRGB(cm[0]);
+  };
+  const resolveBg = (el, depth) => {
+    if (!el || el.nodeType !== 1 || depth > 12) return { r: 255, g: 255, b: 255, a: 1 };
+    const cs = getComputedStyle(el);
+    let self = parseRGB(cs.backgroundColor) || { r: 0, g: 0, b: 0, a: 0 };
+    if (cs.backgroundImage && /gradient/i.test(cs.backgroundImage)) {
+      const c = gradientColor(cs.backgroundImage);
+      if (c) self = { r: c.r, g: c.g, b: c.b, a: c.a == null ? 1 : c.a };
+    }
+    if (self.a >= 0.999) return self;
+    return composite(self, resolveBg(el.parentElement, depth + 1));
+  };
+  const lum = (c) => {
+    const f = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+    return 0.2126 * f(c.r) + 0.7152 * f(c.g) + 0.0722 * f(c.b);
+  };
+  const ratio = (a, b) => { const L1 = lum(a), L2 = lum(b), hi = Math.max(L1, L2), lo = Math.min(L1, L2); return (hi + 0.05) / (lo + 0.05); };
+  const visible = (el) => {
+    const cs = getComputedStyle(el);
+    if (cs.display === "none" || cs.visibility === "hidden" || parseFloat(cs.opacity || "1") < 0.1) return false;
+    const r = el.getBoundingClientRect();
+    return r.width > 4 && r.height > 4;
+  };
+  const disabled = (el) => el.disabled || el.getAttribute("aria-disabled") === "true" || getComputedStyle(el).pointerEvents === "none";
+  const nodes = Array.from(document.querySelectorAll("button, [role='button'], a.MuiButton-root, .MuiButton-root"));
+  const seen = new Set();
+  const fails = [], warns = [];
+  for (const el of nodes) {
+    if (seen.has(el)) continue;
+    seen.add(el);
+    if (!visible(el) || disabled(el)) continue;
+    const text = (el.innerText || "").trim();
+    if (!text || text.length > 60) continue; // skip icon-only / non-label buttons
+    const cs = getComputedStyle(el);
+    const bg = resolveBg(el, 0);
+    let fg = parseRGB(cs.color) || { r: 0, g: 0, b: 0, a: 1 };
+    if (fg.a < 0.999) fg = composite(fg, bg);
+    const cr = Math.round(ratio(fg, bg) * 100) / 100;
+    const size = parseFloat(cs.fontSize) || 14;
+    const weight = parseInt(cs.fontWeight) || 400;
+    const large = size >= 24 || (size >= 18.66 && weight >= 700);
+    const aa = large ? 3.0 : 4.5;
+    const rec = {
+      text: text.slice(0, 40).replace(/\s+/g, " "),
+      ratio: cr,
+      fg: cs.color,
+      bg: `rgb(${Math.round(bg.r)},${Math.round(bg.g)},${Math.round(bg.b)})`,
+    };
+    if (cr < hardFail) fails.push(rec);
+    else if (cr < aa) warns.push(rec);
+  }
+  return { fails, warns };
+}
+
 const results = [];
 function record(device, page, check, pass, detail = "") {
   results.push({ device, page, check, pass, detail });
