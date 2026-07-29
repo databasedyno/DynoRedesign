@@ -32,6 +32,13 @@ The merchant hostbay@moxx.co ALREADY HAS a handle on the LIVE prod DB. DO NOT ch
 3. Finalize guard (REJECT path only): reserve a fresh handle "guardtest_<rand>" via the public endpoint (token T1). Then as the merchant call PUT /api/user/creator/profile with { handle: "guardtest_<rand>" } and NO token (or a wrong token) → EXPECT 409 (reserved by someone else). Then GET the merchant profile and CONFIRM the merchant's handle is UNCHANGED. DO NOT attempt the success path.
 Report PASS/FAIL per item.
 
+### BACKEND TESTING AGENT VERIFICATION — Session 90 (2026-07-29) — ✅ PASS (11/11)
+- Public reserve-handle: fresh reserve (token+expiresIn 3600), reserved-by-other w/o token, renew w/ token, owned "hostbay"→taken, too-short→validation. CSRF exemption confirmed (no auth/CSRF needed).
+- check-handle (authed): reserved-by-other w/o token → unavailable; with matching ?token= → available; random free → available.
+- Finalize guard REJECT path: PUT profile with reserved handle + wrong token → HTTP 409; merchant handle "hostbay" UNCHANGED before/after (SAFETY confirmed — success/mutating path intentionally not tested).
+- No 500s. Feature works as designed.
+
+
 
 ## Session 89 — BUG FIX: landing "claim username" now carries through the signup journey (2026-07-29)
 
