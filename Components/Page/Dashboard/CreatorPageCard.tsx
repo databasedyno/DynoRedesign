@@ -65,6 +65,21 @@ const CreatorPageCard: React.FC = () => {
   const [justReserved, setJustReserved] = useState<string | null>(null);
   const claimDebRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Pre-fill the reserve input with a handle the visitor claimed on the landing
+  // hero (persisted in localStorage during signup), so the username carries all
+  // the way through to the actual claim step. Only when no handle is set yet and
+  // the user hasn't started typing their own.
+  useEffect(() => {
+    if (handle || claimDraft) return;
+    try {
+      const pending = localStorage.getItem("dynopay.claimedHandle") || "";
+      const clean = pending.trim().toLowerCase().replace(/[^a-z0-9_-]/g, "").slice(0, 30);
+      if (clean.length >= 3) setClaimDraft(clean);
+    } catch {
+      /* ignore storage errors */
+    }
+  }, [handle]);
+
   const claimFormatError = useMemo(() => {
     if (!claimDraft) return null;
     if (!HANDLE_RE.test(claimDraft)) return "3–30 chars: lowercase letters, numbers, - or _ (start with a letter/number)";
@@ -131,6 +146,12 @@ const CreatorPageCard: React.FC = () => {
       // Show the persistent confirmation immediately (optimistic) so the user
       // unmistakably knows the name is reserved — independent of the refetch.
       setJustReserved(reserved);
+      try {
+        // Landing-page claim fulfilled — clear the carried handle.
+        localStorage.removeItem("dynopay.claimedHandle");
+      } catch {
+        /* ignore */
+      }
       dispatch({
         type: TOAST_SHOW,
         payload: { message: `Reserved! ${siteUrl}/${reserved} is yours 🎉` },

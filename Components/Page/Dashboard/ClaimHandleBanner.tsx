@@ -26,6 +26,10 @@ const ClaimHandleBanner: React.FC = () => {
   const { t } = useTranslation("dashboardLayout");
   const profile = useSelector((s: rootReducer) => (s as any).userReducer.profile) as any;
   const [dismissed, setDismissed] = useState(true); // hidden by default until client mounts
+  // Handle the visitor claimed on the landing hero (carried through signup via
+  // localStorage). When present we personalise this banner so the reservation
+  // feels continuous across the journey.
+  const [pendingHandle, setPendingHandle] = useState("");
 
   const domain = prettyCreatorDomain() || "dynopay.me";
   const handle = profile?.handle || "";
@@ -35,6 +39,9 @@ const ClaimHandleBanner: React.FC = () => {
     try {
       const stored = window.localStorage.getItem(DISMISS_KEY);
       setDismissed(stored === "1");
+      const pending = (window.localStorage.getItem("dynopay.claimedHandle") || "")
+        .trim().toLowerCase().replace(/[^a-z0-9_-]/g, "").slice(0, 30);
+      if (pending.length >= 3) setPendingHandle(pending);
     } catch {
       setDismissed(false);
     }
@@ -87,13 +94,24 @@ const ClaimHandleBanner: React.FC = () => {
         </Box>
         <Box sx={{ minWidth: 0 }}>
           <Typography sx={{ fontSize: { xs: 13.5, sm: 14 }, fontWeight: 700, color: theme.palette.text.primary, lineHeight: 1.25 }}>
-            {t("claimBannerTitle", { defaultValue: "Reserve your creator handle" })}
+            {pendingHandle
+              ? t("claimBannerTitlePending", {
+                  defaultValue: `Finish claiming @${pendingHandle}`,
+                  handle: pendingHandle,
+                })
+              : t("claimBannerTitle", { defaultValue: "Reserve your creator handle" })}
           </Typography>
           <Typography sx={{ fontSize: 12.5, color: theme.palette.text.secondary, mt: 0.25 }}>
-            {t("claimBannerSubtitle", {
-              defaultValue: `Grab your one-tap payment link — ${domain}/yourname — before someone else does.`,
-              domain,
-            })}
+            {pendingHandle
+              ? t("claimBannerSubtitlePending", {
+                  defaultValue: `${domain}/${pendingHandle} is reserved for you — tap Claim to lock it in.`,
+                  domain,
+                  handle: pendingHandle,
+                })
+              : t("claimBannerSubtitle", {
+                  defaultValue: `Grab your one-tap payment link — ${domain}/yourname — before someone else does.`,
+                  domain,
+                })}
           </Typography>
         </Box>
       </Box>

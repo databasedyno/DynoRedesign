@@ -23,6 +23,28 @@ const HeroPlayground: React.FC = () => {
   const [tipIdx, setTipIdx] = useState(0);
   const [rotIdx, setRotIdx] = useState(0);
 
+  // Carry the handle the visitor typed into the signup journey so it isn't lost.
+  // Persist to localStorage (survives OAuth/OTP redirects) AND pass as a query
+  // param, so the register screen can show it being reserved and the /creator
+  // claim input can be pre-filled — giving clear continuity end-to-end.
+  const goClaim = () => {
+    const clean = (handle === "you" ? "" : handle)
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9_-]/g, "")
+      .slice(0, 30);
+    if (clean.length >= 3) {
+      try {
+        localStorage.setItem("dynopay.claimedHandle", clean);
+      } catch {
+        /* private mode — the query param still carries the handle */
+      }
+      router.push(`/auth/register?ref=hero_claim&handle=${encodeURIComponent(clean)}`);
+    } else {
+      router.push("/auth/register?ref=hero_claim");
+    }
+  };
+
   useEffect(() => {
     if (reduced) return;
     const t = setInterval(() => {
@@ -154,11 +176,14 @@ const HeroPlayground: React.FC = () => {
               value={handle === "you" ? "" : handle}
               placeholder={displayHandle}
               onChange={(e) => {
-                const v = e.target.value.replace(/[^a-zA-Z0-9._-]/g, "").slice(0, 24);
+                const v = e.target.value
+                  .toLowerCase()
+                  .replace(/[^a-z0-9_-]/g, "")
+                  .slice(0, 30);
                 setHandle(v || "you");
               }}
               onKeyDown={(e) => {
-                if (e.key === "Enter") router.push("/auth/register");
+                if (e.key === "Enter") goClaim();
               }}
               sx={{
                 flex: 1,
@@ -170,7 +195,7 @@ const HeroPlayground: React.FC = () => {
               inputProps={{ "aria-label": t("v3.hero.chooseHandle") }}
             />
             <Button
-              onClick={() => router.push("/auth/register")}
+              onClick={goClaim}
               endIcon={<ArrowForward sx={{ fontSize: 16 }} />}
               sx={{
                 borderRadius: "999px",

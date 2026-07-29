@@ -75,6 +75,10 @@ const Register = () => {
   // Bumped each time we send a new OTP — tells OtpInputPanel to clear its boxes
   // and re-focus the first input.
   const [otpResetKey, setOtpResetKey] = useState(0);
+  // Handle the visitor claimed on the landing hero ("dynopay.me/@<handle>"),
+  // carried here via ?handle= (with a localStorage fallback) so we can show it
+  // is being reserved while they finish signing up.
+  const [claimedHandle, setClaimedHandle] = useState("");
 
   // Fire a small confetti burst the moment the user lands on step="success" —
   // only for NEW account creation (not for existing-account log-in), and only once.
@@ -145,6 +149,26 @@ const Register = () => {
       }
     } catch {
       /* attribution capture must never break the app */
+    }
+  }, [router.query]);
+
+  // ─── Claimed-handle capture (from the landing hero) ───────────────
+  // The landing hero sends ?handle=<h> and stores it in localStorage. Capture it
+  // so we can (a) reassure the visitor their page is reserved and (b) let the
+  // /creator claim step pre-fill it after signup.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const fromQuery =
+        typeof router.query.handle === "string" ? router.query.handle : "";
+      const raw = fromQuery || localStorage.getItem("dynopay.claimedHandle") || "";
+      const clean = raw.trim().toLowerCase().replace(/[^a-z0-9_-]/g, "").slice(0, 30);
+      if (clean.length >= 3) {
+        setClaimedHandle(clean);
+        localStorage.setItem("dynopay.claimedHandle", clean);
+      }
+    } catch {
+      /* never break signup over a nice-to-have banner */
     }
   }, [router.query]);
 
@@ -482,6 +506,53 @@ const Register = () => {
                     descriptionFontSize="14px"
                     descriptionColor={theme.palette.text.secondary}
                   />
+
+                  {claimedHandle && (
+                    <Box
+                      data-testid="reserved-handle-banner"
+                      sx={{
+                        mt: 1.5,
+                        px: 1.75,
+                        py: 1.25,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1,
+                        borderRadius: "12px",
+                        border: `1px solid ${
+                          theme.palette.mode === "dark"
+                            ? "rgba(79,70,229,0.4)"
+                            : "rgba(79,70,229,0.25)"
+                        }`,
+                        background:
+                          theme.palette.mode === "dark"
+                            ? "rgba(79,70,229,0.14)"
+                            : "rgba(79,70,229,0.06)",
+                      }}
+                    >
+                      <CheckCircleOutline
+                        sx={{ fontSize: 20, color: "#4F46E5", flexShrink: 0 }}
+                      />
+                      <Typography
+                        component="div"
+                        sx={{
+                          fontSize: "13px",
+                          lineHeight: 1.35,
+                          color: theme.palette.text.primary,
+                        }}
+                      >
+                        {t("reservedHandlePrefix", {
+                          defaultValue: "You're reserving",
+                        })}{" "}
+                        <b style={{ fontWeight: 700 }}>
+                          dynopay.me/@{claimedHandle}
+                        </b>{" "}
+                        —{" "}
+                        {t("reservedHandleSuffix", {
+                          defaultValue: "finish signing up to claim it.",
+                        })}
+                      </Typography>
+                    </Box>
+                  )}
 
                   {/* Social Sign Up — hidden when both social flags are off */}
                   {(process.env.NEXT_PUBLIC_ENABLE_GOOGLE_AUTH === "true" ||
