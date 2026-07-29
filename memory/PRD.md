@@ -1,6 +1,14 @@
 # DynoPay - Payment Gateway PRD
 
 
+### 2026-06 — Session 84 — Contrast Guardrail wired into Device Matrix Test — ✅ SHIPPED (self-verified, 40/40 checks + true/false-positive proof)
+Finished the last in-progress item: the `contrastAudit()` WCAG logic in `/app/tests/device-matrix.mjs` was defined but never invoked. Wired it into the sweep loop (`page.evaluate(contrastAudit, CONTRAST_HARD_FAIL)`) as a new per-page check `cta-contrast-guardrail` that HARD-FAILS (non-zero exit) any visible, enabled button whose label text drops below a 3:1 ratio against its gradient/alpha-aware background; sub-AA-but-legible labels are reported as warnings only.
+- **False-positive fix (important):** first run flagged the checkout language switcher "EN" pill at 1:1 (white-on-white). Live-DOM probe proved this was a measurement artifact — the audit read the *button wrapper's* inherited white `color` (from the checkout header's indigo gradient styling) instead of the inner `<Typography>` that actually renders "EN" in dark `rgb(24,24,27)` on a white pill (~16:1, perfectly legible per cropped-pixel check). Refactored the audit to measure the element that OWNS the visible text node (recurses to text-bearing leaves, scores the WORST leaf) rather than the button element's inherited color.
+- **Verified both directions:** (1) full sweep `yarn test:devices` against the live preview = **40/40 PASS** incl. all 16 contrast checks (4 devices × 4 pages: home/login/fees/checkout @ iPhone SE 375, iPhone 14 Pro Max 430, iPad 820, desktop 1920); (2) synthetic regression harness (extracted the shipped `contrastAudit` fn, injected 3 buttons) correctly FAILED both "dark text directly on dark button" (1.27:1) AND "dark span inside a white-color button on dark bg" (1.27:1 — the exact inner-text-node structure the language switcher has), and correctly PASSED white-on-indigo "Legible CTA". Prevents the invisible-CTA regression from silently returning.
+- Files: `/app/tests/device-matrix.mjs` (contrast audit wired + text-owner refactor). Frontend-only, no backend/DB touched. Playwright chromium 1234 installed to `/pw-browsers` (matched playwright 1.62.0).
+
+
+
 ### 2026-07-28 — Session 82 — Sign-in rewrite (2-screen adaptive + inline OTP) + Auth palette migration to Indigo Aurora + Landing v3 full i18n across 6 languages — ✅ SHIPPED (visual + curl login verified against LIVE Railway PG)
 User asked two things: (1) landing design consistency across other surfaces + (2) shortening the sign-in flow. Confirmed Q1=(b) hybrid translations (I hand-translate marketing copy, LLM-assist utility strings) and Q2=(b) per-surface combine (palette + i18n done together). Also confirmed Option B for design scope: full-app indigo migration (dashboard included), starting per-surface.
 

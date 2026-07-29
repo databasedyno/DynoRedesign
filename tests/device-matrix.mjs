@@ -103,6 +103,25 @@ function contrastAudit(hardFail) {
     return r.width > 4 && r.height > 4;
   };
   const disabled = (el) => el.disabled || el.getAttribute("aria-disabled") === "true" || getComputedStyle(el).pointerEvents === "none";
+  // The element that OWNS the visible text is often an inner <span>/<Typography>
+  // with its own `color`, not the <button> wrapper (which may inherit a color
+  // from a themed header that applies to no real text). Measure the actual
+  // text-bearing leaves so we don't false-fail a legible label. Returns [el] if
+  // the button holds its text directly.
+  const textOwners = (root) => {
+    const owners = [];
+    const walk = (node) => {
+      for (const child of node.childNodes) {
+        if (child.nodeType === 3 && child.textContent.trim()) {
+          owners.push(node);
+          break;
+        }
+      }
+      for (const child of node.children) walk(child);
+    };
+    walk(root);
+    return owners.length ? owners : [root];
+  };
   const nodes = Array.from(document.querySelectorAll("button, [role='button'], a.MuiButton-root, .MuiButton-root"));
   const seen = new Set();
   const fails = [], warns = [];
@@ -112,20 +131,34 @@ function contrastAudit(hardFail) {
     if (!visible(el) || disabled(el)) continue;
     const text = (el.innerText || "").trim();
     if (!text || text.length > 60) continue; // skip icon-only / non-label buttons
-    const cs = getComputedStyle(el);
-    const bg = resolveBg(el, 0);
-    let fg = parseRGB(cs.color) || { r: 0, g: 0, b: 0, a: 1 };
-    if (fg.a < 0.999) fg = composite(fg, bg);
-    const cr = Math.round(ratio(fg, bg) * 100) / 100;
-    const size = parseFloat(cs.fontSize) || 14;
-    const weight = parseInt(cs.fontWeight) || 400;
-    const large = size >= 24 || (size >= 18.66 && weight >= 700);
+    // Evaluate each text-bearing leaf; the button "fails" on its WORST leaf.
+    let worst = null;
+    for (const o of textOwners(el)) {
+      if (!visible(o)) continue;
+      const ocs = getComputedStyle(o);
+      const bg = resolveBg(o, 0);
+      let fg = parseRGB(ocs.color) || { r: 0, g: 0, b: 0, a: 1 };
+      if (fg.a < 0.999) fg = composite(fg, bg);
+      const cr = ratio(fg, bg);
+      if (worst === null || cr < worst.cr) {
+        worst = {
+          cr,
+          fg: ocs.color,
+          bg,
+          size: parseFloat(ocs.fontSize) || 14,
+          weight: parseInt(ocs.fontWeight) || 400,
+        };
+      }
+    }
+    if (worst === null) continue;
+    const cr = Math.round(worst.cr * 100) / 100;
+    const large = worst.size >= 24 || (worst.size >= 18.66 && worst.weight >= 700);
     const aa = large ? 3.0 : 4.5;
     const rec = {
       text: text.slice(0, 40).replace(/\s+/g, " "),
       ratio: cr,
-      fg: cs.color,
-      bg: `rgb(${Math.round(bg.r)},${Math.round(bg.g)},${Math.round(bg.b)})`,
+      fg: worst.fg,
+      bg: `rgb(${Math.round(worst.bg.r)},${Math.round(worst.bg.g)},${Math.round(worst.bg.b)})`,
     };
     if (cr < hardFail) fails.push(rec);
     else if (cr < aa) warns.push(rec);
@@ -228,6 +261,30 @@ try {
             record(d.name, p.name, "nav-links-visible-on-desktop", info.hasNav);
           }
         }
+
+        // 3) CTA contrast guardrail — HARD-FAIL any visible button whose label
+        //    text falls below CONTRAST_HARD_FAIL:1 against its (gradient-aware)
+        //    background. Sub-AA-but-legible buttons are reported as warnings.
+        const audit = await page.evaluate(contrastAudit, CONTRAST_HARD_FAIL);
+        record(
+          d.name,
+          p.name,
+          "cta-contrast-guardrail",
+          audit.fails.length === 0,
+          audit.fails.length
+            ? `${audit.fails.length} FAIL(S): ` +
+              audit.fails
+                .map((f) => `"${f.text}" ${f.ratio}:1 (${f.fg} on ${f.bg})`)
+                .join(" | ")
+            : `${audit.warns.length} sub-AA warn(s)` +
+              (audit.warns.length
+                ? ": " +
+                  audit.warns
+                    .slice(0, 3)
+                    .map((w) => `"${w.text}" ${w.ratio}:1`)
+                    .join(", ")
+                : "")
+        );
 
         await page.screenshot({
           path: path.join(OUT_DIR, `${p.name}-${d.name}.png`),
