@@ -57,6 +57,13 @@ const addApi = async (req: express.Request, res: express.Response) => {
       'PHP',  // Philippine Peso
       'SGD',  // Singapore Dollar
       'AED',  // UAE Dirham
+      'KES',  // Kenyan Shilling
+      'GHS',  // Ghanaian Cedi
+      'ZAR',  // South African Rand
+      'XOF',  // West African CFA Franc
+      'XAF',  // Central African CFA Franc
+      'EGP',  // Egyptian Pound
+      'MAD',  // Moroccan Dirham
     ];
     
     if (!base_currency || !SUPPORTED_BASE_CURRENCIES.includes(base_currency.toUpperCase())) {
@@ -1380,6 +1387,13 @@ const getAvailableCurrencies = async (req: express.Request, res: express.Respons
       { code: 'PHP', name: 'Philippine Peso', symbol: '₱' },
       { code: 'SGD', name: 'Singapore Dollar', symbol: 'S$' },
       { code: 'AED', name: 'UAE Dirham', symbol: 'د.إ' },
+      { code: 'KES', name: 'Kenyan Shilling', symbol: 'KSh' },
+      { code: 'GHS', name: 'Ghanaian Cedi', symbol: 'GH₵' },
+      { code: 'ZAR', name: 'South African Rand', symbol: 'R' },
+      { code: 'XOF', name: 'West African CFA Franc', symbol: 'CFA' },
+      { code: 'XAF', name: 'Central African CFA Franc', symbol: 'FCFA' },
+      { code: 'EGP', name: 'Egyptian Pound', symbol: 'E£' },
+      { code: 'MAD', name: 'Moroccan Dirham', symbol: 'DH' },
     ];
 
     // Check existing keys for this company

@@ -52,6 +52,8 @@ import type {
 } from "@/Components/UI/pay-link/DonationSettingsSection";
 import CampaignManager from "@/Components/UI/pay-link/CampaignManager";
 import axiosBaseApi from "@/axiosConfig";
+import { PRICING_CURRENCIES, clampPricingCurrency } from "@/utils/pricingCurrencies";
+import { fetchGeoDefaults } from "@/utils/geoDefaults";
 import SaveChangeModel from "@/Components/UI/pay-link/SaveChangeModel";
 import {
   CreatePaymentLinkPageProps,
@@ -254,7 +256,7 @@ const CreatePaymentLinkPage = ({
 
   const [currencyOpen, setCurrencyOpen] = useState(false);
 
-  const currencies = ["USD", "EUR", "GBP", "INR", "PKR", "AED"];
+  const currencies = PRICING_CURRENCIES;
 
   const handleCurrencyOpen = (e: React.MouseEvent<HTMLButtonElement>) => {
     currencyAnchorEl.current = e.currentTarget;
@@ -396,6 +398,30 @@ const CreatePaymentLinkPage = ({
       );
     }
   }, [setPageName, hasPaymentLinkData, linkKind, tPaymentLink]);
+
+  // Geo-default the pricing currency for NEW links so a merchant sees their
+  // local currency pre-selected (e.g. Nigeria → NGN, Kenya → KES). Never runs
+  // in edit mode (keeps the saved currency) and never overrides a currency the
+  // merchant has already changed away from the USD default.
+  useEffect(() => {
+    if (hasPaymentLinkData) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const { currency } = await fetchGeoDefaults();
+        const supported = clampPricingCurrency(currency, "");
+        if (cancelled || !supported || supported === "USD") return;
+        setPaymentSettings((prev) =>
+          prev.currency === "USD" ? { ...prev, currency: supported } : prev,
+        );
+      } catch {
+        /* non-fatal — keep the USD default */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [hasPaymentLinkData]);
 
   const [donationSettings, setDonationSettings] = useState<DonationSettingsState>(() => {
     const don = hasPaymentLinkData ? (paymentLinkData as PaymentLink).donation : null;

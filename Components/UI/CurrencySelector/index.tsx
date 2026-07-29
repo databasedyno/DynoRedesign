@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import type { StaticImageData } from "next/image";
 import {
   Box,
   Typography,
@@ -35,22 +36,75 @@ import sgFlag from "@/assets/Images/Icons/flags/sg-flag.png";
 import aeFlag from "@/assets/Images/Icons/flags/ae-flag.png";
 
 // Currency data - all supported base currencies (matching backend SUPPORTED_BASE_CURRENCIES)
-const currencies = [
+type CurrencyOption = { code: string; label: string; flag?: StaticImageData };
+
+// Kept in sync with backend SUPPORTED_BASE_CURRENCIES & utils/pricingCurrencies.
+// Currencies without a bundled flag asset render a lettered fallback glyph.
+const currencies: CurrencyOption[] = [
   { code: "USD", label: "USD", flag: unitedStatesFlag },
   { code: "EUR", label: "EUR", flag: euroFlag },
   { code: "GBP", label: "GBP", flag: gbFlag },
   { code: "AUD", label: "AUD", flag: auFlag },
   { code: "CAD", label: "CAD", flag: caFlag },
+  { code: "SGD", label: "SGD", flag: sgFlag },
   { code: "INR", label: "INR", flag: inFlag },
-  { code: "NGN", label: "NGN", flag: nigerianFlag },
-  { code: "VND", label: "VND", flag: vnFlag },
   { code: "PKR", label: "PKR", flag: pkFlag },
+  { code: "AED", label: "AED", flag: aeFlag },
+  { code: "PHP", label: "PHP", flag: phFlag },
+  { code: "VND", label: "VND", flag: vnFlag },
   { code: "BRL", label: "BRL", flag: brFlag },
   { code: "ARS", label: "ARS", flag: arFlag },
-  { code: "PHP", label: "PHP", flag: phFlag },
-  { code: "SGD", label: "SGD", flag: sgFlag },
-  { code: "AED", label: "AED", flag: aeFlag },
+  { code: "NGN", label: "NGN", flag: nigerianFlag },
+  { code: "KES", label: "KES" },
+  { code: "GHS", label: "GHS" },
+  { code: "ZAR", label: "ZAR" },
+  { code: "XOF", label: "XOF" },
+  { code: "XAF", label: "XAF" },
+  { code: "EGP", label: "EGP" },
+  { code: "MAD", label: "MAD" },
 ];
+
+// Renders a currency's flag when available, otherwise a compact lettered glyph.
+const CurrencyGlyph: React.FC<{ currency: CurrencyOption; size: number }> = ({
+  currency,
+  size,
+}) => {
+  if (currency.flag) {
+    return (
+      <CurrencyFlag
+        src={currency.flag.src}
+        alt={currency.code}
+        width={size}
+        height={size}
+      />
+    );
+  }
+  return (
+    <Box
+      aria-label={currency.code}
+      sx={{
+        width: size,
+        height: size,
+        minWidth: size,
+        borderRadius: "50%",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "linear-gradient(135deg, #6C5CE7 0%, #00B894 100%)",
+        color: "#fff",
+        fontFamily: "var(--font-sans)",
+        fontWeight: 700,
+        fontSize: Math.max(6, Math.round(size * 0.42)),
+        lineHeight: 1,
+        letterSpacing: "-0.3px",
+        textTransform: "uppercase",
+        userSelect: "none",
+      }}
+    >
+      {currency.code.slice(0, 2)}
+    </Box>
+  );
+};
 
 export interface CurrencySelectorProps {
   label?: string;
@@ -188,11 +242,9 @@ const CurrencySelector: React.FC<CurrencySelectorProps> = ({
               flex: 1,
             }}
           >
-            <CurrencyFlag
-              src={selectedCurrency.flag.src}
-              alt={selectedCurrency.code}
-              width={isMobile ? 10 : 16}
-              height={isMobile ? 10 : 16}
+            <CurrencyGlyph
+              currency={selectedCurrency}
+              size={isMobile ? 14 : 16}
             />
             <CurrencyText isMobile={isMobile}>
               {selectedCurrency.code}
@@ -266,12 +318,7 @@ const CurrencySelector: React.FC<CurrencySelectorProps> = ({
                 }}
               >
                 <ListItemIcon sx={{ minWidth: "fit-content" }}>
-                  <CurrencyFlag
-                    src={currency.flag.src}
-                    alt={currency.code}
-                    width={16}
-                    height={16}
-                  />
+                  <CurrencyGlyph currency={currency} size={16} />
                 </ListItemIcon>
                 <ListItemText
                   primary={currency.code}

@@ -19,8 +19,9 @@ import { useRouter } from "next/router";
 import PanelCard from "@/Components/UI/PanelCard";
 import CustomButton from "@/Components/UI/Buttons";
 import axiosBaseApi from "@/axiosConfig";
+import { PRICING_CURRENCIES } from "@/utils/pricingCurrencies";
 
-const CURRENCY_OPTS = ["USD", "EUR", "GBP", "AUD", "CAD", "INR"];
+const CURRENCY_OPTS = PRICING_CURRENCIES;
 const DELIVERY_OPTS: Array<{ v: "url" | "file" | "license_key"; label: string; hint: string }> = [
   { v: "url", label: "Access URL", hint: "Deliver a link (Notion, Google Drive, private site) on payment." },
   { v: "file", label: "File download", hint: "Upload your file(s). Buyer gets signed download links." },

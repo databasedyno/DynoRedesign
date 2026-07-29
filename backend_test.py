@@ -1,433 +1,558 @@
 #!/usr/bin/env python3
 """
-Backend Testing Script for Session 74 - BTC Fee Floor Fix Verification
-Tests the targeted fix in tatumApi.ts feeEstimation function
+DynoPay Currency Expansion Testing
+Session 88 - African/Local Currency Support
+
+SAFETY CRITICAL: This tests against LIVE PRODUCTION database
+- Do NOT send cryptocurrency
+- Do NOT complete/settle payments
+- MUST delete all test links created
+- Do NOT create/leave API keys behind
 """
 
 import requests
 import json
-import sys
 import time
-from typing import Dict, Any, Optional
+from typing import Dict, List, Optional, Tuple
 
-# Configuration
-BACKEND_URL = "http://localhost:8001"
-PREVIEW_URL = "https://multi-chain-checkout-5.preview.emergentagent.com"
+# Base URL from review request
+BASE_URL = "https://46ec93b1-1703-4bf5-91d5-029cedba6253.preview.emergentagent.com"
+API_BASE = f"{BASE_URL}/api"
+
+# Test credentials (NO 2FA)
 TEST_EMAIL = "hostbay@moxx.co"
 TEST_PASSWORD = "Katiekendra123@"
+
+# Expected currencies (21 total)
+EXPECTED_CURRENCIES = [
+    'USD', 'EUR', 'GBP', 'AUD', 'CAD', 'INR', 'NGN', 'VND', 'PKR', 
+    'BRL', 'ARS', 'PHP', 'SGD', 'AED',  # Original 14
+    'KES', 'GHS', 'ZAR', 'XOF', 'XAF', 'EGP', 'MAD'  # New 7 African currencies
+]
+
+NEW_AFRICAN_CURRENCIES = ['KES', 'GHS', 'ZAR', 'XOF', 'XAF', 'EGP', 'MAD']
+ALL_TEST_CURRENCIES = ['NGN'] + NEW_AFRICAN_CURRENCIES
+
+# Track created links for cleanup
+created_links: List[str] = []
 
 class Colors:
     GREEN = '\033[92m'
     RED = '\033[91m'
     YELLOW = '\033[93m'
     BLUE = '\033[94m'
-    END = '\033[0m'
-    BOLD = '\033[1m'
+    RESET = '\033[0m'
 
-def print_test(name: str):
-    print(f"\n{Colors.BOLD}{Colors.BLUE}{'='*80}{Colors.END}")
-    print(f"{Colors.BOLD}{Colors.BLUE}TEST: {name}{Colors.END}")
-    print(f"{Colors.BOLD}{Colors.BLUE}{'='*80}{Colors.END}")
+def log_info(msg: str):
+    print(f"{Colors.BLUE}ℹ {msg}{Colors.RESET}")
 
-def print_pass(msg: str):
-    print(f"{Colors.GREEN}✅ PASS: {msg}{Colors.END}")
+def log_success(msg: str):
+    print(f"{Colors.GREEN}✓ {msg}{Colors.RESET}")
 
-def print_fail(msg: str):
-    print(f"{Colors.RED}❌ FAIL: {msg}{Colors.END}")
+def log_error(msg: str):
+    print(f"{Colors.RED}✗ {msg}{Colors.RESET}")
 
-def print_info(msg: str):
-    print(f"{Colors.YELLOW}ℹ️  INFO: {msg}{Colors.END}")
+def log_warning(msg: str):
+    print(f"{Colors.YELLOW}⚠ {msg}{Colors.RESET}")
 
-def print_warning(msg: str):
-    print(f"{Colors.YELLOW}⚠️  WARNING: {msg}{Colors.END}")
-
-class TestSession:
-    def __init__(self):
-        self.session = requests.Session()
-        self.csrf_token = None
-        self.access_token = None
-        self.results = {
-            "passed": [],
-            "failed": [],
-            "warnings": []
-        }
-
-    def get_csrf_token(self) -> bool:
-        """Get CSRF token from backend"""
-        try:
-            resp = self.session.get(f"{BACKEND_URL}/api/csrf-token", timeout=10)
-            if resp.status_code == 200:
-                data = resp.json()
-                self.csrf_token = data.get("csrf_token")
-                print_pass(f"CSRF token obtained: {self.csrf_token[:16]}...")
-                return True
-            else:
-                print_fail(f"Failed to get CSRF token: {resp.status_code}")
-                return False
-        except Exception as e:
-            print_fail(f"Exception getting CSRF token: {e}")
-            return False
-
-    def login(self) -> bool:
-        """Login with test credentials"""
-        if not self.csrf_token:
-            if not self.get_csrf_token():
-                return False
-        
-        try:
-            payload = {
+def login() -> Tuple[Optional[str], Optional[str]]:
+    """
+    Login and return (JWT token, company_id)
+    """
+    log_info("TEST 1: Authenticating...")
+    
+    try:
+        response = requests.post(
+            f"{API_BASE}/user/login",
+            json={
                 "email": TEST_EMAIL,
                 "password": TEST_PASSWORD
-            }
-            headers = {
-                "X-CSRF-Token": self.csrf_token,
-                "Content-Type": "application/json"
-            }
-            
-            resp = self.session.post(
-                f"{BACKEND_URL}/api/user/login",
-                json=payload,
-                headers=headers,
-                timeout=10
-            )
-            
-            if resp.status_code == 200:
-                data = resp.json()
-                self.access_token = data.get("accessToken")
-                print_pass(f"Login successful for {TEST_EMAIL}")
-                return True
-            else:
-                print_fail(f"Login failed: {resp.status_code} - {resp.text[:200]}")
-                return False
-        except Exception as e:
-            print_fail(f"Exception during login: {e}")
+            },
+            timeout=30
+        )
+        
+        if response.status_code != 200:
+            log_error(f"Login failed: {response.status_code} - {response.text}")
+            return None, None
+        
+        data = response.json()
+        # Token is in data.accessToken
+        token = data.get('data', {}).get('accessToken') or data.get('token')
+        
+        # Extract company_id from response or user data
+        company_id = data.get('company_id') or data.get('data', {}).get('company_id')
+        
+        if not token:
+            log_error("No token in login response")
+            return None, None
+        
+        log_success(f"Login successful - Token obtained")
+        if company_id:
+            log_success(f"Company ID: {company_id}")
+        
+        return token, company_id
+        
+    except Exception as e:
+        log_error(f"Login exception: {str(e)}")
+        return None, None
+
+def test_available_currencies(token: str, company_id: str) -> bool:
+    """
+    TEST 1: Verify availableCurrencies endpoint returns all 21 currencies
+    """
+    log_info("\n" + "="*80)
+    log_info("TEST 1: Available Currencies Endpoint")
+    log_info("="*80)
+    
+    try:
+        response = requests.get(
+            f"{API_BASE}/userApi/availableCurrencies/{company_id}",
+            headers={"Authorization": f"Bearer {token}"},
+            timeout=30
+        )
+        
+        if response.status_code != 200:
+            log_error(f"availableCurrencies failed: {response.status_code} - {response.text}")
             return False
-
-    def test_health_check(self) -> bool:
-        """Test 1: Backend health check"""
-        print_test("1. Backend Health Check")
         
-        try:
-            resp = requests.get(f"{BACKEND_URL}/health", timeout=10)
-            if resp.status_code == 200:
-                data = resp.json()
-                
-                # Check required fields
-                checks = [
-                    ("status", "healthy"),
-                    ("database", "connected"),
-                    ("redis", "connected"),
-                ]
-                
-                all_pass = True
-                for field, expected in checks:
-                    actual = data.get(field)
-                    if actual == expected:
-                        print_pass(f"{field} = {actual}")
-                    else:
-                        print_fail(f"{field} = {actual} (expected: {expected})")
-                        all_pass = False
-                
-                # Check Tatum circuit state
-                tatum = data.get("tatum_api", {})
-                if tatum.get("circuit_state") == "CLOSED" and tatum.get("operational") == True:
-                    print_pass(f"tatum_api.circuit_state = CLOSED, operational = true")
-                else:
-                    print_warning(f"tatum_api state: {tatum}")
-                
-                if all_pass:
-                    self.results["passed"].append("Health check")
-                    return True
-                else:
-                    self.results["failed"].append("Health check - some checks failed")
-                    return False
-            else:
-                print_fail(f"Health endpoint returned {resp.status_code}")
-                self.results["failed"].append(f"Health check - HTTP {resp.status_code}")
-                return False
-                
-        except Exception as e:
-            print_fail(f"Exception during health check: {e}")
-            self.results["failed"].append(f"Health check - Exception: {e}")
+        data = response.json()
+        currencies_list = data.get('data', {}).get('currencies', [])
+        
+        if not currencies_list:
+            log_error("No currencies returned")
             return False
-
-    def test_btc_fee_estimation(self) -> bool:
-        """Test 2: BTC fee estimation with mempool.space guard"""
-        print_test("2. BTC Fee Estimation (mempool.space guard)")
         
-        if not self.access_token:
-            if not self.login():
-                print_fail("Cannot test BTC fee estimation - login failed")
-                self.results["failed"].append("BTC fee estimation - login prerequisite failed")
-                return False
+        # Extract currency codes
+        currency_codes = [c.get('code') for c in currencies_list if c.get('code')]
         
-        try:
-            # Try to trigger fee estimation via the blockchain-fee endpoint
-            headers = {
-                "Authorization": f"Bearer {self.access_token}",
-                "Content-Type": "application/json"
-            }
-            
-            # First, try the public fee endpoint
-            resp = self.session.get(
-                f"{PREVIEW_URL}/api/blockchain-fee/BTC",
-                headers=headers,
-                timeout=15
-            )
-            
-            if resp.status_code == 200:
-                data = resp.json()
-                print_pass(f"BTC fee estimation endpoint returned 200")
-                print_info(f"Response: {json.dumps(data, indent=2)}")
-                
-                # Check if we have fee data
-                if "fast" in data or "medium" in data or "slow" in data:
-                    print_pass("Fee data returned successfully")
-                    self.results["passed"].append("BTC fee estimation endpoint")
-                    return True
-                else:
-                    print_warning("Fee endpoint returned 200 but no fee data")
-                    self.results["warnings"].append("BTC fee estimation - no fee data in response")
-                    return True
-            elif resp.status_code == 404:
-                print_warning("Blockchain-fee endpoint not found (404) - this is expected if not exposed")
-                print_info("Will check backend logs for feeEstimation calls instead")
-                self.results["warnings"].append("BTC fee estimation - endpoint not exposed (expected)")
-                return True
-            else:
-                print_warning(f"BTC fee endpoint returned {resp.status_code}: {resp.text[:200]}")
-                self.results["warnings"].append(f"BTC fee estimation - HTTP {resp.status_code}")
-                return True
-                
-        except Exception as e:
-            print_warning(f"Exception during BTC fee estimation: {e}")
-            print_info("This is acceptable - will verify via logs")
-            self.results["warnings"].append(f"BTC fee estimation - Exception (will check logs)")
-            return True
-
-    def test_non_btc_fee_estimation(self) -> bool:
-        """Test 3: Non-BTC fee estimation (ETH, USDT-ERC20) should not trigger mempool.space"""
-        print_test("3. Non-BTC Fee Estimation (ETH, USDT-ERC20)")
+        log_info(f"Total currencies returned: {len(currency_codes)}")
+        log_info(f"Currency codes: {', '.join(sorted(currency_codes))}")
         
-        if not self.access_token:
-            if not self.login():
-                print_fail("Cannot test non-BTC fee estimation - login failed")
-                self.results["failed"].append("Non-BTC fee estimation - login prerequisite failed")
-                return False
+        # Check for all expected currencies
+        missing = set(EXPECTED_CURRENCIES) - set(currency_codes)
+        extra = set(currency_codes) - set(EXPECTED_CURRENCIES)
         
-        try:
-            headers = {
-                "Authorization": f"Bearer {self.access_token}",
-                "Content-Type": "application/json"
-            }
-            
-            currencies = ["ETH", "USDT-ERC20"]
-            all_pass = True
-            
-            for currency in currencies:
-                resp = self.session.get(
-                    f"{PREVIEW_URL}/api/blockchain-fee/{currency}",
-                    headers=headers,
-                    timeout=15
-                )
-                
-                if resp.status_code == 200:
-                    print_pass(f"{currency} fee estimation returned 200")
-                elif resp.status_code == 404:
-                    print_warning(f"{currency} fee endpoint not found (404) - expected if not exposed")
-                else:
-                    print_warning(f"{currency} fee endpoint returned {resp.status_code}")
-            
-            print_info("Non-BTC fee estimation test completed - will verify no mempool.space logs for these currencies")
-            self.results["passed"].append("Non-BTC fee estimation")
-            return True
-                
-        except Exception as e:
-            print_warning(f"Exception during non-BTC fee estimation: {e}")
-            print_info("This is acceptable - will verify via logs")
-            self.results["warnings"].append(f"Non-BTC fee estimation - Exception (will check logs)")
-            return True
-
-    def test_login_flow(self) -> bool:
-        """Test 4: Login flow regression test"""
-        print_test("4. Login Flow Regression Test")
-        
-        # Test with correct credentials
-        test_session = requests.Session()
-        
-        try:
-            # Get CSRF token
-            resp = test_session.get(f"{BACKEND_URL}/api/csrf-token", timeout=10)
-            if resp.status_code != 200:
-                print_fail(f"Failed to get CSRF token: {resp.status_code}")
-                self.results["failed"].append("Login flow - CSRF token failed")
-                return False
-            
-            csrf = resp.json().get("csrf_token")
-            print_pass("CSRF token obtained")
-            
-            # Test with correct credentials
-            payload = {"email": TEST_EMAIL, "password": TEST_PASSWORD}
-            headers = {"X-CSRF-Token": csrf, "Content-Type": "application/json"}
-            
-            resp = test_session.post(
-                f"{BACKEND_URL}/api/user/login",
-                json=payload,
-                headers=headers,
-                timeout=10
-            )
-            
-            if resp.status_code == 200:
-                print_pass("Login with correct credentials: HTTP 200")
-                self.results["passed"].append("Login flow - correct credentials")
-            else:
-                print_fail(f"Login with correct credentials failed: {resp.status_code}")
-                self.results["failed"].append("Login flow - correct credentials failed")
-                return False
-            
-            # Test with incorrect credentials
-            bad_payload = {"email": TEST_EMAIL, "password": "WrongPassword123!"}
-            resp = test_session.post(
-                f"{BACKEND_URL}/api/user/login",
-                json=bad_payload,
-                headers=headers,
-                timeout=10
-            )
-            
-            if resp.status_code == 401:
-                print_pass("Login with incorrect credentials: HTTP 401 (expected)")
-                self.results["passed"].append("Login flow - incorrect credentials rejected")
-                return True
-            else:
-                print_fail(f"Login with incorrect credentials returned {resp.status_code} (expected 401)")
-                self.results["failed"].append("Login flow - incorrect credentials not rejected")
-                return False
-                
-        except Exception as e:
-            print_fail(f"Exception during login flow test: {e}")
-            self.results["failed"].append(f"Login flow - Exception: {e}")
+        if missing:
+            log_error(f"Missing currencies: {', '.join(sorted(missing))}")
             return False
-
-    def check_backend_logs(self) -> Dict[str, Any]:
-        """Check backend logs for feeEstimation messages"""
-        print_test("5. Backend Log Verification")
         
-        log_findings = {
-            "btc_mempool_logs": [],
-            "eth_mempool_logs": [],
-            "usdt_mempool_logs": []
+        if extra:
+            log_warning(f"Extra currencies (not expected): {', '.join(sorted(extra))}")
+        
+        # Verify new African currencies specifically
+        log_info("\nVerifying NEW African currencies:")
+        for curr in NEW_AFRICAN_CURRENCIES:
+            if curr in currency_codes:
+                curr_obj = next((c for c in currencies_list if c.get('code') == curr), None)
+                symbol = curr_obj.get('symbol', 'N/A') if curr_obj else 'N/A'
+                name = curr_obj.get('name', 'N/A') if curr_obj else 'N/A'
+                log_success(f"  {curr}: {name} ({symbol})")
+            else:
+                log_error(f"  {curr}: MISSING")
+                return False
+        
+        log_success(f"\n✓ All 21 currencies present including 7 new African currencies")
+        return True
+        
+    except Exception as e:
+        log_error(f"Exception in test_available_currencies: {str(e)}")
+        return False
+
+def create_payment_link(token: str, company_id: str, currency: str, amount: float = 10000) -> Optional[Dict]:
+    """
+    Create a payment link with specified currency
+    Returns link data including link_id
+    """
+    try:
+        payload = {
+            "base_currency": currency,
+            "base_amount": amount,
+            "description": f"Test {currency} payment link - Session 88",
+            "email": TEST_EMAIL,
+            "company_id": company_id,
+            "modes": ["CRYPTO"]
         }
         
+        response = requests.post(
+            f"{API_BASE}/pay/createPaymentLink",
+            headers={"Authorization": f"Bearer {token}"},
+            json=payload,
+            timeout=30
+        )
+        
+        if response.status_code != 200:
+            log_error(f"Create link failed for {currency}: {response.status_code} - {response.text}")
+            return None
+        
+        data = response.json()
+        link_data = data.get('data', {})
+        
+        link_id = link_data.get('link_id')
+        payment_link = link_data.get('payment_link')
+        stored_currency = link_data.get('base_currency')
+        
+        if link_id:
+            created_links.append(link_id)
+            log_success(f"Created {currency} link: ID={link_id}")
+        
+        return link_data
+        
+    except Exception as e:
+        log_error(f"Exception creating {currency} link: {str(e)}")
+        return None
+
+def get_currency_rates(customer_token: str, amount: float, source_currency: str) -> Optional[List[Dict]]:
+    """
+    Get currency conversion rates using customer token
+    """
+    try:
+        response = requests.post(
+            f"{API_BASE}/pay/getCurrencyRates",
+            headers={"Authorization": f"Bearer {customer_token}"},
+            json={
+                "amount": amount,
+                "source": source_currency,
+                "currencyList": ["BTC", "USDT-TRC20", "USDT-ERC20", "ETH"],
+                "fixedDecimal": True,
+                "fee_payer": "company"
+            },
+            timeout=30
+        )
+        
+        if response.status_code != 200:
+            log_error(f"getCurrencyRates failed: {response.status_code} - {response.text}")
+            return None
+        
+        data = response.json()
+        # Response can be either a list directly or wrapped in data
+        if isinstance(data, list):
+            rates = data
+        else:
+            rates = data.get('data', data.get('rates', []))
+        
+        return rates
+        
+    except Exception as e:
+        log_error(f"Exception in get_currency_rates: {str(e)}")
+        return None
+
+def get_checkout_data(payment_link: str) -> Optional[Dict]:
+    """
+    Get public checkout data for a payment link
+    Extract uniqueRef from link and call getData
+    """
+    try:
+        # Extract uniqueRef from payment_link URL (format: ?d=<uniqueRef>)
+        import re
+        match = re.search(r'[?&]d=([a-f0-9]+)', payment_link)
+        if not match:
+            log_error(f"Could not extract uniqueRef from link: {payment_link}")
+            return None
+        
+        unique_ref = match.group(1)
+        
+        response = requests.post(
+            f"{API_BASE}/pay/getData",
+            json={"data": unique_ref},
+            timeout=30
+        )
+        
+        if response.status_code != 200:
+            log_error(f"getData failed: {response.status_code} - {response.text}")
+            return None
+        
+        data = response.json()
+        checkout_data = data.get('data', {})
+        return checkout_data
+        
+    except Exception as e:
+        log_error(f"Exception in get_checkout_data: {str(e)}")
+        return None
+
+def test_ngn_payment_link(token: str, company_id: str) -> bool:
+    """
+    TEST 2: Create NGN payment link and verify
+    """
+    log_info("\n" + "="*80)
+    log_info("TEST 2: NGN Payment Link Creation")
+    log_info("="*80)
+    
+    # Create NGN link
+    link_data = create_payment_link(token, company_id, "NGN", 10000)
+    
+    if not link_data:
+        log_error("Failed to create NGN payment link")
+        return False
+    
+    # Verify stored currency
+    stored_currency = link_data.get('base_currency')
+    if stored_currency != 'NGN':
+        log_error(f"Expected base_currency='NGN', got '{stored_currency}'")
+        return False
+    
+    log_success(f"✓ NGN link created with base_currency='NGN'")
+    
+    # Get checkout data
+    payment_link = link_data.get('payment_link')
+    if not payment_link:
+        log_error("No payment_link URL in response")
+        return False
+    
+    log_info(f"Payment link: {payment_link}")
+    
+    checkout_data = get_checkout_data(payment_link)
+    if not checkout_data:
+        log_error("Failed to get checkout data")
+        return False
+    
+    # Verify base currency
+    base_currency = checkout_data.get('base_currency')
+    amount = checkout_data.get('amount')
+    customer_token = checkout_data.get('token')
+    
+    log_info(f"Checkout base_currency: {base_currency}")
+    log_info(f"Checkout amount: {amount}")
+    
+    if base_currency != 'NGN':
+        log_error(f"Expected base_currency='NGN', got '{base_currency}'")
+        return False
+    
+    log_success("✓ Checkout data shows base_currency='NGN'")
+    
+    # Get currency rates using customer token
+    if not customer_token:
+        log_error("No customer token in checkout data")
+        return False
+    
+    rates = get_currency_rates(customer_token, amount, base_currency)
+    if not rates:
+        log_warning("Failed to get currency rates")
+        return False
+    
+    log_info(f"\nCrypto conversion amounts for NGN {amount}:")
+    btc_rate = next((r for r in rates if r.get('currency') == 'BTC'), None)
+    usdt_rate = next((r for r in rates if r.get('currency') in ['USDT', 'USDT-TRC20', 'USDT-ERC20']), None)
+    
+    if btc_rate:
+        btc_amount = btc_rate.get('amount', 0)
+        log_info(f"  BTC: {btc_amount}")
+        if btc_amount == 0:
+            log_warning("  BTC conversion returned 0 (but continuing test)")
+    
+    if usdt_rate:
+        usdt_amount = usdt_rate.get('amount', 0)
+        usdt_currency = usdt_rate.get('currency')
+        log_info(f"  {usdt_currency}: {usdt_amount}")
+        if usdt_amount == 0:
+            log_error("  USDT conversion returned 0!")
+            return False
+        else:
+            log_success(f"  ✓ Valid USDT conversion: {usdt_amount}")
+    
+    log_success("\n✓ NGN payment link test PASSED")
+    return True
+
+def test_currency_conversion(token: str, company_id: str, currencies: List[str]) -> Dict[str, bool]:
+    """
+    TEST 3: Test fiat→crypto conversion for new currencies
+    Create a link for each currency and verify conversion works
+    """
+    log_info("\n" + "="*80)
+    log_info("TEST 3: Fiat→Crypto Conversion for New Currencies")
+    log_info("="*80)
+    
+    results = {}
+    
+    for currency in currencies:
+        log_info(f"\nTesting {currency}...")
+        
+        # Add delay to avoid rate limiting
+        time.sleep(2)
+        
+        # Create link
+        link_data = create_payment_link(token, company_id, currency, 1000)
+        
+        if not link_data:
+            log_error(f"  Failed to create {currency} link")
+            results[currency] = False
+            continue
+        
+        # Get checkout data
+        payment_link = link_data.get('payment_link')
+        if not payment_link:
+            log_error(f"  No payment_link for {currency}")
+            results[currency] = False
+            continue
+        
+        checkout_data = get_checkout_data(payment_link)
+        if not checkout_data:
+            log_error(f"  Failed to get checkout data for {currency}")
+            results[currency] = False
+            continue
+        
+        # Get customer token and amount
+        customer_token = checkout_data.get('token')
+        amount = checkout_data.get('amount')
+        base_currency = checkout_data.get('base_currency')
+        
+        if not customer_token:
+            log_error(f"  No customer token for {currency}")
+            results[currency] = False
+            continue
+        
+        # Get currency rates
+        rates = get_currency_rates(customer_token, amount, base_currency)
+        if not rates:
+            log_error(f"  Failed to get rates for {currency}")
+            results[currency] = False
+            continue
+        
+        # Find BTC and USDT rates
+        btc_rate = next((r for r in rates if r.get('currency') == 'BTC'), None)
+        usdt_rate = next((r for r in rates if r.get('currency') in ['USDT', 'USDT-TRC20', 'USDT-ERC20']), None)
+        
+        btc_amount = btc_rate.get('amount', 0) if btc_rate else 0
+        usdt_amount = usdt_rate.get('amount', 0) if usdt_rate else 0
+        
+        log_info(f"  {currency} 1000 → BTC: {btc_amount}, USDT: {usdt_amount}")
+        
+        # Check if conversions are valid (non-zero)
+        if btc_amount == 0 and usdt_amount == 0:
+            log_error(f"  ✗ {currency}: Both BTC and USDT conversions returned 0!")
+            results[currency] = False
+        elif btc_amount == 0:
+            log_warning(f"  ⚠ {currency}: BTC conversion returned 0 (but USDT works)")
+            results[currency] = True  # Consider pass if at least one works
+        elif usdt_amount == 0:
+            log_warning(f"  ⚠ {currency}: USDT conversion returned 0 (but BTC works)")
+            results[currency] = True  # Consider pass if at least one works
+        else:
+            log_success(f"  ✓ {currency}: Valid conversions (BTC: {btc_amount}, USDT: {usdt_amount})")
+            results[currency] = True
+    
+    # Summary
+    log_info("\n" + "-"*80)
+    log_info("Conversion Test Summary:")
+    passed = sum(1 for v in results.values() if v)
+    total = len(results)
+    
+    for curr, passed_test in results.items():
+        status = "✓ PASS" if passed_test else "✗ FAIL"
+        log_info(f"  {curr}: {status}")
+    
+    log_info(f"\nTotal: {passed}/{total} currencies passed")
+    
+    return results
+
+def cleanup_links(token: str) -> bool:
+    """
+    TEST 4: Cleanup - Delete all created test links
+    """
+    log_info("\n" + "="*80)
+    log_info("TEST 4: CLEANUP - Deleting Test Links")
+    log_info("="*80)
+    
+    if not created_links:
+        log_info("No links to clean up")
+        return True
+    
+    log_info(f"Deleting {len(created_links)} test links...")
+    
+    success_count = 0
+    for link_id in created_links:
         try:
-            # Check backend output log
-            import subprocess
-            result = subprocess.run(
-                ["tail", "-n", "200", "/var/log/supervisor/backend.out.log"],
-                capture_output=True,
-                text=True,
-                timeout=5
+            response = requests.delete(
+                f"{API_BASE}/pay/deletePaymentLink/{link_id}",
+                headers={"Authorization": f"Bearer {token}"},
+                timeout=30
             )
             
-            if result.returncode == 0:
-                log_lines = result.stdout.split('\n')
-                
-                # Look for feeEstimation logs
-                for line in log_lines:
-                    if '[feeEstimation]' in line:
-                        if 'mempool.space' in line:
-                            if 'BTC' in line:
-                                log_findings["btc_mempool_logs"].append(line)
-                            elif 'ETH' in line:
-                                log_findings["eth_mempool_logs"].append(line)
-                            elif 'USDT' in line:
-                                log_findings["usdt_mempool_logs"].append(line)
-                
-                # Report findings
-                if log_findings["btc_mempool_logs"]:
-                    print_pass(f"Found {len(log_findings['btc_mempool_logs'])} BTC mempool.space log entries")
-                    for log in log_findings["btc_mempool_logs"][-3:]:  # Show last 3
-                        print_info(f"  {log.strip()}")
-                    self.results["passed"].append("BTC mempool.space guard executed")
-                else:
-                    print_warning("No BTC mempool.space logs found in recent backend logs")
-                    print_info("This may be expected if no BTC fee estimation was triggered yet")
-                    self.results["warnings"].append("BTC mempool.space guard - no logs found (may need manual trigger)")
-                
-                if log_findings["eth_mempool_logs"] or log_findings["usdt_mempool_logs"]:
-                    print_fail("Found mempool.space logs for ETH/USDT - this should NOT happen!")
-                    self.results["failed"].append("Non-BTC currencies triggered mempool.space (BUG)")
-                else:
-                    print_pass("No mempool.space logs for ETH/USDT (correct - guard is BTC-only)")
-                    self.results["passed"].append("Non-BTC currencies do not trigger mempool.space")
-                
+            if response.status_code == 200:
+                log_success(f"  Deleted link {link_id}")
+                success_count += 1
             else:
-                print_warning(f"Could not read backend logs: {result.stderr}")
-                self.results["warnings"].append("Backend logs - could not read")
-            
-            return log_findings
-            
+                log_error(f"  Failed to delete link {link_id}: {response.status_code}")
+        
         except Exception as e:
-            print_warning(f"Exception checking backend logs: {e}")
-            self.results["warnings"].append(f"Backend logs - Exception: {e}")
-            return log_findings
-
-    def print_summary(self):
-        """Print test summary"""
-        print(f"\n{Colors.BOLD}{Colors.BLUE}{'='*80}{Colors.END}")
-        print(f"{Colors.BOLD}{Colors.BLUE}TEST SUMMARY{Colors.END}")
-        print(f"{Colors.BOLD}{Colors.BLUE}{'='*80}{Colors.END}\n")
-        
-        print(f"{Colors.GREEN}✅ PASSED ({len(self.results['passed'])}){Colors.END}")
-        for item in self.results["passed"]:
-            print(f"  • {item}")
-        
-        if self.results["failed"]:
-            print(f"\n{Colors.RED}❌ FAILED ({len(self.results['failed'])}){Colors.END}")
-            for item in self.results["failed"]:
-                print(f"  • {item}")
-        
-        if self.results["warnings"]:
-            print(f"\n{Colors.YELLOW}⚠️  WARNINGS ({len(self.results['warnings'])}){Colors.END}")
-            for item in self.results["warnings"]:
-                print(f"  • {item}")
-        
-        print(f"\n{Colors.BOLD}Overall Result: ", end="")
-        if not self.results["failed"]:
-            print(f"{Colors.GREEN}ALL CRITICAL TESTS PASSED ✅{Colors.END}")
-            return 0
-        else:
-            print(f"{Colors.RED}SOME TESTS FAILED ❌{Colors.END}")
-            return 1
+            log_error(f"  Exception deleting link {link_id}: {str(e)}")
+    
+    log_info(f"\nCleanup: {success_count}/{len(created_links)} links deleted")
+    
+    if success_count == len(created_links):
+        log_success("✓ All test links cleaned up successfully")
+        return True
+    else:
+        log_warning(f"⚠ {len(created_links) - success_count} links failed to delete")
+        return False
 
 def main():
-    print(f"{Colors.BOLD}{Colors.BLUE}")
+    """
+    Main test execution
+    """
+    print("\n" + "="*80)
+    print("DynoPay Currency Expansion Testing - Session 88")
+    print("Testing African/Local Currency Support (21 total currencies)")
     print("="*80)
-    print("SESSION 74 - BTC FEE FLOOR FIX VERIFICATION")
-    print("Testing targeted fix in tatumApi.ts feeEstimation function")
+    print(f"\nBase URL: {BASE_URL}")
+    print(f"Test Account: {TEST_EMAIL}")
+    print("\n⚠️  SAFETY: LIVE PRODUCTION DATABASE - NO CRYPTO TRANSACTIONS")
     print("="*80)
-    print(f"{Colors.END}\n")
     
-    test_session = TestSession()
+    # Login
+    token, company_id = login()
+    if not token:
+        log_error("Login failed - cannot proceed")
+        return False
     
-    # Run all tests
-    test_session.test_health_check()
-    test_session.test_login_flow()
-    test_session.test_btc_fee_estimation()
-    test_session.test_non_btc_fee_estimation()
-    test_session.check_backend_logs()
+    if not company_id:
+        log_warning("No company_id from login - attempting to use default")
+        # Try to get company_id from user profile or use a default
+        company_id = "1"  # Fallback
     
-    # Print summary and exit
-    exit_code = test_session.print_summary()
+    all_passed = True
     
-    print(f"\n{Colors.BOLD}Next Steps:{Colors.END}")
-    print("1. Review backend logs for feeEstimation messages with mempool.space")
-    print("2. Verify BTC fee estimation shows one of:")
-    print("   - Flooring warning (🚨 BTC Tatum fast=... is BELOW mempool.space target)")
-    print("   - Floor check pass (BTC Tatum fast=... ≥ mempool.space floor)")
-    print("   - Lookup failure warning (⚠️ mempool.space fee lookup failed)")
-    print("3. Confirm ETH/USDT-ERC20 fee estimation does NOT mention mempool.space")
+    # TEST 1: Available Currencies
+    test1_passed = test_available_currencies(token, company_id)
+    all_passed = all_passed and test1_passed
     
-    sys.exit(exit_code)
+    # TEST 2: NGN Payment Link
+    test2_passed = test_ngn_payment_link(token, company_id)
+    all_passed = all_passed and test2_passed
+    
+    # TEST 3: Currency Conversions
+    conversion_results = test_currency_conversion(token, company_id, ALL_TEST_CURRENCIES)
+    test3_passed = all(conversion_results.values())
+    all_passed = all_passed and test3_passed
+    
+    # TEST 4: Cleanup
+    cleanup_passed = cleanup_links(token)
+    
+    # Final Summary
+    print("\n" + "="*80)
+    print("FINAL TEST SUMMARY")
+    print("="*80)
+    print(f"TEST 1 - Available Currencies: {'✓ PASS' if test1_passed else '✗ FAIL'}")
+    print(f"TEST 2 - NGN Payment Link: {'✓ PASS' if test2_passed else '✗ FAIL'}")
+    print(f"TEST 3 - Currency Conversions: {'✓ PASS' if test3_passed else '✗ FAIL'}")
+    print(f"TEST 4 - Cleanup: {'✓ PASS' if cleanup_passed else '⚠ PARTIAL'}")
+    print("="*80)
+    
+    if all_passed and cleanup_passed:
+        print(f"\n{Colors.GREEN}✓ ALL TESTS PASSED{Colors.RESET}")
+        return True
+    else:
+        print(f"\n{Colors.RED}✗ SOME TESTS FAILED{Colors.RESET}")
+        return False
 
 if __name__ == "__main__":
-    main()
+    try:
+        success = main()
+        exit(0 if success else 1)
+    except KeyboardInterrupt:
+        print("\n\nTest interrupted by user")
+        exit(1)
+    except Exception as e:
+        log_error(f"Unexpected error: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        exit(1)

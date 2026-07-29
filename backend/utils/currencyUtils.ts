@@ -20,6 +20,13 @@ export const SUPPORTED_BASE_CURRENCIES = [
   'PHP',  // Philippine Peso
   'SGD',  // Singapore Dollar
   'AED',  // UAE Dirham
+  'KES',  // Kenyan Shilling
+  'GHS',  // Ghanaian Cedi
+  'ZAR',  // South African Rand
+  'XOF',  // West African CFA Franc
+  'XAF',  // Central African CFA Franc
+  'EGP',  // Egyptian Pound
+  'MAD',  // Moroccan Dirham
 ];
 
 // Supported CURATED display currencies for the merchant dashboard (Session 39).
@@ -49,7 +56,7 @@ const CURRENCY_SYMBOLS: Record<string, string> = {
   AED: 'د.إ',    // UAE Dirham
   // Legacy/Other (kept for backward compatibility)
   CHF: 'CHF', CNY: '¥', JPY: '¥', HKD: 'HK$', NZD: 'NZ$',
-  ZAR: 'R', KES: 'KSh', GHS: 'GH₵', MXN: 'MX$',
+  ZAR: 'R', KES: 'KSh', GHS: 'GH₵', MXN: 'MX$', XOF: 'CFA', XAF: 'FCFA', EGP: 'E£', MAD: 'DH',
   // Crypto (for reference)
   BTC: '₿', ETH: 'Ξ', USDT: '₮', USDC: 'USDC',
 };

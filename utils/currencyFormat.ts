@@ -17,6 +17,12 @@ const currencyFormats: Record<string, CurrencyFormat> = {
   HKD: { symbol: 'HK$', decimals: 2, locale: 'zh-HK' },
   NZD: { symbol: 'NZ$', decimals: 2, locale: 'en-NZ' },
   SGD: { symbol: 'S$', decimals: 2, locale: 'en-SG' },
+  // Asia & Middle East
+  INR: { symbol: '₹', decimals: 2, locale: 'en-IN' },
+  PKR: { symbol: '₨', decimals: 2, locale: 'en-PK' },
+  AED: { symbol: 'د.إ', decimals: 2, locale: 'ar-AE' },
+  PHP: { symbol: '₱', decimals: 2, locale: 'en-PH' },
+  VND: { symbol: '₫', decimals: 0, locale: 'vi-VN' },
   // Latin America
   BRL: { symbol: 'R$', decimals: 2, locale: 'pt-BR' },
   ARS: { symbol: '$', decimals: 2, locale: 'es-AR' },

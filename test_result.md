@@ -1,3 +1,35 @@
+## Session 88 — FEATURE: Currency localization (expand pricing currencies + NGN/African + geo-default) (2026-07-29)
+
+### Preview URL
+https://46ec93b1-1703-4bf5-91d5-029cedba6253.preview.emergentagent.com
+
+### Merchant login (LIVE production Railway PG)
+hostbay@moxx.co / Katiekendra123@
+
+### User problem statement
+"Currency localization. Example, someone in Nigeria who wishes to send NGN or create NGN payment link and donation. So we need proper localization." Confirmed scope: enable a curated set (~18-21) of pricing currencies (incl. NGN, KES, GHS, ZAR, XOF, XAF, EGP, MAD + majors) for merchant CREATE flows (payment links, donations, products); geo-default the pricing currency to the merchant's local currency (fallback USD); ensure ₦/locale formatting; link is PRICED in NGN and customer pays the crypto equivalent. (Fiat-pay/Flutterwave path is a SEPARATE later task.)
+
+### Changes (FULL STACK)
+Backend:
+- backend/utils/currencyUtils.ts: expanded SUPPORTED_BASE_CURRENCIES from 14 → 21 (added KES, GHS, ZAR, XOF, XAF, EGP, MAD); added symbols XOF/XAF/EGP/MAD to CURRENCY_SYMBOLS.
+- backend/controller/apiController.ts: expanded both inline SUPPORTED_BASE_CURRENCIES copies (create-API-key validation @ ~45; getAvailableCurrencies object list @ ~1368) to the same 21.
+Frontend:
+- utils/pricingCurrencies.ts (NEW): single source of truth PRICING_CURRENCIES (21) + names + clampPricingCurrency().
+- utils/currencyFormat.ts: added INR/PKR/AED/PHP/VND format entries (African ones already existed).
+- Components/UI/CurrencySelector/index.tsx: expanded list to 21; flag now optional with a lettered fallback glyph (KES/GHS/ZAR/XOF/XAF/EGP/MAD have no flag PNG).
+- Components/Page/CreatePaymentLink/index.tsx: donation `currencies` now = PRICING_CURRENCIES; added geo-default effect (NG→NGN, KE→KES...) that only applies to NEW links and never overrides a manual change.
+- Components/Page/ProductEditor/index.tsx: CURRENCY_OPTS now = PRICING_CURRENCIES.
+Note: paymentLinkController does NOT validate base_currency (stores base_currency||'USD'); checkout converts fiat→USD (FastForex, supports all these) → USD→crypto (Tatum/CoinGecko).
+
+### Test scope for BACKEND testing agent (LIVE production DB — SAFETY CRITICAL)
+SAFETY: This hits the LIVE prod Railway DB. Do NOT complete/settle any real crypto payment. Payment links themselves move no money until paid. Prefer creating a couple of test links, verifying, then deactivating/deleting them via the API. Never send crypto to any generated address.
+1. Auth as hostbay@moxx.co (2-step: email→Continue→password→Sign in) — obtain JWT via the login API for authenticated calls.
+2. Create a payment link priced in NGN (base_currency=NGN, amount e.g. 10000) via the same API the dashboard uses. Confirm 200 + stored base_currency="NGN". Then fetch its public checkout meta and confirm: (a) currency_info shows the ₦ symbol, (b) the computed crypto amount for at least BTC/USDT is a valid NON-ZERO number (i.e., NGN→crypto conversion works).
+3. Repeat the checkout-meta conversion check for the NEW currencies KES, GHS, ZAR, XOF, XAF, EGP, MAD (and NGN) — for each, converting the fiat price to at least one crypto (e.g., USDT or BTC) must return a valid non-zero amount. Report any currency whose conversion returns 0/fails.
+4. Verify the API-key "available currencies" endpoint (getAvailableCurrencies) now returns all 21 currencies incl. the 7 new African ones, and that creating an API key with base_currency=KES (or another new one) passes validation (previously it would 400). Deactivate/delete any test key created.
+5. Clean up any test links/keys created. Report PASS/FAIL per item + the actual converted amounts observed.
+
+
 ## Session 87 — CHECKOUT ENHANCEMENTS: QR Polish + Currency Persistence (2026-07-28)
 
 ### Preview URL
