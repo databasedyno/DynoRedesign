@@ -136,11 +136,15 @@ export const MainNavRow = styled(Box, {
 );
 
 export const FirstRow = styled(Box)({
+  // 3 equal columns (Coinbase-style bottom bar — Session 97c reduced
+  // this from 5→3 items). Was `repeat(5, 1fr)` which left 2 empty
+  // columns on the right and pushed the 3 real items hard to the left.
   display: "grid",
-  gridTemplateColumns: "repeat(5, 1fr)",
+  gridTemplateColumns: "repeat(3, 1fr)",
   gap: "8px",
   width: "100%",
   alignItems: "center",
+  justifyItems: "center",
   justifyContent: "center",
 });
 

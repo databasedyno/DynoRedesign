@@ -293,7 +293,7 @@ const MobileNavigationBar = () => {
       <Box position="relative" ref={navBarRef}>
         <NavigationBar expanded={isExpanded} data-testid="mobile-navigation-bar">
           <MainNavRow expanded={isExpanded}>
-            {/* First row - 5 items */}
+            {/* First row - 3 items (Coinbase pattern, Session 97c) */}
             <FirstRow>
               {firstRowItems.map((item) => {
                 const active = isActiveRoute(item.path);
