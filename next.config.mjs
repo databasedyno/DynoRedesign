@@ -2,9 +2,21 @@
 const nextConfig = {
   reactStrictMode: false,
   output: "standalone",
+  // TypeScript strict-mode is now enforced by `next build` (2026-08-02
+  // Session 97i). Previously ignored because the frontend had 286
+  // pre-existing strict-tsc errors; the Session 97e→97h cleanup arc
+  // drove the count to 0 (see /app/.github/workflows/preflight.yml
+  // history + backlog notes in test_result.md). The CI still runs a
+  // separate `tsc --noEmit` check on every PR/push to catch drift in
+  // <30s rather than the ~60s next build; this flag is the second
+  // safety net so DO's `yarn build` also fails if drift ever lands.
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
+  // ESLint remains ignored during builds — the ruleset has ~500+
+  // pre-existing warnings/errors (unused vars, missing-key, exhaustive-deps)
+  // that would need a separate cleanup arc. Turning this on today would
+  // block every build. Leave as-is until an ESLint cleanup PR arrives.
   eslint: {
     ignoreDuringBuilds: true,
   },

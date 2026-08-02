@@ -1,3 +1,58 @@
+## Session 97i — Enable strict Next.js build (2026-08-02)
+
+### What changed
+`/app/next.config.mjs`:
+```diff
+- typescript: { ignoreBuildErrors: true },
++ typescript: { ignoreBuildErrors: false },
+```
+
+That's the entire code change. ESLint is kept at `ignoreDuringBuilds: true` because ESLint has ~500+ pre-existing warnings that would need a separate cleanup arc (documented in the file comment).
+
+### Why safe now
+After Sessions 97e→97h drove strict tsc from 286 errors → 0, this flip has no risk. Verified locally:
+- `yarn build` (which runs `next build`) → SUCCESS, exit 0, 86.36s (vs 60.31s with the ignore flag; the extra ~26s IS the strict type-check Next runs on every page/import graph).
+- 0 TypeScript errors surfaced by Next's build (matches the raw `tsc --noEmit` result).
+- All routes still generate correctly (landing/dashboard/pay-links/payment/wallet all listed in the build output).
+
+### Runtime after strict build enabled
+- Frontend supervisor restarted, comes up clean.
+- Public landing (HTTP 200), /auth/login (HTTP 200), /dashboard (HTTP 200), /api/csrf-token (HTTP 200) — all validated locally.
+
+### Trade-off table
+| Layer | Before | After |
+|---|---|---|
+| CI `backend-tsc` job | strict → **HARD FAIL** on error | unchanged |
+| CI `frontend-tsc` job | strict → **HARD FAIL** on error (as of 97h) | unchanged |
+| DO backend build (`yarn build` = `tsc`) | strict → HARD FAIL | unchanged |
+| DO frontend build (`next build`) | **skipped TS check** | **strict → HARD FAIL** |
+| DO frontend build ESLint | skipped | **still skipped** (deliberate; ~500+ warnings) |
+| Local dev-server hot reload | uses `ts-node --transpile-only` (no check) | unchanged |
+
+Three independent gates now catch TypeScript drift: (1) local pre-commit hook (WARN), (2) CI `tsc --noEmit` (HARD FAIL, ~15s), (3) DO `next build` (HARD FAIL, adds ~26s to build).
+
+### Test scope for BACKEND testing agent (regression check)
+
+**CRITICAL SAFETY**: LIVE prod Railway PG. **READ-ONLY**.
+
+1. **Build reproduction (both sides)**:
+   - `cd /app/backend && yarn build` → exit 0 (DO backend command).
+   - `cd /app && yarn build` → exit 0 (DO frontend command; now runs strict TS check). Expected ~60-90s. This is THE critical new test for this session.
+2. **Runtime happy paths** (regression check):
+   - Login as `hostbay@moxx.co / Katiekendra123@` → HTTP 200, user_id=1.
+   - `GET /api/dashboard/stats` → HTTP 200 with data object.
+   - `POST /api/notifications/payout-digest/preview` (with auth) → HTTP 200, `data.sent === true`, `data.digest.settledVolume` is a number.
+
+Backend base: `https://4dfe167f-c2a7-4997-96aa-49f477041630.preview.emergentagent.com`
+
+### Definition of PASS
+- Item 1 MUST pass — strict `next build` succeeding is the whole point.
+- Item 2 MUST pass — regression guard.
+
+If all pass, DO's frontend build now enforces strict types and drift can never ship silently again.
+
+---
+
 ## Session 97h — Frontend TS backlog: TRUE ZERO (46 → 0 errors) (2026-08-02)
 
 ### Result
