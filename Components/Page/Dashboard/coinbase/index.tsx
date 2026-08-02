@@ -79,7 +79,7 @@ const CoinbaseDashboard: React.FC = () => {
         <QuickActionsPanel />
         {isMobile && <FeeTierProgress />}
         <CreatorPageCard />
-        <ReferralAndKnowledge />
+        <ReferralAndKnowledge isMobile={isMobile} />
       </Box>
     </Box>
   );

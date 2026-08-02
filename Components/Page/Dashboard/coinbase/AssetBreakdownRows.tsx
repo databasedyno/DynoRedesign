@@ -12,7 +12,7 @@ import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import { rootReducer } from "@/utils/types";
 import { useDashboardData } from "@/hooks/useDashboardData";
-import { formatNumberWithComma, getCurrencySymbol } from "@/helpers";
+import { formatNumberWithComma } from "@/helpers";
 import { CB_TOKENS, SurfaceCard } from "./styled";
 
 /**
@@ -44,8 +44,7 @@ const AssetBreakdownRows: React.FC = () => {
   const walletState = useSelector((s: rootReducer) => s.walletReducer);
   const walletsCount = walletState.walletList?.length ?? 0;
 
-  const currencySymbol =
-    stats?.currencySymbol || getCurrencySymbol(stats?.currency || "USD");
+  const currencySymbol = stats?.currencySymbol || "$";
 
   // Derive breakdown from stats + recentTransactions
   const rows = useMemo<RowSpec[]>(() => {
@@ -80,7 +79,7 @@ const AssetBreakdownRows: React.FC = () => {
         }),
         value:
           stats?.taxCollectedFormatted && Number(stats.taxCollected) > 0
-            ? `${currencySymbol}${formatNumberWithComma(String(stats.taxCollected))}`
+            ? `${currencySymbol}${formatNumberWithComma(Number(stats.taxCollected))}`
             : totalVolFmt,
         href: "/transactions?converted=true",
       },
@@ -102,7 +101,7 @@ const AssetBreakdownRows: React.FC = () => {
         meta: t("assetInvoicesMeta", {
           defaultValue: "Lifetime transaction count",
         }),
-        value: formatNumberWithComma(String(invoiceCount)),
+        value: formatNumberWithComma(invoiceCount),
         href: "/transactions",
       },
     ];
