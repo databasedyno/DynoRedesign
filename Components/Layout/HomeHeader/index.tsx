@@ -1,13 +1,14 @@
-// Coinbase-style marketing header (2026-08-02 rewrite):
+// Coinbase-style marketing header (2026-08-02):
 //   • Desktop: logo + mega-menu dropdowns (Products / Developers / Resources /
 //     Company) that open on hover AND click, each with icon + title + desc.
 //   • Right side: "All systems normal" status pill, a globe language menu
 //     (globe → dropdown panel), the light/dark theme toggle, then Sign in +
 //     Get started.
-//   • Mobile / tablet (<1025px): full-height slide-in drawer with an
-//     accordion of the same sections, auth CTAs, language + theme, trust row.
-// Preserves the hardened hamburger tap handling (onPointerUp + de-dupe) and
-// the body-only scroll-lock from the earlier mobile bug fixes.
+//   • Mobile / tablet (<1025px): full-height slide-in drawer with an accordion
+//     of the same sections, auth CTAs, language + theme, trust row.
+// Menu items render as real <Link> anchors so navigation is native + reliable
+// (survives fast input, supports open-in-new-tab, better a11y/SEO). Preserves
+// the hardened hamburger tap (onPointerUp + de-dupe) and body-only scroll-lock.
 import DynopayLogo from "@/assets/Icons/home/dynopay-blackLogo.svg";
 import DynopayWhiteLogo from "@/assets/Icons/home/dynopay-whiteLogo.svg";
 import LanguageSwitcher from "@/Components/UI/LanguageSwitcher";
@@ -16,8 +17,9 @@ import { ArrowForwardRounded } from "@mui/icons-material";
 import KeyboardArrowDownRounded from "@mui/icons-material/KeyboardArrowDownRounded";
 import { Box, Button, Collapse, Typography, useTheme } from "@mui/material";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/router";
-import { memo, useCallback, useEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
 import { useTranslation } from "react-i18next";
 import HomeButton from "../HomeButton";
 import HeaderLangMenu from "./HeaderLangMenu";
@@ -61,7 +63,7 @@ import {
 
 const HEADER_OFFSET_PX = 100;
 const SCROLL_THRESHOLD_PX = 10;
-const MEGA_CLOSE_DELAY_MS = 140;
+const MEGA_CLOSE_DELAY_MS = 220;
 
 /* ================= COMPONENT ================= */
 
@@ -104,25 +106,24 @@ const HomeHeader = memo(function HomeHeader() {
     window.scrollTo({ top, behavior: "smooth" });
   }, []);
 
-  // Navigate to a mega-menu / accordion destination. Handles homepage hash
-  // links (smooth-scroll when already on "/", otherwise route then scroll),
-  // in-page doc anchors, and plain routes.
-  const go = useCallback(
-    (href: string) => {
+  // Mega-menu / accordion item click. Items render as real <Link> anchors so
+  // navigation is native and reliable. We only intercept same-page homepage
+  // hash links to smooth-scroll; every other href falls through to the
+  // <Link>'s native client-side navigation.
+  const handleItemClick = useCallback(
+    (e: ReactMouseEvent<HTMLElement>, href: string) => {
       setOpenMenu(null);
       setMobileMenuOpen(false);
 
       if (href.startsWith("/#")) {
+        e.preventDefault();
         const id = href.slice(2);
         if (router.pathname === "/") {
           scrollToId(id);
         } else {
           void router.push("/").then(() => setTimeout(() => scrollToId(id), 90));
         }
-        return;
       }
-
-      void router.push(href);
     },
     [router, scrollToId],
   );
@@ -260,15 +261,10 @@ const HomeHeader = memo(function HomeHeader() {
                           return (
                             <MegaItemLink
                               key={item.titleKey}
-                              role="link"
-                              tabIndex={0}
-                              onClick={() => go(item.href)}
-                              onKeyDown={(e) => {
-                                if (e.key === "Enter" || e.key === " ") {
-                                  e.preventDefault();
-                                  go(item.href);
-                                }
-                              }}
+                              component={Link}
+                              href={item.href}
+                              data-testid={`mega-item-${item.titleKey}`}
+                              onClick={(e: ReactMouseEvent<HTMLElement>) => handleItemClick(e, item.href)}
                             >
                               <MegaItemIcon className="mega-icon">
                                 <Icon />
@@ -374,8 +370,10 @@ const HomeHeader = memo(function HomeHeader() {
                         return (
                           <MobileSubItem
                             key={item.titleKey}
+                            component={Link}
+                            href={item.href}
                             data-testid={`msub-${item.titleKey}`}
-                            onClick={() => go(item.href)}
+                            onClick={(e: ReactMouseEvent<HTMLElement>) => handleItemClick(e, item.href)}
                           >
                             <Box className="msub-icon">
                               <Icon />

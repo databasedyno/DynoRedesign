@@ -718,6 +718,7 @@ export const MobileSubItem = styled(Box)(({ theme }) => {
     gap: 12,
     padding: "11px 6px 11px 2px",
     cursor: "pointer",
+    textDecoration: "none",
     color: dark ? "rgba(255,255,255,0.82)" : "#27272A",
     transition: "color 160ms ease, transform 160ms ease",
     touchAction: "manipulation",
