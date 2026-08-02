@@ -1,3 +1,43 @@
+## Session 97d — DigitalOcean build fix (2026-08-02)
+
+### Reported bug
+DigitalOcean App Platform deployment `09d540fa-1c61-41b5-9e7e-ebea76d9dfb7` (commit `02aa8fc`) failed during backend `yarn build` (strict `tsc`) with:
+```
+routes/notificationRouter.ts(124,9): error TS2554: Expected 3 arguments, but got 4.
+error Command failed with exit code 2.
+```
+
+### Root cause
+`Session 97a` code introduced in `backend/routes/notificationRouter.ts` (payout digest preview endpoint) was calling `errorResponseHelper(res, 500, message, result as any)` with 4 arguments. The helper only accepts 3 arguments (`res, statusCode, errorMessage`).
+
+Dev didn't catch this because the local dev server runs `ts-node --transpile-only` which SKIPS type-checking; the DO build image runs `yarn build → tsc` which enforces strict types.
+
+### Fix
+Removed the extra 4th argument (`result as any`) from the `errorResponseHelper` call. Fix is 1 line. See `backend/routes/notificationRouter.ts` lines 118-125.
+
+### Local verification (self-check, NOT the required testing-agent pass)
+- `cd /app/backend && yarn build` → SUCCESS in 10.92s (same command DO runs).
+- Full-repo `tsc --noEmit` → clean, no errors.
+- Runtime endpoint `POST /api/notifications/payout-digest/preview` → HTTP 200 with real payload (settledVolume=$1,284.46, sent=true).
+
+### Test scope for BACKEND testing agent
+1. **Static build check**: run `cd /app/backend && yarn build` and confirm exit code 0 (no TS errors). This is THE reproduction of the DO failure — same tsc invocation.
+2. **Full-project strict typecheck**: `cd /app/backend && npx tsc --noEmit` → exit 0, no errors.
+3. **Runtime happy path**: login as merchant `hostbay@moxx.co` / `Katiekendra123@`, get access token, POST `/api/notifications/payout-digest/preview` with `Authorization: Bearer <token>`. Expect HTTP 200 with `data.sent === true` and `data.digest.settledVolume` a number.
+4. **Runtime error path**: POST same endpoint with NO auth. Expect HTTP 401 (unauthorized). This validates the auth middleware still guards it.
+5. **Runtime error path 2**: POST same endpoint with a valid token but the middleware finds no user_id — either mock this or just confirm the endpoint returns a 3-arg error (no crash). Since we already validated 200 path and 401 auth path, this is optional.
+6. **Route registration sanity**: quick GET `/api/notifications/wallet-warning` or a simple existing route to confirm the notificationRouter still loads cleanly at server boot.
+
+### Definition of PASS
+- Item 1 (build) MUST pass — it's the exact reproduction of the DO failure.
+- Item 3 (happy path) MUST pass — regression guard.
+- Item 4 (auth guard) MUST pass — auth-boundary regression.
+- Items 2, 5, 6 are nice-to-have.
+
+If all pass, this session's DO build issue is resolved. Push the fix to `github.com/databasedyno/DynoRedesign` branch `latest` (via the Emergent Save-to-GitHub feature — main agent will not push directly) and re-deploy on DigitalOcean.
+
+---
+
 ## Session 97c — Live Payment Feed + Mobile Nav Restructure (2026-08-02)
 
 ### Preview URL

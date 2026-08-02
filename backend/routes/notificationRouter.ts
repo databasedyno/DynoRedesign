@@ -121,7 +121,6 @@ notificationRouter.post("/payout-digest/preview", async (_req, res) => {
         result.skipped === "user-not-found"
           ? "User not found"
           : "Failed to send payout digest",
-        result as any,
       );
     }
     return successResponseHelper(res, 200, "Payout digest sent", {
