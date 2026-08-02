@@ -63,7 +63,8 @@ const TransactionsTopBar: React.FC<TransactionsTopBarProps & { initialWallet?: s
   const isLgMobile = useIsMobile("lg");
   const { t } = useTranslation("transactions");
   const tTransactions = useCallback(
-    (key: string, options?: any) => t(key, { ns: "transactions", ...options }),
+    (key: string, options?: any): string =>
+      t(key, { ns: "transactions", ...options }) as unknown as string,
     [t],
   );
   const datePickerRef = useRef<DatePickerRef>(null);

@@ -29,6 +29,11 @@ export interface userReducer {
   error: { message: string; actionType: string } | null;
   profile?: any;
   profileLoading?: boolean;
+  // 2FA / login-OTP flow (Session 82 two-step login refactor).
+  loginOtpRequired?: boolean;
+  loginOtpMaskedEmail?: string;
+  loginOtpSession?: string;
+  loginOtpLoading?: boolean;
 }
 
 export interface companyReducer {

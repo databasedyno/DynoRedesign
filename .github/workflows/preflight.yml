@@ -117,7 +117,8 @@ jobs:
           echo "======================================================"
           # Fail if the count regresses ABOVE the pinned baseline.
           # Update this number when the backlog is intentionally reduced.
-          BASELINE=282
+          # History: 286 → 282 (2026-08-02 s97e) → 70 (2026-08-02 s97f cleanup PR)
+          BASELINE=70
           if [ "${COUNT}" -gt "${BASELINE}" ]; then
             echo "::error::Frontend tsc errors (${COUNT}) exceed baseline (${BASELINE}). New TypeScript drift detected."
             exit 1
