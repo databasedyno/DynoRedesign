@@ -13,7 +13,7 @@ import sys
 from typing import Dict, Any, Optional
 
 # Configuration
-BASE_URL = "https://merchant-hub-611.preview.emergentagent.com"
+BASE_URL = "https://blockchain-pay-29.preview.emergentagent.com"
 TEST_EMAIL = "hostbay@moxx.co"
 TEST_PASSWORD = "Katiekendra123@"
 
