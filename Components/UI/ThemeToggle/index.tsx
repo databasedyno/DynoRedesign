@@ -7,9 +7,14 @@ import { useThemeMode } from "@/contexts/ThemeContext";
 interface ThemeToggleProps {
   size?: "small" | "medium";
   sx?: any;
+  "data-testid"?: string;
 }
 
-const ThemeToggle: React.FC<ThemeToggleProps> = ({ size = "medium", sx }) => {
+const ThemeToggle: React.FC<ThemeToggleProps> = ({
+  size = "medium",
+  sx,
+  "data-testid": testId = "theme-toggle-button",
+}) => {
   const { isDark, toggleTheme } = useThemeMode();
 
   return (
@@ -17,7 +22,7 @@ const ThemeToggle: React.FC<ThemeToggleProps> = ({ size = "medium", sx }) => {
       <IconButton
         onClick={toggleTheme}
         size={size}
-        data-testid="theme-toggle-button"
+        data-testid={testId}
         aria-label={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
         sx={{
           color: isDark ? "#FFD54F" : "#676768",

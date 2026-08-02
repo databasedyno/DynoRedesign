@@ -109,11 +109,19 @@ const Sparkline: React.FC<SparklineProps> = ({
 
   if (loading) {
     return (
-      <Skeleton
-        variant="rounded"
-        height={height}
-        sx={{ borderRadius: 3, bgcolor: isDark ? "rgba(255,255,255,0.04)" : "rgba(10,10,15,0.04)" }}
-      />
+      <Box
+        data-testid="dashboard-sparkline"
+        sx={{ width: "100%", height, position: "relative" }}
+      >
+        <Skeleton
+          variant="rounded"
+          height={height}
+          sx={{
+            borderRadius: 3,
+            bgcolor: isDark ? "rgba(255,255,255,0.04)" : "rgba(10,10,15,0.04)",
+          }}
+        />
+      </Box>
     );
   }
 

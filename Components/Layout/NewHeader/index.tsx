@@ -126,14 +126,14 @@ const NewHeader = () => {
         <RightSection>
           {/* Mobile theme toggle - visible only on mobile */}
           <Box sx={{ display: { xs: "flex", lg: "none" } }}>
-            <ThemeToggle size="small" />
+            <ThemeToggle size="small" data-testid="theme-toggle-mobile" />
           </Box>
           <Box sx={{ display: { xs: "none", lg: "flex" }, gap: "20px" }}>
             <Box sx={{ order: { lg: 2, xl: 1 } }}>
               <LanguageSwitcher />
             </Box>
 
-            <ThemeToggle size="small" />
+            <ThemeToggle size="small" data-testid="theme-toggle-desktop" />
 
             {kycRequired && (
               <Box sx={{ order: { lg: 1, xl: 2 } }}>

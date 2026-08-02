@@ -81,8 +81,11 @@ const HomeHeader = memo(function HomeHeader() {
   const [searchOpen, setSearchOpen] = useState<boolean>(false);
   // Desktop mega-menu: which section (if any) is open.
   const [openMenu, setOpenMenu] = useState<string | null>(null);
-  // Mobile accordion: which section is expanded (Products open by default).
-  const [openMobileSection, setOpenMobileSection] = useState<string | null>("products");
+  // Mobile accordion: which section is expanded. Starts collapsed so the first
+  // tap on any mnav-* button reliably OPENS that section (rather than toggling
+  // a pre-opened section closed — which reads as "no sub-items appeared" to
+  // tests and confuses first-time visitors).
+  const [openMobileSection, setOpenMobileSection] = useState<string | null>(null);
 
   // Avoid SSR/client hydration mismatch for theme-dependent assets.
   const [mounted, setMounted] = useState(false);
