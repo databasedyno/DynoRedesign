@@ -1,3 +1,17 @@
+# CURRENT SESSION (fresh boot — 2026-08-02) — ENV PROVISIONING ("set up using below cred")
+
+- **Preview URL**: https://b4dad0fb-927f-4786-8591-4250f52bfe65.preview.emergentagent.com — set as NEXT_PUBLIC_BASE_URL + NEXT_PUBLIC_SERVER_URL + NEXTAUTH_URL and added FIRST in CORS_ALLOWED_ORIGINS. Verified 200 on /, /auth/login, /api/public/tickers, /api/csrf-token (internal :8001 + external).
+- **Merchant test account** (LIVE Railway PG, UNCHANGED): **hostbay@moxx.co / Katiekendra123@** — REAL login verified this session: POST /api/user/login → HTTP 200 "Login Successful!" (user_id=1, name=hostbay); bad creds → HTTP 401.
+- **Admin email** (env ADMIN_EMAIL): moxxcompany@gmail.com
+- **NEXTAUTH_SECRET** (this session): v20gUVat2rS4yKtAKwBrueRoXdfupMjdmfgZw6ohipA= (user paste had literal `"openssl rand -base64 32"`)
+- **SAFETY — user chose option (a)**: ENABLE_BACKGROUND_JOBS=false + WORKER_ROLE=secondary + NODE_ENV=production. Log confirms "⚠️ BACKGROUND JOBS DISABLED — ENABLE_BACKGROUND_JOBS=false, isProduction=true". No sweeps/settlement/conversions/webhook fan-out run from preview.
+- Setup: fresh container had no .env + no node_modules. `yarn install` in /app (120s) and /app/backend (84s). Wrote 3 IDENTICAL .env (md5 5eec908c3969773e14a06244796d86a7): /app/backend/.env + /app/.env.local + /app/.env. DATABASE_URL constructed from parts (postgresql://postgres:...@roundhouse.proxy.rlwy.net:23599/railway) — REQUIRED because dbInstance.ts only SSL-enables the URL branch; DB_SSL_REJECT_UNAUTHORIZED=false for Railway self-signed cert. REDIS_PUBLIC_URL + REDIS_URL set. GOOGLE_CLIENT_KEY kept double-quoted \\n-escaped (normalizePrivateKey handles it). Fixed user typo EXT_PUBLIC_ENABLE_GITHUB_AUTH → NEXT_PUBLIC_ENABLE_GITHUB_AUTH. Backend app URLs (SERVER_URL/FRONTEND_URL/CHECKOUT_URL) kept as dynopay.com.
+- Confirmed live: PostgreSQL connected (railway) + all tables synced + Merchant Pool validated; Redis connected; Tatum rates flowing (40 rates); Binance geo-blocked (WS 451) → CoinGecko fallback (expected/harmless); SSH SOCKS tunnel disabled (sshpass absent); Google/GitHub OAuth won't complete in preview (redirect URIs registered for dynopay.com).
+- Backend = server.py uvicorn proxy :8001 → ts-node server.ts :3300. Frontend = next dev :3000 via /app/frontend bridge. NO CODE CHANGES — pure env provisioning.
+
+---
+
+
 # CURRENT SESSION (fresh boot — 2026-07-29 v2) — ENV PROVISIONING (user asked "set up using below cred")
 
 - **Preview URL**: https://06534c51-f307-4adc-aedc-2cecdafb7dc7.preview.emergentagent.com — set as NEXT_PUBLIC_BASE_URL + NEXTAUTH_URL (in /app/.env.local + /app/backend/.env) and added FIRST in CORS_ALLOWED_ORIGINS. Verified 200 on /, /auth/login, /api/csrf-token, /api/public/tickers.
