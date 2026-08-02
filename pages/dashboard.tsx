@@ -1,20 +1,36 @@
-import DashboardLeftSection from "@/Components/Page/Dashboard/DashboardLeftSection";
-import DashboardRightSection from "@/Components/Page/Dashboard/DashboardRightSection";
+import CoinbaseDashboard from "@/Components/Page/Dashboard/coinbase";
 import ClaimHandleBanner from "@/Components/Page/Dashboard/ClaimHandleBanner";
 import AutoClaimHandle from "@/Components/Page/Dashboard/AutoClaimHandle";
+import EmptyStatePanel from "@/Components/Page/Dashboard/EmptyStatePanel";
 import CustomButton from "@/Components/UI/Buttons";
 import MobileReferralBanner from "@/Components/UI/MobileReferralBanner";
 import OnboardingFlow from "@/Components/UI/OnboardingFlow";
 import useIsMobile from "@/hooks/useIsMobile";
+import { useDashboardData } from "@/hooks/useDashboardData";
 import { pageProps, rootReducer } from "@/utils/types";
 import { AddRounded } from "@mui/icons-material";
-import { Grid } from "@mui/material";
+import { Box } from "@mui/material";
 import Head from "next/head";
 import router from "next/router";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 
+/**
+ * Dashboard — Coinbase-style refresh (Session 97, 2026-08-02).
+ *
+ * Replaces the older DashboardLeftSection / DashboardRightSection two-column
+ * Grid with the CoinbaseDashboard composition (`Components/Page/Dashboard/coinbase/`).
+ * All prior widgets (FeeTierProgress, CreatorPageCard, ReferralAndKnowledge,
+ * RecentTransactionsWidget, ClaimHandleBanner, OnboardingFlow, AutoClaimHandle,
+ * MobileReferralBanner, EmptyStatePanel) are preserved in place — nothing was
+ * deleted, only recomposed into the new fold.
+ *
+ * EmptyStatePanel still handles the zero-payment merchant case: if a merchant
+ * has set up (company + wallet) but has never received a confirmed payment,
+ * we show the guide instead of the Coinbase hero. This preserves the
+ * "first payment" onboarding funnel.
+ */
 export default function Home({
   setPageName,
   setPageDescription,
@@ -33,10 +49,25 @@ export default function Home({
     (state: rootReducer) => state.companyReducer,
   );
   const walletState = useSelector((state: rootReducer) => state.walletReducer);
-  const hasCompany = companyState.companyList?.length > 0;
-  // User has wallets if any wallet entries exist
+  const hasCompany = (companyState.companyList?.length ?? 0) > 0;
   const hasWallet = (walletState.walletList?.length ?? 0) > 0;
   const setupComplete = hasCompany && hasWallet;
+
+  // Zero-payment gate: use aggregate stats + a fallback scan of recentTransactions
+  const { stats, recentTransactions, loading } = useDashboardData();
+  const hasAnyConfirmedTxn = useMemo(() => {
+    const totalTx = Number(stats?.totalTransactions ?? 0);
+    const totalVol = Number(stats?.totalVolume ?? 0);
+    if (totalTx > 0 || totalVol > 0) return true;
+    const list = (recentTransactions as any[]) || [];
+    return list.some((tx) => {
+      const status = String(tx?.status || "").toLowerCase();
+      return ["confirmed", "completed", "settled", "success", "successful", "paid"].includes(
+        status,
+      );
+    });
+  }, [stats?.totalTransactions, stats?.totalVolume, recentTransactions]);
+  const showEmptyState = setupComplete && !hasAnyConfirmedTxn && !loading;
 
   useEffect(() => {
     if (setPageName && setPageDescription) {
@@ -86,15 +117,18 @@ export default function Home({
         <AutoClaimHandle />
         {isMobile && <MobileReferralBanner />}
         {setupComplete && <ClaimHandleBanner />}
-        <Grid container spacing={2.5}>
-          <Grid item xs={12} xl={8}>
-            <DashboardLeftSection />
-          </Grid>
 
-          <Grid item xs={12} xl={4}>
-            <DashboardRightSection />
-          </Grid>
-        </Grid>
+        {showEmptyState ? (
+          <Box sx={{ mt: { xs: 1, md: 2 } }}>
+            <EmptyStatePanel
+              hasCompany={hasCompany}
+              hasWallet={hasWallet}
+              onCreateLink={() => router.push("/create-pay-link")}
+            />
+          </Box>
+        ) : (
+          <CoinbaseDashboard />
+        )}
       </main>
     </>
   );

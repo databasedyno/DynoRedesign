@@ -1086,6 +1086,27 @@ leaderCron.schedule("30 9 * * 1", async function () {
 });
 log("Weekly Conversion Summary Cron Job scheduled for every Monday at 9:30 AM UTC", "info");
 
+// Weekly payout digest email (every Sunday at 8:00 AM UTC).
+// Coinbase-style richer summary — settled volume, fees paid, top coins, delta.
+// Guarded by leaderCron so preview / secondary workers never fire it.
+leaderCron.schedule("0 8 * * 0", async function () {
+  const lockAcquired = await acquireLock("cron:payoutDigest", 900, 1, 100, true);
+  if (!lockAcquired) { log("Cron: payoutDigest skipped (already running)", "info"); return; }
+  try {
+    log("Cron: sendPayoutDigestsToAll running", "info");
+    const { sendPayoutDigestsToAll } = await import("./services/payoutDigestService");
+    const stats = await sendPayoutDigestsToAll();
+    log(`Cron: Payout digests — attempted=${stats.attempted}, sent=${stats.sent}, skipped=${stats.skipped}`, "info");
+  } catch (err: unknown) {
+    const errMsg = err instanceof Error ? err.message : String(err);
+    log(`Cron: Payout digest failed: ${errMsg}`, "error");
+    captureError(err as Error, 'cron', { extraContext: 'payoutDigest' });
+  } finally {
+    await releaseLock("cron:payoutDigest");
+  }
+});
+log("Payout Digest Cron Job scheduled for every Sunday at 8:00 AM UTC", "info");
+
 // Setup wallet reminder cron job (every hour for users without wallets after 24h)
 setupWalletReminderCron();
 

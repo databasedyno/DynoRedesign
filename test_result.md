@@ -1,3 +1,383 @@
+## Session 97 — Coinbase-style Dashboard + Payout Digest Email + Mobile QA (2026-08-02)
+
+### Preview URL
+https://4dfe167f-c2a7-4997-96aa-49f477041630.preview.emergentagent.com
+
+### Merchant login (LIVE Railway PG): hostbay@moxx.co / Katiekendra123@
+
+### What changed
+1) **NEW Coinbase-style dashboard** (`pages/dashboard.tsx` rewrite + new `Components/Page/Dashboard/coinbase/` folder, 7 files):
+   - **HeroKPI** (`cb-hero`): huge Unbounded Lifetime-volume number (72/60/48/40px responsive) + delta chip (`cb-hero-delta`) + "Save on fees" pill (`cb-hero-save-on-fees` → /fees) + Coinbase-style thin indigo sparkline area chart (`dashboard-sparkline`) + timeframe pills 1D/1W/1M/3M/1Y/All (`cb-hero-tf-{id}`).
+   - **AttentionCardsRow** (`cb-attention-row`): 2-col dismissible cards — always: Refer & earn (`cb-attn-referral` → /referrals); contextually: Add company / Add wallet / Claim @handle / Creator page depending on merchant setup state. Cards remember dismissal in localStorage under `cb_dismissed_cards`.
+   - **AssetBreakdownRows** (`cb-asset-breakdown`): 4-row list — Crypto (`cb-asset-row-crypto`), Fiat converted, Pending, Total payments. Each row links into /transactions with query filters.
+   - **QuickActionsPanel** (right rail, `cb-quick-actions`): segmented pill tabs `Receive/Convert/Invoice` (`cb-qa-tab-{id}`) → big Unbounded amount input (`cb-qa-amount`) + Max chip (`cb-qa-max`, sets $100) + coin chips (`cb-qa-coin-{USDT,USDC,BTC,ETH}`) + PrimaryCTA (`cb-qa-primary-cta`) that routes to `/create-pay-link?amount=X&coin=Y` prefilled (Receive tab), `/wallet` (Convert), `/invoices` (Invoice). Below the CTA: quick-link stack — Create invoice / Open wallet / Creator page / View customers (`cb-qa-shortcut-{invoice,wallet,creator,customers}`).
+   - **Composition**: `Components/Page/Dashboard/coinbase/index.tsx` — grid `[8fr | 4fr]` on lg+, single column below. Right rail sticky-top at 96px on lg+.
+   - **Preserved** (moved below the fold, not deleted): FeeTierProgress, RecentTransactionsWidget, CreatorPageCard, ReferralAndKnowledge, ClaimHandleBanner, OnboardingFlow, AutoClaimHandle, MobileReferralBanner, EmptyStatePanel.
+   - **Theme parity**: both light + dark render the same visual system (surface `#F6F7FB`/`#FFFFFF` light vs `#0A0A0F`/`#12131A` dark; indigo `#4F46E5` light / `#818CF8` dark). Zero dark-only tricks.
+   - **Empty state**: EmptyStatePanel still fires when merchant has company+wallet but no confirmed payment ever. Unchanged logic, unchanged testid.
+   - Root testid: `cb-dashboard-root`; left column: `cb-dashboard-main`; right column: `cb-dashboard-aside`.
+
+2) **NEW Payout Digest Email** (backend, `backend/services/payoutDigestService.ts` + wired in `backend/routes/notificationRouter.ts` + `backend/server.ts`):
+   - Aggregates per-merchant last 7 days: settled volume (USD, converted to display currency), platform fees paid (pro-rated to USD), transaction count, top 3 coins by USD volume, delta vs prior week (%, count), lifetime fee tier context ("Growth — 1%").
+   - Rich Brevo email using existing `baseEmailTemplate` + `statCard` + `twoColumnStats` + `feeTable` — subject `"Weekly payout digest — $X.XX USD"` (or `"quiet week"` on zero-activity accounts).
+   - Manual QA endpoint: `POST /api/notifications/payout-digest/preview` (authMiddleware only, sends to logged-in user's email). **VERIFIED live**: HTTP 200 against hostbay account, digest sent with settled=$1,318.09 (19 tx), fees=$33.01, top BTC/USDT-TRC20/LTC, prior week $1,346.58 (−2.1%), tier=Growth 1%.
+   - Cron: `leaderCron.schedule("0 8 * * 0", ...)` = Sunday 08:00 UTC — bulk sends to every active merchant with at least one settled tx ever. Guarded by leaderCron so preview / secondary workers skip it. Verified `/health` shows `background_jobs.eligible=false`, no cron fires in preview.
+   - New service exports: `buildPayoutDigest(userId)`, `sendPayoutDigestForUser(userId)`, `sendPayoutDigestsToAll()`.
+
+3) **NEXT**: Delegate Mobile QA sweep to auto_frontend_testing_agent (below).
+
+### data-testids for FRONTEND testing agent
+- Dashboard root: `cb-dashboard-root`, `cb-dashboard-main`, `cb-dashboard-aside`
+- HeroKPI: `cb-hero`, `cb-hero-eyebrow`, `cb-hero-value`, `cb-hero-delta`, `cb-hero-save-on-fees`, `cb-hero-timeframes`, `cb-hero-tf-1d/1w/1m/3m/1y/all`, `dashboard-sparkline`
+- Attention row: `cb-attention-row`, `cb-attn-referral`, `cb-attn-add-company` | `cb-attn-add-wallet` | `cb-attn-claim-handle` | `cb-attn-creator-page` (one of these based on setup state — hostbay has full setup so `cb-attn-creator-page` renders)
+- Asset breakdown: `cb-asset-breakdown`, `cb-asset-row-crypto/fiat/pending/invoices`
+- Quick actions: `cb-quick-actions`, `cb-qa-tabs`, `cb-qa-tab-receive/convert/invoice`, `cb-qa-amount`, `cb-qa-max`, `cb-qa-coin-USDT/USDC/BTC/ETH`, `cb-qa-primary-cta`, `cb-qa-shortcut-invoice/wallet/creator/customers`
+
+### Test scope for FRONTEND testing agent (MERCHANT-side, needs login)
+**CRITICAL**: LIVE prod Railway PG. **READ-ONLY** — never trigger `create-payment-link-btn`, never click `cb-qa-primary-cta` with amount>0 (would route to /create-pay-link but do not confirm/create anything), never dismiss all cards permanently. Take screenshots and validate structure/interactions only.
+
+**Login flow**: /auth/login → email `hostbay@moxx.co` → Continue → password `Katiekendra123@` → Sign in → lands on /dashboard. Uses 2-step flow (session 82 rewrite). Use `wait_for_url("**/dashboard", timeout=30000)` for reliability with Next.js dev compilation.
+
+DESKTOP (1440×900) — light mode default:
+1. Load `/dashboard` (after login). Assert `cb-dashboard-root` visible with `cb-dashboard-main` (LEFT) and `cb-dashboard-aside` (RIGHT) both present.
+2. **HeroKPI structure**: `cb-hero` visible. `cb-hero-value` shows a big number (font-size ≥ 48px on desktop). `cb-hero-delta` shows a % chip. Click `cb-hero-save-on-fees` → navigates to `/fees` (use wait_for_url). Go back.
+3. **Timeframe pills**: click `cb-hero-tf-1m` → the pill becomes active (bg indigo). `dashboard-sparkline` still visible. Repeat for `cb-hero-tf-1y`.
+4. **Attention row**: `cb-attention-row` visible with at least 1 card (`cb-attn-referral` always present). Click referral tile → wait_for_url `**/referrals`. Go back.
+5. **Asset breakdown**: `cb-asset-breakdown` visible with 4 rows. Click `cb-asset-row-crypto` → wait_for_url `**/transactions**`. Go back.
+6. **QuickActionsPanel**: `cb-quick-actions` visible. Click `cb-qa-tab-convert` → CTA label changes to "Convert balance". Click `cb-qa-tab-invoice` → CTA label "Create invoice". Click `cb-qa-tab-receive` back → CTA "Create payment link". Type "50" into `cb-qa-amount` → the number renders in big Unbounded typography. Click `cb-qa-coin-BTC` → chip becomes active (colored bg). **Do NOT click the primary CTA** — visual verify the button exists and is enabled instead.
+7. **Shortcuts**: click `cb-qa-shortcut-invoice` → wait_for_url `**/invoices`. Go back to /dashboard.
+8. **Theme parity** — toggle theme via the header theme toggle (data-testid="theme-toggle-button"). Verify `cb-dashboard-root` remains legible in dark mode (screenshot: no black-on-black or white-on-white). Toggle back to light.
+
+MOBILE (390×844, is_mobile+has_touch):
+9. Load `/dashboard` after login. Assert single-column layout: `cb-dashboard-main` stacks above `cb-dashboard-aside`. `cb-hero-value` font-size ≥ 32px. No horizontal overflow (document.documentElement.scrollWidth ≤ 390).
+10. **Landing header/footer/checkout regression sweep** (this is the "Mobile QA sweep" bundled ask):
+    a. `/` load — header hamburger `mobile-menu-toggle` visible with hitbox 44×44. Tap → drawer opens. Tap `mnav-products` → accordion expands. Tap a sub-item → navigates. No horizontal overflow.
+    b. `/pay/demo` load — checkout page renders with indigo CTA. No overflow.
+    c. Header search: tap `header-search-button` → command menu opens. Type "fees" → 1 result. Esc closes.
+    d. Footer language globe on landing: tap `footer-language-globe` → panel opens UPWARD (bottom edge above globe). Tap `footer-lang-de` → nav labels switch to German ("Produkte").
+
+GENERAL:
+11. Console: report only non-noise ERROR logs (ignore next-auth CLIENT_FETCH_ERROR, Binance/CoinGecko 451, HMR/webpack deprecation, custom /_error warning, LiveActivityFeed WebSocket close from disabled cron).
+12. Test both light AND dark theme where feasible on the dashboard hero + right rail (must be legible in both).
+
+Report PASS/FAIL per numbered item with observed state (bounding boxes, text values, wait_for_url outcomes, screenshots).
+
+---
+
+### FRONTEND TESTING AGENT VERIFICATION — Session 97 (2026-08-02) — ⚠️ CRITICAL ISSUES FOUND
+
+**Test Status:** ⚠️ **18/21 TESTS PASSED (85.7%) — 2 CRITICAL BUGS, 1 MINOR BUG**
+
+**Test Environment:**
+- Preview URL: https://4dfe167f-c2a7-4997-96aa-49f477041630.preview.emergentagent.com
+- Test Type: MERCHANT dashboard (requires login: hostbay@moxx.co / Katiekendra123@)
+- Viewports: Desktop (1440×900), Mobile (390×844)
+- Test Methodology: LIVE prod DB, READ-ONLY testing only
+
+---
+
+## ✅ PASSED TESTS — PART A: DESKTOP DASHBOARD (8/9 tests)
+
+**A1 — Dashboard Root Structure: ✅ PASS**
+- cb-dashboard-root visible: TRUE ✅
+- cb-dashboard-main visible: TRUE ✅
+- cb-dashboard-aside visible: TRUE ✅
+- Layout: Two-column grid on desktop ✅
+
+**A2 — HeroKPI Structure: ✅ PASS**
+- cb-hero visible: TRUE ✅
+- cb-hero-value text: "$24,255.07USD" ✅
+- cb-hero-value font-size: 72px (expected >= 48px) ✅
+- cb-hero-delta text: "97.80%" (contains % symbol) ✅
+- cb-hero-save-on-fees visible: TRUE ✅
+
+**A3 — Save on Fees Navigation: ✅ PASS**
+- Clicked cb-hero-save-on-fees ✅
+- Navigated to: /fees ✅
+- Navigation back to /dashboard: ✅
+
+**A4 — Timeframe Pills: ⚠️ PARTIAL PASS (minor issue)**
+- dashboard-sparkline visible initially: TRUE ✅
+- cb-hero-tf-1m clicked, aria-selected: "true" ✅
+- cb-hero-tf-1y clicked, aria-selected: "true" ✅
+- **MINOR ISSUE**: dashboard-sparkline visible after clicks: FALSE ❌
+  - Sparkline disappears after clicking timeframe pills
+  - This is a visual bug but doesn't block core functionality
+
+**A5 — Attention Row: ✅ PASS**
+- cb-attention-row visible: TRUE ✅
+- cb-attn-referral visible: TRUE ✅
+- Clicked referral card, navigated to: /referrals ✅
+- Navigation back to /dashboard: ✅
+
+**A6 — Asset Breakdown: ✅ PASS**
+- cb-asset-breakdown visible: TRUE ✅
+- Found 4 asset rows: cb-asset-row-crypto, -fiat, -pending, -invoices ✅
+- Clicked cb-asset-row-crypto, navigated to: /transactions ✅
+- Navigation back to /dashboard: ✅
+
+**A7 — Quick Actions Panel: ✅ PASS**
+- cb-quick-actions visible: TRUE ✅
+- Tab switching works:
+  - cb-qa-tab-convert → CTA text: "Convert balance" ✅
+  - cb-qa-tab-invoice → CTA text: "Create invoice" ✅
+  - cb-qa-tab-receive → CTA text: "Create payment link" ✅
+- Amount input: filled "50", value confirmed: "50" ✅
+- Coin selection: cb-qa-coin-BTC clicked
+  - BTC background: rgb(247, 147, 26) (active state) ✅
+  - USDT background: rgba(10, 10, 15, 0.05) (idle state) ✅
+- cb-qa-primary-cta enabled: TRUE (NOT clicked per safety rules) ✅
+
+**A8 — Shortcuts: ✅ PASS**
+- Clicked cb-qa-shortcut-invoice ✅
+- Navigated to: /invoices ✅
+- Navigation back to /dashboard: ✅
+
+**A9 — Theme Parity: ❌ CRITICAL FAIL**
+- Found 2 theme toggle buttons (one in header, one in drawer) ✅
+- Found visible theme toggle ✅
+- Clicked theme toggle to switch to dark mode ✅
+- **CRITICAL BUG**: After clicking theme toggle, page redirected to /auth/login instead of staying on /dashboard ❌
+- Screenshot captured shows login page in dark mode, not dashboard ❌
+- **Impact**: Theme toggle is completely broken on dashboard - redirects user to login page
+- **Root Cause**: Likely auth state issue or navigation side effect when theme changes
+
+---
+
+## ✅ PASSED TESTS — PART A: MOBILE DASHBOARD (4/4 tests)
+
+**A10 — Mobile Layout: ✅ PASS**
+- Viewport: 390×844 ✅
+- cb-dashboard-main position: y=294.53, height=1303.48 ✅
+- cb-dashboard-aside position: y=1614.02, height=1583.31 ✅
+- Layout verification: aside.y (1614.02) > main.bottom/2 (799.01) ✅
+- **Conclusion**: Single-column stacked layout working correctly ✅
+
+**A11 — Mobile Hero Font Size: ✅ PASS**
+- cb-hero-value font-size: 40px (expected >= 32px) ✅
+
+**A12 — Mobile No Horizontal Overflow: ✅ PASS**
+- scrollWidth: 390px, clientWidth: 390px ✅
+- No horizontal overflow detected ✅
+
+**A13 — Mobile Quick Actions Tabs: ✅ PASS**
+- cb-qa-tabs visible: TRUE ✅
+- Bounding box: width=352px, height=44px ✅
+- Tap-friendly (height >= 40px) ✅
+
+---
+
+## ✅ PASSED TESTS — PART B: MOBILE QA SWEEP (4/5 tests)
+
+**B1 — Mobile Menu Toggle: ✅ PASS**
+- mobile-menu-toggle visible: TRUE ✅
+- Hitbox: 44×44 (meets Apple HIG + WCAG 2.5.5) ✅
+- Tapped toggle, drawer opened: TRUE ✅
+
+**B2 — Mobile Drawer Accordion: ❌ CRITICAL FAIL**
+- Found 4 accordion sections: mnav-products, mnav-developers, mnav-resources, mnav-company ✅
+- Tapped mnav-products ✅
+- **CRITICAL BUG**: No sub-items found after expanding accordion ❌
+- Drawer content analysis:
+  - Total items: 7 (only main accordion buttons + auth buttons + theme toggle)
+  - Visible items: 7 (mnav-products, mnav-developers, mnav-resources, mnav-company, Get started, Sign in, theme-toggle-button)
+  - Found 0 links in drawer ❌
+- **Impact**: Mobile navigation is broken - users cannot access product pages, documentation, etc. from mobile menu
+- **Root Cause**: Accordion expansion doesn't reveal sub-items/links. The drawer only shows top-level accordion buttons without any nested navigation items.
+
+**B3 — Header Search Button: ✅ PASS**
+- header-search-button tapped, command-menu opened: TRUE ✅
+- Filled command-input with "fees" ✅
+- Found 1 search result ✅
+- Pressed Escape, menu closed: TRUE ✅
+
+**B4 — Footer Language Globe: ✅ PASS**
+- footer-language-globe position: y=775.70, height=40 ✅
+- Tapped globe, footer-language-panel opened: TRUE ✅
+- Panel position: y=516.20, height=247.5 ✅
+- Panel opens UPWARD: panel bottom (763.70) < globe top (775.70) ✅
+- Found 6 language options ✅
+- Tapped footer-lang-de, nav labels switched to German ("Produkte" found) ✅
+- Switched back to English ✅
+
+**B5 — Checkout Page Mobile: ✅ PASS**
+- Navigated to /pay/demo ✅
+- Checkout page renders (MuiButton found) ✅
+- scrollWidth: 390px, clientWidth: 390px ✅
+- No horizontal overflow ✅
+- Screenshot saved: checkout_mobile.png ✅
+
+---
+
+## ✅ PASSED TESTS — PART C: GENERAL (2/2 tests)
+
+**C1 — Console Errors: ✅ PASS**
+- Total console errors: 0 ✅
+- Critical errors (non-noise): 0 ✅
+- No React errors, no JavaScript errors ✅
+
+**C2 — Horizontal Overflow at Multiple Viewports: ✅ PASS**
+- 390px (mobile): scrollWidth=390, clientWidth=390 ✅
+- 768px (tablet): scrollWidth=768, clientWidth=768 ✅
+- 1440px (desktop): scrollWidth=1440, clientWidth=1440 ✅
+- No horizontal overflow at any viewport ✅
+
+---
+
+## 🔴 CRITICAL ISSUES SUMMARY
+
+### ISSUE 1: Theme Toggle Redirects to Login (CRITICAL — BLOCKS PRODUCTION)
+**Severity:** CRITICAL  
+**Test:** A9 — Theme Parity  
+**Impact:** Dashboard theme toggle is completely broken
+
+**Details:**
+- When clicking the theme toggle button on the dashboard, the page redirects to /auth/login instead of staying on /dashboard
+- This breaks the entire theme switching functionality for logged-in users
+- Screenshot captured shows login page in dark mode, not the dashboard
+- Users lose their dashboard context and must log in again
+
+**Evidence:**
+- Found 2 theme toggle buttons (header + drawer)
+- Clicked visible theme toggle successfully
+- Page redirected to /auth/login immediately after click
+- Dashboard elements (cb-hero-value) not found after theme toggle
+
+**Recommendation:**
+- Check if theme toggle triggers a page reload or navigation
+- Verify auth state is preserved during theme changes
+- Check for any side effects in theme toggle handler that might trigger logout/redirect
+- Test theme toggle on other authenticated pages to see if issue is dashboard-specific
+
+---
+
+### ISSUE 2: Mobile Drawer Accordion Has No Sub-Items (CRITICAL — BLOCKS MOBILE NAVIGATION)
+**Severity:** CRITICAL  
+**Test:** B2 — Mobile Drawer Accordion  
+**Impact:** Mobile users cannot navigate to any product pages, documentation, or resources
+
+**Details:**
+- Mobile drawer opens correctly with 4 accordion sections (Products, Developers, Resources, Company)
+- Tapping accordion sections (e.g., mnav-products) does NOT expand to show sub-items
+- Drawer only contains: 4 accordion buttons + Get started + Sign in + theme toggle
+- Zero navigation links found in drawer (expected: Payment Links, Checkout, Documentation, Webhooks, etc.)
+- Users cannot access any product pages or documentation from mobile menu
+
+**Evidence:**
+- Accordion sections found: mnav-products, mnav-developers, mnav-resources, mnav-company ✅
+- Sub-items after expansion: 0 ❌
+- Links in drawer: 0 ❌
+- Drawer content: Only top-level buttons, no nested items
+
+**Recommendation:**
+- Check if accordion expansion logic is working (aria-expanded attribute)
+- Verify sub-items are being rendered in the DOM (may be hidden with display:none)
+- Check if sub-items have correct testids (msub-*) or if they're using different selectors
+- Verify mobile drawer component is rendering the full navigation tree, not just top-level items
+- Compare with Session 95b/96 mobile drawer implementation to see if regression occurred
+
+---
+
+### ISSUE 3: Sparkline Disappears After Timeframe Change (MINOR — VISUAL BUG)
+**Severity:** MINOR  
+**Test:** A4 — Timeframe Pills  
+**Impact:** Visual feedback missing after timeframe selection
+
+**Details:**
+- dashboard-sparkline is visible initially
+- After clicking timeframe pills (cb-hero-tf-1m, cb-hero-tf-1y), sparkline becomes invisible
+- Timeframe pills work correctly (aria-selected changes to "true")
+- Core functionality works, but visual chart disappears
+
+**Evidence:**
+- Sparkline visible initially: TRUE ✅
+- Sparkline visible after timeframe clicks: FALSE ❌
+- Timeframe pills aria-selected: "true" ✅
+
+**Recommendation:**
+- Check if sparkline data is being fetched/updated after timeframe change
+- Verify sparkline component doesn't unmount during timeframe transitions
+- Check for CSS display/visibility changes on sparkline element
+- This is a minor visual bug and doesn't block core functionality
+
+---
+
+## 📊 TEST RESULTS SUMMARY
+
+**Overall:** 18/21 tests passed (85.7%)
+
+**By Category:**
+- ✅ PART A Desktop: 8/9 tests passed (88.9%)
+- ✅ PART A Mobile: 4/4 tests passed (100%)
+- ⚠️ PART B Mobile QA: 4/5 tests passed (80%)
+- ✅ PART C General: 2/2 tests passed (100%)
+
+**Critical Issues:** 2
+**Minor Issues:** 1
+**Console Errors:** 0
+
+---
+
+## 🎯 WHAT'S WORKING PERFECTLY
+
+**Desktop Dashboard (1440×900):**
+- ✅ Dashboard root structure (cb-dashboard-root, main, aside)
+- ✅ HeroKPI with $24,255.07 lifetime volume, 72px font, 97.80% delta
+- ✅ Save on fees navigation to /fees
+- ✅ Timeframe pills (1m, 1y) with aria-selected state
+- ✅ Attention row with referral card navigation
+- ✅ Asset breakdown with 4 rows, crypto row navigation
+- ✅ Quick actions panel (tabs, amount input, coin selection, CTA text changes)
+- ✅ Shortcuts navigation to /invoices
+
+**Mobile Dashboard (390×844):**
+- ✅ Single-column stacked layout (aside below main)
+- ✅ Hero font size 40px (meets >= 32px requirement)
+- ✅ No horizontal overflow
+- ✅ Quick actions tabs tap-friendly (44px height)
+
+**Mobile QA Sweep:**
+- ✅ Mobile menu toggle (44×44 hitbox, drawer opens)
+- ✅ Header search (command menu, filtering, Escape closes)
+- ✅ Footer language globe (opens upward, 6 languages, German switch)
+- ✅ Checkout page renders on mobile, no overflow
+
+**General:**
+- ✅ Zero console errors (no React errors, no JavaScript errors)
+- ✅ No horizontal overflow at 390px, 768px, 1440px viewports
+
+---
+
+## 🚨 RECOMMENDATION FOR MAIN AGENT
+
+**Status:** ⚠️ **NOT READY FOR PRODUCTION — 2 CRITICAL BUGS MUST BE FIXED**
+
+**Priority 1 (CRITICAL):** Fix Theme Toggle Redirect
+- Theme toggle on dashboard redirects to login page instead of staying on dashboard
+- This completely breaks theme switching for logged-in users
+- Must fix before production deployment
+
+**Priority 2 (CRITICAL):** Fix Mobile Drawer Accordion
+- Mobile drawer accordion doesn't show sub-items after expansion
+- Mobile users cannot navigate to product pages, documentation, resources
+- This blocks all mobile navigation
+- Must fix before production deployment
+
+**Priority 3 (MINOR):** Fix Sparkline Disappearing
+- Sparkline disappears after clicking timeframe pills
+- Visual bug, doesn't block core functionality
+- Can be fixed post-launch if needed
+
+**What to Test After Fixes:**
+1. Theme toggle on dashboard should stay on dashboard in both light and dark modes
+2. Mobile drawer accordion should expand to show sub-items (Payment Links, Checkout, Documentation, Webhooks, etc.)
+3. Sparkline should remain visible after clicking timeframe pills
+
+**Overall Assessment:**
+The Coinbase-style dashboard is **85.7% functional** with excellent structure, navigation, and responsive design. However, the 2 critical bugs (theme toggle redirect + mobile drawer navigation) **block production deployment**. Once these are fixed, the dashboard will be production-ready.
+
+
+
 ## Session 96 — FEATURES: Matching footer + ⌘K command search + featured Products tile (2026-08-02)
 
 ### Preview URL

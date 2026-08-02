@@ -101,6 +101,38 @@ notificationRouter.post("/trigger-wallet-reminder", async (req, res) => {
   }
 });
 
+// POST /api/notifications/payout-digest/preview
+// Sends the weekly payout digest email to the currently-logged-in user's email.
+// Safe manual QA trigger — no cron required, no admin role needed.
+notificationRouter.post("/payout-digest/preview", async (_req, res) => {
+  try {
+    const userData = jwt.decode(res.locals.token) as any;
+    if (!userData?.user_id) {
+      return errorResponseHelper(res, 401, "Invalid session");
+    }
+    const { sendPayoutDigestForUser } = await import(
+      "../services/payoutDigestService"
+    );
+    const result = await sendPayoutDigestForUser(Number(userData.user_id));
+    if (!result.sent) {
+      return errorResponseHelper(
+        res,
+        500,
+        result.skipped === "user-not-found"
+          ? "User not found"
+          : "Failed to send payout digest",
+        result as any,
+      );
+    }
+    return successResponseHelper(res, 200, "Payout digest sent", {
+      sent: true,
+      digest: result.digest,
+    });
+  } catch (e) {
+    return errorResponseHelper(res, 500, getErrorMessage(e));
+  }
+});
+
 // PUT /api/notifications/read-all - Mark all notifications as read
 notificationRouter.put("/read-all", notificationController.markAllAsRead);
 
