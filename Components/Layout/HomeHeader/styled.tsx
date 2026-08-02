@@ -238,7 +238,9 @@ export const MobileMenuDrawer = styled(Drawer)(() => ({
     top: "64px !important",
     height: "calc(100vh - 64px) !important",
     width: "100%",
-    maxWidth: "360px",
+    // Coinbase-style: effectively full-screen on phones, comfortable panel on
+    // tablets. width:100% + this cap = full-bleed under ~420px viewports.
+    maxWidth: "420px",
     backgroundColor: "transparent !important",
     boxShadow: "none !important",
     border: "none !important",
@@ -461,6 +463,281 @@ export const ActionDivider = styled(Box)(({ theme }) => ({
     display: "none",
   },
 }));
+
+/* ================= DESKTOP MEGA-MENU (Coinbase-style) ================= */
+
+// Shared entrance keyframe for dropdown cards.
+const megaIn = {
+  "@keyframes dynoMegaIn": {
+    from: { opacity: 0, transform: "translateY(-6px)" },
+    to: { opacity: 1, transform: "translateY(0)" },
+  },
+} as const;
+
+// Per-item wrapper — establishes the positioning context for the panel and
+// owns the hover region (button + panel) so moving the cursor between them
+// never closes the menu.
+export const MegaTrigger = styled(Box)({
+  position: "relative",
+  display: "inline-flex",
+  alignItems: "center",
+});
+
+export const MegaTriggerButton = styled(Button)(({ theme }) => {
+  const dark = theme.palette.mode === "dark";
+  return {
+    textTransform: "none",
+    fontSize: "15px",
+    fontWeight: 500,
+    lineHeight: "22px",
+    letterSpacing: "-0.005em",
+    fontFamily: "var(--font-body)",
+    color: dark ? "rgba(255,255,255,0.72)" : "#3F3F46",
+    padding: "8px 6px",
+    borderRadius: 8,
+    minWidth: 0,
+    gap: 2,
+    transition: "color 200ms ease",
+    "& .chev": { transition: "transform 220ms cubic-bezier(0.16,1,0.3,1)", fontSize: 18, marginTop: 1 },
+    "&:hover": { background: "transparent", color: dark ? "#F5F5F5" : "#0A0A0A" },
+    "&[data-open='true']": { color: dark ? "#F5F5F5" : "#0A0A0A" },
+    "&[data-open='true'] .chev": { transform: "rotate(180deg)", color: CORAL },
+  };
+});
+
+// Absolutely-positioned wrapper. `paddingTop` is a transparent bridge that
+// keeps the hover region continuous from the trigger down to the visible card.
+export const MegaPanel = styled(Box)(() => ({
+  position: "absolute",
+  top: "100%",
+  left: 0,
+  paddingTop: 14,
+  zIndex: 1450,
+  ...megaIn,
+  animation: "dynoMegaIn 180ms cubic-bezier(0.16,1,0.3,1)",
+}));
+
+export const MegaCard = styled(Box)(({ theme }) => {
+  const dark = theme.palette.mode === "dark";
+  return {
+    minWidth: 328,
+    maxWidth: 384,
+    padding: 10,
+    borderRadius: 18,
+    display: "flex",
+    flexDirection: "column",
+    gap: 2,
+    backgroundColor: dark ? "rgba(18,18,24,0.98)" : "#FFFFFF",
+    border: `1px solid ${dark ? "rgba(255,255,255,0.10)" : "rgba(10,10,10,0.08)"}`,
+    boxShadow: dark
+      ? "0 24px 60px -14px rgba(0,0,0,0.72)"
+      : "0 24px 60px -18px rgba(10,10,10,0.20)",
+    backdropFilter: "blur(14px)",
+    WebkitBackdropFilter: "blur(14px)",
+  };
+});
+
+export const MegaItemLink = styled(Box)(({ theme }) => {
+  const dark = theme.palette.mode === "dark";
+  return {
+    display: "flex",
+    alignItems: "flex-start",
+    gap: 12,
+    padding: "10px 12px",
+    borderRadius: 12,
+    cursor: "pointer",
+    textDecoration: "none",
+    transition: "background 160ms ease",
+    "&:hover": { background: dark ? "rgba(255,255,255,0.05)" : "rgba(79,70,229,0.05)" },
+    "&:hover .mega-icon": { color: "#FFFFFF", background: CORAL, borderColor: CORAL },
+    "&:hover .mega-title": { color: CORAL },
+  };
+});
+
+export const MegaItemIcon = styled(Box)(({ theme }) => {
+  const dark = theme.palette.mode === "dark";
+  return {
+    flexShrink: 0,
+    width: 38,
+    height: 38,
+    borderRadius: 10,
+    display: "grid",
+    placeItems: "center",
+    color: CORAL,
+    background: dark ? "rgba(79,70,229,0.16)" : "rgba(79,70,229,0.08)",
+    border: `1px solid ${dark ? "rgba(124,92,255,0.28)" : "rgba(79,70,229,0.16)"}`,
+    transition: "all 160ms ease",
+    "& svg": { fontSize: 20 },
+  };
+});
+
+export const MegaItemTitle = styled(Typography)(({ theme }) => ({
+  fontFamily: "var(--font-body)",
+  fontSize: 14.5,
+  fontWeight: 600,
+  lineHeight: "20px",
+  color: theme.palette.mode === "dark" ? "#F5F5F5" : "#0A0A0A",
+  transition: "color 160ms ease",
+}));
+
+export const MegaItemDesc = styled(Typography)(({ theme }) => ({
+  fontFamily: "var(--font-body)",
+  fontSize: 12.5,
+  fontWeight: 400,
+  lineHeight: "17px",
+  marginTop: 2,
+  color: theme.palette.mode === "dark" ? "rgba(255,255,255,0.55)" : "#71717A",
+}));
+
+/* ================= LANGUAGE GLOBE (desktop) ================= */
+
+export const LangWrap = styled(Box)(({ theme }) => ({
+  position: "relative",
+  display: "inline-flex",
+  alignItems: "center",
+  [theme.breakpoints.down("md")]: { display: "none" },
+}));
+
+export const LangGlobeButton = styled(IconButton)(({ theme }) => {
+  const dark = theme.palette.mode === "dark";
+  return {
+    minWidth: 44,
+    minHeight: 40,
+    height: 40,
+    padding: "0 12px",
+    borderRadius: 999,
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 6,
+    color: dark ? "rgba(255,255,255,0.82)" : "#3F3F46",
+    border: `1px solid ${dark ? "rgba(255,255,255,0.10)" : "rgba(10,10,10,0.10)"}`,
+    background: dark ? "rgba(255,255,255,0.03)" : "rgba(10,10,10,0.02)",
+    fontFamily: "var(--font-body)",
+    fontSize: 13,
+    fontWeight: 600,
+    letterSpacing: "0.02em",
+    transition: "all 180ms ease",
+    touchAction: "manipulation",
+    "& svg": { fontSize: 19 },
+    "&:hover": {
+      borderColor: CORAL,
+      color: dark ? "#fff" : "#0A0A0A",
+      background: dark ? "rgba(255,255,255,0.06)" : "rgba(79,70,229,0.05)",
+    },
+  };
+});
+
+export const LangPanel = styled(Box)(({ theme }) => {
+  const dark = theme.palette.mode === "dark";
+  return {
+    position: "absolute",
+    top: "calc(100% + 12px)",
+    right: 0,
+    minWidth: 220,
+    padding: 8,
+    borderRadius: 16,
+    zIndex: 1460,
+    backgroundColor: dark ? "rgba(18,18,24,0.98)" : "#FFFFFF",
+    border: `1px solid ${dark ? "rgba(255,255,255,0.10)" : "rgba(10,10,10,0.08)"}`,
+    boxShadow: dark
+      ? "0 24px 60px -14px rgba(0,0,0,0.72)"
+      : "0 24px 60px -18px rgba(10,10,10,0.20)",
+    backdropFilter: "blur(14px)",
+    WebkitBackdropFilter: "blur(14px)",
+    ...megaIn,
+    animation: "dynoMegaIn 160ms cubic-bezier(0.16,1,0.3,1)",
+  };
+});
+
+export const LangOption = styled(Box)(({ theme }) => {
+  const dark = theme.palette.mode === "dark";
+  return {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 10,
+    padding: "9px 10px",
+    borderRadius: 10,
+    cursor: "pointer",
+    transition: "background 150ms ease",
+    "&:hover": { background: dark ? "rgba(255,255,255,0.05)" : "rgba(79,70,229,0.05)" },
+    "&[data-selected='true']": {
+      background: dark ? "rgba(79,70,229,0.16)" : "rgba(79,70,229,0.08)",
+    },
+  };
+});
+
+export const LangOptionLabel = styled(Typography)(({ theme }) => ({
+  fontFamily: "var(--font-body)",
+  fontSize: 13.5,
+  fontWeight: 500,
+  color: theme.palette.mode === "dark" ? "#F5F5F5" : "#18181B",
+}));
+
+/* ================= MOBILE ACCORDION ================= */
+
+export const MobileSection = styled(Box)(({ theme }) => ({
+  borderBottom: `1px solid ${
+    theme.palette.mode === "dark" ? "rgba(255,255,255,0.06)" : "rgba(10,10,10,0.08)"
+  }`,
+}));
+
+export const MobileSectionButton = styled("button")(({ theme }) => {
+  const dark = theme.palette.mode === "dark";
+  return {
+    width: "100%",
+    background: "transparent",
+    border: "none",
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: "15px 2px",
+    color: dark ? "#F5F5F5" : "#0A0A0A",
+    fontFamily: "var(--font-hero)",
+    fontSize: 20,
+    fontWeight: 600,
+    letterSpacing: "-0.01em",
+    textAlign: "left",
+    touchAction: "manipulation",
+    WebkitTapHighlightColor: "transparent",
+    "& .chev": {
+      transition: "transform 220ms cubic-bezier(0.16,1,0.3,1)",
+      fontSize: 24,
+      color: dark ? "rgba(255,255,255,0.6)" : "rgba(10,10,10,0.5)",
+    },
+    "&[data-open='true'] .chev": { transform: "rotate(180deg)", color: CORAL },
+  };
+});
+
+export const MobileSubItem = styled(Box)(({ theme }) => {
+  const dark = theme.palette.mode === "dark";
+  return {
+    display: "flex",
+    alignItems: "center",
+    gap: 12,
+    padding: "11px 6px 11px 2px",
+    cursor: "pointer",
+    color: dark ? "rgba(255,255,255,0.82)" : "#27272A",
+    transition: "color 160ms ease, transform 160ms ease",
+    touchAction: "manipulation",
+    WebkitTapHighlightColor: "transparent",
+    "& .msub-icon": {
+      width: 34,
+      height: 34,
+      borderRadius: 9,
+      display: "grid",
+      placeItems: "center",
+      color: CORAL,
+      background: dark ? "rgba(79,70,229,0.16)" : "rgba(79,70,229,0.08)",
+      border: `1px solid ${dark ? "rgba(124,92,255,0.26)" : "rgba(79,70,229,0.16)"}`,
+      flexShrink: 0,
+    },
+    "& .msub-icon svg": { fontSize: 18 },
+    "& .msub-title": { fontFamily: "var(--font-body)", fontSize: 15.5, fontWeight: 500 },
+    "&:active": { color: CORAL, transform: "translateX(3px)" },
+  };
+});
 
 // Legacy export (kept for backward compat if anything still imports it).
 export { AURORA_GRADIENT, CORAL, VIOLET, VOLT };

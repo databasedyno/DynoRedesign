@@ -5,6 +5,12 @@
   "documentation": "Dokumentation",
   "signIn": "Anmelden",
   "getStarted": "Loslegen",
+  "nav": {
+    "products": "Produkte",
+    "developers": "Entwickler",
+    "resources": "Ressourcen",
+    "company": "Unternehmen"
+  },
   "heroBadge": "Krypto-Zahlungen, ganz einfach",
   "heroTitle": "Krypto akzeptieren. Direkt in Ihre Wallet — oder automatisch in Stablecoins umgewandelt.",
   "heroHighlight": "Direkt in Ihre Wallet — oder automatisch in Stablecoins umgewandelt.",

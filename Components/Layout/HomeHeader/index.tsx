@@ -1,25 +1,43 @@
-// FIX (2026-07-10, user report): the indigo/blue logo clashed with the black +
-// lime landing brand in light mode — swapped for a near-black monochrome mark.
+// Coinbase-style marketing header (2026-08-02 rewrite):
+//   • Desktop: logo + mega-menu dropdowns (Products / Developers / Resources /
+//     Company) that open on hover AND click, each with icon + title + desc.
+//   • Right side: "All systems normal" status pill, a globe language menu
+//     (globe → dropdown panel), the light/dark theme toggle, then Sign in +
+//     Get started.
+//   • Mobile / tablet (<1025px): full-height slide-in drawer with an
+//     accordion of the same sections, auth CTAs, language + theme, trust row.
+// Preserves the hardened hamburger tap handling (onPointerUp + de-dupe) and
+// the body-only scroll-lock from the earlier mobile bug fixes.
 import DynopayLogo from "@/assets/Icons/home/dynopay-blackLogo.svg";
 import DynopayWhiteLogo from "@/assets/Icons/home/dynopay-whiteLogo.svg";
 import LanguageSwitcher from "@/Components/UI/LanguageSwitcher";
 import ThemeToggle from "@/Components/UI/ThemeToggle";
 import { ArrowForwardRounded } from "@mui/icons-material";
-import { Box, Button, useTheme } from "@mui/material";
+import KeyboardArrowDownRounded from "@mui/icons-material/KeyboardArrowDownRounded";
+import { Box, Button, Collapse, Typography, useTheme } from "@mui/material";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import HomeButton from "../HomeButton";
+import HeaderLangMenu from "./HeaderLangMenu";
+import { MENU_SECTIONS } from "./menuData";
 import {
   Actions,
   ActionDivider,
   ClickableLogo,
-  DesktopLanguageWrapper,
   FixedHeader,
   HeaderContainer,
   HeaderDivider,
   LeftGroup,
+  MegaCard,
+  MegaItemDesc,
+  MegaItemIcon,
+  MegaItemLink,
+  MegaItemTitle,
+  MegaPanel,
+  MegaTrigger,
+  MegaTriggerButton,
   MenuCloseIcon,
   MenuOpenIcon,
   MobileDrawer,
@@ -27,7 +45,9 @@ import {
   MobileMenuButton,
   MobileMenuDrawer,
   MobileNavContent,
-  MobileNavItem,
+  MobileSection,
+  MobileSectionButton,
+  MobileSubItem,
   MobileTrustBadges,
   NavLinks,
   RightGroup,
@@ -37,35 +57,11 @@ import {
   TrustPill,
 } from "./styled";
 
-/* ================= TYPES ================= */
-
-type SectionId = "features" | "fee-calculator";
-
-type TranslationKey = "features" | "headerFees" | "documentation" | "blog";
-
-interface HeaderItem {
-  translationKey: TranslationKey;
-  path: string;
-  sectionId?: SectionId;
-  external?: boolean;
-}
-
 /* ================= CONSTANTS ================= */
 
 const HEADER_OFFSET_PX = 100;
 const SCROLL_THRESHOLD_PX = 10;
-
-const HEADER_ITEMS: readonly HeaderItem[] = [
-  { translationKey: "features", sectionId: "features", path: "/" },
-  { translationKey: "headerFees", path: "/fees", external: false },
-  { translationKey: "documentation", path: "/documentation", external: false },
-  { translationKey: "blog", path: "/blog", external: false },
-] as const;
-
-// Section IDs on the homepage that we scroll-spy against (D).
-// Order matters — we highlight the last one whose top is above the viewport
-// midpoint.
-const SPY_SECTIONS: readonly string[] = ["hero", "fee-calculator", "features", "use-cases"] as const;
+const MEGA_CLOSE_DELAY_MS = 140;
 
 /* ================= COMPONENT ================= */
 
@@ -77,18 +73,22 @@ const HomeHeader = memo(function HomeHeader() {
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   const [isHeaderVisible, setIsHeaderVisible] = useState<boolean>(true);
-  const [activeSection, setActiveSection] = useState<string>("hero");
+  // Desktop mega-menu: which section (if any) is open.
+  const [openMenu, setOpenMenu] = useState<string | null>(null);
+  // Mobile accordion: which section is expanded (Products open by default).
+  const [openMobileSection, setOpenMobileSection] = useState<string | null>("products");
+
   // Avoid SSR/client hydration mismatch for theme-dependent assets.
-  // SSR always renders in 'dark' mode (ThemeContext fallback), so we
-  // must match that on the first client render, then switch after mount.
   const [mounted, setMounted] = useState(false);
-  useEffect(() => { setMounted(true); }, []);
-  const logoSrc = (!mounted || isDark) ? DynopayWhiteLogo : DynopayLogo;
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  const logoSrc = !mounted || isDark ? DynopayWhiteLogo : DynopayLogo;
 
   const lastScrollY = useRef<number>(0);
   const ticking = useRef<boolean>(false);
-  // Used by the mobile hamburger to de-dupe pointerup + synthesised click
-  // firing for the same tap on some Android Chrome versions.
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // De-dupe pointerup + synthesised click for the mobile hamburger.
   const lastToggleTsRef = useRef<number>(0);
 
   /* ================= NAVIGATION ================= */
@@ -97,41 +97,71 @@ const HomeHeader = memo(function HomeHeader() {
     void router.push("/");
   }, [router]);
 
-  const scrollToSection = useCallback((id?: SectionId) => {
-    if (!id) return;
+  const scrollToId = useCallback((id: string) => {
     const el = document.getElementById(id);
     if (!el) return;
-
-    const top =
-      el.getBoundingClientRect().top + window.pageYOffset - HEADER_OFFSET_PX;
-
+    const top = el.getBoundingClientRect().top + window.pageYOffset - HEADER_OFFSET_PX;
     window.scrollTo({ top, behavior: "smooth" });
   }, []);
 
-  const handleNav = useCallback(
-    (item: HeaderItem) => {
-      if (item.external) {
-        window.open(item.path, "_blank", "noopener,noreferrer");
-        setMobileMenuOpen(false);
+  // Navigate to a mega-menu / accordion destination. Handles homepage hash
+  // links (smooth-scroll when already on "/", otherwise route then scroll),
+  // in-page doc anchors, and plain routes.
+  const go = useCallback(
+    (href: string) => {
+      setOpenMenu(null);
+      setMobileMenuOpen(false);
+
+      if (href.startsWith("/#")) {
+        const id = href.slice(2);
+        if (router.pathname === "/") {
+          scrollToId(id);
+        } else {
+          void router.push("/").then(() => setTimeout(() => scrollToId(id), 90));
+        }
         return;
       }
 
-      if (item.sectionId) {
-        if (router.pathname !== "/") {
-          void router.push("/").then(() => {
-            setTimeout(() => scrollToSection(item.sectionId), 80);
-          });
-        } else {
-          scrollToSection(item.sectionId);
-        }
-      } else {
-        void router.push(item.path);
-      }
-
-      setMobileMenuOpen(false);
+      void router.push(href);
     },
-    [router, scrollToSection],
+    [router, scrollToId],
   );
+
+  /* ================= MEGA-MENU OPEN/CLOSE ================= */
+
+  const openNow = useCallback((key: string) => {
+    if (closeTimer.current) {
+      clearTimeout(closeTimer.current);
+      closeTimer.current = null;
+    }
+    setOpenMenu(key);
+  }, []);
+
+  const scheduleClose = useCallback(() => {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+    closeTimer.current = setTimeout(() => setOpenMenu(null), MEGA_CLOSE_DELAY_MS);
+  }, []);
+
+  // Close the open mega-menu on the first scroll, and on Escape.
+  useEffect(() => {
+    if (!openMenu) return undefined;
+    const onScroll = () => setOpenMenu(null);
+    const onKey = (e: globalThis.KeyboardEvent) => {
+      if (e.key === "Escape") setOpenMenu(null);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true, once: true });
+    document.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [openMenu]);
+
+  // Close everything on route change.
+  useEffect(() => {
+    setOpenMenu(null);
+    setMobileMenuOpen(false);
+  }, [router.asPath]);
 
   /* ================= HEADER VISIBILITY ================= */
 
@@ -162,43 +192,8 @@ const HomeHeader = memo(function HomeHeader() {
     return () => window.removeEventListener("scroll", onScroll);
   }, [isHeaderVisible]);
 
-  /* ================= SCROLL-SPY (D) ================= */
-  // Highlights the nav item whose section is currently at/above the header.
-  // Only runs on the homepage — noop on every other route.
-  useEffect(() => {
-    if (router.pathname !== "/") return;
+  /* ================= SCROLL LOCK (mobile drawer) ================= */
 
-    let raf = 0;
-    const onScrollSpy = () => {
-      if (raf) return;
-      raf = requestAnimationFrame(() => {
-        const mid = window.scrollY + HEADER_OFFSET_PX + 40;
-        let current = SPY_SECTIONS[0];
-        for (const id of SPY_SECTIONS) {
-          const el = document.getElementById(id);
-          if (!el) continue;
-          const top = el.offsetTop;
-          if (top <= mid) current = id;
-        }
-        setActiveSection(current);
-        raf = 0;
-      });
-    };
-
-    onScrollSpy();
-    window.addEventListener("scroll", onScrollSpy, { passive: true });
-    return () => window.removeEventListener("scroll", onScrollSpy);
-  }, [router.pathname]);
-
-  /* ================= SCROLL LOCK ================= */
-
-  // MOBILE FIX (2026-07-29 follow-up): the previous version set
-  // `document.documentElement.style.overflow = "hidden"` which, on real iOS
-  // Safari, can force a synchronous relayout that drops in-flight touch/click
-  // events (users see this as "the hamburger did nothing when I tapped it").
-  // We now scope the scroll lock to `<body>` only — sufficient to prevent
-  // background scroll behind the drawer, and safe for touch dispatch — and
-  // defer the write to the next frame so it never lands mid-click.
   useEffect(() => {
     const body = document.body;
     const html = document.documentElement;
@@ -232,57 +227,63 @@ const HomeHeader = memo(function HomeHeader() {
     >
       <HeaderContainer aria-label="Primary navigation">
         <LeftGroup>
-          <ClickableLogo
-            type="button"
-            aria-label="Go to home"
-            onClick={navigateHome}
-          >
-            <Image
-              src={logoSrc}
-              alt="Dynopay"
-              width={134}
-              height={45}
-              draggable={false}
-              priority
-            />
+          <ClickableLogo type="button" aria-label="Go to home" onClick={navigateHome}>
+            <Image src={logoSrc} alt="Dynopay" width={134} height={45} draggable={false} priority />
           </ClickableLogo>
 
           <NavLinks>
-            {HEADER_ITEMS.map((item) => {
-              const isActive = item.sectionId ? activeSection === item.sectionId : false;
+            {MENU_SECTIONS.map((section) => {
+              const open = openMenu === section.key;
               return (
-                <Button
-                  key={item.translationKey}
-                  disableRipple
-                  onClick={() => handleNav(item)}
-                  sx={{
-                    position: "relative",
-                    // Aurora coral underline for the currently-visible section
-                    "&::after": item.sectionId
-                      ? {
-                          content: '""',
-                          position: "absolute",
-                          left: "50%",
-                          bottom: 4,
-                          transform: `translateX(-50%) scaleX(${isActive ? 1 : 0})`,
-                          transformOrigin: "center",
-                          width: 22,
-                          height: 2,
-                          borderRadius: 2,
-                          background:
-                            "linear-gradient(90deg, #4F46E5 0%, #7C5CFF 100%)",
-                          transition: "transform 220ms cubic-bezier(0.16,1,0.3,1)",
-                        }
-                      : undefined,
-                    color: isActive
-                      ? (theme) =>
-                          theme.palette.mode === "dark" ? "#F5F5F5" : "#0A0A0A"
-                      : undefined,
-                    fontWeight: isActive ? 600 : 500,
-                  }}
+                <MegaTrigger
+                  key={section.key}
+                  onMouseEnter={() => openNow(section.key)}
+                  onMouseLeave={scheduleClose}
                 >
-                  {t(item.translationKey)}
-                </Button>
+                  <MegaTriggerButton
+                    disableRipple
+                    data-open={open ? "true" : "false"}
+                    data-testid={`nav-${section.key}`}
+                    aria-haspopup="true"
+                    aria-expanded={open}
+                    onClick={() => setOpenMenu(open ? null : section.key)}
+                  >
+                    {t(section.labelKey)}
+                    <KeyboardArrowDownRounded className="chev" />
+                  </MegaTriggerButton>
+
+                  {open && (
+                    <MegaPanel data-testid={`mega-${section.key}`}>
+                      <MegaCard>
+                        {section.items.map((item) => {
+                          const Icon = item.Icon;
+                          return (
+                            <MegaItemLink
+                              key={item.titleKey}
+                              role="link"
+                              tabIndex={0}
+                              onClick={() => go(item.href)}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter" || e.key === " ") {
+                                  e.preventDefault();
+                                  go(item.href);
+                                }
+                              }}
+                            >
+                              <MegaItemIcon className="mega-icon">
+                                <Icon />
+                              </MegaItemIcon>
+                              <Box>
+                                <MegaItemTitle className="mega-title">{t(item.titleKey)}</MegaItemTitle>
+                                <MegaItemDesc>{t(item.descKey)}</MegaItemDesc>
+                              </Box>
+                            </MegaItemLink>
+                          );
+                        })}
+                      </MegaCard>
+                    </MegaPanel>
+                  )}
+                </MegaTrigger>
               );
             })}
           </NavLinks>
@@ -290,30 +291,18 @@ const HomeHeader = memo(function HomeHeader() {
 
         <RightGroup>
           <Actions>
-            {/* MOBILE FIX (2026-07-29): these three chips used to be gated by
-                `!isMobile && ...`. That JS gate caused the mobile SSR HTML to
-                still render them on the first paint (hydration flicker) which
-                crowded the top-right and made iOS Safari's touch-target
-                algorithm route hamburger taps to the neighbour ThemeToggle.
-                They are now hidden by CSS media queries inside the styled
-                components themselves — no JS involvement, no hydration cost. */}
             <StatusPillWrap aria-label="System status">
               <span className="dot" />
               <span className="status-label">{t("v3.header.systemsNormal")}</span>
             </StatusPillWrap>
 
-            <DesktopLanguageWrapper>
-              <LanguageSwitcher />
-            </DesktopLanguageWrapper>
+            <HeaderLangMenu />
 
             <ThemeToggle size="small" />
 
             <ActionDivider />
 
-            <StyledSignInButton
-              disableRipple
-              onClick={() => void router.push("/auth/login")}
-            >
+            <StyledSignInButton disableRipple onClick={() => void router.push("/auth/login")}>
               {t("signIn")}
             </StyledSignInButton>
 
@@ -339,35 +328,12 @@ const HomeHeader = memo(function HomeHeader() {
             aria-label="Toggle menu"
             aria-expanded={mobileMenuOpen}
             data-testid="mobile-menu-toggle"
-            // MOBILE FIX (2026-07-29 follow-up): user reported the menu still
-            // didn't open on real iPhone / Firefox mobile / Chrome mobile even
-            // though the Chromium emulator worked. Real touch devices route
-            // through touchstart → touchend → synthesized-click. The
-            // synthesized-click can be swallowed (or arrive 300+ ms late)
-            // when: (a) the finger drifts a few px between touchstart and
-            // touchend, (b) iOS Safari's first-tap "focus establishment"
-            // consumes the click, or (c) another mount/hydration effect
-            // fires between touchstart and click and re-mounts the button.
-            //
-            // Switching to `onPointerUp` fires the toggle on touch-release
-            // directly, which is what mobile users experience as "instant"
-            // and which sidesteps all three of the above. We keep `onClick`
-            // as a fallback for keyboard activation and for the (rare) case
-            // where PointerEvents aren't dispatched (Firefox mobile ≤79).
-            //
-            // `handleToggle` is stable per-mount; `useRef` guards against a
-            // pointer up firing twice on some Android Chrome versions that
-            // emit both pointerup AND click for the same tap.
             onPointerUp={(e) => {
-              // Only respond to primary button on mouse; touch always OK.
               if (e.pointerType === "mouse" && e.button !== 0) return;
               lastToggleTsRef.current = Date.now();
               setMobileMenuOpen((prev) => !prev);
             }}
             onClick={() => {
-              // If a pointerup already toggled within the last 350 ms, skip
-              // the synthesised click. Otherwise (keyboard, or pointerup
-              // unsupported), toggle here.
               if (Date.now() - lastToggleTsRef.current < 350) return;
               setMobileMenuOpen((prev) => !prev);
             }}
@@ -381,21 +347,50 @@ const HomeHeader = memo(function HomeHeader() {
         anchor="right"
         open={mobileMenuOpen}
         onClose={() => setMobileMenuOpen(false)}
-        transitionDuration={{ enter: 180, exit: 140 }}
+        transitionDuration={{ enter: 200, exit: 150 }}
         ModalProps={{ keepMounted: true, disableScrollLock: true }}
       >
         <MobileDrawer>
           <MobileNavContent>
-            {HEADER_ITEMS.map((item) => (
-              <MobileNavItem
-                key={item.translationKey}
-                onClick={() => handleNav(item)}
-              >
-                {t(item.translationKey)}
-              </MobileNavItem>
-            ))}
+            {MENU_SECTIONS.map((section) => {
+              const open = openMobileSection === section.key;
+              return (
+                <MobileSection key={section.key}>
+                  <MobileSectionButton
+                    type="button"
+                    data-open={open ? "true" : "false"}
+                    data-testid={`mnav-${section.key}`}
+                    aria-expanded={open}
+                    onClick={() => setOpenMobileSection(open ? null : section.key)}
+                  >
+                    {t(section.labelKey)}
+                    <KeyboardArrowDownRounded className="chev" />
+                  </MobileSectionButton>
 
-            {/* Flat indigo CTA inside the mobile drawer — matches header */}
+                  <Collapse in={open} timeout={220} unmountOnExit>
+                    <Box sx={{ pb: 1.25 }}>
+                      {section.items.map((item) => {
+                        const Icon = item.Icon;
+                        return (
+                          <MobileSubItem
+                            key={item.titleKey}
+                            data-testid={`msub-${item.titleKey}`}
+                            onClick={() => go(item.href)}
+                          >
+                            <Box className="msub-icon">
+                              <Icon />
+                            </Box>
+                            <Typography className="msub-title">{t(item.titleKey)}</Typography>
+                          </MobileSubItem>
+                        );
+                      })}
+                    </Box>
+                  </Collapse>
+                </MobileSection>
+              );
+            })}
+
+            {/* Auth CTAs */}
             <Box sx={{ display: "flex", flexDirection: "column", gap: 1.25, mt: 2.5 }}>
               <Button
                 onClick={() => {

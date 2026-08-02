@@ -5,6 +5,12 @@
   "documentation": "Documentatie",
   "signIn": "Inloggen",
   "getStarted": "Aan de slag",
+  "nav": {
+    "products": "Producten",
+    "developers": "Ontwikkelaars",
+    "resources": "Bronnen",
+    "company": "Bedrijf"
+  },
   "heroBadge": "Cryptobetalingen, eenvoudig gemaakt",
   "heroTitle": "Accepteer crypto. Rechtstreeks naar uw wallet — of automatisch omgezet naar stablecoins.",
   "heroHighlight": "Rechtstreeks naar uw wallet — of automatisch omgezet naar stablecoins.",

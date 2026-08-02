@@ -5,6 +5,12 @@
   "documentation": "Documentação",
   "signIn": "Entrar",
   "getStarted": "Começar",
+  "nav": {
+    "products": "Produtos",
+    "developers": "Programadores",
+    "resources": "Recursos",
+    "company": "Empresa"
+  },
   "heroBadge": "Pagamentos em cripto, sem complicação",
   "heroTitle": "Aceite cripto. Direto para a sua carteira — ou convertido automaticamente em stablecoins.",
   "heroHighlight": "Direto para a sua carteira — ou convertido automaticamente em stablecoins.",
