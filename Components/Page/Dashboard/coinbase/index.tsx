@@ -1,6 +1,7 @@
 import React from "react";
 import { Box } from "@mui/material";
 import HeroKPI from "./HeroKPI";
+import LivePaymentFeed from "./LivePaymentFeed";
 import AttentionCardsRow from "./AttentionCardsRow";
 import AssetBreakdownRows from "./AssetBreakdownRows";
 import QuickActionsPanel from "./QuickActionsPanel";
@@ -18,10 +19,11 @@ import useIsMobile from "@/hooks/useIsMobile";
  *
  * LEFT column (main fold):
  *   1. HeroKPI            — Lifetime volume + delta + sparkline + timeframes
- *   2. AttentionCardsRow  — dismissible referral + setup cards
- *   3. AssetBreakdownRows — Crypto / Fiat / Pending / Payments rows
- *   4. RecentTransactionsWidget — existing compact table
- *   5. FeeTierProgress    — existing tier bar
+ *   2. LivePaymentFeed    — Stripe-style live payments strip (20s polling)
+ *   3. AttentionCardsRow  — dismissible referral + setup cards
+ *   4. AssetBreakdownRows — Crypto / Fiat / Pending / Payments rows
+ *   5. RecentTransactionsWidget — existing compact table
+ *   6. FeeTierProgress    — existing tier bar
  *
  * RIGHT column (aside):
  *   1. QuickActionsPanel  — Receive/Convert/Invoice tabs + shortcut stack
@@ -55,6 +57,7 @@ const CoinbaseDashboard: React.FC = () => {
         }}
       >
         <HeroKPI />
+        <LivePaymentFeed />
         <AttentionCardsRow />
         <AssetBreakdownRows />
         <RecentTransactionsWidget />

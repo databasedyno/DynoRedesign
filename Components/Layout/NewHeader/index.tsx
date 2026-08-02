@@ -4,12 +4,15 @@ import CompanySelector from "@/Components/UI/CompanySelector";
 import LanguageSwitcher from "@/Components/UI/LanguageSwitcher";
 import ThemeToggle from "@/Components/UI/ThemeToggle";
 import UserMenu from "@/Components/UI/UserMenu";
+import NewSidebar from "@/Components/Layout/NewSidebar";
 import { useWalletData } from "@/hooks/useWalletData";
 import { rootReducer } from "@/utils/types";
 import { useTheme as useMuiTheme } from "@mui/material";
 import InfoIcon from "@mui/icons-material/Info";
 import ArrowOutwardIcon from "@mui/icons-material/ArrowOutward";
-import { Box } from "@mui/material";
+import MenuRounded from "@mui/icons-material/MenuRounded";
+import CloseRounded from "@mui/icons-material/CloseRounded";
+import { Box, Drawer, IconButton } from "@mui/material";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -50,6 +53,18 @@ const NewHeader = () => {
   const showWalletWarning = walletWarning && hasCompany;
   const [kycRequired, setKycRequired] = useState(false);
   const [kycLoading, setKycLoading] = useState(false);
+  // UX-2026-08-02: Coinbase-style mobile top-left hamburger. Opens a Drawer
+  // that reuses the desktop NewSidebar's full menu so mobile users can reach
+  // everything (Wallets, Create Pay Link, Products, Creator, API, Referrals,
+  // Notifications, Settings). The MobileNavigationBar bottom bar is now
+  // trimmed to just 3 primary items (Dashboard · Pay Links · Transactions).
+  const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
+  // Close the drawer whenever the route changes (user just navigated).
+  useEffect(() => {
+    const onRoute = () => setDrawerOpen(false);
+    router.events.on("routeChangeComplete", onRoute);
+    return () => router.events.off("routeChangeComplete", onRoute);
+  }, [router.events]);
 
   useEffect(() => {
     const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
@@ -83,6 +98,28 @@ const NewHeader = () => {
   return (
     <HeaderContainer>
       <Box sx={{ display: "flex", alignItems: "center" }}>
+        {/* Mobile/tablet hamburger — top-left, opens full nav drawer (Coinbase pattern) */}
+        <IconButton
+          data-testid="mobile-hamburger-toggle"
+          aria-label="Open menu"
+          onClick={() => setDrawerOpen(true)}
+          sx={{
+            display: { xs: "inline-flex", lg: "none" },
+            width: 40,
+            height: 40,
+            mr: 0.5,
+            color: muiTheme.palette.text.primary,
+            "&:hover": {
+              backgroundColor:
+                muiTheme.palette.mode === "dark"
+                  ? "rgba(255,255,255,0.06)"
+                  : "rgba(10,10,15,0.04)",
+            },
+          }}
+        >
+          <MenuRounded sx={{ fontSize: 22 }} />
+        </IconButton>
+
         <LogoContainer>
           <Image
             onClick={() => router.push("/dashboard")}
@@ -214,6 +251,76 @@ const NewHeader = () => {
           <UserMenu />
         </RightSection>
       </MainContainer>
+
+      {/* Mobile/tablet nav Drawer — Coinbase pattern (top-left hamburger). */}
+      <Drawer
+        anchor="left"
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        data-testid="mobile-nav-drawer"
+        ModalProps={{ keepMounted: false }}
+        PaperProps={{
+          sx: {
+            width: { xs: "82vw", sm: 320 },
+            maxWidth: 340,
+            backgroundColor: muiTheme.palette.background.default,
+            borderRight: `1px solid ${
+              muiTheme.palette.mode === "dark"
+                ? "rgba(255,255,255,0.08)"
+                : "rgba(10,10,15,0.08)"
+            }`,
+            overflowX: "hidden",
+          },
+        }}
+        sx={{ display: { xs: "block", lg: "none" } }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            px: 2,
+            py: 1.5,
+            borderBottom: `1px solid ${
+              muiTheme.palette.mode === "dark"
+                ? "rgba(255,255,255,0.06)"
+                : "rgba(10,10,15,0.06)"
+            }`,
+          }}
+        >
+          <Image
+            src={muiTheme.palette.mode === "dark" ? LogoDark : Logo}
+            alt="Dynopay"
+            width={114}
+            height={39}
+            draggable={false}
+            style={{ width: "auto", height: "26px" }}
+          />
+          <IconButton
+            data-testid="mobile-nav-drawer-close"
+            aria-label="Close menu"
+            onClick={() => setDrawerOpen(false)}
+            sx={{
+              width: 36,
+              height: 36,
+              color: muiTheme.palette.text.primary,
+            }}
+          >
+            <CloseRounded sx={{ fontSize: 20 }} />
+          </IconButton>
+        </Box>
+        {/* Reuse the desktop sidebar so nothing is lost. It already knows how
+            to render active states + section groupings. */}
+        <Box
+          sx={{
+            height: "calc(100dvh - 65px)",
+            overflowY: "auto",
+            "& > *": { width: "100% !important" },
+          }}
+        >
+          <NewSidebar />
+        </Box>
+      </Drawer>
     </HeaderContainer>
   );
 };

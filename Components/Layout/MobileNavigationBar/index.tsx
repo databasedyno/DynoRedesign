@@ -118,31 +118,25 @@ const MobileNavigationBar = () => {
     { code: "nl", label: "Nederlands", flag: netherlandsFlag },
   ];
 
-  // First row items (5 items)
-  // UX-2026-07-08: renamed "More" → "Account" so users understand what's inside
-  // (settings, help, notifications, language, etc.). Fallback via defaultValue.
+  // First row items (3 items — Coinbase-style)
+  // UX-2026-08-02: Reduced from 5 → 3 to mirror Coinbase's mobile pattern
+  // (Home / Trade / Transactions in Coinbase = Dashboard / Pay Links /
+  // Transactions for a merchant). "Create", "Wallets", and the "Account"
+  // expand drawer moved into the top-left hamburger menu (NewHeader) so
+  // nothing is lost — just reorganised into a cleaner bottom bar.
   const firstRowItems = [
     { label: t("dash"), icon: "dashboard", path: "/dashboard", id: "dash" },
+    {
+      label: t("payLinks"),
+      icon: "payment-links",
+      path: "/pay-links",
+      id: "pay-links",
+    },
     {
       label: t("transactions"),
       icon: "transactions",
       path: "/transactions",
       id: "transactions",
-    },
-    {
-      label: t("create"),
-      icon: "add",
-      path: "/create-pay-link",
-      id: "create-pay-link",
-    },
-    { label: t("wallets"), icon: "wallets", path: "/wallet", id: "wallets" },
-    {
-      label: isExpanded
-        ? t("close")
-        : t("account", { defaultValue: "Account" }),
-      icon: isExpanded ? "close" : "more",
-      path: null,
-      id: "more",
     },
   ];
 
