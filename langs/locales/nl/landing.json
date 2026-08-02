@@ -9,7 +9,23 @@
     "products": "Producten",
     "developers": "Ontwikkelaars",
     "resources": "Bronnen",
-    "company": "Bedrijf"
+    "company": "Bedrijf",
+    "mega": {
+      "paymentLinks": { "title": "Betaallinks", "desc": "Deelbare links om binnen enkele seconden in crypto betaald te worden" },
+      "checkout": { "title": "Checkout", "desc": "Kant-en-klare, gehoste crypto-checkout voor elke winkel" },
+      "creatorPages": { "title": "Creatorpagina's", "desc": "Je eigen fooien- en betaalpagina" },
+      "payouts": { "title": "Crypto-uitbetalingen", "desc": "Stuur stablecoins en crypto naar iedereen, waar dan ook" },
+      "docs": { "title": "Documentatie", "desc": "Handleidingen, snelstarts en referenties" },
+      "api": { "title": "API-referentie", "desc": "REST-API voor betalingen en uitbetalingen" },
+      "webhooks": { "title": "Webhooks", "desc": "Realtime meldingen van betaalgebeurtenissen" },
+      "blog": { "title": "Blog", "desc": "Productnieuws en inzichten over cryptobetalingen" },
+      "fees": { "title": "Kosten", "desc": "Eenvoudige, transparante tarieven" },
+      "status": { "title": "Systeemstatus", "desc": "Realtime beschikbaarheid en incidentgeschiedenis" },
+      "about": { "title": "Over DynoPay", "desc": "Onze missie, ons bedrijf en vacatures" },
+      "support": { "title": "Hulp en support", "desc": "Handleidingen en manieren om ons te bereiken" },
+      "terms": { "title": "Voorwaarden", "desc": "Algemene voorwaarden" },
+      "privacy": { "title": "Privacy", "desc": "Hoe we je gegevens beschermen" }
+    }
   },
   "heroBadge": "Cryptobetalingen, eenvoudig gemaakt",
   "heroTitle": "Accepteer crypto. Rechtstreeks naar uw wallet — of automatisch omgezet naar stablecoins.",

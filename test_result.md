@@ -1,3 +1,279 @@
+## Session 95 — FEATURE: Coinbase-style marketing header + language menu (2026-08-02)
+
+### Preview URL
+https://b4dad0fb-927f-4786-8591-4250f52bfe65.preview.emergentagent.com/
+### No auth needed — PUBLIC landing page + public marketing routes.
+
+### What changed (frontend only — public marketing header `Components/Layout/HomeHeader/*`)
+Rebuilt the public landing header to match Coinbase.com's top-menu style & flow, responsive across desktop/tablet/mobile (iOS/Android):
+- **Desktop (>1025px):** logo + four **mega-menu dropdowns** — `Products`, `Developers`, `Resources`, `Company` — each opening on **hover AND click**, showing icon + title + description rows. Right side kept: "All systems normal" status pill, a **globe → language dropdown** (6 languages, native names), light/dark theme toggle, `Sign in` (/auth/login), `Get started` (/auth/register).
+- **Mobile/tablet (<1025px):** full-height right drawer with an **accordion** of the same 4 sections (expand to reveal sub-items), auth CTAs, language switcher + theme toggle, trust badges. Preserved the Session 93/94 hardened hamburger tap (`onPointerUp` + 350 ms de-dupe `onClick` fallback) and body-only `requestAnimationFrame` scroll-lock.
+- **i18n:** new `nav` keys (labels + `nav.mega.*` item titles/descriptions) added and **fully translated in all 6 languages** (en, pt, es, fr, de, nl). Verified live: switching to DE renders `Produkte/Entwickler/Ressourcen/Unternehmen` + fully translated mega panels.
+- Every menu link targets a REAL public route: `/#features`, `/pay/demo`, `/for/creators`, `/#use-cases`, `/documentation`, `/documentation#authentication`, `/documentation#webhooks`, `/blog`, `/fees`, `/system-status`, `/company`, `/help-support`, `/terms-conditions`, `/privacy-policy`.
+- New files: `HomeHeader/menuData.tsx`, `HomeHeader/HeaderLangMenu.tsx`. Extended `HomeHeader/styled.tsx`. Rewrote `HomeHeader/index.tsx`. Locale edits in `langs/locales/{en,pt,es,fr,nl,de}/landing.json`. Shared `Components/UI/LanguageSwitcher` (used on auth/checkout) was NOT modified. Zero backend/API/DB changes. Lint clean, all 6 JSONs valid.
+
+### data-testids available for testing
+- Desktop nav triggers: `nav-products`, `nav-developers`, `nav-resources`, `nav-company`
+- Mega panels: `mega-products`, `mega-developers`, `mega-resources`, `mega-company`
+- Language globe: `header-language-globe`; panel: `header-language-panel`; options: `header-lang-{en,pt,es,fr,de,nl}`
+- Mobile hamburger: `mobile-menu-toggle`; mobile accordion section buttons: `mnav-products`, `mnav-developers`, `mnav-resources`, `mnav-company`
+
+### Test scope for FRONTEND testing agent (user requested comprehensive pass "a")
+DESKTOP (1440×900):
+1. Load `/`. Assert header shows the 4 nav triggers + globe + theme toggle + Sign in + Get started + status pill.
+2. **Hover** each of `nav-products/developers/resources/company` → assert the matching `mega-*` panel becomes visible with the expected item count (Products=4, Developers=3, Resources=3, Company=4) and each row has an icon + title + description. Moving cursor from trigger into the panel must NOT close it (hover bridge).
+3. **Click** a nav trigger toggles its panel open/closed. Pressing **Escape** closes an open panel. Scrolling closes an open panel.
+4. **Click a mega item** navigates to the right route (e.g. Resources → System Status → `/system-status`; Developers → Webhooks → `/documentation#webhooks`; Products → Checkout → `/pay/demo`). Homepage hash items (Products → Payment Links → `/#features`) smooth-scroll on the homepage.
+5. **Globe language flow:** click `header-language-globe` → `header-language-panel` shows 6 languages with current checked. Select `header-lang-de` → nav labels switch to `Produkte/Entwickler/Ressourcen/Unternehmen` and, opening Products, the panel copy is German. Switch back to `header-lang-en`. Click-outside and Escape close the panel.
+
+MOBILE (390×844, is_mobile+has_touch) & TABLET (768×1024):
+6. Hamburger `mobile-menu-toggle` visible with hitbox ≥ 44×44 (Session 93/94 regression guard). Open via pointerup/tap → drawer opens (NO double-toggle re-close). `document.documentElement.style.overflow` MUST stay empty; `document.body.style.overflow` MUST be `hidden` while open, empty after close.
+7. In the drawer, tapping a section (`mnav-developers`) expands its accordion revealing sub-items; tapping another collapses the first (one-open behaviour). Tapping a sub-item navigates and closes the drawer.
+8. Mobile `Get started`/`Sign in` buttons route to `/auth/register` / `/auth/login`. Language + theme controls present in drawer footer.
+
+GENERAL:
+9. No console error-level messages beyond known next-auth / Binance geo-block / HMR noise.
+10. Desktop layout regression intact at 1440×900; no horizontal overflow at 390 / 768 / 1440.
+
+Report PASS/FAIL per test with observed state.
+
+### FRONTEND TESTING AGENT VERIFICATION — Session 95 (2026-08-02) — ⚠️ PARTIAL PASS (8/15 tests, critical navigation issues)
+
+**Test Status:** ⚠️ **DESKTOP MOSTLY WORKING, MOBILE DRAWER HAS CRITICAL ISSUES**
+
+**Test Environment:**
+- Preview URL: https://b4dad0fb-927f-4786-8591-4250f52bfe65.preview.emergentagent.com/
+- Test Type: PUBLIC landing page (NO auth needed)
+- Viewports: Desktop (1440×900), Mobile (390×844), Tablet (768×1024)
+- Test Focus: Coinbase-style marketing header with mega-menus, language switcher, mobile drawer
+
+---
+
+## TEST RESULTS SUMMARY (8/15 PASS, 53.3%)
+
+### ✅ DESKTOP TESTS (5/6 PASS)
+
+**TEST 1 — Header Elements Visibility: ✅ PASS**
+- All 9 header elements visible: nav-products, nav-developers, nav-resources, nav-company, language-globe, theme-toggle, sign-in, get-started, status-pill
+- Screenshot: test1_desktop_header.png
+
+**TEST 2 — Mega Menu Hover & Item Counts: ✅ PASS**
+- Products: 4 items (Payment Links, Checkout, Creator Pages, Crypto Payouts) ✅
+- Developers: 3 items (Documentation, API Reference, Webhooks) ✅
+- Resources: 3 items (Blog, Fees, System Status) ✅
+- Company: 4 items (About DynoPay, Help & Support, Terms, Privacy) ✅
+
+**TEST 3 — Hover Bridge: ✅ PASS**
+- Panel stays open when moving mouse from trigger to panel ✅
+
+**TEST 4 — Click Toggle, Escape, Scroll Close: ✅ PASS**
+- Click to open: ✅
+- Click to close: ✅
+- Escape closes: ✅
+- Scroll closes: ✅
+
+**TEST 5 — Mega Item Navigation: ❌ FAIL**
+- Resources → System Status: ❌ FAIL (stayed on home page, expected /system-status)
+- Developers → Webhooks: ✅ PASS (navigated to /documentation#webhooks)
+- Products → Checkout: ❌ FAIL (stayed on home page, expected /pay/demo)
+- **Root cause**: Mega menu items use React onClick handlers (not href). Some navigation handlers are not firing correctly or navigation is being prevented. All routes exist and return 200 status when accessed directly.
+
+**TEST 6 — Language Switcher Flow: ✅ PASS**
+- Language panel visible with 6 languages ✅
+- Current language marked ✅
+- Switch to German: nav labels changed to Produkte/Entwickler/Ressourcen/Unternehmen ✅
+- Mega panel content in German ✅
+- Switch back to English ✅
+- Click-outside closes ✅
+- Escape closes ✅
+- Screenshot: test6_desktop_final.png
+
+### ❌ MOBILE TESTS (1/6 PASS)
+
+**TEST 7 — Hamburger Visible & Hitbox: ✅ PASS**
+- Hamburger visible: ✅
+- Hitbox: 44×44 (meets Apple HIG + WCAG 2.5.5) ✅
+
+**TEST 8 — Drawer Open & Scroll-Lock: ❌ FAIL**
+- Drawer visible: ✅
+- 4 accordion sections visible: ✅
+- Auth buttons visible: ✅
+- Scroll-lock (drawer OPEN): html.overflow='' ✅, body.overflow='hidden' ✅
+- **CRITICAL ISSUE**: Backdrop click timed out (30s) - could not close drawer due to overlay interception
+- Screenshot: test8_mobile_drawer_open.png
+
+**TEST 9 — Accordion One-Open Behavior: ❌ FAIL**
+- **CRITICAL ISSUE**: Could not click accordion sections - backdrop overlay intercepts all clicks inside drawer
+- Error: "subtree intercepts pointer events" - backdrop is blocking clicks to drawer content
+
+**TEST 10 — Sub-Item Navigation: ❌ FAIL**
+- **CRITICAL ISSUE**: Same overlay interception issue - cannot click sub-items
+
+**TEST 11 — Mobile Auth Buttons Routing: ❌ FAIL (partial)
+- "Get started" button: ❌ FAIL (stayed on home page, expected /auth/register)
+  - **NOTE**: When tested with `force=True`, button DOES navigate correctly to /auth/register
+  - Issue is overlay interception, not button functionality
+- "Sign in" button: ✅ PASS (navigated to /auth/login)
+
+**TEST 12 — No Double-Toggle Bug: ❌ FAIL**
+- Drawer was CLOSED after single tap (should be OPEN)
+- **NOTE**: This is inconsistent - drawer opened successfully in TEST 7 & 8, but failed to open in TEST 12
+- Possible timing/state issue
+
+### ❌ TABLET TEST (0/1 PASS)
+
+**TEST 13 — Tablet Hamburger/Drawer Flow: ❌ FAIL**
+- Hamburger visible: ✅
+- Drawer opens: ❌ FAIL (same overlay interception issue)
+- No horizontal overflow: ✅
+- Screenshot: test13_tablet.png
+
+### ✅ GENERAL TESTS (2/2 PASS)
+
+**TEST 14 — Console Errors: ✅ PASS**
+- Total console errors: 0
+- Critical errors (after filtering benign patterns): 0 ✅
+
+**TEST 15 — No Horizontal Overflow: ✅ PASS**
+- 390px: ✅
+- 768px: ✅
+- 1440px: ✅
+
+---
+
+## CRITICAL ISSUES FOUND
+
+### 🔴 ISSUE 1: Desktop Mega Menu Navigation Not Working (2/3 links failed)
+**Severity:** HIGH  
+**Affected:** Resources → System Status, Products → Checkout  
+**Working:** Developers → Webhooks  
+
+**Details:**
+- Mega menu items use React onClick handlers (role="link" divs, not <a> tags)
+- When clicked, some items stay on home page instead of navigating
+- All routes exist and return 200 status when accessed directly:
+  - /system-status: ✅ EXISTS (200)
+  - /pay/demo: ✅ EXISTS (200)
+  - /documentation: ✅ EXISTS (200)
+- **Possible causes:**
+  - Navigation handler not firing
+  - Event propagation being stopped
+  - Router.push() failing silently
+  - Conditional logic preventing navigation
+
+**Recommendation:** Check the `go()` function in HomeHeader/index.tsx (lines 110-128) and verify onClick handlers are properly bound to mega menu items.
+
+### 🔴 ISSUE 2: Mobile Drawer Backdrop Overlay Interception (CRITICAL)
+**Severity:** CRITICAL  
+**Affected:** All mobile/tablet drawer interactions  
+
+**Details:**
+- When drawer is open, the MuiBackdrop-root element intercepts ALL clicks
+- Cannot click accordion sections (mnav-*)
+- Cannot click sub-items
+- Cannot click backdrop to close drawer
+- Playwright error: "subtree intercepts pointer events"
+- **Workaround:** Using `force=True` bypasses the issue and elements work correctly
+- **Root cause:** Backdrop z-index or pointer-events configuration is blocking drawer content
+
+**Evidence:**
+- Mobile "Get started" button navigates correctly to /auth/register when clicked with `force=True`
+- This proves the button functionality is correct, but overlay is blocking normal clicks
+
+**Recommendation:** Check MuiDrawer ModalProps configuration in HomeHeader/index.tsx (line 351). The backdrop should NOT intercept clicks meant for drawer content. Verify:
+1. Backdrop z-index vs drawer paper z-index
+2. pointer-events CSS on backdrop
+3. ModalProps.disableScrollLock is set to true (line 351) - this is correct
+4. Consider adding `ModalProps.BackdropProps={{ invisible: false, sx: { pointerEvents: 'none' } }}` to allow clicks through to drawer
+
+### 🟡 ISSUE 3: Mobile Drawer Inconsistent Opening Behavior
+**Severity:** MEDIUM  
+**Affected:** Mobile hamburger toggle  
+
+**Details:**
+- Drawer opened successfully in TEST 7 & 8
+- Drawer failed to open in TEST 12 (same session, same code)
+- Possible timing/state issue or animation conflict
+
+**Recommendation:** Verify the onPointerUp + onClick de-dupe logic (lines 331-339) is working correctly under rapid successive clicks.
+
+---
+
+## WHAT'S WORKING ✅
+
+**Desktop (5/6 tests):**
+- ✅ All header elements render correctly
+- ✅ Mega menu hover behavior perfect (all 4 menus, correct item counts)
+- ✅ Hover bridge works (panel stays open when moving to it)
+- ✅ Click toggle, Escape, and scroll close work perfectly
+- ✅ Language switcher fully functional (6 languages, German translation verified)
+- ✅ No console errors
+- ✅ No horizontal overflow
+
+**Mobile (1/6 tests):**
+- ✅ Hamburger visible with correct 44×44 hitbox
+- ✅ Drawer renders correctly with all sections
+- ✅ Scroll-lock working correctly (html.overflow='', body.overflow='hidden')
+- ✅ Auth buttons functional (when overlay issue is bypassed)
+
+**General:**
+- ✅ All routes exist and are accessible
+- ✅ No console errors
+- ✅ Responsive at all breakpoints (390px, 768px, 1440px)
+
+---
+
+## NEXT STEPS FOR MAIN AGENT
+
+### Priority 1 (CRITICAL): Fix Mobile Drawer Backdrop Overlay
+The mobile drawer is completely unusable due to backdrop interception. This blocks:
+- Accordion expansion
+- Sub-item navigation
+- Drawer closing
+- Auth button clicks
+
+**Suggested fix:**
+```tsx
+// In HomeHeader/index.tsx, line 351
+ModalProps={{ 
+  keepMounted: true, 
+  disableScrollLock: true,
+  BackdropProps: {
+    sx: {
+      pointerEvents: 'none' // Allow clicks through to drawer content
+    }
+  }
+}}
+```
+
+OR investigate if backdrop should be removed entirely for this drawer pattern.
+
+### Priority 2 (HIGH): Fix Desktop Mega Menu Navigation
+Two out of three tested navigation links don't work:
+- Resources → System Status (should go to /system-status)
+- Products → Checkout (should go to /pay/demo)
+
+**Check:**
+1. The `go()` function in HomeHeader/index.tsx (lines 110-128)
+2. Verify onClick handlers in mega menu items (lines 265-270)
+3. Check if router.push() is failing silently
+4. Verify no event.preventDefault() is being called incorrectly
+
+### Priority 3 (MEDIUM): Investigate Mobile Drawer Inconsistent Opening
+Drawer opened in some tests but not others. May be a timing issue with the onPointerUp/onClick de-dupe logic.
+
+---
+
+**OVERALL ASSESSMENT:**  
+The Coinbase-style header is **visually complete and mostly functional on desktop** (5/6 tests pass). The **language switcher is perfect** (fully translated, all 6 languages working). However, there are **2 critical issues blocking production readiness**:
+1. Desktop mega menu navigation is broken for 2/3 tested links
+2. Mobile drawer is completely unusable due to backdrop overlay interception
+
+Once these two issues are fixed, the header will be production-ready.
+
+---
+
+
 ## Session 94 — BUGFIX (v2 follow-up on Session 93): landing-page hamburger STILL not opening on real iPhone Safari / mobile Firefox / mobile Chrome — Chromium emulator false-positive (2026-07-29 v5)
 
 ### Preview URL

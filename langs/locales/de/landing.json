@@ -9,7 +9,23 @@
     "products": "Produkte",
     "developers": "Entwickler",
     "resources": "Ressourcen",
-    "company": "Unternehmen"
+    "company": "Unternehmen",
+    "mega": {
+      "paymentLinks": { "title": "Zahlungslinks", "desc": "Teilbare Links, um in Sekunden in Krypto bezahlt zu werden" },
+      "checkout": { "title": "Checkout", "desc": "Integrierbarer, gehosteter Checkout für jeden Shop" },
+      "creatorPages": { "title": "Creator-Seiten", "desc": "Deine eigene Trinkgeld- und Zahlungsseite" },
+      "payouts": { "title": "Krypto-Auszahlungen", "desc": "Sende Stablecoins und Krypto an jeden, überall" },
+      "docs": { "title": "Dokumentation", "desc": "Anleitungen, Schnellstarts und Referenzen" },
+      "api": { "title": "API-Referenz", "desc": "REST-API für Zahlungen und Auszahlungen" },
+      "webhooks": { "title": "Webhooks", "desc": "Echtzeit-Benachrichtigungen zu Zahlungsereignissen" },
+      "blog": { "title": "Blog", "desc": "Produktneuigkeiten und Einblicke zu Krypto-Zahlungen" },
+      "fees": { "title": "Gebühren", "desc": "Einfache, transparente Preise" },
+      "status": { "title": "Systemstatus", "desc": "Verfügbarkeit und Störungsverlauf in Echtzeit" },
+      "about": { "title": "Über DynoPay", "desc": "Unsere Mission, unser Unternehmen und Karriere" },
+      "support": { "title": "Hilfe & Support", "desc": "Anleitungen und Kontaktmöglichkeiten" },
+      "terms": { "title": "AGB", "desc": "Allgemeine Geschäftsbedingungen" },
+      "privacy": { "title": "Datenschutz", "desc": "Wie wir deine Daten schützen" }
+    }
   },
   "heroBadge": "Krypto-Zahlungen, ganz einfach",
   "heroTitle": "Krypto akzeptieren. Direkt in Ihre Wallet — oder automatisch in Stablecoins umgewandelt.",

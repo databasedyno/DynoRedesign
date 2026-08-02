@@ -9,7 +9,23 @@
     "products": "Produits",
     "developers": "Développeurs",
     "resources": "Ressources",
-    "company": "Entreprise"
+    "company": "Entreprise",
+    "mega": {
+      "paymentLinks": { "title": "Liens de paiement", "desc": "Liens partageables pour être payé en crypto en quelques secondes" },
+      "checkout": { "title": "Checkout", "desc": "Paiement hébergé et intégrable pour toute boutique" },
+      "creatorPages": { "title": "Pages créateur", "desc": "Votre propre page de pourboires et de paiement" },
+      "payouts": { "title": "Versements crypto", "desc": "Envoyez des stablecoins et de la crypto à n'importe qui, partout" },
+      "docs": { "title": "Documentation", "desc": "Guides, démarrages rapides et références" },
+      "api": { "title": "Référence de l'API", "desc": "API REST pour les paiements et les versements" },
+      "webhooks": { "title": "Webhooks", "desc": "Notifications d'événements de paiement en temps réel" },
+      "blog": { "title": "Blog", "desc": "Actualités produit et analyses sur les paiements crypto" },
+      "fees": { "title": "Frais", "desc": "Tarifs simples et transparents" },
+      "status": { "title": "État du système", "desc": "Disponibilité et historique des incidents en temps réel" },
+      "about": { "title": "À propos de DynoPay", "desc": "Notre mission, notre entreprise et nos offres d'emploi" },
+      "support": { "title": "Aide et assistance", "desc": "Guides et moyens de nous contacter" },
+      "terms": { "title": "Conditions", "desc": "Conditions générales" },
+      "privacy": { "title": "Confidentialité", "desc": "Comment nous protégeons vos données" }
+    }
   },
   "heroBadge": "Les paiements crypto, en toute simplicité",
   "heroTitle": "Acceptez la crypto. Directement dans votre wallet — ou convertie automatiquement en stablecoins.",
