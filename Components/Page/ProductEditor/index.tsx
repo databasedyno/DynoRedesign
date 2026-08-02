@@ -1080,7 +1080,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
                 )}
                 <CustomButton
                   label={variantImgUploadIdx === idx ? "…" : v.image_url ? "Change" : "Add"}
-                  variant="text"
+                  variant="outlined"
                   size="small"
                   onClick={() => onVariantImgClick(idx)}
                   disabled={variantImgUploadIdx !== null}

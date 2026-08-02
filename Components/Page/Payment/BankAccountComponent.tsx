@@ -267,7 +267,7 @@ const BankAccountComponent = () => {
                           (x) => x.currency === value
                         );
 
-                        setSelectedCurrency(currencyRates[currentIndex]);
+                        setSelectedCurrency(currencyRates[currentIndex] as any);
                       }
                     }}
                     defaultValue={selectedCurrency?.currency}

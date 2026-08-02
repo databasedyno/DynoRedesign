@@ -27,6 +27,8 @@ interface SidebarItem {
   path: string;
   plus?: boolean;
   isNew?: boolean;
+  // "Coming soon" flag — renders the item as disabled with a "Soon" badge.
+  soon?: boolean;
 }
 
 interface SidebarSection {

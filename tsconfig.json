@@ -31,6 +31,8 @@
   "exclude": [
     "node_modules",
     "backend",
-    "test_btc_fee.ts"
+    "test_btc_fee.ts",
+    "backend_test.ts",
+    "test_formatCryptoAmount.ts"
   ]
 }

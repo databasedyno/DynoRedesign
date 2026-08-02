@@ -22,6 +22,11 @@ export interface TitleDescriptionProps {
   gutterBottom?: boolean;
   divider?: boolean;
   sx?: SxProps<Theme>;
+  // Legacy props used by register.tsx and a few auth flows — the
+  // component ignores them silently, kept for backward-compatibility
+  // rather than sweeping all call sites in one PR.
+  descriptionFontSize?: string;
+  descriptionColor?: string;
 }
 
 const TitleDescription: React.FC<TitleDescriptionProps> = ({

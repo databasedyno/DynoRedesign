@@ -286,7 +286,7 @@ const MobileMoneyComponent = () => {
                             } else {
                               setNetworkCollapse(false);
                             }
-                            setSelectedCurrency(currencyRates[currentIndex]);
+                            setSelectedCurrency(currencyRates[currentIndex] as any);
                             const e: any = {
                               target: {
                                 value: "MTN",

@@ -1894,7 +1894,7 @@ export default function Login() {
 
       {/* Login OTP Dialog - shown after password validation */}
       <OtpDialog
-        open={userState.loginOtpRequired}
+        open={!!userState.loginOtpRequired}
         onClose={handleLoginOtpClose}
         title={t("loginVerification")}
         subtitle={t("loginOtpSubtitle")}

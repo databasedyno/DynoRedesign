@@ -44,6 +44,17 @@ const CreatorPageRoute = ({ setPageName, setPageDescription }: pageProps) => {
     enabled: false,
     coverImage: null,
     socialLinks: {},
+    // Support Widget defaults — mirror the CreatorPageSettings defaults
+    // so the live preview matches the merchant's initial saved state.
+    swEnabled: true,
+    swStyle: "coffee",
+    swLabel: "",
+    swPresets: [3, 5, 10],
+    swCurrency: "USD",
+    swMinAmount: 1,
+    swAllowMessage: true,
+    swThanks: "",
+    swShowSupporters: true,
   });
   const onFormChange = useCallback((s: CreatorFormState) => setFormState(s), []);
 

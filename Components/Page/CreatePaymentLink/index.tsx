@@ -888,8 +888,11 @@ const CreatePaymentLinkPage = ({
       setDirectPayAddress(null);
       setDirectPayQrCode(null);
       // Reset donation campaign fields (link kind is kept so the merchant can
-      // quickly create another campaign)
-      setDonationSettings({
+      // quickly create another campaign). Uses functional setter + spread so
+      // TypeScript sees the full DonationSettingsState shape (the crowdfunding
+      // Phase 3 fields are all covered by defaults on prev).
+      setDonationSettings((prev) => ({
+        ...prev,
         title: "",
         goalAmount: "",
         minAmount: "1",
@@ -899,7 +902,7 @@ const CreatePaymentLinkPage = ({
         showSupporters: true,
         autoCloseAtGoal: false,
         campaignImage: null,
-      });
+      }));
       setDonationErrors({});
     }
   };
@@ -1276,9 +1279,14 @@ const CreatePaymentLinkPage = ({
     hasAppliedTemplateRef.current = true;
     setPaymentSettings((prev) => ({
       ...prev,
-      amount: Number.isFinite(amountQ) && amountQ > 0 ? String(amountQ) : prev.amount,
-      title: templateTitles[template] || prev.title,
-      description: templateDescs[template] || prev.description,
+      // NB: state field is `value` (fiat amount as string), not `amount`.
+      // No `title` field on paymentSettings — template titles live in the
+      // description slot.
+      value: Number.isFinite(amountQ) && amountQ > 0 ? String(amountQ) : prev.value,
+      description:
+        templateDescs[template] ||
+        templateTitles[template] ||
+        prev.description,
     }));
   }, [router.isReady, router.query.template, router.query.amount, hasPaymentLinkData, tPaymentLink]);
 

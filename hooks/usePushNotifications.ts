@@ -64,9 +64,12 @@ export const usePushNotifications = () => {
       }
 
       // 4. Subscribe to push
+      // The `applicationServerKey` type accepts BufferSource; TS lib.dom
+      // narrowed it in newer TS/lib versions. Cast the Uint8Array to
+      // BufferSource to satisfy both old and new type defs.
       const subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
+        applicationServerKey: urlBase64ToUint8Array(vapidPublicKey) as unknown as BufferSource,
       });
 
       // 5. Send subscription to backend

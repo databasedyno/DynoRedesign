@@ -28,7 +28,7 @@ interface Ticker {
   change24h: number;
 }
 
-const COIN_ICON: Record<string, React.FC<{ width?: string | number; height?: string | number }>> = {
+const COIN_ICON: Record<string, React.ComponentType<any>> = {
   BTC, ETH, SOL, XRP, USDT, USDC, BNB, POL: POLYGON, POLYGON, RLUSD,
 };
 

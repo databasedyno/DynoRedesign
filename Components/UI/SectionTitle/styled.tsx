@@ -1,4 +1,4 @@
-import { Box, Typography, styled } from "@mui/material";
+import { Box, Typography, TypographyProps, styled } from "@mui/material";
 
 /**
  * SectionTitle — cleaned up 2026-07-05 to reduce visual noise across landing +
@@ -48,7 +48,7 @@ export const Badge = styled(Box)(({ theme }) => ({
   },
 }));
 
-export const Heading = styled(Typography)(({ theme }) => ({
+export const Heading = styled(Typography)<TypographyProps>(({ theme }) => ({
   fontWeight: 600,
   fontFamily: "var(--font-hero), var(--font-sans), system-ui, sans-serif",
   color: theme.palette.text.primary,
@@ -87,7 +87,7 @@ export const Heading = styled(Typography)(({ theme }) => ({
   },
 }));
 
-export const SubText = styled(Typography)(({ theme }) => ({
+export const SubText = styled(Typography)<TypographyProps>(({ theme }) => ({
   padding: 0,
   fontWeight: 400,
   letterSpacing: "0px !important",

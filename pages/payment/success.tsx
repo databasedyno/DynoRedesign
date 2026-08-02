@@ -82,7 +82,7 @@ const Success = () => {
           {t("paymentProcessedSuccessfully")}
         </Typography>
 
-        {paymentData?.transaction_id && (
+        {Boolean(paymentData?.transaction_id) && (
           <Box
             sx={{
               background: theme.palette.mode === "dark" ? "rgba(255,255,255,0.05)" : "rgba(10,10,10,0.04)",
@@ -109,7 +109,7 @@ const Success = () => {
                 wordBreak: "break-all",
               }}
             >
-              {String(paymentData.transaction_id)}
+              {String(paymentData?.transaction_id ?? "")}
             </Typography>
           </Box>
         )}

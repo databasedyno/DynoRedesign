@@ -17,7 +17,7 @@ interface DashboardSagaAction {
 
 /* ── Individual fetch helpers (used by both single and combined fetch) ── */
 
-function* fetchDashboardStats(payload: any) {
+function* fetchDashboardStats(payload: any): Generator<any, void, any> {
   const params: any = {};
   if (payload?.company_id) params.company_id = payload.company_id;
 
@@ -66,7 +66,7 @@ function* fetchDashboardStats(payload: any) {
   }
 }
 
-function* fetchFeeTiers(payload: any) {
+function* fetchFeeTiers(payload: any): Generator<any, void, any> {
   const feeTierParams: any = {};
   if (payload?.company_id) feeTierParams.company_id = payload.company_id;
   const response: any = yield call(axiosBaseApi.get, "/dashboard/fee-tiers", { params: feeTierParams });
@@ -96,7 +96,7 @@ function* fetchFeeTiers(payload: any) {
   }
 }
 
-function* fetchRecentTransactions(payload: any) {
+function* fetchRecentTransactions(payload: any): Generator<any, void, any> {
   const recentTxParams: any = {};
   if (payload?.company_id) recentTxParams.company_id = payload.company_id;
   const response: any = yield call(axiosBaseApi.get, "/dashboard/recent-transactions", { params: recentTxParams });

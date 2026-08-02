@@ -82,7 +82,7 @@ const Failed = () => {
             : t("paymentFailedBody")}
         </Typography>
 
-        {errorData?.transaction_id && (
+        {Boolean(errorData?.transaction_id) && (
           <Box
             sx={{
               background: theme.palette.mode === "dark" ? "rgba(255,255,255,0.05)" : "rgba(239,68,68,0.06)",
@@ -109,7 +109,7 @@ const Failed = () => {
                 wordBreak: "break-all",
               }}
             >
-              {String(errorData.transaction_id)}
+              {String(errorData?.transaction_id ?? "")}
             </Typography>
           </Box>
         )}

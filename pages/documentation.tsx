@@ -138,7 +138,6 @@ const SidebarItem = styled(Box, {
     fontSize: "14px",
     fontFamily: "var(--font-sans)",
     fontWeight: active ? 600 : 400,
-    fontWeight: active ? 500 : 400,
     color: active ? (dk ? "#818CF8" : "#4F46E5") : theme.palette.text.secondary,
     background: active ? (dk ? "rgba(129,140,248,0.1)" : "#0A0A0A08") : "transparent",
     cursor: "pointer",

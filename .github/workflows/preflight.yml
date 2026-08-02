@@ -72,25 +72,22 @@ jobs:
         run: ./node_modules/.bin/tsc --noEmit
 
   # ─────────────────────────────────────────────────────────────────────
-  # Frontend strict tsc — NON-BLOCKING report only.
+  # Frontend strict tsc — HARD GATE (joined the club 2026-08-02 s97h).
   #
-  # Why non-blocking (continue-on-error: true):
-  #   The frontend has ~286 pre-existing strict-tsc errors (largely from
-  #   the MUI v6 → v7 typography-slot migration and legacy any-typed
-  #   helpers). `next.config.js` sets `typescript.ignoreBuildErrors: true`
-  #   which means DO's `next build` never enforces strict tsc. Making CI
-  #   block on this today would break every merge until 286 legacy
-  #   errors are fixed — which is a separate cleanup workstream.
+  # History
+  #   Before s97e:   286 pre-existing errors, informational only
+  #   s97e:          same 286 errors, added baseline-drift check (report-only)
+  #   s97f (PR #1):  286 → 70 via dead-code deletes + type augments
+  #   s97g (PR #2):  70 → 46 via DashboardLeftSection + policy pages fixes
+  #   s97h (PR #3):  46 → 0 via full sweep — TRUE ZERO
   #
-  #   Instead we run tsc and expose the count on the checks page so
-  #   the trend is visible. When the backlog reaches 0, remove
-  #   `continue-on-error: true` and this job becomes a hard gate too.
+  # Now this job is a HARD FAIL like backend-tsc: any TypeScript error on
+  # ANY push/PR to `latest`/`main`/`New-Onboarding2` blocks merge.
   # ─────────────────────────────────────────────────────────────────────
   frontend-tsc:
-    name: frontend tsc --noEmit (report-only)
+    name: frontend tsc --noEmit
     runs-on: ubuntu-latest
     timeout-minutes: 8
-    continue-on-error: true
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -107,20 +104,5 @@ jobs:
           yarn install --ignore-engines --production=false --frozen-lockfile \
             || yarn install --ignore-engines --production=false
 
-      - name: Run tsc --noEmit (informational)
-        run: |
-          ./node_modules/.bin/tsc --noEmit 2>&1 | tee tsc-report.log || true
-          COUNT=$(grep -c "error TS" tsc-report.log || echo 0)
-          echo ""
-          echo "======================================================"
-          echo "Frontend tsc --noEmit total errors: ${COUNT}"
-          echo "======================================================"
-          # Fail if the count regresses ABOVE the pinned baseline.
-          # Update this number when the backlog is intentionally reduced.
-          # History: 286 → 282 (2026-08-02 s97e) → 70 (2026-08-02 s97f cleanup PR)
-          BASELINE=70
-          if [ "${COUNT}" -gt "${BASELINE}" ]; then
-            echo "::error::Frontend tsc errors (${COUNT}) exceed baseline (${BASELINE}). New TypeScript drift detected."
-            exit 1
-          fi
-          echo "Within baseline. OK."
+      - name: Run tsc --noEmit (strict — zero errors allowed)
+        run: ./node_modules/.bin/tsc --noEmit

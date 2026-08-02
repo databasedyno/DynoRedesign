@@ -187,9 +187,11 @@ const NotificationPage = () => {
       const txCurrency = notif.meta?.currency || notif.meta?.base_currency || notif.meta?.crypto;
       const txStatus = notif.meta?.status;
 
-      const mappedStatus: "done" | "pending" | "failed" =
+      // Map raw txStatus onto the ExtendedTransaction.status enum
+      // ("failed" | "pending" | "confirmed" | "settled" | "processing").
+      const mappedStatus: "confirmed" | "pending" | "failed" =
         txStatus === "success" || txStatus === "successful" || txStatus === "confirmed" || txStatus === "Completed" || txStatus === "completed"
-          ? "done"
+          ? "confirmed"
           : txStatus === "failed" || txStatus === "expired"
             ? "failed"
             : "pending";

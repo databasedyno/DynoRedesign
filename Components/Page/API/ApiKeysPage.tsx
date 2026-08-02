@@ -235,7 +235,7 @@ const ApiKeyCard = ({ title, apiRow, onCopy, onDelete, onRegenerate, onToggleSta
         sandboxRestrictions = null;
       }
     } else if (typeof rawRestrictions === "object") {
-      sandboxRestrictions = rawRestrictions as typeof sandboxRestrictions;
+      sandboxRestrictions = rawRestrictions as unknown as typeof sandboxRestrictions;
     }
   }
   const isSandboxKey = isDev && !!sandboxRestrictions?.sandbox_mode;

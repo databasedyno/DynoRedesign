@@ -62,6 +62,11 @@ export interface InputFieldProps {
   maxRows?: number;
   ariaLabel?: string;
   ariaInvalid?: boolean;
+  // Additional attributes that flow through to the native <input>.
+  // Added when login.tsx started using data-testid + autoFocus + id.
+  id?: string;
+  autoFocus?: boolean;
+  "data-testid"?: string;
 }
 
 const InputField: React.FC<InputFieldProps> = ({

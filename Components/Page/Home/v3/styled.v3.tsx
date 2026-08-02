@@ -1,4 +1,4 @@
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, TypographyProps } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { FONT_HERO, FONT_TECH, FONT_BODY } from "./theme.v3";
 
@@ -39,7 +39,10 @@ export const Eyebrow = styled(Typography)<{ tone?: "indigo" | "coral" | "violet"
 );
 
 // Editorial huge headline — Unbounded. Theme-aware so it never disappears in dark.
-export const HeadlineXL = styled(Typography)(({ theme }) => ({
+// Cast to `TypographyProps` so `component="h1"` etc. keep their polymorphic
+// prop type after `styled()` wrapping. Without this MUI's styled() collapses
+// the polymorphic type and TS rejects `component` on the resulting component.
+export const HeadlineXL = styled(Typography)<TypographyProps>(({ theme }) => ({
   fontFamily: FONT_HERO,
   fontWeight: 700,
   fontSize: "clamp(40px, 6.5vw, 88px)",
@@ -52,7 +55,7 @@ export const HeadlineXL = styled(Typography)(({ theme }) => ({
 }));
 
 // Section headline — 40-56px range. Theme-aware.
-export const HeadlineL = styled(Typography)(({ theme }) => ({
+export const HeadlineL = styled(Typography)<TypographyProps>(({ theme }) => ({
   fontFamily: FONT_HERO,
   fontWeight: 700,
   fontSize: "clamp(30px, 4vw, 52px)",
@@ -66,7 +69,7 @@ export const HeadlineL = styled(Typography)(({ theme }) => ({
 
 // Sub-section headline — 24-28px. Used for policy page section titles,
 // blog post subheadings, QA category labels. Theme-aware.
-export const HeadlineS = styled(Typography)(({ theme }) => ({
+export const HeadlineS = styled(Typography)<TypographyProps>(({ theme }) => ({
   fontFamily: FONT_HERO,
   fontWeight: 700,
   fontSize: "clamp(20px, 2vw, 24px)",
@@ -76,7 +79,7 @@ export const HeadlineS = styled(Typography)(({ theme }) => ({
 }));
 
 // Body copy in landing. Theme-aware secondary text.
-export const Body = styled(Typography)(({ theme }) => ({
+export const Body = styled(Typography)<TypographyProps>(({ theme }) => ({
   fontFamily: FONT_BODY,
   fontSize: 17,
   lineHeight: 1.55,

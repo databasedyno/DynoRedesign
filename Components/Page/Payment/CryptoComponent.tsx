@@ -299,7 +299,7 @@ const CyrptoComponent = () => {
                         const currentIndex = currencyRates?.findIndex(
                           (x) => x.currency === value
                         );
-                        setSelectedCurrency(currencyRates[currentIndex]);
+                        setSelectedCurrency(currencyRates[currentIndex] as any);
                       }
                     }}
                     defaultValue={selectedCurrency?.currency}

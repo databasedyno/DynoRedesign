@@ -29,7 +29,7 @@ interface Event {
   agoSec: number;   // seconds since the event
 }
 
-const COIN_ICON: Record<string, React.FC<{ width?: string | number; height?: string | number }>> = {
+const COIN_ICON: Record<string, React.ComponentType<any>> = {
   USDT, USDC, BTC, ETH, SOL, XRP, RLUSD,
 };
 

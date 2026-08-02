@@ -32,7 +32,8 @@ const DashboardRightSection = () => {
 
   const { t } = useTranslation(["dashboardLayout", "common"]);
   const tDashboard = useCallback(
-    (key: string) => t(key, { ns: "dashboardLayout" }),
+    (key: string, options?: any): string =>
+      t(key, { ns: "dashboardLayout", ...options }) as unknown as string,
     [t],
   );
 

@@ -90,7 +90,7 @@ export type CryptoCode =
   | "RLUSD-ERC20";
 
 export interface WalletDataType {
-  id: number;
+  id: string | number;
   icon: any;
   walletTitle: WalletType;
   walletAddress: string;

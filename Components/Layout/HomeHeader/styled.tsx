@@ -1,9 +1,11 @@
 // Aurora v3 restyle (2026-07-18) — frosted glass, coral CTA, mono status pill,
 // obsidian mobile drawer, aurora underline. Tokens mirror theme.v3.ts.
+import type React from "react";
 import { MenuRounded } from "@mui/icons-material";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import {
   Box,
+  BoxProps,
   Button,
   Drawer,
   IconButton,
@@ -537,7 +539,7 @@ export const MegaCard = styled(Box)(({ theme }) => {
   };
 });
 
-export const MegaItemLink = styled(Box)(({ theme }) => {
+export const MegaItemLink = styled(Box)<BoxProps & { component?: React.ElementType; href?: string }>(({ theme }) => {
   const dark = theme.palette.mode === "dark";
   return {
     display: "flex",
@@ -709,7 +711,7 @@ export const MobileSectionButton = styled("button")(({ theme }) => {
   };
 });
 
-export const MobileSubItem = styled(Box)(({ theme }) => {
+export const MobileSubItem = styled(Box)<BoxProps & { component?: React.ElementType; href?: string }>(({ theme }) => {
   const dark = theme.palette.mode === "dark";
   return {
     display: "flex",
@@ -741,7 +743,7 @@ export const MobileSubItem = styled(Box)(({ theme }) => {
 
 /* ================= FEATURED MEGA TILE (Products menu) ================= */
 
-export const FeaturedTile = styled(Box)(() => ({
+export const FeaturedTile = styled(Box)<BoxProps & { component?: React.ElementType; href?: string }>(() => ({
   position: "relative",
   overflow: "hidden",
   width: 240,

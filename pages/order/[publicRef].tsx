@@ -56,6 +56,10 @@ interface Order {
   customer_vat_id?: string | null;
   reverse_charge?: boolean;
   tax_inclusive?: boolean;
+  // Populated server-side when the merchant profile is joined onto the
+  // order (see SSR handler line 479+). Optional so unhydrated orders still
+  // conform.
+  merchant?: Merchant | null;
 }
 interface Merchant { handle?: string; name?: string; vat_id?: string | null }
 interface OrderPageProps { order: Order | null; siteUrl: string }

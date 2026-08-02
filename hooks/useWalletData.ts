@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 import BitcoinIcon from "@/assets/cryptocurrency/Bitcoin-icon.svg";
 import BitcoinCashIcon from "@/assets/cryptocurrency/BitcoinCash-icon.svg";
+import BNBIcon from "@/assets/cryptocurrency/BNB-icon.svg";
 import DogecoinIcon from "@/assets/cryptocurrency/Dogecoin-icon.svg";
 import EthereumIcon from "@/assets/cryptocurrency/Ethereum-icon.svg";
 import LitecoinIcon from "@/assets/cryptocurrency/Litecoin-icon.svg";
@@ -50,6 +51,7 @@ const WALLET_ICONS: Record<WalletType, any> = {
   TRX: TronIcon,
   SOL: SolanaIcon,
   XRP: XRPIcon,
+  BNB: BNBIcon,
   POLYGON: PolygonIcon,
   "USDT-ERC20": USDTIcon,
   "USDT-TRC20": USDTIcon,
@@ -68,6 +70,7 @@ const WALLET_NAMES: Record<WalletType, string> = {
   TRX: "Tron",
   SOL: "Solana",
   XRP: "Ripple",
+  BNB: "Binance Coin",
   POLYGON: "Polygon (POL)",
   "USDT-ERC20": "USDT-ERC20",
   "USDT-TRC20": "USDT-TRC20",
@@ -170,7 +173,7 @@ export const useWalletData = () => {
         const type = wallet.wallet_type as WalletType;
 
         return {
-          id: wallet.id || wallet.wallet_id,
+          id: wallet.id || wallet.wallet_id || "",
           icon: WALLET_ICONS[type],
           walletTitle: type,
           walletAddress: wallet.wallet_address,

@@ -332,7 +332,7 @@ const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
                         textOverflow: "ellipsis",
                       }}
                     >
-                      {getCurrencySymbol(fiat, formatNumberWithComma(String(amount)))}
+                      {getCurrencySymbol(fiat, formatNumberWithComma(Number(amount)))}
                       {crypto && (
                         <Box
                           component="span"

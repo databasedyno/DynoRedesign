@@ -345,7 +345,7 @@ const HeroMetrics: React.FC<HeroMetricsProps> = ({
           value={
             loading
               ? ""
-              : formatNumberWithComma(String(transactionsToday ?? 0))
+              : formatNumberWithComma(Number(transactionsToday ?? 0))
           }
           changePercent={transactionsChangePercent}
           changeLabel={

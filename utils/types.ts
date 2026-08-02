@@ -34,6 +34,8 @@ export interface userReducer {
   loginOtpMaskedEmail?: string;
   loginOtpSession?: string;
   loginOtpLoading?: boolean;
+  // Email-verification banner state (populated after profile fetch).
+  email_verified?: boolean;
 }
 
 export interface companyReducer {
@@ -70,6 +72,11 @@ export interface walletReducer {
     fields: string[];
     uniqueRef: string;
   };
+  // Address-add error state (Session 74 wallet-add flow) — populated by the
+  // saga when the merchant tries to add an unsupported / duplicate address.
+  addressError?: string | null;
+  addressErrorField?: string | null;
+  addressErrorNonce?: number;
 }
 
 export interface ICompany {
@@ -97,6 +104,9 @@ export interface IApi {
   base_currency: string;
   apiKey: string;
   adminToken: string;
+  // Optional runtime flag — set on the ApiKeysPage row when the merchant
+  // toggles a key active/inactive/revoked (soft-delete state).
+  status?: "active" | "inactive" | "revoked" | string;
 }
 
 export interface ICustomerTransactions {
@@ -146,6 +156,8 @@ export interface IWallet {
   amount_in_usd: string;
   fee_in_usd: string;
   transfer_rate: string;
+  // Legacy DB alias — some code paths reference wallet_id instead of id.
+  wallet_id?: number | string;
 }
 
 export interface menuItem {

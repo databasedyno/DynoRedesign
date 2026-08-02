@@ -1,245 +1,298 @@
 #!/usr/bin/env python3
 """
-Backend API Testing Script for Session 97d - DigitalOcean Build Fix Verification
-Tests the payout digest preview endpoint after the errorResponseHelper fix
+Session 97h Runtime Verification Test
+Tests login flow, dashboard endpoints, payout digest, and wallet list
 """
 
 import requests
 import json
 import sys
 
-# Base URL from environment
 BASE_URL = "https://4dfe167f-c2a7-4997-96aa-49f477041630.preview.emergentagent.com"
+TEST_EMAIL = "hostbay@moxx.co"
+TEST_PASSWORD = "Katiekendra123@"
 
-def print_test_header(test_num, description):
-    """Print formatted test header"""
-    print(f"\n{'='*80}")
-    print(f"TEST {test_num}: {description}")
-    print(f"{'='*80}")
-
-def print_result(passed, details):
-    """Print test result"""
-    status = "✅ PASS" if passed else "❌ FAIL"
-    print(f"\n{status}")
-    print(f"Details: {details}")
-    return passed
-
-def test_1_csrf_token():
-    """Test 1: Get CSRF token"""
-    print_test_header(1, "Get CSRF Token")
-    
-    try:
-        response = requests.get(f"{BASE_URL}/api/csrf-token", timeout=10)
-        print(f"Status Code: {response.status_code}")
-        
-        if response.status_code == 200:
-            data = response.json()
-            csrf_token = data.get('csrf_token') or data.get('csrfToken')
-            print(f"CSRF Token: {csrf_token[:20]}..." if csrf_token else "No token")
-            return print_result(True, f"CSRF token retrieved successfully"), csrf_token
-        else:
-            return print_result(False, f"Failed to get CSRF token: {response.status_code}"), None
-    except Exception as e:
-        return print_result(False, f"Exception: {str(e)}"), None
-
-def test_2_login(csrf_token):
-    """Test 2: Login as merchant"""
-    print_test_header(2, "Login as Merchant (hostbay@moxx.co)")
-    
-    if not csrf_token:
-        return print_result(False, "No CSRF token available"), None
-    
-    try:
-        # Login payload
-        payload = {
-            "email": "hostbay@moxx.co",
-            "password": "Katiekendra123@"
-        }
-        
-        headers = {
-            "Content-Type": "application/json",
-            "X-CSRF-Token": csrf_token
-        }
-        
-        response = requests.post(
-            f"{BASE_URL}/api/user/login",
-            json=payload,
-            headers=headers,
-            timeout=10
-        )
-        
-        print(f"Status Code: {response.status_code}")
-        print(f"Response: {response.text[:200]}")
-        
-        if response.status_code == 200:
-            data = response.json()
-            access_token = data.get('data', {}).get('accessToken')
-            if access_token:
-                print(f"Access Token: {access_token[:30]}...")
-                return print_result(True, "Login successful, access token retrieved"), access_token
-            else:
-                return print_result(False, "Login response missing accessToken"), None
-        else:
-            return print_result(False, f"Login failed with status {response.status_code}"), None
-    except Exception as e:
-        return print_result(False, f"Exception: {str(e)}"), None
-
-def test_3_payout_digest_happy_path(access_token):
-    """Test 3: POST /api/notifications/payout-digest/preview with valid auth (CRITICAL)"""
-    print_test_header(3, "Payout Digest Preview - Happy Path (CRITICAL)")
-    
-    if not access_token:
-        return print_result(False, "No access token available")
-    
-    try:
-        headers = {
-            "Authorization": f"Bearer {access_token}",
-            "Content-Type": "application/json"
-        }
-        
-        response = requests.post(
-            f"{BASE_URL}/api/notifications/payout-digest/preview",
-            headers=headers,
-            timeout=15
-        )
-        
-        print(f"Status Code: {response.status_code}")
-        print(f"Response: {response.text[:500]}")
-        
-        if response.status_code == 200:
-            data = response.json()
-            message = data.get('message', '')
-            sent = data.get('data', {}).get('sent', False)
-            digest = data.get('data', {}).get('digest', {})
-            settled_volume = digest.get('settledVolume')
-            
-            print(f"\nMessage: {message}")
-            print(f"Sent: {sent}")
-            print(f"Settled Volume: {settled_volume}")
-            
-            # Verify expected response structure
-            if message == "Payout digest sent" and sent == True and isinstance(settled_volume, (int, float)):
-                return print_result(True, f"Payout digest sent successfully. Settled volume: ${settled_volume}")
-            else:
-                return print_result(False, f"Response structure incorrect. Message: {message}, Sent: {sent}, Volume: {settled_volume}")
-        else:
-            return print_result(False, f"Expected HTTP 200, got {response.status_code}")
-    except Exception as e:
-        return print_result(False, f"Exception: {str(e)}")
-
-def test_4_payout_digest_no_auth():
-    """Test 4: POST /api/notifications/payout-digest/preview without auth (CRITICAL)"""
-    print_test_header(4, "Payout Digest Preview - No Auth (CRITICAL)")
-    
-    try:
-        response = requests.post(
-            f"{BASE_URL}/api/notifications/payout-digest/preview",
-            timeout=10
-        )
-        
-        print(f"Status Code: {response.status_code}")
-        print(f"Response: {response.text[:200]}")
-        
-        # Should return 401 or 403, NOT 200 or 500
-        if response.status_code in [401, 403]:
-            return print_result(True, f"Correctly rejected with HTTP {response.status_code}")
-        elif response.status_code == 500:
-            return print_result(False, "Server crashed with 500 - auth middleware may be broken")
-        elif response.status_code == 200:
-            return print_result(False, "Security issue: endpoint allowed access without auth!")
-        else:
-            return print_result(False, f"Unexpected status code: {response.status_code}")
-    except Exception as e:
-        return print_result(False, f"Exception: {str(e)}")
-
-def test_5_notification_preferences(access_token):
-    """Test 5: GET /api/notifications/preferences - router sanity check (CRITICAL)"""
-    print_test_header(5, "Notification Router Sanity Check (CRITICAL)")
-    
-    if not access_token:
-        return print_result(False, "No access token available")
-    
-    try:
-        headers = {
-            "Authorization": f"Bearer {access_token}",
-            "Content-Type": "application/json"
-        }
-        
-        response = requests.get(
-            f"{BASE_URL}/api/notifications/preferences",
-            headers=headers,
-            timeout=10
-        )
-        
-        print(f"Status Code: {response.status_code}")
-        print(f"Response: {response.text[:200]}")
-        
-        # Should return 200 or 404, NOT 500 (which would indicate module load error)
-        if response.status_code in [200, 404]:
-            return print_result(True, f"Router loaded cleanly (HTTP {response.status_code})")
-        elif response.status_code == 500:
-            return print_result(False, "Router may have module load error (HTTP 500)")
-        else:
-            return print_result(False, f"Unexpected status code: {response.status_code}")
-    except Exception as e:
-        return print_result(False, f"Exception: {str(e)}")
-
-def main():
-    """Run all tests"""
+def test_login_flow():
+    """Test 3a: Login flow with CSRF token"""
     print("\n" + "="*80)
-    print("SESSION 97d - DIGITALOCEAN BUILD FIX VERIFICATION")
-    print("Testing errorResponseHelper 4-arg → 3-arg fix")
+    print("TEST 3a: Login Flow")
     print("="*80)
     
-    results = []
+    session = requests.Session()
     
-    # Test 1: Get CSRF token
-    passed, csrf_token = test_1_csrf_token()
-    results.append(("CSRF Token", passed))
+    # Step 1: Get CSRF token
+    print("\n[1/2] Getting CSRF token...")
+    csrf_response = session.get(f"{BASE_URL}/api/csrf-token")
+    print(f"Status: {csrf_response.status_code}")
     
-    # Test 2: Login
-    passed, access_token = test_2_login(csrf_token)
-    results.append(("Login", passed))
+    if csrf_response.status_code != 200:
+        print(f"❌ FAIL: CSRF endpoint returned {csrf_response.status_code}")
+        return None, None
     
-    # Test 3: Happy path - payout digest with auth (CRITICAL)
-    passed = test_3_payout_digest_happy_path(access_token)
-    results.append(("Payout Digest Happy Path (CRITICAL)", passed))
+    csrf_data = csrf_response.json()
+    csrf_token = csrf_data.get("csrf_token") or csrf_data.get("csrfToken")
     
-    # Test 4: No auth - should reject (CRITICAL)
-    passed = test_4_payout_digest_no_auth()
-    results.append(("Payout Digest No Auth (CRITICAL)", passed))
+    if not csrf_token:
+        print(f"❌ FAIL: No CSRF token in response")
+        print(f"Response: {csrf_data}")
+        return None, None
     
-    # Test 5: Router sanity check (CRITICAL)
-    passed = test_5_notification_preferences(access_token)
-    results.append(("Notification Router Sanity (CRITICAL)", passed))
+    print(f"CSRF Token: {csrf_token[:20]}...")
     
-    # Summary
+    # Step 2: Login
+    print("\n[2/2] Logging in...")
+    login_payload = {
+        "email": TEST_EMAIL,
+        "password": TEST_PASSWORD
+    }
+    
+    login_response = session.post(
+        f"{BASE_URL}/api/user/login",
+        json=login_payload,
+        headers={"X-CSRF-Token": csrf_token}
+    )
+    
+    print(f"Status: {login_response.status_code}")
+    
+    if login_response.status_code != 200:
+        print(f"❌ FAIL: Login returned {login_response.status_code}")
+        print(f"Response: {login_response.text[:500]}")
+        return None, None
+    
+    login_data = login_response.json()
+    
+    # Verify response structure
+    user_data = login_data.get("data", {}).get("userData", {})
+    access_token = login_data.get("data", {}).get("accessToken")
+    
+    user_id = user_data.get("user_id")
+    
+    print(f"\nUser ID: {user_id}")
+    print(f"Access Token: {access_token[:30] if access_token else 'None'}...")
+    
+    # Verify expected values
+    if user_id == 1 and access_token:
+        print("\n✅ PASS: Login successful")
+        print(f"   - user_id === 1: ✓")
+        print(f"   - accessToken is non-empty string: ✓")
+        return session, access_token
+    else:
+        print(f"\n❌ FAIL: Login response invalid")
+        print(f"   - Expected user_id=1, got {user_id}")
+        print(f"   - Expected non-empty accessToken, got {bool(access_token)}")
+        return None, None
+
+
+def test_dashboard_stats(session, token):
+    """Test 3b: Dashboard stats endpoint"""
+    print("\n" + "="*80)
+    print("TEST 3b: Dashboard Stats")
+    print("="*80)
+    
+    response = session.get(
+        f"{BASE_URL}/api/dashboard",
+        headers={"Authorization": f"Bearer {token}"}
+    )
+    
+    print(f"Status: {response.status_code}")
+    
+    if response.status_code != 200:
+        print(f"❌ FAIL: Dashboard stats returned {response.status_code}")
+        print(f"Response: {response.text[:500]}")
+        return False
+    
+    data = response.json()
+    
+    # Check for data object
+    if "data" in data:
+        print(f"\n✅ PASS: Dashboard stats returned HTTP 200 with data object")
+        print(f"Sample keys: {list(data.get('data', {}).keys())[:5]}")
+        return True
+    else:
+        print(f"\n❌ FAIL: No 'data' object in response")
+        print(f"Response keys: {list(data.keys())}")
+        return False
+
+
+def test_recent_transactions(session, token):
+    """Test 3b: Recent transactions endpoint"""
+    print("\n" + "="*80)
+    print("TEST 3b: Recent Transactions")
+    print("="*80)
+    
+    response = session.get(
+        f"{BASE_URL}/api/dashboard/recent-transactions?limit=5",
+        headers={"Authorization": f"Bearer {token}"}
+    )
+    
+    print(f"Status: {response.status_code}")
+    
+    if response.status_code != 200:
+        print(f"❌ FAIL: Recent transactions returned {response.status_code}")
+        print(f"Response: {response.text[:500]}")
+        return False
+    
+    data = response.json()
+    
+    # Check for transactions list (can be data.transactions, transactions, or data array)
+    transactions = None
+    if isinstance(data.get("data"), dict) and "transactions" in data["data"]:
+        transactions = data["data"]["transactions"]
+    elif "transactions" in data:
+        transactions = data["transactions"]
+    elif isinstance(data.get("data"), list):
+        transactions = data["data"]
+    
+    if transactions is not None:
+        print(f"\n✅ PASS: Recent transactions returned HTTP 200 with transaction list")
+        print(f"Transaction count: {len(transactions)}")
+        return True
+    else:
+        print(f"\n❌ FAIL: No transaction list found in response")
+        print(f"Response structure: {json.dumps(data, indent=2)[:500]}")
+        return False
+
+
+def test_payout_digest(session, token):
+    """Test 3c: Payout digest preview endpoint"""
+    print("\n" + "="*80)
+    print("TEST 3c: Payout Digest Preview")
+    print("="*80)
+    
+    response = session.post(
+        f"{BASE_URL}/api/notifications/payout-digest/preview",
+        headers={"Authorization": f"Bearer {token}"}
+    )
+    
+    print(f"Status: {response.status_code}")
+    
+    if response.status_code != 200:
+        print(f"❌ FAIL: Payout digest returned {response.status_code}")
+        print(f"Response: {response.text[:500]}")
+        return False
+    
+    data = response.json()
+    
+    # Verify expected structure
+    sent = data.get("data", {}).get("sent")
+    settled_volume = data.get("data", {}).get("digest", {}).get("settledVolume")
+    
+    print(f"\nResponse data:")
+    print(f"  - data.sent: {sent}")
+    print(f"  - data.digest.settledVolume: {settled_volume}")
+    
+    if sent is True and isinstance(settled_volume, (int, float)):
+        print(f"\n✅ PASS: Payout digest preview successful")
+        print(f"   - data.sent === true: ✓")
+        print(f"   - data.digest.settledVolume is a number: ✓")
+        return True
+    else:
+        print(f"\n❌ FAIL: Payout digest response invalid")
+        print(f"   - Expected sent=true, got {sent}")
+        print(f"   - Expected settledVolume as number, got {type(settled_volume)}")
+        return False
+
+
+def test_wallet_list(session, token):
+    """Test 3d: Wallet list endpoint"""
+    print("\n" + "="*80)
+    print("TEST 3d: Wallet List")
+    print("="*80)
+    
+    response = session.get(
+        f"{BASE_URL}/api/wallet/getWalletAddresses",
+        headers={"Authorization": f"Bearer {token}"}
+    )
+    
+    print(f"Status: {response.status_code}")
+    
+    if response.status_code != 200:
+        print(f"❌ FAIL: Wallet list returned {response.status_code}")
+        print(f"Response: {response.text[:500]}")
+        return False
+    
+    data = response.json()
+    
+    # Check for wallet array
+    wallets = data.get("data") or data.get("wallets") or data
+    
+    if isinstance(wallets, list):
+        print(f"\n✅ PASS: Wallet list returned HTTP 200 with wallet array")
+        print(f"Wallet count: {len(wallets)}")
+        return True
+    else:
+        print(f"\n❌ FAIL: No wallet array found in response")
+        print(f"Response type: {type(wallets)}")
+        return False
+
+
+def main():
+    print("\n" + "="*80)
+    print("SESSION 97h RUNTIME VERIFICATION TEST")
+    print("="*80)
+    print(f"Base URL: {BASE_URL}")
+    print(f"Test User: {TEST_EMAIL}")
+    
+    results = {
+        "test_1_backend_build": None,
+        "test_2_frontend_tsc": None,
+        "test_3a_login": False,
+        "test_3b_dashboard_stats": False,
+        "test_3b_recent_transactions": False,
+        "test_3c_payout_digest": False,
+        "test_3d_wallet_list": False
+    }
+    
+    # Test 3a: Login
+    session, token = test_login_flow()
+    if session and token:
+        results["test_3a_login"] = True
+        
+        # Test 3b: Dashboard endpoints
+        results["test_3b_dashboard_stats"] = test_dashboard_stats(session, token)
+        results["test_3b_recent_transactions"] = test_recent_transactions(session, token)
+        
+        # Test 3c: Payout digest
+        results["test_3c_payout_digest"] = test_payout_digest(session, token)
+        
+        # Test 3d: Wallet list
+        results["test_3d_wallet_list"] = test_wallet_list(session, token)
+    
+    # Print summary
     print("\n" + "="*80)
     print("TEST SUMMARY")
     print("="*80)
     
-    passed_count = sum(1 for _, passed in results if passed)
-    total_count = len(results)
+    test_3_results = [
+        ("3a. Login Flow", results["test_3a_login"]),
+        ("3b. Dashboard Stats", results["test_3b_dashboard_stats"]),
+        ("3b. Recent Transactions", results["test_3b_recent_transactions"]),
+        ("3c. Payout Digest Preview", results["test_3c_payout_digest"]),
+        ("3d. Wallet List", results["test_3d_wallet_list"])
+    ]
     
-    for test_name, passed in results:
-        status = "✅ PASS" if passed else "❌ FAIL"
-        print(f"{status} - {test_name}")
+    passed = sum(1 for _, result in test_3_results if result)
+    total = len(test_3_results)
     
-    print(f"\nTotal: {passed_count}/{total_count} tests passed ({passed_count*100//total_count}%)")
+    print(f"\nTest 3 (Runtime Happy Paths): {passed}/{total} passed")
+    for name, result in test_3_results:
+        status = "✅ PASS" if result else "❌ FAIL"
+        print(f"  {status} - {name}")
     
-    # Critical tests
-    critical_tests = [r for r in results if "CRITICAL" in r[0]]
-    critical_passed = sum(1 for _, passed in critical_tests if passed)
-    critical_total = len(critical_tests)
+    # Overall result
+    all_passed = all(result for _, result in test_3_results)
     
-    print(f"Critical: {critical_passed}/{critical_total} tests passed")
-    
-    if critical_passed == critical_total:
-        print("\n✅ ALL CRITICAL TESTS PASSED - DO BUILD FIX VERIFIED")
+    if all_passed:
+        print("\n" + "="*80)
+        print("✅ ALL RUNTIME TESTS PASSED")
+        print("="*80)
         return 0
     else:
-        print("\n❌ SOME CRITICAL TESTS FAILED - ISSUE NOT FULLY RESOLVED")
+        print("\n" + "="*80)
+        print("❌ SOME RUNTIME TESTS FAILED")
+        print("="*80)
         return 1
+
 
 if __name__ == "__main__":
     sys.exit(main())

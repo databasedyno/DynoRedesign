@@ -40,8 +40,8 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: () => void }) => {
   const theme = useTheme();
   const { t } = useTranslation("walletScreen");
   const tWallet = useCallback(
-    (key: string): string => {
-      const result = t(key, { ns: "walletScreen" });
+    (key: string, options?: any): string => {
+      const result = t(key, { ns: "walletScreen", ...options });
       return typeof result === "string" ? result : String(result);
     },
     [t],
@@ -50,11 +50,11 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: () => void }) => {
   const router = useRouter();
   const [openEditModal, setOpenEditModal] = useState(false);
   const [editWalletCrypto, setEditWalletCrypto] = useState("");
-  const [editWalletId, setEditWalletId] = useState<number | undefined>(undefined);
+  const [editWalletId, setEditWalletId] = useState<string | number | undefined>(undefined);
   const [editWalletName, setEditWalletName] = useState("");
   const [editWalletAddress, setEditWalletAddress] = useState("");
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
-  const [deleteTarget, setDeleteTarget] = useState<{ id: number; type: string; address: string } | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string | number; type: string; address: string } | null>(null);
 
   const selectedCompanyId = useSelector(
     (state: any) => state.companyReducer?.selectedCompanyId
@@ -540,7 +540,7 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: () => void }) => {
         open={openEditModal}
         currentCryptocurrency={editWalletCrypto}
         editMode={true}
-        editWalletId={editWalletId}
+        editWalletId={editWalletId != null ? Number(editWalletId) : undefined}
         editWalletName={editWalletName}
         editWalletAddress={editWalletAddress}
         onClose={() => {
@@ -558,7 +558,7 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: () => void }) => {
           setOpenDeleteModal(false);
           setDeleteTarget(null);
         }}
-        walletId={deleteTarget?.id ?? null}
+        walletId={deleteTarget?.id != null ? Number(deleteTarget.id) : null}
         walletType={deleteTarget?.type ?? ""}
         walletAddress={deleteTarget?.address ?? ""}
         companyId={selectedCompanyId}
