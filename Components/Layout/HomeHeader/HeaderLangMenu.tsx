@@ -1,9 +1,10 @@
-// Coinbase-style language control for the public marketing header:
-// a globe button + current language code that opens a compact dropdown panel.
-// Self-contained so the shared LanguageSwitcher (used on auth/checkout
-// surfaces) stays untouched. Language-change side effects mirror that
-// component: lazy-load the bundle, persist to localStorage, and (only when a
-// merchant is signed in AND not on a checkout surface) sync to their profile.
+// Coinbase-style language control: a globe button + current language code that
+// opens a compact dropdown panel. Reused in BOTH the header (opens downward,
+// hidden on mobile) and the footer (opens upward, visible on all sizes).
+// Self-contained so the shared LanguageSwitcher (auth/checkout surfaces) is
+// untouched. Language-change side effects mirror that component: lazy-load the
+// bundle, persist to localStorage, and sync to the merchant profile (only when
+// signed in AND not on a checkout surface).
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
 import LanguageRoundedIcon from "@mui/icons-material/LanguageRounded";
@@ -46,7 +47,23 @@ const LANGUAGES: readonly Language[] = [
   { code: "nl", label: "Nederlands", flag: netherlandsFlag },
 ] as const;
 
-function HeaderLangMenu() {
+interface HeaderLangMenuProps {
+  /** "bottom" (header, default) opens the panel downward; "top" (footer) upward. */
+  readonly placement?: "top" | "bottom";
+  /** Panel horizontal alignment relative to the globe. */
+  readonly align?: "left" | "right";
+  /** Hide the whole control below the md breakpoint (used in the header). */
+  readonly hideOnMobile?: boolean;
+  /** Prefix for data-testids so multiple instances (header + footer) are distinct. */
+  readonly idPrefix?: string;
+}
+
+function HeaderLangMenu({
+  placement = "bottom",
+  align = "right",
+  hideOnMobile = false,
+  idPrefix = "header",
+}: HeaderLangMenuProps) {
   const { i18n: i18nInstance } = useTranslation();
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const [isOpen, setIsOpen] = useState(false);
@@ -58,6 +75,14 @@ function HeaderLangMenu() {
   );
 
   const close = useCallback(() => setIsOpen(false), []);
+
+  const panelSx = useMemo(
+    () => ({
+      ...(placement === "top" ? { top: "auto", bottom: "calc(100% + 12px)" } : {}),
+      ...(align === "left" ? { left: 0, right: "auto" } : { right: 0, left: "auto" }),
+    }),
+    [placement, align],
+  );
 
   const changeLang = useCallback(
     async (lng: LanguageCode) => {
@@ -119,24 +144,31 @@ function HeaderLangMenu() {
   }, [close, isOpen]);
 
   return (
-    <LangWrap ref={wrapperRef}>
+    <LangWrap
+      ref={wrapperRef}
+      sx={hideOnMobile ? { display: { xs: "none", md: "inline-flex" } } : undefined}
+    >
       <LangGlobeButton
         disableRipple
         aria-haspopup="listbox"
         aria-expanded={isOpen}
         aria-label="Change language"
-        data-testid="header-language-globe"
+        data-testid={`${idPrefix}-language-globe`}
         onClick={() => setIsOpen((v) => !v)}
       >
         <LanguageRoundedIcon />
         {selected.code.toUpperCase()}
         <KeyboardArrowDownRoundedIcon
-          sx={{ fontSize: 16, transition: "transform 220ms ease", transform: isOpen ? "rotate(180deg)" : "none" }}
+          sx={{
+            fontSize: 16,
+            transition: "transform 220ms ease",
+            transform: isOpen ? "rotate(180deg)" : "none",
+          }}
         />
       </LangGlobeButton>
 
       {isOpen && (
-        <LangPanel role="listbox" aria-label="Language options" data-testid="header-language-panel">
+        <LangPanel role="listbox" aria-label="Language options" data-testid={`${idPrefix}-language-panel`} sx={panelSx}>
           {LANGUAGES.map((lng) => {
             const isSelected = lng.code === current;
             return (
@@ -145,7 +177,7 @@ function HeaderLangMenu() {
                 role="option"
                 aria-selected={isSelected}
                 data-selected={isSelected ? "true" : "false"}
-                data-testid={`header-lang-${lng.code}`}
+                data-testid={`${idPrefix}-lang-${lng.code}`}
                 tabIndex={0}
                 onClick={() => changeLang(lng.code)}
                 onKeyDown={(e) => {

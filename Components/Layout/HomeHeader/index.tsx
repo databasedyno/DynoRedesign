@@ -1,20 +1,19 @@
 // Coinbase-style marketing header (2026-08-02):
 //   • Desktop: logo + mega-menu dropdowns (Products / Developers / Resources /
-//     Company) that open on hover AND click, each with icon + title + desc.
-//   • Right side: "All systems normal" status pill, a globe language menu
-//     (globe → dropdown panel), the light/dark theme toggle, then Sign in +
-//     Get started.
-//   • Mobile / tablet (<1025px): full-height slide-in drawer with an accordion
-//     of the same sections, auth CTAs, language + theme, trust row.
-// Menu items render as real <Link> anchors so navigation is native + reliable
-// (survives fast input, supports open-in-new-tab, better a11y/SEO). Preserves
-// the hardened hamburger tap (onPointerUp + de-dupe) and body-only scroll-lock.
+//     Company). Products includes a highlighted "featured" promo tile.
+//   • Right side: search (⌘K command menu), "All systems normal" pill, globe
+//     language menu, theme toggle, Sign in, Get started.
+//   • Mobile / tablet (<1025px): full-height drawer with an accordion of the
+//     same sections, auth CTAs, language + theme, trust row.
+// Menu items are real <Link> anchors (reliable + a11y/SEO). Preserves the
+// hardened hamburger tap (onPointerUp + de-dupe) and body-only scroll-lock.
 import DynopayLogo from "@/assets/Icons/home/dynopay-blackLogo.svg";
 import DynopayWhiteLogo from "@/assets/Icons/home/dynopay-whiteLogo.svg";
 import LanguageSwitcher from "@/Components/UI/LanguageSwitcher";
 import ThemeToggle from "@/Components/UI/ThemeToggle";
 import { ArrowForwardRounded } from "@mui/icons-material";
 import KeyboardArrowDownRounded from "@mui/icons-material/KeyboardArrowDownRounded";
+import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 import { Box, Button, Collapse, Typography, useTheme } from "@mui/material";
 import Image from "next/image";
 import Link from "next/link";
@@ -22,12 +21,15 @@ import { useRouter } from "next/router";
 import { memo, useCallback, useEffect, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
 import { useTranslation } from "react-i18next";
 import HomeButton from "../HomeButton";
+import CommandMenu from "./CommandMenu";
 import HeaderLangMenu from "./HeaderLangMenu";
 import { MENU_SECTIONS } from "./menuData";
 import {
   Actions,
   ActionDivider,
   ClickableLogo,
+  FeaturedBadge,
+  FeaturedTile,
   FixedHeader,
   HeaderContainer,
   HeaderDivider,
@@ -53,6 +55,7 @@ import {
   MobileTrustBadges,
   NavLinks,
   RightGroup,
+  SearchButton,
   StatusPillWrap,
   StyledGetStartedButton,
   StyledSignInButton,
@@ -75,6 +78,7 @@ const HomeHeader = memo(function HomeHeader() {
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   const [isHeaderVisible, setIsHeaderVisible] = useState<boolean>(true);
+  const [searchOpen, setSearchOpen] = useState<boolean>(false);
   // Desktop mega-menu: which section (if any) is open.
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   // Mobile accordion: which section is expanded (Products open by default).
@@ -107,9 +111,8 @@ const HomeHeader = memo(function HomeHeader() {
   }, []);
 
   // Mega-menu / accordion item click. Items render as real <Link> anchors so
-  // navigation is native and reliable. We only intercept same-page homepage
-  // hash links to smooth-scroll; every other href falls through to the
-  // <Link>'s native client-side navigation.
+  // navigation is native + reliable. Only same-page homepage hash links are
+  // intercepted to smooth-scroll; everything else uses native <Link> nav.
   const handleItemClick = useCallback(
     (e: ReactMouseEvent<HTMLElement>, href: string) => {
       setOpenMenu(null);
@@ -158,10 +161,23 @@ const HomeHeader = memo(function HomeHeader() {
     };
   }, [openMenu]);
 
-  // Close everything on route change.
+  // Global ⌘K / Ctrl+K to toggle the command menu.
+  useEffect(() => {
+    const onKey = (e: globalThis.KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && (e.key === "k" || e.key === "K")) {
+        e.preventDefault();
+        setSearchOpen((v) => !v);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  // Close menus on route change.
   useEffect(() => {
     setOpenMenu(null);
     setMobileMenuOpen(false);
+    setSearchOpen(false);
   }, [router.asPath]);
 
   /* ================= HEADER VISIBILITY ================= */
@@ -235,6 +251,8 @@ const HomeHeader = memo(function HomeHeader() {
           <NavLinks>
             {MENU_SECTIONS.map((section) => {
               const open = openMenu === section.key;
+              const featured = section.featured;
+              const FeaturedIcon = featured?.Icon;
               return (
                 <MegaTrigger
                   key={section.key}
@@ -255,27 +273,96 @@ const HomeHeader = memo(function HomeHeader() {
 
                   {open && (
                     <MegaPanel data-testid={`mega-${section.key}`}>
-                      <MegaCard>
-                        {section.items.map((item) => {
-                          const Icon = item.Icon;
-                          return (
-                            <MegaItemLink
-                              key={item.titleKey}
-                              component={Link}
-                              href={item.href}
-                              data-testid={`mega-item-${item.titleKey}`}
-                              onClick={(e: ReactMouseEvent<HTMLElement>) => handleItemClick(e, item.href)}
+                      <MegaCard
+                        sx={featured ? { flexDirection: "row", maxWidth: 648, minWidth: 588, gap: 1.5 } : undefined}
+                      >
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: 0.25,
+                            flex: 1,
+                            minWidth: featured ? 300 : "auto",
+                          }}
+                        >
+                          {section.items.map((item) => {
+                            const Icon = item.Icon;
+                            return (
+                              <MegaItemLink
+                                key={item.titleKey}
+                                component={Link}
+                                href={item.href}
+                                data-testid={`mega-item-${item.titleKey}`}
+                                onClick={(e: ReactMouseEvent<HTMLElement>) => handleItemClick(e, item.href)}
+                              >
+                                <MegaItemIcon className="mega-icon">
+                                  <Icon />
+                                </MegaItemIcon>
+                                <Box>
+                                  <MegaItemTitle className="mega-title">{t(item.titleKey)}</MegaItemTitle>
+                                  <MegaItemDesc>{t(item.descKey)}</MegaItemDesc>
+                                </Box>
+                              </MegaItemLink>
+                            );
+                          })}
+                        </Box>
+
+                        {featured && FeaturedIcon && (
+                          <FeaturedTile
+                            component={Link}
+                            href={featured.href}
+                            data-testid="mega-featured"
+                            onClick={(e: ReactMouseEvent<HTMLElement>) => handleItemClick(e, featured.href)}
+                          >
+                            <FeaturedBadge>
+                              <FeaturedIcon sx={{ fontSize: 13 }} />
+                              Public beta
+                            </FeaturedBadge>
+                            <Box sx={{ position: "relative", zIndex: 1 }}>
+                              <Typography
+                                sx={{
+                                  fontFamily: "var(--font-hero)",
+                                  fontSize: 16.5,
+                                  fontWeight: 600,
+                                  lineHeight: 1.2,
+                                  mb: 0.75,
+                                }}
+                              >
+                                {t(featured.titleKey)}
+                              </Typography>
+                              <Typography
+                                sx={{
+                                  fontFamily: "var(--font-body)",
+                                  fontSize: 12.5,
+                                  lineHeight: 1.45,
+                                  color: "rgba(255,255,255,0.86)",
+                                }}
+                              >
+                                {t(featured.descKey)}
+                              </Typography>
+                            </Box>
+                            <Box
+                              className="feat-cta"
+                              sx={{
+                                position: "relative",
+                                zIndex: 1,
+                                mt: "auto",
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: 0.5,
+                                fontFamily: "var(--font-body)",
+                                fontSize: 13.5,
+                                fontWeight: 600,
+                              }}
                             >
-                              <MegaItemIcon className="mega-icon">
-                                <Icon />
-                              </MegaItemIcon>
-                              <Box>
-                                <MegaItemTitle className="mega-title">{t(item.titleKey)}</MegaItemTitle>
-                                <MegaItemDesc>{t(item.descKey)}</MegaItemDesc>
-                              </Box>
-                            </MegaItemLink>
-                          );
-                        })}
+                              {t(featured.ctaKey)}
+                              <ArrowForwardRounded
+                                className="feat-arrow"
+                                sx={{ fontSize: 16, transition: "transform 200ms ease" }}
+                              />
+                            </Box>
+                          </FeaturedTile>
+                        )}
                       </MegaCard>
                     </MegaPanel>
                   )}
@@ -292,7 +379,17 @@ const HomeHeader = memo(function HomeHeader() {
               <span className="status-label">{t("v3.header.systemsNormal")}</span>
             </StatusPillWrap>
 
-            <HeaderLangMenu />
+            <SearchButton
+              disableRipple
+              aria-label={t("search.button")}
+              data-testid="header-search-button"
+              onClick={() => setSearchOpen(true)}
+            >
+              <SearchRoundedIcon />
+              <span className="kbd">⌘K</span>
+            </SearchButton>
+
+            <HeaderLangMenu hideOnMobile />
 
             <ThemeToggle size="small" />
 
@@ -453,6 +550,8 @@ const HomeHeader = memo(function HomeHeader() {
           </MobileNavContent>
         </MobileDrawer>
       </MobileMenuDrawer>
+
+      <CommandMenu open={searchOpen} onClose={() => setSearchOpen(false)} />
 
       <HeaderDivider />
     </FixedHeader>

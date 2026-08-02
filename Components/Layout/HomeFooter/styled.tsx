@@ -1,132 +1,114 @@
 import { Box, Typography, styled } from "@mui/material";
 
-export const FooterWrapper = styled("footer")(({ theme }) => ({
-  backgroundColor: theme.palette.mode === "dark" ? "#0B0D17" : "#131520",
-  marginTop: "auto",
-  paddingTop: 64,
-  paddingBottom: 64,
-  display: "flex",
-  justifyContent: "center",
-  paddingLeft: 0,
-  paddingRight: 0,
+const INDIGO = "#4F46E5";
 
-  [theme.breakpoints.down("md")]: {
-    paddingBottom: 17,
-    paddingLeft: 15,
-    paddingRight: 15,
-  },
-}));
+export const FooterWrapper = styled("footer")(({ theme }) => {
+  const dark = theme.palette.mode === "dark";
+  return {
+    position: "relative",
+    overflow: "hidden",
+    marginTop: "auto",
+    paddingTop: 72,
+    paddingBottom: 40,
+    display: "flex",
+    justifyContent: "center",
+    backgroundColor: dark ? "#0A0A0F" : "#F6F6F8",
+    borderTop: `1px solid ${dark ? "rgba(255,255,255,0.08)" : "rgba(10,10,10,0.07)"}`,
+
+    // Subtle indigo bloom at the top edge (dark mode only) to echo the header.
+    "&::before": dark
+      ? {
+          content: '""',
+          position: "absolute",
+          top: -150,
+          left: "50%",
+          transform: "translateX(-50%)",
+          width: 720,
+          height: 300,
+          borderRadius: "50%",
+          background: "radial-gradient(closest-side, rgba(79,70,229,0.18), transparent)",
+          filter: "blur(40px)",
+          pointerEvents: "none",
+        }
+      : {},
+
+    [theme.breakpoints.down("md")]: {
+      paddingTop: 48,
+      paddingBottom: 28,
+      paddingLeft: 16,
+      paddingRight: 16,
+    },
+  };
+});
 
 export const FooterContainer = styled(Box)(({ theme }) => ({
+  position: "relative",
+  zIndex: 1,
   width: "100%",
   maxWidth: 1280,
-  minHeight: 222,
   display: "flex",
   flexDirection: "column",
-  justifyContent: "space-between",
   paddingLeft: theme.spacing(2),
   paddingRight: theme.spacing(2),
-
-  [theme.breakpoints.down("md")]: {
-    minHeight: 390,
-  },
 }));
-
-export const TopSection = styled(Box)({
-  display: "flex",
-  flexDirection: "column",
-  gap: 16,
-});
 
 export const LogoWrapper = styled(Box)({
   cursor: "pointer",
   display: "inline-flex",
 });
 
-export const ContentRow = styled(Box)(({ theme }) => ({
-  display: "flex",
-  flexDirection: "row",
-  justifyContent: "space-between",
-  gap: theme.spacing(6),
-
-  [theme.breakpoints.down("md")]: {
-    flexDirection: "column",
-  },
-}));
-
-export const DescriptionText = styled(Typography)(({ theme }) => ({
-  minWidth: 316,
-  color: theme.palette.common.white,
-  opacity: 0.6,
-  fontSize: 14,
-  maxWidth: 420,
-  fontFamily: "var(--font-sans)",
-  whiteSpace: "nowrap",
-
-  [theme.breakpoints.down("md")]: {
-    whiteSpace: "normal",
-  },
-}));
-
-export const NavigationList = styled(Box)(({ theme }) => ({
-  display: "flex",
-  flexWrap: "wrap",
-  alignItems: "flex-end",
-  gap: theme.spacing(3),
-
-  [theme.breakpoints.down("lg")]: {
-    gap: 27,
-  },
-}));
-
-export const BottomSection = styled(Box)(({ theme }) => ({
-  display: "flex",
-  flexDirection: "row",
-  justifyContent: "space-between",
-  alignItems: "center",
-  borderTop: "1px solid rgba(255, 255, 255, 0.1)",
-  paddingTop: theme.spacing(4),
-
-  [theme.breakpoints.down("md")]: {
-    flexDirection: "column",
-    alignItems: "flex-start",
-    gap: 28,
-  },
-}));
-
-export const CopyrightText = styled(Typography)(({ theme }) => ({
-  color: theme.palette.common.white,
-  opacity: 0.6,
-  fontSize: 14,
-  fontFamily: "var(--font-sans)",
-}));
-
 export const SocialsWrapper = styled(Box)({
   display: "flex",
-  gap: 16,
+  gap: 12,
 });
 
-export const SocialItem = styled(Box)({
-  background: "rgba(255, 255, 255, 0.1)",
-  padding: 10,
-  borderRadius: "50%",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  cursor: "pointer",
-  transition: "background 0.2s ease",
-
-  "&:hover": {
-    background: "rgba(255, 255, 255, 0.2)",
-  },
+export const SocialItem = styled(Box)(({ theme }) => {
+  const dark = theme.palette.mode === "dark";
+  return {
+    width: 38,
+    height: 38,
+    borderRadius: "50%",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    cursor: "pointer",
+    background: dark ? "rgba(255,255,255,0.06)" : "rgba(10,10,10,0.05)",
+    border: `1px solid ${dark ? "rgba(255,255,255,0.08)" : "rgba(10,10,10,0.08)"}`,
+    transition: "all 0.2s ease",
+    // Source icons are white; recolour to dark on the light footer.
+    "& img": {
+      filter: dark ? "none" : "brightness(0) saturate(100%) opacity(0.62)",
+      transition: "filter 0.2s ease",
+    },
+    "&:hover": {
+      background: dark ? "rgba(79,70,229,0.22)" : "rgba(79,70,229,0.10)",
+      borderColor: INDIGO,
+      transform: "translateY(-2px)",
+      "& img": { filter: dark ? "none" : "brightness(0) saturate(100%) opacity(0.9)" },
+    },
+  };
 });
 
-export const Navigation = styled("nav")({
-  color: "#FCFBF8",
-  textDecoration: "underline",
-  fontSize: 14,
-  letterSpacing: 0,
-  fontFamily: "var(--font-sans)",
-  fontWeight: 400,
-  lineHeight: "20px",
+export const BottomSection = styled(Box)(({ theme }) => {
+  const dark = theme.palette.mode === "dark";
+  return {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    borderTop: `1px solid ${dark ? "rgba(255,255,255,0.08)" : "rgba(10,10,10,0.07)"}`,
+    paddingTop: theme.spacing(3),
+
+    [theme.breakpoints.down("md")]: {
+      flexDirection: "column",
+      alignItems: "flex-start",
+      gap: 20,
+    },
+  };
 });
+
+export const CopyrightText = styled(Typography)(({ theme }) => ({
+  color: theme.palette.mode === "dark" ? "rgba(255,255,255,0.5)" : "#71717A",
+  fontSize: 13.5,
+  fontFamily: "var(--font-body)",
+}));

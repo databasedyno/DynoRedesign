@@ -1,3 +1,42 @@
+## Session 96 — FEATURES: Matching footer + ⌘K command search + featured Products tile (2026-08-02)
+
+### Preview URL
+https://b4dad0fb-927f-4786-8591-4250f52bfe65.preview.emergentagent.com/
+### PUBLIC pages — no auth required.
+
+### What changed (frontend only; zero backend/API/DB changes)
+1. **Matching footer** (`Components/Layout/HomeFooter/index.tsx` + `styled.tsx`): rebuilt theme-aware to match the header — light `#F6F6F8` / dark `#0A0A0F` with indigo bloom, theme-aware logo (black on light / white on dark), dark-adapted social icons (white source PNGs recoloured via filter on light bg), PRODUCT/SOLUTIONS/COMPANY link columns (same routes incl. `/for/*` SEO pages), trust row, and a bottom bar that **reuses the same globe language control** (opens UPWARD, `placement="top"`). Link/route map unchanged.
+2. **⌘K command search** (`Components/Layout/HomeHeader/CommandMenu.tsx` + `SearchButton` in header): search icon (with ⌘K badge) opens a centered command palette (MUI Modal, z-index 1600) that filters docs/products/pages from `SEARCH_ENTRIES` (derived from the mega-menu model). Keyboard: ⌘K/Ctrl+K toggles, ↑/↓ move, Enter navigates, Esc closes. Hash links smooth-scroll; others navigate natively.
+3. **Featured Products tile** (`menuData.tsx` featured + `FeaturedTile`/`FeaturedBadge` styled): the Products mega-menu is now 2-column — the 4 product links plus a gradient promo tile ("PUBLIC BETA" · "Start free today" · "$500 free" · Get started → `/auth/register`).
+- `HeaderLangMenu` was made reusable (`placement`, `align`, `hideOnMobile`, `idPrefix` props). Header globe testids stay `header-*`; footer globe uses `footer-*`.
+- i18n: new `nav.mega.featured.{title,desc,cta}` + `search.{button,placeholder,title,empty,hint,close}` added and TRANSLATED in all 6 languages (en, pt, es, fr, de, nl). Lint clean, all 6 JSONs valid.
+
+### data-testids
+- Header search: `header-search-button`; command menu: `command-menu`, `command-input`, results `cmd-item-<i18nKey>`
+- Featured tile: `mega-featured` (real `<a href="/auth/register">`) inside `mega-products`
+- Footer language globe: `footer-language-globe` / `footer-language-panel` / `footer-lang-<code>`; footer trust row: `footer-trust-row`
+- (unchanged) header nav triggers `nav-*`, mega panels `mega-*`, mega items `mega-item-*`, header lang `header-language-globe`, mobile `mobile-menu-toggle` / `mnav-*` / `msub-*`
+
+### Test scope for FRONTEND testing agent (Next DEV — use wait_for_url 20s after nav clicks; do NOT use force=True; wait ~450ms for drawer/panel animations)
+DESKTOP (1440x900):
+1. Products mega (hover nav-products): shows 4 links AND `mega-featured` tile; tile is an `<a>` → clicking navigates to `/auth/register` (wait_for_url).
+2. Search: click `header-search-button` → `command-menu` visible with `command-input` focused. Type "web" → only Webhooks result shown. Type "fee" → Fees shown. Clear → all entries shown grouped by section. Press Escape → closes. Press ⌘K (Meta+k) anywhere → opens; ⌘K again → closes.
+3. Command nav: open menu, click `cmd-item-nav.mega.status.title` → wait_for_url `**/system-status`. Reopen, ArrowDown then Enter navigates the highlighted item.
+4. Footer: scroll down; `footer-trust-row` visible. Click `footer-language-globe` → `footer-language-panel` opens ABOVE the button (its bottom edge is above the globe) listing 6 languages. Select `footer-lang-de` → site switches to German (footer headings/links + header nav labels become German). Switch back with `footer-language-globe` → `footer-lang-en`. Confirm header globe (`header-language-globe`) and footer globe are DISTINCT single elements (no strict-mode duplicates).
+5. Footer links navigate (e.g. Solutions → E-commerce → `/for/ecommerce`; Product → Fees → `/fees`).
+6. Regression: header mega-menus (Products/Developers/Resources/Company) still open on hover + navigate; theme toggle still works.
+
+MOBILE (390x844, is_mobile+touch):
+7. `header-search-button` visible in the top bar; tapping opens the command menu full-experience; typing filters; Esc/backdrop closes.
+8. Hamburger drawer + accordion still work (regression); scroll-lock: body overflow "hidden" while open, "" after close; documentElement overflow stays "".
+9. Footer stacks vertically; `footer-language-globe` opens upward and switches language; no horizontal overflow.
+
+GENERAL:
+10. Console: report only non-noise ERROR logs (ignore next-auth CLIENT_FETCH_ERROR, Binance/CoinGecko 451, HMR/webpack deprecation, custom /_error warning). No horizontal overflow at 390/768/1440. Test in BOTH light and dark theme if feasible (footer + globe must be legible in both).
+
+---
+
+
 ## Session 95b — RETEST after robustness fix (2026-08-02) — ✅ VERIFIED SUCCESSFUL
 
 ### Investigation of Session 95 test report (both "critical" issues were FALSE POSITIVES from the harness):

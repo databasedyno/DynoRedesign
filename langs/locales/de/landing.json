@@ -24,8 +24,17 @@
       "about": { "title": "Über DynoPay", "desc": "Unsere Mission, unser Unternehmen und Karriere" },
       "support": { "title": "Hilfe & Support", "desc": "Anleitungen und Kontaktmöglichkeiten" },
       "terms": { "title": "AGB", "desc": "Allgemeine Geschäftsbedingungen" },
-      "privacy": { "title": "Datenschutz", "desc": "Wie wir deine Daten schützen" }
+      "privacy": { "title": "Datenschutz", "desc": "Wie wir deine Daten schützen" },
+      "featured": { "title": "Jetzt kostenlos starten", "desc": "Deine ersten 500 $ Volumen gehen auf uns — ohne Karte.", "cta": "Loslegen" }
     }
+  },
+  "search": {
+    "button": "Suchen",
+    "placeholder": "Docs, Produkte und Seiten durchsuchen…",
+    "title": "Schnellzugriff",
+    "empty": "Keine Ergebnisse gefunden",
+    "hint": "zum Navigieren",
+    "close": "zum Schließen"
   },
   "heroBadge": "Krypto-Zahlungen, ganz einfach",
   "heroTitle": "Krypto akzeptieren. Direkt in Ihre Wallet — oder automatisch in Stablecoins umgewandelt.",

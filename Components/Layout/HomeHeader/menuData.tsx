@@ -1,8 +1,7 @@
 // Coinbase-style mega-menu content model for the public marketing header.
 // Every href points at a REAL public route (verified against pages/ + the
-// footer link map). i18n: labels/titles/descriptions resolve through the
-// "landing" namespace; English keys live in en/landing.json and gracefully
-// fall back to English for other languages (i18n fallbackLng = "en").
+// footer link map). i18n resolves through the "landing" namespace; English
+// keys live in en/landing.json and fall back to English for other languages.
 import type { SvgIconComponent } from "@mui/icons-material";
 import ArticleRoundedIcon from "@mui/icons-material/ArticleRounded";
 import BusinessRoundedIcon from "@mui/icons-material/BusinessRounded";
@@ -12,6 +11,7 @@ import GavelRoundedIcon from "@mui/icons-material/GavelRounded";
 import LinkRoundedIcon from "@mui/icons-material/LinkRounded";
 import MenuBookRoundedIcon from "@mui/icons-material/MenuBookRounded";
 import MonitorHeartRoundedIcon from "@mui/icons-material/MonitorHeartRounded";
+import RocketLaunchRoundedIcon from "@mui/icons-material/RocketLaunchRounded";
 import SendRoundedIcon from "@mui/icons-material/SendRounded";
 import ShieldRoundedIcon from "@mui/icons-material/ShieldRounded";
 import ShoppingCartCheckoutRoundedIcon from "@mui/icons-material/ShoppingCartCheckoutRounded";
@@ -26,10 +26,20 @@ export interface MegaItem {
   readonly Icon: SvgIconComponent;
 }
 
+// Highlighted promo card shown inside a mega-menu (Coinbase-style featured tile).
+export interface MegaFeatured {
+  readonly titleKey: string;
+  readonly descKey: string;
+  readonly ctaKey: string;
+  readonly href: string;
+  readonly Icon: SvgIconComponent;
+}
+
 export interface MegaSection {
   readonly key: string;
   readonly labelKey: string;
   readonly items: readonly MegaItem[];
+  readonly featured?: MegaFeatured;
 }
 
 export const MENU_SECTIONS: readonly MegaSection[] = [
@@ -62,6 +72,13 @@ export const MENU_SECTIONS: readonly MegaSection[] = [
         Icon: SendRoundedIcon,
       },
     ],
+    featured: {
+      titleKey: "nav.mega.featured.title",
+      descKey: "nav.mega.featured.desc",
+      ctaKey: "nav.mega.featured.cta",
+      href: "/auth/register",
+      Icon: RocketLaunchRoundedIcon,
+    },
   },
   {
     key: "developers",
@@ -142,3 +159,21 @@ export const MENU_SECTIONS: readonly MegaSection[] = [
     ],
   },
 ] as const;
+
+// Flat, searchable index for the command menu (⌘K). Combines every mega-menu
+// item plus a couple of top-level destinations, tagged with their group label.
+export interface SearchEntry {
+  readonly titleKey: string;
+  readonly groupKey: string;
+  readonly href: string;
+  readonly Icon: SvgIconComponent;
+}
+
+export const SEARCH_ENTRIES: readonly SearchEntry[] = MENU_SECTIONS.flatMap((section) =>
+  section.items.map((item) => ({
+    titleKey: item.titleKey,
+    groupKey: section.labelKey,
+    href: item.href,
+    Icon: item.Icon,
+  })),
+);

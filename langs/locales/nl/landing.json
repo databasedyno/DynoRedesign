@@ -24,8 +24,17 @@
       "about": { "title": "Over DynoPay", "desc": "Onze missie, ons bedrijf en vacatures" },
       "support": { "title": "Hulp en support", "desc": "Handleidingen en manieren om ons te bereiken" },
       "terms": { "title": "Voorwaarden", "desc": "Algemene voorwaarden" },
-      "privacy": { "title": "Privacy", "desc": "Hoe we je gegevens beschermen" }
+      "privacy": { "title": "Privacy", "desc": "Hoe we je gegevens beschermen" },
+      "featured": { "title": "Begin vandaag gratis", "desc": "Je eerste $500 aan volume is van ons — geen kaart nodig.", "cta": "Aan de slag" }
     }
+  },
+  "search": {
+    "button": "Zoeken",
+    "placeholder": "Zoek docs, producten en pagina's…",
+    "title": "Snel navigeren",
+    "empty": "Geen resultaten gevonden",
+    "hint": "om te navigeren",
+    "close": "om te sluiten"
   },
   "heroBadge": "Cryptobetalingen, eenvoudig gemaakt",
   "heroTitle": "Accepteer crypto. Rechtstreeks naar uw wallet — of automatisch omgezet naar stablecoins.",

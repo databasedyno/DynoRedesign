@@ -1,14 +1,19 @@
-import Logo from "@/assets/Icons/home/dynopay-whiteLogo.svg";
+// Coinbase-style marketing footer — theme-aware to match the new header,
+// with the same globe language control (opens upward here). Link/route map is
+// unchanged from the previous footer; only the styling + language globe are new.
+import BlackLogo from "@/assets/Icons/home/dynopay-blackLogo.svg";
+import WhiteLogo from "@/assets/Icons/home/dynopay-whiteLogo.svg";
 import Facebook from "@/assets/Icons/home/Facebook.svg";
 import Instagram from "@/assets/Icons/home/instagram.svg";
 import LinkedIn from "@/assets/Icons/home/LinkeIn.svg";
 import X from "@/assets/Icons/home/X.svg";
+import { Box, Typography, useTheme } from "@mui/material";
 import Image, { StaticImageData } from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { FC, memo, useMemo } from "react";
+import { FC, memo, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Box, Typography } from "@mui/material";
+import HeaderLangMenu from "../HomeHeader/HeaderLangMenu";
 import {
   BottomSection,
   CopyrightText,
@@ -47,9 +52,26 @@ const TRUST = ["Non-custodial", "15+ chains", "SOC 2 track", "GDPR / AML aligned
 const HomeFooter: FC = () => {
   const router = useRouter();
   const { t } = useTranslation("landing");
+  const theme = useTheme();
+  const dark = theme.palette.mode === "dark";
 
-  // Column model — keeps i18n keys where they already exist, plain labels for
-  // the SEO industry pages (kept in sync with /app/data/seo-pages/verticals).
+  // Theme-aware logo (avoid hydration mismatch: default to white pre-mount).
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  const logoSrc = !mounted || dark ? WhiteLogo : BlackLogo;
+
+  const linkColor = dark ? "rgba(255,255,255,0.66)" : "#3F3F46";
+  const linkHover = dark ? "#A5B4FC" : "#4F46E5";
+  const headingColor = dark ? "rgba(255,255,255,0.5)" : "#8A8A94";
+  const descColor = dark ? "rgba(255,255,255,0.58)" : "#52525B";
+  const trustBorder = dark ? "rgba(255,255,255,0.12)" : "rgba(10,10,10,0.10)";
+  const trustBg = dark ? "rgba(255,255,255,0.03)" : "rgba(10,10,10,0.02)";
+  const trustText = dark ? "rgba(255,255,255,0.78)" : "#3F3F46";
+  const divider = dark ? "rgba(255,255,255,0.08)" : "rgba(10,10,10,0.07)";
+
+  // Column model — keeps existing i18n keys + the SEO industry pages.
   const columns: readonly FooterColumn[] = useMemo(
     () => [
       {
@@ -85,33 +107,21 @@ const HomeFooter: FC = () => {
     [t],
   );
 
-  const socialItems = useMemo(
-    () =>
-      SOCIALS.map((item) => (
-        <Link key={item.label} href={item.link} target="_blank" rel="noopener noreferrer" aria-label={item.label}>
-          <SocialItem>
-            <Image src={item.icon} alt={item.label} width={18} height={18} className="themed-icon" />
-          </SocialItem>
-        </Link>
-      )),
-    [],
-  );
-
   const linkSx = {
-    color: "rgba(255,255,255,0.62)",
+    color: linkColor,
     fontSize: 14,
-    fontFamily: "var(--font-sans)",
+    fontFamily: "var(--font-body)",
     textDecoration: "none",
     width: "fit-content",
     transition: "color 0.18s ease, transform 0.18s ease",
-    "&:hover": { color: "#A5B4FC", transform: "translateX(2px)" },
+    "&:hover": { color: linkHover, transform: "translateX(2px)" },
   } as const;
 
   const headingSx = {
-    color: "rgba(255,255,255,0.5)",
+    color: headingColor,
     fontSize: 12,
     fontWeight: 600,
-    fontFamily: "var(--font-tech), var(--font-sans)",
+    fontFamily: "var(--font-tech), var(--font-body)",
     letterSpacing: "0.14em",
     textTransform: "uppercase",
     mb: 2.25,
@@ -132,21 +142,29 @@ const HomeFooter: FC = () => {
           {/* Brand */}
           <Box sx={{ maxWidth: 340 }}>
             <LogoWrapper onClick={() => router.push("/")}>
-              <Image src={Logo} alt="Dynopay logo" width={128} height={43} priority />
+              <Image src={logoSrc} alt="Dynopay logo" width={128} height={43} priority />
             </LogoWrapper>
             <Typography
               sx={{
                 mt: 2.5,
-                color: "rgba(255,255,255,0.58)",
+                color: descColor,
                 fontSize: 14.5,
                 lineHeight: 1.6,
-                fontFamily: "var(--font-sans)",
+                fontFamily: "var(--font-body)",
                 maxWidth: 320,
               }}
             >
               {t("footerDescription1")} {t("footerDescription2")}
             </Typography>
-            <SocialsWrapper sx={{ mt: 3.5 }}>{socialItems}</SocialsWrapper>
+            <SocialsWrapper sx={{ mt: 3.5 }}>
+              {SOCIALS.map((item) => (
+                <Link key={item.label} href={item.link} target="_blank" rel="noopener noreferrer" aria-label={item.label}>
+                  <SocialItem>
+                    <Image src={item.icon} alt={item.label} width={18} height={18} />
+                  </SocialItem>
+                </Link>
+              ))}
+            </SocialsWrapper>
           </Box>
 
           {/* Link columns */}
@@ -157,11 +175,9 @@ const HomeFooter: FC = () => {
               </Typography>
               <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
                 {col.links.map((l) => (
-                  <Link key={l.link} href={l.link} passHref legacyBehavior>
-                    <Box component="a" sx={linkSx}>
-                      {l.label}
-                    </Box>
-                  </Link>
+                  <Box key={l.link} component={Link} href={l.link} sx={linkSx}>
+                    {l.label}
+                  </Box>
                 ))}
               </Box>
             </Box>
@@ -173,8 +189,8 @@ const HomeFooter: FC = () => {
           data-testid="footer-trust-row"
           aria-label="Trust and compliance"
           sx={{
-            pt: { xs: 4, md: 4 },
-            borderTop: "1px solid rgba(255,255,255,0.08)",
+            pt: 4,
+            borderTop: `1px solid ${divider}`,
             display: "flex",
             flexWrap: "wrap",
             gap: { xs: 1, md: 1.25 },
@@ -191,12 +207,12 @@ const HomeFooter: FC = () => {
                 px: 1.5,
                 py: 0.6,
                 borderRadius: "999px",
-                border: "1px solid rgba(255,255,255,0.12)",
-                background: "rgba(255,255,255,0.03)",
+                border: `1px solid ${trustBorder}`,
+                background: trustBg,
               }}
             >
               <Box sx={{ width: 6, height: 6, borderRadius: "50%", background: "#22C55E" }} />
-              <Typography sx={{ color: "rgba(255,255,255,0.78)", fontSize: 12, fontFamily: "var(--font-sans)", letterSpacing: "0.02em" }}>
+              <Typography sx={{ color: trustText, fontSize: 12, fontFamily: "var(--font-body)", letterSpacing: "0.02em" }}>
                 {label}
               </Typography>
             </Box>
@@ -206,31 +222,36 @@ const HomeFooter: FC = () => {
         {/* ── Bottom bar ────────────────────────────────────────────── */}
         <BottomSection sx={{ mt: { xs: 4, md: 5 } }}>
           <CopyrightText>{t("footerCopyright", { year: new Date().getFullYear() })}</CopyrightText>
-          <Box
-            component={Link}
-            href="/system-status"
-            sx={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 1,
-              textDecoration: "none",
-              color: "rgba(255,255,255,0.6)",
-              fontSize: 13,
-              fontFamily: "var(--font-sans)",
-              transition: "color 0.18s ease",
-              "&:hover": { color: "rgba(255,255,255,0.9)" },
-            }}
-          >
+
+          <Box sx={{ display: "flex", alignItems: "center", gap: { xs: 2, md: 2.5 }, flexWrap: "wrap" }}>
+            <HeaderLangMenu placement="top" align="right" idPrefix="footer" />
+
             <Box
+              component={Link}
+              href="/system-status"
               sx={{
-                width: 7,
-                height: 7,
-                borderRadius: "50%",
-                background: "#22C55E",
-                boxShadow: "0 0 0 3px rgba(34,197,94,0.22)",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 1,
+                textDecoration: "none",
+                color: dark ? "rgba(255,255,255,0.6)" : "#52525B",
+                fontSize: 13,
+                fontFamily: "var(--font-body)",
+                transition: "color 0.18s ease",
+                "&:hover": { color: dark ? "rgba(255,255,255,0.9)" : "#0A0A0A" },
               }}
-            />
-            {t("v3.footer.systemsOperational")}
+            >
+              <Box
+                sx={{
+                  width: 7,
+                  height: 7,
+                  borderRadius: "50%",
+                  background: "#22C55E",
+                  boxShadow: "0 0 0 3px rgba(34,197,94,0.22)",
+                }}
+              />
+              {t("v3.footer.systemsOperational")}
+            </Box>
           </Box>
         </BottomSection>
       </FooterContainer>

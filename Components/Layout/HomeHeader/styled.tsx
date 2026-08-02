@@ -591,11 +591,10 @@ export const MegaItemDesc = styled(Typography)(({ theme }) => ({
 
 /* ================= LANGUAGE GLOBE (desktop) ================= */
 
-export const LangWrap = styled(Box)(({ theme }) => ({
+export const LangWrap = styled(Box)(() => ({
   position: "relative",
   display: "inline-flex",
   alignItems: "center",
-  [theme.breakpoints.down("md")]: { display: "none" },
 }));
 
 export const LangGlobeButton = styled(IconButton)(({ theme }) => {
@@ -737,6 +736,220 @@ export const MobileSubItem = styled(Box)(({ theme }) => {
     "& .msub-icon svg": { fontSize: 18 },
     "& .msub-title": { fontFamily: "var(--font-body)", fontSize: 15.5, fontWeight: 500 },
     "&:active": { color: CORAL, transform: "translateX(3px)" },
+  };
+});
+
+/* ================= FEATURED MEGA TILE (Products menu) ================= */
+
+export const FeaturedTile = styled(Box)(() => ({
+  position: "relative",
+  overflow: "hidden",
+  width: 240,
+  minWidth: 240,
+  borderRadius: 14,
+  padding: "18px 18px 16px",
+  display: "flex",
+  flexDirection: "column",
+  gap: 10,
+  textDecoration: "none",
+  color: "#FFFFFF",
+  background: `linear-gradient(150deg, ${CORAL} 0%, ${VIOLET} 100%)`,
+  boxShadow: "0 12px 30px -12px rgba(79,70,229,0.55)",
+  transition: "transform 200ms cubic-bezier(0.16,1,0.3,1), box-shadow 200ms ease",
+  "&:hover": { transform: "translateY(-2px)", boxShadow: "0 18px 42px -14px rgba(79,70,229,0.6)" },
+  "&:hover .feat-arrow": { transform: "translateX(3px)" },
+  "&::after": {
+    content: '""',
+    position: "absolute",
+    width: 150,
+    height: 150,
+    borderRadius: "50%",
+    background: "rgba(255,255,255,0.20)",
+    filter: "blur(34px)",
+    top: -46,
+    right: -34,
+    pointerEvents: "none",
+  },
+}));
+
+export const FeaturedBadge = styled(Box)(() => ({
+  position: "relative",
+  zIndex: 1,
+  alignSelf: "flex-start",
+  display: "inline-flex",
+  alignItems: "center",
+  gap: 5,
+  padding: "3px 9px",
+  borderRadius: 999,
+  background: "rgba(255,255,255,0.18)",
+  border: "1px solid rgba(255,255,255,0.30)",
+  fontFamily: "var(--font-tech), var(--font-body)",
+  fontSize: 10.5,
+  fontWeight: 700,
+  letterSpacing: "0.10em",
+  textTransform: "uppercase",
+}));
+
+/* ================= SEARCH — command menu (⌘K) ================= */
+
+export const SearchButton = styled(IconButton)(({ theme }) => {
+  const dark = theme.palette.mode === "dark";
+  return {
+    height: 40,
+    minWidth: 40,
+    padding: "0 12px",
+    borderRadius: 999,
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 8,
+    color: dark ? "rgba(255,255,255,0.72)" : "#52525B",
+    border: `1px solid ${dark ? "rgba(255,255,255,0.10)" : "rgba(10,10,10,0.10)"}`,
+    background: dark ? "rgba(255,255,255,0.03)" : "rgba(10,10,10,0.02)",
+    transition: "all 180ms ease",
+    touchAction: "manipulation",
+    "& svg": { fontSize: 19 },
+    "& .kbd": {
+      fontFamily: "var(--font-tech), var(--font-body)",
+      fontSize: 11,
+      fontWeight: 600,
+      padding: "2px 6px",
+      borderRadius: 6,
+      lineHeight: 1.4,
+      color: dark ? "rgba(255,255,255,0.6)" : "#71717A",
+      border: `1px solid ${dark ? "rgba(255,255,255,0.14)" : "rgba(10,10,10,0.12)"}`,
+      background: dark ? "rgba(255,255,255,0.04)" : "rgba(255,255,255,0.7)",
+    },
+    "&:hover": {
+      borderColor: CORAL,
+      color: dark ? "#fff" : "#0A0A0A",
+      background: dark ? "rgba(255,255,255,0.06)" : "rgba(79,70,229,0.05)",
+    },
+    [theme.breakpoints.down("sm")]: { padding: 0, width: 40, "& .kbd": { display: "none" } },
+  };
+});
+
+export const CmdCard = styled(Box)(({ theme }) => {
+  const dark = theme.palette.mode === "dark";
+  return {
+    width: "min(600px, 92vw)",
+    maxHeight: "72vh",
+    display: "flex",
+    flexDirection: "column",
+    borderRadius: 18,
+    overflow: "hidden",
+    backgroundColor: dark ? "rgba(18,18,24,0.98)" : "#FFFFFF",
+    border: `1px solid ${dark ? "rgba(255,255,255,0.10)" : "rgba(10,10,10,0.08)"}`,
+    boxShadow: dark
+      ? "0 40px 90px -20px rgba(0,0,0,0.75)"
+      : "0 40px 90px -24px rgba(10,10,10,0.28)",
+    backdropFilter: "blur(16px)",
+    WebkitBackdropFilter: "blur(16px)",
+    ...megaIn,
+    animation: "dynoMegaIn 180ms cubic-bezier(0.16,1,0.3,1)",
+  };
+});
+
+export const CmdInputRow = styled(Box)(({ theme }) => {
+  const dark = theme.palette.mode === "dark";
+  return {
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
+    padding: "16px 18px",
+    borderBottom: `1px solid ${dark ? "rgba(255,255,255,0.08)" : "rgba(10,10,10,0.07)"}`,
+    "& svg.search-ic": { fontSize: 22, color: dark ? "rgba(255,255,255,0.5)" : "#A1A1AA" },
+  };
+});
+
+export const CmdInput = styled("input")(({ theme }) => {
+  const dark = theme.palette.mode === "dark";
+  return {
+    flex: 1,
+    border: "none",
+    outline: "none",
+    background: "transparent",
+    fontFamily: "var(--font-body)",
+    fontSize: 16,
+    fontWeight: 400,
+    color: dark ? "#F5F5F5" : "#0A0A0A",
+    "&::placeholder": { color: dark ? "rgba(255,255,255,0.4)" : "#A1A1AA" },
+  };
+});
+
+export const CmdResults = styled(Box)({
+  overflowY: "auto",
+  padding: 8,
+  display: "flex",
+  flexDirection: "column",
+  gap: 2,
+});
+
+export const CmdGroupLabel = styled(Typography)(({ theme }) => ({
+  fontFamily: "var(--font-tech), var(--font-body)",
+  fontSize: 11,
+  fontWeight: 700,
+  letterSpacing: "0.10em",
+  textTransform: "uppercase",
+  color: theme.palette.mode === "dark" ? "rgba(255,255,255,0.4)" : "#A1A1AA",
+  padding: "10px 12px 4px",
+}));
+
+export const CmdItem = styled(Box)(({ theme }) => {
+  const dark = theme.palette.mode === "dark";
+  return {
+    display: "flex",
+    alignItems: "center",
+    gap: 12,
+    padding: "10px 12px",
+    borderRadius: 12,
+    cursor: "pointer",
+    textDecoration: "none",
+    color: dark ? "rgba(255,255,255,0.86)" : "#27272A",
+    transition: "background 140ms ease",
+    "& .cmd-ic": {
+      width: 34,
+      height: 34,
+      borderRadius: 9,
+      display: "grid",
+      placeItems: "center",
+      color: CORAL,
+      background: dark ? "rgba(79,70,229,0.16)" : "rgba(79,70,229,0.08)",
+      border: `1px solid ${dark ? "rgba(124,92,255,0.26)" : "rgba(79,70,229,0.16)"}`,
+      flexShrink: 0,
+    },
+    "& .cmd-ic svg": { fontSize: 18 },
+    "& .cmd-title": { fontFamily: "var(--font-body)", fontSize: 14.5, fontWeight: 500 },
+    "& .cmd-group": {
+      marginLeft: "auto",
+      fontFamily: "var(--font-body)",
+      fontSize: 12,
+      color: dark ? "rgba(255,255,255,0.4)" : "#A1A1AA",
+    },
+    "&[data-active='true']": { background: dark ? "rgba(255,255,255,0.06)" : "rgba(79,70,229,0.07)" },
+    "&:hover": { background: dark ? "rgba(255,255,255,0.06)" : "rgba(79,70,229,0.07)" },
+  };
+});
+
+export const CmdFooter = styled(Box)(({ theme }) => {
+  const dark = theme.palette.mode === "dark";
+  return {
+    display: "flex",
+    alignItems: "center",
+    gap: 16,
+    padding: "10px 16px",
+    borderTop: `1px solid ${dark ? "rgba(255,255,255,0.08)" : "rgba(10,10,10,0.07)"}`,
+    fontFamily: "var(--font-body)",
+    fontSize: 12,
+    color: dark ? "rgba(255,255,255,0.5)" : "#A1A1AA",
+    "& .kbd": {
+      fontFamily: "var(--font-tech), var(--font-body)",
+      fontSize: 11,
+      fontWeight: 600,
+      padding: "1px 6px",
+      borderRadius: 5,
+      marginRight: 6,
+      border: `1px solid ${dark ? "rgba(255,255,255,0.14)" : "rgba(10,10,10,0.12)"}`,
+    },
   };
 });
 
