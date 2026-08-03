@@ -10,7 +10,7 @@ export const HeaderContainer = styled("div")(({ theme }) => ({
   display: "flex",
   gap: "24px",
   [theme.breakpoints.down("sm")]: {
-    gap: "8px",
+    gap: "6px",
   },
 }));
 
@@ -52,6 +52,10 @@ export const MainContainer = styled("div")(({ theme }) => ({
   [theme.breakpoints.down("md")]: {
     padding: "8px 10px",
   },
+  [theme.breakpoints.down("sm")]: {
+    padding: "6px",
+    gap: "6px",
+  },
 }));
 
 export const RightSection = styled("div")(({ theme }) => ({
@@ -59,6 +63,9 @@ export const RightSection = styled("div")(({ theme }) => ({
   alignItems: "center",
   gap: "6px",
   flexShrink: 0,
+  [theme.breakpoints.down("sm")]: {
+    gap: "4px",
+  },
 }));
 
 export const RequiredKYC = styled("div")(({ theme }) => ({

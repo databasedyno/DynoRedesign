@@ -166,7 +166,7 @@ const NewHeader = () => {
             height={39}
             draggable={false}
             priority
-            style={{ width: "auto", height: "26px" }}
+            style={{ width: "auto", height: "22px" }}
           />
         </Box>
       </Box>
