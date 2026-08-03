@@ -38,6 +38,7 @@ export const LogoContainer = styled("div")(({ theme }) => ({
 
 export const MainContainer = styled("div")(({ theme }) => ({
   flex: 1,
+  minWidth: 0,
   background: theme.palette.background.paper,
   display: "flex",
   alignItems: "center",
@@ -57,6 +58,7 @@ export const RightSection = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   gap: "6px",
+  flexShrink: 0,
 }));
 
 export const RequiredKYC = styled("div")(({ theme }) => ({

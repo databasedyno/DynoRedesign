@@ -1,3 +1,28 @@
+## Session 100 — Mobile in-app header clipping fix (2026-08-03) — FRONTEND
+
+### Reported issue
+User (comparing to a crisp reference UI) said the app has elements "cut off / appearing as half" on mobile & other devices; nothing should be clipped. Responsive audit (5 viewports × 9 pages) found: NO horizontal overflow, NO pixelated images, desktop/tablet perfect. The real, screenshot-confirmed defect = the AUTHENTICATED in-app header's right cluster overflows on phones and CLIPS at the right edge: company switcher ("hostbay ▾") + theme toggle + avatar + username text were too wide for 360–414px, so the avatar/username got cut off. (The audit's "8 clipped landing buttons" = off-screen decorative scroller, contained/not visible; the "support chat button clipped" = the intentional translateX(96px)+opacity:0 tuck-away — both FALSE POSITIVES, left untouched.)
+
+### Fix applied (frontend only — 3 files)
+1. `Components/UI/UserMenu/index.tsx` — hide the username text + HeaderDivider on mobile (isMobile = useIsMobile("md"), i.e. <900px). Avatar + chevron only on mobile (matches the reference). Full name still shows on desktop. `getInitials(firstName,lastName)` still used, no unused vars.
+2. `Components/Layout/NewHeader/styled.tsx` — `MainContainer` gains `minWidth: 0` (lets flex children shrink instead of overflow); `RightSection` gains `flexShrink: 0` (avatar cluster stays intact, company name shrinks first).
+3. `Components/UI/CompanySelector/styled.tsx` — `TriggerText` on mobile (<md) gains `maxWidth: 34vw` + `overflow:hidden` + `textOverflow:ellipsis` + `display:inline-block` so long company names truncate with "…" instead of pushing the cluster off-screen.
+- Lint: 0 issues on all 3 files. Frontend compiles clean; /dashboard → 200.
+
+### FRONTEND TESTING INSTRUCTIONS
+Preview: https://fb7e2b40-8100-4740-8ccc-339898bb877a.preview.emergentagent.com
+Merchant login (2-step: email → Continue → password → Sign in): hostbay@moxx.co / Katiekendra123@
+VERIFY (phones 360×640, 390×844, 414×896):
+  - On /dashboard AND /transactions, the top header's right cluster (company switcher + theme toggle + avatar) is FULLY visible — NO element clipped past the right viewport edge. Assert every interactive element's right bound <= window.innerWidth.
+  - Username text is NOT shown next to the avatar on mobile (avatar-only); the avatar/chevron are fully on-screen.
+  - No horizontal document overflow (scrollWidth == innerWidth).
+  - Tap the company switcher and the avatar → their dropdowns still open and are fully visible/usable.
+REGRESSION (desktop 1280×800): username text STILL shows next to avatar; header looks normal; company switcher shows full name.
+Report pass/fail per viewport with measurements + screenshots.
+
+---
+
+
 ## Session 99 — Periodic Deferred-Settlement Recovery Cron (2026-08-03) — BACKEND
 
 ### Context / reported issue

@@ -32,6 +32,11 @@ export const TriggerText = styled("span")(({ theme }) => ({
   letterSpacing: 0,
   [theme.breakpoints.down("md")]: {
     fontSize: "13px",
+    display: "inline-block",
+    maxWidth: "34vw",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    verticalAlign: "middle",
   },
 }));
 

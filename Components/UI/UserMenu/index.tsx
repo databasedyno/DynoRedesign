@@ -137,12 +137,18 @@ export default function UserMenu() {
             )}
           </Box>
 
-          <UserName sx={{ fontSize: isMobile ? 13 : 15 }}>
-            {isMobile ? firstName || "User" : userName || "User"}
-          </UserName>
+          {/* Username text is hidden on mobile (<md): the header right cluster
+              (company switcher + theme toggle + avatar) was overflowing narrow
+              phones and clipping the avatar. Avatar-only on mobile keeps every
+              control fully visible. Full name still shows on desktop. */}
+          {!isMobile && (
+            <UserName sx={{ fontSize: 15 }}>
+              {userName || "User"}
+            </UserName>
+          )}
         </Box>
 
-        <HeaderDivider />
+        {!isMobile && <HeaderDivider />}
         {anchorEl ? (
           <ExpandLessIcon
             fontSize="small"
