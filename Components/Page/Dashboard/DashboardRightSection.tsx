@@ -15,6 +15,7 @@ import CreatorPageCard from "./CreatorPageCard";
 import { formatNumberWithComma, getCurrencySymbol } from "@/helpers";
 import useIsMobile from "@/hooks/useIsMobile";
 import { useDashboardData } from "@/hooks/useDashboardData";
+import { useDashboardDensity } from "@/hooks/useDashboardDensity";
 import { rootReducer } from "@/utils/types";
 // Using muiTheme from useTheme() for dark mode support
 
@@ -29,6 +30,7 @@ const DEFAULT_TIER_PERCENT = 1.5;
 const DashboardRightSection = () => {
   const muiTheme = useTheme();
   const isMobile = useIsMobile("md");
+  const { isCompact, toggleDensity } = useDashboardDensity();
 
   const { t } = useTranslation(["dashboardLayout", "common"]);
   const tDashboard = useCallback(
@@ -107,29 +109,74 @@ const DashboardRightSection = () => {
         headerActionLayout="inline"
         headerSx={{ alignItems: "start" }}
         headerAction={
-          <IconButton
-            aria-label={tDashboard?.("changeDisplayCurrency", { defaultValue: "Change display currency" }) || "Change display currency"}
-            sx={{
-              position: "absolute",
-              right: "12px",
-              top: "12px",
-              backgroundColor: muiTheme.palette.mode === "dark" ? "rgba(255,255,255,0.12)" : "#E9ECF2",
-              p: "8px",
-              // Session 74 P1: 44×44 tap target on mobile (WCAG 2.5.5).
-              width: isMobile ? 44 : 40,
-              height: isMobile ? 44 : 40,
-              "&:hover": { backgroundColor: muiTheme.palette.mode === "dark" ? "rgba(255,255,255,0.2)" : "#D9DCE2" },
-            }}
-          >
-            <Image
-              src={CurrencyIcon}
-              alt="Currency"
-              width={18}
-              height={18}
-              draggable={false}
-              style={{ width: "clamp(14px, 2vw, 18px)", height: "auto " }}
-            />
-          </IconButton>
+          <Box sx={{ position: "absolute", right: "12px", top: "12px", display: "flex", alignItems: "center", gap: 0.5 }}>
+            <IconButton
+              onClick={toggleDensity}
+              aria-label={
+                isCompact
+                  ? tDashboard("densitySpaciousAria", { defaultValue: "Switch to spacious view" })
+                  : tDashboard("densityCompactAria", { defaultValue: "Switch to compact view" })
+              }
+              data-testid="fee-tier-density-toggle"
+              data-density={isCompact ? "compact" : "spacious"}
+              sx={{
+                width: isMobile ? 40 : 36,
+                height: isMobile ? 40 : 36,
+                p: "6px",
+                borderRadius: "10px",
+                color: muiTheme.palette.text.secondary,
+                backgroundColor: "transparent",
+                "&:hover": {
+                  backgroundColor: muiTheme.palette.mode === "dark" ? "rgba(255,255,255,0.06)" : "rgba(15,15,20,0.05)",
+                  color: muiTheme.palette.text.primary,
+                },
+              }}
+            >
+              {/* Two-line icon when spacious (offer compact), squished when compact (offer spacious) */}
+              <Box
+                component="svg"
+                sx={{ width: 16, height: 16, display: "block" }}
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.75}
+                strokeLinecap="round"
+              >
+                {isCompact ? (
+                  <>
+                    <line x1="2" y1="4" x2="14" y2="4" />
+                    <line x1="2" y1="8" x2="14" y2="8" />
+                    <line x1="2" y1="12" x2="14" y2="12" />
+                  </>
+                ) : (
+                  <>
+                    <line x1="2" y1="5" x2="14" y2="5" />
+                    <line x1="2" y1="11" x2="14" y2="11" />
+                  </>
+                )}
+              </Box>
+            </IconButton>
+            <IconButton
+              aria-label={tDashboard?.("changeDisplayCurrency", { defaultValue: "Change display currency" }) || "Change display currency"}
+              sx={{
+                backgroundColor: muiTheme.palette.mode === "dark" ? "rgba(255,255,255,0.12)" : "#E9ECF2",
+                p: "8px",
+                // Session 74 P1: 44×44 tap target on mobile (WCAG 2.5.5).
+                width: isMobile ? 44 : 40,
+                height: isMobile ? 44 : 40,
+                "&:hover": { backgroundColor: muiTheme.palette.mode === "dark" ? "rgba(255,255,255,0.2)" : "#D9DCE2" },
+              }}
+            >
+              <Image
+                src={CurrencyIcon}
+                alt="Currency"
+                width={18}
+                height={18}
+                draggable={false}
+                style={{ width: "clamp(14px, 2vw, 18px)", height: "auto " }}
+              />
+            </IconButton>
+          </Box>
         }
       >
         <Box>
@@ -202,6 +249,7 @@ const DashboardRightSection = () => {
             monthlyLimit={monthlyLimit}
             usedAmount={usedAmount}
             currentTier={currentTier}
+            compact={isCompact}
           />
 
           {/* Current Tier Badge — shows tier NAME + real %-rate merchant is charged */}
@@ -263,8 +311,9 @@ const DashboardRightSection = () => {
             </Typography>
           </Box>
 
-          {/* Next-tier savings hint — encourages continued volume growth */}
-          {nextTier && nextTierPercent !== null && nextTierPercent < currentTierPercent && (
+          {/* Next-tier savings hint — encourages continued volume growth.
+              Hidden in compact mode so power users can shrink the right rail. */}
+          {!isCompact && nextTier && nextTierPercent !== null && nextTierPercent < currentTierPercent && (
             <Typography
               data-testid="next-tier-hint"
               sx={{

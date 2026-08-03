@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next";
 const FeeTierProgress: React.FC<FeeTierProgressProps> = ({
   monthlyLimit = 50000,
   usedAmount = 0,
+  compact = false,
 }) => {
   const theme = useTheme();
   const isMobile = useIsMobile("md");
@@ -134,12 +135,13 @@ const FeeTierProgress: React.FC<FeeTierProgressProps> = ({
               maxWidth: { xs: "8px", md: "10px" },
               minWidth: { xs: "8px", md: "10px" },
               flex: { xs: "0 0 8px", md: 1 },
-              height: "205px",
-              maxHeight: { xs: "85px", md: "205px" },
-              minHeight: { xs: "85px", md: "205px" },
+              height: compact ? "120px" : "205px",
+              maxHeight: { xs: compact ? "50px" : "85px", md: compact ? "120px" : "205px" },
+              minHeight: { xs: compact ? "50px" : "85px", md: compact ? "120px" : "205px" },
               background: theme.palette.primary.main,
               borderRadius: "20px",
               flexShrink: 0,
+              transition: "min-height 200ms ease, max-height 200ms ease",
             }}
           />
         ))}
@@ -152,12 +154,13 @@ const FeeTierProgress: React.FC<FeeTierProgressProps> = ({
               maxWidth: { xs: "8px", md: "10px" },
               minWidth: { xs: "8px", md: "10px" },
               flex: { xs: "0 0 8px", md: 1 },
-              height: "205px",
-              maxHeight: { xs: "85px", md: "205px" },
-              minHeight: { xs: "85px", md: "205px" },
+              height: compact ? "120px" : "205px",
+              maxHeight: { xs: compact ? "50px" : "85px", md: compact ? "120px" : "205px" },
+              minHeight: { xs: compact ? "50px" : "85px", md: compact ? "120px" : "205px" },
               background: theme.palette.primary.light,
               borderRadius: "20px",
               flexShrink: 0,
+              transition: "min-height 200ms ease, max-height 200ms ease",
             }}
           />
         ))}

@@ -10,6 +10,8 @@
 - Backend = server.py uvicorn ASGI proxy :8001 → ts-node server.ts :3300. Frontend = next dev :3000 (Next.js 14.2.35, compiled in 23.7s / 3099 modules) via /app/frontend bridge → cd /app.
 - OAuth providers (Google client id 163670787265-…, GitHub Ov23liBuaGCFqNpp2QzW) present but redirect URIs are registered for dynopay.com so they will NOT complete login in this preview URL — testing with hostbay@moxx.co / Katiekendra123@ email login only.
 - NO CODE CHANGES — pure env provisioning + dependency install.
+- **UI PASS 2 (theme-by-route + polish)**: localStorage keys are now `theme-mode-inapp` (default: dark for /dashboard, /transactions, /wallet, /wallets, /customers, /invoices, /notifications, /settings, /profile, /create-pay-link, /referrals, /developer-keys, /company, /fees, /admin, /creator, /payouts) and `theme-mode-public` (default: light for landing, marketing, auth, buyer checkout, docs). Legacy `theme-mode` is migrated once into the CURRENT context. Density preference: `dashboard_density_mode` (values: "compact" | "spacious"). Old `dash_wallets_compact` key is migrated once → `dashboard_density_mode=compact`.
+- **Verified in this run**: landing = light, dashboard = dark on fresh session (localStorage cleared). Density toggle in Fee Tier header propagates to Recent Transactions widget AND Active Wallets card via `dynopay:dashboard-density-change` window event. Sparkline SVG renders in Today's Revenue tile (data-testid="hero-sparkline") using `chartData` from useDashboardData.
 
 ---
 

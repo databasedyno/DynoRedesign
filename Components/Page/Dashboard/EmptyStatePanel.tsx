@@ -1,4 +1,5 @@
 import CustomButton from "@/Components/UI/Buttons";
+import TrustStrip from "@/Components/UI/AuthLayout/TrustStrip";
 import useIsMobile from "@/hooks/useIsMobile";
 import {
   ArrowOutward,
@@ -176,6 +177,19 @@ const EmptyStatePanel: React.FC<EmptyStatePanelProps> = ({
             />
           )}
         </Box>
+      </Box>
+      {/* Trust strip — same social-proof row that lives below the login card,
+          reused here so a merchant's very first empty dashboard still feels
+          backed by real activity ("$24M+ processed") instead of a wall of
+          zeroes. Sits below the CTA row so the primary action stays first. */}
+      <Box
+        sx={{
+          mt: isMobile ? 3 : 3.5,
+          pt: isMobile ? 2 : 2.5,
+          borderTop: `1px solid ${theme.palette.mode === "dark" ? "rgba(255,255,255,0.06)" : "rgba(15,15,20,0.06)"}`,
+        }}
+      >
+        <TrustStrip />
       </Box>
     </Box>
   );

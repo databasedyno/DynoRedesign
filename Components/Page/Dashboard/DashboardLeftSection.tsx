@@ -17,6 +17,7 @@ import TimePeriodSelector from "@/Components/UI/TimePeriodSelector";
 import { formatNumberWithComma } from "@/helpers";
 import useIsMobile from "@/hooks/useIsMobile";
 import { useWalletData } from "@/hooks/useWalletData";
+import { useDashboardDensity } from "@/hooks/useDashboardDensity";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import {
   DateRange,
@@ -278,23 +279,29 @@ const DashboardLeftSection = () => {
 
   const { activeWalletsData } = useWalletData();
   // UX-2026-07-08: allow user to compact the Active Wallets card so the hero
-  // row can stay clean. Preference is persisted per browser.
-  const [walletCardCompact, setWalletCardCompact] = useState(false);
+  // row can stay clean. Now driven by the global dashboard-density hook so
+  // toggling density in any widget (Recent Transactions header, Fee Tier
+  // header, etc.) flips this card too. Migrates the old local flag on mount.
+  const { isCompact: walletCardCompact, toggleDensity: toggleWalletCardCompact } =
+    useDashboardDensity();
   useEffect(() => {
     if (typeof window === "undefined") return;
     try {
-      const v = window.localStorage.getItem("dash_wallets_compact");
-      if (v === "1") setWalletCardCompact(true);
-    } catch { /* ignore */ }
-  }, []);
-  const toggleWalletCardCompact = useCallback(() => {
-    setWalletCardCompact((prev) => {
-      const next = !prev;
-      try {
-        window.localStorage.setItem("dash_wallets_compact", next ? "1" : "0");
-      } catch { /* ignore */ }
-      return next;
-    });
+      // One-time migration: preserve merchants who had already opted into
+      // the compact wallet layout via the old per-card localStorage key.
+      const legacy = window.localStorage.getItem("dash_wallets_compact");
+      const modern = window.localStorage.getItem("dashboard_density_mode");
+      if (legacy === "1" && !modern) {
+        window.localStorage.setItem("dashboard_density_mode", "compact");
+        window.dispatchEvent(
+          new CustomEvent("dynopay:dashboard-density-change", {
+            detail: { value: "compact" },
+          }),
+        );
+      }
+    } catch {
+      /* ignore */
+    }
   }, []);
   const { stats, chartData, loading, fetchChartData, recentTransactions } = useDashboardData();
 
@@ -494,6 +501,7 @@ const DashboardLeftSection = () => {
           transactionsToday={stats.todaySummary?.transactionsToday}
           transactionsChangePercent={stats.todaySummary?.transactionsChangePercent}
           activeWallets={stats.activeWallets}
+          sparkData={chartData}
         />
       )}
 

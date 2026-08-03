@@ -14,6 +14,9 @@ export interface FeeTierProgressProps {
   monthlyLimit?: number;
   usedAmount?: number;
   currentTier?: string;
+  /** When true, bars are shorter and margins tighter — matches the dashboard
+   *  "compact" density mode driven by useDashboardDensity. */
+  compact?: boolean;
 }
 
 export interface ChartData {

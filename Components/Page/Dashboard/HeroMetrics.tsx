@@ -97,7 +97,109 @@ export interface HeroMetricsProps {
   transactionsChangePercent?: number;
   activeWallets?: number;
   onCreateLink?: () => void;
+  /** Data points for the Today's-Revenue sparkline. Uses whatever period the
+   *  Transaction Volume chart is currently showing (7d default, up to 90d). */
+  sparkData?: Array<{ date: string; value: number }>;
 }
+
+/**
+ * Sparkline — tiny inline area/line chart, no axes, no labels.
+ *
+ * Fills the bottom-right corner of the Today's Revenue tile. Kept as an
+ * inline SVG (no lib) so it renders instantly, respects the tile bg and
+ * theme, and doesn't pull chart.js/recharts into this critical bundle.
+ *
+ * Behaviour:
+ *  - <2 real points → shows nothing (avoids a flat line that fake-signals
+ *    "no growth" when there's simply no data yet).
+ *  - Values are min-normalised so tiny differences still read as a slope.
+ *  - Positive last-vs-first slope → primary color; negative → text-secondary
+ *    (neutral, non-alarming); flat → text-secondary at 60% opacity.
+ */
+interface SparklineProps {
+  data: Array<{ date: string; value: number }>;
+  width?: number;
+  height?: number;
+  strokeColor?: string;
+  fillOpacity?: number;
+  strokeWidth?: number;
+  testId?: string;
+}
+
+const Sparkline: React.FC<SparklineProps> = ({
+  data,
+  width = 96,
+  height = 30,
+  strokeColor,
+  fillOpacity = 0.15,
+  strokeWidth = 1.5,
+  testId = "hero-sparkline",
+}) => {
+  const theme = useTheme();
+  if (!data || data.length < 2) return null;
+
+  const values = data.map((d) => (Number.isFinite(d.value) ? d.value : 0));
+  const nonZero = values.some((v) => v > 0);
+  if (!nonZero) return null;
+
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const range = max - min || 1;
+  const stepX = width / (values.length - 1);
+
+  // Y is inverted: high value → low y (top).
+  const toY = (v: number) => {
+    const norm = (v - min) / range; // 0..1
+    // 3px vertical padding so the stroke isn't clipped at the top/bottom.
+    return height - 3 - norm * (height - 6);
+  };
+
+  const points = values.map((v, i) => [i * stepX, toY(v)] as const);
+  const pathD = points
+    .map(([x, y], i) => (i === 0 ? `M${x.toFixed(2)},${y.toFixed(2)}` : `L${x.toFixed(2)},${y.toFixed(2)}`))
+    .join(" ");
+  // Fill path continues down to the baseline and back to start
+  const areaD = `${pathD} L${((values.length - 1) * stepX).toFixed(2)},${height} L0,${height} Z`;
+
+  const trending = values[values.length - 1] - values[0];
+  const isUp = trending > 0;
+  const isFlat = trending === 0;
+  const resolvedStroke = strokeColor
+    || (isFlat
+      ? theme.palette.text.secondary
+      : isUp
+        ? theme.palette.primary.main
+        : theme.palette.text.secondary);
+
+  return (
+    <svg
+      data-testid={testId}
+      width={width}
+      height={height}
+      viewBox={`0 0 ${width} ${height}`}
+      role="img"
+      aria-label="Revenue trend sparkline"
+      style={{ display: "block", overflow: "visible", opacity: isFlat ? 0.6 : 1 }}
+    >
+      <path d={areaD} fill={resolvedStroke} fillOpacity={fillOpacity} />
+      <path
+        d={pathD}
+        fill="none"
+        stroke={resolvedStroke}
+        strokeWidth={strokeWidth}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      {/* Trailing dot on the last point — anchors the eye to "now" */}
+      <circle
+        cx={((values.length - 1) * stepX).toFixed(2)}
+        cy={toY(values[values.length - 1]).toFixed(2)}
+        r={2.25}
+        fill={resolvedStroke}
+      />
+    </svg>
+  );
+};
 
 interface TileProps {
   label: string;
@@ -111,6 +213,8 @@ interface TileProps {
   testId?: string;
   /** When true, plays a soft green flash + subtle scale — signals "new payment landed". */
   pulse?: boolean;
+  /** Optional inline sparkline that renders in the tile's bottom-right corner. */
+  spark?: React.ReactNode;
 }
 
 const DeltaChip: React.FC<{ change: number }> = ({ change }) => {
@@ -161,6 +265,7 @@ const Tile: React.FC<TileProps> = ({
   variant = "neutral",
   testId,
   pulse = false,
+  spark,
 }) => {
   const theme = useTheme();
   const isMobile = useIsMobile("sm");
@@ -275,6 +380,24 @@ const Tile: React.FC<TileProps> = ({
           </>
         )}
       </Box>
+      {/* Sparkline — bottom-right pin. Rendered outside the delta row so it
+          never wraps under the chip on narrow tiles. Purely decorative for
+          visual momentum; the delta chip carries the "hard number". */}
+      {!loading && spark && (
+        <Box
+          data-testid={`${testId}-spark-wrap`}
+          sx={{
+            position: "absolute",
+            right: isMobile ? 10 : 14,
+            bottom: isMobile ? 10 : 14,
+            pointerEvents: "none",
+            opacity: 0.85,
+            display: { xs: "none", sm: "block" },
+          }}
+        >
+          {spark}
+        </Box>
+      )}
     </Box>
   );
 };
@@ -289,6 +412,7 @@ const HeroMetrics: React.FC<HeroMetricsProps> = ({
   transactionsToday,
   transactionsChangePercent,
   activeWallets,
+  sparkData,
 }) => {
   const isMobile = useIsMobile("md");
   const { t } = useTranslation("dashboardLayout");
@@ -296,6 +420,13 @@ const HeroMetrics: React.FC<HeroMetricsProps> = ({
   // Pulse the Today's Revenue tile whenever the value goes UP between renders
   // (i.e. a new payment landed). Suppresses on initial load.
   const revenuePulse = usePulseOnIncrement(volumeTodayFormatted);
+
+  // Only render the sparkline if we actually have a few points to show —
+  // one flat point looks like a bug (a dot in the corner with no line).
+  const hasSparkData = Array.isArray(sparkData) && sparkData.length >= 2;
+  const revenueSpark = hasSparkData ? (
+    <Sparkline data={sparkData as Array<{ date: string; value: number }>} />
+  ) : undefined;
 
   return (
     <Box
@@ -322,6 +453,7 @@ const HeroMetrics: React.FC<HeroMetricsProps> = ({
           loading={loading}
           variant="primary"
           pulse={revenuePulse}
+          spark={revenueSpark}
         />
       </motion.div>
       <motion.div {...tileAnim} transition={{ ...tileAnim.transition, delay: 0.09 }}>

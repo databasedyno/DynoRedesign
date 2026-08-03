@@ -85,27 +85,47 @@ export default function MyDocument({ emotionStyleTags }: MyDocumentProps) {
           }}
         />
         {/* ── Blocking theme script: runs BEFORE React hydrates to prevent flash.
-             Also seeds the theme-mode cookie so the NEXT SSR render matches. ── */}
+             Now route-context-aware (2025-07 pass): in-app surfaces default
+             to DARK (dashboard, transactions, wallets, settings, etc.),
+             public surfaces (landing, marketing, buyer checkout, auth,
+             docs) default to LIGHT. User toggles are scoped per context. ── */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
 (function(){
   try {
-    // Session 44 UX change (2026-07-13): default is LIGHT for every first-time
-    // visitor. OS "prefers-color-scheme: dark" is IGNORED — a dark-OS user
-    // gets light on first visit and can toggle to dark once, which then
-    // persists in localStorage forever. Rationale: consistent brand across
-    // the checkout / dashboard / marketing surfaces and industry norm for
-    // financial UIs.
-    var saved = localStorage.getItem('theme-mode');
-    var mode = (saved === 'light' || saved === 'dark') ? saved : 'light';
+    // Keep this list IN SYNC with utils/theme/routeContext.ts INAPP_PREFIXES.
+    // Duplicated here because this script runs before any JS modules load.
+    var INAPP = ['/dashboard','/transactions','/wallet','/wallets','/customers','/invoices','/notifications','/settings','/profile','/create-pay-link','/referrals','/developer-keys','/company','/fees','/admin','/creator','/payouts'];
+    var path = (location.pathname || '/').replace(/\\/+$/, '') || '/';
+    var context = 'public';
+    for (var i = 0; i < INAPP.length; i++) {
+      if (path === INAPP[i] || path.indexOf(INAPP[i] + '/') === 0) { context = 'inapp'; break; }
+    }
+    var storageKey = context === 'inapp' ? 'theme-mode-inapp' : 'theme-mode-public';
+    var cookieName = storageKey;
+    var defaultMode = context === 'inapp' ? 'dark' : 'light';
+
+    // Read the context-scoped preference; fall back to route default.
+    var saved = localStorage.getItem(storageKey);
+    // One-time migration: if the old single 'theme-mode' key exists and the
+    // new context-scoped key doesn't, seed only the CURRENT context. This
+    // preserves a returning user's explicit choice on the surface where
+    // they made it, without stamping their dashboard preference onto the
+    // landing page (or vice versa).
+    if (saved !== 'light' && saved !== 'dark') {
+      var legacy = localStorage.getItem('theme-mode');
+      if (legacy === 'light' || legacy === 'dark') {
+        saved = legacy;
+        try { localStorage.setItem(storageKey, legacy); } catch (e) {}
+      }
+    }
+    var mode = (saved === 'light' || saved === 'dark') ? saved : defaultMode;
+
     document.documentElement.dataset.theme = mode;
     document.documentElement.style.colorScheme = mode;
     document.documentElement.style.backgroundColor = mode === 'light' ? '#F2F3F8' : '#0B0D17';
-    // Always refresh the theme-mode cookie so it tracks the current preference
-    // (used by SSR on the next request in browsers that don't send the
-    // Sec-CH-Prefers-Color-Scheme client hint, e.g. Firefox/Safari).
-    document.cookie = 'theme-mode=' + mode + '; path=/; max-age=31536000; samesite=lax';
+    document.cookie = cookieName + '=' + mode + '; path=/; max-age=31536000; samesite=lax';
   } catch(e) {
     document.documentElement.dataset.theme = 'light';
     document.documentElement.style.colorScheme = 'light';

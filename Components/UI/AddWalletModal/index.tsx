@@ -1,5 +1,6 @@
 import InfoIcon from "@/assets/Icons/info-icon.svg";
-import WalletIcon from "@/assets/Icons/wallet-icon.svg";
+// WalletIcon was used as a tinted header icon; removed in the 2025-07
+// Coinbase-clean pass — title + subtitle carry the header without decoration.
 import axiosBaseApi from "@/axiosConfig";
 import InputField from "@/Components/UI/AuthLayout/InputFields";
 import CustomButton from "@/Components/UI/Buttons";
@@ -513,6 +514,17 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
           left: "50%",
           transform: "translate(-50%, -50%)",
           p: 2,
+          borderRadius: "18px",
+          border: (t) =>
+            `1px solid ${
+              t.palette.mode === "dark"
+                ? "rgba(255,255,255,0.08)"
+                : "rgba(15,15,20,0.08)"
+            }`,
+          boxShadow: (t) =>
+            t.palette.mode === "dark"
+              ? "0 24px 60px -20px rgba(0,0,0,0.7)"
+              : "0 24px 60px -30px rgba(15,15,20,0.25)",
         },
       }}
     >
@@ -585,16 +597,12 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
       <Box data-testid={editMode ? "edit-wallet-dialog" : "add-wallet-dialog"}>
       <PanelCard
         title={editMode ? tWallet("editWalletTitle") : tWallet("addWalletTitle")}
-        showHeaderBorder={false}
-        headerIcon={
-          <Image
-            src={WalletIcon}
-            alt="wallet icon"
-            width={14}
-            height={14}
-            draggable={false}
-          />
+        subTitle={
+          editMode
+            ? tWallet("editWalletSubtitle", { defaultValue: "Update your payout wallet details." })
+            : tWallet("addWalletSubtitle", { defaultValue: "Pick a coin and paste your wallet address — we'll verify before saving." })
         }
+        showHeaderBorder={false}
         bodyPadding={
           isMobile
             ? muiTheme.spacing(1.5, 2, 2, 2)
@@ -603,7 +611,7 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
         headerPadding={
           isMobile
             ? muiTheme.spacing(2, 2, 0, 2)
-            : muiTheme.spacing(3.75, 3.75, 0, 3.75)
+            : muiTheme.spacing(3.25, 3.75, 0, 3.75)
         }
         headerActionLayout="inline"
       >

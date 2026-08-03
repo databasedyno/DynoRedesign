@@ -601,49 +601,57 @@ export default function App({
   );
 }
 
-// Read the theme preference server-side. Priority:
-//   1. `Sec-CH-Prefers-Color-Scheme` request header (User Preference Media
-//      Features client hint — Chromium browsers auto-send this because we
-//      opt-in via `Accept-CH` / `Critical-CH` in next.config.mjs). This is
-//      the ONLY way for the server to know the user's OS theme preference,
-//      so SSR renders the correct MUI theme on first paint.
-//   2. `theme-mode` cookie (set by the blocking script in _document.tsx
-//      once JS runs, and by the manual toggle) — this covers users who
-//      have explicitly picked a theme AND subsequent visits from
-//      non-Chromium browsers.
-//   3. Fallback: 'light' (the browser default; also what our blocking
-//      script defaults to when `matchMedia` doesn't match dark).
-// Together with the cookie/localStorage reconciliation done client-side in
-// ThemeContext, this eliminates the emotion className hydration mismatch
-// AND the "flash of dark" that happened when SSR always defaulted to dark.
+// Read the theme preference server-side. Now route-context-aware (2025-07):
+//   - In-app surfaces (dashboard, transactions, wallets, settings, admin…)
+//     default to DARK when the user has never toggled there.
+//   - Public surfaces (landing, marketing, buyer checkout, auth, docs, legal)
+//     default to LIGHT.
+// Two independent cookies (`theme-mode-inapp`, `theme-mode-public`) hold the
+// user's explicit choice per context so a manual toggle on the dashboard
+// doesn't blow away the clean light landing page (or vice versa).
+//
+// Order of precedence for the initial mode:
+//   1. Context-scoped cookie (`theme-mode-{inapp|public}`)
+//   2. Legacy `theme-mode` cookie (single-preference migration, only if the
+//      context cookie is missing) — one-time carry-over.
+//   3. Route-context default: dark for in-app, light for public.
 App.getInitialProps = async (appContext: AppContext) => {
   const appProps = await NextApp.getInitialProps(appContext);
   const req = appContext.ctx.req;
   const reqHeaders = req?.headers || {};
 
-  // 1. Client hint (Chromium browsers) — sent as "light" or "dark"
+  // Client hint kept for potential future analytics; NOT used for the mode
+  // decision (see Session 44 comment in ThemeContext).
   const clientHintRaw = reqHeaders["sec-ch-prefers-color-scheme"];
   const clientHint = Array.isArray(clientHintRaw) ? clientHintRaw[0] : clientHintRaw;
-  const normalizedHint =
-    clientHint === "light" || clientHint === "dark" ? clientHint : null;
+  void (clientHint === "light" || clientHint === "dark" ? clientHint : null);
 
-  // 2. Cookie
+  // Determine route context from the incoming URL.
+  const rawUrl = (appContext.ctx.pathname || (req as any)?.url || "/") as string;
+  const pathname = rawUrl.split(/[?#]/)[0] || "/";
+  const { getRouteContext, getDefaultThemeForContext, getCookieNameForContext } =
+    await import("@/utils/theme/routeContext");
+  const routeCtx = getRouteContext(pathname);
+  const cookieName = getCookieNameForContext(routeCtx);
+
   const cookieHeader =
     reqHeaders.cookie ||
     (typeof document !== "undefined" ? document.cookie : "");
-  const match = /(?:^|;\s*)theme-mode=(light|dark)/.exec(cookieHeader || "");
-  const cookieValue = match ? (match[1] as "light" | "dark") : null;
 
-  // 3. Resolve: cookie (explicit choice, refreshed on every load by the
-  //    _document.tsx blocking script) > default 'light'.
-  //    Session 44 UX change (2026-07-13): the OS `Sec-CH-Prefers-Color-Scheme`
-  //    client hint is intentionally IGNORED. A dark-OS first-time visitor
-  //    should see LIGHT (the app default for consistent brand across checkout /
-  //    dashboard / marketing surfaces). If they toggle to dark, the cookie is
-  //    written by the blocking script and wins on all future requests.
-  //    (`normalizedHint` above is still read for potential future analytics
-  //    logging but no longer feeds the mode decision — do NOT put it back in.)
+  const escaped = cookieName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const contextMatch = new RegExp(
+    `(?:^|;\\s*)${escaped}=(light|dark)`,
+  ).exec(cookieHeader || "");
+  const contextCookieValue = contextMatch
+    ? (contextMatch[1] as "light" | "dark")
+    : null;
+
+  // Legacy single-key migration (one-time; ThemeContext + _document
+  // blocking script also handle their own migration paths).
+  const legacyMatch = /(?:^|;\s*)theme-mode=(light|dark)/.exec(cookieHeader || "");
+  const legacyValue = legacyMatch ? (legacyMatch[1] as "light" | "dark") : null;
+
   const initialThemeMode: "light" | "dark" =
-    cookieValue || "light";
+    contextCookieValue || legacyValue || getDefaultThemeForContext(routeCtx);
   return { ...appProps, initialThemeMode };
 };
