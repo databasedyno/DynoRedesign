@@ -3,9 +3,9 @@ import WhiteLogo from "@/assets/Icons/home/dynopay-whiteLogo.svg";
 import InputField from "@/Components/UI/AuthLayout/InputFields";
 import TitleDescription from "@/Components/UI/AuthLayout/TitleDescription";
 import CustomButton from "@/Components/UI/Buttons";
-import LanguageSwitcher from "@/Components/UI/LanguageSwitcher";
+import LanguageSwitcher from "@/Components/UI/LanguageSwitcher"; // eslint-disable-line @typescript-eslint/no-unused-vars
 import ThemeToggle from "@/Components/UI/ThemeToggle";
-import AuthBrandPanel from "@/Components/UI/AuthLayout/AuthBrandPanel";
+import AuthBrandPanel from "@/Components/UI/AuthLayout/AuthBrandPanel"; // eslint-disable-line @typescript-eslint/no-unused-vars
 import { AuthPageBackground, SplitLayoutWrapper, FormPanel } from "@/Containers/Login/styled";
 import useIsMobile from "@/hooks/useIsMobile";
 import CountryPhoneInput from "@/Components/UI/CountryPhoneInput";
@@ -468,23 +468,8 @@ const Register = () => {
         <title>Create your free account · Dynopay</title>
       </Head>
       <AuthPageBackground>
-        {/* Top bar: Language + Theme (desktop ≥lg only — below lg the in-card
-            mobile row shows logo + controls, same as login) */}
-        <Box
-          sx={{
-            position: "absolute", top: "24px", right: "32px",
-            display: { xs: "none", lg: "flex" }, gap: "12px", zIndex: 10,
-          }}
-        >
-          <LanguageSwitcher />
-          <ThemeToggle />
-        </Box>
-
         <SplitLayoutWrapper>
-          {/* Left Panel: Brand */}
-          {!isMobile && <AuthBrandPanel />}
-
-          {/* Right Panel: Form */}
+          {/* Form Panel (centered — brand panel dropped in 2025-07 pass) */}
           <FormPanel>
             <Box
               sx={{
@@ -493,12 +478,10 @@ const Register = () => {
                 py: isMobile ? 2 : 0,
               }}
             >
-              {/* Mobile/tablet-only: Logo + controls (hidden on desktop since
-                  brand panel shows the logo — mirrors login.tsx). Fixes the
-                  600–1200px range that previously had NO logo at all. */}
+              {/* Top row: logo + controls, on every breakpoint */}
               <Box
                 sx={{
-                  display: { xs: "flex", lg: "none" },
+                  display: "flex",
                   justifyContent: "space-between",
                   alignItems: "center",
                   mb: 3,
@@ -507,14 +490,13 @@ const Register = () => {
                 <Image
                   src={theme.palette.mode === "dark" ? WhiteLogo : Logo}
                   alt="logo"
-                  width={114}
-                  height={39}
+                  width={130}
+                  height={44}
                   draggable={false}
                   onClick={() => router.push("/")}
                   style={{ cursor: "pointer" }}
                 />
                 <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                  <LanguageSwitcher />
                   <ThemeToggle size="small" />
                 </Box>
               </Box>
@@ -619,48 +601,11 @@ const Register = () => {
                     </>
                   )}
 
-                  {/* Method Toggle */}
-                  <Box sx={{ mb: 1.5 }}>
-                    <ToggleButtonGroup
-                      value={method}
-                      exclusive
-                      onChange={(_, val) => {
-                        if (val) {
-                          setMethod(val);
-                          setEmailError("");
-                          setPhoneError("");
-                        }
-                      }}
-                      sx={{
-                        width: "100%",
-                        background: theme.palette.mode === "dark" ? "rgba(255,255,255,0.06)" : "rgba(10,10,10,0.05)",
-                        borderRadius: "12px",
-                        padding: "3px",
-                        border: `1px solid ${theme.palette.mode === "dark" ? "rgba(255,255,255,0.10)" : "rgba(10,10,10,0.08)"}`,
-                        "& .MuiToggleButton-root": {
-                          flex: 1,
-                          border: "none",
-                          borderRadius: "10px !important",
-                          textTransform: "none",
-                          fontFamily: "var(--font-sans)",
-                          fontSize: "14px",
-                          color: "text.secondary",
-                          padding: "8px 0",
-                          transition: "all 0.25s",
-                          "&.Mui-selected": {
-                            background: theme.palette.mode === "dark" ? "rgba(204,255,0,0.16)" : theme.palette.primary.main,
-                            color: theme.palette.mode === "dark" ? theme.palette.primary.main : theme.palette.primary.contrastText,
-                            boxShadow: theme.palette.mode === "dark" ? "0 0 16px rgba(204,255,0,0.16)" : "0 2px 8px rgba(10,10,10,0.18)",
-                            "&:hover": { background: theme.palette.mode === "dark" ? "rgba(204,255,0,0.20)" : (theme.palette.primary as any).hover },
-                          },
-                          "&:hover": { background: "transparent" },
-                        },
-                      }}
-                    >
-                      <ToggleButton value="email">{t("email")}</ToggleButton>
-                      <ToggleButton value="phone">{t("phone")}</ToggleButton>
-                    </ToggleButtonGroup>
-                  </Box>
+                  {/* Method Toggle was a big segmented pill — replaced in
+                      the 2025-07 Coinbase-clean pass with a subtle text
+                      link below the input (see "Use mobile number instead"
+                      further down). Default lands on email; one click
+                      switches to phone. */}
 
                   {/* Input Field */}
                   {method === "email" ? (
@@ -734,6 +679,36 @@ const Register = () => {
                     endIcon={loading ? <LoadingSpinner size={18} /> : undefined}
                     hideLabelWhenLoading={true}
                   />
+
+                  {/* Subtle method switch — mirrors login.tsx pattern. */}
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "center",
+                      mt: 1.75,
+                    }}
+                  >
+                    <Typography
+                      data-testid={method === "email" ? "switch-to-phone-signup" : "switch-to-email-signup"}
+                      onClick={() => {
+                        setMethod(method === "email" ? "phone" : "email");
+                        setEmailError("");
+                        setPhoneError("");
+                      }}
+                      sx={{
+                        fontSize: "13px",
+                        fontWeight: 500,
+                        color: theme.palette.text.secondary,
+                        fontFamily: "var(--font-sans)",
+                        cursor: "pointer",
+                        "&:hover": { color: theme.palette.primary.main },
+                      }}
+                    >
+                      {method === "email"
+                        ? t("useMobileNumberInstead", { defaultValue: "Use mobile number instead" })
+                        : t("useEmailInstead", { defaultValue: "Use email instead" })}
+                    </Typography>
+                  </Box>
 
                   {/* Already have account */}
                   <Box sx={{ display: "flex", gap: "7px", justifyContent: "center", mt: 2 }}>

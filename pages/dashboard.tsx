@@ -1,35 +1,35 @@
-import CoinbaseDashboard from "@/Components/Page/Dashboard/coinbase";
+import DashboardLeftSection from "@/Components/Page/Dashboard/DashboardLeftSection";
+import DashboardRightSection from "@/Components/Page/Dashboard/DashboardRightSection";
 import ClaimHandleBanner from "@/Components/Page/Dashboard/ClaimHandleBanner";
 import AutoClaimHandle from "@/Components/Page/Dashboard/AutoClaimHandle";
-import EmptyStatePanel from "@/Components/Page/Dashboard/EmptyStatePanel";
 import CustomButton from "@/Components/UI/Buttons";
 import MobileReferralBanner from "@/Components/UI/MobileReferralBanner";
 import OnboardingFlow from "@/Components/UI/OnboardingFlow";
 import useIsMobile from "@/hooks/useIsMobile";
-import { useDashboardData } from "@/hooks/useDashboardData";
 import { pageProps, rootReducer } from "@/utils/types";
 import { AddRounded } from "@mui/icons-material";
-import { Box } from "@mui/material";
+import { Box, Grid } from "@mui/material";
 import Head from "next/head";
 import router from "next/router";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 
 /**
- * Dashboard — Coinbase-style refresh (Session 97, 2026-08-02).
+ * Dashboard — restored to the pre-Session-97 two-column layout on 2025-07.
  *
- * Replaces the older DashboardLeftSection / DashboardRightSection two-column
- * Grid with the CoinbaseDashboard composition (`Components/Page/Dashboard/coinbase/`).
- * All prior widgets (FeeTierProgress, CreatorPageCard, ReferralAndKnowledge,
- * RecentTransactionsWidget, ClaimHandleBanner, OnboardingFlow, AutoClaimHandle,
- * MobileReferralBanner, EmptyStatePanel) are preserved in place — nothing was
- * deleted, only recomposed into the new fold.
+ * User feedback: the Coinbase-style refresh introduced consumer-app features
+ * (Receive / Convert / Invoice tabbed panel, big amount input, coin chips,
+ * live-payments strip, attention-cards row, asset-breakdown rows) that don't
+ * belong in a merchant payment gateway. The immediate-previous dashboard
+ * composed HeroMetrics + RecentTransactionsWidget + Active Wallets +
+ * Transaction Volume chart on the left, and FeeTierProgress + CreatorPageCard
+ * + GrowPanel on the right — this file restores that composition.
  *
- * EmptyStatePanel still handles the zero-payment merchant case: if a merchant
- * has set up (company + wallet) but has never received a confirmed payment,
- * we show the guide instead of the Coinbase hero. This preserves the
- * "first payment" onboarding funnel.
+ * All the auxiliary chrome (OnboardingFlow, AutoClaimHandle,
+ * MobileReferralBanner, ClaimHandleBanner) and the zero-payment
+ * EmptyStatePanel branching still work — they live inside
+ * DashboardLeftSection where they always did.
  */
 export default function Home({
   setPageName,
@@ -52,22 +52,6 @@ export default function Home({
   const hasCompany = (companyState.companyList?.length ?? 0) > 0;
   const hasWallet = (walletState.walletList?.length ?? 0) > 0;
   const setupComplete = hasCompany && hasWallet;
-
-  // Zero-payment gate: use aggregate stats + a fallback scan of recentTransactions
-  const { stats, recentTransactions, loading } = useDashboardData();
-  const hasAnyConfirmedTxn = useMemo(() => {
-    const totalTx = Number(stats?.totalTransactions ?? 0);
-    const totalVol = Number(stats?.totalVolume ?? 0);
-    if (totalTx > 0 || totalVol > 0) return true;
-    const list = (recentTransactions as any[]) || [];
-    return list.some((tx) => {
-      const status = String(tx?.status || "").toLowerCase();
-      return ["confirmed", "completed", "settled", "success", "successful", "paid"].includes(
-        status,
-      );
-    });
-  }, [stats?.totalTransactions, stats?.totalVolume, recentTransactions]);
-  const showEmptyState = setupComplete && !hasAnyConfirmedTxn && !loading;
 
   useEffect(() => {
     if (setPageName && setPageDescription) {
@@ -118,17 +102,19 @@ export default function Home({
         {isMobile && <MobileReferralBanner />}
         {setupComplete && <ClaimHandleBanner />}
 
-        {showEmptyState ? (
-          <Box sx={{ mt: { xs: 1, md: 2 } }}>
-            <EmptyStatePanel
-              hasCompany={hasCompany}
-              hasWallet={hasWallet}
-              onCreateLink={() => router.push("/create-pay-link")}
-            />
-          </Box>
-        ) : (
-          <CoinbaseDashboard />
-        )}
+        <Grid
+          container
+          spacing={{ xs: 2, md: 2.5, lg: 3 }}
+          alignItems="flex-start"
+          data-testid="dashboard-root"
+        >
+          <Grid item xs={12} lg={8}>
+            <DashboardLeftSection />
+          </Grid>
+          <Grid item xs={12} lg={4}>
+            <DashboardRightSection />
+          </Grid>
+        </Grid>
       </main>
     </>
   );

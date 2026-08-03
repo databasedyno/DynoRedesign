@@ -10,12 +10,12 @@ import TitleDescription from "@/Components/UI/AuthLayout/TitleDescription";
 import CustomButton from "@/Components/UI/Buttons";
 import CountryPhoneInput from "@/Components/UI/CountryPhoneInput";
 import ForgotPasswordDialog from "@/Components/UI/ForgotPasswordDialog";
-import LanguageSwitcher from "@/Components/UI/LanguageSwitcher";
+import LanguageSwitcher from "@/Components/UI/LanguageSwitcher"; // eslint-disable-line @typescript-eslint/no-unused-vars
 import ThemeToggle from "@/Components/UI/ThemeToggle";
 import OtpDialog from "@/Components/UI/OtpDialog";
 import OtpInputPanel from "@/Components/UI/OtpInputPanel";
 import CustomRadio from "@/Components/UI/RadioGroup";
-import AuthBrandPanel from "@/Components/UI/AuthLayout/AuthBrandPanel";
+import AuthBrandPanel from "@/Components/UI/AuthLayout/AuthBrandPanel"; // eslint-disable-line @typescript-eslint/no-unused-vars
 import {
   AuthContainer,
   AuthPageBackground,
@@ -1015,16 +1015,13 @@ export default function Login() {
   return (
     <AuthPageBackground>
     <SplitLayoutWrapper>
-      {/* Left: Brand Panel */}
-      <AuthBrandPanel />
-
-      {/* Right: Form Panel */}
+      {/* Form Panel (centered) */}
       <FormPanel>
       <Box sx={{ width: "100%", maxWidth: 420 }}>
-        {/* Mobile-only: Logo + controls (hidden on desktop since brand panel shows logo) */}
+        {/* Top row: Dynopay logo (all breakpoints) + lang/theme controls */}
         <Box
           sx={{
-            display: { xs: "flex", lg: "none" },
+            display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
             mb: 3,
@@ -1033,8 +1030,8 @@ export default function Login() {
           <Image
             src={mounted && theme.palette.mode === "dark" ? WhiteLogo : Logo}
             alt="logo"
-            width={isMobile ? 120 : 114}
-            height={isMobile ? 41 : 39}
+            width={isMobile ? 118 : 130}
+            height={isMobile ? 40 : 44}
             draggable={false}
             priority
             fetchPriority="high"
@@ -1044,23 +1041,8 @@ export default function Login() {
             style={{ cursor: "pointer" }}
           />
           <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-            <LanguageSwitcher />
             <ThemeToggle size="small" />
           </Box>
-        </Box>
-
-        {/* Desktop-only: settings row */}
-        <Box
-          sx={{
-            display: { xs: "none", lg: "flex" },
-            justifyContent: "flex-end",
-            alignItems: "center",
-            mb: 2,
-            gap: 0.5,
-          }}
-        >
-          <LanguageSwitcher />
-          <ThemeToggle size="small" />
         </Box>
         <TitleDescription
           title={t("login")}
@@ -1068,57 +1050,11 @@ export default function Login() {
           align="left"
         />
 
-        {/* Login Mode Toggle: Email / Phone */}
-        {!showLoginMethods && !showPhoneLoginOtp && (
-          <Box
-            sx={{
-              display: "flex",
-              marginTop: isMobile ? "16px" : "20px",
-              borderRadius: "10px",
-              overflow: "hidden",
-              border: "1px solid",
-              borderColor: "divider",
-              backgroundColor: (t: any) => t.palette.mode === "dark" ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)",
-            }}
-          >
-            <Box
-              onClick={() => handleLoginModeSwitch("email")}
-              sx={{
-                flex: 1,
-                textAlign: "center",
-                padding: isMobile ? "10px 0" : "10px 0",
-                cursor: "pointer",
-                fontFamily: "var(--font-sans)",
-                fontSize: isMobile ? "14px" : "14px",
-                fontWeight: loginMode === "email" ? 600 : 500,
-                color: loginMode === "email" ? "primary.contrastText" : "text.secondary",
-                backgroundColor: loginMode === "email" ? "primary.main" : "transparent",
-                borderRadius: "9px",
-                transition: "all 0.2s ease",
-              }}
-            >
-              {t("email")}
-            </Box>
-            <Box
-              onClick={() => handleLoginModeSwitch("phone")}
-              sx={{
-                flex: 1,
-                textAlign: "center",
-                padding: isMobile ? "10px 0" : "10px 0",
-                cursor: "pointer",
-                fontFamily: "var(--font-sans)",
-                fontSize: isMobile ? "14px" : "14px",
-                fontWeight: loginMode === "phone" ? 600 : 500,
-                color: loginMode === "phone" ? "primary.contrastText" : "text.secondary",
-                backgroundColor: loginMode === "phone" ? "primary.main" : "transparent",
-                borderRadius: "9px",
-                transition: "all 0.2s ease",
-              }}
-            >
-              {t("phoneNumber")}
-            </Box>
-          </Box>
-        )}
+        {/* Login Mode is now toggled via a subtle text link below the input
+            (see "Use phone number instead" below). The old E-mail / Phone
+            segmented control was removed in the 2025-07 Coinbase-clean pass —
+            merchants land in email mode by default (99% of logins) and can
+            switch to phone with a single line of text. */}
 
         {/* ===== PHONE LOGIN PATH ===== */}
         {loginMode === "phone" && !showPhoneLoginOtp ? (
@@ -1220,6 +1156,33 @@ export default function Login() {
                 sx={{ fontWeight: 700 }}
                 endIcon={phoneCheckLoading ? <LoadingIcon size={20} /> : undefined}
               />
+            </Box>
+
+            {/* Subtle mode switch back to email — mirrors the "Use phone
+                number instead" link in the email path. */}
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                mt: isMobile ? "14px" : "16px",
+              }}
+            >
+              <Typography
+                onClick={() => handleLoginModeSwitch("email")}
+                data-testid="switch-to-email-login"
+                sx={{
+                  fontSize: "13px",
+                  fontWeight: 500,
+                  color: theme.palette.text.secondary,
+                  fontFamily: "var(--font-sans)",
+                  cursor: "pointer",
+                  "&:hover": { color: theme.palette.primary.main },
+                }}
+              >
+                {t("useEmailInstead", {
+                  defaultValue: "Use email instead",
+                })}
+              </Typography>
             </Box>
           </>
         ) : loginMode === "phone" && showPhoneLoginOtp ? (
@@ -1331,63 +1294,44 @@ export default function Login() {
               />
             </Box>
 
-            {/* Don't have acc */}
+            {/* Don't have acc — Forgot-password link was removed from this
+                step in the 2025-07 pass; it now only appears on the password
+                entry step, matching Coinbase's flow. */}
             <Box
               sx={{
                 display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
+                gap: "7px",
                 marginTop: isMobile ? "16px" : "16px",
               }}
             >
-              <Box sx={{ display: "flex", gap: "7px" }}>
-                <Typography
-                  sx={{
-                    fontSize: "13px",
-                    color: theme.palette.text.secondary,
-                    fontFamily: "var(--font-sans)",
-                    lineHeight: "1.2",
-                    letterSpacing: 0,
-                  }}
-                  fontWeight={500}
-                >
-                  {t("dontHaveAccount")}
-                </Typography>
-                <Typography
-                  sx={{
-                    fontSize: "13px",
-                    color: theme.palette.primary.main,
-                    fontWeight: 500,
-                    lineHeight: "1.2",
-                    letterSpacing: 0,
-                    cursor: "pointer",
-                    textDecoration: "underline",
-                    fontFamily: "var(--font-sans)",
-                  }}
-                  onClick={() => {
-                    router.push("/auth/register");
-                  }}
-                >
-                  {t("createNewAccount")}
-                </Typography>
-              </Box>
               <Typography
-                component="span"
+                sx={{
+                  fontSize: "13px",
+                  color: theme.palette.text.secondary,
+                  fontFamily: "var(--font-sans)",
+                  lineHeight: "1.2",
+                  letterSpacing: 0,
+                }}
+                fontWeight={500}
+              >
+                {t("dontHaveAccount")}
+              </Typography>
+              <Typography
                 sx={{
                   fontSize: "13px",
                   color: theme.palette.primary.main,
                   fontWeight: 500,
+                  lineHeight: "1.2",
+                  letterSpacing: 0,
                   cursor: "pointer",
                   textDecoration: "underline",
-                  textUnderlineOffset: "2px",
                   fontFamily: "var(--font-sans)",
-                  lineHeight: "1.2",
                 }}
                 onClick={() => {
-                  setForgotPasswordDialogOpen(true);
+                  router.push("/auth/register");
                 }}
               >
-                {t("forgotYourPassword")}
+                {t("createNewAccount")}
               </Typography>
             </Box>
 
@@ -1409,6 +1353,33 @@ export default function Login() {
                   emailCheckLoading ? <LoadingIcon size={20} /> : undefined
                 }
               />
+            </Box>
+
+            {/* Subtle phone-login switch — was a big Email/Phone segmented
+                pill; simplified to a single text link in the 2025-07 pass. */}
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                mt: isMobile ? "14px" : "16px",
+              }}
+            >
+              <Typography
+                onClick={() => handleLoginModeSwitch("phone")}
+                data-testid="switch-to-phone-login"
+                sx={{
+                  fontSize: "13px",
+                  fontWeight: 500,
+                  color: theme.palette.text.secondary,
+                  fontFamily: "var(--font-sans)",
+                  cursor: "pointer",
+                  "&:hover": { color: theme.palette.primary.main },
+                }}
+              >
+                {t("usePhoneNumberInstead", {
+                  defaultValue: "Use phone number instead",
+                })}
+              </Typography>
             </Box>
           </>
         ) : (
