@@ -7,7 +7,6 @@ import { COMPANY_INSERT } from "@/Redux/Actions/CompanyAction";
 import { rootReducer } from "@/utils/types";
 import { fetchGeoDefaults, currencyForCountry } from "@/utils/geoDefaults";
 import {
-  BusinessRounded,
   CloudUploadRounded,
   CloseRounded,
 } from "@mui/icons-material";
@@ -248,13 +247,23 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
       onClose={onClose}
       PaperProps={{
         sx: {
-          borderRadius: "16px",
+          borderRadius: "18px",
           overflow: "visible",
           maxWidth: isMobile ? "95vw" : "520px",
           maxHeight: "90vh",
           mx: "auto",
           display: "flex",
           flexDirection: "column",
+          border: (theme) =>
+            `1px solid ${
+              theme.palette.mode === "dark"
+                ? "rgba(255,255,255,0.08)"
+                : "rgba(15,15,20,0.08)"
+            }`,
+          boxShadow: (theme) =>
+            theme.palette.mode === "dark"
+              ? "0 24px 60px -20px rgba(0,0,0,0.7)"
+              : "0 24px 60px -30px rgba(15,15,20,0.25)",
         },
       }}
       data-testid="create-company-modal"
@@ -266,8 +275,8 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
           aria-label="Close"
           sx={{
             position: "absolute",
-            top: 10,
-            right: 10,
+            top: 14,
+            right: 14,
             zIndex: 1,
             color: theme.palette.text.secondary,
             "&:hover": {
@@ -283,8 +292,8 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
       {showStepIndicator && (
         <Box
           sx={{
-            px: isMobile ? 2.5 : 3.5,
-            pt: isMobile ? 2 : 2.5,
+            px: isMobile ? 3 : 4,
+            pt: isMobile ? 2.5 : 3,
             pb: 0,
           }}
         >
@@ -292,63 +301,46 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
         </Box>
       )}
 
-      {/* Header */}
+      {/* Header — Coinbase-clean: no tinted icon square, larger title, tighter subtitle */}
       <Box
         sx={{
-          px: isMobile ? 2.5 : 3.5,
-          pt: isMobile ? 1.5 : 2,
+          px: isMobile ? 3 : 4,
+          pt: isMobile ? 1.75 : 2.25,
           pb: 0,
         }}
       >
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 0.5 }}>
-          <Box
-            sx={{
-              width: 40,
-              height: 40,
-              borderRadius: "10px",
-              backgroundColor: theme.palette.primary.light || "#E5EDFF",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <BusinessRounded
-              sx={{ fontSize: 22, color: theme.palette.primary.main }}
-            />
-          </Box>
-          <Box>
-            <Typography
-              data-testid="create-company-title"
-              sx={{
-                fontSize: isMobile ? "18px" : "20px",
-                fontFamily: "var(--font-sans)",
-                fontWeight: 700,
-                color: theme.palette.text.primary,
-                lineHeight: 1.3,
-              }}
-            >
-              {title || t("createModal.title")}
-            </Typography>
-            <Typography
-              sx={{
-                fontSize: isMobile ? "12px" : "13px",
-                fontFamily: "var(--font-sans)",
-                fontWeight: 500,
-                color: theme.palette.text.secondary,
-                lineHeight: 1.4,
-              }}
-            >
-              {subtitle || t("createModal.subtitle")}
-            </Typography>
-          </Box>
-        </Box>
+        <Typography
+          data-testid="create-company-title"
+          sx={{
+            fontSize: isMobile ? "20px" : "22px",
+            fontFamily: "var(--font-sans)",
+            fontWeight: 700,
+            color: theme.palette.text.primary,
+            lineHeight: 1.25,
+            letterSpacing: "-0.01em",
+          }}
+        >
+          {title || t("createModal.title")}
+        </Typography>
+        <Typography
+          sx={{
+            mt: 0.75,
+            fontSize: isMobile ? "13px" : "14px",
+            fontFamily: "var(--font-sans)",
+            fontWeight: 500,
+            color: theme.palette.text.secondary,
+            lineHeight: 1.5,
+          }}
+        >
+          {subtitle || t("createModal.subtitle")}
+        </Typography>
       </Box>
 
       {/* Form */}
       <Box
         sx={{
-          px: isMobile ? 2.5 : 3.5,
-          py: isMobile ? 2 : 2.5,
+          px: isMobile ? 3 : 4,
+          py: isMobile ? 2.25 : 3,
           display: "flex",
           flexDirection: "column",
           gap: "14px",

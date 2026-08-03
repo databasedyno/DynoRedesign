@@ -1,8 +1,16 @@
 import PanelCard from "@/Components/UI/PanelCard";
 import { formatNumberWithComma, getCurrencySymbol } from "@/helpers";
 import useIsMobile from "@/hooks/useIsMobile";
-import { ArrowOutward, CheckCircleRounded, HourglassEmptyRounded, ErrorOutlineRounded } from "@mui/icons-material";
-import { Box, Skeleton, Typography, useTheme } from "@mui/material";
+import { useDashboardDensity } from "@/hooks/useDashboardDensity";
+import {
+  ArrowOutward,
+  CheckCircleRounded,
+  HourglassEmptyRounded,
+  ErrorOutlineRounded,
+  DensityMediumRounded,
+  DensitySmallRounded,
+} from "@mui/icons-material";
+import { Box, IconButton, Skeleton, Tooltip, Typography, useTheme } from "@mui/material";
 import { useRouter } from "next/router";
 import React from "react";
 import { useTranslation } from "react-i18next";
@@ -140,7 +148,23 @@ const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
   const isMobile = useIsMobile("sm");
   const router = useRouter();
   const { t, i18n } = useTranslation("dashboardLayout");
-  const list = (transactions || []).slice(0, max);
+  const { isCompact, toggleDensity } = useDashboardDensity();
+
+  // Compact mode shows more rows (10) with tighter padding and smaller icons.
+  // Spacious mode is the original 5-row / 36px-icon / py=1.5 layout.
+  const effectiveMax = isCompact ? Math.max(max, 10) : max;
+  const rowPy = isCompact ? 0.85 : 1.5;
+  const iconSize = isCompact ? 28 : 36;
+  const iconRadius = isCompact ? "10px" : "12px";
+  const primaryFontSize = isMobile
+    ? isCompact
+      ? "13px"
+      : "14px"
+    : isCompact
+      ? "14px"
+      : "15px";
+  const secondaryFontSize = isCompact ? "11.5px" : "12px";
+  const list = (transactions || []).slice(0, effectiveMax);
 
   return (
     <Box sx={{ px: { xs: 2, md: 0 }, mb: { xs: 2, md: 2.5 } }} data-testid="recent-transactions-widget">
@@ -152,14 +176,55 @@ const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
         subTitle={list.length > 0 ? t("recentActivitySubtitle") : undefined}
         headerActionLayout="inline"
         headerAction={
-          <CustomButton
-            label={t("viewAll")}
-            variant="secondary"
-            size="small"
-            endIcon={<ArrowOutward sx={{ fontSize: 14 }} />}
-            onClick={() => router.push("/transactions")}
-            data-testid="recent-txns-view-all"
-          />
+          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+            <Tooltip
+              title={
+                isCompact
+                  ? t("densitySpaciousTip", { defaultValue: "Spacious view" })
+                  : t("densityCompactTip", { defaultValue: "Compact view" })
+              }
+              placement="top"
+              arrow
+            >
+              <IconButton
+                onClick={toggleDensity}
+                aria-label={
+                  isCompact
+                    ? t("densitySpaciousAria", { defaultValue: "Switch to spacious view" })
+                    : t("densityCompactAria", { defaultValue: "Switch to compact view" })
+                }
+                data-testid="recent-txns-density-toggle"
+                data-density={isCompact ? "compact" : "spacious"}
+                size="small"
+                sx={{
+                  width: 32,
+                  height: 32,
+                  color: theme.palette.text.secondary,
+                  "&:hover": {
+                    backgroundColor:
+                      theme.palette.mode === "dark"
+                        ? "rgba(255,255,255,0.06)"
+                        : "rgba(15,15,20,0.05)",
+                    color: theme.palette.text.primary,
+                  },
+                }}
+              >
+                {isCompact ? (
+                  <DensityMediumRounded sx={{ fontSize: 16 }} />
+                ) : (
+                  <DensitySmallRounded sx={{ fontSize: 16 }} />
+                )}
+              </IconButton>
+            </Tooltip>
+            <CustomButton
+              label={t("viewAll")}
+              variant="secondary"
+              size="small"
+              endIcon={<ArrowOutward sx={{ fontSize: 14 }} />}
+              onClick={() => router.push("/transactions")}
+              data-testid="recent-txns-view-all"
+            />
+          </Box>
         }
       >
         {loading ? (
@@ -276,12 +341,13 @@ const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
                 <Box
                   key={String(tx.id ?? i)}
                   data-testid="recent-txn-row"
+                  data-density={isCompact ? "compact" : "spacious"}
                   sx={{
                     display: "flex",
                     alignItems: "center",
-                    gap: 1.5,
+                    gap: isCompact ? 1.25 : 1.5,
                     px: 2.5,
-                    py: 1.5,
+                    py: rowPy,
                     borderTop: i === 0 ? "none" : `1px solid ${theme.palette.mode === "dark" ? "rgba(255,255,255,0.06)" : "#F0F2F7"}`,
                     transition: "background-color 120ms ease",
                     cursor: "pointer",
@@ -306,9 +372,9 @@ const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
                 >
                   <Box
                     sx={{
-                      width: 36,
-                      height: 36,
-                      borderRadius: "12px",
+                      width: iconSize,
+                      height: iconSize,
+                      borderRadius: iconRadius,
                       backgroundColor: s.bg,
                       color: s.color,
                       display: "flex",
@@ -324,7 +390,7 @@ const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
                       sx={{
                         fontFamily: "var(--font-sans)",
                         fontWeight: 600,
-                        fontSize: isMobile ? "14px" : "15px",
+                        fontSize: primaryFontSize,
                         color: theme.palette.text.primary,
                         lineHeight: 1.2,
                         whiteSpace: "nowrap",
@@ -347,19 +413,24 @@ const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
                         </Box>
                       )}
                     </Typography>
-                    <Typography
-                      sx={{
-                        fontFamily: "var(--font-sans)",
-                        fontSize: "12px",
-                        color: theme.palette.text.secondary,
-                        mt: 0.25,
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                      }}
-                    >
-                      {secondaryLabel}
-                    </Typography>
+                    {/* Secondary label hidden in compact mode to save vertical
+                        space — the primary line (amount + coin) plus the
+                        right-side status/time is enough context. */}
+                    {!isCompact && (
+                      <Typography
+                        sx={{
+                          fontFamily: "var(--font-sans)",
+                          fontSize: secondaryFontSize,
+                          color: theme.palette.text.secondary,
+                          mt: 0.25,
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                      >
+                        {secondaryLabel}
+                      </Typography>
+                    )}
                   </Box>
                   <Box sx={{ textAlign: "right", flexShrink: 0 }}>
                     <Box
@@ -386,7 +457,7 @@ const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
                           fontFamily: "var(--font-sans)",
                           fontSize: "11px",
                           color: theme.palette.text.secondary,
-                          mt: 0.5,
+                          mt: isCompact ? 0.25 : 0.5,
                         }}
                       >
                         {when}

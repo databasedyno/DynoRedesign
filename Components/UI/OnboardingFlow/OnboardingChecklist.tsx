@@ -5,7 +5,6 @@ import {
   ExpandLessRounded,
   ExpandMoreRounded,
   LockRounded,
-  RocketLaunchRounded,
 } from "@mui/icons-material";
 import { Box, Collapse, IconButton, Typography, useTheme } from "@mui/material";
 import useIsMobile from "@/hooks/useIsMobile";
@@ -64,50 +63,39 @@ const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({ steps }) => {
       data-testid="onboarding-checklist"
       sx={{
         mb: isMobile ? 2 : 2.5,
-        p: isMobile ? "14px 16px" : "18px 22px",
-        borderRadius: "14px",
-        border: `1px solid ${theme.palette.border?.main || theme.palette.divider}`,
-        backgroundColor:
+        p: isMobile ? "18px 18px" : "22px 24px",
+        borderRadius: "16px",
+        border: `1px solid ${
           theme.palette.mode === "dark"
-            ? theme.palette.background.paper
-            : "#FAFBFC",
+            ? "rgba(255,255,255,0.08)"
+            : "rgba(15,15,20,0.08)"
+        }`,
+        backgroundColor:
+          theme.palette.mode === "dark" ? "#141419" : "#FFFFFF",
+        boxShadow:
+          theme.palette.mode === "dark"
+            ? "0 1px 2px rgba(0,0,0,0.4)"
+            : "0 1px 2px rgba(15,15,20,0.04)",
       }}
     >
-      {/* Header */}
-      <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-        <Box
-          sx={{
-            width: isMobile ? 36 : 40,
-            height: isMobile ? 36 : 40,
-            borderRadius: "10px",
-            backgroundColor: theme.palette.primary.light || "#E5EDFF",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            flexShrink: 0,
-          }}
-        >
-          <RocketLaunchRounded
-            sx={{
-              fontSize: isMobile ? 18 : 22,
-              color: theme.palette.primary.main,
-            }}
-          />
-        </Box>
+      {/* Header — logo-quiet, no tinted icon square (Coinbase-clean) */}
+      <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1.5 }}>
         <Box sx={{ flex: 1, minWidth: 0 }}>
           <Typography
             sx={{
-              fontSize: isMobile ? "15px" : "17px",
+              fontSize: isMobile ? "16px" : "18px",
               fontFamily: "var(--font-sans)",
-              fontWeight: 600,
+              fontWeight: 700,
               color: theme.palette.text.primary,
-              lineHeight: 1.3,
+              lineHeight: 1.25,
+              letterSpacing: "-0.01em",
             }}
           >
             {completed === total ? t("obAllSet") : t("obFinishSetup")}
           </Typography>
           <Typography
             sx={{
+              mt: 0.5,
               fontSize: isMobile ? "12px" : "13px",
               fontFamily: "var(--font-sans)",
               fontWeight: 500,
@@ -123,20 +111,30 @@ const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({ steps }) => {
           size="small"
           onClick={toggleCollapsed}
           aria-label={collapsed ? t("obExpandChecklist") : t("obCollapseChecklist")}
-          sx={{ color: theme.palette.text.secondary }}
+          sx={{
+            color: theme.palette.text.secondary,
+            "&:hover": {
+              backgroundColor:
+                theme.palette.mode === "dark"
+                  ? "rgba(255,255,255,0.06)"
+                  : "rgba(15,15,20,0.05)",
+            },
+          }}
         >
           {collapsed ? <ExpandMoreRounded /> : <ExpandLessRounded />}
         </IconButton>
       </Box>
 
-      {/* Progress bar */}
+      {/* Progress bar — thinner, softer */}
       <Box
         sx={{
-          mt: 1.5,
-          height: 6,
-          borderRadius: 3,
+          mt: 1.75,
+          height: 4,
+          borderRadius: 999,
           backgroundColor:
-            theme.palette.mode === "dark" ? "rgba(255,255,255,0.08)" : "#ECEFF4",
+            theme.palette.mode === "dark"
+              ? "rgba(255,255,255,0.06)"
+              : "rgba(15,15,20,0.06)",
           overflow: "hidden",
         }}
       >
@@ -145,7 +143,7 @@ const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({ steps }) => {
           sx={{
             width: `${progress}%`,
             height: "100%",
-            borderRadius: 3,
+            borderRadius: 999,
             backgroundColor: theme.palette.primary.main,
             transition: "width 0.4s ease",
           }}

@@ -7,15 +7,16 @@ import axiosBaseApi from "@/axiosConfig";
 import InputField from "@/Components/UI/AuthLayout/InputFields";
 import SocialAuthButtons from "@/Components/Common/SocialAuthButtons";
 import TitleDescription from "@/Components/UI/AuthLayout/TitleDescription";
+import TrustStrip from "@/Components/UI/AuthLayout/TrustStrip";
 import CustomButton from "@/Components/UI/Buttons";
 import CountryPhoneInput from "@/Components/UI/CountryPhoneInput";
 import ForgotPasswordDialog from "@/Components/UI/ForgotPasswordDialog";
-import LanguageSwitcher from "@/Components/UI/LanguageSwitcher"; // eslint-disable-line @typescript-eslint/no-unused-vars
+import LanguageSwitcher from "@/Components/UI/LanguageSwitcher";
 import ThemeToggle from "@/Components/UI/ThemeToggle";
 import OtpDialog from "@/Components/UI/OtpDialog";
 import OtpInputPanel from "@/Components/UI/OtpInputPanel";
 import CustomRadio from "@/Components/UI/RadioGroup";
-import AuthBrandPanel from "@/Components/UI/AuthLayout/AuthBrandPanel"; // eslint-disable-line @typescript-eslint/no-unused-vars
+import AuthBrandPanel from "@/Components/UI/AuthLayout/AuthBrandPanel";
 import {
   AuthContainer,
   AuthPageBackground,
@@ -1856,6 +1857,9 @@ export default function Login() {
 
       </Box>
       </FormPanel>
+      {/* Slim social-proof strip below the card (Coinbase-clean substitute
+          for the removed side marketing panel). */}
+      <TrustStrip />
     </SplitLayoutWrapper>
 
       {/* NOTE (Session 82): Email + SMS OTP modal dialogs removed from the

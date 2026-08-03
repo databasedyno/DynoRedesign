@@ -2,10 +2,11 @@ import Logo from "@/assets/Icons/home/dynopay-blackLogo.svg";
 import WhiteLogo from "@/assets/Icons/home/dynopay-whiteLogo.svg";
 import InputField from "@/Components/UI/AuthLayout/InputFields";
 import TitleDescription from "@/Components/UI/AuthLayout/TitleDescription";
+import TrustStrip from "@/Components/UI/AuthLayout/TrustStrip";
 import CustomButton from "@/Components/UI/Buttons";
-import LanguageSwitcher from "@/Components/UI/LanguageSwitcher"; // eslint-disable-line @typescript-eslint/no-unused-vars
+import LanguageSwitcher from "@/Components/UI/LanguageSwitcher";
 import ThemeToggle from "@/Components/UI/ThemeToggle";
-import AuthBrandPanel from "@/Components/UI/AuthLayout/AuthBrandPanel"; // eslint-disable-line @typescript-eslint/no-unused-vars
+import AuthBrandPanel from "@/Components/UI/AuthLayout/AuthBrandPanel";
 import { AuthPageBackground, SplitLayoutWrapper, FormPanel } from "@/Containers/Login/styled";
 import useIsMobile from "@/hooks/useIsMobile";
 import CountryPhoneInput from "@/Components/UI/CountryPhoneInput";
@@ -874,6 +875,9 @@ const Register = () => {
               )}
             </Box>
           </FormPanel>
+          {/* Slim social-proof strip below the card (Coinbase-clean substitute
+              for the removed side marketing panel). */}
+          <TrustStrip />
         </SplitLayoutWrapper>
       </AuthPageBackground>
     </>
