@@ -7,7 +7,7 @@ import requests
 import json
 import time
 
-BACKEND_URL = "https://config-preview-7.preview.emergentagent.com"
+BACKEND_URL = "https://crypto-checkout-test.preview.emergentagent.com"
 API_BASE = f"{BACKEND_URL}/api"
 
 TEST_USER = {

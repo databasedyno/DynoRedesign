@@ -10,7 +10,7 @@ import json
 import time
 
 # Configuration
-BASE_URL = "https://config-preview-7.preview.emergentagent.com"
+BASE_URL = "https://crypto-checkout-test.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 # Test credentials

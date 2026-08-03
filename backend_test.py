@@ -8,7 +8,7 @@ import requests
 import json
 import sys
 
-BASE_URL = "https://config-preview-7.preview.emergentagent.com"
+BASE_URL = "https://crypto-checkout-test.preview.emergentagent.com"
 TEST_EMAIL = "hostbay@moxx.co"
 TEST_PASSWORD = "Katiekendra123@"
 
