@@ -22,6 +22,10 @@ export interface FeeTierProgressProps {
 export interface ChartData {
   date: string;
   value: number;
+  /** Number of transactions on this date — carried through from the API's
+   *  chart_data.transaction_count field so consumers (e.g. HeroMetrics
+   *  Payments-Today sparkline) don't need a second fetch. */
+  transactionCount?: number;
 }
 
 export interface CustomTooltipProps {

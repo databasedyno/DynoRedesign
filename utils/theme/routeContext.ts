@@ -7,6 +7,15 @@
  *  - "public" — landing, marketing, buyer checkout, docs → defaults to
  *               LIGHT, feels like a trusted brand surface.
  *
+ * Auth surfaces (/auth/*, /reset-password) are a special third case: they
+ * technically live under "public" (default light for a Coinbase-clean sign
+ * in), BUT if a returning merchant has already toggled the in-app to dark,
+ * the login card should inherit that so clicking a link from a dark email
+ * doesn't feel jarring. That inheritance is implemented as a soft override
+ * in `resolvePreferredTheme` (see ThemeContext.tsx): when the active
+ * context is "public" AND the path is an auth path AND the user has an
+ * explicit `theme-mode-inapp=dark` in storage, we use dark.
+ *
  * A single manual toggle only mutates the preference for the CURRENT
  * context, so flipping the dashboard to light doesn't also blow away
  * the landing page's clean white brand.
@@ -48,6 +57,14 @@ const INAPP_PREFIXES = [
   "/payouts",
 ];
 
+/**
+ * Auth / password-reset paths — technically "public" (they can be visited
+ * without a session) but styling-wise they mirror the in-app when the user
+ * has already chosen dark on the dashboard. See `isAuthPath()` consumers
+ * in ThemeContext and _document.tsx.
+ */
+const AUTH_PREFIXES = ["/auth", "/reset-password"];
+
 export function getRouteContext(pathname: string | undefined | null): ThemeContext {
   if (!pathname) return "public";
   // Strip query string / hash / trailing slash before prefix matching.
@@ -56,6 +73,17 @@ export function getRouteContext(pathname: string | undefined | null): ThemeConte
     if (path === prefix || path.startsWith(`${prefix}/`)) return "inapp";
   }
   return "public";
+}
+
+/** True for `/auth/*` and `/reset-password` — used to trigger the "inherit
+ *  the merchant's in-app dark preference" behaviour. */
+export function isAuthPath(pathname: string | undefined | null): boolean {
+  if (!pathname) return false;
+  const path = pathname.split(/[?#]/)[0].replace(/\/+$/, "") || "/";
+  for (const prefix of AUTH_PREFIXES) {
+    if (path === prefix || path.startsWith(`${prefix}/`)) return true;
+  }
+  return false;
 }
 
 export function getDefaultThemeForContext(context: ThemeContext): ThemeMode {

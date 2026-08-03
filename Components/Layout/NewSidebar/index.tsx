@@ -1,11 +1,14 @@
 import useIsMobile from "@/hooks/useIsMobile";
+import { useSidebarCollapsed } from "@/hooks/useSidebarCollapsed";
 import { useUnreadNotificationsCount } from "@/hooks/useUnreadNotificationsCount";
 import SidebarIcon from "@/utils/customIcons/sidebar-icons";
 import AddIcon from "@mui/icons-material/Add";
 import AutoAwesomeRounded from "@mui/icons-material/AutoAwesomeRounded";
+import ChevronLeftRounded from "@mui/icons-material/ChevronLeftRounded";
+import ChevronRightRounded from "@mui/icons-material/ChevronRightRounded";
 import GroupAddRounded from "@mui/icons-material/GroupAddRounded";
 import SettingsRounded from "@mui/icons-material/SettingsRounded";
-import { Box, Button, ClickAwayListener, Divider, Fade, Popper, Tooltip, useTheme } from "@mui/material";
+import { Box, Button, ClickAwayListener, Divider, Fade, IconButton, Popper, Tooltip, useTheme } from "@mui/material";
 import { useRouter } from "next/router";
 import { useSelector } from "react-redux";
 import { rootReducer } from "@/utils/types";
@@ -38,6 +41,10 @@ interface SidebarSection {
 
 const NewSidebar = () => {
   const isMobile = useIsMobile("md");
+  const { collapsed, toggleCollapsed } = useSidebarCollapsed();
+  // On mobile the sidebar is rendered inside a drawer where it MUST always
+  // show full labels. Collapse only applies when displayed as a desktop rail.
+  const isCollapsed = collapsed && !isMobile;
   const router = useRouter();
   const theme = useTheme();
   const unreadNotifications = useUnreadNotificationsCount();
@@ -149,7 +156,7 @@ const NewSidebar = () => {
     isActive ? theme.palette.primary.contrastText : theme.palette.text.secondary;
 
   return (
-    <SidebarWrapper>
+    <SidebarWrapper data-collapsed={isCollapsed ? "true" : "false"} sx={isCollapsed ? { padding: "12px 8px" } : undefined}>
       <Menu>
         {sections.map((section, sectionIdx) => (
           <React.Fragment key={section.label}>
@@ -158,29 +165,38 @@ const NewSidebar = () => {
               <Divider
                 flexItem
                 sx={{
-                  mx: 1.5,
+                  mx: isCollapsed ? 0.5 : 1.5,
                   my: 0.75,
                   borderColor: theme.palette.mode === "dark" ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
                 }}
               />
             )}
             <Box sx={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-              {!isMobile && <SectionLabel>{section.label}</SectionLabel>}
+              {!isMobile && !isCollapsed && <SectionLabel>{section.label}</SectionLabel>}
 
               {section.items.map((item) => {
                 const isActive = isActiveRoute(item.path);
                 const isNotifications = item.icon === "notifications";
                 const showBadge = isNotifications && unreadNotifications > 0;
 
-                return (
+                const menuItemNode = (
                   <MenuItem
-                    key={item.path}
                     active={isActive}
                     onClick={() => {
                       if ((item as any).soon) return;
                       router.push(item.path);
                     }}
-                    sx={(item as any).soon ? { opacity: 0.6, cursor: "default" } : undefined}
+                    sx={{
+                      ...((item as any).soon ? { opacity: 0.6, cursor: "default" } : {}),
+                      ...(isCollapsed
+                        ? {
+                            justifyContent: "center",
+                            padding: "10px 0",
+                            gap: 0,
+                          }
+                        : {}),
+                    }}
+                    data-testid={`sidebar-item-${item.icon}`}
                   >
                     <IconBox active={isActive} sx={{ position: "relative" }}>
                       {item.icon === "referrals" ? (
@@ -243,6 +259,7 @@ const NewSidebar = () => {
                         overflow: "hidden",
                         textOverflow: "ellipsis",
                         whiteSpace: "nowrap",
+                        display: isCollapsed ? "none" : undefined,
                         [theme.breakpoints.down("md")]: {
                           fontSize: "11px",
                           whiteSpace: "nowrap",
@@ -255,7 +272,7 @@ const NewSidebar = () => {
                       {isMobile ? item.label.split(" ")[0] : item.label}
                     </Box>
 
-                    {item.isNew && !isMobile && (
+                    {item.isNew && !isMobile && !isCollapsed && (
                       <Box
                         component="span"
                         ref={(el: HTMLElement | null) => {
@@ -283,7 +300,7 @@ const NewSidebar = () => {
                       </Box>
                     )}
 
-                    {(item as any).soon && !isMobile && (
+                    {(item as any).soon && !isMobile && !isCollapsed && (
                       <Box
                         component="span"
                         data-testid={`sidebar-soon-${item.icon}`}
@@ -309,7 +326,7 @@ const NewSidebar = () => {
                       </Box>
                     )}
 
-                    {item.plus && !isMobile && (
+                    {item.plus && !isMobile && !isCollapsed && (
                       <Tooltip title={t("newPaymentLink")} placement="right" arrow>
                         <QuickAddButton
                           active={isActive}
@@ -325,13 +342,84 @@ const NewSidebar = () => {
                     )}
                   </MenuItem>
                 );
+
+                return isCollapsed ? (
+                  <Tooltip
+                    key={item.path}
+                    title={item.label}
+                    placement="right"
+                    arrow
+                    enterDelay={200}
+                  >
+                    {menuItemNode}
+                  </Tooltip>
+                ) : (
+                  <React.Fragment key={item.path}>{menuItemNode}</React.Fragment>
+                );
               })}
             </Box>
           </React.Fragment>
         ))}
       </Menu>
-      {/* Referral and Knowledge Base Section */}
-      <ReferralAndKnowledge isMobile={isMobile} />
+      {/* Referral and Knowledge Base Section — hidden when the sidebar is
+          collapsed so nothing overflows the 72px icon rail. */}
+      {!isCollapsed && <ReferralAndKnowledge isMobile={isMobile} />}
+
+      {/* Collapse toggle — sits at the very bottom of the sidebar. Chevron
+          points inward (left) when expanded, outward (right) when collapsed.
+          Desktop-only; hidden on mobile where the sidebar is a drawer. */}
+      {!isMobile && (
+        <Box
+          sx={{
+            mt: "auto",
+            pt: 1,
+            display: "flex",
+            justifyContent: isCollapsed ? "center" : "flex-end",
+            borderTop: `1px solid ${theme.palette.mode === "dark" ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)"}`,
+          }}
+        >
+          <Tooltip
+            title={
+              isCollapsed
+                ? t("sidebarExpand", { defaultValue: "Expand sidebar" })
+                : t("sidebarCollapse", { defaultValue: "Collapse sidebar" })
+            }
+            placement="right"
+            arrow
+          >
+            <IconButton
+              onClick={toggleCollapsed}
+              size="small"
+              data-testid="sidebar-collapse-toggle"
+              data-collapsed={isCollapsed ? "true" : "false"}
+              aria-label={
+                isCollapsed
+                  ? t("sidebarExpand", { defaultValue: "Expand sidebar" })
+                  : t("sidebarCollapse", { defaultValue: "Collapse sidebar" })
+              }
+              sx={{
+                width: 32,
+                height: 32,
+                color: theme.palette.text.secondary,
+                borderRadius: "8px",
+                "&:hover": {
+                  backgroundColor:
+                    theme.palette.mode === "dark"
+                      ? "rgba(255,255,255,0.06)"
+                      : "rgba(15,15,20,0.05)",
+                  color: theme.palette.text.primary,
+                },
+              }}
+            >
+              {isCollapsed ? (
+                <ChevronRightRounded sx={{ fontSize: 20 }} />
+              ) : (
+                <ChevronLeftRounded sx={{ fontSize: 20 }} />
+              )}
+            </IconButton>
+          </Tooltip>
+        </Box>
+      )}
 
       {/* First-run creator-page coach-mark (option d) */}
       <Popper

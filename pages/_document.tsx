@@ -88,7 +88,10 @@ export default function MyDocument({ emotionStyleTags }: MyDocumentProps) {
              Now route-context-aware (2025-07 pass): in-app surfaces default
              to DARK (dashboard, transactions, wallets, settings, etc.),
              public surfaces (landing, marketing, buyer checkout, auth,
-             docs) default to LIGHT. User toggles are scoped per context. ── */}
+             docs) default to LIGHT. User toggles are scoped per context.
+             Auth paths additionally inherit the merchant's in-app dark
+             preference so a link from a dark email doesn't jarringly
+             flash light. ── */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -97,10 +100,15 @@ export default function MyDocument({ emotionStyleTags }: MyDocumentProps) {
     // Keep this list IN SYNC with utils/theme/routeContext.ts INAPP_PREFIXES.
     // Duplicated here because this script runs before any JS modules load.
     var INAPP = ['/dashboard','/transactions','/wallet','/wallets','/customers','/invoices','/notifications','/settings','/profile','/create-pay-link','/referrals','/developer-keys','/company','/fees','/admin','/creator','/payouts'];
+    var AUTH  = ['/auth','/reset-password'];
     var path = (location.pathname || '/').replace(/\\/+$/, '') || '/';
     var context = 'public';
     for (var i = 0; i < INAPP.length; i++) {
       if (path === INAPP[i] || path.indexOf(INAPP[i] + '/') === 0) { context = 'inapp'; break; }
+    }
+    var isAuth = false;
+    for (var j = 0; j < AUTH.length; j++) {
+      if (path === AUTH[j] || path.indexOf(AUTH[j] + '/') === 0) { isAuth = true; break; }
     }
     var storageKey = context === 'inapp' ? 'theme-mode-inapp' : 'theme-mode-public';
     var cookieName = storageKey;
@@ -121,6 +129,14 @@ export default function MyDocument({ emotionStyleTags }: MyDocumentProps) {
       }
     }
     var mode = (saved === 'light' || saved === 'dark') ? saved : defaultMode;
+
+    // Auth-path inheritance: if we're on /auth/* or /reset-password AND the
+    // user has NOT set an explicit public preference AND has an explicit
+    // in-app DARK preference, use dark so the login card feels connected.
+    if (isAuth && !(saved === 'light' || saved === 'dark')) {
+      var inappSaved = localStorage.getItem('theme-mode-inapp');
+      if (inappSaved === 'dark') mode = 'dark';
+    }
 
     document.documentElement.dataset.theme = mode;
     document.documentElement.style.colorScheme = mode;

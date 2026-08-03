@@ -629,8 +629,12 @@ App.getInitialProps = async (appContext: AppContext) => {
   // Determine route context from the incoming URL.
   const rawUrl = (appContext.ctx.pathname || (req as any)?.url || "/") as string;
   const pathname = rawUrl.split(/[?#]/)[0] || "/";
-  const { getRouteContext, getDefaultThemeForContext, getCookieNameForContext } =
-    await import("@/utils/theme/routeContext");
+  const {
+    getRouteContext,
+    getDefaultThemeForContext,
+    getCookieNameForContext,
+    isAuthPath,
+  } = await import("@/utils/theme/routeContext");
   const routeCtx = getRouteContext(pathname);
   const cookieName = getCookieNameForContext(routeCtx);
 
@@ -651,7 +655,22 @@ App.getInitialProps = async (appContext: AppContext) => {
   const legacyMatch = /(?:^|;\s*)theme-mode=(light|dark)/.exec(cookieHeader || "");
   const legacyValue = legacyMatch ? (legacyMatch[1] as "light" | "dark") : null;
 
+  // Auth-path inheritance: on /auth/* and /reset-password, if the user has
+  // NOT set an explicit public cookie AND has an explicit in-app DARK
+  // cookie, render dark so the login card feels connected to the
+  // merchant's dashboard.
+  let inheritedMode: "light" | "dark" | null = null;
+  if (isAuthPath(pathname) && !contextCookieValue) {
+    const inappMatch = /(?:^|;\s*)theme-mode-inapp=(light|dark)/.exec(
+      cookieHeader || "",
+    );
+    if (inappMatch && inappMatch[1] === "dark") inheritedMode = "dark";
+  }
+
   const initialThemeMode: "light" | "dark" =
-    contextCookieValue || legacyValue || getDefaultThemeForContext(routeCtx);
+    contextCookieValue ||
+    inheritedMode ||
+    legacyValue ||
+    getDefaultThemeForContext(routeCtx);
   return { ...appProps, initialThemeMode };
 };

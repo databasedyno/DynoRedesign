@@ -8,6 +8,7 @@ import FeeFreeWelcomeModal from "@/Components/Modals/FeeFreeWelcomeModal";
 import FeeFreeBanner from "@/Components/UI/FeeFreeBanner";
 import Toast from "@/Components/UI/Toast";
 import useIsMobile from "@/hooks/useIsMobile";
+import { useSidebarCollapsed } from "@/hooks/useSidebarCollapsed";
 import { LayoutProps, rootReducer } from "@/utils/types";
 import { Box, SxProps, Theme, useTheme } from "@mui/material";
 import { useRouter } from "next/router";
@@ -33,6 +34,7 @@ const ClientLayout = ({
   const router = useRouter();
   const theme = useTheme();
   const isMobile = useIsMobile("md");
+  const { collapsed: sidebarCollapsed } = useSidebarCollapsed();
   const dispatch = useDispatch();
   const companyState = useSelector((state: rootReducer) => (state as any).companyReducer);
   const hasFetchedRef = useRef(false);
@@ -151,11 +153,14 @@ const ClientLayout = ({
               {/* ================= SIDEBAR ================= */}
               <Box
                 sx={{
-                  width: "clamp(265px, 18vw, 324px)",
+                  width: sidebarCollapsed ? "72px" : "clamp(265px, 18vw, 324px)",
                   height: "100%",
                   overflow: "hidden",
                   display: { xs: "none", lg: "block" },
+                  transition: "width 220ms cubic-bezier(0.16, 1, 0.3, 1)",
+                  flexShrink: 0,
                 }}
+                data-sidebar-collapsed={sidebarCollapsed ? "true" : "false"}
               >
                 <NewSidebar />
               </Box>

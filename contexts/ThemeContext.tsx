@@ -6,6 +6,7 @@ import {
   getDefaultThemeForContext,
   getStorageKeyForContext,
   getCookieNameForContext,
+  isAuthPath,
   type ThemeMode,
   type ThemeContext as ThemeCtxKind,
 } from '@/utils/theme/routeContext';
@@ -43,13 +44,23 @@ function currentRouteContext(): ThemeCtxKind {
   return getRouteContext(window.location.pathname);
 }
 
-/** Read the preferred mode for a context — localStorage first, else route default. */
-function readPreferredMode(ctx: ThemeCtxKind): ThemeMode {
+/** Read the preferred mode for a context — localStorage first, else route default.
+ *  Auth paths additionally inherit an explicit in-app DARK preference when
+ *  they don't have their own public preference stored yet, so a merchant
+ *  who's chosen dark on the dashboard doesn't get a jarring white flash
+ *  when clicking a link back to the login card. */
+function readPreferredMode(ctx: ThemeCtxKind, pathname?: string): ThemeMode {
   if (typeof window === 'undefined') return getDefaultThemeForContext(ctx);
   try {
     const key = getStorageKeyForContext(ctx);
     const saved = window.localStorage.getItem(key);
     if (saved === 'light' || saved === 'dark') return saved;
+    // Auth-path inheritance (Public Auth Card feature, 2025-07 pass).
+    const resolvedPath = pathname ?? window.location.pathname;
+    if (ctx === 'public' && isAuthPath(resolvedPath)) {
+      const inappSaved = window.localStorage.getItem('theme-mode-inapp');
+      if (inappSaved === 'dark') return 'dark';
+    }
     // One-time migration from the legacy single-key 'theme-mode'. Only
     // seeds the CURRENT context so we don't overwrite the other one.
     const legacy = window.localStorage.getItem('theme-mode');

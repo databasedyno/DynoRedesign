@@ -98,8 +98,9 @@ export interface HeroMetricsProps {
   activeWallets?: number;
   onCreateLink?: () => void;
   /** Data points for the Today's-Revenue sparkline. Uses whatever period the
-   *  Transaction Volume chart is currently showing (7d default, up to 90d). */
-  sparkData?: Array<{ date: string; value: number }>;
+   *  Transaction Volume chart is currently showing (7d default, up to 90d).
+   *  Each point may carry a `transactionCount` (Payments-Today spark). */
+  sparkData?: Array<{ date: string; value: number; transactionCount?: number }>;
 }
 
 /**
@@ -421,11 +422,49 @@ const HeroMetrics: React.FC<HeroMetricsProps> = ({
   // (i.e. a new payment landed). Suppresses on initial load.
   const revenuePulse = usePulseOnIncrement(volumeTodayFormatted);
 
-  // Only render the sparkline if we actually have a few points to show —
+  // Only render sparklines if we actually have a few points to show —
   // one flat point looks like a bug (a dot in the corner with no line).
   const hasSparkData = Array.isArray(sparkData) && sparkData.length >= 2;
+
   const revenueSpark = hasSparkData ? (
-    <Sparkline data={sparkData as Array<{ date: string; value: number }>} />
+    <Sparkline
+      data={sparkData as Array<{ date: string; value: number }>}
+      testId="hero-sparkline"
+    />
+  ) : undefined;
+
+  // Lifetime Volume spark = cumulative running total of the same series.
+  // Shows the merchant "how big we've gotten" as a monotonically-rising line.
+  // React.useMemo keeps the transform cheap on re-renders.
+  const cumulativeSparkData = React.useMemo(() => {
+    if (!hasSparkData || !sparkData) return null;
+    let acc = 0;
+    return sparkData.map((d) => {
+      acc += Number.isFinite(d.value) ? d.value : 0;
+      return { date: d.date, value: acc };
+    });
+  }, [hasSparkData, sparkData]);
+  const lifetimeSpark = cumulativeSparkData ? (
+    <Sparkline data={cumulativeSparkData} testId="hero-sparkline-lifetime" />
+  ) : undefined;
+
+  // Payments Today spark = daily transaction counts.
+  //   * Skip render if EVERY value is zero (avoids a flat line that fake-
+  //     signals "no growth" when the API simply didn't return counts yet).
+  //   * If `transactionCount` is missing entirely (older API responses),
+  //     fall back to `undefined` so the tile shows no spark instead of a
+  //     misleading revenue-based line.
+  const txnCountSparkData = React.useMemo(() => {
+    if (!hasSparkData || !sparkData) return null;
+    const withCounts = sparkData
+      .filter((d) => Number.isFinite(d.transactionCount as number))
+      .map((d) => ({ date: d.date, value: Number(d.transactionCount) }));
+    if (withCounts.length < 2) return null;
+    if (withCounts.every((d) => d.value === 0)) return null;
+    return withCounts;
+  }, [hasSparkData, sparkData]);
+  const paymentsSpark = txnCountSparkData ? (
+    <Sparkline data={txnCountSparkData} testId="hero-sparkline-payments" />
   ) : undefined;
 
   return (
@@ -468,6 +507,7 @@ const HeroMetrics: React.FC<HeroMetricsProps> = ({
           changeLabel={t("vsLastMonth")}
           icon={<TrendingUpRounded sx={{ fontSize: 18 }} />}
           loading={loading}
+          spark={lifetimeSpark}
         />
       </motion.div>
       <motion.div {...tileAnim} transition={{ ...tileAnim.transition, delay: 0.18 }}>
@@ -492,6 +532,7 @@ const HeroMetrics: React.FC<HeroMetricsProps> = ({
           }
           icon={<ReceiptLongRounded sx={{ fontSize: 18 }} />}
           loading={loading}
+          spark={paymentsSpark}
         />
       </motion.div>
     </Box>
