@@ -426,12 +426,29 @@ const HomeHeader = memo(function HomeHeader() {
             data-testid="mobile-menu-toggle"
             onPointerUp={(e) => {
               if (e.pointerType === "mouse" && e.button !== 0) return;
+              // Kill event bubbling so nothing above us in the tree (drawer
+              // backdrop while transitioning, portal wrapper etc.) can also
+              // handle this tap.
+              e.stopPropagation();
               lastToggleTsRef.current = Date.now();
               setMobileMenuOpen((prev) => !prev);
+              // Drop focus/hover state on iOS Safari so the icon doesn't
+              // keep the darkened active look between taps (2025-07 fix).
+              try {
+                (e.currentTarget as HTMLElement).blur();
+              } catch {
+                /* ignore */
+              }
             }}
-            onClick={() => {
+            onClick={(e) => {
               if (Date.now() - lastToggleTsRef.current < 350) return;
+              e.stopPropagation();
               setMobileMenuOpen((prev) => !prev);
+              try {
+                (e.currentTarget as HTMLElement).blur();
+              } catch {
+                /* ignore */
+              }
             }}
           >
             {mobileMenuOpen ? <MenuCloseIcon /> : <MenuOpenIcon />}

@@ -31,7 +31,23 @@ export const FixedHeader = styled("header")(({ theme }) => {
     top: "var(--dyno-promo-h, 0px)",
     left: 0,
     right: 0,
-    zIndex: 1400,
+    // MOBILE BUG FIX (2025-07, iPhone 14 user report — "menu opened first tap
+    // but subsequent tap didn't open, icon looked selected with dark shade,
+    // took several seconds to open").
+    //
+    // Root cause: this header was zIndex 1400, but MobileMenuDrawer is 1500,
+    // so when the drawer opened its backdrop (rgba(11,11,15,0.6)) sat OVER
+    // the hamburger button. The "dark shade on the menu icon" WAS the
+    // backdrop overlaying the button. Any tap on the hamburger to close hit
+    // the backdrop (which calls onClose), not the button — requiring a
+    // second tap on the empty header area (with drawer fully gone) to
+    // reopen. That two-tap dance felt like a broken button.
+    //
+    // Bumping the header stack above the drawer (1600 > 1500) lets taps on
+    // the hamburger always land on the button itself — pointerUp toggles
+    // menu, drawer opens/closes cleanly, no double-tap ambiguity, no
+    // backdrop discolouration on the icon.
+    zIndex: 1600,
     // Frosted glass: paper (light) / obsidian (dark) at 78% alpha with blur.
     backgroundColor: dark ? "rgba(11,11,15,0.72)" : "rgba(250,250,247,0.85)",
     backdropFilter: "blur(14px) saturate(1.2)",
