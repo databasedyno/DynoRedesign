@@ -1,3 +1,17 @@
+# CURRENT SESSION (Env setup + DigitalOcean deploy-fail fix — preview 488001f0)
+
+- **Preview URL**: https://488001f0-619c-4a70-a13f-c9a96d0d75be.preview.emergentagent.com — set as NEXT_PUBLIC_BASE_URL/NEXT_PUBLIC_SERVER_URL/NEXTAUTH_URL in /app/.env.local and added to CORS_ALLOWED_ORIGINS in /app/backend/.env. Health OK (/health via :8001 → database=connected, redis=connected, tatum operational, background_jobs eligible=false).
+- **Merchant test account** (LIVE Railway PG, UNCHANGED): **hostbay@moxx.co / Katiekendra123@** (user_id=1, name=hostbay). Carried from prior sessions.
+- **Admin email** (env ADMIN_EMAIL): moxxcompany@gmail.com
+- **SAFETY**: user chose (a) LIVE production Railway PG/Redis. ENABLE_BACKGROUND_JOBS=true BUT WORKER_ROLE=secondary + NODE_ENV=production → logs confirm "Skipping BullMQ webhook worker (background jobs disabled — secondary instance)", "Skipping startup reconciliation", "Skipping error digest", "Skipping webhook URL migration". No sweeps/settlement run from preview.
+- Setup: fresh container had no .env + no node_modules. `yarn install` in /app (~79s) and /app/backend (~35s) (had to clean corrupt yarn cache + run sequentially). Wrote /app/backend/.env (full provided creds) + /app/.env.local (NEXT_PUBLIC_* + URLs → preview). DB connected via parts branch (HOST/DB_PORT/DB_NAME/USER_NAME/PASSWORD + DB_SSL_REJECT_UNAUTHORIZED=false) — no DATABASE_URL needed.
+- **BUG FIX (DigitalOcean deploy failure)**: Last DO deploy (app dynopay, commit b7351b2) failed at `yarn build` → TS error `Components/UI/AddWalletModal/index.tsx:602 Type error: Expected 1 arguments, but got 2` (tWallet wrapper typed to 1 arg, called with `{defaultValue}` 2nd arg). FIX: widened `tWallet` signature to `(key, options?: { defaultValue?: string })` and forward `...options` to `t()`. Verified: `tsc --noEmit` now exits 0 with ZERO type errors project-wide (was the exact "Checking validity of types" step that failed; next.config typescript.ignoreBuildErrors=false). ONLY code change this session.
+- Backend = server.py uvicorn proxy :8001 → ts-node server.ts :3300. Frontend = next dev :3000 via /app/frontend bridge → cd /app. Next.js loaded .env.local, "url for base <preview>" confirmed.
+- Expected harmless quirks: Binance WS geo-blocked (451) → CoinGecko fallback; SSH SOCKS tunnel disabled (sshpass absent); Google/GitHub OAuth won't complete in preview (redirect URIs = dynopay.com).
+
+---
+
+
 # CURRENT SESSION (Fresh Container Setup — 2025-07 / preview 9b0a80d2)
 
 - **Preview URL**: https://crypto-checkout-test.preview.emergentagent.com — set as NEXT_PUBLIC_BASE_URL + NEXT_PUBLIC_SERVER_URL + NEXTAUTH_URL and added FIRST in CORS_ALLOWED_ORIGINS. Verified 200 on / (Next.js landing) and /api/public/tickers (returns {"status":"success","data":[]}).

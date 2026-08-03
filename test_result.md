@@ -32220,3 +32220,17 @@ The tap target checks (CHECK 1 & 2) have **conflicting interpretations**:
 - `/tmp/regression2_chat_fab.png` — Chat FAB on dashboard
 
 ---
+
+## SESSION (preview 488001f0) — ENV SETUP + DIGITALOCEAN DEPLOY-FAIL FIX
+
+**Context:** Fresh container. Installed deps (/app + /app/backend), wrote /app/backend/.env (full prod creds) + /app/.env.local (NEXT_PUBLIC_* + URLs → this preview). App is LIVE against production Railway PG/Redis (user chose option a). WORKER_ROLE=secondary keeps all fund-moving jobs disabled (confirmed in logs). Backend healthy (db+redis connected), frontend serving 200.
+
+**Bug (reported):** Last DigitalOcean deployment (app "dynopay", commit b7351b2) FAILED. Root cause pulled from DO API build.log: `yarn build` (`next build`) failed at "Checking validity of types" with
+`./Components/UI/AddWalletModal/index.tsx:602 Type error: Expected 1 arguments, but got 2`.
+The local `tWallet` wrapper was typed `(key: string) => string` but lines 602–603 call it with a 2nd `{ defaultValue }` arg. next.config typescript.ignoreBuildErrors=false → any TS error fails the build.
+
+**Fix:** Widened `tWallet` to `(key: string, options?: { defaultValue?: string }) => string` and forward `...options` into `t()`. Only code change this session.
+
+**Verification (build):** `./node_modules/.bin/tsc --noEmit` (the exact failing step) now exits 0 with ZERO `error TS` project-wide (previously errored at AddWalletModal:602). → DO build will pass.
+
+**Frontend runtime check requested (auto_frontend_testing_agent):** log in as hostbay@moxx.co / Katiekendra123@, open Wallet → "Add Wallet" modal, confirm it renders with subtitle text (add mode: "Pick a coin and paste your wallet address — we'll verify before saving."); READ-ONLY (do NOT save/submit a real wallet — production data).

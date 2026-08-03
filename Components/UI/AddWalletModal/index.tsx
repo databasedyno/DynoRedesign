@@ -49,8 +49,8 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
   const isMobile = useIsMobile("sm");
   const { t } = useTranslation("walletScreen");
   const tWallet = useCallback(
-    (key: string): string => {
-      const result = t(key, { ns: "walletScreen" });
+    (key: string, options?: { defaultValue?: string }): string => {
+      const result = t(key, { ns: "walletScreen", ...options });
       return typeof result === "string" ? result : String(result);
     },
     [t],
