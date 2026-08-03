@@ -171,7 +171,11 @@ const CustomButton: React.FC<CustomButtonProps> = ({
       sx={{
         padding: config.padding,
         fontSize: config.fontSize,
-        height: config.height,
+        // Mobile touch target: ensure small/medium buttons are at least 44px
+        // tall on phones (WCAG 2.5.5). Large is already 48px. Caller sx below
+        // can still override when a specific compact size is intended.
+        height: isMobile && size !== "large" ? "44px" : config.height,
+        minHeight: isMobile && size !== "large" ? "44px" : undefined,
         borderRadius: "6px",
         lineHeight: "1",
         textTransform: "none",

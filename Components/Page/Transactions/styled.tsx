@@ -705,10 +705,18 @@ export const SourceChipsRow = styled(Box)(({ theme }) => ({
   "&::-webkit-scrollbar": { display: "none" },
   paddingBottom: "4px",
   marginBottom: "12px",
+  scrollBehavior: "smooth",
   [theme.breakpoints.down("md")]: {
     marginBottom: "8px",
     paddingLeft: "0px",
     paddingRight: "0px",
+    // Swipe hint: fade the trailing edge so it's obvious more filters
+    // (Tips / Product orders / Direct) are reachable by scrolling right.
+    scrollSnapType: "x proximity",
+    WebkitMaskImage:
+      "linear-gradient(to right, #000 calc(100% - 24px), transparent)",
+    maskImage:
+      "linear-gradient(to right, #000 calc(100% - 24px), transparent)",
   },
 }));
 
@@ -759,10 +767,11 @@ export const SourceChip = styled(Button, {
     transform: "scale(0.97)",
   },
   [theme.breakpoints.down("md")]: {
-    padding: "4px 10px",
-    minHeight: "28px",
-    height: "28px",
-    fontSize: "12px",
+    padding: "0 16px",
+    minHeight: "44px",
+    height: "44px",
+    fontSize: "13px",
+    scrollSnapAlign: "start",
   },
 }));
 
