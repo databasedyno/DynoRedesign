@@ -14,7 +14,7 @@ import ThemeToggle from "@/Components/UI/ThemeToggle";
 import { ArrowForwardRounded } from "@mui/icons-material";
 import KeyboardArrowDownRounded from "@mui/icons-material/KeyboardArrowDownRounded";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
-import { Box, Button, Collapse, Typography, useTheme } from "@mui/material";
+import { Box, Button, Collapse, Typography, useMediaQuery, useTheme } from "@mui/material";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
