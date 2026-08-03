@@ -218,25 +218,47 @@ export const MobileLanguageWrapper = styled(Box)(({ theme }) => ({
 //       as "the menu takes a long time to respond" even after the hitbox fix.
 // Both are addressed below; hitbox is now 44×44, and we also lift the button
 // into its own tiny stacking context so nothing can sit over it.
-export const MobileMenuButton = styled(IconButton)(() => ({
-  display: "none",
-  padding: 8,
-  minWidth: 44,
-  minHeight: 44,
-  borderRadius: 10,
-  position: "relative",
-  zIndex: 1,
-  // Kills iOS Safari's 300ms tap delay + Firefox mobile's synthetic click gap.
-  touchAction: "manipulation",
-  WebkitTapHighlightColor: "transparent",
-  // Belt-and-braces: keep the button above any transient overlays that might
-  // land inside the header (language dropdown, tooltip, etc.).
-  pointerEvents: "auto",
+export const MobileMenuButton = styled(IconButton)(({ theme }) => {
+  const dark = theme.palette.mode === "dark";
+  return {
+    display: "none",
+    padding: 8,
+    minWidth: 44,
+    minHeight: 44,
+    borderRadius: 10,
+    position: "relative",
+    zIndex: 1,
+    // Kills iOS Safari's 300ms tap delay + Firefox mobile's synthetic click gap.
+    touchAction: "manipulation",
+    WebkitTapHighlightColor: "transparent",
+    // Belt-and-braces: keep the button above any transient overlays that might
+    // land inside the header (language dropdown, tooltip, etc.).
+    pointerEvents: "auto",
+    backgroundColor: "transparent",
+    transition: "background-color 120ms ease",
 
-  "@media (max-width: 1025px)": {
-    display: "inline-flex",
-  },
-}));
+    // STICKY-HOVER FIX (2026-08, iPhone 14 Pro Max report — "dark shade
+    // remains on the icon after closing"). On touch devices :hover / :active
+    // latch after a tap and don't clear until you tap elsewhere, leaving a
+    // dark shade on the hamburger; MUI's ripple/focus bg does the same. Keep
+    // the button visually flat on touch (no bg on hover/active/focus, ripple
+    // hidden) and only show a hover tint on hover-CAPABLE pointers (real
+    // mouse). Combined with disableRipple on the element, no shade lingers.
+    "&:hover, &:active, &.Mui-focusVisible, &:focus": {
+      backgroundColor: "transparent",
+    },
+    "& .MuiTouchRipple-root": { display: "none" },
+    "@media (hover: hover) and (pointer: fine)": {
+      "&:hover": {
+        backgroundColor: dark ? "rgba(255,255,255,0.06)" : "rgba(10,10,10,0.05)",
+      },
+    },
+
+    "@media (max-width: 1025px)": {
+      display: "inline-flex",
+    },
+  };
+});
 
 export const MenuOpenIcon = styled(MenuRounded)(({ theme }) => ({
   color: theme.palette.mode === "dark" ? "#F5F5F5" : "#0A0A0A",
@@ -265,17 +287,16 @@ export const MobileMenuDrawer = styled(Drawer)(() => ({
   },
 
   "& .MuiBackdrop-root": {
-    // Perf: a 10px full-screen backdrop-filter re-blurs the entire viewport on
-    // every animation frame, which caused visible tap latency / jank when
-    // opening the mobile menu on high-DPR phones (e.g. iPhone 14 Pro Max).
-    // A small 4px radius keeps the frosted feel at a fraction of the GPU cost;
-    // the slightly darker overlay preserves contrast.
+    // PERF (2026-08 iPhone 14 Pro Max report): dropped the 4px full-screen
+    // backdrop-filter here. On high-DPR phones (@3x) stacking this blur ON TOP
+    // of the header's always-on backdrop-filter meant every open/close
+    // re-blurred the whole viewport twice, pinning the compositor and delaying
+    // the next tap. A plain dark overlay is visually near-identical (the
+    // frosted header is still visible behind it) and composites instantly.
     backgroundColor: "rgba(11,11,15,0.6)",
-    backdropFilter: "blur(4px)",
-    WebkitBackdropFilter: "blur(4px)",
-    // Promote the backdrop to its own compositor layer so the blur is
-    // rasterised once instead of thrashing the main thread during the slide.
+    // Promote to its own layer so the fade composites cheaply.
     transform: "translateZ(0)",
+    willChange: "opacity",
   },
 
   "@media (max-width: 1025px)": {

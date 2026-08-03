@@ -97,8 +97,6 @@ const HomeHeader = memo(function HomeHeader() {
   const lastScrollY = useRef<number>(0);
   const ticking = useRef<boolean>(false);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  // De-dupe pointerup + synthesised click for the mobile hamburger.
-  const lastToggleTsRef = useRef<number>(0);
 
   /* ================= NAVIGATION ================= */
 
@@ -424,26 +422,20 @@ const HomeHeader = memo(function HomeHeader() {
             aria-label="Toggle menu"
             aria-expanded={mobileMenuOpen}
             data-testid="mobile-menu-toggle"
-            onPointerUp={(e) => {
-              if (e.pointerType === "mouse" && e.button !== 0) return;
-              // Kill event bubbling so nothing above us in the tree (drawer
-              // backdrop while transitioning, portal wrapper etc.) can also
-              // handle this tap.
-              e.stopPropagation();
-              lastToggleTsRef.current = Date.now();
-              setMobileMenuOpen((prev) => !prev);
-              // Drop focus/hover state on iOS Safari so the icon doesn't
-              // keep the darkened active look between taps (2025-07 fix).
-              try {
-                (e.currentTarget as HTMLElement).blur();
-              } catch {
-                /* ignore */
-              }
-            }}
+            disableRipple
+            disableFocusRipple
             onClick={(e) => {
-              if (Date.now() - lastToggleTsRef.current < 350) return;
+              // Single source of truth for the toggle (2026-08 fix).
+              // A prior build used onPointerUp + onClick with a 350ms de-dupe
+              // window. On a laggy iOS Safari frame the synthesised click
+              // could land AFTER that window and fire a SECOND toggle —
+              // opening then instantly closing the drawer, which felt like
+              // "I tap and nothing happens for several seconds". Desktop was
+              // fine because it only ever fires one click. One onClick handler
+              // = exactly one toggle per tap on every device.
               e.stopPropagation();
               setMobileMenuOpen((prev) => !prev);
+              // Drop focus so iOS Safari doesn't keep the darkened active look.
               try {
                 (e.currentTarget as HTMLElement).blur();
               } catch {
