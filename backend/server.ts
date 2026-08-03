@@ -38,7 +38,7 @@ import stablecoinConversionModel from "./models/stablecoinConversionModel";
 import { processWebhookRetryQueue } from "./utils/webhookRetry";
 import { startWebhookWorker, getQueueHealth, getDLQItems, retryDLQItem, shutdownWebhookQueue, enqueueWebhook } from "./services/webhookQueue";
 import { processWebhookJob } from "./services/webhookProcessor";
-import { runStartupReconciliation, clearStaleTatumWebhooks } from "./services/reconciliation";
+import { runStartupReconciliation, reconcileFailedStatePayments, clearStaleTatumWebhooks } from "./services/reconciliation";
 import { startVolatilityMonitor, getAllMarketStates, runMonitorCycle } from "./services/volatilityMonitorService";
 import { startBinanceWebSocket, getStatus as getWsStatus } from "./services/binanceWebSocketService";
 import { detectBinanceAccess, forceProxyState, getProxyState } from "./services/binanceService";
@@ -1176,6 +1176,37 @@ leaderCron.schedule("*/10 * * * *", async function () {
     log(`Cron: Webhook retry queue failed: ${errMsg}`, "error");
   } finally {
     await releaseLock("cron:webhookRetryQueue");
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════
+// RELIABILITY: Periodic deferred-settlement recovery — every 10 minutes.
+//
+// Re-settles payments that were received on-chain but whose settlement was
+// DEFERRED (status "failed" / "gas_pending"), e.g. after the TRX fee wallet
+// ran dry ("Fee wallet critically low"). Reuses the exact same idempotent
+// Strategy-4 scan that runStartupReconciliation() runs on boot — so a deferred
+// payment now auto-heals within ~10 min of the fee wallet being topped up,
+// WITHOUT requiring an app redeploy. Re-queues carry source:"reconciliation",
+// which clears the stale processed-tx dedup key and resets failed→pending.
+//
+// Cheap: Redis scan only (no Tatum API), on-chain verify only when retryCount>=2,
+// respects the 7-day age window + 5-retry cap + 5-min MIN_AGE guard. Per-job
+// lock + settlement idempotency guards prevent any double-settlement.
+// ═══════════════════════════════════════════════════════════════════════
+leaderCron.schedule("*/10 * * * *", async function () {
+  const lockAcquired = await acquireLock("cron:reconcileDeferredPayments", 300, 1, 100, true);
+  if (!lockAcquired) return; // silent skip — lock contention is normal
+  try {
+    const requeued = await reconcileFailedStatePayments();
+    if (requeued > 0) {
+      log(`Cron: reconcileDeferredPayments re-queued ${requeued} deferred/failed settlement(s) for retry`, "info");
+    }
+  } catch (err) {
+    log(`Cron: reconcileDeferredPayments failed: ${(err as Error).message}`, "error");
+    captureError(err as Error, "cron", { extraContext: "reconcileDeferredPayments" });
+  } finally {
+    await releaseLock("cron:reconcileDeferredPayments");
   }
 });
 

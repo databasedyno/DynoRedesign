@@ -269,8 +269,13 @@ async function reconcileFailedPayments(): Promise<number> {
  * - Have no remaining failed-payment-* key, but the crypto-* source-of-truth still shows "failed"
  * 
  * Scans the actual payment state keys and re-queues any with status "failed" that have a txId.
+ *
+ * EXPORTED so a periodic leader cron (server.ts) can re-run it every few minutes —
+ * this lets deferred settlements (e.g. `gas_pending` after an empty TRX fee wallet)
+ * auto-heal once the underlying condition recovers, WITHOUT needing an app redeploy.
+ * Cheap by design: Redis scan + on-chain verification only when retryCount >= 2.
  */
-async function reconcileFailedStatePayments(): Promise<number> {
+export async function reconcileFailedStatePayments(): Promise<number> {
   let count = 0;
   let skippedPermanent = 0;
   let skippedRetryLimit = 0;

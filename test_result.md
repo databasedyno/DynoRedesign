@@ -1,3 +1,34 @@
+## Session 99 — Periodic Deferred-Settlement Recovery Cron (2026-08-03) — BACKEND
+
+### Context / reported issue
+A live merchant payment ($124 USDT-TRC20, payment_id 78108942-8c95-415d-ab1e-af92cc0b1f5e) was received on-chain but never settled to the merchant. Root cause (confirmed via DigitalOcean logs + live DB): the TRX gas/fee wallet (TMHECc7emykw5XwX2njp5Y2K4FXLwsTZtC) was critically low (2.79 TRX) so USDT-TRC20 settlement was DEFERRED (state → `gas_pending` → Redis `status:"failed"`). The merchant later funded the wallet (now 175 TRX / HEALTHY) but the payment did NOT auto-settle, because the recovery scan (`reconcileFailedStatePayments`, part of `runStartupReconciliation`) only runs at app STARTUP — there was no periodic cron, and the Payment Watchdog gives up after 3 attempts + only escalates.
+
+### Change applied (backend only)
+1. `services/reconciliation.ts` — exported the existing (already battle-tested) `reconcileFailedStatePayments()` function (was module-private). No logic change to it.
+2. `server.ts` — imported it and added a leader-gated cron inside `registerLeaderCronJobs()`:
+   `leaderCron.schedule("*/10 * * * *", ...)` → `cron:reconcileDeferredPayments` lock → `reconcileFailedStatePayments()`.
+   This re-queues deferred/`failed`/`gas_pending` payments (source:"reconciliation" → clears stale processed-tx dedup + resets failed→pending) every 10 min, so a gas top-up auto-heals stuck settlements within ~10 min WITHOUT needing a redeploy.
+- SAFETY: cron only registers on the elected leader (WORKER_ROLE=primary + ENABLE_BACKGROUND_JOBS=true + leader election) — i.e. production only. In this PREVIEW (WORKER_ROLE=secondary, ENABLE_BACKGROUND_JOBS=false) it does NOT run. Idempotency guards (settlement-lock, tatum-webhook-{txId} lock, on-chain verify, 7-day/5-retry caps) prevent double settlement.
+- `tsc --noEmit` = 0 errors project-wide. Backend restarts clean (listening on 3300; leader crons correctly skipped in preview).
+
+### BACKEND TESTING INSTRUCTIONS (safety-bounded — READ CAREFULLY)
+Preview: https://fb7e2b40-8100-4740-8ccc-339898bb877a.preview.emergentagent.com
+Merchant login (LIVE Railway PG): hostbay@moxx.co / Katiekendra123@
+GOAL: verify the code change did NOT break the backend and core flows still work. The new cron itself CANNOT run in preview (background jobs disabled) and MUST NOT be forced on.
+DO:
+  - Confirm backend health: GET /api/public/tickers → 200; GET /api/geo-detect → 200.
+  - Confirm merchant login still works: POST /api/user/login with the creds above → 200 "Login Successful!"; bad password → 401.
+  - Confirm no new backend crash/error in logs after restart (import of reconcileFailedStatePayments resolves; server listening on 3300).
+  - Confirm a couple of authenticated read endpoints still respond for the merchant (e.g. notifications unread-count / transactions listing) → 200.
+DO NOT (CRITICAL — real production funds + shared LIVE DB/Redis):
+  - DO NOT set/enable ENABLE_BACKGROUND_JOBS or change WORKER_ROLE.
+  - DO NOT call any /diagnostics reconcile/sweep/settlement endpoint or otherwise trigger a real settlement.
+  - DO NOT attempt to move funds, create real crypto payments, or bypass admin auth.
+Report: backend health pass/fail + any regression. End-to-end auto-settlement of the $124 will be verified separately from DigitalOcean production logs after the user redeploys.
+
+---
+
+
 ## Session 98 — Mobile Hamburger Menu Bug Fix Verification (2026-08-03)
 
 ### Reported bug
