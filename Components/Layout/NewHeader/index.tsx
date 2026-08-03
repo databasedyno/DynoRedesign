@@ -12,7 +12,7 @@ import InfoIcon from "@mui/icons-material/Info";
 import ArrowOutwardIcon from "@mui/icons-material/ArrowOutward";
 import MenuRounded from "@mui/icons-material/MenuRounded";
 import CloseRounded from "@mui/icons-material/CloseRounded";
-import { Box, Drawer, IconButton } from "@mui/material";
+import { Box, Drawer, IconButton, useMediaQuery } from "@mui/material";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -33,6 +33,7 @@ import { HeaderDivider } from "@/Components/UI/LanguageSwitcher/styled";
 const NewHeader = () => {
   const router = useRouter();
   const muiTheme = useMuiTheme();
+  const reduceMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
   const namespaces = ["dashboardLayout", "walletScreen"];
   const { t } = useTranslation(namespaces);
   const tDashboard = useCallback(
@@ -103,17 +104,30 @@ const NewHeader = () => {
           data-testid="mobile-hamburger-toggle"
           aria-label="Open menu"
           onClick={() => setDrawerOpen(true)}
+          disableRipple
+          disableFocusRipple
           sx={{
             display: { xs: "inline-flex", lg: "none" },
             width: 40,
             height: 40,
             mr: 0.5,
             color: muiTheme.palette.text.primary,
-            "&:hover": {
-              backgroundColor:
-                muiTheme.palette.mode === "dark"
-                  ? "rgba(255,255,255,0.06)"
-                  : "rgba(10,10,15,0.04)",
+            backgroundColor: "transparent",
+            // STICKY-HOVER FIX (matches the public header): on touch, :hover /
+            // :active latch after a tap and leave a dark shade on the icon.
+            // Keep it flat on touch (transparent + no ripple); show a hover
+            // tint only on real hover-capable pointers (desktop mouse).
+            "&:hover, &:active, &.Mui-focusVisible, &:focus": {
+              backgroundColor: "transparent",
+            },
+            "& .MuiTouchRipple-root": { display: "none" },
+            "@media (hover: hover) and (pointer: fine)": {
+              "&:hover": {
+                backgroundColor:
+                  muiTheme.palette.mode === "dark"
+                    ? "rgba(255,255,255,0.06)"
+                    : "rgba(10,10,15,0.04)",
+              },
             },
           }}
         >
@@ -259,6 +273,7 @@ const NewHeader = () => {
         onClose={() => setDrawerOpen(false)}
         data-testid="mobile-nav-drawer"
         ModalProps={{ keepMounted: false }}
+        transitionDuration={reduceMotion ? 0 : undefined}
         PaperProps={{
           sx: {
             width: { xs: "82vw", sm: 320 },

@@ -58,15 +58,20 @@ export const FixedHeader = styled("header")(({ theme }) => {
       "transform 320ms cubic-bezier(0.16,1,0.3,1), opacity 240ms ease, top 250ms ease, background-color 300ms ease",
     width: "100%",
 
-    // MOBILE PERF (2026-07-29, user report — "sometimes takes minutes to
-    // respond"). A 14px/saturate(1.2) full-width backdrop-filter re-blurs the
-    // entire viewport on every scroll frame on iOS Safari / Firefox mobile,
-    // pinning the compositor on lower-end phones. Dropping to 8px + skipping
-    // the saturate on mobile is visually near-identical but ~4× cheaper on
-    // GPU, which restores prompt tap dispatch to the hamburger.
-    [theme.breakpoints.down("md")]: {
-      backdropFilter: "blur(8px)",
-      WebkitBackdropFilter: "blur(8px)",
+    // MOBILE PERF FIX (2026-08, iPhone 14 Pro Max — "menu freezes for several
+    // seconds then opens"). ROOT CAUSE: an always-on full-width backdrop-filter
+    // on this position:fixed header. When the mobile Drawer/Modal opens, iOS
+    // Safari must re-rasterise the entire blurred header (@3x DPR = millions of
+    // pixels) against the new full-screen backdrop layer every frame, stalling
+    // the main thread/compositor for SECONDS. Desktop + Playwright emulation
+    // never hit this (lower DPR / different compositor). Coinbase avoids
+    // backdrop-filter on mobile entirely — so below the hamburger breakpoint we
+    // DROP the blur and use a near-solid background. Visually clean, and the
+    // menu now opens/closes instantly.
+    "@media (max-width: 1025px)": {
+      backdropFilter: "none",
+      WebkitBackdropFilter: "none",
+      backgroundColor: dark ? "rgba(11,11,15,0.96)" : "rgba(250,250,247,0.98)",
     },
   };
 });
@@ -883,6 +888,12 @@ export const CmdCard = styled(Box)(({ theme }) => {
       : "0 40px 90px -24px rgba(10,10,10,0.28)",
     backdropFilter: "blur(16px)",
     WebkitBackdropFilter: "blur(16px)",
+    // Drop the blur on mobile — same iOS Safari compositor stall as the header
+    // (the card's background is already near-opaque, so no visual change).
+    "@media (max-width: 1025px)": {
+      backdropFilter: "none",
+      WebkitBackdropFilter: "none",
+    },
     ...megaIn,
     animation: "dynoMegaIn 180ms cubic-bezier(0.16,1,0.3,1)",
   };

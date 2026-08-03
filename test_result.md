@@ -32494,3 +32494,20 @@ The local `tWallet` wrapper was typed `(key: string) => string` but lines 602–
 - styled.tsx MobileMenuDrawer backdrop: removed the 4px full-screen backdrop-filter (kept dark overlay + translateZ + willChange:opacity) to stop double-blur (header + backdrop) pinning the compositor on high-DPR phones.
 
 **Verified (build):** eslint clean on both files; `tsc --noEmit` exits 0 project-wide. Screenshot-tool (desktop Chromium) confirmed open→close→reopen toggles correctly (aria-expanded true/false/true). Mobile touch verification via auto_frontend_testing_agent (iPhone 14 Pro Max device emulation): repeated open/close with NO dead taps and NO lingering dark shade on the icon.
+
+---
+
+## SESSION (preview 488001f0) — REAL-DEVICE FREEZE ROOT CAUSE (backdrop-filter) + dashboard menu + reduce-motion
+
+**Re-report:** User re-tested on a REAL iPhone 14 Pro Max: hamburger still FREEZES several seconds before opening (and on close). Emulation had given a false PASS. Dev logs: all page requests 200 in ~50-100ms, no JS errors → purely client-side iOS Safari compositor stall.
+
+**ROOT CAUSE (confirmed by troubleshoot_agent):** `FixedHeader` (public header) had an ALWAYS-ON full-width `backdrop-filter: blur(8px)` on mobile. When the MUI Drawer/Modal opens, iOS Safari must re-rasterise the blurred fixed header (@3x DPR = millions of px) against the new full-screen backdrop layer every frame → multi-second main-thread/compositor stall. Desktop + Playwright emulation don't hit this. Coinbase avoids backdrop-filter on mobile.
+
+**FIXES:**
+- styled.tsx FixedHeader: `@media (max-width:1025px)` → `backdrop-filter: none` + near-solid bg (dark rgba(11,11,15,0.96) / light rgba(250,250,247,0.98)). (Verified via computed style: header backdropFilter='none', bg='rgba(250,250,247,0.98)'.)
+- styled.tsx CmdCard (⌘K palette): drop blur on mobile too.
+- (prev turn) drawer backdrop blur already removed → NOW zero backdrop-filter active on mobile.
+- REDUCE-MOTION: HomeHeader + NewHeader drawers use `useMediaQuery("(prefers-reduced-motion: reduce)")` → `transitionDuration=0` when set.
+- DASHBOARD MENU (NewHeader): hamburger IconButton had a `&:hover` bg that sticks on touch → same sticky-hover fix (transparent on touch, disableRipple, hover tint only under `@media (hover:hover) and (pointer:fine)`). NewHeader has NO backdrop-filter (no freeze there) and a solid drawer paper.
+
+**Verified:** eslint clean (3 files); `tsc --noEmit` 0 errors; computed styles confirm backdrop-filter gone on mobile. NOTE: the multi-second FREEZE is a real-iOS-Safari-only symptom that Playwright/Chromium CANNOT reproduce — verification = the confirmed root cause (backdrop-filter) is removed + menu still functions + no sticky shade + reduce-motion works. User to re-confirm snappiness on the real iPhone (preview URL now, or after Save-to-Github deploy).

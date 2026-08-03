@@ -75,6 +75,9 @@ const HomeHeader = memo(function HomeHeader() {
   const { t } = useTranslation("landing");
   const muiTheme = useTheme();
   const isDark = muiTheme.palette.mode === "dark";
+  // Respect the OS "reduce motion" setting — skip the drawer slide entirely so
+  // open/close is instant for users who prefer no animation.
+  const reduceMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   const [isHeaderVisible, setIsHeaderVisible] = useState<boolean>(true);
@@ -452,7 +455,7 @@ const HomeHeader = memo(function HomeHeader() {
         anchor="right"
         open={mobileMenuOpen}
         onClose={() => setMobileMenuOpen(false)}
-        transitionDuration={{ enter: 200, exit: 150 }}
+        transitionDuration={reduceMotion ? 0 : { enter: 200, exit: 150 }}
         ModalProps={{ keepMounted: true, disableScrollLock: true }}
       >
         <MobileDrawer>
