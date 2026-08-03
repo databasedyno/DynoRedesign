@@ -10,7 +10,7 @@ import json
 import time
 
 # Configuration
-BASE_URL = "https://blockchain-pay-29.preview.emergentagent.com"
+BASE_URL = "https://config-preview-7.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 # Test credentials

@@ -8,7 +8,7 @@ import requests
 import json
 import sys
 
-BASE_URL = "https://4dfe167f-c2a7-4997-96aa-49f477041630.preview.emergentagent.com"
+BASE_URL = "https://config-preview-7.preview.emergentagent.com"
 TEST_EMAIL = "hostbay@moxx.co"
 TEST_PASSWORD = "Katiekendra123@"
 
