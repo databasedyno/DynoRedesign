@@ -1,3 +1,19 @@
+# CURRENT SESSION (Fresh Container Setup — 2025-07 / preview 9b0a80d2)
+
+- **Preview URL**: https://9b0a80d2-8e5d-4885-81d5-45bd7492d8d5.preview.emergentagent.com — set as NEXT_PUBLIC_BASE_URL + NEXT_PUBLIC_SERVER_URL + NEXTAUTH_URL and added FIRST in CORS_ALLOWED_ORIGINS. Verified 200 on / (Next.js landing) and /api/public/tickers (returns {"status":"success","data":[]}).
+- **Merchant test account** (LIVE Railway PG, UNCHANGED): **hostbay@moxx.co / Katiekendra123@** — carried from prior sessions, not re-verified this run.
+- **Admin email** (env ADMIN_EMAIL): moxxcompany@gmail.com
+- **NEXTAUTH_SECRET** (this session): sqlcIbaZug71ucSG93DgXQ9C0Ut1PrXyhxX2pX2cOYk=
+- **SAFETY**: ENABLE_BACKGROUND_JOBS=false + WORKER_ROLE=secondary + NODE_ENV=production → confirmed in logs: "Skipping BullMQ webhook worker (background jobs disabled — secondary instance)", "Skipping startup reconciliation", "Skipping error digest", "Skipping webhook URL migration". No sweeps/settlement/conversions run from preview.
+- Setup: fresh container had no .env + no node_modules. Ran `yarn install` in /app/backend (~42s) and /app (~similar). Wrote /app/backend/.env (full provided creds, KMS GOOGLE_CLIENT_KEY converted from \\n → \n so dotenv loads it, normalizePrivateKey in tatumApi.ts also handles) and /app/.env.local (Next.js NEXT_PUBLIC_* + NextAuth vars → preview URL). Added DATABASE_URL to /app/backend/.env (postgresql://postgres:...@roundhouse.proxy.rlwy.net:23599/railway) so dbInstance.ts takes the SSL-enabled branch. REDIS_URL also set alongside REDIS_PUBLIC_URL. DB_SSL_REJECT_UNAUTHORIZED=false for Railway self-signed cert. Fixed user typo EXT_PUBLIC_ENABLE_GITHUB_AUTH → NEXT_PUBLIC_ENABLE_GITHUB_AUTH.
+- Confirmed live from backend logs: PostgreSQL connected (railway) + all tables synced (stablecoin conversion, push subscription, payment journal, company auto-convert), Merchant Pool validated, Node.js server on :3300, uvicorn proxy on :8001, Swagger at /api/docs, Tatum rates flowing (BTC $62,778, ETH $1,846, TRX $0.327, LTC $44.2, DOGE $0.069 across USD/EUR/BRL/GBP — 40 rates in 2993ms), Binance geo-blocked (WS 451) → CoinGecko fallback active (expected/harmless), SSH SOCKS tunnel disabled (sshpass not installed).
+- Backend = server.py uvicorn ASGI proxy :8001 → ts-node server.ts :3300. Frontend = next dev :3000 (Next.js 14.2.35, compiled in 23.7s / 3099 modules) via /app/frontend bridge → cd /app.
+- OAuth providers (Google client id 163670787265-…, GitHub Ov23liBuaGCFqNpp2QzW) present but redirect URIs are registered for dynopay.com so they will NOT complete login in this preview URL — testing with hostbay@moxx.co / Katiekendra123@ email login only.
+- NO CODE CHANGES — pure env provisioning + dependency install.
+
+---
+
+
 # CURRENT SESSION (Live Payment Feed + Mobile Nav Restructure — 2026-08-02 v4) — SESSION 97c
 
 - **Preview URL**: https://config-preview-7.preview.emergentagent.com — set as NEXT_PUBLIC_BASE_URL + NEXT_PUBLIC_SERVER_URL + NEXTAUTH_URL and added FIRST in CORS_ALLOWED_ORIGINS. Verified 200 on /, /auth/login, /api/public/tickers, /api/csrf-token (internal :8001 + external).
