@@ -625,7 +625,9 @@
       "startNew": "Nieuwe betaling starten"
     },
     "sendWarning": {
-      "line": "Verzenden van een ander asset dan"
+      "line": "Verzenden van een ander asset dan",
+      "orNetwork": "of een ander netwerk gebruikt dan",
+      "willResult": "leidt dit tot permanent en onomkeerbaar verlies van de fondsen."
     },
     "memoRequired": {
       "label": "DESTINATION TAG / MEMO (VERPLICHT)"
@@ -642,7 +644,50 @@
     "tax": "Belasting",
     "networkFee": "Netwerkkosten",
     "total": "Totaal",
-    "estimated": "ca."
+    "estimated": "ca.",
+    "openInWallet": "Openen in wallet-app",
+    "openInWalletHint": "Opent je crypto-wallet met adres en bedrag al ingevuld.",
+    "reference": "REFERENTIE",
+    "invoice": "FACTUUR",
+    "networkLabel": "NETWERK",
+    "currencyLabel": "VALUTA",
+    "addressLabel": "ADRES",
+    "amountLabel": "BEDRAG",
+    "payPrefix": "Betaal",
+    "payOn": "via",
+    "tapQr": "Tik op de QR om het adres te kopiëren",
+    "addressCopied": "Adres gekopieerd",
+    "copy": "Kopiëren",
+    "copied": "Gekopieerd",
+    "copyAddress": "Adres kopiëren",
+    "copiedExclaim": "Gekopieerd!",
+    "sendExactly": "Stuur exact",
+    "poweredBy": "Mogelijk gemaakt door",
+    "terms": "Voorwaarden",
+    "privacy": "Privacy",
+    "refundPlaceholder": "Je {{coin}}-adres voor terugbetalingen",
+    "success": {
+      "title": "Betaling geslaagd",
+      "titleContribution": "Bedankt voor je bijdrage!",
+      "paidTo": "Betaald aan {{name}}"
+    },
+    "share": {
+      "prompt": "Betalen met crypto bevallen? Vertel het verder",
+      "promptContribution": "Help {{name}} meer mensen te bereiken",
+      "copied": "Link gekopieerd!",
+      "fundraiser": "Deel deze inzameling",
+      "dynopay": "Deel DynoPay"
+    },
+    "status": {
+      "confirming": "Betaling gedetecteerd — bevestigen…",
+      "underpaid": "Onderbetaling gedetecteerd",
+      "waiting": "Wachten op betaling"
+    },
+    "step": {
+      "confirmed": "Bevestigd",
+      "detected": "Gedetecteerd",
+      "waiting": "Wachten"
+    }
   },
   "creator": {
     "card": {

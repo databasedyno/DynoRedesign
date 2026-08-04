@@ -625,7 +625,9 @@
       "startNew": "Lancer un nouveau paiement"
     },
     "sendWarning": {
-      "line": "Envoyer tout actif autre que"
+      "line": "Envoyer tout actif autre que",
+      "orNetwork": "ou si vous utilisez un réseau autre que",
+      "willResult": "entraînera la perte définitive et irréversible des fonds."
     },
     "memoRequired": {
       "label": "TAG DE DESTINATION / MEMO (OBLIGATOIRE)"
@@ -642,7 +644,50 @@
     "tax": "Taxe",
     "networkFee": "Frais de réseau",
     "total": "Total",
-    "estimated": "est."
+    "estimated": "est.",
+    "openInWallet": "Ouvrir dans l'app wallet",
+    "openInWalletHint": "Ouvre votre portefeuille crypto avec l'adresse et le montant pré-remplis.",
+    "reference": "RÉFÉRENCE",
+    "invoice": "FACTURE",
+    "networkLabel": "RÉSEAU",
+    "currencyLabel": "DEVISE",
+    "addressLabel": "ADRESSE",
+    "amountLabel": "MONTANT",
+    "payPrefix": "Payez",
+    "payOn": "sur",
+    "tapQr": "Touchez le QR pour copier l'adresse",
+    "addressCopied": "Adresse copiée",
+    "copy": "Copier",
+    "copied": "Copié",
+    "copyAddress": "Copier l'adresse",
+    "copiedExclaim": "Copié !",
+    "sendExactly": "Envoyez exactement",
+    "poweredBy": "Propulsé par",
+    "terms": "Conditions",
+    "privacy": "Confidentialité",
+    "refundPlaceholder": "Votre adresse {{coin}} pour les remboursements",
+    "success": {
+      "title": "Paiement réussi",
+      "titleContribution": "Merci pour votre contribution !",
+      "paidTo": "Payé à {{name}}"
+    },
+    "share": {
+      "prompt": "Vous avez aimé payer en crypto ? Faites passer le mot",
+      "promptContribution": "Aidez {{name}} à toucher plus de monde",
+      "copied": "Lien copié !",
+      "fundraiser": "Partager cette collecte",
+      "dynopay": "Partager DynoPay"
+    },
+    "status": {
+      "confirming": "Paiement détecté — confirmation…",
+      "underpaid": "Paiement insuffisant détecté",
+      "waiting": "En attente de paiement"
+    },
+    "step": {
+      "confirmed": "Confirmé",
+      "detected": "Détecté",
+      "waiting": "En attente"
+    }
   },
   "creator": {
     "card": {

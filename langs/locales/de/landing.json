@@ -625,7 +625,9 @@
       "startNew": "Neue Zahlung starten"
     },
     "sendWarning": {
-      "line": "Wenn du einen anderen Vermögenswert sendest als"
+      "line": "Wenn du einen anderen Vermögenswert sendest als",
+      "orNetwork": "oder ein anderes Netzwerk verwendest als",
+      "willResult": "führt dies zum dauerhaften und unwiderruflichen Verlust der Gelder."
     },
     "memoRequired": {
       "label": "DESTINATION TAG / MEMO (ERFORDERLICH)"
@@ -642,7 +644,50 @@
     "tax": "Steuer",
     "networkFee": "Netzwerkgebühr",
     "total": "Gesamt",
-    "estimated": "ca."
+    "estimated": "ca.",
+    "openInWallet": "In Wallet-App öffnen",
+    "openInWalletHint": "Öffnet deine Krypto-Wallet mit vorausgefüllter Adresse und Betrag.",
+    "reference": "REFERENZ",
+    "invoice": "RECHNUNG",
+    "networkLabel": "NETZWERK",
+    "currencyLabel": "WÄHRUNG",
+    "addressLabel": "ADRESSE",
+    "amountLabel": "BETRAG",
+    "payPrefix": "Zahle",
+    "payOn": "über",
+    "tapQr": "Tippe auf den QR-Code, um die Adresse zu kopieren",
+    "addressCopied": "Adresse kopiert",
+    "copy": "Kopieren",
+    "copied": "Kopiert",
+    "copyAddress": "Adresse kopieren",
+    "copiedExclaim": "Kopiert!",
+    "sendExactly": "Sende genau",
+    "poweredBy": "Bereitgestellt von",
+    "terms": "AGB",
+    "privacy": "Datenschutz",
+    "refundPlaceholder": "Deine {{coin}}-Adresse für Rückerstattungen",
+    "success": {
+      "title": "Zahlung erfolgreich",
+      "titleContribution": "Danke für deinen Beitrag!",
+      "paidTo": "Bezahlt an {{name}}"
+    },
+    "share": {
+      "prompt": "Hat das Bezahlen mit Krypto Spaß gemacht? Erzähl es weiter",
+      "promptContribution": "Hilf {{name}}, mehr Menschen zu erreichen",
+      "copied": "Link kopiert!",
+      "fundraiser": "Diese Spendenaktion teilen",
+      "dynopay": "DynoPay teilen"
+    },
+    "status": {
+      "confirming": "Zahlung erkannt – wird bestätigt…",
+      "underpaid": "Unterzahlung erkannt",
+      "waiting": "Warten auf Zahlung"
+    },
+    "step": {
+      "confirmed": "Bestätigt",
+      "detected": "Erkannt",
+      "waiting": "Warten"
+    }
   },
   "creator": {
     "card": {

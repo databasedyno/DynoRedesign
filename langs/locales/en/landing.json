@@ -625,7 +625,9 @@
       "startNew": "Start a new payment"
     },
     "sendWarning": {
-      "line": "Sending any asset other than"
+      "line": "Sending any asset other than",
+      "orNetwork": "or using any network other than",
+      "willResult": "will result in the permanent and irreversible loss of the funds."
     },
     "memoRequired": {
       "label": "DESTINATION TAG / MEMO (REQUIRED)"
@@ -642,7 +644,50 @@
     "tax": "Tax",
     "networkFee": "Network fee",
     "total": "Total",
-    "estimated": "est."
+    "estimated": "est.",
+    "openInWallet": "Open in wallet app",
+    "openInWalletHint": "Opens your crypto wallet with the address and amount pre-filled.",
+    "reference": "REFERENCE",
+    "invoice": "INVOICE",
+    "networkLabel": "NETWORK",
+    "currencyLabel": "CURRENCY",
+    "addressLabel": "ADDRESS",
+    "amountLabel": "AMOUNT",
+    "payPrefix": "Pay",
+    "payOn": "on",
+    "tapQr": "Tap the QR to copy the address",
+    "addressCopied": "Address copied",
+    "copy": "Copy",
+    "copied": "Copied",
+    "copyAddress": "Copy address",
+    "copiedExclaim": "Copied!",
+    "sendExactly": "Send exactly",
+    "poweredBy": "Powered by",
+    "terms": "Terms",
+    "privacy": "Privacy",
+    "refundPlaceholder": "Your {{coin}} address for refunds",
+    "success": {
+      "title": "Payment successful",
+      "titleContribution": "Thank you for contributing!",
+      "paidTo": "Paid to {{name}}"
+    },
+    "share": {
+      "prompt": "Enjoyed paying with crypto? Spread the word",
+      "promptContribution": "Help {{name}} reach more people",
+      "copied": "Link copied!",
+      "fundraiser": "Share this fundraiser",
+      "dynopay": "Share DynoPay"
+    },
+    "status": {
+      "confirming": "Payment detected — confirming…",
+      "underpaid": "Underpayment detected",
+      "waiting": "Waiting for payment"
+    },
+    "step": {
+      "confirmed": "Confirmed",
+      "detected": "Detected",
+      "waiting": "Waiting"
+    }
   },
   "creator": {
     "card": {

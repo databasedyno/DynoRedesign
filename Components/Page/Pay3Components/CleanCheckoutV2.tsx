@@ -781,10 +781,10 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
             <Icon icon="mdi:check-bold" width={36} color={ON_BRAND} />
           </Box>
           <Typography fontWeight={700} fontSize={22} letterSpacing="-0.5px" color={theme.palette.text.primary}>
-            {isContribution ? 'Thank you for contributing!' : 'Payment successful'}
+            {isContribution ? t('checkout.success.titleContribution', { defaultValue: 'Thank you for contributing!' }) : t('checkout.success.title', { defaultValue: 'Payment successful' })}
           </Typography>
           <Typography fontSize={14} color={muted} mt={1}>
-            {isContribution ? campaignTitle || merchantName : `Paid to ${merchantName}`} — {fiatSymbol}{fiatAmount}
+            {isContribution ? campaignTitle || merchantName : t('checkout.success.paidTo', { defaultValue: 'Paid to {{name}}', name: merchantName })} — {fiatSymbol}{fiatAmount}
           </Typography>
           <Typography sx={{ fontFamily: MONO, fontSize: 12.5, color: muted, mt: 0.5 }}>
             {formatCryptoAmount(confirmedAmount.crypto, cryptoInfo?.crypto_base || 'BTC')} {cryptoInfo?.crypto_base}
@@ -807,8 +807,8 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
         >
           <Typography fontSize={13} color={muted} textAlign="center">
             {isContribution
-              ? `Help ${campaignTitle || merchantName} reach more people`
-              : 'Enjoyed paying with crypto? Spread the word'}
+              ? t('checkout.share.promptContribution', { defaultValue: 'Help {{name}} reach more people', name: campaignTitle || merchantName })
+              : t('checkout.share.prompt', { defaultValue: 'Enjoyed paying with crypto? Spread the word' })}
           </Typography>
           <Button
             fullWidth
@@ -829,10 +829,10 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
             }}
           >
             {shareCopied
-              ? 'Link copied!'
+              ? t('checkout.share.copied', { defaultValue: 'Link copied!' })
               : isContribution
-                ? 'Share this fundraiser'
-                : 'Share DynoPay'}
+                ? t('checkout.share.fundraiser', { defaultValue: 'Share this fundraiser' })
+                : t('checkout.share.dynopay', { defaultValue: 'Share DynoPay' })}
           </Button>
         </Box>
       </PanelShell>
@@ -992,7 +992,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
           )}
           {meta_.order_reference && (
             <Typography sx={{ fontFamily: MONO, fontSize: 11.5, color: muted }}>
-              {isContribution ? 'REFERENCE' : 'INVOICE'} · {meta_.order_reference}
+              {isContribution ? t('checkout.reference', { defaultValue: 'REFERENCE' }) : t('checkout.invoice', { defaultValue: 'INVOICE' })} · {meta_.order_reference}
             </Typography>
           )}
         </Box>
@@ -1002,7 +1002,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
       <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.25, mb: 2.5 }}>
         <Box>
           <Typography sx={{ fontSize: 11.5, fontWeight: 600, color: muted, mb: 0.5, letterSpacing: '0.02em' }}>
-            NETWORK
+            {t('checkout.networkLabel', { defaultValue: 'NETWORK' })}
           </Typography>
           <Select
             fullWidth
@@ -1042,7 +1042,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
         </Box>
         <Box>
           <Typography sx={{ fontSize: 11.5, fontWeight: 600, color: muted, mb: 0.5, letterSpacing: '0.02em' }}>
-            CURRENCY
+            {t('checkout.currencyLabel', { defaultValue: 'CURRENCY' })}
           </Typography>
           <Select
             fullWidth
@@ -1084,7 +1084,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
           data-testid="clean-checkout-instruction"
           sx={{ fontSize: 14, color: theme.palette.text.primary, textAlign: 'center', mb: 2 }}
         >
-          Pay <strong>{formatCryptoAmount(cryptoInfo.expected_amount, cryptoInfo.crypto_base)} {cryptoInfo.crypto_base}</strong> on {CRYPTO_INFO[cryptoInfo.crypto_display]?.networkLabel || cryptoInfo.network}
+          {t('checkout.payPrefix', { defaultValue: 'Pay' })} <strong>{formatCryptoAmount(cryptoInfo.expected_amount, cryptoInfo.crypto_base)} {cryptoInfo.crypto_base}</strong> {t('checkout.payOn', { defaultValue: 'on' })} {CRYPTO_INFO[cryptoInfo.crypto_display]?.networkLabel || cryptoInfo.network}
         </Typography>
       )}
 
@@ -1139,7 +1139,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
             sx={{ mt: 1, fontSize: 12, fontWeight: 600, color: copiedFlag === 'addr' ? LIME : muted, display: 'flex', alignItems: 'center', gap: 0.4 }}
           >
             <Icon icon={copiedFlag === 'addr' ? 'mdi:check-circle' : 'mdi:content-copy'} width={13} />
-            {copiedFlag === 'addr' ? 'Address copied' : 'Tap the QR to copy the address'}
+            {copiedFlag === 'addr' ? t('checkout.addressCopied', { defaultValue: 'Address copied' }) : t('checkout.tapQr', { defaultValue: 'Tap the QR to copy the address' })}
           </Typography>
         </Box>
       )}
@@ -1155,7 +1155,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
         >
           <Icon icon="mdi:alert-outline" width={18} color={warnFg} style={{ flexShrink: 0, marginTop: 2 }} />
           <Typography sx={{ fontSize: 12.5, color: theme.palette.text.primary, lineHeight: 1.5 }}>
-            {t('checkout.sendWarning.line')} <strong>{cryptoInfo.crypto_base}</strong> or using any network other than <strong>{CRYPTO_INFO[cryptoInfo.crypto_display]?.networkLabel || cryptoInfo.network}</strong> will result in the permanent and irreversible loss of the funds.
+            {t('checkout.sendWarning.line')} <strong>{cryptoInfo.crypto_base}</strong> {t('checkout.sendWarning.orNetwork', { defaultValue: 'or using any network other than' })} <strong>{CRYPTO_INFO[cryptoInfo.crypto_display]?.networkLabel || cryptoInfo.network}</strong> {t('checkout.sendWarning.willResult', { defaultValue: 'will result in the permanent and irreversible loss of the funds.' })}
           </Typography>
         </Box>
       )}
@@ -1164,7 +1164,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
       {cryptoInfo && (
         <Box sx={{ mb: 2 }}>
           <Typography sx={{ fontSize: 11.5, fontWeight: 600, color: muted, mb: 0.5, letterSpacing: '0.02em' }}>
-            ADDRESS
+            {t('checkout.addressLabel', { defaultValue: 'ADDRESS' })}
           </Typography>
           <Box
             sx={{
@@ -1191,7 +1191,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
               }}
             >
               <Icon icon={copiedFlag === 'addr' ? 'mdi:check' : 'mdi:content-copy'} width={12} />
-              {copiedFlag === 'addr' ? 'Copied' : 'Copy'}
+              {copiedFlag === 'addr' ? t('checkout.copied', { defaultValue: 'Copied' }) : t('checkout.copy', { defaultValue: 'Copy' })}
             </Box>
           </Box>
         </Box>
@@ -1201,7 +1201,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
       {cryptoInfo && (
         <Box sx={{ mb: 2 }}>
           <Typography sx={{ fontSize: 11.5, fontWeight: 600, color: muted, mb: 0.5, letterSpacing: '0.02em' }}>
-            AMOUNT
+            {t('checkout.amountLabel', { defaultValue: 'AMOUNT' })}
           </Typography>
           <Box
             sx={{
@@ -1225,7 +1225,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
               }}
             >
               <Icon icon={copiedFlag === 'amt' ? 'mdi:check' : 'mdi:content-copy'} width={12} />
-              {copiedFlag === 'amt' ? 'Copied' : 'Copy'}
+              {copiedFlag === 'amt' ? t('checkout.copied', { defaultValue: 'Copied' }) : t('checkout.copy', { defaultValue: 'Copy' })}
             </Box>
           </Box>
         </Box>
@@ -1286,7 +1286,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.35,
               }}
             >
-              <Icon icon="mdi:content-copy" width={12} /> Copy
+              <Icon icon="mdi:content-copy" width={12} /> {t('checkout.copy', { defaultValue: 'Copy' })}
             </Box>
           </Box>
         </Box>
@@ -1316,7 +1316,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
             <TextField
               fullWidth
               size="small"
-              placeholder={`Your ${cryptoInfo.crypto_base} address for refunds`}
+              placeholder={t('checkout.refundPlaceholder', { defaultValue: 'Your {{coin}} address for refunds', coin: cryptoInfo.crypto_base }) as string}
               value={refundAddress}
               onChange={(e) => setRefundAddress(e.target.value)}
               onBlur={(e) => saveRefundAddress(e.target.value)}
@@ -1347,14 +1347,14 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
       {/* Footer links */}
       <Box sx={{ mt: 3, pt: 2, borderTop: `1px solid ${border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Typography fontSize={11} color={muted}>
-          Powered by <strong style={{ color: theme.palette.text.primary }}>DYNOPAY</strong>
+          {t('checkout.poweredBy', { defaultValue: 'Powered by' })} <strong style={{ color: theme.palette.text.primary }}>DYNOPAY</strong>
         </Typography>
         <Box sx={{ display: 'flex', gap: 1.5 }}>
           <a href="/pay/terms-of-service" target="_blank" rel="noopener noreferrer" style={{ color: muted, fontSize: 11, textDecoration: 'none' }}>
-            Terms
+            {t('checkout.terms', { defaultValue: 'Terms' })}
           </a>
           <a href="/privacy-policy" target="_blank" rel="noopener noreferrer" style={{ color: muted, fontSize: 11, textDecoration: 'none' }}>
-            Privacy
+            {t('checkout.privacy', { defaultValue: 'Privacy' })}
           </a>
         </Box>
       </Box>
@@ -1380,7 +1380,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
         >
           <Box sx={{ minWidth: 0, flexShrink: 1 }}>
             <Typography sx={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.04em', color: muted, textTransform: 'uppercase', lineHeight: 1 }}>
-              Send exactly
+              {t('checkout.sendExactly', { defaultValue: 'Send exactly' })}
             </Typography>
             <Typography sx={{ fontFamily: MONO, fontSize: 15, fontWeight: 700, color: theme.palette.text.primary, lineHeight: 1.25, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
               {formatCryptoAmount(cryptoInfo.expected_amount, cryptoInfo.crypto_base)} {cryptoInfo.crypto_base}
@@ -1436,7 +1436,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
                 '&:active': { transform: 'scale(0.99)' },
               }}
             >
-              {copiedFlag === 'addr' ? 'Copied!' : 'Copy address'}
+              {copiedFlag === 'addr' ? t('checkout.copiedExclaim', { defaultValue: 'Copied!' }) : t('checkout.copyAddress', { defaultValue: 'Copy address' })}
             </Button>
           )}
         </Box>,

@@ -625,7 +625,9 @@
       "startNew": "Iniciar un nuevo pago"
     },
     "sendWarning": {
-      "line": "Enviar cualquier activo distinto a"
+      "line": "Enviar cualquier activo distinto a",
+      "orNetwork": "o usas una red distinta de",
+      "willResult": "provocará la pérdida permanente e irreversible de los fondos."
     },
     "memoRequired": {
       "label": "TAG DE DESTINO / MEMO (OBLIGATORIO)"
@@ -642,7 +644,50 @@
     "tax": "Impuesto",
     "networkFee": "Comisión de red",
     "total": "Total",
-    "estimated": "aprox."
+    "estimated": "aprox.",
+    "openInWallet": "Abrir en la app de wallet",
+    "openInWalletHint": "Abre tu monedero cripto con la dirección y el importe ya rellenados.",
+    "reference": "REFERENCIA",
+    "invoice": "FACTURA",
+    "networkLabel": "RED",
+    "currencyLabel": "MONEDA",
+    "addressLabel": "DIRECCIÓN",
+    "amountLabel": "IMPORTE",
+    "payPrefix": "Paga",
+    "payOn": "en",
+    "tapQr": "Toca el QR para copiar la dirección",
+    "addressCopied": "Dirección copiada",
+    "copy": "Copiar",
+    "copied": "Copiado",
+    "copyAddress": "Copiar dirección",
+    "copiedExclaim": "¡Copiado!",
+    "sendExactly": "Envía exactamente",
+    "poweredBy": "Con la tecnología de",
+    "terms": "Términos",
+    "privacy": "Privacidad",
+    "refundPlaceholder": "Tu dirección {{coin}} para reembolsos",
+    "success": {
+      "title": "Pago realizado",
+      "titleContribution": "¡Gracias por tu contribución!",
+      "paidTo": "Pagado a {{name}}"
+    },
+    "share": {
+      "prompt": "¿Te gustó pagar con cripto? Corre la voz",
+      "promptContribution": "Ayuda a {{name}} a llegar a más gente",
+      "copied": "¡Enlace copiado!",
+      "fundraiser": "Compartir esta campaña",
+      "dynopay": "Compartir DynoPay"
+    },
+    "status": {
+      "confirming": "Pago detectado: confirmando…",
+      "underpaid": "Pago insuficiente detectado",
+      "waiting": "Esperando el pago"
+    },
+    "step": {
+      "confirmed": "Confirmado",
+      "detected": "Detectado",
+      "waiting": "Esperando"
+    }
   },
   "creator": {
     "card": {

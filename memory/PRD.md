@@ -1,6 +1,14 @@
 # DynoPay - Payment Gateway PRD
 
 
+### 2026-06 — Session (fork) — Checkout localization pass: wrapped remaining hardcoded strings + translated to all 6 languages — ✅ DONE (DE verified live)
+`CleanCheckoutV2.tsx`: replaced ~21 hardcoded English strings with `t('checkout.*', {defaultValue})` and added 37 keys × 6 languages to `langs/locales/{lang}/landing.json` (en/de/fr/pt/es/nl).
+- Fixed the reported wrong-network warning (previously only `sendWarning.line` was translated; the tail was hardcoded EN) by adding `sendWarning.orNetwork` + `sendWarning.willResult` — now the full sentence localizes with the coin/network kept bold.
+- Also localized: success titles + "Paid to {{name}}", share prompt/button (prompt/copied/fundraiser/dynopay), REFERENCE/INVOICE, NETWORK/CURRENCY/ADDRESS/AMOUNT labels, "Pay {amt} on {network}" (payPrefix+payOn preserve bold), tap-QR / address-copied hints, Copy/Copied/Copy address/Copied!, Send exactly, Powered by, Terms/Privacy, refund placeholder ("Your {{coin}} address for refunds"), status.* (waiting/confirming/underpaid) + step.* (waiting/detected/confirmed), openInWallet + hint.
+- Verified live (client-side mock, DE): warning, instruction ("Zahle 0.00082 BTC über Bitcoin"), QR hint, and all section labels render in German; fee breakdown Betrag/Netzwerkgebühr/Gesamt intact. `/pay` compiles, all 6 JSON valid. NOTE: the outgoing social share MESSAGE text in `handleShare` (title/text strings) was intentionally left as-is (not visible checkout UI). FR/ES/PT/NL use the same keys (translations added) — not individually screenshotted.
+
+
+
 ### 2026-06 — Session (fork) — i18n: checkout fee-breakdown labels translated to all 6 languages — ✅ DONE (DE verified live)
 Added the 5 checkout breakdown keys to the `checkout` group of `langs/locales/{lang}/landing.json` (the `useTranslation('landing')` namespace used by `CleanCheckoutV2`) for en/de/fr/pt/es/nl:
 - `amount`, `tax`, `networkFee`, `total`, `estimated`.
