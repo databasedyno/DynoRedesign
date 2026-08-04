@@ -25,21 +25,13 @@ walletRouter.post("/verifyCode", walletController.verifyOtp);
 // Alternative: Direct add (for merchants, no OTP)
 walletRouter.post("/addWalletAddress", walletController.addWalletAddress);
 
-// UPDATE - Edit wallet address (2-step OTP flow)
-// Step 1: Send OTP for update
-walletRouter.post("/address/send-otp", walletController.sendEditWalletOTP);
-// Step 2: Verify OTP and update
+// UPDATE - Edit wallet address (OTP is issued by /validateWalletAddress and
+// verified inline in editWalletAddress; the old /address/send-otp step is unused).
 walletRouter.put("/address/:id", walletController.editWalletAddress);
 // ALIAS: Frontend compatibility - PUT /wallet/updateWallet/:id -> PUT /wallet/address/:id
 walletRouter.put("/updateWallet/:id", walletController.editWalletAddress);
 
-// DELETE - Delete wallet address (2-step OTP flow)
-// Step 1: Send OTP for deletion
-walletRouter.post("/address/delete/send-otp", walletController.sendDeleteWalletOTP);
-// Step 2: Verify OTP and delete
-walletRouter.post("/deleteWalletAddress", walletController.deleteWalletAddressWithOTP);
-// ALIAS: Frontend compatibility - DELETE /wallet/deleteWallet/:id -> POST /wallet/deleteWalletAddress
-walletRouter.delete("/deleteWallet/:id", walletController.deleteWalletAddressWithOTP);
+// DELETE - the merchant delete flow lives on /wallet/delete/* (see below).
 
 // UPDATE - Update wallet in main payment system (2-step OTP flow)
 walletRouter.post("/wallet/update/send-otp", walletController.sendUpdateWalletOTP);

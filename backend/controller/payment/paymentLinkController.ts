@@ -64,9 +64,10 @@ export const getDonationAggregates = async (
 export const getRecentSupporters = async (
   parentLinkId: number,
   limit = 10
-): Promise<Array<{ name: string | null; message: string | null; amount: number; currency: string; at: string }>> => {
+): Promise<Array<{ contribution_id: number; name: string | null; message: string | null; amount: number; currency: string; at: string; organizer_reply: string | null; organizer_reply_at: string | null }>> => {
   const rows = (await sequelize.query(
-    `SELECT donor_name, donor_message, is_anonymous, base_amount, base_currency, "updatedAt"
+    `SELECT link_id, donor_name, donor_message, is_anonymous, base_amount, base_currency, "updatedAt",
+            organizer_reply, organizer_reply_at
      FROM tbl_payment_link
      WHERE parent_link_id = :pid AND LOWER(status) IN (:statuses)
      ORDER BY "updatedAt" DESC LIMIT :lim`,
@@ -75,19 +76,25 @@ export const getRecentSupporters = async (
       type: QueryTypes.SELECT,
     }
   )) as Array<{
+    link_id: number;
     donor_name: string | null;
     donor_message: string | null;
     is_anonymous: boolean | null;
     base_amount: number;
     base_currency: string | null;
     updatedAt: string;
+    organizer_reply: string | null;
+    organizer_reply_at: string | null;
   }>;
   return rows.map((r) => ({
+    contribution_id: Number(r.link_id),
     name: r.is_anonymous ? null : r.donor_name || null,
     message: r.donor_message || null,
     amount: Number(r.base_amount || 0),
     currency: r.base_currency || "USD",
     at: r.updatedAt,
+    organizer_reply: r.organizer_reply || null,
+    organizer_reply_at: r.organizer_reply_at || null,
   }));
 };
 

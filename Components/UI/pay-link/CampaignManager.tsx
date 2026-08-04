@@ -45,6 +45,18 @@ interface CampaignUpdate {
   created_at?: string;
 }
 
+interface CampaignSupporter {
+  contribution_id: number;
+  name: string | null;
+  message: string | null;
+  amount: number;
+  currency: string;
+  at: string;
+  organizer_reply: string | null;
+  organizer_reply_at: string | null;
+  is_anonymous?: boolean;
+}
+
 interface CampaignManagerProps {
   linkId: string | number;
   currency: string;
@@ -54,9 +66,12 @@ const CampaignManager = ({ linkId, currency }: CampaignManagerProps) => {
   const theme = useTheme();
   const { t } = useTranslation("createPaymentLinkScreen");
   const green = "#10B981";
-  const [tab, setTab] = useState<"tiers" | "updates">("tiers");
+  const [tab, setTab] = useState<"tiers" | "updates" | "supporters">("tiers");
   const [tiers, setTiers] = useState<Tier[]>([]);
   const [updates, setUpdates] = useState<CampaignUpdate[]>([]);
+  const [supporters, setSupporters] = useState<CampaignSupporter[]>([]);
+  const [replyDrafts, setReplyDrafts] = useState<Record<number, string>>({});
+  const [replyingId, setReplyingId] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>("");
@@ -74,12 +89,21 @@ const CampaignManager = ({ linkId, currency }: CampaignManagerProps) => {
     setLoading(true);
     setError("");
     try {
-      const [tiersRes, updatesRes] = await Promise.all([
+      const [tiersRes, updatesRes, wallRes] = await Promise.all([
         axiosBaseApi.get(`/pay/campaign/${linkId}/tiers`),
         axiosBaseApi.get(`/pay/campaign/${linkId}/updates`),
+        axiosBaseApi.get(`/pay/campaign/${linkId}/wall?limit=100&sort=recent`),
       ]);
       setTiers(tiersRes.data?.data || []);
       setUpdates(updatesRes.data?.data || []);
+      const wallItems: CampaignSupporter[] = wallRes.data?.data?.items || [];
+      setSupporters(wallItems);
+      setReplyDrafts(
+        wallItems.reduce((acc: Record<number, string>, s) => {
+          acc[s.contribution_id] = s.organizer_reply || "";
+          return acc;
+        }, {})
+      );
     } catch (e: any) {
       setError(e?.response?.data?.message || "Failed to load campaign details.");
     } finally {
@@ -217,6 +241,26 @@ const CampaignManager = ({ linkId, currency }: CampaignManagerProps) => {
     }
   };
 
+  // ══════════════ DONOR-WALL REPLY ══════════════
+  const submitReply = async (contribId: number, clear = false) => {
+    if (replyingId) return;
+    const text = clear ? "" : (replyDrafts[contribId] || "").trim();
+    if (!clear && !text) return setError("Write a reply before posting.");
+    setReplyingId(contribId);
+    setError("");
+    try {
+      await axiosBaseApi.patch(`/pay/contribution/${contribId}/reply`, {
+        reply: clear ? null : text,
+      });
+      showNotice(clear ? "Reply removed." : "Reply posted — it now shows on your public wall.");
+      await load();
+    } catch (e: any) {
+      setError(e?.response?.data?.message || "Could not save your reply.");
+    } finally {
+      setReplyingId(null);
+    }
+  };
+
   // ── shared input styles ──
   const inputSx = {
     width: "100%",
@@ -300,6 +344,11 @@ const CampaignManager = ({ linkId, currency }: CampaignManagerProps) => {
           data-testid="cm-tab-updates"
           value="updates"
           label={`${t("campaignTabUpdates", { defaultValue: "Updates" })} · ${updates.length}`}
+        />
+        <Tab
+          data-testid="cm-tab-supporters"
+          value="supporters"
+          label={`${t("campaignTabSupporters", { defaultValue: "Supporters" })} · ${supporters.length}`}
         />
       </Tabs>
 
@@ -644,6 +693,120 @@ const CampaignManager = ({ linkId, currency }: CampaignManagerProps) => {
               )}
             </Box>
           </Box>
+        </Box>
+      )}
+
+      {/* ═══════ SUPPORTERS TAB ═══════ */}
+      {!loading && tab === "supporters" && (
+        <Box data-testid="cm-supporters-panel">
+          {supporters.length === 0 ? (
+            <Typography sx={{ fontSize: 13, color: theme.palette.text.secondary, mb: 2 }}>
+              {t("noSupportersYet", {
+                defaultValue:
+                  "No contributions yet. Once people support your campaign, you can reply to them here.",
+              })}
+            </Typography>
+          ) : (
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 1.25 }}>
+              <Typography sx={{ fontSize: 12, color: theme.palette.text.secondary, mb: 0.5 }}>
+                {t("supportersHelper", {
+                  defaultValue:
+                    "Reply to a supporter to thank them. Your reply appears publicly under their message on the campaign page.",
+                })}
+              </Typography>
+              {supporters.map((s) => {
+                const displayName = s.is_anonymous || !s.name ? "Anonymous" : s.name;
+                const draft = replyDrafts[s.contribution_id] ?? "";
+                const isReplying = replyingId === s.contribution_id;
+                return (
+                  <Box
+                    key={s.contribution_id}
+                    data-testid={`cm-supporter-${s.contribution_id}`}
+                    sx={cardSx}
+                  >
+                    <Box sx={{ display: "flex", alignItems: "baseline", gap: 1, mb: 0.25 }}>
+                      <Typography sx={{ fontWeight: 700, fontSize: 14, flex: 1 }}>
+                        {displayName}
+                      </Typography>
+                      <Typography sx={{ fontWeight: 700, fontSize: 13, color: green }}>
+                        {Number(s.amount).toLocaleString()} {s.currency}
+                      </Typography>
+                    </Box>
+                    {s.at && (
+                      <Typography sx={{ fontSize: 11, color: theme.palette.text.disabled, mb: 0.5 }}>
+                        {new Date(s.at).toLocaleString()}
+                      </Typography>
+                    )}
+                    {s.message && (
+                      <Typography
+                        sx={{
+                          fontSize: 12.5,
+                          color: theme.palette.text.secondary,
+                          whiteSpace: "pre-wrap",
+                          mb: 0.75,
+                        }}
+                      >
+                        &ldquo;{s.message}&rdquo;
+                      </Typography>
+                    )}
+                    <Box
+                      component="textarea"
+                      data-testid={`cm-supporter-reply-input-${s.contribution_id}`}
+                      placeholder={t("replyPlaceholder", {
+                        defaultValue: "Write a public thank-you reply…",
+                      }) as string}
+                      value={draft}
+                      maxLength={2000}
+                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                        setReplyDrafts({ ...replyDrafts, [s.contribution_id]: e.target.value })
+                      }
+                      rows={2}
+                      sx={{ ...inputSx, resize: "vertical", fontFamily: "var(--font-sans)" }}
+                    />
+                    <Box sx={{ display: "flex", gap: 0.75, mt: 1 }}>
+                      <Button
+                        data-testid={`cm-supporter-reply-submit-${s.contribution_id}`}
+                        variant="contained"
+                        disableElevation
+                        onClick={() => submitReply(s.contribution_id)}
+                        disabled={isReplying}
+                        size="small"
+                        sx={{
+                          bgcolor: green,
+                          color: "#fff",
+                          textTransform: "none",
+                          fontWeight: 600,
+                          fontSize: 12.5,
+                          "&:hover": { bgcolor: "#0F9E6E" },
+                        }}
+                      >
+                        {isReplying
+                          ? "Saving…"
+                          : s.organizer_reply
+                            ? "Update reply"
+                            : "Post reply"}
+                      </Button>
+                      {s.organizer_reply && (
+                        <Button
+                          data-testid={`cm-supporter-reply-clear-${s.contribution_id}`}
+                          onClick={() => submitReply(s.contribution_id, true)}
+                          disabled={isReplying}
+                          size="small"
+                          sx={{
+                            textTransform: "none",
+                            fontSize: 12.5,
+                            color: theme.palette.error.main,
+                          }}
+                        >
+                          Remove reply
+                        </Button>
+                      )}
+                    </Box>
+                  </Box>
+                );
+              })}
+            </Box>
+          )}
         </Box>
       )}
     </Box>

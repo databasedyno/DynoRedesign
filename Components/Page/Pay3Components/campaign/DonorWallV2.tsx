@@ -23,6 +23,8 @@ export interface DonorSupporter {
   currency: string;
   at: string;
   is_anonymous?: boolean;
+  organizer_reply?: string | null;
+  organizer_reply_at?: string | null;
 }
 
 interface Props {
@@ -230,6 +232,44 @@ export default function DonorWallV2({
                   >
                     &ldquo;{s.message}&rdquo;
                   </Typography>
+                )}
+                {s.organizer_reply && (
+                  <Box
+                    data-testid={`donation-supporter-reply-${i}`}
+                    sx={{
+                      mt: 0.75,
+                      pl: 1.25,
+                      borderLeft: `2px solid ${accent}`,
+                      backgroundColor: limeTint,
+                      borderRadius: "8px",
+                      py: 0.6,
+                      pr: 1,
+                    }}
+                  >
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, mb: 0.15 }}>
+                      <Icon icon="mdi:account-tie-voice" width={13} color={accent} />
+                      <Typography
+                        component="span"
+                        sx={{
+                          fontFamily: MONO,
+                          fontSize: 10,
+                          fontWeight: 700,
+                          letterSpacing: "0.08em",
+                          textTransform: "uppercase",
+                          color: accent,
+                        }}
+                      >
+                        Organizer replied
+                      </Typography>
+                    </Box>
+                    <Typography
+                      fontSize={12.5}
+                      color={theme.palette.text.primary}
+                      sx={{ wordBreak: "break-word", lineHeight: 1.5 }}
+                    >
+                      {s.organizer_reply}
+                    </Typography>
+                  </Box>
                 )}
                 {s.at && mounted && (
                   <Typography

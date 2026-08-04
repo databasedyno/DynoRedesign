@@ -1,6 +1,21 @@
 # DynoPay - Payment Gateway PRD
 
 
+### 2026-06 — Session (fork) — Donor-wall reply WIRED + backend dead-code removed — ✅ DONE (verified)
+**A. Wire donor-wall merchant reply** (backend endpoint `PATCH /api/pay/contribution/:id/reply` previously had no UI):
+- Backend `getRecentSupporters` (`backend/controller/payment/paymentLinkController.ts`) now also selects `link_id` (as `contribution_id`), `organizer_reply`, `organizer_reply_at` so the PUBLIC campaign wall (via `recent_supporters` on the checkout payload) carries the organizer's reply.
+- Public `DonorWallV2.tsx`: `DonorSupporter` gained `organizer_reply`/`organizer_reply_at`; renders an "Organizer replied" block under each donor message (data-testid `donation-supporter-reply-{i}`).
+- Merchant editor `CampaignManager.tsx`: added a 3rd tab **"Supporters"** (`cm-tab-supporters`) that GETs `/pay/campaign/:linkId/wall?limit=100&sort=recent`, lists contributions, and lets the organizer post/update/remove a public reply via `PATCH /pay/contribution/:contribId/reply` (testids `cm-supporter-reply-input-*`, `cm-supporter-reply-submit-*`, `cm-supporter-reply-clear-*`). Shown on the donation edit page `/pay-links/:link_id`.
+- Verified: wall GET returns structured data; reply PATCH properly wired (bogus id → JSON 404 "Contribution not found", ownership check runs); Supporters tab renders (screenshot @ campaign 77, empty state — no contributions on live DB to reply to, so a live reply round-trip was not exercised).
+
+**B. Remove dead code** (superseded wallet-address routes; verified orphaned across FE all-call-styles + SDK + tests before removal):
+- `backend/routes/walletRouter.ts`: removed `POST /address/send-otp`, `POST /address/delete/send-otp`, `POST /deleteWalletAddress`, `DELETE /deleteWallet/:id`. KEPT the used edit route `PUT /address/:id` + alias `PUT /updateWallet/:id` (WalletSaga/AddWalletModal), and the used delete flow `/wallet/delete/*` (DeleteWalletModal). The add/edit OTP is issued by `/validateWalletAddress` (`updateOtp`) + verified via `verifyOtp` — the removed `send-otp` steps were unused.
+- `backend/controller/walletController.ts`: removed the 3 now-orphaned handlers `sendEditWalletOTP`, `sendDeleteWalletOTP`, `deleteWalletAddressWithOTP` + their export entries + the now-unused `sendWalletEditOTPEmail` import. (`sendWalletDeleteOTPEmail` kept — still used by `sendDeletePaymentWalletOTP`.)
+- `backend/swagger/paths/wallet.ts`: removed the 3 corresponding doc entries.
+- Verified: removed routes → 404; kept routes → 400 (reachable); backend boots clean; frontend compiles. NOTE: left one still-dead-but-unverified handler `deleteWalletAddress` (line ~3271, exported, unrouted) untouched to keep scope tight.
+
+
+
 ### 2026-06 — Session (fork) — BUG FIX: referral code below-the-fold (sidebar footer) + notification badge instant-clear — ✅ FIXED (referral self-verified @ 640px; notif fix code-complete, user self-testing)
 User reported: (1) "Referral code is not visible on desktop unless I scroll down" — clarified it's the **sidebar lower-left** referral widget (`ReferralAndKnowledge`), not the `/referrals` page. (2) Notification red badge doesn't clear immediately after "mark as read".
 - **Root cause (referral):** `Components/Layout/NewSidebar/styled.tsx` `SidebarWrapper` had `overflow: auto` + `justify-content: space-between`, so the WHOLE sidebar (nav + referral footer + collapse toggle) scrolled as one block. On viewports shorter than the total content (short laptops / browser zoom), the referral card at the bottom fell below the fold.

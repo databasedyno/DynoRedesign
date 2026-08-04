@@ -1463,55 +1463,6 @@ Wallet address is saved and ready to receive payments!`,
       },
     },
   },
-  '/api/wallet/address/send-otp': {
-    post: {
-      tags: ['Wallet Address Management'],
-      summary: 'Send OTP for wallet address edit',
-      description: 'Send OTP to the user email before editing a wallet address.',
-      security: [{ BearerAuth: [] }],
-      requestBody: {
-        required: true,
-        content: { 'application/json': { schema: { type: 'object', properties: { address_id: { type: 'integer' } } } } },
-      },
-      responses: {
-        200: { description: 'OTP sent successfully' },
-        401: { description: 'Unauthorized' },
-      },
-    },
-  },
-  '/api/wallet/address/delete/send-otp': {
-    post: {
-      tags: ['Wallet Address Management'],
-      summary: 'Send OTP for wallet address deletion',
-      description: 'Send OTP to verify before deleting a wallet address.',
-      security: [{ BearerAuth: [] }],
-      requestBody: {
-        required: true,
-        content: { 'application/json': { schema: { type: 'object', properties: { address_id: { type: 'integer' } } } } },
-      },
-      responses: {
-        200: { description: 'OTP sent' },
-        401: { description: 'Unauthorized' },
-      },
-    },
-  },
-  '/api/wallet/deleteWalletAddress': {
-    post: {
-      tags: ['Wallet Address Management'],
-      summary: 'Delete wallet address',
-      description: 'Delete a wallet address after OTP verification.',
-      security: [{ BearerAuth: [] }],
-      requestBody: {
-        required: true,
-        content: { 'application/json': { schema: { type: 'object', required: ['address_id', 'otp'], properties: { address_id: { type: 'integer' }, otp: { type: 'string', example: '123456' } } } } },
-      },
-      responses: {
-        200: { description: 'Wallet address deleted' },
-        400: { description: 'Invalid OTP' },
-        401: { description: 'Unauthorized' },
-      },
-    },
-  },
   '/api/wallet/sendConfirmationOTP': {
     post: {
       tags: ['Transactions'],
