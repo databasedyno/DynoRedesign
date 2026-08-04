@@ -1,3 +1,23 @@
+## Session 106 — Enhancements: fiat-beside-coin, invoices precision, empty-state charm, theme sweep (2026-08-04) — DONE & VERIFIED (4/4)
+
+- **Recent Payments Polish (fiat beside coin):** New hook `hooks/useUsdRates.ts` pulls USD prices from the
+  existing public feed `GET /api/public/tickers` (stablecoins→$1; normalizes USDT-TRC20→USDT, POLYGON→POL).
+  RecentTransactionsWidget now shows an approx USD value `[data-testid="recent-txn-fiat"]` ("≈ $X") beside
+  each crypto amount (only for crypto rows; hidden if unpriceable). VERIFIED: 0.00047333 BTC ≈ $30.05,
+  121.76 USDT-TRC20 ≈ $121.76, etc. Full crypto precision preserved.
+- **Crypto Amount Audit:** Fixed pages/invoices.tsx `formatCurrency` (was `amount.toFixed(2)` → now
+  `formatCryptoAmount(amount, curr)`). Confirmed remaining money displays: Transactions table (own 8dp
+  formatter), Wallet totalProcessed (USD), RecentTx/Customers/LivePaymentFeed (fixed in S104) — all correct.
+- **Empty-State Charm:** RecentTransactionsWidget empty state upgraded to an illustrated branded graphic
+  (gradient receipt glyph + spark halo) + a "Create payment link" CTA `[data-testid="empty-create-paylink-btn"]`
+  → /create-pay-link (shows only for merchants with 0 transactions).
+- **Theme Sanity Sweep:** Audited /dashboard /transactions /wallet /customers /invoices at 390/834/1280.
+  15/15 data-theme="dark", consistent, ZERO flags. (Complements the S104 mobile blocking-script fix.)
+- Regression: dashboard renders clean, 0 functional console errors (2 pre-existing minor React DOM-nesting warnings).
+
+---
+
+
 ## Session 105 — iOS-WebKit landing mobile-menu FREEZE fix (2026-08-04) — FIXED & VERIFIED
 
 Report: iPhone 14 Pro Max, tapping the landing hamburger froze the UI for "several minutes" before the
