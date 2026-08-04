@@ -152,3 +152,28 @@ whose SSR HTML asserted correct URIs for BTC/LTC/DOGE/SOL, single-prefix BCH (0 
 and NULL for USDT-TRC20 + ETH. In-context live crypto screen NOT exercised on purpose (reaching
 it reserves a real address from the live merchant pool). Next candidates: G5 detected/confirming
 state (needs backend confirmations field), G3 webhook mgmt (backend).
+
+---
+
+## BUILT (Session 108 cont.) — #1 Confirming-status timeline + #2 sticky deep-link (frontend-only)
+File: Components/Page/Pay3Components/CleanCheckoutV2.tsx
+BACKEND CONTRACT verified: /pay/verifyCryptoPayment returns status ∈ {waiting, pending
+("Payment detected, awaiting confirmation"), underpaid, confirmed, overpaid, expired}. It does
+NOT expose a numeric confirmation count → we show discrete steps, never a fake "n of m".
+#1 Confirming status:
+- New `detected` state; poll now maps status 'pending' → detected=true, 'underpaid' →
+  detected=true + setPhase('underpaid') (previously the poll IGNORED pending/underpaid, so the
+  underpaid pill was dead code — now activated).
+- Extracted exported `CheckoutStatusTimeline` (pure component) rendering a pill (Waiting for
+  payment / Payment detected — confirming… / Underpayment detected) + a 3-step Waiting→Detected
+  →Confirmed timeline (check marks on completed steps, pulsing active step, indigo connectors;
+  underpaid uses amber). i18n via defaultValue keys checkout.status.* / checkout.step.*.
+#2 Sticky deep-link: mobile sticky bar now shows "Open in wallet app" (paymentUri) as the
+  PRIMARY button with a compact copy-address icon button beside it; falls back to the original
+  full "Copy address" button when paymentUri is null (token/EVM/TRON chains).
+VERIFIED: lint clean; /pay compiles; CheckoutStatusTimeline harness-tested via auto_frontend_testing_agent
+(2/2 PASS — 8 timelines across 4 states × light/dark, amber underpaid, indigo connectors, no console
+errors) + /pay?d=probe regression smoke test PASS (module still mounts, no crash). In-context live
+crypto screen not run (would reserve a real pool address). Temp harnesses (/pay/deeplink-test,
+/pay/status-test) removed. Exports kept: buildPaymentUri, CheckoutStatusTimeline.
+REMAINING of the 4: #3 Webhook Console (backend+schema), #4 Onboarding testnet Test Payment (backend+Tatum testnet).
