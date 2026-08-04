@@ -4365,6 +4365,7 @@ const exportTransactions = async (req: express.Request, res: express.Response) =
         uw.wallet_type as crypto,
         ut.base_amount as amount,
         ut.base_currency,
+        ut.usd_value as usd_value,
         ut.status,
         c.customer_name,
         cm.company_name,
@@ -4391,31 +4392,58 @@ const exportTransactions = async (req: express.Request, res: express.Response) =
       } catch { /* fallback to USD */ }
     }
 
-    // Convert to CSV format
+    // Convert to CSV format. The "<CUR> Value" column uses the authoritative
+    // per-transaction usd_value (× the cached USD→display rate) so it's ALWAYS
+    // populated in the merchant's display currency — matching the on-screen
+    // Transactions "Value (CUR)" column. For rows without a stored usd_value
+    // (e.g. still-pending crypto) we replicate getAllTransactions' enrichment:
+    // stablecoins ≈ face value, other cryptos via a cached live USD conversion.
     const csvHeaders = `Transaction ID,Date & Time,Crypto,Amount,Currency,${preferredCurrency} Value,Status,Customer,Company,Payment Mode,Type,Reference\n`;
-    const csvRows = transactions.map((tx: Record<string, unknown>) => {
-      let fiatValue: string | number = '';
-      const baseAmount = Number(tx.amount || 0);
-      if (tx.base_currency === 'USD') {
-        fiatValue = (baseAmount * fiatConversionRate).toFixed(2);
-      } else if (tx.base_currency === preferredCurrency) {
-        fiatValue = baseAmount.toFixed(2);
+    const STABLE = ['USD', 'USDT', 'USDC', 'USDT-ERC20', 'USDT-TRC20', 'USDC-ERC20', 'BUSD', 'DAI'];
+    const perUnitUsd = new Map<string, number>(); // currency → USD per 1 unit (request-scoped cache)
+    const usdForRow = async (tx: Record<string, unknown>): Promise<number | null> => {
+      const stored = Number(tx.usd_value);
+      if (Number.isFinite(stored) && stored > 0) return stored;
+      const cur = String(tx.base_currency || '').toUpperCase();
+      const amt = Number(tx.amount) || 0;
+      if (amt <= 0) return null;
+      if (STABLE.some((s) => cur === s || cur.includes(s))) return amt;
+      if (!perUnitUsd.has(cur)) {
+        try {
+          perUnitUsd.set(cur, Number(await convertToUSD(cur, 1)) || 0);
+        } catch {
+          perUnitUsd.set(cur, 0);
+        }
       }
-      return [
-        tx.transaction_id || '',
-        tx.date_time || '',
-        tx.crypto || tx.base_currency || '',
-        tx.amount || 0,
-        tx.base_currency || '',
-        fiatValue,
-        tx.status || '',
-        tx.customer_name || '',
-        tx.company_name || '',
-        tx.payment_mode || '',
-        tx.transaction_type || '',
-        tx.transaction_reference || ''
-      ].map(field => `"${field}"`).join(',');
-    }).join('\n');
+      const rate = perUnitUsd.get(cur) || 0;
+      return rate > 0 ? amt * rate : null;
+    };
+
+    const csvRowsArr: string[] = [];
+    for (const tx of transactions as Array<Record<string, unknown>>) {
+      const usd = await usdForRow(tx);
+      const fiatValue =
+        usd != null ? (usd * fiatConversionRate).toFixed(2) : '';
+      csvRowsArr.push(
+        [
+          tx.transaction_id || '',
+          tx.date_time || '',
+          tx.crypto || tx.base_currency || '',
+          tx.amount || 0,
+          tx.base_currency || '',
+          fiatValue,
+          tx.status || '',
+          tx.customer_name || '',
+          tx.company_name || '',
+          tx.payment_mode || '',
+          tx.transaction_type || '',
+          tx.transaction_reference || '',
+        ]
+          .map((field) => `"${field}"`)
+          .join(','),
+      );
+    }
+    const csvRows = csvRowsArr.join('\n');
 
     const csvContent = csvHeaders + csvRows;
 
