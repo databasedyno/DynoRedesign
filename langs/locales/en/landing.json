@@ -11,21 +11,67 @@
     "resources": "Resources",
     "company": "Company",
     "mega": {
-      "paymentLinks": { "title": "Payment Links", "desc": "Shareable links to get paid in crypto in seconds" },
-      "checkout": { "title": "Checkout", "desc": "Drop-in hosted crypto checkout for any store" },
-      "creatorPages": { "title": "Creator Pages", "desc": "Your own branded tip & payment page" },
-      "payouts": { "title": "Crypto Payouts", "desc": "Send stablecoins & crypto to anyone, anywhere" },
-      "docs": { "title": "Documentation", "desc": "Guides, quickstarts and references" },
-      "api": { "title": "API Reference", "desc": "REST API for payments and payouts" },
-      "webhooks": { "title": "Webhooks", "desc": "Real-time payment event notifications" },
-      "blog": { "title": "Blog", "desc": "Product news and crypto payment insights" },
-      "fees": { "title": "Fees", "desc": "Simple, transparent pricing" },
-      "status": { "title": "System Status", "desc": "Live uptime and incident history" },
-      "about": { "title": "About DynoPay", "desc": "Our mission, company and careers" },
-      "support": { "title": "Help & Support", "desc": "Guides and ways to reach us" },
-      "terms": { "title": "Terms", "desc": "Terms & conditions" },
-      "privacy": { "title": "Privacy", "desc": "How we protect your data" },
-      "featured": { "title": "Start free today", "desc": "Your first $500 in volume is on us — no card required.", "cta": "Get started" }
+      "paymentLinks": {
+        "title": "Payment Links",
+        "desc": "Shareable links to get paid in crypto in seconds"
+      },
+      "checkout": {
+        "title": "Checkout",
+        "desc": "Drop-in hosted crypto checkout for any store"
+      },
+      "creatorPages": {
+        "title": "Creator Pages",
+        "desc": "Your own branded tip & payment page"
+      },
+      "payouts": {
+        "title": "Crypto Payouts",
+        "desc": "Send stablecoins & crypto to anyone, anywhere"
+      },
+      "docs": {
+        "title": "Documentation",
+        "desc": "Guides, quickstarts and references"
+      },
+      "api": {
+        "title": "API Reference",
+        "desc": "REST API for payments and payouts"
+      },
+      "webhooks": {
+        "title": "Webhooks",
+        "desc": "Real-time payment event notifications"
+      },
+      "blog": {
+        "title": "Blog",
+        "desc": "Product news and crypto payment insights"
+      },
+      "fees": {
+        "title": "Fees",
+        "desc": "Simple, transparent pricing"
+      },
+      "status": {
+        "title": "System Status",
+        "desc": "Live uptime and incident history"
+      },
+      "about": {
+        "title": "About DynoPay",
+        "desc": "Our mission, company and careers"
+      },
+      "support": {
+        "title": "Help & Support",
+        "desc": "Guides and ways to reach us"
+      },
+      "terms": {
+        "title": "Terms",
+        "desc": "Terms & conditions"
+      },
+      "privacy": {
+        "title": "Privacy",
+        "desc": "How we protect your data"
+      },
+      "featured": {
+        "title": "Start free today",
+        "desc": "Your first $500 in volume is on us — no card required.",
+        "cta": "Get started"
+      }
     }
   },
   "search": {
@@ -591,7 +637,12 @@
     "qrAlt": "Payment QR Code",
     "bank": {
       "companyName": "Dynopay Payments Ltd."
-    }
+    },
+    "amount": "Amount",
+    "tax": "Tax",
+    "networkFee": "Network fee",
+    "total": "Total",
+    "estimated": "est."
   },
   "creator": {
     "card": {

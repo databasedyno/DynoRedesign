@@ -11,21 +11,67 @@
     "resources": "Bronnen",
     "company": "Bedrijf",
     "mega": {
-      "paymentLinks": { "title": "Betaallinks", "desc": "Deelbare links om binnen enkele seconden in crypto betaald te worden" },
-      "checkout": { "title": "Checkout", "desc": "Kant-en-klare, gehoste crypto-checkout voor elke winkel" },
-      "creatorPages": { "title": "Creatorpagina's", "desc": "Je eigen fooien- en betaalpagina" },
-      "payouts": { "title": "Crypto-uitbetalingen", "desc": "Stuur stablecoins en crypto naar iedereen, waar dan ook" },
-      "docs": { "title": "Documentatie", "desc": "Handleidingen, snelstarts en referenties" },
-      "api": { "title": "API-referentie", "desc": "REST-API voor betalingen en uitbetalingen" },
-      "webhooks": { "title": "Webhooks", "desc": "Realtime meldingen van betaalgebeurtenissen" },
-      "blog": { "title": "Blog", "desc": "Productnieuws en inzichten over cryptobetalingen" },
-      "fees": { "title": "Kosten", "desc": "Eenvoudige, transparante tarieven" },
-      "status": { "title": "Systeemstatus", "desc": "Realtime beschikbaarheid en incidentgeschiedenis" },
-      "about": { "title": "Over DynoPay", "desc": "Onze missie, ons bedrijf en vacatures" },
-      "support": { "title": "Hulp en support", "desc": "Handleidingen en manieren om ons te bereiken" },
-      "terms": { "title": "Voorwaarden", "desc": "Algemene voorwaarden" },
-      "privacy": { "title": "Privacy", "desc": "Hoe we je gegevens beschermen" },
-      "featured": { "title": "Begin vandaag gratis", "desc": "Je eerste $500 aan volume is van ons — geen kaart nodig.", "cta": "Aan de slag" }
+      "paymentLinks": {
+        "title": "Betaallinks",
+        "desc": "Deelbare links om binnen enkele seconden in crypto betaald te worden"
+      },
+      "checkout": {
+        "title": "Checkout",
+        "desc": "Kant-en-klare, gehoste crypto-checkout voor elke winkel"
+      },
+      "creatorPages": {
+        "title": "Creatorpagina's",
+        "desc": "Je eigen fooien- en betaalpagina"
+      },
+      "payouts": {
+        "title": "Crypto-uitbetalingen",
+        "desc": "Stuur stablecoins en crypto naar iedereen, waar dan ook"
+      },
+      "docs": {
+        "title": "Documentatie",
+        "desc": "Handleidingen, snelstarts en referenties"
+      },
+      "api": {
+        "title": "API-referentie",
+        "desc": "REST-API voor betalingen en uitbetalingen"
+      },
+      "webhooks": {
+        "title": "Webhooks",
+        "desc": "Realtime meldingen van betaalgebeurtenissen"
+      },
+      "blog": {
+        "title": "Blog",
+        "desc": "Productnieuws en inzichten over cryptobetalingen"
+      },
+      "fees": {
+        "title": "Kosten",
+        "desc": "Eenvoudige, transparante tarieven"
+      },
+      "status": {
+        "title": "Systeemstatus",
+        "desc": "Realtime beschikbaarheid en incidentgeschiedenis"
+      },
+      "about": {
+        "title": "Over DynoPay",
+        "desc": "Onze missie, ons bedrijf en vacatures"
+      },
+      "support": {
+        "title": "Hulp en support",
+        "desc": "Handleidingen en manieren om ons te bereiken"
+      },
+      "terms": {
+        "title": "Voorwaarden",
+        "desc": "Algemene voorwaarden"
+      },
+      "privacy": {
+        "title": "Privacy",
+        "desc": "Hoe we je gegevens beschermen"
+      },
+      "featured": {
+        "title": "Begin vandaag gratis",
+        "desc": "Je eerste $500 aan volume is van ons — geen kaart nodig.",
+        "cta": "Aan de slag"
+      }
     }
   },
   "search": {
@@ -591,7 +637,12 @@
     "qrAlt": "QR-code voor betaling",
     "bank": {
       "companyName": "Dynopay Payments Ltd."
-    }
+    },
+    "amount": "Bedrag",
+    "tax": "Belasting",
+    "networkFee": "Netwerkkosten",
+    "total": "Totaal",
+    "estimated": "ca."
   },
   "creator": {
     "card": {

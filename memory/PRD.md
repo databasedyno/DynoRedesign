@@ -1,6 +1,14 @@
 # DynoPay - Payment Gateway PRD
 
 
+### 2026-06 — Session (fork) — i18n: checkout fee-breakdown labels translated to all 6 languages — ✅ DONE (DE verified live)
+Added the 5 checkout breakdown keys to the `checkout` group of `langs/locales/{lang}/landing.json` (the `useTranslation('landing')` namespace used by `CleanCheckoutV2`) for en/de/fr/pt/es/nl:
+- `amount`, `tax`, `networkFee`, `total`, `estimated`.
+- Translations — DE: Betrag/Steuer/Netzwerkgebühr/Gesamt/ca. · FR: Montant/Taxe/Frais de réseau/Total/est. · PT: Valor/Imposto/Taxa de rede/Total/est. · ES: Importe/Impuesto/Comisión de red/Total/aprox. · NL: Bedrag/Belasting/Netwerkkosten/Totaal/ca.
+- Locales are bundled via `require()`/`import()` in `i18n.js` (HMR picks up edits). Verified live: switching the on-page LanguageSwitcher to DE renders Betrag / Netzwerkgebühr / Gesamt on the checkout header breakdown. Removes the earlier EN-only `defaultValue` fallback for these keys.
+
+
+
 ### 2026-06 — Session (fork) — Checkout fee-line breakdown (customer-pays transparency) — ✅ DONE (screenshot-verified)
 Follow-up to the customer-pays fee fix. `Components/Page/Pay3Components/CleanCheckoutV2.tsx` header now shows a transparent breakdown for customer-pays links (and when tax applies): **Amount + [Tax] + Network fee = Total** (Total is the bold, prominent figure; testid `clean-checkout-amount` moved onto it). Rows have testids `clean-checkout-fee-breakdown`, `clean-checkout-breakdown-base|tax|fee`.
 - Data: `Meta` gained `estimated_fee` (from getData `fee_info.estimated_processing_fee`); `reservePayment` captures the EXACT per-coin `processing_fee` + `total_amount_source` into `feeExact` state, so the header shows the getData estimate (with an "(est.)" tag) during coin selection, then the exact fee after a coin is reserved.

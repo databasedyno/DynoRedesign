@@ -11,21 +11,67 @@
     "resources": "Recursos",
     "company": "Empresa",
     "mega": {
-      "paymentLinks": { "title": "Enlaces de pago", "desc": "Enlaces para compartir y cobrar en cripto en segundos" },
-      "checkout": { "title": "Checkout", "desc": "Checkout alojado e integrable para cualquier tienda" },
-      "creatorPages": { "title": "Páginas de creador", "desc": "Tu propia página de propinas y pagos" },
-      "payouts": { "title": "Envíos de cripto", "desc": "Envía stablecoins y cripto a cualquiera, en cualquier lugar" },
-      "docs": { "title": "Documentación", "desc": "Guías, inicios rápidos y referencias" },
-      "api": { "title": "Referencia de la API", "desc": "API REST para pagos y envíos" },
-      "webhooks": { "title": "Webhooks", "desc": "Notificaciones de eventos de pago en tiempo real" },
-      "blog": { "title": "Blog", "desc": "Novedades del producto e ideas sobre pagos en cripto" },
-      "fees": { "title": "Tarifas", "desc": "Precios simples y transparentes" },
-      "status": { "title": "Estado del sistema", "desc": "Disponibilidad e historial de incidencias en tiempo real" },
-      "about": { "title": "Sobre DynoPay", "desc": "Nuestra misión, empresa y empleo" },
-      "support": { "title": "Ayuda y soporte", "desc": "Guías y formas de contactarnos" },
-      "terms": { "title": "Términos", "desc": "Términos y condiciones" },
-      "privacy": { "title": "Privacidad", "desc": "Cómo protegemos tus datos" },
-      "featured": { "title": "Empieza gratis hoy", "desc": "Tus primeros 500 $ de volumen corren de nuestra cuenta — sin tarjeta.", "cta": "Empezar" }
+      "paymentLinks": {
+        "title": "Enlaces de pago",
+        "desc": "Enlaces para compartir y cobrar en cripto en segundos"
+      },
+      "checkout": {
+        "title": "Checkout",
+        "desc": "Checkout alojado e integrable para cualquier tienda"
+      },
+      "creatorPages": {
+        "title": "Páginas de creador",
+        "desc": "Tu propia página de propinas y pagos"
+      },
+      "payouts": {
+        "title": "Envíos de cripto",
+        "desc": "Envía stablecoins y cripto a cualquiera, en cualquier lugar"
+      },
+      "docs": {
+        "title": "Documentación",
+        "desc": "Guías, inicios rápidos y referencias"
+      },
+      "api": {
+        "title": "Referencia de la API",
+        "desc": "API REST para pagos y envíos"
+      },
+      "webhooks": {
+        "title": "Webhooks",
+        "desc": "Notificaciones de eventos de pago en tiempo real"
+      },
+      "blog": {
+        "title": "Blog",
+        "desc": "Novedades del producto e ideas sobre pagos en cripto"
+      },
+      "fees": {
+        "title": "Tarifas",
+        "desc": "Precios simples y transparentes"
+      },
+      "status": {
+        "title": "Estado del sistema",
+        "desc": "Disponibilidad e historial de incidencias en tiempo real"
+      },
+      "about": {
+        "title": "Sobre DynoPay",
+        "desc": "Nuestra misión, empresa y empleo"
+      },
+      "support": {
+        "title": "Ayuda y soporte",
+        "desc": "Guías y formas de contactarnos"
+      },
+      "terms": {
+        "title": "Términos",
+        "desc": "Términos y condiciones"
+      },
+      "privacy": {
+        "title": "Privacidad",
+        "desc": "Cómo protegemos tus datos"
+      },
+      "featured": {
+        "title": "Empieza gratis hoy",
+        "desc": "Tus primeros 500 $ de volumen corren de nuestra cuenta — sin tarjeta.",
+        "cta": "Empezar"
+      }
     }
   },
   "search": {
@@ -591,7 +637,12 @@
     "qrAlt": "Código QR de pago",
     "bank": {
       "companyName": "Dynopay Payments Ltd."
-    }
+    },
+    "amount": "Importe",
+    "tax": "Impuesto",
+    "networkFee": "Comisión de red",
+    "total": "Total",
+    "estimated": "aprox."
   },
   "creator": {
     "card": {
