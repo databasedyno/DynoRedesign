@@ -4,7 +4,7 @@
 import requests
 import json
 
-BASE_URL = "https://crypto-payment-13.preview.emergentagent.com"
+BASE_URL = "https://blockchain-processor-2.preview.emergentagent.com"
 API_URL = f"{BASE_URL}/api"
 EMAIL = "hostbay@moxx.co"
 PASSWORD = "Katiekendra123@"

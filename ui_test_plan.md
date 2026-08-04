@@ -4,7 +4,7 @@
 - **Email**: nomadly@moxx.co
 - **Password**: Katiekendra123@
 - **Company**: Nomadly1
-- **Pod URL**: https://crypto-payment-13.preview.emergentagent.com
+- **Pod URL**: https://blockchain-processor-2.preview.emergentagent.com
 
 ---
 
