@@ -126,7 +126,7 @@ export default function CompanySelector() {
       if (newestCompany && newestCompany.company_id !== active) {
         dispatch(selectCompany(newestCompany.company_id));
         // Persist to backend
-        axiosBaseApi.put("api/user/last-company", { company_id: newestCompany.company_id }).catch(() => {});
+        axiosBaseApi.put("/user/last-company", { company_id: newestCompany.company_id }).catch(() => {});
       }
     }
   }, [addCompanyPhase, companies, active, dispatch]);
@@ -144,7 +144,7 @@ export default function CompanySelector() {
     setSwitchToast(companyName);
     setTimeout(() => setSwitchToast(null), 2500);
     // Persist last company to backend (fire-and-forget)
-    axiosBaseApi.put("api/user/last-company", { company_id: companyId }).catch(() => {});
+    axiosBaseApi.put("/user/last-company", { company_id: companyId }).catch(() => {});
     // Re-fetch all company-scoped data for the new company
     const companyPayload = { company_id: companyId };
     dispatch(DashboardAction(DASHBOARD_FETCH_ALL, companyPayload));
