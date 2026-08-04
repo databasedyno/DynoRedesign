@@ -1,7 +1,16 @@
 import { useRouter } from "next/router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import Loading from "@/Components/UI/Loading";
+
+// Run the initial token check BEFORE the browser paints so an already
+// logged-in merchant (token already in localStorage) never sees the
+// full-screen spinner flash — the app shell + skeletons render instantly
+// (Coinbase/Emergent feel). Falls back to useEffect on the server where
+// useLayoutEffect is a no-op (SSR still renders the neutral <Loading/> that
+// the client hydrates against, so there's no hydration mismatch).
+const useIsomorphicLayoutEffect =
+  typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 // iOS Safari/Chrome can lag on making a fresh localStorage write visible right
 // after a client-side SPA navigation. If we redirect the instant the token
@@ -17,7 +26,7 @@ const withAuth = (WrappedComponent: any) => {
     const [isReady, setIsReady] = useState(false);
     const checkedRef = useRef(false);
 
-    useEffect(() => {
+    useIsomorphicLayoutEffect(() => {
       if (checkedRef.current) return;
       checkedRef.current = true;
 

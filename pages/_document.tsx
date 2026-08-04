@@ -110,7 +110,7 @@ export default function MyDocument({ emotionStyleTags }: MyDocumentProps) {
     }
     return false;
   }
-  var INAPP = ['/dashboard','/transactions','/wallet','/wallets','/customers','/invoices','/notifications','/settings','/profile','/create-pay-link','/referrals','/developer-keys','/company','/fees','/admin','/creator','/payouts'];
+  var INAPP = ['/dashboard','/transactions','/wallet','/wallets','/customers','/invoices','/notifications','/settings','/profile','/create-pay-link','/pay-links','/referrals','/developer-keys','/company','/fees','/admin','/creator','/payouts'];
   var AUTH  = ['/auth','/reset-password'];
   var path = stripPath();
   var context = matchPrefix(path, INAPP) ? 'inapp' : 'public';

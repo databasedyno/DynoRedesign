@@ -48,6 +48,7 @@ const INAPP_PREFIXES = [
   "/settings",
   "/profile",
   "/create-pay-link",
+  "/pay-links",    // Pay Links list + nested /pay-links/products (Products) — merchant admin
   "/referrals",
   "/developer-keys",
   "/company",
