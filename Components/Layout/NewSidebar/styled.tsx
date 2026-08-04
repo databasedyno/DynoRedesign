@@ -5,12 +5,13 @@ export const SidebarWrapper = styled("aside")(({ theme }) => ({
   background: theme.palette.background.paper,
   display: "flex",
   flexDirection: "column",
-  justifyContent: "space-between",
   borderRadius: "14px",
   border: `1px solid ${theme.palette.border.main}`,
   padding: "16px",
-  overflow: "auto",
-  scrollbarWidth: "none",
+  // The wrapper itself never scrolls — only the nav Menu (below) does. This
+  // keeps the referral card + Help/Support footer PINNED to the bottom so the
+  // referral code is always visible without scrolling, on any viewport height.
+  overflow: "hidden",
 }));
 
 export const Menu = styled("div")(({ theme }) => ({
@@ -19,6 +20,15 @@ export const Menu = styled("div")(({ theme }) => ({
   gap: "14px",
   background: theme.palette.background.paper,
   borderRadius: "12px",
+  // Fill the free space and become the ONLY scroll region when the nav list is
+  // taller than the sidebar. `minHeight: 0` is required for a flex child to
+  // shrink below its content and actually scroll. Scrollbar visually hidden.
+  flex: "1 1 auto",
+  minHeight: 0,
+  overflowY: "auto",
+  overflowX: "hidden",
+  scrollbarWidth: "none",
+  "&::-webkit-scrollbar": { display: "none" },
 }));
 
 /** Small uppercase group caption — modern SaaS sidebar pattern. */
@@ -124,6 +134,10 @@ export const SidebarFooter = styled("div")(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
   gap: "16px",
+  // Pinned above the collapse toggle — never compressed by a tall nav list, so
+  // the referral code stays visible without scrolling.
+  flexShrink: 0,
+  paddingTop: "14px",
   [theme.breakpoints.down("md")]: {
     gap: "10px",
   },
