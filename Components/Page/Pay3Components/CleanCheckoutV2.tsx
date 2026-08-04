@@ -83,6 +83,13 @@ const writeCheckoutPref = (k: string, v: string) => {
 type Meta = {
   amount: number
   base_currency: string
+  // Who covers the processing fee — 'company' (merchant absorbs) or 'customer'
+  // (added on top). MUST be forwarded to /pay/getCurrencyRates so the charged
+  // crypto amount includes fees for customer-pays links; otherwise the merchant
+  // silently eats the fee (addPayment deducts it from the settled amount).
+  fee_payer?: string
+  // Tax amount in base_currency (0 when the link has no tax / not applicable).
+  tax_amount?: number
   available_currencies: string[]
   token: string
   link_type?: string
@@ -384,6 +391,8 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
       setMeta({
         amount: Number(raw.amount) || 0,
         base_currency: raw.base_currency || 'USD',
+        fee_payer: raw.fee_payer || raw.fee_info?.fee_payer || 'company',
+        tax_amount: Number(raw.tax_info?.tax_amount ?? raw.fee_info?.tax_amount ?? 0) || 0,
         available_currencies: filtered,
         token: String(raw.token || ''),
         link_type: raw.link_type,
@@ -472,12 +481,26 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
 
     const token = meta_.token
 
-    // 1. get the crypto rate
+    // 1. get the crypto rate.
+    //    IMPORTANT: forward fee_payer + tax_amount exactly like the legacy
+    //    checkout (cryptoTransfer.tsx). For customer-pays links the backend
+    //    then returns `total_amount` = base + tax + fees (in crypto) so the
+    //    customer is charged the full amount and the merchant is settled the
+    //    full base. Omitting these made getCurrencyRates return base-only,
+    //    which addPayment later fee-deducted from the merchant (revenue leak).
+    const feePayer = meta_.fee_payer || 'company'
+    const taxAmount = Number(meta_.tax_amount) || 0
+    const baseAmount = Number(meta_.amount) || 0
+    // customer pays fees → send base only (backend adds tax + fees);
+    // company pays fees → send tax-inclusive amount (backend returns raw conversion).
+    const amountForRates = feePayer === 'customer' ? baseAmount : baseAmount + taxAmount
     const rateRes = await api('/pay/getCurrencyRates', {
       source: meta_.base_currency,
-      amount: meta_.amount,
+      amount: amountForRates,
       currencyList: [info.symbol],
       fixedDecimal: false,
+      fee_payer: feePayer,
+      tax_amount: taxAmount,
     }, token)
     if (!mountedRef.current) return
     if (!rateRes.ok || !Array.isArray(rateRes.data) || !rateRes.data[0]) {
@@ -486,6 +509,16 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
       return
     }
     const rateRow: any = rateRes.data[0]
+    // Money-safety: for customer-pays links the backend MUST return a
+    // fee-inclusive `total_amount`. If the per-currency fee calc failed
+    // (fee_error) or total_amount is missing, fail CLOSED rather than falling
+    // back to the base-only `amount` — undercharging here would make the
+    // merchant silently absorb the processing fee.
+    if (feePayer === 'customer' && (rateRow.fee_error || rateRow.total_amount == null)) {
+      setErrorMsg('Could not calculate the network fee for this coin. Please try again or choose a different coin.')
+      setPhase('error')
+      return
+    }
     const cryptoAmount: number = Number(rateRow.total_amount ?? rateRow.amount) || 0
     if (!cryptoAmount) {
       setErrorMsg('Rate unavailable for this currency.')
