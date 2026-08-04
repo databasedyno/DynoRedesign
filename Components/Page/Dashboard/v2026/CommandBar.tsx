@@ -1,12 +1,11 @@
 import React, { useMemo, useState } from "react";
-import { Box, Divider, Menu, MenuItem, useTheme } from "@mui/material";
+import { Box, Menu, MenuItem, useTheme } from "@mui/material";
 import {
   TuneRounded,
   DarkModeRounded,
   LightModeRounded,
   DensityMediumRounded,
   DensitySmallRounded,
-  DashboardCustomizeRounded,
 } from "@mui/icons-material";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
@@ -30,7 +29,6 @@ const RANGES: Array<{ id: RangeId; label: string }> = [
 interface Props {
   range: RangeId;
   onRangeChange: (r: RangeId) => void;
-  onSwitchClassic?: () => void;
 }
 
 /**
@@ -39,7 +37,7 @@ interface Props {
  * right. The range control drives BOTH the VolumeHero chart and the KPI-strip
  * sparklines (a single fetchChartData call lives in the parent).
  */
-const CommandBar: React.FC<Props> = ({ range, onRangeChange, onSwitchClassic }) => {
+const CommandBar: React.FC<Props> = ({ range, onRangeChange }) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const { t } = useTranslation(["dashboardLayout", "common"]);
@@ -179,18 +177,6 @@ const CommandBar: React.FC<Props> = ({ range, onRangeChange, onSwitchClassic }) 
             {isCompact
               ? t("spaciousView", { defaultValue: "Spacious view" })
               : t("compactView", { defaultValue: "Compact view" })}
-          </MenuItem>
-          <Divider />
-          <MenuItem
-            onClick={() => {
-              setAnchor(null);
-              onSwitchClassic?.();
-            }}
-            data-testid="dash2026-switch-classic"
-            sx={{ fontFamily: "var(--font-sans)", fontSize: 14, py: 1.1 }}
-          >
-            <DashboardCustomizeRounded sx={{ fontSize: 18, mr: 1.5 }} />
-            {t("switchClassic", { defaultValue: "Switch to classic view" })}
           </MenuItem>
         </Menu>
       </Box>

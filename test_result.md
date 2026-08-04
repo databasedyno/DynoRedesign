@@ -1,3 +1,33 @@
+# Session (fork) 2026-08-04 — FEATURE QA: 2026 Dashboard redesign is now the DEFAULT & ONLY dashboard layout — FRONTEND test requested
+
+Preview: https://124a4944-ebfa-46d8-b06f-e2e063a303f8.preview.emergentagent.com
+Merchant login (2-step, LIVE prod Railway PG): hostbay@moxx.co / Katiekendra123@
+Login flow: enter email → click Continue → enter password → click Sign in. (see /app/memory/test_credentials.md)
+
+## WHAT CHANGED
+- The merchant dashboard (`/dashboard`) now renders ONLY the new 2026 command-center (`Components/Page/Dashboard/v2026`). The classic two-column layout + the localStorage feature-flag/toggle were RETIRED. There is intentionally NO "Switch to classic" menu item and NO "Try the new dashboard" pill anymore.
+- Frontend-only change. NO backend/API changes this session.
+
+## WHAT TO VERIFY (FRONTEND — auto_frontend_testing_agent)
+IMPORTANT SAFETY (LIVE PRODUCTION account): READ-ONLY testing only. Do NOT submit/create payment links or invoices, do NOT change display currency, do NOT trigger payouts. Navigating to a page then going back is fine — just never submit a create/modify form.
+
+1. RENDER (default): Log in, go to /dashboard. `[data-testid="dash2026-root"]` + `dash2026-commandbar` render. Confirm classic is gone: `[data-testid="dashboard-try-2026"]` and `[data-testid="dash2026-switch-classic"]` must NOT exist.
+2. HERO: `dash2026-hero-value` shows a real currency figure; toggling `dash2026-hero-lifetime` ↔ `dash2026-hero-today` changes the big number + `dash2026-hero-delta`.
+3. GLOBAL RANGE: click `dash2026-range-30d`, `-90d`, `-1y`, `-all` → active pill updates and the hero area chart + KPI sparklines refresh (no crash, no infinite spinner).
+4. KPI STRIP: `dash2026-kpi-strip` with 4 cards `dash2026-kpi-{revenue,payments,wallets,tax}` — each shows a value; revenue/payments show a delta + mini sparkline.
+5. FEE TIER: `dash2026-fee-tier` renders progress bar + `dash2026-tier-name` + `dash2026-tier-percent`; `dash2026-next-tier-hint` shows interpolated text (e.g. "Reach Scale tier for 0.7% fees (save 0.30%)") — must NOT show literal {next}/{pct}/{savings}.
+6. ASSETS: `dash2026-assets` lists wallets with share bars; `dash2026-assets-manage` → navigates to /wallet (then go back).
+7. QUICK ACTIONS: `dash2026-quick-actions`. `dash2026-qa-primary` → /create-pay-link (go back WITHOUT creating). Shortcuts `dash2026-qa-{invoice,paylinks,wallet,customers,creator}` navigate to /invoices, /pay-links, /wallet, /customers, /creator respectively (go back each time, no submits).
+8. RECENT ACTIVITY: recent transactions list renders (real data).
+9. SETTINGS MENU (`dash2026-settings`): `dash2026-toggle-theme` flips dark↔light and the WHOLE dashboard restyles readably (no invisible/low-contrast text) — toggle back to dark. `dash2026-toggle-density` flips compact↔spacious without breaking layout.
+10. RESPONSIVE: test desktop 1920×1080 & 1280×800, tablet ~768, mobile ~390. On mobile: bento collapses to a single column, KPI strip becomes 2×2, command bar stacks, NO horizontal overflow/clipping, tap targets usable.
+11. CONSOLE: no NEW JS runtime errors from v2026 components. (Pre-existing next-auth CLIENT_FETCH_ERROR is a known harmless preview-only OAuth warning — ignore it.)
+
+Please return a JSON-ish report with pass/fail per numbered item, plus any responsive/contrast issues (viewport + screenshot ref) and any console errors traced to v2026 files.
+
+---
+
+
 # Session (fork) 2026-08-04 — AUDIT: Fiat Everywhere Export math consistency check — ✅ VERIFIED (testing_agent PASS 18/18)
 
 Preview: https://merchant-crypto-api.preview.emergentagent.com

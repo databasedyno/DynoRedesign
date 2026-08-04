@@ -1,16 +1,12 @@
-import DashboardLeftSection from "@/Components/Page/Dashboard/DashboardLeftSection";
-import DashboardRightSection from "@/Components/Page/Dashboard/DashboardRightSection";
 import ClaimHandleBanner from "@/Components/Page/Dashboard/ClaimHandleBanner";
 import AutoClaimHandle from "@/Components/Page/Dashboard/AutoClaimHandle";
 import CustomButton from "@/Components/UI/Buttons";
 import MobileReferralBanner from "@/Components/UI/MobileReferralBanner";
 import OnboardingFlow from "@/Components/UI/OnboardingFlow";
 import Dashboard2026 from "@/Components/Page/Dashboard/v2026";
-import useDashboardLayout from "@/hooks/useDashboardLayout";
 import useIsMobile from "@/hooks/useIsMobile";
 import { pageProps, rootReducer } from "@/utils/types";
 import { AddRounded } from "@mui/icons-material";
-import { Box, Grid } from "@mui/material";
 import Head from "next/head";
 import router from "next/router";
 import { useCallback, useEffect } from "react";
@@ -18,20 +14,18 @@ import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 
 /**
- * Dashboard — restored to the pre-Session-97 two-column layout on 2025-07.
+ * Dashboard — 2026 merchant command center (default & only layout).
  *
- * User feedback: the Coinbase-style refresh introduced consumer-app features
- * (Receive / Convert / Invoice tabbed panel, big amount input, coin chips,
- * live-payments strip, attention-cards row, asset-breakdown rows) that don't
- * belong in a merchant payment gateway. The immediate-previous dashboard
- * composed HeroMetrics + RecentTransactionsWidget + Active Wallets +
- * Transaction Volume chart on the left, and FeeTierProgress + CreatorPageCard
- * + GrowPanel on the right — this file restores that composition.
+ * The dashboard renders `Dashboard2026` (Components/Page/Dashboard/v2026),
+ * a bento command center: a personalised CommandBar (greeting + global time
+ * range + settings), a Volume hero, a KPI strip, recent activity, an assets
+ * breakdown, a merchant quick-actions dock, the fee-tier card, grow/storefront
+ * slots, and a first-run activation checklist.
  *
- * All the auxiliary chrome (OnboardingFlow, AutoClaimHandle,
- * MobileReferralBanner, ClaimHandleBanner) and the zero-payment
- * EmptyStatePanel branching still work — they live inside
- * DashboardLeftSection where they always did.
+ * The classic two-column layout (and its localStorage feature flag) was
+ * retired once the 2026 design was approved. All auxiliary chrome
+ * (OnboardingFlow, AutoClaimHandle, MobileReferralBanner, ClaimHandleBanner)
+ * still lives here.
  */
 export default function Home({
   setPageName,
@@ -54,7 +48,6 @@ export default function Home({
   const hasCompany = (companyState.companyList?.length ?? 0) > 0;
   const hasWallet = (walletState.walletList?.length ?? 0) > 0;
   const setupComplete = hasCompany && hasWallet;
-  const { layout, setLayout } = useDashboardLayout();
 
   useEffect(() => {
     if (setPageName && setPageDescription) {
@@ -105,64 +98,7 @@ export default function Home({
         {isMobile && <MobileReferralBanner />}
         {setupComplete && <ClaimHandleBanner />}
 
-        {layout === "v2026" ? (
-          <Dashboard2026 onSwitchClassic={() => setLayout("classic")} />
-        ) : (
-          <>
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "flex-end",
-                mb: 2,
-                px: { xs: "16px", md: 0 },
-              }}
-            >
-              <Box
-                role="button"
-                tabIndex={0}
-                onClick={() => setLayout("v2026")}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") setLayout("v2026");
-                }}
-                data-testid="dashboard-try-2026"
-                sx={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 0.75,
-                  px: 1.75,
-                  py: 0.85,
-                  borderRadius: 999,
-                  cursor: "pointer",
-                  fontFamily: "var(--font-sans)",
-                  fontSize: 13,
-                  fontWeight: 600,
-                  color: "#FFFFFF",
-                  background: (th) =>
-                    th.palette.mode === "dark" ? "#818CF8" : "#4F46E5",
-                  transition: "opacity 150ms ease, transform 150ms ease",
-                  "&:hover": { opacity: 0.92, transform: "translateY(-1px)" },
-                }}
-              >
-                {tDashboard("tryNewDashboard") === "tryNewDashboard"
-                  ? "Try the new dashboard →"
-                  : (tDashboard("tryNewDashboard") as string)}
-              </Box>
-            </Box>
-            <Grid
-              container
-              spacing={{ xs: 2, md: 2.5, lg: 3 }}
-              alignItems="flex-start"
-              data-testid="dashboard-root"
-            >
-              <Grid item xs={12} lg={8}>
-                <DashboardLeftSection />
-              </Grid>
-              <Grid item xs={12} lg={4}>
-                <DashboardRightSection />
-              </Grid>
-            </Grid>
-          </>
-        )}
+        <Dashboard2026 />
       </main>
     </>
   );

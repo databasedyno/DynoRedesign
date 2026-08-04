@@ -15,12 +15,8 @@ import RecentTransactionsWidget from "../RecentTransactionsWidget";
 import GrowPanel from "../GrowPanel";
 import CreatorPageCard from "../CreatorPageCard";
 
-interface Props {
-  onSwitchClassic?: () => void;
-}
-
 /**
- * Dashboard2026 — the merchant command-center composition.
+ * Dashboard2026 — the merchant command-center composition (default dashboard).
  *
  * Layout:
  *   CommandBar (greeting + global time range + settings)
@@ -31,7 +27,7 @@ interface Props {
  * A single fetchChartData(range) call here feeds both the VolumeHero chart
  * and the KPI-strip sparklines (they read the shared redux chartData).
  */
-const Dashboard2026: React.FC<Props> = ({ onSwitchClassic }) => {
+const Dashboard2026: React.FC = () => {
   const router = useRouter();
   const [range, setRange] = useState<RangeId>("7d");
   const {
@@ -91,11 +87,7 @@ const Dashboard2026: React.FC<Props> = ({ onSwitchClassic }) => {
 
   return (
     <Box data-testid="dash2026-root">
-      <CommandBar
-        range={range}
-        onRangeChange={setRange}
-        onSwitchClassic={onSwitchClassic}
-      />
+      <CommandBar range={range} onRangeChange={setRange} />
 
       <Box
         sx={{
