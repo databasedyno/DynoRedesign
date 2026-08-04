@@ -1,3 +1,13 @@
+# UPDATE (this session, later) — 2026 Dashboard is now DEFAULT & ONLY layout — QA 11/11 PASS
+
+- Classic two-column dashboard + the `dynopay_dashboard_layout` feature-flag/toggle were **RETIRED**. `pages/dashboard.tsx` now renders `<Dashboard2026 />` unconditionally. Removed: the "Switch to classic" menu item (+ onSwitchClassic prop) from `v2026/CommandBar.tsx` & `v2026/index.tsx`, and the "Try the new dashboard" pill + classic Grid + `DashboardLeftSection/RightSection`/`useDashboardLayout` imports from `pages/dashboard.tsx`. (Classic component files + `hooks/useDashboardLayout.ts` remain on disk, unused.)
+- Global time range trimmed to **4 backend-supported options: 7D/30D/90D/1Y** (removed "All" — backend `getChartData` switch has no `all` case; it fell through to `default→30d`, which was misleading. Backend supports 7d/30d/90d/1y only; reducer `DASHBOARD_ERROR` resets `chartLoading` so no stuck-spinner risk).
+- **auto_frontend_testing_agent RE-TEST on fresh build = 11/11 PASS (100%)**. NOTE: the FIRST agent run reported failures (retired elements present, all nav broken, stuck spinners, h-scroll) — those were ALL false positives from testing a STALE build (frontend was not restarted before that run). After `supervisorctl restart frontend` + route warm-up, main agent verified via Playwright and the testing agent re-confirmed: retired testids gone (0/0), all nav works (qa-primary→/create-pay-link, shortcuts→/invoices,/pay-links,/wallet,/customers,/creator, assets-manage→/wallet), range pills update aria-selected + charts refresh no spinner, KPIs real, fee-tier hint interpolated, theme/density toggles OK, responsive 1920/1280/768/390 with NO horizontal overflow, mobile → 1 column + KPI 2×2, no v2026 console errors.
+- LESSON: ALWAYS `sudo supervisorctl restart frontend` (Next.js dev) after structural edits (removed imports / changed props / retired branches) BEFORE invoking the frontend testing agent, else it tests a stale compiled build. `tsc --noEmit` = 0 errors; ESLint clean.
+
+---
+
+
 # FEATURE (this session) — 2026 Dashboard redesign (merchant command center) — VERIFIED
 
 - **New dashboard layout** lives in `Components/Page/Dashboard/v2026/` (index.tsx = `Dashboard2026`). Wired into `pages/dashboard.tsx` behind a localStorage feature flag `dynopay_dashboard_layout` ("v2026" | "classic"), **default "v2026"**. Hook: `hooks/useDashboardLayout.ts`.
