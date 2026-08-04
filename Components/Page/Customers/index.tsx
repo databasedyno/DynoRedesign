@@ -38,6 +38,7 @@ import axiosBaseApi from "@/axiosConfig";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { formatNumberWithComma, getCurrencySymbol } from "@/helpers";
+import { formatCryptoAmount } from "@/utils/currencyFormat";
 import useIsMobile from "@/hooks/useIsMobile";
 import { useRouter } from "next/router";
 import CustomButton from "@/Components/UI/Buttons";
@@ -204,8 +205,11 @@ const CustomersPage: React.FC = () => {
     });
   };
 
-  /** Format any amount-ish value with commas and max 2 decimals */
-  const fmtAmount = (v: unknown) => formatNumberWithComma(Number(Number(v || 0).toFixed(2)));
+  /** Format an amount for display. Uses crypto-aware precision (up to 8
+   *  decimals for BTC/ETH/etc., 2 for fiat) so small crypto balances like
+   *  0.00047333 BTC no longer collapse to "0.00". */
+  const fmtAmount = (v: unknown, cur?: string) =>
+    formatCryptoAmount(Number(v || 0), cur || baseCurrency);
 
   const openWalletModal = (action: "credit" | "debit") => {
     setWalletAction(action);
@@ -255,7 +259,7 @@ const CustomersPage: React.FC = () => {
           t(walletAction === "credit" ? "customers.creditSuccess" : "customers.debitSuccess", {
             amount: getCurrencySymbol(
               selectedCustomer.wallet?.wallet_type || baseCurrency,
-              fmtAmount(walletAmount)
+              fmtAmount(walletAmount, selectedCustomer.wallet?.wallet_type || baseCurrency)
             ),
           })
         );
@@ -342,7 +346,7 @@ const CustomersPage: React.FC = () => {
         id: "total-balance",
         label: t("customers.totalWalletBalance"),
         icon: <AccountBalanceWalletRounded sx={{ fontSize: 18 }} />,
-        value: getCurrencySymbol(baseCurrency, fmtAmount(aggregates.total_balance || 0)),
+        value: getCurrencySymbol(baseCurrency, fmtAmount(aggregates.total_balance || 0, baseCurrency)),
       },
       {
         id: "base-currency",
@@ -670,7 +674,7 @@ const CustomersPage: React.FC = () => {
                           >
                             {getCurrencySymbol(
                               customer.wallet_currency || baseCurrency,
-                              fmtAmount(customer.wallet_balance || 0)
+                              fmtAmount(customer.wallet_balance || 0, customer.wallet_currency || baseCurrency)
                             )}
                           </Typography>
                         </TableCell>
@@ -861,7 +865,7 @@ const CustomersPage: React.FC = () => {
                   >
                     {getCurrencySymbol(
                       selectedCustomer.wallet?.wallet_type || baseCurrency,
-                      fmtAmount(selectedCustomer.wallet?.amount || 0)
+                      fmtAmount(selectedCustomer.wallet?.amount || 0, selectedCustomer.wallet?.wallet_type || baseCurrency)
                     )}
                   </Typography>
                 </Box>
@@ -952,7 +956,7 @@ const CustomersPage: React.FC = () => {
                               <Typography className="tabular-nums" sx={{ fontWeight: 600, fontSize: "13.5px", fontFamily: "var(--font-sans)" }}>
                                 {getCurrencySymbol(
                                   tx.currency || baseCurrency,
-                                  fmtAmount(tx.amount || 0)
+                                  fmtAmount(tx.amount || 0, tx.currency || baseCurrency)
                                 )}
                               </Typography>
                             </TableCell>
@@ -1059,7 +1063,7 @@ const CustomersPage: React.FC = () => {
               <Typography className="tabular-nums" sx={{ fontWeight: 700, fontSize: "22px", fontFamily: "var(--font-sans)" }}>
                 {getCurrencySymbol(
                   selectedCustomer.wallet?.wallet_type || baseCurrency,
-                  fmtAmount(selectedCustomer.wallet?.amount || 0)
+                  fmtAmount(selectedCustomer.wallet?.amount || 0, selectedCustomer.wallet?.wallet_type || baseCurrency)
                 )}
               </Typography>
             </Box>

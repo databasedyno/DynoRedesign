@@ -1,5 +1,6 @@
 import PanelCard from "@/Components/UI/PanelCard";
-import { formatNumberWithComma, getCurrencySymbol } from "@/helpers";
+import { getCurrencySymbol } from "@/helpers";
+import { formatCryptoAmount } from "@/utils/currencyFormat";
 import useIsMobile from "@/hooks/useIsMobile";
 import { useDashboardDensity } from "@/hooks/useDashboardDensity";
 import {
@@ -398,7 +399,7 @@ const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
                         textOverflow: "ellipsis",
                       }}
                     >
-                      {getCurrencySymbol(fiat, formatNumberWithComma(Number(amount)))}
+                      {getCurrencySymbol(fiat, formatCryptoAmount(Number(amount), fiat))}
                       {crypto && (
                         <Box
                           component="span"

@@ -8,6 +8,7 @@ import {
 import { useRouter } from "next/router";
 import { useTranslation } from "react-i18next";
 import { useLivePayments, LivePaymentItem } from "@/hooks/useLivePayments";
+import { formatCryptoAmount, isCryptoCurrency } from "@/utils/currencyFormat";
 import { CB_TOKENS, SurfaceCard, Eyebrow } from "./styled";
 
 /**
@@ -83,6 +84,11 @@ function coinDotColor(coin?: string | null): string {
 function formatAmount(n: unknown, currency?: string | null): string {
   const val = Number(n ?? 0);
   if (!Number.isFinite(val)) return "—";
+  // Crypto currencies (BTC, ETH, USDT-TRC20, …) need up to 8 decimals — a
+  // 2-decimal cap would render small BTC amounts like 0.00047 as "0.00".
+  if (currency && isCryptoCurrency(currency)) {
+    return `${formatCryptoAmount(val, currency)} ${String(currency).toUpperCase()}`;
+  }
   const symbol =
     currency === "USD" || !currency
       ? "$"
