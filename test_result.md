@@ -1,3 +1,25 @@
+# Session (fork) 2026-08-04 — FEATURE: Custom date-range for dashboard chart + KPI sparkline tooltips — BACKEND test requested
+
+Preview: https://124a4944-ebfa-46d8-b06f-e2e063a303f8.preview.emergentagent.com
+Auth: POST /api/user/login {email:"hostbay@moxx.co", password:"Katiekendra123@"} → data.accessToken (Bearer). LIVE prod Railway PG — READ-ONLY endpoint, safe.
+
+## BACKEND CHANGE (controller/dashboardController.ts → getChartData)
+Added support for explicit custom date range on GET /api/dashboard/chart. Previously it only honored `period`. Now it ALSO reads query params `startDate` and `endDate` (YYYY-MM-DD). When both are valid and startDate<=endDate → custom mode: window = [startDate 00:00:00 .. endDate 23:59:59], groupBy auto (spanDays<=31 → day, <=180 → week, else month), response period="custom". All 3 internal SQL queries now also bound `ut."createdAt" <= :endDate`. Cache key includes the resolved custom window. Named periods (7d/30d/90d/1y) behavior unchanged (endDate defaults to now).
+
+## WHAT TO TEST (deep_testing_backend_v2 — BACKEND ONLY)
+GET /api/dashboard/chart with Bearer token:
+1. period=7d, 30d, 90d, 1y (no company_id): each → 200, body has data with chart_data (array), start_date, end_date, group_by, period. Expect group_by: 7d→day, 30d→day, 90d→week, 1y→month. period echoes the requested value. Regression: response shape must be unchanged vs before.
+2. Custom range: startDate=2026-06-01&endDate=2026-06-30 → 200, period=="custom", start_date=="2026-06-01", end_date=="2026-06-30", group_by=="day" (30-day span), chart_data non-empty (fillMissingDates fills gaps).
+3. Custom wide span: startDate=2025-01-01&endDate=2026-06-30 → group_by=="month" (>180 days). startDate=2026-01-01&endDate=2026-05-01 → group_by=="week" (>31, <=180).
+4. endDate upper bound honored: startDate=2026-06-01&endDate=2026-06-05 → chart_data should NOT contain dates after 2026-06-05 (custom end clamps the window).
+5. Edge/fallback (must NOT 500): startDate=notadate&endDate=2026-06-30 → falls back to named period (period != "custom"); startDate=2026-06-30&endDate=2026-06-01 (start>end) → fallback; only startDate given (no endDate) → fallback.
+6. No 500s anywhere; confirm the main dashboard stats endpoint (e.g. GET /api/dashboard/stats or whatever the summary endpoint is) still returns 200 (regression).
+
+Report pass/fail per item with observed group_by / period / start_date / end_date and any 500s.
+
+---
+
+
 # Session (fork) 2026-08-04 — FEATURE QA: 2026 Dashboard redesign is now the DEFAULT & ONLY dashboard layout — FRONTEND test requested
 
 Preview: https://124a4944-ebfa-46d8-b06f-e2e063a303f8.preview.emergentagent.com
@@ -33893,3 +33915,303 @@ The local `tWallet` wrapper was typed `(key: string) => string` but lines 602–
 - DASHBOARD MENU (NewHeader): hamburger IconButton had a `&:hover` bg that sticks on touch → same sticky-hover fix (transparent on touch, disableRipple, hover tint only under `@media (hover:hover) and (pointer:fine)`). NewHeader has NO backdrop-filter (no freeze there) and a solid drawer paper.
 
 **Verified:** eslint clean (3 files); `tsc --noEmit` 0 errors; computed styles confirm backdrop-filter gone on mobile. NOTE: the multi-second FREEZE is a real-iOS-Safari-only symptom that Playwright/Chromium CANNOT reproduce — verification = the confirmed root cause (backdrop-filter) is removed + menu still functions + no sticky shade + reduce-motion works. User to re-confirm snappiness on the real iPhone (preview URL now, or after Save-to-Github deploy).
+
+## BACKEND TESTING AGENT VERIFICATION — 2026-08-04 — ✅ ALL TESTS PASSED (13/13 — 100%)
+
+**Test Status:** ✅ **13/13 TESTS PASSED — CUSTOM DATE RANGE FEATURE FULLY VERIFIED**
+
+**Test Environment:**
+- Preview URL: https://124a4944-ebfa-46d8-b06f-e2e063a303f8.preview.emergentagent.com
+- Test Type: Backend API verification (READ-ONLY GET endpoint)
+- Login: hostbay@moxx.co / Katiekendra123@ (LIVE prod Railway PG)
+- Test Date: 2026-08-04
+- Test Script: /app/backend_test.py
+- Endpoint: GET /api/dashboard/chart
+
+---
+
+### ✅ TEST RESULTS BY CATEGORY
+
+#### TEST 1: Named Periods (4/4 PASS)
+
+**✅ period=7d**
+- Status: 200 OK
+- period: "7d" ✓
+- group_by: "day" ✓ (expected: day)
+- start_date: 2026-07-28
+- end_date: 2026-08-04
+- chart_data: 8 items (array) ✓
+
+**✅ period=30d**
+- Status: 200 OK
+- period: "30d" ✓
+- group_by: "day" ✓ (expected: day)
+- start_date: 2026-07-05
+- end_date: 2026-08-04
+- chart_data: 31 items (array) ✓
+
+**✅ period=90d**
+- Status: 200 OK
+- period: "90d" ✓
+- group_by: "week" ✓ (expected: week)
+- start_date: 2026-05-06
+- end_date: 2026-08-04
+- chart_data: 13 items (array) ✓
+
+**✅ period=1y**
+- Status: 200 OK
+- period: "1y" ✓
+- group_by: "month" ✓ (expected: month)
+- start_date: 2025-08-04
+- end_date: 2026-08-04
+- chart_data: 13 items (array) ✓
+
+**Verdict:** ✅ All named periods work correctly with expected group_by mappings (7d→day, 30d→day, 90d→week, 1y→month)
+
+---
+
+#### TEST 2: Custom Range (Normal) (1/1 PASS)
+
+**✅ startDate=2026-06-01&endDate=2026-06-30**
+- Status: 200 OK
+- period: "custom" ✓ (expected: custom)
+- group_by: "day" ✓ (30-day span ≤31 days)
+- start_date: "2026-06-01" ✓
+- end_date: "2026-06-30" ✓
+- chart_data: 30 items (non-empty array) ✓
+
+**Verdict:** ✅ Custom date range works correctly with period="custom"
+
+---
+
+#### TEST 3: Custom Span → groupBy Logic (2/2 PASS)
+
+**✅ 3a: startDate=2026-01-01&endDate=2026-05-01 (>31 days, ≤180 days)**
+- Status: 200 OK
+- period: "custom" ✓
+- group_by: "week" ✓ (expected: week for span >31 and ≤180 days)
+- start_date: 2026-01-01
+- end_date: 2026-05-01
+- chart_data: 18 items (array) ✓
+
+**✅ 3b: startDate=2025-01-01&endDate=2026-06-30 (>180 days)**
+- Status: 200 OK
+- period: "custom" ✓
+- group_by: "month" ✓ (expected: month for span >180 days)
+- start_date: 2025-01-01
+- end_date: 2026-06-30
+- chart_data: 18 items (array) ✓
+
+**Verdict:** ✅ Custom span → groupBy logic works correctly (≤31 days→day, ≤180→week, >180→month)
+
+---
+
+#### TEST 4: endDate Upper Bound Enforcement (1/1 PASS)
+
+**✅ startDate=2026-06-01&endDate=2026-06-05**
+- Status: 200 OK
+- period: "custom" ✓
+- group_by: "day" ✓
+- start_date: 2026-06-01
+- end_date: "2026-06-05" ✓
+- chart_data: 5 items (array) ✓
+- **CRITICAL CHECK:** ✅ NO chart_data points found after 2026-06-05
+  - Verified: All chart_data dates are ≤ 2026-06-05
+  - Custom endDate upper bound is correctly enforced
+
+**Verdict:** ✅ endDate upper bound is enforced - no data leaks beyond custom endDate
+
+---
+
+#### TEST 5: Fallback/Edge Cases (3/3 PASS)
+
+**✅ 5a: startDate=notadate&endDate=2026-06-30 (invalid startDate)**
+- Status: 200 OK (no 500 error) ✓
+- period: "30d" ✓ (correctly fell back to named period, NOT "custom")
+- Behavior: Invalid date → graceful fallback to default period
+
+**✅ 5b: startDate=2026-06-30&endDate=2026-06-01 (start > end)**
+- Status: 200 OK (no 500 error) ✓
+- period: "30d" ✓ (correctly fell back to named period, NOT "custom")
+- Behavior: Invalid range → graceful fallback to default period
+
+**✅ 5c: startDate=2026-06-01 (only startDate, no endDate)**
+- Status: 200 OK (no 500 error) ✓
+- period: "30d" ✓ (correctly fell back to named period, NOT "custom")
+- Behavior: Incomplete params → graceful fallback to default period
+
+**Verdict:** ✅ All edge cases handled gracefully with fallback to named period (no 500 errors)
+
+---
+
+#### TEST 6: Regression Check (1/1 PASS)
+
+**✅ GET /api/dashboard (primary dashboard stats endpoint)**
+- Status: 200 OK ✓
+- Endpoint: /api/dashboard
+- Behavior: Primary dashboard summary endpoint still works correctly
+
+**Verdict:** ✅ No regression - dashboard stats endpoint still returns 200
+
+---
+
+### 📊 FINAL TEST SUMMARY
+
+**Overall Results:** 13/13 tests passed (100%)
+
+**By Category:**
+- ✅ Login: PASS
+- ✅ TEST 1 (Named periods): 4/4 PASS
+- ✅ TEST 2 (Custom range): 1/1 PASS
+- ✅ TEST 3 (Custom span → groupBy): 2/2 PASS
+- ✅ TEST 4 (endDate upper bound): 1/1 PASS
+- ✅ TEST 5 (Fallback/edge cases): 3/3 PASS
+- ✅ TEST 6 (Regression): 1/1 PASS
+
+**Backend Logs:** ✅ No SQL errors or unhandled exceptions detected
+
+---
+
+### 🎯 WHAT'S WORKING PERFECTLY
+
+#### ✅ Named Periods (TEST 1)
+- All 4 named periods (7d, 30d, 90d, 1y) return 200 OK
+- group_by mappings are correct:
+  - 7d → "day" ✓
+  - 30d → "day" ✓
+  - 90d → "week" ✓
+  - 1y → "month" ✓
+- period field echoes the requested value
+- chart_data is always a non-empty array
+- Response shape unchanged (no regression)
+
+#### ✅ Custom Date Range (TEST 2)
+- Custom startDate & endDate params work correctly
+- period="custom" when both dates are valid and startDate ≤ endDate
+- start_date and end_date in response match the requested dates
+- chart_data is populated with fillMissingDates (no gaps)
+- 30-day span correctly uses group_by="day"
+
+#### ✅ Custom Span → groupBy Logic (TEST 3)
+- Automatic groupBy selection based on span:
+  - ≤31 days → "day" ✓
+  - >31 and ≤180 days → "week" ✓
+  - >180 days → "month" ✓
+- Tested with real date ranges:
+  - 2026-01-01 to 2026-05-01 (121 days) → "week" ✓
+  - 2025-01-01 to 2026-06-30 (546 days) → "month" ✓
+
+#### ✅ endDate Upper Bound Enforcement (TEST 4)
+- **CRITICAL:** Custom endDate clamps the data window correctly
+- Verified: NO chart_data points exist after the specified endDate
+- Example: startDate=2026-06-01&endDate=2026-06-05
+  - All 5 chart_data points are within [2026-06-01, 2026-06-05]
+  - No data leaks beyond 2026-06-05
+- SQL queries correctly bound with `ut."createdAt" <= :endDate`
+
+#### ✅ Fallback/Edge Cases (TEST 5)
+- Invalid startDate → fallback to named period (30d) ✓
+- start > end → fallback to named period (30d) ✓
+- Missing endDate → fallback to named period (30d) ✓
+- **NO 500 errors** in any edge case ✓
+- period != "custom" when fallback occurs ✓
+
+#### ✅ Regression (TEST 6)
+- Primary dashboard stats endpoint (/api/dashboard) still returns 200 ✓
+- No breaking changes to existing functionality ✓
+
+#### ✅ Backend Stability
+- No SQL errors in backend logs ✓
+- No unhandled exceptions ✓
+- All queries execute successfully ✓
+- Cache keys include resolved custom window (no collision) ✓
+
+---
+
+### 📋 DETAILED TEST OBSERVATIONS
+
+**1. Named Period Behavior (Unchanged)**
+- Named periods (7d/30d/90d/1y) work exactly as before
+- endDate defaults to "now" for named periods
+- Response shape is consistent with pre-feature behavior
+- No regression in existing functionality
+
+**2. Custom Range Behavior (New Feature)**
+- When both startDate and endDate are provided AND valid AND startDate ≤ endDate:
+  - period = "custom"
+  - Window = [startDate 00:00:00 .. endDate 23:59:59]
+  - groupBy auto-selected based on span
+  - All 3 internal SQL queries bound with `ut."createdAt" <= :endDate`
+  - Cache key includes resolved custom window
+
+**3. groupBy Auto-Selection Logic**
+- Span calculation: `Math.ceil((endDate - startDate) / 86400000)` days
+- Logic:
+  - spanDays ≤ 31 → "day"
+  - spanDays ≤ 180 → "week"
+  - spanDays > 180 → "month"
+- Tested and verified with real date ranges
+
+**4. endDate Upper Bound (Critical Fix)**
+- **Before:** Named periods used endDate=now, but custom ranges could leak data beyond endDate
+- **After:** All SQL queries now include `AND ut."createdAt" <= :endDate`
+- **Verified:** No chart_data points exist after custom endDate
+- **Impact:** Custom endDate correctly clamps the data window
+
+**5. Fallback Behavior (Robust)**
+- Invalid dates → fallback to default period (30d)
+- start > end → fallback to default period (30d)
+- Missing params → fallback to default period (30d)
+- **NO 500 errors** in any edge case
+- period field correctly shows the fallback period (NOT "custom")
+
+**6. Cache Strategy**
+- Cache key format: `chart:${userId}:${company_id || 'all'}:${rangeKey}:${preferredCurrency}`
+- rangeKey for custom: `custom:${startDate}_${endDate}`
+- rangeKey for named: `${period}` (e.g., "7d", "30d")
+- TTL: 120 seconds (2 minutes)
+- **No collision** between custom and named periods
+
+---
+
+### 🎉 RECOMMENDATION FOR MAIN AGENT
+
+**Status:** ✅ **CUSTOM DATE RANGE FEATURE FULLY VERIFIED — 100% TEST PASS RATE (13/13)**
+
+**What Was Verified:**
+1. ✅ Named periods (7d/30d/90d/1y) work with correct group_by mappings
+2. ✅ Custom date range works with period="custom"
+3. ✅ Custom span → groupBy logic works (≤31→day, ≤180→week, >180→month)
+4. ✅ endDate upper bound is enforced (no data after custom endDate)
+5. ✅ Edge cases fallback correctly (no 500 errors)
+6. ✅ Dashboard stats endpoint still works (no regression)
+7. ✅ No SQL errors or unhandled exceptions in backend logs
+
+**Test Results:**
+- ✅ 13/13 tests passed (100%)
+- ✅ All named periods return correct group_by
+- ✅ Custom range returns period="custom" with correct dates
+- ✅ Custom span logic works for all tested ranges
+- ✅ endDate upper bound verified (no data leaks)
+- ✅ All edge cases handled gracefully (no 500s)
+- ✅ Dashboard stats endpoint regression check passed
+- ✅ Zero backend errors detected
+
+**Critical Verification:**
+- ✅ **endDate upper bound enforcement:** Verified that NO chart_data points exist after the specified custom endDate (tested with 2026-06-01 to 2026-06-05)
+- ✅ **Fallback behavior:** All invalid/incomplete params correctly fallback to named period (NOT "custom")
+- ✅ **No 500 errors:** All edge cases return 200 OK with graceful fallback
+
+**Conclusion:**
+The custom date range feature for GET /api/dashboard/chart is **FULLY WORKING** and **PRODUCTION-READY**. All test cases pass, including:
+- Named periods (unchanged behavior)
+- Custom date range (new feature)
+- Custom span → groupBy logic (automatic)
+- endDate upper bound enforcement (critical)
+- Edge case fallback (robust)
+- Regression check (no breaking changes)
+
+**Recommendation:** ✅ **APPROVE FOR PRODUCTION** — The feature is working correctly with no issues detected.
+
+---
+

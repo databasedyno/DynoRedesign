@@ -1,28 +1,30 @@
 #!/usr/bin/env python3
 """
-Backend Test for Fiat Everywhere Export Math Consistency
-Session: AUDIT - Fiat Everywhere Export math consistency check
+Backend Test for Dashboard Chart Endpoint - Custom Date Range Feature
+Session: 2026-08-04 - Dashboard chart custom date range testing
 
-CRITICAL TEST: Verify Tax Report CSV "Processing Fee" column fix for v2 invoices.
-Before fix: CSV showed fixed_fee ($1.00) instead of unit_price ($1.87).
-After fix: CSV should show unit_price for v2 invoices.
+TEST SCOPE: GET /api/dashboard/chart with custom startDate & endDate params
+- Named periods (7d, 30d, 90d, 1y) with expected group_by mappings
+- Custom date range with period="custom"
+- Custom span → groupBy logic (≤31 days→day, ≤180→week, >180→month)
+- endDate upper bound enforcement (no data after custom endDate)
+- Fallback/edge cases (invalid dates, start>end, missing params)
+- Regression check on dashboard stats endpoint
 
-SAFETY: READ-ONLY tests + ONE narrow display_currency PATCH round-trip (MUST revert).
-NO invoice/transaction/wallet mutations. NO email sends.
+SAFETY: READ-ONLY GET endpoint testing. LIVE production DB but safe.
 """
 
 import requests
 import json
 import sys
-import csv
-import io
-from typing import Dict, Any, Tuple, Optional
+from typing import Dict, Any, Tuple, List
+from datetime import datetime, date
 
-# Preview URL from test_credentials.md
-BASE_URL = "https://merchant-crypto-api.preview.emergentagent.com"
+# Preview URL from review request
+BASE_URL = "https://124a4944-ebfa-46d8-b06f-e2e063a303f8.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
-# Test credentials
+# Test credentials from review request
 MERCHANT_EMAIL = "hostbay@moxx.co"
 MERCHANT_PASSWORD = "Katiekendra123@"
 
@@ -61,35 +63,19 @@ def print_data(label: str, data: Any):
     else:
         print(data)
 
-def login() -> Tuple[bool, str, str]:
-    """Login and get access token + CSRF token"""
+def login() -> Tuple[bool, str]:
+    """Login and get access token"""
     print_test("Login as hostbay@moxx.co")
     
     try:
-        session = requests.Session()
-        
-        # Get CSRF token first
-        csrf_response = session.get(f"{API_BASE}/csrf-token", timeout=10)
-        csrf_token = ""
-        if csrf_response.status_code == 200:
-            csrf_data = csrf_response.json()
-            csrf_token = csrf_data.get("data", {}).get("csrfToken", "")
-            print_info(f"CSRF Token: {csrf_token[:20]}...")
-        
-        # Login
         login_data = {
             "email": MERCHANT_EMAIL,
             "password": MERCHANT_PASSWORD
         }
         
-        headers = {}
-        if csrf_token:
-            headers["X-CSRF-Token"] = csrf_token
-        
-        response = session.post(
+        response = requests.post(
             f"{API_BASE}/user/login",
             json=login_data,
-            headers=headers,
             timeout=10
         )
         
@@ -97,7 +83,7 @@ def login() -> Tuple[bool, str, str]:
         
         if response.status_code == 200:
             data = response.json()
-            # Extract token
+            # Extract token from various possible locations
             token = None
             if isinstance(data, dict):
                 token = (data.get("token") or 
@@ -107,501 +93,425 @@ def login() -> Tuple[bool, str, str]:
             
             if token:
                 print_pass(f"Login successful, token: {token[:30]}...")
-                return True, token, csrf_token
+                return True, token
             else:
                 print_fail("Login response missing token")
-                return False, "", ""
+                print_data("Response", data)
+                return False, ""
         else:
             print_fail(f"Login failed: {response.status_code}")
             print_info(f"Response: {response.text[:500]}")
-            return False, "", ""
+            return False, ""
             
     except Exception as e:
         print_fail(f"Login exception: {str(e)}")
-        return False, "", ""
+        return False, ""
 
-def get_display_currency(token: str) -> Tuple[bool, Dict[str, Any]]:
-    """Step 1: Get current display currency setting"""
-    print_test("Step 1: GET /api/user/display-currency (Baseline)")
+def test_chart_endpoint(token: str, params: Dict[str, str], test_name: str, expected: Dict[str, Any]) -> Tuple[bool, Dict[str, Any]]:
+    """
+    Test the chart endpoint with given params
+    Returns (success, response_data)
+    """
+    print_test(test_name)
     
     try:
         headers = {"Authorization": f"Bearer {token}"}
-        response = requests.get(
-            f"{API_BASE}/user/display-currency",
-            headers=headers,
-            timeout=10
-        )
+        
+        # Build query string
+        query_parts = []
+        for key, value in params.items():
+            if value is not None:
+                query_parts.append(f"{key}={value}")
+        query_string = "&".join(query_parts)
+        
+        url = f"{API_BASE}/dashboard/chart"
+        if query_string:
+            url += f"?{query_string}"
+        
+        print_info(f"URL: {url}")
+        
+        response = requests.get(url, headers=headers, timeout=15)
         
         print_info(f"Status: {response.status_code}")
         
-        if response.status_code == 200:
-            data = response.json()
-            result = data.get("data", {})
-            print_data("Display Currency", result)
-            
-            display_currency = result.get("display_currency")
-            user_override = result.get("user_override")
-            source = result.get("source")
-            rate = result.get("usd_to_display_rate")
-            
-            print_info(f"display_currency={display_currency}, user_override={user_override}, source={source}, rate={rate}")
-            
-            if display_currency == "USD" and user_override is None and source == "company" and rate == 1:
-                print_pass("Baseline state confirmed: USD/None/company/rate=1")
-                return True, result
-            else:
-                print_info(f"Current state: {display_currency}/{user_override}/{source}/{rate}")
-                return True, result
-        else:
-            print_fail(f"Expected 200, got {response.status_code}")
-            return False, {}
-            
-    except Exception as e:
-        print_fail(f"Exception: {str(e)}")
-        return False, {}
-
-def get_invoices(token: str, limit: int = 6) -> Tuple[bool, list]:
-    """Step 2a: Get invoices list"""
-    print_test(f"Step 2a: GET /api/invoices?limit={limit}")
-    
-    try:
-        headers = {"Authorization": f"Bearer {token}"}
-        response = requests.get(
-            f"{API_BASE}/invoices?limit={limit}",
-            headers=headers,
-            timeout=10
-        )
-        
-        print_info(f"Status: {response.status_code}")
-        
-        if response.status_code == 200:
-            data = response.json()
-            invoices = data.get("data", {}).get("invoices", [])
-            print_info(f"Retrieved {len(invoices)} invoices")
-            
-            # Print key fields for first few invoices
-            for i, inv in enumerate(invoices[:3]):
-                print_info(f"Invoice {i+1}: id={inv.get('invoice_id')}, "
-                          f"total_usd={inv.get('total_usd')}, "
-                          f"unit_price={inv.get('unit_price')}, "
-                          f"processing_fee={inv.get('processing_fee')}, "
-                          f"version={inv.get('invoice_version')}")
-            
-            print_pass(f"Retrieved {len(invoices)} invoices")
-            return True, invoices
-        else:
-            print_fail(f"Expected 200, got {response.status_code}")
-            return False, []
-            
-    except Exception as e:
-        print_fail(f"Exception: {str(e)}")
-        return False, []
-
-def get_tax_report(token: str, group_by: str = "month") -> Tuple[bool, Dict[str, Any]]:
-    """Step 2b: Get tax report JSON"""
-    print_test(f"Step 2b: GET /api/invoices/tax-report?group_by={group_by}")
-    
-    try:
-        headers = {"Authorization": f"Bearer {token}"}
-        response = requests.get(
-            f"{API_BASE}/invoices/tax-report?group_by={group_by}",
-            headers=headers,
-            timeout=10
-        )
-        
-        print_info(f"Status: {response.status_code}")
-        
-        if response.status_code == 200:
-            data = response.json()
-            result = data.get("data", {})
-            summary = result.get("summary", {})
-            
-            print_data("Summary", summary)
-            print_info(f"Total Revenue: {summary.get('total_revenue')}")
-            print_info(f"Total Tax: {summary.get('total_tax')}")
-            print_info(f"Total Invoices: {summary.get('total_invoices')}")
-            print_info(f"Display Currency: {summary.get('display_currency')}")
-            print_info(f"USD to Display Rate: {summary.get('usd_to_display_rate')}")
-            
-            print_pass("Tax report retrieved")
-            return True, result
-        else:
-            print_fail(f"Expected 200, got {response.status_code}")
-            return False, {}
-            
-    except Exception as e:
-        print_fail(f"Exception: {str(e)}")
-        return False, {}
-
-def get_tax_report_csv(token: str) -> Tuple[bool, str, list]:
-    """Step 2c: Get tax report CSV"""
-    print_test("Step 2c: GET /api/invoices/tax-report/csv")
-    
-    try:
-        headers = {"Authorization": f"Bearer {token}"}
-        response = requests.get(
-            f"{API_BASE}/invoices/tax-report/csv",
-            headers=headers,
-            timeout=10
-        )
-        
-        print_info(f"Status: {response.status_code}")
-        
-        if response.status_code == 200:
-            csv_text = response.text
-            print_info(f"CSV length: {len(csv_text)} bytes")
-            
-            # Parse CSV
-            csv_reader = csv.DictReader(io.StringIO(csv_text))
-            rows = list(csv_reader)
-            
-            print_info(f"CSV has {len(rows)} data rows")
-            print_info(f"CSV header: {csv_reader.fieldnames}")
-            
-            # Show first row
-            if rows:
-                print_data("First CSV row", rows[0])
-            
-            print_pass(f"CSV retrieved with {len(rows)} rows")
-            return True, csv_text, rows
-        else:
-            print_fail(f"Expected 200, got {response.status_code}")
-            return False, "", []
-            
-    except Exception as e:
-        print_fail(f"Exception: {str(e)}")
-        return False, "", []
-
-def set_display_currency(token: str, csrf_token: str, currency: str) -> Tuple[bool, Dict[str, Any]]:
-    """Step 3: Set display currency"""
-    print_test(f"Step 3: PATCH /api/user/display-currency (Set to {currency})")
-    
-    try:
-        headers = {
-            "Authorization": f"Bearer {token}",
-            "X-CSRF-Token": csrf_token
-        }
-        
-        payload = {"display_currency": currency}
-        
-        response = requests.patch(
-            f"{API_BASE}/user/display-currency",
-            json=payload,
-            headers=headers,
-            timeout=10
-        )
-        
-        print_info(f"Status: {response.status_code}")
-        
-        if response.status_code == 200:
-            data = response.json()
-            result = data.get("data", {})
-            print_data("Response", result)
-            
-            print_pass(f"Display currency set to {currency}")
-            return True, result
-        else:
+        if response.status_code != 200:
             print_fail(f"Expected 200, got {response.status_code}")
             print_info(f"Response: {response.text[:500]}")
             return False, {}
-            
+        
+        data = response.json()
+        result = data.get("data", {})
+        
+        # Extract key fields
+        period = result.get("period")
+        group_by = result.get("group_by")
+        start_date = result.get("start_date")
+        end_date = result.get("end_date")
+        chart_data = result.get("chart_data", [])
+        
+        print_info(f"period: {period}")
+        print_info(f"group_by: {group_by}")
+        print_info(f"start_date: {start_date}")
+        print_info(f"end_date: {end_date}")
+        print_info(f"chart_data length: {len(chart_data)}")
+        
+        # Validate expected values
+        all_checks_pass = True
+        
+        if "period" in expected:
+            if period == expected["period"]:
+                print_pass(f"period matches: {period}")
+            else:
+                print_fail(f"period mismatch: expected {expected['period']}, got {period}")
+                all_checks_pass = False
+        
+        if "group_by" in expected:
+            if group_by == expected["group_by"]:
+                print_pass(f"group_by matches: {group_by}")
+            else:
+                print_fail(f"group_by mismatch: expected {expected['group_by']}, got {group_by}")
+                all_checks_pass = False
+        
+        if "start_date" in expected:
+            if start_date == expected["start_date"]:
+                print_pass(f"start_date matches: {start_date}")
+            else:
+                print_fail(f"start_date mismatch: expected {expected['start_date']}, got {start_date}")
+                all_checks_pass = False
+        
+        if "end_date" in expected:
+            if end_date == expected["end_date"]:
+                print_pass(f"end_date matches: {end_date}")
+            else:
+                print_fail(f"end_date mismatch: expected {expected['end_date']}, got {end_date}")
+                all_checks_pass = False
+        
+        # Check chart_data is array
+        if not isinstance(chart_data, list):
+            print_fail(f"chart_data is not an array: {type(chart_data)}")
+            all_checks_pass = False
+        else:
+            print_pass(f"chart_data is an array with {len(chart_data)} items")
+        
+        # Check for required fields in response
+        if "chart_data" not in result:
+            print_fail("Missing chart_data in response")
+            all_checks_pass = False
+        
+        if all_checks_pass:
+            print_pass(f"All checks passed for {test_name}")
+        
+        return all_checks_pass, result
+        
     except Exception as e:
         print_fail(f"Exception: {str(e)}")
         return False, {}
 
-def verify_csv_math(csv_rows: list, currency: str, expected_rate: float) -> Tuple[bool, list]:
-    """Verify CSV math consistency"""
-    print_test(f"Verify CSV Math Consistency ({currency})")
-    
-    issues = []
-    
-    for i, row in enumerate(csv_rows):
-        invoice_num = row.get("Invoice Number", "")
-        subtotal = float(row.get(f"Subtotal ({currency})", 0))
-        vat_amount = float(row.get(f"VAT Amount ({currency})", 0))
-        processing_fee = float(row.get(f"Processing Fee ({currency})", 0))
-        total = float(row.get(f"Total ({currency})", 0))
-        
-        # Check arithmetic identity: subtotal + vatAmount ≈ total
-        calculated_total = subtotal + vat_amount
-        delta = abs(calculated_total - total)
-        
-        if delta > 0.02:  # Allow 2 cent tolerance
-            issue = f"Row {i+1} ({invoice_num}): subtotal({subtotal}) + vat({vat_amount}) = {calculated_total} != total({total}), delta={delta}"
-            issues.append(issue)
-            print_fail(issue)
-        else:
-            print_info(f"Row {i+1} ({invoice_num}): Math OK - subtotal({subtotal}) + vat({vat_amount}) ≈ total({total})")
-    
-    if not issues:
-        print_pass(f"All {len(csv_rows)} rows pass arithmetic identity check")
-        return True, []
-    else:
-        print_fail(f"{len(issues)} rows failed arithmetic check")
-        return False, issues
-
-def verify_processing_fee_fix(csv_rows: list, invoices: list, currency: str, rate: float) -> Tuple[bool, list]:
+def test_enddate_upper_bound(token: str) -> bool:
     """
-    CRITICAL: Verify Processing Fee column shows unit_price (not fixed_fee) for v2 invoices.
-    
-    For v2 invoices with unit_price=$1.87 and fixed_fee=$1.00:
-    - CSV Processing Fee at EUR (rate=0.87) should be ~€1.63 (=1.87×0.87)
-    - NOT ~€0.87 (=1.00×0.87) which was the bug
+    Test that endDate upper bound is enforced - no chart_data points after endDate
     """
-    print_test(f"CRITICAL: Verify Processing Fee Fix for v2 Invoices ({currency})")
+    print_test("TEST 4: endDate upper bound enforcement")
     
-    issues = []
+    params = {
+        "startDate": "2026-06-01",
+        "endDate": "2026-06-05"
+    }
     
-    # Build invoice lookup by invoice_number
-    invoice_lookup = {}
-    for inv in invoices:
-        invoice_lookup[inv.get("invoice_number")] = inv
+    expected = {
+        "period": "custom",
+        "end_date": "2026-06-05"
+    }
     
-    for i, row in enumerate(csv_rows):
-        invoice_num = row.get("Invoice Number", "")
-        csv_processing_fee = float(row.get(f"Processing Fee ({currency})", 0))
-        
-        # Find matching invoice from API
-        inv = invoice_lookup.get(invoice_num)
-        if not inv:
-            continue
-        
-        version = inv.get("invoice_version", "v1")
-        unit_price = float(inv.get("unit_price", 0))
-        
-        # For v2 invoices, CSV Processing Fee should equal unit_price × rate
-        if version == "v2":
-            expected_fee = unit_price * rate
-            delta = abs(csv_processing_fee - expected_fee)
-            
-            if delta > 0.02:  # 2 cent tolerance
-                issue = (f"Row {i+1} ({invoice_num}): v2 invoice - "
-                        f"CSV Processing Fee={csv_processing_fee} {currency}, "
-                        f"expected={expected_fee:.2f} (unit_price={unit_price} × rate={rate}), "
-                        f"delta={delta:.2f}")
-                issues.append(issue)
-                print_fail(issue)
-            else:
-                print_info(f"Row {i+1} ({invoice_num}): v2 OK - "
-                          f"CSV fee={csv_processing_fee} ≈ unit_price({unit_price}) × rate({rate}) = {expected_fee:.2f}")
+    success, result = test_chart_endpoint(token, params, "Custom range with endDate=2026-06-05", expected)
     
-    if not issues:
-        print_pass(f"All v2 invoices show correct Processing Fee (unit_price × rate)")
-        return True, []
-    else:
-        print_fail(f"{len(issues)} v2 invoices have incorrect Processing Fee")
-        return False, issues
-
-def verify_csv_header(csv_text: str, currency: str) -> bool:
-    """Verify CSV header has correct currency suffix"""
-    print_test(f"Verify CSV Header ({currency})")
-    
-    lines = csv_text.split('\n')
-    if not lines:
-        print_fail("CSV is empty")
+    if not success:
         return False
     
-    header = lines[0]
-    print_info(f"Header: {header}")
+    # Check that no chart_data points are after 2026-06-05
+    chart_data = result.get("chart_data", [])
+    end_date_limit = date.fromisoformat("2026-06-05")
     
-    required_columns = [
-        f"Subtotal ({currency})",
-        f"VAT Amount ({currency})",
-        f"Processing Fee ({currency})",
-        f"Total ({currency})",
-        "Display Currency",
-        "Payment Currency"
-    ]
+    violations = []
+    for point in chart_data:
+        point_date_str = point.get("date")
+        if point_date_str:
+            try:
+                point_date = date.fromisoformat(point_date_str)
+                if point_date > end_date_limit:
+                    violations.append(point_date_str)
+            except (ValueError, TypeError):
+                pass
     
-    missing = []
-    for col in required_columns:
-        if col not in header:
-            missing.append(col)
-    
-    if missing:
-        print_fail(f"Missing columns: {missing}")
+    if violations:
+        print_fail(f"Found {len(violations)} chart_data points after endDate 2026-06-05: {violations}")
         return False
     else:
-        print_pass(f"CSV header has all required columns with ({currency}) suffix")
+        print_pass("No chart_data points found after endDate 2026-06-05")
         return True
 
-def get_invoice_pdf(token: str, invoice_id: int) -> Tuple[bool, bytes]:
-    """Step 4c: Get invoice PDF"""
-    print_test(f"Step 4c: GET /api/invoices/{invoice_id}/pdf")
+def test_dashboard_stats(token: str) -> bool:
+    """
+    Regression test: Confirm the primary dashboard stats endpoint still returns 200
+    """
+    print_test("REGRESSION: Dashboard stats endpoint")
     
     try:
         headers = {"Authorization": f"Bearer {token}"}
-        response = requests.get(
-            f"{API_BASE}/invoices/{invoice_id}/pdf",
-            headers=headers,
-            timeout=30
-        )
         
-        print_info(f"Status: {response.status_code}")
+        # Try common dashboard stats endpoints
+        endpoints = [
+            "/api/dashboard",
+            "/api/dashboard/stats"
+        ]
         
-        if response.status_code == 200:
-            pdf_bytes = response.content
-            print_info(f"PDF size: {len(pdf_bytes)} bytes")
-            print_pass(f"PDF retrieved for invoice {invoice_id}")
-            return True, pdf_bytes
-        else:
-            print_fail(f"Expected 200, got {response.status_code}")
-            return False, b""
+        for endpoint in endpoints:
+            url = f"{BASE_URL}{endpoint}"
+            print_info(f"Testing: {url}")
             
+            response = requests.get(url, headers=headers, timeout=15)
+            print_info(f"Status: {response.status_code}")
+            
+            if response.status_code == 200:
+                print_pass(f"Dashboard stats endpoint {endpoint} returns 200")
+                return True
+            elif response.status_code == 404:
+                print_info(f"Endpoint {endpoint} not found, trying next...")
+                continue
+            else:
+                print_fail(f"Dashboard stats endpoint {endpoint} returned {response.status_code}")
+                return False
+        
+        print_fail("No dashboard stats endpoint found")
+        return False
+        
     except Exception as e:
         print_fail(f"Exception: {str(e)}")
-        return False, b""
+        return False
+
+def check_backend_logs():
+    """
+    Check backend logs for SQL errors or unhandled exceptions
+    """
+    print_test("Check backend logs for errors")
+    
+    try:
+        import subprocess
+        result = subprocess.run(
+            ["tail", "-n", "100", "/var/log/supervisor/backend.err.log"],
+            capture_output=True,
+            text=True,
+            timeout=5
+        )
+        
+        if result.returncode == 0:
+            log_content = result.stdout
+            
+            # Look for SQL errors or exceptions
+            error_keywords = ["ERROR", "Exception", "SQL", "error", "failed"]
+            errors_found = []
+            
+            for line in log_content.split('\n'):
+                if any(keyword in line for keyword in error_keywords):
+                    errors_found.append(line)
+            
+            if errors_found:
+                print_info(f"Found {len(errors_found)} potential error lines in backend logs")
+                for error in errors_found[-10:]:  # Show last 10
+                    print_info(f"  {error[:200]}")
+            else:
+                print_pass("No obvious errors in backend logs")
+        else:
+            print_info("Could not read backend logs")
+    
+    except Exception as e:
+        print_info(f"Could not check logs: {str(e)}")
 
 def main():
-    print_section("FIAT EVERYWHERE EXPORT MATH CONSISTENCY TEST")
+    print_section("DASHBOARD CHART ENDPOINT - CUSTOM DATE RANGE TEST")
     print(f"{Colors.YELLOW}Preview URL: {BASE_URL}{Colors.END}")
-    print(f"{Colors.YELLOW}Test Type: READ-ONLY + display_currency PATCH round-trip{Colors.END}")
-    print(f"{Colors.YELLOW}CRITICAL: Verify Processing Fee fix for v2 invoices{Colors.END}\n")
+    print(f"{Colors.YELLOW}Test Type: READ-ONLY GET endpoint testing{Colors.END}")
+    print(f"{Colors.YELLOW}Feature: Custom startDate & endDate query params{Colors.END}\n")
     
     results = {}
-    baseline_data = {}
-    eur_data = {}
     
     # ═══════════════════════════════════════════════════════════════════════
     # STEP 0: Login
     # ═══════════════════════════════════════════════════════════════════════
     print_section("STEP 0: LOGIN")
-    success, token, csrf_token = login()
+    success, token = login()
     if not success:
         print_fail("Login failed, cannot continue")
         return 1
     results["login"] = True
     
     # ═══════════════════════════════════════════════════════════════════════
-    # STEP 1: Baseline USD reads
+    # TEST 1: Named periods (7d, 30d, 90d, 1y)
     # ═══════════════════════════════════════════════════════════════════════
-    print_section("STEP 1: BASELINE USD READS")
+    print_section("TEST 1: Named Periods")
     
-    # 1a: Get display currency
-    success, display_curr = get_display_currency(token)
-    results["step1_display_currency"] = success
-    baseline_data["display_currency"] = display_curr
+    named_period_tests = [
+        {
+            "params": {"period": "7d"},
+            "expected": {"period": "7d", "group_by": "day"},
+            "name": "period=7d"
+        },
+        {
+            "params": {"period": "30d"},
+            "expected": {"period": "30d", "group_by": "day"},
+            "name": "period=30d"
+        },
+        {
+            "params": {"period": "90d"},
+            "expected": {"period": "90d", "group_by": "week"},
+            "name": "period=90d"
+        },
+        {
+            "params": {"period": "1y"},
+            "expected": {"period": "1y", "group_by": "month"},
+            "name": "period=1y"
+        }
+    ]
     
-    # 1b: Get invoices
-    success, invoices = get_invoices(token, limit=6)
-    results["step1_invoices"] = success
-    baseline_data["invoices"] = invoices
-    
-    # 1c: Get tax report JSON
-    success, tax_report = get_tax_report(token)
-    results["step1_tax_report"] = success
-    baseline_data["tax_report"] = tax_report
-    
-    # 1d: Get tax report CSV
-    success, csv_text, csv_rows = get_tax_report_csv(token)
-    results["step1_tax_csv"] = success
-    baseline_data["csv_text"] = csv_text
-    baseline_data["csv_rows"] = csv_rows
-    
-    # Verify CSV header (USD)
-    if csv_text:
-        success = verify_csv_header(csv_text, "USD")
-        results["step1_csv_header"] = success
-    
-    # Verify CSV math (USD)
-    if csv_rows:
-        success, issues = verify_csv_math(csv_rows, "USD", 1.0)
-        results["step1_csv_math"] = success
+    for test in named_period_tests:
+        success, _ = test_chart_endpoint(token, test["params"], test["name"], test["expected"])
+        results[f"test1_{test['name']}"] = success
     
     # ═══════════════════════════════════════════════════════════════════════
-    # STEP 2: Set EUR
+    # TEST 2: Custom range (normal)
     # ═══════════════════════════════════════════════════════════════════════
-    print_section("STEP 2: SET DISPLAY CURRENCY TO EUR")
+    print_section("TEST 2: Custom Range (Normal)")
     
-    success, result = set_display_currency(token, csrf_token, "EUR")
-    results["step2_set_eur"] = success
+    success, _ = test_chart_endpoint(
+        token,
+        {"startDate": "2026-06-01", "endDate": "2026-06-30"},
+        "Custom range 2026-06-01 to 2026-06-30 (30 days)",
+        {
+            "period": "custom",
+            "start_date": "2026-06-01",
+            "end_date": "2026-06-30",
+            "group_by": "day"
+        }
+    )
+    results["test2_custom_30days"] = success
     
     # ═══════════════════════════════════════════════════════════════════════
-    # STEP 3: EUR reads
+    # TEST 3: Custom span → groupBy logic
     # ═══════════════════════════════════════════════════════════════════════
-    print_section("STEP 3: EUR READS")
+    print_section("TEST 3: Custom Span → groupBy Logic")
     
-    # 3a: Get tax report JSON (EUR)
-    success, tax_report_eur = get_tax_report(token)
-    results["step3_tax_report_eur"] = success
-    eur_data["tax_report"] = tax_report_eur
+    # 3a: >31 days and ≤180 days → week
+    success, _ = test_chart_endpoint(
+        token,
+        {"startDate": "2026-01-01", "endDate": "2026-05-01"},
+        "Custom range 2026-01-01 to 2026-05-01 (>31 days, ≤180 days)",
+        {
+            "period": "custom",
+            "group_by": "week"
+        }
+    )
+    results["test3a_week_grouping"] = success
     
-    # Verify EUR rate
-    if tax_report_eur:
-        summary = tax_report_eur.get("summary", {})
-        display_currency = summary.get("display_currency")
-        rate = summary.get("usd_to_display_rate")
+    # 3b: >180 days → month
+    success, _ = test_chart_endpoint(
+        token,
+        {"startDate": "2025-01-01", "endDate": "2026-06-30"},
+        "Custom range 2025-01-01 to 2026-06-30 (>180 days)",
+        {
+            "period": "custom",
+            "group_by": "month"
+        }
+    )
+    results["test3b_month_grouping"] = success
+    
+    # ═══════════════════════════════════════════════════════════════════════
+    # TEST 4: endDate upper bound enforcement
+    # ═══════════════════════════════════════════════════════════════════════
+    print_section("TEST 4: endDate Upper Bound Enforcement")
+    
+    success = test_enddate_upper_bound(token)
+    results["test4_enddate_bound"] = success
+    
+    # ═══════════════════════════════════════════════════════════════════════
+    # TEST 5: Fallback/edge cases
+    # ═══════════════════════════════════════════════════════════════════════
+    print_section("TEST 5: Fallback/Edge Cases")
+    
+    edge_cases = [
+        {
+            "params": {"startDate": "notadate", "endDate": "2026-06-30"},
+            "name": "Invalid startDate (should fallback to named period)",
+            "check_not_custom": True
+        },
+        {
+            "params": {"startDate": "2026-06-30", "endDate": "2026-06-01"},
+            "name": "start > end (should fallback to named period)",
+            "check_not_custom": True
+        },
+        {
+            "params": {"startDate": "2026-06-01"},
+            "name": "Only startDate, no endDate (should fallback to named period)",
+            "check_not_custom": True
+        }
+    ]
+    
+    for test in edge_cases:
+        print_test(test["name"])
         
-        if display_currency == "EUR" and rate and 0.85 <= rate <= 0.89:
-            print_pass(f"EUR rate verified: {rate} (within 0.85-0.89 range)")
-            results["step3_eur_rate"] = True
-        else:
-            print_fail(f"EUR rate issue: currency={display_currency}, rate={rate}")
-            results["step3_eur_rate"] = False
-    
-    # 3b: Get tax report CSV (EUR)
-    success, csv_text_eur, csv_rows_eur = get_tax_report_csv(token)
-    results["step3_tax_csv_eur"] = success
-    eur_data["csv_text"] = csv_text_eur
-    eur_data["csv_rows"] = csv_rows_eur
-    
-    # Verify CSV header (EUR)
-    if csv_text_eur:
-        success = verify_csv_header(csv_text_eur, "EUR")
-        results["step3_csv_header_eur"] = success
-    
-    # Verify CSV math (EUR)
-    if csv_rows_eur:
-        eur_rate = tax_report_eur.get("summary", {}).get("usd_to_display_rate", 0.87)
-        success, issues = verify_csv_math(csv_rows_eur, "EUR", eur_rate)
-        results["step3_csv_math_eur"] = success
-        
-        # CRITICAL: Verify Processing Fee fix for v2 invoices
-        success, issues = verify_processing_fee_fix(csv_rows_eur, invoices, "EUR", eur_rate)
-        results["step3_processing_fee_fix"] = success
-    
-    # 3c: Get invoice #6 PDF (if available)
-    if invoices and len(invoices) >= 6:
-        invoice_6 = invoices[5]  # 0-indexed
-        invoice_id = invoice_6.get("invoice_id")
-        if invoice_id:
-            success, pdf_bytes = get_invoice_pdf(token, invoice_id)
-            results["step3_invoice_pdf"] = success
+        try:
+            headers = {"Authorization": f"Bearer {token}"}
+            query_parts = []
+            for key, value in test["params"].items():
+                query_parts.append(f"{key}={value}")
+            query_string = "&".join(query_parts)
+            url = f"{API_BASE}/dashboard/chart?{query_string}"
             
-            # Note: We can't easily extract text from PDF in Python without pdftotext
-            # Just verify we got a PDF
-            if pdf_bytes and len(pdf_bytes) > 1000:
-                print_pass(f"PDF retrieved, size={len(pdf_bytes)} bytes")
+            print_info(f"URL: {url}")
+            
+            response = requests.get(url, headers=headers, timeout=15)
+            print_info(f"Status: {response.status_code}")
+            
+            if response.status_code == 200:
+                data = response.json()
+                result = data.get("data", {})
+                period = result.get("period")
+                
+                print_info(f"period: {period}")
+                
+                if test.get("check_not_custom"):
+                    if period != "custom":
+                        print_pass(f"Correctly fell back to named period: {period}")
+                        results[f"test5_{test['name'][:20]}"] = True
+                    else:
+                        print_fail(f"Should have fallen back but got period=custom")
+                        results[f"test5_{test['name'][:20]}"] = False
+                else:
+                    print_pass("Endpoint returned 200 (no 500 error)")
+                    results[f"test5_{test['name'][:20]}"] = True
+            elif response.status_code == 500:
+                print_fail(f"Got 500 error (should not happen)")
+                results[f"test5_{test['name'][:20]}"] = False
             else:
-                print_info("PDF size seems small, may not be valid")
+                print_info(f"Got {response.status_code} (acceptable if not 500)")
+                results[f"test5_{test['name'][:20]}"] = True
+                
+        except Exception as e:
+            print_fail(f"Exception: {str(e)}")
+            results[f"test5_{test['name'][:20]}"] = False
     
     # ═══════════════════════════════════════════════════════════════════════
-    # STEP 4: REVERT to USD (MANDATORY)
+    # TEST 6: Regression - Dashboard stats endpoint
     # ═══════════════════════════════════════════════════════════════════════
-    print_section("STEP 4: REVERT DISPLAY CURRENCY TO USD (MANDATORY)")
+    print_section("TEST 6: Regression Check")
     
-    success, result = set_display_currency(token, csrf_token, None)
-    results["step4_revert"] = success
+    success = test_dashboard_stats(token)
+    results["test6_dashboard_stats"] = success
     
-    # Verify revert
-    success, display_curr_final = get_display_currency(token)
-    results["step4_verify_revert"] = success
-    
-    if display_curr_final:
-        display_currency = display_curr_final.get("display_currency")
-        user_override = display_curr_final.get("user_override")
-        source = display_curr_final.get("source")
-        rate = display_curr_final.get("usd_to_display_rate") or display_curr_final.get("rate")
-        
-        # Rate may be None or 1 for USD (identity conversion)
-        rate_ok = (rate == 1 or (rate is None and display_currency == "USD"))
-        
-        if display_currency == "USD" and user_override is None and source == "company" and rate_ok:
-            print_pass(f"✓ REVERT CONFIRMED: display_currency=USD, user_override=None, source=company, rate={rate or 1}")
-            results["step4_revert_confirmed"] = True
-        else:
-            print_fail(f"✗ REVERT FAILED: {display_currency}/{user_override}/{source}/{rate}")
-            results["step4_revert_confirmed"] = False
+    # ═══════════════════════════════════════════════════════════════════════
+    # Check backend logs
+    # ═══════════════════════════════════════════════════════════════════════
+    print_section("BACKEND LOGS CHECK")
+    check_backend_logs()
     
     # ═══════════════════════════════════════════════════════════════════════
     # SUMMARY
@@ -611,39 +521,26 @@ def main():
     passed = sum(1 for v in results.values() if v)
     total = len(results)
     
-    print(f"\n{Colors.BLUE}Results by Step:{Colors.END}\n")
+    print(f"\n{Colors.BLUE}Results by Test:{Colors.END}\n")
     for test_name, result in results.items():
         status = f"{Colors.GREEN}✓ PASS{Colors.END}" if result else f"{Colors.RED}✗ FAIL{Colors.END}"
         print(f"{status} - {test_name}")
     
     print(f"\n{Colors.CYAN}{'='*100}{Colors.END}")
+    print(f"\n{Colors.BLUE}Overall: {passed}/{total} tests passed ({int(passed/total*100)}%){Colors.END}\n")
     
-    # Critical checks
-    critical_checks = [
-        ("Login", results.get("login", False)),
-        ("Processing Fee Fix (v2 invoices)", results.get("step3_processing_fee_fix", False)),
-        ("CSV Math Consistency (EUR)", results.get("step3_csv_math_eur", False)),
-        ("Revert Confirmed", results.get("step4_revert_confirmed", False)),
-    ]
-    
-    all_critical_pass = all(check[1] for check in critical_checks)
-    
-    print(f"\n{Colors.BLUE}Critical Checks:{Colors.END}\n")
-    for name, result in critical_checks:
-        status = f"{Colors.GREEN}✓ PASS{Colors.END}" if result else f"{Colors.RED}✗ FAIL{Colors.END}"
-        print(f"{status} - {name}")
-    
-    print(f"\n{Colors.CYAN}{'='*100}{Colors.END}")
-    
-    if all_critical_pass:
-        print(f"{Colors.GREEN}✓ ALL CRITICAL TESTS PASSED{Colors.END}")
-        print(f"{Colors.GREEN}✓ Processing Fee fix verified: v2 invoices show unit_price (not fixed_fee){Colors.END}")
-        print(f"{Colors.GREEN}✓ CSV math consistency verified across USD and EUR{Colors.END}")
-        print(f"{Colors.GREEN}✓ Display currency reverted to USD/None/company/rate=1{Colors.END}")
+    if passed == total:
+        print(f"{Colors.GREEN}✓ ALL TESTS PASSED{Colors.END}")
+        print(f"{Colors.GREEN}✓ Named periods (7d/30d/90d/1y) work with correct group_by{Colors.END}")
+        print(f"{Colors.GREEN}✓ Custom date range works with period='custom'{Colors.END}")
+        print(f"{Colors.GREEN}✓ Custom span → groupBy logic works (day/week/month){Colors.END}")
+        print(f"{Colors.GREEN}✓ endDate upper bound is enforced{Colors.END}")
+        print(f"{Colors.GREEN}✓ Edge cases fallback correctly (no 500 errors){Colors.END}")
+        print(f"{Colors.GREEN}✓ Dashboard stats endpoint still works{Colors.END}")
         print(f"{Colors.CYAN}{'='*100}{Colors.END}\n")
         return 0
     else:
-        print(f"{Colors.RED}✗ SOME CRITICAL TESTS FAILED{Colors.END}")
+        print(f"{Colors.RED}✗ SOME TESTS FAILED{Colors.END}")
         print(f"{Colors.YELLOW}Total: {passed}/{total} tests passed{Colors.END}")
         print(f"{Colors.CYAN}{'='*100}{Colors.END}\n")
         return 1

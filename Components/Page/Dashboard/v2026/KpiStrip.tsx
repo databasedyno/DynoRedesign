@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { Box, Skeleton, useTheme } from "@mui/material";
-import { Area, AreaChart, ResponsiveContainer } from "recharts";
+import { Area, AreaChart, ResponsiveContainer, Tooltip } from "recharts";
 import {
   ArrowUpwardRounded,
   ArrowDownwardRounded,
@@ -8,6 +8,8 @@ import {
   ReceiptLongRounded,
 } from "@mui/icons-material";
 import { useTranslation } from "react-i18next";
+import { format } from "date-fns";
+import { formatNumberWithComma } from "@/helpers";
 import { DeltaChip, CB_TOKENS } from "../coinbase/styled";
 import { StatCard } from "./styled";
 
@@ -17,10 +19,81 @@ interface Props {
   loading?: boolean;
 }
 
-const MiniSpark: React.FC<{ data: { value: number }[]; color: string }> = ({
-  data,
-  color,
+type SparkPoint = { date?: string; value: number };
+
+const fmtSparkDate = (iso?: string) => {
+  if (!iso) return "";
+  try {
+    return format(new Date(`${iso}T00:00:00`), "MMM d");
+  } catch {
+    return iso;
+  }
+};
+
+/** Themed hover tooltip for the KPI mini-sparklines (date + exact value). */
+const MiniSparkTooltip: React.FC<any> = ({
+  active,
+  payload,
+  valueType,
+  currencySymbol,
+  isDark,
 }) => {
+  if (!active || !payload || !payload.length) return null;
+  const point = payload[0]?.payload as SparkPoint;
+  const raw = Number(payload[0]?.value ?? 0);
+  const valueStr =
+    valueType === "currency"
+      ? `${currencySymbol}${formatNumberWithComma(raw)}`
+      : `${Math.round(raw)}`;
+  return (
+    <Box
+      sx={{
+        px: 1,
+        py: 0.5,
+        borderRadius: "8px",
+        fontFamily: "var(--font-sans)",
+        fontSize: 11,
+        lineHeight: 1.4,
+        whiteSpace: "nowrap",
+        pointerEvents: "none",
+        backgroundColor: isDark ? "#12121A" : "#FFFFFF",
+        border: `1px solid ${
+          isDark ? CB_TOKENS.border.dark : CB_TOKENS.border.light
+        }`,
+        boxShadow: "0 4px 14px rgba(0,0,0,0.18)",
+      }}
+    >
+      {point?.date && (
+        <Box
+          component="span"
+          sx={{
+            color: isDark ? CB_TOKENS.ink.mutedDark : CB_TOKENS.ink.mutedLight,
+            mr: 0.75,
+          }}
+        >
+          {fmtSparkDate(point.date)}
+        </Box>
+      )}
+      <Box
+        component="span"
+        sx={{
+          fontWeight: 700,
+          color: isDark ? CB_TOKENS.ink.primaryDark : CB_TOKENS.ink.primaryLight,
+        }}
+      >
+        {valueStr}
+      </Box>
+    </Box>
+  );
+};
+
+const MiniSpark: React.FC<{
+  data: SparkPoint[];
+  color: string;
+  valueType: "currency" | "count";
+  currencySymbol: string;
+  isDark: boolean;
+}> = ({ data, color, valueType, currencySymbol, isDark }) => {
   if (!data || data.length === 0) return null;
   const anyNonZero = data.some((d) => Number(d.value) > 0);
   if (!anyNonZero) return null;
@@ -35,6 +108,18 @@ const MiniSpark: React.FC<{ data: { value: number }[]; color: string }> = ({
               <stop offset="100%" stopColor={color} stopOpacity={0} />
             </linearGradient>
           </defs>
+          <Tooltip
+            content={
+              <MiniSparkTooltip
+                valueType={valueType}
+                currencySymbol={currencySymbol}
+                isDark={isDark}
+              />
+            }
+            cursor={{ stroke: color, strokeWidth: 1, strokeOpacity: 0.4 }}
+            wrapperStyle={{ zIndex: 20, outline: "none" }}
+            allowEscapeViewBox={{ x: false, y: true }}
+          />
           <Area
             type="monotone"
             dataKey="value"
@@ -43,6 +128,7 @@ const MiniSpark: React.FC<{ data: { value: number }[]; color: string }> = ({
             fill={`url(#${gid})`}
             isAnimationActive={false}
             dot={false}
+            activeDot={{ r: 3, fill: color, strokeWidth: 0 }}
           />
         </AreaChart>
       </ResponsiveContainer>
@@ -66,12 +152,19 @@ const KpiStrip: React.FC<Props> = ({ stats, chartData, loading }) => {
   const symbol = stats?.currencySymbol || "$";
 
   const revSpark = useMemo(
-    () => (chartData || []).map((d) => ({ value: Number(d.value) || 0 })),
+    () =>
+      (chartData || []).map((d) => ({
+        date: d.date,
+        value: Number(d.value) || 0,
+      })),
     [chartData],
   );
   const txSpark = useMemo(
     () =>
-      (chartData || []).map((d) => ({ value: Number(d.transactionCount) || 0 })),
+      (chartData || []).map((d) => ({
+        date: d.date,
+        value: Number(d.transactionCount) || 0,
+      })),
     [chartData],
   );
 
@@ -80,7 +173,8 @@ const KpiStrip: React.FC<Props> = ({ stats, chartData, loading }) => {
     label: string;
     value: string;
     delta?: number;
-    spark?: { value: number }[];
+    spark?: SparkPoint[];
+    valueType?: "currency" | "count";
     color?: string;
     icon?: React.ReactNode;
   }> = [
@@ -90,6 +184,7 @@ const KpiStrip: React.FC<Props> = ({ stats, chartData, loading }) => {
       value: stats?.todaySummary?.volumeTodayFormatted || `${symbol}0.00`,
       delta: Number(stats?.todaySummary?.volumeChangePercent ?? 0),
       spark: revSpark,
+      valueType: "currency",
       color: indigo,
     },
     {
@@ -98,6 +193,7 @@ const KpiStrip: React.FC<Props> = ({ stats, chartData, loading }) => {
       value: String(stats?.todaySummary?.transactionsToday ?? 0),
       delta: Number(stats?.todaySummary?.transactionsChangePercent ?? 0),
       spark: txSpark,
+      valueType: "count",
       color: green,
     },
     {
@@ -183,7 +279,13 @@ const KpiStrip: React.FC<Props> = ({ stats, chartData, loading }) => {
           )}
 
           {!loading && c.spark && c.color && (
-            <MiniSpark data={c.spark} color={c.color} />
+            <MiniSpark
+              data={c.spark}
+              color={c.color}
+              valueType={c.valueType || "count"}
+              currencySymbol={symbol}
+              isDark={isDark}
+            />
           )}
         </StatCard>
       ))}

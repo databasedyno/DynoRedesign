@@ -12,22 +12,14 @@ import {
   CB_TOKENS,
 } from "../coinbase/styled";
 import useIsMobile from "@/hooks/useIsMobile";
-import { RangeId } from "./CommandBar";
 
 interface Props {
   stats: any;
   chartData: Array<{ date: string; value: number; transactionCount?: number }>;
   loading?: boolean;
   chartLoading?: boolean;
-  range: RangeId;
+  rangeLabel: string;
 }
-
-const RANGE_LABEL: Record<RangeId, string> = {
-  "7d": "7 days",
-  "30d": "30 days",
-  "90d": "90 days",
-  "1y": "12 months",
-};
 
 const splitAmount = (raw: string) => {
   const idx = raw.lastIndexOf(" ");
@@ -43,7 +35,7 @@ const splitAmount = (raw: string) => {
  * delta chip and a full-width area chart. The chart series is driven by the
  * global time-range control in the CommandBar (data passed in as a prop).
  */
-const VolumeHero: React.FC<Props> = ({ stats, chartData, loading, chartLoading, range }) => {
+const VolumeHero: React.FC<Props> = ({ stats, chartData, loading, chartLoading, rangeLabel }) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const isMobile = useIsMobile("md");
@@ -101,11 +93,10 @@ const VolumeHero: React.FC<Props> = ({ stats, chartData, loading, chartLoading, 
             {t("heroTodayRevenue", { defaultValue: "Today" })}
           </PillButton>
         </Box>
-        <Eyebrow>
-          {t("volumeOver", {
-            defaultValue: "Volume \u00b7 {{range}}",
-            range: RANGE_LABEL[range],
-          })}
+        <Eyebrow data-testid="dash2026-hero-rangelabel">
+          {(
+            t("volumeOver", { defaultValue: "Volume · {range}" }) as string
+          ).replace("{range}", rangeLabel)}
         </Eyebrow>
       </Box>
 

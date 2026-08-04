@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Box } from "@mui/material";
 import { useRouter } from "next/router";
 import { useSelector } from "react-redux";
+import { format } from "date-fns";
 import { rootReducer } from "@/utils/types";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import CommandBar, { RangeId } from "./CommandBar";
@@ -30,6 +31,9 @@ import CreatorPageCard from "../CreatorPageCard";
 const Dashboard2026: React.FC = () => {
   const router = useRouter();
   const [range, setRange] = useState<RangeId>("7d");
+  const [custom, setCustom] = useState<{ startDate: string; endDate: string } | null>(
+    null,
+  );
   const {
     stats,
     chartData,
@@ -41,8 +45,28 @@ const Dashboard2026: React.FC = () => {
   } = useDashboardData();
 
   useEffect(() => {
-    fetchChartData(range);
-  }, [range, fetchChartData]);
+    if (custom) fetchChartData("custom", custom.startDate, custom.endDate);
+    else fetchChartData(range);
+  }, [range, custom, fetchChartData]);
+
+  // Human label for the active window (drives the VolumeHero eyebrow).
+  const rangeLabel = useMemo(() => {
+    const presetLabels: Record<RangeId, string> = {
+      "7d": "7 days",
+      "30d": "30 days",
+      "90d": "90 days",
+      "1y": "12 months",
+    };
+    if (!custom) return presetLabels[range];
+    const fmt = (iso: string) => {
+      try {
+        return format(new Date(`${iso}T00:00:00`), "MMM d, yyyy");
+      } catch {
+        return iso;
+      }
+    };
+    return `${fmt(custom.startDate)} – ${fmt(custom.endDate)}`;
+  }, [range, custom]);
 
   const companyState = useSelector((s: rootReducer) => s.companyReducer);
   const walletState = useSelector((s: rootReducer) => s.walletReducer);
@@ -87,7 +111,16 @@ const Dashboard2026: React.FC = () => {
 
   return (
     <Box data-testid="dash2026-root">
-      <CommandBar range={range} onRangeChange={setRange} />
+      <CommandBar
+        range={range}
+        onRangeChange={(r) => {
+          setCustom(null);
+          setRange(r);
+        }}
+        custom={custom}
+        onCustomApply={(s, e) => setCustom({ startDate: s, endDate: e })}
+        onCustomClear={() => setCustom(null)}
+      />
 
       <Box
         sx={{
@@ -122,7 +155,7 @@ const Dashboard2026: React.FC = () => {
                 chartData={chartData}
                 loading={loading}
                 chartLoading={chartLoading}
-                range={range}
+                rangeLabel={rangeLabel}
               />
               <KpiStrip stats={stats} chartData={chartData} loading={loading} />
             </>

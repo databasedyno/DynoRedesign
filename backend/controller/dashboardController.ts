@@ -341,7 +341,7 @@ const getChartData = async (req: express.Request, res: express.Response) => {
   const userData = jwt.decode(res.locals.token) as IUserType;
   
   try {
-    const { period = '30d', company_id } = req.query;
+    const { period = '30d', company_id, startDate: startDateParam, endDate: endDateParam } = req.query;
     const userId = userData.user_id;
 
     // Get company preferred currency
@@ -350,42 +350,56 @@ const getChartData = async (req: express.Request, res: express.Response) => {
       preferredCurrency = await getUserDisplayCurrency(userId, company_id as string);
     }
 
-    // Check cache first (120 second TTL for chart data)
-    const cacheKey = `chart:${userId}:${company_id || 'all'}:${period}:${preferredCurrency}`;
+    // ── Determine date range ──
+    // Custom range: honour explicit startDate/endDate (YYYY-MM-DD) for precise
+    // reporting. Otherwise derive the window from the named period.
+    let groupBy = 'day';
+    let startDate: Date;
+    let endDate: Date = new Date();
+    let effectivePeriod = String(period);
+
+    const parsedStart = startDateParam ? new Date(String(startDateParam)) : null;
+    const parsedEnd = endDateParam ? new Date(String(endDateParam)) : null;
+    const isCustom =
+      !!parsedStart && !!parsedEnd &&
+      !isNaN(parsedStart.getTime()) && !isNaN(parsedEnd.getTime()) &&
+      parsedStart.getTime() <= parsedEnd.getTime();
+
+    if (isCustom) {
+      effectivePeriod = 'custom';
+      startDate = new Date(parsedStart as Date);
+      startDate.setHours(0, 0, 0, 0);
+      endDate = new Date(parsedEnd as Date);
+      endDate.setHours(23, 59, 59, 999);
+      const spanDays = Math.max(
+        1,
+        Math.ceil((endDate.getTime() - startDate.getTime()) / 86400000),
+      );
+      groupBy = spanDays <= 31 ? 'day' : spanDays <= 180 ? 'week' : 'month';
+    } else {
+      let days = 30;
+      switch (period) {
+        case '7d': days = 7; groupBy = 'day'; break;
+        case '30d': days = 30; groupBy = 'day'; break;
+        case '90d': days = 90; groupBy = 'week'; break;
+        case '1y': days = 365; groupBy = 'month'; break;
+        default: days = 30; groupBy = 'day';
+      }
+      startDate = new Date();
+      startDate.setDate(startDate.getDate() - days);
+    }
+
+    // Check cache (120s TTL). Cache key includes the resolved window so custom
+    // ranges don't collide with named-period results.
+    const rangeKey = isCustom
+      ? `custom:${startDate.toISOString().split('T')[0]}_${endDate.toISOString().split('T')[0]}`
+      : effectivePeriod;
+    const cacheKey = `chart:${userId}:${company_id || 'all'}:${rangeKey}:${preferredCurrency}`;
     const cached = await getRedisItem(cacheKey);
     if (cached && Object.keys(cached).length > 0) {
       apiLogger.info(`[Chart] Cache hit for user ${userId}`);
       return successResponseHelper(res, 200, "Chart data retrieved successfully", cached);
     }
-
-    // Determine date range based on period
-    let days = 30;
-    let groupBy = 'day';
-    
-    switch (period) {
-      case '7d':
-        days = 7;
-        groupBy = 'day';
-        break;
-      case '30d':
-        days = 30;
-        groupBy = 'day';
-        break;
-      case '90d':
-        days = 90;
-        groupBy = 'week';
-        break;
-      case '1y':
-        days = 365;
-        groupBy = 'month';
-        break;
-      default:
-        days = 30;
-        groupBy = 'day';
-    }
-
-    const startDate = new Date();
-    startDate.setDate(startDate.getDate() - days);
 
     const companyJoinChart = company_id ? 'LEFT JOIN tbl_customer c ON ut.customer_id = c.customer_id' : '';
     const companyFilterChart = company_id ? 'AND (ut.company_id = :companyId OR c.company_id = :companyId)' : '';
@@ -410,6 +424,7 @@ const getChartData = async (req: express.Request, res: express.Response) => {
       ${companyJoinChart}
       WHERE ut.user_id = :userId 
       AND ut."createdAt" >= :startDate
+      AND ut."createdAt" <= :endDate
       ${companyFilterChart}
       GROUP BY ${dateTrunc}, ut.base_currency
       ORDER BY date ASC
@@ -426,6 +441,7 @@ const getChartData = async (req: express.Request, res: express.Response) => {
        ${companyJoinChart}
        WHERE ut.user_id = :userId 
        AND ut."createdAt" >= :startDate
+       AND ut."createdAt" <= :endDate
        ${companyFilterChart}
        GROUP BY ut.base_currency
        ORDER BY volume DESC`;
@@ -439,20 +455,21 @@ const getChartData = async (req: express.Request, res: express.Response) => {
        ${companyJoinChart}
        WHERE ut.user_id = :userId 
        AND ut."createdAt" >= :startDate
+       AND ut."createdAt" <= :endDate
        ${companyFilterChart}
        GROUP BY ut.status`;
 
     const [rawChartData, currencyBreakdownRaw, statusBreakdown] = await Promise.all([
       sequelize.query(chartQuery, {
-        replacements: { userId, startDate, companyId: company_id },
+        replacements: { userId, startDate, endDate, companyId: company_id },
         type: QueryTypes.SELECT,
       }),
       sequelize.query(currencyBreakdownQuery, {
-        replacements: { userId, startDate, companyId: company_id },
+        replacements: { userId, startDate, endDate, companyId: company_id },
         type: QueryTypes.SELECT,
       }),
       sequelize.query(statusBreakdownQuery, {
-        replacements: { userId, startDate, companyId: company_id },
+        replacements: { userId, startDate, endDate, companyId: company_id },
         type: QueryTypes.SELECT,
       }),
     ]) as [Array<Record<string, unknown>>, Array<Record<string, unknown>>, Array<Record<string, unknown>>];
@@ -487,7 +504,7 @@ const getChartData = async (req: express.Request, res: express.Response) => {
     })).sort((a, b) => a.date.localeCompare(b.date));
 
     // Fill in missing dates with zero values
-    const filledChartData = fillMissingDates(formattedChartData, startDate, new Date(), groupBy);
+    const filledChartData = fillMissingDates(formattedChartData, startDate, endDate, groupBy);
 
     // ── Convert currency breakdown using stored usd_value ──
     const currencyBreakdown = (currencyBreakdownRaw as Array<Record<string, unknown>>).map((c) => {
@@ -503,10 +520,10 @@ const getChartData = async (req: express.Request, res: express.Response) => {
     });
 
     const responseData = {
-      period,
+      period: effectivePeriod,
       group_by: groupBy,
       start_date: startDate.toISOString().split('T')[0],
-      end_date: new Date().toISOString().split('T')[0],
+      end_date: endDate.toISOString().split('T')[0],
       currency: preferredCurrency,
       chart_data: filledChartData,
       currency_breakdown: currencyBreakdown.sort((a, b) => b.volume - a.volume),
