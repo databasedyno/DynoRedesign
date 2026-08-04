@@ -9,7 +9,7 @@ import requests
 import json
 
 # Configuration
-BASE_URL = "https://blockchain-processor-2.preview.emergentagent.com"
+BASE_URL = "https://merchant-crypto-api.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 class DynoPayReliabilityTesterAlternative:

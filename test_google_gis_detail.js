@@ -5,7 +5,7 @@
 
 const { chromium } = require('playwright');
 
-const PREVIEW_URL = 'https://blockchain-processor-2.preview.emergentagent.com';
+const PREVIEW_URL = 'https://merchant-crypto-api.preview.emergentagent.com';
 
 async function testGISIntegration() {
   console.log('='.repeat(80));

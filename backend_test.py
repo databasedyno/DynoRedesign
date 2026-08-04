@@ -19,7 +19,7 @@ import io
 from typing import Dict, Any, Tuple, Optional
 
 # Preview URL from test_credentials.md
-BASE_URL = "https://ef9cfbd5-49dc-47eb-a889-3ffe77508b90.preview.emergentagent.com"
+BASE_URL = "https://merchant-crypto-api.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 # Test credentials

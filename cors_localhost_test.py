@@ -41,7 +41,7 @@ TESTS = [
     },
     {
         "id": 5,
-        "origin": "https://blockchain-processor-2.preview.emergentagent.com",
+        "origin": "https://merchant-crypto-api.preview.emergentagent.com",
         "expected": "ALLOWED",
         "description": "Preview pattern"
     },
