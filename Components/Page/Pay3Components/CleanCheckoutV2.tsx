@@ -90,6 +90,9 @@ type Meta = {
   fee_payer?: string
   // Tax amount in base_currency (0 when the link has no tax / not applicable).
   tax_amount?: number
+  // Estimated processing fee (base_currency) returned by getData for customer-pays
+  // links, shown before the exact per-coin fee is known after crypto selection.
+  estimated_fee?: number
   available_currencies: string[]
   token: string
   link_type?: string
@@ -294,6 +297,10 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
   const [selectedNetwork, setSelectedNetwork] = useState<string>('')
   const [selectedCurrency, setSelectedCurrency] = useState<string>('')
   const [cryptoInfo, setCryptoInfo] = useState<CryptoInfo | null>(null)
+  // Exact fee + total (in base_currency) for the SELECTED coin, captured from
+  // getCurrencyRates after reservation. Null until a coin is reserved → the
+  // header shows the getData estimate first, then the exact figure.
+  const [feeExact, setFeeExact] = useState<{ fee: number; total: number } | null>(null)
   const [timeLeft, setTimeLeft] = useState<number>(0)
   const [copiedFlag, setCopiedFlag] = useState<'addr' | 'amt' | ''>('')
   const [portalReady, setPortalReady] = useState(false)
@@ -393,6 +400,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
         base_currency: raw.base_currency || 'USD',
         fee_payer: raw.fee_payer || raw.fee_info?.fee_payer || 'company',
         tax_amount: Number(raw.tax_info?.tax_amount ?? raw.fee_info?.tax_amount ?? 0) || 0,
+        estimated_fee: Number(raw.fee_info?.estimated_processing_fee ?? 0) || 0,
         available_currencies: filtered,
         token: String(raw.token || ''),
         link_type: raw.link_type,
@@ -524,6 +532,14 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
       setErrorMsg('Rate unavailable for this currency.')
       setPhase('error')
       return
+    }
+
+    // Capture the exact fee + total (in base currency) for the header breakdown.
+    // Backend returns these in SOURCE currency for customer-pays links.
+    if (feePayer === 'customer') {
+      const exactFee = Number(rateRow.processing_fee) || 0
+      const exactTotal = Number(rateRow.total_amount_source ?? rateRow.total_amount_usd) || (baseAmount + taxAmount + exactFee)
+      setFeeExact({ fee: exactFee, total: exactTotal })
     }
 
     // 2. encrypt payload
@@ -705,6 +721,17 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
   const fiatSymbol = meta_ ? getCurrencySymbolFromFormat(meta_.base_currency) : '$'
   const fiatAmount = meta_ ? formatWithSeparators(Number(meta_.amount || 0), meta_.base_currency) : '0.00'
 
+  // ── Transparent fee/total breakdown (customer-pays links + tax) ──
+  // Shows "Amount + Network fee = Total" so customer-pays totals are explicit.
+  const feePayerIsCustomer = (meta_?.fee_payer || 'company') === 'customer'
+  const baseAmt = Number(meta_?.amount) || 0
+  const taxAmt = Number(meta_?.tax_amount) || 0
+  const feeAmt = feeExact ? feeExact.fee : (Number(meta_?.estimated_fee) || 0)
+  const totalAmt = feeExact ? feeExact.total : (baseAmt + taxAmt + feeAmt)
+  const feeIsEstimate = feePayerIsCustomer && !feeExact
+  const showBreakdown = !!meta_ && (feePayerIsCustomer || taxAmt > 0)
+  const fmtFiat = (n: number) => `${fiatSymbol}${formatWithSeparators(n, meta_?.base_currency || 'USD')}`
+
   // ─── LOADING ──────────────────────────────────────────────────────
   if (phase === 'loading_meta' || phase === 'creating_payment') {
     return (
@@ -879,20 +906,74 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
         {headline}
       </Typography>
 
-      {/* Amount subheadline */}
-      <Typography
-        data-testid="clean-checkout-amount"
-        sx={{
-          fontFamily: MONO,
-          fontSize: 18,
-          fontWeight: 500,
-          color: muted,
-          mt: 0.75,
-          mb: 3.5,
-        }}
-      >
-        {fiatSymbol}{fiatAmount} {meta_?.base_currency || ''}
-      </Typography>
+      {/* Amount subheadline — single line, OR a transparent breakdown when the
+          customer pays fees / tax applies (Amount + Network fee = Total). */}
+      {showBreakdown ? (
+        <Box
+          data-testid="clean-checkout-fee-breakdown"
+          sx={{ mt: 0.75, mb: 3.5, display: 'flex', flexDirection: 'column', gap: 0.6 }}
+        >
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+            <Typography sx={{ fontSize: 13, color: muted }}>
+              {t('checkout.amount', { defaultValue: 'Amount' })}
+            </Typography>
+            <Typography data-testid="clean-checkout-breakdown-base" sx={{ fontFamily: MONO, fontSize: 13.5, color: muted }}>
+              {fmtFiat(baseAmt)}
+            </Typography>
+          </Box>
+          {taxAmt > 0 && (
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+              <Typography sx={{ fontSize: 13, color: muted }}>
+                {t('checkout.tax', { defaultValue: 'Tax' })}
+              </Typography>
+              <Typography data-testid="clean-checkout-breakdown-tax" sx={{ fontFamily: MONO, fontSize: 13.5, color: muted }}>
+                +{fmtFiat(taxAmt)}
+              </Typography>
+            </Box>
+          )}
+          {feePayerIsCustomer && (
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+              <Typography sx={{ fontSize: 13, color: muted }}>
+                {t('checkout.networkFee', { defaultValue: 'Network fee' })}
+                {feeIsEstimate && (
+                  <Typography component="span" sx={{ fontSize: 11, color: muted, ml: 0.5, opacity: 0.75 }}>
+                    ({t('checkout.estimated', { defaultValue: 'est.' })})
+                  </Typography>
+                )}
+              </Typography>
+              <Typography data-testid="clean-checkout-breakdown-fee" sx={{ fontFamily: MONO, fontSize: 13.5, color: muted }}>
+                +{fmtFiat(feeAmt)}
+              </Typography>
+            </Box>
+          )}
+          <Box sx={{ height: '1px', backgroundColor: border, my: 0.4 }} />
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+            <Typography sx={{ fontSize: 14, fontWeight: 700, color: theme.palette.text.primary }}>
+              {t('checkout.total', { defaultValue: 'Total' })}
+            </Typography>
+            <Typography
+              data-testid="clean-checkout-amount"
+              sx={{ fontFamily: MONO, fontSize: 18, fontWeight: 700, color: theme.palette.text.primary }}
+            >
+              {fmtFiat(totalAmt)} {meta_?.base_currency || ''}
+            </Typography>
+          </Box>
+        </Box>
+      ) : (
+        <Typography
+          data-testid="clean-checkout-amount"
+          sx={{
+            fontFamily: MONO,
+            fontSize: 18,
+            fontWeight: 500,
+            color: muted,
+            mt: 0.75,
+            mb: 3.5,
+          }}
+        >
+          {fiatSymbol}{fiatAmount} {meta_?.base_currency || ''}
+        </Typography>
+      )}
 
       {/* Reference row (invoice / campaign / description) */}
       {(meta_?.order_reference || meta_?.description) && (

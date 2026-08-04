@@ -1,6 +1,15 @@
 # DynoPay - Payment Gateway PRD
 
 
+### 2026-06 — Session (fork) — Checkout fee-line breakdown (customer-pays transparency) — ✅ DONE (screenshot-verified)
+Follow-up to the customer-pays fee fix. `Components/Page/Pay3Components/CleanCheckoutV2.tsx` header now shows a transparent breakdown for customer-pays links (and when tax applies): **Amount + [Tax] + Network fee = Total** (Total is the bold, prominent figure; testid `clean-checkout-amount` moved onto it). Rows have testids `clean-checkout-fee-breakdown`, `clean-checkout-breakdown-base|tax|fee`.
+- Data: `Meta` gained `estimated_fee` (from getData `fee_info.estimated_processing_fee`); `reservePayment` captures the EXACT per-coin `processing_fee` + `total_amount_source` into `feeExact` state, so the header shows the getData estimate (with an "(est.)" tag) during coin selection, then the exact fee after a coin is reserved.
+- Company-pays + no-tax links are unchanged (single amount line — `showBreakdown` is false) → no regression.
+- New i18n keys use `t(..,{defaultValue})`: `checkout.amount/tax/networkFee/total/estimated` (render EN for all locales until translated — safe fallback, no broken keys).
+- Verified via a fully client-side mocked screenshot (no backend writes): $50 customer-pays link → Amount $50.00 / Network fee +$2.32 / Total $52.32 USD.
+
+
+
 ### 2026-06 — Session (fork) — CODE REVIEW → P0 money bug fixed: customer-pays fee leak in default crypto checkout — ✅ FIXED (verified at rate-contract level; live on-chain e2e NOT run — would move real funds)
 Ran a read-only functional code review (money/checkout/settlement/currency focus). It surfaced ONE confirmed HIGH/P0 defect + minor items.
 - **ROOT CAUSE (P0 revenue leak):** `Components/Page/Pay3Components/CleanCheckoutV2.tsx` (the DEFAULT checkout — `NEXT_PUBLIC_CLEAN_CHECKOUT_V2` defaults true) called `/pay/getCurrencyRates` WITHOUT `fee_payer`/`tax_amount`. Backend defaults `fee_payer='company'` → returns base-only conversion (no `total_amount`). The checkout charged the customer that base amount, but `paymentController.addPayment` reads the LINK's `fee_payer='customer'` and extracts the merchant's base portion by ratio (`merchant_amount = crypto_amount * base/(base+fees)`), assuming the customer already paid base+fees. Net effect on EVERY customer-pays crypto payment through V2: customer charged base only, merchant silently settled base−fee → **merchant ate the ~2%+fixed processing fee**. Legacy `cryptoTransfer.tsx` passed `fee_payer`+`tax_amount` correctly, so this was a V2 regression.
