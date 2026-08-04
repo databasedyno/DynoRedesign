@@ -52,6 +52,7 @@ import {
   useTheme,
 } from '@mui/material'
 import { Icon } from '@iconify/react'
+import { QRCodeSVG } from 'qrcode.react'
 import Logo from '@/assets/Icons/Logo'
 import { formatWithSeparators, getCurrencySymbolFromFormat } from '@/utils/currencyFormat'
 
@@ -160,6 +161,45 @@ function formatCryptoAmount(amt: number, code: string): string {
       : ['BTC', 'ETH', 'BCH', 'LTC'].includes(code) ? 8
       : 6
   return amt.toFixed(precision).replace(/\.?0+$/, '')
+}
+
+/**
+ * Build a one-tap "open in wallet" payment URI (used for the deep-link button
+ * AND to encode the QR so a scanning wallet app pre-fills address + amount).
+ *
+ * SAFETY: we ONLY emit a URI for native-coin chains whose amount is
+ * unambiguously the coin's whole unit (BIP-21 for BTC/LTC/DOGE/BCH, Solana Pay
+ * for SOL). Token / EVM / TRON chains (USDT, USDC, ETH, POL, TRX, XRP…) are
+ * intentionally left null — their URI amount encoding (wei / smallest-unit /
+ * token-transfer) is error-prone, and a wrong amount could cause an
+ * underpayment. Those chains keep the existing copy-address + QR flow.
+ *
+ * The amount uses the SAME formatter as the on-screen "AMOUNT" row, so the
+ * deep link and the displayed value can never drift apart.
+ */
+type PaymentUri = { uri: string } | null
+export function buildPaymentUri(
+  networkCode: string,
+  address: string,
+  amount: number,
+  cryptoBase: string,
+): PaymentUri {
+  if (!address) return null
+  const amt = formatCryptoAmount(amount, cryptoBase)
+  switch ((networkCode || '').toUpperCase()) {
+    case 'BTC':
+      return { uri: `bitcoin:${address}?amount=${amt}` }
+    case 'LTC':
+      return { uri: `litecoin:${address}?amount=${amt}` }
+    case 'DOGE':
+      return { uri: `dogecoin:${address}?amount=${amt}` }
+    case 'BCH':
+      return { uri: `bitcoincash:${address.replace(/^bitcoincash:/i, '')}?amount=${amt}` }
+    case 'SOL':
+      return { uri: `solana:${address}?amount=${amt}` }
+    default:
+      return null
+  }
 }
 
 /** Copy to clipboard with a legacy fallback for insecure contexts. */
@@ -374,6 +414,13 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
     return { networks: nets, currenciesInNetwork: inNet }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [meta_, selectedNetwork])
+
+  // One-tap wallet deep-link + URI-QR value (null for token/EVM/TRON chains).
+  const paymentUri = useMemo(() => {
+    if (!cryptoInfo) return null
+    const netCode = CRYPTO_INFO[cryptoInfo.crypto_display]?.network || cryptoInfo.network
+    return buildPaymentUri(netCode, cryptoInfo.address, cryptoInfo.expected_amount, cryptoInfo.crypto_base)
+  }, [cryptoInfo])
 
   // Auto-select network when meta loads — prefer the customer's remembered
   // choice (per-device) so a returning visitor lands on their usual coin.
@@ -912,7 +959,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
       )}
 
       {/* QR code — crisp & responsive; tap the QR to copy the address */}
-      {cryptoInfo?.qr_code && (
+      {cryptoInfo && (cryptoInfo.qr_code || paymentUri) && (
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 2 }}>
           <Box
             component="button"
@@ -931,17 +978,31 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
               '&:active': { transform: 'scale(0.98)' },
             }}
           >
-            <Box
-              component="img"
-              src={cryptoInfo.qr_code.startsWith('data:') ? cryptoInfo.qr_code : `data:image/png;base64,${cryptoInfo.qr_code}`}
-              alt="Payment QR code"
-              sx={{
-                width: '100%', maxWidth: 220, height: 'auto',
-                aspectRatio: '1 / 1', objectFit: 'contain',
-                imageRendering: 'pixelated', display: 'block',
-              }}
-              data-testid="clean-checkout-qr-img"
-            />
+            {paymentUri ? (
+              // URI-encoded QR — scanning with a wallet app pre-fills the
+              // address AND amount (BIP-21 / Solana Pay).
+              <QRCodeSVG
+                value={paymentUri.uri}
+                size={220}
+                level="M"
+                bgColor="#FFFFFF"
+                fgColor="#000000"
+                style={{ width: '100%', maxWidth: 220, height: 'auto', display: 'block' }}
+                data-testid="clean-checkout-qr-svg"
+              />
+            ) : (
+              <Box
+                component="img"
+                src={cryptoInfo.qr_code.startsWith('data:') ? cryptoInfo.qr_code : `data:image/png;base64,${cryptoInfo.qr_code}`}
+                alt="Payment QR code"
+                sx={{
+                  width: '100%', maxWidth: 220, height: 'auto',
+                  aspectRatio: '1 / 1', objectFit: 'contain',
+                  imageRendering: 'pixelated', display: 'block',
+                }}
+                data-testid="clean-checkout-qr-img"
+              />
+            )}
           </Box>
           <Typography
             data-testid="clean-checkout-qr-hint"
@@ -1037,6 +1098,35 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
               {copiedFlag === 'amt' ? 'Copied' : 'Copy'}
             </Box>
           </Box>
+        </Box>
+      )}
+
+      {/* Open in wallet app — one-tap deep link (BIP-21 / Solana Pay). Only
+          shown for native-coin chains where the amount is unambiguously
+          encoded; token / EVM / TRON chains keep the copy + QR flow above. */}
+      {paymentUri && (
+        <Box sx={{ mb: 2 }}>
+          <Box
+            component="a"
+            href={paymentUri.uri}
+            data-testid="clean-checkout-open-wallet"
+            sx={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.6,
+              width: '100%', minHeight: 48, borderRadius: '999px',
+              border: `1px solid ${LIME}`, color: LIME, textDecoration: 'none',
+              fontSize: 14, fontWeight: 700,
+              backgroundColor: isDark ? 'rgba(79,70,229,0.06)' : 'rgba(79,70,229,0.05)',
+              transition: 'filter .15s ease, transform .05s ease',
+              '&:hover': { filter: 'brightness(1.06)' },
+              '&:active': { transform: 'scale(0.99)' },
+            }}
+          >
+            <Icon icon="mdi:wallet-outline" width={18} />
+            {t('checkout.openInWallet', { defaultValue: 'Open in wallet app' })}
+          </Box>
+          <Typography sx={{ mt: 0.75, fontSize: 11.5, color: muted, textAlign: 'center' }}>
+            {t('checkout.openInWalletHint', { defaultValue: 'Opens your crypto wallet with the address and amount pre-filled.' })}
+          </Typography>
         </Box>
       )}
 

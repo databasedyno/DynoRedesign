@@ -126,3 +126,29 @@ is a precise GAP-VERIFICATION pass (live walkthrough) per area to implement ONLY
 look genuinely missing/weak and worth checking live: wallet deep-links on mobile checkout; explicit network label
 adjacency to the address; developer webhook test-send + delivery logs; step-up re-auth on payout-wallet change;
 funnel analytics beyond onboarding. Verify each against the live app before building.
+
+---
+
+## BUILT (Session 108) — G1 wallet deep-links / tap-to-pay (frontend-only, prod-safe)
+File: Components/Page/Pay3Components/CleanCheckoutV2.tsx
+- Added exported pure helper `buildPaymentUri(networkCode, address, amount, cryptoBase)`.
+  * Emits a URI ONLY for native-coin chains where the amount is unambiguous:
+    BTC→`bitcoin:`, LTC→`litecoin:`, DOGE→`dogecoin:`, BCH→`bitcoincash:` (cashaddr
+    prefix normalized so it's never doubled), SOL→`solana:` — all with `?amount=` in
+    whole-coin units, formatted with the SAME formatCryptoAmount used by the on-screen
+    AMOUNT row (so link & display can't drift).
+  * Returns null for token/EVM/TRON/XRP (USDT/USDC/ETH/POL/TRX/XRP/RLUSD) to avoid
+    risky wei/smallest-unit/token-transfer encoding — those keep the existing copy+QR flow.
+- `paymentUri` useMemo derives the URI from cryptoInfo (via CRYPTO_INFO[crypto_display].network).
+- QR: when paymentUri exists, the QR is rendered client-side with `QRCodeSVG` (qrcode.react
+  v4.2.0) encoding the URI so a scanning wallet pre-fills address+amount; otherwise the
+  existing backend address-QR <img> is kept unchanged. Tap-to-copy-address behaviour unchanged.
+- Added an "Open in wallet app" deep-link button (anchor href=URI) below the AMOUNT row,
+  shown only when paymentUri exists, with i18n defaultValue strings
+  (checkout.openInWallet / checkout.openInWalletHint).
+VERIFICATION: lint clean (only 3 pre-existing exhaustive-deps warnings); /pay compiles clean;
+buildPaymentUri validated via a temporary isolation harness (/pay/deeplink-test, since removed)
+whose SSR HTML asserted correct URIs for BTC/LTC/DOGE/SOL, single-prefix BCH (0 double-prefixes),
+and NULL for USDT-TRC20 + ETH. In-context live crypto screen NOT exercised on purpose (reaching
+it reserves a real address from the live merchant pool). Next candidates: G5 detected/confirming
+state (needs backend confirmations field), G3 webhook mgmt (backend).
