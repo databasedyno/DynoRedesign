@@ -818,7 +818,7 @@ const downloadInvoicePDF = async (
 
     // Generate PDF
     // If unit_price is 0, try to recalculate from the transaction
-    let pdfData = { ...invoiceData };
+    let pdfData: Record<string, unknown> = { ...invoiceData };
     const storedUnitPrice = parseFloat(invoiceData.unit_price || 0);
     if (storedUnitPrice === 0 || isNaN(storedUnitPrice)) {
       try {
@@ -833,9 +833,9 @@ const downloadInvoicePDF = async (
           }
           if (recalcAmount > 0) {
             pdfData.unit_price = recalcAmount;
-            pdfData.total_usd = recalcAmount + parseFloat(pdfData.fixed_fee || 0) + parseFloat(pdfData.vat_amount || 0);
+            pdfData.total_usd = recalcAmount + parseFloat(pdfData.fixed_fee as string || "0") + parseFloat(pdfData.vat_amount as string || "0");
             // Also set crypto info from transaction if missing
-            if (parseFloat(pdfData.total_crypto || 0) === 0 && txData.crypto_amount) {
+            if (parseFloat((pdfData.total_crypto as string) || "0") === 0 && txData.crypto_amount) {
               pdfData.total_crypto = parseFloat(txData.crypto_amount);
             }
             if (!pdfData.crypto_currency && txData.crypto_currency) {
@@ -848,7 +848,28 @@ const downloadInvoicePDF = async (
         apiLogger.warn(`[Invoice PDF] Could not recalculate amounts: ${recalcErr}`);
       }
     }
-    const pdfStream = generateInvoicePDF(pdfData);
+
+    // "Fiat Everywhere Invoice PDF" — resolve the merchant's chosen DISPLAY
+    // currency (Settings → Payments: USD/EUR/GBP/NGN/CAD/AUD) + the cached
+    // USD→display FX rate and pass them into generateInvoicePDF so every
+    // monetary line renders end-to-end in the merchant's currency. Falls
+    // back safely to USD @ 1 (identity conversion) if the merchant hasn't
+    // picked a preference or the FX call fails.
+    try {
+      const displayCurrency = await getUserDisplayCurrency(
+        userData?.user_id,
+        invoiceData.company_id
+      );
+      const rate = await getUsdToFiatRate(displayCurrency);
+      pdfData.display_currency = displayCurrency;
+      pdfData.usd_to_display_rate = rate;
+    } catch (fxErr) {
+      apiLogger.warn(
+        `[Invoice PDF] Could not resolve display currency for user ${userData?.user_id}: ${fxErr}`
+      );
+    }
+
+    const pdfStream = generateInvoicePDF(pdfData as any);
 
     // Set response headers for PDF download
     res.setHeader("Content-Type", "application/pdf");

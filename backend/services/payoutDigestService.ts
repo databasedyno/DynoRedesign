@@ -49,6 +49,7 @@ export interface CoinBucket {
   symbol: string;
   network?: string | null;
   volumeUsd: number;
+  volumeDisplay: number; // volumeUsd converted into the merchant's display currency
   txCount: number;
 }
 
@@ -83,8 +84,10 @@ export interface PayoutDigest {
 }
 
 /**
- * Convert a USD amount into a display-currency amount using the shared
- * currencyUtils helper. Falls back to identity on failure.
+ * Convert a USD amount into a display-currency amount using the shared,
+ * Redis-cached USD→fiat rate (same helper the /transactions export,
+ * dashboard tiles, /invoices tax report, and invoice PDF all use).
+ * Falls back to identity on failure so the digest never blocks.
  */
 async function usdToDisplay(
   usd: number,
@@ -92,9 +95,10 @@ async function usdToDisplay(
 ): Promise<number> {
   if (!usd || usd === 0 || displayCurrency.toUpperCase() === "USD") return usd;
   try {
-    const { convertToFiat } = await import("../utils/currencyUtils");
-    const { amount } = await convertToFiat("USD", displayCurrency, usd);
-    return Math.round(amount * 100) / 100;
+    const { getUsdToFiatRate } = await import("../utils/currencyUtils");
+    const rate = await getUsdToFiatRate(displayCurrency);
+    if (!rate || rate <= 0) return usd;
+    return Math.round(usd * rate * 100) / 100;
   } catch {
     return usd;
   }
@@ -112,7 +116,7 @@ export async function buildPayoutDigest(
 ): Promise<PayoutDigest | null> {
   // 1. User + display currency
   const userRows = (await sequelize.query(
-    `SELECT user_id, name, email, COALESCE(display_currency, 'USD') AS display_currency
+    `SELECT user_id, name, email, last_company_id
      FROM tbl_user WHERE user_id = :userId LIMIT 1`,
     { replacements: { userId }, type: QueryTypes.SELECT },
   )) as Array<Record<string, unknown>>;
@@ -120,7 +124,16 @@ export async function buildPayoutDigest(
   const u = userRows[0];
   const email = String(u.email || "");
   const name = String(u.name || "");
-  const displayCurrency = String(u.display_currency || "USD").toUpperCase();
+  // Use the shared resolution chain: tbl_user.display_currency →
+  // tbl_company.display_currency → legacy base_currency → USD. Same helper
+  // the /transactions export, /invoices tax report, and invoice PDF all
+  // rely on so every merchant-facing surface stays in lock-step.
+  const companyIdForResolve =
+    overrideCompanyId ?? (u.last_company_id as number | null) ?? null;
+  const { getUserDisplayCurrency } = await import("../utils/currencyUtils");
+  const displayCurrency = String(
+    await getUserDisplayCurrency(Number(u.user_id), companyIdForResolve),
+  ).toUpperCase();
   const currencySymbol = getCurrencySymbol(displayCurrency);
   if (!email) return null;
 
@@ -195,12 +208,22 @@ export async function buildPayoutDigest(
     },
   )) as Array<Record<string, unknown>>;
 
-  const topCoins: CoinBucket[] = coinRows.map((r) => ({
-    symbol: String(r.symbol || "—").toUpperCase(),
-    network: null,
-    volumeUsd: Number(r.volume_usd || 0),
-    txCount: Number(r.tx_count || 0),
-  }));
+  const topCoins: CoinBucket[] = await Promise.all(
+    coinRows.map(async (r) => {
+      const volumeUsd = Number(r.volume_usd || 0);
+      return {
+        symbol: String(r.symbol || "—").toUpperCase(),
+        network: null,
+        volumeUsd,
+        // "Fiat Everywhere" — convert each coin's aggregate volume into the
+        // merchant's DISPLAY currency so the digest email reads consistently
+        // (Top coins section + Total row) alongside the settled-volume/fees
+        // tiles above. Uses the same Redis-cached USD→fiat rate.
+        volumeDisplay: await usdToDisplay(volumeUsd, displayCurrency),
+        txCount: Number(r.tx_count || 0),
+      };
+    }),
+  );
 
   // 6. Fee tier
   let feeTier: PayoutDigest["feeTier"] = null;
@@ -330,7 +353,7 @@ export async function sendPayoutDigestEmail(
     if (d.topCoins.length > 0) {
       const rows = d.topCoins
         .map((c) => {
-          const vol = fmtMoney(c.volumeUsd, "$", "USD");
+          const vol = fmtMoney(c.volumeDisplay, d.currencySymbol, d.displayCurrency);
           return feeRow(
             `<strong>${c.symbol}</strong> — ${c.txCount} tx`,
             vol,
@@ -341,9 +364,9 @@ export async function sendPayoutDigestEmail(
       const totalRow = feeTotalRow(
         "Total across top coins",
         fmtMoney(
-          d.topCoins.reduce((s, c) => s + c.volumeUsd, 0),
-          "$",
-          "USD",
+          d.topCoins.reduce((s, c) => s + c.volumeDisplay, 0),
+          d.currencySymbol,
+          d.displayCurrency,
         ),
       );
       topCoinsSection = feeTable(rows + totalRow);

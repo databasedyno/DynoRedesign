@@ -29,6 +29,16 @@ interface InvoiceData {
   // Session 36 v2 fields — optional so legacy v1 callers still type-check.
   transaction_amount?: number | string;
   invoice_version?: string;
+  // "Fiat Everywhere Invoice PDF" — the merchant's chosen DISPLAY currency
+  // (Settings → Payments: USD/EUR/GBP/NGN/CAD/AUD) + the USD→display FX rate
+  // resolved by the caller. When present, all USD-canonical monetary values
+  // (unit_price, vat_amount, fixed_fee, total_usd, transaction_amount) are
+  // multiplied by the rate before rendering and the display currency's
+  // symbol/code appear on every money line so the invoice reads end-to-end
+  // in the merchant's currency. When absent, falls back to the legacy
+  // `base_currency`/`total_amount` behaviour so old callers still work.
+  display_currency?: string;
+  usd_to_display_rate?: number;
 }
 
 /**
@@ -50,17 +60,48 @@ const getCurrencySymbol = (currency: string): string => {
  */
 export const generateInvoicePDF = (invoiceData: InvoiceData): PDFKit.PDFDocument => {
   const doc = new PDFDocument({ size: "A4", margin: 50 });
-  
-  // Determine the display currency
-  const displayCurrency = invoiceData.base_currency || 'USD';
-  const displayAmount = invoiceData.total_amount || invoiceData.total_usd;
-  const currencySymbol = getCurrencySymbol(displayCurrency);
 
-  // Helper function to format currency
-  const formatCurrency = (amount: number | string, currency: string = displayCurrency): string => {
+  // "Fiat Everywhere Invoice PDF" — prefer the merchant's chosen DISPLAY
+  // currency (Settings → Payments) when the caller supplies it. All stored
+  // monetary values on the invoice row (`unit_price`, `vat_amount`,
+  // `fixed_fee`, `total_usd`, `transaction_amount`) are USD-canonical, so
+  // we multiply by the supplied USD→display rate before rendering. When
+  // no display currency is passed we fall back to the legacy
+  // `base_currency` / `total_amount` behaviour so callers that pre-date
+  // this feature continue to render invoices identically.
+  const useDisplay =
+    typeof invoiceData.display_currency === "string" &&
+    invoiceData.display_currency.length > 0 &&
+    typeof invoiceData.usd_to_display_rate === "number" &&
+    invoiceData.usd_to_display_rate > 0;
+  const displayCurrency = useDisplay
+    ? (invoiceData.display_currency as string).toUpperCase()
+    : invoiceData.base_currency || "USD";
+  const fxRate = useDisplay
+    ? (invoiceData.usd_to_display_rate as number)
+    : 1;
+
+  // Legacy fallback for the "grand total" line item — only used when no
+  // display-currency override is supplied.
+  const legacyDisplayAmount = invoiceData.total_amount || invoiceData.total_usd;
+
+  // Helper function to format currency. When useDisplay is on AND the
+  // caller is rendering in the merchant's display currency (the default),
+  // we multiply the USD-canonical value by the FX rate so the whole
+  // invoice reads in EUR/GBP/etc. Callers can still pass an explicit
+  // `currency` argument (e.g. a crypto code) to bypass the conversion.
+  const formatCurrency = (
+    amount: number | string,
+    currency: string = displayCurrency
+  ): string => {
     const symbol = getCurrencySymbol(currency);
-    const numAmount = typeof amount === 'string' ? parseFloat(amount) || 0 : amount;
-    return `${symbol}${numAmount.toFixed(2)} ${currency}`;
+    const numAmount =
+      typeof amount === "string" ? parseFloat(amount) || 0 : amount;
+    const finalAmount =
+      useDisplay && currency.toUpperCase() === displayCurrency.toUpperCase()
+        ? numAmount * fxRate
+        : numAmount;
+    return `${symbol}${finalAmount.toFixed(2)} ${currency}`;
   };
 
   // Helper function to format date
@@ -305,7 +346,18 @@ export const generateInvoicePDF = (invoiceData: InvoiceData): PDFKit.PDFDocument
 
   // --- Subtotal ---
   yPosition += 15;
-  const numDisplayAmount = typeof displayAmount === 'string' ? parseFloat(displayAmount) || 0 : displayAmount;
+  // When useDisplay is on we always want the subtotal math to happen in
+  // USD-canonical space (then formatCurrency will convert) so we ignore
+  // the legacy `total_amount` (which may already be in a different
+  // base_currency and not represent the merchant's display preference).
+  const numDisplayAmount =
+    useDisplay
+      ? (typeof invoiceData.total_usd === "string"
+          ? parseFloat(invoiceData.total_usd) || 0
+          : invoiceData.total_usd || 0)
+      : (typeof legacyDisplayAmount === "string"
+          ? parseFloat(legacyDisplayAmount) || 0
+          : legacyDisplayAmount || 0);
   const numVatAmount = typeof invoiceData.vat_amount === 'string' ? parseFloat(invoiceData.vat_amount) || 0 : invoiceData.vat_amount;
   // v2: subtotal = unit_price × qty (the service fee itself). v1 legacy math
   // used total_usd − vat which was internally inconsistent when total_usd

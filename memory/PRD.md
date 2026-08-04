@@ -1,6 +1,24 @@
 # DynoPay - Payment Gateway PRD
 
 
+### 2026-08-04 — Session (fork) — Fiat Everywhere: Invoice PDF + Payout Digest — ✅ SHIPPED
+Extended "Fiat Everywhere" to two more merchant-facing surfaces so a merchant on EUR sees consistent EUR everywhere (dashboard tiles → invoices tab → tax report CSV → invoice PDFs → weekly digest email). Same Redis-cached USD→fiat rate (`fxrate:USD:<CUR>`, ~10 min TTL) across every surface.
+- **Invoice PDF Fiat** — `services/pdfService.ts` + `controller/invoiceController.ts::downloadInvoicePDF`:
+  - New optional `display_currency` + `usd_to_display_rate` fields on `InvoiceData` interface. When both present the PDF renders in the merchant's display currency; when absent the legacy `base_currency`/`total_amount` behaviour is preserved (fully backwards-compatible).
+  - `formatCurrency` helper inside `generateInvoicePDF` auto-multiplies USD-canonical amounts by the FX rate **only** when the target currency is the merchant's display currency (a caller passing `crypto_currency` for the crypto amount line item still bypasses the conversion — those lines are already in the payment currency).
+  - `numDisplayAmount` (subtotal math) now uses raw `total_usd` when useDisplay is on so the arithmetic happens in USD-space then formatCurrency converts once — avoids double-multiplying pre-converted `total_amount` fields set by legacy paths.
+  - `downloadInvoicePDF` resolves the merchant's display currency via `getUserDisplayCurrency(user_id, company_id)` + `getUsdToFiatRate` before calling `generateInvoicePDF`, and injects `display_currency` + `usd_to_display_rate` into the pdfData spread. Fails safe (skip block on FX error → identity conversion).
+  - Verified live on invoice #6 (INV-20260712-00004, hostbay): USD baseline `Unit=$1.87 USD, Underlying=$58.14 USD, Fixed=$1.00 USD + 1.5% of $58.14 USD ($0.87 USD), Subtotal/Total $1.87 USD`. Flipped hostbay to EUR (rate 0.87) → same PDF now reads `Unit=€1.63 EUR, Underlying=€50.58 EUR, Fixed=€0.87 EUR + 1.5% of €50.58 EUR (€0.76 EUR), Subtotal/Total €1.63 EUR`. Every line converts consistently; VAT ID, invoice number, transaction hash, crypto currency label untouched. Hostbay reverted to `display_currency=USD, user_override=None, source=company, rate=1`.
+- **Payout Digest Fiat** — `services/payoutDigestService.ts`:
+  - Switched `usdToDisplay` helper from `convertToFiat` (uncached direct FX call) to `getUsdToFiatRate` (Redis-cached, shared with dashboard/exports/PDF). Fewer external FX calls per digest run.
+  - Switched user's display currency lookup from a hard-coded `SELECT COALESCE(display_currency, 'USD')` on `tbl_user` to the shared `getUserDisplayCurrency(userId, companyId)` resolution chain (user → company → USD). Missed merchants on EUR at the company-level (never set at the user-level) previously fell through to USD in the digest even though their /transactions export was already correctly in EUR.
+  - `CoinBucket` interface gained `volumeDisplay: number` alongside the existing `volumeUsd`. Populated by mapping `coinRows` through `usdToDisplay(volumeUsd, displayCurrency)` in parallel via `Promise.all` so ~10 top coins convert concurrently.
+  - Both the per-coin rows (`vol = fmtMoney(c.volumeDisplay, d.currencySymbol, d.displayCurrency)`) + the "Total across top coins" line now render in the display currency using the returned symbol — was previously hard-coded `"$", "USD"` (the last remaining USD-lockins in the digest).
+  - Verified via a temporary aggregation-only script (no email side-effects): USD baseline `settledVolume=$1491.60, BTC=$790.76`; EUR (rate 0.87) `settledVolume=€1297.68` (=1491.60×0.87, delta 0.0033 → PASS), `BTC=€687.96` (=790.76×0.87 → PASS). Hostbay reverted to `NULL (inherit)`.
+- **Backend**: `tsc --noEmit -p .` = 0 errors. No new dependencies. No schema changes. Fully backwards-compatible for callers that don't opt in.
+
+
+
 ### 2026-08-04 — Session (fork) — Fiat Everywhere Export: Invoices + Tax Report — ✅ SHIPPED (verified live at EUR@0.87 + reverted)
 Completed the last "Fiat Everywhere" gap: the /invoices surface (Invoices list + Tax Report tab + tax-report CSV export) now renders in the merchant's chosen DISPLAY currency (Settings → Payments: USD/EUR/GBP/NGN/CAD/AUD) — matching the /transactions export + dashboard tiles that Session 86 shipped. User picked scope **(c)**: CSV + on-screen figures + invoices list all together.
 - **Backend** `controller/invoiceController.ts` (invoice-only, no schema changes):
