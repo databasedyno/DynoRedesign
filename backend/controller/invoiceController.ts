@@ -16,7 +16,13 @@ import { apiLogger } from "../utils/loggers";
 import { generateInvoicePDF } from "../services/pdfService";
 import { sendInvoiceGeneratedEmail } from "../services/emailService";
 import { getFeeTiers, getTransactionFeePercent, FeeTier } from "../utils/feeConfigUtils";
-import { getCompanyBaseCurrency, getCurrencySymbol, convertToFiat } from "../utils/currencyUtils";
+import {
+  getCompanyBaseCurrency,
+  getCurrencySymbol,
+  convertToFiat,
+  getUserDisplayCurrency,
+  getUsdToFiatRate,
+} from "../utils/currencyUtils";
 import { EU_COUNTRIES, FALLBACK_TAX_RATES } from "../utils/taxData";
 
 /**
@@ -1005,14 +1011,27 @@ const getTaxReport = async (
       jurisdictionMap.set(jurisdiction, jExisting);
     }
 
-    // Convert maps to sorted arrays
+    // Convert maps to sorted arrays. "Fiat Everywhere" — the on-screen
+    // Tax Report tab uses these values, so we convert the USD-canonical
+    // totals to the merchant's DISPLAY currency (same USD→fiat rate as the
+    // /transactions export + dashboard tiles). Falls back to rate 1 (USD)
+    // if the merchant hasn't picked one or the FX call fails.
+    const displayCurrency = await getUserDisplayCurrency(
+      userData?.user_id,
+      typeof company_id === "string" || typeof company_id === "number"
+        ? company_id
+        : null
+    );
+    const rate = await getUsdToFiatRate(displayCurrency);
+    const currencySymbol = getCurrencySymbol(displayCurrency) || "$";
+
     const byPeriod = Array.from(periodMap.entries())
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([key, val]) => ({
         period: key,
         period_label: val.period_label,
-        revenue: parseFloat(val.revenue.toFixed(2)),
-        tax_collected: parseFloat(val.tax.toFixed(2)),
+        revenue: parseFloat((val.revenue * rate).toFixed(2)),
+        tax_collected: parseFloat((val.tax * rate).toFixed(2)),
         invoice_count: val.count,
       }));
 
@@ -1021,21 +1040,24 @@ const getTaxReport = async (
       .map(([country, val]) => ({
         country,
         tax_rate: val.rate,
-        revenue: parseFloat(val.revenue.toFixed(2)),
-        tax_collected: parseFloat(val.tax.toFixed(2)),
+        revenue: parseFloat((val.revenue * rate).toFixed(2)),
+        tax_collected: parseFloat((val.tax * rate).toFixed(2)),
         invoice_count: val.count,
       }));
 
     successResponseHelper(res, 200, "Tax report generated", {
       summary: {
-        total_revenue: parseFloat(totalRevenue.toFixed(2)),
-        total_tax: parseFloat(totalTax.toFixed(2)),
+        total_revenue: parseFloat((totalRevenue * rate).toFixed(2)),
+        total_tax: parseFloat((totalTax * rate).toFixed(2)),
         total_invoices: invoiceData.length,
         period: {
           start: start_date || "all time",
           end: end_date || "present",
         },
         group_by,
+        display_currency: displayCurrency,
+        currency_symbol: currencySymbol,
+        usd_to_display_rate: rate,
       },
       by_period: byPeriod,
       by_jurisdiction: byJurisdiction,
@@ -1107,18 +1129,33 @@ const exportTaxReportCSV = async (
       companyLookup.set(c.dataValues.company_id, c.dataValues.company_name);
     });
 
+    // "Fiat Everywhere Export" — convert USD-canonical invoice figures into
+    // the merchant's chosen DISPLAY currency (Settings → Payments) so the CSV
+    // matches the on-screen /invoices tables. Uses the same Redis-cached
+    // USD→fiat rate (`fxrate:USD:<CUR>`, ~10 min TTL) as the transactions
+    // export, the dashboard, and the tax report summary. Fails safe to
+    // USD @ rate 1 so the CSV is never blank.
+    const displayCurrency = await getUserDisplayCurrency(
+      userData?.user_id,
+      typeof company_id === "string" || typeof company_id === "number"
+        ? company_id
+        : null
+    );
+    const rate = await getUsdToFiatRate(displayCurrency);
+
     // Generate CSV
     const header =
-      "Invoice Number,Date,Company,Customer,Description,Subtotal,VAT Rate (%),VAT Amount,Processing Fee,Total,Currency\n";
+      `Invoice Number,Date,Company,Customer,Description,Subtotal (${displayCurrency}),VAT Rate (%),VAT Amount (${displayCurrency}),Processing Fee (${displayCurrency}),Total (${displayCurrency}),Display Currency,Payment Currency\n`;
 
     const rows = invoices
       .map((inv: any) => {
         const d = inv.dataValues;
         const date = new Date(d.invoice_date).toISOString().split("T")[0];
         const companyName = companyLookup.get(d.company_id) || "";
-        const subtotal = (
-          parseFloat(d.total_usd || 0) - parseFloat(d.vat_amount || 0)
-        ).toFixed(2);
+        const totalUsd = parseFloat(d.total_usd || 0);
+        const vatUsd = parseFloat(d.vat_amount || 0);
+        const feeUsd = parseFloat(d.fixed_fee || 0);
+        const subtotalUsd = totalUsd - vatUsd;
 
         return [
           d.invoice_number,
@@ -1126,11 +1163,12 @@ const exportTaxReportCSV = async (
           `"${companyName}"`,
           `"${d.customer_name || ""}"`,
           `"${(d.description || "").replace(/"/g, '""')}"`,
-          subtotal,
+          (subtotalUsd * rate).toFixed(2),
           parseFloat(d.vat_rate || 0).toFixed(2),
-          parseFloat(d.vat_amount || 0).toFixed(2),
-          parseFloat(d.fixed_fee || 0).toFixed(2),
-          parseFloat(d.total_usd || 0).toFixed(2),
+          (vatUsd * rate).toFixed(2),
+          (feeUsd * rate).toFixed(2),
+          (totalUsd * rate).toFixed(2),
+          displayCurrency,
           d.crypto_currency || "USD",
         ].join(",");
       })

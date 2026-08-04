@@ -32,12 +32,11 @@ import {
 import { useTranslation } from "react-i18next";
 import { pageProps } from "@/utils/types";
 import useIsMobile from "@/hooks/useIsMobile";
+import useDisplayFx from "@/hooks/useDisplayFx";
 import axiosBaseApi from "@/axiosConfig";
 import CustomButton from "@/Components/UI/Buttons";
 import PanelCard from "@/Components/UI/PanelCard";
 import { theme as appTheme } from "@/styles/theme";
-import { getCurrencySymbol } from "@/helpers";
-import { formatCryptoAmount } from "@/utils/currencyFormat";
 import { useSelector } from "react-redux";
 
 interface Invoice {
@@ -62,6 +61,9 @@ interface TaxReportData {
     total_tax: number;
     total_invoices: number;
     group_by: string;
+    display_currency?: string;
+    currency_symbol?: string;
+    usd_to_display_rate?: number;
   };
   by_period: Array<{
     period: string;
@@ -96,9 +98,44 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
   const [groupBy, setGroupBy] = useState<string>("month");
   const [taxPeriod, setTaxPeriod] = useState<string>("all");
 
-  // Get company's base currency from API state
-  const apiState = useSelector((state: any) => state?.api);
-  const baseCurrency = apiState?.apiData?.[0]?.base_currency || "USD";
+  // "Fiat Everywhere" — resolve the merchant's chosen DISPLAY currency
+  // (USD/EUR/GBP/NGN/CAD/AUD) via cached Redis-backed FX rate. Used for the
+  // Invoices list (total_usd is USD-canonical → converted client-side) and
+  // as a fallback label on the Tax Report (backend already pre-converts
+  // those revenue/tax_collected numbers).
+  const fx = useDisplayFx();
+
+  // Backend now pre-converts Tax Report numbers on the server. Prefer the
+  // display currency + symbol returned in `summary`, fall back to useDisplayFx.
+  const taxCurrency =
+    taxReport?.summary?.display_currency || fx.currency || "USD";
+  const taxSymbol =
+    taxReport?.summary?.currency_symbol || fx.symbol || "$";
+
+  const formatTaxAmount = (raw: number | string) => {
+    const n = Number(raw);
+    if (!Number.isFinite(n)) return `${taxSymbol}0.00`;
+    return `${taxSymbol}${n.toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`;
+  };
+
+  // Invoices list totals are USD-canonical (`total_usd` column). Convert them
+  // client-side via useDisplayFx so they match the Tax Report + Transactions
+  // export in the merchant's display currency.
+  const formatUsdInDisplay = (usd: number | string) => {
+    const converted = fx.formatFromUsd(usd);
+    if (converted) return converted;
+    const n = Number(usd);
+    if (!Number.isFinite(n)) return "$0.00";
+    return `$${n.toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`;
+  };
+
+  // "Fiat Everywhere" — resolve the merchant's chosen DISPLAY currency
 
   const selectedCompanyId = useSelector(
     (state: any) => state?.companyReducer?.selectedCompanyId
@@ -275,22 +312,6 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
 
   const handlePrint = () => {
     window.print();
-  };
-
-  const formatCurrency = (amount: number, currency?: string) => {
-    const curr = currency || baseCurrency;
-    // Crypto-aware precision: BTC/ETH/USDT-TRC20 amounts keep up to 8 decimals
-    // (a small 0.00047 BTC invoice must not collapse to "0.00"); fiat → 2 dp.
-    const formatted = formatCryptoAmount(amount, curr);
-    // F12: If a well-known symbol matches (USD/EUR/GBP/etc.), prefix with the
-    // symbol. Otherwise (crypto codes like USDT-TRC20, BTC, ETH…) render as
-    // "0.68 USDT-TRC20" so the amount is never ambiguous.
-    const withSymbol = getCurrencySymbol(curr, formatted);
-    if (withSymbol === formatted) {
-      // No symbol matched — append currency code for clarity.
-      return `${formatted} ${curr}`;
-    }
-    return withSymbol;
   };
 
   const formatDate = (dateStr: string) => {
@@ -539,7 +560,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                             <TableCell align="right">
                               {parseFloat(String(inv.vat_amount)) > 0 ? (
                                 <Chip
-                                  label={`${formatCurrency(parseFloat(String(inv.vat_amount)), inv.crypto_currency)} (${inv.vat_rate}%)`}
+                                  label={`${formatUsdInDisplay(inv.vat_amount)} (${inv.vat_rate}%)`}
                                   size="small"
                                   sx={{
                                     fontFamily: "var(--font-sans)",
@@ -570,15 +591,13 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                                   color: muiTheme.palette.text.primary,
                                 }}
                               >
-                                {/* F12: `total_usd` is a fiat USD amount — format
-                                    it with the base fiat currency (USD/EUR/etc.),
-                                    NOT the crypto currency the invoice was paid
-                                    in. This eliminates the "0.68"/"0.00" with no
-                                    currency indicator. */}
-                                {formatCurrency(
-                                  parseFloat(String(inv.total_usd)),
-                                  "USD"
-                                )}
+                                {/* "Fiat Everywhere" — `total_usd` is a
+                                    USD-canonical amount. Convert into the
+                                    merchant's DISPLAY currency (Settings →
+                                    Payments) via useDisplayFx so the on-screen
+                                    total matches the /transactions export +
+                                    the tax report + the CSV export. */}
+                                {formatUsdInDisplay(inv.total_usd)}
                               </Typography>
                             </TableCell>
                             <TableCell align="center">
@@ -718,6 +737,48 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
               </Box>
             </Box>
 
+            {/* "Fiat Everywhere" — subtle hint so merchants understand tax
+                report numbers are shown in their DISPLAY currency (Settings →
+                Payments). Only surfaces the notice when a non-USD currency is
+                active + we actually have a rate (otherwise it's just USD @ 1
+                and there's nothing to disclose). */}
+            {taxReport?.summary?.display_currency &&
+              taxReport.summary.display_currency !== "USD" && (
+                <Box
+                  data-testid="tax-report-fiat-hint"
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    px: 1.5,
+                    py: 1,
+                    borderRadius: "10px",
+                    border: `1px solid ${muiTheme.palette.divider}`,
+                    backgroundColor: `${muiTheme.palette.primary.main}0A`,
+                    width: "fit-content",
+                  }}
+                >
+                  <Typography
+                    sx={{
+                      fontFamily: "var(--font-sans)",
+                      fontSize: isMobile ? 11 : 12,
+                      color: muiTheme.palette.text.secondary,
+                    }}
+                  >
+                    {t("invoices.valuesShownIn", {
+                      defaultValue:
+                        "Amounts shown in {{currency}} (converted from USD @ {{rate}})",
+                      currency: taxReport.summary.display_currency,
+                      rate:
+                        typeof taxReport.summary.usd_to_display_rate ===
+                        "number"
+                          ? taxReport.summary.usd_to_display_rate.toFixed(4)
+                          : "1.0000",
+                    })}
+                  </Typography>
+                </Box>
+              )}
+
             {/* Summary Cards */}
             <Box
               sx={{
@@ -730,14 +791,14 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                 {
                   label: t("invoices.totalRevenue"),
                   value: taxReport
-                    ? formatCurrency(taxReport.summary.total_revenue)
+                    ? formatTaxAmount(taxReport.summary.total_revenue)
                     : "—",
                   color: muiTheme.palette.text.primary,
                 },
                 {
                   label: t("invoices.taxCollected"),
                   value: taxReport
-                    ? formatCurrency(taxReport.summary.total_tax)
+                    ? formatTaxAmount(taxReport.summary.total_tax)
                     : "—",
                   color: "#22C55E",
                 },
@@ -889,7 +950,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                                 fontSize: isMobile ? 12 : 14,
                               }}
                             >
-                              {formatCurrency(row.revenue)}
+                              {formatTaxAmount(row.revenue)}
                             </Typography>
                           </TableCell>
                           <TableCell align="right">
@@ -901,7 +962,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                                 fontWeight: 500,
                               }}
                             >
-                              {formatCurrency(row.tax_collected)}
+                              {formatTaxAmount(row.tax_collected)}
                             </Typography>
                           </TableCell>
                           <TableCell align="right">
@@ -1040,7 +1101,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                                 fontWeight: 500,
                               }}
                             >
-                              {formatCurrency(row.tax_collected)}
+                              {formatTaxAmount(row.tax_collected)}
                             </Typography>
                           </TableCell>
                           <TableCell align="right">
@@ -1050,7 +1111,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                                 fontSize: isMobile ? 12 : 14,
                               }}
                             >
-                              {formatCurrency(row.revenue)}
+                              {formatTaxAmount(row.revenue)}
                             </Typography>
                           </TableCell>
                         </TableRow>

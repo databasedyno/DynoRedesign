@@ -1,6 +1,25 @@
 # DynoPay - Payment Gateway PRD
 
 
+### 2026-08-04 — Session (fork) — Fiat Everywhere Export: Invoices + Tax Report — ✅ SHIPPED (verified live at EUR@0.87 + reverted)
+Completed the last "Fiat Everywhere" gap: the /invoices surface (Invoices list + Tax Report tab + tax-report CSV export) now renders in the merchant's chosen DISPLAY currency (Settings → Payments: USD/EUR/GBP/NGN/CAD/AUD) — matching the /transactions export + dashboard tiles that Session 86 shipped. User picked scope **(c)**: CSV + on-screen figures + invoices list all together.
+- **Backend** `controller/invoiceController.ts` (invoice-only, no schema changes):
+  - `exportTaxReportCSV`: reads `getUserDisplayCurrency(user_id, company_id)` + `getUsdToFiatRate(displayCurrency)` (same Redis-cached FX rate as the transactions export and dashboard). Column headers migrated to `Subtotal (EUR)`, `VAT Rate (%)`, `VAT Amount (EUR)`, `Processing Fee (EUR)`, `Total (EUR)`. New trailing columns `Display Currency` (e.g. `EUR`) + `Payment Currency` (e.g. `BTC`, replaces the ambiguous single `Currency` column). All USD-canonical stored values (`total_usd`, `vat_amount`, `fixed_fee`) multiplied by rate before serialization.
+  - `getTaxReport`: same USD→display conversion applied to `summary.total_revenue/total_tax`, `by_period[].revenue/tax_collected`, `by_jurisdiction[].revenue/tax_collected`. Added new response fields `summary.display_currency`, `summary.currency_symbol`, `summary.usd_to_display_rate` so the UI can render a transparency hint.
+  - Coerced `req.query.company_id` (typed `ParsedQs`) to `string | number | null` before passing to `getUserDisplayCurrency`. `tsc --noEmit -p .` = 0 errors.
+- **Frontend** `pages/invoices.tsx` (imports + presentation only):
+  - Removed dead code: legacy `formatCurrency()` helper + `baseCurrency`/`apiState` + unused `formatCryptoAmount`/`getCurrencySymbol` imports (were only referenced by the removed helper).
+  - New `useDisplayFx()` hook mounted for the Invoices list (converts `total_usd` + `vat_amount` client-side via the same cached rate). Tax Report tab uses backend-pre-converted values + returned `currency_symbol` for label consistency.
+  - New helpers: `formatUsdInDisplay(usd)` (Invoices list — client-side conversion), `formatTaxAmount(x)` (Tax Report — server pre-converted, just format with symbol).
+  - "Fiat Everywhere" transparency hint on Tax Report tab (only shown when `display_currency !== 'USD'`): `Amounts shown in EUR (converted from USD @ 0.8700)` — testid `tax-report-fiat-hint`. i18n key `invoices.valuesShownIn` with EN defaultValue fallback.
+- **Verified live (self-tested, real Railway PG, hostbay account)**:
+  - Baseline (USD, rate 1): CSV header `Subtotal (USD)…Total (USD),Display Currency,Payment Currency`; tax report summary returns `display_currency='USD'`, `usd_to_display_rate=1`, `currency_symbol='$'`, existing totals unchanged (`total_revenue=12.67`).
+  - EUR (rate 0.87, temporarily overrode hostbay's user override): CSV header switched to `Subtotal (EUR)…Total (EUR)`; every value scaled correctly (e.g. INV-20260712-00004 total $1.87 → €1.63). Tax report `total_revenue=11.02` (matches 12.67×0.87), Jun period €4.67 (5.37×0.87), Jul period €6.35 (7.30×0.87). Sum of CSV row totals (€1.63+€1.36+€2.17+€1.19+€1.24+€3.43=€11.02) matches summary — accounting math is consistent.
+  - UI screenshot (Playwright, 1440×900, EUR): Invoices list renders €1.63/€1.36/€2.18/€1.19/€1.24/€3.43 in the Total column. Tax Report tab shows fiat hint chip "Amounts shown in EUR (converted from USD @ 0.8700)", Total Revenue tile €11.02, Tax Collected €0.00, By Period Jun 2026 €4.67 / Jul 2026 €6.35. testid `tax-report-fiat-hint` found + inner text matches.
+- **Safety**: hostbay `user_override` was set to `EUR` for verification then cleared back to `null` (falls through to company USD, rate 1) — post-test verify: `display_currency=USD, user_override=None, source=company, rate=1`. LIVE prod DB state preserved. Frontend lint clean; backend `tsc --noEmit -p .` = 0 errors.
+
+
+
 ### 2026-06 — Session (fork) — P0 Google OAuth onboarding unblock + P1 creator-stats hardening — ✅ DONE (verified live; full Google e2e = user self-test)
 **Task 1 (P0) — Google OAuth users blocked at onboarding.** Root cause: `userController.ts::googleSignIn` created new users WITHOUT `email_verified` (defaulted false), unlike the GitHub flow, so `emailVerifiedMiddleware` returned a 403 "verify your email" and blocked `/company`,`/wallet`,`/dashboard`.
 - **Fix**: `googleSignIn` now honors Google's `email_verified` claim (`googleEmailVerified` — treats absent as verified, only an explicit `false` marks unverified) and sets `email_verified` on BOTH new-user `create` AND the existing-user login update (upgrade-only, never downgrade). Also extended the `googleUserInfo` type with `email_verified`.
