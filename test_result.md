@@ -1,3 +1,29 @@
+# Session 108 — FEATURE: Webhook Console on developer page (frontend-only, existing backend)
+
+Preview: https://07b7fe5a-2697-4464-8acd-3e851ed95025.preview.emergentagent.com
+Merchant login (2-step): hostbay@moxx.co / Katiekendra123@ → /dashboard.
+
+WHAT: New `Components/Page/API/WebhookConsoleSection.tsx` added to the developer/API page
+(`/developer-keys`, after Buy Buttons). Lets a merchant: set webhook endpoint URL, view/reveal/
+regenerate signing secret, send a test event, see a stats strip (delivered/failed/success-rate/avg
+latency), and a Recent Deliveries list (event, status chip + HTTP code, latency, retries, time) with
+a click-through detail modal (payload sent + response status + latency + retries + error). Frontend
+ONLY — consumes EXISTING, already-in-production backend routes under /api/company (webhook-settings
+GET/PUT, webhook-test POST, webhook-history GET, webhook-history/:id/detail GET, webhook-stats GET).
+No backend or schema changes. Company id from Redux companyReducer.selectedCompanyId (fallback companyList[0]).
+Lint clean; /developer-keys compiles (5.5s) HTTP 200.
+
+TEST (FRONTEND, STRICTLY READ-ONLY — LIVE PROD company): verify the Webhooks card renders on
+/developer-keys with URL field, secret row (reveal/copy/regenerate buttons), "Send test event"
+button, stats strip, and Recent Deliveries list; confirm stats + history LOAD without error; if any
+delivery rows exist, click one and verify the detail modal shows event/status/HTTP/latency/payload.
+DO NOT modify the URL, DO NOT regenerate the secret, DO NOT click "Send test event" (would mutate the
+live merchant's config / POST to their real endpoint). Confirm dark theme + no console errors.
+
+---
+
+
+
 # Session 107 — BUGFIX: in-app theme leak (Pay Links / Products render light) + dashboard spinner-gate perceived slowness (preview 07b7fe5a) — FIXED & VERIFIED (frontend testing agent, 5/5 PASS)
 
 VERIFIED (auto_frontend_testing_agent): /pay-links = DARK (data-theme=dark, bg rgb(11,13,23)), /pay-links/products = DARK — reported bug RESOLVED. In-app spot-checks (/dashboard,/transactions,/wallet,/customers) all dark; landing "/" still LIGHT (no regression). Dashboard: NO full-screen spinner gate (0/10 samples), renders all widgets. Only 4 pre-existing React DOM-nesting console warnings (unrelated).
