@@ -1,6 +1,17 @@
 # DynoPay - Payment Gateway PRD
 
 
+### 2026-06 — Session (fork) — P0 Google OAuth onboarding unblock + P1 creator-stats hardening — ✅ DONE (verified live; full Google e2e = user self-test)
+**Task 1 (P0) — Google OAuth users blocked at onboarding.** Root cause: `userController.ts::googleSignIn` created new users WITHOUT `email_verified` (defaulted false), unlike the GitHub flow, so `emailVerifiedMiddleware` returned a 403 "verify your email" and blocked `/company`,`/wallet`,`/dashboard`.
+- **Fix**: `googleSignIn` now honors Google's `email_verified` claim (`googleEmailVerified` — treats absent as verified, only an explicit `false` marks unverified) and sets `email_verified` on BOTH new-user `create` AND the existing-user login update (upgrade-only, never downgrade). Also extended the `googleUserInfo` type with `email_verified`.
+- **Backfill (LIVE Railway PG, user-approved)**: `scripts/backfill_google_email_verified.js` (idempotent) flipped all `login_type='GOOGLE'` unverified rows → 1 row updated. Post-state: GOOGLE=1 all verified. (6 EMAIL users still `false` = legitimately unverified email/password signups, correctly untouched.)
+- **Verified**: backend boots clean; `POST /api/user/google-signin` (invalid token) → 401 (route+code path intact). Full Google OAuth e2e NOT run here — Google redirect URIs are registered for dynopay.com, so OAuth cannot complete on the preview URL; **user opted to self-test on production**.
+
+**Task 2 (P1) — Harden creator page visit stats** (`paymentLinkController.ts::getCreatorProfile` ~L2379). Was a raw `redis.incr` on every SSR fetch → inflated by bots/refreshes/owner. Now counts a visit ONLY when: (a) UA is not a known bot/crawler (BOT_RE), (b) not the logged-in creator viewing their own page (best-effort: decodes optional Bearer token, skips when `viewer.user_id === creator.user_id`), (c) first hit from this IP+UA within 24h (`creator-visit-seen:<handle>:<sha256(ip|ua)[:32]>` via `SET NX EX 86400`). Referrer tracking now also gated behind the same first-visit check. Same behavior on failure = soft-noop (never breaks SSR).
+- **Verified live (Redis + live endpoint)**: baseline 178 → 1st real hit 179 (+1 PASS) → identical repeat 179 (deduped PASS) → Googlebot UA 179 (bot skipped PASS) → logged-in owner (hostbay token) 179 (owner excluded PASS).
+- Backend `tsc --noEmit` = 0 errors.
+
+
 ### 2026-06 — Session (fork) — Checkout localization pass: wrapped remaining hardcoded strings + translated to all 6 languages — ✅ DONE (DE verified live)
 `CleanCheckoutV2.tsx`: replaced ~21 hardcoded English strings with `t('checkout.*', {defaultValue})` and added 37 keys × 6 languages to `langs/locales/{lang}/landing.json` (en/de/fr/pt/es/nl).
 - Fixed the reported wrong-network warning (previously only `sendWarning.line` was translated; the tail was hardcoded EN) by adding `sendWarning.orNetwork` + `sendWarning.willResult` — now the full sentence localizes with the coin/network kept bold.

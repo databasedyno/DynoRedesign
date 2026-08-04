@@ -2376,44 +2376,88 @@ export const getCreatorProfile = async (req: express.Request, res: express.Respo
       };
     }
 
-    // Best-effort visit counter (redis). Fire-and-forget: never let this fail the SSR fetch.
+    // ── Visit + referrer tracking — bot-filtered, deduped, owner-excluded ──
+    // Hardened (Session: creator-stats): only count a visit when it is (a) not a
+    // known bot/crawler UA, (b) not the logged-in creator viewing their own page,
+    // and (c) the first hit from this IP+device within a 24h window. Best-effort:
+    // never let analytics fail the SSR fetch.
     try {
-      const ymd = new Date().toISOString().slice(0, 10);
-      // fire-and-forget promises — do NOT await
-      redis.incr(`creator-visits:${handle}`).catch(() => { /* noop */ });
-      redis.incr(`creator-visits:${handle}:day:${ymd}`)
-        .then(() => redis.expire(`creator-visits:${handle}:day:${ymd}`, 60 * 60 * 24 * 32))
-        .catch(() => { /* noop */ });
+      const ua = String(req.headers["user-agent"] || "").trim();
+      const BOT_RE =
+        /bot|crawl|spider|slurp|bingpreview|facebookexternalhit|whatsapp|telegram|discord|slack|preview|monitor|curl|wget|python-requests|headless|lighthouse|pingdom|uptimerobot|axios|go-http|node-fetch|semrush|ahrefs|screaming|feedfetcher|scrape/i;
 
-      // ── Referrer tracking (Session 60) ──
-      // Extract domain from Referer header, skip self / empty / same-host.
-      const rawReferer = String(req.headers["referer"] || req.headers["referrer"] || "").trim();
-      if (rawReferer) {
-        try {
-          const u = new URL(rawReferer);
-          const host = u.hostname.toLowerCase();
-          const selfHosts = new Set([
-            "dynopay.me",
-            "dynopay.com",
-            "checkout.dynopay.com",
-            "www.dynopay.com",
-            "www.dynopay.me",
-          ]);
-          if (host && !selfHosts.has(host)) {
-            // Strip common tracking noise; keep bare eTLD+something (best-effort)
-            const domain = host.replace(/^www\./, "").slice(0, 80);
+      // Owner exclusion (best-effort): decode an optional bearer token and skip
+      // counting when the viewer is the creator themselves.
+      let viewerUserId: number | null = null;
+      try {
+        const authHeader = String(req.headers["authorization"] || "");
+        const bearer = authHeader.startsWith("Bearer ") ? authHeader.slice(7).trim() : "";
+        if (bearer) {
+          const decoded = jwt.decode(bearer) as { user_id?: number } | null;
+          if (decoded && decoded.user_id) viewerUserId = Number(decoded.user_id);
+        }
+      } catch { /* noop */ }
+
+      const isBot = !ua || BOT_RE.test(ua);
+      const isOwner = viewerUserId !== null && viewerUserId === Number(c.user_id);
+
+      if (!isBot && !isOwner) {
+        // Visitor de-duplication: hash IP + UA, count once per 24h (SET NX EX).
+        const rawIp = req.headers["x-forwarded-for"] || req.socket?.remoteAddress || "unknown";
+        const ip = (typeof rawIp === "string" ? rawIp : String(rawIp)).split(",")[0].trim();
+        const visitorHash = crypto
+          .createHash("sha256")
+          .update(`${ip}|${ua}`)
+          .digest("hex")
+          .slice(0, 32);
+        const dedupeKey = `creator-visit-seen:${handle}:${visitorHash}`;
+
+        // Resolves to "OK" only on the FIRST visit within the window, else null.
+        const firstVisit = await redis
+          .set(dedupeKey, "1", { NX: true, EX: 60 * 60 * 24 })
+          .catch(() => null);
+
+        if (firstVisit) {
+          const ymd = new Date().toISOString().slice(0, 10);
+          redis.incr(`creator-visits:${handle}`).catch(() => { /* noop */ });
+          redis
+            .incr(`creator-visits:${handle}:day:${ymd}`)
+            .then(() => redis.expire(`creator-visits:${handle}:day:${ymd}`, 60 * 60 * 24 * 32))
+            .catch(() => { /* noop */ });
+
+          // ── Referrer tracking (Session 60) ──
+          // Extract domain from Referer header, skip self / empty / same-host.
+          const rawReferer = String(
+            req.headers["referer"] || req.headers["referrer"] || ""
+          ).trim();
+          if (rawReferer) {
+            try {
+              const u = new URL(rawReferer);
+              const host = u.hostname.toLowerCase();
+              const selfHosts = new Set([
+                "dynopay.me",
+                "dynopay.com",
+                "checkout.dynopay.com",
+                "www.dynopay.com",
+                "www.dynopay.me",
+              ]);
+              if (host && !selfHosts.has(host)) {
+                // Strip common tracking noise; keep bare eTLD+something (best-effort)
+                const domain = host.replace(/^www\./, "").slice(0, 80);
+                redis
+                  .hIncrBy(`creator-referrers:${handle}`, domain, 1)
+                  .then(() => redis.expire(`creator-referrers:${handle}`, 60 * 60 * 24 * 90))
+                  .catch(() => { /* noop */ });
+              }
+            } catch { /* invalid URL — ignore */ }
+          } else {
+            // "direct" bucket for no-referrer visits (typed URL, mobile app, dark-social)
             redis
-              .hIncrBy(`creator-referrers:${handle}`, domain, 1)
+              .hIncrBy(`creator-referrers:${handle}`, "(direct)", 1)
               .then(() => redis.expire(`creator-referrers:${handle}`, 60 * 60 * 24 * 90))
               .catch(() => { /* noop */ });
           }
-        } catch { /* invalid URL — ignore */ }
-      } else {
-        // "direct" bucket for no-referrer visits (typed URL, mobile app, dark-social)
-        redis
-          .hIncrBy(`creator-referrers:${handle}`, "(direct)", 1)
-          .then(() => redis.expire(`creator-referrers:${handle}`, 60 * 60 * 24 * 90))
-          .catch(() => { /* noop */ });
+        }
       }
     } catch { /* noop */ }
 

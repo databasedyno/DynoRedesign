@@ -2010,7 +2010,13 @@ const googleSignIn = async (req: express.Request, res: express.Response) => {
       return errorResponseHelper(res, 400, "Google ID token or access token is required");
     }
 
-    let googleUserInfo: { email?: string; name?: string; picture?: string; sub?: string };
+    let googleUserInfo: {
+      email?: string;
+      name?: string;
+      picture?: string;
+      sub?: string;
+      email_verified?: boolean | string;
+    };
 
     if (idToken) {
       // Verify ID token with Google
@@ -2043,6 +2049,14 @@ const googleSignIn = async (req: express.Request, res: express.Response) => {
 
     const { email, name, picture, sub: googleId } = googleUserInfo;
 
+    // Google verifies email ownership as part of OAuth. Honor Google's
+    // email_verified claim; treat as verified when the field is absent
+    // (only an explicit `false` marks the address as unverified).
+    const googleEmailVerified = !(
+      googleUserInfo.email_verified === false ||
+      googleUserInfo.email_verified === "false"
+    );
+
     // Check if user exists by email or google_id
     let user = await userModel.findOne({
       where: {
@@ -2067,10 +2081,15 @@ const googleSignIn = async (req: express.Request, res: express.Response) => {
 
       // Update last login IP
       const ipAddress = req.headers["x-forwarded-for"] || req.socket?.remoteAddress || "unknown";
-      await userModel.update(
-        { last_login_ip: typeof ipAddress === "string" ? ipAddress : String(ipAddress) },
-        { where: { user_id: user.dataValues.user_id } }
-      );
+      const existingUserUpdate: Record<string, unknown> = {
+        last_login_ip: typeof ipAddress === "string" ? ipAddress : String(ipAddress),
+      };
+      // Google verified this email — upgrade previously-unverified accounts so
+      // the emailVerifiedMiddleware no longer blocks onboarding. Never downgrade.
+      if (googleEmailVerified) existingUserUpdate.email_verified = true;
+      await userModel.update(existingUserUpdate, {
+        where: { user_id: user.dataValues.user_id },
+      });
 
       // Create session with refresh token (same as OTP login)
       const sessionData = await createSession(user.dataValues, req as any);
@@ -2095,6 +2114,7 @@ const googleSignIn = async (req: express.Request, res: express.Response) => {
       photo: photoUrl,
       login_type: "GOOGLE",
       google_id: googleId,
+      email_verified: googleEmailVerified, // Google already verified this email
       language: normalizeLang(req.body?.language),
     });
 
