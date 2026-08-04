@@ -160,25 +160,14 @@ const TransactionVolumeChart = ({
 }) => {
   const isMobile = useIsMobile("md");
 
-  const rawTransactionData = useMemo(
-    () =>
-      apiChartData.length > 0
-        ? apiChartData
-        : [
-            { date: "Feb 5", value: 8000 },
-            { date: "Feb 6", value: 12000 },
-            { date: "Feb 7", value: 10000 },
-            { date: "Feb 8", value: 15600 },
-            { date: "Feb 9", value: 11000 },
-            { date: "Feb 10", value: 13500 },
-            { date: "Feb 11", value: 15000 },
-          ],
-    [apiChartData],
-  );
-
+  // Honest data only — NEVER fabricate volume on a money dashboard. When the
+  // merchant has no transactions in the selected period, processTransactionData
+  // zero-fills the date range so the chart shows a truthful flat baseline
+  // instead of plausible-looking fake numbers (prior code rendered a hardcoded
+  // ~$8k–$15k sample series whenever apiChartData was empty — a trust risk).
   const transactionData = useMemo(
-    () => processTransactionData(rawTransactionData, selectedPeriod),
-    [rawTransactionData, selectedPeriod],
+    () => processTransactionData(apiChartData, selectedPeriod),
+    [apiChartData, selectedPeriod],
   );
 
   return (

@@ -106,3 +106,23 @@ Funnel: register_start → otp_verified → company_done → wallet_done → lin
 checkout_view → payment_detected → payment_settled. Onboarding events already exist (trackOnboarding) —
 extend to checkout + activation and watch drop-off per step, time-to-first-payment, and checkout
 completion by coin/network/device.
+
+---
+
+## VERIFICATION UPDATE (Session 108 — code-checked against the running app)
+IMPORTANT: the initial audit above was written from flow-level inference and OVERSTATED several gaps.
+Code verification shows this app is much more mature than assumed. Already-implemented (do NOT rebuild):
+- Sidebar IA: already grouped into sections (Main/Payments/Account) with dividers + labels (NewSidebar).
+- Route prefetch: NewSidebar already `router.prefetch()`es all routes on mount.
+- Perceived speed: NProgress route bar wired in _app.tsx + a `Components/Common/RouteTransitionLoader` skeleton on transitions. (Plus S107 removed the withAuth full-screen spinner gate.)
+- Empty states: reusable `Components/UI/EmptyDataModel` already used by Wallet, Transactions, API, Pay-Links; plus EmptyStatePanel (dashboard) + ShopEmpty.
+- Checkout confidence: /pay already has a per-second expiry countdown + an incomplete-payment grace timer w/ auto-unlock; `/order/[publicRef]` status page already models states incl. `underpaid`/`overpaid`; QR + copy exist in CryptoComponent.
+
+GENUINE fix made this session:
+- DashboardLeftSection TransactionVolumeChart no longer fabricates a ~$8k–$15k sample series when apiChartData is empty; it now zero-fills the date range (honest flat baseline). Trust fix. Lint+compile clean.
+
+RE-SCOPING NOTE: Because so much already exists, "All" is far smaller than the audit implied. Recommended next step
+is a precise GAP-VERIFICATION pass (live walkthrough) per area to implement ONLY real gaps — candidates that still
+look genuinely missing/weak and worth checking live: wallet deep-links on mobile checkout; explicit network label
+adjacency to the address; developer webhook test-send + delivery logs; step-up re-auth on payout-wallet change;
+funnel analytics beyond onboarding. Verify each against the live app before building.
