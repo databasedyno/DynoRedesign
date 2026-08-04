@@ -67,6 +67,20 @@ function persistCache() {
 
 const inflight = new Map<string, Promise<number>>();
 
+// ── Pub/sub so cache mutations (mark read / mark all read) refresh EVERY
+// mounted badge (sidebar + mobile nav) immediately, instead of waiting for the
+// next 60s poll. Without this the red badge lingered after "mark as read".
+const listeners = new Set<() => void>();
+function emitUnreadChange() {
+  listeners.forEach((fn) => {
+    try {
+      fn();
+    } catch {
+      /* a bad listener must not break the others */
+    }
+  });
+}
+
 // Mirrors Redux companyReducer's persisted selection so the very first fetch
 // after a full page load is already company-scoped (Redux hydrates a moment
 // later; without this we'd fire an un-scoped duplicate request first).
@@ -131,6 +145,21 @@ export { fetchUnreadCount };
 export function setCachedUnreadCount(companyId: unknown, count: number) {
   countCache.set(cacheKey(companyId), { count, ts: Date.now() });
   persistCache();
+  emitUnreadChange();
+}
+
+/**
+ * Optimistically decrement the shared count by `by` (default 1) — used when a
+ * single notification is marked read so the badge drops instantly without a
+ * refetch — then notify all mounted badges.
+ */
+export function decrementUnreadCount(companyId: unknown, by = 1) {
+  const key = cacheKey(companyId);
+  const current = countCache.get(key)?.count ?? 0;
+  const next = Math.max(0, current - by);
+  countCache.set(key, { count: next, ts: Date.now() });
+  persistCache();
+  emitUnreadChange();
 }
 
 /**
@@ -140,6 +169,7 @@ export function setCachedUnreadCount(companyId: unknown, count: number) {
 export function invalidateUnreadCountCache(companyId: unknown) {
   countCache.delete(cacheKey(companyId));
   persistCache();
+  emitUnreadChange();
 }
 
 export function useUnreadNotificationsCount(): number {
@@ -196,11 +226,15 @@ export function useUnreadNotificationsCount(): number {
     const onFocus = () => refresh();
     window.addEventListener("focus", onFocus);
 
+    // Subscribe so mark-read / mark-all-read update THIS badge immediately.
+    listeners.add(refresh);
+
     return () => {
       cancelled = true;
       if (initialTimer) clearTimeout(initialTimer);
       if (timer) clearInterval(timer);
       window.removeEventListener("focus", onFocus);
+      listeners.delete(refresh);
     };
   }, [effectiveCompanyId]);
 

@@ -25,7 +25,7 @@ import {
   fetchUnreadCount,
   readLastCompanyId,
   setCachedUnreadCount,
-  invalidateUnreadCountCache,
+  decrementUnreadCount,
 } from "@/hooks/useUnreadNotificationsCount";
 import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
 import NotificationsOffIcon from "@mui/icons-material/NotificationsOff";
@@ -240,7 +240,9 @@ const NotificationPage = () => {
       setUnreadCount(0);
       // Badges elsewhere can trust 0 immediately — write through the cache.
       setCachedUnreadCount(effectiveCompanyId, 0);
-    } catch {}
+    } catch {
+      /* non-fatal — next poll will reconcile */
+    }
     setMarkingAllRead(false);
   };
 
@@ -251,9 +253,12 @@ const NotificationPage = () => {
         prev.map((n) => (n.notification_id === id ? { ...n, is_read: true } : n))
       );
       setUnreadCount((prev) => Math.max(0, prev - 1));
-      // Cached badge count is now stale — let the next poll refetch it.
-      invalidateUnreadCountCache(effectiveCompanyId);
-    } catch {}
+      // Optimistically drop the shared badge count so the sidebar/mobile red
+      // dot updates IMMEDIATELY (emits to all mounted badges).
+      decrementUnreadCount(effectiveCompanyId, 1);
+    } catch {
+      /* non-fatal — next poll will reconcile */
+    }
   };
 
   const formatTimeAgo = (dateStr: string) => {

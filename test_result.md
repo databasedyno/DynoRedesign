@@ -1,3 +1,33 @@
+# Session 108 — BUGFIX: notifications badge stale after mark-read (#2 FIXED) + referral code below fold (#1 investigating)
+
+Preview: https://07b7fe5a-2697-4464-8acd-3e851ed95025.preview.emergentagent.com
+Login (2-step): hostbay@moxx.co / Katiekendra123@
+
+BUG #2 (FIXED — verify): The sidebar/mobile "Notifications" red badge did not clear immediately after
+"mark as read". Root cause: `hooks/useUnreadNotificationsCount.ts` kept the count in per-instance
+useState seeded from a module cache with NO pub/sub, so NotificationPage's cache mutation didn't
+re-render mounted badges (updated only on the 60s poll). FIX: added a listeners Set + emitUnreadChange();
+setCachedUnreadCount / invalidateUnreadCountCache now emit; added decrementUnreadCount() (optimistic -1);
+the hook subscribes (listeners.add(refresh)) so mark-read / mark-all-read refresh EVERY mounted badge
+instantly. NotificationPage single mark-read now calls decrementUnreadCount (was invalidate). Lint clean.
+
+BUG #1 (INVESTIGATING): "Referral code not visible on desktop unless I scroll." The referral-code-card
+(data-testid=referral-code-card / referral-code-value) is the FIRST content element on /referrals, but
+the layout stacks NewHeader + EmailVerificationBanner + FeeFreeBanner + MainPageHeader(title+description)
+above content. Need to MEASURE the actual offset to design the fix. setPageAction IS available to pages.
+
+TEST INSTRUCTIONS:
+- #2 (verify fix, minimal live change): open Notifications; note the sidebar Notifications red badge count;
+  mark ONE unread notification as read; the sidebar red badge must DECREMENT/clear IMMEDIATELY (<~1.5s)
+  without navigating or waiting. (Avoid "mark all as read" to limit live-data change.) PASS/FAIL + before/after screenshots.
+- #1 (REPRODUCE + measure, read-only): on desktop 1920x900 open /referrals; WITHOUT scrolling report whether
+  referral-code-card is fully within the viewport; give its bounding-box top & bottom Y and window.innerHeight;
+  list what renders above it (header, email/fee banners present?, page title+description). Screenshot the initial view. Repeat mobile 390x844.
+
+---
+
+
+
 # Session 108 — FEATURE: Webhook Console on developer page (frontend-only, existing backend) — DONE & VERIFIED (frontend agent PASS, real prod data)
 
 VERIFIED: renders on /developer-keys with URL field + secret(reveal/copy/regenerate) + Send-test + stats strip (174 delivered / 2 failed / 98.9% success) + 20 delivery rows + working detail dialog (event, status, HTTP 200, latency 742ms, retries, endpoint, payload JSON). Dark theme OK. Read-only test — no config mutated, no test event sent. Only 1 pre-existing MUI Select DOM-nesting warning.
