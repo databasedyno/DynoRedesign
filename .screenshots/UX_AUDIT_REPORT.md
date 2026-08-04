@@ -1,7 +1,7 @@
 # DynoPay Merchant Dashboard - UX Heuristic Audit Report
 **Date:** July 8, 2026  
 **Auditor:** Testing Agent (Frontend SDET)  
-**App URL:** https://merchant-portal-218.preview.emergentagent.com
+**App URL:** https://crypto-payment-13.preview.emergentagent.com
 
 ---
 
