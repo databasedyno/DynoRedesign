@@ -1,3 +1,15 @@
+# FEATURE (this session) — 2026 Dashboard redesign (merchant command center) — VERIFIED
+
+- **New dashboard layout** lives in `Components/Page/Dashboard/v2026/` (index.tsx = `Dashboard2026`). Wired into `pages/dashboard.tsx` behind a localStorage feature flag `dynopay_dashboard_layout` ("v2026" | "classic"), **default "v2026"**. Hook: `hooks/useDashboardLayout.ts`.
+- Toggle both ways VERIFIED: v2026 CommandBar settings menu → "Switch to classic" (testid `dash2026-switch-classic`); classic view shows a "Try the new dashboard" pill (testid `dashboard-try-2026`) to switch back.
+- Composition (all real data via existing hooks — NO mocks): CommandBar (greeting + date + global range 7D/30D/90D/1Y/All + settings: theme/density/classic) · VolumeHero (Lifetime↔Today toggle, big number + delta + area chart) · KpiStrip (Today's revenue / Payments today / Active wallets / Tax collected + mini sparklines) · RecentTransactionsWidget (reused) · AssetsCard (wallets ranked by settled USD volume) · QuickActionsDock (merchant actions — Create link/Invoice/Pay-links/Wallet/Customers/Storefront; deliberately NO consumer amount-input/coin-chips that were rolled back before) · FeeTierCard (progress + tier badge + next-tier hint) · GrowPanel + CreatorPageCard (reused) · ActivationChecklist (first-run).
+- Key testids: `dash2026-root`, `dash2026-commandbar`, `dash2026-range-{7d,30d,90d,1y,all}`, `dash2026-settings`, `dash2026-hero`, `dash2026-hero-value`, `dash2026-hero-lifetime/today`, `dash2026-kpi-strip`, `dash2026-kpi-{revenue,payments,wallets,tax}`, `dash2026-quick-actions`, `dash2026-qa-primary`, `dash2026-fee-tier`, `dash2026-next-tier-hint`, `dash2026-assets`, `dash2026-activation`.
+- Verified live (hostbay@moxx.co): hero=$24,755.63 USD, KPIs (rev $197.85/+34.6%, payments 2/+66.7%, wallets 13, tax $0.00), fee tier Growth·1% (24.8% to Scale), next-tier hint "Reach Scale tier for 0.7% fees (save 0.30%)". `tsc --noEmit` = 0 errors project-wide; ESLint clean; no new console errors (only pre-existing next-auth CLIENT_FETCH_ERROR, harmless in preview). Reuses shared `CB_TOKENS` design system from `Components/Page/Dashboard/coinbase/styled.tsx`. Frontend-only change — NO backend changes.
+
+---
+
+
+
 # CURRENT SESSION (fresh boot — env provisioning "Set up using below cred" — preview 124a4944) — VERIFIED
 
 - **Preview URL (THIS container, authoritative from env `preview_endpoint`)**: https://124a4944-ebfa-46d8-b06f-e2e063a303f8.preview.emergentagent.com — set as NEXT_PUBLIC_BASE_URL + NEXT_PUBLIC_SERVER_URL + NEXTAUTH_URL (in /app/.env.local + /app/.env + /app/backend/.env) and added FIRST in CORS_ALLOWED_ORIGINS. Verified: `/`=200 (after first-hit compile; first raw hit was 502 = on-demand compile of heavy landing, resolved on warm-up), `/auth/login`=200, `/api/public/tickers`=200, `/api/csrf-token`=200. CORS also auto-allows *.preview.emergentagent.com via safePatterns in server.ts.
