@@ -1,6 +1,7 @@
 import PanelCard from "@/Components/UI/PanelCard";
 import { getCurrencySymbol } from "@/helpers";
-import { formatCryptoAmount } from "@/utils/currencyFormat";
+import { formatCryptoAmount, isCryptoCurrency } from "@/utils/currencyFormat";
+import { useUsdRates } from "@/hooks/useUsdRates";
 import useIsMobile from "@/hooks/useIsMobile";
 import { useDashboardDensity } from "@/hooks/useDashboardDensity";
 import {
@@ -10,8 +11,11 @@ import {
   ErrorOutlineRounded,
   DensityMediumRounded,
   DensitySmallRounded,
+  ReceiptLongRounded,
+  BoltRounded,
+  AddRounded,
 } from "@mui/icons-material";
-import { Box, IconButton, Skeleton, Tooltip, Typography, useTheme } from "@mui/material";
+import { Box, Button, IconButton, Skeleton, Tooltip, Typography, alpha, useTheme } from "@mui/material";
 import { useRouter } from "next/router";
 import React from "react";
 import { useTranslation } from "react-i18next";
@@ -150,6 +154,7 @@ const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
   const router = useRouter();
   const { t, i18n } = useTranslation("dashboardLayout");
   const { isCompact, toggleDensity } = useDashboardDensity();
+  const { toUsd } = useUsdRates();
 
   // Compact mode shows more rows (10) with tighter padding and smaller icons.
   // Spacious mode is the original 5-row / 36px-icon / py=1.5 layout.
@@ -253,20 +258,70 @@ const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
               gap: 1.25,
             }}
           >
+            {/* Charming illustrated empty state — a friendly receipt glyph on a
+                branded gradient halo with a little "spark", plus a first-action
+                CTA so a brand-new merchant knows exactly what to do until their
+                first payment lands. */}
             <Box
+              aria-hidden
               sx={{
-                width: 48,
-                height: 48,
-                borderRadius: "14px",
+                position: "relative",
+                width: 96,
+                height: 96,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                backgroundColor:
-                  theme.palette.mode === "dark" ? "rgba(255,255,255,0.06)" : "#F4F6FA",
-                color: theme.palette.text.secondary,
+                mb: 0.5,
               }}
             >
-              <HourglassEmptyRounded sx={{ fontSize: 22 }} />
+              <Box
+                sx={{
+                  position: "absolute",
+                  inset: 0,
+                  borderRadius: "50%",
+                  background: `radial-gradient(circle at 50% 42%, ${alpha(
+                    theme.palette.primary.main,
+                    0.32
+                  )}, transparent 68%)`,
+                }}
+              />
+              <Box
+                sx={{
+                  position: "relative",
+                  width: 72,
+                  height: 72,
+                  borderRadius: "20px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "#fff",
+                  background: `linear-gradient(140deg, ${theme.palette.primary.main}, ${
+                    theme.palette.primary.dark || theme.palette.primary.main
+                  })`,
+                  boxShadow: `0 12px 28px ${alpha(theme.palette.primary.main, 0.4)}`,
+                }}
+              >
+                <ReceiptLongRounded sx={{ fontSize: 34 }} />
+              </Box>
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: 4,
+                  right: 8,
+                  width: 24,
+                  height: 24,
+                  borderRadius: "50%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: theme.palette.primary.main,
+                  bgcolor: theme.palette.background.paper,
+                  border: `1px solid ${theme.palette.divider}`,
+                  boxShadow: `0 4px 10px ${alpha("#000", 0.18)}`,
+                }}
+              >
+                <BoltRounded sx={{ fontSize: 15 }} />
+              </Box>
             </Box>
             <Typography
               sx={{
@@ -289,6 +344,26 @@ const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
             >
               {t("noTransactionsDesc")}
             </Typography>
+            <Button
+              variant="contained"
+              startIcon={<AddRounded />}
+              onClick={() => router.push("/create-pay-link")}
+              data-testid="empty-create-paylink-btn"
+              sx={{
+                mt: 1.5,
+                textTransform: "none",
+                borderRadius: "12px",
+                fontWeight: 600,
+                px: 2.5,
+                py: 0.9,
+                boxShadow: "none",
+                "&:hover": { boxShadow: "none" },
+              }}
+            >
+              {t("createFirstPaymentLink", {
+                defaultValue: "Create payment link",
+              })}
+            </Button>
           </Box>
         ) : (
           <Box>
@@ -298,6 +373,12 @@ const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
               const amount = tx.base_amount ?? tx.amount ?? 0;
               const fiat = tx.base_currency || tx.currency || "USD";
               const crypto = tx.crypto_currency || tx.cryptocurrency || "";
+              // Approximate USD value shown beside a crypto amount so merchants
+              // instantly see what a payment is worth. Only for crypto rows
+              // (skip when already fiat); null when we can't price it.
+              const usdValue = isCryptoCurrency(fiat)
+                ? toUsd(Number(amount), fiat)
+                : null;
               const when = formatWhen(tx.createdAt || tx.created_at, t, i18n.language);
               const rawEmail = tx.customer_email || tx.customerEmail || "";
               const rawName = (tx as any).customer_name || (tx as any).customerName || "";
@@ -411,6 +492,21 @@ const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
                           }}
                         >
                           {crypto}
+                        </Box>
+                      )}
+                      {usdValue != null && (
+                        <Box
+                          component="span"
+                          data-testid="recent-txn-fiat"
+                          sx={{
+                            ml: 1,
+                            color: theme.palette.text.secondary,
+                            fontFamily: "var(--font-sans)",
+                            fontWeight: 500,
+                            fontSize: "12px",
+                          }}
+                        >
+                          {`\u2248 ${getCurrencySymbol("USD", formatCryptoAmount(usdValue, "USD"))}`}
                         </Box>
                       )}
                     </Typography>

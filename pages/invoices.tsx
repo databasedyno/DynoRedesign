@@ -37,6 +37,7 @@ import CustomButton from "@/Components/UI/Buttons";
 import PanelCard from "@/Components/UI/PanelCard";
 import { theme as appTheme } from "@/styles/theme";
 import { getCurrencySymbol } from "@/helpers";
+import { formatCryptoAmount } from "@/utils/currencyFormat";
 import { useSelector } from "react-redux";
 
 interface Invoice {
@@ -278,7 +279,9 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
 
   const formatCurrency = (amount: number, currency?: string) => {
     const curr = currency || baseCurrency;
-    const formatted = amount.toFixed(2);
+    // Crypto-aware precision: BTC/ETH/USDT-TRC20 amounts keep up to 8 decimals
+    // (a small 0.00047 BTC invoice must not collapse to "0.00"); fiat → 2 dp.
+    const formatted = formatCryptoAmount(amount, curr);
     // F12: If a well-known symbol matches (USD/EUR/GBP/etc.), prefix with the
     // symbol. Otherwise (crypto codes like USDT-TRC20, BTC, ETH…) render as
     // "0.68 USDT-TRC20" so the amount is never ambiguous.

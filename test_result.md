@@ -1,3 +1,21 @@
+## Session 105 — iOS-WebKit landing mobile-menu FREEZE fix (2026-08-04) — FIXED & VERIFIED
+
+Report: iPhone 14 Pro Max, tapping the landing hamburger froze the UI for "several minutes" before the
+menu opened (Safari + Chrome = iOS WebKit; Firefox fine). Survived prior fixes (backdrop-filter, 44px
+hitbox, touch-action, single onClick) and never reproduced in Chromium/Playwright emulation.
+Root cause (RCA via troubleshoot_agent): MUI Modal's FocusTrap runs an expensive tabbable-node scan +
+aria-hidden sweep against the long landing page on every open, blocking the WebKit main thread for
+seconds on @3x DPR. `keepMounted:true` also kept the whole drawer subtree permanently mounted.
+Fix — Components/Layout/HomeHeader/index.tsx MobileMenuDrawer ModalProps:
+  keepMounted:false, disableEnforceFocus:true, disableAutoFocus:true, disableRestoreFocus:true, disableScrollLock:true
+VERIFIED (frontend testing agent, Chromium — WebKit engine unavailable in container): drawer opens in
+~113-152ms consistently (both first & second open) at 430x932 & 390x844, accordion expands, Escape
+closes, no console errors, no regression. NOTE: real iOS confirmation still ideal; if it persists,
+escalate to a CSS-only slide panel (removes MUI Modal entirely).
+
+---
+
+
 ## Session 104 — Bug fixes: crypto amount precision + mobile dark-mode default (2026-08-04) — FIXED & VERIFIED (8/8)
 
 ### BUG 1 — Crypto amounts (BTC) showing "0.00" in Recent Transactions & other places
