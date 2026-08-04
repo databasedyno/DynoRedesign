@@ -1,4 +1,6 @@
-# Session 108 — FEATURE: Webhook Console on developer page (frontend-only, existing backend)
+# Session 108 — FEATURE: Webhook Console on developer page (frontend-only, existing backend) — DONE & VERIFIED (frontend agent PASS, real prod data)
+
+VERIFIED: renders on /developer-keys with URL field + secret(reveal/copy/regenerate) + Send-test + stats strip (174 delivered / 2 failed / 98.9% success) + 20 delivery rows + working detail dialog (event, status, HTTP 200, latency 742ms, retries, endpoint, payload JSON). Dark theme OK. Read-only test — no config mutated, no test event sent. Only 1 pre-existing MUI Select DOM-nesting warning.
 
 Preview: https://07b7fe5a-2697-4464-8acd-3e851ed95025.preview.emergentagent.com
 Merchant login (2-step): hostbay@moxx.co / Katiekendra123@ → /dashboard.

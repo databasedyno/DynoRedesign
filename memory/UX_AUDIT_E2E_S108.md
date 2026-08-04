@@ -177,3 +177,18 @@ errors) + /pay?d=probe regression smoke test PASS (module still mounts, no crash
 crypto screen not run (would reserve a real pool address). Temp harnesses (/pay/deeplink-test,
 /pay/status-test) removed. Exports kept: buildPaymentUri, CheckoutStatusTimeline.
 REMAINING of the 4: #3 Webhook Console (backend+schema), #4 Onboarding testnet Test Payment (backend+Tatum testnet).
+
+---
+
+## BUILT (Session 108 cont.) — #3 Webhook Console (frontend-only, existing backend) — VERIFIED
+New Components/Page/API/WebhookConsoleSection.tsx mounted on /developer-keys (after Buy Buttons).
+Endpoint URL save + signing-secret reveal/copy/regenerate + Send test event + stats strip
+(delivered/failed/success-rate/avg latency) + Recent Deliveries list (event, status+HTTP, latency,
+retries, time) + click-through detail dialog (payload sent + response status + error). Consumes
+EXISTING /api/company webhook-* routes (webhook-settings GET/PUT, webhook-test POST, webhook-history
+GET, webhook-history/:id/detail GET, webhook-stats GET). NO backend/schema changes. company_id from
+Redux companyReducer.selectedCompanyId (fallback companyList[0]). VERIFIED by auto_frontend_testing_agent
+against hostbay (176 real deliveries, 98.9% success, detail dialog all fields, dark theme, no critical
+console errors). NOTE: backend testWebhook delivers SYNCHRONOUSLY (axios.post + direct log insert),
+so it works even on this preview where BullMQ background worker is disabled.
+REMAINING of the 4: #4 Onboarding testnet Test Payment (backend + Tatum testnet) — NOT yet started.
