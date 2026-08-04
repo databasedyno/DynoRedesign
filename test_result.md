@@ -1,3 +1,34 @@
+## Session 104 — Bug fixes: crypto amount precision + mobile dark-mode default (2026-08-04) — FIXED & VERIFIED (8/8)
+
+### BUG 1 — Crypto amounts (BTC) showing "0.00" in Recent Transactions & other places
+Root cause: merchant-facing components rendered crypto amounts with 2-decimal-capped formatters
+(`formatNumberWithComma` / a local `formatAmount` with `maximumFractionDigits:2`), so a real BTC
+payment of `base_amount=0.00047333` / `base_currency="BTC"` collapsed to "0.00 BTC". (Reproduced
+against LIVE data via /api/dashboard/recent-transactions.) The correct crypto-aware formatter
+`formatCryptoAmount(amount, currency)` (utils/currencyFormat.ts) already existed but wasn't used.
+Fix (used existing formatCryptoAmount everywhere crypto amounts render):
+- Components/Page/Dashboard/RecentTransactionsWidget.tsx — line 401 now `formatCryptoAmount(Number(amount), fiat)`.
+- Components/Page/Dashboard/coinbase/LivePaymentFeed.tsx — `formatAmount` now crypto-aware (isCryptoCurrency → formatCryptoAmount) for coin chips.
+- Components/Page/Customers/index.tsx — `fmtAmount(v, cur)` now currency-aware via formatCryptoAmount; all 6 call sites pass the row/wallet currency.
+- Untouched (already correct): /transactions TransactionsTable.tsx (own 8dp formatter), TransactionDetailsModal.
+VERIFIED: BTC now shows full precision e.g. 0.00047333 / 0.00013925 / 0.00081433 BTC; USDT 2dp. No "0.00 BTC".
+
+### BUG 2 — Mobile in-app default not dark like desktop
+Could NOT reproduce in desktop-emulation (all viewports incl. fresh mobile rendered dark). Root cause
+found by code review: the pre-hydration inline theme script in pages/_document.tsx read localStorage
+inside a try whose CATCH hard-forced `data-theme="light"` for ALL routes. On real mobile browsers where
+storage is blocked/throws (iOS Safari Private mode / blocked site-data), the in-app dashboard was forced
+LIGHT while desktop (storage OK) stayed dark.
+Fix: rewrote the blocking IIFE so the route context + route default are computed WITHOUT storage; the
+localStorage read is isolated; on any storage failure it keeps the ROUTE-AWARE default (in-app→dark,
+public→light) instead of forcing light. Emitted script node --check = SYNTAX OK. React side already
+handled storage errors (readPreferredMode try/catch → route default).
+VERIFIED (throwing-localStorage simulation): /dashboard → dark, / → light. Regression: logged-in
+dashboard dark on desktop(1280x800)/tablet(834x1112)/mobile(390x844). 8/8 tests passed.
+
+---
+
+
 ## Session 103 RE-TEST — Transactions Skeleton + Dashboard Button (2026-08-04) — ✅ BOTH TESTS PASSED (2/2 — 100%)
 
 **Test Status:** ✅ **2/2 TESTS PASSED — SKELETON VERIFIED + BUTTON HEIGHT CONFIRMED**
