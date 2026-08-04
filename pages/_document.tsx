@@ -96,31 +96,35 @@ export default function MyDocument({ emotionStyleTags }: MyDocumentProps) {
           dangerouslySetInnerHTML={{
             __html: `
 (function(){
-  try {
-    // Keep this list IN SYNC with utils/theme/routeContext.ts INAPP_PREFIXES.
-    // Duplicated here because this script runs before any JS modules load.
-    var INAPP = ['/dashboard','/transactions','/wallet','/wallets','/customers','/invoices','/notifications','/settings','/profile','/create-pay-link','/referrals','/developer-keys','/company','/fees','/admin','/creator','/payouts'];
-    var AUTH  = ['/auth','/reset-password'];
-    var path = (location.pathname || '/').replace(/\\/+$/, '') || '/';
-    var context = 'public';
-    for (var i = 0; i < INAPP.length; i++) {
-      if (path === INAPP[i] || path.indexOf(INAPP[i] + '/') === 0) { context = 'inapp'; break; }
+  // Compute the route context (in-app vs public) WITHOUT touching storage,
+  // so a blocked/throwing localStorage (e.g. iOS Safari private mode, or a
+  // browser with site-data disabled) can never downgrade an in-app surface
+  // to light. Keep INAPP/AUTH IN SYNC with utils/theme/routeContext.ts.
+  function stripPath(){
+    try { return ((location && location.pathname) || '/').replace(/\\/+$/, '') || '/'; }
+    catch (e) { return '/'; }
+  }
+  function matchPrefix(p, list){
+    for (var i = 0; i < list.length; i++) {
+      if (p === list[i] || p.indexOf(list[i] + '/') === 0) return true;
     }
-    var isAuth = false;
-    for (var j = 0; j < AUTH.length; j++) {
-      if (path === AUTH[j] || path.indexOf(AUTH[j] + '/') === 0) { isAuth = true; break; }
-    }
-    var storageKey = context === 'inapp' ? 'theme-mode-inapp' : 'theme-mode-public';
-    var cookieName = storageKey;
-    var defaultMode = context === 'inapp' ? 'dark' : 'light';
+    return false;
+  }
+  var INAPP = ['/dashboard','/transactions','/wallet','/wallets','/customers','/invoices','/notifications','/settings','/profile','/create-pay-link','/referrals','/developer-keys','/company','/fees','/admin','/creator','/payouts'];
+  var AUTH  = ['/auth','/reset-password'];
+  var path = stripPath();
+  var context = matchPrefix(path, INAPP) ? 'inapp' : 'public';
+  var isAuth = matchPrefix(path, AUTH);
+  var storageKey = context === 'inapp' ? 'theme-mode-inapp' : 'theme-mode-public';
+  var defaultMode = context === 'inapp' ? 'dark' : 'light';
 
-    // Read the context-scoped preference; fall back to route default.
+  // Start from the ROUTE default. Only a stored preference (or auth-path
+  // inheritance) may override it — and reading storage is isolated so its
+  // failure leaves the correct route default intact.
+  var mode = defaultMode;
+  try {
     var saved = localStorage.getItem(storageKey);
-    // One-time migration: if the old single 'theme-mode' key exists and the
-    // new context-scoped key doesn't, seed only the CURRENT context. This
-    // preserves a returning user's explicit choice on the surface where
-    // they made it, without stamping their dashboard preference onto the
-    // landing page (or vice versa).
+    // One-time migration from the legacy single 'theme-mode' key.
     if (saved !== 'light' && saved !== 'dark') {
       var legacy = localStorage.getItem('theme-mode');
       if (legacy === 'light' || legacy === 'dark') {
@@ -128,25 +132,27 @@ export default function MyDocument({ emotionStyleTags }: MyDocumentProps) {
         try { localStorage.setItem(storageKey, legacy); } catch (e) {}
       }
     }
-    var mode = (saved === 'light' || saved === 'dark') ? saved : defaultMode;
-
-    // Auth-path inheritance: if we're on /auth/* or /reset-password AND the
-    // user has NOT set an explicit public preference AND has an explicit
-    // in-app DARK preference, use dark so the login card feels connected.
-    if (isAuth && !(saved === 'light' || saved === 'dark')) {
+    if (saved === 'light' || saved === 'dark') {
+      mode = saved;
+    } else if (isAuth) {
+      // Auth-path inheritance: mirror an explicit in-app DARK preference so a
+      // link from a dark email doesn't jarringly flash the login card white.
       var inappSaved = localStorage.getItem('theme-mode-inapp');
       if (inappSaved === 'dark') mode = 'dark';
     }
+  } catch (e) {
+    // Storage unavailable/blocked — keep the route-aware default (dark for
+    // in-app). Do NOT force light here (that was the mobile-Safari bug).
+  }
 
+  try {
     document.documentElement.dataset.theme = mode;
     document.documentElement.style.colorScheme = mode;
     document.documentElement.style.backgroundColor = mode === 'light' ? '#F2F3F8' : '#0B0D17';
-    document.cookie = cookieName + '=' + mode + '; path=/; max-age=31536000; samesite=lax';
-  } catch(e) {
-    document.documentElement.dataset.theme = 'light';
-    document.documentElement.style.colorScheme = 'light';
-    document.documentElement.style.backgroundColor = '#F2F3F8';
-  }
+  } catch (e) {}
+  try {
+    document.cookie = storageKey + '=' + mode + '; path=/; max-age=31536000; samesite=lax';
+  } catch (e) {}
 })();
 `,
           }}
