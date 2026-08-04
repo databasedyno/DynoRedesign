@@ -277,6 +277,11 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
 
   // ─── State ────────────────────────────────────────────────────────
   const [phase, setPhase] = useState<Phase>('loading_meta')
+  // True once the backend reports the on-chain tx has been SEEN (status
+  // 'pending' = "Payment detected, awaiting confirmation") — drives the
+  // Waiting → Detected → Confirmed timeline. Backend does NOT expose a numeric
+  // confirmation count, so we show discrete steps rather than a fake "n of m".
+  const [detected, setDetected] = useState(false)
   const [meta, setMeta] = useState<Meta | null>(null)
   const [errorMsg, setErrorMsg] = useState<string>('')
   const [selectedNetwork, setSelectedNetwork] = useState<string>('')
@@ -526,6 +531,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
     const timerMins: number =
       Number(r.remaining_minutes) || Number(r.expires_in_minutes) || Number(r.expiration_minutes) || 30
     setTimeLeft(timerMins * 60)
+    setDetected(false)
     setPhase('awaiting_payment')
   }, [meta_])
 
@@ -550,6 +556,16 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
       const d_: any = r.data
       if (d_.remaining_seconds !== undefined && d_.remaining_seconds > 0) {
         setTimeLeft(Number(d_.remaining_seconds))
+      }
+      // Live "detected" signal: backend 'pending' = tx seen, awaiting
+      // confirmation; 'underpaid' also means funds were received (partial).
+      if (s === 'pending') {
+        setDetected(true)
+      } else if (s === 'underpaid') {
+        setDetected(true)
+        setPhase('underpaid')
+      } else if (s === 'waiting') {
+        setDetected(false)
       }
       if (s === 'confirmed' || s === 'overpaid') {
         setConfirmedAmount({
@@ -1203,32 +1219,15 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
         </Box>
       )}
 
-      {/* Timer + status pill */}
+      {/* Live status: Waiting → Detected → Confirmed timeline + pill + timer */}
       {cryptoInfo && (
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 2 }}>
-          <Box sx={{
-            display: 'inline-flex', alignItems: 'center', gap: 0.5,
-            px: 1, py: 0.5, borderRadius: '999px',
-            backgroundColor: isDark ? 'rgba(79,70,229,0.08)' : 'rgba(79,70,229,0.16)',
-            border: `1px solid ${LIME}`,
-          }}>
-            <Box
-              sx={{
-                width: 8, height: 8, borderRadius: '50%',
-                backgroundColor: '#22c55e',
-                animation: 'pulse 1.5s ease-in-out infinite',
-                '@keyframes pulse': { '0%,100%': { opacity: 1 }, '50%': { opacity: 0.4 } },
-              }}
-            />
-            <Typography sx={{ fontSize: 11.5, fontWeight: 700 }}>
-              {phase === 'underpaid' ? 'Underpayment detected' : 'Waiting for payment'}
-            </Typography>
-          </Box>
-          <Typography sx={{ fontFamily: MONO, fontSize: 12, color: muted, fontWeight: 600 }}>
-            <Icon icon="mdi:timer-outline" width={12} style={{ verticalAlign: 'middle', marginRight: 4 }} />
-            {timerLabel}
-          </Typography>
-        </Box>
+        <CheckoutStatusTimeline
+          phase={phase}
+          detected={detected}
+          timerLabel={timerLabel}
+          isDark={isDark}
+          t={t}
+        />
       )}
 
       {/* Footer links */}
@@ -1273,26 +1272,154 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
               {formatCryptoAmount(cryptoInfo.expected_amount, cryptoInfo.crypto_base)} {cryptoInfo.crypto_base}
             </Typography>
           </Box>
-          <Button
-            data-testid="checkout-sticky-copy-address"
-            onClick={() => doCopy(cryptoInfo.address, 'addr')}
-            disableElevation
-            variant="contained"
-            startIcon={<Icon icon={copiedFlag === 'addr' ? 'mdi:check' : 'mdi:content-copy'} width={18} />}
-            sx={{
-              flex: 1, minHeight: 48, borderRadius: '999px', textTransform: 'none',
-              fontSize: 15, fontWeight: 800, backgroundColor: LIME, color: ON_BRAND,
-              whiteSpace: 'nowrap',
-              '&:hover': { backgroundColor: LIME, filter: 'brightness(1.05)' },
-              '&:active': { transform: 'scale(0.99)' },
-            }}
-          >
-            {copiedFlag === 'addr' ? 'Copied!' : 'Copy address'}
-          </Button>
+          {paymentUri ? (
+            <>
+              <Button
+                component="a"
+                href={paymentUri.uri}
+                data-testid="checkout-sticky-open-wallet"
+                disableElevation
+                variant="contained"
+                startIcon={<Icon icon="mdi:wallet-outline" width={18} />}
+                sx={{
+                  flex: 1, minHeight: 48, borderRadius: '999px', textTransform: 'none',
+                  fontSize: 15, fontWeight: 800, backgroundColor: LIME, color: ON_BRAND,
+                  whiteSpace: 'nowrap',
+                  '&:hover': { backgroundColor: LIME, filter: 'brightness(1.05)' },
+                  '&:active': { transform: 'scale(0.99)' },
+                }}
+              >
+                {t('checkout.openInWallet', { defaultValue: 'Open in wallet app' })}
+              </Button>
+              <Button
+                data-testid="checkout-sticky-copy-address"
+                onClick={() => doCopy(cryptoInfo.address, 'addr')}
+                aria-label="Copy address"
+                disableElevation
+                variant="outlined"
+                sx={{
+                  minWidth: 48, width: 48, minHeight: 48, p: 0, borderRadius: '999px',
+                  flexShrink: 0, borderColor: border, color: theme.palette.text.primary,
+                  '&:hover': { borderColor: muted, backgroundColor: 'transparent' },
+                  '&:active': { transform: 'scale(0.98)' },
+                }}
+              >
+                <Icon icon={copiedFlag === 'addr' ? 'mdi:check' : 'mdi:content-copy'} width={20} />
+              </Button>
+            </>
+          ) : (
+            <Button
+              data-testid="checkout-sticky-copy-address"
+              onClick={() => doCopy(cryptoInfo.address, 'addr')}
+              disableElevation
+              variant="contained"
+              startIcon={<Icon icon={copiedFlag === 'addr' ? 'mdi:check' : 'mdi:content-copy'} width={18} />}
+              sx={{
+                flex: 1, minHeight: 48, borderRadius: '999px', textTransform: 'none',
+                fontSize: 15, fontWeight: 800, backgroundColor: LIME, color: ON_BRAND,
+                whiteSpace: 'nowrap',
+                '&:hover': { backgroundColor: LIME, filter: 'brightness(1.05)' },
+                '&:active': { transform: 'scale(0.99)' },
+              }}
+            >
+              {copiedFlag === 'addr' ? 'Copied!' : 'Copy address'}
+            </Button>
+          )}
         </Box>,
         document.body,
       )}
     </PanelShell>
+  )
+}
+
+/**
+ * Live payment status: pill + "Waiting → Detected → Confirmed" step timeline.
+ * Pure/presentational so it can be rendered & verified in isolation.
+ * NOTE: the backend does not expose a numeric confirmation count, so we show
+ * discrete steps (never a fabricated "n of m").
+ */
+export const CheckoutStatusTimeline: React.FC<{
+  phase: string
+  detected: boolean
+  timerLabel: string
+  isDark: boolean
+  t: (key: string, opts?: { defaultValue?: string }) => string
+}> = ({ phase, detected, timerLabel, isDark, t }) => {
+  const theme = useTheme()
+  const border = isDark ? 'rgba(255,255,255,0.10)' : '#E4E4E7'
+  const muted = isDark ? '#A1A1AA' : '#71717A'
+  const warnFg = '#B45309'
+  const stepIndex = phase === 'confirmed' ? 2 : detected ? 1 : 0
+  const isUnderpaid = phase === 'underpaid'
+  const dotColor = isUnderpaid ? warnFg : detected ? LIME : '#22c55e'
+  const statusText = isUnderpaid
+    ? t('checkout.status.underpaid', { defaultValue: 'Underpayment detected' })
+    : detected
+      ? t('checkout.status.confirming', { defaultValue: 'Payment detected — confirming…' })
+      : t('checkout.status.waiting', { defaultValue: 'Waiting for payment' })
+  const steps = [
+    t('checkout.step.waiting', { defaultValue: 'Waiting' }),
+    t('checkout.step.detected', { defaultValue: 'Detected' }),
+    t('checkout.step.confirmed', { defaultValue: 'Confirmed' }),
+  ]
+  return (
+    <Box sx={{ mt: 2 }} data-testid="checkout-status">
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
+        <Box sx={{
+          display: 'inline-flex', alignItems: 'center', gap: 0.5,
+          px: 1, py: 0.5, borderRadius: '999px',
+          backgroundColor: isDark ? 'rgba(79,70,229,0.08)' : 'rgba(79,70,229,0.16)',
+          border: `1px solid ${dotColor}`,
+        }}>
+          <Box sx={{
+            width: 8, height: 8, borderRadius: '50%', backgroundColor: dotColor,
+            animation: 'pulse 1.5s ease-in-out infinite',
+            '@keyframes pulse': { '0%,100%': { opacity: 1 }, '50%': { opacity: 0.4 } },
+          }} />
+          <Typography data-testid="checkout-status-text" sx={{ fontSize: 11.5, fontWeight: 700 }}>
+            {statusText}
+          </Typography>
+        </Box>
+        <Typography sx={{ fontFamily: MONO, fontSize: 12, color: muted, fontWeight: 600 }}>
+          <Icon icon="mdi:timer-outline" width={12} style={{ verticalAlign: 'middle', marginRight: 4 }} />
+          {timerLabel}
+        </Typography>
+      </Box>
+      <Box data-testid="checkout-status-timeline" sx={{ display: 'flex', alignItems: 'center' }}>
+        {steps.map((label, i) => {
+          const done = i < stepIndex
+          const active = i === stepIndex
+          const reached = done || active
+          const stepColor = reached ? (isUnderpaid && active ? warnFg : LIME) : muted
+          return (
+            <React.Fragment key={label}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.5, minWidth: 52 }}>
+                <Box sx={{
+                  width: 20, height: 20, borderRadius: '50%',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  border: `2px solid ${stepColor}`,
+                  backgroundColor: done ? LIME : 'transparent',
+                  ...(active ? {
+                    animation: 'pulse 1.5s ease-in-out infinite',
+                    '@keyframes pulse': { '0%,100%': { opacity: 1 }, '50%': { opacity: 0.5 } },
+                  } : {}),
+                }}>
+                  {done
+                    ? <Icon icon="mdi:check" width={13} color={ON_BRAND} />
+                    : <Box sx={{ width: 7, height: 7, borderRadius: '50%', backgroundColor: stepColor }} />}
+                </Box>
+                <Typography sx={{ fontSize: 10.5, fontWeight: reached ? 700 : 500, color: reached ? theme.palette.text.primary : muted }}>
+                  {label}
+                </Typography>
+              </Box>
+              {i < steps.length - 1 && (
+                <Box sx={{ flex: 1, height: 2, mx: 0.5, mb: 2.25, borderRadius: 1, backgroundColor: i < stepIndex ? LIME : border }} />
+              )}
+            </React.Fragment>
+          )
+        })}
+      </Box>
+    </Box>
   )
 }
 
