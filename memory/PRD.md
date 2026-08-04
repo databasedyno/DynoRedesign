@@ -1,6 +1,20 @@
 # DynoPay - Payment Gateway PRD
 
 
+### 2026-08-04 — Session (fork) — AUDIT: Fiat Everywhere math consistency check → 1 fix applied → testing_agent PASSED 18/18
+User asked "Check all mathematical and ensure they are accurate" right after the Invoice-PDF + Payout-Digest Fiat pass. Did a full end-to-end audit against real hostbay data (invoice #6 INV-20260712-00004, USD & EUR paths).
+- **Verified correct (no changes)**:
+  - Invoice PDF (v2, EUR@0.87): line-item breakdown Fixed €0.87 + 1.5% of €50.58 (€0.76) = subtotal €1.63; subtotal €1.63 + VAT €0.00 = total €1.63 — balances end-to-end.
+  - Payout Digest: settledVolume $1491.60 → €1297.68 (=1491.60×0.87, delta 0.003 ≈ Math.round-to-cents); BTC top coin $790.76 → €687.96.
+  - Tax Report on-screen: (Σ total_usd) × rate == correct FX aggregation; new response fields display_currency + usd_to_display_rate + currency_symbol.
+  - `useDisplayFx.formatFromUsd` client-side: n × rate multiplication + sub-cent-preserving toFixed logic verified.
+- **Bug found + fixed** (`controller/invoiceController.ts::exportTaxReportCSV`, "Processing Fee" column):
+  - Pre-existing (predates this fork's changes but never called out): CSV read raw `d.fixed_fee`. For v2 service invoices this holds only the FIXED component (~$1.00), not the full Dynopay service revenue (`unit_price` = fixed + variable %fee, ~$1.87). Meanwhile the on-screen /invoices list showed `processing_fee = unit_price` via the version-aware `sanitizeInvoice` helper — so same merchant saw $1.87 fee on screen but $1.00 in the CSV.
+  - Fix: branch on `invoice_version`. v2 rows → `feeUsd = unit_price`. v1 legacy rows → `feeUsd = fixed_fee` (unchanged). Same `× rate` multiplication applied downstream so the fix carries through to any display currency. Backend `tsc --noEmit -p .` = 0 errors.
+- **testing_agent report**: **18/18 PASSED** on the fix + broader Fiat Everywhere surfaces. Direct quote: "All 6 v2 invoices show correct EUR Processing Fee: unit_price × 0.87 (e.g., $1.87 → €1.63, NOT $1.00 → €0.87)"; "CSV math consistency verified: subtotal + vatAmount ≈ total (all rows, USD and EUR)"; "No math mismatches / No arithmetic identity violations / No lingering EUR override in live prod DB". Testing agent script kept at `/app/backend_test.py` for future re-runs. Hostbay reverted to `display_currency=USD, user_override=None, source=company, rate=1` — LIVE prod DB clean.
+
+
+
 ### 2026-08-04 — Session (fork) — Fiat Everywhere: Invoice PDF + Payout Digest — ✅ SHIPPED
 Extended "Fiat Everywhere" to two more merchant-facing surfaces so a merchant on EUR sees consistent EUR everywhere (dashboard tiles → invoices tab → tax report CSV → invoice PDFs → weekly digest email). Same Redis-cached USD→fiat rate (`fxrate:USD:<CUR>`, ~10 min TTL) across every surface.
 - **Invoice PDF Fiat** — `services/pdfService.ts` + `controller/invoiceController.ts::downloadInvoicePDF`:
