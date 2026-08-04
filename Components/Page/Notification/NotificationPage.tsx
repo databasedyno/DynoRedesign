@@ -202,6 +202,7 @@ const NotificationPage = () => {
         crypto: txCurrency || "",
         amount: txAmount ? `${txAmount} ${txCurrency || ""}` : "",
         usdValue: notif.meta?.usd_value ? `$${Number(notif.meta.usd_value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "",
+        usdValueRaw: Number(notif.meta?.usd_value) || 0,
         dateTime: new Date(notif.created_at).toLocaleString(),
         status: mappedStatus,
         fees: notif.meta?.fees || "0",

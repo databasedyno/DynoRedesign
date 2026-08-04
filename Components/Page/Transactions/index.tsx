@@ -249,6 +249,7 @@ const TransactionPage = () => {
             if (raw >= 0.01) return `$${raw.toFixed(4).replace(/0+$/, "").replace(/\.$/, ".00")}`;
             return `$${raw.toFixed(6).replace(/0+$/, "").replace(/\.$/, ".00")}`;
           })(),
+          usdValueRaw: Number((item as any).usd_value) || Number(item.base_amount) || 0,
           dateTime: formatDateTime(item.createdAt),
           status: (() => {
             const s = (item.status || "").toLowerCase().trim();

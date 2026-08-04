@@ -27,6 +27,7 @@ import InputField from "@/Components/UI/AuthLayout/InputFields";
 import PanelCard from "@/Components/UI/PanelCard";
 import Toast from "@/Components/UI/Toast";
 import useIsMobile from "@/hooks/useIsMobile";
+import { useDisplayFx } from "@/hooks/useDisplayFx";
 import axiosBaseApi from "@/axiosConfig";
 import { HourGlassIcon } from "@/utils/customIcons";
 import { TransactionDetailsModalProps } from "@/utils/types/transaction";
@@ -67,6 +68,7 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
   );
   const [openToast, setOpenToast] = useState(false);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const fx = useDisplayFx();
 
   if (!transaction) return null;
 
@@ -309,8 +311,14 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
                 <TitleValue>{transaction.amount}</TitleValue>
               </DetailRow>
               <DetailRow>
-                <TitleLabel>{tTransactions("usdValue")}</TitleLabel>
-                <TitleValue>{transaction.usdValue}</TitleValue>
+                <TitleLabel>
+                  {fx.currency && fx.currency !== "USD"
+                    ? `${tTransactions("value", { defaultValue: "Value" })} (${fx.currency})`
+                    : tTransactions("usdValue")}
+                </TitleLabel>
+                <TitleValue data-testid="tx-detail-fiat-value">
+                  {fx.formatFromUsd(transaction.usdValueRaw) ?? transaction.usdValue}
+                </TitleValue>
               </DetailRow>
               {transaction.reverseCharge ? (
                 <DetailRow>
@@ -343,13 +351,15 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
                   <DetailRow>
                     <TitleLabel>{tTransactions("totalFees")}</TitleLabel>
                     <TitleValue>
-                      ${Number(transaction.fees).toFixed(2)} USD
+                      {fx.formatFromUsd(Number(transaction.fees) || 0) ?? `$${Number(transaction.fees).toFixed(2)}`}
                     </TitleValue>
                   </DetailRow>
                   <DetailRow>
                     <TitleLabel>{tTransactions("amountReceived")}</TitleLabel>
                     <TitleValue sx={{ color: "#10B981", fontWeight: 600 }}>
-                      ${(Number(transaction.usdValue?.replace(/[^0-9.-]+/g, '') || 0) - Number(transaction.fees || 0)).toFixed(2)} USD
+                      {fx.formatFromUsd(
+                        (Number(transaction.usdValueRaw) || 0) - (Number(transaction.fees) || 0),
+                      ) ?? `$${((Number(transaction.usdValueRaw) || 0) - (Number(transaction.fees) || 0)).toFixed(2)}`}
                     </TitleValue>
                   </DetailRow>
                 </>

@@ -24,6 +24,9 @@ export interface ExtendedTransaction {
   crypto: string;
   amount: string;
   usdValue: string;
+  /** Raw authoritative USD value (number) so the UI can convert to the
+   *  merchant's display currency (EUR/GBP/…) via useDisplayFx. */
+  usdValueRaw: number;
   dateTime: string;
   status: "pending" | "confirmed" | "settled" | "failed" | "processing";
   fees?: number | string;

@@ -38,6 +38,7 @@ import KeyboardArrowRightRoundedIcon from "@mui/icons-material/KeyboardArrowRigh
 import CustomButton from "@/Components/UI/Buttons";
 import RowsPerPageSelector from "@/Components/UI/RowsPerPageSelector";
 import useIsMobile from "@/hooks/useIsMobile";
+import { useDisplayFx } from "@/hooks/useDisplayFx";
 import { HourGlassIcon } from "@/utils/customIcons";
 import {
   ExtendedTransaction,
@@ -86,6 +87,15 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
   const [modalOpen, setModalOpen] = useState(false);
 
   const isMobile = useIsMobile("md");
+  const fx = useDisplayFx();
+
+  /** Fiat value in the merchant's display currency (falls back to the raw
+   *  USD string until the FX rate resolves / if it's USD anyway). */
+  const displayValue = useCallback(
+    (tx: ExtendedTransaction): string =>
+      fx.formatFromUsd(tx.usdValueRaw) ?? tx.usdValue,
+    [fx],
+  );
 
   const totalPages = Math.ceil(transactions.length / rowsPerPage);
   const startIndex = (currentPage - 1) * rowsPerPage;
@@ -258,7 +268,10 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
       icon: RoundedStackIcon,
     },
     {
-      label: tTransactions("usdValue"),
+      label:
+        fx.currency && fx.currency !== "USD"
+          ? `${tTransactions("value", { defaultValue: "Value" })} (${fx.currency})`
+          : tTransactions("usdValue"),
       key: "usdValue",
       icon: CurrencyIcon,
     },
@@ -325,15 +338,6 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
         ? value.toFixed(2)
         : formatted;
     return `${result} ${unit}`;
-  };
-
-  /** Smart format for USD values — clean, no trailing zeros */
-  const formatUsd = (usdValue: any) => {
-    const num = parseFloat(String(usdValue).replace(/[$,]/g, ""));
-    if (isNaN(num) || num === 0) return "$0.00";
-    if (num >= 1) return `$${num.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-    if (num >= 0.01) return `$${num.toFixed(4).replace(/0+$/, "").replace(/\.$/, ".00")}`;
-    return `$${num.toFixed(6).replace(/0+$/, "").replace(/\.$/, ".00")}`;
   };
 
   const isDataEmpty = currentTransactions.length === 0;
@@ -403,8 +407,8 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                 <Typography sx={{ fontSize: "16px", fontFamily: "var(--font-sans)", fontWeight: 700, color: theme.palette.text.primary }}>
                   {formatAmount(transaction.amount)}
                 </Typography>
-                <Typography sx={{ fontSize: "14px", fontFamily: "var(--font-sans)", fontWeight: 500, color: theme.palette.primary.main }}>
-                  {formatUsd(transaction.usdValue)}
+                <Typography sx={{ fontSize: "14px", fontFamily: "var(--font-sans)", fontWeight: 500, color: theme.palette.primary.main }} data-testid="tx-fiat-value">
+                  {displayValue(transaction)}
                 </Typography>
               </Box>
               {(transaction.reverseCharge || Number(transaction.taxAmount) > 0) && (
@@ -582,8 +586,8 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                     {formatAmount(transaction.amount)}
                   </TransactionsTableCell>
 
-                  <TransactionsTableCell>
-                    {formatUsd(transaction.usdValue)}
+                  <TransactionsTableCell data-testid="tx-fiat-value">
+                    {displayValue(transaction)}
                   </TransactionsTableCell>
 
                   <TransactionsTableCell>

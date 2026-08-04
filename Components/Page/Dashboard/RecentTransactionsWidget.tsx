@@ -2,6 +2,7 @@ import PanelCard from "@/Components/UI/PanelCard";
 import { getCurrencySymbol } from "@/helpers";
 import { formatCryptoAmount, isCryptoCurrency } from "@/utils/currencyFormat";
 import { useUsdRates } from "@/hooks/useUsdRates";
+import { useDisplayFx } from "@/hooks/useDisplayFx";
 import useIsMobile from "@/hooks/useIsMobile";
 import { useDashboardDensity } from "@/hooks/useDashboardDensity";
 import {
@@ -14,6 +15,10 @@ import {
   ReceiptLongRounded,
   BoltRounded,
   AddRounded,
+  ChevronRightRounded,
+  AccountBalanceWalletRounded,
+  AddLinkRounded,
+  IosShareRounded,
 } from "@mui/icons-material";
 import { Box, Button, IconButton, Skeleton, Tooltip, Typography, alpha, useTheme } from "@mui/material";
 import { useRouter } from "next/router";
@@ -155,6 +160,36 @@ const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
   const { t, i18n } = useTranslation("dashboardLayout");
   const { isCompact, toggleDensity } = useDashboardDensity();
   const { toUsd } = useUsdRates();
+  const fx = useDisplayFx();
+
+  // First-Link Guide — a 3-step "get your first payment" checklist shown in
+  // the empty state so a brand-new merchant knows exactly what to do next.
+  const firstLinkSteps = [
+    {
+      icon: <AccountBalanceWalletRounded sx={{ fontSize: 18 }} />,
+      title: t("firstLinkStep1Title", { defaultValue: "Add a wallet" }),
+      desc: t("firstLinkStep1Desc", {
+        defaultValue: "Pick the currencies you want to get paid in.",
+      }),
+      href: "/wallet",
+    },
+    {
+      icon: <AddLinkRounded sx={{ fontSize: 18 }} />,
+      title: t("firstLinkStep2Title", { defaultValue: "Create a payment link" }),
+      desc: t("firstLinkStep2Desc", {
+        defaultValue: "Set an amount and generate a shareable checkout.",
+      }),
+      href: "/create-pay-link",
+    },
+    {
+      icon: <IosShareRounded sx={{ fontSize: 18 }} />,
+      title: t("firstLinkStep3Title", { defaultValue: "Share it and get paid" }),
+      desc: t("firstLinkStep3Desc", {
+        defaultValue: "Send the link to a customer — payments land here.",
+      }),
+      href: "/create-pay-link",
+    },
+  ];
 
   // Compact mode shows more rows (10) with tighter padding and smaller icons.
   // Spacious mode is the original 5-row / 36px-icon / py=1.5 layout.
@@ -344,6 +379,109 @@ const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
             >
               {t("noTransactionsDesc")}
             </Typography>
+            <Box
+              data-testid="first-link-guide"
+              sx={{
+                width: "100%",
+                maxWidth: 380,
+                mt: 1.5,
+                display: "flex",
+                flexDirection: "column",
+                gap: 1,
+              }}
+            >
+              {firstLinkSteps.map((step, i) => (
+                <Box
+                  key={i}
+                  data-testid={`first-link-step-${i + 1}`}
+                  onClick={() => router.push(step.href)}
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1.5,
+                    textAlign: "left",
+                    p: 1.25,
+                    borderRadius: "12px",
+                    border: `1px solid ${theme.palette.divider}`,
+                    backgroundColor:
+                      theme.palette.mode === "dark" ? "rgba(255,255,255,0.02)" : "#FAFBFD",
+                    cursor: "pointer",
+                    transition:
+                      "border-color 120ms ease, background-color 120ms ease",
+                    "&:hover": {
+                      borderColor: theme.palette.primary.main,
+                      backgroundColor:
+                        theme.palette.mode === "dark"
+                          ? "rgba(255,255,255,0.05)"
+                          : "#F3F5FA",
+                    },
+                  }}
+                >
+                  <Box
+                    sx={{
+                      position: "relative",
+                      width: 34,
+                      height: 34,
+                      flexShrink: 0,
+                      borderRadius: "10px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: theme.palette.primary.main,
+                      bgcolor: alpha(theme.palette.primary.main, 0.12),
+                    }}
+                  >
+                    {step.icon}
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        top: -6,
+                        left: -6,
+                        width: 18,
+                        height: 18,
+                        borderRadius: "50%",
+                        fontSize: "10px",
+                        fontWeight: 700,
+                        color: "#fff",
+                        bgcolor: theme.palette.primary.main,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontFamily: "var(--font-sans)",
+                      }}
+                    >
+                      {i + 1}
+                    </Box>
+                  </Box>
+                  <Box sx={{ flex: 1, minWidth: 0 }}>
+                    <Typography
+                      sx={{
+                        fontFamily: "var(--font-sans)",
+                        fontSize: "13.5px",
+                        fontWeight: 600,
+                        color: theme.palette.text.primary,
+                        lineHeight: 1.3,
+                      }}
+                    >
+                      {step.title}
+                    </Typography>
+                    <Typography
+                      sx={{
+                        fontFamily: "var(--font-sans)",
+                        fontSize: "12px",
+                        color: theme.palette.text.secondary,
+                        lineHeight: 1.4,
+                      }}
+                    >
+                      {step.desc}
+                    </Typography>
+                  </Box>
+                  <ChevronRightRounded
+                    sx={{ fontSize: 18, color: theme.palette.text.disabled, flexShrink: 0 }}
+                  />
+                </Box>
+              ))}
+            </Box>
             <Button
               variant="contained"
               startIcon={<AddRounded />}
@@ -373,12 +511,14 @@ const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
               const amount = tx.base_amount ?? tx.amount ?? 0;
               const fiat = tx.base_currency || tx.currency || "USD";
               const crypto = tx.crypto_currency || tx.cryptocurrency || "";
-              // Approximate USD value shown beside a crypto amount so merchants
-              // instantly see what a payment is worth. Only for crypto rows
-              // (skip when already fiat); null when we can't price it.
+              // Approximate value shown beside a crypto amount so merchants
+              // instantly see what a payment is worth — in their chosen
+              // display currency (EUR/GBP/…). Only for crypto rows (skip when
+              // already fiat); null when we can't price it.
               const usdValue = isCryptoCurrency(fiat)
                 ? toUsd(Number(amount), fiat)
                 : null;
+              const fiatEstimate = usdValue != null ? fx.formatFromUsd(usdValue) : null;
               const when = formatWhen(tx.createdAt || tx.created_at, t, i18n.language);
               const rawEmail = tx.customer_email || tx.customerEmail || "";
               const rawName = (tx as any).customer_name || (tx as any).customerName || "";
@@ -494,7 +634,7 @@ const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
                           {crypto}
                         </Box>
                       )}
-                      {usdValue != null && (
+                      {fiatEstimate != null && (
                         <Box
                           component="span"
                           data-testid="recent-txn-fiat"
@@ -506,7 +646,7 @@ const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
                             fontSize: "12px",
                           }}
                         >
-                          {`\u2248 ${getCurrencySymbol("USD", formatCryptoAmount(usdValue, "USD"))}`}
+                          {`\u2248 ${fiatEstimate}`}
                         </Box>
                       )}
                     </Typography>

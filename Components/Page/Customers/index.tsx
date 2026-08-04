@@ -38,7 +38,9 @@ import axiosBaseApi from "@/axiosConfig";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { formatNumberWithComma, getCurrencySymbol } from "@/helpers";
-import { formatCryptoAmount } from "@/utils/currencyFormat";
+import { formatCryptoAmount, isCryptoCurrency } from "@/utils/currencyFormat";
+import { useUsdRates } from "@/hooks/useUsdRates";
+import { useDisplayFx } from "@/hooks/useDisplayFx";
 import useIsMobile from "@/hooks/useIsMobile";
 import { useRouter } from "next/router";
 import CustomButton from "@/Components/UI/Buttons";
@@ -210,6 +212,22 @@ const CustomersPage: React.FC = () => {
    *  0.00047333 BTC no longer collapse to "0.00". */
   const fmtAmount = (v: unknown, cur?: string) =>
     formatCryptoAmount(Number(v || 0), cur || baseCurrency);
+
+  // Fiat estimate ("≈ €12.34") shown next to CRYPTO-denominated amounts, in
+  // the merchant's chosen display currency. crypto → USD (live ticker) →
+  // display currency (cached backend FX). Returns null for fiat amounts or
+  // when we can't price it, so callers can hide the estimate.
+  const { toUsd } = useUsdRates();
+  const fx = useDisplayFx();
+  const fiatEstimate = useCallback(
+    (amount: unknown, currency?: string | null): string | null => {
+      if (!isCryptoCurrency(currency)) return null;
+      const usd = toUsd(Number(amount || 0), currency);
+      if (usd == null) return null;
+      return fx.formatFromUsd(usd);
+    },
+    [toUsd, fx],
+  );
 
   const openWalletModal = (action: "credit" | "debit") => {
     setWalletAction(action);
@@ -677,6 +695,17 @@ const CustomersPage: React.FC = () => {
                               fmtAmount(customer.wallet_balance || 0, customer.wallet_currency || baseCurrency)
                             )}
                           </Typography>
+                          {(() => {
+                            const est = fiatEstimate(customer.wallet_balance, customer.wallet_currency);
+                            return est ? (
+                              <Typography
+                                data-testid="customer-fiat-estimate"
+                                sx={{ fontSize: "11.5px", color: theme.palette.text.secondary, fontFamily: "var(--font-sans)" }}
+                              >
+                                {`\u2248 ${est}`}
+                              </Typography>
+                            ) : null;
+                          })()}
                         </TableCell>
                         {!isMobile && (
                           <TableCell align="right" sx={{ borderColor: cardBorder }}>
@@ -868,6 +897,25 @@ const CustomersPage: React.FC = () => {
                       fmtAmount(selectedCustomer.wallet?.amount || 0, selectedCustomer.wallet?.wallet_type || baseCurrency)
                     )}
                   </Typography>
+                  {(() => {
+                    const est = fiatEstimate(
+                      selectedCustomer.wallet?.amount,
+                      selectedCustomer.wallet?.wallet_type,
+                    );
+                    return est ? (
+                      <Typography
+                        data-testid="customer-detail-fiat-estimate"
+                        sx={{
+                          fontSize: "12px",
+                          fontFamily: "var(--font-sans)",
+                          color: isDark ? theme.palette.text.secondary : "rgba(255,255,255,0.7)",
+                          mt: 0.25,
+                        }}
+                      >
+                        {`\u2248 ${est}`}
+                      </Typography>
+                    ) : null;
+                  })()}
                 </Box>
               </Box>
 
@@ -959,6 +1007,17 @@ const CustomersPage: React.FC = () => {
                                   fmtAmount(tx.amount || 0, tx.currency || baseCurrency)
                                 )}
                               </Typography>
+                              {(() => {
+                                const est = fiatEstimate(tx.amount, tx.currency);
+                                return est ? (
+                                  <Typography
+                                    data-testid="customer-tx-fiat-estimate"
+                                    sx={{ fontSize: "11px", color: theme.palette.text.secondary, fontFamily: "var(--font-sans)" }}
+                                  >
+                                    {`\u2248 ${est}`}
+                                  </Typography>
+                                ) : null;
+                              })()}
                             </TableCell>
                             <TableCell sx={{ borderColor: cardBorder }}>
                               <Chip

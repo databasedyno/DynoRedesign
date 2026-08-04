@@ -4418,11 +4418,21 @@ const getUserDisplayCurrency = async (
       : companyIdForResolve
         ? "company"
         : "default";
+    // USD→display-currency FX rate (cached in Redis, 600s TTL). Lets the
+    // frontend show a fiat estimate next to crypto amounts in the merchant's
+    // chosen display currency without doing any client-side FX guessing.
+    let rate = 1;
+    try {
+      rate = await cu.getUsdToFiatRate(resolved);
+    } catch {
+      rate = 1;
+    }
     return successResponseHelper(res, 200, "Display currency retrieved", {
       display_currency: resolved,
       user_override: userOverride,
       source,
       currency_info: cu.getCurrencyInfo(resolved),
+      rate,
       supported,
     });
   } catch (e) {
