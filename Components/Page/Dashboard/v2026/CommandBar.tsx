@@ -16,14 +16,13 @@ import { useDashboardDensity } from "@/hooks/useDashboardDensity";
 import { PillButton } from "../coinbase/styled";
 import { CB_TOKENS, GhostIconButton } from "./styled";
 
-export type RangeId = "7d" | "30d" | "90d" | "1y" | "all";
+export type RangeId = "7d" | "30d" | "90d" | "1y";
 
 const RANGES: Array<{ id: RangeId; label: string }> = [
   { id: "7d", label: "7D" },
   { id: "30d", label: "30D" },
   { id: "90d", label: "90D" },
   { id: "1y", label: "1Y" },
-  { id: "all", label: "All" },
 ];
 
 interface Props {

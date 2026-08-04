@@ -13,7 +13,7 @@ IMPORTANT SAFETY (LIVE PRODUCTION account): READ-ONLY testing only. Do NOT submi
 
 1. RENDER (default): Log in, go to /dashboard. `[data-testid="dash2026-root"]` + `dash2026-commandbar` render. Confirm classic is gone: `[data-testid="dashboard-try-2026"]` and `[data-testid="dash2026-switch-classic"]` must NOT exist.
 2. HERO: `dash2026-hero-value` shows a real currency figure; toggling `dash2026-hero-lifetime` ↔ `dash2026-hero-today` changes the big number + `dash2026-hero-delta`.
-3. GLOBAL RANGE: click `dash2026-range-30d`, `-90d`, `-1y`, `-all` → active pill updates and the hero area chart + KPI sparklines refresh (no crash, no infinite spinner).
+3. GLOBAL RANGE: click `dash2026-range-30d`, then `-90d`, `-1y` (only 4 ranges: 7D/30D/90D/1Y — "All" was intentionally removed) → active pill updates (aria-selected) and the hero area chart + KPI sparklines refresh (no crash, no infinite spinner).
 4. KPI STRIP: `dash2026-kpi-strip` with 4 cards `dash2026-kpi-{revenue,payments,wallets,tax}` — each shows a value; revenue/payments show a delta + mini sparkline.
 5. FEE TIER: `dash2026-fee-tier` renders progress bar + `dash2026-tier-name` + `dash2026-tier-percent`; `dash2026-next-tier-hint` shows interpolated text (e.g. "Reach Scale tier for 0.7% fees (save 0.30%)") — must NOT show literal {next}/{pct}/{savings}.
 6. ASSETS: `dash2026-assets` lists wallets with share bars; `dash2026-assets-manage` → navigates to /wallet (then go back).

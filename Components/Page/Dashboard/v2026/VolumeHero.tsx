@@ -27,7 +27,6 @@ const RANGE_LABEL: Record<RangeId, string> = {
   "30d": "30 days",
   "90d": "90 days",
   "1y": "12 months",
-  all: "all time",
 };
 
 const splitAmount = (raw: string) => {
