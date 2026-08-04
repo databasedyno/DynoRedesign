@@ -12,7 +12,7 @@ from io import BytesIO
 from PIL import Image
 
 # Base URL
-BASE_URL = "https://blockchain-gateway-16.preview.emergentagent.com/api"
+BASE_URL = "https://merchant-portal-218.preview.emergentagent.com/api"
 
 # Session ID for testing (prefixed with "backendtest-")
 SESSION_ID = f"backendtest-{int(time.time())}"
@@ -107,7 +107,7 @@ if results['test1_upload_png'] and results['test1_upload_png']['status'] == 'PAS
     print("-" * 80)
     try:
         upload_url = results['test1_upload_png']['url']
-        full_url = f"https://blockchain-gateway-16.preview.emergentagent.com{upload_url}"
+        full_url = f"https://merchant-portal-218.preview.emergentagent.com{upload_url}"
         
         response = requests.get(full_url, timeout=30)
         

@@ -7,7 +7,7 @@ import requests
 import json
 import time
 
-BACKEND_URL = "https://blockchain-gateway-16.preview.emergentagent.com"
+BACKEND_URL = "https://merchant-portal-218.preview.emergentagent.com"
 API_BASE = f"{BACKEND_URL}/api"
 
 TEST_USER = {

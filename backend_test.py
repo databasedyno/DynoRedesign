@@ -12,7 +12,7 @@ import sys
 from typing import Dict, Any, Tuple
 
 # Preview URL from test_credentials.md
-BASE_URL = "https://fb7e2b40-8100-4740-8ccc-339898bb877a.preview.emergentagent.com"
+BASE_URL = "https://merchant-portal-218.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 # Test credentials from test_credentials.md
