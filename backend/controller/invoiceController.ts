@@ -1175,7 +1175,22 @@ const exportTaxReportCSV = async (
         const companyName = companyLookup.get(d.company_id) || "";
         const totalUsd = parseFloat(d.total_usd || 0);
         const vatUsd = parseFloat(d.vat_amount || 0);
-        const feeUsd = parseFloat(d.fixed_fee || 0);
+        // "Processing Fee" column must match the version-aware value the UI
+        // shows via `sanitizeInvoice` (Session 36): for v2 service invoices
+        // the actual fee is `unit_price` (= fixed_fee + variable %fee), not
+        // the raw `fixed_fee` component. v1 legacy rows never had that
+        // breakdown so they keep `fixed_fee` as the platform fee. Without
+        // this branch a merchant sees $1.87 processing fee on screen but
+        // $1.00 (fixed component only) in the CSV.
+        const version = (d.invoice_version as string) || "v1";
+        const rawFixedFee = parseFloat(d.fixed_fee || 0);
+        const rawUnitPrice = parseFloat(d.unit_price || 0);
+        const feeUsd =
+          version === "v2" ? rawUnitPrice : rawFixedFee;
+        // Subtotal in the CSV = pre-VAT billed amount. For v2 this equals
+        // `unit_price` (service revenue); math check: total_usd - vat_amount
+        // = (unit_price + vat_amount) - vat_amount = unit_price. For v1 it
+        // stays the legacy `total_usd - vat_amount` semantic.
         const subtotalUsd = totalUsd - vatUsd;
 
         return [
