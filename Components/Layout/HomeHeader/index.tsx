@@ -456,7 +456,21 @@ const HomeHeader = memo(function HomeHeader() {
         open={mobileMenuOpen}
         onClose={() => setMobileMenuOpen(false)}
         transitionDuration={reduceMotion ? 0 : { enter: 200, exit: 150 }}
-        ModalProps={{ keepMounted: true, disableScrollLock: true }}
+        // iOS WEBKIT FREEZE FIX (2026-08, iPhone 14 Pro Max — "menu frozen for
+        // minutes before it opens"; Safari/Chrome = WebKit, Firefox fine).
+        // ROOT CAUSE: MUI Modal's FocusTrap runs an expensive tabbable-node
+        // scan + aria-hidden sweep against this long landing page on every
+        // open, blocking the WebKit main thread for seconds on @3x DPR. It
+        // never showed in Chromium/Playwright emulation. Disabling the focus
+        // machinery + not keeping the whole drawer subtree permanently mounted
+        // removes that synchronous work so the drawer opens instantly.
+        ModalProps={{
+          keepMounted: false,
+          disableScrollLock: true,
+          disableEnforceFocus: true,
+          disableAutoFocus: true,
+          disableRestoreFocus: true,
+        }}
       >
         <MobileDrawer>
           <MobileNavContent>
