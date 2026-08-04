@@ -8,7 +8,7 @@ import {
   TransactionSource,
   TransactionSourceType,
 } from "@/utils/types/transaction";
-import { Box, CircularProgress, Dialog, IconButton, Typography, useTheme } from "@mui/material";
+import { Box, Dialog, IconButton, Typography, useTheme } from "@mui/material";
 import { CheckCircleRounded, CloseRounded } from "@mui/icons-material";
 import confetti from "canvas-confetti";
 import CustomButton from "@/Components/UI/Buttons";
@@ -18,6 +18,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import TransactionsTable from "./TransactionsTable";
 import TransactionsTopBar from "./TransactionsTopBar";
+import TransactionsSkeleton from "./TransactionsSkeleton";
 
 const walletMapping: { [key: string]: string } = {
   all: "all",
@@ -384,18 +385,7 @@ const TransactionPage = () => {
   };
 
   if (transactionState.loading) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100%",
-        }}
-      >
-        <CircularProgress />
-      </Box>
-    );
+    return <TransactionsSkeleton />;
   }
 
   if (

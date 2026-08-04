@@ -1,3 +1,25 @@
+## Session 102 — Mobile feel: checkout tap-targets, safe-areas, press feedback, transactions skeleton (2026-08-03) — FRONTEND
+
+### Changes
+A. Checkout micro tap-targets (`Components/Page/Pay3Components/CleanCheckoutV2.tsx`): the 3 copy buttons (copy address / amount / memo) minHeight 40→44; the refund "reveal" toggle got `minHeight:{xs:44,md:auto}`. (Network/Currency selects were already minHeight 46.)
+B. Notch safe-areas: `pages/_app.tsx` viewport meta gained `viewport-fit=cover` (activates env() insets). `Containers/Client/index.tsx` outer container gained `pt` with `env(safe-area-inset-top)` added to base top padding so the header clears the notch in PWA/standalone. Bottom nav (`MobileNavigationBar/styled.tsx`) ALREADY had `paddingBottom: calc(8px + env(safe-area-inset-bottom))` — now actually effective.
+C. Tap feedback: shared `CustomButton` (`Components/UI/Buttons/index.tsx`) — replaced `transition:"all 0.3s"` with an explicit list incl. snappy `transform 0.09s`, added `&:active{transform:scale(0.97)}` (gated by !isBlockedForClicks) + `WebkitTapHighlightColor:transparent`. Filter pills `SourceChip` already had `:active scale(0.97)`; added `WebkitTapHighlightColor:transparent`.
+D. Skeleton loaders: dashboard ALREADY uses MUI Skeleton (HeroMetrics/RecentTransactionsWidget/etc.). NEW `Components/Page/Transactions/TransactionsSkeleton.tsx` (filter-pill placeholders + 8 row placeholders) replaces the bare `<CircularProgress/>` in `Components/Page/Transactions/index.tsx` loading branch (removed unused CircularProgress import).
+- Lint clean (only pre-existing eslint-disable notices in CleanCheckoutV2, unrelated). Frontend compiles; / /transactions /pay/demo → 200.
+
+### FRONTEND TESTING INSTRUCTIONS (LIVE prod data — read-only; demo checkout routes only)
+Preview: https://fb7e2b40-8100-4740-8ccc-339898bb877a.preview.emergentagent.com ; login hostbay@moxx.co / Katiekendra123@ (2-step).
+Phones 360×640, 390×844, 414×896:
+  - CHECKOUT (/pay/demo, no login): drive it to the address/amount step if reachable; the copy buttons (data-testid clean-checkout-copy-address / clean-checkout-copy-amount) and the refund toggle (clean-checkout-refund-toggle) should be >=44px tall. If the address step needs a live reservation and isn't reachable, at least confirm the checkout page renders with no overflow/clipping and the Network/Currency selects are >=44px.
+  - SKELETON: navigate to /transactions (throttle network if possible) and check a skeleton with data-testid="transactions-skeleton" appears during load; after load the real transactions table renders. No blank spinner.
+  - TAP FEEDBACK (sanity): the primary buttons and the transactions filter pills still click/work; optionally verify a CSS :active transform exists (not strictly required).
+  - REGRESSION: /, /dashboard, /transactions render cleanly on mobile — header still fully visible (Session 100), 44px buttons intact (Session 101), no NEW horizontal overflow, bottom nav visible and not overlapping content.
+Desktop 1280×800: layouts unchanged; buttons normal size.
+Report pass/fail per check with measurements + screenshots.
+
+---
+
+
 ## Session 101 — Mobile polish: scrollable filters, tap targets; checkout & dark-mode verified (2026-08-03) — FRONTEND
 
 ### Scope (user selected 4 follow-ups)

@@ -96,6 +96,17 @@ const ClientLayout = ({
               lg: "16px 23px 16px 23px",
               xl: "16px 40px 16px 40px",
             },
+            // Notch / status-bar safe area (active in PWA/standalone via
+            // viewport-fit=cover). Adds the top inset on top of the base
+            // padding so the header never sits under a phone's notch.
+            pt: {
+              xs: isDashboard
+                ? "env(safe-area-inset-top, 0px)"
+                : "calc(8px + env(safe-area-inset-top, 0px))",
+              md: "calc(16px + env(safe-area-inset-top, 0px))",
+              lg: "calc(16px + env(safe-area-inset-top, 0px))",
+              xl: "calc(16px + env(safe-area-inset-top, 0px))",
+            },
             display: "flex",
             overflow: "hidden",
             flexDirection: "column",

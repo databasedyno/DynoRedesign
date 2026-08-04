@@ -518,7 +518,7 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
         <meta name="description" content={metaDescription} />
 
         {/* ─── Viewport ─── */}
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover" />
 
         {/* ─── Canonical URL ─── */}
         {/* `key="canonical"` lets per-page Head overrides (e.g. SEOLandingPage

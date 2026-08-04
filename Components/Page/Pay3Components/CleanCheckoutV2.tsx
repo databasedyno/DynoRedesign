@@ -994,7 +994,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
               onClick={() => doCopy(cryptoInfo.address, 'addr')}
               sx={{
                 background: 'none', border: `1px solid ${border}`, borderRadius: '8px',
-                px: 1.5, py: 0.9, minHeight: 40, cursor: 'pointer', color: theme.palette.text.primary,
+                px: 1.5, py: 0.9, minHeight: 44, cursor: 'pointer', color: theme.palette.text.primary,
                 fontSize: 12, fontWeight: 600, flexShrink: 0,
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.35,
               }}
@@ -1028,7 +1028,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
               onClick={() => doCopy(formatCryptoAmount(cryptoInfo.expected_amount, cryptoInfo.crypto_base), 'amt')}
               sx={{
                 background: 'none', border: `1px solid ${border}`, borderRadius: '8px',
-                px: 1.5, py: 0.9, minHeight: 40, cursor: 'pointer', color: theme.palette.text.primary,
+                px: 1.5, py: 0.9, minHeight: 44, cursor: 'pointer', color: theme.palette.text.primary,
                 fontSize: 12, fontWeight: 600, flexShrink: 0,
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.35,
               }}
@@ -1061,7 +1061,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
               onClick={() => doCopy(cryptoInfo.memo, 'amt')}
               sx={{
                 background: 'none', border: `1px solid ${border}`, borderRadius: '8px',
-                px: 1.5, py: 0.9, minHeight: 40, cursor: 'pointer', color: theme.palette.text.primary,
+                px: 1.5, py: 0.9, minHeight: 44, cursor: 'pointer', color: theme.palette.text.primary,
                 fontSize: 12, fontWeight: 600, flexShrink: 0,
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.35,
               }}
@@ -1083,6 +1083,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
               display: 'flex', alignItems: 'center', gap: 0.5,
               background: 'none', border: 'none', p: 0, cursor: 'pointer',
               color: muted, fontSize: 12.5, fontWeight: 600,
+              minHeight: { xs: 44, md: 'auto' },
             }}
           >
             <Icon icon={showRefundInput ? 'mdi:chevron-down' : 'mdi:chevron-right'} width={16} />

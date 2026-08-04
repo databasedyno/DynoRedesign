@@ -747,6 +747,7 @@ export const SourceChip = styled(Button, {
   letterSpacing: "0.01em",
   textTransform: "none",
   cursor: "pointer",
+  WebkitTapHighlightColor: "transparent",
   whiteSpace: "nowrap",
   transition:
     "background 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.1s ease",

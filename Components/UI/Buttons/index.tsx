@@ -180,7 +180,10 @@ const CustomButton: React.FC<CustomButtonProps> = ({
         lineHeight: "1",
         textTransform: "none",
         cursor: loading ? "wait" : disabled ? "not-allowed" : "pointer",
-        transition: "all 0.3s ease",
+        transition:
+          "background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, transform 0.09s ease",
+        WebkitTapHighlightColor: "transparent",
+        "&:active": !isBlockedForClicks ? { transform: "scale(0.97)" } : undefined,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
