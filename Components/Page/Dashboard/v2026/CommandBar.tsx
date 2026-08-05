@@ -1,13 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { Box, Button, Menu, MenuItem, Popover, TextField, useTheme } from "@mui/material";
-import {
-  CalendarTodayRounded,
-  TuneRounded,
-  DarkModeRounded,
-  LightModeRounded,
-  DensityMediumRounded,
-  DensitySmallRounded,
-} from "@mui/icons-material";
+import { Icon } from "@/styles/uiKit";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { format } from "date-fns";
@@ -177,7 +170,7 @@ const CommandBar: React.FC<Props> = ({
             aria-label={t("customRange", { defaultValue: "Custom range" })}
             sx={{ display: "inline-flex", alignItems: "center", gap: 0.5 }}
           >
-            <CalendarTodayRounded sx={{ fontSize: 14 }} />
+            <Icon name="calendar" size={14} />
             {customLabel}
           </PillButton>
         </Box>
@@ -303,7 +296,7 @@ const CommandBar: React.FC<Props> = ({
           aria-label={t("dashboardSettings", { defaultValue: "Dashboard settings" })}
           onClick={(e) => setAnchor(e.currentTarget)}
         >
-          <TuneRounded sx={{ fontSize: 18 }} />
+          <Icon name="sliders-horizontal" size={18} />
         </GhostIconButton>
 
         <Menu
@@ -329,9 +322,9 @@ const CommandBar: React.FC<Props> = ({
             sx={{ fontFamily: "var(--font-sans)", fontSize: 14, py: 1.1 }}
           >
             {mode === "dark" ? (
-              <LightModeRounded sx={{ fontSize: 18, mr: 1.5 }} />
+              <Icon name="sun" size={18} style={{ marginRight: 12 }} />
             ) : (
-              <DarkModeRounded sx={{ fontSize: 18, mr: 1.5 }} />
+              <Icon name="moon" size={18} style={{ marginRight: 12 }} />
             )}
             {mode === "dark"
               ? t("switchLight", { defaultValue: "Light mode" })
@@ -343,9 +336,9 @@ const CommandBar: React.FC<Props> = ({
             sx={{ fontFamily: "var(--font-sans)", fontSize: 14, py: 1.1 }}
           >
             {isCompact ? (
-              <DensityMediumRounded sx={{ fontSize: 18, mr: 1.5 }} />
+              <Icon name="rows-3" size={18} style={{ marginRight: 12 }} />
             ) : (
-              <DensitySmallRounded sx={{ fontSize: 18, mr: 1.5 }} />
+              <Icon name="rows-2" size={18} style={{ marginRight: 12 }} />
             )}
             {isCompact
               ? t("spaciousView", { defaultValue: "Spacious view" })

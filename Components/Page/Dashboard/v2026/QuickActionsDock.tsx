@@ -1,15 +1,6 @@
 import React from "react";
 import { Box, useTheme } from "@mui/material";
-import {
-  AddRounded,
-  ReceiptLongRounded,
-  AccountBalanceWalletRounded,
-  LinkRounded,
-  PeopleAltRounded,
-  StorefrontRounded,
-  ArrowOutwardRounded,
-  ChevronRightRounded,
-} from "@mui/icons-material";
+import { Icon } from "@/styles/uiKit";
 import { useRouter } from "next/router";
 import { useTranslation } from "react-i18next";
 import {
@@ -42,31 +33,31 @@ const QuickActionsDock: React.FC = () => {
   }> = [
     {
       id: "invoice",
-      icon: <ReceiptLongRounded sx={{ fontSize: 18 }} />,
+      icon: <Icon name="receipt-text" size={18} />,
       label: t("qaShortcutInvoice", { defaultValue: "Create invoice" }),
       href: "/invoices",
     },
     {
       id: "paylinks",
-      icon: <LinkRounded sx={{ fontSize: 18 }} />,
+      icon: <Icon name="link" size={18} />,
       label: t("qaShortcutPayLinks", { defaultValue: "Payment links" }),
       href: "/pay-links",
     },
     {
       id: "wallet",
-      icon: <AccountBalanceWalletRounded sx={{ fontSize: 18 }} />,
+      icon: <Icon name="wallet" size={18} />,
       label: t("qaShortcutWallet", { defaultValue: "Open wallet" }),
       href: "/wallet",
     },
     {
       id: "customers",
-      icon: <PeopleAltRounded sx={{ fontSize: 18 }} />,
+      icon: <Icon name="users" size={18} />,
       label: t("qaShortcutCustomers", { defaultValue: "View customers" }),
       href: "/customers",
     },
     {
       id: "creator",
-      icon: <StorefrontRounded sx={{ fontSize: 18 }} />,
+      icon: <Icon name="store" size={18} />,
       label: t("qaShortcutCreator", { defaultValue: "Storefront page" }),
       href: "/creator",
     },
@@ -82,8 +73,8 @@ const QuickActionsDock: React.FC = () => {
       <PrimaryCTA
         onClick={() => router.push("/create-pay-link")}
         data-testid="dash2026-qa-primary"
-        startIcon={<AddRounded sx={{ fontSize: 20 }} />}
-        endIcon={<ArrowOutwardRounded sx={{ fontSize: 18 }} />}
+        startIcon={<Icon name="plus" size={20} />}
+        endIcon={<Icon name="arrow-up-right" size={18} />}
       >
         {t("createPaymentLink", { defaultValue: "Create payment link" })}
       </PrimaryCTA>
@@ -119,13 +110,10 @@ const QuickActionsDock: React.FC = () => {
                 {s.label}
               </Box>
             </Box>
-            <ChevronRightRounded
-              sx={{
-                fontSize: 20,
-                color: isDark
-                  ? CB_TOKENS.ink.mutedDark
-                  : CB_TOKENS.ink.mutedLight,
-              }}
+            <Icon
+              name="chevron-right"
+              size={20}
+              color={isDark ? CB_TOKENS.ink.mutedDark : CB_TOKENS.ink.mutedLight}
             />
           </QuickActionRow>
         ))}

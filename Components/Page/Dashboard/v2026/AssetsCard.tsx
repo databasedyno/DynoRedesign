@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { useWalletData } from "@/hooks/useWalletData";
 import { formatNumberWithComma } from "@/helpers";
 import { SurfaceCard, Eyebrow, CB_TOKENS } from "../coinbase/styled";
+import { MONO } from "@/styles/uiKit";
 
 /**
  * AssetsCard — ranks the merchant's wallets by settled USD volume so they
@@ -159,7 +160,8 @@ const AssetsCard: React.FC = () => {
                   </Box>
                   <Box
                     sx={{
-                      fontFamily: "var(--font-sans)",
+                      fontFamily: MONO,
+                      fontVariantNumeric: "tabular-nums",
                       fontSize: 14,
                       fontWeight: 700,
                       color: isDark

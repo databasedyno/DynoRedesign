@@ -1,10 +1,6 @@
 import React, { useMemo } from "react";
 import { Box, useTheme } from "@mui/material";
-import {
-  CheckRounded,
-  RadioButtonUncheckedRounded,
-  ArrowOutwardRounded,
-} from "@mui/icons-material";
+import { Icon } from "@/styles/uiKit";
 import { useRouter } from "next/router";
 import { useTranslation } from "react-i18next";
 import { SurfaceCard, Eyebrow, PrimaryCTA, CB_TOKENS } from "../coinbase/styled";
@@ -170,9 +166,9 @@ const ActivationChecklist: React.FC<Props> = ({ hasCompany, hasWallet, onCreateL
               }}
             >
               {s.done ? (
-                <CheckRounded sx={{ fontSize: 16 }} />
+                <Icon name="check" size={16} />
               ) : (
-                <RadioButtonUncheckedRounded sx={{ fontSize: 16 }} />
+                <Icon name="circle" size={16} />
               )}
             </Box>
             <Box
@@ -201,7 +197,7 @@ const ActivationChecklist: React.FC<Props> = ({ hasCompany, hasWallet, onCreateL
           <PrimaryCTA
             onClick={onCreateLink}
             data-testid="dash2026-activation-cta"
-            endIcon={<ArrowOutwardRounded sx={{ fontSize: 18 }} />}
+            endIcon={<Icon name="arrow-up-right" size={18} />}
           >
             {t("createPaymentLink", { defaultValue: "Create payment link" })}
           </PrimaryCTA>

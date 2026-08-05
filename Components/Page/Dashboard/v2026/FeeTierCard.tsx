@@ -7,6 +7,7 @@ import { useDashboardDensity } from "@/hooks/useDashboardDensity";
 import { formatNumberWithComma, getCurrencySymbol } from "@/helpers";
 import FeeTierProgress from "../FeeTierProgress";
 import { SurfaceCard, Eyebrow, CB_TOKENS } from "../coinbase/styled";
+import { MONO } from "@/styles/uiKit";
 import CheckCircleIcon from "@/assets/Icons/correct-icon.png";
 
 /**
@@ -57,7 +58,7 @@ const FeeTierCard: React.FC = () => {
         >
           {t("monthlyVolume", { defaultValue: "Monthly volume" })}
         </Box>
-        <Box sx={{ fontFamily: "var(--font-sans)" }}>
+        <Box sx={{ fontFamily: MONO, fontVariantNumeric: "tabular-nums" }}>
           <Box
             component="span"
             sx={{

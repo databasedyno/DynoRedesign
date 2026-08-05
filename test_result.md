@@ -1,3 +1,46 @@
+# Session 2026-08-05 (c) — Dashboard restyle PILOT (checkout look) + UI Kit foundation
+
+New shared kit: /app/styles/uiKit.tsx exports MONO (monospace numeral stack, same as CleanCheckoutV2), <Icon name="..."> (Lucide via @iconify/react, on-demand API), MonoAmount, and re-exports CB_TOKENS.
+Applied to Dashboard (Components/Page/Dashboard/v2026): VolumeHero (hero big number -> MONO), KpiStrip (values -> MONO, icons -> Lucide wallet/receipt-text/arrow-up/arrow-down), QuickActionsDock (icons -> Lucide), CommandBar (icons -> Lucide sun/moon/calendar/sliders/rows), ActivationChecklist (icons -> Lucide), AssetsCard + FeeTierCard (balances -> MONO). All numbers theme-aware via CB_TOKENS so dark & light both consistent.
+
+Login (2-step): hostbay@moxx.co / Katiekendra123@. Dashboard route: /dashboard. Theme toggle: [data-testid="theme-toggle-desktop"] in header OR the sliders menu -> [data-testid="dash2026-toggle-theme"].
+
+### WHAT TO TEST (frontend, DASHBOARD only, LIVE prod - READ ONLY, do not create/delete)
+1. Login, goto /dashboard, wait for load.
+2. Hero value [data-testid="dash2026-hero-value"] renders in MONOSPACE and is clearly visible in DARK mode. Screenshot.
+3. KPI cards [data-testid="dash2026-kpi-strip"] show 4 tiles; numbers monospace; each shows a line icon (wallet / receipt). Delta chips show up/down arrow icons.
+4. Quick Actions list icons (Create invoice/Payment links/Open wallet/View customers/Storefront) are visible line icons; chevrons present.
+5. Toggle to LIGHT mode; confirm ALL of the above text/numbers/icons remain clearly visible (no invisible/low-contrast text) and icons still render. Screenshot.
+6. Confirm NO broken/missing icons (empty squares) anywhere on the dashboard in either mode.
+Report pass/fail + screenshots for dark and light.
+
+### frontend
+  - task: "Dashboard restyle PILOT — monospace numerals + Lucide icons via UI Kit (VolumeHero, KpiStrip, QuickActionsDock, CommandBar, ActivationChecklist, AssetsCard, FeeTierCard)"
+    implemented: true
+    working: true
+    file: "/app/styles/uiKit.tsx, /app/Components/Page/Dashboard/v2026/VolumeHero.tsx, /app/Components/Page/Dashboard/v2026/KpiStrip.tsx, /app/Components/Page/Dashboard/v2026/QuickActionsDock.tsx, /app/Components/Page/Dashboard/v2026/CommandBar.tsx, /app/Components/Page/Dashboard/v2026/ActivationChecklist.tsx, /app/Components/Page/Dashboard/v2026/AssetsCard.tsx, /app/Components/Page/Dashboard/v2026/FeeTierCard.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Dashboard restyle PILOT implemented. New shared UI Kit (/app/styles/uiKit.tsx) exports MONO (monospace numeral stack), Icon component (Lucide via @iconify/react on-demand API), MonoAmount, and CB_TOKENS. Applied to all Dashboard v2026 components: VolumeHero (hero big number uses MONO), KpiStrip (values use MONO, icons use Lucide wallet/receipt-text/arrow-up/arrow-down), QuickActionsDock (icons use Lucide), CommandBar (icons use Lucide sun/moon/calendar/sliders/rows), ActivationChecklist (icons use Lucide), AssetsCard + FeeTierCard (balances use MONO). All numbers theme-aware via CB_TOKENS for consistent dark & light mode rendering. Awaiting auto_frontend_testing_agent verification."
+      - working: true
+        agent: "testing"
+        comment: "✅ ALL 6 TESTS PASSED (2026-08-05) — Dashboard restyle PILOT fully verified in BOTH dark and light modes. DARK MODE: Hero value renders in MONOSPACE font (computed fontFamily: 'ui-monospace, Roboto Mono, JetBrains Mono, SFMono-Regular, Menlo, monospace') with white text (rgb(255,255,255)) on dark background — clearly visible ✓. KPI Strip: All 4 tiles (revenue, payments, wallets, tax) visible with monospace numeric values ✓. Revenue tile: $215.60 USD (monospace) + 2 SVG icons ✓. Payments tile: 3 (monospace) + 2 SVG icons ✓. Active wallets tile: 13 (monospace) + 1 wallet icon (lucide:wallet) ✓. Tax collected tile: $0.00 (monospace) + 1 receipt icon (lucide:receipt-text) ✓. Quick Actions: Primary CTA has 2 icons (plus + arrow-up-right) ✓. All 5 shortcuts (Create invoice, Payment links, Open wallet, View customers, Storefront page) have 2 icons each (left icon + chevron-right) ✓. Icon rendering: 96 total SVG elements, 96 with content, 0 empty/broken icons — PERFECT ✓. LIGHT MODE: Hero value still uses monospace font with dark text (rgb(10,10,15)) on light background (rgb(238,241,246)) — excellent contrast ✓. All KPI tiles have proper contrast (dark text on light) ✓. All icons still render: 96 SVG elements, 96 with content, 0 empty/broken ✓. Theme toggle works correctly ✓. Screenshots captured for both modes. NO broken or missing icons detected in either mode. Icons load successfully from Iconify API (Lucide set). All numeric values display in correct monospace font stack. Contrast is excellent in both themes. Feature is production-ready."
+
+### Testing Protocol
+- Frontend testing only (READ-ONLY on LIVE prod)
+- Comprehensive Playwright test covering dark/light modes, monospace fonts, icon rendering
+- Screenshots: dashboard_dark_mode.png, dashboard_light_mode.png
+
+### Agent Communication
+  - agent: "testing"
+    message: "✅ DASHBOARD RESTYLE PILOT FULLY VERIFIED — All 6 tests PASSED (6/6 — 100%). Comprehensive Playwright test executed successfully on LIVE prod. MONOSPACE FONTS: Hero value and all KPI numeric values render in correct monospace font stack ('ui-monospace, Roboto Mono, JetBrains Mono, SFMono-Regular, Menlo, monospace') in both dark and light modes ✓. ICON RENDERING: All icons load successfully from Iconify API (Lucide set) — 96 total SVG elements, 96 with content, 0 empty/broken icons in both modes ✓. DARK MODE: White text on dark background, all elements clearly visible, wallet icon and receipt-text icon render correctly ✓. LIGHT MODE: Dark text on light background (excellent contrast), all icons still render, theme toggle works perfectly ✓. KPI STRIP: All 4 tiles (revenue, payments, wallets, tax) display monospace numbers with proper icons ✓. QUICK ACTIONS: Primary CTA and all 5 shortcuts show correct icons (plus, arrow-up-right, receipt-text, link, wallet, users, store, chevron-right) ✓. NO visual issues, NO broken icons, NO contrast problems. Screenshots captured for both modes. Feature is production-ready. Main agent: please summarize and finish — dashboard restyle is working perfectly."
+
+---
+
 # Session 2026-08-05 (b) — Fee Clarity (a) + Fee Tiers in preview (d)
 
 ## Item d — fixed per-tier fee now included in GET /api/pay/fee-preview

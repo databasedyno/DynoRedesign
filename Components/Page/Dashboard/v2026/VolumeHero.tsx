@@ -1,6 +1,5 @@
 import React, { useMemo, useState } from "react";
 import { Box, Skeleton, useTheme } from "@mui/material";
-import { ArrowUpwardRounded, ArrowDownwardRounded } from "@mui/icons-material";
 import { useTranslation } from "react-i18next";
 import Sparkline from "../coinbase/Sparkline";
 import {
@@ -11,6 +10,7 @@ import {
   SurfaceCard,
   CB_TOKENS,
 } from "../coinbase/styled";
+import { Icon, MONO } from "@/styles/uiKit";
 import useIsMobile from "@/hooks/useIsMobile";
 
 interface Props {
@@ -101,7 +101,7 @@ const VolumeHero: React.FC<Props> = ({ stats, chartData, loading, chartLoading, 
       </Box>
 
       <Box>
-        <BigNumber data-testid="dash2026-hero-value">
+        <BigNumber data-testid="dash2026-hero-value" sx={{ fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontWeight: 600, letterSpacing: "-0.03em" }}>
           {loading ? (
             <Skeleton width={isMobile ? 240 : 380} height={isMobile ? 48 : 84} />
           ) : (
@@ -141,11 +141,7 @@ const VolumeHero: React.FC<Props> = ({ stats, chartData, loading, chartLoading, 
           ) : (
             <>
               <DeltaChip positive={positive} data-testid="dash2026-hero-delta">
-                {positive ? (
-                  <ArrowUpwardRounded sx={{ fontSize: 14 }} />
-                ) : (
-                  <ArrowDownwardRounded sx={{ fontSize: 14 }} />
-                )}
+                <Icon name={positive ? "arrow-up" : "arrow-down"} size={14} />
                 {Math.abs(activeDelta).toFixed(2)}%
               </DeltaChip>
               <Box

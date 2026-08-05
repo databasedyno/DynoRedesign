@@ -1,17 +1,12 @@
 import React, { useMemo } from "react";
 import { Box, Skeleton, useTheme } from "@mui/material";
 import { Area, AreaChart, ResponsiveContainer, Tooltip } from "recharts";
-import {
-  ArrowUpwardRounded,
-  ArrowDownwardRounded,
-  AccountBalanceWalletRounded,
-  ReceiptLongRounded,
-} from "@mui/icons-material";
 import { useTranslation } from "react-i18next";
 import { format } from "date-fns";
 import { formatNumberWithComma } from "@/helpers";
 import { DeltaChip, CB_TOKENS } from "../coinbase/styled";
 import { StatCard } from "./styled";
+import { Icon, MONO } from "@/styles/uiKit";
 
 interface Props {
   stats: any;
@@ -200,7 +195,7 @@ const KpiStrip: React.FC<Props> = ({ stats, chartData, loading }) => {
       key: "wallets",
       label: t("activeWallets", { defaultValue: "Active wallets" }),
       value: String(stats?.activeWallets ?? 0),
-      icon: <AccountBalanceWalletRounded sx={{ fontSize: 18 }} />,
+      icon: <Icon name="wallet" size={18} />,
     },
     {
       key: "tax",
@@ -209,7 +204,7 @@ const KpiStrip: React.FC<Props> = ({ stats, chartData, loading }) => {
         Number(stats?.taxCollected) > 0
           ? stats?.taxCollectedFormatted || String(stats?.taxCollected)
           : `${symbol}0.00`,
-      icon: <ReceiptLongRounded sx={{ fontSize: 18 }} />,
+      icon: <Icon name="receipt-text" size={18} />,
     },
   ];
 
@@ -253,10 +248,10 @@ const KpiStrip: React.FC<Props> = ({ stats, chartData, loading }) => {
 
           <Box
             sx={{
-              fontFamily:
-                "var(--font-unbounded, 'Unbounded', 'Inter', system-ui)",
+              fontFamily: MONO,
+              fontVariantNumeric: "tabular-nums",
               fontSize: { xs: 22, md: 26 },
-              fontWeight: 500,
+              fontWeight: 600,
               letterSpacing: -0.4,
               lineHeight: 1,
               color: isDark
@@ -269,11 +264,7 @@ const KpiStrip: React.FC<Props> = ({ stats, chartData, loading }) => {
 
           {!loading && typeof c.delta === "number" && (
             <DeltaChip positive={c.delta >= 0}>
-              {c.delta >= 0 ? (
-                <ArrowUpwardRounded sx={{ fontSize: 12 }} />
-              ) : (
-                <ArrowDownwardRounded sx={{ fontSize: 12 }} />
-              )}
+              <Icon name={c.delta >= 0 ? "arrow-up" : "arrow-down"} size={12} />
               {Math.abs(c.delta).toFixed(1)}%
             </DeltaChip>
           )}
