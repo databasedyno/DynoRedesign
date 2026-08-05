@@ -25,6 +25,7 @@ import {
   calculateTransactionFees,
   getDiscountedTransactionFee,
 } from "../../services/feeService";
+import { getFeeTiers } from "../../utils/feeConfigUtils";
 import { getCryptoPriceForPayment } from "./paymentHelpers";
 import { getPlatformFeePercent } from "../../utils/volumeTierUtils";
 import { paymentLinkModel as _pl, userModel } from "../../models";
@@ -601,8 +602,24 @@ export const getFeePreview = async (req: express.Request, res: express.Response)
     const baseFeePercent = Number(discountInfo.base_fee);
     const finalFeePercent = Number(discountInfo.final_fee);
     
-    const baseFeeAmount = (amountNum * baseFeePercent) / 100;
-    const discountedFeeAmount = (amountNum * finalFeePercent) / 100;
+    const basePercentFee = (amountNum * baseFeePercent) / 100;
+    const discountedPercentFee = (amountNum * finalFeePercent) / 100;
+
+    // Fixed per-tier fee — matches what the checkout (customer-pays) path and the
+    // settlement engine actually charge, so the create-link estimate lines up to
+    // the cent (network/blockchain fee is excluded — it's only known once the
+    // customer picks a coin at checkout).
+    const feeTiers = getFeeTiers();
+    let fixedTierFee = 0;
+    for (const tier of feeTiers) {
+      if (amountNum >= tier.min && (tier.max === null || amountNum <= tier.max)) {
+        fixedTierFee = Number(tier.fixed) || 0;
+        break;
+      }
+    }
+
+    const baseFeeAmount = basePercentFee + fixedTierFee;
+    const discountedFeeAmount = discountedPercentFee + fixedTierFee;
     const savings = baseFeeAmount - discountedFeeAmount;
 
     // Net payout to merchant + total the customer is charged, based on who pays the fee.
@@ -623,12 +640,15 @@ export const getFeePreview = async (req: express.Request, res: express.Response)
       fee_info: {
         base_fee_percent: baseFeePercent,
         final_fee_percent: finalFeePercent,
+        percent_fee_amount: parseFloat(discountedPercentFee.toFixed(2)),
+        fixed_fee: parseFloat(fixedTierFee.toFixed(2)),
         base_fee_amount: parseFloat(baseFeeAmount.toFixed(2)),
         discounted_fee_amount: parseFloat(discountedFeeAmount.toFixed(2)),
         savings: parseFloat(savings.toFixed(2)),
         fee_payer: feePayer,
         you_receive: parseFloat(youReceive.toFixed(2)),
         customer_pays: parseFloat(customerPays.toFixed(2)),
+        note: "Estimate covers the DynoPay platform fee (percentage + fixed). Network/blockchain fees are shown at checkout once a coin is selected.",
       },
       discount_info: {
         has_discount: discountInfo.discount_percent > 0,

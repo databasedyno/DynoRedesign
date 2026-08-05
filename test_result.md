@@ -1,3 +1,43 @@
+# Session 2026-08-05 (b) — Fee Clarity (a) + Fee Tiers in preview (d)
+
+## Item d — fixed per-tier fee now included in GET /api/pay/fee-preview
+`getFeePreview` now adds the fixed tier fee (getFeeTiers) to the percentage fee so the create-link estimate matches settlement. For a $20 USD link the fixed tier fee is $1.00 and percent (1.5%) is $0.30 => fee=1.30.
+Expected now:
+- company: fee=1.3, you_receive=18.7, customer_pays=20, fee_payer=company; fee_info.fixed_fee=1, percent_fee_amount=0.3
+- customer: fee=1.3, you_receive=20 (full), customer_pays=21.3, fee_payer=customer
+- no fee_payer -> company default (you_receive=18.7)
+- no auth -> 401; amount<=0 or non-numeric -> 400
+Auth: POST /api/user/login {email:"hostbay@moxx.co", password:"Katiekendra123@"} -> data.accessToken (Bearer).
+
+### backend
+  - task: "Fee-preview endpoint — fixed per-tier fee now included"
+    implemented: true
+    working: true
+    file: "backend/controller/payment/feeController.ts"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Backend updated to include fixed tier fee in getFeePreview. For $20 USD: fixed_fee=$1.00 (tier 1) + percent_fee=$0.30 (1.5%) = total fee=$1.30. Awaiting deep_testing_backend_v2 verification."
+      - working: true
+        agent: "testing"
+        comment: "✅ ALL 8 TESTS PASSED (2026-08-05). REGRESSION TEST VERIFIED: Fixed tier fee now correctly included in fee-preview endpoint. Test 1 (fee_payer=company): HTTP 200, fee=1.3 (fixed_fee=1 + percent_fee=0.3), you_receive=18.7, customer_pays=20, fee_payer='company' ✓. Test 2 (fee_payer=customer): HTTP 200, fee=1.3, you_receive=20 (FULL amount), customer_pays=21.3, fee_payer='customer' ✓. Test 3 (no fee_payer): HTTP 200, defaults to company (fee=1.3, you_receive=18.7) ✓. Test 4 (no auth): HTTP 401 ✓. Test 5 (amount=0): HTTP 400 ✓. Test 6 (amount=abc): HTTP 400 ✓. Test 7 (internal consistency company): fee=fixed_fee+percent_fee, you_receive=amount-fee, customer_pays=amount ✓. Test 8 (internal consistency customer): fee=fixed_fee+percent_fee, you_receive=amount (FULL), customer_pays=amount+fee ✓. CRITICAL UPDATE VERIFIED: The fee-preview endpoint now correctly returns fee=$1.30 (was $0.30 before) by adding the $1.00 fixed tier fee on top of the 1.5% percentage fee. This matches the final settlement calculation. Math is internally consistent across all test cases. All endpoints working correctly on LIVE Railway PG."
+
+## Testing Protocol
+- Backend testing only (READ-ONLY on LIVE Railway PG)
+- Test script: /app/fee_preview_tier_test.py
+
+## Agent Communication
+  - agent: "testing"
+    message: "✅ FEE-PREVIEW FIXED TIER FEE UPDATE FULLY VERIFIED — All 8 tests PASSED (8/8 — 100%). Comprehensive regression test suite executed against LIVE Railway PG. CRITICAL UPDATE CONFIRMED: The fee-preview endpoint now correctly includes the fixed per-tier fee ($1.00 for amounts $1-$100) on top of the percentage fee (1.5%). For a $20 payment: fixed_fee=$1.00 + percent_fee_amount=$0.30 = total fee=$1.30. When fee_payer=company, merchant receives $18.70 (amount - fee) and customer pays $20. When fee_payer=customer, merchant receives $20 (FULL amount) and customer pays $21.30 (amount + fee). All regression tests passed: auth required (401), invalid amounts rejected (400). Internal consistency verified: fee = fixed_fee + percent_fee_amount for both fee_payer modes. The create-link estimate now matches settlement. Main agent: please summarize and finish — no backend issues found."
+
+## Item a — checkout "Total you pay" + processing-fee label (FRONTEND, CleanCheckoutV2.tsx)
+Relabeled customer-pays fee row "Network fee" -> "Processing fee", total row -> "Total you pay", and success screen now shows the fee-inclusive total for customer-pays links. (frontend verify only after user permission)
+
+---
+
 # Session 2026-08-05 — BUGFIX: (1) Fee-payer "You receive" math on Create Payment Link, (2) dark/light invisible text on expiry date/time picker
 
 Preview: relative /api (NEXT_PUBLIC_BASE_URL empty). Backend on :8001 proxy -> Node :3300.

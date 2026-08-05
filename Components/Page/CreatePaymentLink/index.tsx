@@ -1877,7 +1877,8 @@ const CreatePaymentLinkPage = ({
               >
                 <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <Typography sx={{ fontSize: 13, fontFamily: "var(--font-sans)", color: theme.palette.text.secondary }}>
-                    Estimated Fee ({feePreview.fee_info?.final_fee_percent ?? feePreview.fee_info?.base_fee_percent ?? "—"}%)
+                    Estimated Fee ({feePreview.fee_info?.final_fee_percent ?? feePreview.fee_info?.base_fee_percent ?? "—"}%
+                    {feePreview.fee_info?.fixed_fee > 0 ? ` + ${feePreview.fee_info.fixed_fee} ${feePreview.currency || paymentSettings.currency} fixed` : ""})
                   </Typography>
                   <Typography sx={{ fontSize: 14, fontFamily: "var(--font-sans)", color: theme.palette.text.primary }}>
                     {feePreview.fee != null ? `${feePreview.fee} ${feePreview.currency || paymentSettings.currency}` : "—"}

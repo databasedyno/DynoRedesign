@@ -786,7 +786,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
             {isContribution ? t('checkout.success.titleContribution', { defaultValue: 'Thank you for contributing!' }) : t('checkout.success.title', { defaultValue: 'Payment successful' })}
           </Typography>
           <Typography fontSize={14} color={muted} mt={1}>
-            {isContribution ? campaignTitle || merchantName : t('checkout.success.paidTo', { defaultValue: 'Paid to {{name}}', name: merchantName })} — {fiatSymbol}{fiatAmount}
+            {isContribution ? campaignTitle || merchantName : t('checkout.success.paidTo', { defaultValue: 'Paid to {{name}}', name: merchantName })} — {feePayerIsCustomer ? fmtFiat(totalAmt) : `${fiatSymbol}${fiatAmount}`}
           </Typography>
           <Typography sx={{ fontFamily: MONO, fontSize: 12.5, color: muted, mt: 0.5 }}>
             {formatCryptoAmount(confirmedAmount.crypto, cryptoInfo?.crypto_base || 'BTC')} {cryptoInfo?.crypto_base}
@@ -964,7 +964,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
           {feePayerIsCustomer && (
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
               <Typography sx={{ fontSize: 13, color: muted }}>
-                {t('checkout.networkFee', { defaultValue: 'Network fee' })}
+                {t('checkout.processingFee', { defaultValue: 'Processing fee' })}
                 {feeIsEstimate && (
                   <Typography component="span" sx={{ fontSize: 11, color: muted, ml: 0.5, opacity: 0.75 }}>
                     ({t('checkout.estimated', { defaultValue: 'est.' })})
@@ -979,7 +979,9 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
           <Box sx={{ height: '1px', backgroundColor: border, my: 0.4 }} />
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
             <Typography sx={{ fontSize: 14, fontWeight: 700, color: theme.palette.text.primary }}>
-              {t('checkout.total', { defaultValue: 'Total' })}
+              {feePayerIsCustomer
+                ? t('checkout.totalYouPay', { defaultValue: 'Total you pay' })
+                : t('checkout.total', { defaultValue: 'Total' })}
             </Typography>
             <Typography
               data-testid="clean-checkout-amount"
