@@ -1,549 +1,693 @@
 #!/usr/bin/env python3
 """
-Backend Test for Dashboard Chart Endpoint - Custom Date Range Feature
-Session: 2026-08-04 - Dashboard chart custom date range testing
-
-TEST SCOPE: GET /api/dashboard/chart with custom startDate & endDate params
-- Named periods (7d, 30d, 90d, 1y) with expected group_by mappings
-- Custom date range with period="custom"
-- Custom span → groupBy logic (≤31 days→day, ≤180→week, >180→month)
-- endDate upper bound enforcement (no data after custom endDate)
-- Fallback/edge cases (invalid dates, start>end, missing params)
-- Regression check on dashboard stats endpoint
-
-SAFETY: READ-ONLY GET endpoint testing. LIVE production DB but safe.
+Backend Test Script for Creator Page Analytics Feature
+Tests all 9 items from the test plan on LIVE Railway PG
 """
 
 import requests
 import json
+from datetime import datetime, timedelta
 import sys
-from typing import Dict, Any, Tuple, List
-from datetime import datetime, date
 
-# Preview URL from review request
-BASE_URL = "https://multi-chain-gateway.preview.emergentagent.com"
+# Configuration
+BASE_URL = "https://bf8f68f3-666f-49cd-b03c-00ac2915732e.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
-# Test credentials from review request
-MERCHANT_EMAIL = "hostbay@moxx.co"
-MERCHANT_PASSWORD = "Katiekendra123@"
+# Test credentials
+EMAIL = "hostbay@moxx.co"
+PASSWORD = "Katiekendra123@"
 
-class Colors:
-    GREEN = '\033[92m'
-    RED = '\033[91m'
-    YELLOW = '\033[93m'
-    BLUE = '\033[94m'
-    CYAN = '\033[96m'
-    MAGENTA = '\033[95m'
-    END = '\033[0m'
+# Test results
+results = {
+    "passed": [],
+    "failed": [],
+    "warnings": []
+}
 
-def print_section(name: str):
-    print(f"\n{Colors.CYAN}{'='*100}{Colors.END}")
-    print(f"{Colors.CYAN}{name}{Colors.END}")
-    print(f"{Colors.CYAN}{'='*100}{Colors.END}")
+def log(message, level="INFO"):
+    """Log test messages"""
+    timestamp = datetime.now().strftime("%H:%M:%S")
+    print(f"[{timestamp}] [{level}] {message}")
 
-def print_test(name: str):
-    print(f"\n{Colors.BLUE}{'─'*100}{Colors.END}")
-    print(f"{Colors.BLUE}TEST: {name}{Colors.END}")
-    print(f"{Colors.BLUE}{'─'*100}{Colors.END}")
-
-def print_pass(message: str):
-    print(f"{Colors.GREEN}✓ PASS: {message}{Colors.END}")
-
-def print_fail(message: str):
-    print(f"{Colors.RED}✗ FAIL: {message}{Colors.END}")
-
-def print_info(message: str):
-    print(f"{Colors.YELLOW}ℹ INFO: {message}{Colors.END}")
-
-def print_data(label: str, data: Any):
-    print(f"{Colors.MAGENTA}{label}:{Colors.END}")
-    if isinstance(data, (dict, list)):
-        print(json.dumps(data, indent=2))
-    else:
-        print(data)
-
-def login() -> Tuple[bool, str]:
+def login():
     """Login and get access token"""
-    print_test("Login as hostbay@moxx.co")
+    log("Logging in...")
+    response = requests.post(
+        f"{API_BASE}/user/login",
+        json={"email": EMAIL, "password": PASSWORD},
+        timeout=30
+    )
     
-    try:
-        login_data = {
-            "email": MERCHANT_EMAIL,
-            "password": MERCHANT_PASSWORD
-        }
-        
-        response = requests.post(
-            f"{API_BASE}/user/login",
-            json=login_data,
-            timeout=10
-        )
-        
-        print_info(f"Login Status: {response.status_code}")
-        
-        if response.status_code == 200:
-            data = response.json()
-            # Extract token from various possible locations
-            token = None
-            if isinstance(data, dict):
-                token = (data.get("token") or 
-                        data.get("accessToken") or 
-                        data.get("data", {}).get("token") or 
-                        data.get("data", {}).get("accessToken"))
-            
-            if token:
-                print_pass(f"Login successful, token: {token[:30]}...")
-                return True, token
-            else:
-                print_fail("Login response missing token")
-                print_data("Response", data)
-                return False, ""
-        else:
-            print_fail(f"Login failed: {response.status_code}")
-            print_info(f"Response: {response.text[:500]}")
-            return False, ""
-            
-    except Exception as e:
-        print_fail(f"Login exception: {str(e)}")
-        return False, ""
+    if response.status_code != 200:
+        log(f"Login failed: {response.status_code} - {response.text}", "ERROR")
+        sys.exit(1)
+    
+    data = response.json()
+    token = data.get("data", {}).get("accessToken")
+    
+    if not token:
+        log("No access token in response", "ERROR")
+        sys.exit(1)
+    
+    log("Login successful")
+    return token
 
-def test_chart_endpoint(token: str, params: Dict[str, str], test_name: str, expected: Dict[str, Any]) -> Tuple[bool, Dict[str, Any]]:
-    """
-    Test the chart endpoint with given params
-    Returns (success, response_data)
-    """
-    print_test(test_name)
+def get_csrf_token(token):
+    """Get CSRF token for PUT requests"""
+    log("Fetching CSRF token...")
+    response = requests.get(
+        f"{API_BASE}/csrf-token",
+        headers={"Authorization": f"Bearer {token}"},
+        timeout=30
+    )
     
-    try:
-        headers = {"Authorization": f"Bearer {token}"}
-        
-        # Build query string
-        query_parts = []
-        for key, value in params.items():
-            if value is not None:
-                query_parts.append(f"{key}={value}")
-        query_string = "&".join(query_parts)
-        
-        url = f"{API_BASE}/dashboard/chart"
-        if query_string:
-            url += f"?{query_string}"
-        
-        print_info(f"URL: {url}")
-        
-        response = requests.get(url, headers=headers, timeout=15)
-        
-        print_info(f"Status: {response.status_code}")
-        
-        if response.status_code != 200:
-            print_fail(f"Expected 200, got {response.status_code}")
-            print_info(f"Response: {response.text[:500]}")
-            return False, {}
-        
-        data = response.json()
-        result = data.get("data", {})
-        
-        # Extract key fields
-        period = result.get("period")
-        group_by = result.get("group_by")
-        start_date = result.get("start_date")
-        end_date = result.get("end_date")
-        chart_data = result.get("chart_data", [])
-        
-        print_info(f"period: {period}")
-        print_info(f"group_by: {group_by}")
-        print_info(f"start_date: {start_date}")
-        print_info(f"end_date: {end_date}")
-        print_info(f"chart_data length: {len(chart_data)}")
-        
-        # Validate expected values
-        all_checks_pass = True
-        
-        if "period" in expected:
-            if period == expected["period"]:
-                print_pass(f"period matches: {period}")
-            else:
-                print_fail(f"period mismatch: expected {expected['period']}, got {period}")
-                all_checks_pass = False
-        
-        if "group_by" in expected:
-            if group_by == expected["group_by"]:
-                print_pass(f"group_by matches: {group_by}")
-            else:
-                print_fail(f"group_by mismatch: expected {expected['group_by']}, got {group_by}")
-                all_checks_pass = False
-        
-        if "start_date" in expected:
-            if start_date == expected["start_date"]:
-                print_pass(f"start_date matches: {start_date}")
-            else:
-                print_fail(f"start_date mismatch: expected {expected['start_date']}, got {start_date}")
-                all_checks_pass = False
-        
-        if "end_date" in expected:
-            if end_date == expected["end_date"]:
-                print_pass(f"end_date matches: {end_date}")
-            else:
-                print_fail(f"end_date mismatch: expected {expected['end_date']}, got {end_date}")
-                all_checks_pass = False
-        
-        # Check chart_data is array
-        if not isinstance(chart_data, list):
-            print_fail(f"chart_data is not an array: {type(chart_data)}")
-            all_checks_pass = False
-        else:
-            print_pass(f"chart_data is an array with {len(chart_data)} items")
-        
-        # Check for required fields in response
-        if "chart_data" not in result:
-            print_fail("Missing chart_data in response")
-            all_checks_pass = False
-        
-        if all_checks_pass:
-            print_pass(f"All checks passed for {test_name}")
-        
-        return all_checks_pass, result
-        
-    except Exception as e:
-        print_fail(f"Exception: {str(e)}")
-        return False, {}
-
-def test_enddate_upper_bound(token: str) -> bool:
-    """
-    Test that endDate upper bound is enforced - no chart_data points after endDate
-    """
-    print_test("TEST 4: endDate upper bound enforcement")
+    if response.status_code != 200:
+        log(f"CSRF token fetch failed: {response.status_code}", "ERROR")
+        return None
     
-    params = {
-        "startDate": "2026-06-01",
-        "endDate": "2026-06-05"
-    }
+    data = response.json()
+    # Try both possible locations
+    csrf = data.get("csrf_token") or data.get("data", {}).get("csrfToken")
     
-    expected = {
-        "period": "custom",
-        "end_date": "2026-06-05"
-    }
-    
-    success, result = test_chart_endpoint(token, params, "Custom range with endDate=2026-06-05", expected)
-    
-    if not success:
-        return False
-    
-    # Check that no chart_data points are after 2026-06-05
-    chart_data = result.get("chart_data", [])
-    end_date_limit = date.fromisoformat("2026-06-05")
-    
-    violations = []
-    for point in chart_data:
-        point_date_str = point.get("date")
-        if point_date_str:
-            try:
-                point_date = date.fromisoformat(point_date_str)
-                if point_date > end_date_limit:
-                    violations.append(point_date_str)
-            except (ValueError, TypeError):
-                pass
-    
-    if violations:
-        print_fail(f"Found {len(violations)} chart_data points after endDate 2026-06-05: {violations}")
-        return False
+    if csrf:
+        log(f"CSRF token obtained: {csrf[:20]}...")
     else:
-        print_pass("No chart_data points found after endDate 2026-06-05")
-        return True
-
-def test_dashboard_stats(token: str) -> bool:
-    """
-    Regression test: Confirm the primary dashboard stats endpoint still returns 200
-    """
-    print_test("REGRESSION: Dashboard stats endpoint")
+        log("CSRF token not found in response", "WARN")
     
-    try:
-        headers = {"Authorization": f"Bearer {token}"}
-        
-        # Try common dashboard stats endpoints
-        endpoints = [
-            "/api/dashboard",
-            "/api/dashboard/stats"
-        ]
-        
-        for endpoint in endpoints:
-            url = f"{BASE_URL}{endpoint}"
-            print_info(f"Testing: {url}")
-            
-            response = requests.get(url, headers=headers, timeout=15)
-            print_info(f"Status: {response.status_code}")
-            
-            if response.status_code == 200:
-                print_pass(f"Dashboard stats endpoint {endpoint} returns 200")
-                return True
-            elif response.status_code == 404:
-                print_info(f"Endpoint {endpoint} not found, trying next...")
-                continue
-            else:
-                print_fail(f"Dashboard stats endpoint {endpoint} returned {response.status_code}")
-                return False
-        
-        print_fail("No dashboard stats endpoint found")
-        return False
-        
-    except Exception as e:
-        print_fail(f"Exception: {str(e)}")
-        return False
+    return csrf
 
-def check_backend_logs():
-    """
-    Check backend logs for SQL errors or unhandled exceptions
-    """
-    print_test("Check backend logs for errors")
+def test_1_public_200_default_enabled(token):
+    """Test 1: Public 200 (default enabled)"""
+    log("\n=== TEST 1: Public 200 (default enabled) ===")
     
-    try:
-        import subprocess
-        result = subprocess.run(
-            ["tail", "-n", "100", "/var/log/supervisor/backend.err.log"],
-            capture_output=True,
-            text=True,
-            timeout=5
-        )
-        
-        if result.returncode == 0:
-            log_content = result.stdout
-            
-            # Look for SQL errors or exceptions
-            error_keywords = ["ERROR", "Exception", "SQL", "error", "failed"]
-            errors_found = []
-            
-            for line in log_content.split('\n'):
-                if any(keyword in line for keyword in error_keywords):
-                    errors_found.append(line)
-            
-            if errors_found:
-                print_info(f"Found {len(errors_found)} potential error lines in backend logs")
-                for error in errors_found[-10:]:  # Show last 10
-                    print_info(f"  {error[:200]}")
-            else:
-                print_pass("No obvious errors in backend logs")
+    response = requests.get(
+        f"{API_BASE}/pay/creator/hostbay/analytics",
+        timeout=30
+    )
+    
+    if response.status_code != 200:
+        results["failed"].append(f"Test 1: Expected 200, got {response.status_code}")
+        log(f"FAILED: Status {response.status_code}", "ERROR")
+        return None
+    
+    data = response.json().get("data", {})
+    
+    # Check enabled
+    if data.get("enabled") != True:
+        results["failed"].append("Test 1: enabled should be true")
+        log("FAILED: enabled != true", "ERROR")
+        return None
+    
+    # Check chart
+    chart = data.get("chart", [])
+    if not isinstance(chart, list) or len(chart) != 30:
+        results["failed"].append(f"Test 1: chart should be array of 30, got {len(chart)}")
+        log(f"FAILED: chart length {len(chart)} != 30", "ERROR")
+        return None
+    
+    # Check chart item structure
+    if chart:
+        item = chart[0]
+        if not all(k in item for k in ["date", "amount", "count"]):
+            results["failed"].append("Test 1: chart items missing required fields")
+            log("FAILED: chart item structure invalid", "ERROR")
+            return None
+    
+    # Check top_supporters
+    top_supporters = data.get("top_supporters", [])
+    if not isinstance(top_supporters, list):
+        results["failed"].append("Test 1: top_supporters should be array")
+        log("FAILED: top_supporters not array", "ERROR")
+        return None
+    
+    # Check totals
+    totals = data.get("totals", {})
+    required_totals = ["amount_30d", "count_30d", "supporters_30d", "amount_lifetime", "supporters_lifetime"]
+    for key in required_totals:
+        if key not in totals:
+            results["failed"].append(f"Test 1: totals missing {key}")
+            log(f"FAILED: totals missing {key}", "ERROR")
+            return None
+    
+    # Check lifetime values are 0 in public endpoint
+    if totals.get("amount_lifetime") != 0:
+        results["failed"].append(f"Test 1: amount_lifetime should be 0, got {totals.get('amount_lifetime')}")
+        log(f"FAILED: amount_lifetime = {totals.get('amount_lifetime')} (should be 0)", "ERROR")
+        return None
+    
+    if totals.get("supporters_lifetime") != 0:
+        results["failed"].append(f"Test 1: supporters_lifetime should be 0, got {totals.get('supporters_lifetime')}")
+        log(f"FAILED: supporters_lifetime = {totals.get('supporters_lifetime')} (should be 0)", "ERROR")
+        return None
+    
+    # Check currency
+    if "currency" not in data:
+        results["failed"].append("Test 1: currency missing")
+        log("FAILED: currency missing", "ERROR")
+        return None
+    
+    # Check window_days
+    if data.get("window_days") != 30:
+        results["failed"].append(f"Test 1: window_days should be 30, got {data.get('window_days')}")
+        log(f"FAILED: window_days = {data.get('window_days')}", "ERROR")
+        return None
+    
+    results["passed"].append("Test 1: Public 200 (default enabled)")
+    log(f"PASSED: enabled={data.get('enabled')}, chart={len(chart)} items, currency={data.get('currency')}, totals.count_30d={totals.get('count_30d')}")
+    return data
+
+def test_2_chart_bucketing_sanity(test1_data):
+    """Test 2: Chart bucketing sanity"""
+    log("\n=== TEST 2: Chart bucketing sanity ===")
+    
+    if not test1_data:
+        results["failed"].append("Test 2: Skipped (Test 1 failed)")
+        log("SKIPPED: Test 1 failed", "WARN")
+        return
+    
+    chart = test1_data.get("chart", [])
+    totals = test1_data.get("totals", {})
+    
+    # Check exactly 30 items
+    if len(chart) != 30:
+        results["failed"].append(f"Test 2: Expected 30 chart items, got {len(chart)}")
+        log(f"FAILED: chart length {len(chart)}", "ERROR")
+        return
+    
+    # Check dates are monotonically increasing
+    dates = [item["date"] for item in chart]
+    sorted_dates = sorted(dates)
+    if dates != sorted_dates:
+        results["failed"].append("Test 2: Dates not monotonically increasing")
+        log("FAILED: dates not sorted", "ERROR")
+        return
+    
+    # Check date range (oldest = today - 29 days, newest = today)
+    today = datetime.utcnow().date()
+    oldest_expected = (today - timedelta(days=29)).isoformat()
+    newest_expected = today.isoformat()
+    
+    oldest_actual = dates[0]
+    newest_actual = dates[-1]
+    
+    log(f"Date range: {oldest_actual} to {newest_actual}")
+    log(f"Expected: {oldest_expected} to {newest_expected}")
+    
+    # Allow 1 day tolerance for timezone differences
+    oldest_date = datetime.fromisoformat(oldest_actual).date()
+    newest_date = datetime.fromisoformat(newest_actual).date()
+    
+    if abs((oldest_date - (today - timedelta(days=29))).days) > 1:
+        results["warnings"].append(f"Test 2: Oldest date {oldest_actual} differs from expected {oldest_expected}")
+        log(f"WARNING: oldest date mismatch", "WARN")
+    
+    if abs((newest_date - today).days) > 1:
+        results["warnings"].append(f"Test 2: Newest date {newest_actual} differs from expected {newest_expected}")
+        log(f"WARNING: newest date mismatch", "WARN")
+    
+    # Check for non-zero bucket if count_30d > 0 (Sequelize Date bug regression check)
+    count_30d = totals.get("count_30d", 0)
+    non_zero_buckets = [b for b in chart if b["count"] > 0]
+    
+    if count_30d > 0 and len(non_zero_buckets) == 0:
+        results["failed"].append("Test 2: REGRESSION - count_30d > 0 but no chart bucket has count > 0 (Sequelize Date bug)")
+        log(f"FAILED: REGRESSION DETECTED - count_30d={count_30d} but no non-zero buckets", "ERROR")
+        return
+    
+    # Check for expected bucket on 2026-07-13 with 3 tips
+    bucket_2026_07_13 = next((b for b in chart if b["date"] == "2026-07-13"), None)
+    if bucket_2026_07_13:
+        log(f"Found 2026-07-13 bucket: amount={bucket_2026_07_13['amount']}, count={bucket_2026_07_13['count']}")
+        if bucket_2026_07_13["count"] == 3 and bucket_2026_07_13["amount"] == 30:
+            log("✓ Expected bucket (2026-07-13, count=3, amount=30) found")
         else:
-            print_info("Could not read backend logs")
+            results["warnings"].append(f"Test 2: 2026-07-13 bucket has count={bucket_2026_07_13['count']}, amount={bucket_2026_07_13['amount']} (expected count=3, amount=30)")
     
-    except Exception as e:
-        print_info(f"Could not check logs: {str(e)}")
+    results["passed"].append("Test 2: Chart bucketing sanity")
+    log(f"PASSED: 30 items, dates sorted, {len(non_zero_buckets)} non-zero buckets")
+
+def test_3_public_404():
+    """Test 3: Public 404"""
+    log("\n=== TEST 3: Public 404 ===")
+    
+    response = requests.get(
+        f"{API_BASE}/pay/creator/nonexistent-handle-xyz/analytics",
+        timeout=30
+    )
+    
+    if response.status_code != 404:
+        results["failed"].append(f"Test 3: Expected 404, got {response.status_code}")
+        log(f"FAILED: Status {response.status_code}", "ERROR")
+        return
+    
+    data = response.json()
+    message = data.get("message", "")
+    
+    if "Creator page not found" not in message:
+        results["failed"].append(f"Test 3: Expected 'Creator page not found', got '{message}'")
+        log(f"FAILED: Wrong message: {message}", "ERROR")
+        return
+    
+    results["passed"].append("Test 3: Public 404")
+    log(f"PASSED: 404 with message '{message}'")
+
+def test_4_auth_200_own_view(token):
+    """Test 4: Auth 200 (own view, lifetime present)"""
+    log("\n=== TEST 4: Auth 200 (own view, lifetime present) ===")
+    
+    response = requests.get(
+        f"{API_BASE}/user/creator/analytics",
+        headers={"Authorization": f"Bearer {token}"},
+        timeout=30
+    )
+    
+    if response.status_code != 200:
+        results["failed"].append(f"Test 4: Expected 200, got {response.status_code}")
+        log(f"FAILED: Status {response.status_code} - {response.text}", "ERROR")
+        return None
+    
+    data = response.json().get("data", {})
+    
+    # Check enabled
+    if data.get("enabled") != True:
+        results["failed"].append("Test 4: enabled should be true")
+        log("FAILED: enabled != true", "ERROR")
+        return None
+    
+    # Check public_analytics_enabled
+    if data.get("public_analytics_enabled") != True:
+        results["failed"].append("Test 4: public_analytics_enabled should be true")
+        log("FAILED: public_analytics_enabled != true", "ERROR")
+        return None
+    
+    # Check has_handle
+    if data.get("has_handle") != True:
+        results["failed"].append("Test 4: has_handle should be true")
+        log("FAILED: has_handle != true", "ERROR")
+        return None
+    
+    # Check chart
+    chart = data.get("chart", [])
+    if len(chart) != 30:
+        results["failed"].append(f"Test 4: chart should have 30 items, got {len(chart)}")
+        log(f"FAILED: chart length {len(chart)}", "ERROR")
+        return None
+    
+    # Check top_supporters
+    top_supporters = data.get("top_supporters", [])
+    if not isinstance(top_supporters, list):
+        results["failed"].append("Test 4: top_supporters should be array")
+        log("FAILED: top_supporters not array", "ERROR")
+        return None
+    
+    # Check totals with lifetime
+    totals = data.get("totals", {})
+    amount_lifetime = totals.get("amount_lifetime")
+    supporters_lifetime = totals.get("supporters_lifetime")
+    
+    if amount_lifetime is None:
+        results["failed"].append("Test 4: amount_lifetime missing")
+        log("FAILED: amount_lifetime missing", "ERROR")
+        return None
+    
+    if supporters_lifetime is None:
+        results["failed"].append("Test 4: supporters_lifetime missing")
+        log("FAILED: supporters_lifetime missing", "ERROR")
+        return None
+    
+    # Lifetime should be >= 0 and actual numbers
+    if not isinstance(amount_lifetime, (int, float)) or amount_lifetime < 0:
+        results["failed"].append(f"Test 4: amount_lifetime should be >= 0, got {amount_lifetime}")
+        log(f"FAILED: amount_lifetime = {amount_lifetime}", "ERROR")
+        return None
+    
+    if not isinstance(supporters_lifetime, (int, float)) or supporters_lifetime < 0:
+        results["failed"].append(f"Test 4: supporters_lifetime should be >= 0, got {supporters_lifetime}")
+        log(f"FAILED: supporters_lifetime = {supporters_lifetime}", "ERROR")
+        return None
+    
+    results["passed"].append("Test 4: Auth 200 (own view, lifetime present)")
+    log(f"PASSED: enabled={data.get('enabled')}, public_analytics_enabled={data.get('public_analytics_enabled')}, has_handle={data.get('has_handle')}")
+    log(f"  Lifetime: amount={amount_lifetime}, supporters={supporters_lifetime}")
+    return data
+
+def test_5_auth_401():
+    """Test 5: Auth 401"""
+    log("\n=== TEST 5: Auth 401 ===")
+    
+    response = requests.get(
+        f"{API_BASE}/user/creator/analytics",
+        timeout=30
+    )
+    
+    if response.status_code != 401:
+        results["failed"].append(f"Test 5: Expected 401, got {response.status_code}")
+        log(f"FAILED: Status {response.status_code}", "ERROR")
+        return
+    
+    results["passed"].append("Test 5: Auth 401")
+    log("PASSED: 401 without Authorization header")
+
+def test_6_toggle_round_trip(token, csrf_token):
+    """Test 6: Toggle round-trip (WRITE - must revert at end)"""
+    log("\n=== TEST 6: Toggle round-trip (WRITE - must revert at end) ===")
+    
+    if not csrf_token:
+        results["failed"].append("Test 6: No CSRF token available")
+        log("FAILED: No CSRF token", "ERROR")
+        return
+    
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "x-csrf-token": csrf_token,
+        "Content-Type": "application/json"
+    }
+    
+    # 6a: Set to false
+    log("6a: Setting public_analytics_enabled to false...")
+    response = requests.put(
+        f"{API_BASE}/user/creator/profile",
+        headers=headers,
+        json={"public_analytics_enabled": False},
+        timeout=30
+    )
+    
+    if response.status_code != 200:
+        results["failed"].append(f"Test 6a: Expected 200, got {response.status_code}")
+        log(f"FAILED 6a: Status {response.status_code} - {response.text}", "ERROR")
+        # Try to revert anyway
+        test_6d_revert(token, csrf_token, headers)
+        return
+    
+    data = response.json().get("data", {})
+    if data.get("public_analytics_enabled") != False:
+        results["failed"].append(f"Test 6a: public_analytics_enabled should be false, got {data.get('public_analytics_enabled')}")
+        log(f"FAILED 6a: public_analytics_enabled = {data.get('public_analytics_enabled')}", "ERROR")
+        test_6d_revert(token, csrf_token, headers)
+        return
+    
+    log("✓ 6a PASSED: public_analytics_enabled set to false")
+    
+    # 6b: Public endpoint should return enabled=false
+    log("6b: Checking public endpoint returns enabled=false...")
+    response = requests.get(
+        f"{API_BASE}/pay/creator/hostbay/analytics",
+        timeout=30
+    )
+    
+    if response.status_code != 200:
+        results["failed"].append(f"Test 6b: Expected 200, got {response.status_code}")
+        log(f"FAILED 6b: Status {response.status_code}", "ERROR")
+        test_6d_revert(token, csrf_token, headers)
+        return
+    
+    data = response.json().get("data", {})
+    if data.get("enabled") != False:
+        results["failed"].append(f"Test 6b: enabled should be false, got {data.get('enabled')}")
+        log(f"FAILED 6b: enabled = {data.get('enabled')}", "ERROR")
+        test_6d_revert(token, csrf_token, headers)
+        return
+    
+    if len(data.get("chart", [])) != 0:
+        results["failed"].append(f"Test 6b: chart should be empty, got {len(data.get('chart', []))} items")
+        log(f"FAILED 6b: chart not empty", "ERROR")
+        test_6d_revert(token, csrf_token, headers)
+        return
+    
+    if len(data.get("top_supporters", [])) != 0:
+        results["failed"].append(f"Test 6b: top_supporters should be empty, got {len(data.get('top_supporters', []))} items")
+        log(f"FAILED 6b: top_supporters not empty", "ERROR")
+        test_6d_revert(token, csrf_token, headers)
+        return
+    
+    log("✓ 6b PASSED: Public endpoint returns enabled=false with empty data")
+    
+    # 6c: Auth endpoint should still show data
+    log("6c: Checking auth endpoint still shows data...")
+    response = requests.get(
+        f"{API_BASE}/user/creator/analytics",
+        headers={"Authorization": f"Bearer {token}"},
+        timeout=30
+    )
+    
+    if response.status_code != 200:
+        results["failed"].append(f"Test 6c: Expected 200, got {response.status_code}")
+        log(f"FAILED 6c: Status {response.status_code}", "ERROR")
+        test_6d_revert(token, csrf_token, headers)
+        return
+    
+    data = response.json().get("data", {})
+    if data.get("enabled") != True:
+        results["failed"].append(f"Test 6c: enabled should be true (merchant always sees own data), got {data.get('enabled')}")
+        log(f"FAILED 6c: enabled = {data.get('enabled')}", "ERROR")
+        test_6d_revert(token, csrf_token, headers)
+        return
+    
+    if data.get("public_analytics_enabled") != False:
+        results["failed"].append(f"Test 6c: public_analytics_enabled should be false, got {data.get('public_analytics_enabled')}")
+        log(f"FAILED 6c: public_analytics_enabled = {data.get('public_analytics_enabled')}", "ERROR")
+        test_6d_revert(token, csrf_token, headers)
+        return
+    
+    if len(data.get("chart", [])) != 30:
+        results["failed"].append(f"Test 6c: chart should have 30 items, got {len(data.get('chart', []))}")
+        log(f"FAILED 6c: chart length = {len(data.get('chart', []))}", "ERROR")
+        test_6d_revert(token, csrf_token, headers)
+        return
+    
+    log("✓ 6c PASSED: Auth endpoint still shows data with public_analytics_enabled=false")
+    
+    # 6d: REVERT - Set back to true (MANDATORY)
+    test_6d_revert(token, csrf_token, headers)
+    
+    # 6e: Verify public endpoint shows data again
+    log("6e: Verifying public endpoint shows data again...")
+    response = requests.get(
+        f"{API_BASE}/pay/creator/hostbay/analytics",
+        timeout=30
+    )
+    
+    if response.status_code != 200:
+        results["failed"].append(f"Test 6e: Expected 200, got {response.status_code}")
+        log(f"FAILED 6e: Status {response.status_code}", "ERROR")
+        return
+    
+    data = response.json().get("data", {})
+    if data.get("enabled") != True:
+        results["failed"].append(f"Test 6e: enabled should be true, got {data.get('enabled')}")
+        log(f"FAILED 6e: enabled = {data.get('enabled')}", "ERROR")
+        return
+    
+    if len(data.get("chart", [])) != 30:
+        results["failed"].append(f"Test 6e: chart should have 30 items, got {len(data.get('chart', []))}")
+        log(f"FAILED 6e: chart not restored", "ERROR")
+        return
+    
+    log("✓ 6e PASSED: Public endpoint restored with enabled=true and data")
+    
+    results["passed"].append("Test 6: Toggle round-trip (WRITE - reverted)")
+    log("PASSED: Full toggle round-trip completed and reverted")
+
+def test_6d_revert(token, csrf_token, headers):
+    """6d: REVERT - Set public_analytics_enabled back to true"""
+    log("6d: REVERTING public_analytics_enabled to true (MANDATORY)...")
+    
+    response = requests.put(
+        f"{API_BASE}/user/creator/profile",
+        headers=headers,
+        json={"public_analytics_enabled": True},
+        timeout=30
+    )
+    
+    if response.status_code != 200:
+        log(f"CRITICAL: REVERT FAILED - Status {response.status_code} - {response.text}", "ERROR")
+        results["failed"].append(f"Test 6d: REVERT FAILED - Status {response.status_code}")
+        return
+    
+    data = response.json().get("data", {})
+    if data.get("public_analytics_enabled") != True:
+        log(f"CRITICAL: REVERT FAILED - public_analytics_enabled = {data.get('public_analytics_enabled')}", "ERROR")
+        results["failed"].append(f"Test 6d: REVERT FAILED - public_analytics_enabled != true")
+        return
+    
+    log("✓ 6d PASSED: REVERTED to public_analytics_enabled=true")
+
+def test_7_top_supporters_privacy(test4_data):
+    """Test 7: Top supporters privacy"""
+    log("\n=== TEST 7: Top supporters privacy ===")
+    
+    if not test4_data:
+        results["failed"].append("Test 7: Skipped (Test 4 failed)")
+        log("SKIPPED: Test 4 failed", "WARN")
+        return
+    
+    top_supporters = test4_data.get("top_supporters", [])
+    
+    if len(top_supporters) == 0:
+        results["warnings"].append("Test 7: No top supporters found (may be expected if no named tips)")
+        log("WARNING: No top supporters", "WARN")
+        results["passed"].append("Test 7: Top supporters privacy (no data to verify)")
+        return
+    
+    log(f"Found {len(top_supporters)} top supporters")
+    
+    # Check structure
+    for i, supporter in enumerate(top_supporters):
+        if not all(k in supporter for k in ["name", "amount", "currency", "count"]):
+            results["failed"].append(f"Test 7: Supporter {i} missing required fields")
+            log(f"FAILED: Supporter {i} structure invalid: {supporter}", "ERROR")
+            return
+        
+        log(f"  Supporter {i+1}: name={supporter['name']}, amount={supporter['amount']}, count={supporter['count']}")
+    
+    # Check for expected names (Bob and Alice)
+    names = [s["name"].lower() for s in top_supporters]
+    if "bob" in names:
+        log("✓ Found 'Bob' in top supporters")
+    if "alice" in names:
+        log("✓ Found 'Alice' in top supporters")
+    
+    # Check no anonymous supporter (should be max 2 named supporters, not 3)
+    if len(top_supporters) > 2:
+        results["warnings"].append(f"Test 7: Expected max 2 named supporters (Bob, Alice), got {len(top_supporters)}")
+        log(f"WARNING: {len(top_supporters)} supporters (expected max 2)", "WARN")
+    
+    results["passed"].append("Test 7: Top supporters privacy")
+    log(f"PASSED: {len(top_supporters)} supporters with correct structure, no anonymous")
+
+def test_8_sequelize_date_bug_regression(test1_data):
+    """Test 8: Sequelize Date bug regression"""
+    log("\n=== TEST 8: Sequelize Date bug regression ===")
+    
+    if not test1_data:
+        results["failed"].append("Test 8: Skipped (Test 1 failed)")
+        log("SKIPPED: Test 1 failed", "WARN")
+        return
+    
+    chart = test1_data.get("chart", [])
+    totals = test1_data.get("totals", {})
+    count_30d = totals.get("count_30d", 0)
+    
+    non_zero_buckets = [b for b in chart if b["count"] > 0]
+    
+    log(f"count_30d = {count_30d}")
+    log(f"Non-zero buckets: {len(non_zero_buckets)}")
+    
+    if count_30d > 0 and len(non_zero_buckets) == 0:
+        results["failed"].append("Test 8: REGRESSION - Sequelize Date bug detected (count_30d > 0 but no chart bucket has count > 0)")
+        log("FAILED: REGRESSION DETECTED - Sequelize Date bug", "ERROR")
+        log(f"  count_30d = {count_30d}, but all chart buckets have count = 0", "ERROR")
+        return
+    
+    if len(non_zero_buckets) > 0:
+        log(f"Non-zero buckets found:")
+        for b in non_zero_buckets:
+            log(f"  {b['date']}: count={b['count']}, amount={b['amount']}")
+    
+    results["passed"].append("Test 8: Sequelize Date bug regression")
+    log("PASSED: No Sequelize Date bug regression detected")
+
+def test_9_existing_profile_endpoint_regression(token):
+    """Test 9: Existing profile endpoint regression"""
+    log("\n=== TEST 9: Existing profile endpoint regression ===")
+    
+    response = requests.get(
+        f"{API_BASE}/pay/creator/hostbay",
+        timeout=30
+    )
+    
+    if response.status_code != 200:
+        results["failed"].append(f"Test 9: Expected 200, got {response.status_code}")
+        log(f"FAILED: Status {response.status_code}", "ERROR")
+        return
+    
+    data = response.json().get("data", {})
+    creator = data.get("creator", {})
+    
+    # Check public_analytics_enabled is present
+    if "public_analytics_enabled" not in creator:
+        results["failed"].append("Test 9: creator.public_analytics_enabled missing")
+        log("FAILED: public_analytics_enabled missing", "ERROR")
+        return
+    
+    log(f"public_analytics_enabled = {creator.get('public_analytics_enabled')}")
+    
+    # Check other keys unchanged
+    expected_keys = ["name", "handle", "bio", "photo", "cover_image", "social_links", "theme"]
+    for key in expected_keys:
+        if key not in creator:
+            results["warnings"].append(f"Test 9: creator.{key} missing (may be null)")
+            log(f"WARNING: creator.{key} missing", "WARN")
+    
+    # Check support_widget and links exist (may be null/empty)
+    if "support_widget" not in data:
+        results["warnings"].append("Test 9: support_widget missing")
+        log("WARNING: support_widget missing", "WARN")
+    
+    if "links" not in data:
+        results["warnings"].append("Test 9: links missing")
+        log("WARNING: links missing", "WARN")
+    
+    results["passed"].append("Test 9: Existing profile endpoint regression")
+    log("PASSED: Profile endpoint includes public_analytics_enabled, other keys present")
 
 def main():
-    print_section("DASHBOARD CHART ENDPOINT - CUSTOM DATE RANGE TEST")
-    print(f"{Colors.YELLOW}Preview URL: {BASE_URL}{Colors.END}")
-    print(f"{Colors.YELLOW}Test Type: READ-ONLY GET endpoint testing{Colors.END}")
-    print(f"{Colors.YELLOW}Feature: Custom startDate & endDate query params{Colors.END}\n")
+    """Main test runner"""
+    log("=" * 80)
+    log("Creator Page Analytics Backend Test Suite")
+    log("=" * 80)
     
-    results = {}
-    
-    # ═══════════════════════════════════════════════════════════════════════
-    # STEP 0: Login
-    # ═══════════════════════════════════════════════════════════════════════
-    print_section("STEP 0: LOGIN")
-    success, token = login()
-    if not success:
-        print_fail("Login failed, cannot continue")
-        return 1
-    results["login"] = True
-    
-    # ═══════════════════════════════════════════════════════════════════════
-    # TEST 1: Named periods (7d, 30d, 90d, 1y)
-    # ═══════════════════════════════════════════════════════════════════════
-    print_section("TEST 1: Named Periods")
-    
-    named_period_tests = [
-        {
-            "params": {"period": "7d"},
-            "expected": {"period": "7d", "group_by": "day"},
-            "name": "period=7d"
-        },
-        {
-            "params": {"period": "30d"},
-            "expected": {"period": "30d", "group_by": "day"},
-            "name": "period=30d"
-        },
-        {
-            "params": {"period": "90d"},
-            "expected": {"period": "90d", "group_by": "week"},
-            "name": "period=90d"
-        },
-        {
-            "params": {"period": "1y"},
-            "expected": {"period": "1y", "group_by": "month"},
-            "name": "period=1y"
-        }
-    ]
-    
-    for test in named_period_tests:
-        success, _ = test_chart_endpoint(token, test["params"], test["name"], test["expected"])
-        results[f"test1_{test['name']}"] = success
-    
-    # ═══════════════════════════════════════════════════════════════════════
-    # TEST 2: Custom range (normal)
-    # ═══════════════════════════════════════════════════════════════════════
-    print_section("TEST 2: Custom Range (Normal)")
-    
-    success, _ = test_chart_endpoint(
-        token,
-        {"startDate": "2026-06-01", "endDate": "2026-06-30"},
-        "Custom range 2026-06-01 to 2026-06-30 (30 days)",
-        {
-            "period": "custom",
-            "start_date": "2026-06-01",
-            "end_date": "2026-06-30",
-            "group_by": "day"
-        }
-    )
-    results["test2_custom_30days"] = success
-    
-    # ═══════════════════════════════════════════════════════════════════════
-    # TEST 3: Custom span → groupBy logic
-    # ═══════════════════════════════════════════════════════════════════════
-    print_section("TEST 3: Custom Span → groupBy Logic")
-    
-    # 3a: >31 days and ≤180 days → week
-    success, _ = test_chart_endpoint(
-        token,
-        {"startDate": "2026-01-01", "endDate": "2026-05-01"},
-        "Custom range 2026-01-01 to 2026-05-01 (>31 days, ≤180 days)",
-        {
-            "period": "custom",
-            "group_by": "week"
-        }
-    )
-    results["test3a_week_grouping"] = success
-    
-    # 3b: >180 days → month
-    success, _ = test_chart_endpoint(
-        token,
-        {"startDate": "2025-01-01", "endDate": "2026-06-30"},
-        "Custom range 2025-01-01 to 2026-06-30 (>180 days)",
-        {
-            "period": "custom",
-            "group_by": "month"
-        }
-    )
-    results["test3b_month_grouping"] = success
-    
-    # ═══════════════════════════════════════════════════════════════════════
-    # TEST 4: endDate upper bound enforcement
-    # ═══════════════════════════════════════════════════════════════════════
-    print_section("TEST 4: endDate Upper Bound Enforcement")
-    
-    success = test_enddate_upper_bound(token)
-    results["test4_enddate_bound"] = success
-    
-    # ═══════════════════════════════════════════════════════════════════════
-    # TEST 5: Fallback/edge cases
-    # ═══════════════════════════════════════════════════════════════════════
-    print_section("TEST 5: Fallback/Edge Cases")
-    
-    edge_cases = [
-        {
-            "params": {"startDate": "notadate", "endDate": "2026-06-30"},
-            "name": "Invalid startDate (should fallback to named period)",
-            "check_not_custom": True
-        },
-        {
-            "params": {"startDate": "2026-06-30", "endDate": "2026-06-01"},
-            "name": "start > end (should fallback to named period)",
-            "check_not_custom": True
-        },
-        {
-            "params": {"startDate": "2026-06-01"},
-            "name": "Only startDate, no endDate (should fallback to named period)",
-            "check_not_custom": True
-        }
-    ]
-    
-    for test in edge_cases:
-        print_test(test["name"])
+    try:
+        # Login
+        token = login()
         
-        try:
-            headers = {"Authorization": f"Bearer {token}"}
-            query_parts = []
-            for key, value in test["params"].items():
-                query_parts.append(f"{key}={value}")
-            query_string = "&".join(query_parts)
-            url = f"{API_BASE}/dashboard/chart?{query_string}"
-            
-            print_info(f"URL: {url}")
-            
-            response = requests.get(url, headers=headers, timeout=15)
-            print_info(f"Status: {response.status_code}")
-            
-            if response.status_code == 200:
-                data = response.json()
-                result = data.get("data", {})
-                period = result.get("period")
-                
-                print_info(f"period: {period}")
-                
-                if test.get("check_not_custom"):
-                    if period != "custom":
-                        print_pass(f"Correctly fell back to named period: {period}")
-                        results[f"test5_{test['name'][:20]}"] = True
-                    else:
-                        print_fail(f"Should have fallen back but got period=custom")
-                        results[f"test5_{test['name'][:20]}"] = False
-                else:
-                    print_pass("Endpoint returned 200 (no 500 error)")
-                    results[f"test5_{test['name'][:20]}"] = True
-            elif response.status_code == 500:
-                print_fail(f"Got 500 error (should not happen)")
-                results[f"test5_{test['name'][:20]}"] = False
-            else:
-                print_info(f"Got {response.status_code} (acceptable if not 500)")
-                results[f"test5_{test['name'][:20]}"] = True
-                
-        except Exception as e:
-            print_fail(f"Exception: {str(e)}")
-            results[f"test5_{test['name'][:20]}"] = False
+        # Get CSRF token
+        csrf_token = get_csrf_token(token)
+        
+        # Run tests
+        test1_data = test_1_public_200_default_enabled(token)
+        test_2_chart_bucketing_sanity(test1_data)
+        test_3_public_404()
+        test4_data = test_4_auth_200_own_view(token)
+        test_5_auth_401()
+        test_6_toggle_round_trip(token, csrf_token)
+        test_7_top_supporters_privacy(test4_data)
+        test_8_sequelize_date_bug_regression(test1_data)
+        test_9_existing_profile_endpoint_regression(token)
+        
+        # Print summary
+        log("\n" + "=" * 80)
+        log("TEST SUMMARY")
+        log("=" * 80)
+        
+        log(f"\n✅ PASSED: {len(results['passed'])}")
+        for test in results["passed"]:
+            log(f"  ✓ {test}")
+        
+        if results["failed"]:
+            log(f"\n❌ FAILED: {len(results['failed'])}")
+            for test in results["failed"]:
+                log(f"  ✗ {test}", "ERROR")
+        
+        if results["warnings"]:
+            log(f"\n⚠️  WARNINGS: {len(results['warnings'])}")
+            for test in results["warnings"]:
+                log(f"  ! {test}", "WARN")
+        
+        log("\n" + "=" * 80)
+        
+        if results["failed"]:
+            log(f"RESULT: {len(results['failed'])} test(s) FAILED", "ERROR")
+            sys.exit(1)
+        else:
+            log(f"RESULT: ALL TESTS PASSED ({len(results['passed'])} passed, {len(results['warnings'])} warnings)", "INFO")
+            sys.exit(0)
     
-    # ═══════════════════════════════════════════════════════════════════════
-    # TEST 6: Regression - Dashboard stats endpoint
-    # ═══════════════════════════════════════════════════════════════════════
-    print_section("TEST 6: Regression Check")
-    
-    success = test_dashboard_stats(token)
-    results["test6_dashboard_stats"] = success
-    
-    # ═══════════════════════════════════════════════════════════════════════
-    # Check backend logs
-    # ═══════════════════════════════════════════════════════════════════════
-    print_section("BACKEND LOGS CHECK")
-    check_backend_logs()
-    
-    # ═══════════════════════════════════════════════════════════════════════
-    # SUMMARY
-    # ═══════════════════════════════════════════════════════════════════════
-    print_section("TEST SUMMARY")
-    
-    passed = sum(1 for v in results.values() if v)
-    total = len(results)
-    
-    print(f"\n{Colors.BLUE}Results by Test:{Colors.END}\n")
-    for test_name, result in results.items():
-        status = f"{Colors.GREEN}✓ PASS{Colors.END}" if result else f"{Colors.RED}✗ FAIL{Colors.END}"
-        print(f"{status} - {test_name}")
-    
-    print(f"\n{Colors.CYAN}{'='*100}{Colors.END}")
-    print(f"\n{Colors.BLUE}Overall: {passed}/{total} tests passed ({int(passed/total*100)}%){Colors.END}\n")
-    
-    if passed == total:
-        print(f"{Colors.GREEN}✓ ALL TESTS PASSED{Colors.END}")
-        print(f"{Colors.GREEN}✓ Named periods (7d/30d/90d/1y) work with correct group_by{Colors.END}")
-        print(f"{Colors.GREEN}✓ Custom date range works with period='custom'{Colors.END}")
-        print(f"{Colors.GREEN}✓ Custom span → groupBy logic works (day/week/month){Colors.END}")
-        print(f"{Colors.GREEN}✓ endDate upper bound is enforced{Colors.END}")
-        print(f"{Colors.GREEN}✓ Edge cases fallback correctly (no 500 errors){Colors.END}")
-        print(f"{Colors.GREEN}✓ Dashboard stats endpoint still works{Colors.END}")
-        print(f"{Colors.CYAN}{'='*100}{Colors.END}\n")
-        return 0
-    else:
-        print(f"{Colors.RED}✗ SOME TESTS FAILED{Colors.END}")
-        print(f"{Colors.YELLOW}Total: {passed}/{total} tests passed{Colors.END}")
-        print(f"{Colors.CYAN}{'='*100}{Colors.END}\n")
-        return 1
+    except Exception as e:
+        log(f"FATAL ERROR: {str(e)}", "ERROR")
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

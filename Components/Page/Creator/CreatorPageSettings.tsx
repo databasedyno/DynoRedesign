@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Box, Button, CircularProgress, Switch, Typography, useTheme, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { useDispatch, useSelector } from "react-redux";
@@ -9,6 +9,7 @@ import { rootReducer } from "@/utils/types";
 import { getCreatorBaseUrl } from "@/helpers/creatorUrl";
 import CreatorThemePicker, { CreatorTheme, CoverStyle } from "@/Components/Page/Creator/CreatorThemePicker";
 import HandleQrCode from "@/Components/Page/Creator/HandleQrCode";
+import AnalyticsWidget, { CreatorAnalyticsData } from "@/Components/Page/Creator/AnalyticsWidget";
 
 const HANDLE_RE = /^[a-z0-9][a-z0-9_-]{2,29}$/;
 
@@ -87,6 +88,14 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
   const [swAllowMessage, setSwAllowMessage] = useState(true);
   const [swThanks, setSwThanks] = useState("");
   const [swShowSupporters, setSwShowSupporters] = useState(true);
+  // ── Public Analytics widget (Session 2026-08-05) ──
+  // Controls whether the 30-day tips chart + top supporters is publicly
+  // visible on the creator's /:handle page. Merchant always sees their own
+  // analytics in the panel below regardless of this toggle.
+  const [publicAnalyticsEnabled, setPublicAnalyticsEnabled] = useState(true);
+  const [analyticsData, setAnalyticsData] = useState<CreatorAnalyticsData | null>(null);
+  const [analyticsLoading, setAnalyticsLoading] = useState(true);
+  const [analyticsTogglingBusy, setAnalyticsTogglingBusy] = useState(false);
   const [seeded, setSeeded] = useState(false);
   const [checking, setChecking] = useState(false);
   const [availability, setAvailability] = useState<{ available: boolean; reason: string | null } | null>(null);
@@ -133,6 +142,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
       setSwAllowMessage(profile.support_widget_allow_message !== false);
       setSwThanks(profile.support_widget_thanks_message || "");
       setSwShowSupporters(profile.support_widget_show_supporters !== false);
+      setPublicAnalyticsEnabled(profile.public_analytics_enabled !== false);
       // Theme (Session 60)
       setThemeAccent(profile.theme_accent_color || null);
       setThemeCoverStyle((profile.theme_cover_style as CoverStyle) || null);
@@ -163,6 +173,27 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
     window.addEventListener("dynopay:open-tip-setup", open);
     return () => window.removeEventListener("dynopay:open-tip-setup", open);
   }, []);
+
+  // Fetch the merchant's own analytics data (30-day chart + top supporters
+  // + lifetime totals). The endpoint always returns data for the merchant
+  // regardless of public toggle. Refetch when the profile handle changes.
+  const loadAnalytics = useCallback(async () => {
+    setAnalyticsLoading(true);
+    try {
+      const r = await axiosBaseApi.get("/user/creator/analytics");
+      const d = (r?.data?.data || null) as CreatorAnalyticsData & { has_handle?: boolean } | null;
+      setAnalyticsData(d);
+    } catch {
+      setAnalyticsData(null);
+    } finally {
+      setAnalyticsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (profile?.handle) void loadAnalytics();
+    else setAnalyticsLoading(false);
+  }, [profile?.handle, loadAnalytics]);
 
 
   const savedHandle = profile?.handle || "";
@@ -239,7 +270,8 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
       (coverImage || null) !== (profile?.cover_image || null) ||
       !socialsEqualSaved ||
       supportWidgetChanged ||
-      themeChanged
+      themeChanged ||
+      publicAnalyticsEnabled !== (profile?.public_analytics_enabled !== false)
     );
 
   // If the user changed their handle, open the change-warning modal first
@@ -279,6 +311,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
         theme_accent_color: themeAccent,
         theme_cover_style: themeCoverStyle,
         theme_cover_gradient: themeCoverGradient,
+        public_analytics_enabled: publicAnalyticsEnabled,
       });
       dispatch({
         type: TOAST_SHOW,
@@ -859,6 +892,36 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
             </Box>
           </Box>
         )}
+      </Box>
+
+      {/* ── Analytics (30-day tips chart + top supporters — Session 2026-08-05) ── */}
+      <Box
+        id="analytics"
+        sx={{ borderRadius: "12px", border: `1px solid ${border}`, p: 2 }}
+        data-testid="creator-analytics-section"
+      >
+        <Box sx={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 2, mb: 1 }}>
+          <Box sx={{ pr: 1 }}>
+            <Typography fontSize={14} fontWeight={700} color={theme.palette.text.primary}>Analytics</Typography>
+            <Typography fontSize={12.5} color={theme.palette.text.secondary} mt={0.25}>
+              A 30-day view of your tips and top supporters. Toggle to hide it from your public creator page — you&apos;ll still see it here.
+            </Typography>
+          </Box>
+          <Switch
+            checked={publicAnalyticsEnabled}
+            onChange={(e) => setPublicAnalyticsEnabled(e.target.checked)}
+            data-testid="public-analytics-switch"
+            sx={{ "& .Mui-checked": { color: theme.palette.primary.main }, "& .Mui-checked + .MuiSwitch-track": { backgroundColor: theme.palette.primary.main } }}
+          />
+        </Box>
+        <AnalyticsWidget
+          variant="full"
+          data={analyticsData}
+          loading={analyticsLoading}
+          toggleState={publicAnalyticsEnabled ? "shown" : "hidden"}
+          onToggle={() => setPublicAnalyticsEnabled((v) => !v)}
+          toggleBusy={analyticsTogglingBusy}
+        />
       </Box>
 
       {/* Enable toggle */}

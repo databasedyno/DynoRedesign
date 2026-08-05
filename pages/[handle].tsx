@@ -3,6 +3,7 @@ import Head from 'next/head'
 import { GetServerSideProps } from 'next'
 import CreatorProfile, { CreatorData, CreatorLink } from '@/Components/Page/Creator/CreatorProfile'
 import { SupportWidgetData } from '@/Components/Page/Creator/SupportWidget'
+import { CreatorAnalyticsData } from '@/Components/Page/Creator/AnalyticsWidget'
 import { getCreatorBaseUrl } from '@/helpers/creatorUrl'
 
 interface CreatorPageProps {
@@ -10,9 +11,10 @@ interface CreatorPageProps {
   links: CreatorLink[]
   siteUrl: string
   supportWidget: SupportWidgetData | null
+  analytics: CreatorAnalyticsData | null
 }
 
-const CreatorPage = ({ creator, links, siteUrl, supportWidget }: CreatorPageProps) => {
+const CreatorPage = ({ creator, links, siteUrl, supportWidget, analytics }: CreatorPageProps) => {
   const title = `${creator.name} (@${creator.handle}) · Dynopay`
   const description =
     creator.bio || `Support ${creator.name} with crypto — donate or pay securely via Dynopay.`
@@ -34,7 +36,7 @@ const CreatorPage = ({ creator, links, siteUrl, supportWidget }: CreatorPageProp
         <meta key='twitter:title' name='twitter:title' content={title} />
         <meta key='twitter:description' name='twitter:description' content={description} />
       </Head>
-      <CreatorProfile creator={creator} links={links} siteUrl={siteUrl} supportWidget={supportWidget} />
+      <CreatorProfile creator={creator} links={links} siteUrl={siteUrl} supportWidget={supportWidget} analytics={analytics} />
     </>
   )
 }
@@ -49,13 +51,33 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   // to reach the backend during SSR — the shareable creator URL is separate.
   const base = (process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_SERVER_URL || '').replace(/\/+$/, '')
   try {
-    const r = await fetch(`${base}/api/pay/creator/${encodeURIComponent(handle)}`, {
-      headers: { Accept: 'application/json' },
-    })
+    // Profile + analytics in parallel — analytics is optional and never blocks
+    // the page render. If the endpoint 404s (older creator, network hiccup),
+    // we just render without the momentum widget.
+    const [r, ar] = await Promise.all([
+      fetch(`${base}/api/pay/creator/${encodeURIComponent(handle)}`, { headers: { Accept: 'application/json' } }),
+      fetch(`${base}/api/pay/creator/${encodeURIComponent(handle)}/analytics`, { headers: { Accept: 'application/json' } }).catch(() => null),
+    ])
     if (!r.ok) return { notFound: true }
     const json = await r.json()
     const data = json?.data
     if (!data?.creator) return { notFound: true }
+
+    // Analytics: only pass through when enabled=true AND we have some tips
+    // (chart or top supporters non-empty). Otherwise widget stays hidden.
+    let analytics: CreatorAnalyticsData | null = null
+    try {
+      if (ar && ar.ok) {
+        const aj = await ar.json()
+        const ad = aj?.data
+        if (ad?.enabled) {
+          const hasChart = Array.isArray(ad.chart) && ad.chart.some((b: { count?: number }) => Number(b?.count || 0) > 0)
+          const hasSupporters = Array.isArray(ad.top_supporters) && ad.top_supporters.length > 0
+          if (hasChart || hasSupporters) analytics = ad as CreatorAnalyticsData
+        }
+      }
+    } catch { /* analytics fetch is best-effort — never blocks the page */ }
+
     return {
       props: {
         creator: data.creator,
@@ -65,6 +87,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
         // still uses the app/internal base URL.
         siteUrl: getCreatorBaseUrl() || (process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_SERVER_URL || '').replace(/\/+$/, ''),
         supportWidget: data.support_widget || null,
+        analytics,
       },
     }
   } catch {

@@ -277,6 +277,13 @@ const userModel = sequelize.define(
       allowNull: true,
       comment: "Show lifetime supporters count on the widget",
     },
+    // ── Creator Page Analytics (Session 2026-08-05) ──
+    public_analytics_enabled: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+      allowNull: false,
+      comment: "Whether the public 30-day tip chart + top supporters widget is shown on the creator page. Toggle from /creator settings.",
+    },
     // ── Custom Creator Theme (Session 60) ──
     theme_accent_color: {
       type: DataTypes.STRING(9),

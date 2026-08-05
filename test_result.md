@@ -1,3 +1,76 @@
+# Session (fork) 2026-08-05 — FEATURE: Creator Page Analytics (30-day tips chart + top supporters, hide/reveal toggle) — BACKEND test requested
+
+Preview: https://bf8f68f3-666f-49cd-b03c-00ac2915732e.preview.emergentagent.com
+Merchant login (2-step, LIVE prod Railway PG): hostbay@moxx.co / Katiekendra123@
+- User-picked spec: **1c** (public compact widget + full settings widget), **2b** (first name + amount, only if supporter typed a name), **3b** (30-day default range), **4c** (chart shows BOTH $ per day + tip count per day, ComposedChart bar+area). Toggle to hide from public creator page (creator always sees their own widget).
+
+## MIGRATION (RAN on LIVE Railway PG, exit 0)
+`scripts/add_public_analytics_enabled.js` → `ALTER TABLE tbl_user ADD COLUMN IF NOT EXISTS public_analytics_enabled BOOLEAN NOT NULL DEFAULT TRUE`. Safe (metadata-only add on PG 15). Idempotent. Verified: user_id=1 hostbay row shows public_analytics_enabled=true.
+
+## BACKEND CHANGES (net new endpoints + 1 field on existing 2 endpoints)
+1. **Model** `backend/models/userModels/userModel.ts` — added `public_analytics_enabled` BOOLEAN NOT NULL DEFAULT true.
+2. **New helper** `paymentLinkController.ts::getCreatorAnalyticsData(userId, currency, includeLifetime)` — rolls up `tbl_payment_link` (link_type='contribution') where the parent's `user_id` matches AND `parent.link_type='donation'` (covers tip-jar tips + crowdfunding contributions) AND `LOWER(status) IN DONATION_COMPLETED_STATUSES`, in a 30-day window. Returns `{chart[30]: {date,amount,count}, top_supporters[≤5]: {name,amount,currency,count}, totals: {amount_30d,count_30d,supporters_30d, amount_lifetime, supporters_lifetime}, currency, window_days}`. Zero-fills 30 daily UTC buckets. **Top supporters**: named non-anonymous only (grouped by first-name token, lowercased; sorted by total amount desc). Anonymous tips still count in chart totals. Cross-currency contributions kept as-is (rare in practice).
+3. **New endpoint** `GET /api/pay/creator/:handle/analytics` (PUBLIC, `paymentRateLimiter`) — honours `public_analytics_enabled` toggle: returns `enabled:false` + empty shell when toggled off; returns full data otherwise. 404 on unknown handle / disabled creator page. `includeLifetime=false` in public.
+4. **New endpoint** `GET /api/user/creator/analytics` (AUTH, `authMiddleware`) — merchant's OWN view, always returns data regardless of public toggle. `includeLifetime=true`. Extras: `has_handle`, `public_analytics_enabled` (echoed so UI can render toggle).
+5. **PUT /api/user/creator/profile** — accept `public_analytics_enabled` boolean; persist, invalidate `profile:${uid}` Redis cache, return in the fresh response.
+6. **GET /api/pay/creator/:handle** (`getCreatorProfile`) — SELECT now includes `public_analytics_enabled` and the response `data.creator.public_analytics_enabled` echoes it (SSR uses this to decide whether to render the compact widget).
+
+## KEY IMPLEMENTATION DETAIL (bug fixed pre-commit)
+Sequelize returns `TIMESTAMP` columns as JS Date objects, so `String(r.createdAt).slice(0,10)` yielded `"Wed Aug 05"` (Date.toString), missing the UTC-ymd keys in `dayIdx`. Fixed to `new Date(r.createdAt).toISOString().slice(0,10)` so buckets populate correctly. Verified live: hostbay analytics endpoint now returns `chart[6]={date:'2026-07-13', amount:30, count:3}` alongside `totals.amount_30d=30, count_30d=3, supporters_30d=2`, and `top_supporters=[{Bob,15},{Alice,5}]`.
+
+## FRONTEND CHANGES (net new component + wires — no dashboard, no marketing changes)
+- `Components/Page/Creator/AnalyticsWidget.tsx` (NEW) — recharts-based, two variants: `compact` (public, small area chart + top-3 chips) and `full` (settings, ComposedChart bar+area with tooltip, KPI strip, top-5 leaderboard, inline "Shown/Hidden" toggle pill). Aurora Indigo `#4F46E5` light / `#818CF8` dark (matches dashboard v2026). Compact hides itself when no tips in 30d + no supporters. Full shows a friendly "No tips yet" empty state.
+- `pages/[handle].tsx` — SSR parallel-fetch analytics; passes to `CreatorProfile` as new `analytics` prop. Fetch failure never blocks the page (best-effort). Only sets prop if `enabled=true` AND (chart non-zero OR supporters).
+- `Components/Page/Creator/CreatorProfile.tsx` — accepts `analytics` + `creator.public_analytics_enabled`; renders `<AnalyticsWidget variant="compact">` below `<SupportWidget>` when both are true and data present.
+- `Components/Page/Creator/CreatorPageSettings.tsx` — new "Analytics" section between Support Widget and "Publish my creator page": header + subtitle + `<Switch data-testid="public-analytics-switch">` (persists on Save), then `<AnalyticsWidget variant="full">` populated via `GET /api/user/creator/analytics`. State: `publicAnalyticsEnabled` (seeds from `profile.public_analytics_enabled`, default true), `analyticsData`, `analyticsLoading`. Change detection + save PUT now include the new flag. Inline toggle pill in the widget also flips the same state.
+
+## WHAT TO TEST (deep_testing_backend_v2 — BACKEND ONLY)
+Auth (for #4–#6): POST /api/user/login {email:"hostbay@moxx.co", password:"Katiekendra123@"} → data.accessToken (Bearer). LIVE Railway PG — the endpoints under test are READ endpoints + one write (PUT /user/creator/profile). Please DO NOT create/delete companies, wallets, or payment links.
+
+1. **Public 200 (default enabled)**: `GET /api/pay/creator/hostbay/analytics` (no auth). Expect 200, JSON body with `data.enabled === true`, `data.chart` is an array of length 30, each item is `{date:'YYYY-MM-DD', amount:number, count:number}`, `data.top_supporters` is an array (may be empty), `data.totals.{amount_30d,count_30d,supporters_30d}` present, `data.currency` present (USD for hostbay), `data.window_days === 30`. `data.totals.amount_lifetime === 0` and `supporters_lifetime === 0` in the public endpoint.
+2. **Public — chart bucketing sanity**: from #1, verify EXACTLY 30 items in `chart`, dates monotonically increasing, oldest = today - 29d (UTC ymd), newest = today (UTC ymd). At least one non-zero bucket if hostbay's totals.count_30d > 0 (currently there are 3 tips on 2026-07-13 — expect that bucket to have amount=30, count=3).
+3. **Public 404**: `GET /api/pay/creator/nonexistent-handle-xyz/analytics` → 404 with message "Creator page not found".
+4. **Auth 200 (own view, lifetime present)**: `GET /api/user/creator/analytics` with Bearer token. Expect 200, `data.enabled === true`, `data.public_analytics_enabled === true`, `data.has_handle === true`, chart[30], top_supporters (non-anonymous only, first-name grouped, sorted by amount desc). `data.totals.amount_lifetime` and `supporters_lifetime` are populated (>=0, matches lifetime completed contributions for user_id=1).
+5. **Auth 401**: `GET /api/user/creator/analytics` WITHOUT Authorization header → 401.
+6. **Toggle flow (WRITE — please REVERT at end so state stays at true)**: 
+   a. `PUT /api/user/creator/profile` with body `{ public_analytics_enabled: false }` + Bearer + CSRF token (GET /api/csrf-token, send as `x-csrf-token`) → 200. Response `data.public_analytics_enabled === false`.
+   b. `GET /api/pay/creator/hostbay/analytics` (no auth) → 200, `data.enabled === false`, `data.chart === []`, `data.top_supporters === []`.
+   c. `GET /api/user/creator/analytics` (auth) → 200, `data.enabled === true` (merchant always sees own data), `data.public_analytics_enabled === false`.
+   d. `PUT /api/user/creator/profile` with `{ public_analytics_enabled: true }` → 200, response `.public_analytics_enabled === true`.
+   e. `GET /api/pay/creator/hostbay/analytics` → 200, `data.enabled === true` again + real data.
+7. **Top supporters privacy**: verify at least one item in `top_supporters` (from #4 or #1 depending on data), and confirm no anonymous supporter names leak — currently expect entries `Bob` and `Alice` and NO entries whose name would come from an anonymous contribution. Also confirm `.count` and `.currency` fields are present on each supporter.
+8. **Sequelize Date bug regression**: chart bucketing must correctly map DB timestamps to ymd. Verify that if `totals.count_30d > 0` there is AT LEAST ONE `chart` bucket with `count > 0`. (This tests the ISO-string conversion fix.)
+9. **Regression — `getCreatorProfile` (`GET /api/pay/creator/hostbay`) still 200** with the added `data.creator.public_analytics_enabled` field. Body shape otherwise unchanged (creator, support_widget, links still present).
+
+Please return pass/fail per numbered item + observed values (chart length, non-zero bucket count, totals, top_supporters names, response codes). If #6 fails at any sub-step, please still attempt step 6d/6e (revert) so the DB is left in the enabled=true state.
+
+### backend
+  - task: "Creator Page Analytics — 30-day tips chart + top supporters + public/settings widgets + toggle"
+    implemented: true
+    working: true
+    file: "backend/scripts/add_public_analytics_enabled.js, backend/models/userModels/userModel.ts, backend/controller/payment/paymentLinkController.ts, backend/controller/userController.ts, backend/routes/paymentRouter.ts, backend/routes/userRouter.ts, backend/controller/paymentController.ts"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Migration ran on LIVE Railway PG (BOOLEAN NOT NULL DEFAULT TRUE — metadata-only, safe). Two new endpoints (public + auth), one field added to updateCreatorProfile body + getCreatorProfile response. Sequelize Date-to-ymd bug caught + fixed pre-commit via toISOString(). TSC clean. Live smoke: public endpoint returns 3 tips on 2026-07-13 for hostbay with Bob+Alice as top supporters; toggle-off returns enabled:false. Awaiting deep_testing_backend_v2 verification per 9-item test plan above."
+      - working: true
+        agent: "testing"
+        comment: "✅ ALL 9 BACKEND TESTS PASSED (2026-08-05). Test 1 (Public 200): enabled=true, chart=30 items, currency=USD, totals.count_30d=3, amount_lifetime=0, supporters_lifetime=0 ✓. Test 2 (Chart bucketing): 30 items, dates sorted (2026-07-07 to 2026-08-05), found expected bucket 2026-07-13 with count=3, amount=30 ✓. Test 3 (Public 404): nonexistent handle returns 404 'Creator page not found' ✓. Test 4 (Auth 200): enabled=true, public_analytics_enabled=true, has_handle=true, chart=30 items, lifetime: amount=30, supporters=3 ✓. Test 5 (Auth 401): no auth header returns 401 ✓. Test 6 (Toggle round-trip): 6a) set to false ✓, 6b) public endpoint returns enabled=false with empty data ✓, 6c) auth endpoint still shows data with public_analytics_enabled=false ✓, 6d) REVERTED to true ✓, 6e) public endpoint restored ✓. Test 7 (Top supporters privacy): 2 supporters found (Bob amount=15 count=1, Alice amount=5 count=1), no anonymous ✓. Test 8 (Sequelize Date bug regression): count_30d=3, 1 non-zero bucket found, NO REGRESSION ✓. Test 9 (Profile endpoint regression): public_analytics_enabled field present, other keys intact ✓. All endpoints working correctly on LIVE Railway PG. Toggle successfully reverted to enabled=true."
+
+## Testing Protocol
+- Backend testing only this pass (frontend visual verification done via screenshots — will request frontend testing agent separately if user asks).
+- READ-ONLY on LIVE Railway PG apart from the toggle round-trip in test 6 (which MUST revert at end).
+
+## Agent Communication
+  - agent: "testing"
+    message: "✅ CREATOR PAGE ANALYTICS BACKEND FULLY VERIFIED — All 9 tests PASSED (9/9 — 100%). Comprehensive test suite executed against LIVE Railway PG. PUBLIC ENDPOINT: Returns enabled=true with 30-day chart (30 buckets, dates 2026-07-07 to 2026-08-05), currency=USD, totals (count_30d=3, amount_30d=30, supporters_30d=2), lifetime values correctly set to 0, top_supporters array with 2 named supporters (Bob $15, Alice $5) — no anonymous leaks ✓. AUTH ENDPOINT: Returns enabled=true, public_analytics_enabled=true, has_handle=true, same 30-day chart, lifetime totals populated (amount=30, supporters=3) ✓. TOGGLE FLOW: Successfully toggled public_analytics_enabled false → public endpoint returned enabled=false with empty data, auth endpoint still showed full data → REVERTED to true → public endpoint restored ✓. REGRESSION CHECKS: No Sequelize Date bug (count_30d=3 matches 1 non-zero bucket on 2026-07-13) ✓, profile endpoint includes new field ✓. All endpoints working correctly. Main agent: please summarize and finish — no backend issues found."
+
+---
+
+
 # Session (fork) 2026-08-05 — CONSISTENCY BUGFIX: /creator page still on old lime accent while dashboard is Aurora Indigo — FRONTEND test requested
 
 Preview: https://bf8f68f3-666f-49cd-b03c-00ac2915732e.preview.emergentagent.com

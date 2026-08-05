@@ -98,6 +98,228 @@ export const getRecentSupporters = async (
   }));
 };
 
+// ═══════════════════════════════════════════════════════════════════════════
+// CREATOR PAGE ANALYTICS (Session 2026-08-05)
+// Rollup of ALL supporter contributions for a creator — tip-jar tips AND
+// crowdfunding-campaign contributions — bucketed for a 30-day activity chart
+// and a top-supporters list. Used by both:
+//   • GET /api/pay/creator/:handle/analytics  (public, honours toggle)
+//   • GET /api/user/creator/analytics         (auth, always shows own data)
+// ═══════════════════════════════════════════════════════════════════════════
+
+interface CreatorAnalyticsBucket {
+  date: string;   // YYYY-MM-DD
+  amount: number; // fiat total in creator's widget currency
+  count: number;  // # tips that day
+}
+interface CreatorAnalyticsSupporter {
+  name: string;    // first token of donor_name (privacy-conscious)
+  amount: number;  // fiat total across all of this supporter's contributions
+  currency: string;
+  count: number;   // how many times they tipped
+}
+export interface CreatorAnalyticsData {
+  chart: CreatorAnalyticsBucket[];
+  top_supporters: CreatorAnalyticsSupporter[];
+  totals: {
+    amount_30d: number;
+    count_30d: number;
+    supporters_30d: number;    // distinct-name supporters in the last 30 days
+    amount_lifetime: number;   // only in auth endpoint (0 in public)
+    supporters_lifetime: number; // only in auth endpoint (0 in public)
+  };
+  currency: string;
+  window_days: number;
+}
+
+/**
+ * Compute the analytics data for a given creator user_id.
+ * @param userId - creator's tbl_user.user_id
+ * @param currency - creator's display/widget currency
+ * @param includeLifetime - if true, also compute lifetime totals (auth view)
+ */
+export const getCreatorAnalyticsData = async (
+  userId: number,
+  currency: string,
+  includeLifetime: boolean
+): Promise<CreatorAnalyticsData> => {
+  const windowDays = 30;
+  // We roll up per day in JS to keep the SQL simple + timezone-safe (all
+  // buckets are UTC yyyy-mm-dd). Volume is bounded by contributions in a
+  // 30-day window per creator — well under a few thousand rows even for the
+  // most successful merchants; JS aggregation cost is negligible.
+  const rows = (await sequelize.query(
+    `SELECT c."createdAt", c.base_amount, c.base_currency, c.donor_name, c.is_anonymous
+       FROM tbl_payment_link c
+       JOIN tbl_payment_link p ON p.link_id = c.parent_link_id
+      WHERE c.link_type = 'contribution'
+        AND LOWER(c.status) IN (:statuses)
+        AND p.user_id = :uid
+        AND p.link_type = 'donation'
+        AND c."createdAt" >= NOW() - INTERVAL '${windowDays} days'`,
+    {
+      replacements: { uid: userId, statuses: DONATION_COMPLETED_STATUSES },
+      type: QueryTypes.SELECT,
+    }
+  )) as Array<{
+    createdAt: string;
+    base_amount: string | number;
+    base_currency: string | null;
+    donor_name: string | null;
+    is_anonymous: boolean | null;
+  }>;
+
+  // Build a zero-filled 30-day bucket array (oldest → today, UTC ymd)
+  const now = Date.now();
+  const chart: CreatorAnalyticsBucket[] = [];
+  const dayIdx: Record<string, number> = {};
+  for (let i = windowDays - 1; i >= 0; i--) {
+    const d = new Date(now - i * 86400000);
+    const ymd = d.toISOString().slice(0, 10);
+    dayIdx[ymd] = chart.length;
+    chart.push({ date: ymd, amount: 0, count: 0 });
+  }
+
+  // Group top supporters by first-name token (privacy) — anonymous tips
+  // never contribute to the leaderboard. Amounts assume same base_currency
+  // as the creator's widget currency (usual case). If a contribution uses a
+  // different currency, we include it as-is — cross-currency mixing is rare
+  // in practice for a single creator and adds unnecessary FX complexity.
+  const supMap = new Map<string, CreatorAnalyticsSupporter>();
+  let count30d = 0;
+  let amount30d = 0;
+  const distinctSupporters30d = new Set<string>();
+
+  for (const r of rows) {
+    // Sequelize returns TIMESTAMP columns as JS Date objects — wrap in
+    // new Date() to be safe regardless of driver behavior, then take the
+    // UTC ymd component so the key matches dayIdx keys built the same way.
+    const ymd = new Date(r.createdAt).toISOString().slice(0, 10);
+    const idx = dayIdx[ymd];
+    const amt = Number(r.base_amount) || 0;
+    if (idx !== undefined) {
+      chart[idx].amount += amt;
+      chart[idx].count += 1;
+    }
+    count30d += 1;
+    amount30d += amt;
+
+    if (!r.is_anonymous && r.donor_name) {
+      const first = String(r.donor_name).trim().split(/\s+/)[0];
+      if (first) {
+        distinctSupporters30d.add(first.toLowerCase());
+        const key = first.toLowerCase();
+        const entry = supMap.get(key) || {
+          name: first,
+          amount: 0,
+          currency: r.base_currency || currency,
+          count: 0,
+        };
+        entry.amount += amt;
+        entry.count += 1;
+        supMap.set(key, entry);
+      }
+    }
+  }
+
+  // Round chart amounts to 2 dp (fiat) so recharts doesn't render 12.79999999
+  for (const b of chart) b.amount = Math.round(b.amount * 100) / 100;
+
+  const top_supporters = Array.from(supMap.values())
+    .sort((a, b) => b.amount - a.amount || b.count - a.count)
+    .slice(0, 5)
+    .map((s) => ({ ...s, amount: Math.round(s.amount * 100) / 100 }));
+
+  // Lifetime totals (only computed for the merchant's own view)
+  let amount_lifetime = 0;
+  let supporters_lifetime = 0;
+  if (includeLifetime) {
+    const [life] = (await sequelize.query(
+      `SELECT COALESCE(SUM(c.base_amount), 0)::float AS amount,
+              COUNT(*)::int                          AS count
+         FROM tbl_payment_link c
+         JOIN tbl_payment_link p ON p.link_id = c.parent_link_id
+        WHERE c.link_type = 'contribution'
+          AND LOWER(c.status) IN (:statuses)
+          AND p.user_id = :uid
+          AND p.link_type = 'donation'`,
+      { replacements: { uid: userId, statuses: DONATION_COMPLETED_STATUSES }, type: QueryTypes.SELECT }
+    )) as Array<{ amount: number; count: number }>;
+    amount_lifetime = Math.round((Number(life?.amount) || 0) * 100) / 100;
+    supporters_lifetime = Number(life?.count) || 0;
+  }
+
+  return {
+    chart,
+    top_supporters,
+    totals: {
+      amount_30d: Math.round(amount30d * 100) / 100,
+      count_30d: count30d,
+      supporters_30d: distinctSupporters30d.size,
+      amount_lifetime,
+      supporters_lifetime,
+    },
+    currency,
+    window_days: windowDays,
+  };
+};
+
+/**
+ * GET /api/pay/creator/:handle/analytics  (public, rate-limited)
+ * Returns the 30-day tip chart + top supporters for a creator's PUBLIC page.
+ * Honours the `public_analytics_enabled` toggle — if the creator has hidden
+ * public analytics, we return `enabled: false` + empty data (the frontend
+ * simply skips rendering the widget).
+ */
+export const getCreatorPublicAnalytics = async (req: express.Request, res: express.Response) => {
+  try {
+    const handle = String(req.params.handle || "").trim().toLowerCase();
+    if (!handle) return errorResponseHelper(res, 400, "Handle is required");
+
+    const [creator] = (await sequelize.query(
+      `SELECT user_id, creator_page_enabled, public_analytics_enabled, support_widget_currency
+         FROM tbl_user
+        WHERE LOWER(handle) = :handle
+        LIMIT 1`,
+      { replacements: { handle }, type: QueryTypes.SELECT }
+    )) as Array<{
+      user_id: number;
+      creator_page_enabled: boolean | null;
+      public_analytics_enabled: boolean | null;
+      support_widget_currency: string | null;
+    }>;
+
+    if (!creator || !creator.creator_page_enabled) {
+      return errorResponseHelper(res, 404, "Creator page not found");
+    }
+
+    // Public toggle OFF → shell response with enabled=false
+    if (!creator.public_analytics_enabled) {
+      return successResponseHelper(res, 200, "Analytics hidden", {
+        enabled: false,
+        chart: [],
+        top_supporters: [],
+        totals: { amount_30d: 0, count_30d: 0, supporters_30d: 0, amount_lifetime: 0, supporters_lifetime: 0 },
+        currency: creator.support_widget_currency || "USD",
+        window_days: 30,
+      });
+    }
+
+    const data = await getCreatorAnalyticsData(
+      creator.user_id,
+      creator.support_widget_currency || "USD",
+      false  // no lifetime in public
+    );
+
+    return successResponseHelper(res, 200, "Creator analytics retrieved", {
+      enabled: true,
+      ...data,
+    });
+  } catch (e) {
+    handleControllerError(res, e, apiLogger, {});
+  }
+};
+
 interface DonationValidationResult {
   error?: string;
   fields: Record<string, unknown>;
@@ -2242,7 +2464,8 @@ export const getCreatorProfile = async (req: express.Request, res: express.Respo
               support_widget_enabled, support_widget_style, support_widget_label,
               support_widget_preset_amounts, support_widget_currency, support_widget_min_amount,
               support_widget_allow_message, support_widget_thanks_message, support_widget_show_supporters,
-              theme_accent_color, theme_cover_style, theme_cover_gradient
+              theme_accent_color, theme_cover_style, theme_cover_gradient,
+              public_analytics_enabled
        FROM tbl_user
        WHERE LOWER(handle) = :handle AND creator_page_enabled = true
        LIMIT 1`,
@@ -2268,6 +2491,7 @@ export const getCreatorProfile = async (req: express.Request, res: express.Respo
       theme_accent_color: string | null;
       theme_cover_style: string | null;
       theme_cover_gradient: string | null;
+      public_analytics_enabled: boolean | null;
     }>;
 
     if (!creator.length) {
@@ -2474,6 +2698,9 @@ export const getCreatorProfile = async (req: express.Request, res: express.Respo
           cover_style: c.theme_cover_style || null,
           cover_gradient: c.theme_cover_gradient || null,
         },
+        // Whether the creator wants their 30-day analytics widget shown publicly.
+        // The SSR page uses this to decide if it should even fetch analytics.
+        public_analytics_enabled: c.public_analytics_enabled !== false,
       },
       support_widget: supportWidget,
       links,

@@ -84,6 +84,7 @@ userRouter.post(
   userController.uploadCoverImage
 );
 userRouter.get("/creator/stats", authMiddleware, userController.getCreatorStats);
+userRouter.get("/creator/analytics", authMiddleware, userController.getCreatorAnalytics);
 
 // Per-user display-currency (Doc-3 workstream E)
 userRouter.get("/display-currency", authMiddleware, userController.getUserDisplayCurrency);

@@ -8,6 +8,7 @@ import { formatWithSeparators, getCurrencySymbolFromFormat } from '@/utils/curre
 import copyToClipboard from '@/helpers/copyToClipboard'
 import SupportWidget, { SupportWidgetData } from './SupportWidget'
 import InlineTipCheckout from './InlineTipCheckout'
+import AnalyticsWidget, { CreatorAnalyticsData } from './AnalyticsWidget'
 
 const MONO = 'ui-monospace, "Roboto Mono", "JetBrains Mono", SFMono-Regular, Menlo, monospace'
 // Aurora indigo — Landing v3 canonical accent (Session 82 migration).
@@ -43,6 +44,7 @@ export interface CreatorData {
     cover_style?: string | null
     cover_gradient?: string | null
   } | null
+  public_analytics_enabled?: boolean
 }
 
 const SOCIAL_ICONS: Record<string, string> = {
@@ -71,7 +73,7 @@ const socialHref = (platform: string, raw: string): string => {
 const fmt = (n: number, currency: string) =>
   `${getCurrencySymbolFromFormat(currency)}${formatWithSeparators(n, currency)}`
 
-const CreatorProfile = ({ creator, links, siteUrl, supportWidget }: { creator: CreatorData; links: CreatorLink[]; siteUrl?: string; supportWidget?: SupportWidgetData | null }) => {
+const CreatorProfile = ({ creator, links, siteUrl, supportWidget, analytics }: { creator: CreatorData; links: CreatorLink[]; siteUrl?: string; supportWidget?: SupportWidgetData | null; analytics?: CreatorAnalyticsData | null }) => {
   const { t } = useTranslation('landing')
   const theme = useTheme()
   const isDark = theme.palette.mode === 'dark'
@@ -410,6 +412,16 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget }: { creator: C
         {supportWidget?.enabled && !activeLink && (
           <Box data-testid='creator-support-section' sx={{ mb: 3 }}>
             <SupportWidget handle={creator.handle} creatorName={creator.name} widget={supportWidget} siteUrl={siteUrl ? `${siteUrl.replace(/\/+$/, '')}/${creator.handle}` : undefined} />
+            {/* Compact 30-day momentum widget — shown when the creator's
+                public_analytics_enabled toggle is on AND we have data.
+                Session 2026-08-05. */}
+            {creator.public_analytics_enabled !== false && analytics && (
+              <AnalyticsWidget
+                variant="compact"
+                data={analytics}
+                accentColor={accent === LIME ? null : accent}
+              />
+            )}
           </Box>
         )}
 

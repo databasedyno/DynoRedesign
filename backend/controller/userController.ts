@@ -25,6 +25,7 @@ import { IUserType } from "../utils/types";
 import axios from "axios";
 // tatumApi import removed - not used in this controller
 import { userLogger } from "../utils/loggers";
+import { getCreatorAnalyticsData } from "./payment/paymentLinkController";
 import { getRedisItem, setRedisItem, setRedisTTL, deleteRedisItem, setRedisItemWithTTL, redis } from "../utils/redisInstance";
 import { isAccountLocked, recordFailedAttempt, clearFailedAttempts } from "../services/accountLockoutService";
 import { createSession } from "../services/sessionService";
@@ -4049,6 +4050,7 @@ const updateCreatorProfile = async (req: express.Request, res: express.Response)
       support_widget_preset_amounts, support_widget_currency, support_widget_min_amount,
       support_widget_allow_message, support_widget_thanks_message, support_widget_show_supporters,
       theme_accent_color, theme_cover_style, theme_cover_gradient,
+      public_analytics_enabled,
     } = req.body as {
       handle?: string;
       name?: string | null;
@@ -4068,6 +4070,7 @@ const updateCreatorProfile = async (req: express.Request, res: express.Response)
       theme_accent_color?: string | null;
       theme_cover_style?: string | null;
       theme_cover_gradient?: string | null;
+      public_analytics_enabled?: boolean;
     };
     const updates: Record<string, unknown> = {};
     // Reservation key to release once the handle is successfully assigned.
@@ -4118,6 +4121,9 @@ const updateCreatorProfile = async (req: express.Request, res: express.Response)
     }
     if (creator_page_enabled !== undefined) {
       updates.creator_page_enabled = Boolean(creator_page_enabled);
+    }
+    if (public_analytics_enabled !== undefined) {
+      updates.public_analytics_enabled = Boolean(public_analytics_enabled);
     }
 
     // Cover image: URL string (uploaded via /user/creator/upload-cover) or null to clear
@@ -4282,6 +4288,7 @@ const updateCreatorProfile = async (req: express.Request, res: express.Response)
         "support_widget_preset_amounts", "support_widget_currency", "support_widget_min_amount",
         "support_widget_allow_message", "support_widget_thanks_message", "support_widget_show_supporters",
         "theme_accent_color", "theme_cover_style", "theme_cover_gradient",
+        "public_analytics_enabled",
       ],
     });
     return successResponseHelper(res, 200, "Creator page updated", fresh?.dataValues || updates);
@@ -4400,6 +4407,52 @@ const getCreatorStats = async (req: express.Request, res: express.Response) => {
       top_referrers: topReferrers,
       daily_visits: dailyVisits,
       has_handle: true,
+    });
+  } catch (e) {
+    handleControllerError(res, e, userLogger);
+  }
+};
+
+/**
+ * GET /api/user/creator/analytics
+ * Merchant's own view of Creator Page Analytics — 30-day tip chart, top 5
+ * supporters, and LIFETIME totals for the settings page. Unlike the public
+ * endpoint, this ignores `public_analytics_enabled` (the creator always sees
+ * their own private analytics regardless of whether the public toggle is on).
+ * Session 2026-08-05.
+ */
+const getCreatorAnalytics = async (req: express.Request, res: express.Response) => {
+  const userData = jwt.decode(res.locals.token) as IUserType;
+  try {
+    const user = await userModel.findOne({
+      where: { user_id: userData.user_id },
+      attributes: ["handle", "support_widget_currency", "public_analytics_enabled"],
+    });
+    const handle = user?.dataValues?.handle || null;
+    const currency = user?.dataValues?.support_widget_currency || "USD";
+    const publicEnabled = user?.dataValues?.public_analytics_enabled !== false;
+
+    if (!handle) {
+      // No handle yet → nothing to analyze; return the empty shell so the
+      // settings page can still render a "Reserve a handle first" empty state.
+      return successResponseHelper(res, 200, "No handle yet", {
+        enabled: false,
+        public_analytics_enabled: publicEnabled,
+        chart: [],
+        top_supporters: [],
+        totals: { amount_30d: 0, count_30d: 0, supporters_30d: 0, amount_lifetime: 0, supporters_lifetime: 0 },
+        currency,
+        window_days: 30,
+        has_handle: false,
+      });
+    }
+
+    const data = await getCreatorAnalyticsData(userData.user_id, currency, true);
+    return successResponseHelper(res, 200, "Creator analytics retrieved", {
+      enabled: true,
+      public_analytics_enabled: publicEnabled,
+      has_handle: true,
+      ...data,
     });
   } catch (e) {
     handleControllerError(res, e, userLogger);
@@ -4671,6 +4724,7 @@ export default {
   updateCreatorProfile,
   uploadCoverImage,
   getCreatorStats,
+  getCreatorAnalytics,
   getUserDisplayCurrency,
   updateUserDisplayCurrency,
   getMerchantTaxSettings,

@@ -23,6 +23,11 @@ paymentRouter.get("/meta", paymentRateLimiter, paymentController.getPaymentMeta)
 // Public creator vanity page profile (dynopay.me/{handle} → SSR fetch)
 paymentRouter.get("/creator/:handle", paymentRateLimiter, paymentController.getCreatorProfile);
 
+// Public creator page analytics (30-day tip chart + top supporters).
+// Honours the creator's public_analytics_enabled toggle — returns enabled:false
+// with empty data if hidden. Session 2026-08-05.
+paymentRouter.get("/creator/:handle/analytics", paymentRateLimiter, paymentController.getCreatorPublicAnalytics);
+
 // Donation campaigns: public endpoint for a donor to start a contribution
 // (spawns a child payment session; checkout continues with the returned ref)
 paymentRouter.post("/startDonation", paymentRateLimiter, paymentController.startDonation);
