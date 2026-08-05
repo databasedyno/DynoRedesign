@@ -254,7 +254,7 @@ const generateReferralCode = () => {
  */
 const registerEmailStep1 = async (req: express.Request, res: express.Response) => {
   try {
-    const { email, referral_code, attribution } = req.body;
+    const { email, referral_code, attribution, purpose_vertical } = req.body;
 
     if (!email) {
       return errorResponseHelper(res, 400, "Email is required");
@@ -266,6 +266,17 @@ const registerEmailStep1 = async (req: express.Request, res: express.Response) =
     // `?src=seo&page={slug}&kind={country|vertical}` on landing pages.
     // We log it so admins can measure per-page conversion downstream.
     const attrStr = _formatAttribution(attribution);
+
+    // Optional purpose vertical from the new PurposePicker signup step
+    // (design audit Phase 2/3). One of "merchants" | "fundraisers" |
+    // "creators" | "developers". Whitelist here so an invalid value from
+    // an outdated client never trips the DB CHECK constraint later.
+    const validVerticals = ["merchants", "fundraisers", "creators", "developers"] as const;
+    const purposeVertical =
+      typeof purpose_vertical === "string" &&
+      (validVerticals as readonly string[]).includes(purpose_vertical)
+        ? purpose_vertical
+        : null;
 
     // Check if email already exists — if so, switch to a passwordless LOGIN via OTP
     // instead of dead-ending. We still send a code; verify-otp will sign the user in.
@@ -279,7 +290,8 @@ const registerEmailStep1 = async (req: express.Request, res: express.Response) =
       return successResponseHelper(res, 200, "You already have an account — we've sent a code to log you in.", { account_exists: true });
     }
 
-    // Store referral code + attribution in Redis for later use during verification
+    // Store referral code + attribution + purpose vertical in Redis for
+    // later use during OTP verification (Step 2).
     if (referral_code) {
       await setRedisItemWithTTL(`reg-referral:${emailLower}`, { referral_code }, 900);
     }
@@ -294,6 +306,9 @@ const registerEmailStep1 = async (req: express.Request, res: express.Response) =
         900,
       );
     }
+    if (purposeVertical) {
+      await setRedisItemWithTTL(`reg-vertical:${emailLower}`, { purpose_vertical: purposeVertical }, 900);
+    }
 
     // Send OTP via email
     const sent = await sendEmailOTP(emailLower, "there");
@@ -301,7 +316,7 @@ const registerEmailStep1 = async (req: express.Request, res: express.Response) =
       return errorResponseHelper(res, 503, "Unable to send verification code. Please try again.");
     }
 
-    userLogger.info(`[RegisterEmail] OTP sent for registration: ${emailLower}${attrStr}`);
+    userLogger.info(`[RegisterEmail] OTP sent for registration: ${emailLower}${attrStr}${purposeVertical ? " · vertical=" + purposeVertical : ""}`);
     return successResponseHelper(res, 200, "Verification code sent to your email", { account_exists: false });
 
   } catch (e) {
@@ -371,6 +386,21 @@ const registerEmailVerifyOtp = async (req: express.Request, res: express.Respons
     const storedAttrStr = _formatAttribution(storedAttr && Object.keys(storedAttr).length > 0 ? storedAttr : null);
     const attrLogSuffix = requestAttr || storedAttrStr;
 
+    // Retrieve purpose vertical stored in Redis by Step 1 (design audit 2026-08-05).
+    // Also accept it directly in this request body as a fallback so callers can
+    // pass it end-to-end in one shot if they prefer.
+    const validVerticals = ["merchants", "fundraisers", "creators", "developers"] as const;
+    const storedVertical = await getRedisItem(`reg-vertical:${emailLower}`);
+    if (storedVertical) await deleteRedisItem(`reg-vertical:${emailLower}`);
+    const requestVertical = req.body?.purpose_vertical;
+    const rawVertical: unknown =
+      (storedVertical && typeof storedVertical.purpose_vertical === "string" && storedVertical.purpose_vertical) ||
+      (typeof requestVertical === "string" ? requestVertical : null);
+    const purposeVertical =
+      typeof rawVertical === "string" && (validVerticals as readonly string[]).includes(rawVertical)
+        ? rawVertical
+        : null;
+
     // Create user — no name, no password
     const photoLocation = await downloadUserImage();
     const photo = process.env.SERVER_URL + photoLocation;
@@ -386,6 +416,7 @@ const registerEmailVerifyOtp = async (req: express.Request, res: express.Respons
       referred_by_code: referral_code,
       login_type: "EMAIL",
       language: normalizeLang(req.body?.language),
+      purpose_vertical: purposeVertical,
     });
 
     // Create wallets
@@ -506,7 +537,7 @@ const phoneTypeCheck = async (req: express.Request, res: express.Response) => {
 const registerPhoneStep1 = async (req: express.Request, res: express.Response) => {
   try {
     let { mobile } = req.body;
-    const { referral_code, attribution } = req.body;
+    const { referral_code, attribution, purpose_vertical } = req.body;
     
     if (!mobile) {
       return errorResponseHelper(res, 400, "Mobile number is required");
@@ -522,6 +553,14 @@ const registerPhoneStep1 = async (req: express.Request, res: express.Response) =
     }
 
     const attrStr = _formatAttribution(attribution);
+
+    // Whitelist purpose vertical (design audit 2026-08-05)
+    const validVerticals = ["merchants", "fundraisers", "creators", "developers"] as const;
+    const purposeVertical =
+      typeof purpose_vertical === "string" &&
+      (validVerticals as readonly string[]).includes(purpose_vertical)
+        ? purpose_vertical
+        : null;
     
     // Check if mobile already registered — if so, switch to a passwordless LOGIN
     // via OTP instead of dead-ending. verify step will sign the user in.
@@ -554,11 +593,15 @@ const registerPhoneStep1 = async (req: express.Request, res: express.Response) =
         900,
       );
     }
+    // Store purpose vertical for use in Step 2
+    if (purposeVertical) {
+      await setRedisItemWithTTL(`reg-vertical-phone:${mobile}`, { purpose_vertical: purposeVertical }, 900);
+    }
     
     // Send OTP via Telnyx
     const smsSent = await sendTelnyxSMS(mobile);
     if (smsSent) {
-      userLogger.info(`[RegisterPhone] OTP sent for registration: ${mobile}${attrStr}`);
+      userLogger.info(`[RegisterPhone] OTP sent for registration: ${mobile}${attrStr}${purposeVertical ? " · vertical=" + purposeVertical : ""}`);
       return successResponseHelper(res, 200, "Verification code sent to your phone number.", { account_exists: false });
     }
     return errorResponseHelper(res, 503, "Failed to send verification code. Please try again.");
@@ -635,6 +678,20 @@ const registerPhoneStep2 = async (req: express.Request, res: express.Response) =
       storedAttrPhone && Object.keys(storedAttrPhone).length > 0 ? storedAttrPhone : null,
     );
     const attrLogSuffixPhone = requestAttrPhone || storedAttrPhoneStr;
+
+    // Retrieve purpose vertical stored in Redis by Step 1 (design audit 2026-08-05).
+    // Also accept it directly in this request body as a fallback.
+    const validVerticalsPhone = ["merchants", "fundraisers", "creators", "developers"] as const;
+    const storedVerticalPhone = await getRedisItem(`reg-vertical-phone:${mobile}`);
+    if (storedVerticalPhone) await deleteRedisItem(`reg-vertical-phone:${mobile}`);
+    const requestVerticalPhone = req.body?.purpose_vertical;
+    const rawVerticalPhone: unknown =
+      (storedVerticalPhone && typeof storedVerticalPhone.purpose_vertical === "string" && storedVerticalPhone.purpose_vertical) ||
+      (typeof requestVerticalPhone === "string" ? requestVerticalPhone : null);
+    const purposeVerticalPhone =
+      typeof rawVerticalPhone === "string" && (validVerticalsPhone as readonly string[]).includes(rawVerticalPhone)
+        ? rawVerticalPhone
+        : null;
     
     const photoLocation = await downloadUserImage();
     const photo = process.env.SERVER_URL + photoLocation;
@@ -651,6 +708,7 @@ const registerPhoneStep2 = async (req: express.Request, res: express.Response) =
       referral_code: userReferralCode,
       referred_by_code: referral_code,
       language: normalizeLang(req.body?.language),
+      purpose_vertical: purposeVerticalPhone,
     });
     
     // Create wallets

@@ -16,6 +16,26 @@ import { useThemeMode } from "@/contexts/ThemeContext";
 import type { SEOPageContent, SEOPageIndexEntry } from "@/utils/seoContent";
 import SEOIllustration from "./SEOIllustration";
 import { useTranslation } from 'react-i18next';
+import { useVerticalAccent, type Vertical, Eyebrow } from "@/Components/UI/_shared";
+
+/**
+ * Slug → Vertical map for `/for/{slug}` pages. Only these four verticals get
+ * a per-audience accent applied; country pages (`/accept-crypto-payments-in/*`)
+ * and any future slugs fall back to the default indigo merchant tint.
+ */
+const SEO_SLUG_TO_VERTICAL: Record<string, Vertical> = {
+  merchants: "merchants",
+  merchant: "merchants",
+  fundraisers: "fundraisers",
+  fundraiser: "fundraisers",
+  donation: "fundraisers",
+  crowdfunding: "fundraisers",
+  creators: "creators",
+  creator: "creators",
+  developers: "developers",
+  developer: "developers",
+  api: "developers",
+};
 
 interface Props {
   content: SEOPageContent;
@@ -34,6 +54,23 @@ const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages =
   const theme = useTheme();
   const { isDark } = useThemeMode();
   const router = useRouter();
+
+  // ─── Vertical-specific accent (design audit 2026-08-05, Phase 4) ────
+  // /for/{slug} pages inherit the accent of the matching vertical so a
+  // creator lands on a volt-lime hero, a fundraiser on violet, and a
+  // developer on obsidian-with-volt. Country pages fall through to the
+  // default merchant indigo. The `override` arg on useVerticalAccent()
+  // means the route heuristic can't misfire here.
+  const verticalOverride: Vertical | undefined =
+    content._kind === "vertical"
+      ? SEO_SLUG_TO_VERTICAL[content._slug || ""]
+      : undefined;
+  const accent = useVerticalAccent(verticalOverride);
+  // For dark mode, volt-lime provides better contrast than the deep ink
+  // for hover/pressed states — invert the swap.
+  const accentColor = accent.color;
+  const accentDeep = accent.colorDeep;
+  const accentOnColor = accent.onColor;
 
   // Attribute every signup click coming from these pages so we can measure
   // conversion downstream (query param arrives in the register funnel).
@@ -199,6 +236,36 @@ const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages =
           textAlign: "center",
         }}
       >
+        {/* Vertical eyebrow — makes the accent immediately visible. Renders
+             only on /for/{vertical}; country pages stay clean. */}
+        {content._kind === "vertical" && verticalOverride && (
+          <Box sx={{ display: "flex", justifyContent: "center", mb: { xs: 2, md: 2.5 } }}>
+            <Box
+              sx={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 1,
+                px: 1.5,
+                py: 0.5,
+                borderRadius: 999,
+                backgroundColor: accent.tint,
+                border: `1px solid ${accentColor}33`,
+              }}
+            >
+              <Box
+                sx={{
+                  width: 6, height: 6, borderRadius: "50%",
+                  backgroundColor: accentColor,
+                  boxShadow: `0 0 0 3px ${accentColor}22`,
+                }}
+              />
+              <Eyebrow tone="ink" sx={{ color: accentColor, letterSpacing: "0.24em", fontSize: 11 }}>
+                {`For ${verticalOverride}`}
+              </Eyebrow>
+            </Box>
+          </Box>
+        )}
+
         {/* Hero illustration — smaller (was 128 → now 72) so it acts as an
              accent instead of the loudest thing on the page. */}
         <Box sx={{ display: "flex", justifyContent: "center", mb: { xs: 2, md: 2.5 } }}>
@@ -257,16 +324,16 @@ const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages =
               variant="contained"
               endIcon={<ArrowForwardIcon />}
               sx={{
-                bgcolor: theme.palette.primary.main,
-                color: "#fff",
+                bgcolor: accentColor,
+                color: accentOnColor,
                 textTransform: "none",
-                fontWeight: 600,
+                fontWeight: 700,
                 fontSize: 16,
                 px: { xs: 3, md: 4 },
                 py: 1.5,
                 borderRadius: 2,
                 boxShadow: "none",
-                "&:hover": { bgcolor: theme.palette.primary.dark, boxShadow: "none" },
+                "&:hover": { bgcolor: accentDeep, boxShadow: "none" },
               }}
             >
               {content.cta_headline}

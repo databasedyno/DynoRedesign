@@ -25,6 +25,7 @@ import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import { CopyButton } from "../Transactions/TransactionDetailsModal.styled";
+import WalletTotalHero from "./WalletTotalHero";
 import {
   HeaderIcon,
   WalletCardBody,
@@ -134,6 +135,11 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: () => void }) => {
         pb: { xs: "70px", lg: "0" },
       }}
     >
+      {/* Aurora total-processed hero — 2026-08-05 design audit Phase 3.
+          Only render when the user actually has wallets configured, so first-
+          time visitors see the empty-state warning banner (already surfaced
+          via setPageWarning) instead of an unhelpful "$0.00" hero. */}
+      {walletData.length > 0 && <WalletTotalHero />}
       <Grid container spacing={isMobile ? "12px" : 2.7}>
         {walletData.map((wallet, index) => (
           <Grid

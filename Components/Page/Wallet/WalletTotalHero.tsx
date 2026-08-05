@@ -1,0 +1,243 @@
+import { Box, Typography, useTheme } from "@mui/material";
+import { Icon } from "@iconify/react";
+import { useMemo } from "react";
+import { useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
+import { useWalletData } from "@/hooks/useWalletData";
+import { CB_TOKENS, AURORA_GRADIENT_SOFT, INDIGO } from "@/Components/UI/_shared";
+import { rootReducer } from "@/utils/types";
+
+/** Minimal symbol map — matches the currencies the wallet totals actually
+ *  ship in today. Falls back to the ISO code when unmapped, which is the
+ *  safest default for anything else. */
+const CURRENCY_SYMBOLS: Record<string, string> = {
+  USD: "$", EUR: "€", GBP: "£", NGN: "₦", GHS: "₵", RWF: "₣",
+  KES: "KES ", UGX: "UGX ", INR: "₹", ZAR: "R", AUD: "A$", CAD: "C$", BRL: "R$",
+};
+
+/**
+ * WalletTotalHero — aurora "big number" hero for /wallet.
+ *
+ * Shipped as part of the 2026-08-05 design audit Phase 3 (in-app polish).
+ * Answers the first question a merchant has when they land on /wallet:
+ * "how much did I make across ALL my chains?" — that number wasn't
+ * visible anywhere on the wallet page before. The dashboard has a
+ * VolumeHero for the same purpose; this brings the same treatment here.
+ *
+ * Layout:
+ *   • Left: mono eyebrow "TOTAL PROCESSED · ALL CHAINS", then a very
+ *     large aurora-inked number ($X,XXX.XX in the user's base currency).
+ *   • Right: three compact stat pills — active chains count, wallets
+ *     configured, chain coverage as a percentage. Feed off the existing
+ *     `useWalletData()` hook so no new API traffic.
+ *   • Bottom hairline separator + aurora-tinted glow blob top-right for
+ *     a subtle depth cue without adding motion.
+ *
+ * Numbers are pre-computed on the frontend from `walletData.totalProcessed`
+ * (already in USD via the backend's currency conversion), so this
+ * component is zero-network — safe to render immediately on page load.
+ */
+export default function WalletTotalHero() {
+  const theme = useTheme();
+  const dark = theme.palette.mode === "dark";
+  const { t } = useTranslation(["walletScreen", "common"]);
+  const { walletData, allCryptocurrencies } = useWalletData();
+  const profile = useSelector((s: rootReducer) => (s as any).userReducer?.profile);
+  const currencyCode = profile?.display_currency || profile?.base_currency || "USD";
+  const currencySymbol = useMemo(
+    () => CURRENCY_SYMBOLS[String(currencyCode).toUpperCase()] || "$",
+    [currencyCode]
+  );
+
+  const stats = useMemo(() => {
+    const totalUsd = walletData.reduce((sum, w) => sum + (Number(w.totalProcessed) || 0), 0);
+    const activeWallets = walletData.filter((w) => Boolean(w.walletAddress)).length;
+    const coverage = allCryptocurrencies.length > 0
+      ? Math.round((activeWallets / allCryptocurrencies.length) * 100)
+      : 0;
+    return { totalUsd, activeWallets, coverage, totalChains: allCryptocurrencies.length };
+  }, [walletData, allCryptocurrencies]);
+
+  const formatted = useMemo(() => {
+    return new Intl.NumberFormat("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(stats.totalUsd);
+  }, [stats.totalUsd]);
+
+  return (
+    <Box
+      data-testid="wallet-total-hero"
+      sx={{
+        position: "relative",
+        overflow: "hidden",
+        borderRadius: "20px",
+        padding: { xs: "20px", md: "28px 32px" },
+        marginBottom: { xs: 2.5, md: 3 },
+        border: `1px solid ${dark ? CB_TOKENS.border.dark : CB_TOKENS.border.light}`,
+        background: dark
+          ? CB_TOKENS.surface.dark
+          : CB_TOKENS.surface.light,
+        boxShadow: dark
+          ? "0 1px 0 rgba(255,255,255,0.02) inset"
+          : "0 1px 3px rgba(10,10,15,0.04)",
+      }}
+    >
+      {/* Aurora glow blob (top-right) — subtle, matches Home v3 hero */}
+      <Box
+        aria-hidden
+        sx={{
+          position: "absolute",
+          top: -140,
+          right: -140,
+          width: 320,
+          height: 320,
+          borderRadius: "50%",
+          background: AURORA_GRADIENT_SOFT,
+          filter: "blur(60px)",
+          opacity: dark ? 0.35 : 0.55,
+          pointerEvents: "none",
+        }}
+      />
+      <Box
+        sx={{
+          position: "relative",
+          display: "flex",
+          flexDirection: { xs: "column", md: "row" },
+          alignItems: { xs: "flex-start", md: "flex-end" },
+          justifyContent: "space-between",
+          gap: { xs: 2.5, md: 3 },
+        }}
+      >
+        {/* Big number */}
+        <Box sx={{ minWidth: 0 }}>
+          <Typography
+            sx={{
+              fontFamily: "var(--font-tech), ui-monospace, monospace",
+              fontSize: 11,
+              fontWeight: 500,
+              letterSpacing: "0.28em",
+              textTransform: "uppercase",
+              color: theme.palette.text.secondary,
+              mb: { xs: 1, md: 1.25 },
+            }}
+          >
+            {t("totalProcessedEyebrow", {
+              defaultValue: "Total processed · all chains",
+              ns: "walletScreen",
+            })}
+          </Typography>
+          <Box sx={{ display: "flex", alignItems: "baseline", gap: 0.5, flexWrap: "wrap" }}>
+            <Typography
+              component="span"
+              sx={{
+                fontFamily: "var(--font-hero), var(--font-body)",
+                fontSize: { xs: 34, md: 56 },
+                fontWeight: 700,
+                lineHeight: 1,
+                letterSpacing: "-0.03em",
+                color: theme.palette.text.primary,
+                background: `linear-gradient(135deg, ${dark ? "#818CF8" : INDIGO} 0%, #7C5CFF 55%, #4FD1FF 100%)`,
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+              }}
+            >
+              {currencySymbol}{formatted}
+            </Typography>
+            <Typography
+              component="span"
+              sx={{
+                fontFamily: "var(--font-tech), ui-monospace, monospace",
+                fontSize: { xs: 12, md: 14 },
+                fontWeight: 500,
+                color: theme.palette.text.secondary,
+                letterSpacing: "0.06em",
+                ml: 1,
+              }}
+            >
+              {currencyCode}
+            </Typography>
+          </Box>
+        </Box>
+
+        {/* Stat pills */}
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+            gap: { xs: 1, md: 1.5 },
+            width: { xs: "100%", md: "auto" },
+            minWidth: { md: 360 },
+          }}
+        >
+          <StatChip
+            icon="mdi:link-variant"
+            label={t("activeChains", { defaultValue: "Active chains", ns: "walletScreen" })}
+            value={stats.activeWallets.toString()}
+          />
+          <StatChip
+            icon="mdi:database-outline"
+            label={t("supported", { defaultValue: "Supported", ns: "walletScreen" })}
+            value={stats.totalChains.toString()}
+          />
+          <StatChip
+            icon="mdi:chart-donut"
+            label={t("coverage", { defaultValue: "Coverage", ns: "walletScreen" })}
+            value={`${stats.coverage}%`}
+          />
+        </Box>
+      </Box>
+    </Box>
+  );
+}
+
+function StatChip({ icon, label, value }: { icon: string; label: string; value: string }) {
+  const theme = useTheme();
+  const dark = theme.palette.mode === "dark";
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        gap: 0.5,
+        padding: "10px 12px",
+        borderRadius: "12px",
+        border: `1px solid ${dark ? "rgba(255,255,255,0.08)" : "rgba(10,10,15,0.08)"}`,
+        backgroundColor: dark ? "rgba(255,255,255,0.02)" : "rgba(10,10,15,0.02)",
+        minWidth: 0,
+      }}
+    >
+      <Box sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
+        <Icon icon={icon} width={13} color={theme.palette.text.secondary} />
+        <Typography
+          sx={{
+            fontFamily: "var(--font-tech), ui-monospace, monospace",
+            fontSize: 10.5,
+            fontWeight: 600,
+            letterSpacing: "0.12em",
+            textTransform: "uppercase",
+            color: theme.palette.text.secondary,
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+          }}
+        >
+          {label}
+        </Typography>
+      </Box>
+      <Typography
+        sx={{
+          fontFamily: "var(--font-hero), var(--font-body)",
+          fontSize: 22,
+          fontWeight: 700,
+          letterSpacing: "-0.02em",
+          lineHeight: 1.1,
+          color: theme.palette.text.primary,
+        }}
+      >
+        {value}
+      </Typography>
+    </Box>
+  );
+}

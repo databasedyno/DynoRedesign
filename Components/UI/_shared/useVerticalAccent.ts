@@ -1,5 +1,6 @@
 import { useRouter } from "next/router";
 import { useMemo } from "react";
+import { useSelector } from "react-redux";
 import { INDIGO, VIOLET, VOLT, VOLT_INK, OBSIDIAN, AURORA_GRADIENT } from "@/Components/Page/Home/v3/theme.v3";
 
 /**
@@ -76,6 +77,8 @@ const ACCENTS: Record<Vertical, VerticalAccent> = {
   },
 };
 
+const VALID_VERTICALS: Vertical[] = ["merchants", "fundraisers", "creators", "developers"];
+
 const ROUTE_MAP: Array<{ test: (path: string) => boolean; vertical: Vertical }> = [
   // Public marketing
   { test: (p) => p === "/for/creators" || p === "/creator", vertical: "creators" },
@@ -88,13 +91,40 @@ const ROUTE_MAP: Array<{ test: (path: string) => boolean; vertical: Vertical }> 
   { test: (p) => p === "/developer-keys" || p === "/documentation", vertical: "developers" },
 ];
 
-/** Pick the accent for the current route unless the caller provides an override. */
+/** Pick the accent for the current route unless the caller provides an override.
+ *
+ * Resolution priority (highest first):
+ *   1. explicit `override` arg
+ *   2. `user.purpose_vertical` from Redux (persisted at signup by PurposePicker → backend `tbl_user.purpose_vertical`)
+ *   3. `dyno_purpose_vertical` from localStorage (client-side signal for logged-out or legacy users)
+ *   4. route heuristic (matches `/for/*`, `/creator`, `/[handle]`, `/developer-keys`, `/documentation`)
+ *   5. INDIGO merchants fallback
+ */
 export function useVerticalAccent(override?: Vertical): VerticalAccent {
   const router = useRouter();
+  const profileVertical = useSelector((s: any) => {
+    const raw = s?.userReducer?.profile?.purpose_vertical;
+    return isVertical(raw) ? raw : null;
+  });
   return useMemo(() => {
     if (override) return ACCENTS[override];
+    if (profileVertical) return ACCENTS[profileVertical];
+    // Client-only localStorage read — safe because `useMemo` runs on the
+    // client; SSR pre-hydration will just show the route-heuristic accent
+    // and swap seamlessly on first client render.
+    let stored: Vertical | null = null;
+    if (typeof window !== "undefined") {
+      try {
+        const raw = window.localStorage.getItem("dyno_purpose_vertical");
+        if (isVertical(raw)) stored = raw;
+      } catch { /* noop */ }
+    }
+    if (stored) return ACCENTS[stored];
     const path = router?.pathname || "/";
     const match = ROUTE_MAP.find((r) => r.test(path));
     return ACCENTS[match?.vertical ?? "merchants"];
-  }, [override, router?.pathname]);
+  }, [override, profileVertical, router?.pathname]);
 }
+
+const isVertical = (v: unknown): v is Vertical =>
+  typeof v === "string" && (VALID_VERTICALS as string[]).includes(v);

@@ -1,5 +1,33 @@
 # Changelog
 
+## 2026-08-05 (session 2) — Backend vertical + Phase 3/4 rollout
+
+**🟢 Backend vertical column shipped (design audit Phase 3 wiring)**
+- `backend/migrations/addPurposeVertical.ts` — additive, idempotent migration that adds `purpose_vertical VARCHAR(20)` to `tbl_user` + a named CHECK constraint (`tbl_user_purpose_vertical_chk`) allowing only `merchants | fundraisers | creators | developers | NULL`. Applied against the LIVE Railway Postgres via `ts-node --transpile-only`; verified with `/api/user/login` returning `purpose_vertical: None` for pre-existing users (no data corruption).
+- `backend/models/userModels/userModel.ts` — added the column to the Sequelize model with the same enum comment.
+- `backend/controller/userController.ts`:
+  - `registerEmailStep1` now accepts `purpose_vertical` in the request body, whitelists it against the four enum values, and stores it in Redis at `reg-vertical:{email}` for use in Step 2. `registerEmailVerifyOtp` reads it back (with request-body fallback), passes it to `userModel.create()`.
+  - Same pattern for `registerPhoneStep1` / `registerPhoneStep2` using `reg-vertical-phone:{mobile}` key.
+- `Components/UI/_shared/useVerticalAccent.ts` — resolution priority updated: `override → user.purpose_vertical from Redux → localStorage → route heuristic → INDIGO merchants fallback`. Once a user signs up with a vertical picked, the accent tint follows them everywhere they use the app.
+
+**🟢 Phase 4 · Public marketing — per-vertical accents on /for/{slug}**
+- `Components/Page/SEO/SEOLandingPage.tsx` — now imports `useVerticalAccent()` and applies:
+  - A new "FOR {vertical}" mono eyebrow chip at the top of the hero, tinted with the vertical's accent color (indigo merchants / violet fundraisers / volt-lime creators / obsidian developers)
+  - The primary CTA button (`bgcolor`) uses `accent.color` with `accent.onColor` text — creators get dark ink on volt-lime, developers get volt-lime text on obsidian, etc.
+  - Hover state uses `accent.colorDeep`.
+- Country pages (`/accept-crypto-payments-in/*`) unaffected — the `verticalOverride` guard falls through to the default indigo when `content._kind !== "vertical"`.
+- All four `/for/{merchants|fundraisers|creators|developers}` pages visually differentiate in the Playwright audit; no regression on the shipped `/` and `/fees`.
+
+**🟢 Phase 3 · Wallet aurora total-hero**
+- `Components/Page/Wallet/WalletTotalHero.tsx` — new component. Aurora gradient big-number hero (`$21,093.43` in indigo→violet→sky, mono `USD` label) + 3 stat chips (Active Chains / Supported / Coverage %) computed from the existing `useWalletData()` hook (zero new network traffic). Aurora glow blob top-right for depth.
+- `Components/Page/Wallet/index.tsx` — renders `<WalletTotalHero />` only when `walletData.length > 0` so the empty-state warning banner still leads for first-time visitors. Hero is data-testid'd (`wallet-total-hero`) for future Playwright coverage.
+
+**Verification (all in one run):**
+- `tsc --noEmit` PASS on `/app` + `/app/backend`
+- Live migration confirmed via `/api/user/login`
+- Playwright at 1440×900: `/for/creators` volt-lime CTA · `/for/fundraisers` violet CTA · `/for/merchants` indigo CTA · `/for/developers` obsidian+volt CTA · `/wallet` hero renders with `wallet-total-hero` testid · `/creator` still 0 hydration errors after all changes
+
+
 ## 2026-08-05 — Design audit + Phase 1 & 2 groundwork (Aurora extension)
 
 **Context:** After the shipped Aurora v3 pages (`/`, `/fees`) and v2026 dashboard (`/dashboard`), 30+ other pages were still on legacy MUI palette / one-off `sx` styles. Full audit report in `/app/memory/DESIGN_AUDIT_2026_08_05.md`.

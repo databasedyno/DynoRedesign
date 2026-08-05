@@ -202,6 +202,12 @@ const userModel = sequelize.define(
       allowNull: true,
       comment: "Public vanity handle for the creator page (unique, case-insensitive)",
     },
+    // ── Purpose vertical (design audit 2026-08-05, PurposePicker signup step) ──
+    purpose_vertical: {
+      type: DataTypes.STRING(20),
+      allowNull: true,
+      comment: "Which of Dynopay's four verticals the user identifies with: 'merchants' | 'fundraisers' | 'creators' | 'developers'. Drives sidebar accent tint and post-signup onboarding routing. NULL for legacy users who signed up before this column existed.",
+    },
     bio: {
       type: DataTypes.STRING(500),
       allowNull: true,
