@@ -1,5 +1,30 @@
 # Changelog
 
+## 2026-08-05 — Design audit + Phase 1 & 2 groundwork (Aurora extension)
+
+**Context:** After the shipped Aurora v3 pages (`/`, `/fees`) and v2026 dashboard (`/dashboard`), 30+ other pages were still on legacy MUI palette / one-off `sx` styles. Full audit report in `/app/memory/DESIGN_AUDIT_2026_08_05.md`.
+
+**🟢 Phase 1 · Unblock**
+- **Fixed hydration error on `/creator`** — MUI `useMediaQuery` returned different values SSR-vs-client for desktop viewports (flipping the sticky preview column) and Redux `profile` wasn't populated during SSR, so `hasHandle`-gated blocks rendered differently. Fix: `useMediaQuery(..., { noSsr: true })` + `mounted` gate on all Redux-dependent conditionals. Verified 0 page errors, no error overlay.
+- **Extracted shared UI primitives** into `/app/Components/UI/_shared/`:
+  - `index.ts` — single barrel export
+  - `StatusPill.tsx` — 5-tone monospace chip (settled/pending/failed/info/neutral), dark-mode parity
+  - `SurfaceCard.tsx` — 20 px radius aurora card with optional accent bar (indigo/violet/volt/coral)
+  - `PillButton.tsx` — active/inactive timeframe & filter chip
+  - `useVerticalAccent.ts` — the cross-cutting hook. Returns `{color, colorDeep, tint, gradient, onColor}` for the current route, auto-detects creators/fundraisers/developers/merchants from path, override supported.
+- Callers now do a single import: `import { Eyebrow, HeadlineL, SurfaceCard, StatusPill, PillButton, useVerticalAccent } from "@/Components/UI/_shared"`.
+
+**🟢 Phase 2 · Auth — purpose-driven signup wizard**
+- **New `PurposePicker` component** (`/app/Components/UI/AuthLayout/PurposePicker.tsx`) — 4 pills opening registration: "Sell products / Fundraise / Get tips / Build with API".
+  - **Auto-detects** the vertical from three sources (SEO attribution → prior localStorage pick → URL `?vertical=` query). If detected, the picker renders nothing and register jumps straight to the input step.
+  - **Persists** the manual pick to `localStorage["dyno_purpose_vertical"]` so downstream `useVerticalAccent(override)` can tint the app for the user's stated intent.
+  - **Zero backend dependency** in Phase 2 — the register API call now sends an optional `purpose_vertical` field that the backend safely ignores; the column will be added in Phase 3.
+- `pages/auth/register.tsx` gains a new `Step = "purpose"` opening state; existing input/otp/success flow untouched.
+- Left the July 2025 "Coinbase-clean" single-column auth card as-is (an earlier team explicitly removed the split-screen to reduce friction — reintroducing it would regress that decision).
+
+**Verification:** eslint clean, `tsc --noEmit` PASS, Playwright verified purpose pills render (4/4), click "creators" → localStorage set + advances to input step, seeding `dyno_seo_attr` → picker hidden (0/4). No hydration errors.
+
+
 ## 2026-07-13 — Pre-push TypeScript gate + DigitalOcean deploy fix
 
 **🔴 Fixed:** DigitalOcean auto-deploys had been failing 5× in a row (~37 min of wasted build time). Root cause: 8 `TS2339` errors in `backend/controller/payment/cryptoCheckout.ts` — the inline `RedisPaymentItem` interface was missing four donation-flow fields (`parent_link_id`, `donor_name`, `donor_message`, `is_anonymous`) that the code was already reading from the Redis session. Added the four optional fields; DO deploy `943e303e` went **ACTIVE** at 13:52 UTC.

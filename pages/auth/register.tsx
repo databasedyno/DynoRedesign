@@ -3,6 +3,8 @@ import WhiteLogo from "@/assets/Icons/home/dynopay-whiteLogo.svg";
 import InputField from "@/Components/UI/AuthLayout/InputFields";
 import TitleDescription from "@/Components/UI/AuthLayout/TitleDescription";
 import TrustStrip from "@/Components/UI/AuthLayout/TrustStrip";
+import PurposePicker from "@/Components/UI/AuthLayout/PurposePicker";
+import type { Vertical } from "@/Components/UI/_shared";
 import CustomButton from "@/Components/UI/Buttons";
 import LanguageSwitcher from "@/Components/UI/LanguageSwitcher";
 import ThemeToggle from "@/Components/UI/ThemeToggle";
@@ -35,7 +37,7 @@ import { ArrowBack, CheckCircleOutline } from "@mui/icons-material";
 import Head from "next/head";
 
 type RegisterMethod = "email" | "phone";
-type Step = "input" | "otp" | "success";
+type Step = "purpose" | "input" | "otp" | "success";
 
 const LoadingSpinner = ({ size = 20 }: { size?: number }) => (
   <Box
@@ -58,7 +60,7 @@ const Register = () => {
   const dispatch = useDispatch();
 
   // State
-  const [step, setStep] = useState<Step>("input");
+  const [step, setStep] = useState<Step>("purpose");
   const [method, setMethod] = useState<RegisterMethod>("email");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -80,6 +82,12 @@ const Register = () => {
   // carried here via ?handle= (with a localStorage fallback) so we can show it
   // is being reserved while they finish signing up.
   const [claimedHandle, setClaimedHandle] = useState("");
+  // Purpose vertical — captured from the new PurposePicker step OR
+  // auto-detected from SEO attribution / URL query / prior localStorage pick.
+  // Feeds the useVerticalAccent() override so post-signup UI is tinted for
+  // the user's stated intent (creators → volt, fundraisers → violet, etc.).
+  // Persisted client-side only in Phase 2; backend column lands in Phase 3.
+  const [vertical, setVertical] = useState<Vertical | null>(null);
 
   // Fire a small confetti burst the moment the user lands on step="success" —
   // only for NEW account creation (not for existing-account log-in), and only once.
@@ -335,6 +343,7 @@ const Register = () => {
           email: email.toLowerCase().trim(),
           referral_code: referralCode || undefined,
           attribution: attribution || undefined,
+          purpose_vertical: vertical || undefined,
         });
         exists = res?.data?.data?.account_exists === true;
       } else {
@@ -356,6 +365,7 @@ const Register = () => {
           mobile: digits,
           referral_code: referralCode || undefined,
           attribution: attribution || undefined,
+          purpose_vertical: vertical || undefined,
         });
         exists = res?.data?.data?.account_exists === true;
       }
@@ -371,7 +381,7 @@ const Register = () => {
     } finally {
       setLoading(false);
     }
-  }, [method, email, phone, referralCode, checkPhoneType, getSeoAttribution]);
+  }, [method, email, phone, referralCode, checkPhoneType, getSeoAttribution, vertical]);
 
   // ─── Step 2: Verify OTP & Create Account ───
   const handleVerifyOtp = useCallback(async (otpCode: string) => {
@@ -501,6 +511,52 @@ const Register = () => {
                   <ThemeToggle size="small" />
                 </Box>
               </Box>
+
+              {/* ─── STEP 0: Purpose ─── */}
+              {step === "purpose" && (
+                <>
+                  <TitleDescription
+                    title={t("register", { defaultValue: "Create your account" })}
+                    description={t("registerPurposeDescription", {
+                      defaultValue: "Tell us why you're here so we set the app up for you.",
+                    })}
+                    descriptionFontSize="14px"
+                    descriptionColor={theme.palette.text.secondary}
+                  />
+                  <Box sx={{ mt: 2.5 }}>
+                    <PurposePicker
+                      routerQuery={router.query as Record<string, unknown>}
+                      onDetected={(v) => {
+                        setVertical(v);
+                        setStep("input");
+                      }}
+                      onSelect={(v) => {
+                        setVertical(v);
+                        setStep("input");
+                      }}
+                    />
+                    <Typography
+                      onClick={() => setStep("input")}
+                      data-testid="purpose-skip"
+                      sx={{
+                        display: "block",
+                        mt: 1.5,
+                        textAlign: "center",
+                        cursor: "pointer",
+                        fontFamily: "var(--font-body)",
+                        fontSize: 13,
+                        fontWeight: 500,
+                        color: theme.palette.text.secondary,
+                        textDecoration: "underline",
+                        textUnderlineOffset: 3,
+                        "&:hover": { color: theme.palette.text.primary },
+                      }}
+                    >
+                      {t("purposeSkip", { defaultValue: "Skip — I'll pick later" })}
+                    </Typography>
+                  </Box>
+                </>
+              )}
 
               {/* ─── STEP 1: Input ─── */}
               {step === "input" && (
