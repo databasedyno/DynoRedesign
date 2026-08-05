@@ -67,6 +67,8 @@ Please return pass/fail per numbered item + observed values (chart length, non-z
 ## Agent Communication
   - agent: "testing"
     message: "✅ CREATOR PAGE ANALYTICS BACKEND FULLY VERIFIED — All 9 tests PASSED (9/9 — 100%). Comprehensive test suite executed against LIVE Railway PG. PUBLIC ENDPOINT: Returns enabled=true with 30-day chart (30 buckets, dates 2026-07-07 to 2026-08-05), currency=USD, totals (count_30d=3, amount_30d=30, supporters_30d=2), lifetime values correctly set to 0, top_supporters array with 2 named supporters (Bob $15, Alice $5) — no anonymous leaks ✓. AUTH ENDPOINT: Returns enabled=true, public_analytics_enabled=true, has_handle=true, same 30-day chart, lifetime totals populated (amount=30, supporters=3) ✓. TOGGLE FLOW: Successfully toggled public_analytics_enabled false → public endpoint returned enabled=false with empty data, auth endpoint still showed full data → REVERTED to true → public endpoint restored ✓. REGRESSION CHECKS: No Sequelize Date bug (count_30d=3 matches 1 non-zero bucket on 2026-07-13) ✓, profile endpoint includes new field ✓. All endpoints working correctly. Main agent: please summarize and finish — no backend issues found."
+  - agent: "testing"
+    message: "✅ CREATOR PAGE ANALYTICS UI FULLY VERIFIED — All 8 FRONTEND tests PASSED (8/8 — 100%). Comprehensive Playwright test suite executed successfully on LIVE prod Railway PG. PUBLIC PAGE (/hostbay): Compact widget renders with correct data (Total: $30.00, Count: 3, Supporters: 2), chart contains <path> SVG, 2 supporter chips (Bob $15, Alice $5) ✓. Aurora Indigo palette verified (0 lime hits) ✓. SETTINGS PAGE (/creator): Full widget renders, toggle initially CHECKED (public analytics ON), all 4 KPI tiles present with correct values (30d: 30.00/3, lifetime: 30.00/3), chart contains <path> and <rect> (ComposedChart bar+area), 2 supporter rows (Bob, Alice) ✓. TOGGLE PERSISTENCE: Successfully toggled OFF → saved → reloaded → persisted UNCHECKED → /hostbay widget hidden → toggled ON → saved → reloaded → persisted CHECKED → /hostbay widget visible → REVERT SUCCESSFUL (final state: enabled=true) ✓. INLINE TOGGLE PILL: Text flips 'Shown on public page' ↔ 'Hidden from public', header switch also flips, both controls wired to same state ✓. LIGHT MODE PARITY: Both widgets render correctly in light mode, 0 lime hits ✓. CONSOLE: 1 pre-existing React DOM warning (unrelated to analytics) ✓. REGRESSION: SupportWidget still renders, analytics widget positioned BELOW support section ✓. Screenshots captured for all test cases. Toggle successfully reverted to enabled=true. All functionality working correctly. Main agent: please summarize and finish — Creator Page Analytics feature is production-ready."
 
 ---
 
@@ -107,6 +109,21 @@ SAFETY (LIVE prod Railway PG account, READ-ONLY): do NOT save the creator page s
 Please return a JSON report per numbered item with pass/fail + lime-hit counts per page, plus 1-2 screenshots of the /creator "Collect tips" banner before/after showing the indigo fix.
 
 ### frontend
+  - task: "Creator Page Analytics UI — 30-day tips chart + top supporters widgets (public compact + settings full) + hide/reveal toggle"
+    implemented: true
+    working: true
+    file: "Components/Page/Creator/AnalyticsWidget.tsx, Components/Page/Creator/CreatorProfile.tsx, Components/Page/Creator/CreatorPageSettings.tsx, pages/[handle].tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Frontend implementation complete. Two widget variants: compact (public /hostbay page) and full (merchant /creator settings). Aurora Indigo palette. Toggle persistence via Save. Awaiting comprehensive 8-item UI test plan verification."
+      - working: true
+        agent: "testing"
+        comment: "✅ ALL 8 TESTS PASSED (2026-08-05) — Comprehensive Playwright test suite executed successfully. TEST 1 (Public compact widget dark): Widget renders with correct data (Total: 30.00, Count: 3, Supporters: 2), chart with <path> SVG, 2 supporter chips (Bob $15, Alice $5) ✓. TEST 2 (Aurora Indigo palette): 0 lime hits (computed=0, stop=0), no lime colors detected ✓. TEST 3 (Settings full widget): Full widget renders, toggle initially CHECKED (ON), all 4 KPI tiles present (30d amount=30.00, count=3, lifetime amount=30.00, count=3), chart with <path> and <rect>, 2 supporter rows (Bob, Alice) ✓. TEST 4 (Toggle persistence): Toggle OFF → Save → Reload → UNCHECKED (persisted) → /hostbay widget hidden → Toggle ON → Save → Reload → CHECKED (persisted) → /hostbay widget visible → REVERT SUCCESSFUL ✓. TEST 5 (Inline toggle pill): Pill text flips 'Shown on public page' ↔ 'Hidden from public', header switch also flips, both controls wired to same state, final state CHECKED (ON) ✓. TEST 6 (Light mode parity): Compact widget renders in light mode, 0 lime hits; full widget renders in light mode, 0 lime hits ✓. TEST 7 (Console errors): 1 pre-existing React DOM warning (ForwardRef Box children prop), no analytics-related errors ✓. TEST 8 (Regression): SupportWidget still renders, analytics widget positioned BELOW support section (Y: 778.78 > 337.5) ✓. Screenshots captured for dark/light modes. Toggle successfully reverted to enabled=true. All functionality working correctly."
+
   - task: "/creator page: replace stale lime #CCFF00 with Aurora Indigo #4F46E5 for consistency with dashboard v2026"
     implemented: true
     working: true
