@@ -8,12 +8,14 @@
 ## Admin
 - ADMIN_EMAIL env: **moxxcompany@gmail.com** (password unknown, out of band)
 
-## Preview URL (THIS container)
-- https://payment-processor-76.preview.emergentagent.com
-- Same URL is NEXT_PUBLIC_BASE_URL, NEXTAUTH_URL, FRONTEND_URL, SERVER_URL, CHECKOUT_URL, and FIRST in CORS_ALLOWED_ORIGINS.
+## Preview URL (THIS container — updated 2026-08-05)
+- https://b2c3b2c1-01bd-4feb-a640-21c618b08330.preview.emergentagent.com
+- Frontend calls backend via RELATIVE /api (NEXT_PUBLIC_BASE_URL is EMPTY in /app/.env.local) so it works on any preview hostname.
+- Backend .env SERVER_URL/FRONTEND_URL/CHECKOUT_URL/NEXTAUTH_URL point at the b2c3... preview URL.
+- Login flow: /auth/login -> input[type=email] "hostbay@moxx.co" -> click "Continue" -> input[type=password] "Katiekendra123@" -> [data-testid="signin-submit-btn"]. Token stored in localStorage (persists across full navigations).
 
 ## NEXTAUTH_SECRET (this session)
-- Z9N964DWzyHiWETzQLF5nI4Rtjsoc9DfHgOKa4gUkDg=
+- QXNb8gfMKSrgp1OrTXRk7+BZXvkiDulln8WSTz6r1bQ=
 
 ## Safety overrides applied (LIVE prod PG+Redis)
 - ENABLE_BACKGROUND_JOBS=false · WORKER_ROLE=secondary · NODE_ENV=production
