@@ -41,7 +41,7 @@ TESTS = [
     },
     {
         "id": 5,
-        "origin": "https://multi-chain-checkout-6.preview.emergentagent.com",
+        "origin": "https://payment-processor-76.preview.emergentagent.com",
         "expected": "ALLOWED",
         "description": "Preview pattern"
     },

@@ -3,7 +3,7 @@
  * Tests B, C, D: API endpoint testing with authentication
  */
 
-const BASE_URL = 'https://multi-chain-checkout-6.preview.emergentagent.com/api';
+const BASE_URL = 'https://payment-processor-76.preview.emergentagent.com/api';
 const TEST_EMAIL = 'hostbay@moxx.co';
 const TEST_PASSWORD = 'Katiekendra123@';
 

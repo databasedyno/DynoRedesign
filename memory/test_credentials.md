@@ -9,7 +9,7 @@
 - ADMIN_EMAIL env: **moxxcompany@gmail.com** (password unknown, out of band)
 
 ## Preview URL (THIS container)
-- https://b4d836b1-78a8-483b-b406-a03d8211a8bc.preview.emergentagent.com
+- https://payment-processor-76.preview.emergentagent.com
 - Same URL is NEXT_PUBLIC_BASE_URL, NEXTAUTH_URL, FRONTEND_URL, SERVER_URL, CHECKOUT_URL, and FIRST in CORS_ALLOWED_ORIGINS.
 
 ## NEXTAUTH_SECRET (this session)
