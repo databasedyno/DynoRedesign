@@ -13,9 +13,10 @@ import { Icon as Iconify } from "@iconify/react";
 
 export { CB_TOKENS } from "@/Components/Page/Dashboard/coinbase/styled";
 
-/** Monospace stack — identical to the checkout so numbers feel the same everywhere. */
+/** Monospace stack — Roboto Mono first (the Coinbase-style neutral numeral),
+ *  matching the checkout's fintech feel, with robust system fallbacks. */
 export const MONO =
-  'ui-monospace, "Roboto Mono", "JetBrains Mono", SFMono-Regular, Menlo, monospace';
+  'var(--font-roboto-mono), "Roboto Mono", ui-monospace, "SFMono-Regular", Menlo, Monaco, Consolas, monospace';
 
 export interface IconProps {
   /** Bare Lucide name ("wallet") or a full Iconify id ("lucide:wallet", "mdi:..."). */

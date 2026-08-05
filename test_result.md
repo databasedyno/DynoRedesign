@@ -1,3 +1,18 @@
+# Session 2026-08-05 (d) — Coinbase fonts (Inter + Roboto Mono) + Wallet/Transactions rollout
+
+FONTS: Added Inter + Roboto_Mono via next/font in pages/_app.tsx (CSS vars --font-inter, --font-roboto-mono). UI-Kit MONO now = Roboto Mono. Dashboard wrapped so --font-sans -> Inter (Coinbase look). Verified on /dashboard: hero computed font = Roboto Mono, body = Inter.
+
+ROLLOUT (monospace numerals + Lucide icons via @/styles/uiKit):
+- Wallet (Components/Page/Wallet/index.tsx): totalProcessed amounts -> MONO; icons -> Lucide (arrow-up-right view-tx button, pencil edit, trash-2 delete).
+- Transactions (TransactionsTable.tsx: amount+fiat cells -> MONO, source arrow -> lucide arrow-up-right; index.tsx: close->x, success->check, tax total -> MONO; TransactionDetailsModal.tsx: close->x, download icon, webhook <pre> -> MONO).
+
+### WHAT TO TEST (frontend, LIVE prod READ-ONLY; login hostbay@moxx.co / Katiekendra123@)
+1. /wallet: wallet cards show "Total processed" amounts in monospace; each card has a "View transactions" button with an arrow icon, plus edit (pencil) and delete (trash) line icons — all rendered (no empty boxes) and visible. Toggle dark/light via [data-testid="theme-toggle-desktop"] — confirm all text/icons visible both modes.
+2. /transactions: the transactions list shows amount + fiat values in monospace; status icons and the top-bar/close/download icons render (no broken icons). The tax-collected summary number is monospace. Toggle dark/light — confirm visibility + icons in both.
+3. Report any broken/missing icons or invisible/low-contrast text. Screenshots of /wallet and /transactions in dark AND light.
+
+---
+
 # Session 2026-08-05 (c) — Dashboard restyle PILOT (checkout look) + UI Kit foundation
 
 New shared kit: /app/styles/uiKit.tsx exports MONO (monospace numeral stack, same as CleanCheckoutV2), <Icon name="..."> (Lucide via @iconify/react, on-demand API), MonoAmount, and re-exports CB_TOKENS.

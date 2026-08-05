@@ -1,7 +1,7 @@
 import CustomButton from "@/Components/UI/Buttons";
 import CopyIcon from "@/assets/Icons/copy-icon.svg";
 import { Box, Drawer, IconButton, Typography, useTheme } from "@mui/material";
-import { CloseRounded, DownloadRounded } from "@mui/icons-material";
+import { Icon, MONO } from "@/styles/uiKit";
 import Image from "next/image";
 import React, { useCallback, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -270,7 +270,7 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
               "&:hover": { color: theme.palette.text.primary, backgroundColor: theme.palette.action.hover },
             }}
           >
-            <CloseRounded fontSize="small" />
+            <Icon name="x" size={18} />
           </IconButton>
         </Box>
 
@@ -624,7 +624,7 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
                         <pre
                           style={{
                             margin: 0,
-                            fontFamily: "var(--font-sans)",
+                            fontFamily: MONO,
                             fontSize: isMobile ? "10px" : "13px",
                             lineHeight: 1.2,
                             letterSpacing: 0,
@@ -664,7 +664,7 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
             {(transaction?.status === "settled" || transaction?.status === "confirmed") && (
               <CustomButton
                 label="Invoice"
-                startIcon={<DownloadRounded sx={{ fontSize: 16 }} />}
+                startIcon={<Icon name="download" size={16} />}
                 variant="outlined"
                 size="medium"
                 onClick={handleDownloadInvoice}

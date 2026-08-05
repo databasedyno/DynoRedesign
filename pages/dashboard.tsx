@@ -98,7 +98,19 @@ export default function Home({
         {isMobile && <MobileReferralBanner />}
         {setupComplete && <ClaimHandleBanner />}
 
-        <Dashboard2026 />
+        {/* Coinbase look: scope Inter to the dashboard by redefining --font-sans
+            here (every dashboard text uses var(--font-sans)); numbers already
+            render in Roboto Mono via the UI-Kit MONO stack. */}
+        <div
+          style={
+            {
+              "--font-sans": "var(--font-inter)",
+              fontFamily: "var(--font-inter)",
+            } as React.CSSProperties
+          }
+        >
+          <Dashboard2026 />
+        </div>
       </main>
     </>
   );

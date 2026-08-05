@@ -9,7 +9,7 @@ import SolanaIcon from "@/assets/cryptocurrency/Solana-icon.svg";
 import XRPIcon from "@/assets/cryptocurrency/XRP-icon.svg";
 import PolygonIcon from "@/assets/cryptocurrency/Polygon-icon.svg";
 import RLUSDIcon from "@/assets/cryptocurrency/RLUSD-icon.svg";
-import { ArrowOutward as ArrowOutwardIcon } from "@mui/icons-material";
+import { Icon, MONO } from "@/styles/uiKit";
 import AutoAwesomeRounded from "@mui/icons-material/AutoAwesomeRounded";
 import DonutSmallRounded from "@mui/icons-material/DonutSmallRounded";
 import FavoriteRounded from "@mui/icons-material/FavoriteRounded";
@@ -404,10 +404,10 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
               </Box>
               {/* Middle row: Amount + USD */}
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", mb: 0.75 }}>
-                <Typography sx={{ fontSize: "16px", fontFamily: "var(--font-sans)", fontWeight: 700, color: theme.palette.text.primary }}>
+                <Typography sx={{ fontSize: "16px", fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontWeight: 700, color: theme.palette.text.primary }}>
                   {formatAmount(transaction.amount)}
                 </Typography>
-                <Typography sx={{ fontSize: "14px", fontFamily: "var(--font-sans)", fontWeight: 500, color: theme.palette.primary.main }} data-testid="tx-fiat-value">
+                <Typography sx={{ fontSize: "14px", fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontWeight: 500, color: theme.palette.primary.main }} data-testid="tx-fiat-value">
                   {displayValue(transaction)}
                 </Typography>
               </Box>
@@ -562,13 +562,10 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                           draggable={false}
                           className="themed-icon"
                         />
-                        <ArrowOutwardIcon
-                          sx={{
-                            fontSize: 16,
-                            transform: "rotate(45deg)",
-                            color: theme.palette.text.secondary,
-                            lineHeight: "100%",
-                          }}
+                        <Icon
+                          name="arrow-up-right"
+                          size={16}
+                          color={theme.palette.text.secondary}
                         />
                         <Text
                           sx={{
@@ -582,11 +579,11 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                     )}
                   </TransactionsTableCell>
 
-                  <TransactionsTableCell>
+                  <TransactionsTableCell sx={{ fontFamily: MONO, fontVariantNumeric: "tabular-nums" }}>
                     {formatAmount(transaction.amount)}
                   </TransactionsTableCell>
 
-                  <TransactionsTableCell data-testid="tx-fiat-value">
+                  <TransactionsTableCell data-testid="tx-fiat-value" sx={{ fontFamily: MONO, fontVariantNumeric: "tabular-nums" }}>
                     {displayValue(transaction)}
                   </TransactionsTableCell>
 

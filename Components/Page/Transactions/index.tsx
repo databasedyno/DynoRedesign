@@ -9,7 +9,7 @@ import {
   TransactionSourceType,
 } from "@/utils/types/transaction";
 import { Box, Dialog, IconButton, Typography, useTheme } from "@mui/material";
-import { CheckCircleRounded, CloseRounded } from "@mui/icons-material";
+import { Icon, MONO } from "@/styles/uiKit";
 import confetti from "canvas-confetti";
 import CustomButton from "@/Components/UI/Buttons";
 import { endOfDay, isWithinInterval, parseISO, startOfDay } from "date-fns";
@@ -435,7 +435,7 @@ const TransactionPage = () => {
           <Typography sx={{ fontSize: "12.5px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary }}>
             Tax collected
           </Typography>
-          <Typography sx={{ fontSize: "14px", fontFamily: "var(--font-sans)", fontWeight: 700, color: theme.palette.text.primary }}>
+          <Typography sx={{ fontSize: "14px", fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontWeight: 700, color: theme.palette.text.primary }}>
             {taxSummary.total.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </Typography>
           <Typography sx={{ fontSize: "11.5px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary }}>
@@ -471,7 +471,7 @@ const TransactionPage = () => {
             color: theme.palette.text.secondary,
           }}
         >
-          <CloseRounded sx={{ fontSize: 20 }} />
+          <Icon name="x" size={20} />
         </IconButton>
         <Box sx={{ px: 3, pt: 4, pb: 3, textAlign: "center" }}>
           <Box
@@ -487,7 +487,7 @@ const TransactionPage = () => {
               boxShadow: "0 10px 32px rgba(16, 185, 129, 0.35)",
             }}
           >
-            <CheckCircleRounded sx={{ fontSize: 48, color: "#fff" }} />
+            <Icon name="check" size={48} color="#fff" />
           </Box>
           <Typography
             sx={{

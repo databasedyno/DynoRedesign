@@ -37,7 +37,22 @@ const GeistMono = localFont({
 // used only if it's ready within the ~100ms block window (near-guaranteed
 // thanks to preload + caching), otherwise the fallback is kept for the whole
 // paint — never a swap.
-import { Unbounded, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
+import { Unbounded, IBM_Plex_Sans, IBM_Plex_Mono, Inter, Roboto_Mono } from "next/font/google";
+
+// Coinbase-style pairing: Inter for clean geometric UI text, Roboto Mono for
+// highly-legible neutral numerals. Loaded here so the Dashboard can adopt the
+// "Coinbase look" (Inter body + Roboto Mono figures).
+const InterFont = Inter({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+});
+
+const RobotoMonoFont = Roboto_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+});
 
 const UnboundedFont = Unbounded({
   subsets: ["latin"],
@@ -512,6 +527,8 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
             --font-hero: ${UnboundedFont.style.fontFamily}, ${GeistSans.style.fontFamily}, -apple-system, sans-serif;
             --font-body: ${PlexSans.style.fontFamily}, ${GeistSans.style.fontFamily}, -apple-system, sans-serif;
             --font-tech: ${PlexMono.style.fontFamily}, ${GeistMono.style.fontFamily}, ui-monospace, SFMono-Regular, Menlo, monospace;
+            --font-inter: ${InterFont.style.fontFamily}, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --font-roboto-mono: ${RobotoMonoFont.style.fontFamily}, ui-monospace, "SFMono-Regular", Menlo, Monaco, Consolas, monospace;
           }
         `}</style>
         <title>{pageTitle}</title>

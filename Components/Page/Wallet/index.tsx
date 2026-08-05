@@ -1,5 +1,4 @@
 import CopyIcon from "@/assets/Icons/copy-icon.svg";
-import EditIcon from "@/assets/Icons/edit-icon.svg";
 import LinkIcon from "@/assets/Icons/link-icon.svg";
 import RoundedStackIcon from "@/assets/Icons/roundedStck-icon.svg";
 import AddWalletModal from "@/Components/UI/AddWalletModal";
@@ -17,7 +16,7 @@ import { WALLET_FETCH } from "@/Redux/Actions/WalletAction";
 import { theme as staticTheme } from "@/styles/theme";
 import { WalletDataType } from "@/utils/types/wallet";
 import { getNetworkLabel, isTokenOnOtherChain } from "@/utils/networkLabels";
-import { ArrowOutward, DeleteOutlineRounded } from "@mui/icons-material";
+import { Icon, MONO } from "@/styles/uiKit";
 import { Box, CircularProgress, Grid, Tooltip, Typography, useTheme } from "@mui/material";
 import Image from "next/image";
 import { useRouter } from "next/router";
@@ -350,7 +349,8 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: () => void }) => {
                           fontWeight: 600,
                           color: theme.palette.text.primary,
                           lineHeight: "18px",
-                          fontFamily: "var(--font-sans)",
+                          fontFamily: MONO,
+                          fontVariantNumeric: "tabular-nums",
                         }}
                       >
                         {getCurrencySymbol(
@@ -381,7 +381,8 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: () => void }) => {
                           fontWeight: 500,
                           color: theme.palette.text.primary,
                           lineHeight: "24px",
-                          fontFamily: "var(--font-sans)",
+                          fontFamily: MONO,
+                          fontVariantNumeric: "tabular-nums",
                         }}
                       >
                         {getCurrencySymbol(
@@ -401,7 +402,7 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: () => void }) => {
                       }}
                       label={tWallet("viewTransactions")}
                       variant="outlined"
-                      endIcon={<ArrowOutward sx={{ fontSize: isMobile ? 13 : 16 }} />}
+                      endIcon={<Icon name="arrow-up-right" size={isMobile ? 13 : 16} />}
                       sx={{
                         backgroundColor: theme.palette.background.paper,
                         color: theme.palette.primary.main,
@@ -424,17 +425,10 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: () => void }) => {
                     />
 
                     <WalletEditButton onClick={() => handleEdit(wallet)}>
-                      <Image
-                        src={EditIcon.src}
-                        alt="Edit Wallet"
-                        width={isMobile ? 13 : 16}
-                        height={isMobile ? 14 : 16}
-                        draggable={false}
-                        style={{
-                          filter: theme.palette.mode === "dark"
-                            ? "brightness(0) saturate(100%) invert(100%)"
-                            : "brightness(0) saturate(100%) invert(0%)",
-                        }}
+                      <Icon
+                        name="pencil"
+                        size={isMobile ? 14 : 16}
+                        color={theme.palette.text.primary}
                       />
                     </WalletEditButton>
 
@@ -447,11 +441,10 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: () => void }) => {
                         },
                       }}
                     >
-                      <DeleteOutlineRounded
-                        sx={{
-                          fontSize: isMobile ? 15 : 18,
-                          color: "#DC2626",
-                        }}
+                      <Icon
+                        name="trash-2"
+                        size={isMobile ? 15 : 18}
+                        color="#DC2626"
                       />
                     </WalletEditButton>
                   </WalletCardBodyRow>
