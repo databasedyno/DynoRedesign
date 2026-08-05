@@ -1,5 +1,39 @@
 # Changelog
 
+## 2026-08-05 (session 3) — Transactions drawer + Checkout state machine + Invoices Kanban
+
+**🟢 Transactions drawer (Phase 3 in-app polish)**
+- `Components/Page/Transactions/TransactionDetailsModal.tsx` — swapped the centered `PopupModal`/Dialog wrapper for a right-anchored MUI `<Drawer>`. Same rich body (Amount Details / Transaction Hashes / Actions), now with a sticky header (title + status pill + close X), a scrollable body, and a blurred backdrop. Users can now click through transactions in sequence without losing the list beneath them.
+- `Components/Page/Transactions/styled.tsx` — `CryptoIconChip` gains an aurora indigo halo (subtle at rest, brightens on parent hover); coin icons now render inside a soft indigo→violet gradient ring. Ties every row visually to the Aurora palette.
+
+**🟢 Checkout state machine (Phase 5)**
+- `Components/UI/CheckoutShell.tsx` — new. The 5-state animated wrapper covering the full on-chain lifecycle: `pending` (aurora pulse blob), `confirming` (sky-blue spinning ring on the icon), `confirmed` (volt fade-in on the status strip), `settled` (canvas confetti burst — 70 particles, 1.6s single shot, volt+violet+indigo+sky, respects `prefers-reduced-motion`), `failed` (one-shot coral horizontal shake). Zero API/socket coupling — parent page passes `state` as a prop. Uses `useVerticalAccent()` so the resting palette adapts to creators/fundraisers/developers surfaces automatically.
+- `pages/pay/state-demo.tsx` — new consolidated demo playground. State-picker at the top (`?state=settled` etc. deep-links straight into a single URL) that lets QA and design walk through all five states without touching the checkout state machine. Hidden from indexing (`<meta robots="noindex">`), not linked in nav. SSR-safe: initial query read moved into `useEffect` to avoid a React #418 hydration mismatch (verified 0 page errors after fix).
+
+**🟢 Invoices Kanban + live PDF preview drawer (Phase 3)**
+- `Components/Page/Invoices/InvoicePreviewDrawer.tsx` — new. Row click opens a right-anchored drawer showing (a) invoice metadata + `Paid` StatusPill in the header, (b) two actions (Download PDF / Open in new tab), (c) an iframe live-rendering the invoice PDF from the same `/invoices/{id}/pdf` blob endpoint the download button already uses. Blob URLs are `URL.revokeObjectURL()`-ed in the effect cleanup so we don't leak on repeated open/close. Skeleton + error state included.
+- `pages/invoices.tsx` gains:
+  - **Kanban grouping by month** — data rows now precede a monospace header row per YYYY-MM (`JULY 2026 · 4 invoices · $7.30`, `JUNE 2026 · 2 invoices · $5.37`, etc.). Uses indigo accent to tie into the dashboard shell.
+  - **StatusPill on every invoice row** — replaces the plain invoice number cell with a stacked layout (number bold + green "PAID" mono pill). Tone tokens are consistent with the transactions drawer and checkout state machine.
+  - Row-level `cursor: pointer` + `onClick` opens the preview drawer; the existing download-PDF icon in the last column stays as a shortcut and now uses `e.stopPropagation()` so it doesn't also fire the row-click preview.
+  - Drawer mounted at the bottom of the page, controlled by `previewInvoice` state.
+
+**Verification (Playwright at 1440×900, logged in as hostbay@moxx.co):**
+- `/transactions` → row click opens right drawer with header showing "Transaction Details · Settled ✓ ×" · body shows Amount Details, Transaction Hashes, Actions · `MuiDrawer-paper` count = 1 · 0 page errors
+- `/pay/state-demo` → all 5 states swap on pill click, `data-state` attribute updates, confetti fires on the pending→settled transition (verified mid-flight screenshot), coral shake runs on failed, `?state=settled` deep-link loads correctly, hydration error count: **0**
+- `/invoices` → 2 month-group headers rendered (July 2026, June 2026) with correct invoice counts + totals · 6 rows now show `PAID` StatusPill · row click opens the PDF preview drawer with `MuiDrawer-paper` = 1 · Download and Open-in-new-tab actions visible · 0 page errors
+- `tsc --noEmit` PASS across all changes
+
+**Files touched this session:**
+- `Components/UI/CheckoutShell.tsx` (new)
+- `Components/UI/OnboardingBanner.tsx` (session 2 · unchanged)
+- `Components/Page/Invoices/InvoicePreviewDrawer.tsx` (new)
+- `Components/Page/Transactions/TransactionDetailsModal.tsx` (Dialog → Drawer)
+- `Components/Page/Transactions/styled.tsx` (aurora ring on CryptoIconChip)
+- `pages/pay/state-demo.tsx` (new)
+- `pages/invoices.tsx` (Kanban headers + StatusPill + drawer mount)
+
+
 ## 2026-08-05 (session 2) — Backend vertical + Phase 3/4 rollout + New-Signup Onboarding
 
 **🟢 Vertical-specific first-run onboarding — end-to-end**

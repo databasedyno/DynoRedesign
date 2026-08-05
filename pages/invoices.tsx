@@ -36,6 +36,8 @@ import useDisplayFx from "@/hooks/useDisplayFx";
 import axiosBaseApi from "@/axiosConfig";
 import CustomButton from "@/Components/UI/Buttons";
 import PanelCard from "@/Components/UI/PanelCard";
+import InvoicePreviewDrawer, { InvoicePreviewInvoice } from "@/Components/Page/Invoices/InvoicePreviewDrawer";
+import { StatusPill } from "@/Components/UI/_shared";
 import { theme as appTheme } from "@/styles/theme";
 import { useSelector } from "react-redux";
 
@@ -92,6 +94,24 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
   const [invoiceLoading, setInvoiceLoading] = useState(true);
   const [totalInvoices, setTotalInvoices] = useState(0);
   const [page, setPage] = useState(1);
+
+  // Live PDF preview drawer (design audit 2026-08-05, Phase 3 invoices).
+  // Row click populates `previewInvoice`; the drawer fetches the PDF blob
+  // via /invoices/{id}/pdf and renders it inline as an iframe. Merchants
+  // don't have to download-then-open just to sanity check an invoice.
+  const [previewInvoice, setPreviewInvoice] = useState<InvoicePreviewInvoice | null>(null);
+  const openInvoicePreview = useCallback((inv: Invoice) => {
+    setPreviewInvoice({
+      invoice_id: inv.invoice_id,
+      invoice_number: inv.invoice_number,
+      customer_name: inv.customer_name,
+      invoice_date: inv.invoice_date,
+      total_usd: inv.total_usd,
+      vat_amount: inv.vat_amount,
+      crypto_currency: inv.crypto_currency,
+      description: inv.description,
+    });
+  }, []);
 
   const [taxReport, setTaxReport] = useState<TaxReportData | null>(null);
   const [taxLoading, setTaxLoading] = useState(false);
@@ -522,18 +542,82 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                             </TableCell>
                           </TableRow>
                         )
-                        : invoices.map((inv) => (
-                          <TableRow key={inv.invoice_id} hover>
+                        : (() => {
+                          // ── Kanban grouping by month (design audit 2026-08-05 Phase 3) ──
+                          // Group invoices by YYYY-MM, insert a header row between
+                          // groups. Rows within a group stay chronologically ordered
+                          // (invoices are already sorted by created_at DESC from the API).
+                          const groups: Array<{ key: string; label: string; items: Invoice[] }> = [];
+                          for (const inv of invoices) {
+                            const d = new Date(inv.invoice_date || inv.created_at || Date.now());
+                            const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+                            const label = d.toLocaleDateString(undefined, { month: "long", year: "numeric" });
+                            const existing = groups.find((g) => g.key === key);
+                            if (existing) existing.items.push(inv);
+                            else groups.push({ key, label, items: [inv] });
+                          }
+                          const groupTotal = (items: Invoice[]) =>
+                            items.reduce((sum, i) => sum + (Number(i.total_usd) || 0), 0);
+
+                          return groups.flatMap((grp) => [
+                            // Month group header row
+                            <TableRow key={`grp-${grp.key}`} sx={{
+                              backgroundColor: muiTheme.palette.mode === "dark"
+                                ? "rgba(129,140,248,0.06)"
+                                : "rgba(79,70,229,0.04)",
+                              "&:hover": { backgroundColor: muiTheme.palette.mode === "dark"
+                                ? "rgba(129,140,248,0.06)"
+                                : "rgba(79,70,229,0.04)" },
+                            }}>
+                              <TableCell colSpan={6} sx={{ py: 1.25, borderBottom: `1px solid ${muiTheme.palette.divider}` }}>
+                                <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 2 }}>
+                                  <Typography
+                                    sx={{
+                                      fontFamily: "var(--font-tech), monospace",
+                                      fontSize: 11,
+                                      fontWeight: 700,
+                                      letterSpacing: "0.24em",
+                                      textTransform: "uppercase",
+                                      color: muiTheme.palette.mode === "dark" ? "#A5B4FC" : "#4F46E5",
+                                    }}
+                                  >
+                                    {grp.label}
+                                  </Typography>
+                                  <Typography
+                                    sx={{
+                                      fontFamily: "var(--font-tech), monospace",
+                                      fontSize: 11,
+                                      fontWeight: 600,
+                                      letterSpacing: "0.08em",
+                                      color: muiTheme.palette.text.secondary,
+                                    }}
+                                  >
+                                    {grp.items.length} {grp.items.length === 1 ? "invoice" : "invoices"} · {formatUsdInDisplay(groupTotal(grp.items))}
+                                  </Typography>
+                                </Box>
+                              </TableCell>
+                            </TableRow>,
+                            ...grp.items.map((inv) => (
+                          <TableRow
+                            key={inv.invoice_id}
+                            hover
+                            onClick={() => openInvoicePreview(inv)}
+                            sx={{ cursor: "pointer" }}
+                          >
                             <TableCell>
-                              <Typography
-                                sx={{
-                                  fontFamily: "var(--font-sans)",
-                                  fontSize: isMobile ? 12 : 14,
-                                  color: muiTheme.palette.text.primary,
-                                }}
-                              >
-                                {inv.invoice_number}
-                              </Typography>
+                              <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
+                                <Typography
+                                  sx={{
+                                    fontFamily: "var(--font-sans)",
+                                    fontSize: isMobile ? 12 : 14,
+                                    fontWeight: 600,
+                                    color: muiTheme.palette.text.primary,
+                                  }}
+                                >
+                                  {inv.invoice_number}
+                                </Typography>
+                                <StatusPill tone="settled">Paid</StatusPill>
+                              </Box>
                             </TableCell>
                             <TableCell>
                               <Typography
@@ -604,9 +688,12 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                               <Tooltip title={t("invoices.downloadPdf")}>
                                 <IconButton
                                   size="small"
-                                  onClick={() =>
-                                    handleDownloadPDF(inv.invoice_id)
-                                  }
+                                  onClick={(e) => {
+                                    // Prevent the row-click preview from firing
+                                    // when the user actually wanted to download.
+                                    e.stopPropagation();
+                                    handleDownloadPDF(inv.invoice_id);
+                                  }}
                                   sx={{
                                     color: muiTheme.palette.primary.main,
                                   }}
@@ -616,7 +703,9 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                               </Tooltip>
                             </TableCell>
                           </TableRow>
-                        ))}
+                            )),
+                          ]);
+                        })()}
                   </TableBody>
                 </Table>
               </TableContainer>
@@ -1124,6 +1213,13 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
           </Box>
         )}
       </Box>
+
+      {/* Live PDF preview drawer — mounts once, controlled by previewInvoice */}
+      <InvoicePreviewDrawer
+        open={Boolean(previewInvoice)}
+        invoice={previewInvoice}
+        onClose={() => setPreviewInvoice(null)}
+      />
     </>
   );
 };

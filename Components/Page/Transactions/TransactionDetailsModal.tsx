@@ -1,8 +1,7 @@
 import CustomButton from "@/Components/UI/Buttons";
-import PopupModal from "@/Components/UI/PopupModal";
 import CopyIcon from "@/assets/Icons/copy-icon.svg";
-import { Box, Typography, useTheme } from "@mui/material";
-import { DownloadRounded } from "@mui/icons-material";
+import { Box, Drawer, IconButton, Typography, useTheme } from "@mui/material";
+import { CloseRounded, DownloadRounded } from "@mui/icons-material";
 import Image from "next/image";
 import React, { useCallback, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -24,7 +23,6 @@ import RoundedStackIcon from "@/assets/Icons/roundedStck-icon.svg";
 import TransactionIcon from "@/assets/Icons/transaction-icon.svg";
 
 import InputField from "@/Components/UI/AuthLayout/InputFields";
-import PanelCard from "@/Components/UI/PanelCard";
 import Toast from "@/Components/UI/Toast";
 import useIsMobile from "@/hooks/useIsMobile";
 import { useDisplayFx } from "@/hooks/useDisplayFx";
@@ -195,56 +193,95 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
 
   return (
     <>
-      <PopupModal
+      {/* Side drawer (design audit 2026-08-05, Phase 3 transactions polish).
+          Was previously a centered dialog via `<PopupModal>` — the modal
+          blocked the transactions table beneath so it wasn't possible to
+          click through a list of transactions in sequence. As a right-side
+          drawer the table stays in view, keyboard focus is preserved, and
+          the escape/back-tap gesture on mobile closes it naturally. */}
+      <Drawer
+        anchor="right"
         open={open}
-        handleClose={onClose}
-        showHeader={false}
-        transparent
-        hasFooter={false}
-        sx={{
-          "& .MuiDialog-paper": {
-            width: "100%",
-            maxWidth: "641px",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            p: isMobile ? theme.spacing(2) : "20px 0",
+        onClose={onClose}
+        keepMounted={false}
+        transitionDuration={{ enter: 260, exit: 200 }}
+        PaperProps={{
+          sx: {
+            width: { xs: "100%", sm: 460, md: 520 },
+            maxWidth: "100%",
+            bgcolor: theme.palette.background.paper,
+            borderLeft: `1px solid ${theme.palette.border?.main || "rgba(10,10,15,0.08)"}`,
+            backgroundImage: "none",
+            display: "flex",
+            flexDirection: "column",
+          },
+        }}
+        BackdropProps={{
+          sx: {
+            backgroundColor: theme.palette.mode === "dark"
+              ? "rgba(0,0,0,0.55)"
+              : "rgba(10,10,15,0.35)",
+            backdropFilter: "blur(2px)",
           },
         }}
       >
-        <PanelCard
-          title={tTransactions("transactionDetails")}
-          showHeaderBorder={false}
-          headerPadding={theme.spacing(3.75, 3.75, 0, 3.75)}
-          bodyPadding={
-            isMobile
-              ? theme.spacing("12px", 2, 2, 2)
-              : theme.spacing(3, 3.75, 3.75, 3.75)
-          }
-          headerActionLayout="inline"
-          headerAction={
-            <StatusBadge status={transaction.status}>
-              <StatusIconWrapper>
-                {getStatusIcon(transaction.status)}
-              </StatusIconWrapper>
-              <StatusText status={transaction.status}>
-                {tTransactions(transaction.status)}
-              </StatusText>
-            </StatusBadge>
-          }
-          headerIcon={
-            <Image
-              src={TransactionIcon}
-              alt="Transaction Details"
-              width={18}
-              height={14}
-              draggable={false}
-            />
-          }
+        {/* Sticky drawer header — title + status badge + close */}
+        <Box
           sx={{
-            width: "100%",
-            borderRadius: "14px",
-            mx: "auto",
+            display: "flex",
+            alignItems: "center",
+            gap: 1.5,
+            padding: theme.spacing(2.5, 3, 2, 3),
+            borderBottom: `1px solid ${theme.palette.border?.main || "rgba(10,10,15,0.08)"}`,
+            flexShrink: 0,
+          }}
+        >
+          <Typography
+            component="h2"
+            sx={{
+              flex: 1,
+              minWidth: 0,
+              fontFamily: "var(--font-hero), var(--font-body)",
+              fontSize: 18,
+              fontWeight: 700,
+              letterSpacing: "-0.01em",
+              color: theme.palette.text.primary,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {tTransactions("transactionDetails")}
+          </Typography>
+          <StatusBadge status={transaction.status}>
+            <StatusIconWrapper>
+              {getStatusIcon(transaction.status)}
+            </StatusIconWrapper>
+            <StatusText status={transaction.status}>
+              {tTransactions(transaction.status)}
+            </StatusText>
+          </StatusBadge>
+          <IconButton
+            onClick={onClose}
+            aria-label="Close transaction details"
+            size="small"
+            sx={{
+              color: theme.palette.text.secondary,
+              "&:hover": { color: theme.palette.text.primary, backgroundColor: theme.palette.action.hover },
+            }}
+          >
+            <CloseRounded fontSize="small" />
+          </IconButton>
+        </Box>
+
+        {/* Scrollable body */}
+        <Box
+          sx={{
+            flex: 1,
+            overflowY: "auto",
+            padding: isMobile
+              ? theme.spacing(2)
+              : theme.spacing(3),
           }}
         >
           <Box>
@@ -656,8 +693,8 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
               }}
             />
           </Box>
-        </PanelCard>
-      </PopupModal>
+        </Box>
+      </Drawer>
       <Toast
         open={openToast}
         message={tTransactions("copiedToClipboard")}

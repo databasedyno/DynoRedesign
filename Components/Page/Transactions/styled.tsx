@@ -338,6 +338,19 @@ export const CryptoIconChip = styled(Box)(({ theme }) => ({
   color: theme.palette.text.primary,
   flexShrink: 0,
   border: `1px solid ${theme.palette.border.main}`,
+  position: "relative",
+  transition: "border-color 160ms ease, box-shadow 160ms ease",
+
+  // Aurora ring on hover — subtle indigo halo that makes rows feel
+  // tappable without changing typography. Design audit 2026-08-05 Phase 3.
+  "&:hover": {
+    borderColor: theme.palette.mode === "dark"
+      ? "rgba(129,140,248,0.42)"
+      : "rgba(79,70,229,0.32)",
+    boxShadow: theme.palette.mode === "dark"
+      ? "0 0 0 3px rgba(129,140,248,0.14)"
+      : "0 0 0 3px rgba(79,70,229,0.10)",
+  },
 
   [theme.breakpoints.down("md")]: {
     padding: "5px 8px",
@@ -372,6 +385,14 @@ export const CryptoIconChip = styled(Box)(({ theme }) => ({
     objectFit: "contain",
     objectPosition: "center",
     flexShrink: 0,
+    borderRadius: "50%",
+    // Aurora ring around the coin logo — light indigo halo that ties the
+    // row visually to the Aurora brand palette. Barely visible at rest,
+    // brightens on parent hover via the CryptoIconChip &:hover selector.
+    padding: "1.5px",
+    background: theme.palette.mode === "dark"
+      ? "linear-gradient(135deg, rgba(129,140,248,0.35) 0%, rgba(124,92,255,0.25) 100%)"
+      : "linear-gradient(135deg, rgba(79,70,229,0.18) 0%, rgba(124,92,255,0.14) 100%)",
     [theme.breakpoints.down("md")]: {
       width: "14px",
       height: "14px",
