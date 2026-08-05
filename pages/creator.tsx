@@ -10,6 +10,7 @@ import { pageProps, rootReducer } from "@/utils/types";
 import CreatorPageSettings, { CreatorFormState } from "@/Components/Page/Creator/CreatorPageSettings";
 import CreatorLivePreview from "@/Components/Page/Creator/CreatorLivePreview";
 import PanelCard from "@/Components/UI/PanelCard";
+import OnboardingBanner from "@/Components/UI/OnboardingBanner";
 import { buildCreatorUrl, prettyCreatorDomain } from "@/helpers/creatorUrl";
 
 interface Stats {
@@ -112,6 +113,11 @@ const CreatorPageRoute = ({ setPageName, setPageDescription }: pageProps) => {
       </Head>
 
       <Box sx={{ px: { xs: 2, md: 0 }, pt: { xs: 1, md: 0 }, pb: 4, width: "100%" }} data-testid="creator-page">
+        {/* Vertical-specific onboarding banner (2026-08-05 audit) — only
+             renders when the user just signed up as a creator (?onboarding=1
+             appended by the register success flow). */}
+        <OnboardingBanner vertical="creators" />
+
         {/* Status banner */}
         {hasHandle && (
           <Box

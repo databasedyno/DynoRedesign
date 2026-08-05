@@ -1,5 +1,6 @@
 import ApiKeysPage from "@/Components/Page/API/ApiKeysPage";
 import CustomButton from "@/Components/UI/Buttons";
+import OnboardingBanner from "@/Components/UI/OnboardingBanner";
 import useIsMobile from "@/hooks/useIsMobile";
 import { pageProps } from "@/utils/types";
 import { AddRounded } from "@mui/icons-material";
@@ -74,6 +75,7 @@ const APIs = ({
 
   return (
     <>
+      <OnboardingBanner vertical="developers" />
       <ApiKeysPage openCreate={openCreate} setOpenCreate={setOpenCreate} />
     </>
   );

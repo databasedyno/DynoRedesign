@@ -331,11 +331,25 @@ const CreatePaymentLinkPage = ({
   });
 
   // ── Donation / crowdfunding state ─────────────────────────────────
-  const [linkKind, setLinkKind] = useState<LinkKind>(
-    hasPaymentLinkData && (paymentLinkData as PaymentLink).link_type === "donation"
-      ? "donation"
-      : "standard"
-  );
+  // Initial link kind is derived from three sources, in priority order:
+  //   1. edit mode: an existing payment link's `link_type`
+  //   2. URL query `?type=donation` — used by the vertical-specific new-signup
+  //      onboarding router (fundraiser purpose_vertical → this page opens on
+  //      the Crowdfunding tab automatically)
+  //   3. default: "standard"
+  const [linkKind, setLinkKind] = useState<LinkKind>(() => {
+    if (hasPaymentLinkData && (paymentLinkData as PaymentLink).link_type === "donation") {
+      return "donation";
+    }
+    if (typeof window !== "undefined") {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const typeParam = params.get("type");
+        if (typeParam === "donation" || typeParam === "crowdfunding") return "donation";
+      } catch { /* ignore malformed query */ }
+    }
+    return "standard";
+  });
 
   // ── Quick-sell product picker (session 49 round 3 — option "b") ─────
   // Optional shortcut: merchant picks one of their live store products →

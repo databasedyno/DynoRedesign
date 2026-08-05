@@ -1,8 +1,52 @@
 # Changelog
 
-## 2026-08-05 (session 2) — Backend vertical + Phase 3/4 rollout
+## 2026-08-05 (session 2) — Backend vertical + Phase 3/4 rollout + New-Signup Onboarding
 
-**🟢 Backend vertical column shipped (design audit Phase 3 wiring)**
+**🟢 Vertical-specific first-run onboarding — end-to-end**
+Ties the PurposePicker at signup all the way to the correct first-action surface.
+- `helpers/verticalOnboarding.ts` — new. Single source-of-truth mapping `Vertical → { path, label }`:
+  - creators → `/creator?onboarding=1` (label: "creator page")
+  - merchants → `/pay-links/products/new?onboarding=1` (label: "first product")
+  - fundraisers → `/create-pay-link?type=donation&onboarding=1` (label: "campaign page")
+  - developers → `/developer-keys?onboarding=1` (label: "API access")
+- `pages/auth/register.tsx` — the post-signup redirect now calls `verticalToOnboarding(vertical)` for NEW signups and falls back to `/dashboard` for logins + skipped-picker signups. Success step copy shows a vertical-aware hint ("Taking you to set up your {label}…").
+- `Components/Page/CreatePaymentLink/index.tsx` — `linkKind` initial state now reads `?type=donation` from the URL, so fundraisers land on the Crowdfunding tab (verified: the Crowdfunding tile is pre-selected with the green check).
+- **`Components/UI/OnboardingBanner.tsx` — new.** The compact "Welcome to Dynopay · {heading}" strip that renders on each destination when `?onboarding=1` is present. Uses `useVerticalAccent(vertical)` so the accent already reflects the user's intent (indigo / violet / volt-lime / obsidian). Contains a right-aligned **"Skip setup →"** control that `router.replace("/dashboard")` (verified: click routed to /dashboard).
+- Banner wired into all 4 destinations:
+  - `pages/creator.tsx` — `<OnboardingBanner vertical="creators" />` above status banner
+  - `pages/pay-links/products/new.tsx` — above ProductEditor
+  - `pages/create-pay-link.tsx` — above CreatePaymentLinkPage in the setup-complete branch
+  - `pages/developer-keys.tsx` — above ApiKeysPage
+
+**Verification (Playwright at 1440×900, logged in as hostbay):**
+- `/creator?onboarding=1` → volt-lime banner "Claim your @handle" ✓
+- `/pay-links/products/new?onboarding=1` → indigo banner "Add your first product" ✓
+- `/create-pay-link?type=donation&onboarding=1` → violet banner "Launch your first campaign" + Crowdfunding tab pre-selected ✓
+- `/developer-keys?onboarding=1` → obsidian banner "Grab your API keys" with volt-lime code icon ✓
+- `/creator` (no query) → banner count 0 (correct SSR/CSR guarded) ✓
+- Skip click → routed to /dashboard ✓
+- 0 page errors across all 4 destinations ✓
+
+**🟢 Backend vertical column — LIVE**
+- Migration `addPurposeVertical.ts` applied to Railway Postgres (idempotent, CHECK constraint gates the 4 enum values, safe for pre-existing users returning NULL)
+- `registerEmailStep1/2` + `registerPhoneStep1/2` accept and persist `purpose_vertical` via Redis stash keys (`reg-vertical:{email}`, `reg-vertical-phone:{mobile}`)
+- `useVerticalAccent()` now resolves `override → Redux profile → localStorage → route heuristic → INDIGO`, so once a user picks a vertical it follows them across devices
+
+**🟢 Phase 4 · Public marketing (`/for/{slug}`)**
+- `SEOLandingPage.tsx` gains a vertical-aware eyebrow chip + CTA color:
+  - `/for/merchants` — indigo CTA
+  - `/for/fundraisers` — violet CTA
+  - `/for/creators` — volt-lime CTA with dark ink
+  - `/for/developers` — obsidian CTA with volt-lime text
+- Country pages untouched (verticalOverride guard)
+
+**🟢 Phase 3 · Wallet aurora hero**
+- New `WalletTotalHero.tsx` renders a `$21,093.43` (indigo→violet→sky gradient) big number with mono eyebrow + 3 stat chips (Active Chains 13 · Supported 15 · Coverage 87%) — data from existing `useWalletData()`, zero new network traffic
+- Only renders when the merchant has wallets so the empty-state banner still leads for first-timers
+- Verified on preview: hero renders, existing chain cards preserved below, 0 page errors
+
+
+## 2026-08-05 — Design audit + Phase 1 & 2 groundwork (Aurora extension)
 - `backend/migrations/addPurposeVertical.ts` — additive, idempotent migration that adds `purpose_vertical VARCHAR(20)` to `tbl_user` + a named CHECK constraint (`tbl_user_purpose_vertical_chk`) allowing only `merchants | fundraisers | creators | developers | NULL`. Applied against the LIVE Railway Postgres via `ts-node --transpile-only`; verified with `/api/user/login` returning `purpose_vertical: None` for pre-existing users (no data corruption).
 - `backend/models/userModels/userModel.ts` — added the column to the Sequelize model with the same enum comment.
 - `backend/controller/userController.ts`:

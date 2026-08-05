@@ -5,6 +5,7 @@ import TitleDescription from "@/Components/UI/AuthLayout/TitleDescription";
 import TrustStrip from "@/Components/UI/AuthLayout/TrustStrip";
 import PurposePicker from "@/Components/UI/AuthLayout/PurposePicker";
 import type { Vertical } from "@/Components/UI/_shared";
+import { verticalToOnboarding } from "@/helpers/verticalOnboarding";
 import CustomButton from "@/Components/UI/Buttons";
 import LanguageSwitcher from "@/Components/UI/LanguageSwitcher";
 import ThemeToggle from "@/Components/UI/ThemeToggle";
@@ -429,9 +430,16 @@ const Register = () => {
           },
         });
         setStep("success");
-        // Auto redirect after brief success display
+        // Auto redirect after brief success display.
+        //
+        // Vertical-specific onboarding routing (design audit 2026-08-05):
+        //   • Existing (logged-in) users → /dashboard (unchanged behaviour)
+        //   • New signups with a purpose_vertical → the matching first-run
+        //     setup surface (creator handle / product / donation link / API keys)
+        //   • New signups without a vertical (skipped the picker) → /dashboard
         setTimeout(() => {
-          router.push("/dashboard");
+          const dest = !isLogin ? verticalToOnboarding(vertical) : null;
+          router.push(dest?.path ?? "/dashboard");
         }, 1500);
       } else {
         setOtpError("Account creation failed. Please try again.");
@@ -442,7 +450,7 @@ const Register = () => {
     } finally {
       setLoading(false);
     }
-  }, [method, email, phone, accountExists, dispatch, router, i18n.language, getSeoAttribution]);
+  }, [method, email, phone, accountExists, dispatch, router, i18n.language, getSeoAttribution, vertical]);
 
   // ─── Resend OTP ───
   const handleResendOtp = useCallback(async () => {
@@ -924,7 +932,17 @@ const Register = () => {
                   <Typography sx={{ fontSize: "15px", color: "text.secondary", fontFamily: "var(--font-sans)", lineHeight: 1.6, mb: 1 }}>
                     {accountExists
                       ? t("redirectingToDashboard")
-                      : t("accountReadyDesc")}
+                      : (() => {
+                          // Vertical-specific onboarding hint (2026-08-05 audit).
+                          // Fall back to the original success copy when no
+                          // vertical is set so legacy behaviour is preserved.
+                          const dest = verticalToOnboarding(vertical);
+                          if (!dest) return t("accountReadyDesc");
+                          return t("accountReadyDescVertical", {
+                            defaultValue: `Taking you to set up your ${dest.label}…`,
+                            label: dest.label,
+                          });
+                        })()}
                   </Typography>
                   <LoadingSpinner size={24} />
                 </Box>

@@ -18,6 +18,7 @@ import { WalletAction } from "@/Redux/Actions";
 import { WALLET_FETCH } from "@/Redux/Actions/WalletAction";
 import AddWalletModal from "@/Components/UI/AddWalletModal";
 import CreateCompanyModal from "@/Components/UI/OnboardingFlow/CreateCompanyModal";
+import OnboardingBanner from "@/Components/UI/OnboardingBanner";
 
 const CreatePaymentLink = ({ setPageName, setPageDescription }: pageProps) => {
   const namespaces = ["createPaymentLinkScreen", "common"];
@@ -120,6 +121,7 @@ const CreatePaymentLink = ({ setPageName, setPageDescription }: pageProps) => {
       </Head>
       {setupComplete ? (
         <Box sx={{ mt: isMobile ? "4px" : "0px" }}>
+          <OnboardingBanner vertical="fundraisers" />
           <CreatePaymentLinkPage
             paymentLinkData={{}}
             disabled={false}
