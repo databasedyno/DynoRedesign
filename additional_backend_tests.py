@@ -8,7 +8,7 @@ import requests
 import json
 import sys
 
-BACKEND_URL = "https://multi-chain-gateway.preview.emergentagent.com"
+BACKEND_URL = "https://multi-chain-checkout-6.preview.emergentagent.com"
 
 def test_additional_scenarios():
     """Test additional scenarios and edge cases"""

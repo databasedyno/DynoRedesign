@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 import sys
 
 # Configuration
-BASE_URL = "https://bf8f68f3-666f-49cd-b03c-00ac2915732e.preview.emergentagent.com"
+BASE_URL = "https://multi-chain-checkout-6.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 # Test credentials
