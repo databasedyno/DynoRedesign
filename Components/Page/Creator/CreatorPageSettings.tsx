@@ -490,7 +490,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
           <HandleQrCode
             handle={savedHandle}
             size="full"
-            accentColor={themeAccent || "#CCFF00"}
+            accentColor={themeAccent || "#4F46E5"}
           />
         </DialogContent>
         <DialogActions>

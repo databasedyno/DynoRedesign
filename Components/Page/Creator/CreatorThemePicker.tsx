@@ -17,7 +17,7 @@ import { Icon } from "@iconify/react";
 export type CoverStyle = "solid" | "gradient" | "image" | "pattern";
 
 export interface CreatorTheme {
-  accentColor: string | null;   // e.g. "#CCFF00", null = default lime
+  accentColor: string | null;   // e.g. "#4F46E5", null = default Aurora Indigo (Dynopay brand)
   coverStyle: CoverStyle | null;
   coverGradient: string | null; // preset key OR "#RRGGBB,#RRGGBB"
 }
@@ -50,7 +50,7 @@ export const GRADIENT_PRESETS: Array<{ key: string; label: string; stops: string
 
 /** Returns a CSS background string for a given cover style + accent + gradient. */
 export const buildCoverBackground = (theme: CreatorTheme, coverImageUrl?: string | null): string => {
-  const accent = theme.accentColor || "#CCFF00";
+  const accent = theme.accentColor || "#4F46E5";
   const style = theme.coverStyle || "solid";
   if (style === "solid") {
     return `linear-gradient(135deg, ${accent}22 0%, ${accent}66 100%)`;
@@ -82,7 +82,7 @@ const CreatorThemePicker: React.FC<Props> = ({ value, onChange, hasCoverImage })
   const border = theme.palette.divider;
   const isDark = theme.palette.mode === "dark";
 
-  const currentAccent = value.accentColor || "#CCFF00";
+  const currentAccent = value.accentColor || "#4F46E5";
   const currentStyle: CoverStyle = value.coverStyle || "solid";
   const currentGradient = value.coverGradient || "sunset";
 

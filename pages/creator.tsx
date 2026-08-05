@@ -241,7 +241,10 @@ const CreatorPageRoute = ({ setPageName, setPageDescription }: pageProps) => {
         )}
 
         {/* Buy-me-a-coffee / donation CTA — bridges the Creator page with the
-            donation link type so tips feel like a first-class Creator feature. */}
+            donation link type so tips feel like a first-class Creator feature.
+            Uses Dynopay's Aurora Indigo brand accent (matches dashboard v2026) —
+            NOT the creator's user-chosen "accentColor" which only styles their
+            PUBLIC page. Dashboard-side chrome always stays on-brand. */}
         <Box
           data-testid="creator-donation-cta"
           sx={{
@@ -251,8 +254,8 @@ const CreatorPageRoute = ({ setPageName, setPageDescription }: pageProps) => {
             p: { xs: 1.75, sm: 2.25 },
             mb: 3,
             borderRadius: "14px",
-            border: `1px solid ${theme.palette.mode === "dark" ? "rgba(204,255,0,0.30)" : "rgba(160,190,0,0.45)"}`,
-            backgroundColor: theme.palette.mode === "dark" ? "rgba(204,255,0,0.07)" : "rgba(204,255,0,0.13)",
+            border: `1px solid ${theme.palette.mode === "dark" ? "rgba(129,140,248,0.30)" : "rgba(79,70,229,0.30)"}`,
+            backgroundColor: theme.palette.mode === "dark" ? "rgba(129,140,248,0.10)" : "rgba(79,70,229,0.06)",
             flexWrap: "wrap",
           }}
         >
@@ -260,10 +263,10 @@ const CreatorPageRoute = ({ setPageName, setPageDescription }: pageProps) => {
             sx={{
               width: 44, height: 44, borderRadius: "12px", flexShrink: 0,
               display: "flex", alignItems: "center", justifyContent: "center",
-              backgroundColor: "#CCFF00",
+              backgroundColor: theme.palette.mode === "dark" ? "#818CF8" : "#4F46E5",
             }}
           >
-            <Icon icon="mdi:coffee-outline" width={24} color="#0A0A0B" />
+            <Icon icon="mdi:coffee-outline" width={24} color="#FFFFFF" />
           </Box>
           <Box sx={{ flex: "1 1 260px", minWidth: 0 }}>
             <Typography fontSize={15} fontWeight={800} color={theme.palette.text.primary}>
@@ -288,8 +291,12 @@ const CreatorPageRoute = ({ setPageName, setPageDescription }: pageProps) => {
             sx={{
               px: 2.25, py: 1.1, borderRadius: "10px", textTransform: "none",
               fontWeight: 800, fontSize: 13.5, whiteSpace: "nowrap",
-              backgroundColor: "#CCFF00", color: "#0A0A0B",
-              "&:hover": { backgroundColor: "#CCFF00", filter: "brightness(1.05)" },
+              backgroundColor: theme.palette.mode === "dark" ? "#818CF8" : "#4F46E5",
+              color: "#FFFFFF",
+              "&:hover": {
+                backgroundColor: theme.palette.mode === "dark" ? "#6D74E8" : "#4338CA",
+                filter: "brightness(1.02)",
+              },
             }}
           >
             {t("creatorDonationCtaButton", { defaultValue: "Set up tips", ns: "dashboardLayout" })}

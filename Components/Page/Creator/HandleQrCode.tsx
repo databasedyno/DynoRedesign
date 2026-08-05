@@ -173,9 +173,9 @@ const HandleQrCode: React.FC<Props> = ({ handle, size = "full", accentColor }) =
           startIcon={<Icon icon="mdi:download" width={14} />}
           sx={{
             textTransform: "none", fontSize: 12.5, fontWeight: 700, borderRadius: "10px",
-            backgroundColor: accentColor || "#CCFF00",
-            color: "#0A0A0B",
-            "&:hover": { backgroundColor: accentColor || "#CCFF00", filter: "brightness(1.05)" },
+            backgroundColor: accentColor || "#4F46E5",
+            color: "#FFFFFF",
+            "&:hover": { backgroundColor: accentColor || "#4F46E5", filter: "brightness(1.05)" },
           }}
         >
           {downloading ? "Saving…" : "Download PNG"}
