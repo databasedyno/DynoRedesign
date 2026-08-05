@@ -579,7 +579,7 @@ export const calculateCheckoutFees = async (
 export const getFeePreview = async (req: express.Request, res: express.Response) => {
   try {
     const userData = jwt.decode(res.locals.token) as PaymentUserJwtPayload;
-    const { amount, currency } = req.query;
+    const { amount, currency, fee_payer } = req.query;
 
     if (!amount) {
       return errorResponseHelper(res, 400, "Amount is required");
@@ -589,6 +589,10 @@ export const getFeePreview = async (req: express.Request, res: express.Response)
     if (isNaN(amountNum) || amountNum <= 0) {
       return errorResponseHelper(res, 400, "Invalid amount");
     }
+
+    // Who pays the platform fee: "customer" -> fee added on top (merchant gets
+    // the full amount); "company" (default) -> fee deducted from the merchant payout.
+    const feePayer = (fee_payer as string) === "customer" ? "customer" : "company";
 
     // Get discounted fee info for user
     const discountInfo = await getDiscountedTransactionFee(userData.user_id);
@@ -601,18 +605,30 @@ export const getFeePreview = async (req: express.Request, res: express.Response)
     const discountedFeeAmount = (amountNum * finalFeePercent) / 100;
     const savings = baseFeeAmount - discountedFeeAmount;
 
+    // Net payout to merchant + total the customer is charged, based on who pays the fee.
+    const youReceive = feePayer === "customer"
+      ? amountNum                              // customer covers the fee -> merchant gets full amount
+      : amountNum - discountedFeeAmount;       // company pays the fee -> fee deducted from payout
+    const customerPays = feePayer === "customer"
+      ? amountNum + discountedFeeAmount        // fee added on top of the amount
+      : amountNum;
+
     return successResponseHelper(res, 200, "Fee preview retrieved successfully", {
       amount: amountNum,
       currency: currency || 'USD',
       fee: parseFloat(discountedFeeAmount.toFixed(2)),
-      you_receive: parseFloat((amountNum - discountedFeeAmount).toFixed(2)),
+      fee_payer: feePayer,
+      you_receive: parseFloat(youReceive.toFixed(2)),
+      customer_pays: parseFloat(customerPays.toFixed(2)),
       fee_info: {
         base_fee_percent: baseFeePercent,
         final_fee_percent: finalFeePercent,
         base_fee_amount: parseFloat(baseFeeAmount.toFixed(2)),
         discounted_fee_amount: parseFloat(discountedFeeAmount.toFixed(2)),
         savings: parseFloat(savings.toFixed(2)),
-        you_receive: parseFloat((amountNum - discountedFeeAmount).toFixed(2)),
+        fee_payer: feePayer,
+        you_receive: parseFloat(youReceive.toFixed(2)),
+        customer_pays: parseFloat(customerPays.toFixed(2)),
       },
       discount_info: {
         has_discount: discountInfo.discount_percent > 0,

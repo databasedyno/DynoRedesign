@@ -149,8 +149,9 @@ export function* PaymentLinkSaga(action: PaymentLinkSagaAction): Generator<any, 
       }
 
       case PAYLINK_FEE_PREVIEW: {
-        const { amount, currency } = action.payload;
-        const response = yield call(axiosBaseApi.get, `/pay/fee-preview?amount=${amount}&currency=${currency || 'USD'}`);
+        const { amount, currency, feePayer } = action.payload;
+        const feePayerParam = feePayer ? `&fee_payer=${feePayer}` : "";
+        const response = yield call(axiosBaseApi.get, `/pay/fee-preview?amount=${amount}&currency=${currency || 'USD'}${feePayerParam}`);
         const apiData = response?.data?.data;
         if (apiData) {
           yield put({

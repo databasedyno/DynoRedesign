@@ -2,10 +2,9 @@ import CalendarIcon from "@/assets/Icons/calendar-icon.svg";
 import TimeIcon from "@/assets/Icons/time-icon.svg";
 import CustomDatePicker, { DatePickerRef } from "@/Components/UI/DatePicker";
 import useIsMobile from "@/hooks/useIsMobile";
-import { theme } from "@/styles/theme";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { Box } from "@mui/material";
+import { Box, useTheme } from "@mui/material";
 import { format } from "date-fns";
 import Image from "next/image";
 import React, { useMemo, useRef, useState } from "react";
@@ -23,6 +22,7 @@ export default function ExpirationDateTime({
   onChange,
 }: ExpirationDateTimeProps) {
   const { t } = useTranslation("createPaymentLinkScreen");
+  const theme = useTheme();
   const isMobile = useIsMobile("md");
   const datePickerRef = useRef<DatePickerRef>(null);
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
@@ -139,8 +139,8 @@ export default function ExpirationDateTime({
             alt="calendar"
             width={12}
             height={12}
+            className="themed-icon"
             style={{
-              filter: "brightness(0) saturate(100%) invert(0%)",
               marginTop: "-3px",
             }}
           />
@@ -235,8 +235,8 @@ export default function ExpirationDateTime({
             alt="time"
             width={12}
             height={12}
+            className="themed-icon"
             style={{
-              filter: "brightness(0) saturate(100%) invert(0%)",
               marginTop: isMobile ? "-2px" : "-3px",
             }}
           />

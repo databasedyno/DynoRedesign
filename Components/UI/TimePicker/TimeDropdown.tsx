@@ -1,8 +1,7 @@
 import useIsMobile from "@/hooks/useIsMobile";
-import { theme } from "@/styles/theme";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { Box } from "@mui/material";
+import { Box, useTheme } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import { Text } from "../../Page/CreatePaymentLink/styled";
 
@@ -21,6 +20,7 @@ export default function TimeDropdown({
   onChange,
   dropdownHeight = 160,
 }: TimeDropdownProps) {
+  const theme = useTheme();
   const isMobile = useIsMobile("md");
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement | null>(null);

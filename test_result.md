@@ -1,3 +1,54 @@
+# Session 2026-08-05 — BUGFIX: (1) Fee-payer "You receive" math on Create Payment Link, (2) dark/light invisible text on expiry date/time picker
+
+Preview: relative /api (NEXT_PUBLIC_BASE_URL empty). Backend on :8001 proxy -> Node :3300.
+Merchant login (2-step, LIVE prod Railway PG): hostbay@moxx.co / Katiekendra123@
+
+## BUG 2 — Fee calculation (BACKEND + FRONTEND)
+Root cause: `GET /api/pay/fee-preview` always returned `you_receive = amount - fee`, ignoring who pays the fee.
+Fix (backend `controller/payment/feeController.ts::getFeePreview`): now accepts `fee_payer` query param.
+- fee_payer=customer  -> you_receive = amount (FULL), customer_pays = amount + fee
+- fee_payer=company   -> you_receive = amount - fee, customer_pays = amount
+Response now also includes `fee_payer` and `customer_pays` (+ inside fee_info).
+Frontend: saga `PaymentLinkSaga.ts` sends `&fee_payer=`; component `CreatePaymentLink/index.tsx` passes `feePayer` and re-fetches when the toggle changes; UI shows an extra "Customer pays" row when customer covers the fee.
+
+### WHAT TO TEST (deep_testing_backend_v2 — BACKEND ONLY, READ-ONLY)
+Auth: POST /api/user/login {email:"hostbay@moxx.co", password:"Katiekendra123@"} -> data.accessToken (Bearer).
+1. `GET /api/pay/fee-preview?amount=20&currency=USD&fee_payer=company` (Bearer) -> 200. Expect fee=0.30 (1.5%), you_receive=19.70, customer_pays=20, fee_payer="company".
+2. `GET /api/pay/fee-preview?amount=20&currency=USD&fee_payer=customer` (Bearer) -> 200. Expect fee=0.30, you_receive=20 (FULL amount), customer_pays=20.30, fee_payer="customer".
+3. `GET /api/pay/fee-preview?amount=20&currency=USD` (no fee_payer, Bearer) -> 200, defaults to company (you_receive=19.70).
+4. Regression: `GET /api/pay/fee-preview` without auth -> 401/403 (auth required). Invalid amount (0 or negative) -> 400.
+
+### backend
+  - task: "Fee-preview endpoint fix — fee_payer parameter support"
+    implemented: true
+    working: true
+    file: "backend/controller/payment/feeController.ts"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Backend fix applied to getFeePreview function. Now accepts fee_payer query param and calculates you_receive and customer_pays correctly based on who pays the fee. TSC clean. Awaiting deep_testing_backend_v2 verification per test plan above."
+      - working: true
+        agent: "testing"
+        comment: "✅ ALL 7 TESTS PASSED (2026-08-05). Test 1 (fee_payer=company): HTTP 200, fee=0.3 (1.5% of 20), you_receive=19.7, customer_pays=20, fee_payer='company' ✓. Test 2 (fee_payer=customer): HTTP 200, fee=0.3, you_receive=20 (FULL amount - merchant gets full payment), customer_pays=20.3, fee_payer='customer' ✓. Test 3 (no fee_payer): HTTP 200, defaults to company behavior (fee=0.3, you_receive=19.7, customer_pays=20, fee_payer='company') ✓. Test 4a (no auth): HTTP 401 (auth required) ✓. Test 4b (invalid amount 0): HTTP 400 (invalid amount rejected) ✓. Test 4c (invalid amount 'abc'): HTTP 400 (non-numeric amount rejected) ✓. CRITICAL FIX VERIFIED: When fee_payer=customer, merchant receives the FULL amount (you_receive=20), and the fee is added on top for the customer (customer_pays=20.3). When fee_payer=company (or default), merchant receives amount minus fee (you_receive=19.7), and customer pays the base amount (customer_pays=20). Math is internally consistent across all test cases. All endpoints working correctly on LIVE Railway PG."
+
+## Testing Protocol
+- Backend testing only (READ-ONLY on LIVE Railway PG)
+- Test script: /app/fee_preview_test.py
+
+## Agent Communication
+  - agent: "testing"
+    message: "✅ FEE-PREVIEW ENDPOINT FIX FULLY VERIFIED — All 7 tests PASSED (7/7 — 100%). Comprehensive test suite executed against LIVE Railway PG. CRITICAL BUG FIX CONFIRMED: The 'you_receive' calculation now correctly depends on fee_payer parameter. When fee_payer=customer, merchant receives FULL amount ($20) and customer pays amount + fee ($20.30). When fee_payer=company (or default), merchant receives amount - fee ($19.70) and customer pays base amount ($20). All regression tests passed: auth required (401), invalid amounts rejected (400). Math is internally consistent. The bug where 'you_receive' always equaled amount - fee regardless of fee_payer is now FIXED. Main agent: please summarize and finish — no backend issues found."
+
+## BUG 1 — dark/light invisible text (FRONTEND only)
+Root cause: components imported the STATIC light-mode `theme` from `@/styles/theme` (text.primary #18181B) instead of dynamic `useTheme()`, and icons were force-filtered to pure black. Invisible in dark mode.
+Fix: `Components/UI/TimePicker/ExpirationDateTime.tsx` and `Components/UI/TimePicker/TimeDropdown.tsx` now use `useTheme()`; expiry icons use `className="themed-icon"`.
+(Frontend verification only after user permission.)
+
+---
+
 # Session (fork) 2026-08-05 — FEATURE: Creator Page Analytics (30-day tips chart + top supporters, hide/reveal toggle) — BACKEND test requested
 
 Preview: https://payment-processor-76.preview.emergentagent.com

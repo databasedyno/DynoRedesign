@@ -709,7 +709,7 @@ const CreatePaymentLinkPage = ({
     setSaveChangeModalOpen(true);
   };
 
-  // Fetch fee preview when amount or currency changes
+  // Fetch fee preview when amount, currency, or fee payer changes
   useEffect(() => {
     const amount = parseFloat(paymentSettings.value);
     if (amount > 0 && paymentSettings.currency) {
@@ -718,12 +718,13 @@ const CreatePaymentLinkPage = ({
           PaymentLinkAction(PAYLINK_FEE_PREVIEW, {
             amount,
             currency: paymentSettings.currency,
+            feePayer: paymentSettings.blockchainFees,
           })
         );
       }, 500); // debounce
       return () => clearTimeout(timer);
     }
-  }, [paymentSettings.value, paymentSettings.currency, dispatch]);
+  }, [paymentSettings.value, paymentSettings.currency, paymentSettings.blockchainFees, dispatch]);
 
   const handleCreatePaymentLink = () => {
     // Prevent multiple rapid clicks — use createLoading (not generic loading which can be stuck from fee preview)
@@ -1890,6 +1891,16 @@ const CreatePaymentLinkPage = ({
                     {feePreview.you_receive != null ? `${feePreview.you_receive} ${feePreview.currency || paymentSettings.currency}` : "—"}
                   </Typography>
                 </Box>
+                {paymentSettings.blockchainFees === "customer" && feePreview.customer_pays != null && (
+                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <Typography sx={{ fontSize: 12, fontFamily: "var(--font-sans)", color: theme.palette.text.secondary }}>
+                      Customer pays
+                    </Typography>
+                    <Typography sx={{ fontSize: 13, fontFamily: "var(--font-sans)", color: theme.palette.text.primary }}>
+                      {`${feePreview.customer_pays} ${feePreview.currency || paymentSettings.currency}`}
+                    </Typography>
+                  </Box>
+                )}
                 {paymentSettings.blockchainFees && (
                   <Typography sx={{ fontSize: 11, fontFamily: "var(--font-sans)", color: theme.palette.text.secondary, opacity: 0.7 }}>
                     Fee paid by: {paymentSettings.blockchainFees === "customer" ? "Customer" : "Company"}
