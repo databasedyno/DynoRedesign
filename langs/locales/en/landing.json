@@ -687,6 +687,38 @@
       "confirmed": "Confirmed",
       "detected": "Detected",
       "waiting": "Waiting"
+    },
+    "strip": {
+      "pending": {
+        "pill": "WAITING",
+        "title": "Waiting for your wallet",
+        "caption": "Send the exact amount below. Confirmation is automatic once it hits the mempool."
+      },
+      "confirming": {
+        "pill": "CONFIRMING",
+        "title": "Broadcasting on-chain",
+        "caption": "We saw your transaction. Confirmations usually take under a minute."
+      },
+      "confirmed": {
+        "pill": "CONFIRMED",
+        "title": "Payment confirmed",
+        "caption": "The network confirmed it. Settlement is in progress."
+      },
+      "settled": {
+        "pill": "SETTLED",
+        "title": "You're all set",
+        "caption": "Funds have cleared. A receipt is on its way."
+      },
+      "failed": {
+        "pill": "FAILED",
+        "title": "Something went wrong",
+        "caption": "The payment didn't complete. Nothing was charged — you can try again below."
+      },
+      "urgent": {
+        "pill": "HURRY",
+        "title": "Only {{seconds}}s left",
+        "caption": "Complete your transfer now — this pay link expires soon."
+      }
     }
   },
   "creator": {

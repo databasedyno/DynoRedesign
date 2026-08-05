@@ -687,6 +687,38 @@
       "confirmed": "Confirmado",
       "detected": "Detectado",
       "waiting": "Esperando"
+    },
+    "strip": {
+      "pending": {
+        "pill": "ESPERANDO",
+        "title": "Esperando tu billetera",
+        "caption": "Envía el importe exacto indicado. La confirmación es automática cuando detectemos la transacción."
+      },
+      "confirming": {
+        "pill": "CONFIRMANDO",
+        "title": "Transmitiendo en la blockchain",
+        "caption": "Detectamos tu transacción. Las confirmaciones suelen tardar menos de un minuto."
+      },
+      "confirmed": {
+        "pill": "CONFIRMADO",
+        "title": "Pago confirmado",
+        "caption": "La red confirmó tu pago. La liquidación está en curso."
+      },
+      "settled": {
+        "pill": "LIQUIDADO",
+        "title": "Todo listo",
+        "caption": "Los fondos se han liquidado. Recibirás un recibo por correo."
+      },
+      "failed": {
+        "pill": "FALLIDO",
+        "title": "Algo salió mal",
+        "caption": "El pago no se completó. No se realizó ningún cargo — puedes intentarlo de nuevo."
+      },
+      "urgent": {
+        "pill": "APÚRATE",
+        "title": "Solo quedan {{seconds}}s",
+        "caption": "Completa tu transferencia ahora — este enlace expira pronto."
+      }
     }
   },
   "creator": {

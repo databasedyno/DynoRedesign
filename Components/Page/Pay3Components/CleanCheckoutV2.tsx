@@ -905,6 +905,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
       {stripState && (
         <CheckoutStatusStrip
           state={stripState}
+          secondsRemaining={timeLeft}
           data-testid="pay-status-strip"
         />
       )}

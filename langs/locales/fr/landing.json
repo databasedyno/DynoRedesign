@@ -687,6 +687,38 @@
       "confirmed": "Confirmé",
       "detected": "Détecté",
       "waiting": "En attente"
+    },
+    "strip": {
+      "pending": {
+        "pill": "EN ATTENTE",
+        "title": "En attente de votre portefeuille",
+        "caption": "Envoyez le montant exact indiqué. La confirmation est automatique dès la détection."
+      },
+      "confirming": {
+        "pill": "CONFIRMATION",
+        "title": "Diffusion sur la blockchain",
+        "caption": "Votre transaction est détectée. Les confirmations prennent généralement moins d'une minute."
+      },
+      "confirmed": {
+        "pill": "CONFIRMÉ",
+        "title": "Paiement confirmé",
+        "caption": "Le réseau a confirmé votre paiement. Le règlement est en cours."
+      },
+      "settled": {
+        "pill": "RÉGLÉ",
+        "title": "Tout est en ordre",
+        "caption": "Les fonds sont réglés. Un reçu vous sera envoyé par email."
+      },
+      "failed": {
+        "pill": "ÉCHEC",
+        "title": "Quelque chose s'est mal passé",
+        "caption": "Le paiement n'a pas abouti. Rien n'a été facturé — vous pouvez réessayer."
+      },
+      "urgent": {
+        "pill": "VITE",
+        "title": "Plus que {{seconds}}s",
+        "caption": "Terminez votre virement maintenant — ce lien expire bientôt."
+      }
     }
   },
   "creator": {

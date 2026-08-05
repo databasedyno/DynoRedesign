@@ -3,6 +3,7 @@ import Head from "next/head";
 import { useEffect, useState } from "react";
 import Pay3Layout from "@/Components/Layout/Pay3Layout";
 import CheckoutShell, { CheckoutState } from "@/Components/UI/CheckoutShell";
+import CheckoutStatusStrip from "@/Components/UI/CheckoutStatusStrip";
 import { Eyebrow, PillButton } from "@/Components/UI/_shared";
 
 /**
@@ -26,10 +27,14 @@ const CheckoutStateDemo = () => {
   // `window is not defined` / server-vs-client mismatch (React #418) that
   // fires on Next.js pages when useState-init touches `window.location`.
   const [state, setState] = useState<CheckoutState>("pending");
+  // Urgent-timer demo — seconds remaining, `null` = urgency disabled.
+  const [urgentSeconds, setUrgentSeconds] = useState<number | null>(null);
   useEffect(() => {
     if (typeof window === "undefined") return;
     const q = new URLSearchParams(window.location.search).get("state");
     if (q && (STATES as string[]).includes(q)) setState(q as CheckoutState);
+    const u = new URLSearchParams(window.location.search).get("urgent");
+    if (u && !isNaN(Number(u))) setUrgentSeconds(Number(u));
   }, []);
 
   return (
@@ -79,6 +84,43 @@ const CheckoutStateDemo = () => {
               {s}
             </PillButton>
           ))}
+        </Box>
+
+        {/* Timeout urgency picker — demo the coral pulse ripple */}
+        <Box sx={{ display: "flex", gap: 1, justifyContent: "center", mb: 3, flexWrap: "wrap" }}>
+          <PillButton
+            active={urgentSeconds === null}
+            data-testid="urgent-off"
+            onClick={() => setUrgentSeconds(null)}
+          >
+            No timer
+          </PillButton>
+          <PillButton
+            active={urgentSeconds === 45}
+            data-testid="urgent-45"
+            onClick={() => setUrgentSeconds(45)}
+          >
+            45s left · urgent
+          </PillButton>
+          <PillButton
+            active={urgentSeconds === 12}
+            data-testid="urgent-12"
+            onClick={() => setUrgentSeconds(12)}
+          >
+            12s left · very urgent
+          </PillButton>
+        </Box>
+
+        {/* Compact CheckoutStatusStrip variant (as used in live /pay checkout) */}
+        <Box sx={{ mb: 3 }}>
+          <Eyebrow tone="ink" sx={{ letterSpacing: "0.24em", mb: 1 }}>
+            Compact strip (used in the live /pay checkout)
+          </Eyebrow>
+          <CheckoutStatusStrip
+            state={state}
+            secondsRemaining={urgentSeconds ?? undefined}
+            data-testid="demo-strip"
+          />
         </Box>
 
         {/* The shell + a mock body */}

@@ -1,5 +1,42 @@
 # Changelog
 
+## 2026-08-05 (session 5) — Timeout urgency + PT/ES/FR translations for the checkout strip
+
+**🟢 Timeout warning (`?urgent=45` / real-time countdown)**
+- `Components/UI/CheckoutStatusStrip.tsx` gains a new `secondsRemaining?: number` prop. When the value is in `(0, 60]`, the strip flips into an **urgent** mode:
+  - Border + tint shift to soft coral (`rgba(255,91,73,0.34)` border, coral fill)
+  - New `coralUrgent` keyframe pulses a 2.4s expanding coral halo around the box (`box-shadow: 0 0 0 → 10px rgba(255,91,73)`), keeping the buyer's eye on the strip without flashing the whole page
+  - Title + caption are replaced with the localised **urgent copy** ("Only {seconds}s left · Complete your transfer now — this pay link expires soon.")
+  - Pill flips to the failed tone (coral) with the localised "HURRY" label
+  - The base status (pending/confirming) is retained under the hood so if the buyer completes in the last 30s we still know which flow they were in
+- `Components/Page/Pay3Components/CleanCheckoutV2.tsx` passes its existing `timeLeft` state to the strip: `<CheckoutStatusStrip state={stripState} secondsRemaining={timeLeft} />`. `timeLeft` was already computed there for the countdown display — zero new derived state.
+- Motion honours `prefers-reduced-motion` (keyframe disabled).
+- `data-urgent="0|1"` attribute exposed for QA + analytics.
+
+**🟢 PT / ES / FR translations on the checkout status strip**
+- `langs/locales/{en,pt,es,fr}/landing.json` — added `checkout.strip.{state}.{pill,title,caption}` for all 5 states (pending, confirming, confirmed, settled, failed) plus a special `checkout.strip.urgent.{pill,title,caption}` block. Translations authored end-to-end (not machine-translated) — e.g. FR uses "Diffusion sur la blockchain" for confirming, PT uses "A transmitir na blockchain", ES uses "Transmitiendo en la blockchain".
+- `CheckoutStatusStrip.tsx` reads copy via `useTranslation("landing")` with English `defaultValue` fallbacks so any locale that hasn't been extended (de, nl) still renders correctly (falls back to English).
+- Pill label localised too, so ES sees `ESPERANDO`, PT sees `AGUARDA`, FR sees `EN ATTENTE`.
+
+**🟢 State-demo playground now covers both**
+- `pages/pay/state-demo.tsx` grew a second row of pill buttons — "No timer / 45s left · urgent / 12s left · very urgent" — plus a new **"Compact strip (used in the live /pay checkout)"** section that mounts `<CheckoutStatusStrip>` directly. Deep-links: `?state=pending&urgent=30` jumps straight into the urgent view. Handy for design review of the coral pulse.
+
+**Verification (Playwright at 1440×900):**
+- No timer, EN, pending: `WAITING · Waiting for your wallet` — indigo tint, aurora blob visible ✓
+- 45s urgent, EN: coral border + coral halo pulse + `HURRY · Only 45s left · Complete your transfer now` ✓ · `data-urgent=1`
+- 12s urgent, EN: `HURRY · Only 12s left` ✓
+- PT locale + urgent=30: `DEPRESSA · Restam apenas 30s · Complete a sua transferência agora — este link expira em breve.` ✓
+- ES locale + pending (no timer): `ESPERANDO · Esperando tu billetera · Envía el importe exacto indicado…` ✓
+- FR locale + failed: `ÉCHEC · Quelque chose s'est mal passé · Le paiement n'a pas abouti…` ✓ · coral shake fires
+- `tsc --noEmit` PASS · 0 page errors across all 6 test surfaces
+
+**Files touched:**
+- `Components/UI/CheckoutStatusStrip.tsx` (urgent mode + i18n + `coralUrgent` keyframe)
+- `Components/Page/Pay3Components/CleanCheckoutV2.tsx` (pass `timeLeft` as `secondsRemaining`)
+- `pages/pay/state-demo.tsx` (urgent picker + compact strip variant)
+- `langs/locales/en/landing.json`, `pt/landing.json`, `es/landing.json`, `fr/landing.json` (added `checkout.strip` block)
+
+
 ## 2026-08-05 (session 4) — CheckoutShell wired into the live /pay checkout
 
 **🟢 CheckoutStatusStrip landed inside CleanCheckoutV2**
