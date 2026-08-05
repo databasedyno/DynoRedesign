@@ -1,3 +1,43 @@
+# Session 2026-08-05 (e) — Fix /invoices ERR_ABORTED (NextAuth mount-fetch)
+
+Root cause: page loads fine (200), but NextAuth SessionProvider fired a mount fetch to /api/auth/session which, in this proxy env, gets aborted on navigation -> recurring [next-auth] CLIENT_FETCH_ERROR "Failed to fetch" and occasional page.goto ERR_ABORTED.
+Fix (pages/_app.tsx): SessionProvider now gets a DEFINED initial session `session={props.pageProps.session ?? null}` (NextAuth v4 then SKIPS the mount fetch) + refetchWhenOffline={false}.
+
+### WHAT TO TEST (frontend, LIVE prod READ-ONLY; login hostbay@moxx.co / Katiekendra123@)
+1. Login. Navigate: /dashboard -> /invoices -> /transactions -> /invoices (repeat the /invoices visit at least twice, full page loads).
+2. Each time /invoices must load with content (title "Invoices & Tax", an Invoices table with rows, and a "Tax Report" tab) and HTTP 200 — NO ERR_ABORTED / blank page.
+3. Capture browser console; confirm there is NO "[next-auth][error][CLIENT_FETCH_ERROR] ... /api/auth/session ... Failed to fetch" error anymore.
+4. Switch to the "Tax Report" tab on /invoices and confirm it renders (no crash).
+Report pass/fail with observed status per visit, whether the CLIENT_FETCH_ERROR is gone, and a screenshot of /invoices.
+
+### frontend
+  - task: "Fix /invoices ERR_ABORTED + NextAuth CLIENT_FETCH_ERROR"
+    implemented: true
+    working: true
+    file: "pages/_app.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Fix applied to pages/_app.tsx. SessionProvider now receives defined initial session (session={props.pageProps.session ?? null}) + refetchWhenOffline={false}. This prevents NextAuth from firing mount fetch to /api/auth/session which was getting aborted on navigation. Awaiting auto_frontend_testing_agent verification."
+      - working: true
+        agent: "testing"
+        comment: "✅ FIX FULLY VERIFIED (2026-08-05) — Comprehensive Playwright test executed successfully on LIVE prod. TEST RESULTS: 1st /invoices visit: HTTP 200, content rendered (title 'Invoices & Tax', Invoices tab, Tax Report tab, 8 table rows) ✓. 2nd /invoices visit (KEY REGRESSION CHECK): HTTP 200, content rendered correctly again ✓. Tax Report tab: Clicked and rendered without crashing ✓. CRITICAL SUCCESS: NextAuth CLIENT_FETCH_ERROR '[next-auth][error][CLIENT_FETCH_ERROR] ... /api/auth/session ... Failed to fetch' is COMPLETELY GONE (0 occurrences in console) ✓. NO ERR_ABORTED detected on either /invoices visit ✓. Console errors captured: 3 total (1 Next.js router cancellation on /dashboard navigation - unrelated, 2 React DOM nesting warnings on /transactions - pre-existing minor issues). Screenshots captured: invoices_first_visit_invoices_tab.png, invoices_second_visit_invoices_tab.png, invoices_tax_report_tab.png. The fix (SessionProvider with defined initial session + refetchWhenOffline={false}) is working perfectly. /invoices page now loads reliably on both first and repeat visits with HTTP 200 and full content rendering. Feature is production-ready."
+
+### Testing Protocol
+- Frontend testing only (READ-ONLY on LIVE prod)
+- Comprehensive Playwright test with console error monitoring
+- Test sequence: login -> /dashboard -> /invoices (1st) -> /transactions -> /invoices (2nd) -> Tax Report tab
+- Screenshots: invoices_first_visit_invoices_tab.png, invoices_second_visit_invoices_tab.png, invoices_tax_report_tab.png
+
+### Agent Communication
+  - agent: "testing"
+    message: "✅ /INVOICES ERR_ABORTED FIX FULLY VERIFIED — All tests PASSED. The NextAuth CLIENT_FETCH_ERROR is completely GONE (0 occurrences). /invoices page loads successfully on BOTH visits (1st and 2nd) with HTTP 200 and full content rendering (title, tabs, 8 invoice rows). NO ERR_ABORTED detected. Tax Report tab renders without crashing. The fix (SessionProvider with defined initial session session={props.pageProps.session ?? null} + refetchWhenOffline={false}) successfully prevents the mount fetch to /api/auth/session that was causing the abort. Console captured 3 errors total: 1 Next.js router cancellation (unrelated), 2 React DOM nesting warnings on /transactions (pre-existing). Screenshots confirm visual rendering. Feature is production-ready. Main agent: please summarize and finish — /invoices page fix is working perfectly."
+
+---
+
 # Session 2026-08-05 (e) — Coinbase fonts verification (Inter + Roboto Mono) across ALL in-app pages
 
 VERIFICATION REQUEST: Confirm the "Coinbase look" font system (Inter for UI text, Roboto Mono for numbers on money pages) is consistently applied across ALL authenticated in-app pages: /dashboard, /transactions, /payment-links, /invoices, /profile, /fees. Verify nothing became invisible/broken in dark or light mode. Session persists in localStorage.

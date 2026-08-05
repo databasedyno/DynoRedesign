@@ -601,7 +601,17 @@ export default function App({
       <ErrorBoundary>
         <Provider store={store}>
           <LanguageBootstrap />
-          <SessionProvider session={props.pageProps.session} refetchInterval={0} refetchOnWindowFocus={false}>
+          <SessionProvider
+            // Provide a DEFINED initial session (null when none). In NextAuth v4
+            // this skips the mount-time fetch to /api/auth/session — which, in
+            // this proxy environment, gets aborted during navigation and surfaced
+            // as a noisy CLIENT_FETCH_ERROR / occasional ERR_ABORTED. OAuth still
+            // works: the session is refreshed via the sign-in flow when used.
+            session={props.pageProps.session ?? null}
+            refetchInterval={0}
+            refetchOnWindowFocus={false}
+            refetchWhenOffline={false}
+          >
             <AppThemeProvider initialMode={initialThemeMode}>
               {/* CartProvider — Product Catalog Phase 1 (spec §6.3). Wraps the
                   whole app so useCart() hits the real context (not the
