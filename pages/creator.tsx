@@ -22,10 +22,23 @@ interface Stats {
 const CreatorPageRoute = ({ setPageName, setPageDescription }: pageProps) => {
   const theme = useTheme();
   const router = useRouter();
-  const isDesktop = useMediaQuery(theme.breakpoints.up("lg"));
+  // Force client-side evaluation of the media query so it matches on the
+  // first client paint. Without `noSsr: true` MUI returns `false` on the
+  // server and `true` on desktop clients — which flips the sticky preview
+  // column visibility mid-hydration and triggers the "initial UI does not
+  // match" React error we saw in the browser overlay on 2026-08-05.
+  const isDesktop = useMediaQuery(theme.breakpoints.up("lg"), { noSsr: true });
   const { t } = useTranslation(["dashboardLayout", "common"]);
   const profile = useSelector((s: rootReducer) => (s as any).userReducer.profile) as any;
   const publicUrl = buildCreatorUrl(profile?.handle);
+
+  // Redux is populated on the client only; on the server `profile` is `null`
+  // which makes `hasHandle`-gated blocks (status banner, stat tiles, tips
+  // cross-link) render differently server-vs-client. Gate the whole
+  // profile-dependent body behind a `mounted` flag so SSR always emits the
+  // "empty" state and the client swaps to the populated state after mount.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
 
   useEffect(() => {
     setPageName?.(t("creatorPage", { defaultValue: "Creator page", ns: "dashboardLayout" }));
@@ -71,8 +84,8 @@ const CreatorPageRoute = ({ setPageName, setPageDescription }: pageProps) => {
     return () => { cancelled = true; };
   }, [profile?.handle, profile?.creator_page_enabled]);
 
-  const hasHandle = Boolean(profile?.handle);
-  const isPublished = Boolean(profile?.handle && profile?.creator_page_enabled);
+  const hasHandle = mounted && Boolean(profile?.handle);
+  const isPublished = mounted && Boolean(profile?.handle && profile?.creator_page_enabled);
 
   const statTiles = useMemo(() => ([
     {
@@ -315,7 +328,7 @@ const CreatorPageRoute = ({ setPageName, setPageDescription }: pageProps) => {
             </PanelCard>
           </Box>
 
-          {isDesktop && (
+          {isDesktop && mounted && (
             <Box sx={{ flex: "0 0 360px", position: "sticky", top: 24 }} data-testid="creator-preview-column">
               <Typography sx={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: theme.palette.text.secondary, mb: 1, ml: 0.5 }}>
                 {t("creatorPreviewLabel", { defaultValue: "Live preview", ns: "dashboardLayout" })}
