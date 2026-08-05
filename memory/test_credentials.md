@@ -9,15 +9,16 @@
 - ADMIN_EMAIL env: **moxxcompany@gmail.com** (password unknown, out of band)
 
 ## Preview URL (THIS container)
-- https://multi-chain-checkout-6.preview.emergentagent.com
-- Same URL is NEXT_PUBLIC_BASE_URL, NEXTAUTH_URL, and FIRST in CORS_ALLOWED_ORIGINS.
+- https://b4d836b1-78a8-483b-b406-a03d8211a8bc.preview.emergentagent.com
+- Same URL is NEXT_PUBLIC_BASE_URL, NEXTAUTH_URL, FRONTEND_URL, SERVER_URL, CHECKOUT_URL, and FIRST in CORS_ALLOWED_ORIGINS.
 
 ## NEXTAUTH_SECRET (this session)
-- gcUXB77HmgdQ3PkqMmDGuqW3cpRXyogKU23JZUxWTs4=
+- Z9N964DWzyHiWETzQLF5nI4Rtjsoc9DfHgOKa4gUkDg=
 
 ## Safety overrides applied (LIVE prod PG+Redis)
 - ENABLE_BACKGROUND_JOBS=false · WORKER_ROLE=secondary · NODE_ENV=production
 - /health confirms: background_jobs.eligible=false, is_leader=false, database=connected, redis=connected, tatum operational=true.
+- Binance geo-blocked from container region (expected); CoinGecko fallback active for prices.
 
 ## OAuth (registered for dynopay.com — WILL NOT complete on preview URL)
 - Google Client ID: 163670787265-g39k8mfhfc4rgv4jpgt6k6n62phif72o.apps.googleusercontent.com
