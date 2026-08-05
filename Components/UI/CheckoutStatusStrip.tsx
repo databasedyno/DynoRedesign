@@ -1,8 +1,21 @@
 import { Box, Typography, useTheme, keyframes } from "@mui/material";
 import { Icon } from "@iconify/react";
+import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { StatusPill, AURORA_GRADIENT_SOFT } from "@/Components/UI/_shared";
 import type { CheckoutState } from "@/Components/UI/CheckoutShell";
+
+/**
+ * Format a whole-second countdown as `MM:SS`. Negative or non-finite input
+ * collapses to "0:00" so the pill never renders NaN / minus signs.
+ * Kept as a pure helper for testability.
+ */
+export const formatCountdown = (seconds: number | undefined | null): string => {
+  const n = Math.max(0, Math.floor(Number.isFinite(Number(seconds)) ? Number(seconds) : 0));
+  const m = Math.floor(n / 60);
+  const s = n % 60;
+  return `${m}:${String(s).padStart(2, "0")}`;
+};
 
 /**
  * CheckoutStatusStrip — the compact "just the header strip" variant of
@@ -125,6 +138,45 @@ export default function CheckoutStatusStrip({ state, title, caption, secondsRema
     typeof secondsRemaining === "number" &&
     secondsRemaining > 0 &&
     secondsRemaining <= 60;
+
+  // ── Analytics: fire ONCE per urgent-open transition ────────────────
+  // The `checkout_urgent_shown` telemetry event fires the first moment
+  // urgency flips from off→on. If the buyer's timer resets (rare) and
+  // urgency triggers again, we fire again — that's still meaningful
+  // signal ("second urgent moment shown"). We do NOT refire on every
+  // tick while urgent is active — that would flood analytics with N=60
+  // events per checkout. `prevUrgentRef` gates the transition.
+  //
+  // Two channels are used simultaneously:
+  //   1. `window.dispatchEvent(new CustomEvent("dynopay:checkout_urgent_shown", ...))`
+  //      — for first-party analytics scripts loaded in the same window
+  //   2. `window.parent.postMessage({ source: "dynopay", v: 1, type: "dynopay:checkout_urgent_shown", ... })`
+  //      — for merchants who embed the checkout in an iframe on their own
+  //        page (they can subscribe to this bus via their existing
+  //        `dynopay:success` / `dynopay:resize` listeners).
+  const prevUrgentRef = useRef(false);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (isUrgent && !prevUrgentRef.current) {
+      const payload = {
+        state,
+        secondsRemaining: typeof secondsRemaining === "number" ? secondsRemaining : null,
+        at: Date.now(),
+      };
+      try {
+        window.dispatchEvent(new CustomEvent("dynopay:checkout_urgent_shown", { detail: payload }));
+      } catch { /* CustomEvent unsupported in ancient browsers — noop */ }
+      try {
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage(
+            { source: "dynopay", v: 1, type: "dynopay:checkout_urgent_shown", ...payload },
+            "*",
+          );
+        }
+      } catch { /* cross-origin postMessage may throw on some sandboxes */ }
+    }
+    prevUrgentRef.current = isUrgent;
+  }, [isUrgent, state, secondsRemaining]);
 
   // Base copy — either the caller override, the localised value, or the
   // English fallback (defaultValue on t()) so nothing renders blank.
@@ -271,6 +323,40 @@ export default function CheckoutStatusStrip({ state, title, caption, secondsRema
           {displayCaption}
         </Typography>
       </Box>
+
+      {/* MM:SS live countdown — only while urgent, right-aligned. The number
+          re-renders on every prop change because the parent's timeLeft state
+          ticks once per second. Rendered in tabular-nums so the width stays
+          stable (no shift between "1:00" and "0:59"). Coral tone to match
+          the urgent framing. */}
+      {isUrgent && (
+        <Box
+          data-testid="checkout-strip-countdown"
+          sx={{
+            position: "relative",
+            zIndex: 1,
+            flexShrink: 0,
+            minWidth: { xs: 58, md: 70 },
+            padding: { xs: "6px 10px", md: "8px 14px" },
+            borderRadius: "10px",
+            border: `1px solid ${dark ? "rgba(255,91,73,0.42)" : "rgba(255,91,73,0.34)"}`,
+            backgroundColor: dark ? "rgba(255,91,73,0.10)" : "rgba(255,91,73,0.06)",
+            textAlign: "center",
+            fontFamily: "var(--font-tech), ui-monospace, SFMono-Regular, Menlo, monospace",
+            fontVariantNumeric: "tabular-nums",
+            fontWeight: 700,
+            fontSize: { xs: 16, md: 20 },
+            letterSpacing: "0.02em",
+            color: dark ? "#FF7A6B" : "#B91C1C",
+            lineHeight: 1,
+            userSelect: "none",
+          }}
+          aria-live="polite"
+          aria-label={`${formatCountdown(secondsRemaining)} remaining`}
+        >
+          {formatCountdown(secondsRemaining)}
+        </Box>
+      )}
     </Box>
   );
 }

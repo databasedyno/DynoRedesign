@@ -719,6 +719,17 @@
         "title": "Restam apenas {{seconds}}s",
         "caption": "Complete a sua transferência agora — este link expira em breve."
       }
+    },
+    "demo": {
+      "eyebrow": "Playground dos estados do checkout",
+      "headline": "Os cinco estados de um checkout Dynopay",
+      "timerLabel": "Urgência do temporizador",
+      "noTimer": "Sem temporizador",
+      "urgent45": "Restam 45s · urgente",
+      "urgent12": "Restam 12s · muito urgente",
+      "compactHeader": "Faixa compacta (usada no checkout /pay em produção)",
+      "totalDue": "Total a pagar",
+      "mockBlurb": "Este bloco simula o corpo do checkout (QR, endereço, temporizador). A animação, o título e o selo acima vêm todos do <code>&lt;CheckoutShell&gt;</code>."
     }
   },
   "creator": {

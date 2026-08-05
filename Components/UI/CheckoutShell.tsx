@@ -1,6 +1,7 @@
 import { Box, Typography, useTheme, keyframes } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useVerticalAccent, StatusPill, AURORA_GRADIENT_SOFT } from "@/Components/UI/_shared";
 
 /**
@@ -72,7 +73,13 @@ const voltFadeIn = keyframes`
 `;
 
 /* ── copy defaults per state ─────────────────────────────────────────── */
-
+/**
+ * English fallbacks — used when a locale file is missing the strip keys.
+ * Should match `langs/locales/en/landing.json → checkout.strip.*`.
+ * The shell picks up localised copy through `useTranslation("landing")`
+ * so QA can review the full-shell playground in any of the 6 preview
+ * locales alongside the compact strip variant.
+ */
 const STATE_META: Record<CheckoutState, { icon: string; pillTone: "settled" | "pending" | "failed" | "info"; label: string; title: string; caption: string }> = {
   pending:    { icon: "mdi:clock-outline",        pillTone: "pending", label: "PENDING",    title: "Waiting for your wallet",       caption: "Send the exact amount to the address below. We'll confirm automatically once it hits the mempool." },
   confirming: { icon: "mdi:progress-clock",       pillTone: "pending", label: "CONFIRMING", title: "Broadcasting on-chain",         caption: "Your transaction is in the mempool. Confirmations usually take under a minute." },
@@ -180,8 +187,20 @@ export default function CheckoutShell({ state, children, title, caption, ...rest
   const theme = useTheme();
   const dark = theme.palette.mode === "dark";
   const accent = useVerticalAccent();
+  const { t } = useTranslation("landing");
   const meta = STATE_META[state];
   const [confettiTick, setConfettiTick] = useState(0);
+
+  // Localised copy — reuses the same `checkout.strip.*` block that the
+  // compact CheckoutStatusStrip variant reads, so QA can review either
+  // shell in any of the 6 preview locales without duplicating keys.
+  // For the `settled` state we prefer the English 🎉 emoji title because
+  // the celebratory microcopy diverges from the strip's clinical "SETTLED"
+  // — locales use `settled.title` in the strip; the shell falls back to
+  // that too but keeps the emoji when locale keys are missing.
+  const localisedTitle   = title   ?? t(`checkout.strip.${state}.title`,   { defaultValue: meta.title });
+  const localisedCaption = caption ?? t(`checkout.strip.${state}.caption`, { defaultValue: meta.caption });
+  const localisedPill    =           t(`checkout.strip.${state}.pill`,    { defaultValue: meta.label });
 
   // Fire the confetti once per settle transition (not on every re-render
   // that happens to have `state === "settled"`).
@@ -296,7 +315,7 @@ export default function CheckoutShell({ state, children, title, caption, ...rest
         </Box>
         <Box sx={{ flex: 1, minWidth: 0 }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
-            <StatusPill tone={meta.pillTone}>{meta.label}</StatusPill>
+            <StatusPill tone={meta.pillTone}>{localisedPill}</StatusPill>
           </Box>
           <Typography
             sx={{
@@ -308,7 +327,7 @@ export default function CheckoutShell({ state, children, title, caption, ...rest
               color: theme.palette.text.primary,
             }}
           >
-            {title ?? meta.title}
+            {localisedTitle}
           </Typography>
           <Typography
             sx={{
@@ -319,7 +338,7 @@ export default function CheckoutShell({ state, children, title, caption, ...rest
               mt: 0.3,
             }}
           >
-            {caption ?? meta.caption}
+            {localisedCaption}
           </Typography>
         </Box>
       </Box>

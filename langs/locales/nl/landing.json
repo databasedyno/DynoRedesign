@@ -687,6 +687,49 @@
       "confirmed": "Bevestigd",
       "detected": "Gedetecteerd",
       "waiting": "Wachten"
+    },
+    "strip": {
+      "pending": {
+        "pill": "WACHTEN",
+        "title": "Wachten op je wallet",
+        "caption": "Stuur het exacte bedrag hieronder. Bevestiging is automatisch zodra we de transactie zien."
+      },
+      "confirming": {
+        "pill": "BEVESTIGEN",
+        "title": "Uitzending op de blockchain",
+        "caption": "We zien je transactie. Bevestigingen duren doorgaans minder dan een minuut."
+      },
+      "confirmed": {
+        "pill": "BEVESTIGD",
+        "title": "Betaling bevestigd",
+        "caption": "Het netwerk heeft je betaling bevestigd. Afwikkeling loopt."
+      },
+      "settled": {
+        "pill": "AFGEROND",
+        "title": "Alles is klaar",
+        "caption": "De middelen zijn afgewikkeld. Een bevestiging komt per e-mail."
+      },
+      "failed": {
+        "pill": "MISLUKT",
+        "title": "Er ging iets mis",
+        "caption": "De betaling is niet voltooid. Er is niets afgeschreven — je kunt het opnieuw proberen."
+      },
+      "urgent": {
+        "pill": "HAAST",
+        "title": "Nog maar {{seconds}}s",
+        "caption": "Voltooi je overboeking nu — deze betaallink verloopt binnenkort."
+      }
+    },
+    "demo": {
+      "eyebrow": "Speeltuin voor checkout-statussen",
+      "headline": "De vijf statussen van een Dynopay-checkout",
+      "timerLabel": "Timer-urgentie",
+      "noTimer": "Geen timer",
+      "urgent45": "Nog 45s · urgent",
+      "urgent12": "Nog 12s · zeer urgent",
+      "compactHeader": "Compacte balk (gebruikt in de live /pay-checkout)",
+      "totalDue": "Totaal te betalen",
+      "mockBlurb": "Dit blok simuleert de checkout-body (QR, adres, timer). De animatie, kop en badge hierboven komen allemaal uit <code>&lt;CheckoutShell&gt;</code>."
     }
   },
   "creator": {

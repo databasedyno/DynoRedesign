@@ -687,6 +687,49 @@
       "confirmed": "Bestätigt",
       "detected": "Erkannt",
       "waiting": "Warten"
+    },
+    "strip": {
+      "pending": {
+        "pill": "WARTEN",
+        "title": "Warten auf deine Wallet",
+        "caption": "Sende den genauen Betrag unten. Die Bestätigung erfolgt automatisch, sobald wir die Transaktion sehen."
+      },
+      "confirming": {
+        "pill": "BESTÄTIGEN",
+        "title": "Übertragung auf der Blockchain",
+        "caption": "Wir sehen deine Transaktion. Bestätigungen dauern in der Regel weniger als eine Minute."
+      },
+      "confirmed": {
+        "pill": "BESTÄTIGT",
+        "title": "Zahlung bestätigt",
+        "caption": "Das Netzwerk hat deine Zahlung bestätigt. Die Abwicklung läuft."
+      },
+      "settled": {
+        "pill": "ABGESCHLOSSEN",
+        "title": "Alles erledigt",
+        "caption": "Die Mittel sind abgewickelt. Eine Bestätigung folgt per E-Mail."
+      },
+      "failed": {
+        "pill": "FEHLGESCHLAGEN",
+        "title": "Etwas ist schiefgelaufen",
+        "caption": "Die Zahlung wurde nicht abgeschlossen. Nichts wurde belastet — du kannst es unten erneut versuchen."
+      },
+      "urgent": {
+        "pill": "SCHNELL",
+        "title": "Nur noch {{seconds}}s",
+        "caption": "Schließe deine Überweisung jetzt ab — dieser Zahlungslink läuft bald ab."
+      }
+    },
+    "demo": {
+      "eyebrow": "Checkout-Zustands-Spielplatz",
+      "headline": "Die fünf Zustände eines Dynopay-Checkouts",
+      "timerLabel": "Timer-Dringlichkeit",
+      "noTimer": "Kein Timer",
+      "urgent45": "45s übrig · dringend",
+      "urgent12": "12s übrig · sehr dringend",
+      "compactHeader": "Kompakter Streifen (im Live-Checkout /pay verwendet)",
+      "totalDue": "Zu zahlen",
+      "mockBlurb": "Dieser Block simuliert den Checkout-Body (QR, Adresse, Timer). Animation, Titel und Status-Badge oben stammen alle aus <code>&lt;CheckoutShell&gt;</code>."
     }
   },
   "creator": {

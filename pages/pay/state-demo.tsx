@@ -1,6 +1,7 @@
 import { Box, Typography, useTheme } from "@mui/material";
 import Head from "next/head";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import Pay3Layout from "@/Components/Layout/Pay3Layout";
 import CheckoutShell, { CheckoutState } from "@/Components/UI/CheckoutShell";
 import CheckoutStatusStrip from "@/Components/UI/CheckoutStatusStrip";
@@ -23,6 +24,7 @@ const STATES: CheckoutState[] = ["pending", "confirming", "confirmed", "settled"
 
 const CheckoutStateDemo = () => {
   const theme = useTheme();
+  const { t } = useTranslation("landing");
   // SSR-safe default. The URL query is read after mount to avoid the
   // `window is not defined` / server-vs-client mismatch (React #418) that
   // fires on Next.js pages when useState-init touches `window.location`.
@@ -46,7 +48,9 @@ const CheckoutStateDemo = () => {
       <Box sx={{ maxWidth: 640, mx: "auto", px: { xs: 2, md: 3 }, pt: { xs: 3, md: 5 }, pb: 8 }}>
         {/* Eyebrow */}
         <Box sx={{ textAlign: "center", mb: 2 }}>
-          <Eyebrow tone="ink" sx={{ letterSpacing: "0.28em" }}>Checkout state playground</Eyebrow>
+          <Eyebrow tone="ink" sx={{ letterSpacing: "0.28em" }}>
+            {t("checkout.demo.eyebrow", { defaultValue: "Checkout state playground" })}
+          </Eyebrow>
         </Box>
         <Typography
           sx={{
@@ -59,7 +63,7 @@ const CheckoutStateDemo = () => {
             mb: 2.5,
           }}
         >
-          The five states of a Dynopay checkout
+          {t("checkout.demo.headline", { defaultValue: "The five states of a Dynopay checkout" })}
         </Typography>
 
         {/* State picker */}
@@ -93,28 +97,28 @@ const CheckoutStateDemo = () => {
             data-testid="urgent-off"
             onClick={() => setUrgentSeconds(null)}
           >
-            No timer
+            {t("checkout.demo.noTimer", { defaultValue: "No timer" })}
           </PillButton>
           <PillButton
             active={urgentSeconds === 45}
             data-testid="urgent-45"
             onClick={() => setUrgentSeconds(45)}
           >
-            45s left · urgent
+            {t("checkout.demo.urgent45", { defaultValue: "45s left · urgent" })}
           </PillButton>
           <PillButton
             active={urgentSeconds === 12}
             data-testid="urgent-12"
             onClick={() => setUrgentSeconds(12)}
           >
-            12s left · very urgent
+            {t("checkout.demo.urgent12", { defaultValue: "12s left · very urgent" })}
           </PillButton>
         </Box>
 
         {/* Compact CheckoutStatusStrip variant (as used in live /pay checkout) */}
         <Box sx={{ mb: 3 }}>
           <Eyebrow tone="ink" sx={{ letterSpacing: "0.24em", mb: 1 }}>
-            Compact strip (used in the live /pay checkout)
+            {t("checkout.demo.compactHeader", { defaultValue: "Compact strip (used in the live /pay checkout)" })}
           </Eyebrow>
           <CheckoutStatusStrip
             state={state}
@@ -128,7 +132,7 @@ const CheckoutStateDemo = () => {
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
             <Box sx={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 2 }}>
               <Typography sx={{ fontFamily: "var(--font-body)", fontSize: 13, color: theme.palette.text.secondary }}>
-                Total due
+                {t("checkout.demo.totalDue", { defaultValue: "Total due" })}
               </Typography>
               <Typography
                 sx={{
@@ -159,10 +163,12 @@ const CheckoutStateDemo = () => {
                 lineHeight: 1.55,
                 textAlign: "center",
               }}
-            >
-              This block simulates the checkout body (QR, address, timer). The animation, headline
-              and status pill above are all provided by <code>&lt;CheckoutShell state=&quot;{state}&quot;&gt;</code>.
-            </Box>
+              dangerouslySetInnerHTML={{
+                __html: t("checkout.demo.mockBlurb", {
+                  defaultValue: "This block simulates the checkout body (QR, address, timer). The animation, headline and status pill above are all provided by <code>&lt;CheckoutShell&gt;</code>.",
+                }),
+              }}
+            />
           </Box>
         </CheckoutShell>
       </Box>

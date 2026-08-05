@@ -719,6 +719,17 @@
         "title": "Only {{seconds}}s left",
         "caption": "Complete your transfer now — this pay link expires soon."
       }
+    },
+    "demo": {
+      "eyebrow": "Checkout state playground",
+      "headline": "The five states of a Dynopay checkout",
+      "timerLabel": "Timeout urgency",
+      "noTimer": "No timer",
+      "urgent45": "45s left · urgent",
+      "urgent12": "12s left · very urgent",
+      "compactHeader": "Compact strip (used in the live /pay checkout)",
+      "totalDue": "Total due",
+      "mockBlurb": "This block simulates the checkout body (QR, address, timer). The animation, headline and status pill above are all provided by <code>&lt;CheckoutShell&gt;</code>."
     }
   },
   "creator": {

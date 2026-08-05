@@ -1,5 +1,49 @@
 # Changelog
 
+## 2026-08-05 (session 6) — DE/NL locales + MM:SS countdown + analytics + full-shell localisation
+
+**🟢 German + Dutch translations for the checkout strip**
+- Added `checkout.strip.*` block to `langs/locales/de/landing.json` and `nl/landing.json`. All 5 states (pending, confirming, confirmed, settled, failed) plus the `urgent` overlay are localised — human-quality copy, not machine-translated.
+  - DE: `SCHNELL · Nur noch {{seconds}}s · Schließe deine Überweisung jetzt ab — dieser Zahlungslink läuft bald ab.`
+  - NL: `HAAST · Nog maar {{seconds}}s · Voltooi je overboeking nu — deze betaallink verloopt binnenkort.`
+- All six preview locales (en/pt/es/fr/de/nl) are now complete.
+
+**🟢 MM:SS visible countdown**
+- New `formatCountdown()` pure helper exported from `Components/UI/CheckoutStatusStrip.tsx` — turns raw seconds into `M:SS` with proper zero-padding, clamps negative/NaN to `0:00`.
+- When `isUrgent` (0 < secondsRemaining ≤ 60), the strip now renders a right-aligned coral **MM:SS chip** in tabular-nums monospace — width stays stable as the counter ticks from `1:00 → 0:59 → 0:12 → 0:08`.
+- `aria-live="polite"` on the chip so screen-readers announce the countdown updates without preempting the primary title.
+- Verified in EN (0:45), DE (0:45), NL (0:08 — proves padStart on single-digit seconds).
+
+**🟢 Analytics hook — `dynopay:checkout_urgent_shown`**
+- Fires the first moment `isUrgent` flips false→true. Uses `useRef` to gate re-fires while urgent stays true (would flood analytics with ~60 events per checkout otherwise). Genuine off→on transitions DO re-fire (rare but semantically meaningful).
+- Dual-channel dispatch:
+  1. `window.dispatchEvent(new CustomEvent("dynopay:checkout_urgent_shown", { detail: {state, secondsRemaining, at} }))` — for first-party analytics scripts on the same origin.
+  2. `window.parent.postMessage({source:"dynopay", v:1, type:"dynopay:checkout_urgent_shown", ...}, "*")` — for merchants who embed the checkout in an iframe (subscribes cleanly alongside their existing `dynopay:success` / `dynopay:resize` listeners).
+- **Playwright test proved the contract:** first urgent click → 1 event · switch 45→12 while urgent → still 1 event · switch to No-Timer then back to 45s → 2 events. No page errors.
+
+**🟢 Full `<CheckoutShell>` localisation**
+- `CheckoutShell.tsx` now reads title/caption/pill through `useTranslation("landing")` using the same `checkout.strip.*` keys the compact `CheckoutStatusStrip` variant reads. English `STATE_META` retained as `defaultValue` fallback so any locale that hasn't been extended still works.
+- `pages/pay/state-demo.tsx` gained a new `checkout.demo.*` block for its own chrome (`eyebrow`, `headline`, `timerLabel`, `noTimer`, `urgent45`, `urgent12`, `compactHeader`, `totalDue`, `mockBlurb`). Localised in all 6 locales. Demo now reads entirely in the user's chosen language.
+
+**Verification (Playwright at 1440×900):**
+- EN urgent 45s → `HURRY · Only 45s left` + right-side `0:45` chip · analytics events=1 · data-urgent=1 ✓
+- EN urgent 12s (from within-urgent transition) → `0:12` · analytics stays at 1 (no re-fire) ✓
+- No timer → countdown chip removed from DOM · data-urgent=0 ✓
+- Re-click 45s (off→on) → analytics=2 ✓
+- DE urgent 45s → `SCHNELL · Nur noch 45s · 0:45` + full shell `WARTEN · Warten auf deine Wallet` + demo chrome `CHECKOUT-ZUSTANDS-SPIELPLATZ · Die fünf Zustände eines Dynopay-Checkouts · Kein Timer / 45s übrig · dringend / …` ✓
+- NL urgent 8s → `HAAST · Nog maar 8s · 0:08` + shell `BEVESTIGEN · Uitzending op de blockchain` + demo `SPEELTUIN VOOR CHECKOUT-STATUSSEN` ✓
+- PT confirmed → full shell now shows `CONFIRMADO · Pagamento confirmado · A rede confirmou o seu pagamento. A liquidação está em curso.` + demo `PLAYGROUND DOS ESTADOS DO CHECKOUT` ✓
+- `tsc --noEmit` PASS · 0 page errors across all 7 test surfaces
+
+**Files touched:**
+- `Components/UI/CheckoutStatusStrip.tsx` (formatCountdown export + MM:SS chip + analytics hook)
+- `Components/UI/CheckoutShell.tsx` (useTranslation reads for title/caption/pill)
+- `pages/pay/state-demo.tsx` (localised chrome via `checkout.demo.*`)
+- `langs/locales/de/landing.json` (new `checkout.strip` + `checkout.demo`)
+- `langs/locales/nl/landing.json` (new `checkout.strip` + `checkout.demo`)
+- `langs/locales/en/landing.json`, `pt/landing.json`, `es/landing.json`, `fr/landing.json` (added `checkout.demo` block)
+
+
 ## 2026-08-05 (session 5) — Timeout urgency + PT/ES/FR translations for the checkout strip
 
 **🟢 Timeout warning (`?urgent=45` / real-time countdown)**

@@ -719,6 +719,17 @@
         "title": "Plus que {{seconds}}s",
         "caption": "Terminez votre virement maintenant — ce lien expire bientôt."
       }
+    },
+    "demo": {
+      "eyebrow": "Aire de jeu des états de paiement",
+      "headline": "Les cinq états d'un paiement Dynopay",
+      "timerLabel": "Urgence du minuteur",
+      "noTimer": "Sans minuteur",
+      "urgent45": "45s restantes · urgent",
+      "urgent12": "12s restantes · très urgent",
+      "compactHeader": "Bandeau compact (utilisé dans le paiement /pay en production)",
+      "totalDue": "Total à payer",
+      "mockBlurb": "Ce bloc simule le corps du paiement (QR, adresse, minuteur). L'animation, le titre et le badge proviennent tous de <code>&lt;CheckoutShell&gt;</code>."
     }
   },
   "creator": {
