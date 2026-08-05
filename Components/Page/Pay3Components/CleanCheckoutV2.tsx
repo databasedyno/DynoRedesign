@@ -54,6 +54,8 @@ import {
 import { Icon } from '@iconify/react'
 import { QRCodeSVG } from 'qrcode.react'
 import Logo from '@/assets/Icons/Logo'
+import CheckoutStatusStrip from '@/Components/UI/CheckoutStatusStrip'
+import type { CheckoutState } from '@/Components/UI/CheckoutShell'
 import { formatWithSeparators, getCurrencySymbolFromFormat } from '@/utils/currencyFormat'
 
 // ─── Design tokens (Stripe-adjacent monochrome + lime accent) ────────────
@@ -877,8 +879,35 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
   }
 
   // ─── MAIN VIEW (currency_select | awaiting_payment | underpaid) ───
+  //
+  // Aurora status strip (design audit 2026-08-05, session 4).
+  // Maps v2's compressed FSM to the CheckoutShell 5-state visual language:
+  //   currency_select               → no strip (buyer still picking a coin)
+  //   awaiting_payment (!detected)  → pending    (aurora pulse blob)
+  //   awaiting_payment (detected)   → confirming (sky-blue spinning ring)
+  //   underpaid                     → confirming (funds arrived, partial)
+  //   confirmed                     → HANDLED IN THE EARLIER `phase === 'confirmed'` BRANCH
+  //                                   (own success view + canvas-confetti)
+  //   expired | failed | error      → HANDLED IN EARLIER RETURN BRANCHES so
+  //                                   TypeScript's control-flow narrowing
+  //                                   confirms they're unreachable here.
+  //
+  // The strip renders NOTHING for currency_select — buyers who haven't
+  // picked a coin yet don't need a "waiting" prompt.
+  const stripState: CheckoutState | null = (() => {
+    if (phase === 'awaiting_payment') return detected ? 'confirming' : 'pending';
+    if (phase === 'underpaid') return 'confirming';
+    return null;
+  })();
+
   return (
     <PanelShell isDark={isDark} border={border} muted={muted}>
+      {stripState && (
+        <CheckoutStatusStrip
+          state={stripState}
+          data-testid="pay-status-strip"
+        />
+      )}
       {/* Brand row (small, top) */}
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
         {meta_?.merchant?.company_logo ? (

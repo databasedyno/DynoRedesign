@@ -1,5 +1,28 @@
 # Changelog
 
+## 2026-08-05 (session 4) — CheckoutShell wired into the live /pay checkout
+
+**🟢 CheckoutStatusStrip landed inside CleanCheckoutV2**
+
+Live buyers on `/pay?d={link}` now see the same aurora status treatment demonstrated on the state playground — without touching v2's existing PanelShell/QR/address/confirmations layout.
+
+- **New:** `Components/UI/CheckoutStatusStrip.tsx` — a "just the header strip" variant of `<CheckoutShell>`, purpose-built for pages that already own their outer panel. Same tokens (StatusPill, aurora pulse blob, sky spinning ring on confirming, coral shake on failed), no outer wrapper card. Returns `null` on `settled` so v2's existing success view + canvas-confetti isn't duplicated.
+- **Wire:** `Components/Page/Pay3Components/CleanCheckoutV2.tsx` computes a `stripState: CheckoutState | null` from the v2 FSM and drops the strip at the top of the main `PanelShell` when it's non-null:
+  - `awaiting_payment` (no mempool detect) → `pending` (aurora pulse blob)
+  - `awaiting_payment` (mempool detected) → `confirming` (sky-blue spinning ring)
+  - `underpaid` → `confirming` (funds arrived, partial)
+  - `confirmed` → strip renders nothing (v2's own success view + canvas-confetti already fires)
+  - `currency_select` / other pre-checkout phases → strip renders nothing (buyer hasn't committed)
+  - TypeScript control-flow narrowing confirms the earlier `phase === 'confirmed' | 'expired' | 'failed' | 'error'` return branches make those states unreachable here — no dead code.
+
+**Verification:**
+- `tsc --noEmit` PASS
+- `/pay/state-demo` regression: shell mounts on `?state=pending` (1) and `?state=confirming` (1)
+- `/pay-links` regression: 11 rows load post-CleanCheckoutV2 edits (list unchanged)
+- `/pay/demo` mock regression: renders fine (separate `PaymentDemo` component; not touched)
+- 0 page errors across all four pages tested
+
+
 ## 2026-08-05 (session 3) — Transactions drawer + Checkout state machine + Invoices Kanban
 
 **🟢 Transactions drawer (Phase 3 in-app polish)**
