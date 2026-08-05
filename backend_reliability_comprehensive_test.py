@@ -10,7 +10,7 @@ import json
 import time
 
 # Configuration
-BASE_URL = "https://merchant-crypto-api.preview.emergentagent.com"
+BASE_URL = "https://multi-chain-gateway.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 # Test credentials

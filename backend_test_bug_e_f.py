@@ -9,7 +9,7 @@ import json
 import sys
 from typing import Dict, List, Any
 
-BASE_URL = "https://merchant-crypto-api.preview.emergentagent.com"
+BASE_URL = "https://multi-chain-gateway.preview.emergentagent.com"
 EMAIL = "hostbay@moxx.co"
 PASSWORD = "Katiekendra123@"
 COMPANY_ID = 1

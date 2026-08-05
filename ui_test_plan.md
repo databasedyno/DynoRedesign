@@ -4,7 +4,7 @@
 - **Email**: nomadly@moxx.co
 - **Password**: Katiekendra123@
 - **Company**: Nomadly1
-- **Pod URL**: https://merchant-crypto-api.preview.emergentagent.com
+- **Pod URL**: https://multi-chain-gateway.preview.emergentagent.com
 
 ---
 

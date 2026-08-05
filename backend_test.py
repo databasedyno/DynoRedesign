@@ -21,7 +21,7 @@ from typing import Dict, Any, Tuple, List
 from datetime import datetime, date
 
 # Preview URL from review request
-BASE_URL = "https://124a4944-ebfa-46d8-b06f-e2e063a303f8.preview.emergentagent.com"
+BASE_URL = "https://multi-chain-gateway.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 # Test credentials from review request

@@ -2,7 +2,7 @@
 ## DynoPay Application
 
 **Audit Date:** August 3, 2026  
-**Preview URL:** https://merchant-crypto-api.preview.emergentagent.com  
+**Preview URL:** https://multi-chain-gateway.preview.emergentagent.com  
 **Merchant Test Account:** hostbay@moxx.co / Katiekendra123@
 
 ---
