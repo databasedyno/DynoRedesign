@@ -112,6 +112,12 @@ const ClientLayout = ({
             flexDirection: "column",
             backgroundColor: theme.palette.secondary.main,
             gap: isMobile ? "20px" : "24px",
+            // Coinbase look, app-wide: Inter for UI text (numbers use Roboto
+            // Mono via the UI-Kit MONO stack). Redefining --font-sans here
+            // scopes Inter to the whole authenticated in-app shell without
+            // touching the public landing/checkout typography.
+            "--font-sans": "var(--font-inter)",
+            fontFamily: "var(--font-inter)",
           }}
         >
           {/* ================= HEADER ================= */}
