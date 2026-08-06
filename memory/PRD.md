@@ -1,3 +1,15 @@
+# CURRENT SESSION (2026-08-06 (k) — fork) — Legacy usd_value backfill + kill slow live conversion (option b) — VERIFIED (self)
+
+- **Scoped read-only first:** 524 total transactions, 167 missing `usd_value`. Split: **56 stablecoin** rows (exact = base_amount) + **111 non-stablecoin crypto** rows — ALL of which are `pending`/unconfirmed with NO stored rate. The slow live `convertToUSD` in the list query only fired for those 111 pending crypto rows. Scripts: `backend/scripts/backfill_usd_scope.ts` (read-only), `backend/scripts/backfill_usd_stablecoins.ts` (dry-run + `--apply`).
+- **Group A backfill (DONE, APPLIED to LIVE DB):** `UPDATE tbl_user_transaction SET usd_value = base_amount` for the 56 stablecoin rows (usd_value null/0). Exact, and **zero reporting change** — the dashboard `USD_FALLBACK_EXPR` already valued stablecoins at base_amount. Verified: 56 updated, 0 remaining.
+- **Group B (DONE — code, per user choice 'b'):** removed the per-row `await convertToUSD(...)` fallback from `getAllTransactions` (`backend/controller/walletController.ts` ~648) → non-stablecoin rows without a stored usd_value now return null (no external call). Pending crypto rows contribute $0 to dashboard just as before — **no approximate writes, no dashboard-total inflation.**
+- **Frontend "—" fix:** the transactions UI previously fell back to showing the crypto `base_amount` as dollars when `usd_value` was missing (e.g. 110 TRX → "$110.06"). Fixed `Components/Page/Transactions/index.tsx` (`usdValue`/`usdValueRaw` no longer fall back to base_amount), `TransactionsTable.tsx` (`displayValue` → "—" when no stored USD), and `TransactionDetailsModal.tsx`. Verified: pending BTC/TRX rows show "—"; settled rows show real USD ($130.67, $37.60).
+- **Result:** `getAllTransactions` now consistently ~250–500ms (was spiking to ~2s); no more live rate calls per row. VERIFIED via backend logs.
+- **Files:** NEW `backend/scripts/backfill_usd_scope.ts`, `backend/scripts/backfill_usd_stablecoins.ts`. EDITED `backend/controller/walletController.ts`, `Components/Page/Transactions/index.tsx`, `Components/Page/Transactions/TransactionsTable.tsx`, `Components/Page/Transactions/TransactionDetailsModal.tsx`. Backend restarted to pick up the controller change.
+
+---
+
+
 # CURRENT SESSION (2026-08-06 (j) — fork) — Transactions page slow-load fix — VERIFIED (self)
 
 - **Root cause:** `Components/Page/Transactions/index.tsx` gated the WHOLE page behind `if (transactionState.loading) return <TransactionsSkeleton/>`, and re-dispatched `TRANSACTION_FETCH` on every mount. Because the reducer sets `loading:true` on each fetch (while keeping the cached rows), every visit hid the already-cached data behind a full skeleton for the entire `POST /api/wallet/getAllTransactions` round-trip (~350ms, occasionally spiking to ~2s).

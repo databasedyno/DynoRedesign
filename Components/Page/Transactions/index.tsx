@@ -248,13 +248,17 @@ const TransactionPage = () => {
           crypto: cryptoCurrency,
           amount: `${cryptoAmount} ${cryptoCurrency}`,
           usdValue: (() => {
-            const raw = Number((item as any).usd_value) || Number(item.base_amount) || 0;
-            if (raw === 0) return "$0.00";
+            // Only show a USD figure when the backend has an actual stored
+            // usd_value. Pending / unvalued crypto rows (no stored value) show
+            // "—" instead of misleadingly rendering the crypto base_amount as
+            // dollars — and we never do a slow live conversion for them.
+            const raw = Number((item as any).usd_value) || 0;
+            if (raw <= 0) return "—";
             if (raw >= 1) return `$${formatWithSeparators(raw, undefined, 2)}`;
             if (raw >= 0.01) return `$${raw.toFixed(4).replace(/0+$/, "").replace(/\.$/, ".00")}`;
             return `$${raw.toFixed(6).replace(/0+$/, "").replace(/\.$/, ".00")}`;
           })(),
-          usdValueRaw: Number((item as any).usd_value) || Number(item.base_amount) || 0,
+          usdValueRaw: Number((item as any).usd_value) || 0,
           dateTime: formatDateTime(item.createdAt),
           status: (() => {
             const s = (item.status || "").toLowerCase().trim();

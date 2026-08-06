@@ -356,7 +356,9 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
                     : tTransactions("usdValue")}
                 </TitleLabel>
                 <TitleValue data-testid="tx-detail-fiat-value">
-                  {fx.formatFromUsd(transaction.usdValueRaw) ?? transaction.usdValue}
+                  {!transaction.usdValueRaw || Number(transaction.usdValueRaw) <= 0
+                    ? "—"
+                    : fx.formatFromUsd(transaction.usdValueRaw) ?? transaction.usdValue}
                 </TitleValue>
               </DetailRow>
               {transaction.reverseCharge ? (

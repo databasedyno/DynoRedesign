@@ -644,12 +644,14 @@ const getAllTransactions = async (
         const stablecoins = ['USD', 'USDT', 'USDC', 'USDT-ERC20', 'USDT-TRC20', 'USDC-ERC20', 'BUSD', 'DAI'];
         if (stablecoins.some(s => baseCurrency.includes(s) || baseCurrency === s)) {
           usd_value = baseAmount;
-        } else if (baseAmount > 0) {
-          try {
-            usd_value = await convertToUSD(baseCurrency, baseAmount);
-          } catch {
-            usd_value = null;
-          }
+        } else {
+          // Non-stablecoin rows without a stored usd_value are pending/unvalued
+          // payments. We intentionally DO NOT do a live rate conversion here —
+          // that per-row external call made the /transactions list slow (up to
+          // ~2s). Leaving usd_value null (UI shows "—") matches how the
+          // dashboard values these rows: they contribute $0 until the payment
+          // confirms, at which point settlement writes the real usd_value.
+          usd_value = null;
         }
       }
 

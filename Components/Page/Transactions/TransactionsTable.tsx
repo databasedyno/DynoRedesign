@@ -93,8 +93,12 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
   /** Fiat value in the merchant's display currency (falls back to the raw
    *  USD string until the FX rate resolves / if it's USD anyway). */
   const displayValue = useCallback(
-    (tx: ExtendedTransaction): string =>
-      fx.formatFromUsd(tx.usdValueRaw) ?? tx.usdValue,
+    (tx: ExtendedTransaction): string => {
+      // No stored USD value (pending / unvalued) → show "—", never a converted
+      // crypto amount masquerading as dollars.
+      if (!tx.usdValueRaw || tx.usdValueRaw <= 0) return "—";
+      return fx.formatFromUsd(tx.usdValueRaw) ?? tx.usdValue;
+    },
     [fx],
   );
 
