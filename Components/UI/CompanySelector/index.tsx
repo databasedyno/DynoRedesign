@@ -192,7 +192,7 @@ export default function CompanySelector() {
       }}
     >
       {/* Trigger */}
-      <SelectorTrigger onClick={handleOpen}>
+      <SelectorTrigger onClick={handleOpen} data-testid="company-selector-trigger">
         <Box sx={{ display: "flex", alignItems: "center", gap: "6px" }}>
           <BusinessCenterIcon
             sx={{
@@ -233,6 +233,7 @@ export default function CompanySelector() {
       {/* Dropdown */}
       {Boolean(anchorEl) && (
         <Box
+          data-testid="company-selector-dropdown"
           sx={{
             position: "absolute",
             top: "0",
@@ -304,6 +305,7 @@ export default function CompanySelector() {
             {companies.map((c) => (
               <CompanyItem
                 key={c.company_id}
+                data-testid={`company-option-${c.company_id}`}
                 active={active === c.company_id}
                 onClick={() => {
                   handleCompanySwitch(c.company_id);
@@ -336,6 +338,7 @@ export default function CompanySelector() {
 
                 <ItemRight
                   active={active === c.company_id}
+                  data-testid={`company-edit-${c.company_id}`}
                   onClick={(e: any) => {
                     e.stopPropagation();
                     handleClose();
@@ -357,6 +360,7 @@ export default function CompanySelector() {
 
             <CustomButton
               label={t("addCompany")}
+              data-testid="add-company-btn"
               variant="secondary"
               size="medium"
               endIcon={<Add sx={{ fontSize: isMobile ? "16px" : "18px" }} />}
