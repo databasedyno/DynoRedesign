@@ -1,4 +1,3 @@
-import { theme } from "@/styles/theme";
 import { Box, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
@@ -16,12 +15,12 @@ export const PermissionsContainer = styled(Box)(({ theme }) => ({
   },
 }));
 
-export const IconContainer = styled(Box)({
+export const IconContainer = styled(Box)(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
   gap: theme.spacing(1),
-});
+}));
 
 export const ContentContainer = styled(Box)({
   display: "flex",

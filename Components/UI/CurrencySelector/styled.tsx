@@ -1,4 +1,3 @@
-import { theme } from "@/styles/theme";
 import styled from "@emotion/styled";
 import { Box } from "@mui/material";
 import { styled as muiStyled } from "@mui/material/styles";
@@ -52,7 +51,9 @@ export const CurrencyFlag = styled(Image)({
   borderRadius: "50%",
   objectFit: "cover",
   flexShrink: 0,
-  [theme.breakpoints.down("md")]: {
+  // md breakpoint (MUI default 900px) — inlined so this emotion-styled element
+  // no longer needs the static theme import.
+  "@media (max-width:899.95px)": {
     width: "10px",
     height: "10px",
   },

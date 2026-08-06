@@ -9,10 +9,10 @@ import { IToastProps } from "@/utils/types";
 import useIsMobile from "@/hooks/useIsMobile";
 import BgImage from "@/assets/Images/toast-bg.png";
 import Image from "next/image";
-import { theme } from "@/styles/theme";
 import SuccessIcon from "@/assets/Icons/success-icon.svg";
 const Toast = (props: IToastProps) => {
   const dispatch = useDispatch();
+  const theme = useTheme();
   const { open, severity, message, loading } = props;
   const isMobile = useIsMobile("sm");
 

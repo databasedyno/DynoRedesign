@@ -1,11 +1,9 @@
 import { Box, Typography } from "@mui/material";
 import React from "react";
-// import { useTheme } from "@mui/material/styles";
+import { useTheme } from "@mui/material/styles";
 import useIsMobile from "@/hooks/useIsMobile";
-import { theme } from "@/styles/theme";
 import { SxProps, Theme } from "@mui/system";
 
-const DIVIDER_COLOR = "#E0E0E0";
 const INPUT_PADDING_X = 14;
 const DIVIDER_VERTICAL_MARGIN = 8;
 
@@ -53,16 +51,22 @@ export default function AdornedInputField({
   endAdornmentWidth = "70px",
 }: AdornedInputFieldProps) {
   const isMobile = useIsMobile("md");
+  const theme = useTheme();
   const hasStart = !!startAdornment;
   const hasEnd = !!endAdornment;
 
+  // Theme-aware surfaces so the field renders correctly in dark mode
+  // (previously hardcoded #FFFFFF / #E0E0E0 / #F5F5F5).
+  const dividerColor = theme.palette.divider;
   const borderColor = error
     ? theme.palette.error.main
     : theme.palette.border.main;
   const focusBorderColor = error
     ? theme.palette.error.main
     : theme.palette.border.focus;
-  const bgColor = disabled ? "#F5F5F5" : "#FFFFFF";
+  const bgColor = disabled
+    ? theme.palette.action.disabledBackground
+    : theme.palette.background.paper;
 
   return (
     <Box
