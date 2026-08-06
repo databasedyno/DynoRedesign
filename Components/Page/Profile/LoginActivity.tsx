@@ -2,12 +2,7 @@ import PanelCard from "@/Components/UI/PanelCard";
 import useIsMobile from "@/hooks/useIsMobile";
 import { Box, Chip, IconButton, Pagination, Skeleton, Tooltip, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import HistoryIcon from "@mui/icons-material/History";
-import LaptopIcon from "@mui/icons-material/Laptop";
-import PhoneAndroidIcon from "@mui/icons-material/PhoneAndroid";
-import TabletIcon from "@mui/icons-material/Tablet";
-import LocationOnOutlinedIcon from "@mui/icons-material/LocationOnOutlined";
-import FlagOutlinedIcon from "@mui/icons-material/FlagOutlined";
+import { Icon } from "@/styles/uiKit";
 import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import axiosBaseApi from "@/axiosConfig";
@@ -74,12 +69,12 @@ const LoginActivity = () => {
 
   const getDeviceIcon = (device: string) => {
     if (device.includes('Phone') || device === 'iPhone' || device === 'Mobile') {
-      return <PhoneAndroidIcon sx={{ fontSize: "18px", color: theme.palette.text.secondary }} />;
+      return <Icon name="smartphone" size={18} color={theme.palette.text.secondary} />;
     }
     if (device === 'iPad' || device.includes('Tablet')) {
-      return <TabletIcon sx={{ fontSize: "18px", color: theme.palette.text.secondary }} />;
+      return <Icon name="tablet" size={18} color={theme.palette.text.secondary} />;
     }
-    return <LaptopIcon sx={{ fontSize: "18px", color: theme.palette.text.secondary }} />;
+    return <Icon name="laptop" size={18} color={theme.palette.text.secondary} />;
   };
 
   return (
@@ -89,7 +84,7 @@ const LoginActivity = () => {
       showHeaderBorder={false}
       headerAction={
         <IconButton>
-          <HistoryIcon color="action" style={{ height: "16px", width: "16px" }} />
+          <Icon name="history" size={16} color={theme.palette.text.secondary} />
         </IconButton>
       }
     >
@@ -152,7 +147,7 @@ const LoginActivity = () => {
                   {entry.flagged && (
                     <Chip
                       data-testid={`flagged-badge-${entry.id}`}
-                      icon={<FlagOutlinedIcon sx={{ fontSize: "13px !important" }} />}
+                      icon={<Icon name="flag" size={13} />}
                       label={t("flagged")}
                       size="small"
                       color="error"
@@ -164,7 +159,7 @@ const LoginActivity = () => {
                 <Box sx={{ display: "flex", alignItems: "center", gap: "4px", mt: "2px" }}>
                   {entry.location && (
                     <>
-                      <LocationOnOutlinedIcon sx={{ fontSize: "13px", color: theme.palette.text.secondary }} />
+                      <Icon name="map-pin" size={13} color={theme.palette.text.secondary} />
                       <Typography sx={{ fontSize: "12px", color: theme.palette.text.secondary, fontFamily: "var(--font-sans)" }}>
                         {entry.location}
                       </Typography>

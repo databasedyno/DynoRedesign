@@ -6,13 +6,9 @@ import { WarningIconContainer } from "@/Components/UI/AddWalletModal/styled";
 import CustomButton from "@/Components/UI/Buttons";
 import useIsMobile from "@/hooks/useIsMobile";
 import { useWalletData } from "@/hooks/useWalletData";
-import { theme } from "@/styles/theme";
+import { Icon } from "@/styles/uiKit";
 import { pageProps, rootReducer } from "@/utils/types";
-import {
-  AddRounded,
-  BusinessRounded,
-} from "@mui/icons-material";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, useTheme } from "@mui/material";
 import Head from "next/head";
 import Image from "next/image";
 import { useRouter } from "next/router";
@@ -28,6 +24,7 @@ const WalletPage = ({
   setPageWarning,
 }: pageProps) => {
   const router = useRouter();
+  const muiTheme = useTheme();
   const namespaces = ["walletScreen", "common"];
   const isMobile = useIsMobile("md");
   const { t } = useTranslation(namespaces);
@@ -83,7 +80,7 @@ const WalletPage = ({
   useEffect(() => {
     if (setPageHeaderSx) {
       setPageHeaderSx({
-        [theme.breakpoints.down("sm")]: {
+        [muiTheme.breakpoints.down("sm")]: {
           flexDirection: "column",
           justifyContent: "start",
           alignItems: "start",
@@ -91,7 +88,7 @@ const WalletPage = ({
         },
 
         "& .pageAction": {
-          [theme.breakpoints.down("sm")]: {
+          [muiTheme.breakpoints.down("sm")]: {
             width: "100%",
           },
         },
@@ -102,7 +99,7 @@ const WalletPage = ({
         setPageHeaderSx(null);
       }
     };
-  }, [setPageHeaderSx]);
+  }, [setPageHeaderSx, muiTheme]);
 
   useEffect(() => {
     if (!setPageWarning) return;
@@ -114,7 +111,7 @@ const WalletPage = ({
             sx={{ cursor: "pointer", "&:hover": { opacity: 0.85 } }}
           >
             <WarningIconContainer>
-              <BusinessRounded sx={{ fontSize: 16 }} />
+              <Icon name="building-2" size={16} />
             </WarningIconContainer>
             <Box>
               <Typography
@@ -222,13 +219,13 @@ const WalletPage = ({
           label={tDashboard("addWallet", "Add wallet")}
           variant="primary"
           size="medium"
-          endIcon={<AddRounded sx={{ fontSize: isMobile ? 18 : 20 }} />}
+          endIcon={<Icon name="plus" size={isMobile ? 18 : 20} />}
           onClick={() => setOpenCreate(true)}
           sx={{
             height: isMobile ? 34 : 40,
             px: isMobile ? 1.5 : 2.5,
             fontSize: isMobile ? 13 : 15,
-            [theme.breakpoints.down("sm")]: {
+            [muiTheme.breakpoints.down("sm")]: {
               flex: 1,
               whiteSpace: "nowrap",
               overflow: "hidden",
@@ -239,7 +236,7 @@ const WalletPage = ({
       ) : null,
     );
     return () => setPageAction(null);
-  }, [setPageAction, tDashboard, isMobile, canAddMoreWallets]);
+  }, [setPageAction, tDashboard, isMobile, canAddMoreWallets, muiTheme]);
 
   return (
     <>

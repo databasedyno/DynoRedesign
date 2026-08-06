@@ -32,17 +32,7 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
-import RefreshRoundedIcon from "@mui/icons-material/RefreshRounded";
-import SendRoundedIcon from "@mui/icons-material/SendRounded";
-import ContentCopyRoundedIcon from "@mui/icons-material/ContentCopyRounded";
-import AutorenewRoundedIcon from "@mui/icons-material/AutorenewRounded";
-import VisibilityRoundedIcon from "@mui/icons-material/VisibilityRounded";
-import VisibilityOffRoundedIcon from "@mui/icons-material/VisibilityOffRounded";
-import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
-import ErrorOutlineRoundedIcon from "@mui/icons-material/ErrorOutlineRounded";
-import HourglassEmptyRoundedIcon from "@mui/icons-material/HourglassEmptyRounded";
-import WebhookRoundedIcon from "@mui/icons-material/WebhookRounded";
-import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
+import { Icon } from "@/styles/uiKit";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -83,11 +73,11 @@ interface WebhookStats {
 const statusMeta = (status: string) => {
   switch (status) {
     case "success":
-      return { label: "Delivered", color: "#16A34A", bg: "rgba(22,163,74,0.12)", Icon: CheckCircleRoundedIcon };
+      return { label: "Delivered", color: "#16A34A", bg: "rgba(22,163,74,0.12)", iconName: "circle-check" };
     case "failed":
-      return { label: "Failed", color: "#DC2626", bg: "rgba(220,38,38,0.12)", Icon: ErrorOutlineRoundedIcon };
+      return { label: "Failed", color: "#DC2626", bg: "rgba(220,38,38,0.12)", iconName: "circle-alert" };
     default:
-      return { label: "Pending", color: "#D97706", bg: "rgba(217,119,6,0.12)", Icon: HourglassEmptyRoundedIcon };
+      return { label: "Pending", color: "#D97706", bg: "rgba(217,119,6,0.12)", iconName: "hourglass" };
   }
 };
 
@@ -285,11 +275,11 @@ const WebhookConsoleSection = () => {
       <PanelCard
         title="Webhooks"
         subTitle="Receive real-time events and inspect recent delivery attempts"
-        headerIcon={<WebhookRoundedIcon sx={{ color: "primary.main" }} />}
+        headerIcon={<Icon name="webhook" color={theme.palette.primary.main} />}
         headerAction={
           <Tooltip title="Refresh">
             <IconButton onClick={refreshAll} size="small" data-testid="webhook-refresh">
-              <RefreshRoundedIcon fontSize="small" />
+              <Icon name="refresh-cw" size={20} />
             </IconButton>
           </Tooltip>
         }
@@ -345,12 +335,12 @@ const WebhookConsoleSection = () => {
                     <>
                       <Tooltip title={showSecret ? "Hide" : "Reveal"}>
                         <IconButton size="small" onClick={() => setShowSecret((s) => !s)} data-testid="webhook-secret-toggle">
-                          {showSecret ? <VisibilityOffRoundedIcon fontSize="small" /> : <VisibilityRoundedIcon fontSize="small" />}
+                          {showSecret ? <Icon name="eye-off" size={20} /> : <Icon name="eye" size={20} />}
                         </IconButton>
                       </Tooltip>
                       <Tooltip title="Copy secret">
                         <IconButton size="small" onClick={() => copy(secret, "Secret")}>
-                          <ContentCopyRoundedIcon fontSize="small" />
+                          <Icon name="copy" size={20} />
                         </IconButton>
                       </Tooltip>
                     </>
@@ -361,7 +351,7 @@ const WebhookConsoleSection = () => {
                 variant="outlined"
                 onClick={regenerateSecret}
                 disabled={regenerating}
-                startIcon={regenerating ? <CircularProgress size={14} color="inherit" /> : <AutorenewRoundedIcon />}
+                startIcon={regenerating ? <CircularProgress size={14} color="inherit" /> : <Icon name="refresh-cw" size={20} />}
                 data-testid="webhook-secret-regen"
                 sx={{ textTransform: "none", fontWeight: 700, borderRadius: 2, whiteSpace: "nowrap" }}
               >
@@ -372,7 +362,7 @@ const WebhookConsoleSection = () => {
                 color="primary"
                 onClick={sendTest}
                 disabled={sendingTest}
-                startIcon={sendingTest ? <CircularProgress size={14} color="inherit" /> : <SendRoundedIcon />}
+                startIcon={sendingTest ? <CircularProgress size={14} color="inherit" /> : <Icon name="send" size={20} />}
                 data-testid="webhook-send-test"
                 sx={{ textTransform: "none", fontWeight: 700, borderRadius: 2, whiteSpace: "nowrap" }}
               >
@@ -440,7 +430,7 @@ const WebhookConsoleSection = () => {
                         "&:hover": { bgcolor: theme.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)" },
                       }}
                     >
-                      <m.Icon sx={{ color: m.color, fontSize: 18, flexShrink: 0 }} />
+                      <Icon name={m.iconName} size={18} color={m.color} style={{ flexShrink: 0 }} />
                       <Box sx={{ flex: 1, minWidth: 0 }}>
                         <Typography sx={{ fontSize: 13, fontWeight: 700, color: t.primary, fontFamily: "monospace" }}>
                           {lg.event_type}
@@ -473,7 +463,7 @@ const WebhookConsoleSection = () => {
           <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", px: 2.5, py: 2, borderBottom: `1px solid ${theme.palette.divider}` }}>
             <Typography sx={{ fontWeight: 800, fontSize: 15 }}>Delivery attempt</Typography>
             <IconButton size="small" onClick={() => setDetail(null)} aria-label="Close">
-              <CloseRoundedIcon fontSize="small" />
+              <Icon name="x" size={20} />
             </IconButton>
           </Box>
           {loadingDetail || !detail ? (

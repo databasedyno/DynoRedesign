@@ -11,9 +11,7 @@ import { UserAction } from "@/Redux/Actions";
 import { USER_LOGIN, USER_PROFILE_FETCH, USER_UPDATE } from "@/Redux/Actions/UserAction";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { TokenData } from "@/utils/types";
-import { AccountBox } from "@mui/icons-material";
-import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
-import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import { Icon } from "@/styles/uiKit";
 import { Box, Grid, IconButton, MenuItem, Select, Tooltip, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import Image from "next/image";
@@ -266,7 +264,7 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
       showHeaderBorder={false}
       headerAction={
         <IconButton>
-          <AccountBox color="action" style={{ height: "16px", width: "16px" }} />
+          <Icon name="square-user" size={16} color={theme.palette.text.secondary} />
         </IconButton>
       }
     >
@@ -401,7 +399,7 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
 
         {/* Name restriction notice */}
         <Box sx={{ display: "flex", alignItems: "center", gap: "6px", px: "2px" }}>
-          <InfoOutlinedIcon sx={{ fontSize: "14px", color: theme.palette.text.secondary }} />
+          <Icon name="info" size={14} color={theme.palette.text.secondary} />
           <Typography
             data-testid="name-restriction-notice"
             sx={{ fontSize: "12px", color: theme.palette.text.secondary, fontFamily: "var(--font-sans)" }}
@@ -433,7 +431,7 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
                   label={tokenData.email ? t("change", { ns: "profile" }) : t("addEmailBtn", { ns: "profile" })}
                   variant="outlined"
                   size={isMobile ? "small" : "medium"}
-                  startIcon={<EditOutlinedIcon sx={{ fontSize: "16px" }} />}
+                  startIcon={<Icon name="pencil" size={16} />}
                   onClick={() => { setEditingEmail(true); setEmailInput(""); setEmailError(""); }}
                   sx={{ minWidth: "auto", whiteSpace: "nowrap", mb: "1px", fontSize: { xs: "12px", sm: "14px" } }}
                 />
@@ -498,7 +496,7 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
                   label={tokenData.mobile ? t("change", { ns: "profile" }) : t("addPhoneBtn", { ns: "profile" })}
                   variant="outlined"
                   size={isMobile ? "small" : "medium"}
-                  startIcon={<EditOutlinedIcon sx={{ fontSize: "16px" }} />}
+                  startIcon={<Icon name="pencil" size={16} />}
                   onClick={() => { setEditingPhone(true); setPhoneInput(""); setPhoneError(""); }}
                   sx={{ minWidth: "auto", whiteSpace: "nowrap", mb: "1px", fontSize: { xs: "12px", sm: "14px" } }}
                 />

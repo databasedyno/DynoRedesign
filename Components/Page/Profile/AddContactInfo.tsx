@@ -13,8 +13,7 @@ import { USER_LOGIN, USER_PROFILE_FETCH, UserAction } from "@/Redux/Actions/User
 import axiosBaseApi from "@/axiosConfig";
 import useIsMobile from "@/hooks/useIsMobile";
 import { TokenData } from "@/utils/types";
-import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
-import PhoneOutlinedIcon from "@mui/icons-material/PhoneOutlined";
+import { Icon } from "@/styles/uiKit";
 
 interface AddContactInfoProps {
   tokenData: TokenData;
@@ -209,10 +208,7 @@ const AddContactInfo: React.FC<AddContactInfoProps> = ({ tokenData }) => {
           title={tProfile("addEmail")}
           showHeaderBorder={false}
           headerAction={
-            <EmailOutlinedIcon
-              color="action"
-              style={{ height: "18px", width: "18px" }}
-            />
+            <Icon name="mail" size={18} color={theme.palette.text.secondary} />
           }
         >
           <Box>
@@ -279,10 +275,7 @@ const AddContactInfo: React.FC<AddContactInfoProps> = ({ tokenData }) => {
           title={tProfile("addPhone")}
           showHeaderBorder={false}
           headerAction={
-            <PhoneOutlinedIcon
-              color="action"
-              style={{ height: "18px", width: "18px" }}
-            />
+            <Icon name="phone" size={18} color={theme.palette.text.secondary} />
           }
         >
           <Box>

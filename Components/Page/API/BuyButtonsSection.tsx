@@ -25,14 +25,7 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
-import AddRoundedIcon from "@mui/icons-material/AddRounded";
-import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
-import BlockRoundedIcon from "@mui/icons-material/BlockRounded";
-import DeleteOutlineRoundedIcon from "@mui/icons-material/DeleteOutlineRounded";
-import EditRoundedIcon from "@mui/icons-material/EditRounded";
-import ContentCopyRoundedIcon from "@mui/icons-material/ContentCopyRounded";
-import ExpandMoreRoundedIcon from "@mui/icons-material/ExpandMoreRounded";
-import ExpandLessRoundedIcon from "@mui/icons-material/ExpandLessRounded";
+import { Icon } from "@/styles/uiKit";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -155,7 +148,7 @@ const SnippetPre = ({ code, onCopy }: { code: string; onCopy: () => void }) => {
             "&:hover": { color: theme.palette.text.primary },
           }}
         >
-          <ContentCopyRoundedIcon sx={{ fontSize: 14 }} />
+          <Icon name="copy" size={14} />
           Copy
         </Box>
       </Box>
@@ -287,9 +280,9 @@ const BuyButtonRow = ({
           </Typography>
           <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.5, color: statusColor }}>
             {btn.status === "active" ? (
-              <CheckCircleRoundedIcon sx={{ fontSize: 16 }} />
+              <Icon name="circle-check" size={16} />
             ) : (
-              <BlockRoundedIcon sx={{ fontSize: 16 }} />
+              <Icon name="ban" size={16} />
             )}
             <Typography sx={{ fontSize: 12, fontWeight: 600, textTransform: "capitalize", color: statusColor }}>
               {btn.status}
@@ -307,7 +300,7 @@ const BuyButtonRow = ({
                 onClick={() => onEdit(btn)}
                 sx={{ color: theme.palette.text.secondary }}
               >
-                <EditRoundedIcon sx={{ fontSize: 18 }} />
+                <Icon name="pencil" size={18} />
               </IconButton>
             </span>
           </Tooltip>
@@ -320,7 +313,7 @@ const BuyButtonRow = ({
                   onClick={() => onArchive(btn)}
                   sx={{ color: theme.palette.error.main }}
                 >
-                  <DeleteOutlineRoundedIcon sx={{ fontSize: 18 }} />
+                  <Icon name="trash-2" size={18} />
                 </IconButton>
               </span>
             </Tooltip>
@@ -333,7 +326,7 @@ const BuyButtonRow = ({
                   onClick={() => onReactivate(btn)}
                   sx={{ color: theme.palette.text.secondary }}
                 >
-                  <CheckCircleRoundedIcon sx={{ fontSize: 18 }} />
+                  <Icon name="circle-check" size={18} />
                 </IconButton>
               </span>
             </Tooltip>
@@ -379,7 +372,7 @@ const BuyButtonRow = ({
             data-testid={`bb-copy-${btn.button_id}`}
             onClick={() => onCopy(btn.button_id, "Button ID")}
           >
-            <ContentCopyRoundedIcon sx={{ fontSize: 16 }} />
+            <Icon name="copy" size={16} />
           </IconButton>
         </Tooltip>
       </Box>
@@ -409,7 +402,7 @@ const BuyButtonRow = ({
           label={expanded ? "Hide snippet" : "Show snippet"}
           variant="secondary"
           size="small"
-          endIcon={expanded ? <ExpandLessRoundedIcon sx={{ fontSize: 16 }} /> : <ExpandMoreRoundedIcon sx={{ fontSize: 16 }} />}
+          endIcon={expanded ? <Icon name="chevron-up" size={16} /> : <Icon name="chevron-down" size={16} />}
           onClick={() => setExpanded((v) => !v)}
           sx={{ height: 28, fontSize: 12 }}
         />
@@ -1111,7 +1104,7 @@ const BuyButtonsSection = () => {
           label={isMobile ? "Create" : "Create buy button"}
           variant="primary"
           size={isMobile ? "small" : "medium"}
-          endIcon={<AddRoundedIcon sx={{ fontSize: isMobile ? 16 : 18 }} />}
+          endIcon={<Icon name="plus" size={isMobile ? 16 : 18} />}
           onClick={openCreate}
           disabled={!effectiveCompanyId}
           sx={{ flexShrink: 0 }}

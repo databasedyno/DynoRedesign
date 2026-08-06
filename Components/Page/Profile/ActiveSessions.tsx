@@ -13,12 +13,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import DevicesIcon from "@mui/icons-material/Devices";
-import LaptopIcon from "@mui/icons-material/Laptop";
-import PhoneAndroidIcon from "@mui/icons-material/PhoneAndroid";
-import TabletIcon from "@mui/icons-material/Tablet";
-import LogoutIcon from "@mui/icons-material/Logout";
-import LocationOnOutlinedIcon from "@mui/icons-material/LocationOnOutlined";
+import { Icon } from "@/styles/uiKit";
 import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import axiosBaseApi from "@/axiosConfig";
@@ -118,12 +113,12 @@ const ActiveSessions = () => {
   const getDeviceIcon = (device: string | null) => {
     const d = (device || "").toLowerCase();
     if (d.includes("phone") || d.includes("mobile") || d.includes("iphone")) {
-      return <PhoneAndroidIcon sx={{ fontSize: "18px", color: theme.palette.text.secondary }} />;
+      return <Icon name="smartphone" size={18} color={theme.palette.text.secondary} />;
     }
     if (d.includes("tablet") || d.includes("ipad")) {
-      return <TabletIcon sx={{ fontSize: "18px", color: theme.palette.text.secondary }} />;
+      return <Icon name="tablet" size={18} color={theme.palette.text.secondary} />;
     }
-    return <LaptopIcon sx={{ fontSize: "18px", color: theme.palette.text.secondary }} />;
+    return <Icon name="laptop" size={18} color={theme.palette.text.secondary} />;
   };
 
   const hasOthers = sessions.some((s) => !s.is_current);
@@ -143,14 +138,14 @@ const ActiveSessions = () => {
               variant="outlined"
               onClick={revokeAllOthers}
               disabled={revokingAll || loading}
-              startIcon={revokingAll ? <CircularProgress size={14} color="inherit" /> : <LogoutIcon sx={{ fontSize: "16px" }} />}
+              startIcon={revokingAll ? <CircularProgress size={14} color="inherit" /> : <Icon name="log-out" size={16} />}
               sx={{ textTransform: "none", fontSize: "12px", fontFamily: "var(--font-sans)", borderRadius: "8px" }}
             >
               {t("signOutAllOthers", { defaultValue: "Sign out all others" })}
             </Button>
           ) : (
             <IconButton>
-              <DevicesIcon color="action" style={{ height: "16px", width: "16px" }} />
+              <Icon name="monitor-smartphone" size={16} color={theme.palette.text.secondary} />
             </IconButton>
           )
         }
@@ -218,7 +213,7 @@ const ActiveSessions = () => {
                   <Box sx={{ display: "flex", alignItems: "center", gap: "4px", mt: "2px", flexWrap: "wrap" }}>
                     {s.location && (
                       <>
-                        <LocationOnOutlinedIcon sx={{ fontSize: "13px", color: theme.palette.text.secondary }} />
+                        <Icon name="map-pin" size={13} color={theme.palette.text.secondary} />
                         <Typography sx={{ fontSize: "12px", color: theme.palette.text.secondary, fontFamily: "var(--font-sans)" }}>
                           {s.location}
                         </Typography>
@@ -245,7 +240,7 @@ const ActiveSessions = () => {
                     variant="text"
                     onClick={() => revokeOne(s.session_id)}
                     disabled={revoking === s.session_id}
-                    startIcon={revoking === s.session_id ? <CircularProgress size={13} color="inherit" /> : <LogoutIcon sx={{ fontSize: "15px" }} />}
+                    startIcon={revoking === s.session_id ? <CircularProgress size={13} color="inherit" /> : <Icon name="log-out" size={15} />}
                     sx={{ textTransform: "none", fontSize: "12px", fontFamily: "var(--font-sans)", flexShrink: 0 }}
                   >
                     {t("signOut", { defaultValue: "Sign out" })}

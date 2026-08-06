@@ -13,7 +13,6 @@ import { useWalletData } from "@/hooks/useWalletData";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { WalletAction } from "@/Redux/Actions";
 import { WALLET_FETCH } from "@/Redux/Actions/WalletAction";
-import { theme as staticTheme } from "@/styles/theme";
 import { WalletDataType } from "@/utils/types/wallet";
 import { getNetworkLabel, isTokenOnOtherChain } from "@/utils/networkLabels";
 import { Icon, MONO } from "@/styles/uiKit";

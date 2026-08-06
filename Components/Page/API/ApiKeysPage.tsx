@@ -1,13 +1,10 @@
 import { Box, CircularProgress, Grid, Typography, MenuItem, Select, FormControl } from "@mui/material";
-import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
+import { Icon } from "@/styles/uiKit";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import axiosBaseApi from "@/axiosConfig";
 
-import ArrowOutwardIcon from "@mui/icons-material/ArrowOutward";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import ScienceOutlinedIcon from "@mui/icons-material/ScienceOutlined";
 
 import CustomButton from "@/Components/UI/Buttons";
 import PanelCard from "@/Components/UI/PanelCard";
@@ -23,8 +20,6 @@ import TrashIcon from "@/assets/Icons/trash-icon.svg";
 import BgImage from "@/assets/Images/card-bg.png";
 import { formatDate, getTime } from "@/helpers/dateTimeFormatter";
 import { IApi, rootReducer } from "@/utils/types";
-import AccessTimeFilledIcon from "@mui/icons-material/AccessTimeFilled";
-import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
 
 import CreateApiModel from "@/Components/UI/ApiKeysModel/CreateApiModel";
 import InputField from "@/Components/UI/AuthLayout/InputFields";
@@ -134,7 +129,7 @@ const ApiDocumentationCard = ({ docsUrl }: { docsUrl: string }) => {
           label={t("documentation.viewDocumentation")}
           variant="secondary"
           size={isMobile ? "small" : "medium"}
-          endIcon={<ArrowOutwardIcon sx={{ fontSize: 14 }} />}
+          endIcon={<Icon name="arrow-up-right" size={14} />}
           onClick={() => {
             if (!docsUrl) return;
             window.open(docsUrl, "_blank", "noopener,noreferrer");
@@ -304,14 +299,14 @@ const ApiKeyCard = ({ title, apiRow, onCopy, onDelete, onRegenerate, onToggleSta
                 defaultValue: "Auto-created · Sandbox",
               })}
             >
-              <ScienceOutlinedIcon sx={{ fontSize: 16 }} />
+              <Icon name="flask-conical" size={16} />
               {t("keys.testAutoCreatedBadge", {
                 defaultValue: "Auto-created · Sandbox",
               })}
             </Tags>
           )}
           <Tags sx={{ whiteSpace: "nowrap" }}>
-            <CheckCircleRoundedIcon sx={{ fontSize: 16 }} /> {t("status.active")}
+            <Icon name="circle-check" size={16} /> {t("status.active")}
           </Tags>
         </Box>
       }
@@ -375,7 +370,7 @@ const ApiKeyCard = ({ title, apiRow, onCopy, onDelete, onRegenerate, onToggleSta
             <CircularProgress size={14} sx={{ color: theme.palette.primary.main }} />
           )}
           {currencySaved && !savingCurrency && (
-            <CheckRoundedIcon sx={{ fontSize: 16, color: theme.palette.success?.main || "#22C55E" }} />
+            <Icon name="check" size={16} color={theme.palette.success?.main || "#22C55E"} />
           )}
         </Box>
       </ApiKeyCardSubTitle>
@@ -506,7 +501,7 @@ const ApiKeyCard = ({ title, apiRow, onCopy, onDelete, onRegenerate, onToggleSta
 
           <ApiKeyCreatedText>
             <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-              <AccessTimeFilledIcon sx={{ fontSize: 15 }} />
+              <Icon name="clock" size={15} />
             </Box>
             <Typography component="span" className="created-on-text">
               {t("createdOn", {
@@ -678,7 +673,7 @@ Dynopay.openCheckout({ fetchClientSecret, onComplete });`;
       <Box sx={{ mt: 2 }}>
         <CustomButton
           label="View full guide"
-          endIcon={<ArrowOutwardIcon sx={{ fontSize: 16 }} />}
+          endIcon={<Icon name="arrow-up-right" size={16} />}
           variant="outlined"
           sx={{
             borderColor: theme.palette.primary.main,
@@ -950,7 +945,7 @@ export function DynopayCryptoElement({ amount = 5 }: { amount?: number }) {
         />
         <CustomButton
           label="View full guide"
-          endIcon={<ArrowOutwardIcon sx={{ fontSize: 16 }} />}
+          endIcon={<Icon name="arrow-up-right" size={16} />}
           variant="outlined"
           sx={{
             borderColor: theme.palette.primary.main,
@@ -1270,7 +1265,7 @@ Content-Type: application/json
       <Box sx={{ mt: 2, display: "flex", flexWrap: "wrap", gap: 1.25, alignItems: "center" }}>
         <CustomButton
           label={t("keys.tryFirstPaymentDocsBtn", { defaultValue: "Open full API docs" })}
-          endIcon={<ArrowOutwardIcon sx={{ fontSize: 16 }} />}
+          endIcon={<Icon name="arrow-up-right" size={16} />}
           variant="outlined"
           sx={{
             borderColor: theme.palette.primary.main,
@@ -1417,7 +1412,7 @@ const ApiKeysPage = ({
         >
           <CustomButton
             label={t("documentation.viewDocumentation")}
-            endIcon={<ArrowOutwardIcon sx={{ fontSize: 16 }} />}
+            endIcon={<Icon name="arrow-up-right" size={16} />}
             variant="outlined"
             sx={{
               borderColor: theme.palette.primary.main,
@@ -1510,12 +1505,11 @@ const ApiKeysPage = ({
                 ...itemAnimation,
               }}
             >
-              <LockOutlinedIcon
-                sx={{
-                  fontSize: 20,
-                  color: theme.palette.primary.main,
-                  flexShrink: 0,
-                }}
+              <Icon
+                name="lock"
+                size={20}
+                color={theme.palette.primary.main}
+                style={{ flexShrink: 0 }}
               />
               <Typography
                 sx={{

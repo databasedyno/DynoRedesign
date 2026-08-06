@@ -9,11 +9,7 @@ import { UserAction } from "@/Redux/Actions";
 import { USER_PROFILE_FETCH } from "@/Redux/Actions/UserAction";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { rootReducer } from "@/utils/types";
-import { Lock } from "@mui/icons-material";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
-import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
-import PhoneAndroidOutlinedIcon from "@mui/icons-material/PhoneAndroidOutlined";
+import { Icon } from "@/styles/uiKit";
 import { Box, IconButton, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import Image from "next/image";
@@ -179,7 +175,7 @@ const UpdatePassword = () => {
       showHeaderBorder={false}
       headerAction={
         <IconButton>
-          <Lock color="action" style={{ height: "16px", width: "16px" }} />
+          <Icon name="lock" size={16} color={theme.palette.text.secondary} />
         </IconButton>
       }
     >
@@ -225,7 +221,7 @@ const UpdatePassword = () => {
                 "&:hover": { borderColor: theme.palette.primary.main, backgroundColor: theme.palette.mode === "dark" ? "rgba(59,130,246,0.06)" : "rgba(59,130,246,0.04)" },
               }}
             >
-              <EmailOutlinedIcon sx={{ fontSize: "20px", color: theme.palette.primary.main }} />
+              <Icon name="mail" size={20} color={theme.palette.primary.main} />
               <Box>
                 <Typography sx={{ fontSize: "14px", fontWeight: 600, fontFamily: "var(--font-sans)", color: theme.palette.text.primary }}>{t("channelEmail")}</Typography>
                 <Typography sx={{ fontSize: "12px", color: theme.palette.text.secondary, fontFamily: "var(--font-sans)" }}>{maskEmail(profile?.email)}</Typography>
@@ -242,7 +238,7 @@ const UpdatePassword = () => {
                 "&:hover": { borderColor: theme.palette.primary.main, backgroundColor: theme.palette.mode === "dark" ? "rgba(59,130,246,0.06)" : "rgba(59,130,246,0.04)" },
               }}
             >
-              <PhoneAndroidOutlinedIcon sx={{ fontSize: "20px", color: theme.palette.primary.main }} />
+              <Icon name="smartphone" size={20} color={theme.palette.primary.main} />
               <Box>
                 <Typography sx={{ fontSize: "14px", fontWeight: 600, fontFamily: "var(--font-sans)", color: theme.palette.text.primary }}>{t("channelPhone")}</Typography>
                 <Typography sx={{ fontSize: "12px", color: theme.palette.text.secondary, fontFamily: "var(--font-sans)" }}>{maskPhone(profile?.mobile)}</Typography>
@@ -315,7 +311,7 @@ const UpdatePassword = () => {
                     sideButton={true}
                     sideButtonType="primary"
                     iconBoxSize={isMobile ? "32px" : "38px"}
-                    sideButtonIcon={showNewPassword ? <VisibilityOffIcon sx={{ color: theme.palette.text.secondary, height: "18px", width: "16px" }} /> : <VisibilityIcon sx={{ color: theme.palette.text.secondary, height: "18px", width: "16px" }} />}
+                    sideButtonIcon={showNewPassword ? <Icon name="eye-off" size={18} color={theme.palette.text.secondary} /> : <Icon name="eye" size={18} color={theme.palette.text.secondary} />}
                     sideButtonIconWidth={isMobile ? "14px" : "19px"}
                     sideButtonIconHeight={isMobile ? "14px" : "19px"}
                     onSideButtonClick={() => setShowNewPassword(!showNewPassword)}
@@ -350,7 +346,7 @@ const UpdatePassword = () => {
                     sideButton={true}
                     sideButtonType="primary"
                     iconBoxSize={isMobile ? "32px" : "38px"}
-                    sideButtonIcon={showConfirmPassword ? <VisibilityOffIcon sx={{ color: theme.palette.text.secondary, height: "18px", width: "16px" }} /> : <VisibilityIcon sx={{ color: theme.palette.text.secondary, height: "18px", width: "16px" }} />}
+                    sideButtonIcon={showConfirmPassword ? <Icon name="eye-off" size={18} color={theme.palette.text.secondary} /> : <Icon name="eye" size={18} color={theme.palette.text.secondary} />}
                     sideButtonIconWidth={isMobile ? "14px" : "19px"}
                     sideButtonIconHeight={isMobile ? "14px" : "19px"}
                     onSideButtonClick={() => setShowConfirmPassword(!showConfirmPassword)}
