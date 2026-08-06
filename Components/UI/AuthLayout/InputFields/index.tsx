@@ -111,6 +111,7 @@ const InputField: React.FC<InputFieldProps> = ({
   autoComplete,
   ariaLabel,
   ariaInvalid,
+  "data-testid": dataTestId,
 }) => {
   const theme = useTheme();
   const isMobile = useIsMobile("sm");
@@ -339,6 +340,7 @@ const InputField: React.FC<InputFieldProps> = ({
               maxLength: maxLength,
               inputMode: inputMode,
               form: formId,
+              "data-testid": dataTestId,
               autoComplete: autoCompleteValue,
               "aria-invalid":
                 ariaInvalid !== undefined ? ariaInvalid : error || undefined,
