@@ -22,13 +22,6 @@ import {
   useTheme,
   Tooltip,
 } from "@mui/material";
-import {
-  DownloadRounded,
-  PrintRounded,
-  FileDownloadRounded,
-  ReceiptLongRounded,
-  AssessmentRounded,
-} from "@mui/icons-material";
 import { useTranslation } from "react-i18next";
 import { pageProps } from "@/utils/types";
 import useIsMobile from "@/hooks/useIsMobile";
@@ -38,7 +31,7 @@ import CustomButton from "@/Components/UI/Buttons";
 import PanelCard from "@/Components/UI/PanelCard";
 import InvoicePreviewDrawer, { InvoicePreviewInvoice } from "@/Components/Page/Invoices/InvoicePreviewDrawer";
 import { StatusPill } from "@/Components/UI/_shared";
-import { theme as appTheme } from "@/styles/theme";
+import { Icon, MONO } from "@/styles/uiKit";
 import { useSelector } from "react-redux";
 
 interface Invoice {
@@ -368,12 +361,12 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
             }}
           >
             <Tab
-              icon={<ReceiptLongRounded sx={{ fontSize: 18 }} />}
+              icon={<Icon name="receipt-text" size={18} />}
               iconPosition="start"
               label={t("invoices.tabInvoices")}
             />
             <Tab
-              icon={<AssessmentRounded sx={{ fontSize: 18 }} />}
+              icon={<Icon name="bar-chart-3" size={18} />}
               iconPosition="start"
               label={t("invoices.tabTaxReport")}
             />
@@ -386,8 +379,8 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
             <PanelCard
               title={t("invoices.invoicesTitle", { count: totalInvoices })}
               showHeaderBorder
-              headerPadding={appTheme.spacing(2.5)}
-              bodyPadding={appTheme.spacing(0)}
+              headerPadding={muiTheme.spacing(2.5)}
+              bodyPadding={muiTheme.spacing(0)}
             >
               <TableContainer>
                 <Table size={isMobile ? "small" : "medium"}>
@@ -669,9 +662,10 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                             <TableCell align="right">
                               <Typography
                                 sx={{
-                                  fontFamily: "var(--font-sans)",
+                                  fontFamily: MONO,
+                                  fontVariantNumeric: "tabular-nums",
                                   fontSize: isMobile ? 12 : 14,
-                                  fontWeight: 500,
+                                  fontWeight: 600,
                                   color: muiTheme.palette.text.primary,
                                 }}
                               >
@@ -698,7 +692,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                                     color: muiTheme.palette.primary.main,
                                   }}
                                 >
-                                  <DownloadRounded fontSize="small" />
+                                  <Icon name="download" size={18} />
                                 </IconButton>
                               </Tooltip>
                             </TableCell>
@@ -809,7 +803,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
               <Box sx={{ display: "flex", gap: 1 }}>
                 <CustomButton
                   label={t("invoices.exportCsv")}
-                  startIcon={<FileDownloadRounded sx={{ fontSize: 16 }} />}
+                  startIcon={<Icon name="download" size={16} />}
                   variant="secondary"
                   size="small"
                   onClick={handleExportCSV}
@@ -817,7 +811,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                 />
                 <CustomButton
                   label={t("invoices.print")}
-                  startIcon={<PrintRounded sx={{ fontSize: 16 }} />}
+                  startIcon={<Icon name="printer" size={16} />}
                   variant="secondary"
                   size="small"
                   onClick={handlePrint}
@@ -925,9 +919,10 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                   ) : (
                     <Typography
                       sx={{
-                        fontFamily: "var(--font-sans)",
+                        fontFamily: MONO,
+                        fontVariantNumeric: "tabular-nums",
                         fontSize: isMobile ? 20 : 28,
-                        fontWeight: 500,
+                        fontWeight: 600,
                         color: card.color,
                         lineHeight: 1.2,
                       }}
@@ -943,8 +938,8 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
             <PanelCard
               title={t("invoices.taxByPeriod")}
               showHeaderBorder
-              headerPadding={appTheme.spacing(2.5)}
-              bodyPadding={appTheme.spacing(0)}
+              headerPadding={muiTheme.spacing(2.5)}
+              bodyPadding={muiTheme.spacing(0)}
             >
               <TableContainer>
                 <Table size={isMobile ? "small" : "medium"}>
@@ -1035,7 +1030,8 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                           <TableCell align="right">
                             <Typography
                               sx={{
-                                fontFamily: "var(--font-sans)",
+                                fontFamily: MONO,
+                                fontVariantNumeric: "tabular-nums",
                                 fontSize: isMobile ? 12 : 14,
                               }}
                             >
@@ -1045,10 +1041,11 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                           <TableCell align="right">
                             <Typography
                               sx={{
-                                fontFamily: "var(--font-sans)",
+                                fontFamily: MONO,
+                                fontVariantNumeric: "tabular-nums",
                                 fontSize: isMobile ? 12 : 14,
                                 color: "#22C55E",
-                                fontWeight: 500,
+                                fontWeight: 600,
                               }}
                             >
                               {formatTaxAmount(row.tax_collected)}
@@ -1057,7 +1054,8 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                           <TableCell align="right">
                             <Typography
                               sx={{
-                                fontFamily: "var(--font-sans)",
+                                fontFamily: MONO,
+                                fontVariantNumeric: "tabular-nums",
                                 fontSize: isMobile ? 12 : 14,
                               }}
                             >
@@ -1076,8 +1074,8 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
             <PanelCard
               title={t("invoices.taxByJurisdiction")}
               showHeaderBorder
-              headerPadding={appTheme.spacing(2.5)}
-              bodyPadding={appTheme.spacing(0)}
+              headerPadding={muiTheme.spacing(2.5)}
+              bodyPadding={muiTheme.spacing(0)}
             >
               <TableContainer>
                 <Table size={isMobile ? "small" : "medium"}>
@@ -1184,10 +1182,11 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                           <TableCell align="right">
                             <Typography
                               sx={{
-                                fontFamily: "var(--font-sans)",
+                                fontFamily: MONO,
+                                fontVariantNumeric: "tabular-nums",
                                 fontSize: isMobile ? 12 : 14,
                                 color: "#22C55E",
-                                fontWeight: 500,
+                                fontWeight: 600,
                               }}
                             >
                               {formatTaxAmount(row.tax_collected)}
@@ -1196,7 +1195,8 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                           <TableCell align="right">
                             <Typography
                               sx={{
-                                fontFamily: "var(--font-sans)",
+                                fontFamily: MONO,
+                                fontVariantNumeric: "tabular-nums",
                                 fontSize: isMobile ? 12 : 14,
                               }}
                             >

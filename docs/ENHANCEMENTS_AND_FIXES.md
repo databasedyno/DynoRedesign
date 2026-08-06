@@ -71,10 +71,12 @@ current status, root cause (for bugs), and the plan. Status legend:
 ### E. UI/UX copy pass (consistency & clarity)
 - Sweep in-app copy (labels, buttons, empty states, tooltips) for consistent voice and clarity.
 
-### F. Finish the design rollout
-- **Icons:** migrate remaining in-app pages (Invoices, Customers, Fees, Profile, Company, Referrals, etc.) from mixed `@mui/icons-material` to the single **Lucide** set via `<Icon>`.
-- **Numbers:** apply Roboto Mono to figures on the remaining pages (fees, referrals, invoices) so every number matches the dashboard.
-- **Dark-mode audit:** finish sweeping remaining pages; ~14 components still import the static `@/styles/theme` (dark-mode risk) — migrate to `useTheme()`/tokens.
+### F. Finish the design rollout  🔧 IN PROGRESS
+- **Phase 1 DONE & verified (2026-08-06):** Referrals, Invoices (+ tax report), and Company migrated to the single **Lucide** `<Icon>` set + **Roboto Mono** on all figures; Invoices also dropped its static `@/styles/theme` import (spacing → `useTheme()`). Verified via screenshots (icons render, numbers mono, no console errors).
+- **Icons (remaining):** migrate the remaining in-app pages (Profile, API, Wallet, etc.) from mixed `@mui/icons-material` to the single **Lucide** set via `<Icon>`.
+- **Numbers (remaining):** apply Roboto Mono to figures on the remaining in-app pages so every number matches the dashboard.
+- **Dark-mode audit:** finish sweeping remaining pages; shared in-app UI still importing the static `@/styles/theme` (DataTable, DeleteModel, AdornedInputField, CurrencySelector, SettingsAccordion, Toast, ApiKeysModel, Wallet) — migrate to `useTheme()`/tokens.
+- **Excluded:** public marketing pages (Home, `/fees`, checkout) keep their own design system; Customers page is "SOON".
 
 ---
 

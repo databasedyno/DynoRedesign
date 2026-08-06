@@ -11,16 +11,9 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
-import {
-  AddCircleOutlineRounded,
-  BusinessRounded,
-  EditRounded,
-  EmailRounded,
-  LanguageRounded,
-  PhoneRounded,
-} from "@mui/icons-material";
 
 import PanelCard from "@/Components/UI/PanelCard";
+import { Icon } from "@/styles/uiKit";
 import CreateCompanyModal from "@/Components/UI/OnboardingFlow/CreateCompanyModal";
 import CompanySettingsDialog from "@/Components/UI/CompanySettingsDialog";
 import useIsMobile from "@/hooks/useIsMobile";
@@ -115,7 +108,7 @@ const Company = ({ setPageName, setPageDescription, setPageAction }: pageProps) 
           sx={{ display: "flex", alignItems: "center" }}
           onClick={() => setAddOpen(true)}
         >
-          <AddCircleOutlineRounded fontSize="small" sx={{ mr: 0.5 }} />
+          <Icon name="circle-plus" size={18} style={{ marginRight: 4 }} />
           {t("addCompanyBtn")}
         </Button>
       </Box>
@@ -143,9 +136,7 @@ const Company = ({ setPageName, setPageDescription, setPageAction }: pageProps) 
               justifyContent: "center",
             }}
           >
-            <BusinessRounded
-              sx={{ fontSize: 32, color: theme.palette.primary.main }}
-            />
+            <Icon name="building-2" size={32} color={theme.palette.primary.main} />
           </Box>
           <Typography
             sx={{
@@ -175,7 +166,7 @@ const Company = ({ setPageName, setPageDescription, setPageAction }: pageProps) 
             sx={{ mt: 1, display: "flex", alignItems: "center", gap: 0.5 }}
             onClick={() => setAddOpen(true)}
           >
-            <AddCircleOutlineRounded fontSize="small" />
+            <Icon name="circle-plus" size={18} />
             {t("addCompanyBtn")}
           </Button>
         </Box>
@@ -274,12 +265,7 @@ const Company = ({ setPageName, setPageDescription, setPageAction }: pageProps) 
                           gap: 1,
                         }}
                       >
-                        <EmailRounded
-                          sx={{
-                            fontSize: 16,
-                            color: theme.palette.text.secondary,
-                          }}
-                        />
+                        <Icon name="mail" size={16} color={theme.palette.text.secondary} />
                         <Typography
                           sx={{
                             fontSize: isMobile ? "13px" : "14px",
@@ -304,12 +290,7 @@ const Company = ({ setPageName, setPageDescription, setPageAction }: pageProps) 
                           gap: 1,
                         }}
                       >
-                        <PhoneRounded
-                          sx={{
-                            fontSize: 16,
-                            color: theme.palette.text.secondary,
-                          }}
-                        />
+                        <Icon name="phone" size={16} color={theme.palette.text.secondary} />
                         <Typography
                           sx={{
                             fontSize: isMobile ? "13px" : "14px",
@@ -331,12 +312,7 @@ const Company = ({ setPageName, setPageDescription, setPageAction }: pageProps) 
                           gap: 1,
                         }}
                       >
-                        <LanguageRounded
-                          sx={{
-                            fontSize: 16,
-                            color: theme.palette.text.secondary,
-                          }}
-                        />
+                        <Icon name="globe" size={16} color={theme.palette.text.secondary} />
                         <Typography
                           sx={{
                             fontSize: isMobile ? "13px" : "14px",
@@ -395,7 +371,7 @@ const Company = ({ setPageName, setPageDescription, setPageAction }: pageProps) 
                           },
                         }}
                         startIcon={
-                          <EditRounded sx={{ fontSize: "16px !important" }} />
+                          <Icon name="pencil" size={16} />
                         }
                       >
                         Manage

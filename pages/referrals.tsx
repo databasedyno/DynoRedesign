@@ -7,18 +7,7 @@ import {
   LinearProgress,
   linearProgressClasses,
 } from "@mui/material";
-import {
-  PeopleAltRounded,
-  EmojiEventsRounded,
-  MonetizationOnRounded,
-  DiscountRounded,
-  ContentCopyRounded,
-  ShareRounded,
-  PersonAddRounded,
-  WhatsApp,
-  Telegram,
-  Twitter,
-} from "@mui/icons-material";
+import { Icon, MONO } from "@/styles/uiKit";
 import Head from "next/head";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -180,10 +169,10 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
   const stats = codeData?.stats;
 
   const statCards = [
-    { label: t("totalReferrals"), value: stats?.total_referrals ?? 0, icon: PeopleAltRounded, color: theme.palette.primary.main },
-    { label: t("active"), value: stats?.active_referrals ?? 0, icon: PersonAddRounded, color: theme.palette.border.success },
-    { label: t("pending"), value: stats?.pending_referrals ?? 0, icon: PeopleAltRounded, color: "#F59E0B" },
-    { label: t("totalEarnings"), value: `$${stats?.total_earnings ?? "0.00"}`, icon: MonetizationOnRounded, color: theme.palette.primary.main },
+    { label: t("totalReferrals"), value: stats?.total_referrals ?? 0, icon: "users", color: theme.palette.primary.main },
+    { label: t("active"), value: stats?.active_referrals ?? 0, icon: "user-plus", color: theme.palette.border.success },
+    { label: t("pending"), value: stats?.pending_referrals ?? 0, icon: "users", color: "#F59E0B" },
+    { label: t("totalEarnings"), value: `$${stats?.total_earnings ?? "0.00"}`, icon: "circle-dollar-sign", color: theme.palette.primary.main },
   ];
 
   return (
@@ -228,7 +217,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
                   data-testid="referral-code-value"
                   sx={{
                     fontSize: isMobile ? "18px" : "22px",
-                    fontFamily: "var(--font-sans)",
+                    fontFamily: MONO,
                     fontWeight: 700,
                     color: theme.palette.primary.main,
                     letterSpacing: "1px",
@@ -247,7 +236,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
                     "&:hover": { bgcolor: theme.palette.secondary.main },
                   }}
                 >
-                  <ContentCopyRounded sx={{ fontSize: 18, color: theme.palette.text.secondary }} />
+                  <Icon name="copy" size={18} color={theme.palette.text.secondary} />
                 </Box>
               </Box>
             )}
@@ -272,7 +261,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
                   "&:hover": { bgcolor: theme.palette.secondary.main },
                 }}
               >
-                <ContentCopyRounded sx={{ fontSize: 18 }} />
+                <Icon name="copy" size={18} />
                 <Typography sx={{ fontSize: "14px", fontFamily: "var(--font-sans)", fontWeight: 600 }}>
                   {t("copyLink")}
                 </Typography>
@@ -294,7 +283,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
                   "&:hover": { opacity: 0.9 },
                 }}
               >
-                <ShareRounded sx={{ fontSize: 18 }} />
+                <Icon name="share-2" size={18} />
                 <Typography sx={{ fontSize: "14px", fontFamily: "var(--font-sans)", fontWeight: 600 }}>
                   {t("shareLink")}
                 </Typography>
@@ -302,10 +291,10 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
 
               {/* One-tap channel share (WhatsApp / Telegram / X) */}
               {[
-                { key: "whatsapp" as const, Icon: WhatsApp, bg: "#25D366", label: "WhatsApp" },
-                { key: "telegram" as const, Icon: Telegram, bg: "#229ED9", label: "Telegram" },
-                { key: "x" as const, Icon: Twitter, bg: theme.palette.mode === "dark" ? "#1D1D1F" : "#000000", label: "X" },
-              ].map(({ key, Icon, bg, label }) => (
+                { key: "whatsapp" as const, iconName: "ri:whatsapp-fill", bg: "#25D366", label: "WhatsApp" },
+                { key: "telegram" as const, iconName: "ri:telegram-fill", bg: "#229ED9", label: "Telegram" },
+                { key: "x" as const, iconName: "ri:twitter-x-fill", bg: theme.palette.mode === "dark" ? "#1D1D1F" : "#000000", label: "X" },
+              ].map(({ key, iconName, bg, label }) => (
                 <Box
                   key={key}
                   data-testid={`share-${key}-btn`}
@@ -326,7 +315,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
                     "&:hover": { opacity: 0.9, transform: "translateY(-2px)" },
                   }}
                 >
-                  <Icon sx={{ fontSize: 20 }} />
+                  <Icon name={iconName} size={20} />
                 </Box>
               ))}
             </Box>
@@ -492,7 +481,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
                   mb: 1.5,
                 }}
               >
-                <card.icon sx={{ fontSize: isMobile ? 16 : 20, color: card.color }} />
+                <Icon name={card.icon} size={isMobile ? 16 : 20} color={card.color} />
               </Box>
               {loading ? (
                 <Skeleton width={60} height={28} />
@@ -500,7 +489,8 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
                 <Typography
                   sx={{
                     fontSize: isMobile ? "20px" : "24px",
-                    fontFamily: "var(--font-sans)",
+                    fontFamily: MONO,
+                    fontVariantNumeric: "tabular-nums",
                     fontWeight: 700,
                     color: theme.palette.text.primary,
                     lineHeight: 1.2,
@@ -543,7 +533,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
             }}
           >
             <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
-              <DiscountRounded sx={{ fontSize: 20, color: theme.palette.primary.main }} />
+              <Icon name="ticket-percent" size={20} color={theme.palette.primary.main} />
               <Typography
                 sx={{
                   fontSize: isMobile ? "14px" : "16px",
@@ -562,7 +552,8 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
                 <Typography
                   sx={{
                     fontSize: isMobile ? "28px" : "34px",
-                    fontFamily: "var(--font-sans)",
+                    fontFamily: MONO,
+                    fontVariantNumeric: "tabular-nums",
                     fontWeight: 700,
                     color: theme.palette.border.success,
                     lineHeight: 1.2,
@@ -613,7 +604,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
             }}
           >
             <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
-              <MonetizationOnRounded sx={{ fontSize: 20, color: theme.palette.primary.main }} />
+              <Icon name="circle-dollar-sign" size={20} color={theme.palette.primary.main} />
               <Typography
                 sx={{
                   fontSize: isMobile ? "14px" : "16px",
@@ -655,7 +646,8 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
                     <Typography
                       sx={{
                         fontSize: "14px",
-                        fontFamily: "var(--font-sans)",
+                        fontFamily: MONO,
+                        fontVariantNumeric: "tabular-nums",
                         fontWeight: 600,
                         color: theme.palette.text.primary,
                       }}
@@ -681,7 +673,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
-            <PeopleAltRounded sx={{ fontSize: 20, color: theme.palette.primary.main }} />
+            <Icon name="users" size={20} color={theme.palette.primary.main} />
             <Typography
               sx={{
                 fontSize: isMobile ? "14px" : "16px",
@@ -788,7 +780,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
-            <EmojiEventsRounded sx={{ fontSize: 20, color: "#F59E0B" }} />
+            <Icon name="trophy" size={20} color="#F59E0B" />
             <Typography
               sx={{
                 fontSize: isMobile ? "14px" : "16px",
@@ -840,7 +832,8 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
                   <Typography
                     sx={{
                       fontSize: "15px",
-                      fontFamily: "var(--font-sans)",
+                      fontFamily: MONO,
+                      fontVariantNumeric: "tabular-nums",
                       fontWeight: 700,
                       color: entry.rank <= 3 ? "#F59E0B" : theme.palette.text.secondary,
                       minWidth: 24,
