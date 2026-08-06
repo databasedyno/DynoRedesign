@@ -1,3 +1,15 @@
+# CURRENT SESSION (2026-08-06 (i) — fork) — Notifications+lists → SWR, invoice row-hover prefetch, shared skeletons — VERIFIED (self)
+
+- **Notifications → SWR (DONE & verified).** `Components/Page/Notification/NotificationPage.tsx` list now on SWR (key `[notifications.list, companyId]`); bell badge stays in sync via the existing shared unread-count cache (`fetchUnreadCount`/`decrementUnreadCount`/`setCachedUnreadCount`); mark-one/mark-all-read update the list via `mutate` (optimistic, revalidate:false).
+- **Merchant lists → SWR (DONE & verified).** `Components/Page/Customers/index.tsx` (key `[customers-list, page, search, companyId]`, `keepPreviousData`; wallet credit/debit refetch via `mutateCustomers`), `pages/invoices.tsx` (invoices list `[invoices-list, page, companyId]`; tax-report kept as-is), `pages/pay-links/products/index.tsx` (products list + categories on SWR; archive via `mutateProducts`). All render live with real data.
+- **Prefetch on row hover (DONE & verified).** New `helpers/invoicePdfCache.ts` (`prefetchInvoicePdf`/`getInvoicePdf`, module Map of blob promises). Invoice table rows `onMouseEnter` warm the PDF; `InvoicePreviewDrawer` now reads `getInvoicePdf` so it opens instantly. VERIFIED: hovering the first invoice row fired exactly 1 `/invoices/{id}/pdf` prefetch. (Transaction detail modal already receives full row data → nothing to prefetch.)
+- **Shared skeletons (DONE & verified).** New `Components/UI/SkeletonList` (configurable rows/height/gap); applied to the Notifications inbox (`CircularProgress`→skeleton) and Products list (`LinearProgress`→skeleton). Customers/Referrals/Transactions already used MUI Skeletons.
+- **Verified live (hostbay@moxx.co):** /notifications, /customers, /pay-links/products, /invoices all render; invoices shows 6 invoices; hover prefetch = 1 call. tsc: zero new errors (only the pre-existing pay/index `navigator.clipboard` TS2774 guards). No SWR/console errors. Frontend-only, no backend/DB changes; SAFETY flags unchanged.
+- **Files:** NEW `helpers/invoicePdfCache.ts`, `Components/UI/SkeletonList/index.tsx`. EDITED `Components/Page/Notification/NotificationPage.tsx`, `Components/Page/Customers/index.tsx`, `pages/invoices.tsx`, `pages/pay-links/products/index.tsx`, `Components/Page/Invoices/InvoicePreviewDrawer.tsx`.
+
+---
+
+
 # CURRENT SESSION (2026-08-06 (h) — fork) — Instant Company Switch + Faster Checkout Open + SWR migration batch — VERIFIED (self)
 
 - **Instant Company Switch (DONE & verified).** `Components/UI/CompanySelector/index.tsx` hover-prefetches the hovered company row's wallet SWR cache via `preload([WALLET_KEY, id], walletPrefetchFetcher)`. Added `walletPrefetchFetcher` (non-aborting) + exported `WALLET_KEY` from `contexts/WalletDataContext.tsx` (refactored the flatten logic into a shared `normalizeWallets`). Hover never cancels the active company's in-flight fetch. (Full e2e limited — hostbay has 1 company — but code path is sound.)

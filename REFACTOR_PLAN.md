@@ -153,8 +153,15 @@ hook consolidation is architectural. These belong to Phase 3/6, not the 2c primi
 - ✅ **Account/settings screens → SWR (2026-08-06)** — migrated `Profile/ActiveSessions` (user/sessions,
   optimistic revoke via `mutate`), `Profile/LoginActivity` (paginated SWR key `[url, page]`, `keepPreviousData`),
   and `pages/referrals.tsx` (5 referral endpoints → 5 independent SWR keys). Verified rendering + single call each.
-- ⬜ Remaining: migrate the rest of the ~40 manual `useEffect`+axios screens (Notifications, Customers,
-  Invoices, Products, API/Webhooks, Settings) — read-only screens first, money/settlement paths last.
+- ✅ **Notifications + merchant lists → SWR (2026-08-06)** — `NotificationPage` list on SWR (bell badge stays
+  in sync via the shared unread-count cache; mark-read/mark-all via `mutate`); `Customers`, `pages/invoices.tsx`
+  (invoices list), and `pages/pay-links/products/index.tsx` (products list + categories) migrated to SWR
+  (`keepPreviousData` for paginated/searched lists; mutations refetch via `mutate`). All verified rendering live.
+- ✅ **Prefetch on row hover (2026-08-06)** — `helpers/invoicePdfCache.ts` (`prefetchInvoicePdf`/`getInvoicePdf`);
+  invoice rows `onMouseEnter` warm the PDF blob so `InvoicePreviewDrawer` opens instantly (verified: 1 prefetch
+  call on hover, drawer reads the shared cache). (Transaction detail already ships full row data → no fetch to warm.)
+- ⬜ Remaining: migrate the rest of the ~30 manual `useEffect`+axios screens (API/Webhooks, Settings, Creator,
+  ProductEditor, HelpAndSupport) — read-only screens first, money/settlement paths last.
 
 ### Phase 4 — Backend HTTP resilience + integrations — ⬜
 - Resilient client + `withRetry` util; consolidate Tatum call sites to `tatumApi`;
@@ -165,6 +172,9 @@ hook consolidation is architectural. These belong to Phase 3/6, not the 2c primi
   currency helpers; migrate merchant-API routes first, verify, then expand.
 
 ### Phase 6 — Polish — 🟡 partially done
+- ✅ **Shared skeleton loader (2026-08-06)** — new `Components/UI/SkeletonList` (configurable rows/height);
+  rolled out to `NotificationPage` inbox + `pages/pay-links/products` list (replaced `CircularProgress`/
+  `LinearProgress` spinners). Customers/Referrals/Transactions already used skeletons.
 - ✅ **Faster Checkout Open (2026-08-06)** — `pages/pay/index.tsx` now `next/dynamic` code-splits the
   heavy checkout renderers (`CleanCheckoutV2` ~72KB, `cryptoTransfer` ~94KB, `donationCampaign` ~42KB,
   `bankTransferCompo` ~17KB) with a shared spinner fallback, so /pay ships a smaller initial bundle and

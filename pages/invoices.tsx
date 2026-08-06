@@ -28,6 +28,8 @@ import { pageProps } from "@/utils/types";
 import useIsMobile from "@/hooks/useIsMobile";
 import useDisplayFx from "@/hooks/useDisplayFx";
 import axiosBaseApi from "@/axiosConfig";
+import useSWR from "swr";
+import { prefetchInvoicePdf } from "@/helpers/invoicePdfCache";
 import CustomButton from "@/Components/UI/Buttons";
 import PanelCard from "@/Components/UI/PanelCard";
 import InvoicePreviewDrawer, { InvoicePreviewInvoice } from "@/Components/Page/Invoices/InvoicePreviewDrawer";
@@ -86,9 +88,6 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
   const { t } = useTranslation("common");
 
   const [activeTab, setActiveTab] = useState(0);
-  const [invoices, setInvoices] = useState<Invoice[]>([]);
-  const [invoiceLoading, setInvoiceLoading] = useState(true);
-  const [totalInvoices, setTotalInvoices] = useState(0);
   const [page, setPage] = useState(1);
 
   // Live PDF preview drawer (design audit 2026-08-05, Phase 3 invoices).
@@ -162,26 +161,23 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
     }
   }, [setPageName, setPageDescription]);
 
-  // Fetch invoices
-  const fetchInvoices = useCallback(async () => {
-    setInvoiceLoading(true);
-    try {
-      const params: Record<string, any> = { page, limit: 20 };
-      if (selectedCompanyId) params.company_id = selectedCompanyId;
-      const res = await axiosBaseApi.get(API_ENDPOINTS.invoices.list, {
-        params,
-      });
-      const data = res?.data?.data;
-      if (data) {
-        setInvoices(data.invoices || []);
-        setTotalInvoices(data.pagination?.total || 0);
-      }
-    } catch (err) {
-      console.error("Failed to fetch invoices:", err);
-    } finally {
-      setInvoiceLoading(false);
-    }
-  }, [page, selectedCompanyId]);
+  // Fetch invoices (SWR — cached per page/company, deduped across remounts)
+  const { data: invoicesResp, isLoading: invoicesSwrLoading, mutate: mutateInvoices } = useSWR(
+    ["invoices-list", page, selectedCompanyId],
+    async ([, p, companyId]: [string, number, any]) => {
+      const params: Record<string, any> = { page: p, limit: 20 };
+      if (companyId) params.company_id = companyId;
+      const res = await axiosBaseApi.get(API_ENDPOINTS.invoices.list, { params });
+      return res?.data?.data;
+    },
+    { keepPreviousData: true }
+  );
+  const invoices: Invoice[] = invoicesResp?.invoices || [];
+  const totalInvoices: number = invoicesResp?.pagination?.total || 0;
+  const invoiceLoading = invoicesSwrLoading && invoicesResp === undefined;
+  const fetchInvoices = useCallback(() => {
+    mutateInvoices();
+  }, [mutateInvoices]);
 
   // Fetch tax report
   const fetchTaxReport = useCallback(async () => {
@@ -240,10 +236,6 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
       setTaxLoading(false);
     }
   }, [groupBy, taxPeriod]);
-
-  useEffect(() => {
-    fetchInvoices();
-  }, [fetchInvoices]);
 
   useEffect(() => {
     if (activeTab === 1) {
@@ -595,6 +587,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                           <TableRow
                             key={inv.invoice_id}
                             hover
+                            onMouseEnter={() => prefetchInvoicePdf(inv.invoice_id)}
                             onClick={() => openInvoicePreview(inv)}
                             sx={{ cursor: "pointer" }}
                           >

@@ -36,6 +36,7 @@ import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import InfoOutlined from "@mui/icons-material/InfoOutlined";
 import axiosBaseApi from "@/axiosConfig";
+import useSWR from "swr";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { formatNumberWithComma, getCurrencySymbol } from "@/helpers";
@@ -104,17 +105,8 @@ const CustomersPage: React.FC = () => {
   const theme = useTheme();
   const isMobile = useIsMobile("md");
   const { t } = useTranslation("common");
-  const [customers, setCustomers] = useState<Customer[]>([]);
-  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [total, setTotal] = useState(0);
-  const [aggregates, setAggregates] = useState<Aggregates>({
-    total_customers: 0,
-    total_balance: 0,
-    currency: "USD",
-  });
   const [selectedCustomer, setSelectedCustomer] = useState<CustomerDetail | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
   const [detailLoading, setDetailLoading] = useState(false);
@@ -131,7 +123,6 @@ const CustomersPage: React.FC = () => {
 
   // Get company's base currency from API state if available
   const apiState = useSelector((state: any) => state?.api);
-  const baseCurrency = apiState?.apiData?.[0]?.base_currency || aggregates.currency || "USD";
 
   const selectedCompanyId = useCompanyStore().selectedCompanyId;
 
@@ -151,29 +142,28 @@ const CustomersPage: React.FC = () => {
     return () => clearTimeout(timer);
   }, [search]);
 
-  const fetchCustomers = useCallback(async () => {
-    setLoading(true);
-    try {
-      const params: any = { page, limit: 20 };
-      if (debouncedSearch.trim()) params.search = debouncedSearch.trim();
-      if (selectedCompanyId) params.company_id = selectedCompanyId;
-      const res = await axiosBaseApi.get(API_ENDPOINTS.userApi.customers, { params });
-      const data = res.data?.data;
-      setCustomers(data?.customers || []);
-      setTotalPages(data?.pages || 1);
-      setTotal(data?.total || 0);
-      setAggregates(data?.aggregates || { total_customers: 0, total_balance: 0, currency: "USD" });
-    } catch (err) {
-      console.error("Failed to fetch customers", err);
-      setCustomers([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [page, debouncedSearch, selectedCompanyId]);
+  const fetchCustomers = useCallback(() => {
+    mutateCustomers();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  useEffect(() => {
-    fetchCustomers();
-  }, [fetchCustomers]);
+  const { data: customersResp, isLoading: customersLoading, mutate: mutateCustomers } = useSWR(
+    ["customers-list", page, debouncedSearch, selectedCompanyId],
+    async ([, p, srch, companyId]: [string, number, string, any]) => {
+      const params: any = { page: p, limit: 20 };
+      if (srch && srch.trim()) params.search = srch.trim();
+      if (companyId) params.company_id = companyId;
+      const res = await axiosBaseApi.get(API_ENDPOINTS.userApi.customers, { params });
+      return res.data?.data;
+    },
+    { keepPreviousData: true }
+  );
+  const customers: Customer[] = customersResp?.customers || [];
+  const totalPages: number = customersResp?.pages || 1;
+  const total: number = customersResp?.total || 0;
+  const aggregates: Aggregates =
+    customersResp?.aggregates || { total_customers: 0, total_balance: 0, currency: "USD" };
+  const loading = customersLoading && customersResp === undefined;
+  const baseCurrency = apiState?.apiData?.[0]?.base_currency || aggregates.currency || "USD";
 
   const openDetail = async (customerId: string) => {
     setDetailLoading(true);

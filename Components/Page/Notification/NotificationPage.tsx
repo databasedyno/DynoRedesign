@@ -20,7 +20,9 @@ import DoneAllIcon from "@mui/icons-material/DoneAll";
 import CircleIcon from "@mui/icons-material/Circle";
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
+import useSWR from "swr";
 import axiosBaseApi from "@/axiosConfig";
+import SkeletonList from "@/Components/UI/SkeletonList";
 import { useSelector } from "react-redux";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import {
@@ -162,9 +164,7 @@ const NotificationPage = () => {
 
   // Notification inbox state
   const [activeTab, setActiveTab] = useState<"inbox" | "settings">("inbox");
-  const [notifications, setNotifications] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
-  const [notifLoading, setNotifLoading] = useState(true);
   const [markingAllRead, setMarkingAllRead] = useState(false);
 
   // Transaction detail modal state
@@ -217,13 +217,21 @@ const NotificationPage = () => {
     }
   };
 
+  // Notifications list on SWR → cached between visits + deduped, keyed per
+  // company. The bell badge stays in sync via the shared unread-count cache
+  // (fetchUnreadCount / decrementUnreadCount / setCachedUnreadCount below).
+  const { data: notifData, isLoading: notifLoading, mutate: mutateNotifs } = useSWR(
+    [API_ENDPOINTS.notifications.list, effectiveCompanyId],
+    async ([url, companyId]: [string, any]) => {
+      const params: Record<string, any> = {};
+      if (companyId) params.company_id = companyId;
+      const res = await axiosBaseApi.get(url, { params });
+      return (res?.data?.data?.notifications || []) as any[];
+    }
+  );
+  const notifications = notifData ?? [];
+
   useEffect(() => {
-    const params: Record<string, any> = {};
-    if (effectiveCompanyId) params.company_id = effectiveCompanyId;
-    axiosBaseApi.get(API_ENDPOINTS.notifications.list, { params })
-      .then((res) => setNotifications(res?.data?.data?.notifications || []))
-      .catch(() => {})
-      .finally(() => setNotifLoading(false));
     // Shared, TTL-cached fetch (same cache as the sidebar/mobile badges) —
     // no duplicate request when the badge already fetched recently.
     fetchUnreadCount(effectiveCompanyId)
@@ -237,7 +245,10 @@ const NotificationPage = () => {
       const body: Record<string, any> = {};
       if (effectiveCompanyId) body.company_id = effectiveCompanyId;
       await axiosBaseApi.put(API_ENDPOINTS.notifications.readAll, body);
-      setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
+      mutateNotifs(
+        (prev) => (prev || []).map((n: any) => ({ ...n, is_read: true })),
+        { revalidate: false }
+      );
       setUnreadCount(0);
       // Badges elsewhere can trust 0 immediately — write through the cache.
       setCachedUnreadCount(effectiveCompanyId, 0);
@@ -250,8 +261,12 @@ const NotificationPage = () => {
   const markOneAsRead = async (id: number) => {
     try {
       await axiosBaseApi.put(API_ENDPOINTS.notifications.markRead(id));
-      setNotifications((prev) =>
-        prev.map((n) => (n.notification_id === id ? { ...n, is_read: true } : n))
+      mutateNotifs(
+        (prev) =>
+          (prev || []).map((n: any) =>
+            n.notification_id === id ? { ...n, is_read: true } : n
+          ),
+        { revalidate: false }
       );
       setUnreadCount((prev) => Math.max(0, prev - 1));
       // Optimistically drop the shared badge count so the sidebar/mobile red
@@ -349,8 +364,8 @@ const NotificationPage = () => {
             </Box>
           )}
           {notifLoading ? (
-            <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
-              <CircularProgress size={28} />
+            <Box sx={{ py: 1 }}>
+              <SkeletonList rows={5} rowHeight={72} testId="notifications-loading-skeleton" />
             </Box>
           ) : notifications.length === 0 ? (
             <Box sx={{ textAlign: "center", py: 6 }}>

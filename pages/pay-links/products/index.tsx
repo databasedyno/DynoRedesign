@@ -19,6 +19,8 @@ import ProductImage from "@/Components/UI/ProductImage";
 import CustomButton from "@/Components/UI/Buttons";
 import { pageProps } from "@/utils/types";
 import axiosBaseApi from "@/axiosConfig";
+import useSWR from "swr";
+import SkeletonList from "@/Components/UI/SkeletonList";
 
 interface ProductRow {
   product_id: number;
@@ -40,15 +42,35 @@ const STATUS_COLORS: Record<string, { bg: string; fg: string }> = {
 
 const ProductsList = ({ setPageName, setPageDescription, setPageAction }: pageProps) => {
   const router = useRouter();
-  const [items, setItems] = useState<ProductRow[]>([]);
-  const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
-  const [categories, setCategories] = useState<string[]>([]);
-  const [hasUncategorized, setHasUncategorized] = useState(false);
   const [q, setQ] = useState<string>("");
-  const [error, setError] = useState<string | null>(null);
   const [merchantHandle, setMerchantHandle] = useState<string | null>(null);
+
+  const { data: productsResp, error: productsError, isLoading: productsLoading, mutate: mutateProducts } = useSWR(
+    ["products-list", statusFilter, categoryFilter, q],
+    async ([, status, category, search]: [string, string, string, string]) => {
+      const params = new URLSearchParams();
+      if (status !== "all") params.set("status", status);
+      if (category !== "all") {
+        params.set("category", category === "__uncategorized__" ? "" : category);
+      }
+      if (search.trim()) params.set("q", search.trim());
+      const r = await axiosBaseApi.get(`products?${params.toString()}`);
+      return (r.data?.data?.items || []) as ProductRow[];
+    },
+    { keepPreviousData: true }
+  );
+  const items: ProductRow[] = productsResp || [];
+  const loading = productsLoading && productsResp === undefined;
+  const error = productsError ? (productsError?.response?.data?.message || "Failed to load products") : null;
+
+  const { data: categoriesResp } = useSWR("products/categories", async (url: string) => {
+    const r = await axiosBaseApi.get(url);
+    return { categories: r.data?.data?.categories || [], hasUncategorized: Boolean(r.data?.data?.has_uncategorized) };
+  });
+  const categories: string[] = categoriesResp?.categories || [];
+  const hasUncategorized: boolean = categoriesResp?.hasUncategorized || false;
 
   useEffect(() => {
     if (!setPageName || !setPageDescription) return;
@@ -95,44 +117,6 @@ const ProductsList = ({ setPageName, setPageDescription, setPageAction }: pagePr
     return () => setPageAction(null);
   }, [setPageAction, router]);
 
-  useEffect(() => {
-    let cancelled = false;
-    setLoading(true);
-    setError(null);
-    const params = new URLSearchParams();
-    if (statusFilter !== "all") params.set("status", statusFilter);
-    if (categoryFilter !== "all") {
-      params.set("category", categoryFilter === "__uncategorized__" ? "" : categoryFilter);
-    }
-    if (q.trim()) params.set("q", q.trim());
-    axiosBaseApi
-      .get(`products?${params.toString()}`)
-      .then((r) => {
-        if (cancelled) return;
-        setItems(r.data?.data?.items || []);
-      })
-      .catch((e) => {
-        if (cancelled) return;
-        setError(e?.response?.data?.message || "Failed to load products");
-      })
-      .finally(() => !cancelled && setLoading(false));
-    return () => { cancelled = true; };
-  }, [statusFilter, categoryFilter, q]);
-
-  // Best-effort fetch of merchant's distinct categories for the filter dropdown
-  useEffect(() => {
-    let cancelled = false;
-    axiosBaseApi
-      .get("products/categories")
-      .then((r) => {
-        if (cancelled) return;
-        setCategories(r.data?.data?.categories || []);
-        setHasUncategorized(Boolean(r.data?.data?.has_uncategorized));
-      })
-      .catch(() => {});
-    return () => { cancelled = true; };
-  }, []);
-
   // Best-effort fetch of merchant handle for a "View shop" quick-link
   useEffect(() => {
     axiosBaseApi
@@ -148,7 +132,10 @@ const ProductsList = ({ setPageName, setPageDescription, setPageAction }: pagePr
     if (!window.confirm("Archive this product?")) return;
     try {
       await axiosBaseApi.delete(`products/${id}`);
-      setItems((prev) => prev.map((p) => p.product_id === id ? { ...p, status: "archived" } : p));
+      mutateProducts(
+        (prev) => (prev || []).map((p) => p.product_id === id ? { ...p, status: "archived" } : p),
+        { revalidate: false }
+      );
     } catch (e: any) {
       alert(e?.response?.data?.message || "Delete failed");
     }
@@ -201,7 +188,11 @@ const ProductsList = ({ setPageName, setPageDescription, setPageAction }: pagePr
         </Stack>
       </PanelCard>
 
-      {loading ? <LinearProgress data-testid="products-list-loading" /> : (
+      {loading ? (
+        <PanelCard title="">
+          <SkeletonList rows={5} rowHeight={64} testId="products-list-loading" />
+        </PanelCard>
+      ) : (
         <PanelCard title="">
           {items.length === 0 ? (
             <Stack alignItems="center" spacing={1} sx={{ py: 6 }}>
