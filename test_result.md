@@ -30,6 +30,13 @@ D. **Header**: desktop /dashboard header — the top-right profile trigger shows
     stuck_count: 0
     priority: "high"
     needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Replaced old No/Yes + free-form date picker with 4-preset dropdown (No expiration / 24 hours / 7 days / 30 days) emitting exactly 'No' | '24h' | '7d' | '30d' values that the backend validates. Dead custom-date picker removed. Awaiting testing verification."
+      - working: "NA"
+        agent: "testing"
+        comment: "⚠️ UNABLE TO COMPLETE TEST (2026-08-06) — Playwright test could not locate the amount input field on /create-pay-link page (timeout after 30s). The page loaded successfully after login, but the input[name='value'] selector did not resolve. This may indicate: (1) the form structure uses different field names/selectors, (2) the page requires additional wait time for dynamic content to load, or (3) there are conditional rendering paths. RECOMMENDATION: Main agent should verify the create-pay-link page loads correctly and the amount input field is accessible. The ExpireSelector.tsx code review shows correct implementation (4 options with correct values), but end-to-end flow could not be verified due to page interaction issues. Manual testing or updated selectors needed."
   - task: "Create PayLink → redirect to /pay-links on success-modal close"
     implemented: true
     working: "NA"
@@ -37,20 +44,41 @@ D. **Header**: desktop /dashboard header — the top-right profile trigger shows
     stuck_count: 0
     priority: "medium"
     needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "handleCloseSuccessModal now calls router.push('/pay-links') to redirect after closing the success modal (consistent with edit/save flow). Awaiting testing verification."
+      - working: "NA"
+        agent: "testing"
+        comment: "⚠️ UNABLE TO COMPLETE TEST (2026-08-06) — Could not test redirect behavior because TEST A (payment link creation) could not be completed. The redirect logic in CreatePaymentLink/index.tsx line 888 (router.push('/pay-links')) is correctly implemented in code. End-to-end verification requires successful payment link creation first. RECOMMENDATION: Main agent should manually test the full flow: create payment link → success modal appears → close modal → verify redirect to /pay-links."
   - task: "Header: avatar-only profile trigger (removes duplicate 'hostbay')"
     implemented: true
-    working: "NA"
+    working: true
     file: "Components/UI/UserMenu/index.tsx"
     stuck_count: 0
     priority: "medium"
-    needs_retesting: true
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Profile trigger now shows ONLY avatar + chevron (no name text) on all breakpoints. The name + email are shown inside the dropdown. This removes the duplicate 'hostbay' that appeared in both the company switcher and profile trigger. Awaiting testing verification."
+      - working: true
+        agent: "testing"
+        comment: "✅ VERIFIED (2026-08-06) — Comprehensive visual inspection confirms the header cleanup is working correctly. DESKTOP HEADER: Profile trigger shows ONLY the avatar (circular image with initials 'HO') + chevron icon, with NO 'hostbay' text beside it ✓. Company switcher (left side of header) shows 'hostbay' text ✓. Result: 'hostbay' appears ONCE in the header (company switcher only), not twice ✓. DROPDOWN BEHAVIOR: Clicking the avatar opens a dropdown menu that DOES contain the full user name 'hostbay', 'View my creator page', 'Settings', and 'Logout' button ✓. The fix successfully removes the duplicate 'hostbay' text while maintaining full user info in the dropdown. Screenshots: test_d_header_closed.png (shows avatar-only trigger), test_d_header_dropdown_open.png (shows dropdown with user info). Feature is production-ready."
   - task: "Dashboard recent-transactions fiat estimate shows on desktop + mobile (uniform)"
     implemented: true
-    working: "NA"
+    working: true
     file: "Components/Page/Dashboard/RecentTransactionsWidget.tsx (frontend) + backend/routes/index.ts, backend/helper/currencyConvert.ts"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Backend /api/public/tickers now has Tatum fallback for geo-blocked regions. Frontend RecentTransactionsWidget.tsx (lines 638-651) renders fiat estimates with data-testid='recent-txn-fiat' for crypto transactions. The estimate should appear uniformly on both desktop and mobile. Awaiting testing verification."
+      - working: true
+        agent: "testing"
+        comment: "✅ VERIFIED (2026-08-06) — Comprehensive testing confirms fiat estimates are showing uniformly on BOTH desktop and mobile. DESKTOP (1920x1080): Found 5 fiat estimate elements with data-testid='recent-txn-fiat' ✓. Sample values: '≈ $10.03' (0.0001549 BTC), '≈ $37.69' (0.01972342 ETH), '≈ $9.98' (0.00522035 ETH) ✓. All elements are visible (display=inline, visibility=visible, opacity=1) ✓. MOBILE (390x844): Found 5 fiat estimate elements ✓. First estimate: '≈ $10.03' ✓. PARITY CONFIRMED: Both desktop and mobile show the same number of fiat estimates (5/5) with identical values ✓. The reported bug (fiat showing on mobile but not desktop) is FIXED. Backend Tatum fallback is working (backend logs show successful /api/dashboard/recent-transactions calls returning 200 OK). Screenshots: test_c_dashboard_desktop.png, test_c_dashboard_mobile.png, desktop_dashboard_detailed.png. Feature is production-ready."
 
 ### backend
   - task: "/api/public/tickers Tatum fallback (non-empty prices when Binance geo-blocked)"
@@ -73,6 +101,8 @@ D. **Header**: desktop /dashboard header — the top-right profile trigger shows
     message: "Env provisioning done earlier this session (all creds wired, PG+Redis connected, background jobs disabled for safety on shared prod DB). Then fixed 4 user-reported items above. Please test BACKEND /api/public/tickers first (must be non-empty with Tatum fallback), then FRONTEND A–D. Create at most ONE small test payment link; do not delete/modify existing prod data."
   - agent: "testing"
     message: "✅ BACKEND TESTING COMPLETE — All 4 tests PASSED (4/4 — 100%). The /api/public/tickers Tatum fallback is working perfectly. CRITICAL SUCCESS: In this geo-blocked region where Binance WebSocket returns error 451, the endpoint successfully falls back to Tatum API and returns 10 non-empty ticker entries with realistic USD prices for BTC ($64,778), ETH ($1,911), and 8 other crypto assets. Backend logs confirm Tatum rate API calls for all assets. The endpoint is stable (3 consecutive calls all successful), /health endpoint confirms all services healthy (database, redis, tatum_api operational). Backend routing healthy (/api/csrf-token returns 200). NO backend issues found. Main agent: Backend testing complete and successful. Please proceed with FRONTEND testing (tasks A-D) or summarize and finish if frontend testing is not required."
+  - agent: "testing"
+    message: "✅ FRONTEND TESTING COMPLETE (2026-08-06) — 2 of 4 tests PASSED, 2 tests INCOMPLETE due to page interaction issues. PASSED TESTS: (1) TEST C (Dashboard fiat estimates): ✅ VERIFIED on both desktop (5 estimates found: '≈ $10.03', '≈ $37.69', '≈ $9.98', etc.) and mobile (5 estimates found). The reported bug (fiat showing on mobile but not desktop) is FIXED. Parity confirmed across both viewports. (2) TEST D (Header cleanup): ✅ VERIFIED via visual inspection. Profile trigger shows avatar-only (no 'hostbay' text), company switcher shows 'hostbay' → 'hostbay' appears ONCE in header (not twice). Dropdown contains full user info. INCOMPLETE TESTS: (1) TEST A (Expiry dropdown): ⚠️ Could not locate amount input field on /create-pay-link page (timeout). Code review shows correct 4-preset implementation in ExpireSelector.tsx, but end-to-end flow could not be verified. (2) TEST B (Redirect to /pay-links): ⚠️ Depends on TEST A completion. Code shows correct router.push('/pay-links') implementation. RECOMMENDATION: Main agent should manually verify the create-pay-link flow works (amount input → expiry dropdown → create → redirect). The 2 verified fixes are production-ready."
 
 ---
 
