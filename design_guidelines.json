@@ -1,87 +1,54 @@
 {
-  "typography": {
-    "headings": "Cabinet Grotesk or Outfit (Do not use Inter). Weight: Bold/Black. Tracking: Tight (-0.02em to -0.04em).",
-    "body": "Inter or IBM Plex Sans for readability.",
-    "mono_accent": "JetBrains Mono or Roboto Mono for labels, order references, live progress stats.",
-    "hierarchy_rules": "H1: fluid 4xl-6xl. H2: 3xl-4xl. Mono overlines: text-xs tracking-widest uppercase."
+  "component_name": "CreatorProfileHero",
+  "component_path": "Components/Page/Creator/CreatorProfile.js",
+  "layouts": {
+    "HeroWrapper": "MUI Box. maxWidth: '620px', mx: 'auto', pt: { xs: '64px', md: '88px' }. CRITICAL: This reserves clearance for the fixed 64/72px top marketing header so the avatar is never clipped.",
+    "CoverBand": "MUI Box. height: { xs: '200px', md: '240px' }, borderRadius: { xs: 0, md: '24px' }, position: 'relative', overflow: 'hidden'. Holds the uploaded cover image or gradient.",
+    "ContentWrapper": "MUI Box. display: 'flex', flexDirection: 'column', alignItems: 'center', mt: { xs: '-100px', md: '-120px' }, position: 'relative', zIndex: 10. This pulls the avatar and text up to overlap the cover elegantly.",
+    "SocialsRow": "MUI Box. display: 'flex', justifyContent: 'center', gap: 1.5, mt: 3."
   },
   "colors": {
-    "dark_theme": {
-      "background": "#0A0A0B",
-      "surface": "#141416",
-      "surface_glass": "rgba(255, 255, 255, 0.03)",
-      "primary": "#CCFF00",
-      "primary_text": "#000000",
-      "text_main": "#FFFFFF",
-      "text_muted": "#A0A0AB",
-      "border": "#27272A"
-    },
-    "light_theme": {
-      "background": "#F8F9FA",
-      "surface": "#FFFFFF",
-      "surface_glass": "rgba(0, 0, 0, 0.03)",
-      "primary": "#CCFF00",
-      "primary_text": "#000000",
-      "text_main": "#0A0A0B",
-      "text_muted": "#52525B",
-      "border": "#E4E4E7"
-    }
+    "accent": "Must map to the creator's theme.accent_color. Fallback: '#4F46E5' (light) / '#818CF8' (dark).",
+    "bg": "theme.palette.background.default",
+    "surface": "rgba(255,255,255,0.03) in dark mode, rgba(0,0,0,0.02) in light mode",
+    "divider": "theme.palette.divider"
   },
-  "visual enhancers": {
-    "surfaces": "Use 1px crisp borders (border-border). Avoid muddy shadows. For elevated cards, use subtle drop shadows only in light mode, and inner borders in dark mode.",
-    "glassmorphism": "Use heavy blur (backdrop-filter: blur(16px)) with highly transparent backgrounds for sticky headers or tip boxes. DO NOT use complete transparent backgrounds.",
-    "accents": "Use the bright lime (#CCFF00) strictly for primary CTA buttons, live progress bars, and active states. Do not overuse.",
-    "textures": "Optional subtle SVG noise overlay on the #0A0A0B background to reduce digital flatness."
+  "typography": {
+    "Name": "Typography variant='h4'. fontWeight: 800, letterSpacing: '-0.03em', fontSize: { xs: '24px', md: '28px' }, mt: 2.",
+    "Handle": "Typography. fontFamily: 'Roboto Mono, ui-monospace, monospace', fontSize: '15px', fontWeight: 500, color: 'accent', mt: 0.5, display: 'flex', alignItems: 'center'.",
+    "Bio": "Typography. fontFamily: 'Inter, sans-serif', fontSize: '15px', lineHeight: 1.6, color: 'text.secondary', maxWidth: '460px', textAlign: 'center', mt: 2."
   },
-  "component name": {
-    "DonationCampaignCheckout": "Main campaign visual + interactive donation widget. Needs progress bar, stats, supporters list.",
-    "StandardPaymentCheckout": "Focused, narrow container. Receipt-like order summary. Coin selector grid.",
-    "CreatorProfilePage": "Public vanity page. Avatar, bio, grid of payment links, sticky tip box.",
-    "HandleClaimUI": "Settings module. Input with prefix, success/error state for availability.",
-    "LandingPageRefresh": "Update hero or features section to include creator pages and crowdfunding visuals."
-  },
-  "grids": {
-    "creator_page": "Bento Grid: 1 column on mobile. Desktop: 12-column grid. Left 8 cols for active links/bio, Right 4 cols for sticky Tip Box.",
-    "donation_checkout": "Asymmetrical 2-column. Left: Campaign storytelling (image, text, supporters). Right: Actionable donation form.",
-    "standard_checkout": "Centered narrow 1-column layout (max-width: 480px). Dense data display."
-  },
-  "layouts": {
-    "spacing": "Generous. Sections should have padding like py-24. Cards should have p-6 or p-8.",
-    "alignment": "Left-align dense text. Center standard checkout content. Optically align icons in buttons."
+  "visual_enhancers": {
+    "CoverScrim": "Absolute inset-0 over the CoverBand. background: `linear-gradient(to bottom, ${alpha(theme.palette.background.default, 0)} 20%, ${alpha(theme.palette.background.default, 0.95)} 100%)`. This blends the bottom of the cover into the background and ensures text contrast.",
+    "BareAmbientGlow": "Used in place of CoverBand when there is no cover. height: { xs: '160px', md: '200px' }, background: `radial-gradient(ellipse at top center, ${alpha(accentColor, 0.25)} 0%, ${alpha(theme.palette.background.default, 0)} 70%)`.",
+    "AvatarGlassRing": "For avatars with a photo. boxShadow: `0 0 0 4px ${alpha(theme.palette.background.default, 0.6)}`, border: `1px solid ${theme.palette.divider}`, backdropFilter: 'blur(12px)'.",
+    "MonogramAvatar": "For the bare state. background: `linear-gradient(135deg, ${accentColor}, darkerAccentColor)`, color: '#FFF', boxShadow: `0 8px 32px ${alpha(accentColor, 0.3)}`, border: '2px solid rgba(255,255,255,0.2)'."
   },
   "motion": {
-    "interactions": "Hover states on all buttons: slight scale (scale(0.98)) or brightness increase. Progress bars should animate width on load.",
-    "transitions": "Use MUI transitions or simple CSS `transition: transform 0.2s ease, opacity 0.2s ease`."
+    "SocialButtonHover": "transition: 'transform 0.2s ease, border-color 0.2s ease, background-color 0.2s ease'. :hover { transform: 'translateY(-2px)', borderColor: accentColor, backgroundColor: alpha(accentColor, 0.05) }"
   },
   "accessibility": {
-    "contrast": "Ensure black text (#000000) is used ON the primary lime green (#CCFF00) for contrast. Do not use white text on lime.",
-    "testing": "All interactive elements MUST have `data-testid` (e.g., `data-testid=\"tip-submit-button\"`).",
-    "focus": "High contrast focus rings for inputs and buttons."
+    "Contrast": "The 95% opacity CoverScrim guarantees WCAG AA contrast for the overlapping Name and Handle text over any bright image or pattern.",
+    "DataTestId": "All interactive elements, buttons, and links MUST include a data-testid attribute."
   },
-  "media": {
-    "rules": "Images must have max-h-[50vh] on mobile to prevent blocking UI. Use object-cover for cover images. Avoid fully transparent headers over images."
-  },
-  "3d libraries": {
-    "usage": "Not strictly required for checkout/profile pages to maintain performance and focus, but can use mild Framer Motion or CSS animations."
-  },
-  "image_urls": {
-    "creator_avatar": {
-      "url": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Njd8MHwxfHNlYXJjaHwxfHxjcmVhdG9yJTIwcHJvZmlsZSUyMHBvcnRyYWl0fGVufDB8fHx8MTc4Mzc5NDIwM3ww&ixlib=rb-4.1.0&q=85",
-      "description": "Avatar for the Creator Profile Page mockup.",
-      "category": "Avatar"
-    },
-    "donation_cover": {
-      "url": "https://images.unsplash.com/photo-1591522810850-58128c5fb089?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxODF8MHwxfHNlYXJjaHwxfHxjaGFyaXR5JTIwZG9uYXRpb24lMjBhYnN0cmFjdHxlbnwwfHx8fDE3ODM3OTQyMDR8MA&ixlib=rb-4.1.0&q=85",
-      "description": "Abstract cover image for the Donation/Crowdfunding Checkout page.",
-      "category": "Cover Image"
-    },
-    "crypto_abstract": {
-      "url": "https://images.unsplash.com/photo-1770486036751-e55247238964?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2ODh8MHwxfHNlYXJjaHwyfHxjcnlwdG8lMjBhYnN0cmFjdCUyMGRhcmt8ZW58MHx8fHwxNzgzNzk0MjA0fDA&ixlib=rb-4.1.0&q=85",
-      "description": "Dark abstract pattern for Landing Page background accents or standard checkout merchant background.",
-      "category": "Background Texture"
-    }
-  },
-  "component_path": "/app/Components",
-  "instructions_to_main_agent": "1. Use Next.js Pages router (.js files). 2. Use MUI + styled-components. Extend the MUI theme (`theme.palette`) to support the dark (#0A0A0B) and light themes matching the 'Swiss/editorial' vibe. 3. Build a CreatorProfile page component that takes a `handle` prop. 4. Refactor the existing DonationCampaign component to include a live progress bar, stats, supporters list, and dynamic donation options. 5. Do not use generic MUI shadows; use crisp borders and glassmorphism. 6. Integrate `data-testid` on all buttons and inputs. 7. For mono-accent texts (stats, percentages), use `fontFamily: 'monospace'` or a loaded mono font in MUI typography variants.",
-  "UNIVERSAL GUIDELINES FOR MAIN AGENT": "Avoid generic centered layouts and simplistic gradients. Create depth through layered design elements with z-index hierarchy. Use glass-morphism effects with backdrop filters (12-24px blur). NEVER apply universal transitions (transition: all). Use specific transitions. Ensure the 'App' container is not center-aligned to preserve reading flow. Always use modern button styles (pill-shaped or sharp with interaction animations). DO NOT use AI emoji characters for icons. Use Phosphor Icons or MUI Icons. Provide micro-animations for hover states."
+  "media": {},
+  "3d_libraries": "N/A",
+  "image_urls": {},
+  "instructions_to_main_agent": [
+    "Redesign ONLY the Hero section in Components/Page/Creator/CreatorProfile.js.",
+    "Do NOT alter the tip widget, featured-campaign card, or anything below the hero.",
+    "Use MUI v5 Box, Avatar, Typography, and IconButton with the `sx` prop. Import `alpha` from `@mui/material/styles` for dynamic opacity.",
+    "Implement the top clearance fix by applying `pt: { xs: '64px', md: '88px' }` to the outermost hero wrapper.",
+    "Implement the 'Rich State' using the 240px CoverBand, the CoverScrim gradient, and pull the ContentWrapper up via negative margin.",
+    "Implement the 'Bare State' using the BareAmbientGlow background and glowing MonogramAvatar.",
+    "Apply the AvatarGlassRing styling to the photo avatar so it transitions beautifully against the cover image.",
+    "Preserve all existing component logic, state, and props—only rewrite the rendering layout and styling of the Hero area."
+  ],
+  "UNIVERSAL GUIDELINES FOR MAIN AGENT": [
+    "Create depth through layered design elements with z-index hierarchy.",
+    "Use glass-morphism effects with backdrop filters (12-24px blur).",
+    "Do not apply universal transitions (`transition: all`); target specific properties.",
+    "Do not center align the app container globally, only specific wrappers.",
+    "All interactive elements MUST include a `data-testid` attribute."
+  ]
 }
