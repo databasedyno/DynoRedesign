@@ -69,6 +69,11 @@ const CreatorPageRoute = ({ setPageName, setPageDescription }: pageProps) => {
     swAllowMessage: true,
     swThanks: "",
     swShowSupporters: true,
+    // Theme defaults — null falls back to the DynoPay brand accent + solid
+    // cover in the preview, matching the published page before customization.
+    accentColor: null,
+    coverStyle: null,
+    coverGradient: null,
   });
   const onFormChange = useCallback((s: CreatorFormState) => setFormState(s), []);
 

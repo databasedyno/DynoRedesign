@@ -29,6 +29,11 @@ export interface CreatorFormState {
   swAllowMessage: boolean;
   swThanks: string;
   swShowSupporters: boolean;
+  // Custom theme (Session 60) — mirrored to the live preview so it renders
+  // exactly what CreatorProfile publishes (accent / cover style / gradient).
+  accentColor: string | null;
+  coverStyle: CoverStyle | null;
+  coverGradient: string | null;
 }
 
 type SupportStyle = "coffee" | "tip" | "support";
@@ -157,8 +162,10 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
       handle, bio, enabled, coverImage, socialLinks,
       swEnabled, swStyle, swLabel, swPresets, swCurrency, swMinAmount, swAllowMessage, swThanks, swShowSupporters,
       name,
+      // Theme (Session 60) — so the live preview matches the published page.
+      accentColor: themeAccent, coverStyle: themeCoverStyle, coverGradient: themeCoverGradient,
     } as any);
-  }, [handle, name, bio, enabled, coverImage, socialLinks, swEnabled, swStyle, swLabel, swPresets, swCurrency, swMinAmount, swAllowMessage, swThanks, swShowSupporters, onChange]);
+  }, [handle, name, bio, enabled, coverImage, socialLinks, swEnabled, swStyle, swLabel, swPresets, swCurrency, swMinAmount, swAllowMessage, swThanks, swShowSupporters, themeAccent, themeCoverStyle, themeCoverGradient, onChange]);
 
   // Open + reveal the tip box (Support Widget) when the dashboard "Set up tips" CTA fires.
   useEffect(() => {

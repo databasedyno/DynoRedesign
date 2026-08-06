@@ -10,8 +10,20 @@ import Logo from "@/assets/Icons/Logo";
 
 const MONO = 'ui-monospace, "Roboto Mono", "JetBrains Mono", SFMono-Regular, Menlo, monospace';
 // Aurora indigo — Landing v3 canonical accent (Session 82 migration).
-const LIME = "#4F46E5";
+// Only the DEFAULT accent; creators override it via the theme picker.
+const DEFAULT_ACCENT = "#4F46E5";
 const INK = "#0A0A0B";
+
+// Preset gradients — MUST mirror CreatorThemePicker.GRADIENT_PRESETS and
+// CreatorProfile.GRADIENTS so the preview matches the published page exactly.
+const GRADIENTS: Record<string, string> = {
+  sunset:   "#FF7A45 0%, #FF3D9A 100%",
+  ocean:    "#00E5FF 0%, #7C3AED 100%",
+  forest:   "#0FCFA0 0%, #14532D 100%",
+  twilight: "#4C1D95 0%, #0EA5E9 100%",
+  midnight: "#0F172A 0%, #6366F1 100%",
+  candy:    "#FCD34D 0%, #FF3D9A 100%",
+};
 
 const SOCIAL_ICONS: Record<string, string> = {
   twitter: "mdi:twitter",
@@ -53,7 +65,34 @@ const CreatorLivePreview: React.FC<Props> = ({ state }) => {
   const socials = Object.entries(state.socialLinks || {}).filter(([, v]) => Boolean(v));
   const initial = (name || handle || "?").charAt(0).toUpperCase();
 
-  const limeTint = isDark ? "rgba(79,70,229,0.10)" : "rgba(79,70,229,0.16)";
+  // ── Custom theme (mirror of CreatorProfile) so the preview renders exactly
+  // what gets published. Defaults fall back to the DynoPay brand accent and a
+  // solid cover (or "image" when a cover image is present).
+  const accent = state.accentColor || DEFAULT_ACCENT;
+  const coverStyleSel = state.coverStyle || (cover ? "image" : "solid");
+  const coverGradientSel = state.coverGradient || "sunset";
+
+  const coverBackground = (() => {
+    if (coverStyleSel === "image" && cover) {
+      return `url(${cover}) center/cover no-repeat`;
+    }
+    if (coverStyleSel === "gradient") {
+      const stops = GRADIENTS[coverGradientSel];
+      if (stops) return `linear-gradient(135deg, ${stops})`;
+      if (/^#[0-9a-f]{6},#[0-9a-f]{6}$/i.test(coverGradientSel)) {
+        const [a, b] = coverGradientSel.split(",");
+        return `linear-gradient(135deg, ${a} 0%, ${b} 100%)`;
+      }
+      return `linear-gradient(135deg, ${accent} 0%, #0A0A0B 100%)`;
+    }
+    if (coverStyleSel === "pattern") {
+      return `${accent}18 radial-gradient(${accent}44 1px, transparent 1px) 0 0/16px 16px`;
+    }
+    // solid (or fallback)
+    return `linear-gradient(135deg, ${accent}22 0%, ${accent}66 100%)`;
+  })();
+
+  const limeTint = isDark ? `${accent}1A` : `${accent}29`;
   const surface = isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)";
 
   // Support widget preview data
@@ -97,9 +136,10 @@ const CreatorLivePreview: React.FC<Props> = ({ state }) => {
 
       {/* Cover / hero */}
       <Box
+        data-testid="creator-preview-cover"
         sx={{
           height: 104,
-          backgroundImage: cover ? `url(${cover})` : `linear-gradient(135deg, ${limeTint}, ${surface})`,
+          background: coverBackground,
           backgroundSize: "cover",
           backgroundPosition: "center",
           position: "relative",
@@ -126,10 +166,10 @@ const CreatorLivePreview: React.FC<Props> = ({ state }) => {
             border: `4px solid ${theme.palette.background.paper}`,
             background: photo
               ? theme.palette.background.paper
-              : `linear-gradient(135deg, ${LIME} 0%, ${darken(LIME, 0.28)} 100%)`,
+              : `linear-gradient(135deg, ${accent} 0%, ${darken(accent, 0.28)} 100%)`,
             boxShadow: photo
-              ? `0 8px 24px ${alpha(LIME, isDark ? 0.34 : 0.2)}`
-              : `0 10px 30px ${alpha(LIME, 0.4)}`,
+              ? `0 8px 24px ${alpha(accent, isDark ? 0.34 : 0.2)}`
+              : `0 10px 30px ${alpha(accent, 0.4)}`,
             position: "relative", zIndex: 1,
           }}
         >
@@ -145,7 +185,7 @@ const CreatorLivePreview: React.FC<Props> = ({ state }) => {
         <Typography fontWeight={800} fontSize={19} mt={1.25} color={theme.palette.text.primary} sx={{ letterSpacing: "-0.02em" }}>
           {name}
         </Typography>
-        <Typography sx={{ fontFamily: MONO, fontSize: 12.5, fontWeight: 600, color: LIME, mt: 0.25 }}>
+        <Typography sx={{ fontFamily: MONO, fontSize: 12.5, fontWeight: 600, color: accent, mt: 0.25 }}>
           @{handle}
         </Typography>
 
@@ -178,12 +218,12 @@ const CreatorLivePreview: React.FC<Props> = ({ state }) => {
           <Box
             data-testid="preview-support-widget"
             sx={{
-              mt: 2.5, p: 1.75, borderRadius: "12px", border: `1px solid ${LIME}`,
+              mt: 2.5, p: 1.75, borderRadius: "12px", border: `1px solid ${accent}`,
               backgroundColor: limeTint, textAlign: "left",
             }}
           >
             <Box sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
-              <Box sx={{ width: 26, height: 26, borderRadius: "8px", backgroundColor: LIME, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <Box sx={{ width: 26, height: 26, borderRadius: "8px", backgroundColor: accent, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                 <Icon icon={swMeta.icon} width={15} color={INK} />
               </Box>
               <Typography fontWeight={800} fontSize={14} color={theme.palette.text.primary} noWrap>
@@ -203,7 +243,7 @@ const CreatorLivePreview: React.FC<Props> = ({ state }) => {
                 </Box>
               ))}
             </Box>
-            <Box sx={{ mt: 1.25, py: 0.8, borderRadius: "8px", backgroundColor: LIME, textAlign: "center" }}>
+            <Box sx={{ mt: 1.25, py: 0.8, borderRadius: "8px", backgroundColor: accent, textAlign: "center" }}>
               <Typography sx={{ fontSize: 12.5, fontWeight: 800, color: INK }}>
                 {swTitle}
               </Typography>
@@ -215,7 +255,7 @@ const CreatorLivePreview: React.FC<Props> = ({ state }) => {
         {!swEnabled && (
         <Box
           sx={{
-            mt: 2.5, p: 1.75, borderRadius: "12px", border: `1px solid ${LIME}`,
+            mt: 2.5, p: 1.75, borderRadius: "12px", border: `1px solid ${accent}`,
             backgroundColor: limeTint, textAlign: "left",
           }}
         >
@@ -234,10 +274,10 @@ const CreatorLivePreview: React.FC<Props> = ({ state }) => {
             sx={{
               mt: 1.25, height: 6, borderRadius: 999,
               backgroundColor: isDark ? "rgba(255,255,255,0.10)" : "rgba(0,0,0,0.08)",
-              "& .MuiLinearProgress-bar": { backgroundColor: LIME, borderRadius: 999 },
+              "& .MuiLinearProgress-bar": { backgroundColor: accent, borderRadius: 999 },
             }}
           />
-          <Box sx={{ mt: 1.25, py: 0.8, borderRadius: "8px", backgroundColor: LIME, textAlign: "center" }}>
+          <Box sx={{ mt: 1.25, py: 0.8, borderRadius: "8px", backgroundColor: accent, textAlign: "center" }}>
             <Typography sx={{ fontSize: 12.5, fontWeight: 800, color: INK }}>Support this campaign</Typography>
           </Box>
         </Box>
@@ -251,7 +291,7 @@ const CreatorLivePreview: React.FC<Props> = ({ state }) => {
           }}
         >
           <Box sx={{ width: 32, height: 32, borderRadius: "8px", backgroundColor: limeTint, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <Icon icon="mdi:link-variant" width={16} color={isDark ? LIME : INK} />
+            <Icon icon="mdi:link-variant" width={16} color={isDark ? accent : INK} />
           </Box>
           <Box flex={1} minWidth={0}>
             <Typography fontSize={12.5} fontWeight={700} color={theme.palette.text.primary} noWrap>
