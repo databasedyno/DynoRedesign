@@ -9,7 +9,7 @@
 - ADMIN_EMAIL env: **moxxcompany@gmail.com** (password unknown, out of band)
 
 ## Preview URL (THIS container — updated 2026-08-06)
-- https://465a9d6f-3c89-4195-9d39-2331f0c072d3.preview.emergentagent.com
+- https://beow-preview-build.preview.emergentagent.com
 - Frontend calls backend via RELATIVE /api (NEXT_PUBLIC_BASE_URL is EMPTY in /app/.env.local) so it works on any preview hostname.
 - Backend .env SERVER_URL/FRONTEND_URL/CHECKOUT_URL/NEXTAUTH_URL point at the 465a9d6f preview URL.
 - Login VERIFIED this session: hostbay@moxx.co → /dashboard loads with real prod data (Lifetime volume $25,008.83, 13 active wallets).

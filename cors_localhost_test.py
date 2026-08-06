@@ -41,7 +41,7 @@ TESTS = [
     },
     {
         "id": 5,
-        "origin": "https://dynopay-staging-4.preview.emergentagent.com",
+        "origin": "https://beow-preview-build.preview.emergentagent.com",
         "expected": "ALLOWED",
         "description": "Preview pattern"
     },
