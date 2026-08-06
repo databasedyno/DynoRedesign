@@ -169,5 +169,8 @@
   "donationCreatorHintTitle": "Esto se convierte en tu caja de propinas \"Buy me a coffee\"",
   "donationCreatorHintLive": "Aparecerá destacado en la parte superior de tu página de creador {{url}}.",
   "donationCreatorHintNoHandle": "Publica una página de creador para destacarla como tu bote de propinas público.",
-  "donationCreatorHintSetup": "Configura tu página de creador →"
+  "donationCreatorHintSetup": "Configura tu página de creador →",
+  "expire24h": "24 horas",
+  "expire7d": "7 días",
+  "expire30d": "30 días"
 }

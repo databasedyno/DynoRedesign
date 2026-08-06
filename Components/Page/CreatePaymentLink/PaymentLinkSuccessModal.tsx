@@ -110,8 +110,15 @@ const PaymentLinkSuccessModal: React.FC<PaymentLinkSuccessModalProps> = ({
   }, [paymentSettings.acceptedCryptoCurrency, directPayAddress]);
 
   const getExpireText = () => {
-    if (paymentSettings.expire === "no") return tPaymentLink("noExpiration");
-    return tPaymentLink(paymentSettings.expire);
+    const e = paymentSettings.expire;
+    // New preset model: 'No' | '24h' | '7d' | '30d' (plus legacy 'no'/'yes').
+    if (!e || e === "no" || e === "No" || e === "yes") {
+      return tPaymentLink("noExpiration");
+    }
+    if (e === "24h") return tPaymentLink("expire24h");
+    if (e === "7d") return tPaymentLink("expire7d");
+    if (e === "30d") return tPaymentLink("expire30d");
+    return tPaymentLink("noExpiration");
   };
 
   const getBlockchainFeesText = () => {

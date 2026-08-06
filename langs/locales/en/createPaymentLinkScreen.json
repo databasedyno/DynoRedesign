@@ -185,5 +185,8 @@
   "donationCreatorHintTitle": "This becomes your \"Buy me a coffee\" tip box",
   "donationCreatorHintLive": "It will be featured at the top of your creator page {{url}}.",
   "donationCreatorHintNoHandle": "Publish a creator page to feature it as your public tip jar.",
-  "donationCreatorHintSetup": "Set up your creator page →"
+  "donationCreatorHintSetup": "Set up your creator page →",
+  "expire24h": "24 hours",
+  "expire7d": "7 days",
+  "expire30d": "30 days"
 }

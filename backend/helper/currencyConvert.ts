@@ -282,6 +282,55 @@ const getTatumRate = async (crypto: string, fiat: string = 'USD'): Promise<numbe
 };
 
 /**
+ * USD price snapshot for a set of crypto assets — a resilient price source
+ * used by the public tickers endpoint (and anything that needs "1 ASSET = $X").
+ *
+ * Resolution order per asset:
+ *   1. Stablecoins → $1
+ *   2. Fresh Tatum-backed background cache (rate_bg:ASSET:USD)
+ *   3. Live Tatum rate (getTatumRate)
+ * Assets that can't be priced are omitted (callers hide the estimate).
+ *
+ * This keeps fiat estimates working even when the Binance WebSocket ticker
+ * feed is empty (e.g. geo-blocked server regions), because Tatum is our
+ * reliable paid provider.
+ */
+export const getUsdPriceSnapshot = async (
+  assets: string[],
+): Promise<Record<string, number>> => {
+  const STABLES = new Set(["USDT", "USDC", "USD", "DAI", "BUSD", "TUSD", "RLUSD"]);
+  const out: Record<string, number> = {};
+  await Promise.allSettled(
+    (assets || []).map(async (raw) => {
+      const asset = String(raw || "").toUpperCase().trim();
+      if (!asset) return;
+      if (STABLES.has(asset)) {
+        out[asset] = 1;
+        return;
+      }
+      // 1) fresh Tatum-backed background cache (refreshed ~every 60s)
+      const cached = backgroundRateCache.get(`rate_bg:${asset}:USD`);
+      if (cached && cached.rate > 0 && Date.now() - cached.timestamp < BACKGROUND_CACHE_TTL_MS) {
+        out[asset] = cached.rate;
+        return;
+      }
+      // 2) live Tatum (POL shares the MATIC rate id)
+      try {
+        const tatumSym = asset === "POL" ? "MATIC" : asset;
+        const rate = await getTatumRate(tatumSym, "USD");
+        if (rate && rate > 0) {
+          out[asset] = rate;
+          backgroundRateCache.set(`rate_bg:${asset}:USD`, { rate, timestamp: Date.now() });
+        }
+      } catch {
+        /* skip — asset stays unpriced */
+      }
+    }),
+  );
+  return out;
+};
+
+/**
  * Get rate using Tatum for crypto conversions
  * Handles crypto-to-fiat, fiat-to-crypto, crypto-to-crypto, AND fiat-to-fiat (via USDT proxy)
  * Uses Tatum's basePair to get direct fiat rates (EUR, GBP, etc.) — no USD intermediary needed

@@ -286,7 +286,7 @@ const CreatePaymentLinkPage = ({
     clientName: hasPaymentLinkData
       ? (paymentLinkData as PaymentLink).clientName
       : "",
-    expire: hasPaymentLinkData ? (paymentLinkData as PaymentLink).expire : "no",
+    expire: hasPaymentLinkData ? (paymentLinkData as PaymentLink).expire : "No",
     description: hasPaymentLinkData
       ? (paymentLinkData as PaymentLink).description
       : "",
@@ -827,7 +827,7 @@ const CreatePaymentLinkPage = ({
             // in favour of the specific `donation_ends_at` date picker. Donation
             // links now default `expire: "No"` — the campaign end date drives
             // countdown/lifecycle. Existing links keep whatever expire was set.
-            expire: paymentSettings.expire === "no" ? "No" : (paymentSettings.expire || "No"),
+            expire: !paymentSettings.expire || paymentSettings.expire === "no" || paymentSettings.expire === "yes" ? "No" : paymentSettings.expire,
             fee_payer: paymentSettings.blockchainFees,
             accepted_currencies: paymentSettings.acceptedCryptoCurrency,
             redirect_url: postPaymentSettings.redirectUrl,
@@ -840,7 +840,7 @@ const CreatePaymentLinkPage = ({
             currency: paymentSettings.currency,
             description: paymentSettings.description,
             name: paymentSettings.clientName,
-            expire: paymentSettings.expire === "no" ? "No" : paymentSettings.expire,
+            expire: !paymentSettings.expire || paymentSettings.expire === "no" || paymentSettings.expire === "yes" ? "No" : paymentSettings.expire,
             fee_payer: paymentSettings.blockchainFees,
             accepted_currencies: paymentSettings.acceptedCryptoCurrency,
             redirect_url: postPaymentSettings.redirectUrl,
@@ -880,46 +880,12 @@ const CreatePaymentLinkPage = ({
   const handleCloseSuccessModal = () => {
     setSuccessModalOpen(false);
     setIsCreating(false);
-    // Reset form for new creation
-    if (!hasPaymentLinkData) {
-      setPaymentSettings({
-        value: "",
-        cryptoValue: "",
-        currency: "USD",
-        clientName: "",
-        expire: "no",
-        description: "",
-        blockchainFees: "company",
-        linkId: "",
-        acceptedCryptoCurrency: [],
-      });
-      setPaymentSettingsErrors({ value: "", currency: "", description: "" });
-      setPaymentSettingsTouched({ value: false, currency: false, description: false });
-      setPostPaymentSettings({ callbackUrl: "", redirectUrl: "", webhookUrl: "" });
-      setCustomerEmail("");
-      setIncludeTax(false);
-      setTaxInclusive(false);
-      setPaymentLink("");
-      setDirectPayAddress(null);
-      setDirectPayQrCode(null);
-      // Reset donation campaign fields (link kind is kept so the merchant can
-      // quickly create another campaign). Uses functional setter + spread so
-      // TypeScript sees the full DonationSettingsState shape (the crowdfunding
-      // Phase 3 fields are all covered by defaults on prev).
-      setDonationSettings((prev) => ({
-        ...prev,
-        title: "",
-        goalAmount: "",
-        minAmount: "1",
-        presets: [],
-        allowCustom: true,
-        showProgress: true,
-        showSupporters: true,
-        autoCloseAtGoal: false,
-        campaignImage: null,
-      }));
-      setDonationErrors({});
-    }
+    // Session: after a link is created, take the merchant to the Payment Links
+    // list (consistent with the edit/save flow which already redirects here) so
+    // the freshly-created link is right there to manage/share — instead of
+    // leaving them on a reset create form. The page unmounts on navigation, so
+    // no explicit form reset is needed here.
+    router.push("/pay-links");
   };
 
   const handleCopyLink = () => {

@@ -1,3 +1,82 @@
+# Session 2026-08-06 (a) — PayLink expiry fix + create-flow redirect + header cleanup + dashboard fiat parity
+
+Preview: https://3f058365-27a4-42a6-aee6-3ce7ea2385f6.preview.emergentagent.com
+Login (2-step): hostbay@moxx.co / Katiekendra123@  (/auth/login → email → "Continue" → password → [data-testid="signin-submit-btn"])
+SAFETY: preview shares LIVE Railway prod DB. Create AT MOST ONE test payment link (use a small amount like 5). Do NOT delete/modify existing links/transactions/customers. Everything else READ-ONLY.
+
+## What changed
+1. **PayLink expiry** (`Components/UI/pay-link/ExpireSelector.tsx`, `PaymentSettingsBasic.tsx`, `Components/Page/CreatePaymentLink/index.tsx`): replaced the old No/Yes(+free-form date) selector — whose "yes" value + custom date were NEVER accepted by the backend (400 "Invalid expire value") — with a 4-option preset dropdown: **No expiration / 24 hours / 7 days / 30 days** emitting exactly `No | 24h | 7d | 30d` (what the API validates). Submit normalises legacy `no`/`yes` → `No`. Dead custom-date picker removed.
+2. **Create-flow redirect** (`CreatePaymentLink/index.tsx` handleCloseSuccessModal): after a link is created and the success modal is closed, the app now navigates to `/pay-links` (consistent with the edit/save flow) instead of resetting the create form in place.
+3. **Header cleanup** (`Components/UI/UserMenu/index.tsx`): profile trigger now shows the AVATAR ONLY (+ chevron) on all breakpoints — the name text was removed because it duplicated the adjacent CompanySelector (e.g. "hostbay … hostbay"). Name + email still show inside the dropdown.
+4. **Dashboard fiat parity** (backend: `backend/routes/index.ts` `/public/tickers` + new `backend/helper/currencyConvert.ts::getUsdPriceSnapshot`): the "≈ $X" fiat estimate beside recent-transaction crypto amounts relied on `/api/public/tickers`, which only read the Binance WS cache (empty when geo-blocked → estimate never rendered). Added a Tatum-backed fallback so tickers returns live USD prices when the WS cache is empty (no-op in prod where Binance works). The dashboard widget already renders the estimate uniformly for desktop + mobile.
+5. i18n: added `expire24h`/`expire7d`/`expire30d` to all 6 locales' `createPaymentLinkScreen.json`.
+
+### BACKEND TESTING INSTRUCTIONS (read-only GETs)
+- GET `/api/public/tickers` MUST return `status:"success"` with a NON-EMPTY `data` array (≥ 5 entries) of `{symbol, price>0, ...}` including BTC and ETH (Tatum fallback active in this geo-blocked region).
+- GET `/health` still returns `status:"healthy"`, database=connected, redis=connected.
+- Confirm calling `/api/public/tickers` a few times is stable (no 500s).
+
+### FRONTEND TESTING INSTRUCTIONS
+A. **Expiry (bug fix)**: /create-pay-link → set amount = 5 → ensure a crypto (e.g. Bitcoin/BTC) is selected → open the "Expire" dropdown: it MUST list exactly **No expiration / 24 hours / 7 days / 30 days**. Select "7 days" → click "Create Payment Link". EXPECT: green success modal "Payment Link Successfully Created" showing "Expires on: 7 days" and **NO** red "Invalid expire value…" error anywhere.
+B. **Redirect (UX)**: from that success modal, click the close (X). EXPECT: URL navigates to `/pay-links` and the newly-created link appears in the list.
+C. **Dashboard fiat parity**: /dashboard → "Recent transactions" rows MUST show a fiat estimate "≈ $X" (data-testid `recent-txn-fiat`, count > 0) next to the crypto amount. Verify on BOTH desktop (1920 wide) AND mobile (390 wide) — must be present in both.
+D. **Header**: desktop /dashboard header — the top-right profile trigger shows ONLY an avatar + chevron (NO "hostbay" text beside it); the CompanySelector still shows "hostbay" (so "hostbay" appears once, not twice). Clicking the avatar opens a dropdown containing the full name + email.
+
+### frontend
+  - task: "PayLink expiry: 4-preset dropdown (No/24h/7d/30d) — no more 'Invalid expire value' 400"
+    implemented: true
+    working: "NA"
+    file: "Components/UI/pay-link/ExpireSelector.tsx, Components/UI/pay-link/PaymentSettingsBasic.tsx, Components/Page/CreatePaymentLink/index.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+  - task: "Create PayLink → redirect to /pay-links on success-modal close"
+    implemented: true
+    working: "NA"
+    file: "Components/Page/CreatePaymentLink/index.tsx"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+  - task: "Header: avatar-only profile trigger (removes duplicate 'hostbay')"
+    implemented: true
+    working: "NA"
+    file: "Components/UI/UserMenu/index.tsx"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+  - task: "Dashboard recent-transactions fiat estimate shows on desktop + mobile (uniform)"
+    implemented: true
+    working: "NA"
+    file: "Components/Page/Dashboard/RecentTransactionsWidget.tsx (frontend) + backend/routes/index.ts, backend/helper/currencyConvert.ts"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+
+### backend
+  - task: "/api/public/tickers Tatum fallback (non-empty prices when Binance geo-blocked)"
+    implemented: true
+    working: true
+    file: "backend/routes/index.ts, backend/helper/currencyConvert.ts"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Tatum fallback implemented in backend/routes/index.ts (lines 174-208) and backend/helper/currencyConvert.ts (getUsdPriceSnapshot function). When Binance WebSocket cache is empty (geo-blocked), the endpoint calls getUsdPriceSnapshot which sources USD prices from Tatum API. Awaiting testing verification."
+      - working: true
+        agent: "testing"
+        comment: "✅ ALL 4 BACKEND TESTS PASSED (2026-08-06) — Tatum fallback is working perfectly. TEST 1 (GET /api/public/tickers): HTTP 200, status='success', data array NON-EMPTY with 10 entries (BTC=$64,778, ETH=$1,911, LTC=$45.03, DOGE=$0.07, SOL=$73.97, XRP, BCH, BNB, TRX, POL), all entries have valid symbol (string) and price (number > 0), BTC and ETH present with realistic prices ✓. TEST 2 (Stability): Called 3 times in a row, all returned HTTP 200 with consistent shape (10 tickers each), BTC and ETH present in all calls, no 500 errors ✓. TEST 3 (GET /health): HTTP 200, status='healthy', database='connected', redis='connected', tatum_api.operational=true ✓. TEST 4 (GET /api/csrf-token): HTTP 200, CSRF token present ✓. BACKEND LOGS CONFIRM: Binance WebSocket geo-blocked (error 451), Tatum rate API successfully called for all crypto assets (BTC, ETH, LTC, DOGE, SOL, XRP, BCH, TRX, MATIC), prices sourced from Tatum and returned via /api/public/tickers. The Tatum fallback is working as designed — when Binance WS cache is empty due to geo-blocking, the endpoint seamlessly falls back to Tatum to provide live USD prices. Feature is production-ready."
+
+### Agent Communication
+  - agent: "main"
+    message: "Env provisioning done earlier this session (all creds wired, PG+Redis connected, background jobs disabled for safety on shared prod DB). Then fixed 4 user-reported items above. Please test BACKEND /api/public/tickers first (must be non-empty with Tatum fallback), then FRONTEND A–D. Create at most ONE small test payment link; do not delete/modify existing prod data."
+  - agent: "testing"
+    message: "✅ BACKEND TESTING COMPLETE — All 4 tests PASSED (4/4 — 100%). The /api/public/tickers Tatum fallback is working perfectly. CRITICAL SUCCESS: In this geo-blocked region where Binance WebSocket returns error 451, the endpoint successfully falls back to Tatum API and returns 10 non-empty ticker entries with realistic USD prices for BTC ($64,778), ETH ($1,911), and 8 other crypto assets. Backend logs confirm Tatum rate API calls for all assets. The endpoint is stable (3 consecutive calls all successful), /health endpoint confirms all services healthy (database, redis, tatum_api operational). Backend routing healthy (/api/csrf-token returns 200). NO backend issues found. Main agent: Backend testing complete and successful. Please proceed with FRONTEND testing (tasks A-D) or summarize and finish if frontend testing is not required."
+
+---
+
+
 # Session 2026-08-05 (e) — Fix /invoices ERR_ABORTED (NextAuth mount-fetch)
 
 Root cause: page loads fine (200), but NextAuth SessionProvider fired a mount fetch to /api/auth/session which, in this proxy env, gets aborted on navigation -> recurring [next-auth] CLIENT_FETCH_ERROR "Failed to fetch" and occasional page.goto ERR_ABORTED.

@@ -8,10 +8,9 @@ import CustomRadio from "@/Components/UI/RadioGroup";
 import { PaymentSettingsBasicProps } from "@/utils/types/create-pay-link";
 import { Box, FormControl, FormControlLabel, RadioGroup, useTheme } from "@mui/material";
 import Image from "next/image";
-import React, { useState } from "react";
+import React from "react";
 import { PaymentSettingsLabel } from "../../Page/CreatePaymentLink/styled";
 import CurrencySelector from "../CurrencySelector";
-import ExpirationDateTime from "../TimePicker/ExpirationDateTime";
 import ExpireSelector from "./ExpireSelector";
 
 const PaymentSettingsBasic: React.FC<PaymentSettingsBasicProps> = ({
@@ -28,11 +27,6 @@ const PaymentSettingsBasic: React.FC<PaymentSettingsBasicProps> = ({
   handleBlockchainFeesChange,
 }) => {
   const theme = useTheme();
-  // Default expiry to 7 days from now (security best practice — most payment
-  // links should not be perpetual). User can still pick "Never" via the toggle.
-  const [expirationDate, setExpirationDate] = useState<Date>(
-    new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-  );
 
   return (
     <>
@@ -165,19 +159,12 @@ const PaymentSettingsBasic: React.FC<PaymentSettingsBasicProps> = ({
             onChange={(val) => handleExpireSelect(val)}
             required
             helperText={
-              paymentSettings.expire === "no"
+              paymentSettings.expire === "no" || paymentSettings.expire === "No"
                 ? tPaymentLink("expiryRecommendation")
                 : undefined
             }
           />
         </Box>
-
-        {paymentSettings.expire === "yes" && (
-          <ExpirationDateTime
-            value={expirationDate}
-            onChange={(date) => setExpirationDate(date)}
-          />
-        )}
 
         <Box>
           <PaymentSettingsLabel>

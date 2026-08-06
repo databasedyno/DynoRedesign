@@ -174,14 +174,32 @@ router.use("/user", userRouter);
 router.get("/public/tickers", async (_req: express.Request, res: express.Response) => {
   try {
     // Lazy-load to avoid pulling the service into the request critical path
-    const { getAllTickerData } = await import("../services/binanceWebSocketService");
+    const { getAllTickerData, TRACKED_ASSETS } = await import("../services/binanceWebSocketService");
     const all = getAllTickerData();
-    const out = Object.entries(all || {}).map(([asset, t]: [string, any]) => ({
-      symbol: asset,
-      price: t?.price ?? 0,
-      change24h: t?.priceChangePercent ?? 0,
-      updatedAt: t?.updatedAt ?? 0,
-    }));
+    let out = Object.entries(all || {})
+      .map(([asset, t]: [string, any]) => ({
+        symbol: asset,
+        price: t?.price ?? 0,
+        change24h: t?.priceChangePercent ?? 0,
+        updatedAt: t?.updatedAt ?? 0,
+      }))
+      .filter((t) => t.price > 0);
+
+    // Resilient fallback: when the in-memory WebSocket ticker cache is empty
+    // (e.g. Binance geo-blocked in this server region), source USD prices from
+    // Tatum so fiat estimates still render everywhere in the app. No-op when
+    // the WS feed is healthy (production), so this never changes normal output.
+    if (out.length === 0) {
+      const { getUsdPriceSnapshot } = await import("../helper/currencyConvert");
+      const snapshot = await getUsdPriceSnapshot(TRACKED_ASSETS);
+      out = Object.entries(snapshot).map(([symbol, price]) => ({
+        symbol,
+        price,
+        change24h: 0,
+        updatedAt: Date.now(),
+      }));
+    }
+
     res.status(200).json({ status: "success", data: out });
   } catch (err: any) {
     apiLogger.warn("/api/public/tickers failed:", err?.message);

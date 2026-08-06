@@ -169,5 +169,8 @@
   "donationCreatorHintTitle": "Das wird deine \"Buy me a coffee\"-Trinkgeldbox",
   "donationCreatorHintLive": "Sie wird oben auf deiner Creator-Seite {{url}} hervorgehoben.",
   "donationCreatorHintNoHandle": "Veröffentliche eine Creator-Seite, um sie als öffentliches Trinkgeldglas zu zeigen.",
-  "donationCreatorHintSetup": "Creator-Seite einrichten →"
+  "donationCreatorHintSetup": "Creator-Seite einrichten →",
+  "expire24h": "24 Stunden",
+  "expire7d": "7 Tage",
+  "expire30d": "30 Tage"
 }

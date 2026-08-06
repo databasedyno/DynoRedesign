@@ -20,16 +20,21 @@ import React, { useEffect, useRef, useState } from "react";
 const ExpireSelector: React.FC<ExpireSelectorProps> = ({
   tPaymentLink,
   label,
-  value = "no",
+  value = "No",
   onChange,
   error = false,
   helperText,
   fullWidth = true,
   required = false,
 }) => {
+  // Backend accepts exactly these preset windows: 'No' | '24h' | '7d' | '30d'.
+  // (Session: replaced the old No/Yes + free-form date picker, whose "yes"
+  // value + custom date were never accepted by the API → 400 error.)
   const expireOptions = [
-    { value: "no", label: tPaymentLink("no") },
-    { value: "yes", label: tPaymentLink("yes") },
+    { value: "No", label: tPaymentLink("noExpiration") },
+    { value: "24h", label: tPaymentLink("expire24h") },
+    { value: "7d", label: tPaymentLink("expire7d") },
+    { value: "30d", label: tPaymentLink("expire30d") },
   ];
   const theme = useTheme();
   const isMobile = useIsMobile("sm");
@@ -47,7 +52,7 @@ const ExpireSelector: React.FC<ExpireSelectorProps> = ({
     setAnchorEl(null);
   };
 
-  const handleSelect = (val: "yes" | "no") => {
+  const handleSelect = (val: string) => {
     onChange?.(val);
     handleClose();
   };
@@ -82,8 +87,11 @@ const ExpireSelector: React.FC<ExpireSelectorProps> = ({
     ? theme.palette.error.main
     : theme.palette.border.focus;
 
+  // Normalise legacy values ("no"/"yes") from previously-created links so the
+  // trigger shows a valid preset instead of falling back silently.
+  const normalizedValue = value === "no" || value === "yes" ? "No" : value;
   const selected =
-    expireOptions.find((o) => o.value === value) || expireOptions[0];
+    expireOptions.find((o) => o.value === normalizedValue) || expireOptions[0];
 
   return (
     <Box
@@ -171,14 +179,14 @@ const ExpireSelector: React.FC<ExpireSelectorProps> = ({
             {expireOptions.map((option) => (
               <ListItemButton
                 key={option.value}
-                onClick={() => handleSelect(option.value as "yes" | "no")}
-                selected={option.value === value}
+                onClick={() => handleSelect(option.value)}
+                selected={option.value === normalizedValue}
                 sx={{
                   maxHeight: "36px",
                   borderRadius: "50px",
                   p: "10px 0px 10px 20px",
                   background:
-                    option.value === value
+                    option.value === normalizedValue
                       ? theme.palette.primary.light
                       : "transparent",
                   "&:hover": {

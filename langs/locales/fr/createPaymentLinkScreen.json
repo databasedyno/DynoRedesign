@@ -169,5 +169,8 @@
   "donationCreatorHintTitle": "Ceci devient votre boîte de pourboire « Buy me a coffee »",
   "donationCreatorHintLive": "Elle sera mise en avant en haut de votre page créateur {{url}}.",
   "donationCreatorHintNoHandle": "Publiez une page créateur pour la mettre en avant comme votre boîte à pourboires publique.",
-  "donationCreatorHintSetup": "Configurer votre page créateur →"
+  "donationCreatorHintSetup": "Configurer votre page créateur →",
+  "expire24h": "24 heures",
+  "expire7d": "7 jours",
+  "expire30d": "30 jours"
 }

@@ -185,5 +185,8 @@
   "donationCreatorHintTitle": "Dit wordt jouw \"Buy me a coffee\"-fooienbox",
   "donationCreatorHintLive": "Deze wordt bovenaan je creator-pagina {{url}} uitgelicht.",
   "donationCreatorHintNoHandle": "Publiceer een creator-pagina om deze als publieke fooienpot uit te lichten.",
-  "donationCreatorHintSetup": "Creator-pagina instellen →"
+  "donationCreatorHintSetup": "Creator-pagina instellen →",
+  "expire24h": "24 uur",
+  "expire7d": "7 dagen",
+  "expire30d": "30 dagen"
 }

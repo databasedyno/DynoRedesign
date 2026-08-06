@@ -137,18 +137,15 @@ export default function UserMenu() {
             )}
           </Box>
 
-          {/* Username text is hidden on mobile (<md): the header right cluster
-              (company switcher + theme toggle + avatar) was overflowing narrow
-              phones and clipping the avatar. Avatar-only on mobile keeps every
-              control fully visible. Full name still shows on desktop. */}
-          {!isMobile && (
-            <UserName sx={{ fontSize: 15 }}>
-              {userName || "User"}
-            </UserName>
-          )}
+          {/* Profile trigger shows the avatar ONLY (no name text) on every
+              breakpoint. The merchant's name + email live inside the dropdown.
+              Previously the desktop trigger also rendered the full name, which
+              duplicated the company name in the adjacent CompanySelector (e.g.
+              "hostbay … hostbay") and looked cluttered. Avatar-only is the
+              modern SaaS pattern (Stripe/Vercel/Linear) and keeps the header
+              clean + consistent across devices. */}
         </Box>
 
-        {!isMobile && <HeaderDivider />}
         {anchorEl ? (
           <ExpandLessIcon
             fontSize="small"
