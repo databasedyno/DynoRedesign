@@ -11,7 +11,7 @@ from datetime import datetime
 import sys
 
 # Configuration - using the external preview URL as specified
-BASE_URL = "https://3f058365-27a4-42a6-aee6-3ce7ea2385f6.preview.emergentagent.com"
+BASE_URL = "https://dynopay-staging-4.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 # Test results

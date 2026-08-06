@@ -9,7 +9,7 @@
 - ADMIN_EMAIL env: **moxxcompany@gmail.com** (password unknown, out of band)
 
 ## Preview URL (THIS container — updated 2026-08-05)
-- https://credentials-preview.preview.emergentagent.com
+- https://dynopay-staging-4.preview.emergentagent.com
 - Frontend calls backend via RELATIVE /api (NEXT_PUBLIC_BASE_URL is EMPTY in /app/.env.local) so it works on any preview hostname.
 - Backend .env SERVER_URL/FRONTEND_URL/CHECKOUT_URL/NEXTAUTH_URL point at the b2c3... preview URL.
 - Login flow: /auth/login -> input[type=email] "hostbay@moxx.co" -> click "Continue" -> input[type=password] "Katiekendra123@" -> [data-testid="signin-submit-btn"]. Token stored in localStorage (persists across full navigations).

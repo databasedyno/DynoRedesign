@@ -8,7 +8,7 @@ import requests
 import json
 import sys
 
-BACKEND_URL = "https://credentials-preview.preview.emergentagent.com"
+BACKEND_URL = "https://dynopay-staging-4.preview.emergentagent.com"
 
 def test_additional_scenarios():
     """Test additional scenarios and edge cases"""

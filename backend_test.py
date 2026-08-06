@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 import sys
 
 # Configuration
-BASE_URL = "https://credentials-preview.preview.emergentagent.com"
+BASE_URL = "https://dynopay-staging-4.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 # Test credentials
