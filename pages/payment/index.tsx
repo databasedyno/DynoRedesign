@@ -1,3 +1,4 @@
+import { useWalletStore } from "@/contexts/WalletDataContext";
 import axiosBaseApi from "@/axiosConfig";
 import BrandLogo from "@/Components/Layout/BrandLogo";
 import paymentAuth from "@/Components/Page/Common/HOC/paymentAuth";
@@ -84,7 +85,7 @@ const Payment = () => {
   const [paymentType, setPaymentType] = useState(paymentTypes.CARD);
   const [transferDetails, setTransferDetails] = useState<transferDetails>();
   const [accountDetails, setAccountDetails] = useState<CommonDetails>();
-  const walletState = useSelector((state: rootReducer) => state.walletReducer);
+  const walletState = useWalletStore();
 
   useEffect(() => {
     if (

@@ -1,3 +1,4 @@
+import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import React, { useEffect, useState, useCallback } from "react";
 import {
   Box,
@@ -44,9 +45,7 @@ const ConversionBanner = () => {
   const { openCompanySettings } = useCompanySettingsDialog();
   const { t } = useTranslation("dashboardLayout");
 
-  const companyState = useSelector(
-    (state: rootReducer) => state.companyReducer
-  );
+  const companyState = useCompanyStore();
   const selectedCompanyId = companyState.selectedCompanyId;
   const company: ICompany | null =
     companyState.companyList?.find(

@@ -1,3 +1,4 @@
+import { useWalletStore } from "@/contexts/WalletDataContext";
 import { Box, Button, Divider, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 
@@ -24,7 +25,7 @@ const GooglePayComponent = ({ accountDetails }: BankAccountProps) => {
   const { t } = useTranslation("common");
   const theme = useTheme();
   const dispatch = useDispatch();
-  const walletState = useSelector((state: rootReducer) => state.walletReducer);
+  const walletState = useWalletStore();
   const [loading, setLoading] = useState(true);
   const [checkVerify, setCheckVerify] = useState(false);
   const router = useRouter();

@@ -1,3 +1,4 @@
+import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import MobileNavigationBar from "@/Components/Layout/MobileNavigationBar";
 import NewHeader from "@/Components/Layout/NewHeader";
 import NewSidebar from "@/Components/Layout/NewSidebar";
@@ -12,10 +13,8 @@ import { useSidebarCollapsed } from "@/hooks/useSidebarCollapsed";
 import { LayoutProps, rootReducer } from "@/utils/types";
 import { Box, SxProps, Theme, useTheme } from "@mui/material";
 import { useRouter } from "next/router";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import { useEffect, useRef } from "react";
-import { CompanyAction } from "@/Redux/Actions";
-import { COMPANY_FETCH } from "@/Redux/Actions/CompanyAction";
 import {
   MainPageHeader,
   PageHeader,
@@ -35,8 +34,7 @@ const ClientLayout = ({
   const theme = useTheme();
   const isMobile = useIsMobile("md");
   const { collapsed: sidebarCollapsed } = useSidebarCollapsed();
-  const dispatch = useDispatch();
-  const companyState = useSelector((state: rootReducer) => (state as any).companyReducer);
+  const companyState = useCompanyStore();
   const hasFetchedRef = useRef(false);
   // Session 75 fix — inner scrollable container. The main-content Box below
   // owns its own vertical scroll (`overflowY: "auto"`) instead of letting the
@@ -52,9 +50,9 @@ const ClientLayout = ({
   useEffect(() => {
     if (!hasFetchedRef.current && !companyState?.fetched && !companyState?.loading) {
       hasFetchedRef.current = true;
-      dispatch(CompanyAction(COMPANY_FETCH));
+      companyState.refetchCompanies();
     }
-  }, [dispatch, companyState?.fetched, companyState?.loading]);
+  }, [companyState?.fetched, companyState?.loading]);
 
   // Session 75 fix — scroll the inner container back to top whenever the
   // route path changes. `router.asPath` covers query-string-only nav too

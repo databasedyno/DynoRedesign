@@ -1,3 +1,4 @@
+import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import InfoIcon from "@/assets/Icons/info-icon.svg";
 import Wallet from "@/Components/Page/Wallet";
 import { SetupWarnnigContainer } from "@/Components/Page/Wallet/styled";
@@ -58,7 +59,7 @@ const WalletPage = ({
   }, []);
 
   const { walletWarning, cryptocurrencies, walletLoading } = useWalletData();
-  const companyState = useSelector((state: rootReducer) => state.companyReducer);
+  const companyState = useCompanyStore();
   const hasCompany = (companyState.companyList ?? []).length > 0;
   // Hide "Add Wallet" when all supported crypto types already have wallets
   // Also hide during loading to prevent flash of the button

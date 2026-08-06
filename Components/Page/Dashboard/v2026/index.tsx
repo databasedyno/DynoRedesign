@@ -1,3 +1,5 @@
+import { useCompanyStore } from "@/contexts/CompanyDataContext";
+import { useWalletStore } from "@/contexts/WalletDataContext";
 import React, { useEffect, useMemo, useState } from "react";
 import { Box } from "@mui/material";
 import { useRouter } from "next/router";
@@ -68,8 +70,8 @@ const Dashboard2026: React.FC = () => {
     return `${fmt(custom.startDate)} – ${fmt(custom.endDate)}`;
   }, [range, custom]);
 
-  const companyState = useSelector((s: rootReducer) => s.companyReducer);
-  const walletState = useSelector((s: rootReducer) => s.walletReducer);
+  const companyState = useCompanyStore();
+  const walletState = useWalletStore();
   const userProfile = useSelector(
     (s: rootReducer) => (s as any).userReducer?.profile,
   );

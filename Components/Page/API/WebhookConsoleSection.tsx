@@ -17,6 +17,7 @@
  *   GET  /company/webhook-stats/:id?days
  */
 
+import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import {
   Box,
   Button,
@@ -106,12 +107,8 @@ const WebhookConsoleSection = () => {
   const isMobile = useIsMobile();
   const dispatch = useDispatch();
 
-  const selectedCompanyId = useSelector(
-    (s: rootReducer) => (s as unknown as { companyReducer?: { selectedCompanyId?: string | number } }).companyReducer?.selectedCompanyId,
-  );
-  const companyList = useSelector(
-    (s: rootReducer) => (s as unknown as { companyReducer?: { companyList?: Array<{ company_id?: string | number }> } }).companyReducer?.companyList,
-  );
+  const selectedCompanyId = useCompanyStore().selectedCompanyId;
+  const companyList = useCompanyStore().companyList;
   const companyId = useMemo(
     () => selectedCompanyId || (Array.isArray(companyList) && companyList[0]?.company_id) || null,
     [selectedCompanyId, companyList],

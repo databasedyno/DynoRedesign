@@ -93,6 +93,9 @@ import store from "@/store";
 import ErrorBoundary from "@/Components/ErrorBoundary";
 import { ThemeProvider as AppThemeProvider, useThemeMode } from "@/contexts/ThemeContext";
 import { CartProvider } from "@/contexts/CartContext";
+import { SWRConfig } from "swr";
+import { CompanyDataProvider } from "@/contexts/CompanyDataContext";
+import { WalletDataProvider } from "@/contexts/WalletDataContext";
 import IdleTimeoutManager from "@/Components/UI/IdleTimeoutManager";
 import RouteTransitionLoader from "@/Components/Common/RouteTransitionLoader";
 import { createEmotionCache } from "@/utils/createEmotionCache";
@@ -618,7 +621,26 @@ export default function App({
                   standalone-localStorage fallback), enabling cross-tab sync
                   and single source of truth for the buyer cart badge. */}
               <CartProvider>
-                <AppInner {...(props as AppPropsWithLayout)} />
+                {/* SWR — money-safe global defaults: never auto-poll, don't
+                    refetch on window focus (avoids surprise balance flicker),
+                    dedupe bursts of identical reads. Wallet + Company data now
+                    flow through SWR (CompanyDataProvider → WalletDataProvider)
+                    instead of redux-saga. */}
+                <SWRConfig
+                  value={{
+                    revalidateOnFocus: false,
+                    revalidateOnReconnect: true,
+                    shouldRetryOnError: true,
+                    errorRetryCount: 2,
+                    dedupingInterval: 8000,
+                  }}
+                >
+                  <CompanyDataProvider>
+                    <WalletDataProvider>
+                      <AppInner {...(props as AppPropsWithLayout)} />
+                    </WalletDataProvider>
+                  </CompanyDataProvider>
+                </SWRConfig>
               </CartProvider>
             </AppThemeProvider>
           </SessionProvider>

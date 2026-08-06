@@ -13,6 +13,7 @@
  *   POST/GET/PATCH/DELETE /api/buy-buttons
  */
 
+import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import {
   Box,
   Chip,
@@ -890,16 +891,8 @@ const BuyButtonsSection = () => {
   const isMobile = useIsMobile("md");
   const dispatch = useDispatch();
 
-  const selectedCompanyId = useSelector(
-    (state: rootReducer) =>
-      (state as any).companyReducer?.selectedCompanyId as number | undefined,
-  );
-  const companyList = useSelector(
-    (state: rootReducer) =>
-      ((state as any).companyReducer?.companyList as
-        | Array<{ company_id: number }>
-        | undefined) || [],
-  );
+  const selectedCompanyId = useCompanyStore().selectedCompanyId;
+  const companyList = useCompanyStore().companyList;
 
   const effectiveCompanyId = useMemo(() => {
     if (selectedCompanyId) return selectedCompanyId;

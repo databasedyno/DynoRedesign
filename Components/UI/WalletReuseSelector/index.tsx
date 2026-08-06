@@ -16,8 +16,7 @@ import {
 import { useDispatch } from "react-redux";
 import axiosBaseApi from "@/axiosConfig";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
-import { WalletAction } from "@/Redux/Actions";
-import { WALLET_FETCH } from "@/Redux/Actions/WalletAction";
+import { useWalletStore } from "@/contexts/WalletDataContext";
 import { API_ENDPOINTS } from "@/api/endpoints";
 
 interface ReusableWallet {
@@ -52,6 +51,7 @@ const WalletReuseSelector: React.FC<WalletReuseSelectorProps> = ({
   onCopied,
 }) => {
   const dispatch = useDispatch();
+  const { refetchWallets } = useWalletStore();
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
 
@@ -143,7 +143,7 @@ const WalletReuseSelector: React.FC<WalletReuseSelectorProps> = ({
           severity: "success",
         },
       });
-      dispatch(WalletAction(WALLET_FETCH, { force: true }));
+      refetchWallets();
       setDismissed(true);
       onCopied?.(copiedCount);
     } catch (e) {

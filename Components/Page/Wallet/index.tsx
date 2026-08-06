@@ -1,3 +1,4 @@
+import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import CopyIcon from "@/assets/Icons/copy-icon.svg";
 import LinkIcon from "@/assets/Icons/link-icon.svg";
 import RoundedStackIcon from "@/assets/Icons/roundedStck-icon.svg";
@@ -11,8 +12,7 @@ import { formatNumberWithComma, getCurrencySymbol } from "@/helpers";
 import useIsMobile from "@/hooks/useIsMobile";
 import { useWalletData } from "@/hooks/useWalletData";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
-import { WalletAction } from "@/Redux/Actions";
-import { WALLET_FETCH } from "@/Redux/Actions/WalletAction";
+import { useWalletStore } from "@/contexts/WalletDataContext";
 import { WalletDataType } from "@/utils/types/wallet";
 import { getNetworkLabel, isTokenOnOtherChain } from "@/utils/networkLabels";
 import { Icon, MONO } from "@/styles/uiKit";
@@ -56,9 +56,8 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: () => void }) => {
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<{ id: string | number; type: string; address: string } | null>(null);
 
-  const selectedCompanyId = useSelector(
-    (state: any) => state.companyReducer?.selectedCompanyId
-  );
+  const selectedCompanyId = useCompanyStore().selectedCompanyId;
+  const { refetchWallets } = useWalletStore();
 
   const { walletLoading, walletData } = useWalletData();
 
@@ -92,8 +91,7 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: () => void }) => {
       payload: { message: "Wallet deleted successfully", severity: "success" },
     });
     // Re-fetch wallets
-    const payload = selectedCompanyId ? { company_id: selectedCompanyId } : undefined;
-    dispatch(WalletAction(WALLET_FETCH, payload));
+    refetchWallets();
   };
 
   if (walletLoading && walletData.length === 0) {

@@ -1,3 +1,4 @@
+import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import { useState, useEffect, useCallback } from "react";
 import { useSelector } from "react-redux";
 import axiosBaseApi from "@/axiosConfig";
@@ -56,9 +57,7 @@ export const useNotificationPreferences = () => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const selectedCompanyId = useSelector(
-    (state: any) => state?.companyReducer?.selectedCompanyId
-  );
+  const selectedCompanyId = useCompanyStore().selectedCompanyId;
 
   const fetchPreferences = useCallback(async () => {
     setLoading(true);

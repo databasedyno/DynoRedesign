@@ -1,3 +1,5 @@
+import { useCompanyStore } from "@/contexts/CompanyDataContext";
+import { useWalletStore } from "@/contexts/WalletDataContext";
 import PanelCard from "@/Components/UI/PanelCard";
 import { prettyCreatorUrl } from "@/helpers/creatorUrl";
 import Head from "next/head";
@@ -83,9 +85,7 @@ const CreatePaymentLinkPage = ({
   const feePreview = paymentLinkState?.feePreview;
   // Mobile / tablet (< lg): live preview shown on demand via a bottom-sheet drawer.
   const [previewOpen, setPreviewOpen] = useState(false);
-  const selectedCompanyId = useSelector(
-    (state: any) => state?.companyReducer?.selectedCompanyId
-  );
+  const selectedCompanyId = useCompanyStore().selectedCompanyId;
   const apiState = useSelector((state: any) => state?.apiReducer);
   const hasActiveApiKey = useMemo(() => {
     const apiList = apiState?.apiList || [];
@@ -1088,8 +1088,8 @@ const CreatePaymentLinkPage = ({
   const isSmall = useMediaQuery("(min-width:650px)");
 
   // Dynamically compute which wallets are not set up based on actual wallet data
-  const walletList = useSelector((state: any) => state.walletReducer?.walletList ?? []);
-  const companyListForBanner = useSelector((state: any) => state?.companyReducer?.companyList ?? []);
+  const walletList = useWalletStore().walletList ?? [];
+  const companyListForBanner = useCompanyStore().companyList ?? [];
   // Creator profile — used to show where a donation link will surface publicly.
   const creatorProfile = useSelector((state: any) => state?.userReducer?.profile) as any;
   const creatorHandle: string = creatorProfile?.handle || "";

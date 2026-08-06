@@ -13,9 +13,9 @@ import { PaidRounded } from "@mui/icons-material";
 import { useTranslation } from "react-i18next";
 import { useDispatch } from "react-redux";
 import axiosBaseApi from "@/axiosConfig";
-import { DashboardAction, WalletAction } from "@/Redux/Actions";
+import { DashboardAction } from "@/Redux/Actions";
 import { DASHBOARD_FETCH_ALL } from "@/Redux/Actions/DashboardAction";
-import { WALLET_FETCH } from "@/Redux/Actions/WalletAction";
+import { useWalletStore } from "@/contexts/WalletDataContext";
 
 type SupportedCurrency = {
   code: string;
@@ -32,6 +32,7 @@ const DisplayCurrencySelector = ({ companyId }: { companyId: number | null }) =>
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const dispatch = useDispatch();
+  const { refetchWallets } = useWalletStore();
   const { t } = useTranslation("common");
 
   const [current, setCurrent] = useState<string>("");
@@ -83,7 +84,7 @@ const DisplayCurrencySelector = ({ companyId }: { companyId: number | null }) =>
       });
       // Refresh cached dashboard + wallet data so amounts re-render in the new currency.
       dispatch(DashboardAction(DASHBOARD_FETCH_ALL));
-      dispatch(WalletAction(WALLET_FETCH));
+      refetchWallets();
     } catch {
       setCurrent(prev);
       setToast({

@@ -1,3 +1,4 @@
+import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import React, { useEffect, useMemo, useState } from "react";
 import { Box, CircularProgress, MenuItem, Select, Typography, useTheme } from "@mui/material";
 import {
@@ -26,9 +27,8 @@ import CreateCompanyModal from "@/Components/UI/OnboardingFlow/CreateCompanyModa
 import CustomButton from "@/Components/UI/Buttons";
 import useIsMobile from "@/hooks/useIsMobile";
 import useTokenData from "@/hooks/useTokenData";
-import { UserAction, CompanyAction } from "@/Redux/Actions";
+import { UserAction } from "@/Redux/Actions";
 import { USER_PROFILE_FETCH } from "@/Redux/Actions/UserAction";
-import { COMPANY_FETCH } from "@/Redux/Actions/CompanyAction";
 import { ICompany, pageProps, rootReducer } from "@/utils/types";
 
 type SectionKey =
@@ -98,7 +98,7 @@ const CompanyConfigSection = ({
   const dispatch = useDispatch();
   const theme = useTheme();
   const { t } = useTranslation("common");
-  const companyState = useSelector((state: rootReducer) => state.companyReducer);
+  const companyState = useCompanyStore();
   const companies: ICompany[] = companyState?.companyList || [];
   const globalSelectedId = (companyState as any)?.selectedCompanyId;
 
@@ -106,7 +106,7 @@ const CompanyConfigSection = ({
   const [addOpen, setAddOpen] = useState(false);
 
   useEffect(() => {
-    dispatch(CompanyAction(COMPANY_FETCH));
+    companyState.refetchCompanies();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -240,7 +240,7 @@ const CompanyConfigSection = ({
           open
           company={selectedCompany}
           onClose={() => {
-            dispatch(CompanyAction(COMPANY_FETCH));
+            companyState.refetchCompanies();
           }}
         />
       )}

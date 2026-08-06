@@ -1,9 +1,8 @@
+import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import InputField from "@/Components/UI/AuthLayout/InputFields";
 import CustomButton from "@/Components/UI/Buttons";
 import SteppedProgressPanel from "@/Components/UI/SteppedProgressPanel";
 import useIsMobile from "@/hooks/useIsMobile";
-import { CompanyAction } from "@/Redux/Actions";
-import { COMPANY_INSERT } from "@/Redux/Actions/CompanyAction";
 import { rootReducer } from "@/utils/types";
 import { fetchGeoDefaults, currencyForCountry } from "@/utils/geoDefaults";
 import {
@@ -63,9 +62,7 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
   const dispatch = useDispatch();
   const isMobile = useIsMobile("sm");
   const { t } = useTranslation("companyDialog");
-  const companyState = useSelector(
-    (state: rootReducer) => state.companyReducer,
-  );
+  const companyState = useCompanyStore();
   const userState = useSelector((state: rootReducer) => state.userReducer);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -217,26 +214,14 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
     formData.append("data", JSON.stringify(values));
     if (mediaFile) formData.append("image", mediaFile);
 
-    dispatch(CompanyAction(COMPANY_INSERT, formData));
-    submittedRef.current = true;
-  };
-
-  // Watch for successful company creation
-  const prevLoading = useRef(false);
-  const submittedRef = useRef(false);
-  React.useEffect(() => {
-    // Only trigger success if the modal is actually open AND the user submitted
-    if (open && submittedRef.current && prevLoading.current && !companyState.loading) {
-      submittedRef.current = false;
-      if (companyState.companyList?.length > 0) {
-        setSubmitting(false);
-        onSuccess();
-      } else {
-        setSubmitting(false);
-      }
+    try {
+      await companyState.addCompany(formData);
+      setSubmitting(false);
+      onSuccess();
+    } catch {
+      setSubmitting(false);
     }
-    prevLoading.current = companyState.loading;
-  }, [companyState.loading, companyState.companyList, onSuccess, open]);
+  };
 
   return (
     <Dialog

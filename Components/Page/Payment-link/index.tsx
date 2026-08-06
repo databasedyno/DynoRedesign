@@ -1,3 +1,4 @@
+import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import EmptyDataModel from "@/Components/UI/EmptyDataModel";
 import useIsMobile from "@/hooks/useIsMobile";
 import { PaymentLinkData, PaymentLinksProps } from "@/utils/types/paymentLink";
@@ -21,9 +22,7 @@ const PaymentLinksPage = ({
   const [dateStart, setDateStart] = useState("");
   const [dateEnd, setDateEnd] = useState("");
 
-  const selectedCompanyId = useSelector(
-    (state: rootReducer) => (state as any).companyReducer?.selectedCompanyId
-  );
+  const selectedCompanyId = useCompanyStore().selectedCompanyId;
 
   useEffect(() => {
     setPageName?.("");

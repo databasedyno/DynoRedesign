@@ -1,3 +1,4 @@
+import { useWalletStore } from "@/contexts/WalletDataContext";
 import React, { useMemo } from "react";
 import { Box, Skeleton, useTheme } from "@mui/material";
 import {
@@ -41,7 +42,7 @@ const AssetBreakdownRows: React.FC = () => {
   const router = useRouter();
   const { t } = useTranslation(["dashboardLayout", "common"]);
   const { stats, recentTransactions, loading } = useDashboardData();
-  const walletState = useSelector((s: rootReducer) => s.walletReducer);
+  const walletState = useWalletStore();
   const walletsCount = walletState.walletList?.length ?? 0;
 
   const currencySymbol = stats?.currencySymbol || "$";

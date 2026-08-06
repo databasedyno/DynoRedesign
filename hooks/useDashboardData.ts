@@ -1,3 +1,4 @@
+import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import { useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { DashboardAction, DashboardChartAction } from "@/Redux/Actions";
@@ -19,17 +20,11 @@ export const useDashboardData = () => {
     (state: rootReducer) => state.dashboardReducer
   );
 
-  const selectedCompanyId = useSelector(
-    (state: any) => state.companyReducer?.selectedCompanyId
-  );
+  const selectedCompanyId = useCompanyStore().selectedCompanyId;
 
-  const companyList = useSelector(
-    (state: any) => state.companyReducer?.companyList
-  );
+  const companyList = useCompanyStore().companyList;
 
-  const companiesFetched = useSelector(
-    (state: any) => state.companyReducer?.fetched ?? false
-  );
+  const companiesFetched = useCompanyStore().fetched ?? false;
 
   // Track whether the user profile has already been fetched to avoid
   // re-dispatching on every render. Profile contains fee_free_remaining_usd

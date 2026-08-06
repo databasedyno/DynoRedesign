@@ -1,3 +1,4 @@
+import { useWalletStore } from "@/contexts/WalletDataContext";
 import { Box, Button, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 
@@ -28,7 +29,7 @@ const QRCodeComponent = () => {
   const { t } = useTranslation("common");
   const theme = useTheme();
   const dispatch = useDispatch();
-  const walletState = useSelector((state: rootReducer) => state.walletReducer);
+  const walletState = useWalletStore();
   const [loading, setLoading] = useState(true);
   const [selectedCurrency, setSelectedCurrency] = useState<currencyData>();
   const [accountDetails, setAccountDetails] = useState<CommonDetails>();

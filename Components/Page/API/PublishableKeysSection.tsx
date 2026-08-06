@@ -11,6 +11,7 @@
  *   POST/GET/PATCH/DELETE /api/publishable-keys
  */
 
+import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import {
   Box,
   Chip,
@@ -905,16 +906,8 @@ const PublishableKeysSection = () => {
   const isMobile = useIsMobile("md");
   const dispatch = useDispatch();
 
-  const selectedCompanyId = useSelector(
-    (state: rootReducer) =>
-      (state as any).companyReducer?.selectedCompanyId as number | undefined,
-  );
-  const companyList = useSelector(
-    (state: rootReducer) =>
-      ((state as any).companyReducer?.companyList as
-        | Array<{ company_id: number }>
-        | undefined) || [],
-  );
+  const selectedCompanyId = useCompanyStore().selectedCompanyId;
+  const companyList = useCompanyStore().companyList;
 
   // Fallback: if no company is selected yet but the user has exactly one, use it.
   const effectiveCompanyId = useMemo(() => {

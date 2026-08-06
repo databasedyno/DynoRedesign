@@ -1,3 +1,5 @@
+import { useCompanyStore } from "@/contexts/CompanyDataContext";
+import { useWalletStore } from "@/contexts/WalletDataContext";
 import ClaimHandleBanner from "@/Components/Page/Dashboard/ClaimHandleBanner";
 import AutoClaimHandle from "@/Components/Page/Dashboard/AutoClaimHandle";
 import CustomButton from "@/Components/UI/Buttons";
@@ -41,10 +43,8 @@ export default function Home({
     [t],
   );
 
-  const companyState = useSelector(
-    (state: rootReducer) => state.companyReducer,
-  );
-  const walletState = useSelector((state: rootReducer) => state.walletReducer);
+  const companyState = useCompanyStore();
+  const walletState = useWalletStore();
   const hasCompany = (companyState.companyList?.length ?? 0) > 0;
   const hasWallet = (walletState.walletList?.length ?? 0) > 0;
   const setupComplete = hasCompany && hasWallet;

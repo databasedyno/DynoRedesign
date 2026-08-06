@@ -3,14 +3,13 @@ import { useEffect, useState } from "react";
 
 import { rootReducer } from "@/utils/types";
 import { useSelector } from "react-redux";
+import { useWalletStore } from "@/contexts/WalletDataContext";
 
 const paymentAuth = (WrappedComponent: any) => {
   const AuthChecker = (props: any) => {
     const Router = useRouter();
     const [payment, setPayment] = useState(false);
-    const paymentState = useSelector(
-      (state: rootReducer) => state.walletReducer
-    );
+    const paymentState = useWalletStore();
 
     useEffect(() => {
       // Allow checkout pages with `d` query parameter to load

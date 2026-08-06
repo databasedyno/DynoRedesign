@@ -1,8 +1,7 @@
-import { WalletAction } from "@/Redux/Actions";
-import { WALLET_FETCH } from "@/Redux/Actions/WalletAction";
+import { useCompanyStore } from "@/contexts/CompanyDataContext";
+import { useWalletStore } from "@/contexts/WalletDataContext";
 import { rootReducer } from "@/utils/types";
 import { useEffect, useMemo, useState, useRef } from "react";
-import { useDispatch, useSelector } from "react-redux";
 
 import BitcoinIcon from "@/assets/cryptocurrency/Bitcoin-icon.svg";
 import BitcoinCashIcon from "@/assets/cryptocurrency/BitcoinCash-icon.svg";
@@ -108,47 +107,19 @@ const requestedWalletFetchByToken = new Set<string>();
 /* ------------------------------- Main Hook -------------------------------- */
 
 export const useWalletData = () => {
-  const dispatch = useDispatch();
-  const walletState = useSelector((state: rootReducer) => state.walletReducer);
-  const selectedCompanyId = useSelector(
-    (state: rootReducer) => (state as any).companyReducer?.selectedCompanyId
-  );
-  const companyFetched = useSelector(
-    (state: rootReducer) => (state as any).companyReducer?.fetched
-  );
+  const walletState = useWalletStore();
+  const selectedCompanyId = useCompanyStore().selectedCompanyId;
+  const companyFetched = useCompanyStore().fetched;
   const walletLoading = Boolean(walletState?.loading);
   const walletListLength = Array.isArray(walletState?.walletList)
     ? walletState.walletList.length
     : 0;
   const [walletWarning, setWalletWarning] = useState(false);
 
-  // Track last fetched company to prevent infinite re-fetching
-  const lastFetchedCompanyRef = useRef<string | null | undefined>(undefined);
-  const isFetchingRef = useRef(false);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const token = window.localStorage.getItem("token");
-    if (!token) return;
-
-    // Wait until company list is fetched and a company is selected
-    // This prevents fetching ALL wallets when selectedCompanyId is null during initial load
-    if (!companyFetched || !selectedCompanyId) return;
-
-    // Skip if already fetching or if we just fetched for this company
-    if (isFetchingRef.current) return;
-    if (lastFetchedCompanyRef.current === selectedCompanyId) return;
-
-    lastFetchedCompanyRef.current = selectedCompanyId;
-    isFetchingRef.current = true;
-
-    const payload = { company_id: selectedCompanyId };
-    dispatch(WalletAction(WALLET_FETCH, payload));
-
-    // Reset fetching flag after a brief delay to allow the saga to complete
-    const timer = setTimeout(() => { isFetchingRef.current = false; }, 2000);
-    return () => clearTimeout(timer);
-  }, [dispatch, selectedCompanyId, companyFetched]);
+  // Wallet fetching is now owned by WalletDataContext (SWR keyed on the
+  // selected company). It auto-fetches on mount and re-fetches whenever the
+  // selected company changes — so no manual dispatch/cooldown effect is needed
+  // here anymore.
 
   /* ---------------------------- Wallet Data ---------------------------- */
 

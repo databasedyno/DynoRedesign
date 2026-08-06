@@ -1,3 +1,4 @@
+import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import {
   Box,
@@ -132,9 +133,7 @@ const CustomersPage: React.FC = () => {
   const apiState = useSelector((state: any) => state?.api);
   const baseCurrency = apiState?.apiData?.[0]?.base_currency || aggregates.currency || "USD";
 
-  const selectedCompanyId = useSelector(
-    (state: any) => state?.companyReducer?.selectedCompanyId
-  );
+  const selectedCompanyId = useCompanyStore().selectedCompanyId;
 
   const [debouncedSearch, setDebouncedSearch] = useState("");
 

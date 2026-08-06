@@ -1,3 +1,4 @@
+import { useWalletStore } from "@/contexts/WalletDataContext";
 import { Box, Button, Collapse, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 
@@ -39,7 +40,7 @@ const CardComponent = () => {
   const [hash, setHash] = useState<string>("");
   const [collapse, setCollapse] = useState(false);
   const [fieldInitialValue, setFieldInitialValue] = useState<any>();
-  const walletState = useSelector((state: rootReducer) => state.walletReducer);
+  const walletState = useWalletStore();
   const [fieldSchema, setFieldSchema] = useState<any>();
   const cardPaymentSchema = yup.object().shape({
     name: yup

@@ -1,3 +1,4 @@
+import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import BusinessCenterIcon from "@mui/icons-material/BusinessCenter";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
@@ -31,8 +32,6 @@ import {
   CryptocurrencyTrigger,
 } from "@/Components/UI/CryptocurrencySelector/styled";
 import SettingsAccordion from "@/Components/UI/SettingsAccordion";
-import { CompanyAction } from "@/Redux/Actions";
-import { COMPANY_VALIDATE_TAX } from "@/Redux/Actions/CompanyAction";
 import { rootReducer } from "@/utils/types";
 
 const useLocationData = (
@@ -189,7 +188,7 @@ export default function CompanyDetailsSection({
   const dispatch = useDispatch();
   const { t } = useTranslation("companyDialog");
   const { t: tSettings } = useTranslation("companySettings");
-  const companyState = useSelector((state: rootReducer) => state.companyReducer);
+  const companyState = useCompanyStore();
   const taxValidation = companyState.taxValidation;
 
   const triggerRef = useRef<HTMLDivElement>(null);
@@ -1029,12 +1028,11 @@ export default function CompanyDetailsSection({
                     size="small"
                     disabled={!values.VAT_number || companyState.loading}
                     onClick={() => {
-                      dispatch(
-                        CompanyAction(COMPANY_VALIDATE_TAX, {
-                          taxId: values.VAT_number,
-                          country: vatValue.code,
-                        })
-                      );
+                      companyState.validateTax({
+                        companyId: (companyState.selectedCompanyId as any) ?? "",
+                        taxId: values.VAT_number,
+                        country: vatValue.code,
+                      });
                     }}
                     sx={{ height: 32, fontSize: 12, mt: 0.5 }}
                   />

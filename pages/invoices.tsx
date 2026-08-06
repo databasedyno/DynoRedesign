@@ -1,3 +1,4 @@
+import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
@@ -152,9 +153,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
 
   // "Fiat Everywhere" — resolve the merchant's chosen DISPLAY currency
 
-  const selectedCompanyId = useSelector(
-    (state: any) => state?.companyReducer?.selectedCompanyId
-  );
+  const selectedCompanyId = useCompanyStore().selectedCompanyId;
 
   useEffect(() => {
     if (setPageName && setPageDescription) {

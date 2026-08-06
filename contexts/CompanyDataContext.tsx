@@ -1,0 +1,331 @@
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import useSWR from "swr";
+import { useDispatch } from "react-redux";
+import { useRouter } from "next/router";
+
+import axios from "@/axiosConfig";
+import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
+import {
+  mapBackendErrorToField,
+  companyKeywordMap,
+} from "@/Redux/Sagas/helpers/mapBackendErrorToField";
+import { API_ENDPOINTS } from "@/api/endpoints";
+
+/**
+ * CompanyDataContext — SWR-backed replacement for the old Redux `companyReducer`
+ * + `CompanySaga`. Owns the company list (server cache via SWR), the currently
+ * selected company (with localStorage persistence + backend sync), and the
+ * company mutations (add/update/delete/validateTax).
+ *
+ * The exposed `useCompanyStore()` intentionally mirrors the OLD reducer shape
+ * ({ companyList, loading, fetched, fetchError, taxValidation, selectedCompanyId,
+ * createError, createErrorField, createErrorNonce }) so existing consumers keep
+ * working with a one-line swap from `useSelector(s => s.companyReducer)`.
+ */
+
+const LS_KEY = "last_company_id";
+const COMPANIES_KEY = "company/getCompany";
+
+function getLastCompanyId(): number | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const val = localStorage.getItem(LS_KEY);
+    return val ? parseInt(val, 10) : null;
+  } catch {
+    return null;
+  }
+}
+
+function saveLastCompanyId(companyId: number | null) {
+  if (typeof window === "undefined") return;
+  try {
+    if (companyId != null) localStorage.setItem(LS_KEY, String(companyId));
+  } catch {}
+}
+
+const companyFetcher = async (url: string) => {
+  const res = await axios.get(url);
+  return res?.data?.data ?? [];
+};
+
+export interface CompanyStore {
+  companyList: any[];
+  loading: boolean;
+  fetched: boolean;
+  fetchError: boolean;
+  taxValidation: any;
+  selectedCompanyId: number | null;
+  createError: string | null;
+  createErrorField: string | null;
+  createErrorNonce: number;
+  // methods
+  selectCompany: (id: number) => void;
+  refetchCompanies: () => Promise<any>;
+  addCompany: (formData: any) => Promise<any>;
+  updateCompany: (args: { id: number | string; formData: any }) => Promise<any>;
+  deleteCompany: (id: number | string) => Promise<any>;
+  validateTax: (args: {
+    companyId: number | string;
+    taxId: string;
+    country: string;
+  }) => Promise<any>;
+  clearCreateError: () => void;
+}
+
+const CompanyContext = createContext<CompanyStore | null>(null);
+
+export function CompanyDataProvider({ children }: { children: React.ReactNode }) {
+  const dispatch = useDispatch();
+  const router = useRouter();
+
+  // Only fetch once a merchant token exists. The token can appear AFTER this
+  // provider mounts (login via client-side navigation, which does NOT fire a
+  // same-tab `storage` event), so we re-check on route changes + window focus
+  // in addition to the cross-tab storage listener.
+  const [hasToken, setHasToken] = useState(false);
+  useEffect(() => {
+    const check = () => {
+      try {
+        setHasToken(!!localStorage.getItem("token"));
+      } catch {
+        setHasToken(false);
+      }
+    };
+    check();
+    window.addEventListener("storage", check);
+    window.addEventListener("focus", check);
+    router.events.on("routeChangeComplete", check);
+    return () => {
+      window.removeEventListener("storage", check);
+      window.removeEventListener("focus", check);
+      router.events.off("routeChangeComplete", check);
+    };
+  }, [router.events]);
+
+  const { data, error, isLoading, mutate } = useSWR(
+    hasToken ? COMPANIES_KEY : null,
+    companyFetcher
+  );
+
+  const companyList: any[] = Array.isArray(data) ? data : [];
+  const fetched = data !== undefined || !!error;
+  const fetchError = !!error;
+
+  const [selectedCompanyId, setSelectedCompanyId] = useState<number | null>(null);
+  const [taxValidation, setTaxValidation] = useState<any>(null);
+  const [createError, setCreateError] = useState<string | null>(null);
+  const [createErrorField, setCreateErrorField] = useState<string | null>(null);
+  const [createErrorNonce, setCreateErrorNonce] = useState(0);
+
+  // Resolve the selected company when the list changes:
+  // 1. keep the current selection if still valid
+  // 2. else last_company_id from localStorage (if valid)
+  // 3. else the first company
+  useEffect(() => {
+    if (!companyList.length) return;
+    const validIds = companyList.map((c: any) => c.company_id);
+    setSelectedCompanyId((prev) => {
+      if (prev && validIds.includes(prev)) return prev;
+      const last = getLastCompanyId();
+      const next =
+        last && validIds.includes(last) ? last : validIds[0] ?? null;
+      if (next) saveLastCompanyId(next);
+      return next;
+    });
+  }, [companyList]);
+
+  const selectCompany = useCallback((id: number) => {
+    saveLastCompanyId(id);
+    setSelectedCompanyId(id);
+    // Persist to backend (fire-and-forget)
+    try {
+      axios
+        .put(API_ENDPOINTS.user.lastCompany, { company_id: id })
+        .catch(() => {});
+    } catch {}
+  }, []);
+
+  const refetchCompanies = useCallback(() => mutate(), [mutate]);
+
+  const clearCreateError = useCallback(() => {
+    setCreateError(null);
+    setCreateErrorField(null);
+  }, []);
+
+  const addCompany = useCallback(
+    async (formData: any) => {
+      try {
+        const {
+          data: { data: d, message },
+        } = await axios.post("company/addCompany", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        dispatch({ type: TOAST_SHOW, payload: { message } });
+        await mutate();
+        return d;
+      } catch (e: any) {
+        const message =
+          e?.response?.data?.message ?? e?.message ?? "An error occurred";
+        const mapped = mapBackendErrorToField(message, companyKeywordMap);
+        dispatch({ type: TOAST_SHOW, payload: { message, severity: "error" } });
+        setCreateError(mapped.friendly);
+        setCreateErrorField(mapped.field);
+        setCreateErrorNonce((n) => n + 1);
+        throw e;
+      }
+    },
+    [dispatch, mutate]
+  );
+
+  const updateCompany = useCallback(
+    async ({ id, formData }: { id: number | string; formData: any }) => {
+      try {
+        const {
+          data: { data: d, message },
+        } = await axios.put("company/updateCompany/" + id, formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        dispatch({ type: TOAST_SHOW, payload: { message } });
+        await mutate();
+        return d;
+      } catch (e: any) {
+        const message =
+          e?.response?.data?.message ?? e?.message ?? "An error occurred";
+        dispatch({ type: TOAST_SHOW, payload: { message, severity: "error" } });
+        throw e;
+      }
+    },
+    [dispatch, mutate]
+  );
+
+  const deleteCompany = useCallback(
+    async (id: number | string) => {
+      try {
+        const {
+          data: { data: d, message },
+        } = await axios.delete("company/deleteCompany/" + id);
+        const revokedApiIds =
+          (d && (d as { revokedApiIds?: number[] }).revokedApiIds) || [];
+        const successMessage =
+          revokedApiIds.length > 0
+            ? `${message} (${revokedApiIds.length} API key${
+                revokedApiIds.length > 1 ? "s" : ""
+              } revoked)`
+            : message;
+        dispatch({
+          type: TOAST_SHOW,
+          payload: { message: successMessage, severity: "success" },
+        });
+        await mutate();
+        return d;
+      } catch (e: any) {
+        const message =
+          e?.response?.data?.message ?? e?.message ?? "An error occurred";
+        dispatch({ type: TOAST_SHOW, payload: { message, severity: "error" } });
+        // Recover from any stale optimistic removal
+        await mutate();
+        throw e;
+      }
+    },
+    [dispatch, mutate]
+  );
+
+  const validateTax = useCallback(
+    async ({
+      companyId,
+      taxId,
+      country,
+    }: {
+      companyId: number | string;
+      taxId: string;
+      country: string;
+    }) => {
+      try {
+        const response = await axios.post("company/validateTaxId", {
+          companyId,
+          taxId,
+          country,
+        });
+        const rd = response?.data;
+        if (rd?.success === false) {
+          throw new Error(rd.message || "Tax validation failed");
+        }
+        dispatch({
+          type: TOAST_SHOW,
+          payload: { message: rd?.message || "Tax ID validated successfully" },
+        });
+        const result = rd?.data || { valid: true, taxId, country };
+        setTaxValidation(result);
+        return result;
+      } catch (e: any) {
+        const message =
+          e?.response?.data?.message ?? e?.message ?? "Tax validation failed";
+        dispatch({ type: TOAST_SHOW, payload: { message, severity: "error" } });
+        throw e;
+      }
+    },
+    [dispatch]
+  );
+
+  const value = useMemo<CompanyStore>(
+    () => ({
+      companyList,
+      loading: isLoading,
+      fetched,
+      fetchError,
+      taxValidation,
+      selectedCompanyId,
+      createError,
+      createErrorField,
+      createErrorNonce,
+      selectCompany,
+      refetchCompanies,
+      addCompany,
+      updateCompany,
+      deleteCompany,
+      validateTax,
+      clearCreateError,
+    }),
+    [
+      companyList,
+      isLoading,
+      fetched,
+      fetchError,
+      taxValidation,
+      selectedCompanyId,
+      createError,
+      createErrorField,
+      createErrorNonce,
+      selectCompany,
+      refetchCompanies,
+      addCompany,
+      updateCompany,
+      deleteCompany,
+      validateTax,
+      clearCreateError,
+    ]
+  );
+
+  return (
+    <CompanyContext.Provider value={value}>{children}</CompanyContext.Provider>
+  );
+}
+
+export function useCompanyStore(): CompanyStore {
+  const ctx = useContext(CompanyContext);
+  if (!ctx) {
+    throw new Error("useCompanyStore must be used within CompanyDataProvider");
+  }
+  return ctx;
+}
+
+export function useSelectedCompanyId(): number | null {
+  return useCompanyStore().selectedCompanyId;
+}

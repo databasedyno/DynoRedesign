@@ -1,3 +1,5 @@
+import { useCompanyStore } from "@/contexts/CompanyDataContext";
+import { useWalletStore } from "@/contexts/WalletDataContext";
 import React, { useCallback, useEffect, useState } from "react";
 import { Box, IconButton, useTheme } from "@mui/material";
 import {
@@ -45,8 +47,8 @@ const AttentionCardsRow: React.FC = () => {
   const router = useRouter();
   const { t } = useTranslation(["dashboardLayout", "common"]);
 
-  const companyState = useSelector((s: rootReducer) => s.companyReducer);
-  const walletState = useSelector((s: rootReducer) => s.walletReducer);
+  const companyState = useCompanyStore();
+  const walletState = useWalletStore();
   const userState = useSelector((s: any) => s.userReducer);
   const hasCompany = (companyState.companyList?.length ?? 0) > 0;
   const hasWallet = (walletState.walletList?.length ?? 0) > 0;

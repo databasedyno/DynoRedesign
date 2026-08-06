@@ -1,3 +1,5 @@
+import { useCompanyStore } from "@/contexts/CompanyDataContext";
+import { useWalletStore } from "@/contexts/WalletDataContext";
 import InfoIcon from "@/assets/Icons/info-icon.svg";
 // WalletIcon was used as a tinted header icon; removed in the 2025-07
 // Coinbase-clean pass — title + subtitle carry the header without decoration.
@@ -12,7 +14,7 @@ import useIsMobile from "@/hooks/useIsMobile";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { UserAction } from "@/Redux/Actions";
 import { USER_LOGIN, USER_PROFILE_FETCH } from "@/Redux/Actions/UserAction";
-import { verifyOtp } from "@/Redux/Sagas/WalletSaga";
+import { verifyOtp } from "@/utils/walletOtp";
 import { rootReducer } from "@/utils/types";
 import { Address, AddWalletModalProps } from "@/utils/types/wallet";
 import { Box, CircularProgress, Typography, useTheme } from "@mui/material";
@@ -45,7 +47,7 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
   const dispatch = useDispatch();
   const muiTheme = useTheme();
   const userState = useSelector((state: rootReducer) => state.userReducer);
-  const companyState = useSelector((state: rootReducer) => state.companyReducer);
+  const companyState = useCompanyStore();
   const companyId = propCompanyId || companyState.selectedCompanyId || companyState.companyList?.[0]?.company_id;
   const isMobile = useIsMobile("sm");
   const { t } = useTranslation("walletScreen");
@@ -80,7 +82,7 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
   // right field. WalletSaga's catch also fires a toast, so this is purely
   // additive — the merchant now sees the message next to the offending
   // field (address / name / currency) instead of just a corner toast.
-  const walletState = useSelector((state: rootReducer) => state.walletReducer as any);
+  const walletState = useWalletStore();
   const lastAddressErrorNonceRef = React.useRef<number>(walletState?.addressErrorNonce || 0);
   useEffect(() => {
     const nonce = walletState?.addressErrorNonce || 0;

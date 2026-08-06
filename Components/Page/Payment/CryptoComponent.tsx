@@ -1,3 +1,4 @@
+import { useWalletStore } from "@/contexts/WalletDataContext";
 import {
   Box,
   Button,
@@ -71,7 +72,7 @@ const CyrptoComponent = () => {
   const { t } = useTranslation("common");
   const theme = useTheme();
   const dispatch = useDispatch();
-  const walletState = useSelector((state: rootReducer) => state.walletReducer);
+  const walletState = useWalletStore();
 
   const [selectedCurrency, setSelectedCurrency] = useState<currencyData>();
   const [checkVerify, setCheckVerify] = useState(false);

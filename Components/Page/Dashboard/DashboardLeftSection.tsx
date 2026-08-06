@@ -1,3 +1,5 @@
+import { useCompanyStore } from "@/contexts/CompanyDataContext";
+import { useWalletStore } from "@/contexts/WalletDataContext";
 import RoundedStackIcon from "@/assets/Icons/roundedStck-icon.svg";
 import TransactionIcon from "@/assets/Icons/transaction.svg";
 import ArrowUpSuccessIcon from "@/assets/Icons/up-success.svg";
@@ -295,8 +297,8 @@ const DashboardLeftSection = () => {
   const { stats, chartData, loading, fetchChartData, recentTransactions } = useDashboardData();
 
   // Selectors for empty-state decision (company + wallet setup + payment history).
-  const companyState = useSelector((s: rootReducer) => s.companyReducer);
-  const walletState = useSelector((s: rootReducer) => s.walletReducer);
+  const companyState = useCompanyStore();
+  const walletState = useWalletStore();
   const hasCompany = (companyState.companyList?.length ?? 0) > 0;
   const hasWallet = (walletState.walletList?.length ?? 0) > 0;
   // AUTHORITATIVE: use aggregate stats from the backend as the source of truth

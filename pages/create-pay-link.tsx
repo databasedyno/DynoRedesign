@@ -1,3 +1,5 @@
+import { useCompanyStore } from "@/contexts/CompanyDataContext";
+import { useWalletStore } from "@/contexts/WalletDataContext";
 import CreatePaymentLinkPage from "@/Components/Page/CreatePaymentLink";
 import useIsMobile from "@/hooks/useIsMobile";
 import { pageProps, rootReducer } from "@/utils/types";
@@ -12,10 +14,6 @@ import Head from "next/head";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
-import { CompanyAction } from "@/Redux/Actions";
-import { COMPANY_FETCH } from "@/Redux/Actions/CompanyAction";
-import { WalletAction } from "@/Redux/Actions";
-import { WALLET_FETCH } from "@/Redux/Actions/WalletAction";
 import AddWalletModal from "@/Components/UI/AddWalletModal";
 import CreateCompanyModal from "@/Components/UI/OnboardingFlow/CreateCompanyModal";
 import OnboardingBanner from "@/Components/UI/OnboardingBanner";
@@ -27,10 +25,8 @@ const CreatePaymentLink = ({ setPageName, setPageDescription }: pageProps) => {
   const theme = useTheme();
   const dispatch = useDispatch();
 
-  const companyState = useSelector(
-    (state: rootReducer) => state.companyReducer,
-  );
-  const walletState = useSelector((state: rootReducer) => state.walletReducer);
+  const companyState = useCompanyStore();
+  const walletState = useWalletStore();
   const selectedCompanyId = companyState.selectedCompanyId;
   const hasCompany = companyState.companyList?.length > 0;
   const hasWallet = walletState.walletList?.length > 0;
@@ -51,9 +47,9 @@ const CreatePaymentLink = ({ setPageName, setPageDescription }: pageProps) => {
   const [walletModalOpen, setWalletModalOpen] = useState(false);
 
   useEffect(() => {
-    dispatch(CompanyAction(COMPANY_FETCH));
+    companyState.refetchCompanies();
     const payload = selectedCompanyId ? { company_id: selectedCompanyId } : undefined;
-    dispatch(WalletAction(WALLET_FETCH, payload));
+    walletState.refetchWallets();
   }, [dispatch, selectedCompanyId]);
 
   const tCreatePaymentLink = useCallback(
@@ -103,13 +99,13 @@ const CreatePaymentLink = ({ setPageName, setPageDescription }: pageProps) => {
     setCompanyModalOpen(false);
     // re-fetch — onSuccess from modal already commits the new company to Redux,
     // but trigger a fetch anyway to be safe.
-    dispatch(CompanyAction(COMPANY_FETCH));
+    companyState.refetchCompanies();
   };
 
   const handleWalletAdded = () => {
     setWalletModalOpen(false);
     const payload = selectedCompanyId ? { company_id: selectedCompanyId } : undefined;
-    dispatch(WalletAction(WALLET_FETCH, payload));
+    walletState.refetchWallets();
   };
 
   return (
@@ -183,7 +179,7 @@ const CreatePaymentLink = ({ setPageName, setPageDescription }: pageProps) => {
           </Typography>
           <Box
             component="button"
-            onClick={() => dispatch(CompanyAction(COMPANY_FETCH))}
+            onClick={() => companyState.refetchCompanies()}
             sx={{
               px: 4,
               py: 1.5,

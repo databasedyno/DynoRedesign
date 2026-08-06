@@ -1,3 +1,4 @@
+import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import CustomButton from "@/Components/UI/Buttons";
 import CustomSwitch from "@/Components/UI/CustomSwitch";
 import PanelCard from "@/Components/UI/PanelCard";
@@ -108,9 +109,7 @@ const NotificationPage = () => {
   );
   const isMobile = useIsMobile("md");
 
-  const selectedCompanyId = useSelector(
-    (state: any) => state?.companyReducer?.selectedCompanyId
-  );
+  const selectedCompanyId = useCompanyStore().selectedCompanyId;
   // Fall back to the persisted last_company_id before Redux hydrates so the
   // initial fetches are already company-scoped (avoids a duplicate un-scoped
   // request on every full page load).

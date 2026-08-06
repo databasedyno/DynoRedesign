@@ -1,3 +1,4 @@
+import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import EmptyDataModel from "@/Components/UI/EmptyDataModel";
 import { TransactionAction } from "@/Redux/Actions";
 import { TRANSACTION_FETCH, TRANSACTION_EXPORT } from "@/Redux/Actions/TransactionAction";
@@ -99,9 +100,7 @@ const TransactionPage = () => {
     (state: rootReducer) => state.transactionReducer,
   );
 
-  const selectedCompanyId = useSelector(
-    (state: rootReducer) => (state as any).companyReducer?.selectedCompanyId
-  );
+  const selectedCompanyId = useCompanyStore().selectedCompanyId;
 
   useEffect(() => {
     const payload = selectedCompanyId ? { company_id: selectedCompanyId } : undefined;

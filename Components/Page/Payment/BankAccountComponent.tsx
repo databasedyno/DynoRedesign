@@ -1,3 +1,4 @@
+import { useWalletStore } from "@/contexts/WalletDataContext";
 import { Box, Button, Collapse, Divider, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 
@@ -38,7 +39,7 @@ const BankAccountComponent = () => {
   const { t } = useTranslation("common");
   const theme = useTheme();
   const dispatch = useDispatch();
-  const walletState = useSelector((state: rootReducer) => state.walletReducer);
+  const walletState = useWalletStore();
   const [checkVerify, setCheckVerify] = useState(false);
   const [accountDetails, setAccountDetails] = useState<CommonDetails>();
   const [selectedCurrency, setSelectedCurrency] = useState<currencyData>();

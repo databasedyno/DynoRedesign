@@ -1,3 +1,4 @@
+import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import Logo from "@/assets/Icons/home/dynopay-blackLogo.svg";
 import LogoDark from "@/assets/Icons/home/dynopay-whiteLogo.svg";
 import CompanySelector from "@/Components/UI/CompanySelector";
@@ -46,7 +47,7 @@ const NewHeader = () => {
     [t],
   );
   const { walletWarning } = useWalletData();
-  const companyState = useSelector((state: rootReducer) => state.companyReducer);
+  const companyState = useCompanyStore();
   const hasCompany = (companyState.companyList ?? []).length > 0;
   const companyFetched = companyState.fetched;
   // Show company warning only after company data has been fetched

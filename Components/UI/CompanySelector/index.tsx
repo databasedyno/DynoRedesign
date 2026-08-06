@@ -1,3 +1,4 @@
+import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import EditIcon from "@/assets/Icons/edit-icon.svg";
 import BusinessCenterIcon from "@mui/icons-material/BusinessCenter";
 import { Box, Divider, Snackbar, Typography, useTheme } from "@mui/material";
@@ -23,15 +24,13 @@ import { useTranslation } from "react-i18next";
 import { useSelector, useDispatch } from "react-redux";
 import CustomButton from "../Buttons";
 import { HeaderDivider } from "../LanguageSwitcher/styled";
-import { selectCompany } from "@/Redux/Actions/CompanyAction";
-import { CompanyAction, DashboardAction, TransactionAction, WalletAction, PaymentLinkAction, ApiAction } from "@/Redux/Actions";
-import { COMPANY_FETCH } from "@/Redux/Actions/CompanyAction";
+import { DashboardAction, TransactionAction, PaymentLinkAction, ApiAction } from "@/Redux/Actions";
+import { useWalletStore } from "@/contexts/WalletDataContext";
 import {
   DASHBOARD_FETCH_ALL,
   DASHBOARD_CHART_FETCH,
 } from "@/Redux/Actions/DashboardAction";
 import { TRANSACTION_FETCH } from "@/Redux/Actions/TransactionAction";
-import { WALLET_FETCH } from "@/Redux/Actions/WalletAction";
 import { PAYLINK_FETCH } from "@/Redux/Actions/PaymentLinkAction";
 import { API_FETCH } from "@/Redux/Actions/ApiAction";
 import CreateCompanyModal from "@/Components/UI/OnboardingFlow/CreateCompanyModal";
@@ -48,9 +47,8 @@ export default function CompanySelector() {
   const dispatch = useDispatch();
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const { openCompanySettings } = useCompanySettingsDialog();
-  const companyState = useSelector(
-    (state: rootReducer) => state.companyReducer,
-  );
+  const companyState = useCompanyStore();
+  const { refetchWallets } = useWalletStore();
 
   // Add Company Flow states
   const [addCompanyPhase, setAddCompanyPhase] = useState<"idle" | "company" | "wallet" | "celebration">("idle");
@@ -61,24 +59,24 @@ export default function CompanySelector() {
   }, []);
 
   const handleCompanyCreated = useCallback(() => {
-    dispatch(CompanyAction(COMPANY_FETCH));
-    dispatch(WalletAction(WALLET_FETCH, { force: true }));
+    companyState.refetchCompanies();
+    refetchWallets();
     // Auto-select the newest company (last in the list after fetch completes)
     // This is handled via a separate effect below
     setAddCompanyPhase("wallet");
-  }, [dispatch]);
+  }, [companyState, refetchWallets]);
 
   const handleWalletAdded = useCallback(() => {
-    dispatch(WalletAction(WALLET_FETCH, { force: true }));
+    refetchWallets();
     setAddCompanyPhase("celebration");
-  }, [dispatch]);
+  }, [refetchWallets]);
 
   const handleCelebrationDismiss = useCallback(() => {
     setAddCompanyPhase("idle");
     // Refresh all data
-    dispatch(CompanyAction(COMPANY_FETCH));
-    dispatch(WalletAction(WALLET_FETCH, { force: true }));
-  }, [dispatch]);
+    companyState.refetchCompanies();
+    refetchWallets();
+  }, [companyState, refetchWallets]);
 
   const wrapperRef = useRef<HTMLDivElement>(null);
   const MIN_WIDTH = 390;
@@ -116,7 +114,7 @@ export default function CompanySelector() {
   // Auto-select first company if none selected
   useEffect(() => {
     if (active == null && companies.length > 0) {
-      dispatch(selectCompany(companies[0].company_id));
+      companyState.selectCompany(companies[0].company_id);
     }
   }, [active, companies, dispatch]);
 
@@ -125,7 +123,7 @@ export default function CompanySelector() {
     if (addCompanyPhase === "wallet" && companies.length > 0) {
       const newestCompany = companies[companies.length - 1];
       if (newestCompany && newestCompany.company_id !== active) {
-        dispatch(selectCompany(newestCompany.company_id));
+        companyState.selectCompany(newestCompany.company_id);
         // Persist to backend
         axiosBaseApi.put(API_ENDPOINTS.user.lastCompany, { company_id: newestCompany.company_id }).catch(() => {});
       }
@@ -139,7 +137,7 @@ export default function CompanySelector() {
 
   const handleCompanySwitch = (companyId: number) => {
     const companyName = companies.find((c) => c.company_id === companyId)?.company_name || "";
-    dispatch(selectCompany(companyId));
+    companyState.selectCompany(companyId);
     handleClose();
     // Show switch toast indicator
     setSwitchToast(companyName);
@@ -151,7 +149,7 @@ export default function CompanySelector() {
     dispatch(DashboardAction(DASHBOARD_FETCH_ALL, companyPayload));
     dispatch(DashboardAction(DASHBOARD_CHART_FETCH, { ...companyPayload, period: "7d" }));
     dispatch(TransactionAction(TRANSACTION_FETCH, companyPayload));
-    dispatch(WalletAction(WALLET_FETCH, companyPayload));
+    refetchWallets();
     dispatch(PaymentLinkAction(PAYLINK_FETCH, companyPayload));
     dispatch(ApiAction(API_FETCH, companyPayload));
   };
@@ -383,7 +381,7 @@ export default function CompanySelector() {
         open={addCompanyPhase === "wallet"}
         onClose={() => {
           setAddCompanyPhase("idle");
-          dispatch(CompanyAction(COMPANY_FETCH));
+          companyState.refetchCompanies();
         }}
         onWalletAdded={handleWalletAdded}
         headerExtra={<StepIndicator currentStep={2} totalSteps={2} />}

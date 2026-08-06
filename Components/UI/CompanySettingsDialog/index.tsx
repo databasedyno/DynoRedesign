@@ -1,3 +1,4 @@
+import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import { Box, useTheme } from "@mui/material";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -9,8 +10,6 @@ import type { Values } from "@/Components/Page/Common/FormManager/types";
 import CustomButton from "@/Components/UI/Buttons";
 import PopupModal from "@/Components/UI/PopupModal";
 import useIsMobile from "@/hooks/useIsMobile";
-import { CompanyAction } from "@/Redux/Actions";
-import { COMPANY_DELETE, COMPANY_UPDATE } from "@/Redux/Actions/CompanyAction";
 import { ICompany, rootReducer } from "@/utils/types";
 import axiosBaseApi from "@/axiosConfig";
 
@@ -87,9 +86,7 @@ export default function CompanySettingsDialog({
   const { t } = useTranslation("companyDialog");
   const { t: tSettings } = useTranslation("companySettings");
   const dispatch = useDispatch();
-  const companyState = useSelector(
-    (state: rootReducer) => state.companyReducer,
-  );
+  const companyState = useCompanyStore();
 
   const [formKey, setFormKey] = useState(0);
   const [imagePreview, setImagePreview] = useState<string | undefined>();
@@ -109,12 +106,13 @@ export default function CompanySettingsDialog({
   } | null>(null);
   const [deleteAlertOpen, setDeleteAlertOpen] = useState(false);
 
-  const handleDeleteCompany = () => {
+  const handleDeleteCompany = async () => {
     if (company?.company_id) {
-      dispatch({
-        type: COMPANY_DELETE,
-        payload: company.company_id,
-      });
+      try {
+        await companyState.deleteCompany(company.company_id);
+      } catch {
+        /* error toast handled inside the store */
+      }
       setDeleteAlertOpen(false);
       onClose();
     }
@@ -292,9 +290,7 @@ export default function CompanySettingsDialog({
     const formData = new FormData();
     formData.append("data", JSON.stringify(values));
     if (mediaFile) formData.append("image", mediaFile);
-    dispatch(
-      CompanyAction(COMPANY_UPDATE, { id: company.company_id, formData }),
-    );
+    companyState.updateCompany({ id: company.company_id, formData });
 
     // Save auto-convert settings via dedicated endpoint
     axiosBaseApi

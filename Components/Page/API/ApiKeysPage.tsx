@@ -1,3 +1,4 @@
+import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import { Box, CircularProgress, Grid, Typography, MenuItem, Select, FormControl } from "@mui/material";
 import { Icon } from "@/styles/uiKit";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -9,9 +10,8 @@ import axiosBaseApi from "@/axiosConfig";
 import CustomButton from "@/Components/UI/Buttons";
 import PanelCard from "@/Components/UI/PanelCard";
 
-import { ApiAction, CompanyAction } from "@/Redux/Actions";
+import { ApiAction } from "@/Redux/Actions";
 import { API_DELETE, API_FETCH, API_REGENERATE, API_TOGGLE_STATUS } from "@/Redux/Actions/ApiAction";
-import { COMPANY_FETCH } from "@/Redux/Actions/CompanyAction";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import CopyIcon from "@/assets/Icons/copy-icon.svg";
 import EyeIcon from "@/assets/Icons/eye-icon.svg";
@@ -704,9 +704,7 @@ const ElementsWidgetCard = ({
 }) => {
   const theme = useTheme();
   const dispatch = useDispatch();
-  const selectedCompanyId = useSelector(
-    (state: rootReducer) => (state as any).companyReducer?.selectedCompanyId
-  );
+  const selectedCompanyId = useCompanyStore().selectedCompanyId;
 
   const baseUrl =
     (process.env.NEXT_PUBLIC_BASE_URL as string) ||
@@ -1303,9 +1301,8 @@ const ApiKeysPage = ({
   const theme = useTheme();
   const apiState = useSelector((state: rootReducer) => state.apiReducer);
 
-  const selectedCompanyId = useSelector(
-    (state: rootReducer) => (state as any).companyReducer?.selectedCompanyId
-  );
+  const selectedCompanyId = useCompanyStore().selectedCompanyId;
+  const { refetchCompanies } = useCompanyStore();
 
   const [openCreateLocal, setOpenCreateLocal] = useState(false);
   const openCreate = openCreateProp ?? openCreateLocal;
@@ -1324,7 +1321,7 @@ const ApiKeysPage = ({
   });
 
   useEffect(() => {
-    dispatch(CompanyAction(COMPANY_FETCH));
+    refetchCompanies();
     const payload = selectedCompanyId ? { company_id: selectedCompanyId } : undefined;
     dispatch(ApiAction(API_FETCH, payload));
   }, [selectedCompanyId]);

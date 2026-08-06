@@ -16,6 +16,7 @@
  * The count is company-scoped. If the user has no company selected, we return 0
  * (nothing to badge against).
  */
+import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import axiosBaseApi from "@/axiosConfig";
@@ -173,9 +174,7 @@ export function invalidateUnreadCountCache(companyId: unknown) {
 }
 
 export function useUnreadNotificationsCount(): number {
-  const selectedCompanyId = useSelector(
-    (state: any) => state?.companyReducer?.selectedCompanyId,
-  );
+  const selectedCompanyId = useCompanyStore().selectedCompanyId;
   // Before Redux hydrates, fall back to the persisted last_company_id so the
   // first request is already scoped to the right company (single cache key).
   const effectiveCompanyId = selectedCompanyId ?? readLastCompanyId();

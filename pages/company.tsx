@@ -1,3 +1,4 @@
+import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
@@ -17,8 +18,6 @@ import { Icon } from "@/styles/uiKit";
 import CreateCompanyModal from "@/Components/UI/OnboardingFlow/CreateCompanyModal";
 import CompanySettingsDialog from "@/Components/UI/CompanySettingsDialog";
 import useIsMobile from "@/hooks/useIsMobile";
-import { CompanyAction } from "@/Redux/Actions";
-import { COMPANY_FETCH } from "@/Redux/Actions/CompanyAction";
 import { ICompany, pageProps, rootReducer } from "@/utils/types";
 
 const Company = ({ setPageName, setPageDescription, setPageAction }: pageProps) => {
@@ -27,9 +26,7 @@ const Company = ({ setPageName, setPageDescription, setPageAction }: pageProps) 
   const { t } = useTranslation("companyDialog");
   const router = useRouter();
   const isMobile = useIsMobile("md");
-  const companyState = useSelector(
-    (state: rootReducer) => state.companyReducer
-  );
+  const companyState = useCompanyStore();
 
   const [addOpen, setAddOpen] = useState(false);
 
@@ -41,7 +38,7 @@ const Company = ({ setPageName, setPageDescription, setPageAction }: pageProps) 
     setPageName("Companies");
     setPageDescription?.("Manage your business profiles and company settings");
     setPageAction?.(null);
-    dispatch(CompanyAction(COMPANY_FETCH));
+    companyState.refetchCompanies();
   }, []);
 
   // Auto-open settings dialog when ?section= is provided
@@ -404,7 +401,7 @@ const Company = ({ setPageName, setPageDescription, setPageAction }: pageProps) 
           setSettingsOpen(false);
           setSelectedCompany(null);
           // Re-fetch companies after changes
-          dispatch(CompanyAction(COMPANY_FETCH));
+          companyState.refetchCompanies();
           // Clear the section query param
           if (router.query.section) {
             router.replace("/company", undefined, { shallow: true });

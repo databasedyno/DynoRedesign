@@ -1,3 +1,4 @@
+import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import AddIcon from "@mui/icons-material/Add";
 import ArrowOutwardIcon from "@mui/icons-material/ArrowOutward";
 import AutoAwesomeRounded from "@mui/icons-material/AutoAwesomeRounded";
@@ -59,7 +60,7 @@ const MobileNavigationBar = () => {
   const [kycLoading, setKycLoading] = useState(false);
   const { walletWarning } = useWalletData();
   const unreadNotifications = useUnreadNotificationsCount();
-  const companyState = useSelector((state: any) => state.companyReducer);
+  const companyState = useCompanyStore();
   const hasCompany = (companyState?.companyList ?? []).length > 0;
   const companyFetched = companyState?.fetched;
   const showCompanyWarning = companyFetched && !hasCompany;

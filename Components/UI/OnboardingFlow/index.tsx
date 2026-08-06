@@ -1,6 +1,6 @@
-import { CompanyAction, WalletAction, PaymentLinkAction, DashboardAction } from "@/Redux/Actions";
-import { COMPANY_FETCH } from "@/Redux/Actions/CompanyAction";
-import { WALLET_FETCH } from "@/Redux/Actions/WalletAction";
+import { useCompanyStore } from "@/contexts/CompanyDataContext";
+import { useWalletStore } from "@/contexts/WalletDataContext";
+import { PaymentLinkAction, DashboardAction } from "@/Redux/Actions";
 import { PAYLINK_FETCH } from "@/Redux/Actions/PaymentLinkAction";
 import { DASHBOARD_FETCH_ALL } from "@/Redux/Actions/DashboardAction";
 import { rootReducer } from "@/utils/types";
@@ -48,8 +48,8 @@ const OnboardingFlow: React.FC = () => {
   const dashboardRequested = useRef(false);
   const shownTracked = useRef(false);
 
-  const companyState = useSelector((state: rootReducer) => state.companyReducer);
-  const walletState = useSelector((state: rootReducer) => state.walletReducer);
+  const companyState = useCompanyStore();
+  const walletState = useWalletStore();
   const payLinkState = useSelector(
     (state: rootReducer) => state.paymentLinkReducer,
   );
@@ -84,12 +84,12 @@ const OnboardingFlow: React.FC = () => {
   // (the saga debounce + cooldown guard will also prevent duplicate API calls)
   useEffect(() => {
     if (!companyState.fetched && !companyState.loading) {
-      dispatch(CompanyAction(COMPANY_FETCH));
+      companyState.refetchCompanies();
     }
     if (!walletState.fetched && !walletState.loading) {
-      dispatch(WalletAction(WALLET_FETCH));
+      walletState.refetchWallets();
     }
-  }, [dispatch, companyState.fetched, companyState.loading, walletState.fetched, walletState.loading]);
+  }, [companyState, walletState]);
 
   // Restore the per-session auto-open guard (survives reloads within a session
   // so the wizard doesn't re-pop on every dashboard visit).
@@ -149,9 +149,9 @@ const OnboardingFlow: React.FC = () => {
       step_key: "company",
       completed_count: 1 + (hasWallet ? 1 : 0) + (hasLink ? 1 : 0),
     });
-    dispatch(WalletAction(WALLET_FETCH, { force: true }));
+    walletState.refetchWallets();
     setActiveModal("wallet");
-  }, [dispatch, hasWallet, hasLink]);
+  }, [walletState, hasWallet, hasLink]);
 
   // Wallet added -> refresh and celebrate
   const handleWalletAdded = useCallback(() => {
@@ -160,10 +160,10 @@ const OnboardingFlow: React.FC = () => {
       step_key: "wallet",
       completed_count: (hasCompany ? 1 : 0) + 1 + (hasLink ? 1 : 0),
     });
-    dispatch(WalletAction(WALLET_FETCH, { force: true }));
+    walletState.refetchWallets();
     setActiveModal(null);
     setCelebrate(true);
-  }, [dispatch, hasCompany, hasLink]);
+  }, [walletState, hasCompany, hasLink]);
 
   const handleCelebrationDismiss = useCallback(() => {
     setCelebrate(false);

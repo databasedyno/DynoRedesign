@@ -1,3 +1,4 @@
+import { useWalletStore } from "@/contexts/WalletDataContext";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Box,
@@ -64,7 +65,7 @@ const QuickActionsPanel: React.FC = () => {
   const router = useRouter();
   const { t } = useTranslation(["dashboardLayout", "common"]);
   const { stats } = useDashboardData();
-  const walletState = useSelector((s: rootReducer) => s.walletReducer);
+  const walletState = useWalletStore();
   const hasWallet = (walletState.walletList?.length ?? 0) > 0;
 
   const [tab, setTab] = useState<TabId>("receive");

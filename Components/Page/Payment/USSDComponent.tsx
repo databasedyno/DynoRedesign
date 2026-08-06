@@ -1,3 +1,4 @@
+import { useWalletStore } from "@/contexts/WalletDataContext";
 import { Box, Button, Divider, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 
@@ -52,7 +53,7 @@ const BankList = [
 const USSDComponent = () => {
   const { t } = useTranslation("common");
   const dispatch = useDispatch();
-  const walletState = useSelector((state: rootReducer) => state.walletReducer);
+  const walletState = useWalletStore();
   const [ussdDetails, setUssdDetails] = useState({
     note: "",
     payment_code: "",
