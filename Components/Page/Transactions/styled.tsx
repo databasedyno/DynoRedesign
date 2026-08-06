@@ -1,4 +1,3 @@
-import { theme } from "@/styles/theme";
 import {
   Box,
   Button,

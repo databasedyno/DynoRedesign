@@ -148,7 +148,7 @@ export default function AdornedInputField({
                 sx={{
                   width: "1px",
                   height: "100%",
-                  backgroundColor: DIVIDER_COLOR,
+                  backgroundColor: dividerColor,
                 }}
               />
             </Box>
@@ -216,7 +216,7 @@ export default function AdornedInputField({
                 sx={{
                   width: "1px",
                   height: "100%",
-                  backgroundColor: DIVIDER_COLOR,
+                  backgroundColor: dividerColor,
                   marginRight: "8px",
                 }}
               />

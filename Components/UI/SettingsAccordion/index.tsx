@@ -1,5 +1,5 @@
-import { theme } from "@/styles/theme";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import { useTheme } from "@mui/material/styles";
 import {
   Accordion,
   AccordionDetails,
@@ -50,6 +50,7 @@ export default function SettingsAccordion({
   detailsSx,
   isMobile = false,
 }: SettingsAccordionProps) {
+  const theme = useTheme();
   const accordionSx = {
     "&:before": { display: "none" },
     boxShadow: "none",

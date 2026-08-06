@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { Button, IconButton, Typography } from "@mui/material";
 import { Box } from "@mui/material";
 import FormManager from "@/Components/Page/Common/FormManager";
-import { theme } from "@/styles/theme";
+import { useTheme } from "@mui/material/styles";
 import InputField from "../../AuthLayout/InputFields";
 import PanelCard from "../../PanelCard";
 import Image from "next/image";
@@ -41,6 +41,7 @@ const SuccessAPIModel: React.FC<SuccessAPIModelProps> = ({
 }) => {
   const { t } = useTranslation("apiScreen");
   const isMobile = useIsMobile("sm");
+  const theme = useTheme();
   const bodyPadding = isMobile
     ? theme.spacing(1.5, 1.875, 1.875, 1.875)
     : theme.spacing(1.5, 3.75, 3.75, 3.75);
@@ -128,7 +129,7 @@ const SuccessAPIModel: React.FC<SuccessAPIModelProps> = ({
               readOnly
               inputHeight="40px"
               value="dpk_live_x04exyjb946e9lwclqhqvqzrgu3k0v24"
-              inputBgColor="#FCFBF8"
+              inputBgColor={theme.palette.mode === "dark" ? "rgba(255,255,255,0.04)" : "#FCFBF8"}
               sx={{
                 "& .MuiInputBase-root input": {
                   fontSize: "13px !important",
@@ -189,7 +190,7 @@ const SuccessAPIModel: React.FC<SuccessAPIModelProps> = ({
               readOnly
               inputHeight="40px"
               value="dpk_live_x04exyjb946e9lwclqhqvqzrgu3k0v24"
-              inputBgColor="#FCFBF8"
+              inputBgColor={theme.palette.mode === "dark" ? "rgba(255,255,255,0.04)" : "#FCFBF8"}
               sx={{
                 "& .MuiInputBase-root input": {
                   fontSize: "13px !important",

@@ -2,8 +2,8 @@ import InfoIcon from "@/assets/Icons/info-icon.svg";
 import WalletIcon from "@/assets/Icons/wallet-icon.svg";
 import FormManager from "@/Components/Page/Common/FormManager";
 import useIsMobile from "@/hooks/useIsMobile";
-import { theme } from "@/styles/theme";
 import { Box, Typography } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
 import Image from "next/image";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -30,6 +30,7 @@ export interface CreateApiModelProps {
 const CreateApiModel: React.FC<CreateApiModelProps> = ({ open, onClose }) => {
   const { t } = useTranslation("apiScreen");
   const isMobile = useIsMobile("md");
+  const theme = useTheme();
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const onSubmit = (values: any) => {

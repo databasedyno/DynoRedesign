@@ -4,7 +4,7 @@ import { Box, IconButton, Typography } from "@mui/material";
 import Image from "next/image";
 import TrashIcon from "@/assets/Icons/trash-icon.svg";
 import { useTranslation } from "react-i18next";
-import { theme } from "@/styles/theme";
+import { useTheme } from "@mui/material/styles";
 import PanelCard from "../PanelCard";
 import CustomButton from "../Buttons";
 import { DeleteModelContainer, DeleteModelTitle } from "./styled";
@@ -25,6 +25,7 @@ const DeleteModel = ({
 }) => {
   const { t } = useTranslation("apiScreen");
   const isMobile = useIsMobile("sm");
+  const theme = useTheme();
   const headerPadding = isMobile
     ? theme.spacing(1.875, 1.875, 0, 1.875)
     : theme.spacing(3.75, 3.75, 0, 3.75);

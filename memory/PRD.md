@@ -1,3 +1,17 @@
+# CURRENT SESSION (2026-08-06 (b) — fork, preview 3f058365) — Design Rollout Phase 3 COMPLETE + /settings crash fix — VERIFIED (dark mode screenshots)
+
+- **Task:** Finished backlog item **F Phase 3** — migrated the last shared in-app components off the static light-mode `@/styles/theme` import to MUI's dynamic `useTheme()` so nothing looks off in dark mode.
+- **Migrated (React comps → `useTheme()` hook):** `Components/UI/SettingsAccordion/index.tsx`, `Components/UI/DeleteModel/index.tsx`, `Components/UI/ApiKeysModel/CreateApiModel/index.tsx`, `Components/UI/ApiKeysModel/SuccessAPIModel/index.tsx`.
+- **Styled files:** `Components/Page/Payment-link/styled.tsx` + `Components/Page/Transactions/styled.tsx` already used the dynamic `({ theme }) => …` callback everywhere → the top-level `import { theme }` was DEAD CODE. Removed it (complete fix; no behavior change).
+- **BUG FIX (P0 crash, pre-existing from the interrupted Phase 3 work):** `Components/UI/AdornedInputField/index.tsx` referenced an undefined `DIVIDER_COLOR` at 2 spots (the static import had been removed but the usage wasn't renamed) → `ReferenceError: DIVIDER_COLOR is not defined` crashed **`/settings`** (and any page rendering AdornedInputField). Fixed both usages → `dividerColor` (the local `theme.palette.divider` that the prior agent had defined).
+- **Dark-mode polish:** `SuccessAPIModel` readonly key inputs no longer hardcode `inputBgColor="#FCFBF8"` (light cream → invisible light-on-light text in dark) → `theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.04)' : '#FCFBF8'`.
+- **VERIFIED (logged in as hostbay@moxx.co, in-app dark mode via `localStorage['theme-mode-inapp']='dark'`):** `/settings` renders clean (crash gone; SettingsAccordion + AdornedInputField correct), `/pay-links` table renders correct in dark, Create API Key modal (CreateApiModel + CurrencySelector) renders correct in dark. Frontend compiles clean, 0 remaining `import { theme }` in `Components/UI` + `Components/Page`, 0 leftover `*_COLOR` undefined refs.
+- **Excluded (intentional, unchanged):** marketing/auth surfaces (`Header`, `AdminHeader`, `reset-password`, `help-support/[slug]`, `_app.tsx` ThemeProvider) keep their own design system + legitimate `@/styles/theme` import; Customers page is "SOON".
+- **Env unchanged this session:** SAFETY still ENABLE_BACKGROUND_JOBS=false / WORKER_ROLE=secondary. No backend/DB changes. Frontend-only.
+
+---
+
+
 # CURRENT SESSION (2026-08-06 (a) — preview 3f058365) — env provisioning + 4 fixes, ALL testing_agent VERIFIED
 
 - **Preview URL (THIS container)**: https://3f058365-27a4-42a6-aee6-3ce7ea2385f6.preview.emergentagent.com. Fresh boot: no .env/node_modules → yarn cache clean + installs (/app 82s, /app/backend 35s) → wrote /app/backend/.env (full provided creds + safety overrides + DATABASE_URL + REDIS_URL) + /app/.env + /app/.env.local (NEXT_PUBLIC_* + NextAuth + OAuth → preview URL). NEXTAUTH_SECRET=kktov+We8Bnn19CdZ0AoQxmFsfQ1d9Vxhye0XIzbKHc=. SAFETY: ENABLE_BACKGROUND_JOBS=false, WORKER_ROLE=secondary, NODE_ENV=production. /health green (db+redis connected, tatum operational, jobs disabled). Merchant test acct hostbay@moxx.co / Katiekendra123@ (LIVE Railway PG).

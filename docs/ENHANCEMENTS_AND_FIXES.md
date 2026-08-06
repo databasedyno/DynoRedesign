@@ -71,11 +71,16 @@ current status, root cause (for bugs), and the plan. Status legend:
 ### E. UI/UX copy pass (consistency & clarity)
 - Sweep in-app copy (labels, buttons, empty states, tooltips) for consistent voice and clarity.
 
-### F. Finish the design rollout  🔧 IN PROGRESS
+### F. Finish the design rollout  ✅ DONE & VERIFIED (2026-08-06)
 - **Phase 1 DONE & verified (2026-08-06):** Referrals, Invoices (+ tax report), and Company migrated to the single **Lucide** `<Icon>` set + **Roboto Mono** on all figures; Invoices also dropped its static `@/styles/theme` import (spacing → `useTheme()`).
 - **Phase 2 DONE & verified (2026-08-06):** Profile (AccountSetting, UpdatePassword, LoginActivity, ActiveSessions, AddContactInfo), the API/Developer‑Keys pages (ApiKeysPage, PublishableKeysSection, BuyButtonsSection, WebhookConsoleSection), and Wallet (`Wallet/index.tsx` static‑theme import removed; `pages/wallet.tsx` icons + breakpoints → `useTheme()`) all migrated to Lucide `<Icon>`. Verified via screenshots (developer‑keys 93 / profile 47 / wallet 42 Iconify icons, zero runtime errors). All lint clean.
-- **Remaining (Phase 3 — dark‑mode audit):** shared in-app UI components still importing the static `@/styles/theme` (DataTable, DeleteModel, AdornedInputField, CurrencySelector, SettingsAccordion, Toast, ApiKeysModel) — migrate to `useTheme()`/tokens.
-- **Excluded:** public marketing pages (Home, `/fees`, checkout) keep their own design system; Customers page is "SOON".
+- **Phase 3 DONE & verified (2026-08-06):** Migrated the last shared in-app components off the static `@/styles/theme` import to MUI's dynamic `useTheme()`:
+  - **Modals/accordion → `useTheme()` hook:** `DeleteModel`, `ApiKeysModel/SuccessAPIModel`, `ApiKeysModel/CreateApiModel`, `SettingsAccordion`.
+  - **Table styled files → dead static import removed** (they already used the dynamic `({ theme }) => …` callback everywhere, so the top-level import was unused): `Components/Page/Payment-link/styled.tsx`, `Components/Page/Transactions/styled.tsx`.
+  - **Bug fix (pre-existing, from Phase 3 interrupted work):** `AdornedInputField/index.tsx` referenced an undefined `DIVIDER_COLOR` (static import had been removed but the usage left behind) → crashed `/settings` with `ReferenceError`. Fixed to use the local `dividerColor = theme.palette.divider`.
+  - **Dark-mode polish:** `SuccessAPIModel` readonly key inputs no longer hardcode a light-cream `#FCFBF8` bg (would render invisible light-on-light text in dark mode) → now `theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.04)' : '#FCFBF8'`.
+  - **Verified (dark mode, logged in as hostbay):** `/settings` (SettingsAccordion + AdornedInputField), `/pay-links` (Payment-link table), and the Create API Key modal (CreateApiModel + CurrencySelector) all render correctly with no runtime errors. Frontend compiles clean.
+- **Excluded (unchanged, intentional):** public marketing/auth surfaces keep their own design system + still import from `@/styles/theme` legitimately (`Header`, `AdminHeader`, `reset-password`, `help-support/[slug]`, `_app.tsx` ThemeProvider); Customers page is "SOON".
 
 ---
 

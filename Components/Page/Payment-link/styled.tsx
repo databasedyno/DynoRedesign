@@ -1,4 +1,3 @@
-import { theme } from "@/styles/theme";
 import { Box, TableCell } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
