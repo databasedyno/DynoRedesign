@@ -156,6 +156,16 @@ export function* DashboardChartSaga(action: DashboardSagaAction): Generator<any,
 
 /* ── Main Saga ── */
 
+// Central dedupe for DASHBOARD_FETCH_ALL. Multiple dashboard components +
+// hooks dispatch this on mount (useDashboardData ×N, OnboardingFlow, currency
+// selectors), which previously caused the dashboard/fee-tiers/recent-tx
+// endpoints to be hit 2–3× on load. This collapses bursts for the same company
+// into a single fetch; a different company (switch) or a fetch after the window
+// (manual refresh) is always allowed through.
+let _lastDashboardAllKey = "";
+let _lastDashboardAllAt = 0;
+const DASHBOARD_ALL_DEDUPE_MS = 4000;
+
 export function* DashboardSaga(action: DashboardSagaAction): Generator<any, void, any> {
   const { crudType, payload } = action;
 
@@ -163,6 +173,13 @@ export function* DashboardSaga(action: DashboardSagaAction): Generator<any, void
     switch (crudType) {
       // Combined fetch — dispatched once, fetches stats + fee-tiers + recent-tx in parallel
       case DASHBOARD_FETCH_ALL: {
+        const key = String((payload && (payload as any).company_id) ?? "all");
+        const now = Date.now();
+        if (key === _lastDashboardAllKey && now - _lastDashboardAllAt < DASHBOARD_ALL_DEDUPE_MS) {
+          break; // duplicate burst for the same company — skip
+        }
+        _lastDashboardAllKey = key;
+        _lastDashboardAllAt = now;
         yield all([
           call(fetchDashboardStats, payload),
           call(fetchFeeTiers, payload),
