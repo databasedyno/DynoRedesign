@@ -8,14 +8,15 @@
 ## Admin
 - ADMIN_EMAIL env: **moxxcompany@gmail.com** (password unknown, out of band)
 
-## Preview URL (THIS container — updated 2026-08-05)
-- https://dynopay-staging-4.preview.emergentagent.com
+## Preview URL (THIS container — updated 2026-08-06)
+- https://465a9d6f-3c89-4195-9d39-2331f0c072d3.preview.emergentagent.com
 - Frontend calls backend via RELATIVE /api (NEXT_PUBLIC_BASE_URL is EMPTY in /app/.env.local) so it works on any preview hostname.
-- Backend .env SERVER_URL/FRONTEND_URL/CHECKOUT_URL/NEXTAUTH_URL point at the b2c3... preview URL.
+- Backend .env SERVER_URL/FRONTEND_URL/CHECKOUT_URL/NEXTAUTH_URL point at the 465a9d6f preview URL.
+- Login VERIFIED this session: hostbay@moxx.co → /dashboard loads with real prod data (Lifetime volume $25,008.83, 13 active wallets).
 - Login flow: /auth/login -> input[type=email] "hostbay@moxx.co" -> click "Continue" -> input[type=password] "Katiekendra123@" -> [data-testid="signin-submit-btn"]. Token stored in localStorage (persists across full navigations).
 
-## NEXTAUTH_SECRET (this session)
-- QXNb8gfMKSrgp1OrTXRk7+BZXvkiDulln8WSTz6r1bQ=
+## NEXTAUTH_SECRET (this session, 2026-08-06)
+- q9ozZwr+Zq52+80Xn8wEhCJGCAXe3jZ5DvIRogqR8Bg=
 
 ## Safety overrides applied (LIVE prod PG+Redis)
 - ENABLE_BACKGROUND_JOBS=false · WORKER_ROLE=secondary · NODE_ENV=production
