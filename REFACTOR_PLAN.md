@@ -151,3 +151,30 @@ hook consolidation is architectural. These belong to Phase 3/6, not the 2c primi
 ### Phase 6 — Polish — ⬜
 - Shared `<Loader/>` + skeletons; `next/dynamic` for heavy views;
   react-hook-form + existing yup; last raw `<img>` → `next/image`.
+
+---
+
+## Next Up — prioritized backlog (added 2026-08-06)
+
+Recommended near-term picks, each mapped to its phase. All frontend-only unless noted;
+app runs against a LIVE production DB, so each should ship in small, individually-verified batches.
+
+1. **Abort Stale Requests** (Phase 3) — ⬜
+   Add `AbortController` to the shared data hooks/contexts so navigating away or switching
+   company/page cancels in-flight requests, preventing race conditions and stale-response
+   overwrites. Start with `usePaymentRates` + the wallet/company SWR fetchers, then the
+   remaining `useEffect`+axios screens.
+
+2. **Loader Polish** (Phase 6) — ⬜
+   Roll out the shared `<Loader/>` + skeleton components across the remaining ~45 inline
+   spinners for consistent loading UX (the wallet-list skeleton shipped 2026-08-06 is the pattern to follow).
+
+3. **Currency Symbols** (Phase 2 follow-up / careful) — ⬜
+   Unify the remaining ~22 money displays that render currency SYMBOLS onto `formatCurrency`,
+   screen-by-screen with visual byte-check (NOT a blanket codemod — symbol/decimal/locale
+   output differs, so each screen must be eyeballed before/after). Separator-only sites were
+   already migrated to `formatWithSeparators` in Phase 2c.
+
+4. **Faster First Paint** (Phase 6) — ⬜
+   Code-split the heaviest checkout + dashboard screens with `next/dynamic` (e.g.
+   `CleanCheckoutV2`, dashboard chart/v2026) so those routes open quicker.
