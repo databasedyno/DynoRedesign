@@ -61,15 +61,25 @@ current status, root cause (for bugs), and the plan. Status legend:
 ### B. Merchant settings UI for overpayment/underpayment/grace thresholds
 - `companyModel` already has `overpayment_threshold_usd` ($5 default), `underpayment_threshold_usd` ($1), `grace_period_minutes` (30), but there is **no UI and no API** to edit them. Add a settings section + endpoint.
 
-### C. Creator page header/image — overflow fix + UI/UX reimagining  (public creator/tip/store pages)
-- Header overflows onto the profile image area (reported on the public page). Needs the exact screenshot / a published creator page to reproduce precisely.
-- Also: reimagine the hero layout (cover `cover_style`: solid/gradient/pattern/image + avatar + name/handle) for a modern, unique look consistent with the new design language.
+### C. Creator page header/image — overflow fix + UI/UX reimagining  ✅ DONE & VERIFIED (2026-08-06)
+- **Overflow FIXED:** the public creator page (`pages/[handle].tsx`) uses the `home` layout whose `HomeHeader` is `position: fixed` (72px desktop / 64px mobile) but the page had no top clearance → the fixed header clipped the avatar. Added `pt: { xs: '64px', sm: '88px' }` to the hero wrapper so the avatar is never clipped in any state.
+- **Hero reimagined** (`Components/Page/Creator/CreatorProfile.tsx`, per design_agent blueprint in `design_guidelines.json`):
+  - **Rich state** (cover image / gradient / pattern / solid + accent): full-bleed cover band (180/224px, radius 0 mobile / 24px desktop) with a bottom **scrim** (`linear-gradient` transparent → `background.default`) that blends the cover into the page AND guarantees AA contrast for the overlapping avatar. Avatar straddles the cover via negative margin.
+  - **Bare state** (no cover — e.g. a freshly-claimed handle): an **ambient accent radial glow** replaces the cover so the hero looks intentional even when empty.
+  - **Avatar:** photo → 4px `background.default` glass ring + accent glow; no photo → **gradient monogram** (`linear-gradient(accent → darken(accent))`) with a bright accent glow + white initial.
+  - **Accent theming:** everything (glow, monogram, handle color, hover states) is driven by the creator's `theme.accent_color` (falls back to Aurora indigo `#4F46E5`), so a custom accent visibly personalizes the page. Handle now renders in the accent color.
+  - **Motion:** the identity block fades/slides up on mount; social buttons lift on hover (translateY -2px, accent border + tint).
+- **Dashboard live preview mirror** (`CreatorLivePreview.tsx`) updated to match (gradient monogram, accent handle, cover scrim, glass ring) so merchants see an accurate preview.
+- **Verified** (screenshots): bare state (`/hostbay`) + rich state (temp preview: twilight gradient cover + photo + bio + socials + custom violet accent) across desktop light/dark + mobile; header clearance confirmed (avatar top 232 vs header bottom 73); `/creator` editor live-preview mirror confirmed. No runtime errors; frontend compiles clean.
+- **NOTE / follow-up:** the `/creator` editor's LIVE PREVIEW still shows the default indigo accent + solid cover regardless of the accent/cover-style the merchant picks (the accent/coverStyle/coverGradient are separate local state in `CreatorPageSettings`, NOT part of `CreatorFormState` passed to the preview). Pre-existing gap — wiring them into the preview is a good next enhancement.
 
 ### D. API documentation review (consistency, integration simplicity, clarity)
 - Public `/documentation` page (~1,820 lines) + backend Swagger at `/api/docs`. Audit for consistency with the actual backend API, integration simplicity, and clarity; recommend/implement technical changes.
 
-### E. UI/UX copy pass (consistency & clarity)
-- Sweep in-app copy (labels, buttons, empty states, tooltips) for consistent voice and clarity.
+### E. UI/UX copy pass (consistency & clarity)  🔧 PARTIAL (creator surface done 2026-08-06)
+- **Creator page public copy polished** (`CreatorProfile.tsx`): warmer benefit-led empty-state ("hasn't added any ways to pay yet — check back soon to show your support"), correct singular/plural ("1 supporter" vs "N supporters"), and a more compelling share message ("Support {name} on Dynopay — pay or tip in crypto, no signup needed.").
+- **Audited but intentionally left as-is:** the main in-app dashboard empty states + labels (EmptyStatePanel "Waiting for your first payment", the RecentTransactions 3-step first-link guide, etc.) are already clear and benefit-led from prior UX/i18n passes; a broad rewrite there would be high-churn across 6 locales for little gain.
+- **Remaining (optional, needs go-ahead):** a dedicated full-app copy + 6-locale i18n consistency audit (nav/button casing like "Sign in" vs "Log in", tooltips, error strings).
 
 ### F. Finish the design rollout  ✅ DONE & VERIFIED (2026-08-06)
 - **Phase 1 DONE & verified (2026-08-06):** Referrals, Invoices (+ tax report), and Company migrated to the single **Lucide** `<Icon>` set + **Roboto Mono** on all figures; Invoices also dropped its static `@/styles/theme` import (spacing → `useTheme()`).

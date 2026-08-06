@@ -1,3 +1,19 @@
+# CURRENT SESSION (2026-08-06 (c) — fork, preview 3f058365) — Creator page HERO reimagined + overflow fix + copy polish — VERIFIED (screenshots)
+
+- **Backlog C (Creator hero) — DONE & verified.** Fixed the fixed-header overflow (public creator page used the `home` layout with a `position: fixed` header but no top clearance → avatar clipped). Added `pt: { xs: '64px', sm: '88px' }` to the hero wrapper. Reimagined the hero (design_agent blueprint → `design_guidelines.json`) in `Components/Page/Creator/CreatorProfile.tsx`:
+  - Rich state: cover band (180/224px, radius 0/24) + bottom scrim (blends into bg + AA contrast); avatar straddles via negative margin.
+  - Bare state (no cover, e.g. hostbay): ambient accent radial glow so it never looks empty.
+  - Avatar: photo → glass ring (4px background.default) + accent glow; no photo → gradient monogram (accent→darken(accent)) + glow + white initial.
+  - Accent-driven: glow/monogram/handle color/hover all use `theme.accent_color` (fallback Aurora indigo #4F46E5). Handle now in accent color. Mount fade-up + social hover-lift.
+  - Also updated the dashboard editor mirror `CreatorLivePreview.tsx` to match (gradient monogram, accent handle, cover scrim, glass ring).
+- **Backlog E (copy) — PARTIAL.** Polished the creator page public copy (warmer empty state, singular/plural "1 supporter", better share message). Left the main in-app dashboard empty states/labels as-is (already clear + benefit-led from prior passes; broad rewrite = high 6-locale churn, low gain).
+- **VERIFIED (screenshots):** `/hostbay` bare state (desktop+mobile, header no longer clips: avatar top 232 vs header bottom 73); rich state via temp preview page (twilight gradient cover + photo + bio + socials + custom violet accent) desktop light/dark + mobile; `/creator` editor live-preview mirror. No runtime errors; frontend compiles clean. Temp preview page (`pages/creator-rich-preview.tsx`) created for QA then DELETED.
+- **Follow-up noted:** `/creator` editor LIVE PREVIEW shows default indigo + solid cover regardless of the merchant's picked accent/cover style/gradient (those are local state in `CreatorPageSettings`, not in `CreatorFormState` passed to `CreatorLivePreview`). Pre-existing gap — wiring them in is a good next enhancement.
+- **Files:** `Components/Page/Creator/CreatorProfile.tsx` (hero rewrite + copy), `Components/Page/Creator/CreatorLivePreview.tsx` (mirror), `design_guidelines.json` (hero blueprint, overwrote the stale lime one). Frontend-only, no backend/DB changes.
+
+---
+
+
 # CURRENT SESSION (2026-08-06 (b) — fork, preview 3f058365) — Design Rollout Phase 3 COMPLETE + /settings crash fix — VERIFIED (dark mode screenshots)
 
 - **Task:** Finished backlog item **F Phase 3** — migrated the last shared in-app components off the static light-mode `@/styles/theme` import to MUI's dynamic `useTheme()` so nothing looks off in dark mode.

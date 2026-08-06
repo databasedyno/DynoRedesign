@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { createPortal } from 'react-dom'
 import { Box, Button, LinearProgress, Typography, useTheme } from '@mui/material'
+import { alpha, darken } from '@mui/material/styles'
 import { Icon } from '@iconify/react'
 import Logo from '@/assets/Icons/Logo'
 import { formatWithSeparators, getCurrencySymbolFromFormat } from '@/utils/currencyFormat'
@@ -118,6 +119,9 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget, analytics }: {
     return `linear-gradient(135deg, ${accent}22 0%, ${accent}66 100%)`
   })()
   const hasCustomCover = coverStyle !== 'solid' || creator.theme?.accent_color != null
+  // A "rich" hero band exists when the creator has an uploaded cover image or
+  // any custom cover treatment; otherwise we render an ambient accent glow.
+  const hasCover = !!(creator.cover_image || hasCustomCover)
 
   const featured = links.find((l) => l.type === 'donation' && !l.closed) || null
   const rest = links.filter((l) => l !== featured)
@@ -137,7 +141,7 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget, analytics }: {
     : typeof window !== 'undefined'
       ? window.location.href
       : `/${creator.handle}`
-  const shareText = `Support ${creator.name} on Dynopay`
+  const shareText = `Support ${creator.name} on Dynopay — pay or tip in crypto, no signup needed.`
   const handleCopy = async () => {
     const ok = await copyToClipboard(shareUrl)
     if (ok) {
@@ -271,55 +275,92 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget, analytics }: {
   )
 
   return (
-    <Box sx={{ minHeight: '70vh', display: 'flex', justifyContent: 'center', px: { xs: 0, sm: 3 }, pt: { xs: 0, sm: 4 }, pb: { xs: '104px', sm: 4 } }}>
+    <Box sx={{ minHeight: '70vh', display: 'flex', justifyContent: 'center', px: { xs: 0, sm: 3 }, pt: { xs: '64px', sm: '88px' }, pb: { xs: '104px', sm: 4 } }}>
       <Box sx={{ width: '100%', maxWidth: 620 }}>
-        {/* ── Cover / hero image (optional) ── */}
-        {(creator.cover_image || hasCustomCover) && (
+        {/* ── Hero band: rich cover OR bare ambient accent glow ──
+            Reserves clearance for the FIXED marketing header via the outer
+            container's top padding, so the avatar below is never clipped. */}
+        {hasCover ? (
           <Box
             data-testid='creator-cover'
             sx={{
-              height: { xs: 140, sm: 180 },
-              borderRadius: { xs: 0, sm: '20px' },
+              position: 'relative',
+              height: { xs: 180, sm: 224 },
+              borderRadius: { xs: 0, sm: '24px' },
               overflow: 'hidden',
               background: coverBackground,
-              mb: { xs: 0, sm: -6 },
+            }}
+          >
+            {/* Scrim blends the cover bottom into the page background and
+                guarantees AA contrast for the avatar/name that overlap it. */}
+            <Box
+              aria-hidden
+              sx={{
+                position: 'absolute',
+                inset: 0,
+                background: `linear-gradient(to bottom, ${alpha(theme.palette.background.default, 0)} 34%, ${alpha(theme.palette.background.default, 0.55)} 76%, ${theme.palette.background.default} 100%)`,
+              }}
+            />
+          </Box>
+        ) : (
+          <Box
+            data-testid='creator-hero-glow'
+            aria-hidden
+            sx={{
+              height: { xs: 180, sm: 224 },
+              background: `radial-gradient(ellipse 78% 82% at 50% 34%, ${alpha(accent, isDark ? 0.3 : 0.22)} 0%, ${alpha(accent, 0)} 70%)`,
             }}
           />
         )}
 
-        {/* ── Header ── */}
-        {/* F10: On mobile without a cover image, the header sits flush with
-            the fixed navbar which clips the avatar. Add generous top padding
-            to guarantee ~64px clearance below any sticky header. */}
-        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', mb: 4, px: { xs: 2, sm: 3 }, pt: { xs: (creator.cover_image || hasCustomCover) ? 3 : 6, sm: 0 } }}>
+        {/* ── Identity: avatar + name + handle + bio + socials ──
+            Pulled up with a negative margin so the avatar straddles the hero
+            band; the outer top padding keeps it clear of the fixed header. */}
+        <Box
+          data-testid='creator-hero'
+          sx={{
+            display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
+            position: 'relative', zIndex: 2, mb: 4, px: { xs: 2, sm: 3 },
+            mt: { xs: '-64px', sm: '-80px' },
+            animation: 'creatorHeroIn 0.55s cubic-bezier(0.22,1,0.36,1) both',
+            '@keyframes creatorHeroIn': {
+              from: { opacity: 0, transform: 'translateY(10px)' },
+              to: { opacity: 1, transform: 'translateY(0)' },
+            },
+          }}
+        >
           <Box
             data-testid='creator-avatar'
             sx={{
-              width: 104, height: 104, borderRadius: '50%', overflow: 'hidden',
+              width: { xs: 104, sm: 120 }, height: { xs: 104, sm: 120 },
+              borderRadius: '50%', overflow: 'hidden',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              backgroundColor: (creator.cover_image || hasCustomCover) ? theme.palette.background.paper : limeTint,
-              border: `3px solid ${accent}`,
-              boxShadow: isDark ? `0 10px 40px ${accent}1F` : '0 10px 30px rgba(10,10,10,0.10)',
-              position: 'relative',
-              zIndex: 1,
+              border: `4px solid ${theme.palette.background.default}`,
+              background: creator.photo
+                ? theme.palette.background.paper
+                : `linear-gradient(135deg, ${accent} 0%, ${darken(accent, 0.28)} 100%)`,
+              boxShadow: creator.photo
+                ? `0 12px 36px ${alpha(accent, isDark ? 0.34 : 0.2)}`
+                : `0 14px 44px ${alpha(accent, 0.42)}`,
+              position: 'relative', zIndex: 1,
             }}
           >
             {creator.photo ? (
               <Box component='img' src={creator.photo} alt={creator.name} sx={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             ) : (
-              <Typography sx={{ fontFamily: MONO, fontWeight: 800, fontSize: 40, color: theme.palette.text.primary }}>
+              <Typography sx={{ fontFamily: MONO, fontWeight: 800, fontSize: { xs: 42, sm: 48 }, lineHeight: 1, color: '#FFFFFF' }}>
                 {initial}
               </Typography>
             )}
           </Box>
-          <Typography data-testid='creator-name' fontWeight={800} fontSize={{ xs: 24, sm: 28 }} letterSpacing='-0.02em' color={theme.palette.text.primary} mt={2}>
+          <Typography data-testid='creator-name' fontWeight={800} fontSize={{ xs: 24, sm: 28 }} letterSpacing='-0.03em' color={theme.palette.text.primary} mt={2}>
             {creator.name}
           </Typography>
-          <Typography sx={{ fontFamily: MONO, fontSize: 14, color: theme.palette.text.secondary, mt: 0.25 }}>
+          <Typography sx={{ fontFamily: MONO, fontSize: 14.5, fontWeight: 600, color: accent, mt: 0.5 }}>
             @{creator.handle}
           </Typography>
           {creator.bio && (
-            <Typography fontSize={14.5} lineHeight={1.6} color={theme.palette.text.secondary} mt={1.5} sx={{ maxWidth: 460 }}>
+            <Typography fontSize={15} lineHeight={1.6} color={theme.palette.text.secondary} mt={2} sx={{ maxWidth: 460 }}>
               {creator.bio}
             </Typography>
           )}
@@ -328,7 +369,7 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget, analytics }: {
           {creator.social_links && Object.keys(creator.social_links).length > 0 && (
             <Box
               data-testid='creator-socials'
-              sx={{ display: 'flex', gap: 1, mt: 2, flexWrap: 'wrap', justifyContent: 'center' }}
+              sx={{ display: 'flex', gap: 1.25, mt: 3, flexWrap: 'wrap', justifyContent: 'center' }}
             >
               {Object.entries(creator.social_links).map(([platform, url]) => {
                 if (!url) return null
@@ -341,14 +382,14 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget, analytics }: {
                     rel='noopener noreferrer'
                     data-testid={`creator-social-${platform}`}
                     sx={{
-                      width: 40, height: 40, borderRadius: '50%',
+                      width: 42, height: 42, borderRadius: '50%',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                       border: `1px solid ${border}`,
                       backgroundColor: surface,
                       color: theme.palette.text.primary,
-                      transition: 'border-color 160ms ease, transform 160ms ease',
+                      transition: 'border-color 0.2s ease, transform 0.2s ease, background-color 0.2s ease',
                       textDecoration: 'none',
-                      '&:hover': { borderColor: accent, transform: 'translateY(-1px)' },
+                      '&:hover': { borderColor: accent, transform: 'translateY(-2px)', backgroundColor: alpha(accent, 0.06) },
                     }}
                     aria-label={platform}
                   >
@@ -469,7 +510,7 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget, analytics }: {
               />
             )}
             <Typography fontSize={12} color={theme.palette.text.secondary} mt={1}>
-              {featured.supporters_count} supporters
+              {featured.supporters_count} {featured.supporters_count === 1 ? 'supporter' : 'supporters'}
             </Typography>
             <Button
               fullWidth
@@ -575,7 +616,7 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget, analytics }: {
               {t("creator.card.emptyTitle")}
             </Typography>
             <Typography fontSize={13} color={theme.palette.text.secondary} mt={0.5} mb={2}>
-              {creator.name.split(' ')[0]} hasn&apos;t published any links yet — check back soon.
+              {creator.name.split(' ')[0]} hasn&apos;t added any ways to pay yet — check back soon to show your support.
             </Typography>
             {/* F10: give visitors a fallback action so this isn't a dead end */}
             <Button

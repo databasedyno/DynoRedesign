@@ -1,5 +1,6 @@
 import React from "react";
 import { Box, LinearProgress, Typography, useTheme } from "@mui/material";
+import { alpha, darken } from "@mui/material/styles";
 import { Icon } from "@iconify/react";
 import { useSelector } from "react-redux";
 import { rootReducer } from "@/utils/types";
@@ -97,38 +98,54 @@ const CreatorLivePreview: React.FC<Props> = ({ state }) => {
       {/* Cover / hero */}
       <Box
         sx={{
-          height: 90,
+          height: 104,
           backgroundImage: cover ? `url(${cover})` : `linear-gradient(135deg, ${limeTint}, ${surface})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
           position: "relative",
         }}
-      />
+      >
+        {/* Scrim blends the cover bottom into the card background */}
+        <Box
+          aria-hidden
+          sx={{
+            position: "absolute",
+            inset: 0,
+            background: `linear-gradient(to bottom, ${alpha(theme.palette.background.paper, 0)} 40%, ${alpha(theme.palette.background.paper, 0.6)} 80%, ${theme.palette.background.paper} 100%)`,
+          }}
+        />
+      </Box>
 
       {/* Avatar (overlaps cover) */}
-      <Box sx={{ px: 3, pt: 0, pb: 3, mt: -5, textAlign: "center", position: "relative" }}>
+      <Box sx={{ px: 3, pt: 0, pb: 3, mt: -5, textAlign: "center", position: "relative", zIndex: 1 }}>
         <Box
+          data-testid="creator-preview-avatar"
           sx={{
-            width: 76, height: 76, borderRadius: "50%", overflow: "hidden",
+            width: 80, height: 80, borderRadius: "50%", overflow: "hidden",
             display: "inline-flex", alignItems: "center", justifyContent: "center",
-            backgroundColor: theme.palette.background.paper,
-            border: `3px solid ${LIME}`,
-            boxShadow: isDark ? "0 4px 14px rgba(0,0,0,0.4)" : "0 4px 14px rgba(0,0,0,0.10)",
+            border: `4px solid ${theme.palette.background.paper}`,
+            background: photo
+              ? theme.palette.background.paper
+              : `linear-gradient(135deg, ${LIME} 0%, ${darken(LIME, 0.28)} 100%)`,
+            boxShadow: photo
+              ? `0 8px 24px ${alpha(LIME, isDark ? 0.34 : 0.2)}`
+              : `0 10px 30px ${alpha(LIME, 0.4)}`,
+            position: "relative", zIndex: 1,
           }}
         >
           {photo ? (
             <Box component="img" src={photo} alt={name} sx={{ width: "100%", height: "100%", objectFit: "cover" }} />
           ) : (
-            <Typography sx={{ fontFamily: MONO, fontWeight: 800, fontSize: 30, color: theme.palette.text.primary }}>
+            <Typography sx={{ fontFamily: MONO, fontWeight: 800, fontSize: 32, lineHeight: 1, color: "#FFFFFF" }}>
               {initial}
             </Typography>
           )}
         </Box>
 
-        <Typography fontWeight={800} fontSize={19} mt={1.25} color={theme.palette.text.primary} sx={{ letterSpacing: "-0.01em" }}>
+        <Typography fontWeight={800} fontSize={19} mt={1.25} color={theme.palette.text.primary} sx={{ letterSpacing: "-0.02em" }}>
           {name}
         </Typography>
-        <Typography sx={{ fontFamily: MONO, fontSize: 12.5, color: theme.palette.text.secondary, mt: 0.25 }}>
+        <Typography sx={{ fontFamily: MONO, fontSize: 12.5, fontWeight: 600, color: LIME, mt: 0.25 }}>
           @{handle}
         </Typography>
 
