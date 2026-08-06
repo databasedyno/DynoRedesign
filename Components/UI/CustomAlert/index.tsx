@@ -13,6 +13,7 @@ interface CusotmAlertProps {
   heading?: string;
   hideCancel?: boolean;
   successIcon?: boolean;
+  disableConfirm?: boolean;
 }
 
 const CustomAlert = ({
@@ -25,6 +26,7 @@ const CustomAlert = ({
   message,
   hideCancel = false,
   successIcon,
+  disableConfirm = false,
 }: CusotmAlertProps) => {
   return (
     <PopupModal
@@ -49,6 +51,7 @@ const CustomAlert = ({
       cancelText={cancelText}
       hasFooter
       hideCancel={hideCancel}
+      disableConfirm={disableConfirm}
     >
       <Box
         sx={{

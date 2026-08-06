@@ -16,7 +16,7 @@ import { useWalletStore } from "@/contexts/WalletDataContext";
 import { WalletDataType } from "@/utils/types/wallet";
 import { getNetworkLabel, isTokenOnOtherChain } from "@/utils/networkLabels";
 import { Icon, MONO } from "@/styles/uiKit";
-import { Box, CircularProgress, Grid, Tooltip, Typography, useTheme } from "@mui/material";
+import { Box, Grid, Skeleton, Tooltip, Typography, useTheme } from "@mui/material";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { useCallback, useState } from "react";
@@ -95,20 +95,37 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: () => void }) => {
   };
 
   if (walletLoading && walletData.length === 0) {
+    // Skeleton grid mirroring the wallet-card layout — shown on first load AND
+    // the instant a merchant switches company (SWR key changes → cache miss),
+    // so the refresh feels immediate instead of a blank spinner.
     return (
       <Box
+        data-testid="wallet-list-skeleton"
         sx={{
-          height: "100%",
+          width: "100%",
           display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
+          flexDirection: "column",
+          gap: "16px",
+          mt: isMobile ? 1 : 0,
+          pb: { xs: "70px", lg: "0" },
         }}
       >
-        <CircularProgress
-          sx={{
-            color: "primary.main",
-          }}
+        <Skeleton
+          variant="rounded"
+          height={isMobile ? 110 : 132}
+          sx={{ borderRadius: "16px" }}
         />
+        <Grid container spacing={isMobile ? "12px" : 2.7}>
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Grid item xs={12} md={6} key={i}>
+              <Skeleton
+                variant="rounded"
+                height={isMobile ? 190 : 220}
+                sx={{ borderRadius: "16px" }}
+              />
+            </Grid>
+          ))}
+        </Grid>
       </Box>
     );
   }

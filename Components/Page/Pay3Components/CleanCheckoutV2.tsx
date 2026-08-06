@@ -56,6 +56,7 @@ import { Icon } from '@iconify/react'
 import { QRCodeSVG } from 'qrcode.react'
 import Logo from '@/assets/Icons/Logo'
 import CheckoutStatusStrip from '@/Components/UI/CheckoutStatusStrip'
+import RateFreshness from '@/Components/UI/RateFreshness'
 import type { CheckoutState } from '@/Components/UI/CheckoutShell'
 import { formatWithSeparators, getCurrencySymbolFromFormat } from '@/utils/currencyFormat'
 
@@ -305,6 +306,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
   // header shows the getData estimate first, then the exact figure.
   const [feeExact, setFeeExact] = useState<{ fee: number; total: number } | null>(null)
   const [timeLeft, setTimeLeft] = useState<number>(0)
+  const [rateFetchedAt, setRateFetchedAt] = useState<number | null>(null)
   const [copiedFlag, setCopiedFlag] = useState<'addr' | 'amt' | ''>('')
   const [portalReady, setPortalReady] = useState(false)
   const [shareCopied, setShareCopied] = useState(false)
@@ -536,6 +538,9 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
       setPhase('error')
       return
     }
+    // Timestamp the moment we locked this live rate — surfaced to the customer
+    // as a subtle "Rate updated Xs ago" hint so the amount feels live/trusted.
+    setRateFetchedAt(Date.now())
 
     // Capture the exact fee + total (in base currency) for the header breakdown.
     // Backend returns these in SOURCE currency for customer-pays links.
@@ -1261,6 +1266,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
               {copiedFlag === 'amt' ? t('checkout.copied', { defaultValue: 'Copied' }) : t('checkout.copy', { defaultValue: 'Copy' })}
             </Box>
           </Box>
+          <RateFreshness updatedAt={rateFetchedAt} color={muted} />
         </Box>
       )}
 

@@ -1,5 +1,5 @@
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
-import { Box, useTheme } from "@mui/material";
+import { Box, TextField, Typography, useTheme } from "@mui/material";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
@@ -105,8 +105,21 @@ export default function CompanySettingsDialog({
     webhook_secret: string;
   } | null>(null);
   const [deleteAlertOpen, setDeleteAlertOpen] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+
+  // Reset the "type the company name to confirm" input whenever the delete
+  // dialog opens/closes so the guard always starts empty.
+  React.useEffect(() => {
+    if (!deleteAlertOpen) setDeleteConfirmText("");
+  }, [deleteAlertOpen]);
+
+  const companyName = company?.company_name ?? "";
+  const deleteConfirmed =
+    deleteConfirmText.trim().toLowerCase() === companyName.trim().toLowerCase() &&
+    companyName.trim().length > 0;
 
   const handleDeleteCompany = async () => {
+    if (!deleteConfirmed) return;
     if (company?.company_id) {
       try {
         await companyState.deleteCompany(company.company_id);
@@ -558,9 +571,31 @@ export default function CompanySettingsDialog({
       <CustomAlert
         open={deleteAlertOpen}
         handleClose={() => setDeleteAlertOpen(false)}
-        message="Are you sure you want to remove this company? This will remove all associated users, transactions, and API keys."
+        message={
+          <Box>
+            <Typography sx={{ fontSize: "15px", color: "text.secondary", lineHeight: 1.6, mb: 2 }}>
+              This will permanently remove <b>{companyName}</b> and all associated
+              users, transactions, and API keys. This cannot be undone.
+            </Typography>
+            <Typography sx={{ fontSize: "13px", color: "text.secondary", mb: 0.75 }}>
+              Type <b>{companyName}</b> to confirm:
+            </Typography>
+            <TextField
+              fullWidth
+              size="small"
+              autoComplete="off"
+              placeholder={companyName}
+              value={deleteConfirmText}
+              onChange={(e) => setDeleteConfirmText(e.target.value)}
+              inputProps={{ "data-testid": "delete-company-confirm-input" }}
+              error={deleteConfirmText.length > 0 && !deleteConfirmed}
+              sx={{ "& .MuiOutlinedInput-root": { borderRadius: "8px" } }}
+            />
+          </Box>
+        }
         confirmText="Delete"
         onConfirm={handleDeleteCompany}
+        disableConfirm={!deleteConfirmed}
       />
     </>
   );
