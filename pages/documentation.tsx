@@ -517,7 +517,7 @@ const ENDPOINTS: Endpoint[] = [
   {
     id: "elements-intent",
     method: "POST",
-    path: "/embed/public/elements/intent",
+    path: "/api/embed/public/elements/intent",
     title: "Create Elements Payment Intent",
     description:
       "Create a payment intent for the **Elements Inline Widget** — the SDK renders the pay UI (currency picker, address, QR, live status) directly in your DOM (no iframe). Called by `Dynopay(pk).elements().create('crypto', { amount }).mount('#el')` — you rarely call it directly. Uses a browser-safe **publishable key**; the request Origin must be on the key's `allowed_domains`. Returns a set of currencies (intersection of your configured wallets, the pk's `allowed_currencies`, and the merchant address pool) and a Redis-backed `intent_id` valid for 24h.",
@@ -555,7 +555,7 @@ const ENDPOINTS: Endpoint[] = [
   {
     id: "elements-select-currency",
     method: "POST",
-    path: "/embed/public/elements/select-currency",
+    path: "/api/embed/public/elements/select-currency",
     title: "Select Currency (Elements)",
     description:
       "Reserve a merchant-pool address for the chosen currency on an existing Elements intent. **Idempotent** — a second call with the same currency returns the SAME address. Switching currency after the intent has reached `processing`/`succeeded` returns `400`. Converts fiat → crypto with the live rate and generates a QR code. Called automatically by `element.mount()` after the customer picks a currency in the widget.",
@@ -589,7 +589,7 @@ const ENDPOINTS: Endpoint[] = [
   {
     id: "elements-status",
     method: "GET",
-    path: "/embed/public/elements/status?intent_id=pi_...",
+    path: "/api/embed/public/elements/status?intent_id=pi_...",
     title: "Poll Elements Intent Status",
     description:
       "Read the live status of an Elements intent. The SDK polls this every 5 seconds. DB status is mapped to a stable client status: `completed/successful/confirmed → succeeded`, `underpaid/partial/processing → processing`, `failed/expired/cancelled → failed`. Otherwise falls back to `requires_currency` / `awaiting_payment` / `expired` (24h TTL). **Fulfillment must be confirmed via the `payment.succeeded` webhook — this endpoint is UX-only.**",
