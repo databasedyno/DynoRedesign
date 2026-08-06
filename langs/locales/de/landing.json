@@ -4,7 +4,7 @@
   "useCases": "Anwendungsfälle",
   "documentation": "Dokumentation",
   "signIn": "Anmelden",
-  "getStarted": "Loslegen",
+  "getStarted": "Kostenlos starten",
   "nav": {
     "products": "Produkte",
     "developers": "Entwickler",
@@ -13,15 +13,15 @@
     "mega": {
       "paymentLinks": {
         "title": "Zahlungslinks",
-        "desc": "Teilbare Links, um in Sekunden in Krypto bezahlt zu werden"
+        "desc": "Teilbare Links, mit denen du in Sekunden in Krypto bezahlt wirst"
       },
       "checkout": {
         "title": "Checkout",
-        "desc": "Integrierbarer, gehosteter Checkout für jeden Shop"
+        "desc": "Sofort einsetzbarer gehosteter Checkout für jeden Shop"
       },
       "creatorPages": {
         "title": "Creator-Seiten",
-        "desc": "Deine eigene Trinkgeld- und Zahlungsseite"
+        "desc": "Deine eigene gebrandete Trinkgeld- und Zahlungsseite"
       },
       "payouts": {
         "title": "Krypto-Auszahlungen",
@@ -37,7 +37,7 @@
       },
       "webhooks": {
         "title": "Webhooks",
-        "desc": "Echtzeit-Benachrichtigungen zu Zahlungsereignissen"
+        "desc": "Echtzeit-Benachrichtigungen für jedes Zahlungsereignis"
       },
       "blog": {
         "title": "Blog",
@@ -61,7 +61,7 @@
       },
       "terms": {
         "title": "AGB",
-        "desc": "Allgemeine Geschäftsbedingungen"
+        "desc": "Geschäftsbedingungen"
       },
       "privacy": {
         "title": "Datenschutz",
@@ -70,7 +70,7 @@
       "featured": {
         "title": "Jetzt kostenlos starten",
         "desc": "Deine ersten 500 $ Volumen gehen auf uns — ohne Karte.",
-        "cta": "Loslegen"
+        "cta": "Kostenlos starten"
       }
     }
   },
@@ -431,20 +431,20 @@
   },
   "v3": {
     "hero": {
-      "eyebrow": "Dynopay · Öffentliche Beta",
+      "eyebrow": "Dynopay · Jetzt in der öffentlichen Beta",
       "headline1": "Werde in Krypto bezahlt.",
       "headlineHighlight": "Egal wie",
       "headline2": "du verkaufst.",
-      "body": "Ein Wallet für Händler, Fundraiser, Creator und Entwickler. Tips, Shops, Kampagnen und API — beglichen in der Coin, die du willst, ab <b>0,5%</b> Gebühr.",
+      "body": "Eine Wallet für Händler, Creator, Fundraiser und Entwickler. Shops, Trinkgelder, Kampagnen und eine saubere API – alles in der Coin deiner Wahl abgerechnet, ab <b>0,5 %</b>.",
       "claimBtn": "Sichern",
       "chooseHandle": "Wähle deinen Creator-Handle",
-      "rewardBadge": "Neue Konten: deine ersten <b>$500</b> im Volumen sind gebührenfrei",
-      "bullets": "Kostenlos · Keine Kreditkarte · 15+ Chains",
+      "rewardBadge": "Neu hier? Deine ersten <b>500 $</b> Volumen gehen auf uns.",
+      "bullets": "Kostenlos starten · Keine Karte · Über 15 Chains",
       "trustLine": "Non-custodial · SOC 2 in Vorbereitung · DSGVO / AML",
       "livePill": "LIVE",
       "sendTipLabel": "Tip senden",
       "sendTipBtn": "Tip senden",
-      "metaSettle": "Landet in <b>deinem Wallet</b> in ~4s · Gebühr <b>1,5%</b>"
+      "metaSettle": "Landet in ~4s in <b>deiner Wallet</b> · ab <b>1,5 %</b>"
     },
     "story": {
       "eyebrow": "[ So funktioniert's ]",
@@ -503,7 +503,7 @@
       "eyebrow": "[ Was drin ist ]",
       "headline1": "Alles, was du brauchst",
       "headline2": "um bezahlt zu werden.",
-      "body": "Eine Plattform, drei Wege zur Integration — ein gehostetes Checkout, automatische Abwicklung und eine saubere API. Nimm, was du brauchst, ignoriere den Rest.",
+      "body": "Eine Plattform, drei Wege zur Anbindung: ein gehosteter Checkout, automatische Abrechnung und eine saubere API. Nimm, was du brauchst, ignoriere den Rest.",
       "checkout": {
         "tag": "Checkout",
         "title": "Ein Checkout, das jede Coin spricht.",
@@ -538,24 +538,24 @@
       "eyebrow": "[ Für wen ist das? ]",
       "headline1": "Ein Wallet.",
       "headline2": "Jedes Publikum.",
-      "body": "Wähle deine Tür — Händler, Kampagnen, Creator, Entwickler. Alle teilen die gleichen Krypto-Rails, das gleiche Wallet, die gleichen Gebühren.",
+      "body": "Wähle deine Tür – Händler, Creator, Fundraiser, Entwickler. Dieselben Krypto-Rails, dieselbe Wallet, dieselben Gebühren.",
       "merchants": {
         "tag": "01 · Händler",
         "title": "Verkaufe Produkte in Krypto.",
-        "desc": "Gehostetes Checkout, Produktkatalog, Rechnungen. Auto-konvertiere oder behalte die Original-Coin.",
+        "desc": "Gehosteter Checkout, Produktkatalog und Rechnungen. Automatisch umwandeln oder die ursprüngliche Coin behalten.",
         "statLabel": "Gebühren, während du wächst"
       },
       "fundraisers": {
         "tag": "02 · Fundraiser",
         "title": "Führe Kampagnen, die finanzieren.",
-        "desc": "Ziel-Balken, Tiers, Spender-Wall, Updates. Jede Spende landet on-chain in deinem Wallet.",
+        "desc": "Zielbalken, Stufen, Spender-Wall und Updates. Jede Spende landet on-chain, in deiner Wallet.",
         "stat": "On-chain",
         "statLabel": "transparent von Anfang an"
       },
       "creators": {
         "tag": "03 · Creator",
         "title": "Erhalte Tips von deinen Fans.",
-        "desc": "Deine eigene dynopay.me/@handle-Seite, Inline-Tip-Beträge, keine Chargebacks, sofortige Auszahlungen.",
+        "desc": "Deine eigene dynopay.me/@handle-Seite mit integrierten Trinkgeldern – keine Rückbuchungen, sofortige Auszahlungen.",
         "statLabel": "Auszahlung ans Wallet"
       },
       "developers": {
@@ -569,8 +569,8 @@
       "eyebrow": "[ Wenn du bereit bist ]",
       "headline1": "Werde bezahlt in",
       "headline2": "Krypto heute.",
-      "body": "Kostenlos zum Start. Keine Karte. Live in unter 10 Minuten. Bring dein Wallet mit, behalte dein Geld.",
-      "rewardBadge": "Neue Konten: deine ersten <b>$500</b> im Volumen sind gebührenfrei",
+      "body": "Kostenlos starten. Keine Karte. In unter 10 Minuten live – bring deine Wallet mit, behalte dein Geld.",
+      "rewardBadge": "Neu hier? Deine ersten <b>500 $</b> Volumen gehen auf uns.",
       "getStarted": "Kostenlos starten",
       "readDocs": "Docs lesen",
       "trustLine": "Non-custodial · 15+ Chains · SOC2 in Vorbereitung · DSGVO / AML"

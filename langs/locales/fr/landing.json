@@ -4,7 +4,7 @@
   "useCases": "Cas d'usage",
   "documentation": "Documentation",
   "signIn": "Se connecter",
-  "getStarted": "Commencer",
+  "getStarted": "Commencer gratuitement",
   "nav": {
     "products": "Produits",
     "developers": "Développeurs",
@@ -13,19 +13,19 @@
     "mega": {
       "paymentLinks": {
         "title": "Liens de paiement",
-        "desc": "Liens partageables pour être payé en crypto en quelques secondes"
+        "desc": "Des liens partageables pour être payé en crypto en quelques secondes"
       },
       "checkout": {
         "title": "Checkout",
-        "desc": "Paiement hébergé et intégrable pour toute boutique"
+        "desc": "Checkout hébergé prêt à l'emploi pour toute boutique"
       },
       "creatorPages": {
         "title": "Pages créateur",
-        "desc": "Votre propre page de pourboires et de paiement"
+        "desc": "Votre propre page de pourboires et de paiement personnalisée"
       },
       "payouts": {
         "title": "Versements crypto",
-        "desc": "Envoyez des stablecoins et de la crypto à n'importe qui, partout"
+        "desc": "Envoyez des stablecoins et des cryptos à n'importe qui, partout"
       },
       "docs": {
         "title": "Documentation",
@@ -37,7 +37,7 @@
       },
       "webhooks": {
         "title": "Webhooks",
-        "desc": "Notifications d'événements de paiement en temps réel"
+        "desc": "Notifications en temps réel pour chaque événement de paiement"
       },
       "blog": {
         "title": "Blog",
@@ -70,7 +70,7 @@
       "featured": {
         "title": "Commencez gratuitement",
         "desc": "Vos 500 premiers $ de volume sont offerts — sans carte.",
-        "cta": "Commencer"
+        "cta": "Commencer gratuitement"
       }
     }
   },
@@ -431,20 +431,20 @@
   },
   "v3": {
     "hero": {
-      "eyebrow": "Dynopay · Bêta publique",
+      "eyebrow": "Dynopay · Désormais en bêta publique",
       "headline1": "Encaissez en crypto.",
       "headlineHighlight": "Peu importe",
       "headline2": "ce que vous vendez.",
-      "body": "Un portefeuille pour marchands, collecteurs, créateurs et développeurs. Pourboires, boutiques, campagnes, API — réglé dans la crypto de votre choix, à partir de <b>0,5%</b> de frais.",
+      "body": "Un seul portefeuille pour marchands, créateurs, collecteurs de fonds et développeurs. Boutiques, pourboires, campagnes et une API claire — le tout réglé dans la devise de votre choix, à partir de <b>0,5 %</b>.",
       "claimBtn": "Réserver",
       "chooseHandle": "Choisissez votre pseudo de créateur",
-      "rewardBadge": "Nouveaux comptes : vos premiers <b>500 $</b> en volume sont sans frais",
-      "bullets": "Gratuit · Sans carte · 15+ chaînes",
+      "rewardBadge": "Nouveau ici ? Vos premiers <b>500 $</b> de volume sont offerts.",
+      "bullets": "Gratuit au départ · Sans carte · Plus de 15 chaînes",
       "trustLine": "Non-custodial · SOC 2 en cours · RGPD / AML",
       "livePill": "EN DIRECT",
       "sendTipLabel": "Envoyer un pourboire",
       "sendTipBtn": "Envoyer",
-      "metaSettle": "Réglé sur <b>votre wallet</b> en ~4s · frais <b>1,5%</b>"
+      "metaSettle": "Arrive dans <b>votre portefeuille</b> en ~4s · à partir de <b>1,5 %</b>"
     },
     "story": {
       "eyebrow": "[ Comment ça marche ]",
@@ -503,7 +503,7 @@
       "eyebrow": "[ Ce qu'il y a dedans ]",
       "headline1": "Tout ce qu'il faut",
       "headline2": "pour être payé.",
-      "body": "Une plateforme, trois façons de l'intégrer — un checkout hébergé, un règlement automatique et une API propre. Prenez ce qu'il vous faut, ignorez le reste.",
+      "body": "Une plateforme, trois façons de vous connecter : un checkout hébergé, un règlement automatique et une API claire. Prenez ce dont vous avez besoin, ignorez le reste.",
       "checkout": {
         "tag": "Checkout",
         "title": "Un checkout qui parle toutes les cryptos.",
@@ -538,24 +538,24 @@
       "eyebrow": "[ Pour qui ? ]",
       "headline1": "Un wallet.",
       "headline2": "Tous les publics.",
-      "body": "Choisissez votre porte — marchands, campagnes, créateurs, développeurs. Tous partagent les mêmes rails crypto, le même wallet, les mêmes frais.",
+      "body": "Choisissez votre porte — marchands, créateurs, collecteurs de fonds, développeurs. Les mêmes rails crypto, le même portefeuille, les mêmes frais.",
       "merchants": {
         "tag": "01 · Marchands",
         "title": "Vendez en crypto.",
-        "desc": "Checkout hébergé, catalogue produits, factures. Auto-convertissez ou gardez la crypto d'origine.",
+        "desc": "Checkout hébergé, catalogue de produits et factures. Conversion automatique ou conservation de la devise d'origine.",
         "statLabel": "frais qui baissent quand vous grandissez"
       },
       "fundraisers": {
         "tag": "02 · Collectes",
         "title": "Lancez des campagnes qui financent.",
-        "desc": "Barre d'objectif, paliers, mur de donateurs, mises à jour. Chaque don arrive on-chain dans votre wallet.",
+        "desc": "Barre d'objectif, paliers, mur des donateurs et actualités. Chaque don arrive on-chain, dans votre portefeuille.",
         "stat": "On-chain",
         "statLabel": "transparent par défaut"
       },
       "creators": {
         "tag": "03 · Créateurs",
         "title": "Recevez des pourboires de vos fans.",
-        "desc": "Votre propre page dynopay.me/@pseudo, montants de pourboire en inline, sans rétrofacturation, paiements instantanés.",
+        "desc": "Votre propre page dynopay.me/@handle avec pourboires intégrés — sans rétrofacturation, versements instantanés.",
         "statLabel": "versement au wallet"
       },
       "developers": {
@@ -569,8 +569,8 @@
       "eyebrow": "[ Quand vous êtes prêt ]",
       "headline1": "Encaissez en",
       "headline2": "crypto aujourd'hui.",
-      "body": "Gratuit pour commencer. Sans carte. En ligne en moins de 10 minutes. Apportez votre wallet, gardez votre argent.",
-      "rewardBadge": "Nouveaux comptes : vos premiers <b>500 $</b> en volume sont sans frais",
+      "body": "Gratuit au départ. Sans carte. En ligne en moins de 10 minutes — apportez votre portefeuille, gardez votre argent.",
+      "rewardBadge": "Nouveau ici ? Vos premiers <b>500 $</b> de volume sont offerts.",
       "getStarted": "Commencer gratuitement",
       "readDocs": "Lire la doc",
       "trustLine": "Non-custodial · 15+ chaînes · SOC2 en cours · RGPD / AML"

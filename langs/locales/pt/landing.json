@@ -4,7 +4,7 @@
   "useCases": "Casos de uso",
   "documentation": "Documentação",
   "signIn": "Entrar",
-  "getStarted": "Começar",
+  "getStarted": "Comece grátis",
   "nav": {
     "products": "Produtos",
     "developers": "Programadores",
@@ -13,15 +13,15 @@
     "mega": {
       "paymentLinks": {
         "title": "Links de pagamento",
-        "desc": "Links partilháveis para receber em cripto em segundos"
+        "desc": "Links compartilháveis que recebem em cripto em segundos"
       },
       "checkout": {
         "title": "Checkout",
-        "desc": "Checkout alojado e integrável para qualquer loja"
+        "desc": "Checkout hospedado plug-and-play para qualquer loja"
       },
       "creatorPages": {
         "title": "Páginas de criador",
-        "desc": "A sua própria página de gorjetas e pagamentos"
+        "desc": "Sua própria página de gorjetas e pagamentos personalizada"
       },
       "payouts": {
         "title": "Envios de cripto",
@@ -37,7 +37,7 @@
       },
       "webhooks": {
         "title": "Webhooks",
-        "desc": "Notificações de eventos de pagamento em tempo real"
+        "desc": "Notificações em tempo real para cada evento de pagamento"
       },
       "blog": {
         "title": "Blog",
@@ -70,7 +70,7 @@
       "featured": {
         "title": "Comece grátis hoje",
         "desc": "Os seus primeiros 500 $ em volume são por nossa conta — sem cartão.",
-        "cta": "Começar"
+        "cta": "Comece grátis"
       }
     }
   },
@@ -431,20 +431,20 @@
   },
   "v3": {
     "hero": {
-      "eyebrow": "Dynopay · Beta pública",
+      "eyebrow": "Dynopay · Agora em beta público",
       "headline1": "Receba em cripto.",
       "headlineHighlight": "Em todas as formas",
       "headline2": "de vender.",
-      "body": "Uma carteira para comerciantes, angariadores, criadores e programadores. Gorjetas, lojas, campanhas e API — liquidação na moeda que quiser, a partir de <b>0,5%</b> de comissão.",
+      "body": "Uma carteira para lojistas, criadores, arrecadadores e desenvolvedores. Lojas, gorjetas, campanhas e uma API simples — tudo liquidado na moeda que você escolher, a partir de <b>0,5%</b>.",
       "claimBtn": "Reservar",
       "chooseHandle": "Escolha o seu nome de criador",
-      "rewardBadge": "Contas novas: os primeiros <b>$500</b> em volume são sem comissão",
-      "bullets": "Grátis · Sem cartão · 15+ redes",
+      "rewardBadge": "É novo por aqui? Seus primeiros <b>US$ 500</b> em volume são por nossa conta.",
+      "bullets": "Grátis para começar · Sem cartão · Mais de 15 redes",
       "trustLine": "Sem custódia · Rota SOC 2 · RGPD / AML",
       "livePill": "AO VIVO",
       "sendTipLabel": "Enviar uma gorjeta",
       "sendTipBtn": "Enviar gorjeta",
-      "metaSettle": "Liquidado na <b>sua carteira</b> em ~4s · comissão <b>1,5%</b>"
+      "metaSettle": "Cai na <b>sua carteira</b> em ~4s · a partir de <b>1,5%</b>"
     },
     "story": {
       "eyebrow": "[ Como funciona ]",
@@ -503,7 +503,7 @@
       "eyebrow": "[ O que está incluído ]",
       "headline1": "Tudo o que precisa",
       "headline2": "para receber.",
-      "body": "Uma plataforma, três formas de integrar — um checkout alojado, liquidação automática e uma API limpa. Escolha o que precisa, ignore o resto.",
+      "body": "Uma plataforma, três formas de integrar: um checkout hospedado, liquidação automática e uma API simples. Use o que precisar, ignore o resto.",
       "checkout": {
         "tag": "Checkout",
         "title": "Checkout que fala todas as moedas.",
@@ -538,24 +538,24 @@
       "eyebrow": "[ Para quem é isto? ]",
       "headline1": "Uma carteira.",
       "headline2": "Todos os públicos.",
-      "body": "Escolha a sua porta — comerciantes, campanhas, criadores, programadores. Todos partilham a mesma infraestrutura cripto, a mesma carteira, as mesmas comissões.",
+      "body": "Escolha sua porta — lojistas, criadores, arrecadadores, desenvolvedores. Os mesmos trilhos cripto, a mesma carteira, as mesmas taxas.",
       "merchants": {
         "tag": "01 · Comerciantes",
         "title": "Venda produtos em cripto.",
-        "desc": "Checkout alojado, catálogo de produtos, faturas. Auto-converta ou mantenha a moeda original.",
+        "desc": "Checkout hospedado, catálogo de produtos e faturas. Converta automaticamente ou mantenha a moeda original.",
         "statLabel": "comissões à medida que cresce"
       },
       "fundraisers": {
         "tag": "02 · Angariadores",
         "title": "Corra campanhas que financiam.",
-        "desc": "Barra de meta, níveis, muro de doadores, atualizações. Cada doação chega on-chain à sua carteira.",
+        "desc": "Barra de meta, níveis, mural de doadores e atualizações. Cada doação cai on-chain, na sua carteira.",
         "stat": "On-chain",
         "statLabel": "transparente por defeito"
       },
       "creators": {
         "tag": "03 · Criadores",
         "title": "Receba gorjetas dos seus fãs.",
-        "desc": "A sua própria página dynopay.me/@nome, valores de gorjeta inline, sem estornos, pagamentos instantâneos.",
+        "desc": "Sua própria página dynopay.me/@usuario com gorjetas integradas — sem estornos, saques instantâneos.",
         "statLabel": "pagamento na carteira"
       },
       "developers": {
@@ -569,8 +569,8 @@
       "eyebrow": "[ Quando estiver pronto ]",
       "headline1": "Receba em",
       "headline2": "cripto hoje.",
-      "body": "Grátis para começar. Sem cartão. Ao vivo em menos de 10 minutos. Traga a sua carteira, guarde o seu dinheiro.",
-      "rewardBadge": "Contas novas: os primeiros <b>$500</b> em volume são sem comissão",
+      "body": "Grátis para começar. Sem cartão. No ar em menos de 10 minutos — traga sua carteira, fique com seu dinheiro.",
+      "rewardBadge": "É novo por aqui? Seus primeiros <b>US$ 500</b> em volume são por nossa conta.",
       "getStarted": "Comece grátis",
       "readDocs": "Ler a documentação",
       "trustLine": "Sem custódia · 15+ redes · Rota SOC2 · RGPD / AML"

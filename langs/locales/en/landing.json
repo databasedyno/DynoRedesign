@@ -4,7 +4,7 @@
   "useCases": "Use cases",
   "documentation": "Documentation",
   "signIn": "Sign in",
-  "getStarted": "Get started",
+  "getStarted": "Start free",
   "nav": {
     "products": "Products",
     "developers": "Developers",
@@ -13,19 +13,19 @@
     "mega": {
       "paymentLinks": {
         "title": "Payment Links",
-        "desc": "Shareable links to get paid in crypto in seconds"
+        "desc": "Shareable links that get you paid in crypto in seconds"
       },
       "checkout": {
         "title": "Checkout",
-        "desc": "Drop-in hosted crypto checkout for any store"
+        "desc": "Drop-in hosted checkout for any store"
       },
       "creatorPages": {
         "title": "Creator Pages",
-        "desc": "Your own branded tip & payment page"
+        "desc": "Your own branded tip and payment page"
       },
       "payouts": {
         "title": "Crypto Payouts",
-        "desc": "Send stablecoins & crypto to anyone, anywhere"
+        "desc": "Send stablecoins and crypto to anyone, anywhere"
       },
       "docs": {
         "title": "Documentation",
@@ -37,7 +37,7 @@
       },
       "webhooks": {
         "title": "Webhooks",
-        "desc": "Real-time payment event notifications"
+        "desc": "Real-time notifications for every payment event"
       },
       "blog": {
         "title": "Blog",
@@ -61,7 +61,7 @@
       },
       "terms": {
         "title": "Terms",
-        "desc": "Terms & conditions"
+        "desc": "Terms and conditions"
       },
       "privacy": {
         "title": "Privacy",
@@ -70,7 +70,7 @@
       "featured": {
         "title": "Start free today",
         "desc": "Your first $500 in volume is on us — no card required.",
-        "cta": "Get started"
+        "cta": "Start free"
       }
     }
   },
@@ -431,20 +431,20 @@
   },
   "v3": {
     "hero": {
-      "eyebrow": "Dynopay · Public beta",
+      "eyebrow": "Dynopay · Now in public beta",
       "headline1": "Get paid in crypto.",
       "headlineHighlight": "Every way",
       "headline2": "you sell.",
-      "body": "One wallet for merchants, fundraisers, creators and developers. Tips, storefronts, campaigns, and API — settled in the coin you want, from <b>0.5%</b> fee.",
+      "body": "One wallet for merchants, creators, fundraisers and developers. Storefronts, tips, campaigns and a clean API — all settled to the coin you choose, from <b>0.5%</b>.",
       "claimBtn": "Claim",
       "chooseHandle": "Choose your creator handle",
-      "rewardBadge": "New accounts: your first <b>$500</b> in volume is fee-free",
-      "bullets": "Free · No credit card · 15+ chains",
+      "rewardBadge": "New here? Your first <b>$500</b> in volume is on us.",
+      "bullets": "Free to start · No card · 15+ chains",
       "trustLine": "Non-custodial · SOC 2 track · GDPR / AML",
       "livePill": "LIVE",
       "sendTipLabel": "Send a tip",
       "sendTipBtn": "Send tip",
-      "metaSettle": "Settles to <b>your wallet</b> in ~4s · fee <b>1.5%</b>"
+      "metaSettle": "Lands in <b>your wallet</b> in ~4s · from <b>1.5%</b>"
     },
     "story": {
       "eyebrow": "[ How it works ]",
@@ -503,7 +503,7 @@
       "eyebrow": "[ What's inside ]",
       "headline1": "Everything you need",
       "headline2": "to get paid.",
-      "body": "One platform, three ways to plug in — a hosted checkout, automatic settlement, and a clean API. Pick what you need, ignore the rest.",
+      "body": "One platform, three ways to plug in: a hosted checkout, automatic settlement, and a clean API. Take what you need, ignore the rest.",
       "checkout": {
         "tag": "Checkout",
         "title": "Checkout that speaks every coin.",
@@ -538,24 +538,24 @@
       "eyebrow": "[ Who is this for? ]",
       "headline1": "One wallet.",
       "headline2": "Every audience.",
-      "body": "Pick your door — merchants, campaigns, creators, developers. All share the same crypto rails, the same wallet, the same fees.",
+      "body": "Pick your door — merchants, creators, fundraisers, developers. Same crypto rails, same wallet, same fees.",
       "merchants": {
         "tag": "01 · Merchants",
         "title": "Sell products in crypto.",
-        "desc": "Hosted checkout, product catalog, invoices. Auto-convert or keep the original coin.",
+        "desc": "Hosted checkout, product catalog and invoices. Auto-convert or keep the original coin.",
         "statLabel": "fees as you grow"
       },
       "fundraisers": {
         "tag": "02 · Fundraisers",
         "title": "Run campaigns that fund.",
-        "desc": "Goal bar, tiers, donor wall, updates. Every donation lands on-chain in your wallet.",
+        "desc": "Goal bar, tiers, donor wall and updates. Every donation lands on-chain, in your wallet.",
         "stat": "On-chain",
         "statLabel": "transparent by default"
       },
       "creators": {
         "tag": "03 · Creators",
         "title": "Get tipped by your fans.",
-        "desc": "Your own dynopay.me/@handle page, inline tip amounts, no chargebacks, instant payouts.",
+        "desc": "Your own dynopay.me/@handle page with inline tips — no chargebacks, instant payouts.",
         "statLabel": "payout to wallet"
       },
       "developers": {
@@ -569,9 +569,9 @@
       "eyebrow": "[ Ready when you are ]",
       "headline1": "Get paid in",
       "headline2": "crypto today.",
-      "body": "Free to start. No card. Live in under 10 minutes. Bring your wallet, keep your money.",
-      "rewardBadge": "New accounts: your first <b>$500</b> in volume is fee-free",
-      "getStarted": "Get started free",
+      "body": "Free to start. No card. Live in under 10 minutes — bring your wallet, keep your money.",
+      "rewardBadge": "New here? Your first <b>$500</b> in volume is on us.",
+      "getStarted": "Start free",
       "readDocs": "Read the docs",
       "trustLine": "Non-custodial · 15+ chains · SOC2 track · GDPR / AML"
     },

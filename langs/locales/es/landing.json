@@ -4,7 +4,7 @@
   "useCases": "Casos de uso",
   "documentation": "Documentación",
   "signIn": "Iniciar sesión",
-  "getStarted": "Empezar",
+  "getStarted": "Empieza gratis",
   "nav": {
     "products": "Productos",
     "developers": "Desarrolladores",
@@ -13,19 +13,19 @@
     "mega": {
       "paymentLinks": {
         "title": "Enlaces de pago",
-        "desc": "Enlaces para compartir y cobrar en cripto en segundos"
+        "desc": "Enlaces para compartir que te pagan en cripto en segundos"
       },
       "checkout": {
         "title": "Checkout",
-        "desc": "Checkout alojado e integrable para cualquier tienda"
+        "desc": "Checkout alojado listo para usar en cualquier tienda"
       },
       "creatorPages": {
         "title": "Páginas de creador",
-        "desc": "Tu propia página de propinas y pagos"
+        "desc": "Tu propia página de propinas y pagos personalizada"
       },
       "payouts": {
         "title": "Envíos de cripto",
-        "desc": "Envía stablecoins y cripto a cualquiera, en cualquier lugar"
+        "desc": "Envía stablecoins y cripto a cualquier persona, en cualquier lugar"
       },
       "docs": {
         "title": "Documentación",
@@ -37,7 +37,7 @@
       },
       "webhooks": {
         "title": "Webhooks",
-        "desc": "Notificaciones de eventos de pago en tiempo real"
+        "desc": "Notificaciones en tiempo real para cada evento de pago"
       },
       "blog": {
         "title": "Blog",
@@ -70,7 +70,7 @@
       "featured": {
         "title": "Empieza gratis hoy",
         "desc": "Tus primeros 500 $ de volumen corren de nuestra cuenta — sin tarjeta.",
-        "cta": "Empezar"
+        "cta": "Empieza gratis"
       }
     }
   },
@@ -431,20 +431,20 @@
   },
   "v3": {
     "hero": {
-      "eyebrow": "Dynopay · Beta pública",
+      "eyebrow": "Dynopay · Ahora en beta pública",
       "headline1": "Cobra en cripto.",
       "headlineHighlight": "De cualquier forma",
       "headline2": "que vendas.",
-      "body": "Una sola cartera para comercios, campañas, creadores y desarrolladores. Propinas, tiendas, campañas y API — liquidado en la moneda que elijas, desde <b>0,5%</b> de comisión.",
+      "body": "Una sola billetera para comercios, creadores, recaudadores y desarrolladores. Tiendas, propinas, campañas y una API sencilla: todo liquidado en la moneda que elijas, desde el <b>0,5 %</b>.",
       "claimBtn": "Reservar",
       "chooseHandle": "Elige tu nombre de creador",
-      "rewardBadge": "Cuentas nuevas: tus primeros <b>$500</b> en volumen sin comisión",
-      "bullets": "Gratis · Sin tarjeta · 15+ redes",
+      "rewardBadge": "¿Eres nuevo? Tus primeros <b>500 $</b> de volumen corren por nuestra cuenta.",
+      "bullets": "Gratis para empezar · Sin tarjeta · Más de 15 redes",
       "trustLine": "Sin custodia · Vía SOC 2 · RGPD / AML",
       "livePill": "EN VIVO",
       "sendTipLabel": "Enviar propina",
       "sendTipBtn": "Enviar propina",
-      "metaSettle": "Se liquida en <b>tu cartera</b> en ~4s · comisión <b>1,5%</b>"
+      "metaSettle": "Llega a <b>tu billetera</b> en ~4s · desde el <b>1,5 %</b>"
     },
     "story": {
       "eyebrow": "[ Cómo funciona ]",
@@ -503,7 +503,7 @@
       "eyebrow": "[ Lo que hay dentro ]",
       "headline1": "Todo lo que necesitas",
       "headline2": "para cobrar.",
-      "body": "Una plataforma, tres formas de integrar — un checkout alojado, liquidación automática y una API limpia. Elige lo que necesites, ignora el resto.",
+      "body": "Una plataforma, tres formas de integrarte: un checkout alojado, liquidación automática y una API sencilla. Toma lo que necesites e ignora el resto.",
       "checkout": {
         "tag": "Checkout",
         "title": "Un checkout que habla todas las monedas.",
@@ -538,24 +538,24 @@
       "eyebrow": "[ ¿Para quién es esto? ]",
       "headline1": "Una cartera.",
       "headline2": "Todas las audiencias.",
-      "body": "Elige tu puerta — comercios, campañas, creadores, desarrolladores. Todos comparten los mismos raíles cripto, la misma cartera, las mismas comisiones.",
+      "body": "Elige tu puerta: comercios, creadores, recaudadores, desarrolladores. Los mismos rieles cripto, la misma billetera, las mismas tarifas.",
       "merchants": {
         "tag": "01 · Comercios",
         "title": "Vende productos en cripto.",
-        "desc": "Checkout alojado, catálogo de productos, facturas. Auto-convierte o mantén la moneda original.",
+        "desc": "Checkout alojado, catálogo de productos y facturas. Convierte automáticamente o conserva la moneda original.",
         "statLabel": "comisiones a medida que creces"
       },
       "fundraisers": {
         "tag": "02 · Campañas",
         "title": "Corre campañas que funcionan.",
-        "desc": "Barra de meta, niveles, muro de donantes, actualizaciones. Cada donación llega on-chain a tu cartera.",
+        "desc": "Barra de meta, niveles, muro de donantes y novedades. Cada donación llega on-chain, a tu billetera.",
         "stat": "On-chain",
         "statLabel": "transparente por defecto"
       },
       "creators": {
         "tag": "03 · Creadores",
         "title": "Recibe propinas de tus fans.",
-        "desc": "Tu propia página dynopay.me/@nombre, cantidades de propina inline, sin contracargos, pagos instantáneos.",
+        "desc": "Tu propia página dynopay.me/@usuario con propinas integradas: sin contracargos, pagos instantáneos.",
         "statLabel": "pago a la cartera"
       },
       "developers": {
@@ -569,8 +569,8 @@
       "eyebrow": "[ Cuando estés listo ]",
       "headline1": "Cobra en",
       "headline2": "cripto hoy.",
-      "body": "Gratis para empezar. Sin tarjeta. En vivo en menos de 10 minutos. Trae tu cartera, guarda tu dinero.",
-      "rewardBadge": "Cuentas nuevas: tus primeros <b>$500</b> en volumen sin comisión",
+      "body": "Gratis para empezar. Sin tarjeta. En marcha en menos de 10 minutos: trae tu billetera, quédate con tu dinero.",
+      "rewardBadge": "¿Eres nuevo? Tus primeros <b>500 $</b> de volumen corren por nuestra cuenta.",
       "getStarted": "Empieza gratis",
       "readDocs": "Leer la documentación",
       "trustLine": "Sin custodia · 15+ redes · Vía SOC2 · RGPD / AML"

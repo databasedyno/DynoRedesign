@@ -4,7 +4,7 @@
   "useCases": "Toepassingen",
   "documentation": "Documentatie",
   "signIn": "Inloggen",
-  "getStarted": "Aan de slag",
+  "getStarted": "Gratis starten",
   "nav": {
     "products": "Producten",
     "developers": "Ontwikkelaars",
@@ -13,19 +13,19 @@
     "mega": {
       "paymentLinks": {
         "title": "Betaallinks",
-        "desc": "Deelbare links om binnen enkele seconden in crypto betaald te worden"
+        "desc": "Deelbare links waarmee je in seconden in crypto betaald wordt"
       },
       "checkout": {
         "title": "Checkout",
-        "desc": "Kant-en-klare, gehoste crypto-checkout voor elke winkel"
+        "desc": "Kant-en-klare gehoste checkout voor elke winkel"
       },
       "creatorPages": {
         "title": "Creatorpagina's",
-        "desc": "Je eigen fooien- en betaalpagina"
+        "desc": "Je eigen gebrande fooien- en betaalpagina"
       },
       "payouts": {
         "title": "Crypto-uitbetalingen",
-        "desc": "Stuur stablecoins en crypto naar iedereen, waar dan ook"
+        "desc": "Stuur stablecoins en crypto naar iedereen, overal"
       },
       "docs": {
         "title": "Documentatie",
@@ -37,7 +37,7 @@
       },
       "webhooks": {
         "title": "Webhooks",
-        "desc": "Realtime meldingen van betaalgebeurtenissen"
+        "desc": "Realtime meldingen voor elke betaalgebeurtenis"
       },
       "blog": {
         "title": "Blog",
@@ -70,7 +70,7 @@
       "featured": {
         "title": "Begin vandaag gratis",
         "desc": "Je eerste $500 aan volume is van ons — geen kaart nodig.",
-        "cta": "Aan de slag"
+        "cta": "Gratis starten"
       }
     }
   },
@@ -431,20 +431,20 @@
   },
   "v3": {
     "hero": {
-      "eyebrow": "Dynopay · Publieke bèta",
+      "eyebrow": "Dynopay · Nu in publieke bèta",
       "headline1": "Krijg betaald in crypto.",
       "headlineHighlight": "Op elke manier",
       "headline2": "die je verkoopt.",
-      "body": "Eén wallet voor merchants, fundraisers, creators en developers. Tips, webshops, campagnes, en API — vereffend in de coin die jij wilt, vanaf <b>0,5%</b> fee.",
+      "body": "Eén wallet voor verkopers, creators, fondsenwervers en developers. Winkels, fooien, campagnes en een strakke API — alles afgerekend in de munt die jij kiest, vanaf <b>0,5%</b>.",
       "claimBtn": "Claim",
       "chooseHandle": "Kies je creator-handle",
-      "rewardBadge": "Nieuwe accounts: je eerste <b>$500</b> aan volume is fee-free",
-      "bullets": "Gratis · Geen creditcard · 15+ chains",
+      "rewardBadge": "Nieuw hier? Je eerste <b>$500</b> aan volume is van ons.",
+      "bullets": "Gratis te starten · Geen kaart · 15+ chains",
       "trustLine": "Non-custodial · SOC 2 in voorbereiding · GDPR / AML",
       "livePill": "LIVE",
       "sendTipLabel": "Stuur een tip",
       "sendTipBtn": "Stuur tip",
-      "metaSettle": "Vereffent naar <b>je wallet</b> in ~4s · fee <b>1,5%</b>"
+      "metaSettle": "Staat in ~4s in <b>je wallet</b> · vanaf <b>1,5%</b>"
     },
     "story": {
       "eyebrow": "[ Hoe het werkt ]",
@@ -503,7 +503,7 @@
       "eyebrow": "[ Wat zit erin ]",
       "headline1": "Alles wat je nodig hebt",
       "headline2": "om betaald te worden.",
-      "body": "Eén platform, drie manieren om aan te sluiten — een hosted checkout, automatische vereffening en een schone API. Pak wat je nodig hebt, negeer de rest.",
+      "body": "Eén platform, drie manieren om aan te sluiten: een gehoste checkout, automatische afwikkeling en een strakke API. Neem wat je nodig hebt, negeer de rest.",
       "checkout": {
         "tag": "Checkout",
         "title": "Een checkout die elke coin spreekt.",
@@ -538,24 +538,24 @@
       "eyebrow": "[ Voor wie is dit? ]",
       "headline1": "Eén wallet.",
       "headline2": "Elk publiek.",
-      "body": "Kies je deur — merchants, campagnes, creators, developers. Allemaal delen ze dezelfde crypto-rails, dezelfde wallet, dezelfde fees.",
+      "body": "Kies je deur — verkopers, creators, fondsenwervers, developers. Dezelfde crypto-rails, dezelfde wallet, dezelfde kosten.",
       "merchants": {
         "tag": "01 · Merchants",
         "title": "Verkoop producten in crypto.",
-        "desc": "Hosted checkout, productcatalogus, facturen. Auto-converteer of houd de originele coin.",
+        "desc": "Gehoste checkout, productcatalogus en facturen. Automatisch omzetten of de originele munt behouden.",
         "statLabel": "fees terwijl je groeit"
       },
       "fundraisers": {
         "tag": "02 · Fundraisers",
         "title": "Draai campagnes die geld ophalen.",
-        "desc": "Doelbalk, tiers, donor wall, updates. Elke donatie landt on-chain in je wallet.",
+        "desc": "Doelbalk, niveaus, donateurswand en updates. Elke donatie komt on-chain in je wallet.",
         "stat": "On-chain",
         "statLabel": "transparant by default"
       },
       "creators": {
         "tag": "03 · Creators",
         "title": "Krijg tips van je fans.",
-        "desc": "Je eigen dynopay.me/@handle-pagina, inline tip-bedragen, geen chargebacks, directe uitbetalingen.",
+        "desc": "Je eigen dynopay.me/@handle-pagina met ingebouwde fooien — geen terugboekingen, directe uitbetalingen.",
         "statLabel": "uitbetaling naar wallet"
       },
       "developers": {
@@ -569,9 +569,9 @@
       "eyebrow": "[ Als jij er klaar voor bent ]",
       "headline1": "Krijg betaald in",
       "headline2": "crypto vandaag.",
-      "body": "Gratis starten. Geen kaart. Live in minder dan 10 minuten. Breng je wallet mee, houd je geld.",
-      "rewardBadge": "Nieuwe accounts: je eerste <b>$500</b> aan volume is fee-free",
-      "getStarted": "Start gratis",
+      "body": "Gratis te starten. Geen kaart. Binnen 10 minuten live — neem je wallet mee, hou je geld.",
+      "rewardBadge": "Nieuw hier? Je eerste <b>$500</b> aan volume is van ons.",
+      "getStarted": "Gratis starten",
       "readDocs": "Lees de docs",
       "trustLine": "Non-custodial · 15+ chains · SOC2 in voorbereiding · GDPR / AML"
     },
