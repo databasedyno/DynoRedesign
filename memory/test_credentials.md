@@ -8,7 +8,14 @@
 ## Admin
 - ADMIN_EMAIL env: **moxxcompany@gmail.com** (password unknown, out of band)
 
-## Preview URL (THIS container — updated 2026-08-06)
+## Preview URL (THIS container — updated 2026-08-06, re-provisioned with fresh creds)
+- https://8f27842a-b16a-40c8-ae0c-010c00a35b8a.preview.emergentagent.com
+- Backend .env (/app/backend/.env) + frontend .env.local (/app/.env.local) recreated from user-supplied prod creds.
+- SAFETY: ENABLE_BACKGROUND_JOBS=false, WORKER_ROLE=secondary (NO sweeps/crons/settlements run here).
+- NEXTAUTH_SECRET (this provisioning): QeaNxhAEhS9RMSsiyTpAS81/9MkvsMgL4qru6c+LfBI=
+- NEXT_PUBLIC_BASE_URL empty → frontend uses relative /api.
+
+### (legacy) previous preview URL
 - https://beow-preview-build.preview.emergentagent.com
 - Frontend calls backend via RELATIVE /api (NEXT_PUBLIC_BASE_URL is EMPTY in /app/.env.local) so it works on any preview hostname.
 - Backend .env SERVER_URL/FRONTEND_URL/CHECKOUT_URL/NEXTAUTH_URL point at the 465a9d6f preview URL.
