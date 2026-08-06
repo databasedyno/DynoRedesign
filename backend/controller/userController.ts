@@ -4043,6 +4043,39 @@ const checkHandle = async (req: express.Request, res: express.Response) => {
 };
 
 /**
+ * GET /api/user/creator/check-handle-public?handle=xxx&token=yyy   (PUBLIC, rate-limited)
+ * Read-only availability check for the landing-page hero (visitor is not
+ * logged in). Mirrors `checkHandle` but without the authenticated-user
+ * exclusion. Never writes — safe on the live DB. An optional `token` lets a
+ * visitor who already reserved this handle (from a prior hero interaction)
+ * still see it as available.
+ */
+const checkHandlePublic = async (req: express.Request, res: express.Response) => {
+  try {
+    const handle = normalizeHandle(req.query.handle as string);
+    const err = validateHandle(handle);
+    if (err) return successResponseHelper(res, 200, "checked", { available: false, reason: err });
+
+    if (await isHandleOwnedByUser(handle)) {
+      return successResponseHelper(res, 200, "checked", { available: false, reason: "This handle is already taken" });
+    }
+
+    const token = typeof req.query.token === "string" ? req.query.token : "";
+    let reserved = false;
+    try {
+      const holder = await redis.get(handleReserveKey(handle));
+      reserved = Boolean(holder && holder !== token);
+    } catch { /* Redis down → don't block availability */ }
+    if (reserved) {
+      return successResponseHelper(res, 200, "checked", { available: false, reason: "This handle is currently reserved" });
+    }
+    return successResponseHelper(res, 200, "checked", { available: true, reason: null });
+  } catch (e) {
+    handleControllerError(res, e, userLogger);
+  }
+};
+
+/**
  * POST /api/user/creator/reserve-handle   { handle, token? }   (PUBLIC, rate-limited)
  * Atomically reserves a handle for a short window and returns a reservation
  * token the client keeps (localStorage) and later presents when finalising the
@@ -4778,6 +4811,7 @@ export default {
   getLoginActivity,
   flagLogin,
   checkHandle,
+  checkHandlePublic,
   reserveHandle,
   updateCreatorProfile,
   uploadCoverImage,

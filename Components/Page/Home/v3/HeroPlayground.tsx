@@ -1,5 +1,8 @@
 import React, { memo, useEffect, useState } from "react";
 import { Box, Typography, InputBase, Button } from "@mui/material";
+import CircularProgress from "@mui/material/CircularProgress";
+import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
+import CancelRoundedIcon from "@mui/icons-material/CancelRounded";
 import { motion, useReducedMotion } from "framer-motion";
 import { useRouter } from "next/router";
 import { useTranslation, Trans } from "react-i18next";
@@ -11,6 +14,8 @@ import ShieldRoundedIcon from "@mui/icons-material/ShieldRounded";
 import { FONT_BODY, FONT_HERO, FONT_TECH, useAurora } from "./theme.v3";
 import { AuroraInk, HeadlineXL, Eyebrow, Body } from "./styled.v3";
 import useLocalPrice from "@/hooks/useLocalPrice";
+import useDebounce from "@/hooks/useDebounce";
+import { API_ENDPOINTS } from "@/api/endpoints";
 
 const SUGGESTED_HANDLES = ["alex", "maya", "lin", "jordan", "rae", "kai"];
 const TIP_VALUES = [3, 5, 10, 25, 50, 100];
@@ -28,6 +33,59 @@ const HeroPlayground: React.FC = () => {
   const [rotIdx, setRotIdx] = useState(0);
   const [claimBusy, setClaimBusy] = useState(false);
   const [claimError, setClaimError] = useState("");
+  // Live "available / taken" check as the visitor types (public, read-only).
+  const [availability, setAvailability] = useState<{ available: boolean; reason: string | null } | null>(null);
+  const [checkingHandle, setCheckingHandle] = useState(false);
+  const debouncedHandle = useDebounce(handle, 450);
+
+  const cleanHandle = (raw: string) =>
+    (raw === "you" ? "" : raw).trim().toLowerCase().replace(/[^a-z0-9_-]/g, "").slice(0, 30);
+
+  // Show the spinner + clear any prior verdict/error as soon as the user types.
+  useEffect(() => {
+    const clean = cleanHandle(handle);
+    setAvailability(null);
+    setClaimError("");
+    setCheckingHandle(clean.length >= 3);
+  }, [handle]);
+
+  // Fire the availability check once typing settles.
+  useEffect(() => {
+    const clean = cleanHandle(debouncedHandle);
+    if (clean.length < 3) {
+      setCheckingHandle(false);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      try {
+        let token = "";
+        try {
+          token = localStorage.getItem("dynopay.claimedHandleToken") || "";
+        } catch {
+          token = "";
+        }
+        const qs = `?handle=${encodeURIComponent(clean)}${token ? `&token=${encodeURIComponent(token)}` : ""}`;
+        const res = await fetch(`/api${API_ENDPOINTS.creator.checkHandlePublic}${qs}`);
+        const json = await res.json().catch(() => ({}));
+        const data = json?.data ?? json;
+        if (!cancelled) {
+          setAvailability(
+            data && typeof data.available === "boolean"
+              ? { available: data.available, reason: data.reason ?? null }
+              : null,
+          );
+        }
+      } catch {
+        if (!cancelled) setAvailability(null);
+      } finally {
+        if (!cancelled) setCheckingHandle(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [debouncedHandle]);
 
   // Reserve the typed handle server-side (Redis TTL lock) so the name is HARD-held
   // during signup, then carry it into the journey (localStorage + query param) so
@@ -65,7 +123,7 @@ const HeroPlayground: React.FC = () => {
       } catch {
         existingToken = undefined;
       }
-      const res = await fetch("/api/user/creator/reserve-handle", {
+      const res = await fetch(`/api${API_ENDPOINTS.creator.reserveHandle}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ handle: clean, token: existingToken }),
@@ -234,6 +292,30 @@ const HeroPlayground: React.FC = () => {
               }}
               inputProps={{ "aria-label": t("v3.hero.chooseHandle") }}
             />
+            {(() => {
+              const clean = cleanHandle(handle);
+              if (clean.length < 3) return null;
+              if (checkingHandle) {
+                return <CircularProgress size={16} sx={{ color: s.ink3, mr: 0.75 }} />;
+              }
+              if (availability?.available) {
+                return (
+                  <CheckCircleRoundedIcon
+                    data-testid="hero-handle-available"
+                    sx={{ fontSize: 20, color: "#22C55E", mr: 0.75 }}
+                  />
+                );
+              }
+              if (availability && !availability.available) {
+                return (
+                  <CancelRoundedIcon
+                    data-testid="hero-handle-taken"
+                    sx={{ fontSize: 20, color: "#EF4444", mr: 0.75 }}
+                  />
+                );
+              }
+              return null;
+            })()}
             <Button
               onClick={goClaim}
               disabled={claimBusy}
@@ -256,7 +338,7 @@ const HeroPlayground: React.FC = () => {
             </Button>
           </Box>
 
-          {claimError && (
+          {claimError ? (
             <Typography
               data-testid="hero-claim-error"
               sx={{
@@ -269,7 +351,26 @@ const HeroPlayground: React.FC = () => {
             >
               {claimError}
             </Typography>
-          )}
+          ) : (() => {
+            const clean = cleanHandle(handle);
+            if (clean.length < 3 || !availability) return null;
+            return availability.available ? (
+              <Typography
+                data-testid="hero-handle-hint"
+                sx={{ mt: 1.25, ml: 2, fontFamily: FONT_BODY, fontSize: 13, color: "#16A34A" }}
+              >
+                <Box component="span" sx={{ fontFamily: FONT_TECH }}>dynopay.me/@{clean}</Box>{" "}
+                {t("v3.hero.handleAvailable", { defaultValue: "is available" })}
+              </Typography>
+            ) : (
+              <Typography
+                data-testid="hero-handle-hint"
+                sx={{ mt: 1.25, ml: 2, fontFamily: FONT_BODY, fontSize: 13, color: "#EF4444" }}
+              >
+                {availability.reason || t("v3.hero.handleTaken", { defaultValue: "That handle isn't available — try another." })}
+              </Typography>
+            );
+          })()}
 
           {/* Reward hook — the "$2,000 in crypto" equivalent (real feature: First $500 Fee-Free) */}
           <Box

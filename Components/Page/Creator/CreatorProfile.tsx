@@ -7,6 +7,8 @@ import { Icon } from '@iconify/react'
 import Logo from '@/assets/Icons/Logo'
 import { formatWithSeparators, getCurrencySymbolFromFormat } from '@/utils/currencyFormat'
 import copyToClipboard from '@/helpers/copyToClipboard'
+import { BRAND_ACCENT } from '@/constants/theme'
+import { GRADIENT_STOPS } from '@/constants/creatorTheme'
 import SupportWidget, { SupportWidgetData } from './SupportWidget'
 import InlineTipCheckout from './InlineTipCheckout'
 import AnalyticsWidget, { CreatorAnalyticsData } from './AnalyticsWidget'
@@ -14,7 +16,7 @@ import AnalyticsWidget, { CreatorAnalyticsData } from './AnalyticsWidget'
 const MONO = 'ui-monospace, "Roboto Mono", "JetBrains Mono", SFMono-Regular, Menlo, monospace'
 // Aurora indigo — Landing v3 canonical accent (Session 82 migration).
 // Only the DEFAULT accent; creators can still override via theme.accent_color.
-const LIME = '#4F46E5'
+const LIME = BRAND_ACCENT
 const INK = '#0A0A0B'
 
 export interface CreatorLink {
@@ -90,21 +92,13 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget, analytics }: {
     ? `${accent}1A`  // ~10% alpha
     : `${accent}29`  // ~16% alpha
 
-  // Preset gradients (mirror of CreatorThemePicker.GRADIENT_PRESETS)
-  const GRADIENTS: Record<string, string> = {
-    sunset:   '#FF7A45 0%, #FF3D9A 100%',
-    ocean:    '#00E5FF 0%, #7C3AED 100%',
-    forest:   '#0FCFA0 0%, #14532D 100%',
-    twilight: '#4C1D95 0%, #0EA5E9 100%',
-    midnight: '#0F172A 0%, #6366F1 100%',
-    candy:    '#FCD34D 0%, #FF3D9A 100%',
-  }
+  // Preset gradient stops sourced from the shared creatorTheme module.
   const coverBackground = (() => {
     if (coverStyle === 'image' && creator.cover_image) {
       return `url(${creator.cover_image}) center/cover no-repeat`
     }
     if (coverStyle === 'gradient') {
-      const stops = GRADIENTS[coverGradient]
+      const stops = GRADIENT_STOPS[coverGradient]
       if (stops) return `linear-gradient(135deg, ${stops})`
       if (/^#[0-9a-f]{6},#[0-9a-f]{6}$/i.test(coverGradient)) {
         const [a, b] = coverGradient.split(',')

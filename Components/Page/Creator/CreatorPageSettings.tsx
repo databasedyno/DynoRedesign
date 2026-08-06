@@ -10,6 +10,11 @@ import { getCreatorBaseUrl } from "@/helpers/creatorUrl";
 import CreatorThemePicker, { CreatorTheme, CoverStyle } from "@/Components/Page/Creator/CreatorThemePicker";
 import HandleQrCode from "@/Components/Page/Creator/HandleQrCode";
 import AnalyticsWidget, { CreatorAnalyticsData } from "@/Components/Page/Creator/AnalyticsWidget";
+import { BRAND_ACCENT } from "@/constants/theme";
+import { SUPPORTED_FIAT_CURRENCIES } from "@/constants/currencies";
+import { API_ENDPOINTS } from "@/api/endpoints";
+import useDebounce from "@/hooks/useDebounce";
+import useCopyToClipboard from "@/hooks/useCopyToClipboard";
 
 const HANDLE_RE = /^[a-z0-9][a-z0-9_-]{2,29}$/;
 
@@ -44,7 +49,7 @@ const SUPPORT_STYLES: { key: SupportStyle; label: string; icon: string; sample: 
   { key: "support", label: "Support me", icon: "mdi:heart", sample: "Support me" },
 ];
 
-const SUPPORT_CURRENCIES = ["USD", "EUR", "GBP", "CAD", "AUD", "JPY", "INR", "NGN", "ZAR", "BRL"];
+const SUPPORT_CURRENCIES = SUPPORTED_FIAT_CURRENCIES;
 
 interface Props {
   /** Notified on every form change so the live preview outside can mirror. */
@@ -105,10 +110,9 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
   const [checking, setChecking] = useState(false);
   const [availability, setAvailability] = useState<{ available: boolean; reason: string | null } | null>(null);
   const [saving, setSaving] = useState(false);
-  const [copied, setCopied] = useState(false);
+  const { copied, copy } = useCopyToClipboard();
   // Change-warning modal for handle edits (spec §C — Doc 3)
   const [handleWarnOpen, setHandleWarnOpen] = useState(false);
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const coverFileRef = useRef<HTMLInputElement>(null);
   const handleInputRef = useRef<HTMLInputElement>(null);
   const nameInputRef = useRef<HTMLInputElement>(null);
@@ -187,7 +191,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
   const loadAnalytics = useCallback(async () => {
     setAnalyticsLoading(true);
     try {
-      const r = await axiosBaseApi.get("/user/creator/analytics");
+      const r = await axiosBaseApi.get(API_ENDPOINTS.creator.analytics);
       const d = (r?.data?.data || null) as CreatorAnalyticsData & { has_handle?: boolean } | null;
       setAnalyticsData(d);
     } catch {
@@ -210,25 +214,36 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
     return null;
   }, [handle]);
 
-  // Debounced availability check
+  // Debounced availability check (useDebounce shared hook)
+  const debouncedHandle = useDebounce(handle, 400);
+
+  // Show the spinner immediately as the user types (before the debounce settles).
   useEffect(() => {
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    setAvailability(null);
     const h = handle.trim().toLowerCase();
-    if (!h || formatError || h === savedHandle) return;
-    setChecking(true);
-    debounceRef.current = setTimeout(async () => {
-      try {
-        const r = await axiosBaseApi.get(`/user/creator/check-handle?handle=${encodeURIComponent(h)}`);
-        setAvailability(r?.data?.data || null);
-      } catch {
-        setAvailability(null);
-      } finally {
-        setChecking(false);
-      }
-    }, 400);
-    return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
+    setAvailability(null);
+    setChecking(Boolean(h && !formatError && h !== savedHandle));
   }, [handle, formatError, savedHandle]);
+
+  // Fire the availability check once typing settles.
+  useEffect(() => {
+    const h = debouncedHandle.trim().toLowerCase();
+    if (!h || formatError || h === savedHandle) {
+      setChecking(false);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      try {
+        const r = await axiosBaseApi.get(`${API_ENDPOINTS.creator.checkHandle}?handle=${encodeURIComponent(h)}`);
+        if (!cancelled) setAvailability(r?.data?.data || null);
+      } catch {
+        if (!cancelled) setAvailability(null);
+      } finally {
+        if (!cancelled) setChecking(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [debouncedHandle, formatError, savedHandle]);
 
   const socialsEqualSaved = useMemo(() => {
     const saved = (profile?.social_links && typeof profile.social_links === "object") ? profile.social_links : {};
@@ -299,7 +314,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
     const normalizedHandle = handle.trim().toLowerCase();
     const isFirstReserve = !savedHandle && !!normalizedHandle;
     try {
-      await axiosBaseApi.put("/user/creator/profile", {
+      await axiosBaseApi.put(API_ENDPOINTS.creator.profile, {
         handle: normalizedHandle,
         name: name.trim() || null,
         bio,
@@ -345,9 +360,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
 
   const copyUrl = () => {
     if (!publicUrl) return;
-    navigator.clipboard?.writeText(publicUrl);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1800);
+    void copy(publicUrl);
   };
 
   // Shared cover uploader — used by the file <input>, the "Upload image"
@@ -368,7 +381,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
     try {
       const fd = new FormData();
       fd.append("image", file);
-      const r = await axiosBaseApi.post("/user/creator/upload-cover", fd, {
+      const r = await axiosBaseApi.post(API_ENDPOINTS.creator.uploadCover, fd, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       const url = r?.data?.data?.url;
@@ -530,7 +543,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
           <HandleQrCode
             handle={savedHandle}
             size="full"
-            accentColor={themeAccent || "#4F46E5"}
+            accentColor={themeAccent || BRAND_ACCENT}
           />
         </DialogContent>
         <DialogActions>

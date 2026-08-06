@@ -68,11 +68,30 @@ dead" refactor. Findings are backed by grep counts taken across
 - Verified: all 6 JSON parse; landing renders every live section; **zero raw-key
   leaks**; lint clean. No runtime behavior change.
 
-### Phase 2 — Shared frontend primitives — ⬜
-- `constants/theme.ts` (`BRAND_ACCENT` + tokens), `constants/currencies.ts`, `api/endpoints.ts`.
-- `hooks/useCopyToClipboard.ts`, `hooks/useDebounce.ts`.
-- Reuse `CreatorThemePicker.buildCoverBackground` (kill the 3× `GRADIENTS`).
-- Migrate an initial batch of call sites (clipboard, formatters, accent).
+### Phase 2 — Shared frontend primitives — ✅ done (2026-08-06)
+- Added `constants/theme.ts` (`BRAND_ACCENT` + dark/light/hover variants + `brandAlpha()`),
+  `constants/currencies.ts` (`SUPPORTED_FIAT_CURRENCIES`), `constants/creatorTheme.ts`
+  (single source for `ACCENT_PRESETS` / `GRADIENT_PRESETS` / `GRADIENT_STOPS` / `buildCoverBackground`),
+  `api/endpoints.ts` (`API_ENDPOINTS.creator.*`).
+- Added hooks `useCopyToClipboard` (wraps the robust helper → accurate success/error)
+  and `useDebounce`.
+- Killed the 3× `GRADIENTS` duplication: `CreatorThemePicker` now re-exports from
+  `constants/creatorTheme`; `CreatorProfile` + `CreatorLivePreview` consume `GRADIENT_STOPS`.
+- Migrated an initial call-site batch: creator files (`CreatorProfile`, `CreatorLivePreview`,
+  `CreatorThemePicker`, `CreatorPageSettings`) off hardcoded `#4F46E5` → `BRAND_ACCENT`,
+  off inline endpoint strings → `API_ENDPOINTS`, off ad-hoc debounce/clipboard → the new hooks,
+  and off the inline `SUPPORT_CURRENCIES` list → `SUPPORTED_FIAT_CURRENCIES`.
+- Verified: `/creator` editor renders (accent/gradient live-preview mirror correct),
+  `/[handle]` + `/creator` compile clean, backend `tsc` = 0 errors.
+- Remaining call sites (36× clipboard, 66× accent, 122× endpoints, formatters) are left for
+  incremental follow-up batches — the primitives now exist to migrate them safely.
+
+### Phase 2b — Handle availability in landing hero — ✅ done (2026-08-06)
+- New PUBLIC read-only endpoint `GET /api/user/creator/check-handle-public` (moderateRateLimiter,
+  mirrors `checkHandle` minus the authed-user exclusion; never writes → safe on live DB).
+- `HeroPlayground` shows a live "available ✓ / taken ✗" indicator + hint as the visitor types,
+  debounced via `useDebounce`, honouring any prior reservation token. Verified live
+  (free handle → green ✓ "is available"; `hostbay` → red ✗ "already taken").
 
 ### Phase 3 — Frontend data-fetching consolidation — ⬜
 - Route reads through existing hooks; add `AbortController`; introduce SWR for

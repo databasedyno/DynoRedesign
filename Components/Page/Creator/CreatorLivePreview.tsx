@@ -6,24 +6,15 @@ import { useSelector } from "react-redux";
 import { rootReducer } from "@/utils/types";
 import type { CreatorFormState } from "./CreatorPageSettings";
 import { prettyCreatorDomain } from "@/helpers/creatorUrl";
+import { BRAND_ACCENT } from "@/constants/theme";
+import { GRADIENT_STOPS } from "@/constants/creatorTheme";
 import Logo from "@/assets/Icons/Logo";
 
 const MONO = 'ui-monospace, "Roboto Mono", "JetBrains Mono", SFMono-Regular, Menlo, monospace';
 // Aurora indigo — Landing v3 canonical accent (Session 82 migration).
 // Only the DEFAULT accent; creators override it via the theme picker.
-const DEFAULT_ACCENT = "#4F46E5";
+const DEFAULT_ACCENT = BRAND_ACCENT;
 const INK = "#0A0A0B";
-
-// Preset gradients — MUST mirror CreatorThemePicker.GRADIENT_PRESETS and
-// CreatorProfile.GRADIENTS so the preview matches the published page exactly.
-const GRADIENTS: Record<string, string> = {
-  sunset:   "#FF7A45 0%, #FF3D9A 100%",
-  ocean:    "#00E5FF 0%, #7C3AED 100%",
-  forest:   "#0FCFA0 0%, #14532D 100%",
-  twilight: "#4C1D95 0%, #0EA5E9 100%",
-  midnight: "#0F172A 0%, #6366F1 100%",
-  candy:    "#FCD34D 0%, #FF3D9A 100%",
-};
 
 const SOCIAL_ICONS: Record<string, string> = {
   twitter: "mdi:twitter",
@@ -77,7 +68,7 @@ const CreatorLivePreview: React.FC<Props> = ({ state }) => {
       return `url(${cover}) center/cover no-repeat`;
     }
     if (coverStyleSel === "gradient") {
-      const stops = GRADIENTS[coverGradientSel];
+      const stops = GRADIENT_STOPS[coverGradientSel];
       if (stops) return `linear-gradient(135deg, ${stops})`;
       if (/^#[0-9a-f]{6},#[0-9a-f]{6}$/i.test(coverGradientSel)) {
         const [a, b] = coverGradientSel.split(",");
