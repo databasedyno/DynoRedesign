@@ -1,3 +1,42 @@
+# Session 2026-08-06 (PERFORMANCE FIX VERIFICATION) — Dashboard API Deduplication
+
+Preview: https://8f27842a-b16a-40c8-ae0c-010c00a35b8a.preview.emergentagent.com
+Login (2-step): hostbay@moxx.co / Katiekendra123@  (/auth/login → email → "Continue" → password → [data-testid="signin-submit-btn"])
+
+SAFETY (CRITICAL — LIVE Railway PROD DB):
+- READ-ONLY verification only. Do NOT create/modify/delete any data.
+- Do NOT create payment links.
+
+## What was tested
+REPORTED BUG: Dashboard takes a long time to load after login due to DUPLICATE API calls fired by multiple components mounting at once. The fix was supposed to dedupe several calls.
+
+VERIFICATION TASK: Measure API call counts after login and verify that specific endpoints are called AT MOST ONCE:
+- api/dashboard
+- api/user/profile
+- api/user/onboarding-status
+- api/dashboard/fee-tiers
+- api/dashboard/recent-transactions
+
+### frontend
+  - task: "Dashboard API deduplication fix verification"
+    implemented: true
+    working: false
+    file: "N/A (performance fix verification)"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "❌ PERFORMANCE FIX NOT WORKING (2026-08-06) — Comprehensive Playwright test executed to verify dashboard API deduplication. CRITICAL FAILURE: 3 out of 5 target endpoints are STILL being called TWICE (duplicate calls not eliminated). DETAILED RESULTS: (1) api/dashboard: 2 calls ❌ FAIL (expected ≤1), (2) api/user/profile: 1 call ✅ PASS, (3) api/user/onboarding-status: 1 call ✅ PASS, (4) api/dashboard/fee-tiers: 2 calls ❌ FAIL (expected ≤1), (5) api/dashboard/recent-transactions: 2 calls ❌ FAIL (expected ≤1). TOTAL API CALLS: 22 requests. TIME TO CONTENT: 3.67 seconds from sign-in click to dashboard volume figure visible. FUNCTIONAL VERIFICATION: Dashboard renders correctly ✅ — company 'hostbay' visible in header, lifetime volume '$25,139.50 USD' displayed, 99 SVG elements (charts/icons) rendered, NO console errors (no 'must be used within provider' errors). KNOWN REMAINING DUPLICATES (not part of this fix): company/fee-free-status (2 calls), wallet/reusable-wallets (2 calls) — these were expected to remain. CONCLUSION: The deduplication fix is NOT working. The three main dashboard endpoints (api/dashboard, api/dashboard/fee-tiers, api/dashboard/recent-transactions) are still being called twice, indicating multiple components are still mounting and firing duplicate requests. The dashboard loads and renders correctly, but the performance issue (duplicate API calls) persists. Screenshot: dashboard_performance_test.png. RECOMMENDATION: Main agent needs to investigate why the deduplication fix is not preventing duplicate calls for these three endpoints. Possible causes: (1) Multiple components still mounting independently, (2) SWR dedupingInterval not configured correctly, (3) Different cache keys being used for the same endpoint, (4) Race condition in component mounting order."
+
+## Agent Communication
+  - agent: "testing"
+    message: "❌ PERFORMANCE FIX VERIFICATION FAILED — The dashboard API deduplication fix is NOT working. 3 out of 5 target endpoints are still being called TWICE: api/dashboard (2 calls), api/dashboard/fee-tiers (2 calls), api/dashboard/recent-transactions (2 calls). Only api/user/profile (1 call) and api/user/onboarding-status (1 call) are correctly deduped. Total API calls: 22. Time to content: 3.67s. Dashboard renders correctly with no console errors, but the core performance issue (duplicate API calls) persists. The fix did not achieve its goal of eliminating duplicate calls. Main agent needs to investigate why multiple components are still firing duplicate requests for these three endpoints."
+
+---
+
+
 # Session 2026-08-06 (SWR migration) — Wallet+Company OFF Redux → SWR, rates→SWR, stale redux cleanup
 
 Preview: https://8f27842a-b16a-40c8-ae0c-010c00a35b8a.preview.emergentagent.com

@@ -13,6 +13,15 @@ import { UserAction } from "@/Redux/Actions";
 import { USER_PROFILE_FETCH } from "@/Redux/Actions/UserAction";
 import { rootReducer } from "@/utils/types";
 
+// Module-level dedupe guards. `useDashboardData` is consumed by ~9 dashboard
+// components simultaneously; without this, each mounted instance fires its own
+// DASHBOARD_FETCH_ALL / USER_PROFILE_FETCH before redux updates, producing the
+// duplicate dashboard/profile/recent-transactions/fee-tiers calls seen on load.
+// These guards collapse the mount-time storm into a single request per company.
+let _lastDashboardAll: { key: string; at: number } = { key: "", at: 0 };
+let _profileInFlight = false;
+const DASHBOARD_DEDUPE_MS = 4000;
+
 export const useDashboardData = () => {
   const dispatch = useDispatch();
 
@@ -43,6 +52,14 @@ export const useDashboardData = () => {
 
   useEffect(() => {
     if (!shouldFetch) return;
+    const key = String(selectedCompanyId ?? "all");
+    const now = Date.now();
+    // Dedupe: skip if the same company was just fetched by another mounted
+    // instance (or a very recent remount) within the window.
+    if (key === _lastDashboardAll.key && now - _lastDashboardAll.at < DASHBOARD_DEDUPE_MS) {
+      return;
+    }
+    _lastDashboardAll = { key, at: now };
     const payload = selectedCompanyId ? { company_id: selectedCompanyId } : undefined;
     // Single dispatch fetches stats + fee-tiers + recent-tx in parallel
     // (avoids debounce dropping individual fetches)
@@ -53,8 +70,14 @@ export const useDashboardData = () => {
   // dashboard's GrowPanel doesn't wrongly promote fee-free credit to
   // merchants who've already exhausted it.
   useEffect(() => {
-    if (profileFetched) return;
+    if (profileFetched || _profileInFlight) return;
+    _profileInFlight = true;
     dispatch(UserAction(USER_PROFILE_FETCH));
+    // Release the guard after a window so a failed fetch can be retried.
+    const t = setTimeout(() => {
+      _profileInFlight = false;
+    }, DASHBOARD_DEDUPE_MS);
+    return () => clearTimeout(t);
   }, [dispatch, profileFetched]);
 
   const fetchChartData = useCallback(
@@ -73,6 +96,10 @@ export const useDashboardData = () => {
 
   const refreshDashboard = useCallback(() => {
     if (!shouldFetch) return;
+    const key = String(selectedCompanyId ?? "all");
+    // Explicit refresh bypasses the dedupe window but updates it so the
+    // auto-effects don't immediately re-fire.
+    _lastDashboardAll = { key, at: Date.now() };
     const payload = selectedCompanyId ? { company_id: selectedCompanyId } : undefined;
     dispatch(DashboardAction(DASHBOARD_FETCH_ALL, payload));
   }, [dispatch, selectedCompanyId, shouldFetch]);

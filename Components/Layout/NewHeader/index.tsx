@@ -1,3 +1,4 @@
+import useOnboardingStatus from "@/hooks/useOnboardingStatus";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import Logo from "@/assets/Icons/home/dynopay-blackLogo.svg";
 import LogoDark from "@/assets/Icons/home/dynopay-whiteLogo.svg";
@@ -69,19 +70,10 @@ const NewHeader = () => {
     return () => router.events.off("routeChangeComplete", onRoute);
   }, [router.events]);
 
+  const { kycRequired: onboardingKycRequired } = useOnboardingStatus();
   useEffect(() => {
-    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-    if (!token) return;
-    axiosBaseApi
-      .get("/user/onboarding-status")
-      .then((res: any) => {
-        const data = res?.data?.data;
-        if (data?.kyc_required || data?.kycRequired) {
-          setKycRequired(true);
-        }
-      })
-      .catch(() => {});
-  }, []);
+    if (onboardingKycRequired) setKycRequired(true);
+  }, [onboardingKycRequired]);
 
   const handleKycClick = async () => {
     if (kycLoading) return;

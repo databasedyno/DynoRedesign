@@ -1,3 +1,4 @@
+import useOnboardingStatus from "@/hooks/useOnboardingStatus";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import AddIcon from "@mui/icons-material/Add";
 import ArrowOutwardIcon from "@mui/icons-material/ArrowOutward";
@@ -82,19 +83,10 @@ const MobileNavigationBar = () => {
   const isProductCatalogEnabled =
     String(process.env.NEXT_PUBLIC_ENABLE_PRODUCT_CATALOG ?? "true").toLowerCase() !== "false";
 
+  const { kycRequired: onboardingKycRequired } = useOnboardingStatus();
   useEffect(() => {
-    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-    if (!token) return;
-    axiosBaseApi
-      .get("/user/onboarding-status")
-      .then((res: any) => {
-        const data = res?.data?.data;
-        if (data?.kyc_required || data?.kycRequired) {
-          setKycRequired(true);
-        }
-      })
-      .catch(() => {});
-  }, []);
+    if (onboardingKycRequired) setKycRequired(true);
+  }, [onboardingKycRequired]);
 
   const handleKycClick = async () => {
     if (kycLoading) return;
