@@ -1,3 +1,13 @@
+# CURRENT SESSION (2026-08-06 (h) — fork) — Instant Company Switch + Faster Checkout Open + SWR migration batch — VERIFIED (self)
+
+- **Instant Company Switch (DONE & verified).** `Components/UI/CompanySelector/index.tsx` hover-prefetches the hovered company row's wallet SWR cache via `preload([WALLET_KEY, id], walletPrefetchFetcher)`. Added `walletPrefetchFetcher` (non-aborting) + exported `WALLET_KEY` from `contexts/WalletDataContext.tsx` (refactored the flatten logic into a shared `normalizeWallets`). Hover never cancels the active company's in-flight fetch. (Full e2e limited — hostbay has 1 company — but code path is sound.)
+- **Faster Checkout Open (DONE & verified).** `pages/pay/index.tsx` `next/dynamic`-splits the 4 heavy checkout renderers (CleanCheckoutV2/cryptoTransfer/donationCampaign/bankTransferCompo) with a shared `CheckoutChunkLoader` spinner + `ssr:false`; kept `DonationCampaignData` as a `import type`. `/pay` + `/pay?d=test` → HTTP 200, no compile errors. (Dashboard `AreaChart` was already dynamic.)
+- **SWR migration batch (DONE & verified).** Migrated 3 read-only account screens off manual useEffect+axios: `Profile/ActiveSessions` (SWR `user/sessions`, optimistic revoke via `mutate`), `Profile/LoginActivity` (SWR key `["user/login-activity", page]` + `keepPreviousData`), `pages/referrals.tsx` (5 referral endpoints → 5 independent SWR keys). Verified live: /profile renders 10 session rows with exactly 1 `user/sessions` + 1 `login-activity` call; /referrals renders. No SWR fetch errors in console (only pre-existing Recharts/DOM-nesting warnings).
+- **Files:** EDITED `contexts/WalletDataContext.tsx` (export WALLET_KEY + walletPrefetchFetcher + normalizeWallets), `Components/UI/CompanySelector/index.tsx` (hover prefetch), `pages/pay/index.tsx` (dynamic imports), `Components/Page/Profile/ActiveSessions.tsx`, `Components/Page/Profile/LoginActivity.tsx`, `pages/referrals.tsx`. Frontend-only, no backend/DB changes; SAFETY flags unchanged. tsc: only the 2 pre-existing `navigator.clipboard` TS2774 guards in pay/index (line-shifted), zero new errors.
+
+---
+
+
 # CURRENT SESSION (2026-08-06 (g) — fork) — Perf batch: Dedupe Fee Status + Abort Stale Requests + Prefetch Dashboard — VERIFIED (testing_agent iteration_36 + self)
 
 - **Dedupe Fee Status (P0) — DONE & verified.** New shared SWR hook `hooks/useFeeFreeStatus.ts` (key `company/fee-free-status`, 60s dedupe) wired into the 3 independent consumers (`FeeFreeWidget`, `FeeFreeWelcomeModal`, `FeeFreeBanner`) → collapses up to 3 calls into 1. New `hooks/useReusableWallets.ts` (SWR, keyed by resolved target company id) wired into `WalletReuseSelector` → 1 call. NETWORK-VERIFIED: `fee-free-status`=1, `reusable-wallets`=1 on both dashboard + /wallet.

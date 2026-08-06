@@ -11,6 +11,7 @@ import { Icon, MONO } from "@/styles/uiKit";
 import Head from "next/head";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import useSWR from "swr";
 import useIsMobile from "@/hooks/useIsMobile";
 import axiosBaseApi from "@/axiosConfig";
 import PanelCard from "@/Components/UI/PanelCard";
@@ -76,13 +77,36 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
   const { t } = useTranslation("referrals");
   const { t: tCommon } = useTranslation("common");
 
-  const [loading, setLoading] = useState(true);
-  const [codeData, setCodeData] = useState<ReferralStats | null>(null);
-  const [referrals, setReferrals] = useState<Referral[]>([]);
-  const [earnings, setEarnings] = useState<Earnings | null>(null);
-  const [discount, setDiscount] = useState<DiscountStatus | null>(null);
-  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [toast, setToast] = useState({ open: false, message: "", severity: "success" as "success" | "error" });
+
+  const referralFetcher = (url: string) =>
+    axiosBaseApi.get(url).then((r) => r.data?.data);
+
+  // Each referral endpoint gets its own SWR key → cached + deduped across
+  // remounts (and shared with anything else that reads the same endpoint).
+  const { data: codeRaw, isLoading: codeLoading } = useSWR<ReferralStats>(
+    API_ENDPOINTS.referral.myCode,
+    referralFetcher
+  );
+  const codeData = codeRaw ?? null;
+  const { data: listData } = useSWR(API_ENDPOINTS.referral.list, referralFetcher);
+  const referrals: Referral[] = listData?.referrals || [];
+  const { data: earningsRaw } = useSWR<Earnings>(
+    API_ENDPOINTS.referral.earnings,
+    referralFetcher
+  );
+  const earnings = earningsRaw ?? null;
+  const { data: discountRaw } = useSWR<DiscountStatus>(
+    API_ENDPOINTS.referral.discountStatus,
+    referralFetcher
+  );
+  const discount = discountRaw ?? null;
+  const { data: leaderboardData } = useSWR(
+    API_ENDPOINTS.referral.leaderboard,
+    referralFetcher
+  );
+  const leaderboard: LeaderboardEntry[] = leaderboardData?.leaderboard || [];
+  const loading = codeLoading && codeRaw === undefined;
 
   useEffect(() => {
     if (setPageName && setPageDescription) {
@@ -90,33 +114,6 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
       setPageDescription(t("pageDescription"));
     }
   }, [setPageName, setPageDescription, t]);
-
-  useEffect(() => {
-    const fetchAll = async () => {
-      setLoading(true);
-      try {
-        const [codeRes, listRes, earningsRes, discountRes, leaderboardRes] =
-          await Promise.allSettled([
-            axiosBaseApi.get(API_ENDPOINTS.referral.myCode),
-            axiosBaseApi.get(API_ENDPOINTS.referral.list),
-            axiosBaseApi.get(API_ENDPOINTS.referral.earnings),
-            axiosBaseApi.get(API_ENDPOINTS.referral.discountStatus),
-            axiosBaseApi.get(API_ENDPOINTS.referral.leaderboard),
-          ]);
-
-        if (codeRes.status === "fulfilled") setCodeData(codeRes.value.data.data);
-        if (listRes.status === "fulfilled") setReferrals(listRes.value.data.data.referrals || []);
-        if (earningsRes.status === "fulfilled") setEarnings(earningsRes.value.data.data);
-        if (discountRes.status === "fulfilled") setDiscount(discountRes.value.data.data);
-        if (leaderboardRes.status === "fulfilled") setLeaderboard(leaderboardRes.value.data.data.leaderboard || []);
-      } catch {
-        // Individual errors handled by allSettled
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchAll();
-  }, []);
 
   const handleCopy = useCallback((text: string, label: string) => {
     copyToClipboard(text);

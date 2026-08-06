@@ -147,7 +147,14 @@ hook consolidation is architectural. These belong to Phase 3/6, not the 2c primi
 - ✅ **Dashboard prefetch (2026-08-06)** — `utils/prefetchDashboard.ts` SWR-`preload`s company list +
   onboarding-status + fee-free-status in the post-login window (`pages/auth/login.tsx`) so the dashboard
   paints with data ready.
-- ⬜ Remaining: migrate the broader ~185 manual `useEffect`+axios screens to SWR.
+- ✅ **Instant Company Switch (2026-08-06)** — `CompanySelector` hover-prefetches the hovered company's
+  wallet SWR cache via `preload([WALLET_KEY, id], walletPrefetchFetcher)` (a non-aborting fetcher so it
+  never cancels the active company's fetch) → clicking switches instantly.
+- ✅ **Account/settings screens → SWR (2026-08-06)** — migrated `Profile/ActiveSessions` (user/sessions,
+  optimistic revoke via `mutate`), `Profile/LoginActivity` (paginated SWR key `[url, page]`, `keepPreviousData`),
+  and `pages/referrals.tsx` (5 referral endpoints → 5 independent SWR keys). Verified rendering + single call each.
+- ⬜ Remaining: migrate the rest of the ~40 manual `useEffect`+axios screens (Notifications, Customers,
+  Invoices, Products, API/Webhooks, Settings) — read-only screens first, money/settlement paths last.
 
 ### Phase 4 — Backend HTTP resilience + integrations — ⬜
 - Resilient client + `withRetry` util; consolidate Tatum call sites to `tatumApi`;
@@ -157,9 +164,13 @@ hook consolidation is architectural. These belong to Phase 3/6, not the 2c primi
 - `asyncHandler` + `sendSuccess/sendError`; typed `config` module; dedup backend
   currency helpers; migrate merchant-API routes first, verify, then expand.
 
-### Phase 6 — Polish — ⬜
-- Shared `<Loader/>` + skeletons; `next/dynamic` for heavy views;
-  react-hook-form + existing yup; last raw `<img>` → `next/image`.
+### Phase 6 — Polish — 🟡 partially done
+- ✅ **Faster Checkout Open (2026-08-06)** — `pages/pay/index.tsx` now `next/dynamic` code-splits the
+  heavy checkout renderers (`CleanCheckoutV2` ~72KB, `cryptoTransfer` ~94KB, `donationCampaign` ~42KB,
+  `bankTransferCompo` ~17KB) with a shared spinner fallback, so /pay ships a smaller initial bundle and
+  only loads the renderer the payment needs. (Dashboard chart `AreaChart` was already `dynamic`.)
+- ⬜ Remaining: shared `<Loader/>` + skeletons across ~45 inline spinners; react-hook-form + existing yup;
+  last raw `<img>` → `next/image`.
 
 ---
 

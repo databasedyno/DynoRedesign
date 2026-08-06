@@ -14,8 +14,9 @@ import {
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { Icon } from "@/styles/uiKit";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
+import useSWR from "swr";
 import axiosBaseApi from "@/axiosConfig";
 
 interface SessionEntry {
@@ -31,39 +32,34 @@ interface SessionEntry {
   is_current: boolean;
 }
 
+const sessionsFetcher = async (url: string): Promise<SessionEntry[]> => {
+  const res = await axiosBaseApi.get(url);
+  return (res.data?.data?.sessions || []) as SessionEntry[];
+};
+
 const ActiveSessions = () => {
   const theme = useTheme();
   const isMobile = useIsMobile("md");
   const { t } = useTranslation("profile");
 
-  const [sessions, setSessions] = useState<SessionEntry[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data, isLoading, mutate } = useSWR<SessionEntry[]>(
+    "user/sessions",
+    sessionsFetcher
+  );
+  const sessions = data ?? [];
+  const loading = isLoading && data === undefined;
   const [revoking, setRevoking] = useState<number | null>(null);
   const [revokingAll, setRevokingAll] = useState(false);
   const [toast, setToast] = useState<{ msg: string; sev: "success" | "error" } | null>(null);
-
-  const fetchSessions = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await axiosBaseApi.get("user/sessions");
-      const data = res.data?.data;
-      setSessions((data?.sessions || []) as SessionEntry[]);
-    } catch {
-      setSessions([]);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchSessions();
-  }, [fetchSessions]);
 
   const revokeOne = async (id: number) => {
     setRevoking(id);
     try {
       await axiosBaseApi.delete(`user/sessions/${id}`);
-      setSessions((prev) => prev.filter((s) => s.session_id !== id));
+      // Optimistically drop the revoked device from the cached list.
+      mutate((prev) => (prev || []).filter((s) => s.session_id !== id), {
+        revalidate: false,
+      });
       setToast({ msg: t("sessionSignedOut", { defaultValue: "Device signed out" }), sev: "success" });
     } catch {
       setToast({ msg: t("sessionSignOutFailed", { defaultValue: "Couldn't sign out that device" }), sev: "error" });
@@ -80,7 +76,7 @@ const ActiveSessions = () => {
         data: { current_session_id: current?.session_id },
       });
       setToast({ msg: t("otherSessionsSignedOut", { defaultValue: "All other devices signed out" }), sev: "success" });
-      await fetchSessions();
+      await mutate();
     } catch {
       setToast({ msg: t("sessionSignOutFailed", { defaultValue: "Couldn't sign out other devices" }), sev: "error" });
     } finally {

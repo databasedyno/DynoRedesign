@@ -26,6 +26,8 @@ import CustomButton from "../Buttons";
 import { HeaderDivider } from "../LanguageSwitcher/styled";
 import { DashboardAction, TransactionAction, PaymentLinkAction, ApiAction } from "@/Redux/Actions";
 import { useWalletStore } from "@/contexts/WalletDataContext";
+import { WALLET_KEY, walletPrefetchFetcher } from "@/contexts/WalletDataContext";
+import { preload } from "swr";
 import {
   DASHBOARD_FETCH_ALL,
   DASHBOARD_CHART_FETCH,
@@ -131,6 +133,21 @@ export default function CompanySelector() {
   }, [addCompanyPhase, companies, active, dispatch]);
 
   const selected = companies.find((c) => c.company_id === active);
+
+  // Instant Company Switch: warm the hovered company's wallet SWR cache so the
+  // list is already in-flight/cached the moment the user clicks. Uses a
+  // non-aborting prefetch fetcher so it never cancels the active company's fetch.
+  const prefetchedRef = useRef<Set<number>>(new Set());
+  const prefetchCompany = useCallback((companyId: number) => {
+    if (companyId === active) return;
+    if (prefetchedRef.current.has(companyId)) return;
+    prefetchedRef.current.add(companyId);
+    try {
+      preload([WALLET_KEY, companyId], walletPrefetchFetcher as any);
+    } catch {
+      /* best-effort */
+    }
+  }, [active]);
 
   const handleOpen = (e: any) => setAnchorEl(e.currentTarget);
   const handleClose = () => setAnchorEl(null);
@@ -307,6 +324,7 @@ export default function CompanySelector() {
                 key={c.company_id}
                 data-testid={`company-option-${c.company_id}`}
                 active={active === c.company_id}
+                onMouseEnter={() => prefetchCompany(c.company_id)}
                 onClick={() => {
                   handleCompanySwitch(c.company_id);
                 }}

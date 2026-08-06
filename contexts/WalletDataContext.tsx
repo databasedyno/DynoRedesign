@@ -23,21 +23,11 @@ import { nextSignal } from "@/utils/abortRegistry";
  * wallet add/validate/delete flows use `axios` directly in their modals.
  */
 
-const WALLET_KEY = "wallet/getWallet";
+export const WALLET_KEY = "wallet/getWallet";
 
-const walletFetcher = async (key: string | [string, number]) => {
-  const companyId = Array.isArray(key) ? key[1] : undefined;
-  const params: Record<string, unknown> = {};
-  if (companyId) params.company_id = companyId;
-  // Cancel any in-flight wallet fetch for a previous company when the selected
-  // company changes (the SWR key changes) — prevents a stale company's wallet
-  // list from resolving after the user has already switched.
-  const signal = nextSignal("wallet");
-  const res = await axios.get(WALLET_KEY, { params, signal });
-  const apiData = res?.data?.data;
-
-  // API returns company-grouped data: [{ company_id, company_name, wallets:[...] }].
-  // Flatten to a single wallet list (same normalization the old saga did).
+// API returns company-grouped data: [{ company_id, company_name, wallets:[...] }].
+// Flatten to a single wallet list (same normalization the old saga did).
+function normalizeWallets(apiData: any): any[] {
   let flat: any[] = [];
   if (Array.isArray(apiData)) {
     for (const group of apiData) {
@@ -53,6 +43,33 @@ const walletFetcher = async (key: string | [string, number]) => {
     }
   }
   return flat;
+}
+
+const walletFetcher = async (key: string | [string, number]) => {
+  const companyId = Array.isArray(key) ? key[1] : undefined;
+  const params: Record<string, unknown> = {};
+  if (companyId) params.company_id = companyId;
+  // Cancel any in-flight wallet fetch for a previous company when the selected
+  // company changes (the SWR key changes) — prevents a stale company's wallet
+  // list from resolving after the user has already switched.
+  const signal = nextSignal("wallet");
+  const res = await axios.get(WALLET_KEY, { params, signal });
+  return normalizeWallets(res?.data?.data);
+};
+
+/**
+ * Non-aborting fetcher used ONLY for hover-prefetch (Instant Company Switch).
+ * It deliberately does NOT go through the "wallet" abort family so warming a
+ * hovered company's wallets never cancels the currently-active company's
+ * in-flight request. Shares the same key + normalization as `walletFetcher`,
+ * so `useSWR([WALLET_KEY, id])` reuses the warmed cache on the actual switch.
+ */
+export const walletPrefetchFetcher = async (key: string | [string, number]) => {
+  const companyId = Array.isArray(key) ? key[1] : undefined;
+  const params: Record<string, unknown> = {};
+  if (companyId) params.company_id = companyId;
+  const res = await axios.get(WALLET_KEY, { params });
+  return normalizeWallets(res?.data?.data);
 };
 
 export interface WalletStore {

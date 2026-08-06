@@ -3,8 +3,9 @@ import useIsMobile from "@/hooks/useIsMobile";
 import { Box, Chip, IconButton, Pagination, Skeleton, Tooltip, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { Icon } from "@/styles/uiKit";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
+import useSWR from "swr";
 import axiosBaseApi from "@/axiosConfig";
 
 interface LoginEntry {
@@ -19,32 +20,30 @@ interface LoginEntry {
   login_at: string;
 }
 
+interface LoginActivityResponse {
+  activities: LoginEntry[];
+  pagination?: { totalPages?: number };
+}
+
+const activityFetcher = async ([, p]: [string, number]): Promise<LoginActivityResponse> => {
+  const res = await axiosBaseApi.get(`user/login-activity?page=${p}&limit=10`);
+  return (res.data?.data || { activities: [] }) as LoginActivityResponse;
+};
+
 const LoginActivity = () => {
   const theme = useTheme();
   const isMobile = useIsMobile("md");
   const { t } = useTranslation("profile");
-  const [activities, setActivities] = useState<LoginEntry[]>([]);
-  const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
 
-  const fetchActivity = useCallback(async (p: number) => {
-    setLoading(true);
-    try {
-      const res = await axiosBaseApi.get(`user/login-activity?page=${p}&limit=10`);
-      const data = res.data?.data;
-      setActivities(data?.activities || []);
-      setTotalPages(data?.pagination?.totalPages || 1);
-    } catch {
-      setActivities([]);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchActivity(page);
-  }, [page, fetchActivity]);
+  const { data, isLoading } = useSWR<LoginActivityResponse>(
+    ["user/login-activity", page],
+    activityFetcher as any,
+    { keepPreviousData: true }
+  );
+  const activities = data?.activities ?? [];
+  const totalPages = data?.pagination?.totalPages ?? 1;
+  const loading = isLoading && data === undefined;
 
   const formatDate = (dateStr: string) => {
     const d = new Date(dateStr);

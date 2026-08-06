@@ -46,11 +46,24 @@ import CopyIcon from '@/assets/Icons/CopyIcon'
 import { Icon } from '@iconify/react'
 import BitCoinGreenIcon from '@/assets/Icons/BitCoinGreenIcon'
 import Logo from '@/assets/Icons/Logo'
-import CryptoTransfer from '@/Components/Page/Pay3Components/cryptoTransfer'
-import BankTransferCompo from '@/Components/Page/Pay3Components/bankTransferCompo'
-import DonationCampaign, { DonationCampaignData } from '@/Components/Page/Pay3Components/donationCampaign'
-import CleanCheckoutV2 from '@/Components/Page/Pay3Components/CleanCheckoutV2'
+import dynamic from 'next/dynamic'
+import type { DonationCampaignData } from '@/Components/Page/Pay3Components/donationCampaign'
 import Pay3Layout from '@/Components/Layout/Pay3Layout'
+
+// Faster Checkout Open: the heavy checkout renderers (CleanCheckoutV2 ~72KB,
+// cryptoTransfer ~94KB, donationCampaign ~42KB, bankTransferCompo ~17KB) are
+// code-split so the /pay route ships a smaller initial bundle and only the
+// renderer the payment actually needs is loaded. A lightweight spinner shows
+// during the (usually sub-100ms) chunk fetch.
+const CheckoutChunkLoader = () => (
+  <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 260, width: '100%' }}>
+    <CircularProgress size={28} />
+  </Box>
+)
+const CryptoTransfer = dynamic(() => import('@/Components/Page/Pay3Components/cryptoTransfer'), { ssr: false, loading: CheckoutChunkLoader })
+const BankTransferCompo = dynamic(() => import('@/Components/Page/Pay3Components/bankTransferCompo'), { ssr: false, loading: CheckoutChunkLoader })
+const DonationCampaign = dynamic(() => import('@/Components/Page/Pay3Components/donationCampaign'), { ssr: false, loading: CheckoutChunkLoader })
+const CleanCheckoutV2 = dynamic(() => import('@/Components/Page/Pay3Components/CleanCheckoutV2'), { ssr: false, loading: CheckoutChunkLoader })
 import Image from 'next/image'
 // Flag icon imports - International
 import USDIcon from '../../assets/Icons/flag/USD.png'
