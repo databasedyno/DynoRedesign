@@ -1,4 +1,5 @@
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
+import { formatWithSeparators } from "@/utils/currencyFormat";
 import CustomButton from "@/Components/UI/Buttons";
 import CustomSwitch from "@/Components/UI/CustomSwitch";
 import PanelCard from "@/Components/UI/PanelCard";
@@ -201,7 +202,7 @@ const NotificationPage = () => {
         id: txRef || notif.notification_id?.toString() || "",
         crypto: txCurrency || "",
         amount: txAmount ? `${txAmount} ${txCurrency || ""}` : "",
-        usdValue: notif.meta?.usd_value ? `$${Number(notif.meta.usd_value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "",
+        usdValue: notif.meta?.usd_value ? `$${formatWithSeparators(Number(notif.meta.usd_value), undefined, 2)}` : "",
         usdValueRaw: Number(notif.meta?.usd_value) || 0,
         dateTime: new Date(notif.created_at).toLocaleString(),
         status: mappedStatus,

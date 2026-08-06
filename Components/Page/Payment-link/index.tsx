@@ -1,4 +1,5 @@
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
+import { formatWithSeparators } from "@/utils/currencyFormat";
 import EmptyDataModel from "@/Components/UI/EmptyDataModel";
 import useIsMobile from "@/hooks/useIsMobile";
 import { PaymentLinkData, PaymentLinksProps } from "@/utils/types/paymentLink";
@@ -51,11 +52,11 @@ const PaymentLinksPage = ({
       description: (isDonation ? link.donation?.title : null) || link.description || "",
       // Donation campaigns: show the RAISED amount in the value column
       usdValue: isDonation
-        ? `${Number(link.donation?.raised_amount || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${link.base_currency || "USD"}`
+        ? `${formatWithSeparators(Number(link.donation?.raised_amount || 0), undefined, 2)} ${link.base_currency || "USD"}`
         : link.display_value
           ? String(link.display_value)
           : link.base_amount
-            ? `${Number(link.base_amount).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${link.base_currency || ""}`
+            ? `${formatWithSeparators(Number(link.base_amount), undefined, 2)} ${link.base_currency || ""}`
             : "0",
       cryptoValue: link.crypto_currencies
         ? String(link.crypto_currencies)

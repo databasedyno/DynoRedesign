@@ -1,4 +1,5 @@
 import BitcoinIcon from "@/assets/cryptocurrency/Bitcoin-icon.svg";
+import { formatWithSeparators } from "@/utils/currencyFormat";
 import BitcoinCashIcon from "@/assets/cryptocurrency/BitcoinCash-icon.svg";
 import DogecoinIcon from "@/assets/cryptocurrency/Dogecoin-icon.svg";
 import EthereumIcon from "@/assets/cryptocurrency/Ethereum-icon.svg";
@@ -416,7 +417,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                   <Typography sx={{ fontSize: "11px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary }}>
                     {transaction.reverseCharge
                       ? tTransactions("reverseCharge", { defaultValue: "Reverse-charge" })
-                      : `${tTransactions("vatShort", { defaultValue: "incl. VAT" })} ${Number(transaction.taxAmount).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}${transaction.taxRate != null ? ` (${Number(transaction.taxRate)}%)` : ""}`}
+                      : `${tTransactions("vatShort", { defaultValue: "incl. VAT" })} ${formatWithSeparators(Number(transaction.taxAmount), undefined, 2)}${transaction.taxRate != null ? ` (${Number(transaction.taxRate)}%)` : ""}`}
                   </Typography>
                 </Box>
               )}
@@ -607,7 +608,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                           component="span"
                           sx={{ fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 600, color: theme.palette.text.primary }}
                         >
-                          {Number(transaction.taxAmount).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          {formatWithSeparators(Number(transaction.taxAmount), undefined, 2)}
                         </Typography>
                         <Typography
                           component="span"

@@ -93,7 +93,7 @@ dead" refactor. Findings are backed by grep counts taken across
   debounced via `useDebounce`, honouring any prior reservation token. Verified live
   (free handle → green ✓ "is available"; `hostbay` → red ✗ "already taken").
 
-### Phase 2c — Wider Primitive Rollout — 🟡 in progress (2026-08-06)
+### Phase 2c — Wider Primitive Rollout — ✅ done (2026-08-06)
 - **Clipboard wave — ✅ done & verified.** 41 ad-hoc `navigator.clipboard(.|?.)writeText`
   calls across 29 files routed through the robust `copyToClipboard` helper
   (`scripts/rollout_clipboard.py`). Excluded `pay/demo.tsx` + `CleanCheckoutV2.tsx`
@@ -115,10 +115,30 @@ dead" refactor. Findings are backed by grep counts taken across
   Builder params typed `PathId = string | number | string[]` to match template-literal
   coercion. tsc: 6 errors before/after (zero new). Runtime verified: login (auth), dashboard,
   and referrals (5 migrated `/referral/*` endpoints returning live data) all work.
+- **Currency-formatter wave — ✅ done & verified (2026-08-06).** Consolidated the
+  separator-only money-format sites (7 sites: Payment-link ×2, Transactions ×2,
+  TransactionsTable ×2, NotificationPage ×1) from inline
+  `x.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })`
+  → `formatWithSeparators(x, undefined, 2)`. BYTE-IDENTICAL (same ICU path). Verified
+  on /transactions (USD Value column renders $130.67, $10.01, … no NaN) + /pay-links
+  + /notifications compile clean. DELIBERATELY NOT blanket-migrated: the remaining
+  ~22 money-format sites use context-specific currency symbols/locales (`formatCurrency`
+  would change symbol/decimal output) — those are left as-is to avoid money-display
+  regressions on the live gateway.
 
-### Phase 3 — Frontend data-fetching consolidation — ⬜
-- Route reads through existing hooks; add `AbortController`; introduce SWR for
-  rates/wallet/company; migrate representative screens.
+Note on the other Phase-2 Findings items (raw `fetch()`, `useDebounce` adoption,
+overlapping-hook consolidation): assessed and INTENTIONALLY deferred out of 2c —
+most raw `fetch()` are SSR (`getServerSideProps`), external/public endpoints with
+`no-store`/credential semantics, or code-samples shown in the UI (not safe to force
+onto the browser axios instance); `setTimeout` sites are mostly non-debounce delays;
+hook consolidation is architectural. These belong to Phase 3/6, not the 2c primitive rollout.
+
+### Phase 3 — Frontend data-fetching consolidation — 🟡 partially done (SWR core shipped 2026-08-06)
+- ✅ SWR introduced for **wallet + company** (`contexts/WalletDataContext`,
+  `contexts/CompanyDataContext`, global `SWRConfig` in `_app.tsx`) — redux sagas/reducers
+  retired; ~50 consumers rewired; verified (login→dashboard→wallet, company switch/create/delete).
+- ✅ **rates** unified onto SWR (`hooks/usePaymentRates.ts`, 30s dedupe) — verified no infinite refetch.
+- ⬜ Remaining: add `AbortController`; migrate the broader ~185 manual `useEffect`+axios screens.
 
 ### Phase 4 — Backend HTTP resilience + integrations — ⬜
 - Resilient client + `withRetry` util; consolidate Tatum call sites to `tatumApi`;

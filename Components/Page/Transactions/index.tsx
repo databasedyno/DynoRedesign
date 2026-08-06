@@ -1,4 +1,5 @@
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
+import { formatWithSeparators } from "@/utils/currencyFormat";
 import EmptyDataModel from "@/Components/UI/EmptyDataModel";
 import { TransactionAction } from "@/Redux/Actions";
 import { TRANSACTION_FETCH, TRANSACTION_EXPORT } from "@/Redux/Actions/TransactionAction";
@@ -244,7 +245,7 @@ const TransactionPage = () => {
           usdValue: (() => {
             const raw = Number((item as any).usd_value) || Number(item.base_amount) || 0;
             if (raw === 0) return "$0.00";
-            if (raw >= 1) return `$${raw.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            if (raw >= 1) return `$${formatWithSeparators(raw, undefined, 2)}`;
             if (raw >= 0.01) return `$${raw.toFixed(4).replace(/0+$/, "").replace(/\.$/, ".00")}`;
             return `$${raw.toFixed(6).replace(/0+$/, "").replace(/\.$/, ".00")}`;
           })(),
@@ -435,7 +436,7 @@ const TransactionPage = () => {
             Tax collected
           </Typography>
           <Typography sx={{ fontSize: "14px", fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontWeight: 700, color: theme.palette.text.primary }}>
-            {taxSummary.total.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            {formatWithSeparators(taxSummary.total, undefined, 2)}
           </Typography>
           <Typography sx={{ fontSize: "11.5px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary }}>
             {`across ${taxSummary.count} ${taxSummary.count === 1 ? "payment" : "payments"}`}
