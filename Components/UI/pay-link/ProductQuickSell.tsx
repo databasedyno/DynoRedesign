@@ -35,6 +35,7 @@ import {
 import { Icon } from "@iconify/react";
 import { useTranslation } from "react-i18next";
 import axiosBaseApi from "@/axiosConfig";
+import { API_ENDPOINTS } from "@/api/endpoints";
 
 // Product row shape returned by GET /api/product/products (subset we need)
 interface ProductSummary {
@@ -149,7 +150,7 @@ const ProductQuickSell: React.FC<ProductQuickSellProps> = ({
     setLoading(true);
     setError(null);
     try {
-      const res = await axiosBaseApi.get(`/products`, {
+      const res = await axiosBaseApi.get(API_ENDPOINTS.products.list, {
         params: { status: "live", limit: 100 },
       });
       const items = res?.data?.data?.items || [];
@@ -191,7 +192,7 @@ const ProductQuickSell: React.FC<ProductQuickSellProps> = ({
 
       if (p.has_variants) {
         try {
-          const res = await axiosBaseApi.get(`/products/${p.product_id}`);
+          const res = await axiosBaseApi.get(API_ENDPOINTS.products.byId(p.product_id));
           const raw: ProductVariant[] = res?.data?.data?.variants || [];
           variants = raw
             .filter((v) => v.is_active !== false)

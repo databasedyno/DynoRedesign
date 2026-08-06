@@ -8,6 +8,7 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import axiosBaseApi from "@/axiosConfig";
+import { API_ENDPOINTS } from "@/api/endpoints";
 
 export default function EditPaymentLink() {
   const router = useRouter();
@@ -29,7 +30,7 @@ export default function EditPaymentLink() {
     const fetchPaymentLink = async () => {
       try {
         setLoading(true);
-        const response = await axiosBaseApi.get(`/pay/links/${slug}`);
+        const response = await axiosBaseApi.get(API_ENDPOINTS.pay.link(slug));
         const d = response?.data?.data;
         if (d) {
           // Handle accepted_currencies - could be array or comma-separated string.

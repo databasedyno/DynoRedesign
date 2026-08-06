@@ -14,6 +14,7 @@ import axiosBaseApi from "@/axiosConfig";
 import useIsMobile from "@/hooks/useIsMobile";
 import { TokenData } from "@/utils/types";
 import { Icon } from "@/styles/uiKit";
+import { API_ENDPOINTS } from "@/api/endpoints";
 
 interface AddContactInfoProps {
   tokenData: TokenData;
@@ -73,7 +74,7 @@ const AddContactInfo: React.FC<AddContactInfoProps> = ({ tokenData }) => {
     setEmailError("");
     setEmailLoading(true);
     try {
-      await axiosBaseApi.post("/user/addEmail", { email: emailInput });
+      await axiosBaseApi.post(API_ENDPOINTS.user.addEmail, { email: emailInput });
       setEmailOtpDialogOpen(true);
       setEmailOtpCountdown(30);
       dispatch({
@@ -101,7 +102,7 @@ const AddContactInfo: React.FC<AddContactInfoProps> = ({ tokenData }) => {
     setEmailOtpError("");
     setEmailOtpLoading(true);
     try {
-      const res = await axiosBaseApi.post("/user/verifyAddEmail", {
+      const res = await axiosBaseApi.post(API_ENDPOINTS.user.verifyAddEmail, {
         email: emailInput,
         otp,
       });
@@ -137,7 +138,7 @@ const AddContactInfo: React.FC<AddContactInfoProps> = ({ tokenData }) => {
     setPhoneError("");
     setPhoneLoading(true);
     try {
-      await axiosBaseApi.post("/user/addPhone", { phone: cleaned });
+      await axiosBaseApi.post(API_ENDPOINTS.user.addPhone, { phone: cleaned });
       setPhoneOtpDialogOpen(true);
       setPhoneOtpCountdown(30);
       dispatch({
@@ -166,7 +167,7 @@ const AddContactInfo: React.FC<AddContactInfoProps> = ({ tokenData }) => {
     setPhoneOtpLoading(true);
     try {
       const cleaned = phoneInput.replace(/[^0-9]/g, "");
-      const res = await axiosBaseApi.post("/user/verifyAddPhone", {
+      const res = await axiosBaseApi.post(API_ENDPOINTS.user.verifyAddPhone, {
         phone: cleaned,
         otp,
       });

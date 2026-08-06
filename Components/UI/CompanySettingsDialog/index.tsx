@@ -20,6 +20,7 @@ import CompanyDetailsSection from "./CompanyDetailsSection";
 import CryptoConversionSection from "./CryptoConversionSection";
 import PaymentToleranceSection from "./PaymentToleranceSection";
 import WebhookNotificationsSection from "./WebhookNotificationsSection";
+import { API_ENDPOINTS } from "@/api/endpoints";
 
 export type CompanySettingsDialogProps = {
   open: boolean;
@@ -218,7 +219,7 @@ export default function CompanySettingsDialog({
   useEffect(() => {
     if (open && company?.company_id) {
       axiosBaseApi
-        .get(`/company/auto-convert/${company.company_id}`)
+        .get(API_ENDPOINTS.company.autoConvert(company.company_id))
         .then((res) => {
           const data = res?.data?.data;
           if (data) {
@@ -240,7 +241,7 @@ export default function CompanySettingsDialog({
 
       // Fetch webhook settings from dedicated endpoint
       axiosBaseApi
-        .get(`/company/webhook-settings/${company.company_id}`)
+        .get(API_ENDPOINTS.company.webhookSettings(company.company_id))
         .then((res) => {
           const data = res?.data?.data;
           if (data) {
@@ -297,7 +298,7 @@ export default function CompanySettingsDialog({
 
     // Save auto-convert settings via dedicated endpoint
     axiosBaseApi
-      .put(`/company/auto-convert/${company.company_id}`, {
+      .put(API_ENDPOINTS.company.autoConvert(company.company_id), {
         auto_convert_enabled: values.auto_convert_volatile_crypto === "yes",
         target_stablecoin: values.convert_to_stablecoin,
       })
@@ -309,7 +310,7 @@ export default function CompanySettingsDialog({
     const webhookUrl = values.webhook_notification_url || webhookData?.webhook_url;
     if (webhookUrl) {
       axiosBaseApi
-        .put(`/company/webhook-settings/${company.company_id}`, {
+        .put(API_ENDPOINTS.company.webhookSettings(company.company_id), {
           webhook_url: webhookUrl,
         })
         .catch(() => {
@@ -415,7 +416,7 @@ export default function CompanySettingsDialog({
                       if (!company?.company_id) return;
                       try {
                         const res = await axiosBaseApi.put(
-                          `/company/webhook-settings/${company.company_id}`,
+                          API_ENDPOINTS.company.webhookSettings(company.company_id),
                           { webhook_secret: "generate" }
                         );
                         const data = res?.data?.data;
@@ -435,7 +436,7 @@ export default function CompanySettingsDialog({
                       if (!company?.company_id) return;
                       try {
                         await axiosBaseApi.post(
-                          `/company/webhook-test/${company.company_id}`
+                          API_ENDPOINTS.company.webhookTest(company.company_id)
                         );
                         showToast("Test webhook sent successfully!");
                       } catch {

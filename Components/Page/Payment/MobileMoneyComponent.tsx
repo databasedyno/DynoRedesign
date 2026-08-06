@@ -28,6 +28,7 @@ import { paymentTypes } from "@/utils/enums";
 import { NorthEastRounded } from "@mui/icons-material";
 import { usePaymentRates } from "@/hooks/usePaymentRates";
 import { useTranslation } from "react-i18next";
+import { API_ENDPOINTS } from "@/api/endpoints";
 
 const initialValue = {
   network: "MTN",
@@ -81,7 +82,7 @@ const MobileMoneyComponent = () => {
       setLoading2(true);
       const {
         data: { data },
-      }: { data: CommonApiRes } = await axiosBaseApi.post("/wallet/addFunds", {
+      }: { data: CommonApiRes } = await axiosBaseApi.post(API_ENDPOINTS.wallet.addFunds, {
         data: res,
       });
       if (data.redirect) {
@@ -106,7 +107,7 @@ const MobileMoneyComponent = () => {
     try {
       const {
         data: { data },
-      } = await axiosBaseApi.post("/wallet/verifyPayment", {
+      } = await axiosBaseApi.post(API_ENDPOINTS.wallet.verifyPayment, {
         uniqueRef: hash,
       });
       const redirectUri = generateRedirectUrl(data);

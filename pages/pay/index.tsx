@@ -1,5 +1,6 @@
 import copyToClipboard from "@/helpers/copyToClipboard";
 import { BRAND_ACCENT } from "@/constants/theme";
+import { API_ENDPOINTS } from "@/api/endpoints";
 import axiosBaseApi from '@/axiosConfig'
 
 import paymentAuth from '@/Components/Page/Common/HOC/paymentAuth'
@@ -602,7 +603,7 @@ const Payment = () => {
         try {
           // For initial display, get base rates without fee calculation
           // Fees will be calculated accurately when user selects crypto type
-          const ratesResponse = await axiosBaseApi.post('/pay/getCurrencyRates', {
+          const ratesResponse = await axiosBaseApi.post(API_ENDPOINTS.pay.getCurrencyRates, {
             source: data.base_currency,
             amount: amount,
             currencyList: [data.base_currency],
@@ -643,7 +644,7 @@ const Payment = () => {
       
       const {
         data: { data }
-      } = await axiosBaseApi.post('/pay/getCurrencyRates', {
+      } = await axiosBaseApi.post(API_ENDPOINTS.pay.getCurrencyRates, {
         source: walletState?.currency,
         amount: walletState?.amount,
         currencyList: [selectedCurrency],

@@ -25,6 +25,7 @@ import Dropdown from "@/Components/UI/Dropdown";
 import { paymentTypes } from "@/utils/enums";
 import { usePaymentRates } from "@/hooks/usePaymentRates";
 import { useTranslation } from "react-i18next";
+import { API_ENDPOINTS } from "@/api/endpoints";
 
 const BankList = [
   { label: "Select Bank", value: "0" },
@@ -102,7 +103,7 @@ const USSDComponent = () => {
     try {
       const {
         data: { data },
-      } = await axiosBaseApi.post("/wallet/verifyPayment", {
+      } = await axiosBaseApi.post(API_ENDPOINTS.wallet.verifyPayment, {
         uniqueRef: ussdDetails?.hash,
       });
       const redirectUri = generateRedirectUrl(data);
@@ -132,7 +133,7 @@ const USSDComponent = () => {
 
     const {
       data: { data },
-    }: { data: USSDApiRes } = await axiosBaseApi.post("/wallet/addFunds", {
+    }: { data: USSDApiRes } = await axiosBaseApi.post(API_ENDPOINTS.wallet.addFunds, {
       data: res,
     });
     setUssdDetails(data);

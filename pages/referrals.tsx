@@ -17,6 +17,7 @@ import PanelCard from "@/Components/UI/PanelCard";
 import Toast from "@/Components/UI/Toast";
 import { pageProps } from "@/utils/types";
 import copyToClipboard from "@/helpers/copyToClipboard";
+import { API_ENDPOINTS } from "@/api/endpoints";
 
 type ReferralStats = {
   referral_code: string;
@@ -96,11 +97,11 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
       try {
         const [codeRes, listRes, earningsRes, discountRes, leaderboardRes] =
           await Promise.allSettled([
-            axiosBaseApi.get("/referral/my-code"),
-            axiosBaseApi.get("/referral/list"),
-            axiosBaseApi.get("/referral/earnings"),
-            axiosBaseApi.get("/referral/discount-status"),
-            axiosBaseApi.get("/referral/leaderboard"),
+            axiosBaseApi.get(API_ENDPOINTS.referral.myCode),
+            axiosBaseApi.get(API_ENDPOINTS.referral.list),
+            axiosBaseApi.get(API_ENDPOINTS.referral.earnings),
+            axiosBaseApi.get(API_ENDPOINTS.referral.discountStatus),
+            axiosBaseApi.get(API_ENDPOINTS.referral.leaderboard),
           ]);
 
         if (codeRes.status === "fulfilled") setCodeData(codeRes.value.data.data);

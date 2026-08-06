@@ -45,6 +45,7 @@ import DOGEicon from "../../../assets/Icons/coins/DOGE.png";
 import TRXicon from "../../../assets/Icons/coins/TRX.png";
 import copyToClipboard from "@/helpers/copyToClipboard";
 import { BRAND_ACCENT } from "@/constants/theme";
+import { API_ENDPOINTS } from "@/api/endpoints";
 
 // Payment status types
 type PaymentStatusType = 
@@ -418,7 +419,7 @@ const CryptoTransfer = ({
         setLoadingCurrencies(true);
         setCurrencyError(null);
         
-        const response = await axiosBaseApi.get("/pay/configured-currencies");
+        const response = await axiosBaseApi.get(API_ENDPOINTS.pay.configuredCurrencies);
         const data = response?.data?.data || response?.data;
         
         const configuredCurrencies: string[] = data?.configured_currencies || [];
@@ -513,7 +514,7 @@ const CryptoTransfer = ({
         // When company pays fees, send tax-inclusive amount — backend returns raw conversion
         const amountForRates = feePayer === 'customer' ? baseAmount : totalAmountWithTax;
         
-        const rateResponse = await axiosBaseApi.post("/pay/getCurrencyRates", {
+        const rateResponse = await axiosBaseApi.post(API_ENDPOINTS.pay.getCurrencyRates, {
           source: walletState?.currency,
           amount: amountForRates,
           currencyList: cryptoOptions.map((x) => x.value),
@@ -694,7 +695,7 @@ const CryptoTransfer = ({
         const MAX_RATE_RETRIES = 3;
         for (let attempt = 1; attempt <= MAX_RATE_RETRIES; attempt++) {
           try {
-            const rateResponse = await axiosBaseApi.post("/pay/getCurrencyRates", {
+            const rateResponse = await axiosBaseApi.post(API_ENDPOINTS.pay.getCurrencyRates, {
               source: walletState?.currency,
               amount: amountForRates,
               currencyList: cryptoOptions.map((x) => x.value),
@@ -752,7 +753,7 @@ const CryptoTransfer = ({
       console.log("finalPayload", finalPayload);
 
       const encrypted = await createEncryption(JSON.stringify(finalPayload));
-      const submitResponse = await axiosBaseApi.post("/pay/addPayment", {
+      const submitResponse = await axiosBaseApi.post(API_ENDPOINTS.pay.addPayment, {
         data: encrypted,
       });
 
@@ -934,7 +935,7 @@ const CryptoTransfer = ({
 
     const pollInterval = setInterval(async () => {
       try {
-        const response = await axiosBaseApi.post("/pay/verifyCryptoPayment", {
+        const response = await axiosBaseApi.post(API_ENDPOINTS.pay.verifyCryptoPayment, {
           address: cryptoDetails?.address,
         });
         const data = response?.data?.data;
@@ -1198,7 +1199,7 @@ const CryptoTransfer = ({
   //   try {
   //     const {
   //       data: { data }
-  //     } = await axiosBaseApi.post('/pay/verifyCryptoPayment', {
+  //     } = await axiosBaseApi.post(API_ENDPOINTS.pay.verifyCryptoPayment, {
   //       address: cryptoDetails?.address
   //     })
   //     window.location.replace(data)

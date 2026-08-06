@@ -56,6 +56,7 @@ import { PRICING_CURRENCIES, clampPricingCurrency } from "@/utils/pricingCurrenc
 import { fetchGeoDefaults } from "@/utils/geoDefaults";
 import SaveChangeModel from "@/Components/UI/pay-link/SaveChangeModel";
 import copyToClipboard from "@/helpers/copyToClipboard";
+import { API_ENDPOINTS } from "@/api/endpoints";
 import {
   CreatePaymentLinkPageProps,
   ICryptoItem,
@@ -492,7 +493,7 @@ const CreatePaymentLinkPage = ({
     try {
       const fd = new FormData();
       fd.append("image", file);
-      const res = await axiosBaseApi.post("/pay/uploadCampaignImage", fd, {
+      const res = await axiosBaseApi.post(API_ENDPOINTS.pay.uploadCampaignImage, fd, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       const url = res?.data?.data?.url;
@@ -1159,7 +1160,7 @@ const CreatePaymentLinkPage = ({
 
     (async () => {
       try {
-        const res = await import("@/axiosConfig").then((m) => m.default.get(`/products/${productId}`));
+        const res = await import("@/axiosConfig").then((m) => m.default.get(API_ENDPOINTS.products.byId(productId)));
         const product = res?.data?.data?.product;
         const variants = (res?.data?.data?.variants || []).filter(
           (v: { is_active?: boolean }) => v.is_active !== false

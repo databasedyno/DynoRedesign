@@ -18,6 +18,7 @@ import axiosBaseApi from "@/axiosConfig";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { WalletAction } from "@/Redux/Actions";
 import { WALLET_FETCH } from "@/Redux/Actions/WalletAction";
+import { API_ENDPOINTS } from "@/api/endpoints";
 
 interface ReusableWallet {
   currency: string;
@@ -80,7 +81,7 @@ const WalletReuseSelector: React.FC<WalletReuseSelectorProps> = ({
       try {
         setLoading(true);
         const params = targetCompanyId ? { exclude_company_id: targetCompanyId } : {};
-        const { data } = await axiosBaseApi.get("/wallet/reusable-wallets", { params });
+        const { data } = await axiosBaseApi.get(API_ENDPOINTS.wallet.reusableWallets, { params });
         if (!active) return;
         const list: ReusableCompany[] = data?.data || [];
         setCompanies(list);
@@ -129,7 +130,7 @@ const WalletReuseSelector: React.FC<WalletReuseSelectorProps> = ({
     if (!activeCompany || !targetCompanyId || selectedCurrencies.length === 0) return;
     try {
       setCopying(true);
-      const { data } = await axiosBaseApi.post("/wallet/copyWalletAddresses", {
+      const { data } = await axiosBaseApi.post(API_ENDPOINTS.wallet.copyWalletAddresses, {
         source_company_id: activeCompany.company_id,
         target_company_id: targetCompanyId,
         currencies: selectedCurrencies,

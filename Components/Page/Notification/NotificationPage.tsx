@@ -31,6 +31,7 @@ import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
 import NotificationsOffIcon from "@mui/icons-material/NotificationsOff";
 import TransactionDetailsModal from "@/Components/Page/Transactions/TransactionDetailsModal";
 import { ExtendedTransaction } from "@/utils/types/transaction";
+import { API_ENDPOINTS } from "@/api/endpoints";
 
 const NotificationItem: React.FC<NotificationItemProps> = ({
   title,
@@ -219,7 +220,7 @@ const NotificationPage = () => {
   useEffect(() => {
     const params: Record<string, any> = {};
     if (effectiveCompanyId) params.company_id = effectiveCompanyId;
-    axiosBaseApi.get("/notifications", { params })
+    axiosBaseApi.get(API_ENDPOINTS.notifications.list, { params })
       .then((res) => setNotifications(res?.data?.data?.notifications || []))
       .catch(() => {})
       .finally(() => setNotifLoading(false));
@@ -235,7 +236,7 @@ const NotificationPage = () => {
     try {
       const body: Record<string, any> = {};
       if (effectiveCompanyId) body.company_id = effectiveCompanyId;
-      await axiosBaseApi.put("/notifications/read-all", body);
+      await axiosBaseApi.put(API_ENDPOINTS.notifications.readAll, body);
       setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
       setUnreadCount(0);
       // Badges elsewhere can trust 0 immediately — write through the cache.
@@ -248,7 +249,7 @@ const NotificationPage = () => {
 
   const markOneAsRead = async (id: number) => {
     try {
-      await axiosBaseApi.put(`/notifications/${id}/read`);
+      await axiosBaseApi.put(API_ENDPOINTS.notifications.markRead(id));
       setNotifications((prev) =>
         prev.map((n) => (n.notification_id === id ? { ...n, is_read: true } : n))
       );

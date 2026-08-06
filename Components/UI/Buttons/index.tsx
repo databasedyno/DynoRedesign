@@ -3,6 +3,7 @@ import { Box, Button as MuiButton, CircularProgress, Typography, useTheme } from
 import { SxProps, Theme } from "@mui/system";
 import Image, { StaticImageData } from "next/image";
 import React from "react";
+import { BRAND_ACCENT } from "@/constants/theme";
 
 export interface CustomButtonProps {
   label: string;
@@ -192,7 +193,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
         ...(variant === "primary" &&
           !isBlockedForClicks && {
             "&:hover": {
-              backgroundColor: (theme.palette.primary as any).hover || "#4F46E599",
+              backgroundColor: (theme.palette.primary as any).hover || `${BRAND_ACCENT}99`,
               color: (theme.palette.primary as any).contrastText || theme.palette.common.white,
             },
           }),

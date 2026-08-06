@@ -42,6 +42,7 @@ import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import useIsMobile from "@/hooks/useIsMobile";
 import { rootReducer } from "@/utils/types";
 import copyToClipboard from "@/helpers/copyToClipboard";
+import { API_ENDPOINTS } from "@/api/endpoints";
 
 interface WebhookLog {
   log_id: number;
@@ -140,7 +141,7 @@ const WebhookConsoleSection = () => {
   const loadSettings = useCallback(async () => {
     if (!companyId) return;
     try {
-      const res = await axiosBaseApi.get(`/company/webhook-settings/${companyId}`);
+      const res = await axiosBaseApi.get(API_ENDPOINTS.company.webhookSettings(companyId));
       const d = res?.data?.data;
       if (d) {
         setUrl(d.webhook_url ?? "");
@@ -155,7 +156,7 @@ const WebhookConsoleSection = () => {
   const loadStats = useCallback(async () => {
     if (!companyId) return;
     try {
-      const res = await axiosBaseApi.get(`/company/webhook-stats/${companyId}?days=30`);
+      const res = await axiosBaseApi.get(API_ENDPOINTS.company.webhookStats(companyId));
       setStats(res?.data?.data?.summary ?? null);
     } catch {
       setStats(null);
@@ -167,7 +168,7 @@ const WebhookConsoleSection = () => {
     setLoadingLogs(true);
     try {
       const q = statusFilter !== "all" ? `&status=${statusFilter}` : "";
-      const res = await axiosBaseApi.get(`/company/webhook-history/${companyId}?page=1&limit=20${q}`);
+      const res = await axiosBaseApi.get(API_ENDPOINTS.company.webhookHistory(companyId, q));
       const list = res?.data?.data?.logs;
       setLogs(Array.isArray(list) ? list : []);
     } catch {
@@ -198,7 +199,7 @@ const WebhookConsoleSection = () => {
     }
     setSavingUrl(true);
     try {
-      await axiosBaseApi.put(`/company/webhook-settings/${companyId}`, { webhook_url: trimmed });
+      await axiosBaseApi.put(API_ENDPOINTS.company.webhookSettings(companyId), { webhook_url: trimmed });
       setSavedUrl(trimmed);
       toast("Webhook endpoint saved");
     } catch {
@@ -212,7 +213,7 @@ const WebhookConsoleSection = () => {
     if (!companyId) return;
     setRegenerating(true);
     try {
-      const res = await axiosBaseApi.put(`/company/webhook-settings/${companyId}`, { webhook_secret: "generate" });
+      const res = await axiosBaseApi.put(API_ENDPOINTS.company.webhookSettings(companyId), { webhook_secret: "generate" });
       const d = res?.data?.data;
       if (d?.webhook_secret) {
         setSecret(d.webhook_secret);
@@ -234,7 +235,7 @@ const WebhookConsoleSection = () => {
     }
     setSendingTest(true);
     try {
-      await axiosBaseApi.post(`/company/webhook-test/${companyId}`);
+      await axiosBaseApi.post(API_ENDPOINTS.company.webhookTest(companyId));
       toast("Test event sent — check recent deliveries");
       setTimeout(refreshAll, 1200);
       setTimeout(refreshAll, 4000);
@@ -250,7 +251,7 @@ const WebhookConsoleSection = () => {
     setLoadingDetail(true);
     setDetail({ log_id: logId } as WebhookLogDetail);
     try {
-      const res = await axiosBaseApi.get(`/company/webhook-history/${companyId}/detail/${logId}`);
+      const res = await axiosBaseApi.get(API_ENDPOINTS.company.webhookHistoryDetail(companyId, logId));
       setDetail(res?.data?.data ?? null);
     } catch {
       toast("Failed to load delivery detail", "error");

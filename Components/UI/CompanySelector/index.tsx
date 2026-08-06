@@ -38,6 +38,7 @@ import CreateCompanyModal from "@/Components/UI/OnboardingFlow/CreateCompanyModa
 import AddWalletModal from "@/Components/UI/AddWalletModal";
 import StepIndicator from "@/Components/UI/OnboardingFlow/StepIndicator";
 import CelebrationOverlay from "@/Components/UI/OnboardingFlow/CelebrationOverlay";
+import { API_ENDPOINTS } from "@/api/endpoints";
 
 export default function CompanySelector() {
   const { t } = useTranslation("dashboardLayout");
@@ -126,7 +127,7 @@ export default function CompanySelector() {
       if (newestCompany && newestCompany.company_id !== active) {
         dispatch(selectCompany(newestCompany.company_id));
         // Persist to backend
-        axiosBaseApi.put("/user/last-company", { company_id: newestCompany.company_id }).catch(() => {});
+        axiosBaseApi.put(API_ENDPOINTS.user.lastCompany, { company_id: newestCompany.company_id }).catch(() => {});
       }
     }
   }, [addCompanyPhase, companies, active, dispatch]);
@@ -144,7 +145,7 @@ export default function CompanySelector() {
     setSwitchToast(companyName);
     setTimeout(() => setSwitchToast(null), 2500);
     // Persist last company to backend (fire-and-forget)
-    axiosBaseApi.put("/user/last-company", { company_id: companyId }).catch(() => {});
+    axiosBaseApi.put(API_ENDPOINTS.user.lastCompany, { company_id: companyId }).catch(() => {});
     // Re-fetch all company-scoped data for the new company
     const companyPayload = { company_id: companyId };
     dispatch(DashboardAction(DASHBOARD_FETCH_ALL, companyPayload));

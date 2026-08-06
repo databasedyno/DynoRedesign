@@ -28,6 +28,7 @@ import FormManager from "../Common/FormManager";
 import Dropdown from "@/Components/UI/Dropdown";
 import { usePaymentRates } from "@/hooks/usePaymentRates";
 import { useTranslation } from "react-i18next";
+import { API_ENDPOINTS } from "@/api/endpoints";
 
 const timer = (ms: any) => new Promise((res) => setTimeout(res, ms));
 
@@ -87,7 +88,7 @@ const BankAccountComponent = () => {
     setCollapse(true);
     const {
       data: { data },
-    }: { data: CommonApiRes } = await axiosBaseApi.post("/wallet/addFunds", {
+    }: { data: CommonApiRes } = await axiosBaseApi.post(API_ENDPOINTS.wallet.addFunds, {
       data: res,
     });
     setAccountDetails(data);
@@ -102,7 +103,7 @@ const BankAccountComponent = () => {
       try {
         const {
           data: { data },
-        } = await axiosBaseApi.post("/wallet/verifyPayment", {
+        } = await axiosBaseApi.post(API_ENDPOINTS.wallet.verifyPayment, {
           uniqueRef: accountDetails?.hash,
         });
         const redirectUri = generateRedirectUrl(data);

@@ -560,7 +560,7 @@ const HeroPlayground: React.FC = () => {
                     fontSize: 15,
                     fontWeight: 600,
                     color: "#fff",
-                    background: "linear-gradient(135deg, #4F46E5 0%, #4338CA 100%)",
+                    background: `linear-gradient(135deg, ${BRAND_ACCENT} 0%, #4338CA 100%)`,
                     boxShadow: "0 10px 22px -8px rgba(79, 70, 229,0.55)",
                     "&:hover": {
                       background: "linear-gradient(135deg, #6366F1 0%, #4338CA 100%)",

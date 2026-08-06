@@ -34,6 +34,7 @@ import { StatusPill } from "@/Components/UI/_shared";
 import { Icon, MONO } from "@/styles/uiKit";
 import { useSelector } from "react-redux";
 import { BRAND_ACCENT } from "@/constants/theme";
+import { API_ENDPOINTS } from "@/api/endpoints";
 
 interface Invoice {
   invoice_id: number;
@@ -168,7 +169,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
     try {
       const params: Record<string, any> = { page, limit: 20 };
       if (selectedCompanyId) params.company_id = selectedCompanyId;
-      const res = await axiosBaseApi.get("/invoices", {
+      const res = await axiosBaseApi.get(API_ENDPOINTS.invoices.list, {
         params,
       });
       const data = res?.data?.data;
@@ -230,7 +231,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
         if (!params.end_date) params.end_date = now.toISOString();
       }
 
-      const res = await axiosBaseApi.get("/invoices/tax-report", { params });
+      const res = await axiosBaseApi.get(API_ENDPOINTS.invoices.taxReport, { params });
       if (res?.data?.data) {
         setTaxReport(res.data.data);
       }
@@ -253,7 +254,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
 
   const handleDownloadPDF = async (invoiceId: number) => {
     try {
-      const res = await axiosBaseApi.get(`/invoices/${invoiceId}/pdf`, {
+      const res = await axiosBaseApi.get(API_ENDPOINTS.invoices.pdf(invoiceId), {
         responseType: "blob",
       });
       const url = window.URL.createObjectURL(new Blob([res.data]));
@@ -304,7 +305,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
         params.end_date = endDate.toISOString();
       }
 
-      const res = await axiosBaseApi.get("/invoices/tax-report/csv", {
+      const res = await axiosBaseApi.get(API_ENDPOINTS.invoices.taxReportCsv, {
         params,
         responseType: "blob",
       });

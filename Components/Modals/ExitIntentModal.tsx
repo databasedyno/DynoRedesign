@@ -1,5 +1,6 @@
 import React, { memo, useEffect, useState } from 'react';
 import { Box, Typography, IconButton, Button, useTheme } from '@mui/material';
+import { BRAND_ACCENT } from '@/constants/theme';
 import { Close, ContentCopy, ArrowForward } from '@mui/icons-material';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'react-i18next';
@@ -110,7 +111,7 @@ const ExitIntentModal: React.FC = () => {
         <Box
           sx={{
             height: 6,
-            background: 'linear-gradient(90deg, #4F46E5, #6C7BFF, #22D3EE)',
+            background: `linear-gradient(90deg, ${BRAND_ACCENT}, #6C7BFF, #22D3EE)`,
           }}
         />
         <IconButton
@@ -221,10 +222,10 @@ const ExitIntentModal: React.FC = () => {
                 px: 2.2,
                 py: 1,
                 borderRadius: '10px',
-                background: 'linear-gradient(135deg, #4F46E5 0%, #3D40FF 100%)',
+                background: `linear-gradient(135deg, ${BRAND_ACCENT} 0%, #3D40FF 100%)`,
                 boxShadow: '0 8px 22px rgba(0,4,255,0.25)',
                 '&:hover': {
-                  background: 'linear-gradient(135deg, #4F46E5 0%, #4D50FF 100%)',
+                  background: `linear-gradient(135deg, ${BRAND_ACCENT} 0%, #4D50FF 100%)`,
                 },
               }}
             >

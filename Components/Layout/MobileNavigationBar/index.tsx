@@ -46,6 +46,7 @@ import {
 import { useWalletData } from "@/hooks/useWalletData";
 import { useUnreadNotificationsCount } from "@/hooks/useUnreadNotificationsCount";
 import { BRAND_ACCENT } from "@/constants/theme";
+import { API_ENDPOINTS } from "@/api/endpoints";
 
 const MobileNavigationBar = () => {
   const router = useRouter();
@@ -98,7 +99,7 @@ const MobileNavigationBar = () => {
     if (kycLoading) return;
     setKycLoading(true);
     try {
-      const res = await axiosBaseApi.post("/kyc/submit");
+      const res = await axiosBaseApi.post(API_ENDPOINTS.kyc.submit);
       const url = res?.data?.data?.verification_url || res?.data?.data?.url;
       if (url) {
         window.open(url, "_blank");

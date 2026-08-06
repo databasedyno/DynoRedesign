@@ -24,6 +24,7 @@ import {
 import { Icon } from "@iconify/react";
 import { useTranslation } from "react-i18next";
 import axiosBaseApi from "@/axiosConfig";
+import { API_ENDPOINTS } from "@/api/endpoints";
 
 interface Tier {
   tier_id: number;
@@ -90,9 +91,9 @@ const CampaignManager = ({ linkId, currency }: CampaignManagerProps) => {
     setError("");
     try {
       const [tiersRes, updatesRes, wallRes] = await Promise.all([
-        axiosBaseApi.get(`/pay/campaign/${linkId}/tiers`),
-        axiosBaseApi.get(`/pay/campaign/${linkId}/updates`),
-        axiosBaseApi.get(`/pay/campaign/${linkId}/wall?limit=100&sort=recent`),
+        axiosBaseApi.get(API_ENDPOINTS.pay.campaignTiers(linkId)),
+        axiosBaseApi.get(API_ENDPOINTS.pay.campaignUpdates(linkId)),
+        axiosBaseApi.get(API_ENDPOINTS.pay.campaignWall(linkId)),
       ]);
       setTiers(tiersRes.data?.data || []);
       setUpdates(updatesRes.data?.data || []);
@@ -135,10 +136,10 @@ const CampaignManager = ({ linkId, currency }: CampaignManagerProps) => {
         description: tierDraft.description.trim() || null,
       };
       if (editingTierId) {
-        await axiosBaseApi.patch(`/pay/tier/${editingTierId}`, body);
+        await axiosBaseApi.patch(API_ENDPOINTS.pay.tier(editingTierId), body);
         showNotice("Tier updated.");
       } else {
-        await axiosBaseApi.post(`/pay/campaign/${linkId}/tiers`, body);
+        await axiosBaseApi.post(API_ENDPOINTS.pay.campaignTiers(linkId), body);
         showNotice("Tier added.");
       }
       setTierDraft({ title: "", min_amount: "", description: "" });
@@ -170,7 +171,7 @@ const CampaignManager = ({ linkId, currency }: CampaignManagerProps) => {
     if (!window.confirm("Delete this tier?")) return;
     setBusy(true);
     try {
-      await axiosBaseApi.delete(`/pay/tier/${tier_id}`);
+      await axiosBaseApi.delete(API_ENDPOINTS.pay.tier(tier_id));
       showNotice("Tier deleted.");
       await load();
     } catch (e: any) {
@@ -189,13 +190,13 @@ const CampaignManager = ({ linkId, currency }: CampaignManagerProps) => {
     setError("");
     try {
       if (editingUpdateId) {
-        await axiosBaseApi.patch(`/pay/update/${editingUpdateId}`, {
+        await axiosBaseApi.patch(API_ENDPOINTS.pay.update(editingUpdateId), {
           title: updateDraft.title.trim(),
           body_md: updateDraft.body_md,
         });
         showNotice("Update saved.");
       } else {
-        await axiosBaseApi.post(`/pay/campaign/${linkId}/updates`, {
+        await axiosBaseApi.post(API_ENDPOINTS.pay.campaignUpdates(linkId), {
           title: updateDraft.title.trim(),
           body_md: updateDraft.body_md,
           notify_contributors: updateDraft.notify_contributors,
@@ -231,7 +232,7 @@ const CampaignManager = ({ linkId, currency }: CampaignManagerProps) => {
     if (!window.confirm("Delete this update?")) return;
     setBusy(true);
     try {
-      await axiosBaseApi.delete(`/pay/update/${update_id}`);
+      await axiosBaseApi.delete(API_ENDPOINTS.pay.update(update_id));
       showNotice("Update deleted.");
       await load();
     } catch (e: any) {
@@ -249,7 +250,7 @@ const CampaignManager = ({ linkId, currency }: CampaignManagerProps) => {
     setReplyingId(contribId);
     setError("");
     try {
-      await axiosBaseApi.patch(`/pay/contribution/${contribId}/reply`, {
+      await axiosBaseApi.patch(API_ENDPOINTS.pay.contributionReply(contribId), {
         reply: clear ? null : text,
       });
       showNotice(clear ? "Reply removed." : "Reply posted — it now shows on your public wall.");

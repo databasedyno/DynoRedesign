@@ -31,6 +31,7 @@ import "react-credit-cards-2/dist/es/styles-compiled.css";
 import { useSelector } from "react-redux";
 import CyrptoComponent from "../../Components/Page/Payment/CryptoComponent";
 import { useTranslation } from "react-i18next";
+import { API_ENDPOINTS } from "@/api/endpoints";
 
 const paymentMethods = [
   { label: "Card", value: paymentTypes.CARD, icon: <CreditCardRounded /> },
@@ -104,7 +105,7 @@ const Payment = () => {
 
     const {
       data: { data },
-    }: { data: CommonApiRes } = await axiosBaseApi.post("/wallet/addFunds", {
+    }: { data: CommonApiRes } = await axiosBaseApi.post(API_ENDPOINTS.wallet.addFunds, {
       data: res,
     });
     setAccountDetails(data);

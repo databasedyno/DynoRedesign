@@ -44,6 +44,7 @@ import { useDisplayFx } from "@/hooks/useDisplayFx";
 import useIsMobile from "@/hooks/useIsMobile";
 import { useRouter } from "next/router";
 import CustomButton from "@/Components/UI/Buttons";
+import { API_ENDPOINTS } from "@/api/endpoints";
 
 interface Customer {
   customer_id: string;
@@ -157,7 +158,7 @@ const CustomersPage: React.FC = () => {
       const params: any = { page, limit: 20 };
       if (debouncedSearch.trim()) params.search = debouncedSearch.trim();
       if (selectedCompanyId) params.company_id = selectedCompanyId;
-      const res = await axiosBaseApi.get("/userApi/customers", { params });
+      const res = await axiosBaseApi.get(API_ENDPOINTS.userApi.customers, { params });
       const data = res.data?.data;
       setCustomers(data?.customers || []);
       setTotalPages(data?.pages || 1);
@@ -180,7 +181,7 @@ const CustomersPage: React.FC = () => {
     setDetailOpen(true);
     setTxPage(1);
     try {
-      const res = await axiosBaseApi.get(`/userApi/customer/${customerId}`);
+      const res = await axiosBaseApi.get(API_ENDPOINTS.userApi.customer(customerId));
       setSelectedCustomer(res.data?.data || null);
     } catch (err) {
       console.error("Failed to fetch customer detail", err);
@@ -191,7 +192,7 @@ const CustomersPage: React.FC = () => {
 
   const fetchDetailTransactions = async (customerId: string, p: number) => {
     try {
-      const res = await axiosBaseApi.get(`/userApi/customer/${customerId}`, { params: { page: p, limit: 10 } });
+      const res = await axiosBaseApi.get(API_ENDPOINTS.userApi.customer(customerId), { params: { page: p, limit: 10 } });
       setSelectedCustomer(res.data?.data || null);
     } catch (err) {
       console.error(err);
@@ -283,7 +284,7 @@ const CustomersPage: React.FC = () => {
         );
 
         // Refresh customer details
-        const detailRes = await axiosBaseApi.get(`/userApi/customer/${selectedCustomer.customer.customer_id}`);
+        const detailRes = await axiosBaseApi.get(API_ENDPOINTS.userApi.customer(selectedCustomer.customer.customer_id));
         setSelectedCustomer(detailRes.data?.data || null);
 
         // Refresh customer list

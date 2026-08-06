@@ -12,6 +12,7 @@ import { useEffect, useState } from "react";
 import axiosBaseApi from "@/axiosConfig";
 import { StatusPill } from "@/Components/UI/_shared";
 import { BRAND_ACCENT } from "@/constants/theme";
+import { API_ENDPOINTS } from "@/api/endpoints";
 
 /**
  * InvoicePreviewDrawer — live PDF preview slide-out for the invoices list.
@@ -87,7 +88,7 @@ export default function InvoicePreviewDrawer({ open, invoice, onClose }: Props) 
       setLoading(true);
       setErrored(false);
       try {
-        const res = await axiosBaseApi.get(`/invoices/${invoice.invoice_id}/pdf`, {
+        const res = await axiosBaseApi.get(API_ENDPOINTS.invoices.pdf(invoice.invoice_id), {
           responseType: "blob",
         });
         objectUrl = window.URL.createObjectURL(new Blob([res.data], { type: "application/pdf" }));

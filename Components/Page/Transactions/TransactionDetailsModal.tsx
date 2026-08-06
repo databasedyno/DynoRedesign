@@ -49,6 +49,7 @@ import {
 } from "./TransactionDetailsModal.styled";
 import { CryptoIconChip } from "./styled";
 import copyToClipboard from "@/helpers/copyToClipboard";
+import { API_ENDPOINTS } from "@/api/endpoints";
 
 const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
   open,
@@ -157,7 +158,7 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
     try {
       // Step 1: Get invoice data (JSON) to get invoice_id
       const jsonRes = await axiosBaseApi.get(
-        `/transactions/${transaction.id}/invoice`
+        API_ENDPOINTS.transactions.invoice(transaction.id)
       );
 
       const invoiceData = jsonRes?.data?.data;
@@ -168,7 +169,7 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
 
       // Step 2: Download PDF using the invoice_id
       const pdfRes = await axiosBaseApi.get(
-        `/invoices/${invoiceData.invoice_id}/pdf`,
+        API_ENDPOINTS.invoices.pdf(invoiceData.invoice_id),
         { responseType: "blob" }
       );
 

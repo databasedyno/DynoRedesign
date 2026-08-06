@@ -16,6 +16,7 @@ import Image from "next/image";
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import axiosBaseApi from "@/axiosConfig";
+import { API_ENDPOINTS } from "@/api/endpoints";
 
 const LoadingIcon = ({ size = 20 }: { size?: number }) => (
   <Box
@@ -117,7 +118,7 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
           setLoading(false);
           return;
         }
-        await axiosBaseApi.post("/user/forgot-password", { email: email.toLowerCase() });
+        await axiosBaseApi.post(API_ENDPOINTS.user.forgotPassword, { email: email.toLowerCase() });
       } else {
         const digits = phone.replace(/[^\d]/g, "");
         if (digits.length < 10) {
@@ -125,7 +126,7 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
           setLoading(false);
           return;
         }
-        await axiosBaseApi.post("/user/forgot-password-phone", { mobile: digits });
+        await axiosBaseApi.post(API_ENDPOINTS.user.forgotPasswordPhone, { mobile: digits });
       }
 
       setStep("otp");
@@ -152,13 +153,13 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
     try {
       let response;
       if (method === "email") {
-        response = await axiosBaseApi.post("/user/forgot-password/verify-otp", {
+        response = await axiosBaseApi.post(API_ENDPOINTS.user.forgotPasswordVerifyOtp, {
           email: email.toLowerCase(),
           otp: otpCode,
         });
       } else {
         const digits = phone.replace(/[^\d]/g, "");
-        response = await axiosBaseApi.post("/user/forgot-password-phone/verify-otp", {
+        response = await axiosBaseApi.post(API_ENDPOINTS.user.forgotPasswordPhoneVerifyOtp, {
           mobile: digits,
           otp: otpCode,
         });
@@ -195,7 +196,7 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
     setLoading(true);
 
     try {
-      await axiosBaseApi.post("/user/reset-password", {
+      await axiosBaseApi.post(API_ENDPOINTS.user.resetPassword, {
         token: resetToken,
         newPassword,
       });
@@ -216,10 +217,10 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
 
     try {
       if (method === "email") {
-        await axiosBaseApi.post("/user/forgot-password", { email: email.toLowerCase() });
+        await axiosBaseApi.post(API_ENDPOINTS.user.forgotPassword, { email: email.toLowerCase() });
       } else {
         const digits = phone.replace(/[^\d]/g, "");
-        await axiosBaseApi.post("/user/forgot-password-phone", { mobile: digits });
+        await axiosBaseApi.post(API_ENDPOINTS.user.forgotPasswordPhone, { mobile: digits });
       }
       setCountdown(60);
       setOtpResetKey((k) => k + 1);

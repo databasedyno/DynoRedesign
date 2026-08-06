@@ -14,6 +14,7 @@ import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 import ThumbDownIcon from "@mui/icons-material/ThumbDown";
 import { sanitizeHtml } from "@/utils/sanitizeHtml";
 import { BRAND_ACCENT } from "@/constants/theme";
+import { API_ENDPOINTS } from "@/api/endpoints";
 
 interface KBArticleDetail {
   article_id: number;
@@ -55,7 +56,7 @@ const HelpDetail = ({
     const fetchArticle = async () => {
       try {
         setLoading(true);
-        const res = await axiosBaseApi.get(`/kb/articles/${slug}`);
+        const res = await axiosBaseApi.get(API_ENDPOINTS.kb.article(slug));
         const data = res?.data?.data;
         if (data?.article) {
           setArticle(data.article);
@@ -75,7 +76,7 @@ const HelpDetail = ({
   const handleFeedback = async (isHelpful: boolean) => {
     if (!article?.article_id || feedbackSubmitted) return;
     try {
-      await axiosBaseApi.post(`/kb/articles/${article.article_id}/feedback`, {
+      await axiosBaseApi.post(API_ENDPOINTS.kb.articleFeedback(article.article_id), {
         is_helpful: isHelpful,
       });
       setFeedbackSubmitted(true);

@@ -13,6 +13,7 @@ import PanelCard from "@/Components/UI/PanelCard";
 import OnboardingBanner from "@/Components/UI/OnboardingBanner";
 import { buildCreatorUrl, prettyCreatorDomain } from "@/helpers/creatorUrl";
 import { BRAND_ACCENT } from "@/constants/theme";
+import { API_ENDPOINTS } from "@/api/endpoints";
 
 interface Stats {
   total_visits: number;
@@ -84,7 +85,7 @@ const CreatorPageRoute = ({ setPageName, setPageDescription }: pageProps) => {
     let cancelled = false;
     (async () => {
       try {
-        const r = await axiosBaseApi.get("/user/creator/stats");
+        const r = await axiosBaseApi.get(API_ENDPOINTS.creator.stats);
         if (!cancelled) setStats(r?.data?.data || null);
       } catch { /* silent */ }
     })();

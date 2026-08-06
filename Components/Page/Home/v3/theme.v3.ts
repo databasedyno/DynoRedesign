@@ -27,7 +27,7 @@ export const FONT_BODY = "var(--font-body)";
 export const FONT_TECH = "var(--font-tech)";
 
 export const AURORA_GRADIENT =
-  "linear-gradient(135deg, #4F46E5 0%, #7C5CFF 55%, #4FD1FF 100%)";
+  `linear-gradient(135deg, ${BRAND_ACCENT} 0%, #7C5CFF 55%, #4FD1FF 100%)`;
 export const AURORA_GRADIENT_SOFT =
   "linear-gradient(135deg, rgba(79, 70, 229,0.14) 0%, rgba(124,92,255,0.14) 55%, rgba(79,209,255,0.14) 100%)";
 

@@ -20,6 +20,7 @@ import PanelCard from "@/Components/UI/PanelCard";
 import CustomButton from "@/Components/UI/Buttons";
 import axiosBaseApi from "@/axiosConfig";
 import { PRICING_CURRENCIES } from "@/utils/pricingCurrencies";
+import { API_ENDPOINTS } from "@/api/endpoints";
 
 const CURRENCY_OPTS = PRICING_CURRENCIES;
 const DELIVERY_OPTS: Array<{ v: "url" | "file" | "license_key"; label: string; hint: string }> = [
@@ -297,7 +298,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
     try {
       const fd = new FormData();
       fd.append("image", file);
-      const r = await axiosBaseApi.post("/pay/uploadCampaignImage", fd, {
+      const r = await axiosBaseApi.post(API_ENDPOINTS.pay.uploadCampaignImage, fd, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       const url: string | undefined = r?.data?.data?.url;

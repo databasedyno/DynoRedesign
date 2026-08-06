@@ -1,5 +1,6 @@
 import { Box } from "@mui/material";
 import React from "react";
+import { BRAND_ACCENT } from "@/constants/theme";
 
 const Loader = () => {
   return (
@@ -17,7 +18,7 @@ const Loader = () => {
           height: 44,
           borderRadius: "50%",
           border: "4px solid white",
-          borderTop: "4px solid #4F46E5",
+          borderTop: `4px solid ${BRAND_ACCENT}`,
           animation: "spin 0.9s linear infinite",
 
           "@keyframes spin": {

@@ -12,6 +12,7 @@ import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { CommonDetails } from "@/utils/types/paymentTypes";
 import { NorthEastRounded } from "@mui/icons-material";
 import { useTranslation } from "react-i18next";
+import { API_ENDPOINTS } from "@/api/endpoints";
 
 interface BankAccountProps {
   accountDetails?: CommonDetails;
@@ -55,7 +56,7 @@ const GooglePayComponent = ({ accountDetails }: BankAccountProps) => {
       try {
         const {
           data: { data },
-        } = await axiosBaseApi.post("/wallet/verifyPayment", {
+        } = await axiosBaseApi.post(API_ENDPOINTS.wallet.verifyPayment, {
           uniqueRef: accountDetails?.hash,
         });
         const redirectUri = generateRedirectUrl(data);

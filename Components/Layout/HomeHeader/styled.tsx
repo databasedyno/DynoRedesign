@@ -21,7 +21,7 @@ const CORAL_DEEP = "#4338CA";
 const VIOLET = "#7C5CFF";
 const VOLT = "#22C55E";
 const AURORA_GRADIENT =
-  "linear-gradient(90deg, #4F46E5 0%, #7C5CFF 55%, #4FD1FF 100%)";
+  `linear-gradient(90deg, ${BRAND_ACCENT} 0%, #7C5CFF 55%, #4FD1FF 100%)`;
 
 /* ================= HEADER SHELL ================= */
 

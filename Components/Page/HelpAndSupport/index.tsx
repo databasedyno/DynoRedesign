@@ -15,6 +15,7 @@ import { useCallback, useEffect, useState } from "react";
 import HelpAndSupportData from "@/hooks/useHelpAndSupportData";
 import SearchIcon from "@/assets/Icons/search-icon.svg";
 import axiosBaseApi from "@/axiosConfig";
+import { API_ENDPOINTS } from "@/api/endpoints";
 
 interface KBArticle {
     article_id: number;
@@ -47,7 +48,7 @@ const HelpAndSupport = () => {
         const fetchArticles = async () => {
             try {
                 setLoading(true);
-                const res = await axiosBaseApi.get("/kb/articles?limit=20");
+                const res = await axiosBaseApi.get(API_ENDPOINTS.kb.articles);
                 const data = res?.data?.data;
                 if (data?.articles && data.articles.length > 0) {
                     setArticles(data.articles.map((a: any) => ({
@@ -89,7 +90,7 @@ const HelpAndSupport = () => {
         if (!searchTerm.trim()) {
             // Reset to all articles
             try {
-                const res = await axiosBaseApi.get("/kb/articles?limit=20");
+                const res = await axiosBaseApi.get(API_ENDPOINTS.kb.articles);
                 const data = res?.data?.data;
                 if (data?.articles && data.articles.length > 0) {
                     setArticles(data.articles.map((a: any) => ({
@@ -123,7 +124,7 @@ const HelpAndSupport = () => {
 
         try {
             setSearching(true);
-            const res = await axiosBaseApi.get(`/kb/search?q=${encodeURIComponent(searchTerm)}&limit=20`);
+            const res = await axiosBaseApi.get(API_ENDPOINTS.kb.search(encodeURIComponent(searchTerm)));
             const data = res?.data?.data;
             if (data?.articles && data.articles.length > 0) {
                 setArticles(data.articles.map((a: any) => ({

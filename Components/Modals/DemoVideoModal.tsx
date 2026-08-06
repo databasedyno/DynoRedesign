@@ -246,7 +246,7 @@ const DemoVideoModal: React.FC<DemoVideoModalProps> = ({ open, onClose }) => {
                 px: 2.2,
                 py: 0.9,
                 borderRadius: '10px',
-                background: 'linear-gradient(135deg, #4F46E5 0%, #3D40FF 100%)',
+                background: `linear-gradient(135deg, ${BRAND_ACCENT} 0%, #3D40FF 100%)`,
               }}
             >
               {t('startFree')}

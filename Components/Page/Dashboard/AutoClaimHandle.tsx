@@ -9,6 +9,7 @@ import { rootReducer } from "@/utils/types";
 import { USER_PROFILE_FETCH, UserAction } from "@/Redux/Actions/UserAction";
 import { prettyCreatorUrl } from "@/helpers/creatorUrl";
 import { BRAND_ACCENT } from "@/constants/theme";
+import { API_ENDPOINTS } from "@/api/endpoints";
 
 const HANDLE_RE = /^[a-z0-9][a-z0-9_-]{2,29}$/;
 const MONO = 'ui-monospace, "Roboto Mono", "JetBrains Mono", SFMono-Regular, Menlo, monospace';
@@ -73,7 +74,7 @@ const AutoClaimHandle: React.FC = () => {
     attemptedRef.current = true;
     (async () => {
       try {
-        await axiosBaseApi.put("/user/creator/profile", {
+        await axiosBaseApi.put(API_ENDPOINTS.creator.profile, {
           handle,
           handle_reservation_token: token,
         });
@@ -122,7 +123,7 @@ const AutoClaimHandle: React.FC = () => {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            background: "linear-gradient(135deg, #4F46E5 0%, #7C5CFF 100%)",
+            background: `linear-gradient(135deg, ${BRAND_ACCENT} 0%, #7C5CFF 100%)`,
             boxShadow: "0 10px 28px rgba(79,70,229,0.35)",
           }}
         >
@@ -177,7 +178,7 @@ const AutoClaimHandle: React.FC = () => {
             fontSize: 15,
             borderRadius: "12px",
             py: 1.15,
-            background: "linear-gradient(135deg, #4F46E5 0%, #4338CA 100%)",
+            background: `linear-gradient(135deg, ${BRAND_ACCENT} 0%, #4338CA 100%)`,
             color: "#FFFFFF",
             "&:hover": { background: "linear-gradient(135deg, #4338CA 0%, #3730A3 100%)" },
           }}

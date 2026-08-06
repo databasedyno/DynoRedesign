@@ -29,6 +29,7 @@ import {
   RightSection,
 } from "./styled";
 import { HeaderDivider } from "@/Components/UI/LanguageSwitcher/styled";
+import { API_ENDPOINTS } from "@/api/endpoints";
 
 const NewHeader = () => {
   const router = useRouter();
@@ -85,7 +86,7 @@ const NewHeader = () => {
     if (kycLoading) return;
     setKycLoading(true);
     try {
-      const res = await axiosBaseApi.post("/kyc/submit");
+      const res = await axiosBaseApi.post(API_ENDPOINTS.kyc.submit);
       const url = res?.data?.data?.verification_url || res?.data?.data?.url;
       if (url) {
         window.open(url, "_blank");

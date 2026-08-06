@@ -37,6 +37,7 @@ import { CopyAllRounded, NorthEastRounded } from "@mui/icons-material";
 import { usePaymentRates } from "@/hooks/usePaymentRates";
 import { useTranslation } from "react-i18next";
 import copyToClipboard from "@/helpers/copyToClipboard";
+import { API_ENDPOINTS } from "@/api/endpoints";
 
 const currencyList2 = [
   "BTC",
@@ -114,7 +115,7 @@ const CyrptoComponent = () => {
       setLoading2(true);
       const {
         data: { data },
-      }: { data: CommonApiRes } = await axiosBaseApi.post("/wallet/addFunds", {
+      }: { data: CommonApiRes } = await axiosBaseApi.post(API_ENDPOINTS.wallet.addFunds, {
         data: res,
       });
       if (data.redirect) {
@@ -139,7 +140,7 @@ const CyrptoComponent = () => {
     try {
       const {
         data: { data },
-      } = await axiosBaseApi.post("/wallet/verifyCryptoPayment", {
+      } = await axiosBaseApi.post(API_ENDPOINTS.wallet.verifyCryptoPayment, {
         address: cryptoDetails.address,
       });
       const redirectUri = generateStatusUrl(data);

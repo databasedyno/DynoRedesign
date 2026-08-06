@@ -213,7 +213,7 @@ export const theme = createTheme({
               background: "#fff",
             },
             "&.Mui-disabled": {
-              background: "#4F46E588",
+              background: `${BRAND_ACCENT}88`,
               color: "#fff",
               pointerEvents: "auto",
               cursor: "not-allowed",
@@ -279,7 +279,7 @@ export const theme = createTheme({
               background: "#fff",
             },
             "&.Mui-disabled": {
-              background: "#4F46E599",
+              background: `${BRAND_ACCENT}99`,
               color: "#fff",
             },
           },
@@ -397,7 +397,7 @@ const getCheckoutComponentStyles = (isDark: boolean) => ({
             background: isDark ? "#1a1a2e" : "#fff",
           },
           "&.Mui-disabled": {
-            background: "#4F46E588",
+            background: `${BRAND_ACCENT}88`,
             color: "#fff",
             pointerEvents: "auto" as const,
             cursor: "not-allowed",
@@ -463,7 +463,7 @@ const getCheckoutComponentStyles = (isDark: boolean) => ({
             background: isDark ? "#1a1a2e" : "#fff",
           },
           "&.Mui-disabled": {
-            background: "#4F46E599",
+            background: `${BRAND_ACCENT}99`,
             color: "#fff",
           },
         },

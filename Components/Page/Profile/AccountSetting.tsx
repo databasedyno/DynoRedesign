@@ -19,6 +19,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useDispatch } from "react-redux";
 import axiosBaseApi from "@/axiosConfig";
+import { API_ENDPOINTS } from "@/api/endpoints";
 
 const LANGUAGE_OPTIONS = [
   { code: "en", label: "English" },
@@ -186,7 +187,7 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
     setPhoneError("");
     setPhoneLoading(true);
     try {
-      await axiosBaseApi.post("/user/addPhone", { phone: cleaned });
+      await axiosBaseApi.post(API_ENDPOINTS.user.addPhone, { phone: cleaned });
       setPhoneOtpOpen(true);
       setPhoneOtpCountdown(30);
       dispatch({ type: TOAST_SHOW, payload: { message: t("codeSentPhone", { ns: "profile" }) } });

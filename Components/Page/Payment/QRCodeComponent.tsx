@@ -22,6 +22,7 @@ import { NorthEastRounded } from "@mui/icons-material";
 import { paymentTypes } from "@/utils/enums";
 import { usePaymentRates } from "@/hooks/usePaymentRates";
 import { useTranslation } from "react-i18next";
+import { API_ENDPOINTS } from "@/api/endpoints";
 
 const QRCodeComponent = () => {
   const { t } = useTranslation("common");
@@ -71,7 +72,7 @@ const QRCodeComponent = () => {
     try {
       const {
         data: { data },
-      } = await axiosBaseApi.post("/wallet/verifyPayment", {
+      } = await axiosBaseApi.post(API_ENDPOINTS.wallet.verifyPayment, {
         uniqueRef: accountDetails?.hash,
       });
       const redirectUri = generateRedirectUrl(data);
@@ -98,7 +99,7 @@ const QRCodeComponent = () => {
 
     const {
       data: { data },
-    }: { data: CommonApiRes } = await axiosBaseApi.post("/wallet/addFunds", {
+    }: { data: CommonApiRes } = await axiosBaseApi.post(API_ENDPOINTS.wallet.addFunds, {
       data: res,
     });
     setAccountDetails(data);

@@ -57,6 +57,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import * as yup from "yup";
+import { API_ENDPOINTS } from "@/api/endpoints";
 
 export default function Login() {
   const { t } = useTranslation("auth");
@@ -370,7 +371,7 @@ export default function Login() {
     setPhoneError("");
     setPhoneCheckLoading(true);
     try {
-      const response = await axiosBaseApi.get("/user/checkPhone?phone=" + cleaned);
+      const response = await axiosBaseApi.get(API_ENDPOINTS.user.checkPhone + cleaned);
       const data = response.data?.data;
       if (data && data.validPhone) {
         setVerifiedPhone(cleaned);
@@ -513,7 +514,7 @@ export default function Login() {
     setEmailCheckLoading(true);
     try {
       const response = await axiosBaseApi.get(
-        "/user/checkEmail?email=" + emailInput,
+        API_ENDPOINTS.user.checkEmail + emailInput,
       );
 
       if (!response || !response.data) {
@@ -985,7 +986,7 @@ export default function Login() {
     try {
       const {
         data: { data },
-      } = await axiosBaseApi.get("/user/checkEmail?email=" + email);
+      } = await axiosBaseApi.get(API_ENDPOINTS.user.checkEmail + email);
 
       if (data.validEmail) {
         dispatch(

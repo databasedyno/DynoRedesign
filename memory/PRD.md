@@ -1,3 +1,14 @@
+# CURRENT SESSION (2026-08-06 (f) — fork) — Endpoints migration + Template-accent cleanup — VERIFIED
+
+- **Endpoints migration — DONE & verified (no testing agent, per user).** 120 inline API paths (79 static + 41 dynamic) across 41 files migrated to the central `API_ENDPOINTS` map (`api/endpoints.ts`). Scripts: `scripts/extract_endpoints.py` (classify) + `scripts/rollout_endpoints.py` (call-site-aware static replace + verbatim dynamic builder rules). BYTE-IDENTICAL by construction — static consts hold the exact original string; dynamic builders interpolate args verbatim (e.g. `encodeURIComponent(...)` stays at the call site). Builder params typed `PathId = string | number | string[]`. Nested check-handle template in CreatorPageCard handled manually via `creator.checkHandleQuery(...)`. tsc: 6 errors before = 6 after (zero new). Runtime verified: login (auth), dashboard, referrals page (5 `/referral/*` endpoints returning live data).
+- **Template-accent cleanup — DONE & verified.** Converted the ~24 residual bare-hex `#4F46E5` accents inside styled-component/gradient template literals to `${BRAND_ACCENT}` across ~15 files (Loading, Buttons, StickyPromoBar, ExitIntentModal, DemoVideoModal, HomeHeader, HeroPlayground, AutoClaimHandle, HomeCard, theme.v3, theme.ts, pay/demo, auth/register, etc.). Only doc-comments now reference the literal. tsc: zero new errors.
+- **NOTE:** the frontend has 6 PRE-EXISTING tsc errors (5× TS2774 on `navigator.clipboard` guard conditions + 1 ExpireSelector `"yes"|"no"`), unrelated to this work; runtime uses SWC which ignores type errors. All migration scripts guarded by tsc baseline-diff (before==after) throughout.
+- **Files:** NEW `scripts/extract_endpoints.py`, `scripts/rollout_endpoints.py`. EDITED `api/endpoints.ts` (full map: static + dynamic builders), 41 endpoint files, ~15 template-accent files. No backend/DB changes; SAFETY flags unchanged.
+- **Wider Primitive Rollout now COMPLETE** (clipboard + accent + template-accent + endpoints all done). Brand accent + clipboard + API paths all flow through shared primitives.
+
+---
+
+
 # CURRENT SESSION (2026-08-06 (e) — fork) — Batch 3 Common Copy + Primitive Rollout (clipboard + accent waves) — VERIFIED
 
 - **Batch 3 — Common Copy — DONE & verified.** Re-authored 70 shared, cross-surface strings in `common.json` into the warm/benefit-led Dynopay voice and translated to all 6 locales via `scripts/batch3_common_copy.py` (generic buttons/actions, system toasts, checkout/crypto/payment-state messages, underpayment/overpayment, success/failed/expired, donation, customers validation, settings). All 6 JSON valid, key count intact (92), placeholders preserved. DELIBERATELY EXCLUDED (kept verbatim): legal `terms.*`/`aml.*` clause bodies (compliance risk) and `currency.*` display names.

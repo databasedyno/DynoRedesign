@@ -14,6 +14,7 @@ import HandleQrCode from "@/Components/Page/Creator/HandleQrCode";
 import { Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
 import copyToClipboard from "@/helpers/copyToClipboard";
 import { BRAND_ACCENT } from "@/constants/theme";
+import { API_ENDPOINTS } from "@/api/endpoints";
 
 const MONO = 'ui-monospace, "Roboto Mono", "JetBrains Mono", SFMono-Regular, Menlo, monospace';
 // Session 82: LIME const preserves the name but now holds aurora indigo #4F46E5
@@ -94,7 +95,7 @@ const CreatorPageCard: React.FC = () => {
     let cancelled = false;
     (async () => {
       try {
-        const r = await axiosBaseApi.get("/user/creator/stats");
+        const r = await axiosBaseApi.get(API_ENDPOINTS.creator.stats);
         if (cancelled) return;
         const d = r?.data?.data || {};
         setStats({
@@ -128,7 +129,7 @@ const CreatorPageCard: React.FC = () => {
       try {
         const tok = (typeof window !== "undefined" && localStorage.getItem("dynopay.claimedHandleToken")) || "";
         const r = await axiosBaseApi.get(
-          `/user/creator/check-handle?handle=${encodeURIComponent(h)}${tok ? `&token=${encodeURIComponent(tok)}` : ""}`,
+          API_ENDPOINTS.creator.checkHandleQuery(encodeURIComponent(h), tok ? `&token=${encodeURIComponent(tok)}` : ""),
         );
         setClaimAvail(r?.data?.data || null);
       } catch {
@@ -147,7 +148,7 @@ const CreatorPageCard: React.FC = () => {
     try {
       const reservationToken =
         (typeof window !== "undefined" && localStorage.getItem("dynopay.claimedHandleToken")) || undefined;
-      await axiosBaseApi.put("/user/creator/profile", {
+      await axiosBaseApi.put(API_ENDPOINTS.creator.profile, {
         handle: reserved,
         handle_reservation_token: reservationToken,
       });

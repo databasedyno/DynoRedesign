@@ -13,6 +13,7 @@ import serviceIcon from "@/assets/Icons/home/service.svg";
 import Image from "next/image";
 import Bars from "@/Components/UI/APIStatus/Bars";
 import axiosBaseApi from "@/axiosConfig";
+import { API_ENDPOINTS } from "@/api/endpoints";
 
 interface ServiceData {
   id: string;
@@ -70,15 +71,15 @@ const StatusPage = () => {
 
       try {
         const [servicesRes, incidentsRes, uptimeRes] = await Promise.all([
-          axiosBaseApi.get("/status/services").catch((err) => {
+          axiosBaseApi.get(API_ENDPOINTS.status.services).catch((err) => {
             console.error("Failed to fetch services:", err);
             return null;
           }),
-          axiosBaseApi.get("/status/incidents").catch((err) => {
+          axiosBaseApi.get(API_ENDPOINTS.status.incidents).catch((err) => {
             console.error("Failed to fetch incidents:", err);
             return null;
           }),
-          axiosBaseApi.get("/status/uptime").catch((err) => {
+          axiosBaseApi.get(API_ENDPOINTS.status.uptime).catch((err) => {
             console.error("Failed to fetch uptime:", err);
             return null;
           }),

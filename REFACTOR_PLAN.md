@@ -103,14 +103,18 @@ dead" refactor. Findings are backed by grep counts taken across
   context-aware: JSX attr → `{BRAND_ACCENT}`, value pos → `BRAND_ACCENT`).
   Guarded by a tsc baseline-diff (6 errors before/after — all pre-existing; zero new).
   Verified: landing + `/auth/register` + `/dashboard` render, global `styles/theme.ts`
-  (23 swaps) intact. Residual bare-hex inside template literals (styled-components,
-  box-shadow strings) intentionally LEFT — same rendered color, needs `${}` handling.
-- **Endpoints wave — ⬜ NOT started (deferred — needs flow testing).** ~107 inline
-  endpoint strings across 73 files. UNLIKE clipboard/accent, a wrong URL string
-  COMPILES FINE but breaks a real API call at runtime (tsc can't validate URLs), and
-  many are dynamic template literals. On a LIVE payment gateway this is the "big-bang
-  on live infra" the plan warns against — must be migrated programmatically
-  (map values copied verbatim) + verified per money-flow with the testing agent.
+  (23 swaps) intact.
+- **Template-accent cleanup — ✅ done & verified.** The residual bare-hex accents inside
+  styled-component/gradient template literals converted to `${BRAND_ACCENT}` (~24 across
+  ~15 files). Only doc-comments now reference the literal. tsc: zero new errors.
+- **Endpoints wave — ✅ done & verified.** 120 inline API paths (79 static + 41 dynamic)
+  across 41 files migrated to the central `API_ENDPOINTS` map (`scripts/rollout_endpoints.py`
+  + `scripts/extract_endpoints.py`). BYTE-IDENTICAL by construction: static consts hold the
+  exact original string (call-site-aware — router paths untouched); dynamic builder fns
+  interpolate their args VERBATIM (any `encodeURIComponent(...)` stays at the call site).
+  Builder params typed `PathId = string | number | string[]` to match template-literal
+  coercion. tsc: 6 errors before/after (zero new). Runtime verified: login (auth), dashboard,
+  and referrals (5 migrated `/referral/*` endpoints returning live data) all work.
 
 ### Phase 3 — Frontend data-fetching consolidation — ⬜
 - Route reads through existing hooks; add `AbortController`; introduce SWR for

@@ -21,6 +21,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import PanelCard from "../PanelCard";
+import { API_ENDPOINTS } from "@/api/endpoints";
 import {
   WarningContainer,
   WarningContent,
@@ -249,7 +250,7 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
             wallet_name: walletName.trim(),
           };
           const response: any = await axiosBaseApi.post(
-            "/wallet/validateWalletAddress",
+            API_ENDPOINTS.wallet.validateWalletAddress,
             values,
           );
           if (response.status !== 200 || response.error) {
@@ -271,7 +272,7 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
         } else {
           // Name-only change — call edit endpoint directly (no OTP required)
           const response: any = await axiosBaseApi.put(
-            `/wallet/updateWallet/${editWalletId}`,
+            API_ENDPOINTS.wallet.updateWallet(editWalletId),
             { wallet_name: walletName.trim() },
           );
           if (response.status === 200 && !response.error) {
@@ -311,7 +312,7 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
       }
 
       const response: any = await axiosBaseApi.post(
-        "/wallet/validateWalletAddress",
+        API_ENDPOINTS.wallet.validateWalletAddress,
         values,
       );
 
@@ -439,7 +440,7 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
     try {
       setOtpError("");
       const response: any = await axiosBaseApi.post(
-        "/wallet/validateWalletAddress",
+        API_ENDPOINTS.wallet.validateWalletAddress,
         address,
       );
 

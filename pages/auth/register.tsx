@@ -37,6 +37,7 @@ import {
 import { ArrowBack, CheckCircleOutline } from "@mui/icons-material";
 import Head from "next/head";
 import { BRAND_ACCENT } from "@/constants/theme";
+import { API_ENDPOINTS } from "@/api/endpoints";
 
 type RegisterMethod = "email" | "phone";
 type Step = "purpose" | "input" | "otp" | "success";
@@ -180,7 +181,7 @@ const Register = () => {
         // Renew the server-side reservation so the handle stays HARD-held while
         // the visitor finishes signing up (TTL refreshed on each renew).
         const token = localStorage.getItem("dynopay.claimedHandleToken") || undefined;
-        fetch("/api/user/creator/reserve-handle", {
+        fetch(`/api${API_ENDPOINTS.creator.reserveHandle}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ handle: clean, token }),
@@ -311,7 +312,7 @@ const Register = () => {
   const checkPhoneType = useCallback(async (phoneDigits: string): Promise<boolean> => {
     setPhoneTypeChecking(true);
     try {
-      const res = await axiosBaseApi.post("/user/phone-type-check", { mobile: phoneDigits });
+      const res = await axiosBaseApi.post(API_ENDPOINTS.user.phoneTypeCheck, { mobile: phoneDigits });
       const data = res?.data?.data;
       if (data && !data.is_mobile && data.phone_type !== "unknown") {
         setPhoneError("Only mobile numbers are accepted. Please use a mobile phone number.");
@@ -341,7 +342,7 @@ const Register = () => {
           setLoading(false);
           return;
         }
-        const res = await axiosBaseApi.post("/user/registerEmail", {
+        const res = await axiosBaseApi.post(API_ENDPOINTS.user.registerEmail, {
           email: email.toLowerCase().trim(),
           referral_code: referralCode || undefined,
           attribution: attribution || undefined,
@@ -363,7 +364,7 @@ const Register = () => {
           return;
         }
 
-        const res = await axiosBaseApi.post("/user/registerPhone", {
+        const res = await axiosBaseApi.post(API_ENDPOINTS.user.registerPhone, {
           mobile: digits,
           referral_code: referralCode || undefined,
           attribution: attribution || undefined,
@@ -399,7 +400,7 @@ const Register = () => {
       let response;
       const attribution = getSeoAttribution();
       if (method === "email") {
-        response = await axiosBaseApi.post("/user/registerEmail/verify-otp", {
+        response = await axiosBaseApi.post(API_ENDPOINTS.user.registerEmailVerifyOtp, {
           email: email.toLowerCase().trim(),
           otp: otpCode,
           language: i18n.language,
@@ -407,7 +408,7 @@ const Register = () => {
         });
       } else {
         const digits = phone.replace(/[^\d]/g, "");
-        response = await axiosBaseApi.post("/user/registerPhone/verify", {
+        response = await axiosBaseApi.post(API_ENDPOINTS.user.registerPhoneVerify, {
           mobile: digits,
           otp: otpCode,
           language: i18n.language,
@@ -461,13 +462,13 @@ const Register = () => {
 
     try {
       if (method === "email") {
-        await axiosBaseApi.post("/user/registerEmail", {
+        await axiosBaseApi.post(API_ENDPOINTS.user.registerEmail, {
           email: email.toLowerCase().trim(),
           referral_code: referralCode || undefined,
         });
       } else {
         const digits = phone.replace(/[^\d]/g, "");
-        await axiosBaseApi.post("/user/registerPhone", { mobile: digits });
+        await axiosBaseApi.post(API_ENDPOINTS.user.registerPhone, { mobile: digits });
       }
       setCountdown(60);
       setOtpResetKey((k) => k + 1);
@@ -801,7 +802,7 @@ const Register = () => {
                     <Box
                       sx={{
                         width: 56, height: 56, borderRadius: "16px",
-                        background: "linear-gradient(135deg, #4F46E5, #7C3AED)",
+                        background: `linear-gradient(135deg, ${BRAND_ACCENT}, #7C3AED)`,
                         display: "flex", alignItems: "center", justifyContent: "center",
                         margin: "0 auto 12px",
                       }}

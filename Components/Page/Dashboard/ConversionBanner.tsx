@@ -19,6 +19,7 @@ import useIsMobile from "@/hooks/useIsMobile";
 import { rootReducer, ICompany } from "@/utils/types";
 
 import SwapIcon from "@/assets/Icons/swap-round-icon.svg";
+import { API_ENDPOINTS } from "@/api/endpoints";
 
 const STABLECOIN_LABELS: Record<string, string> = {
   usdt_trc20: "USDT (TRC-20)",
@@ -70,7 +71,7 @@ const ConversionBanner = () => {
     }
     try {
       const res = await axiosBaseApi.get(
-        `/company/auto-convert/${company.company_id}`
+        API_ENDPOINTS.company.autoConvert(company.company_id)
       );
       const data = res?.data?.data;
       if (data) {
@@ -111,7 +112,7 @@ const ConversionBanner = () => {
       setEnabled(false);
       try {
         await axiosBaseApi.put(
-          `/company/auto-convert/${company.company_id}`,
+          API_ENDPOINTS.company.autoConvert(company.company_id),
           { auto_convert_enabled: false }
         );
       } catch {
@@ -155,7 +156,7 @@ const ConversionBanner = () => {
 
     try {
       await axiosBaseApi.put(
-        `/company/auto-convert/${company.company_id}`,
+        API_ENDPOINTS.company.autoConvert(company.company_id),
         {
           auto_convert_enabled: true,
           settlement_currency: currency,

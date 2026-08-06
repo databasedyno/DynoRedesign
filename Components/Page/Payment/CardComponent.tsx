@@ -14,6 +14,7 @@ import axiosBaseApi from "@/axiosConfig";
 import { useRouter } from "next/router";
 import { paymentTypes } from "../../../utils/enums";
 import { CardApiRes, cardType } from "@/utils/types/paymentTypes";
+import { API_ENDPOINTS } from "@/api/endpoints";
 
 const initialValue = {
   number: "",
@@ -135,7 +136,7 @@ const CardComponent = () => {
 
     const {
       data: { data },
-    }: { data: CardApiRes } = await axiosBaseApi.post("/wallet/addFunds", {
+    }: { data: CardApiRes } = await axiosBaseApi.post(API_ENDPOINTS.wallet.addFunds, {
       data: res,
     });
 
@@ -159,7 +160,7 @@ const CardComponent = () => {
 
     const {
       data: { data },
-    }: { data: CardApiRes } = await axiosBaseApi.post("/wallet/authStep", {
+    }: { data: CardApiRes } = await axiosBaseApi.post(API_ENDPOINTS.wallet.authStep, {
       data: res,
     });
     if (data.mode === "redirect") {
