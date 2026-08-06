@@ -22,7 +22,7 @@ from datetime import datetime
 import sys
 
 # Configuration
-BASE_URL = "https://b2c3b2c1-01bd-4feb-a640-21c618b08330.preview.emergentagent.com"
+BASE_URL = "https://credentials-preview.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 # Test credentials
