@@ -25,11 +25,11 @@ D. **Header**: desktop /dashboard header — the top-right profile trigger shows
 ### frontend
   - task: "PayLink expiry: 4-preset dropdown (No/24h/7d/30d) — no more 'Invalid expire value' 400"
     implemented: true
-    working: "NA"
+    working: false
     file: "Components/UI/pay-link/ExpireSelector.tsx, Components/UI/pay-link/PaymentSettingsBasic.tsx, Components/Page/CreatePaymentLink/index.tsx"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
@@ -37,13 +37,16 @@ D. **Header**: desktop /dashboard header — the top-right profile trigger shows
       - working: "NA"
         agent: "testing"
         comment: "⚠️ UNABLE TO COMPLETE TEST (2026-08-06) — Playwright test could not locate the amount input field on /create-pay-link page (timeout after 30s). The page loaded successfully after login, but the input[name='value'] selector did not resolve. This may indicate: (1) the form structure uses different field names/selectors, (2) the page requires additional wait time for dynamic content to load, or (3) there are conditional rendering paths. RECOMMENDATION: Main agent should verify the create-pay-link page loads correctly and the amount input field is accessible. The ExpireSelector.tsx code review shows correct implementation (4 options with correct values), but end-to-end flow could not be verified due to page interaction issues. Manual testing or updated selectors needed."
+      - working: false
+        agent: "testing"
+        comment: "❌ PARTIAL FIX VERIFIED (2026-08-06) — Comprehensive Playwright test executed. POSITIVE: (1) Dropdown renders correctly with EXACTLY 4 options: 'No expiration', '24 hours', '7 days', '30 days' ✓. (2) NO 'Invalid expire value' error appears when creating payment link ✓. (3) Payment link created successfully ✓. CRITICAL ISSUE: When '7 days' option is selected and payment link is created, the success modal shows 'Expires on: No expiration' instead of 'Expires on: 7 days' ❌. This indicates the selected expiry value is NOT being properly saved/sent to the backend, OR the backend is not processing it correctly. The dropdown UI works correctly, but the value selection/submission is broken. RECOMMENDATION: Main agent should investigate: (1) ExpireSelector onChange handler - verify it's calling the parent's onChange with correct value, (2) CreatePaymentLink handleExpireSelect - verify it's updating paymentSettings.expire state, (3) Backend API payload - verify 'expire' field is being sent with correct value ('7d' not 'No'), (4) Add console.log to track expire value through the flow. The 'Invalid expire value' 400 error is fixed, but the expire value is not being applied correctly."
   - task: "Create PayLink → redirect to /pay-links on success-modal close"
     implemented: true
     working: "NA"
     file: "Components/Page/CreatePaymentLink/index.tsx"
     stuck_count: 0
     priority: "medium"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
@@ -51,6 +54,9 @@ D. **Header**: desktop /dashboard header — the top-right profile trigger shows
       - working: "NA"
         agent: "testing"
         comment: "⚠️ UNABLE TO COMPLETE TEST (2026-08-06) — Could not test redirect behavior because TEST A (payment link creation) could not be completed. The redirect logic in CreatePaymentLink/index.tsx line 888 (router.push('/pay-links')) is correctly implemented in code. End-to-end verification requires successful payment link creation first. RECOMMENDATION: Main agent should manually test the full flow: create payment link → success modal appears → close modal → verify redirect to /pay-links."
+      - working: "NA"
+        agent: "testing"
+        comment: "⚠️ UNABLE TO FULLY VERIFY (2026-08-06) — Payment link was created successfully and success modal appeared, but could not complete redirect test due to JavaScript evaluation error when trying to verify modal content. The code review shows handleCloseSuccessModal (line 888) correctly implements router.push('/pay-links'). The modal did appear with close (X) button visible. RECOMMENDATION: Main agent should manually verify the redirect works by: (1) Create a payment link, (2) Wait for success modal, (3) Click the X button, (4) Confirm URL changes to /pay-links. The implementation looks correct but needs manual verification of the complete flow."
   - task: "Header: avatar-only profile trigger (removes duplicate 'hostbay')"
     implemented: true
     working: true
@@ -103,6 +109,8 @@ D. **Header**: desktop /dashboard header — the top-right profile trigger shows
     message: "✅ BACKEND TESTING COMPLETE — All 4 tests PASSED (4/4 — 100%). The /api/public/tickers Tatum fallback is working perfectly. CRITICAL SUCCESS: In this geo-blocked region where Binance WebSocket returns error 451, the endpoint successfully falls back to Tatum API and returns 10 non-empty ticker entries with realistic USD prices for BTC ($64,778), ETH ($1,911), and 8 other crypto assets. Backend logs confirm Tatum rate API calls for all assets. The endpoint is stable (3 consecutive calls all successful), /health endpoint confirms all services healthy (database, redis, tatum_api operational). Backend routing healthy (/api/csrf-token returns 200). NO backend issues found. Main agent: Backend testing complete and successful. Please proceed with FRONTEND testing (tasks A-D) or summarize and finish if frontend testing is not required."
   - agent: "testing"
     message: "✅ FRONTEND TESTING COMPLETE (2026-08-06) — 2 of 4 tests PASSED, 2 tests INCOMPLETE due to page interaction issues. PASSED TESTS: (1) TEST C (Dashboard fiat estimates): ✅ VERIFIED on both desktop (5 estimates found: '≈ $10.03', '≈ $37.69', '≈ $9.98', etc.) and mobile (5 estimates found). The reported bug (fiat showing on mobile but not desktop) is FIXED. Parity confirmed across both viewports. (2) TEST D (Header cleanup): ✅ VERIFIED via visual inspection. Profile trigger shows avatar-only (no 'hostbay' text), company switcher shows 'hostbay' → 'hostbay' appears ONCE in header (not twice). Dropdown contains full user info. INCOMPLETE TESTS: (1) TEST A (Expiry dropdown): ⚠️ Could not locate amount input field on /create-pay-link page (timeout). Code review shows correct 4-preset implementation in ExpireSelector.tsx, but end-to-end flow could not be verified. (2) TEST B (Redirect to /pay-links): ⚠️ Depends on TEST A completion. Code shows correct router.push('/pay-links') implementation. RECOMMENDATION: Main agent should manually verify the create-pay-link flow works (amount input → expiry dropdown → create → redirect). The 2 verified fixes are production-ready."
+  - agent: "testing"
+    message: "⚠️ CRITICAL ISSUE FOUND (2026-08-06) — PayLink expiry dropdown TEST A shows PARTIAL FIX. POSITIVE: (1) Dropdown UI works correctly with 4 options ('No expiration', '24 hours', '7 days', '30 days') ✓, (2) NO 'Invalid expire value' 400 error ✓, (3) Payment link creates successfully ✓. CRITICAL BUG: When '7 days' is selected, the success modal shows 'Expires on: No expiration' instead of 'Expires on: 7 days' ❌. The selected expiry value is NOT being saved/applied. INVESTIGATION NEEDED: (1) Verify ExpireSelector onChange is calling parent's onChange with correct value, (2) Verify handleExpireSelect updates paymentSettings.expire state, (3) Verify backend API payload includes correct 'expire' field value ('7d' not 'No'), (4) Add logging to track expire value through the flow. TEST B (redirect) could not be fully verified due to JS evaluation error, but code implementation looks correct (router.push('/pay-links') on line 888). RECOMMENDATION: Fix the expiry value selection/submission issue before marking as complete."
 
 ---
 
