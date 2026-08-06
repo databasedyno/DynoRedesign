@@ -138,7 +138,16 @@ hook consolidation is architectural. These belong to Phase 3/6, not the 2c primi
   `contexts/CompanyDataContext`, global `SWRConfig` in `_app.tsx`) — redux sagas/reducers
   retired; ~50 consumers rewired; verified (login→dashboard→wallet, company switch/create/delete).
 - ✅ **rates** unified onto SWR (`hooks/usePaymentRates.ts`, 30s dedupe) — verified no infinite refetch.
-- ⬜ Remaining: add `AbortController`; migrate the broader ~185 manual `useEffect`+axios screens.
+- ✅ **Fee-free + reusable-wallets deduped (2026-08-06)** — new shared SWR hooks
+  `hooks/useFeeFreeStatus.ts` (collapses the 3 fee-free consumers → 1 call) and
+  `hooks/useReusableWallets.ts` (keyed by target company, gated on a resolved id → 1 call).
+- ✅ **AbortController wired (2026-08-06)** — `utils/abortRegistry.ts` (`nextSignal`/`isAbortError`);
+  signals added to the wallet fetcher (WalletDataContext), payment-rates fetcher, and reusable-wallets
+  fetcher so a company switch / amount change cancels the stale in-flight request.
+- ✅ **Dashboard prefetch (2026-08-06)** — `utils/prefetchDashboard.ts` SWR-`preload`s company list +
+  onboarding-status + fee-free-status in the post-login window (`pages/auth/login.tsx`) so the dashboard
+  paints with data ready.
+- ⬜ Remaining: migrate the broader ~185 manual `useEffect`+axios screens to SWR.
 
 ### Phase 4 — Backend HTTP resilience + integrations — ⬜
 - Resilient client + `withRetry` util; consolidate Tatum call sites to `tatumApi`;
@@ -159,11 +168,10 @@ hook consolidation is architectural. These belong to Phase 3/6, not the 2c primi
 Recommended near-term picks, each mapped to its phase. All frontend-only unless noted;
 app runs against a LIVE production DB, so each should ship in small, individually-verified batches.
 
-1. **Abort Stale Requests** (Phase 3) — ⬜
-   Add `AbortController` to the shared data hooks/contexts so navigating away or switching
-   company/page cancels in-flight requests, preventing race conditions and stale-response
-   overwrites. Start with `usePaymentRates` + the wallet/company SWR fetchers, then the
-   remaining `useEffect`+axios screens.
+1. **Abort Stale Requests** (Phase 3) — ✅ done (2026-08-06)
+   `utils/abortRegistry.ts` (`nextSignal(family)` + `isAbortError`) wired into the wallet fetcher,
+   payment-rates fetcher, and reusable-wallets fetcher so navigating away / switching company /
+   typing a new amount cancels the stale in-flight request. Verified: no AbortError leaks in console.
 
 2. **Loader Polish** (Phase 6) — ⬜
    Roll out the shared `<Loader/>` + skeleton components across the remaining ~45 inline

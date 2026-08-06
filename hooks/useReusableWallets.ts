@@ -42,9 +42,12 @@ const reusableFetcher = async ([, exclude]: ReusableKey): Promise<ReusableCompan
 export function useReusableWallets(targetCompanyId?: string | number) {
   const hasToken =
     typeof window !== "undefined" && !!localStorage.getItem("token");
-  const key: ReusableKey | null = hasToken
-    ? ["reusable-wallets", targetCompanyId ?? ""]
-    : null;
+  // Only fetch once the target company id is resolved. `targetCompanyId` starts
+  // as undefined and resolves to the selected company on a later render; gating
+  // on a truthy value avoids an initial ("") fetch that would immediately be
+  // superseded (and aborted) — keeping this to a single request.
+  const key: ReusableKey | null =
+    hasToken && targetCompanyId ? ["reusable-wallets", targetCompanyId] : null;
 
   const { data, error, isLoading } = useSWR<ReusableCompany[]>(
     key,
