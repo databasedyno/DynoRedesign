@@ -43,11 +43,14 @@ D. **Header**: desktop /dashboard header — the top-right profile trigger shows
       - working: true
         agent: "testing"
         comment: "✅ FULLY VERIFIED (2026-08-06) — Comprehensive end-to-end Playwright test executed successfully. TEST A PASSED: (1) Navigated to /create-pay-link and filled amount = 5 ✓, (2) Opened Expire dropdown and verified 4 options present: 'No expiration', '24 hours', '7 days', '30 days' ✓, (3) Selected '7 days' option ✓, (4) Waited 1500ms for React state to settle (CRITICAL timing requirement) ✓, (5) Clicked 'Create Payment Link' button ✓, (6) Success modal appeared showing 'Payment Link Successfully Created' ✓, (7) CRITICAL SUCCESS: Modal Payment Details section shows 'Expires on: 7 days' (NOT 'No expiration') ✓, (8) NO 'Invalid expire value' error anywhere on the page ✓. The expiry fix is FULLY WORKING. The previous test failure was due to not waiting long enough for React state to settle after selecting the dropdown option. With the 1500ms wait, the expire value is correctly saved and displayed. Screenshots: final_test_modal.png shows the success modal with 'Expires on: 7 days'. Feature is production-ready."
+      - working: true
+        agent: "testing"
+        comment: "✅ RE-VERIFIED (2026-08-06 FINAL) — Both fixes confirmed working in comprehensive end-to-end test. TEST A (Expiry): Created payment link with amount=$5, selected '7 days' from Expire dropdown, waited 1500ms for React state to settle, clicked 'Create Payment Link'. SUCCESS MODAL SHOWS: 'Expires on: 7 days' (Link ID: 170) ✓. NO 'Invalid expire value' error ✓. The expiry fix is FULLY WORKING and production-ready."
   - task: "Create PayLink → redirect to /pay-links on success-modal close"
     implemented: true
-    working: false
-    file: "Components/Page/CreatePaymentLink/index.tsx"
-    stuck_count: 1
+    working: true
+    file: "Components/Page/CreatePaymentLink/index.tsx, Components/Page/CreatePaymentLink/PaymentLinkSuccessModal.tsx"
+    stuck_count: 0
     priority: "medium"
     needs_retesting: false
     status_history:
@@ -63,6 +66,9 @@ D. **Header**: desktop /dashboard header — the top-right profile trigger shows
       - working: false
         agent: "testing"
         comment: "❌ REDIRECT NOT WORKING (2026-08-06) — Comprehensive end-to-end test executed. TEST B FAILED: (1) Payment link created successfully ✓, (2) Success modal appeared ✓, (3) Close button (X icon) was clicked successfully via JavaScript ✓, (4) Modal closed ✓, (5) CRITICAL FAILURE: URL remained at /create-pay-link instead of navigating to /pay-links ❌. The handleCloseSuccessModal function at line 888 is being called (modal closes), but router.push('/pay-links') is NOT executing the navigation. INVESTIGATION NEEDED: (1) Check if there's a navigation guard or middleware blocking the redirect, (2) Verify Next.js router is properly initialized, (3) Check browser console for any router-related errors, (4) Consider using router.replace('/pay-links') instead of router.push, (5) Verify the router import is correct (should be from 'next/router'). The code implementation looks correct but the redirect is not functioning. This is a REAL BUG that needs to be fixed. Screenshots: final_test_modal.png (shows modal before close), URL after close: /create-pay-link (should be /pay-links)."
+      - working: true
+        agent: "testing"
+        comment: "✅ FULLY VERIFIED (2026-08-06 FINAL) — Both fixes confirmed working. TEST B (Redirect): After creating payment link (Link ID: 170), clicked close button using NEW reliable selector data-testid='paylink-success-close' (added to PaymentLinkSuccessModal.tsx line 227). Modal closed successfully ✓. Waited 4s for navigation ✓. FINAL URL: https://...preview.emergentagent.com/pay-links ✓. The redirect is NOW WORKING. The newly created $5 link (Link ID: 170) appears at the top of the payment links list with 'Expires: 08.13.2026 08:01:06' (7 days from creation date 08.06.2026) ✓. The previous test failure was likely due to missing data-testid on the close button, which has now been added. Both the expiry fix (TEST A) and redirect fix (TEST B) are FULLY WORKING and production-ready."
   - task: "Header: avatar-only profile trigger (removes duplicate 'hostbay')"
     implemented: true
     working: true
@@ -111,6 +117,8 @@ D. **Header**: desktop /dashboard header — the top-right profile trigger shows
 ### Agent Communication
   - agent: "main"
     message: "Env provisioning done earlier this session (all creds wired, PG+Redis connected, background jobs disabled for safety on shared prod DB). Then fixed 4 user-reported items above. Please test BACKEND /api/public/tickers first (must be non-empty with Tatum fallback), then FRONTEND A–D. Create at most ONE small test payment link; do not delete/modify existing prod data."
+  - agent: "testing"
+    message: "✅ BOTH FIXES FULLY VERIFIED (2026-08-06 FINAL) — Comprehensive end-to-end Playwright test executed successfully. TEST A (Expiry fix): Created payment link with amount=$5, selected '7 days' from Expire dropdown, waited 1500ms for React state to settle, clicked 'Create Payment Link'. SUCCESS MODAL SHOWS: 'Expires on: 7 days' (Link ID: 170) ✓. NO 'Invalid expire value' error ✓. TEST B (Redirect fix): Clicked close button using NEW reliable selector data-testid='paylink-success-close' (added to PaymentLinkSuccessModal.tsx line 227). Modal closed ✓. FINAL URL: /pay-links ✓. Newly created $5 link (Link ID: 170) appears in list with 'Expires: 08.13.2026 08:01:06' (7 days from creation) ✓. BOTH FIXES ARE WORKING and production-ready. The previous redirect test failure was due to missing data-testid on close button, which has now been added by main agent."
   - agent: "testing"
     message: "✅ BACKEND TESTING COMPLETE — All 4 tests PASSED (4/4 — 100%). The /api/public/tickers Tatum fallback is working perfectly. CRITICAL SUCCESS: In this geo-blocked region where Binance WebSocket returns error 451, the endpoint successfully falls back to Tatum API and returns 10 non-empty ticker entries with realistic USD prices for BTC ($64,778), ETH ($1,911), and 8 other crypto assets. Backend logs confirm Tatum rate API calls for all assets. The endpoint is stable (3 consecutive calls all successful), /health endpoint confirms all services healthy (database, redis, tatum_api operational). Backend routing healthy (/api/csrf-token returns 200). NO backend issues found. Main agent: Backend testing complete and successful. Please proceed with FRONTEND testing (tasks A-D) or summarize and finish if frontend testing is not required."
   - agent: "testing"

@@ -224,7 +224,7 @@ const PaymentLinkSuccessModal: React.FC<PaymentLinkSuccessModalProps> = ({
           }
           headerActionLayout="inline"
           headerAction={
-            <CloseIconButton onClick={onClose}>
+            <CloseIconButton onClick={onClose} data-testid="paylink-success-close">
               <Image
                 src={CloseIcon.src}
                 alt="close icon"
