@@ -4,7 +4,7 @@ import CloseRounded from "@mui/icons-material/CloseRounded";
 import LocalOfferRounded from "@mui/icons-material/LocalOfferRounded";
 import ArrowForwardRounded from "@mui/icons-material/ArrowForwardRounded";
 import { useRouter } from "next/router";
-import axiosBaseApi from "@/axiosConfig";
+import { useFeeFreeStatus } from "@/hooks/useFeeFreeStatus";
 
 /**
  * FeeFreeBanner — persistent top-strip that shows the merchant's remaining
@@ -19,30 +19,29 @@ import axiosBaseApi from "@/axiosConfig";
  *  - User is logged in (JWT in localStorage) — checked implicitly via 401 fallback.
  *  - GET /api/company/fee-free-status → is_fee_free && fee_free_remaining_usd > 0
  *  - Not permanently dismissed on this browser (per-user localStorage flag).
+ *
+ * The fee-free status is read through the shared `useFeeFreeStatus` SWR hook so
+ * this banner, the FeeFreeWidget and the FeeFreeWelcomeModal collapse into a
+ * single deduped /company/fee-free-status request per page.
  */
-
-interface FeeFreeData {
-  is_fee_free: boolean;
-  fee_free_remaining_usd: number;
-  fee_free_total_usd: number;
-  fee_free_used_usd: number;
-  percentage_used: number;
-}
 
 const FeeFreeBanner: React.FC = () => {
   const theme = useTheme();
   const router = useRouter();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const [data, setData] = useState<FeeFreeData | null>(null);
   const [dismissed, setDismissed] = useState(false);
   const [storageKey, setStorageKey] = useState<string | null>(null);
 
+  // Suppress on unauthenticated pages (auth, marketing, checkout)
+  const path = router.pathname || "";
+  const suppressPaths = ["/auth", "/pay/", "/checkout", "/kyc", "/system-status"];
+  const suppressed = suppressPaths.some((p) => path.startsWith(p));
+
+  const { data } = useFeeFreeStatus({ enabled: !suppressed });
+
   useEffect(() => {
     if (typeof window === "undefined") return;
-    // Suppress on unauthenticated pages (auth, marketing, checkout)
-    const path = router.pathname || "";
-    const suppressPaths = ["/auth", "/pay/", "/checkout", "/kyc", "/system-status"];
-    if (suppressPaths.some((p) => path.startsWith(p))) return;
+    if (suppressed) return;
 
     const resolveIdentity = (): string | null => {
       try {
@@ -72,27 +71,10 @@ const FeeFreeBanner: React.FC = () => {
       const key = `ff_banner_dismissed:${identity}`;
       setStorageKey(key);
       try {
-        if (localStorage.getItem(key)) {
-          setDismissed(true);
-          return;
-        }
+        if (localStorage.getItem(key)) setDismissed(true);
       } catch {
         /* ignore */
       }
-      // Fetch status. Note: we DO NOT gate rendering on apiState.loading —
-      // we render as soon as the API says the trial has money left.
-      axiosBaseApi
-        .get("company/fee-free-status")
-        .then((res) => {
-          if (cancelled) return;
-          const d = res?.data?.data as FeeFreeData | undefined;
-          if (d && d.is_fee_free && Number(d.fee_free_remaining_usd) > 0) {
-            setData(d);
-          }
-        })
-        .catch(() => {
-          /* silent — never block the app */
-        });
     };
 
     attempt();
@@ -101,7 +83,7 @@ const FeeFreeBanner: React.FC = () => {
       cancelled = true;
       if (retryTimer) clearTimeout(retryTimer);
     };
-  }, [router.pathname]);
+  }, [suppressed, path]);
 
   const handleDismiss = useCallback(() => {
     setDismissed(true);
@@ -118,7 +100,10 @@ const FeeFreeBanner: React.FC = () => {
     router.push("/create-pay-link");
   }, [router]);
 
-  if (dismissed || !data) return null;
+  const showable =
+    !!data && data.is_fee_free && Number(data.fee_free_remaining_usd) > 0;
+
+  if (dismissed || suppressed || !showable || !data) return null;
 
   const remaining = Math.max(0, Number(data.fee_free_remaining_usd || 0));
   const total = Math.max(1, Number(data.fee_free_total_usd || 500));

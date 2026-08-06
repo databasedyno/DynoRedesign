@@ -3,7 +3,7 @@ import { Box, Typography, useTheme } from "@mui/material";
 import { useRouter } from "next/router";
 import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
-import axiosBaseApi from "@/axiosConfig";
+import { useFeeFreeStatus } from "@/hooks/useFeeFreeStatus";
 import PopupModal from "@/Components/UI/PopupModal";
 import CustomButton from "@/Components/UI/Buttons";
 
@@ -83,9 +83,13 @@ const FeeFreeWelcomeModal: React.FC = () => {
   const [remaining, setRemaining] = useState(500);
   const [storageKey, setStorageKey] = useState<string | null>(null);
 
+  // Shared, deduped fee-free status (collapses this + FeeFreeBanner +
+  // FeeFreeWidget into a single /company/fee-free-status request per page).
+  const { data: ffData } = useFeeFreeStatus();
+
   useEffect(() => {
     if (typeof window === "undefined") return;
-    let cancelled = false;
+    if (!ffData) return;
 
     // Derive a RELOAD-STABLE identity from the JWT in localStorage.
     // (Redux userState.email is empty right after a reload — using it caused
@@ -111,35 +115,19 @@ const FeeFreeWelcomeModal: React.FC = () => {
       return;
     }
 
-    (async () => {
+    if (ffData.is_fee_free && Number(ffData.fee_free_remaining_usd) > 0) {
+      // Mark as shown IMMEDIATELY — "once" semantics survive reloads
+      // even if the user never clicks a button.
       try {
-        const res = await axiosBaseApi.get("company/fee-free-status");
-        const d = res?.data?.data;
-        if (
-          !cancelled &&
-          d &&
-          d.is_fee_free &&
-          Number(d.fee_free_remaining_usd) > 0
-        ) {
-          // Mark as shown IMMEDIATELY — "once" semantics survive reloads
-          // even if the user never clicks a button.
-          try {
-            localStorage.setItem(key, String(Date.now()));
-          } catch {
-            /* ignore */
-          }
-          setStorageKey(key);
-          setRemaining(Number(d.fee_free_remaining_usd));
-          setOpen(true);
-        }
+        localStorage.setItem(key, String(Date.now()));
       } catch {
-        /* non-critical — never block the dashboard */
+        /* ignore */
       }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+      setStorageKey(key);
+      setRemaining(Number(ffData.fee_free_remaining_usd));
+      setOpen(true);
+    }
+  }, [ffData]);
 
   const markShown = () => {
     if (!storageKey) return;

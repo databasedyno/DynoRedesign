@@ -58,6 +58,7 @@ import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import * as yup from "yup";
 import { API_ENDPOINTS } from "@/api/endpoints";
+import { prefetchDashboardData } from "@/utils/prefetchDashboard";
 
 export default function Login() {
   const { t } = useTranslation("auth");
@@ -207,6 +208,9 @@ export default function Login() {
         // an iOS localStorage write-visibility race that would otherwise land
         // the user on the dashboard guard before the token is readable.
         if (typeof window !== "undefined" && localStorage.getItem("token")) {
+          // Warm the dashboard SWR cache (company list / onboarding / fee-free)
+          // BEFORE the route transition so the dashboard paints with data ready.
+          prefetchDashboardData();
           router.replace("/dashboard");
         }
       }, 600);

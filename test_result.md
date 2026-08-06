@@ -34845,3 +34845,15 @@ The custom date range feature for GET /api/dashboard/chart is **FULLY WORKING** 
 
 ---
 
+
+---
+
+## 2026-08-06 — Session (fork) — Perf batch: Dedupe Fee Status + Abort Stale Requests + Prefetch Dashboard
+
+**Tasks (all frontend-only, read-only GETs — safe on LIVE Railway DB):**
+1. **Dedupe Fee Status (P0)** — New shared SWR hook `hooks/useFeeFreeStatus.ts` (key `company/fee-free-status`, 60s dedupe). Wired the 3 components that each fetched it independently → `FeeFreeWidget`, `FeeFreeWelcomeModal`, `FeeFreeBanner`. New `hooks/useReusableWallets.ts` (SWR, keyed by target company) wired into `WalletReuseSelector`.
+2. **Abort Stale Requests (P1)** — New `utils/abortRegistry.ts` (`nextSignal(family)` + `isAbortError`). AbortController signal added to the wallet fetcher (`contexts/WalletDataContext.tsx`, family "wallet") and payment-rates fetcher (`hooks/usePaymentRates.ts`, family "payment-rates") + reusable-wallets fetcher — so switching company / typing a new amount cancels the stale in-flight request. Abort errors filtered from user-facing error state.
+3. **Prefetch Dashboard (P1)** — New `utils/prefetchDashboard.ts` calls SWR `preload()` for company list / onboarding-status / fee-free-status. Invoked in `pages/auth/login.tsx` in the ~600ms post-login window before `router.replace("/dashboard")`. Exported `COMPANIES_KEY`/`companyFetcher` (CompanyDataContext) and `ONBOARDING_KEY`/`onboardingFetcher` (useOnboardingStatus) for reuse.
+
+**Verified (self, live preview, hostbay@moxx.co):** Login → dashboard loads with real data ($25,139.50 lifetime volume). Network capture from login through dashboard paint: `fee-free-status` = **1** call (was up to 3), `getCompany`=1, `onboarding-status`=1, `getWallet`=1, `reusable-wallets`=1, dashboard API set deduped. No new console errors (only pre-existing DOM-nesting/chart-size warnings). tsc: no new errors in touched files.
+

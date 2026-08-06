@@ -1,5 +1,6 @@
 import useSWR from "swr";
 import axiosBaseApi from "@/axiosConfig";
+import { nextSignal, isAbortError } from "@/utils/abortRegistry";
 
 interface CurrencyRate {
   currency: string;
@@ -30,14 +31,21 @@ type RatesKey = ["payment-rates", string, number, string, boolean];
 
 const ratesFetcher = async ([, source, amount, currencyCsv, fixedDecimal]: RatesKey) => {
   const currencyList = currencyCsv ? currencyCsv.split(",") : [];
+  // Cancel a prior rate request when the amount/currency set changes (the SWR
+  // key changes) so a stale quote never overwrites the current one.
+  const signal = nextSignal("payment-rates");
   const {
     data: { data },
-  } = await axiosBaseApi.post("/wallet/getCurrencyRates", {
-    source,
-    amount,
-    currencyList,
-    fixedDecimal,
-  });
+  } = await axiosBaseApi.post(
+    "/wallet/getCurrencyRates",
+    {
+      source,
+      amount,
+      currencyList,
+      fixedDecimal,
+    },
+    { signal }
+  );
   return data as CurrencyRate[];
 };
 
@@ -72,11 +80,12 @@ export function usePaymentRates({
   return {
     rates: data,
     loading: isLoading,
-    error: error
-      ? error?.response?.data?.message ??
-        error?.message ??
-        "Failed to fetch rates"
-      : null,
+    error:
+      error && !isAbortError(error)
+        ? error?.response?.data?.message ??
+          error?.message ??
+          "Failed to fetch rates"
+        : null,
     refetch: () => {
       mutate();
     },

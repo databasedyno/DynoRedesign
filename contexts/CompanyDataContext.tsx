@@ -31,7 +31,7 @@ import { API_ENDPOINTS } from "@/api/endpoints";
  */
 
 const LS_KEY = "last_company_id";
-const COMPANIES_KEY = "company/getCompany";
+export const COMPANIES_KEY = "company/getCompany";
 
 function getLastCompanyId(): number | null {
   if (typeof window === "undefined") return null;
@@ -50,7 +50,7 @@ function saveLastCompanyId(companyId: number | null) {
   } catch {}
 }
 
-const companyFetcher = async (url: string) => {
+export const companyFetcher = async (url: string) => {
   const res = await axios.get(url);
   return res?.data?.data ?? [];
 };

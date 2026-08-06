@@ -8,6 +8,7 @@ import useSWR from "swr";
 
 import axios from "@/axiosConfig";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
+import { nextSignal } from "@/utils/abortRegistry";
 
 /**
  * WalletDataContext — SWR-backed replacement for the old Redux `walletReducer`
@@ -28,7 +29,11 @@ const walletFetcher = async (key: string | [string, number]) => {
   const companyId = Array.isArray(key) ? key[1] : undefined;
   const params: Record<string, unknown> = {};
   if (companyId) params.company_id = companyId;
-  const res = await axios.get(WALLET_KEY, { params });
+  // Cancel any in-flight wallet fetch for a previous company when the selected
+  // company changes (the SWR key changes) — prevents a stale company's wallet
+  // list from resolving after the user has already switched.
+  const signal = nextSignal("wallet");
+  const res = await axios.get(WALLET_KEY, { params, signal });
   const apiData = res?.data?.data;
 
   // API returns company-grouped data: [{ company_id, company_name, wallets:[...] }].

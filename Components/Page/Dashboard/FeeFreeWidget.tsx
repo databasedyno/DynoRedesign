@@ -1,41 +1,15 @@
-import React, { useEffect, useState, memo } from "react";
+import React, { memo } from "react";
 import { Box, Typography, LinearProgress, useTheme } from "@mui/material";
 import { Icon } from "@iconify/react";
-import axiosBaseApi from "@/axiosConfig";
 import useIsMobile from "@/hooks/useIsMobile";
 import { useTranslation } from "react-i18next";
-
-interface FeeFreeData {
-  fee_free_remaining_usd: number;
-  fee_free_total_usd: number;
-  fee_free_used_usd: number;
-  fee_tier: string;
-  is_fee_free: boolean;
-  percentage_used: number;
-  cumulative_volume_usd: number;
-}
+import { useFeeFreeStatus } from "@/hooks/useFeeFreeStatus";
 
 const FeeFreeWidget: React.FC = () => {
   const { t } = useTranslation("common");
   const theme = useTheme();
   const isMobile = useIsMobile("md");
-  const [data, setData] = useState<FeeFreeData | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchStatus = async () => {
-      try {
-        const res = await axiosBaseApi.get("company/fee-free-status");
-        setData(res.data.data);
-      } catch {
-        // Silently fail — widget is non-critical
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchStatus();
-  }, []);
+  const { data, loading } = useFeeFreeStatus();
 
   // Don't render if no data or still loading
   if (loading || !data) return null;
@@ -149,7 +123,7 @@ const FeeFreeWidget: React.FC = () => {
           ${used.toFixed(2)} of ${total.toFixed(0)} used
         </Typography>
         <Typography sx={{ fontSize: isMobile ? 11 : 12, color: theme.palette.text.secondary }}>
-          Total volume: ${data.cumulative_volume_usd.toFixed(2)}
+          Total volume: ${(data.cumulative_volume_usd ?? 0).toFixed(2)}
         </Typography>
       </Box>
     </Box>

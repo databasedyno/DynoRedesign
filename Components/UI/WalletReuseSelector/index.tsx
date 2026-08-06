@@ -18,19 +18,7 @@ import axiosBaseApi from "@/axiosConfig";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { useWalletStore } from "@/contexts/WalletDataContext";
 import { API_ENDPOINTS } from "@/api/endpoints";
-
-interface ReusableWallet {
-  currency: string;
-  label: string | null;
-  wallet_name: string | null;
-  wallet_address_preview: string;
-}
-interface ReusableCompany {
-  company_id: number;
-  company_name: string;
-  wallet_count: number;
-  wallets: ReusableWallet[];
-}
+import { useReusableWallets, ReusableCompany } from "@/hooks/useReusableWallets";
 
 interface WalletReuseSelectorProps {
   /** The company the wallets will be copied INTO (excluded from the source list). */
@@ -55,8 +43,7 @@ const WalletReuseSelector: React.FC<WalletReuseSelectorProps> = ({
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
 
-  const [loading, setLoading] = useState(true);
-  const [companies, setCompanies] = useState<ReusableCompany[]>([]);
+  const { companies, loading } = useReusableWallets(targetCompanyId);
   const [sourceId, setSourceId] = useState<number | "">("");
   const [selected, setSelected] = useState<Record<string, boolean>>({});
   const [copying, setCopying] = useState(false);
@@ -75,30 +62,23 @@ const WalletReuseSelector: React.FC<WalletReuseSelectorProps> = ({
     setSelected(map);
   }, []);
 
+  // Initialise the source selector + default selection once the reusable list
+  // resolves (or changes when the target company changes).
   useEffect(() => {
-    let active = true;
-    (async () => {
-      try {
-        setLoading(true);
-        const params = targetCompanyId ? { exclude_company_id: targetCompanyId } : {};
-        const { data } = await axiosBaseApi.get(API_ENDPOINTS.wallet.reusableWallets, { params });
-        if (!active) return;
-        const list: ReusableCompany[] = data?.data || [];
-        setCompanies(list);
-        if (list.length > 0) {
-          setSourceId(list[0].company_id);
-          initSelection(list[0]);
-        }
-      } catch {
-        if (active) setCompanies([]);
-      } finally {
-        if (active) setLoading(false);
-      }
-    })();
-    return () => {
-      active = false;
-    };
-  }, [targetCompanyId, initSelection]);
+    if (companies.length > 0) {
+      const first = companies[0];
+      setSourceId((prev) =>
+        prev && companies.some((c) => c.company_id === prev) ? prev : first.company_id
+      );
+      setSelected((prev) =>
+        Object.keys(prev).length ? prev : (() => {
+          const map: Record<string, boolean> = {};
+          first.wallets.forEach((w) => (map[w.currency] = true));
+          return map;
+        })()
+      );
+    }
+  }, [companies]);
 
   const handleSourceChange = (id: number) => {
     setSourceId(id);
