@@ -10,8 +10,10 @@ import GroupAddRounded from "@mui/icons-material/GroupAddRounded";
 import SettingsRounded from "@mui/icons-material/SettingsRounded";
 import { Box, Button, ClickAwayListener, Divider, Fade, IconButton, Popper, Tooltip, useTheme } from "@mui/material";
 import { useRouter } from "next/router";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { rootReducer } from "@/utils/types";
+import { useCompanyStore } from "@/contexts/CompanyDataContext";
+import { TransactionAction, TRANSACTION_FETCH } from "@/Redux/Actions/TransactionAction";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import ReferralAndKnowledge from "../ReferralAndKnowledge";
@@ -48,6 +50,41 @@ const NewSidebar = () => {
   const isCollapsed = collapsed && !isMobile;
   const router = useRouter();
   const theme = useTheme();
+  const dispatch = useDispatch();
+  const selectedCompanyId = useCompanyStore().selectedCompanyId;
+  const txLoadedCompany = useSelector(
+    (s: rootReducer) => s.transactionReducer?.loaded_company_id,
+  );
+  const txLoading = useSelector((s: rootReducer) => s.transactionReducer?.loading);
+  const navPrefetchedRef = useRef<Set<string>>(new Set());
+
+  // Nav hover-prefetch: warm the route's JS chunk for every item, and warm the
+  // transactions DATA (Redux) so /transactions paints instantly on click
+  // instead of showing a skeleton for the whole backend round-trip.
+  const prefetchNav = useCallback(
+    (item: SidebarItem) => {
+      if ((item as any).soon) return;
+      try {
+        router.prefetch(item.path);
+      } catch {
+        /* best-effort */
+      }
+      if (item.path === "/transactions") {
+        const alreadyHasCompany = txLoadedCompany === (selectedCompanyId ?? null);
+        const key = `tx:${selectedCompanyId ?? ""}`;
+        if (!alreadyHasCompany && !txLoading && !navPrefetchedRef.current.has(key)) {
+          navPrefetchedRef.current.add(key);
+          dispatch(
+            TransactionAction(
+              TRANSACTION_FETCH,
+              selectedCompanyId ? { company_id: selectedCompanyId } : undefined,
+            ),
+          );
+        }
+      }
+    },
+    [router, dispatch, selectedCompanyId, txLoadedCompany, txLoading],
+  );
   const unreadNotifications = useUnreadNotificationsCount();
   // Only surface the "Creator page" NEW pill for merchants who haven't
   // published yet. Once they've set a handle & enabled the page, the pill
@@ -183,6 +220,7 @@ const NewSidebar = () => {
                 const menuItemNode = (
                   <MenuItem
                     active={isActive}
+                    onMouseEnter={() => prefetchNav(item)}
                     onClick={() => {
                       if ((item as any).soon) return;
                       router.push(item.path);

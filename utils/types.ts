@@ -56,6 +56,7 @@ export interface transactionReducer {
   customers_transactions: ICustomerTransactions[];
   self_transactions: ICustomerTransactions[];
   loading: boolean;
+  loaded_company_id?: number | null;
   transactionDetail?: any;
   detailLoading?: boolean;
   exportLoading?: boolean;

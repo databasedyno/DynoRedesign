@@ -1,3 +1,15 @@
+# CURRENT SESSION (2026-08-06 (j) — fork) — Transactions page slow-load fix — VERIFIED (self)
+
+- **Root cause:** `Components/Page/Transactions/index.tsx` gated the WHOLE page behind `if (transactionState.loading) return <TransactionsSkeleton/>`, and re-dispatched `TRANSACTION_FETCH` on every mount. Because the reducer sets `loading:true` on each fetch (while keeping the cached rows), every visit hid the already-cached data behind a full skeleton for the entire `POST /api/wallet/getAllTransactions` round-trip (~350ms, occasionally spiking to ~2s).
+- **Fix 1 — stale-while-revalidate (DONE & verified).** Added `loaded_company_id` to the transaction reducer/saga/type. The skeleton now shows ONLY on a genuine first load (`loading && (!hasCachedTx || cache belongs to a different company)`); repeat visits to the same company paint cached rows instantly and refetch in the background. VERIFIED: repeat visit @150ms → skeleton absent, content present.
+- **Fix 2 — nav hover-prefetch (DONE & verified).** `Components/Layout/NewSidebar` now `onMouseEnter` calls `router.prefetch(item.path)` for every nav item (warms the route JS chunk) and, for `/transactions`, dispatches `TRANSACTION_FETCH` to warm the data before the click. VERIFIED: hovering the Transactions item fires 1 `getAllTransactions` call pre-click. Mount effect skips re-dispatching while a prefetch is in-flight (`if (transactionState.loading) return`) to avoid a double fetch.
+- **Company-switch safety:** cached rows are only shown when `loaded_company_id === selectedCompanyId`, so switching companies still shows a skeleton (never the wrong company's data).
+- **Backend note (NOT changed):** `getAllTransactions` median ~350ms; one 2014ms spike observed — likely the per-row `convertToUSD` fallback for legacy rows lacking a stored `usd_value` (walletController.ts ~648). Left as-is (LIVE prod DB; most rows use stored usd_value). Frontend caching now hides this on repeat visits.
+- **Files:** EDITED `Components/Page/Transactions/index.tsx`, `Components/Layout/NewSidebar/index.tsx`, `Redux/Reducers/transactionReducer.ts`, `Redux/Sagas/TransactionSaga.ts`, `utils/types.ts`. Frontend-only.
+
+---
+
+
 # CURRENT SESSION (2026-08-06 (i) — fork) — Notifications+lists → SWR, invoice row-hover prefetch, shared skeletons — VERIFIED (self)
 
 - **Notifications → SWR (DONE & verified).** `Components/Page/Notification/NotificationPage.tsx` list now on SWR (key `[notifications.list, companyId]`); bell badge stays in sync via the existing shared unread-count cache (`fetchUnreadCount`/`decrementUnreadCount`/`setCachedUnreadCount`); mark-one/mark-all-read update the list via `mutate` (optimistic, revalidate:false).

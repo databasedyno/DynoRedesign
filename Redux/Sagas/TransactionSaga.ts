@@ -48,6 +48,7 @@ export function* getAllTransactions(payload?: any): unknown {
           customers_transactions: apiData.customers_transactions || [],
           self_transactions: apiData.self_transactions || [],
           pagination: apiData.pagination || null,
+          company_id: payload?.company_id ?? null,
         },
       });
     } else {

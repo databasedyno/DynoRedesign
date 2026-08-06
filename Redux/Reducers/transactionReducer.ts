@@ -13,6 +13,7 @@ const transactionInitialState: ITransactionReducer = {
   customers_transactions: [],
   self_transactions: [],
   loading: false,
+  loaded_company_id: undefined,
   transactionDetail: null,
   detailLoading: false,
   exportLoading: false,
@@ -39,6 +40,7 @@ const transactionReducer = (
         loading: false,
         customers_transactions: payload.customers_transactions,
         self_transactions: payload.self_transactions,
+        loaded_company_id: payload.company_id ?? null,
       };
 
     case TRANSACTION_DETAIL_FETCH:

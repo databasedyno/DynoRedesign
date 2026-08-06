@@ -104,8 +104,13 @@ const TransactionPage = () => {
   const selectedCompanyId = useCompanyStore().selectedCompanyId;
 
   useEffect(() => {
+    // Skip if a hover-prefetch (from the sidebar) is already loading this
+    // data — avoids a double fetch on hover → click. Otherwise fetch /
+    // revalidate for the current company.
+    if (transactionState.loading) return;
     const payload = selectedCompanyId ? { company_id: selectedCompanyId } : undefined;
     dispatch(TransactionAction(TRANSACTION_FETCH, payload));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, selectedCompanyId]);
 
   // "First payment received" celebration ─────────────────────────────────────
@@ -385,7 +390,16 @@ const TransactionPage = () => {
     }));
   };
 
-  if (transactionState.loading) {
+  // Stale-while-revalidate: only show the full skeleton on a genuine first
+  // load — i.e. when we have NO cached rows yet, or the cached rows belong to a
+  // DIFFERENT company (just switched). On a repeat visit to the same company we
+  // paint the cached transactions instantly and refetch in the background, so
+  // navigating to /transactions no longer flashes a skeleton for the whole
+  // 300ms–2s backend round-trip.
+  const hasCachedTx = (transactionState?.customers_transactions?.length ?? 0) > 0;
+  const cacheMatchesCompany =
+    transactionState?.loaded_company_id === (selectedCompanyId ?? null);
+  if (transactionState.loading && (!hasCachedTx || !cacheMatchesCompany)) {
     return <TransactionsSkeleton />;
   }
 
