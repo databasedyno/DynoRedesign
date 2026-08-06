@@ -207,3 +207,35 @@ app runs against a LIVE production DB, so each should ship in small, individuall
 4. **Faster First Paint** (Phase 6) — ⬜
    Code-split the heaviest checkout + dashboard screens with `next/dynamic` (e.g.
    `CleanCheckoutV2`, dashboard chart/v2026) so those routes open quicker.
+
+---
+
+## Next Up — batch added 2026-08-06 (post transactions perf + usd_value backfill)
+
+Follow-ups surfaced while fixing the transactions slow-load and backfilling legacy
+`usd_value`. All frontend-only unless noted; LIVE prod DB → ship in small verified batches.
+
+5. **Row Hover Everywhere** (Phase 3 / perf) — ⬜
+   Extend the invoice-row hover-prefetch pattern (`helpers/invoicePdfCache.ts` +
+   `onMouseEnter`) to transaction and customer rows so every detail drawer/modal opens
+   instantly. For transactions the row already carries full data (no fetch); for customers
+   warm the detail endpoint on hover.
+
+6. **Remaining Screens → SWR** (Phase 3) — ⬜
+   Migrate the last manual `useEffect`+axios screens (API keys, Webhooks, Settings, Creator,
+   Product editor, Help & Support) to SWR for consistent caching/dedupe. Read-only screens
+   first; money/settlement mutation paths last. (Notifications, Customers, Invoices, Products,
+   Profile sessions/activity, Referrals already migrated 2026-08-06.)
+
+7. **Pending Value Estimate** (product / perf-safe) — ⬜
+   Optional: show a subtle "≈ $X (est.)" on pending crypto transaction rows, computed lazily
+   in the browser (or from the already-cached dashboard rates) — restores an at-a-glance USD
+   figure WITHOUT reintroducing the per-row server-side live conversion that made the list slow.
+   Must stay client-side and clearly marked as an estimate (never written to `usd_value`).
+
+8. **Confirmed-Value Snapshot Cron** (Phase 4 / backend) — ⬜
+   Optional accuracy improvement: snapshot the crypto→USD rate at receipt time (or on
+   confirmation) so historical `usd_value` reflects the value AT payment time rather than
+   current-rate. Settlement already writes the real `usd_value` on confirmation, so this is a
+   nice-to-have for reporting fidelity, not a correctness bug. Would remove any future need for
+   live conversion in list queries entirely.
