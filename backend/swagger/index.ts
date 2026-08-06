@@ -18,6 +18,7 @@ import { companyPaths } from "./paths/company";
 import { taxPaths } from "./paths/tax";
 import { kycPaths } from "./paths/kyc";
 import { directApiPaths } from "./paths/directApi";
+import { embedPaths } from "./paths/embed";
 import { webhookPaths } from "./paths/webhooks";
 import { dashboardPaths } from "./paths/dashboard";
 import { invoicePaths } from "./paths/invoice";
@@ -42,6 +43,7 @@ const allPaths = {
   ...taxPaths,
   ...kycPaths,
   ...directApiPaths,
+  ...embedPaths,
   ...webhookPaths,
   ...dashboardPaths,
   ...invoicePaths,
@@ -601,6 +603,12 @@ function verifyWebhookSignature(payload, signature, secret) {
           in: "header",
           name: "x-api-key",
           description: "API Key - Get from dashboard or POST /api/userApi/addApi. Use for: Server-to-server integration, programmatic payments.",
+        },
+        PublishableKeyAuth: {
+          type: "apiKey",
+          in: "header",
+          name: "x-publishable-key",
+          description: "Browser-safe publishable key (pk_live_... / pk_test_...) — domain-locked + amount-capped. Used by the Elements Inline Widget endpoints (/api/embed/public/elements/*). The request Origin must match the key's allowed_domains.",
         },
       },
       schemas: {
