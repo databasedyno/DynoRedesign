@@ -10,8 +10,6 @@ export interface ReducerAction {
 export interface rootReducer {
   userReducer: userReducer;
   toastReducer: toastReducer;
-  companyReducer: companyReducer;
-  walletReducer: walletReducer;
   apiReducer: apiReducer;
   transactionReducer: transactionReducer;
   dashboardReducer: import("@/Redux/Reducers/dashboardReducer").DashboardState;
@@ -38,13 +36,16 @@ export interface userReducer {
   email_verified?: boolean;
 }
 
-export interface companyReducer {
+export interface companyReducerState {
   companyList: ICompany[];
   loading: boolean;
   fetched: boolean;
   taxValidation?: any;
   selectedCompanyId: number | null;
 }
+// NOTE: wallet + company data now flow through SWR contexts, not redux. The
+// `companyReducerState`/`walletReducerState` interfaces are retained only as
+// convenience data shapes and are no longer part of `rootReducer`.
 
 export interface apiReducer {
   apiList: IApi[];
@@ -60,7 +61,7 @@ export interface transactionReducer {
   exportLoading?: boolean;
 }
 
-export interface walletReducer {
+export interface walletReducerState {
   walletList: IWallet[];
   loading: boolean;
   fetched?: boolean;
@@ -72,8 +73,6 @@ export interface walletReducer {
     fields: string[];
     uniqueRef: string;
   };
-  // Address-add error state (Session 74 wallet-add flow) — populated by the
-  // saga when the merchant tries to add an unsupported / duplicate address.
   addressError?: string | null;
   addressErrorField?: string | null;
   addressErrorNonce?: number;

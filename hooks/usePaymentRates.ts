@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import useSWR from "swr";
 import axiosBaseApi from "@/axiosConfig";
 
 interface CurrencyRate {
@@ -22,17 +22,29 @@ interface UsePaymentRatesReturn {
   refetch: () => void;
 }
 
-// Module-level cache to share across all payment component instances
-const ratesCache: Record<string, { data: CurrencyRate[]; timestamp: number }> = {};
-const CACHE_TTL_MS = 30_000; // 30 seconds
+// Keep the previous 30s freshness window as SWR's dedupe interval so identical
+// rate requests across payment components collapse into a single network call.
+const RATES_TTL_MS = 30_000;
 
-function buildCacheKey(source: string, amount: number, currencyList: string[]): string {
-  return `${source}:${amount}:${[...currencyList].sort().join(",")}`;
-}
+type RatesKey = ["payment-rates", string, number, string, boolean];
+
+const ratesFetcher = async ([, source, amount, currencyCsv, fixedDecimal]: RatesKey) => {
+  const currencyList = currencyCsv ? currencyCsv.split(",") : [];
+  const {
+    data: { data },
+  } = await axiosBaseApi.post("/wallet/getCurrencyRates", {
+    source,
+    amount,
+    currencyList,
+    fixedDecimal,
+  });
+  return data as CurrencyRate[];
+};
 
 /**
- * Shared hook for fetching currency rates.
- * Deduplicates identical requests across payment components and caches results.
+ * Shared hook for fetching merchant-side currency rates (/wallet/getCurrencyRates).
+ * Backed by SWR so every payment component on a screen shares ONE cached, deduped
+ * rate source (the SWR key is stable across identical source/amount/currency sets).
  */
 export function usePaymentRates({
   source,
@@ -41,63 +53,34 @@ export function usePaymentRates({
   fixedDecimal = false,
   enabled = true,
 }: UsePaymentRatesOptions): UsePaymentRatesReturn {
-  const [rates, setRates] = useState<CurrencyRate[] | undefined>(undefined);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const mountedRef = useRef(true);
+  const currencyCsv = [...currencyList].sort().join(",");
 
-  const fetchRates = useCallback(async () => {
-    if (!source || !amount || !currencyList.length) return;
+  const key: RatesKey | null =
+    enabled && source && amount && currencyList.length
+      ? ["payment-rates", source, amount, currencyCsv, fixedDecimal]
+      : null;
 
-    const cacheKey = buildCacheKey(source, amount, currencyList);
-    const cached = ratesCache[cacheKey];
-
-    // Return cached if still fresh
-    if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
-      setRates(cached.data);
-      setLoading(false);
-      return;
+  const { data, error, isLoading, mutate } = useSWR<CurrencyRate[]>(
+    key,
+    ratesFetcher as any,
+    {
+      dedupingInterval: RATES_TTL_MS,
+      keepPreviousData: true,
     }
+  );
 
-    setLoading(true);
-    setError(null);
-
-    try {
-      const {
-        data: { data },
-      } = await axiosBaseApi.post("/wallet/getCurrencyRates", {
-        source,
-        amount,
-        currencyList,
-        fixedDecimal,
-      });
-
-      // Update cache
-      ratesCache[cacheKey] = { data, timestamp: Date.now() };
-
-      if (mountedRef.current) {
-        setRates(data);
-        setLoading(false);
-      }
-    } catch (e: any) {
-      if (mountedRef.current) {
-        setError(e?.response?.data?.message ?? e?.message ?? "Failed to fetch rates");
-        setLoading(false);
-      }
-    }
-  }, [source, amount, currencyList.join(","), fixedDecimal]);
-
-  useEffect(() => {
-    mountedRef.current = true;
-    if (enabled) {
-      fetchRates();
-    }
-    return () => {
-      mountedRef.current = false;
-    };
-  }, [fetchRates, enabled]);
-
-  return { rates, loading, error, refetch: fetchRates };
+  return {
+    rates: data,
+    loading: isLoading,
+    error: error
+      ? error?.response?.data?.message ??
+        error?.message ??
+        "Failed to fetch rates"
+      : null,
+    refetch: () => {
+      mutate();
+    },
+  };
 }
 
 export default usePaymentRates;
