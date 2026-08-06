@@ -48,6 +48,7 @@ import {
   WebhookResponseBox,
 } from "./TransactionDetailsModal.styled";
 import { CryptoIconChip } from "./styled";
+import copyToClipboard from "@/helpers/copyToClipboard";
 
 const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
   open,
@@ -98,7 +99,7 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
   };
 
   const handleCopy = (text: string) => {
-    navigator.clipboard.writeText(text);
+    copyToClipboard(text);
 
     setOpenToast(false);
 

@@ -12,10 +12,12 @@ import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { USER_PROFILE_FETCH, UserAction } from "@/Redux/Actions/UserAction";
 import HandleQrCode from "@/Components/Page/Creator/HandleQrCode";
 import { Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
+import copyToClipboard from "@/helpers/copyToClipboard";
+import { BRAND_ACCENT } from "@/constants/theme";
 
 const MONO = 'ui-monospace, "Roboto Mono", "JetBrains Mono", SFMono-Regular, Menlo, monospace';
 // Session 82: LIME const preserves the name but now holds aurora indigo #4F46E5
-const LIME = "#4F46E5";
+const LIME = BRAND_ACCENT;
 const INK = "#0A0A0B";
 const HANDLE_RE = /^[a-z0-9][a-z0-9_-]{2,29}$/;
 
@@ -110,7 +112,7 @@ const CreatorPageCard: React.FC = () => {
 
   const copyUrl = () => {
     if (!publicUrl) return;
-    navigator.clipboard?.writeText(publicUrl);
+    copyToClipboard(publicUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 1600);
   };
@@ -461,7 +463,7 @@ const CreatorPageCard: React.FC = () => {
     const reservedUrl = buildCreatorUrl(reservedHandle);
     const copyReserved = () => {
       if (!reservedUrl) return;
-      navigator.clipboard?.writeText(reservedUrl);
+      copyToClipboard(reservedUrl);
       setCopied(true);
       setTimeout(() => setCopied(false), 1600);
     };

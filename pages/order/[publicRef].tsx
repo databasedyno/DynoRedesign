@@ -21,6 +21,7 @@ import ContentCopyRounded from "@mui/icons-material/ContentCopyRounded";
 import DownloadRounded from "@mui/icons-material/DownloadRounded";
 import RefreshRounded from "@mui/icons-material/RefreshRounded";
 import { NextPageWithLayout } from "@/pages/_app";
+import copyToClipboard from "@/helpers/copyToClipboard";
 
 interface OrderItem {
   order_item_id: number;
@@ -152,7 +153,7 @@ const OrderStatusPage: NextPageWithLayout<OrderPageProps> = ({ order: initialOrd
   const copyText = (text: string, itemId: number) => {
     if (!text) return;
     try {
-      navigator.clipboard.writeText(text);
+      copyToClipboard(text);
       setCopiedId(itemId);
       setTimeout(() => setCopiedId(null), 1500);
     } catch { /* no-op */ }

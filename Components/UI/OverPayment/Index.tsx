@@ -17,6 +17,7 @@ import DoneIcon from "@mui/icons-material/Done";
 import { Icon } from "@iconify/react";
 import { useTranslation } from 'react-i18next';
 import { formatWithSeparators, formatCryptoAmount } from "@/utils/currencyFormat";
+import copyToClipboard from "@/helpers/copyToClipboard";
 
 interface OverPaymentProps {
   paidAmount: number;
@@ -115,7 +116,7 @@ const OverPayment = ({
     if (transactionId) {
       try {
         if (navigator.clipboard && navigator.clipboard.writeText) {
-          await navigator.clipboard.writeText(transactionId);
+          await copyToClipboard(transactionId);
         } else {
           const textArea = document.createElement('textarea');
           textArea.value = transactionId;

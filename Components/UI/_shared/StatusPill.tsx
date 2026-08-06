@@ -1,4 +1,5 @@
 import { Box, styled } from "@mui/material";
+import { BRAND_ACCENT } from "@/constants/theme";
 
 /**
  * StatusPill — small monospace status label used across tables, transaction
@@ -39,7 +40,7 @@ export const StatusPill = styled(Box, {
     },
     info: {
       bg:   dark ? "rgba(129,140,248,0.14)" : "rgba(79,70,229,0.08)",
-      fg:   dark ? "#A5B4FC" : "#4F46E5",
+      fg:   dark ? "#A5B4FC" : BRAND_ACCENT,
       ring: dark ? "rgba(129,140,248,0.30)" : "rgba(79,70,229,0.22)",
     },
     neutral: {

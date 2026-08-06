@@ -16,6 +16,7 @@ import axiosBaseApi from "@/axiosConfig";
 import PanelCard from "@/Components/UI/PanelCard";
 import Toast from "@/Components/UI/Toast";
 import { pageProps } from "@/utils/types";
+import copyToClipboard from "@/helpers/copyToClipboard";
 
 type ReferralStats = {
   referral_code: string;
@@ -117,7 +118,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
   }, []);
 
   const handleCopy = useCallback((text: string, label: string) => {
-    navigator.clipboard.writeText(text);
+    copyToClipboard(text);
     setToast({ open: true, message: label === "Referral code" ? t("referralCodeCopied") : t("referralLinkCopied"), severity: "success" });
     setTimeout(() => setToast((p) => ({ ...p, open: false })), 2000);
   }, [t]);
@@ -136,13 +137,13 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
       if (navigator.share && navigator.canShare?.(shareData)) {
         await navigator.share(shareData);
       } else {
-        await navigator.clipboard.writeText(referralLink);
+        await copyToClipboard(referralLink);
         setToast({ open: true, message: t("referralLinkCopied"), severity: "success" });
         setTimeout(() => setToast((p) => ({ ...p, open: false })), 2000);
       }
     } catch (err: any) {
       if (err?.name !== "AbortError") {
-        await navigator.clipboard.writeText(referralLink);
+        await copyToClipboard(referralLink);
         setToast({ open: true, message: t("referralLinkCopied"), severity: "success" });
         setTimeout(() => setToast((p) => ({ ...p, open: false })), 2000);
       }

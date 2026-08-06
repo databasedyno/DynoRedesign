@@ -5,6 +5,7 @@ import RemoveIcon from "@mui/icons-material/Remove";
 import { useTranslation } from "react-i18next";
 import { FONT_BODY, FONT_HERO, FONT_TECH, useAurora } from "./theme.v3";
 import { Eyebrow, HeadlineL } from "./styled.v3";
+import { BRAND_ACCENT } from "@/constants/theme";
 
 const FAQCompact: React.FC = () => {
   const s = useAurora();
@@ -71,7 +72,7 @@ const FAQCompact: React.FC = () => {
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      background: isOpen ? "#4F46E5" : s.bgAlt,
+                      background: isOpen ? BRAND_ACCENT : s.bgAlt,
                       color: isOpen ? "#fff" : s.ink,
                       transition: "background .25s ease, transform .25s ease",
                     }}
@@ -92,7 +93,7 @@ const FAQCompact: React.FC = () => {
         <Box sx={{ textAlign: "center", mt: 3.5 }}>
           <Typography sx={{ fontFamily: FONT_TECH, fontSize: 13, color: s.ink3, letterSpacing: "0.08em" }}>
             {t("v3.faq.stillCurious")} ·{" "}
-            <Box component="a" href="/help-support" sx={{ color: s.ink, fontWeight: 600, textDecoration: "none", borderBottom: `1px dashed ${s.lineStrong}`, "&:hover": { color: "#4F46E5", borderColor: "#4F46E5" } }}>
+            <Box component="a" href="/help-support" sx={{ color: s.ink, fontWeight: 600, textDecoration: "none", borderBottom: `1px dashed ${s.lineStrong}`, "&:hover": { color: BRAND_ACCENT, borderColor: BRAND_ACCENT } }}>
               {t("v3.faq.askUs")}
             </Box>
           </Typography>

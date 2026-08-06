@@ -1,4 +1,5 @@
 import { Box, Button, styled } from "@mui/material";
+import { BRAND_ACCENT } from "@/constants/theme";
 
 /**
  * Coinbase-style dashboard tokens (theme-aware).
@@ -24,7 +25,7 @@ export const CB_TOKENS = {
     light: "rgba(10,10,15,0.08)",
   },
   indigo: {
-    light: "#4F46E5",
+    light: BRAND_ACCENT,
     dark: "#818CF8",
     lightGlow: "rgba(79,70,229,0.10)",
     darkGlow: "rgba(129,140,248,0.14)",

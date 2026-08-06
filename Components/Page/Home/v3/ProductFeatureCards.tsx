@@ -9,6 +9,7 @@ import SwapHorizRoundedIcon from "@mui/icons-material/SwapHorizRounded";
 import TerminalRoundedIcon from "@mui/icons-material/TerminalRounded";
 import { FONT_BODY, FONT_HERO, FONT_TECH, useAurora } from "./theme.v3";
 import { Eyebrow, HeadlineL } from "./styled.v3";
+import { BRAND_ACCENT } from "@/constants/theme";
 
 /**
  * ProductFeatureCards — Coinbase-inspired "one idea per card" capability band.
@@ -174,7 +175,7 @@ const ProductFeatureCards: React.FC = () => {
                         width: 160,
                         height: 160,
                         borderRadius: "50%",
-                        background: "#4F46E5",
+                        background: BRAND_ACCENT,
                         filter: "blur(48px)",
                         opacity: 0.15,
                       }}
@@ -262,14 +263,14 @@ const ProductFeatureCards: React.FC = () => {
                         fontFamily: FONT_BODY,
                         fontSize: 14.5,
                         fontWeight: 600,
-                        color: s.dark ? "#818CF8" : "#4F46E5",
+                        color: s.dark ? "#818CF8" : BRAND_ACCENT,
                       }}
                     >
                       {f.cta}
                     </Typography>
                     <ArrowForwardRoundedIcon
                       className="feat-cta-arrow"
-                      sx={{ fontSize: 17, color: s.dark ? "#818CF8" : "#4F46E5", transition: "transform .35s cubic-bezier(.16,1,.3,1)" }}
+                      sx={{ fontSize: 17, color: s.dark ? "#818CF8" : BRAND_ACCENT, transition: "transform .35s cubic-bezier(.16,1,.3,1)" }}
                     />
                   </Box>
                 </Box>

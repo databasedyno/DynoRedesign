@@ -24,6 +24,7 @@ import {
 } from "@mui/material";
 import ContentCopyRoundedIcon from "@mui/icons-material/ContentCopyRounded";
 import type { ShopMerchant, ShopProduct } from "./types";
+import copyToClipboard from "@/helpers/copyToClipboard";
 
 interface Props {
   merchant: ShopMerchant;
@@ -78,7 +79,7 @@ export default function ShopHero({ merchant, products, shopUrl }: Props) {
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(shopUrl);
+      await copyToClipboard(shopUrl);
       setCopied(true);
     } catch {
       setCopied(false);

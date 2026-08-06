@@ -13,6 +13,7 @@
  */
 import React, { useEffect, useState } from "react";
 import { Box, Typography, useTheme, keyframes } from "@mui/material";
+import { BRAND_ACCENT } from "@/constants/theme";
 
 interface Props {
   /** Actual percent, uncapped for display but capped visually at 100. */
@@ -58,7 +59,7 @@ export default function GoalProgressBar({
     return () => clearTimeout(t);
   }, [target]);
 
-  const accent = "#4F46E5";
+  const accent = BRAND_ACCENT;
   const accentDim = "#5a6b00";
   const success = "#10B981";
   const trackBg = isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.07)";

@@ -14,6 +14,7 @@ import { useRouter } from "next/router";
 import { FC, memo, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import HeaderLangMenu from "../HomeHeader/HeaderLangMenu";
+import { BRAND_ACCENT } from "@/constants/theme";
 import {
   BottomSection,
   CopyrightText,
@@ -63,7 +64,7 @@ const HomeFooter: FC = () => {
   const logoSrc = !mounted || dark ? WhiteLogo : BlackLogo;
 
   const linkColor = dark ? "rgba(255,255,255,0.66)" : "#3F3F46";
-  const linkHover = dark ? "#A5B4FC" : "#4F46E5";
+  const linkHover = dark ? "#A5B4FC" : BRAND_ACCENT;
   const headingColor = dark ? "rgba(255,255,255,0.5)" : "#8A8A94";
   const descColor = dark ? "rgba(255,255,255,0.58)" : "#52525B";
   const trustBorder = dark ? "rgba(255,255,255,0.12)" : "rgba(10,10,10,0.10)";

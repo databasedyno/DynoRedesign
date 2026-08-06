@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next";
 // lime/olive auth palette in light mode.
 import WhiteLogo from "@/assets/Icons/home/dynopay-whiteLogo.svg";
 import BlackLogo from "@/assets/Icons/home/dynopay-blackLogo.svg";
+import { BRAND_ACCENT } from "@/constants/theme";
 
 const FONT_DISPLAY = "var(--font-hero), sans-serif";
 const FONT_BODY = "var(--font-body), sans-serif";
@@ -29,7 +30,7 @@ const AuthBrandPanel = () => {
   const theme = useTheme();
   const dark = theme.palette.mode === "dark";
   // Aurora indigo — matches Landing v3 (was: cyber-lime #CCFF00).
-  const accent = dark ? "#818CF8" : "#4F46E5";
+  const accent = dark ? "#818CF8" : BRAND_ACCENT;
   const accentSoft = dark ? "rgba(129,140,248,0.18)" : "rgba(79,70,229,0.12)";
   const accentPulse = dark ? "rgba(129,140,248,0.55)" : "rgba(79,70,229,0.5)";
 

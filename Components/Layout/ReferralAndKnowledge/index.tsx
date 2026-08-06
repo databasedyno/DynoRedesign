@@ -19,6 +19,7 @@ import { useRouter } from "next/router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import axiosBaseApi from "@/axiosConfig";
+import copyToClipboard from "@/helpers/copyToClipboard";
 
 // Inline SVG brand icons (WhatsApp / Telegram / X) so we do not add extra font/asset weight.
 // Colored via `currentColor` — respects theme text color.
@@ -157,7 +158,7 @@ const ReferralAndKnowledge = ({ isMobile }: { isMobile: boolean }) => {
   }, [openInPopup, shareLink, tRef]);
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(referralCode);
+    copyToClipboard(referralCode);
     setOpenToast(false);
 
     setTimeout(() => {

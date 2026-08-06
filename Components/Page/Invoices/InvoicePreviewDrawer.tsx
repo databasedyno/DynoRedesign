@@ -11,6 +11,7 @@ import { CloseRounded, DownloadRounded, OpenInNewRounded } from "@mui/icons-mate
 import { useEffect, useState } from "react";
 import axiosBaseApi from "@/axiosConfig";
 import { StatusPill } from "@/Components/UI/_shared";
+import { BRAND_ACCENT } from "@/constants/theme";
 
 /**
  * InvoicePreviewDrawer — live PDF preview slide-out for the invoices list.
@@ -208,7 +209,7 @@ export default function InvoicePreviewDrawer({ open, invoice, onClose }: Props) 
               display: "inline-flex", alignItems: "center", gap: 0.75,
               padding: "8px 14px",
               borderRadius: "10px",
-              backgroundColor: dark ? "#818CF8" : "#4F46E5",
+              backgroundColor: dark ? "#818CF8" : BRAND_ACCENT,
               color: "#FFFFFF",
               fontFamily: "var(--font-body)",
               fontSize: 13,

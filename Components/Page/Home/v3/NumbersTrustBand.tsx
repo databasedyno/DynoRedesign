@@ -8,6 +8,7 @@ import GavelRoundedIcon from "@mui/icons-material/GavelRounded";
 import PolicyRoundedIcon from "@mui/icons-material/PolicyRounded";
 import { FONT_BODY, FONT_HERO, FONT_TECH, useAurora } from "./theme.v3";
 import { Eyebrow, HeadlineL } from "./styled.v3";
+import { BRAND_ACCENT } from "@/constants/theme";
 
 interface Stat {
   value: number;
@@ -61,10 +62,10 @@ const NumbersTrustBand: React.FC = () => {
   const { t } = useTranslation("landing");
 
   const STATS: Stat[] = [
-    { value: 42, suffix: "M+", prefix: "$", label: t("v3.numbers.settledLabel"), sub: t("v3.numbers.settledSub"), color: "#4F46E5" },
-    { value: 15, suffix: "+", label: t("v3.numbers.chainsLabel"), sub: t("v3.numbers.chainsSub"), color: "#4F46E5" },
-    { value: 0.5, suffix: "%", decimals: 1, label: t("v3.numbers.feeLabel"), sub: t("v3.numbers.feeSub"), color: "#4F46E5" },
-    { value: 4.2, suffix: "s", decimals: 1, label: t("v3.numbers.settleLabel"), sub: t("v3.numbers.settleSub"), color: "#4F46E5" },
+    { value: 42, suffix: "M+", prefix: "$", label: t("v3.numbers.settledLabel"), sub: t("v3.numbers.settledSub"), color: BRAND_ACCENT },
+    { value: 15, suffix: "+", label: t("v3.numbers.chainsLabel"), sub: t("v3.numbers.chainsSub"), color: BRAND_ACCENT },
+    { value: 0.5, suffix: "%", decimals: 1, label: t("v3.numbers.feeLabel"), sub: t("v3.numbers.feeSub"), color: BRAND_ACCENT },
+    { value: 4.2, suffix: "s", decimals: 1, label: t("v3.numbers.settleLabel"), sub: t("v3.numbers.settleSub"), color: BRAND_ACCENT },
   ];
 
   const BADGES = [

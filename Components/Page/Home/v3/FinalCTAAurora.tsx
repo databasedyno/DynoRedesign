@@ -6,6 +6,7 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import CardGiftcardRoundedIcon from "@mui/icons-material/CardGiftcardRounded";
 import { FONT_BODY, FONT_HERO, FONT_TECH, useAurora } from "./theme.v3";
 import { HeadlineXL } from "./styled.v3";
+import { BRAND_ACCENT } from "@/constants/theme";
 
 const FinalCTAAurora: React.FC = () => {
   const s = useAurora();
@@ -37,7 +38,7 @@ const FinalCTAAurora: React.FC = () => {
               width: 620,
               height: 620,
               borderRadius: "50%",
-              background: "#4F46E5",
+              background: BRAND_ACCENT,
               filter: "blur(140px)",
               opacity: 0.16,
               pointerEvents: "none",
@@ -52,7 +53,7 @@ const FinalCTAAurora: React.FC = () => {
               width: 520,
               height: 520,
               borderRadius: "50%",
-              background: "#4F46E5",
+              background: BRAND_ACCENT,
               filter: "blur(140px)",
               opacity: 0.10,
               pointerEvents: "none",
@@ -80,7 +81,7 @@ const FinalCTAAurora: React.FC = () => {
             <HeadlineXL sx={{ color: "#F5F5F5", fontSize: { xs: 40, sm: 56, md: 76 }, mb: 3 }}>
               {t("v3.finalcta.headline1")}
               <br />
-              <Box component="span" sx={{ color: "#4F46E5" }}>
+              <Box component="span" sx={{ color: BRAND_ACCENT }}>
                 {t("v3.finalcta.headline2")}
               </Box>
             </HeadlineXL>
@@ -119,7 +120,7 @@ const FinalCTAAurora: React.FC = () => {
                   fontWeight: 600,
                   textTransform: "none",
                   color: "#FFFFFF",
-                  background: "#4F46E5",
+                  background: BRAND_ACCENT,
                   boxShadow: "0 12px 32px -12px rgba(79, 70, 229,0.6)",
                   "&:hover": { background: "#4338CA" },
                 }}

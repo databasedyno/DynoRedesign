@@ -2,6 +2,7 @@ import { Box, Typography, useTheme } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { useEffect, useMemo, useState } from "react";
 import type { Vertical } from "@/Components/UI/_shared";
+import { BRAND_ACCENT } from "@/constants/theme";
 
 /**
  * PurposePicker — the "why are you here?" pill row that opens registration.
@@ -117,7 +118,7 @@ export default function PurposePicker({ onSelect, onDetected, routerQuery }: Pur
   if (!mounted || hidden) return null;
 
   const accents: Record<Vertical, { color: string; tint: string; contrast: string }> = {
-    merchants:   { color: dark ? "#818CF8" : "#4F46E5", tint: dark ? "rgba(129,140,248,0.14)" : "rgba(79,70,229,0.10)", contrast: "#FFFFFF" },
+    merchants:   { color: dark ? "#818CF8" : BRAND_ACCENT, tint: dark ? "rgba(129,140,248,0.14)" : "rgba(79,70,229,0.10)", contrast: "#FFFFFF" },
     fundraisers: { color: "#7C5CFF",                    tint: "rgba(124,92,255,0.14)",                                   contrast: "#FFFFFF" },
     creators:    { color: dark ? "#CCFF00" : "#5A6B00", tint: "rgba(204,255,0,0.16)",                                    contrast: "#0B0B0F" },
     developers:  { color: dark ? "#F5F5F5" : "#0B0B0F", tint: dark ? "rgba(255,255,255,0.10)" : "rgba(11,11,15,0.06)",   contrast: dark ? "#0B0B0F" : "#CCFF00" },

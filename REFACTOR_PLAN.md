@@ -93,6 +93,25 @@ dead" refactor. Findings are backed by grep counts taken across
   debounced via `useDebounce`, honouring any prior reservation token. Verified live
   (free handle → green ✓ "is available"; `hostbay` → red ✗ "already taken").
 
+### Phase 2c — Wider Primitive Rollout — 🟡 in progress (2026-08-06)
+- **Clipboard wave — ✅ done & verified.** 41 ad-hoc `navigator.clipboard(.|?.)writeText`
+  calls across 29 files routed through the robust `copyToClipboard` helper
+  (`scripts/rollout_clipboard.py`). Excluded `pay/demo.tsx` + `CleanCheckoutV2.tsx`
+  (own local `copyToClipboard`). tsc: no new errors; landing/dashboard verified.
+- **Accent wave — ✅ done & verified.** 139 hardcoded `"#4F46E5"` swapped to the
+  `BRAND_ACCENT` token across 55 frontend files (`scripts/rollout_accent.py`,
+  context-aware: JSX attr → `{BRAND_ACCENT}`, value pos → `BRAND_ACCENT`).
+  Guarded by a tsc baseline-diff (6 errors before/after — all pre-existing; zero new).
+  Verified: landing + `/auth/register` + `/dashboard` render, global `styles/theme.ts`
+  (23 swaps) intact. Residual bare-hex inside template literals (styled-components,
+  box-shadow strings) intentionally LEFT — same rendered color, needs `${}` handling.
+- **Endpoints wave — ⬜ NOT started (deferred — needs flow testing).** ~107 inline
+  endpoint strings across 73 files. UNLIKE clipboard/accent, a wrong URL string
+  COMPILES FINE but breaks a real API call at runtime (tsc can't validate URLs), and
+  many are dynamic template literals. On a LIVE payment gateway this is the "big-bang
+  on live infra" the plan warns against — must be migrated programmatically
+  (map values copied verbatim) + verified per money-flow with the testing agent.
+
 ### Phase 3 — Frontend data-fetching consolidation — ⬜
 - Route reads through existing hooks; add `AbortController`; introduce SWR for
   rates/wallet/company; migrate representative screens.

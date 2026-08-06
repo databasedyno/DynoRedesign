@@ -24,6 +24,7 @@ import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import { CopyButton } from "../Transactions/TransactionDetailsModal.styled";
 import WalletTotalHero from "./WalletTotalHero";
+import copyToClipboard from "@/helpers/copyToClipboard";
 import {
   HeaderIcon,
   WalletCardBody,
@@ -62,7 +63,7 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: () => void }) => {
   const { walletLoading, walletData } = useWalletData();
 
   const copyAddressToClipboard = (address: string) => {
-    navigator.clipboard.writeText(address);
+    copyToClipboard(address);
     dispatch({
       type: TOAST_SHOW,
       payload: {

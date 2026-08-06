@@ -45,6 +45,7 @@ import {
 
 import { useWalletData } from "@/hooks/useWalletData";
 import { useUnreadNotificationsCount } from "@/hooks/useUnreadNotificationsCount";
+import { BRAND_ACCENT } from "@/constants/theme";
 
 const MobileNavigationBar = () => {
   const router = useRouter();
@@ -349,7 +350,7 @@ const MobileNavigationBar = () => {
                             width: 8,
                             height: 8,
                             borderRadius: "50%",
-                            backgroundColor: "#4F46E5",
+                            backgroundColor: BRAND_ACCENT,
                             border: `2px solid ${theme.palette.background.default || "#FFFFFF"}`,
                             boxShadow: "0 0 6px rgba(204,255,0,0.7)",
                           }}
@@ -425,7 +426,7 @@ const MobileNavigationBar = () => {
                               width: 8,
                               height: 8,
                               borderRadius: "50%",
-                              backgroundColor: "#4F46E5",
+                              backgroundColor: BRAND_ACCENT,
                               border: `2px solid ${theme.palette.background.default || "#FFFFFF"}`,
                               boxShadow: "0 0 6px rgba(204,255,0,0.7)",
                             }}

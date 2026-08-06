@@ -16,6 +16,7 @@ import { AuroraInk, HeadlineXL, Eyebrow, Body } from "./styled.v3";
 import useLocalPrice from "@/hooks/useLocalPrice";
 import useDebounce from "@/hooks/useDebounce";
 import { API_ENDPOINTS } from "@/api/endpoints";
+import { BRAND_ACCENT } from "@/constants/theme";
 
 const SUGGESTED_HANDLES = ["alex", "maya", "lin", "jordan", "rae", "kai"];
 const TIP_VALUES = [3, 5, 10, 25, 50, 100];
@@ -175,7 +176,7 @@ const HeroPlayground: React.FC = () => {
           width: { xs: 620, md: 900 },
           height: { xs: 620, md: 900 },
           borderRadius: "50%",
-          background: "#4F46E5",
+          background: BRAND_ACCENT,
           filter: "blur(140px)",
           opacity: s.dark ? 0.06 : 0.045,
           pointerEvents: "none",
@@ -219,7 +220,7 @@ const HeroPlayground: React.FC = () => {
                 width: 6,
                 height: 6,
                 borderRadius: "50%",
-                background: "#4F46E5",
+                background: BRAND_ACCENT,
                 boxShadow: "0 0 0 4px rgba(79, 70, 229,0.18)",
               }}
             />
@@ -255,7 +256,7 @@ const HeroPlayground: React.FC = () => {
               gap: 1,
               transition: "border-color .2s ease, box-shadow .2s ease",
               "&:focus-within": {
-                borderColor: "#4F46E5",
+                borderColor: BRAND_ACCENT,
                 boxShadow: "0 0 0 4px rgba(79, 70, 229,0.14)",
               },
             }}
@@ -386,7 +387,7 @@ const HeroPlayground: React.FC = () => {
               border: "1px solid rgba(79, 70, 229,0.35)",
             }}
           >
-            <CardGiftcardRoundedIcon sx={{ fontSize: 17, color: "#4F46E5" }} />
+            <CardGiftcardRoundedIcon sx={{ fontSize: 17, color: BRAND_ACCENT }} />
             <Typography
               sx={{
                 fontFamily: FONT_BODY,
@@ -443,7 +444,7 @@ const HeroPlayground: React.FC = () => {
                   width: 240,
                   height: 240,
                   borderRadius: "50%",
-                  background: "#4F46E5",
+                  background: BRAND_ACCENT,
                   filter: "blur(60px)",
                   opacity: 0.10,
                 }}
@@ -532,7 +533,7 @@ const HeroPlayground: React.FC = () => {
                         px: 1.25,
                         py: 0.5,
                         borderRadius: "999px",
-                        border: `1px solid ${i === tipIdx ? "#4F46E5" : "rgba(10,10,10,0.10)"}`,
+                        border: `1px solid ${i === tipIdx ? BRAND_ACCENT : "rgba(10,10,10,0.10)"}`,
                         background: i === tipIdx ? "rgba(79, 70, 229,0.10)" : "transparent",
                         color: i === tipIdx ? "#4338CA" : "#3F3F46",
                         fontFamily: FONT_TECH,

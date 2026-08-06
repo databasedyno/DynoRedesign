@@ -26,6 +26,7 @@ import Image from "next/image";
 import React, { useCallback, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
+import copyToClipboard from "@/helpers/copyToClipboard";
 
 const iconButtonSize = { width: 40, height: 40, minWidth: 40, minHeight: 40 };
 const iconButtonSizeMobile = {
@@ -80,14 +81,14 @@ export default function WebhookNotificationsSection({
 
   const handleCopyUrl = useCallback(() => {
     if (notificationUrl) {
-      navigator.clipboard.writeText(notificationUrl);
+      copyToClipboard(notificationUrl);
       dispatch({ type: TOAST_SHOW, payload: { message: "Webhook URL copied!", severity: "success" } });
     }
   }, [notificationUrl, dispatch]);
 
   const handleCopySecret = useCallback(() => {
     if (secretKey) {
-      navigator.clipboard.writeText(secretKey);
+      copyToClipboard(secretKey);
       dispatch({ type: TOAST_SHOW, payload: { message: "Secret key copied!", severity: "success" } });
     }
   }, [secretKey, dispatch]);

@@ -36,6 +36,7 @@ import PopupModal from "@/Components/UI/PopupModal";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import useIsMobile from "@/hooks/useIsMobile";
 import { rootReducer } from "@/utils/types";
+import copyToClipboard from "@/helpers/copyToClipboard";
 
 /* ------------------------------------------------------------------ */
 /* Types                                                               */
@@ -972,7 +973,7 @@ const PublishableKeysSection = () => {
   const handleCopy = (value: string, label = "Copied") => {
     if (!value) return;
     try {
-      navigator.clipboard.writeText(value);
+      copyToClipboard(value);
       dispatch({
         type: TOAST_SHOW,
         payload: { message: `${label} copied`, severity: "info" },

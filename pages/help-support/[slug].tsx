@@ -13,6 +13,7 @@ import axiosBaseApi from "@/axiosConfig";
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 import ThumbDownIcon from "@mui/icons-material/ThumbDown";
 import { sanitizeHtml } from "@/utils/sanitizeHtml";
+import { BRAND_ACCENT } from "@/constants/theme";
 
 interface KBArticleDetail {
   article_id: number;
@@ -99,7 +100,7 @@ const HelpDetail = ({
         </Typography>
         <Button
           onClick={() => router.push("/help-support")}
-          sx={{ color: "#4F46E5", textTransform: "none", fontFamily: "var(--font-sans)" }}
+          sx={{ color: BRAND_ACCENT, textTransform: "none", fontFamily: "var(--font-sans)" }}
         >
           {t('backToHelpSupport')}
         </Button>
@@ -123,7 +124,7 @@ const HelpDetail = ({
             <Box
               sx={{
                 "& input:focus": {
-                  borderColor: "#4F46E5",
+                  borderColor: BRAND_ACCENT,
                 },
               }}>
               <input
@@ -175,7 +176,7 @@ const HelpDetail = ({
               <Typography sx={{
                 fontSize: "12px",
                 fontFamily: "var(--font-sans)",
-                color: "#4F46E5",
+                color: BRAND_ACCENT,
                 backgroundColor: "rgba(0, 4, 255, 0.08)",
                 px: 1.5,
                 py: 0.5,
@@ -237,7 +238,7 @@ const HelpDetail = ({
                 overflow: "auto",
               },
               "& a": {
-                color: "#4F46E5",
+                color: BRAND_ACCENT,
                 textDecoration: "none",
                 "&:hover": { textDecoration: "underline" },
               },

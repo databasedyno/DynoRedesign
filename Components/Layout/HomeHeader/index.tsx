@@ -24,6 +24,7 @@ import HomeButton from "../HomeButton";
 import CommandMenu from "./CommandMenu";
 import HeaderLangMenu from "./HeaderLangMenu";
 import { MENU_SECTIONS } from "./menuData";
+import { BRAND_ACCENT } from "@/constants/theme";
 import {
   Actions,
   ActionDivider,
@@ -523,7 +524,7 @@ const HomeHeader = memo(function HomeHeader() {
                 }}
                 endIcon={<ArrowForwardRounded />}
                 sx={{
-                  background: "#4F46E5",
+                  background: BRAND_ACCENT,
                   color: "#FFFFFF",
                   fontFamily: "var(--font-body)",
                   fontSize: 15,
@@ -557,7 +558,7 @@ const HomeHeader = memo(function HomeHeader() {
                   transition: "background-color 200ms ease, border-color 200ms ease",
                   "&:hover": {
                     background: isDark ? "rgba(255,255,255,0.06)" : "rgba(10,10,10,0.04)",
-                    borderColor: "#4F46E5",
+                    borderColor: BRAND_ACCENT,
                   },
                 }}
               >

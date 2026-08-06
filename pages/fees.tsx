@@ -11,6 +11,7 @@ import Head from "next/head";
 import { AURORA_GRADIENT, FONT_BODY, FONT_HERO, FONT_TECH, useAurora } from "@/Components/Page/Home/v3/theme.v3";
 import { AuroraInk, Eyebrow, HeadlineL, HeadlineXL } from "@/Components/Page/Home/v3/styled.v3";
 import FinalCTAAurora from "@/Components/Page/Home/v3/FinalCTAAurora";
+import { BRAND_ACCENT } from "@/constants/theme";
 
 /* ── Aurora restyle of the public /fees page (2026-07-18) ── */
 
@@ -32,7 +33,7 @@ const Container = styled(Box)(({ theme }) => ({
 
 const TIERS = [
   { name: "Starter", min: 0, max: 10000, pct: 1.5, accent: "#6366F1", accentSoft: "rgba(99,102,241,0.10)" },
-  { name: "Growth", min: 10000, max: 100000, pct: 1.0, accent: "#4F46E5", accentSoft: "rgba(79,70,229,0.10)" },
+  { name: "Growth", min: 10000, max: 100000, pct: 1.0, accent: BRAND_ACCENT, accentSoft: "rgba(79,70,229,0.10)" },
   { name: "Scale", min: 100000, max: 500000, pct: 0.7, accent: "#4338CA", accentSoft: "rgba(67,56,202,0.12)" },
   { name: "Enterprise", min: 500000, max: null, pct: 0.5, accent: "#3730A3", accentSoft: "rgba(55,48,163,0.14)" },
 ];
@@ -135,7 +136,7 @@ const FeesPage = () => {
                   fontWeight: 600,
                   textTransform: "none",
                   color: "#fff",
-                  background: "#4F46E5",
+                  background: BRAND_ACCENT,
                   boxShadow: "none",
                   transition: "background-color 200ms ease, transform 150ms cubic-bezier(0.16,1,0.3,1)",
                   "&:hover": { background: "#4338CA", boxShadow: "none" },
@@ -334,7 +335,7 @@ const FeesPage = () => {
                       fontWeight: 600,
                       textTransform: "none",
                       color: "#fff",
-                      background: "#4F46E5",
+                      background: BRAND_ACCENT,
                       "&:hover": { background: "#4338CA" },
                     }}
                   >
@@ -365,8 +366,8 @@ const FeesPage = () => {
                 <Box key={idx} sx={{ display: "grid", gridTemplateColumns: { xs: "1.5fr 1fr 1fr", sm: "2fr 1fr 1fr" }, alignItems: "center", px: { xs: 2, sm: 3 }, py: 2, "&:not(:last-child)": { borderBottom: `1px solid ${s.line}` } }}>
                   <Typography sx={{ fontFamily: FONT_BODY, fontSize: 14.5, color: s.ink2 }}>{row.feature}</Typography>
                   <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 0.5 }}>
-                    {row.dynopay ? <CheckIcon sx={{ fontSize: 16, color: s.dark ? "#818CF8" : "#4F46E5" }} /> : <CloseIcon sx={{ fontSize: 16, color: s.dark ? "#818CF8" : "#4F46E5" }} />}
-                    <Typography sx={{ fontFamily: FONT_TECH, fontSize: 12.5, fontWeight: 600, color: s.dark ? "#818CF8" : "#4F46E5" }}>
+                    {row.dynopay ? <CheckIcon sx={{ fontSize: 16, color: s.dark ? "#818CF8" : BRAND_ACCENT }} /> : <CloseIcon sx={{ fontSize: 16, color: s.dark ? "#818CF8" : BRAND_ACCENT }} />}
+                    <Typography sx={{ fontFamily: FONT_TECH, fontSize: 12.5, fontWeight: 600, color: s.dark ? "#818CF8" : BRAND_ACCENT }}>
                       {row.dynoText}
                     </Typography>
                   </Box>
@@ -406,10 +407,10 @@ const FeesPage = () => {
                     flexDirection: "column",
                     gap: 1.5,
                     transition: "transform .3s ease, border-color .3s ease",
-                    "&:hover": { transform: "translateY(-2px)", borderColor: "#4F46E5" },
+                    "&:hover": { transform: "translateY(-2px)", borderColor: BRAND_ACCENT },
                   }}
                 >
-                  <ShieldOutlinedIcon sx={{ color: "#4F46E5", fontSize: 22 }} />
+                  <ShieldOutlinedIcon sx={{ color: BRAND_ACCENT, fontSize: 22 }} />
                   <Typography sx={{ fontFamily: FONT_HERO, fontWeight: 700, fontSize: 18, color: s.ink, letterSpacing: "-0.01em" }}>{item.t}</Typography>
                   <Typography sx={{ fontFamily: FONT_BODY, fontSize: 14.5, color: s.ink2, lineHeight: 1.6 }}>{item.d}</Typography>
                 </Box>

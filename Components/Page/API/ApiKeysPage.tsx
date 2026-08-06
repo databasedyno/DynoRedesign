@@ -35,6 +35,7 @@ import { useTheme } from "@mui/material";
 import { ApiKeyCardProps, ApiKeysPageProps } from "@/utils/types/apis";
 import Image from "next/image";
 import * as yup from "yup";
+import copyToClipboard from "@/helpers/copyToClipboard";
 import {
   ApiDocumentationCardDescription,
   ApiKeyCardBody,
@@ -1330,7 +1331,7 @@ const ApiKeysPage = ({
 
   const handleCopy = (value: string) => {
     if (!value) return;
-    navigator.clipboard.writeText(value);
+    copyToClipboard(value);
     dispatch({
       type: TOAST_SHOW,
       payload: { message: t("toast.copied"), severity: "info" },

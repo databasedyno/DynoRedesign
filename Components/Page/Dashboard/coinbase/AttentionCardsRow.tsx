@@ -13,6 +13,7 @@ import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import { rootReducer } from "@/utils/types";
 import { CB_TOKENS } from "./styled";
+import { BRAND_ACCENT } from "@/constants/theme";
 
 /**
  * AttentionCardsRow — a 2-column row of dismissible action cards
@@ -85,7 +86,7 @@ const AttentionCardsRow: React.FC = () => {
     cta: t("attnReferralCta", { defaultValue: "Learn more" }),
     icon: <RedeemRounded sx={{ fontSize: 22 }} />,
     href: "/referrals",
-    gradient: ["#3773F5", "#4F46E5"],
+    gradient: ["#3773F5", BRAND_ACCENT],
   };
 
   const setupCard: Card | null = !hasCompany

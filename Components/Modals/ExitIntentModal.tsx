@@ -3,6 +3,7 @@ import { Box, Typography, IconButton, Button, useTheme } from '@mui/material';
 import { Close, ContentCopy, ArrowForward } from '@mui/icons-material';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'react-i18next';
+import copyToClipboard from "@/helpers/copyToClipboard";
 
 /**
  * ExitIntentModal (item N) — fires when the mouse leaves the top of the
@@ -63,7 +64,7 @@ const ExitIntentModal: React.FC = () => {
 
   const copyKey = async () => {
     try {
-      if (navigator.clipboard) await navigator.clipboard.writeText(SANDBOX_KEY);
+      if (navigator.clipboard) await copyToClipboard(SANDBOX_KEY);
     } catch {}
     setCopied(true);
     setTimeout(() => setCopied(false), 1600);

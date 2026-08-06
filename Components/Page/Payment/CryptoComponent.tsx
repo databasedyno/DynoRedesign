@@ -36,6 +36,7 @@ import { paymentTypes } from "@/utils/enums";
 import { CopyAllRounded, NorthEastRounded } from "@mui/icons-material";
 import { usePaymentRates } from "@/hooks/usePaymentRates";
 import { useTranslation } from "react-i18next";
+import copyToClipboard from "@/helpers/copyToClipboard";
 
 const currencyList2 = [
   "BTC",
@@ -365,7 +366,7 @@ const CyrptoComponent = () => {
                           endAdornment: (
                             <IconButton
                               onClick={() => {
-                                navigator.clipboard.writeText(
+                                copyToClipboard(
                                   cryptoDetails.address
                                 );
                                 dispatch({

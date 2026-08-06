@@ -3,6 +3,7 @@ import { Box, Typography, IconButton, Button, useTheme } from '@mui/material';
 import { Close, PlayArrow, ArrowForward } from '@mui/icons-material';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'react-i18next';
+import { BRAND_ACCENT } from "@/constants/theme";
 
 /**
  * DemoVideoModal (item I) — opens when the visitor clicks "Watch demo" in the
@@ -34,7 +35,7 @@ const STEPS: Step[] = [
     n: 1,
     title: 'Create a payment link',
     detail: 'One POST to /api/pay/payment-links — or one click in your dashboard. Set amount, currency, description. That’s it.',
-    color: '#4F46E5',
+    color: BRAND_ACCENT,
     accent: '#6C7BFF',
   },
   {

@@ -3,6 +3,7 @@ import { Icon } from "@iconify/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useVerticalAccent, StatusPill, AURORA_GRADIENT_SOFT } from "@/Components/UI/_shared";
+import { BRAND_ACCENT } from "@/constants/theme";
 
 /**
  * CheckoutShell — the 5-state animated wrapper for every buyer-facing
@@ -115,7 +116,7 @@ function ConfettiCanvas({ trigger }: { trigger: boolean }) {
     canvas.style.height = `${parent.clientHeight}px`;
     ctx.scale(dpr, dpr);
 
-    const colors = ["#CCFF00", "#7C5CFF", "#4F46E5", "#4FD1FF", "#FFFFFF"];
+    const colors = ["#CCFF00", "#7C5CFF", BRAND_ACCENT, "#4FD1FF", "#FFFFFF"];
     const particles: Particle[] = [];
     const originX = parent.clientWidth / 2;
     const originY = parent.clientHeight / 3.2;
@@ -291,7 +292,7 @@ export default function CheckoutShell({ state, children, title, caption, ...rest
             color:
               state === "settled" ? (dark ? "#CCFF00" : "#5A6B00")
               : state === "failed" ? (dark ? "#FF7A6B" : "#B91C1C")
-              : state === "confirmed" ? (dark ? "#818CF8" : "#4F46E5")
+              : state === "confirmed" ? (dark ? "#818CF8" : BRAND_ACCENT)
               : (dark ? "#818CF8" : accent.color),
           }}
         >

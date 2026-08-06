@@ -4,6 +4,8 @@ import { Box, Button, Typography, useTheme } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { QRCodeCanvas } from "qrcode.react";
 import { buildCreatorUrl, prettyCreatorUrl } from "@/helpers/creatorUrl";
+import copyToClipboard from "@/helpers/copyToClipboard";
+import { BRAND_ACCENT } from "@/constants/theme";
 
 /**
  * Handle QR Code (Session 60).
@@ -88,7 +90,7 @@ const HandleQrCode: React.FC<Props> = ({ handle, size = "full", accentColor }) =
 
   const copyUrl = () => {
     if (!url) return;
-    navigator.clipboard?.writeText(url);
+    copyToClipboard(url);
     setCopied(true);
     setTimeout(() => setCopied(false), 1600);
   };
@@ -173,9 +175,9 @@ const HandleQrCode: React.FC<Props> = ({ handle, size = "full", accentColor }) =
           startIcon={<Icon icon="mdi:download" width={14} />}
           sx={{
             textTransform: "none", fontSize: 12.5, fontWeight: 700, borderRadius: "10px",
-            backgroundColor: accentColor || "#4F46E5",
+            backgroundColor: accentColor || BRAND_ACCENT,
             color: "#FFFFFF",
-            "&:hover": { backgroundColor: accentColor || "#4F46E5", filter: "brightness(1.05)" },
+            "&:hover": { backgroundColor: accentColor || BRAND_ACCENT, filter: "brightness(1.05)" },
           }}
         >
           {downloading ? "Saving…" : "Download PNG"}

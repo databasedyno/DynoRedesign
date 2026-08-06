@@ -1,3 +1,5 @@
+import copyToClipboard from "@/helpers/copyToClipboard";
+import { BRAND_ACCENT } from "@/constants/theme";
 import axiosBaseApi from '@/axiosConfig'
 
 import paymentAuth from '@/Components/Page/Common/HOC/paymentAuth'
@@ -772,7 +774,7 @@ const Payment = () => {
     if (orderReference) {
       try {
         if (navigator.clipboard && navigator.clipboard.writeText) {
-          await navigator.clipboard.writeText(orderReference)
+          await copyToClipboard(orderReference)
         } else {
           const textArea = document.createElement('textarea')
           textArea.value = orderReference
@@ -804,7 +806,7 @@ const Payment = () => {
     if (linkId) {
       try {
         if (navigator.clipboard && navigator.clipboard.writeText) {
-          await navigator.clipboard.writeText(linkId)
+          await copyToClipboard(linkId)
         } else {
           const textArea = document.createElement('textarea')
           textArea.value = linkId
@@ -1595,7 +1597,7 @@ const Payment = () => {
                       }}
                       data-testid="crypto-payment-btn"
                       sx={{
-                        backgroundColor: '#4F46E5',
+                        backgroundColor: BRAND_ACCENT,
                         color: '#FFFFFF',
                         textTransform: 'none',
                         borderRadius: '12px',
@@ -1607,7 +1609,7 @@ const Payment = () => {
                         boxShadow: '0 4px 14px rgba(79,70,229,0.28)',
                         transition: 'filter 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease',
                         '&:hover': {
-                          backgroundColor: '#4F46E5',
+                          backgroundColor: BRAND_ACCENT,
                           filter: 'brightness(1.05)',
                           boxShadow: '0 6px 20px rgba(79,70,229,0.4)',
                           transform: 'translateY(-1px)',

@@ -1,3 +1,4 @@
+import copyToClipboard from "@/helpers/copyToClipboard";
 import React, { useEffect, useState, useCallback, useMemo } from 'react'
 import { 
   Box, 
@@ -117,7 +118,7 @@ export default function TransferExpectedCard({
     if (transactionId) {
       try {
         if (navigator.clipboard && navigator.clipboard.writeText) {
-          await navigator.clipboard.writeText(transactionId)
+          await copyToClipboard(transactionId)
         } else {
           const textArea = document.createElement('textarea')
           textArea.value = transactionId
@@ -672,7 +673,7 @@ export default function TransferExpectedCard({
                     } catch { /* user cancelled */ }
                     // Fallback → clipboard
                     try {
-                      await navigator.clipboard.writeText(`${shareText} ${url}`.trim());
+                      await copyToClipboard(`${shareText} ${url}`.trim());
                       setCopySnackbar(true);
                     } catch { /* ignore */ }
                   }}

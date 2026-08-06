@@ -6,10 +6,11 @@ import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { rootReducer } from "@/utils/types";
 import { prettyCreatorDomain } from "@/helpers/creatorUrl";
+import { BRAND_ACCENT } from "@/constants/theme";
 
 const DISMISS_KEY = "dynopay.claim-handle-banner.dismissed";
 // Session 82: LIME const preserves the name but now holds aurora indigo #4F46E5
-const LIME = "#4F46E5";
+const LIME = BRAND_ACCENT;
 const INK = "#0A0A0B";
 
 /**

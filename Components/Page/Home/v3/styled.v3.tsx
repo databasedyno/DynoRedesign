@@ -1,6 +1,7 @@
 import { Box, Typography, TypographyProps } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { FONT_HERO, FONT_TECH, FONT_BODY } from "./theme.v3";
+import { BRAND_ACCENT } from "@/constants/theme";
 
 // Common section shell — max-width 1280, generous side padding on desktop.
 export const SectionShell = styled(Box)(({ theme }) => ({
@@ -34,7 +35,7 @@ export const Eyebrow = styled(Typography)<{ tone?: "indigo" | "coral" | "violet"
         ? theme.palette.text.secondary
         : theme.palette.mode === "dark"
           ? "#818CF8"
-          : "#4F46E5",
+          : BRAND_ACCENT,
   })
 );
 
@@ -89,5 +90,5 @@ export const Body = styled(Typography)<TypographyProps>(({ theme }) => ({
 // Emphasis ink — a single indigo statement word (single-accent doctrine).
 // Brightens on dark so the accent word stays vivid.
 export const AuroraInk = styled("span")(({ theme }) => ({
-  color: theme.palette.mode === "dark" ? "#818CF8" : "#4F46E5",
+  color: theme.palette.mode === "dark" ? "#818CF8" : BRAND_ACCENT,
 }));

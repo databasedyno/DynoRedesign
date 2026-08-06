@@ -6,6 +6,8 @@ import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { FONT_BODY, FONT_HERO, FONT_TECH, useAurora, VOLT } from "./theme.v3";
 import { Eyebrow, HeadlineL } from "./styled.v3";
+import copyToClipboard from "@/helpers/copyToClipboard";
+import { BRAND_ACCENT } from "@/constants/theme";
 
 const CURL = `curl https://api.dynopay.com/v1/payments \\
   -H "Authorization: Bearer sk_test_..." \\
@@ -28,7 +30,7 @@ const TryItNowV3: React.FC = () => {
 
   const onCopy = () => {
     if (typeof navigator !== "undefined" && navigator.clipboard) {
-      navigator.clipboard.writeText(CURL).catch(() => {});
+      copyToClipboard(CURL).catch(() => {});
     }
     setCopied(true);
     if (timerRef.current) clearTimeout(timerRef.current);
@@ -73,7 +75,7 @@ const TryItNowV3: React.FC = () => {
           width: 500,
           height: 500,
           borderRadius: "50%",
-          background: "#4F46E5",
+          background: BRAND_ACCENT,
           filter: "blur(140px)",
           opacity: 0.07,
           pointerEvents: "none",
@@ -82,7 +84,7 @@ const TryItNowV3: React.FC = () => {
 
       <Box sx={{ position: "relative", zIndex: 1, maxWidth: 1280, mx: "auto", px: { xs: 3, md: 5 } }}>
         <Box sx={{ maxWidth: 720, mb: { xs: 5, md: 8 } }}>
-          <Eyebrow sx={{ mb: 2, color: "#4F46E5" }}>{t("v3.tryit.eyebrow")}</Eyebrow>
+          <Eyebrow sx={{ mb: 2, color: BRAND_ACCENT }}>{t("v3.tryit.eyebrow")}</Eyebrow>
           <HeadlineL sx={{ color: "#F5F5F5" }}>
             {t("v3.tryit.headline1")}
             <br />
@@ -231,7 +233,7 @@ const TryItNowV3: React.FC = () => {
           <Button
             href="/documentation"
             sx={{
-              color: "#4F46E5",
+              color: BRAND_ACCENT,
               fontFamily: FONT_BODY,
               fontSize: 14.5,
               fontWeight: 600,
@@ -240,7 +242,7 @@ const TryItNowV3: React.FC = () => {
               border: "1px solid rgba(79, 70, 229,0.4)",
               px: 2.5,
               py: 1,
-              "&:hover": { background: "rgba(79, 70, 229,0.08)", borderColor: "#4F46E5" },
+              "&:hover": { background: "rgba(79, 70, 229,0.08)", borderColor: BRAND_ACCENT },
             }}
           >
             {t("v3.tryit.readDocs")}

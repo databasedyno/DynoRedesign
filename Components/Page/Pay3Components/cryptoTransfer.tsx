@@ -43,6 +43,8 @@ import LTCicon from "../../../assets/Icons/coins/LTC.png";
 import BCHicon from "../../../assets/Icons/coins/BCH.png";
 import DOGEicon from "../../../assets/Icons/coins/DOGE.png";
 import TRXicon from "../../../assets/Icons/coins/TRX.png";
+import copyToClipboard from "@/helpers/copyToClipboard";
+import { BRAND_ACCENT } from "@/constants/theme";
 
 // Payment status types
 type PaymentStatusType = 
@@ -240,7 +242,7 @@ const CryptoTransfer = ({
   // Brand accent (lime) — used for selection + primary affordances to match
   // the landing page and donation checkout. Green (#10B981/#12B76A) is kept
   // ONLY for payment-detected/confirmed states (universal "success" signal).
-  const ACCENT = '#4F46E5';
+  const ACCENT = BRAND_ACCENT;
   const ON_ACCENT = '#FFFFFF';
   const ACCENT_SOFT = isDark ? 'rgba(79,70,229,0.12)' : 'rgba(79,70,229,0.16)';
   const [selectedCrypto, setSelectedCrypto] = useState("");
@@ -550,7 +552,7 @@ const CryptoTransfer = ({
   };
 
   const handleCopyAddress = () => {
-    navigator.clipboard.writeText(cryptoDetails?.address);
+    copyToClipboard(cryptoDetails?.address);
     setCopied(true);
     setShowCopyToast(true);
     dispatch({
@@ -569,7 +571,7 @@ const CryptoTransfer = ({
   // Copy memo/tag to clipboard
   const handleCopyMemo = () => {
     if (!cryptoDetails?.memo) return;
-    navigator.clipboard.writeText(cryptoDetails.memo);
+    copyToClipboard(cryptoDetails.memo);
     setShowCopyToast(true);
     dispatch({
       type: TOAST_SHOW,
@@ -593,7 +595,7 @@ const CryptoTransfer = ({
     const amount = isPartialPaymentMode && remainingPaymentInfo
       ? remainingPaymentInfo.remainingAmount
       : (selectedCurrency?.total_amount || selectedCurrency?.amount || 0);
-    navigator.clipboard.writeText(String(amount));
+    copyToClipboard(String(amount));
     dispatch({
       type: TOAST_SHOW,
       payload: {

@@ -1,4 +1,5 @@
 import { createTheme } from "@mui/material";
+import { BRAND_ACCENT } from "@/constants/theme";
 
 /**
  * homeTheme — "Floating Glass Bento" (bold, Emergent-style) mirrored from the
@@ -19,7 +20,7 @@ import { createTheme } from "@mui/material";
 
 // Session 82: HOME_LIME preserves its name for backward compat, but
 // the actual value is now aurora indigo #4F46E5 (Landing v3 canonical).
-export const HOME_LIME = "#4F46E5";
+export const HOME_LIME = BRAND_ACCENT;
 const LIME_HOVER = "#B4E600"; // retained for reference (marketing accent now indigo)
 void LIME_HOVER;
 
@@ -27,7 +28,7 @@ export const homeTheme = createTheme({
   palette: {
     mode: "light",
     primary: {
-      main: "#4F46E5",
+      main: BRAND_ACCENT,
       dark: "#4338CA",
       light: "rgba(79,70,229,0.08)",
       contrastText: "#FFFFFF",
@@ -79,7 +80,7 @@ export const homeThemeDark = createTheme({
     mode: "dark",
     primary: {
       main: "#6366F1",
-      dark: "#4F46E5",
+      dark: BRAND_ACCENT,
       light: "rgba(99,102,241,0.16)",
       contrastText: "#FFFFFF",
       hover: "#818CF8",

@@ -8,6 +8,7 @@ import axiosBaseApi from "@/axiosConfig";
 import { rootReducer } from "@/utils/types";
 import { USER_PROFILE_FETCH, UserAction } from "@/Redux/Actions/UserAction";
 import { prettyCreatorUrl } from "@/helpers/creatorUrl";
+import { BRAND_ACCENT } from "@/constants/theme";
 
 const HANDLE_RE = /^[a-z0-9][a-z0-9_-]{2,29}$/;
 const MONO = 'ui-monospace, "Roboto Mono", "JetBrains Mono", SFMono-Regular, Menlo, monospace';
@@ -15,7 +16,7 @@ const MONO = 'ui-monospace, "Roboto Mono", "JetBrains Mono", SFMono-Regular, Men
 /** Two-burst brand-colored confetti — tasteful, ~200ms. Client-only. */
 const fireConfetti = () => {
   try {
-    const colors = ["#4F46E5", "#7C5CFF", "#10B981", "#F59E0B"];
+    const colors = [BRAND_ACCENT, "#7C5CFF", "#10B981", "#F59E0B"];
     confetti({ particleCount: 70, spread: 62, startVelocity: 38, origin: { x: 0.35, y: 0.4 }, colors, scalar: 0.95, ticks: 220 });
     confetti({ particleCount: 70, spread: 62, startVelocity: 38, origin: { x: 0.65, y: 0.4 }, colors, scalar: 0.95, ticks: 220 });
   } catch {

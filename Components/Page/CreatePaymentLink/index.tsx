@@ -55,6 +55,7 @@ import axiosBaseApi from "@/axiosConfig";
 import { PRICING_CURRENCIES, clampPricingCurrency } from "@/utils/pricingCurrencies";
 import { fetchGeoDefaults } from "@/utils/geoDefaults";
 import SaveChangeModel from "@/Components/UI/pay-link/SaveChangeModel";
+import copyToClipboard from "@/helpers/copyToClipboard";
 import {
   CreatePaymentLinkPageProps,
   ICryptoItem,
@@ -890,7 +891,7 @@ const CreatePaymentLinkPage = ({
 
   const handleCopyLink = () => {
     if (paymentLink) {
-      navigator.clipboard.writeText(paymentLink);
+      copyToClipboard(paymentLink);
       dispatch({
         type: "TOAST_SHOW",
         payload: { message: "Payment link copied!", severity: "success" },

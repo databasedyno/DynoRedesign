@@ -33,6 +33,7 @@ import InvoicePreviewDrawer, { InvoicePreviewInvoice } from "@/Components/Page/I
 import { StatusPill } from "@/Components/UI/_shared";
 import { Icon, MONO } from "@/styles/uiKit";
 import { useSelector } from "react-redux";
+import { BRAND_ACCENT } from "@/constants/theme";
 
 interface Invoice {
   invoice_id: number;
@@ -571,7 +572,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                                       fontWeight: 700,
                                       letterSpacing: "0.24em",
                                       textTransform: "uppercase",
-                                      color: muiTheme.palette.mode === "dark" ? "#A5B4FC" : "#4F46E5",
+                                      color: muiTheme.palette.mode === "dark" ? "#A5B4FC" : BRAND_ACCENT,
                                     }}
                                   >
                                     {grp.label}

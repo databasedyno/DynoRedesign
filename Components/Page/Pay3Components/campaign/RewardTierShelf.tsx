@@ -12,6 +12,7 @@
 import React, { useRef } from "react";
 import { Box, Typography, useTheme, Button, IconButton } from "@mui/material";
 import { Icon } from "@iconify/react";
+import { BRAND_ACCENT } from "@/constants/theme";
 
 export interface Tier {
   tier_id: number;
@@ -38,7 +39,7 @@ export default function RewardTierShelf({
 }: Props) {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
-  const accent = "#4F46E5";
+  const accent = BRAND_ACCENT;
   const onAccent = "#0A0A0B";
   const border = theme.palette.divider;
   const scrollerRef = useRef<HTMLDivElement | null>(null);

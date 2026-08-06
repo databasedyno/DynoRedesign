@@ -1,5 +1,6 @@
 import { createTheme } from "@mui/material";
 import { theme, themeDark } from "./theme";
+import { BRAND_ACCENT } from "@/constants/theme";
 
 /**
  * Auth-suite theme — "Aurora Glass" (2026-07-28 indigo migration).
@@ -20,7 +21,7 @@ import { theme, themeDark } from "./theme";
  * a safe fallback) so the primary CTA hover matches the accent.
  */
 
-export const AUTH_INDIGO = "#4F46E5"; // Landing v3 canonical indigo
+export const AUTH_INDIGO = BRAND_ACCENT; // Landing v3 canonical indigo
 export const AUTH_INDIGO_DARK = "#818CF8"; // dark-mode variant (softer, higher lightness)
 const INDIGO_HOVER_LIGHT = "#4338CA"; // slightly darker on hover in light mode
 const INDIGO_HOVER_DARK = "#6366F1"; // slightly darker on hover in dark mode

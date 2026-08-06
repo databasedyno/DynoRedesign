@@ -12,6 +12,7 @@ import CreatorLivePreview from "@/Components/Page/Creator/CreatorLivePreview";
 import PanelCard from "@/Components/UI/PanelCard";
 import OnboardingBanner from "@/Components/UI/OnboardingBanner";
 import { buildCreatorUrl, prettyCreatorDomain } from "@/helpers/creatorUrl";
+import { BRAND_ACCENT } from "@/constants/theme";
 
 interface Stats {
   total_visits: number;
@@ -287,7 +288,7 @@ const CreatorPageRoute = ({ setPageName, setPageDescription }: pageProps) => {
             sx={{
               width: 44, height: 44, borderRadius: "12px", flexShrink: 0,
               display: "flex", alignItems: "center", justifyContent: "center",
-              backgroundColor: theme.palette.mode === "dark" ? "#818CF8" : "#4F46E5",
+              backgroundColor: theme.palette.mode === "dark" ? "#818CF8" : BRAND_ACCENT,
             }}
           >
             <Icon icon="mdi:coffee-outline" width={24} color="#FFFFFF" />
@@ -315,7 +316,7 @@ const CreatorPageRoute = ({ setPageName, setPageDescription }: pageProps) => {
             sx={{
               px: 2.25, py: 1.1, borderRadius: "10px", textTransform: "none",
               fontWeight: 800, fontSize: 13.5, whiteSpace: "nowrap",
-              backgroundColor: theme.palette.mode === "dark" ? "#818CF8" : "#4F46E5",
+              backgroundColor: theme.palette.mode === "dark" ? "#818CF8" : BRAND_ACCENT,
               color: "#FFFFFF",
               "&:hover": {
                 backgroundColor: theme.palette.mode === "dark" ? "#6D74E8" : "#4338CA",

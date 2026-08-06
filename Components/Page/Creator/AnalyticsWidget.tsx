@@ -1,3 +1,4 @@
+import { BRAND_ACCENT } from "@/constants/theme";
 import React, { useMemo } from 'react'
 import { Area, AreaChart, Bar, ComposedChart, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid } from 'recharts'
 import { Box, Chip, Skeleton, Typography, useTheme } from '@mui/material'
@@ -63,7 +64,7 @@ interface Props {
   toggleBusy?: boolean
 }
 
-const INDIGO_LIGHT = '#4F46E5'
+const INDIGO_LIGHT = BRAND_ACCENT
 const INDIGO_DARK = '#818CF8'
 
 const formatDayLabel = (ymd: string) => {

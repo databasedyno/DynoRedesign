@@ -4,6 +4,7 @@ import { ContentCopyRounded, ShareRounded, CardGiftcardRounded } from "@mui/icon
 import axiosBaseApi from "@/axiosConfig";
 import { useTranslation } from "react-i18next";
 import { useRouter } from "next/router";
+import copyToClipboard from "@/helpers/copyToClipboard";
 
 const MobileReferralBanner: React.FC = () => {
   const theme = useTheme();
@@ -27,7 +28,7 @@ const MobileReferralBanner: React.FC = () => {
   if (!referralCode) return null;
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(referralCode);
+    copyToClipboard(referralCode);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -42,7 +43,7 @@ const MobileReferralBanner: React.FC = () => {
       if (navigator.share && navigator.canShare?.(shareData)) {
         await navigator.share(shareData);
       } else {
-        await navigator.clipboard.writeText(shareData.url);
+        await copyToClipboard(shareData.url);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
       }

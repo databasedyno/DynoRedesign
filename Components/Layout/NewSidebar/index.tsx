@@ -15,6 +15,7 @@ import { rootReducer } from "@/utils/types";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import ReferralAndKnowledge from "../ReferralAndKnowledge";
+import { BRAND_ACCENT } from "@/constants/theme";
 import {
   IconBox,
   Menu,
@@ -289,7 +290,7 @@ const NewSidebar = () => {
                           letterSpacing: "0.06em",
                           textTransform: "uppercase",
                           fontFamily: "var(--font-sans)",
-                          backgroundColor: "#4F46E5",
+                          backgroundColor: BRAND_ACCENT,
                           color: "#0A0A0B",
                           lineHeight: 1.4,
                           alignSelf: "center",
@@ -446,7 +447,7 @@ const NewSidebar = () => {
                   }}
                 >
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.75 }}>
-                    <AutoAwesomeRounded sx={{ fontSize: 18, color: "#4F46E5" }} />
+                    <AutoAwesomeRounded sx={{ fontSize: 18, color: BRAND_ACCENT }} />
                     <Box sx={{ fontSize: 14, fontWeight: 800, color: theme.palette.text.primary, fontFamily: "var(--font-sans)" }}>
                       {t("creatorTourTitle", { defaultValue: "New: your creator page" })}
                     </Box>
@@ -469,7 +470,7 @@ const NewSidebar = () => {
                       variant="contained"
                       size="small"
                       data-testid="creator-tour-cta"
-                      sx={{ textTransform: "none", fontWeight: 800, fontSize: 12.5, borderRadius: "8px", backgroundColor: "#4F46E5", color: "#0A0A0B", "&:hover": { backgroundColor: "#4F46E5", filter: "brightness(1.08)" } }}
+                      sx={{ textTransform: "none", fontWeight: 800, fontSize: 12.5, borderRadius: "8px", backgroundColor: BRAND_ACCENT, color: "#0A0A0B", "&:hover": { backgroundColor: BRAND_ACCENT, filter: "brightness(1.08)" } }}
                     >
                       {t("creatorTourCta", { defaultValue: "Set it up" })}
                     </Button>

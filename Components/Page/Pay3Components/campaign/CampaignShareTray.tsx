@@ -16,6 +16,7 @@ import {
   useTheme,
 } from "@mui/material";
 import ContentCopyRoundedIcon from "@mui/icons-material/ContentCopyRounded";
+import copyToClipboard from "@/helpers/copyToClipboard";
 
 interface Props {
   title: string;
@@ -66,7 +67,7 @@ export default function CampaignShareTray({ title, url, ariaLabel }: Props) {
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(url);
+      await copyToClipboard(url);
       setCopied(true);
     } catch {
       setCopied(false);

@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { StatusPill, AURORA_GRADIENT_SOFT } from "@/Components/UI/_shared";
 import type { CheckoutState } from "@/Components/UI/CheckoutShell";
+import { BRAND_ACCENT } from "@/constants/theme";
 
 /**
  * Format a whole-second countdown as `MM:SS`. Negative or non-finite input
@@ -273,7 +274,7 @@ export default function CheckoutStatusStrip({ state, title, caption, secondsRema
           color:
             isUrgent ? (dark ? "#FF7A6B" : "#B91C1C")
             : state === "failed" ? (dark ? "#FF7A6B" : "#B91C1C")
-            : (dark ? "#818CF8" : "#4F46E5"),
+            : (dark ? "#818CF8" : BRAND_ACCENT),
         }}
       >
         {state === "confirming" && !isUrgent && (

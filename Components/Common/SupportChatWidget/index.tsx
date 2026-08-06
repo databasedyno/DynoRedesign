@@ -17,6 +17,7 @@ import AttachFileRoundedIcon from "@mui/icons-material/AttachFileRounded";
 import SentimentSatisfiedAltRoundedIcon from "@mui/icons-material/SentimentSatisfiedAltRounded";
 import InsertDriveFileRoundedIcon from "@mui/icons-material/InsertDriveFileRounded";
 import axiosBaseApi from "@/axiosConfig";
+import { BRAND_ACCENT } from "@/constants/theme";
 
 /**
  * SupportChatWidget — "Emily", Dynopay's floating AI support chat.
@@ -368,7 +369,7 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
   const panelBg = isDark ? "#101014" : "#FFFFFF";
   const panelBorder = isDark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.10)";
   const assistantBubbleBg = isDark ? "rgba(255,255,255,0.07)" : "#F2F3F5";
-  const userBubbleBg = isDark ? "#6366F1" : "#4F46E5";
+  const userBubbleBg = isDark ? "#6366F1" : BRAND_ACCENT;
   const userBubbleColor = "#FFFFFF";
   // Keep clear of the in-app floating mobile nav pill.
   // F1: On mobile in the client shell, lift the FAB further so it no longer
@@ -607,7 +608,7 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
                   width: 34,
                   height: 34,
                   borderRadius: "50%",
-                  background: "#4F46E5",
+                  background: BRAND_ACCENT,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -834,7 +835,7 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
                     borderRadius: "10px",
                     padding: "9px 12px",
                     cursor: escalating ? "wait" : "pointer",
-                    background: "#4F46E5",
+                    background: BRAND_ACCENT,
                     color: "#FFFFFF",
                     opacity: escalating ? 0.6 : 1,
                   }}
@@ -951,7 +952,7 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
                 data-testid="support-chat-emoji"
                 onClick={() => setEmojiOpen((v) => !v)}
                 aria-label="Insert emoji"
-                sx={{ ...composerIconSx, color: emojiOpen ? (isDark ? "#818CF8" : "#4F46E5") : theme.palette.text.secondary }}
+                sx={{ ...composerIconSx, color: emojiOpen ? (isDark ? "#818CF8" : BRAND_ACCENT) : theme.palette.text.secondary }}
               >
                 <SentimentSatisfiedAltRoundedIcon sx={{ fontSize: 20 }} />
               </IconButton>
@@ -999,7 +1000,7 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
                 width: 40,
                 height: 40,
                 borderRadius: "10px",
-                background: "#4F46E5",
+                background: BRAND_ACCENT,
                 color: "#FFFFFF",
                 flexShrink: 0,
                 "&:hover": { background: "#4338CA" },
@@ -1034,7 +1035,7 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
             width: 56,
             height: 56,
             borderRadius: "50%",
-            background: "#4F46E5",
+            background: BRAND_ACCENT,
             color: "#FFFFFF",
             boxShadow: "0 8px 24px rgba(0,0,0,0.35)",
             border: isDark ? "1px solid rgba(255,255,255,0.14)" : "none",

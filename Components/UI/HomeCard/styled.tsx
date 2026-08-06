@@ -1,6 +1,7 @@
 import { getBrowser } from "@/hooks/useDevice";
 import { Box, Card, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import { BRAND_ACCENT } from "@/constants/theme";
 
 interface StyledCardProps {
   height?: number | string;
@@ -98,7 +99,7 @@ export const FeatureIcon = styled(Box)(({ theme }) => ({
   minWidth: "48px",
   borderRadius: "16px",
   background: theme.palette.background.default,
-  color: theme.palette.mode === "dark" ? "#A5B4FC" : "#4F46E5",
+  color: theme.palette.mode === "dark" ? "#A5B4FC" : BRAND_ACCENT,
   "& img, & svg": {
     filter: theme.palette.mode === "dark" ? "brightness(1.8) saturate(1.2)" : "none",
   },
@@ -159,7 +160,7 @@ export const WhyChooseDynoPayIcon = styled(Box)(({ theme }) => ({
   minWidth: "56px",
   borderRadius: "20px",
   background: theme.palette.mode === "dark" ? "rgba(106,123,255,0.1)" : "#4F46E51A",
-  color: theme.palette.mode === "dark" ? "#A5B4FC" : "#4F46E5",
+  color: theme.palette.mode === "dark" ? "#A5B4FC" : BRAND_ACCENT,
   "& img, & svg": {
     filter: theme.palette.mode === "dark" ? "brightness(1.8) saturate(1.2)" : "none",
   },

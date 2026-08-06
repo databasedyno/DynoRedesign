@@ -41,6 +41,7 @@ import PanelCard from "@/Components/UI/PanelCard";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import useIsMobile from "@/hooks/useIsMobile";
 import { rootReducer } from "@/utils/types";
+import copyToClipboard from "@/helpers/copyToClipboard";
 
 interface WebhookLog {
   log_id: number;
@@ -261,7 +262,7 @@ const WebhookConsoleSection = () => {
 
   const copy = (text: string, label: string) => {
     if (!text) return;
-    navigator.clipboard?.writeText(text).then(
+    copyToClipboard(text).then(
       () => toast(`${label} copied`),
       () => toast(`Failed to copy ${label}`, "error"),
     );

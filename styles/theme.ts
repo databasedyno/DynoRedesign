@@ -1,4 +1,5 @@
 import { createTheme } from "@mui/material";
+import { BRAND_ACCENT } from "@/constants/theme";
 
 declare module "@mui/material/Button" {
   interface ButtonPropsVariantOverrides {
@@ -74,7 +75,7 @@ export const theme = createTheme({
       error: "#E8484A",
     },
     primary: {
-      main: "#4F46E5", //Dark Blue
+      main: BRAND_ACCENT, //Dark Blue
       dark: "#000000",
       light: "#EEF2FF", //Light Blue
       contrastText: "#fff",
@@ -202,13 +203,13 @@ export const theme = createTheme({
             border: "1px solid",
             color: "#fff",
             padding: "12px 30px",
-            background: "#4F46E5",
+            background: BRAND_ACCENT,
             fontWeight: 400,
             borderRadius: "50px",
             textTransform: "none",
             cursor: "pointer",
             "&:hover": {
-              color: "#4F46E5",
+              color: BRAND_ACCENT,
               background: "#fff",
             },
             "&.Mui-disabled": {
@@ -253,13 +254,13 @@ export const theme = createTheme({
           style: {
             border: "1px solid",
             padding: "10px 30px",
-            color: "#4F46E5",
+            color: BRAND_ACCENT,
             fontWeight: 600,
             borderRadius: "15px",
             fontSize: "16px",
             "&:hover": {
               color: "#fff",
-              background: "#4F46E5",
+              background: BRAND_ACCENT,
             },
           },
         },
@@ -269,12 +270,12 @@ export const theme = createTheme({
             border: "1px solid",
             padding: "10px 30px",
             color: "#fff",
-            background: "#4F46E5",
+            background: BRAND_ACCENT,
             fontWeight: 600,
             borderRadius: "15px",
             fontSize: "16px",
             "&:hover": {
-              color: "#4F46E5",
+              color: BRAND_ACCENT,
               background: "#fff",
             },
             "&.Mui-disabled": {
@@ -386,13 +387,13 @@ const getCheckoutComponentStyles = (isDark: boolean) => ({
           border: "1px solid",
           color: "#fff",
           padding: "12px 30px",
-          background: "#4F46E5",
+          background: BRAND_ACCENT,
           fontWeight: 400,
           borderRadius: "50px",
           textTransform: "none" as const,
           cursor: "pointer",
           "&:hover": {
-            color: "#4F46E5",
+            color: BRAND_ACCENT,
             background: isDark ? "#1a1a2e" : "#fff",
           },
           "&.Mui-disabled": {
@@ -443,7 +444,7 @@ const getCheckoutComponentStyles = (isDark: boolean) => ({
           fontSize: "16px",
           "&:hover": {
             color: "#fff",
-            background: "#4F46E5",
+            background: BRAND_ACCENT,
           },
         },
       },
@@ -453,12 +454,12 @@ const getCheckoutComponentStyles = (isDark: boolean) => ({
           border: "1px solid",
           padding: "10px 30px",
           color: "#fff",
-          background: "#4F46E5",
+          background: BRAND_ACCENT,
           fontWeight: 600,
           borderRadius: "15px",
           fontSize: "16px",
           "&:hover": {
-            color: "#4F46E5",
+            color: BRAND_ACCENT,
             background: isDark ? "#1a1a2e" : "#fff",
           },
           "&.Mui-disabled": {
@@ -576,15 +577,15 @@ export const lightTheme = createTheme({
   palette: {
     mode: "light",
     common: { black: "#242428", white: "#fff" },
-    primary: { main: "#4F46E5", dark: "#4338CA", light: "#EEF2FF", contrastText: "#fff" },
-    secondary: { main: "#4F46E5", dark: "#4338CA", light: "#EEF2FF" },
+    primary: { main: BRAND_ACCENT, dark: "#4338CA", light: "#EEF2FF", contrastText: "#fff" },
+    secondary: { main: BRAND_ACCENT, dark: "#4338CA", light: "#EEF2FF" },
     text: { primary: "#18181B", secondary: "#71717A" },
     background: { default: "#F4F6FA", paper: "#FFFFFF" },
     surface: { main: "#F4F6FA", paper: "#FFFFFF", border: "#E9ECF2" },
     // Mirror of `surface.border` so that components that use `palette.border.main`
     // (the convention used in the rest of the app's theme tokens) keep working
     // when rendered inside the /pay route's lightTheme.
-    border: { main: "#E9ECF2", focus: "#4F46E5", success: "#10B981", error: "#E8484A" },
+    border: { main: "#E9ECF2", focus: BRAND_ACCENT, success: "#10B981", error: "#E8484A" },
   },
   typography: {
     fontFamily: "var(--font-sans), 'Manrope', sans-serif",
@@ -647,7 +648,7 @@ export const themeDark = createTheme({
       error: "#E8484A",
     },
     primary: {
-      main: "#4F46E5",
+      main: BRAND_ACCENT,
       dark: "#4338CA",
       light: "#EEF2FF",
       // Session 82: migrated dark-mode primary lime → aurora indigo.
@@ -782,13 +783,13 @@ export const themeDark = createTheme({
             border: "1px solid",
             color: "#fff",
             padding: "12px 30px",
-            background: "#4F46E5",
+            background: BRAND_ACCENT,
             fontWeight: 400,
             borderRadius: "50px",
             textTransform: "none",
             cursor: "pointer",
             "&:hover": {
-              color: "#4F46E5",
+              color: BRAND_ACCENT,
               background: "#1a1a2e",
             },
             "&.Mui-disabled": {
@@ -833,13 +834,13 @@ export const themeDark = createTheme({
           style: {
             border: "1px solid",
             padding: "10px 30px",
-            color: "#4F46E5",
+            color: BRAND_ACCENT,
             fontWeight: 600,
             borderRadius: "15px",
             fontSize: "16px",
             "&:hover": {
               color: "#fff",
-              background: "#4F46E5",
+              background: BRAND_ACCENT,
             },
           },
         },
@@ -849,12 +850,12 @@ export const themeDark = createTheme({
             border: "1px solid",
             padding: "10px 30px",
             color: "#fff",
-            background: "#4F46E5",
+            background: BRAND_ACCENT,
             fontWeight: 600,
             borderRadius: "15px",
             fontSize: "16px",
             "&:hover": {
-              color: "#4F46E5",
+              color: BRAND_ACCENT,
               background: "#1a1a2e",
             },
             "&.Mui-disabled": {
@@ -900,7 +901,7 @@ export const themeDark = createTheme({
       },
       styleOverrides: {
         outlined: {
-          color: "#4F46E5",
+          color: BRAND_ACCENT,
           padding: "10px 15px",
           borderRadius: "20px",
           border: "1px solid ",

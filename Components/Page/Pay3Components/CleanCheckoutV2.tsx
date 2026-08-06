@@ -1,3 +1,4 @@
+import { BRAND_ACCENT } from "@/constants/theme";
 /**
  * CleanCheckoutV2 — Stripe-inspired single-panel crypto checkout.
  *
@@ -62,7 +63,7 @@ import { formatWithSeparators, getCurrencySymbolFromFormat } from '@/utils/curre
 const MONO = 'ui-monospace, "Roboto Mono", "JetBrains Mono", SFMono-Regular, Menlo, monospace'
 // Aurora indigo — Landing v3 canonical accent (Session 82 migration).
 // Constant name stays "LIME" for minimal-diff safety; only the value changed.
-const LIME = '#4F46E5'
+const LIME = BRAND_ACCENT
 const INK = '#0A0A0B'
 // Text/icon colour for content sitting ON the LIME (indigo) brand buttons.
 // Kept separate from INK (which is correct dark text on light surfaces) so

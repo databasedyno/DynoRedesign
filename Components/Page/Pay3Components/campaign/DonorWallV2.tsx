@@ -15,6 +15,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Box, Typography, useTheme } from "@mui/material";
 import { Icon } from "@iconify/react";
+import { BRAND_ACCENT } from "@/constants/theme";
 
 export interface DonorSupporter {
   name: string | null;
@@ -78,7 +79,7 @@ export default function DonorWallV2({
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
-  const accent = "#4F46E5";
+  const accent = BRAND_ACCENT;
   const limeTint = isDark ? "rgba(79,70,229,0.10)" : "rgba(79,70,229,0.16)";
   const border = theme.palette.divider;
   const surfaceGlass = isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)";

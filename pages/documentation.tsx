@@ -23,6 +23,8 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import SearchIcon from "@mui/icons-material/Search";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import { useTranslation } from "react-i18next";
+import copyToClipboard from "@/helpers/copyToClipboard";
+import { BRAND_ACCENT } from "@/constants/theme";
 
 /* ================================================================
    TYPES
@@ -82,7 +84,7 @@ const ProductCard = styled(Box)(({ theme }) => {
     display: "flex",
     flexDirection: "column" as const,
     "&:hover": {
-      borderColor: dk ? "#818CF8" : "#4F46E5",
+      borderColor: dk ? "#818CF8" : BRAND_ACCENT,
       transform: "translateY(-2px)",
       boxShadow: dk
         ? "0 8px 32px rgba(129,140,248,0.15)"
@@ -101,7 +103,7 @@ const ProductIcon = styled(Box)(({ theme }) => {
     alignItems: "center",
     justifyContent: "center",
     background: dk ? "rgba(129,140,248,0.1)" : "#0A0A0A0D",
-    color: dk ? "#818CF8" : "#4F46E5",
+    color: dk ? "#818CF8" : BRAND_ACCENT,
     marginBottom: "16px",
     "& svg": { fontSize: 24 },
   };
@@ -138,13 +140,13 @@ const SidebarItem = styled(Box, {
     fontSize: "14px",
     fontFamily: "var(--font-sans)",
     fontWeight: active ? 600 : 400,
-    color: active ? (dk ? "#818CF8" : "#4F46E5") : theme.palette.text.secondary,
+    color: active ? (dk ? "#818CF8" : BRAND_ACCENT) : theme.palette.text.secondary,
     background: active ? (dk ? "rgba(129,140,248,0.1)" : "#0A0A0A08") : "transparent",
     cursor: "pointer",
     transition: "all 0.15s",
     "&:hover": {
       background: dk ? "rgba(129,140,248,0.06)" : "#F8F9FC",
-      color: dk ? "#818CF8" : "#4F46E5",
+      color: dk ? "#818CF8" : BRAND_ACCENT,
     },
   };
 });
@@ -982,7 +984,7 @@ const CopyButton = memo(({ text }: { text: string }) => {
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     };
-    navigator.clipboard.writeText(text).then(done).catch(done);
+    copyToClipboard(text).then(done).catch(done);
   }, [text]);
   return (
     <>
@@ -1049,7 +1051,7 @@ const ParamTable = memo(({ title, params }: { title: string; params: { name: str
             {params.map((p, i) => (
               <tr key={p.name} style={{ borderBottom: i < params.length - 1 ? `1px solid ${dk ? "#1E2030" : "#F3F4F6"}` : "none" }}>
                 <td style={{ padding: "10px 16px" }}>
-                  <code style={{ color: dk ? "#818CF8" : "#4F46E5", fontWeight: 600, fontSize: 13, fontFamily: "var(--font-tech), monospace" }}>{p.name}</code>
+                  <code style={{ color: dk ? "#818CF8" : BRAND_ACCENT, fontWeight: 600, fontSize: 13, fontFamily: "var(--font-tech), monospace" }}>{p.name}</code>
                   {"required" in p && p.required && <span style={{ color: "#EF4444", fontSize: 11, marginLeft: 6, fontFamily: "var(--font-sans)" }}>required</span>}
                 </td>
                 <td style={{ padding: "10px 16px" }}><code style={{ fontSize: 12, color: dk ? "#8B8FA0" : "#6B7280" }}>{p.type}</code></td>
@@ -1217,7 +1219,7 @@ const DocumentationPage = () => {
                   <Typography sx={{ fontSize: "13px", fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: "20px", flex: 1 }}>
                     {card.desc}
                   </Typography>
-                  <Typography sx={{ fontSize: "13px", fontFamily: "var(--font-sans)", color: dk ? "#818CF8" : "#4F46E5", mt: 2 }}>
+                  <Typography sx={{ fontSize: "13px", fontFamily: "var(--font-sans)", color: dk ? "#818CF8" : BRAND_ACCENT, mt: 2 }}>
                     Learn more →
                   </Typography>
                 </ProductCard>
@@ -1417,7 +1419,7 @@ const DocumentationPage = () => {
                         onClick={() => setGsLang(tab.key)}
                         sx={{
                           cursor: "pointer",
-                          border: `1px solid ${active ? (dk ? "#818CF8" : "#4F46E5") : borderClr}`,
+                          border: `1px solid ${active ? (dk ? "#818CF8" : BRAND_ACCENT) : borderClr}`,
                           background: active ? (dk ? "rgba(129,140,248,0.12)" : "#0A0A0A") : "transparent",
                           color: active ? ("#FFFFFF") : "text.secondary",
                           fontFamily: "var(--font-sans)",
@@ -1543,7 +1545,7 @@ const DocumentationPage = () => {
                       ].map(([event, desc, action], i) => (
                         <tr key={event} style={{ borderBottom: i < 2 ? `1px solid ${dk ? "#1E2030" : "#F3F4F6"}` : "none" }}>
                           <td style={{ padding: "10px 16px" }}>
-                            <code style={{ fontWeight: 700, color: dk ? "#818CF8" : "#4F46E5", fontFamily: "var(--font-tech), monospace", fontSize: 12 }}>{event}</code>
+                            <code style={{ fontWeight: 700, color: dk ? "#818CF8" : BRAND_ACCENT, fontFamily: "var(--font-tech), monospace", fontSize: 12 }}>{event}</code>
                           </td>
                           <td style={{ padding: "10px 16px", color: dk ? "#A0A3B1" : "#374151", fontFamily: "var(--font-sans)" }}>{desc}</td>
                           <td style={{ padding: "10px 16px", color: dk ? "#A0A3B1" : "#374151", fontFamily: "var(--font-sans)", fontSize: 12 }}>{action}</td>
@@ -1599,7 +1601,7 @@ const DocumentationPage = () => {
                       ].map(([header, desc], i) => (
                         <tr key={header} style={{ borderBottom: i < 4 ? `1px solid ${dk ? "#1E2030" : "#F3F4F6"}` : "none" }}>
                           <td style={{ padding: "10px 16px" }}>
-                            <code style={{ fontWeight: 600, color: dk ? "#818CF8" : "#4F46E5", fontFamily: "var(--font-tech), monospace", fontSize: 12 }}>{header}</code>
+                            <code style={{ fontWeight: 600, color: dk ? "#818CF8" : BRAND_ACCENT, fontFamily: "var(--font-tech), monospace", fontSize: 12 }}>{header}</code>
                           </td>
                           <td style={{ padding: "10px 16px", color: dk ? "#A0A3B1" : "#374151", fontFamily: "var(--font-sans)" }}>{desc}</td>
                         </tr>
@@ -1719,7 +1721,7 @@ app.post('/webhooks/dynopay', (req, res) => {
                         <tr key={cat} style={{ borderBottom: i < 3 ? `1px solid ${dk ? "#1E2030" : "#F3F4F6"}` : "none" }}>
                           <td style={{ padding: "10px 16px", fontFamily: "var(--font-sans)", color: dk ? "#A0A3B1" : "#374151" }}>{cat}</td>
                           <td style={{ padding: "10px 16px" }}>
-                            <code style={{ fontWeight: 600, color: dk ? "#818CF8" : "#4F46E5", fontFamily: "var(--font-tech), monospace", fontSize: 12 }}>{limit}</code>
+                            <code style={{ fontWeight: 600, color: dk ? "#818CF8" : BRAND_ACCENT, fontFamily: "var(--font-tech), monospace", fontSize: 12 }}>{limit}</code>
                           </td>
                           <td style={{ padding: "10px 16px", fontFamily: "var(--font-sans)", color: dk ? "#A0A3B1" : "#374151" }}>{window}</td>
                         </tr>
@@ -1803,7 +1805,7 @@ app.post('/webhooks/dynopay', (req, res) => {
               bottom: { xs: 88, md: 96 },
               right: 24,
               zIndex: 1300,
-              background: dk ? "#818CF8" : "#4F46E5",
+              background: dk ? "#818CF8" : BRAND_ACCENT,
               color: dk ? "#0A0A0A" : "#FFFFFF",
               boxShadow: "0 6px 20px rgba(0,0,0,0.25)",
               "&:hover": { background: dk ? "#b8e600" : "#222222" },

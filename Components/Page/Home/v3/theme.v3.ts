@@ -1,11 +1,12 @@
 import { useTheme } from "@mui/material";
+import { BRAND_ACCENT } from "@/constants/theme";
 
 // ─── Aurora theme tokens (2026-07 landing v3) ──────────────────────────────
 // Creator-first palette. Indigo leads, violet supports, volt marks money.
 // NOTE: Historic `CORAL` name here always resolved to indigo (#4F46E5). Renamed
 // to `INDIGO` (2026-07-28) to stop colliding with Dashboard's semantic-negative
 // `CORAL = "#FF5B49"` (Components/Page/Dashboard/aurora/styled.tsx).
-export const INDIGO = "#4F46E5";
+export const INDIGO = BRAND_ACCENT;
 export const INDIGO_DEEP = "#4338CA";
 // Back-compat aliases — kept so stragglers don't break during migration. Point
 // at INDIGO so semantics are correct even under the old name.

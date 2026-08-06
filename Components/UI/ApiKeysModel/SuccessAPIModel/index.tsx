@@ -29,6 +29,7 @@ import {
 } from "./styled";
 import useIsMobile from "@/hooks/useIsMobile";
 import Toast from "../../Toast";
+import copyToClipboard from "@/helpers/copyToClipboard";
 
 export interface SuccessAPIModelProps {
   open: boolean;
@@ -55,7 +56,7 @@ const SuccessAPIModel: React.FC<SuccessAPIModelProps> = ({
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleCopy = (str: string) => {
-    navigator.clipboard.writeText(str);
+    copyToClipboard(str);
     setOpenToast(false);
 
     setTimeout(() => {

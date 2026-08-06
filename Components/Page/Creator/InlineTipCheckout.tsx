@@ -1,3 +1,4 @@
+import { BRAND_ACCENT } from "@/constants/theme";
 /**
  * InlineTipCheckout — self-contained inline crypto tip checkout for the
  * creator page Support Widget. Replaces the /pay full-page redirect so the
@@ -23,7 +24,7 @@ import copyToClipboard from '@/helpers/copyToClipboard'
 
 const MONO = 'ui-monospace, "Roboto Mono", "JetBrains Mono", SFMono-Regular, Menlo, monospace'
 // Aurora indigo — Landing v3 canonical accent (Session 82 migration).
-const LIME = '#4F46E5'
+const LIME = BRAND_ACCENT
 const INK = '#0A0A0B'
 
 type Phase =

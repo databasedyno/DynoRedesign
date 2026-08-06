@@ -9,6 +9,7 @@ import SchoolRoundedIcon from "@mui/icons-material/SchoolRounded";
 import PaymentsRoundedIcon from "@mui/icons-material/PaymentsRounded";
 import { FONT_BODY, FONT_HERO, FONT_TECH, useAurora } from "./theme.v3";
 import { Eyebrow, HeadlineL } from "./styled.v3";
+import { BRAND_ACCENT } from "@/constants/theme";
 
 /**
  * LearnDocsCards — Coinbase-style "Explore more / Learn the basics" education
@@ -100,7 +101,7 @@ const LearnDocsCards: React.FC = () => {
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      color: s.dark ? "#818CF8" : "#4F46E5",
+                      color: s.dark ? "#818CF8" : BRAND_ACCENT,
                       mb: 2.5,
                     }}
                   >

@@ -1,3 +1,4 @@
+import { BRAND_ACCENT } from "@/constants/theme";
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Box, Button, CircularProgress, Typography, useTheme } from '@mui/material'
@@ -7,7 +8,7 @@ import InlineTipCheckout from './InlineTipCheckout'
 
 const MONO = 'ui-monospace, "Roboto Mono", "JetBrains Mono", SFMono-Regular, Menlo, monospace'
 // Aurora indigo — Landing v3 canonical accent (Session 82 migration).
-const LIME = '#4F46E5'
+const LIME = BRAND_ACCENT
 const INK = '#0A0A0B'
 
 export interface SupportWidgetData {

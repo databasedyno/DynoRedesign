@@ -36,6 +36,7 @@ import {
 } from "@mui/material";
 import { ArrowBack, CheckCircleOutline } from "@mui/icons-material";
 import Head from "next/head";
+import { BRAND_ACCENT } from "@/constants/theme";
 
 type RegisterMethod = "email" | "phone";
 type Step = "purpose" | "input" | "otp" | "success";
@@ -599,7 +600,7 @@ const Register = () => {
                       }}
                     >
                       <CheckCircleOutline
-                        sx={{ fontSize: 20, color: "#4F46E5", flexShrink: 0 }}
+                        sx={{ fontSize: 20, color: BRAND_ACCENT, flexShrink: 0 }}
                       />
                       <Typography
                         component="div"

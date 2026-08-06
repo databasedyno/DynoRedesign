@@ -1,6 +1,7 @@
 import { Box, Typography, styled } from "@mui/material";
+import { BRAND_ACCENT } from "@/constants/theme";
 
-const INDIGO = "#4F46E5";
+const INDIGO = BRAND_ACCENT;
 
 export const FooterWrapper = styled("footer")(({ theme }) => {
   const dark = theme.palette.mode === "dark";

@@ -33,6 +33,7 @@ import { Icon } from "@iconify/react/dist/iconify.js";
 import { currencyOptions } from "@/pages/pay";
 import { formatWithSeparators } from "@/utils/currencyFormat";
 import { useTranslation } from "react-i18next";
+import copyToClipboard from "@/helpers/copyToClipboard";
 
 interface BankTransferCompoProps {
   activeStep: number;
@@ -68,7 +69,7 @@ const BankTransferCompo = ({
     const account = transferDetails?.transfer_account;
 
     if (account) {
-      navigator.clipboard.writeText(account);
+      copyToClipboard(account);
     } else {
       dispatch({
         type: TOAST_SHOW,

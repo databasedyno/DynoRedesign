@@ -3,6 +3,7 @@
 import type React from "react";
 import { MenuRounded } from "@mui/icons-material";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
+import { BRAND_ACCENT } from "@/constants/theme";
 import {
   Box,
   BoxProps,
@@ -15,7 +16,7 @@ import {
 
 // Aurora tokens (kept inline here to avoid pulling the whole theme.v3 into
 // the header — one source of truth is theme.v3.ts, we duplicate 4 constants).
-const CORAL = "#4F46E5";
+const CORAL = BRAND_ACCENT;
 const CORAL_DEEP = "#4338CA";
 const VIOLET = "#7C5CFF";
 const VOLT = "#22C55E";

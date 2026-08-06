@@ -17,6 +17,7 @@ import UnderPaymentIcon from "@/assets/Icons/UnderPaymentIcon";
 import { Icon } from "@iconify/react";
 import { useTranslation } from 'react-i18next';
 import { formatWithSeparators, formatCryptoAmount } from "@/utils/currencyFormat";
+import copyToClipboard from "@/helpers/copyToClipboard";
 
 interface UnderPaymentProps {
   paidAmount: number;
@@ -84,7 +85,7 @@ const UnderPayment = ({
     if (transactionId) {
       try {
         if (navigator.clipboard && navigator.clipboard.writeText) {
-          await navigator.clipboard.writeText(transactionId);
+          await copyToClipboard(transactionId);
         } else {
           const textArea = document.createElement('textarea');
           textArea.value = transactionId;

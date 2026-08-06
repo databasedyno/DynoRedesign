@@ -10,6 +10,7 @@ import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { FONT_BODY, FONT_HERO, FONT_TECH, useAurora } from "./theme.v3";
 import { Eyebrow, HeadlineL } from "./styled.v3";
+import { BRAND_ACCENT } from "@/constants/theme";
 
 
 const AudienceDoorsV3: React.FC = () => {
@@ -18,10 +19,10 @@ const AudienceDoorsV3: React.FC = () => {
   const { t } = useTranslation("landing");
 
   const DOORS = [
-    { key: "merchant", icon: StorefrontRoundedIcon, tag: t("v3.audience.merchants.tag"), title: t("v3.audience.merchants.title"), desc: t("v3.audience.merchants.desc"), href: "/for/merchants", bg: "#FFFFFF", accent: "#4F46E5", accentDeep: "#4338CA", ink: "#0A0A0A", stat: "1.5→  0.5%", statLabel: t("v3.audience.merchants.statLabel") },
-    { key: "fundraiser", icon: VolunteerActivismRoundedIcon, tag: t("v3.audience.fundraisers.tag"), title: t("v3.audience.fundraisers.title"), desc: t("v3.audience.fundraisers.desc"), href: "/for/fundraisers", bg: "#FFFFFF", accent: "#4F46E5", accentDeep: "#4338CA", ink: "#0A0A0A", stat: t("v3.audience.fundraisers.stat"), statLabel: t("v3.audience.fundraisers.statLabel") },
-    { key: "creator", icon: FavoriteBorderRoundedIcon, tag: t("v3.audience.creators.tag"), title: t("v3.audience.creators.title"), desc: t("v3.audience.creators.desc"), href: "/for/creators", bg: "#FFFFFF", accent: "#4F46E5", accentDeep: "#4338CA", ink: "#0A0A0A", stat: "~4s", statLabel: t("v3.audience.creators.statLabel") },
-    { key: "developer", icon: TerminalRoundedIcon, tag: t("v3.audience.developers.tag"), title: t("v3.audience.developers.title"), desc: t("v3.audience.developers.desc"), href: "/documentation", bg: "#0A0A0A", accent: "#4F46E5", accentDeep: "#6366F1", ink: "#F5F5F5", stat: "~10 min", statLabel: t("v3.audience.developers.statLabel") },
+    { key: "merchant", icon: StorefrontRoundedIcon, tag: t("v3.audience.merchants.tag"), title: t("v3.audience.merchants.title"), desc: t("v3.audience.merchants.desc"), href: "/for/merchants", bg: "#FFFFFF", accent: BRAND_ACCENT, accentDeep: "#4338CA", ink: "#0A0A0A", stat: "1.5→  0.5%", statLabel: t("v3.audience.merchants.statLabel") },
+    { key: "fundraiser", icon: VolunteerActivismRoundedIcon, tag: t("v3.audience.fundraisers.tag"), title: t("v3.audience.fundraisers.title"), desc: t("v3.audience.fundraisers.desc"), href: "/for/fundraisers", bg: "#FFFFFF", accent: BRAND_ACCENT, accentDeep: "#4338CA", ink: "#0A0A0A", stat: t("v3.audience.fundraisers.stat"), statLabel: t("v3.audience.fundraisers.statLabel") },
+    { key: "creator", icon: FavoriteBorderRoundedIcon, tag: t("v3.audience.creators.tag"), title: t("v3.audience.creators.title"), desc: t("v3.audience.creators.desc"), href: "/for/creators", bg: "#FFFFFF", accent: BRAND_ACCENT, accentDeep: "#4338CA", ink: "#0A0A0A", stat: "~4s", statLabel: t("v3.audience.creators.statLabel") },
+    { key: "developer", icon: TerminalRoundedIcon, tag: t("v3.audience.developers.tag"), title: t("v3.audience.developers.title"), desc: t("v3.audience.developers.desc"), href: "/documentation", bg: "#0A0A0A", accent: BRAND_ACCENT, accentDeep: "#6366F1", ink: "#F5F5F5", stat: "~10 min", statLabel: t("v3.audience.developers.statLabel") },
   ];
 
   return (
@@ -126,7 +127,7 @@ const AudienceDoorsV3: React.FC = () => {
                           width: 36,
                           height: 36,
                           borderRadius: "50%",
-                          background: d.bg === "#0A0A0A" ? "#4F46E5" : "#0A0A0A",
+                          background: d.bg === "#0A0A0A" ? BRAND_ACCENT : "#0A0A0A",
                           color: d.bg === "#0A0A0A" ? "#0A0A0A" : "#fff",
                           display: "flex",
                           alignItems: "center",

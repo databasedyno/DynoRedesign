@@ -21,6 +21,7 @@ import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
 import ErrorIcon from "@mui/icons-material/Error";
 import SearchIcon from "@mui/icons-material/Search";
 import useIsMobile from "@/hooks/useIsMobile";
+import copyToClipboard from "@/helpers/copyToClipboard";
 import {
   Body,
   HeadlineL,
@@ -1759,7 +1760,7 @@ const QAPage = () => {
                           cursor: "pointer",
                           "&:hover": { color: "primary.main" },
                         }}
-                        onClick={() => { navigator.clipboard?.writeText(w.address); }}
+                        onClick={() => { copyToClipboard(w.address); }}
                       >
                         {w.address}
                       </Typography>
@@ -1778,7 +1779,7 @@ const QAPage = () => {
                             cursor: "pointer",
                             "&:hover": { color: "primary.main" },
                           }}
-                          onClick={() => { navigator.clipboard?.writeText(w.address); }}
+                          onClick={() => { copyToClipboard(w.address); }}
                         >
                           {w.address}
                         </Typography>

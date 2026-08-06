@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next";
 import { useLivePayments, LivePaymentItem } from "@/hooks/useLivePayments";
 import { formatCryptoAmount, isCryptoCurrency } from "@/utils/currencyFormat";
 import { CB_TOKENS, SurfaceCard, Eyebrow } from "./styled";
+import { BRAND_ACCENT } from "@/constants/theme";
 
 /**
  * LivePaymentFeed — the Stripe-style activity strip that lives directly
@@ -67,7 +68,7 @@ const COIN_COLOR: Record<string, string> = {
   SOL: "#00FFA3",
   XRP: "#00AAE4",
   POLYGON: "#8247E5",
-  RLUSD: "#4F46E5",
+  RLUSD: BRAND_ACCENT,
 };
 
 function coinDotColor(coin?: string | null): string {

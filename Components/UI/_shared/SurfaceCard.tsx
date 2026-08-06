@@ -1,5 +1,6 @@
 import { Box, styled } from "@mui/material";
 import { CB_TOKENS } from "@/Components/Page/Dashboard/coinbase/styled";
+import { BRAND_ACCENT } from "@/constants/theme";
 
 /**
  * SurfaceCard — the shared rounded card used across every fold outside the
@@ -26,7 +27,7 @@ export const SurfaceCard = styled(Box, {
           ? (dark ? "#CCFF00" : "#5A6B00")
           : accent === "coral"
             ? "#FF5B49"
-            : (dark ? "#818CF8" : "#4F46E5"); // indigo default
+            : (dark ? "#818CF8" : BRAND_ACCENT); // indigo default
 
     return {
       position: "relative",
