@@ -4,7 +4,7 @@
 import requests
 import json
 
-BASE_URL = "https://beow-preview-build.preview.emergentagent.com"
+BASE_URL = "https://merchant-setup-9.preview.emergentagent.com"
 API_URL = f"{BASE_URL}/api"
 EMAIL = "hostbay@moxx.co"
 PASSWORD = "Katiekendra123@"

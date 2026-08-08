@@ -41,7 +41,7 @@ TESTS = [
     },
     {
         "id": 5,
-        "origin": "https://beow-preview-build.preview.emergentagent.com",
+        "origin": "https://merchant-setup-9.preview.emergentagent.com",
         "expected": "ALLOWED",
         "description": "Preview pattern"
     },

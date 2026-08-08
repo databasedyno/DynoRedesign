@@ -1,36 +1,23 @@
-# Dynopay Test Credentials (LIVE Railway Postgres — shared with production)
+# Test Credentials
 
-## Merchant test account (VERIFIED THIS SESSION via POST /api/user/login → HTTP 200)
-- Email: **hostbay@moxx.co**
-- Password: **Katiekendra123@**
-- user_id: 1 · name: hostbay · login_type: EMAIL
+## App: DynoPay (crypto payments platform)
+- Architecture: Next.js frontend (root /app, port 3000) + Node/TS Express backend
+  (port 3300) fronted by a Python/uvicorn proxy on port 8001 (server.py).
+- Data store: REAL production Railway PostgreSQL + Redis (from user-provided creds).
+  NOTE: This preview is connected to the user's LIVE production database.
 
-## Admin
-- ADMIN_EMAIL env: **moxxcompany@gmail.com** (password unknown, out of band)
+## Auth
+- Login route: /auth/login  (email or phone; also Google/GitHub social buttons)
+- Register route: /auth/register
+- Admin login route: /admin/login
+- Admin email (from env ADMIN_EMAIL): moxxcompany@gmail.com
+- No test password available — accounts live in the user's production DB.
+  Ask the user for a test account/password before running authenticated tests.
 
-## Preview URL (THIS container — updated 2026-08-06, re-provisioned with fresh creds)
-- https://8f27842a-b16a-40c8-ae0c-010c00a35b8a.preview.emergentagent.com
-- Backend .env (/app/backend/.env) + frontend .env.local (/app/.env.local) recreated from user-supplied prod creds.
-- SAFETY: ENABLE_BACKGROUND_JOBS=false, WORKER_ROLE=secondary (NO sweeps/crons/settlements run here).
-- NEXTAUTH_SECRET (this provisioning): QeaNxhAEhS9RMSsiyTpAS81/9MkvsMgL4qru6c+LfBI=
-- NEXT_PUBLIC_BASE_URL empty → frontend uses relative /api.
-
-### (legacy) previous preview URL
-- https://beow-preview-build.preview.emergentagent.com
-- Frontend calls backend via RELATIVE /api (NEXT_PUBLIC_BASE_URL is EMPTY in /app/.env.local) so it works on any preview hostname.
-- Backend .env SERVER_URL/FRONTEND_URL/CHECKOUT_URL/NEXTAUTH_URL point at the 465a9d6f preview URL.
-- Login VERIFIED this session: hostbay@moxx.co → /dashboard loads with real prod data (Lifetime volume $25,008.83, 13 active wallets).
-- Login flow: /auth/login -> input[type=email] "hostbay@moxx.co" -> click "Continue" -> input[type=password] "Katiekendra123@" -> [data-testid="signin-submit-btn"]. Token stored in localStorage (persists across full navigations).
-
-## NEXTAUTH_SECRET (this session, 2026-08-06)
-- q9ozZwr+Zq52+80Xn8wEhCJGCAXe3jZ5DvIRogqR8Bg=
-
-## Safety overrides applied (LIVE prod PG+Redis)
-- ENABLE_BACKGROUND_JOBS=false · WORKER_ROLE=secondary · NODE_ENV=production
-- /health confirms: background_jobs.eligible=false, is_leader=false, database=connected, redis=connected, tatum operational=true.
-- Binance geo-blocked from container region (expected); CoinGecko fallback active for prices.
-
-## OAuth (registered for dynopay.com — WILL NOT complete on preview URL)
-- Google Client ID: 163670787265-g39k8mfhfc4rgv4jpgt6k6n62phif72o.apps.googleusercontent.com
-- GitHub Client ID: Ov23liBuaGCFqNpp2QzW
-- Use email/password login (hostbay@moxx.co / Katiekendra123@) for any testing that requires a signed-in merchant.
+## Known preview limitations
+- Google/GitHub OAuth: buttons render, but completing the flow requires the
+  preview origin to be an authorized JS origin/redirect URI in the Google/GitHub
+  consoles (currently registered for dynopay.com only). Email login works.
+- Binance is geo-blocked from this region (HTTP 451) -> prices use CoinGecko
+  fallback (works). Binance SOCKS proxy needs an SSH tunnel + `sshpass` (not installed).
+- Background jobs / crypto sweeps / cron are DISABLED (WORKER_ROLE=secondary) -> safe.

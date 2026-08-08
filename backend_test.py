@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 import sys
 
 # Configuration
-BASE_URL = "https://beow-preview-build.preview.emergentagent.com"
+BASE_URL = "https://merchant-setup-9.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 # Test credentials
