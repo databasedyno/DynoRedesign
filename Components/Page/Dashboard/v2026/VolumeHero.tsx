@@ -12,6 +12,7 @@ import {
 } from "../coinbase/styled";
 import { Icon, MONO } from "@/styles/uiKit";
 import useIsMobile from "@/hooks/useIsMobile";
+import { formatNumberWithComma } from "@/helpers";
 
 interface Props {
   stats: any;
@@ -40,7 +41,7 @@ const VolumeHero: React.FC<Props> = ({ stats, chartData, loading, chartLoading, 
   const isDark = theme.palette.mode === "dark";
   const isMobile = useIsMobile("md");
   const { t } = useTranslation(["dashboardLayout", "common"]);
-  const [metric, setMetric] = useState<"lifetime" | "today">("lifetime");
+  const [metric, setMetric] = useState<"period" | "lifetime" | "today">("period");
 
   const currencySymbol = stats?.currencySymbol || "$";
   const lifetimeStr = stats?.totalVolumeFormatted || `${currencySymbol}0.00`;
@@ -48,10 +49,27 @@ const VolumeHero: React.FC<Props> = ({ stats, chartData, loading, chartLoading, 
   const lifetimeDelta = Number(stats?.volumeChange ?? 0);
   const todayDelta = Number(stats?.todaySummary?.volumeChangePercent ?? 0);
 
-  const activeStr = metric === "lifetime" ? lifetimeStr : todayStr;
+  // Period totals derive from the range-driven chart series so the headline
+  // number tracks the CommandBar time filter (7d / 30d / 90d / 1y / custom).
+  const { periodVolume, periodTxCount } = useMemo(() => {
+    let v = 0;
+    let c = 0;
+    for (const d of chartData || []) {
+      v += Number(d?.value) || 0;
+      c += Number(d?.transactionCount) || 0;
+    }
+    return { periodVolume: v, periodTxCount: c };
+  }, [chartData]);
+  const periodStr = `${currencySymbol}${formatNumberWithComma(periodVolume)}`;
+
+  const activeStr =
+    metric === "period" ? periodStr : metric === "lifetime" ? lifetimeStr : todayStr;
   const activeDelta = metric === "lifetime" ? lifetimeDelta : todayDelta;
   const positive = activeDelta >= 0;
   const { big, suffix } = useMemo(() => splitAmount(activeStr), [activeStr]);
+
+  // The period number comes from the chart fetch, so reflect chartLoading too.
+  const showSkeleton = loading || (metric === "period" && chartLoading);
 
   return (
     <SurfaceCard
@@ -79,6 +97,13 @@ const VolumeHero: React.FC<Props> = ({ stats, chartData, loading, chartLoading, 
           }}
         >
           <PillButton
+            active={metric === "period"}
+            onClick={() => setMetric("period")}
+            data-testid="dash2026-hero-period"
+          >
+            {t("heroPeriodVolume", { defaultValue: "This period" })}
+          </PillButton>
+          <PillButton
             active={metric === "lifetime"}
             onClick={() => setMetric("lifetime")}
             data-testid="dash2026-hero-lifetime"
@@ -102,7 +127,7 @@ const VolumeHero: React.FC<Props> = ({ stats, chartData, loading, chartLoading, 
 
       <Box>
         <BigNumber data-testid="dash2026-hero-value" sx={{ fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontWeight: 600, letterSpacing: "-0.03em" }}>
-          {loading ? (
+          {showSkeleton ? (
             <Skeleton width={isMobile ? 240 : 380} height={isMobile ? 48 : 84} />
           ) : (
             <>
@@ -136,8 +161,28 @@ const VolumeHero: React.FC<Props> = ({ stats, chartData, loading, chartLoading, 
             flexWrap: "wrap",
           }}
         >
-          {loading ? (
+          {showSkeleton ? (
             <Skeleton width={160} height={20} />
+          ) : metric === "period" ? (
+            <Box
+              component="span"
+              data-testid="dash2026-hero-subline"
+              sx={{
+                fontFamily: "var(--font-sans)",
+                fontSize: 13,
+                color: isDark
+                  ? CB_TOKENS.ink.mutedDark
+                  : CB_TOKENS.ink.mutedLight,
+              }}
+            >
+              {(
+                t("periodPaymentsCount", {
+                  defaultValue: "{count} payments · {range}",
+                }) as string
+              )
+                .replace("{count}", String(periodTxCount))
+                .replace("{range}", rangeLabel)}
+            </Box>
           ) : (
             <>
               <DeltaChip positive={positive} data-testid="dash2026-hero-delta">
