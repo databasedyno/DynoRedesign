@@ -80,6 +80,16 @@ export interface WalletStore {
   addressError: string | null;
   addressErrorField: string | null;
   addressErrorNonce: number;
+  /**
+   * Legacy payment-context fields read by the fiat `/payment` flow
+   * (Components/Page/Payment/* + paymentAuth HOC). They were part of the old
+   * Redux `walletReducer`; the current flow decodes amount/currency from the
+   * encrypted `d` query token, so these stay OPTIONAL (undefined) on the store.
+   * Declared here so those legacy components type-check — runtime is unchanged
+   * (they read `undefined`, exactly as before this annotation).
+   */
+  amount?: number;
+  currency?: string;
   refetchWallets: () => Promise<any>;
   updateWallet: (payload: any) => Promise<any>;
   deleteWallet: (payload: any) => Promise<any>;

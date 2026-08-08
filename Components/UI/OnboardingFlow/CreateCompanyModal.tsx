@@ -140,7 +140,6 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
     if (!field || !message) return;
     // Any create error means we're no longer submitting
     setSubmitting(false);
-    submittedRef.current = false;
     // Map backend field name to local form field name (mostly 1:1)
     const local: string =
       field === "company_name" ? "companyName" :

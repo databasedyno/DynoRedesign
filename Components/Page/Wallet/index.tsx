@@ -575,7 +575,7 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: () => void }) => {
         walletId={deleteTarget?.id != null ? Number(deleteTarget.id) : null}
         walletType={deleteTarget?.type ?? ""}
         walletAddress={deleteTarget?.address ?? ""}
-        companyId={selectedCompanyId}
+        companyId={selectedCompanyId ?? undefined}
         onDeleted={handleWalletDeleted}
       />
 

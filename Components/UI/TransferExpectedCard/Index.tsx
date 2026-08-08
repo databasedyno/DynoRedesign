@@ -117,7 +117,7 @@ export default function TransferExpectedCard({
   const handleCopyTransactionId = useCallback(async () => {
     if (transactionId) {
       try {
-        if (navigator.clipboard && navigator.clipboard.writeText) {
+        if (navigator.clipboard && typeof navigator.clipboard.writeText === "function") {
           await copyToClipboard(transactionId)
         } else {
           const textArea = document.createElement('textarea')

@@ -9,8 +9,12 @@ interface CurrencyRate {
 }
 
 interface UsePaymentRatesOptions {
-  source: string;
-  amount: number;
+  // Optional: callers may pass an as-yet-unresolved source/amount (e.g. the
+  // legacy /payment components read them from the wallet store where they can
+  // be undefined). The SWR key below is only built once both are truthy, so an
+  // undefined source/amount simply means "don't fetch yet".
+  source?: string;
+  amount?: number;
   currencyList: string[];
   fixedDecimal?: boolean;
   enabled?: boolean;

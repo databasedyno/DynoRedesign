@@ -157,8 +157,11 @@ export interface CryptoItemCardProps {
 export interface ExpireSelectorProps {
   tPaymentLink: (key: string) => string;
   label?: string;
-  value?: "yes" | "no";
-  onChange?: (value: "yes" | "no") => void;
+  // Preset expiry windows accepted by the backend: 'No' | '24h' | '7d' | '30d'
+  // (legacy 'yes'/'no' values are normalised inside the component). Typed as
+  // string since the value is a free-form preset key, not the old No/Yes flag.
+  value?: string;
+  onChange?: (value: string) => void;
   error?: boolean;
   helperText?: string;
   fullWidth?: boolean;
