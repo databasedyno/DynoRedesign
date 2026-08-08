@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Box, Skeleton, useTheme } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import Sparkline from "../coinbase/Sparkline";
@@ -17,6 +17,11 @@ import { formatNumberWithComma } from "@/helpers";
 interface Props {
   stats: any;
   chartData: Array<{ date: string; value: number; transactionCount?: number }>;
+  chartSummary?: {
+    total_volume: number;
+    previous_total_volume: number;
+    volume_change_percent: number;
+  } | null;
   loading?: boolean;
   chartLoading?: boolean;
   rangeLabel: string;
@@ -36,12 +41,19 @@ const splitAmount = (raw: string) => {
  * delta chip and a full-width area chart. The chart series is driven by the
  * global time-range control in the CommandBar (data passed in as a prop).
  */
-const VolumeHero: React.FC<Props> = ({ stats, chartData, loading, chartLoading, rangeLabel }) => {
+const VolumeHero: React.FC<Props> = ({ stats, chartData, chartSummary, loading, chartLoading, rangeLabel }) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const isMobile = useIsMobile("md");
   const { t } = useTranslation(["dashboardLayout", "common"]);
   const [metric, setMetric] = useState<"period" | "lifetime" | "today">("period");
+
+  // Changing the CommandBar range (or applying a custom range) must always be
+  // reflected in the headline — snap back to the range-driven "This period"
+  // metric whenever the active window changes.
+  useEffect(() => {
+    setMetric("period");
+  }, [rangeLabel]);
 
   const currencySymbol = stats?.currencySymbol || "$";
   const lifetimeStr = stats?.totalVolumeFormatted || `${currencySymbol}0.00`;
@@ -51,20 +63,29 @@ const VolumeHero: React.FC<Props> = ({ stats, chartData, loading, chartLoading, 
 
   // Period totals derive from the range-driven chart series so the headline
   // number tracks the CommandBar time filter (7d / 30d / 90d / 1y / custom).
-  const { periodVolume, periodTxCount } = useMemo(() => {
+  const { periodVolumeFromChart, periodTxCount } = useMemo(() => {
     let v = 0;
     let c = 0;
     for (const d of chartData || []) {
       v += Number(d?.value) || 0;
       c += Number(d?.transactionCount) || 0;
     }
-    return { periodVolume: v, periodTxCount: c };
+    return { periodVolumeFromChart: v, periodTxCount: c };
   }, [chartData]);
+  // Prefer the backend's authoritative period total (it is the base for the
+  // delta); fall back to the client-side chart sum until the summary loads.
+  const periodVolume =
+    chartSummary && typeof chartSummary.total_volume === "number"
+      ? chartSummary.total_volume
+      : periodVolumeFromChart;
   const periodStr = `${currencySymbol}${formatNumberWithComma(periodVolume)}`;
+  const periodDelta = Number(chartSummary?.volume_change_percent ?? 0);
+  const hasPeriodDelta = !!chartSummary;
 
   const activeStr =
     metric === "period" ? periodStr : metric === "lifetime" ? lifetimeStr : todayStr;
-  const activeDelta = metric === "lifetime" ? lifetimeDelta : todayDelta;
+  const activeDelta =
+    metric === "period" ? periodDelta : metric === "lifetime" ? lifetimeDelta : todayDelta;
   const positive = activeDelta >= 0;
   const { big, suffix } = useMemo(() => splitAmount(activeStr), [activeStr]);
 
@@ -164,25 +185,31 @@ const VolumeHero: React.FC<Props> = ({ stats, chartData, loading, chartLoading, 
           {showSkeleton ? (
             <Skeleton width={160} height={20} />
           ) : metric === "period" ? (
-            <Box
-              component="span"
-              data-testid="dash2026-hero-subline"
-              sx={{
-                fontFamily: "var(--font-sans)",
-                fontSize: 13,
-                color: isDark
-                  ? CB_TOKENS.ink.mutedDark
-                  : CB_TOKENS.ink.mutedLight,
-              }}
-            >
-              {(
-                t("periodPaymentsCount", {
-                  defaultValue: "{count} payments · {range}",
-                }) as string
-              )
-                .replace("{count}", String(periodTxCount))
-                .replace("{range}", rangeLabel)}
-            </Box>
+            <>
+              {hasPeriodDelta && (
+                <DeltaChip positive={positive} data-testid="dash2026-hero-delta">
+                  <Icon name={positive ? "arrow-up" : "arrow-down"} size={14} />
+                  {Math.abs(periodDelta).toFixed(2)}%
+                </DeltaChip>
+              )}
+              <Box
+                component="span"
+                data-testid="dash2026-hero-subline"
+                sx={{
+                  fontFamily: "var(--font-sans)",
+                  fontSize: 13,
+                  color: isDark
+                    ? CB_TOKENS.ink.mutedDark
+                    : CB_TOKENS.ink.mutedLight,
+                }}
+              >
+                {(
+                  t("periodVsPrevious", {
+                    defaultValue: "vs previous period · {count} payments",
+                  }) as string
+                ).replace("{count}", String(periodTxCount))}
+              </Box>
+            </>
           ) : (
             <>
               <DeltaChip positive={positive} data-testid="dash2026-hero-delta">

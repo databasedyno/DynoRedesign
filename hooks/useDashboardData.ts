@@ -107,6 +107,8 @@ export const useDashboardData = () => {
   return {
     stats: dashboardState.stats,
     chartData: dashboardState.chartData,
+    chartSummary: dashboardState.chartSummary,
+    chartAssets: dashboardState.chartAssets,
     feeTiers: dashboardState.feeTiers,
     recentTransactions: dashboardState.recentTransactions,
     loading: dashboardState.loading || !companiesFetched,

@@ -1,3 +1,55 @@
+# Session 2026-08-08 (ENHANCEMENTS) — Dashboard: Period Comparison + Custom Range Total + Assets By Period
+
+Preview: https://90f8a516-b3d0-4eb2-b415-39ce2e450de7.preview.emergentagent.com
+Login (2-step): hostbay@moxx.co / Katiekendra123@  (/auth/login → email → "Continue" → password → [data-testid="signin-submit-btn"])
+
+SAFETY (CRITICAL — LIVE Railway PROD DB): READ-ONLY. No create/edit/delete, no payment links, no settings changes.
+
+## What changed (3 user-requested enhancements)
+1. Period Comparison — hero "This period" now shows a "vs previous period" delta chip. Backend getChartData returns a new `period_summary { total_volume, previous_total_volume, volume_change_percent, total_transactions, ... }` computed from the same-length window immediately before the selected range.
+2. Custom Range Total — applying the CommandBar custom date range updates the headline total + a shorter "Jan 1 – Jan 31" eyebrow label; the hero auto-switches to the "This period" metric whenever the range/custom window changes (so the filter always drives the number).
+3. Assets By Period — AssetsCard now uses the chart's per-range `currency_breakdown` (was lifetime wallet totals). Header shows "Assets by volume · {range}"; rows + amounts change with the range; icons via wallet lookup with a text-avatar fallback.
+
+Files: backend/controller/dashboardController.ts (period_summary + prev-period query), Redux/Sagas/DashboardSaga.ts, Redux/Reducers/dashboardReducer.ts, hooks/useDashboardData.ts, Components/Page/Dashboard/v2026/{index,VolumeHero,AssetsCard}.tsx
+
+### FRONTEND TESTING INSTRUCTIONS (auto_frontend_testing_agent) — READ-ONLY
+Selectors: ranges [data-testid="dash2026-range-7d|30d|90d|1y"]; custom picker open [data-testid="dash2026-range-custom"] → inputs [data-testid="dash2026-custom-start"], [data-testid="dash2026-custom-end"] → [data-testid="dash2026-custom-apply"]. Hero: value [dash2026-hero-value], delta [dash2026-hero-delta], subline [dash2026-hero-subline], eyebrow [dash2026-hero-rangelabel], pills [dash2026-hero-period|lifetime|today]. Assets card [dash2026-assets], rows [dash2026-asset-<CODE>], empty [dash2026-assets-empty].
+
+A. Login → /dashboard, wait for hero.
+B. PERIOD COMPARISON: On default 7d, "This period" pill active; a delta chip [dash2026-hero-delta] is visible (▲/▼ N%) and subline [dash2026-hero-subline] reads "vs previous period · N payments". Switch to 30d/90d — the delta % updates (may change sign). Report the delta shown for 7d and 90d.
+C. CUSTOM RANGE: Click [dash2026-range-custom], set start + end (e.g. first day of last month → last day of last month), click [dash2026-custom-apply]. Verify: eyebrow [dash2026-hero-rangelabel] shows a "MMM d – MMM d" style label (NOT the year when same year); headline [dash2026-hero-value] updates to a value for that window; "This period" pill is active (auto-switched). 
+D. ASSETS BY PERIOD: AssetsCard [dash2026-assets] eyebrow includes the range (e.g. "Assets by volume · 7 days"). Record the asset rows/amounts on 7d, then switch to 1y — the rows and/or amounts should CHANGE (more/higher on 1y). Confirm amounts are non-zero for 1y.
+E. Regression: Lifetime pill [dash2026-hero-lifetime] still shows lifetime (~$25,965.95); Today pill works. No critical console errors.
+F. Screenshots: hero delta chip on 7d; dashboard after applying a custom range; AssetsCard on 7d vs 1y.
+
+### frontend
+  - task: "Dashboard enhancements: period-vs-previous delta, custom-range headline+label, assets-by-period"
+    implemented: true
+    working: true
+    file: "Components/Page/Dashboard/v2026/{VolumeHero,AssetsCard,index}.tsx + backend getChartData period_summary"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Added period_summary (current vs previous window) to backend getChartData; wired chartSummary+chartAssets through saga/reducer/hook. VolumeHero shows vs-previous-period delta chip + auto-switches to 'period' on range change. index.tsx shortens custom label to 'Jan 1 – Jan 31' and feeds AssetsCard. AssetsCard now range-driven from currency_breakdown with icon/text-avatar. Lint clean; backend restarted + chart cache cleared; /dashboard compiles 200. Needs auto_frontend_testing_agent verification per steps A–F."
+      - working: true
+        agent: "testing"
+        comment: "✅ ALL THREE DASHBOARD ENHANCEMENTS VERIFIED (2026-08-08) — Comprehensive end-to-end Playwright testing completed on LIVE prod. TEST A (Period Comparison): ✅ PASS — Delta chip visible and functional. 7D delta: 10.04% (up arrow), 30D delta: 6.71%, 90D delta: 318.54%. Subline correctly shows 'vs previous period · 43 payments'. 'This period' pill active by default. Delta values change correctly between ranges. Screenshot: test_a_7d_delta_chip.png. TEST B (Custom Range Total + Label): ✅ PASS — Custom range picker functional. Eyebrow label format correct (no year when same year, has dash separator). Headline value updates when custom range applied ($6,811.72 for test range). Custom range button shows selected dates. Screenshot: test_b_custom_range.png. TEST C (Assets By Period): ✅ PASS — Assets card header includes range label ('ASSETS BY VOLUME · 7 DAYS' and 'ASSETS BY VOLUME · 12 MONTHS'). 7D shows 5 assets (USDT-TRC20: $876.83, BTC: $598.15, ETH: $140.4, USDT-ERC20: $124.29, LTC: $102.87). 1Y shows 6 assets (BTC: $12,313.46, USDT-TRC20: $9,809.61, LTC: $1,491.39, ETH: $1,195.42, USDT-ERC20: $1,052.97, USDC-ERC20: $50). Assets CHANGED between 7D and 1Y (different counts and amounts). 1Y shows non-zero amounts. Screenshots: test_c_assets_7d.png, test_c_assets_1y.png. TEST D (Regression): ✅ PASS — Lifetime pill shows $25,965.95USD (correct). Today pill shows $130.06USD. NO critical console errors (only 3 minor pre-existing DOM nesting warnings that don't affect functionality). All three enhancements are WORKING correctly and production-ready."
+
+### Testing Protocol
+- Frontend testing only (READ-ONLY on LIVE prod). Login hostbay@moxx.co / Katiekendra123@. Verify delta chip, custom-range headline+label, and assets-by-period all respond to the CommandBar time filter. Do NOT create/modify/delete data.
+
+### Agent Communication
+  - agent: "main"
+    message: "Built the 3 requested dashboard enhancements (period comparison delta, custom-range total+label, assets-by-period). Please verify per FRONTEND TESTING INSTRUCTIONS A–F. STRICT READ-ONLY on LIVE prod."
+  - agent: "testing"
+    message: "✅ ALL THREE DASHBOARD ENHANCEMENTS VERIFIED (2026-08-08) — Comprehensive testing completed with 100% pass rate. ENHANCEMENT 1 (Period Comparison): Delta chip visible on all ranges (7D: 10.04%, 30D: 6.71%, 90D: 318.54%), subline shows 'vs previous period · N payments', values change correctly between ranges. ENHANCEMENT 2 (Custom Range Total + Label): Custom range picker functional, eyebrow label format correct (no year when same year), headline updates with custom range. ENHANCEMENT 3 (Assets By Period): Assets card header includes range label, asset rows and amounts change between 7D (5 assets) and 1Y (6 assets), 1Y shows non-zero amounts. REGRESSION: Lifetime shows $25,965.95USD, Today shows $130.06USD, no critical console errors. All three enhancements are WORKING correctly and production-ready. Screenshots captured: test_a_7d_delta_chip.png, test_b_custom_range.png, test_c_assets_7d.png, test_c_assets_1y.png."
+
+---
+
+
 # Session 2026-08-08 (RE-VERIFICATION) — BACKEND FIX: Dashboard 90D and 1Y volume aggregation bug
 
 Preview: https://90f8a516-b3d0-4eb2-b415-39ce2e450de7.preview.emergentagent.com

@@ -34,7 +34,18 @@ export interface DashboardState {
       currency: string;
     };
   };
-  chartData: Array<{ date: string; value: number }>;
+  chartData: Array<{ date: string; value: number; transactionCount?: number }>;
+  chartSummary: {
+    total_volume: number;
+    total_transactions: number;
+    previous_total_volume: number;
+    previous_total_transactions: number;
+    previous_start_date?: string;
+    previous_end_date?: string;
+    volume_change_percent: number;
+    transactions_change_percent: number;
+  } | null;
+  chartAssets: Array<{ currency: string; count: number; volume: number }>;
   feeTiers: {
     monthlyLimit: number;
     usedAmount: number;
@@ -66,6 +77,8 @@ const dashboardInitialState: DashboardState = {
     volumeChange: 0,
   },
   chartData: [],
+  chartSummary: null,
+  chartAssets: [],
   feeTiers: {
     monthlyLimit: 50000,
     usedAmount: 0,
@@ -108,6 +121,9 @@ const dashboardReducer = (
         ...state,
         chartLoading: false,
         chartData: payload.chartData || state.chartData,
+        chartSummary:
+          payload.chartSummary !== undefined ? payload.chartSummary : state.chartSummary,
+        chartAssets: payload.chartAssets || state.chartAssets,
       };
 
     case DASHBOARD_FEE_TIERS_FETCH:

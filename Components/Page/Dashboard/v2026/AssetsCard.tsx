@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { Box, useTheme } from "@mui/material";
+import { Box, Skeleton, useTheme } from "@mui/material";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { useTranslation } from "react-i18next";
@@ -9,31 +9,70 @@ import { SurfaceCard, Eyebrow, CB_TOKENS } from "../coinbase/styled";
 import { MONO } from "@/styles/uiKit";
 
 /**
- * AssetsCard — ranks the merchant's wallets by settled USD volume so they
- * can see, at a glance, which assets are driving revenue. Real data only
- * (walletData.totalProcessed = amount_in_usd); shows a proportional share
- * bar per asset and a truthful empty state when nothing has settled yet.
+ * AssetsCard — ranks assets by settled volume FOR THE SELECTED TIME WINDOW
+ * (fed by the dashboard chart's currency_breakdown), so the whole dashboard
+ * reflects one selected period. Wallet metadata (icon + friendly name) is
+ * looked up from useWalletData; a text avatar is shown if no icon matches.
  */
-const AssetsCard: React.FC = () => {
+interface AssetRow {
+  currency: string;
+  count: number;
+  volume: number;
+}
+interface AssetsCardProps {
+  assets?: AssetRow[];
+  rangeLabel?: string;
+  currencySymbol?: string;
+  loading?: boolean;
+}
+
+const AssetsCard: React.FC<AssetsCardProps> = ({
+  assets,
+  rangeLabel,
+  currencySymbol = "$",
+  loading = false,
+}) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const router = useRouter();
   const { t } = useTranslation(["dashboardLayout", "common"]);
   const { walletData } = useWalletData();
 
-  const rows = useMemo(() => {
-    const sorted = [...(walletData || [])]
-      .map((w) => ({
-        code: w.walletTitle,
-        name: w.name,
-        icon: w.icon,
-        total: Number(w.totalProcessed) || 0,
-      }))
-      .sort((a, b) => b.total - a.total);
-    const withVolume = sorted.filter((w) => w.total > 0);
-    // If nobody has settled volume yet, still show top configured wallets
-    return (withVolume.length > 0 ? withVolume : sorted).slice(0, 6);
+  // currency code -> { name, icon } lookup (tolerant: "USDT_TRC20" ~ "USDT-TRC20").
+  const walletLookup = useMemo(() => {
+    const map = new Map<string, { name: string; icon: any }>();
+    for (const w of walletData || []) {
+      const key = String(w.walletTitle || "").toUpperCase().replace(/_/g, "-");
+      map.set(key, { name: w.name, icon: w.icon });
+    }
+    return map;
   }, [walletData]);
+
+  // Range-driven asset volumes (from the dashboard chart's currency_breakdown).
+  const rows = useMemo(() => {
+    const resolve = (currency: string) => {
+      const norm = String(currency || "").toUpperCase().replace(/_/g, "-");
+      return (
+        walletLookup.get(norm) ||
+        walletLookup.get(norm.split("-")[0]) ||
+        { name: currency, icon: null }
+      );
+    };
+    return [...(assets || [])]
+      .map((a) => {
+        const meta = resolve(a.currency);
+        return {
+          code: a.currency,
+          name: meta.name || a.currency,
+          icon: meta.icon,
+          total: Number(a.volume) || 0,
+          count: Number(a.count) || 0,
+        };
+      })
+      .filter((r) => r.total > 0)
+      .sort((a, b) => b.total - a.total)
+      .slice(0, 6);
+  }, [assets, walletLookup]);
 
   const maxTotal = useMemo(
     () => Math.max(1, ...rows.map((r) => r.total)),
@@ -51,7 +90,10 @@ const AssetsCard: React.FC = () => {
           mb: 2,
         }}
       >
-        <Eyebrow>{t("assetsByVolume", { defaultValue: "Assets by volume" })}</Eyebrow>
+        <Eyebrow>
+          {t("assetsByVolume", { defaultValue: "Assets by volume" })}
+          {rangeLabel ? ` · ${rangeLabel}` : ""}
+        </Eyebrow>
         <Box
           role="button"
           tabIndex={0}
@@ -73,7 +115,19 @@ const AssetsCard: React.FC = () => {
         </Box>
       </Box>
 
-      {rows.length === 0 ? (
+      {loading ? (
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          {[0, 1, 2, 3].map((i) => (
+            <Box key={i}>
+              <Box sx={{ display: "flex", justifyContent: "space-between", mb: 0.75 }}>
+                <Skeleton width={120} height={20} />
+                <Skeleton width={70} height={20} />
+              </Box>
+              <Skeleton variant="rounded" width="100%" height={6} />
+            </Box>
+          ))}
+        </Box>
+      ) : rows.length === 0 ? (
         <Box
           data-testid="dash2026-assets-empty"
           sx={{
@@ -84,8 +138,8 @@ const AssetsCard: React.FC = () => {
             color: isDark ? CB_TOKENS.ink.mutedDark : CB_TOKENS.ink.mutedLight,
           }}
         >
-          {t("noWalletsYet", {
-            defaultValue: "Add a wallet to start accepting crypto.",
+          {t("noVolumeInPeriod", {
+            defaultValue: "No settled volume in this period yet.",
           })}
         </Box>
       ) : (
@@ -120,13 +174,29 @@ const AssetsCard: React.FC = () => {
                         flexShrink: 0,
                       }}
                     >
-                      <Image
-                        src={r.icon}
-                        alt={r.code}
-                        width={18}
-                        height={18}
-                        draggable={false}
-                      />
+                      {r.icon ? (
+                        <Image
+                          src={r.icon}
+                          alt={r.code}
+                          width={18}
+                          height={18}
+                          draggable={false}
+                        />
+                      ) : (
+                        <Box
+                          component="span"
+                          sx={{
+                            fontFamily: "var(--font-sans)",
+                            fontSize: 10,
+                            fontWeight: 700,
+                            color: isDark
+                              ? CB_TOKENS.ink.mutedDark
+                              : CB_TOKENS.ink.mutedLight,
+                          }}
+                        >
+                          {String(r.code || "?").slice(0, 3).toUpperCase()}
+                        </Box>
+                      )}
                     </Box>
                     <Box sx={{ minWidth: 0 }}>
                       <Box
@@ -170,7 +240,7 @@ const AssetsCard: React.FC = () => {
                       flexShrink: 0,
                     }}
                   >
-                    ${formatNumberWithComma(r.total)}
+                    {currencySymbol}{formatNumberWithComma(r.total)}
                   </Box>
                 </Box>
                 <Box

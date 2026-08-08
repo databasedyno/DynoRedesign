@@ -39,6 +39,8 @@ const Dashboard2026: React.FC = () => {
   const {
     stats,
     chartData,
+    chartSummary,
+    chartAssets,
     recentTransactions,
     feeTiers,
     loading,
@@ -60,14 +62,16 @@ const Dashboard2026: React.FC = () => {
       "1y": "12 months",
     };
     if (!custom) return presetLabels[range];
-    const fmt = (iso: string) => {
+    // "Jan 1 – Jan 31" when both dates share a year; include the year otherwise.
+    const sameYear = custom.startDate.slice(0, 4) === custom.endDate.slice(0, 4);
+    const fmt = (iso: string, withYear: boolean) => {
       try {
-        return format(new Date(`${iso}T00:00:00`), "MMM d, yyyy");
+        return format(new Date(`${iso}T00:00:00`), withYear ? "MMM d, yyyy" : "MMM d");
       } catch {
         return iso;
       }
     };
-    return `${fmt(custom.startDate)} – ${fmt(custom.endDate)}`;
+    return `${fmt(custom.startDate, !sameYear)} – ${fmt(custom.endDate, !sameYear)}`;
   }, [range, custom]);
 
   const companyState = useCompanyStore();
@@ -155,6 +159,7 @@ const Dashboard2026: React.FC = () => {
               <VolumeHero
                 stats={stats}
                 chartData={chartData}
+                chartSummary={chartSummary}
                 loading={loading}
                 chartLoading={chartLoading}
                 rangeLabel={rangeLabel}
@@ -168,7 +173,14 @@ const Dashboard2026: React.FC = () => {
             loading={loading}
           />
 
-          {!showActivation && <AssetsCard />}
+          {!showActivation && (
+            <AssetsCard
+              assets={chartAssets}
+              rangeLabel={rangeLabel}
+              currencySymbol={stats?.currencySymbol}
+              loading={loading || chartLoading}
+            />
+          )}
         </Box>
 
         {/* ASIDE */}

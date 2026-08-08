@@ -459,7 +459,23 @@ const getChartData = async (req: express.Request, res: express.Response) => {
        ${companyFilterChart}
        GROUP BY ut.status`;
 
-    const [rawChartData, currencyBreakdownRaw, statusBreakdown] = await Promise.all([
+    // ── 4. Previous-period summary (same span immediately before startDate) ──
+    //    Powers the "vs previous period" delta chip on the volume hero.
+    const rangeMs = endDate.getTime() - startDate.getTime();
+    const prevEnd = new Date(startDate.getTime());
+    const prevStart = new Date(startDate.getTime() - rangeMs);
+    const previousSummaryQuery = `
+      SELECT
+        COUNT(*) as count,
+        COALESCE(SUM(${USD_FALLBACK_EXPR_CHART}), 0) as usd_volume
+       FROM tbl_user_transaction ut
+       ${companyJoinChart}
+       WHERE ut.user_id = :userId
+       AND ut."createdAt" >= :prevStart
+       AND ut."createdAt" < :prevEnd
+       ${companyFilterChart}`;
+
+    const [rawChartData, currencyBreakdownRaw, statusBreakdown, previousSummaryRaw] = await Promise.all([
       sequelize.query(chartQuery, {
         replacements: { userId, startDate, endDate, companyId: company_id },
         type: QueryTypes.SELECT,
@@ -472,7 +488,11 @@ const getChartData = async (req: express.Request, res: express.Response) => {
         replacements: { userId, startDate, endDate, companyId: company_id },
         type: QueryTypes.SELECT,
       }),
-    ]) as [Array<Record<string, unknown>>, Array<Record<string, unknown>>, Array<Record<string, unknown>>];
+      sequelize.query(previousSummaryQuery, {
+        replacements: { userId, prevStart, prevEnd, companyId: company_id },
+        type: QueryTypes.SELECT,
+      }),
+    ]) as [Array<Record<string, unknown>>, Array<Record<string, unknown>>, Array<Record<string, unknown>>, Array<Record<string, unknown>>];
 
     // ── Aggregate chart rows using stored usd_value ──
     let chartUsdToPreferredRate = 1;
@@ -519,6 +539,34 @@ const getChartData = async (req: express.Request, res: express.Response) => {
       };
     });
 
+    // ── Period summary + previous-period comparison (in preferred currency) ──
+    const currentUsd = (currencyBreakdownRaw as Array<Record<string, unknown>>)
+      .reduce((s, c) => s + parseFloat(String(c.usd_volume || '0')), 0);
+    const currentCount = (currencyBreakdownRaw as Array<Record<string, unknown>>)
+      .reduce((s, c) => s + parseInt(String(c.count || '0')), 0);
+    const prevRow = (previousSummaryRaw as Array<Record<string, unknown>>)[0] || {};
+    const prevUsd = parseFloat(String(prevRow.usd_volume || '0'));
+    const prevCount = parseInt(String(prevRow.count || '0'));
+
+    const currentVolPref = Math.round(currentUsd * chartUsdToPreferredRate * 100) / 100;
+    const prevVolPref = Math.round(prevUsd * chartUsdToPreferredRate * 100) / 100;
+    const pctChange = (cur: number, prev: number): number => {
+      if (prev > 0) return Math.round(((cur - prev) / prev) * 10000) / 100;
+      if (cur > 0) return 100;
+      return 0;
+    };
+
+    const period_summary = {
+      total_volume: currentVolPref,
+      total_transactions: currentCount,
+      previous_total_volume: prevVolPref,
+      previous_total_transactions: prevCount,
+      previous_start_date: prevStart.toISOString().split('T')[0],
+      previous_end_date: prevEnd.toISOString().split('T')[0],
+      volume_change_percent: pctChange(currentVolPref, prevVolPref),
+      transactions_change_percent: pctChange(currentCount, prevCount),
+    };
+
     const responseData = {
       period: effectivePeriod,
       group_by: groupBy,
@@ -526,6 +574,7 @@ const getChartData = async (req: express.Request, res: express.Response) => {
       end_date: endDate.toISOString().split('T')[0],
       currency: preferredCurrency,
       chart_data: filledChartData,
+      period_summary,
       currency_breakdown: currencyBreakdown.sort((a, b) => b.volume - a.volume),
       status_breakdown: statusBreakdown.map((s: Record<string, unknown>) => ({
         status: s.status,

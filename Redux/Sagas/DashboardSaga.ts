@@ -131,6 +131,12 @@ function* fetchChartSeries(payload: any): Generator<any, void, any> {
           value: item.volume ?? 0,
           transactionCount: item.transaction_count ?? 0,
         })),
+        chartSummary: apiData.period_summary || null,
+        chartAssets: (apiData.currency_breakdown || []).map((c: any) => ({
+          currency: c.currency,
+          count: c.count ?? 0,
+          volume: c.volume ?? 0,
+        })),
       },
     });
   } else {
