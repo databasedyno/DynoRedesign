@@ -38,6 +38,8 @@ import PanelCard from "@/Components/UI/PanelCard";
 import PopupModal from "@/Components/UI/PopupModal";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import useIsMobile from "@/hooks/useIsMobile";
+import useBuyButtons from "@/hooks/useBuyButtons";
+import usePublishableKeys from "@/hooks/usePublishableKeys";
 import { rootReducer } from "@/utils/types";
 import copyToClipboard from "@/helpers/copyToClipboard";
 
@@ -900,10 +902,39 @@ const BuyButtonsSection = () => {
     return null;
   }, [selectedCompanyId, companyList]);
 
-  const [buttons, setButtons] = useState<BuyButton[]>([]);
-  const [pks, setPks] = useState<PublishableKeyRef[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [loadError, setLoadError] = useState<string | null>(null);
+  // Buy buttons + publishable keys — SWR-backed (pks shared with the
+  // Publishable Keys section + API embed card). `load()` is kept as an alias
+  // that revalidates BOTH lists so the mutation handlers below work unchanged.
+  const {
+    buttons,
+    loading: buttonsLoading,
+    error: buttonsError,
+    refetch: refetchButtons,
+  } = useBuyButtons<BuyButton>(effectiveCompanyId, {
+    enabled: !!effectiveCompanyId,
+  });
+  const {
+    keys: pks,
+    loading: pksLoading,
+    error: pksError,
+    refetch: refetchPks,
+  } = usePublishableKeys<PublishableKeyRef>(effectiveCompanyId, {
+    enabled: !!effectiveCompanyId,
+  });
+  const loading = buttonsLoading || pksLoading;
+  const loadError = buttonsError
+    ? (buttonsError as any)?.response?.data?.message ||
+      (buttonsError as any)?.message ||
+      "Failed to load buy buttons"
+    : pksError
+      ? (pksError as any)?.response?.data?.message ||
+        (pksError as any)?.message ||
+        "Failed to load buy buttons"
+      : null;
+  const load = useCallback(() => {
+    refetchButtons();
+    refetchPks();
+  }, [refetchButtons, refetchPks]);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"create" | "edit">("create");
@@ -917,36 +948,6 @@ const BuyButtonsSection = () => {
     if (typeof window !== "undefined") return window.location.origin;
     return "https://checkout.dynopay.com";
   }, []);
-
-  const load = useCallback(async () => {
-    if (!effectiveCompanyId) {
-      setButtons([]);
-      setPks([]);
-      return;
-    }
-    setLoading(true);
-    setLoadError(null);
-    try {
-      const [btnResp, pkResp] = await Promise.all([
-        axiosBaseApi.get(`buy-buttons?company_id=${effectiveCompanyId}`),
-        axiosBaseApi.get(`publishable-keys?company_id=${effectiveCompanyId}`),
-      ]);
-      setButtons(btnResp?.data?.data?.buttons || []);
-      setPks(pkResp?.data?.data?.keys || []);
-    } catch (err: any) {
-      const msg =
-        err?.response?.data?.message ||
-        err?.message ||
-        "Failed to load buy buttons";
-      setLoadError(msg);
-    } finally {
-      setLoading(false);
-    }
-  }, [effectiveCompanyId]);
-
-  useEffect(() => {
-    load();
-  }, [load]);
 
   const pkLive = useMemo(() => {
     const row = pks.find(

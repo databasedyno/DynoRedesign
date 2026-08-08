@@ -133,7 +133,7 @@ most raw `fetch()` are SSR (`getServerSideProps`), external/public endpoints wit
 onto the browser axios instance); `setTimeout` sites are mostly non-debounce delays;
 hook consolidation is architectural. These belong to Phase 3/6, not the 2c primitive rollout.
 
-### Phase 3 — Frontend data-fetching consolidation — 🟡 partially done (SWR core shipped 2026-08-06)
+### Phase 3 — Frontend data-fetching consolidation — ✅ done (screens batch 2026-08-08)
 - ✅ SWR introduced for **wallet + company** (`contexts/WalletDataContext`,
   `contexts/CompanyDataContext`, global `SWRConfig` in `_app.tsx`) — redux sagas/reducers
   retired; ~50 consumers rewired; verified (login→dashboard→wallet, company switch/create/delete).
@@ -160,8 +160,38 @@ hook consolidation is architectural. These belong to Phase 3/6, not the 2c primi
 - ✅ **Prefetch on row hover (2026-08-06)** — `helpers/invoicePdfCache.ts` (`prefetchInvoicePdf`/`getInvoicePdf`);
   invoice rows `onMouseEnter` warm the PDF blob so `InvoicePreviewDrawer` opens instantly (verified: 1 prefetch
   call on hover, drawer reads the shared cache). (Transaction detail already ships full row data → no fetch to warm.)
-- ⬜ Remaining: migrate the rest of the ~30 manual `useEffect`+axios screens (API/Webhooks, Settings, Creator,
-  ProductEditor, HelpAndSupport) — read-only screens first, money/settlement paths last.
+- ✅ **Screens batch — API / Webhooks / Products / Creator (2026-08-08).** Migrated the
+  remaining read-oriented `useEffect`+axios fetches on the named screens to SWR:
+  - New shared hook `hooks/usePublishableKeys.ts` — collapses the **3** publishable-key
+    readers (Publishable Keys section, Buy Buttons section, API embed-snippet card) onto
+    ONE company-keyed SWR cache (deduped + cached across tab switches). Per-call-site
+    behaviour preserved via an `{ enabled }` gate (list sections stay empty when no company;
+    the embed card still fetches all keys when none is selected).
+  - New shared hook `hooks/useBuyButtons.ts` — Buy Buttons list, company-keyed.
+  - `WebhookConsoleSection` — read-only **stats + logs** lists → SWR (logs keyed by
+    company + status filter so changing the filter refetches; `refreshAll` revalidates both).
+    The editable webhook-URL/secret **settings form seed is intentionally kept manual**
+    (SWR would fight the edited fields).
+  - `pages/pay-links/products/[productId]/orders.tsx` — orders list → SWR (product-keyed;
+    the two-step refund flow revalidates via `loadOrders()`).
+  - `CreatorPageSettings` — merchant **analytics** read → SWR (handle-keyed; auto-refetches
+    on handle change exactly like the old effect).
+  All swaps are behaviour-preserving (same endpoints/response shape), mutation handlers kept
+  working via `mutate` aliases. Verified: `tsc --noEmit` = 108 errors before/after (all
+  pre-existing; **zero new**, zero in the touched files), ESLint clean on all touched files,
+  and `/developer-keys` + `/creator` + `/pay-links/products/[productId]/orders` all compile
+  and return 200 under `next dev`.
+- ✅ **Settings** — assessed: `pages/settings/index.tsx` already sources everything from the
+  SWR-backed `useCompanyStore` / `useTokenData` / redux; it has **no manual `useEffect`+axios**
+  fetch to migrate. (The API-keys list it embeds is still redux-saga-backed — already cached;
+  a redux→SWR move is a separate arc, out of scope for the "manual useEffect+axios" cleanup.)
+- ⬜ **Intentionally deferred** (SWR adds risk with little dedup benefit — same rationale used
+  elsewhere in this plan): editable **form seeds** that mutate their own local state
+  (Tax settings, webhook settings form, Creator profile form, `ProductEditor` edit-mode load
+  — the last also does optimistic `setProduct` after publish/archive that SWR would clobber);
+  the **debounced handle-availability** live check (real-time, not cacheable); and
+  **Help & Support** (dual-source API + hardcoded fallback with a manual/debounced search that
+  rewrites the same `articles` list). These stay on manual fetch by design.
 
 ### Phase 4 — Backend HTTP resilience + integrations — ⬜
 - Resilient client + `withRetry` util; consolidate Tatum call sites to `tatumApi`;
@@ -221,11 +251,14 @@ Follow-ups surfaced while fixing the transactions slow-load and backfilling lega
    instantly. For transactions the row already carries full data (no fetch); for customers
    warm the detail endpoint on hover.
 
-6. **Remaining Screens → SWR** (Phase 3) — ⬜
-   Migrate the last manual `useEffect`+axios screens (API keys, Webhooks, Settings, Creator,
-   Product editor, Help & Support) to SWR for consistent caching/dedupe. Read-only screens
-   first; money/settlement mutation paths last. (Notifications, Customers, Invoices, Products,
-   Profile sessions/activity, Referrals already migrated 2026-08-06.)
+6. **Remaining Screens → SWR** (Phase 3) — ✅ done (2026-08-08)
+   Migrated the read-oriented fetches on the last manual `useEffect`+axios screens
+   (API keys embed card + Publishable Keys + Buy Buttons, Webhooks stats/logs, Creator
+   analytics, Product orders) to SWR — see the Phase 3 "Screens batch" entry above.
+   Settings needed no change (already store/hook-backed). Editable form seeds, the debounced
+   handle check, and Help & Support are intentionally left on manual fetch (documented above).
+   (Notifications, Customers, Invoices, Products, Profile sessions/activity, Referrals were
+   migrated 2026-08-06.)
 
 7. **Pending Value Estimate** (product / perf-safe) — ⬜
    Optional: show a subtle "≈ $X (est.)" on pending crypto transaction rows, computed lazily

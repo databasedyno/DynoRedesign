@@ -31,6 +31,7 @@ import WebhookConsoleSection from "./WebhookConsoleSection";
 import UnitedStatesFlag from "@/assets/Images/Icons/flags/united-states-flag.png";
 import { stringShorten } from "@/helpers";
 import useIsMobile from "@/hooks/useIsMobile";
+import usePublishableKeys from "@/hooks/usePublishableKeys";
 import { useTheme } from "@mui/material";
 import { ApiKeyCardProps, ApiKeysPageProps } from "@/utils/types/apis";
 import Image from "next/image";
@@ -711,33 +712,23 @@ const ElementsWidgetCard = ({
     (typeof window !== "undefined" ? window.location.origin : "https://checkout.dynopay.com");
 
   // Load a real active pk for this company so the snippet + preview use it.
+  // SWR-backed (shared with the Publishable Keys + Buy Buttons sections).
   // Falls back to a `pk_live_...` placeholder if none exists (merchant hasn't
   // created a publishable key yet — nudged to the Publishable Keys section).
-  const [pk, setPk] = useState<string>("pk_live_YOUR_PUBLISHABLE_KEY");
-  const [hasRealPk, setHasRealPk] = useState<boolean>(false);
+  const { keys: pkRows } = usePublishableKeys<{
+    publishable_key: string;
+    status: string;
+  }>(selectedCompanyId);
+  const activePk = useMemo(() => {
+    const active = pkRows.find((r) => r.status === "active") || pkRows[0];
+    return active?.publishable_key || null;
+  }, [pkRows]);
+  const pk = activePk || "pk_live_YOUR_PUBLISHABLE_KEY";
+  const hasRealPk = !!activePk;
   const [previewOpen, setPreviewOpen] = useState<boolean>(false);
   const [previewError, setPreviewError] = useState<string>("");
   const previewRef = useRef<HTMLDivElement | null>(null);
   const elementInstanceRef = useRef<any>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const params = selectedCompanyId ? `?company_id=${selectedCompanyId}` : "";
-        const { data } = await axiosBaseApi.get(`publishable-keys${params}`);
-        const rows: Array<{ publishable_key: string; status: string }> = data?.data?.keys || [];
-        const active = rows.find((r) => r.status === "active") || rows[0];
-        if (!cancelled && active?.publishable_key) {
-          setPk(active.publishable_key);
-          setHasRealPk(true);
-        }
-      } catch {
-        /* silent — keep placeholder */
-      }
-    })();
-    return () => { cancelled = true; };
-  }, [selectedCompanyId]);
 
   // Copy-paste HTML snippet. Includes the SDK <script> tag and a
   // `Dynopay(pk).elements()` call with the live appearance API defaults.

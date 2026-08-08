@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import useSWR from "swr";
 import { Box, Button, CircularProgress, Switch, Typography, useTheme, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { useDispatch, useSelector } from "react-redux";
@@ -103,8 +104,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
   // visible on the creator's /:handle page. Merchant always sees their own
   // analytics in the panel below regardless of this toggle.
   const [publicAnalyticsEnabled, setPublicAnalyticsEnabled] = useState(true);
-  const [analyticsData, setAnalyticsData] = useState<CreatorAnalyticsData | null>(null);
-  const [analyticsLoading, setAnalyticsLoading] = useState(true);
+  // analyticsData / analyticsLoading are SWR-derived below (keyed by handle).
   const [analyticsTogglingBusy, setAnalyticsTogglingBusy] = useState(false);
   const [seeded, setSeeded] = useState(false);
   const [checking, setChecking] = useState(false);
@@ -188,23 +188,26 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
   // Fetch the merchant's own analytics data (30-day chart + top supporters
   // + lifetime totals). The endpoint always returns data for the merchant
   // regardless of public toggle. Refetch when the profile handle changes.
-  const loadAnalytics = useCallback(async () => {
-    setAnalyticsLoading(true);
-    try {
+  // Merchant analytics (30-day chart + top supporters + lifetime totals) —
+  // SWR-backed, keyed by handle so switching profile refetches and the result
+  // is cached across re-mounts. Auto-refetches when the handle changes, exactly
+  // like the previous effect (no manual refresh path was used elsewhere).
+  const { data: analyticsSWR, isLoading: analyticsSWRLoading } = useSWR<
+    (CreatorAnalyticsData & { has_handle?: boolean }) | null
+  >(
+    profile?.handle ? ["creator-analytics", profile.handle] : null,
+    async () => {
       const r = await axiosBaseApi.get(API_ENDPOINTS.creator.analytics);
-      const d = (r?.data?.data || null) as CreatorAnalyticsData & { has_handle?: boolean } | null;
-      setAnalyticsData(d);
-    } catch {
-      setAnalyticsData(null);
-    } finally {
-      setAnalyticsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (profile?.handle) void loadAnalytics();
-    else setAnalyticsLoading(false);
-  }, [profile?.handle, loadAnalytics]);
+      return (r?.data?.data || null) as
+        | (CreatorAnalyticsData & { has_handle?: boolean })
+        | null;
+    },
+    { dedupingInterval: 30_000 },
+  );
+  const analyticsData = analyticsSWR ?? null;
+  const analyticsLoading = profile?.handle
+    ? analyticsSWRLoading && analyticsSWR === undefined
+    : false;
 
 
   const savedHandle = profile?.handle || "";

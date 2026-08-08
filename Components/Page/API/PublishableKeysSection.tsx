@@ -25,7 +25,7 @@ import {
   useTheme,
 } from "@mui/material";
 import { Icon } from "@/styles/uiKit";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import axiosBaseApi from "@/axiosConfig";
@@ -36,6 +36,7 @@ import PanelCard from "@/Components/UI/PanelCard";
 import PopupModal from "@/Components/UI/PopupModal";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import useIsMobile from "@/hooks/useIsMobile";
+import usePublishableKeys from "@/hooks/usePublishableKeys";
 import { rootReducer } from "@/utils/types";
 import copyToClipboard from "@/helpers/copyToClipboard";
 
@@ -916,9 +917,23 @@ const PublishableKeysSection = () => {
     return null;
   }, [selectedCompanyId, companyList]);
 
-  const [keys, setKeys] = useState<PublishableKey[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [loadError, setLoadError] = useState<string | null>(null);
+  // Publishable keys list — SWR-backed (shared with BuyButtonsSection + the
+  // API embed card so the list is deduped/cached instead of re-fetched per
+  // component). `loadKeys()` is kept as an alias for the SWR revalidate so all
+  // the mutation handlers below keep working unchanged.
+  const {
+    keys,
+    loading,
+    error: pkError,
+    refetch: loadKeys,
+  } = usePublishableKeys<PublishableKey>(effectiveCompanyId, {
+    enabled: !!effectiveCompanyId,
+  });
+  const loadError = pkError
+    ? (pkError as any)?.response?.data?.message ||
+      (pkError as any)?.message ||
+      "Failed to load publishable keys"
+    : null;
 
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"create" | "edit">("create");
@@ -934,34 +949,6 @@ const PublishableKeysSection = () => {
     if (typeof window !== "undefined") return window.location.origin;
     return "https://checkout.dynopay.com";
   }, []);
-
-  const loadKeys = useCallback(async () => {
-    if (!effectiveCompanyId) {
-      setKeys([]);
-      return;
-    }
-    setLoading(true);
-    setLoadError(null);
-    try {
-      const { data } = await axiosBaseApi.get(
-        `publishable-keys?company_id=${effectiveCompanyId}`,
-      );
-      const rows: PublishableKey[] = data?.data?.keys || [];
-      setKeys(rows);
-    } catch (err: any) {
-      const msg =
-        err?.response?.data?.message ||
-        err?.message ||
-        "Failed to load publishable keys";
-      setLoadError(msg);
-    } finally {
-      setLoading(false);
-    }
-  }, [effectiveCompanyId]);
-
-  useEffect(() => {
-    loadKeys();
-  }, [loadKeys]);
 
   const handleCopy = (value: string, label = "Copied") => {
     if (!value) return;

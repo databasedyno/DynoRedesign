@@ -10,6 +10,7 @@
  *    body.final. Restock toggle re-inserts stock when checked.
  */
 import React, { useEffect, useState, useCallback } from "react";
+import useSWR from "swr";
 import { useRouter } from "next/router";
 import {
   Box, Typography, Stack, Chip, LinearProgress, Alert, IconButton,
@@ -46,9 +47,27 @@ const STATUS_COLORS: Record<string, { bg: string; fg: string }> = {
 const ProductOrdersPage = ({ setPageName, setPageDescription, setPageAction }: pageProps) => {
   const router = useRouter();
   const productId = Number(router.query.productId);
-  const [rows, setRows] = useState<OrderRow[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // Orders list — SWR-backed (cached + deduped, keyed by product). The refund
+  // flow calls `loadOrders()` to revalidate after a status change.
+  const {
+    data: ordersData,
+    error: ordersErr,
+    mutate: mutateOrders,
+  } = useSWR<OrderRow[]>(
+    Number.isFinite(productId) ? ["product-orders", productId] : null,
+    (async ([, pid]: [string, number]) => {
+      const r = await axiosBaseApi.get(`products/${pid}/orders`);
+      return r.data?.data?.items || [];
+    }) as any,
+    { keepPreviousData: true },
+  );
+  const rows = ordersData ?? [];
+  const loading =
+    Number.isFinite(productId) && ordersData === undefined && !ordersErr;
+  const error = ordersErr
+    ? (ordersErr as any)?.response?.data?.message || "Failed to load orders"
+    : null;
+  const loadOrders = useCallback(() => mutateOrders(), [mutateOrders]);
   const [refundTarget, setRefundTarget] = useState<OrderRow | null>(null);
   const [refundReason, setRefundReason] = useState("");
   const [refundRestock, setRefundRestock] = useState(true);
@@ -72,21 +91,6 @@ const ProductOrdersPage = ({ setPageName, setPageDescription, setPageAction }: p
     );
     return () => setPageAction(null);
   }, [setPageAction, router]);
-
-  const loadOrders = useCallback(() => {
-    if (!Number.isFinite(productId)) return;
-    setLoading(true);
-    setError(null);
-    axiosBaseApi
-      .get(`products/${productId}/orders`)
-      .then((r) => setRows(r.data?.data?.items || []))
-      .catch((e) => setError(e?.response?.data?.message || "Failed to load orders"))
-      .finally(() => setLoading(false));
-  }, [productId]);
-
-  useEffect(() => {
-    loadOrders();
-  }, [loadOrders]);
 
   const openRefund = (order: OrderRow) => {
     // Default: paid → refund_requested (final=false, restock=true)

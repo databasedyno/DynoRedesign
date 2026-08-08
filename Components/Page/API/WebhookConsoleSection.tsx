@@ -36,6 +36,7 @@ import {
 import { Icon } from "@/styles/uiKit";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import useSWR from "swr";
 
 import axiosBaseApi from "@/axiosConfig";
 import PanelCard from "@/Components/UI/PanelCard";
@@ -122,9 +123,6 @@ const WebhookConsoleSection = () => {
   const [regenerating, setRegenerating] = useState(false);
   const [sendingTest, setSendingTest] = useState(false);
 
-  const [logs, setLogs] = useState<WebhookLog[]>([]);
-  const [stats, setStats] = useState<WebhookStats | null>(null);
-  const [loadingLogs, setLoadingLogs] = useState(false);
   const [statusFilter, setStatusFilter] = useState<"all" | "success" | "failed">("all");
   const [detail, setDetail] = useState<WebhookLogDetail | null>(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
@@ -150,42 +148,50 @@ const WebhookConsoleSection = () => {
     }
   }, [companyId]);
 
-  const loadStats = useCallback(async () => {
-    if (!companyId) return;
-    try {
-      const res = await axiosBaseApi.get(API_ENDPOINTS.company.webhookStats(companyId));
-      setStats(res?.data?.data?.summary ?? null);
-    } catch {
-      setStats(null);
-    }
-  }, [companyId]);
+  // Stats + logs are read-only lists → SWR-backed (cached across tab switches,
+  // deduped). Keyed by company (+ status filter for logs) so switching either
+  // refetches the right data. `refreshAll` revalidates both SWR caches so the
+  // "send test" + manual refresh handlers below work unchanged.
+  const { data: statsData, mutate: mutateStats } = useSWR<WebhookStats | null>(
+    companyId ? ["webhook-stats", companyId] : null,
+    async () => {
+      const res = await axiosBaseApi.get(
+        API_ENDPOINTS.company.webhookStats(companyId!),
+      );
+      return res?.data?.data?.summary ?? null;
+    },
+    { dedupingInterval: 15_000 },
+  );
+  const stats = statsData ?? null;
 
-  const loadLogs = useCallback(async () => {
-    if (!companyId) return;
-    setLoadingLogs(true);
-    try {
+  const {
+    data: logsData,
+    isLoading: logsLoading,
+    mutate: mutateLogs,
+  } = useSWR<WebhookLog[]>(
+    companyId ? ["webhook-logs", companyId, statusFilter] : null,
+    async () => {
       const q = statusFilter !== "all" ? `&status=${statusFilter}` : "";
-      const res = await axiosBaseApi.get(API_ENDPOINTS.company.webhookHistory(companyId, q));
+      const res = await axiosBaseApi.get(
+        API_ENDPOINTS.company.webhookHistory(companyId!, q),
+      );
       const list = res?.data?.data?.logs;
-      setLogs(Array.isArray(list) ? list : []);
-    } catch {
-      setLogs([]);
-    } finally {
-      setLoadingLogs(false);
-    }
-  }, [companyId, statusFilter]);
+      return Array.isArray(list) ? list : [];
+    },
+    { dedupingInterval: 10_000, keepPreviousData: true },
+  );
+  const logs = logsData ?? [];
+  const loadingLogs = logsLoading && logsData === undefined;
 
   const refreshAll = useCallback(() => {
-    loadStats();
-    loadLogs();
-  }, [loadStats, loadLogs]);
+    mutateStats();
+    mutateLogs();
+  }, [mutateStats, mutateLogs]);
 
   useEffect(() => {
     if (!companyId) return;
     loadSettings();
-    loadStats();
-    loadLogs();
-  }, [companyId, loadSettings, loadStats, loadLogs]);
+  }, [companyId, loadSettings]);
 
   const saveUrl = async () => {
     if (!companyId) return;
