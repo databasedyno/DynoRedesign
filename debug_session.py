@@ -4,7 +4,7 @@
 import requests
 import json
 
-BASE_URL = "https://merchant-hub-640.preview.emergentagent.com"
+BASE_URL = "https://dynopay-checkout-1.preview.emergentagent.com"
 API_URL = f"{BASE_URL}/api"
 EMAIL = "hostbay@moxx.co"
 PASSWORD = "Katiekendra123@"

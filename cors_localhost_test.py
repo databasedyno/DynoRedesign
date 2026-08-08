@@ -41,7 +41,7 @@ TESTS = [
     },
     {
         "id": 5,
-        "origin": "https://merchant-hub-640.preview.emergentagent.com",
+        "origin": "https://dynopay-checkout-1.preview.emergentagent.com",
         "expected": "ALLOWED",
         "description": "Preview pattern"
     },
