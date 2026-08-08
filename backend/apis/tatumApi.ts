@@ -7,7 +7,9 @@ import {
 } from "@tatumio/api-client";
 import { cronLogger } from "../utils/loggers";
 import { IGenerateUserAddressParams, virtualAccount } from "../utils/types";
-import axios from "axios";
+// Phase 4: route Tatum/blockchain HTTP through the shared resilient client
+// (auto-retries transient GET failures; writes are never retried). See utils/tatumHttp.ts.
+import axios from "../utils/tatumHttp";
 import { SecretManagerServiceClient } from "@google-cloud/secret-manager";
 import { KeyManagementServiceClient } from "@google-cloud/kms";
 import tronweb from "tronweb";

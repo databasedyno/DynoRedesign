@@ -34894,6 +34894,31 @@ G. **Pay-link expiry (ExpireSelector)** (create-payment-link screen): open the "
 
 Report per-test PASS/FAIL + any console errors.
 
+---
+
+## 2026-08-08 — Session — Phase 4 (part 1): Resilient Tatum/blockchain HTTP client
+
+**BACKEND change. LIVE Railway prod DB + LIVE Tatum mainnet. Login (API/UI): hostbay@moxx.co / Katiekendra123@**
+**STRICT SAFETY: read-only verification only. Do NOT create/publish payment links, do NOT trigger sweeps/withdrawals/transfers, do NOT move money, do NOT touch hostbay wallets/settings.**
+
+### What changed
+- NEW `backend/utils/tatumHttp.ts`: a shared resilient axios instance + `withRetry()` helper.
+  - Auto-retries TRANSIENT failures (network errors, ECONNRESET/ETIMEDOUT, HTTP 429/500/502/503/504) with exponential backoff + jitter, honouring `Retry-After`.
+  - **SAFETY:** retries ONLY idempotent requests — GET/HEAD/OPTIONS, or a non-GET that explicitly passes `idempotent:true`. Writes/POSTs (broadcasts, transfers, address creation) are NEVER retried. No API-key injection (callers attach their own headers) so it's safe for non-Tatum reads too. A bounded 30s timeout is applied ONLY to auto-retryable reads (writes keep the caller's timeout — a broadcast is never aborted mid-flight).
+- Routed these runtime files' `import axios` → `../utils/tatumHttp` (transparent; success path unchanged, only adds retry on transient errors): `apis/tatumApi.ts` (the main gateway, 60+ calls), `services/blockchainFeeService.ts`, `services/reconciliation.ts`, `helper/currencyConvert.ts`, `services/tronEnergyService.ts`.
+- EXCLUDED by design (left on plain axios): `services/merchantPool/directEvmTransfer.ts` (sweep broadcaster — sensitive), `services/migrateWebhookUrls.ts` (write-only + disabled under WORKER_ROLE=secondary), `routes/diagnosticsRouter.ts` (inline requires, admin-only), one-off `scripts/*`.
+
+### Self-verification done
+- Backend `tsc --noEmit` → **0 errors** (whole backend clean; zero in touched files).
+- Backend restarts cleanly (server listening :3300); GET /health (via :8001 proxy) → `database:connected`, `redis:connected`, `tatum_api.operational:true, circuit CLOSED, failures:0`.
+
+### BACKEND TESTING INSTRUCTIONS (regression — confirm Tatum-backed reads still work through the resilient client)
+1. GET {BASE}/health → 200, JSON with database=connected, redis=connected, tatum_api.operational=true. PASS/FAIL.
+2. Find + exercise a couple of Tatum/blockchain-backed READ endpoints (they now flow through tatumHttp). Good candidates to look for in the code: crypto rate / currency-conversion used by checkout (helper/currencyConvert.ts → `/api/...`), supported-currency/estimate endpoints, and any address-balance read. Verify they return sensible data (rates/balances), i.e. NO regression from the axios→tatumHttp swap.
+3. Login via API as hostbay@moxx.co / Katiekendra123@ and hit an authenticated READ endpoint that triggers a Tatum call (e.g. wallet/balance read or a checkout rate quote). Verify 200 + valid payload. READ ONLY.
+4. Scan backend logs (/var/log/supervisor/backend.*.log) for any NEW errors referencing tatumHttp or unhandled failures introduced by the change (the pre-existing Binance 451 geo-block + CoinGecko fallback is EXPECTED and unrelated). 
+Do NOT attempt any write/broadcast/sweep/withdraw. Report PASS/FAIL per item + any anomalies.
+
 
 ---
 

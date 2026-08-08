@@ -11,7 +11,9 @@
  * This service fetches live data so fee calculations remain accurate.
  */
 
-import axios from "axios";
+// Phase 4: resilient Tatum HTTP client (retries transient GET/read failures;
+// writes/POSTs are never retried — safe for any energy-delegation calls here).
+import axios from "../utils/tatumHttp";
 import { cronLogger } from "../utils/loggers";
 import { getRedisItem, setRedisItem, setRedisItemWithTTL, setRedisTTL } from "../utils/redisInstance";
 

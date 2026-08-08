@@ -5,7 +5,8 @@
  * and calculates the actual cost to forward crypto to merchant wallets.
  */
 
-import axios from "axios";
+// Phase 4: resilient Tatum HTTP client (retries transient GET/read failures).
+import axios from "../utils/tatumHttp";
 import { cronLogger } from "../utils/loggers";
 import { getRedisItem, setRedisItem } from "../utils/redisInstance";
 import { getTronNetworkParams } from "./tronEnergyService";

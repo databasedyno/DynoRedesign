@@ -1,4 +1,5 @@
-import axios from "axios";
+// Phase 4: resilient Tatum HTTP client (retries transient GET/read failures).
+import axios from "../utils/tatumHttp";
 import { apiLogger } from "../utils/loggers";
 
 interface CurrencyRateList {

@@ -1,0 +1,169 @@
+/**
+ * Resilient HTTP client for Tatum / blockchain provider calls (Phase 4).
+ *
+ * A single shared axios instance that transparently retries TRANSIENT failures
+ * (network drops, DNS/connection resets, request timeouts, HTTP 429/500/502/503/504)
+ * with exponential backoff + jitter, honouring `Retry-After` on 429s.
+ *
+ * ─────────────────────────  SAFETY (read this)  ─────────────────────────
+ * Retries are ONLY applied to IDEMPOTENT requests:
+ *   • GET / HEAD / OPTIONS            → retried automatically
+ *   • any other method (POST/PUT/…)   → NEVER retried, UNLESS the caller
+ *                                        explicitly opts in with `idempotent:true`
+ * This is deliberate: many blockchain POSTs are broadcasts / transfers /
+ * address creations. Retrying a broadcast could double-spend real funds, so a
+ * write is only ever retried when the caller has proven it is safe (e.g. a
+ * read-only JSON-RPC POST or a fee estimate) by passing `idempotent:true`.
+ *
+ * Because auth headers are attached per-call by each caller (getTatumHeaders(),
+ * etc.), this instance does NOT inject any API key — so it is safe to reuse for
+ * non-Tatum reads (mempool.space, fastforex, …) without leaking credentials.
+ *
+ * Usage: replace `import axios from "axios"` with
+ *   `import axios from "../utils/tatumHttp"` — every existing `axios.get(...)`
+ * call then auto-recovers from blockchain hiccups with no other change.
+ * For a known-safe non-GET read:  axios.post(url, body, { headers, idempotent: true })
+ */
+
+import axios, {
+  AxiosError,
+  AxiosInstance,
+  InternalAxiosRequestConfig,
+} from "axios";
+import { cronLogger } from "./loggers";
+
+// ── Tunables (env-overridable, sane defaults) ───────────────────────────
+const MAX_RETRIES = Number(process.env.TATUM_HTTP_MAX_RETRIES ?? 3);
+const BASE_DELAY_MS = Number(process.env.TATUM_HTTP_BASE_DELAY_MS ?? 400);
+const MAX_DELAY_MS = Number(process.env.TATUM_HTTP_MAX_DELAY_MS ?? 4000);
+// Bounded timeout applied ONLY to auto-retryable reads that don't set their own,
+// so a hung read fails fast and can be retried. Writes keep the caller's timeout
+// (usually none) so a broadcast is never aborted mid-flight.
+const READ_TIMEOUT_MS = Number(process.env.TATUM_HTTP_READ_TIMEOUT_MS ?? 30000);
+
+const IDEMPOTENT_METHODS = new Set(["get", "head", "options"]);
+const RETRYABLE_STATUS = new Set([429, 500, 502, 503, 504]);
+
+interface RetryableConfig extends InternalAxiosRequestConfig {
+  /** Opt-in flag: allow retry for a known-safe non-GET (e.g. an RPC read). */
+  idempotent?: boolean;
+  /** Internal attempt counter. */
+  __retryCount?: number;
+}
+
+/** A request is retryable if it's idempotent by method or explicitly opted-in. */
+function isRetryableRequest(config: RetryableConfig): boolean {
+  const method = (config.method || "get").toLowerCase();
+  return IDEMPOTENT_METHODS.has(method) || config.idempotent === true;
+}
+
+/** A failure is transient (worth retrying) on network errors + specific 5xx/429. */
+export function isTransientError(error: unknown): boolean {
+  const err = error as AxiosError;
+  if (!err || !err.isAxiosError) return false;
+  // No response → network error / DNS / ECONNRESET / ETIMEDOUT / ECONNABORTED
+  if (!err.response) return true;
+  return RETRYABLE_STATUS.has(err.response.status);
+}
+
+function computeDelay(attempt: number, error: AxiosError): number {
+  // Exponential backoff: BASE * 2^(attempt-1), capped.
+  let delay = Math.min(BASE_DELAY_MS * 2 ** (attempt - 1), MAX_DELAY_MS);
+  // Honour Retry-After (seconds) on 429/503 when provided.
+  const ra = error.response?.headers?.["retry-after"];
+  if (ra != null) {
+    const raMs = Number(ra) * 1000;
+    if (!Number.isNaN(raMs) && raMs > 0) delay = Math.min(raMs, 10000);
+  }
+  // Full jitter (±30%) to avoid thundering-herd on shared provider outages.
+  return Math.round(delay * (0.7 + Math.random() * 0.6));
+}
+
+const tatumHttp: AxiosInstance = axios.create();
+
+// Give auto-retryable reads a bounded timeout (writes keep caller's timeout).
+tatumHttp.interceptors.request.use((config) => {
+  const c = config as RetryableConfig;
+  if (c.timeout == null && isRetryableRequest(c)) {
+    c.timeout = READ_TIMEOUT_MS;
+  }
+  return config;
+});
+
+tatumHttp.interceptors.response.use(
+  (res) => res,
+  async (error: AxiosError) => {
+    const config = error.config as RetryableConfig | undefined;
+    if (!config) return Promise.reject(error);
+    if (!isRetryableRequest(config) || !isTransientError(error)) {
+      return Promise.reject(error);
+    }
+
+    config.__retryCount = (config.__retryCount || 0) + 1;
+    if (config.__retryCount > MAX_RETRIES) {
+      cronLogger.warn(
+        `[tatumHttp] giving up after ${MAX_RETRIES} retries: ${(
+          config.method || "get"
+        ).toUpperCase()} ${config.url} — ${
+          error.response?.status ?? error.code ?? error.message
+        }`,
+      );
+      return Promise.reject(error);
+    }
+
+    const delay = computeDelay(config.__retryCount, error);
+    cronLogger.warn(
+      `[tatumHttp] transient failure (${
+        error.response?.status ?? error.code ?? error.message
+      }) on ${(config.method || "get").toUpperCase()} ${
+        config.url
+      } — retry ${config.__retryCount}/${MAX_RETRIES} in ${delay}ms`,
+    );
+    await new Promise((resolve) => setTimeout(resolve, delay));
+    return tatumHttp.request(config);
+  },
+);
+
+/**
+ * Generic retry wrapper for non-axios async work (e.g. Tatum SDK calls) that
+ * should follow the same transient-retry policy. Only retries when `shouldRetry`
+ * returns true (defaults to the axios transient-error check). Safe-by-default:
+ * callers must ensure `fn` is idempotent before wrapping a write.
+ */
+export async function withRetry<T>(
+  fn: () => Promise<T>,
+  opts: {
+    retries?: number;
+    baseDelayMs?: number;
+    maxDelayMs?: number;
+    shouldRetry?: (err: unknown) => boolean;
+    label?: string;
+  } = {},
+): Promise<T> {
+  const retries = opts.retries ?? MAX_RETRIES;
+  const baseDelay = opts.baseDelayMs ?? BASE_DELAY_MS;
+  const maxDelay = opts.maxDelayMs ?? MAX_DELAY_MS;
+  const shouldRetry = opts.shouldRetry ?? isTransientError;
+
+  let attempt = 0;
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    try {
+      return await fn();
+    } catch (err) {
+      attempt += 1;
+      if (attempt > retries || !shouldRetry(err)) throw err;
+      const delay = Math.round(
+        Math.min(baseDelay * 2 ** (attempt - 1), maxDelay) *
+          (0.7 + Math.random() * 0.6),
+      );
+      cronLogger.warn(
+        `[withRetry] ${opts.label ?? "operation"} failed (attempt ${attempt}/${retries}) — retrying in ${delay}ms`,
+      );
+      await new Promise((resolve) => setTimeout(resolve, delay));
+    }
+  }
+}
+
+export default tatumHttp;
+export { tatumHttp };

@@ -15,7 +15,8 @@ import { enqueueWebhook, WebhookJobData, webhookQueue } from "./webhookQueue";
 import { captureError } from "./errorMonitoringService";
 import { parseState, PaymentState } from "./paymentStateMachine";
 import { verifySettlementOnChain, markSettlementCompleted } from "./paymentReliability";
-import axios from "axios";
+// Phase 4: resilient Tatum HTTP client (retries transient GET/read failures).
+import axios from "../utils/tatumHttp";
 
 /**
  * Run all reconciliation strategies on startup.
