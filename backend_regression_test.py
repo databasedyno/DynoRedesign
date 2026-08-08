@@ -20,7 +20,7 @@ import time
 from typing import Dict, Any, Optional
 
 # Environment configuration
-BASE_URL = "https://aaa8e41b-e0ea-4dd8-93ab-b15775152e1b.preview.emergentagent.com"
+BASE_URL = "https://merchant-hub-640.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 # Test credentials (hostbay merchant account)

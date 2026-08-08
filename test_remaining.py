@@ -7,7 +7,7 @@ import requests
 import json
 import time
 
-BACKEND_URL = "https://merchant-setup-9.preview.emergentagent.com"
+BACKEND_URL = "https://merchant-hub-640.preview.emergentagent.com"
 API_BASE = f"{BACKEND_URL}/api"
 
 TEST_USER = {

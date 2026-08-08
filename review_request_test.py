@@ -10,7 +10,7 @@ import sys
 from datetime import datetime
 
 # Configuration
-BASE_URL = "https://merchant-setup-9.preview.emergentagent.com/api"
+BASE_URL = "https://merchant-hub-640.preview.emergentagent.com/api"
 TIMEOUT = 30
 
 def log_test(test_name, status, details=""):

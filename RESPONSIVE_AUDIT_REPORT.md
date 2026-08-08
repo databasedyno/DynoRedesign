@@ -2,7 +2,7 @@
 ## DynoPay Application
 
 **Audit Date:** August 3, 2026  
-**Preview URL:** https://merchant-setup-9.preview.emergentagent.com  
+**Preview URL:** https://merchant-hub-640.preview.emergentagent.com  
 **Merchant Test Account:** hostbay@moxx.co / Katiekendra123@
 
 ---
