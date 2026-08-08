@@ -28,7 +28,7 @@ import {
   sendWalletDeletedEmail,
   sendWalletDeleteOTPEmail,
 } from "../services/emailService";
-import { handleControllerError, handleControllerErrorReturn } from "../helper/controllerErrorHandler";
+import { handleControllerError, handleControllerErrorReturn, asyncController } from "../helper/controllerErrorHandler";
 import { parseSortAndPagination } from "../helper/queryHelpers";
 import { incrementAdminFee, incrementUserWallet } from "../helper/walletHelpers";
 import { formatAmountForDisplay, getCurrencyInfo, COMPANY_CURRENCY_QUERY, convertToUSD, convertToFiat, convertToMultiple, getUserDisplayCurrency } from "../utils/currencyUtils";
@@ -4209,78 +4209,62 @@ const exportTransactions = async (req: express.Request, res: express.Response) =
  * Used by checkout to filter available payment currencies
  * GET /api/wallet/configured-currencies
  */
-const getConfiguredCurrencies = async (
+const getConfiguredCurrencies = asyncController(async (
   req: express.Request,
   res: express.Response
 ) => {
   const userData = jwt.decode(res.locals.token) as IUserType;
-  try {
-    const { company_id } = req.query;
+  const { company_id } = req.query;
 
-    // Phase 10 Task 10.2: Get user's configured wallets from userWalletModel
-    const configuredWallets = await userWalletModel.findAll({
-      where: {
-        user_id: userData.user_id,
-        wallet_address: { [Op.not]: null },
-        ...(company_id && { company_id: parseInt(company_id as string) }),
-      },
-      attributes: ['wallet_type', 'wallet_address', 'wallet_name'],
-    });
+  // Phase 10 Task 10.2: Get user's configured wallets from userWalletModel
+  const configuredWallets = await userWalletModel.findAll({
+    where: {
+      user_id: userData.user_id,
+      wallet_address: { [Op.not]: null },
+      ...(company_id && { company_id: parseInt(company_id as string) }),
+    },
+    attributes: ['wallet_type', 'wallet_address', 'wallet_name'],
+  });
 
-    // Extract unique currencies using dataValues
-    const currencies = [...new Set(configuredWallets.map((w) => (w.dataValues as { wallet_type: string }).wallet_type))];
-    
-    const response = {
-      configured_currencies: currencies,
-      wallet_count: configuredWallets.length,
-      wallets: configuredWallets.map((w) => {
-        const walletData = w.dataValues as { wallet_type: string; wallet_name?: string; wallet_address?: string };
-        return {
-          currency: walletData.wallet_type,
-          label: walletData.wallet_name,
-          address_masked: walletData.wallet_address ? 
-            `${walletData.wallet_address.substring(0, 6)}...${walletData.wallet_address.substring(walletData.wallet_address.length - 4)}` : 
-            null
-        };
-      }),
-      skip_selection: currencies.length === 1, // If only 1 currency, frontend can skip asset selection
-    };
+  // Extract unique currencies using dataValues
+  const currencies = [...new Set(configuredWallets.map((w) => (w.dataValues as { wallet_type: string }).wallet_type))];
 
-    successResponseHelper(res, 200, "Configured currencies retrieved successfully", response);
-  } catch (e) {
-    const message = getErrorMessage(e);
-    walletLogger.error(
-      message,
-      { user_id: userData.user_id, email: userData.email },
-      new Error(message)
-    );
-    errorResponseHelper(res, 500, message);
-  }
-};
+  const response = {
+    configured_currencies: currencies,
+    wallet_count: configuredWallets.length,
+    wallets: configuredWallets.map((w) => {
+      const walletData = w.dataValues as { wallet_type: string; wallet_name?: string; wallet_address?: string };
+      return {
+        currency: walletData.wallet_type,
+        label: walletData.wallet_name,
+        address_masked: walletData.wallet_address ?
+          `${walletData.wallet_address.substring(0, 6)}...${walletData.wallet_address.substring(walletData.wallet_address.length - 4)}` :
+          null
+      };
+    }),
+    skip_selection: currencies.length === 1, // If only 1 currency, frontend can skip asset selection
+  };
+
+  successResponseHelper(res, 200, "Configured currencies retrieved successfully", response);
+}, walletLogger, "getConfiguredCurrencies");
 
 /**
  * GET /api/wallet/network-fees
  * Get real-time blockchain network fees for all supported chains
  */
-const getNetworkFees = async (req: express.Request, res: express.Response) => {
-  try {
-    const { chain } = req.query;
+const getNetworkFees = asyncController(async (req: express.Request, res: express.Response) => {
+  const { chain } = req.query;
 
-    if (chain) {
-      // Get fee for specific chain
-      const fee = await getBlockchainNetworkFee(chain as string);
-      successResponseHelper(res, 200, "Network fee retrieved", fee);
-    } else {
-      // Get fees for all chains
-      const fees = await getAllBlockchainFees();
-      successResponseHelper(res, 200, "Network fees retrieved", fees);
-    }
-  } catch (e) {
-    const message = getErrorMessage(e);
-    walletLogger.error(message, {}, new Error(e));
-    errorResponseHelper(res, 500, message);
+  if (chain) {
+    // Get fee for specific chain
+    const fee = await getBlockchainNetworkFee(chain as string);
+    successResponseHelper(res, 200, "Network fee retrieved", fee);
+  } else {
+    // Get fees for all chains
+    const fees = await getAllBlockchainFees();
+    successResponseHelper(res, 200, "Network fees retrieved", fees);
   }
-};
+}, walletLogger, "getNetworkFees");
 
 /**
  * POST /api/wallet/calculate-payment

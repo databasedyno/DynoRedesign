@@ -1,6 +1,7 @@
 import PDFDocument from "pdfkit";
 import path from "path";
 import fs from "fs";
+import { getCurrencySymbol as getCurrencySymbolShared } from "../utils/currencyUtils";
 
 interface InvoiceData {
   invoice_number: string;
@@ -42,16 +43,12 @@ interface InvoiceData {
 }
 
 /**
- * Get currency symbol for a given currency code
+ * Get currency symbol for a given currency code.
+ * Table lives in utils/currencyUtils.ts (variant 'pdf'); this wrapper keeps the
+ * existing call sites + byte-identical output.
  */
-const getCurrencySymbol = (currency: string): string => {
-  const symbols: Record<string, string> = {
-    USD: '$', EUR: '€', GBP: '£', AUD: 'A$', CAD: 'C$', CHF: 'CHF ',
-    CNY: '¥', JPY: '¥', HKD: 'HK$', NZD: 'NZ$', SGD: 'S$',
-    BRL: 'R$', NGN: '₦', ZAR: 'R', KES: 'KSh', MXN: 'MX$'
-  };
-  return symbols[currency?.toUpperCase()] || '';
-};
+const getCurrencySymbol = (currency: string): string =>
+  getCurrencySymbolShared(currency, 'pdf');
 
 /**
  * Generate PDF invoice

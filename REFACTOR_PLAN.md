@@ -262,6 +262,24 @@ hook consolidation is architectural. These belong to Phase 3/6, not the 2c primi
   (start with the internal `errorResponseHelper`/`successResponseHelper` consumers, matching
   their shapes); migrate more `process.env` reads onto `config`; dedup backend currency helpers
   (`getCurrencySymbol` ×3, `formatCurrency` ×2).
+- ✅ **Expansion + config adoption + currency dedup (2026-08-08).**
+  - **Internal-shape `asyncController`** added to `helper/controllerErrorHandler.ts` (wraps a handler,
+    routes throws through `handleControllerError` — the internal `{success:false,message,statusCode}`
+    envelope, identical behaviour). Piloted on `walletController` reads `getConfiguredCurrencies` +
+    `getNetworkFees` (try/catch removed; responses unchanged). Note: merchant-shaped
+    `sendSuccess`/`sendError` are NOT used here — the internal controllers keep their own shape.
+  - **Config adoption** — migrated URL/secret reads onto `utils/config` in `emailTemplate.ts`
+    (SERVER_URL), `emailService.ts` + `payoutDigestService.ts` (FRONTEND_URL, literal fallbacks),
+    and `routes/index.ts` (SERVER_URL/FRONTEND_URL, ×3). All byte-identical fallbacks. Broader sweep
+    stays incremental (per-site fallback differences).
+  - **Currency helper dedup** — the three `getCurrencySymbol` copies had DIVERGED (33 currencies
+    render differently; they feed live emails/PDFs), so a naive merge would change customer-facing
+    output. Consolidated into ONE parameterised `getCurrencySymbol(currency, variant)` in
+    `utils/currencyUtils.ts` (`'default'|'email'|'pdf'`); `emailTemplate.ts` + `pdfService.ts` now
+    delegate to it. Proven BYTE-IDENTICAL for all variants via `scripts/diff_currency_symbols.ts`.
+    (`formatCurrency` in `pdfService` is a conversion-aware closure, not a true duplicate — left as-is.)
+  - Verified: `tsc --noEmit` = 0; backend boots clean (DB/Redis connected, jobs OFF); wallet endpoint
+    still returns the internal 401/error envelope. No testing agent (writes to live DB).
 
 ### Phase 6 — Polish — 🟡 partially done
 - ✅ **Shared skeleton loader (2026-08-06)** — new `Components/UI/SkeletonList` (configurable rows/height);
@@ -271,7 +289,13 @@ hook consolidation is architectural. These belong to Phase 3/6, not the 2c primi
   heavy checkout renderers (`CleanCheckoutV2` ~72KB, `cryptoTransfer` ~94KB, `donationCampaign` ~42KB,
   `bankTransferCompo` ~17KB) with a shared spinner fallback, so /pay ships a smaller initial bundle and
   only loads the renderer the payment needs. (Dashboard chart `AreaChart` was already `dynamic`.)
-- ⬜ Remaining: shared `<Loader/>` + skeletons across ~45 inline spinners; react-hook-form + existing yup;
+- 🟡 **Shared `<Spinner/>` primitive (2026-08-08)** — new `Components/UI/Spinner` (rotating brand ring;
+  props: size/thickness/trackColor/color/speed; respects `prefers-reduced-motion`). Reproduces the
+  former inline border-spinners exactly. Adopted in the shared full-page `Components/UI/Loading.tsx`
+  and in `pages/auth/register.tsx` (its local `LoadingSpinner` is now a thin wrapper — pixel-identical,
+  page verified via screenshot). Lint clean.
+- ⬜ Remaining: roll `<Spinner/>` out to the rest of the ad-hoc inline spinners (each on its own
+  screen-verified batch — many live on authenticated screens); react-hook-form + existing yup;
   last raw `<img>` → `next/image`.
 
 ---

@@ -1,4 +1,5 @@
 import mailTransporter from "../utils/mailTransporter";
+import config from "../utils/config";
 import { apiLogger } from "../utils/loggers";
 import { captureError } from "./errorMonitoringService";
 import { generatePaymentReceipt, getReceiptFilename } from "./pdfReceiptService";
@@ -7,7 +8,7 @@ import { formatCryptoAmount } from "../utils/currencyUtils";
 import { baseEmailTemplate, getCurrencySymbol, infoBox, dataRow, statusBadge, p, otpBlock, warnText, alertBox, errorBox, successBox, neutralBox, statCard, twoColumnStats, feeRow, feeTotalRow, feeTable, mono } from "../utils/emailTemplate";
 
 /** Dynamic base URL for all email CTA links — uses FRONTEND_URL env var */
-const FRONTEND_BASE_URL = (process.env.FRONTEND_URL || 'https://dynopay.com').replace(/\/$/, '');
+const FRONTEND_BASE_URL = (config.frontendUrl || 'https://dynopay.com').replace(/\/$/, '');
 
 /**
  * Escape untrusted strings for embedding in HTML email bodies.

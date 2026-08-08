@@ -1,7 +1,11 @@
 import { Box } from "@mui/material";
 import React from "react";
-import { BRAND_ACCENT } from "@/constants/theme";
+import Spinner from "@/Components/UI/Spinner";
 
+/**
+ * Full-page centered loader used as a route/Suspense fallback.
+ * The spinner itself now comes from the shared <Spinner/> primitive.
+ */
 const Loader = () => {
   return (
     <Box
@@ -12,25 +16,7 @@ const Loader = () => {
         justifyContent: "center",
       }}
     >
-      <Box
-        sx={{
-          width: 44,
-          height: 44,
-          borderRadius: "50%",
-          border: "4px solid white",
-          borderTop: `4px solid ${BRAND_ACCENT}`,
-          animation: "spin 0.9s linear infinite",
-
-          "@keyframes spin": {
-            "0%": {
-              transform: "rotate(0deg)",
-            },
-            "100%": {
-              transform: "rotate(360deg)",
-            },
-          },
-        }}
-      />
+      <Spinner size={44} />
     </Box>
   );
 };

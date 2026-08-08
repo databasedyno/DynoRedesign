@@ -1,4 +1,5 @@
 import express from "express";
+import config from "../utils/config";
 import axios from "axios";
 import { apiLogger } from "../utils/loggers";
 import userRouter from "./userRouter";
@@ -252,7 +253,7 @@ router.post("/public/sandbox/payment-links", sandboxRateLimiter, async (req: exp
     const expires_at = new Date(now + 30 * 60 * 1000).toISOString(); // +30 min
 
     // Use SERVER_URL if present, else FRONTEND_URL, else fall back to a relative URL
-    const base = (process.env.SERVER_URL || process.env.FRONTEND_URL || "").replace(/\/+$/, "");
+    const base = (config.serverUrl || config.frontendUrl || "").replace(/\/+$/, "");
     const checkout_url = base ? `${base}/pay/demo?ref=${id}` : `/pay/demo?ref=${id}`;
 
     res.status(200).json({
@@ -290,7 +291,7 @@ router.get("/public/sandbox/payment-links/:id", sandboxRateLimiter, async (req: 
     if (!/^plink_sandbox_[a-f0-9]{6,64}$/.test(id)) {
       return res.status(404).json({ error: "not_found", message: "Sandbox payment link not found." });
     }
-    const base = (process.env.SERVER_URL || process.env.FRONTEND_URL || "").replace(/\/+$/, "");
+    const base = (config.serverUrl || config.frontendUrl || "").replace(/\/+$/, "");
     const checkout_url = base ? `${base}/pay/demo?ref=${id}` : `/pay/demo?ref=${id}`;
     res.status(200).json({
       object: "payment_link",
@@ -317,7 +318,7 @@ router.get("/public/sandbox/payment-links/:id", sandboxRateLimiter, async (req: 
  * Used by the homepage TryItNow section so we can rotate the key in one place.
  */
 router.get("/public/sandbox/info", async (_req: express.Request, res: express.Response) => {
-  const base = (process.env.SERVER_URL || process.env.FRONTEND_URL || "").replace(/\/+$/, "");
+  const base = (config.serverUrl || config.frontendUrl || "").replace(/\/+$/, "");
   res.status(200).json({
     sandbox_key: SANDBOX_PUBLIC_KEY,
     base_url: base || "https://dynopay.com",

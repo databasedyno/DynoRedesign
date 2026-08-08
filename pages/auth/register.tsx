@@ -38,20 +38,20 @@ import { ArrowBack, CheckCircleOutline } from "@mui/icons-material";
 import Head from "next/head";
 import { BRAND_ACCENT } from "@/constants/theme";
 import { API_ENDPOINTS } from "@/api/endpoints";
+import Spinner from "@/Components/UI/Spinner";
 
 type RegisterMethod = "email" | "phone";
 type Step = "purpose" | "input" | "otp" | "success";
 
+// Thin wrapper over the shared <Spinner/> that preserves this screen's exact
+// look (translucent white track, solid white arc, 2px ring, 0.8s).
 const LoadingSpinner = ({ size = 20 }: { size?: number }) => (
-  <Box
-    sx={{
-      width: size, height: size,
-      border: "2px solid rgba(255,255,255,0.3)",
-      borderTop: "2px solid #fff",
-      borderRadius: "50%",
-      animation: "spin 0.8s linear infinite",
-      "@keyframes spin": { "0%": { transform: "rotate(0deg)" }, "100%": { transform: "rotate(360deg)" } },
-    }}
+  <Spinner
+    size={size}
+    thickness={2}
+    trackColor="rgba(255,255,255,0.3)"
+    color="#fff"
+    speed="0.8s"
   />
 );
 

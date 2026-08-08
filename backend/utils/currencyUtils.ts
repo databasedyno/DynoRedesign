@@ -61,13 +61,54 @@ const CURRENCY_SYMBOLS: Record<string, string> = {
   BTC: '₿', ETH: 'Ξ', USDT: '₮', USDC: 'USDC',
 };
 
+// Email-context symbol table (regional coverage + trailing-space layout used by
+// the email templates). Consolidated here from utils/emailTemplate.ts so every
+// currency-symbol table lives in one module. Output is byte-identical to the
+// former local copy.
+const EMAIL_CURRENCY_SYMBOLS: Record<string, string> = {
+  USD: '$', EUR: '€', GBP: '£', AUD: 'A$', CAD: 'C$', CHF: 'CHF ',
+  CNY: '¥', JPY: '¥', HKD: 'HK$', NZD: 'NZ$', SGD: 'S$',
+  BRL: 'R$', ARS: 'ARS ', COP: 'COP ', CLP: 'CLP ', PEN: 'S/', MXN: 'MX$', VES: 'Bs.', UYU: '$U',
+  NGN: '₦', ZAR: 'R', KES: 'KSh', GHS: 'GH₵', TZS: 'TSh', XAF: 'FCFA ', XOF: 'CFA ', EGP: 'E£', MAD: 'MAD ',
+  UGX: 'USh', RWF: 'FRw', ETB: 'Br', ZMW: 'ZK', BWP: 'P', MUR: '₨', AOA: 'Kz', MZN: 'MT', CDF: 'FC',
+};
+
+// PDF-context symbol table (invoice PDFs). Consolidated here from
+// services/pdfService.ts. Output is byte-identical to the former local copy.
+const PDF_CURRENCY_SYMBOLS: Record<string, string> = {
+  USD: '$', EUR: '€', GBP: '£', AUD: 'A$', CAD: 'C$', CHF: 'CHF ',
+  CNY: '¥', JPY: '¥', HKD: 'HK$', NZD: 'NZ$', SGD: 'S$',
+  BRL: 'R$', NGN: '₦', ZAR: 'R', KES: 'KSh', MXN: 'MX$',
+};
+
 /**
- * Get currency symbol for a currency code
+ * Which symbol table + fallback to use.
+ *  - 'default': dashboard/API — falls back to the raw code.
+ *  - 'email':   email templates — regional map, falls back to "CODE " (trailing space).
+ *  - 'pdf':     invoice PDFs — smaller map, falls back to "" (no symbol).
+ * The three variants exist because they render in different contexts and MUST
+ * keep their exact historical output (they are NOT interchangeable).
+ */
+export type CurrencySymbolVariant = 'default' | 'email' | 'pdf';
+
+/**
+ * Get currency symbol for a currency code.
  * @param currency - ISO 4217 currency code
+ * @param variant - display context (see CurrencySymbolVariant); default 'default'
  * @returns Symbol string (e.g., '$', '€', '₦')
  */
-export const getCurrencySymbol = (currency: string): string => {
-  return CURRENCY_SYMBOLS[currency?.toUpperCase()] || currency || '';
+export const getCurrencySymbol = (
+  currency: string,
+  variant: CurrencySymbolVariant = 'default'
+): string => {
+  const code = currency?.toUpperCase();
+  if (variant === 'email') {
+    return EMAIL_CURRENCY_SYMBOLS[code] || `${currency} `;
+  }
+  if (variant === 'pdf') {
+    return PDF_CURRENCY_SYMBOLS[code] || '';
+  }
+  return CURRENCY_SYMBOLS[code] || currency || '';
 };
 
 /**

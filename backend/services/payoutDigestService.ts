@@ -1,4 +1,5 @@
 import { QueryTypes } from "sequelize";
+import config from "../utils/config";
 import sequelize from "../utils/dbInstance";
 import mailTransporter from "../utils/mailTransporter";
 import { apiLogger } from "../utils/loggers";
@@ -37,7 +38,7 @@ import {
  * to their own email for QA. In production, the leader cron fires it weekly.
  */
 
-const FRONTEND_BASE_URL = (process.env.FRONTEND_URL || "https://dynopay.com").replace(
+const FRONTEND_BASE_URL = (config.frontendUrl || "https://dynopay.com").replace(
   /\/$/,
   "",
 );

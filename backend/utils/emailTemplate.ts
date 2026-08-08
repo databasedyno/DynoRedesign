@@ -3,27 +3,26 @@
  * Used by both services/emailService.ts and helper/sendEmail.ts
  */
 
+import { getCurrencySymbol as getCurrencySymbolShared } from "./currencyUtils";
+import config from "./config";
+
 // Public CDN-hosted PNG logo for maximum email client compatibility
 const DYNOPAY_LOGO_CDN = "https://files.catbox.moe/9wq2et.png";
 
 export const getDynopayLogoUrl = (): string => {
-  const serverUrl = process.env.SERVER_URL;
+  const serverUrl = config.serverUrl;
   if (serverUrl) {
     return `${serverUrl}/api/static/dynopay-white-logo.png`;
   }
   return DYNOPAY_LOGO_CDN;
 };
 
-export const getCurrencySymbol = (currency: string): string => {
-  const symbols: Record<string, string> = {
-    USD: '$', EUR: '€', GBP: '£', AUD: 'A$', CAD: 'C$', CHF: 'CHF ',
-    CNY: '¥', JPY: '¥', HKD: 'HK$', NZD: 'NZ$', SGD: 'S$',
-    BRL: 'R$', ARS: 'ARS ', COP: 'COP ', CLP: 'CLP ', PEN: 'S/', MXN: 'MX$', VES: 'Bs.', UYU: '$U',
-    NGN: '₦', ZAR: 'R', KES: 'KSh', GHS: 'GH₵', TZS: 'TSh', XAF: 'FCFA ', XOF: 'CFA ', EGP: 'E£', MAD: 'MAD ',
-    UGX: 'USh', RWF: 'FRw', ETB: 'Br', ZMW: 'ZK', BWP: 'P', MUR: '₨', AOA: 'Kz', MZN: 'MT', CDF: 'FC'
-  };
-  return symbols[currency?.toUpperCase()] || `${currency} `;
-};
+/**
+ * Email-context currency symbol. Table now lives in utils/currencyUtils.ts
+ * (variant 'email'); this thin wrapper keeps the existing import path + output.
+ */
+export const getCurrencySymbol = (currency: string): string =>
+  getCurrencySymbolShared(currency, 'email');
 
 /**
  * Professional base email template
