@@ -26,10 +26,10 @@ import {
 import { apiLogger } from "../../utils/loggers";
 import {
   verifyDownloadToken,
+  mintDownloadToken,
   handleCartPaymentSettled,
 } from "../../services/orderFulfillmentService";
 import { UPLOAD_ROOT } from "../../middleware/uploadProductAsset";
-import crypto from "crypto";
 import sequelize from "../../utils/dbInstance";
 import {
   sendOrderReceiptEmail,
@@ -206,27 +206,18 @@ export const resendDownloadLinks = async (
       ""
     ).replace(/\/+$/, "");
 
-    const DOWNLOAD_TOKEN_TTL_SECONDS = 24 * 60 * 60;
-    const secret =
-      process.env.PRODUCT_DOWNLOAD_SECRET ||
-      process.env.ACCESS_TOKEN_SECRET ||
-      "fallback-download-secret";
-
     for (const item of items) {
       const dp = (item as any).dataValues.delivered_payload;
       if (dp && Array.isArray(dp.asset_deliveries)) {
         const refreshed = dp.asset_deliveries.map((a: any) => {
-          const exp = Math.floor(Date.now() / 1000) + DOWNLOAD_TOKEN_TTL_SECONDS;
-          const sig = crypto
-            .createHmac("sha256", secret)
-            .update(`${order.dataValues.order_id}:${a.asset_id}:${exp}`)
-            .digest("hex")
-            .slice(0, 32);
-          const token = `${exp}.${sig}`;
+          const { token, expires_at } = mintDownloadToken(
+            Number(order.dataValues.order_id),
+            a.asset_id
+          );
           return {
             ...a,
             download_token: token,
-            expires_at: new Date(exp * 1000).toISOString(),
+            expires_at,
             download_url: `${serverBaseUrl}/api/order/${order.dataValues.public_ref}/download/${a.asset_id}?t=${token}`,
           };
         });

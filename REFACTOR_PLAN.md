@@ -193,7 +193,7 @@ hook consolidation is architectural. These belong to Phase 3/6, not the 2c primi
   **Help & Support** (dual-source API + hardcoded fallback with a manual/debounced search that
   rewrites the same `articles` list). These stay on manual fetch by design.
 
-### Phase 4 — Backend HTTP resilience + integrations — 🟡 partially done (resilient client shipped 2026-08-08)
+### Phase 4 — Backend HTTP resilience + integrations — ✅ done (2026-08-08)
 - ✅ **Resilient Tatum/blockchain HTTP client + `withRetry` util (2026-08-08).** New
   `backend/utils/tatumHttp.ts`: a shared axios instance that auto-retries TRANSIENT failures
   (network errors, ECONNRESET/ETIMEDOUT, HTTP 429/500/502/503/504) with exponential backoff +
@@ -213,9 +213,35 @@ hook consolidation is architectural. These belong to Phase 3/6, not the 2c primi
   CLOSED); backend testing agent confirmed NO regression — public tickers + `getCurrencyRates`
   (both Tatum-backed via tatumHttp) return valid data, no tatumHttp errors in logs, caching + circuit
   breaker healthy (all tests read-only/safe on the live system).
-- ⬜ Remaining: opt specific known-safe read-POSTs (JSON-RPC reads, fee estimates) into retry via
-  `idempotent:true`; consolidate any remaining bypassing call sites (diagnosticsRouter inline
-  requires); shared `verifyWebhookSignature` (dedupe ~8 files); remove dead BlockBee/Infobip config.
+- ✅ **Read-POST retries, signature dedupe, dead-config removal (2026-08-08).**
+  - **Read-only JSON-RPC retries (centralised, safe).** Instead of flagging ~12 call
+    sites, `utils/tatumHttp.ts` now auto-retries a POST only when its JSON-RPC body
+    `method` is on an explicit READ allowlist (`estimatefee`, `getRecentPrioritizationFees`,
+    `eth_gasPrice`, `eth_call`, `eth_blockNumber`, `eth_getLogs`, `getSignaturesForAddress`,
+    `getTransaction`, XRP `tx`/`account_info`/`account_lines`/`fee`/`server_info`/`ledger`, +
+    common EVM reads). Mutating methods are NEVER on the list — verified the XRP `submit`
+    broadcast (`tatumXrpRpc`, apis/tatumApi.ts) and any `*sendRawTransaction`/`broadcast` are
+    excluded, so no double-spend risk. The one non-JSON-RPC read (`getchainparameters` in
+    `tronEnergyService.ts`) opts in explicitly via `idempotent:true`; the `getaccountresource`
+    read already has its own retry loop and was left alone.
+  - **Shared HMAC primitives.** New `utils/hmac.ts` (`hmacSha256Hex`, length-guarded
+    `timingSafeCompare`) replaces the hand-rolled `crypto.createHmac(...)` boilerplate in
+    `webhooks/index.ts` (`generateWebhookSignature`/`verifyWebhookSignature`),
+    `companyController.ts` (test-webhook signer), and the product download-token mint/verify
+    (`orderFulfillmentService.ts` — `mintDownloadToken` now exported + reused by
+    `orderController.ts`, killing a second inline copy). BYTE-IDENTICAL: proved via
+    `scripts/verify_hmac_phase4.ts` (object/string signing, valid/tampered/short-sig verify,
+    truncated-token utf8 compare — all match the old inline output). EXCLUDED by design:
+    Veriff (signs with `crypto-js`, live KYC path) and Flutterwave (`verif-hash` plain-secret
+    equality) use different schemes and were left untouched.
+  - **Diagnostics bypass fixed.** The 3 inline `require("axios")` GET reads in
+    `routes/diagnosticsRouter.ts` (TronGrid/Ethplorer/Tatum-REST balance fallbacks) now go
+    through the resilient `tatumHttp` client.
+  - **Dead config removed.** `BLOCK_BEE_API_KEY` + `INFOBIP_API_KEY` (0 code refs) deleted
+    from `.do/app.yaml`, `.do/app-create.json`, and the active `.env`.
+  - Verified: backend `tsc --noEmit` = 0 errors; backend boots clean; `/health` DB+Redis
+    connected, tatum operational, background jobs still OFF (safe). No testing agent run
+    against the live DB.
 
 ### Phase 5 — Backend response layer + config — ⬜
 - `asyncHandler` + `sendSuccess/sendError`; typed `config` module; dedup backend

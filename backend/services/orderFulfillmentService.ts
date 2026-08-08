@@ -12,7 +12,7 @@
  *
  * Idempotent — safe to re-invoke on the same order (webhook retries).
  */
-import crypto from "crypto";
+import { hmacSha256Hex, timingSafeCompare } from "../utils/hmac";
 import {
   productAssetModel,
   productOrderModel,
@@ -29,7 +29,7 @@ import sequelize from "../utils/dbInstance";
 
 const DOWNLOAD_TOKEN_TTL_SECONDS = 24 * 60 * 60; // 24h per spec §7.4
 
-function mintDownloadToken(orderId: number, assetId: number): {
+export function mintDownloadToken(orderId: number, assetId: number): {
   token: string;
   expires_at: string;
 } {
@@ -39,11 +39,7 @@ function mintDownloadToken(orderId: number, assetId: number): {
     "fallback-download-secret";
   const expEpoch = Math.floor(Date.now() / 1000) + DOWNLOAD_TOKEN_TTL_SECONDS;
   const payload = `${orderId}:${assetId}:${expEpoch}`;
-  const sig = crypto
-    .createHmac("sha256", secret)
-    .update(payload)
-    .digest("hex")
-    .slice(0, 32);
+  const sig = hmacSha256Hex(payload, secret).slice(0, 32);
   const token = `${expEpoch}.${sig}`;
   return { token, expires_at: new Date(expEpoch * 1000).toISOString() };
 }
@@ -66,16 +62,9 @@ export function verifyDownloadToken(
     process.env.PRODUCT_DOWNLOAD_SECRET ||
     process.env.ACCESS_TOKEN_SECRET ||
     "fallback-download-secret";
-  const expected = crypto
-    .createHmac("sha256", secret)
-    .update(`${orderId}:${assetId}:${exp}`)
-    .digest("hex")
-    .slice(0, 32);
-  // Constant-time compare
-  const a = Buffer.from(sig);
-  const b = Buffer.from(expected);
-  if (a.length !== b.length) return false;
-  return crypto.timingSafeEqual(a, b);
+  const expected = hmacSha256Hex(`${orderId}:${assetId}:${exp}`, secret).slice(0, 32);
+  // Constant-time compare (utf8 bytes of the truncated hex strings)
+  return timingSafeCompare(sig, expected, "utf8");
 }
 
 /**

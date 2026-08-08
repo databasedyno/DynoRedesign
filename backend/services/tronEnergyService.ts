@@ -114,7 +114,7 @@ export const getTronNetworkParams = async (): Promise<TronNetworkParams> => {
     const chainParamsRes = await axios.post(
       `${TRONGRID_API}/wallet/getchainparameters`,
       {},
-      { timeout: 8000 }
+      { timeout: 8000, idempotent: true } as any
     );
 
     let energyPriceSun = FALLBACK.ENERGY_PRICE_SUN;

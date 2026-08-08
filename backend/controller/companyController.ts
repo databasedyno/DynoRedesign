@@ -17,6 +17,7 @@ import { QueryTypes, Op } from "sequelize";
 import { sendCompanyProfileCreatedEmail, sendCompanyContactWelcomeEmail, sendCompanyProfileUpdatedEmail } from "../services/emailService";
 import { deleteRedisItem, getRedisItem, setRedisItem, setRedisTTL } from "../utils/redisInstance";
 import crypto from "crypto";
+import { hmacSha256Hex } from "../utils/hmac";
 
 import axios from "axios";
 import { toConversionDisplayStatus } from "../services/paymentStateMachine";
@@ -1381,9 +1382,7 @@ const testWebhook = async (req: express.Request, res: express.Response) => {
     // Only add signature if secret is configured
     if (result.webhook_secret) {
       const signaturePayload = { ...testPayload, timestamp };
-      const hmac = crypto.createHmac('sha256', result.webhook_secret);
-      hmac.update(JSON.stringify(signaturePayload));
-      headers['X-Dynopay-Signature'] = hmac.digest('hex');
+      headers['X-Dynopay-Signature'] = hmacSha256Hex(signaturePayload, result.webhook_secret);
     }
 
     companyLogger.info(

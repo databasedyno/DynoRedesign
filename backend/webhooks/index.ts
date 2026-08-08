@@ -1,5 +1,6 @@
 import express from "express";
 import crypto from "crypto";
+import { hmacSha256Hex, timingSafeCompare } from "../utils/hmac";
 import { apiLogger, webhookLogs} from "../utils/loggers";
 import { getErrorMessage } from "../helper";
 import { ITatumWebHook, IWebHook } from "../utils/types";
@@ -37,10 +38,7 @@ const WEBHOOK_DISABLE_TTL_SECONDS = 86400;
  * @returns Hex-encoded HMAC signature
  */
 const generateWebhookSignature = (payload: unknown, secret: string): string => {
-  const payloadString = JSON.stringify(payload);
-  const hmac = crypto.createHmac('sha256', secret);
-  hmac.update(payloadString);
-  return hmac.digest('hex');
+  return hmacSha256Hex(payload as string | object, secret);
 };
 
 /**
@@ -51,11 +49,7 @@ const generateWebhookSignature = (payload: unknown, secret: string): string => {
  * @returns boolean - true if signature is valid
  */
 export const verifyWebhookSignature = (payload: string, signature: string, secret: string): boolean => {
-  const expectedSignature = crypto.createHmac('sha256', secret).update(payload).digest('hex');
-  return crypto.timingSafeEqual(
-    Buffer.from(signature, 'hex'),
-    Buffer.from(expectedSignature, 'hex')
-  );
+  return timingSafeCompare(signature, hmacSha256Hex(payload, secret), "hex");
 };
 
 /**

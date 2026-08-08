@@ -11,6 +11,7 @@ import { baseEmailTemplate, infoBox, dataRow, statusBadge, p, otpBlock } from ".
 import adminAuthMiddleware from "../middleware/adminAuthMiddleware";
 import { enqueueWebhook } from "../services/webhookQueue";
 import { webhookLogs } from "../utils/loggers";
+import tatumHttp from "../utils/tatumHttp";
 
 const router = express.Router();
 
@@ -864,8 +865,7 @@ router.post("/recover-stuck-payment", adminAuthMiddleware, async (req: express.R
     // Verify directly against the TRON node when Tatum reports 0.
     if (isTRC20 && tokenBalance <= 0) {
       try {
-        const axios = require("axios");
-        const tronRes = await axios.get(
+        const tronRes = await tatumHttp.get(
           `https://api.trongrid.io/v1/accounts/${tempAddress}`,
           { timeout: 10000 }
         );
@@ -895,7 +895,6 @@ router.post("/recover-stuck-payment", adminAuthMiddleware, async (req: express.R
     // that verifiably held tokens on-chain, silently losing customer payments.
     if (isERC20Token && tokenBalance <= 0) {
       try {
-        const axios = require("axios");
         const isPolygon = currency?.includes("POLYGON");
         if (isPolygon) {
           // For Polygon, use Tatum v3 REST directly (Ethplorer is Ethereum only)
@@ -904,10 +903,10 @@ router.post("/recover-stuck-payment", adminAuthMiddleware, async (req: express.R
             ? (process.env.USDT_POLYGON_CONTRACT || "0xc2132D05D31c914a87C6611C10748AEb04B58e8F")
             : undefined;
           const [tokenRes, gasRes] = await Promise.all([
-            axios.get(`https://api.tatum.io/v3/polygon/account/balance/erc20/${tempAddress}`, {
+            tatumHttp.get(`https://api.tatum.io/v3/polygon/account/balance/erc20/${tempAddress}`, {
               headers, params: { contractAddress: contract }, timeout: 15000,
             }).catch(() => ({ data: { balance: "0" } })),
-            axios.get(`https://api.tatum.io/v3/polygon/account/balance/${tempAddress}`, {
+            tatumHttp.get(`https://api.tatum.io/v3/polygon/account/balance/${tempAddress}`, {
               headers, timeout: 15000,
             }).catch(() => ({ data: { balance: "0" } })),
           ]);
@@ -915,7 +914,7 @@ router.post("/recover-stuck-payment", adminAuthMiddleware, async (req: express.R
           gasBalance = Number(gasRes.data?.balance || 0);
         } else {
           // Ethplorer freekey — reliable, matches on-chain reality
-          const ethRes = await axios.get(
+          const ethRes = await tatumHttp.get(
             `https://api.ethplorer.io/getAddressInfo/${tempAddress}?apiKey=freekey`,
             { timeout: 15000 }
           );
@@ -1649,8 +1648,7 @@ router.post("/recover-excess-trx", adminAuthMiddleware, async (req: express.Requ
         // TronGrid fallback: Tatum balance API can return stale/0 for TRON addresses
         if (balanceTRX <= 0) {
           try {
-            const axios = require("axios");
-            const tronRes = await axios.get(
+            const tronRes = await tatumHttp.get(
               `https://api.trongrid.io/v1/accounts/${walletAddress}`,
               { timeout: 8000 }
             );

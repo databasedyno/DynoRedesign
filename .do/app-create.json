@@ -273,12 +273,6 @@
             "type": "SECRET"
           },
           {
-            "key": "BLOCK_BEE_API_KEY",
-            "value": "REPLACE_ME",
-            "scope": "RUN_TIME",
-            "type": "SECRET"
-          },
-          {
             "key": "FAST_FOREX_KEY",
             "value": "REPLACE_ME",
             "scope": "RUN_TIME",
@@ -367,12 +361,6 @@
             "key": "TELNYX_PHONE_NUMBER",
             "value": "REPLACE_ME",
             "scope": "RUN_TIME"
-          },
-          {
-            "key": "INFOBIP_API_KEY",
-            "value": "REPLACE_ME",
-            "scope": "RUN_TIME",
-            "type": "SECRET"
           },
           {
             "key": "VERIFF_API_KEY",

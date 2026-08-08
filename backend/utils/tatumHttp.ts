@@ -44,6 +44,28 @@ const READ_TIMEOUT_MS = Number(process.env.TATUM_HTTP_READ_TIMEOUT_MS ?? 30000);
 const IDEMPOTENT_METHODS = new Set(["get", "head", "options"]);
 const RETRYABLE_STATUS = new Set([429, 500, 502, 503, 504]);
 
+// ── Read-only JSON-RPC allowlist ────────────────────────────────────────
+// A JSON-RPC POST (body `{ method, params, … }`) is only auto-retried when its
+// `method` is on this allowlist of NON-MUTATING reads. This lets fee/gas
+// estimates, balance/log/transaction lookups, etc. recover from transient
+// blockchain-provider hiccups WITHOUT ever retrying a broadcast.
+// CRITICAL: mutating methods must NEVER appear here. In particular the XRP
+// `submit` (raw-tx broadcast) and any `*sendRawTransaction`/`broadcast` are
+// deliberately excluded — retrying them could double-spend real funds.
+const READ_RPC_METHODS = new Set([
+  // UTXO (BTC/BCH/LTC/DOGE)
+  "estimatefee",
+  // Solana
+  "getrecentprioritizationfees", "getsignaturesforaddress", "gettransaction",
+  // EVM (Polygon/ETH) — eth_call is a read-only simulation
+  "eth_gasprice", "eth_call", "eth_blocknumber", "eth_getlogs",
+  "eth_getbalance", "eth_gettransactionreceipt", "eth_gettransactionbyhash",
+  "eth_gettransactioncount", "eth_estimategas", "eth_chainid",
+  // XRP Ledger
+  "tx", "account_info", "account_lines", "account_tx", "fee",
+  "server_info", "ledger",
+]);
+
 interface RetryableConfig extends InternalAxiosRequestConfig {
   /** Opt-in flag: allow retry for a known-safe non-GET (e.g. an RPC read). */
   idempotent?: boolean;
@@ -51,10 +73,33 @@ interface RetryableConfig extends InternalAxiosRequestConfig {
   __retryCount?: number;
 }
 
-/** A request is retryable if it's idempotent by method or explicitly opted-in. */
+/**
+ * Extract the JSON-RPC `method` (lowercased) from a request body, whether it is
+ * still a raw object (request interceptor) or already serialised to a string
+ * (retry from the response interceptor). Returns null if the body isn't a
+ * JSON-RPC-shaped `{ method: "…" }` payload.
+ */
+function rpcMethodOf(data: unknown): string | null {
+  try {
+    const obj = typeof data === "string" ? JSON.parse(data) : data;
+    const m = (obj as { method?: unknown })?.method;
+    if (typeof m === "string" && m) return m.toLowerCase();
+  } catch {
+    /* body isn't JSON — not an RPC read */
+  }
+  return null;
+}
+
+/**
+ * A request is retryable if it's idempotent by HTTP method, explicitly opted-in
+ * via `idempotent:true`, or a read-only JSON-RPC POST (method on the allowlist).
+ */
 function isRetryableRequest(config: RetryableConfig): boolean {
   const method = (config.method || "get").toLowerCase();
-  return IDEMPOTENT_METHODS.has(method) || config.idempotent === true;
+  if (IDEMPOTENT_METHODS.has(method)) return true;
+  if (config.idempotent === true) return true;
+  const rpcMethod = rpcMethodOf(config.data);
+  return rpcMethod != null && READ_RPC_METHODS.has(rpcMethod);
 }
 
 /** A failure is transient (worth retrying) on network errors + specific 5xx/429. */

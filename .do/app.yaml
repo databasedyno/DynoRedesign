@@ -111,7 +111,6 @@ services:
       - { key: TATUM_TESTNET_TYPE, value: "bitcoin-testnet", scope: RUN_TIME }
       - { key: TATUM_WEBHOOK_SECRET, value: "REPLACE_ME", scope: RUN_TIME, type: SECRET }
       - { key: BLOCKCHAIR_API_KEY, value: "REPLACE_ME", scope: RUN_TIME, type: SECRET }
-      - { key: BLOCK_BEE_API_KEY, value: "REPLACE_ME", scope: RUN_TIME, type: SECRET }
 
       # ---------- FX / Tax ----------
       - { key: FAST_FOREX_KEY, value: "REPLACE_ME", scope: RUN_TIME, type: SECRET }
@@ -138,7 +137,6 @@ services:
       - { key: TELNYX_API_KEY, value: "REPLACE_ME", scope: RUN_TIME, type: SECRET }
       - { key: TELNYX_VERIFY_PROFILE_ID, value: "REPLACE_ME", scope: RUN_TIME }
       - { key: TELNYX_PHONE_NUMBER, value: "REPLACE_ME", scope: RUN_TIME }
-      - { key: INFOBIP_API_KEY, value: "REPLACE_ME", scope: RUN_TIME, type: SECRET }
 
       # ---------- KYC (Veriff) ----------
       - { key: VERIFF_API_KEY, value: "REPLACE_ME", scope: RUN_TIME, type: SECRET }
