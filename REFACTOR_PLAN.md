@@ -193,9 +193,29 @@ hook consolidation is architectural. These belong to Phase 3/6, not the 2c primi
   **Help & Support** (dual-source API + hardcoded fallback with a manual/debounced search that
   rewrites the same `articles` list). These stay on manual fetch by design.
 
-### Phase 4 — Backend HTTP resilience + integrations — ⬜
-- Resilient client + `withRetry` util; consolidate Tatum call sites to `tatumApi`;
-  shared `verifyWebhookSignature`; remove dead BlockBee/Infobip config.
+### Phase 4 — Backend HTTP resilience + integrations — 🟡 partially done (resilient client shipped 2026-08-08)
+- ✅ **Resilient Tatum/blockchain HTTP client + `withRetry` util (2026-08-08).** New
+  `backend/utils/tatumHttp.ts`: a shared axios instance that auto-retries TRANSIENT failures
+  (network errors, ECONNRESET/ETIMEDOUT, HTTP 429/500/502/503/504) with exponential backoff +
+  jitter and `Retry-After` support, plus a generic `withRetry()` wrapper for non-axios (SDK) work.
+  **Safety:** retries ONLY idempotent requests (GET/HEAD/OPTIONS, or a non-GET explicitly flagged
+  `idempotent:true`); writes/POSTs (broadcasts, transfers, address creation) are NEVER retried, and
+  the bounded 30s read-timeout is applied only to auto-retryable reads (writes keep the caller's
+  timeout so a broadcast is never aborted mid-flight). No API-key injection (callers attach their
+  own headers) → safe to reuse for non-Tatum reads too.
+  Routed through it (transparent — success path unchanged, only adds retry on transient errors):
+  `apis/tatumApi.ts` (the 60+-call gateway), `services/blockchainFeeService.ts`,
+  `services/reconciliation.ts`, `helper/currencyConvert.ts`, `services/tronEnergyService.ts`.
+  EXCLUDED by design: `services/merchantPool/directEvmTransfer.ts` (sweep broadcaster — sensitive),
+  `services/migrateWebhookUrls.ts` (write-only + disabled under WORKER_ROLE=secondary),
+  `routes/diagnosticsRouter.ts` (admin-only inline requires), one-off `scripts/*`.
+  Verified: backend `tsc --noEmit` = 0 errors; boots clean; `/health` tatum_api operational (circuit
+  CLOSED); backend testing agent confirmed NO regression — public tickers + `getCurrencyRates`
+  (both Tatum-backed via tatumHttp) return valid data, no tatumHttp errors in logs, caching + circuit
+  breaker healthy (all tests read-only/safe on the live system).
+- ⬜ Remaining: opt specific known-safe read-POSTs (JSON-RPC reads, fee estimates) into retry via
+  `idempotent:true`; consolidate any remaining bypassing call sites (diagnosticsRouter inline
+  requires); shared `verifyWebhookSignature` (dedupe ~8 files); remove dead BlockBee/Infobip config.
 
 ### Phase 5 — Backend response layer + config — ⬜
 - `asyncHandler` + `sendSuccess/sendError`; typed `config` module; dedup backend
