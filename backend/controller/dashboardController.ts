@@ -550,16 +550,39 @@ const getChartData = async (req: express.Request, res: express.Response) => {
  * Helper function to fill missing dates with zero values
  */
 const fillMissingDates = (data: Array<Record<string, unknown>>, startDate: Date, endDate: Date, groupBy: string) => {
-  const filledData: Array<Record<string, unknown>> = [];
+  const bucketKey = (d: Date): string => d.toISOString().split('T')[0];
+
+  // Snap a date to the START of its bucket, in UTC, to MATCH the keys produced
+  // by Postgres DATE_TRUNC (week => Monday, month => 1st). Previously the grid
+  // stepped +7d / +1month from an UN-aligned startDate, so its keys never
+  // matched the DB's Monday/1st buckets → every real week/month bucket was
+  // dropped and the 90d (week) / 1y (month) series came back all-zero.
+  const snapToBucketStart = (input: Date): Date => {
+    const x = new Date(input);
+    x.setUTCHours(0, 0, 0, 0);
+    if (groupBy === 'week') {
+      const dow = x.getUTCDay(); // 0=Sun … 6=Sat
+      const diffToMonday = dow === 0 ? -6 : 1 - dow;
+      x.setUTCDate(x.getUTCDate() + diffToMonday);
+    } else if (groupBy === 'month') {
+      x.setUTCDate(1);
+    }
+    return x;
+  };
+
   const dataMap = new Map(data.map(d => [new Date(String(d.date)).toISOString().split('T')[0], d]));
-  
-  const current = new Date(startDate);
-  
-  while (current <= endDate) {
-    const dateKey = current.toISOString().split('T')[0];
+  const used = new Set<string>();
+  const filledData: Array<Record<string, unknown>> = [];
+
+  const current = snapToBucketStart(startDate);
+  const end = new Date(endDate);
+
+  while (current <= end) {
+    const dateKey = bucketKey(current);
     const existingData = dataMap.get(dateKey);
-    
+
     if (existingData) {
+      used.add(dateKey);
       filledData.push({
         date: dateKey,
         volume: existingData.volume,
@@ -572,17 +595,30 @@ const fillMissingDates = (data: Array<Record<string, unknown>>, startDate: Date,
         transaction_count: 0,
       });
     }
-    
-    // Increment based on groupBy
+
+    // Increment based on groupBy (UTC-safe so DST never skips/duplicates a bucket)
     if (groupBy === 'day') {
-      current.setDate(current.getDate() + 1);
+      current.setUTCDate(current.getUTCDate() + 1);
     } else if (groupBy === 'week') {
-      current.setDate(current.getDate() + 7);
+      current.setUTCDate(current.getUTCDate() + 7);
     } else {
-      current.setMonth(current.getMonth() + 1);
+      current.setUTCMonth(current.getUTCMonth() + 1);
     }
   }
-  
+
+  // Safety net: never lose real volume. If any DB bucket wasn't hit by the grid
+  // (e.g. a timezone boundary difference), append it so totals stay correct.
+  for (const [key, d] of dataMap) {
+    if (!used.has(key)) {
+      filledData.push({
+        date: key,
+        volume: (d as Record<string, unknown>).volume,
+        transaction_count: (d as Record<string, unknown>).transaction_count,
+      });
+    }
+  }
+
+  filledData.sort((a, b) => String(a.date).localeCompare(String(b.date)));
   return filledData;
 };
 
