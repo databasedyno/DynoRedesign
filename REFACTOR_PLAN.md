@@ -243,9 +243,25 @@ hook consolidation is architectural. These belong to Phase 3/6, not the 2c primi
     connected, tatum operational, background jobs still OFF (safe). No testing agent run
     against the live DB.
 
-### Phase 5 — Backend response layer + config — ⬜
-- `asyncHandler` + `sendSuccess/sendError`; typed `config` module; dedup backend
-  currency helpers; migrate merchant-API routes first, verify, then expand.
+### Phase 5 — Backend response layer + config — 🟡 in progress (infra + merchant-API pilot done 2026-08-08)
+- ✅ **`asyncHandler` + `sendSuccess`/`sendError`** (`helper/apiResponse.ts`) — merchant-API
+  envelope: success `{ success:true, message, [data], ...extra }`, error
+  `{ success:false, message, ...extra }`; `asyncHandler` wraps handlers, logs, and returns the
+  same 500 shape (`err.message || "Internal server error"`) — byte-identical to the old
+  inline blocks.
+- ✅ **Typed `config` module** (`utils/config.ts`) — `str`/`num`/`bool`/`requireEnv` + curated
+  values (env/isProduction, serverUrl, frontendUrl, checkoutUrl, publicBaseUrl,
+  internalBackendUrl, accessTokenSecret, apiSecret, workerRole). Non-breaking; `process.env`
+  stays source of truth. Migrate call sites incrementally.
+- ✅ **Merchant-API pilot migrated** — all 10 `routes/merchantApiRouter.ts` handlers +
+  `apiKeyOnlyMiddleware` now use `asyncHandler`/`sendSuccess`/`sendError`; `ACCESS_TOKEN_SECRET`
+  (×2) + `CHECKOUT_URL` read via `config`. Verified: `tsc --noEmit` = 0; SQL/DB logic and all
+  response messages diffed byte-identical vs HEAD; live no-key request returns the exact 403
+  envelope; backend boots clean. (No testing agent — it writes to the live DB.)
+- ⬜ Remaining: roll `asyncHandler`/`sendSuccess`/`sendError` out to the other routers/controllers
+  (start with the internal `errorResponseHelper`/`successResponseHelper` consumers, matching
+  their shapes); migrate more `process.env` reads onto `config`; dedup backend currency helpers
+  (`getCurrencySymbol` ×3, `formatCurrency` ×2).
 
 ### Phase 6 — Polish — 🟡 partially done
 - ✅ **Shared skeleton loader (2026-08-06)** — new `Components/UI/SkeletonList` (configurable rows/height);
