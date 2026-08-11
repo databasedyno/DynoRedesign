@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
 import { useMemo } from "react";
 import { useSelector } from "react-redux";
-import { INDIGO, VIOLET, VOLT, VOLT_INK, OBSIDIAN, AURORA_GRADIENT } from "@/Components/Page/Home/v3/theme.v3";
+import { INDIGO, VIOLET, VOLT, OBSIDIAN, AURORA_GRADIENT } from "@/Components/Page/Home/v3/theme.v3";
 
 /**
  * useVerticalAccent — the audit's cross-cutting primitive.
@@ -61,11 +61,11 @@ const ACCENTS: Record<Vertical, VerticalAccent> = {
   },
   creators: {
     vertical: "creators",
-    color: VOLT,            // #CCFF00
-    colorDeep: VOLT_INK,    // #5A6B00
-    tint: "rgba(204,255,0,0.14)",
+    color: INDIGO,          // unified indigo look (was VOLT #CCFF00)
+    colorDeep: "#4338CA",
+    tint: "rgba(79,70,229,0.10)",
     gradient: AURORA_GRADIENT,
-    onColor: OBSIDIAN,      // dark ink on volt fill
+    onColor: "#FFFFFF",
   },
   developers: {
     vertical: "developers",

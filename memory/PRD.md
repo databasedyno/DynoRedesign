@@ -1,3 +1,26 @@
+# SESSION ADDENDUM (2026-08-11 (fork)) — Branded emails + unified-indigo creator page — VERIFIED (rendered email previews + /creator screenshot)
+
+Two user-selected follow-ups from the color-rollout session, both DONE & verified.
+
+## 1. Branded transactional emails → indigo/green (`backend/utils/emailTemplate.ts`)
+Migrated the last customer touchpoint off cyber-lime. All 12 `#CCFF00` spots replaced:
+- **Brand accent → indigo:** CTA button (bg `#CCFF00`→`#4F46E5`, text `#050505`→`#FFFFFF`, both light inline + dark `.btn` override + span), top 5px accent bar → `#4F46E5`, in-content links (dark) `#818CF8`, footer "Secure Crypto Payment Gateway" tagline `#818CF8`, OTP code block (border+text) `#818CF8` (dark `.otp-code` + light `otpBlock`), `infoBox` default border → `#4F46E5`.
+- **Success → semantic green:** `.status-success` dark (bg `#052e16` / text `#86EFAC`), `.success-box` dark (bg `#052e16` / border `#22C55E`), `.stat-value-green` dark `#4ADE80`. (Light-mode success/statusBadge were already green — untouched.)
+- **Verified** by rendering `backend/scripts/render_email_previews.ts` → `/tmp/email_preview/{otp,payment,welcome}.html` and screenshotting: payment (light) shows indigo bar + indigo CTA (white text) + green Confirmed badge + green payout; OTP (dark) shows indigo bar + indigo OTP box. No lime. No lime in `emailService.ts` / `sendEmail.ts` (confirmed).
+
+## 2. Unified-indigo creator page (`useVerticalAccent.ts` + `PurposePicker.tsx`)
+The creators vertical intentionally used volt-lime; user asked to fold it into the indigo brand.
+- `Components/UI/_shared/useVerticalAccent.ts` — `creators` accent: `color: INDIGO`, `colorDeep: #4338CA`, `tint: rgba(79,70,229,0.10)`, `onColor: #FFFFFF` (was VOLT/VOLT_INK/OBSIDIAN). Removed now-unused `VOLT_INK` import (VOLT/OBSIDIAN still used by the `developers` vertical, left as-is per scope).
+- `Components/UI/AuthLayout/PurposePicker.tsx` — `creators` picker accent → indigo (matches merchants).
+- Propagates to all creator surfaces via `useVerticalAccent` consumers: CheckoutShell (creator/tip checkout), register, SEOLandingPage, OnboardingBanner.
+- **Verified** `/creator` (in-app, dark): Accent-button preview, "Set up tips", live-preview avatar + tip chips + "Send a tip" button all indigo; live-status dot green. NOTE: the creator theme-picker still lists **"Lime" as a user-selectable swatch** (`constants/creatorTheme.ts`) — intentional; individual creators can still choose it. hostbay's own accent is `#4F46E5`.
+
+Frontend + backend both compile/run clean. Login: `hostbay@moxx.co` / `Katiekendra123@`.
+
+---
+
+
+
 # CURRENT SESSION (2026-08-11 (fork)) — COMPLETE the semantic-color rollout (lime→indigo/semantic) the prior fork left half-done — VERIFIED (dark screenshots)
 
 - **Why:** User said the previous "semantic color" task was INCOMPLETE. Root cause confirmed: the OLD DynoPay dark-mode brand accent = **cyber-lime `#CCFF00` / `#5A6B00`** was still hardcoded across the public **Storefront (Shop)**, **Checkout**, **API surfaces**, the **global in-app dark theme**, the **dashboard chart**, nav, selectors, banners, modals and celebrations (~20 files). The prior fork only migrated a subset (dashboard KPIs, Transactions table, StatusPill, Notifications), so half the app (esp. dark mode) still looked lime = inconsistent.

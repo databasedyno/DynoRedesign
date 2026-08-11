@@ -44,9 +44,9 @@ export const baseEmailTemplate = (
 
   const buttonBlock = showButton && buttonText && buttonLink
     ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding: 28px 0 8px 0;">
-        <a href="${buttonLink}" class="btn" style="display: inline-block; background-color: #CCFF00; color: #050505; -webkit-text-fill-color: #050505; text-decoration: none; padding: 14px 40px; border-radius: 12px; font-weight: 700; font-size: 15px; letter-spacing: 0.2px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; mso-padding-alt: 0; text-align: center;">
+        <a href="${buttonLink}" class="btn" style="display: inline-block; background-color: #4F46E5; color: #FFFFFF; -webkit-text-fill-color: #FFFFFF; text-decoration: none; padding: 14px 40px; border-radius: 12px; font-weight: 700; font-size: 15px; letter-spacing: 0.2px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; mso-padding-alt: 0; text-align: center;">
           <!--[if mso]><i style="mso-font-width: 150%; mso-text-raise: 26pt;">&nbsp;</i><![endif]-->
-          <span style="mso-text-raise: 13pt; color: #050505; -webkit-text-fill-color: #050505;">${buttonText}</span>
+          <span style="mso-text-raise: 13pt; color: #FFFFFF; -webkit-text-fill-color: #FFFFFF;">${buttonText}</span>
           <!--[if mso]><i style="mso-font-width: 150%;">&nbsp;</i><![endif]-->
         </a>
       </td></tr></table>`
@@ -84,13 +84,13 @@ export const baseEmailTemplate = (
       .card { background-color: #18181b !important; }
       .hdr-bar { background-color: #050505 !important; }
       h1.hdg { color: #fafafa !important; }
-      /* CTA button: same lime bg + black text in BOTH modes (inversion-proof) */
-      .btn { background-color: #CCFF00 !important; color: #050505 !important; -webkit-text-fill-color: #050505 !important; }
-      .btn span { color: #050505 !important; -webkit-text-fill-color: #050505 !important; }
+      /* CTA button: same indigo bg + white text in BOTH modes (inversion-proof) */
+      .btn { background-color: #4F46E5 !important; color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF !important; }
+      .btn span { color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF !important; }
       /* Content area: override ALL child elements */
       .msg, .msg p, .msg li, .msg td, .msg div, .msg span { color: #d4d4d8 !important; }
       .msg strong, .msg b { color: #fafafa !important; }
-      .msg a:not(.btn) { color: #CCFF00 !important; }
+      .msg a:not(.btn) { color: #818CF8 !important; }
       /* Tables inside content */
       .msg table td { color: #d4d4d8 !important; }
       .msg table td strong { color: #fafafa !important; }
@@ -100,7 +100,7 @@ export const baseEmailTemplate = (
       .info-box td, .info-box p, .info-box span { color: #d4d4d8 !important; }
       .info-box strong { color: #fafafa !important; }
       /* Status badges */
-      .status-success { background-color: #1a2e05 !important; color: #CCFF00 !important; }
+      .status-success { background-color: #052e16 !important; color: #86EFAC !important; }
       .status-pending { background-color: #78350f !important; color: #fcd34d !important; }
       .status-error { background-color: #7f1d1d !important; color: #fca5a5 !important; }
       /* Data rows */
@@ -120,7 +120,7 @@ export const baseEmailTemplate = (
       .error-box { background-color: #2c0f0f !important; border-left-color: #ef4444 !important; }
       .error-box td, .error-box p, .error-box span { color: #fca5a5 !important; }
       .error-box strong { color: #fee2e2 !important; }
-      .success-box { background-color: #14210a !important; border-left-color: #CCFF00 !important; }
+      .success-box { background-color: #052e16 !important; border-left-color: #22C55E !important; }
       .success-box td, .success-box p, .success-box span { color: #d9f99d !important; }
       .success-box strong { color: #f7fee7 !important; }
       .neutral-box { background-color: #212124 !important; border-color: #33333a !important; }
@@ -130,9 +130,9 @@ export const baseEmailTemplate = (
       .stat-card { background-color: #212124 !important; }
       .stat-card td, .stat-card p, .stat-card span { color: #d4d4d8 !important; }
       .stat-card .stat-value { color: #fafafa !important; }
-      .stat-card .stat-value-green { color: #CCFF00 !important; }
+      .stat-card .stat-value-green { color: #4ADE80 !important; }
       /* OTP code block (already dark by design — brighten the frame) */
-      .otp-code { background-color: #0a0a0a !important; border-color: #CCFF00 !important; color: #CCFF00 !important; }
+      .otp-code { background-color: #0a0a0a !important; border-color: #818CF8 !important; color: #818CF8 !important; }
       /* Warning/security text */
       .warn-text, .warn-text p { color: #fca5a5 !important; }
       .warn-text strong { color: #fee2e2 !important; }
@@ -159,7 +159,7 @@ export const baseEmailTemplate = (
         <table role="presentation" class="outer card" width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 16px; overflow: hidden;">
           <!-- Neon accent bar -->
           <tr>
-            <td style="background-color: #CCFF00; height: 5px; line-height: 5px; font-size: 5px;">&nbsp;</td>
+            <td style="background-color: #4F46E5; height: 5px; line-height: 5px; font-size: 5px;">&nbsp;</td>
           </tr>
           <!-- Logo Header -->
           <tr>
@@ -195,7 +195,7 @@ export const baseEmailTemplate = (
                   </td>
                 </tr>
                 <tr>
-                  <td align="center" class="ftr-text" style="color: #CCFF00; font-size: 12px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; padding-bottom: 16px; line-height: 1.5;">
+                  <td align="center" class="ftr-text" style="color: #818CF8; font-size: 12px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; padding-bottom: 16px; line-height: 1.5;">
                     Secure Crypto Payment Gateway
                   </td>
                 </tr>
@@ -246,7 +246,7 @@ export const baseEmailTemplate = (
  * Reusable email component: Info/data box
  * Used for payment details, transaction info, etc.
  */
-export const infoBox = (content: string, borderColor: string = '#CCFF00'): string => {
+export const infoBox = (content: string, borderColor: string = '#4F46E5'): string => {
   return `<table role="presentation" class="info-box" width="100%" cellpadding="0" cellspacing="0" style="background-color: #fafaf9; border: 1px solid #e7e5e4; border-radius: 12px; border-left: 4px solid ${borderColor}; margin: 20px 0;">
     <tr><td style="padding: 16px 20px;">${content}</td></tr>
   </table>`;
@@ -290,7 +290,7 @@ export const p = (text: string, extra: string = ''): string => {
 export const otpBlock = (code: string): string => {
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin: 24px 0;">
     <tr><td align="center">
-      <div class="otp-code" style="display: inline-block; background-color: #050505; border: 1px solid #050505; border-radius: 14px; padding: 18px 44px; font-size: 32px; font-weight: 700; color: #CCFF00; letter-spacing: 10px; font-family: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;">${code}</div>
+      <div class="otp-code" style="display: inline-block; background-color: #050505; border: 1px solid #050505; border-radius: 14px; padding: 18px 44px; font-size: 32px; font-weight: 700; color: #818CF8; letter-spacing: 10px; font-family: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;">${code}</div>
     </td></tr>
   </table>`;
 };
