@@ -15,13 +15,15 @@ export const CB_TOKENS = {
     light: "#F6F7FB",
   },
   surface: {
-    dark: "#12131A",
-    darkElevated: "#1A1B25",
+    // Lifted a step above the page bg (#0A0A0F) so cards read as distinct,
+    // elevated surfaces in dark mode instead of blending into the background.
+    dark: "#16171F",
+    darkElevated: "#1E1F2A",
     light: "#FFFFFF",
     lightElevated: "#FFFFFF",
   },
   border: {
-    dark: "rgba(255,255,255,0.08)",
+    dark: "rgba(255,255,255,0.10)",
     light: "rgba(10,10,15,0.08)",
   },
   indigo: {
@@ -41,6 +43,18 @@ export const CB_TOKENS = {
     secondaryLight: "rgba(10,10,15,0.70)",
     mutedDark: "rgba(255,255,255,0.60)",
     mutedLight: "rgba(10,10,15,0.58)",
+  },
+  /**
+   * Semantic accents — used sparingly, "colour in the right places":
+   * positive = money-in / up, negative = down / failed, warning = pending,
+   * info = neutral highlight. Each carries a legible ink tone + a soft
+   * background glow for chips/badges, tuned per theme for AA contrast.
+   */
+  semantic: {
+    positive: { dark: "#3FD98A", light: "#05936A", glowDark: "rgba(5,177,105,0.16)", glowLight: "rgba(5,177,105,0.10)" },
+    negative: { dark: "#FF6B6B", light: "#D92D20", glowDark: "rgba(240,68,56,0.16)", glowLight: "rgba(240,68,56,0.09)" },
+    warning:  { dark: "#FBBF24", light: "#B45309", glowDark: "rgba(245,158,11,0.16)", glowLight: "rgba(245,158,11,0.12)" },
+    info:     { dark: "#5AC8FA", light: "#2775CA", glowDark: "rgba(39,117,202,0.18)", glowLight: "rgba(39,117,202,0.10)" },
   },
 };
 
@@ -190,8 +204,9 @@ export const ActionIconBadge = styled(Box)(({ theme }) => ({
 }));
 
 /**
- * DeltaChip — the coloured +X% pill next to the big KPI number.
- * Positive = Coinbase-green, Negative = neutral tone (never alarming red).
+ * DeltaChip — the coloured ±X% pill next to a KPI number.
+ * Positive = green (money-in / up), Negative = a muted red (down). Semantic
+ * colour so the trend direction reads at a glance while staying tasteful.
  */
 export const DeltaChip = styled(Box, {
   shouldForwardProp: (prop) => prop !== "positive",
@@ -206,17 +221,19 @@ export const DeltaChip = styled(Box, {
   fontWeight: 600,
   lineHeight: 1,
   color: positive
-    ? "#05B169"
+    ? theme.palette.mode === "dark"
+      ? CB_TOKENS.semantic.positive.dark
+      : CB_TOKENS.semantic.positive.light
     : theme.palette.mode === "dark"
-      ? CB_TOKENS.ink.secondaryDark
-      : CB_TOKENS.ink.secondaryLight,
+      ? CB_TOKENS.semantic.negative.dark
+      : CB_TOKENS.semantic.negative.light,
   backgroundColor: positive
     ? theme.palette.mode === "dark"
-      ? "rgba(5,177,105,0.12)"
-      : "rgba(5,177,105,0.10)"
+      ? CB_TOKENS.semantic.positive.glowDark
+      : CB_TOKENS.semantic.positive.glowLight
     : theme.palette.mode === "dark"
-      ? "rgba(255,255,255,0.06)"
-      : "rgba(10,10,15,0.05)",
+      ? CB_TOKENS.semantic.negative.glowDark
+      : CB_TOKENS.semantic.negative.glowLight,
 }));
 
 /**

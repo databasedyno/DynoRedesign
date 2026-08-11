@@ -143,7 +143,10 @@ const KpiStrip: React.FC<Props> = ({ stats, chartData, loading }) => {
   const { t } = useTranslation(["dashboardLayout", "common"]);
 
   const indigo = isDark ? CB_TOKENS.indigo.dark : CB_TOKENS.indigo.light;
-  const green = "#05B169";
+  // Semantic per-KPI accents — money-in green, brand indigo, info blue, amber.
+  const green = isDark ? CB_TOKENS.semantic.positive.dark : CB_TOKENS.semantic.positive.light;
+  const info = isDark ? CB_TOKENS.semantic.info.dark : CB_TOKENS.semantic.info.light;
+  const amber = isDark ? CB_TOKENS.semantic.warning.dark : CB_TOKENS.semantic.warning.light;
   const symbol = stats?.currencySymbol || "$";
 
   const revSpark = useMemo(
@@ -180,7 +183,7 @@ const KpiStrip: React.FC<Props> = ({ stats, chartData, loading }) => {
       delta: Number(stats?.todaySummary?.volumeChangePercent ?? 0),
       spark: revSpark,
       valueType: "currency",
-      color: indigo,
+      color: green,
     },
     {
       key: "payments",
@@ -189,12 +192,13 @@ const KpiStrip: React.FC<Props> = ({ stats, chartData, loading }) => {
       delta: Number(stats?.todaySummary?.transactionsChangePercent ?? 0),
       spark: txSpark,
       valueType: "count",
-      color: green,
+      color: indigo,
     },
     {
       key: "wallets",
       label: t("activeWallets", { defaultValue: "Active wallets" }),
       value: String(stats?.activeWallets ?? 0),
+      color: info,
       icon: <Icon name="wallet" size={18} />,
     },
     {
@@ -204,6 +208,7 @@ const KpiStrip: React.FC<Props> = ({ stats, chartData, loading }) => {
         Number(stats?.taxCollected) > 0
           ? stats?.taxCollectedFormatted || String(stats?.taxCollected)
           : `${symbol}0.00`,
+      color: amber,
       icon: <Icon name="receipt-text" size={18} />,
     },
   ];
@@ -240,7 +245,7 @@ const KpiStrip: React.FC<Props> = ({ stats, chartData, loading }) => {
               {c.label}
             </Box>
             {c.icon && (
-              <Box sx={{ color: indigo, display: "flex", flexShrink: 0 }}>
+              <Box sx={{ color: c.color || indigo, display: "flex", flexShrink: 0 }}>
                 {c.icon}
               </Box>
             )}

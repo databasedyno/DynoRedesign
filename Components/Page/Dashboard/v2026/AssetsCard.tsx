@@ -7,6 +7,7 @@ import { useWalletData } from "@/hooks/useWalletData";
 import { formatNumberWithComma } from "@/helpers";
 import { SurfaceCard, Eyebrow, CB_TOKENS } from "../coinbase/styled";
 import { MONO } from "@/styles/uiKit";
+import { getAssetColor } from "@/helpers/assetColor";
 
 /**
  * AssetsCard — ranks assets by settled volume FOR THE SELECTED TIME WINDOW
@@ -146,6 +147,7 @@ const AssetsCard: React.FC<AssetsCardProps> = ({
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
           {rows.map((r) => {
             const pct = hasVolume ? Math.round((r.total / maxTotal) * 100) : 0;
+            const color = getAssetColor(r.code);
             return (
               <Box key={r.code} data-testid={`dash2026-asset-${r.code}`}>
                 <Box
@@ -168,9 +170,8 @@ const AssetsCard: React.FC<AssetsCardProps> = ({
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        backgroundColor: isDark
-                          ? "rgba(255,255,255,0.05)"
-                          : "rgba(10,10,15,0.04)",
+                        backgroundColor: `${color}22`,
+                        border: `1px solid ${color}33`,
                         flexShrink: 0,
                       }}
                     >
@@ -189,9 +190,7 @@ const AssetsCard: React.FC<AssetsCardProps> = ({
                             fontFamily: "var(--font-sans)",
                             fontSize: 10,
                             fontWeight: 700,
-                            color: isDark
-                              ? CB_TOKENS.ink.mutedDark
-                              : CB_TOKENS.ink.mutedLight,
+                            color,
                           }}
                         >
                           {String(r.code || "?").slice(0, 3).toUpperCase()}
@@ -258,9 +257,7 @@ const AssetsCard: React.FC<AssetsCardProps> = ({
                       height: "100%",
                       width: `${pct}%`,
                       borderRadius: 999,
-                      background: isDark
-                        ? CB_TOKENS.indigo.dark
-                        : CB_TOKENS.indigo.light,
+                      background: `linear-gradient(90deg, ${color}, ${color}B3)`,
                       transition: "width 500ms ease",
                     }}
                   />
