@@ -16,6 +16,8 @@ import { useWalletStore } from "@/contexts/WalletDataContext";
 import { WalletDataType } from "@/utils/types/wallet";
 import { getNetworkLabel, isTokenOnOtherChain } from "@/utils/networkLabels";
 import { Icon, MONO } from "@/styles/uiKit";
+import { getAssetColor } from "@/helpers/assetColor";
+import { CB_TOKENS } from "@/Components/Page/Dashboard/coinbase/styled";
 import { Box, Grid, Skeleton, Tooltip, Typography, useTheme } from "@mui/material";
 import Image from "next/image";
 import { useRouter } from "next/router";
@@ -38,6 +40,7 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: () => void }) => {
   const isMobile = useIsMobile("md");
   const dispatch = useDispatch();
   const theme = useTheme();
+  const dark = theme.palette.mode === "dark";
   const { t } = useTranslation("walletScreen");
   const tWallet = useCallback(
     (key: string, options?: any): string => {
@@ -155,7 +158,9 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: () => void }) => {
           via setPageWarning) instead of an unhelpful "$0.00" hero. */}
       {walletData.length > 0 && <WalletTotalHero />}
       <Grid container spacing={isMobile ? "12px" : 2.7}>
-        {walletData.map((wallet, index) => (
+        {walletData.map((wallet, index) => {
+          const accent = getAssetColor(wallet.walletTitle);
+          return (
           <Grid
             item
             xs={12}
@@ -181,9 +186,32 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: () => void }) => {
             }}
           >
             <PanelCard
+              sx={{
+                position: "relative",
+                overflow: "hidden",
+                backgroundColor: dark ? CB_TOKENS.surface.dark : CB_TOKENS.surface.light,
+                border: `1px solid ${dark ? CB_TOKENS.border.dark : CB_TOKENS.border.light}`,
+                // Coin brand-colour top accent — identifies each chain at a glance.
+                "&::before": {
+                  content: '""',
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: "3px",
+                  background: `linear-gradient(90deg, ${accent}, ${accent}66)`,
+                  zIndex: 2,
+                },
+              }}
               title={wallet.name}
               headerIcon={
-                <HeaderIcon>
+                <HeaderIcon
+                  sx={{
+                    backgroundColor: `${accent}1F`,
+                    borderColor: `${accent}3D`,
+                    "&:hover": { backgroundColor: `${accent}2E` },
+                  }}
+                >
                   <Image
                     src={wallet.icon}
                     alt={wallet.name}
@@ -467,7 +495,8 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: () => void }) => {
               </WalletCardBody>
             </PanelCard>
           </Grid>
-        ))}
+          );
+        })}
       </Grid>
 
       {/* <Dialog

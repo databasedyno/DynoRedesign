@@ -4,6 +4,7 @@ import { MenuItemRow, UserName, UserTrigger } from "./styled";
 
 import LogoutIcon from "@/assets/Icons/logout-icon.svg";
 import { getInitials } from "@/helpers";
+import { avatarGradient } from "@/helpers/avatarGradient";
 import { buildCreatorUrl } from "@/helpers/creatorUrl";
 import useIsMobile from "@/hooks/useIsMobile";
 import useTokenData from "@/hooks/useTokenData";
@@ -54,6 +55,8 @@ export default function UserMenu() {
   const firstName = tokenData?.name?.split(" ")[0] || "";
   const lastName = tokenData?.name?.split(" ")[1] || "";
   const userName = tokenData?.name || "";
+  // Colourful, deterministic gradient for the initials avatar (no photo).
+  const avatarBg = avatarGradient(userName || firstName);
   const rawPhoto = tokenData?.photo || "";
   const userPhoto = rawPhoto && !rawPhoto.startsWith("/") && !rawPhoto.startsWith("http") && !rawPhoto.startsWith("blob:") ? `/${rawPhoto}` : rawPhoto;
 
@@ -104,10 +107,16 @@ export default function UserMenu() {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              backgroundColor:
+              background:
                 userPhoto && !imageError
                   ? "transparent"
-                  : theme.palette.primary.light,
+                  : avatarBg,
+              boxShadow:
+                userPhoto && !imageError
+                  ? "none"
+                  : theme.palette.mode === "dark"
+                    ? "0 2px 8px rgba(0,0,0,0.35)"
+                    : "0 2px 8px rgba(10,10,15,0.18)",
               flexShrink: 0,
             }}
           >
@@ -125,8 +134,8 @@ export default function UserMenu() {
               <Typography
                 sx={{
                   fontSize: isMobile ? "10px" : "12px",
-                  fontWeight: 600,
-                  color: theme.palette.primary.main,
+                  fontWeight: 700,
+                  color: "#FFFFFF",
                   fontFamily: "var(--font-sans)",
                   textTransform: "uppercase",
                   lineHeight: 1,
@@ -196,10 +205,16 @@ export default function UserMenu() {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  backgroundColor:
+                  background:
                     userPhoto && !imageError
                       ? "transparent"
-                      : theme.palette.primary.light,
+                      : avatarBg,
+                  boxShadow:
+                    userPhoto && !imageError
+                      ? "none"
+                      : theme.palette.mode === "dark"
+                        ? "0 2px 8px rgba(0,0,0,0.35)"
+                        : "0 2px 8px rgba(10,10,15,0.18)",
                   flexShrink: 0,
                 }}
               >
@@ -217,8 +232,8 @@ export default function UserMenu() {
                   <Typography
                     sx={{
                       fontSize: isMobile ? "10px" : "12px",
-                      fontWeight: 600,
-                      color: theme.palette.primary.main,
+                      fontWeight: 700,
+                      color: "#FFFFFF",
                       fontFamily: "var(--font-sans)",
                       textTransform: "uppercase",
                       lineHeight: 1,

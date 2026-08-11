@@ -6,6 +6,16 @@ import {
   Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import { CB_TOKENS } from "@/Components/Page/Dashboard/coinbase/styled";
+
+/** Semantic status → CB_TOKENS accent map (shared with the dashboard). */
+const STATUS_SEMANTIC: Record<string, { dark: string; light: string; glowDark: string; glowLight: string }> = {
+  settled: CB_TOKENS.semantic.positive,
+  confirmed: CB_TOKENS.semantic.info,
+  pending: CB_TOKENS.semantic.warning,
+  processing: CB_TOKENS.semantic.warning,
+  failed: CB_TOKENS.semantic.negative,
+};
 
 export const TransactionsTableContainer = styled(Box)(({ theme }) => ({
   width: "100%",
@@ -216,30 +226,9 @@ export const TransactionsTableFooterText = styled(Typography)(({ theme }) => ({
 export const StatusBadge = styled(Box)<{
   status: "pending" | "confirmed" | "settled" | "failed" | "processing";
 }>(({ theme, status }) => {
-  const statusColors: Record<string, { bg: string; border: string }> = {
-    settled: {
-      bg: "#EAFFF0",
-      border: "#DCF6E4",
-    },
-    confirmed: {
-      bg: "#E3F2FD",
-      border: "#BBDEFB",
-    },
-    pending: {
-      bg: "#FFEDD7",
-      border: "#FFE3C0",
-    },
-    processing: {
-      bg: "#FFEDD7",
-      border: "#FFE3C0",
-    },
-    failed: {
-      bg: "#FFEBE5",
-      border: "#FFC9CA",
-    },
-  };
-
-  const colors = statusColors[status] || statusColors.pending;
+  const isDark = theme.palette.mode === "dark";
+  const s = STATUS_SEMANTIC[status] || STATUS_SEMANTIC.pending;
+  const main = isDark ? s.dark : s.light;
 
   return {
     display: "inline-flex",
@@ -247,8 +236,10 @@ export const StatusBadge = styled(Box)<{
     gap: "8px",
     padding: "10px 9px",
     borderRadius: "100px",
-    backgroundColor: colors.bg,
-    border: `1px solid ${colors.border}`,
+    // Theme-aware semantic tint (green=paid, blue=confirmed, amber=pending,
+    // red=failed) — soft translucent glow works on both light + dark surfaces.
+    backgroundColor: isDark ? s.glowDark : s.glowLight,
+    border: `1px solid ${main}${isDark ? "38" : "29"}`,
     fontSize: "13px",
     fontWeight: 500,
     fontFamily: "var(--font-sans)",
@@ -282,30 +273,14 @@ export const StatusIconWrapper = styled(Box)<{
 export const StatusText = styled(Typography)<{
   status: "pending" | "confirmed" | "settled" | "failed" | "processing";
 }>(({ status, theme }) => {
-  const statusColors: Record<string, { textColor: string }> = {
-    // Session 56 WCAG fix: darkened text colors so every badge clears
-    // AA-Normal contrast (4.5:1) against its pastel backdrop.
-    settled: {
-      textColor: "#1B7A3E", // was #47B464 (2.51:1) → 5.14:1
-    },
-    confirmed: {
-      textColor: "#1565C0", // 5.03:1 (unchanged)
-    },
-    pending: {
-      textColor: "#8A5300", // was #F7931A (2.01:1) → 5.53:1
-    },
-    processing: {
-      textColor: "#8A5300", // was #F7931A (2.01:1) → 5.53:1
-    },
-    failed: {
-      textColor: "#B91E20", // was #E8484A (3.35:1) → 5.59:1
-    },
-  };
+  const isDark = theme.palette.mode === "dark";
+  const s = STATUS_SEMANTIC[status] || STATUS_SEMANTIC.pending;
 
   return {
     fontSize: "13px",
-    fontWeight: 500,
-    color: (statusColors[status] || statusColors.pending).textColor,
+    fontWeight: 600,
+    // Theme-aware semantic ink — matches the badge tint, AA-legible both modes.
+    color: isDark ? s.dark : s.light,
     fontFamily: "var(--font-sans)",
     textTransform: "capitalize",
     lineHeight: "16px",
@@ -324,88 +299,86 @@ export const StatusText = styled(Typography)<{
   };
 });
 
-export const CryptoIconChip = styled(Box)(({ theme }) => ({
-  display: "flex",
-  alignItems: "center",
-  gap: "6px",
-  padding: "7px 9px",
-  borderRadius: "999px",
-  background: theme.palette.secondary.light,
-  fontFamily: "var(--font-sans)",
-  fontSize: "13px",
-  fontWeight: 500,
-  color: theme.palette.text.primary,
-  flexShrink: 0,
-  border: `1px solid ${theme.palette.border.main}`,
-  position: "relative",
-  transition: "border-color 160ms ease, box-shadow 160ms ease",
-
-  // Aurora ring on hover — subtle indigo halo that makes rows feel
-  // tappable without changing typography. Design audit 2026-08-05 Phase 3.
-  "&:hover": {
-    borderColor: theme.palette.mode === "dark"
-      ? "rgba(129,140,248,0.42)"
-      : "rgba(79,70,229,0.32)",
-    boxShadow: theme.palette.mode === "dark"
-      ? "0 0 0 3px rgba(129,140,248,0.14)"
-      : "0 0 0 3px rgba(79,70,229,0.10)",
-  },
-
-  [theme.breakpoints.down("md")]: {
-    padding: "5px 8px",
-  },
-  [theme.breakpoints.down("sm")]: {
-    padding: "4px 6px",
-  },
-
-  "& span": {
+export const CryptoIconChip = styled(Box, {
+  shouldForwardProp: (prop) => prop !== "accent",
+})<{ accent?: string }>(({ theme, accent }) => {
+  const isDark = theme.palette.mode === "dark";
+  // Coin brand-colour drives the whole chip so each row is "coin-tinted".
+  const a = accent || (isDark ? "#818CF8" : "#4F46E5");
+  return {
+    display: "flex",
+    alignItems: "center",
+    gap: "6px",
+    padding: "7px 9px",
+    borderRadius: "999px",
+    background: `${a}14`,
+    fontFamily: "var(--font-sans)",
     fontSize: "13px",
     fontWeight: 500,
-    fontFamily: "var(--font-sans)",
-    lineHeight: "18px",
+    color: theme.palette.text.primary,
     flexShrink: 0,
-    [theme.breakpoints.down("md")]: {
-      fontSize: "10px",
-      lineHeight: "12px",
-    },
-    [theme.breakpoints.down("sm")]: {
-      fontSize: "10px",
-      lineHeight: "12px",
-    },
-    [theme.breakpoints.down("xs")]: {
-      fontSize: "9px",
-      lineHeight: "10px",
-    },
-  },
+    border: `1px solid ${a}2E`,
+    position: "relative",
+    transition: "border-color 160ms ease, box-shadow 160ms ease",
 
-  "& img": {
-    width: "20px",
-    height: "20px",
-    objectFit: "contain",
-    objectPosition: "center",
-    flexShrink: 0,
-    borderRadius: "50%",
-    // Aurora ring around the coin logo — light indigo halo that ties the
-    // row visually to the Aurora brand palette. Barely visible at rest,
-    // brightens on parent hover via the CryptoIconChip &:hover selector.
-    padding: "1.5px",
-    background: theme.palette.mode === "dark"
-      ? "linear-gradient(135deg, rgba(129,140,248,0.35) 0%, rgba(124,92,255,0.25) 100%)"
-      : "linear-gradient(135deg, rgba(79,70,229,0.18) 0%, rgba(124,92,255,0.14) 100%)",
+    // Coin-coloured halo on hover — ties the row to its asset colour.
+    "&:hover": {
+      borderColor: `${a}${isDark ? "6B" : "52"}`,
+      boxShadow: `0 0 0 3px ${a}${isDark ? "24" : "1A"}`,
+    },
+
     [theme.breakpoints.down("md")]: {
-      width: "14px",
-      height: "14px",
+      padding: "5px 8px",
     },
     [theme.breakpoints.down("sm")]: {
-      width: "12px",
-      height: "12px",
+      padding: "4px 6px",
     },
-    [theme.breakpoints.down("xs")]: {
-      width: "10px",
-      height: "10px",
+
+    "& span": {
+      fontSize: "13px",
+      fontWeight: 500,
+      fontFamily: "var(--font-sans)",
+      lineHeight: "18px",
+      flexShrink: 0,
+      [theme.breakpoints.down("md")]: {
+        fontSize: "10px",
+        lineHeight: "12px",
+      },
+      [theme.breakpoints.down("sm")]: {
+        fontSize: "10px",
+        lineHeight: "12px",
+      },
+      [theme.breakpoints.down("xs")]: {
+        fontSize: "9px",
+        lineHeight: "10px",
+      },
     },
-  },
-}));
+
+    "& img": {
+      width: "20px",
+      height: "20px",
+      objectFit: "contain",
+      objectPosition: "center",
+      flexShrink: 0,
+      borderRadius: "50%",
+      // Coin-coloured ring around the logo.
+      padding: "1.5px",
+      background: `linear-gradient(135deg, ${a}59 0%, ${a}3D 100%)`,
+      [theme.breakpoints.down("md")]: {
+        width: "14px",
+        height: "14px",
+      },
+      [theme.breakpoints.down("sm")]: {
+        width: "12px",
+        height: "12px",
+      },
+      [theme.breakpoints.down("xs")]: {
+        width: "10px",
+        height: "10px",
+      },
+    },
+  };
+});
 
 export const MobileNavigationButtons = styled(Button)(({ theme }) => ({
   display: "none",

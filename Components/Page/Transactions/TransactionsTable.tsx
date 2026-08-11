@@ -11,6 +11,7 @@ import XRPIcon from "@/assets/cryptocurrency/XRP-icon.svg";
 import PolygonIcon from "@/assets/cryptocurrency/Polygon-icon.svg";
 import RLUSDIcon from "@/assets/cryptocurrency/RLUSD-icon.svg";
 import { Icon, MONO } from "@/styles/uiKit";
+import { getAssetColor } from "@/helpers/assetColor";
 import AutoAwesomeRounded from "@mui/icons-material/AutoAwesomeRounded";
 import DonutSmallRounded from "@mui/icons-material/DonutSmallRounded";
 import FavoriteRounded from "@mui/icons-material/FavoriteRounded";
@@ -366,6 +367,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                 p: 2,
                 borderRadius: "12px",
                 border: `1px solid ${theme.palette.border.main}`,
+                borderLeft: `3px solid ${getAssetColor(transaction.crypto)}`,
                 bgcolor: theme.palette.background.paper,
                 cursor: "pointer",
                 transition: "background 0.15s",
@@ -538,7 +540,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                   </TransactionsTableCell>
 
                   <TransactionsTableCell>
-                    <CryptoIconChip sx={{ width: "fit-content" }}>
+                    <CryptoIconChip accent={getAssetColor(transaction.crypto)} sx={{ width: "fit-content" }}>
                       <Image
                         src={getCryptoIcon(transaction.crypto)}
                         alt={transaction.crypto}
