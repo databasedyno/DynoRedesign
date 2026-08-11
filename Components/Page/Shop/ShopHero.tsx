@@ -218,10 +218,10 @@ export default function ShopHero({ merchant, products, shopUrl }: Props) {
                 size="small"
                 label={`${totalSold} sold`}
                 sx={{
-                  bgcolor: isDark ? "rgba(204,255,0,0.15)" : "rgba(90,107,0,0.12)",
-                  color: isDark ? "#ccff00" : "#5a6b00",
+                  bgcolor: isDark ? "rgba(5,177,105,0.16)" : "rgba(5,177,105,0.10)",
+                  color: isDark ? "#3FD98A" : "#05936A",
                   fontWeight: 700,
-                  border: `1px solid ${isDark ? "rgba(204,255,0,0.35)" : "rgba(90,107,0,0.28)"}`,
+                  border: `1px solid ${isDark ? "rgba(63,217,138,0.35)" : "rgba(5,147,106,0.28)"}`,
                 }}
                 data-testid="shop-stat-sold"
               />

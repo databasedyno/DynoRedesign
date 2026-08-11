@@ -121,8 +121,8 @@ const DisplayCurrencySelector = ({ companyId }: { companyId: number | null }) =>
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            bgcolor: isDark ? "rgba(204,255,0,0.14)" : "#F2F4F0",
-            color: isDark ? "#CCFF00" : "#4B5563",
+            bgcolor: isDark ? "rgba(129,140,248,0.16)" : "#F2F4F0",
+            color: isDark ? "#818CF8" : "#4B5563",
             flexShrink: 0,
           }}
         >

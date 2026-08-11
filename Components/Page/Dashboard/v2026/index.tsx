@@ -1,12 +1,13 @@
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import { useWalletStore } from "@/contexts/WalletDataContext";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Box } from "@mui/material";
 import { useRouter } from "next/router";
 import { useSelector } from "react-redux";
 import { format } from "date-fns";
 import { rootReducer } from "@/utils/types";
 import { useDashboardData } from "@/hooks/useDashboardData";
+import fireConfetti from "@/helpers/fireConfetti";
 import CommandBar, { RangeId } from "./CommandBar";
 import VolumeHero from "./VolumeHero";
 import KpiStrip from "./KpiStrip";
@@ -52,6 +53,44 @@ const Dashboard2026: React.FC = () => {
     if (custom) fetchChartData("custom", custom.startDate, custom.endDate);
     else fetchChartData(range);
   }, [range, custom, fetchChartData]);
+
+  // ── Confetti on paid ──────────────────────────────────────────────
+  // Celebrate when a NEW payment has settled since the merchant last saw
+  // the dashboard. We remember the most-recent settled txn id in
+  // localStorage; if it changes on a later visit, a brand-coloured burst
+  // fires once (never on the first-ever load, never for pending/failed,
+  // honours prefers-reduced-motion via fireConfetti). No polling / no
+  // extra API calls — purely a delightful "you got paid" welcome.
+  const confettiFiredRef = useRef(false);
+  useEffect(() => {
+    if (confettiFiredRef.current) return;
+    const list = (recentTransactions as any[]) || [];
+    if (!list.length) return;
+    const settledStatuses = ["confirmed", "completed", "settled", "success", "successful", "paid"];
+    const topSettled = list.find((tx) =>
+      settledStatuses.includes(String(tx?.status || "").toLowerCase()),
+    );
+    if (!topSettled) return;
+    const id = String(
+      topSettled.id ?? topSettled.transaction_id ?? topSettled.reference ?? topSettled.createdAt ?? "",
+    );
+    if (!id) return;
+    let last: string | null = null;
+    try {
+      last = window.localStorage.getItem("dyno_last_settled_txn");
+    } catch {
+      /* storage unavailable — skip celebration, still harmless */
+    }
+    if (last && last !== id) {
+      confettiFiredRef.current = true;
+      void fireConfetti();
+    }
+    try {
+      window.localStorage.setItem("dyno_last_settled_txn", id);
+    } catch {
+      /* ignore */
+    }
+  }, [recentTransactions]);
 
   // Human label for the active window (drives the VolumeHero eyebrow).
   const rangeLabel = useMemo(() => {

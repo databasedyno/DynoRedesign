@@ -36,7 +36,7 @@ const ILLUSTRATION = (
     <rect x="122" y="76" width="20" height="4" rx="2" fill="currentColor" opacity="0.30" />
     <rect x="122" y="84" width="14" height="3" rx="1.5" fill="currentColor" opacity="0.22" />
     <path d="M18 30 L162 30" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" opacity="0.20" />
-    <circle cx="152" cy="22" r="8" fill="#5a6b00" opacity="0.85" />
+    <circle cx="152" cy="22" r="8" fill="#05936A" opacity="0.9" />
     <path d="M150 22 L152 24 L156 20" stroke="#fff" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" fill="none" />
   </svg>
 );
@@ -180,9 +180,9 @@ export default function ShopEmpty({ merchant, isOwner }: Props) {
                 borderColor: isDark ? "rgba(255,255,255,0.24)" : "rgba(0,0,0,0.24)",
                 color: isDark ? "rgba(255,255,255,0.9)" : "rgba(0,0,0,0.85)",
                 "&:hover": {
-                  borderColor: isDark ? "#ccff00" : "#5a6b00",
-                  bgcolor: isDark ? "rgba(204,255,0,0.08)" : "rgba(90,107,0,0.06)",
-                  color: isDark ? "#ccff00" : "#5a6b00",
+                  borderColor: isDark ? "#818CF8" : "#4F46E5",
+                  bgcolor: isDark ? "rgba(129,140,248,0.10)" : "rgba(79,70,229,0.06)",
+                  color: isDark ? "#818CF8" : "#4F46E5",
                 },
               }}
             >

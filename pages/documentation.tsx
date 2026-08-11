@@ -235,13 +235,13 @@ const AuthBadge = styled("span", {
     fontFamily: "var(--font-sans)",
     whiteSpace: "nowrap" as const,
     background: isPublishable
-      ? dk ? "rgba(132,204,22,0.15)" : "#F0FDD4"
+      ? dk ? "rgba(245,158,11,0.15)" : "#FEF3C7"
       : isApiOnly
         ? dk ? "rgba(29,78,216,0.15)" : "#DBEAFE"
         : isOptionalBearer
           ? dk ? "rgba(5,150,105,0.15)" : "#D1FAE5"
           : dk ? "rgba(109,40,217,0.15)" : "#EDE9FE",
-    color: isPublishable ? "#84CC16" : isApiOnly ? "#60A5FA" : isOptionalBearer ? "#10B981" : "#A78BFA",
+    color: isPublishable ? (dk ? "#FBBF24" : "#B45309") : isApiOnly ? "#60A5FA" : isOptionalBearer ? "#10B981" : "#A78BFA",
   };
 });
 

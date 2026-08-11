@@ -60,7 +60,7 @@ export const CompanyItem = styled("div", {
     transition: "0.2s ease-in-out",
 
     "&:hover": {
-      background: theme.palette.mode === "dark" ? "rgba(204,255,0,0.08)" : "#eef2ff",
+      background: theme.palette.mode === "dark" ? "rgba(129,140,248,0.10)" : "#eef2ff",
     },
 
     ".info": {
@@ -110,7 +110,7 @@ export const ItemRight = styled("div", {
     transition: "0.15s ease-in-out",
 
     "&:hover": {
-      background: active ? theme.palette.primary.light : (theme.palette.mode === "dark" ? "rgba(204,255,0,0.06)" : "#f4f6f9"),
+      background: active ? theme.palette.primary.light : (theme.palette.mode === "dark" ? "rgba(129,140,248,0.08)" : "#f4f6f9"),
       borderColor: theme.palette.primary.main,
 
       "& img": {

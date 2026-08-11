@@ -746,7 +746,7 @@ export const SourceChip = styled(Button, {
     "background 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.1s ease",
   boxShadow: selected
     ? theme.palette.mode === "dark"
-      ? "0 2px 10px rgba(204,255,0,0.28)"
+      ? "0 2px 10px rgba(129,140,248,0.30)"
       : "0 2px 10px rgba(10,10,10,0.18)"
     : "none",
   "& .chip-label": {

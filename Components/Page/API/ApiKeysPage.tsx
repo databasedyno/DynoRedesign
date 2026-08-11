@@ -681,7 +681,7 @@ Dynopay.openCheckout({ fetchClientSecret, onComplete });`;
             borderColor: theme.palette.primary.main,
             color: theme.palette.primary.main,
             "&:hover": {
-              background: theme.palette.mode === "dark" ? "rgba(204,255,0,0.08)" : "#f0f5ff",
+              background: theme.palette.mode === "dark" ? "rgba(129,140,248,0.10)" : "#f0f5ff",
               borderColor: theme.palette.primary.main,
             },
           }}
@@ -740,7 +740,7 @@ const ElementsWidgetCard = ({
     `<script>\n` +
     `  const dp = Dynopay("${pk}");\n` +
     `  const elements = dp.elements({\n` +
-    `    appearance: { theme: "auto", preset: "default", accent: "#CCFF00" },\n` +
+    `    appearance: { theme: "auto", preset: "default", accent: "#4F46E5" },\n` +
     `    // locale: "en",   // optional — auto-detected from navigator.language\n` +
     `  });\n` +
     `  const el = elements.create("crypto", { amount: 5 });\n` +
@@ -818,7 +818,7 @@ export function DynopayCryptoElement({ amount = 5 }: { amount?: number }) {
           appearance: {
             theme: theme.palette.mode === "dark" ? "dark" : "light",
             preset: "default",
-            accent: theme.palette.primary.main || "#CCFF00",
+            accent: theme.palette.primary.main || "#4F46E5",
           },
         })
         .create("crypto", { amount: 5 });
@@ -941,7 +941,7 @@ export function DynopayCryptoElement({ amount = 5 }: { amount?: number }) {
             borderColor: theme.palette.primary.main,
             color: theme.palette.primary.main,
             "&:hover": {
-              background: theme.palette.mode === "dark" ? "rgba(204,255,0,0.08)" : "#f0f5ff",
+              background: theme.palette.mode === "dark" ? "rgba(129,140,248,0.10)" : "#f0f5ff",
               borderColor: theme.palette.primary.main,
             },
           }}
@@ -1261,7 +1261,7 @@ Content-Type: application/json
             borderColor: theme.palette.primary.main,
             color: theme.palette.primary.main,
             "&:hover": {
-              background: theme.palette.mode === "dark" ? "rgba(204,255,0,0.08)" : "#f0f5ff",
+              background: theme.palette.mode === "dark" ? "rgba(129,140,248,0.10)" : "#f0f5ff",
               borderColor: theme.palette.primary.main,
             },
           }}
@@ -1406,7 +1406,7 @@ const ApiKeysPage = ({
             sx={{
               borderColor: theme.palette.primary.main,
               color: theme.palette.primary.main,
-              "&:hover": { background: theme.palette.mode === "dark" ? "rgba(204,255,0,0.08)" : "#f0f5ff", borderColor: theme.palette.primary.main },
+              "&:hover": { background: theme.palette.mode === "dark" ? "rgba(129,140,248,0.10)" : "#f0f5ff", borderColor: theme.palette.primary.main },
             }}
             onClick={() => {
               window.open(docsUrl, "_blank", "noopener,noreferrer");

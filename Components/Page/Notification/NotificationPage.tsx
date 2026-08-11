@@ -36,6 +36,7 @@ import NotificationsOffIcon from "@mui/icons-material/NotificationsOff";
 import TransactionDetailsModal from "@/Components/Page/Transactions/TransactionDetailsModal";
 import { ExtendedTransaction } from "@/utils/types/transaction";
 import { API_ENDPOINTS } from "@/api/endpoints";
+import { CB_TOKENS } from "@/Components/Page/Dashboard/coinbase/styled";
 
 const NotificationItem: React.FC<NotificationItemProps> = ({
   title,
@@ -288,11 +289,17 @@ const NotificationPage = () => {
     return new Date(dateStr).toLocaleDateString();
   };
 
+  // Color-code notifications by type using the shared semantic palette:
+  // paid/received/confirmed = green, failed/partial/security alert = red,
+  // pending/confirming = amber, everything else (info/system/report) = blue.
   const getTypeColor = (type: string) => {
-    if (type.includes("received") || type.includes("confirmed")) return "#22C55E";
-    if (type.includes("pending") || type.includes("confirming")) return "#F59E0B";
-    if (type.includes("partial")) return "#EF4444";
-    return "#6B7280";
+    const isDark = theme.palette.mode === "dark";
+    const S = CB_TOKENS.semantic;
+    const pick = (s: typeof S.positive) => (isDark ? s.dark : s.light);
+    if (/received|confirmed|settled|paid|success|complete/.test(type)) return pick(S.positive);
+    if (/failed|expired|declined|error|partial|reversed|security|suspicious/.test(type)) return pick(S.negative);
+    if (/pending|confirming|processing/.test(type)) return pick(S.warning);
+    return pick(S.info);
   };
 
   const handleSaveChanges = async () => {
@@ -386,7 +393,7 @@ const NotificationPage = () => {
                     p: isMobile ? 1.5 : 2,
                     borderRadius: "12px",
                     border: `1px solid ${theme.palette.border.main}`,
-                    backgroundColor: notif.is_read ? theme.palette.background.paper : (theme.palette.mode === 'dark' ? 'rgba(204,255,0,0.08)' : "#F0F7FF"),
+                    backgroundColor: notif.is_read ? theme.palette.background.paper : (theme.palette.mode === 'dark' ? 'rgba(129,140,248,0.10)' : "#F0F7FF"),
                     cursor: isTransactionNotification(notif.type) || !notif.is_read ? "pointer" : "default",
                     transition: "all 0.15s ease",
                     "&:hover": { borderColor: theme.palette.primary.main },

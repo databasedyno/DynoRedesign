@@ -350,7 +350,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
       .then((mod) => {
         if (cancelled) return
         const confetti = mod.default
-        const colors = ['#CCFF00', '#B4E600', '#EAFFA3', '#FFFFFF', '#0A0A0B']
+        const colors = ['#5A6BEF', '#7C5CFF', '#4FD1FF', '#3FD98A', '#FFFFFF']
         const fire = (particleRatio: number, opts: Record<string, unknown>) => {
           confetti({
             origin: { y: 0.7 },

@@ -6,8 +6,9 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import {
   Box, Typography, Stack, Chip, IconButton, LinearProgress, Alert, TextField,
-  MenuItem, Select, FormControl, InputLabel,
+  MenuItem, Select, FormControl, InputLabel, useTheme,
 } from "@mui/material";
+import { CB_TOKENS } from "@/Components/Page/Dashboard/coinbase/styled";
 import AddRounded from "@mui/icons-material/AddRounded";
 import EditRounded from "@mui/icons-material/EditRounded";
 import ReceiptLongRounded from "@mui/icons-material/ReceiptLongRounded";
@@ -34,14 +35,28 @@ interface ProductRow {
   createdAt?: string;
 }
 
-const STATUS_COLORS: Record<string, { bg: string; fg: string }> = {
-  live: { bg: "#DCFCE7", fg: "#166534" },
-  draft: { bg: "#FEF3C7", fg: "#92400E" },
-  archived: { bg: "#E5E7EB", fg: "#4B5563" },
+// Theme-aware semantic status colours (aligned with Transactions / Pay Links):
+// live = green, draft = amber, archived = neutral grey.
+const statusChipColors = (status: string, isDark: boolean): { bg: string; fg: string } => {
+  const S = CB_TOKENS.semantic;
+  const semantic: Record<string, typeof S.positive> = {
+    live: S.positive,
+    draft: S.warning,
+  };
+  const s = semantic[status];
+  if (!s) {
+    return {
+      bg: isDark ? "rgba(255,255,255,0.06)" : "rgba(10,10,15,0.05)",
+      fg: isDark ? "rgba(255,255,255,0.72)" : "rgba(10,10,15,0.60)",
+    };
+  }
+  return { bg: isDark ? s.glowDark : s.glowLight, fg: isDark ? s.dark : s.light };
 };
 
 const ProductsList = ({ setPageName, setPageDescription, setPageAction }: pageProps) => {
   const router = useRouter();
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [q, setQ] = useState<string>("");
@@ -210,17 +225,17 @@ const ProductsList = ({ setPageName, setPageDescription, setPageAction }: pagePr
           ) : (
             <Stack spacing={1} data-testid="products-list-rows">
               {items.map((p) => {
-                const sc = STATUS_COLORS[p.status] || STATUS_COLORS.draft;
+                const sc = statusChipColors(p.status, isDark);
                 return (
                   <Stack
                     key={p.product_id}
                     direction="row"
                     spacing={2}
                     alignItems="center"
-                    sx={{ p: 1.5, border: "1px solid #E5E7EB", borderRadius: 1.5, "&:hover": { bgcolor: "action.hover" } }}
+                    sx={{ p: 1.5, border: `1px solid ${theme.palette.border.main}`, borderRadius: 1.5, "&:hover": { bgcolor: "action.hover" } }}
                     data-testid={`product-row-${p.product_id}`}
                   >
-                    <Box sx={{ position: "relative", width: 48, height: 48, borderRadius: 1, bgcolor: "grey.100", overflow: "hidden", flexShrink: 0 }}>
+                    <Box sx={{ position: "relative", width: 48, height: 48, borderRadius: 1, bgcolor: isDark ? "rgba(255,255,255,0.06)" : "grey.100", overflow: "hidden", flexShrink: 0 }}>
                       <ProductImage src={p.cover_image_url} alt="" sizes="48px" />
                     </Box>
                     <Box sx={{ flex: 1, minWidth: 0 }}>
@@ -234,7 +249,7 @@ const ProductsList = ({ setPageName, setPageDescription, setPageAction }: pagePr
                     <Chip
                       size="small"
                       label={p.status.toUpperCase()}
-                      sx={{ bgcolor: sc.bg, color: sc.fg, fontWeight: 700 }}
+                      sx={{ bgcolor: sc.bg, color: sc.fg, fontWeight: 700, border: `1px solid ${sc.fg}33` }}
                       data-testid={`product-row-status-${p.product_id}`}
                     />
                     <IconButton

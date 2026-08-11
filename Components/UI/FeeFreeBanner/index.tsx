@@ -119,7 +119,7 @@ const FeeFreeBanner: React.FC = () => {
         width: "100%",
         background: "linear-gradient(90deg, #0A0A0A 0%, #111111 100%)",
         color: "#FFFFFF",
-        borderBottom: "1px solid rgba(204,255,0,0.35)",
+        borderBottom: "1px solid rgba(63,217,138,0.35)",
         px: { xs: 1.5, md: 3 },
         py: { xs: 0.75, md: 1 },
       }}
@@ -141,7 +141,7 @@ const FeeFreeBanner: React.FC = () => {
             flexShrink: 0,
           }}
         >
-          <LocalOfferRounded sx={{ fontSize: { xs: 16, md: 18 }, color: "#CCFF00" }} />
+          <LocalOfferRounded sx={{ fontSize: { xs: 16, md: 18 }, color: "#3FD98A" }} />
           <Typography
             component="span"
             sx={{
@@ -166,7 +166,7 @@ const FeeFreeBanner: React.FC = () => {
               borderRadius: 3,
               backgroundColor: "rgba(255,255,255,0.14)",
               "& .MuiLinearProgress-bar": {
-                backgroundColor: "#CCFF00",
+                backgroundColor: "#3FD98A",
                 borderRadius: 3,
               },
             }}
@@ -190,7 +190,7 @@ const FeeFreeBanner: React.FC = () => {
             component="button"
             onClick={handleCta}
             sx={{
-              background: "#CCFF00",
+              background: "#3FD98A",
               color: "#0A0A0A",
               border: "none",
               px: 1.75,

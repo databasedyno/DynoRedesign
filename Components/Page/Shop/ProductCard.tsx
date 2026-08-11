@@ -39,7 +39,7 @@ interface Props {
 const TYPE_COLOR: Record<string, { light: string; dark: string; label: string }> = {
   digital: { light: "#2563EB", dark: "#93C5FD", label: "Digital" },
   physical: { light: "#B03A76", dark: "#F9A8D4", label: "Physical" },
-  service: { light: "#5A6B00", dark: "#CCFF00", label: "Service" },
+  service: { light: "#4F46E5", dark: "#818CF8", label: "Service" },
 };
 
 export default function ProductCard({
@@ -149,7 +149,7 @@ export default function ProductCard({
                 position: "absolute",
                 top: 12,
                 left: 12,
-                bgcolor: isDark ? "rgba(204,255,0,0.95)" : "#5a6b00",
+                bgcolor: isDark ? "rgba(251,191,36,0.95)" : "#B45309",
                 color: isDark ? "#000" : "#fff",
                 fontSize: 11,
                 fontWeight: 700,

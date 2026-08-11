@@ -967,7 +967,7 @@ export const themeDark = createTheme({
       styleOverrides: {
         root: {
           "&:hover": {
-            backgroundColor: "rgba(204,255,0,0.06)",
+            backgroundColor: "rgba(129,140,248,0.08)",
           },
         },
       },
@@ -977,13 +977,13 @@ export const themeDark = createTheme({
         root: {
           color: "#E8E8EC",
           "&:hover": {
-            backgroundColor: "rgba(204,255,0,0.08)",
+            backgroundColor: "rgba(129,140,248,0.10)",
           },
           "&.Mui-selected": {
-            backgroundColor: "rgba(204,255,0,0.12)",
+            backgroundColor: "rgba(129,140,248,0.14)",
             color: "#E8E8EC",
             "&:hover": {
-              backgroundColor: "rgba(204,255,0,0.16)",
+              backgroundColor: "rgba(129,140,248,0.18)",
             },
           },
         },

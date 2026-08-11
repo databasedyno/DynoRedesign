@@ -61,7 +61,7 @@ const ClaimHandleBanner: React.FC = () => {
   const isDark = theme.palette.mode === "dark";
   const bg = isDark
     ? "linear-gradient(90deg, rgba(79,70,229,0.12) 0%, rgba(0,229,255,0.10) 100%)"
-    : "linear-gradient(90deg, rgba(204,255,0,0.22) 0%, rgba(0,229,255,0.16) 100%)";
+    : "linear-gradient(90deg, rgba(129,140,248,0.22) 0%, rgba(0,229,255,0.16) 100%)";
 
   return (
     <Box

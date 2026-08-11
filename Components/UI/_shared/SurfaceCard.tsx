@@ -24,7 +24,7 @@ export const SurfaceCard = styled(Box, {
       accent === "violet"
         ? "#7C5CFF"
         : accent === "volt"
-          ? (dark ? "#CCFF00" : "#5A6B00")
+          ? (dark ? "#3FD98A" : "#05936A")
           : accent === "coral"
             ? "#FF5B49"
             : (dark ? "#818CF8" : BRAND_ACCENT); // indigo default

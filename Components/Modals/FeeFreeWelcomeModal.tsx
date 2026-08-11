@@ -19,7 +19,7 @@ import CustomButton from "@/Components/UI/Buttons";
  * Existing users whose allowance is used up (e.g. hostbay) never see it.
  */
 
-const CONFETTI_COLORS = ["#CCFF00", "#050505", "#A3E635", "#84CC16", "#FDE047"];
+const CONFETTI_COLORS = ["#3FD98A", "#050505", "#A3E635", "#22C55E", "#FDE047"];
 
 const ConfettiBurst: React.FC = () => {
   // 18 deterministic-ish pieces, animated with CSS keyframes via framer-motion
@@ -230,18 +230,18 @@ const FeeFreeWelcomeModal: React.FC = () => {
               mb: 2.5,
               borderRadius: "50%",
               backgroundColor: "#050505",
-              border: "4px solid #CCFF00",
+              border: "4px solid #3FD98A",
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
-              boxShadow: "0 0 40px rgba(204,255,0,0.35)",
+              boxShadow: "0 0 40px rgba(63,217,138,0.35)",
             }}
           >
             <Typography
               component="span"
               sx={{
-                color: "#CCFF00",
+                color: "#3FD98A",
                 fontWeight: 800,
                 fontSize: 28,
                 lineHeight: 1,

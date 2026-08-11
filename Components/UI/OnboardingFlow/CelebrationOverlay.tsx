@@ -48,14 +48,14 @@ const CelebrationOverlay: React.FC<CelebrationOverlayProps> = ({
         angle: 60,
         spread: 55,
         origin: { x: 0, y: 0.65 },
-        colors: ["#CCFF00", "#1C993D", "#EAFFA3", "#47B464", "#FFD700"],
+        colors: ["#3FD98A", "#1C993D", "#EAFFA3", "#47B464", "#FFD700"],
       });
       confetti({
         particleCount: 3,
         angle: 120,
         spread: 55,
         origin: { x: 1, y: 0.65 },
-        colors: ["#CCFF00", "#1C993D", "#EAFFA3", "#47B464", "#FFD700"],
+        colors: ["#3FD98A", "#1C993D", "#EAFFA3", "#47B464", "#FFD700"],
       });
       if (Date.now() < end) requestAnimationFrame(burst);
     };

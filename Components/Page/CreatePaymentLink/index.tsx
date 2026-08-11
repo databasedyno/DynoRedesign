@@ -1469,8 +1469,8 @@ const CreatePaymentLinkPage = ({
               p: "12px 14px",
               mb: 2,
               borderRadius: "10px",
-              border: `1px solid ${theme.palette.mode === "dark" ? "rgba(204,255,0,0.32)" : "rgba(160,190,0,0.45)"}`,
-              backgroundColor: theme.palette.mode === "dark" ? "rgba(204,255,0,0.08)" : "rgba(204,255,0,0.14)",
+              border: `1px solid ${theme.palette.mode === "dark" ? "rgba(129,140,248,0.32)" : "rgba(79,70,229,0.35)"}`,
+              backgroundColor: theme.palette.mode === "dark" ? "rgba(129,140,248,0.08)" : "rgba(79,70,229,0.08)",
             }}
           >
             <Typography sx={{ fontSize: 16, lineHeight: 1.2 }} aria-hidden>&#9749;</Typography>

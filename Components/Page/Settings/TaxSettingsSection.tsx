@@ -243,8 +243,8 @@ const TaxSettingsSection: React.FC = () => {
           display: "flex",
           gap: 1.5,
           alignItems: "flex-start",
-          bgcolor: isDark ? "rgba(204,255,0,0.05)" : "#F8FAF0",
-          border: `1px solid ${isDark ? "rgba(204,255,0,0.18)" : "#E8F0CE"}`,
+          bgcolor: isDark ? "rgba(129,140,248,0.06)" : "#F5F6FE",
+          border: `1px solid ${isDark ? "rgba(129,140,248,0.20)" : "#E0E3F7"}`,
         }}
       >
         <ReceiptLongRounded sx={{ fontSize: 20, color: theme.palette.text.secondary, mt: "1px" }} />

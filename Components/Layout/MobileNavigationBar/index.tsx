@@ -348,7 +348,7 @@ const MobileNavigationBar = () => {
                             borderRadius: "50%",
                             backgroundColor: BRAND_ACCENT,
                             border: `2px solid ${theme.palette.background.default || "#FFFFFF"}`,
-                            boxShadow: "0 0 6px rgba(204,255,0,0.7)",
+                            boxShadow: "0 0 6px rgba(129,140,248,0.75)",
                           }}
                         />
                       )}
@@ -424,7 +424,7 @@ const MobileNavigationBar = () => {
                               borderRadius: "50%",
                               backgroundColor: BRAND_ACCENT,
                               border: `2px solid ${theme.palette.background.default || "#FFFFFF"}`,
-                              boxShadow: "0 0 6px rgba(204,255,0,0.7)",
+                              boxShadow: "0 0 6px rgba(129,140,248,0.75)",
                             }}
                           />
                         )}

@@ -8,7 +8,7 @@ import Image from "next/image";
 // STATIC legacy indigo theme, which made the picker render washed-out / illegible
 // (dark text on dark, white trigger box) in dark mode.
 const chipSurface = (mode: string) =>
-  mode === "dark" ? "rgba(204,255,0,0.10)" : "rgba(10,10,10,0.05)";
+  mode === "dark" ? "rgba(129,140,248,0.12)" : "rgba(10,10,10,0.05)";
 
 export const CryptocurrencyTrigger = muiStyled(Box, {
   shouldForwardProp: (prop) =>
@@ -52,7 +52,7 @@ export const CryptocurrencyTrigger = muiStyled(Box, {
     borderColor: error ? theme.palette.error.main : theme.palette.primary.main,
     boxShadow:
       theme.palette.mode === "dark"
-        ? "0 0 0 3px rgba(204,255,0,0.20)"
+        ? "0 0 0 3px rgba(129,140,248,0.25)"
         : "0 0 0 3px rgba(10,10,10,0.08)",
   },
 }));

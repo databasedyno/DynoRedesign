@@ -158,7 +158,7 @@ const TransactionPage = () => {
     // Fire the celebration: three confetti bursts + open the modal.
     setFirstPaymentCelebrationOpen(true);
     try {
-      const colors = ["#CCFF00", "#B4E600", "#10B981", "#F59E0B", "#EC4899"];
+      const colors = ["#3FD98A", "#05936A", "#10B981", "#F59E0B", "#7C5CFF"];
       confetti({ particleCount: 90, spread: 70, startVelocity: 45, origin: { x: 0.2, y: 0.6 }, colors, scalar: 1 });
       confetti({ particleCount: 90, spread: 70, startVelocity: 45, origin: { x: 0.8, y: 0.6 }, colors, scalar: 1 });
       setTimeout(() => {

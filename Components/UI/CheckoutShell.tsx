@@ -116,7 +116,7 @@ function ConfettiCanvas({ trigger }: { trigger: boolean }) {
     canvas.style.height = `${parent.clientHeight}px`;
     ctx.scale(dpr, dpr);
 
-    const colors = ["#CCFF00", "#7C5CFF", BRAND_ACCENT, "#4FD1FF", "#FFFFFF"];
+    const colors = ["#3FD98A", "#7C5CFF", BRAND_ACCENT, "#4FD1FF", "#FFFFFF"];
     const particles: Particle[] = [];
     const originX = parent.clientWidth / 2;
     const originY = parent.clientHeight / 3.2;
@@ -285,12 +285,12 @@ export default function CheckoutShell({ state, children, title, caption, ...rest
             alignItems: "center",
             justifyContent: "center",
             backgroundColor:
-              state === "settled" ? "rgba(204,255,0,0.16)"
+              state === "settled" ? "rgba(5,177,105,0.16)"
               : state === "failed" ? "rgba(255,91,73,0.14)"
               : state === "confirmed" ? "rgba(129,140,248,0.14)"
               : "rgba(79,70,229,0.10)",
             color:
-              state === "settled" ? (dark ? "#CCFF00" : "#5A6B00")
+              state === "settled" ? (dark ? "#3FD98A" : "#05936A")
               : state === "failed" ? (dark ? "#FF7A6B" : "#B91C1C")
               : state === "confirmed" ? (dark ? "#818CF8" : BRAND_ACCENT)
               : (dark ? "#818CF8" : accent.color),

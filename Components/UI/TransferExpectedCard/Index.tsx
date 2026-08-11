@@ -415,15 +415,15 @@ export default function TransferExpectedCard({
                       textAlign: 'left',
                       p: 1.5,
                       borderRadius: '10px',
-                      border: `1px solid ${isDark ? 'rgba(204,255,0,0.25)' : 'rgba(10,10,10,0.08)'}`,
-                      bgcolor: isDark ? 'rgba(204,255,0,0.06)' : 'rgba(204,255,0,0.10)',
+                      border: `1px solid ${isDark ? 'rgba(63,217,138,0.30)' : 'rgba(10,10,10,0.08)'}`,
+                      bgcolor: isDark ? 'rgba(5,177,105,0.08)' : 'rgba(5,177,105,0.10)',
                     }}
                   >
                     <Box display='flex' alignItems='center' justifyContent='space-between' mb={0.75}>
                       <Typography
                         fontSize={11.5}
                         fontWeight={700}
-                        color={isDark ? '#CCFF00' : theme.palette.text.primary}
+                        color={isDark ? '#3FD98A' : theme.palette.text.primary}
                         letterSpacing={0.3}
                         textTransform='uppercase'
                       >
@@ -448,7 +448,7 @@ export default function TransferExpectedCard({
                           width: `${contributionInfo.progress_percent}%`,
                           height: '100%',
                           borderRadius: 999,
-                          bgcolor: '#CCFF00',
+                          bgcolor: '#12B76A',
                           transition: 'width 400ms ease-out',
                         }}
                       />
@@ -713,7 +713,7 @@ export default function TransferExpectedCard({
                       color: theme.palette.text.primary,
                       '&:hover': {
                         borderColor: theme.palette.primary.main,
-                        bgcolor: isDark ? 'rgba(204,255,0,0.06)' : 'rgba(204,255,0,0.10)',
+                        bgcolor: isDark ? 'rgba(5,177,105,0.08)' : 'rgba(5,177,105,0.10)',
                       },
                     }}
                   >

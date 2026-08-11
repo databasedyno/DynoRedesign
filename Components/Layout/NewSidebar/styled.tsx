@@ -63,7 +63,7 @@ export const MenuItem = styled("div", {
     color: active ? theme.palette.primary.contrastText : theme.palette.text.primary,
     boxShadow: active
       ? theme.palette.mode === "dark"
-        ? "0 4px 14px rgba(204,255,0,0.22)"
+        ? "0 4px 14px rgba(129,140,248,0.30)"
         : "0 4px 14px rgba(10,10,10,0.28)"
       : "none",
     transition: "background 0.18s ease, color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease",

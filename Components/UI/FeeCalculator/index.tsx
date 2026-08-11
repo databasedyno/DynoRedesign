@@ -116,7 +116,7 @@ const CalculatorCard = styled(Box)(({ theme }) => {
       transform: "translateX(-50%)",
       width: "80%",
       height: "60%",
-      background: `radial-gradient(at center bottom, ${isDark ? "#CCFF003D" : "#0A0A0A1A"}, transparent)`,
+      background: `radial-gradient(at center bottom, ${isDark ? "#818CF83D" : "#4F46E51A"}, transparent)`,
       filter: "blur(80px)",
       opacity: 0.5,
       zIndex: 0,
@@ -156,8 +156,8 @@ const ResultValue = styled(Typography)(({ theme }) => ({
 const HighlightBox = styled(Box)(({ theme }) => {
   const isDark = theme.palette.mode === "dark";
   return {
-    background: isDark ? "rgba(204,255,0,0.1)" : "#0A0A0A08",
-    border: `1px solid ${isDark ? "rgba(204,255,0,0.2)" : "#0A0A0A1A"}`,
+    background: isDark ? "rgba(129,140,248,0.12)" : "#0A0A0A08",
+    border: `1px solid ${isDark ? "rgba(129,140,248,0.24)" : "#0A0A0A1A"}`,
     borderRadius: "12px",
     padding: "16px",
     marginTop: "16px",
@@ -184,7 +184,7 @@ const SummaryValue = styled(Typography)(({ theme }) => {
     fontSize: "20px",
     fontWeight: 600,
     fontFamily: "OutfitSemiBold",
-    color: isDark ? "#CCFF00" : "#0A0A0A",
+    color: isDark ? "#818CF8" : "#4F46E5",
   };
 });
 
@@ -341,7 +341,7 @@ const FeeCalculator: React.FC<FeeCalculatorProps> = ({ compact = false }) => {
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
-                <Typography sx={{ fontFamily: "var(--font-sans)", color: isDark ? "#CCFF00" : "#0A0A0A" }}>
+                <Typography sx={{ fontFamily: "var(--font-sans)", color: isDark ? "#818CF8" : "#4F46E5" }}>
                   {symbol}
                 </Typography>
               </InputAdornment>
@@ -412,7 +412,7 @@ const FeeCalculator: React.FC<FeeCalculatorProps> = ({ compact = false }) => {
       {/* Results */}
       {loading ? (
         <Box sx={{ display: "flex", justifyContent: "center", py: 3 }}>
-          <CircularProgress size={28} sx={{ color: isDark ? "#CCFF00" : "#0A0A0A" }} />
+          <CircularProgress size={28} sx={{ color: isDark ? "#818CF8" : "#4F46E5" }} />
           <Typography sx={{ ml: 2, fontFamily: "var(--font-sans)", color: "text.secondary", fontSize: "14px" }}>
             {t("calculating")}
           </Typography>

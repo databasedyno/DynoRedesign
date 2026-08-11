@@ -55,7 +55,7 @@ const StepIconRoot = styled('div')<{
   alignItems: 'center',
   transition: 'all 0.3s ease',
   boxShadow: ownerState.active
-    ? (theme.palette.mode === 'dark' ? '0 0 0 4px rgba(204,255,0,0.18)' : '0 0 0 4px rgba(10,10,10,0.12)')
+    ? (theme.palette.mode === 'dark' ? '0 0 0 4px rgba(129,140,248,0.22)' : '0 0 0 4px rgba(10,10,10,0.12)')
     : 'none',
 }))
 

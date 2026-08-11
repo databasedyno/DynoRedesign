@@ -33,7 +33,7 @@ import { BRAND_ACCENT } from "@/constants/theme";
  *   POST support/chat/upload   multipart "file" → { data: { url, name, type, size } }
  */
 
-const LIME = "#CCFF00";
+const LIME = "#4F46E5";
 const INK = "#0A0A0B";
 const GREEN = "#22C55E";
 const SESSION_KEY = "support_chat_sid";

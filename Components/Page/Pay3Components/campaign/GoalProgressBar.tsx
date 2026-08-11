@@ -60,7 +60,7 @@ export default function GoalProgressBar({
   }, [target]);
 
   const accent = BRAND_ACCENT;
-  const accentDim = "#5a6b00";
+  const accentDim = "#4338CA";
   const success = "#10B981";
   const trackBg = isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.07)";
   const pillBg = goalReached ? success : accent;
