@@ -48,11 +48,13 @@ import {
 import { useWalletData } from "@/hooks/useWalletData";
 import { useUnreadNotificationsCount } from "@/hooks/useUnreadNotificationsCount";
 import { BRAND_ACCENT } from "@/constants/theme";
+import { navAccent } from "@/helpers/navAccent";
 import { API_ENDPOINTS } from "@/api/endpoints";
 
 const MobileNavigationBar = () => {
   const router = useRouter();
   const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
   const { t } = useTranslation("dashboardLayout");
   const [isExpanded, setIsExpanded] = useState(false);
   const [openLang, setOpenLang] = useState(false);
@@ -326,7 +328,7 @@ const MobileNavigationBar = () => {
                           size={16}
                           color={
                             active
-                              ? theme.palette.primary.main
+                              ? navAccent(item.icon, isDark)
                               : theme.palette.text.primary
                           }
                         />
@@ -378,7 +380,7 @@ const MobileNavigationBar = () => {
                   const iconColor = (item as any).soon
                     ? theme.palette.text.disabled
                     : active
-                      ? theme.palette.primary.main
+                      ? navAccent(item.icon, isDark)
                       : theme.palette.text.primary;
 
                   return (
@@ -504,7 +506,7 @@ const MobileNavigationBar = () => {
                             sx={{
                               fontSize: 18,
                               color: active
-                                ? theme.palette.primary.main
+                                ? navAccent("settings", isDark)
                                 : theme.palette.text.primary,
                             }}
                           />
@@ -514,7 +516,7 @@ const MobileNavigationBar = () => {
                             size={16}
                             color={
                               active
-                                ? theme.palette.primary.main
+                                ? navAccent(item.icon, isDark)
                                 : theme.palette.text.primary
                             }
                           />

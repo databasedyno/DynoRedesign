@@ -1,5 +1,5 @@
 import { Box, styled } from "@mui/material";
-import { BRAND_ACCENT } from "@/constants/theme";
+import { CB_TOKENS } from "@/Components/Page/Dashboard/coinbase/styled";
 
 /**
  * StatusPill — small monospace status label used across tables, transaction
@@ -16,38 +16,33 @@ import { BRAND_ACCENT } from "@/constants/theme";
  * shipped v2026 dashboard chips so plugging this into pages outside the
  * dashboard doesn't require any surface-specific overrides.
  */
-export type StatusPillTone = "settled" | "pending" | "failed" | "info" | "neutral";
+export type StatusPillTone = "settled" | "pending" | "failed" | "info" | "neutral" | "draft" | "overdue";
 
 export const StatusPill = styled(Box, {
   shouldForwardProp: (prop) => prop !== "tone",
 })<{ tone?: StatusPillTone }>(({ theme, tone = "neutral" }) => {
   const dark = theme.palette.mode === "dark";
+  const S = CB_TOKENS.semantic;
+  // Each tone maps to a v2026 semantic accent so pills match the dashboard,
+  // Transactions, and Wallet everywhere StatusPill is used.
+  const bySemantic = (s: { dark: string; light: string; glowDark: string; glowLight: string }) => ({
+    bg: dark ? s.glowDark : s.glowLight,
+    fg: dark ? s.dark : s.light,
+    ring: `${dark ? s.dark : s.light}${dark ? "38" : "29"}`,
+  });
+  const greyTone = {
+    bg: dark ? "rgba(255,255,255,0.05)" : "rgba(10,10,15,0.05)",
+    fg: dark ? "rgba(255,255,255,0.72)" : "rgba(10,10,15,0.62)",
+    ring: dark ? "rgba(255,255,255,0.14)" : "rgba(10,10,15,0.12)",
+  };
   const palettes: Record<StatusPillTone, { bg: string; fg: string; ring: string }> = {
-    settled: {
-      bg:   dark ? "rgba(204,255,0,0.12)" : "rgba(90,107,0,0.08)",
-      fg:   dark ? "#CCFF00" : "#5A6B00",
-      ring: dark ? "rgba(204,255,0,0.32)" : "rgba(90,107,0,0.22)",
-    },
-    pending: {
-      bg:   dark ? "rgba(255,159,10,0.14)" : "rgba(255,159,10,0.12)",
-      fg:   dark ? "#FFB04D" : "#B45309",
-      ring: dark ? "rgba(255,159,10,0.34)" : "rgba(255,159,10,0.28)",
-    },
-    failed: {
-      bg:   dark ? "rgba(255,91,73,0.14)" : "rgba(255,91,73,0.10)",
-      fg:   dark ? "#FF7A6B" : "#B91C1C",
-      ring: dark ? "rgba(255,91,73,0.34)" : "rgba(255,91,73,0.26)",
-    },
-    info: {
-      bg:   dark ? "rgba(129,140,248,0.14)" : "rgba(79,70,229,0.08)",
-      fg:   dark ? "#A5B4FC" : BRAND_ACCENT,
-      ring: dark ? "rgba(129,140,248,0.30)" : "rgba(79,70,229,0.22)",
-    },
-    neutral: {
-      bg:   dark ? "rgba(255,255,255,0.05)" : "rgba(10,10,15,0.05)",
-      fg:   dark ? "rgba(255,255,255,0.72)" : "rgba(10,10,15,0.62)",
-      ring: dark ? "rgba(255,255,255,0.14)" : "rgba(10,10,15,0.12)",
-    },
+    settled: bySemantic(S.positive), // paid / confirmed / cleared
+    pending: bySemantic(S.warning),
+    overdue: bySemantic(S.negative),
+    failed: bySemantic(S.negative),
+    info: bySemantic(S.info),
+    draft: greyTone,
+    neutral: greyTone,
   };
   const { bg, fg, ring } = palettes[tone];
   return {

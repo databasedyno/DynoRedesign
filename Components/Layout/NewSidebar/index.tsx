@@ -17,8 +17,8 @@ import { TransactionAction, TRANSACTION_FETCH } from "@/Redux/Actions/Transactio
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import ReferralAndKnowledge from "../ReferralAndKnowledge";
-import { BRAND_ACCENT, BRAND_ACCENT_LIGHT } from "@/constants/theme";
-import { CB_TOKENS } from "@/Components/Page/Dashboard/coinbase/styled";
+import { BRAND_ACCENT } from "@/constants/theme";
+import { navAccent } from "@/helpers/navAccent";
 import {
   IconBox,
   Menu,
@@ -191,29 +191,11 @@ const NewSidebar = () => {
     return p.startsWith(path + "/");
   };
 
-  // Curated per-item accent — gives each nav icon a subtle, meaningful colour
-  // (instead of uniform grey) while the active pill stays high-contrast.
-  const navAccent = (icon: string): string => {
-    const isDark = theme.palette.mode === "dark";
-    const S = CB_TOKENS.semantic;
-    const map: Record<string, string> = {
-      dashboard: isDark ? BRAND_ACCENT_LIGHT : BRAND_ACCENT,
-      transactions: isDark ? S.info.dark : S.info.light,
-      invoices: isDark ? S.warning.dark : S.warning.light,
-      "payment-links": isDark ? BRAND_ACCENT_LIGHT : BRAND_ACCENT,
-      creator: isDark ? "#C084FC" : "#9333EA",
-      wallets: isDark ? S.positive.dark : S.positive.light,
-      customers: isDark ? "#94A3B8" : "#64748B",
-      api: isDark ? "#2DD4BF" : "#0D9488",
-      referrals: isDark ? "#F472B6" : "#DB2777",
-      notifications: isDark ? S.negative.dark : S.negative.light,
-      settings: isDark ? "#94A3B8" : "#64748B",
-    };
-    return map[icon] || (isDark ? S.info.dark : S.info.light);
-  };
-
+  // Curated per-item accent (shared with the mobile nav via helpers/navAccent)
+  // — gives each nav icon a subtle, meaningful colour while the active pill
+  // stays high-contrast.
   const iconColor = (isActive: boolean, icon: string) =>
-    isActive ? theme.palette.primary.contrastText : navAccent(icon);
+    isActive ? theme.palette.primary.contrastText : navAccent(icon, theme.palette.mode === "dark");
 
   return (
     <SidebarWrapper data-collapsed={isCollapsed ? "true" : "false"} sx={isCollapsed ? { padding: "12px 8px" } : undefined}>

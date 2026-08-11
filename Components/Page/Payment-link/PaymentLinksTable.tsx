@@ -35,6 +35,7 @@ import ActionIcon from "@/assets/Icons/Actions.svg";
 import CopyIcon from "@/assets/Icons/copy-icon.svg";
 import DescriptiontoIcon from "@/assets/Icons/crypto-icon.svg";
 import TimeUsedIcon from "@/assets/Icons/cryptocurrency_link.svg";
+import CoinChips from "@/Components/UI/CoinChips";
 import CryptoIcon from "@/assets/Icons/CryptoIcon.svg";
 import EditIcon from "@/assets/Icons/edit-icon.svg";
 import EyeIcon from "@/assets/Icons/eye-icon.svg";
@@ -423,9 +424,7 @@ const PaymentLinksTable = ({
                       {row.usdValue}
                     </Typography>
                     {row.cryptoValue && (
-                      <Typography sx={{ fontSize: "13px", fontFamily: "var(--font-sans)", color: theme.palette.primary.main }}>
-                        {row.cryptoValue}
-                      </Typography>
+                      <CoinChips value={row.cryptoValue} size="xs" max={2} />
                     )}
                   </Box>
                   {row.linkType === "donation" && row.donation?.goalAmount ? (
@@ -656,7 +655,7 @@ const PaymentLinksTable = ({
                       )}
                     </TableBodyCell>
                     <TableBodyCell>{row.usdValue}</TableBodyCell>
-                    <TableBodyCell>{row.cryptoValue}</TableBodyCell>
+                    <TableBodyCell><CoinChips value={row.cryptoValue} /></TableBodyCell>
                     <TableBodyCell>
                       {formatUtcToDisplay(row.createdAt)}
                     </TableBodyCell>

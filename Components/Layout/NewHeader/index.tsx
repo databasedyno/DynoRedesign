@@ -14,7 +14,7 @@ import InfoIcon from "@mui/icons-material/Info";
 import ArrowOutwardIcon from "@mui/icons-material/ArrowOutward";
 import MenuRounded from "@mui/icons-material/MenuRounded";
 import CloseRounded from "@mui/icons-material/CloseRounded";
-import { Box, Drawer, IconButton, useMediaQuery } from "@mui/material";
+import { Box, Drawer, IconButton, Typography, useMediaQuery } from "@mui/material";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -32,10 +32,17 @@ import {
 } from "./styled";
 import { HeaderDivider } from "@/Components/UI/LanguageSwitcher/styled";
 import { API_ENDPOINTS } from "@/api/endpoints";
+import useTokenData from "@/hooks/useTokenData";
+import { getInitials } from "@/helpers";
+import { avatarGradient } from "@/helpers/avatarGradient";
 
 const NewHeader = () => {
   const router = useRouter();
   const muiTheme = useMuiTheme();
+  const tokenData = useTokenData();
+  const drawerUserName = tokenData?.name || "";
+  const drawerFirstName = drawerUserName.split(" ")[0] || "";
+  const drawerLastName = drawerUserName.split(" ")[1] || "";
   const reduceMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
   const namespaces = ["dashboardLayout", "walletScreen"];
   const { t } = useTranslation(namespaces);
@@ -318,11 +325,77 @@ const NewHeader = () => {
             <CloseRounded sx={{ fontSize: 20 }} />
           </IconButton>
         </Box>
+        {/* Gradient-avatar profile header — gives the mobile drawer identity
+            (matches the top-bar avatar + the Emergent reference). */}
+        {drawerUserName && (
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 1.25,
+              px: 2,
+              py: 1.5,
+              borderBottom: `1px solid ${
+                muiTheme.palette.mode === "dark"
+                  ? "rgba(255,255,255,0.06)"
+                  : "rgba(10,10,15,0.06)"
+              }`,
+            }}
+          >
+            <Box
+              sx={{
+                width: 40,
+                height: 40,
+                borderRadius: "50%",
+                background: avatarGradient(drawerUserName),
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#FFFFFF",
+                fontWeight: 700,
+                fontSize: 15,
+                fontFamily: "var(--font-sans)",
+                textTransform: "uppercase",
+                flexShrink: 0,
+                boxShadow:
+                  muiTheme.palette.mode === "dark"
+                    ? "0 2px 8px rgba(0,0,0,0.35)"
+                    : "0 2px 8px rgba(10,10,15,0.18)",
+              }}
+            >
+              {getInitials(drawerFirstName, drawerLastName)}
+            </Box>
+            <Box sx={{ minWidth: 0 }}>
+              <Typography
+                sx={{
+                  fontWeight: 700,
+                  fontSize: 14,
+                  color: muiTheme.palette.text.primary,
+                  fontFamily: "var(--font-sans)",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                }}
+              >
+                {drawerUserName}
+              </Typography>
+              <Typography
+                sx={{
+                  fontSize: 12,
+                  color: muiTheme.palette.text.secondary,
+                  fontFamily: "var(--font-sans)",
+                }}
+              >
+                View account
+              </Typography>
+            </Box>
+          </Box>
+        )}
         {/* Reuse the desktop sidebar so nothing is lost. It already knows how
             to render active states + section groupings. */}
         <Box
           sx={{
-            height: "calc(100dvh - 65px)",
+            height: drawerUserName ? "calc(100dvh - 138px)" : "calc(100dvh - 65px)",
             overflowY: "auto",
             "& > *": { width: "100% !important" },
           }}

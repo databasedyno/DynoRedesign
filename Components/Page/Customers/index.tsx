@@ -1,4 +1,5 @@
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
+import { avatarGradient } from "@/helpers/avatarGradient";
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import {
   Box,
@@ -615,14 +616,15 @@ const CustomersPage: React.FC = () => {
                                 height: 36,
                                 borderRadius: "10px",
                                 flexShrink: 0,
-                                bgcolor: d.internal ? softBg : (isDark ? "rgba(255,255,255,0.1)" : "#111214"),
+                                bgcolor: d.internal ? softBg : undefined,
+                                background: d.internal ? undefined : avatarGradient(d.name),
                                 display: "flex",
                                 alignItems: "center",
                                 justifyContent: "center",
                                 fontWeight: 700,
                                 color: d.internal
                                   ? theme.palette.text.secondary
-                                  : (isDark ? theme.palette.text.primary : "#FFFFFF"),
+                                  : "#FFFFFF",
                                 fontSize: 14,
                                 fontFamily: "var(--font-sans)",
                               }}
@@ -753,14 +755,15 @@ const CustomersPage: React.FC = () => {
                   height: 40,
                   borderRadius: "12px",
                   flexShrink: 0,
-                  bgcolor: selectedDisplay.internal ? softBg : (isDark ? "rgba(255,255,255,0.1)" : "#111214"),
+                  bgcolor: selectedDisplay.internal ? softBg : undefined,
+                  background: selectedDisplay.internal ? undefined : avatarGradient(selectedDisplay.name),
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   fontWeight: 700,
                   color: selectedDisplay.internal
                     ? theme.palette.text.secondary
-                    : (isDark ? theme.palette.text.primary : "#FFFFFF"),
+                    : "#FFFFFF",
                   fontSize: 16,
                   fontFamily: "var(--font-sans)",
                 }}
