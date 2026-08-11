@@ -5,7 +5,10 @@
   (port 3300) fronted by a Python/uvicorn proxy on port 8001 (backend/server.py).
 - Browser API calls are RELATIVE (`/api/...`) because `NEXT_PUBLIC_BASE_URL` is empty
   in /app/.env.local -> Emergent ingress routes /api -> 8001 -> Node backend.
-- Preview URL: https://90f8a516-b3d0-4eb2-b415-39ce2e450de7.preview.emergentagent.com
+- Preview URL: https://944a7bb4-c087-41c1-92d7-9f945707acec.preview.emergentagent.com
+  (env files recreated 2026-08-11 from user-provided creds; NEXTAUTH_URL set to this
+   preview URL; NEXTAUTH_SECRET regenerated since the provided value was a placeholder.
+   Frontend deps installed at /app; backend deps at /app/backend.)
 
 ## Data store (LIVE PRODUCTION — user-provided creds, Aug 2026 setup)
 - PostgreSQL: roundhouse.proxy.rlwy.net:23599, db=railway, user=postgres

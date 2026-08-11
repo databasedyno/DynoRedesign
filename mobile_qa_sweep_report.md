@@ -1,6 +1,6 @@
 # DynoPay Mobile QA Sweep Report - Session 74
 **Date:** 2026-07-18  
-**Preview URL:** https://dynopay-checkout-1.preview.emergentagent.com  
+**Preview URL:** https://crypto-payment-hub-32.preview.emergentagent.com  
 **Test Account:** hostbay@moxx.co  
 **Viewports Tested:** iPhone 14 Pro (393×852), iPhone SE (375×667)
 
