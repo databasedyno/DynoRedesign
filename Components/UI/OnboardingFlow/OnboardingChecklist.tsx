@@ -1,3 +1,4 @@
+import { brandFg } from "@/constants/theme";
 import React, { useState, useCallback } from "react";
 import {
   ArrowForwardRounded,
@@ -229,7 +230,7 @@ const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({ steps }) => {
                     <Icon
                       sx={{
                         fontSize: isMobile ? 16 : 18,
-                        color: theme.palette.primary.main,
+                        color: brandFg(theme.palette.mode === "dark"),
                       }}
                     />
                   )}
@@ -271,7 +272,7 @@ const OnboardingChecklist: React.FC<OnboardingChecklistProps> = ({ steps }) => {
                 </Box>
                 {isNext && (
                   <ArrowForwardRounded
-                    sx={{ fontSize: 18, color: theme.palette.primary.main }}
+                    sx={{ fontSize: 18, color: brandFg(theme.palette.mode === "dark") }}
                   />
                 )}
               </Box>

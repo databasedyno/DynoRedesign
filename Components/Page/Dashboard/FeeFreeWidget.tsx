@@ -1,3 +1,4 @@
+import { brandFg } from "@/constants/theme";
 import React, { memo } from "react";
 import { Box, Typography, LinearProgress, useTheme } from "@mui/material";
 import { Icon } from "@iconify/react";
@@ -56,7 +57,7 @@ const FeeFreeWidget: React.FC = () => {
       {/* Header */}
       <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1.5 }}>
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <Icon icon="mdi:gift-outline" width={isMobile ? 18 : 20} color={theme.palette.primary.main} />
+          <Icon icon="mdi:gift-outline" width={isMobile ? 18 : 20} color={brandFg(theme.palette.mode === "dark")} />
           <Typography
             sx={{
               fontSize: isMobile ? 13 : 14,
@@ -71,7 +72,7 @@ const FeeFreeWidget: React.FC = () => {
           sx={{
             fontSize: isMobile ? 11 : 12,
             fontWeight: 600,
-            color: theme.palette.primary.main,
+            color: brandFg(theme.palette.mode === "dark"),
             bgcolor: `${theme.palette.primary.main}15`,
             px: 1,
             py: 0.3,

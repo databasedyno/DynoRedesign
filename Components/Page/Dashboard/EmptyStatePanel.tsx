@@ -1,3 +1,4 @@
+import { brandFg } from "@/constants/theme";
 import CustomButton from "@/Components/UI/Buttons";
 import TrustStrip from "@/Components/UI/AuthLayout/TrustStrip";
 import useIsMobile from "@/hooks/useIsMobile";
@@ -116,7 +117,7 @@ const EmptyStatePanel: React.FC<EmptyStatePanelProps> = ({
                   fontSize: "13px",
                   fontFamily: "var(--font-sans)",
                   cursor: "pointer",
-                  "&:hover": { color: theme.palette.primary.main },
+                  "&:hover": { color: brandFg(theme.palette.mode === "dark") },
                   // Session 75 P1 fix — WCAG 2.5.5 tap target on mobile.
                   minHeight: { xs: "44px", md: "auto" },
                   px: { xs: "8px", md: 0 },
@@ -145,7 +146,7 @@ const EmptyStatePanel: React.FC<EmptyStatePanelProps> = ({
                   fontSize: "13px",
                   fontFamily: "var(--font-sans)",
                   cursor: "pointer",
-                  "&:hover": { color: theme.palette.primary.main },
+                  "&:hover": { color: brandFg(theme.palette.mode === "dark") },
                   // Session 75 P1 fix — WCAG 2.5.5 tap target on mobile.
                   minHeight: { xs: "44px", md: "auto" },
                   px: { xs: "8px", md: 0 },

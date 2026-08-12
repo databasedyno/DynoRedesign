@@ -1,3 +1,4 @@
+import { brandFg } from "@/constants/theme";
 import useIsMobile from "@/hooks/useIsMobile";
 import { Box, Button, CircularProgress, useTheme } from "@mui/material";
 import { useTranslation } from "react-i18next";
@@ -251,7 +252,7 @@ const HelpAndSupport = () => {
                 {/* ================= ARTICLES ================= */}
                 {loading || searching ? (
                     <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
-                        <CircularProgress size={32} sx={{ color: theme.palette.primary.main }} />
+                        <CircularProgress size={32} sx={{ color: brandFg(theme.palette.mode === "dark") }} />
                     </Box>
                 ) : (
                     <Box
@@ -444,7 +445,7 @@ const HelpAndSupport = () => {
                             <a
                                 href="mailto:support@dynopay.com"
                                 data-testid="help-email-link"
-                                style={{ color: theme.palette.primary.main, textDecoration: "none", fontWeight: 600 }}
+                                style={{ color: brandFg(theme.palette.mode === "dark"), textDecoration: "none", fontWeight: 600 }}
                             >
                                 support@dynopay.com
                             </a>

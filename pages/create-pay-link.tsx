@@ -1,3 +1,4 @@
+import { brandFg } from "@/constants/theme";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import { useWalletStore } from "@/contexts/WalletDataContext";
 import CreatePaymentLinkPage from "@/Components/Page/CreatePaymentLink";
@@ -265,7 +266,7 @@ const CreatePaymentLink = ({ setPageName, setPageDescription }: pageProps) => {
               mb: 2.5,
             }}
           >
-            <BusinessRounded sx={{ fontSize: 32, color: theme.palette.primary.main }} />
+            <BusinessRounded sx={{ fontSize: 32, color: brandFg(theme.palette.mode === "dark") }} />
           </Box>
           <Typography
             data-testid="setup-required-title"
@@ -365,7 +366,7 @@ const CreatePaymentLink = ({ setPageName, setPageDescription }: pageProps) => {
                   </Box>
                   {!step.done && (
                     <ArrowForwardRounded
-                      sx={{ fontSize: 20, color: theme.palette.primary.main, flexShrink: 0 }}
+                      sx={{ fontSize: 20, color: brandFg(theme.palette.mode === "dark"), flexShrink: 0 }}
                     />
                   )}
                 </Box>

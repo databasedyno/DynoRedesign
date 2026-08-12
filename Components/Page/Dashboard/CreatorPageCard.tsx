@@ -1,3 +1,4 @@
+import { brandFg } from "@/constants/theme";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Box, Button, InputBase, Typography, useTheme } from "@mui/material";
 import { Icon } from "@iconify/react";
@@ -362,7 +363,7 @@ const CreatorPageCard: React.FC = () => {
                     p: 0,
                     minWidth: 0,
                     color: theme.palette.text.secondary,
-                    "&:hover": { color: theme.palette.primary.main, backgroundColor: "transparent" },
+                    "&:hover": { color: brandFg(theme.palette.mode === "dark"), backgroundColor: "transparent" },
                     // Session 75 P1 fix — WCAG 2.5.5: mobile-only 44px tap
                     // target so text-only "→" CTAs are as reachable as icon
                     // buttons. Desktop retains its compact typographic feel.
@@ -388,7 +389,7 @@ const CreatorPageCard: React.FC = () => {
               color: theme.palette.text.secondary,
               alignSelf: "flex-start",
               mt: 0.25,
-              "&:hover": { color: theme.palette.primary.main },
+              "&:hover": { color: brandFg(theme.palette.mode === "dark") },
               // Session 75 P1 fix — WCAG 2.5.5 mobile touch target.
               minHeight: { xs: "44px", md: "auto" },
               px: { xs: "8px", md: 0 },
@@ -631,7 +632,7 @@ const CreatorPageCard: React.FC = () => {
           variant="text"
           onClick={() => router.push("/creator")}
           data-testid="creator-card-full-setup"
-          sx={{ textTransform: "none", fontSize: 12, color: theme.palette.text.secondary, alignSelf: "center", mt: -0.5, "&:hover": { color: theme.palette.primary.main } }}
+          sx={{ textTransform: "none", fontSize: 12, color: theme.palette.text.secondary, alignSelf: "center", mt: -0.5, "&:hover": { color: brandFg(theme.palette.mode === "dark") } }}
         >
           {t("creatorCardFullSetup", { defaultValue: "Full setup on /creator →" })}
         </Button>

@@ -1,3 +1,4 @@
+import { brandFg } from "@/constants/theme";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import React, { useEffect, useMemo, useState } from "react";
 import { Box, CircularProgress, MenuItem, Select, Typography, useTheme } from "@mui/material";
@@ -124,7 +125,7 @@ const CompanyConfigSection = ({
   if (isLoading) {
     return (
       <Box sx={{ py: 8, display: "flex", justifyContent: "center" }}>
-        <CircularProgress size={28} sx={{ color: theme.palette.primary.main }} />
+        <CircularProgress size={28} sx={{ color: brandFg(theme.palette.mode === "dark") }} />
       </Box>
     );
   }

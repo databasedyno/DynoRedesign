@@ -1,3 +1,4 @@
+import { brandFg } from "@/constants/theme";
 import { TrendingUp, TrendingDown, TrendingFlat, AccessTime, PendingActions } from "@mui/icons-material";
 import { Box, Typography, useTheme, Skeleton } from "@mui/material";
 import React from "react";
@@ -35,7 +36,7 @@ const TodaySummaryStrip: React.FC<TodaySummaryProps> = ({ todaySummary, loading 
       value: todaySummary?.volumeTodayFormatted ?? "$0.00",
       change: todaySummary?.volumeChangePercent ?? 0,
       subLabel: t("vsYesterday"),
-      icon: <TrendingUp sx={{ fontSize: 18, color: theme.palette.primary.main }} />,
+      icon: <TrendingUp sx={{ fontSize: 18, color: brandFg(theme.palette.mode === "dark") }} />,
     },
     {
       label: t("volumeYesterday"),
@@ -49,7 +50,7 @@ const TodaySummaryStrip: React.FC<TodaySummaryProps> = ({ todaySummary, loading 
       value: String(todaySummary?.transactionsToday ?? 0),
       change: todaySummary?.transactionsChangePercent ?? 0,
       subLabel: t("vsYesterday"),
-      icon: <TrendingUp sx={{ fontSize: 18, color: theme.palette.primary.main }} />,
+      icon: <TrendingUp sx={{ fontSize: 18, color: brandFg(theme.palette.mode === "dark") }} />,
     },
     {
       label: t("pendingLabel"),

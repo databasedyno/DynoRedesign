@@ -28,14 +28,22 @@ Testing agent confirmed dark #818CF8 / light #4F46E5 on /wallet, /notifications,
 console errors). Payment widgets share the identical pattern (lint + compile verified; the /pay/demo
 live check was skipped as optional).
 
-**BATCH 4+ (remaining #4F46E5-in-dark foregrounds) — next files to migrate:**
+**ETH COIN ICON BUG ✅ FIXED & VERIFIED (2026-08-12)** — `assets/cryptocurrency/Ethereum-icon.svg`
+was a bare near-black (#242428) diamond → invisible on dark. Rewrote it as the canonical colored ETH
+(#627EEA periwinkle disc + white diamond). Testing agent confirmed visible in dark + light on
+/create-pay-link. (Audit: ETH was the ONLY invisible coin; all others are self-contained colored discs.)
+
+**BATCH 4 ✅ DONE & VERIFIED (2026-08-12)** — migrated brand-accent foregrounds to `brandFg` in dashboard
+panels (`CreatorPageCard`, `TodaySummaryStrip`, `GrowPanel`, `FeeFreeWidget`, `EmptyStatePanel`,
+`FeeTierProgress`), `Profile/UpdatePassword`, `HelpAndSupport/index`, `OnboardingFlow/{OnboardingChecklist,
+CelebrationOverlay}`, `pages/create-pay-link.tsx`, `pages/settings/index.tsx`. Testing agent confirmed
+dark #818CF8 / light #4F46E5 on /dashboard, /create-pay-link, /settings, /profile; no console errors.
+
+**BATCH 5+ (remaining) — mostly PUBLIC/marketing pages (confirm intent before changing):**
 `pages/company.tsx`, `pages/blog/[slug].tsx`, `pages/blog/index.tsx`, `pages/creator.tsx`,
-`pages/create-pay-link.tsx`, `pages/settings/index.tsx`, `pages/pay/index.tsx`, `pages/pay/demo.tsx`,
-`Components/Page/SEO/SEOLandingPage`, `Components/Page/Profile/UpdatePassword`,
-`Components/Page/HelpAndSupport`, `Components/Page/Dashboard/{TodaySummaryStrip,GrowPanel,EmptyStatePanel,CreatorPageCard}`,
-`Components/UI/{OnboardingFlow/OnboardingChecklist,DatePicker/styled}`, `Components/Modals/ExitIntentModal`,
-`Components/Layout/AdminHeader`. (Skip backgrounds/borders + already-theme-aware sites. Marketing/public
-pages may be intentionally off-palette — confirm before changing.)
+`pages/pay/index.tsx`, `pages/pay/demo.tsx`, `Components/Page/SEO/SEOLandingPage`,
+`Components/Modals/ExitIntentModal`, `Components/Layout/AdminHeader`, `Components/UI/DatePicker/styled`,
+plus a final sweep of any leftover `"primary.main"` string-shorthand foregrounds.
 
 
 

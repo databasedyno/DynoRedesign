@@ -1,3 +1,4 @@
+import { brandFg } from "@/constants/theme";
 import CustomButton from "@/Components/UI/Buttons";
 import PanelCard from "@/Components/UI/PanelCard";
 import useIsMobile from "@/hooks/useIsMobile";
@@ -213,7 +214,7 @@ const GrowPanel: React.FC<GrowPanelProps> = ({
                 fontSize: "12px",
                 color: theme.palette.text.secondary,
                 cursor: "pointer",
-                "&:hover": { color: theme.palette.primary.main, textDecoration: "underline" },
+                "&:hover": { color: brandFg(theme.palette.mode === "dark"), textDecoration: "underline" },
               }}
               data-testid="grow-secondary-referral"
             >
@@ -228,7 +229,7 @@ const GrowPanel: React.FC<GrowPanelProps> = ({
                 fontSize: "12px",
                 color: theme.palette.text.secondary,
                 cursor: "pointer",
-                "&:hover": { color: theme.palette.primary.main, textDecoration: "underline" },
+                "&:hover": { color: brandFg(theme.palette.mode === "dark"), textDecoration: "underline" },
               }}
               data-testid="grow-secondary-premium"
             >

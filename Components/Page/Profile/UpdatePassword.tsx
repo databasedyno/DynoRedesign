@@ -1,3 +1,4 @@
+import { brandFg } from "@/constants/theme";
 import InfoIcon from "@/assets/Icons/info-icon.svg";
 import InputField from "@/Components/UI/AuthLayout/InputFields";
 import PasswordValidation from "@/Components/UI/AuthLayout/PasswordValidation";
@@ -221,7 +222,7 @@ const UpdatePassword = () => {
                 "&:hover": { borderColor: theme.palette.primary.main, backgroundColor: theme.palette.mode === "dark" ? "rgba(59,130,246,0.06)" : "rgba(59,130,246,0.04)" },
               }}
             >
-              <Icon name="mail" size={20} color={theme.palette.primary.main} />
+              <Icon name="mail" size={20} color={brandFg(theme.palette.mode === "dark")} />
               <Box>
                 <Typography sx={{ fontSize: "14px", fontWeight: 600, fontFamily: "var(--font-sans)", color: theme.palette.text.primary }}>{t("channelEmail")}</Typography>
                 <Typography sx={{ fontSize: "12px", color: theme.palette.text.secondary, fontFamily: "var(--font-sans)" }}>{maskEmail(profile?.email)}</Typography>
@@ -238,7 +239,7 @@ const UpdatePassword = () => {
                 "&:hover": { borderColor: theme.palette.primary.main, backgroundColor: theme.palette.mode === "dark" ? "rgba(59,130,246,0.06)" : "rgba(59,130,246,0.04)" },
               }}
             >
-              <Icon name="smartphone" size={20} color={theme.palette.primary.main} />
+              <Icon name="smartphone" size={20} color={brandFg(theme.palette.mode === "dark")} />
               <Box>
                 <Typography sx={{ fontSize: "14px", fontWeight: 600, fontFamily: "var(--font-sans)", color: theme.palette.text.primary }}>{t("channelPhone")}</Typography>
                 <Typography sx={{ fontSize: "12px", color: theme.palette.text.secondary, fontFamily: "var(--font-sans)" }}>{maskPhone(profile?.mobile)}</Typography>

@@ -1,3 +1,4 @@
+import { brandFg } from "@/constants/theme";
 import { formatNumberWithComma, getCurrencySymbol } from "@/helpers";
 import useIsMobile from "@/hooks/useIsMobile";
 import { FeeTierProgressProps } from "@/utils/types/dashboard";
@@ -177,7 +178,7 @@ const FeeTierProgress: React.FC<FeeTierProgressProps> = ({
           sx={{
             fontSize: isMobile ? "10px" : "13px",
             fontWeight: 500,
-            color: theme.palette.primary.main,
+            color: brandFg(theme.palette.mode === "dark"),
             fontFamily: "var(--font-sans)",
             lineHeight: isMobile ? "12px" : "16px",
             letterSpacing: 0,

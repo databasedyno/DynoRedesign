@@ -1,3 +1,4 @@
+import { brandFg } from "@/constants/theme";
 import useIsMobile from "@/hooks/useIsMobile";
 import {
   Box,
@@ -126,7 +127,7 @@ const CelebrationOverlay: React.FC<CelebrationOverlayProps> = ({
           <CelebrationRounded
             sx={{
               fontSize: isMobile ? 30 : 38,
-              color: theme.palette.primary.main,
+              color: brandFg(theme.palette.mode === "dark"),
             }}
           />
         </Box>
