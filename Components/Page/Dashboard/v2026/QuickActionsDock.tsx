@@ -9,7 +9,7 @@ import {
   Tooltip,
 } from "@mui/material";
 import Link from "next/link";
-import { Reorder } from "framer-motion";
+import { Reorder, motion } from "framer-motion";
 import {
   DndContext,
   PointerSensor,
@@ -243,12 +243,59 @@ const QuickActionsDock: React.FC = () => {
     }
   };
 
+  // ── One-time onboarding hints (per-device via localStorage) ─────────────
+  const SPOTLIGHT_KEY = "dp_qa_customize_spotlight_v1";
+  const REORDER_HINT_KEY = "dp_qa_reorder_hint_v1";
+  const lsGet = (k: string) => {
+    try {
+      return typeof window !== "undefined" ? window.localStorage.getItem(k) : null;
+    } catch {
+      return null;
+    }
+  };
+  const lsSet = (k: string, v: string) => {
+    try {
+      if (typeof window !== "undefined") window.localStorage.setItem(k, v);
+    } catch {
+      /* ignore */
+    }
+  };
+
+  const [spotlightOpen, setSpotlightOpen] = useState(false);
+  const [reorderHintOpen, setReorderHintOpen] = useState(false);
+  const reorderHintSeenRef = useRef(true);
+
+  const dismissSpotlight = () => {
+    setSpotlightOpen(false);
+    lsSet(SPOTLIGHT_KEY, "1");
+  };
+
+  const maybeShowReorderHint = () => {
+    if (reorderHintSeenRef.current || spotlightOpen) return;
+    reorderHintSeenRef.current = true;
+    lsSet(REORDER_HINT_KEY, "1");
+    setReorderHintOpen(true);
+    setTimeout(() => setReorderHintOpen(false), 3500);
+  };
+
+  useEffect(() => {
+    reorderHintSeenRef.current = Boolean(lsGet(REORDER_HINT_KEY));
+    if (!lsGet(SPOTLIGHT_KEY)) {
+      setSpotlightOpen(true);
+      const timer = setTimeout(() => dismissSpotlight(), 8000);
+      return () => clearTimeout(timer);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // ── Customize dialog state ──────────────────────────────────────────────
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState<string[]>(DEFAULT_SLUGS);
   const [saving, setSaving] = useState(false);
 
   const openDialog = () => {
+    dismissSpotlight();
+    setReorderHintOpen(false);
     setDraft(order);
     setOpen(true);
   };
@@ -320,21 +367,44 @@ const QuickActionsDock: React.FC = () => {
     >
       <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <Eyebrow>{t("quickActions", { defaultValue: "Quick actions" })}</Eyebrow>
-        <Tooltip title={t("qaCustomize", { defaultValue: "Customize" })} arrow>
-          <IconButton
-            size="small"
-            onClick={openDialog}
-            data-testid="dash2026-qa-customize"
-            aria-label={t("qaCustomize", { defaultValue: "Customize" })}
-            sx={{
-              width: 28,
-              height: 28,
-              color: inkMuted,
-              "&:hover": { color: indigo, backgroundColor: indigoGlow },
-            }}
-          >
-            <Icon name="pencil" size={15} />
-          </IconButton>
+        <Tooltip
+          open={spotlightOpen}
+          title={t("qaSpotlight", { defaultValue: "Personalize & reorder your shortcuts" })}
+          arrow
+          placement="left"
+          slotProps={{ tooltip: { sx: { fontSize: 12.5, fontWeight: 600, px: 1.5, py: 1 } } }}
+        >
+          <Box sx={{ position: "relative", display: "inline-flex" }} data-testid="dash2026-qa-spotlight">
+            {spotlightOpen && (
+              <Box
+                component={motion.span}
+                aria-hidden
+                animate={{
+                  boxShadow: [
+                    `0 0 0 0 ${isDark ? "rgba(129,140,248,0.5)" : "rgba(79,70,229,0.4)"}`,
+                    `0 0 0 9px ${isDark ? "rgba(129,140,248,0)" : "rgba(79,70,229,0)"}`,
+                  ],
+                }}
+                transition={{ duration: 1.7, repeat: Infinity, ease: "easeOut" }}
+                sx={{ position: "absolute", inset: 0, borderRadius: "50%", pointerEvents: "none" }}
+              />
+            )}
+            <IconButton
+              size="small"
+              onClick={openDialog}
+              data-testid="dash2026-qa-customize"
+              aria-label={t("qaCustomize", { defaultValue: "Customize" })}
+              sx={{
+                width: 28,
+                height: 28,
+                color: spotlightOpen ? indigo : inkMuted,
+                backgroundColor: spotlightOpen ? indigoGlow : "transparent",
+                "&:hover": { color: indigo, backgroundColor: indigoGlow },
+              }}
+            >
+              <Icon name="pencil" size={15} />
+            </IconButton>
+          </Box>
         </Tooltip>
       </Box>
 
@@ -343,6 +413,7 @@ const QuickActionsDock: React.FC = () => {
         collisionDetection={closestCenter}
         onDragStart={() => {
           suppressClickRef.current = true;
+          setReorderHintOpen(false);
         }}
         onDragEnd={handleDragEnd}
         onDragCancel={() => {
@@ -352,21 +423,32 @@ const QuickActionsDock: React.FC = () => {
         }}
       >
         <SortableContext items={order} strategy={rectSortingStrategy}>
-          <Box sx={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 1.25 }}>
-            {order.map((id) => {
-              const c = CATALOG_BY_ID[id];
-              if (!c) return null;
-              return (
-                <SortableTile
-                  key={id}
-                  id={id}
-                  colors={tileColors}
-                  label={t(c.key, { defaultValue: c.def })}
-                  suppressClickRef={suppressClickRef}
-                />
-              );
-            })}
-          </Box>
+          <Tooltip
+            open={reorderHintOpen}
+            title={t("qaReorderHint", { defaultValue: "Hold & drag to reorder" })}
+            placement="top"
+            arrow
+            slotProps={{ tooltip: { sx: { fontSize: 12.5, fontWeight: 600, px: 1.5, py: 1 } } }}
+          >
+            <Box
+              onMouseEnter={maybeShowReorderHint}
+              sx={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 1.25 }}
+            >
+              {order.map((id) => {
+                const c = CATALOG_BY_ID[id];
+                if (!c) return null;
+                return (
+                  <SortableTile
+                    key={id}
+                    id={id}
+                    colors={tileColors}
+                    label={t(c.key, { defaultValue: c.def })}
+                    suppressClickRef={suppressClickRef}
+                  />
+                );
+              })}
+            </Box>
+          </Tooltip>
         </SortableContext>
       </DndContext>
 

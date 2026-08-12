@@ -9,7 +9,7 @@ import {
   MenuItem, Select, FormControl, InputLabel, useTheme,
 } from "@mui/material";
 import { CB_TOKENS } from "@/Components/Page/Dashboard/coinbase/styled";
-import { MONO } from "@/styles/uiKit";
+import { MONO, Icon } from "@/styles/uiKit";
 import AddRounded from "@mui/icons-material/AddRounded";
 import EditRounded from "@mui/icons-material/EditRounded";
 import ReceiptLongRounded from "@mui/icons-material/ReceiptLongRounded";
@@ -211,13 +211,29 @@ const ProductsList = ({ setPageName, setPageDescription, setPageAction }: pagePr
       ) : (
         <PanelCard title="">
           {items.length === 0 ? (
-            <Stack alignItems="center" spacing={1} sx={{ py: 6 }}>
-              <Typography variant="h6" data-testid="products-empty">No products yet</Typography>
-              <Typography variant="body2" color="text.secondary">
-                Create your first digital product — buyers pay in crypto, deliverables go out automatically.
+            <Stack alignItems="center" spacing={1.25} sx={{ py: 6, textAlign: "center" }} data-testid="products-empty">
+              <Box
+                sx={{
+                  width: 56,
+                  height: 56,
+                  borderRadius: "16px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: isDark ? CB_TOKENS.indigo.dark : CB_TOKENS.indigo.light,
+                  backgroundColor: isDark ? CB_TOKENS.indigo.darkGlow : CB_TOKENS.indigo.lightGlow,
+                }}
+              >
+                <Icon name="package" size={26} />
+              </Box>
+              <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                Sell your first product
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 420, lineHeight: 1.55 }}>
+                Create a digital product — buyers pay in crypto and deliverables go out automatically.
               </Typography>
               <CustomButton
-                label="Create a product"
+                label="Create your first product"
                 variant="primary"
                 onClick={() => router.push("/pay-links/products/new")}
                 data-testid="products-empty-new-btn"

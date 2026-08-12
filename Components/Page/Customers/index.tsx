@@ -578,15 +578,24 @@ const CustomersPage: React.FC = () => {
                               </Typography>
                               <Box sx={{ display: "flex", gap: 1.5, mt: 1, flexWrap: "wrap", justifyContent: "center" }}>
                                 <CustomButton
-                                  label={t("customers.noCustomersCtaDocs")}
+                                  label={t("customers.noCustomersCtaCreate", { defaultValue: "Create a payment link" })}
                                   variant="primary"
                                   size="small"
+                                  data-testid="customers-empty-primary-cta"
+                                  onClick={() => router.push("/create-pay-link")}
+                                />
+                                <CustomButton
+                                  label={t("customers.noCustomersCtaDocs")}
+                                  variant="secondary"
+                                  size="small"
+                                  data-testid="customers-empty-docs-cta"
                                   onClick={() => router.push("/documentation")}
                                 />
                                 <CustomButton
                                   label={t("customers.noCustomersCtaKeys")}
                                   variant="secondary"
                                   size="small"
+                                  data-testid="customers-empty-keys-cta"
                                   onClick={() => router.push("/developer-keys")}
                                 />
                               </Box>

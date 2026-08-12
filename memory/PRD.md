@@ -1,3 +1,20 @@
+# SESSION ADDENDUM (2026-06 (fork)) — Storefront Empty States · Reorder Hint · Guided First Run — VERIFIED (testing agent iteration_46, 100% / 15 checks, incl. mobile 390 & 768, 0 fatal errors, order restored)
+
+## J. Storefront Empty States (friendly first-action nudge)
+- `pages/pay-links/products/index.tsx`: upgraded empty state → package icon badge + "Sell your first product" + subline + primary CTA `products-empty-new-btn` → /pay-links/products/new (testid `products-empty`).
+- `Components/Page/Customers/index.tsx`: empty state now leads with primary CTA `customers-empty-primary-cta` "Create a payment link" → /create-pay-link (customers come from payments); secondary CTAs `customers-empty-docs-cta` → /documentation and `customers-empty-keys-cta` → /developer-keys.
+
+## K. Reorder Hint (one-time)
+- `QuickActionsDock.tsx`: controlled MUI `<Tooltip>` "Hold & drag to reorder" wrapping the dnd-kit sortable grid; shown once on first tile hover via `maybeShowReorderHint`, gated by localStorage `dp_qa_reorder_hint_v1` and suppressed while the spotlight is open / on drag start. Does NOT break dnd drag or tap-navigate (regression-verified).
+
+## L. Guided First Run (one-time)
+- `QuickActionsDock.tsx`: on first dashboard load (localStorage `dp_qa_customize_spotlight_v1` unset) a controlled tooltip "Personalize & reorder your shortcuts" is anchored to the Customize pencil (anchor testid `dash2026-qa-spotlight`), with the pencil highlighted + a framer-motion pulse ring. Dismissed (and flag set) on opening the dialog or after an 8s timer; does not reappear.
+
+NOTE for future agents: both hints are per-DEVICE localStorage flags (dp_qa_customize_spotlight_v1, dp_qa_reorder_hint_v1) — clear them to re-trigger. Empty states are verified via route interception (products: body.data.items=[]; customers: body.data.customers=[]). Customers secondary CTAs are router.push (now have testids).
+
+---
+
+
 # SESSION ADDENDUM (2026-06 (fork)) — Consistent Everywhere+ · Reorder On Dashboard · Smart First Pick — VERIFIED (testing agent iteration_45, 100% / 24 checks, incl. mobile 390 & 768)
 
 ## G. Consistent Everywhere+ — Inter body + Roboto-Mono figures on Customers, Referrals, API/Developer
