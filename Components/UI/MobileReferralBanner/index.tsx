@@ -1,3 +1,4 @@
+import { brandFg } from "@/constants/theme";
 import React, { useEffect, useState } from "react";
 import { Box, Typography, useTheme } from "@mui/material";
 import { ContentCopyRounded, ShareRounded, CardGiftcardRounded } from "@mui/icons-material";
@@ -67,7 +68,7 @@ const MobileReferralBanner: React.FC = () => {
       {/* Header */}
       <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <CardGiftcardRounded sx={{ fontSize: 18, color: theme.palette.primary.main }} />
+          <CardGiftcardRounded sx={{ fontSize: 18, color: brandFg(theme.palette.mode === "dark") }} />
           <Typography
             sx={{
               fontSize: "13px",
@@ -105,7 +106,7 @@ const MobileReferralBanner: React.FC = () => {
             cursor: "pointer",
             fontSize: "12px",
             fontFamily: "var(--font-sans)",
-            color: theme.palette.primary.main,
+            color: brandFg(theme.palette.mode === "dark"),
             textDecoration: "none",
             "&:hover": { textDecoration: "underline" },
             "&:focus-visible": {
@@ -139,7 +140,7 @@ const MobileReferralBanner: React.FC = () => {
               fontSize: "16px",
               fontFamily: "var(--font-sans)",
               fontWeight: 700,
-              color: theme.palette.primary.main,
+              color: brandFg(theme.palette.mode === "dark"),
               letterSpacing: "1.5px",
             }}
           >
@@ -162,7 +163,7 @@ const MobileReferralBanner: React.FC = () => {
             transition: "all 0.2s",
           }}
         >
-          <ContentCopyRounded sx={{ fontSize: 16, color: copied ? "#fff" : theme.palette.primary.main }} />
+          <ContentCopyRounded sx={{ fontSize: 16, color: copied ? "#fff" : brandFg(theme.palette.mode === "dark") }} />
         </Box>
         <Box
           onClick={handleShare}

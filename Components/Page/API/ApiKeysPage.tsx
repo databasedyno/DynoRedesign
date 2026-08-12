@@ -1,3 +1,4 @@
+import { brandFg } from "@/constants/theme";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import { Box, CircularProgress, Grid, Typography, MenuItem, Select, FormControl } from "@mui/material";
 import { Icon } from "@/styles/uiKit";
@@ -293,7 +294,7 @@ const ApiKeyCard = ({ title, apiRow, onCopy, onDelete, onRegenerate, onToggleSta
                   theme.palette.mode === "dark"
                     ? "rgba(106,123,255,0.16)"
                     : "rgba(106,123,255,0.10)",
-                color: theme.palette.primary.main,
+                color: brandFg(theme.palette.mode === "dark"),
                 border: `1px solid ${theme.palette.primary.main}33`,
                 whiteSpace: "nowrap",
               }}
@@ -369,7 +370,7 @@ const ApiKeyCard = ({ title, apiRow, onCopy, onDelete, onRegenerate, onToggleSta
             </Select>
           </FormControl>
           {savingCurrency && (
-            <CircularProgress size={14} sx={{ color: theme.palette.primary.main }} />
+            <CircularProgress size={14} sx={{ color: brandFg(theme.palette.mode === "dark") }} />
           )}
           {currencySaved && !savingCurrency && (
             <Icon name="check" size={16} color={theme.palette.success?.main || "#22C55E"} />
@@ -679,7 +680,7 @@ Dynopay.openCheckout({ fetchClientSecret, onComplete });`;
           variant="outlined"
           sx={{
             borderColor: theme.palette.primary.main,
-            color: theme.palette.primary.main,
+            color: brandFg(theme.palette.mode === "dark"),
             "&:hover": {
               background: theme.palette.mode === "dark" ? "rgba(129,140,248,0.10)" : "#f0f5ff",
               borderColor: theme.palette.primary.main,
@@ -939,7 +940,7 @@ export function DynopayCryptoElement({ amount = 5 }: { amount?: number }) {
           variant="outlined"
           sx={{
             borderColor: theme.palette.primary.main,
-            color: theme.palette.primary.main,
+            color: brandFg(theme.palette.mode === "dark"),
             "&:hover": {
               background: theme.palette.mode === "dark" ? "rgba(129,140,248,0.10)" : "#f0f5ff",
               borderColor: theme.palette.primary.main,
@@ -1259,7 +1260,7 @@ Content-Type: application/json
           variant="outlined"
           sx={{
             borderColor: theme.palette.primary.main,
-            color: theme.palette.primary.main,
+            color: brandFg(theme.palette.mode === "dark"),
             "&:hover": {
               background: theme.palette.mode === "dark" ? "rgba(129,140,248,0.10)" : "#f0f5ff",
               borderColor: theme.palette.primary.main,
@@ -1381,7 +1382,7 @@ const ApiKeysPage = ({
       >
         <CircularProgress
           sx={{
-            color: theme.palette.primary.main,
+            color: brandFg(theme.palette.mode === "dark"),
           }}
         />
       </Box>
@@ -1405,7 +1406,7 @@ const ApiKeysPage = ({
             variant="outlined"
             sx={{
               borderColor: theme.palette.primary.main,
-              color: theme.palette.primary.main,
+              color: brandFg(theme.palette.mode === "dark"),
               "&:hover": { background: theme.palette.mode === "dark" ? "rgba(129,140,248,0.10)" : "#f0f5ff", borderColor: theme.palette.primary.main },
             }}
             onClick={() => {
@@ -1497,7 +1498,7 @@ const ApiKeysPage = ({
               <Icon
                 name="lock"
                 size={20}
-                color={theme.palette.primary.main}
+                color={brandFg(theme.palette.mode === "dark")}
                 style={{ flexShrink: 0 }}
               />
               <Typography

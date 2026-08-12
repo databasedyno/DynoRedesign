@@ -1,3 +1,4 @@
+import { brandFg } from "@/constants/theme";
 import EditIcon from "@/assets/Icons/editicon.png";
 import LoadingIcon from "@/assets/Icons/LoadingIcon";
 import ArrowUpwardIcon from "@/assets/Icons/up-arrow-icon.png";
@@ -1134,7 +1135,7 @@ export default function Login() {
               <Typography
                 sx={{
                   fontSize: "13px",
-                  color: theme.palette.primary.main,
+                  color: brandFg(theme.palette.mode === "dark"),
                   fontWeight: 500,
                   lineHeight: "1.2",
                   letterSpacing: 0,
@@ -1182,7 +1183,7 @@ export default function Login() {
                   color: theme.palette.text.secondary,
                   fontFamily: "var(--font-sans)",
                   cursor: "pointer",
-                  "&:hover": { color: theme.palette.primary.main },
+                  "&:hover": { color: brandFg(theme.palette.mode === "dark") },
                 }}
               >
                 {t("useEmailInstead", {
@@ -1325,7 +1326,7 @@ export default function Login() {
               <Typography
                 sx={{
                   fontSize: "13px",
-                  color: theme.palette.primary.main,
+                  color: brandFg(theme.palette.mode === "dark"),
                   fontWeight: 500,
                   lineHeight: "1.2",
                   letterSpacing: 0,
@@ -1379,7 +1380,7 @@ export default function Login() {
                   color: theme.palette.text.secondary,
                   fontFamily: "var(--font-sans)",
                   cursor: "pointer",
-                  "&:hover": { color: theme.palette.primary.main },
+                  "&:hover": { color: brandFg(theme.palette.mode === "dark") },
                 }}
               >
                 {t("usePhoneNumberInstead", {
@@ -1524,7 +1525,7 @@ export default function Login() {
                     component="span"
                     sx={{
                       fontSize: "13px",
-                      color: theme.palette.primary.main,
+                      color: brandFg(theme.palette.mode === "dark"),
                       fontWeight: 500,
                       cursor: "pointer",
                       textDecoration: "underline",
@@ -1573,7 +1574,7 @@ export default function Login() {
                         border: "1px solid",
                         borderColor:
                           loginMethod === "email"
-                            ? "primary.main"
+                            ? brandFg(theme.palette.mode === "dark")
                             : "divider",
                         background:
                           loginMethod === "email"
@@ -1584,7 +1585,7 @@ export default function Login() {
                             : "transparent",
                         color:
                           loginMethod === "email"
-                            ? "primary.main"
+                            ? brandFg(theme.palette.mode === "dark")
                             : "text.secondary",
                         cursor: "pointer",
                         fontFamily: "var(--font-sans)",
@@ -1616,7 +1617,7 @@ export default function Login() {
                         border: "1px solid",
                         borderColor:
                           loginMethod === "sms"
-                            ? "primary.main"
+                            ? brandFg(theme.palette.mode === "dark")
                             : "divider",
                         background:
                           loginMethod === "sms"
@@ -1627,7 +1628,7 @@ export default function Login() {
                             : "transparent",
                         color:
                           loginMethod === "sms"
-                            ? "primary.main"
+                            ? brandFg(theme.palette.mode === "dark")
                             : "text.secondary",
                         cursor: "pointer",
                         fontFamily: "var(--font-sans)",
@@ -1719,7 +1720,7 @@ export default function Login() {
                       display: "inline-flex",
                       alignItems: "center",
                       gap: "4px",
-                      "&:hover": { color: theme.palette.primary.main },
+                      "&:hover": { color: brandFg(theme.palette.mode === "dark") },
                     }}
                     onClick={() => {
                       setUseCodeMode(false);
@@ -1773,7 +1774,7 @@ export default function Login() {
                     cursor: "pointer",
                     fontFamily: "var(--font-sans)",
                     "&:hover": {
-                      color: theme.palette.primary.main,
+                      color: brandFg(theme.palette.mode === "dark"),
                       textDecoration: "underline",
                     },
                   }}

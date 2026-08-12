@@ -36,7 +36,7 @@ import {
 } from "@mui/material";
 import { ArrowBack, CheckCircleOutline } from "@mui/icons-material";
 import Head from "next/head";
-import { BRAND_ACCENT } from "@/constants/theme";
+import { BRAND_ACCENT, brandFg } from "@/constants/theme";
 import { API_ENDPOINTS } from "@/api/endpoints";
 import Spinner from "@/Components/UI/Spinner";
 
@@ -711,7 +711,7 @@ const Register = () => {
                     <Typography
                       sx={{
                         fontSize: "13px",
-                        color: theme.palette.primary.main,
+                        color: brandFg(theme.palette.mode === "dark"),
                         fontFamily: "var(--font-sans)",
                         cursor: "pointer",
                         textDecoration: "underline",
@@ -768,7 +768,7 @@ const Register = () => {
                         color: theme.palette.text.secondary,
                         fontFamily: "var(--font-sans)",
                         cursor: "pointer",
-                        "&:hover": { color: theme.palette.primary.main },
+                        "&:hover": { color: brandFg(theme.palette.mode === "dark") },
                       }}
                     >
                       {method === "email"
@@ -784,7 +784,7 @@ const Register = () => {
                     </Typography>
                     <Typography
                       sx={{
-                        fontSize: "13px", color: theme.palette.primary.main, fontWeight: 500,
+                        fontSize: "13px", color: brandFg(theme.palette.mode === "dark"), fontWeight: 500,
                         cursor: "pointer", textDecoration: "underline", fontFamily: "var(--font-sans)",
                       }}
                       onClick={() => router.push("/auth/login")}

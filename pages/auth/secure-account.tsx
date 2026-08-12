@@ -1,3 +1,4 @@
+import { brandFg } from "@/constants/theme";
 import React, { useEffect, useState } from "react";
 import { Box, Typography, CircularProgress } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
@@ -43,7 +44,7 @@ const SecureAccountPage = () => {
       icon: <CircularProgress size={48} />,
       title: "Securing your account...",
       subtitle: "Please wait while we process your request.",
-      color: theme.palette.primary.main,
+      color: brandFg(theme.palette.mode === "dark"),
     },
     success: {
       icon: <CheckCircleOutlineIcon sx={{ fontSize: 56, color: "#22c55e" }} />,
@@ -146,7 +147,7 @@ const SecureAccountPage = () => {
                 fontSize: "14px",
                 fontWeight: 600,
                 fontFamily: "var(--font-sans)",
-                color: theme.palette.primary.main,
+                color: brandFg(theme.palette.mode === "dark"),
                 textDecoration: "none",
                 "&:hover": { textDecoration: "underline" },
               }}
@@ -165,7 +166,7 @@ const SecureAccountPage = () => {
               fontSize: "14px",
               fontWeight: 600,
               fontFamily: "var(--font-sans)",
-              color: theme.palette.primary.main,
+              color: brandFg(theme.palette.mode === "dark"),
               textDecoration: "none",
               "&:hover": { textDecoration: "underline" },
             }}

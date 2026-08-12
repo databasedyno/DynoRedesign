@@ -1,3 +1,4 @@
+import { brandFg } from "@/constants/theme";
 import {
   Box,
   Typography,
@@ -168,10 +169,10 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
   const stats = codeData?.stats;
 
   const statCards = [
-    { label: t("totalReferrals"), value: stats?.total_referrals ?? 0, icon: "users", color: theme.palette.primary.main },
+    { label: t("totalReferrals"), value: stats?.total_referrals ?? 0, icon: "users", color: brandFg(theme.palette.mode === "dark") },
     { label: t("active"), value: stats?.active_referrals ?? 0, icon: "user-plus", color: theme.palette.border.success },
     { label: t("pending"), value: stats?.pending_referrals ?? 0, icon: "users", color: "#F59E0B" },
-    { label: t("totalEarnings"), value: `$${stats?.total_earnings ?? "0.00"}`, icon: "circle-dollar-sign", color: theme.palette.primary.main },
+    { label: t("totalEarnings"), value: `$${stats?.total_earnings ?? "0.00"}`, icon: "circle-dollar-sign", color: brandFg(theme.palette.mode === "dark") },
   ];
 
   return (
@@ -218,7 +219,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
                     fontSize: isMobile ? "18px" : "22px",
                     fontFamily: MONO,
                     fontWeight: 700,
-                    color: theme.palette.primary.main,
+                    color: brandFg(theme.palette.mode === "dark"),
                     letterSpacing: "1px",
                   }}
                 >
@@ -377,7 +378,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
                     height: isMobile ? 32 : 36,
                     borderRadius: "50%",
                     bgcolor: `${theme.palette.primary.main}14`,
-                    color: theme.palette.primary.main,
+                    color: brandFg(theme.palette.mode === "dark"),
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -420,7 +421,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
               <Typography sx={{ fontSize: "12px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary, mb: 0.5, textTransform: "uppercase", letterSpacing: "0.5px" }}>
                 {t("youGetReferrer")}
               </Typography>
-              <Typography sx={{ fontSize: isMobile ? "22px" : "26px", fontFamily: "var(--font-sans)", fontWeight: 700, color: theme.palette.primary.main, lineHeight: 1.2 }}>
+              <Typography sx={{ fontSize: isMobile ? "22px" : "26px", fontFamily: "var(--font-sans)", fontWeight: 700, color: brandFg(theme.palette.mode === "dark"), lineHeight: 1.2 }}>
                 {t("referrerReward")}
               </Typography>
               <Typography sx={{ fontSize: "13px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary, mt: 0.5 }}>
@@ -532,7 +533,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
             }}
           >
             <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
-              <Icon name="ticket-percent" size={20} color={theme.palette.primary.main} />
+              <Icon name="ticket-percent" size={20} color={brandFg(theme.palette.mode === "dark")} />
               <Typography
                 sx={{
                   fontSize: isMobile ? "14px" : "16px",
@@ -603,7 +604,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
             }}
           >
             <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
-              <Icon name="circle-dollar-sign" size={20} color={theme.palette.primary.main} />
+              <Icon name="circle-dollar-sign" size={20} color={brandFg(theme.palette.mode === "dark")} />
               <Typography
                 sx={{
                   fontSize: isMobile ? "14px" : "16px",
@@ -672,7 +673,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
-            <Icon name="users" size={20} color={theme.palette.primary.main} />
+            <Icon name="users" size={20} color={brandFg(theme.palette.mode === "dark")} />
             <Typography
               sx={{
                 fontSize: isMobile ? "14px" : "16px",
@@ -857,7 +858,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
                       fontSize: "14px",
                       fontFamily: "var(--font-sans)",
                       fontWeight: 600,
-                      color: theme.palette.primary.main,
+                      color: brandFg(theme.palette.mode === "dark"),
                     }}
                   >
                     {t("referralsCount", { count: entry.referral_count })}

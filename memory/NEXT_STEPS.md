@@ -6,6 +6,21 @@ _Last updated: 2026-08-11 (fork). Context: completed the lime→indigo/semantic 
 
 ## 🌓 Dark-Mode Brand-Foreground Contrast — Audit & Rollout  _(P1 — a11y, IN PROGRESS)_
 
+**BATCH 1 ✅ DONE & VERIFIED (2026-08-12)** — migrated brand-accent foregrounds to
+`brandFg(theme.palette.mode === "dark")` in: `pages/referrals.tsx`,
+`Components/UI/MobileReferralBanner`, `Components/Page/API/ApiKeysPage.tsx`,
+`pages/auth/login.tsx`, `pages/auth/register.tsx`, `pages/auth/secure-account.tsx`.
+Testing agent (deterministic localStorage method) confirmed: light → #4F46E5, dark → #818CF8,
+no console errors. (Also already shipped: the referral drawer card in NewSidebar/ReferralAndKnowledge.)
+
+**BATCH 2+ (remaining, still showing #4F46E5 in dark) — next offenders to migrate:**
+`Components/UI/CompanySelector`, action buttons (Regenerate/Disable), USD/amount dropdowns,
+`Components/UI/CryptocurrencySelector`, nav elements, `pages/company.tsx`, `pages/blog/[slug].tsx`,
+`Components/Page/SEO/SEOLandingPage`, OtpInputPanel, FeeCalculator, DashboardSetupPrompt,
+NotificationPage, RecentTransactionsWidget, Wallet, TransferExpectedCard, etc.
+
+
+
 **Problem:** The in-app dark theme (`styles/appTheme.ts`) sets `primary.main = AUTH_LIME`,
 a misleading legacy alias that now equals `BRAND_ACCENT = #4F46E5` (indigo). Components use
 `theme.palette.primary.main` as a TEXT/ICON colour, which fails WCAG AA on the dark paper
