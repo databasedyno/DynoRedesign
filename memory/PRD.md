@@ -1,3 +1,25 @@
+# SESSION ADDENDUM (2026-06 (fork)) — Match Other Pages + Tidy Transactions + Personalize Quick Actions — VERIFIED (testing agent iteration_43, 100% frontend; backend endpoint verified via curl)
+
+Three approved follow-ups, all shipped:
+
+## A. Match Other Pages — Inter body + mono numbers on Transactions & Payment Links
+- `pages/transactions.tsx` & `pages/pay-links/index.tsx`: content wrapped in a div scoping `--font-sans` → `var(--font-inter)` (+ fontFamily) so body text is Inter, matching Dashboard & Wallet. VERIFIED: computed font of content + deep children on /dashboard, /transactions, /pay-links, /wallet all resolve to `__Inter` (document.body stays Geist on every page incl. dashboard — that's outside the content wrapper, expected).
+- `Components/Page/Payment-link/PaymentLinksTable.tsx`: USD value (desktop + mobile) and times-used cells now use `MONO` (Roboto Mono) tabular, matching the Transactions/Dashboard/Wallet numeric treatment. (Transactions already used MONO.)
+
+## B. Tidy Transactions — fixed React DOM-nesting warnings
+- Root cause: `TransactionsTableCell` was `styled(Typography)` → renders `<p>`, but cells embed block-level `<div>` pills (SourceBadge, CryptoIconChip, StatusBadge, flex Boxes) → invalid `<div>`-in-`<p>` (validateDOMNesting warnings).
+- Fix: `Components/Page/Transactions/styled.tsx` — `TransactionsTableCell` now `styled(Box)` (renders `<div>`); all text styling is explicit so visuals unchanged. VERIFIED: 0 validateDOMNesting warnings on /transactions (and /pay-links).
+
+## C. Personalize Quick Actions — pin any 4 of 10 shortcuts, saved to the account
+- **DB**: new nullable JSONB column `dashboard_quick_actions` on `tbl_user` (migration `backend/migrations/addDashboardQuickActions.ts`, idempotent ADD COLUMN IF NOT EXISTS — already run on the live DB). Added to `backend/models/userModels/userModel.ts`.
+- **API**: `PUT /api/user/dashboard-quick-actions` (auth) → `userController.updateDashboardQuickActions`: validates EXACTLY 4 UNIQUE slugs from `ALLOWED_QUICK_ACTIONS`, updates the column, invalidates `profile:<id>` Redis cache. `getProfile` returns the field (via `...user.dataValues`). Verified via curl: persists, rejects <4 and unknown slugs.
+  - ALLOWED_QUICK_ACTIONS (must match frontend CATALOG): create-paylink, paylinks, invoice, wallet, transactions, creator, products, fees, api, referrals.
+- **Frontend**: `Components/Page/Dashboard/v2026/QuickActionsDock.tsx` — CATALOG of 10 (id→icon/href/label), reads `profile.dashboard_quick_actions` (fallback DEFAULT `[paylinks,invoice,wallet,creator]`), renders 4 Next `<Link>` tiles, "Customize" pencil (data-testid `dash2026-qa-customize`) opens a dialog (`dash2026-qa-dialog`) with a 10-item checklist, a `dash2026-qa-count` "n/4" counter, exactly-4 enforcement (Save disabled unless 4; unchecked disabled at 4), Save (`dash2026-qa-save`) → axios PUT + `USER_PROFILE_FETCH` refresh + toast, and Reset to default (`dash2026-qa-reset`). VERIFIED end-to-end incl. persistence after reload.
+- Test account (hostbay) left on DEFAULT selection.
+
+---
+
+
 # SESSION ADDENDUM (2026-06 (fork)) — Dashboard declutter + Wallet↔Dashboard font consistency — VERIFIED (frontend testing agent iteration_42 + reproduction screenshots)
 
 User feedback: merchant Dashboard "looks too busy" and Wallet page font differs from Dashboard when it should match. Both resolved.

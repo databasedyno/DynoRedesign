@@ -164,7 +164,11 @@ export const TransactionsTableRow = styled(Box)(({ theme }) => ({
   },
 }));
 
-export const TransactionsTableCell = styled(Typography)(({ theme }) => ({
+// NOTE: intentionally a Box (renders <div>), NOT Typography (<p>). Cells embed
+// block-level pills/chips (SourceBadge, CryptoIconChip, StatusBadge, flex Boxes)
+// and a <div> inside a <p> is invalid DOM nesting (React validateDOMNesting
+// warnings). All text styling below is explicit, so visuals are unchanged.
+export const TransactionsTableCell = styled(Box)(({ theme }) => ({
   fontSize: "15px",
   fontWeight: 500,
   maxWidth: "180px",

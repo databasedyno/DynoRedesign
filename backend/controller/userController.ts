@@ -2566,6 +2566,64 @@ const updateProfile = async (req: express.Request, res: express.Response) => {
 };
 
 /**
+ * Canonical set of dashboard Quick Action slugs a merchant may pin.
+ * MUST stay in sync with the frontend catalog in
+ * Components/Page/Dashboard/v2026/QuickActionsDock.tsx.
+ */
+const ALLOWED_QUICK_ACTIONS = [
+  "create-paylink",
+  "paylinks",
+  "invoice",
+  "wallet",
+  "transactions",
+  "creator",
+  "products",
+  "fees",
+  "api",
+  "referrals",
+];
+
+/**
+ * Update the merchant's pinned dashboard Quick Actions.
+ * PUT /api/user/dashboard-quick-actions
+ * Body: { actions: string[] }  (exactly 4 unique slugs from ALLOWED_QUICK_ACTIONS)
+ */
+const updateDashboardQuickActions = async (
+  req: express.Request,
+  res: express.Response,
+) => {
+  const userData = jwt.decode(res.locals.token) as IUserType;
+  try {
+    const { actions } = req.body;
+    if (!Array.isArray(actions) || actions.length !== 4) {
+      return errorResponseHelper(res, 400, "Exactly 4 quick actions are required");
+    }
+    const unique = Array.from(new Set(actions.map((a: unknown) => String(a))));
+    if (unique.length !== 4) {
+      return errorResponseHelper(res, 400, "Quick actions must be unique");
+    }
+    const invalid = unique.filter((a) => !ALLOWED_QUICK_ACTIONS.includes(a));
+    if (invalid.length > 0) {
+      return errorResponseHelper(res, 400, `Unknown quick action(s): ${invalid.join(", ")}`);
+    }
+
+    await userModel.update(
+      { dashboard_quick_actions: unique },
+      { where: { user_id: userData.user_id } },
+    );
+
+    // Invalidate the cached profile so the next getProfile reflects the change.
+    await deleteRedisItem(`profile:${userData.user_id}`);
+
+    return successResponseHelper(res, 200, "Quick actions updated", {
+      dashboard_quick_actions: unique,
+    });
+  } catch (e) {
+    handleControllerError(res, e, userLogger);
+  }
+};
+
+/**
  * Change Email Address
  * PUT /api/user/email
  * Requires password confirmation for security
@@ -4791,6 +4849,7 @@ export default {
   githubSignIn,
   getProfile,
   updateProfile,
+  updateDashboardQuickActions,
   changeEmail,
   changePhone,
   removeEmail,

@@ -25,7 +25,9 @@ const TransactionsPage = ({ setPageName, setPageDescription }: pageProps) => {
         flexDirection: "column",
         flex: 1,
         minHeight: 0,
-      }}
+        "--font-sans": "var(--font-inter)",
+        fontFamily: "var(--font-inter)",
+      } as any}
     >
       <TransactionPage />
     </Box>

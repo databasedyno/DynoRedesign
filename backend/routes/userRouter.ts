@@ -58,6 +58,7 @@ userRouter.post("/facebook-signin", moderateRateLimiter, userController.facebook
 // Profile endpoints (requires auth)
 userRouter.get("/profile", authMiddleware, userController.getProfile);
 userRouter.put("/profile", authMiddleware, userController.updateProfile);
+userRouter.put("/dashboard-quick-actions", authMiddleware, userController.updateDashboardQuickActions);
 userRouter.put("/email", authMiddleware, userController.changeEmail);
 userRouter.put("/phone", authMiddleware, userController.changePhone);
 userRouter.delete("/email", authMiddleware, userController.removeEmail);

@@ -306,6 +306,12 @@ const userModel = sequelize.define(
       allowNull: true,
       comment: "Gradient preset key ('sunset','ocean','forest','twilight','midnight','candy') or custom 'hex1,hex2'",
     },
+    // ── Personalized dashboard Quick Actions (Session: pinnable shortcuts) ──
+    dashboard_quick_actions: {
+      type: DataTypes.JSONB,
+      allowNull: true,
+      comment: "Merchant's 4 pinned dashboard Quick Action slugs, e.g. ['paylinks','invoice','wallet','creator']. NULL = default set.",
+    },
   },
   {
     tableName: "tbl_user",

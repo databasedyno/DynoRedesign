@@ -52,6 +52,7 @@ import FalseIcon from "@/assets/Icons/False.svg";
 import TrueIcon from "@/assets/Icons/True.svg";
 
 import { MobileNavigationButtons } from "@/Components/Page/Transactions/styled";
+import { MONO } from "@/styles/uiKit";
 import CustomButton from "@/Components/UI/Buttons";
 import RowsPerPageSelector from "@/Components/UI/RowsPerPageSelector";
 import Toast from "@/Components/UI/Toast";
@@ -398,7 +399,7 @@ const PaymentLinksTable = ({
                   </Box>
                   {/* Middle: USD + Crypto */}
                   <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", mb: 1 }}>
-                    <Typography sx={{ fontSize: "16px", fontFamily: "var(--font-sans)", fontWeight: 700, color: theme.palette.text.primary }}>
+                    <Typography sx={{ fontSize: "16px", fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontWeight: 700, color: theme.palette.text.primary }}>
                       {row.usdValue}
                     </Typography>
                     {row.cryptoValue && (
@@ -632,7 +633,7 @@ const PaymentLinksTable = ({
                         row.description
                       )}
                     </TableBodyCell>
-                    <TableBodyCell>{row.usdValue}</TableBodyCell>
+                    <TableBodyCell sx={{ fontFamily: MONO, fontVariantNumeric: "tabular-nums" }}>{row.usdValue}</TableBodyCell>
                     <TableBodyCell><CoinChips value={row.cryptoValue} /></TableBodyCell>
                     <TableBodyCell>
                       {formatUtcToDisplay(row.createdAt)}
@@ -687,7 +688,7 @@ const PaymentLinksTable = ({
                       </StatusChip>
                     </TableBodyCell>
 
-                    <TableBodyCell>{row.timesUsed}</TableBodyCell>
+                    <TableBodyCell sx={{ fontFamily: MONO, fontVariantNumeric: "tabular-nums" }}>{row.timesUsed}</TableBodyCell>
 
                     <TableBodyCell
                       align="center"

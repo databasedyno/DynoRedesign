@@ -56,6 +56,8 @@ const PayLinks = ({
         flexDirection: "column",
         flex: 1,
         minHeight: 0,
+        ["--font-sans" as any]: "var(--font-inter)",
+        fontFamily: "var(--font-inter)",
       }}
     >
       <PaymentLinksPage />
