@@ -61,6 +61,7 @@ const CustomAlert = ({
         }}
       >
         <Typography
+          component="div"
           sx={{
             fontSize: "15px",
             fontWeight: 400,

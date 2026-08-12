@@ -1,0 +1,40 @@
+{
+  "summary": "Verified the DOM-nesting console-warning fix in CustomAlert (Typography now renders as component='div'). Logged into LIVE prod (READ-ONLY) as hostbay@moxx.co, navigated to /company, opened the Company Settings dialog via [data-testid^='manage-company-'], scrolled to and clicked the 'Delete Company' button which opened the 'Are you sure?' confirmation alert containing the confirm TextField. Closed the alert via Cancel WITHOUT typing the company name and WITHOUT clicking Delete. Console was captured throughout the flow.",
+  "backend_issues": { "critical": [], "minor": [] },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Fix in Components/UI/CustomAlert/index.tsx (component='div' on the wrapping Typography) is correct and eliminates the previously observed validateDOMNesting warnings when the alert message contains block/interactive descendants (Typography + TextField). No visual regression observed in the Company Settings dialog or the delete-confirm alert."
+  ],
+  "updated_files": [],
+  "success_rate": { "backend": "N/A (skipped per request)", "frontend": "100%" },
+  "test_credentials": "Used provided LIVE creds hostbay@moxx.co (READ-ONLY). No mutations performed.",
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "The validateDOMNesting/<p> nesting warnings from iteration_39 are resolved. Login flow requires clicking the 'Continue' button (Enter key alone did not advance in this run); after that the password step uses data-testid='password-input' and data-testid='signin-submit-btn'. Company page exposes [data-testid^='manage-company-<id>'] which opens the CompanySettingsDialog; the 'Delete Company' button inside opens a CustomAlert (role='dialog') titled 'Are you sure?' with a confirm TextField and 'Cancel' + 'Delete' buttons (Delete stays disabled until the company name is typed).",
+  "console_observations": {
+    "validateDOMNesting_warnings": 0,
+    "descendant_of_p_warnings": 0,
+    "fieldset_descendant_of_p_warnings": 0,
+    "errors": 0,
+    "warnings": 1,
+    "warnings_detail": [
+      "Next.js Image LCP hint: '/_next/static/media/bg-overlay.8a6e53f7.png' detected as LCP; suggests adding priority prop. Unrelated to this fix (pre-existing perf hint on the login page)."
+    ]
+  },
+  "regression_checks": {
+    "company_settings_dialog_renders": true,
+    "sections_visible": "Company Settings form (name, website, email, mobile, country/state/city, address, zip, VAT, brand logo) rendered correctly",
+    "delete_confirm_alert_renders": true,
+    "delete_confirm_text_field_present": true,
+    "alert_closed_without_confirming": true,
+    "no_final_delete_click_performed": true
+  },
+  "rca of the issue": "Previous iteration_39 warnings originated from CustomAlert wrapping the entire `message` prop in a <Typography> (default <p>). CompanySettingsDialog passes a rich message (<Box><Typography/><TextField/></Box>) which nested <p> and <fieldset> inside a <p>, violating HTML nesting rules. Adding component='div' to that wrapping Typography renders a <div>, allowing block-level and interactive descendants without React's validateDOMNesting warning. Verified in the exact reproduction flow — zero DOM-nesting warnings observed."
+}
