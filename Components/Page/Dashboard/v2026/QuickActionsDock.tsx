@@ -28,6 +28,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "@/axiosConfig";
+import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import { Icon } from "@/styles/uiKit";
 import { UserAction, USER_PROFILE_FETCH } from "@/Redux/Actions/UserAction";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
@@ -72,6 +73,36 @@ interface TileColors {
   indigoGlow: string;
   inkPrimary: string;
   isDark: boolean;
+  /** Badge tones (see TileBadge.tone). */
+  attention: string;
+  critical: string;
+  /** Tile surface, used as the badge's outer ring so the pill reads as "floating". */
+  surface: string;
+}
+
+/**
+ * A tiny live count rendered on the top-right of a tile's icon. Only ever shown
+ * when count > 0 — a merchant with nothing outstanding sees a clean dock.
+ *
+ * tone:
+ *  - critical  → something is actively broken/blocking (a live product nobody can buy)
+ *  - attention → something is waiting on the merchant (unpaid invoice, pending payment)
+ *  - info      → neutral "how many" (active payment links)
+ */
+interface TileBadge {
+  count: number;
+  tone: "critical" | "attention" | "info";
+  /** Human sentence used for the native tooltip AND screen readers. */
+  title: string;
+}
+
+/** Response payload of GET /api/dashboard/action-counts. */
+interface ActionCounts {
+  transactions_pending: number;
+  paylinks_active: number;
+  paylinks_expired: number;
+  products_out_of_stock: number;
+  referrals_pending: number;
 }
 
 /**
@@ -85,7 +116,8 @@ const SortableTile: React.FC<{
   colors: TileColors;
   label: string;
   suppressClickRef: React.MutableRefObject<boolean>;
-}> = ({ id, colors, label, suppressClickRef }) => {
+  badge?: TileBadge | null;
+}> = ({ id, colors, label, suppressClickRef, badge }) => {
   const s = CATALOG_BY_ID[id];
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
   if (!s) return null;
@@ -139,20 +171,60 @@ const SortableTile: React.FC<{
         },
       }}
     >
-      <Box
-        sx={{
-          width: 36,
-          height: 36,
-          borderRadius: "10px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          color: colors.indigo,
-          backgroundColor: colors.indigoGlow,
-          flexShrink: 0,
-        }}
-      >
-        <Icon name={s.icon} size={18} />
+      <Box sx={{ position: "relative", width: 36, height: 36, flexShrink: 0 }}>
+        <Box
+          sx={{
+            width: 36,
+            height: 36,
+            borderRadius: "10px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: colors.indigo,
+            backgroundColor: colors.indigoGlow,
+          }}
+        >
+          <Icon name={s.icon} size={18} />
+        </Box>
+
+        {/* Action badge — live "needs attention" count. Rendered only when > 0.
+            No onClick of its own: pointer events bubble to the parent tile so a
+            tap still navigates and a press-and-hold still starts a drag. */}
+        {badge && badge.count > 0 && (
+          <Box
+            data-testid={`dash2026-qa-badge-${s.id}`}
+            title={badge.title}
+            aria-label={badge.title}
+            sx={{
+              position: "absolute",
+              top: -5,
+              right: -6,
+              minWidth: 18,
+              height: 18,
+              px: 0.5,
+              borderRadius: "9px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontFamily: "var(--font-sans)",
+              fontSize: 11,
+              fontWeight: 700,
+              lineHeight: 1,
+              letterSpacing: "-0.01em",
+              color: "#fff",
+              backgroundColor:
+                badge.tone === "critical"
+                  ? colors.critical
+                  : badge.tone === "attention"
+                    ? colors.attention
+                    : colors.indigo,
+              border: `2px solid ${colors.surface}`,
+              boxShadow: "0 2px 6px -1px rgba(10,10,25,0.35)",
+            }}
+          >
+            {badge.count > 99 ? "99+" : badge.count}
+          </Box>
+        )}
       </Box>
       <Box
         sx={{
@@ -184,6 +256,116 @@ const QuickActionsDock: React.FC = () => {
 
   const profile = useSelector((s: any) => s?.userReducer?.profile);
   const saved = profile?.dashboard_quick_actions;
+
+  // ── Action badges ────────────────────────────────────────────────────────
+  // Live "needs attention" counts for the tiles. Fetched ONCE per company when
+  // the dashboard mounts (no polling — these are cheap but they still hit the
+  // production DB, and the backend already Redis-caches them for 60s).
+  // Badges are purely additive: any failure is swallowed so a hiccup here can
+  // never break or block the dock itself.
+  const selectedCompanyId = useCompanyStore().selectedCompanyId;
+  const [counts, setCounts] = useState<ActionCounts | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await axios.get("dashboard/action-counts", {
+          params: selectedCompanyId ? { company_id: selectedCompanyId } : {},
+        });
+        const data = (res?.data?.data ?? res?.data) as ActionCounts | undefined;
+        if (!cancelled && data && typeof data === "object") setCounts(data);
+      } catch {
+        /* badges are optional garnish — never surface an error for them */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedCompanyId]);
+
+  /**
+   * Map a catalog id to its badge. Only tiles where a number is genuinely
+   * actionable get one — the rest deliberately stay bare so the badges keep
+   * their meaning ("this needs me") instead of becoming decoration.
+   */
+  const badgeFor = (id: string): TileBadge | null => {
+    if (!counts) return null;
+
+    switch (id) {
+      // NOTE: the "invoice" tile deliberately has NO badge. In DynoPay an invoice
+      // is a RECEIPT, not a receivable — rows are auto-generated only after a
+      // transaction settles, and the UI hardcodes a "Paid" pill for every one of
+      // them. An "unpaid invoices" count would be permanently wrong. The real
+      // receivable signal lives on the paylinks tile (expired-unpaid links).
+      case "transactions": {
+        const count = counts.transactions_pending;
+        return count > 0
+          ? {
+              count,
+              tone: "attention",
+              title: t("qaBadgeTransactionsPending", {
+                count,
+                defaultValue_one: "1 payment still pending",
+                defaultValue_other: "{{count}} payments still pending",
+              }),
+            }
+          : null;
+      }
+      case "paylinks": {
+        const count = counts.paylinks_active;
+        if (count <= 0) return null;
+        const expired = counts.paylinks_expired;
+        return {
+          count,
+          tone: "info",
+          title:
+            expired > 0
+              ? t("qaBadgePaylinksActiveWithExpired", {
+                  count,
+                  expired,
+                  defaultValue_one: "1 active payment link · {{expired}} expired unpaid",
+                  defaultValue_other: "{{count}} active payment links · {{expired}} expired unpaid",
+                })
+              : t("qaBadgePaylinksActive", {
+                  count,
+                  defaultValue_one: "1 active payment link",
+                  defaultValue_other: "{{count}} active payment links",
+                }),
+        };
+      }
+      case "products": {
+        const count = counts.products_out_of_stock;
+        return count > 0
+          ? {
+              count,
+              tone: "critical",
+              title: t("qaBadgeProductsOutOfStock", {
+                count,
+                defaultValue_one: "1 live product is out of stock",
+                defaultValue_other: "{{count}} live products are out of stock",
+              }),
+            }
+          : null;
+      }
+      case "referrals": {
+        const count = counts.referrals_pending;
+        return count > 0
+          ? {
+              count,
+              tone: "attention",
+              title: t("qaBadgeReferralsPending", {
+                count,
+                defaultValue_one: "1 referral reward pending",
+                defaultValue_other: "{{count}} referral rewards pending",
+              }),
+            }
+          : null;
+      }
+      default:
+        return null;
+    }
+  };
 
   const pinned = useMemo(() => {
     const arr = Array.isArray(saved)
@@ -340,7 +522,16 @@ const QuickActionsDock: React.FC = () => {
   const inkPrimary = isDark ? CB_TOKENS.ink.primaryDark : CB_TOKENS.ink.primaryLight;
   const inkMuted = isDark ? CB_TOKENS.ink.mutedDark : CB_TOKENS.ink.mutedLight;
   const available = CATALOG.filter((c) => !draft.includes(c.id));
-  const tileColors: TileColors = { border, indigo, indigoGlow, inkPrimary, isDark };
+  const tileColors: TileColors = {
+    border,
+    indigo,
+    indigoGlow,
+    inkPrimary,
+    isDark,
+    attention: theme.palette.warning.main,
+    critical: theme.palette.error.main,
+    surface: theme.palette.background.paper,
+  };
 
   const sectionLabelSx = {
     fontFamily: "var(--font-sans)",
@@ -444,6 +635,7 @@ const QuickActionsDock: React.FC = () => {
                     colors={tileColors}
                     label={t(c.key, { defaultValue: c.def })}
                     suppressClickRef={suppressClickRef}
+                    badge={badgeFor(id)}
                   />
                 );
               })}

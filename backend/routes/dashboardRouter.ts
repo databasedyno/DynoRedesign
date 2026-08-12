@@ -28,4 +28,10 @@ dashboardRouter.get("/conversions", dashboardController.getConversions);
 // GET /api/dashboard/conversions/:id - Get single conversion detail with timeline
 dashboardRouter.get("/conversions/:id", dashboardController.getConversionDetail);
 
+// GET /api/dashboard/action-counts - Live "needs attention" counts powering the
+// Quick Action tile badges (unpaid invoices, pending payments, active/expired
+// payment links, out-of-stock products, pending referral rewards).
+// Query params: company_id (optional). Read-only, Redis-cached 60s.
+dashboardRouter.get("/action-counts", dashboardController.getActionCounts);
+
 export default dashboardRouter;

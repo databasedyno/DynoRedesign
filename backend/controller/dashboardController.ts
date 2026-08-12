@@ -1119,6 +1119,158 @@ const getConversionDetail = async (req: express.Request, res: express.Response) 
   }
 };
 
+// Cache TTL for the Quick-Action badge counts. Short, because these are the
+// "what needs my attention right now" numbers — but long enough that a dashboard
+// refresh never hammers the DB.
+const ACTION_COUNTS_CACHE_TTL = 60;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// DELIBERATELY ABSENT: an "unpaid invoices" count.
+// In DynoPay an invoice is a RECEIPT, not a receivable: rows in tbl_invoice are
+// created by autoGenerateInvoice() only AFTER a transaction reaches
+// done/successful, and the UI hardcodes a settled pill
+// (Components/Page/Invoices/InvoicePreviewDrawer.tsx: "every invoice in Dynopay
+// is [paid]"). Every one of the 6 live rows sits at status='generated' while the
+// UI correctly shows them as PAID. So an "unpaid invoice" badge would be
+// permanently, confidently wrong. If real accounts-receivable invoicing is ever
+// built (send a bill -> wait for payment), add the count here then.
+// The genuine receivable signal in this product today is `paylinks_expired`:
+// payment links that expired before anyone paid them.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Live "needs attention" counts for the dashboard Quick Action tiles.
+ * GET /api/dashboard/action-counts?company_id=1
+ *
+ * STRICTLY READ-ONLY — one SELECT of scalar COUNT() subqueries, Redis-cached 60s.
+ *
+ * `transactions_pending` intentionally reuses getDashboard's EXACT expression and
+ * scoping (ut.user_id = :userId AND (ut.company_id OR c.company_id), status =
+ * 'pending') so the badge can never disagree with the pending figure the
+ * dashboard itself renders — dashboard parity is a hard requirement in this app.
+ */
+const getActionCounts = async (req: express.Request, res: express.Response) => {
+  const userData = jwt.decode(res.locals.token) as IUserType;
+
+  try {
+    const { company_id } = req.query;
+    const userId = userData.user_id;
+
+    // Validate company ownership if company_id is provided
+    if (company_id) {
+      const companyData = await validateCompanyOwnership(res, company_id as string, userId);
+      if (!companyData) return;
+    }
+
+    // v2: dropped the bogus `invoices_unpaid` field (see the note above), so the
+    // key is versioned to avoid serving stale v1 payloads.
+    const cacheKey = `dashboard:action-counts:${userId}:${company_id || 'all'}:v2`;
+    const cached = await getRedisItem(cacheKey);
+    if (cached && Object.keys(cached).length > 0) {
+      return successResponseHelper(res, 200, "Action counts retrieved successfully", cached);
+    }
+
+    // Scope: an explicit company, otherwise every company this user owns.
+    const companyScopeSql = company_id
+      ? `= :companyId`
+      : `IN (SELECT company_id FROM tbl_company WHERE user_id = :userId)`;
+    // Mirrors getDashboard's companyFilter exactly.
+    const txCompanyFilterSql = company_id
+      ? `AND (ut.company_id = :companyId OR c.company_id = :companyId)`
+      : ``;
+
+    const countsQuery = `
+      SELECT
+        -- Pending payments (identical to getDashboard's pending_count)
+        (SELECT COUNT(*)::int
+           FROM tbl_user_transaction ut
+           LEFT JOIN tbl_customer c ON ut.customer_id = c.customer_id
+          WHERE ut.user_id = :userId
+            AND ut.status = 'pending'
+            ${txCompanyFilterSql}
+        ) AS transactions_pending,
+
+        -- Payment links awaiting payment and still valid
+        (SELECT COUNT(*)::int
+           FROM tbl_payment_link pl
+          WHERE pl.company_id ${companyScopeSql}
+            AND LOWER(COALESCE(pl.status, '')) = 'pending'
+            AND (pl.expires_at IS NULL OR pl.expires_at > NOW())
+        ) AS paylinks_active,
+
+        -- Payment links that expired before anyone paid them
+        (SELECT COUNT(*)::int
+           FROM tbl_payment_link pl
+          WHERE pl.company_id ${companyScopeSql}
+            AND LOWER(COALESCE(pl.status, '')) = 'pending'
+            AND pl.expires_at IS NOT NULL
+            AND pl.expires_at <= NOW()
+        ) AS paylinks_expired,
+
+        -- Live products a buyer cannot actually buy.
+        -- NULL stock is treated as UNTRACKED (= in stock), never as zero, and a
+        -- variant product is only flagged when it HAS active variants and every
+        -- one of them is explicitly 0 — so we never invent a false alarm.
+        (SELECT COUNT(*)::int
+           FROM tbl_product p
+          WHERE p.deleted_at IS NULL
+            AND p.merchant_user_id = :userId
+            AND LOWER(COALESCE(p.status, '')) = 'live'
+            AND (
+              (COALESCE(p.has_variants, false) = false AND COALESCE(p.base_stock, -1) = 0)
+              OR (
+                COALESCE(p.has_variants, false) = true
+                AND EXISTS (
+                  SELECT 1 FROM tbl_product_variant v
+                   WHERE v.product_id = p.product_id AND v.is_active = true
+                )
+                AND NOT EXISTS (
+                  SELECT 1 FROM tbl_product_variant v
+                   WHERE v.product_id = p.product_id
+                     AND v.is_active = true
+                     AND (v.stock_count IS NULL OR v.stock_count > 0)
+                )
+              )
+            )
+        ) AS products_out_of_stock,
+
+        -- Referral rewards earned but not yet credited
+        (SELECT COUNT(*)::int
+           FROM tbl_referral_reward rr
+          WHERE rr.user_id = :userId
+            AND LOWER(COALESCE(rr.status, '')) = 'pending'
+        ) AS referrals_pending
+    `;
+
+    const rows = (await sequelize.query(countsQuery, {
+      replacements: { userId, companyId: company_id },
+      type: QueryTypes.SELECT,
+    })) as Array<Record<string, unknown>>;
+
+    const row = rows[0] || {};
+    const num = (key: string): number => {
+      const parsed = parseInt(String(row[key] ?? '0'), 10);
+      return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
+    };
+
+    const actionCounts = {
+      transactions_pending: num('transactions_pending'),
+      paylinks_active: num('paylinks_active'),
+      paylinks_expired: num('paylinks_expired'),
+      products_out_of_stock: num('products_out_of_stock'),
+      referrals_pending: num('referrals_pending'),
+      generated_at: new Date().toISOString(),
+    };
+
+    await setRedisItem(cacheKey, actionCounts);
+    await setRedisTTL(cacheKey, ACTION_COUNTS_CACHE_TTL);
+
+    return successResponseHelper(res, 200, "Action counts retrieved successfully", actionCounts);
+  } catch (e) {
+    return handleControllerErrorReturn(res, e, apiLogger);
+  }
+};
+
 export default {
   getDashboard,
   getChartData,
@@ -1126,4 +1278,5 @@ export default {
   getRecentTransactions,
   getConversions,
   getConversionDetail,
+  getActionCounts,
 };
