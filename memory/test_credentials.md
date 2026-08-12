@@ -5,10 +5,13 @@
   (port 3300) fronted by a Python/uvicorn proxy on port 8001 (backend/server.py).
 - Browser API calls are RELATIVE (`/api/...`) because `NEXT_PUBLIC_BASE_URL` is empty
   in /app/.env.local -> Emergent ingress routes /api -> 8001 -> Node backend.
-- Preview URL: https://944a7bb4-c087-41c1-92d7-9f945707acec.preview.emergentagent.com
-  (env files recreated 2026-08-11 from user-provided creds; NEXTAUTH_URL set to this
-   preview URL; NEXTAUTH_SECRET regenerated since the provided value was a placeholder.
-   Frontend deps installed at /app; backend deps at /app/backend.)
+- Preview URL: https://8d1aa3dc-0ef6-4d95-bdb5-c8e8938ccfc6.preview.emergentagent.com
+  (env files recreated 2026-08-12 from user-provided creds on a NEW pod; NEXTAUTH_URL &
+   SERVER_URL/FRONTEND_URL set to this preview URL; NEXTAUTH_SECRET regenerated
+   (mt2Rg2A9z8z9OO058Lpu7jUadV7UnbiF+m8IzoeZXe0=) since provided value was a placeholder.
+   Root deps `yarn install` at /app; backend deps at /app/backend. Both node_modules
+   were missing and reinstalled. Services verified: DB connected, Redis connected,
+   Tatum operational, WORKER_ROLE=secondary (background jobs DISABLED).)
 
 ## Data store (LIVE PRODUCTION — user-provided creds, Aug 2026 setup)
 - PostgreSQL: roundhouse.proxy.rlwy.net:23599, db=railway, user=postgres

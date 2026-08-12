@@ -8,7 +8,7 @@ import requests
 import json
 import sys
 
-BASE_URL = "https://crypto-payment-hub-32.preview.emergentagent.com"
+BASE_URL = "https://payment-hub-test-2.preview.emergentagent.com"
 
 def test_3a_login():
     """Test 3a: Login flow with CSRF + credentials"""
