@@ -1,583 +1,441 @@
 #!/usr/bin/env python3
 """
-Backend API Testing for DynoPay Transaction Source Refactor
-STRICT READ-ONLY testing on LIVE PRODUCTION database
+DynoPay API Backend Test - Wallet/Dashboard Reconciliation Verification (v2)
+STRICT READ-ONLY - LIVE PRODUCTION DATABASE
 """
 
 import requests
 import json
-from typing import Dict, List, Any
-from collections import Counter
+from typing import Dict, Any, List
 
-# Configuration
 BASE_URL = "https://13e42067-64de-478e-a336-166a694ea757.preview.emergentagent.com"
 EMAIL = "hostbay@moxx.co"
 PASSWORD = "Katiekendra123@"
 
-# Canonical source types (the ONLY allowed values)
-CANONICAL_TYPES = {"payment_link", "api", "tip", "product", "contribution", "direct"}
-
-# Old/deprecated string values that should NOT appear
-DEPRECATED_VALUES = {"legacy_api", "checkout"}
-
-class TestResults:
+class DynoPayAPITester:
     def __init__(self):
-        self.passed = []
-        self.failed = []
-        self.warnings = []
+        self.session = requests.Session()
+        self.csrf_token = None
+        self.access_token = None
+        self.company_id = None
         
-    def add_pass(self, test_name: str, details: str = ""):
-        self.passed.append(f"✅ {test_name}: {details}")
+    def log(self, message: str, level: str = "INFO"):
+        """Log test messages"""
+        print(f"[{level}] {message}")
         
-    def add_fail(self, test_name: str, details: str):
-        self.failed.append(f"❌ {test_name}: {details}")
-        
-    def add_warning(self, test_name: str, details: str):
-        self.warnings.append(f"⚠️  {test_name}: {details}")
-        
-    def print_summary(self):
-        print("\n" + "="*80)
-        print("TEST SUMMARY")
-        print("="*80)
-        
-        if self.passed:
-            print("\n✅ PASSED TESTS:")
-            for p in self.passed:
-                print(f"  {p}")
+    def get_csrf_token(self) -> bool:
+        """Step 1: Get CSRF token"""
+        try:
+            self.log("Step 1: Getting CSRF token...")
+            response = self.session.get(f"{BASE_URL}/api/csrf-token")
+            
+            if response.status_code != 200:
+                self.log(f"CSRF token request failed: {response.status_code}", "ERROR")
+                return False
                 
-        if self.warnings:
-            print("\n⚠️  WARNINGS:")
-            for w in self.warnings:
-                print(f"  {w}")
+            data = response.json()
+            self.csrf_token = data.get('csrf_token')
+            
+            # Check for dynopay_csrf cookie
+            csrf_cookie = self.session.cookies.get('dynopay_csrf')
+            
+            self.log(f"✓ CSRF token obtained: {self.csrf_token[:20]}...")
+            self.log(f"✓ CSRF cookie present: {csrf_cookie is not None}")
+            return True
+            
+        except Exception as e:
+            self.log(f"CSRF token error: {str(e)}", "ERROR")
+            return False
+    
+    def check_email(self) -> bool:
+        """Step 2: Check email (optional - skip if not needed)"""
+        try:
+            self.log("Step 2: Checking email (skipping - not required for login)...")
+            # The checkEmail endpoint is GET and not required for login flow
+            # We can proceed directly to login
+            return True
+            
+        except Exception as e:
+            self.log(f"Check email error: {str(e)}", "ERROR")
+            return False
+    
+    def login(self) -> bool:
+        """Step 3: Login and get JWT token"""
+        try:
+            self.log("Step 3: Logging in...")
+            headers = {
+                'Content-Type': 'application/json',
+                'x-csrf-token': self.csrf_token
+            }
+            
+            response = self.session.post(
+                f"{BASE_URL}/api/user/login",
+                json={"email": EMAIL, "password": PASSWORD},
+                headers=headers
+            )
+            
+            if response.status_code != 200:
+                self.log(f"Login failed: {response.status_code}", "ERROR")
+                self.log(f"Response: {response.text}", "ERROR")
+                return False
                 
-        if self.failed:
-            print("\n❌ FAILED TESTS:")
-            for f in self.failed:
-                print(f"  {f}")
+            data = response.json()
+            
+            # Handle nested response structure
+            if 'data' in data and isinstance(data['data'], dict):
+                token_data = data['data']
+            else:
+                token_data = data
+            
+            self.access_token = token_data.get('accessToken') or token_data.get('access_token') or token_data.get('token')
+            
+            # Try to extract company_id from userData if available
+            user_data = token_data.get('userData', {})
+            if user_data and user_data.get('last_company_id'):
+                self.company_id = user_data.get('last_company_id')
+                self.log(f"✓ Company ID from login: {self.company_id}")
+            
+            if not self.access_token:
+                self.log("No access token in login response", "ERROR")
+                self.log(f"Response structure: {json.dumps(data, indent=2)[:500]}", "ERROR")
+                return False
                 
-        print("\n" + "="*80)
-        total = len(self.passed) + len(self.failed)
-        print(f"TOTAL: {len(self.passed)}/{total} tests passed")
-        if self.failed:
-            print("STATUS: ❌ CRITICAL ISSUES FOUND")
-        else:
-            print("STATUS: ✅ ALL TESTS PASSED")
-        print("="*80 + "\n")
-
-def authenticate() -> tuple:
-    """
-    Authenticate and return (csrf_token, cookie_header, access_token)
-    """
-    session = requests.Session()
+            self.log(f"✓ Login successful, access token obtained")
+            return True
+            
+        except Exception as e:
+            self.log(f"Login error: {str(e)}", "ERROR")
+            return False
     
-    print("Step 1: Getting CSRF token...")
-    csrf_response = session.get(f"{BASE_URL}/api/csrf-token")
-    print(f"  Status: {csrf_response.status_code}")
+    def get_company_id(self) -> bool:
+        """Step A: Get company_id"""
+        try:
+            # If we already have company_id from login, skip this step
+            if self.company_id:
+                self.log(f"\nStep A: Company ID already obtained from login: {self.company_id}")
+                return True
+                
+            self.log("\nStep A: Getting company_id...")
+            headers = {
+                'Authorization': f'Bearer {self.access_token}'
+            }
+            
+            response = self.session.get(
+                f"{BASE_URL}/api/company/getCompany",
+                headers=headers
+            )
+            
+            if response.status_code != 200:
+                self.log(f"Get company failed: {response.status_code}", "ERROR")
+                self.log(f"Response: {response.text}", "ERROR")
+                return False
+                
+            data = response.json()
+            
+            # Handle different response structures
+            if isinstance(data, list) and len(data) > 0:
+                self.company_id = data[0].get('id') or data[0].get('company_id')
+            elif isinstance(data, dict):
+                # Check if data is nested
+                if 'data' in data:
+                    companies = data['data']
+                    if isinstance(companies, list) and len(companies) > 0:
+                        self.company_id = companies[0].get('id') or companies[0].get('company_id')
+                    elif isinstance(companies, dict):
+                        self.company_id = companies.get('id') or companies.get('company_id')
+                else:
+                    self.company_id = data.get('id') or data.get('company_id')
+            
+            if not self.company_id:
+                self.log(f"Could not extract company_id from response: {json.dumps(data, indent=2)}", "ERROR")
+                return False
+                
+            self.log(f"✓ Company ID: {self.company_id}")
+            return True
+            
+        except Exception as e:
+            self.log(f"Get company error: {str(e)}", "ERROR")
+            return False
     
-    if csrf_response.status_code != 200:
-        raise Exception(f"Failed to get CSRF token: {csrf_response.status_code} - {csrf_response.text}")
-    
-    csrf_data = csrf_response.json()
-    csrf_token = csrf_data.get("csrf_token") or csrf_data.get("csrfToken")
-    
-    # Get cookies
-    cookies = session.cookies.get_dict()
-    cookie_header = "; ".join([f"{k}={v}" for k, v in cookies.items()])
-    
-    print(f"  CSRF Token: {csrf_token[:20]}...")
-    print(f"  Cookies: {list(cookies.keys())}")
-    
-    # Step 2: Check email (optional, skip if not needed)
-    print("\nStep 2: Checking email (optional)...")
-    check_email_response = session.get(
-        f"{BASE_URL}/api/user/checkEmail?email={EMAIL}",
-        headers={
-            "Cookie": cookie_header
-        }
-    )
-    print(f"  Status: {check_email_response.status_code}")
-    
-    if check_email_response.status_code == 200:
-        check_data = check_email_response.json()
-        print(f"  Valid Email: {check_data.get('validEmail')}")
-    else:
-        print(f"  Skipping email check (not critical)")
-    
-    # Step 3: Login
-    print("\nStep 3: Logging in...")
-    login_response = session.post(
-        f"{BASE_URL}/api/user/login",
-        json={"email": EMAIL, "password": PASSWORD},
-        headers={
-            "Content-Type": "application/json",
-            "x-csrf-token": csrf_token,
-            "Cookie": cookie_header
-        }
-    )
-    print(f"  Status: {login_response.status_code}")
-    
-    if login_response.status_code != 200:
-        print(f"  Response: {login_response.text}")
-        raise Exception(f"Login failed: {login_response.status_code}")
-    
-    login_data = login_response.json()
-    
-    # Try to find access token in various locations
-    access_token = None
-    if "data" in login_data and isinstance(login_data["data"], dict):
-        access_token = login_data["data"].get("accessToken")
-    if not access_token:
-        access_token = login_data.get("accessToken")
-    if not access_token:
-        access_token = login_data.get("access_token")
-    
-    if not access_token:
-        print(f"  Login response keys: {login_data.keys()}")
-        raise Exception("Could not find accessToken in login response")
-    
-    print(f"  Access Token: {access_token[:20]}...")
-    
-    return csrf_token, cookie_header, access_token
-
-def validate_source_object(source: Any, tx_id: str, results: TestResults, endpoint_name: str) -> bool:
-    """
-    Validate that source is an object with valid canonical type.
-    Returns True if valid, False otherwise.
-    """
-    # Check if source is an object (dict)
-    if not isinstance(source, dict):
-        results.add_fail(
-            f"{endpoint_name} - Transaction {tx_id}",
-            f"source is NOT an object, it's a {type(source).__name__}: {source}"
-        )
-        return False
-    
-    # Check if source has a type field
-    if "type" not in source:
-        results.add_fail(
-            f"{endpoint_name} - Transaction {tx_id}",
-            f"source object missing 'type' field: {source}"
-        )
-        return False
-    
-    source_type = source["type"]
-    
-    # Check if type is in canonical set
-    if source_type not in CANONICAL_TYPES:
-        results.add_fail(
-            f"{endpoint_name} - Transaction {tx_id}",
-            f"source.type '{source_type}' is NOT in canonical set {CANONICAL_TYPES}"
-        )
-        return False
-    
-    # Check for deprecated values
-    if source_type in DEPRECATED_VALUES:
-        results.add_fail(
-            f"{endpoint_name} - Transaction {tx_id}",
-            f"source.type '{source_type}' is a DEPRECATED value (should not appear)"
-        )
-        return False
-    
-    # Check if the entire source is a deprecated string
-    if isinstance(source, str) and source in DEPRECATED_VALUES:
-        results.add_fail(
-            f"{endpoint_name} - Transaction {tx_id}",
-            f"source is a deprecated string value: '{source}'"
-        )
-        return False
-    
-    return True
-
-def test_dashboard_recent_transactions(access_token: str, results: TestResults) -> Dict[str, int]:
-    """
-    Test GET /api/dashboard/recent-transactions?limit=25
-    Returns count per source.type
-    """
-    print("\n" + "="*80)
-    print("TEST A: GET /api/dashboard/recent-transactions?limit=25")
-    print("="*80)
-    
-    response = requests.get(
-        f"{BASE_URL}/api/dashboard/recent-transactions?limit=25",
-        headers={"Authorization": f"Bearer {access_token}"}
-    )
-    
-    print(f"Status: {response.status_code}")
-    
-    if response.status_code != 200:
-        results.add_fail("Dashboard Recent Transactions", f"HTTP {response.status_code}: {response.text[:200]}")
-        return {}
-    
-    data = response.json()
-    print(f"Response structure: {list(data.keys()) if isinstance(data, dict) else 'list'}")
-    if isinstance(data, dict) and len(str(data)) < 500:
-        print(f"Response data: {data}")
-    
-    # Find transactions in response
-    transactions = []
-    if isinstance(data, list):
-        transactions = data
-    elif isinstance(data, dict):
-        if "data" in data and isinstance(data["data"], dict):
-            # Dashboard format: {message, data: {transactions: [...], count: N}}
-            if "transactions" in data["data"]:
-                transactions = data["data"]["transactions"]
-        elif "data" in data and isinstance(data["data"], list):
-            transactions = data["data"]
-        elif "transactions" in data:
-            transactions = data["transactions"]
-        else:
-            # Try to find any list in the response
-            for value in data.values():
-                if isinstance(value, list):
-                    transactions = value
-                    break
-    
-    print(f"Found {len(transactions)} transactions")
-    
-    if len(transactions) == 0:
-        results.add_warning("Dashboard Recent Transactions", "No transactions returned (empty dataset)")
-        return {}
-    
-    # Validate each transaction
-    type_counts = Counter()
-    valid_count = 0
-    
-    for i, tx in enumerate(transactions):
-        tx_id = tx.get("id") or tx.get("transaction_id") or f"tx_{i}"
-        
-        if "source" not in tx:
-            results.add_fail(f"Dashboard - Transaction {tx_id}", "Missing 'source' field")
-            continue
-        
-        source = tx["source"]
-        
-        if validate_source_object(source, tx_id, results, "Dashboard"):
-            valid_count += 1
-            type_counts[source["type"]] += 1
-    
-    # Summary
-    print(f"\nValidation Results:")
-    print(f"  Valid: {valid_count}/{len(transactions)}")
-    print(f"  Source Type Distribution:")
-    for source_type, count in type_counts.most_common():
-        print(f"    {source_type}: {count}")
-    
-    if valid_count == len(transactions):
-        results.add_pass(
-            "Dashboard Recent Transactions",
-            f"All {len(transactions)} transactions have valid source objects. Distribution: {dict(type_counts)}"
-        )
-    
-    return dict(type_counts)
-
-def test_wallet_get_all_transactions(access_token: str, csrf_token: str, cookie_header: str, results: TestResults) -> Dict[str, int]:
-    """
-    Test POST /api/wallet/getAllTransactions
-    Returns count per source.type
-    """
-    print("\n" + "="*80)
-    print("TEST B: POST /api/wallet/getAllTransactions")
-    print("="*80)
-    
-    # First, get company_id
-    print("Getting company_id...")
-    company_response = requests.get(
-        f"{BASE_URL}/api/company/getCompany",
-        headers={"Authorization": f"Bearer {access_token}"}
-    )
-    
-    print(f"Company endpoint status: {company_response.status_code}")
-    
-    if company_response.status_code != 200:
-        # Try alternative endpoint
-        print("Trying alternative endpoint /api/company/list...")
-        company_response = requests.get(
-            f"{BASE_URL}/api/company/list",
-            headers={"Authorization": f"Bearer {access_token}"}
-        )
-        print(f"Company list endpoint status: {company_response.status_code}")
-        
-        if company_response.status_code != 200:
-            results.add_fail("Wallet Get All Transactions", f"Could not get company info. Both /api/company and /api/company/list returned non-200")
+    def get_dashboard_total(self) -> Dict[str, Any]:
+        """Step B: Get dashboard total volume"""
+        try:
+            self.log("\nStep B: Getting dashboard total volume...")
+            headers = {
+                'Authorization': f'Bearer {self.access_token}'
+            }
+            
+            response = self.session.get(
+                f"{BASE_URL}/api/dashboard/?company_id={self.company_id}",
+                headers=headers
+            )
+            
+            if response.status_code != 200:
+                self.log(f"Get dashboard failed: {response.status_code}", "ERROR")
+                self.log(f"Response: {response.text[:500]}", "ERROR")
+                return {}
+                
+            data = response.json()
+            
+            # Handle nested response structure
+            if 'data' in data and isinstance(data['data'], dict):
+                dashboard_data = data['data']
+            else:
+                dashboard_data = data
+            
+            # Extract total_volume
+            total_volume = dashboard_data.get('total_volume', {})
+            
+            amount = total_volume.get('amount', 0)
+            currency = total_volume.get('currency', 'USD')
+            
+            self.log(f"✓ Dashboard Total Volume: ${amount:,.2f} {currency}")
+            
+            return {
+                'amount': amount,
+                'currency': currency,
+                'raw_data': dashboard_data
+            }
+            
+        except Exception as e:
+            self.log(f"Get dashboard error: {str(e)}", "ERROR")
             return {}
     
-    try:
-        company_data = company_response.json()
-    except Exception as e:
-        results.add_fail("Wallet Get All Transactions", f"Could not parse company response as JSON. Status: {company_response.status_code}, Content: {company_response.text[:200]}")
-        return {}
-    
-    # Find company_id for hostbay
-    company_id = None
-    if isinstance(company_data, dict):
-        if "data" in company_data:
-            if isinstance(company_data["data"], list) and len(company_data["data"]) > 0:
-                # getCompany returns {message, data: [{company_id, ...}]}
-                # Find hostbay company
-                for company in company_data["data"]:
-                    if company.get("company_name") == "hostbay" or company.get("name") == "hostbay":
-                        company_id = company.get("company_id") or company.get("id")
-                        break
-                # If not found by name, just use the first one
-                if not company_id:
-                    company_id = company_data["data"][0].get("company_id") or company_data["data"][0].get("id")
-            elif isinstance(company_data["data"], dict):
-                company_id = company_data["data"].get("company_id") or company_data["data"].get("id")
-        elif "company_id" in company_data:
-            company_id = company_data["company_id"]
-        elif "id" in company_data:
-            company_id = company_data["id"]
-    
-    if not company_id:
-        results.add_fail("Wallet Get All Transactions", f"Could not find company_id. Response status: {company_response.status_code}, keys: {list(company_data.keys()) if isinstance(company_data, dict) else 'not dict'}")
-        return {}
-    
-    print(f"Company ID: {company_id}")
-    
-    # Now get transactions
-    print("\nFetching transactions...")
-    response = requests.post(
-        f"{BASE_URL}/api/wallet/getAllTransactions",
-        json={"company_id": company_id, "page": 1, "limit": 25},
-        headers={
-            "Authorization": f"Bearer {access_token}",
-            "Content-Type": "application/json",
-            "x-csrf-token": csrf_token,
-            "Cookie": cookie_header
-        }
-    )
-    
-    print(f"Status: {response.status_code}")
-    
-    if response.status_code != 200:
-        results.add_fail("Wallet Get All Transactions", f"HTTP {response.status_code}: {response.text[:200]}")
-        return {}
-    
-    data = response.json()
-    
-    # Find transactions in response - Wallet format: {message, data: {customers_transactions: [...], self_transactions: [...]}}
-    transactions = []
-    if isinstance(data, list):
-        transactions = data
-    elif isinstance(data, dict):
-        if "data" in data and isinstance(data["data"], dict):
-            # Wallet endpoint returns customers_transactions and self_transactions
-            if "customers_transactions" in data["data"]:
-                transactions = data["data"]["customers_transactions"]
-                # Also include self_transactions if present
-                if "self_transactions" in data["data"] and isinstance(data["data"]["self_transactions"], list):
-                    transactions.extend(data["data"]["self_transactions"])
-            elif "transactions" in data["data"]:
-                transactions = data["data"]["transactions"]
-        elif "data" in data and isinstance(data["data"], list):
-            transactions = data["data"]
-        elif "transactions" in data:
-            transactions = data["transactions"]
-    
-    print(f"Found {len(transactions)} transactions")
-    
-    if len(transactions) == 0:
-        results.add_warning("Wallet Get All Transactions", "No transactions returned (empty dataset)")
-        return {}
-    
-    # Validate each transaction
-    type_counts = Counter()
-    valid_count = 0
-    api_type_count = 0
-    
-    for i, tx in enumerate(transactions):
-        tx_id = tx.get("id") or tx.get("transaction_id") or f"tx_{i}"
-        
-        if "source" not in tx:
-            results.add_fail(f"Wallet - Transaction {tx_id}", "Missing 'source' field")
-            continue
-        
-        source = tx["source"]
-        
-        if validate_source_object(source, tx_id, results, "Wallet"):
-            valid_count += 1
-            type_counts[source["type"]] += 1
+    def get_wallet_totals(self) -> Dict[str, Any]:
+        """Step C: Get wallet totals"""
+        try:
+            self.log("\nStep C: Getting wallet totals...")
+            headers = {
+                'Authorization': f'Bearer {self.access_token}'
+            }
             
-            # Check for API-origin transactions
-            customer_email = tx.get("customer_email") or tx.get("buyer_email") or ""
-            if (customer_email.endswith("@dynopay.internal") or
-                customer_email.startswith("legacy-api-") or
-                customer_email.startswith("pk-buyer-") or
-                customer_email.startswith("elements-buyer-") or
-                customer_email.startswith("recovered-")):
-                if source["type"] == "api":
-                    api_type_count += 1
-                else:
-                    results.add_warning(
-                        f"Wallet - Transaction {tx_id}",
-                        f"API-origin email '{customer_email}' but source.type is '{source['type']}' (expected 'api')"
-                    )
+            response = self.session.get(
+                f"{BASE_URL}/api/wallet/getWallet?company_id={self.company_id}",
+                headers=headers
+            )
+            
+            if response.status_code != 200:
+                self.log(f"Get wallet failed: {response.status_code}", "ERROR")
+                self.log(f"Response: {response.text[:500]}", "ERROR")
+                return {}
+                
+            data = response.json()
+            
+            # Handle nested response structure
+            if 'data' in data and isinstance(data['data'], list):
+                wallet_groups = data['data']
+            elif 'data' in data and isinstance(data['data'], dict):
+                wallet_groups = [data['data']]
+            elif isinstance(data, list):
+                wallet_groups = data
+            else:
+                wallet_groups = [data]
+            
+            # Calculate totals across all wallet groups
+            s_usd = 0.0
+            s_base = 0.0
+            base_currency = None
+            wallet_details = []
+            
+            for group in wallet_groups:
+                # Get base currency from group
+                if base_currency is None:
+                    base_currency = group.get('base_currency', 'USD')
+                
+                # Get wallets from group
+                wallets = group.get('wallets', [])
+                
+                for wallet in wallets:
+                    # Handle both string and numeric amounts
+                    amount_usd_raw = wallet.get('amount_in_usd', 0)
+                    amount_base_raw = wallet.get('amount_in_base_currency', 0)
+                    
+                    amount_usd = float(amount_usd_raw) if amount_usd_raw else 0.0
+                    amount_base = float(amount_base_raw) if amount_base_raw else 0.0
+                    
+                    currency = wallet.get('wallet_type', wallet.get('currency', 'UNKNOWN'))
+                    
+                    s_usd += amount_usd
+                    s_base += amount_base
+                    
+                    wallet_details.append({
+                        'currency': currency,
+                        'amount_in_usd': amount_usd,
+                        'amount_in_base_currency': amount_base
+                    })
+            
+            # If no base_currency found, default to USD
+            if base_currency is None:
+                base_currency = 'USD'
+            
+            self.log(f"✓ Wallet Totals:")
+            self.log(f"  - S_usd (sum of amount_in_usd): ${s_usd:,.2f}")
+            self.log(f"  - S_base (sum of amount_in_base_currency): {s_base:,.2f} {base_currency}")
+            self.log(f"  - Base currency: {base_currency}")
+            self.log(f"  - Number of wallets: {len(wallet_details)}")
+            
+            # Show per-wallet breakdown
+            self.log(f"\n  Per-wallet breakdown:")
+            non_zero_count = 0
+            for wallet in wallet_details:
+                if wallet['amount_in_usd'] > 0:
+                    self.log(f"    {wallet['currency']}: ${wallet['amount_in_usd']:,.2f}")
+                    non_zero_count += 1
+            
+            if non_zero_count == 0:
+                self.log(f"    (All wallets have zero balance)")
+            
+            return {
+                's_usd': s_usd,
+                's_base': s_base,
+                'base_currency': base_currency,
+                'wallet_details': wallet_details,
+                'raw_data': wallet_groups
+            }
+            
+        except Exception as e:
+            self.log(f"Get wallet error: {str(e)}", "ERROR")
+            import traceback
+            self.log(f"Traceback: {traceback.format_exc()}", "ERROR")
+            return {}
     
-    # Summary
-    print(f"\nValidation Results:")
-    print(f"  Valid: {valid_count}/{len(transactions)}")
-    print(f"  API-origin transactions with type='api': {api_type_count}")
-    print(f"  Source Type Distribution:")
-    for source_type, count in type_counts.most_common():
-        print(f"    {source_type}: {count}")
+    def compare_totals(self, dashboard: Dict[str, Any], wallet: Dict[str, Any]) -> Dict[str, Any]:
+        """Step D: Compare dashboard and wallet totals"""
+        try:
+            self.log("\n" + "="*80)
+            self.log("STEP D: RECONCILIATION COMPARISON")
+            self.log("="*80)
+            
+            dashboard_amount = dashboard.get('amount', 0)
+            dashboard_currency = dashboard.get('currency', 'USD')
+            
+            wallet_s_usd = wallet.get('s_usd', 0)
+            wallet_s_base = wallet.get('s_base', 0)
+            wallet_currency = wallet.get('base_currency', 'USD')
+            
+            # Calculate difference
+            difference = abs(wallet_s_base - dashboard_amount)
+            tolerance = 0.01  # $0.01 as specified
+            
+            # Determine pass/fail
+            passed = difference <= tolerance
+            
+            self.log(f"\nDashboard Total Volume:")
+            self.log(f"  amount: ${dashboard_amount:,.2f}")
+            self.log(f"  currency: {dashboard_currency}")
+            
+            self.log(f"\nWallet Totals:")
+            self.log(f"  S_usd: ${wallet_s_usd:,.2f}")
+            self.log(f"  S_base: {wallet_s_base:,.2f} {wallet_currency}")
+            self.log(f"  base_currency: {wallet_currency}")
+            
+            self.log(f"\nReconciliation Analysis:")
+            self.log(f"  Absolute difference: ${difference:,.2f}")
+            self.log(f"  Tolerance threshold: ${tolerance:,.2f}")
+            self.log(f"  Currency match: {dashboard_currency == wallet_currency}")
+            
+            if passed:
+                self.log(f"\n✅ PASS - EXACT PARITY ACHIEVED (difference <= $0.01)", "SUCCESS")
+            else:
+                self.log(f"\n❌ FAIL - Difference ${difference:,.2f} exceeds tolerance ${tolerance:,.2f}", "ERROR")
+            
+            # Additional checks
+            if dashboard_currency == 'USD':
+                usd_match = abs(wallet_s_usd - dashboard_amount) <= tolerance
+                self.log(f"\nUSD Check:")
+                self.log(f"  S_usd vs dashboard: ${abs(wallet_s_usd - dashboard_amount):,.2f} difference")
+                self.log(f"  USD match: {'✅ PASS' if usd_match else '❌ FAIL'}")
+            
+            # Expected value check
+            expected_value = 23883.21
+            expected_tolerance = 100.0  # Allow some variance
+            is_expected = abs(dashboard_amount - expected_value) <= expected_tolerance
+            
+            self.log(f"\nExpected Value Check:")
+            self.log(f"  Expected: ~${expected_value:,.2f} (settled transactions only)")
+            self.log(f"  Actual: ${dashboard_amount:,.2f}")
+            self.log(f"  Within expected range: {'✅ YES' if is_expected else '⚠️ NO (but may be valid)'}")
+            
+            return {
+                'passed': passed,
+                'difference': difference,
+                'tolerance': tolerance,
+                'dashboard_amount': dashboard_amount,
+                'dashboard_currency': dashboard_currency,
+                'wallet_s_usd': wallet_s_usd,
+                'wallet_s_base': wallet_s_base,
+                'wallet_currency': wallet_currency,
+                'is_expected_value': is_expected
+            }
+            
+        except Exception as e:
+            self.log(f"Comparison error: {str(e)}", "ERROR")
+            return {'passed': False, 'error': str(e)}
     
-    if valid_count == len(transactions):
-        results.add_pass(
-            "Wallet Get All Transactions",
-            f"All {len(transactions)} transactions have valid source objects. Distribution: {dict(type_counts)}"
-        )
+    def check_backend_logs(self):
+        """Step F: Check backend logs for errors"""
+        try:
+            self.log("\n" + "="*80)
+            self.log("STEP F: BACKEND LOG CHECK")
+            self.log("="*80)
+            self.log("Note: Backend logs will be checked separately via supervisor logs")
+            
+        except Exception as e:
+            self.log(f"Log check error: {str(e)}", "ERROR")
     
-    return dict(type_counts)
-
-def test_company_get_transactions(access_token: str, results: TestResults) -> Dict[str, int]:
-    """
-    Test GET /api/company/getTransactions/<company_id>?limit=25
-    Returns count per source.type
-    """
-    print("\n" + "="*80)
-    print("TEST C: GET /api/company/getTransactions/<company_id>?limit=25")
-    print("="*80)
-    
-    # First, get company_id
-    print("Getting company_id...")
-    company_response = requests.get(
-        f"{BASE_URL}/api/company/getCompany",
-        headers={"Authorization": f"Bearer {access_token}"}
-    )
-    
-    print(f"Company endpoint status: {company_response.status_code}")
-    
-    company_data = company_response.json()
-    
-    # Find company_id
-    company_id = None
-    if isinstance(company_data, dict):
-        if "data" in company_data:
-            if isinstance(company_data["data"], list) and len(company_data["data"]) > 0:
-                # getCompany returns {message, data: [{company_id, ...}]}
-                company_id = company_data["data"][0].get("company_id") or company_data["data"][0].get("id")
-            elif isinstance(company_data["data"], dict):
-                company_id = company_data["data"].get("company_id") or company_data["data"].get("id")
-        elif "company_id" in company_data:
-            company_id = company_data["company_id"]
-        elif "id" in company_data:
-            company_id = company_data["id"]
-    
-    if not company_id:
-        results.add_fail("Company Get Transactions", f"Could not find company_id in response")
-        return {}
-    
-    print(f"Company ID: {company_id}")
-    
-    # Now get transactions
-    print("\nFetching transactions...")
-    response = requests.get(
-        f"{BASE_URL}/api/company/getTransactions/{company_id}?limit=25",
-        headers={"Authorization": f"Bearer {access_token}"}
-    )
-    
-    print(f"Status: {response.status_code}")
-    
-    if response.status_code != 200:
-        results.add_warning("Company Get Transactions", f"Endpoint may not be reachable: HTTP {response.status_code}")
-        return {}
-    
-    data = response.json()
-    
-    # Find transactions in response
-    transactions = []
-    if isinstance(data, list):
-        transactions = data
-    elif isinstance(data, dict):
-        if "data" in data:
-            if isinstance(data["data"], list):
-                transactions = data["data"]
-            elif isinstance(data["data"], dict) and "transactions" in data["data"]:
-                transactions = data["data"]["transactions"]
-        elif "transactions" in data:
-            transactions = data["transactions"]
-    
-    print(f"Found {len(transactions)} transactions")
-    
-    if len(transactions) == 0:
-        results.add_warning("Company Get Transactions", "No transactions returned (empty dataset)")
-        return {}
-    
-    # Validate each transaction
-    type_counts = Counter()
-    valid_count = 0
-    
-    for i, tx in enumerate(transactions):
-        tx_id = tx.get("id") or tx.get("transaction_id") or f"tx_{i}"
+    def run_full_test(self) -> Dict[str, Any]:
+        """Run the complete test suite"""
+        self.log("="*80)
+        self.log("DynoPay API Backend Test - Wallet/Dashboard Reconciliation (v2)")
+        self.log("STRICT READ-ONLY - LIVE PRODUCTION DATABASE")
+        self.log("="*80)
         
-        if "source" not in tx:
-            results.add_fail(f"Company - Transaction {tx_id}", "Missing 'source' field")
-            continue
+        # Authentication flow
+        if not self.get_csrf_token():
+            return {'success': False, 'error': 'CSRF token failed'}
         
-        source = tx["source"]
+        if not self.check_email():
+            return {'success': False, 'error': 'Email check failed'}
         
-        if validate_source_object(source, tx_id, results, "Company"):
-            valid_count += 1
-            type_counts[source["type"]] += 1
-    
-    # Summary
-    print(f"\nValidation Results:")
-    print(f"  Valid: {valid_count}/{len(transactions)}")
-    print(f"  Source Type Distribution:")
-    for source_type, count in type_counts.most_common():
-        print(f"    {source_type}: {count}")
-    
-    if valid_count == len(transactions):
-        results.add_pass(
-            "Company Get Transactions",
-            f"All {len(transactions)} transactions have valid source objects. Distribution: {dict(type_counts)}"
-        )
-    
-    return dict(type_counts)
-
-def main():
-    print("="*80)
-    print("DYNOPAY TRANSACTION SOURCE REFACTOR - BACKEND API TESTING")
-    print("STRICT READ-ONLY on LIVE PRODUCTION DATABASE")
-    print("="*80)
-    
-    results = TestResults()
-    
-    try:
-        # Authenticate
-        csrf_token, cookie_header, access_token = authenticate()
+        if not self.login():
+            return {'success': False, 'error': 'Login failed'}
         
-        # Test A: Dashboard recent transactions
-        dashboard_counts = test_dashboard_recent_transactions(access_token, results)
+        # Get company ID
+        if not self.get_company_id():
+            return {'success': False, 'error': 'Get company_id failed'}
         
-        # Test B: Wallet get all transactions
-        wallet_counts = test_wallet_get_all_transactions(access_token, csrf_token, cookie_header, results)
+        # Get dashboard and wallet data
+        dashboard = self.get_dashboard_total()
+        if not dashboard:
+            return {'success': False, 'error': 'Get dashboard failed'}
         
-        # Test C: Company get transactions
-        company_counts = test_company_get_transactions(access_token, results)
+        wallet = self.get_wallet_totals()
+        if not wallet:
+            return {'success': False, 'error': 'Get wallet failed'}
         
-        # Print summary
-        results.print_summary()
+        # Compare totals
+        comparison = self.compare_totals(dashboard, wallet)
         
-        # Print consolidated type distribution
-        print("\n" + "="*80)
-        print("CONSOLIDATED SOURCE TYPE DISTRIBUTION")
-        print("="*80)
-        print(f"\nDashboard Recent Transactions: {dashboard_counts}")
-        print(f"Wallet Get All Transactions: {wallet_counts}")
-        print(f"Company Get Transactions: {company_counts}")
-        print("\n" + "="*80)
+        # Check logs
+        self.check_backend_logs()
         
-    except Exception as e:
-        print(f"\n❌ CRITICAL ERROR: {e}")
-        import traceback
-        traceback.print_exc()
-        results.add_fail("Test Execution", str(e))
-        results.print_summary()
-        return 1
-    
-    return 0 if not results.failed else 1
+        self.log("\n" + "="*80)
+        self.log("TEST COMPLETE")
+        self.log("="*80)
+        
+        return {
+            'success': True,
+            'comparison': comparison,
+            'dashboard': dashboard,
+            'wallet': wallet
+        }
 
 if __name__ == "__main__":
-    exit(main())
+    tester = DynoPayAPITester()
+    result = tester.run_full_test()
+    
+    # Exit with appropriate code
+    if result.get('success') and result.get('comparison', {}).get('passed'):
+        exit(0)
+    else:
+        exit(1)

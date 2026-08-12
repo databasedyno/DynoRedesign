@@ -15,6 +15,7 @@ import sequelize from "../utils/dbInstance";
 import { getRedisItem, setRedisItem, setRedisTTL } from "../utils/redisInstance";
 import { getCurrencySymbol, getCurrencyInfo, formatAmountForDisplay, COMPANY_CURRENCY_QUERY, convertToFiat, getUserDisplayCurrency } from "../utils/currencyUtils";
 import { resolveTransactionSource } from "../utils/transactionSource";
+import { PROCESSED_USD_EXPR, PROCESSED_STATUS_SQL } from "../utils/processedVolume";
 import { getVolumeTiers } from "../utils/volumeTierUtils";
 
 /**
@@ -137,7 +138,7 @@ const getDashboard = async (req: express.Request, res: express.Response) => {
     }
     
     // Check Redis cache first (include currency in cache key)
-    const cacheKey = `dashboard:${userId}:${company_id || 'all'}:${preferredCurrency}`;
+    const cacheKey = `dashboard:${userId}:${company_id || 'all'}:${preferredCurrency}:v2settled`;
     const cached = await getRedisItem(cacheKey);
     if (cached && Object.keys(cached).length > 0) {
       apiLogger.info(`[Dashboard] Cache hit for user ${userId}, currency ${preferredCurrency}`);
@@ -169,20 +170,22 @@ const getDashboard = async (req: express.Request, res: express.Response) => {
       WHERE ut.user_id = :userId ${companyFilter}
     `;
 
-    // ── 2. Volume: Use stored usd_value with fallback to base_amount for USD-like currencies ──
-    const USD_FALLBACK_EXPR = `COALESCE(NULLIF(ut.usd_value, 0), CASE WHEN UPPER(ut.base_currency) IN ('USD','USDT','USDC','USDT-TRC20','USDT-ERC20','USDC-ERC20','BUSD','DAI','USDT_TRC20','USDT_ERC20','USDC_ERC20','USDT-POLYGON') THEN ut.base_amount ELSE 0 END)`;
+    // ── 2. Volume: SETTLED transactions only, using stored usd_value with
+    // fallback to base_amount for USD-like currencies. Shared with
+    // walletController.getWallet so /wallet total reconciles exactly. ──
+    const USD_FALLBACK_EXPR = PROCESSED_USD_EXPR;
     const volumeQuery = `
       SELECT 
         COALESCE(SUM(${USD_FALLBACK_EXPR}), 0) as total_usd_value,
         COALESCE(SUM(${USD_FALLBACK_EXPR}) FILTER (WHERE ut."createdAt" >= :startOfMonth), 0) as current_month_usd_value,
         COALESCE(SUM(${USD_FALLBACK_EXPR}) FILTER (WHERE ut."createdAt" >= :startOfLastMonth AND ut."createdAt" <= :endOfLastMonth), 0) as last_month_usd_value,
-        COALESCE(SUM(${USD_FALLBACK_EXPR}) FILTER (WHERE ut."createdAt" >= :startOfToday AND ut.status IN ('successful', 'done', 'completed')), 0) as today_usd_value,
-        COALESCE(SUM(${USD_FALLBACK_EXPR}) FILTER (WHERE ut."createdAt" >= :startOfYesterday AND ut."createdAt" < :startOfToday AND ut.status IN ('successful', 'done', 'completed')), 0) as yesterday_usd_value,
-        COALESCE(SUM(ut.tax_amount) FILTER (WHERE ut.status IN ('successful', 'done', 'completed')), 0) as total_tax,
-        COALESCE(SUM(ut.tax_amount) FILTER (WHERE ut."createdAt" >= :startOfMonth AND ut.status IN ('successful', 'done', 'completed')), 0) as current_month_tax
+        COALESCE(SUM(${USD_FALLBACK_EXPR}) FILTER (WHERE ut."createdAt" >= :startOfToday), 0) as today_usd_value,
+        COALESCE(SUM(${USD_FALLBACK_EXPR}) FILTER (WHERE ut."createdAt" >= :startOfYesterday AND ut."createdAt" < :startOfToday), 0) as yesterday_usd_value,
+        COALESCE(SUM(ut.tax_amount), 0) as total_tax,
+        COALESCE(SUM(ut.tax_amount) FILTER (WHERE ut."createdAt" >= :startOfMonth), 0) as current_month_tax
       FROM tbl_user_transaction ut
       ${companyJoin}
-      WHERE ut.user_id = :userId ${companyFilter}
+      WHERE ut.user_id = :userId AND ${PROCESSED_STATUS_SQL} ${companyFilter}
     `;
 
     // ── 3. Self-transactions count ──
@@ -395,7 +398,7 @@ const getChartData = async (req: express.Request, res: express.Response) => {
     const rangeKey = isCustom
       ? `custom:${startDate.toISOString().split('T')[0]}_${endDate.toISOString().split('T')[0]}`
       : effectivePeriod;
-    const cacheKey = `chart:${userId}:${company_id || 'all'}:${rangeKey}:${preferredCurrency}`;
+    const cacheKey = `chart:${userId}:${company_id || 'all'}:${rangeKey}:${preferredCurrency}:v2settled`;
     const cached = await getRedisItem(cacheKey);
     if (cached && Object.keys(cached).length > 0) {
       apiLogger.info(`[Chart] Cache hit for user ${userId}`);
@@ -411,8 +414,10 @@ const getChartData = async (req: express.Request, res: express.Response) => {
     else if (groupBy === 'week') dateTrunc = `DATE_TRUNC('week', ut."createdAt")`;
     else dateTrunc = `DATE_TRUNC('month', ut."createdAt")`;
 
-    // Reuse the same USD fallback expression for chart queries
-    const USD_FALLBACK_EXPR_CHART = `COALESCE(NULLIF(ut.usd_value, 0), CASE WHEN UPPER(ut.base_currency) IN ('USD','USDT','USDC','USDT-TRC20','USDT-ERC20','USDC-ERC20','BUSD','DAI','USDT_TRC20','USDT_ERC20','USDC_ERC20','USDT-POLYGON') THEN ut.base_amount ELSE 0 END)`;
+    // Shared processed-volume expression + SETTLED-only filter so the chart,
+    // the VolumeHero "This period"/"Lifetime" numbers and the AssetsCard all
+    // reconcile with getDashboard total_volume and the /wallet total.
+    const USD_FALLBACK_EXPR_CHART = PROCESSED_USD_EXPR;
 
     const chartQuery = `
       SELECT 
@@ -424,6 +429,7 @@ const getChartData = async (req: express.Request, res: express.Response) => {
       FROM tbl_user_transaction ut
       ${companyJoinChart}
       WHERE ut.user_id = :userId 
+      AND ${PROCESSED_STATUS_SQL}
       AND ut."createdAt" >= :startDate
       AND ut."createdAt" <= :endDate
       ${companyFilterChart}
@@ -431,7 +437,7 @@ const getChartData = async (req: express.Request, res: express.Response) => {
       ORDER BY date ASC
     `;
 
-    // ── 2. Currency breakdown (no status filter) ──
+    // ── 2. Currency breakdown (SETTLED only, matches wallet per-asset) ──
     const currencyBreakdownQuery = `
       SELECT 
         ut.base_currency,
@@ -441,6 +447,7 @@ const getChartData = async (req: express.Request, res: express.Response) => {
        FROM tbl_user_transaction ut
        ${companyJoinChart}
        WHERE ut.user_id = :userId 
+       AND ${PROCESSED_STATUS_SQL}
        AND ut."createdAt" >= :startDate
        AND ut."createdAt" <= :endDate
        ${companyFilterChart}
@@ -472,6 +479,7 @@ const getChartData = async (req: express.Request, res: express.Response) => {
        FROM tbl_user_transaction ut
        ${companyJoinChart}
        WHERE ut.user_id = :userId
+       AND ${PROCESSED_STATUS_SQL}
        AND ut."createdAt" >= :prevStart
        AND ut."createdAt" < :prevEnd
        ${companyFilterChart}`;

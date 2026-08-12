@@ -33,6 +33,7 @@ import { parseSortAndPagination } from "../helper/queryHelpers";
 import { incrementAdminFee, incrementUserWallet } from "../helper/walletHelpers";
 import { formatAmountForDisplay, getCurrencyInfo, COMPANY_CURRENCY_QUERY, convertToUSD, convertToFiat, convertToMultiple, getUserDisplayCurrency } from "../utils/currencyUtils";
 import { resolveTransactionSource } from "../utils/transactionSource";
+import { PROCESSED_USD_EXPR, PROCESSED_STATUS_SQL } from "../utils/processedVolume";
 import crypto from "crypto";
 
 // HTML escape utility to prevent XSS in email templates
@@ -165,7 +166,7 @@ const getWallet = async (req: express.Request, res: express.Response) => {
     }
     
     // Check cache first (120 second TTL) - include currency in cache key
-    const cacheKey = `wallet:${userData.user_id}:${company_id || 'all'}:${preferredCurrency}:v3`;
+    const cacheKey = `wallet:${userData.user_id}:${company_id || 'all'}:${preferredCurrency}:v5`;
     const cached = await getRedisItem(cacheKey);
     if (cached && Object.keys(cached).length > 0) {
       walletLogger.info(`[Wallet] Cache hit for user ${userData.user_id}`);
@@ -246,13 +247,43 @@ const getWallet = async (req: express.Request, res: express.Response) => {
       rateMap.set(cd.currency, cd.transferRate);
     }
 
+    // ── "Total processed" per wallet ─────────────────────────────────────
+    // RECONCILED with the dashboard "Overall volume" (dashboardController
+    // volumeQuery): sum the USD value LOCKED IN at settlement time
+    // (ut.usd_value, with the same stablecoin base_amount fallback) grouped by
+    // wallet, using the SAME user/company scope the dashboard uses. This
+    // replaces the old "current crypto balance ÷ today's rate", which is a
+    // live spendable balance — NOT processed volume — and was the source of the
+    // mismatch the merchant reported between /wallet and the dashboard.
+    const USD_FALLBACK_EXPR = PROCESSED_USD_EXPR;
+    const volCompanyJoin = company_id ? 'LEFT JOIN tbl_customer c ON ut.customer_id = c.customer_id' : '';
+    const volCompanyFilter = company_id ? 'AND (ut.company_id = :companyId OR c.company_id = :companyId)' : '';
+    const processedRows = await sequelize.query(
+      `SELECT ut.wallet_id AS wallet_id, COALESCE(SUM(${USD_FALLBACK_EXPR}), 0) AS processed_usd
+       FROM tbl_user_transaction ut
+       ${volCompanyJoin}
+       WHERE ut.user_id = :userId AND ${PROCESSED_STATUS_SQL} ${volCompanyFilter}
+       GROUP BY ut.wallet_id`,
+      {
+        replacements: { userId: userData.user_id, companyId: company_id },
+        type: QueryTypes.SELECT,
+      }
+    ) as Array<{ wallet_id: string | number | null; processed_usd: string }>;
+    const processedByWalletId = new Map<string, number>();
+    for (const r of processedRows) {
+      if (r.wallet_id !== null && r.wallet_id !== undefined) {
+        processedByWalletId.set(String(r.wallet_id), parseFloat(String(r.processed_usd)) || 0);
+      }
+    }
+
     // Build return data - iterate through walletData directly to preserve all wallets
     // Add company_name to each wallet
     const walletsWithCompanyName = [];
     for (const wallet of walletData) {
       const currentWallet = wallet.dataValues;
       const transferRate = rateMap.get(currentWallet.wallet_type) || 1;
-      const amountInUSD = Number(currentWallet.amount / transferRate);
+      // Historical processed volume (USD) for THIS wallet — matches dashboard.
+      const amountInUSD = processedByWalletId.get(String(currentWallet.wallet_id)) || 0;
       const amountInBaseCurrency = amountInUSD * fiatConversionRate;
       const amountDisplay = formatAmountForDisplay(amountInBaseCurrency, preferredCurrency);
       walletsWithCompanyName.push({
