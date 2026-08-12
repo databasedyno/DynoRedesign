@@ -14,23 +14,65 @@ import {
 } from "@mui/icons-material";
 import { useRouter } from "next/router";
 import Head from "next/head";
+import dynamic from "next/dynamic";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 
-import ProfilePage from "@/Components/Page/Profile/ProfilePage";
-import ApiKeysPage from "@/Components/Page/API/ApiKeysPage";
-import NotificationPage from "@/Components/Page/Notification/NotificationPage";
-import TaxSettingsSection from "@/Components/Page/Settings/TaxSettingsSection";
-import CompanySettingsDialog from "@/Components/UI/CompanySettingsDialog";
 import DisplayCurrencySelector from "@/Components/UI/DisplayCurrencySelector";
 import UserDisplayCurrencySelector from "@/Components/UI/UserDisplayCurrencySelector";
-import CreateCompanyModal from "@/Components/UI/OnboardingFlow/CreateCompanyModal";
 import CustomButton from "@/Components/UI/Buttons";
 import useIsMobile from "@/hooks/useIsMobile";
 import useTokenData from "@/hooks/useTokenData";
 import { UserAction } from "@/Redux/Actions";
 import { USER_PROFILE_FETCH } from "@/Redux/Actions/UserAction";
 import { ICompany, pageProps, rootReducer } from "@/utils/types";
+
+/* ------------------------------------------------------------------ */
+/* Code-splitting                                                      */
+/*                                                                     */
+/* Every section used to be imported eagerly, which is why /settings   */
+/* shipped 3.15 MB of first-load JS — the heaviest route in the app by  */
+/* a factor of ~7 (the shared baseline is 458 kB). A merchant opening   */
+/* "Profile" was downloading the API-keys, notifications, tax and       */
+/* company-settings trees as well.                                     */
+/*                                                                     */
+/* Each panel is now its own chunk, fetched only when that section is   */
+/* actually opened. ssr:false because these are authenticated,          */
+/* client-only panels — nothing here is ever server-rendered or         */
+/* indexed, so there is no SEO or hydration cost.                       */
+/* ------------------------------------------------------------------ */
+const SectionLoading = () => (
+  <Box sx={{ py: 8, display: "flex", justifyContent: "center" }}>
+    <CircularProgress size={28} />
+  </Box>
+);
+
+const ProfilePage = dynamic(() => import("@/Components/Page/Profile/ProfilePage"), {
+  ssr: false,
+  loading: () => <SectionLoading />,
+});
+const ApiKeysPage = dynamic(() => import("@/Components/Page/API/ApiKeysPage"), {
+  ssr: false,
+  loading: () => <SectionLoading />,
+});
+const NotificationPage = dynamic(() => import("@/Components/Page/Notification/NotificationPage"), {
+  ssr: false,
+  loading: () => <SectionLoading />,
+});
+const TaxSettingsSection = dynamic(() => import("@/Components/Page/Settings/TaxSettingsSection"), {
+  ssr: false,
+  loading: () => <SectionLoading />,
+});
+const CompanySettingsDialog = dynamic(() => import("@/Components/UI/CompanySettingsDialog"), {
+  ssr: false,
+  loading: () => <SectionLoading />,
+});
+// Only mounted while the modal is actually open (see usages), so its chunk is
+// never downloaded by a merchant who doesn't add a company.
+const CreateCompanyModal = dynamic(
+  () => import("@/Components/UI/OnboardingFlow/CreateCompanyModal"),
+  { ssr: false },
+);
 
 type SectionKey =
   | "profile"
@@ -165,12 +207,14 @@ const CompanyConfigSection = ({
           endIcon={<AddRounded sx={{ fontSize: 18 }} />}
           onClick={() => setAddOpen(true)}
         />
-        <CreateCompanyModal
-          open={addOpen}
-          onClose={() => setAddOpen(false)}
-          onSuccess={() => setAddOpen(false)}
-          showStepIndicator={false}
-        />
+        {addOpen && (
+          <CreateCompanyModal
+            open={addOpen}
+            onClose={() => setAddOpen(false)}
+            onSuccess={() => setAddOpen(false)}
+            showStepIndicator={false}
+          />
+        )}
       </Box>
     );
   }
@@ -246,12 +290,14 @@ const CompanyConfigSection = ({
         />
       )}
 
-      <CreateCompanyModal
-        open={addOpen}
-        onClose={() => setAddOpen(false)}
-        onSuccess={() => setAddOpen(false)}
-        showStepIndicator={false}
-      />
+      {addOpen && (
+        <CreateCompanyModal
+          open={addOpen}
+          onClose={() => setAddOpen(false)}
+          onSuccess={() => setAddOpen(false)}
+          showStepIndicator={false}
+        />
+      )}
     </Box>
   );
 };

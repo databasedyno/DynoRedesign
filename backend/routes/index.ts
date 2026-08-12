@@ -373,7 +373,32 @@ router.use("/notifications", notificationRouter);
 router.use("/kyc", kycRouter);
 router.use("/status", statusRouter); // Public status page endpoints
 router.use("/subscriptions", subscriptionRouter); // Subscription management
-router.use("/test", testRouter); // Test endpoints for development
+// ─────────────────────────────────────────────────────────────────────────────
+// /api/test/* — NOT mounted in production unless explicitly re-enabled.
+//
+// Every route in testRouter does require a JWT, but only `authMiddleware`, i.e.
+// ANY logged-in merchant — not an admin. The router exposes:
+//   POST /test/fix-customer-id-column   (schema DDL)
+//   POST /test/manual-transfer          (moves funds)
+//   GET/DELETE /test/redis/:key         (read or delete arbitrary cache keys)
+//   POST /test/send-*-email             (send mail to an arbitrary address)
+//   POST /test/trigger-*-reminders      (fire bulk reminder jobs)
+//   POST /test/full-payment-flow, /simulate-payment-redis, /rlusd-trustline
+// Handing that to every authenticated merchant is privilege escalation on a
+// payments platform, so production must opt IN via ENABLE_TEST_ENDPOINTS=true.
+// A 404 (rather than leaving it mounted) also stops the surface being
+// discoverable at all.
+// ─────────────────────────────────────────────────────────────────────────────
+const testEndpointsEnabled =
+  process.env.ENABLE_TEST_ENDPOINTS === "true" || process.env.NODE_ENV !== "production";
+
+if (testEndpointsEnabled) {
+  router.use("/test", testRouter); // Test endpoints for development
+} else {
+  router.use("/test", (_req, res) => {
+    res.status(404).json({ message: "Not found" });
+  });
+}
 router.use("/referral", referralRouter); // Referral system endpoints
 router.use("/kb", knowledgeBaseRouter); // Knowledge Base endpoints
 router.use("/support", supportChatRouter); // AI support chat (public, rate-limited)

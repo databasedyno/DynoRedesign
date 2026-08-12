@@ -33,6 +33,8 @@ import sequelize from "./utils/dbInstance";
 import { setupWeeklySummaryCron, setupWalletReminderCron, setupHealthCheckCron, setupRefereeCodeReminderCron, setupPaymentLinkReminderCron, setupOnboardingMonitorCron, setupFirstPaymentMonitorCron } from "./utils/cronJobs";
 import { getOptimizationDiagnostics } from "./services/tronEnergyService";
 import { migrateWebhookUrls } from "./services/migrateWebhookUrls";
+import { registerAccountProvisioningHooks } from "./services/accountProvisioning";
+import { markShuttingDown } from "./utils/shutdownState";
 import { processStablecoinConversions, getConversionStats, sendWeeklyConversionSummaries } from "./services/conversionService";
 import stablecoinConversionModel from "./models/stablecoinConversionModel";
 import { processWebhookRetryQueue } from "./utils/webhookRetry";
@@ -1462,7 +1464,16 @@ const startServer = async () => {
     log(`🚀 Server is listening on port ${port}!`, 'info');
     log(`📚 Swagger docs available at /api/docs`, 'info');
     log(`❤️ Health check available at /health`, 'info');
-    
+
+    // Every new user gets a personal Account (tbl_company, account_type
+    // 'individual') so company-scoped features — invoices, customers, webhooks,
+    // API usage — work for individual creators too. Installed as a single
+    // userModel.afterCreate hook because FIVE different controller paths create
+    // users. Runs on transaction.afterCommit, so it can never fail a signup.
+    // Disable with AUTO_PROVISION_PERSONAL_ACCOUNT=false.
+    // See docs/IA_AUDIT_2026-08.md §1.
+    registerAccountProvisioningHooks();
+
     // Pre-populate background rate cache on startup (so first payment has fallback rates)
     refreshBackgroundRateCache().catch(err => {
       log(`Initial rate cache population failed: ${err.message}`, "error");
@@ -1565,6 +1576,11 @@ export let isShuttingDown = false;
 const gracefulShutdown = async (signal: string) => {
   if (isShuttingDown) return; // Prevent double shutdown
   isShuttingDown = true;
+  // Also publish the flag on the standalone module that utils/dbInstance reads,
+  // so Sequelize can stop issuing queries WITHOUT dbInstance having to
+  // require('../server') on every query (that cycle used to boot a second
+  // server from any script that touched a model — see utils/shutdownState.ts).
+  markShuttingDown();
   log(`Received ${signal}. Starting graceful shutdown...`, 'warn');
 
   // 0a. Release the background-jobs leadership lease FIRST so the surviving

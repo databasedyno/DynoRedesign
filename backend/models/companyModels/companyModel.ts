@@ -22,6 +22,21 @@ const companyModel = sequelize.define(
     company_name: {
       type: DataTypes.STRING,
     },
+    /**
+     * 'individual' | 'business'
+     *
+     * The Account is the tenant; a "Company" is just an Account that has filled
+     * in a business profile. An individual creator gets an Account with
+     * account_type='individual' at signup so that company-scoped features
+     * (invoices, customers, webhooks, API usage) work for them too — previously
+     * a user with no company row could never reach any of them.
+     * See docs/IA_AUDIT_2026-08.md §1 and scripts/add_account_model.js.
+     */
+    account_type: {
+      type: DataTypes.STRING(20),
+      allowNull: true,
+      defaultValue: "business",
+    },
     email: {
       type: DataTypes.STRING,
       validate: {

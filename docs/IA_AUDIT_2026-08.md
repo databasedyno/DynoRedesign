@@ -22,6 +22,7 @@ The app isn't badly built — it's **well built three times over**. The scatter 
 | 3 | **Navigation doesn't describe the product** | 79 routes in the production bundle vs **13 sidebar entries**; "Customers" is labelled *soon* although it has live data | Features exist but are unfindable |
 | 4 | **The account surface is triplicated and enormous** | `/settings` **3.15 MB** and `/company` **2.93 MB** first-load JS vs a **458 kB** baseline — the only two multi-MB routes in the app | Slowest pages in the product are the least differentiated |
 | 5 | **410 endpoints with no resource discipline** | 410 route registrations / 26 routers; `userRouter` alone has **72**; `/api/test/*` (18 endpoints) mounted unconditionally | Nobody can hold the API in their head |
+| 6 | **🚨 `dbInstance` booted the whole server from a per-query hook** | `utils/dbInstance.ts` ran `require('../server')` inside Sequelize's `beforeQuery` — so the first query from ANY script started a second server | Duplicate cron/sweep/webhook workers = double-processed payments. **Fixed this session** |
 
 **The single highest-leverage fix is #1.** Do it first; #2 and #3 get dramatically easier afterwards, because you'll finally have one noun to hang features off.
 
@@ -56,6 +57,35 @@ companies ....................... 4
 users WITHOUT any company ...... 11   (79%)
 users with MULTIPLE companies .... 1
 ```
+
+> **⚠️ HONESTY CORRECTION (added after inspecting the actual rows).**
+> That 79% is arithmetically true but **practically misleading, and I'm correcting my own
+> headline**. Listing the 11 account-less users by email shows the population is dominated by
+> test data:
+>
+> | user_id | email | real? |
+> |---|---|---|
+> | 2, 8, 11, 12 | `qa.onboard@`, `qa.empty@`, `qa.exist@`, `qa.unverif@` `dynopaytest.com` | QA |
+> | 4, 5, 6, 7 | `test_…@`, `paytest_…@` `dynopay-test.com` | QA |
+> | 9 | `testdyno@dyno.pt` | internal test |
+> | 10 | **email IS NULL** | broken signup record |
+> | 14 | `andwela.peiter@gmail.com` | **the only real human** |
+>
+> So the honest statement is: **the architectural fork is 100% real and will bite every
+> individual signup, but today it is hurting 1 real user, not 11.** Fix it because it is
+> structural, not because 11 merchants are complaining.
+>
+> Independent live proof that the fork is real, found while code-splitting `/settings`:
+> `hooks/usePublishableKeys.ts` deliberately calls `GET /api/publishable-keys` with **no
+> `company_id`** ("fetch all keys", per its own doc comment) — and the backend requires
+> `company_id`, so it returns **400** on every load of the API Keys section. A feature written to
+> work "without a company" against a backend that demands one. That is Root Cause #1 in miniature,
+> and it is a live bug today.
+>
+> Practical consequence for the backfill: **do not blindly create personal accounts for all 11** —
+> that would add ~10 junk companies to the production database. Backfill real users, and consider
+> purging the QA accounts instead.
+
 
 A company is **not** created at signup — `tbl_company` rows are only created by an explicit
 "create company" action (`companyController.ts:261`). And on the frontend,
@@ -262,9 +292,61 @@ pattern to copy.
 
 ---
 
-## 6. Public-surface leaks (fix this week — reputational, not just UX)
+## 5.5 🚨 Root cause #6 — the database layer booted the entire server (FIXED)
 
-The production build confirms these are **live, publicly routable pages on dynopay.com**:
+This was found by accident and is the most dangerous single thing in the audit. It is already fixed.
+
+`utils/dbInstance.ts` needed to know whether the process was shutting down, and got that flag like this — inside Sequelize's `beforeQuery` hook, i.e. **on every single query**:
+
+```ts
+hooks: {
+  beforeQuery: () => {
+    // Lazy import to avoid circular deps — server.ts exports isShuttingDown
+    const { isShuttingDown } = require('../server');   // ← boots server.ts
+    ...
+  }
+}
+```
+
+`server.ts` calls `startServer()` at module scope. So **the first query issued by any process that had imported a model would load and boot a second copy of the entire application**:
+
+```
+server.ts → models → utils/dbInstance → require('../server') → server.ts
+```
+
+Observed live at 2026-08-12 21:36 UTC while verifying account provisioning: a plain maintenance
+script that imported a model tried to `app.listen(3300)`, hit `EADDRINUSE`, threw an uncaught
+exception, and the ErrorMonitor sent **three alert emails to the admin address**. Stack trace
+confirmed `at startServer (server.ts:1462)` inside the script's own process.
+
+**Why this was worse than noise.** On a box where `ENABLE_BACKGROUND_JOBS=true`, that second boot
+would also start:
+- a second cron scheduler,
+- a second BullMQ webhook worker,
+- a second crypto sweep loop.
+
+i.e. **double-processing of real payments and fund movements**, triggered by nothing more than
+running a migration or maintenance script. It also means you could not write a script, a
+migration or a unit test that touched a model without booting the server — which is a large part
+of why this codebase is hard to work in safely.
+
+**Fix applied.** The dependency is inverted. A new `utils/shutdownState.ts` owns the flag and
+imports nothing; `dbInstance` reads it with a plain static import; `server.ts` sets it in
+`gracefulShutdown()`. The cycle is gone and the per-query `require()` is gone.
+
+Verified: the same script that previously fired three alert emails now runs to completion with
+**zero** `EADDRINUSE`, **zero** server boots and **zero** alerts, while all provisioning checks
+pass and query behaviour is unchanged (`database: connected`, no `Query blocked` events).
+
+**Lesson worth generalising:** `server.ts` should contain only bootstrap, and boot code must never
+be importable by library code. Any remaining `require()` inside a hot path deserves the same
+scrutiny.
+
+
+
+## 6. Public-surface leaks — **FIXED this session**
+
+The production build confirmed these were **live, publicly routable pages on dynopay.com**:
 
 ```
 /QA                          26 kB      /pay/state-demo             10.3 kB
@@ -273,10 +355,27 @@ The production build confirms these are **live, publicly routable pages on dynop
 + /api/test/*  (18 endpoints, mounted with no environment guard)
 ```
 
-A payments company shipping `/QA` and five fake-payment-state demos to its production domain is
-an avoidable trust problem (and an SEO one). Gate them behind a dev flag — a bonus is that it
-also trims the production bundle, which directly helps the DigitalOcean build budget that killed
-deployment `f36c39b6`.
+A payments company shipping `/QA` and five fake-payment-state demos to its production domain is an
+avoidable trust problem (and an SEO one).
+
+**Fix applied.** A new `middleware.ts` blocks all six paths with a genuine **404** whenever
+`NODE_ENV === "production"` (escape hatches: `BLOCK_DEV_PAGES=true` to force it on anywhere,
+`=false` to reopen). Middleware — not `getServerSideProps` — because none of the six pages export a
+data-fetching function, so they are served as static HTML and a page-level guard would never run.
+The `matcher` is an exact allow-list, so no other route is affected. Verified: all six return 404
+locally *and* through the public ingress, while `/`, `/auth/login`, `/dashboard` and `/pay-links`
+still return 200.
+
+**On `/api/test/*` — correcting an earlier assumption in this audit.** Every one of the 19 routes
+*does* require a JWT. But it is only `authMiddleware`, i.e. **any logged-in merchant, not an
+admin**, and the router exposes `POST /test/fix-customer-id-column` (schema DDL),
+`POST /test/manual-transfer` (moves funds), `GET|DELETE /test/redis/:key` and
+`POST /test/send-*-email`. That is privilege escalation on a payments platform. It is now mounted
+only when `ENABLE_TEST_ENDPOINTS=true` or outside production, and returns 404 otherwise (verified:
+`/api/test/thresholds` went from 401 to 404 while `/api/dashboard/` still answers 401).
+
+By contrast `diagnosticsRouter` was checked and is **correctly admin-guarded** (19 routes, 20
+`adminAuthMiddleware` references), so it was deliberately left alone.
 
 ---
 
@@ -284,7 +383,7 @@ deployment `f36c39b6`.
 
 | Phase | Work | Why now | Risk |
 |---|---|---|---|
-| **P0** (days) | 1. Auto-provision a personal Account at signup + **backfill the 11 account-less users**  2. Gate `/QA`, `/pay/*-demo`, `/api/test` out of production  3. Merge `/company` + `/profile` into a lazy-loaded tabbed `/settings`  4. Un-hide **Customers**, decide the Products flag | Unblocks 79% of users, kills the 3.15 MB page, closes the public leaks | Low — additive |
+| **P0** (days) | ✅ **1. DONE** — `account_type` + `tbl_account_member` added, owner rows seeded, personal Account auto-provisioned at signup via a single `userModel.afterCreate` hook, and the backfill applied (1 real user; the other 10 are QA rows, deliberately skipped)  ✅ **2. DONE** — `/QA`, `/pay/*-demo` and `/api/test/*` blocked in production  ✅ **3. DONE** — `/settings` code-split 3.15 MB → **649 kB**, `/company` 2.93 MB → **454 kB** (now a redirect), `/profile` zero-JS redirect  ⬜ 4. Un-hide **Customers**, decide the Products flag | Unblocks individual creators, removes the two heaviest routes in the app, closes the public leaks | Low — additive |
 | **P1** (1–2 wks) | Account-scope the product tables (add `company_id`, backfill, dual-write, switch reads); publish the "`company_id` is authoritative" rule and fix the 15 ambiguous tables | Stops the bug class you spotted | Low/med — dual-write first |
 | **P2** (2–4 wks) | Re-group the nav into the 5 groups; collapse pay surfaces into Link + Product presets; Invoice becomes a document view; Buy button becomes an embed tab; park Subscriptions | The visible "it feels organised now" win | Med — mostly UI |
 | **P3** (opportunistic) | `account_id` in the API layer; retire `Layout/Sidebar`, `Menus.tsx`, legacy dashboard components; split `userRouter` | Long-term velocity | Low |

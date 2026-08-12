@@ -1,18 +1,21 @@
-import { useEffect } from "react";
-import { useRouter } from "next/router";
-import Loading from "@/Components/UI/Loading";
+import type { GetServerSideProps } from "next";
 
-// Profile has been consolidated into Settings — the "Profile & Security"
-// section lives at /settings?section=profile. Keep this route as a permanent
-// client-side redirect so existing links/bookmarks continue to work.
-const Profile = () => {
-  const router = useRouter();
+/**
+ * /profile has been consolidated into Settings — the "Profile & Security"
+ * section lives at /settings?section=profile.
+ *
+ * This used to be a client-side redirect (`useEffect` + `router.replace`), which
+ * downloaded the page bundle and flashed a loading spinner before navigating.
+ * Redirecting in getServerSideProps ships no JS and is instant, while existing
+ * links and bookmarks keep working exactly as before.
+ */
+export const getServerSideProps: GetServerSideProps = async () => ({
+  redirect: {
+    destination: "/settings?section=profile",
+    permanent: false,
+  },
+});
 
-  useEffect(() => {
-    router.replace("/settings?section=profile");
-  }, [router]);
+const ProfileRedirect = () => null;
 
-  return <Loading />;
-};
-
-export default Profile;
+export default ProfileRedirect;

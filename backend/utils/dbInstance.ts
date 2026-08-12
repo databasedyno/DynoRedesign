@@ -1,6 +1,7 @@
 import { Sequelize } from "sequelize";
 import dotenv from "dotenv";
 import { log } from "./loggers";
+import { isShuttingDown } from "./shutdownState";
 
 dotenv.config();
 
@@ -46,15 +47,13 @@ const sequelize = process.env.DATABASE_URL
       // Hooks to suppress "connection manager was closed" during shutdown
       hooks: {
         beforeQuery: () => {
-          // Lazy import to avoid circular deps — server.ts exports isShuttingDown
-          try {
-            const { isShuttingDown } = require('../server');
-            if (isShuttingDown) {
-              throw new Error('[Sequelize] Query blocked: server is shutting down');
-            }
-          } catch (e) {
-            // Module not loaded yet (startup) — allow query
-            if (e.message?.includes('shutting down')) throw e;
+          // Reads a standalone flag module — NEVER require('../server') here.
+          // server.ts boots at module scope, so requiring it from a per-query
+          // hook made any script that touched a model start a SECOND server
+          // (EADDRINUSE + alert emails, and duplicated cron/sweep workers when
+          // background jobs are on). See utils/shutdownState.ts for the story.
+          if (isShuttingDown()) {
+            throw new Error('[Sequelize] Query blocked: server is shutting down');
           }
         },
       },
