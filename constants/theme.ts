@@ -14,6 +14,18 @@ export const BRAND_ACCENT_LIGHT = "#818CF8";
 export const BRAND_ACCENT_HOVER = "#6366F1";
 
 /**
+ * Theme-aware brand FOREGROUND colour — for brand-coloured TEXT / ICONS / thin
+ * borders that sit on a surface. The solid brand indigo (#4F46E5) fails WCAG AA
+ * on dark surfaces (~2.6:1 on #141417), so dark mode uses the lighter #818CF8
+ * (~5.9:1). Use this for any brand-tinted text/icon.
+ *
+ * NOTE: Do NOT use this for solid button/pill BACKGROUNDS — those keep the full
+ * `BRAND_ACCENT` in both modes (they pair with white `contrastText`).
+ */
+export const brandFg = (isDark: boolean): string =>
+  isDark ? BRAND_ACCENT_LIGHT : BRAND_ACCENT;
+
+/**
  * Returns the brand accent with an alpha channel appended as hex
  * (e.g. brandAlpha(0.1) -> "#4F46E51A"). `a` is clamped to [0, 1].
  */

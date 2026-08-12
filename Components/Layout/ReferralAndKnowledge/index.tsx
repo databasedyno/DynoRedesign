@@ -14,6 +14,7 @@ import {
 } from "@/Components/Layout/NewSidebar/styled";
 import Toast from "@/Components/UI/Toast";
 import { Box, Tooltip, useMediaQuery, useTheme } from "@mui/material";
+import { brandFg } from "@/constants/theme";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -67,7 +68,7 @@ const ShareIconButton = ({
           borderRadius: 8,
           border: `1px solid ${theme.palette.border.main}`,
           background: theme.palette.background.paper,
-          color: theme.palette.primary.main,
+          color: brandFg(theme.palette.mode === "dark"),
           cursor: "pointer",
           transition: "all 0.15s ease",
           flexShrink: 0,

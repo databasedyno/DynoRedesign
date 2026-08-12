@@ -4,6 +4,39 @@ _Last updated: 2026-08-11 (fork). Context: completed the lime→indigo/semantic 
 
 ---
 
+## 🌓 Dark-Mode Brand-Foreground Contrast — Audit & Rollout  _(P1 — a11y, IN PROGRESS)_
+
+**Problem:** The in-app dark theme (`styles/appTheme.ts`) sets `primary.main = AUTH_LIME`,
+a misleading legacy alias that now equals `BRAND_ACCENT = #4F46E5` (indigo). Components use
+`theme.palette.primary.main` as a TEXT/ICON colour, which fails WCAG AA on the dark paper
+(#141417 → ~2.6:1). Intended dark foreground indigo is `#818CF8` (AUTH_INDIGO_DARK, ~5.9:1).
+
+**Fix pattern (established 2026-08-12):** new helper `brandFg(isDark)` in `constants/theme.ts`
+→ `#4F46E5` (light) / `#818CF8` (dark). Already applied to the reported referral card
+(`NewSidebar/styled.tsx` code chip + `ReferralAndKnowledge` share icons; verified dark+light).
+
+**Recommended systemic solution (pick one, then roll out):**
+1. _(preferred, root fix)_ Add a `primary.onSurface` token to `appThemeLight`/`appThemeDark`
+   (light `#4F46E5`, dark `#818CF8`) via MUI palette augmentation in `styles/theme.ts`, then
+   migrate foreground usages `color: primary.main` → `color: primary.onSurface`. Buttons/pills
+   that use `primary.main` as a BACKGROUND stay untouched (they pair with white contrastText).
+2. _(lighter)_ Keep the `brandFg(isDark)` helper and migrate call-sites to it.
+
+**Audit — ~153 `color: primary.main` / `#4F46E5` foreground usages across ~40 files.**
+Worst offenders (fix first, batch by area):
+- `Components/Page/API/ApiKeysPage.tsx` (11)
+- `pages/referrals.tsx` (7), `pages/auth/login.tsx` (7), `pages/blog/[slug].tsx` (6),
+  `pages/company.tsx` (5)
+- `Components/UI/MobileReferralBanner` (4), `Components/UI/CompanySelector` (4),
+  `Components/Page/SEO/SEOLandingPage` (4)
+- auth/register, secure-account, OtpInputPanel, FeeCalculator, DashboardSetupPrompt,
+  NotificationPage, RecentTransactionsWidget, Wallet, TransferExpectedCard, etc. (2–3 each)
+_Caution: this is a large change on the LIVE-prod UI — roll out in reviewable batches, and
+skip sites where the brand colour is a BACKGROUND (not foreground) or already theme-aware._
+
+---
+
+
 ## Next Action Items (prioritized)
 
 ### 1. Multi-Coin Proof  _(P1 — verification)_

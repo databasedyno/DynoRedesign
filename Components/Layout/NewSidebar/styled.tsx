@@ -1,4 +1,5 @@
 import { styled } from "@mui/material";
+import { brandFg } from "@/constants/theme";
 
 export const SidebarWrapper = styled("aside")(({ theme }) => ({
   height: "100%",
@@ -225,7 +226,7 @@ export const ReferralCardContentValue = styled("span")(({ theme }) => ({
   fontSize: "15px",
   fontWeight: 500,
   fontFamily: "var(--font-sans)",
-  color: theme.palette.primary.main,
+  color: brandFg(theme.palette.mode === "dark"),
   flex: 1,
   lineHeight: 1.2,
   maxHeight: "40px",
