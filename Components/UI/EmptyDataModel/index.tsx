@@ -20,9 +20,21 @@ type PageName = "transactions" | "wallet" | "apiKey" | "payment-links";
 interface EmptyDataModelProps {
     pageName: PageName;
     onAddWallet?: () => void;
+    /**
+     * "empty"      → the merchant genuinely has no data yet (first-run nudge)
+     * "no-results" → they DO have data, but the active filters/search match none.
+     *                Telling them to "create their first link" here would be wrong.
+     */
+    variant?: "empty" | "no-results";
+    onClearFilters?: () => void;
 }
 
-const EmptyDataModel = ({ pageName, onAddWallet }: EmptyDataModelProps) => {
+const EmptyDataModel = ({
+    pageName,
+    onAddWallet,
+    variant = "empty",
+    onClearFilters,
+}: EmptyDataModelProps) => {
     const isMobile = useIsMobile("md");
     const router = useRouter();
     const theme = useTheme();
@@ -72,8 +84,25 @@ const EmptyDataModel = ({ pageName, onAddWallet }: EmptyDataModelProps) => {
     };
 
     const data = pageData[pageName];
+    const isNoResults = variant === "no-results";
+
+    const title = isNoResults
+        ? t("EmptyNoResultsTitle", { defaultValue: "Nothing matches those filters" })
+        : data.title;
+    const description = isNoResults
+        ? t("EmptyNoResultsDescription", {
+              defaultValue: "Try a different search term, status or date range.",
+          })
+        : data.description;
+    const buttonLabel = isNoResults
+        ? t("EmptyNoResultsCta", { defaultValue: "Clear filters" })
+        : data.buttonLabel;
 
     const handleButtonClick = () => {
+        if (isNoResults) {
+            onClearFilters?.();
+            return;
+        }
         if (data.buttonLink) {
             router.push(data.buttonLink);
             return;
@@ -84,6 +113,9 @@ const EmptyDataModel = ({ pageName, onAddWallet }: EmptyDataModelProps) => {
     return (
         <>
             <Box
+                data-testid={
+                    isNoResults ? `no-results-${pageName}` : `empty-state-${pageName}`
+                }
                 sx={{
                     display: "flex",
                     flex: 1,
@@ -97,7 +129,7 @@ const EmptyDataModel = ({ pageName, onAddWallet }: EmptyDataModelProps) => {
             >
                 <Image
                     src={data.icon}
-                    alt={data.title}
+                    alt={title}
                     width={63}
                     height={49}
                 />
@@ -122,7 +154,7 @@ const EmptyDataModel = ({ pageName, onAddWallet }: EmptyDataModelProps) => {
                             color: theme.palette.text.primary,
                         }}
                     >
-                        {data.title}
+                        {title}
                     </Typography>
 
                     <Typography
@@ -136,15 +168,24 @@ const EmptyDataModel = ({ pageName, onAddWallet }: EmptyDataModelProps) => {
                             color: theme.palette.text.secondary,
                         }}
                     >
-                        {data.description}
+                        {description}
                     </Typography>
                 </Box>
 
                 <CustomButton
-                    label={data.buttonLabel}
+                    label={buttonLabel}
+                    data-testid={
+                        isNoResults
+                            ? "empty-state-clear-filters"
+                            : `empty-state-cta-${pageName}`
+                    }
                     variant="primary"
                     size="medium"
-                    endIcon={<AddRounded sx={{ fontSize: isMobile ? 18 : 20 }} />}
+                    endIcon={
+                        isNoResults ? undefined : (
+                            <AddRounded sx={{ fontSize: isMobile ? 18 : 20 }} />
+                        )
+                    }
                     onClick={handleButtonClick}
                     sx={{
                         height: isMobile ? 34 : 40,
@@ -157,7 +198,7 @@ const EmptyDataModel = ({ pageName, onAddWallet }: EmptyDataModelProps) => {
                 {/* UX-2026-07-08: Use-case chips on the payment-links empty state
                     so first-time merchants understand *what* a payment link is
                     good for and get a starting template.  */}
-                {pageName === "payment-links" && (
+                {pageName === "payment-links" && !isNoResults && (
                     <Box
                         sx={{
                             display: "flex",

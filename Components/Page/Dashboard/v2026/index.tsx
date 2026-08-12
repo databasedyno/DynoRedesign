@@ -1,4 +1,4 @@
-import { useCompanyStore } from "@/contexts/CompanyDataContext";
+import useAccountProfile from "@/hooks/useAccountProfile";
 import { useWalletStore } from "@/contexts/WalletDataContext";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Box } from "@mui/material";
@@ -112,12 +112,11 @@ const Dashboard2026: React.FC = () => {
     return `${fmt(custom.startDate, !sameYear)} – ${fmt(custom.endDate, !sameYear)}`;
   }, [range, custom]);
 
-  const companyState = useCompanyStore();
+  const { accountType, hasAccount, profileComplete } = useAccountProfile();
   const walletState = useWalletStore();
   const userProfile = useSelector(
     (s: rootReducer) => (s as any).userReducer?.profile,
   );
-  const hasCompany = (companyState.companyList?.length ?? 0) > 0;
   const hasWallet = (walletState.walletList?.length ?? 0) > 0;
 
   const hasPayment = useMemo(() => {
@@ -137,7 +136,7 @@ const Dashboard2026: React.FC = () => {
     );
   }, [stats?.totalTransactions, stats?.totalVolume, recentTransactions]);
 
-  const showActivation = hasCompany && hasWallet && !hasPayment && !loading;
+  const showActivation = hasAccount && hasWallet && !hasPayment && !loading;
 
   // Grow-panel offer signals (mirrors DashboardRightSection priority logic)
   const feeFreeRemaining = Number(
@@ -188,7 +187,8 @@ const Dashboard2026: React.FC = () => {
         >
           {showActivation ? (
             <ActivationChecklist
-              hasCompany={hasCompany}
+              accountType={accountType}
+              profileComplete={profileComplete}
               hasWallet={hasWallet}
               onCreateLink={() => router.push("/create-pay-link")}
             />

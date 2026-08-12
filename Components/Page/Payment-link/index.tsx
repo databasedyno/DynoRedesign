@@ -22,6 +22,9 @@ const PaymentLinksPage = ({
   const [statusFilter, setStatusFilter] = useState<PaymentLinkStatusFilter>("all");
   const [dateStart, setDateStart] = useState("");
   const [dateEnd, setDateEnd] = useState("");
+  // Bumped by "Clear filters" — remounts the top bar so its internal search box
+  // and date picker visibly reset along with the filter state.
+  const [filterResetKey, setFilterResetKey] = useState(0);
 
   const selectedCompanyId = useCompanyStore().selectedCompanyId;
 
@@ -89,8 +92,8 @@ const PaymentLinksPage = ({
       const q = searchQuery.toLowerCase();
       result = result.filter(
         (link) =>
-          link.description.toLowerCase().includes(q) ||
-          link.id.toLowerCase().includes(q)
+          String(link.description ?? "").toLowerCase().includes(q) ||
+          String(link.id ?? "").toLowerCase().includes(q)
       );
     }
 
@@ -140,6 +143,20 @@ const PaymentLinksPage = ({
   // filters interactive during the initial fetch.
   const isLoading = !!paymentLinkState.loading;
 
+  // A filtered-to-zero list is NOT the same thing as "no payment links yet" —
+  // showing the first-run "create your first link" nudge there is misleading.
+  const filtersActive =
+    !!searchQuery || statusFilter !== "all" || !!dateStart || !!dateEnd;
+  const showNoResults =
+    filtersActive && (paymentLinks?.length ?? 0) > 0;
+  const clearFilters = () => {
+    setSearchQuery("");
+    setStatusFilter("all");
+    setDateStart("");
+    setDateEnd("");
+    setFilterResetKey((k) => k + 1);
+  };
+
   return (
     <Box
       sx={{
@@ -153,6 +170,7 @@ const PaymentLinksPage = ({
       }}
     >
       <PaymentLinksTopBar
+        key={filterResetKey}
         onSearch={handleSearch}
         onStatusFilter={handleStatusFilter}
         onDateFilter={handleDateFilter}
@@ -160,7 +178,15 @@ const PaymentLinksPage = ({
       />
 
       {!isLoading && filteredLinks?.length === 0 ? (
-        <EmptyDataModel pageName="payment-links" />
+        showNoResults ? (
+          <EmptyDataModel
+            pageName="payment-links"
+            variant="no-results"
+            onClearFilters={clearFilters}
+          />
+        ) : (
+          <EmptyDataModel pageName="payment-links" />
+        )
       ) : (
         <PaymentLinksTable
           paymentLinks={filteredLinks}

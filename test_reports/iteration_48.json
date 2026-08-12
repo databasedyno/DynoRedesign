@@ -1,0 +1,26 @@
+{
+  "summary": "Frontend-only verification of BUG1 (KPI 300% -> plain +3 delta), BUG2 (/pay-links search TypeError + no-results), BUG3 (no dual checklists on /dashboard) and WALLET account-scope UX on live hostbay merchant. Login OK. BUG1a PASS, BUG2 fully PASS (regression fixed), WALLET scope + reuse selector copy PASS, regression sweep PASS. BUG1b (>=5 baseline % branch) and BUG3 (dual-checklist state) could not be reliably triggered by route interception on this live account, but nothing legacy rendered — treated as inconclusive-but-non-blocking.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "/settings?section=api-keys", "issues": ["Pre-existing MUI validateDOMNesting console warnings inside ApiKeyCard: <div>/<fieldset> as descendant of <p>. Not a regression from this session, still worth cleaning up."]},
+      {"screen": "/dashboard", "issues": ["Recharts warning 'width(-1) and height(-1) of chart should be greater than 0' fires twice on load — likely a container with 0 dimensions during first render. Cosmetic."]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Optional: fix pre-existing MUI DOM-nesting warnings in ApiKeyCard (fieldset/div under <p>).",
+    "Optional: address Recharts width(-1) height(-1) warning on /dashboard first paint."
+  ],
+  "critical_code_review_comments": [],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (skipped per request)", "frontend": "~92%"},
+  "seed_data_creation": "None. Read-only browsing + route-fulfill only. No wallet added, no company created, no payment link created, no PUT/DELETE calls made.",
+  "should_call_test_agent_after_fix": false,
+  "should_main_agent_self_test": true,
+  "test_credentials": "hostbay@moxx.co / Katiekendra123@ (from /app/memory/test_credentials.md)",
+  "context_for_next_testing_agent": "VERIFIED PASS: (1) /dashboard KPI card [data-testid=dash2026-kpi-payments] reads 'Payments today | 4 | +3 | vs 1 yesterday' and contains NO '300' or '300.0%' text; delta chip [data-testid=dash2026-kpi-payments-delta] = '+3'. (2) /pay-links search 'zzzzzzq' -> [data-testid=no-results-payment-links] renders WITHOUT any TypeError/ErrorBoundary/page reload, [data-testid=empty-state-clear-filters] restores 10 rows AND empties the input; searching 'Test' filters down to 1 matching row (link id 172) — full BUG2 regression from iter_47 fixed. (3) /wallet [data-testid=wallet-account-scope] = 'hostbay · Business'. Add-wallet modal opens; wallet-reuse-selector is legitimately hidden (single account) and GET /api/wallet/reusable-wallets returns HTTP 200. Modal was cancelled — no wallet created. (4) Regression: /transactions no-results + clear-filters works; /settings?section=company shows [data-testid=account-setup-warning]; /settings?section=api-keys — 0 HTTP 4xx on /api/publishable-keys. INCONCLUSIVE (not failing): (a) BUG1b >=5-baseline percent branch — route.fulfill on **/api/dashboard** rewriting today_summary to {30,20,50} did NOT change the KPI (still showed 4/+3), so the '50.0%' branch could not be exercised via route interception on this live account; likely the KPI is fed by a different endpoint (e.g. /api/dashboard/stats or React-Query cache with a broader key), or today_summary is composed server-side from another field. Presentational code path already reviewed in KpiStrip.tsx lines ~150-200 and looks correct. (b) BUG3 — on the real hostbay merchant with existing account+wallet+payments, neither [data-testid=dash2026-activation] NOR the legacy 'Finish setting up' OnboardingFlow renders (both = 0), so the dual-checklist state from iter_47 could not be forced by intercepting only /api/dashboard + /api/dashboard/recent-transactions (hasPayment/profileComplete are pulled from other sources — e.g. company/profile/transactions endpoints — that were not intercepted). Nothing legacy rendered though. Recommend main agent self-test either with a genuinely fresh account or by broadening the intercept to also cover the endpoints feeding useOnboarding's flags.",
+  "rca_of_the_issue": "BUG1a and BUG2 are conclusively fixed on the live merchant. BUG1b/BUG3 couldn't be forced via minimal route interception because those UI branches derive their state from more endpoints than /api/dashboard alone; the code changes referenced in KpiStrip.tsx (low-baseline delta) and OnboardingFlow index.tsx line ~276 (showChecklist gating on !(hasAccount && hasWallet)) look correct on inspection, and no defect was observable in the tested states."
+}

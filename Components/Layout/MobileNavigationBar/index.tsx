@@ -1,5 +1,5 @@
 import useOnboardingStatus from "@/hooks/useOnboardingStatus";
-import { useCompanyStore } from "@/contexts/CompanyDataContext";
+import useAccountProfile from "@/hooks/useAccountProfile";
 import AddIcon from "@mui/icons-material/Add";
 import ArrowOutwardIcon from "@mui/icons-material/ArrowOutward";
 import AutoAwesomeRounded from "@mui/icons-material/AutoAwesomeRounded";
@@ -63,11 +63,24 @@ const MobileNavigationBar = () => {
   const [kycLoading, setKycLoading] = useState(false);
   const { walletWarning } = useWalletData();
   const unreadNotifications = useUnreadNotificationsCount();
-  const companyState = useCompanyStore();
-  const hasCompany = (companyState?.companyList ?? []).length > 0;
-  const companyFetched = companyState?.fetched;
-  const showCompanyWarning = companyFetched && !hasCompany;
-  const showWalletWarning = walletWarning && hasCompany;
+  const {
+    hasAccount,
+    profileComplete,
+    isIndividual,
+    fetched: accountFetched,
+  } = useAccountProfile();
+  const showSetupWarning = accountFetched && (!hasAccount || !profileComplete);
+  const setupHref = hasAccount ? "/settings?section=company" : "/create-pay-link";
+  const setupWarningText = !hasAccount
+    ? t("companySetupWarning")
+    : isIndividual
+      ? t("accountSetupWarningIndividual", {
+          defaultValue: "Add your country to finish setup",
+        })
+      : t("accountSetupWarningBusiness", {
+          defaultValue: "Finish your business profile",
+        });
+  const showWalletWarning = walletWarning && hasAccount;
 
   // ── Creator-page discoverability (mobile/tablet nav parity with desktop sidebar) ──
   // Show a small "NEW" dot on the Account/More trigger when the user hasn't
@@ -576,14 +589,14 @@ const MobileNavigationBar = () => {
             </ExpandedContent>
           )}
 
-          {showCompanyWarning && (
+          {showSetupWarning && (
             <ExpandedContent isExpanding={isExpanded}>
-              <Link href="/create-pay-link" onClick={() => setIsExpanded(false)}>
-                <AlertBanner>
+              <Link href={setupHref} onClick={() => setIsExpanded(false)}>
+                <AlertBanner data-testid="mobile-account-setup-warning">
                   <ErrorIcon
                     sx={{ color: theme.palette.error.main, fontSize: "20px" }}
                   />
-                  <AlertText>{t("companySetupWarning")}</AlertText>
+                  <AlertText>{setupWarningText}</AlertText>
                 </AlertBanner>
               </Link>
             </ExpandedContent>

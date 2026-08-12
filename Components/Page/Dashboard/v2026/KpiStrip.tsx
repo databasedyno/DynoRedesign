@@ -157,11 +157,29 @@ const KpiStrip: React.FC<Props> = ({ stats, chartData, loading }) => {
     [chartData],
   );
 
+  // Day-over-day payment COUNTS live on a tiny base: 1 → 4 payments is a true
+  // "+300%" but reads as nonsense next to a volume that fell. Below a 5-payment
+  // baseline we therefore show the plain difference (+3) and always spell out
+  // what it is measured against.
+  const paymentsToday = Number(stats?.todaySummary?.transactionsToday ?? 0);
+  const paymentsYesterday = Number(stats?.todaySummary?.transactionsYesterday ?? 0);
+  const paymentsDiff = paymentsToday - paymentsYesterday;
+  const lowBaseline = paymentsYesterday < 5;
+  const paymentsDelta = lowBaseline
+    ? paymentsDiff
+    : Number(stats?.todaySummary?.transactionsChangePercent ?? 0);
+  const paymentsDeltaText = lowBaseline
+    ? `${paymentsDiff > 0 ? "+" : ""}${paymentsDiff}`
+    : `${Math.abs(Number(stats?.todaySummary?.transactionsChangePercent ?? 0)).toFixed(1)}%`;
+
   const cards: Array<{
     key: string;
     label: string;
     value: string;
     delta?: number;
+    /** Overrides the plain "N%" chip — used for low-baseline day-over-day counts. */
+    deltaText?: string;
+    deltaCaption?: string;
     spark?: SparkPoint[];
     valueType?: "currency" | "count";
     color?: string;
@@ -170,8 +188,13 @@ const KpiStrip: React.FC<Props> = ({ stats, chartData, loading }) => {
     {
       key: "payments",
       label: t("paymentsToday", { defaultValue: "Payments today" }),
-      value: String(stats?.todaySummary?.transactionsToday ?? 0),
-      delta: Number(stats?.todaySummary?.transactionsChangePercent ?? 0),
+      value: String(paymentsToday),
+      delta: paymentsDelta,
+      deltaText: paymentsDeltaText,
+      deltaCaption: t("vsYesterdayCount", {
+        count: paymentsYesterday,
+        defaultValue: `vs ${paymentsYesterday} yesterday`,
+      }),
       spark: txSpark,
       valueType: "count",
       color: indigo,
@@ -250,10 +273,32 @@ const KpiStrip: React.FC<Props> = ({ stats, chartData, loading }) => {
           </Box>
 
           {!loading && typeof c.delta === "number" && (
-            <DeltaChip positive={c.delta >= 0}>
-              <Icon name={c.delta >= 0 ? "arrow-up" : "arrow-down"} size={12} />
-              {Math.abs(c.delta).toFixed(1)}%
-            </DeltaChip>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 0.75,
+                flexWrap: "wrap",
+              }}
+            >
+              <DeltaChip positive={c.delta >= 0} data-testid={`dash2026-kpi-${c.key}-delta`}>
+                <Icon name={c.delta >= 0 ? "arrow-up" : "arrow-down"} size={12} />
+                {c.deltaText ?? `${Math.abs(c.delta).toFixed(1)}%`}
+              </DeltaChip>
+              {c.deltaCaption && (
+                <Box
+                  sx={{
+                    fontFamily: "var(--font-sans)",
+                    fontSize: 11,
+                    color: isDark
+                      ? CB_TOKENS.ink.mutedDark
+                      : CB_TOKENS.ink.mutedLight,
+                  }}
+                >
+                  {c.deltaCaption}
+                </Box>
+              )}
+            </Box>
           )}
 
           {!loading && c.spark && c.color && (

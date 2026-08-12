@@ -342,6 +342,41 @@ export default function CompanySelector() {
                         ? truncateByWords(c?.company_name ?? "-", 18)
                         : (c?.company_name ?? "-")}
                     </TriggerText>
+                    {/* Individual vs Business — the Account is the tenant; a
+                        "Business" is simply an Account with a business profile. */}
+                    {(() => {
+                      const individual =
+                        String(c?.account_type ?? "business").toLowerCase() ===
+                        "individual";
+                      return (
+                        <Box
+                          data-testid={`company-type-${c.company_id}`}
+                          sx={{
+                            px: "6px",
+                            py: "1px",
+                            borderRadius: "999px",
+                            fontFamily: "var(--font-sans)",
+                            fontSize: isMobile ? "9px" : "10px",
+                            fontWeight: 700,
+                            letterSpacing: "0.04em",
+                            textTransform: "uppercase",
+                            whiteSpace: "nowrap",
+                            color: individual
+                              ? theme.palette.text.secondary
+                              : brandFg(theme.palette.mode === "dark"),
+                            border: `1px solid ${
+                              individual
+                                ? theme.palette.divider
+                                : brandFg(theme.palette.mode === "dark")
+                            }`,
+                          }}
+                        >
+                          {individual
+                            ? t("accountTypeIndividual", { defaultValue: "Individual" })
+                            : t("accountTypeBusiness", { defaultValue: "Business" })}
+                        </Box>
+                      );
+                    })()}
                   </Box>
                   <Typography
                     sx={{

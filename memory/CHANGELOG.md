@@ -1,5 +1,87 @@
 # Changelog
 
+# SESSION ADDENDUM (2026-06 (fork)) — Individual vs Business account UX · low-base KPI delta · pay-links search crash — VERIFIED (testing agent iteration_47 + 48 + self-verified via route interception)
+
+## Why
+Backend auto-provisioning (2026-08-12) gives EVERY user an Account row in `tbl_company`
+(`account_type='individual'|'business'`), so every frontend onboarding check of the form
+`companyList.length > 0` became permanently TRUE. Result: "Set up your business profile" was
+silently ticked and the header nudge disappeared, so nobody was ever asked for the COUNTRY that
+invoices + VAT reporting need. Founder rule applied: an individual creator is never BLOCKED, only nudged.
+
+## A. New shared signal — `hooks/useAccountProfile.ts` (NEW, no API/DDL change)
+`{ account, accountType, isIndividual, hasAccount, profileComplete, missing, fetched }` derived from
+the existing `GET /api/company/getCompany` payload (it already returns the whole row incl. `account_type`).
+`profileComplete = company_name && country` both non-empty. Consumers: dashboard v2026, NewHeader,
+MobileNavigationBar, OnboardingFlow, WalletTotalHero.
+
+## B. Onboarding UX (individual vs business)
+- `Components/Page/Dashboard/v2026/ActivationChecklist.tsx` REWRITTEN: props `accountType/profileComplete/hasWallet`;
+  step 1 = "Complete your business profile" (business) / "Add your country so invoices and tax are right"
+  (individual), ticked only when profileComplete; unfinished steps are now CLICKABLE (→ /settings?section=company,
+  /wallet, /create-pay-link) with a chevron; account-type chip `dash2026-account-type`; secondary CTA becomes
+  "Add business details" for individuals. testids: dash2026-step-{profile,wallet,link,payment}.
+- `Components/Layout/NewHeader/index.tsx` + `MobileNavigationBar`: the old "create your company" warning is now an
+  account-completeness nudge → `data-testid=account-setup-warning` / `mobile-account-setup-warning`, href
+  `/settings?section=company` (falls back to the legacy create-company copy only if NO account row exists).
+- `Components/UI/OnboardingFlow/index.tsx`: company step `done = profileComplete`, click routes to Settings when an
+  account already exists (nothing to "create"), copy switches per account type, and the legacy checklist now stands
+  down when `hasPayment` OR when `hasAccount && hasWallet` (the v2026 Activation card owns that state — iteration_47
+  found BOTH rendering at once).
+- `Components/UI/CompanySelector/index.tsx`: Individual/Business chip per account row (`company-type-<id>`).
+
+## C. Wallets under the new architecture (user question)
+Individual accounts CAN hold wallets — `tbl_user_wallet` is user-owned with a nullable `company_id`, and the
+auto-provisioned Account supplies that scope, so AddWalletModal works unchanged. Re-using the SAME address across
+accounts already existed end-to-end: `GET /api/wallet/reusable-wallets` + `POST /api/wallet/copyWalletAddresses`
+(independent per-account copies, idempotent, no OTP) surfaced by `Components/UI/WalletReuseSelector` at the top of
+AddWalletModal. This session: copy switched from "existing company" → "another account", and `WalletTotalHero` now
+shows an account-scope chip `wallet-account-scope` ("hostbay · Business") so a merchant with both an individual and
+a business account can tell WHICH wallets they are looking at.
+
+## D. BUG — dashboard "↑300.0%" on Payments today
+Root cause: day-over-day COUNTS on a tiny base (today 4 vs yesterday 1 = a true +300%) rendered as a bare percentage
+next to a volume that had FALLEN 42% — mathematically right, editorially nonsense. `KpiStrip.tsx`: when yesterday's
+count < 5 the chip shows the plain difference (`+3`) instead of a percentage, and a caption always states the
+baseline ("vs 1 yesterday"). Baselines >= 5 still show the percentage. Backend `calculateChange` untouched.
+testid `dash2026-kpi-payments-delta`. VERIFIED live (4 → "+3 · vs 1 yesterday") and via interception (30/20 → "50.0%").
+
+## E. BUG — /pay-links search crashed the page (pre-existing, HIGH)
+`link.id.toLowerCase is not a function` — payment-link ids are NUMBERS, so every keystroke in the search box threw
+inside the filter `useMemo` and the ErrorBoundary tore the page down (this is why iteration_47 "could not reproduce"
+the no-results state). Fixed with `String(link.description ?? "")` / `String(link.id ?? "")`.
+
+## F. No-results vs first-run empty states (Empty-State Everywhere)
+`Components/UI/EmptyDataModel/index.tsx` gained `variant="no-results"` + `onClearFilters` (testids
+`no-results-<page>`, `empty-state-<page>`, `empty-state-clear-filters`, `empty-state-cta-<page>`); the template/
+revenue-stream chips are hidden in the no-results variant. Wired into `Components/Page/Transactions/index.tsx` and
+`Components/Page/Payment-link/index.tsx`, each with a `clearFilters()` that also bumps a `filterResetKey` so the top
+bar REMOUNTS and its internal search/date state visibly clears. A genuinely empty list still shows the original
+first-run empty state.
+
+## G. Smart Suggested Shortcuts (Quick Actions dock)
+`helpers/shortcutUsage.ts` (NEW) counts in-app route visits in localStorage `dp_qa_usage_v1` (recorded from
+`Containers/Client/index.tsx` on every routeChangeComplete — no request, no DB write). `getSuggestedShortcuts(4)`
+needs >= 8 total visits. `QuickActionsDock.tsx` shows a dismissible strip `dash2026-qa-suggestion` ("Pin the 4 pages
+you open most?" + `dash2026-qa-suggest-apply` / `dash2026-qa-suggest-dismiss`, dismissal remembered in
+`dp_qa_suggest_dismissed_v1`) and a "Use most visited" button inside the Customize dialog
+(`dash2026-qa-suggest-dialog-apply`). Applying persists through the existing PUT /api/user/dashboard-quick-actions.
+
+## H. `GET /api/publishable-keys` 400 fixed
+`hooks/usePublishableKeys.ts` no longer fetches with a null company (the endpoint REQUIRES company_id); the SWR key
+is null until a company is selected, so the Elements embed card shows its placeholder pk instead of 400ing.
+
+## Notes for future agents
+- hostbay (the live test merchant) is `account_type='business'` with `country=NULL` → `profileComplete` is FALSE by
+  design; that is why the "Finish your business profile" nudge shows. Do NOT set its country in tests.
+- To force the first-run Activation card on a real merchant you must intercept BOTH `GET /api/dashboard` (zero
+  `total_transactions.count` / `total_volume.amount`) AND `GET /api/dashboard/recent-transactions` (empty array) —
+  `hasPayment` is derived from both (iteration_48 missed the second one and got an inconclusive result).
+- Known pre-existing, NOT fixed: MUI validateDOMNesting warnings in ApiKeyCard (fieldset/div under <p>) and a
+  Recharts "width(-1) height(-1)" warning on first dashboard paint.
+
+---
+
 ## 2026-08-05 (session 6) — DE/NL locales + MM:SS countdown + analytics + full-shell localisation
 
 **🟢 German + Dutch translations for the checkout strip**

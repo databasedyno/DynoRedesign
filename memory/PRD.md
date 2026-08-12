@@ -1,3 +1,15 @@
+# CURRENT STATE POINTER (2026-06 fork, latest first)
+
+LATEST SESSION: Individual vs Business account UX + low-base KPI delta + /pay-links search crash fix.
+Full detail at the TOP of `/app/memory/CHANGELOG.md` (sections A–H). Key facts:
+- Every user is auto-provisioned an Account (`tbl_company.account_type`), so NEVER use `companyList.length > 0`
+  as an onboarding signal — use `hooks/useAccountProfile.ts` (`profileComplete` = company_name + country).
+- Wallets are per-Account and individual accounts can hold them; reuse across accounts already exists
+  (`GET /api/wallet/reusable-wallets` + `POST /api/wallet/copyWalletAddresses`, UI = `WalletReuseSelector`).
+- Day-over-day payment COUNT deltas use an absolute diff below a 5-payment baseline (no more "+300%").
+
+---
+
 # SESSION ADDENDUM (2026-06 (fork)) — Storefront Empty States · Reorder Hint · Guided First Run — VERIFIED (testing agent iteration_46, 100% / 15 checks, incl. mobile 390 & 768, 0 fatal errors, order restored)
 
 ## J. Storefront Empty States (friendly first-action nudge)

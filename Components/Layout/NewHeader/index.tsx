@@ -1,5 +1,5 @@
 import useOnboardingStatus from "@/hooks/useOnboardingStatus";
-import { useCompanyStore } from "@/contexts/CompanyDataContext";
+import useAccountProfile from "@/hooks/useAccountProfile";
 import Logo from "@/assets/Icons/home/dynopay-blackLogo.svg";
 import LogoDark from "@/assets/Icons/home/dynopay-whiteLogo.svg";
 import CompanySelector from "@/Components/UI/CompanySelector";
@@ -56,13 +56,35 @@ const NewHeader = () => {
     [t],
   );
   const { walletWarning } = useWalletData();
-  const companyState = useCompanyStore();
-  const hasCompany = (companyState.companyList ?? []).length > 0;
-  const companyFetched = companyState.fetched;
-  // Show company warning only after company data has been fetched
-  const showCompanyWarning = companyFetched && !hasCompany;
-  // Show wallet warning only if company exists (wallet depends on company)
-  const showWalletWarning = walletWarning && hasCompany;
+  // Every user is auto-provisioned an Account at signup, so "no company" is no
+  // longer the gap — an INCOMPLETE account is (no country ⇒ broken invoices/VAT).
+  const {
+    hasAccount,
+    profileComplete,
+    isIndividual,
+    fetched: accountFetched,
+  } = useAccountProfile();
+  const showSetupWarning = accountFetched && (!hasAccount || !profileComplete);
+  const setupHref = hasAccount ? "/settings?section=company" : "/create-pay-link";
+  const setupWarningLong = !hasAccount
+    ? tDashboard("companySetupWarning")
+    : isIndividual
+      ? t("accountSetupWarningIndividual", {
+          ns: "dashboardLayout",
+          defaultValue: "Add your country to finish setup",
+        })
+      : t("accountSetupWarningBusiness", {
+          ns: "dashboardLayout",
+          defaultValue: "Finish your business profile",
+        });
+  const setupWarningShort = !hasAccount
+    ? tDashboard("companySetupWarningShort")
+    : t("accountSetupWarningShort", {
+        ns: "dashboardLayout",
+        defaultValue: "Finish setup",
+      });
+  // Show wallet warning only once the account exists (wallet depends on it)
+  const showWalletWarning = walletWarning && hasAccount;
   const [kycRequired, setKycRequired] = useState(false);
   const [kycLoading, setKycLoading] = useState(false);
   // UX-2026-08-02: Coinbase-style mobile top-left hamburger. Opens a Drawer
@@ -208,9 +230,9 @@ const NewHeader = () => {
               </Box>
             )}
 
-            {showCompanyWarning && (
+            {showSetupWarning && (
               <Box sx={{ order: { lg: 1, xl: 2 } }}>
-                <Link href="/create-pay-link">
+                <Link href={setupHref} data-testid="account-setup-warning">
                   <RequiredKYC>
                     <InfoIcon
                       sx={{ fontSize: 20, color: brandFg(muiTheme.palette.mode === "dark") }}
@@ -221,7 +243,7 @@ const NewHeader = () => {
                         color: brandFg(muiTheme.palette.mode === "dark"),
                       }}
                     >
-                      {tDashboard("companySetupWarning")}
+                      {setupWarningLong}
                     </RequiredKYCText>
                     <RequiredKYCText
                       sx={{
@@ -229,7 +251,7 @@ const NewHeader = () => {
                         color: brandFg(muiTheme.palette.mode === "dark"),
                       }}
                     >
-                      {tDashboard("companySetupWarningShort")}
+                      {setupWarningShort}
                     </RequiredKYCText>
                   </RequiredKYC>
                 </Link>

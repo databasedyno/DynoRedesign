@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { useWalletData } from "@/hooks/useWalletData";
+import useAccountProfile from "@/hooks/useAccountProfile";
 import { CB_TOKENS, AURORA_GRADIENT_SOFT } from "@/Components/UI/_shared";
 import { MONO } from "@/styles/uiKit";
 import { rootReducer } from "@/utils/types";
@@ -43,6 +44,7 @@ export default function WalletTotalHero() {
   const dark = theme.palette.mode === "dark";
   const { t } = useTranslation(["walletScreen", "common"]);
   const { walletData, allCryptocurrencies } = useWalletData();
+  const { account, isIndividual } = useAccountProfile();
   const profile = useSelector((s: rootReducer) => (s as any).userReducer?.profile);
   const currencyCode = profile?.display_currency || profile?.base_currency || "USD";
   const currencySymbol = useMemo(
@@ -112,22 +114,56 @@ export default function WalletTotalHero() {
       >
         {/* Big number */}
         <Box sx={{ minWidth: 0 }}>
-          <Typography
+          <Box
             sx={{
-              fontFamily: "var(--font-sans)",
-              fontSize: 11,
-              fontWeight: 700,
-              letterSpacing: "0.12em",
-              textTransform: "uppercase",
-              color: theme.palette.text.secondary,
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+              flexWrap: "wrap",
               mb: { xs: 1, md: 1.25 },
             }}
           >
-            {t("totalProcessedEyebrow", {
-              defaultValue: "Total processed · all chains",
-              ns: "walletScreen",
-            })}
-          </Typography>
+            <Typography
+              sx={{
+                fontFamily: "var(--font-sans)",
+                fontSize: 11,
+                fontWeight: 700,
+                letterSpacing: "0.12em",
+                textTransform: "uppercase",
+                color: theme.palette.text.secondary,
+              }}
+            >
+              {t("totalProcessedEyebrow", {
+                defaultValue: "Total processed · all chains",
+                ns: "walletScreen",
+              })}
+            </Typography>
+            {/* Wallets are scoped to the active Account — say so, otherwise a
+                merchant with both an individual and a business account cannot
+                tell which set of wallets they are looking at. */}
+            {account?.company_name && (
+              <Box
+                data-testid="wallet-account-scope"
+                sx={{
+                  px: 1,
+                  py: "2px",
+                  borderRadius: 999,
+                  fontFamily: "var(--font-sans)",
+                  fontSize: 10.5,
+                  fontWeight: 700,
+                  letterSpacing: "0.06em",
+                  textTransform: "uppercase",
+                  color: theme.palette.text.secondary,
+                  border: `1px solid ${dark ? CB_TOKENS.border.dark : CB_TOKENS.border.light}`,
+                }}
+              >
+                {account.company_name} ·{" "}
+                {isIndividual
+                  ? t("accountTypeIndividual", { defaultValue: "Individual", ns: "common" })
+                  : t("accountTypeBusiness", { defaultValue: "Business", ns: "common" })}
+              </Box>
+            )}
+          </Box>
           <Box sx={{ display: "flex", alignItems: "baseline", gap: 0.5, flexWrap: "wrap" }}>
             <Typography
               component="span"

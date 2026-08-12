@@ -11,6 +11,7 @@ import Toast from "@/Components/UI/Toast";
 import useIsMobile from "@/hooks/useIsMobile";
 import { useSidebarCollapsed } from "@/hooks/useSidebarCollapsed";
 import { LayoutProps, rootReducer } from "@/utils/types";
+import { recordShortcutVisit } from "@/helpers/shortcutUsage";
 import { Box, SxProps, Theme, useTheme } from "@mui/material";
 import { useRouter } from "next/router";
 import { useSelector } from "react-redux";
@@ -59,6 +60,12 @@ const ClientLayout = ({
   // (e.g. /transactions?wallet=X from the Wallet page).
   useEffect(() => {
     const handleRouteChange = () => {
+      // Count which in-app destinations this merchant actually uses so the
+      // dashboard can suggest their 4 most-visited as Quick Actions. Local
+      // only (localStorage) — no request, no DB write.
+      if (typeof window !== "undefined") {
+        recordShortcutVisit(window.location.pathname);
+      }
       if (mainScrollRef.current) {
         mainScrollRef.current.scrollTop = 0;
       }

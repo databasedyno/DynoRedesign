@@ -29,6 +29,7 @@ import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "@/axiosConfig";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
+import { getSuggestedShortcuts } from "@/helpers/shortcutUsage";
 import { Icon } from "@/styles/uiKit";
 import { UserAction, USER_PROFILE_FETCH } from "@/Redux/Actions/UserAction";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
@@ -470,6 +471,45 @@ const QuickActionsDock: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // ── Smart suggested shortcuts ───────────────────────────────────────────
+  // Which pages does this merchant actually live in? Route visits are counted
+  // locally (helpers/shortcutUsage — localStorage, no request, no DB write) and
+  // the top 4 are offered as their dock in one tap. Only appears once there is
+  // real signal (8+ visits) and the suggestion differs from what's pinned; the
+  // dismissal is remembered per device so it never nags.
+  const SUGGEST_DISMISS_KEY = "dp_qa_suggest_dismissed_v1";
+  const [suggested, setSuggested] = useState<string[]>([]);
+  const [suggestDismissed, setSuggestDismissed] = useState(true);
+
+  useEffect(() => {
+    setSuggested(getSuggestedShortcuts(4).filter((id) => CATALOG_BY_ID[id]));
+    setSuggestDismissed(Boolean(lsGet(SUGGEST_DISMISS_KEY)));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const suggestionDiffers =
+    suggested.length === 4 && suggested.some((id) => !order.includes(id));
+
+  const dismissSuggestion = () => {
+    setSuggestDismissed(true);
+    lsSet(SUGGEST_DISMISS_KEY, "1");
+  };
+
+  const applySuggestion = () => {
+    if (suggested.length !== 4) return;
+    dismissSuggestion();
+    setOrder(suggested);
+    void persistOrder(suggested);
+    dispatch({
+      type: TOAST_SHOW,
+      payload: {
+        message: t("qaSuggestApplied", {
+          defaultValue: "Pinned the shortcuts you use most",
+        }),
+      },
+    });
+  };
+
   // ── Customize dialog state ──────────────────────────────────────────────
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState<string[]>(DEFAULT_SLUGS);
@@ -644,6 +684,78 @@ const QuickActionsDock: React.FC = () => {
         </SortableContext>
       </DndContext>
 
+      {/* Smart suggestion — "pin what you actually use" */}
+      {!suggestDismissed && suggestionDiffers && !open && (
+        <Box
+          data-testid="dash2026-qa-suggestion"
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 1,
+            p: 1.25,
+            borderRadius: "12px",
+            border: `1px dashed ${indigo}`,
+            backgroundColor: indigoGlow,
+          }}
+        >
+          <Box sx={{ display: "flex", color: indigo, flexShrink: 0 }}>
+            <Icon name="sparkles" size={15} />
+          </Box>
+          <Box
+            sx={{
+              flex: 1,
+              minWidth: 0,
+              fontFamily: "var(--font-sans)",
+              fontSize: 12.5,
+              fontWeight: 600,
+              lineHeight: 1.35,
+              color: inkPrimary,
+            }}
+          >
+            {t("qaSuggestTitle", {
+              defaultValue: "Pin the 4 pages you open most?",
+            })}
+          </Box>
+          <Box
+            role="button"
+            tabIndex={0}
+            data-testid="dash2026-qa-suggest-apply"
+            onClick={applySuggestion}
+            onKeyDown={(e: React.KeyboardEvent) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                applySuggestion();
+              }
+            }}
+            sx={{
+              flexShrink: 0,
+              px: 1.25,
+              py: 0.5,
+              borderRadius: 999,
+              cursor: "pointer",
+              outline: "none",
+              fontFamily: "var(--font-sans)",
+              fontSize: 12.5,
+              fontWeight: 700,
+              color: "#fff",
+              backgroundColor: indigo,
+              "&:hover, &:focus-visible": { filter: "brightness(1.08)" },
+            }}
+          >
+            {t("qaSuggestApply", { defaultValue: "Use these" })}
+          </Box>
+          <IconButton
+            size="small"
+            data-testid="dash2026-qa-suggest-dismiss"
+            aria-label={t("qaSuggestDismiss", { defaultValue: "Not now" })}
+            onClick={dismissSuggestion}
+            sx={{ width: 24, height: 24, color: inkMuted, flexShrink: 0 }}
+          >
+            <Icon name="x" size={13} />
+          </IconButton>
+        </Box>
+      )}
+
       {/* Customize dialog */}
       <Dialog
         open={open}
@@ -777,13 +889,24 @@ const QuickActionsDock: React.FC = () => {
         </DialogContent>
 
         <DialogActions sx={{ px: 3, pb: 2.5, pt: 1, justifyContent: "space-between" }}>
-          <CustomButton
-            label={t("qaReset", { defaultValue: "Reset to default" })}
-            variant="outlined"
-            size="small"
-            data-testid="dash2026-qa-reset"
-            onClick={() => setDraft(DEFAULT_SLUGS)}
-          />
+          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+            <CustomButton
+              label={t("qaReset", { defaultValue: "Reset to default" })}
+              variant="outlined"
+              size="small"
+              data-testid="dash2026-qa-reset"
+              onClick={() => setDraft(DEFAULT_SLUGS)}
+            />
+            {suggested.length === 4 && (
+              <CustomButton
+                label={t("qaUseSuggested", { defaultValue: "Use most visited" })}
+                variant="outlined"
+                size="small"
+                data-testid="dash2026-qa-suggest-dialog-apply"
+                onClick={() => setDraft(suggested)}
+              />
+            )}
+          </Box>
           <Box sx={{ display: "flex", gap: 1 }}>
             <CustomButton
               label={t("cancel", { defaultValue: "Cancel", ns: "common" })}

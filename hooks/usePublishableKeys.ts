@@ -10,19 +10,16 @@ import axiosBaseApi from "@/axiosConfig";
  * single time and cached across tab switches / re-mounts instead of once per
  * component, and every mutation refetches via the shared `mutate`.
  *
- * Behaviour is byte-identical to the call sites it replaces:
- *  - a truthy `companyId` → `?company_id=<id>`
- *  - a null/undefined `companyId` → no param (fetch all keys) — used by the
- *    embed card which nudges the merchant to create a key.
- * Gate fetching with `{ enabled }` to preserve the "empty when no company"
- * behaviour of the list sections (they pass `enabled: !!effectiveCompanyId`).
+ * `company_id` is REQUIRED by the endpoint (it 400s without one), so the hook
+ * simply does not fetch until a company is selected — callers get `keys: []`
+ * in the meantime, which is what every surface already renders for "no keys
+ * yet". Gate further with `{ enabled }` if a section needs to hold off.
  */
 
 type PkKey = readonly ["publishable-keys", string | number];
 
 const fetcher = async ([, cid]: PkKey): Promise<any[]> => {
-  const params = cid && cid !== "all" ? `?company_id=${cid}` : "";
-  const { data } = await axiosBaseApi.get(`publishable-keys${params}`);
+  const { data } = await axiosBaseApi.get(`publishable-keys?company_id=${cid}`);
   return data?.data?.keys || [];
 };
 
@@ -32,9 +29,9 @@ export function usePublishableKeys<T = any>(
 ) {
   const hasToken =
     typeof window !== "undefined" && !!localStorage.getItem("token");
-  const enabled = (opts?.enabled ?? true) && hasToken;
+  const enabled = (opts?.enabled ?? true) && hasToken && !!companyId;
   const key: PkKey | null = enabled
-    ? ["publishable-keys", companyId ?? "all"]
+    ? ["publishable-keys", companyId as string | number]
     : null;
 
   const { data, error, isLoading, mutate } = useSWR<any[]>(

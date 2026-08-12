@@ -62,6 +62,8 @@ const TransactionPage = () => {
   const [selectedSource, setSelectedSource] = useState<TransactionSourceType | "all">(
     "all",
   );
+  // Bumped by "Clear filters" so the top bar's internal search/date state resets too.
+  const [filterResetKey, setFilterResetKey] = useState(0);
 
   // Read wallet filter from query parameter (e.g., /transactions?wallet=ETH)
   useEffect(() => {
@@ -389,8 +391,21 @@ const TransactionPage = () => {
     );
   };
 
-  const handleExport = () => {
-    dispatch(TransactionAction(TRANSACTION_EXPORT, {
+  const clearFilters = () => {
+    setSearchTerm("");
+    setDateRange({ startDate: null, endDate: null });
+    setSelectedWallet("all");
+    setSelectedSource("all");
+    setFilterResetKey((k) => k + 1);
+    const query: Record<string, string> = { ...(router.query as any) };
+    delete query.source;
+    delete query.wallet;
+    router.replace({ pathname: router.pathname, query }, undefined, {
+      shallow: true,
+    });
+  };
+
+  const handleExport = () => {    dispatch(TransactionAction(TRANSACTION_EXPORT, {
       wallet: selectedWallet !== "all" ? walletMapping[selectedWallet] : undefined,
       startDate: dateRange.startDate?.toISOString(),
       endDate: dateRange.endDate?.toISOString(),
@@ -432,6 +447,7 @@ const TransactionPage = () => {
       }}
     >
       <TransactionsTopBar
+        key={filterResetKey}
         onSearch={handleSearch}
         onDateRangeChange={handleDateRangeChange}
         onWalletChange={handleWalletChange}
@@ -466,7 +482,15 @@ const TransactionPage = () => {
           </Typography>
         </Box>
       )}
-      <TransactionsTable transactions={processedTransactions} rowsPerPage={10} />
+      {processedTransactions.length === 0 ? (
+        <EmptyDataModel
+          pageName="transactions"
+          variant="no-results"
+          onClearFilters={clearFilters}
+        />
+      ) : (
+        <TransactionsTable transactions={processedTransactions} rowsPerPage={10} />
+      )}
 
       {/* First-payment celebration modal — one-time per company. */}
       <Dialog

@@ -1,4 +1,5 @@
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
+import useAccountProfile from "@/hooks/useAccountProfile";
 import { useWalletStore } from "@/contexts/WalletDataContext";
 import { PaymentLinkAction, DashboardAction } from "@/Redux/Actions";
 import { PAYLINK_FETCH } from "@/Redux/Actions/PaymentLinkAction";
@@ -59,7 +60,10 @@ const OnboardingFlow: React.FC = () => {
 
   const companyList = companyState.companyList ?? [];
   const walletList = walletState.walletList ?? [];
-  const hasCompany = companyList.length > 0;
+  // An Account row is auto-provisioned at signup, so its EXISTENCE says nothing
+  // about onboarding. `profileComplete` (name + country) is the real signal —
+  // without a country, invoices and VAT reporting are wrong.
+  const { hasAccount, profileComplete, isIndividual } = useAccountProfile();
   // UX-2026-07-08: Only count wallets that ACTUALLY have an address set. The
   // walletReducer sometimes carries placeholder rows for supported chains
   // even when the user hasn't configured them yet — those must not falsely
@@ -102,11 +106,11 @@ const OnboardingFlow: React.FC = () => {
 
   // Once a company exists, fetch payment links once to know if step 3 is done
   useEffect(() => {
-    if (hasCompany && companyId && !payLinkRequested.current) {
+    if (hasAccount && companyId && !payLinkRequested.current) {
       payLinkRequested.current = true;
       dispatch(PaymentLinkAction(PAYLINK_FETCH, { company_id: companyId }));
     }
-  }, [hasCompany, companyId, dispatch]);
+  }, [hasAccount, companyId, dispatch]);
 
   // Once a payment link exists, fetch dashboard stats once so the "first
   // payment" milestone reflects reality (skip if the dashboard already loaded them).
@@ -133,14 +137,14 @@ const OnboardingFlow: React.FC = () => {
   useEffect(() => {
     if (autoOpened.current || dismissed.current) return;
     if (!coreReady) return;
-    if (!hasCompany && !hasWallet && !activeModal && !celebrate) {
+    if (!hasAccount && !hasWallet && !activeModal && !celebrate) {
       autoOpened.current = true;
       if (typeof window !== "undefined") {
         window.sessionStorage.setItem(AUTO_OPEN_SESSION_KEY, "1");
       }
       setActiveModal("company");
     }
-  }, [coreReady, hasCompany, hasWallet, activeModal, celebrate]);
+  }, [coreReady, hasAccount, hasWallet, activeModal, celebrate]);
 
   // Company created -> refresh wallets and guide to wallet step
   const handleCompanyCreated = useCallback(() => {
@@ -158,12 +162,12 @@ const OnboardingFlow: React.FC = () => {
     trackOnboarding({
       event_type: "step_completed",
       step_key: "wallet",
-      completed_count: (hasCompany ? 1 : 0) + 1 + (hasLink ? 1 : 0),
+      completed_count: (profileComplete ? 1 : 0) + 1 + (hasLink ? 1 : 0),
     });
     walletState.refetchWallets();
     setActiveModal(null);
     setCelebrate(true);
-  }, [walletState, hasCompany, hasLink]);
+  }, [walletState, profileComplete, hasLink]);
 
   const handleCelebrationDismiss = useCallback(() => {
     setCelebrate(false);
@@ -181,14 +185,17 @@ const OnboardingFlow: React.FC = () => {
 
   const openCompany = useCallback(() => {
     trackOnboarding({ event_type: "step_clicked", step_key: "company" });
-    setActiveModal("company");
-  }, []);
+    // With an Account already provisioned there is nothing to CREATE — the
+    // merchant just needs to fill in the missing details, which live in Settings.
+    if (hasAccount) router.push("/settings?section=company");
+    else setActiveModal("company");
+  }, [hasAccount, router]);
   const openWallet = useCallback(() => {
     trackOnboarding({ event_type: "step_clicked", step_key: "wallet" });
-    // wallet requires a company first
-    if (!hasCompany) setActiveModal("company");
+    // wallet requires an account first
+    if (!hasAccount) setActiveModal("company");
     else setActiveModal("wallet");
-  }, [hasCompany]);
+  }, [hasAccount]);
   const openFirstLink = useCallback(() => {
     trackOnboarding({ event_type: "step_clicked", step_key: "link" });
     // UX-2026-07-08: previously we blocked navigation until company + wallet
@@ -201,20 +208,35 @@ const OnboardingFlow: React.FC = () => {
 
   const openFirstPayment = useCallback(() => {
     trackOnboarding({ event_type: "step_clicked", step_key: "payment" });
-    if (!hasCompany) setActiveModal("company");
+    if (!hasAccount) setActiveModal("company");
     else if (!hasWallet) setActiveModal("wallet");
     else if (!hasLink) router.push("/create-pay-link");
     else router.push("/pay-links");
-  }, [hasCompany, hasWallet, hasLink, router]);
+  }, [hasAccount, hasWallet, hasLink, router]);
 
   const steps: ChecklistStep[] = useMemo(
     () => [
       {
         key: "company",
-        label: t("obCompanyLabel"),
-        description: t("obCompanyDesc"),
+        label: !hasAccount
+          ? t("obCompanyLabel")
+          : isIndividual
+            ? t("obAccountLabel", { defaultValue: "Complete your account details" })
+            : t("obBusinessProfileLabel", {
+                defaultValue: "Complete your business profile",
+              }),
+        description: !hasAccount
+          ? t("obCompanyDesc")
+          : isIndividual
+            ? t("obAccountDesc", {
+                defaultValue: "Add your country so invoices and tax are correct.",
+              })
+            : t("obBusinessProfileDesc", {
+                defaultValue:
+                  "Add your country and address so invoices and VAT are correct.",
+              }),
         icon: BusinessRounded,
-        done: hasCompany,
+        done: profileComplete,
         onClick: openCompany,
       },
       {
@@ -242,13 +264,19 @@ const OnboardingFlow: React.FC = () => {
         onClick: openFirstPayment,
       },
     ],
-    [hasCompany, hasWallet, hasLink, hasPayment, openCompany, openWallet, openFirstLink, openFirstPayment, t],
+    [profileComplete, hasAccount, isIndividual, hasWallet, hasLink, hasPayment, openCompany, openWallet, openFirstLink, openFirstPayment, t],
   );
 
   // Decide whether to show the checklist card
-  const allCoreDone = hasCompany && hasWallet;
+  const allCoreDone = profileComplete && hasWallet;
   let showChecklist = false;
-  if (coreReady) {
+  // Two guards:
+  //  • A merchant who has already been paid is past onboarding — an incomplete
+  //    account detail is nudged by the header warning, not by a card.
+  //  • Once an account + wallet exist, the 2026 dashboard's own Activation
+  //    checklist owns that state, so this legacy card must stand down or the
+  //    merchant sees two competing checklists.
+  if (coreReady && !hasPayment && !(hasAccount && hasWallet)) {
     if (!allCoreDone) {
       showChecklist = true;
     } else if (payLinkFetched && !hasLink) {
@@ -267,10 +295,10 @@ const OnboardingFlow: React.FC = () => {
       trackOnboarding({
         event_type: "checklist_shown",
         completed_count:
-          (hasCompany ? 1 : 0) + (hasWallet ? 1 : 0) + (hasLink ? 1 : 0),
+          (profileComplete ? 1 : 0) + (hasWallet ? 1 : 0) + (hasLink ? 1 : 0),
       });
     }
-  }, [showChecklist, hasCompany, hasWallet, hasLink]);
+  }, [showChecklist, profileComplete, hasWallet, hasLink]);
 
   return (
     <>
