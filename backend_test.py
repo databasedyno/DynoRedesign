@@ -1,693 +1,583 @@
 #!/usr/bin/env python3
 """
-Backend Test Script for Creator Page Analytics Feature
-Tests all 9 items from the test plan on LIVE Railway PG
+Backend API Testing for DynoPay Transaction Source Refactor
+STRICT READ-ONLY testing on LIVE PRODUCTION database
 """
 
 import requests
 import json
-from datetime import datetime, timedelta
-import sys
+from typing import Dict, List, Any
+from collections import Counter
 
 # Configuration
-BASE_URL = "https://crypto-payment-hub-33.preview.emergentagent.com"
-API_BASE = f"{BASE_URL}/api"
-
-# Test credentials
+BASE_URL = "https://13e42067-64de-478e-a336-166a694ea757.preview.emergentagent.com"
 EMAIL = "hostbay@moxx.co"
 PASSWORD = "Katiekendra123@"
 
-# Test results
-results = {
-    "passed": [],
-    "failed": [],
-    "warnings": []
-}
+# Canonical source types (the ONLY allowed values)
+CANONICAL_TYPES = {"payment_link", "api", "tip", "product", "contribution", "direct"}
 
-def log(message, level="INFO"):
-    """Log test messages"""
-    timestamp = datetime.now().strftime("%H:%M:%S")
-    print(f"[{timestamp}] [{level}] {message}")
+# Old/deprecated string values that should NOT appear
+DEPRECATED_VALUES = {"legacy_api", "checkout"}
 
-def login():
-    """Login and get access token"""
-    log("Logging in...")
-    response = requests.post(
-        f"{API_BASE}/user/login",
-        json={"email": EMAIL, "password": PASSWORD},
-        timeout=30
-    )
-    
-    if response.status_code != 200:
-        log(f"Login failed: {response.status_code} - {response.text}", "ERROR")
-        sys.exit(1)
-    
-    data = response.json()
-    token = data.get("data", {}).get("accessToken")
-    
-    if not token:
-        log("No access token in response", "ERROR")
-        sys.exit(1)
-    
-    log("Login successful")
-    return token
-
-def get_csrf_token(token):
-    """Get CSRF token for PUT requests"""
-    log("Fetching CSRF token...")
-    response = requests.get(
-        f"{API_BASE}/csrf-token",
-        headers={"Authorization": f"Bearer {token}"},
-        timeout=30
-    )
-    
-    if response.status_code != 200:
-        log(f"CSRF token fetch failed: {response.status_code}", "ERROR")
-        return None
-    
-    data = response.json()
-    # Try both possible locations
-    csrf = data.get("csrf_token") or data.get("data", {}).get("csrfToken")
-    
-    if csrf:
-        log(f"CSRF token obtained: {csrf[:20]}...")
-    else:
-        log("CSRF token not found in response", "WARN")
-    
-    return csrf
-
-def test_1_public_200_default_enabled(token):
-    """Test 1: Public 200 (default enabled)"""
-    log("\n=== TEST 1: Public 200 (default enabled) ===")
-    
-    response = requests.get(
-        f"{API_BASE}/pay/creator/hostbay/analytics",
-        timeout=30
-    )
-    
-    if response.status_code != 200:
-        results["failed"].append(f"Test 1: Expected 200, got {response.status_code}")
-        log(f"FAILED: Status {response.status_code}", "ERROR")
-        return None
-    
-    data = response.json().get("data", {})
-    
-    # Check enabled
-    if data.get("enabled") != True:
-        results["failed"].append("Test 1: enabled should be true")
-        log("FAILED: enabled != true", "ERROR")
-        return None
-    
-    # Check chart
-    chart = data.get("chart", [])
-    if not isinstance(chart, list) or len(chart) != 30:
-        results["failed"].append(f"Test 1: chart should be array of 30, got {len(chart)}")
-        log(f"FAILED: chart length {len(chart)} != 30", "ERROR")
-        return None
-    
-    # Check chart item structure
-    if chart:
-        item = chart[0]
-        if not all(k in item for k in ["date", "amount", "count"]):
-            results["failed"].append("Test 1: chart items missing required fields")
-            log("FAILED: chart item structure invalid", "ERROR")
-            return None
-    
-    # Check top_supporters
-    top_supporters = data.get("top_supporters", [])
-    if not isinstance(top_supporters, list):
-        results["failed"].append("Test 1: top_supporters should be array")
-        log("FAILED: top_supporters not array", "ERROR")
-        return None
-    
-    # Check totals
-    totals = data.get("totals", {})
-    required_totals = ["amount_30d", "count_30d", "supporters_30d", "amount_lifetime", "supporters_lifetime"]
-    for key in required_totals:
-        if key not in totals:
-            results["failed"].append(f"Test 1: totals missing {key}")
-            log(f"FAILED: totals missing {key}", "ERROR")
-            return None
-    
-    # Check lifetime values are 0 in public endpoint
-    if totals.get("amount_lifetime") != 0:
-        results["failed"].append(f"Test 1: amount_lifetime should be 0, got {totals.get('amount_lifetime')}")
-        log(f"FAILED: amount_lifetime = {totals.get('amount_lifetime')} (should be 0)", "ERROR")
-        return None
-    
-    if totals.get("supporters_lifetime") != 0:
-        results["failed"].append(f"Test 1: supporters_lifetime should be 0, got {totals.get('supporters_lifetime')}")
-        log(f"FAILED: supporters_lifetime = {totals.get('supporters_lifetime')} (should be 0)", "ERROR")
-        return None
-    
-    # Check currency
-    if "currency" not in data:
-        results["failed"].append("Test 1: currency missing")
-        log("FAILED: currency missing", "ERROR")
-        return None
-    
-    # Check window_days
-    if data.get("window_days") != 30:
-        results["failed"].append(f"Test 1: window_days should be 30, got {data.get('window_days')}")
-        log(f"FAILED: window_days = {data.get('window_days')}", "ERROR")
-        return None
-    
-    results["passed"].append("Test 1: Public 200 (default enabled)")
-    log(f"PASSED: enabled={data.get('enabled')}, chart={len(chart)} items, currency={data.get('currency')}, totals.count_30d={totals.get('count_30d')}")
-    return data
-
-def test_2_chart_bucketing_sanity(test1_data):
-    """Test 2: Chart bucketing sanity"""
-    log("\n=== TEST 2: Chart bucketing sanity ===")
-    
-    if not test1_data:
-        results["failed"].append("Test 2: Skipped (Test 1 failed)")
-        log("SKIPPED: Test 1 failed", "WARN")
-        return
-    
-    chart = test1_data.get("chart", [])
-    totals = test1_data.get("totals", {})
-    
-    # Check exactly 30 items
-    if len(chart) != 30:
-        results["failed"].append(f"Test 2: Expected 30 chart items, got {len(chart)}")
-        log(f"FAILED: chart length {len(chart)}", "ERROR")
-        return
-    
-    # Check dates are monotonically increasing
-    dates = [item["date"] for item in chart]
-    sorted_dates = sorted(dates)
-    if dates != sorted_dates:
-        results["failed"].append("Test 2: Dates not monotonically increasing")
-        log("FAILED: dates not sorted", "ERROR")
-        return
-    
-    # Check date range (oldest = today - 29 days, newest = today)
-    today = datetime.utcnow().date()
-    oldest_expected = (today - timedelta(days=29)).isoformat()
-    newest_expected = today.isoformat()
-    
-    oldest_actual = dates[0]
-    newest_actual = dates[-1]
-    
-    log(f"Date range: {oldest_actual} to {newest_actual}")
-    log(f"Expected: {oldest_expected} to {newest_expected}")
-    
-    # Allow 1 day tolerance for timezone differences
-    oldest_date = datetime.fromisoformat(oldest_actual).date()
-    newest_date = datetime.fromisoformat(newest_actual).date()
-    
-    if abs((oldest_date - (today - timedelta(days=29))).days) > 1:
-        results["warnings"].append(f"Test 2: Oldest date {oldest_actual} differs from expected {oldest_expected}")
-        log(f"WARNING: oldest date mismatch", "WARN")
-    
-    if abs((newest_date - today).days) > 1:
-        results["warnings"].append(f"Test 2: Newest date {newest_actual} differs from expected {newest_expected}")
-        log(f"WARNING: newest date mismatch", "WARN")
-    
-    # Check for non-zero bucket if count_30d > 0 (Sequelize Date bug regression check)
-    count_30d = totals.get("count_30d", 0)
-    non_zero_buckets = [b for b in chart if b["count"] > 0]
-    
-    if count_30d > 0 and len(non_zero_buckets) == 0:
-        results["failed"].append("Test 2: REGRESSION - count_30d > 0 but no chart bucket has count > 0 (Sequelize Date bug)")
-        log(f"FAILED: REGRESSION DETECTED - count_30d={count_30d} but no non-zero buckets", "ERROR")
-        return
-    
-    # Check for expected bucket on 2026-07-13 with 3 tips
-    bucket_2026_07_13 = next((b for b in chart if b["date"] == "2026-07-13"), None)
-    if bucket_2026_07_13:
-        log(f"Found 2026-07-13 bucket: amount={bucket_2026_07_13['amount']}, count={bucket_2026_07_13['count']}")
-        if bucket_2026_07_13["count"] == 3 and bucket_2026_07_13["amount"] == 30:
-            log("✓ Expected bucket (2026-07-13, count=3, amount=30) found")
-        else:
-            results["warnings"].append(f"Test 2: 2026-07-13 bucket has count={bucket_2026_07_13['count']}, amount={bucket_2026_07_13['amount']} (expected count=3, amount=30)")
-    
-    results["passed"].append("Test 2: Chart bucketing sanity")
-    log(f"PASSED: 30 items, dates sorted, {len(non_zero_buckets)} non-zero buckets")
-
-def test_3_public_404():
-    """Test 3: Public 404"""
-    log("\n=== TEST 3: Public 404 ===")
-    
-    response = requests.get(
-        f"{API_BASE}/pay/creator/nonexistent-handle-xyz/analytics",
-        timeout=30
-    )
-    
-    if response.status_code != 404:
-        results["failed"].append(f"Test 3: Expected 404, got {response.status_code}")
-        log(f"FAILED: Status {response.status_code}", "ERROR")
-        return
-    
-    data = response.json()
-    message = data.get("message", "")
-    
-    if "Creator page not found" not in message:
-        results["failed"].append(f"Test 3: Expected 'Creator page not found', got '{message}'")
-        log(f"FAILED: Wrong message: {message}", "ERROR")
-        return
-    
-    results["passed"].append("Test 3: Public 404")
-    log(f"PASSED: 404 with message '{message}'")
-
-def test_4_auth_200_own_view(token):
-    """Test 4: Auth 200 (own view, lifetime present)"""
-    log("\n=== TEST 4: Auth 200 (own view, lifetime present) ===")
-    
-    response = requests.get(
-        f"{API_BASE}/user/creator/analytics",
-        headers={"Authorization": f"Bearer {token}"},
-        timeout=30
-    )
-    
-    if response.status_code != 200:
-        results["failed"].append(f"Test 4: Expected 200, got {response.status_code}")
-        log(f"FAILED: Status {response.status_code} - {response.text}", "ERROR")
-        return None
-    
-    data = response.json().get("data", {})
-    
-    # Check enabled
-    if data.get("enabled") != True:
-        results["failed"].append("Test 4: enabled should be true")
-        log("FAILED: enabled != true", "ERROR")
-        return None
-    
-    # Check public_analytics_enabled
-    if data.get("public_analytics_enabled") != True:
-        results["failed"].append("Test 4: public_analytics_enabled should be true")
-        log("FAILED: public_analytics_enabled != true", "ERROR")
-        return None
-    
-    # Check has_handle
-    if data.get("has_handle") != True:
-        results["failed"].append("Test 4: has_handle should be true")
-        log("FAILED: has_handle != true", "ERROR")
-        return None
-    
-    # Check chart
-    chart = data.get("chart", [])
-    if len(chart) != 30:
-        results["failed"].append(f"Test 4: chart should have 30 items, got {len(chart)}")
-        log(f"FAILED: chart length {len(chart)}", "ERROR")
-        return None
-    
-    # Check top_supporters
-    top_supporters = data.get("top_supporters", [])
-    if not isinstance(top_supporters, list):
-        results["failed"].append("Test 4: top_supporters should be array")
-        log("FAILED: top_supporters not array", "ERROR")
-        return None
-    
-    # Check totals with lifetime
-    totals = data.get("totals", {})
-    amount_lifetime = totals.get("amount_lifetime")
-    supporters_lifetime = totals.get("supporters_lifetime")
-    
-    if amount_lifetime is None:
-        results["failed"].append("Test 4: amount_lifetime missing")
-        log("FAILED: amount_lifetime missing", "ERROR")
-        return None
-    
-    if supporters_lifetime is None:
-        results["failed"].append("Test 4: supporters_lifetime missing")
-        log("FAILED: supporters_lifetime missing", "ERROR")
-        return None
-    
-    # Lifetime should be >= 0 and actual numbers
-    if not isinstance(amount_lifetime, (int, float)) or amount_lifetime < 0:
-        results["failed"].append(f"Test 4: amount_lifetime should be >= 0, got {amount_lifetime}")
-        log(f"FAILED: amount_lifetime = {amount_lifetime}", "ERROR")
-        return None
-    
-    if not isinstance(supporters_lifetime, (int, float)) or supporters_lifetime < 0:
-        results["failed"].append(f"Test 4: supporters_lifetime should be >= 0, got {supporters_lifetime}")
-        log(f"FAILED: supporters_lifetime = {supporters_lifetime}", "ERROR")
-        return None
-    
-    results["passed"].append("Test 4: Auth 200 (own view, lifetime present)")
-    log(f"PASSED: enabled={data.get('enabled')}, public_analytics_enabled={data.get('public_analytics_enabled')}, has_handle={data.get('has_handle')}")
-    log(f"  Lifetime: amount={amount_lifetime}, supporters={supporters_lifetime}")
-    return data
-
-def test_5_auth_401():
-    """Test 5: Auth 401"""
-    log("\n=== TEST 5: Auth 401 ===")
-    
-    response = requests.get(
-        f"{API_BASE}/user/creator/analytics",
-        timeout=30
-    )
-    
-    if response.status_code != 401:
-        results["failed"].append(f"Test 5: Expected 401, got {response.status_code}")
-        log(f"FAILED: Status {response.status_code}", "ERROR")
-        return
-    
-    results["passed"].append("Test 5: Auth 401")
-    log("PASSED: 401 without Authorization header")
-
-def test_6_toggle_round_trip(token, csrf_token):
-    """Test 6: Toggle round-trip (WRITE - must revert at end)"""
-    log("\n=== TEST 6: Toggle round-trip (WRITE - must revert at end) ===")
-    
-    if not csrf_token:
-        results["failed"].append("Test 6: No CSRF token available")
-        log("FAILED: No CSRF token", "ERROR")
-        return
-    
-    headers = {
-        "Authorization": f"Bearer {token}",
-        "x-csrf-token": csrf_token,
-        "Content-Type": "application/json"
-    }
-    
-    # 6a: Set to false
-    log("6a: Setting public_analytics_enabled to false...")
-    response = requests.put(
-        f"{API_BASE}/user/creator/profile",
-        headers=headers,
-        json={"public_analytics_enabled": False},
-        timeout=30
-    )
-    
-    if response.status_code != 200:
-        results["failed"].append(f"Test 6a: Expected 200, got {response.status_code}")
-        log(f"FAILED 6a: Status {response.status_code} - {response.text}", "ERROR")
-        # Try to revert anyway
-        test_6d_revert(token, csrf_token, headers)
-        return
-    
-    data = response.json().get("data", {})
-    if data.get("public_analytics_enabled") != False:
-        results["failed"].append(f"Test 6a: public_analytics_enabled should be false, got {data.get('public_analytics_enabled')}")
-        log(f"FAILED 6a: public_analytics_enabled = {data.get('public_analytics_enabled')}", "ERROR")
-        test_6d_revert(token, csrf_token, headers)
-        return
-    
-    log("✓ 6a PASSED: public_analytics_enabled set to false")
-    
-    # 6b: Public endpoint should return enabled=false
-    log("6b: Checking public endpoint returns enabled=false...")
-    response = requests.get(
-        f"{API_BASE}/pay/creator/hostbay/analytics",
-        timeout=30
-    )
-    
-    if response.status_code != 200:
-        results["failed"].append(f"Test 6b: Expected 200, got {response.status_code}")
-        log(f"FAILED 6b: Status {response.status_code}", "ERROR")
-        test_6d_revert(token, csrf_token, headers)
-        return
-    
-    data = response.json().get("data", {})
-    if data.get("enabled") != False:
-        results["failed"].append(f"Test 6b: enabled should be false, got {data.get('enabled')}")
-        log(f"FAILED 6b: enabled = {data.get('enabled')}", "ERROR")
-        test_6d_revert(token, csrf_token, headers)
-        return
-    
-    if len(data.get("chart", [])) != 0:
-        results["failed"].append(f"Test 6b: chart should be empty, got {len(data.get('chart', []))} items")
-        log(f"FAILED 6b: chart not empty", "ERROR")
-        test_6d_revert(token, csrf_token, headers)
-        return
-    
-    if len(data.get("top_supporters", [])) != 0:
-        results["failed"].append(f"Test 6b: top_supporters should be empty, got {len(data.get('top_supporters', []))} items")
-        log(f"FAILED 6b: top_supporters not empty", "ERROR")
-        test_6d_revert(token, csrf_token, headers)
-        return
-    
-    log("✓ 6b PASSED: Public endpoint returns enabled=false with empty data")
-    
-    # 6c: Auth endpoint should still show data
-    log("6c: Checking auth endpoint still shows data...")
-    response = requests.get(
-        f"{API_BASE}/user/creator/analytics",
-        headers={"Authorization": f"Bearer {token}"},
-        timeout=30
-    )
-    
-    if response.status_code != 200:
-        results["failed"].append(f"Test 6c: Expected 200, got {response.status_code}")
-        log(f"FAILED 6c: Status {response.status_code}", "ERROR")
-        test_6d_revert(token, csrf_token, headers)
-        return
-    
-    data = response.json().get("data", {})
-    if data.get("enabled") != True:
-        results["failed"].append(f"Test 6c: enabled should be true (merchant always sees own data), got {data.get('enabled')}")
-        log(f"FAILED 6c: enabled = {data.get('enabled')}", "ERROR")
-        test_6d_revert(token, csrf_token, headers)
-        return
-    
-    if data.get("public_analytics_enabled") != False:
-        results["failed"].append(f"Test 6c: public_analytics_enabled should be false, got {data.get('public_analytics_enabled')}")
-        log(f"FAILED 6c: public_analytics_enabled = {data.get('public_analytics_enabled')}", "ERROR")
-        test_6d_revert(token, csrf_token, headers)
-        return
-    
-    if len(data.get("chart", [])) != 30:
-        results["failed"].append(f"Test 6c: chart should have 30 items, got {len(data.get('chart', []))}")
-        log(f"FAILED 6c: chart length = {len(data.get('chart', []))}", "ERROR")
-        test_6d_revert(token, csrf_token, headers)
-        return
-    
-    log("✓ 6c PASSED: Auth endpoint still shows data with public_analytics_enabled=false")
-    
-    # 6d: REVERT - Set back to true (MANDATORY)
-    test_6d_revert(token, csrf_token, headers)
-    
-    # 6e: Verify public endpoint shows data again
-    log("6e: Verifying public endpoint shows data again...")
-    response = requests.get(
-        f"{API_BASE}/pay/creator/hostbay/analytics",
-        timeout=30
-    )
-    
-    if response.status_code != 200:
-        results["failed"].append(f"Test 6e: Expected 200, got {response.status_code}")
-        log(f"FAILED 6e: Status {response.status_code}", "ERROR")
-        return
-    
-    data = response.json().get("data", {})
-    if data.get("enabled") != True:
-        results["failed"].append(f"Test 6e: enabled should be true, got {data.get('enabled')}")
-        log(f"FAILED 6e: enabled = {data.get('enabled')}", "ERROR")
-        return
-    
-    if len(data.get("chart", [])) != 30:
-        results["failed"].append(f"Test 6e: chart should have 30 items, got {len(data.get('chart', []))}")
-        log(f"FAILED 6e: chart not restored", "ERROR")
-        return
-    
-    log("✓ 6e PASSED: Public endpoint restored with enabled=true and data")
-    
-    results["passed"].append("Test 6: Toggle round-trip (WRITE - reverted)")
-    log("PASSED: Full toggle round-trip completed and reverted")
-
-def test_6d_revert(token, csrf_token, headers):
-    """6d: REVERT - Set public_analytics_enabled back to true"""
-    log("6d: REVERTING public_analytics_enabled to true (MANDATORY)...")
-    
-    response = requests.put(
-        f"{API_BASE}/user/creator/profile",
-        headers=headers,
-        json={"public_analytics_enabled": True},
-        timeout=30
-    )
-    
-    if response.status_code != 200:
-        log(f"CRITICAL: REVERT FAILED - Status {response.status_code} - {response.text}", "ERROR")
-        results["failed"].append(f"Test 6d: REVERT FAILED - Status {response.status_code}")
-        return
-    
-    data = response.json().get("data", {})
-    if data.get("public_analytics_enabled") != True:
-        log(f"CRITICAL: REVERT FAILED - public_analytics_enabled = {data.get('public_analytics_enabled')}", "ERROR")
-        results["failed"].append(f"Test 6d: REVERT FAILED - public_analytics_enabled != true")
-        return
-    
-    log("✓ 6d PASSED: REVERTED to public_analytics_enabled=true")
-
-def test_7_top_supporters_privacy(test4_data):
-    """Test 7: Top supporters privacy"""
-    log("\n=== TEST 7: Top supporters privacy ===")
-    
-    if not test4_data:
-        results["failed"].append("Test 7: Skipped (Test 4 failed)")
-        log("SKIPPED: Test 4 failed", "WARN")
-        return
-    
-    top_supporters = test4_data.get("top_supporters", [])
-    
-    if len(top_supporters) == 0:
-        results["warnings"].append("Test 7: No top supporters found (may be expected if no named tips)")
-        log("WARNING: No top supporters", "WARN")
-        results["passed"].append("Test 7: Top supporters privacy (no data to verify)")
-        return
-    
-    log(f"Found {len(top_supporters)} top supporters")
-    
-    # Check structure
-    for i, supporter in enumerate(top_supporters):
-        if not all(k in supporter for k in ["name", "amount", "currency", "count"]):
-            results["failed"].append(f"Test 7: Supporter {i} missing required fields")
-            log(f"FAILED: Supporter {i} structure invalid: {supporter}", "ERROR")
-            return
+class TestResults:
+    def __init__(self):
+        self.passed = []
+        self.failed = []
+        self.warnings = []
         
-        log(f"  Supporter {i+1}: name={supporter['name']}, amount={supporter['amount']}, count={supporter['count']}")
-    
-    # Check for expected names (Bob and Alice)
-    names = [s["name"].lower() for s in top_supporters]
-    if "bob" in names:
-        log("✓ Found 'Bob' in top supporters")
-    if "alice" in names:
-        log("✓ Found 'Alice' in top supporters")
-    
-    # Check no anonymous supporter (should be max 2 named supporters, not 3)
-    if len(top_supporters) > 2:
-        results["warnings"].append(f"Test 7: Expected max 2 named supporters (Bob, Alice), got {len(top_supporters)}")
-        log(f"WARNING: {len(top_supporters)} supporters (expected max 2)", "WARN")
-    
-    results["passed"].append("Test 7: Top supporters privacy")
-    log(f"PASSED: {len(top_supporters)} supporters with correct structure, no anonymous")
+    def add_pass(self, test_name: str, details: str = ""):
+        self.passed.append(f"✅ {test_name}: {details}")
+        
+    def add_fail(self, test_name: str, details: str):
+        self.failed.append(f"❌ {test_name}: {details}")
+        
+    def add_warning(self, test_name: str, details: str):
+        self.warnings.append(f"⚠️  {test_name}: {details}")
+        
+    def print_summary(self):
+        print("\n" + "="*80)
+        print("TEST SUMMARY")
+        print("="*80)
+        
+        if self.passed:
+            print("\n✅ PASSED TESTS:")
+            for p in self.passed:
+                print(f"  {p}")
+                
+        if self.warnings:
+            print("\n⚠️  WARNINGS:")
+            for w in self.warnings:
+                print(f"  {w}")
+                
+        if self.failed:
+            print("\n❌ FAILED TESTS:")
+            for f in self.failed:
+                print(f"  {f}")
+                
+        print("\n" + "="*80)
+        total = len(self.passed) + len(self.failed)
+        print(f"TOTAL: {len(self.passed)}/{total} tests passed")
+        if self.failed:
+            print("STATUS: ❌ CRITICAL ISSUES FOUND")
+        else:
+            print("STATUS: ✅ ALL TESTS PASSED")
+        print("="*80 + "\n")
 
-def test_8_sequelize_date_bug_regression(test1_data):
-    """Test 8: Sequelize Date bug regression"""
-    log("\n=== TEST 8: Sequelize Date bug regression ===")
+def authenticate() -> tuple:
+    """
+    Authenticate and return (csrf_token, cookie_header, access_token)
+    """
+    session = requests.Session()
     
-    if not test1_data:
-        results["failed"].append("Test 8: Skipped (Test 1 failed)")
-        log("SKIPPED: Test 1 failed", "WARN")
-        return
+    print("Step 1: Getting CSRF token...")
+    csrf_response = session.get(f"{BASE_URL}/api/csrf-token")
+    print(f"  Status: {csrf_response.status_code}")
     
-    chart = test1_data.get("chart", [])
-    totals = test1_data.get("totals", {})
-    count_30d = totals.get("count_30d", 0)
+    if csrf_response.status_code != 200:
+        raise Exception(f"Failed to get CSRF token: {csrf_response.status_code} - {csrf_response.text}")
     
-    non_zero_buckets = [b for b in chart if b["count"] > 0]
+    csrf_data = csrf_response.json()
+    csrf_token = csrf_data.get("csrf_token") or csrf_data.get("csrfToken")
     
-    log(f"count_30d = {count_30d}")
-    log(f"Non-zero buckets: {len(non_zero_buckets)}")
+    # Get cookies
+    cookies = session.cookies.get_dict()
+    cookie_header = "; ".join([f"{k}={v}" for k, v in cookies.items()])
     
-    if count_30d > 0 and len(non_zero_buckets) == 0:
-        results["failed"].append("Test 8: REGRESSION - Sequelize Date bug detected (count_30d > 0 but no chart bucket has count > 0)")
-        log("FAILED: REGRESSION DETECTED - Sequelize Date bug", "ERROR")
-        log(f"  count_30d = {count_30d}, but all chart buckets have count = 0", "ERROR")
-        return
+    print(f"  CSRF Token: {csrf_token[:20]}...")
+    print(f"  Cookies: {list(cookies.keys())}")
     
-    if len(non_zero_buckets) > 0:
-        log(f"Non-zero buckets found:")
-        for b in non_zero_buckets:
-            log(f"  {b['date']}: count={b['count']}, amount={b['amount']}")
+    # Step 2: Check email (optional, skip if not needed)
+    print("\nStep 2: Checking email (optional)...")
+    check_email_response = session.get(
+        f"{BASE_URL}/api/user/checkEmail?email={EMAIL}",
+        headers={
+            "Cookie": cookie_header
+        }
+    )
+    print(f"  Status: {check_email_response.status_code}")
     
-    results["passed"].append("Test 8: Sequelize Date bug regression")
-    log("PASSED: No Sequelize Date bug regression detected")
+    if check_email_response.status_code == 200:
+        check_data = check_email_response.json()
+        print(f"  Valid Email: {check_data.get('validEmail')}")
+    else:
+        print(f"  Skipping email check (not critical)")
+    
+    # Step 3: Login
+    print("\nStep 3: Logging in...")
+    login_response = session.post(
+        f"{BASE_URL}/api/user/login",
+        json={"email": EMAIL, "password": PASSWORD},
+        headers={
+            "Content-Type": "application/json",
+            "x-csrf-token": csrf_token,
+            "Cookie": cookie_header
+        }
+    )
+    print(f"  Status: {login_response.status_code}")
+    
+    if login_response.status_code != 200:
+        print(f"  Response: {login_response.text}")
+        raise Exception(f"Login failed: {login_response.status_code}")
+    
+    login_data = login_response.json()
+    
+    # Try to find access token in various locations
+    access_token = None
+    if "data" in login_data and isinstance(login_data["data"], dict):
+        access_token = login_data["data"].get("accessToken")
+    if not access_token:
+        access_token = login_data.get("accessToken")
+    if not access_token:
+        access_token = login_data.get("access_token")
+    
+    if not access_token:
+        print(f"  Login response keys: {login_data.keys()}")
+        raise Exception("Could not find accessToken in login response")
+    
+    print(f"  Access Token: {access_token[:20]}...")
+    
+    return csrf_token, cookie_header, access_token
 
-def test_9_existing_profile_endpoint_regression(token):
-    """Test 9: Existing profile endpoint regression"""
-    log("\n=== TEST 9: Existing profile endpoint regression ===")
+def validate_source_object(source: Any, tx_id: str, results: TestResults, endpoint_name: str) -> bool:
+    """
+    Validate that source is an object with valid canonical type.
+    Returns True if valid, False otherwise.
+    """
+    # Check if source is an object (dict)
+    if not isinstance(source, dict):
+        results.add_fail(
+            f"{endpoint_name} - Transaction {tx_id}",
+            f"source is NOT an object, it's a {type(source).__name__}: {source}"
+        )
+        return False
+    
+    # Check if source has a type field
+    if "type" not in source:
+        results.add_fail(
+            f"{endpoint_name} - Transaction {tx_id}",
+            f"source object missing 'type' field: {source}"
+        )
+        return False
+    
+    source_type = source["type"]
+    
+    # Check if type is in canonical set
+    if source_type not in CANONICAL_TYPES:
+        results.add_fail(
+            f"{endpoint_name} - Transaction {tx_id}",
+            f"source.type '{source_type}' is NOT in canonical set {CANONICAL_TYPES}"
+        )
+        return False
+    
+    # Check for deprecated values
+    if source_type in DEPRECATED_VALUES:
+        results.add_fail(
+            f"{endpoint_name} - Transaction {tx_id}",
+            f"source.type '{source_type}' is a DEPRECATED value (should not appear)"
+        )
+        return False
+    
+    # Check if the entire source is a deprecated string
+    if isinstance(source, str) and source in DEPRECATED_VALUES:
+        results.add_fail(
+            f"{endpoint_name} - Transaction {tx_id}",
+            f"source is a deprecated string value: '{source}'"
+        )
+        return False
+    
+    return True
+
+def test_dashboard_recent_transactions(access_token: str, results: TestResults) -> Dict[str, int]:
+    """
+    Test GET /api/dashboard/recent-transactions?limit=25
+    Returns count per source.type
+    """
+    print("\n" + "="*80)
+    print("TEST A: GET /api/dashboard/recent-transactions?limit=25")
+    print("="*80)
     
     response = requests.get(
-        f"{API_BASE}/pay/creator/hostbay",
-        timeout=30
+        f"{BASE_URL}/api/dashboard/recent-transactions?limit=25",
+        headers={"Authorization": f"Bearer {access_token}"}
     )
     
+    print(f"Status: {response.status_code}")
+    
     if response.status_code != 200:
-        results["failed"].append(f"Test 9: Expected 200, got {response.status_code}")
-        log(f"FAILED: Status {response.status_code}", "ERROR")
-        return
+        results.add_fail("Dashboard Recent Transactions", f"HTTP {response.status_code}: {response.text[:200]}")
+        return {}
     
-    data = response.json().get("data", {})
-    creator = data.get("creator", {})
+    data = response.json()
+    print(f"Response structure: {list(data.keys()) if isinstance(data, dict) else 'list'}")
+    if isinstance(data, dict) and len(str(data)) < 500:
+        print(f"Response data: {data}")
     
-    # Check public_analytics_enabled is present
-    if "public_analytics_enabled" not in creator:
-        results["failed"].append("Test 9: creator.public_analytics_enabled missing")
-        log("FAILED: public_analytics_enabled missing", "ERROR")
-        return
+    # Find transactions in response
+    transactions = []
+    if isinstance(data, list):
+        transactions = data
+    elif isinstance(data, dict):
+        if "data" in data and isinstance(data["data"], dict):
+            # Dashboard format: {message, data: {transactions: [...], count: N}}
+            if "transactions" in data["data"]:
+                transactions = data["data"]["transactions"]
+        elif "data" in data and isinstance(data["data"], list):
+            transactions = data["data"]
+        elif "transactions" in data:
+            transactions = data["transactions"]
+        else:
+            # Try to find any list in the response
+            for value in data.values():
+                if isinstance(value, list):
+                    transactions = value
+                    break
     
-    log(f"public_analytics_enabled = {creator.get('public_analytics_enabled')}")
+    print(f"Found {len(transactions)} transactions")
     
-    # Check other keys unchanged
-    expected_keys = ["name", "handle", "bio", "photo", "cover_image", "social_links", "theme"]
-    for key in expected_keys:
-        if key not in creator:
-            results["warnings"].append(f"Test 9: creator.{key} missing (may be null)")
-            log(f"WARNING: creator.{key} missing", "WARN")
+    if len(transactions) == 0:
+        results.add_warning("Dashboard Recent Transactions", "No transactions returned (empty dataset)")
+        return {}
     
-    # Check support_widget and links exist (may be null/empty)
-    if "support_widget" not in data:
-        results["warnings"].append("Test 9: support_widget missing")
-        log("WARNING: support_widget missing", "WARN")
+    # Validate each transaction
+    type_counts = Counter()
+    valid_count = 0
     
-    if "links" not in data:
-        results["warnings"].append("Test 9: links missing")
-        log("WARNING: links missing", "WARN")
+    for i, tx in enumerate(transactions):
+        tx_id = tx.get("id") or tx.get("transaction_id") or f"tx_{i}"
+        
+        if "source" not in tx:
+            results.add_fail(f"Dashboard - Transaction {tx_id}", "Missing 'source' field")
+            continue
+        
+        source = tx["source"]
+        
+        if validate_source_object(source, tx_id, results, "Dashboard"):
+            valid_count += 1
+            type_counts[source["type"]] += 1
     
-    results["passed"].append("Test 9: Existing profile endpoint regression")
-    log("PASSED: Profile endpoint includes public_analytics_enabled, other keys present")
+    # Summary
+    print(f"\nValidation Results:")
+    print(f"  Valid: {valid_count}/{len(transactions)}")
+    print(f"  Source Type Distribution:")
+    for source_type, count in type_counts.most_common():
+        print(f"    {source_type}: {count}")
+    
+    if valid_count == len(transactions):
+        results.add_pass(
+            "Dashboard Recent Transactions",
+            f"All {len(transactions)} transactions have valid source objects. Distribution: {dict(type_counts)}"
+        )
+    
+    return dict(type_counts)
 
-def main():
-    """Main test runner"""
-    log("=" * 80)
-    log("Creator Page Analytics Backend Test Suite")
-    log("=" * 80)
+def test_wallet_get_all_transactions(access_token: str, csrf_token: str, cookie_header: str, results: TestResults) -> Dict[str, int]:
+    """
+    Test POST /api/wallet/getAllTransactions
+    Returns count per source.type
+    """
+    print("\n" + "="*80)
+    print("TEST B: POST /api/wallet/getAllTransactions")
+    print("="*80)
+    
+    # First, get company_id
+    print("Getting company_id...")
+    company_response = requests.get(
+        f"{BASE_URL}/api/company/getCompany",
+        headers={"Authorization": f"Bearer {access_token}"}
+    )
+    
+    print(f"Company endpoint status: {company_response.status_code}")
+    
+    if company_response.status_code != 200:
+        # Try alternative endpoint
+        print("Trying alternative endpoint /api/company/list...")
+        company_response = requests.get(
+            f"{BASE_URL}/api/company/list",
+            headers={"Authorization": f"Bearer {access_token}"}
+        )
+        print(f"Company list endpoint status: {company_response.status_code}")
+        
+        if company_response.status_code != 200:
+            results.add_fail("Wallet Get All Transactions", f"Could not get company info. Both /api/company and /api/company/list returned non-200")
+            return {}
     
     try:
-        # Login
-        token = login()
+        company_data = company_response.json()
+    except Exception as e:
+        results.add_fail("Wallet Get All Transactions", f"Could not parse company response as JSON. Status: {company_response.status_code}, Content: {company_response.text[:200]}")
+        return {}
+    
+    # Find company_id for hostbay
+    company_id = None
+    if isinstance(company_data, dict):
+        if "data" in company_data:
+            if isinstance(company_data["data"], list) and len(company_data["data"]) > 0:
+                # getCompany returns {message, data: [{company_id, ...}]}
+                # Find hostbay company
+                for company in company_data["data"]:
+                    if company.get("company_name") == "hostbay" or company.get("name") == "hostbay":
+                        company_id = company.get("company_id") or company.get("id")
+                        break
+                # If not found by name, just use the first one
+                if not company_id:
+                    company_id = company_data["data"][0].get("company_id") or company_data["data"][0].get("id")
+            elif isinstance(company_data["data"], dict):
+                company_id = company_data["data"].get("company_id") or company_data["data"].get("id")
+        elif "company_id" in company_data:
+            company_id = company_data["company_id"]
+        elif "id" in company_data:
+            company_id = company_data["id"]
+    
+    if not company_id:
+        results.add_fail("Wallet Get All Transactions", f"Could not find company_id. Response status: {company_response.status_code}, keys: {list(company_data.keys()) if isinstance(company_data, dict) else 'not dict'}")
+        return {}
+    
+    print(f"Company ID: {company_id}")
+    
+    # Now get transactions
+    print("\nFetching transactions...")
+    response = requests.post(
+        f"{BASE_URL}/api/wallet/getAllTransactions",
+        json={"company_id": company_id, "page": 1, "limit": 25},
+        headers={
+            "Authorization": f"Bearer {access_token}",
+            "Content-Type": "application/json",
+            "x-csrf-token": csrf_token,
+            "Cookie": cookie_header
+        }
+    )
+    
+    print(f"Status: {response.status_code}")
+    
+    if response.status_code != 200:
+        results.add_fail("Wallet Get All Transactions", f"HTTP {response.status_code}: {response.text[:200]}")
+        return {}
+    
+    data = response.json()
+    
+    # Find transactions in response - Wallet format: {message, data: {customers_transactions: [...], self_transactions: [...]}}
+    transactions = []
+    if isinstance(data, list):
+        transactions = data
+    elif isinstance(data, dict):
+        if "data" in data and isinstance(data["data"], dict):
+            # Wallet endpoint returns customers_transactions and self_transactions
+            if "customers_transactions" in data["data"]:
+                transactions = data["data"]["customers_transactions"]
+                # Also include self_transactions if present
+                if "self_transactions" in data["data"] and isinstance(data["data"]["self_transactions"], list):
+                    transactions.extend(data["data"]["self_transactions"])
+            elif "transactions" in data["data"]:
+                transactions = data["data"]["transactions"]
+        elif "data" in data and isinstance(data["data"], list):
+            transactions = data["data"]
+        elif "transactions" in data:
+            transactions = data["transactions"]
+    
+    print(f"Found {len(transactions)} transactions")
+    
+    if len(transactions) == 0:
+        results.add_warning("Wallet Get All Transactions", "No transactions returned (empty dataset)")
+        return {}
+    
+    # Validate each transaction
+    type_counts = Counter()
+    valid_count = 0
+    api_type_count = 0
+    
+    for i, tx in enumerate(transactions):
+        tx_id = tx.get("id") or tx.get("transaction_id") or f"tx_{i}"
         
-        # Get CSRF token
-        csrf_token = get_csrf_token(token)
+        if "source" not in tx:
+            results.add_fail(f"Wallet - Transaction {tx_id}", "Missing 'source' field")
+            continue
         
-        # Run tests
-        test1_data = test_1_public_200_default_enabled(token)
-        test_2_chart_bucketing_sanity(test1_data)
-        test_3_public_404()
-        test4_data = test_4_auth_200_own_view(token)
-        test_5_auth_401()
-        test_6_toggle_round_trip(token, csrf_token)
-        test_7_top_supporters_privacy(test4_data)
-        test_8_sequelize_date_bug_regression(test1_data)
-        test_9_existing_profile_endpoint_regression(token)
+        source = tx["source"]
+        
+        if validate_source_object(source, tx_id, results, "Wallet"):
+            valid_count += 1
+            type_counts[source["type"]] += 1
+            
+            # Check for API-origin transactions
+            customer_email = tx.get("customer_email") or tx.get("buyer_email") or ""
+            if (customer_email.endswith("@dynopay.internal") or
+                customer_email.startswith("legacy-api-") or
+                customer_email.startswith("pk-buyer-") or
+                customer_email.startswith("elements-buyer-") or
+                customer_email.startswith("recovered-")):
+                if source["type"] == "api":
+                    api_type_count += 1
+                else:
+                    results.add_warning(
+                        f"Wallet - Transaction {tx_id}",
+                        f"API-origin email '{customer_email}' but source.type is '{source['type']}' (expected 'api')"
+                    )
+    
+    # Summary
+    print(f"\nValidation Results:")
+    print(f"  Valid: {valid_count}/{len(transactions)}")
+    print(f"  API-origin transactions with type='api': {api_type_count}")
+    print(f"  Source Type Distribution:")
+    for source_type, count in type_counts.most_common():
+        print(f"    {source_type}: {count}")
+    
+    if valid_count == len(transactions):
+        results.add_pass(
+            "Wallet Get All Transactions",
+            f"All {len(transactions)} transactions have valid source objects. Distribution: {dict(type_counts)}"
+        )
+    
+    return dict(type_counts)
+
+def test_company_get_transactions(access_token: str, results: TestResults) -> Dict[str, int]:
+    """
+    Test GET /api/company/getTransactions/<company_id>?limit=25
+    Returns count per source.type
+    """
+    print("\n" + "="*80)
+    print("TEST C: GET /api/company/getTransactions/<company_id>?limit=25")
+    print("="*80)
+    
+    # First, get company_id
+    print("Getting company_id...")
+    company_response = requests.get(
+        f"{BASE_URL}/api/company/getCompany",
+        headers={"Authorization": f"Bearer {access_token}"}
+    )
+    
+    print(f"Company endpoint status: {company_response.status_code}")
+    
+    company_data = company_response.json()
+    
+    # Find company_id
+    company_id = None
+    if isinstance(company_data, dict):
+        if "data" in company_data:
+            if isinstance(company_data["data"], list) and len(company_data["data"]) > 0:
+                # getCompany returns {message, data: [{company_id, ...}]}
+                company_id = company_data["data"][0].get("company_id") or company_data["data"][0].get("id")
+            elif isinstance(company_data["data"], dict):
+                company_id = company_data["data"].get("company_id") or company_data["data"].get("id")
+        elif "company_id" in company_data:
+            company_id = company_data["company_id"]
+        elif "id" in company_data:
+            company_id = company_data["id"]
+    
+    if not company_id:
+        results.add_fail("Company Get Transactions", f"Could not find company_id in response")
+        return {}
+    
+    print(f"Company ID: {company_id}")
+    
+    # Now get transactions
+    print("\nFetching transactions...")
+    response = requests.get(
+        f"{BASE_URL}/api/company/getTransactions/{company_id}?limit=25",
+        headers={"Authorization": f"Bearer {access_token}"}
+    )
+    
+    print(f"Status: {response.status_code}")
+    
+    if response.status_code != 200:
+        results.add_warning("Company Get Transactions", f"Endpoint may not be reachable: HTTP {response.status_code}")
+        return {}
+    
+    data = response.json()
+    
+    # Find transactions in response
+    transactions = []
+    if isinstance(data, list):
+        transactions = data
+    elif isinstance(data, dict):
+        if "data" in data:
+            if isinstance(data["data"], list):
+                transactions = data["data"]
+            elif isinstance(data["data"], dict) and "transactions" in data["data"]:
+                transactions = data["data"]["transactions"]
+        elif "transactions" in data:
+            transactions = data["transactions"]
+    
+    print(f"Found {len(transactions)} transactions")
+    
+    if len(transactions) == 0:
+        results.add_warning("Company Get Transactions", "No transactions returned (empty dataset)")
+        return {}
+    
+    # Validate each transaction
+    type_counts = Counter()
+    valid_count = 0
+    
+    for i, tx in enumerate(transactions):
+        tx_id = tx.get("id") or tx.get("transaction_id") or f"tx_{i}"
+        
+        if "source" not in tx:
+            results.add_fail(f"Company - Transaction {tx_id}", "Missing 'source' field")
+            continue
+        
+        source = tx["source"]
+        
+        if validate_source_object(source, tx_id, results, "Company"):
+            valid_count += 1
+            type_counts[source["type"]] += 1
+    
+    # Summary
+    print(f"\nValidation Results:")
+    print(f"  Valid: {valid_count}/{len(transactions)}")
+    print(f"  Source Type Distribution:")
+    for source_type, count in type_counts.most_common():
+        print(f"    {source_type}: {count}")
+    
+    if valid_count == len(transactions):
+        results.add_pass(
+            "Company Get Transactions",
+            f"All {len(transactions)} transactions have valid source objects. Distribution: {dict(type_counts)}"
+        )
+    
+    return dict(type_counts)
+
+def main():
+    print("="*80)
+    print("DYNOPAY TRANSACTION SOURCE REFACTOR - BACKEND API TESTING")
+    print("STRICT READ-ONLY on LIVE PRODUCTION DATABASE")
+    print("="*80)
+    
+    results = TestResults()
+    
+    try:
+        # Authenticate
+        csrf_token, cookie_header, access_token = authenticate()
+        
+        # Test A: Dashboard recent transactions
+        dashboard_counts = test_dashboard_recent_transactions(access_token, results)
+        
+        # Test B: Wallet get all transactions
+        wallet_counts = test_wallet_get_all_transactions(access_token, csrf_token, cookie_header, results)
+        
+        # Test C: Company get transactions
+        company_counts = test_company_get_transactions(access_token, results)
         
         # Print summary
-        log("\n" + "=" * 80)
-        log("TEST SUMMARY")
-        log("=" * 80)
+        results.print_summary()
         
-        log(f"\n✅ PASSED: {len(results['passed'])}")
-        for test in results["passed"]:
-            log(f"  ✓ {test}")
+        # Print consolidated type distribution
+        print("\n" + "="*80)
+        print("CONSOLIDATED SOURCE TYPE DISTRIBUTION")
+        print("="*80)
+        print(f"\nDashboard Recent Transactions: {dashboard_counts}")
+        print(f"Wallet Get All Transactions: {wallet_counts}")
+        print(f"Company Get Transactions: {company_counts}")
+        print("\n" + "="*80)
         
-        if results["failed"]:
-            log(f"\n❌ FAILED: {len(results['failed'])}")
-            for test in results["failed"]:
-                log(f"  ✗ {test}", "ERROR")
-        
-        if results["warnings"]:
-            log(f"\n⚠️  WARNINGS: {len(results['warnings'])}")
-            for test in results["warnings"]:
-                log(f"  ! {test}", "WARN")
-        
-        log("\n" + "=" * 80)
-        
-        if results["failed"]:
-            log(f"RESULT: {len(results['failed'])} test(s) FAILED", "ERROR")
-            sys.exit(1)
-        else:
-            log(f"RESULT: ALL TESTS PASSED ({len(results['passed'])} passed, {len(results['warnings'])} warnings)", "INFO")
-            sys.exit(0)
-    
     except Exception as e:
-        log(f"FATAL ERROR: {str(e)}", "ERROR")
+        print(f"\n❌ CRITICAL ERROR: {e}")
         import traceback
         traceback.print_exc()
-        sys.exit(1)
+        results.add_fail("Test Execution", str(e))
+        results.print_summary()
+        return 1
+    
+    return 0 if not results.failed else 1
 
 if __name__ == "__main__":
-    main()
+    exit(main())

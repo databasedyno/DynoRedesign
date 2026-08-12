@@ -8,6 +8,7 @@ import {
 } from "../helper";
 import { handleControllerError } from "../helper/controllerErrorHandler";
 import { formatAmountForDisplay, getCurrencyInfo, COMPANY_CURRENCY_QUERY, convertToFiat, getCompanyDisplayCurrency, getUserDisplayCurrency, SUPPORTED_DISPLAY_CURRENCIES, isSupportedDisplayCurrency } from "../utils/currencyUtils";
+import { resolveTransactionSource } from "../utils/transactionSource";
 import jwt from "jsonwebtoken";
 import { IUserType } from "../utils/types";
 import { apiModel, companyModel, customerModel, customerWalletModel, userModel, stablecoinConversionModel, userWalletModel } from "../models";
@@ -996,32 +997,19 @@ const getTransactions = async (req: express.Request, res: express.Response) => {
         displayAmount = Math.round(baseAmount * rate * 100) / 100;
       }
 
-      // ── Derive `source` — a single tagged field the UI can filter on ────
-      // Session 48 UX: transactions can now come from any of 5 sources;
-      // expose one canonical shape so the frontend doesn't need to
-      // pattern-match on multiple raw columns.
-      let sourceType: "payment_link" | "contribution" | "tip" | "product" | "direct" = "direct";
-      let sourceTitle: string | null = null;
-      let sourceRef: string | number | null = null;
-      if (source_order_id) {
-        sourceType = "product";
-        sourceTitle = source_link_title ? String(source_link_title) : "Product order";
-        sourceRef = String(source_order_ref || source_order_id);
-      } else if (source_link_type === "contribution") {
-        if (source_parent_is_tip_jar) {
-          sourceType = "tip";
-          // Tips: title falls back to the customer/company as identifier
-          sourceTitle = source_parent_title ? String(source_parent_title) : "Tip";
-        } else {
-          sourceType = "contribution";
-          sourceTitle = source_parent_title ? String(source_parent_title) : "Contribution";
-        }
-        sourceRef = source_parent_link_id ? Number(source_parent_link_id) : (source_link_id ? Number(source_link_id) : null);
-      } else if (source_link_id) {
-        sourceType = "payment_link";
-        sourceTitle = source_link_title ? String(source_link_title) : null;
-        sourceRef = Number(source_link_id);
-      }
+      // ── Derive `source` via the shared resolver (single source of truth
+      // shared with walletController + dashboardController). ──────────────
+      const source = resolveTransactionSource({
+        source_order_id: source_order_id as string | number | null,
+        source_order_ref: source_order_ref as string | null,
+        source_link_id: source_link_id as string | number | null,
+        source_link_type: source_link_type as string | null,
+        source_link_title: source_link_title as string | null,
+        source_parent_link_id: source_parent_link_id as string | number | null,
+        source_parent_title: source_parent_title as string | null,
+        source_parent_is_tip_jar: source_parent_is_tip_jar as boolean | number | null,
+        customer_email: (x.email as string) ?? null,
+      });
 
       return {
         ...rest,
@@ -1029,16 +1017,7 @@ const getTransactions = async (req: express.Request, res: express.Response) => {
         display_currency: preferredCurrency,
         amount_display: formatAmountForDisplay(displayAmount, preferredCurrency),
         // Source metadata for the transactions UX (filter + column badge)
-        source: {
-          type: sourceType,
-          title: sourceTitle,
-          ref: sourceRef,
-          link_id: source_link_id ? Number(source_link_id) : null,
-          link_type: source_link_type ? String(source_link_type) : null,
-          parent_link_id: source_parent_link_id ? Number(source_parent_link_id) : null,
-          order_id: source_order_id ? Number(source_order_id) : null,
-          order_ref: source_order_ref ? String(source_order_ref) : null,
-        },
+        source,
         // Auto-stablecoin conversion indicator
         auto_converted: !!auto_convert_id,
         auto_convert: auto_convert_id

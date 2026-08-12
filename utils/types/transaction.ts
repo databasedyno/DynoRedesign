@@ -3,6 +3,7 @@ import { DateRange } from "./dashboard";
 
 export type TransactionSourceType =
   | "payment_link"
+  | "api"
   | "contribution"
   | "tip"
   | "product"

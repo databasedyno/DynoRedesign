@@ -14,6 +14,7 @@ import {
 } from "@/utils/types/transaction";
 import AutoAwesomeRounded from "@mui/icons-material/AutoAwesomeRounded";
 import CheckIcon from "@mui/icons-material/Check";
+import CodeRounded from "@mui/icons-material/CodeRounded";
 import DonutSmallRounded from "@mui/icons-material/DonutSmallRounded";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -122,8 +123,13 @@ const TransactionsTopBar: React.FC<TransactionsTopBarProps & { initialWallet?: s
         icon: <LinkRounded sx={{ fontSize: iconSize }} />,
       },
       {
+        value: "api",
+        label: tTransactions("sourceApi", { defaultValue: "API" }),
+        icon: <CodeRounded sx={{ fontSize: iconSize }} />,
+      },
+      {
         value: "contribution",
-        label: tTransactions("sourceContributions", { defaultValue: "Contributions" }),
+        label: tTransactions("sourceContributions", { defaultValue: "Donations" }),
         icon: <FavoriteRounded sx={{ fontSize: iconSize }} />,
       },
       {
@@ -133,7 +139,7 @@ const TransactionsTopBar: React.FC<TransactionsTopBarProps & { initialWallet?: s
       },
       {
         value: "product",
-        label: tTransactions("sourceProducts", { defaultValue: "Product orders" }),
+        label: tTransactions("sourceProducts", { defaultValue: "Store" }),
         icon: <Inventory2Rounded sx={{ fontSize: iconSize }} />,
       },
       {

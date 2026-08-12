@@ -788,6 +788,13 @@ export const SourceBadge = styled(Box, {
       darkBg: "rgba(59,130,246,0.15)",
       darkFg: "#93C5FD",
     },
+    api: {
+      bg: "#ECFEFF",
+      fg: "#0E7490",
+      border: "#A5F3FC",
+      darkBg: "rgba(6,182,212,0.16)",
+      darkFg: "#67E8F9",
+    },
     contribution: {
       bg: "#FDF2F8",
       fg: "#BE185D",

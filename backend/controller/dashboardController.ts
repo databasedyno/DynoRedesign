@@ -14,6 +14,7 @@ import { validateCompanyOwnership } from "../utils/validateCompanyOwnership";
 import sequelize from "../utils/dbInstance";
 import { getRedisItem, setRedisItem, setRedisTTL } from "../utils/redisInstance";
 import { getCurrencySymbol, getCurrencyInfo, formatAmountForDisplay, COMPANY_CURRENCY_QUERY, convertToFiat, getUserDisplayCurrency } from "../utils/currencyUtils";
+import { resolveTransactionSource } from "../utils/transactionSource";
 import { getVolumeTiers } from "../utils/volumeTierUtils";
 
 /**
@@ -809,27 +810,32 @@ const getRecentTransactions = async (req: express.Request, res: express.Response
         uw.wallet_type,
         c.customer_name,
         c.email as customer_email,
-        -- Payment source detection so the frontend can show a meaningful
-        -- label instead of an internal placeholder email:
-        --   * 'payment_link' — a matching row exists in tbl_payment_link
-        --   * 'legacy_api'   — customer email matches the synthetic
-        --                      "legacy-api-…@dynopay.internal" pattern
-        --                      minted by legacyApiAuthMiddleware
-        --   * 'checkout'     — non-legacy pattern with @dynopay.internal
-        --                      (recovered-… placeholders from merchantApi)
-        --   * null           — direct crypto receive / real customer
-        CASE
-          WHEN pl.link_id IS NOT NULL THEN 'payment_link'
-          WHEN c.email LIKE 'legacy-api-%@dynopay.internal' THEN 'legacy_api'
-          WHEN c.email LIKE '%@dynopay.internal' THEN 'checkout'
-          ELSE NULL
-        END AS source
+        -- Source metadata — resolved in JS via resolveTransactionSource() so the
+        -- dashboard classifies a transaction IDENTICALLY to the /transactions
+        -- page (payment_link / api / tip / product / contribution / direct)
+        -- instead of the old email-pattern CASE that used a different taxonomy.
+        pl.link_id           as source_link_id,
+        pl.link_type         as source_link_type,
+        pl.title             as source_link_title,
+        pl.parent_link_id    as source_parent_link_id,
+        pl.is_tip_jar        as source_is_tip_jar,
+        parent_pl.title      as source_parent_title,
+        parent_pl.is_tip_jar as source_parent_is_tip_jar,
+        po.order_id          as source_order_id,
+        po.public_ref        as source_order_ref
        FROM tbl_user_transaction ut
        LEFT JOIN tbl_user_wallet uw ON ut.wallet_id = uw.wallet_id
        LEFT JOIN tbl_customer c ON ut.customer_id = c.customer_id
-       LEFT JOIN tbl_payment_link pl
-         ON pl.transaction_reference = ut.transaction_reference
-         AND pl.user_id = ut.user_id
+       LEFT JOIN (
+         SELECT DISTINCT ON (transaction_reference)
+           transaction_reference, link_id, link_type, title, parent_link_id, is_tip_jar
+         FROM tbl_payment_link
+         WHERE transaction_reference IS NOT NULL AND transaction_reference <> ''
+         ORDER BY transaction_reference, link_id DESC
+       ) pl ON pl.transaction_reference = ut.transaction_reference
+         AND ut.transaction_reference IS NOT NULL AND ut.transaction_reference <> ''
+       LEFT JOIN tbl_payment_link parent_pl ON parent_pl.link_id = pl.parent_link_id
+       LEFT JOIN tbl_product_order po ON po.payment_link_id = pl.link_id
        WHERE ut.user_id = :userId
        ORDER BY ut."createdAt" DESC
        LIMIT :limit`,
@@ -839,9 +845,32 @@ const getRecentTransactions = async (req: express.Request, res: express.Response
       }
     );
 
+    // Attach the canonical source object (same shape the /transactions page
+    // gets) and strip the raw source_* helper columns from the payload.
+    const recentTxMapped = (recentTransactions as Array<Record<string, unknown>>).map((row) => {
+      const source = resolveTransactionSource({
+        source_order_id: row.source_order_id as string | number | null,
+        source_order_ref: row.source_order_ref as string | null,
+        source_link_id: row.source_link_id as string | number | null,
+        source_link_type: row.source_link_type as string | null,
+        source_link_title: row.source_link_title as string | null,
+        source_parent_link_id: row.source_parent_link_id as string | number | null,
+        source_parent_title: row.source_parent_title as string | null,
+        source_parent_is_tip_jar: row.source_parent_is_tip_jar as boolean | number | null,
+        customer_email: row.customer_email as string | null,
+      });
+      const {
+        source_link_id, source_link_type, source_link_title,
+        source_parent_link_id, source_is_tip_jar, source_parent_title,
+        source_parent_is_tip_jar, source_order_id, source_order_ref,
+        ...clean
+      } = row;
+      return { ...clean, source };
+    });
+
     const recentTxResponse = {
-      transactions: recentTransactions,
-      count: recentTransactions.length,
+      transactions: recentTxMapped,
+      count: recentTxMapped.length,
     };
 
     // Cache for 60 seconds

@@ -32,6 +32,7 @@ import { handleControllerError, handleControllerErrorReturn, asyncController } f
 import { parseSortAndPagination } from "../helper/queryHelpers";
 import { incrementAdminFee, incrementUserWallet } from "../helper/walletHelpers";
 import { formatAmountForDisplay, getCurrencyInfo, COMPANY_CURRENCY_QUERY, convertToUSD, convertToFiat, convertToMultiple, getUserDisplayCurrency } from "../utils/currencyUtils";
+import { resolveTransactionSource } from "../utils/transactionSource";
 import crypto from "crypto";
 
 // HTML escape utility to prevent XSS in email templates
@@ -655,46 +656,25 @@ const getAllTransactions = async (
         }
       }
 
-      // ── Derive `source` — tagged field the UI filters on (payment_link /
-      // contribution / tip / product / direct). Mirrors companyController.getTransactions
-      // so the /transactions page (which calls THIS endpoint via wallet/getAllTransactions)
-      // can filter by source. Previously absent → every row defaulted to "direct" and the
-      // payment-link / tip / product filters returned zero rows.
-      let sourceType: "payment_link" | "contribution" | "tip" | "product" | "direct" = "direct";
-      let sourceTitle: string | null = null;
-      let sourceRef: string | number | null = null;
-      if (source_order_id) {
-        sourceType = "product";
-        sourceTitle = source_link_title ? String(source_link_title) : "Product order";
-        sourceRef = String(source_order_ref || source_order_id);
-      } else if (source_link_type === "contribution") {
-        if (source_parent_is_tip_jar) {
-          sourceType = "tip";
-          sourceTitle = source_parent_title ? String(source_parent_title) : "Tip";
-        } else {
-          sourceType = "contribution";
-          sourceTitle = source_parent_title ? String(source_parent_title) : "Contribution";
-        }
-        sourceRef = source_parent_link_id ? Number(source_parent_link_id) : (source_link_id ? Number(source_link_id) : null);
-      } else if (source_link_id) {
-        sourceType = "payment_link";
-        sourceTitle = source_link_title ? String(source_link_title) : null;
-        sourceRef = Number(source_link_id);
-      }
+      // ── Derive `source` via the shared resolver so the /transactions page,
+      // company/getTransactions AND the dashboard all classify a transaction
+      // identically (payment_link / api / tip / product / contribution / direct).
+      const source = resolveTransactionSource({
+        source_order_id: source_order_id as string | number | null,
+        source_order_ref: source_order_ref as string | null,
+        source_link_id: source_link_id as string | number | null,
+        source_link_type: source_link_type as string | null,
+        source_link_title: source_link_title as string | null,
+        source_parent_link_id: source_parent_link_id as string | number | null,
+        source_parent_title: source_parent_title as string | null,
+        source_parent_is_tip_jar: source_parent_is_tip_jar as boolean | number | null,
+        customer_email: (x.email as string) ?? null,
+      });
 
       return {
         ...rest,
         // Source metadata for the transactions UX (filter chips + row badge)
-        source: {
-          type: sourceType,
-          title: sourceTitle,
-          ref: sourceRef,
-          link_id: source_link_id ? Number(source_link_id) : null,
-          link_type: source_link_type ? String(source_link_type) : null,
-          parent_link_id: source_parent_link_id ? Number(source_parent_link_id) : null,
-          order_id: source_order_id ? Number(source_order_id) : null,
-          order_ref: source_order_ref ? String(source_order_ref) : null,
-        },
+        source,
         // Format for UI
         transaction_id_display: x.id || `TX${x.transaction_id}`,
         crypto: x.crypto_currency || x.base_currency,

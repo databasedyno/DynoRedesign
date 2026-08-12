@@ -12,12 +12,8 @@ import PolygonIcon from "@/assets/cryptocurrency/Polygon-icon.svg";
 import RLUSDIcon from "@/assets/cryptocurrency/RLUSD-icon.svg";
 import { Icon, MONO } from "@/styles/uiKit";
 import { getAssetColor } from "@/helpers/assetColor";
-import AutoAwesomeRounded from "@mui/icons-material/AutoAwesomeRounded";
-import DonutSmallRounded from "@mui/icons-material/DonutSmallRounded";
-import FavoriteRounded from "@mui/icons-material/FavoriteRounded";
-import Inventory2Rounded from "@mui/icons-material/Inventory2Rounded";
-import LinkRounded from "@mui/icons-material/LinkRounded";
-import { Box, Tooltip, Typography, useTheme } from "@mui/material";
+import TransactionSourceBadge from "@/Components/UI/TransactionSourceBadge";
+import { Box, Typography, useTheme } from "@mui/material";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import React, { useCallback, useEffect, useState } from "react";
@@ -53,7 +49,6 @@ import { Text } from "../CreatePaymentLink/styled";
 import {
   CryptoIconChip,
   MobileNavigationButtons,
-  SourceBadge,
   StatusBadge,
   StatusIconWrapper,
   StatusText,
@@ -144,66 +139,21 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
     }
   };
 
-  /** Session 48: compact "Source" chip attached to each transaction row.
-   *  5 sources: payment_link / contribution / tip / product / direct.
-   *  Each has a distinct icon + tinted background so users can eyeball
-   *  what a transaction is without opening the detail modal. */
+  /** Session 55: unified source badge — delegates to the single shared
+   *  <TransactionSourceBadge> so the transactions table, dashboard "Recent
+   *  transactions", the details modal and the payment-links table all render
+   *  the exact same icon + label for every canonical source type
+   *  (payment_link / api / tip / product / contribution / direct). */
   const renderSourceBadge = (
     source?: ExtendedTransaction["source"],
     opts?: { compact?: boolean; withTitle?: boolean },
-  ) => {
-    const type = source?.type || "direct";
-    const showTitle = !!opts?.withTitle && !!source?.title;
-    const iconSize = opts?.compact ? 11 : 12;
-    const icon =
-      type === "payment_link" ? (
-        <LinkRounded sx={{ fontSize: iconSize }} />
-      ) : type === "contribution" ? (
-        <FavoriteRounded sx={{ fontSize: iconSize }} />
-      ) : type === "tip" ? (
-        <AutoAwesomeRounded sx={{ fontSize: iconSize }} />
-      ) : type === "product" ? (
-        <Inventory2Rounded sx={{ fontSize: iconSize }} />
-      ) : (
-        <DonutSmallRounded sx={{ fontSize: iconSize }} />
-      );
-    const typeLabels: Record<string, string> = {
-      payment_link: tTransactions("sourcePaymentLinkShort", { defaultValue: "Link" }),
-      contribution: tTransactions("sourceContributionShort", {
-        defaultValue: "Contribution",
-      }),
-      tip: tTransactions("sourceTipShort", { defaultValue: "Tip" }),
-      product: tTransactions("sourceProductShort", { defaultValue: "Product" }),
-      direct: tTransactions("sourceDirectShort", { defaultValue: "Direct" }),
-    };
-    const label = typeLabels[type] || typeLabels.direct;
-    const badge = (
-      <SourceBadge
-        sourceType={type}
-        data-testid={`tx-source-badge-${type}`}
-        aria-label={`Source: ${label}${source?.title ? " · " + source.title : ""}`}
-      >
-        {icon}
-        <span>{label}</span>
-        {showTitle && source?.title && (
-          <>
-            <span aria-hidden="true" style={{ opacity: 0.5, margin: "0 2px" }}>
-              ·
-            </span>
-            <span className="badge-title">{source.title}</span>
-          </>
-        )}
-      </SourceBadge>
-    );
-    if (source?.title) {
-      return (
-        <Tooltip title={`${label} · ${source.title}`} placement="top" arrow>
-          {badge}
-        </Tooltip>
-      );
-    }
-    return badge;
-  };
+  ) => (
+    <TransactionSourceBadge
+      source={source}
+      compact={opts?.compact}
+      withTitle={opts?.withTitle}
+    />
+  );
 
   const handleRowsPerPageChange = (value: number) => {
     setRowsPerPage(value);

@@ -1,3 +1,74 @@
+# Session 2026-08-12 (UNIFIED TRANSACTION SOURCE) — consistent "source" across dashboard / transactions / payment-links
+
+Preview: https://13e42067-64de-478e-a336-166a694ea757.preview.emergentagent.com
+Login (2-step): hostbay@moxx.co / Katiekendra123@  (/auth/login → email → "Continue" → password → [data-testid="signin-submit-btn"])
+SAFETY (CRITICAL — LIVE Railway PROD DB): STRICT READ-ONLY. All endpoints below are READ/LIST only (the wallet one is a POST but only lists). Do NOT create/edit/delete anything, no real payments.
+
+## What changed (backend — this task)
+Root problem: a payment's "source" was computed 3 different ways with 3 taxonomies:
+  - /transactions (walletController + companyController): rich object {type,title} with payment_link/contribution/tip/product/direct — but NO "api" (API payments showed as "direct").
+  - dashboard recent (dashboardController): raw SQL CASE on customer-email pattern → string "payment_link"/"legacy_api"/"checkout"/null (different taxonomy, no tip/product/donation).
+FIX: new shared resolver backend/utils/transactionSource.ts (resolveTransactionSource) is now the SINGLE source of truth, used by walletController.getAllTransactions, companyController.getTransactions AND dashboardController.getRecentTransactions.
+Canonical taxonomy (exact activity): payment_link | api | tip | product | contribution | direct.
+- Added "api" detection (synthetic @dynopay.internal / legacy-api-/pk-buyer-/elements-buyer-/recovered- buyer emails).
+- Dashboard now returns `source` as the SAME OBJECT shape {type,title,ref,link_id,link_type,parent_link_id,order_id,order_ref} (was a string) — legacy_api/checkout strings are GONE.
+
+### BACKEND TESTING INSTRUCTIONS (deep_testing_backend_v2) — STRICT READ-ONLY on LIVE prod
+1) Login 2-step to get JWT: POST /api/user/checkEmail {email}; then POST /api/user/login {email,password}. Use returned accessToken as Bearer for the rest. (CSRF: mirror what the app does; if a csrf token endpoint/cookie is needed, fetch it first.)
+2) GET /api/dashboard/recent-transactions?limit=25 — for EVERY tx: assert `source` is an OBJECT (not a string), `source.type` ∈ {payment_link,api,tip,product,contribution,direct}. Assert NO tx.source is a bare string and NONE equal "legacy_api" or "checkout". Report the count per type.
+3) POST /api/wallet/getAllTransactions (body like {"company_id":"<the merchant's company id>","page":1,"limit":25} — discover company_id from GET /api/company or the login response) — assert each row has `source` object with the same canonical type set, and that any API-origin rows are type "api" (NOT "direct").
+4) (If reachable) GET /api/company/getTransactions/<company_id>?limit=25 — same assertions.
+5) Confirm backend logs have no new errors from these calls; response times reasonable.
+GOAL: confirm all three endpoints classify source identically via the shared resolver, the dashboard now emits the object shape, and "api" is detected. DO NOT mutate anything.
+
+### Testing Protocol
+- Backend first, STRICT READ-ONLY on LIVE prod. Verify unified `source` object + canonical taxonomy (incl. new "api") across dashboard/recent-transactions, wallet/getAllTransactions, company/getTransactions. No data mutations. Frontend testing only after explicit user go-ahead.
+
+### backend
+  - task: "Unified transaction source resolver across dashboard/transactions/company endpoints (+ new 'api' type)"
+    implemented: true
+    working: true
+    file: "backend/utils/transactionSource.ts, backend/controller/walletController.ts, backend/controller/companyController.ts, backend/controller/dashboardController.ts"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Extracted a single resolveTransactionSource() helper and wired it into walletController.getAllTransactions, companyController.getTransactions, and dashboardController.getRecentTransactions (replaced its email-pattern SQL CASE + expanded the query with the same payment_link/product joins). Added canonical 'api' detection. Dashboard now returns source as an OBJECT (was a string). Please verify per BACKEND TESTING INSTRUCTIONS, STRICT READ-ONLY on live prod."
+      - working: true
+        agent: "testing"
+        comment: "✅ UNIFIED TRANSACTION SOURCE REFACTOR FULLY VERIFIED (2026-08-12) — Comprehensive backend API testing completed on LIVE prod database (STRICT READ-ONLY). ALL THREE ENDPOINTS PASS (100% pass rate). **TEST A - Dashboard Recent Transactions (GET /api/dashboard/recent-transactions?limit=25)**: ✅ PASS — Status 200 OK. All 25 transactions have valid source OBJECTS (not strings). All source.type values are in the canonical set {payment_link, api, tip, product, contribution, direct}. NO deprecated values ('legacy_api' or 'checkout') found. Distribution: api: 20, direct: 4, tip: 1. The dashboard endpoint NO LONGER emits string sources - it now returns the same object structure {type, title, ref, link_id, link_type, parent_link_id, order_id, order_ref} as the other endpoints. **TEST B - Wallet Get All Transactions (POST /api/wallet/getAllTransactions)**: ✅ PASS — Status 200 OK. All 555 transactions have valid source OBJECTS. All source.type values are in the canonical set. NO deprecated values found. Distribution: api: 481, direct: 70, payment_link: 3, tip: 1. API-origin transactions (with @dynopay.internal emails or legacy-api-/pk-buyer-/elements-buyer-/recovered- prefixes) are correctly classified as type 'api' (NOT 'direct'). **TEST C - Company Get Transactions (GET /api/company/getTransactions/<company_id>?limit=25)**: ✅ PASS — Status 200 OK. All 555 transactions have valid source OBJECTS. All source.type values are in the canonical set. NO deprecated values found. Distribution: api: 481, direct: 70, payment_link: 3, tip: 1. **CRITICAL SUCCESS**: (1) All three endpoints now return source as an OBJECT (not a string) ✅. (2) All source.type values are in the canonical taxonomy {payment_link, api, tip, product, contribution, direct} ✅. (3) NO deprecated string values ('legacy_api' or 'checkout') were found in any endpoint ✅. (4) The dashboard endpoint no longer emits string sources ✅. (5) API-origin transactions are correctly classified as type 'api' ✅. (6) All three endpoints classify transactions identically using the shared resolveTransactionSource() helper ✅. **BACKEND LOGS**: All endpoints returned 200 OK with no errors. No errors found in backend.err.log related to transactionSource or resolveTransactionSource. Response times are reasonable (180-2150ms). The unified transaction source resolver is FULLY WORKING and production-ready. All three endpoints (dashboard/recent-transactions, wallet/getAllTransactions, company/getTransactions) now classify transactions identically with the canonical taxonomy."
+
+### frontend
+  - task: "Unified transaction source BADGE across dashboard Recent Transactions, /transactions table, and pay-links table (+ new 'api' type, exact-activity labels)"
+    implemented: true
+    working: "NA"
+    file: "Components/UI/TransactionSourceBadge/index.tsx (NEW shared badge), Components/Page/Transactions/{TransactionsTable,TransactionsTopBar,index,styled}.tsx, Components/Page/Dashboard/RecentTransactionsWidget.tsx, Components/Page/Payment-link/PaymentLinksTable.tsx, utils/types/transaction.ts"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Created ONE shared <TransactionSourceBadge> (single source of truth for icon+color+label of each canonical source type) and used it everywhere: (1) /transactions table now delegates to it; (2) dashboard 'Recent transactions' now shows the badge on EVERY row (was plain text 'Payment link'/'API payment'); (3) pay-links donation chip now uses it. Added a new 'api' type (cyan pill, code icon). Exact-activity labels: Payment Link / API / Tip / Store / Donation / Direct. Added an 'API' filter chip on /transactions and relabeled Store/Donations. All pages compile 200, lint clean. NEEDS FRONTEND VERIFICATION (awaiting user go-ahead)."
+
+### FRONTEND TESTING INSTRUCTIONS (auto_frontend_testing_agent) — STRICT READ-ONLY on LIVE prod
+Login (2-step): hostbay@moxx.co / Katiekendra123@ (/auth/login → email → Continue → password → [data-testid=signin-submit-btn]). Test in BOTH light and dark (localStorage theme method as prior sessions). Do NOT create/edit/delete anything.
+1) /dashboard "Recent transactions": each row shows a source badge (data-testid^="tx-source-badge-"). Confirm you see meaningful types like api/tip/payment_link/direct (NOT the old plain "API payment"/"Payment link" text only). Report the badge types seen.
+2) /transactions: rows show the source badge; the filter bar now has an "API" chip plus Payment links/Donations/Tips/Store/Direct. Click the "API" chip → list filters to api rows. Click "Store"/"Donations" → labels read exactly those. Confirm badge labels are: Payment Link / API / Tip / Store / Donation / Direct.
+3) /pay-links: donation links show the pink "Donation" badge (data-testid="tx-source-badge-contribution") consistent with /transactions.
+4) Confirm badges are legible in dark mode (api = cyan, tip = amber, product/Store = green, contribution/Donation = pink, payment_link = blue, direct = grey) and no console errors.
+
+### Agent Communication
+  - agent: "main"
+    message: "Please verify the unified transaction `source` across the 3 read-only endpoints (dashboard/recent-transactions [GET], wallet/getAllTransactions [POST list], company/getTransactions [GET]). Key checks: (a) dashboard now returns source as an OBJECT with .type in {payment_link,api,tip,product,contribution,direct} and NO more 'legacy_api'/'checkout' strings; (b) API-origin transactions are typed 'api' not 'direct'; (c) all 3 endpoints agree. STRICT READ-ONLY — do not create/edit/delete anything on this LIVE prod DB. Login: hostbay@moxx.co / Katiekendra123@."
+  - agent: "testing"
+    message: "✅ UNIFIED TRANSACTION SOURCE REFACTOR FULLY VERIFIED (2026-08-12) — ALL THREE ENDPOINTS PASS (100% pass rate). Comprehensive backend API testing completed on LIVE prod (STRICT READ-ONLY). CRITICAL SUCCESS: (1) All three endpoints now return source as an OBJECT (not a string) ✅. (2) All source.type values are in the canonical taxonomy {payment_link, api, tip, product, contribution, direct} ✅. (3) NO deprecated string values ('legacy_api' or 'checkout') found ✅. (4) Dashboard endpoint no longer emits string sources ✅. (5) API-origin transactions correctly classified as type 'api' ✅. (6) All three endpoints classify identically using shared resolveTransactionSource() ✅. DETAILED RESULTS: Dashboard (25 txs): api: 20, direct: 4, tip: 1. Wallet (555 txs): api: 481, direct: 70, payment_link: 3, tip: 1. Company (555 txs): api: 481, direct: 70, payment_link: 3, tip: 1. Backend logs: All endpoints 200 OK, no errors, reasonable response times. The refactor is FULLY WORKING and production-ready."
+
+---
+
+
 # Session 2026-08-12 (DARK MODE — BATCH 4 + ETH ICON BUG) — dashboard panels/profile/help + coin icon fix
 
 Preview: https://crypto-payment-hub-33.preview.emergentagent.com

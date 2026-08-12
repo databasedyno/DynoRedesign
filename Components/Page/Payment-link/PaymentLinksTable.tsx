@@ -36,6 +36,7 @@ import CopyIcon from "@/assets/Icons/copy-icon.svg";
 import DescriptiontoIcon from "@/assets/Icons/crypto-icon.svg";
 import TimeUsedIcon from "@/assets/Icons/cryptocurrency_link.svg";
 import CoinChips from "@/Components/UI/CoinChips";
+import TransactionSourceBadge from "@/Components/UI/TransactionSourceBadge";
 import CryptoIcon from "@/assets/Icons/CryptoIcon.svg";
 import EditIcon from "@/assets/Icons/edit-icon.svg";
 import EyeIcon from "@/assets/Icons/eye-icon.svg";
@@ -183,30 +184,7 @@ const PaymentLinksTable = ({
 
   // ── Donation campaign helpers ──────────────────────────────────────
   const donationChip = (
-    <Box
-      component="span"
-      data-testid="donation-badge"
-      sx={{
-        display: "inline-flex",
-        alignItems: "center",
-        gap: "3px",
-        px: "7px",
-        py: "1px",
-        borderRadius: "999px",
-        fontSize: "10.5px",
-        fontWeight: 700,
-        fontFamily: "var(--font-sans)",
-        letterSpacing: "0.2px",
-        color: "#10B981",
-        backgroundColor:
-          theme.palette.mode === "dark" ? "rgba(16,185,129,0.14)" : "rgba(16,185,129,0.10)",
-        border: "1px solid rgba(16,185,129,0.35)",
-        whiteSpace: "nowrap",
-        flexShrink: 0,
-      }}
-    >
-      {t("donationBadge", { defaultValue: "Crowdfunding" })}
-    </Box>
+    <TransactionSourceBadge source={{ type: "contribution", title: null }} />
   );
 
   const donationProgressBar = (row: PaymentLinkData, maxWidth = 96) =>

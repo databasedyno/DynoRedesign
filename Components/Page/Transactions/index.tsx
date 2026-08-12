@@ -80,20 +80,25 @@ const TransactionPage = () => {
   useEffect(() => {
     if (!router.isReady || !router.query.source) return;
     const raw = String(router.query.source).toLowerCase();
-    const mapped: TransactionSourceType | "all" | null =
-      raw === "all"
-        ? "all"
-        : raw === "tips" || raw === "tip"
-          ? "tip"
-          : raw === "orders" || raw === "products" || raw === "product"
-            ? "product"
-            : raw === "contributions" || raw === "contribution"
-              ? "contribution"
-              : raw === "payment_link" || raw === "payment-links" || raw === "payment_links"
-                ? "payment_link"
-                : raw === "direct"
-                  ? "direct"
-                  : null;
+    const aliases: Record<string, TransactionSourceType | "all"> = {
+      all: "all",
+      api: "api",
+      tip: "tip",
+      tips: "tip",
+      product: "product",
+      products: "product",
+      orders: "product",
+      store: "product",
+      contribution: "contribution",
+      contributions: "contribution",
+      donation: "contribution",
+      donations: "contribution",
+      payment_link: "payment_link",
+      "payment-links": "payment_link",
+      payment_links: "payment_link",
+      direct: "direct",
+    };
+    const mapped: TransactionSourceType | "all" | null = aliases[raw] ?? null;
     if (mapped) setSelectedSource(mapped);
   }, [router.isReady, router.query.source]);
 

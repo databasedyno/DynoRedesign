@@ -26,6 +26,8 @@ import { useRouter } from "next/router";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import CustomButton from "@/Components/UI/Buttons";
+import TransactionSourceBadge from "@/Components/UI/TransactionSourceBadge";
+import { TransactionSource, TransactionSourceType } from "@/utils/types/transaction";
 
 /**
  * RecentTransactionsWidget — shows the 5 most recent transactions right on
@@ -63,15 +65,13 @@ interface RecentTx {
   customer_name?: string;
   customerName?: string;
   /**
-   * Set by the backend when it can determine how the transaction originated:
-   *   * 'payment_link' — merchant sent a Dynopay checkout URL to the payer
-   *   * 'legacy_api'   — accepted via the merchant's REST API
-   *   * 'checkout'     — accepted via other Dynopay-internal placeholders
-   *   * null/undefined — direct crypto receive or a real customer email
-   * The frontend uses this to render a friendly label instead of the
-   * synthetic `…@dynopay.internal` placeholder addresses.
+   * Canonical source object set by the backend's resolveTransactionSource()
+   * (same shape the /transactions page receives) so the dashboard renders the
+   * exact same <TransactionSourceBadge>. Older cached responses may still send
+   * the legacy string form ("payment_link" | "legacy_api" | "checkout"); that
+   * is normalized at render time.
    */
-  source?: "payment_link" | "legacy_api" | "checkout" | null;
+  source?: TransactionSource | string | null;
 }
 
 /**
@@ -523,42 +523,49 @@ const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
               const when = formatWhen(tx.createdAt || tx.created_at, t, i18n.language);
               const rawEmail = tx.customer_email || tx.customerEmail || "";
               const rawName = (tx as any).customer_name || (tx as any).customerName || "";
-              const source = tx.source;
+              const rawSource = tx.source;
 
-              // Prefer the backend-provided `source` when available. Fall back
-              // to email/name heuristics for older API responses that don't
-              // return the source field yet (cached responses, etc.).
+              // Normalize into the canonical object shape the shared
+              // <TransactionSourceBadge> expects. Older cached responses may
+              // still send the legacy string form ("legacy_api"/"checkout").
+              const legacyStringToType = (s: string): TransactionSourceType =>
+                s === "legacy_api" || s === "checkout"
+                  ? "api"
+                  : (s as TransactionSourceType);
               const isInternalId =
                 isInternalCustomerEmail(rawEmail) || isInternalCustomerName(rawName);
-              const hideCustomerId = source != null || isInternalId;
-              const email = hideCustomerId ? "" : rawEmail;
+              const normalizedSource:
+                | TransactionSource
+                | { type: TransactionSourceType; title: string | null }
+                | null =
+                rawSource && typeof rawSource === "object"
+                  ? (rawSource as TransactionSource)
+                  : typeof rawSource === "string"
+                    ? { type: legacyStringToType(rawSource), title: null }
+                    : isInternalId
+                      ? { type: "api", title: null }
+                      : null;
+              // Every row gets a badge for parity with /transactions; when we
+              // truly cannot tell, fall back to "direct".
+              const badgeSource: { type: TransactionSourceType; title: string | null } =
+                normalizedSource ?? { type: "direct", title: null };
+              const isDirectSource = badgeSource.type === "direct";
 
-              // Label priority:
-              //   1. `payment_link` source → "Payment link"
-              //   2. `legacy_api` or `checkout` source, or legacy internal id → "API payment"
-              //   3. real customer email → show email
-              //   4. nothing to show → status-aware time label. Session 54 fix:
-              //      previously ALWAYS showed "Received {when}", which is
-              //      misleading for unpaid/pending transactions. Now only paid
-              //      transactions say "Received"; pending say "Awaiting payment"
-              //      and failed/other say "Created".
-              let secondaryLabel: string;
-              if (source === "payment_link") {
-                secondaryLabel = t("paymentLinkLabel");
-              } else if (source === "legacy_api" || source === "checkout" || isInternalId) {
-                secondaryLabel = t("apiPaymentLabel");
-              } else if (email) {
-                secondaryLabel = email;
+              // Muted context beside the badge: a real customer email (only
+              // meaningful for direct receives) else a status-aware time.
+              const email =
+                isDirectSource && rawEmail && !isInternalId ? rawEmail : "";
+              let contextText = "";
+              if (email) {
+                contextText = email;
               } else if (when) {
                 const isPaid = ["confirmed", "completed", "settled", "success", "successful", "paid"].includes(status);
                 const isPendingState = ["pending", "waiting", "unconfirmed", "processing"].includes(status);
-                secondaryLabel = isPaid
+                contextText = isPaid
                   ? t("receivedWhen", { when })
                   : isPendingState
                     ? t("awaitingWhen", { when })
                     : t("createdWhen", { when });
-              } else {
-                secondaryLabel = "";
               }
               return (
                 <Box
@@ -651,24 +658,38 @@ const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
                         </Box>
                       )}
                     </Typography>
-                    {/* Secondary label hidden in compact mode to save vertical
-                        space — the primary line (amount + coin) plus the
-                        right-side status/time is enough context. */}
-                    {!isCompact && (
-                      <Typography
-                        sx={{
-                          fontFamily: "var(--font-sans)",
-                          fontSize: secondaryFontSize,
-                          color: theme.palette.text.secondary,
-                          mt: 0.25,
-                          whiteSpace: "nowrap",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                        }}
-                      >
-                        {secondaryLabel}
-                      </Typography>
-                    )}
+                    {/* Source badge — shown on EVERY row for parity with the
+                        /transactions table so merchants see at a glance whether
+                        a payment was a Tip / Store / Donation / Payment Link /
+                        API / Direct. The muted email/time context is dropped in
+                        compact density to save vertical space. */}
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 0.75,
+                        mt: 0.25,
+                        minWidth: 0,
+                      }}
+                    >
+                      <TransactionSourceBadge source={badgeSource} compact />
+                      {!isCompact && contextText && (
+                        <Typography
+                          component="span"
+                          sx={{
+                            fontFamily: "var(--font-sans)",
+                            fontSize: secondaryFontSize,
+                            color: theme.palette.text.secondary,
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            minWidth: 0,
+                          }}
+                        >
+                          {contextText}
+                        </Typography>
+                      )}
+                    </Box>
                   </Box>
                   <Box sx={{ textAlign: "right", flexShrink: 0 }}>
                     <Box
