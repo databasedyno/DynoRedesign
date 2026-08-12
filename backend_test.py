@@ -1,441 +1,612 @@
 #!/usr/bin/env python3
 """
-DynoPay API Backend Test - Wallet/Dashboard Reconciliation Verification (v2)
-STRICT READ-ONLY - LIVE PRODUCTION DATABASE
+DynoPay Consistency Fixes Verification (a+b+c)
+STRICT READ-ONLY testing on LIVE PRODUCTION database
+Tests: settled-basis for counts + fee-tier endpoint + unified status set
 """
 
 import requests
 import json
-from typing import Dict, Any, List
+from typing import Dict, Any, Optional
 
-BASE_URL = "https://13e42067-64de-478e-a336-166a694ea757.preview.emergentagent.com"
+# Use internal URL since we're testing from within the container
+# The backend proxy is on port 8001, which routes to the Node backend on 3300
+BASE_URL = "http://localhost:8001"
 EMAIL = "hostbay@moxx.co"
 PASSWORD = "Katiekendra123@"
+COMPANY_ID = 1
 
-class DynoPayAPITester:
+class DynoPayTester:
     def __init__(self):
         self.session = requests.Session()
         self.csrf_token = None
         self.access_token = None
-        self.company_id = None
-        
+        self.results = {
+            "test_a_dashboard": {},
+            "test_b_wallet": {},
+            "test_c_fee_tiers": {},
+            "test_d_status_codes": {},
+            "reconciliation": {},
+            "critical_checks": {}
+        }
+    
     def log(self, message: str, level: str = "INFO"):
         """Log test messages"""
-        print(f"[{level}] {message}")
-        
-    def get_csrf_token(self) -> bool:
-        """Step 1: Get CSRF token"""
+        prefix = "✅" if level == "PASS" else "❌" if level == "FAIL" else "ℹ️"
+        print(f"{prefix} {message}")
+    
+    def step_1_get_csrf_token(self) -> bool:
+        """Step 1: GET /api/csrf-token"""
         try:
-            self.log("Step 1: Getting CSRF token...")
-            response = self.session.get(f"{BASE_URL}/api/csrf-token")
+            self.log("STEP 1: Getting CSRF token...")
+            response = self.session.get(f"{BASE_URL}/api/csrf-token", timeout=30)
             
             if response.status_code != 200:
-                self.log(f"CSRF token request failed: {response.status_code}", "ERROR")
+                self.log(f"CSRF token request failed: {response.status_code}", "FAIL")
                 return False
-                
+            
             data = response.json()
-            self.csrf_token = data.get('csrf_token')
+            self.csrf_token = data.get("csrf_token") or data.get("csrfToken")
             
-            # Check for dynopay_csrf cookie
-            csrf_cookie = self.session.cookies.get('dynopay_csrf')
+            if not self.csrf_token:
+                self.log(f"No CSRF token in response: {data}", "FAIL")
+                return False
             
-            self.log(f"✓ CSRF token obtained: {self.csrf_token[:20]}...")
-            self.log(f"✓ CSRF cookie present: {csrf_cookie is not None}")
+            self.log(f"CSRF token obtained: {self.csrf_token[:20]}...")
             return True
             
         except Exception as e:
-            self.log(f"CSRF token error: {str(e)}", "ERROR")
+            self.log(f"CSRF token error: {str(e)}", "FAIL")
             return False
     
-    def check_email(self) -> bool:
-        """Step 2: Check email (optional - skip if not needed)"""
+    def step_2_check_email(self) -> bool:
+        """Step 2: POST /api/user/checkEmail (CSRF exempt)"""
         try:
-            self.log("Step 2: Checking email (skipping - not required for login)...")
-            # The checkEmail endpoint is GET and not required for login flow
-            # We can proceed directly to login
-            return True
-            
-        except Exception as e:
-            self.log(f"Check email error: {str(e)}", "ERROR")
-            return False
-    
-    def login(self) -> bool:
-        """Step 3: Login and get JWT token"""
-        try:
-            self.log("Step 3: Logging in...")
+            self.log("STEP 2: Checking email...")
             headers = {
-                'Content-Type': 'application/json',
-                'x-csrf-token': self.csrf_token
+                "Content-Type": "application/json"
+            }
+            payload = {"email": EMAIL}
+            
+            response = self.session.post(
+                f"{BASE_URL}/api/user/checkEmail",
+                json=payload,
+                headers=headers,
+                timeout=30
+            )
+            
+            if response.status_code != 200:
+                self.log(f"checkEmail failed: {response.status_code} - {response.text}", "FAIL")
+                return False
+            
+            data = response.json()
+            self.log(f"Email check response: {data}")
+            return True
+            
+        except Exception as e:
+            self.log(f"checkEmail error: {str(e)}", "FAIL")
+            return False
+    
+    def step_3_login(self) -> bool:
+        """Step 3: POST /api/user/login (CSRF exempt)"""
+        try:
+            self.log("STEP 3: Logging in...")
+            headers = {
+                "Content-Type": "application/json"
+            }
+            payload = {
+                "email": EMAIL,
+                "password": PASSWORD
             }
             
             response = self.session.post(
                 f"{BASE_URL}/api/user/login",
-                json={"email": EMAIL, "password": PASSWORD},
-                headers=headers
+                json=payload,
+                headers=headers,
+                timeout=30
             )
             
             if response.status_code != 200:
-                self.log(f"Login failed: {response.status_code}", "ERROR")
-                self.log(f"Response: {response.text}", "ERROR")
+                self.log(f"Login failed: {response.status_code} - {response.text}", "FAIL")
                 return False
-                
+            
             data = response.json()
-            
-            # Handle nested response structure
-            if 'data' in data and isinstance(data['data'], dict):
-                token_data = data['data']
-            else:
-                token_data = data
-            
-            self.access_token = token_data.get('accessToken') or token_data.get('access_token') or token_data.get('token')
-            
-            # Try to extract company_id from userData if available
-            user_data = token_data.get('userData', {})
-            if user_data and user_data.get('last_company_id'):
-                self.company_id = user_data.get('last_company_id')
-                self.log(f"✓ Company ID from login: {self.company_id}")
+            # Access token can be at top level or nested in data
+            self.access_token = (data.get("accessToken") or 
+                               data.get("access_token") or
+                               data.get("data", {}).get("accessToken") or
+                               data.get("data", {}).get("access_token"))
             
             if not self.access_token:
-                self.log("No access token in login response", "ERROR")
-                self.log(f"Response structure: {json.dumps(data, indent=2)[:500]}", "ERROR")
+                self.log(f"No access token in login response: {list(data.keys())}", "FAIL")
                 return False
-                
-            self.log(f"✓ Login successful, access token obtained")
+            
+            self.log(f"Login successful, access token obtained: {self.access_token[:20]}...")
             return True
             
         except Exception as e:
-            self.log(f"Login error: {str(e)}", "ERROR")
+            self.log(f"Login error: {str(e)}", "FAIL")
             return False
     
-    def get_company_id(self) -> bool:
-        """Step A: Get company_id"""
+    def test_a_dashboard(self) -> bool:
+        """TEST A: GET /api/dashboard/?company_id=1"""
         try:
-            # If we already have company_id from login, skip this step
-            if self.company_id:
-                self.log(f"\nStep A: Company ID already obtained from login: {self.company_id}")
-                return True
-                
-            self.log("\nStep A: Getting company_id...")
-            headers = {
-                'Authorization': f'Bearer {self.access_token}'
-            }
+            self.log("\n" + "="*80)
+            self.log("TEST A: Dashboard Total Volume & Transaction Counts")
+            self.log("="*80)
             
+            headers = {"Authorization": f"Bearer {self.access_token}"}
             response = self.session.get(
-                f"{BASE_URL}/api/company/getCompany",
-                headers=headers
+                f"{BASE_URL}/api/dashboard/?company_id={COMPANY_ID}",
+                headers=headers,
+                timeout=30
             )
             
-            if response.status_code != 200:
-                self.log(f"Get company failed: {response.status_code}", "ERROR")
-                self.log(f"Response: {response.text}", "ERROR")
-                return False
-                
-            data = response.json()
-            
-            # Handle different response structures
-            if isinstance(data, list) and len(data) > 0:
-                self.company_id = data[0].get('id') or data[0].get('company_id')
-            elif isinstance(data, dict):
-                # Check if data is nested
-                if 'data' in data:
-                    companies = data['data']
-                    if isinstance(companies, list) and len(companies) > 0:
-                        self.company_id = companies[0].get('id') or companies[0].get('company_id')
-                    elif isinstance(companies, dict):
-                        self.company_id = companies.get('id') or companies.get('company_id')
-                else:
-                    self.company_id = data.get('id') or data.get('company_id')
-            
-            if not self.company_id:
-                self.log(f"Could not extract company_id from response: {json.dumps(data, indent=2)}", "ERROR")
-                return False
-                
-            self.log(f"✓ Company ID: {self.company_id}")
-            return True
-            
-        except Exception as e:
-            self.log(f"Get company error: {str(e)}", "ERROR")
-            return False
-    
-    def get_dashboard_total(self) -> Dict[str, Any]:
-        """Step B: Get dashboard total volume"""
-        try:
-            self.log("\nStep B: Getting dashboard total volume...")
-            headers = {
-                'Authorization': f'Bearer {self.access_token}'
-            }
-            
-            response = self.session.get(
-                f"{BASE_URL}/api/dashboard/?company_id={self.company_id}",
-                headers=headers
-            )
+            self.results["test_d_status_codes"]["dashboard"] = response.status_code
             
             if response.status_code != 200:
-                self.log(f"Get dashboard failed: {response.status_code}", "ERROR")
-                self.log(f"Response: {response.text[:500]}", "ERROR")
-                return {}
-                
-            data = response.json()
+                self.log(f"Dashboard request failed: {response.status_code} - {response.text}", "FAIL")
+                return False
             
-            # Handle nested response structure
-            if 'data' in data and isinstance(data['data'], dict):
-                dashboard_data = data['data']
-            else:
-                dashboard_data = data
+            resp_data = response.json()
+            # Handle nested data field
+            data = resp_data.get("data", resp_data)
+            
+            self.log(f"Dashboard response keys: {list(data.keys())}")
             
             # Extract total_volume
-            total_volume = dashboard_data.get('total_volume', {})
+            total_volume = data.get("total_volume") or data.get("totalVolume")
+            if total_volume:
+                amount = total_volume.get("amount")
+                currency = total_volume.get("currency")
+                self.results["test_a_dashboard"]["total_volume_amount"] = amount
+                self.results["test_a_dashboard"]["total_volume_currency"] = currency
+                self.log(f"Total Volume: {amount} {currency}")
+                
+                # Check if it's the expected settled value (~$23,883.21)
+                if amount and abs(float(amount) - 23883.21) < 100:
+                    self.log(f"✅ Total volume is settled value (~$23,883.21): ${amount}", "PASS")
+                    self.results["critical_checks"]["dashboard_settled_volume"] = True
+                elif amount and abs(float(amount) - 26378.21) < 100:
+                    self.log(f"❌ Total volume is OLD all-status value ($26,378.21): ${amount}", "FAIL")
+                    self.results["critical_checks"]["dashboard_settled_volume"] = False
+                else:
+                    self.log(f"⚠️ Total volume is unexpected: ${amount}")
+                    self.results["critical_checks"]["dashboard_settled_volume"] = None
             
-            amount = total_volume.get('amount', 0)
-            currency = total_volume.get('currency', 'USD')
+            # Extract transaction counts
+            total_transactions = data.get("total_transactions") or data.get("totalTransactions")
+            if total_transactions:
+                count = total_transactions.get("count")
+                self.results["test_a_dashboard"]["total_transactions_count"] = count
+                self.log(f"Total Transactions Count: {count}")
+                
+                # Check if it's the expected settled count (~377, NOT ~556)
+                if count and 370 <= count <= 385:
+                    self.log(f"✅ Transaction count is SETTLED (~377, excludes pending): {count}", "PASS")
+                    self.results["critical_checks"]["counts_exclude_pending"] = True
+                elif count and 550 <= count <= 560:
+                    self.log(f"❌ Transaction count is OLD all-status (~556, includes pending): {count}", "FAIL")
+                    self.results["critical_checks"]["counts_exclude_pending"] = False
+                else:
+                    self.log(f"⚠️ Transaction count is unexpected: {count}")
+                    self.results["critical_checks"]["counts_exclude_pending"] = None
             
-            self.log(f"✓ Dashboard Total Volume: ${amount:,.2f} {currency}")
+            # Look for pending count - check multiple possible locations
+            pending_count = None
             
-            return {
-                'amount': amount,
-                'currency': currency,
-                'raw_data': dashboard_data
-            }
+            # Check pending_transactions object
+            pending_transactions = data.get("pending_transactions") or data.get("pendingTransactions")
+            if pending_transactions:
+                pending_count = pending_transactions.get("count")
+            
+            # Check today_summary
+            if pending_count is None:
+                today_summary = data.get("today_summary") or data.get("todaySummary")
+                if today_summary:
+                    pending_count = today_summary.get("pending_count") or today_summary.get("pendingCount")
+            
+            # Check top level
+            if pending_count is None:
+                pending_count = data.get("pending_count") or data.get("pendingCount") or data.get("pending")
+            
+            if pending_count is not None:
+                self.results["test_a_dashboard"]["pending_count"] = pending_count
+                self.log(f"Pending Count: {pending_count}")
+                
+                # Check if pending count is in expected range (~178-179)
+                if 170 <= pending_count <= 185:
+                    self.log(f"✅ Pending count is in expected range (~178-179): {pending_count}", "PASS")
+                    self.results["critical_checks"]["pending_shown_separately"] = True
+                else:
+                    self.log(f"⚠️ Pending count outside expected range: {pending_count}")
+                    self.results["critical_checks"]["pending_shown_separately"] = None
+            else:
+                self.log("⚠️ No pending count field found in dashboard response")
+                self.results["critical_checks"]["pending_shown_separately"] = False
+            
+            # Store full response for debugging
+            self.results["test_a_dashboard"]["full_response"] = resp_data
+            
+            return True
             
         except Exception as e:
-            self.log(f"Get dashboard error: {str(e)}", "ERROR")
-            return {}
+            self.log(f"Dashboard test error: {str(e)}", "FAIL")
+            return False
     
-    def get_wallet_totals(self) -> Dict[str, Any]:
-        """Step C: Get wallet totals"""
+    def test_b_wallet(self) -> bool:
+        """TEST B: GET /api/wallet/getWallet?company_id=1"""
         try:
-            self.log("\nStep C: Getting wallet totals...")
-            headers = {
-                'Authorization': f'Bearer {self.access_token}'
-            }
+            self.log("\n" + "="*80)
+            self.log("TEST B: Wallet Total (Sum of amount_in_usd)")
+            self.log("="*80)
             
+            headers = {"Authorization": f"Bearer {self.access_token}"}
             response = self.session.get(
-                f"{BASE_URL}/api/wallet/getWallet?company_id={self.company_id}",
-                headers=headers
+                f"{BASE_URL}/api/wallet/getWallet?company_id={COMPANY_ID}",
+                headers=headers,
+                timeout=30
             )
             
+            self.results["test_d_status_codes"]["wallet"] = response.status_code
+            
             if response.status_code != 200:
-                self.log(f"Get wallet failed: {response.status_code}", "ERROR")
-                self.log(f"Response: {response.text[:500]}", "ERROR")
-                return {}
-                
-            data = response.json()
+                self.log(f"Wallet request failed: {response.status_code} - {response.text}", "FAIL")
+                return False
             
-            # Handle nested response structure
-            if 'data' in data and isinstance(data['data'], list):
-                wallet_groups = data['data']
-            elif 'data' in data and isinstance(data['data'], dict):
-                wallet_groups = [data['data']]
-            elif isinstance(data, list):
-                wallet_groups = data
-            else:
-                wallet_groups = [data]
+            resp_data = response.json()
+            # Handle nested data field - data is an array of company wallet groups
+            data_array = resp_data.get("data", [])
             
-            # Calculate totals across all wallet groups
+            # Calculate sum of amount_in_usd across all companies and wallets
             s_usd = 0.0
-            s_base = 0.0
-            base_currency = None
             wallet_details = []
+            total_wallet_count = 0
             
-            for group in wallet_groups:
-                # Get base currency from group
-                if base_currency is None:
-                    base_currency = group.get('base_currency', 'USD')
-                
-                # Get wallets from group
-                wallets = group.get('wallets', [])
+            for company_group in data_array:
+                wallets = company_group.get("wallets", [])
+                total_wallet_count += len(wallets)
                 
                 for wallet in wallets:
-                    # Handle both string and numeric amounts
-                    amount_usd_raw = wallet.get('amount_in_usd', 0)
-                    amount_base_raw = wallet.get('amount_in_base_currency', 0)
+                    # amount_in_usd can be a string or number
+                    amount_in_usd = wallet.get("amount_in_usd") or wallet.get("amountInUsd") or wallet.get("amount_in_base_currency") or 0
+                    if isinstance(amount_in_usd, str):
+                        amount_in_usd = float(amount_in_usd) if amount_in_usd else 0
                     
-                    amount_usd = float(amount_usd_raw) if amount_usd_raw else 0.0
-                    amount_base = float(amount_base_raw) if amount_base_raw else 0.0
+                    currency = wallet.get("wallet_type") or wallet.get("currency") or wallet.get("crypto_currency") or "UNKNOWN"
                     
-                    currency = wallet.get('wallet_type', wallet.get('currency', 'UNKNOWN'))
-                    
-                    s_usd += amount_usd
-                    s_base += amount_base
-                    
-                    wallet_details.append({
-                        'currency': currency,
-                        'amount_in_usd': amount_usd,
-                        'amount_in_base_currency': amount_base
-                    })
+                    if amount_in_usd > 0:
+                        wallet_details.append(f"{currency}: ${amount_in_usd:.2f}")
+                        s_usd += float(amount_in_usd)
             
-            # If no base_currency found, default to USD
-            if base_currency is None:
-                base_currency = 'USD'
+            self.results["test_b_wallet"]["s_usd"] = s_usd
+            self.results["test_b_wallet"]["wallet_count"] = total_wallet_count
+            self.results["test_b_wallet"]["non_zero_wallets"] = len(wallet_details)
+            self.results["test_b_wallet"]["wallet_details"] = wallet_details
             
-            self.log(f"✓ Wallet Totals:")
-            self.log(f"  - S_usd (sum of amount_in_usd): ${s_usd:,.2f}")
-            self.log(f"  - S_base (sum of amount_in_base_currency): {s_base:,.2f} {base_currency}")
-            self.log(f"  - Base currency: {base_currency}")
-            self.log(f"  - Number of wallets: {len(wallet_details)}")
+            self.log(f"Found {total_wallet_count} wallets across {len(data_array)} company group(s)")
+            self.log(f"Wallet Total (S_usd): ${s_usd:.2f}")
+            if wallet_details:
+                self.log(f"Non-zero wallets ({len(wallet_details)}):")
+                for detail in wallet_details:
+                    self.log(f"  - {detail}")
+            else:
+                self.log("No non-zero wallets found")
             
-            # Show per-wallet breakdown
-            self.log(f"\n  Per-wallet breakdown:")
-            non_zero_count = 0
-            for wallet in wallet_details:
-                if wallet['amount_in_usd'] > 0:
-                    self.log(f"    {wallet['currency']}: ${wallet['amount_in_usd']:,.2f}")
-                    non_zero_count += 1
-            
-            if non_zero_count == 0:
-                self.log(f"    (All wallets have zero balance)")
-            
-            return {
-                's_usd': s_usd,
-                's_base': s_base,
-                'base_currency': base_currency,
-                'wallet_details': wallet_details,
-                'raw_data': wallet_groups
-            }
+            return True
             
         except Exception as e:
-            self.log(f"Get wallet error: {str(e)}", "ERROR")
+            self.log(f"Wallet test error: {str(e)}", "FAIL")
             import traceback
-            self.log(f"Traceback: {traceback.format_exc()}", "ERROR")
-            return {}
+            self.log(f"Traceback: {traceback.format_exc()}", "FAIL")
+            return False
     
-    def compare_totals(self, dashboard: Dict[str, Any], wallet: Dict[str, Any]) -> Dict[str, Any]:
-        """Step D: Compare dashboard and wallet totals"""
+    def test_c_fee_tiers(self) -> bool:
+        """TEST C: GET /api/dashboard/fee-tiers?company_id=1"""
         try:
             self.log("\n" + "="*80)
-            self.log("STEP D: RECONCILIATION COMPARISON")
+            self.log("TEST C: Fee Tiers Volume (Should be SETTLED)")
             self.log("="*80)
             
-            dashboard_amount = dashboard.get('amount', 0)
-            dashboard_currency = dashboard.get('currency', 'USD')
+            headers = {"Authorization": f"Bearer {self.access_token}"}
+            response = self.session.get(
+                f"{BASE_URL}/api/dashboard/fee-tiers?company_id={COMPANY_ID}",
+                headers=headers,
+                timeout=30
+            )
             
-            wallet_s_usd = wallet.get('s_usd', 0)
-            wallet_s_base = wallet.get('s_base', 0)
-            wallet_currency = wallet.get('base_currency', 'USD')
+            self.results["test_d_status_codes"]["fee_tiers"] = response.status_code
             
-            # Calculate difference
-            difference = abs(wallet_s_base - dashboard_amount)
-            tolerance = 0.01  # $0.01 as specified
+            if response.status_code != 200:
+                self.log(f"Fee tiers request failed: {response.status_code} - {response.text}", "FAIL")
+                return False
             
-            # Determine pass/fail
-            passed = difference <= tolerance
+            resp_data = response.json()
+            # Handle nested data field
+            data = resp_data.get("data", resp_data)
             
-            self.log(f"\nDashboard Total Volume:")
-            self.log(f"  amount: ${dashboard_amount:,.2f}")
-            self.log(f"  currency: {dashboard_currency}")
+            self.log(f"Fee tiers response keys: {list(data.keys())}")
             
-            self.log(f"\nWallet Totals:")
-            self.log(f"  S_usd: ${wallet_s_usd:,.2f}")
-            self.log(f"  S_base: {wallet_s_base:,.2f} {wallet_currency}")
-            self.log(f"  base_currency: {wallet_currency}")
+            # Look for volume fields in user_tier or at top level
+            fee_tier_volume = None
+            volume_field_name = None
             
-            self.log(f"\nReconciliation Analysis:")
-            self.log(f"  Absolute difference: ${difference:,.2f}")
-            self.log(f"  Tolerance threshold: ${tolerance:,.2f}")
-            self.log(f"  Currency match: {dashboard_currency == wallet_currency}")
+            # Check user_tier first
+            user_tier = data.get("user_tier") or data.get("userTier")
+            if user_tier:
+                volume_fields = [
+                    "total_volume", "totalVolume", "cumulative_volume", "cumulativeVolume",
+                    "current_volume", "currentVolume", "volume", "processed_volume"
+                ]
+                for field in volume_fields:
+                    if field in user_tier:
+                        fee_tier_volume = user_tier[field]
+                        volume_field_name = f"user_tier.{field}"
+                        break
             
-            if passed:
-                self.log(f"\n✅ PASS - EXACT PARITY ACHIEVED (difference <= $0.01)", "SUCCESS")
+            # If not found, check top level
+            if fee_tier_volume is None:
+                volume_fields = [
+                    "total_volume", "totalVolume", "cumulative_volume", "cumulativeVolume",
+                    "current_volume", "currentVolume", "volume", "processed_volume"
+                ]
+                for field in volume_fields:
+                    if field in data:
+                        fee_tier_volume = data[field]
+                        volume_field_name = field
+                        break
+            
+            # If volume is an object, extract amount
+            if isinstance(fee_tier_volume, dict):
+                fee_tier_volume = fee_tier_volume.get("amount") or fee_tier_volume.get("value")
+            
+            if fee_tier_volume is not None:
+                self.results["test_c_fee_tiers"]["volume"] = fee_tier_volume
+                self.results["test_c_fee_tiers"]["volume_field"] = volume_field_name
+                self.log(f"Fee Tier Volume (field: {volume_field_name}): ${fee_tier_volume}")
+                
+                # Check if it's the expected settled value (~$23,883.21)
+                if abs(float(fee_tier_volume) - 23883.21) < 100:
+                    self.log(f"✅ Fee tier volume is SETTLED value (~$23,883.21): ${fee_tier_volume}", "PASS")
+                    self.results["critical_checks"]["fee_tier_settled"] = True
+                elif abs(float(fee_tier_volume) - 26378.21) < 100:
+                    self.log(f"❌ Fee tier volume is OLD all-status value ($26,378.21): ${fee_tier_volume}", "FAIL")
+                    self.results["critical_checks"]["fee_tier_settled"] = False
+                else:
+                    self.log(f"⚠️ Fee tier volume is unexpected: ${fee_tier_volume}")
+                    self.results["critical_checks"]["fee_tier_settled"] = None
             else:
-                self.log(f"\n❌ FAIL - Difference ${difference:,.2f} exceeds tolerance ${tolerance:,.2f}", "ERROR")
+                self.log("⚠️ Could not find volume field in fee tiers response")
+                self.results["critical_checks"]["fee_tier_settled"] = None
             
-            # Additional checks
-            if dashboard_currency == 'USD':
-                usd_match = abs(wallet_s_usd - dashboard_amount) <= tolerance
-                self.log(f"\nUSD Check:")
-                self.log(f"  S_usd vs dashboard: ${abs(wallet_s_usd - dashboard_amount):,.2f} difference")
-                self.log(f"  USD match: {'✅ PASS' if usd_match else '❌ FAIL'}")
+            # Extract current tier info
+            current_tier = None
+            if user_tier:
+                current_tier = user_tier.get("current_tier") or user_tier.get("currentTier")
+            if not current_tier:
+                current_tier = data.get("current_tier") or data.get("currentTier")
             
-            # Expected value check
-            expected_value = 23883.21
-            expected_tolerance = 100.0  # Allow some variance
-            is_expected = abs(dashboard_amount - expected_value) <= expected_tolerance
+            if current_tier:
+                self.results["test_c_fee_tiers"]["current_tier"] = current_tier
+                self.log(f"Current Tier: {current_tier}")
             
-            self.log(f"\nExpected Value Check:")
-            self.log(f"  Expected: ~${expected_value:,.2f} (settled transactions only)")
-            self.log(f"  Actual: ${dashboard_amount:,.2f}")
-            self.log(f"  Within expected range: {'✅ YES' if is_expected else '⚠️ NO (but may be valid)'}")
+            # Extract next tier threshold
+            next_tier_threshold = None
+            if user_tier:
+                next_tier_threshold = user_tier.get("amount_to_next_tier") or user_tier.get("amountToNextTier")
+            if not next_tier_threshold:
+                next_tier = data.get("next_tier") or data.get("nextTier")
+                if next_tier:
+                    next_tier_threshold = next_tier.get("threshold") or next_tier.get("min_volume")
             
-            return {
-                'passed': passed,
-                'difference': difference,
-                'tolerance': tolerance,
-                'dashboard_amount': dashboard_amount,
-                'dashboard_currency': dashboard_currency,
-                'wallet_s_usd': wallet_s_usd,
-                'wallet_s_base': wallet_s_base,
-                'wallet_currency': wallet_currency,
-                'is_expected_value': is_expected
-            }
+            if next_tier_threshold:
+                self.results["test_c_fee_tiers"]["next_tier_threshold"] = next_tier_threshold
+                self.log(f"Next Tier Threshold: ${next_tier_threshold}")
+            
+            # Store full response
+            self.results["test_c_fee_tiers"]["full_response"] = resp_data
+            
+            return True
             
         except Exception as e:
-            self.log(f"Comparison error: {str(e)}", "ERROR")
-            return {'passed': False, 'error': str(e)}
+            self.log(f"Fee tiers test error: {str(e)}", "FAIL")
+            return False
+    
+    def reconcile_dashboard_wallet(self):
+        """Reconcile dashboard total_volume with wallet sum"""
+        try:
+            self.log("\n" + "="*80)
+            self.log("RECONCILIATION: Dashboard ↔ Wallet")
+            self.log("="*80)
+            
+            dashboard_amount = self.results["test_a_dashboard"].get("total_volume_amount")
+            wallet_sum = self.results["test_b_wallet"].get("s_usd")
+            
+            if dashboard_amount is None or wallet_sum is None:
+                self.log("⚠️ Cannot reconcile: missing dashboard or wallet data", "FAIL")
+                return False
+            
+            dashboard_amount = float(dashboard_amount)
+            wallet_sum = float(wallet_sum)
+            
+            difference = abs(dashboard_amount - wallet_sum)
+            
+            self.results["reconciliation"]["dashboard_amount"] = dashboard_amount
+            self.results["reconciliation"]["wallet_sum"] = wallet_sum
+            self.results["reconciliation"]["difference"] = difference
+            
+            self.log(f"Dashboard Total Volume: ${dashboard_amount:.2f}")
+            self.log(f"Wallet Sum (S_usd): ${wallet_sum:.2f}")
+            self.log(f"Absolute Difference: ${difference:.2f}")
+            
+            # Check if within tolerance (<= $0.01)
+            if difference <= 0.01:
+                self.log(f"✅ EXACT PARITY: Difference ${difference:.2f} <= $0.01 tolerance", "PASS")
+                self.results["critical_checks"]["exact_parity"] = True
+                return True
+            else:
+                self.log(f"❌ PARITY FAILED: Difference ${difference:.2f} > $0.01 tolerance", "FAIL")
+                self.results["critical_checks"]["exact_parity"] = False
+                return False
+            
+        except Exception as e:
+            self.log(f"Reconciliation error: {str(e)}", "FAIL")
+            return False
     
     def check_backend_logs(self):
-        """Step F: Check backend logs for errors"""
+        """Check backend logs for errors"""
         try:
             self.log("\n" + "="*80)
-            self.log("STEP F: BACKEND LOG CHECK")
+            self.log("TEST D: Backend Logs Check")
             self.log("="*80)
-            self.log("Note: Backend logs will be checked separately via supervisor logs")
             
+            import subprocess
+            result = subprocess.run(
+                ["tail", "-n", "100", "/var/log/supervisor/backend.err.log"],
+                capture_output=True,
+                text=True,
+                timeout=10
+            )
+            
+            if result.returncode == 0:
+                error_log = result.stdout
+                if error_log.strip():
+                    # Look for recent errors related to our endpoints
+                    recent_errors = [line for line in error_log.split('\n') 
+                                   if any(keyword in line.lower() for keyword in 
+                                         ['error', 'exception', 'dashboard', 'wallet', 'fee-tier'])]
+                    
+                    if recent_errors:
+                        self.log(f"⚠️ Found {len(recent_errors)} potential error lines in backend logs")
+                        for line in recent_errors[-5:]:  # Show last 5
+                            self.log(f"  {line}")
+                    else:
+                        self.log("✅ No errors found in backend logs", "PASS")
+                        self.results["critical_checks"]["no_backend_errors"] = True
+                else:
+                    self.log("✅ Backend error log is empty", "PASS")
+                    self.results["critical_checks"]["no_backend_errors"] = True
+            else:
+                self.log("⚠️ Could not read backend logs")
+                
         except Exception as e:
-            self.log(f"Log check error: {str(e)}", "ERROR")
+            self.log(f"Backend log check error: {str(e)}")
     
-    def run_full_test(self) -> Dict[str, Any]:
-        """Run the complete test suite"""
+    def print_summary(self):
+        """Print comprehensive test summary"""
+        self.log("\n" + "="*80)
+        self.log("COMPREHENSIVE TEST SUMMARY")
         self.log("="*80)
-        self.log("DynoPay API Backend Test - Wallet/Dashboard Reconciliation (v2)")
-        self.log("STRICT READ-ONLY - LIVE PRODUCTION DATABASE")
+        
+        # Test A Summary
+        self.log("\n📊 TEST A - Dashboard Total Volume & Counts:")
+        dashboard = self.results["test_a_dashboard"]
+        self.log(f"  Total Volume: ${dashboard.get('total_volume_amount')} {dashboard.get('total_volume_currency')}")
+        self.log(f"  Total Transactions Count: {dashboard.get('total_transactions_count')}")
+        self.log(f"  Pending Count: {dashboard.get('pending_count')}")
+        
+        # Test B Summary
+        self.log("\n💰 TEST B - Wallet Total:")
+        wallet = self.results["test_b_wallet"]
+        self.log(f"  S_usd (Sum of amount_in_usd): ${wallet.get('s_usd', 0):.2f}")
+        self.log(f"  Total Wallets: {wallet.get('wallet_count')}")
+        self.log(f"  Non-zero Wallets: {wallet.get('non_zero_wallets')}")
+        if wallet.get('wallet_details'):
+            for detail in wallet['wallet_details']:
+                self.log(f"    - {detail}")
+        
+        # Test C Summary
+        self.log("\n🎯 TEST C - Fee Tiers Volume:")
+        fee_tiers = self.results["test_c_fee_tiers"]
+        self.log(f"  Volume: ${fee_tiers.get('volume')}")
+        self.log(f"  Current Tier: {fee_tiers.get('current_tier')}")
+        self.log(f"  Next Tier Threshold: ${fee_tiers.get('next_tier_threshold')}")
+        
+        # Reconciliation Summary
+        self.log("\n🔄 RECONCILIATION (Dashboard ↔ Wallet):")
+        recon = self.results["reconciliation"]
+        self.log(f"  Dashboard: ${recon.get('dashboard_amount', 0):.2f}")
+        self.log(f"  Wallet: ${recon.get('wallet_sum', 0):.2f}")
+        self.log(f"  Difference: ${recon.get('difference', 0):.2f}")
+        
+        # Status Codes
+        self.log("\n📡 TEST D - HTTP Status Codes:")
+        status_codes = self.results["test_d_status_codes"]
+        for endpoint, code in status_codes.items():
+            status = "✅" if code == 200 else "❌"
+            self.log(f"  {status} {endpoint}: {code}")
+        
+        # Critical Checks
+        self.log("\n🎯 CRITICAL CHECKS:")
+        checks = self.results["critical_checks"]
+        
+        check_items = [
+            ("dashboard_settled_volume", "Dashboard uses SETTLED volume (~$23,883.21, NOT $26,378.21)"),
+            ("counts_exclude_pending", "Transaction counts EXCLUDE pending (~377, NOT ~556)"),
+            ("pending_shown_separately", "Pending count shown separately (~178-179)"),
+            ("fee_tier_settled", "Fee tier uses SETTLED volume (~$23,883.21, NOT $26,378.21)"),
+            ("exact_parity", "Dashboard ↔ Wallet EXACT parity (difference <= $0.01)"),
+            ("no_backend_errors", "No backend errors in logs")
+        ]
+        
+        all_pass = True
+        for key, description in check_items:
+            value = checks.get(key)
+            if value is True:
+                self.log(f"  ✅ PASS: {description}")
+            elif value is False:
+                self.log(f"  ❌ FAIL: {description}")
+                all_pass = False
+            else:
+                self.log(f"  ⚠️ UNKNOWN: {description}")
+                all_pass = False
+        
+        # Final Verdict
+        self.log("\n" + "="*80)
+        if all_pass:
+            self.log("🎉 OVERALL RESULT: ✅ ALL TESTS PASS", "PASS")
+            self.log("The consistency fixes (a+b+c) are FULLY WORKING.")
+        else:
+            self.log("⚠️ OVERALL RESULT: ❌ SOME TESTS FAILED", "FAIL")
+            self.log("Review the critical checks above for details.")
         self.log("="*80)
         
-        # Authentication flow
-        if not self.get_csrf_token():
-            return {'success': False, 'error': 'CSRF token failed'}
+        return all_pass
+    
+    def run_all_tests(self):
+        """Run all tests in sequence"""
+        self.log("="*80)
+        self.log("DynoPay Consistency Fixes Verification (a+b+c)")
+        self.log("STRICT READ-ONLY on LIVE PRODUCTION database")
+        self.log("="*80)
         
-        if not self.check_email():
-            return {'success': False, 'error': 'Email check failed'}
+        # Authentication (login endpoint is CSRF-exempt, skip checkEmail)
+        if not self.step_3_login():
+            return False
         
-        if not self.login():
-            return {'success': False, 'error': 'Login failed'}
+        # Run tests
+        self.test_a_dashboard()
+        self.test_b_wallet()
+        self.test_c_fee_tiers()
         
-        # Get company ID
-        if not self.get_company_id():
-            return {'success': False, 'error': 'Get company_id failed'}
-        
-        # Get dashboard and wallet data
-        dashboard = self.get_dashboard_total()
-        if not dashboard:
-            return {'success': False, 'error': 'Get dashboard failed'}
-        
-        wallet = self.get_wallet_totals()
-        if not wallet:
-            return {'success': False, 'error': 'Get wallet failed'}
-        
-        # Compare totals
-        comparison = self.compare_totals(dashboard, wallet)
+        # Reconciliation
+        self.reconcile_dashboard_wallet()
         
         # Check logs
         self.check_backend_logs()
         
-        self.log("\n" + "="*80)
-        self.log("TEST COMPLETE")
-        self.log("="*80)
-        
-        return {
-            'success': True,
-            'comparison': comparison,
-            'dashboard': dashboard,
-            'wallet': wallet
-        }
+        # Print summary
+        return self.print_summary()
+
 
 if __name__ == "__main__":
-    tester = DynoPayAPITester()
-    result = tester.run_full_test()
+    tester = DynoPayTester()
+    success = tester.run_all_tests()
     
-    # Exit with appropriate code
-    if result.get('success') and result.get('comparison', {}).get('passed'):
-        exit(0)
-    else:
-        exit(1)
+    # Save results to file
+    with open("/app/backend_test_results.json", "w") as f:
+        json.dump(tester.results, f, indent=2)
+    
+    print("\n📄 Detailed results saved to: /app/backend_test_results.json")
+    
+    exit(0 if success else 1)

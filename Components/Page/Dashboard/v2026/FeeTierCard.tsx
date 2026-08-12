@@ -3,25 +3,23 @@ import { Box, useTheme } from "@mui/material";
 import Image from "next/image";
 import { useTranslation } from "react-i18next";
 import { useDashboardData } from "@/hooks/useDashboardData";
-import { useDashboardDensity } from "@/hooks/useDashboardDensity";
 import { formatNumberWithComma, getCurrencySymbol } from "@/helpers";
-import FeeTierProgress from "../FeeTierProgress";
 import { SurfaceCard, Eyebrow, CB_TOKENS } from "../coinbase/styled";
 import { MONO } from "@/styles/uiKit";
 import CheckCircleIcon from "@/assets/Icons/correct-icon.png";
 
 /**
  * FeeTierCard — the redesigned fee-tier progress module. Surfaces the
- * merchant's monthly processed volume against the tier ceiling, the live
- * FeeTierProgress bar, the current tier + real %-rate badge, and a
- * next-tier savings hint. Self-sources its data from useDashboardData.
+ * merchant's monthly processed volume against the tier ceiling, a single
+ * clean progress bar (replacing the old day-by-day "bar forest"), the
+ * current tier + real %-rate badge, and a next-tier savings hint.
+ * Self-sources its data from useDashboardData.
  */
 const FeeTierCard: React.FC = () => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const { t } = useTranslation(["dashboardLayout", "common"]);
   const { feeTiers } = useDashboardData();
-  const { isCompact } = useDashboardDensity();
 
   const monthlyLimit = feeTiers?.monthlyLimit || 10000;
   const usedAmount = useMemo(
@@ -32,6 +30,10 @@ const FeeTierCard: React.FC = () => {
   const currentTierPercent = feeTiers?.currentTierPercent ?? 1.5;
   const nextTier = feeTiers?.nextTier || "";
   const nextTierPercent = feeTiers?.nextTierPercent ?? null;
+
+  const pct = monthlyLimit > 0 ? Math.min(100, (usedAmount / monthlyLimit) * 100) : 0;
+  const remaining = Math.max(0, monthlyLimit - usedAmount);
+  const indigo = isDark ? CB_TOKENS.indigo.dark : CB_TOKENS.indigo.light;
 
   return (
     <SurfaceCard data-testid="dash2026-fee-tier" sx={{ p: { xs: 2.25, md: 3 } }}>
@@ -95,12 +97,59 @@ const FeeTierCard: React.FC = () => {
         </Box>
       </Box>
 
-      <FeeTierProgress
-        monthlyLimit={monthlyLimit}
-        usedAmount={usedAmount}
-        currentTier={currentTier}
-        compact={isCompact}
-      />
+      {/* Clean single progress bar (replaces the old day-by-day bar forest) */}
+      <Box
+        sx={{
+          position: "relative",
+          height: 10,
+          borderRadius: 999,
+          backgroundColor: isDark ? "rgba(255,255,255,0.08)" : "rgba(10,10,15,0.06)",
+          overflow: "hidden",
+        }}
+      >
+        <Box
+          data-testid="dash2026-fee-tier-bar"
+          sx={{
+            height: "100%",
+            width: `${pct}%`,
+            minWidth: pct > 0 ? 8 : 0,
+            borderRadius: 999,
+            background: `linear-gradient(90deg, ${indigo} 0%, #7C5CFF 100%)`,
+            transition: "width 500ms cubic-bezier(0.4, 0, 0.2, 1)",
+          }}
+        />
+      </Box>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mt: 1.25,
+        }}
+      >
+        <Box
+          data-testid="dash2026-fee-tier-pct"
+          sx={{
+            fontFamily: "var(--font-sans)",
+            fontSize: 12.5,
+            fontWeight: 600,
+            color: indigo,
+          }}
+        >
+          {pct.toFixed(1)}% {t("complete", { defaultValue: "complete" })}
+        </Box>
+        <Box
+          sx={{
+            fontFamily: "var(--font-sans)",
+            fontSize: 12.5,
+            fontWeight: 500,
+            color: isDark ? CB_TOKENS.ink.mutedDark : CB_TOKENS.ink.mutedLight,
+          }}
+        >
+          {getCurrencySymbol("USD", formatNumberWithComma(remaining))}{" "}
+          {t("toNextTier", { defaultValue: "to next tier" })}
+        </Box>
+      </Box>
 
       {/* Current tier badge */}
       <Box

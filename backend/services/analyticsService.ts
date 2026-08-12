@@ -8,6 +8,7 @@ import sequelize from "../utils/dbInstance";
 import { QueryTypes } from "sequelize";
 import { apiLogger } from "../utils/loggers";
 import { getRedisItem, setRedisItem, setRedisTTL } from "../utils/redisInstance";
+import { processedStatusSql } from "../utils/processedVolume";
 
 const CACHE_TTL = 300; // 5 minutes
 
@@ -29,7 +30,7 @@ export const getRevenueAnalytics = async (period: "7d" | "30d" | "90d" | "1y" = 
        COALESCE(SUM(fee_amount), 0) as total_fees
      FROM tbl_user_transaction
      WHERE "createdAt" >= NOW() - INTERVAL '${days} days'
-       AND status = 'successful'`,
+       AND ${processedStatusSql("")}`,
     { type: QueryTypes.SELECT }
   );
 
@@ -41,7 +42,7 @@ export const getRevenueAnalytics = async (period: "7d" | "30d" | "90d" | "1y" = 
      FROM tbl_user_transaction
      WHERE "createdAt" >= NOW() - INTERVAL '${days * 2} days'
        AND "createdAt" < NOW() - INTERVAL '${days} days'
-       AND status = 'successful'`,
+       AND ${processedStatusSql("")}`,
     { type: QueryTypes.SELECT }
   );
 
@@ -54,7 +55,7 @@ export const getRevenueAnalytics = async (period: "7d" | "30d" | "90d" | "1y" = 
        COALESCE(SUM(fee_amount), 0) as fees
      FROM tbl_user_transaction
      WHERE "createdAt" >= NOW() - INTERVAL '${days} days'
-       AND status = 'successful'
+       AND ${processedStatusSql("")}
      GROUP BY DATE("createdAt")
      ORDER BY date ASC`,
     { type: QueryTypes.SELECT }

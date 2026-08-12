@@ -4,7 +4,8 @@ import { useMemo } from "react";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { useWalletData } from "@/hooks/useWalletData";
-import { CB_TOKENS, AURORA_GRADIENT_SOFT, INDIGO } from "@/Components/UI/_shared";
+import { CB_TOKENS, AURORA_GRADIENT_SOFT } from "@/Components/UI/_shared";
+import { MONO } from "@/styles/uiKit";
 import { rootReducer } from "@/utils/types";
 
 /** Minimal symbol map — matches the currencies the wallet totals actually
@@ -113,10 +114,10 @@ export default function WalletTotalHero() {
         <Box sx={{ minWidth: 0 }}>
           <Typography
             sx={{
-              fontFamily: "var(--font-tech), ui-monospace, monospace",
+              fontFamily: "var(--font-sans)",
               fontSize: 11,
-              fontWeight: 500,
-              letterSpacing: "0.28em",
+              fontWeight: 700,
+              letterSpacing: "0.12em",
               textTransform: "uppercase",
               color: theme.palette.text.secondary,
               mb: { xs: 1, md: 1.25 },
@@ -131,16 +132,13 @@ export default function WalletTotalHero() {
             <Typography
               component="span"
               sx={{
-                fontFamily: "var(--font-hero), var(--font-body)",
+                fontFamily: MONO,
+                fontVariantNumeric: "tabular-nums",
                 fontSize: { xs: 34, md: 56 },
-                fontWeight: 700,
+                fontWeight: 600,
                 lineHeight: 1,
                 letterSpacing: "-0.03em",
                 color: theme.palette.text.primary,
-                background: `linear-gradient(135deg, ${dark ? "#818CF8" : INDIGO} 0%, #7C5CFF 55%, #4FD1FF 100%)`,
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
               }}
             >
               {currencySymbol}{formatted}
@@ -148,7 +146,7 @@ export default function WalletTotalHero() {
             <Typography
               component="span"
               sx={{
-                fontFamily: "var(--font-tech), ui-monospace, monospace",
+                fontFamily: MONO,
                 fontSize: { xs: 12, md: 14 },
                 fontWeight: 500,
                 color: theme.palette.text.secondary,
@@ -228,7 +226,8 @@ function StatChip({ icon, label, value }: { icon: string; label: string; value: 
       </Box>
       <Typography
         sx={{
-          fontFamily: "var(--font-hero), var(--font-body)",
+          fontFamily: MONO,
+          fontVariantNumeric: "tabular-nums",
           fontSize: 22,
           fontWeight: 700,
           letterSpacing: "-0.02em",

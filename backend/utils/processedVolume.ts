@@ -21,6 +21,16 @@
 
 export const PROCESSED_STATUSES = ["successful", "done", "completed"] as const;
 
-export const PROCESSED_STATUS_SQL = `ut.status IN ('successful', 'done', 'completed')`;
+const STATUS_LIST_SQL = PROCESSED_STATUSES.map((s) => `'${s}'`).join(", ");
+
+/**
+ * SQL `status IN (...)` fragment for the SETTLED statuses, for any table alias.
+ * Pass "" for an unaliased column (e.g. `status IN (...)`).
+ */
+export const processedStatusSql = (alias = "ut"): string =>
+  `${alias ? alias + "." : ""}status IN (${STATUS_LIST_SQL})`;
+
+// Back-compat: default `ut`-aliased fragment used by the dashboard/wallet queries.
+export const PROCESSED_STATUS_SQL = processedStatusSql("ut");
 
 export const PROCESSED_USD_EXPR = `COALESCE(NULLIF(ut.usd_value, 0), CASE WHEN UPPER(ut.base_currency) IN ('USD','USDT','USDC','USDT-TRC20','USDT-ERC20','USDC-ERC20','BUSD','DAI','USDT_TRC20','USDT_ERC20','USDC_ERC20','USDT-POLYGON') THEN ut.base_amount ELSE 0 END)`;

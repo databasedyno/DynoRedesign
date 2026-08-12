@@ -143,20 +143,11 @@ const KpiStrip: React.FC<Props> = ({ stats, chartData, loading }) => {
   const { t } = useTranslation(["dashboardLayout", "common"]);
 
   const indigo = isDark ? CB_TOKENS.indigo.dark : CB_TOKENS.indigo.light;
-  // Semantic per-KPI accents — money-in green, brand indigo, info blue, amber.
-  const green = isDark ? CB_TOKENS.semantic.positive.dark : CB_TOKENS.semantic.positive.light;
+  // Semantic per-KPI accents — brand indigo, info blue, amber.
   const info = isDark ? CB_TOKENS.semantic.info.dark : CB_TOKENS.semantic.info.light;
   const amber = isDark ? CB_TOKENS.semantic.warning.dark : CB_TOKENS.semantic.warning.light;
   const symbol = stats?.currencySymbol || "$";
 
-  const revSpark = useMemo(
-    () =>
-      (chartData || []).map((d) => ({
-        date: d.date,
-        value: Number(d.value) || 0,
-      })),
-    [chartData],
-  );
   const txSpark = useMemo(
     () =>
       (chartData || []).map((d) => ({
@@ -176,15 +167,6 @@ const KpiStrip: React.FC<Props> = ({ stats, chartData, loading }) => {
     color?: string;
     icon?: React.ReactNode;
   }> = [
-    {
-      key: "revenue",
-      label: t("todaysRevenue", { defaultValue: "Today's revenue" }),
-      value: stats?.todaySummary?.volumeTodayFormatted || `${symbol}0.00`,
-      delta: Number(stats?.todaySummary?.volumeChangePercent ?? 0),
-      spark: revSpark,
-      valueType: "currency",
-      color: green,
-    },
     {
       key: "payments",
       label: t("paymentsToday", { defaultValue: "Payments today" }),
@@ -218,7 +200,7 @@ const KpiStrip: React.FC<Props> = ({ stats, chartData, loading }) => {
       data-testid="dash2026-kpi-strip"
       sx={{
         display: "grid",
-        gridTemplateColumns: { xs: "repeat(2, 1fr)", md: "repeat(4, 1fr)" },
+        gridTemplateColumns: { xs: "repeat(2, 1fr)", md: "repeat(3, 1fr)" },
         gap: { xs: 1.5, md: 2 },
       }}
     >

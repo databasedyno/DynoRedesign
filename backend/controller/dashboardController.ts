@@ -138,7 +138,7 @@ const getDashboard = async (req: express.Request, res: express.Response) => {
     }
     
     // Check Redis cache first (include currency in cache key)
-    const cacheKey = `dashboard:${userId}:${company_id || 'all'}:${preferredCurrency}:v2settled`;
+    const cacheKey = `dashboard:${userId}:${company_id || 'all'}:${preferredCurrency}:v3settled`;
     const cached = await getRedisItem(cacheKey);
     if (cached && Object.keys(cached).length > 0) {
       apiLogger.info(`[Dashboard] Cache hit for user ${userId}, currency ${preferredCurrency}`);
@@ -159,12 +159,12 @@ const getDashboard = async (req: express.Request, res: express.Response) => {
     
     const countQuery = `
       SELECT 
-        COUNT(*) as total_count,
-        COUNT(*) FILTER (WHERE ut."createdAt" >= :startOfMonth) as current_month_count,
-        COUNT(*) FILTER (WHERE ut."createdAt" >= :startOfLastMonth AND ut."createdAt" <= :endOfLastMonth) as last_month_count,
+        COUNT(*) FILTER (WHERE ${PROCESSED_STATUS_SQL}) as total_count,
+        COUNT(*) FILTER (WHERE ut."createdAt" >= :startOfMonth AND ${PROCESSED_STATUS_SQL}) as current_month_count,
+        COUNT(*) FILTER (WHERE ut."createdAt" >= :startOfLastMonth AND ut."createdAt" <= :endOfLastMonth AND ${PROCESSED_STATUS_SQL}) as last_month_count,
         COUNT(*) FILTER (WHERE ut.status = 'pending') as pending_count,
-        COUNT(*) FILTER (WHERE ut."createdAt" >= :startOfToday AND ut.status IN ('successful', 'done', 'completed')) as today_count,
-        COUNT(*) FILTER (WHERE ut."createdAt" >= :startOfYesterday AND ut."createdAt" < :startOfToday AND ut.status IN ('successful', 'done', 'completed')) as yesterday_count
+        COUNT(*) FILTER (WHERE ut."createdAt" >= :startOfToday AND ${PROCESSED_STATUS_SQL}) as today_count,
+        COUNT(*) FILTER (WHERE ut."createdAt" >= :startOfYesterday AND ut."createdAt" < :startOfToday AND ${PROCESSED_STATUS_SQL}) as yesterday_count
       FROM tbl_user_transaction ut
       ${companyJoin}
       WHERE ut.user_id = :userId ${companyFilter}
@@ -692,7 +692,7 @@ const getFeeTiers = async (req: express.Request, res: express.Response) => {
     const userId = userData.user_id;
 
     // Check Redis cache first (5 min TTL — tiers change infrequently)
-    const cacheKey = `feeTiers:${userId}:${company_id || 'all'}`;
+    const cacheKey = `feeTiers:${userId}:${company_id || 'all'}:v2settled`;
     const cached = await getRedisItem(cacheKey);
     if (cached && Object.keys(cached).length > 0) {
       return successResponseHelper(res, 200, "Fee tiers retrieved successfully", cached);
@@ -711,13 +711,16 @@ const getFeeTiers = async (req: express.Request, res: express.Response) => {
     const companyJoinFee = company_id ? 'LEFT JOIN tbl_customer c ON ut.customer_id = c.customer_id' : '';
     const companyFilterFee = company_id ? 'AND (ut.company_id = :companyId OR c.company_id = :companyId)' : '';
 
-    const feeUsdFallback = `COALESCE(NULLIF(ut.usd_value, 0), CASE WHEN UPPER(ut.base_currency) IN ('USD','USDT','USDC','USDT-TRC20','USDT-ERC20','USDC-ERC20','BUSD','DAI','USDT_TRC20','USDT_ERC20','USDC_ERC20','USDT-POLYGON') THEN ut.base_amount ELSE 0 END)`;
+    // Cumulative volume for tier progression — SETTLED only, shared expr, so it
+    // matches getDashboard's fee tier and the /wallet total (no all-status drift).
+    const feeUsdFallback = PROCESSED_USD_EXPR;
 
     const volumeResult = await sequelize.query(
       `SELECT COALESCE(SUM(${feeUsdFallback}), 0) as total_usd_volume
        FROM tbl_user_transaction ut
        ${companyJoinFee}
        WHERE ut.user_id = :userId 
+       AND ${PROCESSED_STATUS_SQL}
        ${companyFilterFee}`,
       {
         replacements: { userId, companyId: company_id },

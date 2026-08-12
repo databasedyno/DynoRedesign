@@ -1,0 +1,261 @@
+{
+  "test_a_dashboard": {
+    "total_volume_amount": 23883.21,
+    "total_volume_currency": "USD",
+    "total_transactions_count": 377,
+    "pending_count": 178,
+    "full_response": {
+      "message": "Dashboard data retrieved successfully",
+      "data": {
+        "today_summary": {
+          "volume_today": 65.78,
+          "volume_today_formatted": "$65.78 USD",
+          "volume_yesterday": 113.84,
+          "volume_yesterday_formatted": "$113.84 USD",
+          "volume_change_percent": -42.2,
+          "transactions_today": 4,
+          "transactions_yesterday": 1,
+          "transactions_change_percent": 300,
+          "pending_count": 178,
+          "currency": "USD"
+        },
+        "total_transactions": {
+          "count": 377,
+          "current_month": 34,
+          "change_percent": -56.4,
+          "comparison_period": "last_month"
+        },
+        "total_volume": {
+          "amount": 23883.21,
+          "amount_formatted": "$23,883.21 USD",
+          "current_month": 2185.8,
+          "current_month_formatted": "$2,185.80 USD",
+          "currency": "USD",
+          "currency_info": {
+            "code": "USD",
+            "symbol": "$",
+            "display_format": "$ USD"
+          },
+          "change_percent": -57,
+          "comparison_period": "last_month"
+        },
+        "pending_transactions": {
+          "count": 178
+        },
+        "tax_collected": {
+          "amount": 0,
+          "amount_formatted": "$0.00 USD",
+          "current_month": 0,
+          "current_month_formatted": "$0.00 USD",
+          "currency": "USD"
+        },
+        "active_wallets": {
+          "count": 13,
+          "wallets": [
+            "TRX",
+            "LTC",
+            "USDT-ERC20",
+            "ETH",
+            "USDC-ERC20",
+            "POLYGON",
+            "BTC",
+            "DOGE",
+            "SOL",
+            "XRP",
+            "USDT-POLYGON",
+            "USDT-TRC20",
+            "BCH"
+          ],
+          "details": [
+            {
+              "wallet_type": "TRX",
+              "wallet_name": null,
+              "company_id": 1
+            },
+            {
+              "wallet_type": "LTC",
+              "wallet_name": null,
+              "company_id": 1
+            },
+            {
+              "wallet_type": "USDT-ERC20",
+              "wallet_name": null,
+              "company_id": 1
+            },
+            {
+              "wallet_type": "ETH",
+              "wallet_name": null,
+              "company_id": 1
+            },
+            {
+              "wallet_type": "USDC-ERC20",
+              "wallet_name": null,
+              "company_id": 1
+            },
+            {
+              "wallet_type": "POLYGON",
+              "wallet_name": null,
+              "company_id": 1
+            },
+            {
+              "wallet_type": "BTC",
+              "wallet_name": null,
+              "company_id": 1
+            },
+            {
+              "wallet_type": "DOGE",
+              "wallet_name": null,
+              "company_id": 1
+            },
+            {
+              "wallet_type": "SOL",
+              "wallet_name": null,
+              "company_id": 1
+            },
+            {
+              "wallet_type": "XRP",
+              "wallet_name": null,
+              "company_id": 1
+            },
+            {
+              "wallet_type": "USDT-POLYGON",
+              "wallet_name": null,
+              "company_id": 1
+            },
+            {
+              "wallet_type": "USDT-TRC20",
+              "wallet_name": null,
+              "company_id": 1
+            },
+            {
+              "wallet_type": "BCH",
+              "wallet_name": null,
+              "company_id": 1
+            }
+          ]
+        },
+        "fee_tier": {
+          "current_tier": "Growth",
+          "current_tier_key": "growth",
+          "tier_description": "For growing businesses",
+          "tier_percent": 1,
+          "monthly_volume": 23883.21,
+          "monthly_volume_usd": 23883.21,
+          "tier_threshold": 100000,
+          "tier_threshold_formatted": "$100,000 USD",
+          "percent_complete": 23.9,
+          "amount_to_next_tier": 76116.79,
+          "amount_to_next_tier_formatted": "$76,116.79 USD",
+          "next_tier": "Scale",
+          "next_tier_key": "scale",
+          "next_tier_percent": 0.7,
+          "currency": "USD"
+        }
+      }
+    }
+  },
+  "test_b_wallet": {
+    "s_usd": 23883.209999999995,
+    "wallet_count": 13,
+    "non_zero_wallets": 7,
+    "wallet_details": [
+      "DOGE: $18.66",
+      "USDT-TRC20: $7696.01",
+      "LTC: $1511.19",
+      "USDT-ERC20: $899.41",
+      "BTC: $12533.08",
+      "ETH: $1195.42",
+      "TRX: $29.44"
+    ]
+  },
+  "test_c_fee_tiers": {
+    "volume": 23883.21,
+    "volume_field": "user_tier.total_volume",
+    "current_tier": "Growth",
+    "next_tier_threshold": 76116.79,
+    "full_response": {
+      "message": "Fee tiers retrieved successfully",
+      "data": {
+        "tiers": [
+          {
+            "name": "starter",
+            "display_name": "Starter",
+            "percent": 1.5,
+            "min_volume": 0,
+            "max_volume": 10000,
+            "min_volume_formatted": "$0",
+            "max_volume_formatted": "$10,000",
+            "description": "For new merchants getting started",
+            "is_current": false
+          },
+          {
+            "name": "growth",
+            "display_name": "Growth",
+            "percent": 1,
+            "min_volume": 10000,
+            "max_volume": 100000,
+            "min_volume_formatted": "$10,000",
+            "max_volume_formatted": "$100,000",
+            "description": "For growing businesses",
+            "is_current": true
+          },
+          {
+            "name": "scale",
+            "display_name": "Scale",
+            "percent": 0.7,
+            "min_volume": 100000,
+            "max_volume": 500000,
+            "min_volume_formatted": "$100,000",
+            "max_volume_formatted": "$500,000",
+            "description": "For high-volume operations",
+            "is_current": false
+          },
+          {
+            "name": "enterprise",
+            "display_name": "Enterprise",
+            "percent": 0.5,
+            "min_volume": 500000,
+            "max_volume": null,
+            "min_volume_formatted": "$500,000",
+            "max_volume_formatted": "Unlimited",
+            "description": "Best pricing, priority support",
+            "is_current": false
+          }
+        ],
+        "currency": "USD",
+        "user_tier": {
+          "current_tier": "Growth",
+          "current_tier_key": "growth",
+          "current_tier_percent": 1,
+          "tier_description": "For growing businesses",
+          "total_volume": 23883.21,
+          "total_volume_formatted": "$23,883.21 USD",
+          "percent_to_next_tier": 23.9,
+          "amount_to_next_tier": 76116.79,
+          "amount_to_next_tier_formatted": "$76,116.79 USD",
+          "next_tier": "Scale",
+          "next_tier_key": "scale",
+          "next_tier_percent": 0.7
+        }
+      }
+    }
+  },
+  "test_d_status_codes": {
+    "dashboard": 200,
+    "wallet": 200,
+    "fee_tiers": 200
+  },
+  "reconciliation": {
+    "dashboard_amount": 23883.21,
+    "wallet_sum": 23883.209999999995,
+    "difference": 3.637978807091713e-12
+  },
+  "critical_checks": {
+    "dashboard_settled_volume": true,
+    "counts_exclude_pending": true,
+    "pending_shown_separately": true,
+    "fee_tier_settled": true,
+    "exact_parity": true,
+    "no_backend_errors": true
+  }
+}

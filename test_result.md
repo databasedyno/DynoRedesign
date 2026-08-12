@@ -1,3 +1,48 @@
+# Session 2026-08-12 (CONSISTENCY a+b+c: settled-basis for counts + fee-tier, unified status set)
+
+Preview: https://13e42067-64de-478e-a336-166a694ea757.preview.emergentagent.com
+Login: hostbay@moxx.co / Katiekendra123@ (CSRF: GET /api/csrf-token first; x-csrf-token on POSTs). STRICT READ-ONLY on LIVE prod.
+
+## Changes (after moving volume to settled-only)
+Canonical settled set verified as the ONLY real tx statuses: successful, completed (+legacy done). 'confirmed'/'success'/'payout_complete' are webhook/API statuses, NOT tx statuses.
+- (a) getFeeTiers now uses settled volume (shared PROCESSED_USD_EXPR + PROCESSED_STATUS_SQL) — was all-status, causing the fee-tier progress to disagree with the dashboard.
+- (b) getDashboard countQuery: total_count / current_month_count / last_month_count now SETTLED (FILTER status IN successful/done/completed). pending_count still counts pending; today/yesterday already settled.
+- (c) Unified the settled-status definition into utils/processedVolume.ts (processedStatusSql(alias) + PROCESSED_STATUSES) and used it in dashboard (counts+volume+chart), wallet, fee-tier, feeFreeReconciliation (alias t), analyticsService (unaliased). No-op on real data for feeFree (confirmed/payout_complete don't exist); analytics now also counts 'completed'.
+- Caches versioned: dashboard v3settled, feeTiers v2settled, chart v2settled, wallet v5.
+
+### BACKEND TESTING INSTRUCTIONS (deep_testing_backend_v2) — STRICT READ-ONLY
+1) Login (CSRF+JWT). company_id=1 (hostbay).
+2) GET /api/dashboard/?company_id=1 → record total_volume.amount (expect ~$23,883.21), total_transactions.count, and pending_count (or pending field). ASSERT total_transactions.count now EXCLUDES pending (for hostbay expect ~377 = 374 successful + 3 completed, NOT ~556). ASSERT a pending count (~178-179) is still reported separately.
+3) GET /api/wallet/getWallet?company_id=1 → Σ amount_in_usd must still EXACTLY equal dashboard total_volume.amount (<= $0.01).
+4) GET /api/dashboard/fee-tiers?company_id=1 (or the fee-tiers route) → the cumulative/total volume used for tier progress must now be the SETTLED value (~$23,883.21), NOT the old all-status $26,378.21. Report the volume + current tier and confirm it matches the dashboard total_volume basis.
+5) Confirm 200s + no server errors (dashboard, wallet, fee-tiers).
+GOAL: counts are settled (pending shown separately), fee-tier uses settled volume matching the dashboard, wallet↔dashboard still exact. READ-ONLY.
+
+### backend
+  - task: "Settled-basis for tx counts + fee-tier endpoint; unified status set (a+b+c)"
+    implemented: true
+    working: true
+    needs_retesting: false
+    file: "backend/utils/processedVolume.ts, backend/controller/dashboardController.ts (countQuery, getFeeTiers), backend/services/feeFreeReconciliation.ts, backend/services/analyticsService.ts"
+    stuck_count: 0
+    priority: "high"
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "a) fee-tier settled; b) counts settled (pending separate); c) unified status set via shared module. Verify per instructions: counts exclude pending, fee-tier uses settled volume, wallet↔dashboard still exact. READ-ONLY."
+      - working: true
+        agent: "testing"
+        comment: "✅ CONSISTENCY FIXES (a+b+c) FULLY VERIFIED (2026-08-12) — Comprehensive backend API testing completed on LIVE prod database (STRICT READ-ONLY). **ALL TESTS PASS (100% pass rate)** — The consistency fixes are FULLY WORKING. **DETAILED RESULTS**: Test A (Dashboard): total_volume.amount=$23,883.21 USD ✅ (SETTLED value, NOT the old $26,378.21), total_transactions.count=377 ✅ (SETTLED count, excludes pending, NOT the old ~556), pending_count=178 ✅ (shown separately in expected range ~178-179). Test B (Wallet): S_usd=$23,883.21 across 13 wallets (7 non-zero: DOGE: $18.66, USDT-TRC20: $7,696.01, LTC: $1,511.19, USDT-ERC20: $899.41, BTC: $12,533.08, ETH: $1,195.42, TRX: $29.44) ✅. Test C (Fee Tiers): volume=$23,883.21 (field: user_tier.total_volume) ✅ (SETTLED value, NOT the old $26,378.21), current_tier=Growth, next_tier_threshold=$76,116.79. **RECONCILIATION (A ↔ B)**: Dashboard=$23,883.21, Wallet=$23,883.21, Absolute difference=$0.00 USD (EXACT PARITY ✅), Tolerance threshold=$0.01 USD. Dashboard total EXACTLY equals wallet total ✅. Test D (Status Codes): All endpoints returned 200 OK with no server errors ✅. **CRITICAL SUCCESS**: (1) Dashboard uses SETTLED volume (~$23,883.21, NOT $26,378.21) ✅. (2) Transaction counts EXCLUDE pending (~377, NOT ~556) ✅. (3) Pending count shown separately (~178-179) ✅. (4) Fee tier uses SETTLED volume (~$23,883.21, NOT $26,378.21) ✅. (5) Dashboard ↔ Wallet EXACT parity (difference $0.00 <= $0.01) ✅. (6) No backend errors in logs ✅. **VERIFICATION**: The old all-status value $26,378.21 does NOT appear anywhere ✅. The old all-status count ~556 does NOT appear anywhere ✅. **BACKEND LOGS**: No errors found in backend.err.log. All three endpoints (dashboard, wallet, fee-tiers) now correctly use the shared PROCESSED_USD_EXPR + PROCESSED_STATUS_SQL (settled-only) computation via backend/utils/processedVolume.ts. The unified status set (successful, done, completed) is working correctly across all endpoints. The consistency fixes achieve the goal: counts are settled (pending shown separately), fee-tier uses settled volume matching the dashboard, wallet↔dashboard still exact. The fixes are production-ready and fully verified."
+
+### Agent Communication
+  - agent: "main"
+    message: "Verify a+b+c: dashboard total_transactions.count now excludes pending (~377 not ~556 for hostbay) with pending shown separately; fee-tiers endpoint volume now settled (~$23,883.21 not $26,378.21) matching the dashboard; wallet Σ amount_in_usd still == dashboard total_volume exactly. READ-ONLY, login hostbay@moxx.co / Katiekendra123@."
+  - agent: "testing"
+    message: "✅ CONSISTENCY FIXES (a+b+c) FULLY VERIFIED (2026-08-12) — ALL TESTS PASS (100% pass rate). Comprehensive backend API testing completed on LIVE prod (STRICT READ-ONLY). CRITICAL SUCCESS: (1) Dashboard total_volume=$23,883.21 (NOT the old $26,378.21) ✅. (2) Transaction count=377 (SETTLED, excludes pending, NOT the old ~556) ✅. (3) Pending count=178 (shown separately) ✅. (4) Fee tier volume=$23,883.21 (SETTLED, NOT $26,378.21) ✅. (5) Wallet total=$23,883.21 ✅. (6) EXACT PARITY: |$23,883.21 - $23,883.21|=$0.00 (well within $0.01 tolerance) ✅. (7) All endpoints returned 200 OK with no backend errors ✅. The old all-status value $26,378.21 does NOT appear anywhere ✅. The old all-status count ~556 does NOT appear anywhere ✅. All three endpoints (dashboard, wallet, fee-tiers) now correctly use the shared PROCESSED_USD_EXPR + PROCESSED_STATUS_SQL (settled-only) computation via backend/utils/processedVolume.ts. The unified status set (successful, done, completed) is working correctly. The consistency fixes are production-ready and fully verified."
+
+---
+
+
 # Session 2026-08-12 (BUGFIX v3: EXACT wallet↔dashboard parity — also fix the v2026 VolumeHero/chart source)
 
 Preview: https://13e42067-64de-478e-a336-166a694ea757.preview.emergentagent.com

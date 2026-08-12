@@ -16,8 +16,7 @@ import FeeTierCard from "./FeeTierCard";
 import AssetsCard from "./AssetsCard";
 import ActivationChecklist from "./ActivationChecklist";
 import RecentTransactionsWidget from "../RecentTransactionsWidget";
-import GrowPanel from "../GrowPanel";
-import CreatorPageCard from "../CreatorPageCard";
+import GrowSlot from "./GrowSlot";
 
 /**
  * Dashboard2026 — the merchant command-center composition (default dashboard).
@@ -174,7 +173,7 @@ const Dashboard2026: React.FC = () => {
             xs: "1fr",
             lg: "minmax(0, 8fr) minmax(0, 4fr)",
           },
-          gap: { xs: 2, md: 2.5, lg: 3 },
+          gap: { xs: 2, md: 3, lg: 3.5 },
           alignItems: "start",
         }}
       >
@@ -183,7 +182,7 @@ const Dashboard2026: React.FC = () => {
           sx={{
             display: "flex",
             flexDirection: "column",
-            gap: { xs: 2, md: 2.5 },
+            gap: { xs: 2, md: 3 },
             minWidth: 0,
           }}
         >
@@ -227,18 +226,17 @@ const Dashboard2026: React.FC = () => {
           sx={{
             display: "flex",
             flexDirection: "column",
-            gap: { xs: 2, md: 2.5 },
+            gap: { xs: 2, md: 3 },
             minWidth: 0,
           }}
         >
           <QuickActionsDock />
           {!showActivation && <FeeTierCard />}
-          <GrowPanel
+          <GrowSlot
             hasFeeFreeCredit={hasFeeFreeCredit}
             hasCompletedFeeFreeTrial={hasCompletedFeeFreeTrial}
             isPremiumEligible={isPremiumEligible}
           />
-          <CreatorPageCard />
         </Box>
       </Box>
     </Box>

@@ -248,6 +248,7 @@ const WalletPage = ({
       </Head>
       <Box
         sx={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}
+        style={{ "--font-sans": "var(--font-inter)", fontFamily: "var(--font-inter)" } as any}
       >
         <Wallet onAddWallet={() => setOpenCreate(true)} />
         <AddWalletModal

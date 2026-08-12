@@ -1,3 +1,26 @@
+# SESSION ADDENDUM (2026-06 (fork)) — Dashboard declutter + Wallet↔Dashboard font consistency — VERIFIED (frontend testing agent iteration_42 + reproduction screenshots)
+
+User feedback: merchant Dashboard "looks too busy" and Wallet page font differs from Dashboard when it should match. Both resolved.
+
+## 1. Dashboard declutter (`Components/Page/Dashboard/v2026/`)
+- **KpiStrip.tsx**: removed the duplicate "Today's revenue" KPI card (it duplicated the VolumeHero "Today" toggle). Now exactly 3 KPIs (Payments today / Active wallets / Tax collected); grid is 3-col on md.
+- **QuickActionsDock.tsx**: rewritten as a compact 2×2 tile grid of real Next `<Link>` anchors (robust nav even pre-hydration). Tiles: Payment links(/pay-links), Create invoice(/invoices), Open wallet(/wallet), Creator page(/creator). Removed the big duplicate "Create payment link" primary CTA (header already has it) and the "SOON" Customers tile. testids: dash2026-qa-{paylinks,invoice,wallet,creator}. All 4 verified navigating.
+- **FeeTierCard.tsx**: replaced the busy day-by-day "bar forest" (FeeTierProgress) with a single clean linear progress bar + "% complete" (dash2026-fee-tier-pct) and "$X to next tier" labels. testid dash2026-fee-tier-bar.
+- **GrowSlot.tsx (NEW)**: single "rotating" growth slot in the right rail — renders EXACTLY ONE of GrowPanel / CreatorPageCard by priority (fee-free active → GrowPanel; no handle or unpublished → CreatorPageCard; else GrowPanel). Replaces the old two stacked cards in v2026/index.tsx. Full creator analytics still live at /creator.
+- **index.tsx**: bumped bento + column gaps for breathing room.
+
+## 2. Wallet↔Dashboard font consistency (`Components/Page/Wallet/WalletTotalHero.tsx`, `pages/wallet.tsx`)
+- Root cause: Dashboard VolumeHero big number uses `MONO` (Roboto Mono, tabular) but the Wallet "Total processed" hero used `var(--font-hero)` (Unbounded display font). Switched the wallet big number + stat-chip values to `MONO` tabular; eyebrow to `var(--font-sans)`; removed the indigo→cyan gradient-clip so the number is solid like the dashboard.
+- `pages/wallet.tsx` now wraps the Wallet content in a div scoping `--font-sans` → `var(--font-inter)`, matching `pages/dashboard.tsx` so body text is Inter too.
+
+## Notes / pre-existing (NOT touched)
+- Pre-existing MUI `<p>` DOM-nesting warnings on /transactions (TransactionsTable + TransactionSourceBadge) — flagged by reviewer, not introduced this session.
+- Prior session's settled-only stats work (v3settled cache) remains in place; the fork's pending frontend stats-consistency validation was superseded by this UX request per the user.
+- Confetti "you got paid" celebration + sidebar referral card KEPT per user.
+
+---
+
+
 # SESSION ADDENDUM (2026-08-11 (fork)) — Branded emails + unified-indigo creator page — VERIFIED (rendered email previews + /creator screenshot)
 
 Two user-selected follow-ups from the color-rollout session, both DONE & verified.

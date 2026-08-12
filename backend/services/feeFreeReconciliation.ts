@@ -18,6 +18,7 @@
 
 import sequelize from "../utils/dbInstance";
 import { log, cronLogger } from "../utils/loggers";
+import { processedStatusSql } from "../utils/processedVolume";
 
 const FREE_TRIAL_VOLUME_USD = parseFloat(process.env.FREE_TRIAL_VOLUME_USD || "500");
 
@@ -56,7 +57,7 @@ export async function reconcileFeeFreeBalances(): Promise<void> {
           t.user_id,
           COALESCE(SUM(COALESCE(NULLIF(t.usd_value, 0), t.base_amount)), 0) AS total_volume
         FROM tbl_user_transaction t
-        WHERE t.status IN ('successful', 'completed', 'confirmed', 'payout_complete')
+        WHERE ${processedStatusSql("t")}
         GROUP BY t.user_id
       ) actual
       WHERE u.user_id = actual.user_id

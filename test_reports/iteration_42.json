@@ -1,0 +1,31 @@
+{
+  "summary": "Frontend-only UI validation of Dashboard declutter + Wallet font consistency on LIVE preview (read-only). Logged in via /auth/login as hostbay@moxx.co and validated data-testid presence, structure, and typography. All structural requirements pass (KPI strip has exactly 3 cards, no revenue KPI; QA is 2x2 with correct 4 tiles and no primary/customers; Fee Tier shows single progress bar with labels; Grow slot renders exactly one card). Wallet 'Total processed' amount uses Roboto Mono (matches dashboard hero). However, 3 of 4 Quick Action tiles DO NOT NAVIGATE on click.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "QuickActionsDock", "issue": "Clicking dash2026-qa-paylinks, dash2026-qa-invoice, dash2026-qa-wallet does not navigate. URL stays on /dashboard after click+2s wait. Only dash2026-qa-creator correctly navigates to /creator.", "selector": "[data-testid='dash2026-qa-paylinks'], [data-testid='dash2026-qa-invoice'], [data-testid='dash2026-qa-wallet']", "priority": "HIGH"},
+      {"component": "QuickActionsDock label", "issue": "Rendered label for the 4th QA tile reads 'Storefront page' but the data-testid is 'dash2026-qa-creator' and it navigates to /creator. Spec expects the tile to be 'Creator page'. Likely stale copy — labels should say 'Creator page' (or the routing should match the label).", "selector": "[data-testid='dash2026-qa-creator']", "priority": "MEDIUM"}
+    ],
+    "integration_issues": [
+      {"flow": "Dashboard Quick Actions -> destination pages", "issue": "3/4 tiles have no working onClick/router.push. Confirms core Quick Actions integration is broken for paylinks/invoice/wallet.", "affected_selectors": ["[data-testid='dash2026-qa-paylinks']","[data-testid='dash2026-qa-invoice']","[data-testid='dash2026-qa-wallet']"]}
+    ],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Fix onClick / router.push wiring on dash2026-qa-paylinks (->/pay-links), dash2026-qa-invoice (->/invoices), dash2026-qa-wallet (->/wallet). dash2026-qa-creator works — pattern is likely a shared handler that missed 3 entries.",
+    "Fix Quick Action tile 4 label: currently displays 'Storefront page' but testid dash2026-qa-creator + route /creator. Align copy to 'Creator page' per spec."
+  ],
+  "critical_code_review_comments": [
+    "Pre-existing MUI Typography <p> DOM-nesting warnings on /transactions (TransactionsTable + TransactionSourceBadge) — not introduced by this change but should be cleaned up by wrapping nested Typography with component='span'.",
+    "Ensure QuickActions tile handlers are declaratively data-driven (array of {testid, href, label, icon}) to prevent partial wiring regressions like the one observed."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a", "frontend": "85%"},
+  "test_credentials": "hostbay@moxx.co / Katiekendra123@ (LIVE prod — read-only)",
+  "seed_data_creation": "None (read-only test)",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Login is at /auth/login: fill email, click 'Continue' button (exact text), wait ~2s, then fill [data-testid='password-input'], click [data-testid='signin-submit-btn']. Dashboard requirements verified via data-testids: dash2026-root/hero/hero-value (Roboto Mono), dash2026-kpi-strip with exactly 3 KPIs (payments/wallets/tax; no revenue), dash2026-quick-actions with 4 tiles (paylinks/invoice/wallet/creator; no primary/customers), dash2026-fee-tier with bar+pct+tier-name+tier-percent, exactly one dashboard-grow-panel. Wallet hero amount uses Roboto Mono — consistent. Bug: 3/4 QA tiles don't navigate (only qa-creator works).",
+  "rca of the issue": "QuickActionsDock likely has partial navigation wiring — only the creator tile has a valid onClick / <Link> href. Paylinks/Invoice/Wallet tiles render (data-testid present) but consume clicks with no route change. Recommend refactor to a single map({testid, href}) => <Link href={href} data-testid={testid}>. Reproduction: login -> /dashboard -> click each tile; only qa-creator changes URL."
+}
