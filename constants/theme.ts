@@ -22,3 +22,22 @@ export const brandAlpha = (a: number): string => {
   const hex = Math.round(clamped * 255).toString(16).padStart(2, "0");
   return `${BRAND_ACCENT}${hex}`;
 };
+
+/**
+ * Semantic status palette — single source of truth for success / error /
+ * warning states across checkout, dashboards, and (mirrored server-side in
+ * `backend/utils/brandTokens.ts`) transactional emails. Import these instead
+ * of hardcoding green/red/amber hex values so status colors stay consistent.
+ */
+/** Paid / settled / success. */
+export const SUCCESS_GREEN = "#12B76A";
+export const SUCCESS_GREEN_DARK = "#05936A";
+export const SUCCESS_GREEN_LIGHT = "#3FD98A";
+/** Failed / declined / error. */
+export const ERROR_RED = "#DC2626";
+export const ERROR_RED_DARK = "#B91C1C";
+export const ERROR_RED_LIGHT = "#FF6B6B";
+/** Pending / warning. */
+export const WARNING_AMBER = "#F59E0B";
+export const WARNING_AMBER_DARK = "#B45309";
+export const WARNING_AMBER_LIGHT = "#FBBF24";

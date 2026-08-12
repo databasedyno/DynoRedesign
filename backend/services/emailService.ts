@@ -6,6 +6,7 @@ import { generatePaymentReceipt, getReceiptFilename } from "./pdfReceiptService"
 import { t, normalizeLang, resolveEmailLang } from "../utils/emailI18n";
 import { formatCryptoAmount } from "../utils/currencyUtils";
 import { baseEmailTemplate, getCurrencySymbol, infoBox, dataRow, statusBadge, p, otpBlock, warnText, alertBox, errorBox, successBox, neutralBox, statCard, twoColumnStats, feeRow, feeTotalRow, feeTable, mono } from "../utils/emailTemplate";
+import { EMAIL_TOKENS } from "../utils/brandTokens";
 
 /** Dynamic base URL for all email CTA links — uses FRONTEND_URL env var */
 const FRONTEND_BASE_URL = (config.frontendUrl || 'https://dynopay.com').replace(/\/$/, '');
@@ -175,8 +176,8 @@ export const sendVolumeTierUpgradeEmail = async (
           <td style="padding: 4px 0; font-size: 20px; font-weight: 700; color: #0a0a0a; text-align: right; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${newPercent}%</td>
         </tr>
         <tr>
-          <td style="padding: 4px 0; font-size: 13px; color: #16a34a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">You save</td>
-          <td style="padding: 4px 0; font-size: 13px; color: #16a34a; text-align: right; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${savingsPct}% per transaction</td>
+          <td style="padding: 4px 0; font-size: 13px; color: #05936A; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">You save</td>
+          <td style="padding: 4px 0; font-size: 13px; color: #05936A; text-align: right; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${savingsPct}% per transaction</td>
         </tr>
       </table>
     `)}
@@ -291,7 +292,7 @@ export const sendPasswordChangedEmail = async (
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         ${dataRow(t('labels.date', L), `${date} at ${time}`, true)}
       </table>
-    `, '#22c55e')}
+    `, '#12B76A')}
     ${warnText(t('merchant.passwordChanged.securityNotice', L))}`;
 
     const html = dynoPayEmailTemplate(t('merchant.passwordChanged.heading', L), content, true, t('merchant.passwordChanged.cta', L), `${FRONTEND_BASE_URL}/settings`);
@@ -330,7 +331,7 @@ export const sendUserProfileUpdatedEmail = async (
         ${fieldsList}
         ${dataRow(t('labels.date', L), `${date} at ${time}`, true)}
       </table>
-    `, '#22c55e')}
+    `, '#12B76A')}
     ${warnText(t('merchant.profileUpdated.securityNotice', L))}`;
 
     const html = dynoPayEmailTemplate(t('merchant.profileUpdated.heading', L), content, true, t('merchant.profileUpdated.cta', L), `${FRONTEND_BASE_URL}/profile`);
@@ -636,7 +637,7 @@ export const sendCompanyProfileUpdatedEmail = async (
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         ${fieldsList}
       </table>
-    `, '#22c55e')}
+    `, '#12B76A')}
     ${p(t('merchant.companyUpdated.outro', L))}`;
 
     const html = dynoPayEmailTemplate(t('merchant.companyUpdated.heading', L), content, true, t('merchant.companyUpdated.cta', L), `${FRONTEND_BASE_URL}/company`);
@@ -705,7 +706,7 @@ export const sendWalletVerifiedEmail = async (
         ${dataRow(t('merchant.labels.network', L), network)}
         ${dataRow(t('labels.status', L), statusBadge(t('merchant.badges.active', L), 'success'), true)}
       </table>
-    `, '#22c55e')}
+    `, '#12B76A')}
     ${p(t('merchant.walletVerified.outro', L))}`;
 
     const html = dynoPayEmailTemplate(t('merchant.walletVerified.heading', L), content, true, t('merchant.walletVerified.cta', L), `${FRONTEND_BASE_URL}/dashboard`);
@@ -840,7 +841,7 @@ export const sendWalletAddedEmail = async (
         ${walletName ? dataRow(t('merchant.labels.walletName', L), walletName) : ''}
         ${dataRow(t('labels.status', L), statusBadge(t('merchant.badges.active', L), 'success'), true)}
       </table>
-    `, '#22c55e')}
+    `, '#12B76A')}
     ${p(t('merchant.walletAdded.outro', L, { network }))}
     ${warnText(t('merchant.walletAdded.didntDoThis', L))}`;
 
@@ -958,7 +959,7 @@ export const sendWithdrawalSuccessEmail = async (
         ${dataRow(t('labels.reference', L), `<span style="font-family: monospace; font-size: 13px;">${transactionReference}</span>`)}
         ${dataRow(t('labels.date', L), `${dateStr} at ${timeStr}`, true)}
       </table>
-    `, '#3b82f6')}
+    `, EMAIL_TOKENS.brand)}
     ${p(t('merchant.withdrawalSuccess.outro1', L))}
     ${p(t('merchant.withdrawalSuccess.outro2', L))}`;
 
@@ -997,7 +998,7 @@ export const sendExchangeOTPEmail = async (
         ${dataRow(t('merchant.labels.to', L), toCurrency)}
         ${dataRow(t('merchant.labels.with', L), otherPartyName, true)}
       </table>
-    `, '#3b82f6')}
+    `, EMAIL_TOKENS.brand)}
     ${p(t('merchant.exchangeOtp.expiry', L))}`;
 
     const html = dynoPayEmailTemplate(t('merchant.exchangeOtp.heading', L), content);
@@ -1121,7 +1122,7 @@ export const sendPaymentReceivedEmail = async (
         ${dataRow(t('labels.date', L), dateTimeStr)}
         ${dataRow(t('labels.transactionId', L), `<span style="font-size: 12px; font-family: monospace;">${transactionId}</span>`, true)}
       </table>
-    `, '#22c55e')}
+    `, '#12B76A')}
     ${p(
       isContribution
         ? t('contributionReceived.outro', L)
@@ -1216,7 +1217,7 @@ export const sendPaymentConfirmingEmail = async (
     const htmlContent = `
       ${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
       ${p(t('paymentConfirming.intro', L, { companyName }))}
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background: #f8f9ff; border-radius: 8px; border-left: 4px solid #3b82f6; margin: 24px 0;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background: #f8f9ff; border-radius: 8px; border-left: 4px solid ${EMAIL_TOKENS.brand}; margin: 24px 0;">
         <tr><td style="padding: 20px;">
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
             <tr><td style="padding: 8px 0; color: #6b7280; font-size: 14px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; border-bottom: 1px solid #f3f4f6;">${t('labels.amount', L)}</td><td style="padding: 8px 0; color: #1a1a2e; font-size: 16px; font-weight: 600; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; text-align: right; border-bottom: 1px solid #f3f4f6;">${amount} ${currency}</td></tr>
@@ -1224,7 +1225,7 @@ export const sendPaymentConfirmingEmail = async (
             <tr><td style="padding: 8px 0; color: #6b7280; font-size: 14px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; border-bottom: 1px solid #f3f4f6;">${t('labels.confirmations', L)}</td><td style="padding: 8px 0; color: #1a1a2e; font-size: 14px; font-weight: 600; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; text-align: right; border-bottom: 1px solid #f3f4f6;">${t('paymentConfirming.confirmationsOf', L, { current: currentConfirmations, required: requiredConfirmations })}</td></tr>
             <tr><td colspan="2" style="padding: 12px 0 4px 0;">
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background: #e5e7eb; border-radius: 4px; height: 8px;">
-                <tr><td style="width: ${progressPct}%; background: ${isComplete ? '#22c55e' : '#3b82f6'}; border-radius: 4px; height: 8px;">&nbsp;</td><td style="height: 8px;">&nbsp;</td></tr>
+                <tr><td style="width: ${progressPct}%; background: ${isComplete ? '#12B76A' : EMAIL_TOKENS.brand}; border-radius: 4px; height: 8px;">&nbsp;</td><td style="height: 8px;">&nbsp;</td></tr>
               </table>
             </td></tr>
             <tr><td style="padding: 8px 0; color: #6b7280; font-size: 14px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('labels.transactionId', L)}</td><td style="padding: 8px 0; color: #1a1a2e; font-size: 13px; font-family: 'SF Mono', 'Fira Code', monospace, Arial, sans-serif; text-align: right; word-break: break-all;">${transactionId}</td></tr>
@@ -1348,7 +1349,7 @@ export const sendPaymentPartialExpiredEmail = async (
       ? t('paymentPartialExpired.subjectCompleted', L)
       : t('paymentPartialExpired.subjectExpired', L);
     const heading = isCompleted ? t('paymentPartialExpired.headingCompleted', L) : t('paymentPartialExpired.headingExpired', L);
-    const borderColor = isCompleted ? '#22c55e' : '#f59e0b';
+    const borderColor = isCompleted ? '#12B76A' : '#f59e0b';
     const badgeType: 'success' | 'pending' = isCompleted ? 'success' : 'pending';
     const statusLabel = isCompleted ? t('statusLabels.processed', L) : t('statusLabels.expired', L);
 
@@ -1534,7 +1535,7 @@ export const sendCustomerPaymentConfirmationEmail = async (
         ${transactionReference ? dataRow(t('labels.reference', L), transactionReference) : ''}
         ${dataRow(t('labels.date', L), `${date} at ${time}`, true)}
       </table>
-    `, '#22c55e')}
+    `, '#12B76A')}
     ${pdfAttachment ? p(t('customerPaymentConfirmation.pdfAttached', L)) : ''}
     ${p(
       isContribution
@@ -1585,7 +1586,7 @@ export const sendLargeTransactionAlertEmail = async (
         ${customerEmail ? dataRow(t('labels.customer', L), customerEmail) : ''}
         ${dataRow(t('labels.transactionId', L), `<span style="font-family: monospace; font-size: 13px;">${transactionId}</span>`, true)}
       </table>
-    `, '#22c55e')}
+    `, '#12B76A')}
     ${p(t('merchant.largeTransaction.outro1', L))}
     ${p(t('merchant.largeTransaction.outro2', L))}`;
 
@@ -1633,8 +1634,8 @@ export const sendWebhookDisabledEmail = async (
         </table>
       `, '#f59e0b')}
       ${p(`<strong>What you need to do:</strong>`)}
-      ${p(`1. Verify the URL is correct and reachable from the public internet.<br>2. Confirm your endpoint returns HTTP 2xx within 10 seconds.<br>3. Re-enable delivery from the <a href="${escapeHtml(FRONTEND_BASE_URL)}/settings/webhooks" style="color:#10b981;font-weight:600;">webhook settings page</a>.`)}
-      ${p(`No payments were lost — every attempt was captured in your <a href="${escapeHtml(FRONTEND_BASE_URL)}/settings/webhooks" style="color:#10b981;">webhook delivery log</a> and can be re-fired once your endpoint is healthy again.`)}
+      ${p(`1. Verify the URL is correct and reachable from the public internet.<br>2. Confirm your endpoint returns HTTP 2xx within 10 seconds.<br>3. Re-enable delivery from the <a href="${escapeHtml(FRONTEND_BASE_URL)}/settings/webhooks" style="color:#05936A;font-weight:600;">webhook settings page</a>.`)}
+      ${p(`No payments were lost — every attempt was captured in your <a href="${escapeHtml(FRONTEND_BASE_URL)}/settings/webhooks" style="color:#05936A;">webhook delivery log</a> and can be re-fired once your endpoint is healthy again.`)}
       ${p(`If you don't recognize this endpoint or believe this is a mistake, please reply to this email and we'll investigate immediately.`)}
     `;
 
@@ -1706,7 +1707,7 @@ export const sendAdminFeeReceivedEmail = async (
 
     const htmlContent = `
       ${p(`Platform fee received from <strong>${companyName}</strong>.`)}
-      ${infoBox(detailContent, '#22c55e')}
+      ${infoBox(detailContent, '#12B76A')}
       ${noticeBlock}
       ${p(`The fee has been credited to the admin ${currency} wallet.`)}`;
 
@@ -1752,7 +1753,7 @@ export const sendAdminFeeSweepEmail = async (
           ${dataRow('Date', `${dateStr} at ${timeStr}`)}
           ${dataRow('Sweep TX ID', `<span style="font-family: monospace; font-size: 12px; word-break: break-all;">${sweepTxId}</span>`, true)}
         </table>
-      `, '#3b82f6')}
+      `, EMAIL_TOKENS.brand)}
       ${p(`The admin fees have been transferred to the admin ${currency} wallet. You can verify the transaction on the blockchain explorer.`)}`;
 
     const htmlBody = dynoPayEmailTemplate("Admin Fee Sweep Completed", `${p(`Hey Dynopay Admin,`)}\n${htmlContent}`);
@@ -1973,7 +1974,7 @@ export const sendWeeklyConversionSummaryEmail = async (
           <td style="padding: 4px 0; width: 100%;">
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background: #f3f4f6; border-radius: 3px; height: 18px;">
               <tr>
-                <td style="width: ${barWidth}%; background: ${hasActivity ? '#3b82f6' : 'transparent'}; border-radius: 3px; height: 18px;">&nbsp;</td>
+                <td style="width: ${barWidth}%; background: ${hasActivity ? EMAIL_TOKENS.brand : 'transparent'}; border-radius: 3px; height: 18px;">&nbsp;</td>
                 <td style="height: 18px;">&nbsp;</td>
               </tr>
             </table>
@@ -1983,7 +1984,7 @@ export const sendWeeklyConversionSummaryEmail = async (
     }).join('');
 
     const breakdownRows = cryptoBreakdown.map(c => {
-      const movementColor = c.avgMovementPct < -1 ? '#dc2626' : c.avgMovementPct < 0 ? '#f59e0b' : '#22c55e';
+      const movementColor = c.avgMovementPct < -1 ? '#dc2626' : c.avgMovementPct < 0 ? '#f59e0b' : '#12B76A';
       const movementSign = c.avgMovementPct >= 0 ? '+' : '';
       return `
         <tr class="fee-row">
@@ -2329,7 +2330,7 @@ export const sendRefereeCodeReminderEmail = async (
     const message = `
 <p>We noticed you haven't claimed your exclusive Dynopay discount yet!</p>
 
-<div style="margin: 24px 0; padding: 20px; background: linear-gradient(135deg, #f0fff4 0%, #e6ffed 100%); border-left: 4px solid #22c55e; border-radius: 0 8px 8px 0;">
+<div style="margin: 24px 0; padding: 20px; background: linear-gradient(135deg, #f0fff4 0%, #e6ffed 100%); border-left: 4px solid #12B76A; border-radius: 0 8px 8px 0;">
   <h3 style="margin: 0 0 12px 0; color: #166534; font-size: 18px;">Your Exclusive Offer</h3>
   <p style="margin: 0 0 8px 0; color: #14532d; font-size: 16px;">
     <strong>${discountPercent}% OFF</strong> all transaction fees for <strong>${discountDurationDays} days</strong>
@@ -2341,7 +2342,7 @@ export const sendRefereeCodeReminderEmail = async (
 
 <p style="font-size: 15px;">${urgencyMessage}</p>
 
-<h4 style="margin: 24px 0 12px 0; color: #1034a6;">Why Dynopay?</h4>
+<h4 style="margin: 24px 0 12px 0; color: ${EMAIL_TOKENS.brandDeep};">Why Dynopay?</h4>
 <ul style="margin: 0; padding-left: 20px; color: #4a4a4a;">
   <li>Accept crypto payments from customers worldwide</li>
   <li>Support for Bitcoin, Ethereum, USDT, and more</li>
@@ -2350,7 +2351,7 @@ export const sendRefereeCodeReminderEmail = async (
 </ul>
 
 <div style="text-align: center; margin: 32px 0;">
-  <a href="${signupUrl}" style="display: inline-block; background: linear-gradient(135deg, #f47323 0%, #e05a00 100%); color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 8px; font-weight: 600; font-size: 16px;">${ctaText}</a>
+  <a href="${signupUrl}" style="display: inline-block; background: linear-gradient(135deg, ${EMAIL_TOKENS.brandHover} 0%, ${EMAIL_TOKENS.brand} 100%); color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 8px; font-weight: 600; font-size: 16px;">${ctaText}</a>
 </div>
 
 <p style="font-size: 13px; color: #6b7280; margin-top: 32px; padding-top: 16px; border-top: 1px solid #e5e7eb;">
@@ -2447,7 +2448,7 @@ export const sendPaymentLinkReminderEmail = async (
     const message = `
 <p>You have a pending payment request from <strong>${companyName}</strong>.</p>
 
-<div style="margin: 24px 0; padding: 20px; background: #f8f9ff; border-radius: 8px; border-left: 4px solid #1034a6;">
+<div style="margin: 24px 0; padding: 20px; background: #f8f9ff; border-radius: 8px; border-left: 4px solid ${EMAIL_TOKENS.brandDeep};">
   <p style="margin: 0 0 8px 0; font-size: 16px;"><strong>Amount Due:</strong> ${amount} ${currency}</p>
   ${description ? `<p style="margin: 0 0 8px 0;"><strong>Description:</strong> ${description}</p>` : ''}
   ${expiresAt ? `<p style="margin: 0;"><strong>Expires:</strong> ${expiresAt.toLocaleDateString()} at ${expiresAt.toLocaleTimeString()}</p>` : ''}
@@ -2456,7 +2457,7 @@ export const sendPaymentLinkReminderEmail = async (
 <p style="font-size: 15px;">${urgencyMessage}</p>
 
 <div style="text-align: center; margin: 32px 0;">
-  <a href="${paymentLink}" style="display: inline-block; background: linear-gradient(135deg, #f47323 0%, #e05a00 100%); color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 8px; font-weight: 600; font-size: 16px;">${ctaText}</a>
+  <a href="${paymentLink}" style="display: inline-block; background: linear-gradient(135deg, ${EMAIL_TOKENS.brandHover} 0%, ${EMAIL_TOKENS.brand} 100%); color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 8px; font-weight: 600; font-size: 16px;">${ctaText}</a>
 </div>
 
 <p style="font-size: 14px; color: #6b7280;">
@@ -2535,7 +2536,7 @@ export const sendKYCApprovedEmail = async (email: string, name: string, lang?: s
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         ${dataRow(t('labels.status', L), statusBadge(t('merchant.badges.approved', L), 'success'), true)}
       </table>
-    `, '#22c55e')}
+    `, '#12B76A')}
     ${p(t('merchant.kycApproved.outro', L))}`;
 
     const html = dynoPayEmailTemplate(t('merchant.kycApproved.heading', L), content, true, t('merchant.kycApproved.cta', L), `${FRONTEND_BASE_URL}/dashboard`);
@@ -2773,7 +2774,7 @@ export const sendSubscriptionCreatedEmail = async (
         ${dataRow(t('labels.amount', CL), `<strong>${amount} ${currency} / ${interval}</strong>`)}
         ${dataRow(t('merchant.labels.nextBilling', CL), nextBillingDate, true)}
       </table>
-    `, '#22c55e')}
+    `, '#12B76A')}
     ${p(t('merchant.subscriptionCreated.custOutro', CL))}`;
 
     const customerHtml = dynoPayEmailTemplate(t('merchant.subscriptionCreated.custHeading', CL), customerContent);
@@ -2789,7 +2790,7 @@ export const sendSubscriptionCreatedEmail = async (
         ${dataRow(t('merchant.labels.revenue', ML), `<strong>${amount} ${currency} / ${interval}</strong>`)}
         ${dataRow(t('merchant.labels.nextBilling', ML), nextBillingDate, true)}
       </table>
-    `, '#22c55e')}`;
+    `, '#12B76A')}`;
 
     const merchantHtml = dynoPayEmailTemplate(t('merchant.subscriptionCreated.merchHeading', ML), merchantContent, true, t('merchant.subscriptionCreated.cta', ML), `${FRONTEND_BASE_URL}/dashboard`);
     await mailTransporter({ to: merchantEmail, name: merchantName, subject: merchantSubject, body: merchantHtml });
@@ -2938,7 +2939,7 @@ export const sendNewUserAdminNotification = async (userData: {
         ${dataRow('Registered At', registrationTime)}
         ${dataRow('Fee-Free Balance', '$500.00 (trial)', true)}
       </table>
-    `, '#3b82f6')}
+    `, EMAIL_TOKENS.brand)}
     ${p(`The account is now <strong>active</strong>. The merchant can begin setting up their payment integration immediately.`)}
     ${p(`You can review this account in the admin dashboard.`, `color: #6b7280; font-size: 13px;`)}`;
 
@@ -3048,7 +3049,7 @@ export const sendOnboardingCompletedAdminEmail = async (userData: {
         ${dataRow('Registered', userData.registered_at)}
         ${dataRow('Time to Complete', hoursStr, true)}
       </table>
-    `, '#22c55e')}
+    `, '#12B76A')}
     ${p(`All onboarding steps completed: email verified, company created, wallet address configured.`)}
     ${p(`This merchant is now live and can receive their first payment.`, `color: #6b7280; font-size: 13px;`)}`;
 
@@ -3106,7 +3107,7 @@ export const sendFirstPaymentAdminEmail = async (data: {
         ${dataRow('Transaction ID', data.transaction_id)}
         ${dataRow('Time to First Payment', daysStr, true)}
       </table>
-    `, '#8b5cf6')}
+    `, EMAIL_TOKENS.brand)}
     ${p(`This is a key milestone — the merchant is now actively processing payments.`)}
     ${p(`You can view the full transaction details in the admin dashboard.`, `color: #6b7280; font-size: 13px;`)}`;
 
@@ -3169,7 +3170,7 @@ export const sendNewVisitorAdminEmail = async (visitorData: {
         ${dataRow('Browser', browser)}
         ${dataRow('Time', visitorData.timestamp)}
       </table>
-    `, '#3b82f6')}
+    `, EMAIL_TOKENS.brand)}
     ${p(`This visitor may become a potential merchant. Monitor sign-ups in the admin dashboard.`, `color: #6b7280; font-size: 13px;`)}`;
 
     const html = baseEmailTemplate("New Website Visitor", content);
@@ -3226,15 +3227,15 @@ function renderOrderItemsTable(
         if (Array.isArray(dp.asset_deliveries) && dp.asset_deliveries.length > 0) {
           deliveryHtml = `<div style="margin-top:6px;">` +
             dp.asset_deliveries.map((a: any) =>
-              `<a href="${esc(a.download_url)}" style="color:#10b981;font-weight:600;text-decoration:none;">⬇ Download ${esc(a.filename)}</a>`
+              `<a href="${esc(a.download_url)}" style="color:#05936A;font-weight:600;text-decoration:none;">⬇ Download ${esc(a.filename)}</a>`
             ).join("<br/>") +
             `</div>`;
         } else if (dp.license_key) {
           deliveryHtml = `<div style="margin-top:6px;font-family:monospace;background:#f3f4f6;padding:6px 8px;border-radius:6px;font-size:13px;">License key: ${esc(dp.license_key)}</div>`;
         } else if (dp.access_url) {
-          deliveryHtml = `<div style="margin-top:6px;"><a href="${esc(dp.access_url)}" style="color:#10b981;font-weight:600;">Access your purchase →</a></div>`;
+          deliveryHtml = `<div style="margin-top:6px;"><a href="${esc(dp.access_url)}" style="color:#05936A;font-weight:600;">Access your purchase →</a></div>`;
         } else if (dp.calendar_url) {
-          deliveryHtml = `<div style="margin-top:6px;"><a href="${esc(dp.calendar_url)}" style="color:#10b981;font-weight:600;">Book your session →</a></div>`;
+          deliveryHtml = `<div style="margin-top:6px;"><a href="${esc(dp.calendar_url)}" style="color:#05936A;font-weight:600;">Book your session →</a></div>`;
         }
       }
       return `
@@ -3294,9 +3295,9 @@ export const sendOrderReceiptEmail = async (
       ${p(`Thanks for your purchase! Your payment has been received and your order is confirmed.`)}
       ${infoBox(`Order reference: <strong style="font-family:monospace;">${esc(order.public_ref)}</strong>`)}
       ${itemsTable}
-      ${hasDigital ? p(`Download links above are valid for 24 hours. Need a fresh link? <a href="${esc(orderPublicUrl)}" style="color:#10b981;">Open your order page</a>.`) : ""}
+      ${hasDigital ? p(`Download links above are valid for 24 hours. Need a fresh link? <a href="${esc(orderPublicUrl)}" style="color:#05936A;">Open your order page</a>.`) : ""}
       ${hasPhysical ? p(`Your merchant will email a tracking number once your items ship.`) : ""}
-      ${p(`<a href="${esc(orderPublicUrl)}" style="color:#10b981;font-weight:600;">View order details →</a>`)}
+      ${p(`<a href="${esc(orderPublicUrl)}" style="color:#05936A;font-weight:600;">View order details →</a>`)}
     `;
 
     const html = dynoPayGreetingTemplate(name, message, `Order confirmed`, false);
@@ -3345,7 +3346,7 @@ export const sendOrderReceiptMerchantEmail = async (
       ${buyerBlock}
       ${shippingBlock}
       ${itemsTable}
-      ${p(`<a href="${esc(orderPublicUrl)}" style="color:#10b981;font-weight:600;">Open in dashboard →</a>`)}
+      ${p(`<a href="${esc(orderPublicUrl)}" style="color:#05936A;font-weight:600;">Open in dashboard →</a>`)}
     `;
 
     const html = dynoPayGreetingTemplate(name, message, `You just made a sale`, false);
@@ -3381,7 +3382,7 @@ export const sendOrderExpiredEmail = async (
       ${infoBox(`Order reference: <strong style="font-family:monospace;">${esc(order.public_ref)}</strong>`)}
       ${itemsTable}
       ${p(`If this was intentional — no worries. If you still want these items, you can start a fresh cart:`)}
-      ${p(`<a href="${esc(shopUrl)}" style="color:#10b981;font-weight:600;">Return to the shop →</a>`)}
+      ${p(`<a href="${esc(shopUrl)}" style="color:#05936A;font-weight:600;">Return to the shop →</a>`)}
     `;
 
     const html = dynoPayGreetingTemplate(name, message, `Order not completed`, false);
@@ -3419,7 +3420,7 @@ export const sendOrderRefundedEmail = async (
       ${infoBox(`Order reference: <strong style="font-family:monospace;">${esc(order.public_ref)}</strong>`)}
       ${reasonBlock}
       ${itemsTable}
-      ${p(`<a href="${esc(orderPublicUrl)}" style="color:#10b981;font-weight:600;">View order status →</a>`)}
+      ${p(`<a href="${esc(orderPublicUrl)}" style="color:${EMAIL_TOKENS.brand};font-weight:600;">View order status →</a>`)}
     `;
 
     const html = dynoPayGreetingTemplate(name, message, `Refund confirmed`, false);
@@ -3460,7 +3461,7 @@ export const sendOrderShippedEmail = async (
       ${p(`Great news — your order is on its way!`)}
       ${infoBox(`Order reference: <strong style="font-family:monospace;">${esc(order.public_ref)}</strong>`)}
       ${trackingBlock}
-      ${p(`<a href="${esc(orderPublicUrl)}" style="color:#10b981;font-weight:600;">View order details →</a>`)}
+      ${p(`<a href="${esc(orderPublicUrl)}" style="color:#05936A;font-weight:600;">View order details →</a>`)}
     `;
 
     const html = dynoPayGreetingTemplate(name, message, `Order shipped`, false);
@@ -3495,7 +3496,7 @@ export const sendDigitalDownloadReminderEmail = async (
       ${p(`Just a heads-up — the secure download links from your recent order will expire in the next few hours.`)}
       ${p(`If you still need the files, tap the button below to refresh them. Refreshed links are valid for another 24 hours.`)}
       ${itemsTable}
-      ${p(`<a href="${esc(orderPublicUrl)}" style="color:#10b981;font-weight:600;">Refresh download links →</a>`)}
+      ${p(`<a href="${esc(orderPublicUrl)}" style="color:#05936A;font-weight:600;">Refresh download links →</a>`)}
     `;
 
     const html = dynoPayGreetingTemplate(name, message, `Your downloads expire soon`, false);

@@ -16,6 +16,7 @@ import {
   feeTotalRow,
   feeTable,
 } from "../utils/emailTemplate";
+import { EMAIL_TOKENS } from "../utils/brandTokens";
 
 /**
  * Payout Digest Service (Session 97, 2026-08-02)
@@ -326,8 +327,8 @@ export async function sendPayoutDigestEmail(
 
     // Delta chip HTML
     const positive = d.volumeDeltaPct >= 0;
-    const deltaColor = positive ? "#059669" : "#6b7280";
-    const deltaBg = positive ? "#dcfce7" : "#f1f5f9";
+    const deltaColor = positive ? EMAIL_TOKENS.greenDeep : EMAIL_TOKENS.muted;
+    const deltaBg = positive ? EMAIL_TOKENS.greenSurface : "#f1f5f9";
     const deltaArrow = positive ? "▲" : "▼";
     const deltaText = d.hasPriorActivity
       ? `${deltaArrow} ${Math.abs(d.volumeDeltaPct).toFixed(1)}%`
@@ -385,7 +386,7 @@ export async function sendPayoutDigestEmail(
       : d.hasActivity
         ? p(`This is your first active week — welcome to the weekly digest. ${deltaChip}`)
         : p(
-            `Nothing settled this week. Send a payment link to a customer and let's get the first one through: <a href="${FRONTEND_BASE_URL}/create-pay-link" style="color:#4F46E5;font-weight:600;">Create a payment link →</a>`,
+            `Nothing settled this week. Send a payment link to a customer and let's get the first one through: <a href="${FRONTEND_BASE_URL}/create-pay-link" style="color:${EMAIL_TOKENS.brand};font-weight:600;">Create a payment link →</a>`,
           );
 
     // Info box: quick summary + link

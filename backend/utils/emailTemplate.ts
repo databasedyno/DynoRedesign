@@ -5,6 +5,7 @@
 
 import { getCurrencySymbol as getCurrencySymbolShared } from "./currencyUtils";
 import config from "./config";
+import { EMAIL_TOKENS as T } from "./brandTokens";
 
 // Public CDN-hosted PNG logo for maximum email client compatibility
 const DYNOPAY_LOGO_CDN = "https://files.catbox.moe/9wq2et.png";
@@ -120,9 +121,9 @@ export const baseEmailTemplate = (
       .error-box { background-color: #2c0f0f !important; border-left-color: #ef4444 !important; }
       .error-box td, .error-box p, .error-box span { color: #fca5a5 !important; }
       .error-box strong { color: #fee2e2 !important; }
-      .success-box { background-color: #052e16 !important; border-left-color: #22C55E !important; }
-      .success-box td, .success-box p, .success-box span { color: #d9f99d !important; }
-      .success-box strong { color: #f7fee7 !important; }
+      .success-box { background-color: ${T.greenSurfaceDark} !important; border-left-color: ${T.green} !important; }
+      .success-box td, .success-box p, .success-box span { color: ${T.greenTextDark} !important; }
+      .success-box strong { color: #DCFCE7 !important; }
       .neutral-box { background-color: #212124 !important; border-color: #33333a !important; }
       .neutral-box td, .neutral-box p, .neutral-box span { color: #d4d4d8 !important; }
       .neutral-box strong { color: #fafafa !important; }
@@ -325,7 +326,7 @@ export const errorBox = (content: string): string => {
  * Success box (green variant of infoBox)
  */
 export const successBox = (content: string): string => {
-  return `<table role="presentation" class="success-box" width="100%" cellpadding="0" cellspacing="0" style="background-color: #f0fdf4; border-radius: 8px; border-left: 3px solid #22c55e; margin: 20px 0;">
+  return `<table role="presentation" class="success-box" width="100%" cellpadding="0" cellspacing="0" style="background-color: ${T.greenSurface}; border-radius: 8px; border-left: 3px solid ${T.green}; margin: 20px 0;">
     <tr><td style="padding: 16px 20px;">${content}</td></tr>
   </table>`;
 };
@@ -344,8 +345,8 @@ export const neutralBox = (content: string): string => {
  */
 export const statCard = (label: string, value: string, subtitle: string, variant: 'blue' | 'green' = 'blue'): string => {
   const valueClass = variant === 'green' ? 'stat-value-green' : 'stat-value';
-  const valueFallbackColor = variant === 'green' ? '#3f6212' : '#0a0a0a';
-  return `<table role="presentation" class="stat-card" width="100%" cellpadding="0" cellspacing="0" style="background-color: ${variant === 'green' ? '#f7fee7' : '#fafaf9'}; border: 1px solid ${variant === 'green' ? '#d9f99d' : '#e7e5e4'}; border-radius: 12px;">
+  const valueFallbackColor = variant === 'green' ? T.greenDeep : '#0a0a0a';
+  return `<table role="presentation" class="stat-card" width="100%" cellpadding="0" cellspacing="0" style="background-color: ${variant === 'green' ? T.greenSurface : '#fafaf9'}; border: 1px solid ${variant === 'green' ? T.greenBorder : '#e7e5e4'}; border-radius: 12px;">
     <tr><td style="padding: 16px; text-align: center;">
       <p style="font-size: 11px; font-weight: 600; color: #6b7280; margin: 0 0 4px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; text-transform: uppercase; letter-spacing: 0.5px;">${label}</p>
       <p class="${valueClass}" style="font-size: 22px; font-weight: 700; color: ${valueFallbackColor}; margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${value}</p>
