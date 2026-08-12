@@ -1,3 +1,4 @@
+import { brandFg } from "@/constants/theme";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import CopyIcon from "@/assets/Icons/copy-icon.svg";
 import LinkIcon from "@/assets/Icons/link-icon.svg";
@@ -448,7 +449,7 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: () => void }) => {
                       endIcon={<Icon name="arrow-up-right" size={isMobile ? 13 : 16} />}
                       sx={{
                         backgroundColor: theme.palette.background.paper,
-                        color: theme.palette.primary.main,
+                        color: brandFg(theme.palette.mode === "dark"),
                         border: `1px solid ${theme.palette.primary.main}`,
                         borderRadius: "6px",
                         fontSize: isMobile ? "13px" : "15px",
@@ -461,7 +462,7 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: () => void }) => {
                         gap: isMobile ? "6px" : "10px",
                         "&:hover": {
                           backgroundColor: theme.palette.background.paper,
-                          color: theme.palette.primary.main,
+                          color: brandFg(theme.palette.mode === "dark"),
                           border: `1px solid ${theme.palette.primary.main}`,
                         },
                       }}

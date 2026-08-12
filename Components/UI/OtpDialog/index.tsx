@@ -1,3 +1,4 @@
+import { brandFg } from "@/constants/theme";
 import CloseIcon from "@/assets/Icons/close-icon.svg";
 import EnvelopeIcon from "@/assets/Icons/envelope-icon.svg";
 import PanelCard from "@/Components/UI/PanelCard";
@@ -234,7 +235,7 @@ const OtpDialog: React.FC<OtpDialogProps> = ({
               <CircularProgress
                 size={96}
                 thickness={3}
-                sx={{ color: theme.palette.primary.main }}
+                sx={{ color: brandFg(theme.palette.mode === "dark") }}
               />
               <Box
                 sx={{
@@ -248,7 +249,7 @@ const OtpDialog: React.FC<OtpDialogProps> = ({
                 <CheckRoundedIcon
                   sx={{
                     fontSize: 40,
-                    color: theme.palette.primary.main,
+                    color: brandFg(theme.palette.mode === "dark"),
                     opacity: 0.4,
                   }}
                 />

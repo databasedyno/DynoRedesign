@@ -1,3 +1,4 @@
+import { brandFg } from "@/constants/theme";
 import React from "react";
 import {
   BusinessRounded,
@@ -75,7 +76,7 @@ const DashboardSetupPrompt: React.FC<DashboardSetupPromptProps> = ({
           }}
         >
           <RocketLaunchRounded
-            sx={{ fontSize: isMobile ? 18 : 22, color: theme.palette.primary.main }}
+            sx={{ fontSize: isMobile ? 18 : 22, color: brandFg(theme.palette.mode === "dark") }}
           />
         </Box>
         <Box sx={{ flex: 1 }}>
@@ -151,7 +152,7 @@ const DashboardSetupPrompt: React.FC<DashboardSetupPromptProps> = ({
                 {isDone ? (
                   <Typography sx={{ fontSize: 16, color: "#4CAF50", fontWeight: 700 }}>✓</Typography>
                 ) : (
-                  <Icon sx={{ fontSize: isMobile ? 16 : 18, color: theme.palette.primary.main }} />
+                  <Icon sx={{ fontSize: isMobile ? 16 : 18, color: brandFg(theme.palette.mode === "dark") }} />
                 )}
               </Box>
               <Typography
@@ -168,7 +169,7 @@ const DashboardSetupPrompt: React.FC<DashboardSetupPromptProps> = ({
               </Typography>
               {!isDone && (
                 <ArrowForwardRounded
-                  sx={{ fontSize: 18, color: theme.palette.primary.main }}
+                  sx={{ fontSize: 18, color: brandFg(theme.palette.mode === "dark") }}
                 />
               )}
             </Box>

@@ -1,3 +1,4 @@
+import { brandFg } from "@/constants/theme";
 import PanelCard from "@/Components/UI/PanelCard";
 import { getCurrencySymbol } from "@/helpers";
 import { formatCryptoAmount, isCryptoCurrency } from "@/utils/currencyFormat";
@@ -349,7 +350,7 @@ const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  color: theme.palette.primary.main,
+                  color: brandFg(theme.palette.mode === "dark"),
                   bgcolor: theme.palette.background.paper,
                   border: `1px solid ${theme.palette.divider}`,
                   boxShadow: `0 4px 10px ${alpha("#000", 0.18)}`,
@@ -427,7 +428,7 @@ const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      color: theme.palette.primary.main,
+                      color: brandFg(theme.palette.mode === "dark"),
                       bgcolor: alpha(theme.palette.primary.main, 0.12),
                     }}
                   >

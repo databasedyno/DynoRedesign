@@ -20,12 +20,22 @@ buttons app-wide); (2) migrated `Components/UI/CompanySelector/index.tsx`,
 foregrounds to `brandFg`. Testing agent confirmed dark #818CF8 / light #4F46E5; solid FILLED
 buttons intentionally unchanged (black-in-light / indigo-in-dark by app design).
 
-**BATCH 3+ (remaining #4F46E5-in-dark foregrounds) — next files to migrate:**
-`pages/company.tsx`, `pages/blog/[slug].tsx`, `Components/Page/SEO/SEOLandingPage`,
-`Components/UI/pay-link/*` (OtpInputPanel, ExpireSelector, PaymentSettingsBasic), FeeCalculator,
-DashboardSetupPrompt, NotificationPage, RecentTransactionsWidget, Wallet, TransferExpectedCard,
-AddWalletModal, ApiKeysModel/CreateApiModel, plus a sweep of any remaining `"primary.main"`
-string-shorthand foregrounds. (Skip backgrounds/borders and already-theme-aware sites.)
+**BATCH 3 ✅ DONE & VERIFIED (2026-08-12)** — migrated payment-flow widgets
+(`TransferExpectedCard`, `OverPayment`, `UnderPayment`, `OtpInputPanel`, `OtpDialog`,
+`SteppedProgressPanel`) and in-app screens (`Page/Wallet`, `Page/Notification/NotificationPage`,
+`Dashboard/RecentTransactionsWidget`, `DashboardSetupPrompt`) foregrounds to `brandFg`.
+Testing agent confirmed dark #818CF8 / light #4F46E5 on /wallet, /notifications, /dashboard (no
+console errors). Payment widgets share the identical pattern (lint + compile verified; the /pay/demo
+live check was skipped as optional).
+
+**BATCH 4+ (remaining #4F46E5-in-dark foregrounds) — next files to migrate:**
+`pages/company.tsx`, `pages/blog/[slug].tsx`, `pages/blog/index.tsx`, `pages/creator.tsx`,
+`pages/create-pay-link.tsx`, `pages/settings/index.tsx`, `pages/pay/index.tsx`, `pages/pay/demo.tsx`,
+`Components/Page/SEO/SEOLandingPage`, `Components/Page/Profile/UpdatePassword`,
+`Components/Page/HelpAndSupport`, `Components/Page/Dashboard/{TodaySummaryStrip,GrowPanel,EmptyStatePanel,CreatorPageCard}`,
+`Components/UI/{OnboardingFlow/OnboardingChecklist,DatePicker/styled}`, `Components/Modals/ExitIntentModal`,
+`Components/Layout/AdminHeader`. (Skip backgrounds/borders + already-theme-aware sites. Marketing/public
+pages may be intentionally off-palette — confirm before changing.)
 
 
 

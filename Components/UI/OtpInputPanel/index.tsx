@@ -1,3 +1,4 @@
+import { brandFg } from "@/constants/theme";
 import ArrowUpwardIcon from "@/assets/Icons/up-arrow-icon.png";
 import FormManager from "@/Components/Page/Common/FormManager";
 import InputField from "@/Components/UI/AuthLayout/InputFields";
@@ -531,7 +532,7 @@ const OtpInputPanel: React.FC<OtpInputPanelProps> = ({
               >
                 <Info
                   sx={{
-                    color: theme.palette.primary.main,
+                    color: brandFg(theme.palette.mode === "dark"),
                     fontSize: "18px",
                     width: "16px",
                     height: "16px",
@@ -541,7 +542,7 @@ const OtpInputPanel: React.FC<OtpInputPanelProps> = ({
                 <Typography
                   sx={{
                     fontSize: isMobile ? "12px" : "14px",
-                    color: theme.palette.primary.main,
+                    color: brandFg(theme.palette.mode === "dark"),
                     fontFamily: "var(--font-sans)",
                     lineHeight: 1.3,
                     overflow: "hidden",
@@ -821,7 +822,7 @@ const OtpInputPanel: React.FC<OtpInputPanelProps> = ({
                       disabled={!onResendCode}
                       sx={{
                         fontSize: "13px",
-                        color: theme.palette.primary.main,
+                        color: brandFg(theme.palette.mode === "dark"),
                         fontFamily: "var(--font-sans)",
                         cursor: "pointer",
                         background: "none",

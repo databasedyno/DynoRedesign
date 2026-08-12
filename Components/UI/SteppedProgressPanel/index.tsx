@@ -1,3 +1,4 @@
+import { brandFg } from "@/constants/theme";
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 import { Box, CircularProgress, Typography, useTheme } from "@mui/material";
 import React, { useEffect, useState } from "react";
@@ -88,7 +89,7 @@ const SteppedProgressPanel: React.FC<SteppedProgressPanelProps> = ({
         <CircularProgress
           size={spinnerSize}
           thickness={3}
-          sx={{ color: theme.palette.primary.main }}
+          sx={{ color: brandFg(theme.palette.mode === "dark") }}
         />
         <Box
           sx={{
@@ -102,7 +103,7 @@ const SteppedProgressPanel: React.FC<SteppedProgressPanelProps> = ({
           <CheckRoundedIcon
             sx={{
               fontSize: iconSize,
-              color: theme.palette.primary.main,
+              color: brandFg(theme.palette.mode === "dark"),
               opacity: 0.4,
             }}
           />

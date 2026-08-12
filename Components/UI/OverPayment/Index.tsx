@@ -1,3 +1,4 @@
+import { brandFg } from "@/constants/theme";
 import React, { useState, useCallback, useEffect } from "react";
 import {
   Box,
@@ -429,7 +430,7 @@ const OverPayment = ({
                 gap={1} 
                 mb={2}
               >
-                <CircularProgress size={16} sx={{ color: theme.palette.primary.main }} />
+                <CircularProgress size={16} sx={{ color: brandFg(theme.palette.mode === "dark") }} />
                 <Typography
                   fontSize={13}
                   
@@ -494,11 +495,11 @@ const OverPayment = ({
             gap={0.5}
             mt={2}
           >
-            <Icon icon="mdi:lock" width={14} color={theme.palette.primary.main} />
+            <Icon icon="mdi:lock" width={14} color={brandFg(theme.palette.mode === "dark")} />
             <Typography
               fontSize={12}
               
-              color={theme.palette.primary.main}
+              color={brandFg(theme.palette.mode === "dark")}
               fontWeight={500}
             >
               {t('checkout.securePayment')}

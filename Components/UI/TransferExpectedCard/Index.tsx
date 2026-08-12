@@ -1,3 +1,4 @@
+import { brandFg } from "@/constants/theme";
 import copyToClipboard from "@/helpers/copyToClipboard";
 import React, { useEffect, useState, useCallback, useMemo } from 'react'
 import { 
@@ -239,11 +240,11 @@ export default function TransferExpectedCard({
               gap={0.5}
               mt={2}
             >
-              <Icon icon="mdi:lock" width={14} color={theme.palette.primary.main} />
+              <Icon icon="mdi:lock" width={14} color={brandFg(theme.palette.mode === "dark")} />
               <Typography
                 fontSize={12}
                 
-                color={theme.palette.primary.main}
+                color={brandFg(theme.palette.mode === "dark")}
                 fontWeight={500}
               >
                 {t('checkout.securePayment')}
@@ -595,7 +596,7 @@ export default function TransferExpectedCard({
                 mb={2}
                 data-testid="redirect-countdown"
               >
-                <CircularProgress size={16} sx={{ color: theme.palette.primary.main }} />
+                <CircularProgress size={16} sx={{ color: brandFg(theme.palette.mode === "dark") }} />
                 <Typography
                   fontSize={13}
                   
@@ -753,11 +754,11 @@ export default function TransferExpectedCard({
               gap={0.5}
               mt={2}
             >
-              <Icon icon="mdi:lock" width={14} color={theme.palette.primary.main} />
+              <Icon icon="mdi:lock" width={14} color={brandFg(theme.palette.mode === "dark")} />
               <Typography
                 fontSize={12}
                 
-                color={theme.palette.primary.main}
+                color={brandFg(theme.palette.mode === "dark")}
                 fontWeight={500}
               >
                 {t('checkout.securePayment')}
@@ -915,7 +916,7 @@ export default function TransferExpectedCard({
             onClick={handleDone}
             sx={{
               borderColor: theme.palette.primary.main,
-              color: theme.palette.primary.main,
+              color: brandFg(theme.palette.mode === "dark"),
               textTransform: 'none',
               borderRadius: 30,
               py: 1.5,

@@ -1,3 +1,4 @@
+import { brandFg } from "@/constants/theme";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import { formatWithSeparators } from "@/utils/currencyFormat";
 import CustomButton from "@/Components/UI/Buttons";
@@ -401,7 +402,7 @@ const NotificationPage = () => {
                 >
                   <Box sx={{ pt: "4px", width: 12, flexShrink: 0 }}>
                     {!notif.is_read && (
-                      <CircleIcon sx={{ fontSize: 8, color: theme.palette.primary.main }} />
+                      <CircleIcon sx={{ fontSize: 8, color: brandFg(theme.palette.mode === "dark") }} />
                     )}
                   </Box>
                   <Box sx={{ flex: 1, minWidth: 0 }}>
@@ -679,7 +680,7 @@ const NotificationPage = () => {
                   <Box sx={{ flex: 1, pr: 2 }}>
                     <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
                       {pushSubscribed ? (
-                        <NotificationsActiveIcon sx={{ fontSize: 18, color: theme.palette.primary.main }} />
+                        <NotificationsActiveIcon sx={{ fontSize: 18, color: brandFg(theme.palette.mode === "dark") }} />
                       ) : (
                         <NotificationsOffIcon sx={{ fontSize: 18, color: theme.palette.text.secondary }} />
                       )}

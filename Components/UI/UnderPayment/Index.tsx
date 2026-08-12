@@ -1,3 +1,4 @@
+import { brandFg } from "@/constants/theme";
 import React, { useState, useCallback } from "react";
 import {
   Box,
@@ -403,11 +404,11 @@ const UnderPayment = ({
             gap={0.5}
             mt={2}
           >
-            <Icon icon="mdi:lock" width={14} color={theme.palette.primary.main} />
+            <Icon icon="mdi:lock" width={14} color={brandFg(theme.palette.mode === "dark")} />
             <Typography
               fontSize={12}
               
-              color={theme.palette.primary.main}
+              color={brandFg(theme.palette.mode === "dark")}
               fontWeight={500}
             >
               {t('checkout.securePayment')}

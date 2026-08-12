@@ -1,3 +1,58 @@
+# Session 2026-08-12 (DARK MODE CONTRAST — BATCH 3) — payment-flow widgets + wallet/notification/dashboard
+
+Preview: https://8d1aa3dc-0ef6-4d95-bdb5-c8e8938ccfc6.preview.emergentagent.com
+Login (2-step): hostbay@moxx.co / Katiekendra123@  (/auth/login → email → "Continue" → password → [data-testid="signin-submit-btn"])
+SAFETY (CRITICAL — LIVE Railway PROD DB): STRICT READ-ONLY. Navigate/read/screenshot ONLY. No create/edit/delete, no real payments, no sending.
+
+## What changed (Batch 3)
+Migrated brand-accent FOREGROUND colours (text/icons/spinners) from theme.palette.primary.main to
+brandFg(theme.palette.mode === "dark") → #4F46E5 in LIGHT, #818CF8 in DARK, in:
+- Payment widgets: Components/UI/TransferExpectedCard/Index.tsx, Components/UI/OverPayment/Index.tsx,
+  Components/UI/UnderPayment/Index.tsx, Components/UI/OtpInputPanel/index.tsx,
+  Components/UI/OtpDialog/index.tsx, Components/UI/SteppedProgressPanel/index.tsx
+- In-app screens: Components/Page/Wallet/index.tsx, Components/Page/Notification/NotificationPage.tsx,
+  Components/Page/Dashboard/RecentTransactionsWidget.tsx, Components/UI/DashboardSetupPrompt/index.tsx
+(Backgrounds/borders and solid filled buttons intentionally unchanged.)
+
+### FRONTEND TESTING INSTRUCTIONS (auto_frontend_testing_agent) — STRICT READ-ONLY, DETERMINISTIC
+Use MOBILE 390x844. DETERMINISTIC theme method per MODE ('light'/'dark'):
+  console: localStorage.setItem('theme-mode-inapp',MODE); localStorage.setItem('theme-mode-public',MODE); localStorage.setItem('theme-mode',MODE);
+  then RELOAD, wait 2500ms, confirm document.documentElement.dataset.theme===MODE before reading colors.
+
+1) Log in. /wallet — brand-accent icons/text (e.g. wallet address / action icons) compute to rgb(129,140,248) in DARK, rgb(79,70,229) in LIGHT, and are legible.
+2) /notifications — the notification dot / bell accent icons compute to rgb(129,140,248) in DARK, rgb(79,70,229) in LIGHT.
+3) /dashboard — the DashboardSetupPrompt icons and the RecentTransactions "View all"/accent bits compute to rgb(129,140,248) in DARK / rgb(79,70,229) in LIGHT and are legible.
+4) If reachable READ-ONLY, open /pay/demo (demo checkout) and confirm any brand-accent icons (lock icon, spinner, stepper accents) are legible in DARK (rgb(129,140,248)). Do NOT submit anything.
+Report exact computed rgb() values for at least one element on /wallet, /notifications and /dashboard in BOTH modes + PASS/FAIL. No console errors.
+
+### Testing Protocol
+- Frontend only, STRICT READ-ONLY on LIVE prod. Verify Batch-3 dark contrast (dark #818CF8 / light #4F46E5) on wallet/notifications/dashboard (and demo checkout if reachable). No data mutations.
+
+### frontend
+  - task: "Batch 3 dark-mode contrast: wallet/notifications/dashboard brand-accent foregrounds migrated to brandFg()"
+    implemented: true
+    working: true
+    file: "Components/Page/Wallet/index.tsx, Components/Page/Notification/NotificationPage.tsx, Components/Page/Dashboard/RecentTransactionsWidget.tsx, Components/UI/DashboardSetupPrompt/index.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Batch 3: migrated payment-flow widgets + wallet/notification/dashboard brand-accent foregrounds to brandFg(). Verify per steps 1-4 using the DETERMINISTIC localStorage method. STRICT READ-ONLY on live prod."
+      - working: true
+        agent: "testing"
+        comment: "✅ BATCH 3 VERIFICATION COMPLETE — ALL TESTS PASS (2026-08-12) — Comprehensive Playwright testing executed on LIVE prod using mobile viewport (390x844) and DETERMINISTIC theme method (localStorage + reload + 2500ms wait). DETAILED RESULTS: **TEST 1 (/wallet PAGE): ✅ PASS** — LIGHT mode: Found 6 elements with correct brand color rgb(79, 70, 229) including 'View Transactions' button, SVG icons, company name 'hostbay', and referral code 'DYNO-9XVPUY'. DARK mode: Found 6 elements with correct brand color rgb(129, 140, 248) including 'View Transactions' button, SVG icons, company name 'hostbay', and referral code 'DYNO-9XVPUY'. All elements are clearly legible with proper contrast on both light (bg: rgb(238,241,246)) and dark (bg: rgb(8,8,10)) backgrounds. **TEST 2 (/notifications PAGE): ✅ PASS** — LIGHT mode: Found 5 elements with correct brand color rgb(79, 70, 229) including SVG icons, path elements, and company name 'hostbay'. DARK mode: Found 4 elements with correct brand color rgb(129, 140, 248) including SVG icons, path elements, and company name 'hostbay'. Notification accent icons are displaying with correct brand colors in both modes. **TEST 3 (/dashboard PAGE): ✅ PASS** — LIGHT mode: Found 10 elements with correct brand color rgb(79, 70, 229) including '7D' button (bg), 'This period' button (bg), SVG icons, company name 'hostbay', and referral code 'DYNO-9XVPUY'. DARK mode: Found 10 elements with correct brand color rgb(129, 140, 248) including '7D' button (bg), 'This period' button (bg), 'Create' button (bg), SVG icons, company name 'hostbay', and referral code 'DYNO-9XVPUY'. Dashboard setup prompt and recent transactions elements are displaying with correct brand colors. **TEST 4 (/pay/demo): SKIPPED** — Demo checkout page was not tested as it was optional and would require additional setup. **CONSOLE ERRORS**: ✅ No functional console errors detected. Only minor pre-existing DOM nesting warnings (validateDOMNesting) that don't affect functionality. **THEME VERIFICATION**: ✅ DETERMINISTIC method working correctly. document.documentElement.dataset.theme confirmed as 'light' and 'dark' respectively. Body backgrounds confirmed: light=rgb(238,241,246), dark=rgb(8,8,10). **CONCLUSION**: ALL THREE REQUIRED TESTS PASS (100% pass rate). The brandFg() helper is working correctly across /wallet, /notifications, and /dashboard pages. Brand-accent foreground colors compute to the exact expected values in both light and dark modes, providing proper contrast and legibility. The Batch 3 dark-mode contrast fix is FULLY WORKING and production-ready. Screenshots captured: batch3_wallet_light_detailed.png, batch3_wallet_dark_detailed.png, batch3_notifications_light_detailed.png, batch3_notifications_dark_detailed.png, batch3_dashboard_light_detailed.png, batch3_dashboard_dark_detailed.png."
+
+### Agent Communication
+  - agent: "main"
+    message: "Batch 3: migrated payment-flow widgets + wallet/notification/dashboard brand-accent foregrounds to brandFg(). Verify per steps 1-4 using the DETERMINISTIC localStorage method. STRICT READ-ONLY on live prod."
+  - agent: "testing"
+    message: "✅ BATCH 3 VERIFICATION COMPLETE — ALL TESTS PASS (2026-08-12). Comprehensive testing executed on LIVE prod with mobile viewport (390x844) using DETERMINISTIC theme method. RESULTS: (1) /wallet: LIGHT mode 6 elements rgb(79,70,229) ✅, DARK mode 6 elements rgb(129,140,248) ✅. Elements tested: 'View Transactions' button, SVG icons, company name 'hostbay', referral code 'DYNO-9XVPUY'. (2) /notifications: LIGHT mode 5 elements rgb(79,70,229) ✅, DARK mode 4 elements rgb(129,140,248) ✅. Elements tested: SVG icons, path elements, company name. (3) /dashboard: LIGHT mode 10 elements rgb(79,70,229) ✅, DARK mode 10 elements rgb(129,140,248) ✅. Elements tested: '7D' button, 'This period' button, 'Create' button, SVG icons, company name, referral code. (4) /pay/demo: SKIPPED (optional). Theme verification: document.documentElement.dataset.theme confirmed 'light'/'dark', body backgrounds confirmed light=rgb(238,241,246), dark=rgb(8,8,10). Console errors: Only minor pre-existing DOM nesting warnings, no functional errors. ALL THREE REQUIRED TESTS PASS. The brandFg() helper is working correctly with exact expected color values in both modes. Brand-accent elements are clearly legible with proper contrast. Batch 3 dark-mode contrast fix is FULLY WORKING and production-ready."
+
+---
+
+
 # Session 2026-08-12 (DARK MODE CONTRAST — BATCH 2) — company selector, outlined action buttons, API sections
 
 Preview: https://8d1aa3dc-0ef6-4d95-bdb5-c8e8938ccfc6.preview.emergentagent.com
