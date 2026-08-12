@@ -1,7 +1,7 @@
 # SESSION 6d UX VERIFICATION RESULTS
 **Date:** 2026-07-08  
 **Tester:** Testing Agent (auto_frontend_testing_agent)  
-**App URL:** https://payment-hub-test-2.preview.emergentagent.com  
+**App URL:** https://crypto-payment-hub-33.preview.emergentagent.com  
 **Method:** Playwright UI automation with JWT injection (READ-ONLY, no mutations)
 
 ---
