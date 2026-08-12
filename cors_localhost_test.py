@@ -41,7 +41,7 @@ TESTS = [
     },
     {
         "id": 5,
-        "origin": "https://crypto-payment-hub-33.preview.emergentagent.com",
+        "origin": "https://payment-hub-709.preview.emergentagent.com",
         "expected": "ALLOWED",
         "description": "Preview pattern"
     },

@@ -46,3 +46,29 @@ Dockerfile*
 docker-compose*.yml
 CREDENTIAL_UPDATE_LOG.md
 FINAL_MIGRATION_LOG.md
+
+# === Build-context slimming (2026-08-12) ===
+# Stage 1b (`srcguard`) does a bare `COPY . .`, so EVERY root-level file lands
+# in a kaniko snapshot — and kaniko holds snapshot state in RAM out of the same
+# fixed 8 vCPU / 15 GiB budget the Next.js build needs. These are QA/audit
+# artifacts (~3 MB of PNGs alone) that no build stage ever reads.
+# NOTE: patterns without a slash match ROOT level only, so nested assets under
+# public/ and assets/public-runtime/ are untouched.
+*.png
+*.jpg
+*.jpeg
+.screenshots
+test_reports
+docs
+uploads
+dump.rdb
+debug_output.txt
+page_errors.txt
+backend_test*
+test_*.js
+test_*.ts
+*_test.js
+*_test.ts
+.husky
+.github
+.do

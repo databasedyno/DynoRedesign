@@ -5,17 +5,21 @@
   (port 3300) fronted by a Python/uvicorn proxy on port 8001 (backend/server.py).
 - Browser API calls are RELATIVE (`/api/...`) because `NEXT_PUBLIC_BASE_URL` is empty
   in /app/.env.local -> Emergent ingress routes /api -> 8001 -> Node backend.
-- Preview URL: https://13e42067-64de-478e-a336-166a694ea757.preview.emergentagent.com
-  (env files recreated 2026-08-12 from user-provided creds on a NEW pod; NEXTAUTH_URL &
-   SERVER_URL/FRONTEND_URL/CHECKOUT_URL set to this preview URL; NEXTAUTH_SECRET regenerated
-   (AU+bdDGrt2LXRZet37zmDUZwF20E/rm01+vf22cHLow=) since provided value was a placeholder.
+- Preview URL: https://payment-hub-709.preview.emergentagent.com
+  (env files recreated AGAIN 2026-08-12 (2nd time) from user-provided creds on ANOTHER NEW pod;
+   node_modules (root + backend) and BOTH env files were missing and were reinstalled/rewritten.
+   NEXTAUTH_URL & SERVER_URL/FRONTEND_URL/CHECKOUT_URL set to this preview URL; NEXTAUTH_SECRET
+   regenerated (hxhd+5MRHvfUxAXwXktobmphNShNoRGu58I64+T9bkU=) since the provided value was the
+   literal placeholder "openssl rand -base64 32".
+   NOTE: supervisor's APP_URL advertises https://78eb253f-a375-4fb3-854f-ed364e0d5be9.preview...
+   but that host does NOT route (curl times out). payment-hub-709 is the live host (/ and
+   /dashboard -> 200), so all URLs use payment-hub-709.
    Root deps `yarn install` at /app; backend deps at /app/backend + pip requirements.
-   node_modules were missing and reinstalled. Services verified via /health:
-   database=connected, redis=connected, tatum_api operational, background_jobs eligible=false.
    SAFE MODE: WORKER_ROLE=secondary AND ENABLE_BACKGROUND_JOBS=false -> cron/sweeps/webhook
-   worker DISABLED (verified in logs) so NO real fund movement happens on the live prod DB.
+   worker DISABLED so NO real fund movement happens on the live prod DB.
    DB uses DATABASE_URL (SSL, rejectUnauthorized=false) for the Railway proxy.
-   BINANCE_PROXY_URL omitted (no SSH tunnel) -> prices use CoinGecko/Tatum fallback (works).)
+   BINANCE_PROXY_URL omitted (no SSH tunnel) -> prices use Tatum/CoinGecko fallback (verified
+   working: "[BackgroundCache] Refreshed 40 rates via Tatum"; Binance WS logs HTTP 451, harmless).)
 
 ## Data store (LIVE PRODUCTION — user-provided creds, Aug 2026 setup)
 - PostgreSQL: roundhouse.proxy.rlwy.net:23599, db=railway, user=postgres

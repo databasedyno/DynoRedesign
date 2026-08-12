@@ -34,7 +34,25 @@ const nextConfig = {
       "@iconify/react",
       "react-i18next",
     ],
+    // ─── Build-time memory guardrail (see Dockerfile Stage 2) ───
+    // `next build` spawns `os.cpus().length - 1` static-generation worker
+    // PROCESSES (7 on DigitalOcean's 8-core build machine), each with its own
+    // multi-GB V8 heap ceiling. Stacked on kaniko's snapshotter that blew App
+    // Platform's fixed 8 vCPU / 15 GiB build budget and DO terminated the job
+    // ("BuildJobTerminated" — deployment f36c39b6, 2026-08-12). The Dockerfile
+    // sets NEXT_BUILD_CPUS=2 for container builds; local/dev builds are left
+    // at full speed because the var is unset there.
+    ...(process.env.NEXT_BUILD_CPUS
+      ? {
+          cpus: Math.max(1, Number(process.env.NEXT_BUILD_CPUS) || 1),
+          workerThreads: false,
+        }
+      : {}),
   },
+
+  // Source maps are pure build-time memory/disk overhead for this app (errors
+  // are triaged from server logs, not browser stacks). Explicit > implicit.
+  productionBrowserSourceMaps: false,
 
   // ─── Compiler optimisations ───
   compiler: {

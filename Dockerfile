@@ -9,7 +9,26 @@ WORKDIR /app
 COPY package.json yarn.lock* ./
 
 # Install all dependencies (including devDependencies for build)
-RUN yarn install --frozen-lockfile || yarn install
+#
+# The `|| yarn install` fallback exists so a lockfile drift never hard-fails a
+# deploy — but it USED to fail SILENTLY, which is how deployment f36c39b6
+# (2026-08-12) died: root yarn.lock was missing @dnd-kit/*, ioredis@^5.11.1,
+# framer-motion, geist and every @img/sharp-* platform binary, so
+# --frozen-lockfile bailed and yarn re-resolved the WHOLE graph from the
+# registry (unpinned — it silently picked up recharts 3.8.1). That cold-cache
+# resolve, stacked on kaniko's snapshotter, blew App Platform's fixed
+# 8 vCPU / 15 GiB build budget -> "BuildJobTerminated".
+# Now the fallback SHOUTS in the build log so drift is caught immediately.
+# `yarn cache clean` keeps the tarball cache out of the kaniko layer snapshot.
+RUN ( yarn install --frozen-lockfile \
+      || ( echo "################################################################" \
+        && echo "## WARNING: root yarn.lock is OUT OF SYNC with package.json.  ##" \
+        && echo "## Falling back to a full UNPINNED resolve — slow, memory-    ##" \
+        && echo "## hungry and non-deterministic. Fix it by running            ##" \
+        && echo "##   yarn install   locally and committing yarn.lock.         ##" \
+        && echo "################################################################" \
+        && yarn install ) ) \
+ && yarn cache clean
 
 ##############################################
 # Stage 1b: Source-context guard for public/
@@ -118,6 +137,26 @@ ENV NEXTAUTH_URL=${NEXTAUTH_URL}
 ARG NEXTAUTH_SECRET
 ENV NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Build-time resource guardrails — DO App Platform "BuildJobTerminated" fix
+# ─────────────────────────────────────────────────────────────────────────────
+# App Platform build jobs run on a FIXED budget (8 vCPU / 15 GiB RAM / 24 GiB
+# disk) that is SHARED with kaniko's snapshotter — it is NOT tied to
+# instance_size_slug, so scaling the app up does not buy build headroom.
+#
+# `next build` defaults to `os.cpus().length - 1` static-generation worker
+# processes (= 7 here), each a separate node process with its own multi-GB
+# default V8 heap ceiling. With kaniko holding a freshly-built ~1 GB
+# node_modules layer in memory, that aggregate exceeded the budget and DO
+# killed the job mid-build (deployment f36c39b6, 2026-08-12 19:04Z, killed
+# ~2m26s into Stage 2 — exactly the page-generation window).
+#
+# NEXT_BUILD_CPUS is read by next.config.mjs -> experimental.cpus, and the heap
+# cap makes V8 collect rather than grow until the cgroup OOM-kills it.
+ENV NEXT_BUILD_CPUS=2
+ENV NODE_OPTIONS="--max-old-space-size=3072"
+ENV NEXT_TELEMETRY_DISABLED=1
+
 # Build Next.js (produces .next/ with standalone output)
 RUN yarn build
 
@@ -135,7 +174,22 @@ ENV NO_UPDATE_NOTIFIER=true
 COPY backend/package.json backend/yarn.lock* ./
 
 # Install ALL deps (dev included for tsc build)
-RUN yarn install --ignore-engines --production=false --frozen-lockfile || yarn install --ignore-engines --production=false
+# Same loud-fallback treatment as the frontend stage: backend/yarn.lock was
+# missing `openai` and the entire @aws-sdk/client-s3 tree, so --frozen-lockfile
+# bailed here too and yarn re-resolved ~450 packages from the registry on every
+# cold build.
+RUN ( yarn install --ignore-engines --production=false --frozen-lockfile \
+      || ( echo "################################################################" \
+        && echo "## WARNING: backend/yarn.lock is OUT OF SYNC with             ##" \
+        && echo "## backend/package.json. Falling back to a full UNPINNED      ##" \
+        && echo "## resolve. Fix: run  yarn install  in ./backend and commit.  ##" \
+        && echo "################################################################" \
+        && yarn install --ignore-engines --production=false ) ) \
+ && yarn cache clean
+
+# Cap the tsc heap too — this stage runs concurrently with nothing, but a
+# runaway heap here would still trip the shared build budget.
+ENV NODE_OPTIONS="--max-old-space-size=3072"
 
 # Copy backend source code
 COPY backend/ .
