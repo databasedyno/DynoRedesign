@@ -55,6 +55,13 @@ COPY contexts/ ./contexts/
 COPY hooks/ ./hooks/
 COPY langs/ ./langs/
 COPY utils/ ./utils/
+# Brand-colour SOT (constants/theme.ts -> `@/constants/theme`, 120+ importers)
+# and shared API endpoint map (api/endpoints.ts -> `@/api/endpoints`, 46+
+# importers). These top-level dirs are referenced via the `@/*` path alias; if
+# they are not COPY'd here, `yarn build`'s type-check fails with
+# "Cannot find module '@/constants/theme'" / "@/api/endpoints".
+COPY constants/ ./constants/
+COPY api/ ./api/
 COPY assets/ ./assets/
 # public/ comes via the srcguard stage (mirror fallback) — see Stage 1b.
 COPY --from=srcguard /src/public/ ./public/
