@@ -1,5 +1,6 @@
 import { styled } from "@mui/material";
 import { Box } from "@mui/material";
+import { brandFg } from "@/constants/theme";
 
 export const NavigationBarContainer = styled(Box)(({ theme }) => ({
   position: "fixed",
@@ -103,7 +104,7 @@ export const IconButton = styled(Box, {
           : "brightness(0) saturate(100%) invert(0%)",
     },
     "& svg": {
-      color: active ? theme.palette.primary.main : theme.palette.text.primary,
+      color: active ? brandFg(theme.palette.mode === "dark") : theme.palette.text.primary,
       fontSize: "24px",
     },
   })
@@ -116,7 +117,7 @@ export const NavLabel = styled(Box, {
     fontSize: "13px",
     fontFamily: "var(--font-sans)",
     fontWeight: 500,
-    color: active ? theme.palette.primary.main : theme.palette.text.primary,
+    color: active ? brandFg(theme.palette.mode === "dark") : theme.palette.text.primary,
     textAlign: "center",
     lineHeight: 1.2,
   })

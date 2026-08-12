@@ -27,6 +27,7 @@ import { useTranslation } from "react-i18next";
 import SideBar from "@/Components/Layout/Sidebar";
 import { drawerWidth } from "@/styles/theme";
 import LanguageSwitcher from "@/Components/UI/LanguageSwitcher";
+import { brandFg } from "@/constants/theme";
 
 interface HeaderProps {
   pageName: string;
@@ -245,7 +246,7 @@ const Header = ({ pageName, component }: HeaderProps) => {
         component="nav"
         sx={{
           "& *": {
-            color: theme.palette.primary.main,
+            color: brandFg(theme.palette.mode === "dark"),
           },
         }}
       >

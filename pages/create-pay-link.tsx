@@ -338,7 +338,7 @@ const CreatePaymentLink = ({ setPageName, setPageDescription }: pageProps) => {
                     <Icon
                       sx={{
                         fontSize: 20,
-                        color: step.done ? theme.palette.success.main : theme.palette.primary.main,
+                        color: step.done ? theme.palette.success.main : brandFg(theme.palette.mode === "dark"),
                       }}
                     />
                   </Box>

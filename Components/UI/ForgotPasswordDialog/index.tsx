@@ -345,7 +345,7 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
                   transition: "all 0.25s",
                   "&.Mui-selected": {
                     background: theme.palette.mode === "dark" ? "rgba(204,255,0,0.16)" : theme.palette.primary.main,
-                    color: theme.palette.mode === "dark" ? theme.palette.primary.main : theme.palette.primary.contrastText,
+                    color: theme.palette.mode === "dark" ? theme.palette.primary.main : theme.palette.primary.contrastText, // contrast-ok (auth surface own design system)
                     boxShadow: theme.palette.mode === "dark" ? "0 0 16px rgba(204,255,0,0.16)" : "0 2px 8px rgba(10,10,10,0.18)",
                     "&:hover": { background: theme.palette.mode === "dark" ? "rgba(204,255,0,0.20)" : (theme.palette.primary as any).hover },
                   },

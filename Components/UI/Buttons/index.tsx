@@ -3,7 +3,7 @@ import { Box, Button as MuiButton, CircularProgress, Typography, useTheme } from
 import { SxProps, Theme } from "@mui/system";
 import Image, { StaticImageData } from "next/image";
 import React from "react";
-import { BRAND_ACCENT } from "@/constants/theme";
+import { BRAND_ACCENT, brandFg } from "@/constants/theme";
 
 export interface CustomButtonProps {
   label: string;
@@ -87,7 +87,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
     },
     secondary: {
       backgroundColor: theme.palette.background.paper,
-      color: theme.palette.primary.main,
+      color: brandFg(theme.palette.mode === "dark"),
       border: `1px solid ${theme.palette.primary.main}`,
       fontWeight: 500,
     },

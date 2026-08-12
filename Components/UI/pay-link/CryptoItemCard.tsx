@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import React from "react";
 import { Text } from "../../Page/CreatePaymentLink/styled";
+import { brandFg } from "@/constants/theme";
 
 const STABLECOIN_LABELS = [
   "USDT-TRC20", "USDT-ERC20", "USDC-ERC20",
@@ -262,7 +263,7 @@ const CryptoItemCard: React.FC<CryptoItemCardProps> = React.memo(
                 fontSize: isMobile ? "10px" : "12px",
                 color: "#98989D",
                 ":hover": {
-                  color: theme.palette.primary.main,
+                  color: brandFg(theme.palette.mode === "dark"),
                 },
               }}
             >

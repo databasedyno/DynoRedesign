@@ -35,6 +35,7 @@ import { API_ENDPOINTS } from "@/api/endpoints";
 import useTokenData from "@/hooks/useTokenData";
 import { getInitials } from "@/helpers";
 import { avatarGradient } from "@/helpers/avatarGradient";
+import { brandFg } from "@/constants/theme";
 
 const NewHeader = () => {
   const router = useRouter();
@@ -212,12 +213,12 @@ const NewHeader = () => {
                 <Link href="/create-pay-link">
                   <RequiredKYC>
                     <InfoIcon
-                      sx={{ fontSize: 20, color: muiTheme.palette.primary.main }}
+                      sx={{ fontSize: 20, color: brandFg(muiTheme.palette.mode === "dark") }}
                     />
                     <RequiredKYCText
                       sx={{
                         display: { lg: "none", xl: "block" },
-                        color: muiTheme.palette.primary.main,
+                        color: brandFg(muiTheme.palette.mode === "dark"),
                       }}
                     >
                       {tDashboard("companySetupWarning")}
@@ -225,7 +226,7 @@ const NewHeader = () => {
                     <RequiredKYCText
                       sx={{
                         display: { lg: "block", xl: "none" },
-                        color: muiTheme.palette.primary.main,
+                        color: brandFg(muiTheme.palette.mode === "dark"),
                       }}
                     >
                       {tDashboard("companySetupWarningShort")}
@@ -240,12 +241,12 @@ const NewHeader = () => {
                 <Link href="/wallet">
                   <RequiredKYC>
                     <InfoIcon
-                      sx={{ fontSize: 20, color: muiTheme.palette.primary.main }}
+                      sx={{ fontSize: 20, color: brandFg(muiTheme.palette.mode === "dark") }}
                     />
                     <RequiredKYCText
                       sx={{
                         display: { lg: "none", xl: "block" },
-                        color: muiTheme.palette.primary.main,
+                        color: brandFg(muiTheme.palette.mode === "dark"),
                       }}
                     >
                       {tWallet("walletSetUpWarnnigTitle")}
@@ -253,7 +254,7 @@ const NewHeader = () => {
                     <RequiredKYCText
                       sx={{
                         display: { lg: "block", xl: "none" },
-                        color: muiTheme.palette.primary.main,
+                        color: brandFg(muiTheme.palette.mode === "dark"),
                       }}
                     >
                       {tWallet("walletWarnnigTitle")}

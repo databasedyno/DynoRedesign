@@ -30,6 +30,7 @@ import PolygonIcon from "@/assets/cryptocurrency/Polygon-icon.svg";
 import RLUSDIcon from "@/assets/cryptocurrency/RLUSD-icon.svg";
 
 import type { StaticImageData } from "next/image";
+import { brandFg } from "@/constants/theme";
 
 const CRYPTO_ICON_MAP: Record<string, StaticImageData> = {
   BTC: BitcoinIcon,
@@ -184,7 +185,7 @@ const SummaryValue = styled(Typography)(({ theme }) => {
     fontSize: "20px",
     fontWeight: 600,
     fontFamily: "OutfitSemiBold",
-    color: isDark ? "#818CF8" : "#4F46E5",
+    color: brandFg(isDark),
   };
 });
 
@@ -341,7 +342,7 @@ const FeeCalculator: React.FC<FeeCalculatorProps> = ({ compact = false }) => {
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
-                <Typography sx={{ fontFamily: "var(--font-sans)", color: isDark ? "#818CF8" : "#4F46E5" }}>
+                <Typography sx={{ fontFamily: "var(--font-sans)", color: brandFg(isDark) }}>
                   {symbol}
                 </Typography>
               </InputAdornment>
@@ -412,7 +413,7 @@ const FeeCalculator: React.FC<FeeCalculatorProps> = ({ compact = false }) => {
       {/* Results */}
       {loading ? (
         <Box sx={{ display: "flex", justifyContent: "center", py: 3 }}>
-          <CircularProgress size={28} sx={{ color: isDark ? "#818CF8" : "#4F46E5" }} />
+          <CircularProgress size={28} sx={{ color: brandFg(isDark) }} />
           <Typography sx={{ ml: 2, fontFamily: "var(--font-sans)", color: "text.secondary", fontSize: "14px" }}>
             {t("calculating")}
           </Typography>

@@ -63,6 +63,7 @@ import {
   CreatePaymentLinkPageProps,
   ICryptoItem,
 } from "@/utils/types/create-pay-link";
+import { brandFg } from "@/constants/theme";
 
 function truncateByWords(text: string, maxLength: number) {
   if (text.length <= maxLength) return text;
@@ -1490,7 +1491,7 @@ const CreatePaymentLinkPage = ({
                   data-testid="donation-creator-hint-cta"
                   onClick={() => router.push("/creator")}
                   onKeyDown={(e: React.KeyboardEvent) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); router.push("/creator"); } }}
-                  sx={{ display: "inline-flex", alignItems: "center", gap: 0.5, mt: 0.75, cursor: "pointer", fontSize: 12.5, fontWeight: 700, color: theme.palette.primary.main, "&:hover": { textDecoration: "underline" }, userSelect: "none" }}
+                  sx={{ display: "inline-flex", alignItems: "center", gap: 0.5, mt: 0.75, cursor: "pointer", fontSize: 12.5, fontWeight: 700, color: brandFg(theme.palette.mode === "dark"), "&:hover": { textDecoration: "underline" }, userSelect: "none" }}
                 >
                   {tPaymentLink("donationCreatorHintSetup", { defaultValue: "Set up your creator page \u2192" })}
                 </Box>

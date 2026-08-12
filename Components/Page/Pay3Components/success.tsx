@@ -2,6 +2,7 @@ import { Box, Typography, CircularProgress, useTheme } from "@mui/material";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from 'react-i18next';
+import { brandFg } from "@/constants/theme";
 
 interface SuccessProps {
   redirectUrl?: string | null;
@@ -88,7 +89,7 @@ const Success = ({ redirectUrl, transactionId }: SuccessProps) => {
       
       {isRedirecting && (
         <Box display="flex" flexDirection="column" alignItems="center" gap={2}>
-          <CircularProgress size={24} sx={{ color: theme.palette.primary.main }} />
+          <CircularProgress size={24} sx={{ color: brandFg(isDark) }} />
           <Typography
             variant="body1"
             color={theme.palette.text.secondary}

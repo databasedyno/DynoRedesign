@@ -1,7 +1,7 @@
 import { getBrowser } from "@/hooks/useDevice";
 import { Box, Card, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { BRAND_ACCENT } from "@/constants/theme";
+import { BRAND_ACCENT, brandFg } from "@/constants/theme";
 
 interface StyledCardProps {
   height?: number | string;
@@ -67,7 +67,7 @@ export const GoLiveCount = styled(Typography)(({ theme }) => ({
   lineHeight: "48px",
   letterSpacing: 0,
   fontFamily: "var(--font-sans)",
-  color: theme.palette.primary.main,
+  color: brandFg(theme.palette.mode === "dark"),
   opacity: 0.2,
 }));
 

@@ -42,6 +42,7 @@ import useBuyButtons from "@/hooks/useBuyButtons";
 import usePublishableKeys from "@/hooks/usePublishableKeys";
 import { rootReducer } from "@/utils/types";
 import copyToClipboard from "@/helpers/copyToClipboard";
+import { brandFg } from "@/constants/theme";
 
 /* ------------------------------------------------------------------ */
 /* Types                                                               */
@@ -1132,7 +1133,7 @@ const BuyButtonsSection = () => {
           >
             <CircularProgress
               size={22}
-              sx={{ color: theme.palette.primary.main }}
+              sx={{ color: brandFg(theme.palette.mode === "dark") }}
             />
           </Box>
         ) : loadError ? (

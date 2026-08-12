@@ -66,6 +66,7 @@ import {
   TransactionsTableRow,
 } from "./styled";
 import TransactionDetailsModal from "./TransactionDetailsModal";
+import { brandFg } from "@/constants/theme";
 
 const TransactionsTable: React.FC<TransactionsTableProps> = ({
   transactions,
@@ -414,7 +415,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                 <Typography sx={{ fontSize: "16px", fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontWeight: 700, color: theme.palette.text.primary }}>
                   {formatAmount(transaction.amount)}
                 </Typography>
-                <Typography sx={{ fontSize: "14px", fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontWeight: 500, color: theme.palette.primary.main }} data-testid="tx-fiat-value">
+                <Typography sx={{ fontSize: "14px", fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontWeight: 500, color: brandFg(theme.palette.mode === "dark") }} data-testid="tx-fiat-value">
                   {displayValue(transaction)}
                 </Typography>
               </Box>

@@ -21,6 +21,7 @@ import { rootReducer, ICompany } from "@/utils/types";
 
 import SwapIcon from "@/assets/Icons/swap-round-icon.svg";
 import { API_ENDPOINTS } from "@/api/endpoints";
+import { brandFg } from "@/constants/theme";
 
 const STABLECOIN_LABELS: Record<string, string> = {
   usdt_trc20: "USDT (TRC-20)",
@@ -356,7 +357,7 @@ const ConversionBanner = () => {
             sx={{
               fontSize: isMobile ? 12 : 13,
               fontFamily: "var(--font-sans)",
-              color: muiTheme.palette.primary.main,
+              color: brandFg(muiTheme.palette.mode === "dark"),
               cursor: "pointer",
               whiteSpace: "nowrap",
               "&:hover": {

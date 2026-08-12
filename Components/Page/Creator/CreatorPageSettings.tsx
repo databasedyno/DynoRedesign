@@ -11,7 +11,7 @@ import { getCreatorBaseUrl } from "@/helpers/creatorUrl";
 import CreatorThemePicker, { CreatorTheme, CoverStyle } from "@/Components/Page/Creator/CreatorThemePicker";
 import HandleQrCode from "@/Components/Page/Creator/HandleQrCode";
 import AnalyticsWidget, { CreatorAnalyticsData } from "@/Components/Page/Creator/AnalyticsWidget";
-import { BRAND_ACCENT } from "@/constants/theme";
+import { BRAND_ACCENT, brandFg } from "@/constants/theme";
 import { SUPPORTED_FIAT_CURRENCIES } from "@/constants/currencies";
 import { API_ENDPOINTS } from "@/api/endpoints";
 import useDebounce from "@/hooks/useDebounce";
@@ -492,7 +492,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
             >
               QR
             </Button>
-            <Button size="small" href={publicUrl} target="_blank" rel="noopener" data-testid="creator-view-page" endIcon={<Icon icon="mdi:open-in-new" width={15} />} sx={{ textTransform: "none", fontSize: 12.5, color: theme.palette.primary.main }}>
+            <Button size="small" href={publicUrl} target="_blank" rel="noopener" data-testid="creator-view-page" endIcon={<Icon icon="mdi:open-in-new" width={15} />} sx={{ textTransform: "none", fontSize: 12.5, color: brandFg(theme.palette.mode === "dark") }}>
               View
             </Button>
           </Box>
@@ -728,7 +728,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
             checked={swEnabled}
             onChange={(e) => setSwEnabled(e.target.checked)}
             data-testid="support-widget-enabled-switch"
-            sx={{ "& .Mui-checked": { color: theme.palette.primary.main }, "& .Mui-checked + .MuiSwitch-track": { backgroundColor: theme.palette.primary.main } }}
+            sx={{ "& .Mui-checked": { color: brandFg(theme.palette.mode === "dark") }, "& .Mui-checked + .MuiSwitch-track": { backgroundColor: theme.palette.primary.main } }}
           />
         </Box>
 
@@ -901,7 +901,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
                 checked={swAllowMessage}
                 onChange={(e) => setSwAllowMessage(e.target.checked)}
                 data-testid="support-widget-allow-message"
-                sx={{ "& .Mui-checked": { color: theme.palette.primary.main }, "& .Mui-checked + .MuiSwitch-track": { backgroundColor: theme.palette.primary.main } }}
+                sx={{ "& .Mui-checked": { color: brandFg(theme.palette.mode === "dark") }, "& .Mui-checked + .MuiSwitch-track": { backgroundColor: theme.palette.primary.main } }}
               />
             </Box>
             <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -910,7 +910,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
                 checked={swShowSupporters}
                 onChange={(e) => setSwShowSupporters(e.target.checked)}
                 data-testid="support-widget-show-supporters"
-                sx={{ "& .Mui-checked": { color: theme.palette.primary.main }, "& .Mui-checked + .MuiSwitch-track": { backgroundColor: theme.palette.primary.main } }}
+                sx={{ "& .Mui-checked": { color: brandFg(theme.palette.mode === "dark") }, "& .Mui-checked + .MuiSwitch-track": { backgroundColor: theme.palette.primary.main } }}
               />
             </Box>
           </Box>
@@ -934,7 +934,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
             checked={publicAnalyticsEnabled}
             onChange={(e) => setPublicAnalyticsEnabled(e.target.checked)}
             data-testid="public-analytics-switch"
-            sx={{ "& .Mui-checked": { color: theme.palette.primary.main }, "& .Mui-checked + .MuiSwitch-track": { backgroundColor: theme.palette.primary.main } }}
+            sx={{ "& .Mui-checked": { color: brandFg(theme.palette.mode === "dark") }, "& .Mui-checked + .MuiSwitch-track": { backgroundColor: theme.palette.primary.main } }}
           />
         </Box>
         <AnalyticsWidget
@@ -953,7 +953,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
           <Typography fontSize={14} fontWeight={600} color={theme.palette.text.primary}>Publish my creator page</Typography>
           <Typography fontSize={12.5} color={theme.palette.text.secondary} mt={0.25}>When on, anyone with your link can view your page and support you.</Typography>
         </Box>
-        <Switch checked={enabled} onChange={(e) => setEnabled(e.target.checked)} data-testid="creator-enabled-switch" sx={{ "& .Mui-checked": { color: theme.palette.primary.main }, "& .Mui-checked + .MuiSwitch-track": { backgroundColor: theme.palette.primary.main } }} />
+        <Switch checked={enabled} onChange={(e) => setEnabled(e.target.checked)} data-testid="creator-enabled-switch" sx={{ "& .Mui-checked": { color: brandFg(theme.palette.mode === "dark") }, "& .Mui-checked + .MuiSwitch-track": { backgroundColor: theme.palette.primary.main } }} />
       </Box>
 
       <Box>

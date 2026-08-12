@@ -4,6 +4,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { Box, useTheme } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import { Text } from "../../Page/CreatePaymentLink/styled";
+import { brandFg } from "@/constants/theme";
 
 interface TimeDropdownProps {
   value: string;
@@ -214,7 +215,7 @@ export default function TimeDropdown({
                         ? theme.palette.common.white
                         : theme.palette.text.primary,
                     ":hover": {
-                      color: value === option ? "" : theme.palette.primary.main,
+                      color: value === option ? "" : brandFg(theme.palette.mode === "dark"),
                     },
                   }}
                 >

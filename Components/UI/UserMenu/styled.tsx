@@ -1,4 +1,5 @@
 import { styled } from "@mui/material";
+import { brandFg } from "@/constants/theme";
 
 export const UserTrigger = styled("div")(({ theme }) => ({
   display: "flex",
@@ -69,7 +70,7 @@ export const LogoutButton = styled("button")(({ theme }) => ({
   gap: "10px",
 
   background: "transparent",
-  color: theme.palette.primary.main,
+  color: brandFg(theme.palette.mode === "dark"),
   border: `2px solid ${theme.palette.primary.main}`,
   fontSize: "16px",
   fontWeight: 600,

@@ -1,4 +1,4 @@
-import { BRAND_ACCENT } from "@/constants/theme";
+import { BRAND_ACCENT, brandFg } from "@/constants/theme";
 import {
   Box,
   Button,
@@ -438,8 +438,8 @@ const PaymentDemo = () => {
                       </Typography>
                     </Box>
                     <Box display='flex' alignItems='center' gap={0.5}>
-                      <Icon icon="mdi:shield-check" width={13} color={theme.palette.primary.main} />
-                      <Typography fontSize={10.5} color={theme.palette.primary.main} fontWeight={700}>
+                      <Icon icon="mdi:shield-check" width={13} color={brandFg(isDark)} />
+                      <Typography fontSize={10.5} color={brandFg(isDark)} fontWeight={700}>
                         {t('checkout.securePayment')}
                       </Typography>
                     </Box>
@@ -577,7 +577,7 @@ const PaymentDemo = () => {
                           mt: 0.5,
                           textTransform: 'none',
                           fontSize: 11.5,
-                          color: theme.palette.primary.main,
+                          color: brandFg(isDark),
                           fontWeight: 600,
                           px: 0.5,
                           py: 0.25,
@@ -602,7 +602,7 @@ const PaymentDemo = () => {
                     }}
                     data-testid="demo-awaiting-confirmation"
                   >
-                    <CircularProgress size={20} sx={{ color: theme.palette.primary.main }} />
+                    <CircularProgress size={20} sx={{ color: brandFg(isDark) }} />
                     <Box sx={{ textAlign: 'left', flex: 1, minWidth: 0 }}>
                       <Typography fontSize={12.5} fontWeight={700} color={theme.palette.text.primary} letterSpacing='-0.1px'>
                         Waiting for confirmation on {selectedCoin.label}

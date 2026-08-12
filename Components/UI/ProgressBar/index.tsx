@@ -12,6 +12,7 @@ import {
 } from '@mui/material'
 import { styled } from '@mui/material/styles'
 import CheckIcon from '@mui/icons-material/Check'
+import { brandFg } from "@/constants/theme";
 
 const CustomConnector = styled(StepConnector)(({ theme }) => ({
   [`&.${stepConnectorClasses.alternativeLabel}`]: {
@@ -43,7 +44,7 @@ const StepIconRoot = styled('div')<{
       ? (theme.palette.mode === 'dark' ? '#111113' : '#fff')
       : theme.palette.mode === 'dark' ? '#111113' : '#fff',
   zIndex: 1,
-  color: ownerState.completed ? theme.palette.primary.contrastText : theme.palette.primary.main,
+  color: ownerState.completed ? theme.palette.primary.contrastText : brandFg(theme.palette.mode === "dark"),
   width: 24,
   height: 24,
   display: 'flex',
@@ -73,7 +74,7 @@ function StepIconComponent(props: any) {
             width: 7,
             height: 7,
             borderRadius: '50%',
-            background: active ? theme.palette.primary.main : (theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.3)' : '#CBD5E1'),
+            background: active ? brandFg(theme.palette.mode === "dark") : (theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.3)' : '#CBD5E1'),
             transition: 'all 0.3s ease',
           }}
         />

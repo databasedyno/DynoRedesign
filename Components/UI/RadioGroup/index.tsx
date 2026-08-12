@@ -1,4 +1,5 @@
 import { Radio, RadioProps, styled, SxProps, Theme } from "@mui/material";
+import { brandFg } from "@/constants/theme";
 
 export interface CustomRadioProps extends Omit<RadioProps, "sx"> {
   sx?: SxProps<Theme>;
@@ -22,7 +23,7 @@ const CustomRadio = styled(Radio)<CustomRadioProps>(({ theme }) => ({
     borderRadius: "50%",
   },
   "&.Mui-checked": {
-    color: theme.palette.primary.main,
+    color: brandFg(theme.palette.mode === "dark"),
   },
   "& .MuiSvgIcon-root": {
     width: "28px !important",

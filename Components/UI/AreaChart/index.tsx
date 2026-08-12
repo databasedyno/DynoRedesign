@@ -21,6 +21,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { brandFg } from "@/constants/theme";
 
 // Smart value formatter that avoids duplicate labels
 const formatValue = (v: number): string => {
@@ -215,7 +216,7 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({
           sx={{
             fontSize: "12px",
             fontFamily: "var(--font-sans)",
-            color: muiTheme.palette.primary.main,
+            color: brandFg(muiTheme.palette.mode === "dark"),
             lineHeight: "100%",
             letterSpacing: 0,
           }}

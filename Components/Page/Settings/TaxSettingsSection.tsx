@@ -20,6 +20,7 @@ import { useTranslation } from "react-i18next";
 import axiosBaseApi from "@/axiosConfig";
 import CustomButton from "@/Components/UI/Buttons";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
+import { brandFg } from "@/constants/theme";
 
 /* ------------------------------------------------------------------ */
 /* Structural VAT-ID validation — mirrors backend taxService regexes   */
@@ -229,7 +230,7 @@ const TaxSettingsSection: React.FC = () => {
   if (loading) {
     return (
       <Box sx={{ py: 8, display: "flex", justifyContent: "center" }}>
-        <CircularProgress size={26} sx={{ color: theme.palette.primary.main }} />
+        <CircularProgress size={26} sx={{ color: brandFg(isDark) }} />
       </Box>
     );
   }

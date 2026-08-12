@@ -14,6 +14,7 @@ import {
   DatePickerWrapper,
   SearchIconButton,
 } from "../Transactions/styled";
+import { brandFg } from "@/constants/theme";
 
 export type PaymentLinkStatusFilter = "all" | "active" | "completed" | "expired" | "pending";
 
@@ -209,7 +210,7 @@ const PaymentLinksTopBar = ({
           sx={{
             border: "none",
             background: "none",
-            color: theme.palette.primary.main,
+            color: brandFg(theme.palette.mode === "dark"),
             cursor: "pointer",
             fontFamily: "var(--font-sans)",
             fontSize: "12px",

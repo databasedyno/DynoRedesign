@@ -36,7 +36,7 @@ import InvoicePreviewDrawer, { InvoicePreviewInvoice } from "@/Components/Page/I
 import { StatusPill } from "@/Components/UI/_shared";
 import { Icon, MONO } from "@/styles/uiKit";
 import { useSelector } from "react-redux";
-import { BRAND_ACCENT } from "@/constants/theme";
+import { BRAND_ACCENT, brandFg } from "@/constants/theme";
 import { API_ENDPOINTS } from "@/api/endpoints";
 
 interface Invoice {
@@ -683,7 +683,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                                     handleDownloadPDF(inv.invoice_id);
                                   }}
                                   sx={{
-                                    color: muiTheme.palette.primary.main,
+                                    color: brandFg(muiTheme.palette.mode === "dark"),
                                   }}
                                 >
                                   <Icon name="download" size={18} />
@@ -884,7 +884,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                   value: taxReport
                     ? String(taxReport.summary.total_invoices)
                     : "—",
-                  color: muiTheme.palette.primary.main,
+                  color: brandFg(muiTheme.palette.mode === "dark"),
                 },
               ].map((card) => (
                 <Box

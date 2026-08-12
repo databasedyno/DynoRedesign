@@ -10,6 +10,7 @@ import {
 import MenuItem from "@mui/material/MenuItem";
 
 import React, { useEffect, useState } from "react";
+import { brandFg } from "@/constants/theme";
 
 type DropdownProps = SelectProps & {
   menuItems?: menuItem[];
@@ -54,7 +55,7 @@ const Dropdown = ({
           "&.Mui-focused": {
             "& .MuiSelect-outlined": {
               border: `1px solid ${theme.palette.primary.main} !important`,
-              color: theme.palette.primary.main,
+              color: brandFg(theme.palette.mode === "dark"),
             },
           },
           "&.Mui-error": {

@@ -119,7 +119,7 @@ export const QuickAddButton = styled("button", {
     borderRadius: "8px",
     border: "none",
     cursor: "pointer",
-    color: active ? theme.palette.primary.main : theme.palette.primary.contrastText,
+    color: active ? theme.palette.primary.main : theme.palette.primary.contrastText, // contrast-ok (indigo on white contrastText bg)
     background: active ? theme.palette.primary.contrastText : theme.palette.primary.main,
     transition: "transform 0.15s ease, opacity 0.15s ease",
     "&:hover": {

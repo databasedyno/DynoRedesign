@@ -13,6 +13,7 @@ import { useRouter } from "next/router";
 import { useTheme } from "@mui/material/styles";
 import AddWalletModal from "../AddWalletModal";
 import CreateApiModel from "../ApiKeysModel/CreateApiModel";
+import { brandFg } from "@/constants/theme";
 
 type PageName = "transactions" | "wallet" | "apiKey" | "payment-links";
 
@@ -325,7 +326,7 @@ const EmptyDataModel = ({ pageName, onAddWallet }: EmptyDataModelProps) => {
                             mt: -1.25,
                             fontFamily: "var(--font-sans)",
                             fontSize: isMobile ? "12px" : "13px",
-                            color: theme.palette.primary.main,
+                            color: brandFg(theme.palette.mode === "dark"),
                         }}
                     >
                         <HelpOutlineRounded sx={{ fontSize: isMobile ? 14 : 16 }} />

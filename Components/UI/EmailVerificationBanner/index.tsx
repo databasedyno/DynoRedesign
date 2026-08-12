@@ -12,6 +12,7 @@ import { rootReducer } from "@/utils/types";
 import OtpDialog from "@/Components/UI/OtpDialog";
 import useIsMobile from "@/hooks/useIsMobile";
 import { useTranslation } from "react-i18next";
+import { brandFg } from "@/constants/theme";
 
 const EmailVerificationBanner: React.FC = () => {
   const { t } = useTranslation("common");
@@ -115,7 +116,7 @@ const EmailVerificationBanner: React.FC = () => {
           sx={{
             fontSize: isMobile ? "11px" : "13px",
             fontFamily: "var(--font-sans)",
-            color: theme.palette.primary.main,
+            color: brandFg(theme.palette.mode === "dark"),
             textTransform: "none",
             border: `1px solid ${theme.palette.primary.main}`,
             borderRadius: "6px",

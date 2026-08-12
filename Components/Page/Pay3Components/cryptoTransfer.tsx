@@ -44,7 +44,7 @@ import BCHicon from "../../../assets/Icons/coins/BCH.png";
 import DOGEicon from "../../../assets/Icons/coins/DOGE.png";
 import TRXicon from "../../../assets/Icons/coins/TRX.png";
 import copyToClipboard from "@/helpers/copyToClipboard";
-import { BRAND_ACCENT } from "@/constants/theme";
+import { BRAND_ACCENT, brandFg } from "@/constants/theme";
 import { API_ENDPOINTS } from "@/api/endpoints";
 
 // Payment status types
@@ -1684,7 +1684,7 @@ const CryptoTransfer = ({
               border={`1px solid ${theme.palette.border.main}`}
               borderRadius="10px"
             >
-              <CircularProgress size={24} sx={{ color: theme.palette.primary.main }} />
+              <CircularProgress size={24} sx={{ color: brandFg(isDark) }} />
               <Typography ml={2} fontFamily="var(--font-sans)" color={theme.palette.text.secondary}>
                 {t('crypto.loadingCurrencies')}
               </Typography>

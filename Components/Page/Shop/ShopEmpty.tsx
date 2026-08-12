@@ -14,6 +14,7 @@ import React from "react";
 import Link from "next/link";
 import { Box, Typography, Button, Stack, useTheme } from "@mui/material";
 import type { ShopMerchant } from "./types";
+import { brandFg } from "@/constants/theme";
 
 interface Props {
   merchant: ShopMerchant;
@@ -182,7 +183,7 @@ export default function ShopEmpty({ merchant, isOwner }: Props) {
                 "&:hover": {
                   borderColor: isDark ? "#818CF8" : "#4F46E5",
                   bgcolor: isDark ? "rgba(129,140,248,0.10)" : "rgba(79,70,229,0.06)",
-                  color: isDark ? "#818CF8" : "#4F46E5",
+                  color: brandFg(isDark),
                 },
               }}
             >

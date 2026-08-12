@@ -5,6 +5,7 @@ import { Box, Skeleton, Typography, useTheme } from "@mui/material";
 import { motion } from "framer-motion";
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { brandFg } from "@/constants/theme";
 
 /**
  * Stagger animation config (added 2026-07-09).
@@ -338,7 +339,7 @@ const Tile: React.FC<TileProps> = ({
               : theme.palette.mode === "dark"
                 ? "rgba(255,255,255,0.06)"
                 : "#F4F6FA",
-            color: isPrimary ? theme.palette.primary.main : theme.palette.text.secondary,
+            color: isPrimary ? brandFg(theme.palette.mode === "dark") : theme.palette.text.secondary,
           }}
         >
           {icon}
