@@ -1,5 +1,5 @@
 import copyToClipboard from "@/helpers/copyToClipboard";
-import { BRAND_ACCENT } from "@/constants/theme";
+import { BRAND_ACCENT, brandFg } from "@/constants/theme";
 import { API_ENDPOINTS } from "@/api/endpoints";
 import axiosBaseApi from '@/axiosConfig'
 
@@ -958,7 +958,7 @@ const Payment = () => {
           gap={2}
           data-testid="checkout-loading"
         >
-          <CircularProgress size={36} sx={{ color: theme.palette.primary.main }} />
+          <CircularProgress size={36} sx={{ color: brandFg(isDark) }} />
           <Typography fontSize={13.5} color={theme.palette.text.secondary}>
             {t('checkout.loading')}
           </Typography>
@@ -1658,8 +1658,8 @@ const Payment = () => {
                     </Box>
                   )}
                   <Box display='flex' alignItems='center' gap={0.5} data-testid="security-badge">
-                    <Icon icon="mdi:shield-check" width={13} color={theme.palette.primary.main} />
-                    <Typography fontSize={10.5} color={theme.palette.primary.main} fontWeight={700} letterSpacing='0.2px'>
+                    <Icon icon="mdi:shield-check" width={13} color={brandFg(isDark)} />
+                    <Typography fontSize={10.5} color={brandFg(isDark)} fontWeight={700} letterSpacing='0.2px'>
                       {t('checkout.securePayment')}
                     </Typography>
                   </Box>

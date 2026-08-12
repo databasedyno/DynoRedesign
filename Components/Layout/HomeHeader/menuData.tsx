@@ -135,7 +135,7 @@ export const MENU_SECTIONS: readonly MegaSection[] = [
       {
         titleKey: "nav.mega.about.title",
         descKey: "nav.mega.about.desc",
-        href: "/company",
+        href: "/about",
         Icon: BusinessRoundedIcon,
       },
       {

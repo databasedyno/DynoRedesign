@@ -19,6 +19,7 @@ import CreateCompanyModal from "@/Components/UI/OnboardingFlow/CreateCompanyModa
 import CompanySettingsDialog from "@/Components/UI/CompanySettingsDialog";
 import useIsMobile from "@/hooks/useIsMobile";
 import { ICompany, pageProps, rootReducer } from "@/utils/types";
+import { brandFg } from "@/constants/theme";
 
 const Company = ({ setPageName, setPageDescription, setPageAction }: pageProps) => {
   const dispatch = useDispatch();
@@ -78,7 +79,7 @@ const Company = ({ setPageName, setPageDescription, setPageAction }: pageProps) 
           alignItems: "center",
         }}
       >
-        <CircularProgress sx={{ color: theme.palette.primary.main }} />
+        <CircularProgress sx={{ color: brandFg(theme.palette.mode === "dark") }} />
       </Box>
     );
   }
@@ -133,7 +134,7 @@ const Company = ({ setPageName, setPageDescription, setPageAction }: pageProps) 
               justifyContent: "center",
             }}
           >
-            <Icon name="building-2" size={32} color={theme.palette.primary.main} />
+            <Icon name="building-2" size={32} color={brandFg(theme.palette.mode === "dark")} />
           </Box>
           <Typography
             sx={{
@@ -236,7 +237,7 @@ const Company = ({ setPageName, setPageDescription, setPageAction }: pageProps) 
                             fontFamily: "var(--font-sans)",
                             fontWeight: 700,
                             fontSize: "18px",
-                            color: theme.palette.primary.main,
+                            color: brandFg(theme.palette.mode === "dark"),
                           }}
                         >
                           {company.company_name?.charAt(0)?.toUpperCase()}
@@ -314,7 +315,7 @@ const Company = ({ setPageName, setPageDescription, setPageAction }: pageProps) 
                           sx={{
                             fontSize: isMobile ? "13px" : "14px",
                             fontFamily: "var(--font-sans)",
-                            color: theme.palette.primary.main,
+                            color: brandFg(theme.palette.mode === "dark"),
                             overflow: "hidden",
                             textOverflow: "ellipsis",
                             whiteSpace: "nowrap",

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, CircularProgress, Typography, useTheme } from '@mui/material';
 import { useTranslation } from 'next-i18next';
+import { brandFg } from '@/constants/theme';
 
 const Loading = () => {
   const { t } = useTranslation('common');
@@ -18,7 +19,7 @@ const Loading = () => {
       bgcolor={isDark ? theme.palette.background.default : "#F9FAFB"}
       minHeight={'calc(100vh - 340px)'}
     >
-      <CircularProgress size={48} thickness={4} sx={{ color: 'primary.main' }} />
+      <CircularProgress size={48} thickness={4} sx={{ color: brandFg(isDark) }} />
       <Typography
         variant="subtitle1"
         color="text.secondary"

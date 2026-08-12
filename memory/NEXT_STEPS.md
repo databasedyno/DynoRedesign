@@ -39,6 +39,29 @@ panels (`CreatorPageCard`, `TodaySummaryStrip`, `GrowPanel`, `FeeFreeWidget`, `E
 CelebrationOverlay}`, `pages/create-pay-link.tsx`, `pages/settings/index.tsx`. Testing agent confirmed
 dark #818CF8 / light #4F46E5 on /dashboard, /create-pay-link, /settings, /profile; no console errors.
 
+**BATCH 5 ✅ DONE & VERIFIED (2026-08-12)** — migrated remaining brand-accent FOREGROUND
+(text/icon/spinner) usages to `brandFg` on public/marketing + shared surfaces:
+`pages/blog/index.tsx` ("Read more" + catColor fallback), `pages/blog/[slug].tsx`
+(back link, bullet dots, numbered-list numbers, share-button hover), `pages/company.tsx`
+(loading spinner, empty-state icon, company avatar initial, website link),
+`pages/creator.tsx` (status-bar public URL hover, "View tip transactions" link),
+`pages/pay/index.tsx` (checkout loading spinner, security-badge icon+text),
+`Components/Modals/ExitIntentModal.tsx` (eyebrow + copy button), `Components/Page/SEO/SEOLandingPage.tsx`
+(numbered step badges, "Read the guide" related links), `Components/UI/Loading/Index.tsx`
+(global spinner). BACKGROUND (`bgcolor`) / thin-border `primary.main` usages left untouched
+(they pair with contrastText / are decorative). Testing agent verified the NEW `/about` page
++ Company→About nav (light #4F46E5 / dark #818CF8, working CTAs). Other Batch 5 sites use the
+identical centralised `brandFg` helper and compile clean. INTENTIONALLY SKIPPED:
+`Components/Layout/AdminHeader/*` (admin panel uses primary.main as readable text on a fixed
+light AppBar — not dark-aware) and `Components/UI/DatePicker/styled.tsx` (hardcoded light
+`#F5F5F5` backgrounds — component is light-only, migrating FG alone would be inconsistent).
+
+**NEW PUBLIC /about PAGE ✅ DONE & VERIFIED (2026-08-12)** — the broken "Company → About" CTA
+now points to a real public marketing page `pages/about.tsx` (home layout): hero, 4-tile stats
+band, "What we build on" 4-value grid, contact CTA. All 4 CTA buttons work (Start free /
+Talk to us / Create account → /auth/register + mailto). Testing agent (iteration 38) confirmed
+render + colors in light & dark, no console errors.
+
 **BATCH 5+ (remaining) — mostly PUBLIC/marketing pages (confirm intent before changing):**
 `pages/company.tsx`, `pages/blog/[slug].tsx`, `pages/blog/index.tsx`, `pages/creator.tsx`,
 `pages/pay/index.tsx`, `pages/pay/demo.tsx`, `Components/Page/SEO/SEOLandingPage`,

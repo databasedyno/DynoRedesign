@@ -228,6 +228,7 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
       "/documentation",
       "/fees",
       "/blog",
+      "/about",
     ]);
 
     if (
@@ -312,6 +313,7 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
     const routeKeyMap: Record<string, string> = {
       // ─── Public / Landing ───
       "/":                         "home",
+      "/about":                    "about",
       "/fees":                     "fees",
       "/documentation":            "documentation",
       "/blog":                     "blog",

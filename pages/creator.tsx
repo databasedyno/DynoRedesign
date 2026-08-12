@@ -12,7 +12,7 @@ import CreatorLivePreview from "@/Components/Page/Creator/CreatorLivePreview";
 import PanelCard from "@/Components/UI/PanelCard";
 import OnboardingBanner from "@/Components/UI/OnboardingBanner";
 import { buildCreatorUrl, prettyCreatorDomain } from "@/helpers/creatorUrl";
-import { BRAND_ACCENT } from "@/constants/theme";
+import { BRAND_ACCENT, brandFg } from "@/constants/theme";
 import { API_ENDPOINTS } from "@/api/endpoints";
 
 interface Stats {
@@ -161,7 +161,7 @@ const CreatorPageRoute = ({ setPageName, setPageDescription }: pageProps) => {
                 href={publicUrl}
                 target="_blank"
                 rel="noopener"
-                sx={{ ml: "auto", fontFamily: "ui-monospace, monospace", fontSize: 12.5, color: theme.palette.text.secondary, textDecoration: "none", "&:hover": { color: theme.palette.primary.main } }}
+                sx={{ ml: "auto", fontFamily: "ui-monospace, monospace", fontSize: 12.5, color: theme.palette.text.secondary, textDecoration: "none", "&:hover": { color: brandFg(theme.palette.mode === "dark") } }}
               >
                 {publicUrl.replace(/^https?:\/\//, "")} <Icon icon="mdi:open-in-new" inline width={12} />
               </Typography>
@@ -255,7 +255,7 @@ const CreatorPageRoute = ({ setPageName, setPageDescription }: pageProps) => {
                 fontFamily: "var(--font-sans)",
                 fontSize: 13,
                 fontWeight: 600,
-                color: theme.palette.primary.main,
+                color: brandFg(theme.palette.mode === "dark"),
                 textDecoration: "none",
                 cursor: "pointer",
                 "&:hover": { textDecoration: "underline" },

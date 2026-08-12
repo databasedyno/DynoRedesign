@@ -5,6 +5,7 @@ import Head from "next/head";
 import { blogPosts } from "@/utils/blogData";
 import useIsMobile from "@/hooks/useIsMobile";
 import { useTranslation } from 'react-i18next';
+import { brandFg } from "@/constants/theme";
 import {
   AuroraInk,
   Body,
@@ -69,7 +70,7 @@ const BlogPage = () => {
         {/* Blog grid */}
         <Grid container spacing={isMobile ? 2 : 3}>
           {blogPosts.map((post) => {
-            const catColor = categoryColors[post.category] || theme.palette.primary.main;
+            const catColor = categoryColors[post.category] || brandFg(isDark);
             return (
               <Grid item xs={12} md={6} key={post.slug}>
                 <Box
@@ -205,7 +206,7 @@ const BlogPage = () => {
                       sx={{
                         fontSize: "13px",
                         fontFamily: "var(--font-hero), var(--font-sans)",
-                        color: theme.palette.primary.main,
+                        color: brandFg(isDark),
                         display: "flex",
                         alignItems: "center",
                         gap: 0.5,

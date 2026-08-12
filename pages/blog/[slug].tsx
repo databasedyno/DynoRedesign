@@ -8,6 +8,7 @@ import useIsMobile from "@/hooks/useIsMobile";
 import type { GetStaticPaths, GetStaticProps } from "next";
 import { sanitizeHtml } from "@/utils/sanitizeHtml";
 import { useTranslation } from 'react-i18next';
+import { brandFg } from "@/constants/theme";
 import {
   Body,
   HeadlineL,
@@ -45,7 +46,7 @@ const BlogPostPage = ({ slug }: BlogPostPageProps) => {
             sx={{
               mt: 2,
               cursor: "pointer",
-              color: theme.palette.primary.main,
+              color: brandFg(isDark),
               fontFamily: "var(--font-sans)",
               "&:hover": { textDecoration: "underline" },
             }}
@@ -57,7 +58,7 @@ const BlogPostPage = ({ slug }: BlogPostPageProps) => {
     );
   }
 
-  const catColor = categoryColors[post.category] || theme.palette.primary.main;
+  const catColor = categoryColors[post.category] || brandFg(isDark);
 
   const shareUrl = typeof window !== "undefined" ? window.location.href : `https://dynopay.com/blog/${post.slug}`;
   const shareText = `${post.title} — Dynopay Blog`;
@@ -129,9 +130,9 @@ const BlogPostPage = ({ slug }: BlogPostPageProps) => {
               borderRadius: "10px",
               transition: "all 0.2s ease",
               "&:hover": {
-                color: theme.palette.primary.main,
-                borderColor: theme.palette.primary.main,
-                bgcolor: `${theme.palette.primary.main}10`,
+                color: brandFg(isDark),
+                borderColor: brandFg(isDark),
+                bgcolor: `${brandFg(isDark)}10`,
                 transform: "translateY(-1px)",
               },
             }}
@@ -318,7 +319,7 @@ const BlogPostPage = ({ slug }: BlogPostPageProps) => {
                 height: 6,
                 minWidth: 6,
                 borderRadius: "50%",
-                bgcolor: theme.palette.primary.main,
+                bgcolor: brandFg(isDark),
                 mt: 1,
               }}
             />
@@ -350,7 +351,7 @@ const BlogPostPage = ({ slug }: BlogPostPageProps) => {
               sx={{
                 fontSize: "14px",
                 fontFamily: "var(--font-hero), var(--font-sans)",
-                color: theme.palette.primary.main,
+                color: brandFg(isDark),
                 minWidth: 20,
               }}
             >
@@ -432,7 +433,7 @@ const BlogPostPage = ({ slug }: BlogPostPageProps) => {
             cursor: "pointer",
             fontSize: "14px",
             fontFamily: "var(--font-hero), var(--font-sans)",
-            color: theme.palette.primary.main,
+            color: brandFg(isDark),
             mb: 4,
             display: "inline-flex",
             alignItems: "center",

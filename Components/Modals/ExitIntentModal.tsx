@@ -1,6 +1,6 @@
 import React, { memo, useEffect, useState } from 'react';
 import { Box, Typography, IconButton, Button, useTheme } from '@mui/material';
-import { BRAND_ACCENT } from '@/constants/theme';
+import { BRAND_ACCENT, brandFg } from '@/constants/theme';
 import { Close, ContentCopy, ArrowForward } from '@mui/icons-material';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'react-i18next';
@@ -133,7 +133,7 @@ const ExitIntentModal: React.FC = () => {
               fontFamily: 'var(--font-sans)',
               fontSize: 11,
               letterSpacing: '1.6px',
-              color: theme.palette.primary.main,
+              color: brandFg(isDark),
               textTransform: 'uppercase',
               mb: 1,
             }}
@@ -201,7 +201,7 @@ const ExitIntentModal: React.FC = () => {
                 fontFamily: 'var(--font-sans)',
                 fontSize: 12,
                 textTransform: 'none',
-                color: theme.palette.primary.main,
+                color: brandFg(isDark),
               }}
             >
               {copied ? 'Copied!' : 'Copy'}

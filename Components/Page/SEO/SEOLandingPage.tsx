@@ -14,6 +14,7 @@ import HomeSectionTitle from "@/Components/UI/SectionTitle";
 import useIsMobile from "@/hooks/useIsMobile";
 import { useThemeMode } from "@/contexts/ThemeContext";
 import type { SEOPageContent, SEOPageIndexEntry } from "@/utils/seoContent";
+import { brandFg } from "@/constants/theme";
 import SEOIllustration from "./SEOIllustration";
 import { useTranslation } from 'react-i18next';
 import { useVerticalAccent, type Vertical, Eyebrow } from "@/Components/UI/_shared";
@@ -388,7 +389,7 @@ const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages =
                         height: 40,
                         borderRadius: 2,
                         bgcolor: isDark ? "rgba(129,140,248,0.15)" : "rgba(79,70,229,0.10)",
-                        color: theme.palette.primary.main,
+                        color: brandFg(isDark),
                         fontWeight: 700,
                         fontSize: 18,
                         mb: 2,
@@ -664,7 +665,7 @@ const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages =
                         component="span"
                         sx={{
                           fontSize: 14,
-                          color: theme.palette.primary.main,
+                          color: brandFg(isDark),
                           fontWeight: 600,
                           display: "inline-flex",
                           alignItems: "center",
