@@ -1,6 +1,9 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Box, Skeleton, useTheme } from "@mui/material";
 import { useTranslation } from "react-i18next";
+import { useRouter } from "next/router";
+import { motion } from "framer-motion";
+import CustomButton from "@/Components/UI/Buttons";
 import Sparkline from "../coinbase/Sparkline";
 import {
   BigNumber,
@@ -46,6 +49,7 @@ const VolumeHero: React.FC<Props> = ({ stats, chartData, chartSummary, loading, 
   const isDark = theme.palette.mode === "dark";
   const isMobile = useIsMobile("md");
   const { t } = useTranslation(["dashboardLayout", "common"]);
+  const router = useRouter();
   const [metric, setMetric] = useState<"period" | "lifetime" | "today">("period");
 
   // Changing the CommandBar range (or applying a custom range) must always be
@@ -91,6 +95,111 @@ const VolumeHero: React.FC<Props> = ({ stats, chartData, chartSummary, loading, 
 
   // The period number comes from the chart fetch, so reflect chartLoading too.
   const showSkeleton = loading || (metric === "period" && chartLoading);
+
+  // ── Empty / onboarding state ──────────────────────────────────────────────
+  // A brand-new merchant with ZERO lifetime settled sales sees an encouraging
+  // "make your first sale" nudge instead of a flat $0 chart. Gate on !loading
+  // so we never flash the empty state while the first fetch is in flight.
+  const isEmpty =
+    !loading &&
+    !!stats &&
+    Number(stats.totalTransactions ?? 0) === 0 &&
+    Number(stats.totalVolume ?? 0) === 0;
+
+  if (isEmpty) {
+    return (
+      <SurfaceCard
+        data-testid="dash2026-hero-empty"
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          minHeight: { xs: 300, md: 380 },
+        }}
+      >
+        <Box
+          component={motion.div}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45, ease: "easeOut" }}
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "flex-start",
+            gap: { xs: 1.5, md: 2 },
+            maxWidth: 460,
+          }}
+        >
+          <Box
+            sx={{
+              width: { xs: 46, md: 52 },
+              height: { xs: 46, md: 52 },
+              borderRadius: "16px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: isDark ? CB_TOKENS.indigo.dark : CB_TOKENS.indigo.light,
+              backgroundColor: isDark ? CB_TOKENS.indigo.darkGlow : CB_TOKENS.indigo.lightGlow,
+            }}
+          >
+            <Icon name="rocket" size={isMobile ? 22 : 26} />
+          </Box>
+          <Eyebrow>{t("heroEmptyEyebrow", { defaultValue: "Welcome to DynoPay" })}</Eyebrow>
+          <Box
+            sx={{
+              fontFamily: "var(--font-sans)",
+              fontWeight: 700,
+              letterSpacing: "-0.02em",
+              fontSize: { xs: 24, md: 30 },
+              lineHeight: 1.15,
+              color: isDark ? CB_TOKENS.ink.primaryDark : CB_TOKENS.ink.primaryLight,
+            }}
+          >
+            {t("heroEmptyTitle", { defaultValue: "Make your first sale" })}
+          </Box>
+          <Box
+            sx={{
+              fontFamily: "var(--font-sans)",
+              fontSize: { xs: 14, md: 15 },
+              lineHeight: 1.55,
+              color: isDark ? CB_TOKENS.ink.mutedDark : CB_TOKENS.ink.mutedLight,
+            }}
+          >
+            {t("heroEmptyDesc", {
+              defaultValue:
+                "Create a payment link or set up your storefront — your volume, payments and growth will show up here in real time.",
+            })}
+          </Box>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: { xs: "column", sm: "row" },
+              gap: 1.25,
+              mt: 0.5,
+              width: { xs: "100%", sm: "auto" },
+            }}
+          >
+            <CustomButton
+              label={t("heroEmptyCta", { defaultValue: "Create your first payment link" })}
+              variant="primary"
+              size="medium"
+              fullWidth={isMobile}
+              data-testid="dash2026-hero-empty-cta"
+              onClick={() => router.push("/create-pay-link")}
+            />
+            <CustomButton
+              label={t("heroEmptyCta2", { defaultValue: "Set up storefront" })}
+              variant="outlined"
+              size="medium"
+              fullWidth={isMobile}
+              data-testid="dash2026-hero-empty-cta2"
+              onClick={() => router.push("/creator")}
+            />
+          </Box>
+        </Box>
+      </SurfaceCard>
+    );
+  }
 
   return (
     <SurfaceCard

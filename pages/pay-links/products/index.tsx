@@ -9,6 +9,7 @@ import {
   MenuItem, Select, FormControl, InputLabel, useTheme,
 } from "@mui/material";
 import { CB_TOKENS } from "@/Components/Page/Dashboard/coinbase/styled";
+import { MONO } from "@/styles/uiKit";
 import AddRounded from "@mui/icons-material/AddRounded";
 import EditRounded from "@mui/icons-material/EditRounded";
 import ReceiptLongRounded from "@mui/icons-material/ReceiptLongRounded";
@@ -157,7 +158,7 @@ const ProductsList = ({ setPageName, setPageDescription, setPageAction }: pagePr
   };
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", flex: 1, gap: 2 }} data-testid="products-list">
+    <Box sx={{ display: "flex", flexDirection: "column", flex: 1, gap: 2 }} style={{ "--font-sans": "var(--font-inter)", fontFamily: "var(--font-inter)" } as any} data-testid="products-list">
       {error && <Alert severity="error" data-testid="products-list-error">{error}</Alert>}
 
       <PanelCard
@@ -243,7 +244,10 @@ const ProductsList = ({ setPageName, setPageDescription, setPageAction }: pagePr
                         {p.title}
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
-                        {(p.base_price_cents / 100).toFixed(2)} {p.currency} · /{p.slug}
+                        <Box component="span" sx={{ fontFamily: MONO, fontVariantNumeric: "tabular-nums" }}>
+                          {(p.base_price_cents / 100).toFixed(2)} {p.currency}
+                        </Box>
+                        {" · /"}{p.slug}
                       </Typography>
                     </Box>
                     <Chip

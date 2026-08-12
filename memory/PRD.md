@@ -1,3 +1,21 @@
+# SESSION ADDENDUM (2026-06 (fork)) — Reorder Shortcuts + Empty Hero State + Consistent Everywhere — VERIFIED (testing agent iteration_44 ~90%→100% after font fixes; functional flows 100%)
+
+Three approved follow-ups, all shipped & verified (incl. mobile 390/768):
+
+## D. Reorder Shortcuts — drag to order the 4 pinned Quick Actions
+- `Components/Page/Dashboard/v2026/QuickActionsDock.tsx`: Customize dialog rebuilt with framer-motion `Reorder.Group` over the ordered `draft` array. Pinned rows `dash2026-qa-pinned-<id>` (grip handle + remove `dash2026-qa-remove-<id>`); an "Add a shortcut" section (`dash2026-qa-add-<id>`) appears only while <4 selected. `dash2026-qa-count` shows n/4; Save disabled unless exactly 4. Order (array sequence) persists via the same `PUT /api/user/dashboard-quick-actions` and renders on the dashboard tiles in saved order. VERIFIED: drag changed order + persisted after reload; add/remove counter + reset-to-default all pass; touch-friendly on mobile.
+
+## E. Empty Hero State — onboarding nudge for brand-new merchants
+- `Components/Page/Dashboard/v2026/VolumeHero.tsx`: new `isEmpty` branch — when `!loading && stats.totalTransactions===0 && stats.totalVolume===0`, renders `dash2026-hero-empty` (rocket badge, "Make your first sale", primary CTA `dash2026-hero-empty-cta` → /create-pay-link, secondary `dash2026-hero-empty-cta2` → /creator). Responsive: CTAs stack vertically + full-width on mobile. Active merchants keep the normal hero. VERIFIED via dashboard-stats route interception (zeroing totals); both CTAs navigate.
+
+## F. Consistent Everywhere — Inter body + Roboto-Mono numbers on Invoices & Products
+- `pages/invoices.tsx`: content wrapped in `--font-sans → var(--font-inter)` scope; the invoice-list VAT chip and the month group-header total switched from var(--font-sans)/var(--font-tech) to `MONO` (Roboto Mono) — main Total cell already MONO.
+- `pages/pay-links/products/index.tsx`: content Inter-scoped; product price span now uses `MONO` (was mistakenly `var(--font-mono)` = Geist Mono).
+- FONT NOTE (important for future agents): app numeric standard is `MONO` from `@/styles/uiKit` = Roboto Mono (`var(--font-roboto-mono)`). Do NOT use `var(--font-mono)` (=Geist Mono) or `var(--font-tech)` (=IBM Plex Mono) for figures. Body text: `document.body` is Geist Sans app-wide (the chrome); page CONTENT inside the Inter-scoped wrapper is `__Inter` on dashboard/wallet/transactions/pay-links/invoices/products (VERIFIED via getComputedStyle) — that is the intended, consistent pattern.
+
+---
+
+
 # SESSION ADDENDUM (2026-06 (fork)) — Match Other Pages + Tidy Transactions + Personalize Quick Actions — VERIFIED (testing agent iteration_43, 100% frontend; backend endpoint verified via curl)
 
 Three approved follow-ups, all shipped:

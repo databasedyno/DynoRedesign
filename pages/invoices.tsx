@@ -333,7 +333,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
       <Head>
         <title>Invoices — DynoPay</title>
       </Head>
-      <Box sx={{ px: { xs: "16px", md: 0 } }}>
+      <Box sx={{ px: { xs: "16px", md: 0 } }} style={{ "--font-sans": "var(--font-inter)", fontFamily: "var(--font-inter)" } as any}>
         {/* Tabs */}
         <Box
           sx={{
@@ -571,7 +571,8 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                                   </Typography>
                                   <Typography
                                     sx={{
-                                      fontFamily: "var(--font-tech), monospace",
+                                      fontFamily: MONO,
+                                      fontVariantNumeric: "tabular-nums",
                                       fontSize: 11,
                                       fontWeight: 600,
                                       letterSpacing: "0.08em",
@@ -634,7 +635,8 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                                   label={`${formatUsdInDisplay(inv.vat_amount)} (${inv.vat_rate}%)`}
                                   size="small"
                                   sx={{
-                                    fontFamily: "var(--font-sans)",
+                                    fontFamily: MONO,
+                                    fontVariantNumeric: "tabular-nums",
                                     fontSize: isMobile ? 10 : 12,
                                     backgroundColor: "#22C55E1A",
                                     color: "#22C55E",

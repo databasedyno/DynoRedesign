@@ -9,7 +9,7 @@ import {
   Tooltip,
 } from "@mui/material";
 import Link from "next/link";
-import { useRouter } from "next/router";
+import { Reorder } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "@/axiosConfig";
@@ -54,13 +54,13 @@ const DEFAULT_SLUGS = ["paylinks", "invoice", "wallet", "creator"];
 /**
  * QuickActionsDock — a compact 2×2 tile grid of the merchant's most-used
  * destinations, rendered as real Next <Link> anchors. Merchants can pin ANY
- * 4 shortcuts from the catalog via the "Customize" (pencil) button; the picks
- * persist to their account (PUT /api/user/dashboard-quick-actions).
+ * 4 shortcuts from the catalog AND drag them into their preferred order via
+ * the "Customize" (pencil) button; the picks + order persist to their account
+ * (PUT /api/user/dashboard-quick-actions).
  */
 const QuickActionsDock: React.FC = () => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
-  const router = useRouter();
   const dispatch = useDispatch();
   const { t } = useTranslation(["dashboardLayout", "common"]);
 
@@ -122,6 +122,25 @@ const QuickActionsDock: React.FC = () => {
   const indigoGlow = isDark ? CB_TOKENS.indigo.darkGlow : CB_TOKENS.indigo.lightGlow;
   const inkPrimary = isDark ? CB_TOKENS.ink.primaryDark : CB_TOKENS.ink.primaryLight;
   const inkMuted = isDark ? CB_TOKENS.ink.mutedDark : CB_TOKENS.ink.mutedLight;
+  const available = CATALOG.filter((c) => !draft.includes(c.id));
+
+  const sectionLabelSx = {
+    fontFamily: "var(--font-sans)",
+    fontSize: 11,
+    fontWeight: 700,
+    letterSpacing: "0.1em",
+    textTransform: "uppercase" as const,
+    color: inkMuted,
+  };
+  const iconBadgeSx = {
+    width: 30,
+    height: 30,
+    borderRadius: "8px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0,
+  };
 
   return (
     <SurfaceCard
@@ -177,18 +196,7 @@ const QuickActionsDock: React.FC = () => {
                 },
               }}
             >
-              <Box
-                sx={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: "10px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  color: indigo,
-                  backgroundColor: indigoGlow,
-                }}
-              >
+              <Box sx={{ ...iconBadgeSx, width: 36, height: 36, borderRadius: "10px", color: indigo, backgroundColor: indigoGlow }}>
                 <Icon name={s.icon} size={18} />
               </Box>
               <Box
@@ -221,83 +229,128 @@ const QuickActionsDock: React.FC = () => {
             {t("qaCustomizeTitle", { defaultValue: "Customize quick actions" })}
           </Box>
           <Box sx={{ fontFamily: "var(--font-sans)", fontSize: 13, color: inkMuted, mt: 0.5 }}>
-            {t("qaCustomizeSubtitle", {
-              defaultValue: "Pick exactly 4 shortcuts for your dashboard.",
+            {t("qaCustomizeSubtitle2", {
+              defaultValue: "Pick 4 shortcuts and drag to reorder.",
             })}{" "}
             <Box component="span" data-testid="dash2026-qa-count" sx={{ color: indigo, fontWeight: 600 }}>
               {draft.length}/4
             </Box>
           </Box>
         </Box>
+
         <DialogContent sx={{ pt: 1 }}>
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 0.75 }}>
-            {CATALOG.map((c) => {
-              const checked = draft.includes(c.id);
-              const disabled = !checked && draft.length >= 4;
+          {/* Pinned — draggable to reorder */}
+          <Box sx={{ ...sectionLabelSx, mb: 1 }}>
+            {t("qaPinnedLabel", { defaultValue: "Your shortcuts · drag to reorder" })}
+          </Box>
+          <Reorder.Group
+            axis="y"
+            values={draft}
+            onReorder={setDraft}
+            style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: 8 }}
+          >
+            {draft.map((id) => {
+              const c = CATALOG_BY_ID[id];
+              if (!c) return null;
               return (
-                <Box
-                  key={c.id}
-                  role="button"
-                  tabIndex={0}
-                  data-testid={`dash2026-qa-option-${c.id}`}
-                  onClick={() => !disabled && toggle(c.id)}
-                  onKeyDown={(e) => {
-                    if ((e.key === "Enter" || e.key === " ") && !disabled) toggle(c.id);
-                  }}
-                  aria-pressed={checked}
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 1.25,
-                    p: 1.25,
-                    borderRadius: "12px",
-                    border: `1px solid ${checked ? indigo : border}`,
-                    backgroundColor: checked ? indigoGlow : "transparent",
-                    cursor: disabled ? "not-allowed" : "pointer",
-                    opacity: disabled ? 0.45 : 1,
-                    outline: "none",
-                    transition: "border-color 140ms ease, background-color 140ms ease",
-                  }}
+                <Reorder.Item
+                  key={id}
+                  value={id}
+                  as="div"
+                  data-testid={`dash2026-qa-pinned-${id}`}
+                  whileDrag={{ scale: 1.02 }}
+                  style={{ listStyle: "none" }}
                 >
                   <Box
                     sx={{
-                      width: 30,
-                      height: 30,
-                      borderRadius: "8px",
                       display: "flex",
                       alignItems: "center",
-                      justifyContent: "center",
-                      color: checked ? indigo : inkMuted,
-                      backgroundColor: checked ? "transparent" : (isDark ? "rgba(255,255,255,0.04)" : "rgba(10,10,15,0.03)"),
-                      flexShrink: 0,
+                      gap: 1.25,
+                      p: 1.25,
+                      borderRadius: "12px",
+                      border: `1px solid ${indigo}`,
+                      backgroundColor: indigoGlow,
+                      cursor: "grab",
+                      userSelect: "none",
+                      touchAction: "none",
+                      "&:active": { cursor: "grabbing" },
                     }}
                   >
-                    <Icon name={c.icon} size={16} />
+                    <Box sx={{ display: "flex", alignItems: "center", color: inkMuted, flexShrink: 0 }}>
+                      <Icon name="grip-vertical" size={16} />
+                    </Box>
+                    <Box sx={{ ...iconBadgeSx, color: indigo }}>
+                      <Icon name={c.icon} size={16} />
+                    </Box>
+                    <Box sx={{ flex: 1, fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: 600, color: inkPrimary }}>
+                      {t(c.key, { defaultValue: c.def })}
+                    </Box>
+                    <IconButton
+                      size="small"
+                      data-testid={`dash2026-qa-remove-${id}`}
+                      aria-label={t("qaRemove", { defaultValue: "Remove" })}
+                      onPointerDown={(e) => e.stopPropagation()}
+                      onClick={() => toggle(id)}
+                      sx={{ width: 26, height: 26, color: inkMuted, "&:hover": { color: theme.palette.error.main } }}
+                    >
+                      <Icon name="x" size={15} />
+                    </IconButton>
                   </Box>
-                  <Box sx={{ flex: 1, fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: 500, color: inkPrimary }}>
-                    {t(c.key, { defaultValue: c.def })}
-                  </Box>
-                  <Box
-                    sx={{
-                      width: 20,
-                      height: 20,
-                      borderRadius: "6px",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      border: `1px solid ${checked ? indigo : border}`,
-                      backgroundColor: checked ? indigo : "transparent",
-                      color: "#fff",
-                      flexShrink: 0,
-                    }}
-                  >
-                    {checked && <Icon name="check" size={13} color="#fff" />}
-                  </Box>
-                </Box>
+                </Reorder.Item>
               );
             })}
-          </Box>
+          </Reorder.Group>
+
+          {/* Add a shortcut — only while below 4 */}
+          {available.length > 0 && draft.length < 4 && (
+            <>
+              <Box sx={{ ...sectionLabelSx, mt: 2.5, mb: 1 }}>
+                {t("qaAddLabel", { defaultValue: "Add a shortcut" })} · {4 - draft.length}{" "}
+                {t("qaAddLeft", { defaultValue: "left" })}
+              </Box>
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 0.75 }}>
+                {available.map((c) => (
+                  <Box
+                    key={c.id}
+                    role="button"
+                    tabIndex={0}
+                    data-testid={`dash2026-qa-add-${c.id}`}
+                    onClick={() => toggle(c.id)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") toggle(c.id);
+                    }}
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1.25,
+                      p: 1.25,
+                      borderRadius: "12px",
+                      border: `1px solid ${border}`,
+                      cursor: "pointer",
+                      outline: "none",
+                      transition: "border-color 140ms ease, background-color 140ms ease",
+                      "&:hover, &:focus-visible": {
+                        borderColor: indigo,
+                        backgroundColor: isDark ? "rgba(255,255,255,0.02)" : "rgba(10,10,15,0.015)",
+                      },
+                    }}
+                  >
+                    <Box sx={{ ...iconBadgeSx, color: inkMuted, backgroundColor: isDark ? "rgba(255,255,255,0.04)" : "rgba(10,10,15,0.03)" }}>
+                      <Icon name={c.icon} size={16} />
+                    </Box>
+                    <Box sx={{ flex: 1, fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: 500, color: inkPrimary }}>
+                      {t(c.key, { defaultValue: c.def })}
+                    </Box>
+                    <Box sx={{ display: "flex", alignItems: "center", color: indigo, flexShrink: 0 }}>
+                      <Icon name="plus" size={16} />
+                    </Box>
+                  </Box>
+                ))}
+              </Box>
+            </>
+          )}
         </DialogContent>
+
         <DialogActions sx={{ px: 3, pb: 2.5, pt: 1, justifyContent: "space-between" }}>
           <CustomButton
             label={t("qaReset", { defaultValue: "Reset to default" })}
