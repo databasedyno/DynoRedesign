@@ -7,3 +7,7 @@
 # Husky v9 auto-runs hooks; no sourcing required.
 
 sh scripts/preflight-tsc.sh
+
+# Dark-mode brand-foreground contrast guardrail (warn-only in hook so
+# Save-to-GitHub is never blocked; strict in CI via `yarn lint` / `yarn lint:contrast`).
+node scripts/check-contrast.mjs --hook || true

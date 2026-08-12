@@ -6,7 +6,8 @@
     "dev": "rimraf .next && next dev --turbo",
     "build": "next build",
     "start": "next start",
-    "lint": "tsc --noEmit && eslint . --ext .ts,.tsx",
+    "lint": "tsc --noEmit && eslint . --ext .ts,.tsx && node scripts/check-contrast.mjs",
+    "lint:contrast": "node scripts/check-contrast.mjs",
     "test:devices": "node tests/device-matrix.mjs",
     "preflight": "sh scripts/preflight-tsc.sh --force",
     "prepare": "husky || true"
