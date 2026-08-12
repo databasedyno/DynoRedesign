@@ -149,7 +149,26 @@ export const appThemeDark = createTheme(themeDark, {
   } as any,
   typography: headingTypography,
   components: {
-    MuiButton: { variants: buttonVariants(AUTH_LIME, "#FFFFFF", INDIGO_HOVER) },
+    MuiButton: {
+      variants: buttonVariants(AUTH_LIME, "#FFFFFF", INDIGO_HOVER),
+      // Dark-safe brand foreground for built-in MUI outlined/text primary
+      // buttons: raw indigo #4F46E5 fails WCAG AA on the dark paper, so use
+      // the lighter #818CF8 (~5.9:1). Light theme keeps MUI defaults.
+      styleOverrides: {
+        outlinedPrimary: {
+          color: "#818CF8",
+          borderColor: "rgba(129,140,248,0.5)",
+          "&:hover": {
+            borderColor: "#818CF8",
+            backgroundColor: "rgba(129,140,248,0.08)",
+          },
+        },
+        textPrimary: {
+          color: "#818CF8",
+          "&:hover": { backgroundColor: "rgba(129,140,248,0.08)" },
+        },
+      },
+    },
   },
 });
 

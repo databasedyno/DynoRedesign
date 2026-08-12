@@ -1,3 +1,4 @@
+import { brandFg } from "@/constants/theme";
 /**
  * Publishable Keys Section — Phase 2C dashboard UI for Buy Button
  *
@@ -1134,7 +1135,7 @@ const PublishableKeysSection = () => {
           >
             <CircularProgress
               size={22}
-              sx={{ color: theme.palette.primary.main }}
+              sx={{ color: brandFg(theme.palette.mode === "dark") }}
             />
           </Box>
         ) : loadError ? (

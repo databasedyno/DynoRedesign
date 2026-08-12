@@ -1,3 +1,4 @@
+import { brandFg } from "@/constants/theme";
 /**
  * WebhookConsoleSection — developer webhook console on the API / developer page.
  *
@@ -280,7 +281,7 @@ const WebhookConsoleSection = () => {
       <PanelCard
         title="Webhooks"
         subTitle="Receive real-time events and inspect recent delivery attempts"
-        headerIcon={<Icon name="webhook" color={theme.palette.primary.main} />}
+        headerIcon={<Icon name="webhook" color={brandFg(theme.palette.mode === "dark")} />}
         headerAction={
           <Tooltip title="Refresh">
             <IconButton onClick={refreshAll} size="small" data-testid="webhook-refresh">

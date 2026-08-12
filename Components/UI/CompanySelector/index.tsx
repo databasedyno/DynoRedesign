@@ -1,3 +1,4 @@
+import { brandFg } from "@/constants/theme";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import EditIcon from "@/assets/Icons/edit-icon.svg";
 import BusinessCenterIcon from "@mui/icons-material/BusinessCenter";
@@ -213,12 +214,12 @@ export default function CompanySelector() {
         <Box sx={{ display: "flex", alignItems: "center", gap: "6px" }}>
           <BusinessCenterIcon
             sx={{
-              color: theme.palette.primary.main,
+              color: brandFg(theme.palette.mode === "dark"),
               fontSize: isMobile ? "16.5px" : "19px",
               mt: "-3px",
             }}
           />
-          <TriggerText sx={{ color: theme.palette.primary.main }}>
+          <TriggerText sx={{ color: brandFg(theme.palette.mode === "dark") }}>
             {selected?.company_name
               ? (windowWidth < 600
                 ? truncateByWords(selected.company_name, count)
@@ -277,11 +278,11 @@ export default function CompanySelector() {
             <Box sx={{ display: "flex", alignItems: "center", gap: "6px" }}>
               <BusinessCenterIcon
                 sx={{
-                  color: theme.palette.primary.main,
+                  color: brandFg(theme.palette.mode === "dark"),
                   fontSize: isMobile ? "16.5px" : "20px",
                 }}
               />
-              <TriggerText sx={{ color: theme.palette.primary.main }}>
+              <TriggerText sx={{ color: brandFg(theme.palette.mode === "dark") }}>
                 {selected?.company_name || (companies.length > 0 ? companies[0].company_name : "Company")}
               </TriggerText>
             </Box>

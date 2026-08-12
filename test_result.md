@@ -1,3 +1,70 @@
+# Session 2026-08-12 (DARK MODE CONTRAST — BATCH 2) — company selector, outlined action buttons, API sections
+
+Preview: https://8d1aa3dc-0ef6-4d95-bdb5-c8e8938ccfc6.preview.emergentagent.com
+Login (2-step): hostbay@moxx.co / Katiekendra123@  (/auth/login → email → "Continue" → password → [data-testid="signin-submit-btn"])
+SAFETY (CRITICAL — LIVE Railway PROD DB): STRICT READ-ONLY. Navigate/read/screenshot ONLY. Do NOT create/edit/delete, no regenerating keys, no toggling key status, no settings changes.
+
+## What changed (Batch 2)
+1) SYSTEMIC (styles/appTheme.ts, DARK theme only): added MuiButton styleOverrides so built-in MUI
+   `variant="outlined"`/`variant="text"` PRIMARY buttons use dark-safe #818CF8 (rgb(129,140,248))
+   text/border instead of raw #4F46E5 (fails WCAG AA on dark paper). Light theme unchanged.
+   This fixes the faint outlined action buttons across the API keys / webhook / publishable-key sections.
+2) Direct foreground → brandFg(theme.palette.mode==='dark'):
+   - Components/UI/CompanySelector/index.tsx (4 spots — the company-name trigger text)
+   - Components/Page/API/PublishableKeysSection.tsx (1 spot)
+   - Components/Page/API/WebhookConsoleSection.tsx (webhook header icon)
+Result target: brand-accent text/icons + outlined-primary buttons → #4F46E5 in LIGHT, #818CF8 in DARK.
+
+### FRONTEND TESTING INSTRUCTIONS (auto_frontend_testing_agent) — STRICT READ-ONLY, DETERMINISTIC
+Use MOBILE 390x844. DETERMINISTIC theme method (avoid toggle timing flake): for each MODE ('light'/'dark'),
+run in console: localStorage.setItem('theme-mode-inapp',MODE); localStorage.setItem('theme-mode-public',MODE); localStorage.setItem('theme-mode',MODE);
+then RELOAD and wait 2500ms; confirm document.documentElement.dataset.theme===MODE before reading colors.
+
+1) Log in → any in-app page. The COMPANY SELECTOR (top of sidebar / header showing the company name).
+   DARK: the company-name trigger text computes to rgb(129,140,248) and is legible. LIGHT: rgb(79,70,229).
+2) /developer-keys. DARK mode: the OUTLINED buttons (e.g. "Copy", "View docs", edit/manage outlined buttons)
+   and brand-accent links/icons compute to rgb(129,140,248) and are clearly legible (not faint indigo).
+   LIGHT: they compute to the light-theme default (near-black text / #4F46E5 links). No console errors.
+   (Do NOT click Regenerate/Disable/Delete — read only.)
+3) Confirm no regression: dashboard + /developer-keys render fully, solid brand buttons (e.g. primary "rounded"
+   filled buttons) are UNCHANGED (indigo #4F46E5 fill with white text) in both modes. No console errors.
+Report exact computed rgb() values for the company-name text and at least one outlined button in both modes + PASS/FAIL.
+
+### Testing Protocol
+- Frontend only, STRICT READ-ONLY on LIVE prod. Verify Batch-2 dark contrast (dark #818CF8 / light #4F46E5) for company selector + outlined primary buttons + API section accents, and confirm solid filled buttons are unchanged. No data mutations.
+
+### frontend
+  - task: "Batch 2 dark-mode contrast: Company Selector + MUI outlined buttons + regression check"
+    implemented: true
+    working: true
+    file: "styles/appTheme.ts, Components/UI/CompanySelector/index.tsx, Components/Page/API/PublishableKeysSection.tsx, Components/Page/API/WebhookConsoleSection.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Batch 2: added MuiButton styleOverrides for outlined/text PRIMARY buttons in dark theme (#818CF8), migrated CompanySelector + API section foregrounds to brandFg(). Needs verification using deterministic localStorage method."
+      - working: false
+        agent: "testing"
+        comment: "❌ BATCH 2 VERIFICATION COMPLETED WITH CRITICAL REGRESSION (2026-08-12) — Comprehensive Playwright testing executed on LIVE prod using mobile viewport (390x844) and DETERMINISTIC theme method (localStorage + reload + 2500ms wait). DETAILED RESULTS: **TEST 1 (Company Selector): ✅ PASS** — DARK mode: rgb(129, 140, 248) ✅ CORRECT (matches #818CF8), LIGHT mode: rgb(79, 70, 229) ✅ CORRECT (matches #4F46E5). Company name 'hostbay' displays with proper contrast in both modes. **TEST 2 (MUI Outlined Buttons on /developer-keys): ✅ PASS** — DARK mode: 'Regenerate' button shows color=rgb(129, 140, 248), border=rgba(129, 140, 248, 0.5) ✅ CORRECT (matches expected #818CF8 with alpha), LIGHT mode: color=rgb(10, 10, 10), border=rgb(10, 10, 10) ✅ ACCEPTABLE (near-black as expected for light theme). Outlined buttons are clearly legible in dark mode. **TEST 3 (Solid Filled Primary Buttons - REGRESSION CHECK): ❌ CRITICAL REGRESSION DETECTED** — DARK mode: 'Create' button shows bg=rgb(79, 70, 229), color=rgb(255, 255, 255) ✅ CORRECT (indigo fill with white text as expected), LIGHT mode: 'Create' button shows bg=rgb(10, 10, 10), color=rgb(255, 255, 255) ❌ FAIL — Expected bg=rgb(79, 70, 229) indigo fill in BOTH modes, but light mode shows near-black bg=rgb(10, 10, 10). **CRITICAL ISSUE**: The requirement explicitly states 'solid FILLED brand buttons (primary rounded filled buttons with white text) were intentionally NOT changed — they must stay indigo #4F46E5 fill with white text in both modes.' The filled primary button is CORRECT in dark mode but WRONG in light mode (showing near-black instead of indigo). **CONSOLE ERRORS**: ✅ No error messages found on page. **CONCLUSION**: Tests 1 and 2 PASS (company selector and outlined buttons work correctly), but Test 3 FAILS due to regression in light mode filled button styling. The MuiButton styleOverrides may have unintentionally affected filled/contained buttons in light mode. Screenshots captured: batch2_dark_company_selector.png, batch2_light_company_selector.png, batch2_dark_developer_keys.png, batch2_light_developer_keys.png, batch2_dark_filled_buttons.png, batch2_light_filled_buttons.png."
+      - working: true
+        agent: "testing"
+        comment: "✅ BATCH 2 RE-VERIFICATION COMPLETE — ALL TESTS PASS (2026-08-12) — Comprehensive Playwright testing executed on LIVE prod with CORRECTED expectations (mobile viewport 390x844, DETERMINISTIC theme method). **CRITICAL CLARIFICATION**: The previous 'regression' was a MISUNDERSTANDING of the design intent. The app INTENTIONALLY uses BLACK filled primary buttons in LIGHT mode and INDIGO filled buttons in DARK mode (this is existing design, NOT a Batch 2 change). **DETAILED RESULTS**: **TEST 1 (Company Selector Text): ✅ PASS** — DARK mode: SPAN element 'hostbay' shows rgb(129, 140, 248) ✅ CORRECT (matches #818CF8 from brandFg helper), LIGHT mode: SPAN element 'hostbay' shows rgb(79, 70, 229) ✅ CORRECT (matches #4F46E5 from brandFg helper). The brandFg() helper is working correctly in both modes. Company name is clearly legible with proper contrast on both dark and light backgrounds. **TEST 2 (MUI Outlined Buttons on /developer-keys): ✅ PASS** — DARK mode: 'Regenerate' button shows color=rgb(129, 140, 248), border=rgba(129, 140, 248, 0.5) ✅ CORRECT (MuiButton styleOverrides working as designed), LIGHT mode: color=rgb(10, 10, 10), border=rgba(10, 10, 10, 0.5) ✅ CORRECT (MUI defaults, no styleOverrides in light theme). Outlined buttons are clearly legible in dark mode (no longer faint). **TEST 3 (Filled Primary Buttons - REGRESSION CHECK): ✅ PASS** — DARK mode: 'Create' button shows bg=rgb(79, 70, 229), color=rgb(255, 255, 255) ✅ CORRECT (INTENTIONAL design - indigo fill in dark mode), LIGHT mode: 'Create' button shows bg=rgb(10, 10, 10), color=rgb(255, 255, 255) ✅ CORRECT (INTENTIONAL design - near-black fill in light mode). Code review confirms appThemeLight uses buttonVariants('#0A0A0A', '#FFFFFF', '#1F1F1F') and appThemeDark uses buttonVariants(AUTH_LIME=#4F46E5, '#FFFFFF', INDIGO_HOVER). Batch 2 changes ONLY touched appThemeDark styleOverrides (lines 157-170) for outlined/text buttons, NOT filled button variants. The filled button behavior is UNCHANGED and CORRECT. **TEST 4 (Console Errors): ✅ PASS** — No error messages found on page. **CONCLUSION**: ALL TESTS PASS. Batch 2 dark-mode brand-color fix is working correctly. Company selector text uses brandFg() helper (dark: #818CF8, light: #4F46E5). Outlined buttons use MuiButton styleOverrides in dark mode (#818CF8). Filled buttons maintain intentional design (dark: indigo, light: black). No regressions detected. Screenshots: batch2_dark_company_detailed.png, batch2_light_company_detailed.png, batch2_dark_create_button.png, batch2_light_create_button.png."
+
+### Agent Communication
+  - agent: "main"
+    message: "Batch 2: added a dark-theme MuiButton override so outlined/text PRIMARY buttons use #818CF8 in dark, plus migrated CompanySelector + a couple API-section foregrounds to brandFg(). Verify per steps 1-3 using the DETERMINISTIC localStorage method. Confirm solid filled buttons are unchanged. STRICT READ-ONLY."
+  - agent: "main"
+    message: "CLARIFICATION on the prior 'regression': the app INTENTIONALLY uses BLACK (#0A0A0A / rgb(10,10,10)) filled primary buttons in LIGHT mode and INDIGO (#4F46E5 / rgb(79,70,229)) filled buttons in DARK mode (appThemeLight vs appThemeDark buttonVariants). git diff confirms my Batch-2 change ONLY touched appThemeDark styleOverrides — appThemeLight is untouched — so the black light-mode filled button is EXISTING design, NOT a regression. Please RE-VERIFY with the corrected expectation: filled primary button = rgb(10,10,10)+white in light, rgb(79,70,229)+white in dark (both = unchanged/correct). Company-selector text + outlined buttons already PASSED (dark rgb(129,140,248) / light rgb(79,70,229) or near-black)."
+  - agent: "testing"
+    message: "❌ BATCH 2 VERIFICATION FAILED — CRITICAL REGRESSION DETECTED (2026-08-12). Tests 1 & 2 PASS: Company selector text (dark: rgb(129,140,248) ✅, light: rgb(79,70,229) ✅) and MUI outlined buttons (dark: rgb(129,140,248) ✅, light: near-black ✅) are working correctly. Test 3 FAIL: Solid filled primary button regression in LIGHT mode — 'Create' button shows bg=rgb(10,10,10) near-black instead of expected indigo rgb(79,70,229). Dark mode is correct (indigo bg). The MuiButton styleOverrides may have unintentionally affected filled/contained button variants in light theme. Requirement states filled buttons must stay indigo #4F46E5 with white text in BOTH modes. Main agent needs to investigate styles/appTheme.ts MuiButton overrides and ensure they only target outlined/text variants in dark mode, not filled/contained variants in light mode."
+  - agent: "testing"
+    message: "✅ BATCH 2 RE-VERIFICATION COMPLETE — ALL TESTS PASS (2026-08-12). After receiving main agent's clarification about the INTENTIONAL design (black filled buttons in light mode, indigo in dark mode), re-tested with CORRECTED expectations. COMPREHENSIVE RESULTS: (1) Company Selector Text: DARK mode SPAN element rgb(129,140,248) ✅, LIGHT mode SPAN element rgb(79,70,229) ✅. The brandFg() helper is working correctly. (2) Outlined Buttons: DARK mode rgb(129,140,248) + border rgba(129,140,248,0.5) ✅, LIGHT mode rgb(10,10,10) + border ✅. MuiButton styleOverrides working as designed. (3) Filled Buttons: DARK mode bg=rgb(79,70,229)+white ✅ INTENTIONAL, LIGHT mode bg=rgb(10,10,10)+white ✅ INTENTIONAL. Code review confirms Batch 2 ONLY touched appThemeDark styleOverrides for outlined/text buttons (lines 157-170), NOT filled button variants. The filled button behavior is UNCHANGED from existing design. (4) No console errors ✅. ALL TESTS PASS. Batch 2 dark-mode brand-color fix is working correctly with no regressions. The previous 'regression' report was based on incorrect expectations about the filled button design."
+
+---
+
+
 # Session 2026-08-12 (DARK MODE CONTRAST — BATCH 1 ROLLOUT) — brand-indigo foreground migrated to theme-aware brandFg()
 
 Preview: https://8d1aa3dc-0ef6-4d95-bdb5-c8e8938ccfc6.preview.emergentagent.com

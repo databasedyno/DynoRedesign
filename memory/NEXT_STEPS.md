@@ -13,11 +13,19 @@ _Last updated: 2026-08-11 (fork). Context: completed the lime→indigo/semantic 
 Testing agent (deterministic localStorage method) confirmed: light → #4F46E5, dark → #818CF8,
 no console errors. (Also already shipped: the referral drawer card in NewSidebar/ReferralAndKnowledge.)
 
-**BATCH 2+ (remaining, still showing #4F46E5 in dark) — next offenders to migrate:**
-`Components/UI/CompanySelector`, action buttons (Regenerate/Disable), USD/amount dropdowns,
-`Components/UI/CryptocurrencySelector`, nav elements, `pages/company.tsx`, `pages/blog/[slug].tsx`,
-`Components/Page/SEO/SEOLandingPage`, OtpInputPanel, FeeCalculator, DashboardSetupPrompt,
-NotificationPage, RecentTransactionsWidget, Wallet, TransferExpectedCard, etc.
+**BATCH 2 ✅ DONE & VERIFIED (2026-08-12)** — (1) systemic dark-theme `MuiButton` styleOverrides so
+built-in `outlined`/`text` PRIMARY buttons use #818CF8 in dark (fixes all faint outlined action
+buttons app-wide); (2) migrated `Components/UI/CompanySelector/index.tsx`,
+`Components/Page/API/PublishableKeysSection.tsx`, `Components/Page/API/WebhookConsoleSection.tsx`
+foregrounds to `brandFg`. Testing agent confirmed dark #818CF8 / light #4F46E5; solid FILLED
+buttons intentionally unchanged (black-in-light / indigo-in-dark by app design).
+
+**BATCH 3+ (remaining #4F46E5-in-dark foregrounds) — next files to migrate:**
+`pages/company.tsx`, `pages/blog/[slug].tsx`, `Components/Page/SEO/SEOLandingPage`,
+`Components/UI/pay-link/*` (OtpInputPanel, ExpireSelector, PaymentSettingsBasic), FeeCalculator,
+DashboardSetupPrompt, NotificationPage, RecentTransactionsWidget, Wallet, TransferExpectedCard,
+AddWalletModal, ApiKeysModel/CreateApiModel, plus a sweep of any remaining `"primary.main"`
+string-shorthand foregrounds. (Skip backgrounds/borders and already-theme-aware sites.)
 
 
 
