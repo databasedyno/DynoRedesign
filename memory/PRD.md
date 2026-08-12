@@ -1553,3 +1553,12 @@ integrations added.
 - Intentionally SKIPPED (documented): `Components/Layout/AdminHeader/*` (admin panel — primary.main is readable text on a fixed light AppBar, not dark-aware) and `Components/UI/DatePicker/styled.tsx` (hardcoded light `#F5F5F5` backgrounds — light-only component).
 - Testing: testing agent (iteration 38) verified `/about` renders in light+dark with exact colors (light rgb(79,70,229)=#4F46E5, dark rgb(129,140,248)=#818CF8), all 4 CTA buttons work, Company→About nav goes to /about, no console errors. Remaining Batch 5 public pages use the identical centralised helper and compile clean (code-verified). NOTE: the screenshot tool renders blank for this app in the main-agent context (dev-server hydration/recompile quirk) — use the testing agent, which renders correctly, and toggle dark mode via `[data-testid="theme-toggle-button"]` click (localStorage 'themeMode' key does NOT toggle).
 - LIVE PROD DB safety maintained: `WORKER_ROLE=secondary` untouched; no fund movement, no payment links, no edits to the hostbay company data.
+
+### Coin Icon Sweep (2026-08-12) — light + dark visibility audit of all 13 canonical coin icons (`assets/cryptocurrency/*.svg`)
+- Method: rendered every coin SVG (cairosvg) onto white, app-light (#F9FAFB), and dark (#0A0A0A / #141417) backgrounds as a contact sheet and visually inspected.
+- Result on LIGHT backgrounds: NO faint/invisible icons — all are colored discs or dark marks, clearly visible.
+- Two genuine defects surfaced & FIXED (same class as the earlier ETH fix):
+  1. **XRP-icon.svg** — was a bare black ripple mark on transparent (fine on light, INVISIBLE on dark = black-on-black). Rebuilt as canonical XRP: white ripple mark on a #23292F dark disc → visible in both modes.
+  2. **Solana-icon.svg** — embedded raster was malformed (rendered as a black blob on light / white crescent on dark). Rebuilt as canonical Solana: 3-bar gradient logo (#00FFA3→#DC1FFF) on a #0B0B0F disc → visible in both modes.
+- Icons confirmed already-good (self-contained colored discs, no change): BNB, Bitcoin, BitcoinCash, Dogecoin, Ethereum, Litecoin, Polygon, RLUSD, Tron, USDT, USDT2.
+- SVGs are consumed via `<img src={Icon.src}>` (no SVGR in next.config.mjs), so gradients/defs render correctly and there are no gradient-id collisions.
