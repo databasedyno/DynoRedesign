@@ -1588,3 +1588,9 @@ integrations added.
 - ROOT CAUSE: the Dockerfile's `frontend-builder` stage COPYs source dirs INDIVIDUALLY (COPY pages/, Components/, utils/, …) instead of `COPY . .`, and it was MISSING `constants/` and `api/`. Both are referenced through the `@/*` path alias (`@/constants/theme` = 120+ importers incl. the whole brandFg rollout; `@/api/endpoints` = 46+ importers), so they never reached the build image and the type-check failed. Not a code bug — local `tsc --noEmit` passes.
 - FIX: added `COPY constants/ ./constants/` and `COPY api/ ./api/` to the frontend-builder stage (before `RUN yarn build`). Verified every `@/` import root is now in the COPY list (coverage check: NONE missing). Neither dir is in `.dockerignore`.
 - TO SHIP: push the Dockerfile fix to the `latest2` branch (Save to GitHub) → DO auto-deploys (deploy_on_push), or trigger a manual redeploy AFTER the branch has the fix. (Do NOT redeploy the current GitHub HEAD before pushing — it still has the old Dockerfile and will fail again.)
+
+### Login page mobile "far away" fix (2026-08-12)
+- Feedback (with Lendsqr mobile reference): on mobile the login content floated vertically centered with a big empty gap above the logo.
+- Cause: `Containers/Login/styled.tsx` AuthPageBackground uses minHeight:100dvh + alignItems:center (vertically centers the logo+form block).
+- Fix: on the mobile breakpoint (down('sm')) set alignItems:'flex-start' + padding '32px 18px 24px' so content anchors near the top; desktop stays centered. Applies to /auth/login and /auth/register (shared shell).
+- Verified (testing agent iteration 41): mobile logo now at y≈62px (login) / y≈76px (register), desktop still centered, no console errors.

@@ -28,7 +28,13 @@ export const AuthPageBackground = styled(Box)(({ theme }) => {
     padding: "40px 24px",
     boxSizing: "border-box",
     background: dark ? "#0B0B0F" : "#FFFFFF",
-    [theme.breakpoints.down("sm")]: { padding: "24px 16px" },
+    // Mobile: top-align the logo+form block (was center) so content sits near
+    // the top like a native app login, instead of floating in the middle of a
+    // tall viewport with a large empty gap above the logo.
+    [theme.breakpoints.down("sm")]: {
+      alignItems: "flex-start",
+      padding: "32px 18px 24px",
+    },
   };
 });
 
