@@ -74,10 +74,10 @@ const APIs = ({
   }, [setPageAction, tApi, isMobile, canCreateAnother]);
 
   return (
-    <>
+    <div style={{ "--font-sans": "var(--font-inter)", fontFamily: "var(--font-inter)" } as any}>
       <OnboardingBanner vertical="developers" />
       <ApiKeysPage openCreate={openCreate} setOpenCreate={setOpenCreate} />
-    </>
+    </div>
   );
 };
 

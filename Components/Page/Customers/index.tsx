@@ -1,4 +1,5 @@
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
+import { MONO } from "@/styles/uiKit";
 import { avatarGradient } from "@/helpers/avatarGradient";
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import {
@@ -443,7 +444,8 @@ const CustomersPage: React.FC = () => {
                 fontWeight: 700,
                 lineHeight: 1.15,
                 color: theme.palette.text.primary,
-                fontFamily: "var(--font-sans)",
+                fontFamily: MONO,
+                fontVariantNumeric: "tabular-nums",
               }}
             >
               {loading ? <Skeleton width={90} /> : card.value}
@@ -680,7 +682,7 @@ const CustomersPage: React.FC = () => {
                         <TableCell align="right" sx={{ borderColor: cardBorder }}>
                           <Typography
                             className="tabular-nums"
-                            sx={{ fontWeight: 600, fontSize: "14px", fontFamily: "var(--font-sans)" }}
+                            sx={{ fontWeight: 600, fontSize: "14px", fontFamily: MONO, fontVariantNumeric: "tabular-nums" }}
                           >
                             {getCurrencySymbol(
                               customer.wallet_currency || baseCurrency,
@@ -692,7 +694,7 @@ const CustomersPage: React.FC = () => {
                             return est ? (
                               <Typography
                                 data-testid="customer-fiat-estimate"
-                                sx={{ fontSize: "11.5px", color: theme.palette.text.secondary, fontFamily: "var(--font-sans)" }}
+                                sx={{ fontSize: "11.5px", color: theme.palette.text.secondary, fontFamily: MONO, fontVariantNumeric: "tabular-nums" }}
                               >
                                 {`\u2248 ${est}`}
                               </Typography>
@@ -703,7 +705,7 @@ const CustomersPage: React.FC = () => {
                           <TableCell align="right" sx={{ borderColor: cardBorder }}>
                             <Typography
                               className="tabular-nums"
-                              sx={{ fontSize: "13.5px", color: theme.palette.text.secondary, fontFamily: "var(--font-sans)" }}
+                              sx={{ fontSize: "13.5px", color: theme.palette.text.secondary, fontFamily: MONO, fontVariantNumeric: "tabular-nums" }}
                             >
                               {t("customers.txns", { count: customer.transaction_count })}
                             </Typography>

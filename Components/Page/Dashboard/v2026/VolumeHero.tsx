@@ -179,14 +179,36 @@ const VolumeHero: React.FC<Props> = ({ stats, chartData, chartSummary, loading, 
               width: { xs: "100%", sm: "auto" },
             }}
           >
-            <CustomButton
-              label={t("heroEmptyCta", { defaultValue: "Create your first payment link" })}
-              variant="primary"
-              size="medium"
-              fullWidth={isMobile}
-              data-testid="dash2026-hero-empty-cta"
-              onClick={() => router.push("/create-pay-link")}
-            />
+            {/* Pulsing ring behind the primary CTA to guide the very first action */}
+            <Box sx={{ position: "relative", width: { xs: "100%", sm: "auto" } }}>
+              <Box
+                component={motion.span}
+                aria-hidden
+                animate={{
+                  boxShadow: [
+                    `0 0 0 0 ${isDark ? "rgba(129,140,248,0.45)" : "rgba(79,70,229,0.35)"}`,
+                    `0 0 0 12px ${isDark ? "rgba(129,140,248,0)" : "rgba(79,70,229,0)"}`,
+                  ],
+                }}
+                transition={{ duration: 1.9, repeat: Infinity, ease: "easeOut" }}
+                sx={{
+                  position: "absolute",
+                  inset: 0,
+                  borderRadius: "12px",
+                  pointerEvents: "none",
+                  zIndex: 0,
+                }}
+              />
+              <CustomButton
+                label={t("heroEmptyCta", { defaultValue: "Create your first payment link" })}
+                variant="primary"
+                size="medium"
+                fullWidth={isMobile}
+                data-testid="dash2026-hero-empty-cta"
+                onClick={() => router.push("/create-pay-link")}
+                sx={{ position: "relative", zIndex: 1 }}
+              />
+            </Box>
             <CustomButton
               label={t("heroEmptyCta2", { defaultValue: "Set up storefront" })}
               variant="outlined"

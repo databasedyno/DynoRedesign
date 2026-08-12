@@ -180,7 +180,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
       <Head>
         <meta name="description" content="Referral program" />
       </Head>
-      <Box sx={{ px: isMobile ? "16px" : 0 }}>
+      <Box sx={{ px: isMobile ? "16px" : 0 }} style={{ "--font-sans": "var(--font-inter)", fontFamily: "var(--font-inter)" } as any}>
         {/* Referral Code Card */}
         <Box
           data-testid="referral-code-card"

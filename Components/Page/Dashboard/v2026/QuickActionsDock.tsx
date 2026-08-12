@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Box,
   useTheme,
@@ -10,6 +10,21 @@ import {
 } from "@mui/material";
 import Link from "next/link";
 import { Reorder } from "framer-motion";
+import {
+  DndContext,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  closestCenter,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  useSortable,
+  rectSortingStrategy,
+  arrayMove,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "@/axiosConfig";
@@ -51,11 +66,114 @@ const CATALOG_BY_ID: Record<string, CatalogItem> = CATALOG.reduce(
 
 const DEFAULT_SLUGS = ["paylinks", "invoice", "wallet", "creator"];
 
+interface TileColors {
+  border: string;
+  indigo: string;
+  indigoGlow: string;
+  inkPrimary: string;
+  isDark: boolean;
+}
+
+/**
+ * A single Quick Action tile that is BOTH a navigable Next <Link> AND a
+ * dnd-kit sortable item. Tap navigates; press-and-hold (long-press on mobile)
+ * then drag reorders. A shared `suppressClickRef` cancels the navigation click
+ * that would otherwise fire at the end of a hold/drag gesture.
+ */
+const SortableTile: React.FC<{
+  id: string;
+  colors: TileColors;
+  label: string;
+  suppressClickRef: React.MutableRefObject<boolean>;
+}> = ({ id, colors, label, suppressClickRef }) => {
+  const s = CATALOG_BY_ID[id];
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+  if (!s) return null;
+
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 3 : 1,
+    opacity: isDragging ? 0.95 : 1,
+  };
+
+  return (
+    <Box
+      ref={setNodeRef}
+      component={Link}
+      href={s.href}
+      data-testid={`dash2026-qa-${s.id}`}
+      {...attributes}
+      {...listeners}
+      onClick={(e: React.MouseEvent) => {
+        if (suppressClickRef.current) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      }}
+      style={style}
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        gap: 1,
+        p: 1.5,
+        borderRadius: "14px",
+        textDecoration: "none",
+        border: `1px solid ${isDragging ? colors.indigo : colors.border}`,
+        cursor: isDragging ? "grabbing" : "pointer",
+        outline: "none",
+        touchAction: "manipulation",
+        backgroundColor: isDragging
+          ? colors.isDark
+            ? "rgba(255,255,255,0.03)"
+            : "#fff"
+          : "transparent",
+        boxShadow: isDragging
+          ? "0 12px 30px -10px rgba(10,10,25,0.35)"
+          : "none",
+        transition:
+          "border-color 150ms ease, background-color 150ms ease, box-shadow 150ms ease",
+        "&:hover, &:focus-visible": {
+          borderColor: colors.indigo,
+          backgroundColor: colors.isDark ? "rgba(255,255,255,0.02)" : "rgba(10,10,15,0.015)",
+        },
+      }}
+    >
+      <Box
+        sx={{
+          width: 36,
+          height: 36,
+          borderRadius: "10px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          color: colors.indigo,
+          backgroundColor: colors.indigoGlow,
+          flexShrink: 0,
+        }}
+      >
+        <Icon name={s.icon} size={18} />
+      </Box>
+      <Box
+        sx={{
+          fontFamily: "var(--font-sans)",
+          fontSize: 13.5,
+          fontWeight: 600,
+          lineHeight: 1.2,
+          color: colors.inkPrimary,
+        }}
+      >
+        {label}
+      </Box>
+    </Box>
+  );
+};
+
 /**
  * QuickActionsDock — a compact 2×2 tile grid of the merchant's most-used
- * destinations, rendered as real Next <Link> anchors. Merchants can pin ANY
- * 4 shortcuts from the catalog AND drag them into their preferred order via
- * the "Customize" (pencil) button; the picks + order persist to their account
+ * destinations. Tiles can be dragged directly on the dashboard to reorder
+ * (long-press on mobile), and merchants can pick WHICH 4 + reorder via the
+ * "Customize" (pencil) dialog. Picks + order persist to their account
  * (PUT /api/user/dashboard-quick-actions).
  */
 const QuickActionsDock: React.FC = () => {
@@ -74,19 +192,71 @@ const QuickActionsDock: React.FC = () => {
     return arr.length === 4 ? arr : DEFAULT_SLUGS;
   }, [saved]);
 
+  // Live order for the dashboard grid (drag-to-reorder). Stays in sync with the
+  // saved order whenever the profile changes.
+  const [order, setOrder] = useState<string[]>(pinned);
+  const pinnedKey = pinned.join(",");
+  useEffect(() => {
+    setOrder(pinned);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pinnedKey]);
+
+  const suppressClickRef = useRef(false);
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { delay: 220, tolerance: 6 } }),
+  );
+
+  const persistOrder = async (next: string[]) => {
+    try {
+      await axios.put("user/dashboard-quick-actions", { actions: next });
+      dispatch(UserAction(USER_PROFILE_FETCH));
+    } catch (e: any) {
+      setOrder(pinned); // revert
+      dispatch({
+        type: TOAST_SHOW,
+        payload: {
+          message:
+            e?.response?.data?.message ||
+            t("qaReorderFailed", { defaultValue: "Couldn't save the new order" }),
+          severity: "error",
+        },
+      });
+    }
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    // Suppress the navigation click that fires right after a hold/drag.
+    suppressClickRef.current = true;
+    setTimeout(() => {
+      suppressClickRef.current = false;
+    }, 80);
+    if (over && active.id !== over.id) {
+      setOrder((prev) => {
+        const oldIndex = prev.indexOf(String(active.id));
+        const newIndex = prev.indexOf(String(over.id));
+        if (oldIndex < 0 || newIndex < 0) return prev;
+        const next = arrayMove(prev, oldIndex, newIndex);
+        persistOrder(next);
+        return next;
+      });
+    }
+  };
+
+  // ── Customize dialog state ──────────────────────────────────────────────
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState<string[]>(DEFAULT_SLUGS);
   const [saving, setSaving] = useState(false);
 
   const openDialog = () => {
-    setDraft(pinned);
+    setDraft(order);
     setOpen(true);
   };
 
   const toggle = (id: string) => {
     setDraft((prev) => {
       if (prev.includes(id)) return prev.filter((x) => x !== id);
-      if (prev.length >= 4) return prev; // enforce exactly 4
+      if (prev.length >= 4) return prev;
       return [...prev, id];
     });
   };
@@ -123,6 +293,7 @@ const QuickActionsDock: React.FC = () => {
   const inkPrimary = isDark ? CB_TOKENS.ink.primaryDark : CB_TOKENS.ink.primaryLight;
   const inkMuted = isDark ? CB_TOKENS.ink.mutedDark : CB_TOKENS.ink.mutedLight;
   const available = CATALOG.filter((c) => !draft.includes(c.id));
+  const tileColors: TileColors = { border, indigo, indigoGlow, inkPrimary, isDark };
 
   const sectionLabelSx = {
     fontFamily: "var(--font-sans)",
@@ -167,53 +338,37 @@ const QuickActionsDock: React.FC = () => {
         </Tooltip>
       </Box>
 
-      <Box sx={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 1.25 }}>
-        {pinned.map((id) => {
-          const s = CATALOG_BY_ID[id];
-          if (!s) return null;
-          return (
-            <Box
-              key={s.id}
-              component={Link}
-              href={s.href}
-              data-testid={`dash2026-qa-${s.id}`}
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                gap: 1,
-                p: 1.5,
-                borderRadius: "14px",
-                textDecoration: "none",
-                border: `1px solid ${border}`,
-                cursor: "pointer",
-                outline: "none",
-                transition:
-                  "transform 150ms ease, border-color 150ms ease, background-color 150ms ease",
-                "&:hover, &:focus-visible": {
-                  transform: "translateY(-2px)",
-                  borderColor: indigo,
-                  backgroundColor: isDark ? "rgba(255,255,255,0.02)" : "rgba(10,10,15,0.015)",
-                },
-              }}
-            >
-              <Box sx={{ ...iconBadgeSx, width: 36, height: 36, borderRadius: "10px", color: indigo, backgroundColor: indigoGlow }}>
-                <Icon name={s.icon} size={18} />
-              </Box>
-              <Box
-                sx={{
-                  fontFamily: "var(--font-sans)",
-                  fontSize: 13.5,
-                  fontWeight: 600,
-                  lineHeight: 1.2,
-                  color: inkPrimary,
-                }}
-              >
-                {t(s.key, { defaultValue: s.def })}
-              </Box>
-            </Box>
-          );
-        })}
-      </Box>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragStart={() => {
+          suppressClickRef.current = true;
+        }}
+        onDragEnd={handleDragEnd}
+        onDragCancel={() => {
+          setTimeout(() => {
+            suppressClickRef.current = false;
+          }, 80);
+        }}
+      >
+        <SortableContext items={order} strategy={rectSortingStrategy}>
+          <Box sx={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 1.25 }}>
+            {order.map((id) => {
+              const c = CATALOG_BY_ID[id];
+              if (!c) return null;
+              return (
+                <SortableTile
+                  key={id}
+                  id={id}
+                  colors={tileColors}
+                  label={t(c.key, { defaultValue: c.def })}
+                  suppressClickRef={suppressClickRef}
+                />
+              );
+            })}
+          </Box>
+        </SortableContext>
+      </DndContext>
 
       {/* Customize dialog */}
       <Dialog
@@ -229,9 +384,7 @@ const QuickActionsDock: React.FC = () => {
             {t("qaCustomizeTitle", { defaultValue: "Customize quick actions" })}
           </Box>
           <Box sx={{ fontFamily: "var(--font-sans)", fontSize: 13, color: inkMuted, mt: 0.5 }}>
-            {t("qaCustomizeSubtitle2", {
-              defaultValue: "Pick 4 shortcuts and drag to reorder.",
-            })}{" "}
+            {t("qaCustomizeSubtitle2", { defaultValue: "Pick 4 shortcuts and drag to reorder." })}{" "}
             <Box component="span" data-testid="dash2026-qa-count" sx={{ color: indigo, fontWeight: 600 }}>
               {draft.length}/4
             </Box>
@@ -239,7 +392,6 @@ const QuickActionsDock: React.FC = () => {
         </Box>
 
         <DialogContent sx={{ pt: 1 }}>
-          {/* Pinned — draggable to reorder */}
           <Box sx={{ ...sectionLabelSx, mb: 1 }}>
             {t("qaPinnedLabel", { defaultValue: "Your shortcuts · drag to reorder" })}
           </Box>
@@ -301,7 +453,6 @@ const QuickActionsDock: React.FC = () => {
             })}
           </Reorder.Group>
 
-          {/* Add a shortcut — only while below 4 */}
           {available.length > 0 && draft.length < 4 && (
             <>
               <Box sx={{ ...sectionLabelSx, mt: 2.5, mb: 1 }}>

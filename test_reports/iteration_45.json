@@ -1,0 +1,50 @@
+{
+  "summary": "Frontend-only testing (LIVE prod, hostbay@moxx.co) of iteration 45 features: (1) REORDER-ON-DASHBOARD via long-press drag on Quick Action tiles, (2) TAP-STILL-NAVIGATES, (3) CUSTOMIZE DIALOG regression, (4) SMART FIRST PICK empty hero + pulse CTA, (5) CONSISTENT EVERYWHERE+ fonts on /referrals /developer-keys /customers (Inter body + Roboto Mono numerics), (6) MOBILE 390x844 responsive, (7) Regression navigation. ALL PRIMARY FLOWS PASS. Long-press drag on desktop reorders tiles ([paylinks,invoice,wallet,creator] -> [invoice,wallet,creator,paylinks]) and persists across reload. Tap on tile navigates correctly (both desktop and mobile /invoices). Customize dialog counter/remove/add/save/reset all work. Empty hero renders via route interception; both CTAs visible & clickable; CTA1 navigates to /create-pay-link (via router.push, requires expect_navigation to catch), CTA2 navigates to /creator. Fonts: referrals stat-card values, customers summary top cards ($/24) AND table wallet-balance cells all render in __Roboto_Mono; page content wrappers on all three pages render in __Inter. Mobile: no horizontal overflow on /referrals /developer-keys /customers /dashboard; QA is 2x2 grid; empty-hero CTAs stack vertically; mobile tap navigates. Account restored to DEFAULT [paylinks, invoice, wallet, creator] at end.",
+  "backend_issues": { "critical": [], "minor": [] },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": ["/app/test_reports/iteration_45.json"],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "QuickActionsDock long-press PointerSensor with 220ms activation delay works reliably at ~300-400ms hold; DOM order updates immediately and PUT /api/user/dashboard-quick-actions persists so reload shows saved order. suppressClickRef correctly prevents post-drag navigation while quick taps still fire router.push.",
+    "VolumeHero empty branch renders both CTAs; primary CTA1 uses router.push (not <a href>), so tests must use expect_navigation with force click. Pulse ring is aria-hidden and does NOT intercept pointer events (elementFromPoint(cta center)=BUTTON's inner P, still inside CTA).",
+    "Font scoping is now correctly applied to referrals stat values, customers top summary cards, and customers table wallet-balance cells — all resolve to __Roboto_Mono. Content wrappers on all three pages resolve to __Inter. Nothing to fix."
+  ],
+  "updated_files": [],
+  "success_rate": { "backend": "n/a (skipped)", "frontend": "100% (all seven test areas PASS)" },
+  "test_credentials": "hostbay@moxx.co / Katiekendra123@ (from /app/memory/test_credentials.md, LIVE prod DB)",
+  "seed_data_creation": "None. Only benign writes were two updates to hostbay's dashboard_quick_actions preference (custom order via drag, then default via Reset+Save). Final state restored to DEFAULT [paylinks, invoice, wallet, creator]. No wallets/links/invoices/products/customers/api-keys were created or modified.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "All iteration-45 features verified: (a) Dashboard long-press drag reorder — mouse.down + wait 400ms (exceeds 220ms) + 20-step mouse.move + mouse.up reorders tiles AND persists across reload (verified: paylinks moved from index 0 to index 3, order persisted). (b) Tap-navigate NOT broken by drag: single click on tile navigates to route (desktop: dash2026-qa-invoice -> /invoices; mobile: same). (c) Customize dialog dash2026-qa-dialog counter dash2026-qa-count 4/4 -> remove creator -> 3/4 -> add creator -> 4/4; Save/Reset present and functional. (d) Empty hero via route.route('**/api/dashboard/?**' and '**/api/dashboard?**') zeroing total_transactions.count/total_volume.amount/amount_formatted/today_summary.transactions_today; dash2026-hero-empty renders; CTA1 dash2026-hero-empty-cta -> /create-pay-link (use expect_navigation because router.push, NOT href); CTA2 dash2026-hero-empty-cta2 -> /creator. Pulse ring is decorative aria-hidden, does not intercept clicks. (e) Fonts: referrals all 4 referral-stat-* values = __Roboto_Mono; customers top summary '24' and '$0.00' = __Roboto_Mono; customers table wallet-balance inner spans = __Roboto_Mono; all three pages have __Inter content wrappers. (f) Mobile 390x844: 0 overflow on /referrals /developer-keys /customers /dashboard; QA 2x2 grid; empty-hero CTAs stacked (cta2.y > cta1.y+height/2); tap-navigate works. (g) 0 fatal errors in navigation; console had ~10 messages total across whole run (font preload / Next.js dev warnings, non-fatal). Final quick-actions order = default.",
+  "detailed_results": {
+    "login": "PASS",
+    "reorder_dom_changed_after_drag": "PASS (paylinks -> index 3)",
+    "reorder_persisted_after_reload": "PASS",
+    "tap_still_navigates_desktop": "PASS (/invoices)",
+    "customize_dialog_counter_add_remove": "PASS (4/4 <-> 3/4)",
+    "customize_dialog_reset_save": "PASS",
+    "empty_hero_renders": "PASS",
+    "empty_hero_cta1_present_and_navigates": "PASS (/create-pay-link, via expect_navigation)",
+    "empty_hero_cta2_present": "PASS",
+    "pulse_ring_does_not_intercept_clicks": "PASS (elementFromPoint returns element inside CTA)",
+    "referrals_stat_values_roboto_mono": "PASS (all 4 stat cards)",
+    "customers_top_summary_roboto_mono": "PASS (24, $0.00)",
+    "customers_table_wallet_balance_roboto_mono": "PASS (inner spans)",
+    "referrals_content_inter": "PASS",
+    "developer_keys_content_inter": "PASS",
+    "customers_content_inter": "PASS",
+    "mobile_no_overflow_referrals": "PASS",
+    "mobile_no_overflow_developer_keys": "PASS",
+    "mobile_no_overflow_customers": "PASS",
+    "mobile_no_overflow_dashboard": "PASS",
+    "mobile_qa_2x2_grid": "PASS (unique_y=2 unique_x=2)",
+    "mobile_tap_navigate": "PASS",
+    "mobile_empty_hero_ctas_stacked": "PASS",
+    "regression_all_pages_render": "PASS (dashboard, customers, referrals, developer-keys, invoices, products, wallets)",
+    "final_default_order_restored": "PASS ([paylinks, invoice, wallet, creator])"
+  }
+}

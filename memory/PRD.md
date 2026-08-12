@@ -1,3 +1,21 @@
+# SESSION ADDENDUM (2026-06 (fork)) — Consistent Everywhere+ · Reorder On Dashboard · Smart First Pick — VERIFIED (testing agent iteration_45, 100% / 24 checks, incl. mobile 390 & 768)
+
+## G. Consistent Everywhere+ — Inter body + Roboto-Mono figures on Customers, Referrals, API/Developer
+- `pages/customers.tsx`, `pages/referrals.tsx`, `pages/developer-keys.tsx`: content wrapped in `--font-sans → var(--font-inter)` scope (referrals numerics were already MONO; developer-keys API keys/code snippets intentionally stay system-monospace = code, not figures).
+- `Components/Page/Customers/index.tsx`: top summary card values (Total customers / Total wallet balance) + table wallet-balance, fiat-estimate, txns-count cells switched to `MONO` (Roboto Mono, tabular). VERIFIED: content=__Inter, figures=__Roboto_Mono on all three pages.
+
+## H. Reorder On Dashboard — drag Quick Action tiles directly (long-press on mobile)
+- Added deps: `@dnd-kit/core`, `@dnd-kit/sortable`, `@dnd-kit/utilities`.
+- `Components/Page/Dashboard/v2026/QuickActionsDock.tsx`: dashboard tiles wrapped in `DndContext` + `SortableContext` (rectSortingStrategy) with a `SortableTile` using `PointerSensor { activationConstraint: { delay: 220, tolerance: 6 } }` — press-and-HOLD (long-press on mobile) then drag reorders; a quick tap still navigates (Next `<Link>`). `onDragEnd` persists the arrayMove order via `PUT /api/user/dashboard-quick-actions` + `USER_PROFILE_FETCH`; a `suppressClickRef` cancels the post-drag navigation click. Local `order` state syncs to saved profile order. Customize dialog unchanged (now seeds from current order). VERIFIED: drag reorders + persists across reload; tap-navigate intact; mobile 2x2 grid + tap works.
+
+## I. Smart First Pick — pulsing empty-hero CTA
+- `Components/Page/Dashboard/v2026/VolumeHero.tsx`: the empty-hero primary CTA (`dash2026-hero-empty-cta`) is wrapped with a framer-motion pulsing box-shadow ring (`aria-hidden`, `pointerEvents:none` — does NOT intercept clicks). CTA still routes to /create-pay-link; secondary → /creator; CTAs stack on mobile.
+
+NOTE for future agents: empty-hero CTAs use `router.push` (not `<a href>`), so automated nav checks need expect_navigation/force-click. dnd-kit long-press delay is 220ms.
+
+---
+
+
 # SESSION ADDENDUM (2026-06 (fork)) — Reorder Shortcuts + Empty Hero State + Consistent Everywhere — VERIFIED (testing agent iteration_44 ~90%→100% after font fixes; functional flows 100%)
 
 Three approved follow-ups, all shipped & verified (incl. mobile 390/768):
