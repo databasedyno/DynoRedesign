@@ -354,11 +354,11 @@
   "hello": "Bonjour",
   "copyFailed": "Impossible de copier — veuillez copier manuellement",
   "invoices": {
-    "pageName": "Factures et taxes",
+    "pageName": "Reçus et taxes",
     "pageDescription": "Consultez les factures et les rapports fiscaux",
-    "tabInvoices": "Factures",
+    "tabInvoices": "Reçus",
     "tabTaxReport": "Rapport fiscal",
-    "invoicesTitle": "Factures ({{count}})",
+    "invoicesTitle": "Reçus ({{count}})",
     "colInvoiceNumber": "Facture n°",
     "colDate": "Date",
     "colCustomer": "Client",
@@ -507,6 +507,8 @@
   "statusUptimeTooltip": "{{label}} · {{uptime}} % de disponibilité (30 derniers jours)",
   "settingsPage": {
     "title": "Paramètres",
+    "planFees": "Forfait et frais",
+    "referrals": "Parrainage",
     "description": "Gérez votre compte, votre entreprise et vos intégrations",
     "profile": "Profil et sécurité",
     "profileDesc": "Informations personnelles, mot de passe et sécurité de connexion",

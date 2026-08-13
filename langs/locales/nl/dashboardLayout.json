@@ -162,5 +162,16 @@
   "walletWarnnigTitle": "Wallet-instelling",
   "wallets": "Wallets",
   "yourProgressTowardsTheNextFeeTier": "Uw voortgang naar het volgende tariefniveau",
-  "yourReferralCode": "Uw verwijzingscode"
+  "yourReferralCode": "Uw verwijzingscode",
+  "receiptsTax": "Bonnen & belasting",
+  "checkoutPage": "Afrekenpagina",
+  "payoutWallets": "Uitbetaalwallets",
+  "developers": "Ontwikkelaars",
+  "sidebarSectionGetPaid": "Word betaald",
+  "sidebarSectionMoney": "Geld",
+  "sidebarSectionSetup": "Jouw instellingen",
+  "sidebarSectionGrow": "Groeien",
+  "navNew": "Nieuw",
+  "navNewPaymentLink": "Betaallink",
+  "navNewProduct": "Product"
 }

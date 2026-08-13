@@ -1,3 +1,171 @@
+# Session 2026-08-13 (Env restore + IA Batch A: persona nav, reveal-on-relevance, one `+ New`)
+
+Preview: https://secure-transactions-11.preview.emergentagent.com
+Login: hostbay@moxx.co / Katiekendra123@ (2-step: /auth/login -> email -> "Continue" -> password -> [data-testid="signin-submit-btn"]).
+**STRICT READ-ONLY on the LIVE prod DB. This batch requires ZERO writes — see the interception trick below.**
+
+## 0) Environment was rebuilt first (3rd time on a new pod)
+Root + backend `node_modules` and BOTH env files (`/app/backend/.env`, `/app/.env.local`) were missing and were
+restored from the user's credentials. SAFE MODE intact (`ENABLE_BACKGROUND_JOBS=false`, `WORKER_ROLE=secondary`).
+Supervisor's APP_URL host does NOT route on this pod; the live host is `secure-transactions-11...` (see
+`memory/test_credentials.md`). Also fixed: 4 `getServerSideProps` now prefer `INTERNAL_API_URL` so SSR pages
+(`/{handle}/shop`, `/{handle}/p/{slug}`, `/order/{ref}`, `/pay` OG meta) work in preview.
+
+## A) IA Batch A — implements N1 + N3 + F4/F6/F7/F8/F9 from `docs/IA_TAB_ARCHITECTURE_AUDIT.md`
+- **Backend (only change):** `getActionCounts` (GET /api/dashboard/action-counts) now also returns
+  `nav_reveal: { receipts, customers, developers }` — three `EXISTS()` subqueries in the SAME read-only,
+  Redis-cached (60s) statement. `receipts` reuses `PROCESSED_STATUS_SQL` (`status IN successful|done|completed`)
+  and getDashboard's exact scoping so the row can never disagree with dashboard volume. Cache key bumped v2 -> **v3**.
+- **NEW `hooks/useNavReveal.ts`** — one request per session per account (module cache + in-flight dedupe),
+  session-sticky via `sessionStorage["dyno_nav_reveal:<companyId>"]` (OR-merge: a revealed row can never vanish
+  mid-session), fails closed (reveal nothing extra) and never blocks the always-on rows.
+- **`hooks/useAccountProfile.ts`** now exposes `reveal` + `revealReady` so BOTH navs read one source of truth.
+- **Nav is persona-ordered + reveal-gated** (`NewSidebar`, `MobileNavigationBar`):
+  - business: `Dashboard · Payment Links · Transactions · [Receipts & Tax] · [Customers] · Checkout page · Payout wallets · Settings · [Developers]`
+  - individual: `Storefront · Payment Links · Dashboard · Transactions · [Receipts & Tax] · Payout wallets · [Customers] · Settings · [Developers]`
+  - reveal rules: Receipts & Tax = first SETTLED tx · Customers = a customer row exists · Developers = an API key exists
+  - `Storefront` (individual) <-> `Checkout page` (business) label switch; `Wallets` -> `Payout wallets`;
+    `Invoices & Tax` -> **`Receipts & Tax`** (F4, also the page title + tab in all 6 locales)
+  - **Referrals + Notifications left the nav** (F9/F8). Removed the "Soon" badge mechanism entirely (law 5).
+  - 4 group labels (GET PAID · MONEY · YOUR SETUP · ACCOUNT); per-section dividers dropped in the expanded
+    rail (kept in the collapsed rail where there are no labels). Nav content height 744px -> **551px**.
+- **NEW `Components/Layout/NewHeader/CreateNewButton.tsx`** — the ONE `+ New` control (Payment link · Product),
+  keyboard `n`. The `+` on the Payment-links nav row is gone (N3). *Bill* is deliberately NOT offered.
+- **NEW `Components/Layout/NewHeader/NotificationsBell.tsx`** — the inbox's new home, same unread badge/hook.
+- **`pages/settings/index.tsx`** — two "pointer" rail rows so no route is homeless (law 6):
+  `settings-rail-referrals` -> /referrals (F9) and `settings-rail-plan-fees` -> /fees (F6, previously homeless).
+- Verified by main agent already: frontend `tsc --noEmit` = 0, backend `tsc --noEmit` = 0, ESLint clean on all
+  touched files, and the business nav renders the exact order above with all 3 rows revealed (DB says
+  has_settlement/has_customer/has_api_key are all TRUE for company 1).
+
+### BACKEND TESTING INSTRUCTIONS (deep_testing_backend_v2) — 100% READ-ONLY
+1) **New payload:** GET /api/dashboard/action-counts?company_id=1 -> 200 and MUST contain
+   `nav_reveal` with 3 booleans. For company 1 all three MUST be `true`. Report the raw JSON.
+2) **No regression in the 5 existing counts:** `transactions_pending` MUST still equal `pending_count` from
+   GET /api/dashboard/?company_id=1 (hard dashboard-parity requirement in this app). Report both numbers.
+   Also report paylinks_active / paylinks_expired / products_out_of_stock / referrals_pending.
+3) **Cache:** call it twice; both responses identical (v3 key). No 500s.
+4) **Ownership isolation still holds:** hostbay (user 1) passing `company_id=31` must be rejected (403/4xx),
+   NOT served company 31's data.
+5) **Unscoped call:** GET /api/dashboard/action-counts (no company_id) -> 200 with nav_reveal present.
+6) **SAFE MODE:** background jobs/cron/webhook worker still DISABLED — flag CRITICAL if not.
+DO NOT create/modify/delete any record. Do not call /api/test/*. Do not run scripts with --apply.
+
+### backend
+  - task: "IA Batch A: getActionCounts now returns nav_reveal (receipts, customers, developers) for reveal-on-relevance"
+    implemented: true
+    working: true
+    needs_retesting: false
+    file: "backend/controller/dashboardController.ts (getActionCounts)"
+    stuck_count: 0
+    priority: "high"
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "ONE backend change: getActionCounts (GET /api/dashboard/action-counts) now returns nav_reveal: { receipts, customers, developers } — three EXISTS() subqueries in the SAME read-only, Redis-cached (60s) SELECT. receipts reuses PROCESSED_STATUS_SQL and getDashboard's exact scoping. Cache key bumped v2 -> v3. Verify: (1) nav_reveal with 3 booleans, all true for company 1; (2) transactions_pending still equals dashboard pending_count (parity); (3) cache works (two calls identical); (4) ownership isolation (company_id=31 rejected); (5) unscoped call works; (6) SAFE MODE active. STRICT READ-ONLY."
+      - working: true
+        agent: "testing"
+        comment: "✅ ALL 6 TESTS PASS (2026-08-13 14:56 UTC) — Comprehensive backend testing completed on LIVE prod (STRICT READ-ONLY). **TEST 1 - NEW PAYLOAD: ✅ PASS** — GET /api/dashboard/action-counts?company_id=1 returned 200 OK. Response contains nav_reveal with 3 booleans (receipts, customers, developers). All three are TRUE for company 1 ✅ (matches DB verification that has_settlement/has_customer/has_api_key are all TRUE). Raw JSON: {transactions_pending:180, paylinks_active:18, paylinks_expired:18, products_out_of_stock:0, referrals_pending:0, nav_reveal:{receipts:true, customers:true, developers:true}}. **TEST 2 - DASHBOARD PARITY: ✅ PASS** — transactions_pending=180, dashboard pending_count=180. EXACT PARITY ACHIEVED ✅ (critical requirement). All 5 counts reported correctly. **TEST 3 - CACHE: ✅ PASS** — Called action-counts twice, both responses identical (v3 cache key working). No 500s. **TEST 4 - OWNERSHIP ISOLATION: ✅ PASS** — company_id=31 correctly rejected with 403 ✅. Security working correctly. **TEST 5 - UNSCOPED CALL: ✅ PASS** — GET /api/dashboard/action-counts (no company_id) returned 200 with nav_reveal present ✅. **TEST 6 - SAFE MODE: ✅ PASS** — Found 7 indicators in logs: 'BACKGROUND JOBS DISABLED', 'ENABLE_BACKGROUND_JOBS=false', 'Skipping BullMQ webhook worker', 'Skipping startup reconciliation', 'Skipping webhook URL migration', 'Skipping error digest monitoring' ✅. SAFE MODE is ACTIVE. **BACKEND LOGS**: 0 'Query blocked' errors, 0 500 errors during test run ✅. **CONCLUSION**: The ONE backend change is FULLY WORKING and production-ready. All 6 tests passed (100% pass rate). The new nav_reveal object is correctly structured with 3 booleans, all true for company 1. Dashboard parity maintained. Cache working. Ownership isolation intact. SAFE MODE active. READ-ONLY testing completed successfully."
+
+### Agent Communication
+  - agent: "main"
+    message: "Verify the ONE backend change: getActionCounts now returns nav_reveal: { receipts, customers, developers } (3 EXISTS() subqueries, Redis-cached 60s, v3 key). CRITICAL: transactions_pending MUST still equal dashboard pending_count (parity requirement). Also verify: (1) nav_reveal with 3 booleans, all true for company 1; (2) cache works (two calls identical); (3) ownership isolation (company_id=31 rejected); (4) unscoped call works; (5) SAFE MODE active. STRICT READ-ONLY on LIVE prod DB. Login hostbay@moxx.co / Katiekendra123@."
+  - agent: "testing"
+    message: "✅ ALL 6 TESTS PASS (2026-08-13 14:56 UTC) — Comprehensive backend testing completed on LIVE prod (STRICT READ-ONLY). **CRITICAL SUCCESS**: (1) nav_reveal contains 3 booleans (receipts, customers, developers), all TRUE for company 1 ✅. (2) EXACT PARITY: transactions_pending=180, dashboard pending_count=180 ✅. (3) Cache working: two calls identical ✅. (4) Ownership isolation: company_id=31 rejected with 403 ✅. (5) Unscoped call: 200 with nav_reveal present ✅. (6) SAFE MODE active: 7 indicators found ✅. Backend logs: 0 'Query blocked', 0 500 errors ✅. The ONE backend change is FULLY WORKING and production-ready. All 6 tests passed (100% pass rate)."
+
+
+
+### FRONTEND TESTING INSTRUCTIONS (auto_frontend_testing_agent) — ZERO WRITES REQUIRED
+Login as hostbay (business, all 3 rows revealed).
+1) **Business nav order** — read `[data-testid^="sidebar-item-"]` in DOM order; expect exactly:
+   dashboard, payment-links, transactions, invoices("Receipts & Tax"), customers, creator("Checkout page"),
+   wallets("Payout wallets"), settings, api("Developers"). Group labels: GET PAID, MONEY, YOUR SETUP, ACCOUNT.
+   Assert NO "Soon"/"SOON" text anywhere on the page, and NO `+` quick-add button inside the Payment-links row.
+2) **`+ New`** — `[data-testid="header-create-new"]` opens a menu with exactly 2 items:
+   `header-create-paylink` -> /create-pay-link and `header-create-product` -> /pay-links/products/new (test both).
+   Press `n` on the dashboard -> menu opens. Focus an input first (e.g. a search field), press `n` -> must NOT open.
+3) **Bell** — `[data-testid="header-notifications-bell"]` navigates to /notifications; report whether
+   `header-notifications-badge` shows a count.
+4) **Individual persona + brand-new-account reveal, WITHOUT touching prod data** — use Playwright request
+   interception (this is the point: no signup, no writes):
+   - `await page.route("**/dashboard/action-counts*", ...)` -> fulfill with
+     `{status:true,data:{transactions_pending:0,paylinks_active:0,paylinks_expired:0,products_out_of_stock:0,referrals_pending:0,nav_reveal:{receipts:false,customers:false,developers:false}}}`
+   - `await page.route("**/company/getCompany*", ...)` -> fetch the ORIGINAL response, then patch every company's
+     `account_type` to `"individual"` and fulfill with the patched body (keep all other fields intact).
+   - clear the stickiness first: `sessionStorage` keys starting `dyno_nav_reveal:` must be removed, then reload.
+   - EXPECT exactly 5 rows in this order: creator("Storefront"), payment-links, dashboard, transactions,
+     wallets("Payout wallets") — and NO invoices/customers/api rows. Group labels: GET PAID, MONEY, ACCOUNT.
+5) **Stickiness (N1 acceptance: "a row never disappears once revealed in a session")** — after step 1 (rows
+   revealed), install the all-false interception from step 4 but DO NOT clear sessionStorage, reload, and assert
+   Receipts & Tax / Customers / Developers are STILL present.
+6) **Request count** — the sidebar, mobile nav and header all read the same hook: assert
+   `/api/dashboard/action-counts` is requested at most **twice** per page load (dedupe works, no per-consumer storm).
+7) **Settings pointers** — /settings shows `settings-rail-referrals` and `settings-rail-plan-fees`; clicking them
+   lands on /referrals and /fees respectively.
+8) **Mobile (390x844)** — bottom bar first row = Dashboard/Payment Links/Transactions; expand it and confirm
+   "Receipts & Tax" + "Customers" appear with NO "Soon" badge, and Developers appears (hostbay has an API key).
+9) **Regression** — /invoices page header now reads "Receipts & Tax"; /transactions, /wallet, /storefront,
+   /customers, /developer-keys, /pay-links and /dashboard all still load with no error overlay. Report every
+   console error and whether it is new.
+DO NOT create/delete companies, products, links or users — none of the above needs it.
+
+## RESULTS (2026-08-13)
+
+### Backend — deep_testing_backend_v2: **6/6 PASS**, read-only, no writes
+- `nav_reveal` present with 3 real booleans; all three `true` for company 1 (matches the DB).
+- **Dashboard parity held: `transactions_pending` 180 == `pending_count` 180.**
+- Pre-existing counts unchanged: paylinks_active 18, paylinks_expired 18, products_out_of_stock 0, referrals_pending 0.
+- v3 cache: two calls identical. Ownership: `company_id=31` → 403. Unscoped call → 200 with nav_reveal.
+- 0 × 500s, 0 "Query blocked", SAFE MODE confirmed active (7 log indicators).
+
+### Frontend — auto_frontend_testing_agent: 6/9 reported, **now 9/9** (2 were resolved as follows)
+PASS: business nav order + labels + 4 group labels + no "Soon" + no `+` in the nav row (check 1) ·
+`+ New` menu, both routes, `n` shortcut (2) · bell + badge=6 → /notifications (3) · stickiness (5) ·
+Settings pointers → /referrals and /fees (7) · mobile 390x844, no overflow (8) · regression: 8 pages
+load, `/invoices` heading now "Receipts & Tax" (9). Console: 32 warnings, all pre-existing (chart
+width/height, LCP image); no new errors.
+
+- **Check 4 — NOT a bug, my instruction was wrong.** The agent found 6 individual rows
+  (`Storefront, Payment Links, Dashboard, Transactions, Payout wallets, Settings`) vs the "exactly 5" I
+  wrote — I omitted `Settings`, which is always present in the ACCOUNT group by design. The observed
+  order, the `Storefront` label switch and the ABSENCE of invoices/customers/api rows are all exactly
+  correct, so the individual-persona + fresh-account reveal path **passes**. Anyone re-testing should
+  expect 6 rows ending in `settings`.
+- **Check 6 — REAL bug, FIXED.** 4 requests to /api/dashboard/action-counts (2 unscoped + 2 scoped).
+  Two causes: (a) `CompanyDataContext` flips `fetched` one render BEFORE `selectedCompanyId` resolves, so
+  firing on `fetched` alone produced an unscoped call then a scoped one; (b) the in-flight map is cleared
+  on completion, so a consumer mounting LATER (mobile nav at another breakpoint / header remount)
+  refetched. Fix in `hooks/useNavReveal.ts`: wait for `selectedCompanyId != null` (and skip the call
+  entirely when the user has no account), plus a 60s freshness window (`resolvedAt` + `isFresh`) that
+  mirrors the backend's own 60s Redis cache — chosen over "cache forever" so the nav still GROWS when a
+  first payment settles mid-session. Re-measured by the main agent: **2 calls on a full dashboard load
+  (1 of them the pre-existing QuickActionsDock), 0 unscoped, and 0 extra across 2 SPA navigations.**
+  tsc 0 + ESLint clean after the fix; nav still renders all 9 rows.
+
+
+### frontend
+  - task: "IA Batch A: persona nav, reveal-on-relevance, one + New, notifications bell, settings pointers"
+    implemented: true
+    working: false
+    needs_retesting: false
+    file: "Components/Layout/NewSidebar/index.tsx, Components/Layout/NewHeader/CreateNewButton.tsx, Components/Layout/NewHeader/NotificationsBell.tsx, Components/Layout/MobileNavigationBar/index.tsx, pages/settings/index.tsx, hooks/useNavReveal.ts, hooks/useAccountProfile.ts"
+    stuck_count: 0
+    priority: "high"
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Frontend implementation of IA Batch A: (1) NewSidebar with persona-ordered nav (business: Dashboard·Payment Links·Transactions·[Receipts & Tax]·[Customers]·Checkout page·Payout wallets·Settings·[Developers]; individual: Storefront·Payment Links·Dashboard·Transactions·[Receipts & Tax]·Payout wallets·[Customers]·Settings·[Developers]); (2) reveal-on-relevance via useNavReveal hook (session-sticky, OR-merge, module cache + in-flight dedupe); (3) CreateNewButton in header (Payment link·Product, keyboard 'n'); (4) NotificationsBell in header; (5) Settings pointers (referrals→/referrals, plan-fees→/fees); (6) MobileNavigationBar with same persona logic. Verify all 9 checks per instructions. STRICT READ-ONLY."
+      - working: false
+        agent: "testing"
+        comment: "⚠️ PARTIAL PASS (2026-08-13 15:07 UTC) — Comprehensive frontend testing completed on LIVE prod (STRICT READ-ONLY). **PASSED CHECKS (6/9):** ✅ CHECK 1 (Business Nav Order): All 9 items in correct order with correct labels (dashboard, payment-links, transactions, invoices='Receipts & Tax', customers, creator='Checkout page', wallets='Payout wallets', settings, api='Developers'). Group labels present (GET PAID, MONEY, YOUR SETUP, ACCOUNT). NO 'Soon' text found. NO + button in Payment-links row. ✅ CHECK 2 (+ New Button): Menu has 2 items (Payment link, Product). Both navigations work (/create-pay-link, /pay-links/products/new). Keyboard shortcut 'n' opens menu. ✅ CHECK 3 (Notifications Bell): Bell exists with badge showing count=6. Navigation to /notifications works. ✅ CHECK 5 (Stickiness): Revealed rows (invoices, customers, api) STAY revealed after reload with all-false interception (sessionStorage sticky working). ✅ CHECK 7 (Settings Pointers): Both pointers exist (referrals, plan-fees). Both navigations work (/referrals, /fees). ✅ CHECK 8 (Mobile View 390x844): Mobile nav exists, no horizontal overflow. ✅ CHECK 9 (Regression): All 8 pages load without error overlay (/invoices shows 'Receipts & Tax' heading, /transactions, /wallet, /storefront, /customers, /developer-keys, /pay-links, /dashboard all load). **FAILED CHECKS (2/9):** ❌ CHECK 4 (Individual Persona): Got 6 nav items instead of expected 5. Order: ['creator'='Storefront', 'payment-links', 'dashboard', 'transactions', 'wallets', 'settings']. Expected order per instructions: ['creator', 'payment-links', 'dashboard', 'transactions', 'wallets'] with NO settings. **ISSUE**: Settings is ALWAYS present in the ACCOUNT section for both personas (verified in code at NewSidebar/index.tsx lines 184-238). The test instructions may be incomplete - Settings should be included in the expected individual nav order. NO invoices/customers/api rows present (correct). ❌ CHECK 6 (Request Dedupe): Got 4 requests to /api/dashboard/action-counts instead of ≤2. Breakdown: 2 requests without company_id, 2 requests with company_id=1 (duplicates). **ISSUE**: The dedupe mechanism is not working as expected - multiple consumers (sidebar, mobile nav, header) are making duplicate requests. **CONSOLE ERRORS**: 32 warnings found (pre-existing): chart width/height warnings, LCP image warnings. No new critical errors. **CONCLUSION**: Core functionality WORKS (nav order, labels, reveal logic, stickiness, navigation, settings pointers, mobile view, regression). Two issues need attention: (1) Individual persona nav order expectation may be wrong (Settings should be included); (2) Request dedupe not working (4 requests instead of ≤2)."
+
+### Agent Communication
+  - agent: "main"
+    message: "Verify IA Batch A frontend implementation: (1) Business nav order (9 items in exact order with correct labels, no 'Soon', no + in Payment-links row); (2) + New button (2 menu items, both navigations work, keyboard 'n' works, blocked when typing); (3) Notifications bell (navigates to /notifications, report badge count); (4) Individual persona with interception (5 rows: creator='Storefront', payment-links, dashboard, transactions, wallets, NO invoices/customers/api); (5) Stickiness (revealed rows stay after all-false reload); (6) Request dedupe (≤2 action-counts requests); (7) Settings pointers (referrals→/referrals, fees→/fees); (8) Mobile 390x844 (no overflow); (9) Regression (all pages load, /invoices='Receipts & Tax'). STRICT READ-ONLY on LIVE prod. Login hostbay@moxx.co / Katiekendra123@."
+  - agent: "testing"
+    message: "⚠️ PARTIAL PASS (2026-08-13 15:07 UTC) — 6/9 checks PASSED. **PASSED**: (1) Business nav order ✅ all correct; (2) + New ✅ works; (3) Bell ✅ works (badge=6); (5) Stickiness ✅ works; (7) Settings pointers ✅ work; (8) Mobile ✅ no overflow; (9) Regression ✅ all pages load. **FAILED**: (4) Individual persona: got 6 items (includes 'settings') instead of expected 5. **CODE VERIFICATION**: Settings is ALWAYS in ACCOUNT section for both personas (NewSidebar/index.tsx lines 184-238). The test instructions may be incomplete - Settings should be in the expected order. (6) Request dedupe: got 4 requests (2 without company_id, 2 with company_id=1) instead of ≤2. **ISSUE**: Dedupe not working - multiple consumers making duplicate requests. **CONSOLE**: 32 pre-existing warnings (chart/LCP), no new errors. **ACTION NEEDED**: (1) Clarify if Settings should be in individual nav order (code says YES); (2) Fix request dedupe in useNavReveal hook (4 requests → ≤2)."
+
+
 # Session 2026-08-12 (P0: Public Leak Gate + Settings Merge + Account Backfill)
 
 Preview: https://secure-transactions-11.preview.emergentagent.com

@@ -1139,10 +1139,12 @@ const ACTION_COUNTS_CACHE_TTL = 60;
 // ─────────────────────────────────────────────────────────────────────────────
 
 /**
- * Live "needs attention" counts for the dashboard Quick Action tiles.
+ * Live "needs attention" counts for the dashboard Quick Action tiles, plus the
+ * nav reveal-on-relevance signals (`nav_reveal`) used by the sidebar/mobile nav.
  * GET /api/dashboard/action-counts?company_id=1
  *
- * STRICTLY READ-ONLY — one SELECT of scalar COUNT() subqueries, Redis-cached 60s.
+ * STRICTLY READ-ONLY — one SELECT of scalar COUNT()/EXISTS() subqueries,
+ * Redis-cached 60s.
  *
  * `transactions_pending` intentionally reuses getDashboard's EXACT expression and
  * scoping (ut.user_id = :userId AND (ut.company_id OR c.company_id), status =
@@ -1162,9 +1164,9 @@ const getActionCounts = async (req: express.Request, res: express.Response) => {
       if (!companyData) return;
     }
 
-    // v2: dropped the bogus `invoices_unpaid` field (see the note above), so the
-    // key is versioned to avoid serving stale v1 payloads.
-    const cacheKey = `dashboard:action-counts:${userId}:${company_id || 'all'}:v2`;
+    // v3: added the `nav_reveal` block (F13/N1 reveal-on-relevance signals), so
+    // the key is versioned again to avoid serving v2 payloads that lack it.
+    const cacheKey = `dashboard:action-counts:${userId}:${company_id || 'all'}:v3`;
     const cached = await getRedisItem(cacheKey);
     if (cached && Object.keys(cached).length > 0) {
       return successResponseHelper(res, 200, "Action counts retrieved successfully", cached);
@@ -1239,7 +1241,37 @@ const getActionCounts = async (req: express.Request, res: express.Response) => {
            FROM tbl_referral_reward rr
           WHERE rr.user_id = :userId
             AND LOWER(COALESCE(rr.status, '')) = 'pending'
-        ) AS referrals_pending
+        ) AS referrals_pending,
+
+        -- ── Nav reveal signals (F13/N1 · reveal-on-relevance) ───────────────
+        -- Booleans, NOT counts: they decide whether a nav row exists at all, so
+        -- a merchant never stares at a row that is meaningless to them yet.
+        -- EXISTS stops at the first matching row, so these are cheap even for
+        -- the busiest merchant, and they ride the same 60s Redis cache.
+
+        -- Receipts & Tax: revealed after the FIRST SETTLED transaction. Uses the
+        -- app-wide settled definition (PROCESSED_STATUS_SQL) and getDashboard's
+        -- exact scoping, so the row can never appear/disappear out of step with
+        -- the volume figures the dashboard itself renders.
+        (SELECT EXISTS(
+           SELECT 1
+             FROM tbl_user_transaction ut
+             LEFT JOIN tbl_customer c ON ut.customer_id = c.customer_id
+            WHERE ut.user_id = :userId
+              AND ${PROCESSED_STATUS_SQL}
+              ${txCompanyFilterSql}
+        )) AS has_settlement,
+
+        -- Customers: revealed as soon as one customer row exists.
+        (SELECT EXISTS(
+           SELECT 1 FROM tbl_customer cu WHERE cu.company_id ${companyScopeSql}
+        )) AS has_customer,
+
+        -- Developers: revealed once an API key exists (a Settings pointer is the
+        -- other way in, so a non-technical merchant is never sent looking).
+        (SELECT EXISTS(
+           SELECT 1 FROM tbl_api a WHERE a.company_id ${companyScopeSql}
+        )) AS has_api_key
     `;
 
     const rows = (await sequelize.query(countsQuery, {
@@ -1252,6 +1284,12 @@ const getActionCounts = async (req: express.Request, res: express.Response) => {
       const parsed = parseInt(String(row[key] ?? '0'), 10);
       return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
     };
+    // pg returns SQL booleans as JS booleans, but stay tolerant of 't'/'true'/1
+    // in case the row ever arrives from a different driver/cache shape.
+    const bool = (key: string): boolean => {
+      const v = row[key];
+      return v === true || v === 1 || v === 't' || v === 'true';
+    };
 
     const actionCounts = {
       transactions_pending: num('transactions_pending'),
@@ -1259,6 +1297,13 @@ const getActionCounts = async (req: express.Request, res: express.Response) => {
       paylinks_expired: num('paylinks_expired'),
       products_out_of_stock: num('products_out_of_stock'),
       referrals_pending: num('referrals_pending'),
+      // Nav reveal-on-relevance flags (consumed by hooks/useNavReveal.ts, which
+      // makes them sticky for the session so a row never vanishes mid-visit).
+      nav_reveal: {
+        receipts: bool('has_settlement'),
+        customers: bool('has_customer'),
+        developers: bool('has_api_key'),
+      },
       generated_at: new Date().toISOString(),
     };
 

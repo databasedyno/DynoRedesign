@@ -354,11 +354,11 @@
   "hello": "Olá",
   "copyFailed": "Não foi possível copiar — copie manualmente",
   "invoices": {
-    "pageName": "Faturas e Impostos",
+    "pageName": "Recibos e impostos",
     "pageDescription": "Veja faturas e relatórios de impostos",
-    "tabInvoices": "Faturas",
+    "tabInvoices": "Recibos",
     "tabTaxReport": "Relatório de impostos",
-    "invoicesTitle": "Faturas ({{count}})",
+    "invoicesTitle": "Recibos ({{count}})",
     "colInvoiceNumber": "Fatura nº",
     "colDate": "Data",
     "colCustomer": "Cliente",
@@ -507,6 +507,8 @@
   "statusUptimeTooltip": "{{label}} · {{uptime}}% de disponibilidade (últimos 30 dias)",
   "settingsPage": {
     "title": "Configurações",
+    "planFees": "Plano e taxas",
+    "referrals": "Indicações",
     "description": "Gerencie sua conta, empresa e configurações de integração",
     "profile": "Perfil e segurança",
     "profileDesc": "Dados pessoais, senha e segurança de login",

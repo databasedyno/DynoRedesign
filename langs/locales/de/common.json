@@ -354,11 +354,11 @@
   "EmptyPaymentLinkTitle": "Noch keine Zahlungslinks",
   "EmptyPaymentLinkDescription": "Zahlungslinks sind teilbare URLs, über die Kunden Sie in Krypto bezahlen können. Erstellen Sie einen und teilen Sie ihn.",
   "invoices": {
-    "pageName": "Rechnungen & Steuern",
+    "pageName": "Belege & Steuern",
     "pageDescription": "Rechnungen und Steuerberichte ansehen",
-    "tabInvoices": "Rechnungen",
+    "tabInvoices": "Belege",
     "tabTaxReport": "Steuerbericht",
-    "invoicesTitle": "Rechnungen ({{count}})",
+    "invoicesTitle": "Belege ({{count}})",
     "colInvoiceNumber": "Rechnung Nr.",
     "colDate": "Datum",
     "colCustomer": "Kunde",
@@ -507,6 +507,8 @@
   "statusUptimeTooltip": "{{label}} · {{uptime}} % Verfügbarkeit (letzte 30 Tage)",
   "settingsPage": {
     "title": "Einstellungen",
+    "planFees": "Tarif & Gebühren",
+    "referrals": "Empfehlungen",
     "description": "Verwalten Sie Konto, Unternehmen und Integrations-Konfiguration",
     "profile": "Profil & Sicherheit",
     "profileDesc": "Persönliche Daten, Passwort und Login-Sicherheit",

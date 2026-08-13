@@ -5,6 +5,63 @@
 
 ---
 
+## STATUS — updated 2026-08-13 (read this first; it supersedes the ✅/priority marks below)
+
+**Batch A "the chrome" SHIPPED** — verified on the live prod DB (backend 6/6, frontend 8/9 with the two
+misses explained below). It closed **N1 (F13) · N3 (F3) · F4 · F6 · F7 · F8 · F9**, plus F14 earlier.
+
+| What | State |
+|---|---|
+| F14 route loader | ✅ shipped (earlier session) |
+| **F13 / N1** persona nav + reveal-on-relevance | ✅ shipped 2026-08-13 |
+| **F3 / N3** one `+ New` in the header | ✅ shipped 2026-08-13 |
+| **F4** *Invoices & Tax* → **Receipts & Tax** (nav + page title + tab, 6 locales) | ✅ shipped |
+| **F6** Fees given a home (*Plan & fees* pointer in Settings) | ✅ shipped |
+| **F7** Customers ships for real; the *Soon* badge MECHANISM was deleted (law 5) | ✅ shipped |
+| **F8** Notifications left the nav → header bell (same unread badge) | ✅ shipped |
+| **F9** Referrals left the nav → footer card + Settings pointer | ✅ shipped |
+| **F1 / N2** product sales inline + retire the 3rd order surface | ⏳ Batch C |
+| **F5 / N4** Developers home (Keys · Webhooks · Events · Docs) | ⏳ Batch B |
+| **F11** Settings → 4 groups, *Company* → *Account details* | ⏳ Batch B |
+| **F2** Storefront analytics → one deep-link strip | ⏳ Batch C |
+| F10, F12 | ⏳ not started |
+| §7 I1–I7 revenue ideas | ⏳ none started (I6's SSR prerequisite is now fixed) |
+
+### §8 open questions — ANSWERED by the founder 2026-08-13
+1. **Q1 naming:** persona-specific. `Storefront` for individuals, **`Checkout page`** for business — a
+   business has no catalog to "front" (1 product exists platform-wide, and 4 of 5 accounts are business).
+   Still outstanding sprawl: the dashboard tile says *Your page* and the legacy route says *creator* —
+   one name should win everywhere.
+2. **Q3 Customers:** ship it, revealed once a customer row exists (142 customer rows across 3 of 5
+   accounts, but only 2 repeat buyers — so the row is real, the "paid me twice" job is still thin).
+3. **Q4 reveal-on-relevance:** **yes**, session-sticky, with every hidden row still reachable from
+   Settings. The data made the case: only 1 of 5 accounts has an invoice row and only 2 of 5 have an API
+   key, so most merchants were carrying 2–3 permanently-empty rows.
+4. **Q2 real invoicing:** **not on the roadmap now** → *Receipts & Tax* stays a leaf, and `Bill` is
+   deliberately absent from `+ New`. 6 invoices exist in total and 39 of 46 links sit in `pending`: the
+   product is "share a link, get paid now", not "send a bill and wait". If receivables are ever wanted,
+   **I1 expired-link rescue** delivers most of it without inventing a new object.
+
+### Deviations + notes from the Batch A build
+- **Group count:** the persona orders in §6/N1 cannot be expressed as ≤4 *contiguous* semantic groups, so
+  the business rail uses `Dashboard` (no label) · **GET PAID** · **MONEY** · **YOUR SETUP** · **ACCOUNT`**
+  and the individual rail uses **GET PAID** · **MONEY** · **ACCOUNT** — 4 labels, as targeted.
+- **Customers** sits at the end of the MONEY group rather than under a one-row `GROW` heading: a heading
+  costs the same vertical space as a nav row, and this rail's height is the scarce resource.
+- **Per-section dividers were dropped** in the expanded rail (kept in the collapsed rail, which has no
+  labels). Nav content height went **744px → 551px**, so the whole rail now fits at 1080p; before this,
+  ~271px — Customers, Settings and Developers — was below the fold.
+- **The real space hog is the footer:** the referral card + Help & Support own ~240px of the rail, more
+  than five nav rows. Worth a look before adding any further row.
+- **Reveal signals** ride the existing `GET /api/dashboard/action-counts` (3 extra `EXISTS()` in the same
+  read-only, Redis-cached statement; cache key v2→v3) and are consumed through `hooks/useNavReveal.ts`:
+  one request per account per 60s no matter how many consumers, session-sticky so a revealed row can
+  never vanish mid-visit, and fails closed. `receipts` reuses `PROCESSED_STATUS_SQL` so it can never
+  disagree with the dashboard's own volume figures (parity re-verified: 180 = 180).
+
+
+---
+
 ## 0. Verdict in one paragraph
 
 The last audit fixed **who owns an object** (one `Account` tenant) and **how many objects exist**

@@ -162,5 +162,16 @@
   "walletWarnnigTitle": "configuración de billetera",
   "wallets": "Billeteras",
   "yourProgressTowardsTheNextFeeTier": "Tu progreso hacia el siguiente nivel de comisiones",
-  "yourReferralCode": "Tu Código de Referido"
+  "yourReferralCode": "Tu Código de Referido",
+  "receiptsTax": "Recibos e impuestos",
+  "checkoutPage": "Página de pago",
+  "payoutWallets": "Carteras de cobro",
+  "developers": "Desarrolladores",
+  "sidebarSectionGetPaid": "Cobrar",
+  "sidebarSectionMoney": "Dinero",
+  "sidebarSectionSetup": "Tu configuración",
+  "sidebarSectionGrow": "Crecer",
+  "navNew": "Nuevo",
+  "navNewPaymentLink": "Enlace de pago",
+  "navNewProduct": "Producto"
 }

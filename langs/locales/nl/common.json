@@ -354,11 +354,11 @@
   "EmptyPaymentLinkTitle": "Nog geen betaallinks",
   "EmptyPaymentLinkDescription": "Betaallinks zijn deelbare URL's waarmee klanten je in crypto kunnen betalen. Maak er een en deel het.",
   "invoices": {
-    "pageName": "Facturen & Belasting",
+    "pageName": "Bonnen & belasting",
     "pageDescription": "Bekijk facturen en belastingrapporten",
-    "tabInvoices": "Facturen",
+    "tabInvoices": "Bonnen",
     "tabTaxReport": "Belastingrapport",
-    "invoicesTitle": "Facturen ({{count}})",
+    "invoicesTitle": "Bonnen ({{count}})",
     "colInvoiceNumber": "Factuurnr.",
     "colDate": "Datum",
     "colCustomer": "Klant",
@@ -507,6 +507,8 @@
   "statusUptimeTooltip": "{{label}} · {{uptime}}% uptime (afgelopen 30 dagen)",
   "settingsPage": {
     "title": "Instellingen",
+    "planFees": "Pakket & kosten",
+    "referrals": "Verwijzingen",
     "description": "Beheer uw account, bedrijf en integratie-instellingen",
     "profile": "Profiel & beveiliging",
     "profileDesc": "Persoonlijke gegevens, wachtwoord en inlogbeveiliging",

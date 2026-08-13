@@ -162,5 +162,16 @@
   "walletWarnnigTitle": "Wallet-Einrichtung",
   "wallets": "Wallets",
   "yourProgressTowardsTheNextFeeTier": "Ihr Fortschritt zur nächsten Gebührenstufe",
-  "yourReferralCode": "Ihr Empfehlungscode"
+  "yourReferralCode": "Ihr Empfehlungscode",
+  "receiptsTax": "Belege & Steuern",
+  "checkoutPage": "Checkout-Seite",
+  "payoutWallets": "Auszahlungs-Wallets",
+  "developers": "Entwickler",
+  "sidebarSectionGetPaid": "Geld erhalten",
+  "sidebarSectionMoney": "Geld",
+  "sidebarSectionSetup": "Deine Einrichtung",
+  "sidebarSectionGrow": "Wachstum",
+  "navNew": "Neu",
+  "navNewPaymentLink": "Zahlungslink",
+  "navNewProduct": "Produkt"
 }

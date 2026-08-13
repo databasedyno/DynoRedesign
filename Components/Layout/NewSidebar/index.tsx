@@ -1,12 +1,9 @@
 import useIsMobile from "@/hooks/useIsMobile";
 import { useSidebarCollapsed } from "@/hooks/useSidebarCollapsed";
-import { useUnreadNotificationsCount } from "@/hooks/useUnreadNotificationsCount";
 import SidebarIcon from "@/utils/customIcons/sidebar-icons";
-import AddIcon from "@mui/icons-material/Add";
 import AutoAwesomeRounded from "@mui/icons-material/AutoAwesomeRounded";
 import ChevronLeftRounded from "@mui/icons-material/ChevronLeftRounded";
 import ChevronRightRounded from "@mui/icons-material/ChevronRightRounded";
-import GroupAddRounded from "@mui/icons-material/GroupAddRounded";
 import SettingsRounded from "@mui/icons-material/SettingsRounded";
 import { Box, Button, ClickAwayListener, Divider, Fade, IconButton, Popper, Tooltip, useTheme } from "@mui/material";
 import { useRouter } from "next/router";
@@ -14,8 +11,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { rootReducer } from "@/utils/types";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import { TransactionAction, TRANSACTION_FETCH } from "@/Redux/Actions/TransactionAction";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import useAccountProfile from "@/hooks/useAccountProfile";
 import ReferralAndKnowledge from "../ReferralAndKnowledge";
 import { BRAND_ACCENT } from "@/constants/theme";
 import { navAccent } from "@/helpers/navAccent";
@@ -23,7 +21,6 @@ import {
   IconBox,
   Menu,
   MenuItem,
-  QuickAddButton,
   SectionLabel,
   SidebarWrapper,
 } from "./styled";
@@ -32,10 +29,7 @@ interface SidebarItem {
   label: string;
   icon: string;
   path: string;
-  plus?: boolean;
   isNew?: boolean;
-  // "Coming soon" flag — renders the item as disabled with a "Soon" badge.
-  soon?: boolean;
 }
 
 interface SidebarSection {
@@ -64,7 +58,6 @@ const NewSidebar = () => {
   // instead of showing a skeleton for the whole backend round-trip.
   const prefetchNav = useCallback(
     (item: SidebarItem) => {
-      if ((item as any).soon) return;
       try {
         router.prefetch(item.path);
       } catch {
@@ -86,7 +79,6 @@ const NewSidebar = () => {
     },
     [router, dispatch, selectedCompanyId, txLoadedCompany, txLoading],
   );
-  const unreadNotifications = useUnreadNotificationsCount();
   // Only surface the "Creator page" NEW pill for merchants who haven't
   // published yet. Once they've set a handle & enabled the page, the pill
   // disappears — feature is now theirs, no need for the marketing badge.
@@ -137,44 +129,114 @@ const NewSidebar = () => {
   useEffect(() => {
     const paths = [
       "/dashboard", "/transactions", "/invoices", "/pay-links",
-      "/wallet", "/customers", "/developer-keys", "/referrals",
-      "/notifications", "/create-pay-link", "/settings", "/storefront",
+      "/wallet", "/customers", "/developer-keys",
+      "/create-pay-link", "/settings", "/storefront",
     ];
     paths.forEach((p) => router.prefetch(p));
   }, []);
   const { t } = useTranslation("dashboardLayout");
 
-  const sections: SidebarSection[] = [
-    {
-      label: t("sidebarSectionMain"),
-      items: [
-        { label: t("dashboard"), icon: "dashboard", path: "/dashboard" },
-        { label: t("transactions"), icon: "transactions", path: "/transactions" },
-        { label: t("invoicesTax"), icon: "invoices", path: "/invoices" },
-      ],
-    },
-    {
-      label: t("sidebarSectionPayments"),
-      items: [
-        { label: t("payLinks"), icon: "payment-links", path: "/pay-links", plus: true },
-        // Storefront = the merchant's ONE public page: look & bio, products and
-        // the share tools. Replaces the old separate "Creator page" + "Products"
-        // entries, which each configured a different part of the same URL.
-        { label: t("storefront", { defaultValue: "Storefront" }), icon: "creator", path: "/storefront", isNew: !hasClaimedCreator },
-        { label: t("wallets"), icon: "wallets", path: "/wallet" },
-        { label: t("customers"), icon: "customers", path: "/customers", soon: true },
-      ],
-    },
-    {
+  // ── Persona nav + reveal-on-relevance (audit F13 / N1) ─────────────────────
+  // A creator opens on the thing that makes them money (their page); a business
+  // opens on reconciliation. Three rows are revealed only once they mean
+  // something (see hooks/useNavReveal.ts) — replacing the old "Soon" badge,
+  // which law 5 of the audit forbids. Referrals and Notifications left the nav
+  // (F9/F8): Referrals keeps its footer card + a Settings home, Notifications
+  // lives in the header bell. Fees has no row (F6) — it is Settings → Payments.
+  const { isIndividual, reveal } = useAccountProfile();
+
+  const sections: SidebarSection[] = useMemo(() => {
+    const dashboard: SidebarItem = { label: t("dashboard"), icon: "dashboard", path: "/dashboard" };
+    const payLinks: SidebarItem = { label: t("payLinks"), icon: "payment-links", path: "/pay-links" };
+    // Storefront = the merchant's ONE public page: look & bio, products and the
+    // share tools. Same object, two names: it is the PRODUCT for a creator and
+    // the CHECKOUT PAGE for a business (audit Q1).
+    const publicPage: SidebarItem = {
+      label: isIndividual
+        ? t("storefront", { defaultValue: "Storefront" })
+        : t("checkoutPage", { defaultValue: "Checkout page" }),
+      icon: "creator",
+      path: "/storefront",
+      isNew: !hasClaimedCreator,
+    };
+    const transactions: SidebarItem = { label: t("transactions"), icon: "transactions", path: "/transactions" };
+    // F4: honest naming — every row in tbl_invoice is a RECEIPT for money already
+    // received, never a receivable.
+    const receipts: SidebarItem = {
+      label: t("receiptsTax", { defaultValue: "Receipts & Tax" }),
+      icon: "invoices",
+      path: "/invoices",
+    };
+    const wallets: SidebarItem = {
+      label: t("payoutWallets", { defaultValue: "Payout wallets" }),
+      icon: "wallets",
+      path: "/wallet",
+    };
+    const customers: SidebarItem = { label: t("customers"), icon: "customers", path: "/customers" };
+    const settings: SidebarItem = { label: t("settings"), icon: "settings", path: "/settings" };
+    const developers: SidebarItem = {
+      label: t("developers", { defaultValue: "Developers" }),
+      icon: "api",
+      path: "/developer-keys",
+    };
+
+    const grow: SidebarSection[] = [];
+    const account: SidebarSection = {
       label: t("sidebarSectionAccount"),
-      items: [
-        { label: t("api"), icon: "api", path: "/developer-keys" },
-        { label: t("referrals"), icon: "referrals", path: "/referrals" },
-        { label: t("notifications"), icon: "notifications", path: "/notifications" },
-        { label: t("settings"), icon: "settings", path: "/settings" },
-      ],
-    },
-  ];
+      items: reveal.developers ? [settings, developers] : [settings],
+    };
+
+    if (isIndividual) {
+      // Storefront · Payment links · Dashboard · Transactions · [Receipts] · Payout wallets · [Customers]
+      return [
+        {
+          label: t("sidebarSectionGetPaid", { defaultValue: "Get paid" }),
+          items: [publicPage, payLinks],
+        },
+        {
+          label: t("sidebarSectionMoney", { defaultValue: "Money" }),
+          items: [
+            dashboard,
+            transactions,
+            ...(reveal.receipts ? [receipts] : []),
+            wallets,
+            ...(reveal.customers ? [customers] : []),
+          ],
+        },
+        ...grow,
+        account,
+      ];
+    }
+
+    // Business: Dashboard · Payment links · Transactions · [Receipts] · [Customers] · Checkout page · Payout wallets
+    return [
+      // Dashboard leads with NO group label: a single self-evident row does not
+      // need a heading, and the audit's whole point is less chrome, not more.
+      { label: "", items: [dashboard] },
+      {
+        label: t("sidebarSectionGetPaid", { defaultValue: "Get paid" }),
+        items: [payLinks],
+      },
+      {
+        label: t("sidebarSectionMoney", { defaultValue: "Money" }),
+        items: [
+          transactions,
+          ...(reveal.receipts ? [receipts] : []),
+          // Customers is the "who paid me" surface, so it belongs with the money
+          // rather than under a one-row GROW heading that costs a whole header.
+          ...(reveal.customers ? [customers] : []),
+        ],
+      },
+      {
+        // For a business both of these are set-once surfaces: where the money is
+        // taken, and where it lands.
+        label: t("sidebarSectionSetup", { defaultValue: "Your setup" }),
+        items: [publicPage, wallets],
+      },
+      ...grow,
+      account,
+    ];
+  }, [t, isIndividual, hasClaimedCreator, reveal.receipts, reveal.customers, reveal.developers]);
 
   const isActiveRoute = (path: string) => {
     if (path === "/") return router.pathname === "/";
@@ -199,36 +261,39 @@ const NewSidebar = () => {
     <SidebarWrapper data-collapsed={isCollapsed ? "true" : "false"} sx={isCollapsed ? { padding: "12px 8px" } : undefined}>
       <Menu>
         {sections.map((section, sectionIdx) => (
-          <React.Fragment key={section.label}>
-            {/* UX-2026-07-08: thin divider between sections to make groupings scannable */}
-            {!isMobile && sectionIdx > 0 && (
+          <React.Fragment key={section.label || `section-${sectionIdx}`}>
+            {/* The group LABEL is the separation now. The old divider-per-section
+                doubled up on it and cost ~13px each — with 4 groups that is a
+                whole nav row of vertical space, and this sidebar's height is the
+                scarce resource (the referral card + Help already own ~240px).
+                In the COLLAPSED rail there are no labels, so the divider is the
+                only grouping cue and is kept there. */}
+            {!isMobile && isCollapsed && sectionIdx > 0 && (
               <Divider
                 flexItem
                 sx={{
-                  mx: isCollapsed ? 0.5 : 1.5,
+                  mx: 0.5,
                   my: 0.75,
                   borderColor: theme.palette.mode === "dark" ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
                 }}
               />
             )}
             <Box sx={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-              {!isMobile && !isCollapsed && <SectionLabel>{section.label}</SectionLabel>}
+              {!isMobile && !isCollapsed && !!section.label && (
+                <SectionLabel>{section.label}</SectionLabel>
+              )}
 
               {section.items.map((item) => {
                 const isActive = isActiveRoute(item.path);
-                const isNotifications = item.icon === "notifications";
-                const showBadge = isNotifications && unreadNotifications > 0;
 
                 const menuItemNode = (
                   <MenuItem
                     active={isActive}
                     onMouseEnter={() => prefetchNav(item)}
                     onClick={() => {
-                      if ((item as any).soon) return;
                       router.push(item.path);
                     }}
                     sx={{
-                      ...((item as any).soon ? { opacity: 0.6, cursor: "default" } : {}),
                       ...(isCollapsed
                         ? {
                             justifyContent: "center",
@@ -240,9 +305,7 @@ const NewSidebar = () => {
                     data-testid={`sidebar-item-${item.icon}`}
                   >
                     <IconBox active={isActive} sx={{ position: "relative" }}>
-                      {item.icon === "referrals" ? (
-                        <GroupAddRounded sx={{ fontSize: 20, color: iconColor(isActive, item.icon) }} />
-                      ) : item.icon === "settings" ? (
+                      {item.icon === "settings" ? (
                         <SettingsRounded sx={{ fontSize: 20, color: iconColor(isActive, item.icon) }} />
                       ) : item.icon === "creator" ? (
                         <AutoAwesomeRounded sx={{ fontSize: 20, color: iconColor(isActive, item.icon) }} />
@@ -252,35 +315,6 @@ const NewSidebar = () => {
                           size={item.icon === "customers" ? 24 : 20}
                           color={iconColor(isActive, item.icon)}
                         />
-                      )}
-                      {/* Unread notifications badge — always attached to icon so it shows in
-                          both expanded and collapsed sidebar states. */}
-                      {showBadge && (
-                        <Box
-                          data-testid="sidebar-notifications-badge"
-                          aria-label={`${unreadNotifications} unread notifications`}
-                          sx={{
-                            position: "absolute",
-                            top: -4,
-                            right: -6,
-                            minWidth: 18,
-                            height: 18,
-                            px: unreadNotifications > 9 ? 0.5 : 0,
-                            borderRadius: 999,
-                            backgroundColor: "#E11D48",
-                            color: "#FFFFFF",
-                            fontSize: 10,
-                            fontFamily: "var(--font-sans), sans-serif",
-                            fontWeight: 700,
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            border: `2px solid ${theme.palette.background.default || "#FFFFFF"}`,
-                            boxShadow: "0 1px 3px rgba(0,0,0,0.15)",
-                          }}
-                        >
-                          {unreadNotifications > 99 ? "99+" : unreadNotifications}
-                        </Box>
                       )}
                     </IconBox>
 
@@ -339,47 +373,6 @@ const NewSidebar = () => {
                       >
                         {t("newBadge", { defaultValue: "New" })}
                       </Box>
-                    )}
-
-                    {(item as any).soon && !isMobile && !isCollapsed && (
-                      <Box
-                        component="span"
-                        data-testid={`sidebar-soon-${item.icon}`}
-                        sx={{
-                          ml: 0.75,
-                          px: 0.75,
-                          py: 0.15,
-                          borderRadius: 999,
-                          fontSize: 9.5,
-                          fontWeight: 800,
-                          letterSpacing: "0.06em",
-                          textTransform: "uppercase",
-                          fontFamily: "var(--font-sans)",
-                          backgroundColor:
-                            theme.palette.mode === "dark" ? "rgba(255,255,255,0.12)" : "rgba(10,10,10,0.08)",
-                          color: theme.palette.text.secondary,
-                          lineHeight: 1.4,
-                          alignSelf: "center",
-                          flexShrink: 0,
-                        }}
-                      >
-                        {t("soonBadge", { defaultValue: "Soon" })}
-                      </Box>
-                    )}
-
-                    {item.plus && !isMobile && !isCollapsed && (
-                      <Tooltip title={t("newPaymentLink")} placement="right" arrow>
-                        <QuickAddButton
-                          active={isActive}
-                          aria-label={t("newPaymentLink")}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            router.push("/create-pay-link");
-                          }}
-                        >
-                          <AddIcon sx={{ fontSize: "16px", color: "inherit" }} />
-                        </QuickAddButton>
-                      </Tooltip>
                     )}
                   </MenuItem>
                 );

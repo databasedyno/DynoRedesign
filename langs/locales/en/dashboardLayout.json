@@ -169,5 +169,16 @@
   "walletWarnnigTitle": "wallet setup",
   "wallets": "Wallets",
   "yourProgressTowardsTheNextFeeTier": "Your progress toward the next fee tier",
-  "yourReferralCode": "Your Referral Code"
+  "yourReferralCode": "Your Referral Code",
+  "receiptsTax": "Receipts & Tax",
+  "checkoutPage": "Checkout page",
+  "payoutWallets": "Payout wallets",
+  "developers": "Developers",
+  "sidebarSectionGetPaid": "Get paid",
+  "sidebarSectionMoney": "Money",
+  "sidebarSectionSetup": "Your setup",
+  "sidebarSectionGrow": "Grow",
+  "navNew": "New",
+  "navNewPaymentLink": "Payment link",
+  "navNewProduct": "Product"
 }

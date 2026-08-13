@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
+import useNavReveal, { NavRevealFlags } from "@/hooks/useNavReveal";
 
 export type AccountType = "individual" | "business";
 
@@ -12,6 +13,14 @@ export interface AccountProfileState {
   profileComplete: boolean;
   missing: string[];
   fetched: boolean;
+  /**
+   * Reveal-on-relevance flags for the nav (audit F13/N1). Derived HERE, in one
+   * place, so the desktop sidebar and the mobile nav can never disagree about
+   * which rows exist. Session-sticky — see hooks/useNavReveal.ts.
+   */
+  reveal: NavRevealFlags;
+  /** True once the reveal flags have been resolved (from cache or the API). */
+  revealReady: boolean;
 }
 
 /**
@@ -27,6 +36,7 @@ export interface AccountProfileState {
  */
 const useAccountProfile = (): AccountProfileState => {
   const { companyList, selectedCompanyId, fetched } = useCompanyStore();
+  const { receipts, customers, developers, ready: revealReady } = useNavReveal();
 
   return useMemo(() => {
     const list = Array.isArray(companyList) ? companyList : [];
@@ -50,8 +60,12 @@ const useAccountProfile = (): AccountProfileState => {
       profileComplete: !!account && missing.length === 0,
       missing,
       fetched: !!fetched,
+      reveal: { receipts, customers, developers },
+      revealReady,
     };
-  }, [companyList, selectedCompanyId, fetched]);
+    // Deps are primitives only (law 7): consumers of this hook write layout
+    // state, so the returned identity must change ONLY when a value really did.
+  }, [companyList, selectedCompanyId, fetched, receipts, customers, developers, revealReady]);
 };
 
 export default useAccountProfile;

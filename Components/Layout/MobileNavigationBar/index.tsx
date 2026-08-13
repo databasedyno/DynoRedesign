@@ -67,6 +67,7 @@ const MobileNavigationBar = () => {
     hasAccount,
     profileComplete,
     isIndividual,
+    reveal,
     fetched: accountFetched,
   } = useAccountProfile();
   const showSetupWarning = accountFetched && (!hasAccount || !profileComplete);
@@ -126,27 +127,56 @@ const MobileNavigationBar = () => {
     { code: "nl", label: "Nederlands", flag: netherlandsFlag },
   ];
 
+  // ── Persona rows + reveal-on-relevance (audit F13/N1) ─────────────────────
+  // Same source of truth as the desktop sidebar (useAccountProfile → useNavReveal)
+  // so the two navs can never disagree about which rows exist or what they are
+  // called. The bottom bar keeps 3 primary items; a creator's primary is their
+  // page, a business's is the dashboard.
+  const publicPageItem = {
+    label: isIndividual
+      ? t("storefront", { defaultValue: "Storefront" })
+      : t("checkoutPage", { defaultValue: "Checkout page" }),
+    icon: "creator",
+    path: "/storefront",
+    id: "storefront",
+    isNew: !hasClaimedCreator,
+  };
+  const dashboardItem = { label: t("dash"), icon: "dashboard", path: "/dashboard", id: "dash" };
+  const payLinksItem = {
+    label: t("payLinks"),
+    icon: "payment-links",
+    path: "/pay-links",
+    id: "pay-links",
+  };
+  const transactionsItem = {
+    label: t("transactions"),
+    icon: "transactions",
+    path: "/transactions",
+    id: "transactions",
+  };
+  // F4: receipts, not receivables — tbl_invoice only ever holds settled money.
+  const receiptsItem = {
+    label: t("receiptsTax", { defaultValue: "Receipts & Tax" }),
+    icon: "invoices",
+    path: "/invoices",
+    id: "invoices",
+  };
+  const customersItem = {
+    label: t("customers"),
+    icon: "customers",
+    path: "/customers",
+    id: "customers",
+  };
+
   // First row items (3 items — Coinbase-style)
   // UX-2026-08-02: Reduced from 5 → 3 to mirror Coinbase's mobile pattern
   // (Home / Trade / Transactions in Coinbase = Dashboard / Pay Links /
   // Transactions for a merchant). "Create", "Wallets", and the "Account"
   // expand drawer moved into the top-left hamburger menu (NewHeader) so
   // nothing is lost — just reorganised into a cleaner bottom bar.
-  const firstRowItems = [
-    { label: t("dash"), icon: "dashboard", path: "/dashboard", id: "dash" },
-    {
-      label: t("payLinks"),
-      icon: "payment-links",
-      path: "/pay-links",
-      id: "pay-links",
-    },
-    {
-      label: t("transactions"),
-      icon: "transactions",
-      path: "/transactions",
-      id: "transactions",
-    },
-  ];
+  const firstRowItems = isIndividual
+    ? [publicPageItem, payLinksItem, transactionsItem]
+    : [dashboardItem, payLinksItem, transactionsItem];
 
   // Second row items (expanded) - shown when expanded
   // UX-2026-07-14: Added Creator page (Session 40+) and Products (Session 47)
@@ -154,37 +184,17 @@ const MobileNavigationBar = () => {
   // these were desktop-only via the NewSidebar which only mounts at ≥lg
   // (1200px), leaving tablets + phones with no way to navigate to them.
   const secondRowItems = [
-    {
-      label: t("storefront", { defaultValue: "Storefront" }),
-      icon: "creator",
-      path: "/storefront",
-      id: "storefront",
-      isNew: !hasClaimedCreator,
-    },
-    {
-      label: t("payLinks"),
-      icon: "payment-links",
-      path: "/pay-links",
-      id: "pay-links",
-    },
-    {
-      label: t("invoicesTax"),
-      icon: "invoices",
-      path: "/invoices",
-      id: "invoices",
-    },
-    {
-      label: t("customers"),
-      icon: "customers",
-      path: "/customers",
-      id: "customers",
-      soon: true,
-    },
+    // A creator's dashboard sits after their page; a business already has it first.
+    ...(isIndividual ? [dashboardItem] : [publicPageItem]),
+    ...(reveal.receipts ? [receiptsItem] : []),
+    ...(reveal.customers ? [customersItem] : []),
   ];
 
   // Third row items (expanded) - additional nav items
   const thirdRowItems = [
-    { label: t("api"), icon: "api", path: "/developer-keys", id: "api" },
+    ...(reveal.developers
+      ? [{ label: t("developers", { defaultValue: "Developers" }), icon: "api", path: "/developer-keys", id: "api" }]
+      : []),
     {
       label: t("referrals"),
       icon: "referrals",
@@ -221,7 +231,6 @@ const MobileNavigationBar = () => {
   const handleNavClick = (
     item: (typeof firstRowItems)[0] | (typeof secondRowItems)[0] | (typeof thirdRowItems)[0],
   ) => {
-    if ((item as any).soon) return;
     if (item.id === "more") {
       setIsExpanded(!isExpanded);
     } else if (item.path) {
@@ -378,18 +387,15 @@ const MobileNavigationBar = () => {
                     "customers",
                   ];
                   const useSidebarIcon = supportedIcons.includes(item.icon);
-                  const iconColor = (item as any).soon
-                    ? theme.palette.text.disabled
-                    : active
-                      ? navAccent(item.icon, isDark)
-                      : theme.palette.text.primary;
+                  const iconColor = active
+                    ? navAccent(item.icon, isDark)
+                    : theme.palette.text.primary;
 
                   return (
                     <NavItem
                       key={item.id}
                       active={active}
                       onClick={() => handleNavClick(item)}
-                      sx={(item as any).soon ? { opacity: 0.55 } : undefined}
                     >
                       <IconButton
                         active={active || isCreate}
@@ -428,32 +434,6 @@ const MobileNavigationBar = () => {
                               boxShadow: "0 0 6px rgba(129,140,248,0.75)",
                             }}
                           />
-                        )}
-                        {(item as any).soon && (
-                          <Box
-                            data-testid={`mobile-nav-soon-${item.id}`}
-                            aria-label="Coming soon"
-                            sx={{
-                              position: "absolute",
-                              top: -8,
-                              right: -14,
-                              px: 0.5,
-                              py: "1px",
-                              borderRadius: 999,
-                              fontSize: 7.5,
-                              fontWeight: 800,
-                              letterSpacing: "0.03em",
-                              textTransform: "uppercase",
-                              lineHeight: 1.3,
-                              fontFamily: "var(--font-sans)",
-                              backgroundColor:
-                                theme.palette.mode === "dark" ? "rgba(255,255,255,0.16)" : "rgba(10,10,10,0.12)",
-                              color: theme.palette.text.secondary,
-                              border: `1.5px solid ${theme.palette.background.default || "#FFFFFF"}`,
-                            }}
-                          >
-                            Soon
-                          </Box>
                         )}
                       </IconButton>
                       <NavLabel active={active}>{item.label}</NavLabel>

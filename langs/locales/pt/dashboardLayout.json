@@ -162,5 +162,16 @@
   "walletWarnnigTitle": "configuração da carteira",
   "wallets": "Carteiras",
   "yourProgressTowardsTheNextFeeTier": "Seu progresso em direção ao próximo nível de taxas",
-  "yourReferralCode": "Seu Código de Indicação"
+  "yourReferralCode": "Seu Código de Indicação",
+  "receiptsTax": "Recibos e impostos",
+  "checkoutPage": "Página de pagamento",
+  "payoutWallets": "Carteiras de recebimento",
+  "developers": "Desenvolvedores",
+  "sidebarSectionGetPaid": "Receber",
+  "sidebarSectionMoney": "Dinheiro",
+  "sidebarSectionSetup": "Sua configuração",
+  "sidebarSectionGrow": "Crescer",
+  "navNew": "Novo",
+  "navNewPaymentLink": "Link de pagamento",
+  "navNewProduct": "Produto"
 }

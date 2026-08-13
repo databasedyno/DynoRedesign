@@ -72,8 +72,21 @@
   pages/[handle]/shop.tsx and pages/[handle]/p/[slug].tsx — same pattern pages/[handle].tsx
   already used. Unset in production, so prod behaviour is unchanged.
 
-## Verified working on this pod (2026-08-13)
-- GET /api/status, /api/status/health, /api/kb/articles -> 200 (via ingress)
+## IA Batch A testids + gotchas (for future test runs)
+- Nav rows: `[data-testid^="sidebar-item-"]` → dashboard, payment-links, transactions, invoices
+  ("Receipts & Tax"), customers, creator ("Checkout page" for business / "Storefront" for individual),
+  wallets ("Payout wallets"), settings, api ("Developers").
+- Header: `header-create-new` (+ `header-create-paylink`, `header-create-product`),
+  `header-notifications-bell`, `header-notifications-badge`. Settings: `settings-rail-referrals`,
+  `settings-rail-plan-fees`.
+- GOTCHA: the individual persona has **6** rows, not 5 — `Settings` is always present.
+- Gated rows (Receipts & Tax / Customers / Developers) only exist when the account has a settled
+  transaction / a customer / an API key. To test the "brand-new account" nav WITHOUT writing to the prod
+  DB, intercept `**/dashboard/action-counts*` with `nav_reveal` all-false and patch `account_type` in
+  `**/company/getCompany*`, then clear `sessionStorage` keys starting `dyno_nav_reveal:` before reloading
+  (they are sticky ON PURPOSE).
+
+## Verified working on this pod (2026-08-13)- GET /api/status, /api/status/health, /api/kb/articles -> 200 (via ingress)
 - /auth/login renders; full 2-step email+password login -> /dashboard with REAL live data
   (7D volume $1,567.78 / 23 payments, monthly $24,281.28, Growth tier, code DYNO-9XVPUY)
 - /hostbay and /hostbay/shop -> 200 with SSR product data embedded ("Test Ebook Setup Guide")

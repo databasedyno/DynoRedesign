@@ -354,11 +354,11 @@
   "logout": "Logout",
   "hello": "Hello",
   "invoices": {
-    "pageName": "Invoices & Tax",
+    "pageName": "Receipts & Tax",
     "pageDescription": "View invoices and tax reports",
-    "tabInvoices": "Invoices",
+    "tabInvoices": "Receipts",
     "tabTaxReport": "Tax Report",
-    "invoicesTitle": "Invoices ({{count}})",
+    "invoicesTitle": "Receipts ({{count}})",
     "colInvoiceNumber": "Invoice #",
     "colDate": "Date",
     "colCustomer": "Customer",
@@ -507,6 +507,8 @@
   "statusUptimeTooltip": "{{label}} · {{uptime}}% uptime (last 30 days)",
   "settingsPage": {
     "title": "Settings",
+    "planFees": "Plan & fees",
+    "referrals": "Referrals",
     "description": "Manage your account, company, and integration configuration",
     "profile": "Profile & Security",
     "profileDesc": "Personal info, password, and login security",

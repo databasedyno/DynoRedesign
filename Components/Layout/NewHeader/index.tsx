@@ -7,6 +7,8 @@ import LanguageSwitcher from "@/Components/UI/LanguageSwitcher";
 import ThemeToggle from "@/Components/UI/ThemeToggle";
 import UserMenu from "@/Components/UI/UserMenu";
 import NewSidebar from "@/Components/Layout/NewSidebar";
+import CreateNewButton from "@/Components/Layout/NewHeader/CreateNewButton";
+import NotificationsBell from "@/Components/Layout/NewHeader/NotificationsBell";
 import { useWalletData } from "@/hooks/useWalletData";
 import { rootReducer } from "@/utils/types";
 import { useTheme as useMuiTheme } from "@mui/material";
@@ -199,6 +201,10 @@ const NewHeader = () => {
         <CompanySelector />
 
         <RightSection>
+          {/* Audit §4.1 header: `+ New · 🔔 inbox · account switcher`.
+              One create control (law 3) and the inbox's new home (F8). */}
+          <CreateNewButton />
+          <NotificationsBell />
           {/* Mobile theme toggle - visible only on mobile */}
           <Box sx={{ display: { xs: "flex", lg: "none" } }}>
             <ThemeToggle size="small" data-testid="theme-toggle-mobile" />

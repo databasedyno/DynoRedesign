@@ -162,5 +162,16 @@
   "walletWarnnigTitle": "configuration du portefeuille",
   "wallets": "Portefeuilles",
   "yourProgressTowardsTheNextFeeTier": "Votre progression vers le prochain niveau de frais",
-  "yourReferralCode": "Votre Code de Parrainage"
+  "yourReferralCode": "Votre Code de Parrainage",
+  "receiptsTax": "Reçus et taxes",
+  "checkoutPage": "Page de paiement",
+  "payoutWallets": "Portefeuilles de versement",
+  "developers": "Développeurs",
+  "sidebarSectionGetPaid": "Encaisser",
+  "sidebarSectionMoney": "Argent",
+  "sidebarSectionSetup": "Votre configuration",
+  "sidebarSectionGrow": "Croissance",
+  "navNew": "Nouveau",
+  "navNewPaymentLink": "Lien de paiement",
+  "navNewProduct": "Produit"
 }

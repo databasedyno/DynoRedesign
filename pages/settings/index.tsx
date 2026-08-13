@@ -11,6 +11,9 @@ import {
   NotificationsRounded,
   AddRounded,
   ReceiptLongRounded,
+  GroupAddRounded,
+  PercentRounded,
+  ArrowOutwardRounded,
 } from "@mui/icons-material";
 import { useRouter } from "next/router";
 import Head from "next/head";
@@ -525,6 +528,67 @@ const SettingsPage = ({
               </Box>
             );
           })}
+
+          {/* ── Pointers OUT of Settings (audit F6 + F9) ───────────────────────
+              Referrals left the nav (F9) and /fees never had a home at all (F6);
+              law 6 says a route that is not in the nav must get a home or a
+              redirect. These two rows are that home. They navigate away rather
+              than switching a panel, so they carry an outward arrow and live
+              below a divider — a merchant is never tricked into thinking a
+              Settings panel is about to open. Batch B (F11) folds them into the
+              4-group Settings structure. */}
+          <Box
+            sx={{
+              display: { xs: "none", md: "block" },
+              height: "1px",
+              bgcolor: isDark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.07)",
+              my: 0.75,
+              mx: "14px",
+            }}
+          />
+          {[
+            {
+              key: "referrals",
+              label: t("settingsPage.referrals", { defaultValue: "Referrals" }),
+              href: "/referrals",
+              icon: <GroupAddRounded sx={{ fontSize: 19 }} />,
+            },
+            {
+              key: "plan-fees",
+              label: t("settingsPage.planFees", { defaultValue: "Plan & fees" }),
+              href: "/fees",
+              icon: <PercentRounded sx={{ fontSize: 19 }} />,
+            },
+          ].map((p) => (
+            <Box
+              key={p.key}
+              role="button"
+              tabIndex={0}
+              data-testid={`settings-rail-${p.key}`}
+              onClick={() => router.push(p.href)}
+              onKeyDown={(e: React.KeyboardEvent) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  router.push(p.href);
+                }
+              }}
+              sx={railItemSx(false)}
+            >
+              {p.icon}
+              <Typography
+                sx={{
+                  fontSize: "14px",
+                  fontWeight: 500,
+                  fontFamily: "var(--font-sans)",
+                  color: "inherit",
+                  lineHeight: 1,
+                }}
+              >
+                {p.label}
+              </Typography>
+              <ArrowOutwardRounded sx={{ fontSize: 14, ml: "auto", opacity: 0.55 }} />
+            </Box>
+          ))}
         </Box>
 
         {/* Section content */}

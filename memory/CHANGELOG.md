@@ -1,5 +1,65 @@
 # Changelog
 
+# SESSION 2026-08-13 — Env restore (3rd pod rebuild) + **IA Batch A: persona nav · reveal-on-relevance · one `+ New`** — VERIFIED (backend 6/6, frontend 8/9 + 2 explained)
+
+## A. Environment restored on a fresh pod (no product change)
+Root + `backend/` `node_modules` and BOTH env files were missing again. Recipe now in
+`memory/test_credentials.md`, including three traps: (1) run the two `yarn install`s **sequentially** —
+in parallel they corrupt the shared yarn cache (`Integrity check failed for get-proto`); (2) supervisor's
+`APP_URL` host does **not** route — the live host is in the Next.js "cross origin request detected from
+…" warning in `frontend.err.log`; (3) `NEXTAUTH_SECRET` in the pasted creds is the literal placeholder
+`"openssl rand -base64 32"`. SAFE MODE (`ENABLE_BACKGROUND_JOBS=false` + `WORKER_ROLE=secondary`) keeps
+cron/sweeps/webhook-worker off the live prod DB.
+**Also fixed:** 4 `getServerSideProps` (`pay/index`, `order/[publicRef]`, `[handle]/shop`,
+`[handle]/p/[slug]`) now prefer `INTERNAL_API_URL`, because `NEXT_PUBLIC_BASE_URL` must stay empty for
+relative browser calls and a relative URL cannot be fetched server-side. Unset in prod → prod unchanged.
+`/hostbay/shop` went from degraded to 200 with SSR product data.
+
+## B. IA Batch A — closes N1(F13) · N3(F3) · F4 · F6 · F7 · F8 · F9 of `docs/IA_TAB_ARCHITECTURE_AUDIT.md`
+Founder's answers to the audit's §8 questions are recorded in that doc's new STATUS section.
+
+- **Backend, one file:** `getActionCounts` (`GET /api/dashboard/action-counts`) also returns
+  `nav_reveal: { receipts, customers, developers }` — 3 `EXISTS()` subqueries inside the SAME read-only,
+  Redis-cached (60s) statement; cache key `v2` → `v3`. `receipts` reuses `PROCESSED_STATUS_SQL`
+  (`successful|done|completed`) + getDashboard's scoping, so the row can never contradict dashboard
+  volume. Parity re-verified by the testing agent: `transactions_pending` 180 = `pending_count` 180;
+  cross-account request (`company_id=31`) still 403.
+- **NEW `hooks/useNavReveal.ts`** — module cache + in-flight dedupe + a 60s freshness window, so N
+  consumers cost ONE request (was 4: a late-mounting consumer refetched, and firing on `fetched` alone
+  produced an unscoped call immediately followed by a scoped one — `CompanyDataContext` resolves
+  `selectedCompanyId` one render after `fetched` flips). Session-sticky via
+  `sessionStorage["dyno_nav_reveal:<id>"]` with OR-merge, so a revealed row can never vanish mid-visit;
+  fails closed; skips the request entirely for a user with no account. Measured after the fix:
+  2 calls on a full dashboard load (1 is the pre-existing QuickActionsDock), **0** across SPA navigations.
+- **`hooks/useAccountProfile.ts`** exposes `reveal` + `revealReady` — one source of truth, so the desktop
+  rail and the mobile bar can never disagree.
+- **`NewSidebar` is persona-ordered and reveal-gated:**
+  business `Dashboard · Payment Links · Transactions · [Receipts & Tax] · [Customers] · Checkout page · Payout wallets · Settings · [Developers]`;
+  individual `Storefront · Payment Links · Dashboard · Transactions · [Receipts & Tax] · Payout wallets · [Customers] · Settings · [Developers]`.
+  Reveal: Receipts & Tax = first settled tx · Customers = a customer exists · Developers = an API key exists.
+  4 group labels (GET PAID · MONEY · YOUR SETUP · ACCOUNT), Dashboard leads unlabelled, per-section
+  dividers dropped in the expanded rail (kept collapsed, where there are no labels).
+  **Nav height 744px → 551px** — the whole rail now fits at 1080p; ~271px used to sit below the fold.
+- **Renames (F4 + Q1), all 6 locales:** `Invoices & Tax` → **Receipts & Tax** (nav row, `/invoices` page
+  title and its tab), `Wallets` → **Payout wallets**, `API` → **Developers**, and `Storefront` ↔
+  **Checkout page** by persona. Document-level strings ("Invoice #", the PDF) deliberately untouched — the
+  row is still legally an invoice; it was the DESTINATION that was misnamed.
+- **The `Soon` badge mechanism is deleted** from both navs (law 5: nothing ships marked soon) — Customers
+  is now a real, revealed row.
+- **NEW `Components/Layout/NewHeader/CreateNewButton.tsx`** — the ONE create control: `+ New` →
+  Payment link · Product, keyboard `n` (ignored while typing or with a modifier). The `+` glued to the
+  Payment-links nav row is gone. `Bill` deliberately absent (no receivables invoicing exists).
+- **NEW `Components/Layout/NewHeader/NotificationsBell.tsx`** — the inbox's new home, reusing the existing
+  45s-cached unread hook, so removing the nav row cost no request and no discoverability.
+- **`pages/settings/index.tsx`** — two pointer rows below a divider (outward arrow, they navigate away):
+  `settings-rail-referrals` → `/referrals` (F9) and `settings-rail-plan-fees` → `/fees` (F6, which had no
+  home at all before). Batch B folds these into the 4-group Settings structure.
+- Checks: frontend + backend `tsc --noEmit` both exit 0; ESLint clean on every touched file.
+- Frontend agent's 2 "failures" resolved: individual nav returned 6 rows because **Settings is always
+  present** (my expectation string omitted it — the observed order was correct); the request-dedupe miss
+  was real and is fixed as described above.
+
+
 # SESSION ADDENDUM (2026-06 fork, part 2) — Wallet Sharing Nudge · Storefront Merge · IA tab audit — VERIFIED (testing agent iteration_49 + 50, 100% after fixes)
 
 ## A. Wallet Sharing Nudge (`Components/Page/Wallet/WalletReuseNudge.tsx`, NEW)
