@@ -53,7 +53,10 @@ consequence) for the two personas that now exist (`account_type`). 14 findings; 
 product orders live in 3 places, tips are configured/reported/counted in 3 places, creating things
 has no single home, "Invoices & Tax" is a receipts archive, developer tooling has 3 doors, and one
 IA is shown to both personas. Proposes 4 nav groups / 8 rows with reveal-on-relevance, a full
-tab-ownership map, 7 anti-sprawl laws and a P0/P1/P2 plan. Read it before the next IA change.
+tab-ownership map, 7 anti-sprawl laws, a P0/P1/P2 plan, **§6 build specs for the four agreed next
+actions (N1 persona nav · N2 product sales inline · N3 one `+ New` · N4 Developers home)** and **§7
+seven potential improvements (I1 expired-link rescue, I2 share nudge, I3 KPI plain-English read,
+I4 QR pack, I5 sell-again, I6 storefront SEO, I7 buyer receipt page)**. Read it before the next IA change.
 
 ---
 

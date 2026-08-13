@@ -1,6 +1,7 @@
 # DynoPay — Human-Experience & Tab-Architecture Audit
 **Date:** 2026-06 (fork session) · **Author:** E1 · **Scope:** merchant app IA — which functionality belongs in which tab, judged against how a human actually uses this product
 **Companion docs:** `docs/IA_AUDIT_2026-08.md` (the structural audit: tenancy, primitives, endpoint sprawl) · `memory/CHANGELOG.md` (what shipped)
+**Contents:** §0–3 audit · §4 target architecture + laws · §5 sequenced plan · **§6 next-action build specs (N1–N4)** · **§7 potential improvements (I1–I7)** · §8 open questions
 
 ---
 
@@ -243,7 +244,7 @@ footer      referral code card · Help & Support
 | **Developers** | Keys / Webhooks / Events / Docs | publishable + secret keys, endpoints, delivery log, docs | anything a non-technical merchant needs |
 | **Dashboard** | — | today's numbers, activation checklist, personalised dock, recent payments | unique actions that exist nowhere else |
 
-### 4.3 Six laws to stop the sprawl returning
+### 4.3 Seven laws to stop the sprawl returning
 
 1. **One job per tab.** If the description needs "and", split it.
 2. **Config with the object, results in the ledger.** No surface computes its own numbers.
@@ -277,9 +278,107 @@ footer      referral code card · Help & Support
 UI (non-custodial by design), subscriptions in the nav (0 rows), or a settings toggle for the
 persona nav (reveal-on-relevance instead).
 
+> The four items agreed as **next actions** (N1–N4 in §6) are the P0/P1 rows above: persona nav,
+> product sales inline, one `+ New`, Developers home.
+
 ---
 
-## 6. Open questions for the founder
+## 6. Next actions — build specs (agreed backlog)
+
+The four items below are the agreed next actions from this audit, written as specs so they can be
+picked up without re-deriving the reasoning. Each one closes a numbered finding.
+
+### N1 · Persona nav — order + reveal-on-relevance · closes **F13** · effort M · risk low
+**Goal:** a creator sees the tools that make them money first; a business sees reconciliation
+first; neither sees a row that is meaningless to them yet.
+
+- Source of truth: `tbl_company.account_type` via `hooks/useAccountProfile.ts` (already shipped).
+- Order — individual: `Storefront · Payment links · Dashboard · Transactions · Payout wallets`;
+  business: `Dashboard · Payment links · Transactions · Receipts & Tax · Storefront · Payout wallets`.
+- Reveal rules (never a settings toggle): **Receipts & Tax** appears after the first settled
+  transaction; **Customers** when a customer row exists; **Developers** when an API key exists or
+  from a Settings link; **Storefront** is always visible (it is the product for one persona and the
+  checkout page for the other).
+- Label switch: `Storefront` (individual) ↔ `Checkout page` (business) — pending Q1 in §8.
+- Files: `Components/Layout/NewSidebar/index.tsx`, `Components/Layout/MobileNavigationBar/index.tsx`,
+  `hooks/useAccountProfile.ts` (add the derived `reveal` flags in one place so both navs agree).
+- Acceptance: a brand-new individual account sees 5 rows and no Tax/Customers/Developers; a business
+  with transactions sees the business order; a row never disappears once revealed in a session;
+  active-route highlighting still resolves for nested paths.
+
+### N2 · Product sales on the product row · closes **F1** · effort S · risk low
+**Goal:** answer "did it sell?" where the question is asked, and stop maintaining three order views.
+
+- Storefront → Products rows show **units sold** and **revenue** inline (the list API already
+  returns `sold_count`; add summed revenue or derive from orders).
+- Row click-through goes to `Transactions` pre-filtered to that product (`?source=product&product_id=`),
+  labelled as a filter — not to a separate per-product page.
+- Retire `/pay-links/products/[productId]/orders` (redirect to the filtered Transactions view, same
+  pattern as `/creator`), and drop the "View product orders →" cross-link from the tab header.
+- Files: `Components/Page/Storefront/ProductsTab.tsx`, `Components/Page/Transactions/index.tsx`
+  (accept + display a product filter), `pages/pay-links/products/[productId]/orders.tsx` → redirect.
+- Acceptance: a product with 2 orders shows `2 sold · $10.00`; clicking it lands on Transactions
+  filtered to that product; no other route lists product orders.
+
+### N3 · One `+ New` control · closes **F3** · effort M · risk low
+**Goal:** one learned path for "make a thing to get paid".
+
+- A single `+ New` in the app header (next to the account switcher): **Payment link · Product**
+  (+ *Bill* later, only once real invoicing exists). Keyboard: `n`.
+- The `+` currently attached to the Payment-links nav row is removed; every empty-state CTA
+  (`EmptyDataModel`, activation checklist, quick-action tiles) routes into the same control so the
+  path is taught by repetition.
+- Files: `Components/Layout/NewHeader/index.tsx` (+ mobile equivalent),
+  `Components/Layout/NewSidebar/index.tsx` (drop `plus: true`),
+  `Components/UI/EmptyDataModel/index.tsx`, `Components/Page/Dashboard/v2026/*`.
+- Acceptance: exactly one create affordance in the chrome; both entries land on the existing
+  `/create-pay-link` and product-new flows; no empty state invents its own create path.
+
+### N4 · Developers home · closes **F5** (and removes the duplicate that caused the keys 400) · effort M · risk med
+**Goal:** one door for keys, webhooks, events and docs.
+
+- `/developer-keys` becomes **Developers** with tabs *Keys · Webhooks · Events log · Docs*, built on
+  the same tab shell pattern as `/storefront` (local tab state synced from `?tab=`, code-split tabs,
+  **primitive-only deps in any layout-state effect** — see law 7).
+- Settings → *API keys* and Settings → *Webhooks* are removed and replaced by a one-line pointer;
+  their components move rather than fork.
+- Every publishable-key read goes through `hooks/usePublishableKeys.ts` with a company id (the fix
+  that stopped the 400) — no second fetch path.
+- Files: `pages/developer-keys.tsx`, `Components/Page/API/*`, `pages/settings/index.tsx` (drop 2
+  sections), `Components/Page/Settings/*`.
+- Acceptance: keys/webhooks reachable from exactly one nav destination; zero `/api/publishable-keys`
+  requests without `company_id`; Settings shows 4 groups (see F11) with no developer sections.
+
+**Batch definition of done:** `tsc --noEmit` clean · testing agent green on the touched flows ·
+no route left un-homed (law 6) · `memory/CHANGELOG.md` updated · this document's findings marked.
+
+**Explicitly out of scope for this batch:** real invoicing (a new capability, not an IA change),
+custody/balance UI (non-custodial by design), subscriptions, and any nav toggle in Settings.
+
+---
+
+## 7. Potential improvements (beyond the IA fixes)
+
+Ranked by impact on the merchant's own revenue, since that is what keeps them in the product.
+
+| # | Idea | Why it pays | Effort |
+|---|---|---|---|
+| **I1** | **Expired-link rescue** — the 10 expired-unpaid links are the only genuine receivable signal in the product; one tap to *extend* or *resend* | recovers money that was already asked for; needs no new object (`expires_at`, reminder fields and Brevo email exist) | S |
+| **I2** | **Share nudge after the first product goes live** — a one-time prompt on Storefront → Share ("your page has something to sell — post it") with the pre-filled social targets already built | the storefront only earns once it is shared; publishing is the moment of highest intent | S |
+| **I3** | **Plain-English read on the dashboard KPI** — "Busier than yesterday: 3 more payments, smaller baskets" next to the delta | turns a number merchants glance at into something they act on; complements the low-base delta rule already shipped | S |
+| **I4** | **Offline QR pack** — print-ready PNG/PDF of the page QR (stall, flyer, video overlay) from Storefront → Share | crypto tips and small sales are often in-person; the QR already exists, only the export is missing | S |
+| **I5** | **"Sell this again"** on a settled transaction — regenerate the same link/product with one tap | repeat revenue from proven demand; reuses link duplication | M |
+| **I6** | **Storefront SEO + OG polish** — per-product OG images, structured data, sitemap entries for live `{handle}` pages | the public page is the only surface a stranger can find; it currently ships noindex-adjacent defaults and no product OG | M |
+| **I7** | **Buyer-facing receipt page** — a shareable receipt URL after payment (the merchant-side receipts already exist) | buyer confidence in crypto checkout is the #1 conversion blocker; also reduces "did it go through?" support | M |
+
+**Non-obvious one worth arguing about:** the individual-creator persona would likely pay for
+*audience* features (subscriber list, "notify me" on a sold-out product, thank-you automation) long
+before they need anything on the business side of the roadmap — and the storefront merge is what
+makes those buildable in one place.
+
+---
+
+## 8. Open questions for the founder
 
 1. **Naming for the business persona:** "Storefront" is creator language. Show
    **Checkout page** to `account_type='business'` and keep *Storefront* for individuals — or pick
