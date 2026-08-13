@@ -15,7 +15,7 @@ import subprocess
 from typing import Dict, Any, Optional, Tuple
 
 # Configuration
-BASE_URL = "https://secure-transactions-11.preview.emergentagent.com"
+BASE_URL = "https://dynopay-preview-11.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 LOGIN_EMAIL = "hostbay@moxx.co"
 LOGIN_PASSWORD = "Katiekendra123@"

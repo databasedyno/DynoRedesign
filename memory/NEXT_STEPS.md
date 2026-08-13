@@ -153,6 +153,6 @@ This kills the recurring "one page still on the old accent" problem at the root.
 ## Reference
 - Test login: `hostbay@moxx.co` / `Katiekendra123@`
 - $10 test link (BTC, Invoice INV-2026-172):
-  - Preview: `https://secure-transactions-11.preview.emergentagent.com/pay?d=dd7cf1523088ee313c0e57118e11661ebf3436469930dbab`
+  - Preview: `https://dynopay-preview-11.preview.emergentagent.com/pay?d=dd7cf1523088ee313c0e57118e11661ebf3436469930dbab`
   - Production: `https://checkout.dynopay.com/pay?d=dd7cf1523088ee313c0e57118e11661ebf3436469930dbab`
 - ⚠️ This pod is on the merchant's **LIVE** DB/Redis. `WORKER_ROLE=secondary` must stay to keep cron/sweepers off.

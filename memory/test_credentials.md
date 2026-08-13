@@ -1,11 +1,31 @@
 # Test Credentials
 
+## LATEST SETUP (2026-08-13, NEW pod) — env rebuilt from user's pasted creds
+- CURRENT preview URL (verified, screenshot loads):
+  https://aedc127d-0ef8-4673-b1c7-615d2600c7fb.preview.emergentagent.com
+- Recipe applied (matches the documented one below):
+  1. `yarn install` in /app then /app/backend (SEQUENTIAL; parallel corrupts the shared
+     yarn cache -> ENOENT .yarn-metadata.json; fix = `rm -rf /usr/local/share/.cache/yarn`).
+  2. /app/backend/.env (discrete DB vars DB_NAME/USER_NAME/PASSWORD/HOST/DB_PORT — Railway PG
+     accepts SSL AND non-SSL, both probed OK; no DATABASE_URL needed). PORT NOT set. SAFE MODE:
+     WORKER_ROLE=secondary + ENABLE_BACKGROUND_JOBS=false (verified: "BACKGROUND JOBS DISABLED").
+     SERVER_URL/FRONTEND_URL/CHECKOUT_URL/CORS_ALLOWED_ORIGINS/NEXTAUTH_URL -> preview URL.
+     NEXTAUTH_SECRET regenerated (pasted value was literal "openssl rand -base64 32").
+  3. /app/.env.local: NEXT_PUBLIC_BASE_URL EMPTY (relative browser calls),
+     INTERNAL_API_URL=http://localhost:8001 (SSR), NEXT_PUBLIC_SERVER_URL/CREATOR/API_DOCS -> preview URL.
+  4. `sudo supervisorctl restart backend frontend`.
+- Verified: /health healthy (db+redis connected, background_jobs.eligible=false), landing/login/
+  SSR /pay all 200, /api/status 200, live Tatum rates ("Refreshed 40 rates via Tatum").
+- sshpass NOT installed -> Binance SSH socks tunnel disabled (Binance HTTP 451 harmless, rates via Tatum).
+
+---
+
 ## App: DynoPay (multi-chain crypto payments platform)
 - Architecture: Next.js frontend (root /app, port 3000) + Node/TS Express backend
   (port 3300) fronted by a Python/uvicorn proxy on port 8001 (backend/server.py).
 - Browser API calls are RELATIVE (`/api/...`) because `NEXT_PUBLIC_BASE_URL` is empty
   in /app/.env.local -> Emergent ingress routes /api -> 8001 -> Node backend.
-- Preview URL (CURRENT, verified 2026-08-13): https://secure-transactions-11.preview.emergentagent.com
+- Preview URL (CURRENT, verified 2026-08-13): https://dynopay-preview-11.preview.emergentagent.com
   Env rebuilt for the 3rd time on 2026-08-13 on a NEW pod (root+backend node_modules AND both
   env files were missing again). Recipe that works:
    1. `cd /app && yarn install` THEN `cd /app/backend && yarn install`  (run them SEQUENTIALLY —
@@ -18,7 +38,7 @@
       pasted value is the literal placeholder "openssl rand -base64 32".
    4. `sudo supervisorctl restart backend frontend`.
   HOST GOTCHA (3rd pod in a row): supervisor's APP_URL advertises
-   https://9ca62dbc-41f5-4f88-804e-a2045e17bcb3.preview.emergentagent.com but that host does NOT
+   https://dynopay-preview-11.preview.emergentagent.com but that host does NOT
    route (curl -> 000). Find the REAL host in /var/log/supervisor/frontend.err.log — Next.js logs
    a "cross origin request detected from <host>.cluster-XX.preview.emergentcf.cloud" warning; the
    `<host>` prefix + `.preview.emergentagent.com` is the live URL (here: secure-transactions-11).
