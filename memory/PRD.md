@@ -1,5 +1,8 @@
 # CURRENT STATE POINTER (2026-06 fork, latest first)
 
+LATEST SESSION (part 3): Full UI/UX AUDIT of 27 surfaces (marketing+auth+in-app+public checkout/creator/shop; dark+light; 1920/1024/768/390). READ-ONLY — no code changed. Overall 8.4/10.
+Full scored report + prioritized P1/P2 fix backlog: `/app/memory/UIUX_AUDIT_2026-06.md`. Top P1s: trust-stat contradictions ($42M vs $24M, 8+ vs 15+ chains), mixed date formats (DD.MM vs MM.DD across Transactions/Pay-links/API Keys), pay-links Actions column clipped @1920, tablet-1024 table truncation, serif font fallback on page subtitles + system-status, dynopay.me vs dynopay.com handle domain mismatch.
+
 LATEST SESSION (part 2): Wallet Sharing Nudge + Storefront Merge (`/storefront` = Page · Products ·
 Share; `/creator` and `/pay-links/products` redirect there; public `{handle}` page now shows products
 inline) + `docs/IA_TAB_ARCHITECTURE_AUDIT.md` (tab-ownership audit — READ IT before the next IA change).
