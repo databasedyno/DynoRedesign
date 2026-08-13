@@ -9,7 +9,7 @@ import json
 from typing import Dict, Any, Tuple
 
 # Base URL
-BASE_URL = "https://dynopay-preview-11.preview.emergentagent.com"
+BASE_URL = "https://crypto-gateway-26.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 # Test credentials

@@ -42,7 +42,7 @@ require("dotenv").config({ path: "/app/backend/.env" });
 const axios = require("axios");
 const { Client } = require("pg");
 
-const BASE_URL = process.env.SERVER_URL || "https://dynopay-preview-11.preview.emergentagent.com";
+const BASE_URL = process.env.SERVER_URL || "https://crypto-gateway-26.preview.emergentagent.com";
 const TEST_ORIGIN = "https://test.example.com";
 const BOGUS_ORIGIN = "https://totally-different-evil-site.com";
 const PK_LIVE = "pk_live_wCJi6deu6y-CWIH_q9v0B3RWwQIGL_Al"; // hostbay company_id=1

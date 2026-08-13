@@ -1,8 +1,19 @@
 # Test Credentials
 
-## LATEST SETUP (2026-08-13, NEW pod) — env rebuilt from user's pasted creds
-- CURRENT preview URL (verified, screenshot loads):
-  https://aedc127d-0ef8-4673-b1c7-615d2600c7fb.preview.emergentagent.com
+## LATEST SETUP (2026-08-13 late, 4th NEW pod) — env rebuilt AGAIN from user's pasted creds
+- CURRENT preview URL (verified externally, login screenshot loads):
+  https://0aea5a72-92c0-4284-a642-f1690953c166.preview.emergentagent.com
+  (supervisor APP_URL — routes fine this time; https://crypto-gateway-26.preview.emergentagent.com ALSO routes)
+- Same recipe as below applied 1:1 (sequential yarn installs root->backend; both env files
+  rewritten; NEXTAUTH_SECRET regenerated: kCrvCwvNJxDraw2xuBUqKje5J2+NjwkXCge3gWvqBaE=).
+- Verified on this pod: /health healthy (db+redis connected, background_jobs.eligible=false),
+  SAFE MODE log lines present (BACKGROUND JOBS DISABLED, Skipping BullMQ webhook worker),
+  external landing//auth/login//api/status all 200 on BOTH hosts, SSR /pay + /hostbay/shop +
+  /hostbay all 200 (INTERNAL_API_URL=http://localhost:8001 in /app/.env.local),
+  "Refreshed 40 rates via Tatum", Binance geo-blocked (known, harmless).
+
+## PREVIOUS SETUP (2026-08-13, 3rd pod) — env rebuilt from user's pasted creds
+- Preview URL then: https://crypto-gateway-26.preview.emergentagent.com
 - Recipe applied (matches the documented one below):
   1. `yarn install` in /app then /app/backend (SEQUENTIAL; parallel corrupts the shared
      yarn cache -> ENOENT .yarn-metadata.json; fix = `rm -rf /usr/local/share/.cache/yarn`).
@@ -25,7 +36,7 @@
   (port 3300) fronted by a Python/uvicorn proxy on port 8001 (backend/server.py).
 - Browser API calls are RELATIVE (`/api/...`) because `NEXT_PUBLIC_BASE_URL` is empty
   in /app/.env.local -> Emergent ingress routes /api -> 8001 -> Node backend.
-- Preview URL (CURRENT, verified 2026-08-13): https://dynopay-preview-11.preview.emergentagent.com
+- Preview URL (CURRENT, verified 2026-08-13): https://crypto-gateway-26.preview.emergentagent.com
   Env rebuilt for the 3rd time on 2026-08-13 on a NEW pod (root+backend node_modules AND both
   env files were missing again). Recipe that works:
    1. `cd /app && yarn install` THEN `cd /app/backend && yarn install`  (run them SEQUENTIALLY —
@@ -38,7 +49,7 @@
       pasted value is the literal placeholder "openssl rand -base64 32".
    4. `sudo supervisorctl restart backend frontend`.
   HOST GOTCHA (3rd pod in a row): supervisor's APP_URL advertises
-   https://dynopay-preview-11.preview.emergentagent.com but that host does NOT
+   https://crypto-gateway-26.preview.emergentagent.com but that host does NOT
    route (curl -> 000). Find the REAL host in /var/log/supervisor/frontend.err.log — Next.js logs
    a "cross origin request detected from <host>.cluster-XX.preview.emergentcf.cloud" warning; the
    `<host>` prefix + `.preview.emergentagent.com` is the live URL (here: secure-transactions-11).
