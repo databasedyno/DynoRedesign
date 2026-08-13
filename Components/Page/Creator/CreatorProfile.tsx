@@ -12,6 +12,7 @@ import { GRADIENT_STOPS } from '@/constants/creatorTheme'
 import SupportWidget, { SupportWidgetData } from './SupportWidget'
 import InlineTipCheckout from './InlineTipCheckout'
 import AnalyticsWidget, { CreatorAnalyticsData } from './AnalyticsWidget'
+import CreatorShopSection, { CreatorShopProduct } from './CreatorShopSection'
 
 const MONO = 'ui-monospace, "Roboto Mono", "JetBrains Mono", SFMono-Regular, Menlo, monospace'
 // Aurora indigo — Landing v3 canonical accent (Session 82 migration).
@@ -76,7 +77,7 @@ const socialHref = (platform: string, raw: string): string => {
 const fmt = (n: number, currency: string) =>
   `${getCurrencySymbolFromFormat(currency)}${formatWithSeparators(n, currency)}`
 
-const CreatorProfile = ({ creator, links, siteUrl, supportWidget, analytics }: { creator: CreatorData; links: CreatorLink[]; siteUrl?: string; supportWidget?: SupportWidgetData | null; analytics?: CreatorAnalyticsData | null }) => {
+const CreatorProfile = ({ creator, links, siteUrl, supportWidget, analytics, products = [] }: { creator: CreatorData; links: CreatorLink[]; siteUrl?: string; supportWidget?: SupportWidgetData | null; analytics?: CreatorAnalyticsData | null; products?: CreatorShopProduct[] }) => {
   const { t } = useTranslation('landing')
   const theme = useTheme()
   const isDark = theme.palette.mode === 'dark'
@@ -523,6 +524,11 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget, analytics }: {
           </Box>
         )}
 
+        {/* ── Shop (live products, inline so one shared link covers everything) ── */}
+        {!activeLink && (
+          <CreatorShopSection handle={creator.handle} products={products} accent={accent} />
+        )}
+
         {/* ── Links ── */}
         {rest.length > 0 && !activeLink && (
           <Box display='flex' flexDirection='column' gap={1.5} data-testid='creator-links'>
@@ -600,7 +606,7 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget, analytics }: {
         })()}
 
         {/* ── Empty state ── */}
-        {links.length === 0 && !supportWidget?.enabled && (
+        {links.length === 0 && !supportWidget?.enabled && products.length === 0 && (
           <Box
             data-testid='creator-empty'
             sx={{ textAlign: 'center', py: 5, px: 3, borderRadius: '18px', border: `1px dashed ${border}`, backgroundColor: surface }}
@@ -639,8 +645,12 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget, analytics }: {
       </Box>
 
       {/* ── Mobile sticky Support bar (app-like) — portal to body, pinned to
-          the viewport. Scrolls to the featured campaign / support widget. ── */}
-      {mounted && !activeLink && (featured || supportWidget?.enabled) && createPortal(
+          the viewport. Scrolls to the featured campaign / support widget.
+          Wrapped in a Fragment because a raw portal object fails MUI's
+          `children: PropTypes.node` check on the parent Box (dev warning). ── */}
+      {mounted && !activeLink && (featured || supportWidget?.enabled) && (
+        <>
+          {createPortal(
         <Box
           data-testid='creator-sticky-cta'
           sx={{
@@ -692,6 +702,8 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget, analytics }: {
           </Button>
         </Box>,
         document.body,
+          )}
+        </>
       )}
     </Box>
   )

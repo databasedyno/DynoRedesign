@@ -27,6 +27,7 @@ import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import { CopyButton } from "../Transactions/TransactionDetailsModal.styled";
 import WalletTotalHero from "./WalletTotalHero";
+import WalletReuseNudge from "./WalletReuseNudge";
 import copyToClipboard from "@/helpers/copyToClipboard";
 import {
   HeaderIcon,
@@ -137,6 +138,9 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: () => void }) => {
   if (walletData.length === 0 && !walletLoading) {
     return (
       <>
+        {/* Wallets are per-account: if another account already has addresses,
+            offer them here instead of making the merchant retype anything. */}
+        <WalletReuseNudge onAddWallet={onAddWallet} />
         <EmptyDataModel pageName="wallet" onAddWallet={onAddWallet} />
       </>
     );

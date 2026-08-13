@@ -306,7 +306,7 @@ const EmptyDataModel = ({
                                 {
                                     key: "products",
                                     label: t("EmptyTxChipProducts", { defaultValue: "Sell products" }),
-                                    href: "/pay-links/products",
+                                    href: "/storefront?tab=products",
                                 },
                                 {
                                     key: "crowdfund",

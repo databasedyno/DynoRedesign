@@ -23,7 +23,7 @@ const EditProductPage = ({ setPageName, setPageDescription, setPageAction }: pag
   useEffect(() => {
     if (!setPageAction) return;
     setPageAction(
-      <IconButton onClick={() => router.push("/pay-links/products")} data-testid="products-edit-back">
+      <IconButton onClick={() => router.push("/storefront?tab=products")} data-testid="products-edit-back">
         <ArrowBackRounded />
       </IconButton>
     );

@@ -2,6 +2,7 @@ import React from 'react'
 import Head from 'next/head'
 import { GetServerSideProps } from 'next'
 import CreatorProfile, { CreatorData, CreatorLink } from '@/Components/Page/Creator/CreatorProfile'
+import type { CreatorShopProduct } from '@/Components/Page/Creator/CreatorShopSection'
 import { SupportWidgetData } from '@/Components/Page/Creator/SupportWidget'
 import { CreatorAnalyticsData } from '@/Components/Page/Creator/AnalyticsWidget'
 import { getCreatorBaseUrl } from '@/helpers/creatorUrl'
@@ -12,9 +13,10 @@ interface CreatorPageProps {
   siteUrl: string
   supportWidget: SupportWidgetData | null
   analytics: CreatorAnalyticsData | null
+  products: CreatorShopProduct[]
 }
 
-const CreatorPage = ({ creator, links, siteUrl, supportWidget, analytics }: CreatorPageProps) => {
+const CreatorPage = ({ creator, links, siteUrl, supportWidget, analytics, products }: CreatorPageProps) => {
   const title = `${creator.name} (@${creator.handle}) · Dynopay`
   const description =
     creator.bio || `Support ${creator.name} with crypto — donate or pay securely via Dynopay.`
@@ -36,7 +38,7 @@ const CreatorPage = ({ creator, links, siteUrl, supportWidget, analytics }: Crea
         <meta key='twitter:title' name='twitter:title' content={title} />
         <meta key='twitter:description' name='twitter:description' content={description} />
       </Head>
-      <CreatorProfile creator={creator} links={links} siteUrl={siteUrl} supportWidget={supportWidget} analytics={analytics} />
+      <CreatorProfile creator={creator} links={links} siteUrl={siteUrl} supportWidget={supportWidget} analytics={analytics} products={products} />
     </>
   )
 }
@@ -63,6 +65,21 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     const data = json?.data
     if (!data?.creator) return { notFound: true }
 
+    // Live products render INLINE on this page (session 2026-08-12 storefront
+    // merge) so the one link a merchant shares also shows what they sell.
+    // Best-effort: a shop failure must never take the page down.
+    let products: CreatorShopProduct[] = []
+    if (String(process.env.NEXT_PUBLIC_ENABLE_PRODUCT_CATALOG ?? 'true').toLowerCase() !== 'false') {
+      try {
+        const sr = await fetch(`${base}/api/shop/${encodeURIComponent(handle)}`, { headers: { Accept: 'application/json' } })
+        if (sr.ok) {
+          const sj = await sr.json()
+          const list = sj?.data?.products
+          if (Array.isArray(list)) products = list as CreatorShopProduct[]
+        }
+      } catch { /* shop is optional — ignore */ }
+    }
+
     // Analytics: only pass through when enabled=true AND we have some tips
     // (chart or top supporters non-empty). Otherwise widget stays hidden.
     let analytics: CreatorAnalyticsData | null = null
@@ -88,6 +105,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
         siteUrl: getCreatorBaseUrl() || (process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_SERVER_URL || '').replace(/\/+$/, ''),
         supportWidget: data.support_widget || null,
         analytics,
+        products,
       },
     }
   } catch {

@@ -55,6 +55,7 @@ const INAPP_PREFIXES = [
   "/fees",
   "/admin",
   "/creator",
+  "/storefront",
   "/payouts",
 ];
 

@@ -18,6 +18,7 @@ const STORE_KEY = "dp_qa_usage_v1";
 const PATH_TO_ID: Record<string, string> = {
   "/create-pay-link": "create-paylink",
   "/pay-links": "paylinks",
+  "/storefront": "creator",
   "/pay-links/products": "products",
   "/invoices": "invoice",
   "/wallet": "wallet",

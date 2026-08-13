@@ -23,7 +23,7 @@ const NewProductPage = ({ setPageName, setPageDescription, setPageAction }: page
   useEffect(() => {
     if (!setPageAction) return;
     setPageAction(
-      <IconButton onClick={() => router.push("/pay-links/products")} data-testid="products-new-back">
+      <IconButton onClick={() => router.push("/storefront?tab=products")} data-testid="products-new-back">
         <ArrowBackRounded />
       </IconButton>
     );

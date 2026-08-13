@@ -27,7 +27,7 @@ interface WalletReuseSelectorProps {
   onCopied?: (count: number) => void;
 }
 
-const LIME = "#c2f200";
+const LIME = "#4F46E5";
 
 /**
  * "Reuse wallets from an existing company" card.
@@ -140,8 +140,8 @@ const WalletReuseSelector: React.FC<WalletReuseSelectorProps> = ({
   if (loading || dismissed || companies.length === 0 || !activeCompany) return null;
 
   const rowBorder = isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)";
-  const cardBg = isDark ? "rgba(194,242,0,0.06)" : "rgba(194,242,0,0.10)";
-  const cardBorder = isDark ? "rgba(194,242,0,0.35)" : "rgba(120,150,0,0.35)";
+  const cardBg = isDark ? "rgba(129,140,248,0.08)" : "rgba(79,70,229,0.06)";
+  const cardBorder = isDark ? "rgba(129,140,248,0.35)" : "rgba(79,70,229,0.30)";
 
   return (
     <Box
@@ -168,7 +168,7 @@ const WalletReuseSelector: React.FC<WalletReuseSelectorProps> = ({
             flexShrink: 0,
           }}
         >
-          <AccountBalanceWalletRounded sx={{ fontSize: 16, color: "#0a0a0a" }} />
+          <AccountBalanceWalletRounded sx={{ fontSize: 16, color: "#ffffff" }} />
         </Box>
         <Box sx={{ flex: 1 }}>
           <Typography
@@ -322,7 +322,7 @@ const WalletReuseSelector: React.FC<WalletReuseSelectorProps> = ({
           height: 40,
           borderRadius: "10px",
           backgroundColor: LIME,
-          color: "#0a0a0a",
+          color: "#ffffff",
           fontWeight: 700,
           fontSize: 13.5,
           fontFamily: "var(--font-sans)",
@@ -333,7 +333,7 @@ const WalletReuseSelector: React.FC<WalletReuseSelectorProps> = ({
         }}
       >
         {copying ? (
-          <CircularProgress size={16} sx={{ color: "#0a0a0a" }} />
+          <CircularProgress size={16} sx={{ color: "#ffffff" }} />
         ) : (
           <ContentCopyRounded sx={{ fontSize: 16 }} />
         )}

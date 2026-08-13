@@ -95,8 +95,6 @@ const MobileNavigationBar = () => {
   // who genuinely haven't claimed yet — avoids a "phantom NEW" flash on page
   // load or for logged-out state.
   const showCreatorNewDot = profileLoaded && !hasClaimedCreator;
-  const isProductCatalogEnabled =
-    String(process.env.NEXT_PUBLIC_ENABLE_PRODUCT_CATALOG ?? "true").toLowerCase() !== "false";
 
   const { kycRequired: onboardingKycRequired } = useOnboardingStatus();
   useEffect(() => {
@@ -157,22 +155,12 @@ const MobileNavigationBar = () => {
   // (1200px), leaving tablets + phones with no way to navigate to them.
   const secondRowItems = [
     {
-      label: t("creatorPage", { defaultValue: "Creator page" }),
+      label: t("storefront", { defaultValue: "Storefront" }),
       icon: "creator",
-      path: "/creator",
-      id: "creator",
+      path: "/storefront",
+      id: "storefront",
       isNew: !hasClaimedCreator,
     },
-    ...(isProductCatalogEnabled
-      ? [
-          {
-            label: t("products", { defaultValue: "Products" }),
-            icon: "products",
-            path: "/pay-links/products",
-            id: "products",
-          },
-        ]
-      : []),
     {
       label: t("payLinks"),
       icon: "payment-links",

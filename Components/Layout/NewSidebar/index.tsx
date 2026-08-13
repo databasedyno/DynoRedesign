@@ -130,7 +130,7 @@ const NewSidebar = () => {
   }, []);
   const startCreatorSetup = useCallback(() => {
     dismissTour();
-    router.push("/creator");
+    router.push("/storefront?tab=page");
   }, [dismissTour, router]);
 
   // Prefetch all menu routes for instant navigation
@@ -138,7 +138,7 @@ const NewSidebar = () => {
     const paths = [
       "/dashboard", "/transactions", "/invoices", "/pay-links",
       "/wallet", "/customers", "/developer-keys", "/referrals",
-      "/notifications", "/create-pay-link", "/settings", "/creator",
+      "/notifications", "/create-pay-link", "/settings", "/storefront",
     ];
     paths.forEach((p) => router.prefetch(p));
   }, []);
@@ -157,12 +157,10 @@ const NewSidebar = () => {
       label: t("sidebarSectionPayments"),
       items: [
         { label: t("payLinks"), icon: "payment-links", path: "/pay-links", plus: true },
-        // Product Catalog nav item — gated by feature flag (spec §13). When
-        // NEXT_PUBLIC_ENABLE_PRODUCT_CATALOG=false, hide the entry entirely.
-        ...(String(process.env.NEXT_PUBLIC_ENABLE_PRODUCT_CATALOG ?? "true").toLowerCase() !== "false"
-          ? [{ label: t("products", { defaultValue: "Products" }), icon: "invoices", path: "/pay-links/products" }]
-          : []),
-        { label: t("creatorPage", { defaultValue: "Creator page" }), icon: "creator", path: "/creator", isNew: !hasClaimedCreator },
+        // Storefront = the merchant's ONE public page: look & bio, products and
+        // the share tools. Replaces the old separate "Creator page" + "Products"
+        // entries, which each configured a different part of the same URL.
+        { label: t("storefront", { defaultValue: "Storefront" }), icon: "creator", path: "/storefront", isNew: !hasClaimedCreator },
         { label: t("wallets"), icon: "wallets", path: "/wallet" },
         { label: t("customers"), icon: "customers", path: "/customers", soon: true },
       ],

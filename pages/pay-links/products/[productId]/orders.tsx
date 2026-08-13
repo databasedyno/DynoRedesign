@@ -85,7 +85,7 @@ const ProductOrdersPage = ({ setPageName, setPageDescription, setPageAction }: p
   useEffect(() => {
     if (!setPageAction) return;
     setPageAction(
-      <IconButton onClick={() => router.push("/pay-links/products")} data-testid="product-orders-back">
+      <IconButton onClick={() => router.push("/storefront?tab=products")} data-testid="product-orders-back">
         <ArrowBackRounded />
       </IconButton>
     );

@@ -1,5 +1,62 @@
 # Changelog
 
+# SESSION ADDENDUM (2026-06 fork, part 2) — Wallet Sharing Nudge · Storefront Merge · IA tab audit — VERIFIED (testing agent iteration_49 + 50, 100% after fixes)
+
+## A. Wallet Sharing Nudge (`Components/Page/Wallet/WalletReuseNudge.tsx`, NEW)
+Wallets are per-Account, so a merchant who gains a second account lands on an EMPTY wallets page
+while their addresses sit on the other one. On `/wallet`, when the selected account has zero wallets
+and `GET /api/wallet/reusable-wallets` reports another account with some, a card offers
+"Use the same wallets as <account>" + one tap `Copy N wallets`
+(`POST /api/wallet/copyWalletAddresses`, idempotent, no OTP, one row per account/address so
+settlement scoping is untouched) + "Add a different one". testids: wallet-reuse-nudge,
+-copy, -add-new. `WalletReuseSelector` (inside AddWalletModal) re-copied to "another account" and
+re-coloured from the legacy lime to Aurora indigo.
+
+## B. Storefront Merge (user choices: inline products · single nav item · products for everyone · link called "your page")
+- NEW `/storefront` (`pages/storefront/index.tsx`) with three tabs — **Page · Products · Share** —
+  code-split via next/dynamic, tab state local + synced from `?tab=`, and a
+  `USER_PROFILE_FETCH` dispatch because the Products/Share tabs don't otherwise pull the profile
+  into Redux (Share would have claimed the merchant has no link). testids storefront-page,
+  storefront-tab-{page,products,share}, storefront-open-page.
+- NEW `Components/Page/Storefront/PageTab.tsx` (ex-/creator body), `ProductsTab.tsx`
+  (ex-/pay-links/products list, actions moved into the panel header), `ShareTab.tsx`
+  (link + copy + open + X/WhatsApp/Telegram/email + QR, with a "claim your handle" empty state).
+- `/creator` and `/pay-links/products` are now zero-JS `getServerSideProps` redirects into
+  `/storefront?tab=…`, so every existing `router.push("/creator")` keeps working. Product editor
+  routes (`new`, `[id]/edit`, `[id]/orders`) unchanged; their back buttons point at the tab.
+- Nav: sidebar + mobile second row now carry ONE **Storefront** item (the old "Creator page" +
+  feature-flagged "Products" rows are gone); QuickActions catalog hrefs, `helpers/shortcutUsage`
+  path map, `utils/theme/routeContext` (in-app dark theme) and `_app` noindex list all updated.
+- PUBLIC PAGE — the whole point: `pages/[handle].tsx` now also SSR-fetches `/api/shop/{handle}`
+  (best-effort, flag-aware) and `CreatorProfile` renders NEW `CreatorShopSection.tsx` inline under
+  the tip widget (up to 6 cards, full-width when there is only one, "View all →" to `/{handle}/shop`).
+  One shared link finally shows tips AND products. The page's "nothing here yet" state now also
+  requires `products.length === 0`.
+- Fixed a pre-existing dev warning: the mobile sticky-CTA `createPortal` is now wrapped in a
+  Fragment (a raw portal object fails MUI's `children: PropTypes.node` check on the parent Box).
+
+## C. BUG (self-found, P0) — route loader stuck when leaving /storefront
+`routeChangeStart` + `beforeHistoryChange` fired, the URL changed, but `routeChangeComplete` never
+did, so `RouteTransitionLoader` hung over the next page. Root cause was NOT the dynamic imports (the
+first hypothesis): the page was in a **render loop — 69 renders per load** — because the header-action
+effect depended on MUI's `theme` AND called `setPageAction` (state in `_app`); each commit produced a
+new dep, re-ran the effect, set state again. React never commits the next route while a page loops,
+so Next's `set()` promise never resolves. Fixed by moving the action into its own
+`<OpenPageAction/>` component so the effect depends only on `[setPageAction, handle]`.
+Renders 69 → 5, transitions complete, code-splitting kept.
+**RULE:** any effect that writes layout state (`setPageName`/`setPageAction`/`setPageWarning`) must
+depend on PRIMITIVES ONLY. Non-primitive deps show up later as a "navigation bug" elsewhere.
+
+## D. `docs/IA_TAB_ARCHITECTURE_AUDIT.md` (NEW) — human-experience / tab-ownership audit
+Which functionality belongs in which tab, judged by four tests (job · frequency · config-vs-result ·
+consequence) for the two personas that now exist (`account_type`). 14 findings; headline ones:
+product orders live in 3 places, tips are configured/reported/counted in 3 places, creating things
+has no single home, "Invoices & Tax" is a receipts archive, developer tooling has 3 doors, and one
+IA is shown to both personas. Proposes 4 nav groups / 8 rows with reveal-on-relevance, a full
+tab-ownership map, 7 anti-sprawl laws and a P0/P1/P2 plan. Read it before the next IA change.
+
+---
+
 # SESSION ADDENDUM (2026-06 (fork)) — Individual vs Business account UX · low-base KPI delta · pay-links search crash — VERIFIED (testing agent iteration_47 + 48 + self-verified via route interception)
 
 ## Why

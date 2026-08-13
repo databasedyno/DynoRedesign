@@ -1,6 +1,14 @@
 # CURRENT STATE POINTER (2026-06 fork, latest first)
 
-LATEST SESSION: Individual vs Business account UX + low-base KPI delta + /pay-links search crash fix.
+LATEST SESSION (part 2): Wallet Sharing Nudge + Storefront Merge (`/storefront` = Page · Products ·
+Share; `/creator` and `/pay-links/products` redirect there; public `{handle}` page now shows products
+inline) + `docs/IA_TAB_ARCHITECTURE_AUDIT.md` (tab-ownership audit — READ IT before the next IA change).
+- Layout-state effects (`setPageName`/`setPageAction`) must depend on PRIMITIVES ONLY — a themed dep
+  render-looped /storefront and stopped route transitions from committing.
+- Wallets are per-Account; reuse across accounts = `GET /api/wallet/reusable-wallets` +
+  `POST /api/wallet/copyWalletAddresses` (UI: WalletReuseNudge on /wallet, WalletReuseSelector in AddWalletModal).
+
+PREVIOUS SESSION: Individual vs Business account UX + low-base KPI delta + /pay-links search crash fix.
 Full detail at the TOP of `/app/memory/CHANGELOG.md` (sections A–H). Key facts:
 - Every user is auto-provisioned an Account (`tbl_company.account_type`), so NEVER use `companyList.length > 0`
   as an onboarding signal — use `hooks/useAccountProfile.ts` (`profileComplete` = company_name + country).
