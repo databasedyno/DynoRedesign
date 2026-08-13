@@ -139,10 +139,23 @@ const getData = async (req: express.Request, res: express.Response) => {
 
     const item = await getRedisItem("customer-" + data) as RedisPaymentItem | null;
 
+    // A Redis session is only USABLE when it still carries checkout fields.
+    // Settled links get soft-deleted (~30 min TTL), and the old language
+    // write-back below used to resurrect expired keys as bare `{ language }`
+    // shells — treat both cases as "no session".
+    const hasUsableSession = !!item && Object.keys(item).length > 0 && (
+      item.link_id !== undefined ||
+      item.amount !== undefined ||
+      item.base_amount !== undefined ||
+      item.allowedModes !== undefined ||
+      item.available_currencies !== undefined
+    );
+
     // Capture the customer's preferred language (sent by the checkout page) for localized emails.
     // Persisted on the customer session so it survives through to settlement.
+    // ONLY on usable sessions — writing to an expired key would resurrect it.
     const rawLanguage = (req.body as { language?: string })?.language;
-    if (item && rawLanguage) {
+    if (hasUsableSession && item && rawLanguage) {
       const reqLanguage = normalizeLang(rawLanguage);
       if (item.language !== reqLanguage) {
         try {
@@ -155,12 +168,59 @@ const getData = async (req: express.Request, res: express.Response) => {
     }
 
     // Only log for debugging when item exists or in development
-    if (process.env.NODE_ENV === 'development' || (item && Object.keys(item).length > 0)) {
-      cronLogger.info("[getData] Payment lookup:", { hasItem: !!item && Object.keys(item).length > 0, dataRef: data?.substring(0, 10) + '...' });
+    if (process.env.NODE_ENV === 'development' || hasUsableSession) {
+      cronLogger.info("[getData] Payment lookup:", { hasItem: hasUsableSession, dataRef: data?.substring(0, 10) + '...' });
     }
-    
-    // Check if item exists
-    if (!item || Object.keys(item).length === 0) {
+
+    if (!hasUsableSession) {
+      // ── PAID-LINK FALLBACK (no Redis session) ────────────────────────────
+      // The checkout session expires ~30 min after settlement, but links keep
+      // being opened afterwards (customers double-check, merchants verify).
+      // Look the link up in the DB by its public ref so PAID links still show
+      // the "Payment Completed" card instead of a 404 / broken empty checkout.
+      try {
+        const refKey = String(data).replace(/[^a-zA-Z0-9]/g, "");
+        if (refKey) {
+          const [dbLink] = await sequelize.query(
+            `SELECT status, base_amount, base_currency, paid_amount, paid_currency, description, redirect_url, "updatedAt"
+               FROM tbl_payment_link
+              WHERE payment_link LIKE :refPattern
+              ORDER BY link_id DESC LIMIT 1`,
+            { replacements: { refPattern: `%?d=${refKey}` }, type: QueryTypes.SELECT }
+          ) as any[];
+          if (dbLink) {
+            const parsedState = parseState(dbLink.status);
+            const COMPLETED_STATES = new Set<PaymentState>([
+              PaymentState.CONFIRMED,
+              PaymentState.PROCESSING,
+              PaymentState.CONVERTED,
+              PaymentState.PAYOUT_COMPLETE,
+            ]);
+            const isPaid =
+              dbLink.status === 'successful' ||
+              (parsedState !== undefined && COMPLETED_STATES.has(parsedState));
+            if (isPaid) {
+              return res.status(200).json({
+                success: true,
+                data: {
+                  payment_completed: true,
+                  status: 'successful',
+                  amount: Number(dbLink.base_amount) || 0,
+                  base_amount: Number(dbLink.base_amount) || 0,
+                  base_currency: dbLink.base_currency || null,
+                  paid_amount: dbLink.paid_amount,
+                  paid_currency: dbLink.paid_currency,
+                  paid_at: dbLink.updatedAt || null,
+                  description: dbLink.description || null,
+                  redirect_url: dbLink.redirect_url || null,
+                },
+              });
+            }
+          }
+        }
+      } catch (dbErr) {
+        cronLogger.warn('[getData] DB fallback for expired session failed:', dbErr);
+      }
       return errorResponseHelper(res, 404, "Payment link not found or expired");
     }
 
