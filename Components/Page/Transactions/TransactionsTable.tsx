@@ -402,7 +402,22 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
         minHeight: 0,
         overflowX: "auto",
         overflowY: "hidden",
-        scrollbarWidth: "none",
+        // Thin visible scrollbar — hidden before, so cut-off Status/Date
+        // columns on narrower screens looked broken (UI/UX audit P1 fix).
+        scrollbarWidth: "thin",
+        scrollbarColor:
+          theme.palette.mode === "dark"
+            ? "rgba(255,255,255,0.28) transparent"
+            : "rgba(15,15,20,0.28) transparent",
+        "&::-webkit-scrollbar": { height: 8 },
+        "&::-webkit-scrollbar-track": { background: "transparent" },
+        "&::-webkit-scrollbar-thumb": {
+          borderRadius: 8,
+          backgroundColor:
+            theme.palette.mode === "dark"
+              ? "rgba(255,255,255,0.22)"
+              : "rgba(15,15,20,0.22)",
+        },
       }}
     >
       <Box

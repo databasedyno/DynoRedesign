@@ -439,6 +439,10 @@ const NotificationPage = () => {
                     >
                       {roundLongDecimalsInText(notif.message)}
                     </Typography>
+                    {/* Category chip only when it ADDS info — most titles
+                        already say "Payment Received" (UI/UX audit dedupe). */}
+                    {notif.type.split("_").join(" ").toLowerCase() !==
+                      String(notif.title || "").trim().toLowerCase() && (
                     <Chip
                       label={notif.type.split("_").map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")}
                       size="small"
@@ -452,6 +456,7 @@ const NotificationPage = () => {
                         border: `1px solid ${getTypeColor(notif.type)}30`,
                       }}
                     />
+                    )}
                   </Box>
                 </Box>
               ))}

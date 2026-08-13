@@ -1,5 +1,10 @@
 # DynoPay UI/UX Audit — 2026-06 (read-only, no code changed)
 
+> STATUS UPDATE (same session, later): ALL P1 + P2 issues below were FIXED and
+> verified by testing agent (test_reports/iteration_51.json + iteration_52.json,
+> 14/14 PASS). Exception: P2 #12 (API docs base URL) was verified CORRECT as-is
+> (merchant endpoints genuinely live under /api/user) — no change made.
+
 Method: live screenshot review of 27 surfaces — desktop 1920, tablet 1024 & 768, mobile 390; dark + light in-app modes; logged in as hostbay (LIVE prod DB, view-only). Rated against modern fintech/payment-gateway UX principles (Stripe/Coinbase-class benchmarks): usability, visual design, copy clarity, consistency, responsiveness.
 
 ## OVERALL: 8.4 / 10 — polished, distinctive, production-grade; held back by consistency nits, not by design quality.

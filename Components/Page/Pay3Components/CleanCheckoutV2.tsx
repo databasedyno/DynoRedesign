@@ -112,6 +112,7 @@ type Meta = {
   } | null
   merchant?: {
     name?: string | null
+    company_name?: string | null
     company_logo?: string | null
   } | null
 }
@@ -413,7 +414,12 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
         order_reference: raw.order_reference || raw.reference || null,
         customer_name: raw.customer_name || null,
         contribution: raw.contribution || null,
-        merchant: raw.merchant || raw.merchant_info || null,
+        // Backend sends { company_name, company_logo } — normalise to .name so
+        // the headline can show "Pay <company>" instead of "Pay Merchant".
+        merchant: (() => {
+          const m = raw.merchant || raw.merchant_info || null
+          return m ? { ...m, name: m.name || m.company_name || null } : null
+        })(),
       })
       setPhase('currency_select')
     })()
@@ -687,13 +693,16 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
   }
 
   // ─── Merchant + campaign name resolution ──────────────────────────
-  const merchantName = meta_?.merchant?.name || 'Merchant'
+  const rawMerchantName = meta_?.merchant?.name || ''
+  const merchantName = rawMerchantName || 'Merchant'
   const campaignTitle = meta_?.contribution?.campaign_title || ''
   const isContribution = meta_?.link_type === 'contribution' || !!meta_?.contribution
   // Headline: prefer merchant NAME on payment links; campaign TITLE on contribs.
+  // When the backend has no name, "Pay Merchant" read as broken copy (UI/UX
+  // audit) — fall back to an action headline instead.
   const headline = isContribution
-    ? (campaignTitle || `Support ${merchantName}`)
-    : `Pay ${merchantName}`
+    ? (campaignTitle || (rawMerchantName ? `Support ${rawMerchantName}` : t('checkout.supportFallbackTitle', { defaultValue: 'Support this campaign' })))
+    : (rawMerchantName ? `Pay ${rawMerchantName}` : t('checkout.completePaymentTitle', { defaultValue: 'Complete your payment' }))
 
   // Portal-mount guard for the mobile sticky pay bar (SSR-safe).
   useEffect(() => setPortalReady(true), [])
@@ -1030,7 +1039,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
           )}
           {meta_.order_reference && (
             <Typography sx={{ fontFamily: MONO, fontSize: 11.5, color: muted }}>
-              {isContribution ? t('checkout.reference', { defaultValue: 'REFERENCE' }) : t('checkout.invoice', { defaultValue: 'INVOICE' })} · {meta_.order_reference}
+              {t('checkout.reference', { defaultValue: 'REFERENCE' })} · {meta_.order_reference}
             </Typography>
           )}
         </Box>

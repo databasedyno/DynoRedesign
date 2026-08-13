@@ -12,7 +12,7 @@ import { brandFg, BRAND_ACCENT } from "@/constants/theme";
 
 const STATS = [
   { value: "1.5%", label: "Base fee — no monthly cost" },
-  { value: "8+", label: "Blockchains supported" },
+  { value: "15+", label: "Blockchains supported" },
   { value: "100%", label: "Non-custodial payouts" },
   { value: "2024", label: "Building since" },
 ];

@@ -51,7 +51,7 @@ export const theme = createTheme({
       xs: 0,
       sm: 600,
       md: 900,
-      lg: 1200,
+      lg: 1024,
       xl: 1600,
     },
   },
@@ -572,7 +572,7 @@ const getCheckoutComponentStyles = (isDark: boolean) => ({
 
 export const lightTheme = createTheme({
   breakpoints: {
-    values: { xs: 0, sm: 600, md: 900, lg: 1200, xl: 1600 },
+    values: { xs: 0, sm: 600, md: 900, lg: 1024, xl: 1600 },
   },
   palette: {
     mode: "light",
@@ -596,7 +596,7 @@ export const lightTheme = createTheme({
 
 export const darkTheme = createTheme({
   breakpoints: {
-    values: { xs: 0, sm: 600, md: 900, lg: 1200, xl: 1600 },
+    values: { xs: 0, sm: 600, md: 900, lg: 1024, xl: 1600 },
   },
   palette: {
     mode: "dark",
@@ -623,7 +623,7 @@ export const themeDark = createTheme({
       xs: 0,
       sm: 600,
       md: 900,
-      lg: 1200,
+      lg: 1024,
       xl: 1600,
     },
   },

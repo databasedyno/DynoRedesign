@@ -19,6 +19,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import TransactionsTable from "./TransactionsTable";
+import { formatDisplayDateTime } from "@/helpers/displayDate";
 import TransactionsTopBar from "./TransactionsTopBar";
 import TransactionsSkeleton from "./TransactionsSkeleton";
 
@@ -176,19 +177,9 @@ const TransactionPage = () => {
     }
   }, [confirmedPaymentCount, selectedCompanyId]);
 
-  const formatDateTime = (isoString: string) => {
-    const date = new Date(isoString);
-
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const year = date.getFullYear();
-
-    const hours = String(date.getHours()).padStart(2, "0");
-    const minutes = String(date.getMinutes()).padStart(2, "0");
-    const seconds = String(date.getSeconds()).padStart(2, "0");
-
-    return `${day}.${month}.${year} ${hours}:${minutes}:${seconds}`;
-  };
+  // Shared unambiguous format ("13 Aug 2026, 13:10") — same as Payment Links
+  // and API Keys (UI/UX audit date-format unification).
+  const formatDateTime = (isoString: string) => formatDisplayDateTime(isoString);
 
   const processedTransactions: ExtendedTransaction[] = useMemo(() => {
     if (!transactionState?.customers_transactions) return [];

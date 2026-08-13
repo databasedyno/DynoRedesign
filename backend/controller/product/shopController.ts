@@ -128,6 +128,7 @@ export const getShopByHandle = async (
           merchant.dataValues.handle,
         avatar: merchant.dataValues.photo || null,
         bio: merchant.dataValues.bio || null,
+        accent: merchant.dataValues.theme_accent_color || null,
       },
       products: items,
     });
@@ -178,6 +179,7 @@ export const getShopProductBySlug = async (
           merchant.dataValues.username ||
           merchant.dataValues.handle,
         avatar: merchant.dataValues.photo || null,
+        accent: merchant.dataValues.theme_accent_color || null,
       },
       product: publicProductProjection(product.dataValues),
       variants: variants.map((v: any) => publicVariantProjection(v.dataValues)),

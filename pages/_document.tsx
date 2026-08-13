@@ -33,6 +33,13 @@ export default function MyDocument({ emotionStyleTags }: MyDocumentProps) {
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="theme-color" content="#0A0A0A" />
 
+        {/* Preload core Manrope weights — paired with font-display:swap in
+            globals.css so headings/labels never stick on the serif fallback. */}
+        <link rel="preload" href="/fonts/Manrope-Regular.woff" as="font" type="font/woff" crossOrigin="anonymous" />
+        <link rel="preload" href="/fonts/Manrope-Medium.woff" as="font" type="font/woff" crossOrigin="anonymous" />
+        <link rel="preload" href="/fonts/Manrope-SemiBold.woff" as="font" type="font/woff" crossOrigin="anonymous" />
+        <link rel="preload" href="/fonts/Manrope-Bold.woff" as="font" type="font/woff" crossOrigin="anonymous" />
+
         {/* Fonts now served via next/font (Geist Sans + Geist Mono). See _app.tsx.
             Legacy Manrope woffs kept in /public/fonts as fallback for any
             component that still references Manrope by name during hydration. */}

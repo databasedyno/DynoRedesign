@@ -73,6 +73,10 @@ const MEGA_CLOSE_DELAY_MS = 220;
 
 const HomeHeader = memo(function HomeHeader() {
   const router = useRouter();
+  // Public creator surfaces (/{handle}, /{handle}/shop, product pages) keep
+  // platform chrome minimal so the creator's own brand stays the focus
+  // (UI/UX audit P2): logo + language/theme + auth CTAs only.
+  const minimalChrome = router.pathname.startsWith("/[handle]");
   const { t } = useTranslation("landing");
   const muiTheme = useTheme();
   const isDark = muiTheme.palette.mode === "dark";
@@ -169,6 +173,7 @@ const HomeHeader = memo(function HomeHeader() {
   // Global ⌘K / Ctrl+K to toggle the command menu.
   useEffect(() => {
     const onKey = (e: globalThis.KeyboardEvent) => {
+      if (minimalChrome) return;
       if ((e.metaKey || e.ctrlKey) && (e.key === "k" || e.key === "K")) {
         e.preventDefault();
         setSearchOpen((v) => !v);
@@ -176,7 +181,7 @@ const HomeHeader = memo(function HomeHeader() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, []);
+  }, [minimalChrome]);
 
   // Close menus on route change.
   useEffect(() => {
@@ -253,6 +258,7 @@ const HomeHeader = memo(function HomeHeader() {
             <Image src={logoSrc} alt="Dynopay" width={134} height={45} draggable={false} priority />
           </ClickableLogo>
 
+          {!minimalChrome && (
           <NavLinks>
             {MENU_SECTIONS.map((section) => {
               const open = openMenu === section.key;
@@ -375,15 +381,19 @@ const HomeHeader = memo(function HomeHeader() {
               );
             })}
           </NavLinks>
+          )}
         </LeftGroup>
 
         <RightGroup>
           <Actions>
+            {!minimalChrome && (
             <StatusPillWrap aria-label="System status">
               <span className="dot" />
               <span className="status-label">{t("v3.header.systemsNormal")}</span>
             </StatusPillWrap>
+            )}
 
+            {!minimalChrome && (
             <SearchButton
               disableRipple
               aria-label={t("search.button")}
@@ -393,6 +403,7 @@ const HomeHeader = memo(function HomeHeader() {
               <SearchRoundedIcon />
               <span className="kbd">⌘K</span>
             </SearchButton>
+            )}
 
             <HeaderLangMenu hideOnMobile />
 
@@ -475,7 +486,7 @@ const HomeHeader = memo(function HomeHeader() {
       >
         <MobileDrawer>
           <MobileNavContent>
-            {MENU_SECTIONS.map((section) => {
+            {!minimalChrome && MENU_SECTIONS.map((section) => {
               const open = openMobileSection === section.key;
               return (
                 <MobileSection key={section.key}>

@@ -55,7 +55,7 @@
     "keyNameDescription4": "Acceder a información de billeteras",
     "successTitle": "Clave API Generada",
     "successSubtitle": "Guarda esta clave ahora - no podrás verla de nuevo",
-    "yourKey": "API",
+    "yourKey": "Clave API",
     "adminToken": "Token de Admin",
     "securityTitle": "Aviso de Seguridad Importante",
     "securityMessage": "Asegúrate de copiar tu clave API ahora. Por razones de seguridad, no la mostraremos de nuevo. Guárdala de forma segura y nunca la compartas públicamente."

@@ -18,7 +18,6 @@ import CopyIcon from "@/assets/Icons/copy-icon.svg";
 import EyeIcon from "@/assets/Icons/eye-icon.svg";
 import InfoIcon from "@/assets/Icons/info-icon.svg";
 import TrashIcon from "@/assets/Icons/trash-icon.svg";
-import BgImage from "@/assets/Images/card-bg.png";
 import { formatDate, getTime } from "@/helpers/dateTimeFormatter";
 import { IApi, rootReducer } from "@/utils/types";
 
@@ -83,25 +82,6 @@ const ApiDocumentationCard = ({ docsUrl }: { docsUrl: string }) => {
         position: "relative",
         overflow: "hidden",
         borderRadius: "14px",
-        "&::after": {
-          content: '""',
-          position: "absolute",
-          inset: 0,
-          backgroundImage: `url(${BgImage.src})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-          zIndex: 0,
-          pointerEvents: "none",
-          width: "70%",
-          height: "100%",
-          marginLeft: "auto",
-          marginRight: "0.5rem",
-          [theme.breakpoints.down("md")]: {
-            backgroundPosition: "left",
-            marginRight: "0",
-          },
-        },
       }}
       headerSx={{
         position: "relative",

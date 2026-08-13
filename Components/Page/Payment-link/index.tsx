@@ -52,7 +52,11 @@ const PaymentLinksPage = ({
       return {
       id: link._id || link.link_id || link.id,
       // Donation campaigns: the campaign title is the meaningful label
-      description: (isDonation ? link.donation?.title : null) || link.description || "",
+      description:
+        ((isDonation ? link.donation?.title : null) ||
+          (link.description && link.description !== "No description"
+            ? link.description
+            : "")) as string,
       // Donation campaigns: show the RAISED amount in the value column
       usdValue: isDonation
         ? `${formatWithSeparators(Number(link.donation?.raised_amount || 0), undefined, 2)} ${link.base_currency || "USD"}`

@@ -586,9 +586,21 @@ export const TransactionsTableScrollWrapper = styled(Box)(({ theme }) => ({
   minHeight: 0,
   overflowX: "auto",
   overflowY: "hidden",
-  scrollbarWidth: "none",
-  msOverflowStyle: "none",
-  "&::-webkit-scrollbar": { display: "none" },
+  // UI/UX audit fix (2026-06): the scrollbar was fully hidden, so when columns
+  // overflowed (tablet, or the 9-column pay-links table) the cut-off Actions /
+  // Status columns looked broken with no hint that the table scrolls.
+  scrollbarWidth: "thin",
+  scrollbarColor:
+    theme.palette.mode === "dark"
+      ? "rgba(255,255,255,0.28) transparent"
+      : "rgba(15,15,20,0.28) transparent",
+  "&::-webkit-scrollbar": { height: 8 },
+  "&::-webkit-scrollbar-track": { background: "transparent" },
+  "&::-webkit-scrollbar-thumb": {
+    borderRadius: 8,
+    backgroundColor:
+      theme.palette.mode === "dark" ? "rgba(255,255,255,0.22)" : "rgba(15,15,20,0.22)",
+  },
   [theme.breakpoints.down("md")]: {
     WebkitOverflowScrolling: "touch",
   },

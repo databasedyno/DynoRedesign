@@ -39,7 +39,8 @@ const TrustStrip: React.FC = () => {
       testid: "trust-stat-merchants",
     },
     {
-      value: t("trustProcessedValue", { defaultValue: "$24M+" }),
+      // Keep in sync with constants/trustStats.ts (landing claims the same figure).
+      value: t("trustProcessedValue", { defaultValue: "$42M+" }),
       label: t("trustProcessedLabel", { defaultValue: "processed" }),
       testid: "trust-stat-processed",
     },

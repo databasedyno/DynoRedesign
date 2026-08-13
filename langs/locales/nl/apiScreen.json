@@ -55,7 +55,7 @@
     "keyNameDescription4": "Wallet-informatie opvragen",
     "successTitle": "API-sleutel gegenereerd",
     "successSubtitle": "Sla deze sleutel nu op - u kunt deze niet opnieuw bekijken",
-    "yourKey": "API",
+    "yourKey": "API-sleutel",
     "adminToken": "Admin-token",
     "securityTitle": "Belangrijke beveiligingsmelding",
     "securityMessage": "Kopieer nu uw API-sleutel. Om veiligheidsredenen tonen we deze niet opnieuw. Bewaar deze veilig en deel deze nooit openbaar."

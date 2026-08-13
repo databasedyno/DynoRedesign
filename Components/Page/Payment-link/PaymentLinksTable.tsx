@@ -36,6 +36,7 @@ import CopyIcon from "@/assets/Icons/copy-icon.svg";
 import DescriptiontoIcon from "@/assets/Icons/crypto-icon.svg";
 import TimeUsedIcon from "@/assets/Icons/cryptocurrency_link.svg";
 import CoinChips from "@/Components/UI/CoinChips";
+import { formatDisplayDateTime } from "@/helpers/displayDate";
 import TransactionSourceBadge from "@/Components/UI/TransactionSourceBadge";
 import CryptoIcon from "@/assets/Icons/CryptoIcon.svg";
 import EditIcon from "@/assets/Icons/edit-icon.svg";
@@ -317,23 +318,13 @@ const PaymentLinksTable = ({
     );
   };
 
+  // Shared unambiguous format ("13 Aug 2026, 13:10") — same as Transactions
+  // and API Keys (UI/UX audit date-format unification; was MM.DD.YYYY).
   function formatUtcToDisplay(dateString: string): string {
     if (!dateString) return "";
-
     const date = parseDateSafe(dateString);
     if (isNaN(date.getTime())) return dateString || "";
-
-    const pad = (n: number) => n.toString().padStart(2, "0");
-
-    const month = pad(date.getUTCMonth() + 1);
-    const day = pad(date.getUTCDate());
-    const year = date.getUTCFullYear();
-
-    const hours = pad(date.getUTCHours());
-    const minutes = pad(date.getUTCMinutes());
-    const seconds = pad(date.getUTCSeconds());
-
-    return `${month}.${day}.${year} ${hours}:${minutes}:${seconds}`;
+    return formatDisplayDateTime(date);
   }
 
   return (
@@ -579,7 +570,17 @@ const PaymentLinksTable = ({
                   <TableCell>
                     <Header label="timesUsedHeader" tooltip="timesUsedTooltip" />
                   </TableCell>
-                  <TableCell align="center">
+                  <TableCell
+                    align="center"
+                    sx={{
+                      // Sticky so row actions are NEVER cut off when the
+                      // table scrolls horizontally (UI/UX audit P1 fix).
+                      position: "sticky",
+                      right: 0,
+                      zIndex: 3,
+                      backgroundColor: theme.palette.mode === "dark" ? theme.palette.background.paper : theme.palette.primary.light,
+                    }}
+                  >
                     <Header label="actionsHeader" />
                   </TableCell>
                 </TableRow>
@@ -624,13 +625,13 @@ const PaymentLinksTable = ({
                       {row.linkType === "donation" ? (
                         <Box sx={{ display: "flex", flexDirection: "column", gap: "3px", minWidth: 130 }}>
                           <Box sx={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                            <Box component="span">{row.description}</Box>
+                            <Box component="span">{row.description || "—"}</Box>
                             {donationChip}
                           </Box>
                           {donationProgressBar(row)}
                         </Box>
                       ) : (
-                        row.description
+                        row.description || "—"
                       )}
                     </TableBodyCell>
                     <TableBodyCell sx={{ fontFamily: MONO, fontVariantNumeric: "tabular-nums" }}>{row.usdValue}</TableBodyCell>
@@ -698,6 +699,12 @@ const PaymentLinksTable = ({
                         // an inner flex Box so the table can compute the column width
                         // properly and the icons stay inside the visible area.
                         whiteSpace: "nowrap",
+                        // Sticky-right so actions stay visible while the rest
+                        // of the row scrolls under them (UI/UX audit P1 fix).
+                        position: "sticky",
+                        right: 0,
+                        zIndex: 2,
+                        backgroundColor: theme.palette.mode === "dark" ? theme.palette.background.paper : "#FFFFFF",
                       }}
                     >
                       <Box

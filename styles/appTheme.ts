@@ -149,6 +149,18 @@ export const appThemeDark = createTheme(themeDark, {
   } as any,
   typography: headingTypography,
   components: {
+    // UI/UX audit a11y fix: disabled/read-only inputs (Settings → name/email)
+    // were gray-on-gray in dark mode. Keep them clearly non-editable but legible.
+    MuiInputBase: {
+      styleOverrides: {
+        input: {
+          "&.Mui-disabled": {
+            WebkitTextFillColor: "rgba(255,255,255,0.62)",
+            color: "rgba(255,255,255,0.62)",
+          },
+        },
+      },
+    },
     MuiButton: {
       variants: buttonVariants(AUTH_LIME, "#FFFFFF", INDIGO_HOVER),
       // Dark-safe brand foreground for built-in MUI outlined/text primary

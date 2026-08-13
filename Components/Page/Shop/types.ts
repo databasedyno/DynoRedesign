@@ -15,6 +15,8 @@ export interface ShopMerchant {
   name: string;
   avatar?: string | null;
   bio?: string | null;
+  /** Creator theme accent — keeps the shop avatar the same colour as /[handle]. */
+  accent?: string | null;
 }
 
 export interface ShopProduct {

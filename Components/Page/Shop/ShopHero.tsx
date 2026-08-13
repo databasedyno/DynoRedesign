@@ -143,7 +143,7 @@ export default function ShopHero({ merchant, products, shopUrl }: Props) {
             height: { xs: 72, md: 96 },
             border: `3px solid ${isDark ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.95)"}`,
             boxShadow: "0 8px 32px rgba(0,0,0,0.25)",
-            bgcolor: `hsl(${hue}, 60%, 55%)`,
+            bgcolor: merchant.accent || `hsl(${hue}, 60%, 55%)`,
             fontSize: { xs: 28, md: 36 },
             fontWeight: 700,
           }}

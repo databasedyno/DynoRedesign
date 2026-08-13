@@ -55,7 +55,7 @@
     "keyNameDescription4": "Access wallet information",
     "successTitle": "API Key Generated",
     "successSubtitle": "Save this key now - you won't be able to see it again",
-    "yourKey": "API",
+    "yourKey": "API key",
     "adminToken": "Admin Token",
     "securityTitle": "Important Security Notice",
     "securityMessage": "Make sure to copy your API key now. For security reasons, we won't show it again. Store it securely and never share it publicly."

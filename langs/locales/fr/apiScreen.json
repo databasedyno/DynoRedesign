@@ -55,7 +55,7 @@
     "keyNameDescription4": "Accéder aux informations du portefeuille",
     "successTitle": "Clé API Générée",
     "successSubtitle": "Enregistrez cette clé maintenant - vous ne pourrez plus la voir",
-    "yourKey": "API",
+    "yourKey": "Clé API",
     "adminToken": "Jeton Admin",
     "securityTitle": "Avis de Sécurité Important",
     "securityMessage": "Assurez-vous de copier votre clé API maintenant. Pour des raisons de sécurité, nous ne l'afficherons plus. Stockez-la en sécurité et ne la partagez jamais publiquement."

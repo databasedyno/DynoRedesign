@@ -152,9 +152,9 @@ const NewSidebar = () => {
     // share tools. Same object, two names: it is the PRODUCT for a creator and
     // the CHECKOUT PAGE for a business (audit Q1).
     const publicPage: SidebarItem = {
-      label: isIndividual
-        ? t("storefront", { defaultValue: "Storefront" })
-        : t("checkoutPage", { defaultValue: "Checkout page" }),
+      // One name everywhere: the page's own H1 says "Storefront", so the nav
+      // row matches it for BOTH personas (UI/UX audit consistency fix).
+      label: t("storefront", { defaultValue: "Storefront" }),
       icon: "creator",
       path: "/storefront",
       isNew: !hasClaimedCreator,

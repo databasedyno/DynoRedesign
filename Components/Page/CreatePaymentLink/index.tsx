@@ -1952,7 +1952,9 @@ const CreatePaymentLinkPage = ({
         sx={{
           display: { xs: "flex", lg: "none" },
           position: "fixed",
-          bottom: 20,
+          // Sits ABOVE the floating mobile bottom-nav pill (UI/UX audit fix:
+          // at bottom:20 the Preview pill covered the nav's "Transactions" tab).
+          bottom: 88,
           right: 20,
           zIndex: 1250,
           alignItems: "center",

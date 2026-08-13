@@ -33,6 +33,7 @@ import PeopleAltRounded from "@mui/icons-material/PeopleAltRounded";
 import AccountBalanceWalletRounded from "@mui/icons-material/AccountBalanceWalletRounded";
 import CurrencyExchangeRounded from "@mui/icons-material/CurrencyExchangeRounded";
 import CodeRounded from "@mui/icons-material/CodeRounded";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import ChevronRightRounded from "@mui/icons-material/ChevronRightRounded";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
@@ -297,7 +298,13 @@ const CustomersPage: React.FC = () => {
   /** Humanized display fields for a customer record */
   const displayFor = useCallback(
     (name?: string | null, email?: string | null) => {
-      const kind = classifyCustomer(email);
+      const kind0 = classifyCustomer(email);
+      // Rows minted by merchant-API payment recovery carry the literal DB name
+      // "Recovered Customer" (with either a real email or an internal
+      // placeholder one) — always an API-origin record, so show the friendly
+      // label regardless of how the email classified (UI/UX audit fix).
+      const kind =
+        (name || "").trim() === "Recovered Customer" ? "recovered" : kind0;
       if (kind === "api") {
         return {
           kind,
@@ -310,7 +317,10 @@ const CustomersPage: React.FC = () => {
         return {
           kind,
           name: t("customers.recoveredCustomerName"),
-          email: t("customers.noCustomerDetails"),
+          email:
+            email && !email.endsWith("@dynopay.internal")
+              ? email
+              : t("customers.noCustomerDetails"),
           internal: true,
         };
       }
@@ -325,6 +335,11 @@ const CustomersPage: React.FC = () => {
       return { kind, name: name || t("customers.unnamed"), email: email || "-", internal: false };
     },
     [t]
+  );
+
+  // Any API-origin placeholder rows on this page? Drives the explainer banner.
+  const hasApiRecords = customers.some(
+    (c) => displayFor(c.customer_name, c.email).internal
   );
 
   const eyebrowSx = {
@@ -455,6 +470,47 @@ const CustomersPage: React.FC = () => {
       </Box>
 
       {/* Search + count */}
+      {hasApiRecords && (
+        <Box
+          data-testid="customers-api-banner"
+          sx={{
+            display: "flex",
+            alignItems: "flex-start",
+            gap: 1.25,
+            mb: 2,
+            px: 2,
+            py: 1.5,
+            borderRadius: "12px",
+            border: `1px solid ${
+              theme.palette.mode === "dark"
+                ? "rgba(129,140,248,0.35)"
+                : "rgba(79,70,229,0.25)"
+            }`,
+            backgroundColor:
+              theme.palette.mode === "dark"
+                ? "rgba(99,102,241,0.10)"
+                : "rgba(79,70,229,0.06)",
+          }}
+        >
+          <InfoOutlinedIcon
+            sx={{
+              fontSize: 18,
+              mt: "1px",
+              color: theme.palette.mode === "dark" ? "#818CF8" : "#4F46E5",
+            }}
+          />
+          <Typography
+            sx={{
+              fontSize: "13px",
+              lineHeight: 1.5,
+              color: theme.palette.text.secondary,
+              fontFamily: "var(--font-sans)",
+            }}
+          >
+            {t("customers.apiRecordHint")}
+          </Typography>
+        </Box>
+      )}
       <Box
         sx={{
           display: "flex",

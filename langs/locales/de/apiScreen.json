@@ -55,7 +55,7 @@
     "keyNameDescription4": "Wallet-Informationen abrufen",
     "successTitle": "API-Schlüssel generiert",
     "successSubtitle": "Speichern Sie diesen Schlüssel jetzt - Sie können ihn nicht erneut anzeigen",
-    "yourKey": "API",
+    "yourKey": "API-Schlüssel",
     "adminToken": "Admin-Token",
     "securityTitle": "Wichtiger Sicherheitshinweis",
     "securityMessage": "Kopieren Sie Ihren API-Schlüssel jetzt. Aus Sicherheitsgründen zeigen wir ihn nicht erneut an. Bewahren Sie ihn sicher auf und teilen Sie ihn niemals öffentlich."
