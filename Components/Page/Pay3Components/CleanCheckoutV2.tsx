@@ -311,6 +311,8 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
   const [copiedFlag, setCopiedFlag] = useState<'addr' | 'amt' | ''>('')
   const [portalReady, setPortalReady] = useState(false)
   const [shareCopied, setShareCopied] = useState(false)
+  // "Download receipt" on the paid card — proof of payment for the customer.
+  const [receiptState, setReceiptState] = useState<'idle' | 'busy' | 'done' | 'error'>('idle')
   const [showRefundInput, setShowRefundInput] = useState<boolean>(false)
   const [refundAddress, setRefundAddress] = useState<string>('')
   const [confirmedAmount, setConfirmedAmount] = useState<{
@@ -734,6 +736,46 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
     }
   }
 
+  // Download a branded PDF receipt for the confirmed payment (POST /pay/receipt).
+  // Authoritative, server-generated — same PDF the confirmation email attaches.
+  const handleDownloadReceipt = async () => {
+    if (receiptState === 'busy') return
+    if (!cryptoInfo?.address || !meta_?.token) {
+      setReceiptState('error')
+      return
+    }
+    setReceiptState('busy')
+    try {
+      const base = (process.env.NEXT_PUBLIC_BASE_URL || '').replace(/\/+$/, '')
+      const res = await fetch(`${base}/api/pay/receipt`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${meta_.token}`,
+        },
+        body: JSON.stringify({ address: cryptoInfo.address }),
+      })
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const blob = await res.blob()
+      const dispo = res.headers.get('Content-Disposition') || ''
+      const nameMatch = dispo.match(/filename="?([^";]+)"?/)
+      const filename = nameMatch?.[1] || `Dynopay_Receipt_${Date.now()}.pdf`
+      const objectUrl = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = objectUrl
+      a.download = filename
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      setTimeout(() => URL.revokeObjectURL(objectUrl), 4000)
+      setReceiptState('done')
+      setTimeout(() => setReceiptState('idle'), 2500)
+    } catch {
+      setReceiptState('error')
+      setTimeout(() => setReceiptState('idle'), 4000)
+    }
+  }
+
   // Fiat amount formatted using the same helper as the rest of the app
   const fiatSymbol = meta_ ? getCurrencySymbolFromFormat(meta_.base_currency) : '$'
   const fiatAmount = meta_ ? formatWithSeparators(Number(meta_.amount || 0), meta_.base_currency) : '0.00'
@@ -806,6 +848,45 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
           <Typography sx={{ fontFamily: MONO, fontSize: 12.5, color: muted, mt: 0.5 }}>
             {formatCryptoAmount(confirmedAmount.crypto, cryptoInfo?.crypto_base || 'BTC')} {cryptoInfo?.crypto_base}
           </Typography>
+
+          {/* Download receipt — proof of payment the customer can keep */}
+          <Button
+            variant="outlined"
+            disableElevation
+            data-testid="clean-checkout-receipt-btn"
+            onClick={handleDownloadReceipt}
+            disabled={receiptState === 'busy'}
+            startIcon={
+              receiptState === 'busy'
+                ? <Icon icon="mdi:loading" width={18} className="dyno-spin" />
+                : <Icon icon={receiptState === 'done' ? 'mdi:check' : 'mdi:file-download-outline'} width={18} />
+            }
+            sx={{
+              mt: 2.25,
+              textTransform: 'none',
+              borderRadius: '999px',
+              fontWeight: 700,
+              fontSize: 13.5,
+              px: 2.5,
+              minHeight: 40,
+              color: theme.palette.text.primary,
+              borderColor: border,
+              '&:hover': { borderColor: theme.palette.text.primary, backgroundColor: 'transparent' },
+              '& .dyno-spin': { animation: 'dynospin 800ms linear infinite' },
+              '@keyframes dynospin': { to: { transform: 'rotate(360deg)' } },
+            }}
+          >
+            {receiptState === 'busy'
+              ? t('checkout.receipt.preparing', { defaultValue: 'Preparing receipt…' })
+              : receiptState === 'done'
+                ? t('checkout.receipt.downloaded', { defaultValue: 'Receipt downloaded' })
+                : t('checkout.receipt.download', { defaultValue: 'Download receipt' })}
+          </Button>
+          {receiptState === 'error' && (
+            <Typography data-testid="clean-checkout-receipt-error" sx={{ fontSize: 12, color: errFg, mt: 0.75 }}>
+              {t('checkout.receipt.error', { defaultValue: 'Could not fetch the receipt — please try again.' })}
+            </Typography>
+          )}
         </Box>
 
         {/* ── Share card — turn a happy buyer/contributor into a promoter ── */}

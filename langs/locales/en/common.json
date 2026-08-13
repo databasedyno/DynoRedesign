@@ -524,7 +524,14 @@
     "notificationsDesc": "Email, push, and alert preferences",
     "selectCompany": "Company",
     "addCompany": "Add company",
-    "noCompanies": "Create your first company to set up payments, webhooks, and branding."
+    "noCompanies": "Create your first company to set up payments, webhooks, and branding.",
+    "accountDetails": "Account details",
+    "accountDetailsDesc": "Business profile, logo, and company details",
+    "accountDetailsDescIndividual": "Your public name, logo, and account information",
+    "groupAccount": "Account",
+    "groupBusiness": "Business",
+    "groupPayments": "Payments",
+    "developers": "Developers"
   },
   "donation": {
     "defaultTitle": "Support this campaign",

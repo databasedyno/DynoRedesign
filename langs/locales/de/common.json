@@ -524,7 +524,14 @@
     "notificationsDesc": "E-Mail-, Push- und Hinweis-Einstellungen",
     "selectCompany": "Unternehmen",
     "addCompany": "Unternehmen hinzufügen",
-    "noCompanies": "Erstelle dein erstes Unternehmen, um Zahlungen, Webhooks und Branding einzurichten."
+    "noCompanies": "Erstelle dein erstes Unternehmen, um Zahlungen, Webhooks und Branding einzurichten.",
+    "accountDetails": "Kontodetails",
+    "accountDetailsDesc": "Unternehmensprofil, Logo und Firmendetails",
+    "accountDetailsDescIndividual": "Ihr öffentlicher Name, Logo und Kontoinformationen",
+    "groupAccount": "Konto",
+    "groupBusiness": "Unternehmen",
+    "groupPayments": "Zahlungen",
+    "developers": "Entwickler"
   },
   "donation": {
     "defaultTitle": "Unterstütze diese Kampagne",

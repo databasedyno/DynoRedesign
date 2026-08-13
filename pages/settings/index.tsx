@@ -6,13 +6,12 @@ import {
   PersonRounded,
   BusinessRounded,
   CurrencyExchangeRounded,
-  WebhookRounded,
-  VpnKeyRounded,
   NotificationsRounded,
   AddRounded,
   ReceiptLongRounded,
   GroupAddRounded,
   PercentRounded,
+  CodeRounded,
   ArrowOutwardRounded,
 } from "@mui/icons-material";
 import { useRouter } from "next/router";
@@ -26,6 +25,7 @@ import UserDisplayCurrencySelector from "@/Components/UI/UserDisplayCurrencySele
 import CustomButton from "@/Components/UI/Buttons";
 import useIsMobile from "@/hooks/useIsMobile";
 import useTokenData from "@/hooks/useTokenData";
+import useAccountProfile from "@/hooks/useAccountProfile";
 import { UserAction } from "@/Redux/Actions";
 import { USER_PROFILE_FETCH } from "@/Redux/Actions/UserAction";
 import { ICompany, pageProps, rootReducer } from "@/utils/types";
@@ -54,10 +54,6 @@ const ProfilePage = dynamic(() => import("@/Components/Page/Profile/ProfilePage"
   ssr: false,
   loading: () => <SectionLoading />,
 });
-const ApiKeysPage = dynamic(() => import("@/Components/Page/API/ApiKeysPage"), {
-  ssr: false,
-  loading: () => <SectionLoading />,
-});
 const NotificationPage = dynamic(() => import("@/Components/Page/Notification/NotificationPage"), {
   ssr: false,
   loading: () => <SectionLoading />,
@@ -82,8 +78,6 @@ type SectionKey =
   | "company"
   | "payments"
   | "tax"
-  | "webhooks"
-  | "api-keys"
   | "notifications";
 
 const SECTION_KEYS: SectionKey[] = [
@@ -91,15 +85,14 @@ const SECTION_KEYS: SectionKey[] = [
   "company",
   "payments",
   "tax",
-  "webhooks",
-  "api-keys",
   "notifications",
 ];
 
-/** Legacy ?tab= values (pre-redesign launcher) → new sections */
+/** Legacy ?tab= values (pre-redesign launcher) → new sections.
+ *  "technical" used to open the in-Settings API keys panel — that panel moved
+ *  to /developer-keys (Batch B / N4), handled by the redirect effect below. */
 const LEGACY_TAB_MAP: Record<string, SectionKey> = {
   business: "company",
-  technical: "api-keys",
   personal: "profile",
 };
 
@@ -306,34 +299,6 @@ const CompanyConfigSection = ({
 };
 
 /* ------------------------------------------------------------------ */
-/* API Keys — mirrors pages/developer-keys.tsx wiring                  */
-/* ------------------------------------------------------------------ */
-const ApiKeysSection = () => {
-  const { t } = useTranslation(["apiScreen", "common"]);
-  const [openCreate, setOpenCreate] = useState(false);
-  const apiState = useSelector((state: any) => state?.apiReducer);
-  const hasExistingKey = Array.isArray(apiState?.apiList) && apiState.apiList.length > 0;
-
-  return (
-    <Box>
-      {!hasExistingKey && (
-        <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
-          <CustomButton
-            label={t("createNewKey", { ns: "apiScreen", defaultValue: "Create new key" })}
-            variant="primary"
-            size="small"
-            endIcon={<AddRounded sx={{ fontSize: 18 }} />}
-            onClick={() => setOpenCreate(true)}
-            data-testid="settings-create-api-key-btn"
-          />
-        </Box>
-      )}
-      <ApiKeysPage openCreate={openCreate} setOpenCreate={setOpenCreate} />
-    </Box>
-  );
-};
-
-/* ------------------------------------------------------------------ */
 /* Settings page                                                       */
 /* ------------------------------------------------------------------ */
 const SettingsPage = ({
@@ -354,6 +319,8 @@ const SettingsPage = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [t]);
 
+  const { isIndividual } = useAccountProfile();
+
   const sections = useMemo(
     () => [
       {
@@ -363,9 +330,17 @@ const SettingsPage = ({
         icon: <PersonRounded sx={{ fontSize: 19 }} />,
       },
       {
+        // F11: "Company" is the wrong word for an individual creator — the
+        // section is now "Account details" and the copy switches on account_type.
         key: "company" as SectionKey,
-        label: t("settingsPage.company"),
-        description: t("settingsPage.companyDesc"),
+        label: t("settingsPage.accountDetails", { defaultValue: "Account details" }),
+        description: isIndividual
+          ? t("settingsPage.accountDetailsDescIndividual", {
+              defaultValue: "Your public name, logo, and account information",
+            })
+          : t("settingsPage.accountDetailsDesc", {
+              defaultValue: "Business profile, logo, and company details",
+            }),
         icon: <BusinessRounded sx={{ fontSize: 19 }} />,
       },
       {
@@ -383,22 +358,36 @@ const SettingsPage = ({
         icon: <ReceiptLongRounded sx={{ fontSize: 19 }} />,
       },
       {
-        key: "webhooks" as SectionKey,
-        label: t("settingsPage.webhooks"),
-        description: t("settingsPage.webhooksDesc"),
-        icon: <WebhookRounded sx={{ fontSize: 19 }} />,
-      },
-      {
-        key: "api-keys" as SectionKey,
-        label: t("settingsPage.apiKeys"),
-        description: t("settingsPage.apiKeysDesc"),
-        icon: <VpnKeyRounded sx={{ fontSize: 19 }} />,
-      },
-      {
         key: "notifications" as SectionKey,
         label: t("settingsPage.notifications"),
         description: t("settingsPage.notificationsDesc"),
         icon: <NotificationsRounded sx={{ fontSize: 19 }} />,
+      },
+    ],
+    [t, isIndividual],
+  );
+
+  /* F11 — four mental models, four groups: Account (me) · Business (the
+     tenant) · Payments (money behaviour). Developer tooling moved OUT to
+     /developer-keys (F5); Plan & fees lives in the Payments group as the
+     pointer /fees. Group labels are desktop-only — the mobile rail is a
+     horizontal chip scroller where labels would break the line. */
+  const railGroups = useMemo(
+    () => [
+      {
+        id: "account",
+        label: t("settingsPage.groupAccount", { defaultValue: "Account" }),
+        keys: ["profile", "notifications"] as SectionKey[],
+      },
+      {
+        id: "business",
+        label: t("settingsPage.groupBusiness", { defaultValue: "Business" }),
+        keys: ["company", "tax"] as SectionKey[],
+      },
+      {
+        id: "payments",
+        label: t("settingsPage.groupPayments", { defaultValue: "Payments" }),
+        keys: ["payments"] as SectionKey[],
       },
     ],
     [t],
@@ -412,15 +401,23 @@ const SettingsPage = ({
     return "profile";
   };
 
-  // Backward-compat: legacy /settings?section=creator now lives at /creator
+  // Backward-compat redirects (law 6 — no route left homeless):
+  //  • legacy /settings?section=creator now lives at /creator
+  //  • /settings?section=api-keys|webhooks and legacy ?tab=technical moved to
+  //    the Developers destination (Batch B / N4 — one door for dev tooling)
   useEffect(() => {
     if (!router.isReady) return;
     const raw = String(router.query.section || "").toLowerCase();
+    const rawTab = String(router.query.tab || "").toLowerCase();
     if (raw === "creator") {
       router.replace("/creator");
+    } else if (raw === "api-keys" || rawTab === "technical") {
+      router.replace("/developer-keys");
+    } else if (raw === "webhooks") {
+      router.replace("/developer-keys?tab=webhooks");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router.isReady, router.query.section]);
+  }, [router.isReady, router.query.section, router.query.tab]);
 
   const [active, setActive] = useState<SectionKey>(resolveInitialSection());
 
@@ -496,47 +493,99 @@ const SettingsPage = ({
           }}
           data-testid="settings-rail"
         >
-          {sections.map((s) => {
-            const isActive = s.key === active;
-            return (
-              <Box
-                key={s.key}
-                role="button"
-                tabIndex={0}
-                data-testid={`settings-rail-${s.key}`}
-                onClick={() => selectSection(s.key)}
-                onKeyDown={(e: React.KeyboardEvent) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    selectSection(s.key);
-                  }
+          {railGroups.map((group) => (
+            <React.Fragment key={group.id}>
+              <Typography
+                data-testid={`settings-group-${group.id}`}
+                sx={{
+                  display: { xs: "none", md: "block" },
+                  fontSize: "10.5px",
+                  fontWeight: 700,
+                  letterSpacing: "0.08em",
+                  textTransform: "uppercase",
+                  color: theme.palette.text.disabled,
+                  fontFamily: "var(--font-sans)",
+                  px: "14px",
+                  pt: 1.25,
+                  pb: 0.5,
                 }}
-                sx={railItemSx(isActive)}
               >
-                {s.icon}
-                <Typography
-                  sx={{
-                    fontSize: "14px",
-                    fontWeight: isActive ? 600 : 500,
-                    fontFamily: "var(--font-sans)",
-                    color: "inherit",
-                    lineHeight: 1,
+                {group.label}
+              </Typography>
+              {group.keys.map((key) => {
+                const s = sections.find((sec) => sec.key === key);
+                if (!s) return null;
+                const isActive = s.key === active;
+                return (
+                  <Box
+                    key={s.key}
+                    role="button"
+                    tabIndex={0}
+                    data-testid={`settings-rail-${s.key}`}
+                    onClick={() => selectSection(s.key)}
+                    onKeyDown={(e: React.KeyboardEvent) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        selectSection(s.key);
+                      }
+                    }}
+                    sx={railItemSx(isActive)}
+                  >
+                    {s.icon}
+                    <Typography
+                      sx={{
+                        fontSize: "14px",
+                        fontWeight: isActive ? 600 : 500,
+                        fontFamily: "var(--font-sans)",
+                        color: "inherit",
+                        lineHeight: 1,
+                      }}
+                    >
+                      {s.label}
+                    </Typography>
+                  </Box>
+                );
+              })}
+              {/* Plan & fees is a *plan* concern → it belongs to the Payments
+                  group (F6 + F11). It navigates away, hence the outward arrow. */}
+              {group.id === "payments" && (
+                <Box
+                  role="button"
+                  tabIndex={0}
+                  data-testid="settings-rail-plan-fees"
+                  onClick={() => router.push("/fees")}
+                  onKeyDown={(e: React.KeyboardEvent) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      router.push("/fees");
+                    }
                   }}
+                  sx={railItemSx(false)}
                 >
-                  {s.label}
-                </Typography>
-              </Box>
-            );
-          })}
+                  <PercentRounded sx={{ fontSize: 19 }} />
+                  <Typography
+                    sx={{
+                      fontSize: "14px",
+                      fontWeight: 500,
+                      fontFamily: "var(--font-sans)",
+                      color: "inherit",
+                      lineHeight: 1,
+                    }}
+                  >
+                    {t("settingsPage.planFees", { defaultValue: "Plan & fees" })}
+                  </Typography>
+                  <ArrowOutwardRounded sx={{ fontSize: 14, ml: "auto", opacity: 0.55 }} />
+                </Box>
+              )}
+            </React.Fragment>
+          ))}
 
-          {/* ── Pointers OUT of Settings (audit F6 + F9) ───────────────────────
-              Referrals left the nav (F9) and /fees never had a home at all (F6);
-              law 6 says a route that is not in the nav must get a home or a
-              redirect. These two rows are that home. They navigate away rather
-              than switching a panel, so they carry an outward arrow and live
-              below a divider — a merchant is never tricked into thinking a
-              Settings panel is about to open. Batch B (F11) folds them into the
-              4-group Settings structure. */}
+          {/* ── Pointers OUT of Settings (audit F5 + F9 + law 6) ───────────────
+              Developer tooling (keys/webhooks/events) moved to /developer-keys
+              (Batch B / N4) and Referrals left the nav (F9) — these one-line
+              pointer rows keep both reachable from Settings without duplicating
+              their surfaces. They navigate away, so they carry an outward arrow
+              and live below a divider. */}
           <Box
             sx={{
               display: { xs: "none", md: "block" },
@@ -548,16 +597,16 @@ const SettingsPage = ({
           />
           {[
             {
+              key: "developers",
+              label: t("settingsPage.developers", { defaultValue: "Developers" }),
+              href: "/developer-keys",
+              icon: <CodeRounded sx={{ fontSize: 19 }} />,
+            },
+            {
               key: "referrals",
               label: t("settingsPage.referrals", { defaultValue: "Referrals" }),
               href: "/referrals",
               icon: <GroupAddRounded sx={{ fontSize: 19 }} />,
-            },
-            {
-              key: "plan-fees",
-              label: t("settingsPage.planFees", { defaultValue: "Plan & fees" }),
-              href: "/fees",
-              icon: <PercentRounded sx={{ fontSize: 19 }} />,
             },
           ].map((p) => (
             <Box
@@ -625,10 +674,6 @@ const SettingsPage = ({
             <CompanyConfigSection visibleSections={["crypto", "payment"]} showDisplayCurrency />
           )}
           {active === "tax" && <TaxSettingsSection />}
-          {active === "webhooks" && (
-            <CompanyConfigSection visibleSections={["webhook"]} />
-          )}
-          {active === "api-keys" && <ApiKeysSection />}
           {active === "notifications" && <NotificationPage />}
 
           {/* Session 74 P0-1: mobile-only bottom spacer so Save/Update buttons

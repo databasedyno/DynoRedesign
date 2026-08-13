@@ -88,5 +88,13 @@
     "tryFirstPaymentResponseLabel": "Sie sollten sehen",
     "tryFirstPaymentDocsBtn": "Vollständige API-Dokumentation öffnen",
     "tryFirstPaymentFooterHint": "Die redirect_url ist eine gehostete Checkout-Seite — öffnen Sie sie in einem Browser, um die Testzahlung abzuschließen."
+  },
+  "developersTitle": "Entwickler",
+  "developersDescription": "API-Schlüssel, Webhooks, Zustellungsereignisse und Integrationsdokumentation — an einem Ort",
+  "tabs": {
+    "keys": "Schlüssel",
+    "webhooks": "Webhooks",
+    "events": "Ereignisprotokoll",
+    "docs": "Doku"
   }
 }

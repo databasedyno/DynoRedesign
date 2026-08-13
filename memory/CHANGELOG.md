@@ -1,5 +1,39 @@
 # Changelog
 
+# SESSION 2026-08-13/14 — USDC icon BUG fix · paid-card **Download receipt** · **IA Batch B: Developers tabs + Settings groups** — VERIFIED (backend 6/6, frontend all pass)
+
+## A. BUG FIX — "wallet page shows duplicate USDT ERC20"
+Data had NO duplicates (getWallet?company_id=1 → 13 unique wallets). The USDC-ERC20 card *wore the USDT
+(Tether) icon* — no USDC asset existed — so it rendered the same green logo + "ERC-20" chip + same 0x
+address as the real USDT-ERC20 card. NEW `assets/cryptocurrency/USDC-icon.svg` (canonical #2775CA blue,
+same artwork as `assets/Icons/coins/USDC.tsx`) and swapped every USDC→USDT icon mapping:
+`hooks/useWalletData.ts` (WALLET_ICONS + ALLCRYPTOCURRENCIES), `UI/FeeCalculator`,
+`Transactions/{TransactionsTable,TransactionDetailsModal}`, `CreatePaymentLink`.
+
+## B. NEW — buyer "Download receipt" on the checkout PAID card (audit §7 I7 direction)
+`POST /api/pay/receipt` (paymentRateLimiter + customerAuthMiddleware; CSRF auto-skipped for Bearer):
+`downloadReceipt` in `backend/controller/payment/cryptoSettlement.ts` mirrors verifyCryptoPayment's
+Redis/destination-tag resolution, requires `PaymentState.PAYOUT_COMPLETE` (409 before, 404 unknown,
+403 unauth) and streams the SAME branded PDF the confirmation email attaches
+(`services/pdfReceiptService.generatePaymentReceipt`). Read-only (Redis + one company-name SELECT).
+Frontend: outlined `clean-checkout-receipt-btn` on the CleanCheckoutV2 confirmed card with
+busy/done/error states. Verified: 200 `%PDF` attachment / 409 / 404 / 403 (contained fake-Redis-key
+simulation, keys hset as HASHES — the app's getRedisItem is hGetAll — and deleted after).
+
+## C. IA Batch B — closes **N4(F5)** and **F11** of `docs/IA_TAB_ARCHITECTURE_AUDIT.md`
+- `/developer-keys` is now **Developers**: segmented tabs *Keys · Webhooks · Events log · Docs*
+  (?tab= synced, storefront tab-shell; `developers-tab-*` testids; Create-key action only on Keys).
+  `ApiKeysPage` gained `view` (all|keys|webhooks|events|docs) and `WebhookConsoleSection` gained `view`
+  (all|settings|events) — components MOVED, not forked; "all" preserves the old page 1:1.
+- Settings (F11): API-keys + Webhooks panels REMOVED. Rail grouped **ACCOUNT** (Profile & Security,
+  Notifications) · **BUSINESS** (**Account details** — renamed from "Company", persona-aware description
+  via useAccountProfile · Tax) · **PAYMENTS** (Payments, *Plan & fees*↗) · divider · *Developers*↗ ·
+  *Referrals*↗. Redirects (law 6): `?section=api-keys`→/developer-keys, `?section=webhooks`→
+  /developer-keys?tab=webhooks, legacy `?tab=technical`→/developer-keys.
+- 6 locales: `settingsPage.{accountDetails*,group*,developers}` + `apiScreen.{developersTitle,
+  developersDescription,tabs.*}`.
+- Remaining from the audit: Batch C (F1/N2 product sales inline · F2 storefront analytics strip), F10, F12, §7 I1–I6.
+
 # SESSION 2026-08-13 — Env restore (3rd pod rebuild) + **IA Batch A: persona nav · reveal-on-relevance · one `+ New`** — VERIFIED (backend 6/6, frontend 8/9 + 2 explained)
 
 ## A. Environment restored on a fresh pod (no product change)

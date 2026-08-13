@@ -88,5 +88,13 @@
     "tryFirstPaymentResponseLabel": "You should see",
     "tryFirstPaymentDocsBtn": "Open full API docs",
     "tryFirstPaymentFooterHint": "The redirect_url is a hosted checkout page — open it in a browser to complete the test payment."
+  },
+  "developersTitle": "Developers",
+  "developersDescription": "API keys, webhooks, delivery events and integration docs — in one place",
+  "tabs": {
+    "keys": "Keys",
+    "webhooks": "Webhooks",
+    "events": "Events log",
+    "docs": "Docs"
   }
 }

@@ -18,6 +18,7 @@ import EthereumIcon from "@/assets/cryptocurrency/Ethereum-icon.svg";
 import LitecoinIcon from "@/assets/cryptocurrency/Litecoin-icon.svg";
 import TronIcon from "@/assets/cryptocurrency/Tron-icon.svg";
 import USDTIcon from "@/assets/cryptocurrency/USDT-icon.svg";
+import USDCIcon from "@/assets/cryptocurrency/USDC-icon.svg";
 
 import RoundedStackIcon from "@/assets/Icons/roundedStck-icon.svg";
 import TransactionIcon from "@/assets/Icons/transaction-icon.svg";
@@ -81,7 +82,8 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
     if (normalized === "BCH") return BitcoinCashIcon;
     if (normalized === "TRX") return TronIcon;
     if (normalized === "BNB") return BNBIcon;
-    if (normalized.includes("USDT") || normalized.includes("USDC")) return USDTIcon;
+    if (normalized.includes("USDC")) return USDCIcon;
+    if (normalized.includes("USDT")) return USDTIcon;
     return BitcoinIcon;
   };
 

@@ -1266,7 +1266,12 @@ Content-Type: application/json
 const ApiKeysPage = ({
   openCreate: openCreateProp,
   setOpenCreate: setOpenCreateProp,
+  view = "all",
 }: ApiKeysPageProps) => {
+  // Batch B (N4) — slice flags. "all" preserves the pre-tabs page 1:1.
+  const showKeys = view === "all" || view === "keys";
+  const showDocs = view === "all" || view === "docs";
+  const showWebhookConsole = view === "all" || view === "webhooks" || view === "events";
   const dispatch = useDispatch();
   const { t } = useTranslation("apiScreen");
   const isMobile = useIsMobile("md");
@@ -1350,7 +1355,7 @@ const ApiKeysPage = ({
     },
   };
 
-  if (apiState.loading) {
+  if (showKeys && apiState.loading) {
     return (
       <Box
         sx={{
@@ -1369,7 +1374,7 @@ const ApiKeysPage = ({
     );
   }
 
-  if (apiState?.apiList?.length === 0 && !apiState?.loading) {
+  if (showKeys && apiState?.apiList?.length === 0 && !apiState?.loading) {
     return (
       <>
         <EmptyDataModel pageName="apiKey" />
@@ -1401,6 +1406,7 @@ const ApiKeysPage = ({
 
   return (
     <>
+      {showKeys && (
       <DeleteModel
         open={confirmDeleteOpen}
         onClose={() => {
@@ -1411,6 +1417,7 @@ const ApiKeysPage = ({
         title={t("delete.title")}
         message={t("delete.confirmMessage")}
       />
+      )}
       {/* <CustomAlert
         open={confirmDeleteOpen}
         handleClose={() => {
@@ -1447,6 +1454,7 @@ const ApiKeysPage = ({
         // Show a subtle info banner when the merchant has a test key but no
         // active production key — the live key auto-unlocks after adding or
         // reusing a wallet on this company.
+        if (!showKeys) return null;
         const list: IApi[] = Array.isArray(apiState?.apiList) ? apiState.apiList : [];
         const hasProd = list.some(
           (k) => (k as { environment?: string })?.environment === "production" && k?.status === "active",
@@ -1499,6 +1507,7 @@ const ApiKeysPage = ({
         }
         return null;
       })()}
+      {showKeys && (
       <Grid
         container
         spacing={2.5}
@@ -1531,7 +1540,8 @@ const ApiKeysPage = ({
             </Grid>
           ))}
 
-        {/* Last card */}
+        {/* Last card — on the dedicated Keys tab the docs card lives on the Docs tab */}
+        {view === "all" && (
         <Grid
           item
           xs={12}
@@ -1546,8 +1556,24 @@ const ApiKeysPage = ({
         >
           <ApiDocumentationCard docsUrl={docsUrl} />
         </Grid>
+        )}
       </Grid>
+      )}
 
+      {view === "docs" && (
+        <Box
+          sx={{
+            mb: isMobile ? 2 : 2.5,
+            opacity: 0,
+            animation: "fadeSlideIn 0.5s ease forwards",
+            ...itemAnimation,
+          }}
+        >
+          <ApiDocumentationCard docsUrl={docsUrl} />
+        </Box>
+      )}
+
+      {showDocs && (
       <Box
         sx={{
           mb: isMobile ? 2 : 2.5,
@@ -1558,7 +1584,9 @@ const ApiKeysPage = ({
       >
         <EmbeddedCheckoutCard onCopy={handleCopy} docsUrl={docsUrl} />
       </Box>
+      )}
 
+      {showKeys && (
       <Box
         sx={{
           mb: isMobile ? 2 : 2.5,
@@ -1569,7 +1597,9 @@ const ApiKeysPage = ({
       >
         <PublishableKeysSection />
       </Box>
+      )}
 
+      {showDocs && (
       <Box
         sx={{
           mb: isMobile ? 2 : 2.5,
@@ -1580,7 +1610,9 @@ const ApiKeysPage = ({
       >
         <BuyButtonsSection />
       </Box>
+      )}
 
+      {showWebhookConsole && (
       <Box
         sx={{
           mb: isMobile ? 2 : 2.5,
@@ -1589,9 +1621,13 @@ const ApiKeysPage = ({
           ...itemAnimation,
         }}
       >
-        <WebhookConsoleSection />
+        <WebhookConsoleSection
+          view={view === "webhooks" ? "settings" : view === "events" ? "events" : "all"}
+        />
       </Box>
+      )}
 
+      {showDocs && (
       <Box
         sx={{
           mb: isMobile ? 2 : 2.5,
@@ -1602,11 +1638,13 @@ const ApiKeysPage = ({
       >
         <ElementsWidgetCard onCopy={handleCopy} docsUrl={docsUrl} />
       </Box>
+      )}
 
       {(() => {
         // Phase C: "Try your first payment" cURL card.
         // Only mount when a real sandbox (dpk_test_) key exists so the copy
         // button produces a working command out of the box.
+        if (!showKeys) return null;
         const list: IApi[] = Array.isArray(apiState?.apiList) ? apiState.apiList : [];
         const sandboxKey = list.find((k: any) => {
           if (k?.environment !== "development" || k?.status !== "active") return false;
@@ -1638,6 +1676,7 @@ const ApiKeysPage = ({
         );
       })()}
 
+      {showKeys && (
       <Box
         sx={{
           bgcolor: theme.palette.primary.light,
@@ -1696,8 +1735,9 @@ const ApiKeysPage = ({
           {t("security.description")}
         </InfoText>
       </Box>
+      )}
 
-      <CreateApiModel open={openCreate} onClose={handleCreateClose} />
+      {showKeys && <CreateApiModel open={openCreate} onClose={handleCreateClose} />}
     </>
   );
 };

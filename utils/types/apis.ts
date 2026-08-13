@@ -8,4 +8,10 @@ export interface ApiKeyCardProps {
 export interface ApiKeysPageProps {
   openCreate?: boolean;
   setOpenCreate?: (open: boolean) => void;
+  /**
+   * Batch B (N4): which slice of the developer surface to render.
+   * "all" (default) keeps the original single-page behavior; the Developers
+   * tabs pass "keys" | "webhooks" | "events" | "docs".
+   */
+  view?: "all" | "keys" | "webhooks" | "events" | "docs";
 }

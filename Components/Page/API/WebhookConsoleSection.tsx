@@ -104,7 +104,16 @@ const prettyJson = (raw?: string | null) => {
   }
 };
 
-const WebhookConsoleSection = () => {
+/**
+ * view — which half of the console to render (Batch B / N4 Developers tabs):
+ *   "all"      (default) config + delivery log, the original single-card console
+ *   "settings" endpoint URL + signing secret + test event only  (Webhooks tab)
+ *   "events"   stats strip + recent deliveries only             (Events log tab)
+ * One component, conditionally rendered — moved, not forked (audit law).
+ */
+const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "events" }) => {
+  const showSettings = view === "all" || view === "settings";
+  const showEvents = view === "all" || view === "events";
   const theme = useTheme();
   const isMobile = useIsMobile();
   const dispatch = useDispatch();
@@ -279,9 +288,15 @@ const WebhookConsoleSection = () => {
   return (
     <>
       <PanelCard
-        title="Webhooks"
-        subTitle="Receive real-time events and inspect recent delivery attempts"
-        headerIcon={<Icon name="webhook" color={brandFg(theme.palette.mode === "dark")} />}
+        title={view === "events" ? "Events log" : "Webhooks"}
+        subTitle={
+          view === "events"
+            ? "Recent webhook delivery attempts — click a row for the payload and response"
+            : view === "settings"
+              ? "Configure your endpoint URL, signing secret and test events"
+              : "Receive real-time events and inspect recent delivery attempts"
+        }
+        headerIcon={<Icon name={view === "events" ? "list" : "webhook"} color={brandFg(theme.palette.mode === "dark")} />}
         headerAction={
           <Tooltip title="Refresh">
             <IconButton onClick={refreshAll} size="small" data-testid="webhook-refresh">
@@ -296,6 +311,8 @@ const WebhookConsoleSection = () => {
           </Typography>
         ) : (
           <Box data-testid="webhook-console">
+            {showSettings && (
+              <>
             {/* Endpoint URL */}
             <Typography sx={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.4, textTransform: "uppercase", color: t.secondary, mb: 0.75 }}>
               Endpoint URL
@@ -375,7 +392,11 @@ const WebhookConsoleSection = () => {
                 Send test event
               </Button>
             </Box>
+              </>
+            )}
 
+            {showEvents && (
+              <>
             {/* Stats strip */}
             {stats && (
               <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mb: 2 }} data-testid="webhook-stats">
@@ -459,6 +480,8 @@ const WebhookConsoleSection = () => {
                 })
               )}
             </Box>
+              </>
+            )}
           </Box>
         )}
       </PanelCard>

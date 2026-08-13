@@ -88,5 +88,13 @@
     "tryFirstPaymentResponseLabel": "U zou moeten zien",
     "tryFirstPaymentDocsBtn": "Volledige API-documentatie openen",
     "tryFirstPaymentFooterHint": "De redirect_url is een gehoste checkout-pagina — open deze in een browser om de testbetaling te voltooien."
+  },
+  "developersTitle": "Ontwikkelaars",
+  "developersDescription": "API-sleutels, webhooks, gebeurtenislog en integratiedocumentatie — op één plek",
+  "tabs": {
+    "keys": "Sleutels",
+    "webhooks": "Webhooks",
+    "events": "Gebeurtenislog",
+    "docs": "Docs"
   }
 }

@@ -27,6 +27,7 @@ import SolanaIcon from "@/assets/cryptocurrency/Solana-icon.svg";
 import TronIcon from "@/assets/cryptocurrency/Tron-icon.svg";
 import USDTIcon from "@/assets/cryptocurrency/USDT-icon.svg";
 import USDT2Icon from "@/assets/cryptocurrency/USDT2-icon.svg";
+import USDCIcon from "@/assets/cryptocurrency/USDC-icon.svg";
 import XRPIcon from "@/assets/cryptocurrency/XRP-icon.svg";
 
 import useIsMobile from "@/hooks/useIsMobile";
@@ -998,7 +999,7 @@ const CreatePaymentLinkPage = ({
       {
         name: "USDC",
         label: "USDC-ERC20",
-        icon: USDT2Icon,
+        icon: USDCIcon,
         fullOrder: 7,
         shortOrder: 9,
       },

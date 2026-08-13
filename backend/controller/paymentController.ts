@@ -97,7 +97,7 @@ import { PaymentState, toRedisStatus } from "../services/paymentStateMachine";
 // These can be overridden by merchant settings in tbl_company
 
 import { calculateTaxForCheckout } from "./payment/taxService";
-import { settleCryptoTransaction, verifyCryptoPayment, cryptoVerification } from "./payment/cryptoSettlement";
+import { settleCryptoTransaction, verifyCryptoPayment, cryptoVerification, downloadReceipt } from "./payment/cryptoSettlement";
 import { getData, getPaymentMeta, Crypto, createCryptoPayment, confirmPayment } from "./payment/cryptoCheckout";
 
 
@@ -2163,6 +2163,7 @@ export default {
   addPayment,
   verifyPayment,
   verifyCryptoPayment,
+  downloadReceipt,
   createCryptoPayment,
   confirmPayment,
   getBalance,

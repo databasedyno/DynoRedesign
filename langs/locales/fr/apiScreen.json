@@ -88,5 +88,13 @@
     "tryFirstPaymentResponseLabel": "Vous devriez voir",
     "tryFirstPaymentDocsBtn": "Ouvrir la documentation API",
     "tryFirstPaymentFooterHint": "L'URL redirect_url est une page de paiement hébergée — ouvrez-la dans un navigateur pour terminer le paiement de test."
+  },
+  "developersTitle": "Développeurs",
+  "developersDescription": "Clés API, webhooks, journal des événements et documentation d'intégration — au même endroit",
+  "tabs": {
+    "keys": "Clés",
+    "webhooks": "Webhooks",
+    "events": "Journal des événements",
+    "docs": "Docs"
   }
 }

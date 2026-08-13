@@ -28,6 +28,7 @@ import XRPIcon from "@/assets/cryptocurrency/XRP-icon.svg";
 import USDTIcon from "@/assets/cryptocurrency/USDT-icon.svg";
 import PolygonIcon from "@/assets/cryptocurrency/Polygon-icon.svg";
 import RLUSDIcon from "@/assets/cryptocurrency/RLUSD-icon.svg";
+import USDCIcon from "@/assets/cryptocurrency/USDC-icon.svg";
 
 import type { StaticImageData } from "next/image";
 import { brandFg } from "@/constants/theme";
@@ -43,7 +44,7 @@ const CRYPTO_ICON_MAP: Record<string, StaticImageData> = {
   XRP: XRPIcon,
   "USDT-TRC20": USDTIcon,
   "USDT-ERC20": USDTIcon,
-  USDC: USDTIcon,
+  USDC: USDCIcon,
   POLYGON: PolygonIcon,
   "RLUSD-XRPL": RLUSDIcon,
 };

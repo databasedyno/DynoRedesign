@@ -103,6 +103,21 @@
   pages/[handle]/shop.tsx and pages/[handle]/p/[slug].tsx — same pattern pages/[handle].tsx
   already used. Unset in production, so prod behaviour is unchanged.
 
+## Batch B testids + endpoints (shipped 2026-08-13/14)
+- /developer-keys = "Developers": tabs `developers-tab-{keys,webhooks,events,docs}` (?tab= synced;
+  Create-key header action only on Keys). WebhookConsoleSection view prop: settings|events|all.
+- /settings rail: `settings-group-{account,business,payments}` + rows `settings-rail-{profile,
+  notifications,company("Account details"),tax,payments,plan-fees,developers,referrals}` — API Keys and
+  Webhooks rows are GONE; `?section=api-keys|webhooks` and `?tab=technical` redirect to /developer-keys.
+- Checkout paid card: `clean-checkout-receipt-btn` (+ `clean-checkout-receipt-error`) → POST /api/pay/receipt
+  (Bearer customer-session token; 200 application/pdf when PAYOUT_COMPLETE, 409 before, 404 unknown, 403 unauth).
+  To test the 200 path WITHOUT paying: hset (HASHES, not set!) fake keys crypto-TESTRECEIPT<r> (status
+  successful …, ref test-receipt-ref-<r>) + test-receipt-ref-<r> (company_id 1 …), JWT {ref} signed with
+  ACCESS_TOKEN_SECRET, then DELETE the keys. To reach the confirmed CARD in UI: intercept **/pay/verifyCryptoPayment
+  with {status:true,data:{status:"confirmed",paidAmount:0.005,paidAmountUsd:10,baseCurrency:"USD",remaining_seconds:0}}.
+- USDC-ERC20 now has its OWN icon `assets/cryptocurrency/USDC-icon.svg` (blue) — if a "duplicate USDT" report
+  reappears, check icon maps in hooks/useWalletData.ts first (that WAS the bug).
+
 ## IA Batch A testids + gotchas (for future test runs)
 - Nav rows: `[data-testid^="sidebar-item-"]` → dashboard, payment-links, transactions, invoices
   ("Receipts & Tax"), customers, creator ("Checkout page" for business / "Storefront" for individual),

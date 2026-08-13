@@ -86,6 +86,15 @@ paymentRouter.post(
   paymentController.verifyCryptoPayment
 );
 
+// Buyer-facing PDF receipt for a CONFIRMED payment (checkout "paid" card).
+// Same customer-session auth + rate limit as the rest of the checkout flow.
+paymentRouter.post(
+  "/receipt",
+  paymentRateLimiter,
+  customerAuthMiddleware,
+  paymentController.downloadReceipt
+);
+
 paymentRouter.post(
   "/confirmPayment",
   customerAuthMiddleware,

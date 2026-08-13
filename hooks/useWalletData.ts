@@ -14,6 +14,7 @@ import RLUSDIcon from "@/assets/cryptocurrency/RLUSD-icon.svg";
 import SolanaIcon from "@/assets/cryptocurrency/Solana-icon.svg";
 import TronIcon from "@/assets/cryptocurrency/Tron-icon.svg";
 import USDTIcon from "@/assets/cryptocurrency/USDT-icon.svg";
+import USDCIcon from "@/assets/cryptocurrency/USDC-icon.svg";
 import XRPIcon from "@/assets/cryptocurrency/XRP-icon.svg";
 import {
   Cryptocurrency,
@@ -55,7 +56,10 @@ const WALLET_ICONS: Record<WalletType, any> = {
   "USDT-ERC20": USDTIcon,
   "USDT-TRC20": USDTIcon,
   "USDT-POLYGON": USDTIcon,
-  "USDC-ERC20": USDTIcon,
+  // BUG FIX (2026-08): USDC used the USDT icon (no USDC asset existed), so the
+  // USDC-ERC20 wallet card looked like a DUPLICATE "USDT ERC20" card — same
+  // green Tether logo + ERC-20 chip. Canonical blue USDC disc now.
+  "USDC-ERC20": USDCIcon,
   RLUSD: RLUSDIcon,
   "RLUSD-ERC20": RLUSDIcon,
 };
@@ -97,7 +101,7 @@ export const ALLCRYPTOCURRENCIES: readonly Cryptocurrency[] = [
   { code: "USDT-ERC20", name: "USDT-ERC20", icon: USDTIcon },
   { code: "USDT-TRC20", name: "USDT-TRC20", icon: USDTIcon },
   { code: "USDT-POLYGON", name: "USDT-Polygon", icon: USDTIcon },
-  { code: "USDC-ERC20", name: "USDC-ERC20", icon: USDTIcon },
+  { code: "USDC-ERC20", name: "USDC-ERC20", icon: USDCIcon },
   { code: "RLUSD", name: "RLUSD", icon: RLUSDIcon },
   { code: "RLUSD-ERC20", name: "RLUSD-ERC20", icon: RLUSDIcon },
 ];

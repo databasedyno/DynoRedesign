@@ -20,12 +20,12 @@ misses explained below). It closed **N1 (F13) · N3 (F3) · F4 · F6 · F7 · F8
 | **F7** Customers ships for real; the *Soon* badge MECHANISM was deleted (law 5) | ✅ shipped |
 | **F8** Notifications left the nav → header bell (same unread badge) | ✅ shipped |
 | **F9** Referrals left the nav → footer card + Settings pointer | ✅ shipped |
+| **F5 / N4** Developers home (Keys · Webhooks · Events log · Docs) | ✅ shipped 2026-08-13 (Batch B) |
+| **F11** Settings → grouped rail (ACCOUNT·BUSINESS·PAYMENTS), *Company* → *Account details* | ✅ shipped 2026-08-13 (Batch B) |
 | **F1 / N2** product sales inline + retire the 3rd order surface | ⏳ Batch C |
-| **F5 / N4** Developers home (Keys · Webhooks · Events · Docs) | ⏳ Batch B |
-| **F11** Settings → 4 groups, *Company* → *Account details* | ⏳ Batch B |
 | **F2** Storefront analytics → one deep-link strip | ⏳ Batch C |
 | F10, F12 | ⏳ not started |
-| §7 I1–I7 revenue ideas | ⏳ none started (I6's SSR prerequisite is now fixed) |
+| §7 I1–I7 revenue ideas | ⏳ I7 partially: buyer receipt shipped as a checkout PDF download (2026-08-13); the shareable receipt PAGE is still open. I6's SSR prerequisite fixed. |
 
 ### §8 open questions — ANSWERED by the founder 2026-08-13
 1. **Q1 naming:** persona-specific. `Storefront` for individuals, **`Checkout page`** for business — a

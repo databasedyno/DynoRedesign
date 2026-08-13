@@ -6,6 +6,7 @@ import EthereumIcon from "@/assets/cryptocurrency/Ethereum-icon.svg";
 import LitecoinIcon from "@/assets/cryptocurrency/Litecoin-icon.svg";
 import TronIcon from "@/assets/cryptocurrency/Tron-icon.svg";
 import USDTIcon from "@/assets/cryptocurrency/USDT-icon.svg";
+import USDCIcon from "@/assets/cryptocurrency/USDC-icon.svg";
 import SolanaIcon from "@/assets/cryptocurrency/Solana-icon.svg";
 import XRPIcon from "@/assets/cryptocurrency/XRP-icon.svg";
 import PolygonIcon from "@/assets/cryptocurrency/Polygon-icon.svg";
@@ -117,7 +118,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
     if (normalized === "BCH") return BitcoinCashIcon;
     if (normalized === "TRX") return TronIcon;
     if (normalized.includes("USDT")) return USDTIcon;
-    if (normalized.includes("USDC")) return USDTIcon;
+    if (normalized.includes("USDC")) return USDCIcon;
     if (normalized === "SOL") return SolanaIcon;
     if (normalized === "XRP") return XRPIcon;
     if (normalized.includes("POLYGON")) return PolygonIcon;

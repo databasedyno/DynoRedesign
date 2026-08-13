@@ -524,7 +524,14 @@
     "notificationsDesc": "E-mail-, push- en waarschuwingsvoorkeuren",
     "selectCompany": "Bedrijf",
     "addCompany": "Bedrijf toevoegen",
-    "noCompanies": "Maak je eerste bedrijf aan om betalingen, webhooks en branding in te stellen."
+    "noCompanies": "Maak je eerste bedrijf aan om betalingen, webhooks en branding in te stellen.",
+    "accountDetails": "Accountgegevens",
+    "accountDetailsDesc": "Bedrijfsprofiel, logo en bedrijfsgegevens",
+    "accountDetailsDescIndividual": "Je publieke naam, logo en accountinformatie",
+    "groupAccount": "Account",
+    "groupBusiness": "Bedrijf",
+    "groupPayments": "Betalingen",
+    "developers": "Ontwikkelaars"
   },
   "donation": {
     "defaultTitle": "Steun deze campagne",
