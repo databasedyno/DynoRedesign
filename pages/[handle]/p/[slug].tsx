@@ -214,7 +214,9 @@ const ProductDetail: NextPageWithLayout<DetailProps> = ({ merchant, product, var
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const handle = String(ctx.params?.handle || "").toLowerCase();
   const slug = String(ctx.params?.slug || "").toLowerCase();
-  const base = (process.env.NEXT_PUBLIC_BASE_URL || "").replace(/\/+$/, "");
+  // SSR fetch base: prefer INTERNAL_API_URL (preview keeps NEXT_PUBLIC_BASE_URL
+  // empty for relative browser calls; server-side needs an absolute URL).
+  const base = (process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_SERVER_URL || "").replace(/\/+$/, "");
   try {
     const r = await fetch(`${base}/api/shop/${encodeURIComponent(handle)}/products/${encodeURIComponent(slug)}`, {
       headers: { Accept: "application/json" },

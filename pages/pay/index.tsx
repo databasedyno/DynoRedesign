@@ -1762,7 +1762,11 @@ const PayRoute = ({ ogMeta, siteUrl }: { ogMeta: PayOgMeta | null; siteUrl: stri
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const d = String(ctx.query?.d || '')
-  const base = (process.env.NEXT_PUBLIC_BASE_URL || '').replace(/\/+$/, '')
+  // SSR fetch base: prefer INTERNAL_API_URL (set in the Emergent preview, where
+  // NEXT_PUBLIC_BASE_URL is deliberately EMPTY so browser calls stay relative —
+  // but a relative URL can't be fetched server-side). Unset in production, so
+  // the public app URL is used there exactly as before. Same pattern as [handle].tsx.
+  const base = (process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_SERVER_URL || '').replace(/\/+$/, '')
   let ogMeta: PayOgMeta | null = null
   if (d) {
     try {
