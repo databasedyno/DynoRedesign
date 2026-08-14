@@ -4,9 +4,31 @@
 - /app/frontend/package.json "start" = `next start` (prod). Dev mode = "start-dev" script.
 - After ANY frontend code change: `cd /app && yarn build` then `sudo supervisorctl restart frontend`.
 
-## LATEST SETUP (2026-08-14, 5th NEW pod) — env rebuilt from user's pasted creds
+## LATEST SETUP (2026-08-14, 6th NEW pod) — env rebuilt from user's pasted creds
 - CURRENT preview URL (verified: full login -> /dashboard with live data):
-  https://f2f9cf75-b483-4cdd-81f9-f5b303d42bc4.preview.emergentagent.com
+  https://d2a4a2b3-200b-4a29-955b-9330451ab80e.preview.emergentagent.com
+  (supervisor APP_URL routes correctly — no host gotcha)
+- Same recipe applied 1:1: sequential `yarn install` root->backend (plain, NOT --frozen-lockfile),
+  /app/backend/.env + /app/.env.local rewritten from user's pasted creds, SAFE MODE
+  (WORKER_ROLE=secondary + ENABLE_BACKGROUND_JOBS=false), PORT/BINANCE_PROXY_URL/SSH_TUNNEL_* omitted.
+- NEXTAUTH_SECRET regenerated: iq+eVk+AJu++/whppJyyecUPzjy0VcN9pBGJ05KzCBw=
+- NEW GOTCHA (this pod): `yarn build` OOMs in the type-check phase at the default ~1GB heap
+  ("Ineffective mark-compacts near heap limit", worker SIGABRT). FIX:
+  `cd /app && NODE_OPTIONS="--max-old-space-size=6144" yarn build` -> Done in 94.5s.
+  Remember: frontend runs a PRODUCTION build; rebuild + `sudo supervisorctl restart frontend`
+  after ANY frontend change.
+- Also: background bash jobs spawned without setsid/nohup got reaped mid-build once — use
+  `nohup setsid bash -c '...'` for long builds.
+- Verified on this pod: /health healthy (db+redis connected, background_jobs.eligible=false),
+  SAFE MODE log lines present (Skipping BullMQ webhook worker — background jobs disabled),
+  external / /auth/login /api/status /pay /hostbay /hostbay/shop all 200,
+  "Refreshed 40 rates via Tatum", Binance geo-blocked 451 (known, harmless),
+  FULL 2-step login hostbay@moxx.co / Katiekendra123@ -> /dashboard renders live data
+  (7D $2,581.93 / 23 payments, monthly $25,698.76, Growth tier, code DYNO-9XVPUY, 13 wallets).
+
+## PREVIOUS SETUP (2026-08-14, 5th NEW pod) — env rebuilt from user's pasted creds
+- CURRENT preview URL (verified: full login -> /dashboard with live data):
+  https://payment-gateway-dev-12.preview.emergentagent.com
   (supervisor APP_URL routes correctly on this pod — no host gotcha this time)
 - Same recipe as below applied 1:1. NOTE: `yarn install --frozen-lockfile` FAILS
   ("lockfile needs to be updated") — use plain `yarn install`, SEQUENTIAL root->backend.
@@ -22,8 +44,8 @@
 
 ## PREVIOUS SETUP (2026-08-13 late, 4th NEW pod) — env rebuilt AGAIN from user's pasted creds
 - CURRENT preview URL (verified externally, login screenshot loads):
-  https://dynopay-preview-12.preview.emergentagent.com
-  (supervisor APP_URL — routes fine this time; https://dynopay-preview-12.preview.emergentagent.com ALSO routes)
+  https://payment-gateway-dev-12.preview.emergentagent.com
+  (supervisor APP_URL — routes fine this time; https://payment-gateway-dev-12.preview.emergentagent.com ALSO routes)
 - Same recipe as below applied 1:1 (sequential yarn installs root->backend; both env files
   rewritten; NEXTAUTH_SECRET regenerated: kCrvCwvNJxDraw2xuBUqKje5J2+NjwkXCge3gWvqBaE=).
 - Verified on this pod: /health healthy (db+redis connected, background_jobs.eligible=false),
@@ -33,7 +55,7 @@
   "Refreshed 40 rates via Tatum", Binance geo-blocked (known, harmless).
 
 ## PREVIOUS SETUP (2026-08-13, 3rd pod) — env rebuilt from user's pasted creds
-- Preview URL then: https://dynopay-preview-12.preview.emergentagent.com
+- Preview URL then: https://payment-gateway-dev-12.preview.emergentagent.com
 - Recipe applied (matches the documented one below):
   1. `yarn install` in /app then /app/backend (SEQUENTIAL; parallel corrupts the shared
      yarn cache -> ENOENT .yarn-metadata.json; fix = `rm -rf /usr/local/share/.cache/yarn`).
@@ -56,7 +78,7 @@
   (port 3300) fronted by a Python/uvicorn proxy on port 8001 (backend/server.py).
 - Browser API calls are RELATIVE (`/api/...`) because `NEXT_PUBLIC_BASE_URL` is empty
   in /app/.env.local -> Emergent ingress routes /api -> 8001 -> Node backend.
-- Preview URL (CURRENT, verified 2026-08-13): https://dynopay-preview-12.preview.emergentagent.com
+- Preview URL (CURRENT, verified 2026-08-13): https://payment-gateway-dev-12.preview.emergentagent.com
   Env rebuilt for the 3rd time on 2026-08-13 on a NEW pod (root+backend node_modules AND both
   env files were missing again). Recipe that works:
    1. `cd /app && yarn install` THEN `cd /app/backend && yarn install`  (run them SEQUENTIALLY —
@@ -69,7 +91,7 @@
       pasted value is the literal placeholder "openssl rand -base64 32".
    4. `sudo supervisorctl restart backend frontend`.
   HOST GOTCHA (3rd pod in a row): supervisor's APP_URL advertises
-   https://dynopay-preview-12.preview.emergentagent.com but that host does NOT
+   https://payment-gateway-dev-12.preview.emergentagent.com but that host does NOT
    route (curl -> 000). Find the REAL host in /var/log/supervisor/frontend.err.log — Next.js logs
    a "cross origin request detected from <host>.cluster-XX.preview.emergentcf.cloud" warning; the
    `<host>` prefix + `.preview.emergentagent.com` is the live URL (here: secure-transactions-11).
