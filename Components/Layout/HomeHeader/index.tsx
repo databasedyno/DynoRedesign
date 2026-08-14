@@ -14,7 +14,7 @@ import ThemeToggle from "@/Components/UI/ThemeToggle";
 import { ArrowForwardRounded } from "@mui/icons-material";
 import KeyboardArrowDownRounded from "@mui/icons-material/KeyboardArrowDownRounded";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
-import { Box, Button, Collapse, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { Box, Button, Collapse, Typography, useTheme } from "@mui/material";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -48,7 +48,8 @@ import {
   MobileDrawer,
   MobileLanguageWrapper,
   MobileMenuButton,
-  MobileMenuDrawer,
+  MobilePanel,
+  MobilePanelBackdrop,
   MobileNavContent,
   MobileSection,
   MobileSectionButton,
@@ -80,9 +81,8 @@ const HomeHeader = memo(function HomeHeader() {
   const { t } = useTranslation("landing");
   const muiTheme = useTheme();
   const isDark = muiTheme.palette.mode === "dark";
-  // Respect the OS "reduce motion" setting — skip the drawer slide entirely so
-  // open/close is instant for users who prefer no animation.
-  const reduceMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
+  // (Reduced motion is honoured in CSS — see MobilePanel's
+  // prefers-reduced-motion media query in styled.tsx.)
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   const [isHeaderVisible, setIsHeaderVisible] = useState<boolean>(true);
@@ -463,26 +463,19 @@ const HomeHeader = memo(function HomeHeader() {
         </RightGroup>
       </HeaderContainer>
 
-      <MobileMenuDrawer
-        anchor="right"
-        open={mobileMenuOpen}
-        onClose={() => setMobileMenuOpen(false)}
-        transitionDuration={reduceMotion ? 0 : { enter: 200, exit: 150 }}
-        // iOS WEBKIT FREEZE FIX (2026-08, iPhone 14 Pro Max — "menu frozen for
-        // minutes before it opens"; Safari/Chrome = WebKit, Firefox fine).
-        // ROOT CAUSE: MUI Modal's FocusTrap runs an expensive tabbable-node
-        // scan + aria-hidden sweep against this long landing page on every
-        // open, blocking the WebKit main thread for seconds on @3x DPR. It
-        // never showed in Chromium/Playwright emulation. Disabling the focus
-        // machinery + not keeping the whole drawer subtree permanently mounted
-        // removes that synchronous work so the drawer opens instantly.
-        ModalProps={{
-          keepMounted: false,
-          disableScrollLock: true,
-          disableEnforceFocus: true,
-          disableAutoFocus: true,
-          disableRestoreFocus: true,
-        }}
+      {/* Lightweight always-mounted panel (2026-08 rewrite — replaces MUI
+          Drawer; see styled.tsx MobilePanel comment for the WebKit/Blink
+          "tap does nothing" postmortem). Open = one data-attribute flip. */}
+      <MobilePanelBackdrop
+        data-open={mobileMenuOpen ? "true" : "false"}
+        aria-hidden="true"
+        onClick={() => setMobileMenuOpen(false)}
+      />
+      <MobilePanel
+        data-open={mobileMenuOpen ? "true" : "false"}
+        role="dialog"
+        aria-label="Mobile navigation"
+        data-testid="mobile-menu-panel"
       >
         <MobileDrawer>
           <MobileNavContent>
@@ -590,7 +583,7 @@ const HomeHeader = memo(function HomeHeader() {
             </MobileTrustBadges>
           </MobileNavContent>
         </MobileDrawer>
-      </MobileMenuDrawer>
+      </MobilePanel>
 
       <CommandMenu open={searchOpen} onClose={() => setSearchOpen(false)} />
 

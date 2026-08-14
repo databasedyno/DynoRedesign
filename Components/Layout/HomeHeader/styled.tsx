@@ -276,6 +276,72 @@ export const MenuCloseIcon = styled(CloseRoundedIcon)(({ theme }) => ({
   fontSize: 26,
 }));
 
+/* ================= LIGHTWEIGHT MOBILE PANEL (2026-08 rewrite) =================
+ * Replaces the MUI <Drawer> for the hamburger menu. WHY: three prior band-aids
+ * (pointer-event de-dupe, FocusTrap disabling, backdrop-filter removal) still
+ * left taps feeling dead on mobile WebKit/Blink. The remaining cost was MUI
+ * Modal machinery itself: portal mount on open, ModalManager aria-hidden sweep
+ * over every <body> child of this LONG landing page, and JS-scheduled Slide
+ * transitions — all synchronous main-thread work performed ON TAP.
+ * This panel is ALWAYS mounted, GPU-composited (transform/opacity only) and
+ * toggled by one data attribute: the open cost after hydration is a single
+ * style flip → instant on any device. visibility:hidden keeps the closed panel
+ * out of the a11y tree and paint. */
+export const MobilePanelBackdrop = styled("div")({
+  position: "fixed",
+  inset: 0,
+  top: 64,
+  zIndex: 1499,
+  display: "none",
+  backgroundColor: "rgba(11,11,15,0.6)",
+  opacity: 0,
+  pointerEvents: "none",
+  transition: "opacity 160ms ease",
+  // Own compositor layer — the fade never touches layout.
+  transform: "translateZ(0)",
+  "&[data-open='true']": {
+    opacity: 1,
+    pointerEvents: "auto",
+  },
+  "@media (max-width: 1025px)": {
+    display: "block",
+  },
+  "@media (prefers-reduced-motion: reduce)": {
+    transition: "none",
+  },
+});
+
+export const MobilePanel = styled("div")({
+  position: "fixed",
+  top: 64,
+  right: 0,
+  height: "calc(100dvh - 64px)",
+  width: "100%",
+  // Coinbase-style: effectively full-screen on phones, comfortable panel on
+  // tablets. width:100% + this cap = full-bleed under ~420px viewports.
+  maxWidth: 420,
+  zIndex: 1500,
+  display: "none",
+  visibility: "hidden",
+  transform: "translate3d(100%, 0, 0)",
+  // Delay the visibility flip until the slide-out finishes.
+  transition:
+    "transform 200ms cubic-bezier(0.16, 1, 0.3, 1), visibility 0s linear 200ms",
+  willChange: "transform",
+  "&[data-open='true']": {
+    visibility: "visible",
+    transform: "translate3d(0, 0, 0)",
+    transition: "transform 200ms cubic-bezier(0.16, 1, 0.3, 1)",
+  },
+  "@media (max-width: 1025px)": {
+    display: "block",
+  },
+  "@media (prefers-reduced-motion: reduce)": {
+    transition: "none",
+    "&[data-open='true']": { transition: "none" },
+  },
+});
+
 export const MobileMenuDrawer = styled(Drawer)(() => ({
   display: "none",
   zIndex: 1500,

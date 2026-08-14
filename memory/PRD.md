@@ -1,6 +1,11 @@
 # CURRENT STATE POINTER (2026-06 fork, latest first)
 
 LATEST SESSION (2026-08-14): FIXED 3 user-reported bugs (all backend-verified by testing agent, 2 runs, 9/9 pass):
+0. (added later same day) Landing top-right hamburger "dead taps" on mobile Safari/Chrome — 4th attempt, REWRITTEN &
+   verified (frontend agent: 79ms open, zero dead taps). MUI Drawer → always-mounted CSS panel (HomeHeader styled.tsx
+   MobilePanel/MobilePanelBackdrop, data-open toggle, testid mobile-menu-panel) + below-the-hero landing sections
+   code-split via next/dynamic (Components/Page/Home/index.tsx — do NOT revert to static imports; they were the
+   hydration dead-tap window). Old MobileMenuDrawer styled export is now UNUSED.
 1. Stale 'pending' transactions now display 'unpaid' (grey chip) after their 60-min payment window — READ-TIME derivation
    (backend/utils/transactionDisplayStatus.ts), NO DB writes. Applied in wallet getAllTransactions + transaction/:id
    (what /transactions actually uses!), company getTransactions, dashboard recent-transactions, CSV export; pending_count

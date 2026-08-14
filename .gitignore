@@ -72,3 +72,7 @@ yarn-error.log*
 # Playwright artifacts (test agent screenshots / traces)
 playwright-report/
 test-results/
+
+# Redis dumps (local data snapshots — never commit)
+dump.rdb
+*.rdb

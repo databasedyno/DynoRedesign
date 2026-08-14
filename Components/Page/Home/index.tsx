@@ -1,13 +1,24 @@
 import { FC, memo, useEffect } from "react";
+import dynamic from "next/dynamic";
 import HeroPlayground from "./v3/HeroPlayground";
-import LivePriceStrip from "./LivePriceStrip";
-import AudienceDoorsV3 from "./v3/AudienceDoorsV3";
-import ProductFeatureCards from "./v3/ProductFeatureCards";
-import NumbersTrustBand from "./v3/NumbersTrustBand";
-import LearnDocsCards from "./v3/LearnDocsCards";
-import FAQCompact from "./v3/FAQCompact";
-import FinalCTAAurora from "./v3/FinalCTAAurora";
 import { HomeWrapper } from "./styled";
+
+/* HYDRATION BUDGET (2026-08 — "hamburger tap does nothing on mobile"):
+ * everything below the hero is code-split. All of these sections used to sit
+ * in the critical "/" chunk, so a phone had to download+parse+hydrate the
+ * WHOLE landing page before ANY header tap handler existed — on mobile
+ * WebKit/Blink that was seconds of dead taps on the top-right menu button.
+ * next/dynamic keeps the server-rendered HTML (SEO unchanged) but moves the
+ * JS into lazy chunks, so the header + hero hydrate first and become
+ * interactive almost immediately. Do NOT convert these back to static
+ * imports. ssr:true (default) is required — the HTML must not change. */
+const LivePriceStrip = dynamic(() => import("./LivePriceStrip"));
+const AudienceDoorsV3 = dynamic(() => import("./v3/AudienceDoorsV3"));
+const ProductFeatureCards = dynamic(() => import("./v3/ProductFeatureCards"));
+const NumbersTrustBand = dynamic(() => import("./v3/NumbersTrustBand"));
+const LearnDocsCards = dynamic(() => import("./v3/LearnDocsCards"));
+const FAQCompact = dynamic(() => import("./v3/FAQCompact"));
+const FinalCTAAurora = dynamic(() => import("./v3/FinalCTAAurora"));
 
 /**
  * HomePage v3 — "Creator-first, cut in half" (2026-07-18).
