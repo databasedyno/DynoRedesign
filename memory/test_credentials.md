@@ -1,5 +1,9 @@
 # Test Credentials
 
+## ⚠️ FRONTEND RUNS A PRODUCTION BUILD SINCE 2026-08-14 (bug fix: slow dev-mode nav)
+- /app/frontend/package.json "start" = `next start` (prod). Dev mode = "start-dev" script.
+- After ANY frontend code change: `cd /app && yarn build` then `sudo supervisorctl restart frontend`.
+
 ## LATEST SETUP (2026-08-14, 5th NEW pod) — env rebuilt from user's pasted creds
 - CURRENT preview URL (verified: full login -> /dashboard with live data):
   https://f2f9cf75-b483-4cdd-81f9-f5b303d42bc4.preview.emergentagent.com

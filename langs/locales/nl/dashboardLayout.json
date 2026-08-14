@@ -136,6 +136,7 @@
   "statusFailed": "Mislukt",
   "statusPaid": "Betaald",
   "statusPending": "In afwachting",
+  "statusUnpaid": "Niet betaald",
   "statusPublished": "Je creator-pagina is live",
   "staySignedIn": "Ingelogd blijven",
   "switchedToCompany": "Overgeschakeld naar",

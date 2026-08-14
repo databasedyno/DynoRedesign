@@ -228,6 +228,26 @@ const MobileNavigationBar = () => {
     return router.pathname.startsWith(path);
   };
 
+  // Prefetch every mobile-nav route on mount so taps navigate instantly.
+  // router.prefetch is a no-op in dev; in PRODUCTION it warms the route's JS
+  // chunk. Mobile has no hover, so the desktop sidebar's hover-prefetch never
+  // fires here — without this, every tap downloads the chunk over the mobile
+  // network first (the "long spinner between pages" the merchant reported).
+  useEffect(() => {
+    const paths = [
+      "/dashboard", "/pay-links", "/transactions", "/invoices", "/customers",
+      "/storefront", "/wallet", "/referrals", "/notifications", "/settings",
+      "/help-support", "/create-pay-link",
+    ];
+    paths.forEach((p) => {
+      try {
+        void router.prefetch(p)?.catch?.(() => {});
+      } catch {
+        /* prefetch unsupported — ignore */
+      }
+    });
+  }, []);
+
   const handleNavClick = (
     item: (typeof firstRowItems)[0] | (typeof secondRowItems)[0] | (typeof thirdRowItems)[0],
   ) => {

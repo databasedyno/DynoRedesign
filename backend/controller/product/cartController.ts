@@ -27,9 +27,12 @@ import {
   productOrderItemModel,
   paymentLinkModel,
   userModel,
+  companyModel,
+  userWalletModel,
 } from "../../models";
 import productModel from "../../models/userModels/productModel";
 import sequelize from "../../utils/dbInstance";
+import { setRedisItem } from "../../utils/redisInstance";
 import {
   successResponseHelper,
   errorResponseHelper,
@@ -310,6 +313,50 @@ export const startCheckout = async (
       body.shipping_address = ship; // normalized back
     }
 
+    // ---------- Merchant company + payout wallets (mirrors startTip) ----------
+    // The /pay checkout session REQUIRES a company_id + the merchant's
+    // configured wallet currencies to resolve deposit addresses. Fail fast
+    // BEFORE any stock is decremented.
+    const merchantCompany: any = await companyModel.findOne({
+      where: { user_id: merchantUserId },
+      order: [["company_id", "ASC"]],
+    });
+    if (!merchantCompany) {
+      return errorResponseHelper(
+        res,
+        400,
+        "This merchant isn't set up to receive payments yet."
+      );
+    }
+    const merchantCompanyId = Number(merchantCompany.dataValues.company_id);
+    const CART_CRYPTO_TYPES = [
+      "BTC", "ETH", "LTC", "DOGE", "TRX", "BCH", "USDT-TRC20", "USDT-ERC20",
+      "USDC-ERC20", "SOL", "XRP", "RLUSD", "RLUSD-ERC20", "POLYGON", "USDT-POLYGON",
+    ];
+    const configuredWallets = await userWalletModel.findAll({
+      where: {
+        user_id: merchantUserId,
+        company_id: merchantCompanyId,
+        wallet_type: { [Op.in]: CART_CRYPTO_TYPES },
+        wallet_address: { [Op.not]: null },
+      } as any,
+      attributes: ["wallet_type"],
+    });
+    if (!configuredWallets.length) {
+      return errorResponseHelper(
+        res,
+        400,
+        "This merchant hasn't configured a payout wallet yet."
+      );
+    }
+    const allConfiguredCurrencies = [
+      ...new Set(
+        configuredWallets.map(
+          (w) => (w.dataValues as { wallet_type: string }).wallet_type
+        )
+      ),
+    ];
+
     // ---------- Atomic order + stock decrement + payment link ----------
     // ── Resolve merchant tax settings (session 57) ──────────────────
     const mv = merchant.dataValues;
@@ -515,29 +562,33 @@ export const startCheckout = async (
       const serverUrl = (process.env.SERVER_URL || "").replace(/\/+$/, "");
       const paymentLinkUrl = `${serverUrl}/pay?d=${paymentRef}`;
       const shortRef = publicRef.slice(0, 8).toUpperCase();
+      const linkTransactionId = crypto.randomUUID();
+      const linkExpiresAt = new Date(Date.now() + 60 * 60 * 1000); // 60 min
+      const orderDescription = `Order ${shortRef} — ${validated.normalized.length} item${validated.normalized.length > 1 ? "s" : ""}`;
+      const buyerName = buyer.name ? String(buyer.name).slice(0, 160) : null;
 
       const link: any = await paymentLinkModel.create(
         {
+          transaction_id: linkTransactionId,
           transaction_reference: paymentRef,
           user_id: merchantUserId,
+          adm_id: merchantUserId,
+          company_id: merchantCompanyId,
           base_amount: totalCents / 100,
           base_currency: currency,
           status: "pending",
           email: buyerEmail,
           payment_link: paymentLinkUrl,
-          description: `Order ${shortRef} — ${validated.normalized.length} item${validated.normalized.length > 1 ? "s" : ""}`,
+          description: orderDescription,
           link_type: "cart",
           title: `Order ${shortRef}`,
-          customer_name: buyer.name ? String(buyer.name).slice(0, 160) : null,
-          expires_at: new Date(Date.now() + 60 * 60 * 1000), // 60 min
+          customer_name: buyerName,
+          expires_at: linkExpiresAt,
           // Snapshot tax flags so downstream settlement code knows what was
           // collected (mainly for cryptoSettlement to persist tax_amount /
           // tax_rate on tbl_user_transaction).
           apply_tax: effectiveApplyTax && taxCents > 0,
           tax_inclusive: taxInclusive,
-          // Reuse the merchant's default company + wallet via linkMiddleware chain
-          // (in a background enrichment step). For MVP we leave company_id null;
-          // the payment webhook + settlement code already tolerates that path.
         },
         { transaction: t }
       );
@@ -549,6 +600,46 @@ export const startCheckout = async (
       );
 
       await t.commit();
+
+      // 6. Create the /pay checkout session in Redis (mirrors createPaymentLink
+      // / startTip). Without this, /pay?d=<ref> 404s ("Payment link not found
+      // or expired") because getData() resolves sessions from Redis, not the DB.
+      try {
+        const redisPayload = {
+          transaction_id: linkTransactionId,
+          email: buyerEmail,
+          allowedModes: "crypto",
+          base_amount: totalCents / 100,
+          base_currency: currency,
+          user_id: merchantUserId,
+          adm_id: merchantUserId,
+          company_id: merchantCompanyId,
+          payment_link: paymentLinkUrl,
+          description: orderDescription,
+          expires_at: linkExpiresAt,
+          callback_url: null,
+          redirect_url: null,
+          webhook_url: null,
+          fee_payer: "company",
+          apply_tax: effectiveApplyTax && taxCents > 0,
+          tax_inclusive: taxInclusive,
+          accepted_currencies: null,
+          customer_name: buyerName,
+          link_type: "cart",
+          order_public_ref: publicRef,
+          pathType: "createLink",
+          link_id: link.dataValues.link_id,
+          available_currencies: allConfiguredCurrencies,
+          all_configured_currencies: allConfiguredCurrencies,
+          createdAt: new Date().toISOString(),
+        };
+        await setRedisItem("customer-" + paymentRef, redisPayload);
+      } catch (redisErr) {
+        apiLogger.error(
+          "[cartController] failed to create /pay checkout session in Redis:",
+          redisErr
+        );
+      }
 
       return successResponseHelper(res, 200, "Checkout started.", {
         order_public_ref: publicRef,

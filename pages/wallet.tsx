@@ -17,6 +17,151 @@ import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 
+/**
+ * Header action + page warning are rendered by their OWN components rather
+ * than built inline inside the layout-registration effects. Depending on
+ * MUI's `theme` (or `t`/`router`) inside an effect that calls setPageAction /
+ * setPageWarning (state in _app) creates a render loop, and a page stuck
+ * re-rendering never lets Next commit the next route — the global transition
+ * loader then hangs over the old page ("slow spinner between pages").
+ * Keep those effect deps PRIMITIVE ONLY (see /storefront postmortem).
+ */
+const AddWalletAction: React.FC<{ onClick: () => void }> = ({ onClick }) => {
+  const muiTheme = useTheme();
+  const isMobile = useIsMobile("md");
+  const { t } = useTranslation("walletScreen");
+  return (
+    <CustomButton
+      label={t("addWallet", { defaultValue: "Add wallet" })}
+      variant="primary"
+      size="medium"
+      endIcon={<Icon name="plus" size={isMobile ? 18 : 20} />}
+      onClick={onClick}
+      sx={{
+        height: isMobile ? 34 : 40,
+        px: isMobile ? 1.5 : 2.5,
+        fontSize: isMobile ? 13 : 15,
+        [muiTheme.breakpoints.down("sm")]: {
+          flex: 1,
+          whiteSpace: "nowrap",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+        },
+      }}
+    />
+  );
+};
+
+const WalletPageWarning: React.FC<{
+  hasCompany: boolean;
+  walletWarning: boolean;
+}> = ({ hasCompany, walletWarning }) => {
+  const router = useRouter();
+  const isMobile = useIsMobile("md");
+  const { t } = useTranslation(["walletScreen", "common"]);
+  return (
+    <>
+      {!hasCompany && (
+        <SetupWarnnigContainer
+          onClick={() => router.push("/create-pay-link")}
+          sx={{ cursor: "pointer", "&:hover": { opacity: 0.85 } }}
+        >
+          <WarningIconContainer>
+            <Icon name="building-2" size={16} />
+          </WarningIconContainer>
+          <Box>
+            <Typography
+              sx={{
+                fontFamily: "var(--font-sans)",
+                fontWeight: "600",
+                fontSize: isMobile ? "10px" : "15px",
+                lineHeight: "130%",
+                letterSpacing: 0,
+              }}
+            >
+              {t("walletCompanyFirstTitle")}
+            </Typography>
+            <Typography
+              sx={{
+                fontFamily: "var(--font-sans)",
+                fontWeight: "500",
+                fontSize: isMobile ? "10px" : "15px",
+                lineHeight: "130%",
+                letterSpacing: 0,
+              }}
+            >
+              {t("walletCompanyFirstBody")}
+            </Typography>
+          </Box>
+        </SetupWarnnigContainer>
+      )}
+      {hasCompany && walletWarning && (
+        <SetupWarnnigContainer>
+          <WarningIconContainer>
+            <Image
+              src={InfoIcon}
+              alt="info icon"
+              width={16}
+              height={16}
+              draggable={false}
+              style={{ filter: "brightness(0)" }}
+            />
+          </WarningIconContainer>
+          <Box>
+            <Typography
+              sx={{
+                fontFamily: "var(--font-sans)",
+                fontWeight: "600",
+                fontSize: isMobile ? "10px" : "15px",
+                lineHeight: "130%",
+                letterSpacing: 0,
+              }}
+            >
+              {t("walletSetUpWarnnigTitle")}
+            </Typography>
+            <Typography
+              sx={{
+                fontFamily: "var(--font-sans)",
+                fontWeight: "500",
+                fontSize: isMobile ? "10px" : "15px",
+                lineHeight: "130%",
+                letterSpacing: 0,
+              }}
+            >
+              {(() => {
+                const text = t("walletSetUpWarnnigSubtitle");
+                const boldText = t("walletSetUpWarnnigSubtitleBold");
+                const parts = text.split(boldText);
+                if (parts.length === 2) {
+                  return (
+                    <>
+                      {parts[0]}
+                      <Typography
+                        component="span"
+                        sx={{
+                          fontFamily: "var(--font-sans)",
+                          fontWeight: "600",
+                          fontSize: isMobile ? "10px" : "15px",
+                          lineHeight: "130%",
+                          letterSpacing: 0,
+                        }}
+                      >
+                        {boldText}
+                      </Typography>
+                      {parts[1]}
+                    </>
+                  );
+                }
+                return text;
+              })()}
+            </Typography>
+          </Box>
+        </SetupWarnnigContainer>
+      )}
+    </>
+  );
+};
+
 const WalletPage = ({
   setPageName,
   setPageDescription,
@@ -100,113 +245,21 @@ const WalletPage = ({
         setPageHeaderSx(null);
       }
     };
-  }, [setPageHeaderSx, muiTheme]);
+    // muiTheme deliberately NOT a dep — breakpoints.down("sm") is a constant
+    // media-query string, and a theme-object dep re-runs this effect on every
+    // render → setPageHeaderSx(state in _app) → render loop that blocks route
+    // transitions (see /storefront postmortem). PRIMITIVE DEPS ONLY.
+  }, [setPageHeaderSx]);
 
   useEffect(() => {
     if (!setPageWarning) return;
     setPageWarning(
-      <>
-        {!hasCompany && (
-          <SetupWarnnigContainer
-            onClick={() => router.push("/create-pay-link")}
-            sx={{ cursor: "pointer", "&:hover": { opacity: 0.85 } }}
-          >
-            <WarningIconContainer>
-              <Icon name="building-2" size={16} />
-            </WarningIconContainer>
-            <Box>
-              <Typography
-                sx={{
-                  fontFamily: "var(--font-sans)",
-                  fontWeight: "600",
-                  fontSize: isMobile ? "10px" : "15px",
-                  lineHeight: "130%",
-                  letterSpacing: 0,
-                }}
-              >
-                {t("walletCompanyFirstTitle")}
-              </Typography>
-              <Typography
-                sx={{
-                  fontFamily: "var(--font-sans)",
-                  fontWeight: "500",
-                  fontSize: isMobile ? "10px" : "15px",
-                  lineHeight: "130%",
-                  letterSpacing: 0,
-                }}
-              >
-                {t("walletCompanyFirstBody")}
-              </Typography>
-            </Box>
-          </SetupWarnnigContainer>
-        )}
-        {hasCompany && walletWarning && (
-          <SetupWarnnigContainer>
-            <WarningIconContainer>
-              <Image
-                src={InfoIcon}
-                alt="info icon"
-                width={16}
-                height={16}
-                draggable={false}
-                style={{ filter: "brightness(0)" }}
-              />
-            </WarningIconContainer>
-            <Box>
-              <Typography
-                sx={{
-                  fontFamily: "var(--font-sans)",
-                  fontWeight: "600",
-                  fontSize: isMobile ? "10px" : "15px",
-                  lineHeight: "130%",
-                  letterSpacing: 0,
-                }}
-              >
-                {t("walletSetUpWarnnigTitle")}
-              </Typography>
-              <Typography
-                sx={{
-                  fontFamily: "var(--font-sans)",
-                  fontWeight: "500",
-                  fontSize: isMobile ? "10px" : "15px",
-                  lineHeight: "130%",
-                  letterSpacing: 0,
-                }}
-              >
-                {(() => {
-                  const text = t("walletSetUpWarnnigSubtitle");
-                  const boldText = t("walletSetUpWarnnigSubtitleBold");
-                  const parts = text.split(boldText);
-                  if (parts.length === 2) {
-                    return (
-                      <>
-                        {parts[0]}
-                        <Typography
-                          component="span"
-                          sx={{
-                            fontFamily: "var(--font-sans)",
-                            fontWeight: "600",
-                            fontSize: isMobile ? "10px" : "15px",
-                            lineHeight: "130%",
-                            letterSpacing: 0,
-                          }}
-                        >
-                          {boldText}
-                        </Typography>
-                        {parts[1]}
-                      </>
-                    );
-                  }
-                  return text;
-                })()}
-              </Typography>
-            </Box>
-          </SetupWarnnigContainer>
-        )}
-      </>,
+      <WalletPageWarning hasCompany={hasCompany} walletWarning={walletWarning} />,
     );
     return () => setPageWarning(null);
-  }, [setPageWarning, isMobile, t, walletWarning, hasCompany, router]);
+  }, [setPageWarning, hasCompany, walletWarning]);
+
+  const openCreateModal = useCallback(() => setOpenCreate(true), []);
 
   useEffect(() => {
     if (!setPageAction) return;
@@ -215,29 +268,11 @@ const WalletPage = ({
     // bottom-nav "Create" tab (mobile) + sidebar "Payment Links" nav item (desktop)
     // already give users a fast path to create links.
     setPageAction(
-      canAddMoreWallets ? (
-        <CustomButton
-          label={tDashboard("addWallet", "Add wallet")}
-          variant="primary"
-          size="medium"
-          endIcon={<Icon name="plus" size={isMobile ? 18 : 20} />}
-          onClick={() => setOpenCreate(true)}
-          sx={{
-            height: isMobile ? 34 : 40,
-            px: isMobile ? 1.5 : 2.5,
-            fontSize: isMobile ? 13 : 15,
-            [muiTheme.breakpoints.down("sm")]: {
-              flex: 1,
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-            },
-          }}
-        />
-      ) : null,
+      canAddMoreWallets ? <AddWalletAction onClick={openCreateModal} /> : null,
     );
     return () => setPageAction(null);
-  }, [setPageAction, tDashboard, isMobile, canAddMoreWallets, muiTheme]);
+  }, [setPageAction, canAddMoreWallets, openCreateModal]);
+
 
   return (
     <>

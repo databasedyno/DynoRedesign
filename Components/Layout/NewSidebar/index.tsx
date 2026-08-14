@@ -131,6 +131,7 @@ const NewSidebar = () => {
       "/dashboard", "/transactions", "/invoices", "/pay-links",
       "/wallet", "/customers", "/developer-keys",
       "/create-pay-link", "/settings", "/storefront",
+      "/referrals", "/notifications", "/help-support",
     ];
     paths.forEach((p) => router.prefetch(p));
   }, []);

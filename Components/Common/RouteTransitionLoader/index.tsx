@@ -23,9 +23,15 @@ import DynopayBlackLogo from "@/assets/Icons/home/dynopay-blackLogo.svg";
 import DynopayWhiteLogo from "@/assets/Icons/home/dynopay-whiteLogo.svg";
 import { useThemeMode } from "@/contexts/ThemeContext";
 
-const SHOW_DELAY_MS = 250; // don't show for near-instant transitions
-const MIN_VISIBLE_MS = 350; // once shown, keep visible at least this long
-const FADE_OUT_MS = 240; // graceful fade-out so the hand-off "flows" into the page
+// Perceived-speed tuning (2026-08-14, "slow spinner between pages" report):
+// with nav chunks prefetched, most transitions complete well under 450ms —
+// they should NEVER flash the overlay. When a transition genuinely is slow
+// (cold chunk on mobile, heavy page render) the overlay appears but holds the
+// screen for far less artificial time than before (was 250/350/240 → ~600ms+
+// of forced overlay per navigation).
+const SHOW_DELAY_MS = 450; // don't show for near-instant transitions
+const MIN_VISIBLE_MS = 200; // once shown, keep visible at least this long
+const FADE_OUT_MS = 140; // graceful fade-out so the hand-off "flows" into the page
 
 const overlayFadeIn = keyframes`
   from { opacity: 0; }

@@ -16,6 +16,7 @@ import { getRedisItem, setRedisItem, setRedisTTL } from "../utils/redisInstance"
 import { getCurrencySymbol, getCurrencyInfo, formatAmountForDisplay, COMPANY_CURRENCY_QUERY, convertToFiat, getUserDisplayCurrency } from "../utils/currencyUtils";
 import { resolveTransactionSource } from "../utils/transactionSource";
 import { PROCESSED_USD_EXPR, PROCESSED_STATUS_SQL } from "../utils/processedVolume";
+import { deriveTxDisplayStatus, FRESH_PENDING_SQL } from "../utils/transactionDisplayStatus";
 import { getVolumeTiers } from "../utils/volumeTierUtils";
 
 /**
@@ -162,7 +163,7 @@ const getDashboard = async (req: express.Request, res: express.Response) => {
         COUNT(*) FILTER (WHERE ${PROCESSED_STATUS_SQL}) as total_count,
         COUNT(*) FILTER (WHERE ut."createdAt" >= :startOfMonth AND ${PROCESSED_STATUS_SQL}) as current_month_count,
         COUNT(*) FILTER (WHERE ut."createdAt" >= :startOfLastMonth AND ut."createdAt" <= :endOfLastMonth AND ${PROCESSED_STATUS_SQL}) as last_month_count,
-        COUNT(*) FILTER (WHERE ut.status = 'pending') as pending_count,
+        COUNT(*) FILTER (WHERE ${FRESH_PENDING_SQL}) as pending_count,
         COUNT(*) FILTER (WHERE ut."createdAt" >= :startOfToday AND ${PROCESSED_STATUS_SQL}) as today_count,
         COUNT(*) FILTER (WHERE ut."createdAt" >= :startOfYesterday AND ut."createdAt" < :startOfToday AND ${PROCESSED_STATUS_SQL}) as yesterday_count
       FROM tbl_user_transaction ut
@@ -876,7 +877,12 @@ const getRecentTransactions = async (req: express.Request, res: express.Response
         source_parent_is_tip_jar, source_order_id, source_order_ref,
         ...clean
       } = row;
-      return { ...clean, source };
+      return {
+        ...clean,
+        // Stale 'pending' attempts (payment window passed) are shown as 'unpaid'
+        status: deriveTxDisplayStatus(clean.status, clean.createdAt),
+        source,
+      };
     });
 
     const recentTxResponse = {
@@ -1188,7 +1194,7 @@ const getActionCounts = async (req: express.Request, res: express.Response) => {
            FROM tbl_user_transaction ut
            LEFT JOIN tbl_customer c ON ut.customer_id = c.customer_id
           WHERE ut.user_id = :userId
-            AND ut.status = 'pending'
+            AND ${FRESH_PENDING_SQL}
             ${txCompanyFilterSql}
         ) AS transactions_pending,
 

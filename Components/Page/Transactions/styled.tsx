@@ -15,6 +15,8 @@ const STATUS_SEMANTIC: Record<string, { dark: string; light: string; glowDark: s
   pending: CB_TOKENS.semantic.warning,
   processing: CB_TOKENS.semantic.warning,
   failed: CB_TOKENS.semantic.negative,
+  // Neutral grey — payment window passed without payment (not an error).
+  unpaid: { dark: "#9CA3AF", light: "#6B7280", glowDark: "rgba(156,163,175,0.14)", glowLight: "rgba(107,114,128,0.10)" },
 };
 
 export const TransactionsTableContainer = styled(Box)(({ theme }) => ({
@@ -228,7 +230,7 @@ export const TransactionsTableFooterText = styled(Typography)(({ theme }) => ({
 }));
 
 export const StatusBadge = styled(Box)<{
-  status: "pending" | "confirmed" | "settled" | "failed" | "processing";
+  status: "pending" | "confirmed" | "settled" | "failed" | "processing" | "unpaid";
 }>(({ theme, status }) => {
   const isDark = theme.palette.mode === "dark";
   const s = STATUS_SEMANTIC[status] || STATUS_SEMANTIC.pending;
@@ -255,7 +257,7 @@ export const StatusBadge = styled(Box)<{
 });
 
 export const StatusIconWrapper = styled(Box)<{
-  status: "pending" | "confirmed" | "settled" | "failed" | "processing";
+  status: "pending" | "confirmed" | "settled" | "failed" | "processing" | "unpaid";
 }>(({ theme }) => {
   return {
     display: "flex",
@@ -275,7 +277,7 @@ export const StatusIconWrapper = styled(Box)<{
 });
 
 export const StatusText = styled(Typography)<{
-  status: "pending" | "confirmed" | "settled" | "failed" | "processing";
+  status: "pending" | "confirmed" | "settled" | "failed" | "processing" | "unpaid";
 }>(({ status, theme }) => {
   const isDark = theme.palette.mode === "dark";
   const s = STATUS_SEMANTIC[status] || STATUS_SEMANTIC.pending;

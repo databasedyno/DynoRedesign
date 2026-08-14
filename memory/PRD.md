@@ -1,5 +1,24 @@
 # CURRENT STATE POINTER (2026-06 fork, latest first)
 
+LATEST SESSION (2026-08-14): FIXED 3 user-reported bugs (all backend-verified by testing agent, 2 runs, 9/9 pass):
+1. Stale 'pending' transactions now display 'unpaid' (grey chip) after their 60-min payment window — READ-TIME derivation
+   (backend/utils/transactionDisplayStatus.ts), NO DB writes. Applied in wallet getAllTransactions + transaction/:id
+   (what /transactions actually uses!), company getTransactions, dashboard recent-transactions, CSV export; pending_count
+   and action-counts transactions_pending share FRESH_PENDING_SQL (parity kept, both now 0). Frontend: 'unpaid' status in
+   type unions/styled/table/modal/RecentTransactionsWidget + 6 locales (transactions.unpaid, dashboardLayout.statusUnpaid).
+2. Slow page navigation — TWO fixes: (a) preview now runs a PRODUCTION build. /app/frontend/package.json "start" =
+   `next start` ("start-dev" = dev mode). ⚠️ AFTER ANY FRONTEND CODE CHANGE: `cd /app && yarn build` THEN
+   `sudo supervisorctl restart frontend` — hot reload is OFF. (b) **PRODUCTION root cause**: pages/wallet.tsx layout
+   effects depended on the MUI theme object → render loop after visiting /wallet starved Next's route commit → stuck
+   full-screen transition loader (routeChangeStart without routeChangeComplete, reproduced + fixed). Same class of bug
+   as the /storefront postmortem — layout-state effects (setPageName/Action/Warning/HeaderSx) MUST have primitive-only
+   deps; theme-dependent JSX goes in child components. Also: RouteTransitionLoader thresholds 450/200/140ms and
+   MobileNavigationBar prefetches all nav routes on mount. Verified: all transitions 93–248ms, zero wedges.
+3. Store payment "payment link not found": cartController.startCheckout never wrote the Redis customer-<ref> session
+   (and company_id was NULL) → /pay getData 404'd every store order. Now mirrors startTip (company+wallets resolved,
+   session written after commit). Frontend: /{handle}/checkout mounts <InlineTipCheckout mode="link"> IN-PLACE
+   (testid checkout-inline-pay, shallow ?pay=<ref>) — buyer stays on the page, like tips.
+
 LATEST SESSION (part 5): FIXED user-reported bug — paid/settled payment links (818c7e42… link 174 $800, 89a05d06… link 175 $75) showed a broken checkout instead of the "Payment successful" card. Root cause in backend/controller/payment/cryptoCheckout.ts getData(): Redis checkout session soft-deletes ~30min after settlement AND the language write-back ran before the empty-session guard, resurrecting expired keys as bare {language} shells with no link_id → DB paid-gate never fired → sparse payload. Fix: hasUsableSession guard (requires link_id/amount/allowedModes fields), language persisted only on usable sessions, and a DB fallback (lookup tbl_payment_link by payment_link LIKE '%?d=<ref>') returning {payment_completed:true,…} for settled links / 404 otherwise. Verified by testing agent iteration_53 (5/5 pass incl. active-link + invalid-ref regressions).
 
 LATEST SESSION (part 4): ALL audit P1+P2 issues FIXED and verified by testing agent (iterations 51+52 — 14/14 PASS, read-only against live DB). Fixes: trust stats unified to $42M+/15+ chains (TrustStrip, about, seo jsons, constants/trustStats.ts); one date format "Aug 13, 2026, 18:47" everywhere (helpers/displayDate.ts + Transactions/PaymentLinks/dateTimeFormatter); pay-links Actions column sticky-right + visible thin scrollbars on both tables; theme lg breakpoint 1200→1024 (desktop sidebar on tablets); serif fallback killed (globals.css font-display swap + Manrope preloads in _document); checkout "Pay hostbay" + REFERENCE label (CleanCheckoutV2 merchant company_name normalization); Customers "Recovered Customer"→"API customer (restored)" + explainer banner (displayFor name-literal mapping); notifications duplicate chip removed; mobile Preview pill bottom:88; minimal header on /[handle] pages (HomeHeader minimalChrome); shop avatar uses merchant accent (shopController + ShopHero); "Account Settings", "API key" label, blob bg removed from API docs card, dark disabled-input contrast (appTheme), dynopay.me/@handle in /for copy, "No description"→"—". API docs base URL /api/user verified CORRECT (no change needed).

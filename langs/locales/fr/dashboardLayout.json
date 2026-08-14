@@ -136,6 +136,7 @@
   "statusFailed": "Échoué",
   "statusPaid": "Payé",
   "statusPending": "En attente",
+  "statusUnpaid": "Non payé",
   "statusPublished": "Votre page créateur est en ligne",
   "staySignedIn": "Rester connecté",
   "switchedToCompany": "Basculé vers",

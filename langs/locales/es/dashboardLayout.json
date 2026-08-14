@@ -136,6 +136,7 @@
   "statusFailed": "Fallido",
   "statusPaid": "Pagado",
   "statusPending": "Pendiente",
+  "statusUnpaid": "No pagado",
   "statusPublished": "Tu página de creador está activa",
   "staySignedIn": "Mantener la sesión iniciada",
   "switchedToCompany": "Cambiado a",

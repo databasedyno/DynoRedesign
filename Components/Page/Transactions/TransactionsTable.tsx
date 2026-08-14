@@ -126,7 +126,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
     return BitcoinIcon;
   };
 
-  const getStatusIcon = (status: "pending" | "confirmed" | "settled" | "failed" | "processing") => {
+  const getStatusIcon = (status: "pending" | "confirmed" | "settled" | "failed" | "processing" | "unpaid") => {
     switch (status) {
       case "settled":
         return <Image src={CorrectIcon} alt="correct" draggable={false} />;
@@ -135,6 +135,8 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
       case "pending":
       case "processing":
         return <HourGlassIcon fill={"#F57C00"} size={isMobile ? 12 : 16} />;
+      case "unpaid":
+        return <HourGlassIcon fill={"#9CA3AF"} size={isMobile ? 12 : 16} />;
       case "failed":
         return <Image src={WrongIcon} alt="incorrect" draggable={false} />;
     }

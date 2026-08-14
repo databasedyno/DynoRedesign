@@ -112,7 +112,7 @@ export const DetailValue = styled(Typography)(({ theme }) => ({
 }));
 
 export const StatusBadge = styled(Box)<{
-  status: "pending" | "confirmed" | "settled" | "failed" | "processing";
+  status: "pending" | "confirmed" | "settled" | "failed" | "processing" | "unpaid";
 }>(({ theme, status }) => {
   const statusColors: Record<string, { bg: string; border: string }> = {
     settled: {
@@ -130,6 +130,10 @@ export const StatusBadge = styled(Box)<{
     processing: {
       bg: "#FFEDD7",
       border: "#FFE3C0",
+    },
+    unpaid: {
+      bg: "#F3F4F6",
+      border: "#E5E7EB",
     },
     failed: {
       bg: "#FFEBE5",
@@ -177,7 +181,7 @@ export const StatusIconWrapper = styled(Box)(({ theme }) => {
 });
 
 export const StatusText = styled(Typography)<{
-  status: "pending" | "confirmed" | "settled" | "failed" | "processing";
+  status: "pending" | "confirmed" | "settled" | "failed" | "processing" | "unpaid";
 }>(({ status, theme }) => {
   const statusColors: Record<string, { textColor: string }> = {
     // Session 56 WCAG fix: darkened text colors so every badge clears
@@ -193,6 +197,9 @@ export const StatusText = styled(Typography)<{
     },
     processing: {
       textColor: "#8A5300", // was #F57C00 (2.36:1) → 5.53:1
+    },
+    unpaid: {
+      textColor: "#4B5563", // neutral grey, 7.6:1 on #F3F4F6
     },
     failed: {
       textColor: "#B91E20", // was theme.palette.error.main (~3.35:1) → 5.59:1

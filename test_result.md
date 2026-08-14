@@ -1,3 +1,161 @@
+# Session 2026-08-14 (3 USER BUGS: stale pending → "Unpaid" · slow page nav → prod build · store payment 404 → Redis session + inline pay)
+
+Preview: https://f2f9cf75-b483-4cdd-81f9-f5b303d42bc4.preview.emergentagent.com
+Login (2-step UI) hostbay@moxx.co / Katiekendra123@ — API login: POST /api/user/login {email,password} → data.token (Bearer).
+SAFETY (CRITICAL — LIVE Railway PROD DB): NO destructive ops on real merchant data. Cart-checkout test rows (order + link)
+MUST be deleted afterwards. SAFE MODE (ENABLE_BACKGROUND_JOBS=false, WORKER_ROLE=secondary) must stay active.
+NOTE: frontend now runs a PRODUCTION build (`next start`); after ANY frontend code change run `cd /app && yarn build`
+then `sudo supervisorctl restart frontend` (dev mode available via /app/frontend/package.json "start-dev").
+
+## 1) BUG: pending transactions never expire ("still shows pending… after some time it should show unpaid")
+ROOT CAUSE: tbl_user_transaction rows are created status='pending' when a buyer generates a deposit address; nothing
+ever expires them (200 stale pending rows in prod, ALL older than 60 min). FIX (READ-TIME ONLY, zero DB writes):
+NEW backend/utils/transactionDisplayStatus.ts — deriveTxDisplayStatus() maps pending + createdAt older than 60 min →
+'unpaid'; FRESH_PENDING_SQL counts only in-window pendings. Applied in companyController.getTransactions,
+dashboardController.getRecentTransactions (60s Redis cache — refetch after 60s if stale), walletController CSV export,
+getDashboard pending_count AND action-counts transactions_pending (IDENTICAL expression → parity preserved).
+Frontend: new 'unpaid' display status (neutral grey chip) in Transactions page/table/details-modal/styled unions +
+dashboard RecentTransactionsWidget (label t('statusUnpaid')) + 6 locales (transactions.unpaid, dashboardLayout.statusUnpaid).
+
+## 2) BUG: slow spinner between in-app pages
+TWO causes fixed (the second one is THE production bug):
+(a) Preview ran `next dev` (per-route compile). FIX: `next build` + supervisor bridge start → `next start`.
+(b) **PRODUCTION root cause — /wallet render loop wedged route transitions**: pages/wallet.tsx layout-registration
+    effects (setPageHeaderSx / setPageWarning / setPageAction — state in _app) depended on the MUI `theme` object +
+    `t`/`router` → effect re-ran every render → state update → render → … Once /wallet (the "Payout wallets" page the
+    user mentioned) mounted, the re-render storm starved Next's route commit: navigating away showed the full-screen
+    logo overlay indefinitely (reproduced: routeChangeStart with NO routeChangeComplete, overlay stuck). FIX = the
+    documented /storefront pattern: theme-dependent JSX extracted into <AddWalletAction/> + <WalletPageWarning/>
+    child components; all three effects now have PRIMITIVE-ONLY deps. Verified after fix: full chain dashboard→wallet→
+    transactions→pay-links→dashboard→wallet→dashboard completes 93–248ms per transition, zero wedges, no page errors.
+Also: RouteTransitionLoader tuned (SHOW_DELAY 250→450ms, MIN_VISIBLE 350→200ms, FADE 240→140ms — fast transitions no
+longer flash ~600ms of forced overlay) and MobileNavigationBar now prefetches all nav routes on mount (mobile has no
+hover, so the sidebar's hover-prefetch never fired there — taps downloaded chunks over the mobile network first).
+
+## 3) BUG: store payment says "payment link not found" (+ should stay on the same page like tips)
+ROOT CAUSE: product/cartController.startCheckout created the DB tbl_payment_link row but NEVER wrote the Redis
+`customer-<payment_ref>` session that /pay getData() requires (and left company_id NULL so wallets couldn't resolve)
+→ getData's hasUsableSession=false → DB fallback only returns PAID links → 404 for every fresh store order.
+FIX (mirrors startTip): resolve merchant company + configured wallets BEFORE stock decrement (400 if none), set
+transaction_id/adm_id/company_id on the link row, and after commit write the full Redis session (pathType createLink,
+link_id, available_currencies etc.). Frontend: pages/[handle]/checkout.tsx no longer redirects to /pay — it mounts
+<InlineTipCheckout mode="link"> IN-PLACE (testid checkout-inline-pay) with shallow-routed ?pay=<ref> for refresh
+persistence; cancel/new → /{handle}/shop.
+
+### BACKEND TESTING INSTRUCTIONS (deep_testing_backend_v2) — live prod DB, cleanup mandatory
+RETEST ADDENDUM (2026-08-14, after first 6/6 pass): the /transactions page actually reads POST /api/wallet/getAllTransactions
+and the details modal GET /api/wallet/transaction/:id — both now ALSO derive 'unpaid'. Focused retest:
+A) POST /api/wallet/getAllTransactions (Bearer, JSON body {"company_id":1,"rowsPerPage":50,"page":1}) → 200; in
+   data.customers_transactions assert ZERO status='pending' rows older than 60 min, 'unpaid' rows present, 'successful'
+   rows untouched, pagination.total still ~575.
+B) Pick one 'unpaid' row's id → GET /api/wallet/transaction/<id>?company_id=1 (Bearer) → 200 with status='unpaid'.
+C) Spot-check regressions: GET /api/company/getTransactions/1 (unpaid=190, stale pending=0) and parity
+   GET /api/dashboard/?company_id=1 today_summary.pending_count == GET /api/dashboard/action-counts?company_id=1
+   transactions_pending (both 0). No writes needed for this retest.
+1) LOGIN: POST /api/user/login {"email":"hostbay@moxx.co","password":"Katiekendra123@"} → 200, capture Bearer token.
+2) BUG-1a: GET /api/company/getTransactions/1 (Bearer) → 200. Assert: ZERO rows with status='pending' whose createdAt
+   is older than 60 min; rows that would have been stale-pending now have status='unpaid' (expect ~dozens of 'unpaid');
+   'successful' rows unchanged.
+3) BUG-1b: GET /api/dashboard/recent-transactions?limit=10&company_id=1 (Bearer) → 200; same rule on transactions[].status
+   (never a stale 'pending'; 'unpaid' allowed). 60s Redis cache: if you see stale pending, wait 65s, refetch once.
+4) BUG-1c PARITY: GET /api/dashboard/?company_id=1 → counts.pending_count (or equivalent field) MUST EQUAL
+   GET /api/dashboard/action-counts?company_id=1 → transactions_pending. Both are expected to be 0 now (all 200 prod
+   pendings are stale) — the old value was 190/200, so ALSO assert value < 10 (fresh-window only).
+5) BUG-3 HAPPY PATH (public endpoints, no auth): GET /api/shop/hostbay → grab a published product_id (e.g. "Test Ebook
+   Setup Guide"). POST /api/checkout {"merchant_handle":"hostbay","items":[{"product_id":<id>,"quantity":1}],
+   "buyer":{"email":"e2e-store-test@example.dev","name":"E2E Store Test"}} → 200 with data.payment_ref + order_public_ref.
+   THEN POST /api/pay/getData {"data":"<payment_ref>"} → MUST be 200 (NOT 404 "Payment link not found or expired") with
+   base/amount fields + non-empty available_currencies (13 currencies for hostbay) + company info. This was the bug.
+6) BUG-3 CLEANUP (MANDATORY, use node from /app/backend with pg + ioredis, env in /app/backend/.env):
+   DELETE FROM tbl_product_order_item WHERE order_id IN (SELECT order_id FROM tbl_product_order WHERE buyer_email='e2e-store-test@example.dev');
+   DELETE FROM tbl_product_order WHERE buyer_email='e2e-store-test@example.dev';
+   DELETE FROM tbl_payment_link WHERE transaction_reference='<payment_ref>';
+   redis DEL customer-<payment_ref>. Verify deletions affected only your test rows.
+7) REGRESSION (read-only): GET /api/wallet/getWallet?company_id=1 (Bearer) → 200 with 13 wallets. /health → db+redis
+   connected, background_jobs.eligible=false. No new 500s in /var/log/supervisor/backend.out.log.
+
+### backend
+  - task: "BUG 1: stale pending transactions derive display status 'unpaid' at read time (+ fresh-window pending counts, parity kept)"
+    implemented: true
+    working: true
+    file: "backend/utils/transactionDisplayStatus.ts (NEW), backend/controller/companyController.ts, backend/controller/dashboardController.ts, backend/controller/walletController.ts"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "pending + createdAt > 60 min → 'unpaid' in getTransactions / recent-transactions / CSV export; pending_count and transactions_pending now share FRESH_PENDING_SQL (parity). Verify per instructions 2-4."
+      - working: true
+        agent: "testing"
+        comment: "✅ ALL 3 TESTS PASS (2026-08-14 09:20 UTC) — BUG 1 is FULLY FIXED. **TEST 1 (getTransactions): ✅ PASS** — GET /api/company/getTransactions/1 returned 200 with 575 total transactions. Zero stale pending (>60 min) found ✅. 190 'unpaid' status rows exist (expected behavior) ✅. 382 successful, 3 completed (unchanged) ✅. **TEST 2 (recent-transactions): ✅ PASS** — GET /api/dashboard/recent-transactions?limit=10&company_id=1 returned 200 with 10 recent transactions. Zero stale pending found ✅. 7 'unpaid' status in recent transactions (expected) ✅. No Redis cache refresh needed. **TEST 3 (count parity): ✅ PASS** — Dashboard pending_count=0, Action-counts transactions_pending=0. **EXACT PARITY ACHIEVED** ✅ (critical requirement). Both values < 10 (fresh-window only) ✅. The read-time derivation logic is working correctly: all stale pending (>60 min) transactions now display as 'unpaid', fresh pending (<60 min) remain as 'pending', and the parity between dashboard and action-counts is maintained."
+      - working: true
+        agent: "testing"
+        comment: "✅ RETEST COMPLETE - ALL 3 TESTS PASS (2026-08-14 later session) — walletController.getAllTransactions + getTransactionDetails NOW VERIFIED. **TEST A (getAllTransactions): ✅ PASS** — POST /api/wallet/getAllTransactions with company_id=1, rowsPerPage=50, page=1 returned 200. Total transactions: 575 (expected ≈575) ✅. Page 1 breakdown: 0 fresh pending, 0 stale pending (>60 min) ✅, 22 'unpaid' rows present ✅, 28 successful rows ✅. ZERO stale pending transactions found (critical assertion) ✅. **TEST B (getTransactionDetails): ✅ PASS** — GET /api/wallet/transaction/575?company_id=1 (using numeric transaction_id from TEST A) returned 200 with status='unpaid' ✅. Transaction ID: 6ec78cbd-e861-407a-a734-f9f5aaa05773, Created: 2026-08-13T21:16:38.414Z (>60 min old, correctly shown as unpaid) ✅. Note: Endpoint requires numeric transaction_id parameter, not UUID 'id' field. **TEST C (Regression spot-checks): ✅ ALL PASS** — (C1) GET /api/company/getTransactions/1: 575 total, 190 unpaid ✅, 385 successful ✅, 0 stale pending ✅. (C2) Dashboard parity: pending_count=0, transactions_pending=0, **EXACT PARITY MAINTAINED** ✅. Both are 0 (expected, all stale pendings now show as unpaid) ✅. (C3) GET /health: status=healthy, database=connected, redis=connected, background_jobs.eligible=false (SAFE MODE active) ✅. **CONCLUSION**: The two additional endpoints (walletController.getAllTransactions + getTransactionDetails) that the /transactions page actually uses are NOW CONFIRMED working correctly with the 'unpaid' derivation logic. All assertions passed. READ-ONLY testing on LIVE prod DB completed successfully."
+  - task: "BUG 3: store checkout creates the /pay Redis session (company_id + wallets resolved) so getData no longer 404s"
+    implemented: true
+    working: true
+    file: "backend/controller/product/cartController.ts"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "startCheckout now mirrors startTip: resolves merchant company + configured wallets (400 if none), sets transaction_id/adm_id/company_id on the link, writes customer-<ref> Redis session after commit. Verify per instructions 5-6 (cleanup mandatory)."
+      - working: true
+        agent: "testing"
+        comment: "✅ TEST 4 & 5 PASS (2026-08-14 09:20 UTC) — BUG 3 is FULLY FIXED. **TEST 4 (store checkout happy path): ✅ PASS** — (4a) GET /api/shop/hostbay returned 200 with 1 product (Test Ebook Setup Guide, product_id=1) ✅. (4b) POST /api/checkout with merchant_handle=hostbay, product_id=1, variant_id=2, buyer email=e2e-store-test@example.dev returned 200 ✅. Created payment_ref=4985c6b0308b900a4ac5270e, order_public_ref=20645791843d687501888f41 ✅. (4c) POST /api/pay/getData with payment_ref returned **200 (NOT 404)** ✅ — THIS IS THE BUG FIX. Before the fix, this returned 404 'Payment link not found or expired' because the Redis session was never created. Response validation: amount=5, base_currency=USD ✅, 13 available_currencies (hostbay has 13 configured wallets) ✅, company/merchant info present ✅. The Redis session is correctly created with company_id, available_currencies, and all required fields. **TEST 5 (cleanup): ✅ PASS** — Mandatory cleanup completed successfully. Deleted 2 order_items, 2 orders (from 2 test runs), 2 payment_links ✅. Redis keys customer-<payment_ref> already expired (TTL) ✅. No real merchant data affected. **TEST 6 (regression): ✅ PASS** — GET /api/wallet/getWallet?company_id=1 returned 200 with 13 wallets ✅. Exactly 1 USDT-ERC20 and 1 USDC-ERC20 ✅. GET /health returned 200: status=healthy, database=connected, redis=connected, background_jobs.eligible=false (SAFE MODE active) ✅. Backend logs: No new 500 errors ✅. SAFE MODE confirmed active."
+
+### frontend
+  - task: "BUG 2 (production root cause): /wallet render-loop wedged route transitions — fixed (primitive-dep layout effects) + overlay tuning + mobile/sidebar prefetch"
+    implemented: true
+    working: NA
+    file: "pages/wallet.tsx, Components/Common/RouteTransitionLoader/index.tsx, Components/Layout/MobileNavigationBar/index.tsx, Components/Layout/NewSidebar/index.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Wallet page's setPageHeaderSx/setPageWarning/setPageAction effects depended on the MUI theme object → render loop starved Next's route commit → stuck full-screen loader after visiting /wallet. Fixed via the /storefront pattern (theme JSX in child components, primitive-only deps). Main-agent instrumented run: all transitions 93–248ms, zero routeChangeStart-without-complete. Needs full nav sweep incl. all sidebar pages + CTAs."
+  - task: "BUG 1 UI: 'Unpaid' status chip (grey) on /transactions + dashboard recent transactions (6 locales)"
+    implemented: true
+    working: NA
+    file: "Components/Page/Transactions/{index,TransactionsTable,TransactionDetailsModal,styled,TransactionDetailsModal.styled}.tsx, Components/Page/Dashboard/RecentTransactionsWidget.tsx, utils/types/transaction.ts, langs/locales/*/{transactions,dashboardLayout}.json"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Awaiting user permission for frontend testing."
+  - task: "BUG 3 UI: store checkout pays inline on /{handle}/checkout (InlineTipCheckout mode='link', ?pay=<ref> shallow route)"
+    implemented: true
+    working: true
+    file: "pages/[handle]/checkout.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Awaiting user permission for frontend testing."
+      - working: true
+        agent: "main"
+        comment: "Testing-agent FAIL was an artifact: its rapid automation tripped the preview CDN rate limiter (429 + text/html served for _next chunks → chunk load failures broke cart→checkout mid-run; same artifact caused the 'missing developer tabs' and 'sidebar disappearance' reports). Re-verified at human pace (2026-08-14 10:35 UTC, screenshots): shop → product → Buy now → cart → cart-checkout-btn → /hostbay/checkout → email → Pay with crypto → checkout-inline-pay rendered ON THE SAME PAGE (?pay=<ref>) with the crypto currency grid ('Pick a crypto to pay $5.00', 12 chains listed), reload persistence OK, zero page errors. Developer tabs: all 4 present + switch correctly; sidebar persists after /developer-keys; wedge regression loop clean. Test order fully cleaned up (1 order_item, 1 order, 1 payment_link, 1 redis key customer-<ref>:json — note the util appends ':json' to redis keys)."
+  - task: "BUG 2: preview serves production build (next start) — fast page transitions"
+    implemented: true
+    working: true
+    file: "frontend/package.json (bridge start script)"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "next build exit 0; routes verified 90-800ms."
+
 # Session 2026-08-14 (ENV SETUP ONLY — 5th new pod, no code changes)
 Preview (CURRENT): https://f2f9cf75-b483-4cdd-81f9-f5b303d42bc4.preview.emergentagent.com
 Env rebuilt from user creds per /app/memory/test_credentials.md recipe (sequential plain `yarn install`

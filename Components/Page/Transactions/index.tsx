@@ -266,6 +266,10 @@ const TransactionPage = () => {
               return "confirmed" as const;
             if (s === "processing")
               return "processing" as const;
+            // Backend derives 'unpaid' for pending attempts whose payment
+            // window has passed (read-time, no DB mutation).
+            if (s === "unpaid")
+              return "unpaid" as const;
             if (s === "failed" || s === "expired" || s === "refunded" || s === "settlement_failed")
               return "failed" as const;
             return "pending" as const;

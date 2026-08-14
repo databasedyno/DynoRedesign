@@ -33,6 +33,7 @@ import { parseSortAndPagination } from "../helper/queryHelpers";
 import { incrementAdminFee, incrementUserWallet } from "../helper/walletHelpers";
 import { formatAmountForDisplay, getCurrencyInfo, COMPANY_CURRENCY_QUERY, convertToUSD, convertToFiat, convertToMultiple, getUserDisplayCurrency } from "../utils/currencyUtils";
 import { resolveTransactionSource } from "../utils/transactionSource";
+import { deriveTxDisplayStatus } from "../utils/transactionDisplayStatus";
 import { PROCESSED_USD_EXPR, PROCESSED_STATUS_SQL } from "../utils/processedVolume";
 import crypto from "crypto";
 
@@ -712,7 +713,8 @@ const getAllTransactions = async (
         amount: x.base_amount,
         usd_value: usd_value,
         date_time: x.createdAt,
-        status: x.status,
+        // Stale 'pending' attempts (payment window passed) are shown as 'unpaid'
+        status: deriveTxDisplayStatus(x.status, x.createdAt),
         // Auto-stablecoin conversion indicator
         auto_converted: !!auto_convert_id,
         auto_convert: auto_convert_id
@@ -4025,7 +4027,8 @@ const getTransactionDetails = async (req: express.Request, res: express.Response
     // Format response according to Figma UI requirements
     const response = {
       // Header
-      status: txData.status,
+      // Stale 'pending' attempts (payment window passed) are shown as 'unpaid'
+      status: deriveTxDisplayStatus(txData.status, txData.createdAt),
       transaction_id: txData.id || `TX${String(txData.transaction_id).padStart(3, '0')}`,
       date_time: txData.createdAt,
       
@@ -4188,7 +4191,7 @@ const exportTransactions = async (req: express.Request, res: express.Response) =
           tx.amount || 0,
           tx.base_currency || '',
           fiatValue,
-          tx.status || '',
+          deriveTxDisplayStatus(tx.status, tx.date_time) || '',
           tx.customer_name || '',
           tx.company_name || '',
           tx.payment_mode || '',

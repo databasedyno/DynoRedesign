@@ -14,6 +14,7 @@ import {
 } from "@mui/material";
 import { NextPageWithLayout } from "@/pages/_app";
 import { useCart } from "@/contexts/CartContext";
+import InlineTipCheckout from "@/Components/Page/Creator/InlineTipCheckout";
 
 function formatPrice(cents: number, ccy: string): string {
   const n = (cents || 0) / 100;
@@ -40,6 +41,17 @@ const CheckoutPage: NextPageWithLayout = () => {
   const [lines, setLines] = useState<any[]>([]);
   const [vatId, setVatId] = useState("");
   const [quote, setQuote] = useState<any | null>(null);
+  // Inline payment — the store checkout stays ON THIS PAGE (same UX as the
+  // creator tip flow) instead of redirecting to /pay.
+  const [payRef, setPayRef] = useState<string | null>(null);
+  const [orderPublicRef, setOrderPublicRef] = useState<string | null>(null);
+
+  // Refresh persistence: /{handle}/checkout?pay=<ref> re-opens the inline payment.
+  useEffect(() => {
+    const qp = router.query.pay;
+    if (typeof qp === "string" && qp && !payRef) setPayRef(qp);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router.query.pay]);
 
   const timezone = useMemo(() => {
     try {
@@ -156,7 +168,14 @@ const CheckoutPage: NextPageWithLayout = () => {
       if (orderRef && typeof window !== "undefined") {
         try { window.sessionStorage.setItem("last_order_ref", orderRef); } catch {}
       }
-      router.push(`/pay?d=${paymentRef}`);
+      // Stay on this page — mount the inline crypto checkout (same UX as tips).
+      setOrderPublicRef(orderRef || null);
+      setPayRef(paymentRef);
+      router.replace(
+        { pathname: `/${handle}/checkout`, query: { pay: paymentRef } },
+        undefined,
+        { shallow: true }
+      );
     } catch (e: any) {
       setError(e?.message || "Checkout failed");
     } finally {
@@ -168,11 +187,36 @@ const CheckoutPage: NextPageWithLayout = () => {
     <>
       <Head><title>Checkout · @{handle} · Dynopay</title><meta name="robots" content="noindex" /></Head>
       <Container maxWidth="sm" sx={{ py: { xs: 3, md: 5 } }} data-testid="checkout-page">
-        <Typography variant="body2" sx={{ mb: 2 }}>
-          <Link href={`/${handle}/cart`} style={{ color: "inherit" }}>← Back to cart</Link>
-        </Typography>
+        {!payRef && (
+          <Typography variant="body2" sx={{ mb: 2 }}>
+            <Link href={`/${handle}/cart`} style={{ color: "inherit" }}>← Back to cart</Link>
+          </Typography>
+        )}
         <Typography variant="h4" sx={{ fontWeight: 700, mb: 3 }}>Checkout</Typography>
 
+        {payRef ? (
+          <Box data-testid="checkout-inline-pay">
+            <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>
+              Complete your payment
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+              {orderPublicRef ? `Order ${orderPublicRef.slice(0, 8).toUpperCase()} — ` : ""}
+              pay with crypto below. This page updates automatically once your payment is confirmed.
+            </Typography>
+            <InlineTipCheckout
+              d={payRef}
+              handle={handle}
+              creatorName={`@${handle}`}
+              style="support"
+              siteUrl={typeof window !== "undefined" ? window.location.origin : ""}
+              mode="link"
+              targetLabel={orderPublicRef ? `Order ${orderPublicRef.slice(0, 8).toUpperCase()}` : `@${handle}`}
+              onCancel={() => router.push(`/${handle}/shop`)}
+              onNewTip={() => router.push(`/${handle}/shop`)}
+            />
+          </Box>
+        ) : (
+        <>
         {(validating || submitting) && <LinearProgress data-testid="checkout-loading" sx={{ mb: 2 }} />}
         {error && <Alert severity="error" sx={{ mb: 2 }} data-testid="checkout-error">{error}</Alert>}
         {warnings.length > 0 && (
@@ -278,6 +322,8 @@ const CheckoutPage: NextPageWithLayout = () => {
         <Typography variant="caption" color="text.secondary" sx={{ display: "block", textAlign: "center", mt: 1.5 }}>
           Powered by Dynopay · Payment settles directly to the merchant's wallet
         </Typography>
+        </>
+        )}
       </Container>
     </>
   );

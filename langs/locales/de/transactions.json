@@ -18,6 +18,7 @@
   "status": "Status",
   "done": "Abgeschlossen",
   "pending": "Ausstehend",
+  "unpaid": "Nicht bezahlt",
   "failed": "Fehlgeschlagen",
   "previous": "Zurück",
   "next": "Weiter",

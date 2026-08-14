@@ -122,6 +122,15 @@ const statusStyle = (status: string, theme: any, t: (k: string) => string) => {
       label: t("statusPending"),
     };
   }
+  // Stale pending attempts (payment window passed) — neutral grey, not an error.
+  if (s === "unpaid") {
+    return {
+      color: theme.palette.text.secondary,
+      bg: theme.palette.mode === "dark" ? "rgba(156,163,175,0.16)" : "rgba(107,114,128,0.10)",
+      icon: <HourglassEmptyRounded sx={{ fontSize: 14 }} />,
+      label: t("statusUnpaid"),
+    };
+  }
   return {
     color: theme.palette.error.main,
     bg: theme.palette.mode === "dark" ? "rgba(239,68,68,0.18)" : "rgba(239,68,68,0.12)",

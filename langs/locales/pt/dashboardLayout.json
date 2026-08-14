@@ -136,6 +136,7 @@
   "statusFailed": "Falhou",
   "statusPaid": "Pago",
   "statusPending": "Pendente",
+  "statusUnpaid": "Não pago",
   "statusPublished": "Sua página do criador está no ar",
   "staySignedIn": "Manter sessão iniciada",
   "switchedToCompany": "Alterado para",

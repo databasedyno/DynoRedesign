@@ -18,6 +18,7 @@
   "status": "Estado",
   "done": "completado",
   "pending": "pendiente",
+  "unpaid": "no pagado",
   "failed": "fallido",
   "previous": "Anterior",
   "next": "Siguiente",

@@ -9,6 +9,7 @@ import {
 import { handleControllerError } from "../helper/controllerErrorHandler";
 import { formatAmountForDisplay, getCurrencyInfo, COMPANY_CURRENCY_QUERY, convertToFiat, getCompanyDisplayCurrency, getUserDisplayCurrency, SUPPORTED_DISPLAY_CURRENCIES, isSupportedDisplayCurrency } from "../utils/currencyUtils";
 import { resolveTransactionSource } from "../utils/transactionSource";
+import { deriveTxDisplayStatus } from "../utils/transactionDisplayStatus";
 import jwt from "jsonwebtoken";
 import { IUserType } from "../utils/types";
 import { apiModel, companyModel, customerModel, customerWalletModel, userModel, stablecoinConversionModel, userWalletModel } from "../models";
@@ -1013,6 +1014,8 @@ const getTransactions = async (req: express.Request, res: express.Response) => {
 
       return {
         ...rest,
+        // Stale 'pending' attempts (payment window passed) are shown as 'unpaid'
+        status: deriveTxDisplayStatus(rest.status, rest.createdAt),
         display_amount: displayAmount,
         display_currency: preferredCurrency,
         amount_display: formatAmountForDisplay(displayAmount, preferredCurrency),

@@ -18,6 +18,7 @@
   "status": "Status",
   "done": "Voltooid",
   "pending": "In behandeling",
+  "unpaid": "Niet betaald",
   "failed": "Mislukt",
   "previous": "Vorige",
   "next": "Volgende",

@@ -143,6 +143,7 @@
   "statusFailed": "Failed",
   "statusPaid": "Paid",
   "statusPending": "Pending",
+  "statusUnpaid": "Unpaid",
   "statusPublished": "Your creator page is live",
   "staySignedIn": "Stay signed in",
   "switchedToCompany": "Switched to",
