@@ -9,7 +9,7 @@ import json
 from typing import Dict, Any, Tuple
 
 # Base URL
-BASE_URL = "https://payment-gateway-dev-12.preview.emergentagent.com"
+BASE_URL = "https://payment-hub-721.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 # Test credentials
