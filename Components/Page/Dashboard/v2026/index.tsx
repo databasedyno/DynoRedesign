@@ -7,6 +7,7 @@ import { useSelector } from "react-redux";
 import { format } from "date-fns";
 import { rootReducer } from "@/utils/types";
 import { useDashboardData } from "@/hooks/useDashboardData";
+import { useDashboardDensity } from "@/hooks/useDashboardDensity";
 import fireConfetti from "@/helpers/fireConfetti";
 import CommandBar, { RangeId } from "./CommandBar";
 import VolumeHero from "./VolumeHero";
@@ -33,6 +34,10 @@ import GrowSlot from "./GrowSlot";
 const Dashboard2026: React.FC = () => {
   const router = useRouter();
   const [range, setRange] = useState<RangeId>("7d");
+  // Density (compact/spacious) — toggled from the CommandBar settings menu or
+  // the Recent-transactions widget. Compact tightens the WHOLE dashboard:
+  // grid gaps here + card paddings via the [data-density] overrides below.
+  const { density, isCompact } = useDashboardDensity();
   const [custom, setCustom] = useState<{ startDate: string; endDate: string } | null>(
     null,
   );
@@ -153,7 +158,32 @@ const Dashboard2026: React.FC = () => {
   const isPremiumEligible = usedAmount / Math.max(monthlyLimit, 1) >= 0.6;
 
   return (
-    <Box data-testid="dash2026-root">
+    <Box
+      data-testid="dash2026-root"
+      data-density={density}
+      sx={
+        isCompact
+          ? {
+              // Compact density — tighten every above-the-fold card so the
+              // Compact/Spacious toggle makes an OBVIOUS whole-page change.
+              // px values on purpose (no theme-spacing ambiguity in nested
+              // selectors); testid selectors beat each card's own sx padding
+              // on specificity (root class + attribute > single class).
+              "& [data-testid='dash2026-kpi-strip']": { gap: "12px" },
+              "& [data-testid='dash2026-kpi-strip'] > div": {
+                padding: "14px 16px",
+                gap: "6px",
+              },
+              "& [data-testid='dash2026-quick-actions']": {
+                padding: "16px",
+                gap: "12px",
+              },
+              "& [data-testid='dash2026-fee-tier']": { padding: "16px" },
+              "& [data-testid='dash2026-assets']": { padding: "16px" },
+            }
+          : undefined
+      }
+    >
       <CommandBar
         range={range}
         onRangeChange={(r) => {
@@ -172,7 +202,7 @@ const Dashboard2026: React.FC = () => {
             xs: "1fr",
             lg: "minmax(0, 8fr) minmax(0, 4fr)",
           },
-          gap: { xs: 2, md: 3, lg: 3.5 },
+          gap: isCompact ? { xs: 1.25, md: 1.75, lg: 2 } : { xs: 2, md: 3, lg: 3.5 },
           alignItems: "start",
         }}
       >
@@ -181,7 +211,7 @@ const Dashboard2026: React.FC = () => {
           sx={{
             display: "flex",
             flexDirection: "column",
-            gap: { xs: 2, md: 3 },
+            gap: isCompact ? { xs: 1.25, md: 1.75 } : { xs: 2, md: 3 },
             minWidth: 0,
           }}
         >
@@ -226,7 +256,7 @@ const Dashboard2026: React.FC = () => {
           sx={{
             display: "flex",
             flexDirection: "column",
-            gap: { xs: 2, md: 3 },
+            gap: isCompact ? { xs: 1.25, md: 1.75 } : { xs: 2, md: 3 },
             minWidth: 0,
           }}
         >

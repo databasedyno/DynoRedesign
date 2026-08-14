@@ -15,6 +15,7 @@ import {
 } from "../coinbase/styled";
 import { Icon, MONO } from "@/styles/uiKit";
 import useIsMobile from "@/hooks/useIsMobile";
+import { useDashboardDensity } from "@/hooks/useDashboardDensity";
 import { formatNumberWithComma } from "@/helpers";
 
 interface Props {
@@ -48,6 +49,7 @@ const VolumeHero: React.FC<Props> = ({ stats, chartData, chartSummary, loading, 
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const isMobile = useIsMobile("md");
+  const { isCompact } = useDashboardDensity();
   const { t } = useTranslation(["dashboardLayout", "common"]);
   const router = useRouter();
   const [metric, setMetric] = useState<"period" | "lifetime" | "today">("period");
@@ -226,7 +228,14 @@ const VolumeHero: React.FC<Props> = ({ stats, chartData, chartSummary, loading, 
   return (
     <SurfaceCard
       data-testid="dash2026-hero"
-      sx={{ display: "flex", flexDirection: "column", gap: { xs: 2, md: 2.5 } }}
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        // Compact density: tighter padding + smaller vertical rhythm so the
+        // headline card visibly shrinks when the merchant picks Compact view.
+        gap: isCompact ? 1.25 : { xs: 2, md: 2.5 },
+        ...(isCompact && { p: { xs: 1.75, md: 2 } }),
+      }}
     >
       <Box
         sx={{
@@ -278,9 +287,19 @@ const VolumeHero: React.FC<Props> = ({ stats, chartData, chartSummary, loading, 
       </Box>
 
       <Box>
-        <BigNumber data-testid="dash2026-hero-value" sx={{ fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontWeight: 600, letterSpacing: "-0.03em" }}>
+        <BigNumber
+          data-testid="dash2026-hero-value"
+          sx={{
+            fontFamily: MONO,
+            fontVariantNumeric: "tabular-nums",
+            fontWeight: 600,
+            letterSpacing: "-0.03em",
+            // Compact density: scale the headline figure down (72 -> 52)
+            ...(isCompact && { fontSize: { xs: 32, sm: 38, md: 48, lg: 52 } }),
+          }}
+        >
           {showSkeleton ? (
-            <Skeleton width={isMobile ? 240 : 380} height={isMobile ? 48 : 84} />
+            <Skeleton width={isMobile ? 240 : 380} height={isMobile ? 48 : isCompact ? 60 : 84} />
           ) : (
             <>
               {big}
@@ -369,7 +388,7 @@ const VolumeHero: React.FC<Props> = ({ stats, chartData, chartSummary, loading, 
       <Sparkline
         data={chartData || []}
         loading={loading || chartLoading}
-        height={isMobile ? 170 : 240}
+        height={isCompact ? (isMobile ? 120 : 160) : isMobile ? 170 : 240}
         currencySymbol={currencySymbol}
       />
     </SurfaceCard>
