@@ -44,11 +44,12 @@ export default function MyDocument({ emotionStyleTags }: MyDocumentProps) {
             Legacy Manrope woffs kept in /public/fonts as fallback for any
             component that still references Manrope by name during hydration. */}
 
-        {/* Swiss landing display/body/mono fonts (Unbounded + IBM Plex) are now
+        {/* Swiss landing display/body/mono fonts (Unbounded + IBM Plex) are
             self-hosted + preloaded via next/font/google in _app.tsx with
-            display:"optional" (no FOUT). The old Google Fonts <link> that used
-            &display=swap was removed on 2026-07-21 — it caused the hero/heading
-            font to swap in mid-paint (thin fallback → bold Unbounded). */}
+            display:"swap" (2026-08-14 — was "optional", which left COLD loads
+            stuck on the Helvetica fallback for the whole visit: hero wrapped
+            in 2 lines instead of 3. "swap" guarantees the brand font always
+            applies once loaded; preload keeps the swap window tiny). */}
 
         {/* Google Identity Services for client-side OAuth (bypasses NextAuth /api/auth/* K8s conflict) */}
         <script src="https://accounts.google.com/gsi/client" async defer></script>

@@ -4,39 +4,42 @@ import "../i18n";
 
 // Geist Sans + Mono — Vercel's OSS typeface, self-hosted from the `geist`
 // package but declared with next/font/local directly so we control `display`.
-// FIX (2026-07-10): the upstream `geist/font/sans` export hardcodes
-// font-display: swap, which caused a visible FOUT on the landing header —
-// text painted in the (slightly smaller) metric-adjusted Arial fallback, then
-// "grew" when Geist swapped in. `display: "optional"` eliminates that
-// mid-paint size jump: if the font isn't ready within the ~100ms block
-// period, the fallback is kept for the whole paint (no swap), and the cached
-// font renders instantly on every subsequent load.
+// HISTORY: 2026-07-10 set display:"optional" to kill a FOUT size-jump. That
+// caused a WORSE user-reported bug (2026-08-14): on a COLD mobile load the
+// font missed the ~100ms "optional" window, so the ENTIRE landing page stuck
+// on the Arial/Helvetica fallback for the whole visit (hero wrapped in 2
+// lines instead of 3, wrong body/mono faces) and only looked right on warm
+// (cached) visits — i.e. the page style differed between visits.
+// FIX: display:"swap" — the correct font ALWAYS wins once loaded. next/font's
+// automatic size-adjusted fallback (adjustFontFallback, on by default) keeps
+// the swap-in shift small, and same-origin preload makes a visible swap rare
+// (cold first paint only). DO NOT change back to "optional" — that re-breaks
+// cold-load font consistency (same class of bug was already fixed for the
+// Manrope @font-face set in globals.css, see comments there).
 import localFont from "next/font/local";
 
 const GeistSans = localFont({
   src: "../node_modules/geist/dist/fonts/geist-sans/Geist-Variable.woff2",
   variable: "--font-geist-sans",
   weight: "100 900",
-  display: "optional",
+  display: "swap",
 });
 
 const GeistMono = localFont({
   src: "../node_modules/geist/dist/fonts/geist-mono/GeistMono-Variable.woff2",
   variable: "--font-geist-mono",
   weight: "100 900",
-  display: "optional",
+  display: "swap",
 });
 
 // Swiss landing / dashboard display + body + mono faces.
-// FIX (2026-07-21): these were previously loaded via a <link> to Google Fonts
-// in _document.tsx with `display=swap`, which caused the reported FOUT — the
-// hero (and every `var(--font-hero)` heading, incl. the in-app dashboard)
-// first painted in the thin Geist fallback then "jumped" to bold Unbounded
-// when the network font arrived. Self-hosting via next/font (preloaded, same
-// origin) + `display: "optional"` eliminates the mid-paint swap: the font is
-// used only if it's ready within the ~100ms block window (near-guaranteed
-// thanks to preload + caching), otherwise the fallback is kept for the whole
-// paint — never a swap.
+// HISTORY: 2026-07-21 moved these off the Google Fonts <link> onto next/font
+// with display:"optional". Same cold-load bug as above (2026-08-14): Unbounded
+// is THE hero-headline font ("Get paid in crypto. Every way you sell.") — with
+// "optional" a first-time mobile visitor got the fallback for the whole visit
+// (hero in Helvetica, 2 lines) while repeat visitors got Unbounded (3 lines).
+// FIX: display:"swap" so the brand font always applies. Self-hosted + preloaded
+// by next/font, so the swap window only exists on a genuinely cold first paint.
 import { Unbounded, IBM_Plex_Sans, IBM_Plex_Mono, Inter, Roboto_Mono } from "next/font/google";
 
 // Coinbase-style pairing: Inter for clean geometric UI text, Roboto Mono for
@@ -57,19 +60,19 @@ const RobotoMonoFont = Roboto_Mono({
 const UnboundedFont = Unbounded({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "800"],
-  display: "optional",
+  display: "swap",
 });
 
 const PlexSans = IBM_Plex_Sans({
   subsets: ["latin"],
   weight: ["400", "500", "600"],
-  display: "optional",
+  display: "swap",
 });
 
 const PlexMono = IBM_Plex_Mono({
   subsets: ["latin"],
   weight: ["400", "500"],
-  display: "optional",
+  display: "swap",
 });
 
 import type { NextPage } from "next";

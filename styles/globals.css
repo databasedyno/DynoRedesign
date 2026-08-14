@@ -3,10 +3,11 @@
 /* ── Swiss landing design tokens (2026-07 redesign) ─────────────────────────
    Display/body/mono font-family CSS vars (--font-hero = Unbounded,
    --font-body = IBM Plex Sans, --font-tech = IBM Plex Mono) are defined in
-   pages/_app.tsx alongside --font-sans/--font-mono — they now resolve to the
-   self-hosted next/font families (display:"optional", preloaded) so there is
-   no mid-paint font swap (FOUT). Do NOT re-declare them here with literal
-   family names — that reintroduces the swap. */
+   pages/_app.tsx alongside --font-sans/--font-mono — they resolve to the
+   self-hosted next/font families (display:"swap" since 2026-08-14; "optional"
+   left cold loads stuck on the fallback for the whole visit — hero wrapped in
+   2 lines instead of 3). Do NOT re-declare them here with literal
+   family names — that reintroduces an unmanaged swap. */
 
 @keyframes swiss-marquee {
   from { transform: translateX(0); }

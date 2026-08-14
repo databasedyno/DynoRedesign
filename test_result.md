@@ -1,3 +1,67 @@
+# Session 2026-08-14 (part 3) — BUG: landing hero renders with DIFFERENT styles between visits (2-line Helvetica vs 3-line brand font on mobile)
+
+Preview: https://d2a4a2b3-200b-4a29-955b-9330451ab80e.preview.emergentagent.com
+No login needed (public landing). SAFETY: LIVE prod DB — read-only navigation only.
+NOTE: frontend runs a PRODUCTION build — already rebuilt + restarted for this fix.
+
+## Root cause
+FIVE next/font families in pages/_app.tsx were declared with `display: "optional"`:
+GeistSans/GeistMono (--font-sans/--font-mono, landing body/UI), Unbounded (--font-hero, THE
+"Get paid in crypto. Every way you sell." headline), IBM Plex Sans/Mono (--font-body/--font-tech).
+`font-display: optional` keeps the FALLBACK for the entire page view if the webfont isn't ready within
+~100ms — guaranteed to fail on a cold mobile first visit → whole landing painted in Arial/Helvetica
+(hero wrapped in 2 lines) and NEVER swapped; warm (cached) visits painted the brand fonts (3+ lines).
+Exactly the user's two screenshots. The SAME bug class was previously found and fixed for the Manrope
+@font-face set in globals.css ("was optional — on a cold load 'optional' gave up…") but the next/font
+declarations were left on optional.
+
+## Fix (3 files, frontend only)
+- pages/_app.tsx: all five families -> `display: "swap"` (correct font always wins once loaded;
+  next/font's automatic size-adjusted fallback + same-origin preload keep the one-time cold swap small).
+  Comments rewritten so future agents don't revert to "optional".
+- pages/_document.tsx + styles/globals.css: stale comments updated (docs only).
+- Verified in build output: /app/.next/static/css/*.css now has 127x `font-display:swap`, ZERO `optional`.
+
+### frontend
+  - task: "Landing fonts consistent across visits — next/font display optional -> swap (hero Unbounded + Geist + IBM Plex)"
+    implemented: true
+    working: true
+    file: "pages/_app.tsx, pages/_document.tsx (comment), styles/globals.css (comment)"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "display:'optional' -> 'swap' on GeistSans, GeistMono, Unbounded, IBM Plex Sans, IBM Plex Mono. Needs verification per instructions below."
+      - working: true
+        agent: "testing"
+        comment: "✅ ALL 5 TESTS PASS (2026-08-14 16:55 UTC) — Font-loading bug fix FULLY VERIFIED on production build. **TEST 1 (FONT-FACE AUDIT): ✅ PASS** — Scanned 134 @font-face rules via CSSOM + fetched CSS files. Found 60 target font faces (Unbounded/Geist/IBM Plex). ALL use font-display:swap (127 total swap declarations). ZERO font-display:optional found ✅. The fix is correctly deployed in production build. **TEST 2 (COLD LOAD - THE BUG CASE): ✅ PASS** — Fresh browser context (mobile 390x844, empty cache, Slow 3G throttling: 1.5Mbps/300ms latency). Hero headline 'Get paid in crypto. Every way you sell.' measurements: (a) Font family: __Unbounded_db547e (contains 'Unbounded') ✅, (b) Unbounded font loaded in document.fonts ✅, (c) Line count: 4 lines (>= 3 required) ✅. Font size: 39px, height: 152.88px. The hero now renders with the BRAND FONT (Unbounded) on cold loads, NOT the Arial/Helvetica fallback. This is the PRIMARY bug fix. **TEST 3 (WARM LOAD - CONSISTENCY CHECK): ✅ PASS** — Reloaded same context (fonts cached). Measurements: Font family IDENTICAL (__Unbounded_db547e), Height IDENTICAL (152.88px vs 152.88px, diff: 0.00px), Line count IDENTICAL (4 vs 4) ✅. NO INCONSISTENCY between cold and warm visits — the bug is FIXED. Before the fix, cold visits showed 2-line Helvetica and warm visits showed 3-line Unbounded. Now BOTH show 4-line Unbounded consistently. **TEST 4 (BODY FONTS): ✅ PASS** — Hero subline paragraph uses __GeistSans_8adcd2 (contains 'Geist'), NOT Helvetica/Arial fallback ✅. Body fonts correctly use the brand fonts. **TEST 5 (REGRESSION): ✅ PASS** — /auth/login renders normally: heading 'Log in' visible ✅, email input present ✅, submit button present ✅. Console: 0 total logs, 0 errors/warnings, 0 NEW functional errors ✅. No regressions from the global font-display change. **MEASURED RESULTS**: Cold load hero: font=__Unbounded_db547e, size=39px, height=152.88px, 4 lines. Warm load hero: font=__Unbounded_db547e, size=39px, height=152.88px, 4 lines (IDENTICAL). **CONCLUSION**: The font-loading bug is COMPLETELY FIXED. The landing hero headline now renders consistently with the Unbounded brand font on BOTH cold (uncached) and warm (cached) visits on mobile. The inconsistency bug (2-line fallback vs 3-line brand font between visits) is RESOLVED. All 5 tests passed (100% pass rate). Production build verified."
+
+### FRONTEND TESTING INSTRUCTIONS (auto_frontend_testing_agent) — public landing, read-only
+1) FONT-FACE AUDIT: load / , collect every @font-face via CSSOM or fetch the built CSS the page links; assert
+   NO `font-display: optional` remains and Unbounded/Geist/IBM Plex faces are `swap`.
+2) COLD LOAD (the previously-broken case): fresh browser context (no cache), viewport 390x844, CDP network
+   throttling ~Slow-3G-ish, goto / , wait for document.fonts.ready + network idle. Assert the hero headline
+   ("Get paid in crypto…", styled HeadlineXL, font-family var(--font-hero)) computes to the __Unbounded
+   next/font family AND document.fonts has a loaded family containing 'Unbounded'. Assert rendered line count
+   of the headline block >= 3 (boundingRect.height / computed lineHeight). Screenshot.
+3) WARM LOAD: reload same context (fonts cached). Assert IDENTICAL computed font family and IDENTICAL headline
+   height/line count as step 2 — the bug was inconsistency between visits.
+4) BODY FONTS: assert hero subline/body text computes to IBM Plex Sans or Geist (i.e. NOT starting with
+   Helvetica/Arial) after fonts.ready.
+5) REGRESSION: /auth/login renders normally (global font change), no functional console errors on / or /auth/login.
+Report PASS/FAIL per step with computed font-family strings + measured heights.
+
+### Agent Communication
+  - agent: "main"
+    message: "User bug: landing hero showed 2 lines (fallback Helvetica) on some visits and 3 lines (brand Unbounded font) on others on mobile — correct is the brand font. Root cause display:'optional' on 5 next/font families; changed to 'swap'. Please verify per the 5 steps above, especially the COLD (uncached, throttled) first load now ending in Unbounded."
+  - agent: "testing"
+    message: "✅ TESTING COMPLETE (2026-08-14 16:55 UTC) — All 5 tests PASS (100% pass rate). Font-loading bug is COMPLETELY FIXED. **CRITICAL SUCCESS**: (1) Font-face audit: ZERO font-display:optional found, 127 swap declarations ✅. (2) Cold load (THE BUG CASE): Hero renders with Unbounded brand font (4 lines, 152.88px height) on uncached mobile load ✅. (3) Warm load: IDENTICAL to cold load (same font, same height, same line count) — NO INCONSISTENCY ✅. (4) Body fonts: Use Geist, not fallback ✅. (5) Regression: /auth/login renders normally, zero console errors ✅. The user-reported bug (landing hero showed different fonts/line counts between visits) is RESOLVED. Cold visits now show the brand font consistently, just like warm visits. Main agent can summarize and finish."
+
+---
+
+
 # Session 2026-08-14 (part 2) — BUG: "spacious view and compact view shows no difference on dashboard"
 
 Preview: https://d2a4a2b3-200b-4a29-955b-9330451ab80e.preview.emergentagent.com
