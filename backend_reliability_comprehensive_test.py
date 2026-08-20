@@ -10,7 +10,7 @@ import json
 import time
 
 # Configuration
-BASE_URL = "https://setup-remaining-fix.preview.emergentagent.com"
+BASE_URL = "https://dynopay-setup-1.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 # Test credentials

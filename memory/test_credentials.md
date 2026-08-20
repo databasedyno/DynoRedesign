@@ -24,13 +24,20 @@
   services/email/, controller/user/, controller/wallet/, controller/payment/settlement/ — edit the domain
   modules, keep facades' export shapes intact.
 
-## ⚠️ FRONTEND RUNS A PRODUCTION BUILD SINCE 2026-08-14 (bug fix: slow dev-mode nav)
-- /app/frontend/package.json "start" = `next start` (prod). Dev mode = "start-dev" script.
-- After ANY frontend code change: `cd /app && yarn build` then `sudo supervisorctl restart frontend`.
+## ⚠️ FRONTEND RUNS IN DEV MODE SINCE 2026-08-20 (per user + support decision — do NOT run `next build` in the preview)
+- Supervisor `yarn start` (in /app/frontend bridge) → `bash /app/scripts/start-frontend.sh` → mode from
+  FRONTEND_MODE (env or /app/.env). Preview /app/.env sets FRONTEND_MODE=dev → `next dev` (HOT RELOAD ON).
+- After frontend code changes: NOTHING to do — hot reload picks them up. No yarn build, no restart.
+- First page hit after a restart compiles on demand (~10-30s, body briefly hidden by Next's dev FOUC style) — normal.
+- PRODUCTION (DigitalOcean/Railway) is UNAFFECTED: it uses Dockerfile.frontend (`next build`, output=standalone,
+  `node server.js` per railway-frontend.json / start-all.sh) and never reads the bridge or start-frontend.sh.
+  Setting FRONTEND_MODE=production makes start-frontend.sh behave like the old prod preview (auto-builds if needed).
+- /app/.env also sets NEXT_PUBLIC_BASE_URL EMPTY (browser axios uses relative "/api/") and
+  INTERNAL_API_URL=http://localhost:8001 for SSR — the proven preview convention.
 
 ## LATEST SETUP (2026-08-15, 8th NEW pod) — env rebuilt from user's pasted creds
 - CURRENT preview URL (verified: full login -> /dashboard with live data):
-  https://8fd7ecb4-73d6-46e1-8780-a56ca439099b.preview.emergentagent.com
+  https://dynopay-setup-1.preview.emergentagent.com
   (supervisor APP_URL routes correctly — no host gotcha)
 - Same recipe 1:1: sequential `yarn install` root->backend->frontend-bridge (plain, NOT frozen),
   /app/backend/.env + /app/.env.local rewritten from user's pasted creds, SAFE MODE
@@ -50,7 +57,7 @@
 
 ## PREVIOUS SETUP (2026-08-14, 7th NEW pod) — env rebuilt from user's pasted creds
 - CURRENT preview URL (verified: full login -> /dashboard with live data):
-  https://setup-remaining-fix.preview.emergentagent.com
+  https://dynopay-setup-1.preview.emergentagent.com
   (supervisor APP_URL routes correctly — no host gotcha)
 - Same recipe applied 1:1: sequential `yarn install` root->backend (plain, NOT --frozen-lockfile),
   /app/backend/.env + /app/.env.local rewritten from user's pasted creds, SAFE MODE
@@ -69,7 +76,7 @@
 
 ## PREVIOUS SETUP (2026-08-14, 6th NEW pod) — env rebuilt from user's pasted creds
 - CURRENT preview URL (verified: full login -> /dashboard with live data):
-  https://setup-remaining-fix.preview.emergentagent.com
+  https://dynopay-setup-1.preview.emergentagent.com
   (supervisor APP_URL routes correctly — no host gotcha)
 - Same recipe applied 1:1: sequential `yarn install` root->backend (plain, NOT --frozen-lockfile),
   /app/backend/.env + /app/.env.local rewritten from user's pasted creds, SAFE MODE
@@ -91,7 +98,7 @@
 
 ## PREVIOUS SETUP (2026-08-14, 5th NEW pod) — env rebuilt from user's pasted creds
 - CURRENT preview URL (verified: full login -> /dashboard with live data):
-  https://setup-remaining-fix.preview.emergentagent.com
+  https://dynopay-setup-1.preview.emergentagent.com
   (supervisor APP_URL routes correctly on this pod — no host gotcha this time)
 - Same recipe as below applied 1:1. NOTE: `yarn install --frozen-lockfile` FAILS
   ("lockfile needs to be updated") — use plain `yarn install`, SEQUENTIAL root->backend.
@@ -107,8 +114,8 @@
 
 ## PREVIOUS SETUP (2026-08-13 late, 4th NEW pod) — env rebuilt AGAIN from user's pasted creds
 - CURRENT preview URL (verified externally, login screenshot loads):
-  https://setup-remaining-fix.preview.emergentagent.com
-  (supervisor APP_URL — routes fine this time; https://setup-remaining-fix.preview.emergentagent.com ALSO routes)
+  https://dynopay-setup-1.preview.emergentagent.com
+  (supervisor APP_URL — routes fine this time; https://dynopay-setup-1.preview.emergentagent.com ALSO routes)
 - Same recipe as below applied 1:1 (sequential yarn installs root->backend; both env files
   rewritten; NEXTAUTH_SECRET regenerated: kCrvCwvNJxDraw2xuBUqKje5J2+NjwkXCge3gWvqBaE=).
 - Verified on this pod: /health healthy (db+redis connected, background_jobs.eligible=false),
@@ -118,7 +125,7 @@
   "Refreshed 40 rates via Tatum", Binance geo-blocked (known, harmless).
 
 ## PREVIOUS SETUP (2026-08-13, 3rd pod) — env rebuilt from user's pasted creds
-- Preview URL then: https://setup-remaining-fix.preview.emergentagent.com
+- Preview URL then: https://dynopay-setup-1.preview.emergentagent.com
 - Recipe applied (matches the documented one below):
   1. `yarn install` in /app then /app/backend (SEQUENTIAL; parallel corrupts the shared
      yarn cache -> ENOENT .yarn-metadata.json; fix = `rm -rf /usr/local/share/.cache/yarn`).
@@ -141,7 +148,7 @@
   (port 3300) fronted by a Python/uvicorn proxy on port 8001 (backend/server.py).
 - Browser API calls are RELATIVE (`/api/...`) because `NEXT_PUBLIC_BASE_URL` is empty
   in /app/.env.local -> Emergent ingress routes /api -> 8001 -> Node backend.
-- Preview URL (CURRENT, verified 2026-08-13): https://setup-remaining-fix.preview.emergentagent.com
+- Preview URL (CURRENT, verified 2026-08-13): https://dynopay-setup-1.preview.emergentagent.com
   Env rebuilt for the 3rd time on 2026-08-13 on a NEW pod (root+backend node_modules AND both
   env files were missing again). Recipe that works:
    1. `cd /app && yarn install` THEN `cd /app/backend && yarn install`  (run them SEQUENTIALLY —
@@ -154,7 +161,7 @@
       pasted value is the literal placeholder "openssl rand -base64 32".
    4. `sudo supervisorctl restart backend frontend`.
   HOST GOTCHA (3rd pod in a row): supervisor's APP_URL advertises
-   https://setup-remaining-fix.preview.emergentagent.com but that host does NOT
+   https://dynopay-setup-1.preview.emergentagent.com but that host does NOT
    route (curl -> 000). Find the REAL host in /var/log/supervisor/frontend.err.log — Next.js logs
    a "cross origin request detected from <host>.cluster-XX.preview.emergentcf.cloud" warning; the
    `<host>` prefix + `.preview.emergentagent.com` is the live URL (here: secure-transactions-11).
