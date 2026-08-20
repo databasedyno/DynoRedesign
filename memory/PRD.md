@@ -7,10 +7,11 @@ per user + support decision — supervisor `yarn start` → /app/scripts/start-f
 (/app/.env: dev). DO NOT run `next build` in the preview anymore. DigitalOcean/Railway prod is untouched
 (Dockerfile.frontend standalone build). NEXT_PUBLIC_BASE_URL is EMPTY (relative /api), INTERNAL_API_URL=
 http://localhost:8001 for SSR. Preview: https://3eb9a3b2-033d-4826-8c1c-1836d01c43f9.preview.emergentagent.com
-PENDING (user-reported, awaiting spec): "restore the auto-converted icon on the transaction history page"
-(support advised replace_all — the '· Converted' status span appears 2x in Components/Page/Transactions/
-TransactionsTable.tsx; the desktop crypto-column swap icon block + assets/Icons/swap-round-icon.svg are intact
-in this fork, so the exact change needs user clarification).
+DONE same session: "restore the auto-converted icon on the transaction history page" — the 2 text-only
+'· Converted' status-chip spans in Components/Page/Transactions/TransactionsTable.tsx (mobile ~358,
+desktop ~612) now render SwapHorizIcon + 'Converted' (themed-icon, inline-flex), consistent with the
+crypto-column swap block. Verified via playwright response-interception (no DB writes — live
+tbl_stablecoin_conversion is EMPTY, so no real row shows it yet).
 
 LATEST SESSION (2026-08-14): FIXED 3 user-reported bugs (all backend-verified by testing agent, 2 runs, 9/9 pass):
 0. (added later same day) Landing top-right hamburger "dead taps" on mobile Safari/Chrome — 4th attempt, REWRITTEN &

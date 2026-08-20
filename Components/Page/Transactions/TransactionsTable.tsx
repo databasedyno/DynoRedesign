@@ -356,8 +356,16 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                   <StatusText status={transaction.status}>
                     {tTransactions(transaction.status)}
                     {transaction.autoConverted && transaction.status === "settled" && (
-                      <Typography component="span" sx={{ fontSize: "10px", fontFamily: "var(--font-sans)", color: "#1565C0", ml: 0.5 }}>
-                        · Converted
+                      <Typography component="span" sx={{ display: "inline-flex", alignItems: "center", gap: "3px", verticalAlign: "middle", fontSize: "10px", fontFamily: "var(--font-sans)", color: "#1565C0", ml: 0.5 }}>
+                        <Image
+                          src={SwapHorizIcon}
+                          alt="auto-converted"
+                          width={11}
+                          height={11}
+                          draggable={false}
+                          className="themed-icon"
+                        />
+                        Converted
                       </Typography>
                     )}
                   </StatusText>
@@ -610,8 +618,16 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                       <StatusText status={transaction.status}>
                         {tTransactions(transaction.status)}
                         {transaction.autoConverted && transaction.status === "settled" && (
-                          <Typography component="span" sx={{ fontSize: "11px", fontFamily: "var(--font-sans)", color: "#1565C0", ml: 0.5 }}>
-                            · Converted
+                          <Typography component="span" sx={{ display: "inline-flex", alignItems: "center", gap: "3px", verticalAlign: "middle", fontSize: "11px", fontFamily: "var(--font-sans)", color: "#1565C0", ml: 0.5 }}>
+                            <Image
+                              src={SwapHorizIcon}
+                              alt="auto-converted"
+                              width={12}
+                              height={12}
+                              draggable={false}
+                              className="themed-icon"
+                            />
+                            Converted
                           </Typography>
                         )}
                       </StatusText>

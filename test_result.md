@@ -21,11 +21,16 @@ WORKER_ROLE=secondary (user's env paste said jobs=true — kept OFF per standing
 4. Verified: external preview URL → landing 200 + full visual render, /auth/login 200, /api/status 200.
    Dev-mode note: first hit per route compiles on demand (~10-30s, body hidden by Next dev FOUC) — normal.
 
-## PENDING (awaiting user spec)
-- "Restore the auto-converted icon on the transaction history page" (support quote; replace_all needed since
-  the target text is not unique). In THIS fork the code looks intact: desktop crypto column has the
-  SwapHorizIcon block (TransactionsTable.tsx ~525) and the '· Converted' status span appears 2x (358, 612).
-  Asked user for the exact expected change.
+## DONE (was pending): auto-converted icon restored on /transactions
+- Support-relayed change: the auto-converted status indicator was text-only ('· Converted') in the 2
+  status-chip occurrences of Components/Page/Transactions/TransactionsTable.tsx (mobile card ~358 +
+  desktop row ~612). Both now render the SwapHorizIcon (assets/Icons/swap-round-icon.svg, themed-icon
+  class, inline-flex) + 'Converted' — matching the desktop crypto-column swap block that was already intact.
+- Verified on the live preview WITHOUT DB writes: playwright intercepted POST /api/wallet/getAllTransactions
+  and set auto_converted=true + auto_convert.target_currency=USDT on one settled row client-side → status
+  chip showed icon+Converted and crypto column showed swap→USDT. Lint clean. NOTE: live DB currently has
+  ZERO rows in tbl_stablecoin_conversion (statuses: successful 403 / pending 203 / completed 3), so no real
+  row displays the indicator until a conversion happens — this is data, not a bug.
 
 ---
 
