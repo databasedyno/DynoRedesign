@@ -945,9 +945,11 @@ const PublishableKeysSection = () => {
   const [justCreated, setJustCreated] = useState<PublishableKey | null>(null);
 
   const snippetBase = useMemo(() => {
+    // Rendered inside merchant-facing copy-paste snippets — always canonical
+    // Dynopay host. Never fall back to window.location.origin (that would
+    // leak the preview/dev host into copy samples).
     const fromEnv = (process.env.NEXT_PUBLIC_BASE_URL as string) || "";
     if (fromEnv) return fromEnv.replace(/\/+$/, "");
-    if (typeof window !== "undefined") return window.location.origin;
     return "https://checkout.dynopay.com";
   }, []);
 

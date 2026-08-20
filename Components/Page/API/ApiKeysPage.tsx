@@ -584,9 +584,11 @@ const EmbeddedCheckoutCard = ({
   docsUrl: string;
 }) => {
   const theme = useTheme();
+  // Snippet base URL: shown to merchants for copy-paste into their OWN site.
+  // Must always be a canonical Dynopay URL — never fall back to
+  // window.location.origin (which would leak the preview/dev host).
   const baseUrl =
-    (process.env.NEXT_PUBLIC_BASE_URL as string) ||
-    (typeof window !== "undefined" ? window.location.origin : "https://checkout.dynopay.com");
+    (process.env.NEXT_PUBLIC_BASE_URL as string) || "https://checkout.dynopay.com";
 
   const serverSnippet =
 `// 1) YOUR SERVER (Node) — the secret key stays here, never in the browser
@@ -688,9 +690,12 @@ const ElementsWidgetCard = ({
   const dispatch = useDispatch();
   const selectedCompanyId = useCompanyStore().selectedCompanyId;
 
+  // Snippet base URL: rendered inside merchant-facing copy snippets, so it
+  // must be a canonical Dynopay URL. Never fall back to
+  // window.location.origin — that would leak the preview host into copy-paste
+  // code samples on non-prod domains.
   const baseUrl =
-    (process.env.NEXT_PUBLIC_BASE_URL as string) ||
-    (typeof window !== "undefined" ? window.location.origin : "https://checkout.dynopay.com");
+    (process.env.NEXT_PUBLIC_BASE_URL as string) || "https://checkout.dynopay.com";
 
   // Load a real active pk for this company so the snippet + preview use it.
   // SWR-backed (shared with the Publishable Keys + Buy Buttons sections).
@@ -994,9 +999,11 @@ const TryFirstPaymentCard = ({
   const { t } = useTranslation("apiScreen");
   const [revealed, setRevealed] = useState(false);
 
+  // cURL snippet is copy-pasted into a merchant's terminal — it must always
+  // point at the canonical Dynopay API host. Never fall back to
+  // window.location.origin (that would leak the preview host).
   const baseUrl =
-    (process.env.NEXT_PUBLIC_BASE_URL as string) ||
-    (typeof window !== "undefined" ? window.location.origin : "https://dynopay.com");
+    (process.env.NEXT_PUBLIC_BASE_URL as string) || "https://checkout.dynopay.com";
 
   // Masked display (safe for screenshots, sharing, screen-recordings)
   const maskedKey = testKey
