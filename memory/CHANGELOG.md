@@ -1,5 +1,29 @@
 # Changelog
 
+# SESSION 2026-08-15/20 — **R2 god-file refactor (complete)** · **GitHub-save bug FIXED (secrets purge + guard)** — VERIFIED (testing agent 11/11 PASS)
+
+## A. R2 refactor (ENGINEERING_STRATEGY_REVIEW_2026-08.md) — strangler pattern, zero behavior change
+All 4 god files extracted VERBATIM into domain modules behind facades; every import path, route and
+default-export shape identical. Backend tsc clean; regression 6/6 via testing agent on live preview.
+- services/emailService.ts 3,601 → 233-line facade + 12 modules in services/email/ (emailShared + 11 domains)
+- controller/userController.ts 4,883 → 120-line facade + 16 modules in controller/user/ (userShared, registration*, authLogin, social*, passwordReset, profile*, contact*, accountLifecycle, onboarding, creator*, preferences)
+- controller/walletController.ts 4,636 → facade + 19 modules in controller/wallet/ (walletShared, walletRead, feesEstimates, transactions*, funding*, cryptoVerify, tempAddress, withdrawals, addressBook, exchange*, analytics, walletOtp, walletMutations, walletDeleteFlow, reusableWallets)
+- controller/payment/cryptoSettlement.ts 3,210 → facade + 4 modules in controller/payment/settlement/. NOTE: settleTransaction.ts (1,081) + chainVerification.ts (1,696) are each ONE giant function — intra-function decomposition deliberately deferred until money-path contract tests exist (R8); grandfathered.
+- NEW lint budget: backend/scripts/check-file-size.mjs (+ file-size-baseline.json, 55 legacy files grandfathered) — new backend .ts files must be ≤500 lines; wired into .husky/pre-commit and `yarn lint:size`.
+
+## B. BUG FIX — "files won't save to GitHub" (GH013 push protection)
+Root cause: LIVE credentials in TRACKED files — backend/dynopay.json was a full GCP service-account
+private key (hard blocker), Binance trade key+secret in 6 docs/guides, Brevo/Flutterwave/Google
+GOCSPX/Telnyx/Tatum/Telegram tokens across docs, scripts, test files and test_result.md.
+Fix: (1) redacted all credential patterns in 24 tracked files (REDACTED_* placeholders);
+(2) dynopay.json untracked (git rm --cached) + gitignored, kept on disk (unreferenced by code);
+(3) NEW pre-commit secrets guard scripts/check-secrets.mjs — scans STAGED files for high-confidence
+patterns (OpenAI/Google/Brevo/Flutterwave/Telegram/Telnyx/Tatum/GitHub/AWS/private keys), blocks with
+a clear message; wired into .husky/pre-commit after the file-size check.
+Verified by testing agent 11/11: zero patterns tracked, hook exit 0, commit dry-run OK, guard blocks a
+planted GOCSPX secret, and full backend regression green (login/profile/wallets/receipt-gate/tickers).
+⚠️ These leaked keys are BURNED — rotation (review R1) is still on the user.
+
 # SESSION 2026-08-13/14 — USDC icon BUG fix · paid-card **Download receipt** · **IA Batch B: Developers tabs + Settings groups** — VERIFIED (backend 6/6, frontend all pass)
 
 ## A. BUG FIX — "wallet page shows duplicate USDT ERC20"

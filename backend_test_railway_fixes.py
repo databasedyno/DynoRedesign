@@ -102,7 +102,7 @@ class RailwayBugFixesTestSuite:
             telnyx_key_match = re.search(r'TELNYX_API_KEY=([^\n]+)', env_content)
             if telnyx_key_match:
                 telnyx_key = telnyx_key_match.group(1).strip()
-                old_key_pattern = "KEY019B6F591AACFAF1451A80C66809193A"
+                old_key_pattern = "KEY019_REDACTED"
                 if old_key_pattern in telnyx_key:
                     self.log_test("Telnyx ENV Updated", False, f"TELNYX_API_KEY still contains old key: {old_key_pattern}")
                     return

@@ -1,5 +1,29 @@
 # Test Credentials
 
+## ⚠️ HOW TO RUN BACKEND JEST (2026-08-20) — NEVER background it
+- `cd /app/backend && bash scripts/run-tests.sh` — FOREGROUND batched runner (4 batches, ~30s total,
+  511 tests). `--batch N` for one batch; `--integration` is OPT-IN ONLY (hits LIVE prod server — avoid).
+- NEVER `yarn test &` / nohup / disown: detached node children inherit the tool's output pipe → the
+  agent tool call hangs and dies. /tmp is WIPED on pod restart → cache/logs live at
+  /app/backend/.jest-cache + /app/backend/test-run.log (both gitignored).
+- ts-jest runs transpile-only via tsconfig.jest.json (isolatedModules) — types are enforced by the
+  husky preflight tsc, not by jest.
+- Jest gotcha fixed twice here: jest.doMock('../models') gets cached/shadowed vs the global
+  moduleNameMapper mock — prime __tests__/__mocks__/models.ts jest.fn()s with mockResolvedValueOnce instead.
+- The secrets guard flags even FAKE example keys quoted in tracked files (incl. test_result.md test
+  reports) — always write them as e.g. GOCSPX-REDACTED-fake-test-value.
+
+## ⚠️ NEW GUARDS IN PRE-COMMIT (2026-08-20) — affects every future session
+- scripts/check-secrets.mjs BLOCKS commits whose STAGED files contain live credential patterns
+  (OpenAI sk-*, GOCSPX-, xkeysib-, FLWSECK-, Telegram tokens, KEY019*, Tatum t-*, private keys, ghp_, AKIA).
+  NEVER paste real keys into tracked files (docs, test scripts, test_result.md) — use REDACTED_* placeholders
+  or gitignored .env. backend/dynopay.json is untracked+gitignored on purpose (GCP key, kept on disk).
+- backend/scripts/check-file-size.mjs BLOCKS new backend .ts files >500 lines (R2 budget; 55 legacy files
+  grandfathered in backend/scripts/file-size-baseline.json).
+- R2 refactor landed: emailService/userController/walletController/cryptoSettlement are now thin FACADES over
+  services/email/, controller/user/, controller/wallet/, controller/payment/settlement/ — edit the domain
+  modules, keep facades' export shapes intact.
+
 ## ⚠️ FRONTEND RUNS A PRODUCTION BUILD SINCE 2026-08-14 (bug fix: slow dev-mode nav)
 - /app/frontend/package.json "start" = `next start` (prod). Dev mode = "start-dev" script.
 - After ANY frontend code change: `cd /app && yarn build` then `sudo supervisorctl restart frontend`.

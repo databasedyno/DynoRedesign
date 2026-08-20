@@ -76,3 +76,10 @@ test-results/
 # Redis dumps (local data snapshots — never commit)
 dump.rdb
 *.rdb
+
+# GCP service-account key — must NEVER be committed (GitHub push protection blocks it)
+backend/dynopay.json
+
+# Jest cache + test logs (pod-local, never commit)
+backend/.jest-cache/
+backend/test-run.log

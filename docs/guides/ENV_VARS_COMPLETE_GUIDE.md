@@ -7,13 +7,13 @@
 
 ```bash
 # Email Configuration (BREVO)
-BREVO_API_KEY=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
+BREVO_API_KEY=xkeysib-REDACTED
 ADMIN_EMAIL=moxxcompany@gmail.com
 
 # Binance
-BINANCE_API_KEY=Ue0UNcTaS7Sydd3H4TDPcR6S3kO9o6hnLqiIAh6v2HlU4Zj6PNPaTSTCLdqE2K2T
-BINANCE_API_SECRET=h5fdg2tQsu0H31yPGK7zTBEwXTJUgdnpow3VU7BifiUFIpgQvSTGgoPFU60HcxHa
-BINANCE_SECRET_KEY=h5fdg2tQsu0H31yPGK7zTBEwXTJUgdnpow3VU7BifiUFIpgQvSTGgoPFU60HcxHa
+BINANCE_API_KEY=REDACTED_BINANCE_API_KEY
+BINANCE_API_SECRET=REDACTED_BINANCE_SECRET
+BINANCE_SECRET_KEY=REDACTED_BINANCE_SECRET
 ```
 
 ✅ **You're good!** You don't need SMTP variables because you use Brevo API!
@@ -24,7 +24,7 @@ BINANCE_SECRET_KEY=h5fdg2tQsu0H31yPGK7zTBEwXTJUgdnpow3VU7BifiUFIpgQvSTGgoPFU60Hc
 
 ### Current Setup (CORRECT):
 ```bash
-BREVO_API_KEY=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
+BREVO_API_KEY=xkeysib-REDACTED
 ADMIN_EMAIL=moxxcompany@gmail.com
 ```
 
@@ -107,14 +107,14 @@ CHECKOUT_URL=https://${{RAILWAY_PUBLIC_DOMAIN}}/checkout
 # ============================================
 # BINANCE (Already set)
 # ============================================
-BINANCE_API_KEY=Ue0UNcTaS7Sydd3H4TDPcR6S3kO9o6hnLqiIAh6v2HlU4Zj6PNPaTSTCLdqE2K2T
-BINANCE_API_SECRET=h5fdg2tQsu0H31yPGK7zTBEwXTJUgdnpow3VU7BifiUFIpgQvSTGgoPFU60HcxHa
-BINANCE_SECRET_KEY=h5fdg2tQsu0H31yPGK7zTBEwXTJUgdnpow3VU7BifiUFIpgQvSTGgoPFU60HcxHa
+BINANCE_API_KEY=REDACTED_BINANCE_API_KEY
+BINANCE_API_SECRET=REDACTED_BINANCE_SECRET
+BINANCE_SECRET_KEY=REDACTED_BINANCE_SECRET
 
 # ============================================
 # EMAIL - BREVO (Already set)
 # ============================================
-BREVO_API_KEY=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
+BREVO_API_KEY=xkeysib-REDACTED
 ADMIN_EMAIL=moxxcompany@gmail.com
 
 # ============================================
@@ -130,8 +130,8 @@ TATUM_WEBHOOK_SECRET=<generate_random_64_char_hex_string>
 # ============================================
 # OTHER (From your current .env)
 # ============================================
-TATUM_KEY=t-6706960c3810b72fabd57312-056e70726ec8463bbda73dde
-TATUM_SECRET_KEY=t-6706960c3810b72fabd57312-056e70726ec8463bbda73dde
+TATUM_KEY=REDACTED_TATUM_KEY
+TATUM_SECRET_KEY=REDACTED_TATUM_KEY
 FLW_PUBLIC_KEY=your_flutterwave_public_key
 FLW_SECRET_KEY=your_flutterwave_secret_key
 NODE_ENV=production

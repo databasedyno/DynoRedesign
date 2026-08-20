@@ -20,8 +20,8 @@ BASE_URL = "http://localhost:8001"
 API_BASE = f"{BASE_URL}/api"
 
 # Load secrets from backend .env
-ACCESS_TOKEN_SECRET = "9a88a50f97ef03c08fedc2e1823e6e4da7220d1a94d8200dde4e8bf63ceab2216e848003b38cae225e5a7620c77ac735e1c5b5418407953b85c203c3e5192d4e"
-REDIS_URL = "redis://default:HAEMJseUAdqAjpiICURxlefSoSYXKEUg@nozomi.proxy.rlwy.net:15794"
+ACCESS_TOKEN_SECRET = "REDACTED_ACCESS_TOKEN_SECRET"
+REDIS_URL = "redis://default:REDACTED_REDIS_PASSWORD@nozomi.proxy.rlwy.net:15794"
 
 # Test credentials
 TEST_EMAIL = "hostbay@moxx.co"

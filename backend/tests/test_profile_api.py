@@ -31,7 +31,7 @@ def get_otp_from_redis(session_id: str) -> str:
     """Get OTP from Redis using Node.js ioredis"""
     script = f"""
 const Redis = require('ioredis');
-const redis = new Redis('redis://default:HAEMJseUAdqAjpiICURxlefSoSYXKEUg@nozomi.proxy.rlwy.net:15794');
+const redis = new Redis('redis://default:REDACTED_REDIS_PASSWORD@nozomi.proxy.rlwy.net:15794');
 redis.get('login_otp:{session_id}:json').then(data => {{
   if (data) {{
     const parsed = JSON.parse(data);

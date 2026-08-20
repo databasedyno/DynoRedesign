@@ -32,6 +32,15 @@ jest.mock('axios', () => ({
   default: { get: jest.fn() },
 }));
 
+// blockchainFeeService imports the shared axios INSTANCE from utils/tatumHttp
+// (axios.create() — which the axios mock above doesn't provide, and the real
+// module registers interceptors at load time). Map the instance straight to the
+// mocked axios default so the existing `axios.get` assertions keep working.
+jest.mock('../utils/tatumHttp', () => ({
+  __esModule: true,
+  default: require('axios').default,
+}));
+
 // ── Imports ─────────────────────────────────────────────────────────────────
 
 import {

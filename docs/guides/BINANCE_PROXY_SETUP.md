@@ -61,8 +61,8 @@ Created `/etc/supervisor/conf.d/binance-tunnel.conf` with:
 
 ### Environment Variables (.env)
 ```bash
-BINANCE_API_KEY=Ue0UNcTaS7Sydd3H4TDPcR6S3kO9o6hnLqiIAh6v2HlU4Zj6PNPaTSTCLdqE2K2T
-BINANCE_API_SECRET=h5fdg2tQsu0H31yPGK7zTBEwXTJUgdnpow3VU7BifiUFIpgQvSTGgoPFU60HcxHa
+BINANCE_API_KEY=REDACTED_BINANCE_API_KEY
+BINANCE_API_SECRET=REDACTED_BINANCE_SECRET
 BINANCE_BASE_URL=https://api.binance.com
 BINANCE_PROXY_URL=socks5://127.0.0.1:1080
 ```

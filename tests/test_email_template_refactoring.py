@@ -17,7 +17,7 @@ TEST_EMAIL = "qa.onboard.1782585233@dynopaytest.com"
 TEST_PASSWORD = "QaOnboard#2026"
 
 # Redis connection for OTP retrieval
-REDIS_URL = "redis://default:HAEMJseUAdqAjpiICURxlefSoSYXKEUg@nozomi.proxy.rlwy.net:15794"
+REDIS_URL = "redis://default:REDACTED_REDIS_PASSWORD@nozomi.proxy.rlwy.net:15794"
 
 # Required headers
 HEADERS = {

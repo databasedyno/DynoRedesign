@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    /* Jest-only: lets ts-jest use fast per-file transpilation (no full TS program
+       build on every run). Type CORRECTNESS is still enforced repo-wide by
+       `tsc --noEmit` in scripts/preflight-tsc.sh (husky pre-commit). */
+    "isolatedModules": true
+  }
+}

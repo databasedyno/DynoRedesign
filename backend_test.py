@@ -1,422 +1,350 @@
 #!/usr/bin/env python3
 """
-DynoPay Backend Retest - BUG 1: Stale pending → unpaid derivation
-Focus: walletController.getAllTransactions + getTransactionDetails
-READ-ONLY testing on LIVE production DB
+Backend Regression Test for R2 Refactor
+Tests refactored auth, wallet, and settlement endpoints
+READ-ONLY testing on LIVE production database
 """
 
 import requests
 import json
-from datetime import datetime, timedelta
+import sys
+from typing import Dict, Any, Optional
 
-# Base URL from environment
 BASE_URL = "http://localhost:8001"
-
-# Test credentials
 TEST_EMAIL = "hostbay@moxx.co"
 TEST_PASSWORD = "Katiekendra123@"
 
-def login():
-    """Login and get Bearer token"""
-    print("=" * 80)
-    print("STEP 1: LOGIN")
-    print("=" * 80)
-    
-    url = f"{BASE_URL}/api/user/login"
-    payload = {
-        "email": TEST_EMAIL,
-        "password": TEST_PASSWORD
-    }
-    
-    response = requests.post(url, json=payload)
-    print(f"POST {url}")
-    print(f"Status: {response.status_code}")
-    
-    if response.status_code == 200:
+class Colors:
+    GREEN = '\033[92m'
+    RED = '\033[91m'
+    YELLOW = '\033[93m'
+    BLUE = '\033[94m'
+    END = '\033[0m'
+
+def print_test(name: str, passed: bool, details: str = ""):
+    status = f"{Colors.GREEN}✅ PASS{Colors.END}" if passed else f"{Colors.RED}❌ FAIL{Colors.END}"
+    print(f"{status} - {name}")
+    if details:
+        print(f"  {details}")
+
+def print_section(name: str):
+    print(f"\n{Colors.BLUE}{'='*60}{Colors.END}")
+    print(f"{Colors.BLUE}{name}{Colors.END}")
+    print(f"{Colors.BLUE}{'='*60}{Colors.END}")
+
+# Step 6: Health Check
+def test_health():
+    print_section("STEP 6: Health Check")
+    try:
+        response = requests.get(f"{BASE_URL}/health", timeout=10)
         data = response.json()
-        # Check for accessToken in data object
-        if 'data' in data and 'accessToken' in data['data']:
-            token = data['data']['accessToken']
-            print(f"✅ Login successful, token obtained")
-            return token
-        else:
-            print(f"❌ Login response missing accessToken: {json.dumps(data, indent=2)}")
+        
+        passed = (
+            response.status_code == 200 and
+            data.get("status") == "healthy" and
+            data.get("database") == "connected" and
+            data.get("redis") == "connected" and
+            data.get("background_jobs", {}).get("eligible") == False
+        )
+        
+        details = f"Status: {data.get('status')}, DB: {data.get('database')}, Redis: {data.get('redis')}, BG Jobs: {data.get('background_jobs', {}).get('eligible')}"
+        print_test("GET /health", passed, details)
+        return passed
+    except Exception as e:
+        print_test("GET /health", False, f"Error: {str(e)}")
+        return False
+
+# Step 7: Status Check
+def test_status():
+    print_section("STEP 7: Status Check")
+    try:
+        response = requests.get(f"{BASE_URL}/api/status", timeout=10)
+        data = response.json()
+        
+        passed = (
+            response.status_code == 200 and
+            data.get("data", {}).get("overall_status") == "operational"
+        )
+        
+        details = f"Overall Status: {data.get('data', {}).get('overall_status')}"
+        print_test("GET /api/status", passed, details)
+        return passed
+    except Exception as e:
+        print_test("GET /api/status", False, f"Error: {str(e)}")
+        return False
+
+# Step 8: Refactored Auth Path
+def test_auth():
+    print_section("STEP 8: Refactored Auth Path (userController)")
+    
+    # Step 8a: Check Email
+    try:
+        response = requests.get(
+            f"{BASE_URL}/api/user/checkEmail",
+            params={"email": TEST_EMAIL},
+            timeout=10
+        )
+        data = response.json()
+        
+        passed_check = (
+            response.status_code == 200 and
+            data.get("data", {}).get("validEmail") == True
+        )
+        
+        details = f"Valid Email: {data.get('data', {}).get('validEmail')}"
+        print_test("GET /api/user/checkEmail", passed_check, details)
+        
+        if not passed_check:
             return None
-    else:
-        print(f"❌ Login failed: {response.text}")
+    except Exception as e:
+        print_test("GET /api/user/checkEmail", False, f"Error: {str(e)}")
+        return None
+    
+    # Step 8b: Login (2-step flow)
+    try:
+        # Get CSRF token first
+        csrf_response = requests.get(f"{BASE_URL}/api/csrf-token", timeout=10)
+        csrf_token = csrf_response.json().get("csrf_token")
+        
+        # Login with email and password
+        login_response = requests.post(
+            f"{BASE_URL}/api/user/login",
+            json={
+                "email": TEST_EMAIL,
+                "password": TEST_PASSWORD
+            },
+            headers={
+                "X-CSRF-Token": csrf_token,
+                "Content-Type": "application/json"
+            },
+            timeout=10
+        )
+        
+        login_data = login_response.json()
+        
+        passed_login = (
+            login_response.status_code == 200 and
+            "accessToken" in login_data.get("data", {})
+        )
+        
+        token = login_data.get("data", {}).get("accessToken") if passed_login else None
+        details = f"Token received: {bool(token)}"
+        print_test("POST /api/user/login", passed_login, details)
+        
+        if not passed_login or not token:
+            return None
+            
+    except Exception as e:
+        print_test("POST /api/user/login", False, f"Error: {str(e)}")
+        return None
+    
+    # Step 8c: Get Profile with Bearer Token
+    try:
+        profile_response = requests.get(
+            f"{BASE_URL}/api/user/profile",
+            headers={
+                "Authorization": f"Bearer {token}",
+                "Content-Type": "application/json"
+            },
+            timeout=10
+        )
+        
+        profile_data = profile_response.json()
+        
+        passed_profile = (
+            profile_response.status_code == 200 and
+            profile_data.get("data", {}).get("email") == TEST_EMAIL
+        )
+        
+        details = f"Email: {profile_data.get('data', {}).get('email')}, Name: {profile_data.get('data', {}).get('name')}"
+        print_test("GET /api/user/profile", passed_profile, details)
+        
+        return token if passed_profile else None
+        
+    except Exception as e:
+        print_test("GET /api/user/profile", False, f"Error: {str(e)}")
         return None
 
-def test_get_all_transactions(token):
-    """
-    TEST A: POST /api/wallet/getAllTransactions
-    Assert:
-    - ZERO rows with status='pending' AND createdAt older than 60 minutes
-    - 'unpaid' rows PRESENT
-    - 'successful' rows untouched
-    - pagination.total ≈ 575
-    """
-    print("\n" + "=" * 80)
-    print("TEST A: POST /api/wallet/getAllTransactions")
-    print("=" * 80)
+# Step 9: Refactored Wallet Path
+def test_wallet(token: str):
+    print_section("STEP 9: Refactored Wallet Path (walletController)")
     
-    url = f"{BASE_URL}/api/wallet/getAllTransactions"
-    headers = {
-        "Authorization": f"Bearer {token}",
-        "Content-Type": "application/json"
-    }
-    payload = {
-        "company_id": 1,
-        "rowsPerPage": 50,
-        "page": 1
-    }
-    
-    response = requests.post(url, json=payload, headers=headers)
-    print(f"POST {url}")
-    print(f"Status: {response.status_code}")
-    
-    if response.status_code != 200:
-        print(f"❌ Request failed: {response.text}")
-        return None
-    
-    data = response.json()
-    
-    # Extract transactions
-    if 'data' in data and 'customers_transactions' in data['data']:
-        transactions = data['data']['customers_transactions']
-        pagination = data['data'].get('pagination', {})
-        total = pagination.get('total', 0)
+    # Step 9a: Get Wallet List
+    try:
+        wallet_response = requests.get(
+            f"{BASE_URL}/api/wallet/getWallet",
+            params={"company_id": 1},
+            headers={
+                "Authorization": f"Bearer {token}",
+                "Content-Type": "application/json"
+            },
+            timeout=10
+        )
         
-        print(f"\n📊 Total transactions: {total}")
-        print(f"📊 Transactions in current page: {len(transactions)}")
+        wallet_data = wallet_response.json()
+        # Response structure: { "data": [ { "wallets": [...] } ] }
+        wallets = []
+        if isinstance(wallet_data.get("data"), list) and len(wallet_data.get("data", [])) > 0:
+            wallets = wallet_data["data"][0].get("wallets", [])
         
-        # Check for stale pending (older than 60 minutes)
-        now = datetime.utcnow()
-        sixty_min_ago = now - timedelta(minutes=60)
+        passed_wallet = (
+            wallet_response.status_code == 200 and
+            len(wallets) > 0
+        )
         
-        stale_pending_count = 0
-        unpaid_count = 0
-        successful_count = 0
-        pending_count = 0
+        details = f"Wallets count: {len(wallets)} (expected ~13)"
+        print_test("GET /api/wallet/getWallet", passed_wallet, details)
         
-        stale_pending_examples = []
-        unpaid_examples = []
-        
-        for tx in transactions:
-            status = tx.get('status', '')
-            created_at_str = tx.get('createdAt', '')
-            tx_id = tx.get('id') or tx.get('transaction_id') or tx.get('_id')
-            
-            # Parse createdAt
-            try:
-                created_at = datetime.fromisoformat(created_at_str.replace('Z', '+00:00'))
-            except (ValueError, AttributeError):
-                created_at = None
-            
-            # Count by status
-            if status == 'pending':
-                pending_count += 1
-                if created_at and created_at < sixty_min_ago:
-                    stale_pending_count += 1
-                    stale_pending_examples.append({
-                        'id': tx_id,
-                        'status': status,
-                        'createdAt': created_at_str,
-                        'age_minutes': int((now - created_at).total_seconds() / 60)
-                    })
-            elif status == 'unpaid':
-                unpaid_count += 1
-                if len(unpaid_examples) < 3:
-                    # Debug: print all ID fields
-                    if unpaid_count == 1:
-                        print(f"\n   🔍 DEBUG: First unpaid transaction fields:")
-                        for key in ['id', 'transaction_id', '_id', 'transaction_id_display']:
-                            if key in tx:
-                                print(f"      - {key}: {tx.get(key)}")
-                    
-                    unpaid_examples.append({
-                        'id': tx_id,
-                        'status': status,
-                        'createdAt': created_at_str,
-                        'full_tx': tx  # Store full transaction for debugging
-                    })
-            elif status in ['successful', 'completed', 'done']:
-                successful_count += 1
-        
-        print(f"\n📈 Status breakdown (page 1):")
-        print(f"   - Pending (fresh): {pending_count}")
-        print(f"   - Stale pending (>60 min): {stale_pending_count}")
-        print(f"   - Unpaid: {unpaid_count}")
-        print(f"   - Successful/completed: {successful_count}")
-        
-        # Assertions
-        print(f"\n🔍 ASSERTIONS:")
-        
-        # 1. Zero stale pending
-        if stale_pending_count == 0:
-            print(f"   ✅ ZERO stale pending (>60 min) transactions")
-        else:
-            print(f"   ❌ FAIL: Found {stale_pending_count} stale pending transactions")
-            for ex in stale_pending_examples[:3]:
-                print(f"      - ID {ex['id']}: {ex['status']}, created {ex['createdAt']} ({ex['age_minutes']} min ago)")
-        
-        # 2. Unpaid rows present
-        if unpaid_count > 0:
-            print(f"   ✅ 'unpaid' rows PRESENT ({unpaid_count} found)")
-            # Debug: print first unpaid transaction details
-            if unpaid_examples:
-                print(f"   📝 First unpaid transaction for TEST B:")
-                first_unpaid = unpaid_examples[0]
-                print(f"      - ID: {first_unpaid['id']}")
-                print(f"      - Status: {first_unpaid['status']}")
-                print(f"      - Created: {first_unpaid['createdAt']}")
-        else:
-            print(f"   ❌ FAIL: NO 'unpaid' rows found")
-        
-        # 3. Successful rows present
-        if successful_count > 0:
-            print(f"   ✅ 'successful' rows present ({successful_count} found)")
-        else:
-            print(f"   ⚠️  WARNING: NO successful rows in page 1")
-        
-        # 4. Total ≈ 575
-        if 550 <= total <= 600:
-            print(f"   ✅ pagination.total ≈ 575 (actual: {total})")
-        else:
-            print(f"   ⚠️  WARNING: pagination.total = {total} (expected ≈ 575)")
-        
-        # Return unpaid example for next test
-        return unpaid_examples[0] if unpaid_examples else None
-    else:
-        print(f"❌ Unexpected response structure: {json.dumps(data, indent=2)[:500]}")
-        return None
-
-def test_get_transaction_details(token, unpaid_tx):
-    """
-    TEST B: GET /api/wallet/transaction/<id>?company_id=1
-    Assert: response data.status === 'unpaid'
-    
-    NOTE: The endpoint expects the NUMERIC transaction_id, not the UUID 'id' field
-    """
-    print("\n" + "=" * 80)
-    print("TEST B: GET /api/wallet/transaction/<id>")
-    print("=" * 80)
-    
-    if not unpaid_tx:
-        print("❌ No unpaid transaction available from TEST A")
-        return False
-    
-    # Extract the numeric transaction_id from the full transaction object
-    full_tx = unpaid_tx.get('full_tx', {})
-    numeric_tx_id = full_tx.get('transaction_id')
-    uuid_id = unpaid_tx['id']
-    
-    if not numeric_tx_id:
-        print(f"❌ No numeric transaction_id found in transaction")
-        return False
-    
-    print(f"Testing with numeric transaction_id: {numeric_tx_id} (UUID: {uuid_id})")
-    
-    url = f"{BASE_URL}/api/wallet/transaction/{numeric_tx_id}"
-    headers = {
-        "Authorization": f"Bearer {token}"
-    }
-    params = {
-        "company_id": 1
-    }
-    
-    print(f"GET {url}?company_id=1")
-    
-    response = requests.get(url, headers=headers, params=params)
-    print(f"Status: {response.status_code}")
-    
-    if response.status_code != 200:
-        print(f"❌ Request failed: {response.text}")
-        return False
-    
-    data = response.json()
-    
-    if 'data' in data:
-        tx_data = data['data']
-        status = tx_data.get('status', '')
-        
-        print(f"\n📋 Transaction details:")
-        print(f"   - Transaction ID (from response): {tx_data.get('transaction_id')}")
-        print(f"   - Status: {status}")
-        print(f"   - Created: {tx_data.get('date_time')}")
-        
-        if status == 'unpaid':
-            print(f"\n   ✅ Status is 'unpaid' as expected")
-            return True
-        else:
-            print(f"\n   ❌ FAIL: Status is '{status}', expected 'unpaid'")
+        if not passed_wallet:
             return False
-    else:
-        print(f"❌ Unexpected response structure: {json.dumps(data, indent=2)[:500]}")
+            
+    except Exception as e:
+        print_test("GET /api/wallet/getWallet", False, f"Error: {str(e)}")
+        return False
+    
+    # Step 9b: Get Transactions List
+    try:
+        tx_response = requests.post(
+            f"{BASE_URL}/api/wallet/getAllTransactions",
+            json={
+                "company_id": 1,
+                "rowsPerPage": 10,
+                "page": 1
+            },
+            headers={
+                "Authorization": f"Bearer {token}",
+                "Content-Type": "application/json"
+            },
+            timeout=10
+        )
+        
+        tx_data = tx_response.json()
+        transactions = tx_data.get("data", {}).get("customers_transactions", [])
+        
+        passed_tx = (
+            tx_response.status_code == 200 and
+            isinstance(transactions, list)
+        )
+        
+        details = f"Transactions returned: {len(transactions)}"
+        print_test("POST /api/wallet/getAllTransactions", passed_tx, details)
+        
+        return passed_tx
+        
+    except Exception as e:
+        print_test("POST /api/wallet/getAllTransactions", False, f"Error: {str(e)}")
         return False
 
-def test_regression_checks(token):
-    """
-    TEST C: Regression spot-checks
-    - GET /api/company/getTransactions/1
-    - GET /api/dashboard/?company_id=1 vs /api/dashboard/action-counts?company_id=1
-    - GET /health
-    """
-    print("\n" + "=" * 80)
-    print("TEST C: REGRESSION SPOT-CHECKS")
-    print("=" * 80)
+# Step 10: Settlement Facade Auth Gate
+def test_settlement_auth():
+    print_section("STEP 10: Settlement Facade Auth Gate")
     
-    headers = {
-        "Authorization": f"Bearer {token}"
-    }
+    # Test with no auth
+    try:
+        response = requests.post(
+            f"{BASE_URL}/api/pay/receipt",
+            json={"address": "test"},
+            timeout=10
+        )
+        
+        passed = response.status_code in [403, 401]
+        
+        details = f"Status: {response.status_code} (expected 403/401)"
+        print_test("POST /api/pay/receipt (no auth)", passed, details)
+        
+        if not passed:
+            return False
+            
+    except Exception as e:
+        print_test("POST /api/pay/receipt (no auth)", False, f"Error: {str(e)}")
+        return False
     
-    # C1: GET /api/company/getTransactions/1
-    print("\n📌 C1: GET /api/company/getTransactions/1")
-    url = f"{BASE_URL}/api/company/getTransactions/1"
-    response = requests.get(url, headers=headers)
-    print(f"Status: {response.status_code}")
+    # Test with invalid token
+    try:
+        response = requests.post(
+            f"{BASE_URL}/api/pay/receipt",
+            json={"address": "test"},
+            headers={
+                "Authorization": "Bearer invalid.token.here",
+                "Content-Type": "application/json"
+            },
+            timeout=10
+        )
+        
+        passed = response.status_code in [403, 401]
+        
+        details = f"Status: {response.status_code} (expected 403/401)"
+        print_test("POST /api/pay/receipt (invalid token)", passed, details)
+        
+        return passed
+        
+    except Exception as e:
+        print_test("POST /api/pay/receipt (invalid token)", False, f"Error: {str(e)}")
+        return False
+
+# Step 11: Tickers/Rates Endpoint
+def test_rates():
+    print_section("STEP 11: Tickers/Rates Endpoint")
     
-    if response.status_code == 200:
+    try:
+        response = requests.get(f"{BASE_URL}/api/public/tickers", timeout=10)
         data = response.json()
-        if 'data' in data and 'transactions' in data['data']:
-            transactions = data['data']['transactions']
-            
-            unpaid_count = sum(1 for tx in transactions if tx.get('status') == 'unpaid')
-            successful_count = sum(1 for tx in transactions if tx.get('status') in ['successful', 'completed', 'done'])
-            
-            # Check for stale pending
-            now = datetime.utcnow()
-            sixty_min_ago = now - timedelta(minutes=60)
-            stale_pending_count = 0
-            
-            for tx in transactions:
-                if tx.get('status') == 'pending':
-                    created_at_str = tx.get('createdAt', '')
-                    try:
-                        created_at = datetime.fromisoformat(created_at_str.replace('Z', '+00:00'))
-                        if created_at < sixty_min_ago:
-                            stale_pending_count += 1
-                    except (ValueError, AttributeError):
-                        pass
-            
-            print(f"   - Total transactions: {len(transactions)}")
-            print(f"   - Unpaid: {unpaid_count}")
-            print(f"   - Successful: {successful_count}")
-            print(f"   - Stale pending (>60 min): {stale_pending_count}")
-            
-            if stale_pending_count == 0:
-                print(f"   ✅ ZERO stale pending")
-            else:
-                print(f"   ❌ FAIL: Found {stale_pending_count} stale pending")
-            
-            if unpaid_count > 0:
-                print(f"   ✅ 'unpaid' rows present ({unpaid_count})")
-            else:
-                print(f"   ⚠️  WARNING: NO unpaid rows")
-            
-            if successful_count > 0:
-                print(f"   ✅ 'successful' rows present ({successful_count})")
-    else:
-        print(f"   ❌ Request failed: {response.text}")
-    
-    # C2: Dashboard pending_count vs action-counts transactions_pending
-    print("\n📌 C2: Dashboard pending_count parity check")
-    
-    # Get dashboard
-    url_dashboard = f"{BASE_URL}/api/dashboard/"
-    params = {"company_id": 1}
-    response_dashboard = requests.get(url_dashboard, headers=headers, params=params)
-    print(f"GET {url_dashboard}?company_id=1")
-    print(f"Status: {response_dashboard.status_code}")
-    
-    pending_count_dashboard = None
-    if response_dashboard.status_code == 200:
-        data = response_dashboard.json()
-        if 'data' in data:
-            # Look for pending_count in various possible locations
-            dashboard_data = data['data']
-            if 'today_summary' in dashboard_data:
-                pending_count_dashboard = dashboard_data['today_summary'].get('pending_count')
-            elif 'counts' in dashboard_data:
-                pending_count_dashboard = dashboard_data['counts'].get('pending_count')
-            elif 'pending_count' in dashboard_data:
-                pending_count_dashboard = dashboard_data['pending_count']
-            
-            print(f"   Dashboard pending_count: {pending_count_dashboard}")
-    
-    # Get action-counts
-    url_action_counts = f"{BASE_URL}/api/dashboard/action-counts"
-    response_action_counts = requests.get(url_action_counts, headers=headers, params=params)
-    print(f"GET {url_action_counts}?company_id=1")
-    print(f"Status: {response_action_counts.status_code}")
-    
-    transactions_pending = None
-    if response_action_counts.status_code == 200:
-        data = response_action_counts.json()
-        if 'data' in data:
-            transactions_pending = data['data'].get('transactions_pending')
-            print(f"   Action-counts transactions_pending: {transactions_pending}")
-    
-    # Check parity
-    if pending_count_dashboard is not None and transactions_pending is not None:
-        if pending_count_dashboard == transactions_pending:
-            print(f"   ✅ PARITY ACHIEVED: {pending_count_dashboard} == {transactions_pending}")
-            if pending_count_dashboard == 0:
-                print(f"   ✅ Both are 0 (expected, all stale)")
-        else:
-            print(f"   ❌ FAIL: PARITY BROKEN: {pending_count_dashboard} != {transactions_pending}")
-    else:
-        print(f"   ⚠️  WARNING: Could not verify parity (missing data)")
-    
-    # C3: Health check
-    print("\n📌 C3: GET /health")
-    url_health = f"{BASE_URL}/health"
-    response_health = requests.get(url_health)
-    print(f"Status: {response_health.status_code}")
-    
-    if response_health.status_code == 200:
-        data = response_health.json()
-        print(f"   - Status: {data.get('status')}")
-        print(f"   - Database: {data.get('database')}")
-        print(f"   - Redis: {data.get('redis')}")
         
-        if 'background_jobs' in data:
-            bg_jobs = data['background_jobs']
-            print(f"   - Background jobs eligible: {bg_jobs.get('eligible')}")
-            
-            if bg_jobs.get('eligible') == False:
-                print(f"   ✅ SAFE MODE active (background_jobs.eligible=false)")
-            else:
-                print(f"   ⚠️  WARNING: SAFE MODE may not be active")
+        # The response structure is { "BTC": { "usd": 123.45, ... }, ... }
+        passed = (
+            response.status_code == 200 and
+            isinstance(data, dict) and
+            len(data) > 0
+        )
         
-        if data.get('status') == 'healthy' and data.get('database') == 'connected' and data.get('redis') == 'connected':
-            print(f"   ✅ System healthy")
-    else:
-        print(f"   ❌ Health check failed: {response_health.text}")
+        details = f"Tickers count: {len(data)}, Sample currencies: {list(data.keys())[:5]}"
+        print_test("GET /api/public/tickers", passed, details)
+        
+        return passed
+        
+    except Exception as e:
+        print_test("GET /api/public/tickers", False, f"Error: {str(e)}")
+        return False
 
 def main():
-    print("DynoPay Backend Retest - BUG 1: Stale pending → unpaid")
-    print("Focus: walletController.getAllTransactions + getTransactionDetails")
-    print("READ-ONLY testing on LIVE production DB")
-    print()
+    print(f"\n{Colors.YELLOW}{'='*60}{Colors.END}")
+    print(f"{Colors.YELLOW}Backend Regression Test - R2 Refactor Verification{Colors.END}")
+    print(f"{Colors.YELLOW}READ-ONLY testing on LIVE production database{Colors.END}")
+    print(f"{Colors.YELLOW}{'='*60}{Colors.END}")
     
-    # Step 1: Login
-    token = login()
-    if not token:
-        print("\n❌ FATAL: Cannot proceed without authentication token")
-        return
+    results = {}
     
-    # Step 2: Test A - getAllTransactions
-    unpaid_tx = test_get_all_transactions(token)
+    # Run all tests
+    results['health'] = test_health()
+    results['status'] = test_status()
     
-    # Step 3: Test B - getTransactionDetails
-    test_get_transaction_details(token, unpaid_tx)
+    token = test_auth()
+    results['auth'] = token is not None
     
-    # Step 4: Test C - Regression checks
-    test_regression_checks(token)
+    if token:
+        results['wallet'] = test_wallet(token)
+    else:
+        print(f"\n{Colors.RED}Skipping wallet tests - auth failed{Colors.END}")
+        results['wallet'] = False
     
-    print("\n" + "=" * 80)
-    print("RETEST COMPLETE")
-    print("=" * 80)
+    results['settlement'] = test_settlement_auth()
+    results['rates'] = test_rates()
+    
+    # Summary
+    print_section("SUMMARY")
+    total = len(results)
+    passed = sum(1 for v in results.values() if v)
+    
+    print(f"\nTotal Tests: {total}")
+    print(f"{Colors.GREEN}Passed: {passed}{Colors.END}")
+    print(f"{Colors.RED}Failed: {total - passed}{Colors.END}")
+    
+    if passed == total:
+        print(f"\n{Colors.GREEN}✅ ALL TESTS PASSED{Colors.END}")
+        return 0
+    else:
+        print(f"\n{Colors.RED}❌ SOME TESTS FAILED{Colors.END}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

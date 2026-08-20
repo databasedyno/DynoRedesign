@@ -11,6 +11,7 @@
     "dev": "nodemon server.ts",
     "build": "tsc",
     "migrate": "ts-node database/migrate.ts",
+    "lint:size": "node scripts/check-file-size.mjs",
     "test": "jest --config jest.config.ts --forceExit",
     "test:watch": "jest --config jest.config.ts --watch",
     "test:verbose": "jest --config jest.config.ts --verbose --forceExit"

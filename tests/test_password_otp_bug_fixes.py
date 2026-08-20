@@ -17,7 +17,7 @@ import os
 
 # Base URL for API
 BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'http://localhost:8001').rstrip('/')
-REDIS_URL = "redis://default:HAEMJseUAdqAjpiICURxlefSoSYXKEUg@nozomi.proxy.rlwy.net:15794"
+REDIS_URL = "redis://default:REDACTED_REDIS_PASSWORD@nozomi.proxy.rlwy.net:15794"
 
 # Test credentials
 TEST_EMAIL = "qa.onboard.1782585233@dynopaytest.com"

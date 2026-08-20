@@ -67,7 +67,7 @@ PRIVATE_KEY_ID=your_key_id
 TEMP_KEY_ID=your_temp_key_id
 XPUB_KEY_ID=your_xpub_key_id
 GOOGLE_CLIENT_EMAIL=your_service_account_email
-GOOGLE_CLIENT_KEY=-----BEGIN PRIVATE KEY-----\nyour_private_key_here\n-----END PRIVATE KEY-----
+GOOGLE_CLIENT_KEY=-----BEGIN PRIVATE KEY-----REDACTED-----END PRIVATE KEY-----
 ```
 **How to get**: 
 1. Google Cloud Console → IAM & Admin → Service Accounts

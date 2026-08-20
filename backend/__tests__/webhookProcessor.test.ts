@@ -74,7 +74,7 @@ import { paymentController } from '../controller';
 import tatumApi from '../apis/tatumApi';
 import { callMerchantWebhook } from '../webhooks';
 import { sendPendingPaymentNotification } from '../services/pendingPaymentService';
-import { companyModel } from '../models';
+import { companyModel, merchantPoolTransactionModel } from '../models';
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -865,14 +865,11 @@ describe('Webhook Processor — processWebhookJob', () => {
 
   describe('Regression — Tatum ERC-20 incoming NOT misclassified as our-own-outgoing', () => {
     it('processes an ERC-20 incoming transfer where counterAddress is our subscribed pool addr', async () => {
-      // Mock the models used by isOwnOutgoingTransaction to return null for
-      // both signals. Direct import happens inside the function.
-      jest.doMock('../models', () => ({
-        __esModule: true,
-        merchantPoolTransactionModel: { findOne: jest.fn().mockResolvedValue(null) },
-        merchantPoolSweepModel: { findOne: jest.fn().mockResolvedValue(null) },
-        companyModel: { findOne: jest.fn().mockResolvedValue(null) },
-      }));
+      // isOwnOutgoingTransaction's dynamic import("../models") resolves through the
+      // global moduleNameMapper to __tests__/__mocks__/models.ts, whose pool models
+      // default to findOne → null (no match) — exactly what this test needs.
+      // (A jest.doMock('../models') here would get CACHED as an explicit mock and
+      // then shadow the shared mock for ALL later tests in this file — never do it.)
 
       seedRedis(
         'crypto-0xOurPoolAddr',
@@ -908,23 +905,16 @@ describe('Webhook Processor — processWebhookJob', () => {
     });
 
     it('correctly recognises OUR previously-recorded merchant settlement tx as our own outgoing', async () => {
-      // Signal: this txId already exists in tbl_merchant_pool_transaction as merchant_tx_id
-      jest.doMock('../models', () => ({
-        __esModule: true,
-        merchantPoolTransactionModel: {
-          findOne: jest.fn().mockImplementation((opts: any) => {
-            const or = opts?.where?.[Symbol.for('or')] || opts?.where?.$or;
-            // Return truthy for known merchant_tx_id
-            return Promise.resolve({
-              pool_tx_id: 42,
-              merchant_tx_id: 'tx-known-settle-001',
-              gas_funding_tx_id: null,
-            });
-          }),
-        },
-        merchantPoolSweepModel: { findOne: jest.fn().mockResolvedValue(null) },
-        companyModel: { findOne: jest.fn().mockResolvedValue(null) },
-      }));
+      // Signal: this txId already exists in tbl_merchant_pool_transaction as merchant_tx_id.
+      // NOTE: jest.doMock('../models') does NOT work here — '../models' is globally
+      // mapped to __tests__/__mocks__/models.ts and already cached in the registry, so
+      // the doMock factory was never used (the check then fail-opened to null and this
+      // test failed). Override the shared mock's findOne for this one call instead.
+      (merchantPoolTransactionModel.findOne as jest.Mock).mockResolvedValueOnce({
+        pool_tx_id: 42,
+        merchant_tx_id: 'tx-known-settle-001',
+        gas_funding_tx_id: null,
+      });
 
       const data = createJobData({
         address: '0xOurPoolAddr',

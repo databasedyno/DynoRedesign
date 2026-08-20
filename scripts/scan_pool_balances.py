@@ -24,7 +24,7 @@ DB_CONFIG = {
     "sslmode": "require"
 }
 
-TATUM_KEY = "t-6706960c3810b72fabd57312-056e70726ec8463bbda73dde"
+TATUM_KEY = "REDACTED_TATUM_KEY"
 TATUM_BASE = "https://api.tatum.io/v3"
 TATUM_HEADERS = {"x-api-key": TATUM_KEY}
 

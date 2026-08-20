@@ -114,7 +114,7 @@
 **Binance Dashboard → API Management:**
 
 1. Go to https://www.binance.com/en/my/settings/api-management
-2. Find your API key: `Ue0UNcTaS7Sydd3H4TDP...`
+2. Find your API key: `REDACTED_BINANCE_API_KEY...`
 3. Check "IP access restrictions"
 
 **Options:**
@@ -198,7 +198,7 @@ Binance.US uses different API keys and endpoints.
 
 1. **Check Binance API Settings:**
    - Go to https://www.binance.com/en/my/settings/api-management
-   - Find API key: `Ue0UNcTaS7Sydd3H4TDP...`
+   - Find API key: `REDACTED_BINANCE_API_KEY...`
    - Check IP restrictions
    - Check permissions
 

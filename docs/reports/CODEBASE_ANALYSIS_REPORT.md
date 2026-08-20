@@ -94,8 +94,8 @@ DynoPay is a sophisticated **cryptocurrency payment gateway** built with Node.js
 PASSWORD=oYLtGbXGKLFLWjoEbLjzxOzTXPLtJXQV  # PostgreSQL password
 REDIS_PUBLIC_URL=redis://default:nGRWpSIBrXftcfgRCQDxtAJGowmXlgUg@...
 ACCESS_TOKEN_SECRET=9a88a50f97ef03c08fedc2e1823e6e4da7220d1a...
-FLW_SECRET_KEY=FLWSECK-111d21dd05d15e5a4eb0448c0150f2c2-197c4e73866vt-X
-TATUM_SECRET_KEY=t-6706960c3810b72fabd57312-056e70726ec8463bbda73dde
+FLW_SECRET_KEY=FLWSECK-REDACTED
+TATUM_SECRET_KEY=REDACTED_TATUM_KEY
 ```
 
 **Impact:**

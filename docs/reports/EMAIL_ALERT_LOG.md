@@ -79,7 +79,7 @@ The email was sent from your **Railway production deployment**, not from this Em
 ## 🎯 Email Service Used
 
 **Service:** Brevo API  
-**API Key:** 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  
+**API Key:** xkeysib-REDACTED  
 **From Address:** Your configured sender  
 **To Address:** moxxcompany@gmail.com  
 
