@@ -1,5 +1,29 @@
 # Changelog
 
+# SESSION 2026-08-21 (fork) — **Fee-free trial no longer resurrects for established merchants**
+
+**Bug:** hostbay (user_id 1, $27.7k lifetime volume) got the "first $500 fee-free" welcome popup
+back, showing a $75 balance. Root cause chain (confirmed on the live DB):
+the stuck $75 ETH payment retries every 20 min → each failed settlement called
+`reverseTransactionVolume(1, 75)` → old SQL restored `LEAST(500, remaining + 75)` → the column went
+`0 → 75` → `getFeeFreeStatus` treated `remaining > 0` as "still in trial" (no lifetime-volume check),
+lighting up the welcome modal, banner, widget and GrowPanel CTA — and would have waived real fees.
+
+**Fixed (backend only, no schema change):**
+- `services/feeFreeService.ts` — new `resolveFeeFreeRemaining(cumulative, stored)` clamps to
+  `500 − lifetime volume`; applied in `getFeeFreeStatus` (read path, self-healing) and as a SQL
+  clamp inside `reverseTransactionVolume` (write path).
+- `services/feeFreeReconciliation.ts` — only graduates rows still on `'trial'` (the old CASE
+  stamped `'standard'` over earned `growth`/`scale`/`enterprise` tiers, quietly repricing
+  high-volume merchants back to 1.5%); `cumulative_volume_usd` now `GREATEST(existing, recomputed)`.
+- `controller/user/profile.ts` — `/api/user/profile` returns the clamped `fee_free_remaining_usd`.
+- `__tests__/feeFreeEntitlement.test.ts` — 11 new unit tests (all pass) incl. a regression guard
+  against reintroducing `LEAST($500, …)` in the reversal.
+
+**Verified:** tsc clean, reconciliation UPDATE `EXPLAIN`-validated on the live DB (no write),
+hostbay e2e → `is_fee_free: false`, `fee_free_remaining_usd: 0`, dashboard shows no popup/banner.
+**Ships with the next "Save to GitHub" → DigitalOcean deploy.**
+
 # SESSION 2026-08-21 (later) — **Tier-1 #2: missing webhook events SHIPPED** · **Tier-1 #3 ledger rolled out (stages 1–3) on the live DB**
 
 ## A. Opt-in webhook events — `payment.created`, `payment.expired`, `payment.overpaid`

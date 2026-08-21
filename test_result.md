@@ -36861,3 +36861,50 @@ The Batch 1 migration is WORKING CORRECTLY. The specific files mentioned in the 
 
 **No functional console errors detected. All pages render correctly. The Batch 1 rollout is production-ready.**"
 
+
+
+---
+
+## SESSION 2026-08-21 (fork) — Fee-free trial resurrected for a $27.7k merchant (hostbay) — FIXED
+
+**Report:** "I got a pop up message in-app that hostbay has used $75 of free $500 even when the user
+already processed over $20,000. fix this bug since he is not a new user."
+
+### Root cause (confirmed against the LIVE prod DB, read-only)
+`tbl_user` user_id=1 (hostbay@moxx.co) at time of report: `cumulative_volume_usd=27738.93`,
+`fee_free_remaining_usd=75.00`, `fee_tier='growth'`.
+1. The stuck $75 ETH payment (`0xecad4258…`, tx 646) is retried by the prod cron every ~20 min
+   (`tbl_payment_journal`: `payment_detected` failed→processing at 19:31, 19:50, 20:10, 20:30).
+2. Each retry calls `recordTransactionVolume(1, 75)` pre-settlement, then — on settlement failure —
+   `reverseTransactionVolume(1, 75)`, which restored `LEAST(500, remaining + 75)`. With no notion of
+   lifetime entitlement, `fee_free_remaining_usd` flipped `0 → 75.00`.
+3. `feeFreeService.getFeeFreeStatus` derived `is_fee_free` from `remaining > 0` ALONE, so the
+   `FeeFreeWelcomeModal` ("your first $75 in volume is fee-free"), `FeeFreeBanner`, `FeeFreeWidget`
+   and the dashboard GrowPanel fee-free CTA all came back for a merchant $27k past the trial —
+   and `calculateFeeFreeDiscount` would have WAIVED platform fees on the next $75.
+
+### Fixes (backend only, no schema change)
+- `services/feeFreeService.ts`: new exported `resolveFeeFreeRemaining(cumulative, stored)` =
+  `clamp(stored, 0, 500 − lifetime volume)`; used by `getFeeFreeStatus` → read path is now
+  self-healing against ANY counter drift. `reverseTransactionVolume` SQL now clamps the restore to
+  `LEAST(remaining + amt, GREATEST(0, 500 − GREATEST(0, cumulative − amt)))` (write path).
+- `services/feeFreeReconciliation.ts`: (a) `fee_tier` only graduates rows still on `'trial'` — the
+  old CASE stamped `'standard'` over EARNED tiers, repricing hostbay from growth 1.0% back to 1.5%
+  (observed live: prod flipped it growth→standard during this session); (b) `cumulative_volume_usd`
+  is now `GREATEST(existing, recomputed)` so a partial tx-history sum can't lower tracked volume.
+- `controller/user/profile.ts`: `/api/user/profile` clamps `fee_free_remaining_usd` the same way
+  (GrowPanel reads that field straight off the profile).
+
+### Verification
+- `__tests__/feeFreeEntitlement.test.ts` (NEW) — 11 unit tests, all pass: entitlement clamp,
+  status for the drifted $27.7k row, discount = full fees, reversal SQL clamp regression guard.
+- `tsc --noEmit` exit 0. Reconciliation UPDATE validated on the live DB with `EXPLAIN` (no write).
+- Live e2e (preview, hostbay login): `GET /api/company/fee-free-status` →
+  `{fee_free_remaining_usd: 0, is_fee_free: false, percentage_used: 100}`;
+  `/api/user/profile` → `fee_free_remaining_usd: 0`. Dashboard screenshot: no welcome modal, no
+  banner, GrowPanel shows "Fee-free trial complete" (correct graduated state).
+- NOTE: `tbl_user.fee_tier` for hostbay currently reads `'standard'` (stomped by prod's old
+  reconciliation code). The dashboard's own tier calc shows "Growth · 1%" from volume, but the
+  CHARGED rate comes from the column → 1.5% until the nightly `volumeTierReconciliation` restores
+  `'growth'` (it will, on the next run after deploy). No manual DB writes were made from this pod.
+

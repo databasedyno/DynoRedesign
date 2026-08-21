@@ -29,6 +29,25 @@ export interface FeeFreeStatus {
 }
 
 /**
+ * Trial entitlement is a function of LIFETIME volume — NOT of the stored
+ * counter alone. The counter can drift upwards (a failed-settlement reversal
+ * adds the amount back; see reverseTransactionVolume), which previously
+ * resurrected the "first $500 fee-free" promo — welcome popup, banner and an
+ * actual fee waiver — for established merchants who processed $20k+ long ago.
+ * Clamping the stored value to (500 − lifetime volume) makes every surface
+ * self-healing regardless of counter drift.
+ */
+export const resolveFeeFreeRemaining = (
+  cumulativeVolumeUsd: number,
+  storedRemainingUsd: number
+): number => {
+  const cumulative = Number.isFinite(cumulativeVolumeUsd) ? Math.max(0, cumulativeVolumeUsd) : 0;
+  const stored = Number.isFinite(storedRemainingUsd) ? storedRemainingUsd : 0;
+  const entitled = Math.max(0, FREE_TRIAL_VOLUME_USD - cumulative);
+  return Math.max(0, Math.min(stored, entitled));
+};
+
+/**
  * Get the fee-free status for a user
  */
 export const getFeeFreeStatus = async (userId: number): Promise<FeeFreeStatus | null> => {
@@ -40,8 +59,8 @@ export const getFeeFreeStatus = async (userId: number): Promise<FeeFreeStatus | 
     if (!user) return null;
 
     const data = user.get({ plain: true }) as any;
-    const remaining = parseFloat(data.fee_free_remaining_usd || "0");
     const cumulative = parseFloat(data.cumulative_volume_usd || "0");
+    const remaining = resolveFeeFreeRemaining(cumulative, parseFloat(data.fee_free_remaining_usd || "0"));
     const used = FREE_TRIAL_VOLUME_USD - remaining;
 
     return {
@@ -186,8 +205,15 @@ export const reverseTransactionVolume = async (
         cumulative_volume_usd: sequelize.literal(
           `GREATEST(0, COALESCE("cumulative_volume_usd", 0) - ${amountUsd})`
         ),
+        // Never restore MORE than the trial the user is still entitled to for
+        // their (post-reversal) lifetime volume. Without this clamp a failed
+        // settlement handed a fresh fee-free balance to merchants who had
+        // already blown past the $500 trial months earlier.
         fee_free_remaining_usd: sequelize.literal(
-          `LEAST(${FREE_TRIAL_VOLUME_USD}, COALESCE("fee_free_remaining_usd", 0) + ${amountUsd})`
+          `LEAST(
+             COALESCE("fee_free_remaining_usd", 0) + ${amountUsd},
+             GREATEST(0, ${FREE_TRIAL_VOLUME_USD} - GREATEST(0, COALESCE("cumulative_volume_usd", 0) - ${amountUsd}))
+           )`
         ),
       },
       {

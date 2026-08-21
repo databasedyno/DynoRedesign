@@ -29,6 +29,7 @@ import { createSession } from "../../services/sessionService";
 import { finalizeUploadedImage } from "../../services/objectStorage";
 import { is2FARequired } from "../../services/twoFactorService";
 import { normalizeLang } from "../../utils/emailI18n";
+import { resolveFeeFreeRemaining } from "../../services/feeFreeService";
 import { PROFILE_CACHE_TTL, _formatAttribution, parseUserAgent, createUserWallets, generateReferralCode, finalizeLogin, getAccessToken, sendEmailOTP, sendTelnyxSMS } from "./userShared";
 
 export const updateUser = async (req: express.Request, res: express.Response) => {
@@ -144,6 +145,14 @@ export const getProfile = async (req: express.Request, res: express.Response) =>
 
     const profileData = {
       ...user.dataValues,
+      // Clamp to the trial the user is still entitled to for their lifetime
+      // volume — the dashboard GrowPanel drives its fee-free CTA off this
+      // field, and a drifted counter must not offer the promo to a merchant
+      // who already processed way past the first $500.
+      fee_free_remaining_usd: resolveFeeFreeRemaining(
+        parseFloat((user.dataValues as any).cumulative_volume_usd || "0"),
+        parseFloat((user.dataValues as any).fee_free_remaining_usd || "0")
+      ),
       has_password: !!(userPwCheck?.dataValues?.password),
       stats: {
         companies: companiesCount,

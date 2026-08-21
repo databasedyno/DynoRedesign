@@ -46,10 +46,13 @@ export async function reconcileFeeFreeBalances(): Promise<void> {
     const [results] = await sequelize.query(`
       UPDATE tbl_user u
       SET 
-        cumulative_volume_usd = actual.total_volume,
-        fee_free_remaining_usd = GREATEST(0, ${FREE_TRIAL_VOLUME_USD} - actual.total_volume),
+        cumulative_volume_usd = GREATEST(COALESCE(u.cumulative_volume_usd, 0), actual.total_volume),
+        fee_free_remaining_usd = GREATEST(0, ${FREE_TRIAL_VOLUME_USD} - GREATEST(COALESCE(u.cumulative_volume_usd, 0), actual.total_volume)),
+        -- Only graduate users still marked 'trial'. Previously this stamped
+        -- 'standard' over EARNED volume tiers ('growth'/'scale'/'enterprise'),
+        -- silently repricing high-volume merchants back up to the 1.5% rate.
         fee_tier = CASE 
-          WHEN actual.total_volume >= ${FREE_TRIAL_VOLUME_USD} THEN 'standard'
+          WHEN actual.total_volume >= ${FREE_TRIAL_VOLUME_USD} AND u.fee_tier = 'trial' THEN 'standard'
           ELSE u.fee_tier
         END
       FROM (
@@ -63,7 +66,7 @@ export async function reconcileFeeFreeBalances(): Promise<void> {
       WHERE u.user_id = actual.user_id
         AND (
           -- Only update if current fee_free_remaining_usd is HIGHER than it should be
-          u.fee_free_remaining_usd > GREATEST(0, ${FREE_TRIAL_VOLUME_USD} - actual.total_volume)
+          u.fee_free_remaining_usd > GREATEST(0, ${FREE_TRIAL_VOLUME_USD} - GREATEST(COALESCE(u.cumulative_volume_usd, 0), actual.total_volume))
           -- Or if cumulative_volume_usd is out of sync
           OR COALESCE(u.cumulative_volume_usd, 0) < actual.total_volume
         )

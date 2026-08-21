@@ -1819,3 +1819,18 @@ integrations added.
 - Cause: `Containers/Login/styled.tsx` AuthPageBackground uses minHeight:100dvh + alignItems:center (vertically centers the logo+form block).
 - Fix: on the mobile breakpoint (down('sm')) set alignItems:'flex-start' + padding '32px 18px 24px' so content anchors near the top; desktop stays centered. Applies to /auth/login and /auth/register (shared shell).
 - Verified (testing agent iteration 41): mobile logo now at y≈62px (login) / y≈76px (register), desktop still centered, no console errors.
+
+### Fee-free trial entitlement — hardened (2026-08-21, fork session)
+- Reported bug: hostbay (user_id 1, $27.7k lifetime volume) saw the "first $500 fee-free" welcome
+  popup with a $75 balance. Cause: the stuck $75 ETH payment's failed settlements each called
+  `reverseTransactionVolume`, whose `LEAST(500, remaining + amt)` restore had NO notion of lifetime
+  entitlement, and `getFeeFreeStatus` derived `is_fee_free` from `remaining > 0` alone.
+- Product rule now enforced in ONE place: a merchant is in the fee-free trial ONLY while
+  `lifetime volume < FREE_TRIAL_VOLUME_USD ($500)`. `resolveFeeFreeRemaining()` in
+  `services/feeFreeService.ts` is the single source of truth; applied on the read path
+  (`getFeeFreeStatus`, `/api/user/profile`) and clamped on the write path (`reverseTransactionVolume`).
+- `feeFreeReconciliation` no longer overwrites EARNED volume tiers (it only graduates `'trial'`
+  rows) and never lowers `cumulative_volume_usd`.
+- Guarded by `backend/__tests__/feeFreeEntitlement.test.ts` (11 tests). Backend-only change; needs a
+  GitHub push → DigitalOcean deploy to take effect in production.
+
