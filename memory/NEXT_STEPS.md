@@ -6,6 +6,20 @@ _Last updated: 2026-08-14. Context: this session shipped (1) the USDC-icon bug f
 
 ---
 
+## 0 · Payment-architecture items (source of truth: `memory/CRYPTO_ARCHITECTURE_IMPLEMENTATION.md`, 2026-08-21)
+
+These outrank the product items below — they are money-path correctness, not polish.
+
+- **P0 — Missing webhook events** (Tier 1, not started): `payment.created`, `payment.expired`, `payment.overpaid`, `refund.*`. Integrators can only see settled payments today.
+- **P0 — Ledger rollout decision** (Tier 1, built but dark): `ENABLE_LEDGER` / `LEDGER_DUAL_WRITE` / `LEDGER_INVARIANT_CRON` are all still OFF in prod. Shipped code delivers nothing until flipped (staged rollout: enable → dual-write → backfill → invariant cron).
+- **P1 — Secret rotation + Binance key scoping** (Tier 3): live keys have been pasted into chat across 10+ pods. Rotation is genuinely overdue.
+- **P1 — Chain reorg handling** (Tier 2, not started): no reorg/rollback path on confirmed deposits.
+- **P2 — Signing isolation + withdrawal controls** (Tier 3, not started).
+- **Blocked on you — KYC/AML activation** (Tier 2): needs live Veriff credentials.
+- **Deferred by you — Refund execution flow** (Tier 1, 2026-08-21).
+
+---
+
 ## 1 · Next actions (prioritized)
 
 ### P1 — IA Batch C: product sales inline _(audit F1 / N2 — the last big IA batch)_
@@ -67,7 +81,7 @@ Per-product OG images, structured data, sitemap entries for live `{handle}` page
 - **Product asset storage**: GCS/Spaces creds not provided → uploads land on pod-local disk and die with the pod. Ask user for storage creds and wire `backend` asset service to them.
 - **Binance direct prices**: geo-blocked (HTTP 451) and the SOCKS tunnel needs `sshpass` (not installed). Rates flow via Tatum/CoinGecko fallback — fine for preview; revisit only if the user wants Binance-sourced rates in preview.
 - **OAuth in preview**: Google/GitHub buttons render but consoles only whitelist dynopay.com origins; email/password login is the preview path. (NextAuth's own /api/auth/* is also shadowed by the ingress.)
-- **Pod rebuilds** (happened 4×): full restore recipe lives in `memory/test_credentials.md` — sequential yarn installs, both env files, regenerated NEXTAUTH_SECRET, SAFE MODE, URL swap.
+- ~~**Pod rebuilds**~~ ✅ **SOLVED 2026-08-21** — one command: `bash scripts/pod-bootstrap.sh --pass '<vault passphrase>'`. Deps self-heal, env restores from the git-tracked `env.vault.enc`, URLs/SAFE MODE auto-set. Recipe: `memory/POD_SETUP.md`.
 
 ---
 
