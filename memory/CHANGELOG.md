@@ -24,6 +24,20 @@ lighting up the welcome modal, banner, widget and GrowPanel CTA — and would ha
 hostbay e2e → `is_fee_free: false`, `fee_free_remaining_usd: 0`, dashboard shows no popup/banner.
 **Ships with the next "Save to GitHub" → DigitalOcean deploy.**
 
+**POST-DEPLOY CONFIRMATION (2026-08-21 20:50 UTC).** User deployed to DigitalOcean (prod instance
+`dynoredesign-f58dbc85d-z6nwj` started ~20:41 UTC). The stuck ETH payment settled on the FIRST
+reconciliation pass after the deploy — `tbl_payment_journal` tx `0xecad4258…`:
+`payment_detected` 20:50:13 → `settlement_started` 20:50:20 → `settlement_tx_broadcast` 20:50:45 →
+`payment_completed` 20:51:00. `tbl_user_transaction` 646 = `successful`, `usd_value` 73.97,
+`outgoing_tx_hash` `0xb58e1d4e…`; `tbl_merchant_pool_transaction` 407 = `completed`
+(merchant 0.0309171 ETH, admin fee 0.00072607 ETH). On-chain receipt via public RPC:
+`status 0x1`, block 25806015. Merchant UI now shows **Settled**. The fee-free counter held at
+`0` (cumulative 26934.38 → 27009.38) — the clamp worked, no trial resurrection.
+Open follow-ups spotted: (a) `tbl_user.fee_tier` for user 1 is still `'standard'` (1.5%) instead of
+`'growth'` (1.0%) — the 03:00 UTC `volumeTierReconciliation` cron restores it, so this $75 tx was
+charged the higher rate; (b) `BLOCKCHAIR_API_KEY` expired 2026-07-03 (API returns 402) and is still
+referenced by ~10 wallet controllers.
+
 # SESSION 2026-08-21 (later) — **Tier-1 #2: missing webhook events SHIPPED** · **Tier-1 #3 ledger rolled out (stages 1–3) on the live DB**
 
 ## A. Opt-in webhook events — `payment.created`, `payment.expired`, `payment.overpaid`

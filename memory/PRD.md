@@ -1833,4 +1833,11 @@ integrations added.
   rows) and never lowers `cumulative_volume_usd`.
 - Guarded by `backend/__tests__/feeFreeEntitlement.test.ts` (11 tests). Backend-only change; needs a
   GitHub push → DigitalOcean deploy to take effect in production.
+- **DEPLOYED & CONFIRMED (2026-08-21 20:51 UTC):** after the user's DO deploy, the stuck $75 ETH
+  payment settled on the first reconciliation pass (settlement tx `0xb58e1d4e…`, on-chain status
+  0x1, block 25806015; tx 646 = `successful`; merchant pool tx 407 = `completed`; UI = "Settled").
+  Fee-free stayed at $0 through the settlement — no trial resurrection.
+- Open follow-ups: user 1 `fee_tier` still `'standard'` (1.5%) until the 03:00 UTC volume-tier cron
+  restores `'growth'` (1.0%); `BLOCKCHAIR_API_KEY` expired 2026-07-03 (402) but is still wired into
+  ~10 wallet controllers.
 
