@@ -1,54 +1,174 @@
 {
-  "component_name": "CreatorProfileHero",
-  "component_path": "Components/Page/Creator/CreatorProfile.js",
-  "layouts": {
-    "HeroWrapper": "MUI Box. maxWidth: '620px', mx: 'auto', pt: { xs: '64px', md: '88px' }. CRITICAL: This reserves clearance for the fixed 64/72px top marketing header so the avatar is never clipped.",
-    "CoverBand": "MUI Box. height: { xs: '200px', md: '240px' }, borderRadius: { xs: 0, md: '24px' }, position: 'relative', overflow: 'hidden'. Holds the uploaded cover image or gradient.",
-    "ContentWrapper": "MUI Box. display: 'flex', flexDirection: 'column', alignItems: 'center', mt: { xs: '-100px', md: '-120px' }, position: 'relative', zIndex: 10. This pulls the avatar and text up to overlap the cover elegantly.",
-    "SocialsRow": "MUI Box. display: 'flex', justifyContent: 'center', gap: 1.5, mt: 3."
-  },
-  "colors": {
-    "accent": "Must map to the creator's theme.accent_color. Fallback: '#4F46E5' (light) / '#818CF8' (dark).",
-    "bg": "theme.palette.background.default",
-    "surface": "rgba(255,255,255,0.03) in dark mode, rgba(0,0,0,0.02) in light mode",
-    "divider": "theme.palette.divider"
+  "project": "DynoPay UI/UX Redesign Blueprint",
+  "vision": "A transition from a fragmented, 'busy' multi-accent dashboard to a 'Coinbase/Stripe-class' high-trust, calm financial environment. The interface will prioritize information density through typography and spacing, eliminating unnecessary decorative chrome, heavy chips, and competing surfaces.",
+  "theme_strategy": {
+    "default": "light",
+    "rationale": "High-trust fintech (Coinbase, Stripe) relies on stark white backgrounds and precise typography to project institutional authority and clarity. Dark mode is fully supported but reserved as a user preference rather than the forced default. The light theme enforces 'quiet chrome' where data is the only hero."
   },
   "typography": {
-    "Name": "Typography variant='h4'. fontWeight: 800, letterSpacing: '-0.03em', fontSize: { xs: '24px', md: '28px' }, mt: 2.",
-    "Handle": "Typography. fontFamily: 'Roboto Mono, ui-monospace, monospace', fontSize: '15px', fontWeight: 500, color: 'accent', mt: 0.5, display: 'flex', alignItems: 'center'.",
-    "Bio": "Typography. fontFamily: 'Inter, sans-serif', fontSize: '15px', lineHeight: 1.6, color: 'text.secondary', maxWidth: '460px', textAlign: 'center', mt: 2."
+    "primary_strategy": "Consolidated to 3 precise typefaces to eliminate the current 4+ font chaos.",
+    "headings": {
+      "family": "Manrope",
+      "description": "Used for all H1-H4. Architectural, geometric, and perfectly legible. Replaces Geist and Unbounded.",
+      "weights": ["500", "700", "800"],
+      "tracking": "tracking-tight"
+    },
+    "body": {
+      "family": "IBM Plex Sans",
+      "description": "Clean, neutral, and readable for all dense table data and forms. Replaces Inter.",
+      "weights": ["400", "500"]
+    },
+    "numerals": {
+      "family": "IBM Plex Mono",
+      "description": "MANDATORY for all currency values, crypto amounts, and addresses to ensure tabular alignment in financial tables.",
+      "weights": ["400", "500"]
+    },
+    "hierarchy_rules": [
+      "H1 (Hero): text-4xl sm:text-5xl lg:text-6xl tracking-tighter",
+      "H2 (Section): text-2xl sm:text-3xl lg:text-4xl tracking-tight",
+      "H3 (Card/Widget): text-lg sm:text-xl font-semibold",
+      "Body: text-sm (desktop tables) or text-base (marketing)",
+      "Overlines: text-xs uppercase tracking-widest text-slate-500"
+    ]
   },
-  "visual_enhancers": {
-    "CoverScrim": "Absolute inset-0 over the CoverBand. background: `linear-gradient(to bottom, ${alpha(theme.palette.background.default, 0)} 20%, ${alpha(theme.palette.background.default, 0.95)} 100%)`. This blends the bottom of the cover into the background and ensures text contrast.",
-    "BareAmbientGlow": "Used in place of CoverBand when there is no cover. height: { xs: '160px', md: '200px' }, background: `radial-gradient(ellipse at top center, ${alpha(accentColor, 0.25)} 0%, ${alpha(theme.palette.background.default, 0)} 70%)`.",
-    "AvatarGlassRing": "For avatars with a photo. boxShadow: `0 0 0 4px ${alpha(theme.palette.background.default, 0.6)}`, border: `1px solid ${theme.palette.divider}`, backdropFilter: 'blur(12px)'.",
-    "MonogramAvatar": "For the bare state. background: `linear-gradient(135deg, ${accentColor}, darkerAccentColor)`, color: '#FFF', boxShadow: `0 8px 32px ${alpha(accentColor, 0.3)}`, border: '2px solid rgba(255,255,255,0.2)'."
+  "colors": {
+    "archetype": "Swiss & High-Contrast (Authority, Clarity, Truth)",
+    "light_mode": {
+      "background": "#FFFFFF",
+      "surface": "#FAFAFC (Tailwind slate-50)",
+      "surface_hover": "#F1F5F9 (Tailwind slate-100)",
+      "border": "#E2E8F0 (Tailwind slate-200)",
+      "text_primary": "#0F172A (Tailwind slate-900)",
+      "text_secondary": "#64748B (Tailwind slate-500)",
+      "brand_accent": "#4338CA (Tailwind indigo-700) - Deepened for trust"
+    },
+    "dark_mode": {
+      "background": "#09090B (Tailwind zinc-950)",
+      "surface": "#18181B (Tailwind zinc-900)",
+      "surface_hover": "#27272A (Tailwind zinc-800)",
+      "border": "#27272A (Tailwind zinc-800)",
+      "text_primary": "#FAFAFA (Tailwind zinc-50)",
+      "text_secondary": "#A1A1AA (Tailwind zinc-400)",
+      "brand_accent": "#6366F1 (Tailwind indigo-500)"
+    },
+    "semantic_status": {
+      "rule": "NEVER use full colored pills. Use a colored dot + text to reduce visual noise.",
+      "settled": "text-emerald-700 dark:text-emerald-400 (with 6px emerald-500 dot)",
+      "pending": "text-amber-700 dark:text-amber-400 (with 6px amber-500 dot)",
+      "failed": "text-rose-700 dark:text-rose-400 (with 6px rose-500 dot)"
+    }
+  },
+  "spacing_and_radius": {
+    "philosophy": "Generous Spacing, Sharp Corners.",
+    "radius": "rounded-lg (8px) for major cards, rounded-md (6px) for inner elements. Avoid extreme pill shapes (rounded-full) except for avatars and strict CTAs.",
+    "padding": "p-6 or p-8 inside cards to allow data to breathe.",
+    "table_density": "py-3 px-4 for table cells. Compact enough for data, loose enough for touch."
+  },
+  "components": {
+    "cards": "Flat solid surfaces (bg-white or bg-slate-50). 1px solid border (border-slate-200). NO drop shadows by default. Add shadow-sm ONLY on hover.",
+    "tables": "Table-first logic. Remove all background chips from rows. Use standard text. Align numerical values (IBM Plex Mono) strictly to the RIGHT.",
+    "buttons": "Primary: Solid brand color (Indigo), rounded-lg, font-medium. Secondary: Outline (border-slate-200), transparent bg, text-slate-900.",
+    "header": "Crystal Glassmorphism (backdrop-blur-xl bg-white/70 border-b border-slate-200).",
+    "status_indicators": "Dot + Text pattern. E.g., <div class='flex items-center gap-2'><div class='w-1.5 h-1.5 rounded-full bg-emerald-500'></div><span class='text-sm text-slate-600'>Settled</span></div>"
+  },
+  "layouts": {
+    "marketing": "Asymmetric Bento Grid (MODE A) for feature highlights. Massive whitespace (py-24 or py-32).",
+    "dashboard": "High Density Grid (MODE B). 1px borders, rigid grid-cols-12 structure. Use col-span-3 for KPIs, col-span-8 for main charts.",
+    "checkout": "Single-column centered card. Extreme focus. Everything else blurred or darkened. QR code must be at least 200x200px."
+  },
+  "responsive_strategy": {
+    "desktop_1920_1440": "Full persistent left sidebar (w-64). Max-width on main content container to prevent horizontal stretching (max-w-7xl).",
+    "laptop_1280": "Full persistent left sidebar. 3-column bento grids adapt perfectly.",
+    "tablet_1024_768": "Sidebar collapses to a narrow 'Rail' (icons only, w-16). This fixes the previous 'weakest breakpoint' issue. Tables convert to card-lists ONLY if below 768px. At 1024, keep tables but use horizontal scroll (overflow-x-auto) for overflow.",
+    "mobile_390": "Header with Hamburger menu. Bottom tab bar for top 4 core actions (Dashboard, Txs, Pay Links, Wallet). All grids become grid-cols-1."
+  },
+  "surface_redesign_directives": {
+    "Marketing_Landing": {
+      "hero": "Remove busy mockups. Use stark, massive typography: 'Settle Crypto Instantly.' Live handle-claim playground centered, embedded into a flat, high-contrast card.",
+      "trust_strip": "Grayscale sponsor/chain logos. No colorful distractions.",
+      "fee_pitch": "Interactive slider showing '1.5% -> 0.5%'. No stock photos, use abstract geometric assets."
+    },
+    "Auth": {
+      "layout": "Split screen. Left: Clean form (2-step logic kept, email -> password). Right: Subtle abstract 3D calm visual or brand pattern.",
+      "persona_picker": "Radio-group cards, 1px border, hover border-indigo-600. No heavy background fills."
+    },
+    "Dashboard_InApp": {
+      "problem_fixed": "Removed competing accents and collapsed the 7-item header.",
+      "header_cleanup": "Move theme toggle, language, and 'profile pill' into the Avatar dropdown. Header now only has: Breadcrumb/Title, Search, Bell, Avatar.",
+      "kpi_cards": "No more brightly colored backgrounds. White cards, 1px border. Big IBM Plex Mono number. Small green/red delta indicator.",
+      "volume_chart": "Move to top. Use Shadcn Recharts (AreaChart) with a single Indigo gradient fill.",
+      "quick_actions": "Move from scattered tiles to a unified 'Actions' dropdown or a single structured right-rail if space permits."
+    },
+    "Transactions_Table": {
+      "cleanup": "Strip all background color chips. Network/Coin becomes a small 16px icon + text. Status becomes dot+text. USD value right-aligned, crypto value sub-text right-aligned. Add 'Copy TxID' icon on hover."
+    },
+    "Payment_Links": {
+      "layout": "List view. Creation flow moves to a right-side Drawer (Sheet component) rather than navigating away or using a centered modal, preserving context."
+    },
+    "Wallet_Payouts": {
+      "layout": "Hero shows total processed in massive IBM Plex Mono. Per-coin wallets displayed as a masonry grid of minimal cards."
+    },
+    "Invoices_Tax": {
+      "pdf_preview": "Keep the drawer, but make the background of the drawer a darker slate to make the white PDF 'paper' pop."
+    },
+    "Storefront_Creator_Editor": {
+      "layout": "Two-pane. Left: Form controls (Theme picker). Right: Live sticky preview embedded in a 'mobile device' frame with scale-down to fit screen."
+    },
+    "Developers": {
+      "layout": "Retro-Futurism influence ONLY for the code blocks (dark theme syntax highlighting even in light mode). Rest of page follows standard light dashboard."
+    },
+    "Settings_Notifications": {
+      "layout": "Left-aligned vertical tabs (Shadcn Tabs with orientation=vertical) to handle the complex routing (Profile, Tax, Plan, etc.) without cluttering the main nav."
+    },
+    "Hosted_Checkout": {
+      "focus": "Absolute zero distraction. White card on a pale grey background. QR code top-center. 'SEND EXACTLY x BTC' in massive IBM Plex Mono. Progress bar for the countdown timer instead of just text."
+    },
+    "Public_Creator_Page": {
+      "customization": "Merchants can pick themes, but force strict contrast ratio checks via CSS variables. Enforce max-width 2xl for readability."
+    }
   },
   "motion": {
-    "SocialButtonHover": "transition: 'transform 0.2s ease, border-color 0.2s ease, background-color 0.2s ease'. :hover { transform: 'translateY(-2px)', borderColor: accentColor, backgroundColor: alpha(accentColor, 0.05) }"
+    "philosophy": "Micro-interactions for feedback. No slow, decorative delays.",
+    "hover_states": "Buttons scale down slightly (scale-95 duration-100) on click. Table rows get a subtle bg-slate-50 transition.",
+    "page_transitions": "Fade-in with a tiny 4px upward slide (translate-y-1 opacity-0 to translate-y-0 opacity-100, duration 200ms)."
+  },
+  "media": {
+    "strategy": "Avoid generic humans. Use modern architecture and minimalist geometric assets to convey 'institutional trust and advanced tech'.",
+    "image_urls": {
+      "marketing_hero_bg": {
+        "url": "https://images.unsplash.com/photo-1525286376485-60c84ee403d1?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2NDF8MHwxfHNlYXJjaHw0fHxtb2Rlcm4lMjBhcmNoaXRlY3R1cmUlMjBkZXRhaWx8ZW58MHx8fHwxNzg3MzQ2MjM3fDA&ixlib=rb-4.1.0&q=85",
+        "description": "Minimalist white archway architecture. Use as a very faint background asset (opacity-10) for marketing hero.",
+        "category": "marketing_background"
+      },
+      "auth_side_visual": {
+        "url": "https://images.pexels.com/photos/12977019/pexels-photo-12977019.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "description": "Abstract geometric 3D cubes. Perfect for the right side of the split auth screen.",
+        "category": "auth_visual"
+      },
+      "empty_state_workspace": {
+        "url": "https://images.unsplash.com/photo-1558478551-1a378f63328e?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzF8MHwxfHNlYXJjaHwxfHxtaW5pbWFsaXN0JTIwZGVzayUyMHdvcmtzcGFjZXxlbnwwfHx8fDE3ODczNDYyMzd8MA&ixlib=rb-4.1.0&q=85",
+        "description": "Minimalist desk. Use for 'No Transactions Yet' or 'Setup your store' empty states.",
+        "category": "empty_state"
+      }
+    }
   },
   "accessibility": {
-    "Contrast": "The 95% opacity CoverScrim guarantees WCAG AA contrast for the overlapping Name and Handle text over any bright image or pattern.",
-    "DataTestId": "All interactive elements, buttons, and links MUST include a data-testid attribute."
+    "contrast": "All text must pass APCA minimums. Avoid grey-on-grey. Use text-slate-500 on white minimally, prefer text-slate-600.",
+    "testing": "All interactive elements MUST include data-testid attribute (e.g., data-testid='checkout-pay-button')."
   },
-  "media": {},
-  "3d_libraries": "N/A",
-  "image_urls": {},
-  "instructions_to_main_agent": [
-    "Redesign ONLY the Hero section in Components/Page/Creator/CreatorProfile.js.",
-    "Do NOT alter the tip widget, featured-campaign card, or anything below the hero.",
-    "Use MUI v5 Box, Avatar, Typography, and IconButton with the `sx` prop. Import `alpha` from `@mui/material/styles` for dynamic opacity.",
-    "Implement the top clearance fix by applying `pt: { xs: '64px', md: '88px' }` to the outermost hero wrapper.",
-    "Implement the 'Rich State' using the 240px CoverBand, the CoverScrim gradient, and pull the ContentWrapper up via negative margin.",
-    "Implement the 'Bare State' using the BareAmbientGlow background and glowing MonogramAvatar.",
-    "Apply the AvatarGlassRing styling to the photo avatar so it transitions beautifully against the cover image.",
-    "Preserve all existing component logic, state, and props—only rewrite the rendering layout and styling of the Hero area."
+  "3d_libraries": {
+    "recommendation": "For marketing hero, consider using Spline for a lightweight, interactive 3D coin/card asset. For the dashboard volume chart, stick strictly to 2D Shadcn Recharts. Do NOT use heavy WebGL inside the logged-in merchant app."
+  },
+  "UNIVERSAL_GUIDELINES_FOR_MAIN_AGENT": [
+    "NEVER use generic centered layouts or simplistic gradients.",
+    "Create depth through layered design elements with z-index hierarchy, but rely on 1px borders rather than heavy drop shadows for this specific fintech look.",
+    "Use glass-morphism effects with backdrop filters (12-24px blur) only for headers and sticky elements.",
+    "You MUST NOT apply universal transition (e.g., transition: all).",
+    "You MUST NOT center align the app container in global CSS.",
+    "NEVER use AI assistant Emoji characters (🤖🧠💭💡) for icons. Use lucide-react.",
+    "Prioritize using pre-existing components from src/components/ui.",
+    "Use sonner for toasts.",
+    "Do NOT use complete transparent background in headers or overlays."
   ],
-  "UNIVERSAL GUIDELINES FOR MAIN AGENT": [
-    "Create depth through layered design elements with z-index hierarchy.",
-    "Use glass-morphism effects with backdrop filters (12-24px blur).",
-    "Do not apply universal transitions (`transition: all`); target specific properties.",
-    "Do not center align the app container globally, only specific wrappers.",
-    "All interactive elements MUST include a `data-testid` attribute."
-  ]
+  "instructions_to_main_agent": "Implement this blueprint strictly. This is a complete paradigm shift from the old design. Focus heavily on typographic hierarchy, removing unnecessary background color chips, and implementing the precise responsive layout rules (Rail nav for tablet, Bottom tabs for mobile). Validate all currency values are using the monospace font."
 }

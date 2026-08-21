@@ -1,3 +1,15 @@
+# SESSION 2026-08-21 (later) — UI/UX Reimagining blueprint (DOCUMENT-ONLY)
+- User request: reimagine UI/UX of all pages for Coinbase/BitPay-class cleanliness on all screen sizes;
+  document recommendations for review before any code changes.
+- Design agent produced a fresh "High-Trust Finance" identity → `/app/design_guidelines.json`
+  (light-first, Manrope/IBM Plex Sans/IBM Plex Mono, dot-status instead of pills, 1px-border flat cards,
+  indigo #4338CA/#6366F1, tablet icon-rail nav, mobile bottom tabs ≤640).
+- Authored the full reviewable blueprint → `/app/memory/UI_REDESIGN_BLUEPRINT_2026-08.md`
+  (diagnosis, 8 Calm Rules, component specs, breakpoint matrix, per-page directives for ~20 surfaces,
+  implementation map to styles/theme.ts + NewHeader/NewSidebar/etc., 6-phase build plan, acceptance criteria).
+- NO code changed; app untouched; SAFE MODE unchanged.
+
+
 # Changelog
 
 # SESSION 2026-08-21 (fork) — **Fee-free trial no longer resurrects for established merchants**

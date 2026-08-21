@@ -1,5 +1,22 @@
 # CURRENT STATE POINTER (2026-06 fork, latest first)
 
+LATEST SESSION (2026-08-21 later, UI/UX REIMAGINING — DOCUMENT-ONLY, AWAITING USER REVIEW):
+User asked to reimagine the UI/UX of ALL pages to Coinbase/BitPay-class cleanliness ("too busy / not
+clean") for all screen sizes, DOCUMENT-ONLY this round. User choices: fresh visual identity (design
+expert's call), both public + in-app surfaces, light/dark default = expert's call. Delivered:
+(1) `/app/design_guidelines.json` — new "High-Trust Finance" design system from the design agent:
+    LIGHT-FIRST default, 3 typefaces (Manrope headings / IBM Plex Sans body / IBM Plex Mono ALL figures),
+    dot+text statuses (NO filled pills), 1px-border flat cards (no shadows at rest), deepened indigo
+    #4338CA light / #6366F1 dark, tablet-1024 icon-RAIL nav (replaces phone bottom bar), mobile bottom
+    tabs ≤640 only.
+(2) `/app/memory/UI_REDESIGN_BLUEPRINT_2026-08.md` — the full reviewable blueprint: diagnosis vs
+    Coinbase/BitPay, 8 "Calm Rules", component language, breakpoint matrix (1920→390) with table→card
+    rules, per-page directives for ~20 surfaces (landing, auth, dashboard re-layout, quiet tables,
+    drawer-based create flows, checkout focus card, creator/shop), implementation map to the real MUI
+    theme files, and a 6-phase build plan (P1 tokens → P6 marketing) + acceptance checklist.
+NO CODE CHANGED. Next step: user reviews the blueprint and picks a starting phase (recommended P1
+Foundation). Grounding screenshots taken of landing/dashboard/transactions on this pod.
+
 LATEST SESSION (2026-08-21, Tier-1 #2 SHIPPED + Tier-1 #3 ROLLED OUT):
 (1) **Missing webhook events shipped** — `payment.created`, `payment.expired`, `payment.overpaid`
     (refunds deferred per user). OPT-IN per merchant via new `tbl_company.webhook_events` JSONB
