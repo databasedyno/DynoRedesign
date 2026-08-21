@@ -25,13 +25,6 @@ const GeistSans = localFont({
   display: "swap",
 });
 
-const GeistMono = localFont({
-  src: "../node_modules/geist/dist/fonts/geist-mono/GeistMono-Variable.woff2",
-  variable: "--font-geist-mono",
-  weight: "100 900",
-  display: "swap",
-});
-
 // Swiss landing / dashboard display + body + mono faces.
 // HISTORY: 2026-07-21 moved these off the Google Fonts <link> onto next/font
 // with display:"optional". Same cold-load bug as above (2026-08-14): Unbounded
@@ -40,22 +33,7 @@ const GeistMono = localFont({
 // (hero in Helvetica, 2 lines) while repeat visitors got Unbounded (3 lines).
 // FIX: display:"swap" so the brand font always applies. Self-hosted + preloaded
 // by next/font, so the swap window only exists on a genuinely cold first paint.
-import { Unbounded, IBM_Plex_Sans, IBM_Plex_Mono, Inter, Roboto_Mono } from "next/font/google";
-
-// Coinbase-style pairing: Inter for clean geometric UI text, Roboto Mono for
-// highly-legible neutral numerals. Loaded here so the Dashboard can adopt the
-// "Coinbase look" (Inter body + Roboto Mono figures).
-const InterFont = Inter({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  display: "swap",
-});
-
-const RobotoMonoFont = Roboto_Mono({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  display: "swap",
-});
+import { Unbounded, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 
 const UnboundedFont = Unbounded({
   subsets: ["latin"],
@@ -526,17 +504,19 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
     <MuiThemeProvider theme={activeTheme}>
       <CssBaseline />
       <Head>
-        {/* ─── Font CSS variables (Geist Sans + Geist Mono, self-hosted via next/font) ─── */}
+        {/* ─── Font CSS variables — Blueprint §1.3: consolidated to Manrope (display),
+             IBM Plex Sans (body/UI), IBM Plex Mono (money/figures). Legacy vars are
+             repointed at the new families so ~1000 existing references update for free. ─── */}
         <style>{`
           :root {
-            --font-sans: ${GeistSans.style.fontFamily}, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            --font-mono: ${GeistMono.style.fontFamily}, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-            --font-display: ${GeistSans.style.fontFamily}, -apple-system, sans-serif;
-            --font-hero: ${UnboundedFont.style.fontFamily}, ${GeistSans.style.fontFamily}, -apple-system, sans-serif;
-            --font-body: ${PlexSans.style.fontFamily}, ${GeistSans.style.fontFamily}, -apple-system, sans-serif;
-            --font-tech: ${PlexMono.style.fontFamily}, ${GeistMono.style.fontFamily}, ui-monospace, SFMono-Regular, Menlo, monospace;
-            --font-inter: ${InterFont.style.fontFamily}, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            --font-roboto-mono: ${RobotoMonoFont.style.fontFamily}, ui-monospace, "SFMono-Regular", Menlo, Monaco, Consolas, monospace;
+            --font-sans: ${PlexSans.style.fontFamily}, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --font-mono: ${PlexMono.style.fontFamily}, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            --font-display: "Manrope", ${PlexSans.style.fontFamily}, -apple-system, sans-serif;
+            --font-hero: "Manrope", ${UnboundedFont.style.fontFamily}, ${GeistSans.style.fontFamily}, -apple-system, sans-serif;
+            --font-body: ${PlexSans.style.fontFamily}, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --font-tech: ${PlexMono.style.fontFamily}, ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
+            --font-inter: ${PlexSans.style.fontFamily}, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --font-roboto-mono: ${PlexMono.style.fontFamily}, ui-monospace, "SFMono-Regular", Menlo, Monaco, Consolas, monospace;
           }
         `}</style>
         <title>{pageTitle}</title>

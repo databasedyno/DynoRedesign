@@ -5,7 +5,7 @@
  * hardcoded as the literal "#4F46E5" across ~66 call sites; import this token
  * instead so the brand color has a single source of truth.
  */
-export const BRAND_ACCENT = "#4F46E5";
+export const BRAND_ACCENT = "#4338CA";
 /** Darker indigo — hover / active / pressed states. */
 export const BRAND_ACCENT_DARK = "#4338CA";
 /** Lighter indigo — dark-mode text / soft variant. */

@@ -1,6 +1,19 @@
 # DynoPay UI/UX Redesign Blueprint — "Quiet Money"
-**Status: FOR REVIEW — document-only round. Zero code changed.**
+**Status: BUILD IN PROGRESS — Phase P1 (Foundation) SHIPPED 2026-08-21.**
 Companion machine-readable tokens: `/app/design_guidelines.json` (written by the design expert this session).
+
+> ### Build progress
+> - **P1 — Foundation ✅ SHIPPED (2026-08-21)** — light+dark color tokens (single indigo accent
+>   #4338CA light / #6366F1 dark, slate/zinc surfaces + 1px hairlines) in `styles/appTheme.ts`;
+>   typography consolidated to Manrope (headings via `--font-hero`) + IBM Plex Sans (body, `--font-sans`)
+>   + IBM Plex Mono (money, `--font-tech`/`MONO`) in `pages/_app.tsx`+`styles/uiKit.tsx` (Geist/Unbounded/
+>   Inter/Roboto-Mono wiring dropped); buttons/inputs/cards restyled (8px radius, no rest shadow, indigo
+>   focus) via app-theme component overrides; NEW `Components/UI/StatusDot.tsx` primitive + shared
+>   `StatusPill` converted to dot+text. Default theme mode intentionally NOT flipped (user choice).
+>   Per-table status→StatusDot rollout deferred to P3 (Tables). `BRAND_ACCENT` deepened to #4338CA.
+> - P2 — Chrome · P3 — Tables · P4 — Dashboard · P5 — Checkout/public · P6 — Marketing → PENDING.
+
+
 Grounding: live screenshots of the current landing / dashboard / transactions (2026-08-21), the 27-surface
 audit (`memory/UIUX_AUDIT_2026-06.md`, scored 8.4/10), and a Coinbase/BitPay/Stripe-class benchmark brief.
 

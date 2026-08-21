@@ -1,48 +1,51 @@
 import { createTheme } from "@mui/material";
 import { theme, themeDark } from "./theme";
-import { AUTH_LIME } from "./authTheme";
 
 /**
- * App / dashboard theme — "Bold Bento" (extends the auth + landing look into
- * the logged-in product). Applied on the `client` (dashboard) layout via
- * _app.tsx `activeTheme`. Built on top of the existing dashboard theme so all
- * component sizing / spacing / typography is preserved — we re-skin the palette
- * to the cyber-lime accent + bold dark/frost canvases, and re-color the custom
- * Button variants (rounded / pills / bluepill) that hardcoded the old blue.
+ * App / dashboard theme — "Quiet Money" (UI Redesign Blueprint 2026-08, Phase 1).
+ * Applied on the `client` (dashboard) layout via _app.tsx `activeTheme`. Built on
+ * top of the existing dashboard theme (styles/theme.ts) so all component sizing /
+ * spacing survives — Phase 1 re-skins the palette to a single deep-indigo accent
+ * on calm slate/zinc canvases, consolidates the heading font to Manrope, and
+ * squares off the CTA radius (pill → 8px) per the "restraint" system.
  *
- * Dark  → near-void canvas + cyber-lime (#CCFF00) accent.
- * Light → frost canvas + bold near-black primary with lime text.
+ * Light → white/near-white canvas, slate-200 hairlines, indigo-700 accent.
+ * Dark  → zinc-950 canvas, zinc-900 surfaces, indigo-500 accent.
  *
  * Scoped to the dashboard only — the auth (/auth/*) and landing (home) themes
- * are untouched.
+ * are untouched (they get reskinned in later phases).
  */
 
-const INDIGO_HOVER = "#6366F1";
+// Brand accent (Blueprint §1.2): deepened indigo-700 for trust on white (light),
+// indigo-500 for legibility on the dark canvas.
+const INDIGO_LIGHT = "#4338CA"; // indigo-700
+const INDIGO_LIGHT_HOVER = "#4F46E5"; // indigo-600
+const INDIGO_DARK = "#6366F1"; // indigo-500
+const INDIGO_DARK_HOVER = "#818CF8"; // indigo-400
 
 /**
- * Brand display font for IN-APP headings (2026-07-21 font sweep — option B).
- * `var(--font-hero)` = self-hosted Unbounded (defined in _app.tsx). We apply it
- * to the semantic heading variants h1–h6 only (18px+), i.e. page titles +
- * section / card headers. Body text, subtitles, captions, overlines and table
- * column headers deliberately stay on `var(--font-sans)` (Geist) so dense UI
- * doesn't turn heavy. Scoped to the app/dashboard/admin theme only — the
- * marketing (homeTheme) + auth themes are untouched.
+ * Heading font (Blueprint §1.3): consolidate 5+ families → Manrope for all
+ * H1–H6 (page titles + section/card headers). Body / tables / forms stay on the
+ * body sans (var(--font-body) = IBM Plex Sans) and money on IBM Plex Mono.
+ * Manrope is self-hosted (@font-face in globals.css) so there is no new font cost.
  */
-const HEADING_FONT = "var(--font-hero), var(--font-sans), system-ui, sans-serif";
+const HEADING_FONT = "'Manrope', var(--font-hero), var(--font-sans), system-ui, sans-serif";
+const BODY_FONT = "var(--font-body), 'IBM Plex Sans', var(--font-sans), system-ui, sans-serif";
 const headingTypography = {
-  h1: { fontFamily: HEADING_FONT },
-  h2: { fontFamily: HEADING_FONT },
-  h3: { fontFamily: HEADING_FONT },
-  h4: { fontFamily: HEADING_FONT },
+  fontFamily: BODY_FONT,
+  h1: { fontFamily: HEADING_FONT, letterSpacing: "-0.02em" },
+  h2: { fontFamily: HEADING_FONT, letterSpacing: "-0.02em" },
+  h3: { fontFamily: HEADING_FONT, letterSpacing: "-0.015em" },
+  h4: { fontFamily: HEADING_FONT, letterSpacing: "-0.01em" },
   h5: { fontFamily: HEADING_FONT },
   h6: { fontFamily: HEADING_FONT },
 };
 
 /**
- * Re-declares the custom Button variants with an accent fill/outline so the
- * dashboard CTAs match the bento brand. Full style is included (not just color)
- * so it is correct whether MUI replaces or concatenates the `variants` array.
- * `fillBg`/`fillText` = primary fill; `fillHoverBg` = hover fill.
+ * Re-declares the custom Button variants with the indigo accent + an 8px radius
+ * (Blueprint §3: primary = solid indigo, 8px, medium weight — pills retired for
+ * standard CTAs). Full style is included (not just color) so it's correct
+ * whether MUI replaces or concatenates the `variants` array.
  */
 const buttonVariants = (fillBg: string, fillText: string, fillHoverBg: string) => [
   {
@@ -50,13 +53,14 @@ const buttonVariants = (fillBg: string, fillText: string, fillHoverBg: string) =
     style: {
       border: "1px solid transparent",
       color: fillText,
-      padding: "12px 30px",
+      padding: "10px 22px",
       background: fillBg,
-      fontWeight: 600,
-      borderRadius: "50px",
+      fontWeight: 500,
+      borderRadius: "8px",
       textTransform: "none" as const,
       cursor: "pointer",
-      "&:hover": { color: fillText, background: fillHoverBg },
+      boxShadow: "none",
+      "&:hover": { color: fillText, background: fillHoverBg, boxShadow: "none" },
       "&.Mui-disabled": {
         background: fillBg,
         color: fillText,
@@ -65,24 +69,25 @@ const buttonVariants = (fillBg: string, fillText: string, fillHoverBg: string) =
         cursor: "not-allowed",
       },
       "&.MuiButton-roundedSuccess": {
-        background: "#00A651",
+        background: "#059669",
         color: "#fff",
-        "&:hover": { color: "#00A651", background: "#fff" },
+        "&:hover": { color: "#fff", background: "#047857" },
       },
       "&.MuiButton-roundedError": {
-        background: "#E8484A",
+        background: "#E11D48",
         color: "#fff",
-        "&:hover": { color: "#E8484A", background: "#fff" },
+        "&:hover": { color: "#fff", background: "#BE123C" },
       },
       "&.MuiButton-roundedSecondary": {
-        background: "#12131C",
-        color: "#fff",
-        "&:hover": { color: "#12131C", background: "#fff" },
+        background: "transparent",
+        color: "inherit",
+        border: "1px solid",
+        "&:hover": { background: "rgba(100,116,139,0.08)" },
       },
       "&.MuiButton-roundedWhite": {
         background: "#fff",
-        color: "#12131C",
-        "&:hover": { color: "#fff", background: "#12131C" },
+        color: "#0F172A",
+        "&:hover": { color: "#fff", background: "#0F172A" },
       },
     },
   },
@@ -91,11 +96,12 @@ const buttonVariants = (fillBg: string, fillText: string, fillHoverBg: string) =
     style: {
       border: "1px solid",
       borderColor: fillBg,
-      padding: "10px 30px",
+      padding: "9px 22px",
       color: fillBg,
-      fontWeight: 600,
-      borderRadius: "15px",
-      fontSize: "16px",
+      fontWeight: 500,
+      borderRadius: "8px",
+      fontSize: "15px",
+      textTransform: "none" as const,
       "&:hover": { color: fillText, background: fillBg },
     },
   },
@@ -103,121 +109,166 @@ const buttonVariants = (fillBg: string, fillText: string, fillHoverBg: string) =
     props: { variant: "bluepill" as const },
     style: {
       border: "1px solid transparent",
-      padding: "10px 30px",
+      padding: "9px 22px",
       color: fillText,
       background: fillBg,
-      fontWeight: 600,
-      borderRadius: "15px",
-      fontSize: "16px",
+      fontWeight: 500,
+      borderRadius: "8px",
+      fontSize: "15px",
+      textTransform: "none" as const,
+      boxShadow: "none",
       "&:hover": { color: fillText, background: fillHoverBg },
       "&.Mui-disabled": { background: fillBg, color: fillText, opacity: 0.45 },
     },
   },
 ];
 
+/** Shared component overrides (Blueprint §3): calm buttons, hairline cards, 8px inputs. */
+const sharedComponents = (isDark: boolean) => ({
+  MuiButton: {
+    styleOverrides: {
+      root: {
+        textTransform: "none" as const,
+        borderRadius: 8,
+        fontWeight: 500,
+        boxShadow: "none",
+        "&:hover": { boxShadow: "none" },
+      },
+      ...(isDark
+        ? {
+            outlinedPrimary: {
+              color: INDIGO_DARK_HOVER,
+              borderColor: "rgba(129,140,248,0.45)",
+              "&:hover": {
+                borderColor: INDIGO_DARK_HOVER,
+                backgroundColor: "rgba(129,140,248,0.08)",
+              },
+            },
+            textPrimary: {
+              color: INDIGO_DARK_HOVER,
+              "&:hover": { backgroundColor: "rgba(129,140,248,0.08)" },
+            },
+          }
+        : {}),
+    },
+    variants: isDark
+      ? buttonVariants(INDIGO_DARK, "#FFFFFF", INDIGO_DARK_HOVER)
+      : buttonVariants(INDIGO_LIGHT, "#FFFFFF", INDIGO_LIGHT_HOVER),
+  },
+  // Cards: flat solid surface + 1px hairline, no drop shadow at rest (§1.4).
+  MuiCard: {
+    styleOverrides: {
+      root: {
+        backgroundImage: "none",
+        border: `1px solid ${isDark ? "#27272A" : "#E2E8F0"}`,
+        boxShadow: "none",
+        borderRadius: 8,
+      },
+    },
+  },
+  // Inputs: 1px border, 8px radius, indigo focus ring (§3).
+  MuiOutlinedInput: {
+    styleOverrides: {
+      root: {
+        borderRadius: 8,
+        "& .MuiOutlinedInput-notchedOutline": {
+          borderColor: isDark ? "#27272A" : "#E2E8F0",
+        },
+        "&:hover .MuiOutlinedInput-notchedOutline": {
+          borderColor: isDark ? "#3F3F46" : "#CBD5E1",
+        },
+        "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+          borderColor: isDark ? INDIGO_DARK : INDIGO_LIGHT,
+          borderWidth: 2,
+        },
+      },
+    },
+  },
+  ...(isDark
+    ? {
+        // a11y: disabled/read-only inputs were gray-on-gray in dark mode.
+        MuiInputBase: {
+          styleOverrides: {
+            input: {
+              "&.Mui-disabled": {
+                WebkitTextFillColor: "rgba(255,255,255,0.62)",
+                color: "rgba(255,255,255,0.62)",
+              },
+            },
+          },
+        },
+      }
+    : {}),
+});
+
 export const appThemeDark = createTheme(themeDark, {
   palette: {
     mode: "dark",
     primary: {
-      main: AUTH_LIME,
-      dark: INDIGO_HOVER,
+      main: INDIGO_DARK,
+      dark: INDIGO_LIGHT_HOVER,
       light: "rgba(99,102,241,0.16)",
       contrastText: "#FFFFFF",
-      hover: INDIGO_HOVER,
+      hover: INDIGO_DARK_HOVER,
     } as any,
     secondary: {
-      main: "#1E1E28",
-      dark: "#2A2A38",
-      light: "#191922",
-      contrastText: "#3A3D52",
+      main: "#18181B",
+      dark: "#27272A",
+      light: "#1C1C1F",
+      contrastText: "#A1A1AA",
     },
-    background: { default: "#08080A", paper: "#141417" },
-    text: { primary: "#FFFFFF", secondary: "#C9C9D1", disabled: "#86868F" },
-    divider: "rgba(255,255,255,0.10)",
+    background: { default: "#09090B", paper: "#18181B" },
+    text: { primary: "#FAFAFA", secondary: "#A1A1AA", disabled: "#71717A" },
+    divider: "#27272A",
     border: {
-      main: "rgba(255,255,255,0.12)",
-      focus: AUTH_LIME,
-      success: "#00E676",
-      error: "#FF6B5D",
+      main: "#27272A",
+      focus: INDIGO_DARK,
+      success: "#34D399",
+      error: "#FB7185",
     },
-    success: { main: "#00E676", dark: "#00C853", light: "rgba(0,230,118,0.14)" },
-    error: { main: "#FF6B5D" },
+    success: { main: "#34D399", dark: "#10B981", light: "rgba(52,211,153,0.14)" },
+    error: { main: "#FB7185" },
     action: {
       hover: "rgba(255,255,255,0.06)",
       selected: "rgba(99,102,241,0.12)",
     },
   } as any,
   typography: headingTypography,
-  components: {
-    // UI/UX audit a11y fix: disabled/read-only inputs (Settings → name/email)
-    // were gray-on-gray in dark mode. Keep them clearly non-editable but legible.
-    MuiInputBase: {
-      styleOverrides: {
-        input: {
-          "&.Mui-disabled": {
-            WebkitTextFillColor: "rgba(255,255,255,0.62)",
-            color: "rgba(255,255,255,0.62)",
-          },
-        },
-      },
-    },
-    MuiButton: {
-      variants: buttonVariants(AUTH_LIME, "#FFFFFF", INDIGO_HOVER),
-      // Dark-safe brand foreground for built-in MUI outlined/text primary
-      // buttons: raw indigo #4F46E5 fails WCAG AA on the dark paper, so use
-      // the lighter #818CF8 (~5.9:1). Light theme keeps MUI defaults.
-      styleOverrides: {
-        outlinedPrimary: {
-          color: "#818CF8",
-          borderColor: "rgba(129,140,248,0.5)",
-          "&:hover": {
-            borderColor: "#818CF8",
-            backgroundColor: "rgba(129,140,248,0.08)",
-          },
-        },
-        textPrimary: {
-          color: "#818CF8",
-          "&:hover": { backgroundColor: "rgba(129,140,248,0.08)" },
-        },
-      },
-    },
-  },
+  components: sharedComponents(true),
 });
 
 export const appThemeLight = createTheme(theme, {
   palette: {
     mode: "light",
     primary: {
-      main: "#0A0A0A",
-      dark: "#000000",
-      light: "rgba(10,10,10,0.06)",
+      main: INDIGO_LIGHT,
+      dark: "#3730A3",
+      light: "rgba(67,56,202,0.08)",
       contrastText: "#FFFFFF",
-      hover: "#1F1F1F",
+      hover: INDIGO_LIGHT_HOVER,
     } as any,
     secondary: {
-      main: "#F4F6FA",
-      dark: "#E9ECF2",
-      light: "#F4F6FA",
-      contrastText: "#D9D9D9",
+      main: "#F1F5F9",
+      dark: "#E2E8F0",
+      light: "#F8FAFC",
+      contrastText: "#475569",
     },
-    background: { default: "#EEF1F6", paper: "#FFFFFF" },
-    text: { primary: "#0A0A0A", secondary: "#3F3F46", disabled: "#73737C" },
-    divider: "rgba(10,10,10,0.10)",
+    background: { default: "#FAFAFC", paper: "#FFFFFF" },
+    text: { primary: "#0F172A", secondary: "#475569", disabled: "#94A3B8" },
+    divider: "#E2E8F0",
     border: {
-      main: "rgba(10,10,10,0.12)",
-      focus: "#0A0A0A",
-      success: "#00A651",
-      error: "#E8484A",
+      main: "#E2E8F0",
+      focus: INDIGO_LIGHT,
+      success: "#059669",
+      error: "#E11D48",
     },
-    success: { main: "#00A651", dark: "#008a44", light: "rgba(0,166,81,0.12)" },
-    error: { main: "#E8484A" },
+    success: { main: "#059669", dark: "#047857", light: "rgba(5,150,105,0.10)" },
+    error: { main: "#E11D48" },
     action: {
-      hover: "rgba(10,10,10,0.04)",
-      selected: "rgba(10,10,10,0.06)",
+      hover: "#F1F5F9",
+      selected: "rgba(67,56,202,0.06)",
     },
   } as any,
   typography: headingTypography,
-  components: {
-    MuiButton: { variants: buttonVariants("#0A0A0A", "#FFFFFF", "#1F1F1F") },
-  },
+  components: sharedComponents(false),
 });
