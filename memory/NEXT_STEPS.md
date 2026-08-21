@@ -11,7 +11,7 @@ _Last updated: 2026-08-14. Context: this session shipped (1) the USDC-icon bug f
 These outrank the product items below — they are money-path correctness, not polish.
 
 - **P0 — Missing webhook events** ✅ **SHIPPED 2026-08-21**: `payment.created`, `payment.expired`, `payment.overpaid` live, opt-in per merchant (Developers → Webhooks checkboxes / `webhook_events`). `refund.*` still blocked on the deferred refund flow (#1).
-- **P0 — Ledger rollout** 🚧 stages 1–3 DONE on the live DB (tables, 7 accounts, 407 settlements backfilled, invariant OK). REMAINING: flip `LEDGER_DUAL_WRITE=true`, then `LEDGER_INVARIANT_CRON=true` in the PRODUCTION environment (Railway/DigitalOcean) — agents cannot set prod env vars.
+- **P0 — Ledger rollout** ✅ **COMPLETE 2026-08-21**: all 3 flags now ON in the prod DO `dynopay` app (`ENABLE_LEDGER`/`LEDGER_DUAL_WRITE`/`LEDGER_INVARIANT_CRON`=true, deploy `713cc109` ACTIVE). Runtime log confirms dualWrite+invariantCron on; first invariant sweep OK (1612 rows / 407 batches, zero drift).
 - **P1 — Secret rotation + Binance key scoping** (Tier 3): live keys have been pasted into chat across 10+ pods. Rotation is genuinely overdue.
 - **P1 — Chain reorg handling** (Tier 2, not started): no reorg/rollback path on confirmed deposits.
 - **P2 — Signing isolation + withdrawal controls** (Tier 3, not started).
