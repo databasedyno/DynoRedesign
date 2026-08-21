@@ -30,6 +30,7 @@ import {
   handleCartPaymentSettled,
 } from "../../services/orderFulfillmentService";
 import { UPLOAD_ROOT } from "../../middleware/uploadProductAsset";
+import { getSpacesObjectStream } from "../../services/objectStorage";
 import sequelize from "../../utils/dbInstance";
 import {
   sendOrderReceiptEmail,
@@ -123,6 +124,40 @@ export const downloadAsset = async (
     });
     if (!itemRow) {
       return res.status(403).send("Asset not part of this order.");
+    }
+
+    if (asset.dataValues.storage_backend === "spaces") {
+      // Stream the PRIVATE object back through this server-gated route so the
+      // per-order token + rate limits still apply (no public/presigned URLs).
+      try {
+        const { stream, contentLength } = await getSpacesObjectStream(
+          asset.dataValues.storage_object
+        );
+        res.setHeader(
+          "Content-Disposition",
+          `attachment; filename="${asset.dataValues.filename.replace(/"/g, "")}"`
+        );
+        res.setHeader(
+          "Content-Type",
+          asset.dataValues.mime_type || "application/octet-stream"
+        );
+        if (typeof contentLength === "number") {
+          res.setHeader("Content-Length", String(contentLength));
+        }
+        stream.on("error", (streamErr: any) => {
+          apiLogger.error(
+            `[orderController] Spaces stream error: ${streamErr?.message || streamErr}`
+          );
+          if (!res.headersSent) res.status(502).send("Download failed.");
+          else res.destroy();
+        });
+        return stream.pipe(res);
+      } catch (spacesErr: any) {
+        apiLogger.error(
+          `[orderController] Spaces download failed: ${spacesErr?.message || spacesErr}`
+        );
+        return res.status(502).send("Download failed.");
+      }
     }
 
     if (asset.dataValues.storage_backend === "gcs") {

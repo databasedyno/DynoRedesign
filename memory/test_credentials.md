@@ -21,8 +21,16 @@
   geo-block (known/harmless, CoinGecko fallback works). Routes /, /auth/login, /pay, /api/status,
   /hostbay, /hostbay/shop all 200. Full 2-step login **hostbay@moxx.co / Katiekendra123@** →
   /dashboard live data (7D $1,202.74 / 20 payments, monthly $27,008.35, Growth tier, code
-  DYNO-9XVPUY, 13 wallets, recent ETH tx 0.03039103 ≈ $75.63 Paid). NO app code changed;
-  vault NOT re-sealed (creds unchanged from prior pods).
+  DYNO-9XVPUY, 13 wallets, recent ETH tx 0.03039103 ≈ $75.63 Paid). Vault NOT re-sealed.
+- 🆕 STORAGE FIX (this pod): wired DigitalOcean Spaces for durable PRODUCT digital-asset storage (was
+  ephemeral local disk). Added SPACES_REGION/SPACES_BUCKET/SPACES_ENDPOINT/SPACES_CDN_ENDPOINT/
+  SPACES_ACCESS_KEY/SPACES_SECRET_KEY to `backend/.env` (values provided by user in chat — NOT written
+  here; they trip the secrets guard. Re-add them on every new pod, and set them in the DO prod app env
+  for prod durability). Bucket=dynopay-uploads-6708cc37, region=ams3. Code: objectStorage.ts private
+  upload/get/delete helpers; productController.uploadAsset → Spaces PRIVATE object (storage_backend='spaces');
+  orderController.downloadAsset streams the private object through the gated route; gcsAssetService startup
+  log now recognizes Spaces (warning suppressed). NEW admin endpoint GET /api/diagnostics/storage-selftest
+  (safe PUT/GET/DELETE round-trip under _selftest/). Verified by testing agent: roundtrip_ok=true, no regressions.
 
 
 ## ✅ LATEST SETUP (2026-08-21, 12th pod) — env rebuilt from user's pasted creds

@@ -22,6 +22,7 @@ import {
 } from "../../helper";
 import { apiLogger } from "../../utils/loggers";
 import { UPLOAD_ROOT } from "../../middleware/uploadProductAsset";
+import { isSpacesEnabled, uploadPrivateFileToSpaces } from "../../services/objectStorage";
 
 // ---------- helpers ----------
 
@@ -625,14 +626,47 @@ export const uploadAsset = async (
     // Storage object = relative path under UPLOAD_ROOT (portable if UPLOAD_ROOT changes).
     const relPath = path.relative(UPLOAD_ROOT, file.path).replace(/\\/g, "/");
 
+    // Durable storage: when DigitalOcean Spaces is configured, push the file to
+    // Spaces as a PRIVATE object (paid deliverables must NEVER be public-read)
+    // and drop the ephemeral local copy — this is what stops redeploys from
+    // wiping paid buyers' downloads. Any Spaces error falls back to local disk.
+    let storageBackend = "local";
+    let storageBucket: string | null = null;
+    let storageObject = relPath;
+    if (isSpacesEnabled()) {
+      try {
+        const key = `product-assets/${relPath}`;
+        const { bucket, object } = await uploadPrivateFileToSpaces(
+          file.path,
+          key,
+          file.mimetype || "application/octet-stream",
+          file.size
+        );
+        storageBackend = "spaces";
+        storageBucket = bucket;
+        storageObject = object;
+        // Best-effort cleanup of the ephemeral local copy.
+        fs.promises.unlink(file.path).catch(() => { /* ignore */ });
+        apiLogger.info(`[productAsset] Uploaded asset to Spaces bucket ${bucket}: ${object}`);
+      } catch (spacesErr: any) {
+        apiLogger.error(
+          `[productAsset] Spaces upload failed, falling back to local disk: ${spacesErr?.message || spacesErr}`
+        );
+        storageBackend = "local";
+        storageBucket = null;
+        storageObject = relPath;
+      }
+    }
+
     const asset: any = await productAssetModel.create({
       product_id: productId,
       merchant_user_id: uid,
       filename: file.originalname.slice(0, 255),
       mime_type: (file.mimetype || "application/octet-stream").slice(0, 100),
       size_bytes: file.size,
-      storage_backend: "local",
-      storage_object: relPath,
+      storage_backend: storageBackend,
+      storage_bucket: storageBucket,
+      storage_object: storageObject,
       sha256: sha,
       is_active: true,
     });

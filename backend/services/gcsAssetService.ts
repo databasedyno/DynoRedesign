@@ -33,6 +33,7 @@
  *     GCS_PRODUCT_BUCKET      → e.g. "dynopay-product-assets"  (NEW — add on activation)
  */
 import { apiLogger } from "../utils/loggers";
+import { isSpacesEnabled, SPACES_BUCKET } from "./objectStorage";
 
 export const GCS_PRODUCT_BUCKET = process.env.GCS_PRODUCT_BUCKET || "";
 
@@ -86,9 +87,20 @@ export async function getGcsSignedUrl(_bucket: string, _object: string): Promise
  */
 export function logStorageStrategyOnStartup(uploadRoot: string): void {
   const gcsOn = isGcsConfigured();
+  const spacesOn = isSpacesEnabled();
   const looksProd = String(process.env.NODE_ENV || "").toLowerCase() === "production";
   const ephemeralHint =
     uploadRoot === "/app/uploads/products" || uploadRoot.startsWith("/app/uploads");
+
+  // DigitalOcean Spaces (S3-compatible) is the primary durable backend. When it
+  // is configured, product assets are uploaded as PRIVATE objects and streamed
+  // back through the gated download route — nothing is lost on redeploy.
+  if (spacesOn) {
+    apiLogger.info(
+      `[storage] Product asset backend: DigitalOcean Spaces (bucket=${SPACES_BUCKET}) — durable, private objects`
+    );
+    return;
+  }
 
   if (gcsOn) {
     apiLogger.info(
@@ -107,8 +119,10 @@ export function logStorageStrategyOnStartup(uploadRoot: string): void {
       `${uploadRoot}. On DigitalOcean App Platform / Cloud Run / Fargate, ` +
       "this filesystem is EPHEMERAL — every deploy will wipe uploaded product " +
       "files, leaving paid buyers with dead download links. Either mount a " +
-      "persistent volume at UPLOAD_ROOT or configure GCS (set GCS_PRODUCT_BUCKET " +
-      "and complete gcsAssetService stubs). See PRODUCT_CATALOG_SPEC.md §9."
+      "persistent volume at UPLOAD_ROOT, configure DigitalOcean Spaces (set " +
+      "SPACES_REGION/SPACES_BUCKET/SPACES_ACCESS_KEY/SPACES_SECRET_KEY), or " +
+      "configure GCS (set GCS_PRODUCT_BUCKET and complete gcsAssetService stubs). " +
+      "See PRODUCT_CATALOG_SPEC.md §9."
     );
   }
 }

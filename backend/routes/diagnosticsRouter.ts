@@ -13,8 +13,91 @@ import { enqueueWebhook } from "../services/webhookQueue";
 import { sweepExpiredPaymentLinks } from "../services/paymentExpirySweeper";
 import { webhookLogs } from "../utils/loggers";
 import tatumHttp from "../utils/tatumHttp";
+import fs from "fs";
+import os from "os";
+import path from "path";
+import crypto from "crypto";
+import {
+  isSpacesEnabled,
+  uploadPrivateFileToSpaces,
+  getSpacesObjectStream,
+  deleteSpacesObject,
+  spacesConfigSummary,
+} from "../services/objectStorage";
 
 const router = express.Router();
+
+/**
+ * GET /diagnostics/storage-selftest
+ * Verifies durable object storage (DigitalOcean Spaces) end-to-end WITHOUT
+ * touching any user/DB data: writes a tiny random PRIVATE object under
+ * `_selftest/`, reads it back, checks the bytes round-trip, then deletes it.
+ * Proves the configured SPACES_* credentials + bucket + endpoint actually work.
+ * Admin only.
+ */
+router.get(
+  "/storage-selftest",
+  adminAuthMiddleware,
+  async (_req: express.Request, res: express.Response) => {
+    const config = spacesConfigSummary();
+    if (!isSpacesEnabled()) {
+      return res.status(200).json({
+        success: true,
+        spaces_enabled: false,
+        roundtrip_ok: false,
+        config,
+        note: "Spaces not configured — product assets fall back to local disk.",
+      });
+    }
+
+    const nonce = crypto.randomBytes(16).toString("hex");
+    const key = `_selftest/${Date.now()}-${nonce}.txt`;
+    const payload = `dynopay-storage-selftest-${nonce}`;
+    const tmp = path.join(os.tmpdir(), `dyno-selftest-${nonce}.txt`);
+
+    try {
+      await fs.promises.writeFile(tmp, payload, "utf8");
+      const { object } = await uploadPrivateFileToSpaces(
+        tmp,
+        key,
+        "text/plain",
+        Buffer.byteLength(payload)
+      );
+
+      // Read it back and verify the bytes match.
+      const { stream } = await getSpacesObjectStream(object);
+      const chunks: Buffer[] = [];
+      await new Promise<void>((resolve, reject) => {
+        stream.on("data", (c: Buffer) => chunks.push(Buffer.from(c)));
+        stream.on("end", () => resolve());
+        stream.on("error", reject);
+      });
+      const readBack = Buffer.concat(chunks).toString("utf8");
+      const roundtripOk = readBack === payload;
+
+      // Cleanup (best-effort) — never leave self-test objects behind.
+      await deleteSpacesObject(object).catch(() => { /* ignore */ });
+      await fs.promises.unlink(tmp).catch(() => { /* ignore */ });
+
+      return res.status(200).json({
+        success: true,
+        spaces_enabled: true,
+        roundtrip_ok: roundtripOk,
+        object_key: object,
+        config,
+      });
+    } catch (err) {
+      await fs.promises.unlink(tmp).catch(() => { /* ignore */ });
+      return res.status(500).json({
+        success: false,
+        spaces_enabled: true,
+        roundtrip_ok: false,
+        error: (err as Error).message,
+        config,
+      });
+    }
+  }
+);
 
 /**
  * GET /diagnostics/tunnel-status

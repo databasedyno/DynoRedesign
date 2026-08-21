@@ -12,8 +12,9 @@
  * Optional env: SPACES_ENDPOINT (default https://<region>.digitaloceanspaces.com),
  *               SPACES_CDN_ENDPOINT (e.g. https://<bucket>.<region>.cdn.digitaloceanspaces.com)
  */
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import fs from "fs";
+import type { Readable } from "stream";
 import { apiLogger } from "../utils/loggers";
 
 const REGION = (process.env.SPACES_REGION || "").trim();
@@ -88,4 +89,93 @@ export async function finalizeUploadedImage(
     apiLogger.error(`[ObjectStorage] Spaces upload failed for ${file.filename}, falling back to local disk: ${(e as Error).message}`);
     return localUrl;
   }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PRIVATE object helpers — used for PAID product digital assets (deliverables).
+// Unlike images above, these objects are uploaded with ACL "private": buyers
+// never get a public URL. Downloads are streamed back through the server-gated
+// /api/order/:publicRef/download/:assetId route (per-order token + rate limit),
+// so access control is preserved exactly as with the local-disk backend.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Bucket name (empty string when Spaces isn't configured). */
+export const SPACES_BUCKET = BUCKET;
+
+/** Non-secret config snapshot for diagnostics/logging. Never returns keys. */
+export function spacesConfigSummary(): {
+  enabled: boolean;
+  bucket: string;
+  region: string;
+  endpoint: string;
+  cdn: string | null;
+} {
+  return {
+    enabled: isSpacesEnabled(),
+    bucket: BUCKET,
+    region: REGION,
+    endpoint: ENDPOINT,
+    cdn: CDN || null,
+  };
+}
+
+/**
+ * Upload a local file to Spaces as a PRIVATE object and return {bucket, object}.
+ * Streams the file (with a known ContentLength) so large deliverables (up to the
+ * 500 MB cap) don't have to be buffered fully in memory. Throws on failure so the
+ * caller can fall back to local disk.
+ */
+export async function uploadPrivateFileToSpaces(
+  localPath: string,
+  key: string,
+  contentType: string,
+  contentLength?: number
+): Promise<{ bucket: string; object: string }> {
+  const cleanKey = key.replace(/^\/+/, "");
+  let body: Buffer | fs.ReadStream;
+  let length = contentLength;
+  if (typeof length === "number" && length > 0) {
+    body = fs.createReadStream(localPath);
+  } else {
+    const buf = await fs.promises.readFile(localPath);
+    body = buf;
+    length = buf.length;
+  }
+  await client().send(
+    new PutObjectCommand({
+      Bucket: BUCKET,
+      Key: cleanKey,
+      Body: body,
+      ContentLength: length,
+      ContentType: contentType || "application/octet-stream",
+      ACL: "private",
+    })
+  );
+  return { bucket: BUCKET, object: cleanKey };
+}
+
+/**
+ * Fetch a stored PRIVATE object as a readable stream (for server-side streaming
+ * to the buyer). Returns the body stream plus any content metadata Spaces reports.
+ */
+export async function getSpacesObjectStream(key: string): Promise<{
+  stream: Readable;
+  contentType?: string;
+  contentLength?: number;
+}> {
+  const out = await client().send(
+    new GetObjectCommand({ Bucket: BUCKET, Key: key.replace(/^\/+/, "") })
+  );
+  return {
+    stream: out.Body as Readable,
+    contentType: out.ContentType,
+    contentLength: typeof out.ContentLength === "number" ? out.ContentLength : undefined,
+  };
+}
+
+/** Best-effort delete of a stored object (used by the storage self-test cleanup). */
+export async function deleteSpacesObject(key: string): Promise<void> {
+  await client().send(
+    new DeleteObjectCommand({ Bucket: BUCKET, Key: key.replace(/^\/+/, "") })
+  );
 }
