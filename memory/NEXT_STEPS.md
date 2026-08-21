@@ -15,7 +15,11 @@ These outrank the product items below — they are money-path correctness, not p
 - **P1 — Secret rotation + Binance key scoping** (Tier 3): live keys have been pasted into chat across 10+ pods. Rotation is genuinely overdue.
 - **P1 — Chain reorg handling** (Tier 2, not started): no reorg/rollback path on confirmed deposits.
 - **P2 — Signing isolation + withdrawal controls** (Tier 3, not started).
-- **Blocked on you — KYC/AML activation** (Tier 2): needs live Veriff credentials.
+- **Blocked on you — KYC/AML activation** (Tier 2): ✅ **ACTIVATED IN PREVIEW 2026-08-21** with real Veriff
+  creds — session-create verified (live 201), webhook hardened+verified (raw-body HMAC + x-auth-client,
+  CSRF-exempt, idempotent, 4/4), `/kyc/complete` redirect page added, hostbay exempt
+  (`KYC_EXEMPT_COMPANY_IDS=1`). PROD PENDING: Save-to-GitHub → flip DO env → set Veriff Station webhook URL.
+  AML address-screening (Chainalysis/TRM) still deferred.
 - **Deferred by you — Refund execution flow** (Tier 1, 2026-08-21).
 
 ---

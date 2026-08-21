@@ -1,5 +1,29 @@
 # Test Credentials
 
+## 🆕 2026-08-21 — KYC/AML (Veriff) ACTIVATED in preview (audit #4)
+- Real Veriff creds now in `backend/.env`: `VERIFF_API_KEY` + `VERIFF_API_SECRET` (Station API v1,
+  base https://stationapi.veriff.com). ⚠️ Re-seal the vault after this change:
+  `bash scripts/env-vault.sh seal '<pass>'` (NOT done automatically — git write).
+- hostbay is EXEMPT from KYC enforcement: `KYC_EXEMPT_COMPANY_IDS=1`, `KYC_EXEMPT_USER_IDS=1`
+  (hostbay = user_id 1 / company_id 1). Threshold/grace unchanged ($10k / 90 days) for everyone else.
+- Code hardening shipped (all TS clean, frontend lint clean):
+  - `services/veriffService.ts`: raw-body HMAC (`signRaw`/`verifyWebhookRaw`) + `verifyAuthClient`;
+    `parseWebhookPayload` now reads `verification.status` (was `.decision`).
+  - `controller/kycController.ts` `handleVeriffWebhook`: verifies raw-body HMAC + `x-auth-client`,
+    idempotent, 200-acks unknown sessions. Session `callback` → `${FRONTEND_URL}/kyc/complete`.
+  - `server.ts`: `express.json({ verify })` captures `req.rawBody`. `csrfMiddleware.ts`: `/api/kyc/webhook` exempt.
+  - NEW `pages/kyc/complete.tsx` (Veriff redirect target). `api/endpoints.ts` kyc block expanded.
+- VERIFIED (no DB writes): webhook 4/4 via curl (valid→200 ack unknown session; tampered sig→401;
+  wrong client→401; no headers→401 not 403). Live Veriff session-create → HTTP 201 (creds valid).
+- WEBHOOK TEST RECIPE (safe): sign raw body with shared secret →
+  `openssl dgst -sha256 -hmac "$SECRET" body.json`; POST /api/kyc/webhook with
+  `x-auth-client: <VERIFF_API_KEY>` + `x-hmac-signature: <sig>`. Unknown verification id = 200 no-write.
+- PROD ROLLOUT (pending, needs coordination): (1) user Save-to-GitHub → `Improvement` branch;
+  (2) update DO app `dynopay` env (VERIFF_API_KEY/SECRET to real + KYC_EXEMPT_COMPANY_IDS=1 + KYC_EXEMPT_USER_IDS=1)
+  → redeploy; (3) user sets Veriff Station "Webhook decisions URL" = https://dynopay.com/api/kyc/webhook.
+  DO NOT flip DO env BEFORE the code is pushed (current Improvement HEAD lacks the raw-body webhook fix).
+
+
 ## ✅ LATEST SETUP (2026-08-21, 11th pod) — env rebuilt from user's pasted creds
 - CURRENT preview URL (verified: full 2-step login -> /dashboard live data):
   https://952d275d-5aae-4cb0-b4c1-df816e55b893.preview.emergentagent.com

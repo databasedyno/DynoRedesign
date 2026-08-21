@@ -11,6 +11,29 @@ import { cronLogger } from "../utils/loggers";
 const KYC_THRESHOLD_USD = 10000;
 const KYC_GRACE_PERIOD_DAYS = 90;
 
+/**
+ * Accounts explicitly exempted from KYC enforcement (never blocked), configured
+ * via env as comma-separated ids. Lets us keep specific accounts (e.g. the
+ * platform's own merchant) unrestricted regardless of volume, without changing
+ * the threshold/grace logic for everyone else.
+ *   KYC_EXEMPT_COMPANY_IDS=1,42
+ *   KYC_EXEMPT_USER_IDS=1
+ */
+function parseIdList(raw?: string): Set<string> {
+  return new Set((raw || "").split(",").map((s) => s.trim()).filter(Boolean));
+}
+const KYC_EXEMPT_COMPANY_IDS = parseIdList(process.env.KYC_EXEMPT_COMPANY_IDS);
+const KYC_EXEMPT_USER_IDS = parseIdList(process.env.KYC_EXEMPT_USER_IDS);
+
+export function isKycExempt(
+  userId?: string | number | null,
+  companyId?: string | number | null,
+): boolean {
+  if (companyId != null && KYC_EXEMPT_COMPANY_IDS.has(String(companyId))) return true;
+  if (userId != null && KYC_EXEMPT_USER_IDS.has(String(userId))) return true;
+  return false;
+}
+
 export interface KycCheckResult {
   /** Whether volume exceeds threshold */
   needsEnforcement: boolean;
@@ -34,6 +57,11 @@ export async function checkKycEnforcement(
   companyId?: string | number | null,
   logPrefix: string = '[KYC]',
 ): Promise<KycCheckResult> {
+  // Exempt accounts are never enforced/blocked, regardless of volume.
+  if (isKycExempt(userId, companyId)) {
+    return { needsEnforcement: false, totalVolume: 0, kycStatus: 'exempt', blocked: false };
+  }
+
   // Calculate total transaction volume
   const volumeQuery = companyId
     ? `SELECT COALESCE(SUM(CAST(base_amount AS DECIMAL)), 0) as total_volume 

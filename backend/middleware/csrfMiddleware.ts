@@ -37,6 +37,7 @@ const EXEMPT_PATHS = [
   "/api/tatum-crypto-webhook",
   "/api/failed_webhook",
   "/api/veriff",
+  "/api/kyc/webhook",
   "/api/kb/webhook",
   "/api/support/chat",
   "/api/admin/login",

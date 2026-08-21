@@ -6,6 +6,7 @@
 import axios, { AxiosInstance } from "axios";
 import { apiLogger } from "../utils/loggers";
 import CryptoJS from "crypto-js";
+import crypto from "crypto";
 
 // Veriff API Configuration
 const VERIFF_API_BASE_URL = "https://stationapi.veriff.com";
@@ -195,6 +196,50 @@ class VeriffService {
   }
 
   /**
+   * Sign RAW bytes with the shared secret (HMAC-SHA256, lowercase hex).
+   * Veriff signs the RAW request body — we MUST verify against the exact
+   * bytes received, never a re-stringified parsed object (whitespace / key
+   * order / escaping differences would break the digest).
+   */
+  signRaw(raw: Buffer | string): string {
+    return crypto
+      .createHmac("sha256", this.apiSecret)
+      .update(typeof raw === "string" ? Buffer.from(raw, "utf8") : raw)
+      .digest("hex")
+      .toLowerCase();
+  }
+
+  /**
+   * Verify a Veriff webhook HMAC signature against the RAW request body
+   * (constant-time comparison).
+   */
+  verifyWebhookRaw(raw: Buffer | string, signature?: string): boolean {
+    const supplied = String(signature || "").trim().toLowerCase();
+    if (!/^[0-9a-f]{64}$/.test(supplied)) return false;
+    const expected = this.signRaw(raw);
+    try {
+      return crypto.timingSafeEqual(Buffer.from(expected, "hex"), Buffer.from(supplied, "hex"));
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Verify the X-AUTH-CLIENT header equals our API key (constant-time).
+   */
+  verifyAuthClient(client?: string): boolean {
+    if (!client) return false;
+    const a = Buffer.from(String(client));
+    const b = Buffer.from(this.apiKey);
+    if (a.length !== b.length) return false;
+    try {
+      return crypto.timingSafeEqual(a, b);
+    } catch {
+      return false;
+    }
+  }
+
+  /**
    * Parse webhook payload
    * Extract relevant information from Veriff webhook
    */
@@ -210,8 +255,9 @@ class VeriffService {
       id?: string;
       status?: string;
       decision?: string;
-      code?: number;
-      reason?: string;
+      code?: number | string;
+      reason?: string | null;
+      reasonCode?: number | string | null;
       vendorData?: string;
     };
     
@@ -222,11 +268,17 @@ class VeriffService {
       apiLogger.error("Failed to parse vendor data:", e);
     }
 
+    // Current Veriff decision webhook carries the outcome in verification.status
+    // (approved / declined / resubmission_requested / expired / abandoned).
+    // Older payloads used verification.decision — fall back for safety.
+    // NOTE: top-level payload.status ("success") is delivery status, NOT the KYC result.
+    const outcome = verification.status || verification.decision || "unknown";
+
     return {
       verificationId: verification.id || "",
-      status: verification.status || "unknown",
-      decision: verification.decision || "unknown",
-      decisionCode: verification.code?.toString() || "",
+      status: outcome,
+      decision: outcome,
+      decisionCode: verification.code != null ? String(verification.code) : "",
       reason: verification.reason || "",
       vendorData,
     };

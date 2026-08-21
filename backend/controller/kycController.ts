@@ -10,6 +10,7 @@ import { QueryTypes } from "sequelize";
 import sequelize from "../utils/dbInstance";
 import kycModel from "../models/kycModel";
 import { getVeriffService } from "../services/veriffService";
+import { isKycExempt } from "../helper/kycEnforcement";
 import { createNotification, NOTIFICATION_TYPES } from "./notificationController";
 import { IUserType } from "../utils/types";
 import {
@@ -220,7 +221,7 @@ const startKYCVerification = async (req: express.Request, res: express.Response)
 
     // Initialize Veriff service and create session
     const veriffService = getVeriffService();
-    const callbackUrl = `${process.env.SERVER_URL}/api/kyc/webhook`;
+    const callbackUrl = `${process.env.FRONTEND_URL || process.env.SERVER_URL}/kyc/complete`;
 
     const userName = String((user as unknown as Record<string, unknown>).name || '');
     const session = await veriffService.createSession({
@@ -293,17 +294,23 @@ const startKYCVerification = async (req: express.Request, res: express.Response)
  * POST /api/kyc/webhook
  * Receives verification decision from Veriff
  */
-const handleVeriffWebhook = async (req: express.Request, res: express.Response) => {
+const handleVeriffWebhook = async (req: express.Request & { rawBody?: Buffer }, res: express.Response) => {
   try {
     const signature = req.headers["x-hmac-signature"] as string;
-    const payload = req.body;
+    const authClient = req.headers["x-auth-client"] as string;
+    // Veriff signs the RAW request body — verify against the exact bytes received,
+    // NOT a re-stringified parsed object.
+    const raw: Buffer | string = req.rawBody ?? JSON.stringify(req.body ?? {});
+    const payload = req.body as Record<string, unknown>;
 
-    // Verify webhook signature
+    // Verify webhook authenticity: X-AUTH-CLIENT must equal our API key AND
+    // X-HMAC-SIGNATURE must be a valid HMAC-SHA256 of the raw body.
     const veriffService = getVeriffService();
-    const isValid = veriffService.verifyWebhookSignature(payload, signature);
+    const validClient = veriffService.verifyAuthClient(authClient);
+    const validSignature = veriffService.verifyWebhookRaw(raw, signature);
 
-    if (!isValid) {
-      apiLogger.error("Invalid Veriff webhook signature");
+    if (!validClient || !validSignature) {
+      apiLogger.error("Invalid Veriff webhook auth", { validClient, validSignature });
       return errorResponseHelper(res, 401, "Invalid webhook signature");
     }
 
@@ -321,8 +328,8 @@ const handleVeriffWebhook = async (req: express.Request, res: express.Response) 
     });
 
     if (!kycRecord) {
-      apiLogger.error("KYC record not found for verification:", verificationId);
-      return errorResponseHelper(res, 404, "KYC record not found");
+      apiLogger.warn("Veriff webhook: no KYC record for verification (ack + ignore):", verificationId);
+      return successResponseHelper(res, 200, "No matching KYC record — acknowledged", {});
     }
 
     // Update KYC record with decision
@@ -421,6 +428,10 @@ export const checkVolumeAndTriggerKYC = async (
   companyId: number | null
 ): Promise<void> => {
   try {
+    // Exempt accounts never trigger KYC requirements.
+    if (isKycExempt(userId, companyId)) {
+      return;
+    }
     // Calculate total volume
     const volumeQuery = companyId
       ? `SELECT COALESCE(SUM(base_amount), 0) as total_volume
@@ -599,7 +610,7 @@ const resubmitKYC = async (req: express.Request, res: express.Response) => {
 
     // Initialize Veriff service and create new session
     const veriffService = getVeriffService();
-    const callbackUrl = `${process.env.SERVER_URL}/api/kyc/webhook`;
+    const callbackUrl = `${process.env.FRONTEND_URL || process.env.SERVER_URL}/kyc/complete`;
 
     const session = await veriffService.createSession({
       userId,

@@ -200,7 +200,15 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'x-api-key', 'X-Requested-With', 'Accept', 'Origin', 'X-Request-ID', 'x-csrf-token']
 }));
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({
+  limit: '10mb',
+  // Capture the exact raw body bytes for signature verification (e.g. Veriff
+  // webhook HMAC, which is computed over the RAW request body — never a
+  // re-stringified parsed object). Cheap (a Buffer ref) and only read where needed.
+  verify: (req: express.Request & { rawBody?: Buffer }, _res, buf: Buffer) => {
+    req.rawBody = buf;
+  },
+}));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // ─── Body Parser Error Handler ──────────────────────────────────────────────

@@ -122,6 +122,10 @@ export const API_ENDPOINTS = {
 
   kyc: {
     submit: "/kyc/submit",
+    resubmit: "/kyc/resubmit",
+    status: "/kyc/status",
+    requirements: "/kyc/requirements",
+    history: "/kyc/history",
   },
 
   notifications: {
