@@ -311,6 +311,10 @@ app.use("/api/v1", router);
 import diagnosticsRouter from "./routes/diagnosticsRouter";
 app.use("/api/diagnostics", diagnosticsRouter);
 
+// Ledger admin routes (Tier-1 Item #3 — double-entry ledger)
+import ledgerRouter from "./routes/ledgerRouter";
+app.use("/api/ledger", ledgerRouter);
+
 // Publishable Keys — dashboard CRUD (JWT). The public /api/embed/public route
 // is mounted earlier (before the wildcard OPTIONS handler) so cross-origin
 // merchant preflights don't get intercepted by the global CORS handler.
@@ -1427,6 +1431,16 @@ const startServer = async () => {
       log('Payment Journal table synced.', 'info');
     } catch (journalErr: any) {
       log(`Payment Journal sync failed (non-critical): ${journalErr.message}`, 'warn');
+    }
+
+    // Ledger bootstrap (Tier-1 Item #3 — double-entry ledger).
+    // Gated by ENABLE_LEDGER — safe defaults (off) preserve current behavior.
+    try {
+      const { initLedger } = await import("./services/ledger/ledgerBootstrap");
+      const ledgerState = await initLedger();
+      log(`Ledger bootstrap: enabled=${ledgerState.enabled} dualWrite=${ledgerState.dualWrite} invariantCron=${ledgerState.invariantCron}`, 'info');
+    } catch (ledgerErr: any) {
+      log(`Ledger bootstrap failed (non-critical): ${ledgerErr.message}`, 'warn');
     }
     
     // Sync company model (for auto-convert fields)

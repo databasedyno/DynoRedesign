@@ -1,5 +1,19 @@
 # CURRENT STATE POINTER (2026-06 fork, latest first)
 
+LATEST SESSION (2026-08-21, Tier-1 audit item #3 SHIPPED): Double-entry ledger implemented as an
+additive, feature-flagged layer alongside the existing paymentJournal. New tables (tbl_ledger_accounts,
+tbl_ledger_entries, tbl_ledger_invariant_checks) + 6 services (backend/services/ledger/*) + admin
+router (/api/ledger/*). Gated by ENABLE_LEDGER / LEDGER_DUAL_WRITE / LEDGER_INVARIANT_CRON (all default
+OFF — safe for LIVE prod). Standard chart of accounts seeded: buyer_escrow, merchant_payable, fee_revenue,
+gas_expense, conversion_pnl, refund_liability, suspense. Invariant checker runs every 30 min by default,
+alerts to Slack on drift. Verified end-to-end via scripts/ledgerSmokeTest.ts on LIVE preview DB (posts,
+idempotent replay, unbalanced rejection, balances query, invariant OK, reversal to net-zero). All test
+data + tables dropped after verification — prod DB untouched until operator flips ENABLE_LEDGER=true.
+Tests: 22 new (13 decimal math + 9 mapper). Full suite: 511/511 pass. TypeScript project-wide clean.
+Docs: memory/CRYPTO_ARCHITECTURE_IMPLEMENTATION.md — living roadmap for all 7 audit items (tier, status,
+owner, refs), with rollout sequence for the ledger. DEFERRED per user: #1 Refund execution flow.
+See also memory/CHANGELOG.md (session 2026-08-21).
+
 LATEST SESSION (2026-08-21, 10th pod setup): Env rebuilt from user creds (backend/.env + /app/.env),
 sequential yarn installs, backend healthy (live Railway DB+Redis, SAFE MODE kept: ENABLE_BACKGROUND_JOBS=false,
 WORKER_ROLE=secondary — user's paste said true, kept off per standing rule). Frontend in `next dev` (hot reload)

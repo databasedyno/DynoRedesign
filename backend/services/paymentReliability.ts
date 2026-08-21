@@ -408,6 +408,25 @@ export async function markSettlementCompleted(
     // Non-blocking — log but don't fail the settlement
     cronLogger.error(`[SettlementIdempotency] Failed to journal settlement for ${paymentId}: ${(journalErr as Error).message}`);
   }
+
+  // Ledger dual-write (Tier-1 Item #3). Behind LEDGER_DUAL_WRITE flag.
+  // Non-blocking — settlement path is source-of-truth; ledger is derived.
+  if (process.env.LEDGER_DUAL_WRITE === "true") {
+    try {
+      const { recordSettlementCompleted } = await import("./ledger/ledgerPaymentMapper");
+      await recordSettlementCompleted({
+        paymentId,
+        companyId,
+        currency,
+        address,
+        settlementTxId,
+        merchantAmount,
+        adminAmount,
+      });
+    } catch (ledgerErr) {
+      cronLogger.error(`[Ledger] Dual-write failed for ${paymentId}: ${(ledgerErr as Error).message}`);
+    }
+  }
 }
 
 /**

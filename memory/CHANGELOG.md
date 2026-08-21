@@ -1,5 +1,47 @@
 # Changelog
 
+# SESSION 2026-08-21 — **Tier-1 audit item #3: Double-entry ledger (SHIPPED)** · **audit doc created** · **#1 refund deferred per user**
+
+## A. Double-entry ledger (Tier-1 item #3 from crypto architecture audit)
+Additive, feature-flagged. Existing `paymentJournal` stays intact as audit source.
+New parallel ledger answers "how much do we owe this merchant right now?" + "is our book balanced?".
+
+Ships behind flags (ALL default OFF — safe for LIVE prod DB):
+- `ENABLE_LEDGER=true` — sync tables + seed chart of accounts on boot
+- `LEDGER_DUAL_WRITE=true` — `markSettlementCompleted()` dual-writes to ledger
+- `LEDGER_INVARIANT_CRON=true` — cron sweeps balance-check + Slack drift alerts
+
+New tables (created on boot when `ENABLE_LEDGER=true`):
+- `tbl_ledger_accounts` — chart of accounts (7 seeded standard accounts: buyer_escrow, merchant_payable, fee_revenue, gas_expense, conversion_pnl, refund_liability, suspense)
+- `tbl_ledger_entries` — append-only DR/CR; unique on (payment_id, journal_event, dedup_key, line_index) → idempotent replays
+- `tbl_ledger_invariant_checks` — audit log of invariant sweeps
+
+New services (`backend/services/ledger/`):
+- `ledgerService.ts` — postDoubleEntry() (enforces DR===CR per-currency), reverseBatch(), getBalances(), getPaymentLedger(). Decimal math via BigInt (no float loss).
+- `ledgerAccountsBootstrap.ts` — idempotent seeding of 7 standard accounts.
+- `ledgerPaymentMapper.ts` — payment lifecycle → balanced ledger lines (recordSettlementCompleted, recordPaymentDetected).
+- `ledgerInvariantChecker.ts` — rolling-window aggregation (INV-1 global per-currency, INV-2 per-batch); alerts to Slack on drift; runs every LEDGER_INVARIANT_INTERVAL_MIN (default 30 min).
+- `ledgerBackfill.ts` — one-shot from paymentJournal; idempotent; dry-run default.
+- `ledgerBootstrap.ts` — startup wiring behind feature flag.
+
+New routes (`/api/ledger/*`, admin-only): health, balances, payment/:id, invariants/latest, invariants/run, backfill.
+
+Callsite integration: `paymentReliability.markSettlementCompleted()` gains a non-blocking dual-write path (only fires when `LEDGER_DUAL_WRITE=true`).
+
+Tests: 22 new (13 decimal math + 9 payment mapper) — all green. Full backend suite: 511/511 pass, no regressions. TypeScript project-wide clean.
+
+Smoke test (`scripts/ledgerSmokeTest.ts`) verified end-to-end on LIVE preview DB:
+posts → idempotent replay → rejects unbalanced → balances query → invariant check OK → reversal → net-zero.
+Cleanup: removed all test rows + dropped ledger tables so LIVE prod is untouched until operator flips `ENABLE_LEDGER=true` intentionally.
+
+## B. Deferred / documented
+- **#1 Refund execution flow** — DEFERRED per user 2026-08-21. Refund_liability account seeded so #1 can drop in cleanly later.
+- **#2 Missing webhook events** (`payment.created/.expired/.overpaid/refund`) — Not started (bundled with #1).
+- **#4-7** — Not started; documented with acceptance shape in `memory/CRYPTO_ARCHITECTURE_IMPLEMENTATION.md`.
+
+## C. Docs
+- NEW `memory/CRYPTO_ARCHITECTURE_IMPLEMENTATION.md` — living roadmap tracking all 7 audit items (tier, status, owner, refs), with cross-refs to `ENGINEERING_STRATEGY_REVIEW_2026-08.md` R# codes. Includes rollout sequence for the ledger.
+
 # SESSION 2026-08-15/20 — **R2 god-file refactor (complete)** · **GitHub-save bug FIXED (secrets purge + guard)** — VERIFIED (testing agent 11/11 PASS)
 
 ## A. R2 refactor (ENGINEERING_STRATEGY_REVIEW_2026-08.md) — strangler pattern, zero behavior change
