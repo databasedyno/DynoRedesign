@@ -8,7 +8,7 @@ import requests
 import json
 import sys
 
-BACKEND_URL = "https://merchant-integration-3.preview.emergentagent.com"
+BACKEND_URL = "https://merchant-checkout-22.preview.emergentagent.com"
 
 def test_additional_scenarios():
     """Test additional scenarios and edge cases"""

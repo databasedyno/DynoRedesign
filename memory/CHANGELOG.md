@@ -1,5 +1,44 @@
 # Changelog
 
+# SESSION 2026-08-21 — **Pod setup delay eliminated (env vault + self-healing boot + one-command bootstrap)**
+
+Problem: every new pod cost several minutes of manual work — user re-pasted ~220 lines of credentials,
+agent hand-wrote 2 `.env` files, ran 2 yarn installs in the right order, restarted, verified. Meanwhile
+supervisor crash-looped the frontend/backend because `node_modules` was gone.
+
+Root cause: a new pod restores `/app` **from git only**. Everything gitignored is wiped:
+`.env`, `backend/.env`, `backend/dynopay.json`, `node_modules` (948MB root + 542MB backend), `.next`.
+The yarn cache lives outside `/app` (`/usr/local/share/.cache/yarn`) and is always empty on a new pod.
+
+Shipped:
+- **`scripts/env-vault.sh`** (new) — `seal|open|list`. Tars `/app/.env`, `/app/backend/.env` (+
+  `backend/dynopay.json` when present) and encrypts with OpenSSL AES-256-CBC, PBKDF2 300k iterations,
+  random salt, base64 → **`env.vault.enc`, tracked in git** so it survives forks. `seal` self-verifies by
+  decrypting before writing; `open` backs up existing env files first. Base64 ciphertext cannot trip
+  `scripts/check-secrets.mjs` (its patterns all need `-`/`_`, absent from the base64 alphabet).
+  Passphrase resolution: arg → `$DYNOPAY_VAULT_PASSPHRASE` → interactive prompt. **Passphrase is never
+  stored in the repo** — that would defeat the encryption since the ciphertext is tracked.
+- **`scripts/pod-bootstrap.sh`** (new) — the entire pod setup in one command, printing a 6-step pass/fail
+  report: preview-URL detection (from `APP_URL=` in `/etc/supervisor/conf.d/*.conf`) → vault restore →
+  URL rewrite for this pod + `CORS_ALLOWED_ORIGINS` refresh → forced `FRONTEND_MODE=dev`,
+  `INTERNAL_API_URL=http://localhost:8001` and SAFE MODE (`ENABLE_BACKGROUND_JOBS=false`,
+  `WORKER_ROLE=secondary`) → deps root→backend (skipped when present, `flock`-serialised, `--check-files`
+  repair pass) → `supervisorctl restart` → verify `/health` (db/redis/tatum/background_jobs), `:3000` and
+  the external preview URL. **19s on a warm pod.**
+- **Self-healing boot** — `scripts/start-frontend.sh` and `backend/server.py::ensure_node_modules()` now
+  run `yarn install` themselves when their binary is missing (with a `--check-files` second pass, because
+  yarn reports "already up-to-date" for a partially-present tree), sharing `/tmp/dynopay-yarn-install.lock`
+  so the two installs never run concurrently (the documented cache-corruption gotcha). On failure they
+  back off 20-30s instead of hot-looping supervisor.
+- **Dev prewarm** — after `next dev` is ready, a single `flock -n`-guarded background warmer compiles
+  `/`, `/auth/login`, `/dashboard`, `/pay`, so the first real click is instant instead of a 15-35s compile
+  (`GET / 200 in 34438ms` was normal before).
+- **`memory/POD_SETUP.md`** (new) + top-of-file recipe in `memory/test_credentials.md`.
+
+Verified: wrong passphrase rejected; sealed→deleted both `.env` files→bootstrap restored them byte-identical;
+both yarn bins deleted + simultaneous restart → both services self-healed (backend ts-node restored, frontend
+repaired via `--check-files`, prewarm ran); final bootstrap all-green; landing page renders on the preview URL.
+
 # SESSION 2026-08-21 — **Tier-1 audit item #3: Double-entry ledger (SHIPPED)** · **audit doc created** · **#1 refund deferred per user**
 
 ## A. Double-entry ledger (Tier-1 item #3 from crypto architecture audit)

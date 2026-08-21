@@ -1,8 +1,23 @@
 # Test Credentials
 
+## 🚀 SETUP IS NOW ONE COMMAND (added 2026-08-21) — READ /app/memory/POD_SETUP.md
+```bash
+bash /app/scripts/pod-bootstrap.sh --pass '<vault passphrase — ASK THE USER>'
+```
+- Restores `/app/.env` + `/app/backend/.env` from the git-tracked encrypted vault
+  `/app/env.vault.enc`, rewrites all URL keys to THIS pod, enforces SAFE MODE,
+  installs deps (root→backend, flock-serialised), restarts, verifies. ~20s warm / ~2min cold.
+- **The passphrase is deliberately NOT in the repo** (that would defeat the encryption since
+  the ciphertext is tracked). Ask the user. If they lost it: have them paste credentials as
+  before, write both .env files, then re-seal → `bash scripts/env-vault.sh seal '<new pass>'`.
+- Deps now SELF-HEAL: `scripts/start-frontend.sh` and `backend/server.py` run yarn install
+  themselves (with a `--check-files` repair pass) when node_modules is missing, so a cold pod
+  boots itself instead of crash-looping. Frontend also prewarms /, /auth/login, /dashboard, /pay.
+- ALWAYS re-seal the vault after changing any credential: `bash scripts/env-vault.sh seal '<pass>'`.
+
 ## LATEST SETUP (2026-08-21, 10th NEW pod) — env rebuilt from user's pasted creds
 - CURRENT preview URL (verified: full 2-step login -> /dashboard with live data):
-  https://18298b88-9f5d-4e07-813b-69781b5e0b70.preview.emergentagent.com
+  https://merchant-checkout-22.preview.emergentagent.com
   (supervisor APP_URL routes correctly — no host gotcha)
 - Same recipe 1:1 as 9th pod: sequential `yarn install` root->backend (plain, NOT frozen;
   ~80s+35s warm cache), /app/backend/.env + /app/.env rewritten from user's pasted creds,
@@ -59,7 +74,7 @@
 
 ## LATEST SETUP (2026-08-15, 8th NEW pod) — env rebuilt from user's pasted creds
 - CURRENT preview URL (verified: full login -> /dashboard with live data):
-  https://merchant-integration-3.preview.emergentagent.com
+  https://merchant-checkout-22.preview.emergentagent.com
   (supervisor APP_URL routes correctly — no host gotcha)
 - Same recipe 1:1: sequential `yarn install` root->backend->frontend-bridge (plain, NOT frozen),
   /app/backend/.env + /app/.env.local rewritten from user's pasted creds, SAFE MODE
@@ -79,7 +94,7 @@
 
 ## PREVIOUS SETUP (2026-08-14, 7th NEW pod) — env rebuilt from user's pasted creds
 - CURRENT preview URL (verified: full login -> /dashboard with live data):
-  https://merchant-integration-3.preview.emergentagent.com
+  https://merchant-checkout-22.preview.emergentagent.com
   (supervisor APP_URL routes correctly — no host gotcha)
 - Same recipe applied 1:1: sequential `yarn install` root->backend (plain, NOT --frozen-lockfile),
   /app/backend/.env + /app/.env.local rewritten from user's pasted creds, SAFE MODE
@@ -98,7 +113,7 @@
 
 ## PREVIOUS SETUP (2026-08-14, 6th NEW pod) — env rebuilt from user's pasted creds
 - CURRENT preview URL (verified: full login -> /dashboard with live data):
-  https://merchant-integration-3.preview.emergentagent.com
+  https://merchant-checkout-22.preview.emergentagent.com
   (supervisor APP_URL routes correctly — no host gotcha)
 - Same recipe applied 1:1: sequential `yarn install` root->backend (plain, NOT --frozen-lockfile),
   /app/backend/.env + /app/.env.local rewritten from user's pasted creds, SAFE MODE
@@ -120,7 +135,7 @@
 
 ## PREVIOUS SETUP (2026-08-14, 5th NEW pod) — env rebuilt from user's pasted creds
 - CURRENT preview URL (verified: full login -> /dashboard with live data):
-  https://merchant-integration-3.preview.emergentagent.com
+  https://merchant-checkout-22.preview.emergentagent.com
   (supervisor APP_URL routes correctly on this pod — no host gotcha this time)
 - Same recipe as below applied 1:1. NOTE: `yarn install --frozen-lockfile` FAILS
   ("lockfile needs to be updated") — use plain `yarn install`, SEQUENTIAL root->backend.
@@ -136,8 +151,8 @@
 
 ## PREVIOUS SETUP (2026-08-13 late, 4th NEW pod) — env rebuilt AGAIN from user's pasted creds
 - CURRENT preview URL (verified externally, login screenshot loads):
-  https://merchant-integration-3.preview.emergentagent.com
-  (supervisor APP_URL — routes fine this time; https://merchant-integration-3.preview.emergentagent.com ALSO routes)
+  https://merchant-checkout-22.preview.emergentagent.com
+  (supervisor APP_URL — routes fine this time; https://merchant-checkout-22.preview.emergentagent.com ALSO routes)
 - Same recipe as below applied 1:1 (sequential yarn installs root->backend; both env files
   rewritten; NEXTAUTH_SECRET regenerated: kCrvCwvNJxDraw2xuBUqKje5J2+NjwkXCge3gWvqBaE=).
 - Verified on this pod: /health healthy (db+redis connected, background_jobs.eligible=false),
@@ -147,7 +162,7 @@
   "Refreshed 40 rates via Tatum", Binance geo-blocked (known, harmless).
 
 ## PREVIOUS SETUP (2026-08-13, 3rd pod) — env rebuilt from user's pasted creds
-- Preview URL then: https://merchant-integration-3.preview.emergentagent.com
+- Preview URL then: https://merchant-checkout-22.preview.emergentagent.com
 - Recipe applied (matches the documented one below):
   1. `yarn install` in /app then /app/backend (SEQUENTIAL; parallel corrupts the shared
      yarn cache -> ENOENT .yarn-metadata.json; fix = `rm -rf /usr/local/share/.cache/yarn`).
@@ -170,7 +185,7 @@
   (port 3300) fronted by a Python/uvicorn proxy on port 8001 (backend/server.py).
 - Browser API calls are RELATIVE (`/api/...`) because `NEXT_PUBLIC_BASE_URL` is empty
   in /app/.env.local -> Emergent ingress routes /api -> 8001 -> Node backend.
-- Preview URL (CURRENT, verified 2026-08-13): https://merchant-integration-3.preview.emergentagent.com
+- Preview URL (CURRENT, verified 2026-08-13): https://merchant-checkout-22.preview.emergentagent.com
   Env rebuilt for the 3rd time on 2026-08-13 on a NEW pod (root+backend node_modules AND both
   env files were missing again). Recipe that works:
    1. `cd /app && yarn install` THEN `cd /app/backend && yarn install`  (run them SEQUENTIALLY —
@@ -183,7 +198,7 @@
       pasted value is the literal placeholder "openssl rand -base64 32".
    4. `sudo supervisorctl restart backend frontend`.
   HOST GOTCHA (3rd pod in a row): supervisor's APP_URL advertises
-   https://merchant-integration-3.preview.emergentagent.com but that host does NOT
+   https://merchant-checkout-22.preview.emergentagent.com but that host does NOT
    route (curl -> 000). Find the REAL host in /var/log/supervisor/frontend.err.log — Next.js logs
    a "cross origin request detected from <host>.cluster-XX.preview.emergentcf.cloud" warning; the
    `<host>` prefix + `.preview.emergentagent.com` is the live URL (here: secure-transactions-11).

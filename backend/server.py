@@ -40,6 +40,33 @@ print("""
 +----------------------------------------------------------+
 """, flush=True)
 
+TS_NODE_BIN = '/app/backend/node_modules/.bin/ts-node'
+
+
+def ensure_node_modules():
+    """Fresh-pod self-heal: install backend deps instead of crash-looping.
+
+    /app is restored from git on a new pod, so backend/node_modules is missing.
+    flock serialises with the frontend installer (shared yarn cache).
+    """
+    if os.path.exists(TS_NODE_BIN):
+        return
+
+    print("⚙️  backend/node_modules missing -> yarn install (fresh-pod self-heal, ~1 min)...", flush=True)
+    for extra in (['--network-concurrency', '16'], ['--check-files']):
+        subprocess.run(
+            ['flock', '/tmp/dynopay-yarn-install.lock', 'yarn', 'install', '--non-interactive'] + extra,
+            cwd='/app/backend',
+        )
+        if os.path.exists(TS_NODE_BIN):
+            print("✅ backend deps installed", flush=True)
+            return
+
+    print("❌ backend yarn install failed — backing off 20s before supervisor retries", flush=True)
+    time.sleep(20)
+    sys.exit(1)
+
+
 def start_node_backend():
     """Start main Node.js backend on internal port."""
     global NODE_PROCESS
@@ -47,6 +74,8 @@ def start_node_backend():
     env = os.environ.copy()
     env['PORT'] = str(NODE_PORT)
     
+    ensure_node_modules()
+
     print(f"🚀 Starting Node.js Backend (internal port {NODE_PORT})...", flush=True)
     
     NODE_PROCESS = subprocess.Popen(

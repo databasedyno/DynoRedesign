@@ -24,6 +24,29 @@ if [ -z "$MODE" ] && [ -f /app/.env ]; then
 fi
 MODE="${MODE:-dev}"
 
+# Self-heal on a fresh pod: /app is restored from git, so node_modules is gone.
+# Without this the service crash-loops on "next: No such file or directory"
+# until someone installs by hand. flock serialises with the backend installer
+# (parallel yarn installs corrupt the shared cache).
+yarn_install() {
+  flock /tmp/dynopay-yarn-install.lock yarn install --non-interactive "$@"
+}
+if [ ! -x /app/node_modules/.bin/next ]; then
+  echo "[start-frontend] node_modules missing -> yarn install (fresh-pod self-heal, ~1-2 min)..."
+  yarn_install --network-concurrency 16 || true
+  if [ ! -x /app/node_modules/.bin/next ]; then
+    # yarn reports "already up-to-date" for a partially-present tree; --check-files repairs it.
+    echo "[start-frontend] binaries still missing -> retrying with --check-files"
+    yarn_install --check-files || true
+  fi
+  if [ ! -x /app/node_modules/.bin/next ]; then
+    echo "[start-frontend] yarn install FAILED — backing off 30s before supervisor retries"
+    sleep 30
+    exit 1
+  fi
+  echo "[start-frontend] deps installed"
+fi
+
 export NODE_OPTIONS="${NODE_OPTIONS:---max-old-space-size=2048}"
 export HOSTNAME=0.0.0.0
 export PORT=3000
@@ -43,6 +66,22 @@ else
     echo "[start-frontend] Removing stale production build before dev start"
     rm -rf /app/.next
   fi
+  # Prewarm: `next dev` compiles on first request (15-35s). Warming the hot
+  # routes in the background means the first human click is instant.
+  # flock -n keeps a single warmer alive across restart storms.
+  (
+    exec 9>/tmp/dynopay-prewarm.lock
+    flock -n 9 || exit 0
+    for _ in $(seq 1 60); do
+      curl -sf -o /dev/null --max-time 90 http://localhost:3000/ && break
+      sleep 2
+    done
+    for route in /auth/login /dashboard /pay; do
+      curl -sf -o /dev/null --max-time 90 "http://localhost:3000$route" || true
+    done
+    echo "[start-frontend] prewarm complete (/, /auth/login, /dashboard, /pay compiled)"
+  ) &
+
   echo "[start-frontend] Starting Next.js in DEV mode (hot reload enabled)"
   exec node_modules/.bin/next dev -p 3000 -H 0.0.0.0
 fi
