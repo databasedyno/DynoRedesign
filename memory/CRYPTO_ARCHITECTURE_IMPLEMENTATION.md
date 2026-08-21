@@ -31,7 +31,7 @@ to `ENGINEERING_STRATEGY_REVIEW_2026-08.md` are in the "Refs" column.
 |---|------|------|--------|-------|------|
 | 1 | **Refund execution flow** | 1 | 🅿️ **DEFERRED** (per user, 2026-08-21) | — | Sec below |
 | 2 | **Missing webhook events** (`payment.created`, `.expired`, `.overpaid`, `refund`) | 1 | ✅ **SHIPPED** (2026-08-21) — created/expired/overpaid, opt-in per merchant via `tbl_company.webhook_events`. `refund.*` intentionally out of scope while #1 is deferred. | E1 | CHANGELOG 2026-08-21 |
-| 3 | **Double-entry ledger** | 1 | ✅ **SHIPPED** + 🚧 **ROLLOUT: stages 1–3 done on LIVE DB** (tables + 7 accounts, 407 settlements backfilled → 1612 entries, invariant OK/zero drift). Remaining: set `LEDGER_DUAL_WRITE=true` then `LEDGER_INVARIANT_CRON=true` in PRODUCTION env. | E1 | R4, Sec below |
+| 3 | **Double-entry ledger** | 1 | ✅ **SHIPPED + FULLY ROLLED OUT IN PROD (2026-08-21)** — all 3 flags now ON in the prod DO `dynopay` app (`ENABLE_LEDGER`/`LEDGER_DUAL_WRITE`/`LEDGER_INVARIANT_CRON`=true, deploy `713cc109` ACTIVE). Runtime log confirms `Ledger bootstrap: enabled=true dualWrite=true invariantCron=true` and first invariant sweep `OK — 1612 rows, 407 batches, zero drift`. | E1 | R4, Sec below |
 | 4 | **KYC/AML activation** (Veriff real keys) | 2 | ⛔ Not started (needs live Veriff creds) | — | 90-day #2 |
 | 5 | **Chain reorganization handling** | 2 | ⛔ Not started | — | — |
 | 6 | **Signing isolation + withdrawal controls** | 3 | ⛔ Not started | — | R6 |
@@ -288,6 +288,14 @@ Per audit R1:
 
 ## Change log
 
+- **2026-08-21 (later)** — #3 ledger **FULLY ROLLED OUT to production**. Set
+  `ENABLE_LEDGER`/`LEDGER_DUAL_WRITE`/`LEDGER_INVARIANT_CRON`=true on the prod DO app
+  `dynopay` (id f86b27dc-feb0-4a44-a4e9-ebd2053e0468, service `dynoredesign`, branch
+  `Improvement`) via the DO API (spec PUT → redeploy `713cc109` ACTIVE). Verified in prod
+  runtime logs: `Ledger bootstrap: enabled=true dualWrite=true invariantCron=true`, invariant
+  scheduler started (30min/168h), first sweep `OK — 1612 rows, 407 batches, zero drift`.
+  NOTE: DO account (moxxcompany@gmail.com) API status = `locked` but deploys still ran fine
+  this time — flag to user to check billing so future deploys aren't blocked.
 - **2026-08-21** — E1 shipped #3 Double-entry ledger (feature-flagged OFF by
   default). Verified end-to-end via `scripts/ledgerSmokeTest.ts` on the LIVE
   preview DB; cleaned up test rows + dropped ledger tables so prod is
