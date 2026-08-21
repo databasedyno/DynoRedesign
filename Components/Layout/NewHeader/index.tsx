@@ -3,7 +3,6 @@ import useAccountProfile from "@/hooks/useAccountProfile";
 import Logo from "@/assets/Icons/home/dynopay-blackLogo.svg";
 import LogoDark from "@/assets/Icons/home/dynopay-whiteLogo.svg";
 import CompanySelector from "@/Components/UI/CompanySelector";
-import LanguageSwitcher from "@/Components/UI/LanguageSwitcher";
 import ThemeToggle from "@/Components/UI/ThemeToggle";
 import UserMenu from "@/Components/UI/UserMenu";
 import NewSidebar from "@/Components/Layout/NewSidebar";
@@ -60,31 +59,9 @@ const NewHeader = () => {
   const { walletWarning } = useWalletData();
   // Every user is auto-provisioned an Account at signup, so "no company" is no
   // longer the gap — an INCOMPLETE account is (no country ⇒ broken invoices/VAT).
-  const {
-    hasAccount,
-    profileComplete,
-    isIndividual,
-    fetched: accountFetched,
-  } = useAccountProfile();
-  const showSetupWarning = accountFetched && (!hasAccount || !profileComplete);
-  const setupHref = hasAccount ? "/settings?section=company" : "/create-pay-link";
-  const setupWarningLong = !hasAccount
-    ? tDashboard("companySetupWarning")
-    : isIndividual
-      ? t("accountSetupWarningIndividual", {
-          ns: "dashboardLayout",
-          defaultValue: "Add your country to finish setup",
-        })
-      : t("accountSetupWarningBusiness", {
-          ns: "dashboardLayout",
-          defaultValue: "Finish your business profile",
-        });
-  const setupWarningShort = !hasAccount
-    ? tDashboard("companySetupWarningShort")
-    : t("accountSetupWarningShort", {
-        ns: "dashboardLayout",
-        defaultValue: "Finish setup",
-      });
+  // Blueprint §3 header slim-down: the profile-completeness prompt moved INTO the
+  // avatar menu (see UserMenu), so it no longer lives as a header pill here.
+  const { hasAccount } = useAccountProfile();
   // Show wallet warning only once the account exists (wallet depends on it)
   const showWalletWarning = walletWarning && hasAccount;
   const [kycRequired, setKycRequired] = useState(false);
@@ -210,12 +187,6 @@ const NewHeader = () => {
             <ThemeToggle size="small" data-testid="theme-toggle-mobile" />
           </Box>
           <Box sx={{ display: { xs: "none", lg: "flex" }, gap: "20px" }}>
-            <Box sx={{ order: { lg: 2, xl: 1 } }}>
-              <LanguageSwitcher />
-            </Box>
-
-            <ThemeToggle size="small" data-testid="theme-toggle-desktop" />
-
             {kycRequired && (
               <Box sx={{ order: { lg: 1, xl: 2 } }}>
                 <RequiredKYC
@@ -233,34 +204,6 @@ const NewHeader = () => {
                     sx={{ color: muiTheme.palette.text.secondary, fontSize: 16 }}
                   />
                 </RequiredKYC>
-              </Box>
-            )}
-
-            {showSetupWarning && (
-              <Box sx={{ order: { lg: 1, xl: 2 } }}>
-                <Link href={setupHref} data-testid="account-setup-warning">
-                  <RequiredKYC>
-                    <InfoIcon
-                      sx={{ fontSize: 20, color: brandFg(muiTheme.palette.mode === "dark") }}
-                    />
-                    <RequiredKYCText
-                      sx={{
-                        display: { lg: "none", xl: "block" },
-                        color: brandFg(muiTheme.palette.mode === "dark"),
-                      }}
-                    >
-                      {setupWarningLong}
-                    </RequiredKYCText>
-                    <RequiredKYCText
-                      sx={{
-                        display: { lg: "block", xl: "none" },
-                        color: brandFg(muiTheme.palette.mode === "dark"),
-                      }}
-                    >
-                      {setupWarningShort}
-                    </RequiredKYCText>
-                  </RequiredKYC>
-                </Link>
               </Box>
             )}
 

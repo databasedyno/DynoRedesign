@@ -9,14 +9,22 @@ import { buildCreatorUrl } from "@/helpers/creatorUrl";
 import useIsMobile from "@/hooks/useIsMobile";
 import useTokenData from "@/hooks/useTokenData";
 import useWindow from "@/hooks/useWindow";
+import useAccountProfile from "@/hooks/useAccountProfile";
+import { useThemeMode } from "@/contexts/ThemeContext";
+import LanguageSwitcher from "@/Components/UI/LanguageSwitcher";
 import { useSelector } from "react-redux";
 import { rootReducer } from "@/utils/types";
 import AutoAwesomeRounded from "@mui/icons-material/AutoAwesomeRounded";
+import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
+import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
+import TranslateRounded from "@mui/icons-material/TranslateRounded";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import OpenInNewRounded from "@mui/icons-material/OpenInNewRounded";
 import SettingsIcon from "@mui/icons-material/Settings";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { useTranslation } from "react-i18next";
 import CustomButton from "../Buttons";
@@ -33,6 +41,23 @@ export default function UserMenu() {
   const router = useRouter();
   const customWindow = useWindow();
   const { t } = useTranslation("dashboardLayout");
+
+  // Theme + language + profile-completeness now live INSIDE this avatar menu
+  // (Blueprint §3 header slim-down) instead of as separate always-on header controls.
+  const { isDark, toggleTheme } = useThemeMode();
+  const {
+    hasAccount,
+    profileComplete,
+    isIndividual,
+    fetched: accountFetched,
+  } = useAccountProfile();
+  const showSetupWarning = accountFetched && (!hasAccount || !profileComplete);
+  const setupHref = hasAccount ? "/settings?section=company" : "/create-pay-link";
+  const setupLabel = !hasAccount
+    ? t("companySetupWarning")
+    : isIndividual
+      ? t("accountSetupWarningIndividual", { defaultValue: "Add your country to finish setup" })
+      : t("accountSetupWarningBusiness", { defaultValue: "Finish your business profile" });
 
   // Show "View my creator page" only once the user has claimed a handle AND published.
   const profile = useSelector((s: rootReducer) => (s as any).userReducer.profile) as any;
@@ -260,6 +285,37 @@ export default function UserMenu() {
 
           {/* Content */}
           <Box sx={{ mt: "7px" }}>
+            {showSetupWarning && (
+              <Link href={setupHref} style={{ textDecoration: "none" }}>
+                <MenuItemRow
+                  data-testid="user-menu-setup-warning"
+                  onClick={() => setAnchorEl(null)}
+                  sx={{
+                    gap: "8px",
+                    justifyContent: "flex-start",
+                    borderRadius: "8px",
+                    px: "8px",
+                    mb: "6px",
+                    backgroundColor: theme.palette.primary.light,
+                    "&:hover": { backgroundColor: theme.palette.primary.light },
+                  }}
+                >
+                  <InfoOutlinedIcon
+                    sx={{ fontSize: "16px", color: theme.palette.primary.main }}
+                  />
+                  <Typography
+                    sx={{
+                      fontFamily: "var(--font-sans)",
+                      fontSize: isMobile ? "12.5px" : "13.5px",
+                      fontWeight: 600,
+                      color: theme.palette.primary.main,
+                    }}
+                  >
+                    {setupLabel}
+                  </Typography>
+                </MenuItemRow>
+              </Link>
+            )}
             <MenuItemRow
               data-testid="user-menu-creator"
               onClick={() => {
@@ -314,6 +370,61 @@ export default function UserMenu() {
                 {t("settings")}
               </Typography>
             </MenuItemRow>
+
+            {/* Preferences moved out of the header (Blueprint §3). */}
+            <HeaderDivider style={{ margin: "8px 0" }} />
+
+            <MenuItemRow
+              data-testid="user-menu-theme-toggle"
+              onClick={toggleTheme}
+              sx={{
+                gap: "8px",
+                justifyContent: "flex-start",
+                "&:hover": { background: "transparent" },
+              }}
+            >
+              {isDark ? (
+                <LightModeOutlinedIcon sx={{ fontSize: "16px" }} />
+              ) : (
+                <DarkModeOutlinedIcon sx={{ fontSize: "16px" }} />
+              )}
+              <Typography
+                sx={{
+                  fontFamily: "var(--font-sans)",
+                  fontSize: isMobile ? "13px" : "15px",
+                }}
+              >
+                {isDark
+                  ? t("userMenuLightMode", { defaultValue: "Light mode" })
+                  : t("userMenuDarkMode", { defaultValue: "Dark mode" })}
+              </Typography>
+            </MenuItemRow>
+
+            <Box
+              data-testid="user-menu-language"
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: "8px",
+                px: "6px",
+                py: "6px",
+              }}
+            >
+              <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <TranslateRounded sx={{ fontSize: "16px", color: theme.palette.text.primary }} />
+                <Typography
+                  sx={{
+                    fontFamily: "var(--font-sans)",
+                    fontSize: isMobile ? "13px" : "15px",
+                    color: theme.palette.text.primary,
+                  }}
+                >
+                  {t("userMenuLanguage", { defaultValue: "Language" })}
+                </Typography>
+              </Box>
+              <LanguageSwitcher />
+            </Box>
 
             <Box mt={isMobile ? "10px" : "15px"}>
               <CustomButton

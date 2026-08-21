@@ -48,36 +48,51 @@ export const SectionLabel = styled("div")(({ theme }) => ({
 export const MenuItem = styled("div", {
   shouldForwardProp: (prop) => prop !== "active",
 })<{ active?: boolean }>(
-  ({ active, theme }) => ({
-    display: "flex",
-    alignItems: "center",
-    gap: "10px",
-    maxHeight: "44px",
-    padding: "10px 14px",
-    borderRadius: "10px",
-    cursor: "pointer",
-    // Bento identity: light mode = near-black pill w/ lime text,
-    // dark mode = lime pill w/ near-black text (primary + contrastText tokens).
-    background: active ? theme.palette.primary.main : "transparent",
-    fontSize: "14px",
-    fontWeight: 500,
-    color: active ? theme.palette.primary.contrastText : theme.palette.text.primary,
-    boxShadow: active
-      ? theme.palette.mode === "dark"
-        ? "0 4px 14px rgba(129,140,248,0.30)"
-        : "0 4px 14px rgba(10,10,10,0.28)"
-      : "none",
-    transition: "background 0.18s ease, color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease",
-    position: "relative",
-
-    "&:hover": {
-      background: active ? theme.palette.primary.main : theme.palette.secondary.main,
-      transform: active ? "none" : "translateX(3px)",
-    },
-    "&:active": {
-      transform: "scale(0.985)",
-    },
-  }),
+  ({ active, theme }) => {
+    const isDark = theme.palette.mode === "dark";
+    // Quiet Money (Blueprint §3): the active row is a calm 3px indigo left-bar +
+    // faint tint + indigo text/icon — NOT a filled high-contrast pill with a glow.
+    const activeTint = isDark ? "rgba(99,102,241,0.14)" : "rgba(67,56,202,0.07)";
+    return {
+      display: "flex",
+      alignItems: "center",
+      gap: "10px",
+      maxHeight: "44px",
+      padding: "10px 14px",
+      borderRadius: "10px",
+      cursor: "pointer",
+      background: active ? activeTint : "transparent",
+      fontSize: "14px",
+      fontWeight: active ? 600 : 500,
+      color: active ? brandFg(isDark) : theme.palette.text.primary,
+      boxShadow: "none",
+      transition: "background 0.16s ease, color 0.16s ease, transform 0.16s ease",
+      position: "relative",
+      "&::before": {
+        content: '""',
+        position: "absolute",
+        left: 0,
+        top: "50%",
+        transform: "translateY(-50%)",
+        width: "3px",
+        height: active ? "20px" : "0px",
+        borderRadius: "0 3px 3px 0",
+        background: theme.palette.primary.main,
+        transition: "height 0.16s ease",
+      },
+      "&:hover": {
+        background: active
+          ? activeTint
+          : isDark
+            ? "rgba(255,255,255,0.05)"
+            : "rgba(15,23,42,0.04)",
+        transform: active ? "none" : "translateX(2px)",
+      },
+      "&:active": {
+        transform: "scale(0.99)",
+      },
+    };
+  },
 );
 
 /** @deprecated kept for backward-compat — the pill itself now signals the active route. */

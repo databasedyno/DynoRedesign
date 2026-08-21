@@ -11,7 +11,15 @@ Companion machine-readable tokens: `/app/design_guidelines.json` (written by the
 >   focus) via app-theme component overrides; NEW `Components/UI/StatusDot.tsx` primitive + shared
 >   `StatusPill` converted to dot+text. Default theme mode intentionally NOT flipped (user choice).
 >   Per-table status→StatusDot rollout deferred to P3 (Tables). `BRAND_ACCENT` deepened to #4338CA.
-> - P2 — Chrome · P3 — Tables · P4 — Dashboard · P5 — Checkout/public · P6 — Marketing → PENDING.
+> - **P2 — Chrome ✅ SHIPPED (2026-08-21)** — header slimmed 7→4 (logo · company switcher · +New ·
+>   bell · avatar); theme toggle, language switcher and the profile-completeness prompt moved INTO the
+>   avatar menu (`Components/UI/UserMenu`, `Components/Layout/NewHeader`). Quiet sidebar: active row is now
+>   a 3px indigo left-bar + faint tint + indigo text/icon (no filled glow) via `NewSidebar/styled.tsx`+
+>   `index.tsx`; referral card + social-share icons removed from the nav and NEW pills dropped (rule 5),
+>   Help & Support kept (`ReferralAndKnowledge` slimmed). **Deferred → P2b:** tablet icon-rail auto-trigger
+>   at 1024 + mobile bottom-tab threshold (1024→640) — the responsive breakpoint rework (riskiest; wants a
+>   dedicated testing pass).
+> - P3 — Tables · P4 — Dashboard · P5 — Checkout/public · P6 — Marketing → PENDING.
 
 
 Grounding: live screenshots of the current landing / dashboard / transactions (2026-08-21), the 27-surface

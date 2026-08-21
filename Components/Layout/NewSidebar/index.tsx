@@ -15,7 +15,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next";
 import useAccountProfile from "@/hooks/useAccountProfile";
 import ReferralAndKnowledge from "../ReferralAndKnowledge";
-import { BRAND_ACCENT } from "@/constants/theme";
+import { BRAND_ACCENT, brandFg } from "@/constants/theme";
 import { navAccent } from "@/helpers/navAccent";
 import {
   IconBox,
@@ -256,7 +256,7 @@ const NewSidebar = () => {
   // — gives each nav icon a subtle, meaningful colour while the active pill
   // stays high-contrast.
   const iconColor = (isActive: boolean, icon: string) =>
-    isActive ? theme.palette.primary.contrastText : navAccent(icon, theme.palette.mode === "dark");
+    isActive ? brandFg(theme.palette.mode === "dark") : navAccent(icon, theme.palette.mode === "dark");
 
   return (
     <SidebarWrapper data-collapsed={isCollapsed ? "true" : "false"} sx={isCollapsed ? { padding: "12px 8px" } : undefined}>
@@ -323,7 +323,7 @@ const NewSidebar = () => {
                       component="span"
                       sx={{
                         fontSize: isMobile ? "11px" : "14px",
-                        fontWeight: isActive ? 700 : 500,
+                        fontWeight: isActive ? 600 : 500,
                         textAlign: "center",
                         lineHeight: 1.2,
                         fontFamily: isActive ? "var(--font-sans)" : "var(--font-sans)",
@@ -347,34 +347,6 @@ const NewSidebar = () => {
                     >
                       {isMobile ? item.label.split(" ")[0] : item.label}
                     </Box>
-
-                    {item.isNew && !isMobile && !isCollapsed && (
-                      <Box
-                        component="span"
-                        ref={(el: HTMLElement | null) => {
-                          if (item.icon === "creator") creatorPillRef.current = el;
-                        }}
-                        data-testid={`sidebar-new-${item.icon}`}
-                        sx={{
-                          ml: 0.75,
-                          px: 0.75,
-                          py: 0.15,
-                          borderRadius: 999,
-                          fontSize: 9.5,
-                          fontWeight: 800,
-                          letterSpacing: "0.06em",
-                          textTransform: "uppercase",
-                          fontFamily: "var(--font-sans)",
-                          backgroundColor: BRAND_ACCENT,
-                          color: "#0A0A0B",
-                          lineHeight: 1.4,
-                          alignSelf: "center",
-                          flexShrink: 0,
-                        }}
-                      >
-                        {t("newBadge", { defaultValue: "New" })}
-                      </Box>
-                    )}
                   </MenuItem>
                 );
 
