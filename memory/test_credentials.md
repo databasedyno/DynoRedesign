@@ -1,5 +1,22 @@
 # Test Credentials
 
+## 🆕 2026-08-21 (later session) — webhook events + ledger rollout notes
+- `backend/.env` now has **`ENABLE_LEDGER=true`** in the preview (vault re-sealed after the change).
+  Ledger tables + 7 accounts exist on the LIVE Railway DB and 407 settlements are backfilled
+  (1612 entries). `LEDGER_DUAL_WRITE` / `LEDGER_INVARIANT_CRON` deliberately still OFF.
+- New opt-in webhook events live: `payment.created`, `payment.expired`, `payment.overpaid`.
+  Opt-in per company via `tbl_company.webhook_events` (JSONB, migration 003 applied to the live DB).
+  **Company 1 (hostbay) is intentionally left with `webhook_events = []`** — no new events are being
+  sent to the merchant's real endpoint. Toggle from Developers → Webhooks.
+  data-testids: `webhook-event-payment-created|-expired|-overpaid`, `webhook-events-save`.
+- Manual sweep trigger (cron is leader-gated so previews never fire it):
+  `POST /api/diagnostics/sweep-expired-payments` (admin auth), body `{lookback_minutes, limit}`.
+- ⚠️ **yarn install must use `--production=false`** — `NODE_ENV=production` in `backend/.env` is loaded
+  into the launcher process, so a plain install silently skips devDependencies (jest/ts-jest/@types
+  disappear and the whole test suite + tsc types break). All install paths now pass the flag.
+- Test runner: `bash scripts/run-tests.sh` (NOT `sh` — the script needs bash for `pipefail`).
+  Batch 4 added (ledger + webhookEvents suites were previously orphaned). Full suite = 546 tests.
+
 ## 🚀 SETUP IS NOW ONE COMMAND (added 2026-08-21) — READ /app/memory/POD_SETUP.md
 ```bash
 bash /app/scripts/pod-bootstrap.sh --pass '<vault passphrase — ASK THE USER>'

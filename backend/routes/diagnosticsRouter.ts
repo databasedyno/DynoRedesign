@@ -10,6 +10,7 @@ import { dynoPayEmailTemplate } from "../helper/sendEmail";
 import { baseEmailTemplate, infoBox, dataRow, statusBadge, p, otpBlock } from "../utils/emailTemplate";
 import adminAuthMiddleware from "../middleware/adminAuthMiddleware";
 import { enqueueWebhook } from "../services/webhookQueue";
+import { sweepExpiredPaymentLinks } from "../services/paymentExpirySweeper";
 import { webhookLogs } from "../utils/loggers";
 import tatumHttp from "../utils/tatumHttp";
 
@@ -27,6 +28,24 @@ router.get("/tunnel-status", adminAuthMiddleware, (_req: express.Request, res: e
     tunnel: status,
     binanceProxy: proxyState,
   });
+});
+
+/**
+ * POST /diagnostics/sweep-expired-payments
+ * Manually run the payment.expired sweeper (admin only).
+ * Exists because the cron is leader-gated, so previews/secondaries never fire it.
+ * Body: { lookback_minutes?: number, limit?: number }
+ */
+router.post("/sweep-expired-payments", adminAuthMiddleware, async (req: express.Request, res: express.Response) => {
+  try {
+    const result = await sweepExpiredPaymentLinks({
+      lookbackMinutes: req.body?.lookback_minutes ? Number(req.body.lookback_minutes) : undefined,
+      limit: req.body?.limit ? Number(req.body.limit) : undefined,
+    });
+    res.status(200).json({ success: true, result });
+  } catch (err) {
+    res.status(500).json({ success: false, error: (err as Error).message });
+  }
 });
 
 /**

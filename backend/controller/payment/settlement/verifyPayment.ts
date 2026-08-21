@@ -69,6 +69,7 @@ import { recordTransactionVolume, reverseTransactionVolume } from "../../../serv
 import { isVolatileCrypto } from "../../../services/binanceService";
 import { createConversionRecord } from "../../../services/conversionService";
 import { PaymentState, parseState, toRedisStatus } from "../../../services/paymentStateMachine";
+import { emitPaymentOverpaid } from "../../../services/webhookEvents";
 import { calculateDynamicTRC20Fee } from "../../../services/tronEnergyService";
 
 import { cryptoVerification } from "./chainVerification";
@@ -296,6 +297,31 @@ export const verifyCryptoPayment = async (
       if (isSignificantOverpayment) {
         responseData.excessAmount = parseFloat(overpaymentAmount.toFixed(6));
         responseData.excessAmountUsd = parseFloat(overpaymentUsd.toFixed(2));
+
+        // Tier-1 item #2: payment.overpaid (opt-in event, deduped per payment —
+        // this endpoint is polled, so it must only ever fire once).
+        emitPaymentOverpaid(
+          {
+            company_id: customerData?.company_id || tempData?.company_id || null,
+            link_id: customerData?.link_id || tempData?.link_id || null,
+            webhook_url: customerData?.webhook_url || tempData?.webhook_url || null,
+            callback_url: customerData?.callback_url || tempData?.callback_url || null,
+            webhook_secret: customerData?.webhook_secret || tempData?.webhook_secret || null,
+          },
+          {
+            payment_id: tempData?.payment_id || tempData?.unique_tx_id,
+            address,
+            txId: tempData?.txId || null,
+            amount_received: parseFloat(totalReceived.toFixed(8)),
+            amount_expected: parseFloat(originalExpected.toFixed(8)),
+            excess_amount: parseFloat(overpaymentAmount.toFixed(8)),
+            excess_amount_usd: parseFloat(overpaymentUsd.toFixed(2)),
+            currency,
+            base_amount: actualBaseAmount,
+            base_currency: baseCurrency,
+            link_id: customerData?.link_id || tempData?.link_id || null,
+          }
+        ).catch(() => { /* emitters never throw; guard for safety */ });
       }
 
       // DEBUG: Log the exact response being sent

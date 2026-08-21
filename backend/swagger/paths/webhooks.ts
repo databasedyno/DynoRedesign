@@ -172,6 +172,9 @@ Dynopay sends these webhook events for **both Payment Links and Direct API Payme
 |-------|-------------|---------------|
 | \`payment.pending\` | Payment detected on blockchain, awaiting confirmations | Payment Links ✅, Direct API ✅ |
 | \`payment.confirmed\` | Payment fully confirmed and processed | Payment Links ✅, Direct API ✅ |
+| \`payment.created\` | **Opt-in.** A checkout was created and an address issued — nothing paid yet | Payment Links ✅, Direct API ✅ |
+| \`payment.expired\` | **Opt-in.** A payment link passed \`expires_at\` unpaid | Payment Links ✅ |
+| \`payment.overpaid\` | **Opt-in.** Customer sent more than requested (above your overpayment threshold) | Payment Links ✅, Direct API ✅ |
 | \`payment.underpaid\` | Partial payment received | Payment Links ✅ (waits for remainder), Direct API ✅ (informational only — processed immediately) |
 
 ---

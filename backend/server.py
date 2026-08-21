@@ -53,7 +53,9 @@ def ensure_node_modules():
         return
 
     print("⚙️  backend/node_modules missing -> yarn install (fresh-pod self-heal, ~1 min)...", flush=True)
-    for extra in (['--network-concurrency', '16'], ['--check-files']):
+    # NODE_ENV=production from .env is loaded into this process; without
+    # --production=false yarn would skip devDependencies (jest/ts-jest/@types).
+    for extra in (['--production=false', '--network-concurrency', '16'], ['--production=false', '--check-files']):
         subprocess.run(
             ['flock', '/tmp/dynopay-yarn-install.lock', 'yarn', 'install', '--non-interactive'] + extra,
             cwd='/app/backend',

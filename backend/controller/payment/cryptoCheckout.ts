@@ -65,6 +65,7 @@ import {
 } from "../../services/blockchainFeeService";
 import * as merchantPoolService from "../../services/merchantPoolService";
 import { getCryptoRedisKey } from "../../services/merchantPool/merchantPoolConfig";
+import { emitPaymentCreated } from "../../services/webhookEvents";
 import { isStablecoin } from "../../services/binanceService";
 import { PaymentState, parseState, toRedisStatus } from "../../services/paymentStateMachine";
 
@@ -1697,6 +1698,30 @@ const createCryptoPayment = async (
           tax_country_code: taxInfo.country_code,
         }),
       };
+
+      // Tier-1 item #2: payment.created (opt-in event — no-op unless the
+      // merchant subscribed). Fire-and-forget: never delay the checkout.
+      emitPaymentCreated(
+        {
+          company_id: items?.company_id || null,
+          link_id: items?.link_id || null,
+          webhook_url: items?.webhook_url || null,
+          callback_url: items?.callback_url || null,
+          webhook_secret: items?.webhook_secret || null,
+        },
+        {
+          payment_id: paymentRes.transaction_id,
+          address: paymentRes.address,
+          amount: crypto_amount,
+          currency: data.currency,
+          base_amount: baseAmountOriginal,
+          base_currency: baseCurrency,
+          link_id: items?.link_id || null,
+          fee_payer: fee_payer,
+          destination_tag: paymentRes.destination_tag || null,
+          expires_at: cryptoInvoiceExpiresAt,
+        }
+      ).catch(() => { /* emitters never throw; guard for safety */ });
 
       // ═══════════════════════════════════════════════════════════════
       // PERF: Send response FIRST, then do Redis writes in background

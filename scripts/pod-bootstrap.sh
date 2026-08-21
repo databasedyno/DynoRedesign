@@ -133,10 +133,10 @@ install_deps() {
     return
   fi
   echo "   installing $label (this is the slow part on a fresh pod)..."
-  (cd "$dir" && flock /tmp/dynopay-yarn-install.lock yarn install --non-interactive --network-concurrency 16 >"/tmp/yarn-$label.log" 2>&1)
+  (cd "$dir" && flock /tmp/dynopay-yarn-install.lock yarn install --non-interactive --production=false --network-concurrency 16 >"/tmp/yarn-$label.log" 2>&1)
   if [ ! -x "$probe" ]; then
     # yarn says "already up-to-date" for a partially-present tree; --check-files repairs it.
-    (cd "$dir" && flock /tmp/dynopay-yarn-install.lock yarn install --non-interactive --check-files >>"/tmp/yarn-$label.log" 2>&1)
+    (cd "$dir" && flock /tmp/dynopay-yarn-install.lock yarn install --non-interactive --production=false --check-files >>"/tmp/yarn-$label.log" 2>&1)
   fi
   if [ -x "$probe" ]; then
     ok "$label installed"

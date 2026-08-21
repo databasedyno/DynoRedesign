@@ -23,6 +23,7 @@ import { hmacSha256Hex } from "../utils/hmac";
 
 import axios from "axios";
 import { toConversionDisplayStatus } from "../services/paymentStateMachine";
+import { OPT_IN_WEBHOOK_EVENTS, ALWAYS_ON_WEBHOOK_EVENTS, parseSubscribedEvents } from "../services/webhookEvents";
 
 const TAX_DATA_API_URL = process.env.TAX_DATA_API_URL || "https://api.apilayer.com/tax_data";
 const TAX_DATA_API_KEY = process.env.TAX_DATA_API_KEY;
@@ -1150,7 +1151,7 @@ const updateWebhookSettings = async (req: express.Request, res: express.Response
   const userData = jwt.decode(res.locals.token) as IUserType;
   try {
     const company_id = req.params.id;
-    const { webhook_url, webhook_secret } = req.body;
+    const { webhook_url, webhook_secret, webhook_events } = req.body;
 
     // Verify company belongs to user
     const company = await companyModel.findOne({
@@ -1180,26 +1181,55 @@ const updateWebhookSettings = async (req: express.Request, res: express.Response
       newSecret = 'whsec_' + crypto.randomBytes(24).toString('hex');
     }
 
-    // Update webhook settings
-    await companyModel.update(
-      {
-        webhook_url: webhook_url || null,
-        webhook_secret: newSecret || null,
-      },
-      { where: { company_id } }
-    );
+    // Validate the opt-in event list (Tier-1 item #2). Legacy events are always
+    // delivered and are not listed here.
+    let normalizedEvents: string[] | null | undefined;
+    if (webhook_events !== undefined) {
+      if (webhook_events === null) {
+        normalizedEvents = null;
+      } else if (!Array.isArray(webhook_events)) {
+        return errorResponseHelper(res, 400, "webhook_events must be an array of event names");
+      } else {
+        const invalid = webhook_events
+          .map(String)
+          .filter((e) => !(OPT_IN_WEBHOOK_EVENTS as readonly string[]).includes(e));
+        if (invalid.length > 0) {
+          return errorResponseHelper(
+            res,
+            400,
+            `Unsupported webhook events: ${invalid.join(", ")}. Subscribable events: ${OPT_IN_WEBHOOK_EVENTS.join(", ")}`
+          );
+        }
+        normalizedEvents = Array.from(new Set(webhook_events.map(String)));
+      }
+    }
+
+    // Partial update: only touch what the caller actually sent, so saving the
+    // URL can no longer wipe the signing secret (and vice versa).
+    const updates: Record<string, unknown> = {};
+    if (webhook_url !== undefined) updates.webhook_url = webhook_url || null;
+    if (webhook_secret !== undefined) updates.webhook_secret = newSecret || null;
+    if (normalizedEvents !== undefined) updates.webhook_events = normalizedEvents;
+
+    if (Object.keys(updates).length === 0) {
+      return errorResponseHelper(res, 400, "No webhook settings provided");
+    }
+
+    await companyModel.update(updates, { where: { company_id } });
 
     companyLogger.info(
-      `Webhook settings updated for company ${company_id}`,
+      `Webhook settings updated for company ${company_id} (${Object.keys(updates).join(", ")})`,
       { user_id: userData.user_id, email: userData.email }
     );
 
     successResponseHelper(res, 200, "Webhook settings updated successfully", {
       company_id,
-      webhook_url: webhook_url || null,
-      webhook_secret_set: !!newSecret,
+      webhook_url: webhook_url !== undefined ? (webhook_url || null) : undefined,
+      // Only meaningful when the caller actually touched the secret.
+      webhook_secret_set: webhook_secret !== undefined ? !!newSecret : undefined,
       // Only show full secret on generation, otherwise mask it
       webhook_secret: webhook_secret === 'generate' ? newSecret : (newSecret ? '***' + newSecret.slice(-8) : null),
+      webhook_events: normalizedEvents !== undefined ? normalizedEvents : undefined,
     });
 
   } catch (e) {
@@ -1219,7 +1249,7 @@ const getWebhookSettings = async (req: express.Request, res: express.Response) =
     const company_id = req.params.id;
 
     const [result] = await sequelize.query(
-      `SELECT webhook_url, webhook_secret, webhook_disabled, webhook_disabled_at, webhook_disabled_reason
+      `SELECT webhook_url, webhook_secret, webhook_disabled, webhook_disabled_at, webhook_disabled_reason, webhook_events
          FROM tbl_company WHERE company_id = :company_id AND user_id = :user_id`,
       {
         replacements: { company_id, user_id: userData.user_id },
@@ -1239,6 +1269,7 @@ const getWebhookSettings = async (req: express.Request, res: express.Response) =
       webhook_disabled?: boolean;
       webhook_disabled_at?: string | Date | null;
       webhook_disabled_reason?: string | null;
+      webhook_events?: unknown;
     };
     
     successResponseHelper(res, 200, "Webhook settings retrieved", {
@@ -1250,6 +1281,10 @@ const getWebhookSettings = async (req: express.Request, res: express.Response) =
       webhook_disabled: !!companyData?.webhook_disabled,
       webhook_disabled_at: companyData?.webhook_disabled_at || null,
       webhook_disabled_reason: companyData?.webhook_disabled_reason || null,
+      // Tier-1 item #2: opt-in event subscriptions + the catalogue to render
+      webhook_events: parseSubscribedEvents(companyData?.webhook_events),
+      subscribable_events: OPT_IN_WEBHOOK_EVENTS,
+      always_on_events: ALWAYS_ON_WEBHOOK_EVENTS,
     });
 
   } catch (e) {

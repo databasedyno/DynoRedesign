@@ -1,5 +1,84 @@
 # Changelog
 
+# SESSION 2026-08-21 (later) — **Tier-1 #2: missing webhook events SHIPPED** · **Tier-1 #3 ledger rolled out (stages 1–3) on the live DB**
+
+## A. Opt-in webhook events — `payment.created`, `payment.expired`, `payment.overpaid`
+Refunds intentionally excluded (deferred by user).
+
+**Design decision (user's call): OPT-IN PER MERCHANT.** New `tbl_company.webhook_events` JSONB —
+`NULL`/absent = merchant receives exactly the legacy set (zero behavior change). Without this, pushing
+new event types at an integration that rejects them could trip the DLQ auto-disable breaker in
+`utils/webhookRetry.ts` and take a live merchant's webhooks offline.
+
+New files:
+- `services/webhookEvents.ts` — event catalogue (`OPT_IN_WEBHOOK_EVENTS`, `ALWAYS_ON_WEBHOOK_EVENTS`),
+  `isEventSubscribed()`, `getSubscribedEvents()`, `claimEmitOnce()` (atomic Redis `SET NX EX` guard),
+  `emitOptInWebhook()` + typed emitters. Lazy `require("../webhooks")` avoids the import cycle.
+  Fails open on Redis errors (deliver rather than silently drop), fails closed on unknown company.
+- `services/paymentExpirySweeper.ts` — link expiry is COMPUTED, never written, so there is no state
+  transition to hook. Sweeps links that crossed `expires_at` in the lookback window
+  (`PAYMENT_EXPIRED_LOOKBACK_MINUTES`, default 180), skips anything paid, emits once per link.
+  SQL pre-filters on `webhook_events @> '["payment.expired"]'` so unsubscribed companies are never scanned.
+- `migrations/003_add_company_webhook_events.sql` — idempotent `ADD COLUMN webhook_events JSONB`.
+  **Already applied to the LIVE Railway DB this session** (verified: jsonb, nullable).
+- `__tests__/webhookEvents.test.ts` — 13 tests (subscription matrix, JSONB/text parsing, dedup,
+  payload shape, direct_api vs payment_link, no-company fail-closed).
+
+Emit points (one per event, all fire-and-forget):
+- `payment.created` → `controller/payment/cryptoCheckout.ts` right after the `crypto-{address}` payload is
+  built. Covers hosted checkout AND the merchant API, because `/api/user/cryptoPayment` delegates to
+  `createCryptoPayment`.
+- `payment.overpaid` → `controller/payment/settlement/verifyPayment.ts` inside the existing
+  `isSignificantOverpayment` branch (respects each merchant's `overpayment_threshold_usd`). Deduped
+  because the checkout polls this endpoint.
+- `payment.expired` → new leader-gated cron (`*/5 * * * *`) in `server.ts` + admin manual trigger
+  `POST /api/diagnostics/sweep-expired-payments` (cron is leader-only, so previews never fire it).
+
+Filtering lives in ONE choke point: `webhooks/index.ts` `callMerchantWebhook()` — the existing
+`webhook_disabled` guard query now also selects `webhook_events` (no extra query) and drops opt-in
+events the company has not subscribed to.
+
+API + UI:
+- `GET /api/company/webhook-settings/:id` now returns `webhook_events`, `subscribable_events`,
+  `always_on_events`.
+- `PUT /api/company/webhook-settings/:id` accepts `webhook_events` (validated against the allowed list)
+  and is now a **PARTIAL** update — **fixes a real pre-existing bug where saving the webhook URL wiped
+  the signing secret** (the old code wrote `webhook_secret: null` on every URL-only save).
+- `Components/Page/API/WebhookConsoleSection.tsx` — "Event subscriptions" block with three checkboxes,
+  dirty-state Save, always-on copy. Also fixed: the card now shows the masked secret preview
+  (`webhook_secret_preview`) instead of claiming "No secret set", which had been nudging merchants
+  toward regenerating a live secret.
+- Docs: `docs/WEBHOOK_INTEGRATION.md` (new opt-in section with payload examples + curl) and
+  `swagger/paths/webhooks.ts` event table.
+
+Verified end-to-end against the user's webhook.site bin (real delivery path, HMAC signed, 200s logged in
+`tbl_webhook_delivery_log`): payment.created delivered + duplicate blocked, payment.overpaid delivered,
+payment.expired emitted by the real sweeper on a synthetic expired link (inserted then DELETED), repeat
+sweep emitted 0 (dedup), then unsubscribe → `not_subscribed` and no delivery. Company row restored to
+`webhook_events = NULL`, `webhook_url` never touched. Frontend verified by the testing agent — 7/7 pass,
+account left with all three unchecked.
+
+## B. Double-entry ledger rollout — stages 1–3 done on the LIVE DB
+- `ENABLE_LEDGER=true` added to the preview `backend/.env` → tables synced + 7 standard accounts seeded
+  (buyer_escrow, merchant_payable, fee_revenue, gas_expense, conversion_pnl, refund_liability, suspense).
+  **Because preview shares the merchant's live Railway DB, production is now already migrated + backfilled.**
+- Dry-run backfill: scanned 407 `settlement_sent` journal events, 407 postable, 0 missing metadata, 0 errors.
+- Real backfill: 407 posted, 0 dedup, 0 errors → 1612 ledger entries across 407 batches.
+- Invariant check over a 12-month window: `status: ok`, `drift_by_currency: {}`, 0 unbalanced batches.
+- Balances reconcile per currency (e.g. ETH: escrow 1.142172608447 = payable 1.110294460000 + fees 0.031878148447).
+- Still OFF (production env vars, operator's call): `LEDGER_DUAL_WRITE`, `LEDGER_INVARIANT_CRON`.
+
+## C. Fixes found while testing
+- **`controller/user/preferences.ts`**: `require("../utils/currencyUtils")` → `"../../utils/currencyUtils"`
+  (2 occurrences). `GET /api/user/display-currency` was returning **500 on every dashboard/developers page
+  load** since the R2 controller/user split. Verified 200 with real data after the fix.
+- `scripts/run-tests.sh`: added **batch 4** — `ledgerDecimals`, `ledgerPaymentMapper`, `webhookEvents` were
+  orphaned (in no batch, so never run by the runner). Full suite now 546 tests, all green
+  (105 + 203 + 163 + 35 + 40).
+- `--production=false` added to every yarn install path (`backend/server.py`, `scripts/start-frontend.sh`,
+  `scripts/pod-bootstrap.sh`): `NODE_ENV=production` from `backend/.env` is loaded into the launcher
+  process, so the self-heal install had been silently skipping devDependencies (jest/ts-jest/@types).
+
 # SESSION 2026-08-21 — **Pod setup delay eliminated (env vault + self-healing boot + one-command bootstrap)**
 
 Problem: every new pod cost several minutes of manual work — user re-pasted ~220 lines of credentials,

@@ -15,6 +15,7 @@ import tatumApi from "../apis/tatumApi";
 import { merchantTempAddressModel } from "../models";
 import { enqueueWebhook } from "../services/webhookQueue";
 import { toRedisStatus, PaymentState } from "../services/paymentStateMachine";
+import { isEventSubscribed, isOptInWebhookEvent } from "../services/webhookEvents";
 
 // Build a set of all admin/fee wallet addresses for fast lookup (lowercase for case-insensitive match)
 const INTERNAL_WALLETS = new Set(
@@ -127,20 +128,32 @@ const callMerchantWebhook = async (customerData: Record<string, unknown>, eventD
     // webhook_disabled flag is set (by the DLQ-driven auto-disable in
     // utils/webhookRetry.ts or by the 404 threshold below), skip webhook
     // delivery entirely — merchant must re-enable via dashboard.
+    const eventName = String(eventData?.event || "");
+
     if (companyId) {
       try {
         const [companyGuard] = await sequelize.query(
-          `SELECT webhook_disabled, webhook_disabled_reason FROM tbl_company WHERE company_id = :cid LIMIT 1`,
+          `SELECT webhook_disabled, webhook_disabled_reason, webhook_events FROM tbl_company WHERE company_id = :cid LIMIT 1`,
           { replacements: { cid: companyId }, type: QueryTypes.SELECT }
         );
         if (companyGuard && companyGuard.webhook_disabled === true) {
           webhookLogs.warn(`[callMerchantWebhook] ⛔ Skipping — webhook_disabled=true on company_id=${companyId} (reason: ${companyGuard.webhook_disabled_reason || 'unknown'})`);
           return { success: false, error: `Webhook delivery disabled for this company. Re-enable via dashboard settings.` };
         }
+        // Tier-1 item #2: opt-in events are only delivered to merchants who
+        // subscribed. Legacy events pass through untouched.
+        if (!isEventSubscribed(companyGuard?.webhook_events, eventName)) {
+          webhookLogs.info(`[callMerchantWebhook] ⏭️ Skipping ${eventName} — company_id=${companyId} has not subscribed to it`);
+          return { success: true };
+        }
       } catch (guardErr) {
         // Non-fatal — if guard read fails, proceed with delivery attempt
         webhookLogs.warn(`[callMerchantWebhook] Webhook_disabled guard read failed for company_id=${companyId}: ${(guardErr as Error).message}`);
       }
+    } else if (isOptInWebhookEvent(eventName)) {
+      // Fail closed: an opt-in event with no company cannot be checked.
+      webhookLogs.info(`[callMerchantWebhook] ⏭️ Skipping ${eventName} — no company_id to verify subscription`);
+      return { success: true };
     }
     
     // First, check if webhook_url was passed directly with the payment (e.g. merchant crypto payment API stores it in Redis)

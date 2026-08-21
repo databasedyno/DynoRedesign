@@ -29,7 +29,9 @@ MODE="${MODE:-dev}"
 # until someone installs by hand. flock serialises with the backend installer
 # (parallel yarn installs corrupt the shared cache).
 yarn_install() {
-  flock /tmp/dynopay-yarn-install.lock yarn install --non-interactive "$@"
+  # --production=false: NODE_ENV may be "production" in .env, which would make
+  # yarn skip devDependencies (next lives in dependencies, but tooling does not).
+  flock /tmp/dynopay-yarn-install.lock yarn install --non-interactive --production=false "$@"
 }
 if [ ! -x /app/node_modules/.bin/next ]; then
   echo "[start-frontend] node_modules missing -> yarn install (fresh-pod self-heal, ~1-2 min)..."

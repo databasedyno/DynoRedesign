@@ -38,7 +38,7 @@ export const getUserDisplayCurrency = async (
   const userData = jwt.decode(res.locals.token) as IUserType;
   try {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const cu = require("../utils/currencyUtils");
+    const cu = require("../../utils/currencyUtils");
     // Read raw override to answer "source"
     const rawRows = (await sequelize.query(
       `SELECT display_currency FROM tbl_user WHERE user_id = :uid LIMIT 1`,
@@ -94,7 +94,7 @@ export const updateUserDisplayCurrency = async (
   const rawCur = req.body?.display_currency;
   try {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const cu = require("../utils/currencyUtils");
+    const cu = require("../../utils/currencyUtils");
 
     // Allow explicit null / "" to clear the override.
     let nextValue: string | null = null;

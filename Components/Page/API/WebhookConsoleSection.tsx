@@ -22,10 +22,12 @@ import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import {
   Box,
   Button,
+  Checkbox,
   Chip,
   CircularProgress,
   Dialog,
   DialogContent,
+  FormControlLabel,
   IconButton,
   MenuItem,
   Select,
@@ -74,6 +76,12 @@ interface WebhookStats {
   avg_response_time_ms: number;
   last_delivery: string | null;
 }
+
+const OPT_IN_EVENTS = [
+  { id: "payment.created", hint: "A checkout was created and an address issued — nothing paid yet" },
+  { id: "payment.expired", hint: "A payment link passed its expiry without being paid" },
+  { id: "payment.overpaid", hint: "The customer sent more than requested, above your threshold" },
+];
 
 const statusMeta = (status: string) => {
   switch (status) {
@@ -128,10 +136,17 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
   const [url, setUrl] = useState("");
   const [savedUrl, setSavedUrl] = useState("");
   const [secret, setSecret] = useState("");
+  const [secretIsPreview, setSecretIsPreview] = useState(false);
   const [showSecret, setShowSecret] = useState(false);
   const [savingUrl, setSavingUrl] = useState(false);
   const [regenerating, setRegenerating] = useState(false);
   const [sendingTest, setSendingTest] = useState(false);
+
+  // Opt-in event subscriptions (backend: tbl_company.webhook_events).
+  // Core payment updates are always delivered and are not listed here.
+  const [events, setEvents] = useState<string[]>([]);
+  const [savedEvents, setSavedEvents] = useState<string[]>([]);
+  const [savingEvents, setSavingEvents] = useState(false);
 
   const [statusFilter, setStatusFilter] = useState<"all" | "success" | "failed">("all");
   const [detail, setDetail] = useState<WebhookLogDetail | null>(null);
@@ -151,7 +166,22 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
       if (d) {
         setUrl(d.webhook_url ?? "");
         setSavedUrl(d.webhook_url ?? "");
-        setSecret(d.webhook_secret ?? "");
+        // GET only returns a masked preview (the full secret is shown once, on
+        // generation). Showing the preview stops merchants thinking they have
+        // no secret and regenerating one — which would break a live integration.
+        if (d.webhook_secret) {
+          setSecret(d.webhook_secret);
+          setSecretIsPreview(false);
+        } else if (d.webhook_secret_set) {
+          setSecret(d.webhook_secret_preview ?? "********");
+          setSecretIsPreview(true);
+        } else {
+          setSecret("");
+          setSecretIsPreview(false);
+        }
+        const subscribed = Array.isArray(d.webhook_events) ? d.webhook_events : [];
+        setEvents(subscribed);
+        setSavedEvents(subscribed);
       }
     } catch {
       /* non-fatal */
@@ -230,6 +260,7 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
       const d = res?.data?.data;
       if (d?.webhook_secret) {
         setSecret(d.webhook_secret);
+        setSecretIsPreview(false);
         setShowSecret(true);
         toast("Signing secret regenerated");
       }
@@ -237,6 +268,23 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
       toast("Failed to regenerate secret", "error");
     } finally {
       setRegenerating(false);
+    }
+  };
+
+  const toggleEvent = (eventId: string) =>
+    setEvents((prev) => (prev.includes(eventId) ? prev.filter((e) => e !== eventId) : [...prev, eventId]));
+
+  const saveEvents = async () => {
+    if (!companyId) return;
+    setSavingEvents(true);
+    try {
+      await axiosBaseApi.put(API_ENDPOINTS.company.webhookSettings(companyId), { webhook_events: events });
+      setSavedEvents(events);
+      toast(events.length ? "Event subscriptions saved" : "All optional events turned off");
+    } catch {
+      toast("Failed to save event subscriptions", "error");
+    } finally {
+      setSavingEvents(false);
     }
   };
 
@@ -284,6 +332,10 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
 
   const t = theme.palette.text;
   const urlDirty = url.trim() !== savedUrl.trim();
+  const eventsDirty = useMemo(
+    () => [...events].sort().join(",") !== [...savedEvents].sort().join(","),
+    [events, savedEvents],
+  );
 
   return (
     <>
@@ -351,10 +403,14 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
                 }}
               >
                 <Typography sx={{ fontFamily: "monospace", fontSize: 13, color: t.primary, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                  {secret ? (showSecret ? secret : "•".repeat(Math.min(secret.length, 28))) : "No secret set — regenerate to create one"}
+                  {secret
+                    ? secretIsPreview
+                      ? `${secret} · set — regenerate to replace`
+                      : (showSecret ? secret : "•".repeat(Math.min(secret.length, 28)))
+                    : "No secret set — regenerate to create one"}
                 </Typography>
                 <Box sx={{ display: "flex", gap: 0.5, flexShrink: 0 }}>
-                  {secret && (
+                  {secret && !secretIsPreview && (
                     <>
                       <Tooltip title={showSecret ? "Hide" : "Reveal"}>
                         <IconButton size="small" onClick={() => setShowSecret((s) => !s)} data-testid="webhook-secret-toggle">
@@ -390,6 +446,50 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
                 sx={{ textTransform: "none", fontWeight: 700, borderRadius: 2, whiteSpace: "nowrap" }}
               >
                 Send test event
+              </Button>
+            </Box>
+
+            {/* Event subscriptions — opt-in extras on top of the always-on payment updates */}
+            <Typography sx={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.4, textTransform: "uppercase", color: t.secondary, mb: 0.5 }}>
+              Event subscriptions
+            </Typography>
+            <Typography sx={{ fontSize: 12, color: t.secondary, mb: 1 }}>
+              Payment updates (pending, confirmed, underpaid, settled) are always delivered. Tick any extra events you want.
+            </Typography>
+            <Box sx={{ display: "flex", flexDirection: "column", mb: 1 }} data-testid="webhook-event-subscriptions">
+              {OPT_IN_EVENTS.map((ev) => (
+                <FormControlLabel
+                  key={ev.id}
+                  control={
+                    <Checkbox
+                      size="small"
+                      checked={events.includes(ev.id)}
+                      onChange={() => toggleEvent(ev.id)}
+                      data-testid={`webhook-event-${ev.id.replace(".", "-")}`}
+                      inputProps={{ "aria-label": `Subscribe to ${ev.id}` } as React.InputHTMLAttributes<HTMLInputElement>}
+                    />
+                  }
+                  label={
+                    <Box sx={{ py: 0.25 }}>
+                      <Typography sx={{ fontSize: 13, fontWeight: 700, fontFamily: "monospace", color: t.primary }}>
+                        {ev.id}
+                      </Typography>
+                      <Typography sx={{ fontSize: 12, color: t.secondary }}>{ev.hint}</Typography>
+                    </Box>
+                  }
+                  sx={{ alignItems: "flex-start", ml: 0, mb: 0.5 }}
+                />
+              ))}
+            </Box>
+            <Box sx={{ mb: 2 }}>
+              <Button
+                variant="contained"
+                onClick={saveEvents}
+                disabled={savingEvents || !eventsDirty}
+                data-testid="webhook-events-save"
+                sx={{ minWidth: 130, textTransform: "none", fontWeight: 700, borderRadius: 2, whiteSpace: "nowrap" }}
+              >
+                {savingEvents ? <CircularProgress size={18} color="inherit" /> : "Save events"}
               </Button>
             </Box>
               </>

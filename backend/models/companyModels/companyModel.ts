@@ -113,6 +113,15 @@ const companyModel = sequelize.define(
       allowNull: true,
       comment: "Reason webhook was disabled (e.g., '3 consecutive failures — HTTP 404')",
     },
+    // Tier-1 audit item #2: opt-in event subscriptions. NULL = legacy events
+    // only (unchanged behavior); an array additionally enables the opt-in
+    // events listed in services/webhookEvents.ts.
+    webhook_events: {
+      type: DataTypes.JSONB,
+      allowNull: true,
+      defaultValue: null,
+      comment: "Opt-in webhook event types (payment.created, payment.expired, payment.overpaid). NULL = legacy events only.",
+    },
     // Payment settings
     overpayment_threshold_usd: {
       type: DataTypes.DECIMAL(10, 2),

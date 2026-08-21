@@ -30,8 +30,8 @@ to `ENGINEERING_STRATEGY_REVIEW_2026-08.md` are in the "Refs" column.
 | # | Item | Tier | Status | Owner | Refs |
 |---|------|------|--------|-------|------|
 | 1 | **Refund execution flow** | 1 | 🅿️ **DEFERRED** (per user, 2026-08-21) | — | Sec below |
-| 2 | **Missing webhook events** (`payment.created`, `.expired`, `.overpaid`, `refund`) | 1 | ⛔ Not started | — | Sec below |
-| 3 | **Double-entry ledger** | 1 | ✅ **SHIPPED** (2026-08-21) | E1 | R4, Sec below |
+| 2 | **Missing webhook events** (`payment.created`, `.expired`, `.overpaid`, `refund`) | 1 | ✅ **SHIPPED** (2026-08-21) — created/expired/overpaid, opt-in per merchant via `tbl_company.webhook_events`. `refund.*` intentionally out of scope while #1 is deferred. | E1 | CHANGELOG 2026-08-21 |
+| 3 | **Double-entry ledger** | 1 | ✅ **SHIPPED** + 🚧 **ROLLOUT: stages 1–3 done on LIVE DB** (tables + 7 accounts, 407 settlements backfilled → 1612 entries, invariant OK/zero drift). Remaining: set `LEDGER_DUAL_WRITE=true` then `LEDGER_INVARIANT_CRON=true` in PRODUCTION env. | E1 | R4, Sec below |
 | 4 | **KYC/AML activation** (Veriff real keys) | 2 | ⛔ Not started (needs live Veriff creds) | — | 90-day #2 |
 | 5 | **Chain reorganization handling** | 2 | ⛔ Not started | — | — |
 | 6 | **Signing isolation + withdrawal controls** | 3 | ⛔ Not started | — | R6 |

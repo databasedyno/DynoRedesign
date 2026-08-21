@@ -39,6 +39,7 @@ import { processStablecoinConversions, getConversionStats, sendWeeklyConversionS
 import stablecoinConversionModel from "./models/stablecoinConversionModel";
 import { processWebhookRetryQueue } from "./utils/webhookRetry";
 import { startWebhookWorker, getQueueHealth, getDLQItems, retryDLQItem, shutdownWebhookQueue, enqueueWebhook } from "./services/webhookQueue";
+import { sweepExpiredPaymentLinks } from "./services/paymentExpirySweeper";
 import { processWebhookJob } from "./services/webhookProcessor";
 import { runStartupReconciliation, reconcileFailedStatePayments, clearStaleTatumWebhooks } from "./services/reconciliation";
 import { startVolatilityMonitor, getAllMarketStates, runMonitorCycle } from "./services/volatilityMonitorService";
@@ -1200,6 +1201,29 @@ leaderCron.schedule("*/10 * * * *", async function () {
 // respects the 7-day age window + 5-retry cap + 5-min MIN_AGE guard. Per-job
 // lock + settlement idempotency guards prevent any double-settlement.
 // ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
+// CRON: payment.expired webhook sweeper (every 5 min) — Tier-1 item #2
+//
+// Link expiry is computed, not written, so there is no state transition to
+// hang a webhook off. This sweep emits payment.expired once per expired,
+// unpaid link — only for companies that opted into the event.
+// ═══════════════════════════════════════════════════════════════════════
+leaderCron.schedule("*/5 * * * *", async function () {
+  const lockAcquired = await acquireLock("cron:sweepExpiredPaymentLinks", 240, 1, 100, true);
+  if (!lockAcquired) return;
+  try {
+    const res = await sweepExpiredPaymentLinks();
+    if (res.emitted > 0) {
+      log(`Cron: payment.expired emitted for ${res.emitted} link(s) (scanned ${res.scanned})`, "info");
+    }
+  } catch (err) {
+    log(`Cron: sweepExpiredPaymentLinks failed: ${(err as Error).message}`, "error");
+    captureError(err as Error, "cron", { extraContext: "sweepExpiredPaymentLinks" });
+  } finally {
+    await releaseLock("cron:sweepExpiredPaymentLinks");
+  }
+});
+
 leaderCron.schedule("*/10 * * * *", async function () {
   const lockAcquired = await acquireLock("cron:reconcileDeferredPayments", 300, 1, 100, true);
   if (!lockAcquired) return; // silent skip — lock contention is normal

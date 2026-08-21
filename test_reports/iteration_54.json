@@ -1,0 +1,41 @@
+{
+  "summary": "Frontend-only verification of the new opt-in webhook Event-subscriptions UI (Developers -> Webhooks tab) on the live preview as merchant hostbay@moxx.co (company_id=1). Two Playwright runs: (1) full flow — render/initial-state/dirty-state/save/persist-after-reload/cleanup-and-persist, (2) toast + network-payload verification. ALL 7 requested criteria PASS. Account left with all three checkboxes UNCHECKED and saved (GET now returns webhook_events: []). Two pre-existing (not-introduced-this-session) defects found outside the feature: GET /api/user/display-currency returns 500 (broken require path) and the Webhooks card can never display an existing signing secret because GET webhook-settings does not return webhook_secret.",
+  "backend_issues": {
+    "critical": [
+      {"endpoint": "GET /api/user/display-currency", "issue": "500 on every dashboard/developers page load. Backend log: \"Cannot find module '../utils/currencyUtils'\" required from /app/backend/controller/user/preferences.ts (lines 41 and 97). File lives at /app/backend/utils/currencyUtils.ts, so from controller/user/ the path must be '../../utils/currencyUtils'. Regression from the R2 controller/user/ split. Also logs repeated '[getCompanyDisplayCurrency] Query failed for company 1'.", "priority": "HIGH"}
+    ],
+    "minor": [
+      {"endpoint": "GET /api/company/webhook-settings/:id", "issue": "Response returns webhook_secret_set + webhook_secret_preview but NOT webhook_secret, while the UI reads d.webhook_secret. Result: a merchant who HAS a signing secret still sees 'No secret set — regenerate to create one' and gets no reveal/copy buttons — risks them regenerating and breaking a live integration. Not verifiable empirically on this account (secret is genuinely unset) but proven by code. Fix by consuming webhook_secret_set/webhook_secret_preview in the UI."},
+      {"endpoint": "PUT /api/company/webhook-settings/:id", "issue": "On an events-only partial update the response still emits webhook_secret_set: !!newSecret => false even when a secret exists in the DB (misleading contract). Frontend ignores it today, so no visible impact."},
+      {"endpoint": "GET /api/company/webhook-settings/:id", "issue": "webhook_disabled / webhook_disabled_reason are returned but the Webhooks card never surfaces the circuit-breaker state or a re-enable CTA."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Developers -> Webhooks (toast)", "issues": ["Success snackbar text ('Event subscriptions saved' / 'All optional events turned off') is partly obscured by the grey wavy decorative shapes rendered inside the toast — text readability is poor mid-animation (captured in two independent screenshots ~1s after save)."]},
+      {"screen": "Developers -> Webhooks card", "issues": ["No top padding inside PanelCard body: the 'ENDPOINT URL' caption sits flush against the card header divider.", "Event-subscription checkboxes are top-aligned with the monospace label but the row block has no visual grouping/border, so the three opt-in rows read as loose text next to the always-on copy (cosmetic)."]}
+    ]
+  },
+  "test_report_links": ["/app/test_reports/iteration_54.json"],
+  "action_items": [
+    "Fix require path in /app/backend/controller/user/preferences.ts: '../utils/currencyUtils' -> '../../utils/currencyUtils' (GET /api/user/display-currency is 500 on every page load).",
+    "Make the Webhooks card render an existing signing secret: use webhook_secret_set + webhook_secret_preview from GET webhook-settings (currently always shows 'No secret set').",
+    "Optional polish: toast text legibility over the snackbar's wavy decoration; add top padding to the Webhooks card body."
+  ],
+  "critical_code_review_comments": [
+    "WebhookConsoleSection.loadSettings() swallows all errors in an empty catch — a failed GET webhook-settings leaves the card silently showing empty URL/secret/no events, indistinguishable from a genuinely unconfigured merchant. Add an error state.",
+    "loadSettings sets secret from d.webhook_secret, a field the GET endpoint never returns — dead contract, see backend minor issue.",
+    "Backend: NULL and [] webhook_events both normalise to [] via parseSubscribedEvents, so the 'NULL = legacy only' semantics are preserved after the UI writes an empty array — verified, no action needed.",
+    "updateWebhookSettings partial-update logic is correct: only keys present in the body are written (verified on the wire — PUT body was exactly {\"webhook_events\":[...]})."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "not tested (frontend-only request)", "frontend": "100% (7/7 requested criteria)"},
+  "seed_data_creation": "None. Only writes performed were the allowed webhook_events toggles on company_id=1; final saved state = all three unchecked (webhook_events: []). No payments/links/products/customers touched, secret NOT regenerated, 'Send test event' NOT clicked.",
+  "should_call_test_agent_after_fix": false,
+  "should_main_agent_self_test": true,
+  "test_credentials": "hostbay@moxx.co / Katiekendra123@ (2-step: fill input[type=email] -> Enter -> input[type=password] -> [data-testid=signin-submit-btn]) at https://db6f572b-95d8-44ef-a163-399df066ce56.preview.emergentagent.com",
+  "context_for_next_testing_agent": "Verified PASS: (1) Developers -> Webhooks tab renders webhook-console + webhook-event-subscriptions with exactly 3 checkboxes and correct one-line hints; always-on copy 'Payment updates (pending, confirmed, underpaid, settled) are always delivered' present. (2) All three start unchecked. (3) webhook-events-save disabled initially, enabled after one tick, disabled again after save (dirty tracking works). (4) Ticking payment.created + payment.expired -> save -> toast 'Event subscriptions saved' -> after FULL reload both still ticked, overpaid unticked. (5) Unticking all -> save -> toast 'All optional events turned off' -> after reload all three unticked (persisted). (6) Endpoint URL field and secret block unchanged by an events save; wire capture proves PUT body is only {webhook_events:[...]} and backend does a true partial update. NOTE: this merchant has webhook_url=null and no signing secret, so the 'does not wipe URL/secret' regression was confirmed by request-payload + backend code review, not by non-empty values. (7) webhook-url-input, webhook-url-save, webhook-secret-regen, webhook-send-test, webhook-refresh all render; zero console errors from the webhook card. Only console error on the page is the unrelated 500 from /api/user/display-currency. Prewarm routes with curl localhost:3000/developer-keys before Playwright (next dev compiles ~5s).",
+  "rca_of_the_issue": "display-currency 500: /app/backend/controller/user/preferences.ts uses require('../utils/currencyUtils'); after the R2 refactor the file sits in controller/user/, so the path resolves to /app/backend/controller/utils/currencyUtils which does not exist -> MODULE_NOT_FOUND -> 500. Secret-never-shown: GET webhook-settings returns webhook_secret_set/webhook_secret_preview while WebhookConsoleSection reads d.webhook_secret, so setSecret('') always runs and the card falls back to the 'No secret set' placeholder."
+}

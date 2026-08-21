@@ -1,5 +1,24 @@
 # CURRENT STATE POINTER (2026-06 fork, latest first)
 
+LATEST SESSION (2026-08-21, Tier-1 #2 SHIPPED + Tier-1 #3 ROLLED OUT):
+(1) **Missing webhook events shipped** — `payment.created`, `payment.expired`, `payment.overpaid`
+    (refunds deferred per user). OPT-IN per merchant via new `tbl_company.webhook_events` JSONB
+    (NULL = today's legacy behavior, so zero risk to live integrations). New
+    `services/webhookEvents.ts` + `services/paymentExpirySweeper.ts` (5-min leader cron + admin
+    trigger `POST /api/diagnostics/sweep-expired-payments`), filtering in the single
+    `callMerchantWebhook()` choke point, checkboxes in Developers → Webhooks, docs + swagger,
+    13 new unit tests. Verified end-to-end to a real webhook.site endpoint (delivery, HMAC, dedup,
+    unsubscribe) and by the frontend testing agent (7/7). Migration 003 applied to the LIVE DB.
+(2) **Ledger stages 1–3 executed on the LIVE DB** — `ENABLE_LEDGER=true` in preview → tables +
+    7 accounts created; backfill dry-run 407/407 clean → real backfill posted 407 settlements
+    (1612 entries); invariant check over 12 months = OK, zero drift. `LEDGER_DUAL_WRITE` and
+    `LEDGER_INVARIANT_CRON` remain OFF — those are production env-var flips (operator's call).
+(3) Fixed a pre-existing HIGH bug found in testing: `GET /api/user/display-currency` 500ed on every
+    page load (bad require path in `controller/user/preferences.ts`). Also fixed: saving the webhook
+    URL used to wipe the signing secret; the Webhooks card now shows the masked secret preview;
+    `run-tests.sh` gained batch 4 (3 suites were orphaned). Full suite 546 tests green.
+See memory/CHANGELOG.md (session 2026-08-21 later) for detail.
+
 LATEST SESSION (2026-08-21, POD SETUP DELAY ELIMINATED): Root cause — a new pod restores /app FROM GIT
 ONLY, so every gitignored artifact was wiped each session (.env, backend/.env, backend/dynopay.json,
 node_modules 948MB+542MB, .next) and supervisor crash-looped ("next: No such file or directory") until

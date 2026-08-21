@@ -482,6 +482,107 @@ XRP and RLUSD use **tag-based addressing** — a shared master address with a un
 
 ---
 
+## Opt-in events: `payment.created`, `payment.expired`, `payment.overpaid`
+
+Three events exist beyond the always-on set. They are **opt-in per merchant** so that
+adding them can never break an existing integration (a strict endpoint that rejects an
+unknown event type would otherwise trip the auto-disable circuit breaker).
+
+### Always on (no action needed)
+
+`payment.pending` · `payment.confirmed` · `payment.underpaid` · `payment.settled` ·
+`payment.settlement_failed` · `webhook.test`
+
+### Subscribable
+
+| Event | Fires when | Scope |
+|---|---|---|
+| `payment.created` | A checkout is created and a deposit address is issued (nothing paid yet). Useful for reconciling abandoned checkouts. | Payment links + Direct API |
+| `payment.expired` | A payment link passes `expires_at` without being paid. Swept every 5 minutes. | Payment links |
+| `payment.overpaid` | The customer sent more than requested, above your `overpayment_threshold_usd`. The payment still settles in full; this flags the excess. | Payment links + Direct API |
+
+Direct-API crypto invoices are held in Redis with a TTL, so they expire by disappearing
+rather than by a state change — `payment.expired` therefore covers payment links only.
+
+### Enabling them
+
+Dashboard: **Developers → Webhooks → Event subscriptions** — tick the events you want.
+
+API:
+
+```bash
+curl -X PUT https://api.dynopay.com/api/company/webhook-settings/{company_id} \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{"webhook_events":["payment.created","payment.expired","payment.overpaid"]}'
+```
+
+`GET /api/company/webhook-settings/{company_id}` returns your current `webhook_events`
+plus `subscribable_events` and `always_on_events`.
+
+### Payload examples
+
+```json
+{
+  "event": "payment.created",
+  "payment_type": "payment_link",
+  "payment_id": "a1b2c3d4e5f6",
+  "status": "created",
+  "payment_status": "created",
+  "address": "0x4f2...9ab",
+  "amount": 0.00512,
+  "currency": "ETH",
+  "base_amount": 12.5,
+  "base_currency": "USD",
+  "link_id": 8123,
+  "fee_payer": "company",
+  "expires_at": "2026-06-01T10:15:00.000Z",
+  "created_at": "2026-06-01T10:00:00.000Z"
+}
+```
+
+```json
+{
+  "event": "payment.expired",
+  "payment_type": "payment_link",
+  "payment_id": "a1b2c3d4e5f6",
+  "status": "expired",
+  "payment_status": "expired",
+  "link_id": 8123,
+  "base_amount": 12.5,
+  "base_currency": "USD",
+  "expires_at": "2026-06-01T10:15:00.000Z",
+  "expired_at": "2026-06-01T10:20:03.104Z"
+}
+```
+
+```json
+{
+  "event": "payment.overpaid",
+  "payment_type": "payment_link",
+  "payment_id": "a1b2c3d4e5f6",
+  "status": "overpaid",
+  "payment_status": "overpaid",
+  "amount_received": 0.0072,
+  "amount_expected": 0.00512,
+  "excess_amount": 0.00208,
+  "excess_amount_usd": 5.08,
+  "currency": "ETH",
+  "base_amount": 12.5,
+  "base_currency": "USD",
+  "transaction_reference": "0x9c8...11d"
+}
+```
+
+### Delivery guarantees
+
+Each of these events is emitted **once per payment** (Redis dedup guard), signed with the
+same `X-DynoPay-Signature` HMAC as every other event, and retried through the same queue
+and dead-letter path. `payment.overpaid` in particular is guarded because the verify
+endpoint it hangs off is polled by the checkout page.
+
+---
+
 ## Need Help?
 
 - **Documentation Issues:** Open a GitHub issue
