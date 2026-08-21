@@ -119,7 +119,7 @@ export const settleCryptoTransaction = async ({
       markSettlementFailed,
       validateWalletSeparation,
       journalStateTransition,
-    } = require("../../services/paymentReliability");
+    } = require("../../../services/paymentReliability");
 
     const idempotencyCheck = await checkSettlementIdempotency(paymentId, fromAddress, currency);
     if (idempotencyCheck.alreadySettled) {
@@ -524,7 +524,7 @@ export const settleCryptoTransaction = async ({
           // Cache recipient as activated for this token — prevents 130k energy overestimation in future payments
           if (isTRC20 && contractAddress) {
             try {
-              const { markRecipientActivated } = require("../../services/tronEnergyService");
+              const { markRecipientActivated } = require("../../../services/tronEnergyService");
               await markRecipientActivated(userAddress, contractAddress);
               cronLogger.info(`[settleCryptoTransaction] 📌 Cached ${userAddress} as activated for ${currency} (future transfers will use 65k energy)`);
             } catch (_cacheErr) { /* Non-critical */ }
@@ -834,7 +834,7 @@ export const settleCryptoTransaction = async ({
 
       // ── Journal broadcast event (informational only — NOT used by idempotency guard) ──
       try {
-        const { journalStateTransition } = require("../../services/paymentReliability");
+        const { journalStateTransition } = require("../../../services/paymentReliability");
         await journalStateTransition({
           paymentId,
           txId: transactionId,
@@ -879,7 +879,7 @@ export const settleCryptoTransaction = async ({
           cronLogger.info(`[settleCryptoTransaction] TX ${txHash} confirmed in block ${confirmResult.blockNumber}`);
           // ── RELIABILITY: Mark settlement as completed ONLY after on-chain confirmation ──
           try {
-            const { markSettlementCompleted } = require("../../services/paymentReliability");
+            const { markSettlementCompleted } = require("../../../services/paymentReliability");
             await markSettlementCompleted(
               paymentId,
               txHash,
@@ -969,7 +969,7 @@ export const settleCryptoTransaction = async ({
                   merchantTransactionDetails = retryResult; // Update with successful TX
                   // ── RELIABILITY: Mark settlement as completed after recovery confirmation ──
                   try {
-                    const { markSettlementCompleted } = require("../../services/paymentReliability");
+                    const { markSettlementCompleted } = require("../../../services/paymentReliability");
                     await markSettlementCompleted(
                       paymentId,
                       retryResult.txId,
@@ -1005,7 +1005,7 @@ export const settleCryptoTransaction = async ({
           // The sweep will detect unspent balance and retry later
           // Still mark as completed — TX was broadcast and may confirm later
           try {
-            const { markSettlementCompleted } = require("../../services/paymentReliability");
+            const { markSettlementCompleted } = require("../../../services/paymentReliability");
             await markSettlementCompleted(
               paymentId,
               txHash,
@@ -1029,7 +1029,7 @@ export const settleCryptoTransaction = async ({
     const accountBasedChains = ["ETH", "BSC", "TRX", "USDT-ERC20", "USDC-ERC20", "RLUSD-ERC20", "USDT-TRC20", "SOL", "XRP", "RLUSD", "POLYGON", "USDT-POLYGON"];
     if (!accountBasedChains.includes(currency) && merchantTransactionDetails?.txId) {
       try {
-        const { markSettlementCompleted } = require("../../services/paymentReliability");
+        const { markSettlementCompleted } = require("../../../services/paymentReliability");
         await markSettlementCompleted(
           paymentId,
           merchantTransactionDetails.txId,
@@ -1060,7 +1060,7 @@ export const settleCryptoTransaction = async ({
     
     // ── RELIABILITY: Mark settlement as failed to allow retry ──
     try {
-      const { markSettlementFailed } = require("../../services/paymentReliability");
+      const { markSettlementFailed } = require("../../../services/paymentReliability");
       await markSettlementFailed(paymentId, message);
     } catch (_) { /* non-critical */ }
     

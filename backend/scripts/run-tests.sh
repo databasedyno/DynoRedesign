@@ -27,7 +27,7 @@ JEST="node_modules/.bin/jest --config jest.config.ts --forceExit --silent"
 
 # Unit test files grouped so each batch stays well under the agent tool timeout.
 BATCH_1="__tests__/feeCalculation.test.ts __tests__/feeConfigUtils.test.ts __tests__/feeRateService.test.ts __tests__/feeService.test.ts __tests__/paymentFees.test.ts"
-BATCH_2="__tests__/settlementMath.test.ts __tests__/paymentStateMachine.test.ts __tests__/cryptoClassification.test.ts __tests__/confirmationRequirements.test.ts"
+BATCH_2="__tests__/settlementMath.test.ts __tests__/paymentStateMachine.test.ts __tests__/cryptoClassification.test.ts __tests__/confirmationRequirements.test.ts __tests__/settlementModuleResolution.test.ts"
 BATCH_3="__tests__/webhookProcessor.test.ts __tests__/webhookHandlers.test.ts __tests__/adminWalletMapping.test.ts __tests__/blockchainFeeService.test.ts __tests__/merchantPoolConfig.test.ts"
 # Batch 4 catches suites added after the original batching (ledger + webhook events).
 BATCH_4="__tests__/ledgerDecimals.test.ts __tests__/ledgerPaymentMapper.test.ts __tests__/webhookEvents.test.ts"

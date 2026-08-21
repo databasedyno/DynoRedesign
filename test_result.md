@@ -1,3 +1,76 @@
+# Session 2026-08-21 (12th pod) — BUG FIX: ETH/merchant-pool settlements stuck at "Awaiting Confirmation"
+
+SAFETY (CRITICAL — LIVE Railway PROD DB in preview): STRICT READ-ONLY on real rows. SAFE MODE MUST STAY
+(ENABLE_BACKGROUND_JOBS=false, WORKER_ROLE=secondary). Preview runs `ts-node --transpile-only server.ts`.
+DO NOT trigger any real settlement/payout, DO NOT enable background jobs, DO NOT write to the prod DB,
+DO NOT run the jest `integration` project, DO NOT git commit/push.
+
+## User-reported issue
+A live payment (dynopay.com production) was stuck at status "Awaiting Confirmation":
+Amount $75.26 / 0.0311171 ETH, tx 0xecad4258208703e381662e57bed8351e60ed089e6c90cd64727a7b1535b08630.
+User suspected a recent code change.
+
+## Investigation (production evidence)
+- On-chain (Tatum): tx CONFIRMED, block 25805611, status=true, value=31117100000000000 wei (=0.0311171 ETH),
+  ~215 confirmations (ETH threshold is 3). Money genuinely arrived + confirmed.
+- Prod DB (read-only): payment_id 66e89a50-7cf0-4faa-88dd-155135bc7aa2 (company 1/hostbay), tbl_user_transaction
+  #646 still status='pending', tbl_merchant_temp_address(2) received_amount=0, no tbl_merchant_pool_transaction
+  row created. tbl_payment_journal shows: 19:31 payment_detected pending→processing (webhook), then repeatedly
+  failed→processing every ~20min (reconciliation retry loop) — never reaches settlement_started.
+- Prod RUN logs (DigitalOcean, active deploy 76ef94fa): at 19:31:53
+  `error: Failed to transfer funds ... "error":"Cannot find module '../../services/paymentReliability'"`
+  MODULE_NOT_FOUND at settleCryptoTransaction (dist/controller/payment/settlement/settleTransaction.js).
+
+## Root cause
+The R2 settlement refactor moved code into the deeper `controller/payment/settlement/` folder but left
+several LAZY `require("../../services/…")` calls at the OLD 2-level depth. From the new folder the correct
+path is `../../../services/…` (3 levels). Because these are runtime require() string literals (not static
+imports), `tsc` never validated them — the build was clean but EVERY merchant-pool settlement threw
+MODULE_NOT_FOUND at runtime, so payments were detected then flipped to `failed` and retried forever.
+
+## Fix (source only; prod picks it up on next Save-to-GitHub → DO rebuild)
+Corrected 11 runtime requires `../../services/` → `../../../services/` (paymentReliability ×9, tronEnergyService ×2) in:
+- backend/controller/payment/settlement/settleTransaction.ts
+- backend/controller/payment/settlement/chainVerification.ts
+Added regression guard: backend/__tests__/settlementModuleResolution.test.ts (validates every relative
+require/import in the settlement folder resolves to a real file; forbids the buggy 2-level services path).
+Registered in scripts/run-tests.sh BATCH_2.
+
+### backend
+  - task: "Fix MODULE_NOT_FOUND ('../../services/paymentReliability') in refactored crypto settlement — payments stuck at Awaiting Confirmation"
+    implemented: true
+    working: true
+    file: "backend/controller/payment/settlement/settleTransaction.ts, backend/controller/payment/settlement/chainVerification.ts, backend/__tests__/settlementModuleResolution.test.ts, backend/scripts/run-tests.sh"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Corrected 11 lazy require() relative paths (2-level → 3-level) in the settlement modules; added a static resolution-guard jest test (7/7 pass locally). Module-resolution proof (Module.createRequire from settleTransaction.ts location): OLD '../../services/paymentReliability' → MODULE_NOT_FOUND; NEW '../../../services/paymentReliability' → RESOLVED to backend/services/paymentReliability.ts. Backend restarts healthy. Needs agent verification per instructions below."
+      - working: true
+        agent: "testing"
+        comment: "✅ ALL 5 VERIFICATION STEPS PASS (2026-08-21 20:26 UTC) — Settlement module-resolution bug fix FULLY VERIFIED at unit-test + module-resolution level (SAFE MODE, no real payments). **STEP 1 (Regression guard test): ✅ PASS** — cd /app/backend && node_modules/.bin/jest --config jest.config.ts --forceExit __tests__/settlementModuleResolution.test.ts returned exit 0. Test results: 7 passed, 0 failed ✅. All tests passed: (1) finds settlement source files, (2) chainVerification.ts paths resolve, (3) receipt.ts paths resolve, (4) settleTransaction.ts paths resolve, (5) verifyPayment.ts paths resolve, (6) no buggy 2-level ../../services/ require found ✅, (7) paymentReliability + tronEnergyService resolve from settleTransaction.ts ✅. Time: 0.129s. **STEP 2 (Settlement unit batch): ✅ PASS** — cd /app/backend && bash scripts/run-tests.sh --batch 2 returned exit 0 ✅. Test results: 210 passed, 210 total (5 suites: paymentStateMachine, settlementMath, cryptoClassification, confirmationRequirements, settlementModuleResolution) ✅. Time: 0.803s. No failures. **STEP 3 (Webhook unit batch): ✅ PASS** — cd /app/backend && bash scripts/run-tests.sh --batch 3 returned exit 0 ✅. Test results: 163 passed, 163 total (5 suites: adminWalletMapping, blockchainFeeService, webhookHandlers, merchantPoolConfig, webhookProcessor) ✅. Time: 23.148s. No failures. Did NOT pass --integration (correct). **STEP 4 (Module-resolution proof): ✅ PASS** — node /tmp/resolve_proof.cjs output: OLD (buggy) ../../services/paymentReliability → FAILED (MODULE_NOT_FOUND) ✅, NEW (fixed) ../../../services/paymentReliability → RESOLVED to /app/backend/services/paymentReliability.ts ✅. OLD (buggy) ../../services/tronEnergyService → FAILED (MODULE_NOT_FOUND) ✅, NEW (fixed) ../../../services/tronEnergyService → RESOLVED to /app/backend/services/tronEnergyService.ts ✅. This proves the EXACT production error (MODULE_NOT_FOUND for '../../services/paymentReliability') is now gone. **STEP 5 (Health regression): ✅ PASS** — curl http://localhost:8001/health returned 200: status=healthy ✅, database=connected ✅, redis=connected ✅, background_jobs.eligible=false ✅ (SAFE MODE intact). Tatum operational (circuit_state=CLOSED, failures=0). **CONCLUSION**: The settlement module-resolution bug fix is COMPLETELY VERIFIED and production-ready. All 5 verification steps passed (100% pass rate). The buggy 2-level require paths (../../services/) that caused the production MODULE_NOT_FOUND error are gone, and the corrected 3-level paths (../../../services/) resolve correctly. All unit tests pass (373 total: 210 settlement batch + 163 webhook batch). SAFE MODE confirmed active (no real payments triggered, no production DB writes, no background jobs). The fix resolves the production issue where ETH/merchant-pool settlements were stuck at 'Awaiting Confirmation' due to MODULE_NOT_FOUND at runtime."
+
+### BACKEND TESTING INSTRUCTIONS (deep_testing_backend_v2)
+SAFE — do NOT trigger any real payment/settlement, do NOT enable background jobs, do NOT write to prod DB.
+1. Run the new regression guard: cd /app/backend && node_modules/.bin/jest --config jest.config.ts --forceExit __tests__/settlementModuleResolution.test.ts → expect 7/7 pass (all settlement relative paths resolve; buggy 2-level path absent).
+2. Run settlement batch: cd /app/backend && bash scripts/run-tests.sh --batch 2 (FOREGROUND, do NOT background) → exit 0, includes settlementMath + paymentStateMachine + the new resolution test.
+3. Optional broader safety: bash scripts/run-tests.sh --batch 3 (webhook processor/handlers) → exit 0. DO NOT pass --integration.
+4. Module-resolution proof of the exact prod error being gone: node /tmp/resolve_proof.cjs (if present) OR write a tiny Node script using Module.createRequire('/app/backend/controller/payment/settlement/settleTransaction.ts') and assert require.resolve('../../../services/paymentReliability') SUCCEEDS while require.resolve('../../services/paymentReliability') THROWS MODULE_NOT_FOUND.
+5. Regression: GET http://localhost:8001/health → healthy, db+redis connected, background_jobs.eligible=false (SAFE MODE intact).
+Report: jest pass/fail counts per batch + the resolution proof outcome + health status.
+
+  - agent: "testing"
+    message: "✅ TESTING COMPLETE (2026-08-21 20:26 UTC) — All 5 verification steps PASS (100% pass rate). Settlement module-resolution bug fix is COMPLETELY VERIFIED and production-ready. **CRITICAL SUCCESS**: (1) Regression guard test: 7/7 passed ✅. (2) Settlement unit batch: 210/210 passed (exit 0) ✅. (3) Webhook unit batch: 163/163 passed (exit 0) ✅. (4) Module-resolution proof: OLD buggy paths (../../services/) → MODULE_NOT_FOUND ✅, NEW fixed paths (../../../services/) → RESOLVED correctly ✅. (5) Health check: healthy, db+redis connected, SAFE MODE active (background_jobs.eligible=false) ✅. The EXACT production error (MODULE_NOT_FOUND for '../../services/paymentReliability') that caused ETH/merchant-pool settlements to stick at 'Awaiting Confirmation' is now GONE. All 373 unit tests passed (210 settlement + 163 webhook). No real payments triggered, no production DB writes, no background jobs enabled. Main agent can summarize and finish."
+
+### Agent Communication
+  - agent: "main"
+    message: "Production settlement outage RCA: a refactor left lazy require('../../services/paymentReliability') at the wrong depth in controller/payment/settlement/ → MODULE_NOT_FOUND at runtime → ETH/merchant-pool payments stuck at 'Awaiting Confirmation' and retried forever. Fixed 11 paths to '../../../services/' and added a resolution-guard test. Please verify per the numbered SAFE steps above (jest batches + module-resolution proof + /health). The real settlement path needs on-chain funds + background worker (disabled here) and would move REAL money on the LIVE prod DB — DO NOT attempt to trigger it; verify at the module-resolution + unit-test level only."
+
+---
+
+
 # Session 2026-08-21 (10th pod) — SETUP from user creds (recipe 1:1, no code changes)
 
 SAFETY: LIVE Railway prod DB + Redis in preview. SAFE MODE KEPT: ENABLE_BACKGROUND_JOBS=false,

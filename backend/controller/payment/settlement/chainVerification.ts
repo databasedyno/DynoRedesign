@@ -618,7 +618,7 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
         const isTRC20Currency = tempCurrency.includes("TRC20");
         if (isTRC20Currency) {
           try {
-            const { getAccountResources, calculateDynamicTRC20Fee } = require("../../services/tronEnergyService");
+            const { getAccountResources, calculateDynamicTRC20Fee } = require("../../../services/tronEnergyService");
             const poolAddress = tempAddressData.wallet_address || tempAddressData.address;
             const poolResources = await getAccountResources(poolAddress);
             const dynamicFee = await calculateDynamicTRC20Fee(poolAddress);
@@ -644,7 +644,7 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
                 // Only abort if fee wallet is CRITICALLY low (< 5 TRX) AND no energy
                 if (feeWalletBalance < 5 && poolResources.availableEnergy < 65000) {
                   cronLogger.error(`[cryptoVerification] ❌ CRITICAL: Fee wallet nearly empty (${feeWalletBalance} TRX < 5 TRX). Deferring. Payment ${tempAddressData.payment_id || 'unknown'} needs urgent top-up.`);
-                  const { journalStateTransition } = require("../../services/paymentReliability");
+                  const { journalStateTransition } = require("../../../services/paymentReliability");
                   await journalStateTransition({
                     paymentId: tempAddressData.payment_id || `deferred-${Date.now()}`,
                     txId: transactionId,
@@ -731,7 +731,7 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
             // The settlement TX may have succeeded but the DB/Redis was never updated.
             // Verify by checking if funds left the pool address.
             try {
-              const { verifySettlementOnChain, markSettlementCompleted } = require("../../services/paymentReliability");
+              const { verifySettlementOnChain, markSettlementCompleted } = require("../../../services/paymentReliability");
               const poolAddr = tempAddressData.wallet_address || tempAddressData.address;
               const merchantAddr = walletData?.dataValues?.wallet_address || null;
               const pId = tempData?.payment_id || transactionId;
