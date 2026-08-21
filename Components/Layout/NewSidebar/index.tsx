@@ -1,4 +1,3 @@
-import useIsMobile from "@/hooks/useIsMobile";
 import { useSidebarCollapsed } from "@/hooks/useSidebarCollapsed";
 import SidebarIcon from "@/utils/customIcons/sidebar-icons";
 import AutoAwesomeRounded from "@mui/icons-material/AutoAwesomeRounded";
@@ -37,12 +36,22 @@ interface SidebarSection {
   items: SidebarItem[];
 }
 
-const NewSidebar = () => {
-  const isMobile = useIsMobile("md");
+const NewSidebar = ({
+  forceCollapsed = false,
+  inDrawer = false,
+}: {
+  forceCollapsed?: boolean;
+  inDrawer?: boolean;
+} = {}) => {
+  // "Compact" rendering (small fonts, always-full labels, no collapse toggle) is
+  // driven by whether THIS instance lives inside the mobile drawer — not the raw
+  // viewport — so the desktop icon-rail renders correctly across the whole
+  // 768–1024 tablet band (P2b responsive claim).
+  const isMobile = inDrawer;
   const { collapsed, toggleCollapsed } = useSidebarCollapsed();
-  // On mobile the sidebar is rendered inside a drawer where it MUST always
-  // show full labels. Collapse only applies when displayed as a desktop rail.
-  const isCollapsed = collapsed && !isMobile;
+  // Rail = user manually collapsed OR the layout forces it in the tablet band.
+  // Never a rail inside the drawer (labels must always show there).
+  const isCollapsed = !inDrawer && (collapsed || forceCollapsed);
   const router = useRouter();
   const theme = useTheme();
   const dispatch = useDispatch();

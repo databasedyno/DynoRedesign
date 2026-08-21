@@ -12,7 +12,7 @@ import useIsMobile from "@/hooks/useIsMobile";
 import { useSidebarCollapsed } from "@/hooks/useSidebarCollapsed";
 import { LayoutProps, rootReducer } from "@/utils/types";
 import { recordShortcutVisit } from "@/helpers/shortcutUsage";
-import { Box, SxProps, Theme, useTheme } from "@mui/material";
+import { Box, SxProps, Theme, useMediaQuery, useTheme } from "@mui/material";
 import { useRouter } from "next/router";
 import { useSelector } from "react-redux";
 import { useEffect, useRef } from "react";
@@ -35,6 +35,12 @@ const ClientLayout = ({
   const theme = useTheme();
   const isMobile = useIsMobile("md");
   const { collapsed: sidebarCollapsed } = useSidebarCollapsed();
+  // P2b responsive claim: 768–1024 is the TABLET band — the sidebar auto-shrinks
+  // to a 72px icon rail here (regardless of the user's manual expand preference)
+  // so tablets get real nav instead of the phone bottom-bar. ≥1024 = full sidebar,
+  // <768 = mobile bottom-bar + hamburger drawer.
+  const isTabletRail = useMediaQuery("(min-width:768px) and (max-width:1023.95px)");
+  const railed = sidebarCollapsed || isTabletRail;
   const companyState = useCompanyStore();
   const hasFetchedRef = useRef(false);
   // Session 75 fix — inner scrollable container. The main-content Box below
@@ -175,16 +181,18 @@ const ClientLayout = ({
               {/* ================= SIDEBAR ================= */}
               <Box
                 sx={{
-                  width: sidebarCollapsed ? "72px" : "clamp(265px, 18vw, 324px)",
+                  width: railed ? "72px" : "clamp(265px, 18vw, 324px)",
                   height: "100%",
                   overflow: "hidden",
-                  display: { xs: "none", lg: "block" },
+                  // Desktop sidebar shows at ≥768 (icon rail in 768–1024, full ≥1024).
+                  display: "none",
+                  "@media (min-width:768px)": { display: "block" },
                   transition: "width 220ms cubic-bezier(0.16, 1, 0.3, 1)",
                   flexShrink: 0,
                 }}
-                data-sidebar-collapsed={sidebarCollapsed ? "true" : "false"}
+                data-sidebar-collapsed={railed ? "true" : "false"}
               >
-                <NewSidebar />
+                <NewSidebar forceCollapsed={isTabletRail} />
               </Box>
 
               {/* ================= MAIN CONTENT ================= */}
@@ -207,8 +215,10 @@ const ClientLayout = ({
                   // and the cards flow inside) also need their own bottom
                   // spacer — see /app/Components/Page/Transactions/index.tsx.
                   // 180px = FAB top edge (164px) + 16px breathing.
-                  // Plus safe-area inset for notched devices.
-                  pb: { xs: "calc(180px + env(safe-area-inset-bottom, 0px))", lg: 0 },
+                  // Plus safe-area inset for notched devices. Cleared at ≥768
+                  // where the bottom nav is replaced by the sidebar/rail (P2b).
+                  pb: "calc(180px + env(safe-area-inset-bottom, 0px))",
+                  "@media (min-width:768px)": { pb: 0 },
                 }}
               >
                 {(pageName || pageDescription) && (
@@ -283,7 +293,7 @@ const ClientLayout = ({
           </Box>
 
           {/* ================= MOBILE NAV ================= */}
-          <Box sx={{ display: { xs: "block", lg: "none" } }}>
+          <Box sx={{ display: "block", "@media (min-width:768px)": { display: "none" } }}>
             <MobileNavigationBar />
           </Box>
         </Box>

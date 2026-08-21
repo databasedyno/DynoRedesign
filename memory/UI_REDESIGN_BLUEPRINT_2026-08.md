@@ -19,6 +19,15 @@ Companion machine-readable tokens: `/app/design_guidelines.json` (written by the
 >   Help & Support kept (`ReferralAndKnowledge` slimmed). **Deferred → P2b:** tablet icon-rail auto-trigger
 >   at 1024 + mobile bottom-tab threshold (1024→640) — the responsive breakpoint rework (riskiest; wants a
 >   dedicated testing pass).
+> - **P2b — Responsive claim ✅ SHIPPED (2026-08-21)** — breakpoint scheme reworked in
+>   `Containers/Client/index.tsx` + `NewSidebar/index.tsx` + `NewHeader/index.tsx`:
+>   **<768** = mobile bottom-bar + top-left hamburger drawer · **768–1024** = auto 72px icon rail
+>   (`isTabletRail` media query forces collapse regardless of the user's manual pref) · **≥1024** = full
+>   sidebar. NewSidebar now takes `forceCollapsed` + `inDrawer` props so "compact" rendering is driven by
+>   the drawer (not raw viewport) and the rail renders correctly across the whole tablet band. Simplified
+>   the blueprint's 640/768 pair to a single 768 cutoff (skipped the 640–768 transitional nuance).
+>   NOTE: ≥1024 full-sidebar state verified in-preview; the 768–1024 rail + <768 bottom-bar states are
+>   code-verified only (the screenshot tool is locked to a 1920 viewport) — pending a real viewport test.
 > - P3 — Tables · P4 — Dashboard · P5 — Checkout/public · P6 — Marketing → PENDING.
 
 

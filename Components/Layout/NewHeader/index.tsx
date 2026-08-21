@@ -110,7 +110,8 @@ const NewHeader = () => {
           disableRipple
           disableFocusRipple
           sx={{
-            display: { xs: "inline-flex", lg: "none" },
+            display: "inline-flex",
+            "@media (min-width:768px)": { display: "none" },
             width: 40,
             height: 40,
             mr: 0.5,
@@ -260,7 +261,7 @@ const NewHeader = () => {
             overflowX: "hidden",
           },
         }}
-        sx={{ display: { xs: "block", lg: "none" } }}
+        sx={{ display: "block", "@media (min-width:768px)": { display: "none" } }}
       >
         <Box
           sx={{
@@ -372,7 +373,7 @@ const NewHeader = () => {
             "& > *": { width: "100% !important" },
           }}
         >
-          <NewSidebar />
+          <NewSidebar inDrawer />
         </Box>
       </Drawer>
     </HeaderContainer>
