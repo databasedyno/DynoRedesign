@@ -436,7 +436,14 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
         <Box sx={{ display: "flex", height: 56 }}>
           <TransactionsTableHeader>
             {HeaderData.map((item) => (
-              <TransactionsTableHeaderItem key={item.key}>
+              <TransactionsTableHeaderItem
+                key={item.key}
+                sx={
+                  item.key === "amount" || item.key === "usdValue"
+                    ? { justifyContent: "flex-end" }
+                    : undefined
+                }
+              >
                 <Image
                   src={item.icon}
                   alt={item.label}
@@ -556,11 +563,11 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                     )}
                   </TransactionsTableCell>
 
-                  <TransactionsTableCell sx={{ fontFamily: MONO, fontVariantNumeric: "tabular-nums" }}>
+                  <TransactionsTableCell sx={{ fontFamily: MONO, fontVariantNumeric: "tabular-nums", justifyContent: "flex-end" }}>
                     {formatAmount(transaction.amount)}
                   </TransactionsTableCell>
 
-                  <TransactionsTableCell data-testid="tx-fiat-value" sx={{ fontFamily: MONO, fontVariantNumeric: "tabular-nums" }}>
+                  <TransactionsTableCell data-testid="tx-fiat-value" sx={{ fontFamily: MONO, fontVariantNumeric: "tabular-nums", justifyContent: "flex-end" }}>
                     {displayValue(transaction)}
                   </TransactionsTableCell>
 

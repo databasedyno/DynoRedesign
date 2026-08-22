@@ -76,7 +76,7 @@ const headerIconMap: Record<string, any> = {
   actionsHeader: ActionIcon,
 };
 
-const Header = React.memo(({ label, tooltip }: { label: string; tooltip?: string }) => {
+const Header = React.memo(({ label, tooltip, align }: { label: string; tooltip?: string; align?: "left" | "right" }) => {
   const { t } = useTranslation("paymentLinks");
   const isMobile = useIsMobile("md");
   const headerTheme = useTheme();
@@ -85,6 +85,7 @@ const Header = React.memo(({ label, tooltip }: { label: string; tooltip?: string
       sx={{
         display: "flex",
         alignItems: "center",
+        justifyContent: align === "right" ? "flex-end" : "flex-start",
         gap: isMobile ? "6px" : "10px",
         cursor: tooltip ? "help" : undefined,
       }}
@@ -550,7 +551,7 @@ const PaymentLinksTable = ({
                     <Header label="descriptionHeader" />
                   </TableCell>
                   <TableCell>
-                    <Header label="usdValueHeader" />
+                    <Header label="usdValueHeader" align="right" />
                   </TableCell>
                   <TableCell>
                     <Header label="cryptoValueHeader" />
@@ -631,7 +632,7 @@ const PaymentLinksTable = ({
                         row.description || "—"
                       )}
                     </TableBodyCell>
-                    <TableBodyCell sx={{ fontFamily: MONO, fontVariantNumeric: "tabular-nums" }}>{row.usdValue}</TableBodyCell>
+                    <TableBodyCell sx={{ fontFamily: MONO, fontVariantNumeric: "tabular-nums", textAlign: "right" }}>{row.usdValue}</TableBodyCell>
                     <TableBodyCell><CoinChips value={row.cryptoValue} /></TableBodyCell>
                     <TableBodyCell>
                       {formatUtcToDisplay(row.createdAt)}

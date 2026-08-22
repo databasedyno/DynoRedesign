@@ -34,8 +34,10 @@ Companion machine-readable tokens: `/app/design_guidelines.json` (written by the
 >   completed/paid→emerald, active→indigo, expired→neutral, pending→amber) — mobile card + desktop table.
 >   Invoices already used the shared `StatusPill` (converted to dot+text in P2). Coin chips quieted in
 >   `Transactions/styled.tsx` (`CryptoIconChip`: transparent bg + hairline 8px, no coin-tint/halo/logo-ring
->   — the coin ICON carries the only colour). Removed dead status-icon imports. DEFERRED: right-aligned
->   mono money columns (header-alignment coupling) + the "API · source" method badge quieting.
+>   — the coin ICON carries the only colour). Removed dead status-icon imports. Also right-aligned the
+>   mono money columns (Transactions Amount + USD Value via grid-cell `justify-content:flex-end`;
+>   Pay-links USD Value via `Header align="right"` + cell `textAlign:right`) and quieted the transaction
+>   source/method badge (`SourceBadge` → low-emphasis grey text + muted icon, no per-type coloured pill).
 > - P4 — Dashboard · P5 — Checkout/public · P6 — Marketing → PENDING.
 
 

@@ -792,83 +792,36 @@ export const SourceChip = styled(Button, {
  * ────────────────────────────────────────────────────────────────────── */
 export const SourceBadge = styled(Box, {
   shouldForwardProp: (prop) => prop !== "sourceType",
-})<{ sourceType?: string }>(({ sourceType, theme }) => {
-  const palettes: Record<
-    string,
-    { bg: string; fg: string; border: string; darkBg: string; darkFg: string }
-  > = {
-    payment_link: {
-      bg: "#EFF6FF",
-      fg: "#1D4ED8",
-      border: "#BFDBFE",
-      darkBg: "rgba(59,130,246,0.15)",
-      darkFg: "#93C5FD",
-    },
-    api: {
-      bg: "#ECFEFF",
-      fg: "#0E7490",
-      border: "#A5F3FC",
-      darkBg: "rgba(6,182,212,0.16)",
-      darkFg: "#67E8F9",
-    },
-    contribution: {
-      bg: "#FDF2F8",
-      fg: "#BE185D",
-      border: "#FBCFE8",
-      darkBg: "rgba(236,72,153,0.14)",
-      darkFg: "#F9A8D4",
-    },
-    tip: {
-      bg: "#FEFCE8",
-      fg: "#854D0E",
-      border: "#FEF08A",
-      darkBg: "rgba(234,179,8,0.18)",
-      darkFg: "#FDE047",
-    },
-    product: {
-      bg: "#F0FDF4",
-      fg: "#15803D",
-      border: "#BBF7D0",
-      darkBg: "rgba(34,197,94,0.16)",
-      darkFg: "#86EFAC",
-    },
-    direct: {
-      bg: theme.palette.mode === "dark" ? "rgba(255,255,255,0.05)" : "#F3F4F6",
-      fg: theme.palette.text.secondary as string,
-      border:
-        theme.palette.mode === "dark" ? "rgba(255,255,255,0.10)" : "#E5E7EB",
-      darkBg: "rgba(255,255,255,0.05)",
-      darkFg: theme.palette.text.secondary as string,
-    },
-  };
-  const key = sourceType && palettes[sourceType] ? sourceType : "direct";
-  const p = palettes[key];
-  const isDark = theme.palette.mode === "dark";
+})<{ sourceType?: string }>(({ theme }) => {
+  // Quiet Money (Blueprint §3): the transaction source is a low-emphasis text
+  // label + small muted icon — NOT a per-type coloured pill. Keeps the row calm
+  // so the amount + status carry the emphasis.
   return {
     display: "inline-flex",
     alignItems: "center",
-    gap: "4px",
-    padding: "2px 8px",
-    borderRadius: "999px",
+    gap: "5px",
+    padding: 0,
     fontFamily: "var(--font-sans)",
-    fontSize: "10.5px",
-    fontWeight: 700,
-    letterSpacing: "0.02em",
+    fontSize: "12px",
+    fontWeight: 500,
     lineHeight: 1.4,
-    backgroundColor: isDark ? p.darkBg : p.bg,
-    color: isDark ? p.darkFg : p.fg,
-    border: `1px solid ${p.border}`,
+    backgroundColor: "transparent",
+    color: theme.palette.text.secondary,
+    border: "none",
     whiteSpace: "nowrap",
     maxWidth: "100%",
     overflow: "hidden",
     "& svg": {
       flexShrink: 0,
+      fontSize: "13px",
+      opacity: 0.7,
     },
     "& .badge-title": {
       maxWidth: "22ch",
       overflow: "hidden",
       textOverflow: "ellipsis",
       whiteSpace: "nowrap",
+      color: theme.palette.text.primary,
     },
   };
 });
