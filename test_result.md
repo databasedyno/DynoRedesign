@@ -1,3 +1,59 @@
+# Session 2026-08-22 (15th pod) — PART 3: tablet pass (768–1024px collapsed icon rail + headers)
+
+Preview: https://b5018a5f-de0e-4685-bf7a-5cdcdff90232.preview.emergentagent.com
+Login (2-step): hostbay@moxx.co / Katiekendra123@
+SAFETY (CRITICAL — LIVE Railway PROD DB): STRICT READ-ONLY. Navigate/read/screenshot/hover ONLY.
+
+## Scope
+Confirm the tablet band (768–1023.95px) reads cleanly: the desktop sidebar renders as a 72px COLLAPSED ICON RAIL
+(isTabletRail → forceCollapsed), the top hamburger AND bottom MobileNavigationBar are both hidden (≥768px), and
+page headers/actions are not clipped. Code review done first: LogoContainer is hidden <lg(1200) so only the
+mobile/tablet wordmark shows (no double logo); hamburger display:none ≥768 (removed from flow, no empty gap);
+bottom bar display:none ≥768. Note the 768–899 sub-band has isMobile=true (mobile paddings/40px header) while
+still showing the icon rail; 900–1023 uses desktop paddings/56px header — this is a VISUAL sweep to confirm both.
+
+### frontend
+  - task: "Tablet pass (768–1024px): collapsed icon rail + headers read cleanly"
+    implemented: true
+    working: true
+    file: "audit-only (Containers/Client/index.tsx, Components/Layout/NewSidebar, Components/Layout/NewHeader)"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Read-only tablet audit requested. Report OBJECTIVE issues only; main agent fixes real drift then re-verifies."
+      - working: true
+        agent: "testing"
+        comment: "✅ TABLET AUDIT COMPLETE (2026-08-22) — ALL CHECKS PASS at all tested tablet viewport widths (768–1024px). Tested 3 widths × 4 pages = 12 combinations. **OBJECTIVE CHECKS - ALL PASS**: (1) SIDEBAR IS COLLAPSED ICON RAIL: ✅ PASS — All 12 tests show sidebar with data-sidebar-collapsed='true' and width=72px (exactly). Icons only, no inline text labels. Active route icons show indigo color with left edge bar. Collapse toggle button present at bottom [data-testid='sidebar-collapse-toggle']. (2) TOOLTIPS SHOW FULL LABELS: ✅ PASS — Tested tooltips on rail icons [data-testid^='sidebar-item-']. Hovering 'sidebar-item-payment-links' shows tooltip 'Payment Links' (full label, not truncated). Hovering 'sidebar-item-wallets' shows tooltip 'Payout wallets' (full label). Tooltips consistently show FULL labels across all pages and widths. (3) NO DUPLICATE/MISSING NAV: ✅ PASS — Hamburger [data-testid='mobile-hamburger-toggle'] is HIDDEN (display:none) at all tablet widths. Bottom MobileNavigationBar is NOT FOUND (not rendered) at tablet widths ≥768px. Exactly ONE logo/wordmark visible in header (no double logo). (4) HEADERS READ CLEANLY: ✅ PASS — All 12 tests show NO horizontal overflow: document.scrollingElement.scrollWidth === window.innerWidth for all width+page combinations (768=768, 834=834, 1000=1000). Page titles (h1/h2) are visible and not clipped on all pages. Primary action buttons visible where applicable. (5) CONTENT CLEARANCE: ✅ PASS — Main content does not hide behind or overlap the 72px rail. Tables and cards fit within content column. No clipped numbers or overlapping elements observed. **CONSOLE ERRORS**: Only pre-existing warnings found (chart width/height warnings from recharts, CDN/geo-detect noise ERR_ABORTED on /cdn-cgi/rum, Next.js image warnings for missing sizes prop). NO NEW functional errors related to tablet layout. **TESTED COMBINATIONS**: Width 768x1024: /dashboard ✅, /pay-links ✅, /transactions ✅, /settings ✅. Width 834x1112: /dashboard ✅, /pay-links ✅, /transactions ✅, /settings ✅. Width 1000x1024: /dashboard ✅, /pay-links ✅, /transactions ✅, /settings ✅. **CONCLUSION**: The tablet audit shows ZERO OBJECTIVE ISSUES. All pages render correctly at all tested tablet widths (768–1024px) with collapsed 72px icon rail, full tooltip labels, no duplicate/missing nav, clean headers with no horizontal overflow, and proper content clearance. STRICT READ-ONLY testing completed successfully on LIVE prod DB."
+
+### FRONTEND TESTING INSTRUCTIONS (auto_frontend_testing_agent) — STRICT READ-ONLY on LIVE prod
+Log in (2-step). Test at tablet viewport widths WITHIN the rail band: 768x1024, 834x1112, and 1000x1024
+(all are 768–1023.95px). Pages: /dashboard, /pay-links, /transactions, /settings. Report PASS/ISSUE per width+page
+with screenshots. Check OBJECTIVE items only:
+1) SIDEBAR IS AN ICON RAIL: the left sidebar container has data-sidebar-collapsed="true" and is ~72px wide (icons
+   only, NO inline text labels). Rail icons are centered/aligned; the active route's icon is indigo with a small
+   indigo left bar. There is a bottom collapse-toggle [data-testid="sidebar-collapse-toggle"].
+2) TOOLTIPS: hovering a rail icon [data-testid^="sidebar-item-"] shows a tooltip with the FULL label
+   (e.g. hover the pay-links icon → "Payment Links"; wallets → "Payout wallets").
+3) NO DUPLICATE / MISSING NAV: the top-left hamburger [data-testid="mobile-hamburger-toggle"] is NOT visible, and the
+   bottom MobileNavigationBar is NOT visible at these widths. Exactly one logo/wordmark shows in the header (no double logo).
+4) HEADERS READ CLEANLY: the page title + description are visible and not clipped; the primary action button
+   (e.g. "Create payment link" on /pay-links) is fully visible and not overlapping the title. No horizontal overflow
+   (document.scrollingElement.scrollWidth === window.innerWidth at each width).
+5) CONTENT CLEARANCE: main content does not hide behind or overlap the 72px rail; tables/cards fit; no clipped values.
+DO NOT fix anything, DO NOT create/edit/delete, no payments. Report per width+page.
+
+### Agent Communication
+  - agent: "main"
+    message: "Read-only TABLET AUDIT (768–1024px). Confirm the collapsed 72px icon rail (data-sidebar-collapsed=true, tooltips with full labels, active indigo state, collapse toggle), that BOTH the hamburger and bottom bar are hidden, one logo only, and page headers/actions read cleanly with no horizontal overflow. Test at 768/834/1000 widths on /dashboard, /pay-links, /transactions, /settings. Report per width+page; change nothing. Live prod — STRICT READ-ONLY."
+  - agent: "testing"
+    message: "✅ TESTING COMPLETE (2026-08-22) — All checks PASS (100% pass rate, 12/12 tests). Tablet audit shows ZERO OBJECTIVE ISSUES. **CRITICAL SUCCESS**: (1) SIDEBAR: All 12 tests show collapsed icon rail with data-sidebar-collapsed='true' and width=72px exactly ✅. (2) TOOLTIPS: Full labels shown on hover ('Payment Links', 'Payout wallets') ✅. (3) NAV: Hamburger hidden, bottom bar not rendered, one logo only ✅. (4) HEADERS: NO horizontal overflow on any page (scrollWidth === innerWidth for all 12 tests) ✅. (5) CONTENT: No overlap with rail, tables/cards fit ✅. Console shows only pre-existing warnings (chart width, CDN noise, Next.js image warnings), NO NEW functional errors ✅. All pages (/dashboard, /pay-links, /transactions, /settings) render correctly at all tablet widths (768x1024, 834x1112, 1000x1024). STRICT READ-ONLY testing completed successfully on LIVE prod DB. Main agent can summarize and finish."
+
+---
+
+
 # Session 2026-08-22 (15th pod) — PART 2: mobile audit (copy/spacing drift + consistency w/ sidebar fix)
 
 Preview: https://b5018a5f-de0e-4685-bf7a-5cdcdff90232.preview.emergentagent.com
