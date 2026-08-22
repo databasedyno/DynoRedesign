@@ -22,8 +22,8 @@
   56%, 100% { opacity: 0; }
 }
 @keyframes swiss-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(204, 255, 0, 0.5); }
-  50% { box-shadow: 0 0 0 5px rgba(204, 255, 0, 0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.5); }
+  50% { box-shadow: 0 0 0 5px rgba(99, 102, 241, 0); }
 }
 @media (prefers-reduced-motion: reduce) {
   .swiss-marquee-track { animation: none !important; }

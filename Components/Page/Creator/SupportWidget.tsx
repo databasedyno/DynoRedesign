@@ -9,7 +9,10 @@ import InlineTipCheckout from './InlineTipCheckout'
 const MONO = 'ui-monospace, "Roboto Mono", "JetBrains Mono", SFMono-Regular, Menlo, monospace'
 // Aurora indigo — Landing v3 canonical accent (Session 82 migration).
 const LIME = BRAND_ACCENT
-const INK = '#0A0A0B'
+// Text/icons rendered ON the solid indigo accent (CTA label, heart chip,
+// anon check) — the accent is dark indigo, so the readable on-accent colour
+// is white, not near-black. (Every INK usage in this file sits on the accent.)
+const INK = '#FFFFFF'
 
 export interface SupportWidgetData {
   enabled: boolean
@@ -172,9 +175,9 @@ const SupportWidget = ({
       data-testid="creator-support-widget"
       sx={{
         borderRadius: '20px',
-        border: `1px solid ${LIME}`,
+        border: `1px solid ${border}`,
         p: { xs: 2.5, sm: 3 },
-        backgroundColor: limeTint,
+        backgroundColor: surface,
       }}
     >
       {/* Header */}

@@ -5,7 +5,7 @@ export const FONT_HERO = "var(--font-hero)";
 export const FONT_BODY = "var(--font-body)";
 export const FONT_TECH = "var(--font-tech)";
 export const OBSIDIAN = "#050505";
-export const VOLT = "#CCFF00";
+export const VOLT = "#818CF8"; // retired lime (#CCFF00) → indigo-300 (Quiet Money, P6)
 
 export interface SwissTokens {
   dark: boolean;
@@ -32,7 +32,7 @@ export const useSwiss = (): SwissTokens => {
     line: dark ? "rgba(255,255,255,0.08)" : "rgba(10,10,10,0.08)",
     lineStrong: dark ? "rgba(255,255,255,0.18)" : "rgba(10,10,10,0.18)",
     accent: VOLT,
-    accentText: dark ? VOLT : "#5A6B00",
-    accentSoft: dark ? "rgba(204,255,0,0.08)" : "rgba(184,230,0,0.16)",
+    accentText: dark ? VOLT : "#4338CA",
+    accentSoft: dark ? "rgba(129,140,248,0.10)" : "rgba(67,56,202,0.10)",
   };
 };

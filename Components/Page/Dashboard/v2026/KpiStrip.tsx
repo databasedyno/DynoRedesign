@@ -204,7 +204,6 @@ const KpiStrip: React.FC<Props> = ({ stats, chartData, loading }) => {
       label: t("activeWallets", { defaultValue: "Active wallets" }),
       value: String(stats?.activeWallets ?? 0),
       color: info,
-      icon: <Icon name="wallet" size={18} />,
     },
     {
       key: "tax",
@@ -214,7 +213,6 @@ const KpiStrip: React.FC<Props> = ({ stats, chartData, loading }) => {
           ? stats?.taxCollectedFormatted || String(stats?.taxCollected)
           : `${symbol}0.00`,
       color: amber,
-      icon: <Icon name="receipt-text" size={18} />,
     },
   ];
 
@@ -240,8 +238,10 @@ const KpiStrip: React.FC<Props> = ({ stats, chartData, loading }) => {
             <Box
               sx={{
                 fontFamily: "var(--font-sans)",
-                fontSize: 12,
-                fontWeight: 600,
+                fontSize: 11,
+                fontWeight: 700,
+                letterSpacing: 1.1,
+                textTransform: "uppercase",
                 color: isDark
                   ? CB_TOKENS.ink.mutedDark
                   : CB_TOKENS.ink.mutedLight,
@@ -249,11 +249,6 @@ const KpiStrip: React.FC<Props> = ({ stats, chartData, loading }) => {
             >
               {c.label}
             </Box>
-            {c.icon && (
-              <Box sx={{ color: c.color || indigo, display: "flex", flexShrink: 0 }}>
-                {c.icon}
-              </Box>
-            )}
           </Box>
 
           <Box

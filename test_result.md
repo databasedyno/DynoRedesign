@@ -36982,3 +36982,34 @@ already processed over $20,000. fix this bug since he is not a new user."
   CHARGED rate comes from the column → 1.5% until the nightly `volumeTierReconciliation` restores
   `'growth'` (it will, on the next run after deploy). No manual DB writes were made from this pod.
 
+
+---
+
+# Session 2026-08-22 — BUG FIX VERIFICATION: Hero settlement coin rotation (USDC/USDT)
+
+Preview URL: https://b0554039-9ff8-482b-8405-9a46fb9e356a.preview.emergentagent.com/
+No login required (public marketing landing page).
+
+## User-reported bug
+The hero section's animated creator tip mock card showed a settlement path subtitle in the format "<FIAT> → <COIN>" (e.g., "USD → USDC"). The bug: the settlement coin was HARDCODED to "USDC", wrongly implying USDC is the only settlement option. The fix was to rotate the coin across featured settlement stablecoins (USDC and USDT), in sync with the mock's rotating handle + amount reel (cycles every ~3 seconds).
+
+## Verification task
+Verify that the settlement-path subtitle element (data-testid="hero-settle-path") shows BOTH "USDC" and "USDT" over a 15-20 second observation period, confirming the coin is NOT hardcoded to USDC only.
+
+### frontend
+  - task: "Hero settlement coin rotation - verify USDC/USDT rotation (not hardcoded to USDC)"
+    implemented: true
+    working: true
+    file: "Public landing page hero section (data-testid='hero-settle-path')"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ BUG FIX VERIFIED (2026-08-22 08:44 UTC) — Hero settlement coin rotation is WORKING CORRECTLY. **VERIFICATION RESULTS**: (1) ✅ Element located: Found data-testid='hero-settle-path' element on landing page. (2) ✅ Format correct: Text format is '<FIAT> → <COIN>' (observed 'USD → USDT' and 'USD → USDC'). (3) ✅ CRITICAL SUCCESS - Both coins observed: Over 20 seconds (7 observations at 3-second intervals), collected coin values: ['USDT', 'USDT', 'USDT', 'USDC', 'USDT', 'USDT', 'USDC']. BOTH USDC and USDT appeared in the rotation. The settlement coin is NOT hardcoded to USDC only. (4) ✅ Hero reel rotating: Screenshots show different creator handles (@maya, @jordan, @kai) and different tip amounts ($5, $25, $100), confirming the reel is auto-rotating as expected. (5) ✅ No errors: No error messages found on the page, landing page loads without crash. **EVIDENCE**: Screenshots captured at 0s (USD→USDT), 9s (USD→USDC), and 18s (USD→USDC) show the coin value changing. The fix is CORRECT - the settlement coin rotates between USDC and USDT in sync with the hero reel rotation. The bug (hardcoded to USDC) is RESOLVED."
+
+## Agent Communication
+  - agent: "testing"
+    message: "✅ VERIFICATION COMPLETE (2026-08-22 08:44 UTC) — Hero settlement coin rotation bug fix is FULLY VERIFIED and WORKING CORRECTLY. **CRITICAL FINDING**: The settlement coin is NOT hardcoded to USDC - it successfully rotates between USDC and USDT. Over 20 seconds of observation (7 data points at 3-second intervals), both 'USDC' and 'USDT' appeared in the settlement path subtitle (format: 'USD → COIN'). Observed sequence: USDT, USDT, USDT, USDC, USDT, USDT, USDC. The hero reel is also rotating correctly (different handles and amounts visible in screenshots). No console errors detected. The landing page loads without crash. The reported bug (settlement coin hardcoded to USDC) is RESOLVED. The fix is production-ready."
+

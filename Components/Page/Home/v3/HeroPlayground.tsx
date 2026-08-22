@@ -20,6 +20,10 @@ import { BRAND_ACCENT } from "@/constants/theme";
 
 const SUGGESTED_HANDLES = ["alex", "maya", "lin", "jordan", "rae", "kai"];
 const TIP_VALUES = [3, 5, 10, 25, 50, 100];
+// Settlement stablecoins DynoPay auto-converts into ("the coin you keep").
+// Rotates in sync with the handle/amount reel so the mock shows a CHOICE of
+// coins per creator instead of implying USDC is the only settlement option.
+const SETTLE_COINS = ["USDC", "USDT", "USDT", "USDC", "USDT", "USDC"];
 
 const HeroPlayground: React.FC = () => {
   const s = useAurora();
@@ -521,7 +525,7 @@ const HeroPlayground: React.FC = () => {
                       {fmt(TIP_VALUES[tipIdx])}
                     </Typography>
                   </motion.div>
-                  <Typography sx={{ fontFamily: FONT_TECH, fontSize: 13, color: "#71717A", fontWeight: 500 }}>{code} → USDC</Typography>
+                  <Typography sx={{ fontFamily: FONT_TECH, fontSize: 13, color: "#71717A", fontWeight: 500 }} data-testid="hero-settle-path">{code} → {SETTLE_COINS[rotIdx % SETTLE_COINS.length]}</Typography>
                 </Box>
 
                 {/* Chip row */}

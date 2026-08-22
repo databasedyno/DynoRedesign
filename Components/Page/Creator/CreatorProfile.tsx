@@ -20,6 +20,21 @@ const MONO = 'ui-monospace, "Roboto Mono", "JetBrains Mono", SFMono-Regular, Men
 const LIME = BRAND_ACCENT
 const INK = '#0A0A0B'
 
+// Contrast-guard for merchant-chosen accents (§5.13): pick a readable text
+// colour to sit ON a solid accent fill. Light accents → near-black ink,
+// dark accents → white. Falls back to white for non-hex/gradient values.
+const readableOn = (hex: string): string => {
+  const m = /^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.exec((hex || '').trim())
+  if (!m) return '#FFFFFF'
+  let h = m[1]
+  if (h.length === 3) h = h.split('').map((c) => c + c).join('')
+  const r = parseInt(h.slice(0, 2), 16)
+  const g = parseInt(h.slice(2, 4), 16)
+  const b = parseInt(h.slice(4, 6), 16)
+  const L = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255
+  return L > 0.6 ? '#0A0A0B' : '#FFFFFF'
+}
+
 export interface CreatorLink {
   type: 'donation' | 'link'
   link_id: number
@@ -466,8 +481,8 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget, analytics, pro
           <Box
             data-testid='creator-featured'
             sx={{
-              borderRadius: '20px', border: `1px solid ${accent}`, p: { xs: 2.5, sm: 3 }, mb: 3,
-              backgroundColor: limeTint,
+              borderRadius: '20px', border: `1px solid ${border}`, p: { xs: 2.5, sm: 3 }, mb: 3,
+              backgroundColor: surface,
             }}
           >
             <Typography sx={{ fontFamily: MONO, fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: theme.palette.text.secondary, mb: 1 }}>
@@ -515,7 +530,7 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget, analytics, pro
               onClick={() => go(featured.url)}
               sx={{
                 mt: 2, py: 1.4, borderRadius: '12px', textTransform: 'none',
-                fontWeight: 800, fontSize: 15.5, backgroundColor: accent, color: INK,
+                fontWeight: 800, fontSize: 15.5, backgroundColor: accent, color: readableOn(accent),
                 '&:hover': { backgroundColor: accent, filter: 'brightness(1.05)' },
               }}
             >

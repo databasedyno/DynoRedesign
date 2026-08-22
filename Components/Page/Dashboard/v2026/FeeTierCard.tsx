@@ -1,12 +1,10 @@
 import React, { useMemo } from "react";
 import { Box, useTheme } from "@mui/material";
-import Image from "next/image";
 import { useTranslation } from "react-i18next";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { formatNumberWithComma, getCurrencySymbol } from "@/helpers";
 import { SurfaceCard, Eyebrow, CB_TOKENS } from "../coinbase/styled";
 import { MONO } from "@/styles/uiKit";
-import CheckCircleIcon from "@/assets/Icons/correct-icon.png";
 
 /**
  * FeeTierCard — the redesigned fee-tier progress module. Surfaces the
@@ -97,11 +95,11 @@ const FeeTierCard: React.FC = () => {
         </Box>
       </Box>
 
-      {/* Clean single progress bar (replaces the old day-by-day bar forest) */}
+      {/* Clean single hairline progress bar (single indigo, no gradient) */}
       <Box
         sx={{
           position: "relative",
-          height: 10,
+          height: 6,
           borderRadius: 999,
           backgroundColor: isDark ? "rgba(255,255,255,0.08)" : "rgba(10,10,15,0.06)",
           overflow: "hidden",
@@ -112,9 +110,9 @@ const FeeTierCard: React.FC = () => {
           sx={{
             height: "100%",
             width: `${pct}%`,
-            minWidth: pct > 0 ? 8 : 0,
+            minWidth: pct > 0 ? 6 : 0,
             borderRadius: 999,
-            background: `linear-gradient(90deg, ${indigo} 0%, #7C5CFF 100%)`,
+            background: indigo,
             transition: "width 500ms cubic-bezier(0.4, 0, 0.2, 1)",
           }}
         />
@@ -151,48 +149,44 @@ const FeeTierCard: React.FC = () => {
         </Box>
       </Box>
 
-      {/* Current tier badge */}
+      {/* Current tier — quiet inline line (no filled pill) */}
       <Box
         sx={{
-          mt: 2.5,
-          minHeight: 40,
-          width: "100%",
-          display: "inline-flex",
+          mt: 2.25,
+          pt: 2.25,
+          borderTop: `1px solid ${
+            isDark ? CB_TOKENS.border.dark : CB_TOKENS.border.light
+          }`,
+          display: "flex",
           alignItems: "center",
-          justifyContent: "center",
           gap: 0.75,
-          px: 1.5,
-          py: "11px",
-          borderRadius: "100px",
-          background: theme.palette.success.light,
-          border: `1px solid ${theme.palette.success.main}`,
+          flexWrap: "wrap",
+          fontFamily: "var(--font-sans)",
+          fontSize: 13,
         }}
       >
         <Box
+          component="span"
+          sx={{ color: isDark ? CB_TOKENS.ink.mutedDark : CB_TOKENS.ink.mutedLight }}
+        >
+          {t("currentTier", { defaultValue: "Current tier" })}
+        </Box>
+        <Box
+          component="span"
+          data-testid="dash2026-tier-name"
           sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: 1,
-            fontFamily: "var(--font-sans)",
-            fontSize: 15,
-            fontWeight: 500,
-            color: theme.palette.success.dark,
+            fontWeight: 700,
+            color: isDark ? CB_TOKENS.ink.primaryDark : CB_TOKENS.ink.primaryLight,
           }}
         >
-          {t("currentTier", { defaultValue: "Current tier" })}:
-          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-            <Image src={CheckCircleIcon} alt="Active tier" width={16} height={16} draggable={false} />
-            <Box component="span" data-testid="dash2026-tier-name">
-              {currentTier}
-            </Box>
-            <Box
-              component="span"
-              data-testid="dash2026-tier-percent"
-              sx={{ fontWeight: 700, ml: 0.5 }}
-            >
-              · {currentTierPercent}%
-            </Box>
-          </Box>
+          {currentTier}
+        </Box>
+        <Box
+          component="span"
+          data-testid="dash2026-tier-percent"
+          sx={{ fontWeight: 600, color: indigo }}
+        >
+          · {currentTierPercent}%
         </Box>
       </Box>
 

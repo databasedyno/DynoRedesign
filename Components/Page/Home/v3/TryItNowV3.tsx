@@ -160,7 +160,7 @@ const TryItNowV3: React.FC = () => {
                 overflow: "auto",
               }}
             >
-              <Box component="span" sx={{ color: "#CCFF00" }}>curl</Box>
+              <Box component="span" sx={{ color: "#818CF8" }}>curl</Box>
               <Box component="span" sx={{ color: "#F5F5F5" }}>{" https://api.dynopay.com/v1/payments \\\n  "}</Box>
               <Box component="span" sx={{ color: "#7CB1FF" }}>-H</Box>
               <Box component="span" sx={{ color: "#F5F5F5" }}>{" "}</Box>
@@ -182,11 +182,11 @@ const TryItNowV3: React.FC = () => {
             <Box
               sx={{
                 background: "#0E0E13",
-                border: "1px solid rgba(204,255,0,0.24)",
+                border: "1px solid rgba(129,140,248,0.24)",
                 borderRadius: "20px",
                 overflow: "hidden",
                 position: "relative",
-                boxShadow: "0 30px 60px -30px rgba(204,255,0,0.35)",
+                boxShadow: "0 30px 60px -30px rgba(99,102,241,0.35)",
               }}
             >
               <Box
@@ -197,7 +197,7 @@ const TryItNowV3: React.FC = () => {
                   px: 2.5,
                   py: 1.5,
                   borderBottom: "1px solid rgba(255,255,255,0.08)",
-                  background: "rgba(204,255,0,0.05)",
+                  background: "rgba(99,102,241,0.06)",
                 }}
               >
                 <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11.5, color: VOLT, letterSpacing: "0.14em", textTransform: "uppercase", fontWeight: 600 }}>

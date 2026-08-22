@@ -1,0 +1,531 @@
+import React, { useEffect, useMemo, useState } from "react";
+import {
+  Box,
+  Button,
+  Menu,
+  MenuItem,
+  Popover,
+  Skeleton,
+  TextField,
+  useTheme,
+} from "@mui/material";
+import { useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
+import { format } from "date-fns";
+import { rootReducer } from "@/utils/types";
+import { useThemeMode } from "@/contexts/ThemeContext";
+import { useDashboardDensity } from "@/hooks/useDashboardDensity";
+import { Icon, MONO } from "@/styles/uiKit";
+import { formatNumberWithComma } from "@/helpers";
+import {
+  SurfaceCard,
+  Eyebrow,
+  DeltaChip,
+  PillButton,
+  CB_TOKENS,
+} from "../coinbase/styled";
+import { GhostIconButton } from "./styled";
+import { RangeId } from "./CommandBar";
+
+const RANGES: Array<{ id: RangeId; label: string }> = [
+  { id: "7d", label: "7D" },
+  { id: "30d", label: "30D" },
+  { id: "90d", label: "90D" },
+  { id: "1y", label: "1Y" },
+];
+
+type Metric = "period" | "lifetime" | "today";
+
+interface Props {
+  stats: any;
+  chartData: Array<{ date: string; value: number; transactionCount?: number }>;
+  chartSummary?: {
+    total_volume: number;
+    previous_total_volume: number;
+    volume_change_percent: number;
+  } | null;
+  loading?: boolean;
+  chartLoading?: boolean;
+  rangeLabel: string;
+  range: RangeId;
+  onRangeChange: (r: RangeId) => void;
+  custom?: { startDate: string; endDate: string } | null;
+  onCustomApply: (startDate: string, endDate: string) => void;
+  onCustomClear: () => void;
+}
+
+const splitAmount = (raw: string) => {
+  const idx = raw.lastIndexOf(" ");
+  if (idx > 0 && idx < raw.length - 1) {
+    return { big: raw.slice(0, idx), suffix: raw.slice(idx + 1) };
+  }
+  return { big: raw, suffix: "" };
+};
+
+/**
+ * BalanceStrip — P4 Row 1. The dashboard headline collapses into a single quiet
+ * strip: an eyebrow greeting, the range segmented control + settings on the
+ * right, then the big mono volume number + delta with a compact metric dropdown
+ * (This period / Lifetime / Today), and the page's ONE primary action
+ * ("+ Payment link"). Replaces the old CommandBar + VolumeHero header stack.
+ */
+const BalanceStrip: React.FC<Props> = ({
+  stats,
+  chartData,
+  chartSummary,
+  loading,
+  chartLoading,
+  rangeLabel,
+  range,
+  onRangeChange,
+  custom,
+  onCustomApply,
+  onCustomClear,
+}) => {
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
+  const { t } = useTranslation(["dashboardLayout", "common"]);
+  const { mode, toggleTheme } = useThemeMode();
+  const { isCompact, toggleDensity } = useDashboardDensity();
+
+  const [metric, setMetric] = useState<Metric>("period");
+  const [metricAnchor, setMetricAnchor] = useState<null | HTMLElement>(null);
+  const [settingsAnchor, setSettingsAnchor] = useState<null | HTMLElement>(null);
+
+  // Snap back to the range-driven metric whenever the active window changes.
+  useEffect(() => {
+    setMetric("period");
+  }, [rangeLabel]);
+
+  // ── Custom date-range picker ──
+  const [customAnchor, setCustomAnchor] = useState<null | HTMLElement>(null);
+  const customActive = !!(custom && custom.startDate && custom.endDate);
+  const today = useMemo(() => new Date().toISOString().split("T")[0], []);
+  const defaultStart = useMemo(() => {
+    const d = new Date();
+    d.setDate(d.getDate() - 30);
+    return d.toISOString().split("T")[0];
+  }, []);
+  const [draftStart, setDraftStart] = useState<string>(custom?.startDate || defaultStart);
+  const [draftEnd, setDraftEnd] = useState<string>(custom?.endDate || today);
+  const fmtDay = (iso: string) => {
+    try {
+      return format(new Date(`${iso}T00:00:00`), "MMM d");
+    } catch {
+      return iso;
+    }
+  };
+  const customLabel =
+    customActive && custom
+      ? `${fmtDay(custom.startDate)} – ${fmtDay(custom.endDate)}`
+      : t("customRange", { defaultValue: "Custom" });
+  const openCustom = (e: React.MouseEvent<HTMLElement>) => {
+    setDraftStart(custom?.startDate || defaultStart);
+    setDraftEnd(custom?.endDate || today);
+    setCustomAnchor(e.currentTarget);
+  };
+  const applyCustom = () => {
+    if (draftStart && draftEnd && draftStart <= draftEnd) {
+      onCustomApply(draftStart, draftEnd);
+      setCustomAnchor(null);
+    }
+  };
+
+  const name = useSelector(
+    (s: rootReducer) => (s as any).userReducer?.profile?.name,
+  ) as string | undefined;
+  const greeting = useMemo(() => {
+    const h = new Date().getHours();
+    if (h < 12) return t("greetMorning", { defaultValue: "Good morning" });
+    if (h < 18) return t("greetAfternoon", { defaultValue: "Good afternoon" });
+    return t("greetEvening", { defaultValue: "Good evening" });
+  }, [t]);
+
+  // ── Headline value + delta (from VolumeHero) ──
+  const currencySymbol = stats?.currencySymbol || "$";
+  const lifetimeStr = stats?.totalVolumeFormatted || `${currencySymbol}0.00`;
+  const todayStr = stats?.todaySummary?.volumeTodayFormatted || `${currencySymbol}0.00`;
+  const lifetimeDelta = Number(stats?.volumeChange ?? 0);
+  const todayDelta = Number(stats?.todaySummary?.volumeChangePercent ?? 0);
+
+  const { periodVolumeFromChart, periodTxCount } = useMemo(() => {
+    let v = 0;
+    let c = 0;
+    for (const d of chartData || []) {
+      v += Number(d?.value) || 0;
+      c += Number(d?.transactionCount) || 0;
+    }
+    return { periodVolumeFromChart: v, periodTxCount: c };
+  }, [chartData]);
+  const periodVolume =
+    chartSummary && typeof chartSummary.total_volume === "number"
+      ? chartSummary.total_volume
+      : periodVolumeFromChart;
+  const periodStr = `${currencySymbol}${formatNumberWithComma(periodVolume)}`;
+  const periodDelta = Number(chartSummary?.volume_change_percent ?? 0);
+  const hasPeriodDelta = !!chartSummary;
+
+  const activeStr =
+    metric === "period" ? periodStr : metric === "lifetime" ? lifetimeStr : todayStr;
+  const activeDelta =
+    metric === "period" ? periodDelta : metric === "lifetime" ? lifetimeDelta : todayDelta;
+  const positive = activeDelta >= 0;
+  const { big, suffix } = useMemo(() => splitAmount(activeStr), [activeStr]);
+  const showSkeleton = loading || (metric === "period" && chartLoading);
+
+  const metricLabels: Record<Metric, string> = {
+    period: t("heroPeriodVolume", { defaultValue: "This period" }),
+    lifetime: t("heroLifetimeVolume", { defaultValue: "Lifetime volume" }),
+    today: t("heroTodayRevenue", { defaultValue: "Today" }),
+  };
+
+  const muted = isDark ? CB_TOKENS.ink.mutedDark : CB_TOKENS.ink.mutedLight;
+  const primaryInk = isDark ? CB_TOKENS.ink.primaryDark : CB_TOKENS.ink.primaryLight;
+
+  return (
+    <SurfaceCard
+      data-testid="dash2026-balance-strip"
+      sx={{ ...(isCompact && { p: { xs: 1.75, md: 2 } }) }}
+    >
+      {/* Top row: greeting eyebrow + range control + settings */}
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 1.5,
+          flexWrap: "wrap",
+          mb: { xs: 2, md: 2.5 },
+        }}
+      >
+        <Eyebrow data-testid="dash2026-greeting">
+          {greeting}
+          {name ? `, ${name}` : ""}
+        </Eyebrow>
+
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
+          <Box
+            data-testid="dash2026-range"
+            role="tablist"
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 0.5,
+              p: 0.5,
+              borderRadius: 999,
+              backgroundColor: isDark ? "rgba(255,255,255,0.05)" : "rgba(10,10,15,0.05)",
+            }}
+          >
+            {RANGES.map((r) => (
+              <PillButton
+                key={r.id}
+                active={range === r.id && !customActive}
+                onClick={() => onRangeChange(r.id)}
+                role="tab"
+                aria-selected={range === r.id && !customActive}
+                data-testid={`dash2026-range-${r.id}`}
+              >
+                {r.label}
+              </PillButton>
+            ))}
+            <PillButton
+              active={customActive}
+              onClick={openCustom}
+              role="tab"
+              aria-selected={customActive}
+              data-testid="dash2026-range-custom"
+              aria-label={t("customRange", { defaultValue: "Custom range" })}
+              sx={{ display: "inline-flex", alignItems: "center", gap: 0.5 }}
+            >
+              <Icon name="calendar" size={14} />
+              {customLabel}
+            </PillButton>
+          </Box>
+
+          <GhostIconButton
+            data-testid="dash2026-settings"
+            aria-label={t("dashboardSettings", { defaultValue: "Dashboard settings" })}
+            onClick={(e) => setSettingsAnchor(e.currentTarget)}
+          >
+            <Icon name="sliders-horizontal" size={18} />
+          </GhostIconButton>
+        </Box>
+      </Box>
+
+      {/* Main row: number + delta + metric dropdown / primary CTA */}
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "flex-end",
+          justifyContent: "space-between",
+          gap: 2,
+          flexWrap: "wrap",
+        }}
+      >
+        <Box sx={{ minWidth: 0 }}>
+          <Button
+            data-testid="dash2026-metric"
+            onClick={(e) => setMetricAnchor(e.currentTarget)}
+            endIcon={<Icon name="chevron-down" size={14} />}
+            sx={{
+              p: 0,
+              minWidth: 0,
+              textTransform: "none",
+              fontFamily: "var(--font-sans)",
+              fontSize: 12.5,
+              fontWeight: 600,
+              letterSpacing: 0.2,
+              color: muted,
+              "&:hover": { backgroundColor: "transparent", color: primaryInk },
+            }}
+          >
+            {metricLabels[metric]}
+          </Button>
+
+          <Box
+            data-testid="dash2026-hero-value"
+            sx={{
+              fontFamily: MONO,
+              fontVariantNumeric: "tabular-nums",
+              fontWeight: 600,
+              letterSpacing: "-0.03em",
+              lineHeight: 1.02,
+              color: primaryInk,
+              fontSize: isCompact
+                ? { xs: 32, sm: 38, md: 44 }
+                : { xs: 34, sm: 42, md: 52, lg: 56 },
+              mt: 0.5,
+            }}
+          >
+            {showSkeleton ? (
+              <Skeleton width={280} height={60} />
+            ) : (
+              <>
+                {big}
+                {suffix && (
+                  <Box
+                    component="span"
+                    sx={{ fontSize: "0.42em", fontWeight: 400, color: muted, ml: 1, verticalAlign: "middle" }}
+                  >
+                    {suffix}
+                  </Box>
+                )}
+              </>
+            )}
+          </Box>
+
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 1, flexWrap: "wrap" }}>
+            {showSkeleton ? (
+              <Skeleton width={180} height={18} />
+            ) : (
+              <>
+                {(metric !== "period" || hasPeriodDelta) && (
+                  <DeltaChip positive={positive} data-testid="dash2026-hero-delta">
+                    <Icon name={positive ? "arrow-up" : "arrow-down"} size={13} />
+                    {Math.abs(activeDelta).toFixed(2)}%
+                  </DeltaChip>
+                )}
+                <Box
+                  component="span"
+                  data-testid="dash2026-hero-subline"
+                  sx={{ fontFamily: "var(--font-sans)", fontSize: 13, color: muted }}
+                >
+                  {metric === "period"
+                    ? (t("periodVsPrevious", {
+                        defaultValue: "vs previous period · {count} payments",
+                      }) as string).replace("{count}", String(periodTxCount))
+                    : metric === "lifetime"
+                      ? t("vsLastMonth", { defaultValue: "vs previous period" })
+                      : t("vsYesterday", { defaultValue: "vs yesterday" })}
+                </Box>
+              </>
+            )}
+          </Box>
+        </Box>
+      </Box>
+
+      {/* Metric dropdown */}
+      <Menu
+        anchorEl={metricAnchor}
+        open={Boolean(metricAnchor)}
+        onClose={() => setMetricAnchor(null)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+        transformOrigin={{ vertical: "top", horizontal: "left" }}
+        PaperProps={{
+          sx: {
+            mt: 1,
+            minWidth: 190,
+            borderRadius: "12px",
+            border: `1px solid ${isDark ? CB_TOKENS.border.dark : CB_TOKENS.border.light}`,
+          },
+        }}
+      >
+        {(Object.keys(metricLabels) as Metric[]).map((m) => (
+          <MenuItem
+            key={m}
+            selected={metric === m}
+            onClick={() => {
+              setMetric(m);
+              setMetricAnchor(null);
+            }}
+            data-testid={`dash2026-metric-${m}`}
+            sx={{ fontFamily: "var(--font-sans)", fontSize: 14, py: 1 }}
+          >
+            {metricLabels[m]}
+          </MenuItem>
+        ))}
+      </Menu>
+
+      {/* Settings menu (theme + density) */}
+      <Menu
+        anchorEl={settingsAnchor}
+        open={Boolean(settingsAnchor)}
+        onClose={() => setSettingsAnchor(null)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        transformOrigin={{ vertical: "top", horizontal: "right" }}
+        PaperProps={{
+          sx: {
+            mt: 1,
+            minWidth: 236,
+            borderRadius: "12px",
+            border: `1px solid ${isDark ? CB_TOKENS.border.dark : CB_TOKENS.border.light}`,
+          },
+        }}
+      >
+        <MenuItem
+          onClick={() => toggleTheme()}
+          data-testid="dash2026-toggle-theme"
+          sx={{ fontFamily: "var(--font-sans)", fontSize: 14, py: 1.1 }}
+        >
+          {mode === "dark" ? (
+            <Icon name="sun" size={18} style={{ marginRight: 12 }} />
+          ) : (
+            <Icon name="moon" size={18} style={{ marginRight: 12 }} />
+          )}
+          {mode === "dark"
+            ? t("switchLight", { defaultValue: "Light mode" })
+            : t("switchDark", { defaultValue: "Dark mode" })}
+        </MenuItem>
+        <MenuItem
+          onClick={() => toggleDensity()}
+          data-testid="dash2026-toggle-density"
+          sx={{ fontFamily: "var(--font-sans)", fontSize: 14, py: 1.1 }}
+        >
+          {isCompact ? (
+            <Icon name="rows-3" size={18} style={{ marginRight: 12 }} />
+          ) : (
+            <Icon name="rows-2" size={18} style={{ marginRight: 12 }} />
+          )}
+          {isCompact
+            ? t("spaciousView", { defaultValue: "Spacious view" })
+            : t("compactView", { defaultValue: "Compact view" })}
+        </MenuItem>
+      </Menu>
+
+      {/* Custom date-range popover */}
+      <Popover
+        open={Boolean(customAnchor)}
+        anchorEl={customAnchor}
+        onClose={() => setCustomAnchor(null)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+        transformOrigin={{ vertical: "top", horizontal: "left" }}
+        PaperProps={{
+          sx: {
+            mt: 1,
+            p: 2,
+            width: 280,
+            borderRadius: "12px",
+            border: `1px solid ${isDark ? CB_TOKENS.border.dark : CB_TOKENS.border.light}`,
+          },
+        }}
+      >
+        <Box
+          sx={{
+            fontFamily: "var(--font-sans)",
+            fontSize: 13,
+            fontWeight: 700,
+            mb: 1.5,
+            color: primaryInk,
+          }}
+        >
+          {t("customRangeTitle", { defaultValue: "Custom date range" })}
+        </Box>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+          <TextField
+            type="date"
+            size="small"
+            label={t("from", { defaultValue: "From" })}
+            InputLabelProps={{ shrink: true }}
+            value={draftStart}
+            onChange={(e) => setDraftStart(e.target.value)}
+            inputProps={{ max: draftEnd || today }}
+            data-testid="dash2026-custom-start"
+            sx={{
+              "& input::-webkit-calendar-picker-indicator": {
+                filter: isDark ? "invert(0.8)" : "none",
+                cursor: "pointer",
+              },
+            }}
+          />
+          <TextField
+            type="date"
+            size="small"
+            label={t("to", { defaultValue: "To" })}
+            InputLabelProps={{ shrink: true }}
+            value={draftEnd}
+            onChange={(e) => setDraftEnd(e.target.value)}
+            inputProps={{ min: draftStart, max: today }}
+            data-testid="dash2026-custom-end"
+            sx={{
+              "& input::-webkit-calendar-picker-indicator": {
+                filter: isDark ? "invert(0.8)" : "none",
+                cursor: "pointer",
+              },
+            }}
+          />
+        </Box>
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mt: 2, gap: 1 }}>
+          {customActive ? (
+            <Button
+              size="small"
+              onClick={() => {
+                onCustomClear();
+                setCustomAnchor(null);
+              }}
+              data-testid="dash2026-custom-clear"
+              sx={{ textTransform: "none", fontFamily: "var(--font-sans)", color: muted }}
+            >
+              {t("clear", { defaultValue: "Clear" })}
+            </Button>
+          ) : (
+            <Box />
+          )}
+          <Button
+            size="small"
+            variant="contained"
+            disableElevation
+            onClick={applyCustom}
+            disabled={!draftStart || !draftEnd || draftStart > draftEnd}
+            data-testid="dash2026-custom-apply"
+            sx={{
+              textTransform: "none",
+              fontFamily: "var(--font-sans)",
+              fontWeight: 600,
+              borderRadius: 999,
+              px: 2,
+              background: isDark ? CB_TOKENS.indigo.dark : CB_TOKENS.indigo.light,
+              "&:hover": {
+                background: isDark ? CB_TOKENS.indigo.dark : CB_TOKENS.indigo.light,
+                opacity: 0.9,
+              },
+            }}
+          >
+            {t("apply", { defaultValue: "Apply" })}
+          </Button>
+        </Box>
+      </Popover>
+    </SurfaceCard>
+  );
+};
+
+export default BalanceStrip;

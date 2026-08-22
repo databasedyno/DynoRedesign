@@ -9,10 +9,12 @@ import { rootReducer } from "@/utils/types";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { useDashboardDensity } from "@/hooks/useDashboardDensity";
 import fireConfetti from "@/helpers/fireConfetti";
-import CommandBar, { RangeId } from "./CommandBar";
-import VolumeHero from "./VolumeHero";
+import { RangeId } from "./CommandBar";
+import BalanceStrip from "./BalanceStrip";
+import VolumeChart from "./VolumeChart";
+import ActionsRow from "./ActionsRow";
+import EmptyHero from "./EmptyHero";
 import KpiStrip from "./KpiStrip";
-import QuickActionsDock from "./QuickActionsDock";
 import FeeTierCard from "./FeeTierCard";
 import AssetsCard from "./AssetsCard";
 import ActivationChecklist from "./ActivationChecklist";
@@ -20,23 +22,24 @@ import RecentTransactionsWidget from "../RecentTransactionsWidget";
 import GrowSlot from "./GrowSlot";
 
 /**
- * Dashboard2026 — the merchant command-center composition (default dashboard).
+ * Dashboard2026 — the merchant command center (P4 "Quiet Money" re-layout).
  *
- * Layout:
- *   CommandBar (greeting + global time range + settings)
- *   ─ bento grid (8fr / 4fr) ─
- *   MAIN : [Activation OR (VolumeHero + KpiStrip)] + Recent activity + Assets
- *   ASIDE: Quick actions + Fee tier + Grow offer + Storefront
+ * Vertical rhythm (Coinbase/Stripe-class restraint):
+ *   Row 1  BalanceStrip  — eyebrow greeting · range control · settings ·
+ *                          big mono volume + delta + metric dropdown · ONE
+ *                          primary "+ Payment link" button
+ *   Row 1½ ActionsRow    — 4 quiet ghost-button shortcuts (was the 2×2 dock)
+ *   Row 2  VolumeChart (8) + rail (4): FeeTierCard (quiet line) + GrowSlot
+ *   Row 3  KpiStrip      — 3 KPIs (payments today · active wallets · tax)
+ *   Row 4  Recent activity
+ *   Row 5  AssetsCard    — assets breakdown (kept, scrolls below the fold)
  *
- * A single fetchChartData(range) call here feeds both the VolumeHero chart
- * and the KPI-strip sparklines (they read the shared redux chartData).
+ * A single fetchChartData(range) call feeds both the chart and the KPI-strip
+ * sparkline (shared redux chartData).
  */
 const Dashboard2026: React.FC = () => {
   const router = useRouter();
   const [range, setRange] = useState<RangeId>("7d");
-  // Density (compact/spacious) — toggled from the CommandBar settings menu or
-  // the Recent-transactions widget. Compact tightens the WHOLE dashboard:
-  // grid gaps here + card paddings via the [data-density] overrides below.
   const { density, isCompact } = useDashboardDensity();
   const [custom, setCustom] = useState<{ startDate: string; endDate: string } | null>(
     null,
@@ -59,12 +62,8 @@ const Dashboard2026: React.FC = () => {
   }, [range, custom, fetchChartData]);
 
   // ── Confetti on paid ──────────────────────────────────────────────
-  // Celebrate when a NEW payment has settled since the merchant last saw
-  // the dashboard. We remember the most-recent settled txn id in
-  // localStorage; if it changes on a later visit, a brand-coloured burst
-  // fires once (never on the first-ever load, never for pending/failed,
-  // honours prefers-reduced-motion via fireConfetti). No polling / no
-  // extra API calls — purely a delightful "you got paid" welcome.
+  // Celebrate when a NEW payment has settled since the merchant last saw the
+  // dashboard (once; never on first-ever load, honours reduced-motion).
   const confettiFiredRef = useRef(false);
   useEffect(() => {
     if (confettiFiredRef.current) return;
@@ -96,7 +95,7 @@ const Dashboard2026: React.FC = () => {
     }
   }, [recentTransactions]);
 
-  // Human label for the active window (drives the VolumeHero eyebrow).
+  // Human label for the active window (drives the chart eyebrow + balance strip).
   const rangeLabel = useMemo(() => {
     const presetLabels: Record<RangeId, string> = {
       "7d": "7 days",
@@ -105,7 +104,6 @@ const Dashboard2026: React.FC = () => {
       "1y": "12 months",
     };
     if (!custom) return presetLabels[range];
-    // "Jan 1 – Jan 31" when both dates share a year; include the year otherwise.
     const sameYear = custom.startDate.slice(0, 4) === custom.endDate.slice(0, 4);
     const fmt = (iso: string, withYear: boolean) => {
       try {
@@ -130,25 +128,27 @@ const Dashboard2026: React.FC = () => {
     if (totalTx > 0 || totalVol > 0) return true;
     const list = (recentTransactions as any[]) || [];
     return list.some((tx) =>
-      [
-        "confirmed",
-        "completed",
-        "settled",
-        "success",
-        "successful",
-        "paid",
-      ].includes(String(tx?.status || "").toLowerCase()),
+      ["confirmed", "completed", "settled", "success", "successful", "paid"].includes(
+        String(tx?.status || "").toLowerCase(),
+      ),
     );
   }, [stats?.totalTransactions, stats?.totalVolume, recentTransactions]);
 
   const showActivation = hasAccount && hasWallet && !hasPayment && !loading;
 
-  // Grow-panel offer signals (mirrors DashboardRightSection priority logic)
+  // Has an account but zero lifetime volume AND isn't in the activation flow
+  // (e.g. no wallet yet) → show the encouraging "make first sale" hero.
+  const isEmpty =
+    !loading &&
+    !!stats &&
+    Number(stats.totalTransactions ?? 0) === 0 &&
+    Number(stats.totalVolume ?? 0) === 0;
+
+  // Grow-panel offer signals (mirrors DashboardRightSection priority logic).
   const feeFreeRemaining = Number(
     userProfile?.fee_free_remaining_usd ?? userProfile?.feeFreeRemainingUsd ?? NaN,
   );
-  const hasFeeFreeCredit =
-    Number.isFinite(feeFreeRemaining) && feeFreeRemaining > 0;
+  const hasFeeFreeCredit = Number.isFinite(feeFreeRemaining) && feeFreeRemaining > 0;
   const hasCompletedFeeFreeTrial =
     Number.isFinite(feeFreeRemaining) &&
     feeFreeRemaining <= 0 &&
@@ -157,6 +157,8 @@ const Dashboard2026: React.FC = () => {
   const monthlyLimit = Number(feeTiers?.monthlyLimit ?? 10000);
   const isPremiumEligible = usedAmount / Math.max(monthlyLimit, 1) >= 0.6;
 
+  const stackGap = isCompact ? { xs: 1.25, md: 1.75 } : { xs: 2, md: 2.5 };
+
   return (
     <Box
       data-testid="dash2026-root"
@@ -164,19 +166,10 @@ const Dashboard2026: React.FC = () => {
       sx={
         isCompact
           ? {
-              // Compact density — tighten every above-the-fold card so the
-              // Compact/Spacious toggle makes an OBVIOUS whole-page change.
-              // px values on purpose (no theme-spacing ambiguity in nested
-              // selectors); testid selectors beat each card's own sx padding
-              // on specificity (root class + attribute > single class).
               "& [data-testid='dash2026-kpi-strip']": { gap: "12px" },
               "& [data-testid='dash2026-kpi-strip'] > div": {
                 padding: "14px 16px",
                 gap: "6px",
-              },
-              "& [data-testid='dash2026-quick-actions']": {
-                padding: "16px",
-                gap: "12px",
               },
               "& [data-testid='dash2026-fee-tier']": { padding: "16px" },
               "& [data-testid='dash2026-assets']": { padding: "16px" },
@@ -184,91 +177,106 @@ const Dashboard2026: React.FC = () => {
           : undefined
       }
     >
-      <CommandBar
-        range={range}
-        onRangeChange={(r) => {
-          setCustom(null);
-          setRange(r);
-        }}
-        custom={custom}
-        onCustomApply={(s, e) => setCustom({ startDate: s, endDate: e })}
-        onCustomClear={() => setCustom(null)}
-      />
+      {showActivation ? (
+        <Box sx={{ display: "flex", flexDirection: "column", gap: stackGap }}>
+          <ActionsRow />
+          <ActivationChecklist
+            accountType={accountType}
+            profileComplete={profileComplete}
+            hasWallet={hasWallet}
+            onCreateLink={() => router.push("/create-pay-link")}
+          />
+          <RecentTransactionsWidget
+            transactions={recentTransactions as any[]}
+            loading={loading}
+          />
+        </Box>
+      ) : isEmpty ? (
+        <Box sx={{ display: "flex", flexDirection: "column", gap: stackGap }}>
+          <ActionsRow />
+          <EmptyHero />
+          <RecentTransactionsWidget
+            transactions={recentTransactions as any[]}
+            loading={loading}
+          />
+        </Box>
+      ) : (
+        <Box sx={{ display: "flex", flexDirection: "column", gap: stackGap }}>
+          {/* Row 1 — balance strip */}
+          <BalanceStrip
+            stats={stats}
+            chartData={chartData}
+            chartSummary={chartSummary}
+            loading={loading}
+            chartLoading={chartLoading}
+            rangeLabel={rangeLabel}
+            range={range}
+            onRangeChange={(r) => {
+              setCustom(null);
+              setRange(r);
+            }}
+            custom={custom}
+            onCustomApply={(s, e) => setCustom({ startDate: s, endDate: e })}
+            onCustomClear={() => setCustom(null)}
+          />
 
-      <Box
-        sx={{
-          display: "grid",
-          gridTemplateColumns: {
-            xs: "1fr",
-            lg: "minmax(0, 8fr) minmax(0, 4fr)",
-          },
-          gap: isCompact ? { xs: 1.25, md: 1.75, lg: 2 } : { xs: 2, md: 3, lg: 3.5 },
-          alignItems: "start",
-        }}
-      >
-        {/* MAIN */}
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            gap: isCompact ? { xs: 1.25, md: 1.75 } : { xs: 2, md: 3 },
-            minWidth: 0,
-          }}
-        >
-          {showActivation ? (
-            <ActivationChecklist
-              accountType={accountType}
-              profileComplete={profileComplete}
-              hasWallet={hasWallet}
-              onCreateLink={() => router.push("/create-pay-link")}
+          {/* Row 1½ — quick actions */}
+          <ActionsRow />
+
+          {/* Row 2 — chart (8) + rail (4) */}
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: {
+                xs: "1fr",
+                lg: "minmax(0, 8fr) minmax(0, 4fr)",
+              },
+              gap: stackGap,
+              alignItems: "start",
+            }}
+          >
+            <VolumeChart
+              chartData={chartData}
+              loading={loading}
+              chartLoading={chartLoading}
+              currencySymbol={stats?.currencySymbol}
+              rangeLabel={rangeLabel}
             />
-          ) : (
-            <>
-              <VolumeHero
-                stats={stats}
-                chartData={chartData}
-                chartSummary={chartSummary}
-                loading={loading}
-                chartLoading={chartLoading}
-                rangeLabel={rangeLabel}
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: { xs: "1fr", md: "1fr 1fr", lg: "1fr" },
+                gap: stackGap,
+                alignItems: "start",
+              }}
+            >
+              <FeeTierCard />
+              <GrowSlot
+                hasFeeFreeCredit={hasFeeFreeCredit}
+                hasCompletedFeeFreeTrial={hasCompletedFeeFreeTrial}
+                isPremiumEligible={isPremiumEligible}
               />
-              <KpiStrip stats={stats} chartData={chartData} loading={loading} />
-            </>
-          )}
+            </Box>
+          </Box>
 
+          {/* Row 3 — KPIs */}
+          <KpiStrip stats={stats} chartData={chartData} loading={loading} />
+
+          {/* Row 4 — recent activity */}
           <RecentTransactionsWidget
             transactions={recentTransactions as any[]}
             loading={loading}
           />
 
-          {!showActivation && (
-            <AssetsCard
-              assets={chartAssets}
-              rangeLabel={rangeLabel}
-              currencySymbol={stats?.currencySymbol}
-              loading={loading || chartLoading}
-            />
-          )}
-        </Box>
-
-        {/* ASIDE */}
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            gap: isCompact ? { xs: 1.25, md: 1.75 } : { xs: 2, md: 3 },
-            minWidth: 0,
-          }}
-        >
-          <QuickActionsDock />
-          {!showActivation && <FeeTierCard />}
-          <GrowSlot
-            hasFeeFreeCredit={hasFeeFreeCredit}
-            hasCompletedFeeFreeTrial={hasCompletedFeeFreeTrial}
-            isPremiumEligible={isPremiumEligible}
+          {/* Row 5 — assets breakdown (kept, below the fold) */}
+          <AssetsCard
+            assets={chartAssets}
+            rangeLabel={rangeLabel}
+            currencySymbol={stats?.currencySymbol}
+            loading={loading || chartLoading}
           />
         </Box>
-      </Box>
+      )}
     </Box>
   );
 };

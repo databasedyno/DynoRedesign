@@ -38,7 +38,44 @@ Companion machine-readable tokens: `/app/design_guidelines.json` (written by the
 >   mono money columns (Transactions Amount + USD Value via grid-cell `justify-content:flex-end`;
 >   Pay-links USD Value via `Header align="right"` + cell `textAlign:right`) and quieted the transaction
 >   source/method badge (`SourceBadge` → low-emphasis grey text + muted icon, no per-type coloured pill).
-> - P4 — Dashboard · P5 — Checkout/public · P6 — Marketing → PENDING.
+> - **P4 — Dashboard ✅ SHIPPED (2026-08-22)** — the flagship re-layout. New `BalanceStrip`
+>   (eyebrow greeting + range segmented control + settings menu + big mono volume/delta + metric
+>   dropdown; the page-header keeps the single "+ Payment link" CTA so there is exactly one primary),
+>   `ActionsRow` (the 2×2 drag-dock → 4 quiet ghost-button shortcuts, honouring saved pins),
+>   `VolumeChart` (the area chart on its own card), quieted `FeeTierCard` (hairline single-indigo bar,
+>   the filled green tier pill → a plain inline "Current tier · Growth · 1%" line), quieted `KpiStrip`
+>   (tiny-caps labels, coloured icons removed; payments spark kept), and `EmptyHero` (preserves the
+>   "make first sale" nudge). `v2026/index.tsx` recomposed to the P4 grid: balance strip → actions →
+>   chart(8)+rail(4: fee-tier + grow) → 3 KPIs → recent activity → assets. CommandBar/VolumeHero/
+>   QuickActionsDock retired from the composition (files kept). tsc 0-err, ESLint clean, verified
+>   in-preview (dark, 1920) via full 2-step login. **Deferred:** avatar-menu "Personalize" for action
+>   customization; ≤640 KPI horizontal snap-scroll; light-mode + <1200 breakpoint visual pass.
+> - **P5 — Public creator page ✅ SHIPPED (2026-08-22, §5.13 part)** — quieted the SupportWidget
+>   "Support me" card (indigo-tinted fill + accent border → surface bg + hairline border, so no page
+>   fill competes with the cover) and the CreatorProfile featured-campaign box; added a luminance
+>   contrast-guard (`readableOn`) so on-accent CTA text stays legible (fixed dark-ink-on-deep-indigo
+>   → white). CreatorShopSection was already on-spec (hairline cards, mono price, ghost "Buy →").
+>   tsc 0-err, ESLint clean (pre-existing `LinkCard` nested-component warning left untouched).
+>   Verified on /hostbay. **§5.12 hosted checkout /pay (CleanCheckoutV2) ✅ SHIPPED (2026-08-22)** —
+>   the flow was already ~9.1/10 (single centered card, mono `$`/coin/address amounts, big QR,
+>   address+amount one-tap copy, plain-language states, rate-freshness dot). Restyle (no payment/poll
+>   logic touched): quieted the filled indigo status pill → dot + text + hairline; added a **thin
+>   countdown progress bar** (new `totalSeconds` denominator; indigo, amber under 20%) so the timer
+>   reads at a glance instead of mm:ss text only. Verified against a throwaway $1 hostbay link
+>   (created + deleted via API). tsc 0-err. **P5 COMPLETE.**
+> - **P6 — Marketing ✅ SHIPPED (2026-08-22, reskin+lime part)** — retired the last brand lime
+>   (`VOLT #CCFF00`) across the landing: `theme.v3.ts` + `swiss.ts` VOLT → indigo-300 (#818CF8 on
+>   dark), swiss `accentText` light olive #5A6B00 → deep indigo #4338CA, `accentSoft` lime→indigo,
+>   `SwissSectionHead` invert accent, `TryItNowV3` terminal glow/border/curl highlight, and the dead
+>   `swiss-pulse` keyframe in globals.css. Landing/fees/about now render one indigo accent, no lime.
+>   Verified on / (feature cards, eyebrows, FAQ, terminal all indigo). Out-of-scope lime left as-is:
+>   auth/app modals, confetti bursts, and the creator-selectable "Lime" palette option. **Deferred
+>   (optional):** swapping the polished coded hero mock for a real light-dashboard screenshot — the
+>   current HeroPlayground is already an on-brand, higher-fidelity animated product mock, so a static
+>   swap is a judgement call left to the owner rather than a regression risk.
+>
+> **Redesign status: P1–P6 all shipped. Remaining = optional QA (§7 acceptance checklist across
+> 1920/1440/1280/1024/768/390 in light+dark) + the optional hero-screenshot swap.**
 
 
 Grounding: live screenshots of the current landing / dashboard / transactions (2026-08-21), the 27-surface

@@ -307,6 +307,10 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
   // header shows the getData estimate first, then the exact figure.
   const [feeExact, setFeeExact] = useState<{ fee: number; total: number } | null>(null)
   const [timeLeft, setTimeLeft] = useState<number>(0)
+  // Total reservation window (seconds) — the denominator for the countdown
+  // progress bar (§5.12). Tracks the largest window seen so the bar never
+  // exceeds 100% even if the backend re-issues a fresh remaining_seconds.
+  const [totalSeconds, setTotalSeconds] = useState<number>(0)
   const [rateFetchedAt, setRateFetchedAt] = useState<number | null>(null)
   const [copiedFlag, setCopiedFlag] = useState<'addr' | 'amt' | ''>('')
   const [portalReady, setPortalReady] = useState(false)
@@ -596,6 +600,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
     const timerMins: number =
       Number(r.remaining_minutes) || Number(r.expires_in_minutes) || Number(r.expiration_minutes) || 30
     setTimeLeft(timerMins * 60)
+    setTotalSeconds(timerMins * 60)
     setDetected(false)
     setPhase('awaiting_payment')
   }, [meta_])
@@ -621,6 +626,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
       const d_: any = r.data
       if (d_.remaining_seconds !== undefined && d_.remaining_seconds > 0) {
         setTimeLeft(Number(d_.remaining_seconds))
+        setTotalSeconds((prev) => Math.max(prev, Number(d_.remaining_seconds)))
       }
       // Live "detected" signal: backend 'pending' = tx seen, awaiting
       // confirmation; 'underpaid' also means funds were received (partial).
@@ -1468,6 +1474,8 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess }) => {
           phase={phase}
           detected={detected}
           timerLabel={timerLabel}
+          secondsRemaining={timeLeft}
+          totalSeconds={totalSeconds}
           isDark={isDark}
           t={t}
         />
@@ -1585,13 +1593,20 @@ export const CheckoutStatusTimeline: React.FC<{
   phase: string
   detected: boolean
   timerLabel: string
+  secondsRemaining?: number
+  totalSeconds?: number
   isDark: boolean
   t: (key: string, opts?: { defaultValue?: string }) => string
-}> = ({ phase, detected, timerLabel, isDark, t }) => {
+}> = ({ phase, detected, timerLabel, secondsRemaining = 0, totalSeconds = 0, isDark, t }) => {
   const theme = useTheme()
   const border = isDark ? 'rgba(255,255,255,0.10)' : '#E4E4E7'
   const muted = isDark ? '#A1A1AA' : '#71717A'
   const warnFg = '#B45309'
+  // Countdown progress (§5.12): a thin bar makes the time pressure legible at a
+  // glance instead of only the mm:ss text. Turns amber in the final stretch.
+  const pct = totalSeconds > 0 ? Math.max(0, Math.min(100, (secondsRemaining / totalSeconds) * 100)) : 0
+  const barColor = pct <= 20 ? warnFg : LIME
+  const showTimerBar = phase !== 'confirmed' && phase !== 'expired' && totalSeconds > 0
   const stepIndex = phase === 'confirmed' ? 2 : detected ? 1 : 0
   const isUnderpaid = phase === 'underpaid'
   const dotColor = isUnderpaid ? warnFg : detected ? LIME : '#22c55e'
@@ -1611,8 +1626,8 @@ export const CheckoutStatusTimeline: React.FC<{
         <Box sx={{
           display: 'inline-flex', alignItems: 'center', gap: 0.5,
           px: 1, py: 0.5, borderRadius: '999px',
-          backgroundColor: isDark ? 'rgba(79,70,229,0.08)' : 'rgba(79,70,229,0.16)',
-          border: `1px solid ${dotColor}`,
+          backgroundColor: 'transparent',
+          border: `1px solid ${border}`,
         }}>
           <Box sx={{
             width: 8, height: 8, borderRadius: '50%', backgroundColor: dotColor,
@@ -1628,6 +1643,30 @@ export const CheckoutStatusTimeline: React.FC<{
           {timerLabel}
         </Typography>
       </Box>
+      {showTimerBar && (
+        <Box
+          data-testid="checkout-countdown-bar"
+          sx={{
+            position: 'relative',
+            height: 3,
+            mb: 1.75,
+            borderRadius: 999,
+            overflow: 'hidden',
+            backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(10,10,15,0.06)',
+          }}
+        >
+          <Box
+            sx={{
+              position: 'absolute',
+              inset: 0,
+              width: `${pct}%`,
+              borderRadius: 999,
+              backgroundColor: barColor,
+              transition: 'width 1s linear, background-color 300ms ease',
+            }}
+          />
+        </Box>
+      )}
       <Box data-testid="checkout-status-timeline" sx={{ display: 'flex', alignItems: 'center' }}>
         {steps.map((label, i) => {
           const done = i < stepIndex

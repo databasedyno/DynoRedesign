@@ -16,7 +16,7 @@ const SwissSectionHead: React.FC<Props> = ({ num, eyebrow, title, highlight, sub
   const s = useSwiss();
   const txt = invert ? "#F5F5F5" : s.txt;
   const subColor = invert ? "rgba(255,255,255,0.6)" : s.sub;
-  const accent = invert ? "#CCFF00" : s.accentText;
+  const accent = invert ? "#818CF8" : s.accentText;
 
   const renderedTitle = useMemo<React.ReactNode>(() => {
     if (!highlight || !title.includes(highlight)) return title;
