@@ -1,3 +1,72 @@
+# Session 2026-08-22 (15th pod) — BUG FIX: mobile drawer sidebar differs from desktop (copies + design)
+
+Preview: https://b5018a5f-de0e-4685-bf7a-5cdcdff90232.preview.emergentagent.com
+Login (2-step): hostbay@moxx.co / Katiekendra123@  (/auth/login → email → "Continue" → password → [data-testid="signin-submit-btn"])
+SAFETY (CRITICAL — LIVE Railway PROD DB): STRICT READ-ONLY. Navigate/read/screenshot/open-drawer ONLY.
+No create/edit/delete, no real payments. SAFE MODE must stay (ENABLE_BACKGROUND_JOBS=false, WORKER_ROLE=secondary).
+
+## User-reported issue (with screenshot)
+The mobile hamburger drawer sidebar was "entirely different from desktop in copies and design":
+- COPIES: every nav label was truncated to its FIRST WORD only — "Payment Links" → "Payment",
+  "Receipts & Tax" → "Receipts", "Payout wallets" → "Payout". Desktop shows the full labels.
+- DESIGN: the drawer omitted the section group captions (GET PAID / MONEY / YOUR SETUP / ACCOUNT)
+  that the desktop sidebar renders, and shrank the label font to 11px.
+
+## Root cause
+Components/Layout/NewSidebar/index.tsx is shared by the desktop rail AND the mobile drawer
+(NewHeader renders `<NewSidebar inDrawer />`). Inside it `isMobile = inDrawer`, and two branches
+made the drawer diverge (contradicting the file's own comment "always-full labels"):
+- label render: `{isMobile ? item.label.split(" ")[0] : item.label}` → first-word truncation.
+- section caption: `{!isMobile && !isCollapsed && !!section.label && <SectionLabel/>}` → hidden in drawer.
+- label font: `fontSize: isMobile ? "11px" : "14px"` + a `[breakpoints.down("md")]: 11px` override.
+(The expanded desktop sidebar only ever renders at ≥1024px — the down("md") override affected ONLY the drawer,
+so aligning it is regression-safe: at 768–1023 the desktop sidebar is a collapsed icon rail w/ labels hidden.)
+
+## Fix (frontend only — 1 file: Components/Layout/NewSidebar/index.tsx)
+- Render the FULL label in the drawer: `{item.label}` (no more `.split(" ")[0]`).
+- Show the section group captions in the drawer too: dropped the `!isMobile` guard on `<SectionLabel/>`.
+- Drawer labels now use 14px + left-align (matching desktop 1:1); removed the down("md") 11px shrink.
+Lint clean. Frontend is dev-mode (hot reload) — no build/restart needed.
+
+### frontend
+  - task: "Mobile drawer sidebar matches desktop (full labels + section group captions)"
+    implemented: true
+    working: true
+    file: "Components/Layout/NewSidebar/index.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Removed the mobile-drawer first-word label truncation and the !isMobile guard hiding section captions; drawer labels now 14px full-text left-aligned, matching the desktop sidebar. Needs frontend verification at a real mobile viewport (drawer only shows <768px)."
+      - working: true
+        agent: "testing"
+        comment: "✅ ALL 5 VERIFICATION STEPS PASS (2026-08-22) — Mobile drawer sidebar bug fix COMPLETELY VERIFIED at real mobile viewport (390x844). **STEP 1 (Login): ✅ PASS** — Successfully logged in at mobile viewport 390x844, redirected to /dashboard. **STEP 2 (Open drawer): ✅ PASS** — Clicked hamburger button [data-testid='mobile-hamburger-toggle'], drawer opened successfully. Screenshots captured. **STEP 3 (COPIES CHECK - PRIMARY BUG FIX): ✅ PASS** — Collected all drawer navigation labels. ALL multi-word labels are displayed in FULL (NOT truncated): 'Payment Links' (not 'Payment'), 'Receipts & Tax' (not 'Receipts'), 'Payout wallets' (not 'Payout'). Complete label list verified: Dashboard, Payment Links, Transactions, Receipts & Tax, Customers, Storefront, Payout wallets, Settings, Developers. NO truncation detected. This is the PRIMARY bug fix and it's working perfectly ✅. **STEP 4 (DESIGN CHECK - SECTION CAPTIONS): ✅ PASS** — ALL 4 section group captions are visible in the mobile drawer: 'Get paid' (displays as 'GET PAID' via CSS text-transform: uppercase), 'Money' (displays as 'MONEY'), 'Your setup' (displays as 'YOUR SETUP'), 'Account' (displays as 'ACCOUNT'). Found 8 section label elements (4 unique captions × 2 due to DOM structure). Font size: 10.5px, styled with uppercase transform. Visual verification from screenshot confirms all captions are visible as gray uppercase text above each navigation group ✅. **STEP 5 (PARITY & REGRESSION): ✅ PASS** — Desktop sidebar at 1920x800 shows all 4 section captions (GET PAID, MONEY, YOUR SETUP, ACCOUNT) and full labels (no truncation). Desktop labels: Dashboard, Payment Links, Transactions, Receipts & Tax, Customers, Storefront, Payout wallets, Settings, Developers. No console errors. Desktop sidebar unchanged (no regression) ✅. **MEASURED RESULTS**: Mobile drawer labels use 14px font (matching desktop, was 11px before fix). Section captions use 10.5px with text-transform: uppercase. **CONCLUSION**: The mobile drawer sidebar bug fix is COMPLETELY VERIFIED and production-ready. The user-reported issue is RESOLVED: (1) Mobile drawer now shows FULL labels (not truncated to first word), (2) Section group captions are now visible in mobile drawer (matching desktop), (3) Font size increased from 11px to 14px (matching desktop 1:1). All 5 verification steps passed (100% pass rate). STRICT READ-ONLY testing completed successfully on LIVE prod DB."
+
+### FRONTEND TESTING INSTRUCTIONS (auto_frontend_testing_agent) — STRICT READ-ONLY on LIVE prod
+Use a REAL MOBILE viewport (e.g. 390x844 / iPhone 12) — the hamburger drawer only exists <768px; at desktop width
+the drawer is display:none and the desktop rail shows instead. Steps:
+1) Log in (2-step above) at 390x844; wait for /dashboard to render (~7s).
+2) Click the top-left hamburger `[data-testid="mobile-hamburger-toggle"]` to open the nav drawer. Screenshot.
+3) COPIES: collect the drawer nav rows `[data-testid^="sidebar-item-"]` inner text. Assert the FULL labels are present
+   (NOT truncated): expect "Dashboard", "Payment Links", "Transactions", "Receipts & Tax", "Customers",
+   "Storefront", "Payout wallets", "Settings", "Developers". FAIL if any reads a truncated first word
+   ("Payment", "Receipts", "Payout").
+4) DESIGN: assert the section group captions are visible in the drawer — "GET PAID", "MONEY", "YOUR SETUP",
+   "ACCOUNT" (uppercase). Assert the drawer copies/order match the desktop sidebar (open at ≥1024px and compare labels).
+5) REGRESSION: desktop 1920x800 sidebar still shows full labels + section captions (unchanged); no functional console errors.
+Report PASS/FAIL per step with the exact drawer label strings you read.
+
+### Agent Communication
+  - agent: "main"
+    message: "User bug (with screenshot): the mobile hamburger drawer used truncated first-word labels (Payment/Receipts/Payout) and hid the section captions, so it looked different from desktop. Fixed in NewSidebar (shared component) — drawer now renders full labels + section captions at 14px, matching desktop 1:1. Please verify at a real MOBILE viewport (390x844): open the drawer via [data-testid=mobile-hamburger-toggle] and confirm full labels + GET PAID/MONEY/YOUR SETUP/ACCOUNT captions. STRICT READ-ONLY on live prod — only navigate/open-drawer/screenshot."
+  - agent: "testing"
+    message: "✅ TESTING COMPLETE (2026-08-22) — All 5 verification steps PASS (100% pass rate). Mobile drawer sidebar bug fix is COMPLETELY VERIFIED and production-ready. **CRITICAL SUCCESS**: (1) COPIES CHECK (PRIMARY BUG FIX): All multi-word labels display in FULL — 'Payment Links' (not 'Payment'), 'Receipts & Tax' (not 'Receipts'), 'Payout wallets' (not 'Payout'). NO truncation detected ✅. (2) DESIGN CHECK: All 4 section captions visible in mobile drawer — 'GET PAID', 'MONEY', 'YOUR SETUP', 'ACCOUNT' (styled with text-transform: uppercase) ✅. (3) Font size: Mobile drawer labels now use 14px (was 11px), matching desktop 1:1 ✅. (4) Desktop parity: Desktop sidebar shows same full labels and section captions, no regression ✅. (5) No console errors ✅. The user-reported bug 'mobile hamburger drawer sidebar was entirely different from desktop in copies and design' is RESOLVED. Tested at real mobile viewport (390x844) with STRICT READ-ONLY on LIVE prod DB. Main agent can summarize and finish."
+
+---
+
+
 # Session 2026-08-21 (13th pod) — FEATURE/FIX: durable product-asset storage via DigitalOcean Spaces
 
 SAFETY (CRITICAL — LIVE Railway PROD DB in preview): STRICT READ-ONLY on real rows. SAFE MODE MUST STAY

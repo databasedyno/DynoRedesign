@@ -288,7 +288,7 @@ const NewSidebar = ({
               />
             )}
             <Box sx={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-              {!isMobile && !isCollapsed && !!section.label && (
+              {!isCollapsed && !!section.label && (
                 <SectionLabel>{section.label}</SectionLabel>
               )}
 
@@ -330,11 +330,16 @@ const NewSidebar = ({
                     <Box
                       component="span"
                       sx={{
-                        fontSize: isMobile ? "11px" : "14px",
+                        // Mobile drawer must MATCH the desktop sidebar 1:1 —
+                        // same full labels, same 14px type, same left alignment.
+                        // (Previously the drawer shrank to 11px AND truncated
+                        // every label to its first word, e.g. "Payment Links"
+                        // -> "Payment", "Payout wallets" -> "Payout".)
+                        fontSize: "14px",
                         fontWeight: isActive ? 600 : 500,
-                        textAlign: "center",
+                        textAlign: "left",
                         lineHeight: 1.2,
-                        fontFamily: isActive ? "var(--font-sans)" : "var(--font-sans)",
+                        fontFamily: "var(--font-sans)",
                         // Ensure long labels don't push trailing badges (NEW pill,
                         // + button) out of the visible sidebar area on narrow
                         // clamp widths (265-324px).
@@ -344,16 +349,9 @@ const NewSidebar = ({
                         textOverflow: "ellipsis",
                         whiteSpace: "nowrap",
                         display: isCollapsed ? "none" : undefined,
-                        [theme.breakpoints.down("md")]: {
-                          fontSize: "11px",
-                          whiteSpace: "nowrap",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          maxWidth: "100%",
-                        },
                       }}
                     >
-                      {isMobile ? item.label.split(" ")[0] : item.label}
+                      {item.label}
                     </Box>
                   </MenuItem>
                 );
