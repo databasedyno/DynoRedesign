@@ -270,12 +270,10 @@ const ApiKeyCard = ({ title, apiRow, onCopy, onDelete, onRegenerate, onToggleSta
             <Tags
               data-testid="sandbox-badge"
               sx={{
-                background:
-                  theme.palette.mode === "dark"
-                    ? "rgba(106,123,255,0.16)"
-                    : "rgba(106,123,255,0.10)",
+                background: "transparent",
                 color: brandFg(theme.palette.mode === "dark"),
-                border: `1px solid ${theme.palette.primary.main}33`,
+                border: "none",
+                padding: 0,
                 whiteSpace: "nowrap",
               }}
               aria-label={t("keys.testAutoCreatedBadge", {

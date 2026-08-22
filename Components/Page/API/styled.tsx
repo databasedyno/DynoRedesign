@@ -126,18 +126,20 @@ export const ApiKeyCreatedText = styled(Typography)(({ theme }) => ({
   },
 }));
 
+// Quiet Money §5.10: was a filled green pill (success.light bg + border +
+// rounded-full). Now a calm "icon + tinted text" badge (no fill, no border,
+// no pill) — the dot/icon carries the only colour. Emerald signals live/active.
 export const Tags = styled(Typography)(({ theme }) => ({
-  display: "flex",
+  display: "inline-flex",
   alignItems: "center",
-  gap: 4,
-  backgroundColor: theme.palette.success.light,
-  color: theme.palette.success.dark,
-  padding: "4px 8px",
-  borderRadius: 50,
+  gap: 6,
+  backgroundColor: "transparent",
+  color: theme.palette.mode === "dark" ? "#34D399" : "#047857",
+  padding: 0,
   fontSize: 13,
   lineHeight: 1.54,
   fontWeight: 500,
-  border: `1px solid ${theme.palette.success.main}`,
+  border: "none",
   textTransform: "capitalize",
   fontFamily: "var(--font-sans)",
   position: "absolute",

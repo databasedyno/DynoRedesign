@@ -140,8 +140,9 @@ export default function InvoicePreviewDrawer({ open, invoice, onClose }: Props) 
       }}
       BackdropProps={{
         sx: {
-          backgroundColor: dark ? "rgba(0,0,0,0.55)" : "rgba(10,10,15,0.35)",
-          backdropFilter: "blur(2px)",
+          // §5.7: darker slate backdrop so the white PDF "paper" pops.
+          backgroundColor: dark ? "rgba(2,6,23,0.72)" : "rgba(15,23,42,0.62)",
+          backdropFilter: "blur(3px)",
         },
       }}
     >

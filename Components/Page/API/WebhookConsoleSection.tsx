@@ -43,6 +43,7 @@ import useSWR from "swr";
 
 import axiosBaseApi from "@/axiosConfig";
 import PanelCard from "@/Components/UI/PanelCard";
+import { StatusDot } from "@/Components/UI/StatusDot";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import useIsMobile from "@/hooks/useIsMobile";
 import { rootReducer } from "@/utils/types";
@@ -86,11 +87,11 @@ const OPT_IN_EVENTS = [
 const statusMeta = (status: string) => {
   switch (status) {
     case "success":
-      return { label: "Delivered", color: "#16A34A", bg: "rgba(22,163,74,0.12)", iconName: "circle-check" };
+      return { label: "Delivered", color: "#16A34A", bg: "rgba(22,163,74,0.12)", iconName: "circle-check", tone: "settled" as const };
     case "failed":
-      return { label: "Failed", color: "#DC2626", bg: "rgba(220,38,38,0.12)", iconName: "circle-alert" };
+      return { label: "Failed", color: "#DC2626", bg: "rgba(220,38,38,0.12)", iconName: "circle-alert", tone: "failed" as const };
     default:
-      return { label: "Pending", color: "#D97706", bg: "rgba(217,119,6,0.12)", iconName: "hourglass" };
+      return { label: "Pending", color: "#D97706", bg: "rgba(217,119,6,0.12)", iconName: "hourglass", tone: "pending" as const };
   }
 };
 
@@ -570,11 +571,9 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
                       {lg.response_time_ms != null && !isMobile && (
                         <Typography sx={{ fontSize: 12, color: t.secondary, fontFamily: "monospace" }}>{lg.response_time_ms} ms</Typography>
                       )}
-                      <Chip
-                        label={lg.response_status != null ? `${m.label} · ${lg.response_status}` : m.label}
-                        size="small"
-                        sx={{ bgcolor: m.bg, color: m.color, fontWeight: 700, fontSize: 11, height: 22 }}
-                      />
+                      <StatusDot tone={m.tone}>
+                        {lg.response_status != null ? `${m.label} · ${lg.response_status}` : m.label}
+                      </StatusDot>
                     </Box>
                   );
                 })

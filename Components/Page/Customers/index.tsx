@@ -49,6 +49,7 @@ import { useDisplayFx } from "@/hooks/useDisplayFx";
 import useIsMobile from "@/hooks/useIsMobile";
 import { useRouter } from "next/router";
 import CustomButton from "@/Components/UI/Buttons";
+import { StatusDot } from "@/Components/UI/StatusDot";
 import { API_ENDPOINTS } from "@/api/endpoints";
 
 interface Customer {
@@ -385,24 +386,24 @@ const CustomersPage: React.FC = () => {
 
   const ApiChip = ({ small }: { small?: boolean }) => (
     <Tooltip title={t("customers.apiRecordHint")} arrow>
-      <Chip
-        icon={<CodeRounded sx={{ fontSize: small ? 13 : 14 }} />}
-        label={t("customers.sourceApi")}
-        size="small"
+      <Box
+        component="span"
         data-testid="customer-api-chip"
         sx={{
-          height: small ? 20 : 22,
-          borderRadius: "6px",
+          display: "inline-flex",
+          alignItems: "center",
+          gap: "5px",
           fontSize: small ? "10.5px" : "11px",
           fontWeight: 600,
           fontFamily: "var(--font-sans)",
-          bgcolor: softBg,
           color: theme.palette.text.secondary,
-          border: `1px solid ${cardBorder}`,
-          "& .MuiChip-icon": { color: theme.palette.text.secondary, ml: "6px" },
           cursor: "help",
+          whiteSpace: "nowrap",
         }}
-      />
+      >
+        <CodeRounded sx={{ fontSize: small ? 13 : 14, color: theme.palette.text.secondary }} />
+        {t("customers.sourceApi")}
+      </Box>
     </Tooltip>
   );
 
@@ -1043,22 +1044,9 @@ const CustomersPage: React.FC = () => {
                         {(selectedCustomer.transactions?.data || []).map((tx: any, idx: number) => (
                           <TableRow key={idx} sx={{ "&:last-child td": { borderBottom: "none" } }}>
                             <TableCell sx={{ borderColor: cardBorder }}>
-                              <Chip
-                                label={tx.transaction_type || tx.type || "N/A"}
-                                size="small"
-                                sx={{
-                                  height: 22,
-                                  borderRadius: "6px",
-                                  fontWeight: 600,
-                                  fontSize: "11px",
-                                  fontFamily: "var(--font-sans)",
-                                  bgcolor:
-                                    tx.transaction_type === "CREDIT"
-                                      ? "rgba(16,185,129,0.12)"
-                                      : "rgba(245,158,11,0.12)",
-                                  color: tx.transaction_type === "CREDIT" ? "#0E9F6E" : "#B45309",
-                                }}
-                              />
+                              <StatusDot tone={tx.transaction_type === "CREDIT" ? "settled" : "neutral"}>
+                                {tx.transaction_type || tx.type || "N/A"}
+                              </StatusDot>
                             </TableCell>
                             <TableCell align="right" sx={{ borderColor: cardBorder }}>
                               <Typography className="tabular-nums" sx={{ fontWeight: 600, fontSize: "13.5px", fontFamily: "var(--font-sans)" }}>
@@ -1080,29 +1068,17 @@ const CustomersPage: React.FC = () => {
                               })()}
                             </TableCell>
                             <TableCell sx={{ borderColor: cardBorder }}>
-                              <Chip
-                                label={tx.status || "N/A"}
-                                size="small"
-                                sx={{
-                                  height: 22,
-                                  borderRadius: "6px",
-                                  fontWeight: 600,
-                                  fontSize: "11px",
-                                  fontFamily: "var(--font-sans)",
-                                  bgcolor:
-                                    tx.status === "successful"
-                                      ? "rgba(16,185,129,0.12)"
-                                      : tx.status === "pending"
-                                        ? "rgba(245,158,11,0.12)"
-                                        : softBg,
-                                  color:
-                                    tx.status === "successful"
-                                      ? "#0E9F6E"
-                                      : tx.status === "pending"
-                                        ? "#B45309"
-                                        : theme.palette.text.secondary,
-                                }}
-                              />
+                              <StatusDot
+                                tone={
+                                  tx.status === "successful"
+                                    ? "settled"
+                                    : tx.status === "pending"
+                                      ? "pending"
+                                      : "neutral"
+                                }
+                              >
+                                {tx.status || "N/A"}
+                              </StatusDot>
                             </TableCell>
                             <TableCell sx={{ borderColor: cardBorder }}>
                               <Typography sx={{ fontSize: "13px", color: theme.palette.text.secondary, fontFamily: "var(--font-sans)" }}>

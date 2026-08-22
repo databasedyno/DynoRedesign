@@ -13,6 +13,7 @@ import LaunchRounded from "@mui/icons-material/LaunchRounded";
 import DeleteOutlineRounded from "@mui/icons-material/DeleteOutlineRounded";
 import BoltRounded from "@mui/icons-material/BoltRounded";
 import PanelCard from "@/Components/UI/PanelCard";
+import { StatusDot } from "@/Components/UI/StatusDot";
 import ProductImage from "@/Components/UI/ProductImage";
 import CustomButton from "@/Components/UI/Buttons";
 import axiosBaseApi from "@/axiosConfig";
@@ -31,21 +32,6 @@ interface ProductRow {
   createdAt?: string;
 }
 
-const statusChipColors = (status: string, isDark: boolean): { bg: string; fg: string } => {
-  const S = CB_TOKENS.semantic;
-  const semantic: Record<string, typeof S.positive> = {
-    live: S.positive,
-    draft: S.warning,
-  };
-  const s = semantic[status];
-  if (!s) {
-    return {
-      bg: isDark ? "rgba(255,255,255,0.06)" : "rgba(10,10,15,0.05)",
-      fg: isDark ? "rgba(255,255,255,0.72)" : "rgba(10,10,15,0.60)",
-    };
-  }
-  return { bg: isDark ? s.glowDark : s.glowLight, fg: isDark ? s.dark : s.light };
-};
 
 /**
  * Storefront → Products.
@@ -221,7 +207,6 @@ const ProductsTab = () => {
           ) : (
             <Stack spacing={1} data-testid="products-list-rows">
               {items.map((p) => {
-                const sc = statusChipColors(p.status, isDark);
                 return (
                   <Stack
                     key={p.product_id}
@@ -245,12 +230,12 @@ const ProductsTab = () => {
                         {" · /"}{p.slug}
                       </Typography>
                     </Box>
-                    <Chip
-                      size="small"
-                      label={p.status.toUpperCase()}
-                      sx={{ bgcolor: sc.bg, color: sc.fg, fontWeight: 700, border: `1px solid ${sc.fg}33` }}
+                    <StatusDot
+                      tone={p.status === "live" ? "settled" : p.status === "draft" ? "pending" : "neutral"}
                       data-testid={`product-row-status-${p.product_id}`}
-                    />
+                    >
+                      {p.status.toUpperCase()}
+                    </StatusDot>
                     <IconButton
                       size="small"
                       onClick={() => router.push(`/pay-links/products/${p.product_id}/edit`)}

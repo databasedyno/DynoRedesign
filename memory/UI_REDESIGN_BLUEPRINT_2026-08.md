@@ -74,7 +74,30 @@ Companion machine-readable tokens: `/app/design_guidelines.json` (written by the
 >   current HeroPlayground is already an on-brand, higher-fidelity animated product mock, so a static
 >   swap is a judgement call left to the owner rather than a regression risk.
 >
-> **Redesign status: P1–P6 all shipped. Remaining = optional QA (§7 acceptance checklist across
+> - **P7 — Remaining surfaces ✅ SHIPPED (2026-08-22, long-tail per-page pass)** — brought the
+>   pages that had only inherited the P1 token swap up to the Quiet Money bar (killed filled
+>   colored chips/pills → StatusDot dot+text; no logic/data changes, safe vs LIVE prod DB):
+>   • **Developers §5.10** — `API/styled.tsx` `Tags` filled-green pill → calm icon+emerald-text badge
+>     (no fill/border/pill); sandbox badge override → transparent indigo text; `WebhookConsoleSection`
+>     delivery-status filled Chip → `StatusDot` (settled/failed/pending) with HTTP code. Code islands
+>     already dark. Count/metadata chips left as-is (Rule 2 allows chips for counts).
+>   • **Customers §5.8** — `Customers/index.tsx` API-source Chip → quiet icon+text label; detail-dialog
+>     txn type + status filled chips → `StatusDot`.
+>   • **Notifications §5.11** — unread filled-row background → **3px indigo left bar** (no filled rows);
+>     category Chip → `StatusDot` (semantic tone from type); push Active/Blocked chips → StatusDot.
+>   • **Storefront/Products §5.9** — `ProductsTab` status Chip → `StatusDot` (live=settled/draft=pending/
+>     else neutral); removed dead `statusChipColors` helper. (Two-pane live preview already existed.)
+>   • **Invoices §5.7** — `InvoicePreviewDrawer` backdrop → darker slate (rgba(2,6,23,.72)/rgba(15,23,42,.62))
+>     so the white PDF paper pops. StatusPill already dot+text from P2.
+>   • **Marketing §5.1** — `system-status` overall banner: filled pill → hairline + green **dot** + tinted
+>     text (rounded-full→8px, legacy `OutfitSemiBold`→var(--font-sans)); incident badge → dot+text;
+>     removed dead getOverallChipBg + unused successIcon/SuccessChip imports. about/blog/help/legal/for
+>     verified already clean (no leftover lime `#CCFF00`, no loud chips — inherit P1/P6 tokens).
+>   All edited files eslint-clean; all 6 routes compile 200; /system-status visually verified (public).
+>   Authed pages (developer-keys/customers/notifications/storefront/invoices) pending owner or
+>   frontend-testing-agent visual QA. **P7 COMPLETE.**
+>
+> **Redesign status: P1–P7 all shipped. Remaining = optional QA (§7 acceptance checklist across
 > 1920/1440/1280/1024/768/390 in light+dark) + the optional hero-screenshot swap.**
 
 

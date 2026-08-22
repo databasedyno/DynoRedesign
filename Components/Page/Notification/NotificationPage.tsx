@@ -4,6 +4,7 @@ import { formatWithSeparators } from "@/utils/currencyFormat";
 import CustomButton from "@/Components/UI/Buttons";
 import CustomSwitch from "@/Components/UI/CustomSwitch";
 import PanelCard from "@/Components/UI/PanelCard";
+import { StatusDot } from "@/Components/UI/StatusDot";
 import { Box, Chip, CircularProgress, Divider, Grid, IconButton, Typography, useTheme } from "@mui/material";
 import Image from "next/image";
 import React, { useRef, useState, useEffect } from "react";
@@ -394,7 +395,10 @@ const NotificationPage = () => {
                     p: isMobile ? 1.5 : 2,
                     borderRadius: "12px",
                     border: `1px solid ${theme.palette.border.main}`,
-                    backgroundColor: notif.is_read ? theme.palette.background.paper : (theme.palette.mode === 'dark' ? 'rgba(129,140,248,0.10)' : "#F0F7FF"),
+                    borderLeft: notif.is_read
+                      ? `1px solid ${theme.palette.border.main}`
+                      : `3px solid ${brandFg(theme.palette.mode === "dark")}`,
+                    backgroundColor: theme.palette.background.paper,
                     cursor: isTransactionNotification(notif.type) || !notif.is_read ? "pointer" : "default",
                     transition: "all 0.15s ease",
                     "&:hover": { borderColor: theme.palette.primary.main },
@@ -443,19 +447,21 @@ const NotificationPage = () => {
                         already say "Payment Received" (UI/UX audit dedupe). */}
                     {notif.type.split("_").join(" ").toLowerCase() !==
                       String(notif.title || "").trim().toLowerCase() && (
-                    <Chip
-                      label={notif.type.split("_").map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")}
-                      size="small"
-                      sx={{
-                        mt: 0.5,
-                        height: 22,
-                        fontSize: "11px",
-                        fontFamily: "var(--font-sans)",
-                        backgroundColor: `${getTypeColor(notif.type)}15`,
-                        color: getTypeColor(notif.type),
-                        border: `1px solid ${getTypeColor(notif.type)}30`,
-                      }}
-                    />
+                    <Box sx={{ mt: 0.75 }}>
+                      <StatusDot
+                        tone={
+                          /(fail|error|declin|reject)/i.test(notif.type)
+                            ? "failed"
+                            : /(pending|process|await)/i.test(notif.type)
+                              ? "pending"
+                              : /(success|received|confirm|settle|paid|complete)/i.test(notif.type)
+                                ? "settled"
+                                : "info"
+                        }
+                      >
+                        {notif.type.split("_").map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")}
+                      </StatusDot>
+                    </Box>
                     )}
                   </Box>
                 </Box>
@@ -702,24 +708,10 @@ const NotificationPage = () => {
                         {tNotifications("browserNotificationsTitle")}
                       </Typography>
                       {pushSubscribed && (
-                        <Chip
-                          label="Active"
-                          size="small"
-                          sx={{
-                            bgcolor: theme.palette.primary.main,
-                            color: "#fff",
-                            fontSize: "11px",
-                            height: 20,
-                          }}
-                        />
+                        <StatusDot tone="settled">Active</StatusDot>
                       )}
                       {pushPermission === "denied" && (
-                        <Chip
-                          label="Blocked"
-                          size="small"
-                          color="error"
-                          sx={{ fontSize: "11px", height: 20 }}
-                        />
+                        <StatusDot tone="failed">Blocked</StatusDot>
                       )}
                     </Box>
                     <Typography

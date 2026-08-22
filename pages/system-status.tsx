@@ -3,12 +3,10 @@ import { Box, Typography, CircularProgress, Skeleton, useTheme } from "@mui/mate
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
-  SuccessChip,
   TypographyDescription,
   TypographyTime,
   TypographyTitle,
 } from "@/Components/UI/HomeCard/styled";
-import successIcon from "@/assets/Icons/home/success.svg";
 import serviceIcon from "@/assets/Icons/home/service.svg";
 import Image from "next/image";
 import Bars from "@/Components/UI/APIStatus/Bars";
@@ -148,20 +146,6 @@ const StatusPage = () => {
     }
   };
 
-  const getOverallChipBg = () => {
-    switch (overallStatus) {
-      case "operational":
-        return "#22C55E1A";
-      case "degraded":
-        return "#F59E0B1A";
-      case "partial_outage":
-      case "outage":
-        return "#EF44441A";
-      default:
-        return "#22C55E1A";
-    }
-  };
-
   const getOverallChipBorder = () => {
     switch (overallStatus) {
       case "operational":
@@ -212,25 +196,34 @@ const StatusPage = () => {
         ) : (
           <Box
             sx={{
-              backgroundColor: getOverallChipBg(),
+              backgroundColor: "transparent",
               height: "50px",
               width: "100%",
               border: "1px solid",
               borderColor: getOverallChipBorder(),
-              borderRadius: "9999px",
+              borderRadius: "8px",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              gap: "12px",
+              gap: "10px",
               px: 3,
             }}
           >
-            <Image src={successIcon} alt="status" width={24} height={24} />
+            <Box
+              component="span"
+              sx={{
+                width: 8,
+                height: 8,
+                borderRadius: "50%",
+                backgroundColor: getStatusColor(overallStatus),
+                flexShrink: 0,
+              }}
+            />
             <Typography
               sx={{
                 fontWeight: 600,
                 color: getStatusColor(overallStatus),
-                fontFamily: "OutfitSemiBold",
+                fontFamily: "var(--font-sans)",
                 lineHeight: "24px",
                 letterSpacing: 0,
               }}
@@ -583,26 +576,32 @@ const StatusPage = () => {
                   </Box>
                 )}
               <Box
-                height={26}
-                width={64}
                 sx={{
-                  px: "8px",
-                  pt: "6px",
-                  pb: "4px",
-                  backgroundColor:
-                    incident.status === "resolved" ? "#22C55E1A" : "#F59E0B1A",
-                  borderRadius: "4px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
                 }}
               >
+                <Box
+                  component="span"
+                  sx={{
+                    width: 6,
+                    height: 6,
+                    borderRadius: "50%",
+                    flexShrink: 0,
+                    backgroundColor:
+                      incident.status === "resolved" ? "#22C55E" : "#F59E0B",
+                  }}
+                />
                 <Typography
                   sx={{
                     fontSize: "12px",
                     fontFamily: "var(--font-sans)",
-                    fontWeight: 400,
+                    fontWeight: 500,
                     lineHeight: "16px",
                     letterSpacing: 0,
                     color:
-                      incident.status === "resolved" ? "#22C55E" : "#F59E0B",
+                      incident.status === "resolved" ? "#15803D" : "#B45309",
                     textTransform: "capitalize",
                   }}
                 >
