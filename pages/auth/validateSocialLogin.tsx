@@ -1,65 +1,32 @@
-import axiosBaseApi from "@/axiosConfig";
 import Loading from "@/Components/UI/Loading";
-import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
-import { USER_LOGIN } from "@/Redux/Actions/UserAction";
-import { rootReducer } from "@/utils/types";
-import { signOut, useSession } from "next-auth/react";
+import { signOut } from "next-auth/react";
 import { useRouter } from "next/router";
-import React, { useEffect, useRef } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useEffect } from "react";
 
+/**
+ * /auth/validateSocialLogin — RETIRED (2026 security hardening).
+ *
+ * This page previously read the NextAuth Google session and POSTed it to
+ * /api/user/connectSocial, which issued a Dynopay session WITHOUT any
+ * server-side verification of the social identity (account-takeover vector).
+ * Google sign-in now happens inline via the verified Google Identity Services
+ * flow on /auth/login and /auth/register (POST /api/user/google-signin, which
+ * validates the token against Google). If anything still lands here, clear the
+ * stale NextAuth session and bounce back to the login page.
+ */
 const ValidateSocialLogin = () => {
-  const session = useSession();
   const router = useRouter();
-  const dispatch = useDispatch();
-  const userState = useSelector((state: rootReducer) => state.userReducer);
-  const connectingRef = useRef(false);
 
   useEffect(() => {
-    const tempSession: any = session.data;
-    if (tempSession?.token && !connectingRef.current) {
-      connectingRef.current = true;
-      connectSocial(tempSession.token);
-    }
-  }, [session]);
-
-  useEffect(() => {
-    if (userState.name) {
-      router.replace("/dashboard");
-    }
-  }, [userState]); // eslint-disable-line
-
-  const connectSocial = async (token: any) => {
-    try {
-      const {
-        data: { data, message },
-      } = await axiosBaseApi.post("user/connectSocial", {
-        ...token,
-        photo: token?.picture,
-      });
-      dispatch({
-        type: TOAST_SHOW,
-        payload: { message },
-      });
-      dispatch({
-        type: USER_LOGIN,
-        payload: { ...data.userData, accessToken: data.accessToken },
-      });
-      // Clean up NextAuth session to prevent stale re-login
-      await signOut({ redirect: false });
-    } catch (e: any) {
-      const message =
-        e.response?.data?.message ?? e.message ?? "Social login failed";
-      dispatch({
-        type: TOAST_SHOW,
-        payload: { message, severity: "error" },
-      });
-      // Clean up NextAuth session on failure too
-      await signOut({ redirect: false });
-      connectingRef.current = false;
+    (async () => {
+      try {
+        await signOut({ redirect: false });
+      } catch {
+        /* NextAuth session may not exist — ignore */
+      }
       router.replace("/auth/login");
-    }
-  };
+    })();
+  }, [router]);
 
   return <Loading />;
 };

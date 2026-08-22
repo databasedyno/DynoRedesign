@@ -41,7 +41,9 @@ userRouter.post("/generateOTP", otpRateLimiter, userController.generateOTP);
 userRouter.post("/confirmOTP", otpRateLimiter, userController.confirmOTP);
 
 // Social connect - moderate rate limiting
-userRouter.post("/connectSocial", moderateRateLimiter, userController.connectSocial);
+// RETIRED (security): /connectSocial trusted a client-supplied email with no
+// verification (account-takeover vector). Google now uses the verified GIS flow
+// (/google-signin). Route removed; the handler returns 410 if reached elsewhere.
 
 // Password reset endpoints - strict rate limiting (5 per 15 min per IP) to prevent abuse
 userRouter.post("/forgot-password", strictRateLimiter, validate(forgotPasswordSchema), userController.forgotPassword);

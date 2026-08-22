@@ -53,22 +53,12 @@ export const registerUser = async (req: express.Request, res: express.Response) 
 
     userLogger.info("isExists====>", isExists);
     if (isExists) {
-      errorResponseHelper(res, 503, "Account Already Exists!!!");
+      return errorResponseHelper(res, 409, "Account Already Exists!");
     } else {
       const photoLocation = await downloadUserImage();
       const photo = process.env.SERVER_URL + photoLocation;
 
-      // Generate unique referral code for new user
-      const generateReferralCode = () => {
-        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-        let code = '';
-        const bytes = crypto.randomBytes(6);
-        for (let i = 0; i < 6; i++) {
-          code += chars[bytes[i] % chars.length];
-        }
-        return `DYNO-${code}`;
-      };
-
+      // Unique referral code for new user (shared helper — consistent across all signup paths)
       const userReferralCode = generateReferralCode();
 
       const createdUser = await userModel.create({
@@ -81,31 +71,8 @@ export const registerUser = async (req: express.Request, res: express.Response) 
         language: normalizeLang(req.body?.language),
       });
 
-      const walletData = await adminWalletModel.findAll();
-      const fiatData = walletData.filter(
-        (x) => x.dataValues.currency_type === "FIAT"
-      );
-      const cryptoData = walletData.filter(
-        (x) => x.dataValues.currency_type === "CRYPTO"
-      );
-
-      for (let i = 0; i < fiatData.length; i++) {
-        await userWalletModel.create({
-          id: crypto.randomUUID(),
-          user_id: createdUser.dataValues.user_id,
-          wallet_type: fiatData[i].dataValues.wallet_type,
-          currency_type: "FIAT",
-        });
-      }
-
-      for (let i = 0; i < cryptoData.length; i++) {
-        await userWalletModel.create({
-          id: crypto.randomUUID(),
-          user_id: createdUser.dataValues.user_id,
-          wallet_type: cryptoData[i].dataValues.wallet_type,
-          currency_type: "CRYPTO",
-        });
-      }
+      // Create default wallets (shared helper — identical across all signup paths)
+      await createUserWallets(createdUser.dataValues.user_id);
 
       if (referral_code) {
         try {

@@ -31,86 +31,24 @@ import { is2FARequired } from "../../services/twoFactorService";
 import { normalizeLang } from "../../utils/emailI18n";
 import { PROFILE_CACHE_TTL, _formatAttribution, parseUserAgent, createUserWallets, generateReferralCode, finalizeLogin, getAccessToken, sendEmailOTP, sendTelnyxSMS } from "./userShared";
 
-export const connectSocial = async (req: express.Request, res: express.Response) => {
-  try {
-    const { name, email, photo, provider, id = "0" } = req.body;
-
-    const isExists = await userModel
-      .findOne({
-        where: {
-          [Op.or]: [
-            {
-              email: email,
-            },
-            { telegram_id: id },
-          ],
-        },
-      })
-      .then((token) => token !== null)
-      .then((isExists) => isExists);
-
-    userLogger.info("isExists====>", isExists);
-    if (isExists) {
-      const userData = await userModel.findOne({
-        where: {
-          [Op.or]: [
-            {
-              email,
-            },
-            { telegram_id: id },
-          ],
-        },
-      });
-      if (!userData) {
-        errorResponseHelper(res, 404, "User not found!");
-      } else {
-        const resData = await getAccessToken(userData.dataValues.user_id);
-        successResponseHelper(res, 200, "Login Successful!", resData);
-      }
-    } else {
-      const image =
-        photo ?? process.env.SERVER_URL + (await downloadUserImage());
-      const createdUser = await userModel.create({
-        name,
-        email,
-        photo: image,
-        login_type: provider.toUpperCase(),
-        telegram_id: id,
-      });
-
-      if (provider === "telegram") {
-        await axios.post(
-          `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`,
-          {
-            chat_id: id,
-            text: "Please provide an email or mobile number to have more control over your account.",
-          }
-        );
-      }
-      const resData = await getAccessToken(createdUser.dataValues.user_id);
-
-      // Send welcome email if email is available
-      if (email) {
-        try {
-          await emailService.sendWelcomeEmail(email.toLowerCase(), name || "User");
-        } catch (emailError) {
-          // Log error but don't fail registration
-          userLogger.error("Error sending welcome email:", emailError);
-        }
-      }
-
-      // Notify admin of new user registration (non-blocking)
-      emailService.sendNewUserAdminNotification({
-        name, email, login_type: provider.toUpperCase(),
-        user_id: createdUser.dataValues.user_id,
-      }).catch(err => userLogger.error("Admin notification error:", err));
-
-      successResponseHelper(res, 200, "Registered Successful!", resData);
-    }
-  } catch (e) {
-
-      handleControllerError(res, e, userLogger);
-  }
+/**
+ * POST /api/user/connectSocial — RETIRED (2026 security hardening).
+ *
+ * This endpoint previously trusted a client-supplied { email, provider } and
+ * issued a full session WITHOUT any server-side verification of the social
+ * identity — an account-takeover vector (anyone could POST a victim's email
+ * and receive a valid access token). Google sign-in now goes exclusively
+ * through the verified Google Identity Services flow (POST
+ * /api/user/google-signin, which validates the token against Google), and
+ * GitHub through the server-side code exchange (POST /api/user/github-signin).
+ * The route has been removed; this handler is disabled defensively.
+ */
+export const connectSocial = async (_req: express.Request, res: express.Response) => {
+  return errorResponseHelper(
+    res,
+    410,
+    "This sign-in method has been retired. Please sign in with Google, GitHub, or email."
+  );
 };
 
 /**
@@ -182,34 +120,12 @@ export const facebookSignIn = async (req: express.Request, res: express.Response
       photo: finalPhoto,
       login_type: "FACEBOOK",
       external_id: facebookId,
+      email_verified: !!email, // Facebook verifies the email it returns
+      referral_code: generateReferralCode(),
     });
 
-    // Create wallets for the new user
-    const walletData = await adminWalletModel.findAll();
-    const fiatData = walletData.filter(
-      (x) => x.dataValues.currency_type === "FIAT"
-    );
-    const cryptoData = walletData.filter(
-      (x) => x.dataValues.currency_type === "CRYPTO"
-    );
-
-    for (let i = 0; i < fiatData.length; i++) {
-      await userWalletModel.create({
-        id: crypto.randomUUID(),
-        user_id: createdUser.dataValues.user_id,
-        wallet_type: fiatData[i].dataValues.wallet_type,
-        currency_type: "FIAT",
-      });
-    }
-
-    for (let i = 0; i < cryptoData.length; i++) {
-      await userWalletModel.create({
-        id: crypto.randomUUID(),
-        user_id: createdUser.dataValues.user_id,
-        wallet_type: cryptoData[i].dataValues.wallet_type,
-        currency_type: "CRYPTO",
-      });
-    }
+    // Create default wallets for the new user (shared helper — identical across all signup paths)
+    await createUserWallets(createdUser.dataValues.user_id);
 
     // Generate access token
     const resData = await getAccessToken(createdUser.dataValues.user_id);

@@ -15,7 +15,6 @@ import useIsMobile from "@/hooks/useIsMobile";
 import CountryPhoneInput from "@/Components/UI/CountryPhoneInput";
 import SocialAuthButtons from "@/Components/Common/SocialAuthButtons";
 import OtpInputPanel from "@/Components/UI/OtpInputPanel";
-import { signIn } from "next-auth/react";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { USER_LOGIN } from "@/Redux/Actions/UserAction";
 import axiosBaseApi from "@/axiosConfig";
@@ -242,50 +241,67 @@ const Register = () => {
   }, [countdown]);
 
   // ─── Google Sign Up ───
-  // Uses client-side Google Identity Services (same flow as login page) so it
-  // works behind the K8s ingress; falls back to NextAuth if GIS isn't loaded.
+  // Verified Google Identity Services flow ONLY — same as the login page. The
+  // access token is sent to POST /api/user/google-signin, which validates it
+  // server-side against Google. We intentionally do NOT fall back to the
+  // NextAuth redirect flow (the legacy /connectSocial path issued sessions
+  // without any server-side verification and has been retired).
   const handleGoogleLogin = useCallback(async () => {
     const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
     if (!clientId) {
-      signIn("google", { callbackUrl: "/dashboard" });
+      dispatch({ type: TOAST_SHOW, payload: { message: "Google sign-in is not configured", severity: "error" } });
       return;
     }
-    try {
-      if (typeof window !== "undefined" && (window as any).google?.accounts?.oauth2) {
-        const tokenClient = (window as any).google.accounts.oauth2.initTokenClient({
-          client_id: clientId,
-          scope: "openid email profile",
-          callback: async (tokenResponse: any) => {
-            if (tokenResponse?.access_token) {
-              try {
-                const res = await axiosBaseApi.post("user/google-signin", {
-                  accessToken: tokenResponse.access_token,
-                });
-                const { data, message } = res?.data || {};
-                if (data?.userData && data?.accessToken) {
-                  dispatch({ type: TOAST_SHOW, payload: { message: message || "Login successful" } });
-                  dispatch({
-                    type: USER_LOGIN,
-                    payload: { ...data.userData, accessToken: data.accessToken, refreshToken: data.refreshToken },
-                  });
-                } else {
-                  throw new Error("Invalid response");
-                }
-              } catch (e: any) {
-                const msg = e.response?.data?.message ?? e.message ?? "Google sign-up failed";
-                dispatch({ type: TOAST_SHOW, payload: { message: msg, severity: "error" } });
-              }
+
+    const runGoogleTokenFlow = () => {
+      const tokenClient = (window as any).google.accounts.oauth2.initTokenClient({
+        client_id: clientId,
+        scope: "openid email profile",
+        callback: async (tokenResponse: any) => {
+          if (!tokenResponse?.access_token) return;
+          try {
+            const res = await axiosBaseApi.post("user/google-signin", {
+              accessToken: tokenResponse.access_token,
+            });
+            const { data, message } = res?.data || {};
+            if (data?.userData && data?.accessToken) {
+              dispatch({ type: TOAST_SHOW, payload: { message: message || "Login successful" } });
+              dispatch({
+                type: USER_LOGIN,
+                payload: { ...data.userData, accessToken: data.accessToken, refreshToken: data.refreshToken },
+              });
+            } else {
+              throw new Error("Invalid response");
             }
-          },
-        });
-        tokenClient.requestAccessToken();
-      } else {
-        signIn("google", { callbackUrl: "/dashboard" });
-      }
-    } catch (err) {
-      console.error("Google sign-in error:", err);
-      signIn("google", { callbackUrl: "/dashboard" });
+          } catch (e: any) {
+            const msg = e.response?.data?.message ?? e.message ?? "Google sign-up failed";
+            dispatch({ type: TOAST_SHOW, payload: { message: msg, severity: "error" } });
+          }
+        },
+      });
+      tokenClient.requestAccessToken();
+    };
+
+    const isGisReady = () =>
+      typeof window !== "undefined" && !!(window as any).google?.accounts?.oauth2;
+
+    if (isGisReady()) {
+      runGoogleTokenFlow();
+      return;
     }
+
+    // Wait (up to ~2.5s) for the async GIS script (loaded in _document.tsx) to be ready.
+    let waited = 0;
+    const interval = setInterval(() => {
+      waited += 250;
+      if (isGisReady()) {
+        clearInterval(interval);
+        runGoogleTokenFlow();
+      } else if (waited >= 2500) {
+        clearInterval(interval);
+        dispatch({ type: TOAST_SHOW, payload: { message: "Google sign-in is still loading — please try again in a moment.", severity: "error" } });
+      }
+    }, 250);
   }, [dispatch]);
 
   // ─── GitHub Sign Up — OAuth authorization-code redirect flow ───

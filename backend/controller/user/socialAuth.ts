@@ -144,31 +144,12 @@ export const googleSignIn = async (req: express.Request, res: express.Response) 
       login_type: "GOOGLE",
       google_id: googleId,
       email_verified: googleEmailVerified, // Google already verified this email
+      referral_code: generateReferralCode(),
       language: normalizeLang(req.body?.language),
     });
 
-    // Create default wallets for new user
-    const walletData = await adminWalletModel.findAll();
-    const fiatData = walletData.filter((x) => x.dataValues.currency_type === "FIAT");
-    const cryptoData = walletData.filter((x) => x.dataValues.currency_type === "CRYPTO");
-
-    for (let i = 0; i < fiatData.length; i++) {
-      await userWalletModel.create({
-        id: crypto.randomUUID(),
-        user_id: createdUser.dataValues.user_id,
-        wallet_type: fiatData[i].dataValues.wallet_type,
-        currency_type: "FIAT",
-      });
-    }
-
-    for (let i = 0; i < cryptoData.length; i++) {
-      await userWalletModel.create({
-        id: crypto.randomUUID(),
-        user_id: createdUser.dataValues.user_id,
-        wallet_type: cryptoData[i].dataValues.wallet_type,
-        currency_type: "CRYPTO",
-      });
-    }
+    // Create default wallets for new user (shared helper — identical across all signup paths)
+    await createUserWallets(createdUser.dataValues.user_id);
 
     const sessionDataNew = await createSession(createdUser.dataValues, req as any);
     const { password: _pw2, telegram_id: _tid2, ...newUserDataClean } = createdUser.dataValues;
@@ -336,31 +317,12 @@ export const githubSignIn = async (req: express.Request, res: express.Response) 
       login_type: "GITHUB",
       external_id: githubId,
       email_verified: true, // GitHub verified the email for us
+      referral_code: generateReferralCode(),
       language: normalizeLang(req.body?.language),
     });
 
-    // Create default wallets for new user
-    const walletData = await adminWalletModel.findAll();
-    const fiatData = walletData.filter((x) => x.dataValues.currency_type === "FIAT");
-    const cryptoData = walletData.filter((x) => x.dataValues.currency_type === "CRYPTO");
-
-    for (let i = 0; i < fiatData.length; i++) {
-      await userWalletModel.create({
-        id: crypto.randomUUID(),
-        user_id: createdUser.dataValues.user_id,
-        wallet_type: fiatData[i].dataValues.wallet_type,
-        currency_type: "FIAT",
-      });
-    }
-
-    for (let i = 0; i < cryptoData.length; i++) {
-      await userWalletModel.create({
-        id: crypto.randomUUID(),
-        user_id: createdUser.dataValues.user_id,
-        wallet_type: cryptoData[i].dataValues.wallet_type,
-        currency_type: "CRYPTO",
-      });
-    }
+    // Create default wallets for new user (shared helper — identical across all signup paths)
+    await createUserWallets(createdUser.dataValues.user_id);
 
     const sessionDataNew = await createSession(createdUser.dataValues, req as any);
     const { password: _pw2, telegram_id: _tid2, ...newUserDataClean } = createdUser.dataValues;

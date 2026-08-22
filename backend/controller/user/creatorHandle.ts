@@ -62,7 +62,7 @@ export const validateHandle = (h: string): string | null => {
 // someone else could grab it mid-signup). The reservation is consumed & released
 // when the handle is finalised in updateCreatorProfile. TTL auto-expiry means an
 // abandoned signup frees the handle automatically — no cleanup job needed.
-export const HANDLE_RESERVE_TTL_SECONDS = 60 * 60; // 1 hour (renewed on register + /creator)
+export const HANDLE_RESERVE_TTL_SECONDS = 2 * 60 * 60; // 2 hours (renewed on register + /creator) — wider window shrinks the abandon-signup race
 export const handleReserveKey = (h: string) => `reserve:handle:${h}`;
 
 /** Is this handle already owned by a user other than `excludeUserId`? */
