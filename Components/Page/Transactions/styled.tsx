@@ -307,30 +307,28 @@ export const StatusText = styled(Typography)<{
 
 export const CryptoIconChip = styled(Box, {
   shouldForwardProp: (prop) => prop !== "accent",
-})<{ accent?: string }>(({ theme, accent }) => {
+})<{ accent?: string }>(({ theme }) => {
   const isDark = theme.palette.mode === "dark";
-  // Coin brand-colour drives the whole chip so each row is "coin-tinted".
-  const a = accent || (isDark ? "#818CF8" : "#4F46E5");
+  // Quiet Money (Blueprint §3): the coin ICON carries the only colour — the chip
+  // itself is a calm neutral hairline (8px), not a coin-tinted pill with a halo.
   return {
     display: "flex",
     alignItems: "center",
     gap: "6px",
-    padding: "7px 9px",
-    borderRadius: "999px",
-    background: `${a}14`,
+    padding: "5px 9px",
+    borderRadius: "8px",
+    background: "transparent",
     fontFamily: "var(--font-sans)",
     fontSize: "13px",
     fontWeight: 500,
     color: theme.palette.text.primary,
     flexShrink: 0,
-    border: `1px solid ${a}2E`,
+    border: `1px solid ${isDark ? "#27272A" : "#E2E8F0"}`,
     position: "relative",
-    transition: "border-color 160ms ease, box-shadow 160ms ease",
+    transition: "border-color 160ms ease",
 
-    // Coin-coloured halo on hover — ties the row to its asset colour.
     "&:hover": {
-      borderColor: `${a}${isDark ? "6B" : "52"}`,
-      boxShadow: `0 0 0 3px ${a}${isDark ? "24" : "1A"}`,
+      borderColor: isDark ? "#3F3F46" : "#CBD5E1",
     },
 
     [theme.breakpoints.down("md")]: {
@@ -367,9 +365,9 @@ export const CryptoIconChip = styled(Box, {
       objectPosition: "center",
       flexShrink: 0,
       borderRadius: "50%",
-      // Coin-coloured ring around the logo.
+      // Quiet: the coin logo sits on a plain surface — no coin-coloured ring.
       padding: "1.5px",
-      background: `linear-gradient(135deg, ${a}59 0%, ${a}3D 100%)`,
+      background: "transparent",
       [theme.breakpoints.down("md")]: {
         width: "14px",
         height: "14px",

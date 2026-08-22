@@ -21,7 +21,6 @@ import { useTranslation } from "react-i18next";
 import { PaymentLinkAction, PAYLINK_DELETE } from "@/Redux/Actions/PaymentLinkAction";
 import {
   FooterText,
-  StatusChip,
   TableBodyCell,
   TableFooter,
   TransactionsTableContainer,
@@ -36,6 +35,7 @@ import CopyIcon from "@/assets/Icons/copy-icon.svg";
 import DescriptiontoIcon from "@/assets/Icons/crypto-icon.svg";
 import TimeUsedIcon from "@/assets/Icons/cryptocurrency_link.svg";
 import CoinChips from "@/Components/UI/CoinChips";
+import { StatusDot } from "@/Components/UI/StatusDot";
 import { formatDisplayDateTime } from "@/helpers/displayDate";
 import TransactionSourceBadge from "@/Components/UI/TransactionSourceBadge";
 import CryptoIcon from "@/assets/Icons/CryptoIcon.svg";
@@ -49,9 +49,6 @@ import UsdIcon from "@/assets/Icons/USDIcon.svg";
 
 import Image from "next/image";
 
-import FalseIcon from "@/assets/Icons/False.svg";
-import TrueIcon from "@/assets/Icons/True.svg";
-
 import { MobileNavigationButtons } from "@/Components/Page/Transactions/styled";
 import { MONO } from "@/styles/uiKit";
 import CustomButton from "@/Components/UI/Buttons";
@@ -59,7 +56,6 @@ import RowsPerPageSelector from "@/Components/UI/RowsPerPageSelector";
 import Toast from "@/Components/UI/Toast";
 import { copyToClipboard } from "@/helpers/copyToClipboard";
 import useIsMobile from "@/hooks/useIsMobile";
-import { HourGlassIcon } from "@/utils/customIcons";
 import {
   PaymentLinkData,
   PaymentLinksTableProps,
@@ -375,18 +371,19 @@ const PaymentLinksTable = ({
                       </Typography>
                       {row.linkType === "donation" && donationChip}
                     </Box>
-                    <StatusChip status={row.status}>
-                      {row.status === "active" ? (
-                        <Image src={TrueIcon} alt="Active" width={12} height={12} draggable={false} />
-                      ) : row.status === "expired" ? (
-                        <Image src={FalseIcon} alt="Expired" width={12} height={12} draggable={false} />
-                      ) : row.status === "paid" || row.status === "completed" ? (
-                        <Image src={TrueIcon} alt="Paid" width={12} height={12} draggable={false} style={{ filter: "brightness(0) saturate(100%) invert(29%) sepia(88%) saturate(2646%) hue-rotate(189deg) brightness(95%) contrast(101%)" }} />
-                      ) : (
-                        <HourGlassIcon fill={"#F57C00"} size={12} />
-                      )}
+                    <StatusDot
+                      tone={
+                        row.status === "paid" || row.status === "completed"
+                          ? "settled"
+                          : row.status === "active"
+                            ? "info"
+                            : row.status === "expired"
+                              ? "neutral"
+                              : "pending"
+                      }
+                    >
                       {row.status === "active" ? "Active" : row.status === "expired" ? "Expired" : row.status === "paid" || row.status === "completed" ? "Paid" : "Pending"}
-                    </StatusChip>
+                    </StatusDot>
                   </Box>
                   {/* Middle: USD + Crypto */}
                   <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", mb: 1 }}>
@@ -644,41 +641,17 @@ const PaymentLinksTable = ({
                     </TableBodyCell>
 
                     <TableBodyCell>
-                      <StatusChip status={row.status}>
-                        {row.status === "active" ? (
-                          <Image
-                            src={TrueIcon}
-                            alt="True Icon"
-                            width={isMobile ? 12 : 14}
-                            height={isMobile ? 12 : 14}
-                            draggable={false}
-                          />
-                        ) : row.status === "expired" ? (
-                          <Image
-                            src={FalseIcon}
-                            alt="False Icon"
-                            width={isMobile ? 12 : 14}
-                            height={isMobile ? 12 : 14}
-                            draggable={false}
-                          />
-                        ) : row.status === "paid" || row.status === "completed" ? (
-                          <Image
-                            src={TrueIcon}
-                            alt="True Icon"
-                            width={isMobile ? 12 : 14}
-                            height={isMobile ? 12 : 14}
-                            draggable={false}
-                            style={{
-                              filter:
-                                "brightness(0) saturate(100%) invert(29%) sepia(88%) saturate(2646%) hue-rotate(189deg) brightness(95%) contrast(101%)",
-                            }}
-                          />
-                        ) : (
-                          <HourGlassIcon
-                            fill={"#F57C00"}
-                            size={isMobile ? 12 : 14}
-                          />
-                        )}
+                      <StatusDot
+                        tone={
+                          row.status === "paid" || row.status === "completed"
+                            ? "settled"
+                            : row.status === "active"
+                              ? "info"
+                              : row.status === "expired"
+                                ? "neutral"
+                                : "pending"
+                        }
+                      >
                         {row.status === "active"
                           ? "Active"
                           : row.status === "expired"
@@ -686,7 +659,7 @@ const PaymentLinksTable = ({
                             : row.status === "paid" || row.status === "completed"
                               ? "Completed"
                               : "Pending"}
-                      </StatusChip>
+                      </StatusDot>
                     </TableBodyCell>
 
                     <TableBodyCell sx={{ fontFamily: MONO, fontVariantNumeric: "tabular-nums" }}>{row.timesUsed}</TableBodyCell>

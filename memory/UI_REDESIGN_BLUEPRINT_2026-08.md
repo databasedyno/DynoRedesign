@@ -28,7 +28,15 @@ Companion machine-readable tokens: `/app/design_guidelines.json` (written by the
 >   the blueprint's 640/768 pair to a single 768 cutoff (skipped the 640–768 transitional nuance).
 >   NOTE: ≥1024 full-sidebar state verified in-preview; the 768–1024 rail + <768 bottom-bar states are
 >   code-verified only (the screenshot tool is locked to a 1920 viewport) — pending a real viewport test.
-> - P3 — Tables · P4 — Dashboard · P5 — Checkout/public · P6 — Marketing → PENDING.
+> - **P3 — Tables ✅ SHIPPED (2026-08-22)** — "chip forest" killed. `StatusDot` (dot+text) now renders
+>   status across Transactions (`TransactionsTable.tsx`: settled→emerald, confirmed→indigo, pending/
+>   processing→amber, failed→rose, unpaid→hollow slate) and Pay-links (`PaymentLinksTable.tsx`:
+>   completed/paid→emerald, active→indigo, expired→neutral, pending→amber) — mobile card + desktop table.
+>   Invoices already used the shared `StatusPill` (converted to dot+text in P2). Coin chips quieted in
+>   `Transactions/styled.tsx` (`CryptoIconChip`: transparent bg + hairline 8px, no coin-tint/halo/logo-ring
+>   — the coin ICON carries the only colour). Removed dead status-icon imports. DEFERRED: right-aligned
+>   mono money columns (header-alignment coupling) + the "API · source" method badge quieting.
+> - P4 — Dashboard · P5 — Checkout/public · P6 — Marketing → PENDING.
 
 
 Grounding: live screenshots of the current landing / dashboard / transactions (2026-08-21), the 27-surface

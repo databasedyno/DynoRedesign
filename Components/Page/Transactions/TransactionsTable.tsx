@@ -12,6 +12,7 @@ import XRPIcon from "@/assets/cryptocurrency/XRP-icon.svg";
 import PolygonIcon from "@/assets/cryptocurrency/Polygon-icon.svg";
 import RLUSDIcon from "@/assets/cryptocurrency/RLUSD-icon.svg";
 import { Icon, MONO } from "@/styles/uiKit";
+import { StatusDot, StatusTone } from "@/Components/UI/StatusDot";
 import { getAssetColor } from "@/helpers/assetColor";
 import TransactionSourceBadge from "@/Components/UI/TransactionSourceBadge";
 import { Box, Typography, useTheme } from "@mui/material";
@@ -19,9 +20,6 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-
-import CorrectIcon from "@/assets/Icons/correct-icon.png";
-import WrongIcon from "@/assets/Icons/wrong-icon.png";
 
 import CryptoIcon from "@/assets/Icons/crypto-icon.svg";
 import CurrencyIcon from "@/assets/Icons/dollar-sign-icon.svg";
@@ -38,7 +36,6 @@ import CustomButton from "@/Components/UI/Buttons";
 import RowsPerPageSelector from "@/Components/UI/RowsPerPageSelector";
 import useIsMobile from "@/hooks/useIsMobile";
 import { useDisplayFx } from "@/hooks/useDisplayFx";
-import { HourGlassIcon } from "@/utils/customIcons";
 import {
   ExtendedTransaction,
   TransactionsTableProps,
@@ -50,9 +47,6 @@ import { Text } from "../CreatePaymentLink/styled";
 import {
   CryptoIconChip,
   MobileNavigationButtons,
-  StatusBadge,
-  StatusIconWrapper,
-  StatusText,
   TransactionsTableBody,
   TransactionsTableCell,
   TransactionsTableFooter,
@@ -126,19 +120,23 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
     return BitcoinIcon;
   };
 
-  const getStatusIcon = (status: "pending" | "confirmed" | "settled" | "failed" | "processing" | "unpaid") => {
+  // Map the raw transaction status onto the shared StatusDot tone palette
+  // (Blueprint §3 — one calm dot+text status primitive across every table).
+  const statusTone = (status: string): StatusTone => {
     switch (status) {
       case "settled":
-        return <Image src={CorrectIcon} alt="correct" draggable={false} />;
+        return "settled";
       case "confirmed":
-        return <Image src={CorrectIcon} alt="confirmed" draggable={false} />;
+        return "info";
       case "pending":
       case "processing":
-        return <HourGlassIcon fill={"#F57C00"} size={isMobile ? 12 : 16} />;
-      case "unpaid":
-        return <HourGlassIcon fill={"#9CA3AF"} size={isMobile ? 12 : 16} />;
+        return "pending";
       case "failed":
-        return <Image src={WrongIcon} alt="incorrect" draggable={false} />;
+        return "failed";
+      case "unpaid":
+        return "unpaid";
+      default:
+        return "neutral";
     }
   };
 
@@ -349,27 +347,22 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                     {transaction.crypto}
                   </Typography>
                 </Box>
-                <StatusBadge status={transaction.status}>
-                  <StatusIconWrapper status={transaction.status}>
-                    {getStatusIcon(transaction.status)}
-                  </StatusIconWrapper>
-                  <StatusText status={transaction.status}>
-                    {tTransactions(transaction.status)}
-                    {transaction.autoConverted && transaction.status === "settled" && (
-                      <Typography component="span" sx={{ display: "inline-flex", alignItems: "center", gap: "3px", verticalAlign: "middle", fontSize: "10px", fontFamily: "var(--font-sans)", color: "#1565C0", ml: 0.5 }}>
-                        <Image
-                          src={SwapHorizIcon}
-                          alt="auto-converted"
-                          width={11}
-                          height={11}
-                          draggable={false}
-                          className="themed-icon"
-                        />
-                        Converted
-                      </Typography>
-                    )}
-                  </StatusText>
-                </StatusBadge>
+                <StatusDot tone={statusTone(transaction.status)}>
+                  {tTransactions(transaction.status)}
+                  {transaction.autoConverted && transaction.status === "settled" && (
+                    <Typography component="span" sx={{ display: "inline-flex", alignItems: "center", gap: "3px", verticalAlign: "middle", fontSize: "10px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary, ml: 0.5 }}>
+                      <Image
+                        src={SwapHorizIcon}
+                        alt="auto-converted"
+                        width={11}
+                        height={11}
+                        draggable={false}
+                        className="themed-icon"
+                      />
+                      Converted
+                    </Typography>
+                  )}
+                </StatusDot>
               </Box>
               {/* Middle row: Amount + USD */}
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", mb: 0.75 }}>
@@ -611,27 +604,22 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                   </TransactionsTableCell>
 
                   <TransactionsTableCell>
-                    <StatusBadge status={transaction.status}>
-                      <StatusIconWrapper status={transaction.status}>
-                        {getStatusIcon(transaction.status)}
-                      </StatusIconWrapper>
-                      <StatusText status={transaction.status}>
-                        {tTransactions(transaction.status)}
-                        {transaction.autoConverted && transaction.status === "settled" && (
-                          <Typography component="span" sx={{ display: "inline-flex", alignItems: "center", gap: "3px", verticalAlign: "middle", fontSize: "11px", fontFamily: "var(--font-sans)", color: "#1565C0", ml: 0.5 }}>
-                            <Image
-                              src={SwapHorizIcon}
-                              alt="auto-converted"
-                              width={12}
-                              height={12}
-                              draggable={false}
-                              className="themed-icon"
-                            />
-                            Converted
-                          </Typography>
-                        )}
-                      </StatusText>
-                    </StatusBadge>
+                    <StatusDot tone={statusTone(transaction.status)}>
+                      {tTransactions(transaction.status)}
+                      {transaction.autoConverted && transaction.status === "settled" && (
+                        <Typography component="span" sx={{ display: "inline-flex", alignItems: "center", gap: "3px", verticalAlign: "middle", fontSize: "11px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary, ml: 0.5 }}>
+                          <Image
+                            src={SwapHorizIcon}
+                            alt="auto-converted"
+                            width={12}
+                            height={12}
+                            draggable={false}
+                            className="themed-icon"
+                          />
+                          Converted
+                        </Typography>
+                      )}
+                    </StatusDot>
                   </TransactionsTableCell>
                 </TransactionsTableRow>
               ))
