@@ -1,12 +1,17 @@
+import { useEffect, useState } from 'react';
 import useCountry from './useCountry';
 
 /**
  * useLocalPrice — country-aware price formatter for landing showcases.
  *
  * Maps the visitor's ISO-2 country code → a currency preset (symbol + rate
- * relative to USD). Rates are static/rounded on purpose (landing copy, not
- * live FX). Fallback is USD. INR uses the lakh convention ("₹8.3L") for
- * large amounts to feel native.
+ * relative to USD). The USD→local rate is refreshed from a lightweight daily
+ * FX feed (GET /api/public/fx-rates, cached in the browser for 24h) so large
+ * converted figures stay believable; the bundled `rate` is a static fallback
+ * used until the feed loads or if it's unavailable. Round ceremonial tip/tier
+ * chips (CLEAN_TIER_MAP) are intentionally kept — a €10 tip reads better than
+ * an exact €9.17 conversion. Fallback currency is USD. INR uses the lakh
+ * convention ("₹8.3L") for large amounts to feel native.
  *
  * Usage:
  *   const { fmt } = useLocalPrice();
@@ -120,9 +125,74 @@ const CLEAN_TIER_MAP: Partial<Record<string, Partial<Record<number, string>>>> =
   NGN: { 3: '₦4,500', 5: '₦7,500', 10: '₦15K', 25: '₦37K', 50: '₦75K', 100: '₦150K' },
 };
 
+// ── Live daily FX feed ────────────────────────────────────────────────────
+// Shared across every useLocalPrice() instance so we fetch at most once per
+// session (and at most once per 24h thanks to the localStorage cache). Never
+// throws — any failure leaves the static preset rates in place.
+const FX_LS_KEY = 'dyno_fx_rates_v1';
+const FX_TTL_MS = 24 * 60 * 60 * 1000; // 24h
+let liveRatesCache: Record<string, number> | null = null;
+let liveRatesPromise: Promise<Record<string, number> | null> | null = null;
+
+const loadFxRates = (): Promise<Record<string, number> | null> => {
+  if (typeof window === 'undefined') return Promise.resolve(null);
+  if (liveRatesCache) return Promise.resolve(liveRatesCache);
+  if (liveRatesPromise) return liveRatesPromise;
+  liveRatesPromise = (async () => {
+    try {
+      const raw = window.localStorage.getItem(FX_LS_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed?.rates && parsed?.ts && Date.now() - parsed.ts < FX_TTL_MS) {
+          liveRatesCache = parsed.rates;
+          return liveRatesCache;
+        }
+      }
+    } catch {
+      /* corrupt cache — ignore and refetch */
+    }
+    try {
+      const base = (process.env.NEXT_PUBLIC_BASE_URL || '').replace(/\/+$/, '');
+      const resp = await fetch(`${base}/api/public/fx-rates`);
+      const json = await resp.json();
+      const rates = json?.data?.rates;
+      if (rates && typeof rates === 'object') {
+        liveRatesCache = rates as Record<string, number>;
+        try {
+          window.localStorage.setItem(FX_LS_KEY, JSON.stringify({ ts: Date.now(), rates }));
+        } catch {
+          /* storage full/blocked — in-memory cache still applies */
+        }
+        return liveRatesCache;
+      }
+    } catch {
+      /* offline / feed down — keep static fallback rates */
+    }
+    return null;
+  })();
+  return liveRatesPromise;
+};
+
 export function useLocalPrice() {
   const { country } = useCountry();
-  const preset = codeToPreset(country?.countryCode);
+  const [live, setLive] = useState<Record<string, number> | null>(liveRatesCache);
+
+  useEffect(() => {
+    let active = true;
+    loadFxRates().then((r) => {
+      if (active && r) setLive(r);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const base = codeToPreset(country?.countryCode);
+  const liveRate = live?.[base.code];
+  // Blend the live rate into the preset; keep the static rate until the feed
+  // resolves (or if this currency isn't in the feed).
+  const preset =
+    typeof liveRate === 'number' && liveRate > 0 ? { ...base, rate: liveRate } : base;
 
   const fmt = (usd: number): string => {
     const clean = CLEAN_TIER_MAP[preset.code]?.[usd];

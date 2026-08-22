@@ -209,6 +209,58 @@ router.get("/public/tickers", async (_req: express.Request, res: express.Respons
 });
 
 /**
+ * Public FX-rates endpoint — lightweight USD→fiat feed for the landing page's
+ * country-aware price formatter (useLocalPrice). No auth, read-only, no DB
+ * writes. Values come from the same Redis-cached FX source the app already
+ * uses for display conversions (getUsdToFiatRate). The aggregate is memoised
+ * ~6h so the landing stays stable across the day and we never burn FX-provider
+ * quota per visitor. Any currency whose live rate is unavailable is OMITTED so
+ * the client keeps its static fallback instead of showing a wrong 1:1 rate.
+ */
+const FX_LANDING_CURRENCIES = ["EUR", "GBP", "INR", "AUD", "CAD", "JPY", "MXN", "BRL", "ZAR", "NGN"];
+const FX_RATES_TTL_MS = 6 * 60 * 60 * 1000; // 6h
+let fxRatesCache: { rates: Record<string, number>; updatedAt: number } | null = null;
+
+router.get("/public/fx-rates", async (_req: express.Request, res: express.Response) => {
+  try {
+    const now = Date.now();
+    if (fxRatesCache && now - fxRatesCache.updatedAt < FX_RATES_TTL_MS) {
+      res.status(200).json({
+        status: "success",
+        data: { base: "USD", rates: fxRatesCache.rates, updatedAt: new Date(fxRatesCache.updatedAt).toISOString() },
+      });
+      return;
+    }
+    const { getUsdToFiatRate } = await import("../utils/currencyUtils");
+    const rates: Record<string, number> = { USD: 1 };
+    const results = await Promise.all(
+      FX_LANDING_CURRENCIES.map(async (cur) => {
+        try {
+          return { cur, r: Number(await getUsdToFiatRate(cur)) };
+        } catch {
+          return { cur, r: 0 };
+        }
+      })
+    );
+    for (const { cur, r } of results) {
+      // r === 1 for a non-USD currency is the helper's failure sentinel → omit
+      if (r > 0 && r !== 1) rates[cur] = Number(r.toFixed(6));
+    }
+    fxRatesCache = { rates, updatedAt: now };
+    res.status(200).json({
+      status: "success",
+      data: { base: "USD", rates, updatedAt: new Date(now).toISOString() },
+    });
+  } catch (err: any) {
+    apiLogger.warn("/api/public/fx-rates failed:", err?.message);
+    res.status(200).json({
+      status: "success",
+      data: { base: "USD", rates: { USD: 1 }, updatedAt: new Date().toISOString() },
+    });
+  }
+});
+
+/**
  * ─────────────────────────────────────────────────────────────────────────────
  * PUBLIC SANDBOX PLAYGROUND
  * ─────────────────────────────────────────────────────────────────────────────
