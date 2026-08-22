@@ -947,7 +947,7 @@ export const setupOnboardingMonitorCron = () => {
     
     try {
       const { getRedisItem, setRedisItemWithTTL } = await import("./redisInstance");
-      const { sendOnboardingStuckAdminEmail, sendOnboardingCompletedAdminEmail } = await import("../services/emailService");
+      const { sendOnboardingStuckAdminEmail, sendOnboardingCompletedAdminEmail, sendAddWalletReminderEmail } = await import("../services/emailService");
 
       // Fetch users registered in the last 72 hours
       const users = await sequelize.query<{
@@ -1070,6 +1070,29 @@ export const setupOnboardingMonitorCron = () => {
           const applicableTier = tiers.filter(t => hoursSinceReg >= t.hours).pop();
           if (!applicableTier) continue; // Less than 4 hours — too early
 
+          // ── (A2) User-facing "add your wallet" nudge ───────────────────
+          // When the ONLY step left is adding a payout wallet (email verified +
+          // account created), email the merchant a branded 1-tap CTA (→ /wallet)
+          // so more of them finish onboarding. Once per user (14-day Redis
+          // dedup) so we never spam. Independent of the admin tier dedup below.
+          if (stuckStep === "Wallet Setup" && user.email) {
+            const walletNudgeKey = `onboarding-wallet-nudge:${userId}`;
+            const nudged = await getRedisItem(walletNudgeKey);
+            if (!nudged || Object.keys(nudged).length === 0) {
+              await setRedisItemWithTTL(walletNudgeKey, { nudged: true }, 14 * 86400);
+              try {
+                await sendAddWalletReminderEmail(
+                  user.email,
+                  user.name || "there",
+                  companyName || "your account",
+                );
+                log(`Onboarding Monitor: wallet nudge emailed to user ${userId} (${user.email})`, "info");
+              } catch (nudgeErr) {
+                log(`Onboarding Monitor: wallet nudge email failed for user ${userId}: ${nudgeErr}`, "error");
+              }
+            }
+          }
+
           const stuckKey = `onboarding-stuck:${userId}:${applicableTier.label}`;
           const alreadyNotified = await getRedisItem(stuckKey);
           if (alreadyNotified && Object.keys(alreadyNotified).length > 0) continue; // Already sent for this tier
@@ -1106,6 +1129,88 @@ export const setupOnboardingMonitorCron = () => {
   });
 
   log("Onboarding Monitor Cron scheduled for every hour at :15", "info");
+};
+
+/**
+ * Manually trigger the onboarding "add your wallet" nudge (for testing / ops).
+ * dryRun=true (default) returns the exact cohort that WOULD be nudged WITHOUT
+ * sending any email — safe to run against production. Set dryRun=false to
+ * actually send (respects the same 14-day per-user Redis dedup as the cron).
+ */
+export const triggerOnboardingWalletNudge = async (dryRun = true) => {
+  const { getRedisItem, setRedisItemWithTTL } = await import("./redisInstance");
+  const { sendAddWalletReminderEmail } = await import("../services/emailService");
+
+  const users = await sequelize.query<{
+    user_id: number;
+    name: string | null;
+    email: string | null;
+    email_verified: boolean;
+    createdAt: string;
+  }>(
+    `SELECT user_id, name, email, email_verified, "createdAt"
+     FROM tbl_user
+     WHERE "createdAt" >= NOW() - INTERVAL '72 hours'
+     ORDER BY "createdAt" DESC`,
+    { type: QueryTypes.SELECT }
+  );
+
+  const results = {
+    dryRun,
+    checked: users.length,
+    would_nudge: [] as Array<Record<string, unknown>>,
+    sent: 0,
+    skipped_already_nudged: 0,
+  };
+
+  for (const user of users) {
+    const userId = user.user_id;
+    // Wallet Setup cohort = email verified + has account + NO payout wallet.
+    if (!user.email || user.email_verified !== true) continue;
+    const hoursSinceReg = Math.floor((Date.now() - new Date(user.createdAt).getTime()) / 3600000);
+    if (hoursSinceReg < 4) continue;
+
+    const companyResult = await sequelize.query<{ company_id: number; company_name: string }>(
+      `SELECT company_id, company_name FROM tbl_company WHERE user_id = :userId LIMIT 1`,
+      { replacements: { userId }, type: QueryTypes.SELECT }
+    );
+    if (companyResult.length === 0) continue; // still at Company Setup, not Wallet
+    const companyName = companyResult[0]?.company_name || "your account";
+
+    const walletResult = await sequelize.query<{ cnt: string }>(
+      `SELECT COUNT(*) as cnt FROM (
+         SELECT 1 FROM tbl_user_wallet
+         WHERE user_id = :userId AND currency_type = 'CRYPTO'
+           AND wallet_address IS NOT NULL AND wallet_address != ''
+         UNION ALL
+         SELECT 1 FROM tbl_user_addresses WHERE user_id = :userId
+       ) combined`,
+      { replacements: { userId }, type: QueryTypes.SELECT }
+    );
+    if (parseInt(walletResult[0]?.cnt || "0") > 0) continue; // has a wallet — done
+
+    const walletNudgeKey = `onboarding-wallet-nudge:${userId}`;
+    const nudged = await getRedisItem(walletNudgeKey);
+    const alreadyNudged = Boolean(nudged && Object.keys(nudged).length > 0);
+
+    results.would_nudge.push({
+      user_id: userId,
+      email: user.email,
+      company_name: companyName,
+      hours_since_reg: hoursSinceReg,
+      already_nudged: alreadyNudged,
+    });
+
+    if (alreadyNudged) {
+      results.skipped_already_nudged++;
+    } else if (!dryRun) {
+      await setRedisItemWithTTL(walletNudgeKey, { nudged: true }, 14 * 86400);
+      await sendAddWalletReminderEmail(user.email, user.name || "there", companyName);
+      results.sent++;
+    }
+  }
+
+  return results;
 };
 
 // ============================================================
@@ -1230,5 +1335,6 @@ export default {
   setupPaymentLinkReminderCron,
   triggerPaymentLinkReminders,
   setupOnboardingMonitorCron,
+  triggerOnboardingWalletNudge,
   setupFirstPaymentMonitorCron,
 };

@@ -3,7 +3,6 @@ import { useWalletStore } from "@/contexts/WalletDataContext";
 import ClaimHandleBanner from "@/Components/Page/Dashboard/ClaimHandleBanner";
 import AutoClaimHandle from "@/Components/Page/Dashboard/AutoClaimHandle";
 import CustomButton from "@/Components/UI/Buttons";
-import MobileReferralBanner from "@/Components/UI/MobileReferralBanner";
 import OnboardingFlow from "@/Components/UI/OnboardingFlow";
 import Dashboard2026 from "@/Components/Page/Dashboard/v2026";
 import useIsMobile from "@/hooks/useIsMobile";
@@ -25,9 +24,10 @@ import { useSelector } from "react-redux";
  * slots, and a first-run activation checklist.
  *
  * The classic two-column layout (and its localStorage feature flag) was
- * retired once the 2026 design was approved. All auxiliary chrome
- * (OnboardingFlow, AutoClaimHandle, MobileReferralBanner, ClaimHandleBanner)
- * still lives here.
+ * retired once the 2026 design was approved. Auxiliary chrome
+ * (OnboardingFlow, AutoClaimHandle, ClaimHandleBanner) still lives here. The
+ * mobile-only referral banner was removed (Aug 2026) so the balance stays the
+ * hero on mobile — referral/invite still lives in the "Grow with Dynopay" slot.
  */
 export default function Home({
   setPageName,
@@ -95,7 +95,6 @@ export default function Home({
       <main>
         <OnboardingFlow />
         <AutoClaimHandle />
-        {isMobile && <MobileReferralBanner />}
         {setupComplete && <ClaimHandleBanner />}
 
         {/* Coinbase look: scope Inter to the dashboard by redefining --font-sans

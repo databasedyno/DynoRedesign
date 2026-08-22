@@ -1,5 +1,39 @@
 # CURRENT STATE POINTER (2026-06 fork, latest first)
 
+LATEST SESSION (2026-08-22c, MOBILE DESIGN PASS + ONBOARDING WALLET NUDGE):
+Two features shipped (go live on Save-to-GitHub → DO redeploy; nudge cron only runs where background
+jobs are enabled = production, NOT preview).
+
+1) MOBILE DESIGN PASS (applied existing design_guidelines.json to remaining mobile surfaces):
+   - Nav icons quieted app-wide (done 22b): NewSidebar (desktop + mobile drawer) + MobileNavigationBar
+     now neutral-grey inactive / indigo active — no more rainbow navAccent.
+   - Removed the top mobile-only <MobileReferralBanner> from pages/dashboard.tsx ({isMobile && ...} +
+     import). It duplicated the "Grow with Dynopay → Invite a merchant" GrowSlot card (which stacks into
+     the mobile dashboard) and pushed the balance hero down. Referral is still reachable via GrowSlot +
+     Referrals nav. Component file kept (unused now). Verified via desktop smoke: dashboard mounts, quiet
+     sidebar intact, GrowSlot "Invite a merchant" present.
+   - Reviewed UserMenu (avatar dropdown) + the bottom-bar active pill against guidelines → already
+     compliant (consistent 16px icons; indigo setup-prompt is an intentional single-accent CTA; bottom-bar
+     active = indigo tint). Left as-is. NOTE: screenshot tool renders desktop-width only, so mobile visuals
+     were audited via the user's uploaded screenshots + code; a deeper mobile pass would benefit from
+     design_agent or targeted user screenshots.
+
+2) ONBOARDING WALLET NUDGE (backend, utils/cronJobs.ts):
+   - setupOnboardingMonitorCron: when a user is stuck specifically at "Wallet Setup" (email verified + has
+     company + no payout wallet) and ≥4h old, it now ALSO emails the MERCHANT the branded 1-tap "add your
+     wallet" CTA (reuses services/email/walletEmails.ts::sendAddWalletReminderEmail → /wallet). Once per
+     user via Redis dedup key `onboarding-wallet-nudge:${userId}` (14-day TTL). Independent of the existing
+     admin-tier stuck email.
+   - Added exported triggerOnboardingWalletNudge(dryRun=true) for safe ops/testing.
+   - VERIFIED via dry-run against live DB+Redis: correctly targets exactly the stuck cohort (users
+     20/23/24/25 — the low-conversion accounts from the DO-log audit), already_nudged=false, sent=0 (NO
+     emails sent from preview — SAFE). Backend healthy, no startup errors.
+
+PAUSED (resume when asked): "Signup Abuse Guard" (per-IP signup velocity limit + disposable-email block on
+registration; integration_expert already consulted; infra = middleware/rateLimitMiddleware.ts createRateLimiter).
+STILL OPEN (unreproduced): "Should have a queue" React error — need page/URL + repro from user.
+
+
 LATEST SESSION (2026-08-22b, QUIET NAV — remove rainbow nav icons app-wide):
 User reported the recent High-Trust redesign "wasn't implemented for mobile" (screenshots of the mobile
 hamburger drawer showing multi-colored nav icons). ROOT CAUSE (not a deploy lag — the drawer "View account"
