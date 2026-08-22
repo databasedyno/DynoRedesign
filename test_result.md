@@ -1,3 +1,62 @@
+# Session 2026-08-22 (15th pod) — PART 2: mobile audit (copy/spacing drift + consistency w/ sidebar fix)
+
+Preview: https://b5018a5f-de0e-4685-bf7a-5cdcdff90232.preview.emergentagent.com
+Login (2-step): hostbay@moxx.co / Katiekendra123@
+SAFETY (CRITICAL — LIVE Railway PROD DB): STRICT READ-ONLY. Navigate/read/screenshot/open-drawer ONLY.
+
+## Scope
+User asked to sweep remaining mobile screens for copy/spacing that drifts from desktop, and confirm other
+in-app pages are consistent with the recent sidebar-drawer UI change (full labels + section captions).
+Code-level scan done first: the first-word-truncation / hidden-caption bug was ISOLATED to NewSidebar (already
+fixed). The bottom bar (MobileNavigationBar) already uses the same t() label keys as desktop. Remaining
+mobile↔desktop copy swaps are DELIBERATE space-savers (FeeFreeBanner "Fee-free", PaymentLinksTopBar "Period",
+BuyButtons/PublishableKeys "Create") — not bugs. This part is a VISUAL sweep to catch spacing/overflow/clipping.
+
+### frontend
+  - task: "Mobile audit — objective copy/spacing drift across in-app pages + nav consistency"
+    implemented: true
+    working: true
+    file: "Components/Layout/MobileNavigationBar/index.tsx"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Read-only mobile audit requested. Report OBJECTIVE issues only per page; main agent fixes real drift then re-verifies."
+      - working: true
+        agent: "testing"
+        comment: "✅ MOBILE AUDIT COMPLETE (2026-08-22) — ALL CHECKS PASS at mobile viewport 390x844. Tested 9 in-app routes: /dashboard, /pay-links, /transactions, /invoices, /customers, /creator (storefront), /wallets, /settings, /developer-keys. **OBJECTIVE CHECKS - ALL PASS**: (a) Horizontal overflow: ✅ PASS — All 9 pages show scrollWidth=390px (exactly viewport width). NO horizontal overflow detected on any page. (b) Clipped/overlapping text: ✅ PASS — No clipped or overlapping text detected on any page. All content fits within viewport. (c) Page headers: ✅ PASS — All 9 pages have visible page headers (h1/h2 elements present). (d) Primary actions: ✅ PASS — Primary action buttons (where applicable, e.g., 'Create' on /developer-keys) are visible and reachable (not hidden behind bottom nav). **NAV CONSISTENCY CHECKS - ALL PASS**: (e) Hamburger drawer: ✅ PASS — Tested on 3 pages (/dashboard, /pay-links, /transactions). Drawer consistently shows FULL labels across all pages: 'Dashboard', 'Payment Links', 'Transactions', 'Receipts & Tax', 'Customers', 'Storefront', 'Payout wallets', 'Settings', 'Developers'. NO truncation detected (NOT showing 'Payment', 'Receipts', 'Payout'). Section captions present: 'Get paid', 'Money', 'Your setup', 'Account' (displayed in sentence case, styled with CSS text-transform: uppercase). All 4 section captions visible in drawer. (f) Bottom navigation bar: ✅ PASS — Bottom nav bar visible at bottom of screen with labels: 'Dash', 'Payment Links', 'Transactions'. Labels NOT truncated or overlapping. **CONSOLE ERRORS**: Only pre-existing warnings (validateDOMNesting for MUI Select component, 404 for a resource). NO NEW functional errors related to mobile layout. **CONCLUSION**: The mobile audit shows ZERO OBJECTIVE ISSUES. All 9 in-app pages render correctly at mobile viewport (390x844) with no horizontal overflow, no clipped/overlapping text, headers present, and full navigation labels. The recent sidebar fix (from previous session) is working perfectly — the drawer shows full labels and section captions consistently across all pages. The bottom nav bar labels are intact and not truncated. STRICT READ-ONLY testing completed successfully on LIVE prod DB."
+
+      - working: "NA"
+        agent: "main"
+        comment: "POST-AUDIT FIX: the visual audit was clean EXCEPT one copy drift — the bottom bar (MobileNavigationBar) first tab used t('dash')='Dash' while the desktop sidebar + hamburger drawer use t('dashboard')='Dashboard' (its neighbours 'Payment Links'/'Transactions' render in full, so there is room). Changed the bottom-bar dashboard tab label to t('dashboard'); id stays 'dash' so active-state/keys are unchanged. Lint clean, dev hot-reload. Needs quick re-verify (see updated instructions)."
+
+      - working: true
+        agent: "testing"
+        comment: "✅ BOTTOM NAV COPY FIX VERIFIED (2026-08-22) — ALL 4 VERIFICATION CHECKS PASS at mobile viewport 390x844 (iPhone 12). **VERIFICATION 1 (PRIMARY - First tab label): ✅ PASS** — Bottom navigation bar's FIRST tab now reads exactly 'Dashboard' (NOT 'Dash'). Exact string detected: 'Dashboard'. The copy fix from 'Dash' to 'Dashboard' is working correctly ✅. **VERIFICATION 2 (Three tabs present): ✅ PASS** — Bottom bar shows exactly 3 primary tabs in correct order: 'Dashboard', 'Payment Links', 'Transactions'. NO text truncation detected. NO overlapping labels. All three tab labels are fully visible and readable ✅. **VERIFICATION 3 (Horizontal overflow): ✅ PASS** — document.scrollingElement.scrollWidth = 390px (exactly matches viewport width of 390px). NO horizontal page overflow detected ✅. **VERIFICATION 4 (First tab navigation): ✅ PASS** — Tapping the first 'Dashboard' tab navigates to /dashboard and shows active state (tab remains highlighted). Navigation working correctly ✅. **MEASURED RESULTS**: Mobile viewport: 390x844 (iPhone 12 emulation). Bottom nav tabs detected at bottom: 829px from top (within last 100px of viewport height 844px). Tab positions (left-to-right): Dashboard (64px), Payment Links (150.5px), Transactions (251.5px). All tabs visible with proper spacing. **VISUAL VERIFICATION**: Screenshots captured showing bottom nav bar with 'Dashboard' label clearly visible on first tab (not 'Dash'). All three tabs visible with icons and labels. Active state shown on Dashboard tab. **CONCLUSION**: The post-audit copy fix is COMPLETELY VERIFIED and production-ready. The bottom navigation bar's first tab now correctly displays 'Dashboard' (matching desktop sidebar and hamburger drawer), replacing the previous abbreviated 'Dash' label. All 4 verification checks passed (100% pass rate). No regressions detected. STRICT READ-ONLY testing completed successfully on LIVE prod DB."
+
+### FRONTEND TESTING INSTRUCTIONS (auto_frontend_testing_agent) — STRICT READ-ONLY on LIVE prod
+Mobile viewport 390x844. Login (2-step). Verify the one post-audit copy fix + no regression:
+1) On /dashboard, the bottom navigation bar's FIRST tab now reads "Dashboard" (NOT "Dash").
+2) The bottom bar still shows exactly its 3 primary tabs (Dashboard, Payment Links, Transactions) with no truncation,
+   no overlap, and no horizontal overflow (document.scrollingElement.scrollWidth === 390).
+3) Tapping the first tab still navigates to /dashboard and shows the active state there.
+Report PASS/FAIL with the exact first-tab label string you read.
+
+### Agent Communication
+  - agent: "main"
+    message: "Read-only MOBILE AUDIT (390x844). Sweep the 9 in-app routes for OBJECTIVE drift only (horizontal overflow, clipped/overlapping text, missing headers, unreachable primary buttons) and confirm nav consistency (drawer full labels + captions; bottom bar labels intact). Report per-page with screenshots; do not change anything. Live prod — STRICT READ-ONLY."
+  - agent: "testing"
+    message: "✅ MOBILE AUDIT COMPLETE (2026-08-22) — ALL CHECKS PASS (100% pass rate). Tested all 9 in-app routes at mobile viewport 390x844. **CRITICAL SUCCESS**: (1) NO horizontal overflow on any page (all show scrollWidth=390px) ✅. (2) NO clipped/overlapping text detected ✅. (3) All pages have visible headers ✅. (4) Primary actions reachable where applicable ✅. (5) Hamburger drawer shows FULL labels ('Payment Links', 'Receipts & Tax', 'Payout wallets' — NOT truncated) consistently across all 3 tested pages ✅. (6) Section captions present in drawer ('Get paid', 'Money', 'Your setup', 'Account') ✅. (7) Bottom nav bar labels intact and not truncated ('Dash', 'Payment Links', 'Transactions') ✅. The recent sidebar fix is working perfectly. ZERO OBJECTIVE ISSUES found. No code changes needed. Main agent can summarize and finish."
+  - agent: "main"
+    message: "POST-AUDIT FIX: Changed bottom bar first tab from 'Dash' to 'Dashboard' to match desktop sidebar + hamburger drawer (neighbours render in full, so there's room). Changed label to t('dashboard'); id stays 'dash' for active-state. Lint clean, dev hot-reload. Please verify: (1) First tab reads 'Dashboard' NOT 'Dash', (2) All 3 tabs present with no truncation/overlap, (3) No horizontal overflow (scrollWidth=390), (4) First tab navigation to /dashboard works. STRICT READ-ONLY on LIVE prod."
+  - agent: "testing"
+    message: "✅ BOTTOM NAV COPY FIX VERIFIED (2026-08-22) — ALL 4 CHECKS PASS (100% pass rate). Mobile viewport 390x844 (iPhone 12). **PRIMARY FIX VERIFIED**: Bottom nav first tab now reads 'Dashboard' (NOT 'Dash') ✅. **ALL CHECKS PASS**: (1) First tab label: 'Dashboard' (exact string detected) ✅. (2) Three tabs present: 'Dashboard', 'Payment Links', 'Transactions' — no truncation, no overlap ✅. (3) Horizontal overflow: scrollWidth=390px (matches viewport) ✅. (4) First tab navigation: tapping 'Dashboard' navigates to /dashboard with active state ✅. The copy fix from 'Dash' to 'Dashboard' is working correctly. Screenshots captured showing bottom nav with full 'Dashboard' label. STRICT READ-ONLY testing completed successfully on LIVE prod DB. Main agent can summarize and finish."
+
+---
+
+
 # Session 2026-08-22 (15th pod) — BUG FIX: mobile drawer sidebar differs from desktop (copies + design)
 
 Preview: https://b5018a5f-de0e-4685-bf7a-5cdcdff90232.preview.emergentagent.com

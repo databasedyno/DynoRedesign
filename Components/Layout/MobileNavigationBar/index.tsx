@@ -140,7 +140,7 @@ const MobileNavigationBar = () => {
     id: "storefront",
     isNew: !hasClaimedCreator,
   };
-  const dashboardItem = { label: t("dash"), icon: "dashboard", path: "/dashboard", id: "dash" };
+  const dashboardItem = { label: t("dashboard"), icon: "dashboard", path: "/dashboard", id: "dash" };
   const payLinksItem = {
     label: t("payLinks"),
     icon: "payment-links",
