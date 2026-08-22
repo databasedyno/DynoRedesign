@@ -1,7 +1,7 @@
 # COMPREHENSIVE MOBILE UX/QA AUDIT REPORT
 **Date:** 2026-07-17  
 **Viewport:** 390x844 (iPhone 14/15)  
-**App:** https://payment-gateway-669.preview.emergentagent.com  
+**App:** https://payment-integration-91.preview.emergentagent.com  
 **Mode:** READ-ONLY AUDIT (No changes made)
 
 ---

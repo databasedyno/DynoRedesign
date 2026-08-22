@@ -4,7 +4,7 @@
 import requests
 import json
 
-BASE_URL = "https://payment-gateway-669.preview.emergentagent.com"
+BASE_URL = "https://payment-integration-91.preview.emergentagent.com"
 API_URL = f"{BASE_URL}/api"
 EMAIL = "hostbay@moxx.co"
 PASSWORD = "Katiekendra123@"

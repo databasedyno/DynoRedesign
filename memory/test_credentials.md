@@ -1,7 +1,35 @@
 # Test Credentials
 
+## ✅ LATEST SETUP (2026-08-22, 16th pod) — env rebuilt from user's pasted creds
+- CURRENT preview URL: https://eb03022b-c425-42c1-baf2-3f363fc97d15.preview.emergentagent.com
+- Login (2-step): **hostbay@moxx.co / Katiekendra123@** (hostbay = user_id 1 / company_id 1, KYC-exempt)
+- Setup: wrote /app/.env + /app/backend/.env from THIS session's pasted creds, then
+  `bash scripts/pod-bootstrap.sh --skip-env` → POD READY in 51s (root deps self-healed on boot;
+  backend deps installed by bootstrap).
+- NEXTAUTH_SECRET regenerated (paste value was the literal placeholder "openssl rand -base64 32"):
+  **MJsG7DE07fw1BHUHK4x8od3QZaPtyqSbWNVZQ84Pb6w=** (written to BOTH /app/.env and /app/backend/.env)
+- Omitted from paste: BINANCE_PROXY_URL + SSH_TUNNEL_* (no proxy/tunnel in pod) + PORT (server.py
+  forces Node onto 3300). Fixed paste typo EXT_PUBLIC_ENABLE_GITHUB_AUTH → NEXT_PUBLIC_ENABLE_GITHUB_AUTH.
+  Re-added KYC_EXEMPT_COMPANY_IDS=1 + KYC_EXEMPT_USER_IDS=1 (not in paste).
+- SAFE MODE kept ON despite paste saying true (standing rule — LIVE Railway prod DB):
+  ENABLE_BACKGROUND_JOBS=false, WORKER_ROLE=secondary. Ledger: ENABLE_LEDGER=true,
+  LEDGER_DUAL_WRITE=false, LEDGER_INVARIANT_CRON=false.
+- SPACES_* WERE in this paste → written to backend/.env (durable product-asset storage,
+  bucket=dynopay-uploads-6708cc37, region=ams3). VERIFF creds are the literal `install-bundle`
+  placeholders (KYC webhook won't verify until real creds restored; hostbay is exempt so login/dashboard fine).
+- Root /app/.env NEXT_PUBLIC_BASE_URL kept EMPTY (browser same-origin relative /api). FRONTEND_MODE=dev
+  (next dev, hot reload ON). INTERNAL_API_URL=http://localhost:8001 for SSR.
+- Verified GREEN: /health db=connected redis=connected tatum operational background_jobs.eligible=false
+  (SAFE MODE); SAFE MODE log lines present (BACKGROUND JOBS DISABLED, Skipping BullMQ webhook worker —
+  secondary, Skipping startup reconciliation); "Refreshed 40 rates via Tatum in 3012ms"; Binance 451
+  geo-block known/harmless (CoinGecko/Tatum fallback OK). External /, /auth/login, /pay, /api/status,
+  /hostbay, /hostbay/shop all 200. Auth path confirmed end-to-end via external
+  GET /api/user/checkEmail?email=hostbay@moxx.co → {"validEmail":true}. /api/status → "All Systems Operational".
+- NOT committed to git (env files gitignored; vault NOT re-sealed — no passphrase provided).
+
+
 ## ✅ LATEST SETUP (2026-08-22, 15th pod) — env rebuilt from user's pasted creds
-- CURRENT preview URL: https://b5018a5f-de0e-4685-bf7a-5cdcdff90232.preview.emergentagent.com
+- CURRENT preview URL: https://payment-integration-91.preview.emergentagent.com
 - Login (2-step): **hostbay@moxx.co / Katiekendra123@** (hostbay = user_id 1 / company_id 1, KYC-exempt)
 - Setup: wrote /app/.env + /app/backend/.env from pasted creds, then `pod-bootstrap.sh --skip-env`
   (URL-sync to this pod + SAFE MODE). POD READY in 28s (deps were self-healed on boot by
@@ -22,7 +50,7 @@
   $27,008.35, Growth tier). NOT committed to git (env files gitignored; vault NOT re-sealed — no passphrase).
 
 ## ✅ LATEST SETUP (2026-08-22, 14th pod) — env rebuilt from user's pasted creds
-- CURRENT preview URL: https://payment-gateway-669.preview.emergentagent.com
+- CURRENT preview URL: https://payment-integration-91.preview.emergentagent.com
 - Login (2-step): **hostbay@moxx.co / Katiekendra123@** (hostbay = user_id 1 / company_id 1, KYC-exempt)
 - Setup: wrote /app/.env + /app/backend/.env from pasted creds, then `pod-bootstrap.sh --skip-env`
   (URL-sync to this pod + SAFE MODE). NEXTAUTH_SECRET regenerated. Omitted BINANCE_PROXY_URL +
@@ -38,7 +66,7 @@
 
 ## ✅ LATEST SETUP (2026-08-21, 13th pod) — env rebuilt from user's pasted creds
 - CURRENT preview URL (verified: /health + all public routes 200 + full 2-step login -> /dashboard live data):
-  https://payment-gateway-669.preview.emergentagent.com
+  https://payment-integration-91.preview.emergentagent.com
 - Path used: wrote `/app/backend/.env` + `/app/.env` from the paste, then
   `bash scripts/pod-bootstrap.sh --skip-env` → POD READY in 27s.
   Omitted from the paste: PORT (server.py forces Node onto 3300), BINANCE_PROXY_URL,
@@ -71,7 +99,7 @@
 
 ## ✅ LATEST SETUP (2026-08-21, 12th pod) — env rebuilt from user's pasted creds
 - CURRENT preview URL (verified: /health + all public routes 200, login page renders):
-  https://payment-gateway-669.preview.emergentagent.com
+  https://payment-integration-91.preview.emergentagent.com
 - Path used: wrote `/app/backend/.env` + `/app/.env` from the paste, then
   `bash scripts/pod-bootstrap.sh --skip-env` → POD READY in 31s.
   Omitted from the paste: PORT (server.py forces Node onto 3300), BINANCE_PROXY_URL,
@@ -116,7 +144,7 @@
 
 ## ✅ LATEST SETUP (2026-08-21, 11th pod) — env rebuilt from user's pasted creds
 - CURRENT preview URL (verified: full 2-step login -> /dashboard live data):
-  https://payment-gateway-669.preview.emergentagent.com
+  https://payment-integration-91.preview.emergentagent.com
 - Path used: wrote /app/backend/.env + /app/.env from the paste (PORT / BINANCE_PROXY_URL /
   SSH_TUNNEL_* omitted; SAFE MODE ENABLE_BACKGROUND_JOBS=false + WORKER_ROLE=secondary — paste
   said true, kept OFF per standing rule; ENABLE_LEDGER=true kept, dual-write/cron OFF), then
@@ -163,7 +191,7 @@ bash /app/scripts/pod-bootstrap.sh --pass '<vault passphrase — ASK THE USER>'
 
 ## LATEST SETUP (2026-08-21, 10th NEW pod) — env rebuilt from user's pasted creds
 - CURRENT preview URL (verified: full 2-step login -> /dashboard with live data):
-  https://payment-gateway-669.preview.emergentagent.com
+  https://payment-integration-91.preview.emergentagent.com
   (supervisor APP_URL routes correctly — no host gotcha)
 - Same recipe 1:1 as 9th pod: sequential `yarn install` root->backend (plain, NOT frozen;
   ~80s+35s warm cache), /app/backend/.env + /app/.env rewritten from user's pasted creds,
@@ -220,7 +248,7 @@ bash /app/scripts/pod-bootstrap.sh --pass '<vault passphrase — ASK THE USER>'
 
 ## LATEST SETUP (2026-08-15, 8th NEW pod) — env rebuilt from user's pasted creds
 - CURRENT preview URL (verified: full login -> /dashboard with live data):
-  https://payment-gateway-669.preview.emergentagent.com
+  https://payment-integration-91.preview.emergentagent.com
   (supervisor APP_URL routes correctly — no host gotcha)
 - Same recipe 1:1: sequential `yarn install` root->backend->frontend-bridge (plain, NOT frozen),
   /app/backend/.env + /app/.env.local rewritten from user's pasted creds, SAFE MODE
@@ -240,7 +268,7 @@ bash /app/scripts/pod-bootstrap.sh --pass '<vault passphrase — ASK THE USER>'
 
 ## PREVIOUS SETUP (2026-08-14, 7th NEW pod) — env rebuilt from user's pasted creds
 - CURRENT preview URL (verified: full login -> /dashboard with live data):
-  https://payment-gateway-669.preview.emergentagent.com
+  https://payment-integration-91.preview.emergentagent.com
   (supervisor APP_URL routes correctly — no host gotcha)
 - Same recipe applied 1:1: sequential `yarn install` root->backend (plain, NOT --frozen-lockfile),
   /app/backend/.env + /app/.env.local rewritten from user's pasted creds, SAFE MODE
@@ -259,7 +287,7 @@ bash /app/scripts/pod-bootstrap.sh --pass '<vault passphrase — ASK THE USER>'
 
 ## PREVIOUS SETUP (2026-08-14, 6th NEW pod) — env rebuilt from user's pasted creds
 - CURRENT preview URL (verified: full login -> /dashboard with live data):
-  https://payment-gateway-669.preview.emergentagent.com
+  https://payment-integration-91.preview.emergentagent.com
   (supervisor APP_URL routes correctly — no host gotcha)
 - Same recipe applied 1:1: sequential `yarn install` root->backend (plain, NOT --frozen-lockfile),
   /app/backend/.env + /app/.env.local rewritten from user's pasted creds, SAFE MODE
@@ -281,7 +309,7 @@ bash /app/scripts/pod-bootstrap.sh --pass '<vault passphrase — ASK THE USER>'
 
 ## PREVIOUS SETUP (2026-08-14, 5th NEW pod) — env rebuilt from user's pasted creds
 - CURRENT preview URL (verified: full login -> /dashboard with live data):
-  https://payment-gateway-669.preview.emergentagent.com
+  https://payment-integration-91.preview.emergentagent.com
   (supervisor APP_URL routes correctly on this pod — no host gotcha this time)
 - Same recipe as below applied 1:1. NOTE: `yarn install --frozen-lockfile` FAILS
   ("lockfile needs to be updated") — use plain `yarn install`, SEQUENTIAL root->backend.
@@ -297,8 +325,8 @@ bash /app/scripts/pod-bootstrap.sh --pass '<vault passphrase — ASK THE USER>'
 
 ## PREVIOUS SETUP (2026-08-13 late, 4th NEW pod) — env rebuilt AGAIN from user's pasted creds
 - CURRENT preview URL (verified externally, login screenshot loads):
-  https://payment-gateway-669.preview.emergentagent.com
-  (supervisor APP_URL — routes fine this time; https://payment-gateway-669.preview.emergentagent.com ALSO routes)
+  https://payment-integration-91.preview.emergentagent.com
+  (supervisor APP_URL — routes fine this time; https://payment-integration-91.preview.emergentagent.com ALSO routes)
 - Same recipe as below applied 1:1 (sequential yarn installs root->backend; both env files
   rewritten; NEXTAUTH_SECRET regenerated: kCrvCwvNJxDraw2xuBUqKje5J2+NjwkXCge3gWvqBaE=).
 - Verified on this pod: /health healthy (db+redis connected, background_jobs.eligible=false),
@@ -308,7 +336,7 @@ bash /app/scripts/pod-bootstrap.sh --pass '<vault passphrase — ASK THE USER>'
   "Refreshed 40 rates via Tatum", Binance geo-blocked (known, harmless).
 
 ## PREVIOUS SETUP (2026-08-13, 3rd pod) — env rebuilt from user's pasted creds
-- Preview URL then: https://payment-gateway-669.preview.emergentagent.com
+- Preview URL then: https://payment-integration-91.preview.emergentagent.com
 - Recipe applied (matches the documented one below):
   1. `yarn install` in /app then /app/backend (SEQUENTIAL; parallel corrupts the shared
      yarn cache -> ENOENT .yarn-metadata.json; fix = `rm -rf /usr/local/share/.cache/yarn`).
@@ -331,7 +359,7 @@ bash /app/scripts/pod-bootstrap.sh --pass '<vault passphrase — ASK THE USER>'
   (port 3300) fronted by a Python/uvicorn proxy on port 8001 (backend/server.py).
 - Browser API calls are RELATIVE (`/api/...`) because `NEXT_PUBLIC_BASE_URL` is empty
   in /app/.env.local -> Emergent ingress routes /api -> 8001 -> Node backend.
-- Preview URL (CURRENT, verified 2026-08-13): https://payment-gateway-669.preview.emergentagent.com
+- Preview URL (CURRENT, verified 2026-08-13): https://payment-integration-91.preview.emergentagent.com
   Env rebuilt for the 3rd time on 2026-08-13 on a NEW pod (root+backend node_modules AND both
   env files were missing again). Recipe that works:
    1. `cd /app && yarn install` THEN `cd /app/backend && yarn install`  (run them SEQUENTIALLY —
@@ -344,7 +372,7 @@ bash /app/scripts/pod-bootstrap.sh --pass '<vault passphrase — ASK THE USER>'
       pasted value is the literal placeholder "openssl rand -base64 32".
    4. `sudo supervisorctl restart backend frontend`.
   HOST GOTCHA (3rd pod in a row): supervisor's APP_URL advertises
-   https://payment-gateway-669.preview.emergentagent.com but that host does NOT
+   https://payment-integration-91.preview.emergentagent.com but that host does NOT
    route (curl -> 000). Find the REAL host in /var/log/supervisor/frontend.err.log — Next.js logs
    a "cross origin request detected from <host>.cluster-XX.preview.emergentcf.cloud" warning; the
    `<host>` prefix + `.preview.emergentagent.com` is the live URL (here: secure-transactions-11).
