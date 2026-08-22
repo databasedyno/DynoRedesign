@@ -1,3 +1,55 @@
+# Session 2026-08-22 (15th pod) — PART 4: large-screen pass (≥1440px expanded sidebar + content max-widths)
+
+Preview: https://b5018a5f-de0e-4685-bf7a-5cdcdff90232.preview.emergentagent.com
+Login (2-step): hostbay@moxx.co / Katiekendra123@
+SAFETY (CRITICAL — LIVE Railway PROD DB): STRICT READ-ONLY. Navigate/read/screenshot ONLY.
+
+## Scope
+Confirm ultra-wide (≥1440px) feels balanced. Code review first: the whole in-app shell (header AND body) is wrapped
+in a Box with maxWidth:1840px, centered (justifyContent:center); the outer container adds xl padding 16px/40px.
+Sidebar is EXPANDED at ≥1024px with width clamp(265px,18vw,324px) → caps at 324px. So beyond 1840px the shell
+centers with even side gutters; content column ≈ 1840 − 324 − 24 ≈ ~1492px max. This is a VISUAL confirmation sweep.
+
+### frontend
+  - task: "Large-screen pass (≥1440px): expanded sidebar + content max-width balance"
+    implemented: true
+    working: true
+    file: "audit-only (Containers/Client/index.tsx maxWidth:1840 cap, Components/Layout/NewSidebar)"
+    stuck_count: 0
+    priority: "low"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Read-only large-screen audit requested. Report OBJECTIVE metrics + balance; main agent fixes only real imbalance then re-verifies."
+      - working: true
+        agent: "testing"
+        comment: "✅ LARGE-SCREEN AUDIT COMPLETE (2026-08-22) — ALL CHECKS PASS at all tested ultra-wide viewport widths (≥1440px). Tested 3 widths × 4 pages = 12 combinations (100% pass rate). **OBJECTIVE CHECKS - ALL PASS**: (1) SIDEBAR EXPANDED + CAPPED: ✅ PASS — All 12 tests show sidebar with data-sidebar-collapsed='false' (expanded). Sidebar width measured: 1440x900 = 265px (exactly at min clamp), 1920x1080 = 324px (exactly at max clamp), 2560x1440 = 324px (capped, NOT growing unbounded). All 9 full text nav labels present (Dashboard, Payment Links, Transactions, Receipts & Tax, Customers, Storefront, Payout wallets, Settings, Developers). All 4 section captions present (Get paid, Money, Your setup, Account). (2) SHELL MAX-WIDTH + CENTERING: ✅ PASS — Shell/body container measured: 1440x900 = 1394px (CSS maxWidth:1840px, fills available space), 1920x1080 = 1840px (exactly at cap), 2560x1440 = 1840px (capped, NOT growing unbounded). At 2560px: left gutter = 360px, right gutter = 360px (perfectly balanced, diff=0px). Shell is horizontally centered with even side gutters. (3) NO HORIZONTAL OVERFLOW: ✅ PASS — All 12 tests show document.scrollingElement.scrollWidth === window.innerWidth (1440=1440, 1920=1920, 2560=2560). NO horizontal scrollbar on any page at any width. (4) CONTENT BALANCE: ✅ PASS — All pages show proper page headers (Dashboard, Payment links, Transactions, Settings). Action buttons present where applicable (New button found on all pages). Main content width measured: Dashboard at 1920/2560 = 1492px (reasonable, not absurdly stretched). Tables and cards fill content column proportionally without huge dead gaps. No comically long rows or unbalanced layouts observed. (5) CONSOLE ERRORS: ✅ PASS — Console logs captured show only pre-existing warnings (recharts width/height, CDN/geo-detect noise). NO NEW functional errors related to large-screen layout. **MEASURED RESULTS**: Width 1440x900: sidebar 265px (min clamp), shell 1394px, gutters 23px/23px, no overflow ✅. Width 1920x1080: sidebar 324px (max clamp), shell 1840px (capped), gutters 40px/40px, no overflow ✅. Width 2560x1440: sidebar 324px (capped), shell 1840px (capped), gutters 360px/360px (balanced), no overflow ✅. **TESTED COMBINATIONS**: All 12 combinations PASS: 1440x900 × (Dashboard, Payment Links, Transactions, Settings) ✅. 1920x1080 × (Dashboard, Payment Links, Transactions, Settings) ✅. 2560x1440 × (Dashboard, Payment Links, Transactions, Settings) ✅. **CONCLUSION**: The large-screen audit shows ZERO OBJECTIVE ISSUES. All pages render correctly at all tested ultra-wide widths (1440px, 1920px, 2560px) with expanded sidebar clamped at 265-324px (NOT growing unbounded), shell/body container capped at ~1840px and horizontally centered with balanced gutters at 2560px, no horizontal overflow on any page, and content/tables/headers properly balanced (no absurd stretching or dead space). STRICT READ-ONLY testing completed successfully on LIVE prod DB."
+
+### FRONTEND TESTING INSTRUCTIONS (auto_frontend_testing_agent) — STRICT READ-ONLY on LIVE prod
+Log in (2-step). Test at ultra-wide widths: 1440x900, 1920x1080, 2560x1440. Pages: /dashboard, /pay-links,
+/transactions, /settings. Report PASS/ISSUE per width+page with screenshots. Check OBJECTIVE items:
+1) SIDEBAR EXPANDED: at ≥1024px the left sidebar has data-sidebar-collapsed="false", shows FULL text labels +
+   section captions (GET PAID/MONEY/YOUR SETUP/ACCOUNT), and its width is clamped ≤324px (measure it; at 1920/2560
+   it should be ~324px, NOT growing unbounded).
+2) SHELL MAX-WIDTH + CENTERING: the app shell inner Box is capped at ~1840px and horizontally centered. At 2560px
+   report the shell width (~1840) and that the left and right gutters are roughly EQUAL (balanced, not lopsided).
+3) NO OVERFLOW: document.scrollingElement.scrollWidth === window.innerWidth at each width (no horizontal scroll).
+4) CONTENT BALANCE: content column is not stretched edge-to-edge absurdly; tables/cards/hero fill the content
+   column without huge dead gaps or comically long line lengths; the page header title + primary action sit at
+   sensible positions (action not floating miles from the title).
+5) No NEW functional console errors (ignore recharts width/height + CDN/geo noise).
+DO NOT fix anything, DO NOT create/edit/delete, no payments. Report width | page | sidebar width | shell width | gutters equal? | overflow? | notes.
+
+### Agent Communication
+  - agent: "main"
+    message: "Read-only LARGE-SCREEN AUDIT (1440/1920/2560). Confirm the expanded sidebar caps at ~324px with full labels+captions, the shell is maxWidth ~1840 centered with even gutters at 2560, no horizontal overflow, and content/tables/headers feel balanced (no absurd stretching or dead space). Test on /dashboard, /pay-links, /transactions, /settings. Report metrics per width+page; change nothing. Live prod — STRICT READ-ONLY."
+  - agent: "testing"
+    message: "✅ TESTING COMPLETE (2026-08-22) — All checks PASS (100% pass rate, 12/12 tests). Large-screen audit shows ZERO OBJECTIVE ISSUES. **CRITICAL SUCCESS**: (1) SIDEBAR: All 12 tests show expanded sidebar (data-sidebar-collapsed='false') with width clamped correctly: 1440px=265px (min), 1920px=324px (max), 2560px=324px (capped, NOT growing) ✅. Full labels and section captions present ✅. (2) SHELL: Shell width capped at 1840px at 1920/2560 (NOT growing unbounded) ✅. At 2560px: gutters perfectly balanced (360px/360px, diff=0px) ✅. (3) NO OVERFLOW: All 12 tests show scrollWidth === innerWidth (no horizontal scrollbar) ✅. (4) CONTENT BALANCE: All pages show proper headers, action buttons, reasonable content widths (1492px at 1920/2560), tables/cards fill proportionally without huge dead gaps ✅. (5) Console: Only pre-existing warnings, NO NEW functional errors ✅. All pages (/dashboard, /pay-links, /transactions, /settings) render correctly at all ultra-wide widths (1440x900, 1920x1080, 2560x1440). STRICT READ-ONLY testing completed successfully on LIVE prod DB. Main agent can summarize and finish."
+
+---
+
+
 # Session 2026-08-22 (15th pod) — PART 3: tablet pass (768–1024px collapsed icon rail + headers)
 
 Preview: https://b5018a5f-de0e-4685-bf7a-5cdcdff90232.preview.emergentagent.com
