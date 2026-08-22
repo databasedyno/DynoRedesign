@@ -14,7 +14,7 @@
 
 export const EMAIL_TOKENS = {
   // ---- Brand — Aurora Indigo ----
-  brand: "#4F46E5",        // BRAND_ACCENT
+  brand: "#4338CA",        // BRAND_ACCENT — aligned with frontend constants/theme.ts
   brandDeep: "#4338CA",    // hover / active / headings
   brandLight: "#818CF8",   // dark-mode text / soft variant
   brandHover: "#6366F1",   // gradient start

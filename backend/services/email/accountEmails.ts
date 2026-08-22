@@ -159,31 +159,6 @@ export const sendLoginOTPEmail = async (
 };
 
 /**
- * Template 10: Forgot Password OTP
- */
-export const sendForgotPasswordOTPEmail = async (
-  email: string,
-  name: string,
-  otpCode: string,
-  lang?: string
-) => {
-  try {
-    const L = await resolveEmailLang(lang, email);
-    const subject = t('merchant.forgotPasswordOtp.subject', L);
-    const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
-    ${p(t('merchant.forgotPasswordOtp.intro', L))}
-    ${otpBlock(otpCode)}
-    ${p(t('merchant.forgotPasswordOtp.expiry', L))}`;
-
-    const html = dynoPayEmailTemplate(t('merchant.forgotPasswordOtp.heading', L), content);
-    await mailTransporter({ to: email, name, subject, body: html });
-    apiLogger.info(`Forgot password OTP email sent to ${email}`);
-  } catch (e) {
-    apiLogger.error("Forgot password OTP email error:", e);
-  }
-};
-
-/**
  * Template 11: Password Changed
  */
 export const sendPasswordChangedEmail = async (
@@ -306,75 +281,6 @@ export const sendSecurityAlertEmail = async (
     apiLogger.info(`Security alert email sent to ${email}`);
   } catch (e) {
     apiLogger.error("Security alert email error:", e);
-  }
-};
-
-/**
- * Template 23: New Device Login Alert
- */
-export const sendNewDeviceLoginEmail = async (
-  email: string,
-  name: string,
-  ipAddress: string,
-  userAgent: string,
-  location: string | null,
-  date: string,
-  time: string,
-  lang?: string
-) => {
-  try {
-    const L = await resolveEmailLang(lang, email);
-    const subject = t('merchant.newDeviceLogin.subject', L);
-
-    let deviceInfo = t('merchant.newDeviceLogin.unknownDevice', L);
-    if (userAgent.includes('iPhone') || userAgent.includes('iPad')) {
-      deviceInfo = userAgent.includes('iPad') ? 'iPad' : 'iPhone';
-    } else if (userAgent.includes('Android')) {
-      deviceInfo = 'Android Device';
-    } else if (userAgent.includes('Windows')) {
-      deviceInfo = 'Windows PC';
-    } else if (userAgent.includes('Mac')) {
-      deviceInfo = 'Mac';
-    } else if (userAgent.includes('Linux')) {
-      deviceInfo = 'Linux';
-    } else if (userAgent.includes('Mobile')) {
-      deviceInfo = 'Mobile Device';
-    }
-
-    let browser = '';
-    if (userAgent.includes('Chrome') && !userAgent.includes('Edg')) {
-      browser = 'Chrome';
-    } else if (userAgent.includes('Safari') && !userAgent.includes('Chrome')) {
-      browser = 'Safari';
-    } else if (userAgent.includes('Firefox')) {
-      browser = 'Firefox';
-    } else if (userAgent.includes('Edg')) {
-      browser = 'Edge';
-    }
-    if (browser) {
-      deviceInfo += ` (${browser})`;
-    }
-
-    const locationDisplay = location || t('merchant.newDeviceLogin.unknownLocation', L);
-
-    const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
-    ${p(t('merchant.newDeviceLogin.intro', L))}
-    ${infoBox(`
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        ${dataRow(t('merchant.labels.location', L), locationDisplay)}
-        ${dataRow(t('merchant.labels.device', L), deviceInfo)}
-        ${dataRow(t('merchant.labels.ipAddress', L), `<span style="font-family: monospace; font-size: 13px;">${ipAddress}</span>`)}
-        ${dataRow(t('labels.date', L), `${date} at ${time}`, true)}
-      </table>
-    `)}
-    ${p(t('merchant.newDeviceLogin.wasThisYou', L))}
-    ${p(t('merchant.newDeviceLogin.didntLogin', L))}`;
-
-    const html = dynoPayEmailTemplate(t('merchant.newDeviceLogin.heading', L), content, true, t('merchant.newDeviceLogin.cta', L), `${FRONTEND_BASE_URL}/settings`);
-    await mailTransporter({ to: email, name, subject, body: html });
-    apiLogger.info(`[Email] New device login alert sent to ${email} from ${locationDisplay} (${ipAddress})`);
-  } catch (e) {
-    apiLogger.error("New device login email error:", e);
   }
 };
 

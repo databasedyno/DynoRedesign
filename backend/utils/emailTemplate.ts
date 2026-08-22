@@ -45,7 +45,7 @@ export const baseEmailTemplate = (
 
   const buttonBlock = showButton && buttonText && buttonLink
     ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding: 28px 0 8px 0;">
-        <a href="${buttonLink}" class="btn" style="display: inline-block; background-color: #4F46E5; color: #FFFFFF; -webkit-text-fill-color: #FFFFFF; text-decoration: none; padding: 14px 40px; border-radius: 12px; font-weight: 700; font-size: 15px; letter-spacing: 0.2px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; mso-padding-alt: 0; text-align: center;">
+        <a href="${buttonLink}" class="btn" style="display: inline-block; background-color: #4338CA; color: #FFFFFF; -webkit-text-fill-color: #FFFFFF; text-decoration: none; padding: 14px 40px; border-radius: 12px; font-weight: 700; font-size: 15px; letter-spacing: 0.2px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; mso-padding-alt: 0; text-align: center;">
           <!--[if mso]><i style="mso-font-width: 150%; mso-text-raise: 26pt;">&nbsp;</i><![endif]-->
           <span style="mso-text-raise: 13pt; color: #FFFFFF; -webkit-text-fill-color: #FFFFFF;">${buttonText}</span>
           <!--[if mso]><i style="mso-font-width: 150%;">&nbsp;</i><![endif]-->
@@ -86,7 +86,7 @@ export const baseEmailTemplate = (
       .hdr-bar { background-color: #050505 !important; }
       h1.hdg { color: #fafafa !important; }
       /* CTA button: same indigo bg + white text in BOTH modes (inversion-proof) */
-      .btn { background-color: #4F46E5 !important; color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF !important; }
+      .btn { background-color: #4338CA !important; color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF !important; }
       .btn span { color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF !important; }
       /* Content area: override ALL child elements */
       .msg, .msg p, .msg li, .msg td, .msg div, .msg span { color: #d4d4d8 !important; }
@@ -160,7 +160,7 @@ export const baseEmailTemplate = (
         <table role="presentation" class="outer card" width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 16px; overflow: hidden;">
           <!-- Neon accent bar -->
           <tr>
-            <td style="background-color: #4F46E5; height: 5px; line-height: 5px; font-size: 5px;">&nbsp;</td>
+            <td style="background-color: #4338CA; height: 5px; line-height: 5px; font-size: 5px;">&nbsp;</td>
           </tr>
           <!-- Logo Header -->
           <tr>
@@ -247,7 +247,7 @@ export const baseEmailTemplate = (
  * Reusable email component: Info/data box
  * Used for payment details, transaction info, etc.
  */
-export const infoBox = (content: string, borderColor: string = '#4F46E5'): string => {
+export const infoBox = (content: string, borderColor: string = '#4338CA'): string => {
   return `<table role="presentation" class="info-box" width="100%" cellpadding="0" cellspacing="0" style="background-color: #fafaf9; border: 1px solid #e7e5e4; border-radius: 12px; border-left: 4px solid ${borderColor}; margin: 20px 0;">
     <tr><td style="padding: 16px 20px;">${content}</td></tr>
   </table>`;

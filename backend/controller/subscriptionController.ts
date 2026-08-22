@@ -15,6 +15,48 @@ import crypto from "crypto";
 import sequelize from "../utils/dbInstance";
 import { Op, QueryTypes } from "sequelize";
 import flw from "../apis/flutterwaveApi";
+import emailService from "../services/emailService";
+
+/** Next billing date from a plan interval, formatted for emails. */
+const computeNextBilling = (interval?: string): string => {
+  const d = new Date();
+  switch ((interval || "").toLowerCase()) {
+    case "daily": d.setDate(d.getDate() + 1); break;
+    case "weekly": d.setDate(d.getDate() + 7); break;
+    case "yearly": case "annually": d.setFullYear(d.getFullYear() + 1); break;
+    case "monthly": default: d.setMonth(d.getMonth() + 1); break;
+  }
+  return d.toLocaleDateString("en-GB", { day: "2-digit", month: "long", year: "numeric" });
+};
+
+const getCompanyName = async (companyId: number | null | undefined): Promise<string> => {
+  if (!companyId) return "your account";
+  const rows = await sequelize.query<{ company_name: string }>(
+    `SELECT company_name FROM tbl_company WHERE company_id = :companyId LIMIT 1`,
+    { replacements: { companyId }, type: QueryTypes.SELECT }
+  );
+  return rows[0]?.company_name || "your account";
+};
+
+const todayFormatted = () =>
+  new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "long", year: "numeric" });
+
+/** Email the subscriber + merchant that a subscription was cancelled. */
+const notifySubscriptionCancelled = (sub: Record<string, unknown>, userData: IUserType) => {
+  if (!sub.customer_email) return;
+  emailService
+    .sendSubscriptionCancelledEmail(
+      String(sub.customer_email),
+      sub.customer_name ? String(sub.customer_name) : null,
+      userData.email,
+      userData.name || "",
+      String(sub.plan_name || "your plan"),
+      String(sub.company_name || "your account"),
+      todayFormatted(),
+      "merchant",
+    )
+    .catch((err) => apiLogger.warn(`Subscription cancelled email failed: ${getErrorMessage(err)}`));
+};
 
 /**
  * Get all subscriptions for user
@@ -153,12 +195,34 @@ const createSubscription = async (req: express.Request, res: express.Response) =
     }
 
     // Create local subscription record
+    const custEmail = customer_email || userData.email;
+    const custName = customer_name || null;
     const subscription = await subscriptionModel.create({
       subscription_id: crypto.randomUUID(),
       flw_subscription_id: flwSubscriptionId,
       plan_id,
       status: "active",
+      customer_email: custEmail,
+      customer_name: custName,
     });
+
+    // Notify the subscriber + merchant that the subscription is active.
+    getCompanyName(plan.dataValues.company_id)
+      .then((companyName) =>
+        emailService.sendSubscriptionCreatedEmail(
+          custEmail,
+          custName,
+          userData.email,
+          userData.name || "",
+          plan.dataValues.plan_name,
+          String(plan.dataValues.amount),
+          plan.dataValues.currency || "USD",
+          plan.dataValues.interval || "monthly",
+          computeNextBilling(plan.dataValues.interval),
+          companyName,
+        )
+      )
+      .catch((err) => apiLogger.warn(`Subscription created email failed: ${getErrorMessage(err)}`));
 
     apiLogger.info(`Subscription created for plan ${plan_id} by user ${userData.user_id}`);
     successResponseHelper(res, 201, "Subscription created successfully", subscription);
@@ -185,8 +249,10 @@ const updateSubscription = async (req: express.Request, res: express.Response) =
 
     // Verify subscription belongs to user's plan
     const subscription = await sequelize.query(
-      `SELECT s.*, p.user_id, p.flw_plan_id FROM tbl_subscription s
+      `SELECT s.*, p.user_id, p.flw_plan_id, p.plan_name, p.company_id, c.company_name
+       FROM tbl_subscription s
        JOIN tbl_plan p ON s.plan_id = p.plan_id
+       LEFT JOIN tbl_company c ON p.company_id = c.company_id
        WHERE s.subscription_id = :subscription_id AND p.user_id = :user_id`,
       {
         replacements: { subscription_id, user_id: userData.user_id },
@@ -215,6 +281,8 @@ const updateSubscription = async (req: express.Request, res: express.Response) =
       { where: { subscription_id } }
     );
 
+    if (status === "cancelled") notifySubscriptionCancelled(sub, userData);
+
     const updatedSubscription = await subscriptionModel.findOne({
       where: { subscription_id },
     });
@@ -238,8 +306,10 @@ const cancelSubscription = async (req: express.Request, res: express.Response) =
 
     // Verify subscription belongs to user's plan
     const subscription = await sequelize.query(
-      `SELECT s.*, p.user_id, p.flw_plan_id FROM tbl_subscription s
+      `SELECT s.*, p.user_id, p.flw_plan_id, p.plan_name, p.company_id, c.company_name
+       FROM tbl_subscription s
        JOIN tbl_plan p ON s.plan_id = p.plan_id
+       LEFT JOIN tbl_company c ON p.company_id = c.company_id
        WHERE s.subscription_id = :subscription_id AND p.user_id = :user_id`,
       {
         replacements: { subscription_id, user_id: userData.user_id },
@@ -267,6 +337,8 @@ const cancelSubscription = async (req: express.Request, res: express.Response) =
       { status: "cancelled" },
       { where: { subscription_id } }
     );
+
+    notifySubscriptionCancelled(sub, userData);
 
     apiLogger.info(`Subscription ${subscription_id} cancelled by user ${userData.user_id}`);
     successResponseHelper(res, 200, "Subscription cancelled successfully", { subscription_id });

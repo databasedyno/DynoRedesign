@@ -46,11 +46,9 @@ import {
   sendVolumeTierUpgradeEmail,
   sendEmailVerificationOTPEmail,
   sendLoginOTPEmail,
-  sendForgotPasswordOTPEmail,
   sendPasswordChangedEmail,
   sendUserProfileUpdatedEmail,
   sendSecurityAlertEmail,
-  sendNewDeviceLoginEmail,
   sendLoginNotificationEmail,
   sendFailedLoginAttemptsEmail,
 } from "./email/accountEmails";
@@ -60,8 +58,6 @@ import {
   sendCompanyProfileUpdatedEmail,
 } from "./email/companyEmails";
 import {
-  sendWalletOTPEmail,
-  sendWalletVerifiedEmail,
   sendWalletUpdateOTPEmail,
   sendWalletDeletedEmail,
   sendAddWalletReminderEmail,
@@ -70,7 +66,6 @@ import {
   sendWithdrawalOTPEmail,
   sendWithdrawalSuccessEmail,
   sendExchangeOTPEmail,
-  sendWalletEditOTPEmail,
   sendWalletDeleteOTPEmail,
 } from "./email/walletEmails";
 import {
@@ -96,7 +91,6 @@ import {
 import {
   sendPaymentLinkCreatedEmail,
   sendCrowdfundingCampaignCreatedEmail,
-  sendPaymentExpiringEmail,
   sendRefereeCodeReminderEmail,
   sendPaymentLinkReminderEmail,
 } from "./email/linkCampaignEmails";
@@ -146,11 +140,9 @@ export default {
   sendWelcomeEmail,
   sendEmailVerificationOTPEmail,
   sendLoginOTPEmail,
-  sendForgotPasswordOTPEmail,
   sendPasswordChangedEmail,
   sendUserProfileUpdatedEmail,
   sendSecurityAlertEmail,
-  sendNewDeviceLoginEmail,
   sendLoginNotificationEmail,
   sendFailedLoginAttemptsEmail,
   // Company
@@ -158,8 +150,6 @@ export default {
   sendCompanyContactWelcomeEmail,
   sendCompanyProfileUpdatedEmail,
   // Wallet
-  sendWalletOTPEmail,
-  sendWalletVerifiedEmail,
   sendWalletUpdateOTPEmail,
   sendWalletDeletedEmail,
   sendAddWalletReminderEmail,
@@ -168,7 +158,6 @@ export default {
   sendWithdrawalOTPEmail,
   sendWithdrawalSuccessEmail,
   sendExchangeOTPEmail,
-  sendWalletEditOTPEmail,
   sendWalletDeleteOTPEmail,
   // Payment lifecycle
   sendPaymentReceivedEmail,
@@ -190,7 +179,6 @@ export default {
   // Marketing & Reminders
   sendPaymentLinkCreatedEmail,
   sendCrowdfundingCampaignCreatedEmail,
-  sendPaymentExpiringEmail,
   sendRefereeCodeReminderEmail,
   sendPaymentLinkReminderEmail,
   // KYC

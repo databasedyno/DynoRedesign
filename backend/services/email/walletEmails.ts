@@ -10,71 +10,6 @@ import { EMAIL_TOKENS } from "../../utils/brandTokens";
 import { FRONTEND_BASE_URL, escapeHtml, dynoPayEmailTemplate, dynoPayGreetingTemplate, formatAmountWithCurrency, sendEmail } from "./emailShared";
 
 /**
- * Template 3: Wallet OTP
- */
-export const sendWalletOTPEmail = async (
-  email: string,
-  name: string,
-  otpCode: string,
-  walletAddressMasked: string,
-  network: string,
-  lang?: string
-) => {
-  try {
-    const L = await resolveEmailLang(lang, email);
-    const subject = t('merchant.walletOtp.subject', L);
-    const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
-    ${p(t('merchant.walletOtp.intro', L))}
-    ${otpBlock(otpCode)}
-    ${infoBox(`
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        ${dataRow(t('merchant.labels.address', L), walletAddressMasked)}
-        ${dataRow(t('merchant.labels.network', L), network, true)}
-      </table>
-    `)}
-    ${p(t('merchant.walletOtp.expiry', L))}`;
-
-    const html = dynoPayEmailTemplate(t('merchant.walletOtp.heading', L), content);
-    await mailTransporter({ to: email, name, subject, body: html });
-    apiLogger.info(`Wallet OTP email sent to ${email}`);
-  } catch (e) {
-    apiLogger.error("Wallet OTP email error:", e);
-  }
-};
-
-/**
- * Template 4: Wallet Verified
- */
-export const sendWalletVerifiedEmail = async (
-  email: string,
-  name: string,
-  walletAddressMasked: string,
-  network: string,
-  lang?: string
-) => {
-  try {
-    const L = await resolveEmailLang(lang, email);
-    const subject = t('merchant.walletVerified.subject', L);
-    const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
-    ${p(t('merchant.walletVerified.intro', L))}
-    ${infoBox(`
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        ${dataRow(t('merchant.labels.address', L), walletAddressMasked)}
-        ${dataRow(t('merchant.labels.network', L), network)}
-        ${dataRow(t('labels.status', L), statusBadge(t('merchant.badges.active', L), 'success'), true)}
-      </table>
-    `, '#12B76A')}
-    ${p(t('merchant.walletVerified.outro', L))}`;
-
-    const html = dynoPayEmailTemplate(t('merchant.walletVerified.heading', L), content, true, t('merchant.walletVerified.cta', L), `${FRONTEND_BASE_URL}/dashboard`);
-    await mailTransporter({ to: email, name, subject, body: html });
-    apiLogger.info(`Wallet verified email sent to ${email}`);
-  } catch (e) {
-    apiLogger.error("Wallet verified email error:", e);
-  }
-};
-
-/**
  * Template 5: Wallet Update OTP
  */
 export const sendWalletUpdateOTPEmail = async (
@@ -363,40 +298,6 @@ export const sendExchangeOTPEmail = async (
     apiLogger.info(`Exchange OTP email sent to ${email}`);
   } catch (e) {
     apiLogger.error("Exchange OTP email error:", e);
-  }
-};
-
-/**
- * Wallet Edit OTP Email (new wallet system)
- * Sent when user requests to edit a wallet address
- */
-export const sendWalletEditOTPEmail = async (
-  email: string,
-  name: string,
-  otpCode: string,
-  walletAddressMasked: string,
-  network: string,
-  lang?: string
-) => {
-  try {
-    const L = await resolveEmailLang(lang, email);
-    const subject = t('merchant.walletEditOtp.subject', L);
-    const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
-    ${p(t('merchant.walletEditOtp.intro', L))}
-    ${otpBlock(otpCode)}
-    ${infoBox(`
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        ${dataRow(t('merchant.labels.wallet', L), `<span style="font-family: monospace; font-size: 13px;">${walletAddressMasked}</span>`)}
-        ${dataRow(t('merchant.labels.network', L), network, true)}
-      </table>
-    `)}
-    ${p(t('merchant.walletEditOtp.expiry', L))}`;
-
-    const html = dynoPayEmailTemplate(t('merchant.walletEditOtp.heading', L), content);
-    await mailTransporter({ to: email, name, subject, body: html });
-    apiLogger.info(`Wallet edit OTP email sent to ${email}`);
-  } catch (e) {
-    apiLogger.error("Wallet edit OTP email error:", e);
   }
 };
 

@@ -1,5 +1,46 @@
 # CURRENT STATE POINTER (2026-06 fork, latest first)
 
+LATEST SESSION (2026-08-22d, EMAIL SYSTEM AUDIT — coverage + color consistency):
+Audited all 69 email functions (12 files under services/email/) + admin emails. Findings + fixes:
+
+ARCHITECTURE: dynoPayEmailTemplate + dynoPayGreetingTemplate are thin wrappers over ONE canonical
+utils/emailTemplate.ts::baseEmailTemplate; admin emails call baseEmailTemplate directly. So all emails
+(merchant + admin) share one wrapper → structurally consistent. Brand tokens = utils/brandTokens.ts EMAIL_TOKENS.
+
+FIXED + VERIFIED (go live on Save-to-GitHub → redeploy; DB columns already applied to live prod DB):
+1) COLOR: emails used the OLD brand #4F46E5 while the app moved to #4338CA (constants/theme.ts). Aligned
+   EMAIL_TOKENS.brand + 4 hardcoded literals in emailTemplate.ts → #4338CA. Rendered previews confirm
+   #4338CA (9x), zero #4F46E5. Semantic colors already tokenized/consistent.
+2) CLEANUP: deleted 6 dead-duplicate fns (never triggered; action covered elsewhere):
+   sendForgotPasswordOTPEmail (forgot-pw uses generic sendEmailOTP), sendWalletOTPEmail/sendWalletEditOTPEmail/
+   sendWalletVerifiedEmail (covered by sendWalletUpdateOTPEmail/sendWalletAddedEmail), sendNewDeviceLoginEmail
+   (covered by login-OTP + notification + security alert), sendPaymentExpiringEmail (covered by
+   sendPaymentLinkReminderEmail). Removed their emailService.ts import/exports. 69 -> 63 fns. tsc clean,
+   boots clean, 0 lingering refs.
+3) DOMAIN: sendRefereeCodeReminderEmail + sendPaymentLinkReminderEmail fell back to https://dynopay.io
+   (wrong TLD) via raw process.env → now use FRONTEND_BASE_URL (dynopay.com). (Remaining dynopay.io only in
+   routes/testRouter.ts dummy fixtures — left.)
+4) SUBSCRIPTIONS wired (created + cancelled): added nullable customer_email/customer_name to tbl_subscription
+   (idempotent migration migrations/addSubscriptionCustomer.ts, applied to live DB) + subscriptionModel +
+   subscriptionController: createSubscription now sends sendSubscriptionCreatedEmail; updateSubscription(->cancelled)
+   & cancelSubscription send sendSubscriptionCancelledEmail (cancelledBy='merchant'). tsc clean, boots clean.
+   Verified signatures + plan fields (plan_name/amount/currency/interval/company_id all exist).
+
+NOT WIRED (honest — no valid trigger/data; feature build required, reported to user):
+- sendSubscriptionPaymentFailedEmail: subscriptions are a Flutterwave STUB (FLW call commented out, no
+  recurring-charge webhook) → no event to trigger it. Kept for when real recurring billing lands.
+- CRYPTO payment-failed -> CUSTOMER (sendPaymentFailedEmail): crypto checkout captures customer email only
+  transiently in the Redis session (no persisted customer_email column) and there's no unpaid-expiry sweep.
+  MERCHANT is already notified across the lifecycle. Needs: persist checkout customer email + an expiry sweep.
+
+COVERAGE (well covered): auth/OTP, wallet CRUD+OTP, KYC (5 states), payment SUCCESS lifecycle
+(pending->confirming->partial->received->confirmed), receipts, campaigns/referrals, weekly summaries, 9
+admin/ops notifications. sendOrderShippedEmail unused (no physical-shipping action; digital orders auto-fulfill).
+
+DB migrations applied to live prod DB this session-group: tbl_company.display_currency (22b),
+tbl_subscription.customer_email/customer_name (22d). All idempotent, nullable, non-destructive.
+
+
 LATEST SESSION (2026-08-22c, MOBILE DESIGN PASS + ONBOARDING WALLET NUDGE):
 Two features shipped (go live on Save-to-GitHub → DO redeploy; nudge cron only runs where background
 jobs are enabled = production, NOT preview).

@@ -23,6 +23,16 @@ const subscriptionModel = sequelize.define(
     status: {
       type: DataTypes.STRING,
     },
+    // Customer contact captured at creation so cancellation / lifecycle emails
+    // can reach the subscriber (the Flutterwave id alone doesn't carry it).
+    customer_email: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    customer_name: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
   },
   {
     tableName: "tbl_subscription",

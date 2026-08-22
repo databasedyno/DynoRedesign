@@ -191,42 +191,6 @@ export const sendCrowdfundingUpdateEmail = async (
 };
 
 /**
- * Template 22: Payment Link Expiring Soon
- */
-export const sendPaymentExpiringEmail = async (
-  customerEmail: string,
-  customerName: string | null,
-  companyName: string,
-  amount: string,
-  currency: string,
-  paymentLink: string,
-  expiresIn: string,
-  description: string | null
-) => {
-  try {
-    const displayName = customerName || customerEmail.split('@')[0];
-    const subject = `Payment link expires ${expiresIn} - ${amount} ${currency}`;
-
-    const content = `${p(`Hey ${displayName},`)}
-    ${p(`This is a friendly reminder that your payment link from <strong>${companyName}</strong> will expire <strong>${expiresIn}</strong>.`)}
-    ${infoBox(`
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        ${dataRow('Amount', `<strong>${amount} ${currency}</strong>`)}
-        ${description ? dataRow('Description', description) : ''}
-        ${dataRow('Expires', statusBadge(expiresIn, 'pending'), true)}
-      </table>
-    `, '#f59e0b')}
-    ${p(`Complete your payment now to avoid missing this deadline.`)}`;
-
-    const html = dynoPayEmailTemplate("Payment Expiring Soon", content, true, "Pay Now", paymentLink);
-    await mailTransporter({ to: customerEmail, name: displayName, subject, body: html });
-    apiLogger.info(`[Email] Payment expiring reminder sent to ${customerEmail} - expires ${expiresIn}`);
-  } catch (e) {
-    apiLogger.error("Payment expiring email error:", e);
-  }
-};
-
-/**
  * Referee Code Reminder email
  */
 export const sendRefereeCodeReminderEmail = async (
@@ -239,7 +203,7 @@ export const sendRefereeCodeReminderEmail = async (
   unsubscribeToken: string
 ) => {
   try {
-    const baseUrl = process.env.FRONTEND_URL || process.env.CHECKOUT_URL || 'https://dynopay.io';
+    const baseUrl = FRONTEND_BASE_URL;
     const signupUrl = `${baseUrl}/signup?ref=${code}`;
     const unsubscribeUrl = `${baseUrl}/unsubscribe?token=${unsubscribeToken}`;
 
@@ -334,7 +298,7 @@ export const sendPaymentLinkReminderEmail = async (
   unsubscribeToken: string
 ) => {
   try {
-    const baseUrl = process.env.FRONTEND_URL || process.env.CHECKOUT_URL || 'https://dynopay.io';
+    const baseUrl = FRONTEND_BASE_URL;
     const backendUrl = process.env.SERVER_URL || baseUrl;
     const unsubscribeUrl = `${backendUrl}/api/user/unsubscribe-payment-reminders?token=${unsubscribeToken}`;
 
