@@ -15,7 +15,6 @@ import { useTranslation } from "react-i18next";
 import useAccountProfile from "@/hooks/useAccountProfile";
 import ReferralAndKnowledge from "../ReferralAndKnowledge";
 import { BRAND_ACCENT, brandFg } from "@/constants/theme";
-import { navAccent } from "@/helpers/navAccent";
 import {
   IconBox,
   Menu,
@@ -261,11 +260,11 @@ const NewSidebar = ({
     return p.startsWith(path + "/");
   };
 
-  // Curated per-item accent (shared with the mobile nav via helpers/navAccent)
-  // — gives each nav icon a subtle, meaningful colour while the active pill
-  // stays high-contrast.
-  const iconColor = (isActive: boolean, icon: string) =>
-    isActive ? brandFg(theme.palette.mode === "dark") : navAccent(icon, theme.palette.mode === "dark");
+  // Quiet Money (design_guidelines.json): nav icons are neutral when inactive
+  // and indigo when active — NO per-item "rainbow" accents. Keeps the nav calm
+  // and high-trust, consistent across desktop sidebar + mobile drawer/bottom bar.
+  const iconColor = (isActive: boolean) =>
+    isActive ? brandFg(theme.palette.mode === "dark") : theme.palette.text.secondary;
 
   return (
     <SidebarWrapper data-collapsed={isCollapsed ? "true" : "false"} sx={isCollapsed ? { padding: "12px 8px" } : undefined}>
@@ -316,14 +315,14 @@ const NewSidebar = ({
                   >
                     <IconBox active={isActive} sx={{ position: "relative" }}>
                       {item.icon === "settings" ? (
-                        <SettingsRounded sx={{ fontSize: 20, color: iconColor(isActive, item.icon) }} />
+                        <SettingsRounded sx={{ fontSize: 20, color: iconColor(isActive) }} />
                       ) : item.icon === "creator" ? (
-                        <AutoAwesomeRounded sx={{ fontSize: 20, color: iconColor(isActive, item.icon) }} />
+                        <AutoAwesomeRounded sx={{ fontSize: 20, color: iconColor(isActive) }} />
                       ) : (
                         <SidebarIcon
                           name={item.icon}
                           size={item.icon === "customers" ? 24 : 20}
-                          color={iconColor(isActive, item.icon)}
+                          color={iconColor(isActive)}
                         />
                       )}
                     </IconBox>

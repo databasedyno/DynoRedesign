@@ -47,8 +47,7 @@ import {
 
 import { useWalletData } from "@/hooks/useWalletData";
 import { useUnreadNotificationsCount } from "@/hooks/useUnreadNotificationsCount";
-import { BRAND_ACCENT } from "@/constants/theme";
-import { navAccent } from "@/helpers/navAccent";
+import { BRAND_ACCENT, brandFg } from "@/constants/theme";
 import { API_ENDPOINTS } from "@/api/endpoints";
 
 const MobileNavigationBar = () => {
@@ -357,9 +356,7 @@ const MobileNavigationBar = () => {
                           name={item.icon}
                           size={16}
                           color={
-                            active
-                              ? navAccent(item.icon, isDark)
-                              : theme.palette.text.primary
+                            active ? brandFg(isDark) : theme.palette.text.secondary
                           }
                         />
                       ) : (
@@ -408,8 +405,8 @@ const MobileNavigationBar = () => {
                   ];
                   const useSidebarIcon = supportedIcons.includes(item.icon);
                   const iconColor = active
-                    ? navAccent(item.icon, isDark)
-                    : theme.palette.text.primary;
+                    ? brandFg(isDark)
+                    : theme.palette.text.secondary;
 
                   return (
                     <NavItem
@@ -507,8 +504,8 @@ const MobileNavigationBar = () => {
                             sx={{
                               fontSize: 18,
                               color: active
-                                ? navAccent("settings", isDark)
-                                : theme.palette.text.primary,
+                                ? brandFg(isDark)
+                                : theme.palette.text.secondary,
                             }}
                           />
                         ) : (
@@ -516,9 +513,7 @@ const MobileNavigationBar = () => {
                             name={item.icon}
                             size={16}
                             color={
-                              active
-                                ? navAccent(item.icon, isDark)
-                                : theme.palette.text.primary
+                              active ? brandFg(isDark) : theme.palette.text.secondary
                             }
                           />
                         )}

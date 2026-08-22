@@ -1,5 +1,31 @@
 # CURRENT STATE POINTER (2026-06 fork, latest first)
 
+LATEST SESSION (2026-08-22b, QUIET NAV — remove rainbow nav icons app-wide):
+User reported the recent High-Trust redesign "wasn't implemented for mobile" (screenshots of the mobile
+hamburger drawer showing multi-colored nav icons). ROOT CAUSE (not a deploy lag — the drawer "View account"
+markup confirmed prod runs current code): helpers/navAccent.ts painted every nav icon a different hue
+(transactions=blue, receipts=amber, storefront=purple, payout=green, api=teal, referrals=pink…). In
+NewSidebar the INACTIVE icons used these rainbow accents — exactly the "busy multi-accent" pattern
+design_guidelines.json says to eliminate (calm, single-indigo). FIX (confirmed app-wide by user):
+- NewSidebar (desktop sidebar + mobile drawer, same component): iconColor now = indigo when active,
+  theme.palette.text.secondary (neutral grey) when inactive. Dropped navAccent import + the icon arg.
+- MobileNavigationBar (bottom bar): active icon color navAccent → brandFg (indigo); inactive → text.secondary.
+  Dropped navAccent import; added brandFg import.
+- helpers/navAccent.ts is now orphaned (no importers) — left in place, harmless dead code.
+Verified on desktop sidebar screenshot: Dashboard active = indigo (icon+text+left-bar), all others neutral grey.
+Mobile drawer + bottom bar share the same code paths so they inherit the quiet treatment. Frontend compiled
+clean. Goes live on user's next Save-to-GitHub → DO redeploy. Scope kept to nav (user said "decide"); offered
+a fuller mobile design pass as follow-up.
+
+PAUSED (user pivoted away mid-plan — resume when asked): "Signup Abuse Guard" (per-IP signup velocity limit
++ disposable-email domain block on registration) and "Onboarding Nudge" (auto-email stuck-at-Wallet-Setup
+users the branded 1-tap /wallet CTA via the Onboarding Monitor cron, dry-run tested). Infra already mapped:
+middleware/rateLimitMiddleware.ts (createRateLimiter), services/email/walletEmails.ts::sendAddWalletReminderEmail,
+utils/cronJobs.ts::setupOnboardingMonitorCron. integration_expert already consulted for the auth-path guard.
+STILL OPEN (unreproduced): "Should have a queue" React error — landing/creator/dashboard verified clean; need
+the page/URL + repro from user.
+
+
 LATEST SESSION (2026-08-22, DO LOG AUDIT + fix tbl_company.display_currency missing column):
 User asked to (1) review DigitalOcean prod logs (app "dynopay" f86b27dc, service dynoredesign) from
 yesterday→now and flag issues, and (2) assess whether recent onboardings are the same individual.
