@@ -37,6 +37,16 @@ const companyModel = sequelize.define(
       allowNull: true,
       defaultValue: "business",
     },
+    // Session 39: dashboard DISPLAY currency preference (presentation-only —
+    // never affects pricing or stored data). NULL = fall through to the legacy
+    // API-key base_currency, then USD. See utils/currencyUtils.ts and
+    // migrations/addDisplayCurrency.ts.
+    display_currency: {
+      type: DataTypes.STRING(3),
+      allowNull: true,
+      defaultValue: null,
+      comment: "Dashboard display currency (USD/EUR/GBP/NGN/CAD/AUD). Display-only preference.",
+    },
     email: {
       type: DataTypes.STRING,
       validate: {

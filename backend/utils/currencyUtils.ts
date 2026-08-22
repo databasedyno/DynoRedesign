@@ -222,19 +222,39 @@ export const getCompanyBaseCurrency = async (companyId: number | string | null |
  *   3. 'USD'
  * NEVER affects stored data or payment pricing — display conversions only.
  */
+// Some environments predate migrations/addDisplayCurrency.ts (which adds
+// tbl_company.display_currency). If the column is absent we detect it ONCE and
+// then skip the query, so we never spam warns / waste a round-trip on hot
+// dashboard paths. The per-user tbl_user.display_currency path is unaffected.
+let companyDisplayCurrencyColumnMissing = false;
+
 export const getCompanyDisplayCurrency = async (
   companyId: number | string | null | undefined
 ): Promise<string> => {
   if (!companyId) return 'USD';
-  try {
-    const rows = (await sequelizeInstance.query(
-      `SELECT display_currency FROM tbl_company WHERE company_id = :companyId LIMIT 1`,
-      { replacements: { companyId }, type: QueryTypes.SELECT }
-    )) as Array<{ display_currency: string | null }>;
-    const pref = rows.length > 0 ? rows[0].display_currency : null;
-    if (isSupportedDisplayCurrency(pref)) return String(pref).toUpperCase();
-  } catch (err) {
-    log(`[getCompanyDisplayCurrency] Query failed for company ${companyId}`, 'warn');
+  if (!companyDisplayCurrencyColumnMissing) {
+    try {
+      const rows = (await sequelizeInstance.query(
+        `SELECT display_currency FROM tbl_company WHERE company_id = :companyId LIMIT 1`,
+        { replacements: { companyId }, type: QueryTypes.SELECT }
+      )) as Array<{ display_currency: string | null }>;
+      const pref = rows.length > 0 ? rows[0].display_currency : null;
+      if (isSupportedDisplayCurrency(pref)) return String(pref).toUpperCase();
+    } catch (err: any) {
+      const code = err?.parent?.code || err?.original?.code || err?.code;
+      const missingColumn =
+        code === '42703' ||
+        /column .*display_currency.* does not exist/i.test(String(err?.message || ''));
+      if (missingColumn) {
+        companyDisplayCurrencyColumnMissing = true;
+        log(
+          `[getCompanyDisplayCurrency] tbl_company.display_currency not present — using base-currency fallback (run migrations/addDisplayCurrency.ts). Further attempts suppressed.`,
+          'warn'
+        );
+      } else {
+        log(`[getCompanyDisplayCurrency] Query failed for company ${companyId}`, 'warn');
+      }
+    }
   }
   // Fallback to the legacy API-key currency (clamped), else USD.
   try {

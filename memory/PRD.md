@@ -1,5 +1,30 @@
 # CURRENT STATE POINTER (2026-06 fork, latest first)
 
+LATEST SESSION (2026-08-22, DO LOG AUDIT + fix tbl_company.display_currency missing column):
+User asked to (1) review DigitalOcean prod logs (app "dynopay" f86b27dc, service dynoredesign) from
+yesterday→now and flag issues, and (2) assess whether recent onboardings are the same individual.
+FINDINGS: backend stable (ZERO 5xx / no crashes). Only real defect = getCompanyDisplayCurrency queried
+tbl_company.display_currency which NEVER EXISTED on the live Railway DB (Session-39 shipped read+write
+code but no migration) → "column does not exist" 54× + updateDisplayCurrency would 500. Everything else
+was healthy/expected: vuln-scanner probes (403/404 correctly blocked), 15 crypto volatility alerts
+(real market dip, monitor working), 3 onboarding-stuck emails (expected), 1 broken avatar
+(user_2hnmhcqafn.png upstream 403 — data/infra, not code).
+FIX (SHIPPED + verified): added nullable VARCHAR(3) `display_currency` to companyModel; created idempotent
+migrations/addDisplayCurrency.ts; APPLIED the DDL to the LIVE Railway DB (ADD COLUMN IF NOT EXISTS —
+non-destructive, all 16 rows untouched/NULL) so the prod error stops immediately even pre-redeploy;
+hardened getCompanyDisplayCurrency (detect missing column once, quiet fallback). Verified: column present,
+prior failing SELECT now OK, resolvers return USD without throwing/warning, backend healthy, SAFE MODE
+intact (jobs off). Code changes go fully live on next Save-to-GitHub → DO rebuild.
+ONBOARDING VERDICT: NOT one person — 10 signups (users 16–25), distinct Google/gmail accounts + distinct
+IPs across countries. BUT clustered wave: heavy MENA (Palestine ×3 Gaza/Nablus/An-Nazlah on PALTEL, Iran,
+Algeria), all Google, rapid succession Aug 21, several via /for/fundraisers?utm_source=chatgpt.com SEO,
+low conversion (6/10 no wallet; users 20/23/24/25 zero-activity = watch-list). One Nablus IP
+(37.75.212.160) ran register-email+verify-otp+google-signin+login+forgot-password in ~12min (multi-account
+signal). Users 17 (Iran) & 18 are genuine active merchants (29 & 9 real txns).
+STILL OPEN (user reported, unreproduced): "Should have a queue" React runtime error — landing/creator/
+dashboard all verified clean; awaiting the page/URL + repro from the user.
+
+
 LATEST SESSION (2026-08-21 later, UI/UX REIMAGINING — DOCUMENT-ONLY, AWAITING USER REVIEW):
 User asked to reimagine the UI/UX of ALL pages to Coinbase/BitPay-class cleanliness ("too busy / not
 clean") for all screen sizes, DOCUMENT-ONLY this round. User choices: fresh visual identity (design
