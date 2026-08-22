@@ -41,7 +41,7 @@ TESTS = [
     },
     {
         "id": 5,
-        "origin": "https://settlement-engine-16.preview.emergentagent.com",
+        "origin": "https://payment-gateway-669.preview.emergentagent.com",
         "expected": "ALLOWED",
         "description": "Preview pattern"
     },
