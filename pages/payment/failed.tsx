@@ -114,7 +114,7 @@ const Failed = () => {
           </Box>
         )}
 
-        <Box sx={{ display: "flex", gap: 2, justifyContent: "center" }}>
+        <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: 2, justifyContent: "center" }}>
           <Button
             variant="outlined"
             onClick={() => router.back()}
@@ -124,6 +124,8 @@ const Failed = () => {
               borderRadius: 2,
               px: 3,
               py: 1.2,
+              minHeight: 44,
+              width: { xs: "100%", sm: "auto" },
             }}
           >
             {t("tryAgain")}
@@ -137,6 +139,8 @@ const Failed = () => {
               borderRadius: 2,
               px: 3,
               py: 1.2,
+              minHeight: 44,
+              width: { xs: "100%", sm: "auto" },
             }}
           >
             {t("returnHome")}

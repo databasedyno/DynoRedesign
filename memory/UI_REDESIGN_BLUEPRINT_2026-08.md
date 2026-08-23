@@ -114,8 +114,29 @@ Companion machine-readable tokens: `/app/design_guidelines.json` (written by the
 >   errors). NOT visually verified (unreachable without completing onboarding on the LIVE DB, code-review
 >   only): CelebrationOverlay, CreateCompanyModal, OnboardingBanner.
 >
-> **Redesign status: P1–P8 all shipped. Remaining = optional QA (§7 acceptance checklist across
-> 1920/1440/1280/1024/768/390 in light+dark) + the optional hero-screenshot swap.**
+> **Redesign status: P1–P8 shipped + §7 responsive sweep RUN (2026-08-23e).** The 1920→390 ×
+> light/dark acceptance sweep was executed (testing agent iteration_56 found the issues,
+> iteration_57 verified the fixes 5/5 PASS with real-viewport geometry + computed styles).
+> FIXED: (1) 1024 off-by-one breakpoint `isTabletRail` 1023.95→1024px (restored the icon rail at
+> 1024 + fixed the dashboard right-column clip — reclaims 952px content); (2) 390 in-app header
+> avatar clip (CompanySelector wrapper → flex:'1 1 auto', minWidth:0, overflow:hidden so it
+> shrinks/ellipsis instead of pushing the avatar off); (3) landing 1280 CTA clip (HomeHeader
+> LeftGroup gap 72→36px + StatusPillWrap hidden below 1360px); (4) payment/failed 390 buttons now
+> stacked full-width + minHeight 44; (5) sidebar section-label dark contrast text.disabled→
+> text.secondary (3.67:1 → 6.91:1, WCAG AA). Regression clean: nav pattern 6/6 breakpoints, no
+> horizontal overflow 10/10 page×viewport, 0 console errors.
+>
+> **§7 DEFERRED BACKLOG (not blockers; documented for a focused follow-up):**
+> - **§4.2 responsive-table primitive** (biggest item): /transactions + /pay-links show CARDS at
+>   768 (spec wants tables ≥768); /invoices + /customers show scrollable TABLES at 390 (spec wants
+>   card lists ≤640); /transactions ID column not sticky. Risky cross-cutting refactor on live
+>   payment tables — do as its own pass with a shared primitive.
+> - **≥44px touch targets at ≤1024**: header controls (create/bell) are constrained by the 40px
+>   mobile header height — needs a header-height decision, not a spot bump.
+> - Scroll-affordance (edge fade) on the /settings rail + /transactions source-chip row (both are
+>   scrollable, just no visual hint). Landing hero image right-edge bleed. Bottom-tab tab set.
+> - Nice-to-have: centralise the 768/1024 rail band + the 1360 landing breakpoint into shared
+>   tokens (avoids the off-by-one returning); add data-testid to dashboard quick-action buttons.
 >
 > **P8b — Auth + payment-result sweep ✅ (2026-08-23c):** audit found the last un-migrated remnants
 > (typography was already 100% tokenized app-wide; all remaining hardcoded greys are legit

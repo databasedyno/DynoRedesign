@@ -141,6 +141,11 @@ export const LeftGroup = styled(Box)({
   display: "flex",
   alignItems: "center",
   gap: "72px",
+  // Reclaim horizontal space on laptops (1025–1360) so the desktop nav row
+  // + right-side actions never overflow the 1280 content cap.
+  "@media (max-width: 1360px)": {
+    gap: "36px",
+  },
 });
 
 export const RightGroup = styled(Box)({
@@ -553,11 +558,10 @@ export const StatusPillWrap = styled(Box)(({ theme }) => ({
     animation: "dynoStatusPulse 2.4s ease-out infinite",
   },
 
-  // On mobile, hide the pill entirely — the label is redundant and the dot
-  // takes space away from the hamburger tap target next to the theme toggle.
-  // (Was previously hidden via `!isMobile &&` JS gate, which caused SSR/mobile
-  // hydration to still render it on the first paint.)
-  [theme.breakpoints.down("md")]: {
+  // Hidden below 1360px so the desktop nav + right-side actions never overflow
+  // the 1280 content cap on laptops (1025–1360). The status label is
+  // decorative; the utility actions and the primary CTA take priority.
+  "@media (max-width: 1360px)": {
     display: "none",
   },
 }));

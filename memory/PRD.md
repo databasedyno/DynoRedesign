@@ -1,5 +1,26 @@
 # CURRENT STATE POINTER (2026-06 fork, latest first)
 
+LATEST SESSION (2026-08-23e, §7 RESPONSIVE ACCEPTANCE SWEEP 1920→390 × light/dark):
+Ran the sweep via testing agent (iteration_56 found issues → fixed → iteration_57 re-verified 5/5 PASS
+with real-viewport geometry + computed styles + WCAG math, light AND dark, all 6 breakpoints; regression
+clean: nav pattern 6/6, no horizontal overflow 10/10, 0 console errors). FIXES: (1) Containers/Client/
+index.tsx isTabletRail 1023.95→1024px (fixes 1024 nav = icon rail + dashboard right-column clip);
+(2) Components/UI/CompanySelector/index.tsx wrapper flex:'1 1 auto'+minWidth:0+overflow:hidden (390 avatar
+clip); (3) Components/Layout/HomeHeader/styled.tsx LeftGroup gap 72→36 <1360px + StatusPillWrap hidden
+<1360px (landing 1280 CTA clip); (4) pages/payment/failed.tsx buttons stacked full-width + minHeight 44
+(390); (5) Components/Layout/NewSidebar/styled.tsx SectionLabel text.disabled→text.secondary (dark AA
+3.67→6.91:1). DEFERRED backlog (documented in UI_REDESIGN_BLUEPRINT_2026-08.md §7 section, NOT blockers):
+§4.2 responsive-table refactor (transactions/pay-links cards@768; invoices/customers tables@390; sticky
+ID col), ≥44px header touch targets (blocked by 40px mobile header height), scroll-affordance on settings
+rail + transactions chip row, landing hero bleed, bottom-tab set. Login recipe (from iteration_57): 2-step
+— Email textbox.first → Continue (exact=True) → wait 6s → password:visible → Sign in. Theme is route-scoped
+via localStorage 'theme-mode-inapp' / 'theme-mode-public'.
+
+---
+
+
+# CURRENT STATE POINTER (2026-06 fork, latest first)
+
 LATEST SESSION (2026-08-23d, AUDIT "any other pages missed?" → auth + payment-result sweep):
 Ran a full un-migrated-surface audit (retired lime, old greys, off-spec radii, old fonts, emoji icons).
 Findings: typography 100% tokenized app-wide; remaining hardcoded greys are all legit dual-mode

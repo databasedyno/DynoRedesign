@@ -39,7 +39,7 @@ const ClientLayout = ({
   // to a 72px icon rail here (regardless of the user's manual expand preference)
   // so tablets get real nav instead of the phone bottom-bar. ≥1024 = full sidebar,
   // <768 = mobile bottom-bar + hamburger drawer.
-  const isTabletRail = useMediaQuery("(min-width:768px) and (max-width:1023.95px)");
+  const isTabletRail = useMediaQuery("(min-width:768px) and (max-width:1024px)");
   const railed = sidebarCollapsed || isTabletRail;
   const companyState = useCompanyStore();
   const hasFetchedRef = useRef(false);

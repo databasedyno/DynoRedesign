@@ -39,7 +39,9 @@ export const SectionLabel = styled("div")(({ theme }) => ({
   fontWeight: 700,
   letterSpacing: "1.4px",
   textTransform: "uppercase",
-  color: theme.palette.text.disabled,
+  // text.secondary (not .disabled) so the caption clears WCAG AA at 10.5px in
+  // dark mode (§7): text.disabled was #71717A on #18181B ≈ 3.67:1.
+  color: theme.palette.text.secondary,
   padding: "0 14px",
   marginBottom: "4px",
   userSelect: "none",

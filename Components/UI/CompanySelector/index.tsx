@@ -204,14 +204,17 @@ export default function CompanySelector() {
       ref={wrapperRef}
       sx={{
         position: "relative",
-        width: isMobile ? "fit-content" : "clamp(265px, 18vw, 300px)",
+        width: isMobile ? "auto" : "clamp(265px, 18vw, 300px)",
+        minWidth: 0,
+        flex: isMobile ? "1 1 auto" : "0 0 auto",
+        overflow: "hidden",
         mt: Boolean(anchorEl) && isMobile ? "-16px !important" : "0px",
         ml: Boolean(anchorEl) && isMobile ? "-6px !important" : "0px",
       }}
     >
       {/* Trigger */}
       <SelectorTrigger onClick={handleOpen} data-testid="company-selector-trigger">
-        <Box sx={{ display: "flex", alignItems: "center", gap: "6px" }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: "6px", minWidth: 0 }}>
           <BusinessCenterIcon
             sx={{
               color: brandFg(theme.palette.mode === "dark"),
