@@ -535,6 +535,31 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
             <Typography sx={{ fontSize: 12.5, color: theme.palette.text.secondary, mt: 0.25 }}>
               Colors and cover style for your dynopay.me page — make it feel on-brand.
             </Typography>
+            {/* Storefront-per-company scope hint: makes it obvious the palette
+                applies to the ACTIVE company only, not the whole account. */}
+            <Box
+              data-testid="creator-theme-scope-chip"
+              sx={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 0.5,
+                mt: 0.85,
+                px: 1.15,
+                py: 0.35,
+                borderRadius: 999,
+                border: `1px solid ${theme.palette.divider}`,
+                backgroundColor: theme.palette.mode === "dark" ? "rgba(129,140,248,0.08)" : "rgba(79,70,229,0.06)",
+              }}
+            >
+              <Icon
+                icon="mdi:storefront-outline"
+                width={12}
+                color={theme.palette.mode === "dark" ? "#818CF8" : "#4F46E5"}
+              />
+              <Typography sx={{ fontSize: 11, fontWeight: 700, color: theme.palette.text.secondary, letterSpacing: 0.2 }}>
+                Applies to this company only
+              </Typography>
+            </Box>
           </Box>
           <Icon icon="mdi:palette-swatch-outline" width={24} color={theme.palette.text.secondary} />
         </Box>

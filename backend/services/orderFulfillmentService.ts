@@ -340,12 +340,30 @@ export async function handleCartPaymentSettled(
         where: { order_id: orderId },
       });
       const orderPublicUrl = `${serverBaseUrl}/order/${order.dataValues.public_ref}`;
+      // Per-Company Tax Receipts Label (2026-08-23n): surface the OWNING
+      // company's VAT ID on the receipt (falls back to the account value for
+      // legacy/unconfigured companies). tax_label is already stored on the
+      // order (VAT / GST / IVA / TVA / Tax) from taxService::calculateTax.
+      let merchantVatId: string | null = null;
+      try {
+        const { resolveTaxSettings } = await import("./companyTaxService");
+        const tax = await resolveTaxSettings(
+          Number(order.dataValues.merchant_user_id),
+          (order.dataValues as any).company_id ?? null,
+        );
+        merchantVatId = tax.merchant_vat_id || null;
+      } catch (taxErr: any) {
+        apiLogger.warn(
+          `[fulfillment] tax settings lookup for receipt failed: ${taxErr?.message || taxErr}`,
+        );
+      }
       await sendOrderReceiptEmail(
         order.dataValues.buyer_email,
         order.dataValues.buyer_name || "",
         order.dataValues,
         refreshedItems.map((i: any) => i.dataValues),
-        orderPublicUrl
+        orderPublicUrl,
+        merchantVatId,
       );
       if (merchant?.dataValues?.email) {
         await sendOrderReceiptMerchantEmail(
@@ -353,7 +371,8 @@ export async function handleCartPaymentSettled(
           merchant.dataValues.first_name || merchant.dataValues.username || "",
           order.dataValues,
           refreshedItems.map((i: any) => i.dataValues),
-          orderPublicUrl
+          orderPublicUrl,
+          merchantVatId,
         );
       }
     } catch (emailErr: any) {

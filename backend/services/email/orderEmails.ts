@@ -32,9 +32,23 @@ const esc = escapeHtml;
 function renderOrderItemsTable(
   order: any,
   items: any[],
-  opts: { includeDeliveryLinks: boolean }
+  opts: { includeDeliveryLinks: boolean; merchantVatId?: string | null }
 ): string {
   const currency = order.currency || "USD";
+  // Per-Country Tax Receipts Label (2026-08-23n): the order row stores the
+  // buyer-country acronym (VAT / GST / IVA / TVA / Tax…) via cartController →
+  // taxService::calculateTax. Use it verbatim on the totals row so receipts
+  // read correctly no matter the merchant's country. Falls back to plain
+  // "Tax" for un-mapped countries (matches the taxData TAX_TYPE_ACRONYMS
+  // default).
+  const rawTaxLabel = typeof order.tax_label === "string" && order.tax_label.trim()
+    ? order.tax_label.trim()
+    : "Tax";
+  const taxRatePct = Number(order.tax_rate);
+  const taxLabelWithRate = Number.isFinite(taxRatePct) && taxRatePct > 0
+    ? `${esc(rawTaxLabel)} <span style="color:#9ca3af;font-weight:400;">(${taxRatePct}%)</span>`
+    : esc(rawTaxLabel);
+  const reverseCharge = !!order.reverse_charge;
   const rows = items
     .map((it: any) => {
       const snap = it.product_snapshot || {};
@@ -75,8 +89,10 @@ function renderOrderItemsTable(
   const totals = `
     <tr><td style="padding:8px 12px;text-align:right;color:#6b7280;">Subtotal</td><td colspan="2" style="padding:8px 12px;text-align:right;font-family:monospace;">${formatCents(order.subtotal_cents, currency)}</td></tr>
     ${Number(order.shipping_cents) > 0 ? `<tr><td style="padding:8px 12px;text-align:right;color:#6b7280;">Shipping</td><td colspan="2" style="padding:8px 12px;text-align:right;font-family:monospace;">${formatCents(order.shipping_cents, currency)}</td></tr>` : ""}
-    ${Number(order.tax_cents) > 0 ? `<tr><td style="padding:8px 12px;text-align:right;color:#6b7280;">Tax</td><td colspan="2" style="padding:8px 12px;text-align:right;font-family:monospace;">${formatCents(order.tax_cents, currency)}</td></tr>` : ""}
+    ${Number(order.tax_cents) > 0 ? `<tr><td style="padding:8px 12px;text-align:right;color:#6b7280;">${taxLabelWithRate}${order.tax_inclusive ? " <span style=\"color:#9ca3af;font-size:11px;\">· incl.</span>" : ""}</td><td colspan="2" style="padding:8px 12px;text-align:right;font-family:monospace;">${formatCents(order.tax_cents, currency)}</td></tr>` : ""}
+    ${reverseCharge ? `<tr><td style="padding:6px 12px;text-align:right;color:#6b7280;font-size:12px;" colspan="3">${esc(rawTaxLabel)} — Reverse-charge (EU B2B). Buyer accounts for tax.</td></tr>` : ""}
     <tr><td style="padding:12px;text-align:right;font-weight:700;border-top:2px solid #111827;">Total</td><td colspan="2" style="padding:12px;text-align:right;font-family:monospace;font-weight:700;border-top:2px solid #111827;">${formatCents(order.total_cents, currency)}</td></tr>
+    ${opts.merchantVatId ? `<tr><td style="padding:8px 12px;text-align:right;color:#6b7280;font-size:11.5px;" colspan="3">Merchant ${esc(rawTaxLabel)} ID: <span style="font-family:monospace;color:#374151;">${esc(opts.merchantVatId)}</span></td></tr>` : ""}
   `;
 
   return `
@@ -102,14 +118,15 @@ export const sendOrderReceiptEmail = async (
   buyerName: string,
   order: any,
   items: any[],
-  orderPublicUrl: string
+  orderPublicUrl: string,
+  merchantVatId?: string | null,
 ) => {
   try {
     const name = buyerName || "there";
     const shortRef = String(order.public_ref || "").slice(0, 8).toUpperCase();
     const subject = `Your order ${shortRef} is confirmed — Dynopay`;
 
-    const itemsTable = renderOrderItemsTable(order, items, { includeDeliveryLinks: true });
+    const itemsTable = renderOrderItemsTable(order, items, { includeDeliveryLinks: true, merchantVatId });
     const hasDigital = items.some((i: any) => (i.product_snapshot?.product_type || "digital") === "digital");
     const hasPhysical = items.some((i: any) => i.product_snapshot?.product_type === "physical");
 
@@ -139,13 +156,14 @@ export const sendOrderReceiptMerchantEmail = async (
   merchantName: string,
   order: any,
   items: any[],
-  orderPublicUrl: string
+  orderPublicUrl: string,
+  merchantVatId?: string | null,
 ) => {
   try {
     const name = merchantName || "there";
     const shortRef = String(order.public_ref || "").slice(0, 8).toUpperCase();
     const subject = `New sale — ${formatCents(order.total_cents, order.currency || "USD")} — Dynopay`;
-    const itemsTable = renderOrderItemsTable(order, items, { includeDeliveryLinks: false });
+    const itemsTable = renderOrderItemsTable(order, items, { includeDeliveryLinks: false, merchantVatId });
 
     const buyerBlock = infoBox(`
       <strong>Buyer</strong><br/>

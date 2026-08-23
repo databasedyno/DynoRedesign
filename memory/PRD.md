@@ -1,3 +1,48 @@
+# FOLLOW-UPS (2026-08-23n) — Handle Availability Nudge + Storefront Themes scope + Per-Country Tax Receipts Label (ALL 3 VERIFIED, iteration_66 100%)
+
+Built the 3 remaining backlog items in one pass; testing agent iteration_66 = 100% (4/4 tax
+fixtures, all frontend assertions met, 0 console errors, 0 defects).
+
+1. HANDLE AVAILABILITY NUDGE (P1) — new `Components/UI/OnboardingFlow/HandleClaimNudge.tsx`.
+   Rendered at the top of Storefront → Page (PageTab.tsx, after OnboardingBanner). Only shows
+   when localStorage `dp_new_company_handle_nudge:<companyId>=1` AND the ACTIVE company has no
+   handle AND !storefront_pending. Card has: personalised copy ("<company> is ready — claim its
+   handle"), auto-seeded handle input from the company name (lowercased, alnum + dash), live
+   debounced availability check via `/user/creator/check-handle`, Claim button → PUT
+   `/user/creator/profile { handle }`, Skip button + close X → set `..._dismissed:<companyId>=1`.
+   Trigger: `CreateCompanyModal.handleSubmit` captures the new company_id from
+   `companyState.addCompany()` response, calls `selectCompany(newCompanyId)` + writes the flag.
+   Dashboard `ClaimHandleBanner` personalised too — multi-company accounts see "Reserve
+   <CompanyName>'s handle" instead of the generic copy; CTA now goes to /storefront directly.
+2. STOREFRONT THEMES (P2) — verified already-shipped (migration 010 columns +
+   updateCreatorProfile writes theme_accent_color / theme_cover_style / theme_cover_gradient
+   per-company). Added a "Applies to this company only" scope chip (testid
+   `creator-theme-scope-chip`) inside the CreatorPageSettings "Page theme" section header so
+   multi-brand owners see instantly that the palette is company-scoped, not account-scoped.
+3. TAX RECEIPTS LABEL (P2) — `backend/services/email/orderEmails.ts::renderOrderItemsTable`
+   now (a) uses the stored `order.tax_label` (VAT / GST / IVA / TVA / Tax) verbatim on the
+   totals row instead of a hardcoded "Tax", (b) inlines the rate percentage
+   ("VAT (20%)", "GST (9%)", "IVA (21%)"), (c) emits a "Reverse-charge (EU B2B)" note when
+   `order.reverse_charge=true`, (d) adds a "Merchant <label> ID: <id>" row when the owning
+   company's `merchant_vat_id` is present. `sendOrderReceiptEmail` +
+   `sendOrderReceiptMerchantEmail` gained an optional `merchantVatId` param;
+   `orderFulfillmentService.handleCartPaymentSettled` looks it up via dynamic import →
+   `resolveTaxSettings(userId, order.company_id)` (per-company VAT with account fallback),
+   catches lookup errors so a tax-config problem never blocks receipt delivery.
+
+Verified: backend tsc clean, frontend tsc clean, /storefront + /dashboard render with 0
+console errors, tax receipt ts-node fixture test PASSES 4/4 (GB VAT, DE reverse-charge, SG GST,
+ES IVA). Regression suite intact (per-company profile reads, /shop/hostbay, /pay/creator, tax
++ wallet flows all previously verified in iterations 63/64/65).
+Test files: `/app/backend/tests/test_iter66_tax_receipt_render.ts`.
+Files: `Components/UI/OnboardingFlow/{HandleClaimNudge,CreateCompanyModal}.tsx`,
+`Components/Page/Storefront/PageTab.tsx`, `Components/Page/Dashboard/ClaimHandleBanner.tsx`,
+`Components/Page/Creator/CreatorPageSettings.tsx`, `backend/services/email/orderEmails.ts`,
+`backend/services/orderFulfillmentService.ts`.
+
+---
+
+
 # FOLLOW-UPS (2026-08-23m) — MIGRATION 010 EXECUTED ON LIVE DB + FLAG ON (per-company storefronts LIVE in preview)
 User asked to check the DO deployment + add STOREFRONT_PER_COMPANY=true. Findings: DO deploy healthy
 (fresh redeploy — GitHub save works now), BUT migration 010 had NOT been run → flag would have crashed

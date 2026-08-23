@@ -106,9 +106,13 @@ selector instead of matching by visible text.
    DigitalOcean app env and redeploys.
 2. **Analytics Split (P1)** — ✅ DONE 2026-08-23l (iteration_64 100%). "Compare storefronts" panel on
    /storefront: per-company views/tips/sales/revenue, 30 days, multi-company accounts only.
-3. **Handle Availability Nudge (P2)** — on company creation, prompt the owner to claim that
-   company's handle right away (flag-ON only).
-4. **Legacy File Trim (P2, eng health)** — 12 grandfathered backend files grew past their
+3. **Handle Availability Nudge (P1)** — ✅ DONE 2026-08-23n (iteration_66 100%). New HandleClaimNudge
+   card on /storefront + selectCompany-on-create + Dashboard banner personalisation.
+4. **Storefront Themes (P2)** — ✅ DONE 2026-08-23n. Per-company theme columns were already wired via
+   migration 010; added a "Applies to this company only" scope chip to the Page theme section.
+5. **Tax Receipts Label (P2)** — ✅ DONE 2026-08-23n. Email receipts now use per-country tax_label
+   (VAT/GST/IVA/TVA/Tax) + rate percentage + reverse-charge note + merchant VAT ID row.
+6. **Legacy File Trim (P2, eng health)** — 12 grandfathered backend files grew past their
    file-size baselines (cryptoCheckout.ts, cronJobs.ts, companyController.ts…). Split the fastest
    growers so the pre-commit size gate never blocks a save again (creatorProfile.ts already split
    → creatorAnalytics.ts, 2026-08-23j).

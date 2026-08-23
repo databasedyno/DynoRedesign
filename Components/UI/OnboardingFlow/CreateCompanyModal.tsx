@@ -216,7 +216,27 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
     if (mediaFile) formData.append("image", mediaFile);
 
     try {
-      await companyState.addCompany(formData);
+      const created = await companyState.addCompany(formData);
+      // Handle-Availability Nudge (2026-08-23n): auto-switch to the newly
+      // created company and flag its /storefront so HandleClaimNudge shows a
+      // one-tap claim card. Flag-OFF secondary companies still hit the
+      // StorefrontPendingCard first (safe — the nudge self-hides in that path).
+      try {
+        const newCompanyId = Number(
+          (created && (created as any).company_id) ?? NaN,
+        );
+        if (Number.isFinite(newCompanyId) && newCompanyId > 0) {
+          companyState.selectCompany(newCompanyId);
+          if (typeof window !== "undefined") {
+            window.localStorage.setItem(
+              `dp_new_company_handle_nudge:${newCompanyId}`,
+              "1",
+            );
+          }
+        }
+      } catch {
+        /* non-fatal — modal still closes and user can claim from /storefront */
+      }
       setSubmitting(false);
       onSuccess();
     } catch {
