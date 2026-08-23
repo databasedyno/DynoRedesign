@@ -40,6 +40,7 @@ import {
 import { apiLogger } from "../../utils/loggers";
 import { calculateTax } from "../payment/taxService";
 import { getClientIP, getCountryFromIP, getCountryFromTimezone } from "../../utils/geolocation";
+import { STOREFRONT_PER_COMPANY, resolveStorefrontByHandle } from "../storefrontScope";
 
 type CartItemIn = {
   product_id: number | string;
@@ -317,10 +318,44 @@ export const startCheckout = async (
     // The /pay checkout session REQUIRES a company_id + the merchant's
     // configured wallet currencies to resolve deposit addresses. Fail fast
     // BEFORE any stock is decremented.
-    const merchantCompany: any = await companyModel.findOne({
-      where: { user_id: merchantUserId },
-      order: [["company_id", "ASC"]],
-    });
+    //
+    // Storefront-per-company: settle to the company that OWNS this storefront
+    // handle (falling back to the product's company_id), not always the
+    // account's primary company. Flag OFF keeps the legacy primary-company path.
+    let merchantCompany: any = null;
+    if (STOREFRONT_PER_COMPANY) {
+      let companyId: number | null = null;
+      if (body.merchant_handle) {
+        const owner = await resolveStorefrontByHandle(String(body.merchant_handle));
+        if (owner && owner.company_id != null) companyId = Number(owner.company_id);
+      }
+      if (companyId == null) {
+        const firstPid = Number(itemsIn[0]?.product_id);
+        if (Number.isFinite(firstPid)) {
+          const anyProduct: any = await productModel.findOne({ where: { product_id: firstPid } });
+          if (anyProduct?.dataValues?.company_id != null) {
+            companyId = Number(anyProduct.dataValues.company_id);
+          }
+        }
+      }
+      if (companyId != null) {
+        merchantCompany = await companyModel.findOne({
+          where: { company_id: companyId, user_id: merchantUserId },
+        });
+      }
+      // Legacy safety net: fall back to the primary company.
+      if (!merchantCompany) {
+        merchantCompany = await companyModel.findOne({
+          where: { user_id: merchantUserId },
+          order: [["company_id", "ASC"]],
+        });
+      }
+    } else {
+      merchantCompany = await companyModel.findOne({
+        where: { user_id: merchantUserId },
+        order: [["company_id", "ASC"]],
+      });
+    }
     if (!merchantCompany) {
       return errorResponseHelper(
         res,
@@ -518,6 +553,7 @@ export const startCheckout = async (
         {
           public_ref: publicRef,
           merchant_user_id: merchantUserId,
+          company_id: merchantCompanyId,
           buyer_email: buyerEmail,
           buyer_name: buyer.name ? String(buyer.name).slice(0, 160) : null,
           buyer_phone: buyer.phone ? String(buyer.phone).slice(0, 32) : null,

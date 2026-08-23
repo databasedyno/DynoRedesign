@@ -2,13 +2,16 @@ import React, { useEffect, useMemo, useState } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import dynamic from "next/dynamic";
-import { Box, Skeleton, useTheme } from "@mui/material";
+import { Box, Typography, Skeleton, useTheme } from "@mui/material";
+import { Icon as Iconify } from "@iconify/react";
 import { useDispatch, useSelector } from "react-redux";
 import { USER_PROFILE_FETCH, UserAction } from "@/Redux/Actions/UserAction";
 import { Icon } from "@/styles/uiKit";
 import { CB_TOKENS } from "@/Components/Page/Dashboard/coinbase/styled";
 import { pageProps, rootReducer } from "@/utils/types";
 import { buildCreatorUrl } from "@/helpers/creatorUrl";
+import useStorefrontProfile from "@/hooks/useStorefrontProfile";
+import { useCompanyStore } from "@/contexts/CompanyDataContext";
 
 const tabFallback = <Skeleton variant="rounded" height={420} sx={{ borderRadius: "16px" }} />;
 
@@ -102,7 +105,17 @@ const Storefront = ({ setPageName, setPageDescription, setPageAction }: pageProp
   const router = useRouter();
   const dispatch = useDispatch();
   const profile = useSelector((s: rootReducer) => (s as any).userReducer.profile) as any;
-  const handle = profile?.handle as string | undefined;
+  // Storefront-per-company: the header "View my page" + switcher hint reflect the
+  // ACTIVE company (resolves per-company when the flag is on, else the account).
+  const { profile: storefront } = useStorefrontProfile();
+  const handle = storefront?.handle as string | undefined;
+  const { companyList, selectedCompanyId } = useCompanyStore();
+  const selectedCompany = companyList.find(
+    (c: any) => Number(c.company_id) === Number(selectedCompanyId),
+  );
+  const selectedCompanyName =
+    (selectedCompany?.company_name as string) || (selectedCompany?.name as string) || "";
+  const showCompanyHint = companyList.length > 1 && Boolean(selectedCompanyName);
 
   // The Products and Share tabs don't render the settings form that normally
   // pulls the profile into Redux, so landing directly on them would leave the
@@ -163,6 +176,43 @@ const Storefront = ({ setPageName, setPageDescription, setPageAction }: pageProp
         sx={{ px: { xs: 2, md: 0 }, pt: { xs: 1, md: 0 }, pb: { xs: 12, md: 4 }, width: "100%" }}
         data-testid="storefront-page"
       >
+        {/* Storefront-per-company hint: which company's storefront am I editing? */}
+        {showCompanyHint && (
+          <Box
+            data-testid="storefront-company-hint"
+            sx={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 0.75,
+              mb: 2,
+              px: 1.5,
+              py: 0.75,
+              borderRadius: 999,
+              border: `1px solid ${isDark ? CB_TOKENS.border.dark : CB_TOKENS.border.light}`,
+              backgroundColor: isDark ? CB_TOKENS.surface.dark : CB_TOKENS.surface.light,
+              maxWidth: "100%",
+            }}
+          >
+            <Iconify icon="mdi:storefront-outline" width={15} color={indigo} />
+            <Typography
+              sx={{
+                fontSize: 12.5,
+                fontWeight: 600,
+                color: theme.palette.text.secondary,
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+              }}
+            >
+              Editing{" "}
+              <Box component="span" sx={{ color: theme.palette.text.primary, fontWeight: 700 }}>
+                {selectedCompanyName}
+              </Box>
+              &apos;s storefront
+            </Typography>
+          </Box>
+        )}
+
         {/* Segmented tabs */}
         <Box
           sx={{

@@ -64,6 +64,17 @@ axiosBaseApi.interceptors.request.use(
     } else {
       delete axiosBaseApi.defaults.headers.common.Authorization;
     }
+
+    // Storefront-per-company: tell the backend which company the merchant is
+    // acting within. Harmless when the feature flag is OFF (backend ignores it).
+    try {
+      const companyId = localStorage.getItem("last_company_id");
+      if (companyId) {
+        config.headers["X-Company-Id"] = companyId;
+      }
+    } catch {
+      /* localStorage unavailable — skip */
+    }
     return config;
   },
   (error) => {

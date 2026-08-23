@@ -1,15 +1,14 @@
 import React, { useState } from "react";
 import { useRouter } from "next/router";
-import { Box, Typography, useTheme } from "@mui/material";
+import { Box, Typography, Skeleton, useTheme } from "@mui/material";
 import { Icon as Iconify } from "@iconify/react";
-import { useSelector } from "react-redux";
 import PanelCard from "@/Components/UI/PanelCard";
 import CustomButton from "@/Components/UI/Buttons";
 import HandleQrCode from "@/Components/Page/Creator/HandleQrCode";
 import { buildCreatorUrl, prettyCreatorUrl } from "@/helpers/creatorUrl";
 import copyToClipboard from "@/helpers/copyToClipboard";
 import { brandFg } from "@/constants/theme";
-import { rootReducer } from "@/utils/types";
+import useStorefrontProfile from "@/hooks/useStorefrontProfile";
 
 const MONO = 'ui-monospace, "Roboto Mono", SFMono-Regular, Menlo, monospace';
 
@@ -18,13 +17,15 @@ const MONO = 'ui-monospace, "Roboto Mono", SFMono-Regular, Menlo, monospace';
  *
  * One page, one link. Everything a merchant sells — tips, products and payment
  * links — lives behind this URL, so this tab is the single place to copy it,
- * scan it or push it to a social network.
+ * scan it or push it to a social network. Storefront-per-company: the handle +
+ * QR + share links are for the ACTIVE company, so each company is promoted
+ * separately.
  */
 const ShareTab: React.FC = () => {
   const theme = useTheme();
   const router = useRouter();
   const accent = brandFg(theme.palette.mode === "dark");
-  const profile = useSelector((s: rootReducer) => (s as any).userReducer.profile) as any;
+  const { profile, loading } = useStorefrontProfile();
   const handle = profile?.handle as string | undefined;
   const isPublished = Boolean(handle && profile?.creator_page_enabled);
   const url = buildCreatorUrl(handle);
@@ -39,7 +40,9 @@ const ShareTab: React.FC = () => {
     }
   };
 
-  const shareText = `Pay me in crypto — no signup needed.`;
+  const shareText = profile?.name
+    ? `Pay ${profile.name} in crypto — no signup needed.`
+    : `Pay me in crypto — no signup needed.`;
   const targets = [
     {
       key: "x",
@@ -66,6 +69,17 @@ const ShareTab: React.FC = () => {
       href: `mailto:?subject=${encodeURIComponent("My Dynopay page")}&body=${encodeURIComponent(`${shareText} ${url}`)}`,
     },
   ];
+
+  if (loading) {
+    return (
+      <PanelCard title="">
+        <Box data-testid="storefront-share-loading" sx={{ py: 3 }}>
+          <Skeleton variant="rounded" height={64} sx={{ borderRadius: "12px", mb: 2 }} />
+          <Skeleton variant="rounded" height={220} sx={{ borderRadius: "12px" }} />
+        </Box>
+      </PanelCard>
+    );
+  }
 
   if (!handle) {
     return (

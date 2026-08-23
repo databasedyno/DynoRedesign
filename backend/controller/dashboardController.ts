@@ -801,6 +801,16 @@ const getRecentTransactions = async (req: express.Request, res: express.Response
     const { limit = 10, company_id } = req.query;
     const userId = userData.user_id;
 
+    // Validate company ownership if company_id is provided. Recent transactions
+    // MUST be scoped to the selected company for data isolation — matching
+    // getDashboard / getChartData / getFeeTiers. (Bug: previously this endpoint
+    // filtered ONLY by user_id, so the Recent Transactions widget leaked
+    // transactions across every company owned by the same user.)
+    if (company_id) {
+      const companyData = await validateCompanyOwnership(res, company_id as string, userId);
+      if (!companyData) return;
+    }
+
     // Check Redis cache first (60s TTL — prevent duplicate calls on page load)
     const cacheKey = `recentTx:${userId}:${company_id || 'all'}:${limit}`;
     const cached = await getRedisItem(cacheKey);
@@ -849,10 +859,11 @@ const getRecentTransactions = async (req: express.Request, res: express.Response
        LEFT JOIN tbl_payment_link parent_pl ON parent_pl.link_id = pl.parent_link_id
        LEFT JOIN tbl_product_order po ON po.payment_link_id = pl.link_id
        WHERE ut.user_id = :userId
+         ${company_id ? 'AND (ut.company_id = :companyId OR c.company_id = :companyId)' : ''}
        ORDER BY ut."createdAt" DESC
        LIMIT :limit`,
       {
-        replacements: { userId, limit: parseInt(limit as string) },
+        replacements: { userId, limit: parseInt(limit as string), companyId: company_id },
         type: QueryTypes.SELECT,
       }
     );

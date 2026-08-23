@@ -80,6 +80,7 @@ userRouter.post("/profile/set-password", authMiddleware, otpRateLimiter, userCon
 userRouter.get("/creator/check-handle", authMiddleware, userController.checkHandle);
 userRouter.get("/creator/check-handle-public", moderateRateLimiter, userController.checkHandlePublic);
 userRouter.post("/creator/reserve-handle", strictRateLimiter, userController.reserveHandle);
+userRouter.get("/creator/profile", authMiddleware, userController.getCreatorProfileSettings);
 userRouter.put("/creator/profile", authMiddleware, userController.updateCreatorProfile);
 userRouter.post(
   "/creator/upload-cover",

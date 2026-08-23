@@ -16,6 +16,7 @@ import { SUPPORTED_FIAT_CURRENCIES } from "@/constants/currencies";
 import { API_ENDPOINTS } from "@/api/endpoints";
 import useDebounce from "@/hooks/useDebounce";
 import useCopyToClipboard from "@/hooks/useCopyToClipboard";
+import { useSelectedCompanyId } from "@/contexts/CompanyDataContext";
 
 const HANDLE_RE = /^[a-z0-9][a-z0-9_-]{2,29}$/;
 
@@ -70,7 +71,19 @@ type PlatformKey = typeof SOCIAL_PLATFORMS[number]["key"];
 const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
   const theme = useTheme();
   const dispatch = useDispatch();
-  const profile = useSelector((s: rootReducer) => (s as any).userReducer.profile) as any;
+  const reduxProfile = useSelector((s: rootReducer) => (s as any).userReducer.profile) as any;
+  const selectedCompanyId = useSelectedCompanyId();
+  // Storefront-per-company: read the ACTIVE company's storefront settings from
+  // the backend (resolves to the company when the flag is ON, else the account).
+  // Keyed by company so switching companies reloads that company's page.
+  const { data: storefrontData, mutate: mutateStorefront } = useSWR(
+    ["user/creator/profile", selectedCompanyId],
+    async () => {
+      const r = await axiosBaseApi.get("user/creator/profile");
+      return (r?.data?.data ?? null) as any;
+    },
+  );
+  const profile = (storefrontData ?? reduxProfile) as any;
 
   const siteUrl = getCreatorBaseUrl();
   const border = theme.palette.divider;
@@ -117,48 +130,54 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
   const handleInputRef = useRef<HTMLInputElement>(null);
   const nameInputRef = useRef<HTMLInputElement>(null);
 
-  // Ensure the profile is loaded even when landing directly on this page
+  // Ensure the account profile is loaded even when landing directly on this page
   useEffect(() => {
-    if (!profile?.user_id) dispatch(UserAction(USER_PROFILE_FETCH));
-  }, [dispatch, profile?.user_id]);
+    if (!reduxProfile?.user_id) dispatch(UserAction(USER_PROFILE_FETCH));
+  }, [dispatch, reduxProfile?.user_id]);
 
-  // Seed from profile once loaded (wait for a real profile, not the empty {} default)
+  // Re-seed the form when the selected company changes (storefront-per-company).
   useEffect(() => {
-    if (profile?.user_id && !seeded) {
-      setHandle(profile.handle || "");
-      setName(profile.name || "");
-      setBio(profile.bio || "");
-      setEnabled(Boolean(profile.creator_page_enabled));
-      setCoverImage(profile.cover_image || null);
+    setSeeded(false);
+  }, [selectedCompanyId]);
+
+  // Seed from the active storefront once loaded (waits for the SWR fetch).
+  useEffect(() => {
+    if (storefrontData !== undefined && !seeded) {
+      const p = (storefrontData || {}) as any;
+      setHandle(p.handle || "");
+      setName(p.name || "");
+      setBio(p.bio || "");
+      setEnabled(Boolean(p.creator_page_enabled));
+      setCoverImage(p.cover_image || null);
       setSocialLinks(
-        (profile.social_links && typeof profile.social_links === "object") ? profile.social_links : {},
+        (p.social_links && typeof p.social_links === "object") ? p.social_links : {},
       );
       // Support Widget seed
-      setSwEnabled(Boolean(profile.support_widget_enabled));
+      setSwEnabled(Boolean(p.support_widget_enabled));
       setSwStyle(
-        ["coffee", "tip", "support"].includes(profile.support_widget_style)
-          ? profile.support_widget_style
+        ["coffee", "tip", "support"].includes(p.support_widget_style)
+          ? p.support_widget_style
           : "coffee",
       );
-      setSwLabel(profile.support_widget_label || "");
+      setSwLabel(p.support_widget_label || "");
       setSwPresets(
-        Array.isArray(profile.support_widget_preset_amounts) && profile.support_widget_preset_amounts.length
-          ? profile.support_widget_preset_amounts.map((n: unknown) => Number(n)).filter((n: number) => Number.isFinite(n) && n > 0)
+        Array.isArray(p.support_widget_preset_amounts) && p.support_widget_preset_amounts.length
+          ? p.support_widget_preset_amounts.map((n: unknown) => Number(n)).filter((n: number) => Number.isFinite(n) && n > 0)
           : [3, 5, 10, 25],
       );
-      setSwCurrency(profile.support_widget_currency || "USD");
-      setSwMinAmount(Number(profile.support_widget_min_amount) > 0 ? Number(profile.support_widget_min_amount) : 1);
-      setSwAllowMessage(profile.support_widget_allow_message !== false);
-      setSwThanks(profile.support_widget_thanks_message || "");
-      setSwShowSupporters(profile.support_widget_show_supporters !== false);
-      setPublicAnalyticsEnabled(profile.public_analytics_enabled !== false);
+      setSwCurrency(p.support_widget_currency || "USD");
+      setSwMinAmount(Number(p.support_widget_min_amount) > 0 ? Number(p.support_widget_min_amount) : 1);
+      setSwAllowMessage(p.support_widget_allow_message !== false);
+      setSwThanks(p.support_widget_thanks_message || "");
+      setSwShowSupporters(p.support_widget_show_supporters !== false);
+      setPublicAnalyticsEnabled(p.public_analytics_enabled !== false);
       // Theme (Session 60)
-      setThemeAccent(profile.theme_accent_color || null);
-      setThemeCoverStyle((profile.theme_cover_style as CoverStyle) || null);
-      setThemeCoverGradient(profile.theme_cover_gradient || null);
+      setThemeAccent(p.theme_accent_color || null);
+      setThemeCoverStyle((p.theme_cover_style as CoverStyle) || null);
+      setThemeCoverGradient(p.theme_cover_gradient || null);
       setSeeded(true);
     }
-  }, [profile, seeded]);
+  }, [storefrontData, seeded]);
 
   // Broadcast form state to parent (for the live preview)
   useEffect(() => {
@@ -347,6 +366,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
         },
       });
       dispatch(UserAction(USER_PROFILE_FETCH));
+      mutateStorefront();
     } catch (e: any) {
       dispatch({ type: TOAST_SHOW, payload: { message: e?.response?.data?.message || "Could not save", severity: "error" } });
     } finally {

@@ -1,6 +1,6 @@
 # Auto API-Key Provisioning UI Verification Report
 **Date:** 2026-07-12  
-**Environment:** https://payment-config-dev.preview.emergentagent.com  
+**Environment:** https://scoped-shop.preview.emergentagent.com  
 **QA Account:** qa.empty.1782626169@dynopaytest.com  
 **Tester:** Frontend Testing Agent
 

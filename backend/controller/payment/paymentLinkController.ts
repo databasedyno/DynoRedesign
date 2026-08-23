@@ -24,6 +24,7 @@ import * as merchantPoolService from "../../services/merchantPoolService";
 import { getCryptoRedisKey } from "../../services/merchantPool/merchantPoolConfig";
 import { PaymentState, parseState } from "../../services/paymentStateMachine";
 import { finalizeUploadedImage } from "../../services/objectStorage";
+import { STOREFRONT_PER_COMPANY, resolveStorefrontByHandle } from "../storefrontScope";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // DONATION / CROWDFUNDING HELPERS
@@ -2459,49 +2460,21 @@ export const getCreatorProfile = async (req: express.Request, res: express.Respo
     const handle = String(req.params.handle || "").trim().toLowerCase();
     if (!handle) return errorResponseHelper(res, 400, "Handle is required");
 
-    const creator = (await sequelize.query(
-      `SELECT user_id, name, photo, bio, handle, creator_page_enabled, cover_image, social_links,
-              support_widget_enabled, support_widget_style, support_widget_label,
-              support_widget_preset_amounts, support_widget_currency, support_widget_min_amount,
-              support_widget_allow_message, support_widget_thanks_message, support_widget_show_supporters,
-              theme_accent_color, theme_cover_style, theme_cover_gradient,
-              public_analytics_enabled
-       FROM tbl_user
-       WHERE LOWER(handle) = :handle AND creator_page_enabled = true
-       LIMIT 1`,
-      { replacements: { handle }, type: QueryTypes.SELECT }
-    )) as Array<{
-      user_id: number;
-      name: string;
-      photo: string | null;
-      bio: string | null;
-      handle: string;
-      creator_page_enabled: boolean;
-      cover_image: string | null;
-      social_links: Record<string, string> | null;
-      support_widget_enabled: boolean | null;
-      support_widget_style: string | null;
-      support_widget_label: string | null;
-      support_widget_preset_amounts: unknown;
-      support_widget_currency: string | null;
-      support_widget_min_amount: number | string | null;
-      support_widget_allow_message: boolean | null;
-      support_widget_thanks_message: string | null;
-      support_widget_show_supporters: boolean | null;
-      theme_accent_color: string | null;
-      theme_cover_style: string | null;
-      theme_cover_gradient: string | null;
-      public_analytics_enabled: boolean | null;
-    }>;
-
-    if (!creator.length) {
+    const owner = await resolveStorefrontByHandle(handle, true);
+    if (!owner) {
       return errorResponseHelper(res, 404, "Creator page not found");
     }
-    const c = creator[0];
+    const c = owner;
+
+    // Storefront-per-company: also scope the creator's links + tip-jar to the
+    // company that owns this handle (payment links carry company_id).
+    const linkCompanyWhere =
+      STOREFRONT_PER_COMPANY && c.company_id != null ? { company_id: c.company_id } : {};
 
     const rows = await paymentLinkModel.findAll({
       where: {
         user_id: c.user_id,
+        ...linkCompanyWhere,
         parent_link_id: null,
         [Op.or]: [{ link_type: "donation" }, { payment_mode: "createLink" }],
       },
@@ -2572,7 +2545,7 @@ export const getCreatorProfile = async (req: express.Request, res: express.Respo
       let raisedAmount: number | null = null;
       if (showSupporters) {
         const jar = await paymentLinkModel.findOne({
-          where: { user_id: c.user_id, is_tip_jar: true, parent_link_id: null },
+          where: { user_id: c.user_id, ...linkCompanyWhere, is_tip_jar: true, parent_link_id: null },
           attributes: ["link_id"],
         });
         if (jar) {

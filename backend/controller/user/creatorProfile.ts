@@ -1,5 +1,4 @@
 import { normalizeHandle, validateHandle, isHandleOwnedByUser, handleReserveKey, HANDLE_RESERVE_TTL_SECONDS } from "./creatorHandle";
-import { getCreatorAnalyticsData } from "../payment/paymentLinkController";
 import express from "express";
 import {
   downloadUserImage,
@@ -19,8 +18,7 @@ import kycModel from "../../models/kycModel";
 import sha256 from "crypto-js/sha256";
 import { hashPassword, verifyPassword, validatePasswordStrength } from "../../helper/passwordHelper";
 import crypto from "crypto";
-import sequelize from "../../utils/dbInstance";
-import { QueryTypes, Op } from "sequelize";
+import { Op } from "sequelize";
 import jwt from "jsonwebtoken";
 import { IUserType } from "../../utils/types";
 import axios from "axios";
@@ -32,6 +30,7 @@ import { finalizeUploadedImage } from "../../services/objectStorage";
 import { is2FARequired } from "../../services/twoFactorService";
 import { normalizeLang } from "../../utils/emailI18n";
 import { PROFILE_CACHE_TTL, _formatAttribution, parseUserAgent, createUserWallets, generateReferralCode, finalizeLogin, getAccessToken, sendEmailOTP, sendTelnyxSMS } from "./userShared";
+import { STOREFRONT_PER_COMPANY, STOREFRONT_COLUMNS, isHandleTaken, resolveActiveCompanyId } from "../storefrontScope";
 
 export const updateCreatorProfile = async (req: express.Request, res: express.Response) => {
   const userData = jwt.decode(res.locals.token) as IUserType;
@@ -68,11 +67,22 @@ export const updateCreatorProfile = async (req: express.Request, res: express.Re
     // Reservation key to release once the handle is successfully assigned.
     let reservedKeyToRelease: string | null = null;
 
+    // Storefront-per-company: write to the ACTIVE company instead of tbl_user.
+    const perCompany = STOREFRONT_PER_COMPANY;
+    let activeCompanyId: number | null = null;
+    if (perCompany) {
+      activeCompanyId = await resolveActiveCompanyId(req, userData.user_id);
+      if (!activeCompanyId) return errorResponseHelper(res, 400, "No company selected");
+    }
+
     if (rawHandle !== undefined) {
       const handle = normalizeHandle(rawHandle);
       const err = validateHandle(handle);
       if (err) return errorResponseHelper(res, 400, err);
-      if (await isHandleOwnedByUser(handle, userData.user_id)) {
+      const taken = perCompany
+        ? await isHandleTaken(handle, { companyId: activeCompanyId ?? undefined })
+        : await isHandleOwnedByUser(handle, userData.user_id);
+      if (taken) {
         return errorResponseHelper(res, 409, "This handle is already taken");
       }
       // Honour an active reservation held by a DIFFERENT visitor's token. The
@@ -255,8 +265,15 @@ export const updateCreatorProfile = async (req: express.Request, res: express.Re
 
     // Can't enable the page without a handle
     if (updates.creator_page_enabled === true) {
-      const cur = await userModel.findOne({ where: { user_id: userData.user_id }, attributes: ["handle"] });
-      if (!updates.handle && !cur?.dataValues?.handle) {
+      let curHandle: string | null = null;
+      if (perCompany) {
+        const c = await companyModel.findOne({ where: { company_id: activeCompanyId, user_id: userData.user_id }, attributes: ["handle"] });
+        curHandle = (c?.dataValues as { handle?: string } | undefined)?.handle || null;
+      } else {
+        const cur = await userModel.findOne({ where: { user_id: userData.user_id }, attributes: ["handle"] });
+        curHandle = cur?.dataValues?.handle || null;
+      }
+      if (!updates.handle && !curHandle) {
         return errorResponseHelper(res, 400, "Choose a handle before publishing your page");
       }
     }
@@ -265,11 +282,35 @@ export const updateCreatorProfile = async (req: express.Request, res: express.Re
       return errorResponseHelper(res, 400, "Nothing to update");
     }
 
-    await userModel.update(updates, { where: { user_id: userData.user_id } });
+    if (perCompany) {
+      // Companies have no `name` column — the creator display name maps to company_name.
+      const companyUpdates: Record<string, unknown> = { ...updates };
+      if ("name" in companyUpdates) {
+        companyUpdates.company_name = companyUpdates.name;
+        delete companyUpdates.name;
+      }
+      await companyModel.update(companyUpdates, { where: { company_id: activeCompanyId, user_id: userData.user_id } });
+    } else {
+      await userModel.update(updates, { where: { user_id: userData.user_id } });
+    }
     await deleteRedisItem(`profile:${userData.user_id}`);
     // Handle successfully assigned → release its reservation lock (if any).
     if (reservedKeyToRelease) {
       await redis.del(reservedKeyToRelease).catch(() => {});
+    }
+
+    if (perCompany) {
+      const c = await companyModel.findOne({
+        where: { company_id: activeCompanyId, user_id: userData.user_id },
+        attributes: [...STOREFRONT_COLUMNS, "company_name", "company_id"],
+      });
+      const d = (c?.dataValues || {}) as Record<string, unknown>;
+      const u = await userModel.findByPk(userData.user_id, { attributes: ["name"] });
+      return successResponseHelper(res, 200, "Creator page updated", {
+        ...d,
+        name: (d.company_name as string) || u?.dataValues?.name || null,
+        company_id: activeCompanyId,
+      });
     }
 
     const fresh = await userModel.findOne({
@@ -284,6 +325,44 @@ export const updateCreatorProfile = async (req: express.Request, res: express.Re
       ],
     });
     return successResponseHelper(res, 200, "Creator page updated", fresh?.dataValues || updates);
+  } catch (e) {
+    handleControllerError(res, e, userLogger);
+  }
+};
+
+/**
+ * GET /api/user/creator/profile
+ * Returns the ACTIVE-scope storefront settings so the /creator + /storefront
+ * settings UI reads from the right place regardless of the flag:
+ *   - Flag ON  → the selected company's storefront columns (name = company_name).
+ *   - Flag OFF → tbl_user (legacy).
+ */
+export const getCreatorProfileSettings = async (req: express.Request, res: express.Response) => {
+  const userData = jwt.decode(res.locals.token) as IUserType;
+  try {
+    if (STOREFRONT_PER_COMPANY) {
+      const companyId = await resolveActiveCompanyId(req, userData.user_id);
+      if (!companyId) {
+        return successResponseHelper(res, 200, "Creator profile", { company_id: null });
+      }
+      const company = await companyModel.findOne({
+        where: { company_id: companyId, user_id: userData.user_id },
+        attributes: [...STOREFRONT_COLUMNS, "company_name", "company_id"],
+      });
+      if (!company) return errorResponseHelper(res, 403, "You don't have access to this company");
+      const d = company.dataValues as Record<string, unknown>;
+      const u = await userModel.findByPk(userData.user_id, { attributes: ["name"] });
+      return successResponseHelper(res, 200, "Creator profile", {
+        ...d,
+        name: (d.company_name as string) || u?.dataValues?.name || null,
+        company_id: companyId,
+      });
+    }
+    const user = await userModel.findOne({
+      where: { user_id: userData.user_id },
+      attributes: [...STOREFRONT_COLUMNS, "name"],
+    });
+    return successResponseHelper(res, 200, "Creator profile", { ...(user?.dataValues || {}), company_id: null });
   } catch (e) {
     handleControllerError(res, e, userLogger);
   }
@@ -309,152 +388,3 @@ export const uploadCoverImage = async (req: express.Request, res: express.Respon
     handleControllerError(res, e, userLogger);
   }
 };
-
-/** GET /api/user/creator/stats — total + this-week visits, supporters count */
-export const getCreatorStats = async (req: express.Request, res: express.Response) => {
-  const userData = jwt.decode(res.locals.token) as IUserType;
-  try {
-    const user = await userModel.findOne({
-      where: { user_id: userData.user_id },
-      attributes: ["handle"],
-    });
-    const handle = user?.dataValues?.handle ? String(user.dataValues.handle).toLowerCase() : null;
-
-    if (!handle) {
-      return successResponseHelper(res, 200, "Stats retrieved", {
-        total_visits: 0,
-        this_week_visits: 0,
-        supporters_count: 0,
-        top_referrers: [],
-        daily_visits: [],
-        has_handle: false,
-      });
-    }
-
-    // Total visits (single counter key)
-    let totalVisits = 0;
-    try {
-      const raw = await redis.get(`creator-visits:${handle}`);
-      totalVisits = Number(raw || 0);
-    } catch { /* redis best-effort */ }
-
-    // This week: sum last 7 daily buckets
-    let weekVisits = 0;
-    // Daily visits for last 14 days (oldest first, for sparkline)
-    const dailyVisits: Array<{ date: string; count: number }> = [];
-    try {
-      const now = Date.now();
-      const daily7 = await Promise.all(
-        Array.from({ length: 7 }, (_, i) => {
-          const d = new Date(now - i * 86400000);
-          const ymd = d.toISOString().slice(0, 10);
-          return redis.get(`creator-visits:${handle}:day:${ymd}`);
-        })
-      );
-      weekVisits = daily7.reduce((a: number, b) => a + Number(b || 0), 0);
-
-      const daily14 = await Promise.all(
-        Array.from({ length: 14 }, (_, i) => {
-          // i=13 → 13 days ago, i=0 → today  (build oldest-first)
-          const d = new Date(now - (13 - i) * 86400000);
-          const ymd = d.toISOString().slice(0, 10);
-          return redis.get(`creator-visits:${handle}:day:${ymd}`).then((v) => ({ ymd, v }));
-        })
-      );
-      daily14.forEach(({ ymd, v }) => dailyVisits.push({ date: ymd, count: Number(v || 0) }));
-    } catch { /* best-effort */ }
-
-    // Top referrers (Session 60) — Redis hash: field=domain, value=clicks
-    const topReferrers: Array<{ domain: string; clicks: number }> = [];
-    try {
-      const refs = await redis.hGetAll(`creator-referrers:${handle}`);
-      const entries = Object.entries(refs || {}).map(([domain, v]) => ({
-        domain,
-        clicks: Number(v || 0),
-      }));
-      entries.sort((a, b) => b.clicks - a.clicks);
-      topReferrers.push(...entries.slice(0, 5));
-    } catch { /* best-effort */ }
-
-    // Supporters count: distinct customers on this user's completed donation contributions
-    let supportersCount = 0;
-    try {
-      const rows = await sequelize.query(
-        `SELECT COUNT(DISTINCT ut.customer_id) AS c
-         FROM tbl_user_transaction ut
-         JOIN tbl_payment_link pl ON pl.link_id = ut.link_id
-         JOIN tbl_payment_link parent ON parent.link_id = pl.parent_link_id
-         WHERE parent.user_id = :uid
-           AND parent.link_type = 'donation'
-           AND LOWER(ut.status) IN ('successful','completed','confirmed','processing','converted','payout_complete')`,
-        { replacements: { uid: userData.user_id }, type: QueryTypes.SELECT }
-      ) as Array<{ c: string | number }>;
-      supportersCount = Number(rows?.[0]?.c || 0);
-    } catch { /* best-effort */ }
-
-    return successResponseHelper(res, 200, "Stats retrieved", {
-      total_visits: totalVisits,
-      this_week_visits: weekVisits,
-      supporters_count: supportersCount,
-      top_referrers: topReferrers,
-      daily_visits: dailyVisits,
-      has_handle: true,
-    });
-  } catch (e) {
-    handleControllerError(res, e, userLogger);
-  }
-};
-
-/**
- * GET /api/user/creator/analytics
- * Merchant's own view of Creator Page Analytics — 30-day tip chart, top 5
- * supporters, and LIFETIME totals for the settings page. Unlike the public
- * endpoint, this ignores `public_analytics_enabled` (the creator always sees
- * their own private analytics regardless of whether the public toggle is on).
- * Session 2026-08-05.
- */
-export const getCreatorAnalytics = async (req: express.Request, res: express.Response) => {
-  const userData = jwt.decode(res.locals.token) as IUserType;
-  try {
-    const user = await userModel.findOne({
-      where: { user_id: userData.user_id },
-      attributes: ["handle", "support_widget_currency", "public_analytics_enabled"],
-    });
-    const handle = user?.dataValues?.handle || null;
-    const currency = user?.dataValues?.support_widget_currency || "USD";
-    const publicEnabled = user?.dataValues?.public_analytics_enabled !== false;
-
-    if (!handle) {
-      // No handle yet → nothing to analyze; return the empty shell so the
-      // settings page can still render a "Reserve a handle first" empty state.
-      return successResponseHelper(res, 200, "No handle yet", {
-        enabled: false,
-        public_analytics_enabled: publicEnabled,
-        chart: [],
-        top_supporters: [],
-        totals: { amount_30d: 0, count_30d: 0, supporters_30d: 0, amount_lifetime: 0, supporters_lifetime: 0 },
-        currency,
-        window_days: 30,
-        has_handle: false,
-      });
-    }
-
-    const data = await getCreatorAnalyticsData(userData.user_id, currency, true);
-    return successResponseHelper(res, 200, "Creator analytics retrieved", {
-      enabled: true,
-      public_analytics_enabled: publicEnabled,
-      has_handle: true,
-      ...data,
-    });
-  } catch (e) {
-    handleControllerError(res, e, userLogger);
-  }
-};
-
-/**
- * GET /api/user/display-currency (Doc-3 workstream E)
- * Returns the caller's RESOLVED display currency + supported picker options.
- * Resolution: tbl_user.display_currency → tbl_company.display_currency → USD.
- * `source` in the response tells the UI which layer won (`user`|`company`|`default`).
- */
-

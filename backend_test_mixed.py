@@ -13,7 +13,7 @@ import sys
 from typing import Dict, Any, Optional
 
 # Configuration
-BASE_URL = "https://payment-config-dev.preview.emergentagent.com"
+BASE_URL = "https://scoped-shop.preview.emergentagent.com"
 TEST_EMAIL = "hostbay@moxx.co"
 TEST_PASSWORD = "Katiekendra123@"
 

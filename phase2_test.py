@@ -27,7 +27,7 @@ from datetime import datetime
 from typing import Dict, Any
 
 # Use the correct backend URL from frontend env
-BACKEND_URL = "https://payment-config-dev.preview.emergentagent.com/api"
+BACKEND_URL = "https://scoped-shop.preview.emergentagent.com/api"
 
 def log(message: str, level: str = "INFO"):
     """Log messages with timestamp"""

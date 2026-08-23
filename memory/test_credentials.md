@@ -1,7 +1,7 @@
 # Test Credentials
 
 ## ✅ CURRENT POD (19th pod) — env rebuilt from user's pasted prod creds
-- Preview URL: https://53d9804c-9f7d-492a-b011-1828bfde1a40.preview.emergentagent.com
+- Preview URL: https://scoped-shop.preview.emergentagent.com
 - Login (2-step): **hostbay@moxx.co / Katiekendra123@** (KYC-exempt merchant)
 - NEXTAUTH_SECRET (both /app/.env and /app/backend/.env):
   7b1e5221b7aea601d13104fecfcf22049a3f03318f9f3a110006799ce03a48a2

@@ -1,6 +1,105 @@
 import { DataTypes } from "sequelize";
 import sequelize from "../../utils/dbInstance";
 
+// STOREFRONT PER COMPANY (feature-flagged; migration 010). The storefront/creator
+// columns below only EXIST on the DB after the migration runs. We therefore only
+// DEFINE them on the model when the flag is ON, otherwise Sequelize would SELECT
+// non-existent columns ("column does not exist") on the un-migrated DB.
+const STOREFRONT_PER_COMPANY =
+  String(process.env.STOREFRONT_PER_COMPANY ?? "false").toLowerCase() === "true";
+
+const STOREFRONT_COMPANY_COLUMNS = STOREFRONT_PER_COMPANY
+  ? {
+      handle: {
+        type: DataTypes.STRING(50),
+        allowNull: true,
+        comment: "Public vanity handle for THIS company's storefront (globally unique, case-insensitive). Storefront-per-company only.",
+      },
+      bio: {
+        type: DataTypes.STRING(500),
+        allowNull: true,
+        comment: "Short bio shown on this company's public storefront page.",
+      },
+      creator_page_enabled: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true,
+        defaultValue: false,
+        comment: "Whether this company's public storefront/creator page is live.",
+      },
+      cover_image: {
+        type: DataTypes.STRING(500),
+        allowNull: true,
+        comment: "Public banner image URL behind the avatar on the storefront page.",
+      },
+      social_links: {
+        type: DataTypes.JSONB,
+        allowNull: true,
+        defaultValue: {},
+        comment: "Social handles: {twitter, instagram, youtube, tiktok, website}",
+      },
+      support_widget_enabled: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true,
+        defaultValue: false,
+      },
+      support_widget_style: {
+        type: DataTypes.STRING(20),
+        allowNull: true,
+        defaultValue: "coffee",
+      },
+      support_widget_label: {
+        type: DataTypes.STRING(80),
+        allowNull: true,
+      },
+      support_widget_preset_amounts: {
+        type: DataTypes.JSONB,
+        allowNull: true,
+        defaultValue: [3, 5, 10, 25],
+      },
+      support_widget_currency: {
+        type: DataTypes.STRING(10),
+        allowNull: true,
+        defaultValue: "USD",
+      },
+      support_widget_min_amount: {
+        type: DataTypes.DECIMAL(10, 2),
+        allowNull: true,
+        defaultValue: 1,
+      },
+      support_widget_allow_message: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true,
+        defaultValue: true,
+      },
+      support_widget_thanks_message: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+      },
+      support_widget_show_supporters: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true,
+        defaultValue: true,
+      },
+      public_analytics_enabled: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true,
+        defaultValue: true,
+      },
+      theme_accent_color: {
+        type: DataTypes.STRING(9),
+        allowNull: true,
+      },
+      theme_cover_style: {
+        type: DataTypes.STRING(20),
+        allowNull: true,
+      },
+      theme_cover_gradient: {
+        type: DataTypes.STRING(60),
+        allowNull: true,
+      },
+    }
+  : {};
+
 const companyModel = sequelize.define(
   "Company",
   {
@@ -193,6 +292,9 @@ const companyModel = sequelize.define(
       allowNull: true,
       comment: "Contact person last name for THIS company.",
     },
+
+    // STOREFRONT PER COMPANY (feature-flagged; migration 010) — see top of file.
+    ...STOREFRONT_COMPANY_COLUMNS,
   },
   {
     tableName: "tbl_company",

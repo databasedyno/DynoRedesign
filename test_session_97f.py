@@ -8,7 +8,7 @@ import requests
 import json
 import sys
 
-BASE_URL = "https://payment-config-dev.preview.emergentagent.com"
+BASE_URL = "https://scoped-shop.preview.emergentagent.com"
 
 def test_3a_csrf_token():
     """Test 3a: GET /api/csrf-token"""

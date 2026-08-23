@@ -1,7 +1,7 @@
 # COMPREHENSIVE MOBILE UX/QA AUDIT REPORT
 **Date:** 2026-07-17  
 **Viewport:** 390x844 (iPhone 14/15)  
-**App:** https://payment-config-dev.preview.emergentagent.com  
+**App:** https://scoped-shop.preview.emergentagent.com  
 **Mode:** READ-ONLY AUDIT (No changes made)
 
 ---

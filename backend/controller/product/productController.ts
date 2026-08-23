@@ -1,8 +1,11 @@
 /**
  * Product controllers — merchant CRUD + variants + assets.
  *
- * Ownership guard: every write path checks `res.locals.user.user_id` (populated
- * by authMiddleware) against `product.merchant_user_id`. Public paths are in
+ * Ownership guard: every path resolves a "scope" via resolveScope(). When
+ * STOREFRONT_PER_COMPANY is OFF this is the legacy ACCOUNT scope (all writes
+ * check merchant_user_id === res.locals.user.user_id). When ON, products belong
+ * to a COMPANY: reads/writes are scoped to the caller's ACTIVE company_id and
+ * ownership is checked against product.company_id. Public paths are in
  * shopController.ts.
  */
 import express from "express";
@@ -23,12 +26,78 @@ import {
 import { apiLogger } from "../../utils/loggers";
 import { UPLOAD_ROOT } from "../../middleware/uploadProductAsset";
 import { isSpacesEnabled, uploadPrivateFileToSpaces } from "../../services/objectStorage";
+import {
+  STOREFRONT_PER_COMPANY,
+  resolveActiveCompanyId,
+  isCompanyOwnedByUser,
+  getRequestedCompanyId,
+} from "../storefrontScope";
 
 // ---------- helpers ----------
 
 const VALID_PRODUCT_TYPES = new Set(["digital", "physical", "service"]);
 const VALID_STATUSES = new Set(["draft", "live", "archived"]);
 const VALID_DIGITAL_TYPES = new Set(["file", "license_key", "url"]);
+
+interface Scope {
+  uid: number;
+  companyId: number | null;
+}
+
+function ownerId(res: express.Response): number | null {
+  const u = res.locals?.user as { user_id?: number } | undefined;
+  return u?.user_id ? Number(u.user_id) : null;
+}
+
+/**
+ * Resolve the acting scope for an authenticated merchant request.
+ * Writes the error response + returns null on auth/company failure.
+ */
+async function resolveScope(
+  req: express.Request,
+  res: express.Response
+): Promise<Scope | null> {
+  const uid = ownerId(res);
+  if (!uid) {
+    errorResponseHelper(res, 401, "Authentication required.");
+    return null;
+  }
+  if (!STOREFRONT_PER_COMPANY) return { uid, companyId: null };
+
+  const requested = getRequestedCompanyId(req);
+  if (requested != null) {
+    const owned = await isCompanyOwnedByUser(uid, requested);
+    if (!owned) {
+      errorResponseHelper(res, 403, "You don't have access to this company");
+      return null;
+    }
+    return { uid, companyId: requested };
+  }
+  const companyId = await resolveActiveCompanyId(req, uid);
+  if (!companyId) {
+    errorResponseHelper(res, 400, "No company selected");
+    return null;
+  }
+  return { uid, companyId };
+}
+
+/** Base WHERE fragment scoping a catalog query to the active owner. */
+function scopeWhere(scope: Scope): Record<string, unknown> {
+  return STOREFRONT_PER_COMPANY && scope.companyId != null
+    ? { company_id: scope.companyId }
+    : { merchant_user_id: scope.uid };
+}
+
+/** Does the active scope own this product row? */
+function ownsProduct(scope: Scope, product: any): boolean {
+  const d = product.dataValues;
+  if (STOREFRONT_PER_COMPANY && scope.companyId != null) {
+    if (d.company_id != null) return Number(d.company_id) === Number(scope.companyId);
+    // Legacy row (pre-backfill) → fall back to account ownership.
+    return Number(d.merchant_user_id) === Number(scope.uid);
+  }
+  return Number(d.merchant_user_id) === Number(scope.uid);
+}
 
 function slugify(input: string): string {
   return String(input || "")
@@ -41,7 +110,7 @@ function slugify(input: string): string {
 }
 
 async function ensureUniqueSlug(
-  merchantUserId: number,
+  scope: Scope,
   baseSlug: string,
   excludeProductId?: number
 ): Promise<string> {
@@ -49,7 +118,7 @@ async function ensureUniqueSlug(
   let attempt = 1;
   while (true) {
     const where: any = {
-      merchant_user_id: merchantUserId,
+      ...scopeWhere(scope),
       slug,
       deleted_at: null,
     };
@@ -62,24 +131,6 @@ async function ensureUniqueSlug(
     slug = `${baseSlug}-${attempt}`;
     if (attempt > 200) throw new Error("Could not generate unique slug");
   }
-}
-
-function ownerId(res: express.Response): number | null {
-  const u = res.locals?.user as { user_id?: number } | undefined;
-  return u?.user_id ? Number(u.user_id) : null;
-}
-
-function ensureOwner(res: express.Response, product: any): number | null {
-  const uid = ownerId(res);
-  if (!uid) {
-    errorResponseHelper(res, 401, "Authentication required.");
-    return null;
-  }
-  if (Number(product.dataValues.merchant_user_id) !== uid) {
-    errorResponseHelper(res, 403, "You are not the owner of this product.");
-    return null;
-  }
-  return uid;
 }
 
 function sanitizeIntOrNull(v: unknown): number | null {
@@ -102,27 +153,26 @@ function sanitizeGallery(v: any): Array<{ url: string; alt?: string }> {
 // ---------- List / Get / Create / Update / Delete ----------
 
 /**
- * List distinct categories this merchant has used across their catalog.
+ * List distinct categories this merchant/company has used across their catalog.
  * Powers the merchant-side category filter dropdown (Doc-1 P2).
- * Returns { categories: string[] }, sorted alphabetically, plus a
- * `has_uncategorized` flag so the UI can offer an "Uncategorized" chip.
  */
 export const listMyCategories = async (
   req: express.Request,
   res: express.Response
 ) => {
   try {
-    const uid = ownerId(res);
-    if (!uid) return errorResponseHelper(res, 401, "Authentication required.");
+    const scope = await resolveScope(req, res);
+    if (!scope) return;
 
     const seq = productModel.sequelize!;
+    const useCompany = STOREFRONT_PER_COMPANY && scope.companyId != null;
     const rows: any[] = await seq.query(
       `SELECT DISTINCT category
        FROM tbl_product
-       WHERE merchant_user_id = :uid AND deleted_at IS NULL
+       WHERE ${useCompany ? "company_id = :companyId" : "merchant_user_id = :uid"} AND deleted_at IS NULL
        ORDER BY category NULLS FIRST`,
       {
-        replacements: { uid },
+        replacements: { uid: scope.uid, companyId: scope.companyId },
         type: (seq as any).QueryTypes?.SELECT || undefined,
       }
     ) as any;
@@ -148,19 +198,17 @@ export const listProducts = async (
   res: express.Response
 ) => {
   try {
-    const uid = ownerId(res);
-    if (!uid) return errorResponseHelper(res, 401, "Authentication required.");
+    const scope = await resolveScope(req, res);
+    if (!scope) return;
 
     const type = req.query.type as string | undefined;
     const status = req.query.status as string | undefined;
     const q = req.query.q as string | undefined;
-    // Category filter (Doc-1 P2). Free-form string on tbl_product.category;
-    // an empty string filters "uncategorized only" (categpry IS NULL).
     const categoryRaw = req.query.category;
     const limit = Math.min(Number(req.query.limit) || 50, 100);
     const offset = Math.max(Number(req.query.offset) || 0, 0);
 
-    const where: any = { merchant_user_id: uid, deleted_at: null };
+    const where: any = { ...scopeWhere(scope), deleted_at: null };
     if (type && VALID_PRODUCT_TYPES.has(type)) where.product_type = type;
     if (status && VALID_STATUSES.has(status)) where.status = status;
     if (q) where.title = { [Op.iLike]: `%${q}%` };
@@ -197,8 +245,8 @@ export const getProduct = async (
   res: express.Response
 ) => {
   try {
-    const uid = ownerId(res);
-    if (!uid) return errorResponseHelper(res, 401, "Authentication required.");
+    const scope = await resolveScope(req, res);
+    if (!scope) return;
     const productId = Number(req.params.productId);
     if (!Number.isFinite(productId))
       return errorResponseHelper(res, 400, "Invalid product_id");
@@ -207,7 +255,7 @@ export const getProduct = async (
       where: { product_id: productId, deleted_at: null },
     });
     if (!product) return errorResponseHelper(res, 404, "Product not found.");
-    if (Number(product.dataValues.merchant_user_id) !== uid) {
+    if (!ownsProduct(scope, product)) {
       return errorResponseHelper(res, 403, "You are not the owner of this product.");
     }
 
@@ -224,7 +272,6 @@ export const getProduct = async (
       product: product.dataValues,
       variants: variants.map((v: any) => v.dataValues),
       assets: assets.map((a: any) => ({
-        // Never leak storage internals to the merchant
         asset_id: a.dataValues.asset_id,
         filename: a.dataValues.filename,
         mime_type: a.dataValues.mime_type,
@@ -259,8 +306,6 @@ function pickProductPayload(body: any) {
   if (body.base_stock !== undefined) out.base_stock = sanitizeIntOrNull(body.base_stock);
   if (typeof body.status === "string" && VALID_STATUSES.has(body.status)) out.status = body.status;
 
-  // Digital-only fields (Phase 1). Physical + service accepted but not
-  // enforced in the buyer flow yet.
   if (typeof body.digital_delivery_type === "string" && VALID_DIGITAL_TYPES.has(body.digital_delivery_type)) {
     out.digital_delivery_type = body.digital_delivery_type;
   } else if (body.digital_delivery_type === null) {
@@ -281,7 +326,6 @@ function pickProductPayload(body: any) {
   }
   if (typeof body.service_calendar_url === "string") out.service_calendar_url = body.service_calendar_url.slice(0, 1024);
 
-  // ── Tax fields (session 57) ────────────────────────────────────
   const VALID_TAX_CATEGORIES = new Set(["digital", "physical", "service", "exempt"]);
   if (typeof body.tax_category === "string" && VALID_TAX_CATEGORIES.has(body.tax_category)) {
     out.tax_category = body.tax_category;
@@ -300,8 +344,8 @@ export const createProduct = async (
   res: express.Response
 ) => {
   try {
-    const uid = ownerId(res);
-    if (!uid) return errorResponseHelper(res, 401, "Authentication required.");
+    const scope = await resolveScope(req, res);
+    if (!scope) return;
 
     const body = req.body || {};
     if (!body.title || String(body.title).trim().length < 2) {
@@ -313,8 +357,11 @@ export const createProduct = async (
       typeof body.slug === "string" && body.slug.trim().length > 0
         ? slugify(body.slug)
         : slugify(body.title);
-    payload.slug = await ensureUniqueSlug(uid, baseSlug);
-    payload.merchant_user_id = uid;
+    payload.slug = await ensureUniqueSlug(scope, baseSlug);
+    payload.merchant_user_id = scope.uid;
+    if (STOREFRONT_PER_COMPANY && scope.companyId != null) {
+      payload.company_id = scope.companyId;
+    }
     payload.status = payload.status || "draft";
     payload.product_type = payload.product_type || "digital";
 
@@ -334,8 +381,8 @@ export const updateProduct = async (
   res: express.Response
 ) => {
   try {
-    const uid = ownerId(res);
-    if (!uid) return errorResponseHelper(res, 401, "Authentication required.");
+    const scope = await resolveScope(req, res);
+    if (!scope) return;
     const productId = Number(req.params.productId);
     if (!Number.isFinite(productId))
       return errorResponseHelper(res, 400, "Invalid product_id");
@@ -344,12 +391,14 @@ export const updateProduct = async (
       where: { product_id: productId, deleted_at: null },
     });
     if (!product) return errorResponseHelper(res, 404, "Product not found.");
-    if (!ensureOwner(res, product)) return;
+    if (!ownsProduct(scope, product)) {
+      return errorResponseHelper(res, 403, "You are not the owner of this product.");
+    }
 
     const body = req.body || {};
     const payload = pickProductPayload(body);
     if (typeof body.slug === "string" && body.slug.trim().length > 0) {
-      payload.slug = await ensureUniqueSlug(uid, slugify(body.slug), productId);
+      payload.slug = await ensureUniqueSlug(scope, slugify(body.slug), productId);
     }
     await product.update(payload);
     return successResponseHelper(res, 200, "Product updated.", {
@@ -366,14 +415,16 @@ export const deleteProduct = async (
   res: express.Response
 ) => {
   try {
-    const uid = ownerId(res);
-    if (!uid) return errorResponseHelper(res, 401, "Authentication required.");
+    const scope = await resolveScope(req, res);
+    if (!scope) return;
     const productId = Number(req.params.productId);
     const product: any = await productModel.findOne({
       where: { product_id: productId, deleted_at: null },
     });
     if (!product) return errorResponseHelper(res, 404, "Product not found.");
-    if (!ensureOwner(res, product)) return;
+    if (!ownsProduct(scope, product)) {
+      return errorResponseHelper(res, 403, "You are not the owner of this product.");
+    }
     await product.update({ deleted_at: new Date(), status: "archived" });
     return successResponseHelper(res, 200, "Product archived (soft-deleted).");
   } catch (e: any) {
@@ -387,16 +438,17 @@ export const publishProduct = async (
   res: express.Response
 ) => {
   try {
-    const uid = ownerId(res);
-    if (!uid) return errorResponseHelper(res, 401, "Authentication required.");
+    const scope = await resolveScope(req, res);
+    if (!scope) return;
     const productId = Number(req.params.productId);
     const product: any = await productModel.findOne({
       where: { product_id: productId, deleted_at: null },
     });
     if (!product) return errorResponseHelper(res, 404, "Product not found.");
-    if (!ensureOwner(res, product)) return;
+    if (!ownsProduct(scope, product)) {
+      return errorResponseHelper(res, 403, "You are not the owner of this product.");
+    }
 
-    // Validation: title, price OR variants, and (digital → delivery configured)
     const d = product.dataValues;
     const problems: string[] = [];
     if (!d.title) problems.push("Missing title");
@@ -449,14 +501,16 @@ export const archiveProduct = async (
   res: express.Response
 ) => {
   try {
-    const uid = ownerId(res);
-    if (!uid) return errorResponseHelper(res, 401, "Authentication required.");
+    const scope = await resolveScope(req, res);
+    if (!scope) return;
     const productId = Number(req.params.productId);
     const product: any = await productModel.findOne({
       where: { product_id: productId, deleted_at: null },
     });
     if (!product) return errorResponseHelper(res, 404, "Product not found.");
-    if (!ensureOwner(res, product)) return;
+    if (!ownsProduct(scope, product)) {
+      return errorResponseHelper(res, 403, "You are not the owner of this product.");
+    }
     await product.update({ status: "archived" });
     return successResponseHelper(res, 200, "Product archived.", {
       product: product.dataValues,
@@ -492,20 +546,21 @@ export const createVariant = async (
   res: express.Response
 ) => {
   try {
-    const uid = ownerId(res);
-    if (!uid) return errorResponseHelper(res, 401, "Authentication required.");
+    const scope = await resolveScope(req, res);
+    if (!scope) return;
     const productId = Number(req.params.productId);
     const product: any = await productModel.findOne({
       where: { product_id: productId, deleted_at: null },
     });
     if (!product) return errorResponseHelper(res, 404, "Product not found.");
-    if (!ensureOwner(res, product)) return;
+    if (!ownsProduct(scope, product)) {
+      return errorResponseHelper(res, 403, "You are not the owner of this product.");
+    }
 
     const payload = pickVariantPayload(req.body || {});
     payload.product_id = productId;
     const v: any = await productVariantModel.create(payload);
 
-    // Auto-flag product has_variants=true on first variant
     if (!product.dataValues.has_variants) {
       await product.update({ has_variants: true });
     }
@@ -524,15 +579,17 @@ export const updateVariant = async (
   res: express.Response
 ) => {
   try {
-    const uid = ownerId(res);
-    if (!uid) return errorResponseHelper(res, 401, "Authentication required.");
+    const scope = await resolveScope(req, res);
+    if (!scope) return;
     const productId = Number(req.params.productId);
     const variantId = Number(req.params.variantId);
     const product: any = await productModel.findOne({
       where: { product_id: productId, deleted_at: null },
     });
     if (!product) return errorResponseHelper(res, 404, "Product not found.");
-    if (!ensureOwner(res, product)) return;
+    if (!ownsProduct(scope, product)) {
+      return errorResponseHelper(res, 403, "You are not the owner of this product.");
+    }
     const v: any = await productVariantModel.findOne({
       where: { variant_id: variantId, product_id: productId },
     });
@@ -552,15 +609,17 @@ export const deleteVariant = async (
   res: express.Response
 ) => {
   try {
-    const uid = ownerId(res);
-    if (!uid) return errorResponseHelper(res, 401, "Authentication required.");
+    const scope = await resolveScope(req, res);
+    if (!scope) return;
     const productId = Number(req.params.productId);
     const variantId = Number(req.params.variantId);
     const product: any = await productModel.findOne({
       where: { product_id: productId, deleted_at: null },
     });
     if (!product) return errorResponseHelper(res, 404, "Product not found.");
-    if (!ensureOwner(res, product)) return;
+    if (!ownsProduct(scope, product)) {
+      return errorResponseHelper(res, 403, "You are not the owner of this product.");
+    }
     const v: any = await productVariantModel.findOne({
       where: { variant_id: variantId, product_id: productId },
     });
@@ -580,22 +639,22 @@ export const uploadAsset = async (
   res: express.Response
 ) => {
   try {
-    const uid = ownerId(res);
-    if (!uid) return errorResponseHelper(res, 401, "Authentication required.");
+    const scope = await resolveScope(req, res);
+    if (!scope) return;
+    const uid = scope.uid;
     const productId = Number(req.params.productId);
     const product: any = await productModel.findOne({
       where: { product_id: productId, deleted_at: null },
     });
     if (!product) return errorResponseHelper(res, 404, "Product not found.");
-    if (!ensureOwner(res, product)) return;
+    if (!ownsProduct(scope, product)) {
+      return errorResponseHelper(res, 403, "You are not the owner of this product.");
+    }
 
     const file = (req as any).file as Express.Multer.File | undefined;
     if (!file) return errorResponseHelper(res, 400, "No file uploaded.");
 
-    // Magic-byte sniff (spec §10). Extension check happens in multer's
-    // fileFilter; this catches attacker-renamed executables that slipped
-    // past. If the first bytes match a known-dangerous signature (PE, ELF,
-    // Mach-O, class file, shell shebang, .lnk), we delete the file and 400.
+    // Magic-byte sniff (spec §10).
     try {
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       const { magicSniff } = require("../../utils/fileMagicCheck");
@@ -610,10 +669,8 @@ export const uploadAsset = async (
       }
     } catch (sniffErr: any) {
       apiLogger.warn(`[uploadAsset] magic sniff failed: ${sniffErr?.message || sniffErr}`);
-      // Fall-open: don't block uploads on a sniff error (log-only).
     }
 
-    // Compute sha256 for integrity
     const hash = crypto.createHash("sha256");
     const stream = fs.createReadStream(file.path);
     await new Promise<void>((resolve, reject) => {
@@ -623,13 +680,8 @@ export const uploadAsset = async (
     });
     const sha = hash.digest("hex");
 
-    // Storage object = relative path under UPLOAD_ROOT (portable if UPLOAD_ROOT changes).
     const relPath = path.relative(UPLOAD_ROOT, file.path).replace(/\\/g, "/");
 
-    // Durable storage: when DigitalOcean Spaces is configured, push the file to
-    // Spaces as a PRIVATE object (paid deliverables must NEVER be public-read)
-    // and drop the ephemeral local copy — this is what stops redeploys from
-    // wiping paid buyers' downloads. Any Spaces error falls back to local disk.
     let storageBackend = "local";
     let storageBucket: string | null = null;
     let storageObject = relPath;
@@ -645,7 +697,6 @@ export const uploadAsset = async (
         storageBackend = "spaces";
         storageBucket = bucket;
         storageObject = object;
-        // Best-effort cleanup of the ephemeral local copy.
         fs.promises.unlink(file.path).catch(() => { /* ignore */ });
         apiLogger.info(`[productAsset] Uploaded asset to Spaces bucket ${bucket}: ${object}`);
       } catch (spacesErr: any) {
@@ -671,7 +722,6 @@ export const uploadAsset = async (
       is_active: true,
     });
 
-    // Auto-link to product.digital_delivery_payload.asset_ids for convenience.
     const payload = product.dataValues.digital_delivery_payload || {};
     const currentIds: number[] = Array.isArray(payload.asset_ids)
       ? payload.asset_ids.map((n: any) => Number(n)).filter(Boolean)
@@ -705,22 +755,23 @@ export const deleteAsset = async (
   res: express.Response
 ) => {
   try {
-    const uid = ownerId(res);
-    if (!uid) return errorResponseHelper(res, 401, "Authentication required.");
+    const scope = await resolveScope(req, res);
+    if (!scope) return;
     const productId = Number(req.params.productId);
     const assetId = Number(req.params.assetId);
     const product: any = await productModel.findOne({
       where: { product_id: productId, deleted_at: null },
     });
     if (!product) return errorResponseHelper(res, 404, "Product not found.");
-    if (!ensureOwner(res, product)) return;
+    if (!ownsProduct(scope, product)) {
+      return errorResponseHelper(res, 403, "You are not the owner of this product.");
+    }
     const asset: any = await productAssetModel.findOne({
       where: { asset_id: assetId, product_id: productId },
     });
     if (!asset) return errorResponseHelper(res, 404, "Asset not found.");
 
     await asset.update({ is_active: false });
-    // Remove from product.digital_delivery_payload.asset_ids
     const payload = product.dataValues.digital_delivery_payload || {};
     const currentIds: number[] = Array.isArray(payload.asset_ids)
       ? payload.asset_ids.map((n: any) => Number(n)).filter(Boolean)
@@ -744,32 +795,34 @@ export const listProductOrders = async (
   res: express.Response
 ) => {
   try {
-    const uid = ownerId(res);
-    if (!uid) return errorResponseHelper(res, 401, "Authentication required.");
+    const scope = await resolveScope(req, res);
+    if (!scope) return;
     const productId = Number(req.params.productId);
 
     const product: any = await productModel.findOne({
       where: { product_id: productId, deleted_at: null },
     });
     if (!product) return errorResponseHelper(res, 404, "Product not found.");
-    if (!ensureOwner(res, product)) return;
+    if (!ownsProduct(scope, product)) {
+      return errorResponseHelper(res, 403, "You are not the owner of this product.");
+    }
 
     const status = req.query.status as string | undefined;
     const limit = Math.min(Number(req.query.limit) || 50, 200);
     const offset = Math.max(Number(req.query.offset) || 0, 0);
+    const useCompany = STOREFRONT_PER_COMPANY && scope.companyId != null;
 
-    // Filter orders whose items include this product
     const raw = await productOrderModel.sequelize!.query(
       `SELECT DISTINCT o.*
        FROM tbl_product_order o
        JOIN tbl_product_order_item i ON i.order_id = o.order_id
        WHERE i.product_id = :productId
-         AND o.merchant_user_id = :uid
+         AND ${useCompany ? "o.company_id = :companyId" : "o.merchant_user_id = :uid"}
          ${status ? "AND o.payment_status = :status" : ""}
        ORDER BY o."createdAt" DESC
        LIMIT :limit OFFSET :offset`,
       {
-        replacements: { productId, uid, status, limit, offset },
+        replacements: { productId, uid: scope.uid, companyId: scope.companyId, status, limit, offset },
         type: "SELECT" as any,
       }
     );
@@ -790,12 +843,12 @@ export const listAllOrders = async (
   res: express.Response
 ) => {
   try {
-    const uid = ownerId(res);
-    if (!uid) return errorResponseHelper(res, 401, "Authentication required.");
+    const scope = await resolveScope(req, res);
+    if (!scope) return;
     const status = req.query.status as string | undefined;
     const limit = Math.min(Number(req.query.limit) || 50, 200);
     const offset = Math.max(Number(req.query.offset) || 0, 0);
-    const where: any = { merchant_user_id: uid };
+    const where: any = { ...scopeWhere(scope) };
     if (status) where.payment_status = status;
 
     const { rows, count } = await productOrderModel.findAndCountAll({

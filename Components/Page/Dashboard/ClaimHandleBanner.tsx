@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next";
 import { rootReducer } from "@/utils/types";
 import { prettyCreatorDomain } from "@/helpers/creatorUrl";
 import { BRAND_ACCENT } from "@/constants/theme";
+import useStorefrontProfile from "@/hooks/useStorefrontProfile";
 
 const DISMISS_KEY = "dynopay.claim-handle-banner.dismissed";
 // Session 82: LIME const preserves the name but now holds aurora indigo #4F46E5
@@ -26,6 +27,9 @@ const ClaimHandleBanner: React.FC = () => {
   const router = useRouter();
   const { t } = useTranslation("dashboardLayout");
   const profile = useSelector((s: rootReducer) => (s as any).userReducer.profile) as any;
+  // Storefront-per-company: base the "needs a handle" decision on the SELECTED
+  // company (not the account), so the banner matches the per-company page.
+  const { profile: storefront } = useStorefrontProfile();
   const [dismissed, setDismissed] = useState(true); // hidden by default until client mounts
   // Handle the visitor claimed on the landing hero (carried through signup via
   // localStorage). When present we personalise this banner so the reservation
@@ -33,7 +37,7 @@ const ClaimHandleBanner: React.FC = () => {
   const [pendingHandle, setPendingHandle] = useState("");
 
   const domain = prettyCreatorDomain() || "dynopay.me";
-  const handle = profile?.handle || "";
+  const handle = (storefront?.handle as string) || "";
 
   useEffect(() => {
     // Only run client-side (localStorage). Also gates SSR/hydration mismatch.
@@ -53,8 +57,10 @@ const ClaimHandleBanner: React.FC = () => {
     setDismissed(true);
   };
 
-  // Don't show if: profile not loaded, has a handle already, or dismissed
+  // Don't show if: not logged in, storefront still loading, the active company
+  // already has a handle, or dismissed.
   if (!profile?.user_id) return null;
+  if (storefront === undefined) return null;
   if (handle) return null;
   if (dismissed) return null;
 

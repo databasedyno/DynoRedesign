@@ -13,6 +13,23 @@
 import { DataTypes } from "sequelize";
 import sequelize from "../../utils/dbInstance";
 
+// STOREFRONT PER COMPANY (feature-flagged; migration 010). `company_id` only
+// exists on the DB after the migration, so only define it on the model when the
+// flag is ON — otherwise Sequelize SELECTs a non-existent column.
+const STOREFRONT_PER_COMPANY =
+  String(process.env.STOREFRONT_PER_COMPANY ?? "false").toLowerCase() === "true";
+
+const PRODUCT_COMPANY_COLUMN = STOREFRONT_PER_COMPANY
+  ? {
+      company_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: { model: "tbl_company", key: "company_id" },
+        onDelete: "CASCADE",
+      },
+    }
+  : {};
+
 const productModel = sequelize.define(
   "Product",
   {
@@ -27,6 +44,8 @@ const productModel = sequelize.define(
       references: { model: "tbl_user", key: "user_id" },
       onDelete: "CASCADE",
     },
+    // STOREFRONT PER COMPANY (feature-flagged; migration 010) — see top of file.
+    ...PRODUCT_COMPANY_COLUMN,
     /** 'digital' | 'physical' | 'service' */
     product_type: {
       type: DataTypes.STRING(16),

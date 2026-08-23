@@ -7,19 +7,25 @@
  * Handles two views:
  *  - /api/shop/:handle           → merchant landing + product grid
  *  - /api/shop/:handle/products/:slug → single product detail
+ *
+ * Storefront-per-company: the handle resolves to a COMPANY (via
+ * resolveStorefrontByHandle) when STOREFRONT_PER_COMPANY is ON, and the product
+ * grid is scoped to that company_id. When OFF it stays user/account-scoped.
  */
 import express from "express";
 import { Op } from "sequelize";
-import {
-  productVariantModel,
-  userModel,
-} from "../../models";
+import { productVariantModel } from "../../models";
 import productModel from "../../models/userModels/productModel";
 import {
   successResponseHelper,
   errorResponseHelper,
 } from "../../helper";
 import { apiLogger } from "../../utils/loggers";
+import {
+  STOREFRONT_PER_COMPANY,
+  resolveStorefrontByHandle,
+  StorefrontOwner,
+} from "../storefrontScope";
 
 /** Strip fields that shouldn't be exposed to unauthenticated buyers. */
 function publicProductProjection(p: any) {
@@ -55,19 +61,12 @@ function publicVariantProjection(v: any) {
   };
 }
 
-async function findMerchantByHandle(handle: string) {
-  const clean = String(handle || "").trim().slice(0, 60);
-  if (!clean) return null;
-  // The creator vanity handle lives on tbl_user.handle (case-insensitive).
-  const merchant = await userModel.findOne({
-    where: {
-      [Op.or]: [
-        { handle: clean } as any,
-        { handle: clean.toLowerCase() } as any,
-      ],
-    } as any,
-  });
-  return merchant;
+/** Products belonging to this storefront owner (company when flag ON, else user). */
+function ownerProductWhere(owner: StorefrontOwner): Record<string, unknown> {
+  if (STOREFRONT_PER_COMPANY && owner.company_id != null) {
+    return { company_id: owner.company_id };
+  }
+  return { merchant_user_id: owner.user_id };
 }
 
 export const getShopByHandle = async (
@@ -78,17 +77,17 @@ export const getShopByHandle = async (
     const handle = String(req.params.handle || "").trim().slice(0, 60);
     if (!handle) return errorResponseHelper(res, 400, "Handle required");
 
-    const merchant: any = await findMerchantByHandle(handle);
-    if (!merchant) {
+    const owner = await resolveStorefrontByHandle(handle);
+    if (!owner) {
       return errorResponseHelper(res, 404, "Shop not found.");
     }
 
     const products = await productModel.findAll({
       where: {
-        merchant_user_id: merchant.dataValues.user_id,
+        ...ownerProductWhere(owner),
         status: "live",
         deleted_at: null,
-      },
+      } as any,
       order: [["createdAt", "DESC"]],
       limit: 100,
     });
@@ -110,7 +109,6 @@ export const getShopByHandle = async (
 
     const items = products.map((p: any) => {
       const proj = publicProductProjection(p.dataValues);
-      // If has_variants, override base_price_cents with min-of-variants price
       const vs = variantsByProduct[String(proj.product_id)] || [];
       if (proj.has_variants && vs.length > 0) {
         const minPrice = Math.min(...vs.map((v: any) => Number(v.price_cents) || 0));
@@ -121,14 +119,11 @@ export const getShopByHandle = async (
 
     return successResponseHelper(res, 200, "Shop fetched.", {
       merchant: {
-        handle: merchant.dataValues.handle,
-        name:
-          merchant.dataValues.name ||
-          merchant.dataValues.username ||
-          merchant.dataValues.handle,
-        avatar: merchant.dataValues.photo || null,
-        bio: merchant.dataValues.bio || null,
-        accent: merchant.dataValues.theme_accent_color || null,
+        handle: owner.handle,
+        name: owner.name || owner.handle,
+        avatar: owner.photo || null,
+        bio: owner.bio || null,
+        accent: owner.theme_accent_color || null,
       },
       products: items,
     });
@@ -148,19 +143,18 @@ export const getShopProductBySlug = async (
     if (!handle || !slug)
       return errorResponseHelper(res, 400, "Handle and slug required");
 
-    const merchant: any = await findMerchantByHandle(handle);
-    if (!merchant) return errorResponseHelper(res, 404, "Shop not found.");
+    const owner = await resolveStorefrontByHandle(handle);
+    if (!owner) return errorResponseHelper(res, 404, "Shop not found.");
 
     const product: any = await productModel.findOne({
       where: {
-        merchant_user_id: merchant.dataValues.user_id,
+        ...ownerProductWhere(owner),
         slug,
         deleted_at: null,
-      },
+      } as any,
     });
     if (!product) return errorResponseHelper(res, 404, "Product not found.");
 
-    // Allow preview when the caller is the owner (?preview=1)
     const isPreview = req.query.preview === "1";
     if (product.dataValues.status !== "live" && !isPreview) {
       return errorResponseHelper(res, 404, "Product not available.");
@@ -173,13 +167,10 @@ export const getShopProductBySlug = async (
 
     return successResponseHelper(res, 200, "Product fetched.", {
       merchant: {
-        handle: merchant.dataValues.handle,
-        name:
-          merchant.dataValues.name ||
-          merchant.dataValues.username ||
-          merchant.dataValues.handle,
-        avatar: merchant.dataValues.photo || null,
-        accent: merchant.dataValues.theme_accent_color || null,
+        handle: owner.handle,
+        name: owner.name || owner.handle,
+        avatar: owner.photo || null,
+        accent: owner.theme_accent_color || null,
       },
       product: publicProductProjection(product.dataValues),
       variants: variants.map((v: any) => publicVariantProjection(v.dataValues)),

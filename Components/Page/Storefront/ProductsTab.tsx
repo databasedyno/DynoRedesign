@@ -19,6 +19,7 @@ import CustomButton from "@/Components/UI/Buttons";
 import axiosBaseApi from "@/axiosConfig";
 import useSWR from "swr";
 import SkeletonList from "@/Components/UI/SkeletonList";
+import { useSelectedCompanyId } from "@/contexts/CompanyDataContext";
 
 interface ProductRow {
   product_id: number;
@@ -48,10 +49,14 @@ const ProductsTab = () => {
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [q, setQ] = useState<string>("");
   const [merchantHandle, setMerchantHandle] = useState<string | null>(null);
+  // Storefront-per-company: scope the catalog to the active company so
+  // switching companies reloads that company's products (X-Company-Id header
+  // is attached automatically by axiosConfig).
+  const selectedCompanyId = useSelectedCompanyId();
 
   const { data: productsResp, error: productsError, isLoading: productsLoading, mutate: mutateProducts } = useSWR(
-    ["products-list", statusFilter, categoryFilter, q],
-    async ([, status, category, search]: [string, string, string, string]) => {
+    ["products-list", statusFilter, categoryFilter, q, selectedCompanyId],
+    async ([, status, category, search]: [string, string, string, string, number | null]) => {
       const params = new URLSearchParams();
       if (status !== "all") params.set("status", status);
       if (category !== "all") {
@@ -68,14 +73,16 @@ const ProductsTab = () => {
   const error = productsError ? (productsError?.response?.data?.message || "Failed to load products") : null;
 
   useEffect(() => {
+    // Storefront-per-company: the "view shop" handle is the ACTIVE company's
+    // (creator/profile resolves per-company when the flag is on, else account).
     axiosBaseApi
-      .get("user/profile")
+      .get("user/creator/profile")
       .then((r) => {
-        const h = r.data?.data?.handle || r.data?.data?.user?.handle;
-        if (h) setMerchantHandle(String(h));
+        const h = r.data?.data?.handle;
+        setMerchantHandle(h ? String(h) : null);
       })
       .catch(() => {});
-  }, []);
+  }, [selectedCompanyId]);
 
   const softDelete = async (id: number) => {
     if (!window.confirm("Archive this product?")) return;

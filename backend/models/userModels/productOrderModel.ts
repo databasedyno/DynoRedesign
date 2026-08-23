@@ -9,6 +9,22 @@
 import { DataTypes } from "sequelize";
 import sequelize from "../../utils/dbInstance";
 
+// STOREFRONT PER COMPANY (feature-flagged; migration 010). Only define
+// `company_id` when the flag is ON (the column only exists post-migration).
+const STOREFRONT_PER_COMPANY =
+  String(process.env.STOREFRONT_PER_COMPANY ?? "false").toLowerCase() === "true";
+
+const ORDER_COMPANY_COLUMN = STOREFRONT_PER_COMPANY
+  ? {
+      company_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: { model: "tbl_company", key: "company_id" },
+        onDelete: "SET NULL",
+      },
+    }
+  : {};
+
 const productOrderModel = sequelize.define(
   "Product_Order",
   {
@@ -29,6 +45,8 @@ const productOrderModel = sequelize.define(
       references: { model: "tbl_user", key: "user_id" },
       onDelete: "CASCADE",
     },
+    // STOREFRONT PER COMPANY (feature-flagged; migration 010) — see top of file.
+    ...ORDER_COMPANY_COLUMN,
     /** FK to tbl_payment_link — hosts the actual crypto payment session. */
     payment_link_id: {
       type: DataTypes.INTEGER,

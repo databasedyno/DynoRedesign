@@ -198,7 +198,7 @@ app.use(cors({
   origin: corsOriginHandler,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'x-api-key', 'X-Requested-With', 'Accept', 'Origin', 'X-Request-ID', 'x-csrf-token']
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-api-key', 'X-Requested-With', 'Accept', 'Origin', 'X-Request-ID', 'x-csrf-token', 'x-company-id']
 }));
 app.use(express.json({
   limit: '10mb',
@@ -259,7 +259,7 @@ app.options("*", cors({
   origin: corsOriginHandler,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'x-api-key', 'X-Requested-With', 'Accept', 'Origin', 'X-Request-ID', 'x-csrf-token']
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-api-key', 'X-Requested-With', 'Accept', 'Origin', 'X-Request-ID', 'x-csrf-token', 'x-company-id']
 }));
 
 // Bot & scanner protection — blocks WordPress/CMS vulnerability scanners early

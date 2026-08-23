@@ -30,6 +30,7 @@ import { finalizeUploadedImage } from "../../services/objectStorage";
 import { is2FARequired } from "../../services/twoFactorService";
 import { normalizeLang } from "../../utils/emailI18n";
 import { PROFILE_CACHE_TTL, _formatAttribution, parseUserAgent, createUserWallets, generateReferralCode, finalizeLogin, getAccessToken, sendEmailOTP, sendTelnyxSMS } from "./userShared";
+import { STOREFRONT_PER_COMPANY, isHandleTaken, resolveActiveCompanyId } from "../storefrontScope";
 
 export const RESERVED_HANDLES = new Set([
   "auth", "admin", "dashboard", "pay", "payment", "payments", "fees", "blog", "docs",
@@ -85,6 +86,15 @@ export const checkHandle = async (req: express.Request, res: express.Response) =
       return successResponseHelper(res, 200, "checked", { available: false, reason: "This handle is already taken" });
     }
 
+    // Storefront-per-company: uniqueness is across companies; exclude the
+    // caller's ACTIVE company so re-checking their own handle stays "available".
+    if (STOREFRONT_PER_COMPANY) {
+      const activeCompanyId = (await resolveActiveCompanyId(req, userData.user_id)) ?? undefined;
+      if (await isHandleTaken(handle, { companyId: activeCompanyId })) {
+        return successResponseHelper(res, 200, "checked", { available: false, reason: "This handle is already taken" });
+      }
+    }
+
     // Respect an active reservation unless it is held by this client's own token
     // (passed as ?token=, e.g. a handle they reserved from the landing page).
     const token = typeof req.query.token === "string" ? req.query.token : "";
@@ -119,6 +129,9 @@ export const checkHandlePublic = async (req: express.Request, res: express.Respo
     if (await isHandleOwnedByUser(handle)) {
       return successResponseHelper(res, 200, "checked", { available: false, reason: "This handle is already taken" });
     }
+    if (STOREFRONT_PER_COMPANY && (await isHandleTaken(handle))) {
+      return successResponseHelper(res, 200, "checked", { available: false, reason: "This handle is already taken" });
+    }
 
     const token = typeof req.query.token === "string" ? req.query.token : "";
     let reserved = false;
@@ -148,6 +161,9 @@ export const reserveHandle = async (req: express.Request, res: express.Response)
     if (err) return successResponseHelper(res, 200, "checked", { reserved: false, available: false, reason: err });
 
     if (await isHandleOwnedByUser(handle)) {
+      return successResponseHelper(res, 200, "checked", { reserved: false, available: false, reason: "This handle is already taken" });
+    }
+    if (STOREFRONT_PER_COMPANY && (await isHandleTaken(handle))) {
       return successResponseHelper(res, 200, "checked", { reserved: false, available: false, reason: "This handle is already taken" });
     }
 

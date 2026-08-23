@@ -6,7 +6,7 @@
  * Only allowed mutation: POST /api/user/login with hostbay@moxx.co
  */
 
-const BASE_URL = 'https://payment-config-dev.preview.emergentagent.com/api';
+const BASE_URL = 'https://scoped-shop.preview.emergentagent.com/api';
 const TEST_EMAIL = 'hostbay@moxx.co';
 const TEST_PASSWORD = 'Katiekendra123@';
 

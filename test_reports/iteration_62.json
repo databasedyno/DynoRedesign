@@ -1,0 +1,27 @@
+{
+  "summary": "Backend-only regression for STOREFRONT_PER_COMPANY flag (OFF). All 11 targeted GET/login tests pass on the LIVE Railway PROD DB via the external preview URL. No 500 'column does not exist' errors observed. New Sequelize columns are safely inert without the migration. Storefront/products/creator/shop/checkout endpoints behave exactly as legacy (merchant_user_id scope). X-Company-Id header is safely ignored while flag is OFF. Local /health is healthy with background_jobs.eligible=false.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "GET /health (localhost:8001)", "issue": "One transient 503 observed during initial run, resolved immediately on retry (uptime showed backend had just restarted at ~16s). All subsequent calls returned 200 healthy. Not a functional regression."}
+    ]
+  },
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_storefront_scope_regression.py",
+    "/app/test_reports/pytest/storefront_scope_regression.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Flag-gated new model columns (company_id on products/product_orders, storefront fields on companies) correctly excluded from queries when STOREFRONT_PER_COMPANY=false — verified no 'column ... does not exist' errors on live DB.",
+    "New GET /api/user/creator/profile endpoint returns company_id=null as expected in legacy scope.",
+    "Public /api/pay/creator/:handle and /api/shop/:handle continue to resolve by merchant_user_id under flag OFF."
+  ],
+  "updated_files": ["/app/backend/tests/test_storefront_scope_regression.py"],
+  "success_rate": {"backend": "100%", "frontend": "N/A (skipped per request)"},
+  "test_credentials": "hostbay@moxx.co / Katiekendra123@ (merchant, JWT direct login)",
+  "seed_data_creation": "None — strictly READ-ONLY on live PROD DB",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Regression suite lives at /app/backend/tests/test_storefront_scope_regression.py. Covers login + all 9 targeted GET endpoints for storefront-per-company flag OFF verification. Base URL is external preview; only /health uses localhost:8001. Do NOT trigger mutations — LIVE PROD DB in SAFE MODE."
+}

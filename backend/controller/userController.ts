@@ -56,7 +56,8 @@ import { changePhone, removePhone, addPhone, verifyAddPhone } from "./user/conta
 import { deleteAccount, unsubscribeFromReminders, unsubscribeFromPaymentReminders } from "./user/accountLifecycle";
 import { getOnboardingStatus, verifyEmail, resendVerification } from "./user/onboarding";
 import { checkHandle, checkHandlePublic, reserveHandle } from "./user/creatorHandle";
-import { updateCreatorProfile, uploadCoverImage, getCreatorStats, getCreatorAnalytics } from "./user/creatorProfile";
+import { updateCreatorProfile, uploadCoverImage, getCreatorProfileSettings } from "./user/creatorProfile";
+import { getCreatorStats, getCreatorAnalytics } from "./user/creatorAnalytics";
 import { getUserDisplayCurrency, updateUserDisplayCurrency, getMerchantTaxSettings, updateMerchantTaxSettings } from "./user/preferences";
 
 export default {
@@ -110,6 +111,7 @@ export default {
   checkHandlePublic,
   reserveHandle,
   updateCreatorProfile,
+  getCreatorProfileSettings,
   uploadCoverImage,
   getCreatorStats,
   getCreatorAnalytics,
