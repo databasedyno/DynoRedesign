@@ -1,3 +1,40 @@
+# Session 2026-08-23 (17th pod) — PART 2: "fix all pre-existing issues" pass
+
+Login (2-step): hostbay@moxx.co / Katiekendra123@ . LIVE PROD DB — READ-ONLY, no payments/mutations.
+
+## Changes made in this batch (need regression verification)
+BACKEND:
+- backend/middleware/botProtection.ts: added isInternalIp() — loopback + RFC1918 +
+  CGNAT/service-mesh 100.64/10 + link-local + IPv6 ULA are NEVER auto-blocked
+  (fixes collateral 403s that 404'd creator pages). Scanner PATHS still 403.
+  Verified by curl: internal 200, /api/pay/creator/xmlrpc.php 403, /health ok.
+FRONTEND (correctness):
+- Components/UI/CheckoutStatusStrip.tsx: moved `if (state==="settled") return null`
+  BELOW all hooks (fixed react-hooks/rules-of-hooks). CHECKOUT status UI — verify it
+  still renders for pending/confirming/failed states and hides on settled.
+- hooks/useTokenData.ts: replaced client `jsonwebtoken` with a dependency-free
+  base64 JWT-payload decode. Affects any UI that reads the auth token (dashboard,
+  menus). Verify login → dashboard still shows the correct user/company.
+- 5 SSR pages: added console.error logging in catch/!ok branches (no behavior change).
+FRONTEND (perf/quality):
+- next.config.mjs: eslint now runs at build (ignoreDuringBuilds:false, 0 errors).
+- Fixed 14 react/no-unescaped-entities (typographic quotes) across 7 files.
+- Lazy-loaded recharts (creator AnalyticsWidget) + canvas-confetti (Transactions,
+  AutoClaimHandle). Removed UNUSED deps: telegram, flutterwave-react-v3. buffer kept
+  (other client code still uses jsonwebtoken).
+- helpers/shortcutUsage.ts: named the default export.
+
+## VERIFY (backend) — deep_testing_backend_v2
+1. GET /api/pay/creator/hostbay via localhost:8001 → 200 with creator JSON.
+2. /health → healthy (db+redis connected).
+3. Normal authenticated flow still works: login (hostbay@moxx.co / Katiekendra123@),
+   then a couple of read-only GETs (e.g., profile / company / transactions list) → 2xx,
+   NOT 403 (confirms botProtection didn't break legit traffic).
+4. Scanner path still blocked: GET /api/pay/creator/xmlrpc.php → 403.
+READ-ONLY. Do NOT create/modify/delete data or trigger any payment.
+
+---
+
 # Session 2026-08-23 (17th pod) — Creator page prod-404 fix + dynopay.me host gate + perf
 
 Preview: https://a2374b7c-034c-4f4f-bccb-149e2bb32bde.preview.emergentagent.com

@@ -12,7 +12,7 @@ import {
 } from "@/utils/types/transaction";
 import { Box, Dialog, IconButton, Typography, useTheme } from "@mui/material";
 import { Icon, MONO } from "@/styles/uiKit";
-import confetti from "canvas-confetti";
+// canvas-confetti is lazy-loaded at the celebration call site (below)
 import CustomButton from "@/Components/UI/Buttons";
 import { endOfDay, isWithinInterval, parseISO, startOfDay } from "date-fns";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -165,16 +165,15 @@ const TransactionPage = () => {
     }
     // Fire the celebration: three confetti bursts + open the modal.
     setFirstPaymentCelebrationOpen(true);
-    try {
+    // canvas-confetti loaded lazily so it stays out of the dashboard bundle.
+    void import("canvas-confetti").then(({ default: confetti }) => {
       const colors = ["#3FD98A", "#05936A", "#10B981", "#F59E0B", "#7C5CFF"];
       confetti({ particleCount: 90, spread: 70, startVelocity: 45, origin: { x: 0.2, y: 0.6 }, colors, scalar: 1 });
       confetti({ particleCount: 90, spread: 70, startVelocity: 45, origin: { x: 0.8, y: 0.6 }, colors, scalar: 1 });
       setTimeout(() => {
         confetti({ particleCount: 60, spread: 80, startVelocity: 35, origin: { x: 0.5, y: 0.3 }, colors, scalar: 0.9 });
       }, 350);
-    } catch {
-      /* canvas-confetti is client-only, safe to ignore */
-    }
+    }).catch(() => { /* canvas-confetti is client-only, safe to ignore */ });
   }, [confirmedPaymentCount, selectedCompanyId]);
 
   // Shared unambiguous format ("13 Aug 2026, 13:10") — same as Payment Links

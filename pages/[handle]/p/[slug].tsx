@@ -100,7 +100,7 @@ const ProductDetail: NextPageWithLayout<DetailProps> = ({ merchant, product, var
       <Container maxWidth="lg" sx={{ py: { xs: 3, md: 5 } }} data-testid="product-detail">
         <Typography variant="body2" sx={{ mb: 2 }}>
           <Link href={`/${merchant.handle}/shop`} style={{ color: "inherit" }}>
-            ← Back to {merchant.name}'s shop
+            ← Back to {merchant.name}’s shop
           </Link>
         </Typography>
         <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, gap: { xs: 3, md: 5 } }}>
@@ -226,7 +226,10 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     const r = await fetch(`${base}/api/shop/${encodeURIComponent(handle)}/products/${encodeURIComponent(slug)}`, {
       headers: { Accept: "application/json" },
     });
-    if (!r.ok) return { notFound: true };
+    if (!r.ok) {
+      console.error(`[SSR /[handle]/p/[slug]] product fetch "${handle}/${slug}" -> HTTP ${r.status} (base=${base})`);
+      return { notFound: true };
+    }
     const json = await r.json();
     const data = json?.data;
     if (!data?.product) return { notFound: true };
@@ -243,7 +246,8 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
         siteUrl,
       },
     };
-  } catch {
+  } catch (e) {
+    console.error(`[SSR /[handle]/p/[slug]] "${handle}/${slug}" render failed:`, e);
     return { notFound: true };
   }
 };

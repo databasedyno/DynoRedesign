@@ -357,6 +357,7 @@ const CyrptoComponent = () => {
                         },
                       }}
                     >
+                      {/* eslint-disable-next-line @next/next/no-img-element -- dynamic crypto QR (remote/data URL), next/image can't optimize */}
                       <img src={cryptoDetails?.qr_code} width={300} height={300} alt="Payment QR code" loading="eager" decoding="async" />
                     </Box>
                     <Box sx={{ width: "100%" }}>

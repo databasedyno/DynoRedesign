@@ -35,7 +35,7 @@ import { MuiTelInput } from "mui-tel-input";
 import { UserAction } from "@/Redux/Actions";
 import { USER_UPDATE, USER_UPDATE_PASSWORD } from "@/Redux/Actions/UserAction";
 import FormManager from "@/Components/Page/Common/FormManager";
-import jwt from "jsonwebtoken";
+import { decodeJwt } from "@/utils/decodeJwt";
 import adminBaseApi from "@/axiosAdmin";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 
@@ -83,7 +83,7 @@ const AdminProfilePage = () => {
 
   useEffect(() => {
     if (localStorage) {
-      const token = jwt.decode(
+      const token = decodeJwt<TokenData>(
         localStorage.getItem("admin_token") ?? ""
       ) as TokenData;
       setInitialUser({

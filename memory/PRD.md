@@ -1,5 +1,24 @@
 # CURRENT STATE POINTER (2026-06 fork, latest first)
 
+LATEST SESSION (2026-08-23b, follow-up — finish the no-img-element cleanup):
+User asked "is the 9 no-img-element warnings fixed?" → they were NOT (prior session silenced only
+6, and one disable comment was misplaced in ProductEditor so it didn't apply). FIXED all 9 with
+correctly-placed `eslint-disable-next-line @next/next/no-img-element` (QRCodeComponent:218,
+CryptoComponent:360, PaymentLinkSuccessModal:306, ProductEditor cover:656, CompanyDetailsSection
+flag icons ×3 :441/881/989, ProductImage fallback:46, NoData:30 + removed its now-unused next/image
+import). All are legit <img> (data-URL QR codes / remote flagcdn icons / arbitrary user uploads) —
+next/image adds no value or would break. VERIFIED: `yarn next lint` → no-img-element count = 0,
+ZERO eslint errors (only intentionally-deferred exhaustive-deps warnings remain); all 11 key routes
+200; clean compile; login SSR full + 0 browser console errors. Frontend-only, no backend/DB changes.
+GOTCHA logged: stale `.next/cache` was replaying old `buffer`/`jsonwebtoken` ENOENT build errors —
+`rm -rf .next/cache && restart frontend` clears them (not a real bug; useTokenData already uses
+decodeJwt, buffer still needed transitively by axios). Full detail: memory/PREEXISTING_ISSUES_2026-08.md.
+
+---
+
+
+# CURRENT STATE POINTER (2026-06 fork, latest first)
+
 LATEST SESSION (2026-08-22d, EMAIL SYSTEM AUDIT — coverage + color consistency):
 Audited all 69 email functions (12 files under services/email/) + admin emails. Findings + fixes:
 

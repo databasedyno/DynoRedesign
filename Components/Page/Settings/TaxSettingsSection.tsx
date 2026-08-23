@@ -13,7 +13,7 @@ import {
   ErrorOutlineRounded,
   ReceiptLongRounded,
 } from "@mui/icons-material";
-import { Country } from "country-state-city";
+import { useCountryStateCity } from "@/hooks/useCountryStateCity";
 import { useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
 
@@ -95,15 +95,16 @@ const TaxSettingsSection: React.FC = () => {
   const [countryCode, setCountryCode] = useState<string | null>(null);
   const [vatId, setVatId] = useState("");
   const [initial, setInitial] = useState<TaxSettings | null>(null);
+  const csc = useCountryStateCity();
 
   const countryOptions = useMemo<CountryOption[]>(
     () =>
-      Country.getAllCountries().map((c) => ({
+      (csc?.Country.getAllCountries() ?? []).map((c) => ({
         code: c.isoCode,
         label: c.name,
         flag: c.flag,
       })),
-    [],
+    [csc],
   );
 
   useEffect(() => {

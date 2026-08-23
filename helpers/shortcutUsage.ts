@@ -88,10 +88,12 @@ export const getSuggestedShortcuts = (
   return ranked.length >= size ? ranked.slice(0, size) : [];
 };
 
-export default {
+const shortcutUsage = {
   recordShortcutVisit,
   getShortcutCounts,
   getSuggestedShortcuts,
   getTotalShortcutVisits,
   shortcutIdForPath,
 };
+
+export default shortcutUsage;

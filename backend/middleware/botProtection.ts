@@ -122,6 +122,33 @@ setInterval(() => {
 // Middleware
 // ============================================
 
+/**
+ * True for loopback + RFC1918 private + CGNAT/service-mesh (100.64.0.0/10, used
+ * by DO App Platform / K8s) + link-local + IPv6 ULA/loopback. These are
+ * first-party/internal source IPs and must NEVER be auto-blocked — a shared
+ * internal IP getting swept into a scanner block silently 403s legit traffic
+ * (this is what made public creator pages 404 in production).
+ */
+function isInternalIp(ip: string): boolean {
+  if (!ip) return false;
+  let a = ip.trim().toLowerCase();
+  if (a === "localhost" || a === "unknown") return true;
+  if (a.startsWith("::ffff:")) a = a.slice(7); // IPv4-mapped IPv6
+  if (a === "::1") return true;                // IPv6 loopback
+  if (a.startsWith("fe80:")) return true;      // IPv6 link-local
+  if (a.startsWith("fc") || a.startsWith("fd")) return true; // IPv6 ULA (fc00::/7)
+  const m = a.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+  if (!m) return false;
+  const o1 = Number(m[1]), o2 = Number(m[2]);
+  if (o1 === 127) return true;                          // 127.0.0.0/8 loopback
+  if (o1 === 10) return true;                           // 10.0.0.0/8
+  if (o1 === 192 && o2 === 168) return true;            // 192.168.0.0/16
+  if (o1 === 172 && o2 >= 16 && o2 <= 31) return true;  // 172.16.0.0/12
+  if (o1 === 100 && o2 >= 64 && o2 <= 127) return true; // 100.64.0.0/10 CGNAT/mesh
+  if (o1 === 169 && o2 === 254) return true;            // 169.254.0.0/16 link-local
+  return false;
+}
+
 const botProtectionMiddleware = (req: Request, res: Response, next: NextFunction): void => {
   const ip = (req.headers["x-forwarded-for"] as string)?.split(",")[0]?.trim() || req.ip || "unknown";
   const path = req.originalUrl || req.url || "";
@@ -132,9 +159,10 @@ const botProtectionMiddleware = (req: Request, res: Response, next: NextFunction
     return next();
   }
 
-  // Skip for loopback/internal IPs (monitoring, health checks, etc.)
-  if (ip === "127.0.0.1" || ip === "::1" || ip === "::ffff:127.0.0.1" || ip === "localhost") {
-    // Still check scanner patterns for loopback but DON'T auto-block
+  // Skip for loopback + private/internal/service-mesh IPs (SSR self-fetch,
+  // health checks, container egress). These are NEVER auto-blocked.
+  if (isInternalIp(ip)) {
+    // Still reject obvious scanner PATHS, but DON'T track/auto-block the IP.
     const pathMatch = SCANNER_PATH_PATTERNS.some(pattern => pattern.test(path));
     if (pathMatch) {
       res.status(403).json({ success: false, message: "Forbidden", statusCode: 403 });

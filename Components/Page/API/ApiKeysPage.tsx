@@ -896,7 +896,7 @@ export function DynopayCryptoElement({ amount = 5 }: { amount?: number }) {
         </Box>
       </Box>
       <Typography sx={{ mt: 0.5, fontSize: 14, color: theme.palette.text.secondary }}>
-        Render Dynopay's native crypto payment UI directly in your DOM — no iframe, no
+        Render Dynopay’s native crypto payment UI directly in your DOM — no iframe, no
         redirect. Uses a publishable key (browser-safe) and your customer picks a
         currency, then pays to the address shown. Always verify fulfillment via
         webhooks — the browser <code>succeeded</code> event is UX only.
@@ -934,7 +934,7 @@ export function DynopayCryptoElement({ amount = 5 }: { amount?: number }) {
         {!hasRealPk && (
           <Typography sx={{ fontSize: 12, color: theme.palette.warning?.main || "#F59E0B" }}>
             No publishable key found — the snippet uses a placeholder. Create one in the
-            "Publishable Keys" section below.
+            “Publishable Keys” section below.
           </Typography>
         )}
       </Box>

@@ -20,7 +20,8 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
-import { Country, type ICountry } from "country-state-city";
+import type { ICountry } from "country-state-city";
+import { useCountryStateCity } from "@/hooks/useCountryStateCity";
 import StepIndicator from "./StepIndicator";
 import { TransitionProps } from "@mui/material/transitions";
 import { MuiTelInput } from "mui-tel-input";
@@ -82,7 +83,8 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
 
   // Preloaded list of ISO countries with dial codes + flags. Cheap to
   // memoize since Country.getAllCountries() reads static JSON.
-  const allCountries = useMemo<ICountry[]>(() => Country.getAllCountries(), []);
+  const csc = useCountryStateCity();
+  const allCountries = useMemo<ICountry[]>(() => csc?.Country.getAllCountries() ?? [], [csc]);
 
   // A) Prefill business email & mobile from the account the user just created,
   // so they don't have to re-type details they already provided at signup.

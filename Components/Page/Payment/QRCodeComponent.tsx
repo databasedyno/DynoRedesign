@@ -215,6 +215,7 @@ const QRCodeComponent = () => {
               }}
             >
               <Box sx={{ "& img": { maxHeight: "350px", width: "100%" } }}>
+                {/* eslint-disable-next-line @next/next/no-img-element -- dynamic bank QR (remote/data URL), next/image can't optimize */}
                 <img src={accountDetails?.qr_image} width={300} height={300} alt="Bank payment QR code" loading="eager" decoding="async" />
               </Box>
               <Typography textAlign={"center"}>

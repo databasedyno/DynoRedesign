@@ -1,11 +1,12 @@
 import { TokenData } from "@/utils/types";
-import React, { useState, useEffect } from "react";
-import jwt from "jsonwebtoken";
+import { useState, useEffect } from "react";
+import { decodeJwt } from "@/utils/decodeJwt";
+
 const useTokenData = () => {
   const [tokenData, setTokenData] = useState<TokenData>();
   useEffect(() => {
-    const token = jwt.decode(localStorage.getItem("token") ?? "") as TokenData;
-    setTokenData(token);
+    const token = localStorage.getItem("token") ?? "";
+    setTokenData(decodeJwt<TokenData>(token) ?? undefined);
   }, []);
 
   return tokenData;

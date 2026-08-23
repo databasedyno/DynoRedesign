@@ -43,6 +43,7 @@ const ProductImage: React.FC<ProductImageProps> = ({ src, alt = "", sizes = "72p
 
   // http:// / relative / data: URIs — render as-is (no optimizer).
   return (
+    // eslint-disable-next-line @next/next/no-img-element -- arbitrary non-https/relative/data source, not next/image-compatible
     <img
       src={src}
       alt={alt}

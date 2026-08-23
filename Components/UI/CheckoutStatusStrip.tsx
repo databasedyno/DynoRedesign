@@ -123,9 +123,6 @@ export default function CheckoutStatusStrip({ state, title, caption, secondsRema
   const dark = theme.palette.mode === "dark";
   const { t } = useTranslation("landing");
 
-  // v2 has its own success view; skip this strip to avoid duplicated copy.
-  if (state === "settled") return null;
-
   const style = STATE_STYLE[state];
   const fallback = FALLBACK_COPY[state];
 
@@ -178,6 +175,10 @@ export default function CheckoutStatusStrip({ state, title, caption, secondsRema
     }
     prevUrgentRef.current = isUrgent;
   }, [isUrgent, state, secondsRemaining]);
+
+  // v2 has its own success view; skip this strip to avoid duplicated copy.
+  // Placed AFTER all hooks so hook order stays stable (react-hooks/rules-of-hooks).
+  if (state === "settled") return null;
 
   // Base copy — either the caller override, the localised value, or the
   // English fallback (defaultValue on t()) so nothing renders blank.

@@ -6,6 +6,25 @@ Data: `tsc --noEmit` (0 errors), ESLint with `next/core-web-vitals` on frontend 
 
 Legend: P0 correctness/bug · P1 perf/security · P2 quality · P3 ops/config
 
+
+## ✅ UPDATE 2026-08-23b (follow-up session)
+- **P2 `@next/next/no-img-element` (9 warnings) — RESOLVED.** Previous session only
+  silenced 6 of them and left one comment MISPLACED in `ProductEditor` (sat before the
+  `<Box>`, not the `<img>`), so 9 warnings actually remained. All 9 now have correctly-placed
+  `eslint-disable-next-line` comments (QRCodeComponent, CryptoComponent, PaymentLinkSuccessModal,
+  ProductEditor cover, CompanyDetailsSection ×3 flag icons, ProductImage fallback) or, for
+  NoData (static local illustration), a disable + removal of the unused `next/image` import.
+  These are all legit `<img>` uses (data-URL QR codes, remote flagcdn icons, arbitrary
+  user-upload URLs) where next/image adds no value / would break. Verified: `yarn next lint`
+  → `no-img-element` count = 0, **zero ESLint errors**; all 11 key routes 200; clean compile.
+- **P0 #2 `jsonwebtoken` on client — already RESOLVED in prior session** (working tree):
+  `hooks/useTokenData.ts` now uses `@/utils/decodeJwt` (dependency-free base64url decode),
+  no `jsonwebtoken` import. `buffer` still needed transitively by `axios` (toFormData) — keep it.
+- **GOTCHA (stale `.next/cache`):** After a mid-install compile (before `buffer` was added /
+  before the JWT refactor), the dev server cached `ENOENT buffer/index.js` + a `jsonwebtoken→
+  useTokenData` import trace. These recur on restart because Next reuses `.next/cache`. Fix =
+  `rm -rf .next/cache && sudo supervisorctl restart frontend`. NOT a real bug (file exists, reads fine).
+
 ---
 
 ## P0 — Correctness / latent bugs
@@ -70,3 +89,33 @@ Legend: P0 correctness/bug · P1 perf/security · P2 quality · P3 ops/config
 ## Suggested fix order
 P0 #1 (hooks crash) → P0 #3/#4 (bot-block + SSR logging, prevents silent prod 404s) →
 P0 #2 (client jwt) → P2 #9 (restore lint) → P1 #7/#8 (bundle/img) → P3 cleanups.
+
+---
+## STATUS (2026-08-23, updated) — "fix all" pass
+FIXED & verified:
+- P0 #1 hooks (CheckoutStatusStrip) — early return moved below hooks. tsc/lint clean.
+- P0 #2 client jwt — useTokenData now dependency-free base64 decode; `buffer` made an
+  explicit dep (4 other files still use client jsonwebtoken — see DEFERRED).
+- P0 #3 bot-protection internal-IP allowlist — VERIFIED by backend testing agent
+  (legit auth traffic 2xx, scanner paths 403, health ok).
+- P0 #4 SSR error logging — added to all 5 public pages.
+- P0 #5 SSR loopback fetch — done earlier this session.
+- P2 #9 eslint config added (`.eslintrc.json` next/core-web-vitals) → `yarn lint` works.
+- P2 #10 build lint gate ON (next.config ignoreDuringBuilds:false + dirs); 0 errors.
+- P2 #12 all 14 no-unescaped-entities fixed (typographic quotes).
+- P1 #6 edge cache on creator/shop/product (done earlier).
+- P1 #7 partial: recharts lazy (creator), canvas-confetti lazy (Transactions/AutoClaim),
+  removed UNUSED deps telegram + flutterwave-react-v3.
+- Bonus: helpers/shortcutUsage.ts anonymous default export named.
+
+DEFERRED (documented — risk/value or authed non-hot-path):
+- P1 #7 country-state-city split: needs careful refactor across 6+ CreateCompanyModal
+  import sites + settings/company sections (KYC/company flows) — real regression risk.
+- react-credit-cards-2 lazy-load: active card-entry form; low value, focus/layout risk.
+- Other client-side jsonwebtoken usages (admin/profile, pay/index, adminAuth, Menus):
+  work correctly with explicit `buffer`; refactor to shared decode util is a nicety.
+- P1 #8 9× no-img-element (WARNINGS): per-component next/image sizing needed.
+- 85× react-hooks/exhaustive-deps (WARNINGS): mass-fix is a known regression footgun;
+  fix per-hook with intent. Non-blocking (build passes).
+- P3 #13/#14 prod DO env typos/dupes + set INTERNAL_API_URL: user to update in DO panel.
+

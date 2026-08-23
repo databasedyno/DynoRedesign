@@ -217,7 +217,7 @@ const ProductOrdersPage = ({ setPageName, setPageDescription, setPageAction }: p
           <Stack spacing={2} sx={{ pt: 1 }}>
             <Alert severity="info" sx={{ fontSize: 13 }}>
               Crypto refunds are handled off-chain — you send the funds back
-              from your own wallet. This flow only updates DynoPay's records
+              from your own wallet. This flow only updates DynoPay’s records
               and notifies the buyer.
             </Alert>
             <TextField

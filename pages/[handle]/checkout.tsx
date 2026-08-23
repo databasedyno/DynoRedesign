@@ -320,7 +320,7 @@ const CheckoutPage: NextPageWithLayout = () => {
           Pay with crypto →
         </Button>
         <Typography variant="caption" color="text.secondary" sx={{ display: "block", textAlign: "center", mt: 1.5 }}>
-          Powered by Dynopay · Payment settles directly to the merchant's wallet
+          Powered by Dynopay · Payment settles directly to the merchant’s wallet
         </Typography>
         </>
         )}

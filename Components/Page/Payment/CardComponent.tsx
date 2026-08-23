@@ -1,9 +1,14 @@
 import { useWalletStore } from "@/contexts/WalletDataContext";
 import { Box, Button, Collapse, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 
-import Cards, { Focused } from "react-credit-cards-2";
+import type { Focused } from "react-credit-cards-2";
 import "react-credit-cards-2/dist/es/styles-compiled.css";
+
+// Lazy-load the card-preview widget so react-credit-cards-2 stays out of the
+// initial bundle; it only loads when the card form actually renders.
+const Cards = dynamic(() => import("react-credit-cards-2"), { ssr: false });
 import * as yup from "yup";
 import FormManager from "../Common/FormManager";
 import TextBox from "@/Components/UI/TextBox";

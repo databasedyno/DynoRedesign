@@ -261,7 +261,7 @@ export default function InvoicePreviewDrawer({ open, invoice, onClose }: Props) 
           <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1.5, p: 4, textAlign: "center" }}>
             <Icon icon="mdi:file-alert-outline" width={48} color={theme.palette.text.secondary} />
             <Typography sx={{ fontFamily: "var(--font-body)", fontSize: 14, fontWeight: 600, color: theme.palette.text.primary }}>
-              Couldn't load the invoice preview
+              Couldn’t load the invoice preview
             </Typography>
             <Typography sx={{ fontFamily: "var(--font-body)", fontSize: 12, color: theme.palette.text.secondary }}>
               Try downloading the PDF directly — the preview may be blocked by your browser.

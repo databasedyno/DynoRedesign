@@ -15,7 +15,7 @@ import {
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import type { ICity, ICountry, IState } from "country-state-city";
-import { City, Country, State } from "country-state-city";
+import { useCountryStateCity } from "@/hooks/useCountryStateCity";
 import Image from "next/image";
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -38,19 +38,21 @@ const useLocationData = (
   formValues: { country?: string; state?: string },
   countries: ICountry[],
 ) => {
+  const csc = useCountryStateCity();
   const [states, setStates] = useState<IState[]>([]);
   const [cities, setCities] = useState<ICity[]>([]);
   const prevCountryRef = useRef<string>("");
   const prevStateRef = useRef<string>("");
 
   useEffect(() => {
+    if (!csc) return; // country-state-city loads lazily
     const getCountryByName = (name: string): ICountry | undefined =>
       countries.find((c) => c.name === name);
     const countryValue = String(formValues.country || "");
     if (countryValue && countryValue !== prevCountryRef.current) {
       const country = getCountryByName(countryValue);
       if (country) {
-        setStates(State.getStatesOfCountry(country.isoCode));
+        setStates(csc.State.getStatesOfCountry(country.isoCode));
         setCities([]);
       }
     } else if (!countryValue) {
@@ -58,9 +60,10 @@ const useLocationData = (
       setCities([]);
     }
     prevCountryRef.current = countryValue;
-  }, [formValues.country, countries]);
+  }, [formValues.country, countries, csc]);
 
   useEffect(() => {
+    if (!csc) return; // country-state-city loads lazily
     const getCountryByName = (name: string): ICountry | undefined =>
       countries.find((c) => c.name === name);
     const stateValue = String(formValues.state || "");
@@ -68,17 +71,17 @@ const useLocationData = (
     if (stateValue && countryValue && stateValue !== prevStateRef.current) {
       const country = getCountryByName(countryValue);
       if (country) {
-        const statesOfCountry = State.getStatesOfCountry(country.isoCode);
+        const statesOfCountry = csc.State.getStatesOfCountry(country.isoCode);
         const state = statesOfCountry.find((s) => s.name === stateValue);
         if (state) {
-          setCities(City.getCitiesOfState(country.isoCode, state.isoCode));
+          setCities(csc.City.getCitiesOfState(country.isoCode, state.isoCode));
         }
       }
     } else if (!stateValue) {
       setCities([]);
     }
     prevStateRef.current = stateValue;
-  }, [formValues.state, formValues.country, countries]);
+  }, [formValues.state, formValues.country, countries, csc]);
 
   return { states, cities };
 };
@@ -208,6 +211,7 @@ export default function CompanyDetailsSection({
   const [stateSearchTerm, setStateSearchTerm] = useState("");
   const [citySearchTerm, setCitySearchTerm] = useState("");
   const [countries, setCountries] = useState<ICountry[]>([]);
+  const cscMain = useCountryStateCity();
   const [vatValue, setVatValue] = useState({ code: "AT", taxCode: "VAT" });
 
   const isOpen = Boolean(anchorEl);
@@ -225,8 +229,8 @@ export default function CompanyDetailsSection({
   );
 
   useEffect(() => {
-    setCountries(Country.getAllCountries());
-  }, []);
+    if (cscMain) setCountries(cscMain.Country.getAllCountries());
+  }, [cscMain]);
 
   return (
     <SettingsAccordion
@@ -434,6 +438,7 @@ export default function CompanyDetailsSection({
                             gap: 1.5,
                           }}
                         >
+                          {/* eslint-disable-next-line @next/next/no-img-element -- remote flag CDN icon, not domain-whitelisted */}
                           <img
                             width={isMobile ? 16 : 18}
                             height={isMobile ? 16 : 18}
@@ -874,6 +879,7 @@ export default function CompanyDetailsSection({
                       justifyContent: "space-between",
                     }}
                   >
+                    {/* eslint-disable-next-line @next/next/no-img-element -- remote flag CDN icon, not domain-whitelisted */}
                     <img
                       width={isMobile ? 14 : 20}
                       height={isMobile ? 14 : 20}
@@ -982,6 +988,7 @@ export default function CompanyDetailsSection({
                             gap: "14px",
                           }}
                         >
+                          {/* eslint-disable-next-line @next/next/no-img-element -- remote flag CDN icon, not domain-whitelisted */}
                           <img
                             width={isMobile ? 16 : 20}
                             height={isMobile ? 16 : 20}

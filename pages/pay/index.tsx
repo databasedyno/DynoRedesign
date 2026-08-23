@@ -38,7 +38,7 @@ import { useRouter } from 'next/router'
 import Head from 'next/head'
 import { GetServerSideProps } from 'next'
 import { TOAST_SHOW } from '@/Redux/Actions/ToastAction'
-import jwt from 'jsonwebtoken'
+import { decodeJwt } from '@/utils/decodeJwt'
 import ProgressBar from '@/Components/UI/ProgressBar'
 
 import TransferExpectedCard from '@/Components/UI/TransferExpectedCard/Index'
@@ -536,7 +536,7 @@ const Payment = () => {
       }
 
       localStorage.setItem('token', data.token)
-      const tempToken: any = jwt.decode(data.token)
+      const tempToken: any = decodeJwt(data.token)
       setTokenData(tempToken)
       setFeePayer(data.fee_payer || '')
       setLinkId(tempToken?.transaction_id || '')
@@ -1791,8 +1791,8 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
           }
         }
       }
-    } catch {
-      /* fall back to default OG */
+    } catch (e) {
+      console.error('[SSR /pay] OG meta fetch failed (using default):', e)
     }
   }
   return { props: { ogMeta, siteUrl } }

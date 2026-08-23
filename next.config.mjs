@@ -18,7 +18,11 @@ const nextConfig = {
   // that would need a separate cleanup arc. Turning this on today would
   // block every build. Leave as-is until an ESLint cleanup PR arrives.
   eslint: {
-    ignoreDuringBuilds: true,
+    // Build fails on ESLint ERRORS only (warnings still allowed). Codebase is
+    // error-clean as of 2026-08-23. `dirs` is explicit because Next's defaults
+    // don't include the capital-C "Components" dir on case-sensitive Linux.
+    ignoreDuringBuilds: false,
+    dirs: ["pages", "Components", "utils", "hooks", "contexts", "helpers", "api", "Redux", "Containers"],
   },
   transpilePackages: ["mui-tel-input", "geist"],
 

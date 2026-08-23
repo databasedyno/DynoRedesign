@@ -1340,13 +1340,13 @@ const DocumentationPage = () => {
                   When to use each section
                 </Typography>
                 <Box component="ul" sx={{ pl: 2.5, m: 0, mb: 3, "& li": { fontSize: 14, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.9 } }}>
-                  <li><strong>Customers</strong> — optional. Create a customer to track payments and balances per buyer. Skip it for one-off "userless" checkouts.</li>
+                  <li><strong>Customers</strong> — optional. Create a customer to track payments and balances per buyer. Skip it for one-off “userless” checkouts.</li>
                   <li><strong>Payments</strong> — the core of the API. Create a hosted checkout or a direct crypto payment and the buyer pays in crypto.</li>
-                  <li><strong>Wallets</strong> — top up, debit, and check a customer's wallet balance.</li>
-                  <li><strong>Merchant Wallet Management</strong> — credit or debit a customer's wallet programmatically (refunds, rewards, fees).</li>
+                  <li><strong>Wallets</strong> — top up, debit, and check a customer’s wallet balance.</li>
+                  <li><strong>Merchant Wallet Management</strong> — credit or debit a customer’s wallet programmatically (refunds, rewards, fees).</li>
                   <li><strong>Transactions</strong> — look up payment and transaction history.</li>
                   <li><strong>Currencies</strong> — list the cryptocurrencies you can accept.</li>
-                  <li><strong>Webhooks</strong> — get notified the moment a payment's status changes.</li>
+                  <li><strong>Webhooks</strong> — get notified the moment a payment’s status changes.</li>
                 </Box>
 
                 <Typography sx={{ fontSize: 17, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1.5, mt: 3 }}>

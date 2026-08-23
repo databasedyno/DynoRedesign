@@ -67,7 +67,10 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       fetch(`${base}/api/pay/creator/${encodeURIComponent(handle)}`, { headers: { Accept: 'application/json' } }),
       fetch(`${base}/api/pay/creator/${encodeURIComponent(handle)}/analytics`, { headers: { Accept: 'application/json' } }).catch(() => null),
     ])
-    if (!r.ok) return { notFound: true }
+    if (!r.ok) {
+      console.error(`[SSR /[handle]] creator fetch "${handle}" -> HTTP ${r.status} (base=${base})`)
+      return { notFound: true }
+    }
     const json = await r.json()
     const data = json?.data
     if (!data?.creator) return { notFound: true }
@@ -124,7 +127,8 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
         products,
       },
     }
-  } catch {
+  } catch (e) {
+    console.error(`[SSR /[handle]] creator render failed:`, e)
     return { notFound: true }
   }
 }

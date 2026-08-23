@@ -303,6 +303,7 @@ const PaymentLinkSuccessModal: React.FC<PaymentLinkSuccessModalProps> = ({
                   }}
                 >
                 {directPayQrCode ? (
+                  // eslint-disable-next-line @next/next/no-img-element -- backend-generated QR (remote/data URL), next/image can't optimize
                   <img
                     src={directPayQrCode}
                     alt="Direct Pay QR Code"

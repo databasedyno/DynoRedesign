@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import { Box, Button, Dialog, DialogContent, Typography, useTheme } from "@mui/material";
 import { Icon } from "@iconify/react";
-import confetti from "canvas-confetti";
+// canvas-confetti is lazy-loaded inside fireConfetti (keeps it out of the bundle)
 import axiosBaseApi from "@/axiosConfig";
 import { rootReducer } from "@/utils/types";
 import { USER_PROFILE_FETCH, UserAction } from "@/Redux/Actions/UserAction";
@@ -16,13 +16,11 @@ const MONO = 'ui-monospace, "Roboto Mono", "JetBrains Mono", SFMono-Regular, Men
 
 /** Two-burst brand-colored confetti — tasteful, ~200ms. Client-only. */
 const fireConfetti = () => {
-  try {
+  void import("canvas-confetti").then(({ default: confetti }) => {
     const colors = [BRAND_ACCENT, "#7C5CFF", "#10B981", "#F59E0B"];
     confetti({ particleCount: 70, spread: 62, startVelocity: 38, origin: { x: 0.35, y: 0.4 }, colors, scalar: 0.95, ticks: 220 });
     confetti({ particleCount: 70, spread: 62, startVelocity: 38, origin: { x: 0.65, y: 0.4 }, colors, scalar: 0.95, ticks: 220 });
-  } catch {
-    /* canvas-confetti is client-only and safe to ignore */
-  }
+  }).catch(() => { /* client-only, safe to ignore */ });
 };
 
 /**

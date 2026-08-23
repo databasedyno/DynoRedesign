@@ -1,6 +1,6 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import jwt from "jsonwebtoken";
+import { decodeJwt } from "@/utils/decodeJwt";
 
 import { TokenData } from "@/utils/types";
 import Loading from "@/Components/UI/Loading";
@@ -11,7 +11,7 @@ const adminAuth = (WrappedComponent: any) => {
     useEffect(() => {
       if (localStorage.getItem("admin_token")) {
         const token = localStorage.getItem("admin_token");
-        const tokenData = jwt.decode(token ?? "") as TokenData;
+        const tokenData = decodeJwt<TokenData>(token ?? "");
         const pathname = Router.pathname.split("/");
         if (tokenData?.role && tokenData?.role === "ADMIN") {
           setAccessToken(token);

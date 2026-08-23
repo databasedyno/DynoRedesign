@@ -640,7 +640,6 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
               )}
             </Stack>
             {coverUrl && (
-              // eslint-disable-next-line @next/next/no-img-element
               <Box
                 sx={{
                   mt: 1,
@@ -653,6 +652,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
                 }}
                 data-testid="product-cover-preview"
               >
+                {/* eslint-disable-next-line @next/next/no-img-element -- arbitrary merchant-provided cover URL, not domain-whitelisted */}
                 <img
                   src={coverUrl}
                   alt="Cover preview"
@@ -1012,7 +1012,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
 
           {hasVariants && variants.length === 0 && (
             <Typography variant="caption" color="text.secondary">
-              No variants yet. Click "Add variant" to create one.
+              No variants yet. Click “Add variant” to create one.
             </Typography>
           )}
           {hasVariants && variants.map((v, idx) => (

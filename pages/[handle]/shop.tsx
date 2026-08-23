@@ -148,7 +148,10 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     const r = await fetch(`${base}/api/shop/${encodeURIComponent(handle)}`, {
       headers: { Accept: "application/json" },
     });
-    if (!r.ok) return { notFound: true };
+    if (!r.ok) {
+      console.error(`[SSR /[handle]/shop] shop fetch "${handle}" -> HTTP ${r.status} (base=${base})`);
+      return { notFound: true };
+    }
     const json = await r.json();
     const data = json?.data;
     if (!data?.merchant) return { notFound: true };
@@ -164,7 +167,8 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
         siteUrl,
       },
     };
-  } catch {
+  } catch (e) {
+    console.error(`[SSR /[handle]/shop] "${handle}" render failed:`, e);
     return { notFound: true };
   }
 };

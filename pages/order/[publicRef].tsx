@@ -516,7 +516,10 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     const r = await fetch(`${base}/api/order/${encodeURIComponent(ref)}`, {
       headers: { Accept: "application/json" },
     });
-    if (!r.ok) return { props: { order: null, siteUrl } };
+    if (!r.ok) {
+      console.error(`[SSR /order/[publicRef]] order fetch "${ref}" -> HTTP ${r.status} (base=${base})`);
+      return { props: { order: null, siteUrl } };
+    }
     const json = await r.json();
     const raw = json?.data || null;
     // Normalize: backend returns { order, items, merchant }; older/demo shapes
@@ -527,7 +530,8 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
         : raw
       : null;
     return { props: { order: normalized, siteUrl } };
-  } catch {
+  } catch (e) {
+    console.error(`[SSR /order/[publicRef]] "${ref}" render failed:`, e);
     return { props: { order: null, siteUrl } };
   }
 };
