@@ -1,3 +1,33 @@
+# ARCH (2026-08-23 fork) — Worker / API split (Pattern B) — IMPLEMENTED, web verified
+
+Enables running the SAME image as two deployments so background work stops competing with API traffic.
+Zero behaviour change until a second (worker) service is deployed — web mode is byte-for-byte the same.
+
+- `backend/worker.ts` (NEW): dedicated background entrypoint. Forces
+  `WORKER_PROCESS=true`, `WORKER_ROLE=primary`, `ENABLE_BACKGROUND_JOBS=true` BEFORE `require("./server")`
+  (env set first; dotenv.config() is no-override so these win; require avoids ES-import hoisting).
+- `backend/server.ts`: the post-listen startup was extracted into `startRuntimeServices()` (pure move,
+  no logic change). New branch: if `WORKER_PROCESS==='true'` the process binds a tiny `/health`-only
+  express app on `WORKER_HEALTH_PORT` (default = PORT) and runs `startRuntimeServices()` — it does NOT
+  serve the public merchant/dashboard API. Otherwise it takes the normal `app.listen(port)` web path.
+  `startRuntimeServices()` is identical for both; the existing `isCronEnabled` gate (ENABLE_BACKGROUND_JOBS
+  && WORKER_ROLE!==secondary) decides whether the process runs leader election + cron/sweep/settlement/
+  BullMQ. Redis leader election already guarantees single-run across replicas — unchanged.
+- `backend/package.json`: added `start:web` (node dist/server.js), `start:worker` (node dist/worker.js),
+  `worker:dev` (ts-node worker.ts). `tsc` auto-compiles worker.ts → dist/worker.js (no include list; not excluded).
+
+DEPLOY (two services, one image, shared DB+Redis):
+  web    : command `yarn start:web`    env WORKER_ROLE=secondary
+  worker : command `yarn start:worker` env (worker.ts already forces primary+jobs; WORKER_HEALTH_PORT optional)
+  Inbound Tatum webhooks STAY on web (HTTP); worker consumes the BullMQ queue + runs reconciliation/sweeps.
+
+VERIFIED: web mode restart unchanged — "Server is listening on port 3300", SAFE MODE preserved
+(background jobs disabled), /health 200, no errors. worker.ts + server.ts transpile clean (ts.transpileModule).
+NOT executed on this pod: launching worker.ts would enable jobs against the LIVE prod DB (deliberately avoided).
+
+---
+
+
 # PERF (2026-08-23 fork) — Production-launch performance trio (P1+P2+P3) — VERIFIED
 
 User approved "P1 (auth cache) + P2 (gzip) + P3 (keep-alive agent)" after a read-only

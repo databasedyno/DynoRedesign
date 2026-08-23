@@ -1521,11 +1521,10 @@ const startServer = async () => {
     const errMsg = error instanceof Error ? error.message : String(error);
     log(`PostgreSQL Unable to connect to the database: ${errMsg}`, 'error');
   }
-  httpServer = app.listen(port, () => {
-    log(`🚀 Server is listening on port ${port}!`, 'info');
-    log(`📚 Swagger docs available at /api/docs`, 'info');
-    log(`❤️ Health check available at /health`, 'info');
-
+  // Post-startup runtime services — identical for web and worker processes. The
+  // internal isCronEnabled gate decides whether this process becomes a leader and
+  // runs the cron/sweep/settlement/webhook machinery (worker) or stays API-only (web).
+  const startRuntimeServices = () => {
     // Every new user gets a personal Account (tbl_company, account_type
     // 'individual') so company-scoped features — invoices, customers, webhooks,
     // API usage — work for individual creators too. Installed as a single
@@ -1606,7 +1605,38 @@ const startServer = async () => {
       log(`Wallet currency_type fix failed: ${err.message}`, 'warn');
     });
 
-  });
+  };
+
+  // WEB serves the public merchant/dashboard API on `port`. WORKER (WORKER_PROCESS=true)
+  // runs the SAME background machinery but exposes only a tiny /health endpoint, so
+  // heavy cron/sweep/settlement work never competes with API request handling. Both
+  // processes share DB + Redis; Redis leader election keeps every job single-run even
+  // with multiple worker replicas. See worker.ts for the dedicated entrypoint.
+  if (process.env.WORKER_PROCESS === 'true') {
+    const healthApp = express();
+    healthApp.get('/health', (_req: express.Request, res: express.Response) => {
+      res.status(200).json({
+        status: 'ok',
+        role: 'worker',
+        leader: isLeader(),
+        instance: getInstanceId(),
+        background_jobs: isCronEnabled,
+        timestamp: new Date().toISOString(),
+      });
+    });
+    const workerHealthPort = Number(process.env.WORKER_HEALTH_PORT || port);
+    httpServer = healthApp.listen(workerHealthPort, () => {
+      log(`🛠️  WORKER process started — background jobs only (WORKER_ROLE=${workerRole}). Health on :${workerHealthPort}`, 'info');
+      startRuntimeServices();
+    });
+  } else {
+    httpServer = app.listen(port, () => {
+      log(`🚀 Server is listening on port ${port}!`, 'info');
+      log(`📚 Swagger docs available at /api/docs`, 'info');
+      log(`❤️ Health check available at /health`, 'info');
+      startRuntimeServices();
+    });
+  }
 
   // ─── Global Error Handler (must be AFTER all routes) ─────────────────────────
   // Catches unhandled errors in route handlers and prevents stack trace leakage
