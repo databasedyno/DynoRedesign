@@ -5,7 +5,7 @@
 
 const { chromium } = require('playwright');
 
-const PREVIEW_URL = 'https://payment-integration-91.preview.emergentagent.com';
+const PREVIEW_URL = 'https://merchant-checkout-23.preview.emergentagent.com';
 
 async function testGISIntegration() {
   console.log('='.repeat(80));

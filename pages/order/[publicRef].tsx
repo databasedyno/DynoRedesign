@@ -509,12 +509,14 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const ref = String(ctx.params?.publicRef || "");
   // SSR fetch base: prefer INTERNAL_API_URL (preview keeps NEXT_PUBLIC_BASE_URL
   // empty for relative browser calls; server-side needs an absolute URL).
-  const base = (process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_SERVER_URL || "").replace(/\/+$/, "");
+  const base = (process.env.INTERNAL_API_URL || process.env.INTERNAL_BACKEND_URL || process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_SERVER_URL || "").replace(/\/+$/, "");
+  // Public URL for the client — never the internal loopback base.
+  const siteUrl = (process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_SERVER_URL || "").replace(/\/+$/, "") || base;
   try {
     const r = await fetch(`${base}/api/order/${encodeURIComponent(ref)}`, {
       headers: { Accept: "application/json" },
     });
-    if (!r.ok) return { props: { order: null, siteUrl: base } };
+    if (!r.ok) return { props: { order: null, siteUrl } };
     const json = await r.json();
     const raw = json?.data || null;
     // Normalize: backend returns { order, items, merchant }; older/demo shapes
@@ -524,9 +526,9 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
         ? { ...raw.order, items: raw.items || raw.order.items || [], merchant: raw.merchant || null }
         : raw
       : null;
-    return { props: { order: normalized, siteUrl: base } };
+    return { props: { order: normalized, siteUrl } };
   } catch {
-    return { props: { order: null, siteUrl: base } };
+    return { props: { order: null, siteUrl } };
   }
 };
 

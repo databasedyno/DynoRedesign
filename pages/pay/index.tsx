@@ -1766,7 +1766,9 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   // NEXT_PUBLIC_BASE_URL is deliberately EMPTY so browser calls stay relative —
   // but a relative URL can't be fetched server-side). Unset in production, so
   // the public app URL is used there exactly as before. Same pattern as [handle].tsx.
-  const base = (process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_SERVER_URL || '').replace(/\/+$/, '')
+  const base = (process.env.INTERNAL_API_URL || process.env.INTERNAL_BACKEND_URL || process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_SERVER_URL || '').replace(/\/+$/, '')
+  // Public URL for the client (OG tags / share links) — never the loopback base.
+  const siteUrl = (process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_SERVER_URL || '').replace(/\/+$/, '') || base
   let ogMeta: PayOgMeta | null = null
   if (d) {
     try {
@@ -1793,7 +1795,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       /* fall back to default OG */
     }
   }
-  return { props: { ogMeta, siteUrl: base } }
+  return { props: { ogMeta, siteUrl } }
 }
 
 export default PayRoute

@@ -13,6 +13,7 @@
 import React from "react";
 import Head from "next/head";
 import { GetServerSideProps } from "next";
+import { getCreatorBaseUrl } from "@/helpers/creatorUrl";
 import { Container } from "@mui/material";
 import { NextPageWithLayout } from "@/pages/_app";
 import { ShopClient } from "@/Components/Page/Shop";
@@ -133,9 +134,16 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     return { notFound: true };
   }
   const handle = String(ctx.params?.handle || "").toLowerCase();
-  // SSR fetch base: prefer INTERNAL_API_URL (preview keeps NEXT_PUBLIC_BASE_URL
-  // empty for relative browser calls; server-side needs an absolute URL).
-  const base = (process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_SERVER_URL || "").replace(/\/+$/, "");
+  // SSR fetch base — hit the backend over an internal loopback URL so the
+  // request bypasses Cloudflare + the bot-protection auto-block that silently
+  // 403s public self-fetches. Falls back to the public URL if none is set.
+  const base = (process.env.INTERNAL_API_URL || process.env.INTERNAL_BACKEND_URL || process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_SERVER_URL || "").replace(/\/+$/, "");
+  // Public URL shown to the client — NEVER the internal loopback base.
+  const siteUrl = getCreatorBaseUrl() || (process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_SERVER_URL || "").replace(/\/+$/, "");
+  // Shop lives only on the creator domain (dynopay.me) in production.
+  let creatorHost = "";
+  try { creatorHost = siteUrl ? new URL(siteUrl).host.toLowerCase() : ""; } catch { creatorHost = ""; }
+  const reqHost = String(ctx.req.headers["x-forwarded-host"] || ctx.req.headers.host || "").split(",")[0].trim().toLowerCase();
   try {
     const r = await fetch(`${base}/api/shop/${encodeURIComponent(handle)}`, {
       headers: { Accept: "application/json" },
@@ -144,11 +152,14 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     const json = await r.json();
     const data = json?.data;
     if (!data?.merchant) return { notFound: true };
+    if (process.env.NODE_ENV === "production" && creatorHost && reqHost && reqHost !== creatorHost) {
+      return { redirect: { destination: `${siteUrl}${ctx.resolvedUrl}`, permanent: true } };
+    }
     return {
       props: {
         merchant: data.merchant,
         products: Array.isArray(data.products) ? data.products : [],
-        siteUrl: base,
+        siteUrl,
       },
     };
   } catch {

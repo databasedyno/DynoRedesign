@@ -51,7 +51,14 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   // Server-side fetch base: prefer an internal API URL (set in preview where
   // NEXT_PUBLIC_BASE_URL is empty), then the public app URL. This is used ONLY
   // to reach the backend during SSR — the shareable creator URL is separate.
-  const base = (process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_SERVER_URL || '').replace(/\/+$/, '')
+  const base = (process.env.INTERNAL_API_URL || process.env.INTERNAL_BACKEND_URL || process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_SERVER_URL || '').replace(/\/+$/, '')
+  // Creator pages are served ONLY on the branded creator domain (dynopay.me);
+  // a valid handle opened on another host is forwarded there (production only,
+  // so the single-host Emergent preview always renders for verification).
+  const creatorBase = getCreatorBaseUrl()
+  let creatorHost = ''
+  try { creatorHost = creatorBase ? new URL(creatorBase).host.toLowerCase() : '' } catch { creatorHost = '' }
+  const reqHost = String(ctx.req.headers['x-forwarded-host'] || ctx.req.headers.host || '').split(',')[0].trim().toLowerCase()
   try {
     // Profile + analytics in parallel — analytics is optional and never blocks
     // the page render. If the endpoint 404s (older creator, network hiccup),
@@ -64,6 +71,11 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     const json = await r.json()
     const data = json?.data
     if (!data?.creator) return { notFound: true }
+
+    // Off-domain (dynopay.com / checkout.*) → forward to the creator domain.
+    if (process.env.NODE_ENV === 'production' && creatorHost && reqHost && reqHost !== creatorHost) {
+      return { redirect: { destination: `${creatorBase}${ctx.resolvedUrl}`, permanent: true } }
+    }
 
     // Live products render INLINE on this page (session 2026-08-12 storefront
     // merge) so the one link a merchant shares also shows what they sell.
