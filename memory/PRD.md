@@ -1,3 +1,43 @@
+# FOLLOW-UPS (2026-06 fork, 2026-06) — Payment Tolerance UI fix + Overpayment→Admin routing (items 2 & 3; escrow deferred)
+
+USER (this session) clarified the confusing handoff: build (A) Payment Tolerance UI fix, then
+(B) overpayment→admin routing. Escrow (item 1) explicitly DEFERRED ("detail later"). Confirmed
+choices: remove the "Flag overpayments above" field so merchants set only (i) underpayment
+threshold + (ii) partial-payment grace period; overpayment excess → 100% to admin; underpayment
+within threshold settles to MERCHANT (competitor-aligned: BitPay/Coinbase Commerce/NOWPayments).
+
+A. PAYMENT TOLERANCE UI — WAS BROKEN (never saved). Root cause: the form submitted
+   `accept_underpayments_up_to`/`flag_overpayments_above`/`time_for_partial_payments`, but the
+   `tbl_company` columns are `underpayment_threshold_usd`/`overpayment_threshold_usd`/
+   `grace_period_minutes` → Sequelize `companyModel.update({...data})` silently dropped the
+   mismatched keys. FIX (frontend-only): renamed the form fields to the exact DB column names,
+   REMOVED the "Flag Overpayments Above" input entirely, and now seed initial values from the
+   company row so saved values load back. Files: `Components/UI/CompanySettingsDialog/
+   PaymentToleranceSection.tsx` (props `underpayment_threshold_usd`+`grace_period_minutes`, over-
+   payment field removed) + `Components/UI/CompanySettingsDialog/index.tsx` (type, initialFormValues,
+   initialValues read-from-company, yup schema, section props). i18n keys `flagOverpayments*` left
+   in place (unused, harmless). VERIFIED on the LIVE API: login → PUT updateCompany/1
+   {underpayment_threshold_usd:"2.50",grace_period_minutes:"25"} persisted (readback under=2.50
+   grace=25), grace>30 correctly rejected ("cannot exceed 30 minutes"), then RESTORED company 1 to
+   null (original state) — live DB left clean. UI screenshot confirms only "Accept Underpayments Up
+   To" + "Time for Partial Payments" render (no overpayment field), 0 console errors.
+
+B. OVERPAYMENT → ADMIN — `backend/controller/payment/settlement/chainVerification.ts` ratio-based
+   distribution (~line 517) now caps the merchant ratio at 1.0:
+   `const merchantRatio = Math.min(paymentRatio, 1); userAmountToSend = preCalcMerchantAmount *
+   merchantRatio; adminAmountToSend = totalAmountReceived - userAmountToSend;`. Effect: overpayment
+   (ratio>1) → merchant gets exactly their expected net; the entire excess flows to admin. Exact
+   (=1) unchanged; underpayment (<1) still settles proportionally to the merchant (item 4). Backend
+   tsc clean, ts-node boots clean after restart. NOT e2e-tested — SAFE MODE (no real crypto
+   settlement / background jobs off); pure settlement-math change verified by compile + logic review.
+
+DEFERRED: Escrow system (item 1) — user will detail the flow later. `overpayment_threshold_usd`
+column retained (still used only to LABEL a payment "overpaid" for webhooks/notifications; does not
+affect fund routing). Login: hostbay@moxx.co / Katiekendra123@.
+
+---
+
+
 # FOLLOW-UPS (2026-08-23o) — Compare-panel sparklines + Legacy File Trim + Public Live Preview chip (ALL 3 VERIFIED, iteration_67 100%)
 
 Wave 2 of the same backlog: user asked to "complete all" (some already shipped in iter66).

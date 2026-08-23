@@ -45,9 +45,8 @@ type CompanySettingsFormValues = {
   VAT_number: string;
   webhook_notification_url: string;
   webhook_secret_key: string;
-  accept_underpayments_up_to: string;
-  flag_overpayments_above: string;
-  time_for_partial_payments: string;
+  underpayment_threshold_usd: string;
+  grace_period_minutes: string;
   auto_convert_volatile_crypto: string;
   convert_to_stablecoin: string;
 };
@@ -66,9 +65,8 @@ const initialFormValues: CompanySettingsFormValues = {
   VAT_number: "",
   webhook_notification_url: "https://mystore.com/dynopay-webhook",
   webhook_secret_key: "wh_sec_....................xyz123",
-  accept_underpayments_up_to: "1.00",
-  flag_overpayments_above: "5.00",
-  time_for_partial_payments: "30",
+  underpayment_threshold_usd: "1.00",
+  grace_period_minutes: "30",
   auto_convert_volatile_crypto: "no",
   convert_to_stablecoin: "usdt_trc20",
 };
@@ -175,6 +173,14 @@ export default function CompanySettingsDialog({
           autoConvertData?.convert_to_stablecoin ??
           (companyAny.convert_to_stablecoin as string | undefined) ??
           initialFormValues.convert_to_stablecoin,
+        underpayment_threshold_usd:
+          companyAny.underpayment_threshold_usd != null
+            ? String(companyAny.underpayment_threshold_usd)
+            : initialFormValues.underpayment_threshold_usd,
+        grace_period_minutes:
+          companyAny.grace_period_minutes != null
+            ? String(companyAny.grace_period_minutes)
+            : initialFormValues.grace_period_minutes,
       };
     }
     return { ...initialFormValues };
@@ -208,9 +214,8 @@ export default function CompanySettingsDialog({
         VAT_number: yup.string().nullable(),
         webhook_notification_url: yup.string().nullable(),
         webhook_secret_key: yup.string().nullable(),
-        accept_underpayments_up_to: yup.string().nullable(),
-        flag_overpayments_above: yup.string().nullable(),
-        time_for_partial_payments: yup.string().nullable(),
+        underpayment_threshold_usd: yup.string().nullable(),
+        grace_period_minutes: yup.string().nullable(),
         auto_convert_volatile_crypto: yup.string().nullable(),
         convert_to_stablecoin: yup.string().nullable(),
       }),
@@ -461,11 +466,9 @@ export default function CompanySettingsDialog({
                   {sections.includes("payment") && (
                   <PaymentToleranceSection
                     values={{
-                      accept_underpayments_up_to:
-                        values.accept_underpayments_up_to,
-                      flag_overpayments_above: values.flag_overpayments_above,
-                      time_for_partial_payments:
-                        values.time_for_partial_payments,
+                      underpayment_threshold_usd:
+                        values.underpayment_threshold_usd,
+                      grace_period_minutes: values.grace_period_minutes,
                     }}
                     handleChange={handleChange}
                     handleBlur={handleBlur}

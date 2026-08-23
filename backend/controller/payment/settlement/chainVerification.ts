@@ -515,14 +515,20 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
           
           if (expectedCrypto > 0) {
             const paymentRatio = Number(totalAmountReceived) / expectedCrypto;
-            userAmountToSend = preCalcMerchantAmount * paymentRatio;
+            // Overpayment routing: the merchant receives at most their expected
+            // (full) net share — the merchant ratio is capped at 1.0. Any excess
+            // from an overpayment therefore flows entirely to the admin. Underpayments
+            // (ratio < 1) still settle proportionally to the merchant (unchanged).
+            const merchantRatio = Math.min(paymentRatio, 1);
+            userAmountToSend = preCalcMerchantAmount * merchantRatio;
             adminAmountToSend = Number(totalAmountReceived) - userAmountToSend;
             
             cronLogger.info(`[cryptoVerification] ${fee_payer === 'customer' ? 'CUSTOMER' : 'COMPANY'} PAYS FEES — RATIO-BASED DISTRIBUTION:
               - Expected: ${expectedCrypto.toFixed(8)} ${tempCurrency}
-              - Payment ratio: ${paymentRatio.toFixed(4)} (${paymentRatio >= 1 ? 'exact/overpaid' : 'underpaid'})
+              - Payment ratio: ${paymentRatio.toFixed(4)} (${paymentRatio > 1 ? 'overpaid → excess to admin' : paymentRatio === 1 ? 'exact' : 'underpaid'})
+              - Merchant ratio (capped at 1.0): ${merchantRatio.toFixed(4)}
               - Merchant: ${userAmountToSend.toFixed(8)} ${tempCurrency} (scaled from pre-calc ${preCalcMerchantAmount.toFixed(8)})
-              - Admin (fees): ${adminAmountToSend.toFixed(8)} ${tempCurrency}`);
+              - Admin (fees${paymentRatio > 1 ? ' + overpayment excess' : ''}): ${adminAmountToSend.toFixed(8)} ${tempCurrency}`);
           } else {
             // Fallback: expected amount not available, use fee percentage on non-tax portion
             const taxRatio = storedTaxAmountUSD > 0 ? storedTaxAmountUSD / (storedBaseAmountUSD + storedTaxAmountUSD) : 0;

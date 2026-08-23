@@ -9,9 +9,8 @@ import { useTranslation } from "react-i18next";
 
 export type PaymentToleranceSectionProps = {
   values: {
-    accept_underpayments_up_to: string;
-    flag_overpayments_above: string;
-    time_for_partial_payments: string;
+    underpayment_threshold_usd: string;
+    grace_period_minutes: string;
   };
   handleChange: (
     e: React.ChangeEvent<
@@ -67,8 +66,8 @@ export default function PaymentToleranceSection({
           fullWidth
           inputHeight={isMobile ? "32px" : "40px"}
           label={tSettings("paymentToleranceFields.acceptUnderpaymentsUpTo")}
-          name="accept_underpayments_up_to"
-          value={String(values.accept_underpayments_up_to ?? "1.00")}
+          name="underpayment_threshold_usd"
+          value={String(values.underpayment_threshold_usd ?? "1.00")}
           onChange={handleChange}
           onBlur={handleBlur}
           helperText={tSettings(
@@ -95,38 +94,9 @@ export default function PaymentToleranceSection({
         <AdornedInputField
           fullWidth
           inputHeight={isMobile ? "32px" : "40px"}
-          label={tSettings("paymentToleranceFields.flagOverpaymentsAbove")}
-          name="flag_overpayments_above"
-          value={String(values.flag_overpayments_above ?? "5.00")}
-          onChange={handleChange}
-          onBlur={handleBlur}
-          helperText={tSettings(
-            "paymentToleranceFields.flagOverpaymentsHelper",
-          )}
-          startAdornment={
-            <Typography
-              component="span"
-              variant="body2"
-              sx={{
-                fontFamily: "var(--font-sans)",
-                color: "text.primary",
-                fontWeight: 500,
-                lineHeight: 1.2,
-                fontSize: "13px",
-              }}
-            >
-              $
-            </Typography>
-          }
-          type="text"
-          inputMode="decimal"
-        />
-        <AdornedInputField
-          fullWidth
-          inputHeight={isMobile ? "32px" : "40px"}
           label={tSettings("paymentToleranceFields.timeForPartialPayments")}
-          name="time_for_partial_payments"
-          value={String(values.time_for_partial_payments ?? "30")}
+          name="grace_period_minutes"
+          value={String(values.grace_period_minutes ?? "30")}
           onChange={handleChange}
           onBlur={handleBlur}
           helperText={tSettings(
