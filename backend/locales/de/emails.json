@@ -563,5 +563,46 @@
     "intro": "Dein Beitrag zu <strong>{{campaignName}}</strong> ist gerade eingetroffen — danke für deine Unterstützung.",
     "outro": "Der Organisator kann dir Kampagnen-Updates schicken, damit du siehst, wohin deine Unterstützung fließt.",
     "contact": "Fragen? Antworte auf diese E-Mail und der Organisator von {{campaignName}} meldet sich."
+  },
+  "walletOtp": {
+    "subject": "Code zur Bestätigung der Wallet-Adresse",
+    "heading": "Wallet-Bestätigungscode",
+    "intro": "Sie bestätigen eine neue Wallet-Adresse für {{currency}}.",
+    "walletAddress": "Wallet-Adresse",
+    "currency": "Währung",
+    "expiry": "Dieser Code läuft in {{minutes}} Minuten ab."
+  },
+  "overpayment": {
+    "merchantSubject": "Überzahlung erhalten — {{excess}} zusätzlich",
+    "merchantHeading": "Ein Kunde hat zu viel gezahlt",
+    "merchantIntro": "Ein Kunde hat gerade eine Zahlung an {{company}} abgeschlossen und MEHR als den fälligen Betrag gesendet.",
+    "overpaidBy": "Zu viel gezahlt",
+    "statusOverpaid": "Überzahlt",
+    "merchantBody": "Der volle erwartete Betrag wurde Ihnen gutgeschrieben. Der Überschuss von {{excess}} (≈ {{excessFiat}}) wurde gemäß der Überzahlungsrichtlinie Ihres Kontos an DynoPay weitergeleitet – Sie müssen also nichts tun.",
+    "viewTransactions": "Transaktionen ansehen"
+  },
+  "payoutDigest": {
+    "subjectActive": "Wöchentliche Auszahlungsübersicht — {{amount}}",
+    "subjectQuiet": "Wöchentliche Auszahlungsübersicht — eine ruhige Woche vor einer neuen",
+    "headingActive": "Ihre wöchentliche Auszahlungsübersicht",
+    "headingQuiet": "Wöchentliche Auszahlungsübersicht — ruhige Woche",
+    "intro": "So sahen die letzten 7 Tage für Ihr Unternehmen auf DynoPay aus.",
+    "settledThisWeek": "Diese Woche abgewickelt",
+    "platformFees": "Plattformgebühren",
+    "feeTierContext": "{{name}}-Stufe — {{percent}} %",
+    "thisPeriod": "Dieser Zeitraum",
+    "period": "Zeitraum",
+    "paymentsSettled": "Abgewickelte Zahlungen",
+    "changeVsPrior": "Veränderung ggü. Vorwoche",
+    "newThisWeek": "Neu in dieser Woche",
+    "totalTopCoins": "Gesamt über die Top-Coins",
+    "paymentSingular": "Zahlung",
+    "paymentPlural": "Zahlungen",
+    "compareToLast": "Im Vergleich zur letzten Woche ({{prevAmount}}, {{prevCountLabel}}): {{delta}}",
+    "firstActiveWeek": "Dies ist Ihre erste aktive Woche — willkommen bei der Wochenübersicht. {{delta}}",
+    "nothingSettled": "Diese Woche wurde nichts abgewickelt. Senden Sie einem Kunden einen Zahlungslink, und bringen wir die erste Zahlung durch: {{link}}",
+    "createPayLink": "Zahlungslink erstellen →",
+    "openDashboardBody": "Öffnen Sie Ihr Dashboard, um Transaktionen zu erkunden, Wallets anzupassen oder einen neuen Zahlungslink zu teilen.",
+    "openDashboard": "Dashboard öffnen"
   }
 }

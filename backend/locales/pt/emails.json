@@ -563,5 +563,46 @@
     "intro": "Sua contribuição para <strong>{{campaignName}}</strong> acabou de chegar — obrigado por apoiar esta campanha.",
     "outro": "O organizador pode enviar atualizações da campanha para você ver aonde vai o seu apoio.",
     "contact": "Dúvidas? Responda este e-mail e o organizador de {{campaignName}} entrará em contato."
+  },
+  "walletOtp": {
+    "subject": "Código para validação de endereço de carteira",
+    "heading": "Código de verificação da carteira",
+    "intro": "Você está validando um novo endereço de carteira para {{currency}}.",
+    "walletAddress": "Endereço da carteira",
+    "currency": "Moeda",
+    "expiry": "Este código expira em {{minutes}} minutos."
+  },
+  "overpayment": {
+    "merchantSubject": "Pagamento a mais recebido — {{excess}} extra",
+    "merchantHeading": "Um cliente pagou a mais",
+    "merchantIntro": "Um cliente acabou de concluir um pagamento para {{company}} e enviou MAIS do que o valor devido.",
+    "overpaidBy": "Valor pago a mais",
+    "statusOverpaid": "Pago a mais",
+    "merchantBody": "O valor total esperado foi creditado para você. O excedente de {{excess}} (≈ {{excessFiat}}) foi encaminhado para a DynoPay conforme a política de pagamento a mais da sua conta, portanto não há nada que você precise fazer.",
+    "viewTransactions": "Ver transações"
+  },
+  "payoutDigest": {
+    "subjectActive": "Resumo semanal de repasses — {{amount}}",
+    "subjectQuiet": "Resumo semanal de repasses — uma semana tranquila antes de uma nova",
+    "headingActive": "Seu resumo semanal de repasses",
+    "headingQuiet": "Resumo semanal de repasses — semana tranquila",
+    "intro": "Veja como foram os últimos 7 dias para o seu negócio na DynoPay.",
+    "settledThisWeek": "Liquidado nesta semana",
+    "platformFees": "Taxas da plataforma",
+    "feeTierContext": "Nível {{name}} — {{percent}}%",
+    "thisPeriod": "Este período",
+    "period": "Período",
+    "paymentsSettled": "Pagamentos liquidados",
+    "changeVsPrior": "Variação vs. semana anterior",
+    "newThisWeek": "Novo nesta semana",
+    "totalTopCoins": "Total das principais moedas",
+    "paymentSingular": "pagamento",
+    "paymentPlural": "pagamentos",
+    "compareToLast": "Em comparação com a semana passada ({{prevAmount}}, {{prevCountLabel}}): {{delta}}",
+    "firstActiveWeek": "Esta é a sua primeira semana ativa — bem-vindo ao resumo semanal. {{delta}}",
+    "nothingSettled": "Nada liquidado nesta semana. Envie um link de pagamento a um cliente e vamos concluir o primeiro: {{link}}",
+    "createPayLink": "Criar um link de pagamento →",
+    "openDashboardBody": "Abra o seu painel para explorar transações, ajustar carteiras ou compartilhar um novo link de pagamento.",
+    "openDashboard": "Abrir painel"
   }
 }

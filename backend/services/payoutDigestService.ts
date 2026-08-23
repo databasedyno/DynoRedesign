@@ -2,6 +2,7 @@ import { QueryTypes } from "sequelize";
 import config from "../utils/config";
 import sequelize from "../utils/dbInstance";
 import mailTransporter from "../utils/mailTransporter";
+import { t, resolveLangByEmail } from "../utils/emailI18n";
 import { apiLogger } from "../utils/loggers";
 import { captureError } from "./errorMonitoringService";
 import {
@@ -312,14 +313,20 @@ export async function sendPayoutDigestEmail(
     if (!d.email) return { sent: false, skipped: "no-email" };
     // Zero-activity accounts still receive the digest but with a "no volume this
     // week" note — Coinbase pattern: keep engagement even on quiet weeks.
+    const lang = await resolveLangByEmail(d.email);
+    const dtLocale =
+      ({ en: "en-GB", pt: "pt-PT", es: "es-ES", fr: "fr-FR", de: "de-DE", nl: "nl-NL" } as Record<string, string>)[lang] ||
+      "en-GB";
+    const paymentsLabel = (n: number) =>
+      `${n} ${n === 1 ? t("payoutDigest.paymentSingular", lang) : t("payoutDigest.paymentPlural", lang)}`;
     const subject = d.hasActivity
-      ? `Weekly payout digest — ${fmtMoney(d.settledVolume, d.currencySymbol, d.displayCurrency)}`
-      : `Weekly payout digest — quiet week ahead of a new one`;
+      ? t("payoutDigest.subjectActive", lang, { amount: fmtMoney(d.settledVolume, d.currencySymbol, d.displayCurrency) })
+      : t("payoutDigest.subjectQuiet", lang);
 
-    const periodLabel = `${new Date(d.periodStart).toLocaleDateString("en-GB", {
+    const periodLabel = `${new Date(d.periodStart).toLocaleDateString(dtLocale, {
       day: "2-digit",
       month: "short",
-    })} – ${new Date(d.periodEnd).toLocaleDateString("en-GB", {
+    })} – ${new Date(d.periodEnd).toLocaleDateString(dtLocale, {
       day: "2-digit",
       month: "short",
       year: "numeric",
@@ -332,20 +339,20 @@ export async function sendPayoutDigestEmail(
     const deltaArrow = positive ? "▲" : "▼";
     const deltaText = d.hasPriorActivity
       ? `${deltaArrow} ${Math.abs(d.volumeDeltaPct).toFixed(1)}%`
-      : "New this week";
+      : t("payoutDigest.newThisWeek", lang);
     const deltaChip = `<span style="display:inline-block; background:${deltaBg}; color:${deltaColor}; padding:3px 10px; border-radius:12px; font-size:12px; font-weight:700; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;">${deltaText}</span>`;
 
     // Stat cards row: Settled | Fees paid
     const settledCard = statCard(
-      "Settled this week",
+      t("payoutDigest.settledThisWeek", lang),
       fmtMoney(d.settledVolume, d.currencySymbol, d.displayCurrency),
-      `${d.settledCount} payment${d.settledCount === 1 ? "" : "s"}`,
+      paymentsLabel(d.settledCount),
       "green",
     );
     const feesCard = statCard(
-      "Platform fees",
+      t("payoutDigest.platformFees", lang),
       fmtMoney(d.feesPaid, d.currencySymbol, d.displayCurrency),
-      d.feeTier ? `${d.feeTier.name} tier — ${d.feeTier.percent}%` : "This period",
+      d.feeTier ? t("payoutDigest.feeTierContext", lang, { name: d.feeTier.name, percent: d.feeTier.percent }) : t("payoutDigest.thisPeriod", lang),
       "blue",
     );
     const statsRow = twoColumnStats(settledCard, feesCard);
@@ -364,7 +371,7 @@ export async function sendPayoutDigestEmail(
         })
         .join("");
       const totalRow = feeTotalRow(
-        "Total across top coins",
+        t("payoutDigest.totalTopCoins", lang),
         fmtMoney(
           d.topCoins.reduce((s, c) => s + c.volumeDisplay, 0),
           d.currencySymbol,
@@ -377,27 +384,29 @@ export async function sendPayoutDigestEmail(
     // Comparison row
     const compareRow = d.hasPriorActivity
       ? p(
-          `Compared to last week (${fmtMoney(
-            d.prevVolume,
-            d.currencySymbol,
-            d.displayCurrency,
-          )}, ${d.prevCount} payment${d.prevCount === 1 ? "" : "s"}): ${deltaChip}`,
+          t("payoutDigest.compareToLast", lang, {
+            prevAmount: fmtMoney(d.prevVolume, d.currencySymbol, d.displayCurrency),
+            prevCountLabel: paymentsLabel(d.prevCount),
+            delta: deltaChip,
+          }),
         )
       : d.hasActivity
-        ? p(`This is your first active week — welcome to the weekly digest. ${deltaChip}`)
+        ? p(t("payoutDigest.firstActiveWeek", lang, { delta: deltaChip }))
         : p(
-            `Nothing settled this week. Send a payment link to a customer and let's get the first one through: <a href="${FRONTEND_BASE_URL}/create-pay-link" style="color:${EMAIL_TOKENS.brand};font-weight:600;">Create a payment link →</a>`,
+            t("payoutDigest.nothingSettled", lang, {
+              link: `<a href="${FRONTEND_BASE_URL}/create-pay-link" style="color:${EMAIL_TOKENS.brand};font-weight:600;">${t("payoutDigest.createPayLink", lang)}</a>`,
+            }),
           );
 
     // Info box: quick summary + link
     const heroInfo = infoBox(
       `
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        ${dataRow("Period", periodLabel)}
-        ${dataRow("Payments settled", `<strong>${d.settledCount}</strong>`)}
+        ${dataRow(t("payoutDigest.period", lang), periodLabel)}
+        ${dataRow(t("payoutDigest.paymentsSettled", lang), `<strong>${d.settledCount}</strong>`)}
         ${dataRow(
-          "Change vs prior week",
-          d.hasPriorActivity ? deltaChip : "New this week",
+          t("payoutDigest.changeVsPrior", lang),
+          d.hasPriorActivity ? deltaChip : t("payoutDigest.newThisWeek", lang),
           true,
         )}
       </table>
@@ -405,24 +414,22 @@ export async function sendPayoutDigestEmail(
     );
 
     const heading = d.hasActivity
-      ? `Your weekly payout digest`
-      : `Weekly payout digest — quiet week`;
+      ? t("payoutDigest.headingActive", lang)
+      : t("payoutDigest.headingQuiet", lang);
 
     const content = `
-      ${p(`Hey ${d.name || "there"},`)}
-      ${p(`Here's how the last 7 days looked for your business on DynoPay.`)}
+      ${p(d.name ? t("common.greeting", lang, { name: d.name }) : t("common.greetingDefault", lang))}
+      ${p(t("payoutDigest.intro", lang))}
       ${statsRow}
       ${heroInfo}
       ${topCoinsSection}
       ${compareRow}
-      ${p(
-        `Open your dashboard to explore transactions, adjust wallets, or share a new payment link.`,
-      )}
+      ${p(t("payoutDigest.openDashboardBody", lang))}
     `;
 
     const html = baseEmailTemplate(heading, content, {
       showButton: true,
-      buttonText: "Open dashboard",
+      buttonText: t("payoutDigest.openDashboard", lang),
       buttonLink: `${FRONTEND_BASE_URL}/dashboard`,
     });
 

@@ -563,5 +563,46 @@
     "intro": "Votre contribution à <strong>{{campaignName}}</strong> vient d'être reçue — merci de soutenir cette campagne.",
     "outro": "L'organisateur peut vous envoyer des mises à jour pour que vous voyiez à quoi sert votre soutien.",
     "contact": "Des questions ? Répondez à cet e-mail et l'organisateur de {{campaignName}} vous répondra."
+  },
+  "walletOtp": {
+    "subject": "Code de validation de l'adresse du portefeuille",
+    "heading": "Code de vérification du portefeuille",
+    "intro": "Vous validez une nouvelle adresse de portefeuille pour {{currency}}.",
+    "walletAddress": "Adresse du portefeuille",
+    "currency": "Devise",
+    "expiry": "Ce code expirera dans {{minutes}} minutes."
+  },
+  "overpayment": {
+    "merchantSubject": "Trop-perçu reçu — {{excess}} en plus",
+    "merchantHeading": "Un client a trop payé",
+    "merchantIntro": "Un client vient d'effectuer un paiement à {{company}} et a envoyé PLUS que le montant dû.",
+    "overpaidBy": "Payé en trop",
+    "statusOverpaid": "Trop-perçu",
+    "merchantBody": "Le montant total attendu vous a été crédité. Le surplus de {{excess}} (≈ {{excessFiat}}) a été transféré à DynoPay conformément à la politique de trop-perçu de votre compte ; vous n'avez donc rien à faire.",
+    "viewTransactions": "Voir les transactions"
+  },
+  "payoutDigest": {
+    "subjectActive": "Récapitulatif hebdomadaire des versements — {{amount}}",
+    "subjectQuiet": "Récapitulatif hebdomadaire des versements — une semaine calme avant une nouvelle",
+    "headingActive": "Votre récapitulatif hebdomadaire des versements",
+    "headingQuiet": "Récapitulatif hebdomadaire des versements — semaine calme",
+    "intro": "Voici à quoi ont ressemblé les 7 derniers jours pour votre activité sur DynoPay.",
+    "settledThisWeek": "Réglé cette semaine",
+    "platformFees": "Frais de la plateforme",
+    "feeTierContext": "Palier {{name}} — {{percent}} %",
+    "thisPeriod": "Cette période",
+    "period": "Période",
+    "paymentsSettled": "Paiements réglés",
+    "changeVsPrior": "Évolution vs semaine précédente",
+    "newThisWeek": "Nouveau cette semaine",
+    "totalTopCoins": "Total des principales cryptos",
+    "paymentSingular": "paiement",
+    "paymentPlural": "paiements",
+    "compareToLast": "Par rapport à la semaine dernière ({{prevAmount}}, {{prevCountLabel}}) : {{delta}}",
+    "firstActiveWeek": "C'est votre première semaine active — bienvenue dans le récapitulatif hebdomadaire. {{delta}}",
+    "nothingSettled": "Rien de réglé cette semaine. Envoyez un lien de paiement à un client et concluons le premier : {{link}}",
+    "createPayLink": "Créer un lien de paiement →",
+    "openDashboardBody": "Ouvrez votre tableau de bord pour explorer les transactions, ajuster les portefeuilles ou partager un nouveau lien de paiement.",
+    "openDashboard": "Ouvrir le tableau de bord"
   }
 }

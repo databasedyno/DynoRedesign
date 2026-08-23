@@ -563,5 +563,46 @@
     "intro": "Your contribution to <strong>{{campaignName}}</strong> just landed — thank you for supporting this campaign.",
     "outro": "The organizer may email you campaign updates so you can see where your support is going.",
     "contact": "Questions? Reply to this email and the organizer of {{campaignName}} will get back to you."
+  },
+  "walletOtp": {
+    "subject": "OTP for Wallet Address Validation",
+    "heading": "Wallet Verification Code",
+    "intro": "You are validating a new wallet address for {{currency}}.",
+    "walletAddress": "Wallet Address",
+    "currency": "Currency",
+    "expiry": "This code will expire in {{minutes}} minutes."
+  },
+  "overpayment": {
+    "merchantSubject": "Overpayment received — {{excess}} extra",
+    "merchantHeading": "A customer overpaid",
+    "merchantIntro": "A customer just completed a payment to {{company}} and sent MORE than the amount due.",
+    "overpaidBy": "Overpaid by",
+    "statusOverpaid": "Overpaid",
+    "merchantBody": "You've been credited your full expected amount. The extra {{excess}} (≈ {{excessFiat}}) was routed to DynoPay per your account's overpayment policy, so there's nothing you need to do.",
+    "viewTransactions": "View transactions"
+  },
+  "payoutDigest": {
+    "subjectActive": "Weekly payout digest — {{amount}}",
+    "subjectQuiet": "Weekly payout digest — quiet week ahead of a new one",
+    "headingActive": "Your weekly payout digest",
+    "headingQuiet": "Weekly payout digest — quiet week",
+    "intro": "Here's how the last 7 days looked for your business on DynoPay.",
+    "settledThisWeek": "Settled this week",
+    "platformFees": "Platform fees",
+    "feeTierContext": "{{name}} tier — {{percent}}%",
+    "thisPeriod": "This period",
+    "period": "Period",
+    "paymentsSettled": "Payments settled",
+    "changeVsPrior": "Change vs prior week",
+    "newThisWeek": "New this week",
+    "totalTopCoins": "Total across top coins",
+    "paymentSingular": "payment",
+    "paymentPlural": "payments",
+    "compareToLast": "Compared to last week ({{prevAmount}}, {{prevCountLabel}}): {{delta}}",
+    "firstActiveWeek": "This is your first active week — welcome to the weekly digest. {{delta}}",
+    "nothingSettled": "Nothing settled this week. Send a payment link to a customer and let's get the first one through: {{link}}",
+    "createPayLink": "Create a payment link →",
+    "openDashboardBody": "Open your dashboard to explore transactions, adjust wallets, or share a new payment link.",
+    "openDashboard": "Open dashboard"
   }
 }

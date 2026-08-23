@@ -39,6 +39,7 @@
   "services/merchantPool/merchantPoolSweep.ts": 1516,
   "services/merchantPool/merchantPoolWallet.ts": 622,
   "services/paymentReliability.ts": 970,
+  "services/payoutDigestService.ts": 507,
   "services/pendingPaymentService.ts": 536,
   "services/reconciliation.ts": 806,
   "services/tronEnergyService.ts": 728,

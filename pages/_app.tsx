@@ -69,6 +69,7 @@ import { SessionProvider } from "next-auth/react";
 import { Provider } from "react-redux";
 
 import LanguageBootstrap from "@/helpers/LanguageBootstrap";
+import LanguageOnboardingBar from "@/Components/UI/LanguageOnboardingBar";
 import { enforceSessionPersistence } from "@/helpers/authPersistence";
 import store from "@/store";
 import ErrorBoundary from "@/Components/ErrorBoundary";
@@ -630,6 +631,7 @@ export default function App({
                   <CompanyDataProvider>
                     <WalletDataProvider>
                       <AppInner {...(props as AppPropsWithLayout)} />
+                      <LanguageOnboardingBar />
                     </WalletDataProvider>
                   </CompanyDataProvider>
                 </SWRConfig>

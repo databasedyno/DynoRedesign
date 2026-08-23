@@ -563,5 +563,46 @@
     "intro": "Je bijdrage aan <strong>{{campaignName}}</strong> is zojuist binnengekomen — bedankt voor je steun.",
     "outro": "De organisator kan je campagne-updates sturen zodat je ziet waar je steun naartoe gaat.",
     "contact": "Vragen? Beantwoord deze e-mail en de organisator van {{campaignName}} reageert."
+  },
+  "walletOtp": {
+    "subject": "Code voor validatie van walletadres",
+    "heading": "Verificatiecode wallet",
+    "intro": "Je valideert een nieuw walletadres voor {{currency}}.",
+    "walletAddress": "Walletadres",
+    "currency": "Valuta",
+    "expiry": "Deze code verloopt over {{minutes}} minuten."
+  },
+  "overpayment": {
+    "merchantSubject": "Te veel betaald ontvangen — {{excess}} extra",
+    "merchantHeading": "Een klant heeft te veel betaald",
+    "merchantIntro": "Een klant heeft zojuist een betaling aan {{company}} voltooid en MEER dan het verschuldigde bedrag verzonden.",
+    "overpaidBy": "Te veel betaald",
+    "statusOverpaid": "Te veel betaald",
+    "merchantBody": "Het volledige verwachte bedrag is aan je bijgeschreven. Het overschot van {{excess}} (≈ {{excessFiat}}) is volgens het beleid voor te veel betalen van je account doorgestuurd naar DynoPay, dus je hoeft niets te doen.",
+    "viewTransactions": "Transacties bekijken"
+  },
+  "payoutDigest": {
+    "subjectActive": "Wekelijks uitbetalingsoverzicht — {{amount}}",
+    "subjectQuiet": "Wekelijks uitbetalingsoverzicht — een rustige week voor een nieuwe",
+    "headingActive": "Je wekelijkse uitbetalingsoverzicht",
+    "headingQuiet": "Wekelijks uitbetalingsoverzicht — rustige week",
+    "intro": "Zo zagen de afgelopen 7 dagen eruit voor je bedrijf op DynoPay.",
+    "settledThisWeek": "Deze week afgewikkeld",
+    "platformFees": "Platformkosten",
+    "feeTierContext": "{{name}}-niveau — {{percent}}%",
+    "thisPeriod": "Deze periode",
+    "period": "Periode",
+    "paymentsSettled": "Afgewikkelde betalingen",
+    "changeVsPrior": "Wijziging t.o.v. vorige week",
+    "newThisWeek": "Nieuw deze week",
+    "totalTopCoins": "Totaal van de topcoins",
+    "paymentSingular": "betaling",
+    "paymentPlural": "betalingen",
+    "compareToLast": "Vergeleken met vorige week ({{prevAmount}}, {{prevCountLabel}}): {{delta}}",
+    "firstActiveWeek": "Dit is je eerste actieve week — welkom bij het wekelijkse overzicht. {{delta}}",
+    "nothingSettled": "Deze week is er niets afgewikkeld. Stuur een klant een betaallink en laten we de eerste binnenhalen: {{link}}",
+    "createPayLink": "Een betaallink maken →",
+    "openDashboardBody": "Open je dashboard om transacties te bekijken, wallets aan te passen of een nieuwe betaallink te delen.",
+    "openDashboard": "Dashboard openen"
   }
 }
